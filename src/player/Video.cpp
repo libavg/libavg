@@ -59,7 +59,7 @@ NodeDefinition Video::createDefinition()
         ;
 }
 
-Video::Video(const ArgList& Args, bool bFromXML)
+Video::Video(const ArgList& Args)
     : m_Filename(""),
       m_bEOFPending(false),
       m_pEOFCallback(0),

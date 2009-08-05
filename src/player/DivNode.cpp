@@ -55,7 +55,7 @@ NodeDefinition DivNode::createDefinition()
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
-DivNode::DivNode(const ArgList& Args, bool)
+DivNode::DivNode(const ArgList& Args)
 {
     Args.setMembers(this);
     setElementOutlineColor(m_sElementOutlineColor);

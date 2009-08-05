@@ -43,7 +43,7 @@ NodeDefinition LineNode::createDefinition()
         ;
 }
 
-LineNode::LineNode(const ArgList& Args, bool bFromXML)
+LineNode::LineNode(const ArgList& Args)
     : VectorNode(Args)
 {
     Args.setMembers(this);

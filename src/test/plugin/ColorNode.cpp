@@ -47,7 +47,7 @@ class ColorNode : public AreaNode
 public:
     static NodeDefinition createNodeDefinition();
     
-    ColorNode(const ArgList& Args, bool bFromXML);
+    ColorNode(const ArgList& Args);
 
     void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
@@ -66,7 +66,7 @@ protected:
     float m_FloatParam;
 };
 
-ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
+ColorNode::ColorNode(const ArgList& Args) :
     m_sFillColorName("FFFFFF")
 {   
     AVG_TRACE(Logger::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor")); 

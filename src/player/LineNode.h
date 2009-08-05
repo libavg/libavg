@@ -34,7 +34,7 @@ class AVG_API LineNode : public VectorNode
     public:
         static NodeDefinition createDefinition();
         
-        LineNode(const ArgList& Args, bool bFromXML);
+        LineNode(const ArgList& Args);
         virtual ~LineNode();
 
         const DPoint& getPos1() const;

@@ -39,7 +39,7 @@ class AVG_API Words : public RasterNode
     public:
         static NodeDefinition createDefinition();
         
-        Words(const ArgList& Args, bool bFromXMLNodeValue);
+        Words(const ArgList& Args);
         virtual ~Words();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

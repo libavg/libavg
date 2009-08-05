@@ -49,7 +49,7 @@ NodeDefinition CurveNode::createDefinition()
         .addArg(Arg<double>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
 }
 
-CurveNode::CurveNode(const ArgList& Args, bool bFromXML)
+CurveNode::CurveNode(const ArgList& Args)
    : VectorNode(Args)
 {
     Args.setMembers(this);

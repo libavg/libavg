@@ -43,7 +43,7 @@ NodeDefinition CircleNode::createDefinition()
         ;
 }
 
-CircleNode::CircleNode(const ArgList& Args, bool bFromXML)
+CircleNode::CircleNode(const ArgList& Args)
     : FilledVectorNode(Args)
 {
     Args.setMembers(this);

@@ -40,7 +40,7 @@ class AVG_API PanoImage: public AreaNode
     public:
         static NodeDefinition createDefinition();
         
-        PanoImage(const ArgList& Args, bool bFromXML);
+        PanoImage(const ArgList& Args);
         virtual ~PanoImage();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

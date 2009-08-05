@@ -52,9 +52,9 @@ class AVG_API AreaNode: public Node
 {
     public:
         template<class NodeType>
-        static NodePtr buildNode(const ArgList& Args, bool bFromXML)
+        static NodePtr buildNode(const ArgList& Args)
         {
-            return NodePtr(new NodeType(Args, bFromXML));
+            return NodePtr(new NodeType(Args));
         }
         static NodeDefinition createDefinition();
         

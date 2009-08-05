@@ -43,7 +43,7 @@ class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
     public:
         static NodeDefinition createDefinition();
         
-        Video (const ArgList& Args, bool bFromXML);
+        Video (const ArgList& Args);
         virtual ~Video ();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

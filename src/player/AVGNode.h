@@ -35,7 +35,7 @@ class AVG_API AVGNode : public DivNode
     public:
         static NodeDefinition createDefinition();
         
-        AVGNode (const ArgList& Args, bool bFromXML);
+        AVGNode (const ArgList& Args);
         virtual ~AVGNode ();
 
         virtual std::string getEffectiveMediaDir();

@@ -38,7 +38,7 @@ class AVG_API Sound : public AreaNode, IFrameListener, IAudioSource
     public:
         static NodeDefinition createDefinition();
 
-        Sound (const ArgList& Args, bool bFromXML);
+        Sound (const ArgList& Args);
         virtual ~Sound ();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

@@ -41,7 +41,7 @@ class AVG_API CameraNode : public VideoBase
     public:
         static NodeDefinition createDefinition();
         
-        CameraNode(const ArgList& Args, bool bFromXML);
+        CameraNode(const ArgList& Args);
         virtual ~CameraNode();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,

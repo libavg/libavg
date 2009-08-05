@@ -46,7 +46,7 @@ NodeDefinition ImageNode::createDefinition()
         .addArg(Arg<string>("href", "", false, offsetof(ImageNode, m_href)));
 }
 
-ImageNode::ImageNode(const ArgList& Args, bool bFromXML)
+ImageNode::ImageNode(const ArgList& Args)
 {
     m_pImage = ImagePtr(new Image(getSurface(), "", true));
     Args.setMembers(this);

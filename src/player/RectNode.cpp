@@ -47,7 +47,7 @@ NodeDefinition RectNode::createDefinition()
         ;
 }
 
-RectNode::RectNode(const ArgList& Args, bool bFromXML)
+RectNode::RectNode(const ArgList& Args)
     : FilledVectorNode(Args)
 {
     Args.setMembers(this);

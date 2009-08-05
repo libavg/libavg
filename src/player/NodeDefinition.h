@@ -34,7 +34,7 @@
 
 namespace avg {
 
-typedef NodePtr (*NodeBuilder)(const ArgList& Args, bool bFromXML);
+typedef NodePtr (*NodeBuilder)(const ArgList& Args);
 typedef std::map<std::string, NodeDefinition> ChildMap;
 
 class AVG_API NodeDefinition
