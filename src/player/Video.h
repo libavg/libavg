@@ -30,7 +30,7 @@
 #include "VideoBase.h"
 
 #include "../base/Point.h"
-#include "../base/IFrameListener.h"
+#include "../base/IFrameEndListener.h"
 
 #include "../audio/IAudioSource.h"
 
@@ -38,7 +38,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
+class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();

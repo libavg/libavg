@@ -67,13 +67,13 @@ Sound::Sound(const ArgList& Args)
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
 
-    Player::get()->registerFrameListener(this);
+    Player::get()->registerFrameEndListener(this);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Sound::~Sound()
 {
-    Player::get()->unregisterFrameListener(this);
+    Player::get()->unregisterFrameEndListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;

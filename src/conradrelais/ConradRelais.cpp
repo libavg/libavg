@@ -54,7 +54,7 @@ ConradRelais::ConradRelais(Player * pPlayer, int port)
     } else {
         initBoard();
         if (m_File != -1) {
-            pPlayer->registerFrameListener(this);
+            pPlayer->registerFrameEndListener(this);
         }
     }
 }
@@ -63,7 +63,7 @@ ConradRelais::~ConradRelais()
 {
     if (m_File != -1) {
         send();
-        m_pPlayer->unregisterFrameListener(this);
+        m_pPlayer->unregisterFrameEndListener(this);
         close(m_File);
         m_File = -1;
     }

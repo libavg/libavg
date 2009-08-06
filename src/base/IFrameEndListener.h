@@ -19,14 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IFrameListener_H_ 
-#define _IFrameListener_H_
+#ifndef _IFrameEndListener_H_ 
+#define _IFrameEndListener_H_
 
 namespace avg {
     
-class AVG_API IFrameListener {
+class AVG_API IFrameEndListener {
 public:
-    virtual ~IFrameListener() {};
+    virtual ~IFrameEndListener() {};
     virtual void onFrameEnd() = 0;
 };
 

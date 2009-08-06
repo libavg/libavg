@@ -30,14 +30,12 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 #include "../base/FileHelper.h"
+#include "../base/MathHelper.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
 #include <math.h>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -104,7 +102,7 @@ class DeDistortTest: public Test {
             TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
 
             DeDistort Rotator = DeDistort(DPoint(1,1),
-                Params, 0, M_PI/2,
+                Params, 0, PI/2,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){

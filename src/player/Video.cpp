@@ -77,13 +77,13 @@ Video::Video(const ArgList& Args)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    Player::get()->registerFrameListener(this);
+    Player::get()->registerFrameEndListener(this);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Video::~Video()
 {
-    Player::get()->unregisterFrameListener(this);
+    Player::get()->unregisterFrameEndListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;

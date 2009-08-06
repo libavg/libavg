@@ -24,6 +24,7 @@ void export_event();
 #ifndef WIN32
 void export_devices();
 #endif
+void export_anim();
 
 #include "WrapHelper.h"
 
@@ -152,6 +153,7 @@ BOOST_PYTHON_MODULE(avg)
 #endif
     export_event();
     export_node();
+    export_anim();
 
     class_<TestHelper>("TestHelper", "Miscelaneous routines used by tests.", no_init)
         .def("useFakeCamera", &TestHelper::useFakeCamera, "")
