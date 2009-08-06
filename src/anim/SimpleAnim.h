@@ -68,7 +68,7 @@ public:
 
 protected:
     double getStartTime() const;
-    double getDuration() const;
+    long long getDuration() const;
     void setValue(const boost::python::object& val);
     boost::python::object getValue() const;
 

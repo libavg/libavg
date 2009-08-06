@@ -102,7 +102,7 @@ double SimpleAnim::getStartTime() const
     return m_StartTime;
 }
 
-double SimpleAnim::getDuration() const
+long long SimpleAnim::getDuration() const
 {
     return m_Duration;
 }
@@ -177,7 +177,7 @@ long long SimpleAnim::calcStartTime()
         throw (Exception(AVG_ERR_TYPE, 
                     "Animated attributes must be either numbers or Point2D."));
     }
-    return (long long)(Player::get()->getFrameTime()-part*getDuration());
+    return Player::get()->getFrameTime()-(long long)(part*getDuration());
 }
 
 void SimpleAnim::remove() 
