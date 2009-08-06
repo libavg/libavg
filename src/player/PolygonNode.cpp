@@ -48,7 +48,7 @@ NodeDefinition PolygonNode::createDefinition()
         ;
 }
 
-PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
+PolygonNode::PolygonNode(const ArgList& Args)
     : FilledVectorNode(Args)
 {
     Args.setMembers(this);

@@ -100,7 +100,7 @@ NodeDefinition Words::createDefinition()
         ;
 }
 
-Words::Words(const ArgList& Args, bool bFromXML)
+Words::Words(const ArgList& Args)
     : m_StringExtents(0,0),
       m_pFontDescription(0),
       m_pLayout(0),

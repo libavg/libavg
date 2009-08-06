@@ -54,7 +54,7 @@ NodeDefinition Sound::createDefinition()
         ;
 }
 
-Sound::Sound(const ArgList& Args, bool bFromXML)
+Sound::Sound(const ArgList& Args)
     : m_Filename(""),
       m_pEOFCallback(0),
       m_pDecoder(0),

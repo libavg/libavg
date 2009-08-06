@@ -46,7 +46,7 @@ NodeDefinition PolyLineNode::createDefinition()
         ;
 }
 
-PolyLineNode::PolyLineNode(const ArgList& Args, bool bFromXML)
+PolyLineNode::PolyLineNode(const ArgList& Args)
     : VectorNode(Args)
 {
     Args.setMembers(this);

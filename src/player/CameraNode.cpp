@@ -66,7 +66,7 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("strobeduration", -1));
 }
 
-CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
+CameraNode::CameraNode(const ArgList& Args)
     : m_FrameNum(0)
 {
     Args.setMembers(this);

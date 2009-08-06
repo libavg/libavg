@@ -66,9 +66,9 @@ class AVG_API Node
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
         
         template<class NodeType>
-        static NodePtr buildNode(const ArgList& Args, bool bFromXML)
+        static NodePtr buildNode(const ArgList& Args)
         {
-            return NodePtr(new NodeType(Args, bFromXML));
+            return NodePtr(new NodeType(Args));
         }
         static NodeDefinition createDefinition();
         

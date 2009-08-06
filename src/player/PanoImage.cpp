@@ -57,7 +57,7 @@ NodeDefinition PanoImage::createDefinition()
         .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImage, m_Rotation)));
 }
 
-PanoImage::PanoImage (const ArgList& Args, bool bFromXML)
+PanoImage::PanoImage (const ArgList& Args)
 {
     Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));

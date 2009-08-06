@@ -35,7 +35,7 @@ class AVG_API DivNode : public AreaNode
     public:
         static NodeDefinition createDefinition();
         
-        DivNode(const ArgList& Args, bool bFromXML);
+        DivNode(const ArgList& Args);
         virtual ~DivNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
