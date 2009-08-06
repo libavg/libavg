@@ -75,6 +75,14 @@ std::vector<std::vector<T> > vector2DFromCArray(int n, int m, T* pData)
     return v;
 }
 
+#ifndef round
+template<class T>
+T round(T d)
+{
+    return floor( d + 0.5 );
+}
+#endif
+
 }
 #endif
 

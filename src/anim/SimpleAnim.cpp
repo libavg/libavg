@@ -163,7 +163,7 @@ void SimpleAnim::step()
     }
 }
 
-double SimpleAnim::calcStartTime()
+long long SimpleAnim::calcStartTime()
 {
     double part;
     if (isPythonType<double>(m_StartValue)) {
@@ -177,7 +177,7 @@ double SimpleAnim::calcStartTime()
         throw (Exception(AVG_ERR_TYPE, 
                     "Animated attributes must be either numbers or Point2D."));
     }
-    return Player::get()->getFrameTime()-part*getDuration();
+    return (long long)(Player::get()->getFrameTime()-part*getDuration());
 }
 
 void SimpleAnim::remove() 

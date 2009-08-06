@@ -76,7 +76,7 @@ protected:
     void remove();
     
 private:
-    virtual double calcStartTime();
+    virtual long long calcStartTime();
     void step();
 
     boost::python::object m_Node;
