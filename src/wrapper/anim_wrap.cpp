@@ -25,6 +25,7 @@
 #include "../anim/LinearAnim.h"
 #include "../anim/EaseInOutAnim.h"
 #include "../anim/WaitAnim.h"
+#include "../anim/GroupAnim.h"
 #include "../anim/ParallelAnim.h"
 #include "../anim/StateAnim.h"
 
@@ -114,8 +115,12 @@ void export_anim()
         .def(init<long long, const object&, const object&>())
         .def("start", &WaitAnim::start, wait_start_overloads(args("bKeepAttr")))
         ;
+    
+    class_<GroupAnim, bases<Anim>, boost::noncopyable>("GroupAnim", no_init)
+        .def("childStopped", &GroupAnim::childStopped)
+        ;
 
-    class_<ParallelAnim, bases<Anim>, boost::noncopyable>("ParallelAnim", no_init)
+    class_<ParallelAnim, bases<GroupAnim>, boost::noncopyable>("ParallelAnim", no_init)
         .def(init<vector<AnimPtr> >())
         .def(init<vector<AnimPtr>, const object&>())
         .def(init<vector<AnimPtr>, const object&, const object&>())
@@ -128,7 +133,7 @@ void export_anim()
         .def(init<const string&, AnimPtr, const string& >())
         ;
 
-    class_<StateAnim, bases<Anim>, boost::noncopyable>("StateAnim", no_init)
+    class_<StateAnim, bases<GroupAnim>, boost::noncopyable>("StateAnim", no_init)
         .def(init<vector<AnimState> >())
         .def("setState", &StateAnim::setState, setState_overloads(args("bKeepAttr")))
         .def("getState", make_function(&StateAnim::getState,

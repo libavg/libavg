@@ -20,6 +20,8 @@
 
 #include "Anim.h"
 
+#include "GroupAnim.h"
+
 #include "../base/Exception.h"
 #include "../player/Player.h"
 
@@ -31,7 +33,8 @@ namespace avg {
 Anim::Anim(const object& startCallback, const object& stopCallback)
     : m_StartCallback(startCallback),
       m_StopCallback(stopCallback),
-      m_bRunning(false)
+      m_bRunning(false),
+      m_pParent(0)
 {
 }
 
@@ -66,9 +69,17 @@ bool Anim::isRunning() const
     return m_bRunning;
 }
 
+void Anim::setParent(GroupAnim* pParent)
+{
+    m_pParent = pParent;
+}
+
 void Anim::setStopped()
 {
     m_bRunning = false;
+    if (m_pParent) {
+        m_pParent->childStopped(this);
+    }
     if (m_StopCallback != object()) {
         call<void>(m_StopCallback.ptr());
     }

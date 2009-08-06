@@ -235,6 +235,7 @@ class AnimTestCase(AVGTestCase):
                             100, 50), "STATE3"),
                      avg.AnimState("STATE3", avg.WaitAnim())
                     ])
+#            self.anim.setDebug(True)
 
         self.initScene()
         self.__state2CallbackCalled = False
@@ -244,7 +245,6 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.anim.setState("STATE1"),
                  None,
                  lambda: self.compareImage("testStateAnimC2", False),
-                 None,
                  lambda: self.assert_(self.anim.getState() == "STATE2"),
                  lambda: self.compareImage("testStateAnimC3", False),
                  lambda: self.assert_(self.__state2CallbackCalled),
@@ -294,7 +294,6 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assert_(avg.getNumRunningAnims() == 3),
                  lambda: self.compareImage("testParallelAnimC1", False),
                  lambda: self.assert_(self.anim.isRunning()),
-                 None,
                  None,
                  None,
                  lambda: self.assert_(not(self.anim.isRunning())),

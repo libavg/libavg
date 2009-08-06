@@ -36,6 +36,8 @@
 
 namespace avg {
 
+class GroupAnim;
+
 class AVG_API Anim {
 public:
     static int getNumRunningAnims();
@@ -49,6 +51,7 @@ public:
     virtual void start(bool bKeepAttr=false);
     virtual void abort() = 0;
     bool isRunning() const;
+    void setParent(GroupAnim* pParent);
 
 protected:
     void setStopped();
@@ -57,6 +60,7 @@ private:
     boost::python::object m_StartCallback;
     boost::python::object m_StopCallback;
     bool m_bRunning;
+    GroupAnim* m_pParent;
 };
 
 typedef boost::shared_ptr<class Anim> AnimPtr;

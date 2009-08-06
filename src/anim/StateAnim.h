@@ -24,9 +24,7 @@
 
 #include "../api.h"
 
-#include "Anim.h"
-
-#include "../base/IPreRenderListener.h"
+#include "GroupAnim.h"
 
 #include <vector>
 
@@ -41,7 +39,7 @@ struct AVG_API AnimState {
     std::string m_sNextName;
 };
 
-class AVG_API StateAnim: public Anim, IPreRenderListener {
+class AVG_API StateAnim: public GroupAnim {
 public:
     StateAnim(const std::vector<AnimState>& states);
     virtual ~StateAnim();
@@ -53,7 +51,7 @@ public:
 
     void setDebug(bool bDebug);
     
-    virtual void onPreRender();
+    virtual void childStopped(Anim* pChild);
 
 private:
     void switchToNewState(const std::string& sName, bool bKeepAttr);

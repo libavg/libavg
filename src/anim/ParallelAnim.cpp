@@ -30,10 +30,14 @@ namespace avg {
 
 ParallelAnim::ParallelAnim(const vector<AnimPtr>& anims,
             const object& startCallback, const object& stopCallback, long long maxAge)
-    : Anim(startCallback, stopCallback),
+    : GroupAnim(startCallback, stopCallback),
       m_Anims(anims),
       m_MaxAge(maxAge)
 {
+    vector<AnimPtr>::iterator it;
+    for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
+        (*it)->setParent(this);
+    }
 }
 
 ParallelAnim::~ParallelAnim()
@@ -55,20 +59,35 @@ void ParallelAnim::start(bool bKeepAttr)
 void ParallelAnim::abort()
 {
     if (isRunning()) {
-        Player::get()->unregisterPreRenderListener(this);
+//        Player::get()->unregisterPreRenderListener(this);
         vector<AnimPtr>::iterator it;
         for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
             (*it)->abort();
         }
-        setStopped();
+//        setStopped();
     }
 }
     
 void ParallelAnim::onPreRender()
 {
     assert(isRunning());
-    bool bAllDone = true;
+    if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
+        abort();
+    }
+}
+
+void ParallelAnim::childStopped(Anim* pChild)
+{
+    bool bFound = false;
     vector<AnimPtr>::iterator it;
+    for (it=m_Anims.begin(); it != m_Anims.end() && !bFound; ++it) {
+        if (&(**it) == pChild) {
+            bFound = true;
+        }
+    }
+    assert(bFound);
+
+    bool bAllDone = true;
     for (it=m_Anims.begin(); it != m_Anims.end() && bAllDone; ++it) {
         if ((*it)->isRunning()) {
             bAllDone = false;
@@ -77,10 +96,6 @@ void ParallelAnim::onPreRender()
     if (bAllDone) {
         Player::get()->unregisterPreRenderListener(this);
         setStopped();
-    } else {
-        if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
-            abort();
-        }
     }
 }
 

@@ -19,37 +19,27 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ParallelAnim_H_
-#define _ParallelAnim_H_
+#ifndef _GroupAnim_H_
+#define _GroupAnim_H_
 
 #include "../api.h"
 
-#include "GroupAnim.h"
+#include "Anim.h"
 #include "../base/IPreRenderListener.h"
 
 #include <vector>
 
 namespace avg {
 
-class AVG_API ParallelAnim: public GroupAnim, IPreRenderListener {
+class AVG_API GroupAnim: public Anim {
 public:
-    ParallelAnim(const std::vector<AnimPtr>& anims,
-            const boost::python::object& startCallback=boost::python::object(), 
-            const boost::python::object& stopCallback=boost::python::object(),
-            long long maxAge=-1);
-    virtual ~ParallelAnim();
+    GroupAnim(const boost::python::object& startCallback=boost::python::object(), 
+            const boost::python::object& stopCallback=boost::python::object());
+    virtual ~GroupAnim() {};
     
-    virtual void start(bool bKeepAttr=false);
-    virtual void abort();
-    
-    virtual void onPreRender();
-    virtual void childStopped(Anim* pChild);
+    virtual void childStopped(Anim* pChild)=0;
 
 private:
-    std::vector<AnimPtr> m_Anims;
-    long long m_MaxAge;
-
-    long long m_StartTime;
 };
 
 }

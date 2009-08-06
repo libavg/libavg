@@ -41,12 +41,13 @@ AnimState::AnimState()
 }
 
 StateAnim::StateAnim(const vector<AnimState>& states)
-    : Anim(object(), object()),
+    : GroupAnim(object(), object()),
       m_bDebug(false)
 {
     vector<AnimState>::const_iterator it;
     for (it=states.begin(); it != states.end(); ++it) {
         m_States[(*it).m_sName] = *it;
+        it->m_pAnim->setParent(this);
     }
 }
 
@@ -82,13 +83,10 @@ void StateAnim::setDebug(bool bDebug)
 }
     
 
-void StateAnim::onPreRender()
+void StateAnim::childStopped(Anim* pChild)
 {
     const AnimState& curState = m_States[m_sCurStateName];
-    if (!curState.m_pAnim->isRunning()) {
-        switchToNewState(curState.m_sNextName, false);
-
-    }
+    switchToNewState(curState.m_sNextName, false);
 }
 
 void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
@@ -97,11 +95,7 @@ void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
         cerr << this << " State change: '" << m_sCurStateName << "' --> '" << sName 
                 << "'" << endl;
     }
-    if (!m_sCurStateName.empty()) {
-        Player::get()->unregisterPreRenderListener(this);
-    }
     if (!sName.empty()) {
-        Player::get()->registerPreRenderListener(this);
         map<string, AnimState>::iterator it = m_States.find(sName);
         if (it == m_States.end()) {
             throw Exception(AVG_ERR_INVALID_ARGS, "StateAnim: State "+sName+" unknown.");
