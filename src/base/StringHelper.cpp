@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <algorithm>
+#include <cstdio>
 
 using namespace std;
 
