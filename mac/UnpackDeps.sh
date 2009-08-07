@@ -30,5 +30,8 @@ cd ..
 cd ffmpeg/libswscale
 patch -p0 <../../../libavg/mac/ffmpeg.broken-yuv.patch
 cd ../..
+cd SDL-1.2.13/src/video/quartz
+patch -p0 < ../../../../../libavg/mac/SDL_QuartzVideo.patch
+cd ../../../..
 
 echo "Done"

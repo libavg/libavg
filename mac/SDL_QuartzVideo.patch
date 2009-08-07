@@ -1,0 +1,26 @@
+--- SDL_QuartzVideoORG.m	2007-12-31 05:48:04.000000000 +0100
++++ SDL_QuartzVideo.m	2009-07-24 13:11:34.000000000 +0200
+@@ -181,9 +181,21 @@
+ 
+     NSRect r = NSMakeRect(0.0, 0.0, 0.0, 0.0);
+     const char *env = NULL;
+-
++	int monitor;
++	
+     /* Initialize the video settings; this data persists between mode switches */
+-    display_id = kCGDirectMainDisplay;
++	if (getenv ("SDL_VIDEO_FULLSCREEN_DISPLAY")){
++		CGDirectDisplayID activeDspys [3];
++		CGDisplayCount dspyCnt;
++		CGGetActiveDisplayList (3, activeDspys, &dspyCnt);
++		env = getenv ("SDL_VIDEO_FULLSCREEN_DISPLAY");
++		monitor = SDL_atoi(env)-1 ;
++		display_id = activeDspys[monitor];
++	}
++	else{
++		display_id = kCGDirectMainDisplay;
++	}
++		
+     save_mode  = CGDisplayCurrentMode    (display_id);
+     mode_list  = CGDisplayAvailableModes (display_id);
+     palette    = CGPaletteCreateDefaultColorPalette ();
