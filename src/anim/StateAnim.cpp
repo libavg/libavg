@@ -42,7 +42,8 @@ AnimState::AnimState()
 
 StateAnim::StateAnim(const vector<AnimState>& states)
     : GroupAnim(object(), object()),
-      m_bDebug(false)
+      m_bDebug(false),
+      m_bIsAborting(false)
 {
     vector<AnimState>::const_iterator it;
     for (it=states.begin(); it != states.end(); ++it) {
@@ -67,7 +68,9 @@ void StateAnim::setState(const std::string& sName, bool bKeepAttr)
         return;
     }
     if (!m_sCurStateName.empty()) {
+        m_bIsAborting = true;
         m_States[m_sCurStateName].m_pAnim->abort();
+        m_bIsAborting = false;
     }
     switchToNewState(sName, bKeepAttr);
 }
@@ -85,8 +88,10 @@ void StateAnim::setDebug(bool bDebug)
 
 void StateAnim::childStopped(Anim* pChild)
 {
-    const AnimState& curState = m_States[m_sCurStateName];
-    switchToNewState(curState.m_sNextName, false);
+    if(!m_bIsAborting) {
+        const AnimState& curState = m_States[m_sCurStateName];
+        switchToNewState(curState.m_sNextName, false);
+    }
 }
 
 void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
