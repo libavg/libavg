@@ -249,20 +249,26 @@ class AnimTestCase(AVGTestCase):
                 ))
 
     def testStateAnim(self):
-        def state2Callback():
-            self.__state2CallbackCalled = True
+        def state1StopCallback():
+            self.__state1StopCallbackCalled = True
+        def state2StartCallback():
+            if self.__state1StopCallbackCalled:
+                self.__stop1Start2CallbackOrder = True
+            self.__state2StartCallbackCalled = True
         def makeAnim():
             self.anim = avg.StateAnim(
                     [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200, 
-                            0, 100, False, None, state2Callback), "STATE2"),
+                            0, 100, False, None, state1StopCallback), "STATE2"),
                      avg.AnimState("STATE2", avg.LinearAnim(self.__node, "x", 200, 
-                            100, 50), "STATE3"),
+                            100, 50, False, state2StartCallback), "STATE3"),
                      avg.AnimState("STATE3", avg.WaitAnim())
                     ])
 #            self.anim.setDebug(True)
 
         self.initScene()
-        self.__state2CallbackCalled = False
+        self.__state1StopCallbackCalled = False
+        self.__state2StartCallbackCalled = False
+        self.__stop1Start2CallbackOrder = False
         self.start(None,
                 (makeAnim,
                  lambda: self.compareImage("testStateAnimC1", False),
@@ -271,7 +277,9 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.compareImage("testStateAnimC2", False),
                  lambda: self.assert_(self.anim.getState() == "STATE2"),
                  lambda: self.compareImage("testStateAnimC3", False),
-                 lambda: self.assert_(self.__state2CallbackCalled),
+                 lambda: self.assert_(self.__state1StopCallbackCalled),
+                 lambda: self.assert_(self.__state2StartCallbackCalled),
+                 lambda: self.assert_(self.__stop1Start2CallbackOrder),
                  lambda: self.assert_(self.anim.getState() == "STATE3"),
                  lambda: self.compareImage("testStateAnimC4", False),
                  lambda: self.anim.setState("STATE1"),

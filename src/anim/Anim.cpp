@@ -77,11 +77,11 @@ void Anim::setParent(GroupAnim* pParent)
 void Anim::setStopped()
 {
     m_bRunning = false;
-    if (m_pParent) {
-        m_pParent->childStopped(this);
-    }
     if (m_StopCallback != object()) {
         call<void>(m_StopCallback.ptr());
+    }
+    if (m_pParent) {
+        m_pParent->childStopped(this);
     }
 }
 
