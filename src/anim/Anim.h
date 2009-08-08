@@ -30,21 +30,27 @@
 
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <string>
 #include <map>
 
 namespace avg {
 
+class Anim;
 class GroupAnim;
 
-class AVG_API Anim {
+typedef boost::shared_ptr<class Anim> AnimPtr;
+typedef boost::weak_ptr<class Anim> AnimWeakPtr;
+
+class AVG_API Anim: public boost::enable_shared_from_this<Anim> {
 public:
     static int getNumRunningAnims();
 
     Anim(const boost::python::object& startCallback, 
             const boost::python::object& stopCallback);
-    virtual ~Anim()=0;
+    virtual ~Anim();
 
     void setStartCallback(const boost::python::object& startCallback);
     void setStopCallback(const boost::python::object& stopCallback);
@@ -62,8 +68,6 @@ private:
     bool m_bRunning;
     GroupAnim* m_pParent;
 };
-
-typedef boost::shared_ptr<class Anim> AnimPtr;
 
 }
 

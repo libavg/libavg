@@ -28,8 +28,8 @@ using namespace std;
 
 namespace avg {
 
-WaitAnim::WaitAnim(long long duration,
-            const object& startCallback, const object& stopCallback)
+WaitAnim::WaitAnim(long long duration, const object& startCallback, 
+        const object& stopCallback)
     : Anim(startCallback, stopCallback),
       m_Duration(duration)
 {
@@ -37,6 +37,13 @@ WaitAnim::WaitAnim(long long duration,
 
 WaitAnim::~WaitAnim()
 {
+}
+    
+AnimPtr WaitAnim::create(long long duration, const boost::python::object& startCallback, 
+            const boost::python::object& stopCallback)
+{
+    AnimPtr pAnim = AnimPtr(new WaitAnim(duration, startCallback, stopCallback));
+    return pAnim;
 }
 
 void WaitAnim::start(bool bKeepAttr)

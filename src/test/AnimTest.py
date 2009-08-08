@@ -94,8 +94,32 @@ class AnimTestCase(AVGTestCase):
 
     def testLinearAnim(self):
         self.initScene()
-        curAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100, False)
+        curAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100)
         self.testAnimType(curAnim, "testLinearAnimC")
+
+    def testFadeIn(self):
+        self.initScene()
+        self.__node.opacity=0.5
+        self.start(None,
+                (lambda: avg.fadeIn(self.__node, 200, 1, None),
+                 lambda: self.compareImage("testFadeIn1", False),
+                 lambda: self.compareImage("testFadeIn2", False),
+                 lambda: self.compareImage("testFadeIn3", False),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0)
+                ))
+        self.__anim = None
+
+    def testFadeOut(self):
+        self.initScene()
+        self.__node.opacity=0.5
+        self.start(None,
+                (lambda: avg.fadeOut(self.__node, 200, None),
+                 lambda: self.compareImage("testFadeOut1", False),
+                 lambda: self.compareImage("testFadeOut2", False),
+                 lambda: self.compareImage("testFadeOut3", False),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0)
+                ))
+        self.__anim = None
 
     def testNonExistentAttributeAnim(self):
         self.initScene()
@@ -318,6 +342,8 @@ class AnimTestCase(AVGTestCase):
 def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
+        "testFadeIn",
+        "testFadeOut",
         "testNonExistentAttributeAnim",
         "testLinearAnimZeroDuration",
         "testPointAnim",

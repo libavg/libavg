@@ -30,20 +30,34 @@ namespace avg {
 
 class AVG_API LinearAnim: public SimpleAnim {
 public:
-    LinearAnim(const boost::python::object& node, const std::string& sAttrName, 
+    virtual ~LinearAnim();
+    
+    static AnimPtr create(const boost::python::object& node, const std::string& sAttrName,
             long long duration,
             const boost::python::object& pStartValue, 
             const boost::python::object& pEndValue, 
             bool bUseInt=false, 
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
-    virtual ~LinearAnim();
 
 protected:
+    LinearAnim(const boost::python::object& node, const std::string& sAttrName, 
+            long long duration,
+            const boost::python::object& pStartValue, 
+            const boost::python::object& pEndValue, 
+            bool bUseInt, 
+            const boost::python::object& startCallback, 
+            const boost::python::object& stopCallback);
     virtual double interpolate(double t);
     
 private:
 };
+
+AnimPtr fadeIn(const boost::python::object& node, long long duration, double max, 
+        const boost::python::object& stopCallback=boost::python::object());
+
+AnimPtr fadeOut(const boost::python::object& node, long long duration, 
+        const boost::python::object& stopCallback=boost::python::object());
 
 }
 

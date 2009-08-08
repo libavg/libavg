@@ -48,6 +48,9 @@ struct ObjAttrID {
     bool operator < (const ObjAttrID& other) const;
 };
 
+class SimpleAnim;
+typedef boost::shared_ptr<class SimpleAnim> SimpleAnimPtr;
+
 class AVG_API SimpleAnim: public Anim, IPreRenderListener {
 public:
     static int getNumRunningAnims();
@@ -87,7 +90,7 @@ private:
     bool m_bUseInt;
     long long m_StartTime;
 
-    typedef std::map<ObjAttrID, SimpleAnim*> AttrAnimationMap;
+    typedef std::map<ObjAttrID, SimpleAnimPtr> AttrAnimationMap;
     static AttrAnimationMap s_ActiveAnimations;
     static void abortAnim(const boost::python::object& node, 
             const std::string& sAttrName);

@@ -23,6 +23,7 @@
 #include "../base/Exception.h"
 #include "../player/Player.h"
 
+using namespace boost;
 using namespace boost::python;
 using namespace std;
 
@@ -70,7 +71,8 @@ void SimpleAnim::start(bool bKeepAttr)
 {
     Anim::start();
     abortAnim(m_Node, m_sAttrName);
-    s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = this;
+    s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = 
+            dynamic_pointer_cast<SimpleAnim>(shared_from_this());
     if (bKeepAttr) {
         m_StartTime = calcStartTime();
     } else {
@@ -167,7 +169,11 @@ long long SimpleAnim::calcStartTime()
 {
     double part;
     if (isPythonType<double>(m_StartValue)) {
-        part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+        if (m_EndValue == m_StartValue) {
+            part = 0;
+        } else {
+            part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+        }
     } else if (isPythonType<DPoint>(m_StartValue)) {
         double start = DPoint(extract<DPoint>(m_StartValue)).x;
         double end = DPoint(extract<DPoint>(m_EndValue)).x;

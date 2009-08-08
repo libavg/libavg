@@ -41,9 +41,9 @@ struct AVG_API AnimState {
 
 class AVG_API StateAnim: public GroupAnim {
 public:
-    StateAnim(const std::vector<AnimState>& states);
     virtual ~StateAnim();
-   
+    static AnimPtr create(const std::vector<AnimState>& states);
+
     virtual void abort();
 
     virtual void setState(const std::string& sName, bool bKeepAttr=false);
@@ -54,6 +54,8 @@ public:
     virtual void childStopped(Anim* pChild);
 
 private:
+    StateAnim(const std::vector<AnimState>& states);
+
     void switchToNewState(const std::string& sName, bool bKeepAttr);
 
     std::map<std::string, AnimState> m_States;

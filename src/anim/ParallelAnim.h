@@ -33,12 +33,12 @@ namespace avg {
 
 class AVG_API ParallelAnim: public GroupAnim, IPreRenderListener {
 public:
-    ParallelAnim(const std::vector<AnimPtr>& anims,
+    virtual ~ParallelAnim();
+    static AnimPtr create(const std::vector<AnimPtr>& anims,
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object(),
             long long maxAge=-1);
-    virtual ~ParallelAnim();
-    
+
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     
@@ -46,6 +46,11 @@ public:
     virtual void childStopped(Anim* pChild);
 
 private:
+    ParallelAnim(const std::vector<AnimPtr>& anims,
+            const boost::python::object& startCallback, 
+            const boost::python::object& stopCallback,
+            long long maxAge);
+
     std::vector<AnimPtr> m_Anims;
     long long m_MaxAge;
 

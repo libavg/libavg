@@ -44,6 +44,13 @@ ParallelAnim::~ParallelAnim()
 {
 }
 
+AnimPtr ParallelAnim::create(const vector<AnimPtr>& anims,
+            const object& startCallback, const object& stopCallback,
+            long long maxAge)
+{
+    return AnimPtr(new ParallelAnim(anims, startCallback, stopCallback, maxAge));
+}
+
 void ParallelAnim::start(bool bKeepAttr)
 {
     Anim::start();
