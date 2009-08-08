@@ -894,7 +894,7 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testMemoryQuery(self):
-        self.setUpVideo()
+        setUpVideo(Player)
         self.assert_(avg.getMemoryUsage() != 0)
 
     def testStopOnEscape(self):

@@ -70,6 +70,7 @@ def dumpConfig():
             <avg id="avg" width="160" height="120">
             </avg>
             """)
+    setUpVideo(Player)
     Player.setTimeout(0, Player.stop)
     Player.play()
    

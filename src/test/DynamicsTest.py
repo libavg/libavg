@@ -97,7 +97,7 @@ class DynamicsTestCase(AVGTestCase):
             self._loadEmpty()
             createNode1(useXml)
             Player.stop()
-            self.setUpVideo()
+            setUpVideo(Player)
             self._loadEmpty()
             Player.setFakeFPS(25)
             self.start(None,
@@ -301,7 +301,7 @@ class DynamicsTestCase(AVGTestCase):
         createDiv()
         removeDiv()
         Player.stop()
-        self.setUpVideo()
+        setUpVideo(Player)
         self._loadEmpty()
         Player.setFakeFPS(25)
         self.start(None,

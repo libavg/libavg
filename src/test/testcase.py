@@ -57,6 +57,11 @@ def almostEqual(a,b):
     except:
         return math.fabs(a-b) < 0.000001
 
+def setUpVideo(player):
+    if g_CustomOGLOptions:
+        player.setOGLOptions(g_UsePOW2Textures, g_UseShaders, g_UsePixelBuffers, 1)
+    player.setMultiSampleSamples(1)
+
 
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):
@@ -66,15 +71,9 @@ class AVGTestCase(unittest.TestCase):
         self.Log = avg.Logger.get()
         unittest.TestCase.__init__(self, testFuncName)
 
-    def setUpVideo(self):
-        self.__Player.setResolution(0, 0, 0, self.__bpp)
-        if g_CustomOGLOptions:
-            self.__Player.setOGLOptions(g_UsePOW2Textures, g_UseShaders, 
-                    g_UsePixelBuffers, 1)
-        self.__Player.setMultiSampleSamples(1)
-
     def setUp(self):
-        self.setUpVideo()
+        self.__Player.setResolution(0, 0, 0, self.__bpp)
+        setUpVideo(self.__Player)
         print "-------- ", self.__testFuncName, " --------"
 
     def start(self, filename, actions):
