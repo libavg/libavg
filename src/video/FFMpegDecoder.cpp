@@ -842,6 +842,20 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
         }
         sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
             enc->height, DestPict.data, DestPict.linesize);
+        if (pBmp->getPixelFormat() == B8G8R8X8) {
+            // Make sure the alpha channel is white.
+            // TODO: This is slow. Make OpenGL do it.
+            unsigned char * pLine = pBmp->getPixels();
+            IntPoint size = pBmp->getSize();
+            for (int y = 0; y<size.y; ++y) {
+                unsigned char * pPixel = pLine;
+                for (int x = 0; x < size.x; ++x) {
+                    pPixel[3] = 0xFF;
+                    pPixel += 4;
+                }
+                pLine = pLine + pBmp->getStride();
+            }
+        }
 #if !defined(__i386__) && !defined(_WIN32)
         FilterFlipRGBA().applyInPlace(pBmp);
 #endif
