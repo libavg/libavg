@@ -80,11 +80,16 @@ static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
 
 int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 {
-    if (pErrEvent->request_code == 145 && pErrEvent->minor_code == 7) {
+    cerr << "X11 error creating offscreen context: " << (int)(pErrEvent->request_code)
+            << ", " << (int)(pErrEvent->minor_code) << endl;
+    if ((pErrEvent->request_code == 145 || pErrEvent->request_code == 144)
+            && pErrEvent->minor_code == 7)
+    {
         s_bX11Error = true;
     } else {
         s_DefaultErrorHandler(pDisplay, pErrEvent);
     }
+    return 0;
 }
 #endif
 
@@ -110,7 +115,11 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
         throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
     }
     XVisualInfo *vi;
-    static int attributes[] = {GLX_RGBA, 0};
+    static int attributes[] = {GLX_RGBA,
+            GLX_RED_SIZE, 1,
+            GLX_GREEN_SIZE, 1,
+            GLX_BLUE_SIZE, 1,
+            0};
     vi = glXChooseVisual(dpy, DefaultScreen(dpy), attributes);
     m_Context = glXCreateContext(dpy, vi, 0, GL_TRUE);
     assert(m_Context);
