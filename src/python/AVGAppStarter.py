@@ -25,7 +25,7 @@ import gc
 import math
 import time
 
-from libavg import avg, Point2D, anim
+from libavg import avg, Point2D
 
 g_player = avg.Player.get()
 
@@ -57,12 +57,12 @@ class MemGraph():
         self.__lineNode = self.__node.getChild(4)
         self.__interval = g_player.setInterval(1000, self.__nextSample)
         self.__sampleNum = 0
-        anim.fadeIn(self.__node, 300)
+        avg.fadeIn(self.__node, 300)
 
     def delete(self):
         def kill():
             self.__node.unlink()
-        anim.LinearAnim(self.__node, "opacity", 300, 1, 0, onStop=kill).start()
+        avg.LinearAnim(self.__node, "opacity", 300, 1, 0, None, kill).start()
         g_player.clearInterval(self.__interval)
 
     def __nextSample(self):

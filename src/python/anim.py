@@ -41,7 +41,14 @@ def abortAnim(node, attrName):
     if g_ActiveAnimations.has_key((node, attrName)):
         curAnim = g_ActiveAnimations.get((node, attrName))
         curAnim._remove()
- 
+
+g_DeprecationWarned = False
+
+def deprecationWarning():
+    global g_DeprecationWarned
+    if not(g_DeprecationWarned):
+        g_DeprecationWarned = True
+        print "The anim package is deprecated and will be removed in the next release; use the anim classes in the avg namespace instead."
 
 class SimpleAnim:
     """
@@ -58,6 +65,7 @@ class SimpleAnim:
         global g_Player
         global g_ActiveAnimations
 
+        deprecationWarning()
         g_Player = avg.Player.get()
         self.node = node
         self.attrName = attrName
@@ -473,4 +481,3 @@ def init(g_avg):
     global g_ActiveAnimations
     avg = g_avg
     g_ActiveAnimations = {}
-
