@@ -1,11 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from libavg import avg
 import sys
 
 print "Building font cache. This can take a while."
-Player=avg.Player()
-Player.loadFile(sys.argv[2]+"/libavg/avg/test/paratext.avg")
+Player=avg.Player.get()
+Player.loadString("""
+          <avg width="160" height="120">
+            <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
+                text="Bitstream Vera Sans" variant="roman"/>
+          </avg>
+""")
 #"$2/libavg/avg/fc-cache" -v -f
 print "Done."
 sys.exit(0)
