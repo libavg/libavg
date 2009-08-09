@@ -30,11 +30,11 @@ import sys, os, platform
 # TODO: This is a mess. 
 sys.path += ['../wrapper/.libs', '../python']
 if platform.system() == 'Darwin':
-    sys.path += ['../..']	  # Location of libavg in a mac installation. 
+    sys.path += ['../..']     # Location of libavg in a mac installation. 
 
 if platform.system() == 'Windows':
-    from libavg import avg	  # Under windows, there is no uninstalled version.
-else:	 
+    from libavg import avg    # Under windows, there is no uninstalled version.
+else:
     import avg
 
 from testcase import *
@@ -48,7 +48,7 @@ class PluginTestCase(AVGTestCase):
             if platform.system() == 'Windows':
                 Player.loadPlugin("ColorNode")
             else:
-                Player.pluginPath = "./plugin/.libs"
+                Player.pluginPath += ":"+self.getSrcDirName()+"plugin/.libs"
                 Player.loadPlugin("libColorNode")
             
         def usePlugin1():

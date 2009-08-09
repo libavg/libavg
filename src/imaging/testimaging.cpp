@@ -136,7 +136,7 @@ public:
     void runTests() 
     {
         TrackerConfig Config;
-        copyFile("avgtrackerrc.minimal", "avgtrackerrc");
+        copyFile(getSrcDirName()+"avgtrackerrc.minimal", "avgtrackerrc");
         Config.load();
         
         Config.setParam("/transform/distortionparams/@p2", "0");
@@ -155,9 +155,9 @@ public:
             LoadedConfig.load();
             DPoint Scale = LoadedConfig.getPointParam("/transform/displayscale/");
             TEST(almostEqual(Scale, DPoint(2,2)));
-            unlink("avgtrackerrc");
             unlink("avgtrackerrc.bak");
         }
+        unlink("avgtrackerrc");
     }
 };
 

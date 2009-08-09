@@ -2,8 +2,8 @@
 INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
 ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         XMLHelper.h TimeSource.h ProfilingZone.h Profiler.h ThreadProfiler.h \
-        ScopeTimer.h IFrameListener.h Test.h TestSuite.h OSHelper.h \
-        Queue.h WorkerThread.h Command.h ObjectCounter.h Point.h Rect.h \
+        ScopeTimer.h IFrameEndListener.h IPreRenderListener.h Test.h TestSuite.h \
+        OSHelper.h Queue.h WorkerThread.h Command.h ObjectCounter.h Point.h Rect.h \
         Directory.h DirEntry.h StringHelper.h MathHelper.h GeomHelper.h \
         CubicSpline.h BicubicSpline.h BezierCurve.h UTF8String.h Triangle.h \
         Triangulate.h WideLine.h DlfcnWrapper.h

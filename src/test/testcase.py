@@ -139,6 +139,13 @@ class AVGTestCase(unittest.TestCase):
             exceptionRaised = True
         self.assert_(exceptionRaised)
 
+    def getSrcDirName(self):
+        s = os.getenv("srcdir")
+        if s == None:
+            return "./"
+        else:
+            return s+"/"
+
     def _loadEmpty(self):
         self.__Player.loadString("""
         <?xml version="1.0"?>

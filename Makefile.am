@@ -6,4 +6,4 @@ EXTRA_DIST = bootstrap COPYING NEWS CreateVersionFile.sh
 
 install-data-hook:
 	$(mkinstalldirs) $(DESTDIR)/$(datadir)/avg/
-	./CreateVersionFile.sh $(pkgpythondir)
+	$(shell $(srcdir)/CreateVersionFile.sh $(pkgpythondir))
