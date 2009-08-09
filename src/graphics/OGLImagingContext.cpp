@@ -82,13 +82,7 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 {
     cerr << "X11 error creating offscreen context: " << (int)(pErrEvent->request_code)
             << ", " << (int)(pErrEvent->minor_code) << endl;
-    if ((pErrEvent->request_code == 145 || pErrEvent->request_code == 144)
-            && pErrEvent->minor_code == 7)
-    {
-        s_bX11Error = true;
-    } else {
-        s_DefaultErrorHandler(pDisplay, pErrEvent);
-    }
+    s_bX11Error = true;
     return 0;
 }
 #endif
