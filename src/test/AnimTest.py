@@ -98,25 +98,33 @@ class AnimTestCase(AVGTestCase):
         self.testAnimType(curAnim, "testLinearAnimC")
 
     def testFadeIn(self):
+        def onStop():
+            self.__onStopCalled = True
         self.initScene()
         self.__node.opacity=0.5
+        self.__onStopCalled = False
         self.start(None,
-                (lambda: avg.fadeIn(self.__node, 200, 1, None),
+                (lambda: avg.fadeIn(self.__node, 200, 1, onStop),
                  lambda: self.compareImage("testFadeIn1", False),
                  lambda: self.compareImage("testFadeIn2", False),
                  lambda: self.compareImage("testFadeIn3", False),
+                 lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(avg.getNumRunningAnims() == 0)
                 ))
         self.__anim = None
 
     def testFadeOut(self):
+        def onStop():
+            self.__onStopCalled = True
         self.initScene()
         self.__node.opacity=0.5
+        self.__onStopCalled = False
         self.start(None,
-                (lambda: avg.fadeOut(self.__node, 200, None),
+                (lambda: avg.fadeOut(self.__node, 200, onStop),
                  lambda: self.compareImage("testFadeOut1", False),
                  lambda: self.compareImage("testFadeOut2", False),
                  lambda: self.compareImage("testFadeOut3", False),
+                 lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(avg.getNumRunningAnims() == 0)
                 ))
         self.__anim = None

@@ -59,7 +59,7 @@ AnimPtr fadeIn(const boost::python::object& node, long long duration, double max
 {
     object startVal = node.attr("opacity");
     AnimPtr pAnim = LinearAnim::create(node, "opacity", duration, startVal, 
-            object(max), object(), stopCallback);
+            object(max), false, object(), stopCallback);
     pAnim->start(false);
     return pAnim;
 }
@@ -69,7 +69,7 @@ AnimPtr fadeOut(const boost::python::object& node, long long duration,
 {
     object startVal = node.attr("opacity");
     AnimPtr pAnim = LinearAnim::create(node, "opacity", duration, startVal, 
-            object(0), object(), stopCallback);
+            object(0), false, object(), stopCallback);
     pAnim->start(true);
     return pAnim;
 }
