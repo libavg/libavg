@@ -40,6 +40,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(wait_start_overloads, WaitAnim::start, 0,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(parallel_start_overloads, ParallelAnim::start, 
         0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setState_overloads, StateAnim::setState, 1, 2);
+BOOST_PYTHON_FUNCTION_OVERLOADS(fadeIn_overloads, fadeIn, 2, 4);
+BOOST_PYTHON_FUNCTION_OVERLOADS(fadeOut_overloads, fadeOut, 2, 3);
 
 // All the XxxAnim_createN functions are there so we can make python constructors from
 // the overloaded XxxAnim::create() functions in C++. These create functions return smart 
@@ -216,16 +218,16 @@ void export_anim()
         .def("setDebug", &StateAnim::setDebug, "")
         ;
 
-    def("fadeIn", fadeIn,
+    def("fadeIn", fadeIn, fadeIn_overloads(args("max", "stopCallback"),
             "Fades the opacity of a node.\n"
             "@param node: The node to fade.\n"
             "@param duration: Length of the fade in milliseconds.\n"
             "@param max: The opacity of the node at the end of the fade.\n"
-            "@param stopCallback: Function to call when the fade is over.\n");
+            "@param stopCallback: Function to call when the fade is over.\n"));
 
-    def("fadeOut", fadeOut,
+    def("fadeOut", fadeOut, fadeOut_overloads(args("stopCallback"),
             "Fades the opacity of a node to zero.\n"
             "@param node: The node to fade.\n"
             "@param duration: Length of the fade in milliseconds.\n"
-            "@param stopCallback: Function to call when the fade is over.\n");
+            "@param stopCallback: Function to call when the fade is over.\n"));
 }

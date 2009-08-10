@@ -53,7 +53,7 @@ protected:
 private:
 };
 
-AnimPtr fadeIn(const boost::python::object& node, long long duration, double max, 
+AnimPtr fadeIn(const boost::python::object& node, long long duration, double max=1.0,
         const boost::python::object& stopCallback=boost::python::object());
 
 AnimPtr fadeOut(const boost::python::object& node, long long duration, 
