@@ -93,7 +93,9 @@ bool ParallelAnim::step()
     }
     if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
         abort();
+        return true;
     }
+    return false;
 }
 
 }
