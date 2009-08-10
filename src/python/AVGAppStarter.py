@@ -39,16 +39,15 @@ class MemGraph():
         rootNode = g_player.getRootNode()
         size = avg.Point2D(rootNode.width-20, rootNode.height/6)
         self.__node = g_player.createNode("""
-            <div opacity="0" sensitive="False" x="10" y="10" width="%(width)i" 
-                    height="%(height)i">
+            <div opacity="0" sensitive="False" x="10" y="10" size="%(size)s"> 
                 <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
-                        size="%(size)i"/>
+                        size="%(size)s"/>
                 <words x="10" y="%(wordsheight0)i" color="000080"/>
                 <words x="10" y="%(wordsheight1)i" color="000080"/>
                 <polyline color="008000"/>
                 <polyline color="000080"/>
             </div>""" 
-            % {'size': size, 'wordsheight0':size.y-22, 'wordsheight1':size.y-39})
+            % {'size': str(size), 'wordsheight0':size.y-22, 'wordsheight1':size.y-39})
         self.__graphSize = size-avg.Point2D(20, 20)
         rootNode.appendChild(self.__node)
         self.__textNode0 = self.__node.getChild(1)
@@ -190,7 +189,7 @@ class AVGAppStarter(object):
         gc.collect()
         testHelper = g_player.getTestHelper()
         testHelper.dumpObjects()
-        print "Num anims: ", anim.getNumRunningAnims()
+        print "Num anims: ", avg.getNumRunningAnims()
         print "Num python objects: ", len(gc.get_objects()) 
 
     def __showMemoryUsage(self):
