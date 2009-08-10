@@ -26,6 +26,8 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "../player/WrapPython.h" 
 
+#include "../base/IPreRenderListener.h"
+
 #include "../player/Node.h"
 
 #include <boost/python.hpp>
@@ -44,7 +46,7 @@ class GroupAnim;
 typedef boost::shared_ptr<class Anim> AnimPtr;
 typedef boost::weak_ptr<class Anim> AnimWeakPtr;
 
-class AVG_API Anim: public boost::enable_shared_from_this<Anim> {
+class AVG_API Anim: public boost::enable_shared_from_this<Anim>, IPreRenderListener {
 public:
     static int getNumRunningAnims();
 
@@ -57,7 +59,10 @@ public:
     virtual void start(bool bKeepAttr=false);
     virtual void abort() = 0;
     bool isRunning() const;
-    void setParent(GroupAnim* pParent);
+    void setHasParent();
+    
+    virtual void onPreRender();
+    virtual bool step() = 0;
 
 protected:
     void setStopped();
@@ -66,7 +71,7 @@ private:
     boost::python::object m_StartCallback;
     boost::python::object m_StopCallback;
     bool m_bRunning;
-    GroupAnim* m_pParent;
+    bool m_bIsRoot;
 };
 
 }

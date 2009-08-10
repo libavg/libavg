@@ -42,13 +42,12 @@ AnimState::AnimState()
 
 StateAnim::StateAnim(const vector<AnimState>& states)
     : GroupAnim(object(), object()),
-      m_bDebug(false),
-      m_bIsAborting(false)
+      m_bDebug(false)
 {
     vector<AnimState>::const_iterator it;
     for (it=states.begin(); it != states.end(); ++it) {
         m_States[(*it).m_sName] = *it;
-        it->m_pAnim->setParent(this);
+        it->m_pAnim->setHasParent();
     }
 }
 
@@ -73,9 +72,7 @@ void StateAnim::setState(const std::string& sName, bool bKeepAttr)
         return;
     }
     if (!m_sCurStateName.empty()) {
-        m_bIsAborting = true;
         m_States[m_sCurStateName].m_pAnim->abort();
-        m_bIsAborting = false;
     }
     switchToNewState(sName, bKeepAttr);
 }
@@ -90,13 +87,16 @@ void StateAnim::setDebug(bool bDebug)
     m_bDebug = bDebug;
 }
     
-
-void StateAnim::childStopped(Anim* pChild)
+bool StateAnim::step()
 {
-    if(!m_bIsAborting) {
+    if (!m_sCurStateName.empty()) {
         const AnimState& curState = m_States[m_sCurStateName];
-        switchToNewState(curState.m_sNextName, false);
+        bool bDone = curState.m_pAnim->step();
+        if (bDone) {
+            switchToNewState(curState.m_sNextName, false);
+        }
     }
+    return false;
 }
 
 void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
@@ -112,6 +112,9 @@ void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
         } else {
             it->second.m_pAnim->start(bKeepAttr);
         }
+        Anim::start(false);
+    } else {
+        Anim::setStopped();
     }
     m_sCurStateName = sName;
 }

@@ -50,21 +50,22 @@ void WaitAnim::start(bool bKeepAttr)
 {
     Anim::start();
     m_StartTime = Player::get()->getFrameTime();
-    Player::get()->registerPreRenderListener(this);
 }
 
 void WaitAnim::abort()
 {
-    Player::get()->unregisterPreRenderListener(this);
     setStopped();
 }
     
-void WaitAnim::onPreRender()
+bool WaitAnim::step()
 {
     if (m_Duration != -1 && Player::get()->getFrameTime()-m_StartTime > m_Duration) {
-        Player::get()->unregisterPreRenderListener(this);
         setStopped();
+        return true;
+    } else {
+        return false;
     }
+
 }
 
 }

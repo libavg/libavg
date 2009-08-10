@@ -36,7 +36,7 @@ ParallelAnim::ParallelAnim(const vector<AnimPtr>& anims,
 {
     vector<AnimPtr>::iterator it;
     for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
-        (*it)->setParent(this);
+        (*it)->setHasParent();
     }
 }
 
@@ -55,54 +55,44 @@ void ParallelAnim::start(bool bKeepAttr)
 {
     Anim::start();
     m_StartTime = Player::get()->getFrameTime();
-    Player::get()->registerPreRenderListener(this);
 
     vector<AnimPtr>::iterator it;
     for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
         (*it)->start(bKeepAttr);
     }
+    m_RunningAnims = m_Anims;
 }
 
 void ParallelAnim::abort()
 {
     if (isRunning()) {
-//        Player::get()->unregisterPreRenderListener(this);
         vector<AnimPtr>::iterator it;
-        for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
+        for (it=m_RunningAnims.begin(); it != m_RunningAnims.end(); ++it) {
             (*it)->abort();
         }
-//        setStopped();
+        m_RunningAnims.clear();
+        setStopped();
     }
 }
     
-void ParallelAnim::onPreRender()
+bool ParallelAnim::step()
 {
     assert(isRunning());
+    vector<AnimPtr>::iterator it;
+    for (it=m_RunningAnims.begin(); it != m_RunningAnims.end(); ++it) {
+        bool bDone = (*it)->step();
+        if (bDone) {
+            vector<AnimPtr>::iterator delIt = it;
+            --it;
+            m_RunningAnims.erase(delIt);
+        }
+    }
+    if (m_RunningAnims.empty()) {
+        setStopped();
+        return true;
+    }
     if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
         abort();
-    }
-}
-
-void ParallelAnim::childStopped(Anim* pChild)
-{
-    bool bFound = false;
-    vector<AnimPtr>::iterator it;
-    for (it=m_Anims.begin(); it != m_Anims.end() && !bFound; ++it) {
-        if (&(**it) == pChild) {
-            bFound = true;
-        }
-    }
-    assert(bFound);
-
-    bool bAllDone = true;
-    for (it=m_Anims.begin(); it != m_Anims.end() && bAllDone; ++it) {
-        if ((*it)->isRunning()) {
-            bAllDone = false;
-        }
-    }
-    if (bAllDone) {
-        Player::get()->unregisterPreRenderListener(this);
-        setStopped();
     }
 }
 

@@ -25,13 +25,12 @@
 #include "../api.h"
 
 #include "GroupAnim.h"
-#include "../base/IPreRenderListener.h"
 
 #include <vector>
 
 namespace avg {
 
-class AVG_API ParallelAnim: public GroupAnim, IPreRenderListener {
+class AVG_API ParallelAnim: public GroupAnim {
 public:
     virtual ~ParallelAnim();
     static AnimPtr create(const std::vector<AnimPtr>& anims,
@@ -42,8 +41,7 @@ public:
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     
-    virtual void onPreRender();
-    virtual void childStopped(Anim* pChild);
+    virtual bool step();
 
 private:
     ParallelAnim(const std::vector<AnimPtr>& anims,
@@ -52,6 +50,7 @@ private:
             long long maxAge);
 
     std::vector<AnimPtr> m_Anims;
+    std::vector<AnimPtr> m_RunningAnims;
     long long m_MaxAge;
 
     long long m_StartTime;

@@ -37,8 +37,6 @@ public:
             const boost::python::object& stopCallback=boost::python::object());
     virtual ~GroupAnim() {};
     
-    virtual void childStopped(Anim* pChild)=0;
-
 private:
 };
 

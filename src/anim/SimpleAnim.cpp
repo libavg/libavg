@@ -78,7 +78,6 @@ void SimpleAnim::start(bool bKeepAttr)
     } else {
         m_StartTime = Player::get()->getFrameTime();
     }
-    Player::get()->registerPreRenderListener(this);
     if (m_Duration == 0) {
         setValue(m_EndValue);
         remove();
@@ -92,31 +91,6 @@ void SimpleAnim::abort()
     if (isRunning()) {
         remove();
     }
-}
-
-void SimpleAnim::onPreRender()
-{
-    step();
-}
-    
-double SimpleAnim::getStartTime() const
-{
-    return m_StartTime;
-}
-
-long long SimpleAnim::getDuration() const
-{
-    return m_Duration;
-}
-
-object SimpleAnim::getValue() const
-{
-    return m_Node.attr(m_sAttrName.c_str());
-}
-
-void SimpleAnim::setValue(const object& val)
-{
-    m_Node.attr(m_sAttrName.c_str()) = val;
 }
 
 template<class T>
@@ -135,13 +109,14 @@ object typedLERP(const object& startValue, const object& endValue, double part)
     return object(cur);
 }
 
-void SimpleAnim::step()
+bool SimpleAnim::step()
 {
     double t = ((double(Player::get()->getFrameTime())-m_StartTime)
             /m_Duration);
     if (t >= 1.0) {
         setValue(m_EndValue);
         remove();
+        return true;
     } else {
         object curValue;
         double part = interpolate(t);
@@ -162,7 +137,28 @@ void SimpleAnim::step()
                     "Animated attributes must be either numbers or Point2D."));
         }
         setValue(curValue);
+        return false;
     }
+}
+
+double SimpleAnim::getStartTime() const
+{
+    return m_StartTime;
+}
+
+long long SimpleAnim::getDuration() const
+{
+    return m_Duration;
+}
+
+object SimpleAnim::getValue() const
+{
+    return m_Node.attr(m_sAttrName.c_str());
+}
+
+void SimpleAnim::setValue(const object& val)
+{
+    m_Node.attr(m_sAttrName.c_str()) = val;
 }
 
 long long SimpleAnim::calcStartTime()
@@ -190,7 +186,6 @@ void SimpleAnim::remove()
 {
     AnimPtr tempThis = shared_from_this();
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
-    Player::get()->unregisterPreRenderListener(this);
     setStopped();
 }
 

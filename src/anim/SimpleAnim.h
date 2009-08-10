@@ -27,7 +27,6 @@
 #include "../player/WrapPython.h" 
 
 #include "Anim.h"
-#include "../base/IPreRenderListener.h"
 #include "../player/Node.h"
 
 #include <boost/python.hpp>
@@ -51,7 +50,7 @@ struct ObjAttrID {
 class SimpleAnim;
 typedef boost::shared_ptr<class SimpleAnim> SimpleAnimPtr;
 
-class AVG_API SimpleAnim: public Anim, IPreRenderListener {
+class AVG_API SimpleAnim: public Anim {
 public:
     static int getNumRunningAnims();
 
@@ -66,8 +65,7 @@ public:
 
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
-
-    virtual void onPreRender();
+    virtual bool step();
 
 protected:
     double getStartTime() const;
@@ -80,7 +78,6 @@ protected:
     
 private:
     virtual long long calcStartTime();
-    void step();
 
     boost::python::object m_Node;
     std::string m_sAttrName;

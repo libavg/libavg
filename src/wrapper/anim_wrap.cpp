@@ -193,7 +193,6 @@ void export_anim()
         ;
     
     class_<GroupAnim, bases<Anim>, boost::noncopyable>("GroupAnim", no_init)
-        .def("childStopped", &GroupAnim::childStopped)
         ;
 
     class_<ParallelAnim, boost::shared_ptr<ParallelAnim>, bases<GroupAnim>, 

@@ -34,7 +34,7 @@ Anim::Anim(const object& startCallback, const object& stopCallback)
     : m_StartCallback(startCallback),
       m_StopCallback(stopCallback),
       m_bRunning(false),
-      m_pParent(0)
+      m_bIsRoot(true)
 {
 }
 
@@ -54,6 +54,9 @@ void Anim::setStopCallback(const object& stopCallback)
 
 void Anim::start(bool)
 {
+    if (m_bIsRoot) {
+        Player::get()->registerPreRenderListener(this);
+    }
     if (!(Player::get()->isPlaying())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "Animation playback can only be started when the player is running."));
@@ -69,19 +72,24 @@ bool Anim::isRunning() const
     return m_bRunning;
 }
 
-void Anim::setParent(GroupAnim* pParent)
+void Anim::setHasParent()
 {
-    m_pParent = pParent;
+    m_bIsRoot = false;
 }
 
+void Anim::onPreRender()
+{
+    step();
+}
+    
 void Anim::setStopped()
 {
+    if (m_bIsRoot) {
+        Player::get()->unregisterPreRenderListener(this);
+    }
     m_bRunning = false;
     if (m_StopCallback != object()) {
         call<void>(m_StopCallback.ptr());
-    }
-    if (m_pParent) {
-        m_pParent->childStopped(this);
     }
 }
 

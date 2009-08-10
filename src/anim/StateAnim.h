@@ -48,10 +48,9 @@ public:
 
     virtual void setState(const std::string& sName, bool bKeepAttr=false);
     const std::string& getState() const;
-
     void setDebug(bool bDebug);
     
-    virtual void childStopped(Anim* pChild);
+    virtual bool step();
 
 private:
     StateAnim(const std::vector<AnimState>& states);
