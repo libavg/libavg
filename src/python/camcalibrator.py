@@ -24,7 +24,6 @@
 
 import sys, os, math, stat
 from libavg import avg
-from libavg import anim
 
 class CamCalibrator:
     def __init__(self, Player, Tracker, CameraType, ParentNode):
