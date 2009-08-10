@@ -2,41 +2,45 @@
 <trackerconfig>
  <camera>
   <driver value="firewire"/>
-  <device value="0"/>
+  <device value=""/>
+  <fw800 value="false"/>
   <format value="I8"/>
   <size x="640" y="480"/>
-  <framerate value="30"/>
-  <brightness value="268"/>
+  <framerate value="60"/>
+  <brightness value="1"/>
   <gamma value="0"/>
-  <gain value="130"/>
-  <shutter value="7"/>
-  <fw800 value="False"/>
+  <gain value="16"/>
+  <shutter value="75"/>
   <strobeduration value="-1"/>
  </camera>
  <tracker>
-  <prescale value="2"/>
+  <prescale value="1"/>
   <historyupdateinterval value="25"/>
-  <brighterregions value="false"/>
+  <brighterregions value="true"/>
   <eventonmove value="true"/>
-  <contourprecision value="50"/>
+  <contourprecision value="0"/>
+  <mask value=""/>
   <track>
-   <threshold value="20"/>
-   <similarity value="10"/>
-   <areabounds min="200" max="1000000"/>
+   <threshold value="16"/>
+   <similarity value="100"/>
+   <areabounds min="700" max="1000000"/>
    <eccentricitybounds min="1" max="80"/>
   </track>
   <touch>
-   <threshold value="200"/>
-   <similarity value="10"/>
-   <areabounds min="10" max="60"/>
-   <eccentricitybounds min="1" max="8"/>
+   <threshold value="148"/>
+   <similarity value="50"/>
+   <areabounds min="16" max="200000"/>
+   <eccentricitybounds min="1" max="800"/>
+   <bandpass min="1.6" max="2.4"/>
+   <bandpasspostmult value="30.0"/>
   </touch>
  </tracker>
  <transform>
-  <distortionparams p2="4.3e-06" p3="0"/>
-  <trapezoid value="0.000"/>
-  <angle value="0"/>
-  <displaydisplacement x="0" y="0"/>
-  <displayscale x="3" y="3"/>
+  <distortionparams p2="0.697166" p3="0.0"/>
+  <trapezoid value="0.151537"/>
+  <angle value="0.00224421"/>
+  <displaydisplacement x="-174.966" y="-145.974"/>
+  <displayscale x="2.52439" y="2.55685"/>
+  <activedisplaysize x="1280" y="800"/>
  </transform>
 </trackerconfig>
