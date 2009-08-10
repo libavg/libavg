@@ -105,6 +105,7 @@ void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
         cerr << this << " State change: '" << m_sCurStateName << "' --> '" << sName 
                 << "'" << endl;
     }
+    m_sCurStateName = sName;
     if (!sName.empty()) {
         map<string, AnimState>::iterator it = m_States.find(sName);
         if (it == m_States.end()) {
@@ -116,7 +117,6 @@ void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
     } else {
         Anim::setStopped();
     }
-    m_sCurStateName = sName;
 }
 
 }
