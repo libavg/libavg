@@ -188,6 +188,7 @@ long long SimpleAnim::calcStartTime()
 
 void SimpleAnim::remove() 
 {
+    AnimPtr tempThis = shared_from_this();
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
     Player::get()->unregisterPreRenderListener(this);
     setStopped();
