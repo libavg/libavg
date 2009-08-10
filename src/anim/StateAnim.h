@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "GroupAnim.h"
+#include "Anim.h"
 
 #include <vector>
 
@@ -39,7 +39,7 @@ struct AVG_API AnimState {
     std::string m_sNextName;
 };
 
-class AVG_API StateAnim: public GroupAnim {
+class AVG_API StateAnim: public Anim {
 public:
     virtual ~StateAnim();
     static AnimPtr create(const std::vector<AnimState>& states);

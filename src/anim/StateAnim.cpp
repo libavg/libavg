@@ -41,7 +41,7 @@ AnimState::AnimState()
 }
 
 StateAnim::StateAnim(const vector<AnimState>& states)
-    : GroupAnim(object(), object()),
+    : Anim(object(), object()),
       m_bDebug(false)
 {
     vector<AnimState>::const_iterator it;

@@ -30,7 +30,7 @@ namespace avg {
 
 ParallelAnim::ParallelAnim(const vector<AnimPtr>& anims,
             const object& startCallback, const object& stopCallback, long long maxAge)
-    : GroupAnim(startCallback, stopCallback),
+    : Anim(startCallback, stopCallback),
       m_Anims(anims),
       m_MaxAge(maxAge)
 {

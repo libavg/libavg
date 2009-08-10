@@ -24,13 +24,13 @@
 
 #include "../api.h"
 
-#include "GroupAnim.h"
+#include "Anim.h"
 
 #include <vector>
 
 namespace avg {
 
-class AVG_API ParallelAnim: public GroupAnim {
+class AVG_API ParallelAnim: public Anim {
 public:
     virtual ~ParallelAnim();
     static AnimPtr create(const std::vector<AnimPtr>& anims,

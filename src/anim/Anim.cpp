@@ -20,8 +20,6 @@
 
 #include "Anim.h"
 
-#include "GroupAnim.h"
-
 #include "../base/Exception.h"
 #include "../player/Player.h"
 
