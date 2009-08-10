@@ -11,6 +11,7 @@
   <gain value="130"/>
   <shutter value="7"/>
   <fw800 value="False"/>
+  <strobeduration value="-1"/>
  </camera>
  <tracker>
   <prescale value="2"/>
