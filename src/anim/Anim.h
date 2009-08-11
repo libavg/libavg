@@ -66,7 +66,7 @@ public:
 
 protected:
     void setStopped();
-    
+   
 private:
     boost::python::object m_StartCallback;
     boost::python::object m_StopCallback;

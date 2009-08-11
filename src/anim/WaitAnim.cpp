@@ -59,6 +59,7 @@ void WaitAnim::abort()
     
 bool WaitAnim::step()
 {
+    assert(isRunning());
     if (m_Duration != -1 && Player::get()->getFrameTime()-m_StartTime > m_Duration) {
         setStopped();
         return true;

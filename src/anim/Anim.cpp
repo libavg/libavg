@@ -52,14 +52,18 @@ void Anim::setStopCallback(const object& stopCallback)
 
 void Anim::start(bool)
 {
-    if (m_bIsRoot) {
-        Player::get()->registerPreRenderListener(this);
+    if (m_bRunning) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Anim.start(): animation already running."));
     }
     if (!(Player::get()->isPlaying())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "Animation playback can only be started when the player is running."));
     }
     m_bRunning = true;
+    if (m_bIsRoot) {
+        Player::get()->registerPreRenderListener(this);
+    }
     if (m_StartCallback != object()) {
         call<void>(m_StartCallback.ptr());
     }

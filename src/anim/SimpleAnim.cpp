@@ -111,6 +111,7 @@ object typedLERP(const object& startValue, const object& endValue, double part)
 
 bool SimpleAnim::step()
 {
+    assert(isRunning());
     double t = ((double(Player::get()->getFrameTime())-m_StartTime)
             /m_Duration);
     if (t >= 1.0) {

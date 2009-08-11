@@ -85,7 +85,6 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.__anim.isRunning())),
                  None,
                  lambda: self.assert_(self.__onStopCalled),
-                 startAnim,
                  startKeepAttr,
                  lambda: self.compareImage(imgBaseName+"6", False),
                  lambda: self.assert_(avg.getNumRunningAnims() == 1)
