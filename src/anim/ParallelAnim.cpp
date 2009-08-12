@@ -59,8 +59,10 @@ void ParallelAnim::start(bool bKeepAttr)
     vector<AnimPtr>::iterator it;
     for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
         (*it)->start(bKeepAttr);
+        if ((*it)->isRunning()) {
+            m_RunningAnims.push_back(*it);
+        }
     }
-    m_RunningAnims = m_Anims;
 }
 
 void ParallelAnim::abort()
