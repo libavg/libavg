@@ -69,10 +69,16 @@ CURSOR_FLASH_AFTER_INACTIVITY = 200
 DEFAULT_BLUR_OPACITY = 0.3
 
 import time
+import platform
+
 try:
-    from . import avg
+    from . import avg, Point2D
 except ValueError:
-    pass
+    # We're running unit tests
+    if platform.system() == 'Windows':
+        from libavg import Point2D
+    else:
+        from avg import Point2D
 
 
 class FocusContext:
@@ -367,8 +373,8 @@ class TextArea:
                 w = 1
             self.__cursorNode.strokewidth = w
         x  = self.__cursorNode.strokewidth / 2.0
-        self.__cursorNode.pos1.x = x
-        self.__cursorNode.pos2.x = x
+        self.__cursorNode.pos1 = Point2D(x, self.__cursorNode.pos1.y)
+        self.__cursorNode.pos2 = Point2D(x, self.__cursorNode.pos2.y)
         
         self.__flashingCursor = flashingCursor
         if not flashingCursor:
@@ -528,14 +534,14 @@ class TextArea:
                 lastCharExtents = (0, lastCharExtents[1])
         
         if lastCharExtents[1] > 0:
-            self.__cursorNode.pos2.y = lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0)
+            self.__cursorNode.pos2 = Point2D(0, lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0))
         else:
-            self.__cursorNode.pos2.y = self.__textNode.fontsize
+            self.__cursorNode.pos2 = Point2D(0, self.__textNode.fontsize)
         
         self.__cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
         self.__cursorContainer.y = (lastCharPos[1] +
             self.__cursorNode.pos2.y * CURSOR_PADDING_PCT/200.0 + self.__border)
-    
+        
     def __updateLastActivity(self):
         self.__lastActivity = time.time()
         
