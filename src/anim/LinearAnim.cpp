@@ -54,6 +54,11 @@ double LinearAnim::interpolate(double t)
     return t;
 }
 
+double LinearAnim::getStartPart(double start, double end, double cur)
+{
+    return (cur-start)/(end-start);
+}
+
 AnimPtr fadeIn(const boost::python::object& node, long long duration, double max, 
         const boost::python::object& stopCallback)
 {

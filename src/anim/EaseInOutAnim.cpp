@@ -78,5 +78,5 @@ double EaseInOutAnim::interpolate(double t)
     }
     return dist/(accelDist+(1-m_EaseInDuration-m_EaseOutDuration)+decelDist);
 }
-    
+
 }

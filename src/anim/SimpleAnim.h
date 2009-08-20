@@ -77,7 +77,8 @@ protected:
     void remove();
     
 private:
-    virtual long long calcStartTime();
+    long long calcStartTime();
+    virtual double getStartPart(double start, double end, double cur);
 
     boost::python::object m_Node;
     std::string m_sAttrName;

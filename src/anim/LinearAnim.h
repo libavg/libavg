@@ -51,6 +51,7 @@ protected:
     virtual double interpolate(double t);
     
 private:
+    double getStartPart(double start, double end, double cur);
 };
 
 AnimPtr fadeIn(const boost::python::object& node, long long duration, double max=1.0,

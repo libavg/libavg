@@ -169,18 +169,46 @@ long long SimpleAnim::calcStartTime()
         if (m_EndValue == m_StartValue) {
             part = 0;
         } else {
-            part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+            part = getStartPart(extract<double>(m_StartValue), 
+                    extract<double>(m_EndValue), extract<double>(getValue()));
         }
     } else if (isPythonType<DPoint>(m_StartValue)) {
         double start = DPoint(extract<DPoint>(m_StartValue)).x;
         double end = DPoint(extract<DPoint>(m_EndValue)).x;
         double cur = DPoint(extract<DPoint>(getValue())).x;
-        part = (cur-start)/(end-start);
+        if (start == end) {
+            start = DPoint(extract<DPoint>(m_StartValue)).y;
+            end = DPoint(extract<DPoint>(m_EndValue)).y;
+            start = DPoint(extract<DPoint>(getValue())).y;
+        }
+        if (start == end) {
+            part = 0;
+        } else {
+            part = getStartPart(start, end, cur);
+        }
     } else {
         throw (Exception(AVG_ERR_TYPE, 
                     "Animated attributes must be either numbers or Point2D."));
     }
     return Player::get()->getFrameTime()-(long long)(part*getDuration());
+}
+
+double SimpleAnim::getStartPart(double start, double end, double cur)
+{
+    double tstart = 0;
+    double tend = 1;
+    bool bDir = (start < end);
+    for (int i=0; i<10; ++i) {
+        double tmiddle = (tstart+tend)/2;
+        double part = interpolate(tmiddle);
+        double middle = start+(end-start)*part;
+        if ((bDir && middle < cur) || (!bDir && middle >= cur)) {
+            tstart = tmiddle;
+        } else {
+            tend = tmiddle;
+        }
+    }
+    return (tend+tstart)/2;
 }
 
 void SimpleAnim::remove() 
