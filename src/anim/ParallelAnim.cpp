@@ -81,12 +81,12 @@ bool ParallelAnim::step()
 {
     assert(isRunning());
     vector<AnimPtr>::iterator it;
-    for (it=m_RunningAnims.begin(); it != m_RunningAnims.end(); ++it) {
+    for (it=m_RunningAnims.begin(); it != m_RunningAnims.end(); ) {
         bool bDone = (*it)->step();
         if (bDone) {
-            vector<AnimPtr>::iterator delIt = it;
-            --it;
-            m_RunningAnims.erase(delIt);
+            it = m_RunningAnims.erase(it);
+        } else {
+            ++it;
         }
     }
     if (m_RunningAnims.empty()) {
