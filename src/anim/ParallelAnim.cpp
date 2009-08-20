@@ -42,6 +42,7 @@ ParallelAnim::ParallelAnim(const vector<AnimPtr>& anims,
 
 ParallelAnim::~ParallelAnim()
 {
+    abort();
 }
 
 AnimPtr ParallelAnim::create(const vector<AnimPtr>& anims,

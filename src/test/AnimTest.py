@@ -258,10 +258,12 @@ class AnimTestCase(AVGTestCase):
     def testStateAnim(self):
         def state1StopCallback():
             self.__state1StopCallbackCalled = True
+
         def state2StartCallback():
             if self.__state1StopCallbackCalled:
                 self.__stop1Start2CallbackOrder = True
             self.__state2StartCallbackCalled = True
+
         def makeAnim():
             self.anim = avg.StateAnim(
                     [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200, 
@@ -271,6 +273,9 @@ class AnimTestCase(AVGTestCase):
                      avg.AnimState("STATE3", avg.WaitAnim())
                     ])
 #            self.anim.setDebug(True)
+
+        def killAnim():
+            self.anim = None
 
         self.initScene()
         self.__state1StopCallbackCalled = False
@@ -291,7 +296,9 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.compareImage("testStateAnimC4", False),
                  lambda: self.anim.setState("STATE1"),
                  lambda: self.assert_(avg.getNumRunningAnims() == 1),
-                 lambda: self.compareImage("testStateAnimC5", False)
+                 lambda: self.compareImage("testStateAnimC5", False),
+                 killAnim,
+#                 lambda: Player.getTestHelper().dumpObjects()
                 ))
 
     def testParallelAnim(self):
@@ -317,6 +324,9 @@ class AnimTestCase(AVGTestCase):
             
         def abortAnim():
             self.anim.abort()
+
+        def deleteAnim():
+            self.anim = None
 
         Player.loadString('<avg width="160" height="120"/>')
         self.nodes = []
@@ -349,7 +359,9 @@ class AnimTestCase(AVGTestCase):
                  None,
                  lambda: self.assert_(self.__endCalled),
                  lambda: self.assert_(avg.getNumRunningAnims() == 0),
-
+                 startAnim,
+                 deleteAnim,
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
                 ))
         self.nodes = []
 
