@@ -28,7 +28,7 @@ TESTS=testimaging
 
 EXTRA_DIST = avgtrackerrc.minimal $(wildcard testimages/*.png) \
         CMUCamera.h CMUCamera.cpp DSCamera.cpp DSCamera.h DSHelper.h DSHelper.cpp \
-        DSSampleQueue.h DSSampleQueue.cpp
+        DSSampleQueue.h DSSampleQueue.cpp CMUCameraUtils.h CMUCameraUtils.cpp
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)

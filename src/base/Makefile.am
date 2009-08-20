@@ -10,6 +10,8 @@ ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h 
 
 TESTS=testbase
 
+EXTRA_DIST = DlfcnWrapper.cpp
+
 noinst_LTLIBRARIES = libbase.la
 libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
     ConfigMgr.cpp XMLHelper.cpp TimeSource.cpp OSHelper.cpp \

@@ -33,6 +33,8 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoBase.h Video.h
 
 TESTS=testcalibrator testplayer
 
+EXTRA_DIST = SDLMain.h
+
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = checktracker testcalibrator testplayer
 checktracker_SOURCES=checktracker.cpp
