@@ -92,17 +92,22 @@ class AnimTestCase(AVGTestCase):
         self.__anim = None
 
     def testLinearAnim(self):
-        def on1Stop():
-            self.__onStopCalled = True
-        def on2Start():
-            self.__onStopBeforeOnStart = self.__onStopCalled
         self.initScene()
         curAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100)
         self.testAnimType(curAnim, "testLinearAnimC")
+
+    def testAnimRegistry(self):
+        def on1Stop():
+            self.__onStopCalled = True
+        
+        def on2Start():
+            self.__onStopBeforeOnStart = self.__onStopCalled
+        
         self.initScene()
+        sameNode = Player.getElementByID("test")
         anim1 = avg.LinearAnim(self.__node, "x", 500, 0, 100,
                                False, None, on1Stop)
-        anim2 = avg.LinearAnim(self.__node, "x", 300, 0, 100,
+        anim2 = avg.LinearAnim(sameNode, "x", 300, 0, 100,
                                False, on2Start)
         self.__onStopCalled = False
         self.__onStopBeforeOnStart = False
@@ -389,6 +394,7 @@ class AnimTestCase(AVGTestCase):
 def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
+        "testAnimRegistry",
         "testFadeIn",
         "testFadeOut",
         "testNonExistentAttributeAnim",

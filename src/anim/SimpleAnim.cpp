@@ -33,9 +33,11 @@ SimpleAnim::AttrAnimationMap SimpleAnim::s_ActiveAnimations;
 
 bool ObjAttrID::operator < (const ObjAttrID& other) const
 {
-    if (m_Node < other.m_Node) {
+    Node * pNode = extract<Node*>(m_Node);
+    Node * pOtherNode = extract<Node*>(other.m_Node);
+    if (pNode < pOtherNode) {
         return true;
-    } else if (m_Node > other.m_Node) {
+    } else if (pNode > pOtherNode) {
         return false;
     } else if (m_sAttrName < other.m_sAttrName) {
         return true;
