@@ -69,8 +69,8 @@ SimpleAnim::~SimpleAnim()
 
 void SimpleAnim::start(bool bKeepAttr)
 {
-    Anim::start();
     abortAnim(m_Node, m_sAttrName);
+    Anim::start();
     s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = 
             dynamic_pointer_cast<SimpleAnim>(shared_from_this());
     if (bKeepAttr) {

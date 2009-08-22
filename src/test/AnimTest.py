@@ -92,9 +92,29 @@ class AnimTestCase(AVGTestCase):
         self.__anim = None
 
     def testLinearAnim(self):
+        def on1Stop():
+            self.__onStopCalled = True
+        def on2Start():
+            self.__onStopBeforeOnStart = self.__onStopCalled
         self.initScene()
         curAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100)
         self.testAnimType(curAnim, "testLinearAnimC")
+        self.initScene()
+        anim1 = avg.LinearAnim(self.__node, "x", 500, 0, 100,
+                               False, None, on1Stop)
+        anim2 = avg.LinearAnim(self.__node, "x", 300, 0, 100,
+                               False, on2Start)
+        self.__onStopCalled = False
+        self.__onStopBeforeOnStart = False
+        self.start(None,
+                (lambda: anim1.start(),
+                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: anim2.start(),
+                 lambda: self.assert_(self.__onStopBeforeOnStart),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 1)
+                ))
+        anim1 = None
+        anim2 = None
 
     def testFadeIn(self):
         def onStop():
