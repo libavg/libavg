@@ -49,7 +49,7 @@ for variant in variants:
             { "text": text,
               "font": fontname,
               "variant": variant,
-              "size": 24,
+              "fontsize": 24,
               "x": 10,
               "y": y
             })
