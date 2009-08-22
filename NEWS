@@ -1,3 +1,42 @@
+libavg 0.9.0 - August 22, 2009
+
+  svn revision 4097
+
+  Major new features:
+
+    * Experimental animation framework.
+    * Support for vector node types: Line, PolyLine, Curve, Circle, Polygon,
+      Rectangle. Vector nodes can be textured, with the closed vectors taking two
+      textures: one for the outline, one for the fill. Vector drawing is GPU-based.
+    * Plugin support.
+    * Unified & much more stable camera drivers. Consistent support for all 
+      resolutions & framerates we could test. Support for more than one camera on all
+      platforms. fw800 is supported.
+    * Uniform support for aggregate types in node interfaces (node.pos, node.pivot, 
+      ...)
+
+  Other improvements:
+    * gcc 4.4 and ffmpeg 0.5.0 compatibility.
+    * Added letterspacing support to words node.
+    * Threaded videos are now the default.
+    * Improved video seek and loop performance.
+    * New Node::getElementByPos() method that returns the node at that point on the
+      screen.
+    * Added avg.svnrevision and avg.svndate properties so the avg version can be 
+      queried.
+    * New avg_showfont.py utility to help font selection.
+    * New avg_showcamera.py utility to help camera setup.
+    * New avg.getMemoryUsage function that returns the resident set size.
+    * New Words.addFontDir().
+    * Added support for mipmapping node textures, including videos.
+    * rasternode.maskhref to support static alpha masks for any videos, word nodes,
+      etc.
+
+  Syntax and semantic changes:
+    * words.size is now called words.fontsize.
+    * right-aligned and centered words nodes are positioned differently.
+    * avgtrackerrc syntax has changed significantly; see src/avgtrackerrc.minimal.
+
 libavg 0.9.0.pre3 - August 20, 2009
 
   svn rev. 4086
