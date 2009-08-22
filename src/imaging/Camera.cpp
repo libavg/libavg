@@ -41,6 +41,7 @@
 #include "../imaging/FakeCamera.h"
 
 #include <cstdlib>
+#include <string.h>
 
 #ifdef WIN32
 #define strtoll(p, e, b) _strtoi64(p, e, b)
