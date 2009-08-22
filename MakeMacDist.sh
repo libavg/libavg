@@ -3,8 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.9.0
-export INSTALL_PATH_10_4="/Library/Python/2.3/site-packages/libavg"
+export VERSION=0.9.0.pre3
 export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
 fixLib()
@@ -49,6 +48,12 @@ makeOneDist()
     cp testmediadir/* ${AVG_PATH}/dist/libavg/avg/test/testmediadir
     mkdir ${AVG_PATH}/dist/libavg/avg/test/fonts
     cp fonts/* ${AVG_PATH}/dist/libavg/avg/test/fonts
+    mkdir ${AVG_PATH}/dist/libavg/avg/test/plugin
+    cp plugin/.libs/libColorNode.so ${AVG_PATH}/dist/libavg/avg/test/plugin
+    cp plugin/.libs/libColorNode.0.so ${AVG_PATH}/dist/libavg/avg/test/plugin
+    mkdir ${AVG_PATH}/dist/libavg/avg/test/extrafonts
+    cp extrafonts/testaddfontdir.ttf ${AVG_PATH}/dist/libavg/avg/test/extrafonts
+
     
     cd $LIBAVGDIR/src/video/testfiles/
     cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 ${AVG_PATH}/dist/libavg/avg/video/testfiles
@@ -69,30 +74,14 @@ makeOneDist()
 
 if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
 then
-    echo Please call 'source mac_avg_env.sh' before calling this script.
+    echo Please call 'source mac/avg_env.sh' before calling this script.
     exit -1 
 fi
 
-if [[ x$2 == x ]]
-then
-    echo Usage: MakeMacDist "<intel|ppc> <10.4|10.5>"
-    exit 1
-fi
-
-PLATFORM=$1
 LIBAVGDIR=`pwd`
 
-if [[ $2 == 10.4 ]]
-then
-    makeOneDist $INSTALL_PATH_10_4 2.3
-    cd $LIBAVGDIR
-    /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj mac/libavg.10.4.pmproj -v -p libavg.pkg
-    hdiutil create libavg-mac-tiger-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.pkg -ov 
-    hdiutil internet-enable -yes libavg-mac-tiger-${PLATFORM}.${VERSION}.dmg
-else
-    makeOneDist $INSTALL_PATH_10_5 2.5
-    cd $LIBAVGDIR
-    /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.mpkg
-    hdiutil create libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.mpkg -ov 
-    hdiutil internet-enable -yes libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg
-fi
+makeOneDist $INSTALL_PATH_10_5 2.5
+cd $LIBAVGDIR
+/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.mpkg
+hdiutil create libavg-mac-${VERSION}.dmg -srcfolder libavg.mpkg -ov 
+hdiutil internet-enable -yes libavg-mac-${VERSION}.dmg
