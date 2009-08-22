@@ -54,13 +54,13 @@ BOOST_PYTHON_MODULE(avg)
     docstring_options doc_options(true, false);
 
     scope().attr("__doc__") =
-        "The main libavg module.\n"
-        "G{classtree Node}\n"
-        "G{classtree Event}\n"
-        "G{classtree Bitmap}\n"
-        "G{classtree Tracker TrackerCalibrator}\n"
-        "G{classtree Logger}\n"
-        "G{classtree ConradRelais ParPort}";
+        "The main libavg module.\n";
+//        "G{classtree Node} "
+//        "G{classtree Event}\n";
+//        "G{classtree Bitmap}\n";
+//        "G{classtree Tracker TrackerCalibrator}\n"
+//        "G{classtree Logger}\n"
+//        "G{classtree ConradRelais ParPort}";
 
     scope().attr("svnrevision") = "$Rev$";
     scope().attr("svndate") = "$LastChangedDate$";
@@ -202,7 +202,7 @@ BOOST_PYTHON_MODULE(avg)
                 "values are dependent on the graphics driver.\n")
         .def("setMultiSampleSamples", &Player::setMultiSampleSamples,
                 "setMultiSampleSamples(multiSampleSamples)\n"
-                "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
+                "@param multiSampleSamples: The number of samples per pixel to compute. This\n"
                 "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
                 "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
                 "values are dependent on the graphics driver.\n")
