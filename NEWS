@@ -1,14 +1,14 @@
-libavg 0.9.0 - August 22, 2009
+libavg 0.9.0 - August 23, 2009
 
   svn revision 4097
 
   Major new features:
 
-    * Experimental animation framework.
     * Support for vector node types: Line, PolyLine, Curve, Circle, Polygon,
       Rectangle. Vector nodes can be textured, with the closed vectors taking two
       textures: one for the outline, one for the fill. Vector drawing is GPU-based.
-    * Plugin support.
+    * Plugin support. Plugins written in C++ can define complete new node types.
+    * Powerful (but still experimental) new animation framework.
     * Unified & much more stable camera drivers. Consistent support for all 
       resolutions & framerates we could test. Support for more than one camera on all
       platforms. fw800 is supported.
@@ -33,9 +33,16 @@ libavg 0.9.0 - August 22, 2009
       etc.
 
   Syntax and semantic changes:
-    * words.size is now called words.fontsize.
+    * In the course of adding aggregate types for node attributes, several attributes
+      have changed:
+      - words.size is now called words.fontsize.
+      - pivotx and pivoty have been replaced by pivot.
     * right-aligned and centered words nodes are positioned differently.
     * avgtrackerrc syntax has changed significantly; see src/avgtrackerrc.minimal.
+    * Support for firewire cameras using libdc1394 ver. 1 has been phased out. Please 
+      install ver. 2.x.
+    * The old python-based anim framework is marked deprecated. You need to explicitly
+      use the namespace anim to access it.
 
 libavg 0.9.0.pre3 - August 20, 2009
 
