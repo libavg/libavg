@@ -1,24 +1,56 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
+import optparse
 from libavg import avg
-import time
 
-def printUsage():
-    print
-    print "Usage: avg_showcamera.py [<driver> [<device> [<unit> [<width> <height> <pixelformat> <framerate> [<fw800>]]]]]"
-    print "Valid values for driver: firewire, v4l, directshow."
-    print "Valid values for pixelformat: I8, I16, YUV411, YUV422, RGB, BGR, BAYER8"
-    print
+validPixFmt = ('I8', 'I16', 'YUV411', 'YUV422', 'RGB', 'BGR', 'BAYER8')
+validDrivers = ('firewire', 'v4l', 'directshow')
 
 def checkCamera():
     if not(camNode.isAvailable()):
         Log.trace(Log.APP, "Could not open camera")
-        printUsage()
         exit(1)
 
-Log = avg.Logger.get();
+
+parser = optparse.OptionParser()
+parser.add_option("-t", "--driver",
+                  action="store", dest="driver", 
+		  choices=validDrivers, help="camera drivers (one of: %s)" %', '.join(validDrivers))
+parser.add_option("-d", "--device",
+                  action="store", dest="device", default="",
+                  help="camera device identifier (may be GUID or device path)")
+parser.add_option("-u", "--unit", action="store", dest="unit", default="-1",
+		  type="int", help="unit number")
+parser.add_option("-w", "--width", dest="width", default="640", type="int",
+		  help="capture width in pixels")
+parser.add_option("-e", "--height", dest="height", default="480", type="int",
+		  help="capture height in pixels")
+parser.add_option("-p", "--pixformat", dest="pixelFormat", default="RGB",
+	          choices=validPixFmt, help="pixel format (one of: %s)" %', '.join(validPixFmt))
+parser.add_option("-f", "--framerate", dest="framerate", default="15", type="float",
+		  help="capture frame rate")
+parser.add_option("-8", "--fw800", dest="fw800", action="store_true", default=False,
+		  help="set firewire bus speed to s800 (if applicable)")
+parser.add_option("-l", "--dump", dest="dump", action="store_true", default=False,
+		  help="dump a list of detected cameras")
+parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=False,
+		  help="Don't show any info overlayed on the screen")
+
+(options, args) = parser.parse_args()
+
+if options.driver is None:
+    parser.print_help()
+    print "\nERROR: at least '--driver' option must be specified"
+    exit()
+
+optdict = {}
+for attr in dir(options):
+    if attr[0] != '_':
+	optdict[attr] = eval("options.%s" %attr)
+
+
+Log = avg.Logger.get()
 Log.setCategories(Log.APP |
           Log.WARNING | 
           Log.PROFILE |
@@ -32,53 +64,37 @@ Player = avg.Player.get()
 Player.loadString("""
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="960">
+<avg width="%(width)d" height="%(height)d">
 </avg>
-""")
+""" %optdict)
 
-driver = "firewire"
-device = ""
-unit = -1 
-width = 640
-height = 480
-pixelFormat = "RGB"
-framerate = 15
-fw800 = False
 
-if len(sys.argv) == 1:
-    printUsage()
+if options.dump:
     avg.Camera.dumpCameras()
-    exit(1)
+    exit(0)
 
-if len(sys.argv) > 1:
-    driver = sys.argv[1]
-if len(sys.argv) > 2:
-    device = sys.argv[2]
-if len(sys.argv) > 3:
-    unit = int(sys.argv[3])
-if len(sys.argv) > 7:
-    width = int(sys.argv[4])
-    height = int(sys.argv[5])
-    pixelFormat = sys.argv[6]
-    framerate = float(sys.argv[7])
-if len(sys.argv) == 9:
-    fw800str = sys.argv[8].upper()
-    if fw800str == "FALSE":
-        fw800 = False
-    else:
-        fw800 = True
-
-Log.trace(Log.APP, "Creating camera, driver="+driver+", device="+device+
-        ", unit="+str(unit)+", width="+str(width)+", height="+str(height)+
-        ", pixelformat="+pixelFormat+", framerate="+str(framerate)+", fw800="+str(fw800))
+Log.trace(Log.APP, "Creating camera:")
+Log.trace(Log.APP, "driver=%(driver)s device=%(device)s" %optdict)
+Log.trace(Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" %optdict)
+Log.trace(Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s" %optdict)
 
 camNode = Player.createNode("camera", 
-        {"driver": driver, "device": device, "unit": unit, "fw800": fw800,
-         "capturewidth": width, "captureheight": height, "pixelformat": pixelFormat, 
-         "framerate": framerate, "width": 1280, "height":960})
+        {"driver": options.driver, "device": options.device, "unit": options.unit, "fw800": options.fw800,
+         "capturewidth": options.width, "captureheight": options.height, "pixelformat": options.pixelFormat, 
+         "framerate": options.framerate, "width": options.width, "height": options.height})
+
 Player.getRootNode().appendChild(camNode)
+
+if not options.noinfo:
+    infoText = "Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f" %optdict
+    infoNode = Player.createNode("words",
+	{"text": infoText, "color": "ff3333", "pos": avg.Point2D(5,5), "fontsize": 14})
+
+    Player.getRootNode().appendChild(infoNode)
+    
+
 camNode.play()
-Player.setFramerate(framerate)
+Player.setFramerate(options.framerate)
 Player.setTimeout(100, checkCamera)
 Player.play()
 
