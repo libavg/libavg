@@ -39,9 +39,9 @@ parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=
 
 (options, args) = parser.parse_args()
 
-if options.driver is None:
+if options.driver is None and not options.dump:
     parser.print_help()
-    print "\nERROR: at least '--driver' option must be specified"
+    print "\nERROR: at least '--driver' or '--dump' options must be specified"
     exit()
 
 optdict = {}
