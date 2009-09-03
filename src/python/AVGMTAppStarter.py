@@ -108,6 +108,13 @@ class AVGMTAppStarter (AVGAppStarter):
         if self.__calibrator:
             self.bindKey('c', self.__enterCalibrator)
 
+    def _initClickTest(self):
+        print 'init mt clicktest'
+        if ClickTest:
+            self._clickTest = ClickTest(self._appNode, multiClick=True)
+        else:
+            self._clickTest = None
+
     def __updateTrackerImageFixup(self):
         # finger bitmap might need to be rotated/flipped
         trackerAngle = float(self.tracker.getParam('/transform/angle/@value'))

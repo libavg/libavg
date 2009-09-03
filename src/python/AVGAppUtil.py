@@ -32,6 +32,15 @@ def getMediaDir(_file_, subdir='media'):
     mediaDir = os.path.join(myDir, subdir)
     return os.path.abspath(mediaDir)
 
+def getMediaDirFromNode(node, path=''):
+    '''
+    Recursively build the mediadir path, starting from the given node.
+    '''
+    if node.getParent():
+        return getMediaDirFromNode(node.getParent(), os.path.join(node.mediadir, path))
+    else:
+        return path
+
 def createImagePreviewNode(maxSize, absHref):
     node =  g_player.createNode('image', {'href': absHref})
     node.size = mathutil.getScaledDim(node.size, max = maxSize)

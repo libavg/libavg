@@ -26,8 +26,13 @@ import math
 import time
 
 from libavg import avg, Point2D
+try:
+    from alib.clicktest import ClickTest
+except ImportError:
+    ClickTest = None
 
 g_player = avg.Player.get()
+g_log = avg.Logger.get()
 
 class MemGraph():
     def __init__(self):
@@ -106,18 +111,17 @@ class AVGAppStarter(object):
         else:
             debugWindowSize = Point2D(0, 0)
 
-        log = avg.Logger.get()
-        log.setCategories(
-                log.APP |
-                log.WARNING |
-                log.ERROR |
-                log.PROFILE |
-        #       log.PROFILE_LATEFRAMES |
-                log.CONFIG  |
-        #       log.MEMORY  |
-        #       log.BLTS    |
-        #       log.EVENTS  |
-        #       log.EVENTS2  |
+        g_log.setCategories(
+                g_log.APP |
+                g_log.WARNING |
+                g_log.ERROR |
+                g_log.PROFILE |
+        #       g_log.PROFILE_LATEFRAMES |
+                g_log.CONFIG  |
+        #       g_log.MEMORY  |
+        #       g_log.BLTS    |
+        #       g_log.EVENTS  |
+        #       g_log.EVENTS2  |
         0)
 
         width = int(resolution.x)
@@ -152,11 +156,16 @@ class AVGAppStarter(object):
 
         self.bindKey('o', self.__dumpObjects)
         self.bindKey('m', self.__showMemoryUsage)
+        self.bindKey('.', self.__switchClickTest)
         self.__showingMemGraph = False
+
+        self.__runningClickTest = False
+        self._initClickTest()
 
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
         self._appInstance = self._AppClass(self._appNode)
+        self._appInstance.setStarter(self)
         g_player.play()
 
     def _onBeforePlay(self):
@@ -169,6 +178,12 @@ class AVGAppStarter(object):
         self._activeApp = self._appInstance
         self._appInstance.enter()
 
+    def _initClickTest(self):
+        if ClickTest:
+            self._clickTest = ClickTest(self._appNode, multiClick=False)
+        else:
+            self._clickTest = None
+            
     def bindKey(self, key, func):
         if key in self.__keyBindings:
             raise KeyError # no double key bindings
@@ -199,3 +214,14 @@ class AVGAppStarter(object):
         else:
             self.__memGraph = MemGraph()
         self.__showingMemGraph = not(self.__showingMemGraph)
+
+    def __switchClickTest(self):
+        if self._clickTest:
+            if self.__runningClickTest:
+                g_log.trace(g_log.APP, 'Stopping clicktest')
+                self._clickTest.stop()
+            else:
+                g_log.trace(g_log.APP, 'Starting clicktest')
+                self._clickTest.start()
+            
+            self.__runningClickTest = not self.__runningClickTest

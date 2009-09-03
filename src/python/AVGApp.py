@@ -31,6 +31,7 @@ class AVGApp(object):
         super(YourApp, self).__init__(parentNode)"""
         self.__isRunning = False
         self._parentNode = parentNode
+        self._starter = None
 
     def init(self):
         """main initialization
@@ -72,6 +73,9 @@ class AVGApp(object):
     def isRunning(self):
         return self.__isRunning
 
+    def setStarter(self, starter):
+        self._starter = starter
+        
     @classmethod
     def start(cls, *args, **kwargs):
         from AVGAppStarter import AVGAppStarter
