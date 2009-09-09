@@ -30,6 +30,11 @@ except ImportError:
     Calibrator = None
     #from .camcalibrator import Calibrator
 
+try:
+    from alib.clicktest import ClickTest
+except ImportError:
+    ClickTest = None
+
 g_player = avg.Player.get()
 
 class AVGMTAppStarter (AVGAppStarter):
