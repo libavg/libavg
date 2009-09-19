@@ -114,7 +114,6 @@ class AVGMTAppStarter (AVGAppStarter):
             self.bindKey('c', self.__enterCalibrator)
 
     def _initClickTest(self):
-        print 'init mt clicktest'
         if ClickTest:
             self._clickTest = ClickTest(self._appNode, multiClick=True)
         else:
