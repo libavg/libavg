@@ -96,11 +96,11 @@ std::string cameraFeatureToString(CameraFeature Feature);
 typedef boost::shared_ptr<Camera> CameraPtr;
 typedef std::map<CameraFeature, int> FeatureMap;
 
-CameraPtr createCamera(const std::string& sDriver, const std::string& sDevice, int unit, 
+AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sDevice, int unit, 
         bool bFW800, const IntPoint& captureSize, PixelFormat camPF, PixelFormat destPF, 
         double frameRate);
 
-void dumpCameras();
+AVG_API void dumpCameras();
 
 }
 
