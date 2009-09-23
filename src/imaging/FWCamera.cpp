@@ -178,8 +178,15 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
         setFeature(it->first, it->second, true);
     }
     setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
+    
     if (camPF == BAYER8) {
-        enablePtGreyBayer();
+        if (strcmp(m_pCamera->model, "DFx 31BF03") == 0) {
+            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for IS DFx31BF03 camera");
+            setCamPF(BAYER8_GRBG);
+        } else if (strcmp(m_pCamera->vendor, "Point Grey Research") == 0) {
+            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for PointGrey cameras");
+            enablePtGreyBayer();
+        }
     }
 #else
     assert(false);
