@@ -140,8 +140,7 @@ class PlayerTestCase(AVGTestCase):
                  getFramerate,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
-                 lambda: Player.setGamma(0.7, 0.7, 0.7),
-                 lambda: Player.setGamma(1.0, 1.0, 1.0),
+                 lambda: Player.setGamma(0.3, 0.3, 0.3),
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1)
                 ))
