@@ -84,8 +84,20 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size,
         setFeature(it->first, it->second, true);
     }
     setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
+
     if (camPF == BAYER8) {
-        enablePtGreyBayer();
+        char sModel[256], sVendor[256];
+        m_pCamera->GetCameraName(sModel, 256);
+        m_pCamera->GetCameraVendor(sVendor, 256);
+
+        if (strcmp(sModel, "DFx 31BF03") == 0) {
+            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for IS DFx31BF03 camera");
+            setCamPF(BAYER8_GRBG);
+        } else if (strcmp(sVendor, "Point Grey Research") == 0) {
+            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for PointGrey cameras");
+            enablePtGreyBayer();
+        }
+        
     }
 }
 
