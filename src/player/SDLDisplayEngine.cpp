@@ -128,7 +128,7 @@ SDLDisplayEngine::SDLDisplayEngine()
 
 SDLDisplayEngine::~SDLDisplayEngine()
 {
-    setGamma(1,1,1);
+    SDL_SetGamma(1.0, 1.0, 1.0);
 #ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
