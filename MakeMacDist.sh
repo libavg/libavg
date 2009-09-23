@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.9.0.pre3
+export VERSION=0.9.0
 export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
 fixLib()
