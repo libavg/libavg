@@ -77,13 +77,18 @@ void DisplayEngine::deinitRender()
     double TotalTime = double(TimeSource::get()->getCurrentMillisecs()
             -m_StartTime)/1000;
     AVG_TRACE(Logger::PROFILE, "  Total time: " << TotalTime << " seconds");
+    double actualFramerate = (m_NumFrames+1)/TotalTime;
     AVG_TRACE(Logger::PROFILE, "  Framerate achieved: " 
-            << (m_NumFrames+1)/TotalTime);
+            << actualFramerate);
     AVG_TRACE(Logger::PROFILE, "  Frames too late: " << m_FramesTooLate);
     AVG_TRACE(Logger::PROFILE, "  Percent of time spent waiting: " 
             << double (m_TimeSpentWaiting)/(10*TotalTime));
     if (m_Framerate != 0) {
         AVG_TRACE(Logger::PROFILE, "  Framerate goal was: " << m_Framerate);
+        if (m_Framerate*2 < actualFramerate) {
+            AVG_TRACE(Logger::WARNING, 
+                    "Actual framerate was a lot higher than framerate goal. Is vblank sync forced off?");
+        }
     }
     m_bInitialized = false;
 }
