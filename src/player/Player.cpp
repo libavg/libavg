@@ -129,9 +129,10 @@ Player::Player()
     
     m_pTestHelper = new TestHelper(this);
 
-    // Early initialization of TextEngine singleton
+    // Early initialization of TextEngine singletons (dualton? ;-))
     // to avoid locale clashes with Magick (bug 54)
-    TextEngine::get();
+    TextEngine::get(true);
+    TextEngine::get(false);
 
 #ifdef _WIN32
     Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());

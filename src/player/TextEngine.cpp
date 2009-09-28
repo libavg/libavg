@@ -27,10 +27,6 @@
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 
-#include <pango/pango.h>
-#include <pango/pangoft2.h>
-#include <fontconfig/fontconfig.h>
-
 #include <assert.h>
 #include <algorithm>
 
@@ -39,24 +35,37 @@ namespace avg {
 using namespace std;
 
 static void
-text_subst_func(FcPattern *pattern, gpointer data)
+text_subst_func_hint(FcPattern *pattern, gpointer data)
 {
-//  GimpText *text = GIMP_TEXT (data);
-
-  FcPatternAddBool(pattern, FC_HINTING, true);
-  FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
-  FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
-  FcPatternAddBool(pattern, FC_ANTIALIAS, true);
+    FcPatternAddBool(pattern, FC_HINTING, true);
+    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
+    FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
+    FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
 
-TextEngine& TextEngine::get() 
+static void
+text_subst_func_nohint(FcPattern *pattern, gpointer data)
 {
-    static TextEngine s_Instance;
-    return s_Instance;
+    FcPatternAddBool(pattern, FC_HINTING, false);
+    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
+    FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
+    FcPatternAddBool(pattern, FC_ANTIALIAS, true);
+}
+
+TextEngine& TextEngine::get(bool bHint) 
+{
+    if (bHint) {
+        static TextEngine s_Instance(true);
+        return s_Instance;
+    } else {
+        static TextEngine s_Instance(false);
+        return s_Instance;
+    }
 }
 
 
-TextEngine::TextEngine()
+TextEngine::TextEngine(bool bHint)
+    : m_bHint(bHint)
 {
     m_sFontDirs.push_back("fonts/");
     init();
@@ -71,12 +80,16 @@ void TextEngine::init()
 {
     pango_ft2_get_context(72, 72);
 
-    PangoFT2FontMap *pFontMap;
-    pFontMap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
-    pango_ft2_font_map_set_resolution (pFontMap, 72, 72);
-    pango_ft2_font_map_set_default_substitute (pFontMap, text_subst_func, 0, 0);
-    m_pPangoContext = pango_ft2_font_map_create_context (pFontMap);
-    g_object_unref (pFontMap);
+    m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
+    pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
+    if (m_bHint) {
+        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_hint, 
+                0, 0);
+    } else {
+        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_nohint, 
+                0, 0);
+    }
+    m_pPangoContext = pango_font_map_create_context(PANGO_FONT_MAP(m_pFontMap));
 
     pango_context_set_language(m_pPangoContext,
             pango_language_from_string ("en_US"));
@@ -87,7 +100,7 @@ void TextEngine::init()
     string sOldLang = "";
     getEnv("LC_CTYPE", sOldLang);
     setEnv("LC_CTYPE", "en-us");
-    pango_font_map_list_families(PANGO_FONT_MAP(pFontMap), &m_ppFontFamilies, 
+    pango_font_map_list_families(PANGO_FONT_MAP(m_pFontMap), &m_ppFontFamilies, 
             &m_NumFontFamilies);
     setEnv("LC_CTYPE", sOldLang);
     for (int i=0; i<m_NumFontFamilies; ++i) {
@@ -98,6 +111,7 @@ void TextEngine::init()
 
 void TextEngine::deinit()
 {
+    g_object_unref(m_pFontMap);
     g_free(m_ppFontFamilies);
     g_object_unref(m_pPangoContext);
     m_sFonts.clear();

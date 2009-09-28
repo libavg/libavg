@@ -23,6 +23,7 @@
 #define _TextEngine_H_
 
 #include <pango/pango.h>
+#include <pango/pangoft2.h>
 #include <fontconfig/fontconfig.h>
 
 #include <vector>
@@ -34,7 +35,7 @@ namespace avg {
 
 class TextEngine {
 public:
-    static TextEngine& get();
+    static TextEngine& get(bool bHint);
     virtual ~TextEngine();
 
     PangoContext * getPangoContext();
@@ -42,13 +43,13 @@ public:
     const std::vector<std::string>& getFontFamilies();
     const std::vector<std::string>& getFontVariants(const std::string& sFontName);
     void addFontDir(const std::string& sDir);
-        
+
     PangoFontDescription * getFontDescription(const std::string& sFamily, 
             const std::string& sVariant);
     void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
 
 private:
-    TextEngine();
+    TextEngine(bool bHint);
     void init();
     void deinit();
     void initFonts();
@@ -56,7 +57,9 @@ private:
 
     void checkFontError(int Ok, const std::string& sMsg);
 
+    bool m_bHint;
     PangoContext * m_pPangoContext;
+    PangoFT2FontMap * m_pFontMap;
     std::set<std::string> m_sFontsNotFound;
     std::set<std::pair<std::string, std::string> > m_VariantsNotFound;
     int m_NumFontFamilies;

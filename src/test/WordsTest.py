@@ -150,7 +150,28 @@ class WordsTestCase(AVGTestCase):
              setWordCharMode,
              lambda: self.compareImage("testWrapMode4", True),
              ])
-            
+
+    def testHinting(self):
+        def checkPositions():
+            root = Player.getRootNode()
+            self.assert_(root.getChild(0).getGlyphPos(6) != 
+                root.getChild(1).getGlyphPos(6))
+
+        Player.loadString("""
+        <avg width="160" height="120">
+          <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
+              variant="roman" hint="false"
+              text="Lorem ipsum dolor (no hinting)"/>
+          <words x="1" y="15" fontsize="12" font="Bitstream Vera Sans"
+              variant="roman" hint="true"
+              text="Lorem ipsum dolor (hinting)"/>
+        </avg>
+        """)
+        self.start(None,
+            [checkPositions
+            ])
+
+
     def testSpanWords(self):
         def setTextAttrib():
             self.baselineBmp = Player.screenshot()
@@ -386,6 +407,7 @@ def wordsTestSuite(tests):
             "testParaWords",
             "testJustify",
             "testWrapMode",
+            "testHinting",
             "testSpanWords",
             "testDynamicWords",
             "testI18NWords",

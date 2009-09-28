@@ -328,6 +328,9 @@ void export_raster()
                 "pixels, with 0 being standard spacing and negative values indicating\n"
                 "packed text (less letter spacing than normal). Only active when text\n"
                 "attribute markup is not being used.\n")
+        .add_property("hint", &Words::getHint, &Words::setHint,
+                "Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)\n"
+                "should be used when rendering the text. \n")
         .def("getGlyphPos", &Words::getGlyphPos,
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"

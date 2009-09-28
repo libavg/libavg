@@ -89,8 +89,11 @@ class AVG_API Words : public RasterNode
         double getLetterSpacing() const;
         void setLetterSpacing(double letterSpacing);
 
-        IntPoint getGlyphPos(int i);
-        IntPoint getGlyphSize(int i);
+        bool getHint() const;
+        void setHint(bool bHint);
+
+        DPoint getGlyphPos(int i);
+        DPoint getGlyphSize(int i);
         virtual IntPoint getMediaSize();
     
         static const std::vector<std::string>& getFontFamilies();
@@ -120,6 +123,7 @@ class AVG_API Words : public RasterNode
         PangoWrapMode m_WrapMode;
         bool m_bJustify;
         double m_LetterSpacing;
+        bool m_bHint;
 
         bool m_bParsedText;
         bool m_bRawTextMode;

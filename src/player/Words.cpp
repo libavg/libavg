@@ -97,6 +97,7 @@ NodeDefinition Words::createDefinition()
         .addArg(Arg<bool>("justify", false, false, offsetof(Words, m_bJustify)))
         .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)))
         .addArg(Arg<double>("letterspacing", 0, false, offsetof(Words, m_LetterSpacing)))
+        .addArg(Arg<bool>("hint", true, false, offsetof(Words, m_bHint)))
         ;
 }
 
@@ -208,6 +209,17 @@ void Words::setLetterSpacing(double letterSpacing)
     m_bDrawNeeded = true;
 }
 
+bool Words::getHint() const
+{
+    return m_bHint;
+}
+
+void Words::setHint(bool bHint)
+{
+    m_bHint = bHint;
+}
+
+
 double Words::getWidth() 
 {
     drawString();
@@ -239,7 +251,8 @@ const std::string& Words::getFontVariant() const
 
 void Words::addFontDir(const std::string& sDir)
 {
-    TextEngine::get().addFontDir(sDir);
+    TextEngine::get(true).addFontDir(sDir);
+    TextEngine::get(false).addFontDir(sDir);
 }
 
 void Words::setFontVariant(const std::string& sVariant)
@@ -338,16 +351,16 @@ void Words::setRawTextMode(bool RawTextMode)
     }
 }
 
-IntPoint Words::getGlyphPos(int i)
+DPoint Words::getGlyphPos(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
-    return IntPoint(rect.x/PANGO_SCALE, rect.y/PANGO_SCALE);
+    return DPoint(double(rect.x)/PANGO_SCALE, double(rect.y)/PANGO_SCALE);
 }
 
-IntPoint Words::getGlyphSize(int i)
+DPoint Words::getGlyphSize(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
-    return IntPoint(rect.width/PANGO_SCALE, rect.height/PANGO_SCALE);
+    return DPoint(double(rect.width)/PANGO_SCALE, double(rect.height)/PANGO_SCALE);
 }
 
 void Words::setWrapMode(const string& sWrapMode)
@@ -417,14 +430,14 @@ void Words::drawString()
             if (m_pFontDescription) {
                 pango_font_description_free(m_pFontDescription);
             }
-            m_pFontDescription = TextEngine::get().getFontDescription(m_sFontName, 
+            m_pFontDescription = TextEngine::get(m_bHint).getFontDescription(m_sFontName, 
                     m_sFontVariant);
             pango_font_description_set_absolute_size(m_pFontDescription,
                     (int)(m_FontSize * PANGO_SCALE));
 
             m_bFontChanged = false;
         }
-        PangoContext* pContext = TextEngine::get().getPangoContext();
+        PangoContext* pContext = TextEngine::get(m_bHint).getPangoContext();
         pango_context_set_font_description(pContext, m_pFontDescription);
 
         if (m_pLayout) {
@@ -572,12 +585,12 @@ IntPoint Words::getMediaSize()
 
 const vector<string>& Words::getFontFamilies()
 {
-    return TextEngine::get().getFontFamilies();
+    return TextEngine::get(true).getFontFamilies();
 }
 
 const vector<string>& Words::getFontVariants(const string& sFontName)
 {
-    return TextEngine::get().getFontVariants(sFontName);
+    return TextEngine::get(true).getFontVariants(sFontName);
 }
 
 string Words::removeExcessSpaces(const string & sText)
