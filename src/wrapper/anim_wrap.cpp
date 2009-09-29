@@ -164,9 +164,11 @@ void export_anim()
                 "@param endValue: Value of the attribute after duration has elapsed.\n"
                 "@param useInt: If True, the attribute is always set to an integer\n"
                 "value.\n"
-                "@param onStop: Python callable to invoke when duration has elapsed and\n"
-                "the animation has finished. This can be used to chain\n"
-                "animations together by using lambda to create a second animation.\n")
+                "@param onStart: Python callable to invoke when the animation starts.\n"
+                "@param onStop: Python callable to invoke when the animation has finished\n"
+                "running, either because it's run the allotted time, because abort has\n"
+                "been called or because another animation for the same attribute has been\n"
+                "started.\n")
         ;
     
     class_<EaseInOutAnim, boost::shared_ptr<EaseInOutAnim>, bases<SimpleAnim>, 
