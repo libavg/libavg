@@ -85,7 +85,7 @@ void DisplayEngine::deinitRender()
             << double (m_TimeSpentWaiting)/(10*TotalTime));
     if (m_Framerate != 0) {
         AVG_TRACE(Logger::PROFILE, "  Framerate goal was: " << m_Framerate);
-        if (m_Framerate*2 < actualFramerate) {
+        if (m_Framerate*2 < actualFramerate && m_NumFrames > 10) {
             AVG_TRACE(Logger::WARNING, 
                     "Actual framerate was a lot higher than framerate goal. Is vblank sync forced off?");
         }
