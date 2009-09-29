@@ -128,7 +128,6 @@ SDLDisplayEngine::SDLDisplayEngine()
 
 SDLDisplayEngine::~SDLDisplayEngine()
 {
-    SDL_SetGamma(1.0, 1.0, 1.0);
 #ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
@@ -286,6 +285,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 void SDLDisplayEngine::teardown()
 {
     if (m_pScreen) {
+        SDL_SetGamma(1.0, 1.0, 1.0);
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_ShowCursor(SDL_ENABLE);
