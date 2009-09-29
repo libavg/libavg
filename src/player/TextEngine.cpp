@@ -47,7 +47,8 @@ static void
 text_subst_func_nohint(FcPattern *pattern, gpointer data)
 {
     FcPatternAddBool(pattern, FC_HINTING, false);
-    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
+    FcPatternAddBool(pattern, FC_AUTOHINT, false);
+    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_NONE);
     FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
     FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
@@ -78,8 +79,7 @@ TextEngine::~TextEngine()
 
 void TextEngine::init()
 {
-    pango_ft2_get_context(72, 72);
-
+    g_type_init();
     m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
     pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
     if (m_bHint) {

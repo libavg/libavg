@@ -330,7 +330,9 @@ void export_raster()
                 "attribute markup is not being used.\n")
         .add_property("hint", &Words::getHint, &Words::setHint,
                 "Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)\n"
-                "should be used when rendering the text. \n")
+                "should be used when rendering the text. Unfortunately, this setting does\n"
+                "not override the fontconfig settings in /etc/fonts/conf.d/*-hinting.conf\n"
+                "or other fontconfig configuration files.\n")
         .def("getGlyphPos", &Words::getGlyphPos,
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"

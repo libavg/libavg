@@ -154,6 +154,9 @@ class WordsTestCase(AVGTestCase):
     def testHinting(self):
         def checkPositions():
             root = Player.getRootNode()
+#            node0 = root.getChild(0)
+#            for i in range(len(node0.text)):
+#                print node0.getGlyphPos(i)
             self.assert_(root.getChild(0).getGlyphPos(6) != 
                 root.getChild(1).getGlyphPos(6))
 
