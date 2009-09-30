@@ -49,6 +49,7 @@ private:
     TypeMap m_TypeMap;
 
     static ObjectCounter* s_pObjectCounter;
+    static bool s_bDeleted;
     friend void deleteObjectCounter();
 };
 

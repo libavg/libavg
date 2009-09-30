@@ -68,6 +68,8 @@ protected:
     void setStopped();
    
 private:
+    Anim();
+    Anim(const Anim&);
     boost::python::object m_StartCallback;
     boost::python::object m_StopCallback;
     bool m_bRunning;

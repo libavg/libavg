@@ -43,6 +43,7 @@ namespace avg {
 using namespace std;
 
 ObjectCounter* ObjectCounter::s_pObjectCounter = 0;
+bool ObjectCounter::s_bDeleted = false;
 boost::mutex * pCounterMutex;
 
 void deleteObjectCounter()
@@ -58,14 +59,20 @@ ObjectCounter::ObjectCounter()
 
 ObjectCounter::~ObjectCounter()
 {
+    s_bDeleted = true;
 }
 
 ObjectCounter * ObjectCounter::get()
 {
     if (!s_pObjectCounter) {
-        s_pObjectCounter = new ObjectCounter;
-        pCounterMutex = new boost::mutex;
-        atexit(deleteObjectCounter);
+        if (s_bDeleted) {
+            // This is _after_ the deleteObjectCounter has been called.
+            return 0;
+        } else {
+            s_pObjectCounter = new ObjectCounter;
+            pCounterMutex = new boost::mutex;
+            atexit(deleteObjectCounter);
+        }
     }
     return s_pObjectCounter;
 }
@@ -87,6 +94,11 @@ void ObjectCounter::incRef(const std::type_info* pType)
 void ObjectCounter::decRef(const std::type_info* pType)
 {
 #ifdef DEBUG_ALLOC
+    if (!this) {
+        // This happens if there are counted static objects that are deleted after 
+        // s_pObjectCounter has been deleted.
+        return;
+    }
     boost::mutex::scoped_lock Lock(*pCounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
