@@ -90,6 +90,8 @@ void ObjectCounter::decRef(const std::type_info* pType)
     boost::mutex::scoped_lock Lock(*pCounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
+        cerr << "ObjectCounter for " << demangle(pType->name()) 
+                << " does not exist." << endl;
         // Can't decref a type that hasn't been incref'd.
         assert (false);
     } else {

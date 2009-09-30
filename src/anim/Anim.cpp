@@ -34,12 +34,12 @@ Anim::Anim(const object& startCallback, const object& stopCallback)
       m_bRunning(false),
       m_bIsRoot(true)
 {
-//    ObjectCounter::get()->incRef(&typeid(*this));
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Anim::~Anim()
 {
-//    ObjectCounter::get()->decRef(&typeid(*this));
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void Anim::setStartCallback(const object& startCallback)
