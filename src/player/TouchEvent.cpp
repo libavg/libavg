@@ -108,16 +108,10 @@ vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
 void TouchEvent::trace()
 {
     Event::trace();
-    if(m_pBlob) {
-        AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
-                << ", ID: " << getCursorID()
-                << ", Area: " << m_pBlob->getArea()
-                << ", Eccentricity: " << m_pBlob->getEccentricity());
-    }
-    else {
-        AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position
-                << ", ID: " << getCursorID());
-    }
+    AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
+            << ", ID: " << getCursorID()
+            << ", Area: " << m_pBlob->getArea()
+            << ", Eccentricity: " << m_pBlob->getEccentricity());
 }
       
 }
