@@ -63,9 +63,12 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
         Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
         const DPoint& speed)
 {
+    BlobPtr pBlob(new Blob(Run(int(pos.y), int(pos.x), int(pos.x)+1)));
+    pBlob->calcStats();
     // The id is modified to avoid collisions with real touch events.
     TouchEventPtr pEvent(new TouchEvent(id+numeric_limits<int>::max()/2, eventType, 
-            BlobPtr(), IntPoint(pos), source, speed, IntPoint(lastDownPos)));
+            pBlob, IntPoint(pos), source, speed, IntPoint(lastDownPos)));
+
     m_Events.push_back(pEvent);
 }
 

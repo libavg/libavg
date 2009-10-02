@@ -246,6 +246,7 @@ const DPoint & Blob::getCenter() const
 {
     return m_Center;
 }
+
 const DPoint & Blob::getEstimatedNextCenter() const
 {
     return m_EstimatedNextCenter;
