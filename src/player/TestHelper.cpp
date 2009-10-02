@@ -28,6 +28,7 @@
 #include "../base/ObjectCounter.h"
 
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -62,8 +63,9 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
         Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
         const DPoint& speed)
 {
-    TouchEventPtr pEvent(new TouchEvent(id, eventType, BlobPtr(),
-            IntPoint(pos), source, speed, IntPoint(lastDownPos)));
+    // The id is modified to avoid collisions with real touch events.
+    TouchEventPtr pEvent(new TouchEvent(id+numeric_limits<int>::max()/2, eventType, 
+            BlobPtr(), IntPoint(pos), source, speed, IntPoint(lastDownPos)));
     m_Events.push_back(pEvent);
 }
 
