@@ -100,8 +100,7 @@ Player::Player()
       m_FrameTime(0),
       m_PlayStartTime(0),
       m_Volume(1),
-      m_bInPreRender(false),
-      m_bKillCurrentListener(false),
+      m_PreRenderSignal(&IPreRenderListener::onPreRender),
       m_dtd(0),
       m_bPythonAvailable(true)
 {
@@ -661,33 +660,12 @@ void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
 
 void Player::registerPreRenderListener(IPreRenderListener* pListener)
 {
-    std::vector<IPreRenderListener*>::iterator it;
-    for (it=m_PreRenderListeners.begin(); it != m_PreRenderListeners.end(); ++it) {
-        if (*it == pListener) {
-            cerr << "Attempt to register PreRenderListener twice: " << pListener << endl;
-            assert(false);
-        }
-    }
-    if (!m_bInPreRender) {
-        m_PreRenderListeners.push_back(pListener);
-    } else {
-        m_NewPreRenderListeners.push_back(pListener);
-    }
+    m_PreRenderSignal.connect(pListener);
 }
 
 void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 {
-    if (m_bInPreRender) {
-        m_bKillCurrentListener = true;
-    } else {
-        std::vector<IPreRenderListener*>::iterator it;
-        for (it=m_PreRenderListeners.begin(); it != m_PreRenderListeners.end(); ++it) {
-            if (*it == pListener) {
-                m_PreRenderListeners.erase(it);
-                break;
-            }
-        }
-    }
+    m_PreRenderSignal.disconnect(pListener);
 }
 
 string Player::getCurDirName()
@@ -719,7 +697,6 @@ void Player::disablePython()
 static ProfilingZone MainProfilingZone("Player - Total frame time");
 static ProfilingZone TimersProfilingZone("Player - handleTimers");
 static ProfilingZone EventsProfilingZone("Player - dispatch events");
-static ProfilingZone PreRenderProfilingZone("Player - PreRender");
 static ProfilingZone RenderProfilingZone("Player - render");
 static ProfilingZone FrameEndProfilingZone("Player - onFrameEnd");
 
@@ -744,24 +721,7 @@ void Player::doFrame()
             m_pEventDispatcher->dispatch();
             sendFakeEvents();
         }
-        {
-            ScopeTimer Timer(PreRenderProfilingZone);
-            m_bInPreRender = true;
-            std::vector<IPreRenderListener*>::iterator it;
-            for (it=m_PreRenderListeners.begin(); it != m_PreRenderListeners.end();) {
-                (*it)->onPreRender();
-                if (m_bKillCurrentListener) {
-                    it = m_PreRenderListeners.erase(it);
-                    m_bKillCurrentListener = false;
-                } else {
-                    ++it;
-                }
-            }
-            m_bInPreRender = false;
-            m_PreRenderListeners.insert(m_PreRenderListeners.end(), 
-                    m_NewPreRenderListeners.begin(), m_NewPreRenderListeners.end());
-            m_NewPreRenderListeners.clear();
-        }
+        handlePreRender();
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
             if (m_bPythonAvailable) {
@@ -793,6 +753,14 @@ void Player::doFrame()
     }
 */
     ThreadProfiler::get()->reset();
+}
+
+static ProfilingZone PreRenderProfilingZone("Player - PreRender");
+
+void Player::handlePreRender()
+{
+    ScopeTimer Timer(PreRenderProfilingZone);
+    m_PreRenderSignal.emit();
 }
 
 double Player::getFramerate()

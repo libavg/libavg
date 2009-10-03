@@ -37,6 +37,7 @@
 
 #include "../base/IFrameEndListener.h"
 #include "../base/IPreRenderListener.h"
+#include "../base/Signal.h"
 
 #include "../audio/AudioParams.h"
 
@@ -152,6 +153,7 @@ class AVG_API Player : IEventSink
         void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
         std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        void handlePreRender();
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -207,10 +209,7 @@ class AVG_API Player : IEventSink
         double m_Volume;
 
         std::vector<IFrameEndListener*> m_FrameEndListeners;
-        bool m_bInPreRender;
-        std::vector<IPreRenderListener*> m_PreRenderListeners;
-        bool m_bKillCurrentListener;
-        std::vector<IPreRenderListener*> m_NewPreRenderListeners;
+        Signal<IPreRenderListener> m_PreRenderSignal;
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 
