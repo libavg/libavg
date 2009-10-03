@@ -535,6 +535,9 @@ public:
     {
     }
 
+    virtual ~Listener()
+    {}
+
     virtual void func()
     {
         m_bFuncCalled = true;

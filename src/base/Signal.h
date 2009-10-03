@@ -47,6 +47,7 @@ public:
 private:
     ListenerFunc m_pFunc;
     std::list<LISTENEROBJ*> m_Listeners;
+    typedef typename std::list<LISTENEROBJ*>::iterator ListenerIterator;
     LISTENEROBJ* m_pCurrentListener;
     bool m_bKillCurrentListener;
 };
@@ -67,7 +68,7 @@ Signal<LISTENEROBJ>::~Signal()
 template<class LISTENEROBJ>
 void Signal<LISTENEROBJ>::connect(LISTENEROBJ* pListener)
 {
-    std::list<LISTENEROBJ*>::iterator it;
+    ListenerIterator it;
     it = find(m_Listeners.begin(), m_Listeners.end(), pListener);
     assert(it == m_Listeners.end());
     m_Listeners.push_back(pListener);
@@ -79,7 +80,7 @@ void Signal<LISTENEROBJ>::disconnect(LISTENEROBJ* pListener)
     if (m_pCurrentListener == pListener) {
         m_bKillCurrentListener = true;
     } else {
-        std::list<LISTENEROBJ*>::iterator it;
+        ListenerIterator it;
         it = find(m_Listeners.begin(), m_Listeners.end(), pListener);
         assert (it != m_Listeners.end());
         m_Listeners.erase(it);
@@ -89,7 +90,7 @@ void Signal<LISTENEROBJ>::disconnect(LISTENEROBJ* pListener)
 template<class LISTENEROBJ>
 void Signal<LISTENEROBJ>::emit()
 {
-    std::list<LISTENEROBJ*>::iterator it;
+    ListenerIterator it;
     for (it=m_Listeners.begin(); it != m_Listeners.end();) {
         m_pCurrentListener = *it;
         ((*it)->*m_pFunc)();   // This is the actual call to the listener.
