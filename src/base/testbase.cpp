@@ -33,6 +33,7 @@
 #include "CubicSpline.h"
 #include "BicubicSpline.h"
 #include "BezierCurve.h"
+#include "Signal.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -526,6 +527,159 @@ public:
     }
 };
 
+class Listener {
+public:
+    Listener(Signal<Listener>& signal)
+        : m_Signal(signal),
+          m_bFuncCalled(false)
+    {
+    }
+
+    virtual void func()
+    {
+        m_bFuncCalled = true;
+    }
+
+    bool funcCalled() const
+    {
+        return m_bFuncCalled;
+    }
+
+    void reset()
+    {
+        m_bFuncCalled = false;
+    }
+
+protected:
+    Signal<Listener>& m_Signal;
+
+private:
+    bool m_bFuncCalled;
+};
+
+class DisconnectingSelfListener: public Listener {
+public:
+    DisconnectingSelfListener(Signal<Listener>& signal)
+        : Listener(signal)
+    {
+    }
+
+    virtual void func()
+    {
+        Listener::func();
+        m_Signal.disconnect(this);
+    }
+};
+
+class DisconnectingOtherListener: public Listener {
+public:
+    DisconnectingOtherListener(Signal<Listener>& signal, Listener* pOther)
+        : Listener(signal),
+          m_pOther(pOther)
+    {
+    }
+
+    virtual void func()
+    {
+        Listener::func();
+        if (m_pOther) {
+            m_Signal.disconnect(m_pOther);
+            m_pOther = 0;
+        }
+    }
+
+private:
+    Listener* m_pOther;
+};
+
+class ConnectingOtherListener: public Listener {
+public:
+    ConnectingOtherListener(Signal<Listener>& signal, Listener* pOther)
+        : Listener(signal),
+          m_pOther(pOther)
+    {
+    }
+
+    virtual void func()
+    {
+        Listener::func();
+        if (m_pOther) {
+            m_Signal.connect(m_pOther);
+            m_pOther = 0;
+        }
+    }
+
+private:
+    Listener* m_pOther;
+};
+
+
+
+class SignalTest: public Test {
+public:
+    SignalTest()
+        : Test("SignalTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        Signal<Listener> s(&Listener::func);
+        Listener l1(s);
+        Listener l2(s);
+        s.connect(&l1);
+        s.connect(&l2);
+        s.emit();
+        TEST(l1.funcCalled() && l2.funcCalled());
+        l1.reset();
+        l2.reset();
+
+        s.disconnect(&l1);
+        s.emit();
+        TEST(!(l1.funcCalled()) && l2.funcCalled());
+        l2.reset();
+
+        {
+            DisconnectingSelfListener disconnecter(s);
+            s.connect(&disconnecter);
+            s.emit();
+            TEST(l2.funcCalled() && disconnecter.funcCalled());
+            TEST(s.getNumListeners() == 1);
+            l2.reset();
+            disconnecter.reset();
+
+            s.emit();
+            TEST(l2.funcCalled() && !(disconnecter.funcCalled()));
+            l2.reset();
+        }
+        {
+            DisconnectingOtherListener disconnecter(s, &l2);
+            s.connect(&disconnecter);
+            s.emit();
+            TEST(l2.funcCalled() && disconnecter.funcCalled());
+            TEST(s.getNumListeners() == 1);
+            l2.reset();
+            disconnecter.reset();
+
+            s.emit();
+            TEST(!(l2.funcCalled()) && disconnecter.funcCalled());
+            s.disconnect(&disconnecter);
+        }
+        {
+            ConnectingOtherListener connecter(s, &l2);
+            s.connect(&connecter);
+            s.emit();
+            TEST(l2.funcCalled() && connecter.funcCalled());
+            TEST(s.getNumListeners() == 2);
+            l2.reset();
+            connecter.reset();
+
+            s.emit();
+            TEST(l2.funcCalled() && connecter.funcCalled());
+        }
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -541,6 +695,7 @@ public:
         addTest(TestPtr(new StringTest));
         addTest(TestPtr(new SplineTest));
         addTest(TestPtr(new BezierCurveTest));
+        addTest(TestPtr(new SignalTest));
     }
 };
 
