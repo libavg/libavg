@@ -135,6 +135,7 @@ class AVG_API Player : IEventSink
         void loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
+
     private:
         void initConfig();
         void initGraphics();
@@ -206,7 +207,10 @@ class AVG_API Player : IEventSink
         double m_Volume;
 
         std::vector<IFrameEndListener*> m_FrameEndListeners;
+        bool m_bInPreRender;
         std::vector<IPreRenderListener*> m_PreRenderListeners;
+        bool m_bKillCurrentListener;
+        std::vector<IPreRenderListener*> m_NewPreRenderListeners;
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 

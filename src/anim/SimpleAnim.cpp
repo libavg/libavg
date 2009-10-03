@@ -67,6 +67,9 @@ SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, long long du
 
 SimpleAnim::~SimpleAnim()
 {
+    if (isRunning()) {
+        setStopped();
+    }
 }
 
 void SimpleAnim::start(bool bKeepAttr)
