@@ -184,6 +184,11 @@ Player* Player::get()
     return s_pPlayer;
 }
 
+bool Player::exists()
+{
+    return s_pPlayer;
+}
+
 void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
     m_DP.m_bFullscreen = bFullscreen;
@@ -306,7 +311,6 @@ void Player::play()
             throw;
         }
         cleanup();
-
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
         throw;

@@ -39,7 +39,6 @@ Anim::Anim(const object& startCallback, const object& stopCallback)
 
 Anim::~Anim()
 {
-    assert(!m_bRunning);
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 

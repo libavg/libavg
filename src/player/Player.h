@@ -62,6 +62,7 @@ class AVG_API Player : IEventSink
         Player();
         virtual ~Player();
         static Player* get();
+        static bool exists();
 
         void updateDTD();
 

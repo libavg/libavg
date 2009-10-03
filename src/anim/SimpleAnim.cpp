@@ -67,7 +67,7 @@ SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, long long du
 
 SimpleAnim::~SimpleAnim()
 {
-    if (isRunning()) {
+    if (Player::exists() && isRunning()) {
         setStopped();
     }
 }
