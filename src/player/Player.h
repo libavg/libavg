@@ -154,7 +154,6 @@ class AVG_API Player : IEventSink
         void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
         std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
-        void handlePreRender();
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -209,7 +208,7 @@ class AVG_API Player : IEventSink
 
         double m_Volume;
 
-        std::vector<IFrameEndListener*> m_FrameEndListeners;
+        Signal<IFrameEndListener> m_FrameEndSignal;
         Signal<IPreRenderListener> m_PreRenderSignal;
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
