@@ -14,6 +14,6 @@ endif
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
-lib_LTLIBRARIES = libColorNode.la
+noinst_LTLIBRARIES = libColorNode.la
 libColorNode_la_SOURCES = ColorNode.cpp 
 libColorNode_la_LDFLAGS = $(EXTRA_LDFLAGS) -module 
