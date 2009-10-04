@@ -231,10 +231,23 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 void TextEngine::initFonts()
 {
     g_type_init();
-    std::string sFontConfPath = "/etc/fonts/fonts.conf"; 
-    if (!fileExists(sFontConfPath)) {
-        sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
+
+    std::vector<std::string> fontConfPathPrefixList;
+#ifndef WIN32
+    fontConfPathPrefixList.push_back("/");
+    fontConfPathPrefixList.push_back("/usr/local/");
+    fontConfPathPrefixList.push_back("/opt/local/");
+#endif
+    fontConfPathPrefixList.push_back(getAvgLibPath());
+
+    std::string sFontConfPath;
+    for (size_t i = 0; i < fontConfPathPrefixList.size(); ++i) {
+        sFontConfPath = fontConfPathPrefixList[i] + "etc/fonts/fonts.conf";
+        if (fileExists(sFontConfPath)) {
+            break;
+        }
     }
+
     FcConfig * pConfig = FcConfigCreate();
     int Ok = (int)FcConfigParseAndLoad(pConfig, 
             (const FcChar8 *)(sFontConfPath.c_str()), true);
