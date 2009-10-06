@@ -194,17 +194,12 @@ void VertexArray::update()
 {
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
-        glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
-                GL_STREAM_DRAW);
-        void * pOGLBuffer = glproc::MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pOGLBuffer, m_pVertexData, m_NumVerts*sizeof(T2V3C4Vertex));
-        glproc::UnmapBuffer(GL_ARRAY_BUFFER);
+        glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumVerts*sizeof(T2V3C4Vertex),
+                m_pVertexData);
         glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-        glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
-                m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
-        pOGLBuffer = glproc::MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pOGLBuffer, m_pIndexData, m_NumIndexes*sizeof(unsigned int));
-        glproc::UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        glproc::BufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_NumIndexes*sizeof(unsigned int),
+                m_pIndexData);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::update");
     }
     m_bDataChanged = false;
 }
@@ -242,7 +237,7 @@ void VertexArray::setBufferSize()
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
     glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
             GL_STREAM_DRAW);
-    glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLVertexBufferID);
+    glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
     glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
             m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
 }
