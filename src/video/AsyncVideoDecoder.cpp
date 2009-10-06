@@ -277,10 +277,10 @@ PixelFormat AsyncVideoDecoder::getPixelFormat()
     return m_PF;
 }
 
-FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
+FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
     FrameAvailableCode FrameAvailable;
-    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
         pBmp->copyPixels(*(pFrameMsg->getBitmap(0)));
         returnFrame(pFrameMsg);
@@ -289,10 +289,10 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long Time
 }
 
 FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-       BitmapPtr pBmpCr, long long TimeWanted)
+       BitmapPtr pBmpCr, long long timeWanted)
 {
     FrameAvailableCode FrameAvailable;
-    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
         pBmpY->copyPixels(*(pFrameMsg->getBitmap(0)));
         pBmpCb->copyPixels(*(pFrameMsg->getBitmap(1)));
@@ -314,6 +314,12 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
         default:
             return false;
     }
+}
+
+void AsyncVideoDecoder::throwAwayFrame(long long timeWanted)
+{
+    FrameAvailableCode FrameAvailable;
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
 }
 
 int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
@@ -366,22 +372,22 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     return pBuffer->getNumFrames();
 }
         
-FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted, 
+FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted, 
         FrameAvailableCode& FrameAvailable)
 {
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
     long long FrameTime = -1000;
     FrameVideoMsgPtr pFrameMsg;
-    if (TimeWanted == -1) {
+    if (timeWanted == -1) {
         pFrameMsg = getNextBmps(true);
         FrameAvailable = FA_NEW_FRAME;
     } else {
         if (getMasterStream() == SS_AUDIO) {
-            TimeWanted = m_LastAudioFrameTime;
+            timeWanted = m_LastAudioFrameTime;
         }
         double TimePerFrame = 1000.0/getFPS();
-        if (fabs(double(TimeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
-                m_LastVideoFrameTime > TimeWanted+TimePerFrame) {
+        if (fabs(double(timeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
+                m_LastVideoFrameTime > timeWanted+TimePerFrame) {
             // The last frame is still current. Display it again.
             FrameAvailable = FA_USE_LAST_FRAME;
             return FrameVideoMsgPtr();
@@ -390,7 +396,7 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
                 FrameAvailable = FA_USE_LAST_FRAME;
                 return FrameVideoMsgPtr();
             }
-            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
+            while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
                 returnFrame(pFrameMsg);
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {

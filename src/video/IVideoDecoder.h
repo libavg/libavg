@@ -62,10 +62,11 @@ class AVG_API IVideoDecoder
         virtual void setVolume(double Volume) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted) = 0;
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr, long long TimeWanted) = 0;
+                BitmapPtr pBmpCr, long long timeWanted) = 0;
         virtual bool isEOF(StreamSelect Stream = SS_ALL) = 0;
+        virtual void throwAwayFrame(long long timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };

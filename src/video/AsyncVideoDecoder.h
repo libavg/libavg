@@ -63,15 +63,16 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         virtual void setVolume(double Volume);
         virtual PixelFormat getPixelFormat();
 
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr, long long TimeWanted);
+                BitmapPtr pBmpCr, long long timeWanted);
         virtual bool isEOF(StreamSelect Stream = SS_ALL);
+        virtual void throwAwayFrame(long long timeWanted);
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         
     private:
-        FrameVideoMsgPtr getBmpsForTime(long long TimeWanted, 
+        FrameVideoMsgPtr getBmpsForTime(long long timeWanted, 
                 FrameAvailableCode& FrameAvailable);
         FrameVideoMsgPtr getNextBmps(bool bWait);
         void waitForSeekDone();

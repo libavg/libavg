@@ -506,11 +506,11 @@ void FFMpegDecoder::setVolume(double Volume)
     m_Volume = Volume;
 }
 
-FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
+FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
-    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
+    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
     if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
         convertFrameToBmp(Frame, pBmp);
         return FA_NEW_FRAME;
@@ -534,11 +534,11 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 }
 
 FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-        BitmapPtr pBmpCr, long long TimeWanted)
+        BitmapPtr pBmpCr, long long timeWanted)
 {
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
-    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
+    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
     if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
 //        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
@@ -547,6 +547,12 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
         return FA_NEW_FRAME;
     }
     return FA_USE_LAST_FRAME;
+}
+
+void FFMpegDecoder::throwAwayFrame(long long timeWanted)
+{
+    AVFrame Frame;
+    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
 }
 
 bool FFMpegDecoder::isEOF(StreamSelect Stream)
@@ -878,7 +884,7 @@ void FFMpegDecoder::initVideoSupport()
     }
 }
 
-FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long TimeWanted)
+FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long timeWanted)
 {
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
@@ -886,16 +892,16 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 /*
     bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");
     if (bDebug) {
-        cerr << m_sFilename << " readFrameForTime " << TimeWanted 
+        cerr << m_sFilename << " readFrameForTime " << timeWanted 
                 << ", LastFrameTime= " << m_LastFrameTime << ", diff= " 
-                << TimeWanted-m_LastFrameTime << endl;
+                << timeWanted-m_LastFrameTime << endl;
     }
 */    
-    if (TimeWanted == -1) {
+    if (timeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
         double TimePerFrame = 1000/m_FPS;
-        if (TimeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
+        if (timeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
 /*            
             if (bDebug) {
                 cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
@@ -905,7 +911,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
             // The last frame is still current. Display it again.
             return FA_USE_LAST_FRAME;
         } else {
-            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
+            while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
                 readFrame(Frame, FrameTime);
 /*                
                 if (bDebug) {
