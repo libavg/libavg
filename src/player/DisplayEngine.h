@@ -91,8 +91,6 @@ class AVG_API DisplayEngine
         virtual bool initVBlank(int rate) = 0;
         virtual bool vbWait(int rate) = 0;
         
-        void calcEffFramerate();
-        
         int m_NumFrames;
         int m_FramesTooLate;
         long long m_FrameWaitStartTime;

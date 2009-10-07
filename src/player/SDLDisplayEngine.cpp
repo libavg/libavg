@@ -928,7 +928,7 @@ EventPtr SDLDisplayEngine::createMouseEvent
     if (m_LastMousePos.x == -1) {
         speed = DPoint(0,0);
     } else {
-        double lastFrameTime = 1000/getFramerate();
+        double lastFrameTime = 1000/getEffectiveFramerate();
         speed = DPoint(x-m_LastMousePos.x, y-m_LastMousePos.y)/lastFrameTime;
     }
     MouseEventPtr pEvent(new MouseEvent(Type, (buttonState & SDL_BUTTON(1)) != 0,

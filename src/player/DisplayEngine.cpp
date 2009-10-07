@@ -113,14 +113,17 @@ double DisplayEngine::getEffectiveFramerate()
     return m_EffFramerate;
 }
 
-bool DisplayEngine::setVBlankRate(int rate) {
-    m_VBRate = rate;
+bool DisplayEngine::setVBlankRate(int rate)
+{
     if (m_bInitialized) {
         bool bOK = initVBlank(rate);
         if (bOK && rate != 0) { 
+            m_VBRate = rate;
             m_Framerate = 0;
             return true;
         } else {
+            m_VBRate = 0;
+            m_Framerate = 60;
             return false;
         }
     } else {
@@ -140,7 +143,6 @@ void DisplayEngine::frameWait()
     ScopeTimer Timer(WaitProfilingZone);
 
     m_NumFrames++;
-    calcEffFramerate();
 
     m_FrameWaitStartTime = TimeSource::get()->getCurrentMillisecs();
     m_TargetTime = m_LastFrameTime+(long long)(1000000/m_Framerate);
@@ -182,6 +184,16 @@ DisplayEngine::BlendMode DisplayEngine::stringToBlendMode(const string& s)
 
 void DisplayEngine::checkJitter()
 {
+    double CurIntervalTime = 0;
+    if (m_StartFramerateCalcTime == 0) {
+        m_EffFramerate = 0;
+    } else {
+        CurIntervalTime = TimeSource::get()->getCurrentMicrosecs()
+                -m_StartFramerateCalcTime;
+        m_EffFramerate = 1000000.0/CurIntervalTime;
+    }
+    m_StartFramerateCalcTime = TimeSource::get()->getCurrentMicrosecs();
+
     m_LastFrameTime = TimeSource::get()->getCurrentMillisecs()*1000;
     int maxDelay;
     if (m_VBRate == 0) {
@@ -199,16 +211,4 @@ void DisplayEngine::checkJitter()
     m_TimeSpentWaiting += m_LastFrameTime/1000-m_FrameWaitStartTime;
 }
    
-void DisplayEngine::calcEffFramerate()
-{
-    if (m_StartFramerateCalcTime == 0) {
-        m_EffFramerate = 0;
-    } else {
-        long long CurIntervalTime = TimeSource::get()->getCurrentMillisecs()
-                -m_StartFramerateCalcTime;
-        m_EffFramerate = 1000.0/CurIntervalTime;
-    }
-    m_StartFramerateCalcTime = TimeSource::get()->getCurrentMillisecs();
-}
-
 }
