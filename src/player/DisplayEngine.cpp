@@ -33,7 +33,7 @@ namespace avg {
 DisplayEngine::DisplayEngine()
     : m_NumFrames(0),
       m_VBRate(0),
-      m_Framerate(30),
+      m_Framerate(60),
       m_bInitialized(false),
       m_StartFramerateCalcTime(0),
       m_EffFramerate(0)
