@@ -91,7 +91,7 @@ long long TimeSource::getCurrentMicrosecs()
 {
     long long ticks;
 #ifdef _WIN32
-    ticks = timeGetTime()*1000;
+    ticks = (long long)(timeGetTime())*1000;
 #else
     struct timeval now;
     gettimeofday(&now, NULL);

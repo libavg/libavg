@@ -35,7 +35,6 @@ DisplayEngine::DisplayEngine()
       m_VBRate(0),
       m_Framerate(60),
       m_bInitialized(false),
-      m_StartFramerateCalcTime(0),
       m_EffFramerate(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -63,7 +62,6 @@ void DisplayEngine::initRender()
     m_TimeSpentWaiting = 0;
     m_StartTime = TimeSource::get()->getCurrentMillisecs();
     m_LastFrameTime = m_StartTime*1000;
-    m_LastVideoFrameTime = 0;
     m_bInitialized = true;
     if (!bUseVBlank) {
         m_VBRate = 0;
@@ -82,7 +80,7 @@ void DisplayEngine::deinitRender()
             << actualFramerate);
     AVG_TRACE(Logger::PROFILE, "  Frames too late: " << m_FramesTooLate);
     AVG_TRACE(Logger::PROFILE, "  Percent of time spent waiting: " 
-            << double (m_TimeSpentWaiting)/(10*TotalTime));
+            << double (m_TimeSpentWaiting)/(10000*TotalTime));
     if (m_Framerate != 0) {
         AVG_TRACE(Logger::PROFILE, "  Framerate goal was: " << m_Framerate);
         if (m_Framerate*2 < actualFramerate && m_NumFrames > 10) {
@@ -144,15 +142,14 @@ void DisplayEngine::frameWait()
 
     m_NumFrames++;
 
-    m_FrameWaitStartTime = TimeSource::get()->getCurrentMillisecs();
+    m_FrameWaitStartTime = TimeSource::get()->getCurrentMicrosecs();
     m_TargetTime = m_LastFrameTime+(long long)(1000000/m_Framerate);
     if (m_VBRate != 0) {
         m_bFrameLate = !vbWait(m_VBRate);
-        m_LastVideoFrameTime += (long long)(1000000/m_Framerate);
     } else {
         m_bFrameLate = false;
-        if (m_FrameWaitStartTime <= m_TargetTime/1000) {
-            long long WaitTime = m_TargetTime/1000-m_FrameWaitStartTime;
+        if (m_FrameWaitStartTime <= m_TargetTime) {
+            long long WaitTime = (m_TargetTime-m_FrameWaitStartTime)/1000;
             if (WaitTime > 5000) {
                 AVG_TRACE (Logger::WARNING, 
                         "DisplayEngine: waiting " << WaitTime << " ms.");
@@ -184,31 +181,33 @@ DisplayEngine::BlendMode DisplayEngine::stringToBlendMode(const string& s)
 
 void DisplayEngine::checkJitter()
 {
-    double CurIntervalTime = 0;
-    if (m_StartFramerateCalcTime == 0) {
+    if (m_LastFrameTime == 0) {
         m_EffFramerate = 0;
     } else {
-        CurIntervalTime = TimeSource::get()->getCurrentMicrosecs()
-                -m_StartFramerateCalcTime;
+        long long CurIntervalTime = TimeSource::get()->getCurrentMicrosecs()
+                -m_LastFrameTime;
         m_EffFramerate = 1000000.0/CurIntervalTime;
     }
-    m_StartFramerateCalcTime = TimeSource::get()->getCurrentMicrosecs();
 
-    m_LastFrameTime = TimeSource::get()->getCurrentMillisecs()*1000;
+    long long frameTime = TimeSource::get()->getCurrentMicrosecs();
     int maxDelay;
     if (m_VBRate == 0) {
         maxDelay = 2;
     } else {
         maxDelay = 6;
     }
-    if ((m_LastFrameTime - m_TargetTime)/1000 > maxDelay || m_bFrameLate) {
+    if ((frameTime - m_TargetTime)/1000 > maxDelay || m_bFrameLate) {
         AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
                 "DisplayEngine: frame too late by " 
-                << (m_LastFrameTime - m_TargetTime)/1000 << " ms.");
+                << (frameTime - m_TargetTime)/1000 << " ms.");
         m_bFrameLate = true;
         m_FramesTooLate++;
     }
-    m_TimeSpentWaiting += m_LastFrameTime/1000-m_FrameWaitStartTime;
+    
+    m_LastFrameTime = frameTime;
+    m_TimeSpentWaiting += m_LastFrameTime-m_FrameWaitStartTime;
+//    cerr << m_LastFrameTime << ", m_FrameWaitStartTime=" << m_FrameWaitStartTime << endl;
+//    cerr << m_TimeSpentWaiting << endl;
 }
    
 }

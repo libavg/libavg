@@ -93,18 +93,18 @@ class AVG_API DisplayEngine
         
         int m_NumFrames;
         int m_FramesTooLate;
-        long long m_FrameWaitStartTime;
-        long long m_TimeSpentWaiting;
         long long m_StartTime;
-        long long m_TargetTime;     // in microseconds.
+        long long m_TimeSpentWaiting;
+
+        // Per-Frame timings.
         long long m_LastFrameTime;  // in microseconds.
-        long long m_LastVideoFrameTime;  // measured by counting refreshes, in microseconds.
+        long long m_FrameWaitStartTime;
+        long long m_TargetTime;     // in microseconds.
         int m_VBRate;
         double m_Framerate;
         bool m_bInitialized;
         bool m_bFrameLate;
 
-        long long m_StartFramerateCalcTime;
         double m_EffFramerate;
 };
 
