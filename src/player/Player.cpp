@@ -371,15 +371,14 @@ void Player::setFramerate(double rate) {
     }
 }
 
-bool Player::setVBlankFramerate(int rate)
+void Player::setVBlankFramerate(int rate)
 {
     // TODO: Why does this function return anything?
     if (m_bIsPlaying) {
-        return m_pDisplayEngine->setVBlankRate(rate);
+        m_pDisplayEngine->setVBlankRate(rate);
     } else {
         m_DP.m_Framerate = 0;
         m_DP.m_VBRate = rate;
-        return true;
     }
 }
         

@@ -52,7 +52,7 @@ class AVG_API DisplayEngine
         void setFramerate(double rate);
         double getFramerate();
         double getEffectiveFramerate();
-        bool setVBlankRate(int rate);
+        void setVBlankRate(int rate);
         bool wasFrameLate();
         virtual double getRefreshRate() = 0;
         virtual void setGamma(double Red, double Green, double Blue) = 0;
@@ -65,7 +65,8 @@ class AVG_API DisplayEngine
         virtual bool pushClipRect(const DRect& rc) = 0;
         virtual void popClipRect() = 0;
         virtual const DRect& getClipRect() = 0;
-        virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot) = 0;
+        virtual void pushTransform(const DPoint& translate, double angle, 
+                const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
 
         virtual int getWidth() = 0;
@@ -97,9 +98,9 @@ class AVG_API DisplayEngine
         long long m_TimeSpentWaiting;
 
         // Per-Frame timings.
-        long long m_LastFrameTime;  // in microseconds.
+        long long m_LastFrameTime;  
         long long m_FrameWaitStartTime;
-        long long m_TargetTime;     // in microseconds.
+        long long m_TargetTime;
         int m_VBRate;
         double m_Framerate;
         bool m_bInitialized;

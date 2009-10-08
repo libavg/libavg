@@ -81,7 +81,7 @@ class AVG_API Player : IEventSink
         void cleanup();
         bool isPlaying();
         void setFramerate(double rate);
-        bool setVBlankFramerate(int rate);
+        void setVBlankFramerate(int rate);
         double getEffectiveFramerate();
         TestHelper * getTestHelper();
         void setFakeFPS(double fps);

@@ -644,32 +644,32 @@ void SDLDisplayEngine::checkShaderSupport()
     }
 }
 
-bool SDLDisplayEngine::initVBlank(int rate) {
-    
+void SDLDisplayEngine::initMacVBlank(int rate)
+{
+#ifdef __APPLE__
+    CGLContextObj context = CGLGetCurrentContext();
+    assert (context);
+    if (rate != 1) {
+        AVG_TRACE(Logger::WARNING,
+                "VBlank rate set to " << rate 
+                << " but Mac OS X only supports 1. Assuming 1.");
+    }
+#if MAC_OS_X_VERSION_10_5
+    const GLint l = 1;
+#else
+    const long l = 1;
+#endif
+    CGLError err = CGLSetParameter(Context, kCGLCPSwapInterval, &l);
+    assert(!err);
+#endif
+}
+
+bool SDLDisplayEngine::initVBlank(int rate) 
+{
     if (rate > 0 && m_DesiredVSyncMode != VSYNC_NONE) {
 #ifdef __APPLE__
-        CGLContextObj Context = CGLGetCurrentContext();
-        if (Context == 0) {
-            AVG_TRACE(Logger::WARNING,
-                    "Mac VBlank setup failed in CGLGetCurrentContext().");
-        }
-        if (rate != 1) {
-            AVG_TRACE(Logger::WARNING,
-                    "VBlank rate set to " << rate << " but Mac OS X only supports 1. Assuming 1.");
-        }
-#if MAC_OS_X_VERSION_10_5
-        const GLint l = 1;
-#else
-        const long l = 1;
-#endif
-        CGLError err = CGLSetParameter(Context, kCGLCPSwapInterval, &l);
+        bOk = initMacVBlank(rate);
         m_VBMethod = VB_APPLE;
-        if (err) {
-            AVG_TRACE(Logger::WARNING,
-                    "Mac VBlank setup failed with error code " << 
-                    CGLErrorString(err) << "(" << err << ").");
-            m_VBMethod = VB_NONE;
-        }
 #elif defined _WIN32
         if (queryOGLExtension("WGL_EXT_swap_control")) {
             glproc::SwapIntervalEXT(rate);
@@ -687,10 +687,29 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             m_VBMethod = VB_NONE;
         } else {
             m_VBMethod = VB_SGI;
+            glproc::SwapIntervalSGI(rate);
+
             m_bFirstVBFrame = true;
         }
 #endif
     } else {
+        switch (m_VBMethod) {
+            case VB_APPLE:
+                initMacVBlank(0);
+                break;
+            case VB_WIN:
+#ifdef _WIN32
+                glproc::SwapIntervalEXT(0);
+#endif
+                break;
+            case VB_SGI:
+#ifdef linux            
+                glproc::SwapIntervalSGI(rate);
+#endif
+                break;
+            default:
+                break;
+        }
         m_VBMethod = VB_NONE;
     }
     switch(m_VBMethod) {
@@ -715,36 +734,7 @@ bool SDLDisplayEngine::initVBlank(int rate) {
 
 bool SDLDisplayEngine::vbWait(int rate) {
     switch(m_VBMethod) {
-#ifdef linux
-        case VB_SGI: {
-                unsigned int count;
-                int err = glproc::WaitVideoSyncSGI(rate, m_VBMod, &count);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "VBlank::glXWaitVideoSyncSGI");
-                if (err) {
-                    AVG_TRACE(Logger::ERROR, "glXWaitVideoSyncSGI returned " 
-                            << err << ".");
-                    AVG_TRACE(Logger::ERROR, "Rate was " << rate 
-                            << ", Mod was " << m_VBMod);
-                    AVG_TRACE(Logger::ERROR, "Aborting.");
-                    assert(false);
-                }
-                m_VBMod = count % rate;
-                bool bMissed;
-                if (!m_bFirstVBFrame && int(count) != m_LastVBCount+rate) {
-                    AVG_TRACE(Logger::PROFILE_LATEFRAMES, count-m_LastVBCount
-                            << " VBlank intervals missed, should be " 
-                            << rate);
-                    bMissed = true;
-                } else {
-                    bMissed = false;
-                }
-                m_LastVBCount = count;
-                m_bFirstVBFrame = false;
-                return !bMissed;
-            }
-            break;
-#endif
+        case VB_SGI:
         case VB_APPLE:
         case VB_WIN:
             return true;

@@ -48,23 +48,14 @@ DisplayEngine::~DisplayEngine()
 
 void DisplayEngine::initRender()
 {
-    bool bUseVBlank = false;
-    if (m_VBRate != 0) {
-        bUseVBlank = initVBlank(m_VBRate);
-        m_Framerate = getRefreshRate()/m_VBRate;
-        if (!bUseVBlank) {
-            AVG_TRACE(Logger::WARNING, "Using framerate of " << m_Framerate << 
-                    " instead of VBRate of " << m_VBRate);
-        }
-    }
     m_NumFrames = 0;
     m_FramesTooLate = 0;
     m_TimeSpentWaiting = 0;
     m_StartTime = TimeSource::get()->getCurrentMicrosecs();
     m_LastFrameTime = m_StartTime;
     m_bInitialized = true;
-    if (!bUseVBlank) {
-        m_VBRate = 0;
+    if (m_VBRate != 0) {
+        setVBlankRate(m_VBRate);
     }
 }
 
@@ -111,21 +102,17 @@ double DisplayEngine::getEffectiveFramerate()
     return m_EffFramerate;
 }
 
-bool DisplayEngine::setVBlankRate(int rate)
+void DisplayEngine::setVBlankRate(int rate)
 {
+    m_VBRate = rate;
     if (m_bInitialized) {
         bool bOK = initVBlank(rate);
-        if (bOK && rate != 0) { 
-            m_VBRate = rate;
-            m_Framerate = 0;
-            return true;
-        } else {
+        m_Framerate = getRefreshRate()/m_VBRate;
+        if (!bOK || rate == 0) { 
+            AVG_TRACE(Logger::WARNING, "Using framerate of " << m_Framerate << 
+                    " instead of VBRate of " << m_VBRate);
             m_VBRate = 0;
-            m_Framerate = 60;
-            return false;
         }
-    } else {
-        return true;
     }
 }
 
