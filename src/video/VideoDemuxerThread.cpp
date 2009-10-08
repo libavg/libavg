@@ -86,7 +86,7 @@ bool VideoDemuxerThread::work()
        
         // On EOF, we send a message which has pPacket=0
         m_PacketQs[ShortestQ]->push(PacketVideoMsgPtr(new PacketVideoMsg(pPacket, false)));
-        sleep(0);
+        msleep(0);
     }
     return true;
 }
