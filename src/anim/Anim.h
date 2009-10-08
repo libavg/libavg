@@ -40,6 +40,17 @@
 
 namespace avg {
 
+struct ObjAttrID {
+    ObjAttrID(const boost::python::object& node, const std::string& sAttrName)
+        : m_Node(node),
+          m_sAttrName(sAttrName)
+    {
+    }
+    boost::python::object m_Node;
+    std::string m_sAttrName;
+    bool operator < (const ObjAttrID& other) const;
+};
+
 class Anim;
 class GroupAnim;
 
@@ -67,6 +78,13 @@ public:
 protected:
     void setStopped();
    
+    void registerAttrAnim(const boost::python::object& node, 
+            const std::string& sAttrName);
+    static void unregisterAttrAnim(const boost::python::object& node, 
+            const std::string& sAttrName);
+    static void stopActiveAttrAnim(const boost::python::object& node, 
+            const std::string& sAttrName);
+
 private:
     Anim();
     Anim(const Anim&);
@@ -74,6 +92,9 @@ private:
     boost::python::object m_StopCallback;
     bool m_bRunning;
     bool m_bIsRoot;
+
+    typedef std::map<ObjAttrID, AnimPtr> AttrAnimationMap;
+    static AttrAnimationMap s_ActiveAnimations;
 };
 
 }

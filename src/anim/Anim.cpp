@@ -28,6 +28,28 @@ using namespace std;
 
 namespace avg {
    
+Anim::AttrAnimationMap Anim::s_ActiveAnimations;
+
+bool ObjAttrID::operator < (const ObjAttrID& other) const
+{
+    Node * pNode = extract<Node*>(m_Node);
+    Node * pOtherNode = extract<Node*>(other.m_Node);
+    if (pNode < pOtherNode) {
+        return true;
+    } else if (pNode > pOtherNode) {
+        return false;
+    } else if (m_sAttrName < other.m_sAttrName) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int Anim::getNumRunningAnims()
+{
+    return s_ActiveAnimations.size();
+}
+
 Anim::Anim(const object& startCallback, const object& stopCallback)
     : m_StartCallback(startCallback),
       m_StopCallback(stopCallback),
@@ -96,5 +118,26 @@ void Anim::setStopped()
         call<void>(m_StopCallback.ptr());
     }
 }
+
+void Anim::registerAttrAnim(const object& node, const string& sAttrName)
+{
+    s_ActiveAnimations[ObjAttrID(node, sAttrName)] = shared_from_this();
+}
+
+void Anim::unregisterAttrAnim(const object& node, const string& sAttrName)
+{
+    s_ActiveAnimations.erase(ObjAttrID(node, sAttrName));
+}
+
+void Anim::stopActiveAttrAnim(const object& node, const string& sAttrName)
+{
+    ObjAttrID id(node, sAttrName);
+    AttrAnimationMap::iterator it = s_ActiveAnimations.find(id);
+    if (it != s_ActiveAnimations.end()) {
+        it->second->abort();
+    }
+}
+
+
 
 }

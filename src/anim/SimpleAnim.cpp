@@ -29,28 +29,6 @@ using namespace std;
 
 namespace avg {
    
-SimpleAnim::AttrAnimationMap SimpleAnim::s_ActiveAnimations;
-
-bool ObjAttrID::operator < (const ObjAttrID& other) const
-{
-    Node * pNode = extract<Node*>(m_Node);
-    Node * pOtherNode = extract<Node*>(other.m_Node);
-    if (pNode < pOtherNode) {
-        return true;
-    } else if (pNode > pOtherNode) {
-        return false;
-    } else if (m_sAttrName < other.m_sAttrName) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-int SimpleAnim::getNumRunningAnims()
-{
-    return s_ActiveAnimations.size();
-}
-
 SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, long long duration, 
         const object& startValue, const object& endValue, bool bUseInt, 
         const object& startCallback, const object& stopCallback)
@@ -74,10 +52,9 @@ SimpleAnim::~SimpleAnim()
 
 void SimpleAnim::start(bool bKeepAttr)
 {
-    abortAnim(m_Node, m_sAttrName);
+    stopActiveAttrAnim(m_Node, m_sAttrName);
     Anim::start();
-    s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = 
-            dynamic_pointer_cast<SimpleAnim>(shared_from_this());
+    registerAttrAnim(m_Node, m_sAttrName);
     if (bKeepAttr) {
         m_StartTime = calcStartTime();
     } else {
@@ -219,18 +196,8 @@ double SimpleAnim::getStartPart(double start, double end, double cur)
 void SimpleAnim::remove() 
 {
     AnimPtr tempThis = shared_from_this();
-    s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
+    unregisterAttrAnim(m_Node, m_sAttrName);
     setStopped();
 }
-
-void SimpleAnim::abortAnim(const object& node, const string& sAttrName)
-{
-    ObjAttrID id(node, sAttrName);
-    AttrAnimationMap::iterator it = s_ActiveAnimations.find(id);
-    if (it != s_ActiveAnimations.end()) {
-        it->second->remove();
-    }
-}
-
 
 }

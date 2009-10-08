@@ -36,24 +36,11 @@
 
 namespace avg {
 
-struct ObjAttrID {
-    ObjAttrID(const boost::python::object& node, const std::string& sAttrName)
-        : m_Node(node),
-          m_sAttrName(sAttrName)
-    {
-    }
-    boost::python::object m_Node;
-    std::string m_sAttrName;
-    bool operator < (const ObjAttrID& other) const;
-};
-
 class SimpleAnim;
 typedef boost::shared_ptr<class SimpleAnim> SimpleAnimPtr;
 
 class AVG_API SimpleAnim: public Anim {
 public:
-    static int getNumRunningAnims();
-
     SimpleAnim(const boost::python::object& node, const std::string& sAttrName,
             long long duration,
             const boost::python::object& pStartValue, 
@@ -87,11 +74,6 @@ private:
     boost::python::object m_EndValue;
     bool m_bUseInt;
     long long m_StartTime;
-
-    typedef std::map<ObjAttrID, SimpleAnimPtr> AttrAnimationMap;
-    static AttrAnimationMap s_ActiveAnimations;
-    static void abortAnim(const boost::python::object& node, 
-            const std::string& sAttrName);
 };
 
 }
