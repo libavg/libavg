@@ -649,7 +649,7 @@ void SDLDisplayEngine::initMacVBlank(int rate)
 #ifdef __APPLE__
     CGLContextObj context = CGLGetCurrentContext();
     assert (context);
-    if (rate != 1) {
+    if (rate > 1) {
         AVG_TRACE(Logger::WARNING,
                 "VBlank rate set to " << rate 
                 << " but Mac OS X only supports 1. Assuming 1.");
@@ -659,7 +659,7 @@ void SDLDisplayEngine::initMacVBlank(int rate)
 #else
     const long l = 1;
 #endif
-    CGLError err = CGLSetParameter(Context, kCGLCPSwapInterval, &l);
+    CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
     assert(!err);
 #endif
 }
@@ -668,7 +668,7 @@ bool SDLDisplayEngine::initVBlank(int rate)
 {
     if (rate > 0 && m_DesiredVSyncMode != VSYNC_NONE) {
 #ifdef __APPLE__
-        bOk = initMacVBlank(rate);
+        initMacVBlank(rate);
         m_VBMethod = VB_APPLE;
 #elif defined _WIN32
         if (queryOGLExtension("WGL_EXT_swap_control")) {
