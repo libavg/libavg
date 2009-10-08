@@ -98,7 +98,6 @@ Player::Player()
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
-      m_PlayStartTime(0),
       m_Volume(1),
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
       m_PreRenderSignal(&IPreRenderListener::onPreRender),
@@ -354,7 +353,6 @@ void Player::initPlayback()
         m_pTracker->start();
     }
 
-    m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
     m_FrameTime = 0;
     m_NumFrames = 0;
 }
@@ -709,8 +707,6 @@ void Player::doFrame()
             m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
         } else {
             m_FrameTime = m_pDisplayEngine->getDisplayTime();
-//            cerr << m_FrameTime << endl;
-//            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
         }
         {
             ScopeTimer Timer(TimersProfilingZone);

@@ -60,8 +60,8 @@ void DisplayEngine::initRender()
     m_NumFrames = 0;
     m_FramesTooLate = 0;
     m_TimeSpentWaiting = 0;
-    m_StartTime = TimeSource::get()->getCurrentMillisecs();
-    m_LastFrameTime = m_StartTime*1000;
+    m_StartTime = TimeSource::get()->getCurrentMicrosecs();
+    m_LastFrameTime = m_StartTime;
     m_bInitialized = true;
     if (!bUseVBlank) {
         m_VBRate = 0;
@@ -72,8 +72,8 @@ void DisplayEngine::deinitRender()
 {
     AVG_TRACE(Logger::PROFILE, "Framerate statistics: ");
     AVG_TRACE(Logger::PROFILE, "  Total frames: " << m_NumFrames);
-    double TotalTime = double(TimeSource::get()->getCurrentMillisecs()
-            -m_StartTime)/1000;
+    double TotalTime = double(TimeSource::get()->getCurrentMicrosecs()
+            -m_StartTime)/1000000;
     AVG_TRACE(Logger::PROFILE, "  Total time: " << TotalTime << " seconds");
     double actualFramerate = (m_NumFrames+1)/TotalTime;
     AVG_TRACE(Logger::PROFILE, "  Framerate achieved: " 
@@ -161,7 +161,7 @@ void DisplayEngine::frameWait()
 
 long long DisplayEngine::getDisplayTime() 
 {
-    return m_LastFrameTime/1000-m_StartTime;
+    return (m_LastFrameTime-m_StartTime)/1000;
 }
 
 DisplayEngine::BlendMode DisplayEngine::stringToBlendMode(const string& s)
