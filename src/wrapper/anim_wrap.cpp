@@ -24,6 +24,7 @@
 #include "../anim/SimpleAnim.h"
 #include "../anim/LinearAnim.h"
 #include "../anim/EaseInOutAnim.h"
+#include "../anim/ContinuousAnim.h"
 #include "../anim/WaitAnim.h"
 #include "../anim/ParallelAnim.h"
 #include "../anim/StateAnim.h"
@@ -34,10 +35,7 @@ using namespace boost::python;
 using namespace std;
 using namespace avg;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(simple_start_overloads, SimpleAnim::start, 0, 1);
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(wait_start_overloads, WaitAnim::start, 0, 1);
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(parallel_start_overloads, ParallelAnim::start, 
-        0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(start_overloads, start, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setState_overloads, StateAnim::setState, 1, 2);
 BOOST_PYTHON_FUNCTION_OVERLOADS(fadeIn_overloads, fadeIn, 2, 4);
 BOOST_PYTHON_FUNCTION_OVERLOADS(fadeOut_overloads, fadeOut, 2, 3);
@@ -89,6 +87,34 @@ AnimPtr EaseInOutAnim_create9(const object& node, const string& sAttrName, long 
             easeInDuration, easeOutDuration, bUseInt, startCallback);
 }
 
+AnimPtr ContinuousAnim_create4(const object& node, const string& sAttrName,
+            const object& startValue, const object& speed)
+{
+    return ContinuousAnim::create(node, sAttrName, startValue, speed);
+}
+
+AnimPtr ContinuousAnim_create5(const object& node, const string& sAttrName,
+            const object& startValue, const object& speed, bool bUseInt)
+{
+    return ContinuousAnim::create(node, sAttrName, startValue, speed, bUseInt);
+}
+
+AnimPtr ContinuousAnim_create6(const object& node, const string& sAttrName,
+            const object& startValue, const object& speed, bool bUseInt, 
+            const object& startCallback)
+{
+    return ContinuousAnim::create(node, sAttrName, startValue, speed, bUseInt,
+            startCallback);
+}
+
+AnimPtr ContinuousAnim_create7(const object& node, const string& sAttrName,
+            const object& startValue, const object& speed, bool bUseInt,
+            const object& startCallback, const object& stopCallback)
+{
+    return ContinuousAnim::create(node, sAttrName, startValue, speed, bUseInt,
+            startCallback, stopCallback);
+}
+
 AnimPtr WaitAnim_create0()
 {
     return WaitAnim::create();
@@ -134,7 +160,12 @@ void export_anim()
         .def("isRunning", &Anim::isRunning)
         ;
 
-    class_<SimpleAnim, boost::shared_ptr<SimpleAnim>, bases<Anim>, 
+    class_<AttrAnim, boost::shared_ptr<AttrAnim>, bases<Anim>, boost::noncopyable>
+            ("AttrAnim", no_init)
+        .def("start", &AttrAnim::start, start_overloads(args("bKeepAttr")))
+        ;
+
+    class_<SimpleAnim, boost::shared_ptr<SimpleAnim>, bases<AttrAnim>, 
             boost::noncopyable>("SimpleAnim",
             "Base class for animations that change libavg node attributes by\n"
             "interpolating over a set amount of time. Constructing an animation\n"
@@ -145,7 +176,6 @@ void export_anim()
             "of a node runs at any given time. If a second one is started, the first\n"
             "one is aborted.",
             no_init)
-        .def("start", &SimpleAnim::start, simple_start_overloads(args("bKeepAttr")))
         ;
 
     class_<LinearAnim, boost::shared_ptr<LinearAnim>, bases<SimpleAnim>, 
@@ -183,14 +213,22 @@ void export_anim()
         .def("__init__", make_constructor(EaseInOutAnim_create9))
         .def("__init__", make_constructor(EaseInOutAnim::create))
         ;
-    
+   
+    class_<ContinuousAnim, boost::shared_ptr<ContinuousAnim>, bases<AttrAnim>, 
+            boost::noncopyable>("ContinuousAnim", no_init)
+        .def("__init__", make_constructor(ContinuousAnim_create4)) 
+        .def("__init__", make_constructor(ContinuousAnim_create5)) 
+        .def("__init__", make_constructor(ContinuousAnim_create6)) 
+        .def("__init__", make_constructor(ContinuousAnim_create7)) 
+        ;
+
     class_<WaitAnim, boost::shared_ptr<WaitAnim>, bases<Anim>, boost::noncopyable>(
             "WaitAnim", no_init)
         .def("__init__", make_constructor(WaitAnim_create0))
         .def("__init__", make_constructor(WaitAnim_create1))
         .def("__init__", make_constructor(WaitAnim_create2))
         .def("__init__", make_constructor(WaitAnim::create))
-        .def("start", &WaitAnim::start, wait_start_overloads(args("bKeepAttr")))
+        .def("start", &WaitAnim::start, start_overloads(args("bKeepAttr")))
         ;
     
     class_<ParallelAnim, boost::shared_ptr<ParallelAnim>, bases<Anim>, 
@@ -199,7 +237,7 @@ void export_anim()
         .def("__init__", make_constructor(ParallelAnim_create2))
         .def("__init__", make_constructor(ParallelAnim_create3))
         .def("__init__", make_constructor(ParallelAnim::create))
-        .def("start", &ParallelAnim::start, parallel_start_overloads(args("bKeepAttr")))
+        .def("start", &ParallelAnim::start, start_overloads(args("bKeepAttr")))
         ;
       
     class_<AnimState, boost::noncopyable>("AnimState", no_init)

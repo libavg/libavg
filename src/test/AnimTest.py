@@ -198,6 +198,7 @@ class AnimTestCase(AVGTestCase):
     def testIntAnim(self):
         def startAnim():
             self.__anim.start()
+
         self.initScene()
         self.__doubleAnim = avg.LinearAnim(self.__node, "x", 300, 0, 100, True)
         self.__pointAnim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(0,0), 
@@ -225,41 +226,36 @@ class AnimTestCase(AVGTestCase):
         self.testAnimType(curAnim, "testSplineAnim")
 
     def testContinuousAnim(self):
-        def onStart():
-            Player.setTimeout(10,startAnim)
-            Player.setTimeout(100,lambda:self.compareImage("testContAnim1", False))
-            Player.setTimeout(200,startAnim2)
-            Player.setTimeout(400,lambda:self.compareImage("testContAnim2", False))
-            Player.setTimeout(450,startAnim3)
-            Player.setTimeout(700,lambda:self.compareImage("testContAnim3", False))
-            Player.setTimeout(800,stopAnim)
-            Player.setTimeout(900,lambda:self.compareImage("testContAnim4", False))
-            Player.setTimeout(1000,Player.stop)
         def startAnim():
-            node=Player.getElementByID("mainimg")
-            self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
-            self.anim.start()
-        def startAnim2():
-            node=Player.getElementByID("nestedimg1")
-            self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
-            self.anim2.start()
-        def startAnim3():
-            node=Player.getElementByID("nestedimg2")
-            self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
-            self.anim3.start()
-        def stopAnim():
-            self.anim.abort()
-            self.anim2.abort()
-            self.anim3.abort()
-            self.anim = None
-            self.anim2 = None
-            self.anim3 = None
+            self.__animStarted = True
 
-        Player.setFakeFPS(25)
-        anim.init(avg)
-        Player.loadFile("avg.avg")
-        Player.setTimeout(1, onStart)
-        Player.play()
+        def stopAnim():
+            self.__animStopped = True
+
+        def reset():
+            self.__animStarted = False
+            self.__animStopped = False
+
+        self.initScene()
+        self.__anim = avg.ContinuousAnim(self.__node, "angle", 0, 2*math.pi, 
+            False, startAnim, stopAnim)
+        self.__linearAnim = avg.LinearAnim(self.__node, "angle", 1000, math.pi, math.pi)
+
+        self.__animStarted = False
+        self.__animStopped = False
+        self.start(None,
+                (self.__anim.start,
+                 lambda: self.assert_(self.__animStarted),
+                 lambda: self.compareImage("testContinuousAnim1", False),
+                 self.__anim.abort,
+                 lambda: self.assert_(self.__animStopped),
+                 reset,
+                 self.__anim.start,
+                 self.__linearAnim.start,
+                 lambda: self.assert_(self.__animStopped),
+                 lambda: self.compareImage("testContinuousAnim2", False),
+                 self.__linearAnim.abort,
+                ))
 
     def testWaitAnim(self):
         def animStopped():
@@ -403,7 +399,7 @@ def animTestSuite(tests):
         "testEaseInOutAnim",
         "testIntAnim",
 #        "testSplineAnim",
-#        "testContinuousAnim",
+        "testContinuousAnim",
         "testWaitAnim",
         "testParallelAnim",
         "testStateAnim",

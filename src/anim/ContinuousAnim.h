@@ -19,57 +19,44 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SimpleAnim_H_
-#define _SimpleAnim_H_
+#ifndef _ContinuousAnim_H_
+#define _ContinuousAnim_H_
 
 #include "../api.h"
-// Python docs say python.h should be included before any standard headers (!)
-#include "../player/WrapPython.h" 
 
-#include "AttrAnim.h"
-#include "../player/Node.h"
-
-#include <boost/python.hpp>
-
-#include <string>
-#include <map>
+#include "SimpleAnim.h"
 
 namespace avg {
 
-class SimpleAnim;
-typedef boost::shared_ptr<class SimpleAnim> SimpleAnimPtr;
-
-class AVG_API SimpleAnim: public AttrAnim 
-{
+class AVG_API ContinuousAnim: public AttrAnim {
 public:
-    SimpleAnim(const boost::python::object& node, const std::string& sAttrName,
-            long long duration,
-            const boost::python::object& pStartValue, 
-            const boost::python::object& pEndValue, 
-            bool bUseInt, 
-            const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
-    virtual ~SimpleAnim()=0;
-
+    virtual ~ContinuousAnim();
+    
+    static AnimPtr create(const boost::python::object& node, const std::string& sAttrName,
+            const boost::python::object& startValue, 
+            const boost::python::object& speed, 
+            bool bUseInt=false, 
+            const boost::python::object& startCallback=boost::python::object(), 
+            const boost::python::object& stopCallback=boost::python::object());
+    
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     virtual bool step();
 
 protected:
-    double getStartTime() const;
-    long long getDuration() const;
+    ContinuousAnim(const boost::python::object& node, const std::string& sAttrName, 
+            const boost::python::object& startValue, 
+            const boost::python::object& speed, 
+            bool bUseInt, 
+            const boost::python::object& startCallback, 
+            const boost::python::object& stopCallback);
 
-    virtual double interpolate(double t)=0;
-    void remove();
-    
 private:
-    long long calcStartTime();
-    virtual double getStartPart(double start, double end, double cur);
-
-    long long m_Duration;
     boost::python::object m_StartValue;
-    boost::python::object m_EndValue;
+    boost::python::object m_Speed;
     bool m_bUseInt;
+    
+    boost::python::object m_EffStartValue;
     long long m_StartTime;
 };
 

@@ -27,6 +27,7 @@
 #include "Anim.h"
 
 #include <vector>
+#include <map>
 
 namespace avg {
 

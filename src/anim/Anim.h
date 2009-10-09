@@ -28,28 +28,14 @@
 
 #include "../base/IPreRenderListener.h"
 
-#include "../player/Node.h"
-
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 #include <string>
-#include <map>
 
 namespace avg {
-
-struct ObjAttrID {
-    ObjAttrID(const boost::python::object& node, const std::string& sAttrName)
-        : m_Node(node),
-          m_sAttrName(sAttrName)
-    {
-    }
-    boost::python::object m_Node;
-    std::string m_sAttrName;
-    bool operator < (const ObjAttrID& other) const;
-};
 
 class Anim;
 class GroupAnim;
@@ -57,10 +43,9 @@ class GroupAnim;
 typedef boost::shared_ptr<class Anim> AnimPtr;
 typedef boost::weak_ptr<class Anim> AnimWeakPtr;
 
-class AVG_API Anim: public boost::enable_shared_from_this<Anim>, IPreRenderListener {
+class AVG_API Anim: public boost::enable_shared_from_this<Anim>, IPreRenderListener
+{
 public:
-    static int getNumRunningAnims();
-
     Anim(const boost::python::object& startCallback, 
             const boost::python::object& stopCallback);
     virtual ~Anim();
@@ -78,13 +63,6 @@ public:
 protected:
     void setStopped();
    
-    void registerAttrAnim(const boost::python::object& node, 
-            const std::string& sAttrName);
-    static void unregisterAttrAnim(const boost::python::object& node, 
-            const std::string& sAttrName);
-    static void stopActiveAttrAnim(const boost::python::object& node, 
-            const std::string& sAttrName);
-
 private:
     Anim();
     Anim(const Anim&);
@@ -92,10 +70,14 @@ private:
     boost::python::object m_StopCallback;
     bool m_bRunning;
     bool m_bIsRoot;
-
-    typedef std::map<ObjAttrID, AnimPtr> AttrAnimationMap;
-    static AttrAnimationMap s_ActiveAnimations;
 };
+
+template<class T>
+bool isPythonType(const boost::python::object& obj)
+{
+    boost::python::extract<T> ext(obj);
+    return ext.check();
+}
 
 }
 

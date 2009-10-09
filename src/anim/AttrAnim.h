@@ -19,58 +19,71 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SimpleAnim_H_
-#define _SimpleAnim_H_
+#ifndef _AttrAnim_H_
+#define _AttrAnim_H_
+
+#include "Anim.h"
 
 #include "../api.h"
 // Python docs say python.h should be included before any standard headers (!)
 #include "../player/WrapPython.h" 
 
-#include "AttrAnim.h"
 #include "../player/Node.h"
 
 #include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include <string>
 #include <map>
 
 namespace avg {
 
-class SimpleAnim;
-typedef boost::shared_ptr<class SimpleAnim> SimpleAnimPtr;
+struct ObjAttrID {
+    ObjAttrID(const boost::python::object& node, const std::string& sAttrName)
+        : m_Node(node),
+          m_sAttrName(sAttrName)
+    {
+    }
+    boost::python::object m_Node;
+    std::string m_sAttrName;
+    bool operator < (const ObjAttrID& other) const;
+};
 
-class AVG_API SimpleAnim: public AttrAnim 
+class AttrAnim;
+
+typedef boost::shared_ptr<class Anim> AttrAnimPtr;
+typedef boost::weak_ptr<class Anim> AttrAnimWeakPtr;
+
+class AVG_API AttrAnim: public Anim
 {
 public:
-    SimpleAnim(const boost::python::object& node, const std::string& sAttrName,
-            long long duration,
-            const boost::python::object& pStartValue, 
-            const boost::python::object& pEndValue, 
-            bool bUseInt, 
+    static int getNumRunningAnims();
+
+    AttrAnim(const boost::python::object& node, const std::string& sAttrName,
             const boost::python::object& startCallback, 
             const boost::python::object& stopCallback);
-    virtual ~SimpleAnim()=0;
-
+    virtual ~AttrAnim();
+    
     virtual void start(bool bKeepAttr=false);
-    virtual void abort();
-    virtual bool step();
 
 protected:
-    double getStartTime() const;
-    long long getDuration() const;
+    boost::python::object getValue() const;
+    void setValue(const boost::python::object& val);
 
-    virtual double interpolate(double t)=0;
-    void remove();
-    
+    void addToMap();
+    void removeFromMap();
+    void stopActiveAttrAnim();
+
 private:
-    long long calcStartTime();
-    virtual double getStartPart(double start, double end, double cur);
+    AttrAnim();
+    AttrAnim(const AttrAnim&);
 
-    long long m_Duration;
-    boost::python::object m_StartValue;
-    boost::python::object m_EndValue;
-    bool m_bUseInt;
-    long long m_StartTime;
+    boost::python::object m_Node;
+    std::string m_sAttrName;
+
+    typedef std::map<ObjAttrID, AttrAnimPtr> AttrAnimationMap;
+    static AttrAnimationMap s_ActiveAnimations;
 };
 
 }

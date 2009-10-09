@@ -32,15 +32,12 @@ namespace avg {
 SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, long long duration, 
         const object& startValue, const object& endValue, bool bUseInt, 
         const object& startCallback, const object& stopCallback)
-    : Anim(startCallback, stopCallback),
-      m_Node(node),
-      m_sAttrName(sAttrName),
+    : AttrAnim(node, sAttrName, startCallback, stopCallback),
       m_Duration(duration),
       m_StartValue(startValue),
       m_EndValue(endValue),
       m_bUseInt(bUseInt)
 {
-    object obj = getValue();
 }
 
 SimpleAnim::~SimpleAnim()
@@ -52,9 +49,7 @@ SimpleAnim::~SimpleAnim()
 
 void SimpleAnim::start(bool bKeepAttr)
 {
-    stopActiveAttrAnim(m_Node, m_sAttrName);
-    Anim::start();
-    registerAttrAnim(m_Node, m_sAttrName);
+    AttrAnim::start();
     if (bKeepAttr) {
         m_StartTime = calcStartTime();
     } else {
@@ -73,13 +68,6 @@ void SimpleAnim::abort()
     if (isRunning()) {
         remove();
     }
-}
-
-template<class T>
-bool isPythonType(const object& obj)
-{
-    extract<T> ext(obj);
-    return ext.check();
 }
 
 template<class T>
@@ -134,16 +122,6 @@ long long SimpleAnim::getDuration() const
     return m_Duration;
 }
 
-object SimpleAnim::getValue() const
-{
-    return m_Node.attr(m_sAttrName.c_str());
-}
-
-void SimpleAnim::setValue(const object& val)
-{
-    m_Node.attr(m_sAttrName.c_str()) = val;
-}
-
 long long SimpleAnim::calcStartTime()
 {
     double part;
@@ -196,7 +174,7 @@ double SimpleAnim::getStartPart(double start, double end, double cur)
 void SimpleAnim::remove() 
 {
     AnimPtr tempThis = shared_from_this();
-    unregisterAttrAnim(m_Node, m_sAttrName);
+    removeFromMap();
     setStopped();
 }
 
