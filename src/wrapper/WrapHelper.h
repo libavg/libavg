@@ -279,7 +279,7 @@ struct Point_to_python_tuple
     }
 };
 
-template<class POINT>
+template<class POINT, class ATTR>
 struct DPoint_from_python_tuple
 {
     DPoint_from_python_tuple() 
@@ -299,9 +299,9 @@ struct DPoint_from_python_tuple
     {
         POINT pt;
         PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-        pt.x = PyFloat_AsDouble(pEntry);
+        pt.x = (ATTR)PyFloat_AsDouble(pEntry);
         pEntry = PyTuple_GetItem(obj_ptr, 1);
-        pt.y = PyFloat_AsDouble(pEntry);
+        pt.y = (ATTR)PyFloat_AsDouble(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
                     ->storage.bytes;

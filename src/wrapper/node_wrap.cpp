@@ -56,7 +56,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 // Without this stuff, python code like node.pos.x=30 would fail silently. With it,
 // it throws an exception.
 template<class CLASS, const DPoint& (CLASS::*FUNC)() const>
-ConstDPoint constPointGetter(const CLASS& node)
+ConstDPoint constPointGetterRef(const CLASS& node)
 {
     return (node.*FUNC)();
 }
@@ -162,7 +162,7 @@ void export_node()
                 "The position of the node's left edge relative to it's parent node.\n")
         .add_property("y", &AreaNode::getY, &AreaNode::setY,
                 "The position of the node's top edge relative to it's parent node.\n")
-        .add_property("pos", &constPointGetter<AreaNode, &AreaNode::getPos>, 
+        .add_property("pos", &constPointGetterRef<AreaNode, &AreaNode::getPos>, 
                 &AreaNode::setPos,
                 "The position of the node's top left corner relative to it's parent node.\n")
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
@@ -368,9 +368,9 @@ void export_node()
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
             no_init)
-        .add_property("pos1", &constPointGetter<LineNode, &LineNode::getPos1>,
+        .add_property("pos1", &constPointGetterRef<LineNode, &LineNode::getPos1>,
                 &LineNode::setPos1)
-        .add_property("pos2", &constPointGetter<LineNode, &LineNode::getPos2>,
+        .add_property("pos2", &constPointGetterRef<LineNode, &LineNode::getPos2>,
                 &LineNode::setPos2)
         .add_property("x1", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
         .add_property("y1", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
@@ -382,7 +382,7 @@ void export_node()
 
     class_<RectNode, bases<FilledVectorNode>, boost::noncopyable>("RectNode", 
             no_init)
-        .add_property("pos", &constPointGetter<RectNode, &RectNode::getPos>, 
+        .add_property("pos", &constPointGetterRef<RectNode, &RectNode::getPos>, 
                 &RectNode::setPos)
         .add_property("size", &constPointGetter<RectNode, &RectNode::getSize>,
                 &RectNode::setSize)
@@ -400,13 +400,13 @@ void export_node()
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 
             no_init)
-        .add_property("pos1", &constPointGetter<CurveNode, &CurveNode::getPos1>,
+        .add_property("pos1", &constPointGetterRef<CurveNode, &CurveNode::getPos1>,
                &CurveNode::setPos1)
-        .add_property("pos2", &constPointGetter<CurveNode, &CurveNode::getPos2>,
+        .add_property("pos2", &constPointGetterRef<CurveNode, &CurveNode::getPos2>,
                &CurveNode::setPos2)
-        .add_property("pos3", &constPointGetter<CurveNode, &CurveNode::getPos3>,
+        .add_property("pos3", &constPointGetterRef<CurveNode, &CurveNode::getPos3>,
                &CurveNode::setPos3)
-        .add_property("pos4", &constPointGetter<CurveNode, &CurveNode::getPos4>,
+        .add_property("pos4", &constPointGetterRef<CurveNode, &CurveNode::getPos4>,
                &CurveNode::setPos4)
         .add_property("x1", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
         .add_property("y1", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
@@ -439,7 +439,7 @@ void export_node()
 
     class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 
             no_init)
-        .add_property("pos", &constPointGetter<CircleNode, &CircleNode::getPos>,
+        .add_property("pos", &constPointGetterRef<CircleNode, &CircleNode::getPos>,
                &CircleNode::setPos)
         .add_property("x", &deprecatedGet<CircleNode>, &deprecatedSet<CircleNode>)
         .add_property("y", &deprecatedGet<CircleNode>, &deprecatedSet<CircleNode>)
