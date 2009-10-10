@@ -50,11 +50,21 @@ using namespace avg;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 
-namespace AreaNodeHelper {
-    ConstDPoint getPos(const AreaNode& node)
-    {
-        return node.getPos();
-    }
+// These function templates essentially call functions such as AreaNode::getPos()
+// and returns a version of the result that doesn't allow setting of the individual
+// elements of the DPoint returned.
+// Without this stuff, python code like node.pos.x=30 would fail silently. With it,
+// it throws an exception.
+template<class CLASS, const DPoint& (CLASS::*FUNC)() const>
+ConstDPoint constPointGetter(const CLASS& node)
+{
+    return (node.*FUNC)();
+}
+
+template<class CLASS, DPoint (CLASS::*FUNC)() const>
+ConstDPoint constPointGetter(const CLASS& node)
+{
+    return (node.*FUNC)();
 }
 
 void export_node()
@@ -152,14 +162,16 @@ void export_node()
                 "The position of the node's left edge relative to it's parent node.\n")
         .add_property("y", &AreaNode::getY, &AreaNode::setY,
                 "The position of the node's top edge relative to it's parent node.\n")
-        .add_property("pos", &AreaNodeHelper::getPos, &AreaNode::setPos,
+        .add_property("pos", &constPointGetter<AreaNode, &AreaNode::getPos>, 
+                &AreaNode::setPos,
                 "The position of the node's top left corner relative to it's parent node.\n")
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
         .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)
         .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
                 "The angle that the node is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down.\n")
-        .add_property("size", &AreaNode::getSize, &AreaNode::setSize)
+        .add_property("size", &constPointGetter<AreaNode, &AreaNode::getSize>, 
+                &AreaNode::setSize)
         .add_property("pivot",  &AreaNode::getPivot, &AreaNode::setPivot,
                 "The position of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")

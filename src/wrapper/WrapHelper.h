@@ -337,8 +337,6 @@ namespace DPointHelper
     long getHash(const avg::DPoint& pt);
 }
 
-// The ConstDPoint stuff is there so that DPoint attributes behave sensibly. That is,
-// node.pos.x = 30 causes an error instead of failing silently.
 class ConstDPoint: public avg::DPoint
 {
 public:
