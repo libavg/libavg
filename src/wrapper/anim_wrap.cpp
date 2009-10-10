@@ -43,45 +43,47 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(fadeOut_overloads, fadeOut, 2, 3);
 // All the XxxAnim_createN functions are there so we can make python constructors from
 // the overloaded XxxAnim::create() functions in C++. These create functions return smart 
 // pointers, so reference counting works correctly.
-AnimPtr LinearAnim_create5(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue)
+AnimPtr LinearAnim_create5(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue)
 {
     return LinearAnim::create(node, sAttrName, duration, startValue, endValue);
 }
 
-AnimPtr LinearAnim_create6(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, bool bUseInt)
+AnimPtr LinearAnim_create6(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue, 
+            bool bUseInt)
 {
     return LinearAnim::create(node, sAttrName, duration, startValue, endValue, bUseInt);
 }
 
-AnimPtr LinearAnim_create7(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, bool bUseInt,
-            const object& startCallback)
+AnimPtr LinearAnim_create7(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue, 
+            bool bUseInt, const object& startCallback)
 {
     return LinearAnim::create(node, sAttrName, duration, startValue, endValue, bUseInt, 
             startCallback);
 }
 
-AnimPtr EaseInOutAnim_create7(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, long long easeInDuration, 
-            long long easeOutDuration)
+AnimPtr EaseInOutAnim_create7(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue, 
+            long long easeInDuration, long long easeOutDuration)
 {
     return EaseInOutAnim::create(node, sAttrName, duration, startValue, endValue, 
             easeInDuration, easeOutDuration);
 }
 
-AnimPtr EaseInOutAnim_create8(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, long long easeInDuration, 
-            long long easeOutDuration, bool bUseInt)
+AnimPtr EaseInOutAnim_create8(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue, 
+            long long easeInDuration, long long easeOutDuration, bool bUseInt)
 {
     return EaseInOutAnim::create(node, sAttrName, duration, startValue, endValue, 
             easeInDuration, easeOutDuration, bUseInt);
 }
 
-AnimPtr EaseInOutAnim_create9(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, long long easeInDuration, 
-            long long easeOutDuration, bool bUseInt, const object& startCallback)
+AnimPtr EaseInOutAnim_create9(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue, 
+            long long easeInDuration, long long easeOutDuration, bool bUseInt, 
+            const object& startCallback)
 {
     return EaseInOutAnim::create(node, sAttrName, duration, startValue, endValue, 
             easeInDuration, easeOutDuration, bUseInt, startCallback);
@@ -195,10 +197,10 @@ void export_anim()
                 "@param useInt: If True, the attribute is always set to an integer\n"
                 "value.\n"
                 "@param onStart: Python callable to invoke when the animation starts.\n"
-                "@param onStop: Python callable to invoke when the animation has finished\n"
-                "running, either because it's run the allotted time, because abort has\n"
-                "been called or because another animation for the same attribute has been\n"
-                "started.\n")
+                "@param onStop: Python callable to invoke when the animation has \n"
+                "finished running, either because it's run the allotted time, because\n"
+                "abort has been called or because another animation for the same\n"
+                "attribute has been started.\n")
         ;
     
     class_<EaseInOutAnim, boost::shared_ptr<EaseInOutAnim>, bases<SimpleAnim>, 

@@ -182,8 +182,8 @@ void export_event()
                 "getRelatedEvents() -> events\n"
                 "Returns a python tuple containing the events 'related' to this one.\n"
                 "For TOUCH events (fingers), the tuple contains one element: the\n"
-                "corresponding TRACK event (hand). For TRACK events, the tuple contains\n"
-                "all TOUCH events that belong to the same hand.\n")
+                "corresponding TRACK event (hand). For TRACK events, the tuple\n"
+                "contains all TOUCH events that belong to the same hand.\n")
         .def("getContour", &TouchEvent::getContour,
                 "getContour()\n"
                 "Extracts contour envelope sequence for the event\n")
@@ -205,7 +205,8 @@ void export_event()
             "A class that uses a camera to track moving objects.\n"
             "and delivers them to the player as avg events.\n"
             "Create a tracker by using Player::addTracker(). The properties\n"
-            "of this class are explained under U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
+            "of this class are explained under\n"
+            "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>(),

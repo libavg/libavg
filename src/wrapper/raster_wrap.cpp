@@ -91,7 +91,8 @@ struct UTF8String_from_string
         UTF8String s;
         char * psz = PyString_AsString(obj_ptr);
         void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)->storage.bytes;
+                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
+                        ->storage.bytes;
         new (storage) UTF8String(psz);
         data->convertible = storage;
     }
@@ -204,9 +205,11 @@ void export_raster()
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
         .add_property("framenum", &CameraNode::getFrameNum)
-        .add_property("brightness", &CameraNode::getBrightness, &CameraNode::setBrightness)
+        .add_property("brightness", &CameraNode::getBrightness, 
+                &CameraNode::setBrightness)
         .add_property("sharpness", &CameraNode::getSharpness, &CameraNode::setSharpness)
-        .add_property("saturation", &CameraNode::getSaturation, &CameraNode::setSaturation)
+        .add_property("saturation", &CameraNode::getSaturation, 
+                &CameraNode::setSaturation)
         .add_property("gamma", &CameraNode::getGamma, &CameraNode::setGamma)
         .add_property("shutter", &CameraNode::getShutter, &CameraNode::setShutter)
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
@@ -243,7 +246,8 @@ void export_raster()
                 "Moves the playback cursor to the time given.")
         .def("setEOFCallback", &Video::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
-                "Sets a python callable to be invoked when the video reaches end of file.")
+                "Sets a python callable to be invoked when the video reaches end of\n"
+                "file.")
         .add_property("href", 
                 make_function(&Video::getHRef,
                         return_value_policy<copy_const_reference>()),
@@ -258,12 +262,13 @@ void export_raster()
             "A words node displays formatted text. Rendering is done by pango. All\n"
             "properties are set in pixels. International and multi-byte character\n"
             "sets are fully supported. Words nodes should use UTF-8 to encode\n"
-            "international characters. The pos attribute of a words node is the logical\n"
-            "top left of the first character for left-aligned text. For centered and\n"
-            "right-aligned text, it is the top center and right of the first line,\n"
-            "respectively. For latin text, the logical top usually corresponds to the\n"
-            "height of the ascender. There may be cases where text is rendered to the\n"
-            "left of or above the position, for instance when italics are used.\n",
+            "international characters. The pos attribute of a words node is the\n"
+            "logical top left of the first character for left-aligned text. For\n"
+            "centered and right-aligned text, it is the top center and right of the\n"
+            "first line, respectively. For latin text, the logical top usually\n"
+            "corresponds to the height of the ascender. There may be cases where\n"
+            "portions of the text are rendered to the left of or above the position,\n"
+            "for instance when italics are used.\n",
             no_init)
         .add_property("font", 
                 make_function(&Words::getFont,
@@ -280,8 +285,8 @@ void export_raster()
                 make_function(&Words::setFontVariant,
                         return_value_policy<copy_const_reference>()),
                 "The variant (bold, italic, etc.) of the truetype font to use. To\n"
-                "figure out which variants are available, use the avg_showfonts.py utility\n"
-                "under src/utils.\n")
+                "figure out which variants are available, use the avg_showfonts.py\n"
+                "utility.\n")
         .add_property("text", 
                 make_function(&Words::getText,
                         return_value_policy<copy_const_reference>()),
@@ -314,29 +319,32 @@ void export_raster()
                 "'center' and 'right'.\n")
         .add_property("wrapmode", &Words::getWrapMode, &Words::setWrapMode,
                 "Paragraph's wrap behaviour. Possible values are\n"
-                "'word' (break to the nearest space, default) 'char' (break\n"
-                "in any position) and 'wordchar' (break words but fall back"
-                "to char mode if there is no free space for a full word)")
+                "'word' (break to the nearest space, default), 'char' (break\n"
+                "at any position) and 'wordchar' (break words but fall back"
+                "to char mode if there is no free space for a full word).")
         .add_property("justify", &Words::getJustify, &Words::setJustify,
                 "Whether each complete line should be stretched to fill\n"
                 "the entire width of the layout. Default is false.\n")
         .add_property("rawtextmode", &Words::getRawTextMode, &Words::setRawTextMode,
-                "Sets whether the text should be parsed (False) or interpreted\n"
-                "as raw string (True).\n")
-        .add_property("letterspacing", &Words::getLetterSpacing, &Words::setLetterSpacing,
+                "Sets whether the text should be parsed (False, default) or\n"
+                "interpreted as raw string (True).\n")
+        .add_property("letterspacing", &Words::getLetterSpacing, 
+                &Words::setLetterSpacing,
                 "The amount of space between the idividual glyphs of the text in\n"
                 "pixels, with 0 being standard spacing and negative values indicating\n"
                 "packed text (less letter spacing than normal). Only active when text\n"
                 "attribute markup is not being used.\n")
         .add_property("hint", &Words::getHint, &Words::setHint,
                 "Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)\n"
-                "should be used when rendering the text. Unfortunately, this setting does\n"
-                "not override the fontconfig settings in /etc/fonts/conf.d/*-hinting.conf\n"
-                "or other fontconfig configuration files.\n")
+                "should be used when rendering the text. Unfortunately, this setting\n"
+                "does not override the fontconfig settings in\n"
+                "/etc/fonts/conf.d/*-hinting.conf or other fontconfig configuration\n"
+                "files.\n")
         .def("getGlyphPos", &Words::getGlyphPos,
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"
-                "The position is a Point2D, in pixels, and relative to the words node.\n")
+                "The position is a Point2D, in pixels, and relative to the words\n"
+                "node.\n")
         .def("getGlyphSize", &Words::getGlyphSize,
                 "getGlyphSize(i)->pos\n"
                 "Returns the size of the glyph at byte index i in the layout.\n"
