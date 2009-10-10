@@ -172,7 +172,8 @@ void export_node()
                 "unchanged, 3.14 is upside-down.\n")
         .add_property("size", &constPointGetter<AreaNode, &AreaNode::getSize>, 
                 &AreaNode::setSize)
-        .add_property("pivot",  &AreaNode::getPivot, &AreaNode::setPivot,
+        .add_property("pivot",  &constPointGetter<AreaNode, &AreaNode::getPivot>, 
+                &AreaNode::setPivot,
                 "The position of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
         .add_property("pivotx", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>,
@@ -367,10 +368,10 @@ void export_node()
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
             no_init)
-        .add_property("pos1", make_function(&LineNode::getPos1,
-               return_value_policy<copy_const_reference>()), &LineNode::setPos1)
-        .add_property("pos2", make_function(&LineNode::getPos2,
-               return_value_policy<copy_const_reference>()), &LineNode::setPos2)
+        .add_property("pos1", &constPointGetter<LineNode, &LineNode::getPos1>,
+                &LineNode::setPos1)
+        .add_property("pos2", &constPointGetter<LineNode, &LineNode::getPos2>,
+                &LineNode::setPos2)
         .add_property("x1", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
         .add_property("y1", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
         .add_property("x2", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
@@ -381,9 +382,10 @@ void export_node()
 
     class_<RectNode, bases<FilledVectorNode>, boost::noncopyable>("RectNode", 
             no_init)
-        .add_property("pos", make_function(&RectNode::getPos,
-                return_value_policy<copy_const_reference>()), &RectNode::setPos)
-        .add_property("size", &RectNode::getSize, &RectNode::setSize)
+        .add_property("pos", &constPointGetter<RectNode, &RectNode::getPos>, 
+                &RectNode::setPos)
+        .add_property("size", &constPointGetter<RectNode, &RectNode::getSize>,
+                &RectNode::setSize)
         .add_property("x", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>)
         .add_property("y", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>)
         .add_property("width", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>)
@@ -398,14 +400,14 @@ void export_node()
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 
             no_init)
-        .add_property("pos1", make_function(&CurveNode::getPos1,
-               return_value_policy<copy_const_reference>()), &CurveNode::setPos1)
-        .add_property("pos2", make_function(&CurveNode::getPos2,
-               return_value_policy<copy_const_reference>()), &CurveNode::setPos2)
-        .add_property("pos3", make_function(&CurveNode::getPos3,
-               return_value_policy<copy_const_reference>()), &CurveNode::setPos3)
-        .add_property("pos4", make_function(&CurveNode::getPos4,
-               return_value_policy<copy_const_reference>()), &CurveNode::setPos4)
+        .add_property("pos1", &constPointGetter<CurveNode, &CurveNode::getPos1>,
+               &CurveNode::setPos1)
+        .add_property("pos2", &constPointGetter<CurveNode, &CurveNode::getPos2>,
+               &CurveNode::setPos2)
+        .add_property("pos3", &constPointGetter<CurveNode, &CurveNode::getPos3>,
+               &CurveNode::setPos3)
+        .add_property("pos4", &constPointGetter<CurveNode, &CurveNode::getPos4>,
+               &CurveNode::setPos4)
         .add_property("x1", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
         .add_property("y1", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
         .add_property("x2", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
@@ -437,8 +439,8 @@ void export_node()
 
     class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 
             no_init)
-        .add_property("pos", make_function(&CircleNode::getPos,
-               return_value_policy<copy_const_reference>()), &CircleNode::setPos)
+        .add_property("pos", &constPointGetter<CircleNode, &CircleNode::getPos>,
+               &CircleNode::setPos)
         .add_property("x", &deprecatedGet<CircleNode>, &deprecatedSet<CircleNode>)
         .add_property("y", &deprecatedGet<CircleNode>, &deprecatedSet<CircleNode>)
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
