@@ -689,11 +689,15 @@ class PlayerTestCase(AVGTestCase):
         def checkRelPos():
             RelPos = Player.getElementByID("obscured").getRelPos((50,52))
             self.assert_(RelPos == (0, 0))
+        def testIllegalSet():
+            node = Player.getElementByID("nestedimg1")
+            node.pos.x = 23
         self.start("avg.avg",
                 (lambda: self.compareImage("testMove1", False),
                  moveit,
                  checkRelPos,
-                 lambda: self.compareImage("testMove2", False)
+                 lambda: self.compareImage("testMove2", False),
+                 self.assertException(testIllegalSet),
                 ))
 
     def testSetBitmap(self):

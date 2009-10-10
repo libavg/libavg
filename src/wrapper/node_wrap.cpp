@@ -50,6 +50,13 @@ using namespace avg;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 
+namespace AreaNodeHelper {
+    ConstDPoint getPos(const AreaNode& node)
+    {
+        return node.getPos();
+    }
+}
+
 void export_node()
 {
 
@@ -139,14 +146,13 @@ void export_node()
                 "Returns the size in pixels of the media in the node. Image nodes\n"
                 "return the bitmap size, Camera nodes\n"
                 "the size of a camera frame and Words nodes the amount of space\n"
-                "the text takes. Video nodes the video size if decoding has started\n"
-                "or (0,0) if not.")
+                "the text takes. Video nodes return the video size if decoding has\n"
+                "started or (0,0) if not.")
         .add_property("x", &AreaNode::getX, &AreaNode::setX,
                 "The position of the node's left edge relative to it's parent node.\n")
         .add_property("y", &AreaNode::getY, &AreaNode::setY,
                 "The position of the node's top edge relative to it's parent node.\n")
-        .add_property("pos", make_function(&AreaNode::getPos,
-                return_value_policy<copy_const_reference>()), &AreaNode::setPos,
+        .add_property("pos", &AreaNodeHelper::getPos, &AreaNode::setPos,
                 "The position of the node's top left corner relative to it's parent node.\n")
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
         .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)

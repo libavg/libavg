@@ -34,96 +34,12 @@ using namespace boost::python;
 using namespace std;
 using namespace avg;
 
-namespace DPointHelper
+template<class POINT>
+class_<POINT> export_point(const string& sName, const string& sDoc)
 {
-    int len(const DPoint&) 
-    {
-        return 2;
-    }
-
-    double getX(const DPoint& pt)
-    {
-        return pt.x;
-    }
-
-    double getY(const DPoint& pt)
-    {
-        return pt.y;
-    }
-
-    void setX(DPoint& pt, double val)
-    {
-        pt.x = val;
-    }
-
-    void setY(DPoint& pt, double val)
-    {
-        pt.y = val;
-    }
-
-    void checkItemRange(int i) {
-        if (i!=0 && i!=1) {
-            throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
-        }
-    }
-
-    double getItem(const DPoint& pt, int i)
-    {
-        checkItemRange(i);
-        if (i==0) {
-            return pt.x;
-        } else {
-            return pt.y;
-        }
-    }
-
-    void setItem(DPoint& pt, int i, double val)
-    {
-        checkItemRange(i);
-        if (i==0) {
-            pt.x = val;
-        } else {
-            pt.y = val;
-        }
-    }
-
-    string str(const DPoint& pt)
-    {
-        stringstream st;
-        st << "(" << pt.x << "," << pt.y << ")";
-        return st.str();
-    }
-
-    string repr(const DPoint& pt)
-    {
-        stringstream st;
-        st << "Point2D(" << pt.x << "," << pt.y << ")";
-        return st.str();
-    }
-
-    long getHash(const DPoint& pt)
-    {
-        // Wild guess at what could constitute a good hash function.
-        // Will generate very bad hashes if most values are in a range < 0.1,
-        // but this is meant for pixel values anyway, right? ;-).
-        return long(pt.x*42+pt.y*23);
-    }
-}
-
-void export_bitmap()
-{
-    from_python_sequence<vector<double>, variable_capacity_policy>();
-
-    class_<DPoint>("Point2D",
-            "A point in 2D space. Supports arithmetic operations on vectors.",
-            no_init)
-        .def(init<>())
-        .def(init<double, double>())
-        .def(init<vector<double> >())
-        .def(init<const DPoint&>())
+    return class_<POINT>(sName.c_str(), sDoc.c_str(), no_init)
         .def("__len__", &DPointHelper::len)
         .def("__getitem__", &DPointHelper::getItem)
-        .def("__setitem__", &DPointHelper::setItem)
         .def("__str__", &DPointHelper::str)
         .def("__repr__", &DPointHelper::repr)
         .def("__hash__", &DPointHelper::getHash)
@@ -150,10 +66,29 @@ void export_bitmap()
         .def(float() * self)
         .def(self * float())
         .def(self / float())
+    ;
+}
+
+void export_bitmap()
+{
+    from_python_sequence<vector<double>, variable_capacity_policy>();
+    export_point<DPoint>("Point2D",
+            "A point in 2D space. Supports arithmetic operations on vectors.")
+        .def(init<>())
+        .def(init<double, double>())
+        .def(init<vector<double> >())
+        .def(init<const DPoint&>())
+        .def("__setitem__", &DPointHelper::setItem)
         .add_property("x", &DPointHelper::getX, &DPointHelper::setX,"")
         .add_property("y", &DPointHelper::getY, &DPointHelper::setY,"")
-
     ;
+    export_point<ConstDPoint>("ConstPoint2D", "A point in 2D space. Immutable.")
+        .add_property("x", &DPointHelper::getX, "")
+        .add_property("y", &DPointHelper::getY, "")
+    ;
+
+    implicitly_convertible<ConstDPoint, DPoint>();
+    implicitly_convertible<DPoint, ConstDPoint>();
 
     enum_<PixelFormat>("pixelformat")
         .value("B5G6R5", B5G6R5)

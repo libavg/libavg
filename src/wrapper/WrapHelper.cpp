@@ -21,59 +21,100 @@
 
 #include "WrapHelper.h"
 
-DPoint_from_python_tuple::DPoint_from_python_tuple()
+using namespace avg;
+using namespace std;
+
+namespace DPointHelper
 {
-    boost::python::converter::registry::push_back(
-            &convertible,
-            &construct,
-            boost::python::type_id<avg::DPoint>());
+    int len(const DPoint&) 
+    {
+        return 2;
+    }
+
+    double getX(const DPoint& pt)
+    {
+        return pt.x;
+    }
+
+    double getY(const DPoint& pt)
+    {
+        return pt.y;
+    }
+
+    void setX(DPoint& pt, double val)
+    {
+        pt.x = val;
+    }
+
+    void setY(DPoint& pt, double val)
+    {
+        pt.y = val;
+    }
+
+    void checkItemRange(int i) {
+        if (i!=0 && i!=1) {
+            throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
+        }
+    }
+
+    double getItem(const DPoint& pt, int i)
+    {
+        checkItemRange(i);
+        if (i==0) {
+            return pt.x;
+        } else {
+            return pt.y;
+        }
+    }
+
+    void setItem(DPoint& pt, int i, double val)
+    {
+        checkItemRange(i);
+        if (i==0) {
+            pt.x = val;
+        } else {
+            pt.y = val;
+        }
+    }
+
+    string str(const DPoint& pt)
+    {
+        stringstream st;
+        st << "(" << pt.x << "," << pt.y << ")";
+        return st.str();
+    }
+
+    string repr(const DPoint& pt)
+    {
+        stringstream st;
+        st << "Point2D(" << pt.x << "," << pt.y << ")";
+        return st.str();
+    }
+
+    long getHash(const DPoint& pt)
+    {
+        // Wild guess at what could constitute a good hash function.
+        // Will generate very bad hashes if most values are in a range < 0.1,
+        // but this is meant for pixel values anyway, right? ;-).
+        return long(pt.x*42+pt.y*23);
+    }
 }
 
-void* DPoint_from_python_tuple::convertible(PyObject* obj_ptr)
+// The ConstDPoint stuff is there so that DPoint attributes behave sensibly. That is,
+// node.pos.x = 30 causes an error instead of failing silently.
+ConstDPoint::ConstDPoint()
 {
-    if (!PyTuple_Check(obj_ptr)) return 0;
-    return obj_ptr;
 }
 
-void DPoint_from_python_tuple::construct(PyObject* obj_ptr,
-        boost::python::converter::rvalue_from_python_stage1_data* data)
+ConstDPoint::ConstDPoint(const DPoint& other)
 {
-    avg::DPoint pt;
-    PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-    pt.x = PyFloat_AsDouble(pEntry);
-    pEntry = PyTuple_GetItem(obj_ptr, 1);
-    pt.y = PyFloat_AsDouble(pEntry);
-    void* storage = (
-            (boost::python::converter::rvalue_from_python_storage<avg::DPoint>*)data)->storage.bytes;
-    new (storage) avg::DPoint(pt);
-    data->convertible = storage;
+    x = other.x;
+    y = other.y;
 }
 
-IntPoint_from_python_tuple::IntPoint_from_python_tuple()
+ConstDPoint::operator DPoint() const
 {
-    boost::python::converter::registry::push_back(
-            &convertible,
-            &construct,
-            boost::python::type_id<avg::IntPoint>());
+    return DPoint(x,y);
 }
 
-void* IntPoint_from_python_tuple::convertible(PyObject* obj_ptr)
-{
-    if (!PyTuple_Check(obj_ptr)) return 0;
-    return obj_ptr;
-}
-
-void IntPoint_from_python_tuple::construct(PyObject* obj_ptr,
-        boost::python::converter::rvalue_from_python_stage1_data* data)
-{
-    avg::IntPoint pt;
-    PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-    pt.x = PyInt_AsLong(pEntry);
-    pEntry = PyTuple_GetItem(obj_ptr, 1);
-    pt.y = PyInt_AsLong(pEntry);
-    void* storage = (
-            (boost::python::converter::rvalue_from_python_storage<avg::IntPoint>*)data)->storage.bytes;
-    new (storage) avg::IntPoint(pt);
-    data->convertible = storage;
-}
 

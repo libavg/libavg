@@ -28,6 +28,8 @@
 
 #include "../player/BoostPython.h"
 
+#include <string>
+
 template <typename ContainerType>
 struct to_tuple
 {
@@ -277,22 +279,35 @@ struct Point_to_python_tuple
     }
 };
 
+template<class POINT>
 struct DPoint_from_python_tuple
 {
-    DPoint_from_python_tuple();
-    static void* convertible(PyObject* obj_ptr);
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data);
-};
+    DPoint_from_python_tuple() 
+    {
+        boost::python::converter::registry::push_back(
+                &convertible, &construct, boost::python::type_id<POINT>());
+    }
+    
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
 
-//TODO: This is duplicated code.
-struct IntPoint_from_python_tuple
-{
-    IntPoint_from_python_tuple();
-
-    static void* convertible(PyObject* obj_ptr);
     static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data);
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        POINT pt;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        pt.x = PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pt.y = PyFloat_AsDouble(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
+                    ->storage.bytes;
+        new (storage) POINT(pt);
+        data->convertible = storage;
+    }
 };
 
 template<class T>
@@ -306,5 +321,31 @@ void deprecatedSet(T& node, double d)
 {
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
+
+namespace DPointHelper
+{
+    int len(const avg::DPoint&);
+    double getX(const avg::DPoint& pt);
+    double getY(const avg::DPoint& pt);
+    void setX(avg::DPoint& pt, double val);
+    void setY(avg::DPoint& pt, double val);
+    void checkItemRange(int i);
+    double getItem(const avg::DPoint& pt, int i);
+    void setItem(avg::DPoint& pt, int i, double val);
+    std::string str(const avg::DPoint& pt);
+    std::string repr(const avg::DPoint& pt);
+    long getHash(const avg::DPoint& pt);
+}
+
+// The ConstDPoint stuff is there so that DPoint attributes behave sensibly. That is,
+// node.pos.x = 30 causes an error instead of failing silently.
+class ConstDPoint: public avg::DPoint
+{
+public:
+    ConstDPoint();
+    ConstDPoint(const avg::DPoint& other);
+    operator avg::DPoint() const;
+};
+
 
 #endif
