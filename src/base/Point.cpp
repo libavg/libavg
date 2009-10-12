@@ -58,4 +58,7 @@ bool almostEqual(const DPoint& pt1, const DPoint& pt2)
     return (fabs(pt1.x-pt2.x)+fabs(pt1.y-pt2.y)) < 0.0001;
 }
 
+template class Point<double>;
+template class Point<int>;
+
 }
