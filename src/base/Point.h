@@ -68,7 +68,7 @@ public:
     bool operator !=(const Point<NUM> & pt) const;
     void operator +=(const Point<NUM> & pt);
     void operator -=(const Point<NUM> & pt);
-    void operator *=(double f);
+    void operator *=(NUM f);
     void operator /=(NUM f);
     Point<NUM> operator -() const;
     Point<NUM> operator +(const Point<NUM> & pt) const;
@@ -148,7 +148,7 @@ Point<NUM>::~Point()
 template<class NUM>
 double Point<NUM>::getNorm()
 {
-    return sqrt(x*x+y*y);
+    return sqrt(double(x*x+y*y));
 }
 
 template<class NUM>
@@ -168,7 +168,7 @@ Point<NUM> Point<NUM>::getRotated(double angle) const
 {
     double cosVal = cos(angle);
     double sinVal = sin(angle);
-    return Point<NUM>(x*cosVal - y*sinVal, x*sinVal + y*cosVal);
+    return Point<NUM>(NUM(x*cosVal - y*sinVal), NUM(x*sinVal + y*cosVal));
 }
 
 template<class NUM>
@@ -221,7 +221,7 @@ void Point<NUM>::operator -=(const Point<NUM> & pt)
 }
 
 template<class NUM>
-void Point<NUM>::operator *=(double f)
+void Point<NUM>::operator *=(NUM f)
 {
   x *= f;
   y *= f;

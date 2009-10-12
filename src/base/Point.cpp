@@ -30,6 +30,13 @@
 namespace avg {
 
 template<>
+Point<int> Point<int>::getNormalized() const
+{
+    assert(false);
+    return Point<int>(0,0);
+}
+
+template<>
 Point<double> Point<double>::getNormalized() const
 {
 #if defined(__SSE__) || defined(_WIN32)
