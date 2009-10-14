@@ -93,7 +93,7 @@ class PlayerTestCase(AVGTestCase):
 
     def testPoint(self):
         def almostEqual(p1, p2):
-            return (abs(p1.x-p2.x) < 0.00001 and abs(p1.y-p2.y) < 0.00001)
+            return (abs(p1.x-p2.x) < 0.0001 and abs(p1.y-p2.y) < 0.0001)
 
         def testHash():
             ptMap = {}
