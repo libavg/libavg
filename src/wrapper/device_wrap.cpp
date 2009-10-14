@@ -85,30 +85,31 @@ void export_devices()
         .def("setControlLine", &ParPort::setControlLine,
                 "setControlLine(line, value)\n",
                 "Sets or clears one of the control lines.\n"
-                "@param line: Which control line to modify. Possible values for line are\n"
-                "CONTROL_STROBE, CONTROL_AUTOFD, CONTROL_INIT and CONTROL_SELECT.\n"
+                "@param line: Which control line to modify. Possible values for line\n"
+                "are CONTROL_STROBE, CONTROL_AUTOFD, CONTROL_INIT and CONTROL_SELECT.\n"
                 "@param value: Whether to set (True) or clear (False) the line.\n"
                 "@return: True if the value was set successfully, False otherwise.")
         .def("getStatusLine", &ParPort::getStatusLine,
                 "getStatusLine(line)\n"
                 "Returns the value of one of the parallel port status lines.\n"
                 "@param line: Which status line to query. Possible values for line are\n"
-                "STATUS_ERROR, STATUS_SELECT, STATUS_PAPEROUT, STATUS_ACK and STATUS_BUSY.\n"
+                "STATUS_ERROR, STATUS_SELECT, STATUS_PAPEROUT, STATUS_ACK and\n"
+                "STATUS_BUSY.\n"
                 "@return: True if the line is set.\n")
         .def("setDataLines", &ParPort::setDataLines,
                 "setDataLines(lines)\n"
                 "Sets data lines.\n" 
                 "@param lines: The lines to set. Constants to used for\n"
-                "these lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
-                "be or'ed together to set several lines. The lines not mentioned in\n"
+                "these lines are PARPORTDATA0-PARPORTDATA7. Several of these constants\n"
+                "can be or'ed together to set several lines. The lines not mentioned in\n"
                 "the parameter are left unchanged.\n"
                 "@return: True if the lines were set, False otherwise.")
         .def("clearDataLines", &ParPort::clearDataLines,
                 "clearDataLines(lines)\n"
                 "Clears data lines.\n" 
                 "@param lines: The lines to clear. Constants to used for\n"
-                "these lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
-                "be or'ed together to set several lines. The lines not mentioned in\n"
+                "these lines are PARPORTDATA0-PARPORTDATA7. Several of these constants\n"
+                "can be or'ed together to set several lines. The lines not mentioned in\n"
                 "the parameter are left unchanged.\n"
                 "@return: True if the lines were cleared, False otherwise.")
         .def("setAllDataLines", &ParPort::setDataLines,

@@ -164,7 +164,8 @@ void export_node()
                 "The position of the node's top edge relative to it's parent node.\n")
         .add_property("pos", &constPointGetterRef<AreaNode, &AreaNode::getPos>, 
                 &AreaNode::setPos,
-                "The position of the node's top left corner relative to it's parent node.\n")
+                "The position of the node's top left corner relative to it's parent\n"
+                "node.\n")
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
         .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)
         .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
@@ -214,7 +215,8 @@ void export_node()
                 "Adds a new child to the container behind the last existing child.")
         .def("insertChildBefore", &DivNode::insertChildBefore,
                 "insertChildBefore(newNode, oldChild)\n"
-                "Adds a new child to the container in front of the existing node oldChild.")
+                "Adds a new child to the container in front of the existing node\n"
+                "oldChild.")
         .def("insertChild", &DivNode::insertChild,
                 "insertChild(node, pos)\n"
                 "Adds a new child to the container at position pos.")
@@ -224,11 +226,13 @@ void export_node()
         .def("removeChild", (void (DivNode::*)(unsigned))(&DivNode::removeChild),
                 "removeChild(pos)\n"
                 "Removes the child at index pos.")
-        .def("reorderChild", (void (DivNode::*)(unsigned, unsigned))(&DivNode::reorderChild),
+        .def("reorderChild", (void (DivNode::*)(unsigned, unsigned))
+                (&DivNode::reorderChild),
                 "reorderChild(oldPos, newPos)\n"
                 "Moves the child at index pos so it's at index newPos. This function\n"
                 "can be used to change the order in which the children are drawn.")
-        .def("reorderChild", (void (DivNode::*)(NodePtr, unsigned))(&DivNode::reorderChild),
+        .def("reorderChild", (void (DivNode::*)(NodePtr, unsigned))
+                (&DivNode::reorderChild),
                 "reorderChild(node, newPos)\n"
                 "Moves the child node so it's at index newPos. This function\n"
                 "can be used to change the order in which the children are drawn.")
@@ -239,7 +243,8 @@ void export_node()
                 "the list of children until the child is found.")
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
-                "The directory that the media files for the children of this node are in.\n")
+                "The directory that the media files for the children of this node are\n"
+                "in.\n")
     ;
 
     class_<AVGNode, bases<DivNode> >("AVGNode",
@@ -250,9 +255,10 @@ void export_node()
             no_init)
         .def("getCropSetting", &AVGNode::getCropSetting,
                 "getCropSetting() -> isCropActive\n\n"
-                "Returns true if cropping is active. Cropping can be turned off globally\n"
-                "in the avg file. (Deprecated. This attribute is only nessesary because\n"
-                "of certain buggy display drivers that don't work with cropping.)")
+                "Returns true if cropping is active. Cropping can be turned off\n"
+                "globally in the avg file. (Deprecated. This attribute is only\n"
+                "nessesary because of certain buggy display drivers that don't work\n"
+                "with cropping.)")
     ;
 
     class_<Sound, bases<AreaNode> >("Sound",
@@ -271,7 +277,8 @@ void export_node()
                 "cursor stays at the same position.")
         .def("setEOFCallback", &Sound::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
-                "Sets a python callable to be invoked when the video reaches end of file.")
+                "Sets a python callable to be invoked when the video reaches end of\n"
+                "file.")
         .add_property("href", make_function(&Sound::getHRef, 
                 return_value_policy<copy_const_reference>()), &Sound::setHRef,
                 "The source filename of the sound.\n")

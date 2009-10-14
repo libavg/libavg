@@ -63,7 +63,8 @@ BOOST_PYTHON_MODULE(avg)
 //        "G{classtree ConradRelais ParPort}";
 
     scope().attr("svnrevision") = "$Rev$";
-    scope().attr("svndate") = "$LastChangedDate$";
+    scope().attr("svndate") =
+            "$LastChangedDate$";
 
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
@@ -129,12 +130,14 @@ BOOST_PYTHON_MODULE(avg)
                 "    - CONFIG: Outputs configuration data.\n"
                 "    - WARNING: Outputs warning messages. Default is on.\n"
                 "    - ERROR: Outputs error messages. Can't be shut off.\n"
-                "    - MEMORY: Outputs open/close information whenever a media file is accessed.\n"
-                "    - APP: Reserved for application-level messages issued by python code.\n")
+                "    - MEMORY: Outputs open/close information whenever a media file is\n"
+                "              accessed.\n"
+                "    - APP: Reserved for application-level messages issued by python\n"
+                "           code.\n")
         .def("trace", &Logger::trace,
                 "Logs message to the log if category is active.\n"
-                "@param category: One of the categories listed for setCategories(). Should\n"
-                "in most cases be APP.\n"
+                "@param category: One of the categories listed for setCategories().\n"
+                "Should in most cases be APP.\n"
                 "@param message: The log message.\n")
         .def_readonly("NONE", &Logger::NONE)
         .def_readonly("BLTS", &Logger::BLTS)
@@ -188,26 +191,27 @@ BOOST_PYTHON_MODULE(avg)
                 "setOGLOptions(UsePOW2Textures, UseYCbCrShaders, UsePixelBuffers, MultiSampleSamples)\n"
                 "Determines which OpenGL extensions to check for and use if possible.\n"
                 "Mainly used for debugging purposes while developing libavg, but can\n"
-                "also be used to work around buggy drivers. The values set here override\n"
-                "those in avgrc. Note that with the exception of MultiSampleSamples,\n"
-                "fallbacks are always used - if a feature is\n"
+                "also be used to work around buggy drivers. The values set here\n"
+                "override those in avgrc. Note that with the exception of\n"
+                "MultiSampleSamples, fallbacks are always used - if a feature is\n"
                 "specified that the system doesn't support, a less demanding one will\n"
                 "be used.\n"
-                "@param UsePOW2Textures: If True, restricts textures to power-of-two dimensions.\n"
+                "@param UsePOW2Textures: If True, restricts textures to power-of-two\n"
+                "dimensions.\n"
                 "@param UseYCbCrShaders: If True, shaders are used to copy YCbCr\n"
                 "to the screen. Results in a major video playback performance boost.\n"
-                "@param UsePixelBuffers: If False, disables the use of OpenGL pixel buffer\n"
-                "objects.\n"
-                "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
-                "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
-                "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
-                "values are dependent on the graphics driver.\n")
+                "@param UsePixelBuffers: If False, disables the use of OpenGL pixel\n"
+                "buffer objects.\n"
+                "@param MultiSampleSamples: The number of samples per pixel to compute.\n"
+                "This costs performance and smoothes the edges of polygons. A value of\n"
+                "1 turns multisampling (also knowna as FSAA - Full-Screen Antialiasing)\n"
+                "off. Good values are dependent on the graphics driver.\n")
         .def("setMultiSampleSamples", &Player::setMultiSampleSamples,
                 "setMultiSampleSamples(multiSampleSamples)\n"
-                "@param multiSampleSamples: The number of samples per pixel to compute. This\n"
-                "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
-                "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
-                "values are dependent on the graphics driver.\n")
+                "@param multiSampleSamples: The number of samples per pixel to compute.\n"
+                "This costs performance and smoothes the edges of polygons. A value of\n"
+                "1 turns multisampling (also knowna as FSAA - Full-Screen Antialiasing)\n"
+                "off. Good values are dependent on the graphics driver.\n")
         .def("loadFile", &Player::loadFile,
                 "loadFile(filename)\n"
                 "Loads the avg file specified in filename.\n"
@@ -246,15 +250,16 @@ BOOST_PYTHON_MODULE(avg)
                 "")
         .def("setFakeFPS", &Player::setFakeFPS,
                 "setFakeFPS(fps)\n"
-                "Sets a fixed number of virtual frames per second that are used as clock\n"
-                "source for video playback, animations and other time-based actions.\n"
-                "If a value of -1 is given as parameter, the real clock is used.\n"
+                "Sets a fixed number of virtual frames per second that are used as\n"
+                "clock source for video playback, animations and other time-based\n"
+                "actions. If a value of -1 is given as parameter, the real clock is\n"
+                "used.\n"
                 "@param fps: \n")
         .def("getFrameTime", &Player::getFrameTime,
                 "getFrameTime() -> time\n"
-                "Returns the number of milliseconds that have elapsed since playback has\n"
-                "started. Honors FakeFPS. The time returned stays constant for an entire\n"
-                "frame; it is the time of the last display update.\n")
+                "Returns the number of milliseconds that have elapsed since playback\n"
+                "has tarted. Honors FakeFPS. The time returned stays constant for an\n"
+                "entire frame; it is the time of the last display update.\n")
         .def("createNode", &Player::createNodeFromXmlString,
                 "createNode(xml) -> node\n"
                 "Creates a new Node. This node can be used as\n"
@@ -304,7 +309,8 @@ BOOST_PYTHON_MODULE(avg)
                 "clearInterval(id) -> ok\n"
                 "Stops a timeout, an interval or an onFrameHandler from being called.\n"
                 "Returns True if there was an interval with the given id, False if not.\n"
-                "@param id: An id returned by setInterval, setTimeout or setOnFrameHandler.\n")
+                "@param id: An id returned by setInterval, setTimeout or\n"
+                "setOnFrameHandler.\n")
         .def("getMouseState", &Player::getMouseState,
                 "getMouseState() -> event\n"
                 "Returns an interface to the last mouse event.\n")
@@ -323,9 +329,10 @@ BOOST_PYTHON_MODULE(avg)
         .def("setCursor", &Player::setCursor,
                 "setCursor(bitmap, hotspot)\n"
                 "Sets the mouse cursor to the bitmap given. The bitmap must have a size\n"
-                "divisible by 8 and an RGBA pixel format. The cursor generated is binary\n"
-                "black and white with a binary transparency channel. hotspot is the relative\n"
-                "position of the actual pointing coordinate in the bitmap.\n")
+                "divisible by 8 and an RGBA pixel format. The cursor generated is\n"
+                "binary black and white with a binary transparency channel. hotspot is\n"
+                "the relative position of the actual pointing coordinate in the\n"
+                "bitmap.\n")
         .def("getElementByID", &Player::getElementByID,
                 "getElementByID(id) -> node\n"
                 "Returns an element in the avg tree.\n"
@@ -352,12 +359,13 @@ BOOST_PYTHON_MODULE(avg)
                 "Sets the position of the mouse cursor. Generates a mouse motion event.\n"
                 "@param pos: new coordinates as a Point2D.\n")
         .def("loadPlugin", &Player::loadPlugin,
-                        "loadPlugin(name)\n"
-                        "load a Plugin and extend the XML DTD.\n"
-                        "@param name: name of the plugin (without directory and file extension)\n")
+                "loadPlugin(name)\n"
+                "load a Plugin and extend the XML DTD.\n"
+                "@param name: name of the plugin (without directory and\n"
+                "file extension)\n")
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath,
-                        "A colon-separated list of directories where the player\n"
-                        "searches for plugins when loadPlugin() is called.\n")
+                "A colon-separated list of directories where the player\n"
+                "searches for plugins when loadPlugin() is called.\n")
         .add_property("volume", &Player::getVolume, &Player::setVolume,
                 "Total audio playback volume. 0 is silence, 1 passes media file\n"
                 "volume through unchanged. Values higher than 1 can be used to\n"
