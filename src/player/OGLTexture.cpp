@@ -26,6 +26,7 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <string>

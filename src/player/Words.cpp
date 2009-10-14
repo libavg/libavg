@@ -31,6 +31,7 @@
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfill.h"
 

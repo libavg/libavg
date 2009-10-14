@@ -33,6 +33,7 @@
 #include "../base/WideLine.h"
 #include "../base/GeomHelper.h"
 #include "../base/Triangle.h"
+#include "../base/ObjectCounter.h"
 
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"

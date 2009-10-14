@@ -23,15 +23,9 @@
 #define _Point_H_
 
 #include "../api.h"
-#include "MathHelper.h"
-#include "ObjectCounter.h"
 
 #include <ostream>
 #include <vector>
-#include <string>
-#include <math.h>
-#include <assert.h>
-#include <float.h>
 
 // Fix for non-C99 win compilers up to MSVC++2008
 #if defined _MSC_VER && _MSC_VER <= 1500
@@ -79,32 +73,13 @@ public:
 };
 
 template<class NUM>
-std::ostream& operator<<( std::ostream& os, const Point<NUM> &p)
-{
-    os << "(" << p.x << "," << p.y << ")";
-    return os;
-}
+std::ostream& operator<<( std::ostream& os, const Point<NUM> &p);
 
 template<class NUM>
-Point<NUM> operator *(double f, const Point<NUM>& pt)
-{
-    return pt*f;
-}
+Point<NUM> operator *(double f, const Point<NUM>& pt);
 
 template<class NUM>
-Point<NUM> operator /(double f, const Point<NUM>& pt)
-{
-    return pt/f;
-}
-
-typedef Point<double> DPoint;
-typedef Point<int> IntPoint;
-
-template<class NUM>
-Point<NUM>::Point()
-{
-//    ObjectCounter::get()->incRef(&typeid(*this));
-}
+Point<NUM> operator /(double f, const Point<NUM>& pt);
 
 template<class NUM>
 template<class ORIGNUM>
@@ -116,177 +91,13 @@ Point<NUM>::Point(const Point<ORIGNUM>& p)
 }
 
 template<class NUM>
-Point<NUM>::Point(NUM X, NUM Y)
-{
-//    ObjectCounter::get()->incRef(&typeid(*this));
-    x = X;
-    y = Y;
-}
+double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2);
 
 template<class NUM>
-Point<NUM>::Point(const Point<NUM>& p)
-{
-//    ObjectCounter::get()->incRef(&typeid(*this));
-    x = p.x;
-    y = p.y;
-}
-    
-template<class NUM>
-Point<NUM>::Point(const std::vector<NUM>& v)
-{
-    assert(v.size() == 2);
-    x = v[0];
-    y = v[1];
-}
+double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2);
 
-template<class NUM>
-Point<NUM>::~Point()
-{
-//    ObjectCounter::get()->decRef(&typeid(*this));
-}
-    
-template<class NUM>
-double Point<NUM>::getNorm()
-{
-    return sqrt(double(x*x+y*y));
-}
-
-template<class NUM>
-bool Point<NUM>::isNaN() const
-{
-    return isnan(x) || isnan(y);
-}
-
-template<class NUM>
-bool Point<NUM>::isInf() const
-{
-    return isinf(x) || isinf(y);
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::getRotated(double angle) const
-{
-    double cosVal = cos(angle);
-    double sinVal = sin(angle);
-    return Point<NUM>(NUM(x*cosVal - y*sinVal), NUM(x*sinVal + y*cosVal));
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::getRotatedPivot(double angle, const Point<NUM>& pivot) const
-{
-    // translate pivot to origin
-    Point<NUM> translated = *this - pivot;
-   
-    // calculate rotated coordinates about the origin
-    Point<NUM> rotated = translated.getRotated(angle);
-
-    // re-translate pivot to original position
-    rotated += pivot;
-
-    return rotated;
-}
-
-template<class NUM>
-Point<NUM>& Point<NUM>::operator =(const Point<NUM>& p)
-{
-    x = p.x;
-    y = p.y;
-    return *this;
-}
-
-template<class NUM>
-bool Point<NUM>::operator ==(const Point<NUM> & pt) const
-{
-  return (x == pt.x && y == pt.y);
-}
-
-template<class NUM>
-bool Point<NUM>::operator !=(const Point<NUM> & pt) const
-{
-  return (x != pt.x || y != pt.y);
-}
-
-template<class NUM>
-void Point<NUM>::operator +=(const Point<NUM>& pt)
-{
-  x += pt.x;
-  y += pt.y;
-}
-
-template<class NUM>
-void Point<NUM>::operator -=(const Point<NUM> & pt)
-{
-  x -= pt.x;
-  y -= pt.y;
-}
-
-template<class NUM>
-void Point<NUM>::operator *=(NUM f)
-{
-  x *= f;
-  y *= f;
-}
-
-template<class NUM>
-void Point<NUM>::operator /=(NUM f)
-{
-  x /= f;
-  y /= f;
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::operator -() const
-{
-  return Point<NUM>(-x, -y);
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::operator +(const Point<NUM> & pt) const
-{
-  return Point<NUM>(x + pt.x, y + pt.y);
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::operator -(const Point<NUM> & pt) const
-{
-  return Point<NUM>(x - pt.x, y - pt.y);
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::operator /(double f) const
-{
-  return Point<NUM> (NUM(x/f), NUM(y/f));
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::operator *(double f) const
-{
-  return Point<NUM> (NUM(x*f), NUM(y*f));
-}
-
-template<class NUM>
-Point<NUM> Point<NUM>::operator *(const Point<NUM>& pt) const
-{
-  return Point<NUM> (x*pt.x, y*pt.y);
-}
-
-inline
-double sqr(double x)
-{
-    return x*x;
-}
-
-template<class NUM>
-double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
-{
-    return sqrt(sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y));
-}
-
-template<class NUM>
-double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
-{
-    return sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y);
-}
+typedef Point<double> DPoint;
+typedef Point<int> IntPoint;
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
 

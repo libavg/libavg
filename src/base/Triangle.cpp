@@ -21,6 +21,8 @@
 
 #include "Triangle.h"
 
+#include <math.h>
+
 namespace avg {
 
 Triangle::Triangle(const DPoint& P0, const DPoint& P1, const DPoint& P2)

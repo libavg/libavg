@@ -29,6 +29,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
 

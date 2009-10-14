@@ -23,6 +23,7 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfliprgb.h"
 

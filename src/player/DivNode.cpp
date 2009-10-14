@@ -30,6 +30,7 @@
 #include "../base/StringHelper.h"
 #include "../base/FileHelper.h"
 #include "../base/MathHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <sstream>

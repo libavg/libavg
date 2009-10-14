@@ -24,6 +24,7 @@
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <sstream>

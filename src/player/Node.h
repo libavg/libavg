@@ -36,6 +36,7 @@
 #include "WrapPython.h" 
 
 #include <string>
+#include <map>
 
 namespace avg {
 

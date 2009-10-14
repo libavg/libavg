@@ -30,6 +30,7 @@
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
 #include "../base/StringHelper.h"
+#include "../base/MathHelper.h"
 
 #include <Magick++.h>
 #include <assert.h>

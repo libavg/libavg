@@ -32,6 +32,7 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include <Magick++.h>
 

@@ -23,6 +23,8 @@
 
 #include "Blob.h"
 
+#include "../base/ObjectCounter.h"
+
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
 

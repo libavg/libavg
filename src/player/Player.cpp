@@ -57,6 +57,7 @@
 #include "../base/Profiler.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
+#include "../base/MathHelper.h"
 
 #include "../imaging/Camera.h"
 

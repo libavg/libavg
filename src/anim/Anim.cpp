@@ -21,6 +21,8 @@
 #include "Anim.h"
 
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
+
 #include "../player/Player.h"
 
 using namespace boost::python;
