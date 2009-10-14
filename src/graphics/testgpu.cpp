@@ -31,7 +31,7 @@
 #include "../base/Test.h"
 #include "../base/StringHelper.h"
 
-
+#include <math.h>
 #include <iostream>
 
 using namespace avg;

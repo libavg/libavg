@@ -21,6 +21,7 @@
 #include "SimpleAnim.h"
 
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 #include "../player/Player.h"
 
 using namespace boost;

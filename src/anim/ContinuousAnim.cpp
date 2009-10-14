@@ -21,8 +21,9 @@
 
 #include "ContinuousAnim.h"
 
-#include "../player/Player.h"
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
+#include "../player/Player.h"
 
 using namespace boost::python;
 using namespace std;
