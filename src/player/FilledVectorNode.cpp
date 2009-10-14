@@ -85,6 +85,7 @@ void FilledVectorNode::checkReload()
     Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pFillShape->moveToGPU(getDisplayEngine());
+        setDrawNeeded(true);
     }
     VectorNode::checkReload();
 }

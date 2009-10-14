@@ -101,6 +101,7 @@ void VectorNode::checkReload()
     Node::checkReload(m_TexHRef, m_pShape->getImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pShape->moveToGPU(getDisplayEngine());
+        setDrawNeeded(true);
     }
 }
 
