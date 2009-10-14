@@ -22,6 +22,7 @@
 import unittest
 
 import sys, time, platform
+import math
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
@@ -91,10 +92,34 @@ class PlayerTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName, bpp)
 
     def testPoint(self):
+        def almostEqual(p1, p2):
+            return (abs(p1.x-p2.x) < 0.00001 and abs(p1.y-p2.y) < 0.00001)
+
+        def testHash():
+            ptMap = {}
+            ptMap[avg.Point2D(0,0)] = 0
+            ptMap[avg.Point2D(1,0)] = 1
+            ptMap[avg.Point2D(0,0)] = 2
+            self.assert_(len(ptMap) == 2)
+            self.assert_(ptMap[avg.Point2D(0,0)] == 2)
+
         pt = avg.Point2D(10, 10)
         self.assert_(pt[0]==pt.x)
         self.assert_(pt[1]==pt.y)
         self.assert_(pt == avg.Point2D(10, 10))
+        self.assert_(pt == (10, 10))
+        self.assert_(pt != avg.Point2D(11, 10))
+        self.assert_(str(pt) == "(10,10)")
+        pt2 = eval(repr(pt))
+        self.assert_(pt2 == pt)
+        testHash()
+        self.assert_(almostEqual(avg.Point2D(10,0).getNormalized(), avg.Point2D(1,0)))
+        self.assert_(almostEqual(pt.getRotated(math.pi, (5,5)), avg.Point2D(0,0)))
+        self.assert_(-pt == (-10, -10))
+        self.assert_(pt-(10,0) == (0,10))
+        self.assert_(pt+(10,0) == (20,10))
+        self.assert_(pt*2 == (20,20))
+        self.assert_(2*pt == (20,20))
         pt.x = 21
         pt.y = 23
         self.assert_(pt == avg.Point2D(21, 23))
@@ -113,7 +138,6 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(pt[0]==pt.x)
         self.assert_(pt[1]==pt.y)
         self.assertException(lambda: pt[2])
-        self.assert_(abs(avg.Point2D(10,0).getNormalized().getNorm()-1) < 0.001)
 
     def testImage(self):
 

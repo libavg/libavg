@@ -87,7 +87,7 @@ namespace DPointHelper
     string repr(const DPoint& pt)
     {
         stringstream st;
-        st << "Point2D(" << pt.x << "," << pt.y << ")";
+        st << "avg.Point2D(" << pt.x << "," << pt.y << ")";
         return st.str();
     }
 
