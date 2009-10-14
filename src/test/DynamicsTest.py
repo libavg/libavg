@@ -40,7 +40,6 @@ else:
 from testcase import *
 
 class DynamicsTestCase(AVGTestCase):
-
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
 
@@ -118,7 +117,6 @@ class DynamicsTestCase(AVGTestCase):
         runTest(False) 
 
     def testImgDynamics(self):
-    
         def createImg(useXml):
             if useXml:
                 node = Player.createNode("<image href='rgb24-64x64.png'/>")
@@ -129,7 +127,6 @@ class DynamicsTestCase(AVGTestCase):
         self.__runDynamicsTest(createImg, "testImgDynamics")
 
     def testVideoDynamics(self):
-
         def createVideo(useXml):
             if useXml:
                 node = Player.createNode(
@@ -145,7 +142,6 @@ class DynamicsTestCase(AVGTestCase):
         self.__runDynamicsTest(createVideo, "testVideoDynamics", True)
 
     def testWordsDynamics(self):
-
         def createWords(useXml):
             if useXml:
                 node = Player.createNode("<words text='test'/>")
@@ -175,7 +171,6 @@ class DynamicsTestCase(AVGTestCase):
         self.__runDynamicsTest(createPano, "testPanoDynamics")
 
     def testDivDynamics(self):
-
         def createDiv(useXml):
             if useXml:
                 node = Player.createNode("""
@@ -192,7 +187,6 @@ class DynamicsTestCase(AVGTestCase):
         self.__runDynamicsTest(createDiv, "testDivDynamics")
 
     def testDynamicEventCapture(self):
-
         # Tests if deleting a node that has events captured works.
         def createImg():
             parentNode = Player.getRootNode()
@@ -222,10 +216,12 @@ class DynamicsTestCase(AVGTestCase):
         self.start(None,
                 (createImg,
                  setEventCapture,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 100, 10, 1),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        100, 10, 1),
                  lambda: self.assert_(self.captureMouseDownCalled),
                  deleteImg,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 100, 10, 1),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 
+                        100, 10, 1),
                  lambda: self.assert_(self.mainMouseUpCalled)
                 ))
 
@@ -233,12 +229,16 @@ class DynamicsTestCase(AVGTestCase):
         def click (x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent (avg.CURSORDOWN, True, False, False, x, y, 1)
+
         def createNodes():
             def appendEventString (s):
                 self.__eventString += s
                 return True
+
             def setHandler (node, s, swallow = False):
-                node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, lambda e: appendEventString(s) and swallow)
+                node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
+                        lambda e: appendEventString(s) and swallow)
+
             parentNode = Player.getRootNode()
             node = Player.createNode("div", {'x':0,'y':0,'width':50, 'height':50})
             setHandler (node, 'a')
@@ -274,7 +274,6 @@ class DynamicsTestCase(AVGTestCase):
 
 
     def testComplexDiv(self):
-        
         def setImageID(imgNode):
             imgNode.id = "imageid"
 
@@ -314,6 +313,7 @@ class DynamicsTestCase(AVGTestCase):
     def testDynamicMediaDir(self):
         def attachNode():
             Player.getRootNode().appendChild(imageNode1)
+
         self._loadEmpty()
         Player.getRootNode().mediadir="testmediadir"
         imageNode1 = Player.createNode("image", {"href": "rgb24-64x64a.png"})

@@ -42,13 +42,16 @@ from testcase import *
 class WordsTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
+    
     def testSimpleWords(self):
         def checkFont():
             node = Player.getElementByID("sanstext")
             self.assert_(node.variant=="bold")
+    
         def checkUnicodeText():
             node = Player.getElementByID("sanstext")
             node.text = u"föa"
+        
         fontList = avg.Words.getFontFamilies()
         try:
             fontList.index("Bitstream Vera Sans")
@@ -74,6 +77,7 @@ class WordsTestCase(AVGTestCase):
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
             return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
+        
         node = Player.createNode("words", {"text":"Bold", "font":"Bitstream Vera Sans"})
         self.assert_(node.getGlyphPos(0) == (0,0))
         size = node.getGlyphSize(0)
@@ -127,9 +131,11 @@ class WordsTestCase(AVGTestCase):
         def setCharMode():
             node = Player.getElementByID("words")
             node.wrapmode = 'char'
+        
         def setWordMode():
             node = Player.getElementByID("words")
             node.wrapmode = 'word'
+        
         def setWordCharMode():
             node = Player.getElementByID("words")
             node.wrapmode = 'wordchar'
@@ -138,7 +144,8 @@ class WordsTestCase(AVGTestCase):
         <avg width="160" height="120">
           <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
               variant="roman" width="100" id="words"
-              text="Wrapped paragraph more than one line long. Withaverylongpackedlinewithnobreaks"/>
+              text="Wrapped paragraph more than one line long.
+                Withaverylongpackedlinewithnobreaks"/>
         </avg>
         """)
         self.start(None,
@@ -180,9 +187,11 @@ class WordsTestCase(AVGTestCase):
             self.baselineBmp = Player.screenshot()
             node = Player.getElementByID("words")
             node.text = self.text
+        
         def checkSameImage():
             bmp = Player.screenshot()
             self.assert_(self.areSimilarBmps(bmp, self.baselineBmp, 0, 0))
+        
         def createUsingDict():
             Player.getElementByID("words").unlink()
             node = Player.createNode("words", {
@@ -191,6 +200,7 @@ class WordsTestCase(AVGTestCase):
                     "text":self.text
                 })
             Player.getRootNode().appendChild(node)
+        
         self.text = """
               Markup: 
               <span size='14000' rise='5000' foreground='red'>span</span>, 
@@ -224,21 +234,27 @@ class WordsTestCase(AVGTestCase):
             self.assert_(node.width != oldwidth)
             node.color = "404080"
             node.x += 10
+        
         def changeHeight():
             node = Player.getElementByID("dynamictext")
             node.height = 28
+        
         def activateText():
             Player.getElementByID('dynamictext').active = 1
+        
         def deactivateText():
             Player.getElementByID('dynamictext').active = 0
+        
         def changeFont():
             node = Player.getElementByID("dynamictext")
             node.font = "Bitstream Vera Sans"
             node.height = 0
             node.fontsize = 30
+        
         def changeFont2():
             node = Player.getElementByID("dynamictext")
             node.fontsize = 18
+        
         def changeTextWithInvalidTag():
             node = Player.getElementByID("dynamictext")
             try:
@@ -246,6 +262,7 @@ class WordsTestCase(AVGTestCase):
             except:
                 node.text = "except"
             self.assert_(node.text == "except")
+        
         self.start("dynamictext.avg",
                 (lambda: self.compareImage("testDynamicWords1", True),
                  changeText,
@@ -263,6 +280,7 @@ class WordsTestCase(AVGTestCase):
     def testI18NWords(self):
         def changeUnicodeText():
             Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
+        
         self.start("i18ntext.avg",
                 (lambda: self.compareImage("testI18NWords1", True),
                  changeUnicodeText,
@@ -281,17 +299,23 @@ class WordsTestCase(AVGTestCase):
                      'fontsize':12})
             Player.getRootNode().appendChild(self.dictdnode)
 
-            self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" fontsize=\"12\" font=\"Bitstream Vera Sans\" variant=\"roman\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
+            self.xmldnode = Player.createNode("""
+                <words text="&lt;test dynattr&amp;" fontsize="12" 
+                        font="Bitstream Vera Sans" variant="roman" rawtextmode="true"
+                        x="1" y="85"/>""")
             Player.getRootNode().appendChild(self.xmldnode)
+        
         def switchRawMode():
             self.dictdnode.rawtextmode = False
             Player.getElementByID('nodeval').rawtextmode = True
             Player.getElementByID('attrib').rawtextmode = True
+        
         def bombIt():
             def cantRun():
                 self.xmldnode.rawtextmode = False
                 self.assert_(0)
             self.assertException(cantRun)
+        
         def assignNewTexts():
             text = u'&ùùààxx>'
             self.dictdnode.rawtextmode = True
@@ -299,16 +323,17 @@ class WordsTestCase(AVGTestCase):
             self.xmldnode.text = text
             Player.getElementByID('nodeval').text = text
             Player.getElementByID('attrib').text = text
+        
         self.start("rawtext.avg",
-        (lambda: self.compareImage("testRawText1", True),
-        createDynNodes,
-        lambda: self.compareImage("testRawText2", True),
-        switchRawMode,
-        lambda: self.compareImage("testRawText3", True),
-        bombIt,
-        assignNewTexts,
-        lambda: self.compareImage("testRawText4", True),
-        ))
+                (lambda: self.compareImage("testRawText1", True),
+                 createDynNodes,
+                 lambda: self.compareImage("testRawText2", True),
+                 switchRawMode,
+                 lambda: self.compareImage("testRawText3", True),
+                 bombIt,
+                 assignNewTexts,
+                 lambda: self.compareImage("testRawText4", True),
+                ))
 
     def testWordsBR(self):
         Player.loadString("""
@@ -327,6 +352,7 @@ class WordsTestCase(AVGTestCase):
         def setSpacing():
             Player.getElementByID("words1").letterspacing=-2
             Player.getElementByID("words2").letterspacing=-2
+        
         Player.loadString("""
           <avg width="160" height="120">
             <words id="words1" x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
@@ -373,12 +399,16 @@ class WordsTestCase(AVGTestCase):
     def testInvalidColor(self):
         def testColor(color):
             Player.createNode('words', {'color':color})
+        
         def assignValidColor():
             testColor('123456')
+        
         def assignInvalidColor1():
             testColor('1234567')
+        
         def assignInvalidColor2():
             testColor('xxx')
+        
         def assignInvalidColor3():
             testColor('xxxxxx')
 

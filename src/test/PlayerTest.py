@@ -140,7 +140,6 @@ class PlayerTestCase(AVGTestCase):
         self.assertException(lambda: pt[2])
 
     def testImage(self):
-
         def loadNewFile():
             self.assert_(Player.getElementByID("test").getMediaSize() == (65,65))
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
@@ -170,7 +169,6 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testImageMask(self):
-
         def setMask():
             try:
                 Player.getElementByID("test").maskhref = "mask.png"
@@ -201,10 +199,13 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(node.width == w)
             self.assert_(node.height == h)
             self.assert_(node.size == (w,h))
+        
         def setSize (size):
             node.size = size
+        
         def setWidth (w):
             node.width = w
+        
         def setHeight (h):
             node.height = h
 
@@ -228,10 +229,12 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or 
                     Bmp.getFormat() == avg.B8G8R8X8)
             node.setBitmap(Bmp)
+        
         def loadBitmap():
             Bmp = avg.Bitmap("greyscale.png")
             self.assert_(Bmp.getSize() == (64,64))
             self.assert_(Bmp.getFormat() == avg.I8)
+        
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
         getBitmap(node)
@@ -243,9 +246,11 @@ class PlayerTestCase(AVGTestCase):
     def testRotate(self):
         def onOuterDown(Event):
             self.onOuterDownCalled = True
+        
         def fakeRotate():
             Player.getElementByID("outer").angle += 0.1
             Player.getElementByID("inner").angle -= 0.1
+        
         def testCoordConversions():
             innerNode = Player.getElementByID("inner")
             relPos = innerNode.getRelPos((90, 80))
@@ -259,10 +264,12 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(outerNode.getElementByPos((10, 10)) == innerNode)
             self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
             self.assert_(outerNode.getElementByPos((-10, -110)) == None)
+        
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         x, y, 1)
+        
         def disableCrop():
             Player.getElementByID("outer").crop = False
             Player.getElementByID("inner").crop = False
@@ -296,8 +303,10 @@ class PlayerTestCase(AVGTestCase):
     def testRotatePivot(self):
         def setPivot (pos):
             node.pivot = pos
+        
         def addPivot (offset):
             node.pivot += offset
+        
         Player.loadFile("rotate3.avg")
         node = Player.getElementByID('div1')
         self.start(None, (
@@ -330,6 +339,7 @@ class PlayerTestCase(AVGTestCase):
     def testExceptionInTimeout(self):
         def throwException():
             raise ZeroDivisionError
+        
         try:
             self.start("image.avg",
                     [throwException])
@@ -341,12 +351,14 @@ class PlayerTestCase(AVGTestCase):
     def testInvalidImageFilename(self):
         def activateNode():
             Player.getElementByID("enclosingdiv").active = 1
+        
         self.start("invalidfilename.avg",
                 [activateNode])
 
     def testInvalidVideoFilename(self):
         def tryplay():
             assertException(lambda: Player.getElementByID("brokenvideo").play())
+        
         self.start("invalidvideofilename.avg",
                 (lambda: tryplay,
                  lambda: Player.getElementByID("brokenvideo").stop()
@@ -359,55 +371,74 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(Event.lastdownpos == avg.Point2D(10,10))
             # Make sure we're getting a Point2D as return value.
             self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
+        
         def testInactiveDiv():
             Player.getElementByID("div1").active = False
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                 70, 70, 1)
+        
         def disableHandler():
             self.mouseDown1Called = False
             Player.getElementByID("img1").setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
+        
         def onMouseMove1(Event):
             self.assert_ (Event.type == avg.CURSORMOTION)
             print "onMouseMove1"
+        
         def onMouseUp1(Event):
             self.assert_ (Event.type == avg.CURSORUP)
             self.mouseUp1Called = True
+        
         def onMouseDown1(Event):
             self.assert_ (Event.type == avg.CURSORDOWN)
             self.mouseDown1Called = True
+        
         def onMouseOver1(Event):
             self.assert_ (Event.type == avg.CURSOROVER)
             self.mouseOver1Called = True
+        
         def onMouseOut1(Event):
             self.assert_ (Event.type == avg.CURSOROUT)
             self.mouseOut1Called = True
+        
         def onTouchDown(Event):
             self.touchDownCalled = True
+        
         def onDivMouseDown(Event):
             self.assert_ (Event.type == avg.CURSORDOWN)
             self.divMouseDownCalled = True
+        
         def onMouseDown2(Event):
             self.assert_ (Event.type == avg.CURSORDOWN)
             self.mouseDown2Called = True
+        
         def onObscuredMouseDown(Event):
             self.obscuredMouseDownCalled = True
+        
         def onDeactMouseDown(Event):
             self.deactMouseDownCalled = True
+        
         def onDeactMouseOver(Event):
             self.deactMouseOverLate = self.deactMouseDownCalled
             self.deactMouseOverCalled = True
+        
         def onDeactMouseMove(Event):
             print("move")
+        
         def onDeactMouseOut(Event):
             pass
+        
         def onTiltedMouseDown(Event):
             self.tiltedMouseDownCalled = True
+        
         def onKeyDown(Event):
             if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
                 self.keyDownCalled = True
+        
         def onKeyUp(Event):
             if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
                 self.keyUpCalled = True
+        
         def neverCalled(Event):
             self.neverCalledCalled = True
 
@@ -477,15 +508,15 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(self.mouseUp1Called and mainMouseUpCalled),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 70, 1),
-                 lambda: self.assert_(self.mouseDown2Called and self.divMouseDownCalled and 
-                        self.mouseOut1Called and not(self.obscuredMouseDownCalled)),
+                 lambda: self.assert_(self.mouseDown2Called and self.divMouseDownCalled
+                        and self.mouseOut1Called and not(self.obscuredMouseDownCalled)),
                  testInactiveDiv,
                  lambda: self.assert_(self.obscuredMouseDownCalled),
                  # Test if deactivation between mouse click and mouse out works.
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 10, 1),
-                 lambda: self.assert_(self.deactMouseOverCalled and not(self.deactMouseOverLate)
-                        and not(self.neverCalledCalled)),
+                 lambda: self.assert_(self.deactMouseOverCalled 
+                        and not(self.deactMouseOverLate) and not(self.neverCalledCalled)),
                  disableHandler,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
@@ -496,12 +527,11 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 80, 1),
                  lambda: self.assert_(self.tiltedMouseDownCalled),
-                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, avg.KEYMOD_NONE),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 
+                        avg.KEYMOD_NONE),
                  lambda: self.assert_(self.keyDownCalled),
                  lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, avg.KEYMOD_NONE),
                  lambda: self.assert_(self.keyUpCalled)
-                 # XXX
-                 # - errMouseOver
                 ))
 
     def testEventCapture(self):
@@ -513,6 +543,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("img1").setEventCapture()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                     100, 10, 1)
+        
         def noCaptureEvent():
             global captureMouseDownCalled
             Helper = Player.getTestHelper()
@@ -521,6 +552,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("img1").releaseEventCapture()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                     100, 10, 1)
+        
         global captureMouseDownCalled
         global mainCaptureMouseDownCalled
         Helper = Player.getTestHelper()
@@ -539,16 +571,22 @@ class PlayerTestCase(AVGTestCase):
     def testMouseOver(self):
         def onImg2MouseOver(Event):
             self.img2MouseOverCalled = True
+        
         def onImg2MouseOut(Event):
             self.img2MouseOutCalled = True
+        
         def onDivMouseOver(Event):
             self.divMouseOverCalled = True
+        
         def onDivMouseOut(Event):
             self.divMouseOutCalled = True
+        
         def onAVGMouseOver(Event):
             self.avgMouseOverCalled = True
+        
         def onImg1MouseOver(Event):
             self.img1MouseOverCalled = True
+        
         def printState():
             print "----"
             print "img2MouseOverCalled=", self.img2MouseOverCalled
@@ -557,6 +595,7 @@ class PlayerTestCase(AVGTestCase):
             print "divMouseOutCalled=", self.divMouseOutCalled
             print "avgMouseOverCalled=", self.avgMouseOverCalled
             print "img1MouseOverCalled=", self.img1MouseOverCalled
+        
         def resetState():
             self.img2MouseOverCalled = False
             self.img2MouseOutCalled = False
@@ -564,9 +603,11 @@ class PlayerTestCase(AVGTestCase):
             self.divMouseOutCalled = False
             self.avgMouseOverCalled = False
             self.img1MouseOverCalled = False
+        
         def killNodeUnderCursor():
             Parent = img1.getParent()
             Parent.removeChild(Parent.indexOf(img1))
+        
         Helper = Player.getTestHelper()
         Player.loadFile("mouseover.avg")
         img2 = Player.getElementByID("img2")
@@ -650,19 +691,23 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testTimeouts(self):
-        self.timeout1called = False
-        self.timeout2called = False
         def timeout1():
             Player.clearInterval(self.timeout1ID)
             Player.clearInterval(self.timeout2ID)
             self.timeout1called = True
+        
         def timeout2():
             self.timeout2called = True
+        
         def wait():
             pass
+        
         def setupTimeouts():
             self.timeout1ID = Player.setTimeout(0, timeout1)
             self.timeout2ID = Player.setTimeout(1, timeout2)
+        
+        self.timeout1called = False
+        self.timeout2called = False
         self.start("image.avg",
                 (setupTimeouts,
                  wait,
@@ -685,6 +730,7 @@ class PlayerTestCase(AVGTestCase):
             node.sensorheight=10
             node.sensorwidth=15
             node.focallength=25
+        
         def loadImage():
             node = Player.getElementByID("pano")
             node.href = "rgb24-65x65.png"
@@ -698,6 +744,7 @@ class PlayerTestCase(AVGTestCase):
     def testBroken(self):
         def testBrokenFile(filename):
             self.assertException(lambda: Player.loadFile(filename))
+        
         testBrokenFile("filedoesntexist.avg")
         testBrokenFile("noxml.avg")
         testBrokenFile("noavg.avg")
@@ -710,15 +757,19 @@ class PlayerTestCase(AVGTestCase):
             node.opacity -= 0.7
             node = Player.getElementByID("nestedavg")
             node.x += 50
+        
         def checkRelPos():
             RelPos = Player.getElementByID("obscured").getRelPos((50,52))
             self.assert_(RelPos == (0, 0))
+        
         def testIllegalSet1():
             node = Player.getElementByID("nestedimg1")
             node.pos.x = 23
+        
         def testIllegalSet2():
             node = Player.getElementByID("nestedimg1")
             node.size.x = 23
+        
         self.start("avg.avg",
                 (lambda: self.compareImage("testMove1", False),
                  moveit,
@@ -735,10 +786,12 @@ class PlayerTestCase(AVGTestCase):
             node.setBitmap(bitmap)
             parent = Player.getElementByID("mainavgnode")
             parent.appendChild(node)
+        
         def setBitmapLinked(nodeID):
             node = Player.getElementByID(nodeID)
             bitmap = avg.Bitmap('rgb24-65x65.png')
             node.setBitmap(bitmap)
+        
         def setNullBitmap():
             node = Player.getElementByID("fullimg")
             node.setBitmap(None)
@@ -763,24 +816,29 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("img")
             node.x = -20
             node.y = -20
+        
         def moveBRCrop():
             node = Player.getElementByID("img")
             node.x = 60
             node.y = 40
+        
         def moveTLNegative():
             node = Player.getElementByID("img")
             node.x = -60
             node.y = -50
+        
         def moveBRGone():
             node = Player.getElementByID("img")
             node.x = 140
             node.y = 100
+        
         def rotate():
             node = Player.getElementByID("img")
             node.x = 10
             node.y = 10
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
+        
         self.start("crop2.avg",
                 (lambda: self.compareImage("testCropImage1", False),
                  moveTLCrop,
@@ -808,28 +866,34 @@ class PlayerTestCase(AVGTestCase):
         def playMovie():
             node = Player.getElementByID("movie")
             node.play()
+        
         def moveTLCrop():
             node = Player.getElementByID("movie")
             node.x = -20
             node.y = -20
+        
         def moveBRCrop():
             node = Player.getElementByID("movie")
             node.x = 60
             node.y = 40
+        
         def moveTLNegative():
             node = Player.getElementByID("movie")
             node.x = -60
             node.y = -50
+        
         def moveBRGone():
             node = Player.getElementByID("movie")
             node.x = 140
             node.y = 100
+        
         def rotate():
             node = Player.getElementByID("movie")
             node.x = 10
             node.y = 10
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
+        
         Player.setFakeFPS(30)
         self.start("crop.avg",
                 (playMovie,
@@ -866,11 +930,13 @@ class PlayerTestCase(AVGTestCase):
             grid[0][0] = (grid[0][0][0]+0.06, grid[0][0][1]+0.06)
             grid[1][1] = (grid[1][1][0]-0.06, grid[1][1][1]-0.06)
             node.setWarpedVertexCoords(grid)
+        
         def flip():
             node = Player.getElementByID("testtiles")
             grid = node.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             node.setWarpedVertexCoords(grid)
+        
         Player.loadFile("video.avg")
         node = Player.getElementByID("testtiles")
         self.assertException(node.getOrigVertexCoords)
@@ -905,13 +971,17 @@ class PlayerTestCase(AVGTestCase):
 
         def setDir():
             Player.getElementByID("main").mediadir="../video/testfiles"
+        
         def setAbsDir():
             def absDir():
                 # Should not find any media here...
                 Player.getElementByID("main").mediadir="/testmediadir"
+
             self.assertException(absDir)
+        
         def createNode():
             node = Player.createNode("video", {"href":"mjpeg1-48x48.avi", "fps":30})
+        
         self.start("mediadir.avg",
                 (createImageNode,
                  lambda: Player.getElementByID("video").play(),
@@ -936,16 +1006,20 @@ class PlayerTestCase(AVGTestCase):
                     avg.KEYMOD_NONE),
             Helper.fakeKeyEvent(avg.KEYUP, escape, escape, "escape", escape, 
                     avg.KEYMOD_NONE),
+        
         def testEscape1():
             Player.stopOnEscape(False)
             pressEscape()
+        
         def testEscape2():
             Player.stopOnEscape(True)
             Player.stopOnEscape(False)
             pressEscape()
+        
         def testEscape3():
             Player.stopOnEscape(True)
             pressEscape()
+        
         def setAlive():
             self.testStopOnEscapeAlive = True
 

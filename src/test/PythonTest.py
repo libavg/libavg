@@ -47,19 +47,24 @@ from testcase import *
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
+
     def testAnimType(self, curAnim, imgBaseName):
         def onStop():
             self.__onStopCalled = True
+
         def startAnim():
             self.__onStopCalled = False
             node = Player.getElementByID("test")
             self.__anim.start()
+
         def startKeepAttr():
             node = Player.getElementByID("test")
             node.x = 25
             self.__anim.start(keepAttr=True)
+
         def abortAnim():
             self.__anim.abort()
+
         self.__anim = curAnim
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
@@ -98,10 +103,12 @@ class PythonTestCase(AVGTestCase):
     def testLinearAnimZeroDuration(self):
         def onStop():
             self.__onStopCalled = True
+
         def startAnim():
             self.__onStopCalled = False
             node = Player.getElementByID("test")
             self.__anim.start()
+
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
         self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
@@ -140,18 +147,22 @@ class PythonTestCase(AVGTestCase):
             Player.setTimeout(800,stopAnim)
             Player.setTimeout(900,lambda:self.compareImage("testContAnim4", False))
             Player.setTimeout(1000,Player.stop)
+
         def startAnim():
             node=Player.getElementByID("mainimg")
             self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
             self.anim.start()
+
         def startAnim2():
             node=Player.getElementByID("nestedimg1")
             self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
             self.anim2.start()
+
         def startAnim3():
             node=Player.getElementByID("nestedimg2")
             self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
             self.anim3.start()
+
         def stopAnim():
             self.anim.abort()
             self.anim2.abort()
@@ -189,6 +200,7 @@ class PythonTestCase(AVGTestCase):
     def testStateAnim(self):
         def state2Callback():
             self.__state2CallbackCalled = True
+
         def makeAnim():
             node = Player.getElementByID("test")
             self.anim = anim.StateAnim(
@@ -230,6 +242,7 @@ class PythonTestCase(AVGTestCase):
                       anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100)
                     ], animStopped)
             self.anim.start()
+        
         anim.init(avg)
         self.__endCalled = False
         Player.setFakeFPS(10)
@@ -248,14 +261,19 @@ class PythonTestCase(AVGTestCase):
     def testDraggable(self):
         def onDragStart(event):
             self.__dragStartCalled = True
+        
         def onDragEnd(event):
             self.__dragEndCalled = True
+        
         def startDrag():
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 140, 40, 1)
+        
         def move():
             Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
+        
         def stop():
             Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
+        
         self.__dragEndCalled = False
         self.__dragStartCalled = False
         Helper = Player.getTestHelper()    
@@ -281,23 +299,31 @@ class PythonTestCase(AVGTestCase):
     def testButton(self):
         def onClick(event):
             self.__clicked = True
+        
         def createButton():
             buttonNode = Player.getElementByID("button") 
             self.button = button.Button(buttonNode, onClick)
             buttonNode.getChild(4).opacity = 0
+        
         def down():
             self.__sendEvent(avg.CURSORDOWN, 0, 0)
+        
         def out():
             self.__sendEvent(avg.CURSORMOTION, 0, 50)
+        
         def upOutside():
             self.__sendEvent(avg.CURSORUP, 0, 50)
+        
         def over():
             self.__sendEvent(avg.CURSORMOTION, 0, 0)
+        
         def upInside():
             self.__sendEvent(avg.CURSORUP, 0, 0)
+        
         def disable():
             self.button.setDisabled(True)
             self.__clicked = False
+        
         self.__clicked = False
         button.init(avg)
         self.start("ButtonTest.avg",
@@ -335,12 +361,16 @@ class PythonTestCase(AVGTestCase):
     def testCheckbox(self):
         def createCheckbox():
             self.checkbox = button.Checkbox(Player.getElementByID("button"))
+        
         def down():
             self.__sendEvent(avg.CURSORDOWN, 0, 0)
+        
         def up():
             self.__sendEvent(avg.CURSORUP, 0, 0)
+        
         def out():
             self.__sendEvent(avg.CURSORMOTION, 0, 50)
+        
         button.init(avg)
         self.start("ButtonTest.avg",
                 (createCheckbox,
@@ -375,9 +405,11 @@ class PythonTestCase(AVGTestCase):
         def setAndCheck(ta, text):
             ta.setText(text)
             self.assert_(ta.getText() == text)
+        
         def clear(ta):
             ta.onKeyDown(textarea.KEYCODE_FORMFEED)
             self.assert_(ta.getText() == '')
+        
         def testUnicode():
             self.ta1.setText(u'some ùnìcöde')
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
@@ -387,11 +419,13 @@ class PythonTestCase(AVGTestCase):
             self.assert_(self.ta1.getText() == u'some ùnìc')
             self.ta1.onKeyDown(ord(u'Ä'))
             self.assert_(self.ta1.getText() == u'some ùnìcÄ')
+        
         def testSpecialChars():
             clear(self.ta1)
             self.ta1.onKeyDown(ord(u'&'))
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
             self.assert_(self.ta1.getText() == '')
+        
         def checkSingleLine():
             text = ''
             self.ta2.setText('')
@@ -468,7 +502,6 @@ class PythonTestCase(AVGTestCase):
        def clickForFocus():
            self.__sendEvent(avg.CURSORDOWN, 20, 70)
            self.__sendEvent(avg.CURSORUP, 20, 70)
-
 
        Player.loadString("""
        <avg width="160" height="120">

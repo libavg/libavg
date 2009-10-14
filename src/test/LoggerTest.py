@@ -44,6 +44,7 @@ if platform.system() == 'Windows':
 else:    
     import avg
 
+
 class LoggerTestCase(unittest.TestCase):
     def runTest(self):
         self.Log = avg.Logger.get()

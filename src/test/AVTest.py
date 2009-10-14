@@ -42,11 +42,14 @@ from testcase import *
 class AVTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
+
     def testEOF(self, node):
         def onEOF():
             Player.stop()
+
         def onNoEOF():
             self.assert_(False)
+
         self._loadEmpty()
         Player.getRootNode().appendChild(node)
         node.play()
@@ -59,6 +62,7 @@ class AVTestCase(AVGTestCase):
             def checkImage(filename):
                 if not(isThreaded):
                     self.compareImage("testVideo-"+filename+"1", False)
+
             self._loadEmpty()
             node = Player.createNode("video",
                 {"href": "../video/testfiles/"+filename, "threaded": isThreaded})
@@ -68,6 +72,7 @@ class AVTestCase(AVGTestCase):
                      lambda: checkImage(filename),
                      lambda: node.stop()
                     ))
+
         Player.setFakeFPS(25)
         for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264"]:
@@ -100,8 +105,10 @@ class AVTestCase(AVGTestCase):
     def testVideoActive(self):
         def deactivate():
             node.active=0
+
         def activate():
             node.active=1
+        
         self._loadEmpty()
         node = Player.createNode("video",
             {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": False})
@@ -118,8 +125,10 @@ class AVTestCase(AVGTestCase):
     def testVideoHRef(self):
         def testGetMediaSize():
             self.assert_(node.getMediaSize() == (48, 48))
+
         def setHRef():
             node.href = "../video/testfiles/h264-48x48.h264"
+
         self._loadEmpty()
         node = Player.createNode("video",
             {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": False})
@@ -137,12 +146,14 @@ class AVTestCase(AVGTestCase):
         def testWithFile(filename, testImgName):
             def hide():
                 Player.getElementByID("video").opacity=0
+
             def show():
                 Player.getElementByID("video").opacity=1
+
             Player.setFakeFPS(25)
             Player.loadString("""
                 <avg width="160" height="120">
-                    <video id="video" x="0" y="0" opacity="1" loop="true" threaded="false"/>
+                    <video id="video" x="0" y="0" loop="true" threaded="false"/>
                 </avg>""")
             Player.getElementByID("video").href=filename
             self.start(None,
@@ -160,6 +171,7 @@ class AVTestCase(AVGTestCase):
     def testVideoSeek(self):
         def seek(frame):
             videoNode.seekToFrame(frame)
+
         for useCustomFPS in [False, True]:
             Player.setFakeFPS(25)
             self._loadEmpty()
@@ -197,8 +209,10 @@ class AVTestCase(AVGTestCase):
         def testWithFile(filename, testImgName):
             def setMask(href):
                 video.maskhref = href
+
             def setOpacity():
                 video.opacity = 0.5
+
             Player.setFakeFPS(25)
             Player.loadString("""
                 <avg width="160" height="120">
@@ -218,6 +232,7 @@ class AVTestCase(AVGTestCase):
                      setOpacity,
                      lambda: self.compareImage(testImgName+"4", False),
                     ])
+
         try:
             testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
             testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
@@ -236,8 +251,10 @@ class AVTestCase(AVGTestCase):
         def testSoundFile(filename):
             def setVolume(volume):
                 node.volume = volume
+
             def testGetVolume(volume):
                 self.assert_(node.volume == volume)
+
             self._loadEmpty()
             node = Player.createNode("sound",
                     {"href": "../video/testfiles/"+filename})
@@ -273,6 +290,7 @@ class AVTestCase(AVGTestCase):
                     {"href": "../video/testfiles/44.1kHz_16bit_6Chan.ogg"})
             Player.getRootNode().appendChild(node)
             self.assertException(node.play)
+
         self._loadEmpty()
         self.start(None,
                 [openSound])

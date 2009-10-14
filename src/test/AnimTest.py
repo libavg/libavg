@@ -42,6 +42,7 @@ from testcase import *
 class AnimTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
+
     def initScene(self):
         Player.loadString("""
             <avg width="160" height="120">
@@ -54,14 +55,18 @@ class AnimTestCase(AVGTestCase):
     def testAnimType(self, curAnim, imgBaseName):
         def onStop():
             self.__onStopCalled = True
+
         def startAnim():
             self.__onStopCalled = False
             self.__anim.start()
+
         def startKeepAttr():
             self.__node.x = 32 
             self.__anim.start(True)
+
         def abortAnim():
             self.__anim.abort()
+
         self.__anim = curAnim
         self.__anim.setStopCallback(onStop)
         self.__onStopCalled = False
@@ -124,6 +129,7 @@ class AnimTestCase(AVGTestCase):
     def testFadeIn(self):
         def onStop():
             self.__onStopCalled = True
+
         self.initScene()
         self.__node.opacity=0.5
         self.__onStopCalled = False
@@ -140,6 +146,7 @@ class AnimTestCase(AVGTestCase):
     def testFadeOut(self):
         def onStop():
             self.__onStopCalled = True
+
         self.initScene()
         self.__node.opacity=0.5
         self.__onStopCalled = False
@@ -161,9 +168,11 @@ class AnimTestCase(AVGTestCase):
     def testLinearAnimZeroDuration(self):
         def onStop():
             self.__onStopCalled = True
+
         def startAnim():
             self.__onStopCalled = False
             self.__anim.start()
+
         self.initScene()
         self.__anim = avg.LinearAnim(self.__node, "x", 0, 0, 100, False, None, onStop)
         self.__onStopCalled = False
@@ -179,9 +188,11 @@ class AnimTestCase(AVGTestCase):
     def testPointAnim(self):
         def startAnim():
             self.__anim.start()
+
         def startKeepAttr():
             self.__node.pos = (50, 20)
             self.__anim.start(True)
+
         self.initScene()
         self.__anim = avg.LinearAnim(self.__node, "pos", 200, avg.Point2D(0,0), 
                 avg.Point2D(100,40), False)
@@ -219,11 +230,6 @@ class AnimTestCase(AVGTestCase):
         self.initScene()
         curAnim = avg.EaseInOutAnim(self.__node, "x", 300, 0, 100, 100, 100, False)
         self.testAnimType(curAnim, "testEaseInOutAnimC")
-
-    def testSplineAnim(self):
-        self.initScene()
-        curAnim = anim.SplineAnim(self.__node, "x", 300, 0, 0, 100, 0, False)
-        self.testAnimType(curAnim, "testSplineAnim")
 
     def testContinuousAnim(self):
         def startAnim():
@@ -398,7 +404,6 @@ def animTestSuite(tests):
         "testPointAnim",
         "testEaseInOutAnim",
         "testIntAnim",
-#        "testSplineAnim",
         "testContinuousAnim",
         "testWaitAnim",
         "testParallelAnim",
