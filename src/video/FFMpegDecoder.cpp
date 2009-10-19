@@ -552,7 +552,7 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
 void FFMpegDecoder::throwAwayFrame(long long timeWanted)
 {
     AVFrame Frame;
-    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
+    readFrameForTime(Frame, timeWanted);
 }
 
 bool FFMpegDecoder::isEOF(StreamSelect Stream)
