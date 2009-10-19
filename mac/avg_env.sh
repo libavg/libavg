@@ -9,4 +9,5 @@ else
     export LDFLAGS="-L${AVG_PATH}/lib "$LDFLAGS
     export PKG_CONFIG_PATH=${AVG_PATH}/lib/pkgconfig
     export PYTHONPATH=${AVG_PATH}/lib/python/2.5/site-packages/:$PYTHONPATH
+    export AVG_MAC_ENV_SET=1
 fi

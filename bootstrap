@@ -1,19 +1,24 @@
 #!/bin/bash
 set -x
 set -e
+
 if [[ `uname` = Darwin ]] 
 then
+    if [[ "$AVG_MAC_ENV_SET" -ne "1" ]]
+    then
+        echo Please source mac/avg_env.sh before calling bootstrap.
+        exit 5 
+    fi
     # This uses locally-installed libtoolize and automake since the apple-supplied one is buggy
     # as of OS X 10.4.7
-    ../bin/libtoolize --copy --force
-    ../bin/aclocal -I m4
+    libtoolize --copy --force
+    aclocal -I m4
     # Patch that fixes 'absolute addressing not allowed in slidable image' linker error.
     patch < mac/libtool.m4.patch m4/libtool.m4 
-    ../bin/automake --foreign --add-missing --copy 
-    autoconf
 else
     libtoolize --copy --force
     aclocal -I m4
-    automake --foreign --add-missing --copy 
-    autoconf
 fi
+automake --foreign --add-missing --copy 
+autoconf
+
