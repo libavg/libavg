@@ -31,6 +31,12 @@ try:
 except ImportError:
     ClickTest = None
 
+try:
+    from mtemu import MTemu
+    
+except ImportError:
+    MTemu = None
+
 g_player = avg.Player.get()
 g_log = avg.Logger.get()
 
@@ -157,11 +163,16 @@ class AVGAppStarter(object):
         self.bindKey('o', self.__dumpObjects)
         self.bindKey('m', self.__showMemoryUsage)
         self.bindKey('.', self.__switchClickTest)
+        if MTemu is not None:
+            self.bindKey('t', self.__switchMtemu)
+        
         self.__showingMemGraph = False
 
         self.__runningClickTest = False
         self._initClickTest()
 
+        self._mtEmu = None
+        
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
         self._appInstance = self._AppClass(self._appNode)
@@ -225,3 +236,13 @@ class AVGAppStarter(object):
                 self._clickTest.start()
             
             self.__runningClickTest = not self.__runningClickTest
+
+    def __switchMtemu(self):
+        if self._mtEmu is None:
+            self._mtEmu = MTemu()
+            self.bindKey('left ctrl', self._mtEmu.changeMode)
+        else:
+            self.unbindKey('left ctrl')
+            self._mtEmu.delete()
+            self._mtEmu = None
+            

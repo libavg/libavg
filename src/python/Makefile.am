@@ -1,3 +1,3 @@
 pkgpyexec_PYTHON = anim.py draggable.py camcalibrator.py button.py textarea.py\
 	clusteredEventList.py eventList.py grabbable.py \
-	mathutil.py AVGApp.py AVGAppStarter.py AVGAppUtil.py AVGMTAppStarter.py
+	mathutil.py AVGApp.py AVGAppStarter.py AVGAppUtil.py AVGMTAppStarter.py mtemu.py
