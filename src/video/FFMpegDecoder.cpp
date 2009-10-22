@@ -428,8 +428,8 @@ int FFMpegDecoder::getNumFrames()
     return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
 #else
     double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
-            int(m_pVStream->duration/timeUnitsPerSecond);
+    return int((m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
+            (m_pVStream->duration/timeUnitsPerSecond));
 #endif 
 }
 
