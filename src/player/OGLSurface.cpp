@@ -112,6 +112,9 @@ void OGLSurface::activate() const
             case YCbCrJ420p:
                 pShader->setUniformIntParam("colorModel", 2);
                 break;
+            case I8:
+                pShader->setUniformIntParam("colorModel", 3);
+                break;
             default:
                 pShader->setUniformIntParam("colorModel", 0);
         }

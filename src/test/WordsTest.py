@@ -158,6 +158,39 @@ class WordsTestCase(AVGTestCase):
              lambda: self.compareImage("testWrapMode4", True),
              ])
 
+    def testWordsMask(self):
+        # Missing:
+        # - opacity
+        # - color
+        def setMask():
+            try:
+                Player.getElementByID("words").maskhref = "mask.png"
+            except RuntimeError:
+                print "Skipping testWordsMask - no shader support."
+                Player.stop()
+           
+        def setColor():
+            Player.getElementByID("words").color = "FFFF00"
+
+        def setOpacity():
+            Player.getElementByID("words").opacity = 0.5
+
+        Player.loadString("""
+        <avg width="160" height="120">
+          <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
+              variant="roman" width="100" id="words"
+              text="Wrapped paragraph more than one line long."/>
+        </avg>
+        """)
+        self.start(None,
+                (setMask,
+                 lambda: self.compareImage("testWordsMask1", False),
+                 setColor,
+                 lambda: self.compareImage("testWordsMask2", False),
+                 setOpacity,
+                 lambda: self.compareImage("testWordsMask3", False)
+                ))
+
     def testHinting(self):
         def checkPositions():
             root = Player.getRootNode()
@@ -443,6 +476,7 @@ def wordsTestSuite(tests):
             "testParaWords",
             "testJustify",
             "testWrapMode",
+            "testWordsMask",
             "testHinting",
             "testSpanWords",
             "testDynamicWords",

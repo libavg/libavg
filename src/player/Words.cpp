@@ -147,6 +147,12 @@ void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
+void Words::connect()
+{
+    RasterNode::connect();
+    checkReload();
+}
+
 void Words::disconnect(bool bKill)
 {
     if (m_pFontDescription) {
@@ -571,7 +577,8 @@ void Words::render(const DRect& Rect)
         if (m_PosOffset != IntPoint(0,0)) {
             getDisplayEngine()->pushTransform(DPoint(m_PosOffset), 0, DPoint(0,0));
         }
-        getSurface()->blta8(DPoint(getMediaSize()), getEffectiveOpacity(), m_Color, getBlendMode());
+        getSurface()->blta8(DPoint(getMediaSize()), getEffectiveOpacity(), m_Color, 
+                getBlendMode());
         if (m_PosOffset != IntPoint(0,0)) {
             getDisplayEngine()->popTransform();
         }

@@ -175,12 +175,15 @@ class PlayerTestCase(AVGTestCase):
             except RuntimeError:
                 print "Skipping testImageMask - no shader support."
                 Player.stop()
+
+        def setMaskNotFound():
+            Player.getElementByID("test").maskhref = "nonexistentmask.png"
             
         self.start("image.avg",
                 (setMask,
-                 lambda: self.compareImage("testimgmask", False)
+                 lambda: self.compareImage("testimgmask", False),
+                 setMaskNotFound
                 ))
-
 
     def testMipmap(self):
         Player.loadString("""
