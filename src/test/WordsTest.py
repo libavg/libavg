@@ -167,19 +167,22 @@ class WordsTestCase(AVGTestCase):
             self.assert_(root.getChild(0).getGlyphPos(6) != 
                 root.getChild(1).getGlyphPos(6))
 
-        Player.loadString("""
-        <avg width="160" height="120">
-          <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
-              variant="roman" hint="false"
-              text="Lorem ipsum dolor (no hinting)"/>
-          <words x="1" y="15" fontsize="12" font="Bitstream Vera Sans"
-              variant="roman" hint="true"
-              text="Lorem ipsum dolor (hinting)"/>
-        </avg>
-        """)
-        self.start(None,
-            [checkPositions
-            ])
+        if platform.system() == "Linux":
+            print "Skipping testHinting - Linux support requires modified font config."
+        else:
+            Player.loadString("""
+            <avg width="160" height="120">
+              <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
+                  variant="roman" hint="false"
+                  text="Lorem ipsum dolor (no hinting)"/>
+              <words x="1" y="15" fontsize="12" font="Bitstream Vera Sans"
+                  variant="roman" hint="true"
+                  text="Lorem ipsum dolor (hinting)"/>
+            </avg>
+            """)
+            self.start(None,
+                [checkPositions
+                ])
 
 
     def testSpanWords(self):
