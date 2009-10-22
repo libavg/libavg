@@ -13,6 +13,9 @@ def resize():
 
 def onFrame():
     node = Player.getElementByID("video")
+    curFrame = node.getCurFrame()
+    numFrames = node.getNumFrames()
+    Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
     curVideoTime = node.getCurTime()
     Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
     framesQueued = node.getNumFramesQueued()
@@ -40,8 +43,9 @@ Player.loadString("""
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="1280" height="720" onkeyup="onKey">
   <video id="video" x="0" y="0" threaded="true"/>
-  <words id="curtime" x="10" y="10" font="arial" fontsize="10"/> 
-  <words id="framesqueued" x="10" y="22" font="arial" fontsize="10"/> 
+  <words id="curframe" x="10" y="10" font="arial" fontsize="10"/> 
+  <words id="curtime" x="10" y="22" font="arial" fontsize="10"/> 
+  <words id="framesqueued" x="10" y="34" font="arial" fontsize="10"/> 
 </avg>
 """)
 node = Player.getElementByID("video")
