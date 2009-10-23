@@ -824,6 +824,8 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
     const unsigned char * pSrcLine2 = m_pBits;
     unsigned char * pDestLine = pResultBmp->getPixels();
     int stride = getStride();
+    int lineLen = getLineLen();
+
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
             case I16: 
@@ -844,7 +846,7 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
                     const unsigned char * pSrc1 = pSrcLine1;
                     const unsigned char * pSrc2 = pSrcLine2;
                     unsigned char * pDest= pDestLine;
-                    for (int x=0; x<getLineLen(); ++x) {
+                    for (int x=0; x<lineLen; ++x) {
                         *pDest = abs(*pSrc1-*pSrc2);
                         pSrc1++;
                         pSrc2++;
