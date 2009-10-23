@@ -816,12 +816,14 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
                 + getPixelFormatString(m_PF)+", "
                 + getPixelFormatString(pOtherBmp->getPixelFormat())+")");
     if (m_Size != pOtherBmp->getSize())
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Bitmap::subtract: bitmap sizes differ (this=")
-        + toString(m_Size) + ", other=" + toString(pOtherBmp->getSize()) + ")");
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                string("Bitmap::subtract: bitmap sizes differ (this=")
+                + toString(m_Size) + ", other=" + toString(pOtherBmp->getSize()) + ")");
     Bitmap * pResultBmp = new Bitmap(m_Size, m_PF);
     const unsigned char * pSrcLine1 = pOtherBmp->getPixels();
     const unsigned char * pSrcLine2 = m_pBits;
     unsigned char * pDestLine = pResultBmp->getPixels();
+    int stride = getStride();
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
             case I16: 
@@ -850,9 +852,9 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
                     }
                 }
         }
-        pSrcLine1 += getStride();
-        pSrcLine2 += pOtherBmp->getStride();
-        pDestLine += pResultBmp->getStride();
+        pSrcLine1 += stride;
+        pSrcLine2 += stride;
+        pDestLine += stride;
     }
     return pResultBmp;
 }
