@@ -26,8 +26,20 @@
 
 namespace avg {
 
-struct AVG_API MaterialInfo {
+class AVG_API MaterialInfo {
+public:
     MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps);
+
+    void setMask(bool bHasMask);
+    bool getHasMask() const;
+
+    int getTexWrapSMode() const;
+    int getTexWrapTMode() const;
+
+    void setUseMipmaps(bool bUseMipmaps);
+    bool getUseMipmaps() const;
+
+private:
     int m_TexWrapSMode;
     int m_TexWrapTMode;
     bool m_bUseMipmaps;

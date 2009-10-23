@@ -53,7 +53,7 @@ void OGLSurface::attach(SDLDisplayEngine * pEngine)
 {
     m_pEngine = pEngine;
     m_MemoryMode = m_pEngine->getMemoryModeSupported();
-    if (m_Material.m_bHasMask && !getEngine()->isUsingShaders()) {
+    if (m_Material.getHasMask() && !getEngine()->isUsingShaders()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
     }
@@ -86,7 +86,7 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 void OGLSurface::createMask(const IntPoint& size)
 {
     assert(m_pEngine);
-    assert(m_Material.m_bHasMask);
+    assert(m_Material.getHasMask());
     m_MaskSize = size;
     m_pMaskTexture = OGLTexturePtr(new OGLTexture(size, I8, m_Material, m_pEngine,
             m_MemoryMode));
@@ -132,8 +132,8 @@ void OGLSurface::activate() const
             pShader->setUniformIntParam("crTexture", 2);
         }
         
-        pShader->setUniformIntParam("bUseMask", m_Material.m_bHasMask);
-        if (m_Material.m_bHasMask) {
+        pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
+        if (m_Material.getHasMask()) {
             glproc::ActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, m_pMaskTexture->getTexID());
             pShader->setUniformIntParam("maskTexture", 3);
@@ -160,7 +160,7 @@ void OGLSurface::deactivate() const
         glproc::UseProgramObject(0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
     }
-    if (m_Material.m_bHasMask) {
+    if (m_Material.getHasMask()) {
         glproc::ActiveTexture(GL_TEXTURE3);
         glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE0);
@@ -184,7 +184,7 @@ void OGLSurface::unlockBmps()
 
 BitmapPtr OGLSurface::lockMaskBmp()
 {
-    assert(m_Material.m_bHasMask);
+    assert(m_Material.getHasMask());
     return m_pMaskTexture->lockBmp();
 }
 
@@ -200,11 +200,11 @@ const MaterialInfo& OGLSurface::getMaterial() const
 
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
-    if (getEngine() && (material.m_bHasMask && !getEngine()->isUsingShaders())) {
+    if (getEngine() && (material.getHasMask() && !getEngine()->isUsingShaders())) {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
     }
-    bool bOldHasMask = m_Material.m_bHasMask;
+    bool bOldHasMask = m_Material.getHasMask();
     m_Material = material;
     if (m_pTextures[0]) {
         m_pTextures[0]->setMaterial(material);
@@ -213,10 +213,10 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
             m_pTextures[2]->setMaterial(material);
         }
     }
-    if (bOldHasMask && !m_Material.m_bHasMask) {
+    if (bOldHasMask && !m_Material.getHasMask()) {
         m_pMaskTexture = OGLTexturePtr();
     }
-    if (!bOldHasMask && m_Material.m_bHasMask && m_pMaskTexture) {
+    if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
         m_pMaskTexture = OGLTexturePtr(new OGLTexture(m_MaskSize, I8, m_Material, 
                 m_pEngine, m_MemoryMode));
     }
@@ -231,7 +231,7 @@ void OGLSurface::downloadTexture()
             m_pTextures[2]->download();
         }
     }
-    if (m_Material.m_bHasMask) {
+    if (m_Material.getHasMask()) {
         m_pMaskTexture->download();
     }
 }
@@ -259,7 +259,7 @@ SDLDisplayEngine * OGLSurface::getEngine() const
 bool OGLSurface::useShader() const
 {
     return getEngine()->isUsingShaders() && 
-            (m_Material.m_bHasMask || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
+            (m_Material.getHasMask() || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
 }
 
 }

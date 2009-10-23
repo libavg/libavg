@@ -30,4 +30,34 @@ MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
       m_bHasMask(false)
 {}
 
+void MaterialInfo::setMask(bool bHasMask)
+{
+    m_bHasMask = bHasMask;
+}
+
+bool MaterialInfo::getHasMask() const
+{
+    return m_bHasMask;
+}
+
+int MaterialInfo::getTexWrapSMode() const
+{
+    return m_TexWrapSMode;
+}
+
+int MaterialInfo::getTexWrapTMode() const
+{
+    return m_TexWrapTMode;
+}
+
+void MaterialInfo::setUseMipmaps(bool bUseMipmaps)
+{
+    m_bUseMipmaps = bUseMipmaps;
+}
+
+bool MaterialInfo::getUseMipmaps() const
+{
+    return m_bUseMipmaps;
+}
+
 }

@@ -39,11 +39,13 @@ NodeDefinition RasterNode::createDefinition()
 {
     return NodeDefinition("rasternode")
         .extendDefinition(AreaNode::createDefinition())
-        .addArg(Arg<int>("maxtilewidth", -1, false, offsetof(RasterNode, m_MaxTileSize.x)))
-        .addArg(Arg<int>("maxtileheight", -1, false, offsetof(RasterNode, m_MaxTileSize.y)))
-        .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)))
-        .addArg(Arg<bool>("mipmap", false, false, 
-                offsetof(RasterNode, m_Material.m_bUseMipmaps)))
+        .addArg(Arg<int>("maxtilewidth", -1, false, 
+                offsetof(RasterNode, m_MaxTileSize.x)))
+        .addArg(Arg<int>("maxtileheight", -1, false, 
+                offsetof(RasterNode, m_MaxTileSize.y)))
+        .addArg(Arg<string>("blendmode", "blend", false, 
+                offsetof(RasterNode, m_sBlendMode)))
+        .addArg(Arg<bool>("mipmap", false))
         .addArg(Arg<string>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)));
 }
 
@@ -70,6 +72,7 @@ void RasterNode::setArgs(const ArgList& Args)
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "maxtilewidth and maxtileheight must be powers of two.");
     }
+    m_Material.setUseMipmaps(Args.getArgVal<bool>("mipmap"));
 }
 
 void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -84,7 +87,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
     m_pSurface->setMaterial(m_Material);
     setBlendModeStr(m_sBlendMode);
-    if (m_Material.m_bHasMask) {
+    if (m_Material.getHasMask()) {
         m_pSurface->createMask(m_pMaskBmp->getSize());
         downloadMask();
     }
@@ -109,7 +112,7 @@ void RasterNode::checkReload()
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
-                m_Material.m_bHasMask = true;
+                m_Material.setMask(true);
                 setMaterial(m_Material);
             }
         } catch (Magick::Exception & ex) {
@@ -122,10 +125,10 @@ void RasterNode::checkReload()
         }
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();
-            m_Material.m_bHasMask = false;
+            m_Material.setMask(false);
             setMaterial(m_Material);
         }
-        if (getState() == Node::NS_CANRENDER && m_Material.m_bHasMask) {
+        if (getState() == Node::NS_CANRENDER && m_Material.getHasMask()) {
             m_pSurface->createMask(m_pMaskBmp->getSize());
             downloadMask();
         }
@@ -165,7 +168,7 @@ int RasterNode::getMaxTileHeight() const
 
 bool RasterNode::getMipmap() const
 {
-   return m_Material.m_bUseMipmaps;
+   return m_Material.getUseMipmaps();
 }
 
 const std::string& RasterNode::getBlendModeStr() const

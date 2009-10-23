@@ -134,7 +134,7 @@ void OGLTexture::download() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::download: glTexSubImage2D()");
     int texFilter;
-    if (m_Material.m_bUseMipmaps) {
+    if (m_Material.getUseMipmaps()) {
         ScopeTimer Timer(MipmapProfilingZone);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -204,8 +204,8 @@ void OGLTexture::createTexture()
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glBindTexture()");
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_Material.m_TexWrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_Material.m_TexWrapTMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_Material.getTexWrapSMode());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_Material.getTexWrapTMode());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::createTexture: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
