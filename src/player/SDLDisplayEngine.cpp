@@ -594,6 +594,8 @@ void SDLDisplayEngine::checkShaderSupport()
             "uniform sampler2D maskTexture;\n"
             "uniform int colorModel;  // 0=rgb, 1=ycbcr, 2=ycbcrj, 3=greyscale\n"
             "uniform bool bUseMask;\n"
+            "uniform vec2 maskPos;\n"
+            "uniform vec2 maskSize;\n"
             "\n"
             "vec4 convertYCbCr()\n"
             "{\n"
@@ -638,7 +640,8 @@ void SDLDisplayEngine::checkShaderSupport()
             "        rgba = vec4(1,1,1,1);\n"
             "    }\n"
             "    if (bUseMask) {\n"
-            "        rgba.a *= texture2D(maskTexture, gl_TexCoord[0].st).a;\n"
+            "        rgba.a *= texture2D(maskTexture,\n"
+            "               (gl_TexCoord[0].st/maskSize)-maskPos).a;\n"
             "    }\n"
             "    gl_FragColor = rgba;\n"
             "}\n";

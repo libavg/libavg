@@ -46,7 +46,11 @@ NodeDefinition RasterNode::createDefinition()
         .addArg(Arg<string>("blendmode", "blend", false, 
                 offsetof(RasterNode, m_sBlendMode)))
         .addArg(Arg<bool>("mipmap", false))
-        .addArg(Arg<string>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)));
+        .addArg(Arg<string>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)))
+        .addArg(Arg<DPoint>("maskpos", DPoint(0,0), false,
+                offsetof(RasterNode, m_MaskPos)))
+        .addArg(Arg<DPoint>("masksize", DPoint(0,0), false,
+                offsetof(RasterNode, m_MaskSize)));
 }
 
 RasterNode::RasterNode()
@@ -112,7 +116,7 @@ void RasterNode::checkReload()
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
-                m_Material.setMask(true);
+                m_Material.setMask(true, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
                 setMaterial(m_Material);
             }
         } catch (Magick::Exception & ex) {
@@ -131,6 +135,11 @@ void RasterNode::checkReload()
         if (getState() == Node::NS_CANRENDER && m_Material.getHasMask()) {
             m_pSurface->createMask(m_pMaskBmp->getSize());
             downloadMask();
+        }
+    } else {
+        if (m_sMaskFilename != "") {
+            m_Material.setMask(true, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
+            setMaterial(m_Material);
         }
     }
 }
@@ -191,6 +200,34 @@ void RasterNode::setMaskHRef(const string& href)
 {
     m_sMaskHref = href;
     checkReload();
+}
+
+const DPoint& RasterNode::getMaskPos() const
+{
+    return m_MaskPos;
+}
+
+void RasterNode::setMaskPos(const DPoint& pos)
+{
+    m_MaskPos = pos;
+    if (m_sMaskFilename != "") {
+        m_Material.setMask(true, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
+        setMaterial(m_Material);
+    }
+}
+
+const DPoint& RasterNode::getMaskSize() const
+{
+    return m_MaskSize;
+}
+
+void RasterNode::setMaskSize(const DPoint& size)
+{
+    m_MaskSize = size;
+    if (m_sMaskFilename != "") {
+        m_Material.setMask(true, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
+        setMaterial(m_Material);
+    }
 }
 
 NodePtr RasterNode::getElementByPos(const DPoint & pos)

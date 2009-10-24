@@ -25,6 +25,8 @@
 #include "../api.h"
 #include "OGLHelper.h"
 
+#include "../base/Point.h"
+
 #include <boost/shared_ptr.hpp>
 
 #include <string>
@@ -42,7 +44,8 @@ class AVG_API OGLShader {
         void setUniformIntParam(const std::string& sName, int val);
         void setUniformFloatParam(const std::string& sName, float val);
         void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
-        
+        void setUniformDPointParam(const std::string& sName, DPoint pt);
+
     private:
         void dumpInfoLog(GLhandleARB hObj);
         int safeGetUniformLoc(const std::string& sName);

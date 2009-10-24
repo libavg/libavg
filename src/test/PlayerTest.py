@@ -171,18 +171,51 @@ class PlayerTestCase(AVGTestCase):
     def testImageMask(self):
         def setMask():
             try:
-                Player.getElementByID("test").maskhref = "mask.png"
+                node.maskhref = "mask.png"
             except RuntimeError:
                 print "Skipping testImageMask - no shader support."
                 Player.stop()
 
+        def setMaskSize():
+            node.masksize = (32,32)
+
+        def setMaskPos():
+            node.maskpos = (32,32)
+
+        def setMaskHref():
+            node.maskhref = "mask2.png"
+
+        def setBaseHref():
+            node.href="freidrehen.jpg"
+
+        def resetPos():
+            node.maskpos = (0,0)
+            node.masksize = (0,0)
+
         def setMaskNotFound():
-            Player.getElementByID("test").maskhref = "nonexistentmask.png"
-            
-        self.start("image.avg",
+            node.maskhref = "nonexistentmask.png"
+           
+        Player.loadString("""
+            <?xml version="1.0"?>
+            <avg width="160" height="120">
+                <image id="test" href="rgb24-65x65.png"/>
+            </avg>
+        """)
+        node = Player.getElementByID("test")
+        self.start(None,
                 (setMask,
-                 lambda: self.compareImage("testimgmask", False),
-                 setMaskNotFound
+                 lambda: self.compareImage("testimgmask1", False),
+                 setMaskSize,
+                 lambda: self.compareImage("testimgmask2", False),
+                 setMaskPos,
+                 lambda: self.compareImage("testimgmask3", False),
+                 setMaskHref,
+                 lambda: self.compareImage("testimgmask4", False),
+                 setBaseHref,
+                 lambda: self.compareImage("testimgmask5", False),
+                 resetPos,
+                 lambda: self.compareImage("testimgmask6", False),
+                 setMaskNotFound,
                 ))
 
     def testMipmap(self):

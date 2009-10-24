@@ -30,14 +30,33 @@ MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
       m_bHasMask(false)
 {}
 
-void MaterialInfo::setMask(bool bHasMask)
+void MaterialInfo::setMask(bool bHasMask, const DPoint& pos, const DPoint& size, 
+        const DPoint& mediaSize)
 {
     m_bHasMask = bHasMask;
+    if (m_bHasMask) {
+        if (size == DPoint(0,0)) {
+            m_MaskSize = DPoint(1,1);
+        } else {
+            m_MaskSize = DPoint(size.x/mediaSize.x, size.y/mediaSize.y);
+        }
+        m_MaskPos = DPoint(pos.x/mediaSize.x, pos.y/mediaSize.y);
+    }
 }
 
 bool MaterialInfo::getHasMask() const
 {
     return m_bHasMask;
+}
+
+const DPoint& MaterialInfo::getMaskPos() const
+{
+    return m_MaskPos;
+}
+
+const DPoint& MaterialInfo::getMaskSize() const
+{
+    return m_MaskSize;
 }
 
 int MaterialInfo::getTexWrapSMode() const

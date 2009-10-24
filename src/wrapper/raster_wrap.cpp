@@ -147,12 +147,27 @@ void export_raster()
         .add_property("maskhref", 
                 make_function(&RasterNode::getMaskHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&RasterNode::setMaskHRef,
-                        return_value_policy<copy_const_reference>()),
+                &RasterNode::setMaskHRef,
                 "The source filename for a mask image to be used as alpha channel.\n"
                 "Where this file is white, the node is shown. Where it is black, the\n"
                 "node is transparent. If the node is an image with an alpha channel,\n"
                 "the alpha channel is replaced by the mask.\n")
+        .add_property("maskpos",
+                make_function(&RasterNode::getMaskPos,
+                        return_value_policy<copy_const_reference>()),
+                &RasterNode::setMaskPos,
+                "An offset for the mask image. For images and videos, the offset is\n"
+                "given in image or video pixels, respectively. For words nodes, the\n"
+                "offset is given in screen pixels. If portions of the node extend\n"
+                "outside the mask, the border pixels are taken.\n")
+        .add_property("masksize",
+                make_function(&RasterNode::getMaskSize,
+                        return_value_policy<copy_const_reference>()),
+                &RasterNode::setMaskSize,
+                "The size of the mask image. For images and videos, the offset is\n"
+                "given in image or video pixels, respectively. For words nodes, the\n"
+                "offset is given in screen pixels. If portions of the node extend\n"
+                "outside the mask, the border pixels are taken.\n")
         .add_property("mipmap", &RasterNode::getMipmap,
                 "Determines whether mipmaps are generated for this node. Setting this\n"
                 "to True improves the quality of minified nodes, but causes a\n"

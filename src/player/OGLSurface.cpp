@@ -137,6 +137,8 @@ void OGLSurface::activate() const
             glproc::ActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, m_pMaskTexture->getTexID());
             pShader->setUniformIntParam("maskTexture", 3);
+            pShader->setUniformDPointParam("maskPos", m_Material.getMaskPos());
+            pShader->setUniformDPointParam("maskSize", m_Material.getMaskSize());
         }
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");

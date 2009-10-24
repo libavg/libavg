@@ -58,8 +58,15 @@ class AVG_API RasterNode: public AreaNode
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
         DisplayEngine::BlendMode getBlendMode() const;
+
         const std::string& getMaskHRef() const;
         void setMaskHRef(const std::string& href);
+
+        const DPoint& getMaskPos() const;
+        void setMaskPos(const DPoint& pos);
+
+        const DPoint& getMaskSize() const;
+        void setMaskSize(const DPoint& size);
 
         NodePtr getElementByPos(const DPoint & pos);
 
@@ -84,6 +91,8 @@ class AVG_API RasterNode: public AreaNode
         std::string m_sMaskHref;
         std::string m_sMaskFilename;
         BitmapPtr m_pMaskBmp;
+        DPoint m_MaskPos;
+        DPoint m_MaskSize;
 };
 
 }

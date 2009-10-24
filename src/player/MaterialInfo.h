@@ -24,14 +24,19 @@
 
 #include "../api.h"
 
+#include "../base/Point.h"
+
 namespace avg {
 
 class AVG_API MaterialInfo {
 public:
     MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps);
 
-    void setMask(bool bHasMask);
+    void setMask(bool bHasMask, const DPoint& pos = DPoint(0,0), 
+            const DPoint& size = DPoint(0,0), const DPoint& mediaSize = DPoint(0,0));
     bool getHasMask() const;
+    const DPoint& getMaskPos() const;
+    const DPoint& getMaskSize() const;
 
     int getTexWrapSMode() const;
     int getTexWrapTMode() const;
@@ -43,7 +48,10 @@ private:
     int m_TexWrapSMode;
     int m_TexWrapTMode;
     bool m_bUseMipmaps;
+
     bool m_bHasMask;
+    DPoint m_MaskPos;
+    DPoint m_MaskSize;
 };
 
 }

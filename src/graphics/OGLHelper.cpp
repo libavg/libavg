@@ -65,6 +65,7 @@ namespace glproc {
     PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLUNIFORM1FARBPROC Uniform1f;
+    PFNGLUNIFORM2FARBPROC Uniform2f;
     PFNGLUNIFORM1FVARBPROC Uniform1fv;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
@@ -368,26 +369,33 @@ namespace glproc {
                 getFuzzyProcAddress("glGetUniformLocation");
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
         Uniform1f = (PFNGLUNIFORM1FARBPROC)getFuzzyProcAddress("glUniform1f");
+        Uniform2f = (PFNGLUNIFORM2FARBPROC)getFuzzyProcAddress("glUniform2f");
         Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
-        GenerateMipmap = (PFNGLGENERATEMIPMAPEXTPROC)getFuzzyProcAddress("glGenerateMipmap");
+        GenerateMipmap = (PFNGLGENERATEMIPMAPEXTPROC)getFuzzyProcAddress
+                ("glGenerateMipmap");
         
-        CheckFramebufferStatus = 
-                (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)getFuzzyProcAddress("glCheckFramebufferStatus");
-        GenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)getFuzzyProcAddress("glGenFramebuffers");
-        BindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)getFuzzyProcAddress("glBindFramebuffer");
-        FramebufferTexture2D = 
-                (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)getFuzzyProcAddress("glFramebufferTexture2D");
-        DeleteFramebuffers = 
-                (PFNGLDELETEFRAMEBUFFERSEXTPROC)getFuzzyProcAddress("glDeleteFramebuffers");
+        CheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)
+                getFuzzyProcAddress("glCheckFramebufferStatus");
+        GenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)
+                getFuzzyProcAddress("glGenFramebuffers");
+        BindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)
+                getFuzzyProcAddress("glBindFramebuffer");
+        FramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)
+                getFuzzyProcAddress("glFramebufferTexture2D");
+        DeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)
+                getFuzzyProcAddress("glDeleteFramebuffers");
 #ifdef linux
-        SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)getglXProcAddress("glXSwapIntervalSGI");
-        WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)getglXProcAddress("glXWaitVideoSyncSGI");
+        SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
+                getglXProcAddress("glXSwapIntervalSGI");
+        WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)
+                getglXProcAddress("glXWaitVideoSyncSGI");
 #endif
 
 #ifdef _WIN32
-        SwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC) getwglProcAddress("wglSwapIntervalEXT");
+        SwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC) 
+                getwglProcAddress("wglSwapIntervalEXT");
 #endif
     }
 }
