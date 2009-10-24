@@ -159,21 +159,22 @@ class WordsTestCase(AVGTestCase):
              ])
 
     def testWordsMask(self):
-        # Missing:
-        # - opacity
-        # - color
         def setMask():
             try:
-                Player.getElementByID("words").maskhref = "mask.png"
+                node.maskhref = "mask.png"
             except RuntimeError:
                 print "Skipping testWordsMask - no shader support."
                 Player.stop()
            
         def setColor():
-            Player.getElementByID("words").color = "FFFF00"
+            node.color = "FFFF00"
 
         def setOpacity():
-            Player.getElementByID("words").opacity = 0.5
+            node.opacity = 0.5
+
+        def setPos():
+            node.maskpos = (-20, 0)
+            node.opacity = 1 
 
         Player.loadString("""
         <avg width="160" height="120">
@@ -182,13 +183,16 @@ class WordsTestCase(AVGTestCase):
               text="Wrapped paragraph more than one line long."/>
         </avg>
         """)
+        node = Player.getElementByID("words")
         self.start(None,
                 (setMask,
                  lambda: self.compareImage("testWordsMask1", False),
                  setColor,
                  lambda: self.compareImage("testWordsMask2", False),
                  setOpacity,
-                 lambda: self.compareImage("testWordsMask3", False)
+                 lambda: self.compareImage("testWordsMask3", False),
+                 setPos,
+                 lambda: self.compareImage("testWordsMask4", False),
                 ))
 
     def testHinting(self):

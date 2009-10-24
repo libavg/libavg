@@ -379,6 +379,7 @@ bool Video::renderToSurface(OGLTiledSurface * pSurface)
         m_FramesInRowTooLate = 0;
         pSurface->bind();
         m_bSeekPending = false;
+        calcMaskPos();
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;
