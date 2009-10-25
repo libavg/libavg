@@ -21,6 +21,9 @@
 
 #include "Logger.h"
 
+#include "OSHelper.h"
+#include "Exception.h"
+
 #ifdef _WIN32
 #include <Winsock2.h>
 #undef ERROR
@@ -33,6 +36,7 @@
 #include <fstream>
 #include <iomanip>
 #include <boost/thread.hpp>
+
 using namespace std;
 
 namespace avg {
@@ -71,6 +75,25 @@ Logger * Logger::get()
 Logger::Logger()
 {
     m_Flags = ERROR | WARNING | APP | LOGGER;
+    string sEnvCategories;
+    bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
+    if (bEnvSet) {
+        m_Flags = ERROR | APP;
+        bool bDone = false;
+        string sCategory;
+        do {
+            unsigned pos = sEnvCategories.find(":");
+            if (pos == string::npos) {
+                sCategory = sEnvCategories;
+                bDone = true;
+            } else {
+                sCategory = sEnvCategories.substr(0, pos);
+                sEnvCategories = sEnvCategories.substr(pos+1);
+            }
+            long category = stringToCategory(sCategory);
+            m_Flags |= category;
+        } while (!bDone);
+    }
 }
 
 Logger::~Logger()
@@ -138,6 +161,40 @@ const char * Logger::categoryToString(int category)
             return "PLUGIN";
         default:
             return "UNKNOWN";
+    }
+}
+
+int Logger::stringToCategory(const string& sCategory)
+{
+    if (sCategory == "BLIT") {
+        return BLTS;
+    } else if (sCategory == "PROFILE") {
+        return PROFILE;
+    } else if (sCategory == "PROFILE_LATEFRAMES") {
+        return PROFILE_LATEFRAMES;
+    } else if (sCategory == "EVENTS") {
+        return EVENTS;
+    } else if (sCategory == "EVENTS2") {
+        return EVENTS2;
+    } else if (sCategory == "CONFIG") {
+        return CONFIG;
+    } else if (sCategory == "WARNING") {
+        return WARNING;
+    } else if (sCategory == "ERROR") {
+        return ERROR;
+    } else if (sCategory == "WATCHDOG") {
+        return WATCHDOG;
+    } else if (sCategory == "MEMORY") {
+        return MEMORY;
+    } else if (sCategory == "APP") {
+        return APP;
+    } else if (sCategory == "LOGGER") {
+        return LOGGER;
+    } else if (sCategory == "PLUGIN") {
+        return PLUGIN;
+    } else {
+        throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logger category " + sCategory
+                + " set using AVG_LOG_CATEGORIES.");
     }
 }
 

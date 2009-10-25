@@ -64,6 +64,7 @@ public:
 private:
     Logger();
     static const char * categoryToString(int category);
+    int stringToCategory(const std::string& sCategory);
    
     static Logger* m_pLogger;
 
