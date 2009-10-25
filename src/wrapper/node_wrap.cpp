@@ -157,7 +157,8 @@ void export_node()
                 "return the bitmap size, Camera nodes\n"
                 "the size of a camera frame and Words nodes the amount of space\n"
                 "the text takes. Video nodes return the video size if decoding has\n"
-                "started or (0,0) if not.")
+                "started or (0,0) if not. Decoding starts after play() or pause()\n"
+                "is called and the node can be rendered.")
         .add_property("x", &AreaNode::getX, &AreaNode::setX,
                 "The position of the node's left edge relative to it's parent node.\n")
         .add_property("y", &AreaNode::getY, &AreaNode::setY,
