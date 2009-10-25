@@ -97,7 +97,7 @@ void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count,
 void OGLShader::setUniformDPointParam(const std::string& sName, DPoint pt)
 {
     int loc = safeGetUniformLoc(sName);
-    glproc::Uniform2f(loc, pt.x, pt.y);
+    glproc::Uniform2f(loc, (float)pt.x, (float)pt.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
