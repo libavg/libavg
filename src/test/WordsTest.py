@@ -412,13 +412,25 @@ class WordsTestCase(AVGTestCase):
                 ))
        
     def testPositioning(self):
+        def click(pos):
+            helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        pos[0], pos[1], 1)
+           
+        def testInside(bInside):
+            ok = bInside == self.clicked
+            self.clicked = False
+            return ok
+
+        def onMouse(event):
+            self.clicked = True
+
         Player.loadString("""
           <avg width="160" height="120">
             <line pos1="(4, 20.5)" pos2="(157, 20.5)" color="FF0000"/>
             <line pos1="(4.5, 20.5)" pos2="(4.5, 110)" color="FF0000"/>
             <line pos1="(156.5, 20.5)" pos2="(156.5, 110)" color="FF0000"/>
             <line pos1="(80.5, 20.5)" pos2="(80.5, 110)" color="FF0000"/>
-            <words x="4" y="20" fontsize="12" font="Bitstream Vera Sans"
+            <words id="left" x="4" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" text="Norm"/>
             <words x="45" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" text="orm"/>
@@ -426,14 +438,49 @@ class WordsTestCase(AVGTestCase):
                     variant="roman" text="ÖÄÜ"/>
             <words x="4" y="40" fontsize="12" font="Bitstream Vera Sans"
                     variant="oblique" text="Jtalic"/>
-            <words x="156" y="60" fontsize="12" alignment="right" 
+            <words id="right" x="156" y="60" fontsize="12" alignment="right" 
                     font="Bitstream Vera Sans" variant="roman" text="Right-aligned"/>
-            <words x="80" y="80" fontsize="12" alignment="center" 
+            <words id="center" x="80" y="80" fontsize="12" alignment="center" 
                     font="Bitstream Vera Sans" variant="roman" text="Centered"/>
           </avg>
         """)
+        for id in ["left", "center", "right"]:
+            Player.getElementByID(id).setEventHandler(avg.CURSORDOWN, avg.MOUSE,
+                    onMouse)
+        self.clicked = False
+        helper = Player.getTestHelper()
+        leftWidth = Player.getElementByID("left").getMediaSize()[0]
+        centerWidth = Player.getElementByID("center").getMediaSize()[0]
+        rightWidth = Player.getElementByID("right").getMediaSize()[0]
+
         self.start(None,
                 (lambda: self.compareImage("testPositioning", True),
+                 lambda: click((4,20)),
+                 lambda: self.assert_(testInside(True)),
+                 lambda: click((3,20)),
+                 lambda: self.assert_(testInside(False)),
+                 lambda: click((3+leftWidth,20)),
+                 lambda: self.assert_(testInside(True)),
+                 lambda: click((4+leftWidth,20)),
+                 lambda: self.assert_(testInside(False)),
+                
+                 lambda: click((80-centerWidth/2,80)),
+                 lambda: self.assert_(testInside(True)),
+                 lambda: click((79-centerWidth/2,80)),
+                 lambda: self.assert_(testInside(False)),
+                 lambda: click((80+centerWidth/2,80)),
+                 lambda: self.assert_(testInside(True)),
+                 lambda: click((81+centerWidth/2,80)),
+                 lambda: self.assert_(testInside(False)),
+
+                 lambda: click((156-rightWidth,60)),
+                 lambda: self.assert_(testInside(True)),
+                 lambda: click((155-rightWidth,60)),
+                 lambda: self.assert_(testInside(False)),
+                 lambda: click((155,60)),
+                 lambda: self.assert_(testInside(True)),
+                 lambda: click((156,60)),
+                 lambda: self.assert_(testInside(False)),
                 ))
 
     def testInvalidColor(self):

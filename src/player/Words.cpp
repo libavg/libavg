@@ -239,6 +239,13 @@ double Words::getHeight()
     return AreaNode::getHeight();
 }
 
+NodePtr Words::getElementByPos(const DPoint & pos)
+{
+    drawString();
+    DPoint relPos = pos-DPoint(m_PosOffset);
+    return AreaNode::getElementByPos(relPos);
+}
+
 const std::string& Words::getFont() const
 {
     return m_sFontName;
@@ -412,7 +419,8 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
     if (!bOk) {
         string sError;
         if (getID() != "") {
-            sError = string("Can't parse string in node with id '")+getID()+"' ("+pError->message+")";
+            sError = string("Can't parse string in node with id '")+getID()+"' ("
+                    +pError->message+")";
         } else {
             sError = string("Can't parse string '")+m_sRawText+"' ("+pError->message+")";
         }
