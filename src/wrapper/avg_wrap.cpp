@@ -253,7 +253,9 @@ BOOST_PYTHON_MODULE(avg)
                 "Sets a fixed number of virtual frames per second that are used as\n"
                 "clock source for video playback, animations and other time-based\n"
                 "actions. If a value of -1 is given as parameter, the real clock is\n"
-                "used.\n"
+                "used. FakeFPS can be used to get reproducible effects for recordings\n"
+                "or automated tests. Setting FakeFPS has the side-effect of disabling\n"
+                "audio.\n"
                 "@param fps: \n")
         .def("getFrameTime", &Player::getFrameTime,
                 "getFrameTime() -> time\n"
