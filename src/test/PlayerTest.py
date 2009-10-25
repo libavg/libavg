@@ -150,6 +150,11 @@ class PlayerTestCase(AVGTestCase):
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)
 
+        def testImageSize():
+            img = Player.createNode('image', {'size':avg.Point2D(23,42), 
+                    'href':'rgb24alpha-64x64.png'})
+            self.assert_(img.size == avg.Point2D(23,42))
+
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadFile("image.avg")
@@ -158,6 +163,7 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(node.height == 65)
         self.assert_(node.pos == (64, 30))
         self.assert_(node.size == (65, 65))
+        testImageSize()
         self.start(None,
                 (lambda: self.compareImage("testimg", False), 
                  getFramerate,

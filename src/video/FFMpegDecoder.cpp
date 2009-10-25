@@ -227,11 +227,11 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         if (m_bUseStreamFPS) {
             m_FPS = getNominalFPS();
         }
-    #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
-    #else
+#else
         m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
-    #endif
+#endif
         m_bFirstPacket = true;
         m_PacketLenLeft = 0;
         m_sFilename = sFilename;

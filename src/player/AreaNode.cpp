@@ -76,6 +76,7 @@ void AreaNode::setArgs(const ArgList& Args)
 {
     Node::setArgs(Args);
     Args.getOverlayedArgVal(&m_RelViewport.tl, "pos", "x", "y", getID());
+    Args.getOverlayedArgVal(&m_UserSize, "size", "width", "height", getID());
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
 }
