@@ -38,9 +38,6 @@ public:
     static Logger* get();
     virtual ~Logger();
    
-    void setConsoleDest();
-    void setFileDest(const std::string& sFName);
-    void setSyslogDest(int facility, int logopt);
     void setCategories(int flags);
     void trace(int category, const std::string& msg);
     inline bool isFlagSet(int category) {
@@ -67,15 +64,9 @@ public:
 private:
     Logger();
     static const char * categoryToString(int category);
-    void closeDest();
    
     static Logger* m_pLogger;
 
-    enum DestType {CONSOLE, FILE, SYSLOG};
-    DestType m_DestType;
-    
-    std::ostream * m_pDest; // For console and file
-    
     int m_Flags;
 };
 

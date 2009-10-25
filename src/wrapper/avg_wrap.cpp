@@ -75,7 +75,6 @@ BOOST_PYTHON_MODULE(avg)
     register_ptr_to_python<MouseEventPtr>();
 
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
-//    IntPoint_from_python_tuple();
     DPoint_from_python_tuple<DPoint, double>();
     DPoint_from_python_tuple<ConstDPoint, double>();
     DPoint_from_python_tuple<IntPoint, int>();
@@ -95,8 +94,8 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
-            "of different logging categories. Log output can be sent to the console, a\n"
-            "file or unix syslog.\n"
+            "of different logging categories. Log output is sent to the console\n"
+            "(stderr).\n"
             "Each log entry contains the time the message was written, the category\n"
             "of the entry and the message itself.\n",
             no_init)
@@ -104,18 +103,6 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<reference_existing_object>(),
                 "This method gives access to the logger. There is only one instance.\n")
         .staticmethod("get")
-        .def("setConsoleDest", &Logger::setConsoleDest,
-                "Sets the log to be output to the console (stderr, to be precise)."
-                "This is the default.")
-        .def("setFileDest", &Logger::setFileDest,
-                "Sets a file that the log should be written to. If opening the file\n"
-                "fails, the console is used instead.\n"
-                "@param filename: \n")
-        .def("setSyslogDest", &Logger::setSyslogDest,
-                "Causes log output to be written to the unix system log facility.\n"
-                "syslog ident is set to 'libavg'.\n"
-                "@param facility: Passed to the system log verbatim. See man 3 syslog.\n"
-                "@param logopt: Passed to the system log verbatim. See man 3 syslog.")
         .def("setCategories", &Logger::setCategories,
                 "Sets the types of messages that should be logged.\n" 
                 "@param categories: Or'ed list of categories. Possible categories are:\n"

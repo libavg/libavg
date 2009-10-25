@@ -71,55 +71,12 @@ Logger * Logger::get()
 Logger::Logger()
 {
     m_Flags = ERROR | WARNING | APP | LOGGER;
-    m_DestType = CONSOLE;
-    m_pDest = &cerr;
 }
 
 Logger::~Logger()
 {
-    closeDest();
 }
 
-void Logger::setConsoleDest()
-{
-    boost::mutex::scoped_lock Lock(log_Mutex);
-    closeDest();
-    m_DestType = CONSOLE;
-    m_pDest = &cerr;
-    AVG_TRACE(LOGGER, "Logging started ");
-}
-
-void Logger::setFileDest(const std::string& sFName)
-{
-    {
-        boost::mutex::scoped_lock Lock(log_Mutex);
-        closeDest();
-        m_DestType = FILE;
-        m_pDest = new ofstream(sFName.c_str(), ios::out | ios::app);
-    }
-    if (!*m_pDest) {
-        m_pDest = &cerr;
-        m_DestType = CONSOLE;
-        AVG_TRACE(LOGGER, "Could not open " << sFName 
-                << " as log destination.");
-    } else {
-        AVG_TRACE(LOGGER, "Logging started ");
-    }
-}
-
-void Logger::setSyslogDest(int facility, int logopt)
-{
-#ifdef _WIN32
-    AVG_TRACE(ERROR, 
-            "Logging to syslog is not supported under windows. Ignoring request.");
-#else
-    boost::mutex::scoped_lock Lock(log_Mutex);
-    closeDest();
-    m_DestType = SYSLOG;
-    openlog("libavg", logopt, facility);
-#endif
-}
-    
 void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
@@ -130,56 +87,25 @@ void Logger::trace(int category, const std::string& msg)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
     if (category & m_Flags) {
-        if (m_DestType == CONSOLE || m_DestType == FILE) {
-            struct tm* pTime;
+        struct tm* pTime;
 #ifdef _WIN32
-            __int64 now;
-            _time64(&now);
-            pTime = _localtime64(&now);
-            unsigned millis = unsigned((now / 1000) % 1000);
+        __int64 now;
+        _time64(&now);
+        pTime = _localtime64(&now);
+        unsigned millis = unsigned((now / 1000) % 1000);
 #else
-            struct timeval time;
-            gettimeofday(&time, NULL);
-            pTime = localtime(&time.tv_sec);
-            unsigned millis = time.tv_usec/1000;
+        struct timeval time;
+        gettimeofday(&time, NULL);
+        pTime = localtime(&time.tv_sec);
+        unsigned millis = time.tv_usec/1000;
 #endif
-            char timeString[256];
-            strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
-            (*m_pDest) << "[" << timeString << "." << 
-                setw(3) << setfill('0') << millis << setw(0) << "] ";
-            (*m_pDest) << categoryToString(category) << ": ";
-            (*m_pDest) << msg << endl;
-            m_pDest->flush();
-        } else {
-#ifndef _WIN32
-            int prio;
-            switch(category) {
-                case EVENTS:
-                case EVENTS2:
-                case BLTS:
-                    prio = LOG_INFO;
-                    break;
-                case PROFILE:
-                case PROFILE_LATEFRAMES:
-                case CONFIG:
-                case APP:
-                case LOGGER:
-                case MEMORY:
-                    prio = LOG_NOTICE;
-                    break;
-                case WARNING:
-                    prio = LOG_WARNING;
-                    break;
-                case ERROR:
-                    prio = LOG_ERR;
-                    break;
-                default:
-                    prio = LOG_ERR;
-            }
-            syslog(prio, "%s: %s", categoryToString(category),
-                    msg.c_str());
-#endif 
-        }
+        char timeString[256];
+        strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
+        cerr << "[" << timeString << "." << 
+            setw(3) << setfill('0') << millis << setw(0) << "] ";
+        cerr << categoryToString(category) << ": ";
+        cerr << msg << endl;
+        cerr.flush();
     }
 }
 
@@ -212,23 +138,6 @@ const char * Logger::categoryToString(int category)
             return "PLUGIN";
         default:
             return "UNKNOWN";
-    }
-}
-
-void Logger::closeDest()
-{
-    switch (m_DestType) {
-        case CONSOLE:
-            break;
-        case FILE:
-            delete m_pDest;
-            m_pDest = 0;
-            break;
-        case SYSLOG:
-#ifndef _WIN32
-            closelog();
-#endif
-            break;
     }
 }
 
