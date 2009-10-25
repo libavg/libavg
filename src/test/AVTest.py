@@ -63,6 +63,12 @@ class AVTestCase(AVGTestCase):
                 if not(isThreaded):
                     self.compareImage("testVideo-"+filename+"1", False)
 
+            def testHasAudio():
+                if filename == "mpeg1-48x48-sound.avi" and isThreaded:
+                    self.assert_(node.hasAudio())
+                else:
+                    self.assert_(not(node.hasAudio()))
+
             self._loadEmpty()
             node = Player.createNode("video",
                 {"href": "../video/testfiles/"+filename, "threaded": isThreaded})
@@ -70,10 +76,10 @@ class AVTestCase(AVGTestCase):
             self.start(None,
                     (lambda: node.play(),
                      lambda: checkImage(filename),
+                     testHasAudio,
                      lambda: node.stop()
                     ))
 
-        Player.setFakeFPS(25)
         for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264"]:
             for isThreaded in [False, True]:

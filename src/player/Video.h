@@ -63,6 +63,7 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         void seekToTime(long long Time);
         bool getLoop() const;
         bool isThreaded() const;
+        bool hasAudio() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
         virtual void preRender();

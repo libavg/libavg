@@ -171,6 +171,16 @@ bool Video::isThreaded() const
     return m_bThreaded;
 }
 
+bool Video::hasAudio() const
+{
+    if (!m_pDecoder) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "hasAudio() failed: video not loaded.");
+    } else {
+        return m_pDecoder->hasAudio();
+    }
+
+}
+
 void Video::setEOFCallback(PyObject * pEOFCallback)
 {
     if (m_pEOFCallback) {

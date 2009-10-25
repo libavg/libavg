@@ -259,6 +259,9 @@ void export_raster()
         .def("seekToTime", &Video::seekToTime,
                 "seekToTime(secs)\n"
                 "Moves the playback cursor to the time given.")
+        .def("hasAudio", &Video::hasAudio,
+                "hasAudio() -> bool\n"
+                "Returns true if the video contains an audio stream.\n")
         .def("setEOFCallback", &Video::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"
