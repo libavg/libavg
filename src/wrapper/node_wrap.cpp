@@ -67,6 +67,11 @@ ConstDPoint constPointGetter(const CLASS& node)
     return (node.*FUNC)();
 }
 
+ConstDPoint AreaNode_getMediaSize(AreaNode* This)
+{
+    return (DPoint)(This->getMediaSize());
+}
+
 void export_node()
 {
 
@@ -151,7 +156,7 @@ void export_node()
                 "Returns the topmost child node that is at the position given. pos\n"
                 "is in coordinates relative to the called node. The algorithm used\n"
                 "is the same as the cursor hit test algorithm used for events.\n")
-        .def("getMediaSize", &AreaNode::getMediaSize,
+        .def("getMediaSize", &AreaNode_getMediaSize,
                 "getMediaSize() -> mediasize\n"
                 "Returns the size in pixels of the media in the node. Image nodes\n"
                 "return the bitmap size, Camera nodes\n"

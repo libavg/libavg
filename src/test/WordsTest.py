@@ -414,7 +414,7 @@ class WordsTestCase(AVGTestCase):
     def testPositioning(self):
         def click(pos):
             helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        pos[0], pos[1], 1)
+                        int(pos[0]), int(pos[1]), 1)
            
         def testInside(bInside):
             ok = bInside == self.clicked
@@ -464,9 +464,9 @@ class WordsTestCase(AVGTestCase):
                  lambda: click((4+leftWidth,20)),
                  lambda: self.assert_(testInside(False)),
                 
-                 lambda: click((80-centerWidth/2,80)),
+                 lambda: click((81-centerWidth/2,80)),
                  lambda: self.assert_(testInside(True)),
-                 lambda: click((79-centerWidth/2,80)),
+                 lambda: click((80-centerWidth/2,80)),
                  lambda: self.assert_(testInside(False)),
                  lambda: click((80+centerWidth/2,80)),
                  lambda: self.assert_(testInside(True)),

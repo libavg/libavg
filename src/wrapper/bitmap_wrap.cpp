@@ -69,6 +69,11 @@ class_<POINT> export_point(const string& sName, const string& sDoc)
     ;
 }
 
+ConstDPoint Bitmap_getSize(Bitmap* This)
+{
+    return (DPoint)(This->getSize());
+}
+
 void export_bitmap()
 {
     from_python_sequence<vector<double>, variable_capacity_policy>();
@@ -120,7 +125,7 @@ void export_bitmap()
                 "Writes the image to a file. File format is determined using the\n"
                 "extension. Any file format specified by ImageMagick \n"
                 "(U{http://www.imagemagick.org}) can be used.")
-        .def("getSize", &Bitmap::getSize,
+        .def("getSize", &Bitmap_getSize,
                 "getSize()\n\n"
                 "Returns the size of the image in pixels.")
         .def("getFormat", &Bitmap::getPixelFormat, 
