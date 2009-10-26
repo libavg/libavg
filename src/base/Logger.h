@@ -24,14 +24,11 @@
 
 #include "../api.h"
 
-#include <iostream>
+#include <string>
+#include <vector>
 #include <sstream>
 
 namespace avg {
-
-#ifdef ERROR
-#undef ERROR
-#endif
 
 class AVG_API Logger {
 public:
@@ -39,6 +36,8 @@ public:
     virtual ~Logger();
    
     void setCategories(int flags);
+    void pushCategories();
+    void popCategories();
     void trace(int category, const std::string& msg);
     inline bool isFlagSet(int category) {
         return (category & m_Flags) != 0;
@@ -54,12 +53,9 @@ public:
     static const long WARNING;
     static const long ERROR;  
     static const long WATCHDOG;  
-
     static const long MEMORY;
     static const long APP;
-    static const long LOGGER;
     static const long PLUGIN;
-
 
 private:
     Logger();
@@ -69,6 +65,7 @@ private:
     static Logger* m_pLogger;
 
     int m_Flags;
+    std::vector<int> m_FlagStack;
 };
 
 #define AVG_TRACE(category, msg) { \

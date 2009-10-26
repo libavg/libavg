@@ -43,7 +43,6 @@ else:
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
 
-from LoggerTest import *
 from PluginTest import *
 from PlayerTest import *
 from VectorTest import *
@@ -60,6 +59,7 @@ def runConsoleTest():
 
 def dumpConfig():
     Log = avg.Logger.get()
+    Log.pushCategories()
     Log.setCategories(
             Log.APP |
             Log.WARNING |
@@ -73,6 +73,7 @@ def dumpConfig():
     setUpVideo(Player)
     Player.setTimeout(0, Player.stop)
     Player.play()
+    Log.popCategories()
    
 
 if os.getenv("AVG_CONSOLE_TEST"):
@@ -111,7 +112,6 @@ else:
     options, args = parser.parse_args()
 
     availableSuites = {
-            'logger': (loggerTestSuite,{}),
             'plugin': (pluginTestSuite,{}),
             'player': (playerTestSuite, {'bpp':options.bpp}),
             'vector': (vectorTestSuite, {}),
@@ -144,17 +144,6 @@ else:
     Player.setMultiSampleSamples(1)
     dumpConfig()
     Log = avg.Logger.get()
-    Log.setCategories(
-            Log.APP |
-            Log.WARNING |
-#            Log.PROFILE |
-#            Log.PROFILE_LATEFRAMES |
-#            Log.CONFIG  |
-#            Log.MEMORY  |
-#            Log.BLTS    |
-#            Log.EVENTS  |
-#            Log.EVENTS2 |
-    0)
 
     runner = unittest.TextTestRunner()
     rmBrokenDir()

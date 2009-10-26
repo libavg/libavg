@@ -82,12 +82,6 @@ def pluginTestSuite (tests):
     return AVGTestSuite (availableTests, PluginTestCase, tests)
     
 Player = avg.Player.get()
-Log = avg.Logger.get()
-Log.setCategories(
-    Log.APP |
-    Log.WARNING |
-    Log.PLUGIN
-)
 
 if __name__ == '__main__':
     runStandaloneTest (pluginTestSuite)

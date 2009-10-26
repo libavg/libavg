@@ -33,7 +33,7 @@
 #include <sys/time.h>
 #include <syslog.h>
 #endif
-#include <fstream>
+#include <iostream>
 #include <iomanip>
 #include <boost/thread.hpp>
 
@@ -52,9 +52,8 @@ const long Logger::WARNING=64;
 const long Logger::ERROR=128;  
 const long Logger::MEMORY=256;
 const long Logger::APP=512;
-const long Logger::LOGGER=1024;
-const long Logger::WATCHDOG=2048;
-const long Logger::PLUGIN=4096;
+const long Logger::WATCHDOG=1024;
+const long Logger::PLUGIN=2048;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex log_Mutex;
@@ -63,18 +62,15 @@ Logger * Logger::get()
 {
 
     if (!m_pLogger) {
-    {
         boost::mutex::scoped_lock Lock(log_Mutex);
         m_pLogger = new Logger;
-    }
-        m_pLogger->trace(LOGGER, "Logging started ");
     }
     return m_pLogger;
 }
 
 Logger::Logger()
 {
-    m_Flags = ERROR | WARNING | APP | LOGGER;
+    m_Flags = ERROR | WARNING | APP;
     string sEnvCategories;
     bool bEnvSet = getEnv("AVG_LOG_CATEGORIES", sEnvCategories);
     if (bEnvSet) {
@@ -104,6 +100,20 @@ void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
     m_Flags = flags | ERROR | APP;
+}
+    
+void Logger::pushCategories()
+{
+    m_FlagStack.push_back(m_Flags);
+}
+
+void Logger::popCategories()
+{
+    if (m_FlagStack.empty()) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "popCategories: Nothing to pop.");
+    }
+    m_Flags = m_FlagStack.back();
+    m_FlagStack.pop_back();
 }
 
 void Logger::trace(int category, const std::string& msg)
@@ -136,7 +146,7 @@ const char * Logger::categoryToString(int category)
 {
     switch(category) {
         case BLTS:
-            return "BLIT";
+            return "BLTS";
         case PROFILE:
         case PROFILE_LATEFRAMES:
             return "PROFILE";
@@ -153,8 +163,6 @@ const char * Logger::categoryToString(int category)
             return "MEMORY";
         case APP:
             return "APP";
-        case LOGGER:
-            return "LOGGER";
         case WATCHDOG:
             return "WATCHDOG";
         case PLUGIN:
@@ -166,7 +174,7 @@ const char * Logger::categoryToString(int category)
 
 int Logger::stringToCategory(const string& sCategory)
 {
-    if (sCategory == "BLIT") {
+    if (sCategory == "BLTS") {
         return BLTS;
     } else if (sCategory == "PROFILE") {
         return PROFILE;
@@ -188,8 +196,6 @@ int Logger::stringToCategory(const string& sCategory)
         return MEMORY;
     } else if (sCategory == "APP") {
         return APP;
-    } else if (sCategory == "LOGGER") {
-        return LOGGER;
     } else if (sCategory == "PLUGIN") {
         return PLUGIN;
     } else {
