@@ -30,6 +30,10 @@
 
 namespace avg {
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 class AVG_API Logger {
 public:
     static Logger* get();
