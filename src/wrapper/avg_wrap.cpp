@@ -145,7 +145,6 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("ERROR", &Logger::ERROR)
         .def_readonly("MEMORY", &Logger::MEMORY)
         .def_readonly("APP", &Logger::APP)
-        .def_readonly("WATCHDOG", &Logger::WATCHDOG)
         .def_readonly("PLUGIN", &Logger::PLUGIN)
     ;
 

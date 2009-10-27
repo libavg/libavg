@@ -52,8 +52,7 @@ const long Logger::WARNING=64;
 const long Logger::ERROR=128;  
 const long Logger::MEMORY=256;
 const long Logger::APP=512;
-const long Logger::WATCHDOG=1024;
-const long Logger::PLUGIN=2048;
+const long Logger::PLUGIN=1024;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex log_Mutex;
@@ -163,8 +162,6 @@ const char * Logger::categoryToString(int category)
             return "MEMORY";
         case APP:
             return "APP";
-        case WATCHDOG:
-            return "WATCHDOG";
         case PLUGIN:
             return "PLUGIN";
         default:
@@ -190,8 +187,6 @@ int Logger::stringToCategory(const string& sCategory)
         return WARNING;
     } else if (sCategory == "ERROR") {
         return ERROR;
-    } else if (sCategory == "WATCHDOG") {
-        return WATCHDOG;
     } else if (sCategory == "MEMORY") {
         return MEMORY;
     } else if (sCategory == "APP") {
