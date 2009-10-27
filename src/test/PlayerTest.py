@@ -138,6 +138,7 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(pt[0]==pt.x)
         self.assert_(pt[1]==pt.y)
         self.assertException(lambda: pt[2])
+        self.assert_(almostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10)))
 
     def testImage(self):
         def loadNewFile():

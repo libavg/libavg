@@ -197,6 +197,19 @@ Point<NUM> Point<NUM>::operator *(const Point<NUM>& pt) const
 }
 
 template<>
+Point<int> Point<int>::fromPolar(double angle, double radius)
+{
+    assert(false);
+    return Point<int>(0,0);
+}
+
+template<>
+Point<double> Point<double>::fromPolar(double angle, double radius)
+{
+    return Point<double>(cos(angle)*radius, sin(angle)*radius);
+}
+
+template<>
 Point<int> Point<int>::getNormalized() const
 {
     assert(false);

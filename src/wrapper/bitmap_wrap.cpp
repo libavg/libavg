@@ -66,6 +66,12 @@ class_<POINT> export_point(const string& sName, const string& sDoc)
         .def(float() * self)
         .def(self * float())
         .def(self / float())
+        .def("fromPolar", &DPoint::fromPolar,
+                "fromPolar(angle, radius) -> DPoint\n"
+                "Converts polar to cartesian coordinates. angle is in radians with 0\n"
+                "being the positive x axis. Assuming that y points downward, angle\n"
+                "is clockwise.\n")
+        .staticmethod("fromPolar")
     ;
 }
 
