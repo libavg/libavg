@@ -71,7 +71,6 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, const AudioParams* AP,
                 bool bDeliverYCbCr, bool bThreadedDemuxer);
         virtual void close();
-        virtual StreamSelect getMasterStream();
         virtual bool hasAudio();
         virtual int getNumFrames();
         virtual long long getDuration();

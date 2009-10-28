@@ -363,12 +363,7 @@ long long Video::getNextFrameTime()
         case Paused:
             return m_PauseStartTime-m_StartTime;
         case Playing:
-            if (m_pDecoder->getMasterStream() == SS_AUDIO) {
-                // Sync to audio if possible.
-                return m_pDecoder->getCurTime(SS_AUDIO);
-            } else {
-                return Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
-            }
+            return Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
         default:
             assert(false);
             return 0;
@@ -410,7 +405,7 @@ bool Video::renderToSurface(OGLTiledSurface * pSurface)
         m_FramesPlayed++;
         m_FramesTooLate++;
         m_FramesInRowTooLate++;
-        if ((m_FramesInRowTooLate > 3 && m_pDecoder->getMasterStream() != SS_AUDIO) ||
+        if ((m_FramesInRowTooLate > 3) ||
             m_bSeekPending) 
         {
             // Heuristic: If we've missed more than 3 frames in a row, we stop

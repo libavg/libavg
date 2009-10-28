@@ -47,7 +47,6 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
                 bool bDeliverYCbCr, bool bSyncDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);
-        virtual StreamSelect getMasterStream();
         virtual bool hasVideo();
         virtual bool hasAudio();
         virtual IntPoint getSize();

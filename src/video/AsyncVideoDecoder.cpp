@@ -169,15 +169,6 @@ void AsyncVideoDecoder::seek(long long DestTime)
     }
 }
 
-StreamSelect AsyncVideoDecoder::getMasterStream()
-{
-    if (m_bHasAudio) {
-        return SS_AUDIO;
-    } else {
-        return SS_VIDEO;
-    }
-}
-
 bool AsyncVideoDecoder::hasVideo()
 {
     return m_bHasVideo;
@@ -214,6 +205,7 @@ int AsyncVideoDecoder::getNumFramesQueued()
 long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
 {
     switch(Stream) {
+        case SS_DEFAULT:
         case SS_VIDEO:
             assert(m_bHasVideo);
             return m_LastVideoFrameTime;
@@ -221,9 +213,6 @@ long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
         case SS_AUDIO:
             assert(m_bHasAudio);
             return m_LastAudioFrameTime;
-            break;
-        case SS_DEFAULT:
-            return getCurTime(getMasterStream());
             break;
         default:
             assert(false);
@@ -382,9 +371,6 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted,
         pFrameMsg = getNextBmps(true);
         FrameAvailable = FA_NEW_FRAME;
     } else {
-        if (getMasterStream() == SS_AUDIO) {
-            timeWanted = m_LastAudioFrameTime;
-        }
         double TimePerFrame = 1000.0/getFPS();
         if (fabs(double(timeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
                 m_LastVideoFrameTime > timeWanted+TimePerFrame) {

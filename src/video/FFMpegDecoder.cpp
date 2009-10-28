@@ -441,14 +441,13 @@ int FFMpegDecoder::getNumFramesQueued()
 long long FFMpegDecoder::getCurTime(StreamSelect Stream)
 {
     switch(Stream) {
+        case SS_DEFAULT:
         case SS_VIDEO:
             assert(m_pVStream);
             return m_LastVideoFrameTime;
         case SS_AUDIO:
             assert(m_pAStream);
             return (long long)m_LastAudioFrameTime;
-        case SS_DEFAULT:
-            return getCurTime(getMasterStream());
         default:
             return -1;
     }
@@ -458,13 +457,8 @@ long long FFMpegDecoder::getDuration()
 {
     long long duration;
     AVRational time_base;
-    if (getMasterStream() == SS_AUDIO) {
-        duration = m_pAStream->duration;
-        time_base=m_pAStream->time_base;
-    } else {
-        duration = m_pVStream->duration;
-        time_base=m_pVStream->time_base;
-    }
+    duration = m_pVStream->duration;
+    time_base=m_pVStream->time_base;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return (long long)(1000*duration/AV_TIME_BASE);
 #else
@@ -1029,26 +1023,16 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     return FrameTime;
 }
 
-StreamSelect FFMpegDecoder::getMasterStream()
-{
-    if (m_pAStream) {
-        return SS_AUDIO;
-    } else {
-        return SS_VIDEO;
-    }
-}
-
 long long FFMpegDecoder::getStartTime(StreamSelect Stream)
 {
     switch(Stream) {
+        case SS_DEFAULT:
         case SS_VIDEO:
             assert(m_pVStream);
             return m_VideoStartTimestamp;
         case SS_AUDIO:
             assert(m_pAStream);
             return m_AudioStartTimestamp;
-        case SS_DEFAULT:
-            return getStartTime(getMasterStream());
         default:
             return -1;
     }
