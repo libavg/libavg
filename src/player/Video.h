@@ -51,6 +51,7 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
+        double getVolume();
         void setVolume(double Volume);
         void checkReload();
 

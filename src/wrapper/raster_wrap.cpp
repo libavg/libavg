@@ -274,6 +274,11 @@ void export_raster()
                 "The source filename of the video.\n")
         .add_property("loop", &Video::getLoop,
                 "Whether to start the video again when it has ended (ro).\n")
+        .add_property("volume", &Video::getVolume, &Video::setVolume,
+                "Audio playback volume for this video. 0 is silence, 1 passes media\n"
+                "file volume through unchanged. Values higher than 1 can be used to\n"
+                "amplify sound if the sound file doesn't use the complete dynamic\n"
+                "range. If there is no audio track, the call is ignored.\n")
     ;
 
     class_<Words, bases<RasterNode> >("Words",

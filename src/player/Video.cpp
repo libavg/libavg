@@ -56,6 +56,7 @@ NodeDefinition Video::createDefinition()
         .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(Video, m_bThreaded)))
         .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)))
+        .addArg(Arg<double>("volume", 1.0, false, offsetof(Video, m_Volume)))
         ;
 }
 
@@ -207,13 +208,18 @@ void Video::setHRef(const string& href)
     checkReload();
 }
 
+double Video::getVolume()
+{
+    return m_Volume;
+}
+
 void Video::setVolume(double Volume)
 {
     if (Volume < 0) {
         Volume = 0;
     }
     m_Volume = Volume;
-    if (m_pDecoder) {
+    if (m_pDecoder && hasAudio()) {
         m_pDecoder->setVolume(Volume);
     }
 }

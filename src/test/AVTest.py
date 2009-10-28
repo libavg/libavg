@@ -59,6 +59,12 @@ class AVTestCase(AVGTestCase):
 
     def testVideoFiles(self):
         def testVideoFile(filename, isThreaded):
+            def setVolume(volume):
+                node.volume = volume
+
+            def testGetVolume(volume):
+                self.assert_(node.volume == volume)
+
             def checkImage(filename):
                 if not(isThreaded):
                     self.compareImage("testVideo-"+filename+"1", False)
@@ -74,8 +80,12 @@ class AVTestCase(AVGTestCase):
                 {"href": "../video/testfiles/"+filename, "threaded": isThreaded})
             Player.getRootNode().appendChild(node)
             self.start(None,
-                    (lambda: node.play(),
+                    (lambda: setVolume(0.5),
+                     lambda: testGetVolume(0.5),
+                     lambda: node.play(),
                      lambda: checkImage(filename),
+                     lambda: setVolume(0.3),
+                     lambda: testGetVolume(0.3),
                      testHasAudio,
                      lambda: node.stop()
                     ))
