@@ -261,7 +261,8 @@ void export_raster()
                 "Moves the playback cursor to the time given.")
         .def("hasAudio", &Video::hasAudio,
                 "hasAudio() -> bool\n"
-                "Returns true if the video contains an audio stream.\n")
+                "Returns true if the video contains an audio stream. Throws an\n"
+                "exception if the video has not been opened yet.\n")
         .def("setEOFCallback", &Video::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"

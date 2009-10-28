@@ -174,10 +174,10 @@ bool Video::isThreaded() const
 
 bool Video::hasAudio() const
 {
-    if (!m_pDecoder) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "hasAudio() failed: video not loaded.");
-    } else {
+    if (getVideoState() != Unloaded) {
         return m_pDecoder->hasAudio();
+    } else {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "hasAudio() failed: video not loaded.");
     }
 
 }
@@ -219,7 +219,7 @@ void Video::setVolume(double Volume)
         Volume = 0;
     }
     m_Volume = Volume;
-    if (m_pDecoder && hasAudio()) {
+    if (getVideoState() != Unloaded && hasAudio()) {
         m_pDecoder->setVolume(Volume);
     }
 }

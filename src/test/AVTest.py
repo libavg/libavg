@@ -80,6 +80,7 @@ class AVTestCase(AVGTestCase):
                 {"href": "../video/testfiles/"+filename, "volume":0.8,
                         "threaded": isThreaded})
             Player.getRootNode().appendChild(node)
+            self.assertException(node.hasAudio)
             self.start(None,
                     (lambda: setVolume(0.5),
                      lambda: testGetVolume(0.5),
