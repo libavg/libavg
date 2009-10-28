@@ -522,6 +522,11 @@ void Player::setMousePos(const IntPoint& pos)
     m_pDisplayEngine->setMousePos(pos);
 }
 
+int Player::getKeyModifierState() const
+{
+    return m_pDisplayEngine->getKeyModifierState();
+}
+
 Bitmap * Player::screenshot()
 {
     BitmapPtr pBmp = m_pDisplayEngine->screenshot();

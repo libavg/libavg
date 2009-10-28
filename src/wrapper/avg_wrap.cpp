@@ -311,6 +311,10 @@ BOOST_PYTHON_MODULE(avg)
         .def("getMouseState", &Player::getMouseState,
                 "getMouseState() -> event\n"
                 "Returns an interface to the last mouse event.\n")
+        .def("getKeyModifierState", &Player::getKeyModifierState,
+                "getKeyModifierState() -> KeyModifier\n"
+                "Returns the current modifier keys (shift, ctrl) pressed. The return\n"
+                "value is several KeyModifier values or'ed together.\n")
         .def("screenshot", &Player::screenshot,
                 return_value_policy<manage_new_object>(),
                 "screenshot() -> bitmap\n"

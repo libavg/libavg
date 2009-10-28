@@ -320,6 +320,11 @@ void SDLDisplayEngine::setMousePos(const IntPoint& pos)
     SDL_WarpMouse(pos.x, pos.y);
 }
 
+int SDLDisplayEngine::getKeyModifierState() const
+{
+    return SDL_GetModState();
+}
+
 void SDLDisplayEngine::logConfig() 
 {
     AVG_TRACE(Logger::CONFIG, "OpenGL configuration: ");
