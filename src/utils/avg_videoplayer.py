@@ -31,6 +31,11 @@ def resize():
     node.width = 1280
     node.height *= sizeFactor
 
+def dumpInfo():
+    # Should display more info.
+    node = Player.getElementByID("video")
+    print "Audio track: ", node.hasAudio()
+
 def onFrame():
     node = Player.getElementByID("video")
     curFrame = node.getCurFrame()
@@ -45,6 +50,12 @@ def onKey(event):
     node = Player.getElementByID("video")
     if event.keystring == "right":
         node.seekToTime(node.getCurTime()+10000)
+    elif event.keystring == "up":
+        node.volume += 0.1
+        print "Volume: ", node.volume
+    elif event.keystring == "down":
+        node.volume -= 0.1
+        print "Volume: ", node.volume
     else:
         print event.keystring
 
@@ -54,7 +65,7 @@ Log.setCategories(Log.APP |
           Log.PROFILE |
           Log.MEMORY |
           Log.CONFIG |
-          Log.EVENTS)
+          0)
 
 Player = avg.Player.get()
 
@@ -76,6 +87,7 @@ else:
     node.href=sys.argv[1]
 node.play()
 Player.setTimeout(10, resize)
+Player.setTimeout(10, dumpInfo)
 Player.setOnFrameHandler(onFrame)
 Player.setVBlankFramerate(1)
 Player.play()

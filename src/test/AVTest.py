@@ -77,7 +77,8 @@ class AVTestCase(AVGTestCase):
 
             self._loadEmpty()
             node = Player.createNode("video",
-                {"href": "../video/testfiles/"+filename, "threaded": isThreaded})
+                {"href": "../video/testfiles/"+filename, "volume":0.8,
+                        "threaded": isThreaded})
             Player.getRootNode().appendChild(node)
             self.start(None,
                     (lambda: setVolume(0.5),
