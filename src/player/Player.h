@@ -89,8 +89,8 @@ class AVG_API Player : IEventSink
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
-        NodePtr createNodeFromXmlString (const std::string& sXML);
+        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
+        NodePtr createNodeFromXmlString(const std::string& sXML);
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
         int setInterval(int time, PyObject * pyfunc);

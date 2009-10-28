@@ -107,7 +107,8 @@ void export_event()
             "Unicode index of the character. Transparently dependent to modifiers,\n"
             "issued only on KEYDOWN event (ro).\n")
         .add_property("modifiers", &KeyEvent::getModifiers,
-            "Any modifiers (shift, ctrl,...) pressed as well (ro).\n")
+            "Any modifier keys (shift, ctrl,...) pressed. This is a number of\n"
+            "KeyModifier values or'ed together (ro).\n")
     ;    
     
     class_<MouseEvent, bases<Event> >("MouseEvent", 
