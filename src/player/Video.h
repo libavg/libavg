@@ -48,6 +48,8 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
+        virtual void connect();
+        virtual void disconnect(bool bKill);
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);

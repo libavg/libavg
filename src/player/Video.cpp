@@ -78,13 +78,11 @@ Video::Video(const ArgList& Args)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    Player::get()->registerFrameEndListener(this);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Video::~Video()
 {
-    Player::get()->unregisterFrameEndListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;
@@ -93,6 +91,24 @@ Video::~Video()
         Py_DECREF(m_pEOFCallback);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+{
+    checkReload();
+    VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
+}
+
+void Video::connect()
+{
+    Player::get()->registerFrameEndListener(this);
+    VideoBase::connect();
+}
+
+void Video::disconnect(bool bKill)
+{
+    Player::get()->unregisterFrameEndListener(this);
+    VideoBase::disconnect(bKill);
 }
 
 int Video::getNumFrames() const
@@ -189,12 +205,6 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
     }
     Py_INCREF(pEOFCallback);
     m_pEOFCallback = pEOFCallback;
-}
-
-void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
-{
-    checkReload();
-    VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
 const string& Video::getHRef() const
