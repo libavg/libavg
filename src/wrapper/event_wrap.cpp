@@ -157,7 +157,7 @@ void export_event()
                 "of the hand (ro).\n")
         .add_property("inertia", &TouchEvent::getInertia)
         .add_property("eccentricity", &TouchEvent::getInertia)
-        .add_property("pos", &MouseEvent::getPos,
+        .add_property("pos", &TouchEvent::getPos,
                 "Position in the global coordinate system (ro).\n")
         .add_property("x", &TouchEvent::getXPosition,
                 "x position in the global coordinate system (ro).\n")

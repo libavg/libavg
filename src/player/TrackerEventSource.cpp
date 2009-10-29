@@ -408,7 +408,7 @@ namespace avg {
                     pTrackEvent = boost::dynamic_pointer_cast<TouchEvent>(*it2);
                     pTrackBlob = pTrackEvent->getBlob();
                 }
-                if (it2 != pTrackEvents.end()) {
+                if (pTrackBlob == pRelatedBlob) {
                     pTouchEvent->addRelatedEvent(pTrackEvent);
                     pTrackEvent->addRelatedEvent(pTouchEvent);
                 }

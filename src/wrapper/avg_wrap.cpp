@@ -36,6 +36,7 @@ void export_anim();
 #include "../player/DivNode.h"
 #include "../player/PanoImage.h"
 #include "../player/TrackerEventSource.h"
+#include "../player/TouchEvent.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -73,6 +74,7 @@ BOOST_PYTHON_MODULE(avg)
     register_ptr_to_python<AVGNodePtr>();
     register_ptr_to_python<EventPtr>();
     register_ptr_to_python<MouseEventPtr>();
+    register_ptr_to_python<TouchEventPtr>();
 
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     DPoint_from_python_tuple<DPoint, double>();
