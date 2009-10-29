@@ -457,8 +457,13 @@ long long FFMpegDecoder::getDuration()
 {
     long long duration;
     AVRational time_base;
-    duration = m_pVStream->duration;
-    time_base=m_pVStream->time_base;
+    if (m_pVStream) {
+        duration=m_pVStream->duration;
+        time_base=m_pVStream->time_base;
+    } else {
+        duration=m_pAStream->duration;
+        time_base=m_pAStream->time_base;
+    }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return (long long)(1000*duration/AV_TIME_BASE);
 #else
@@ -1023,18 +1028,12 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     return FrameTime;
 }
 
-long long FFMpegDecoder::getStartTime(StreamSelect Stream)
+long long FFMpegDecoder::getStartTime()
 {
-    switch(Stream) {
-        case SS_DEFAULT:
-        case SS_VIDEO:
-            assert(m_pVStream);
-            return m_VideoStartTimestamp;
-        case SS_AUDIO:
-            assert(m_pAStream);
-            return m_AudioStartTimestamp;
-        default:
-            return -1;
+    if (m_pVStream) {
+        return m_VideoStartTimestamp;
+    } else {
+        return m_AudioStartTimestamp;
     }
 }
 

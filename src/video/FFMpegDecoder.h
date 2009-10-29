@@ -149,7 +149,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
         // Used from video and audio threads.
         void readFrame(AVFrame& Frame, long long& FrameTime);
-        long long getStartTime(StreamSelect Stream = SS_DEFAULT);
+        long long getStartTime();
 
         IDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
