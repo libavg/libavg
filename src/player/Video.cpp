@@ -113,7 +113,12 @@ void Video::disconnect(bool bKill)
 
 int Video::getNumFrames() const
 {
-    return m_pDecoder->getNumFrames();
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getVideoInfo().m_NumFrames;
+    } else {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                "Error in Video.getNumFrames: Video not loaded.");
+    }
 }
 
 int Video::getCurFrame() const
@@ -148,11 +153,20 @@ void Video::seekToFrame(int FrameNum)
 long long Video::getDuration() const
 {
     if (getVideoState() != Unloaded) {
-        return m_pDecoder->getDuration();
+        return m_pDecoder->getVideoInfo().m_Duration;
     } else {
-        AVG_TRACE(Logger::WARNING,
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
                "Error in Video::getDuration: Video not loaded.");
-        return -1;
+    }
+}
+
+int Video::getBitrate() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getVideoInfo().m_Bitrate;
+    } else {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+               "Error in Video::getDuration: Video not loaded.");
     }
 }
 
@@ -191,7 +205,7 @@ bool Video::isThreaded() const
 bool Video::hasAudio() const
 {
     if (getVideoState() != Unloaded) {
-        return m_pDecoder->hasAudio();
+        return m_pDecoder->getVideoInfo().m_bHasAudio;
     } else {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "hasAudio() failed: video not loaded.");
     }
@@ -311,14 +325,14 @@ void Video::open(bool bUseYCbCrShaders)
     m_pDecoder->open(m_Filename, pAP, bUseYCbCrShaders, m_bThreaded);
     m_pDecoder->setVolume(m_Volume);
     if (m_FPS != 0.0) {
-        if (m_pDecoder->hasAudio()) {
+        if (m_pDecoder->getVideoInfo().m_bHasAudio) {
             AVG_TRACE(Logger::WARNING, 
                     getID() + ": Can't set FPS if video contains audio. Ignored.");
         } else {
             m_pDecoder->setFPS(m_FPS);
         }
     }
-    if (m_pDecoder->hasAudio()) {
+    if (m_pDecoder->getVideoInfo().m_bHasAudio) {
         getAudioEngine()->addSource(this);
     }
     m_bSeekPending = true;
@@ -326,7 +340,7 @@ void Video::open(bool bUseYCbCrShaders)
 
 void Video::close()
 {
-    if (m_pDecoder->hasAudio()) {
+    if (hasAudio()) {
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();

@@ -370,6 +370,16 @@ void FFMpegDecoder::close()
     }
 }
 
+VideoInfo FFMpegDecoder::getVideoInfo() const
+{
+    VideoInfo info(getDuration(), m_pFormatContext->bit_rate, m_pVStream != 0,
+            m_pAStream != 0);
+    if (m_pVStream) {
+        info.setVideoData(m_Size, getNumFrames(), getNominalFPS(), m_FPS);
+    }
+    return info;
+}
+
 void FFMpegDecoder::seek(long long DestTime) 
 {
 /* XXX: Causes audio hangs.
@@ -397,40 +407,14 @@ void FFMpegDecoder::seek(long long DestTime)
     m_bAudioEOF = false;
 }
 
-bool FFMpegDecoder::hasVideo()
-{
-    return (m_pVStream != 0);
-}
-
-bool FFMpegDecoder::hasAudio()
-{
-    return (m_pAStream != 0);
-}
-
 IntPoint FFMpegDecoder::getSize()
 {
     return m_Size;
 }
 
-int FFMpegDecoder::getCurFrame()
+int FFMpegDecoder::getCurFrame() const
 {
     return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0+0.5);
-}
-
-int FFMpegDecoder::getNumFrames()
-{
-    if (!m_pVStream) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Error in FFMpegDecoder::getNumFrames: Video not loaded.");
-    }
-    // This is broken for some videos, but the code here is correct.
-    // So fix ffmpeg :-).
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
-#else
-    double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
-    return int((m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
-            (m_pVStream->duration/timeUnitsPerSecond));
-#endif 
 }
 
 int FFMpegDecoder::getNumFramesQueued()
@@ -438,7 +422,7 @@ int FFMpegDecoder::getNumFramesQueued()
     return 0;
 }
 
-long long FFMpegDecoder::getCurTime(StreamSelect Stream)
+long long FFMpegDecoder::getCurTime(StreamSelect Stream) const
 {
     switch(Stream) {
         case SS_DEFAULT:
@@ -453,7 +437,7 @@ long long FFMpegDecoder::getCurTime(StreamSelect Stream)
     }
 }
 
-long long FFMpegDecoder::getDuration()
+long long FFMpegDecoder::getDuration() const
 {
     long long duration;
     AVRational time_base;
@@ -471,7 +455,7 @@ long long FFMpegDecoder::getDuration()
 #endif 
 }
 
-double FFMpegDecoder::getNominalFPS()
+double FFMpegDecoder::getNominalFPS() const
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;
@@ -881,6 +865,22 @@ void FFMpegDecoder::initVideoSupport()
 //        av_log_set_level(AV_LOG_DEBUG);
         av_log_set_level(AV_LOG_QUIET);
     }
+}
+
+int FFMpegDecoder::getNumFrames() const
+{
+    if (!m_pVStream) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Error in FFMpegDecoder::getNumFrames: Video not loaded.");
+    }
+    // This is broken for some videos, but the code here is correct.
+    // So fix ffmpeg :-).
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
+#else
+    double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
+    return int((m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
+            (m_pVStream->duration/timeUnitsPerSecond));
+#endif 
 }
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long timeWanted)

@@ -23,6 +23,9 @@
 #define _IVideoDecoder_H_
 
 #include "../api.h"
+
+#include "VideoInfo.h"
+
 #include "../graphics/Bitmap.h"
 #include "../audio/IAudioSource.h"
 
@@ -45,16 +48,13 @@ class AVG_API IVideoDecoder
         virtual void open(const std::string& sFilename, const AudioParams* AP,
                 bool bDeliverYCbCr, bool bSyncDemuxer) = 0;
         virtual void close() = 0;
+        virtual VideoInfo getVideoInfo() const = 0;
         virtual void seek(long long DestTime) = 0;
-        virtual bool hasVideo() = 0;
-        virtual bool hasAudio() = 0;
         virtual IntPoint getSize() = 0;
-        virtual int getCurFrame() = 0;
-        virtual int getNumFrames() = 0;
+        virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() = 0;
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) = 0;
-        virtual long long getDuration() = 0;
-        virtual double getNominalFPS() = 0;
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const = 0;
+        virtual double getNominalFPS() const = 0;
         virtual double getFPS() = 0;
         virtual void setFPS(double FPS) = 0;
         virtual double getVolume() = 0;

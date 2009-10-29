@@ -41,11 +41,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
-      m_Size(0,0),
-      m_NumFrames(0),
       m_FPS(0),
       m_PF(NO_PIXELFORMAT),
-      m_Duration(0),
       m_bAudioEOF(false),
       m_bVideoEOF(false),
       m_bSeekPending(false),
@@ -73,14 +70,10 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pA
     m_sFilename = sFilename;
 
     m_pSyncDecoder->open(m_sFilename, pAP, bDeliverYCbCr, bThreadedDemuxer);
-    m_bHasVideo = m_pSyncDecoder->hasVideo();
-    m_bHasAudio = m_pSyncDecoder->hasAudio();
-    m_Duration = m_pSyncDecoder->getDuration();
+    m_VideoInfo = m_pSyncDecoder->getVideoInfo();
 
-    if (m_bHasVideo) {
+    if (m_VideoInfo.m_bHasVideo) {
         m_LastVideoFrameTime = -1000;
-        m_Size = m_pSyncDecoder->getSize();
-        m_NumFrames = m_pSyncDecoder->getNumFrames();
         m_FPS = m_pSyncDecoder->getFPS();
         m_PF = m_pSyncDecoder->getPixelFormat();
         m_StreamFPS = m_pSyncDecoder->getNominalFPS();
@@ -90,7 +83,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pA
                  VideoDecoderThread(*m_pVCmdQ, *m_pVMsgQ, m_pSyncDecoder));
     }
     
-    if (m_bHasAudio) {
+    if (m_VideoInfo.m_bHasAudio) {
         m_pACmdQ = AudioDecoderThread::CmdQueuePtr(new AudioDecoderThread::CmdQueue);
         m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
         m_pADecoderThread = new boost::thread(
@@ -127,6 +120,11 @@ void AsyncVideoDecoder::close()
         }
         m_pSyncDecoder->close();
     }        
+}
+
+VideoInfo AsyncVideoDecoder::getVideoInfo() const
+{
+    return m_VideoInfo;
 }
 
 void AsyncVideoDecoder::seek(long long DestTime)
@@ -169,32 +167,14 @@ void AsyncVideoDecoder::seek(long long DestTime)
     }
 }
 
-bool AsyncVideoDecoder::hasVideo()
-{
-    return m_bHasVideo;
-}
-
-bool AsyncVideoDecoder::hasAudio()
-{
-    return m_bHasAudio;
-}
-
 IntPoint AsyncVideoDecoder::getSize()
 {
-    return m_Size;
+    return m_VideoInfo.m_Size;
 }
 
-int AsyncVideoDecoder::getCurFrame()
+int AsyncVideoDecoder::getCurFrame() const
 {
     return int(getCurTime(SS_VIDEO)*m_StreamFPS/1000.0+0.5);
-}
-
-int AsyncVideoDecoder::getNumFrames()
-{
-    if (m_NumFrames == 0) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Error in AsyncVideoDecoder::getNumFrames: Video not loaded.");
-    }
-    return m_NumFrames;
 }
 
 int AsyncVideoDecoder::getNumFramesQueued()
@@ -202,16 +182,16 @@ int AsyncVideoDecoder::getNumFramesQueued()
     return m_pVMsgQ->size();
 }
 
-long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
+long long AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
 {
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:
-            assert(m_bHasVideo);
+            assert(m_VideoInfo.m_bHasVideo);
             return m_LastVideoFrameTime;
             break;
         case SS_AUDIO:
-            assert(m_bHasAudio);
+            assert(m_VideoInfo.m_bHasAudio);
             return m_LastAudioFrameTime;
             break;
         default:
@@ -220,12 +200,7 @@ long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
     return -1;
 }
 
-long long AsyncVideoDecoder::getDuration()
-{
-    return m_Duration;
-}
-
-double AsyncVideoDecoder::getNominalFPS()
+double AsyncVideoDecoder::getNominalFPS() const
 {
     return m_StreamFPS;
 }
@@ -254,7 +229,7 @@ double AsyncVideoDecoder::getVolume()
 void AsyncVideoDecoder::setVolume(double Volume)
 {
     m_Volume = Volume;
-    if (m_bHasAudio && m_pACmdQ) {
+    if (m_VideoInfo.m_bHasAudio && m_pACmdQ) {
         m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
                 &AudioDecoderThread::setVolume, _1, Volume)));
     }
@@ -295,9 +270,9 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 {
     switch(Stream) {
         case SS_AUDIO:
-            return (!m_bHasAudio || m_bAudioEOF);
+            return (!m_VideoInfo.m_bHasAudio || m_bAudioEOF);
         case SS_VIDEO:
-            return (!m_bHasVideo || m_bVideoEOF);
+            return (!m_VideoInfo.m_bHasVideo || m_bVideoEOF);
         case SS_ALL:
             return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
         default:

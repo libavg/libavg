@@ -287,7 +287,8 @@ class AudioDecoderTest: public DecoderTest {
                     readAudioToEOF(pDecoder, TotalFramesDecoded, bCheckTimestamps);
 
                     // Check if we've decoded the whole file.
-                    int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
+                    int FramesInDuration = 
+                            int(pDecoder->getVideoInfo().m_Duration*44100/1000);
 //                    cerr << "FramesDecoded: " << TotalFramesDecoded << endl;
 //                    cerr << "FramesInDuration: " << FramesInDuration << endl;
                     TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
@@ -297,7 +298,7 @@ class AudioDecoderTest: public DecoderTest {
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
                             false, isDemuxerThreaded());
-                    long long Duration = pDecoder->getDuration();
+                    long long Duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->seek(Duration/2);
                     AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
                     pDecoder->fillAudioBuffer(pAudioBuffer);
@@ -311,7 +312,8 @@ class AudioDecoderTest: public DecoderTest {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
                         // for mp3 files.
-                        int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
+                        int FramesInDuration = 
+                                int(pDecoder->getVideoInfo().m_Duration*44100/1000);
 //                        cerr << "FramesDecoded: " << FramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;
                         TEST (abs(TotalFramesDecoded-FramesInDuration/2) < 45);

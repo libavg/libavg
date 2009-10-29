@@ -46,16 +46,13 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, const AudioParams* AP,
                 bool bDeliverYCbCr, bool bSyncDemuxer);
         virtual void close();
+        virtual VideoInfo getVideoInfo() const;
         virtual void seek(long long DestTime);
-        virtual bool hasVideo();
-        virtual bool hasAudio();
         virtual IntPoint getSize();
-        virtual int getCurFrame();
-        virtual int getNumFrames();
+        virtual int getCurFrame() const;
         virtual int getNumFramesQueued();
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
-        virtual long long getDuration();
-        virtual double getNominalFPS();
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
+        virtual double getNominalFPS() const;
         virtual double getFPS();
         virtual void setFPS(double FPS);
         virtual double getVolume();
@@ -92,8 +89,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         unsigned char* m_AudioMsgData;
         int m_AudioMsgSize;
 
-        bool m_bHasAudio;
-        bool m_bHasVideo;
+        VideoInfo m_VideoInfo;
 
         IntPoint m_Size;
         int m_NumFrames;
@@ -101,7 +97,6 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         double m_StreamFPS;
         double m_FPS;
         PixelFormat m_PF;
-        long long m_Duration;
         
         bool m_bAudioEOF;
         bool m_bVideoEOF;

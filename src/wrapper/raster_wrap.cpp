@@ -253,6 +253,12 @@ void export_raster()
         .def("seekToFrame", &Video::seekToFrame,
                 "seekToFrame(num)\n"
                 "Moves the playback cursor to the frame given.")
+        .def("getDuration", &Video::getDuration,
+                "getDuration() -> duration\n"
+                "Returns the duration of the video in milliseconds./n")
+        .def("getBitrate", &Video::getBitrate,
+                "getBitrate() -> bitrate\n"
+                "Returns the number of bits in the file per second./n")
         .def("getCurTime", &Video::getCurTime,
                 "getCurTime()\n"
                 "Returns seconds of playback time since video start.")

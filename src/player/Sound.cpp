@@ -87,7 +87,7 @@ Sound::~Sound()
 long long Sound::getDuration() const
 {
     if (m_State != Unloaded) {
-        return m_pDecoder->getDuration();
+        return m_pDecoder->getVideoInfo().m_Duration;
     } else {
         AVG_TRACE(Logger::WARNING,
                "Error in Sound::getDuration: Sound not loaded.");

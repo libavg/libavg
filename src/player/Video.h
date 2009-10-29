@@ -62,6 +62,7 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         int getNumFramesQueued() const;
         void seekToFrame(int FrameNum);
         long long getDuration() const;
+        int getBitrate() const;
         long long getCurTime() const;
         void seekToTime(long long Time);
         bool getLoop() const;

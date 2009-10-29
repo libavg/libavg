@@ -57,6 +57,22 @@ class AVTestCase(AVGTestCase):
         Player.setTimeout(10000, onNoEOF)
         Player.play()
 
+    def testVideoInfo(self):
+        def checkInfo():
+            node.pause()
+            self.assert_(node.getDuration() == 1000)
+            self.assert_(node.getBitrate() == 224064)
+
+        for isThreaded in (False, True):
+            self._loadEmpty()
+            node = Player.createNode("video",
+                {"href": "../video/testfiles/mpeg1-48x48-sound.avi", "volume":0.8,
+                        "threaded": isThreaded})
+            Player.getRootNode().appendChild(node)
+            self.start(None,
+                    (checkInfo,
+                    ))
+
     def testVideoFiles(self):
         def testVideoFile(filename, isThreaded):
             def setVolume(volume):
@@ -323,9 +339,10 @@ class AVTestCase(AVGTestCase):
 
 def AVTestSuite(tests):
     availableTests = (
-            'testSound',
-            'testBrokenSound',
-            'testSoundEOF',
+            "testSound",
+            "testBrokenSound",
+            "testSoundEOF",
+            "testVideoInfo",
             "testVideoFiles",
             "testVideoState",
             "testVideoActive",
