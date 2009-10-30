@@ -64,6 +64,9 @@ class AVTestCase(AVGTestCase):
             self.assert_(node.getBitrate() == 224064)
             self.assert_(node.getVideoCodec() == "FMP4")
             self.assert_(node.getStreamPixelFormat() == "yuv420p")
+            if isThreaded:
+                self.assert_(node.getAudioSampleRate() == 44100)
+                self.assert_(node.getNumAudioChannels() == 2)
 
         for isThreaded in (False, True):
             self._loadEmpty()

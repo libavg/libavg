@@ -21,6 +21,8 @@
 
 #include "VideoInfo.h"
 
+#include <assert.h>
+
 namespace avg {
 
 using namespace std;
@@ -37,15 +39,24 @@ VideoInfo::VideoInfo(long long duration, int bitrate, bool bHasVideo, bool bHasA
 {
 }
 
-void VideoInfo::setVideoData(const IntPoint& size, const std::string& sPixelFormat,
+void VideoInfo::setVideoData(const IntPoint& size, const string& sPixelFormat,
         int numFrames, double streamFPS, double FPS, char vCodec[4])
 {
+    assert(m_bHasVideo);
     m_Size = size;
     m_sPixelFormat = sPixelFormat;
     m_NumFrames = numFrames;
     m_StreamFPS = streamFPS;
     m_FPS = FPS;
     m_sVCodec = string(vCodec, 4);
+}
+
+void VideoInfo::setAudioData(char aCodec[4], int sampleRate, int numAudioChannels)
+{
+    assert(m_bHasAudio);
+    m_sACodec = string(aCodec, 4);
+    m_SampleRate = sampleRate;
+    m_NumAudioChannels = numAudioChannels;
 }
 
 }

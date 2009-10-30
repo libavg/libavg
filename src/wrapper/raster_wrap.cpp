@@ -265,9 +265,19 @@ void export_raster()
                 "getBitrate() -> bitrate\n"
                 "Returns the number of bits in the file per second./n")
         .def("getVideoCodec", &Video::getVideoCodec,
-                "getVCodec() -> vcodec\n"
-                "Returns the codec used as a fourcc - a four-character-code such as\n"
-                "'XVID'\n") 
+                "getVideoCodec() -> vcodec\n"
+                "Returns the video codec used as a fourcc - a four-character-code such\n"
+                "as 'XVID'\n")
+        .def("getAudioCodec", &Video::getAudioCodec,
+                "getAudioCodec() -> acodec\n"
+                "Returns the audio codec used as a fourcc - a four-character-code such\n"
+                "as 'XVID'\n")
+        .def("getAudioSampleRate", &Video::getAudioSampleRate,
+                "getAudioSampleRate() -> samplerate\n"
+                "Returns the sample rate in samples per second (for example, 44100).\n")
+        .def("getNumAudioChannels", &Video::getNumAudioChannels,
+                "getNumAudioChannels() -> numchannels\n"
+                "Returns the number of audio channels. 2 for stereo, etc.\n")
         .def("getCurTime", &Video::getCurTime,
                 "getCurTime()\n"
                 "Returns seconds of playback time since video start.")

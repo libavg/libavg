@@ -162,6 +162,24 @@ string Video::getVideoCodec() const
     return m_pDecoder->getVideoInfo().m_sVCodec;
 }
 
+std::string Video::getAudioCodec() const
+{
+    exceptionIfUnloaded("getAudioCodec");
+    return m_pDecoder->getVideoInfo().m_sACodec;
+}
+
+int Video::getAudioSampleRate() const
+{
+    exceptionIfUnloaded("getAudioSampleRate");
+    return m_pDecoder->getVideoInfo().m_SampleRate;
+}
+
+int Video::getNumAudioChannels() const
+{
+    exceptionIfUnloaded("getNumAudioChannels");
+    return m_pDecoder->getVideoInfo().m_NumAudioChannels;
+}
+
 long long Video::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
