@@ -69,14 +69,29 @@ class AVTestCase(AVGTestCase):
                 self.assert_(node.getAudioSampleRate() == 44100)
                 self.assert_(node.getNumAudioChannels() == 2)
 
+        def checkExceptions():
+            node = Player.createNode("video",
+                {"href": "../video/testfiles/mpeg1-48x48.mpg",
+                        "threaded": isThreaded})
+            self.assertException(node.getDuration)
+            self.assertException(node.getBitrate)
+            self.assertException(node.getVideoCodec)
+            self.assertException(node.getStreamPixelFormat)
+            Player.getRootNode().appendChild(node)
+            node.pause()
+            self.assertException(node.getAudioCodec)
+            self.assertException(node.getAudioSampleRate)
+            self.assertException(node.getNumAudioChannels)
+
         for isThreaded in (False, True):
             self._loadEmpty()
             node = Player.createNode("video",
-                {"href": "../video/testfiles/mpeg1-48x48-sound.avi", "volume":0.8,
+                {"href": "../video/testfiles/mpeg1-48x48-sound.avi",
                         "threaded": isThreaded})
             Player.getRootNode().appendChild(node)
             self.start(None,
                     (checkInfo,
+                     checkExceptions,
                     ))
 
     def testVideoFiles(self):
