@@ -209,14 +209,14 @@ void export_raster()
                 "Returns the nominal frames per second the object should display at.\n")
     ;  
 
-    class_<CameraNode, bases<VideoBase> >("Camera",
+    class_<CameraNode, bases<RasterNode> >("Camera",
             "A node that displays the image of a camera. The properties are the same\n"
             "as the camera properties in .avgtrackerrc and are explained under\n"
             "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
-        .add_property("drivername", make_function(&CameraNode::getDriverName,
+        .add_property("driver", make_function(&CameraNode::getDriverName,
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
         .add_property("framenum", &CameraNode::getFrameNum)
@@ -230,6 +230,12 @@ void export_raster()
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
         .add_property("strobeduration", &CameraNode::getStrobeDuration, 
                 &CameraNode::setStrobeDuration)
+        .def("play", &CameraNode::play,
+                "play()\n"
+                "Starts camera playback.")
+        .def("stop", &CameraNode::stop,
+                "stop()\n"
+                "Stops camera playback and closes the camera object.\n")
         .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)
