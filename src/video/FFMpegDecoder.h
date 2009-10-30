@@ -75,14 +75,14 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual VideoInfo getVideoInfo() const;
 
         virtual double getNominalFPS() const;
-        virtual double getFPS();
-        virtual double getVolume();
-        virtual PixelFormat getPixelFormat();
+        virtual double getFPS() const;
+        virtual double getVolume() const;
+        virtual PixelFormat getPixelFormat() const;
 
         // Called from video thread.
-        virtual IntPoint getSize();
+        virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
-        virtual int getNumFramesQueued();
+        virtual int getNumFramesQueued() const;
         virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
         virtual void setFPS(double FPS);
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted);
@@ -96,7 +96,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
         // Called from video and audio threads
         virtual void seek(long long DestTime);
-        virtual bool isEOF(StreamSelect Stream = SS_ALL);
+        virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
 
     private:
         void initVideoSupport();
@@ -112,7 +112,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         FrameAvailableCode readFrameForTime(AVFrame& Frame, long long timeWanted);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        double calcStreamFPS();
+        double calcStreamFPS() const;
         std::string getStreamPF() const;
 
         SwsContext * m_pSwsContext;

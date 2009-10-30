@@ -165,7 +165,7 @@ void AsyncVideoDecoder::seek(long long DestTime)
     }
 }
 
-IntPoint AsyncVideoDecoder::getSize()
+IntPoint AsyncVideoDecoder::getSize() const
 {
     return m_VideoInfo.m_Size;
 }
@@ -175,7 +175,7 @@ int AsyncVideoDecoder::getCurFrame() const
     return int(getCurTime(SS_VIDEO)*m_VideoInfo.m_StreamFPS/1000.0+0.5);
 }
 
-int AsyncVideoDecoder::getNumFramesQueued()
+int AsyncVideoDecoder::getNumFramesQueued() const
 {
     return m_pVMsgQ->size();
 }
@@ -203,7 +203,7 @@ double AsyncVideoDecoder::getNominalFPS() const
     return m_VideoInfo.m_StreamFPS;
 }
 
-double AsyncVideoDecoder::getFPS()
+double AsyncVideoDecoder::getFPS() const
 {
     assert(m_pVDecoderThread);
     return m_VideoInfo.m_FPS;
@@ -219,7 +219,7 @@ void AsyncVideoDecoder::setFPS(double FPS)
     }
 }
 
-double AsyncVideoDecoder::getVolume()
+double AsyncVideoDecoder::getVolume() const
 {
     return m_Volume;
 }
@@ -233,7 +233,7 @@ void AsyncVideoDecoder::setVolume(double Volume)
     }
 }
 
-PixelFormat AsyncVideoDecoder::getPixelFormat()
+PixelFormat AsyncVideoDecoder::getPixelFormat() const
 {
     assert(m_pVDecoderThread);
     return m_PF;
@@ -264,7 +264,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapP
     return FrameAvailable;
 }
 
-bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
+bool AsyncVideoDecoder::isEOF(StreamSelect Stream) const
 {
     switch(Stream) {
         case SS_AUDIO:

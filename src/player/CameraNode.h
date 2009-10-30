@@ -94,7 +94,7 @@ class AVG_API CameraNode : public VideoBase
         void setFeature (CameraFeature Feature, int Value);
 
         virtual bool renderToSurface(OGLTiledSurface * pSurface);
-        virtual double getFPS();
+        virtual double getFPS() const;
         virtual void open(bool bUseYCbCrShaders);
         virtual void close();
         virtual PixelFormat getPixelFormat();

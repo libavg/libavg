@@ -83,15 +83,14 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
 
     private:
         bool renderToSurface(OGLTiledSurface * pSurface);
-        bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(long long DestTime);
         void onEOF();
        
         virtual void open(bool bUseYCbCrShaders);
         virtual void close();
         virtual PixelFormat getPixelFormat();
-        virtual double getFPS();
-        virtual long long getNextFrameTime();
+        virtual double getFPS() const;
+        virtual long long getNextFrameTime() const;
         void exceptionIfUnloaded(const std::string& sFuncName) const;
 
         std::string m_href;

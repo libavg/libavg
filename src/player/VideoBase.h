@@ -47,7 +47,7 @@ class AVG_API VideoBase : public RasterNode
         void play();
         void stop();
         void pause();
-        virtual double getFPS() = 0;
+        virtual double getFPS() const = 0;
         
         virtual void render (const DRect& Rect);
         virtual std::string dump (int indent = 0);

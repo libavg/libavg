@@ -408,7 +408,7 @@ void FFMpegDecoder::seek(long long DestTime)
     m_bAudioEOF = false;
 }
 
-IntPoint FFMpegDecoder::getSize()
+IntPoint FFMpegDecoder::getSize() const
 {
     return m_Size;
 }
@@ -418,7 +418,7 @@ int FFMpegDecoder::getCurFrame() const
     return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0+0.5);
 }
 
-int FFMpegDecoder::getNumFramesQueued()
+int FFMpegDecoder::getNumFramesQueued() const
 {
     return 0;
 }
@@ -465,7 +465,7 @@ double FFMpegDecoder::getNominalFPS() const
 #endif 
 }
 
-double FFMpegDecoder::getFPS()
+double FFMpegDecoder::getFPS() const
 {
     return m_FPS;
 }
@@ -480,7 +480,7 @@ void FFMpegDecoder::setFPS(double FPS)
     }
 }
 
-double FFMpegDecoder::getVolume()
+double FFMpegDecoder::getVolume() const
 {
     return m_Volume;
 }
@@ -539,7 +539,7 @@ void FFMpegDecoder::throwAwayFrame(long long timeWanted)
     readFrameForTime(Frame, timeWanted);
 }
 
-bool FFMpegDecoder::isEOF(StreamSelect Stream)
+bool FFMpegDecoder::isEOF(StreamSelect Stream) const
 {
     switch(Stream) {
         case SS_AUDIO:
@@ -852,7 +852,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     }
 }
        
-PixelFormat FFMpegDecoder::getPixelFormat()
+PixelFormat FFMpegDecoder::getPixelFormat() const
 {
     return m_PF;
 }
@@ -1038,7 +1038,7 @@ long long FFMpegDecoder::getStartTime()
     }
 }
 
-double FFMpegDecoder::calcStreamFPS()
+double FFMpegDecoder::calcStreamFPS() const
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;

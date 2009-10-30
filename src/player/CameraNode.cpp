@@ -231,7 +231,7 @@ void CameraNode::dumpCameras()
     avg::dumpCameras();
 }
 
-double CameraNode::getFPS()
+double CameraNode::getFPS() const
 {
     return m_pCamera->getFrameRate();
 }

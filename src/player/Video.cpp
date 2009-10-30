@@ -343,12 +343,12 @@ IntPoint Video::getMediaSize()
     }
 }
 
-double Video::getFPS()
+double Video::getFPS() const
 {
     return m_pDecoder->getFPS();
 }
 
-long long Video::getNextFrameTime()
+long long Video::getNextFrameTime() const
 {
     switch (getVideoState()) {
         case Unloaded:
