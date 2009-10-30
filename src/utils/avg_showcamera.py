@@ -24,8 +24,8 @@
 import optparse
 from libavg import avg
 
-validPixFmt = ('I8', 'I16', 'YUV411', 'YUV422', 'RGB', 'BGR', 'BAYER8')
-validDrivers = ('firewire', 'v4l', 'directshow')
+validPixFmt = ('I8', 'I16', 'YUV411', 'YUV422', 'YUYV422', 'RGB', 'BGR', 'BAYER8')
+validDrivers = ('firewire', 'video4linux', 'directshow')
 
 def checkCamera():
     if not(camNode.isAvailable()):
@@ -36,26 +36,26 @@ def checkCamera():
 parser = optparse.OptionParser()
 parser.add_option("-t", "--driver",
                   action="store", dest="driver", 
-		  choices=validDrivers, help="camera drivers (one of: %s)" %', '.join(validDrivers))
+          choices=validDrivers, help="camera drivers (one of: %s)" %', '.join(validDrivers))
 parser.add_option("-d", "--device",
                   action="store", dest="device", default="",
                   help="camera device identifier (may be GUID or device path)")
 parser.add_option("-u", "--unit", action="store", dest="unit", default="-1",
-		  type="int", help="unit number")
+          type="int", help="unit number")
 parser.add_option("-w", "--width", dest="width", default="640", type="int",
-		  help="capture width in pixels")
+          help="capture width in pixels")
 parser.add_option("-e", "--height", dest="height", default="480", type="int",
-		  help="capture height in pixels")
+          help="capture height in pixels")
 parser.add_option("-p", "--pixformat", dest="pixelFormat", default="RGB",
-	          choices=validPixFmt, help="pixel format (one of: %s)" %', '.join(validPixFmt))
+              choices=validPixFmt, help="pixel format (one of: %s)" %', '.join(validPixFmt))
 parser.add_option("-f", "--framerate", dest="framerate", default="15", type="float",
-		  help="capture frame rate")
+          help="capture frame rate")
 parser.add_option("-8", "--fw800", dest="fw800", action="store_true", default=False,
-		  help="set firewire bus speed to s800 (if applicable)")
+          help="set firewire bus speed to s800 (if applicable)")
 parser.add_option("-l", "--dump", dest="dump", action="store_true", default=False,
-		  help="dump a list of detected cameras")
+          help="dump a list of detected cameras")
 parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=False,
-		  help="Don't show any info overlayed on the screen")
+          help="Don't show any info overlayed on the screen")
 
 (options, args) = parser.parse_args()
 
@@ -67,17 +67,10 @@ if options.driver is None and not options.dump:
 optdict = {}
 for attr in dir(options):
     if attr[0] != '_':
-	optdict[attr] = eval("options.%s" %attr)
+        optdict[attr] = eval("options.%s" %attr)
 
 
 Log = avg.Logger.get()
-Log.setCategories(Log.APP |
-          Log.WARNING | 
-          Log.PROFILE |
-#          Log.PROFILE_LATEFRAMES |
-          Log.CONFIG |
-#          Log.EVENTS |
-          0)
 
 Player = avg.Player.get()
 
@@ -108,7 +101,7 @@ Player.getRootNode().appendChild(camNode)
 if not options.noinfo:
     infoText = "Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f" %optdict
     infoNode = Player.createNode("words",
-	{"text": infoText, "color": "ff3333", "pos": avg.Point2D(5,5), "fontsize": 14})
+    {"text": infoText, "color": "ff3333", "pos": avg.Point2D(5,5), "fontsize": 14})
 
     Player.getRootNode().appendChild(infoNode)
     

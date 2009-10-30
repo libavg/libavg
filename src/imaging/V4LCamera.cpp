@@ -74,6 +74,9 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
     if (m_sDevice == "") {
         m_sDevice = "/dev/video0";
     }
+    if (m_Channel == -1) {
+        m_Channel = 0;
+    }
 
     m_FeaturesNames[V4L2_CID_BRIGHTNESS] = "brightness";
     m_FeaturesNames[V4L2_CID_CONTRAST] = "contrast";
@@ -477,7 +480,7 @@ void V4LCamera::initDevice()
         throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)
-                +"'. Try using v4l_info to find out what the device supports."));
+                +"'. Try using v4l-info to find out what the device supports."));
     }
 
     initMMap ();
