@@ -92,6 +92,7 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         virtual PixelFormat getPixelFormat();
         virtual double getFPS();
         virtual long long getNextFrameTime();
+        void exceptionIfUnloaded(const std::string& sFuncName) const;
 
         std::string m_href;
         std::string m_Filename;

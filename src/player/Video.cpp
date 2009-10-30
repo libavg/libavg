@@ -113,104 +113,66 @@ void Video::disconnect(bool bKill)
 
 int Video::getNumFrames() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_NumFrames;
-    } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                "Error in Video.getNumFrames: Video not loaded.");
-    }
+    exceptionIfUnloaded("getNumFrames");
+    return m_pDecoder->getVideoInfo().m_NumFrames;
 }
 
 int Video::getCurFrame() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getCurFrame();
-    } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Error in Video::GetCurFrame: Video not loaded.");
-        return -1;
-    }
+    exceptionIfUnloaded("getCurFrame");
+    return m_pDecoder->getCurFrame();
 }
 
 int Video::getNumFramesQueued() const
 {
+    exceptionIfUnloaded("getNumFramesQueued");
     return m_pDecoder->getNumFramesQueued();
 }
 
 void Video::seekToFrame(int FrameNum)
 {
-    if (getVideoState() != Unloaded) {
-        if (getCurFrame() != FrameNum) {
-            long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
-            seek(DestTime);
-        }
-    } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
+    exceptionIfUnloaded("seekToFrame");
+    if (getCurFrame() != FrameNum) {
+        long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
+        seek(DestTime);
     }
 }
 
 std::string Video::getStreamPixelFormat() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_sPixelFormat;
-    } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-               "Error in Video::getStreamPixelFormat: Video not loaded.");
-    }
-    
+    exceptionIfUnloaded("getStreamPixelFormat");
+    return m_pDecoder->getVideoInfo().m_sPixelFormat;
 }
 
 long long Video::getDuration() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_Duration;
-    } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-               "Error in Video::getDuration: Video not loaded.");
-    }
+    exceptionIfUnloaded("getDuration");
+    return m_pDecoder->getVideoInfo().m_Duration;
 }
 
 int Video::getBitrate() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_Bitrate;
-    } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-               "Error in Video::getDuration: Video not loaded.");
-    }
+    exceptionIfUnloaded("getBitrate");
+    return m_pDecoder->getVideoInfo().m_Bitrate;
 }
 
 string Video::getVideoCodec() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_sVCodec;
-    } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-               "Error in Video::getDuration: Video not loaded.");
-    }
+    exceptionIfUnloaded("getVideoCodec");
+    return m_pDecoder->getVideoInfo().m_sVCodec;
 }
 
 long long Video::getCurTime() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getCurTime();
-    } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Error in Video::GetCurTime: Video not loaded.");
-        return -1;
-    }
+    exceptionIfUnloaded("getCurTime");
+    return m_pDecoder->getCurTime();
 }
 
 void Video::seekToTime(long long Time)
 {
-    if (getVideoState() != Unloaded) {
-        seek(Time);
-        m_bSeekPending = true;
-    } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
-    }
+    exceptionIfUnloaded("seekToTime");
+    seek(Time);
+    m_bSeekPending = true;
 }
 
 bool Video::getLoop() const
@@ -225,12 +187,8 @@ bool Video::isThreaded() const
 
 bool Video::hasAudio() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_bHasAudio;
-    } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "hasAudio() failed: video not loaded.");
-    }
-
+    exceptionIfUnloaded("hasAudio");
+    return m_pDecoder->getVideoInfo().m_bHasAudio;
 }
 
 void Video::setEOFCallback(PyObject * pEOFCallback)
@@ -402,6 +360,14 @@ long long Video::getNextFrameTime()
         default:
             assert(false);
             return 0;
+    }
+}
+
+void Video::exceptionIfUnloaded(const std::string& sFuncName) const
+{
+    if (getVideoState() == Unloaded) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Video::")+sFuncName+" failed: video not loaded.");
     }
 }
 
