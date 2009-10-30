@@ -27,7 +27,7 @@
 #include "WrapPython.h" 
 
 #include "Node.h"
-#include "VideoBase.h"
+#include "RasterNode.h"
 
 #include "../base/Point.h"
 #include "../base/IFrameEndListener.h"
@@ -38,7 +38,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
+class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();
@@ -51,10 +51,15 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         virtual void connect();
         virtual void disconnect(bool bKill);
 
+        void play();
+        void stop();
+        void pause();
+
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
         double getVolume();
         void setVolume(double Volume);
+        virtual double getFPS() const;
         void checkReload();
 
         int getNumFrames() const;
@@ -76,6 +81,7 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         bool hasAudio() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
+        virtual void render (const DRect& Rect);
         virtual void preRender();
         virtual void onFrameEnd();
         
@@ -83,20 +89,25 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         virtual IntPoint getMediaSize();
 
     protected:
-        virtual void changeVideoState(VideoState NewVideoState);
 
     private:
         bool renderToSurface(OGLTiledSurface * pSurface);
         void seek(long long DestTime);
         void onEOF();
        
-        virtual void open(bool bUseYCbCrShaders);
+        virtual void open();
         virtual void close();
+        enum VideoState {Unloaded, Paused, Playing};
+        virtual void changeVideoState(VideoState NewVideoState);
         virtual PixelFormat getPixelFormat();
-        virtual double getFPS() const;
         virtual long long getNextFrameTime() const;
         void exceptionIfNoAudio(const std::string& sFuncName) const;
         void exceptionIfUnloaded(const std::string& sFuncName) const;
+
+        VideoState m_VideoState;
+
+        bool m_bFrameAvailable;
+        bool m_bFirstFrameDecoded;
 
         std::string m_href;
         std::string m_Filename;

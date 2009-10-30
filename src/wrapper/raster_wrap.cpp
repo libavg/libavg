@@ -191,24 +191,6 @@ void export_raster()
                 "The source filename of the image.\n")
     ;
 
-    class_<VideoBase, bases<RasterNode>, boost::noncopyable>("VideoBase", 
-            "Base class for video and camera image nodes.",
-            no_init)
-        .def("play", &VideoBase::play,
-                "play()\n"
-                "Starts video playback.")
-        .def("stop", &VideoBase::stop,
-                "stop()\n"
-                "Stops video playback. Closes the object and 'rewinds' the playback\n"
-                "cursor.")
-        .def("pause", &VideoBase::pause,
-                "pause()\n"
-                "Stops video playback but doesn't close the object. The playback\n"
-                "cursor stays at the same position.")
-        .add_property("fps", &VideoBase::getFPS,
-                "Returns the nominal frames per second the object should display at.\n")
-    ;  
-
     class_<CameraNode, bases<RasterNode> >("Camera",
             "A node that displays the image of a camera. The properties are the same\n"
             "as the camera properties in .avgtrackerrc and are explained under\n"
@@ -244,10 +226,21 @@ void export_raster()
         .staticmethod("dumpCameras")
     ;
         
-    class_<Video, bases<VideoBase> >("Video",
+    class_<Video, bases<RasterNode> >("Video",
             "Video nodes display a video file. Video formats and codecs supported\n"
             "are all formats that ffmpeg/libavcodec supports.\n",
             no_init)
+        .def("play", &Video::play,
+                "play()\n"
+                "Starts video playback.")
+        .def("stop", &Video::stop,
+                "stop()\n"
+                "Stops video playback. Closes the file and 'rewinds' the playback\n"
+                "cursor.")
+        .def("pause", &Video::pause,
+                "pause()\n"
+                "Stops video playback but doesn't close the object. The playback\n"
+                "cursor stays at the same position.")
         .def("getNumFrames", &Video::getNumFrames,
                 "getNumFrames()")
         .def("getNumFramesQueued", &Video::getNumFramesQueued,
@@ -296,6 +289,8 @@ void export_raster()
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"
                 "file.")
+        .add_property("fps", &Video::getFPS,
+                "Returns the nominal frames per second the object should display at.\n")
         .add_property("href", 
                 make_function(&Video::getHRef,
                         return_value_policy<copy_const_reference>()),
