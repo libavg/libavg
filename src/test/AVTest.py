@@ -346,12 +346,20 @@ class AVTestCase(AVGTestCase):
             self.assert_(node.getAudioSampleRate() == 44100)
             self.assert_(node.getNumAudioChannels() == 2)
 
+        def checkExceptions():
+            node = Player.createNode("sound",
+                {"href": "../video/testfiles/44.1kHz_16bit_stereo.wav"})
+            self.assertException(node.getAudioCodec)
+            self.assertException(node.getAudioSampleRate)
+            self.assertException(node.getNumAudioChannels)
+
         self._loadEmpty()
         node = Player.createNode("sound",
             {"href": "../video/testfiles/44.1kHz_16bit_stereo.wav"})
         Player.getRootNode().appendChild(node)
         self.start(None,
                 (checkInfo,
+                 checkExceptions,
                 ))
 
     def testBrokenSound(self):
