@@ -322,15 +322,20 @@ void Video::open(bool bUseYCbCrShaders)
     }
     m_pDecoder->open(m_Filename, pAP, bUseYCbCrShaders, m_bThreaded);
     m_pDecoder->setVolume(m_Volume);
+    VideoInfo videoInfo = m_pDecoder->getVideoInfo();
+    if (!videoInfo.m_bHasVideo) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Video: Opening "+m_Filename+" failed. No video stream found."));
+    }
     if (m_FPS != 0.0) {
-        if (m_pDecoder->getVideoInfo().m_bHasAudio) {
+        if (videoInfo.m_bHasAudio) {
             AVG_TRACE(Logger::WARNING, 
                     getID() + ": Can't set FPS if video contains audio. Ignored.");
         } else {
             m_pDecoder->setFPS(m_FPS);
         }
     }
-    if (m_pDecoder->getVideoInfo().m_bHasAudio) {
+    if (videoInfo.m_bHasAudio) {
         getAudioEngine()->addSource(this);
     }
     m_bSeekPending = true;

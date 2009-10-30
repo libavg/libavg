@@ -83,6 +83,13 @@ class AVTestCase(AVGTestCase):
             self.assertException(node.getAudioSampleRate)
             self.assertException(node.getNumAudioChannels)
 
+        def checkAudioFile():
+            node = Player.createNode("video",
+                {"href": "../video/testfiles/44.1kHz_16bit_stereo.wav",
+                        "threaded": isThreaded})
+            Player.getRootNode().appendChild(node)
+            self.assertException(node.pause)
+
         for isThreaded in (False, True):
             self._loadEmpty()
             node = Player.createNode("video",
@@ -92,6 +99,7 @@ class AVTestCase(AVGTestCase):
             self.start(None,
                     (checkInfo,
                      checkExceptions,
+                     checkAudioFile,
                     ))
 
     def testVideoFiles(self):
@@ -353,6 +361,12 @@ class AVTestCase(AVGTestCase):
             self.assertException(node.getAudioSampleRate)
             self.assertException(node.getNumAudioChannels)
 
+        def checkVideoFile():
+            node = Player.createNode("sound",
+                {"href": "../video/testfiles/mpeg1-48x48.mpg"})
+            Player.getRootNode().appendChild(node)
+            self.assertException(node.pause)
+
         self._loadEmpty()
         node = Player.createNode("sound",
             {"href": "../video/testfiles/44.1kHz_16bit_stereo.wav"})
@@ -360,6 +374,7 @@ class AVTestCase(AVGTestCase):
         self.start(None,
                 (checkInfo,
                  checkExceptions,
+                 checkVideoFile,
                 ))
 
     def testBrokenSound(self):

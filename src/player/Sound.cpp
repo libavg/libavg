@@ -263,6 +263,11 @@ void Sound::open()
 {
     m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), false, true);
     m_pDecoder->setVolume(m_Volume);
+    VideoInfo videoInfo = m_pDecoder->getVideoInfo();
+    if (!videoInfo.m_bHasAudio) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Sound: Opening "+m_Filename+" failed. No audio stream found."));
+    }
     if (getAudioEngine()) {
         getAudioEngine()->addSource(this);
     }
