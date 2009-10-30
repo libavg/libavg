@@ -61,6 +61,7 @@ class AVG_API Video : public VideoBase, IFrameEndListener, IAudioSource
         int getCurFrame() const;
         int getNumFramesQueued() const;
         void seekToFrame(int FrameNum);
+        std::string getStreamPixelFormat() const;
         long long getDuration() const;
         int getBitrate() const;
         std::string getVideoCodec() const;

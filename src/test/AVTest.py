@@ -63,6 +63,7 @@ class AVTestCase(AVGTestCase):
             self.assert_(node.getDuration() == 1000)
             self.assert_(node.getBitrate() == 224064)
             self.assert_(node.getVideoCodec() == "FMP4")
+            self.assert_(node.getStreamPixelFormat() == "yuv420p")
 
         for isThreaded in (False, True):
             self._loadEmpty()

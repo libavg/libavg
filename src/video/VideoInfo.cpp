@@ -37,10 +37,11 @@ VideoInfo::VideoInfo(long long duration, int bitrate, bool bHasVideo, bool bHasA
 {
 }
 
-void VideoInfo::setVideoData(const IntPoint& size, int numFrames, double streamFPS, 
-        double FPS, char vCodec[4])
+void VideoInfo::setVideoData(const IntPoint& size, const std::string& sPixelFormat,
+        int numFrames, double streamFPS, double FPS, char vCodec[4])
 {
     m_Size = size;
+    m_sPixelFormat = sPixelFormat;
     m_NumFrames = numFrames;
     m_StreamFPS = streamFPS;
     m_FPS = FPS;

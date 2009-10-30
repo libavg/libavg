@@ -375,7 +375,7 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
     VideoInfo info(getDuration(), m_pFormatContext->bit_rate, m_pVStream != 0,
             m_pAStream != 0);
     if (m_pVStream) {
-        info.setVideoData(m_Size, getNumFrames(), getNominalFPS(), m_FPS,
+        info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
                 (char*)(&m_pVStream->codec->codec_tag));
     }
     return info;
@@ -1045,6 +1045,17 @@ double FFMpegDecoder::calcStreamFPS()
 #else
     return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
 #endif 
+}
+
+string FFMpegDecoder::getStreamPF() const
+{
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    AVCodecContext *pCodec = &m_pVStream->codec;
+#else
+    AVCodecContext *pCodec = m_pVStream->codec;
+#endif
+    ::PixelFormat pf = pCodec->pix_fmt;
+    return avcodec_get_pix_fmt_name(pf);
 }
 
 // TODO: this should be logarithmic...

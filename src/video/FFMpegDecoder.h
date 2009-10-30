@@ -113,6 +113,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
         double calcStreamFPS();
+        std::string getStreamPF() const;
 
         SwsContext * m_pSwsContext;
         IntPoint m_Size;

@@ -150,6 +150,17 @@ void Video::seekToFrame(int FrameNum)
     }
 }
 
+std::string Video::getStreamPixelFormat() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getVideoInfo().m_sPixelFormat;
+    } else {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+               "Error in Video::getStreamPixelFormat: Video not loaded.");
+    }
+    
+}
+
 long long Video::getDuration() const
 {
     if (getVideoState() != Unloaded) {

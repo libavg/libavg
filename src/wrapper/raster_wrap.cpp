@@ -253,6 +253,11 @@ void export_raster()
         .def("seekToFrame", &Video::seekToFrame,
                 "seekToFrame(num)\n"
                 "Moves the playback cursor to the frame given.")
+        .def("getStreamPixelFormat", &Video::getStreamPixelFormat,
+                "getStreamPixelFormat() -> string\n"
+                "Returns the pixel format of the video file as a string. Possible\n"
+                "pixel formats are described in\n"
+                "http://cekirdek.pardus.org.tr/~ismail/ffmpeg-docs/ffmpeg-r_2libavutil_2avutil_8h.html\n")
         .def("getDuration", &Video::getDuration,
                 "getDuration() -> duration\n"
                 "Returns the duration of the video in milliseconds./n")
