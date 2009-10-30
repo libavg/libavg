@@ -376,11 +376,11 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
             m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
-                (char*)(&m_pVStream->codec->codec_tag));
+                m_pVStream->codec->codec->name);
     }
     if (m_pAStream) {
         AVCodecContext * pACodec = m_pAStream->codec;
-        info.setAudioData((char*)(&pACodec->codec_tag), pACodec->sample_rate,
+        info.setAudioData(pACodec->codec->name, pACodec->sample_rate,
                 pACodec->channels);
     }
     return info;

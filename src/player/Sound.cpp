@@ -86,34 +86,38 @@ Sound::~Sound()
 
 long long Sound::getDuration() const
 {
-    if (m_State != Unloaded) {
-        return m_pDecoder->getVideoInfo().m_Duration;
-    } else {
-        AVG_TRACE(Logger::WARNING,
-               "Error in Sound::getDuration: Sound not loaded.");
-        return -1;
-    }
+    exceptionIfUnloaded("getDuration");
+    return m_pDecoder->getVideoInfo().m_Duration;
+}
+
+std::string Sound::getAudioCodec() const
+{
+    exceptionIfUnloaded("getAudioCodec");
+    return m_pDecoder->getVideoInfo().m_sACodec;
+}
+
+int Sound::getAudioSampleRate() const
+{
+    exceptionIfUnloaded("getAudioSampleRate");
+    return m_pDecoder->getVideoInfo().m_SampleRate;
+}
+
+int Sound::getNumAudioChannels() const
+{
+    exceptionIfUnloaded("getNumAudioChannels");
+    return m_pDecoder->getVideoInfo().m_NumAudioChannels;
 }
 
 long long Sound::getCurTime() const
 {
-    if (m_State != Unloaded) {
-        return m_pDecoder->getCurTime();
-    } else {
-        AVG_TRACE(Logger::WARNING,
-                "Error in Sound::GetCurTime: Sound not loaded.");
-        return -1;
-    }
+    exceptionIfUnloaded("getCurTime");
+    return m_pDecoder->getCurTime();
 }
 
 void Sound::seekToTime(long long Time)
 {
-    if (m_State != Unloaded) {
-        seek(Time);
-    } else {
-        AVG_TRACE(Logger::WARNING,
-                "Error in Sound::SeekToTime: Sound "+getID()+" not loaded.");
-    }
+    exceptionIfUnloaded("seekToTime");
+    seek(Time);
 }
 
 bool Sound::getLoop() const
@@ -130,7 +134,8 @@ void Sound::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
     checkReload();
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
@@ -269,6 +274,14 @@ void Sound::close()
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();
+}
+
+void Sound::exceptionIfUnloaded(const std::string& sFuncName) const
+{
+    if (m_State == Unloaded) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Sound.")+sFuncName+" failed: video not loaded.");
+    }
 }
 
 void Sound::onEOF()

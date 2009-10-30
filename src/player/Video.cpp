@@ -93,7 +93,8 @@ Video::~Video()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
     checkReload();
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
@@ -164,19 +165,19 @@ string Video::getVideoCodec() const
 
 std::string Video::getAudioCodec() const
 {
-    exceptionIfUnloaded("getAudioCodec");
+    exceptionIfNoAudio("getAudioCodec");
     return m_pDecoder->getVideoInfo().m_sACodec;
 }
 
 int Video::getAudioSampleRate() const
 {
-    exceptionIfUnloaded("getAudioSampleRate");
+    exceptionIfNoAudio("getAudioSampleRate");
     return m_pDecoder->getVideoInfo().m_SampleRate;
 }
 
 int Video::getNumAudioChannels() const
 {
-    exceptionIfUnloaded("getNumAudioChannels");
+    exceptionIfNoAudio("getNumAudioChannels");
     return m_pDecoder->getVideoInfo().m_NumAudioChannels;
 }
 
@@ -381,11 +382,20 @@ long long Video::getNextFrameTime() const
     }
 }
 
+void Video::exceptionIfNoAudio(const std::string& sFuncName) const
+{
+    exceptionIfUnloaded(sFuncName);
+    if (!hasAudio()) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Video.")+sFuncName+" failed: no audio stream.");
+    }
+}
+
 void Video::exceptionIfUnloaded(const std::string& sFuncName) const
 {
     if (getVideoState() == Unloaded) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("Video::")+sFuncName+" failed: video not loaded.");
+                string("Video.")+sFuncName+" failed: video not loaded.");
     }
 }
 

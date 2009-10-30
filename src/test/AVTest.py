@@ -62,9 +62,10 @@ class AVTestCase(AVGTestCase):
             node.pause()
             self.assert_(node.getDuration() == 1000)
             self.assert_(node.getBitrate() == 224064)
-            self.assert_(node.getVideoCodec() == "FMP4")
+            self.assert_(node.getVideoCodec() == "mpeg4")
             self.assert_(node.getStreamPixelFormat() == "yuv420p")
             if isThreaded:
+                self.assert_(node.getAudioCodec() == "mp2")
                 self.assert_(node.getAudioSampleRate() == 44100)
                 self.assert_(node.getNumAudioChannels() == 2)
 
@@ -323,6 +324,21 @@ class AVTestCase(AVGTestCase):
                 "48kHz_24bit_stereo.wav"]:
             testSoundFile(filename)
 
+    def testSoundInfo(self):
+        def checkInfo():
+            node.pause()
+            self.assert_(node.getAudioCodec() == "pcm_s16le")
+            self.assert_(node.getAudioSampleRate() == 44100)
+            self.assert_(node.getNumAudioChannels() == 2)
+
+        self._loadEmpty()
+        node = Player.createNode("sound",
+            {"href": "../video/testfiles/44.1kHz_16bit_stereo.wav"})
+        Player.getRootNode().appendChild(node)
+        self.start(None,
+                (checkInfo,
+                ))
+
     def testBrokenSound(self):
         def openSound():
             node = Player.createNode("sound",
@@ -345,6 +361,7 @@ class AVTestCase(AVGTestCase):
 def AVTestSuite(tests):
     availableTests = (
             "testSound",
+            "testSoundInfo",
             "testBrokenSound",
             "testSoundEOF",
             "testVideoInfo",

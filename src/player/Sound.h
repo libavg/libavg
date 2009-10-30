@@ -56,6 +56,10 @@ class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
         void checkReload();
 
         long long getDuration() const;
+        std::string getAudioCodec() const;
+        int getAudioSampleRate() const;
+        int getNumAudioChannels() const;
+
         long long getCurTime() const;
         void seekToTime(long long Time);
         bool getLoop() const;
@@ -73,6 +77,7 @@ class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
         void changeSoundState(SoundState NewSoundState);
         void open();
         void close();
+        void exceptionIfUnloaded(const std::string& sFuncName) const;
 
         std::string m_href;
         std::string m_Filename;
