@@ -170,6 +170,16 @@ int Video::getBitrate() const
     }
 }
 
+string Video::getVideoCodec() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getVideoInfo().m_sVCodec;
+    } else {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+               "Error in Video::getDuration: Video not loaded.");
+    }
+}
+
 long long Video::getCurTime() const
 {
     if (getVideoState() != Unloaded) {

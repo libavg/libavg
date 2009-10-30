@@ -41,7 +41,6 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
-      m_FPS(0),
       m_PF(NO_PIXELFORMAT),
       m_bAudioEOF(false),
       m_bVideoEOF(false),
@@ -74,9 +73,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pA
 
     if (m_VideoInfo.m_bHasVideo) {
         m_LastVideoFrameTime = -1000;
-        m_FPS = m_pSyncDecoder->getFPS();
         m_PF = m_pSyncDecoder->getPixelFormat();
-        m_StreamFPS = m_pSyncDecoder->getNominalFPS();
         m_pVCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
         m_pVDecoderThread = new boost::thread(
@@ -152,7 +149,8 @@ void AsyncVideoDecoder::seek(long long DestTime)
             } else {
                 pMsg = m_pAMsgQ->pop(false);
             }
-            SeekDoneVideoMsgPtr pSeekDoneMsg = dynamic_pointer_cast<SeekDoneVideoMsg>(pMsg);
+            SeekDoneVideoMsgPtr pSeekDoneMsg = 
+                    dynamic_pointer_cast<SeekDoneVideoMsg>(pMsg);
             if (pSeekDoneMsg) {
                 m_bSeekPending = false;
                 m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
@@ -174,7 +172,7 @@ IntPoint AsyncVideoDecoder::getSize()
 
 int AsyncVideoDecoder::getCurFrame() const
 {
-    return int(getCurTime(SS_VIDEO)*m_StreamFPS/1000.0+0.5);
+    return int(getCurTime(SS_VIDEO)*m_VideoInfo.m_StreamFPS/1000.0+0.5);
 }
 
 int AsyncVideoDecoder::getNumFramesQueued()
@@ -202,13 +200,13 @@ long long AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
 
 double AsyncVideoDecoder::getNominalFPS() const
 {
-    return m_StreamFPS;
+    return m_VideoInfo.m_StreamFPS;
 }
 
 double AsyncVideoDecoder::getFPS()
 {
     assert(m_pVDecoderThread);
-    return m_FPS;
+    return m_VideoInfo.m_FPS;
 }
 
 void AsyncVideoDecoder::setFPS(double FPS)
@@ -217,7 +215,7 @@ void AsyncVideoDecoder::setFPS(double FPS)
     m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
             &VideoDecoderThread::setFPS, _1, FPS)));
     if (FPS != 0) {
-        m_FPS = FPS;
+        m_VideoInfo.m_FPS = FPS;
     }
 }
 

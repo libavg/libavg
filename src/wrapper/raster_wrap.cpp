@@ -259,6 +259,10 @@ void export_raster()
         .def("getBitrate", &Video::getBitrate,
                 "getBitrate() -> bitrate\n"
                 "Returns the number of bits in the file per second./n")
+        .def("getVideoCodec", &Video::getVideoCodec,
+                "getVCodec() -> vcodec\n"
+                "Returns the codec used as a fourcc - a four-character-code such as\n"
+                "'XVID'\n") 
         .def("getCurTime", &Video::getCurTime,
                 "getCurTime()\n"
                 "Returns seconds of playback time since video start.")

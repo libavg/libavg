@@ -23,6 +23,8 @@
 
 namespace avg {
 
+using namespace std;
+
 VideoInfo::VideoInfo()
 {
 }
@@ -36,12 +38,13 @@ VideoInfo::VideoInfo(long long duration, int bitrate, bool bHasVideo, bool bHasA
 }
 
 void VideoInfo::setVideoData(const IntPoint& size, int numFrames, double streamFPS, 
-        double FPS)
+        double FPS, char vCodec[4])
 {
     m_Size = size;
     m_NumFrames = numFrames;
     m_StreamFPS = streamFPS;
     m_FPS = FPS;
+    m_sVCodec = string(vCodec, 4);
 }
 
 }

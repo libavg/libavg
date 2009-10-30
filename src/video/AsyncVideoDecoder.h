@@ -94,8 +94,6 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         IntPoint m_Size;
         int m_NumFrames;
         bool m_bUseStreamFPS;
-        double m_StreamFPS;
-        double m_FPS;
         PixelFormat m_PF;
         
         bool m_bAudioEOF;

@@ -100,6 +100,7 @@ void VideoDemuxerThread::enableStream(VideoPacketQueuePtr pPacketQ, int StreamIn
     m_PacketQs[StreamIndex] = pPacketQ;
     m_PacketQbEOF[StreamIndex] = false;
     m_pDemuxer->enableStream(StreamIndex);
+    m_bEOF = false;
 }
 
 void VideoDemuxerThread::seek(long long DestTime)
