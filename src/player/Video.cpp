@@ -318,7 +318,7 @@ void Video::open(bool bUseYCbCrShaders)
             m_pDecoder->setFPS(m_FPS);
         }
     }
-    if (m_pDecoder->hasAudio()) {
+    if (m_pDecoder->hasAudio() && getAudioEngine()) {
         getAudioEngine()->addSource(this);
     }
     m_bSeekPending = true;
@@ -326,7 +326,7 @@ void Video::open(bool bUseYCbCrShaders)
 
 void Video::close()
 {
-    if (m_pDecoder->hasAudio()) {
+    if (m_pDecoder->hasAudio() && getAudioEngine()) {
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();

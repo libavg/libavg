@@ -132,6 +132,10 @@ void Sound::setEOFCallback(PyObject * pEOFCallback)
 
 void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
+    if (!pAudioEngine) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Sound nodes can only be created if audio is not disabled."); 
+    }
     checkReload();
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if (m_State != Unloaded) {
