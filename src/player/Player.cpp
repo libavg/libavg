@@ -89,6 +89,7 @@ Player::Player()
     : m_pRootNode(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
+      m_bAudioEnabled(true),
       m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -224,6 +225,15 @@ void Player::setMultiSampleSamples(int MultiSampleSamples)
     m_MultiSampleSamples = MultiSampleSamples;
 }
 
+void Player::enableAudio(bool bEnable)
+{
+    if (m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Player.enableAudio must be called before Player.play().");
+    }
+    m_bAudioEnabled = bEnable;
+}
+
 void Player::setAudioOptions(int samplerate, int channels)
 {
     m_AP.m_SampleRate = samplerate;
@@ -335,7 +345,9 @@ void Player::initPlayback()
     }
     
     initGraphics();
-    initAudio();
+    if (m_bAudioEnabled) {
+        initAudio();
+    }
     try {
         m_pRootNode->setRenderingEngines(m_pDisplayEngine, m_pAudioEngine);
     } catch (Exception&) {
@@ -694,6 +706,11 @@ const NodeDefinition& Player::getNodeDef(const std::string& sType)
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
+}
+
+bool Player::isAudioEnabled() const
+{
+    return m_bAudioEnabled;
 }
 
 static ProfilingZone MainProfilingZone("Player - Total frame time");

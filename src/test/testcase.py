@@ -74,6 +74,7 @@ class AVGTestCase(unittest.TestCase):
     def setUp(self):
         self.__Player.setResolution(0, 0, 0, self.__bpp)
         setUpVideo(self.__Player)
+        self.__Player.enableAudio(False)
         print "-------- ", self.__testFuncName, " --------"
 
     def start(self, filename, actions):

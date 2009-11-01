@@ -31,11 +31,7 @@ try:
 except ImportError:
     ClickTest = None
 
-try:
-    from mtemu import MTemu
-    
-except ImportError:
-    MTemu = None
+from mtemu import MTemu
 
 g_player = avg.Player.get()
 g_log = avg.Logger.get()

@@ -368,7 +368,7 @@ void Video::open()
             m_pDecoder->setFPS(m_FPS);
         }
     }
-    if (videoInfo.m_bHasAudio) {
+    if (videoInfo.m_bHasAudio && getAudioEngine()) {
         getAudioEngine()->addSource(this);
     }
     m_bSeekPending = true;
@@ -388,7 +388,7 @@ void Video::open()
 
 void Video::close()
 {
-    if (hasAudio()) {
+    if (hasAudio() && getAudioEngine()) {
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();

@@ -72,6 +72,7 @@ class AVG_API Player : IEventSink
         void setOGLOptions(bool bUsePOW2Textures, bool bUseShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
         void setMultiSampleSamples(int MultiSampleSamples);
+        void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
         void loadFile(const std::string& sFilename);
         void loadString(const std::string& sAVG);
@@ -134,6 +135,7 @@ class AVG_API Player : IEventSink
         const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
+        bool isAudioEnabled() const;
 
         void loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
@@ -161,7 +163,8 @@ class AVG_API Player : IEventSink
         AudioEngine * m_pAudioEngine;
         IEventSource * m_pEventSource;
         TestHelper * m_pTestHelper;
-        
+       
+        bool m_bAudioEnabled;
         std::string m_CurDirName;
         bool m_bStopping;
         typedef std::map<std::string, NodePtr> NodeIDMap;

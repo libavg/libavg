@@ -43,6 +43,10 @@ class AVTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
 
+    def setUp(self):
+        AVGTestCase.setUp(self)
+        Player.enableAudio(True)
+
     def testEOF(self, node):
         def onEOF():
             Player.stop()
@@ -124,6 +128,7 @@ class AVTestCase(AVGTestCase):
             node = Player.createNode("video",
                 {"href": "../video/testfiles/"+filename, "volume":0.8,
                         "threaded": isThreaded})
+            setVolume(0.6)
             Player.getRootNode().appendChild(node)
             self.assertException(node.hasAudio)
             self.start(None,

@@ -209,6 +209,11 @@ BOOST_PYTHON_MODULE(avg)
                 "This costs performance and smoothes the edges of polygons. A value of\n"
                 "1 turns multisampling (also knowna as FSAA - Full-Screen Antialiasing)\n"
                 "off. Good values are dependent on the graphics driver.\n")
+        .def("enableAudio", &Player::enableAudio,
+                "enableAudio(bEnable)\n"
+                "Enables or disables audio playback. If audio playback is disabled, no\n"
+                "nodes with sound can be created. Mainly used to speed up the test\n"
+                "suite.\n")
         .def("loadFile", &Player::loadFile,
                 "loadFile(filename)\n"
                 "Loads the avg file specified in filename.\n"
