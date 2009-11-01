@@ -96,6 +96,7 @@ class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
         void onEOF();
        
         virtual void open();
+        virtual void startDecoding();
         virtual void close();
         enum VideoState {Unloaded, Paused, Playing};
         virtual void changeVideoState(VideoState NewVideoState);

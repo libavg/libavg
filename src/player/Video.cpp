@@ -102,10 +102,16 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     checkReload();
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    VideoState TempVideoState = m_VideoState;
-    m_VideoState = Unloaded;
     try {
-        changeVideoState(TempVideoState);
+        long long CurTime = Player::get()->getFrameTime(); 
+        if (m_VideoState != Unloaded) {
+            startDecoding();
+            m_StartTime = CurTime;
+            m_PauseTime = 0;
+        }
+        if (m_VideoState == Paused) {
+            m_PauseStartTime = CurTime;
+        } 
     } catch (Exception& ex) {
         AVG_TRACE(Logger::WARNING, ex.GetStr());
     }
@@ -310,13 +316,19 @@ int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void Video::changeVideoState(VideoState NewVideoState)
 {
+    if (m_VideoState == NewVideoState) {
+        return;
+    }
+    if (m_VideoState == Unloaded) {
+        open();
+    }
+    if (NewVideoState == Unloaded) {
+        close();
+    }
     if (getState() == NS_CANRENDER) {
-        if (m_VideoState == NewVideoState) {
-            return;
-        }
         long long CurTime = Player::get()->getFrameTime(); 
-        if (m_VideoState == Unloaded) {
-            open();
+        if (NewVideoState != Unloaded && m_VideoState == Unloaded) {
+            startDecoding();
             m_StartTime = CurTime;
             m_PauseTime = 0;
         }
@@ -325,9 +337,6 @@ void Video::changeVideoState(VideoState NewVideoState)
         } else if (NewVideoState == Playing && m_VideoState == Paused) {
             m_PauseTime += (CurTime-m_PauseStartTime
                     - (long long)(1000.0/m_pDecoder->getFPS()));
-        }
-        if (NewVideoState == Unloaded) {
-            close();
         }
     }
     m_VideoState = NewVideoState;
@@ -348,18 +357,26 @@ void Video::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    const AudioParams * pAP = 0;
-    if (getAudioEngine()) {
-        pAP = getAudioEngine()->getParams();
-    }
     m_pDecoder->open(m_Filename, m_bThreaded);
-    m_pDecoder->startDecoding(getDisplayEngine()->isUsingShaders(), pAP);
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
                 string("Video: Opening "+m_Filename+" failed. No video stream found."));
     }
+
+    m_bFirstFrameDecoded = false;
+    m_bFrameAvailable = false;
+}
+
+void Video::startDecoding()
+{
+    const AudioParams * pAP = 0;
+    if (getAudioEngine()) {
+        pAP = getAudioEngine()->getParams();
+    }
+    m_pDecoder->startDecoding(getDisplayEngine()->isUsingShaders(), pAP);
+    VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
             AVG_TRACE(Logger::WARNING, 
@@ -381,9 +398,6 @@ void Video::open()
         Filter.applyInPlace(getSurface()->lockBmp());
         getSurface()->unlockBmps();
     }
-
-    m_bFirstFrameDecoded = false;
-    m_bFrameAvailable = false;
 }
 
 void Video::close()

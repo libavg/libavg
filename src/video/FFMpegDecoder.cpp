@@ -397,7 +397,11 @@ IVideoDecoder::DecoderState FFMpegDecoder::getState() const
 VideoInfo FFMpegDecoder::getVideoInfo() const
 {
     assert(m_State != CLOSED);
-    VideoInfo info(getDuration(), m_pFormatContext->bit_rate, m_pVStream != 0,
+    long long duration = 0;
+    if (m_pVStream || m_pAStream) {
+        duration = getDuration();
+    }
+    VideoInfo info(duration, m_pFormatContext->bit_rate, m_pVStream != 0,
             m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
