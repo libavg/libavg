@@ -143,11 +143,15 @@ void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
     checkReload();
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    long long CurTime = Player::get()->getFrameTime(); 
     if (m_State != Unloaded) {
-        SoundState state = m_State;
-        m_State = Unloaded;
-        changeSoundState(state);
+        startDecoding();
+        m_StartTime = CurTime;
+        m_PauseTime = 0;
     }
+    if (m_State == Paused) {
+        m_PauseStartTime = CurTime;
+    } 
 }
 
 void Sound::disconnect(bool bKill)
@@ -235,21 +239,26 @@ int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void Sound::changeSoundState(SoundState NewSoundState)
 {
+    if (NewSoundState == m_State) {
+        return;
+    }
+    if (m_State == Unloaded) {
+        open();
+    }
+    if (NewSoundState == Unloaded) {
+        close();
+    }
     if (getState() == NS_CANRENDER) {
         long long CurTime = Player::get()->getFrameTime(); 
-        if (NewSoundState != m_State) {
-            if (m_State == Unloaded) {
-                m_StartTime = CurTime;
-                m_PauseTime = 0;
-                open();
-            }
-            if (NewSoundState == Paused) {
-                m_PauseStartTime = CurTime;
-            } else if (NewSoundState == Playing && m_State == Paused) {
-                m_PauseTime += CurTime-m_PauseStartTime;
-            } else if (NewSoundState == Unloaded) {
-                close();
-            }
+        if (m_State == Unloaded) {
+            startDecoding();
+            m_StartTime = CurTime;
+            m_PauseTime = 0;
+        }
+        if (NewSoundState == Paused) {
+            m_PauseStartTime = CurTime;
+        } else if (NewSoundState == Playing && m_State == Paused) {
+            m_PauseTime += CurTime-m_PauseStartTime;
         }
     }
     m_State = NewSoundState;
@@ -266,13 +275,17 @@ void Sound::seek(long long DestTime)
 void Sound::open()
 {
     m_pDecoder->open(m_Filename, true);
-    m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
                 string("Sound: Opening "+m_Filename+" failed. No audio stream found."));
     }
+}
+
+void Sound::startDecoding()
+{
+    m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
     if (getAudioEngine()) {
         getAudioEngine()->addSource(this);
     }

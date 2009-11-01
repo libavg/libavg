@@ -95,13 +95,13 @@ class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
         void seek(long long DestTime);
         void onEOF();
        
-        virtual void open();
-        virtual void startDecoding();
-        virtual void close();
+        void open();
+        void startDecoding();
+        void close();
         enum VideoState {Unloaded, Paused, Playing};
-        virtual void changeVideoState(VideoState NewVideoState);
-        virtual PixelFormat getPixelFormat();
-        virtual long long getNextFrameTime() const;
+        void changeVideoState(VideoState NewVideoState);
+        PixelFormat getPixelFormat();
+        long long getNextFrameTime() const;
         void exceptionIfNoAudio(const std::string& sFuncName) const;
         void exceptionIfUnloaded(const std::string& sFuncName) const;
 

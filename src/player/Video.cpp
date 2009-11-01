@@ -102,19 +102,15 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     checkReload();
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    try {
-        long long CurTime = Player::get()->getFrameTime(); 
-        if (m_VideoState != Unloaded) {
-            startDecoding();
-            m_StartTime = CurTime;
-            m_PauseTime = 0;
-        }
-        if (m_VideoState == Paused) {
-            m_PauseStartTime = CurTime;
-        } 
-    } catch (Exception& ex) {
-        AVG_TRACE(Logger::WARNING, ex.GetStr());
+    long long CurTime = Player::get()->getFrameTime(); 
+    if (m_VideoState != Unloaded) {
+        startDecoding();
+        m_StartTime = CurTime;
+        m_PauseTime = 0;
     }
+    if (m_VideoState == Paused) {
+        m_PauseStartTime = CurTime;
+    } 
 }
 
 void Video::connect()
@@ -327,7 +323,7 @@ void Video::changeVideoState(VideoState NewVideoState)
     }
     if (getState() == NS_CANRENDER) {
         long long CurTime = Player::get()->getFrameTime(); 
-        if (NewVideoState != Unloaded && m_VideoState == Unloaded) {
+        if (m_VideoState == Unloaded) {
             startDecoding();
             m_StartTime = CurTime;
             m_PauseTime = 0;

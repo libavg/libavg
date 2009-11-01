@@ -378,6 +378,8 @@ class AVTestCase(AVGTestCase):
         node = Player.createNode("sound",
             {"href": "../video/testfiles/44.1kHz_16bit_stereo.wav"})
         Player.getRootNode().appendChild(node)
+        checkInfo()
+        checkExceptions()
         self.start(None,
                 (checkInfo,
                  checkExceptions,

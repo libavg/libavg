@@ -76,6 +76,7 @@ class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
         enum SoundState {Unloaded, Paused, Playing};
         void changeSoundState(SoundState NewSoundState);
         void open();
+        void startDecoding();
         void close();
         void exceptionIfUnloaded(const std::string& sFuncName) const;
 
