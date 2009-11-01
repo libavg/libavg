@@ -60,8 +60,10 @@ using namespace std;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreadedDecoder, bool bThreadedDemuxer)
-          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
+        DecoderTest(const string& sClassName, bool bThreadedDecoder, 
+                bool bThreadedDemuxer)
+          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, 
+                    bThreadedDemuxer), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer)
         {}
@@ -150,6 +152,7 @@ class VideoDecoderTest: public DecoderTest {
                         isDemuxerThreaded());
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
+                TEST(pDecoder->getVideoInfo().m_bHasVideo);
                 TEST(pDecoder->getNominalFPS() != 0);
                 pDecoder->startDecoding(false, getAudioParams());
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -280,6 +283,7 @@ class AudioDecoderTest: public DecoderTest {
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, 
                             isDemuxerThreaded());
+                    TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->setVolume(0.5);
                     TEST(pDecoder->getVolume() == 0.5);
                     pDecoder->startDecoding(false, getAudioParams());
@@ -373,8 +377,12 @@ class AVDecoderTest: public DecoderTest {
         {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, isDemuxerThreaded());
+            TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getNominalFPS() != 0);
             pDecoder->startDecoding(false, getAudioParams());
+            if (isDemuxerThreaded()) {
+                TEST(pDecoder->getVideoInfo().m_bHasAudio);
+            }
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             int NumFrames = 0;
