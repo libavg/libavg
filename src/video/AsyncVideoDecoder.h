@@ -43,9 +43,10 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
     public:
         AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
         virtual ~AsyncVideoDecoder();
-        virtual void open(const std::string& sFilename, const AudioParams* AP,
-                bool bDeliverYCbCr, bool bSyncDemuxer);
+        virtual void open(const std::string& sFilename, bool bSyncDemuxer);
+        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP);
         virtual void close();
+        virtual DecoderState getState() const;
         virtual VideoInfo getVideoInfo() const;
         virtual void seek(long long DestTime);
         virtual IntPoint getSize() const;
@@ -74,6 +75,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         void waitForSeekDone();
         void returnFrame(FrameVideoMsgPtr& pFrameMsg);
 
+        DecoderState m_State;
         VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;
 

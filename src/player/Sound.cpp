@@ -265,7 +265,8 @@ void Sound::seek(long long DestTime)
 
 void Sound::open()
 {
-    m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), false, true);
+    m_pDecoder->open(m_Filename, true);
+    m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {

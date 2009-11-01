@@ -106,7 +106,6 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine,
     m_VideoState = Unloaded;
     try {
         changeVideoState(TempVideoState);
-
     } catch (Exception& ex) {
         AVG_TRACE(Logger::WARNING, ex.GetStr());
     }
@@ -353,7 +352,8 @@ void Video::open()
     if (getAudioEngine()) {
         pAP = getAudioEngine()->getParams();
     }
-    m_pDecoder->open(m_Filename, pAP, getDisplayEngine()->isUsingShaders(), m_bThreaded);
+    m_pDecoder->open(m_Filename, m_bThreaded);
+    m_pDecoder->startDecoding(getDisplayEngine()->isUsingShaders(), pAP);
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
@@ -375,7 +375,7 @@ void Video::open()
     
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
-    getSurface()->create(getMediaSize(), pf);
+    getSurface()->create(videoInfo.m_Size, pf);
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
@@ -405,7 +405,7 @@ PixelFormat Video::getPixelFormat()
 
 IntPoint Video::getMediaSize()
 {
-    if (m_pDecoder)  {
+    if (m_pDecoder && m_pDecoder->getState() != IVideoDecoder::CLOSED) {
         return m_pDecoder->getSize();
     } else {
         return IntPoint(0,0);

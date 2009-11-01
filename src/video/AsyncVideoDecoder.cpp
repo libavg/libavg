@@ -38,7 +38,8 @@ using namespace std;
 namespace avg {
 
 AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
-    : m_pSyncDecoder(pSyncDecoder),
+    : m_State(CLOSED),
+      m_pSyncDecoder(pSyncDecoder),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
       m_PF(NO_PIXELFORMAT),
@@ -60,17 +61,23 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pAP,
-        bool bDeliverYCbCr, bool bThreadedDemuxer)
+void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->open(m_sFilename, pAP, bDeliverYCbCr, bThreadedDemuxer);
+    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
+    m_State = OPENED;
+}
 
+void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
+{
+    assert(m_State == OPENED);
+    m_pSyncDecoder->startDecoding(bDeliverYCbCr, pAP);
+    m_VideoInfo = m_pSyncDecoder->getVideoInfo();
     if (m_VideoInfo.m_bHasVideo) {
         m_LastVideoFrameTime = -1000;
         m_PF = m_pSyncDecoder->getPixelFormat();
@@ -90,10 +97,12 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pA
         m_LastAudioFrameTime = 0;
         setVolume(m_Volume);
     }
+    m_State = DECODING;
 }
 
 void AsyncVideoDecoder::close()
 {
+    assert(m_State != CLOSED);
     if (m_pVDecoderThread) {
         m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::stop, _1)));
@@ -119,13 +128,20 @@ void AsyncVideoDecoder::close()
     }        
 }
 
+IVideoDecoder::DecoderState AsyncVideoDecoder::getState() const
+{
+    return m_State;
+}
+
 VideoInfo AsyncVideoDecoder::getVideoInfo() const
 {
+    assert(m_State != CLOSED);
     return m_VideoInfo;
 }
 
 void AsyncVideoDecoder::seek(long long DestTime)
 {
+    assert(m_State == DECODING);
     waitForSeekDone();
     scoped_lock Lock1(m_AudioMutex);
     scoped_lock Lock2(m_SeekMutex);
@@ -167,21 +183,25 @@ void AsyncVideoDecoder::seek(long long DestTime)
 
 IntPoint AsyncVideoDecoder::getSize() const
 {
+    assert(m_State != CLOSED);
     return m_VideoInfo.m_Size;
 }
 
 int AsyncVideoDecoder::getCurFrame() const
 {
+    assert(m_State == DECODING);
     return int(getCurTime(SS_VIDEO)*m_VideoInfo.m_StreamFPS/1000.0+0.5);
 }
 
 int AsyncVideoDecoder::getNumFramesQueued() const
 {
+    assert(m_State == DECODING);
     return m_pVMsgQ->size();
 }
 
 long long AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
 {
+    assert(m_State == DECODING);
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:
@@ -200,12 +220,13 @@ long long AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
 
 double AsyncVideoDecoder::getNominalFPS() const
 {
+    assert(m_State != CLOSED);
     return m_VideoInfo.m_StreamFPS;
 }
 
 double AsyncVideoDecoder::getFPS() const
 {
-    assert(m_pVDecoderThread);
+    assert(m_State != CLOSED);
     return m_VideoInfo.m_FPS;
 }
 
@@ -221,6 +242,7 @@ void AsyncVideoDecoder::setFPS(double FPS)
 
 double AsyncVideoDecoder::getVolume() const
 {
+    assert(m_State != CLOSED);
     return m_Volume;
 }
 
@@ -235,12 +257,13 @@ void AsyncVideoDecoder::setVolume(double Volume)
 
 PixelFormat AsyncVideoDecoder::getPixelFormat() const
 {
-    assert(m_pVDecoderThread);
+    assert(m_State == DECODING);
     return m_PF;
 }
 
 FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
+    assert(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
     FrameVideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
@@ -250,9 +273,10 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long time
     return FrameAvailable;
 }
 
-FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
        BitmapPtr pBmpCr, long long timeWanted)
 {
+    assert(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
     FrameVideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
@@ -266,6 +290,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapP
 
 bool AsyncVideoDecoder::isEOF(StreamSelect Stream) const
 {
+    assert(m_State == DECODING);
     switch(Stream) {
         case SS_AUDIO:
             return (!m_VideoInfo.m_bHasAudio || m_bAudioEOF);
@@ -280,12 +305,14 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream) const
 
 void AsyncVideoDecoder::throwAwayFrame(long long timeWanted)
 {
+    assert(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
     FrameVideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
 }
 
 int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
+    assert(m_State == DECODING);
     assert (m_pADecoderThread);
     if (m_bAudioEOF) {
         return 0;
