@@ -23,6 +23,7 @@
 
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
+#include "Words.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -261,7 +262,9 @@ const MaterialInfo& RasterNode::getMaterial() const
 void RasterNode::calcMaskPos()
 {
     if (m_sMaskFilename != "") {
-        m_Material.setMask(true, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
+        bool bIsWordsNode = (dynamic_cast<Words*>(this) != 0);
+        m_Material.setMask(true, bIsWordsNode, m_MaskPos, m_MaskSize, 
+                DPoint(getMediaSize()));
         setMaterial(m_Material);
     }
 }

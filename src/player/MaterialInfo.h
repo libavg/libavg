@@ -32,7 +32,7 @@ class AVG_API MaterialInfo {
 public:
     MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps);
 
-    void setMask(bool bHasMask, const DPoint& pos = DPoint(0,0), 
+    void setMask(bool bHasMask, bool bIsWords = false, const DPoint& pos = DPoint(0,0), 
             const DPoint& size = DPoint(0,0), const DPoint& mediaSize = DPoint(0,0));
     bool getHasMask() const;
     const DPoint& getMaskPos() const;
