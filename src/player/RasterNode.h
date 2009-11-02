@@ -80,6 +80,8 @@ class AVG_API RasterNode: public AreaNode
 
     private:
         void setMaterial(const MaterialInfo& material);
+        virtual void setMaterialMask(MaterialInfo& material, const DPoint& pos, 
+                const DPoint& size, const DPoint& mediaSize);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         OGLTiledSurface * m_pSurface;

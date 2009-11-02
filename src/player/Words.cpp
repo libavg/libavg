@@ -429,6 +429,22 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 }
 
+void Words::setMaterialMask(MaterialInfo& material, const DPoint& pos, const DPoint& size, 
+        const DPoint& mediaSize)
+{
+    DPoint maskSize;
+    DPoint maskPos;
+    if (size == DPoint(0,0)) {
+        maskSize = DPoint(1,1);
+        maskPos = DPoint(pos.x/mediaSize.x, pos.y/mediaSize.y);
+    } else {
+        maskSize = DPoint(size.x/mediaSize.x, size.y/mediaSize.y);
+        maskPos = DPoint(pos.x/size.x, pos.y/size.y);
+    }
+    material.setMask(true);
+    material.setMaskCoords(maskPos, maskSize);
+}
+
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
