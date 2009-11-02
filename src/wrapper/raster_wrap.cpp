@@ -159,15 +159,15 @@ void export_raster()
                 "An offset for the mask image. For images and videos, the offset is\n"
                 "given in image or video pixels, respectively. For words nodes, the\n"
                 "offset is given in screen pixels. If portions of the node extend\n"
-                "outside the mask, the border pixels are taken.\n")
+                "outside the mask, the border pixels of the mask are taken.\n")
         .add_property("masksize",
                 make_function(&RasterNode::getMaskSize,
                         return_value_policy<copy_const_reference>()),
                 &RasterNode::setMaskSize,
-                "The size of the mask image. For images and videos, the offset is\n"
+                "The size of the mask image. For images and videos, the size is\n"
                 "given in image or video pixels, respectively. For words nodes, the\n"
-                "offset is given in screen pixels. If portions of the node extend\n"
-                "outside the mask, the border pixels are taken.\n")
+                "size is given in screen pixels. If portions of the node extend\n"
+                "outside the mask, the border pixels of the mask are taken.\n")
         .add_property("mipmap", &RasterNode::getMipmap,
                 "Determines whether mipmaps are generated for this node. Setting this\n"
                 "to True improves the quality of minified nodes, but causes a\n"
