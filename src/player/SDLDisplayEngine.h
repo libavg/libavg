@@ -31,10 +31,11 @@
 #include "../graphics/OGLShader.h"
 #include "../graphics/VertexArray.h"
 
-#include <SDL/SDL.h>
-
 #include <string>
 #include <vector>
+
+struct SDL_Surface;
+union SDL_Event;
 
 namespace avg {
 
@@ -105,7 +106,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void swapBuffers();
         void clip(bool forward);
         void setClipPlane(double Eqn[4], int WhichPlane);
-        void safeSetAttribute(SDL_GLattr attr, int value);
         static bool isParallels();
 
         EventPtr createMouseEvent
