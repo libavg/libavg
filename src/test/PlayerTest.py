@@ -176,8 +176,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.setGamma(0.3, 0.3, 0.3),
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1),
-                 setUnicodeHref,
-                 lambda: self.compareImage("testimg2", False),
+#                 setUnicodeHref,
+#                 lambda: self.compareImage("testimg2", False),
                 ))
 
     def testImageMask(self):
