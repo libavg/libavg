@@ -83,12 +83,12 @@ void ImageNode::disconnect(bool bKill)
     RasterNode::disconnect(bKill);
 }
 
-const std::string& ImageNode::getHRef() const
+const UTF8String& ImageNode::getHRef() const
 {
     return m_href;
 }
 
-void ImageNode::setHRef(const string& href)
+void ImageNode::setHRef(const UTF8String& href)
 {
     m_href = href;
     checkReload();

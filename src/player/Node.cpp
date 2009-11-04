@@ -439,7 +439,7 @@ void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
             pImage->setFilename(sFilename);
         } catch (Magick::Exception & ex) {
             pImage->setFilename("");
-            if (getState() == Node::NS_CONNECTED) {
+            if (getState() != Node::NS_UNCONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.what());
             } else {
                 AVG_TRACE(Logger::MEMORY, ex.what());

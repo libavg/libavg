@@ -27,6 +27,7 @@
 #include "Image.h"
 
 #include "../graphics/Bitmap.h"
+#include "../base/UTF8String.h"
 
 #include <string>
 
@@ -45,8 +46,8 @@ class AVG_API ImageNode : public RasterNode
         virtual void disconnect(bool bKill);
         virtual void checkReload();
 
-        const std::string& getHRef() const;
-        void setHRef(const std::string& href);
+        const UTF8String& getHRef() const;
+        void setHRef(const UTF8String& href);
         void setBitmap(const Bitmap * pBmp);
         
         virtual void render(const DRect& Rect);
@@ -55,7 +56,7 @@ class AVG_API ImageNode : public RasterNode
         virtual IntPoint getMediaSize();
 
     private:
-        std::string m_href;
+        UTF8String m_href;
         ImagePtr m_pImage;
 };
 
