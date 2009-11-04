@@ -161,7 +161,7 @@ class WordsTestCase(AVGTestCase):
     def testWordsMask(self):
         def setMask():
             try:
-                node.maskhref = "mask.png"
+                node.maskhref = "mask1.png"
             except RuntimeError:
                 print "Skipping testWordsMask - no shader support."
                 Player.stop()
@@ -172,15 +172,32 @@ class WordsTestCase(AVGTestCase):
         def setOpacity():
             node.opacity = 0.5
 
-        def setPos():
-            node.maskpos = (-20, 0)
+        def setSize():
+            rect = Player.createNode('rect', {'pos':(40, 30), 'size':(80, 60)})
+            Player.getRootNode().appendChild(rect)
+            node.masksize = (160, 120)
             node.opacity = 1 
+
+        def setPos():
+            node.pos = (40, 20)
+            node.maskpos = (-40, -20)
+
+        def setDefaultSize():
+            node.masksize = (0,0)
 
         Player.loadString("""
         <avg width="160" height="120">
-          <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
-              variant="roman" width="100" id="words"
-              text="Wrapped paragraph more than one line long."/>
+          <words x="0" y="0" fontsize="8" linespacing="-4" font="Bitstream Vera Sans"
+              variant="roman" width="160" id="words"
+              text="Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
+                    Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \
+                    mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext. \
+                    Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
+                    Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \
+                    mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext. \
+                    Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
+                    Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \
+                    mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext."/>
         </avg>
         """)
         node = Player.getElementByID("words")
@@ -191,8 +208,12 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsMask2", False),
                  setOpacity,
                  lambda: self.compareImage("testWordsMask3", False),
-                 setPos,
+                 setSize,
                  lambda: self.compareImage("testWordsMask4", False),
+                 setPos,
+                 lambda: self.compareImage("testWordsMask5", False),
+                 setDefaultSize,
+                 lambda: self.compareImage("testWordsMask6", False),
                 ))
 
     def testHinting(self):

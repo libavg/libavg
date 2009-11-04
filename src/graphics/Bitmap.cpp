@@ -352,6 +352,57 @@ void Bitmap::copyPixels(const Bitmap & Orig)
     }
 }
 
+inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
+{
+    // u = Cb, v = Cr
+    int u1 = u - 128;
+    int v1 = v - 128;
+    int tempy = 298*(y-16);
+    int b = (tempy + 516 * u1           ) >> 8;
+    int g = (tempy - 100 * u1 - 208 * v1) >> 8;
+    int r = (tempy            + 409 * v1) >> 8;
+
+    if (b<0) b = 0;
+    if (b>255) b= 255;
+    if (g<0) g = 0;
+    if (g>255) g= 255;
+    if (r<0) r = 0;
+    if (r>255) r= 255;
+    pDest->set(b,g,r,255);
+}
+
+void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
+        const Bitmap& vOrig)
+{
+    assert(m_PF==B8G8R8X8);
+    const unsigned char * pYSrc = yOrig.getPixels();
+    const unsigned char * pUSrc = uOrig.getPixels();
+    const unsigned char * pVSrc = vOrig.getPixels();
+    Pixel32 * pDest = (Pixel32*)m_pBits;
+    
+    int Height = min(yOrig.getSize().y, m_Size.y);
+    int Width = min(yOrig.getSize().x, m_Size.x);
+    
+    int yStride = yOrig.getStride();
+    int uStride = uOrig.getStride();
+    int vStride = vOrig.getStride();
+    int destStride = m_Stride/getBytesPerPixel();
+   
+    for (int y=0; y<Height; ++y) {
+        // Fast conversion algo with no interpolation
+        for (int x=0; x<Width; ++x) {
+            YUVtoBGR32Pixel(pDest + x, pYSrc[x], pUSrc[x/2], pVSrc[x/2]);
+        }
+        pDest += destStride;
+        pYSrc += yStride;
+        if (y % 2 == 1) {
+            pUSrc += uStride;
+            pVSrc += vStride;
+        }
+    }
+    
+}
+
 void Bitmap::save(const std::string& sFilename)
 {
     if (!s_bMagickInitialized) {
@@ -1068,25 +1119,6 @@ void Bitmap::allocBits()
     }
 }
 
-inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
-{
-    // u = Cb, v = Cr
-    int u1 = u - 128;
-    int v1 = v - 128;
-    int tempy = 298*(y-16);
-    int b = (tempy + 516 * u1           ) >> 8;
-    int g = (tempy - 100 * u1 - 208 * v1) >> 8;
-    int r = (tempy            + 409 * v1) >> 8;
-
-    if (b<0) b = 0;
-    if (b>255) b= 255;
-    if (g<0) g = 0;
-    if (g>255) g= 255;
-    if (r<0) r = 0;
-    if (r>255) r= 255;
-    pDest->set(b,g,r,255);
-}
-
 void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
 {
     Pixel32 * pDestPixel = pDestLine;
@@ -1201,7 +1233,6 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
     int StrideInPixels = m_Stride/getBytesPerPixel();
-    int TotalPixels = Width * Height;
     switch(Orig.m_PF) {
         case YCbCr422:
             for (int y=0; y<Height; ++y) {
@@ -1222,22 +1253,6 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
                 YUV411toBGR32Line(pSrc, pDest, Width);
                 pDest += StrideInPixels;
                 pSrc += Orig.getStride();
-            }
-            break;
-        case YCbCr420p: // this is a planar format
-            for (int y=0; y<Height; ++y) {
-                // Fast conversion algo with no interpolation
-                // TODO: interlacing aware interpolation
-                int lineoffs = Width * y;
-                int emioffs = (y/2) * (Width/2);
-                for (int x=0; x<Width; ++x) {
-                    // planes order: Y(1:1), Cb(1:4), Cr(1:4).
-                    // Offsets: Cb @ imgSize, Cr @ 5/4 * imgSize
-                    YUVtoBGR32Pixel(pDest + lineoffs + x,
-                        pSrc[lineoffs + x],
-                        pSrc[emioffs + x/2 + TotalPixels],
-                        pSrc[emioffs + x/2 + TotalPixels + TotalPixels/4]);
-                }
             }
             break;
         default:
@@ -1740,5 +1755,5 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
             assert(false);
     }
 }
-    
+
 };

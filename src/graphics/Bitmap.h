@@ -88,6 +88,7 @@ public:
     
     // Does pixel format conversion if nessesary.
     void copyPixels(const Bitmap & Orig);
+    void copyYUVPixels(const Bitmap & YOrig, const Bitmap& UOrig, const Bitmap& VOrig);
     void save(const std::string& sName);
     
     IntPoint getSize() const;
@@ -152,6 +153,8 @@ private:
 };
 
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+
+BitmapPtr YCbCr2RGBBitmap(BitmapPtr pYBmp, BitmapPtr pUBmp, BitmapPtr pVBmp);
 
 template<class Pixel>
 void Bitmap::setPixel(const IntPoint& p, Pixel Color)

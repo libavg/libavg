@@ -21,6 +21,11 @@
 
 #include "MaterialInfo.h"
 
+#include <iostream>
+#include <assert.h>
+
+using namespace std;
+
 namespace avg {
 
 MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
@@ -30,18 +35,16 @@ MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
       m_bHasMask(false)
 {}
 
-void MaterialInfo::setMask(bool bHasMask, const DPoint& pos, const DPoint& size, 
-        const DPoint& mediaSize)
+void MaterialInfo::setMask(bool bHasMask)
 {
     m_bHasMask = bHasMask;
-    if (m_bHasMask) {
-        if (size == DPoint(0,0)) {
-            m_MaskSize = DPoint(1,1);
-        } else {
-            m_MaskSize = DPoint(size.x/mediaSize.x, size.y/mediaSize.y);
-        }
-        m_MaskPos = DPoint(pos.x/mediaSize.x, pos.y/mediaSize.y);
-    }
+}
+
+void MaterialInfo::setMaskCoords(const DPoint& pos, const DPoint& size)
+{
+    assert(m_bHasMask);
+    m_MaskPos = pos;
+    m_MaskSize = size;
 }
 
 bool MaterialInfo::getHasMask() const

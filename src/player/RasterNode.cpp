@@ -23,6 +23,7 @@
 
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
+#include "Words.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -261,9 +262,24 @@ const MaterialInfo& RasterNode::getMaterial() const
 void RasterNode::calcMaskPos()
 {
     if (m_sMaskFilename != "") {
-        m_Material.setMask(true, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
+        setMaterialMask(m_Material, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
         setMaterial(m_Material);
     }
+}
+
+void RasterNode::setMaterialMask(MaterialInfo& material, const DPoint& pos, 
+        const DPoint& size, const DPoint& mediaSize)
+{
+    DPoint maskSize;
+    DPoint maskPos;
+    if (size == DPoint(0,0)) {
+        maskSize = DPoint(1,1);
+    } else {
+        maskSize = DPoint(size.x/mediaSize.x, size.y/mediaSize.y);
+    }
+    maskPos = DPoint(pos.x/mediaSize.x, pos.y/mediaSize.y);
+    material.setMask(true);
+    material.setMaskCoords(maskPos, maskSize);
 }
 
 void RasterNode::setMaterial(const MaterialInfo& material)
