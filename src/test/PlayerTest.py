@@ -156,6 +156,9 @@ class PlayerTestCase(AVGTestCase):
                     'href':'rgb24alpha-64x64.png'})
             self.assert_(img.size == avg.Point2D(23,42))
 
+        def setUnicodeHref():
+            Player.getElementByID("test").href = u"ö.png"
+
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadFile("image.avg")
@@ -172,7 +175,9 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testimgload", False),
                  lambda: Player.setGamma(0.3, 0.3, 0.3),
                  lambda: Player.showCursor(0),
-                 lambda: Player.showCursor(1)
+                 lambda: Player.showCursor(1),
+                 setUnicodeHref,
+                 lambda: self.compareImage("testimg2", False),
                 ))
 
     def testImageMask(self):
