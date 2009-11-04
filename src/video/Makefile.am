@@ -5,7 +5,7 @@ ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h FrameVideoMsg.h \
         AudioVideoMsg.h EOFVideoMsg.h SeekDoneVideoMsg.h \
         ErrorVideoMsg.h PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
-        IDemuxer.h AsyncDemuxer.h
+        IDemuxer.h AsyncDemuxer.h VideoInfo.h
 
 TESTS=testvideo
 
@@ -21,7 +21,7 @@ noinst_PROGRAMS=testvideo
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp \
         VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp FrameVideoMsg.cpp \
         AudioVideoMsg.cpp ErrorVideoMsg.cpp SeekDoneVideoMsg.cpp PacketVideoMsg.cpp \
-        AsyncVideoDecoder.cpp AsyncDemuxer.cpp \
+        AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp\
 		$(ALL_H)
 
 testvideo_SOURCES = testvideo.cpp $(ALL_H)

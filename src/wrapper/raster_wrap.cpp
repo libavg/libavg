@@ -191,32 +191,14 @@ void export_raster()
                 "The source filename of the image.\n")
     ;
 
-    class_<VideoBase, bases<RasterNode>, boost::noncopyable>("VideoBase", 
-            "Base class for video and camera image nodes.",
-            no_init)
-        .def("play", &VideoBase::play,
-                "play()\n"
-                "Starts video playback.")
-        .def("stop", &VideoBase::stop,
-                "stop()\n"
-                "Stops video playback. Closes the object and 'rewinds' the playback\n"
-                "cursor.")
-        .def("pause", &VideoBase::pause,
-                "pause()\n"
-                "Stops video playback but doesn't close the object. The playback\n"
-                "cursor stays at the same position.")
-        .add_property("fps", &VideoBase::getFPS,
-                "Returns the nominal frames per second the object should display at.\n")
-    ;  
-
-    class_<CameraNode, bases<VideoBase> >("Camera",
+    class_<CameraNode, bases<RasterNode> >("Camera",
             "A node that displays the image of a camera. The properties are the same\n"
             "as the camera properties in .avgtrackerrc and are explained under\n"
             "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
-        .add_property("drivername", make_function(&CameraNode::getDriverName,
+        .add_property("driver", make_function(&CameraNode::getDriverName,
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
         .add_property("framenum", &CameraNode::getFrameNum)
@@ -230,6 +212,12 @@ void export_raster()
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
         .add_property("strobeduration", &CameraNode::getStrobeDuration, 
                 &CameraNode::setStrobeDuration)
+        .def("play", &CameraNode::play,
+                "play()\n"
+                "Starts camera playback.")
+        .def("stop", &CameraNode::stop,
+                "stop()\n"
+                "Stops camera playback and closes the camera object.\n")
         .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)
@@ -238,10 +226,21 @@ void export_raster()
         .staticmethod("dumpCameras")
     ;
         
-    class_<Video, bases<VideoBase> >("Video",
+    class_<Video, bases<RasterNode> >("Video",
             "Video nodes display a video file. Video formats and codecs supported\n"
             "are all formats that ffmpeg/libavcodec supports.\n",
             no_init)
+        .def("play", &Video::play,
+                "play()\n"
+                "Starts video playback.")
+        .def("stop", &Video::stop,
+                "stop()\n"
+                "Stops video playback. Closes the file and 'rewinds' the playback\n"
+                "cursor.")
+        .def("pause", &Video::pause,
+                "pause()\n"
+                "Stops video playback but doesn't close the object. The playback\n"
+                "cursor stays at the same position.")
         .def("getNumFrames", &Video::getNumFrames,
                 "getNumFrames()")
         .def("getNumFramesQueued", &Video::getNumFramesQueued,
@@ -253,6 +252,29 @@ void export_raster()
         .def("seekToFrame", &Video::seekToFrame,
                 "seekToFrame(num)\n"
                 "Moves the playback cursor to the frame given.")
+        .def("getStreamPixelFormat", &Video::getStreamPixelFormat,
+                "getStreamPixelFormat() -> string\n"
+                "Returns the pixel format of the video file as a string. Possible\n"
+                "pixel formats are described in\n"
+                "http://cekirdek.pardus.org.tr/~ismail/ffmpeg-docs/ffmpeg-r_2libavutil_2avutil_8h.html\n")
+        .def("getDuration", &Video::getDuration,
+                "getDuration() -> duration\n"
+                "Returns the duration of the video in milliseconds./n")
+        .def("getBitrate", &Video::getBitrate,
+                "getBitrate() -> bitrate\n"
+                "Returns the number of bits in the file per second./n")
+        .def("getVideoCodec", &Video::getVideoCodec,
+                "getVideoCodec() -> vcodec\n"
+                "Returns the video codec used as a string such as 'mpeg4'.\n")
+        .def("getAudioCodec", &Video::getAudioCodec,
+                "getAudioCodec() -> acodec\n"
+                "Returns the audio codec used as a string such as 'mp2'\n")
+        .def("getAudioSampleRate", &Video::getAudioSampleRate,
+                "getAudioSampleRate() -> samplerate\n"
+                "Returns the sample rate in samples per second (for example, 44100).\n")
+        .def("getNumAudioChannels", &Video::getNumAudioChannels,
+                "getNumAudioChannels() -> numchannels\n"
+                "Returns the number of audio channels. 2 for stereo, etc.\n")
         .def("getCurTime", &Video::getCurTime,
                 "getCurTime()\n"
                 "Returns seconds of playback time since video start.")
@@ -267,6 +289,8 @@ void export_raster()
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"
                 "file.")
+        .add_property("fps", &Video::getFPS,
+                "Returns the nominal frames per second the object should display at.\n")
         .add_property("href", 
                 make_function(&Video::getHRef,
                         return_value_policy<copy_const_reference>()),

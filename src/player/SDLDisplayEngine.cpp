@@ -44,6 +44,8 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
+#include <SDL/SDL.h>
+
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -97,6 +99,14 @@ void dumpSDLGLParams() {
     fprintf(stderr,"  SDL_GL_BUFFER_SIZE = %d\n",value);
     SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE , &value);
     fprintf(stderr,"  SDL_GL_STENCIL_SIZE = %d\n",value);
+}
+
+void safeSetAttribute( SDL_GLattr attr, int value) 
+{
+    int err = SDL_GL_SetAttribute(attr, value);
+    if (err == -1) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
+    }
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
@@ -1038,13 +1048,6 @@ void SDLDisplayEngine::initJoysticks()
         }
     }
 */
-}
-
-void SDLDisplayEngine::safeSetAttribute( SDL_GLattr attr, int value) {
-    int err = SDL_GL_SetAttribute(attr, value);
-    if (err == -1) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
-    }
 }
 
 void SDLDisplayEngine::initTranslationTable()

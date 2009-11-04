@@ -60,8 +60,10 @@ using namespace std;
 
 class DecoderTest: public GraphicsTest {
     public:
-        DecoderTest(const string& sClassName, bool bThreadedDecoder, bool bThreadedDemuxer)
-          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
+        DecoderTest(const string& sClassName, bool bThreadedDecoder, 
+                bool bThreadedDemuxer)
+          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, 
+                    bThreadedDemuxer), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer)
         {}
@@ -146,12 +148,14 @@ class VideoDecoderTest: public DecoderTest {
                 cerr << "    Testing " << sFilename << endl;
 
                 VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                        false, isDemuxerThreaded());
+                pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, 
+                        isDemuxerThreaded());
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
-                TEST(pDecoder->getPixelFormat() == B8G8R8X8);
+                TEST(pDecoder->getVideoInfo().m_bHasVideo);
                 TEST(pDecoder->getNominalFPS() != 0);
+                pDecoder->startDecoding(false, getAudioParams());
+                TEST(pDecoder->getPixelFormat() == B8G8R8X8);
                 BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
 
                 // Test first two frames.
@@ -175,8 +179,8 @@ class VideoDecoderTest: public DecoderTest {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                    false, isDemuxerThreaded());
+            pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, isDemuxerThreaded());
+            pDecoder->startDecoding(false, getAudioParams());
 
             // Seek forward
             testSeek(100, sFilename, pDecoder);
@@ -204,11 +208,11 @@ class VideoDecoderTest: public DecoderTest {
         {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                    false, isDemuxerThreaded());
+            pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, isDemuxerThreaded());
             IntPoint FrameSize = pDecoder->getSize();
-            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             double TimePerFrame = (1000.0/pDecoder->getFPS())*SpeedFactor;
+            pDecoder->startDecoding(false, getAudioParams());
+            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             int NumFrames = 0;
             double CurTime = 0;
 
@@ -277,17 +281,20 @@ class AudioDecoderTest: public DecoderTest {
                 {
                     cerr << "      Reading complete file." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
-                    pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                            false, isDemuxerThreaded());
+                    pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, 
+                            isDemuxerThreaded());
+                    TEST(pDecoder->getVideoInfo().m_bHasAudio);
                     pDecoder->setVolume(0.5);
                     TEST(pDecoder->getVolume() == 0.5);
+                    pDecoder->startDecoding(false, getAudioParams());
                     int TotalFramesDecoded = 0;
                     bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
                             sFilename.find(".mp3") == string::npos);
                     readAudioToEOF(pDecoder, TotalFramesDecoded, bCheckTimestamps);
 
                     // Check if we've decoded the whole file.
-                    int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
+                    int FramesInDuration = 
+                            int(pDecoder->getVideoInfo().m_Duration*44100/1000);
 //                    cerr << "FramesDecoded: " << TotalFramesDecoded << endl;
 //                    cerr << "FramesInDuration: " << FramesInDuration << endl;
                     TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
@@ -295,9 +302,10 @@ class AudioDecoderTest: public DecoderTest {
                 {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
-                    pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                            false, isDemuxerThreaded());
-                    long long Duration = pDecoder->getDuration();
+                    pDecoder->open(getSrcDirName()+"testfiles/"+sFilename,
+                            isDemuxerThreaded());
+                    long long Duration = pDecoder->getVideoInfo().m_Duration;
+                    pDecoder->startDecoding(false, getAudioParams());
                     pDecoder->seek(Duration/2);
                     AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
                     pDecoder->fillAudioBuffer(pAudioBuffer);
@@ -311,7 +319,8 @@ class AudioDecoderTest: public DecoderTest {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
                         // for mp3 files.
-                        int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
+                        int FramesInDuration = 
+                                int(pDecoder->getVideoInfo().m_Duration*44100/1000);
 //                        cerr << "FramesDecoded: " << FramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;
                         TEST (abs(TotalFramesDecoded-FramesInDuration/2) < 45);
@@ -367,9 +376,13 @@ class AVDecoderTest: public DecoderTest {
         void basicFileTest(const string& sFilename, int ExpectedNumFrames)
         {
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                    false, isDemuxerThreaded());
+            pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, isDemuxerThreaded());
+            TEST(pDecoder->getVideoInfo().m_bHasVideo);
             TEST(pDecoder->getNominalFPS() != 0);
+            pDecoder->startDecoding(false, getAudioParams());
+            if (isDemuxerThreaded()) {
+                TEST(pDecoder->getVideoInfo().m_bHasAudio);
+            }
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             int NumFrames = 0;

@@ -55,7 +55,9 @@ bool FFMpegDecoder::m_bInitialized = false;
 mutex FFMpegDecoder::s_OpenMutex;
 
 FFMpegDecoder::FFMpegDecoder ()
-    : m_pFormatContext(0),
+    : m_State(CLOSED),
+      m_pFormatContext(0),
+      m_PF(NO_PIXELFORMAT),
       m_pSwsContext(0),
       m_Size(0,0),
       m_bUseStreamFPS(true),
@@ -144,15 +146,10 @@ int openCodec(AVFormatContext *formatContext, int streamIndex)
     return 0;
 }
 
-
-void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
-        bool bDeliverYCbCr, bool bThreadedDemuxer)
+void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
-    bool bAudioEnabled = (pAP && bThreadedDemuxer);
-    if (bAudioEnabled) {
-        m_AP = *pAP;
-    }
+    m_bThreadedDemuxer = bThreadedDemuxer;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bEOFPending = false;
@@ -197,7 +194,7 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
                 break;
             case CODEC_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
-                if (m_AStreamIndex < 0 && bAudioEnabled) {
+                if (m_AStreamIndex < 0 && bThreadedDemuxer) {
                     m_AStreamIndex = i;
                 }
                 break;
@@ -220,6 +217,7 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
     if(m_VStreamIndex >= 0)
     {
         m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
+        m_State = OPENED;
         m_pDemuxer->enableStream(m_VStreamIndex);
         
         // Set video parameters
@@ -236,7 +234,6 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         m_PacketLenLeft = 0;
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1000;
-        m_PF = calcPixelFormat(bDeliverYCbCr);
     
         int rc = openCodec(m_pFormatContext, m_VStreamIndex);
         if (rc == -1) {
@@ -283,9 +280,29 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
             m_pAStream = 0; 
             AVG_TRACE(Logger::WARNING, 
                     sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
-        } else if (m_pAStream->codec->channels > m_AP.m_Channels) {
+        }
+    }
+    m_State = OPENED;
+}
+
+void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
+{
+    assert(m_State == OPENED);
+    if (m_VStreamIndex >= 0) {
+        m_PF = calcPixelFormat(bDeliverYCbCr);
+    }
+    bool bAudioEnabled = (pAP && m_bThreadedDemuxer);
+    if (bAudioEnabled) {
+        m_AP = *pAP;
+    } else {
+        m_AStreamIndex = -1;
+        m_pAStream = 0;
+    }
+    if (m_AStreamIndex >= 0)
+    {
+        if (m_pAStream->codec->channels > m_AP.m_Channels) {
             AVG_TRACE(Logger::WARNING, 
-                    sFilename << ": unsupported number of channels (" << 
+                    m_sFilename << ": unsupported number of channels (" << 
                             m_pAStream->codec->channels << "). Disabling audio.");
             m_AStreamIndex = -1;
             m_pAStream = 0; 
@@ -295,8 +312,9 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
     }
     if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + " does not contain any valid audio or video streams.");
+                m_sFilename + " does not contain any valid audio or video streams.");
     }
+    m_State = DECODING;
 }
 
 void FFMpegDecoder::close() 
@@ -368,10 +386,38 @@ void FFMpegDecoder::close()
         sws_freeContext(m_pSwsContext);
         m_pSwsContext = 0;
     }
+    m_State = CLOSED;
+}
+
+IVideoDecoder::DecoderState FFMpegDecoder::getState() const
+{
+    return m_State;
+}
+
+VideoInfo FFMpegDecoder::getVideoInfo() const
+{
+    assert(m_State != CLOSED);
+    long long duration = 0;
+    if (m_pVStream || m_pAStream) {
+        duration = getDuration();
+    }
+    VideoInfo info(duration, m_pFormatContext->bit_rate, m_pVStream != 0,
+            m_pAStream != 0);
+    if (m_pVStream) {
+        info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
+                m_pVStream->codec->codec->name);
+    }
+    if (m_pAStream) {
+        AVCodecContext * pACodec = m_pAStream->codec;
+        info.setAudioData(pACodec->codec->name, pACodec->sample_rate,
+                pACodec->channels);
+    }
+    return info;
 }
 
 void FFMpegDecoder::seek(long long DestTime) 
 {
+    assert(m_State == DECODING);
 /* XXX: Causes audio hangs.
     if (DestTime == 0 && m_LastVideoFrameTime == -(long long)(1000.0/m_FPS)) {
         // Hack to improve performance when looping videos
@@ -397,49 +443,26 @@ void FFMpegDecoder::seek(long long DestTime)
     m_bAudioEOF = false;
 }
 
-bool FFMpegDecoder::hasVideo()
+IntPoint FFMpegDecoder::getSize() const
 {
-    return (m_pVStream != 0);
-}
-
-bool FFMpegDecoder::hasAudio()
-{
-    return (m_pAStream != 0);
-}
-
-IntPoint FFMpegDecoder::getSize()
-{
+    assert(m_State != CLOSED);
     return m_Size;
 }
 
-int FFMpegDecoder::getCurFrame()
+int FFMpegDecoder::getCurFrame() const
 {
+    assert(m_State == DECODING);
     return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0+0.5);
 }
 
-int FFMpegDecoder::getNumFrames()
-{
-    if (!m_pVStream) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Error in FFMpegDecoder::getNumFrames: Video not loaded.");
-    }
-    // This is broken for some videos, but the code here is correct.
-    // So fix ffmpeg :-).
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
-#else
-    double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
-    return int((m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
-            (m_pVStream->duration/timeUnitsPerSecond));
-#endif 
-}
-
-int FFMpegDecoder::getNumFramesQueued()
+int FFMpegDecoder::getNumFramesQueued() const
 {
     return 0;
 }
 
-long long FFMpegDecoder::getCurTime(StreamSelect Stream)
+long long FFMpegDecoder::getCurTime(StreamSelect Stream) const
 {
+    assert(m_State == DECODING);
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:
@@ -453,8 +476,9 @@ long long FFMpegDecoder::getCurTime(StreamSelect Stream)
     }
 }
 
-long long FFMpegDecoder::getDuration()
+long long FFMpegDecoder::getDuration() const
 {
+    assert(m_State != CLOSED);
     long long duration;
     AVRational time_base;
     if (m_pVStream) {
@@ -471,8 +495,9 @@ long long FFMpegDecoder::getDuration()
 #endif 
 }
 
-double FFMpegDecoder::getNominalFPS()
+double FFMpegDecoder::getNominalFPS() const
 {
+    assert(m_State != CLOSED);
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;
 #else
@@ -480,8 +505,9 @@ double FFMpegDecoder::getNominalFPS()
 #endif 
 }
 
-double FFMpegDecoder::getFPS()
+double FFMpegDecoder::getFPS() const
 {
+    assert(m_State != CLOSED);
     return m_FPS;
 }
 
@@ -495,8 +521,9 @@ void FFMpegDecoder::setFPS(double FPS)
     }
 }
 
-double FFMpegDecoder::getVolume()
+double FFMpegDecoder::getVolume() const
 {
+    assert(m_State != CLOSED);
     return m_Volume;
 }
 
@@ -507,6 +534,7 @@ void FFMpegDecoder::setVolume(double Volume)
 
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
+    assert(m_State == DECODING);
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
@@ -535,6 +563,7 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
         BitmapPtr pBmpCr, long long timeWanted)
 {
+    assert(m_State == DECODING);
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
@@ -550,12 +579,14 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
 
 void FFMpegDecoder::throwAwayFrame(long long timeWanted)
 {
+    assert(m_State == DECODING);
     AVFrame Frame;
     readFrameForTime(Frame, timeWanted);
 }
 
-bool FFMpegDecoder::isEOF(StreamSelect Stream)
+bool FFMpegDecoder::isEOF(StreamSelect Stream) const
 {
+    assert(m_State == DECODING);
     switch(Stream) {
         case SS_AUDIO:
             return (!m_pAStream || m_bAudioEOF);
@@ -687,6 +718,7 @@ int FFMpegDecoder::decodeAudio()
 
 int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
+    assert(m_State == DECODING);
     mutex::scoped_lock Lock(m_AudioMutex);
 
     unsigned char* outputAudioBuffer = (unsigned char*)(pBuffer->getData());
@@ -867,8 +899,9 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     }
 }
        
-PixelFormat FFMpegDecoder::getPixelFormat()
+PixelFormat FFMpegDecoder::getPixelFormat() const
 {
+    assert(m_State != CLOSED);
     return m_PF;
 }
 
@@ -883,8 +916,23 @@ void FFMpegDecoder::initVideoSupport()
     }
 }
 
+int FFMpegDecoder::getNumFrames() const
+{
+    assert(m_State != CLOSED);
+    // This is broken for some videos, but the code here is correct.
+    // So fix ffmpeg :-).
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
+#else
+    double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
+    return int((m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
+            (m_pVStream->duration/timeUnitsPerSecond));
+#endif 
+}
+
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long timeWanted)
 {
+    assert(m_State == DECODING);
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
 
@@ -1037,13 +1085,24 @@ long long FFMpegDecoder::getStartTime()
     }
 }
 
-double FFMpegDecoder::calcStreamFPS()
+double FFMpegDecoder::calcStreamFPS() const
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;
 #else
     return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
 #endif 
+}
+
+string FFMpegDecoder::getStreamPF() const
+{
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    AVCodecContext *pCodec = &m_pVStream->codec;
+#else
+    AVCodecContext *pCodec = m_pVStream->codec;
+#endif
+    ::PixelFormat pf = pCodec->pix_fmt;
+    return avcodec_get_pix_fmt_name(pf);
 }
 
 // TODO: this should be logarithmic...

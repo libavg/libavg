@@ -59,14 +59,14 @@ class CameraTestCase(unittest.TestCase):
         self.__camera.strobeduration = -1
         self.__camera.play()
         Player.getElementByID("camera1").play()
-#        self.brightness = 0
-#        Player.setInterval(200, changeBrightness)
+        self.brightness = 0
+        Player.setInterval(200, changeBrightness)
 
-#        Player.setTimeout(200, getWhitebalance)
-#        Player.setTimeout(1200, setWhitebalance)
-#        Player.setTimeout(2200, resetWhitebalance)
+        Player.setTimeout(200, getWhitebalance)
+        Player.setTimeout(1200, setWhitebalance)
+        Player.setTimeout(2200, resetWhitebalance)
 
-#        Player.setInterval(3000, stopPlayback)
+        Player.setTimeout(300, stopPlayback)
 #        Player.setInterval(200, setStrobe)
         Player.play()
 

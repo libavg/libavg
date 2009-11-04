@@ -31,6 +31,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
+#include "../graphics/Filterfill.h"
+
 #include "../imaging/Camera.h"
 #include "../imaging/FakeCamera.h"
 
@@ -47,7 +49,7 @@ namespace avg {
 NodeDefinition CameraNode::createDefinition()
 {
     return NodeDefinition("camera", Node::buildNode<CameraNode>)
-        .extendDefinition(VideoBase::createDefinition())
+        .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<int>("unit", -1))
@@ -67,7 +69,8 @@ NodeDefinition CameraNode::createDefinition()
 }
 
 CameraNode::CameraNode(const ArgList& Args)
-    : m_FrameNum(0)
+    : m_bIsPlaying(false),
+      m_FrameNum(0)
 {
     Args.setMembers(this);
     string sDriver = Args.getArgVal<string>("driver");
@@ -121,9 +124,26 @@ CameraNode::~CameraNode()
     m_pCamera = CameraPtr();
 }
 
-void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
-    VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    if (m_bIsPlaying) {
+        open();
+    }
+}
+
+void CameraNode::play()
+{
+    if (getState() == NS_CANRENDER) {
+        open();
+    }
+    m_bIsPlaying = true;
+}
+
+void CameraNode::stop()
+{
+    m_bIsPlaying = false;
 }
 
 bool CameraNode::isAvailable()
@@ -231,17 +251,22 @@ void CameraNode::dumpCameras()
     avg::dumpCameras();
 }
 
-double CameraNode::getFPS()
+double CameraNode::getFPS() const
 {
     return m_pCamera->getFrameRate();
 }
 
-void CameraNode::open(bool bUseYCbCrShaders)
+void CameraNode::open()
 {
-}
-
-void CameraNode::close()
-{
+    setViewport(-32767, -32767, -32767, -32767);
+    PixelFormat pf = getPixelFormat();
+    getSurface()->create(getMediaSize(), pf);
+    
+    if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
+        Filter.applyInPlace(getSurface()->lockBmp());
+        getSurface()->unlockBmps();
+    }
 }
 
 int CameraNode::getFeature(CameraFeature Feature) const
@@ -278,24 +303,26 @@ void CameraNode::preRender()
 static ProfilingZone CameraProfilingZone("Camera::render");
 static ProfilingZone CameraDownloadProfilingZone("Camera tex download");
 
-bool CameraNode::renderToSurface(OGLTiledSurface * pSurface)
+void CameraNode::render(const DRect& Rect)
 {
-    ScopeTimer Timer(CameraProfilingZone);
-    if (m_pCurBmp) {
-        BitmapPtr pBmp = pSurface->lockBmp();
-        if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
-            cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: " 
+    if (m_bIsPlaying) {
+        ScopeTimer Timer(CameraProfilingZone);
+        if (m_pCurBmp) {
+            BitmapPtr pBmp = getSurface()->lockBmp();
+            if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
+                cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: " 
                     << m_pCurBmp->getPixelFormatString() << endl;
+            }
+            assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
+            pBmp->copyPixels(*m_pCurBmp);
+            getSurface()->unlockBmps();
+            {
+                ScopeTimer Timer(CameraDownloadProfilingZone);
+                getSurface()->bind();
+            }
         }
-        assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
-        pBmp->copyPixels(*m_pCurBmp);
-        pSurface->unlockBmps();
-        {
-            ScopeTimer Timer(CameraDownloadProfilingZone);
-            pSurface->bind();
-        }
+        getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
-    return true;
 }
 
 PixelFormat CameraNode::getPixelFormat() 

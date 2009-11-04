@@ -18,7 +18,7 @@ GL_INCLUDES = OGLSurface.h OGLTiledSurface.h SDLDisplayEngine.h OGLTexture.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
-ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoBase.h Video.h\
+ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h Video.h\
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h Region.h \
         Node.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h \
@@ -62,8 +62,7 @@ testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGIC
 
 libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
-        Arg.cpp Node.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp \
-        VideoBase.cpp Video.cpp \
+        Arg.cpp Node.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp Video.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Region.cpp \
         PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \

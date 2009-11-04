@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "../avgconfigwrapper.h"
 
-#include "VideoBase.h"
+#include "RasterNode.h"
 
 #include "../imaging/Camera.h"
 
@@ -36,7 +36,7 @@
 
 namespace avg {
 
-class AVG_API CameraNode : public VideoBase
+class AVG_API CameraNode : public RasterNode
 {
     public:
         static NodeDefinition createDefinition();
@@ -47,6 +47,8 @@ class AVG_API CameraNode : public VideoBase
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
                 AudioEngine * pAudioEngine);
                 
+        void play();
+        void stop();
         bool isAvailable();
 
         const std::string& getDevice() const 
@@ -83,6 +85,7 @@ class AVG_API CameraNode : public VideoBase
         void setStrobeDuration(int Value);
         
         virtual void preRender();
+        virtual void render(const DRect& Rect);
 
         int getFrameNum() const;
         IntPoint getMediaSize();
@@ -93,13 +96,13 @@ class AVG_API CameraNode : public VideoBase
         int getFeature (CameraFeature Feature) const;
         void setFeature (CameraFeature Feature, int Value);
 
-        virtual bool renderToSurface(OGLTiledSurface * pSurface);
-        virtual double getFPS();
-        virtual void open(bool bUseYCbCrShaders);
-        virtual void close();
+        virtual double getFPS() const;
+        virtual void open();
         virtual PixelFormat getPixelFormat();
         void setFeature(int FeatureID);
 
+        bool m_bIsPlaying;
+    
         CameraPtr m_pCamera;
         int m_FrameNum;
         BitmapPtr m_pCurBmp;

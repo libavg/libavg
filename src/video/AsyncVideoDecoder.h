@@ -43,29 +43,27 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
     public:
         AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
         virtual ~AsyncVideoDecoder();
-        virtual void open(const std::string& sFilename, const AudioParams* AP,
-                bool bDeliverYCbCr, bool bSyncDemuxer);
+        virtual void open(const std::string& sFilename, bool bSyncDemuxer);
+        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP);
         virtual void close();
+        virtual DecoderState getState() const;
+        virtual VideoInfo getVideoInfo() const;
         virtual void seek(long long DestTime);
-        virtual bool hasVideo();
-        virtual bool hasAudio();
-        virtual IntPoint getSize();
-        virtual int getCurFrame();
-        virtual int getNumFrames();
-        virtual int getNumFramesQueued();
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
-        virtual long long getDuration();
-        virtual double getNominalFPS();
-        virtual double getFPS();
+        virtual IntPoint getSize() const;
+        virtual int getCurFrame() const;
+        virtual int getNumFramesQueued() const;
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
+        virtual double getNominalFPS() const;
+        virtual double getFPS() const;
         virtual void setFPS(double FPS);
-        virtual double getVolume();
+        virtual double getVolume() const;
         virtual void setVolume(double Volume);
-        virtual PixelFormat getPixelFormat();
+        virtual PixelFormat getPixelFormat() const;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long timeWanted);
-        virtual bool isEOF(StreamSelect Stream = SS_ALL);
+        virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
         virtual void throwAwayFrame(long long timeWanted);
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
@@ -77,6 +75,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         void waitForSeekDone();
         void returnFrame(FrameVideoMsgPtr& pFrameMsg);
 
+        DecoderState m_State;
         VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;
 
@@ -92,16 +91,12 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         unsigned char* m_AudioMsgData;
         int m_AudioMsgSize;
 
-        bool m_bHasAudio;
-        bool m_bHasVideo;
+        VideoInfo m_VideoInfo;
 
         IntPoint m_Size;
         int m_NumFrames;
         bool m_bUseStreamFPS;
-        double m_StreamFPS;
-        double m_FPS;
         PixelFormat m_PF;
-        long long m_Duration;
         
         bool m_bAudioEOF;
         bool m_bVideoEOF;

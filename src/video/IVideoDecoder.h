@@ -23,6 +23,9 @@
 #define _IVideoDecoder_H_
 
 #include "../api.h"
+
+#include "VideoInfo.h"
+
 #include "../graphics/Bitmap.h"
 #include "../audio/IAudioSource.h"
 
@@ -41,30 +44,30 @@ enum StreamSelect {
 class AVG_API IVideoDecoder
 {
     public:
+        enum DecoderState {CLOSED, OPENED, DECODING};
         virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, const AudioParams* AP,
-                bool bDeliverYCbCr, bool bSyncDemuxer) = 0;
+        virtual void open(const std::string& sFilename, bool bSyncDemuxer) = 0;
+        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP) = 0;
         virtual void close() = 0;
+        virtual DecoderState getState() const = 0;
+        virtual VideoInfo getVideoInfo() const = 0;
+
         virtual void seek(long long DestTime) = 0;
-        virtual bool hasVideo() = 0;
-        virtual bool hasAudio() = 0;
-        virtual IntPoint getSize() = 0;
-        virtual int getCurFrame() = 0;
-        virtual int getNumFrames() = 0;
-        virtual int getNumFramesQueued() = 0;
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) = 0;
-        virtual long long getDuration() = 0;
-        virtual double getNominalFPS() = 0;
-        virtual double getFPS() = 0;
+        virtual IntPoint getSize() const = 0;
+        virtual int getCurFrame() const = 0;
+        virtual int getNumFramesQueued() const = 0;
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const = 0;
+        virtual double getNominalFPS() const = 0;
+        virtual double getFPS() const = 0;
         virtual void setFPS(double FPS) = 0;
-        virtual double getVolume() = 0;
+        virtual double getVolume() const = 0;
         virtual void setVolume(double Volume) = 0;
-        virtual PixelFormat getPixelFormat() = 0;
+        virtual PixelFormat getPixelFormat() const = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted) = 0;
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long timeWanted) = 0;
-        virtual bool isEOF(StreamSelect Stream = SS_ALL) = 0;
+        virtual bool isEOF(StreamSelect Stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(long long timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;

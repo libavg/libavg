@@ -285,6 +285,15 @@ void export_node()
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"
                 "file.")
+        .def("getAudioCodec", &Sound::getAudioCodec,
+                "getAudioCodec() -> acodec\n"
+                "Returns the codec used as a string such as 'mp2'\n")
+        .def("getAudioSampleRate", &Sound::getAudioSampleRate,
+                "getAudioSampleRate() -> samplerate\n"
+                "Returns the sample rate in samples per second (for example, 44100).\n")
+        .def("getNumAudioChannels", &Sound::getNumAudioChannels,
+                "getNumAudioChannels() -> numchannels\n"
+                "Returns the number of channels. 2 for stereo, etc.\n")
         .add_property("href", make_function(&Sound::getHRef, 
                 return_value_policy<copy_const_reference>()), &Sound::setHRef,
                 "The source filename of the sound.\n")

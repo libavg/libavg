@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="1280" height="480">
-    <camera id="camera" x="0" y="0" width="640" height="480"
-            device="/dev/video1394/0" capturewidth="640" captureheight="480"
-            pixelformat="MONO8" framerate="30" strobeduration="-1" channel="497122235299103"/>
-    <camera id="camera1" x="640" y="0" width="640" height="480" source="v4l"
+    <camera id="camera" x="0" y="0" width="640" height="480" driver="firewire"
+            capturewidth="640" captureheight="480" pixelformat="I8" framerate="30"
+            strobeduration="-1"/>
+    <camera id="camera1" x="640" y="0" width="640" height="480" driver="video4linux"
             pixelformat="YUYV422" capturewidth="640" captureheight="480"
             device="/dev/video0" framerate="30"/>
 </avg>

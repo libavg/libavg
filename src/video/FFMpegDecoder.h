@@ -68,23 +68,22 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, const AudioParams* AP,
-                bool bDeliverYCbCr, bool bThreadedDemuxer);
+        virtual void open(const std::string& sFilename, bool bThreadedDemuxer);
+        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP);
         virtual void close();
-        virtual bool hasAudio();
-        virtual int getNumFrames();
-        virtual long long getDuration();
+        virtual DecoderState getState() const;
+        virtual VideoInfo getVideoInfo() const;
 
-        virtual double getNominalFPS();
-        virtual double getFPS();
-        virtual double getVolume();
-        virtual PixelFormat getPixelFormat();
+        virtual double getNominalFPS() const;
+        virtual double getFPS() const;
+        virtual double getVolume() const;
+        virtual PixelFormat getPixelFormat() const;
 
         // Called from video thread.
-        virtual IntPoint getSize();
-        virtual int getCurFrame();
-        virtual int getNumFramesQueued();
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
+        virtual IntPoint getSize() const;
+        virtual int getCurFrame() const;
+        virtual int getNumFramesQueued() const;
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
         virtual void setFPS(double FPS);
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
@@ -97,22 +96,26 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
         // Called from video and audio threads
         virtual void seek(long long DestTime);
-        virtual bool hasVideo();
-        virtual bool isEOF(StreamSelect Stream = SS_ALL);
+        virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
 
     private:
         void initVideoSupport();
         PixelFormat calcPixelFormat(bool bUseYCbCr);
+        virtual long long getDuration() const;
+        virtual int getNumFrames() const;
 
+        DecoderState m_State;
         AVFormatContext * m_pFormatContext;
         PixelFormat m_PF;
         std::string m_sFilename;
+        bool m_bThreadedDemuxer;
 
         // Used from video thread.
         FrameAvailableCode readFrameForTime(AVFrame& Frame, long long timeWanted);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        double calcStreamFPS();
+        double calcStreamFPS() const;
+        std::string getStreamPF() const;
 
         SwsContext * m_pSwsContext;
         IntPoint m_Size;

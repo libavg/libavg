@@ -86,34 +86,38 @@ Sound::~Sound()
 
 long long Sound::getDuration() const
 {
-    if (m_State != Unloaded) {
-        return m_pDecoder->getDuration();
-    } else {
-        AVG_TRACE(Logger::WARNING,
-               "Error in Sound::getDuration: Sound not loaded.");
-        return -1;
-    }
+    exceptionIfUnloaded("getDuration");
+    return m_pDecoder->getVideoInfo().m_Duration;
+}
+
+std::string Sound::getAudioCodec() const
+{
+    exceptionIfUnloaded("getAudioCodec");
+    return m_pDecoder->getVideoInfo().m_sACodec;
+}
+
+int Sound::getAudioSampleRate() const
+{
+    exceptionIfUnloaded("getAudioSampleRate");
+    return m_pDecoder->getVideoInfo().m_SampleRate;
+}
+
+int Sound::getNumAudioChannels() const
+{
+    exceptionIfUnloaded("getNumAudioChannels");
+    return m_pDecoder->getVideoInfo().m_NumAudioChannels;
 }
 
 long long Sound::getCurTime() const
 {
-    if (m_State != Unloaded) {
-        return m_pDecoder->getCurTime();
-    } else {
-        AVG_TRACE(Logger::WARNING,
-                "Error in Sound::GetCurTime: Sound not loaded.");
-        return -1;
-    }
+    exceptionIfUnloaded("getCurTime");
+    return m_pDecoder->getCurTime();
 }
 
 void Sound::seekToTime(long long Time)
 {
-    if (m_State != Unloaded) {
-        seek(Time);
-    } else {
-        AVG_TRACE(Logger::WARNING,
-                "Error in Sound::SeekToTime: Sound "+getID()+" not loaded.");
-    }
+    exceptionIfUnloaded("seekToTime");
+    seek(Time);
 }
 
 bool Sound::getLoop() const
@@ -130,7 +134,8 @@ void Sound::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
     if (!pAudioEngine) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -138,11 +143,15 @@ void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     }
     checkReload();
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    long long CurTime = Player::get()->getFrameTime(); 
     if (m_State != Unloaded) {
-        SoundState state = m_State;
-        m_State = Unloaded;
-        changeSoundState(state);
+        startDecoding();
+        m_StartTime = CurTime;
+        m_PauseTime = 0;
     }
+    if (m_State == Paused) {
+        m_PauseStartTime = CurTime;
+    } 
 }
 
 void Sound::disconnect(bool bKill)
@@ -230,21 +239,26 @@ int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void Sound::changeSoundState(SoundState NewSoundState)
 {
+    if (NewSoundState == m_State) {
+        return;
+    }
+    if (m_State == Unloaded) {
+        open();
+    }
+    if (NewSoundState == Unloaded) {
+        close();
+    }
     if (getState() == NS_CANRENDER) {
         long long CurTime = Player::get()->getFrameTime(); 
-        if (NewSoundState != m_State) {
-            if (m_State == Unloaded) {
-                m_StartTime = CurTime;
-                m_PauseTime = 0;
-                open();
-            }
-            if (NewSoundState == Paused) {
-                m_PauseStartTime = CurTime;
-            } else if (NewSoundState == Playing && m_State == Paused) {
-                m_PauseTime += CurTime-m_PauseStartTime;
-            } else if (NewSoundState == Unloaded) {
-                close();
-            }
+        if (m_State == Unloaded) {
+            startDecoding();
+            m_StartTime = CurTime;
+            m_PauseTime = 0;
+        }
+        if (NewSoundState == Paused) {
+            m_PauseStartTime = CurTime;
+        } else if (NewSoundState == Playing && m_State == Paused) {
+            m_PauseTime += CurTime-m_PauseStartTime;
         }
     }
     m_State = NewSoundState;
@@ -260,8 +274,18 @@ void Sound::seek(long long DestTime)
 
 void Sound::open()
 {
-    m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), false, true);
+    m_pDecoder->open(m_Filename, true);
     m_pDecoder->setVolume(m_Volume);
+    VideoInfo videoInfo = m_pDecoder->getVideoInfo();
+    if (!videoInfo.m_bHasAudio) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Sound: Opening "+m_Filename+" failed. No audio stream found."));
+    }
+}
+
+void Sound::startDecoding()
+{
+    m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
     if (getAudioEngine()) {
         getAudioEngine()->addSource(this);
     }
@@ -273,6 +297,14 @@ void Sound::close()
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();
+}
+
+void Sound::exceptionIfUnloaded(const std::string& sFuncName) const
+{
+    if (m_State == Unloaded) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("Sound.")+sFuncName+" failed: video not loaded.");
+    }
 }
 
 void Sound::onEOF()
