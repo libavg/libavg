@@ -21,7 +21,7 @@
 
 import unittest
 
-import sys, time, platform
+import sys, time, platform, os.path, shutil
 import math
 
 # Import the correct version of libavg. Since it should be possible to
@@ -157,6 +157,9 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(img.size == avg.Point2D(23,42))
 
         def setUnicodeHref():
+            # Can't check unicode filenames into svn or the windows client breaks.
+            if not(os.path.exists(u"ö.png")):
+                shutil.copyfile("oe.png", u"ö.png")
             Player.getElementByID("test").href = u"ö.png"
 
         Player.showCursor(0)
@@ -176,8 +179,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.setGamma(0.3, 0.3, 0.3),
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1),
-#                 setUnicodeHref,
-#                 lambda: self.compareImage("testimg2", False),
+                 setUnicodeHref,
+                 lambda: self.compareImage("testimg2", False),
                 ))
 
     def testImageMask(self):
