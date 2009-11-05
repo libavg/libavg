@@ -27,6 +27,8 @@ from libavg import avg
 import time
 from xml.dom import minidom
 from xml import dom
+import os
+
 
 parser = OptionParser("usage: %prog <videofilename> [options]")
 parser.add_option("-x", "--xml", dest = "xml", action="store_true",
@@ -43,45 +45,58 @@ Player.loadString("""
     </avg>
 """)
 node = Player.getElementByID("video")
+
+def showInfo(node):    
+    node.play()
+    if options.xml:
+        impl = minidom.getDOMImplementation()
+        doc = impl.createDocument(None, "videoinfo", None)
+        rootElement = doc.documentElement
+        rootElement.setAttribute("file", node.href)
+        rootElement.setAttribute("duration", str(node.getDuration()/1000.))
+        rootElement.setAttribute("bitrate", str(node.getBitrate()))
+        videoNode = doc.createElement("video")
+        videoNode.setAttribute("codec", node.getVideoCodec())
+        videoNode.setAttribute("size", str(node.getMediaSize()))
+        videoNode.setAttribute("pixelformat", node.getStreamPixelFormat())
+        videoNode.setAttribute("fps", str(node.fps))
+        rootElement.appendChild(videoNode)
+        if node.hasAudio():
+            audioNode = doc.createElement("audio")
+            audioNode.setAttribute("codec", node.getAudioCodec())
+            audioNode.setAttribute("samplerate", str(node.getAudioSampleRate()))
+            audioNode.setAttribute("channels", str(node.getNumAudioChannels()))
+            rootElement.appendChild(audioNode)
+        print doc.toprettyxml(indent="    ",encoding="utf-8")
+    else:
+        print "File: " + node.href
+        print ("Duration: " + str(node.getDuration()/1000.) + " s (" 
+                + str(node.getNumFrames()) + " frames)")
+        print "Bitrate: " + str(node.getBitrate()) + " b/s"
+        print "Video stream: " 
+        print "  Codec: " + node.getVideoCodec()
+        print "  Size: " + str(node.getMediaSize()) + " pixels"
+        print "  Pixel format: " + node.getStreamPixelFormat()
+        print "  FPS: " + str(node.fps)
+        if node.hasAudio():
+            print "Audio stream: " 
+            print "  Codec: " + node.getAudioCodec()
+            print "  Sample rate: " + str(node.getAudioSampleRate()) + " Hz"
+            print "  Number of channels: " + str(node.getNumAudioChannels())
+        print "\n\n"
+
+
 if len(sys.argv) ==1:
     print "Usage: videoinfo.py <filename>"
     sys.exit(1)
-else:
-    node.href=sys.argv[1]
-node.play()
+elif os.path.isdir(sys.argv[1]):
+    for subdir, dirs, files in os.walk(sys.argv[1]):
+        for file in files:
+            print subdir, file
+            node.href = os.path.join(subdir, file)
+            showInfo(node)
+elif os.path.isfile(sys.argv[1]):
+    node.href = sys.argv[1]
+    showInfo(node)
 
-if options.xml:
-    impl = minidom.getDOMImplementation()
-    doc = impl.createDocument(None, "videoinfo", None)
-    rootElement = doc.documentElement
-    rootElement.setAttribute("file", node.href)
-    rootElement.setAttribute("duration", str(node.getDuration()/1000.))
-    rootElement.setAttribute("bitrate", str(node.getBitrate()))
-    videoNode = doc.createElement("video")
-    videoNode.setAttribute("codec", node.getVideoCodec())
-    videoNode.setAttribute("size", str(node.getMediaSize()))
-    videoNode.setAttribute("pixelformat", node.getStreamPixelFormat())
-    videoNode.setAttribute("fps", str(node.fps))
-    rootElement.appendChild(videoNode)
-    if node.hasAudio():
-        audioNode = doc.createElement("audio")
-        audioNode.setAttribute("codec", node.getAudioCodec())
-        audioNode.setAttribute("samplerate", str(node.getAudioSampleRate()))
-        audioNode.setAttribute("channels", str(node.getNumAudioChannels()))
-        rootElement.appendChild(audioNode)
-    print doc.toprettyxml(indent="    ",encoding="utf-8")
-else:
-    print "File: " + node.href
-    print ("Duration: " + str(node.getDuration()/1000.) + " s (" 
-            + str(node.getNumFrames()) + " frames)")
-    print "Bitrate: " + str(node.getBitrate()) + " b/s"
-    print "Video stream: " 
-    print "  Codec: " + node.getVideoCodec()
-    print "  Size: " + str(node.getMediaSize()) + " pixels"
-    print "  Pixel format: " + node.getStreamPixelFormat()
-    print "  FPS: " + str(node.fps)
-    if node.hasAudio():
-        print "Audio stream: " 
-        print "  Codec: " + node.getAudioCodec()
-        print "  Sample rate: " + str(node.getAudioSampleRate()) + " Hz"
-        print "  Number of channels: " + str(node.getNumAudioChannels())
+        
