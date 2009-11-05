@@ -196,8 +196,13 @@ class AVTestCase(AVGTestCase):
         def testGetMediaSize():
             self.assert_(node.getMediaSize() == (48, 48))
 
-        def setHRef():
+        def setHRefLoaded():
             node.href = "../video/testfiles/h264-48x48.h264"
+
+        def setHRefUnloaded():
+            node = Player.createNode("video", {})
+            node.href = "../video/testfiles/h264-48x48.h264"
+            node.play()
 
         def testVideoNotFound():
             # Missing file, but no play() or pause(): Should just work.
@@ -212,10 +217,11 @@ class AVTestCase(AVGTestCase):
         Player.getRootNode().appendChild(node)
         Player.setFakeFPS(25)
         testVideoNotFound()
+        setHRefUnloaded()
         self.start(None,
                 (lambda: node.play(),
                  testGetMediaSize,
-                 setHRef,
+                 setHRefLoaded,
                  lambda: self.compareImage("testVideoHRef1", False),
                  testGetMediaSize,
                  testVideoNotFound

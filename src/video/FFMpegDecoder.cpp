@@ -105,7 +105,7 @@ void avcodecError(const string & sFilename, int err)
                     sFilename + ": Unknown format");
         default:
             stringstream s;
-            s << sFilename << ": Error while opening file (Num:" << err << ")";
+            s << "'" << sFilename <<  "': Error while opening file (Num:" << err << ")";
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, s.str());
     }
 }
