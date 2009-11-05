@@ -256,7 +256,9 @@ const string& Video::getHRef() const
 void Video::setHRef(const string& href)
 {
     m_href = href;
-    checkReload();
+    if (m_VideoState != Unloaded) {
+        checkReload();
+    }
 }
 
 double Video::getVolume()

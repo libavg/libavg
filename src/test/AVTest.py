@@ -199,17 +199,26 @@ class AVTestCase(AVGTestCase):
         def setHRef():
             node.href = "../video/testfiles/h264-48x48.h264"
 
+        def testVideoNotFound():
+            # Missing file, but no play() or pause(): Should just work.
+            node = Player.createNode("video", {"href":"MissingFile.mov"})
+            node.href = "SecondMissingFile.mov"
+            # Now libavg notices the missing file.
+            self.assertException(node.play)
+
         self._loadEmpty()
         node = Player.createNode("video",
             {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": False})
         Player.getRootNode().appendChild(node)
         Player.setFakeFPS(25)
+        testVideoNotFound()
         self.start(None,
                 (lambda: node.play(),
                  testGetMediaSize,
                  setHRef,
                  lambda: self.compareImage("testVideoHRef1", False),
-                 testGetMediaSize
+                 testGetMediaSize,
+                 testVideoNotFound
                 ))
 
     def testVideoOpacity(self):
