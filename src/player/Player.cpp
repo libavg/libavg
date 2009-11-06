@@ -322,6 +322,7 @@ void Player::play()
             throw;
         }
         cleanup();
+        AVG_TRACE(Logger::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
         throw;
@@ -343,7 +344,7 @@ void Player::initPlayback()
     if (!m_pRootNode) {
         throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
     }
-    
+    AVG_TRACE(Logger::PLAYER, "Playback started.");
     initGraphics();
     if (m_bAudioEnabled) {
         initAudio();

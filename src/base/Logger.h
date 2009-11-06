@@ -59,6 +59,7 @@ public:
     static const long MEMORY;
     static const long APP;
     static const long PLUGIN;
+    static const long PLAYER;
 
 private:
     Logger();

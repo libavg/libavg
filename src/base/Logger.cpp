@@ -53,6 +53,7 @@ const long Logger::ERROR=128;
 const long Logger::MEMORY=256;
 const long Logger::APP=512;
 const long Logger::PLUGIN=1024;
+const long Logger::PLAYER=2048;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex log_Mutex;
@@ -98,7 +99,7 @@ Logger::~Logger()
 void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
-    m_Flags = flags | ERROR | APP;
+    m_Flags = flags | ERROR;
 }
     
 void Logger::pushCategories()
@@ -164,6 +165,8 @@ const char * Logger::categoryToString(int category)
             return "APP";
         case PLUGIN:
             return "PLUGIN";
+        case PLAYER:
+            return "PLAYER";
         default:
             return "UNKNOWN";
     }
@@ -193,6 +196,8 @@ int Logger::stringToCategory(const string& sCategory)
         return APP;
     } else if (sCategory == "PLUGIN") {
         return PLUGIN;
+    } else if (sCategory == "PLAYER") {
+        return PLAYER;
     } else {
         throw Exception (AVG_ERR_INVALID_ARGS, "Unknown logger category " + sCategory
                 + " set using AVG_LOG_CATEGORIES.");
