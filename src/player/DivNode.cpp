@@ -118,12 +118,12 @@ void DivNode::setElementOutlineColor(const std::string& sColor)
     }
 }
 
-const string& DivNode::getMediaDir() const
+const UTF8String& DivNode::getMediaDir() const
 {
     return m_sMediaDir;
 }
 
-void DivNode::setMediaDir(const string& sMediaDir)
+void DivNode::setMediaDir(const UTF8String& sMediaDir)
 {
     m_sMediaDir = sMediaDir;
     checkReload();

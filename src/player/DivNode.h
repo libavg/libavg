@@ -24,6 +24,8 @@
 
 #include "../api.h"
 #include "AreaNode.h"
+
+#include "../base/UTF8String.h"
 #include "../graphics/VertexArray.h"
 
 #include <string>
@@ -48,8 +50,8 @@ class AVG_API DivNode : public AreaNode
         const std::string& getElementOutlineColor() const;
         void setElementOutlineColor(const std::string& sColor);
 
-        const std::string& getMediaDir() const;
-        void setMediaDir(const std::string& mediaDir);
+        const UTF8String& getMediaDir() const;
+        void setMediaDir(const UTF8String& mediaDir);
 
         int getNumChildren();
         const NodePtr& getChild(unsigned i);
@@ -78,7 +80,7 @@ class AVG_API DivNode : public AreaNode
     private:
         bool isChildTypeAllowed(const std::string& sType);
 
-        std::string m_sMediaDir;
+        UTF8String m_sMediaDir;
         bool m_bCrop;
         std::string m_sElementOutlineColor;
         Pixel32 m_ElementOutlineColor;
