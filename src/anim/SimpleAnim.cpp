@@ -113,7 +113,7 @@ bool SimpleAnim::step()
     }
 }
 
-double SimpleAnim::getStartTime() const
+long long SimpleAnim::getStartTime() const
 {
     return m_StartTime;
 }

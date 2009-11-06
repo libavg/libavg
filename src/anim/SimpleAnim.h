@@ -56,13 +56,12 @@ public:
     virtual bool step();
 
 protected:
-    double getStartTime() const;
-    long long getDuration() const;
-
     virtual double interpolate(double t)=0;
     void remove();
     
 private:
+    long long getStartTime() const;
+    long long getDuration() const;
     long long calcStartTime();
     virtual double getStartPart(double start, double end, double cur);
 
