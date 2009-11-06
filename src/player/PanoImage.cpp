@@ -188,12 +188,12 @@ double PanoImage::getScreenPosFromPanoPos(int PanoPos) const
     return getScreenPosFromAngle(AnglePerPixel*PanoPos);
 }
 
-const std::string& PanoImage::getHRef () const
+const UTF8String& PanoImage::getHRef() const
 {
     return m_href;
 }
 
-void PanoImage::setHRef(const string& href)
+void PanoImage::setHRef(const UTF8String& href)
 {
     m_href = href;
     load();

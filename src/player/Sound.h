@@ -27,6 +27,7 @@
 #include "AreaNode.h"
 
 #include "../base/IFrameEndListener.h"
+#include "../base/UTF8String.h"
 #include "../audio/IAudioSource.h"
 
 namespace avg {
@@ -49,8 +50,8 @@ class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
         void stop();
         void pause();
 
-        const std::string& getHRef() const;
-        void setHRef(const std::string& href);
+        const UTF8String& getHRef() const;
+        void setHRef(const UTF8String& href);
         double getVolume();
         void setVolume(double Volume);
         void checkReload();
@@ -80,7 +81,7 @@ class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
         void close();
         void exceptionIfUnloaded(const std::string& sFuncName) const;
 
-        std::string m_href;
+        UTF8String m_href;
         std::string m_Filename;
         bool m_bLoop;
         PyObject * m_pEOFCallback;

@@ -248,12 +248,12 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-const string& Video::getHRef() const
+const UTF8String& Video::getHRef() const
 {
-    return m_Filename;
+    return m_href;
 }
 
-void Video::setHRef(const string& href)
+void Video::setHRef(const UTF8String& href)
 {
     m_href = href;
     checkReload();

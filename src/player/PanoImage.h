@@ -26,6 +26,7 @@
 #include "../avgconfigwrapper.h"
 
 #include "AreaNode.h"
+#include "../base/UTF8String.h"
 #include "../graphics/Bitmap.h"
 
 #include <string>
@@ -50,8 +51,8 @@ class AVG_API PanoImage: public AreaNode
 
         double getScreenPosFromPanoPos(int PanoPos) const;
         double getScreenPosFromAngle(double Angle) const;
-        const std::string& getHRef() const;
-        void setHRef(const std::string& href);
+        const UTF8String& getHRef() const;
+        void setHRef(const UTF8String& href);
         double getSensorWidth() const;
         void setSensorWidth(double sensorWidth);
         double getSensorHeight() const;
@@ -73,7 +74,7 @@ class AVG_API PanoImage: public AreaNode
 
         SDLDisplayEngine * getSDLEngine();
     
-        std::string m_href;
+        UTF8String m_href;
         std::string m_Filename;
         double m_SensorWidth;
         double m_SensorHeight;

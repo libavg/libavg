@@ -175,12 +175,12 @@ void Sound::pause()
     changeSoundState(Paused);
 }
 
-const string& Sound::getHRef() const
+const UTF8String& Sound::getHRef() const
 {
-    return m_Filename;
+    return m_href;
 }
 
-void Sound::setHRef(const string& href)
+void Sound::setHRef(const UTF8String& href)
 {
     m_href = href;
     checkReload();

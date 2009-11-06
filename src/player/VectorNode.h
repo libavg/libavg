@@ -27,6 +27,7 @@
 #include "DisplayEngine.h"
 #include "Shape.h"
 
+#include "../base/UTF8String.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/VertexArray.h"
 
@@ -49,8 +50,8 @@ class AVG_API VectorNode : public Node
         virtual void disconnect(bool bKill);
         virtual void checkReload();
 
-        const std::string& getTexHRef() const;
-        void setTexHRef(const std::string& href);
+        const UTF8String& getTexHRef() const;
+        void setTexHRef(const UTF8String& href);
         void setBitmap(const Bitmap * pBmp);
 
         const std::string& getBlendModeStr() const;
@@ -97,7 +98,7 @@ class AVG_API VectorNode : public Node
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_StrokeWidth;
-        std::string m_TexHRef;
+        UTF8String m_TexHRef;
         std::string m_sBlendMode;
 
         bool m_bDrawNeeded;

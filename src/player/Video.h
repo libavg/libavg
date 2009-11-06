@@ -31,6 +31,7 @@
 
 #include "../base/Point.h"
 #include "../base/IFrameEndListener.h"
+#include "../base/UTF8String.h"
 
 #include "../audio/IAudioSource.h"
 
@@ -55,8 +56,8 @@ class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
         void stop();
         void pause();
 
-        const std::string& getHRef() const;
-        void setHRef(const std::string& href);
+        const UTF8String& getHRef() const;
+        void setHRef(const UTF8String& href);
         double getVolume();
         void setVolume(double Volume);
         virtual double getFPS() const;
@@ -88,8 +89,6 @@ class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         virtual IntPoint getMediaSize();
 
-    protected:
-
     private:
         bool renderToSurface(OGLTiledSurface * pSurface);
         void seek(long long DestTime);
@@ -110,7 +109,7 @@ class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
         bool m_bFrameAvailable;
         bool m_bFirstFrameDecoded;
 
-        std::string m_href;
+        UTF8String m_href;
         std::string m_Filename;
         bool m_bLoop;
         bool m_bThreaded;

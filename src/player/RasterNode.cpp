@@ -188,12 +188,12 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
     m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
 }
 
-const std::string& RasterNode::getMaskHRef() const
+const UTF8String& RasterNode::getMaskHRef() const
 {
     return m_sMaskHref;
 }
 
-void RasterNode::setMaskHRef(const string& href)
+void RasterNode::setMaskHRef(const UTF8String& href)
 {
     m_sMaskHref = href;
     checkReload();

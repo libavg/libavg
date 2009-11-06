@@ -25,6 +25,8 @@
 #include "../api.h"
 #include "VectorNode.h"
 
+#include "../base/UTF8String.h"
+
 namespace avg {
 
 class AVG_API FilledVectorNode : public VectorNode
@@ -39,8 +41,8 @@ class AVG_API FilledVectorNode : public VectorNode
         virtual void disconnect(bool bKill);
         virtual void checkReload();
 
-        const std::string& getFillTexHRef() const;
-        void setFillTexHRef(const std::string& href);
+        const UTF8String& getFillTexHRef() const;
+        void setFillTexHRef(const UTF8String& href);
         void setFillBitmap(const Bitmap * pBmp);
 
         const DPoint& getFillTexCoord1() const;
@@ -70,7 +72,7 @@ class AVG_API FilledVectorNode : public VectorNode
     private:
         double m_OldOpacity;
 
-        std::string m_FillTexHRef;
+        UTF8String m_FillTexHRef;
         DPoint m_FillTexCoord1;
         DPoint m_FillTexCoord2;
         ShapePtr m_pFillShape;

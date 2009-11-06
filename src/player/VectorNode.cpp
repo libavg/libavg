@@ -106,12 +106,12 @@ void VectorNode::checkReload()
     }
 }
 
-const std::string& VectorNode::getTexHRef() const
+const UTF8String& VectorNode::getTexHRef() const
 {
     return m_TexHRef;
 }
 
-void VectorNode::setTexHRef(const string& href)
+void VectorNode::setTexHRef(const UTF8String& href)
 {
     m_TexHRef = href;
     checkReload();

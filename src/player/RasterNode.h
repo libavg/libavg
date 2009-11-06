@@ -29,6 +29,7 @@
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
+#include "../base/UTF8String.h"
 
 #include <string>
 
@@ -59,8 +60,8 @@ class AVG_API RasterNode: public AreaNode
         void setBlendModeStr(const std::string& sBlendMode);
         DisplayEngine::BlendMode getBlendMode() const;
 
-        const std::string& getMaskHRef() const;
-        void setMaskHRef(const std::string& href);
+        const UTF8String& getMaskHRef() const;
+        void setMaskHRef(const UTF8String& href);
 
         const DPoint& getMaskPos() const;
         void setMaskPos(const DPoint& pos);
@@ -91,7 +92,7 @@ class AVG_API RasterNode: public AreaNode
         DisplayEngine::BlendMode m_BlendMode;
         MaterialInfo m_Material;
 
-        std::string m_sMaskHref;
+        UTF8String m_sMaskHref;
         std::string m_sMaskFilename;
         BitmapPtr m_pMaskBmp;
         DPoint m_MaskPos;

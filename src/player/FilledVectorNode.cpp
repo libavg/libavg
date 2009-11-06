@@ -90,12 +90,12 @@ void FilledVectorNode::checkReload()
     VectorNode::checkReload();
 }
 
-const std::string& FilledVectorNode::getFillTexHRef() const
+const UTF8String& FilledVectorNode::getFillTexHRef() const
 {
     return m_FillTexHRef;
 }
 
-void FilledVectorNode::setFillTexHRef(const string& href)
+void FilledVectorNode::setFillTexHRef(const UTF8String& href)
 {
     m_FillTexHRef = href;
     checkReload();
