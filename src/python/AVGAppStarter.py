@@ -113,19 +113,6 @@ class AVGAppStarter(object):
         else:
             debugWindowSize = Point2D(0, 0)
 
-        g_log.setCategories(
-                g_log.APP |
-                g_log.WARNING |
-                g_log.ERROR |
-                g_log.PROFILE |
-        #       g_log.PROFILE_LATEFRAMES |
-                g_log.CONFIG  |
-        #       g_log.MEMORY  |
-        #       g_log.BLTS    |
-        #       g_log.EVENTS  |
-        #       g_log.EVENTS2  |
-        0)
-
         width = int(resolution.x)
         height = int(resolution.y)
         # dynamic avg creation in order to set resolution

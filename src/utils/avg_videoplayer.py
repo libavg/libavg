@@ -59,14 +59,6 @@ def onKey(event):
     else:
         print event.keystring
 
-Log = avg.Logger.get();
-Log.setCategories(Log.APP |
-          Log.WARNING | 
-          Log.PROFILE |
-          Log.MEMORY |
-          Log.CONFIG |
-          0)
-
 Player = avg.Player.get()
 
 Player.loadString("""

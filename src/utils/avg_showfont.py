@@ -25,15 +25,6 @@ import sys
 from libavg import avg
 import time
 
-Log = avg.Logger.get();
-Log.setCategories(Log.APP |
-          Log.WARNING | 
-#          Log.PROFILE |
-#          Log.PROFILE_LATEFRAMES |
-#          Log.CONFIG |
-#          Log.EVENTS |
-          0)
-
 Player = avg.Player.get()
 
 Player.loadString("""
