@@ -287,19 +287,20 @@ private:
     void testYUV2RGB()
     {
         BitmapPtr pYBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), I8));
-        FilterFillRect<Pixel8>(IntRect(0, 0, 16, 8), 0).applyInPlace(pYBmp);
-        FilterFillRect<Pixel8>(IntRect(0, 8, 16, 16), 128).applyInPlace(pYBmp);
+        for (int x=0; x<16; ++x) {
+            FilterFillRect<Pixel8>(IntRect(x, 0, x+1, 16), 255-x*16).applyInPlace(pYBmp);
+        }
         BitmapPtr pUBmp = BitmapPtr(new Bitmap(IntPoint(8, 8), I8));
-        FilterFillRect<Pixel8>(IntRect(0, 0, 4, 8), 128).applyInPlace(pUBmp);
-        FilterFillRect<Pixel8>(IntRect(4, 0, 8, 8), 255).applyInPlace(pUBmp);
         BitmapPtr pVBmp = BitmapPtr(new Bitmap(IntPoint(8, 8), I8));
-        FilterFillRect<Pixel8>(IntRect(0, 0, 6, 8), 128).applyInPlace(pVBmp);
-        FilterFillRect<Pixel8>(IntRect(6, 0, 8, 8), 255).applyInPlace(pVBmp);
-    
-        Bitmap RGBBmp(IntPoint(16, 16), B8G8R8X8);
-        RGBBmp.copyYUVPixels(*pYBmp, *pUBmp, *pVBmp);
-        RGBBmp.save("YUV2RGBResult1.png");
-        testEqual(RGBBmp, "YUV2RGBResult1", B8G8R8X8);
+        for (int y=0; y<8; ++y) {
+            FilterFillRect<Pixel8>(IntRect(0, y, 8, y+1), y*32).applyInPlace(pUBmp);
+            FilterFillRect<Pixel8>(IntRect(0, y, 8, y+1), 255-y*32).applyInPlace(pVBmp);
+        }
+        BitmapPtr pRGBBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), B8G8R8X8));
+        FilterFill<Pixel32>(Pixel32(255,0,0,255)).applyInPlace(pRGBBmp);
+        pRGBBmp->copyYUVPixels(*pYBmp, *pUBmp, *pVBmp);
+//        pRGBBmp->save("YUV2RGBResult1.png");
+        testEqual(*pRGBBmp, "YUV2RGBResult1", B8G8R8X8);
     }
 
 };
