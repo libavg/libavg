@@ -376,6 +376,21 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
     pDest->set(b,g,r,255);
 }
 
+ostream& operator<<(ostream& os, const __m64 &val)
+{
+    unsigned char * pVal = (unsigned char *)(&val);
+    for (int i=0; i<8; ++i) {
+        os << hex << setw(2) << setfill('0') << int(pVal[i]);
+        if (i%2 == 1) {
+            os << " ";
+        }
+        if (i%4 == 3) {
+            os << " ";
+        }
+    }
+    return os;
+}
+
 void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
         const Bitmap& vOrig)
 {
@@ -396,7 +411,8 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
     const unsigned char   * ptru;
     const unsigned char   * ptrv;
 
-    register __m64    *y, *o;
+    register __m64    *o;
+    register __m64    y, ylo, yhi;
     register __m64    zero, ut, vt, imm, imm2;
     register __m64    r, g, b;
     register __m64    tmp, tmp2;
@@ -413,13 +429,25 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
         pDestLine += destStride;
         for (j = 0; j < Width; j += 8) {
 
-            y = (__m64*)&ptry[j];
+            // y' = (298*(y-16))
+            // ylo and yhi contain 4 pixels each
+            y = *(__m64*)(&(ptry[j]));
+            ylo = _m_punpcklbw(y, zero);
+            imm = _mm_set1_pi16(16);
+            ylo = _m_psubw(ylo, imm);
+            imm = _mm_set1_pi16(298);
+            ylo = _m_pmullw(ylo, imm);
+            ylo = _mm_srli_pi16(ylo, 8);
+           
+            yhi = _m_punpckhbw(y, zero);
+            imm = _mm_set1_pi16(16);
+            yhi = _m_psubw(yhi, imm);
+            imm = _mm_set1_pi16(298);
+            yhi = _m_pmullw(yhi, imm);
+            yhi = _mm_srli_pi16(yhi, 8);
 
             ut = _m_from_int(*(int *)(ptru + j/2));
             vt = _m_from_int(*(int *)(ptrv + j/2));
-
-            //ut = _m_from_int(0);
-            //vt = _m_from_int(0);
 
             ut = _m_punpcklbw(ut, zero);
             vt = _m_punpcklbw(vt, zero);
@@ -430,35 +458,20 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
             vt = _m_psubw(vt, imm);
 
             /* transfer and multiply into r, g, b registers */
-            imm = _mm_set1_pi16(-51);
+            imm = _mm_set1_pi16(-50);
             g = _m_pmullw(ut, imm);
-            imm = _mm_set1_pi16(130);
+            imm = _mm_set1_pi16(129);
             b = _m_pmullw(ut, imm);
-            imm = _mm_set1_pi16(146);
+            imm = _mm_set1_pi16(204);
             r = _m_pmullw(vt, imm);
-            imm = _mm_set1_pi16(-74);
+            imm = _mm_set1_pi16(-104);
             imm = _m_pmullw(vt, imm);
             g = _m_paddsw(g, imm);
-
-            /* add 64 to r, g and b registers */
-            imm = _mm_set1_pi16(64);
-            r = _m_paddsw(r, imm);
-            g = _m_paddsw(g, imm);
-            imm = _mm_set1_pi16(32);
-            b = _m_paddsw(b, imm);     
 
             /* shift r, g and b registers to the right */
             r = _m_psrawi(r, 7);
             g = _m_psrawi(g, 7);
             b = _m_psrawi(b, 6);
-
-            /* subtract 16 from r, g and b registers */
-            imm = _mm_set1_pi16(16);
-            r = _m_psubsw(r, imm);
-            g = _m_psubsw(g, imm);
-            b = _m_psubsw(b, imm);
-
-            y = (__m64*)&ptry[j];
 
             /* duplicate u and v channels and add y
              * each of r,g, b in the form [s1(16), s2(16), s3(16), s4(16)]
@@ -468,11 +481,10 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
              *   [s1(8), s1(8), s2(8), s2(8), s3(8), s3(8), s4(8), s4(8)]
              */
             tmp = _m_punpckhwd(r, r);
-            imm = _m_punpckhbw(*y, zero);
-            //printf("tmp: %llx imm: %llx\n", tmp, imm);
+            imm = yhi; 
             tmp = _m_paddsw(tmp, imm);
             tmp2 = _m_punpcklwd(r, r);
-            imm2 = _m_punpcklbw(*y, zero);
+            imm2 = ylo; 
             tmp2 = _m_paddsw(tmp2, imm2);
             r = _m_packuswb(tmp2, tmp);
 
@@ -487,7 +499,6 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
             tmp = _m_paddsw(tmp, imm);
             tmp2 = _m_paddsw(tmp2, imm2);
             b = _m_packuswb(tmp2, tmp);
-            //printf("duplicated r g and b: %llx %llx %llx\n", r, g, b);
 
             /* now we have 8 8-bit r, g and b samples.  we want these to be packed
              * into 32-bit values.

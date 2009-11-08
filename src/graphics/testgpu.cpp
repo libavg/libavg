@@ -386,7 +386,6 @@ int main(int nargs, char** args)
 {
     bool bOK = true;
     try {
-        GraphicsTest::createResultImgDir();
         OGLImagingContext context(IntPoint(64, 64));
 
         try {

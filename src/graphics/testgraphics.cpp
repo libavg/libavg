@@ -277,7 +277,6 @@ private:
         Bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14,12), Color);
         string sFName = getSrcDirName()+"baseline/LineResult"+Bitmap::getPixelFormatString(PF)+".png";
-//        Bmp.save(sFName);
         Bitmap BaselineBmp(sFName);
         Bitmap BaselineBmp2(IntPoint(15,15), PF);
         BaselineBmp2.copyPixels(BaselineBmp);
@@ -288,7 +287,7 @@ private:
     {
         BitmapPtr pYBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), I8));
         for (int x=0; x<16; ++x) {
-            FilterFillRect<Pixel8>(IntRect(x, 0, x+1, 16), 255-x*16).applyInPlace(pYBmp);
+            FilterFillRect<Pixel8>(IntRect(x, 0, x+1, 16), 235-x*13).applyInPlace(pYBmp);
         }
         BitmapPtr pUBmp = BitmapPtr(new Bitmap(IntPoint(8, 8), I8));
         BitmapPtr pVBmp = BitmapPtr(new Bitmap(IntPoint(8, 8), I8));
@@ -299,8 +298,7 @@ private:
         BitmapPtr pRGBBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), B8G8R8X8));
         FilterFill<Pixel32>(Pixel32(255,0,0,255)).applyInPlace(pRGBBmp);
         pRGBBmp->copyYUVPixels(*pYBmp, *pUBmp, *pVBmp);
-//        pRGBBmp->save("YUV2RGBResult1.png");
-        testEqual(*pRGBBmp, "YUV2RGBResult1", B8G8R8X8);
+        testEqual(*pRGBBmp, "YUV2RGBResult1", B8G8R8X8, 0.5, 0.5);
     }
 
 };
@@ -906,6 +904,7 @@ public:
 
 int main(int nargs, char** args)
 {
+    GraphicsTest::createResultImgDir();
     GraphicsTestSuite Suite;
     Suite.runTests();
     bool bOK = Suite.isOk();
