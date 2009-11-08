@@ -388,7 +388,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
     int destStride = m_Stride/getBytesPerPixel();
     Pixel32 * pDestLine = (Pixel32*)m_pBits;
 
-#if defined(__SSE__x) || defined(_WIN32)
+#if defined(__SSE__) || defined(_WIN32)
 #pragma pack(16)
     // Original SSE conversion code taken from liboggplay: oggplay_sse_x86.c
     int               i;     
