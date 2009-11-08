@@ -159,9 +159,9 @@ class PlayerTestCase(AVGTestCase):
         def setUnicodeHref():
             # Can't check unicode filenames into svn or the windows client breaks.
             # So we rename the file locally.
-            if not(os.path.exists(u"ö.png")):
-                shutil.copyfile("oe.png", u"ö.png")
+            shutil.copyfile("oe.png", u"ö.png")
             Player.getElementByID("test").href = u"ö.png"
+            os.remove(u"ö.png")
 
         Player.showCursor(0)
         Player.showCursor(1)
