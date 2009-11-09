@@ -376,6 +376,7 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
     pDest->set(b,g,r,255);
 }
 
+#if defined(__SSE__) || defined(_WIN32)
 ostream& operator<<(ostream& os, const __m64 &val)
 {
     unsigned char * pVal = (unsigned char *)(&val);
@@ -390,6 +391,7 @@ ostream& operator<<(ostream& os, const __m64 &val)
     }
     return os;
 }
+#endif
 
 void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
         const Bitmap& vOrig)
