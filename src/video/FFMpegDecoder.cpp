@@ -868,29 +868,39 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     {
-//        ScopeTimer Timer(*m_pConvertImageProfilingZone);
-        if (!m_pSwsContext) {
-            m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
-                        enc->width, enc->height, DestFmt, SWS_BICUBIC, 
-                        NULL, NULL, NULL);
-            if(!m_pSwsContext) {
-                AVG_TRACE(Logger::ERROR, "FFMpegDecoder: sws initialization failed.");
-            }
-        }
-        sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
-            enc->height, DestPict.data, DestPict.linesize);
-        if (pBmp->getPixelFormat() == B8G8R8X8) {
-            // Make sure the alpha channel is white.
-            // TODO: This is slow. Make OpenGL do it.
-            unsigned char * pLine = pBmp->getPixels();
-            IntPoint size = pBmp->getSize();
-            for (int y = 0; y<size.y; ++y) {
-                unsigned char * pPixel = pLine;
-                for (int x = 0; x < size.x; ++x) {
-                    pPixel[3] = 0xFF;
-                    pPixel += 4;
+//            ScopeTimer Timer(*m_pConvertImageProfilingZone);
+        if (DestFmt == PIX_FMT_BGRA && enc->pix_fmt == PIX_FMT_YUV420P) {
+            BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, Frame.data[0],
+                    Frame.linesize[0], false));
+            BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, Frame.data[1],
+                    Frame.linesize[1], false));
+            BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, Frame.data[2],
+                    Frame.linesize[2], false));
+            pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV);
+        } else {
+            if (!m_pSwsContext) {
+                m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
+                            enc->width, enc->height, DestFmt, SWS_BICUBIC, 
+                            NULL, NULL, NULL);
+                if(!m_pSwsContext) {
+                    AVG_TRACE(Logger::ERROR, "FFMpegDecoder: sws initialization failed.");
                 }
-                pLine = pLine + pBmp->getStride();
+            }
+            sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
+                enc->height, DestPict.data, DestPict.linesize);
+            if (pBmp->getPixelFormat() == B8G8R8X8) {
+                // Make sure the alpha channel is white.
+                // TODO: This is slow. Make OpenGL do it.
+                unsigned char * pLine = pBmp->getPixels();
+                IntPoint size = pBmp->getSize();
+                for (int y = 0; y<size.y; ++y) {
+                    unsigned char * pPixel = pLine;
+                    for (int x = 0; x < size.x; ++x) {
+                        pPixel[3] = 0xFF;
+                        pPixel += 4;
+                    }
+                    pLine = pLine + pBmp->getStride();
+                }
             }
         }
 #if !defined(__i386__) && !defined(_WIN32)
