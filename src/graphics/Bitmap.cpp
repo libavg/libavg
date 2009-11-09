@@ -436,17 +436,17 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
             y = *(__m64*)(&(ptry[j]));
             ylo = _m_punpcklbw(y, zero);
             imm = _mm_set1_pi16(16);
-            ylo = _m_psubw(ylo, imm);
-            imm = _mm_set1_pi16(298);
+            ylo = _m_psubusw(ylo, imm);
+            imm = _mm_set1_pi16(154);
             ylo = _m_pmullw(ylo, imm);
-            ylo = _mm_srli_pi16(ylo, 8);
+            ylo = _mm_srli_pi16(ylo, 7);
            
             yhi = _m_punpckhbw(y, zero);
             imm = _mm_set1_pi16(16);
-            yhi = _m_psubw(yhi, imm);
-            imm = _mm_set1_pi16(298);
+            yhi = _m_psubusw(yhi, imm);
+            imm = _mm_set1_pi16(154);
             yhi = _m_pmullw(yhi, imm);
-            yhi = _mm_srli_pi16(yhi, 8);
+            yhi = _mm_srli_pi16(yhi, 7);
 
             ut = _m_from_int(*(int *)(ptru + j/2));
             vt = _m_from_int(*(int *)(ptrv + j/2));
