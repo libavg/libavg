@@ -363,7 +363,8 @@ bool Player::isPlaying()
     return m_bIsPlaying;
 }
 
-void Player::setFramerate(double rate) {
+void Player::setFramerate(double rate)
+{
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
     } else {
@@ -374,7 +375,6 @@ void Player::setFramerate(double rate) {
 
 void Player::setVBlankFramerate(int rate)
 {
-    // TODO: Why does this function return anything?
     if (m_bIsPlaying) {
         m_pDisplayEngine->setVBlankRate(rate);
     } else {
@@ -383,7 +383,8 @@ void Player::setVBlankFramerate(int rate)
     }
 }
         
-double Player::getEffectiveFramerate() {
+double Player::getEffectiveFramerate()
+{
     if (m_bIsPlaying) {
         return m_pDisplayEngine->getEffectiveFramerate();
     } else {
