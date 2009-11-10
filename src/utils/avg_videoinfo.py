@@ -131,17 +131,26 @@ if len(sys.argv) ==1:
     parser.print_help()
     sys.exit(1)
 
-elif os.path.isdir(sys.argv[1]):
-    for subdir, dirs, files in os.walk(sys.argv[1]):
-        for file in files:
-            try:
-                node.href = os.path.join(subdir, file)
-                node.play()
-                VideoList.append(node.href)
-                
-            except:
-                sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
-    
+if len(args) == 1:
+    node.href = sys.argv[1]
+    if options.xml:
+        appendXMLChild(node)
+        print doc.toprettyxml(indent="    ",encoding="utf-8")
+    elif options.csv:
+        CSVtable(node)
+        print CSV_video
+    else:
+        singleVideoInfo(node)
+        
+else:
+    for file in args: 
+        try:
+            node.href = str(os.path.join(os.path.normpath(os.getcwd() + "/" +str(file))))
+            node.play()
+            VideoList.append(node.href)   
+        except:
+            sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
+          
     for i in xrange(0, len(VideoList)):
         node.href = str(VideoList[i])
         if options.xml:
@@ -162,14 +171,5 @@ elif os.path.isdir(sys.argv[1]):
         print CSV_video
     
     
-elif os.path.isfile(sys.argv[1]):
-    node.href = sys.argv[1]
-    if options.xml:
-        appendXMLChild(node)
-        print doc.toprettyxml(indent="    ",encoding="utf-8")
-    elif options.csv:
-        CSVtable(node)
-        print CSV_video
-    else:
-        singleVideoInfo(node)
+
         
