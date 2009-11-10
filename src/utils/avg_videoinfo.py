@@ -131,18 +131,16 @@ if len(sys.argv) ==1:
     parser.print_help()
     sys.exit(1)
 
-#elif os.path.isdir(sys.argv[1]):
-#    for subdir, dirs, files in os.walk(sys.argv[1]):
-for file in args::
-    try:
-        node.href = file
-        node.play()
-        VideoList.append(node.href)
-    except:
-        sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
-    
-    import pdb
-    pdb.set_trace()
+elif os.path.isdir(sys.argv[1]):
+    for subdir, dirs, files in os.walk(sys.argv[1]):
+        for file in files:
+            try:
+                node.href = os.path.join(subdir, file)
+                node.play()
+                VideoList.append(node.href)
+                
+            except:
+                sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
     
     for i in xrange(0, len(VideoList)):
         node.href = str(VideoList[i])
