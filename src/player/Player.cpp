@@ -144,19 +144,6 @@ Player::Player()
     s_pPlayer = this;
 }
 
-void Player::updateDTD()
-{
-    // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
-    string sDTDFName = "avg.dtd";
-    m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
-    if (!m_dtd) {
-        AVG_TRACE(Logger::WARNING, 
-                "DTD not found at " << sDTDFName << ". Not validating xml files.");
-    }
-    m_bDirtyDTD = false;
-}
-
 void deletePlayer()
 {
     delete Player::s_pPlayer;
@@ -914,6 +901,19 @@ void Player::initAudio()
     m_pAudioEngine->init(m_AP, m_Volume);
     m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     m_pAudioEngine->play();
+}
+
+void Player::updateDTD()
+{
+    // Find and parse dtd.
+    registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
+    string sDTDFName = "avg.dtd";
+    m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
+    if (!m_dtd) {
+        AVG_TRACE(Logger::WARNING, 
+                "DTD not found at " << sDTDFName << ". Not validating xml files.");
+    }
+    m_bDirtyDTD = false;
 }
 
 void Player::internalLoad(const string& sAVG)

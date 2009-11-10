@@ -64,8 +64,6 @@ class AVG_API Player : IEventSink
         static Player* get();
         static bool exists();
 
-        void updateDTD();
-
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
         void setWindowPos(int x=0, int y=0);
@@ -146,6 +144,7 @@ class AVG_API Player : IEventSink
         void initGraphics();
         void initAudio();
 
+        void updateDTD();
         void internalLoad(const std::string& sAVG);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
