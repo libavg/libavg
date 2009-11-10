@@ -22,7 +22,7 @@
 #
 
 from optparse import OptionParser, OptionValueError
-import sys
+import sys, traceback
 from libavg import avg
 import time
 from xml.dom import minidom
@@ -51,6 +51,8 @@ impl = minidom.getDOMImplementation()
 doc = impl.createDocument(None, "videodict", None)
 rootElement = doc.documentElement
 CSV_video = ''
+VideoList = []
+
 
 def appendXMLChild(node):    
     node.play()
@@ -72,10 +74,8 @@ def appendXMLChild(node):
         audioNode.setAttribute("channels", str(node.getNumAudioChannels()))
         videoinfo.appendChild(audioNode)
 
-
-def showInfo(node):    
+def singleVideoInfo(node):
     node.play()
-    
     print "File: " + node.href
     print ("Duration: " + str(node.getDuration()/1000.) + " s (" 
             + str(node.getNumFrames()) + " frames)")
@@ -90,23 +90,27 @@ def showInfo(node):
         print "  Codec: " + node.getAudioCodec()
         print "  Sample rate: " + str(node.getAudioSampleRate()) + " Hz"
         print "  Number of channels: " + str(node.getNumAudioChannels())
-    print ""
 
+    
+def showInfo(node):    
+    node.play()
+    if node.hasAudio():
+        print "%-24s %-12s %-15s %-11s %-11s %-14s %-10f %-10s %-12s %-15s" % (node.href[-20:], str(node.getDuration()/1000.), str(node.getBitrate()), node.getVideoCodec(), str(node.getMediaSize()), node.getStreamPixelFormat(), node.fps, node.getAudioCodec(), str(node.getAudioSampleRate()), str(node.getNumAudioChannels()))
+    else: 
+        print "%-24s %-12s %-15s %-11s %-11s %-14s %-10f %-10s %-12s %-15s" % (node.href[-20:], str(node.getDuration()/1000.), str(node.getBitrate()), node.getVideoCodec(), str(node.getMediaSize()), node.getStreamPixelFormat(), node.fps, "", "", "" )
 
+  
 def CSVtable(node):
     global CSV_video
     
     node.play()
     if CSV_video == '':
-        #CSV_head = "  \t  \t  \tVideoStream\t   \t   \t   \tAudio stream\n"
         CSV_head = ("File\tDuration\tBitrate\tVideoCodec\t" + \
                 "VideoSize\tPixel format\tFPS\tAudioCodec\t" + \
                 "Audio Sample rate\t Audio channels"+"\n")
         CSV_video = CSV_head   
-    
-    
     CSV_video += \
-        str(file)+'\t'+\
+        str(node.href)+'\t'+\
         str(node.getDuration()/1000.) + " s (" + str(node.getNumFrames()) + \
             " frames)"+'\t'+\
         str(node.getBitrate()) + " b/s" + '\t' + \
@@ -128,41 +132,46 @@ if len(sys.argv) ==1:
     sys.exit(1)
 
 elif os.path.isdir(sys.argv[1]):
+    nameLength = 0
     for subdir, dirs, files in os.walk(sys.argv[1]):
         for file in files:
             try:
                 node.href = os.path.join(subdir, file)
-                if options.xml:
-                    appendXMLChild(node)
-                elif options.csv:
-                    CSVtable(node)
-                else:
-                    showInfo(node)
+                node.play()
+                VideoList.append(node.href)
+                if len(node.href) > nameLength:
+                    nameLength = len(node.href)
             except:
-                pass
+                sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
     
+    for i in xrange(0, len(VideoList)):
+        node.href = str(VideoList[i])
+        if options.xml:
+            appendXMLChild(node)
+        elif options.csv:
+            CSVtable(node)
+        else:
+            if i == 0:
+                title = ("File","Duration[s]","Bitrate [b/s]","VideoCodec","VideoSize","Pixel format","FPS","AudioCodec","Sample rate", "Channels")
+                print "%-24s %-12s %-15s %-11s %-11s %-14s %-10s %-10s %-12s %-15s" %title
+                showInfo(node)
+            else:    
+                showInfo(node)
     if options.xml:
         print doc.toprettyxml(indent="    ",encoding="utf-8")
         
     elif options.csv:
-        f = open('VideoInfo.csv','w')
-        f.write(str(CSV_video))
-        f.close()
+        print CSV_video
     
-
+    
 elif os.path.isfile(sys.argv[1]):
-    
     node.href = sys.argv[1]
     if options.xml:
         appendXMLChild(node)
         print doc.toprettyxml(indent="    ",encoding="utf-8")
-        
     elif options.csv:
         CSVtable(node)
-        f = open('VideoInfo.csv','w')
-        f.write(str(CSV_video))
-        f.close()
-    
-    else:    
-        node.href = sys.argv[1]
-        showInfo(node)
+        print CSV_video
+    else:
+        singleVideoInfo(node)
+        
