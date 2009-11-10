@@ -287,13 +287,15 @@ private:
     {
         BitmapPtr pYBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), I8));
         for (int x=0; x<16; ++x) {
-            FilterFillRect<Pixel8>(IntRect(x, 0, x+1, 16), 235-x*13).applyInPlace(pYBmp);
+            FilterFillRect<Pixel8>(IntRect(x, 0, x+1, 16), 255-x*16).applyInPlace(pYBmp);
         }
         BitmapPtr pUBmp = BitmapPtr(new Bitmap(IntPoint(8, 8), I8));
         BitmapPtr pVBmp = BitmapPtr(new Bitmap(IntPoint(8, 8), I8));
-        for (int y=0; y<8; ++y) {
-            FilterFillRect<Pixel8>(IntRect(0, y, 8, y+1), y*32).applyInPlace(pUBmp);
-            FilterFillRect<Pixel8>(IntRect(0, y, 8, y+1), 255-y*32).applyInPlace(pVBmp);
+        FilterFillRect<Pixel8>(IntRect(0, 0, 8, 4), 128).applyInPlace(pUBmp);
+        FilterFillRect<Pixel8>(IntRect(0, 0, 8, 4), 128).applyInPlace(pVBmp);
+        for (int y=4; y<8; ++y) {
+            FilterFillRect<Pixel8>(IntRect(0, y, 8, y+1), y*64).applyInPlace(pUBmp);
+            FilterFillRect<Pixel8>(IntRect(0, y, 8, y+1), 255-y*64).applyInPlace(pVBmp);
         }
         BitmapPtr pRGBBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), B8G8R8X8));
         FilterFill<Pixel32>(Pixel32(255,0,0,255)).applyInPlace(pRGBBmp);

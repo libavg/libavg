@@ -415,7 +415,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
 
     register __m64    *o;
     register __m64    y, ylo, yhi;
-    register __m64    zero, ut, vt, imm, imm2;
+    register __m64    zero, ut, vt, imm;
     register __m64    r, g, b;
     register __m64    tmp, tmp2;
 
@@ -437,7 +437,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
             ylo = _m_punpcklbw(y, zero);
             imm = _mm_set1_pi16(16);
             ylo = _m_psubusw(ylo, imm);
-            imm = _mm_set1_pi16(154);
+            imm = _mm_set1_pi16(149);
             ylo = _m_pmullw(ylo, imm);
             ylo = _mm_srli_pi16(ylo, 7);
            
@@ -483,23 +483,21 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
              *   [s1(8), s1(8), s2(8), s2(8), s3(8), s3(8), s4(8), s4(8)]
              */
             tmp = _m_punpckhwd(r, r);
-            imm = yhi; 
-            tmp = _m_paddsw(tmp, imm);
+            tmp = _m_paddsw(tmp, yhi);
             tmp2 = _m_punpcklwd(r, r);
-            imm2 = ylo; 
-            tmp2 = _m_paddsw(tmp2, imm2);
+            tmp2 = _m_paddsw(tmp2, ylo);
             r = _m_packuswb(tmp2, tmp);
 
             tmp = _m_punpckhwd(g, g);
             tmp2 = _m_punpcklwd(g, g);
-            tmp = _m_paddsw(tmp, imm);
-            tmp2 = _m_paddsw(tmp2, imm2);
+            tmp = _m_paddsw(tmp, yhi);
+            tmp2 = _m_paddsw(tmp2, ylo);
             g = _m_packuswb(tmp2, tmp);
 
             tmp = _m_punpckhwd(b, b);
             tmp2 = _m_punpcklwd(b, b);
-            tmp = _m_paddsw(tmp, imm);
-            tmp2 = _m_paddsw(tmp2, imm2);
+            tmp = _m_paddsw(tmp, yhi);
+            tmp2 = _m_paddsw(tmp2, ylo);
             b = _m_packuswb(tmp2, tmp);
 
             /* now we have 8 8-bit r, g and b samples.  we want these to be packed
