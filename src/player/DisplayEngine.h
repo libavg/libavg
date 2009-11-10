@@ -73,10 +73,6 @@ class AVG_API DisplayEngine
         virtual int getHeight() = 0;
         virtual int getBPP() = 0;
 
-        // True if the bpp given are supported.
-        virtual bool supportsBpp(int bpp) = 0; 
-        // True if pixel order is RGB; BGR otherwise.
-        virtual bool hasRGBOrdering() = 0; 
         virtual bool isUsingShaders() const = 0; 
         virtual void showCursor (bool bShow) = 0;
 

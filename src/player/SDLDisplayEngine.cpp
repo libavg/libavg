@@ -523,16 +523,6 @@ void SDLDisplayEngine::swapBuffers()
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
-bool SDLDisplayEngine::supportsBpp(int bpp)
-{
-    return (bpp == 24 || bpp == 32);
-}
-
-bool SDLDisplayEngine::hasRGBOrdering()
-{
-    return false;
-}
-
 bool SDLDisplayEngine::isUsingShaders() const
 {
     return m_bUseShaders;

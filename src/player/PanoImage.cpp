@@ -288,9 +288,6 @@ void PanoImage::load()
 
 void PanoImage::setupTextures()
 {
-    if (getDisplayEngine()->hasRGBOrdering()) {
-        FilterFlipRGB().applyInPlace(m_pBmp);
-    }
     if (!m_TileTextureIDs.empty()) {
         clearTextures();
     }
