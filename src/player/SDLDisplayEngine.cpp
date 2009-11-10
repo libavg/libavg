@@ -451,11 +451,6 @@ void SDLDisplayEngine::popClipRect()
     m_ClipRects.pop_back();
 }
 
-const DRect& SDLDisplayEngine::getClipRect() 
-{
-    return m_ClipRects.back();
-}
-
 void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, const DPoint& pivot)
 {
     glPushMatrix();

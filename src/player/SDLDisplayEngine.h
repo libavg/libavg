@@ -57,7 +57,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
-        virtual const DRect& getClipRect();
         virtual void pushTransform(const DPoint& translate, double angle, 
                 const DPoint& pivot);
         virtual void popTransform();
