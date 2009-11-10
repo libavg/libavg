@@ -332,6 +332,22 @@ class AVTestCase(AVGTestCase):
                     {"href": "../video/testfiles/"+filename})
             self.testEOF(node)
 
+        Player.loadString("""
+            <avg width="160" height="120">
+                <video id="video" x="0" y="0" opacity="1" threaded="false"
+                        href="../video/testfiles/mpeg1-48x48.mpg"/>
+            </avg>""")
+        video = Player.getElementByID("video")
+        Player.setFakeFPS(0.1)
+
+        video.setEOFCallback(lambda: foo) # Should never be called
+        self.start(None,
+                [lambda: video.setEOFCallback(None), 
+                 video.play,
+                 None
+                ])
+
+
     def testSound(self):
         def testSoundFile(filename):
             def setVolume(volume):

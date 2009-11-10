@@ -244,8 +244,12 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
-    Py_INCREF(pEOFCallback);
-    m_pEOFCallback = pEOFCallback;
+    if (pEOFCallback == Py_None) {
+        m_pEOFCallback = 0;
+    } else {
+        Py_INCREF(pEOFCallback);
+        m_pEOFCallback = pEOFCallback;
+    }
 }
 
 const UTF8String& Video::getHRef() const
