@@ -444,7 +444,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
             yhi = _m_punpckhbw(y, zero);
             imm = _mm_set1_pi16(16);
             yhi = _m_psubusw(yhi, imm);
-            imm = _mm_set1_pi16(154);
+            imm = _mm_set1_pi16(149);
             yhi = _m_pmullw(yhi, imm);
             yhi = _mm_srli_pi16(yhi, 7);
 
@@ -474,6 +474,8 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
             r = _m_psrawi(r, 7);
             g = _m_psrawi(g, 7);
             b = _m_psrawi(b, 6);
+            /* Now r, g, b contain 4 words each of the u and v inputs for the color */
+            /* channels. */
 
             /* duplicate u and v channels and add y
              * each of r,g, b in the form [s1(16), s2(16), s3(16), s4(16)]
