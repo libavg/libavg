@@ -36,9 +36,21 @@ UTF8String::UTF8String(const string& s)
 {
 }
 
+UTF8String::UTF8String(const char * psz)
+    : string(psz)
+{
+    
+}
+
 UTF8String& UTF8String::operator =(const string& s)
 {
     *dynamic_cast<string*>(this) = s;
+    return *this;
+}
+
+UTF8String& UTF8String::operator =(const char* psz)
+{
+    *dynamic_cast<string*>(this) = psz;
     return *this;
 }
 

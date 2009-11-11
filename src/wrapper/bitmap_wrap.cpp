@@ -123,9 +123,9 @@ void export_bitmap()
             "from any RasterNode. For nodes of type Image, the current bitmap can be\n"
             "set as well.",
             no_init)
-        .def(init<IntPoint, PixelFormat, std::string>())
+        .def(init<IntPoint, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
-        .def(init<std::string>())
+        .def(init<UTF8String>())
         .def("save", &Bitmap::save,
                 "save(filename)\n"
                 "Writes the image to a file. File format is determined using the\n"

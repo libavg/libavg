@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "../base/Point.h"
 #include "../base/Rect.h"
+#include "../base/UTF8String.h"
 
 #include <boost/shared_ptr.hpp>
 #include <stdlib.h>
@@ -75,13 +76,13 @@ typedef boost::shared_ptr<Histogram> HistogramPtr;
 class AVG_API Bitmap
 {
 public:
-    Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName="");
+    Bitmap(IntPoint Size, PixelFormat PF, const UTF8String& sName="");
     Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
-            int Stride, bool bCopyBits, const std::string& sName="");
+            int Stride, bool bCopyBits, const UTF8String& sName="");
     Bitmap(const Bitmap& Orig);
     Bitmap(const Bitmap& Orig, bool bOwnsBits);
     Bitmap(Bitmap& Orig, const IntRect& Rect);
-    Bitmap(const std::string& sURI);
+    Bitmap(const UTF8String& sURI);
     virtual ~Bitmap();
 
     Bitmap &operator= (const Bitmap & Orig);
@@ -89,7 +90,7 @@ public:
     // Does pixel format conversion if nessesary.
     void copyPixels(const Bitmap & Orig);
     void copyYUVPixels(const Bitmap & YOrig, const Bitmap& UOrig, const Bitmap& VOrig);
-    void save(const std::string& sName);
+    void save(const UTF8String& sName);
     
     IntPoint getSize() const;
     int getStride() const;
@@ -147,7 +148,7 @@ private:
     PixelFormat m_PF;
     unsigned char * m_pBits;
     bool m_bOwnsBits;
-    std::string m_sName;
+    UTF8String m_sName;
 
     static bool s_bMagickInitialized;
 };

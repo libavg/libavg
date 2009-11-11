@@ -32,8 +32,10 @@ class AVG_API UTF8String: public std::string
 public:
     UTF8String();
     UTF8String(const std::string& s);
+    UTF8String(const char * psz);
 
     UTF8String& operator =(const std::string& s);
+    UTF8String& operator =(const char * psz);
 
 };
 

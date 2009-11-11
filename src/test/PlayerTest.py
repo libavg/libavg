@@ -287,10 +287,18 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(Bmp.getSize() == (64,64))
             self.assert_(Bmp.getFormat() == avg.I8)
         
+        def testUnicode():
+            # Can't check unicode filenames into svn or the windows client breaks.
+            # So we rename the file locally.
+            shutil.copyfile("oe.png", u"ö.png")
+            Bmp = avg.Bitmap(u"ö.png")
+            os.remove(u"ö.png")
+
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
         getBitmap(node)
 #        loadBitmap()
+        testUnicode()
         self.start(None,
                 (lambda: getBitmap(Player.getElementByID("test")),
                 ))

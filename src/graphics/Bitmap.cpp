@@ -54,7 +54,7 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src);
 
 bool Bitmap::s_bMagickInitialized = false;
 
-Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
+Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const UTF8String& sName)
     : m_Size(Size),
       m_PF(PF),
       m_pBits(0),
@@ -68,7 +68,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
 }
 
 Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
-        int Stride, bool bCopyBits, const std::string& sName)
+        int Stride, bool bCopyBits, const UTF8String& sName)
     : m_Size(Size),
       m_PF(PF),
       m_pBits(0),
@@ -129,7 +129,7 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
     initWithData(pRegionStart, Orig.getStride(), false);
 }
 
-Bitmap::Bitmap(const std::string& sURI)
+Bitmap::Bitmap(const UTF8String& sURI)
     : m_pBits(0),
       m_sName(sURI)
 {
@@ -547,7 +547,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
 #endif
 }
 
-void Bitmap::save(const std::string& sFilename)
+void Bitmap::save(const UTF8String& sFilename)
 {
     if (!s_bMagickInitialized) {
         InitializeMagick(0);
