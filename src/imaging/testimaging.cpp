@@ -44,89 +44,91 @@
 using namespace avg;
 using namespace std;
 
-class DeDistortTest: public Test {
-    public:
-        DeDistortTest()
-          : Test("DeDistortTest", 2)
-        {}
+class DeDistortTest: public Test
+{
+public:
+    DeDistortTest()
+      : Test("DeDistortTest", 2)
+    {}
 
-        void runTests()
-        {
-            vector<double> Params;
-            Params.push_back(0);
-            Params.push_back(0);
-            DeDistort IdentityDistort = DeDistort(DPoint(1,1),
-                Params, 0.0, 0.0,
-                DPoint(0,0), DPoint(1,1));
-            TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
-            TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(1,2)), DPoint(1,2)));
-            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), 
-                    DPoint(0,0)));
-            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), 
-                    DPoint(1,2)));
-            TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(1,2)), DPoint(1,2)));
-            TEST(IdentityDistort.getActiveBlobArea(DPoint(1280,720)) == DRect(0,0,1280,720));
+    void runTests()
+    {
+        vector<double> Params;
+        Params.push_back(0);
+        Params.push_back(0);
+        DeDistort IdentityDistort = DeDistort(DPoint(1,1),
+            Params, 0.0, 0.0,
+            DPoint(0,0), DPoint(1,1));
+        TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
+        TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
+        TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(0,0)), DPoint(0,0)));
+        TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(1,2)), DPoint(1,2)));
+        TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), 
+                DPoint(0,0)));
+        TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), 
+                DPoint(1,2)));
+        TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(0,0)), DPoint(0,0)));
+        TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(1,2)), DPoint(1,2)));
+        TEST(IdentityDistort.getActiveBlobArea(DPoint(1280,720)) == DRect(0,0,1280,720));
 
-            DeDistort Scaler = DeDistort(DPoint(1,1),
-                Params, 0, 0.0,
-                DPoint(0,0), DPoint(2,2));
-            TEST(almostEqual(Scaler.transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(Scaler.transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
-            TEST(almostEqual(Scaler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(Scaler.transformScreenToBlob(DPoint(1,2)), DPoint(0.5,1)));
+        DeDistort Scaler = DeDistort(DPoint(1,1),
+            Params, 0, 0.0,
+            DPoint(0,0), DPoint(2,2));
+        TEST(almostEqual(Scaler.transform_point(DPoint(0,0)), DPoint(0,0)));
+        TEST(almostEqual(Scaler.transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
+        TEST(almostEqual(Scaler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
+        TEST(almostEqual(Scaler.transformScreenToBlob(DPoint(1,2)), DPoint(0.5,1)));
 
-            DeDistort Shifter = DeDistort(DPoint(1,1),
-                Params, 0, 0.0,
-                DPoint(1,1), DPoint(1,1));
-            TEST(almostEqual(Shifter.transformBlobToScreen(DPoint(0,0)), DPoint(1,1)));
-            TEST(almostEqual(Shifter.transformBlobToScreen(DPoint(1,2)), DPoint(2,3)));
-            TEST(almostEqual(Shifter.transformScreenToBlob(DPoint(0,0)), DPoint(-1,-1)));
-            TEST(almostEqual(Shifter.transformScreenToBlob(DPoint(1,2)), DPoint(0,1)));
-            TEST(Shifter.getActiveBlobArea(DPoint(1,1)) == DRect(-1, -1, 0, 0));
+        DeDistort Shifter = DeDistort(DPoint(1,1),
+            Params, 0, 0.0,
+            DPoint(1,1), DPoint(1,1));
+        TEST(almostEqual(Shifter.transformBlobToScreen(DPoint(0,0)), DPoint(1,1)));
+        TEST(almostEqual(Shifter.transformBlobToScreen(DPoint(1,2)), DPoint(2,3)));
+        TEST(almostEqual(Shifter.transformScreenToBlob(DPoint(0,0)), DPoint(-1,-1)));
+        TEST(almostEqual(Shifter.transformScreenToBlob(DPoint(1,2)), DPoint(0,1)));
+        TEST(Shifter.getActiveBlobArea(DPoint(1,1)) == DRect(-1, -1, 0, 0));
 
-            vector<double> Cubed;
-            Cubed.push_back(0);
-            Cubed.push_back(1);
-            DeDistort Barreler = DeDistort(DPoint(1,1),
-                Cubed, 0, 0.0,
-                DPoint(0,0), DPoint(1,1));
-            for (double xp=0;xp<10;xp++){
-                for(double yp=0;yp<10;yp++){
-                    QUIET_TEST(almostEqual(Barreler.inverse_transform_point(
-                            Barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
-                }
+        vector<double> Cubed;
+        Cubed.push_back(0);
+        Cubed.push_back(1);
+        DeDistort Barreler = DeDistort(DPoint(1,1),
+            Cubed, 0, 0.0,
+            DPoint(0,0), DPoint(1,1));
+        for (double xp=0;xp<10;xp++){
+            for(double yp=0;yp<10;yp++){
+                QUIET_TEST(almostEqual(Barreler.inverse_transform_point(
+                        Barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
             }
-            TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
+        }
+        TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
 
-            DeDistort Rotator = DeDistort(DPoint(1,1),
-                Params, 0, PI/2,
-                DPoint(0,0), DPoint(1,1));
-            for (double xp=0;xp<10;xp++){
-                for(double yp=0;yp<10;yp++){
-                    QUIET_TEST(almostEqual(Rotator.inverse_transform_point(
-                            Rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
-                }
+        DeDistort Rotator = DeDistort(DPoint(1,1),
+            Params, 0, PI/2,
+            DPoint(0,0), DPoint(1,1));
+        for (double xp=0;xp<10;xp++){
+            for(double yp=0;yp<10;yp++){
+                QUIET_TEST(almostEqual(Rotator.inverse_transform_point(
+                        Rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
             }
+        }
 
-            DeDistort ShifterScaler = DeDistort(DPoint(1,1),
-                Params, 0, 0.0,
-                DPoint(1,1), DPoint(2,2));
-            for (double xp=0;xp<10;xp++){
-                for(double yp=0;yp<10;yp++){
-                    QUIET_TEST(almostEqual(ShifterScaler.inverse_transform_point(
-                            ShifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
-                }
+        DeDistort ShifterScaler = DeDistort(DPoint(1,1),
+            Params, 0, 0.0,
+            DPoint(1,1), DPoint(2,2));
+        for (double xp=0;xp<10;xp++){
+            for(double yp=0;yp<10;yp++){
+                QUIET_TEST(almostEqual(ShifterScaler.inverse_transform_point(
+                        ShifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
             }
+        }
     }
 };
 
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
-class SerializeTest: public Test {
+class SerializeTest: public Test
+{
 public:
     SerializeTest()
         : Test("SerializeTest", 2)
@@ -161,7 +163,8 @@ public:
     }
 };
 
-class ImagingTestSuite: public TestSuite {
+class ImagingTestSuite: public TestSuite
+{
 public:
     ImagingTestSuite() 
         : TestSuite("ImagingTestSuite")
