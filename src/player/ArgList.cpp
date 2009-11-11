@@ -28,6 +28,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/UTF8String.h"
 
 #include <sstream>
 
@@ -150,6 +151,7 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
 {
     ArgBasePtr pArg = getArg(sName);
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
+    Arg<UTF8String>* pUTF8StringArg = dynamic_cast<Arg<UTF8String>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
     Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
@@ -163,6 +165,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
             dynamic_cast<Arg<vector<IntTriple> >* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, Value);
+    } else if (pUTF8StringArg) {
+        avg::setArgValue(pUTF8StringArg, sName, Value);
     } else if (pIntArg) {
         avg::setArgValue(pIntArg, sName, Value);
     } else if (pDoubleArg) {
@@ -190,6 +194,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
 {
     ArgBasePtr pArg = getArg(sName);
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
+    Arg<UTF8String>* pUTF8StringArg = dynamic_cast<Arg<UTF8String>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
     Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
@@ -204,6 +209,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
 
     if (pStringArg) {
         pStringArg->setValue(sValue);
+    } else if (pUTF8StringArg) {
+        pUTF8StringArg->setValue(sValue);
     } else if (pIntArg) {
         pIntArg->setValue(stringToInt(sValue));
     } else if (pDoubleArg) {

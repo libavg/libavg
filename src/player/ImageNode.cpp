@@ -44,7 +44,7 @@ NodeDefinition ImageNode::createDefinition()
 {
     return NodeDefinition("image", Node::buildNode<ImageNode>)
         .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(ImageNode, m_href)));
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)));
 }
 
 ImageNode::ImageNode(const ArgList& Args)
