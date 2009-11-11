@@ -52,7 +52,7 @@ doc = impl.createDocument(None, "videodict", None)
 rootElement = doc.documentElement
 CSV_video = ''
 VideoList = []
-
+len_filename = 0
 
 def appendXMLChild(node):    
     node.play()
@@ -90,15 +90,6 @@ def singleVideoInfo(node):
         print "  Codec: " + node.getAudioCodec()
         print "  Sample rate: " + str(node.getAudioSampleRate()) + " Hz"
         print "  Number of channels: " + str(node.getNumAudioChannels())
-
-    
-def showInfo(node):    
-    node.play()
-    if node.hasAudio():
-        print "%-24s %-12s %-15s %-11s %-11s %-14s %-10f %-10s %-12s %-15s" % (node.href[-20:], str(node.getDuration()/1000.), str(node.getBitrate()), node.getVideoCodec(), str(node.getMediaSize()), node.getStreamPixelFormat(), node.fps, node.getAudioCodec(), str(node.getAudioSampleRate()), str(node.getNumAudioChannels()))
-    else: 
-        print "%-24s %-12s %-15s %-11s %-11s %-14s %-10f %-10s %-12s %-15s" % (node.href[-20:], str(node.getDuration()/1000.), str(node.getBitrate()), node.getVideoCodec(), str(node.getMediaSize()), node.getStreamPixelFormat(), node.fps, "", "", "" )
-
   
 def CSVtable(node):
     global CSV_video
@@ -126,7 +117,38 @@ def CSVtable(node):
     else:
         CSV_video += ' \t \t \n'
     
+def showInfo(node):    
+    global len_filename
+    node.play()
     
+    info = "{File:%d}{Duration:12}{Bitrate:15}{VideoCodes:13}{VideoSize:11}{Pixel:14}{FPS:10}{AudioCodec:12}{SampleRate:13}{Channels:8}" % (len_filename+2)
+    if node.hasAudio():
+        print (info.format(
+            File=str(os.path.basename(node.href)), 
+            Duration=str(node.getDuration()/1000.), 
+            Bitrate=str(node.getBitrate()), 
+            VideoCodes=node.getVideoCodec(), 
+            VideoSize=str(node.getMediaSize()), 
+            Pixel=node.getStreamPixelFormat(), 
+            FPS='%2.2f'%node.fps, 
+            AudioCodec=node.getAudioCodec(), 
+            SampleRate=str(node.getAudioSampleRate()), 
+            Channels=str(node.getNumAudioChannels())))
+    else: 
+        print (info.format(
+            File=str(os.path.basename(node.href)), 
+            Duration=str(node.getDuration()/1000.), 
+            Bitrate=str(node.getBitrate()), 
+            VideoCodes=node.getVideoCodec(), 
+            VideoSize=str(node.getMediaSize()), 
+            Pixel=node.getStreamPixelFormat(), 
+            FPS='%2.2f'%node.fps, 
+            AudioCodec=' ', 
+            SampleRate=' ', 
+            Channels=' '))
+        
+    
+            
 if len(sys.argv) ==1:
     parser.print_help()
     sys.exit(1)
@@ -150,7 +172,11 @@ else:
             VideoList.append(node.href)   
         except:
             sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
-          
+    
+    for i in xrange(0, len(VideoList)):
+        if len_filename < len(str(os.path.basename(str(VideoList[i])))):
+            len_filename = len(str(os.path.basename(str(VideoList[i]))))
+            
     for i in xrange(0, len(VideoList)):
         node.href = str(VideoList[i])
         if options.xml:
@@ -159,8 +185,19 @@ else:
             CSVtable(node)
         else:
             if i == 0:
-                title = ("File","Duration[s]","Bitrate [b/s]","VideoCodec","VideoSize","Pixel format","FPS","AudioCodec","Sample rate", "Channels")
-                print "%-24s %-12s %-15s %-11s %-11s %-14s %-10s %-10s %-12s %-15s" %title
+                title = "{File:%d}{Duration:12}{Bitrate:15}{VideoCodes:13}{VideoSize:11}{Pixel:14}{FPS:10}{AudioCodec:12}{SampleRate:13}{Channels:8}" % (len_filename+2)
+                print (title.format(
+                    File="File",
+                    Duration="Duration[s]",
+                    Bitrate="Bitrate [b/s]",
+                    VideoCodes="VideoCodec",
+                    VideoSize="VideoSize",
+                    Pixel="Pixel format", 
+                    FPS="FPS", 
+                    AudioCodec="AudioCodec", 
+                    SampleRate="Sample rate", 
+                    Channels="Channels"))
+                print ""
                 showInfo(node)
             else:    
                 showInfo(node)
