@@ -439,31 +439,7 @@ void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
     initFilename(sFilename);
     if (sLastFilename != sFilename) {
         try {
-#ifdef _WIN32
-            // Conversion from utf-8 to something windows can use:
-            // utf-8 long filename -> utf-16 long filename -> utf-16 short filename (8.3)
-            // -> utf-8 short filename (= ASCII short filename).
-            wchar_t wideString[2048];
-            int err1 = MultiByteToWideChar(CP_UTF8, 0, sFilename.c_str(), sFilename.size()+1, 
-                    wideString, 2048);
-            if (err1 == 0) {
-                AVG_TRACE(Logger::WARNING, 
-                        "Error in unicode conversion (MultiByteToWideChar): " <<
-                        getWinErrMsg(GetLastError()));
-            }
-            wchar_t wideShortFName[2048];
-            DWORD err2 = GetShortPathNameW(wideString, wideShortFName, 1024);
-            if (err2 != 0) {
-                char pShortName[1024];
-                err1 = WideCharToMultiByte(CP_UTF8, 0, wideShortFName, -1, pShortName, 
-                        1024, 0, 0);
-                if (err1 == 0) {
-                    AVG_TRACE(Logger::WARNING, "Error in unicode conversion (MultiByteToWideChar): " <<
-                            getWinErrMsg(GetLastError()));
-                }
-                sFilename = pShortName;
-            }
-#endif
+            sFilename = convertUTF8ToFilename(sFilename);
             pImage->setFilename(sFilename);
         } catch (Magick::Exception & ex) {
             pImage->setFilename("");

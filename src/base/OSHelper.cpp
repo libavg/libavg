@@ -151,4 +151,38 @@ unsigned getMemoryUsage()
 #endif
 }
 
+std::string convertUTF8ToFilename(const std::string & sName)
+{
+#ifdef _WIN32
+    // Conversion from utf-8 to something windows can use:
+    // utf-8 long filename -> utf-16 long filename -> utf-16 short filename (8.3)
+    // -> utf-8 short filename (= ASCII short filename).
+    wchar_t wideString[2048];
+    int err1 = MultiByteToWideChar(CP_UTF8, 0, sName.c_str(), sName.size()+1, 
+            wideString, 2048);
+    if (err1 == 0) {
+        AVG_TRACE(Logger::WARNING, 
+                "Error in unicode conversion (MultiByteToWideChar): " <<
+                getWinErrMsg(GetLastError()));
+        return sName;
+    }
+    wchar_t wideShortFName[2048];
+    DWORD err2 = GetShortPathNameW(wideString, wideShortFName, 1024);
+    if (err2 != 0) {
+        char pShortName[1024];
+        err1 = WideCharToMultiByte(CP_UTF8, 0, wideShortFName, -1, pShortName, 
+                1024, 0, 0);
+        if (err1 == 0) {
+            AVG_TRACE(Logger::WARNING, "Error in unicode conversion (MultiByteToWideChar): " <<
+                    getWinErrMsg(GetLastError()));
+        }
+        return pShortName;
+    } else {
+        return sName;
+    }
+#else
+    return sName;
+#endif
+}
+
 }

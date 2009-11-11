@@ -31,6 +31,7 @@
 #include "../base/ObjectCounter.h"
 #include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
+#include "../base/OSHelper.h"
 
 #include <Magick++.h>
 
@@ -145,7 +146,8 @@ Bitmap::Bitmap(const UTF8String& sURI)
     }
     Image Img;
     try {
-        Img.read(sURI);
+        string sFilename = convertUTF8ToFilename(sURI);
+        Img.read(sFilename);
     } catch(Magick::Warning &e) {
         cerr << e.what() << endl;
     } catch(Magick::ErrorConfigure &) {

@@ -38,6 +38,10 @@ void setEnv(const std::string & sName, const std::string & sVal);
 
 unsigned getMemoryUsage();
 
+// Converts a utf-8-encoded filename to something windows can use.
+// Under other operating systems, returns the input string.
+std::string convertUTF8ToFilename(const std::string & sName);
+
 }
 
 #endif 
