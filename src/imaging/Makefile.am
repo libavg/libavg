@@ -26,7 +26,7 @@ ALL_CPP = Camera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp R
 
 TESTS=testimaging
 
-EXTRA_DIST = avgtrackerrc.minimal $(wildcard testimages/*.png) \
+EXTRA_DIST = avgtrackerrc.minimal $(wildcard testfiles/*.png) \
         CMUCamera.h CMUCamera.cpp DSCamera.cpp DSCamera.h DSHelper.h DSHelper.cpp \
         DSSampleQueue.h DSSampleQueue.cpp CMUCameraUtils.h CMUCameraUtils.cpp
 
