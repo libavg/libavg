@@ -53,7 +53,7 @@ NodeDefinition Video::createDefinition()
 {
     return NodeDefinition("video", Node::buildNode<Video>)
         .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(Video, m_href)))
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(Video, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(Video, m_bThreaded)))
         .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)))

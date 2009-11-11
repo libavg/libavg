@@ -38,7 +38,7 @@ NodeDefinition FilledVectorNode::createDefinition()
 {
     return NodeDefinition("filledvector")
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<string>("filltexhref", "", false, 
+        .addArg(Arg<UTF8String>("filltexhref", "", false, 
                 offsetof(FilledVectorNode, m_FillTexHRef)))
         .addArg(Arg<double>("fillopacity", 0, false, 
                 offsetof(FilledVectorNode, m_FillOpacity)))
@@ -55,7 +55,7 @@ FilledVectorNode::FilledVectorNode(const ArgList& Args)
     : VectorNode(Args),
       m_pFillShape(new Shape("", MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
 {
-    m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
+    m_FillTexHRef = Args.getArgVal<UTF8String>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
     m_sFillColorName = Args.getArgVal<string>("fillcolor");
     m_FillColor = colorStringToColor(m_sFillColorName);

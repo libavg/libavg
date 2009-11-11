@@ -51,6 +51,7 @@ class WordsTestCase(AVGTestCase):
         def checkUnicodeText():
             node = Player.getElementByID("sanstext")
             node.text = u"föa"
+            newNode = Player.createNode("words", {"text":u"öäü"})
         
         fontList = avg.Words.getFontFamilies()
         try:

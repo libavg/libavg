@@ -53,7 +53,7 @@ NodeDefinition DivNode::createDefinition()
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<string>("elementoutlinecolor", "", false, 
                 offsetof(DivNode, m_sElementOutlineColor)))
-        .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
+        .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
 DivNode::DivNode(const ArgList& Args)

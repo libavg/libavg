@@ -54,7 +54,7 @@ NodeDefinition VectorNode::createDefinition()
         .extendDefinition(Node::createDefinition())
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
-        .addArg(Arg<string>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
+        .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
         .addArg(Arg<string>("blendmode", "blend", false, offsetof(VectorNode, m_sBlendMode)))
         ;
 }
@@ -63,7 +63,7 @@ VectorNode::VectorNode(const ArgList& Args)
     : m_pShape(new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false)))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_TexHRef = Args.getArgVal<string>("texhref"); 
+    m_TexHRef = Args.getArgVal<UTF8String>("texhref"); 
     setTexHRef(m_TexHRef);
     m_sColorName = Args.getArgVal<string>("color");
     m_Color = colorStringToColor(m_sColorName);

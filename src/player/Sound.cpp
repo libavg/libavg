@@ -48,7 +48,7 @@ NodeDefinition Sound::createDefinition()
 {
     return NodeDefinition("sound", Node::buildNode<Sound>)
         .extendDefinition(AreaNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(Sound, m_href)))
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(Sound, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Sound, m_bLoop)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(Sound, m_Volume)))
         ;

@@ -88,7 +88,7 @@ NodeDefinition Words::createDefinition()
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_sFontName)))
         .addArg(Arg<string>("variant", "", false, offsetof(Words, m_sFontVariant)))
-        .addArg(Arg<string>("text", ""))
+        .addArg(Arg<UTF8String>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_sColorName)))
         .addArg(Arg<double>("fontsize", 15, false, offsetof(Words, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
@@ -114,7 +114,7 @@ Words::Words(const ArgList& Args)
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
     setWrapMode(Args.getArgVal<string>("wrapmode"));
-    setText(Args.getArgVal<string>("text"));
+    setText(Args.getArgVal<UTF8String>("text"));
     m_Color = colorStringToColor(m_sColorName);
     ObjectCounter::get()->incRef(&typeid(*this));
 }

@@ -47,7 +47,7 @@ NodeDefinition RasterNode::createDefinition()
         .addArg(Arg<string>("blendmode", "blend", false, 
                 offsetof(RasterNode, m_sBlendMode)))
         .addArg(Arg<bool>("mipmap", false))
-        .addArg(Arg<string>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)))
+        .addArg(Arg<UTF8String>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)))
         .addArg(Arg<DPoint>("maskpos", DPoint(0,0), false,
                 offsetof(RasterNode, m_MaskPos)))
         .addArg(Arg<DPoint>("masksize", DPoint(0,0), false,

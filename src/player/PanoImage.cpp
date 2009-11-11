@@ -50,7 +50,7 @@ NodeDefinition PanoImage::createDefinition()
 {
     return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
         .extendDefinition(AreaNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(PanoImage, m_href)))
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(PanoImage, m_href)))
         .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
         .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
         .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImage, m_FocalLength)))
