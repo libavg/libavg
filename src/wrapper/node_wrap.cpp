@@ -41,6 +41,7 @@ void export_devices();
 #include "../player/PolyLineNode.h"
 #include "../player/PolygonNode.h"
 #include "../player/CircleNode.h"
+#include "../player/MeshNode.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -469,4 +470,14 @@ void export_node()
         .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
         .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)
     ;
+    
+    class_<MeshNode, bases<VectorNode>, boost::noncopyable>("MeshNode", no_init)
+        .add_property("vertexcoords", make_function(&MeshNode::getVertexCoords,
+        		return_value_policy<copy_const_reference>()), &MeshNode::setVertexCoords)
+        .add_property("texcoords", make_function(&MeshNode::getTexCoords,
+        		return_value_policy<copy_const_reference>()), &MeshNode::setTexCoords)
+        .add_property("triangles", make_function(&MeshNode::getTriangles,
+        		return_value_policy<copy_const_reference>()), &MeshNode::setTriangles)
+    ;
+    
 }

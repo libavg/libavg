@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "Exception.h"
 #include "Point.h"
+#include "IntTriple.h"
 
 #include <string>
 #include <sstream>
@@ -89,6 +90,7 @@ int stringToInt(const std::string& s);
 double stringToDouble(const std::string& s);
 bool stringToBool(const std::string& s);
 DPoint stringToDPoint(const std::string& s);
+IntTriple stringToIntTriple(const std::string& s);
 
 std::string removeStartEndSpaces(const std::string& s);
 
@@ -134,6 +136,7 @@ void fromString(const std::string& s, T& result)
                 + "' to "+sTypeName+"."));
     }
 }
+
 
 }
 

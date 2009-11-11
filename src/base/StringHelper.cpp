@@ -98,6 +98,13 @@ DPoint stringToDPoint(const std::string& s)
     return pt;
 }
 
+IntTriple stringToIntTriple(const std::string& s)
+{
+    IntTriple pt;
+    fromString(s, pt);
+    return pt;
+}
+
 std::string removeStartEndSpaces(const string& s)
 {
     string sResult = s;

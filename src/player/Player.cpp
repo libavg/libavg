@@ -36,6 +36,7 @@
 #include "PolyLineNode.h"
 #include "PolygonNode.h"
 #include "CircleNode.h"
+#include "MeshNode.h"
 #include "NodeDefinition.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
@@ -129,6 +130,7 @@ Player::Player()
     registerNodeType(PolyLineNode::createDefinition());
     registerNodeType(PolygonNode::createDefinition());
     registerNodeType(CircleNode::createDefinition());
+    registerNodeType(MeshNode::createDefinition());
     
     m_pTestHelper = new TestHelper(this);
 

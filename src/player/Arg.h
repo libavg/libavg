@@ -26,6 +26,7 @@
 
 #include "../api.h"
 #include "../base/Point.h"
+#include "../base/IntTriple.h"
 
 #include "ArgBase.h"
 
@@ -105,8 +106,10 @@ extern template class Arg<float>;
 extern template class Arg<double>;
 extern template class Arg<std::string>;
 extern template class Arg<DPoint>;
+extern template class Arg<IntTriple>;
 extern template class Arg<std::vector<double> >;
 extern template class Arg<std::vector<DPoint> >;
+extern template class Arg<std::vector<IntTriple> >;
 #endif
 #endif
 

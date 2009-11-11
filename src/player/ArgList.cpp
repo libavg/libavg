@@ -155,9 +155,12 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<DPoint>* pDPointArg = dynamic_cast<Arg<DPoint>* >(&*pArg);
+    Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
     Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
     Arg<vector<DPoint> >* pDPointVectorArg = 
             dynamic_cast<Arg<vector<DPoint> >* >(&*pArg);
+    Arg<vector<IntTriple> >* pIntTripleVectorArg = 
+            dynamic_cast<Arg<vector<IntTriple> >* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, Value);
     } else if (pIntArg) {
@@ -174,6 +177,10 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pDVectorArg, sName, Value);
     } else if (pDPointVectorArg) {
         avg::setArgValue(pDPointVectorArg, sName, Value);
+    } else if (pIntTripleArg) {
+        avg::setArgValue(pIntTripleArg, sName, Value);
+    } else if (pIntTripleVectorArg) {
+        avg::setArgValue(pIntTripleVectorArg, sName, Value);
     } else {
         assert(false);
     }
@@ -188,9 +195,12 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<DPoint>* pDPointArg = dynamic_cast<Arg<DPoint>* >(&*pArg);
+    Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
     Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
     Arg<vector<DPoint> >* pDPointVectorArg = 
             dynamic_cast<Arg<vector<DPoint> >* >(&*pArg);
+    Arg<vector<IntTriple> >* pIntTripleVectorArg = 
+            dynamic_cast<Arg<vector<IntTriple> >* >(&*pArg);
 
     if (pStringArg) {
         pStringArg->setValue(sValue);
@@ -204,6 +214,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         pBoolArg->setValue(stringToBool(sValue));
     } else if (pDPointArg) {
         pDPointArg->setValue(stringToDPoint(sValue));
+    } else if (pIntTripleArg) {
+        pIntTripleArg->setValue(stringToIntTriple(sValue));
     } else if (pDVectorArg) {
         vector<double> v;
         fromString(sValue, v);
@@ -212,6 +224,10 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         vector<DPoint> v;
         fromString(sValue, v);
         pDPointVectorArg->setValue(v);
+    } else if (pIntTripleVectorArg) {
+        vector<IntTriple> v;
+        fromString(sValue, v);
+        pIntTripleVectorArg->setValue(v);
     } else {
         assert(false);
     }   

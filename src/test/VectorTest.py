@@ -585,6 +585,64 @@ class VectorTestCase(AVGTestCase):
                         67, 50, 1),
                  lambda: self.assert_(self.__mouseDownCalled)
                 ))
+        
+    def testMesh(self):
+        def addMesh():
+            div = Player.createNode("div", {})
+            mesh = Player.createNode("mesh", 
+                    {"texhref":"rgb24-64x64.png",
+                     "vertexcoords":((0,0), (64,0), (0,64), (64, 64),(32, 32)),
+                     "texcoords":((0,0),(1,0),(0,1),(1,1),(0.5,0.5)),
+                     "triangles":((0,1,4),(1,3,4),(3,2,4),(2,0,4))                    
+                     })
+            div.appendChild(mesh)
+            div.x = 50
+            div.y = 30
+            canvas.appendChild(div)
+            return mesh
+        
+        def setVertexCoords():
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 64))
+        
+        def setTexCoords():
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32))
+            mesh.texcoords = ((1,1),(1,1),(1,1),(1,1),(0.5,0.5))
+        
+        def setTriangles():
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32))
+            mesh.texcoords = ((0,0),(1,0),(0,1),(1,1),(0.5,0.5))
+            mesh.triangles = ((3,1,4),(1,3,4),(1,2,4),(2,0,4))   
+            
+        def setTrianglesSameItem():
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32))
+            mesh.texcoords = ((0,0),(1,0),(0,1),(1,1),(0.5,0.5))
+            mesh.triangles = ((1,1,1),(2,2,2),(3,3,3),(4,4,4)) 
+            
+        def setIllegalVertexes():
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32), (16,16))
+           
+        def setIllegalTextures():
+            mesh.texcoords = ((100,0),(1,0),(0,1),(1,1),(0.5,0.5), (1.0,1.0))
+            
+        def setIllegalIndexes():
+            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4)) 
+        
+        canvas = self.makeEmptyCanvas()
+        mesh = addMesh()
+        self.assertException(setIllegalVertexes)
+        self.assertException(setIllegalTextures)
+        self.assertException(setIllegalIndexes)
+        self.start(None,
+                (lambda: self.compareImage("testMesh1", False),
+                 setVertexCoords,
+                 lambda: self.compareImage("testMesh2", False),
+                 setTexCoords,
+                 lambda: self.compareImage("testMesh3", False),
+                 setTriangles,
+                 lambda: self.compareImage("testMesh4", False),
+                 setTrianglesSameItem,
+                 lambda: self.compareImage("testMesh5", False)
+                ))
 
 def vectorTestSuite(tests):
     availableTests = (
@@ -601,6 +659,7 @@ def vectorTestSuite(tests):
             "testPolygon",
             "testTexturedPolygon",
             "testCircle",
+            "testMesh",
             )
     return AVGTestSuite (availableTests, VectorTestCase, tests)
 

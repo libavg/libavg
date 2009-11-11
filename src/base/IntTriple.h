@@ -18,26 +18,45 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Jan Boelsche (regular.gonzales@googlemail.com).
-//
 
-#include "Arg.h"
-#include <string>
+#ifndef _IntTriple_H_
+#define _IntTriple_H_	
 
-using namespace std;
+#include "../api.h"
+
+#include <ostream>
+#include <istream>
+#include <vector>
+
+
+
+// Fix for non-C99 win compilers up to MSVC++2008
+#if defined _MSC_VER && _MSC_VER <= 1500
+#define isinf(x) (!_finite(x))
+#define isnan(x) (_isnan(x))
+#endif
 
 namespace avg {
-// Explicit template instantiation. See Arg.h for comments.
-#ifndef _WIN32
-template class Arg<int>;
-template class Arg<bool>;
-template class Arg<double>;
-template class Arg<float>;
-template class Arg<string>;
-template class Arg<DPoint>;
-template class Arg<IntTriple>;
-template class Arg<vector<double> >;
-template class Arg<vector<DPoint> >;
-template class Arg<vector<IntTriple> >;
-#endif
+
+class IntTriple
+{
+public:
+    int x;
+    int y;
+    int z; 
+
+  	IntTriple();
+    IntTriple(int X,int Y, int Z);
+  	IntTriple(const IntTriple & p);
+    IntTriple(const std::vector<int>& v);
+    ~IntTriple();
+  
+};
+
+std::ostream& operator<<( std::ostream& os, const IntTriple &p);
+std::istream& operator>>(std::istream& is, IntTriple& p);
+
+
 }
+
+#endif
