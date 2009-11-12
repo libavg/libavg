@@ -41,12 +41,13 @@ FilterClearBorder::~FilterClearBorder()
 void FilterClearBorder::applyInPlace(BitmapPtr pBmp)
 {
     assert(pBmp->getPixelFormat() == I8);
+    assert(m_NumPixels < pBmp->getSize().x);
+    assert(m_NumPixels < pBmp->getSize().y);
     if (m_NumPixels != 0) {
         int stride = pBmp->getStride();
         unsigned char * pPixels = pBmp->getPixels();
         IntPoint size = pBmp->getSize();
         IntPoint activeSize = pBmp->getSize()-IntPoint(2*m_NumPixels, 2*m_NumPixels);
-
         for (int y=m_NumPixels-1; y >= 0; --y) {
             memset(pPixels+stride*y+m_NumPixels, 0, activeSize.x);
         }

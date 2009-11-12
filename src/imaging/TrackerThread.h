@@ -111,7 +111,7 @@ class AVG_API TrackerThread: public WorkerThread<TrackerThread>
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.
         int m_Prescale;
-        int m_ClearBorder;
+        int m_WipeBorder;
         bool m_bTrackBrighter;
         BlobVectorPtr m_pBlobVector;
         IntRect m_ROI;

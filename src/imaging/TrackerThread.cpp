@@ -20,7 +20,7 @@
 
 #include "TrackerThread.h"
 #include "FilterDistortion.h"
-#include "FilterClearBorder.h"
+#include "FilterWipeBorder.h"
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
@@ -77,7 +77,8 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_bCreateFingerImage(false),
       m_NumFrames(0),
       m_NumCamFramesDiscarded(0),
-      m_pImagingContext(0)
+      m_pImagingContext(0),
+      m_WipeBorder(0)
 {
     m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     if (bSubtractHistory) {
@@ -155,7 +156,7 @@ bool TrackerThread::work()
             pDistortedBmp = m_pDistorter->apply(pCamBmp);
         }
         BitmapPtr pCroppedBmp(new Bitmap(*pDistortedBmp, m_ROI));
-        FilterClearBorder(m_ClearBorder).applyInPlace(pCroppedBmp);
+        FilterWipeBorder(m_WipeBorder).applyInPlace(pCroppedBmp);
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_DISTORTED]->copyPixels(*pCroppedBmp);
@@ -220,7 +221,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
         m_pHistoryPreProcessor->setInterval(Config.getIntParam
                 ("/tracker/historyupdateinterval/@value"));
     }
-    m_ClearBorder = Config.getIntParam("/tracker/clearborder/@value");
+    m_WipeBorder = Config.getIntParam("/tracker/wipeborder/@value");
     DeDistortPtr pDeDistort = Config.getTransform();
     if (!(*m_pTrafo == *pDeDistort)) {
         m_pDistorter = FilterDistortionPtr(new FilterDistortion(
