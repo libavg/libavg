@@ -19,7 +19,7 @@
   <brighterregions value="true"/>
   <eventonmove value="true"/>
   <contourprecision value="0"/>
-  <clearborder value="0"/>
+  <wipeborder value="0"/>
   <mask value=""/>
   <track>
    <threshold value="16"/>

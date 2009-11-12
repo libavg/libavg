@@ -69,6 +69,7 @@ TrackerThread::TrackerThread(IntRect ROI,
     : WorkerThread<TrackerThread>("Tracker", CmdQ),
       m_TouchThreshold(0),
       m_TrackThreshold(0),
+      m_WipeBorder(0),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target),
@@ -77,8 +78,7 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_bCreateFingerImage(false),
       m_NumFrames(0),
       m_NumCamFramesDiscarded(0),
-      m_pImagingContext(0),
-      m_WipeBorder(0)
+      m_pImagingContext(0)
 {
     m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     if (bSubtractHistory) {
