@@ -20,6 +20,7 @@
 
 #include "TrackerThread.h"
 #include "FilterDistortion.h"
+#include "FilterClearBorder.h"
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
@@ -154,6 +155,7 @@ bool TrackerThread::work()
             pDistortedBmp = m_pDistorter->apply(pCamBmp);
         }
         BitmapPtr pCroppedBmp(new Bitmap(*pDistortedBmp, m_ROI));
+        FilterClearBorder(m_ClearBorder).applyInPlace(pCroppedBmp);
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_DISTORTED]->copyPixels(*pCroppedBmp);
@@ -218,6 +220,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
         m_pHistoryPreProcessor->setInterval(Config.getIntParam
                 ("/tracker/historyupdateinterval/@value"));
     }
+    m_ClearBorder = Config.getIntParam("/tracker/clearborder/@value");
     DeDistortPtr pDeDistort = Config.getTransform();
     if (!(*m_pTrafo == *pDeDistort)) {
         m_pDistorter = FilterDistortionPtr(new FilterDistortion(

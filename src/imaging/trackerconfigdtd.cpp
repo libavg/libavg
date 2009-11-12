@@ -29,9 +29,12 @@ const char * g_pTrackerConfigDTD =
 "    y CDATA #REQUIRED\" >\n"
  
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
-"<!ELEMENT camera (driver|device|fw800|format|size|framerate|brightness|gamma|gain|shutter|strobeduration)* >\n"
-"<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
-"<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|bandpasspostmult)* >\n"
+"<!ELEMENT camera (driver|device|fw800|format|size|framerate|brightness|gamma|gain|"
+"        shutter|strobeduration)* >\n"
+"<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|"
+"       contourprecision|clearborder|touch|track)* >\n"
+"<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|"
+"       bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
 "       angle|displaydisplacement|displayscale|activedisplaysize)* >\n"
@@ -106,6 +109,10 @@ const char * g_pTrackerConfigDTD =
 
 "<!ELEMENT contourprecision EMPTY>\n"
 "<!ATTLIST contourprecision\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT clearborder EMPTY>\n"
+"<!ATTLIST clearborder\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT similarity EMPTY>\n"

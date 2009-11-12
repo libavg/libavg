@@ -25,6 +25,7 @@
 #include "FilterDistortion.h"
 #include "DeDistort.h"
 #include "FilterWipeBorder.h"
+#include "FilterClearBorder.h"
 
 #include "../graphics/GraphicsTest.h"
 #include "../graphics/Filtergrayscale.h"
@@ -64,6 +65,26 @@ public:
         testEqual(*pDestBmp, "FilterWipeBorderResult1", I8);
         pDestBmp = FilterWipeBorder(3).apply(pBmp);
         testEqual(*pDestBmp, "FilterWipeBorderResult3", I8);
+    }
+};
+
+class FilterClearBorderTest: public GraphicsTest
+{
+public:
+    FilterClearBorderTest()
+        : GraphicsTest("FilterClearBorderTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("filterwipeborder", I8);
+        BitmapPtr pDestBmp = FilterClearBorder(0).apply(pBmp);
+        testEqual(*pDestBmp, *pBmp, "FilterClearBorderResult0", 0, 0);
+        pDestBmp = FilterClearBorder(1).apply(pBmp);
+        testEqual(*pDestBmp, "FilterClearBorderResult1", I8);
+        pDestBmp = FilterClearBorder(3).apply(pBmp);
+        testEqual(*pDestBmp, "FilterClearBorderResult3", I8);
     }
 };
 
@@ -193,6 +214,7 @@ public:
         : TestSuite("ImagingTestSuite")
     {
         addTest(TestPtr(new FilterWipeBorderTest));
+        addTest(TestPtr(new FilterClearBorderTest));
         addTest(TestPtr(new DeDistortTest));
         addTest(TestPtr(new SerializeTest));
     }
