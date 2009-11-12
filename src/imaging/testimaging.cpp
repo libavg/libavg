@@ -24,6 +24,9 @@
 #include "TrackerConfig.h"
 #include "FilterDistortion.h"
 #include "DeDistort.h"
+#include "FilterWipeBorder.h"
+
+#include "../graphics/GraphicsTest.h"
 #include "../graphics/Filtergrayscale.h"
 #include "../graphics/FilterId.h"
 
@@ -43,6 +46,26 @@
 
 using namespace avg;
 using namespace std;
+
+class FilterWipeBorderTest: public GraphicsTest
+{
+public:
+    FilterWipeBorderTest()
+        : GraphicsTest("FilterWipeBorderTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("filterwipeborder", I8);
+        BitmapPtr pDestBmp = FilterWipeBorder(0).apply(pBmp);
+        testEqual(*pDestBmp, *pBmp, "FilterWipeBorderResult0", 0, 0);
+        pDestBmp = FilterWipeBorder(1).apply(pBmp);
+        testEqual(*pDestBmp, "FilterWipeBorderResult1", I8);
+        pDestBmp = FilterWipeBorder(3).apply(pBmp);
+        testEqual(*pDestBmp, "FilterWipeBorderResult3", I8);
+    }
+};
 
 class DeDistortTest: public Test
 {
@@ -169,6 +192,7 @@ public:
     ImagingTestSuite() 
         : TestSuite("ImagingTestSuite")
     {
+        addTest(TestPtr(new FilterWipeBorderTest));
         addTest(TestPtr(new DeDistortTest));
         addTest(TestPtr(new SerializeTest));
     }
