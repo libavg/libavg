@@ -70,7 +70,10 @@ void Signal<LISTENEROBJ>::connect(LISTENEROBJ* pListener)
 {
     ListenerIterator it;
     it = find(m_Listeners.begin(), m_Listeners.end(), pListener);
-    assert(it == m_Listeners.end());
+    // If the listener is already connected, something is wrong, unless we're
+    // deleting it at this very moment.
+    assert(it == m_Listeners.end() || 
+            (*it == m_pCurrentListener && m_bKillCurrentListener));
     m_Listeners.push_back(pListener);
 }
 

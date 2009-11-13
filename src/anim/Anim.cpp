@@ -80,6 +80,7 @@ bool Anim::isRunning() const
 
 void Anim::setHasParent()
 {
+    assert(!m_bRunning);
     m_bIsRoot = false;
 }
 
