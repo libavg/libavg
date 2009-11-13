@@ -80,7 +80,7 @@ void MeshNode::setVertexCoords(const vector<DPoint>& coords)
 {
     isValid(coords);
     m_VertexCoords = coords;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 const vector<DPoint>& MeshNode::getTexCoords() const
