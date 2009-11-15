@@ -224,6 +224,13 @@ void export_raster()
         .def("isAvailable", &CameraNode::isAvailable)
         .def("dumpCameras", make_function(&CameraNode::dumpCameras))
         .staticmethod("dumpCameras")
+        .def("resetFirewireBus", &CameraNode::resetFirewireBus,
+                "resetFirewireBus()\n"
+                "Frees all allocated bandwidth and devices on the firewire bus. Helpful\n"
+                "if a program using a firewire device has crashed leaving resources\n"
+                "allocated. Note that all firewire devices (including for instance\n"
+                "external hard drives) are affected.\n")
+        .staticmethod("resetFirewireBus")
     ;
         
     class_<Video, bases<RasterNode> >("Video",

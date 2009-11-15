@@ -35,8 +35,10 @@ def checkCamera():
 
 parser = optparse.OptionParser()
 parser.add_option("-t", "--driver",
-                  action="store", dest="driver", 
-          choices=validDrivers, help="camera drivers (one of: %s)" %', '.join(validDrivers))
+                  action="store", 
+                  dest="driver", 
+                  choices=validDrivers, 
+                  help="camera drivers (one of: %s)" %', '.join(validDrivers))
 parser.add_option("-d", "--device",
                   action="store", dest="device", default="",
                   help="camera device identifier (may be GUID or device path)")
@@ -47,7 +49,8 @@ parser.add_option("-w", "--width", dest="width", default="640", type="int",
 parser.add_option("-e", "--height", dest="height", default="480", type="int",
           help="capture height in pixels")
 parser.add_option("-p", "--pixformat", dest="pixelFormat", default="RGB",
-              choices=validPixFmt, help="pixel format (one of: %s)" %', '.join(validPixFmt))
+              choices=validPixFmt, 
+              help="camera frame pixel format (one of: %s)" %', '.join(validPixFmt))
 parser.add_option("-f", "--framerate", dest="framerate", default="15", type="float",
           help="capture frame rate")
 parser.add_option("-8", "--fw800", dest="fw800", action="store_true", default=False,
@@ -55,13 +58,15 @@ parser.add_option("-8", "--fw800", dest="fw800", action="store_true", default=Fa
 parser.add_option("-l", "--dump", dest="dump", action="store_true", default=False,
           help="dump a list of detected cameras")
 parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=False,
-          help="Don't show any info overlayed on the screen")
+          help="don't show any info overlayed on the screen")
+parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", default=False,
+          help="reset the firewire bus.")
 
 (options, args) = parser.parse_args()
 
-if options.driver is None and not options.dump:
+if options.driver is None and not options.dump and not options.resetbus:
     parser.print_help()
-    print "\nERROR: at least '--driver' or '--dump' options must be specified"
+    print "ERROR: at least '--driver', '--dump' or '--resetbus' options must be specified"
     exit()
 
 optdict = {}
@@ -85,6 +90,12 @@ Player.loadString("""
 if options.dump:
     avg.Camera.dumpCameras()
     exit(0)
+
+if options.resetbus:
+    Log.trace(Log.APP, "Resetting firewire bus.")
+    avg.Camera.resetFirewireBus()
+    if not options.driver:
+        exit(0)
 
 Log.trace(Log.APP, "Creating camera:")
 Log.trace(Log.APP, "driver=%(driver)s device=%(device)s" %optdict)

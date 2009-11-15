@@ -91,6 +91,7 @@ class AVG_API CameraNode : public RasterNode
         IntPoint getMediaSize();
 
         static void dumpCameras();
+        static void resetFirewireBus();
 
     private:
         int getFeature (CameraFeature Feature) const;

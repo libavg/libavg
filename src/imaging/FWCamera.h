@@ -72,6 +72,7 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
     static void dumpCameras();
+    static void resetBus();
 
 private:
     void setFeature(dc1394feature_t Feature, int Value);

@@ -34,6 +34,7 @@
 #include "../graphics/Filterfill.h"
 
 #include "../imaging/Camera.h"
+#include "../imaging/FWCamera.h"
 #include "../imaging/FakeCamera.h"
 
 #include <iostream>
@@ -249,6 +250,11 @@ IntPoint CameraNode::getMediaSize()
 void CameraNode::dumpCameras()
 {
     avg::dumpCameras();
+}
+
+void CameraNode::resetFirewireBus()
+{
+    FWCamera::resetBus();
 }
 
 double CameraNode::getFPS() const

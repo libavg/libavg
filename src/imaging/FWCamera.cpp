@@ -488,35 +488,50 @@ void FWCamera::dumpCameraInfo()
 void FWCamera::dumpCameras()
 {
 #ifdef AVG_ENABLE_1394_2
-
     dc1394_t* pDC1394 = dc1394_new();
     if (pDC1394 == 0) {
         return;
     }
     dc1394camera_list_t * pCameraList;
     int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
-
-    if (err != DC1394_SUCCESS) {
-        dc1394_free(pDC1394);
-        return;
-    }
-    if (pCameraList->num == 0) {
-        dc1394_camera_free_list(pCameraList);
-        dc1394_free(pDC1394);
-        return;
-    }
-    cerr << "Firewire cameras: " << endl;
-    for (unsigned i=0; i<pCameraList->num;++i) {
-        dc1394camera_id_t id = pCameraList->ids[i];
-        dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid, id.unit);
-        if (pCamera) {
-            dc1394_camera_print_info(pCamera, stderr);
-            dc1394_camera_free(pCamera);
+    if (err == DC1394_SUCCESS) {
+        if (pCameraList->num != 0) {
+            cerr << "Firewire cameras: " << endl;
+            for (unsigned i=0; i<pCameraList->num;++i) {
+                dc1394camera_id_t id = pCameraList->ids[i];
+                dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid, 
+                        id.unit);
+                if (pCamera) {
+                    dc1394_camera_print_info(pCamera, stderr);
+                    dc1394_camera_free(pCamera);
+                }
+            }
         }
-
-//        AVG_TRACE(Logger::CONFIG, "Found firewire camera guid="<<pCameraList->ids[i].guid<<" unit="<<pCameraList->ids[i].unit);
+        dc1394_camera_free_list(pCameraList);
     }
-    dc1394_camera_free_list(pCameraList);
+    dc1394_free(pDC1394);
+#endif
+}
+
+void FWCamera::resetBus()
+{
+#ifdef AVG_ENABLE_1394_2
+    dc1394_t* pDC1394 = dc1394_new();
+    if (pDC1394 == 0) {
+        return;
+    }
+    dc1394camera_list_t * pCameraList;
+    int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
+    if (err == DC1394_SUCCESS) {
+        if (pCameraList->num != 0) {
+            dc1394camera_t * pCam = dc1394_camera_new(pDC1394, pCameraList->ids[0].guid);
+            if (pCam) {
+                dc1394_reset_bus(pCam);
+                dc1394_camera_free(pCam);
+            }
+        }
+        dc1394_camera_free_list(pCameraList);
+    }
     dc1394_free(pDC1394);
 #endif
 }
