@@ -243,6 +243,7 @@ class AVTestCase(AVGTestCase):
             Player.getElementByID("video").href=filename
             self.start(None,
                     (lambda: Player.getElementByID("video").play(),
+                     None,
                      lambda: self.compareImage(testImgName+"1", False),
                      hide,
                      None,
