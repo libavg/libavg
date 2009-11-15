@@ -22,6 +22,7 @@
 #
 
 import optparse
+import time
 from libavg import avg
 
 validPixFmt = ('I8', 'I16', 'YUV411', 'YUV422', 'YUYV422', 'RGB', 'BGR', 'BAYER8')
@@ -74,7 +75,6 @@ for attr in dir(options):
     if attr[0] != '_':
         optdict[attr] = eval("options.%s" %attr)
 
-
 Log = avg.Logger.get()
 
 Player = avg.Player.get()
@@ -86,7 +86,6 @@ Player.loadString("""
 </avg>
 """ %optdict)
 
-
 if options.dump:
     avg.Camera.dumpCameras()
     exit(0)
@@ -94,6 +93,7 @@ if options.dump:
 if options.resetbus:
     Log.trace(Log.APP, "Resetting firewire bus.")
     avg.Camera.resetFirewireBus()
+    time.sleep(1)
     if not options.driver:
         exit(0)
 
