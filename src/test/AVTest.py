@@ -293,7 +293,12 @@ class AVTestCase(AVGTestCase):
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
             def setMask(href):
-                video.maskhref = href
+                try:
+                    video.maskhref = href
+                except RuntimeError:
+                    print "Skipping testVideoMask - no shader support."
+                    Player.stop()
+                    skipping = True
 
             def setOpacity():
                 video.opacity = 0.5
@@ -301,14 +306,14 @@ class AVTestCase(AVGTestCase):
             Player.setFakeFPS(25)
             Player.loadString("""
                 <avg width="160" height="120">
-                    <video id="video" x="0" y="0" opacity="1" threaded="false"
-                            maskhref="mask.png"/>
+                    <video id="video" x="0" y="0" opacity="1" threaded="false"/>
                 </avg>""")
             video = Player.getElementByID("video")
             video.href = filename
             video.play()
             self.start(None,
-                    [lambda: self.compareImage(testImgName+"1", False),
+                    [lambda: setMask("mask.png"),
+                     lambda: self.compareImage(testImgName+"1", False),
                      lambda: video.seekToFrame(10),
                      lambda: setMask(""),
                      lambda: self.compareImage(testImgName+"2", False),
@@ -318,12 +323,11 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage(testImgName+"4", False),
                     ])
 
-        try:
-            testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
+        skipping = False
+        testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
+        if not skipping:
             testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
             testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
-        except RuntimeError:
-            print "Skipping testVideoMask - no shader support."
 
     def testVideoEOF(self):
         Player.setFakeFPS(25)
