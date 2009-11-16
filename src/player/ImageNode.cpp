@@ -77,6 +77,7 @@ void ImageNode::disconnect(bool bKill)
 {
     if (bKill) {
         m_pImage = ImagePtr(new Image(getSurface(), "", true));
+        m_href = "";
     } else {
         m_pImage->moveToCPU();
     }
