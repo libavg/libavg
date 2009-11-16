@@ -46,7 +46,7 @@ NodeDefinition MeshNode::createDefinition()
 
     return NodeDefinition("mesh", (NodeBuilder)MeshNode::buildNode<MeshNode>)
         .extendDefinition(VectorNode::createDefinition())
-      	.addArg(Arg<vector<DPoint> >("vertexcoords", vVert, false, offsetof(MeshNode, m_VertexCoords)))
+        .addArg(Arg<vector<DPoint> >("vertexcoords", vVert, false, offsetof(MeshNode, m_VertexCoords)))
         .addArg(Arg<vector<DPoint> >("texcoords", vTex, false, offsetof(MeshNode, m_TexCoords)))
         .addArg(Arg<vector<IntTriple> >("triangles", vTriangle, false, offsetof(MeshNode, m_Triangles)))
         ;
@@ -119,30 +119,30 @@ void MeshNode::setTriangles(const vector<IntTriple>& triangles)
                 "Triangle Index Out of Range > max triangles"));
         }
     }   
-   m_Triangles = triangles;
+    m_Triangles = triangles;
 }
 
 int MeshNode::getNumVertexes()
 {
-	int numVertex = getNumDifferentPts(m_VertexCoords);
-	return numVertex;
+    int numVertex = getNumDifferentPts(m_VertexCoords);
+    return numVertex;
 }
 
 int MeshNode::getNumIndexes()
 {
-   int numTriangles = m_Triangles.size()*3;
-   return numTriangles;
+    int numTriangles = m_Triangles.size()*3;
+    return numTriangles;
 }
 
 void MeshNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-	for (unsigned int i = 0; i < m_VertexCoords.size(); i++) {
-   	 	pVertexArray->appendPos(m_VertexCoords[i],m_TexCoords[i], color);
-	}
+    for (unsigned int i = 0; i < m_VertexCoords.size(); i++) {
+        pVertexArray->appendPos(m_VertexCoords[i],m_TexCoords[i], color);
+    }
 
-	for (unsigned int i = 0; i < m_Triangles.size(); i++) {
-   	 	pVertexArray->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, m_Triangles[i].z);
-	}
+    for (unsigned int i = 0; i < m_Triangles.size(); i++) {
+        pVertexArray->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, m_Triangles[i].z);
+    }
 }
 
 }
