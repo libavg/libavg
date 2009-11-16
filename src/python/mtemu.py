@@ -139,7 +139,7 @@ class MTemu(object):
             self.mouseDown1 = self.pos1
             self.__leftIDup()
             Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORDOWN,
-                        self.EventMode, self.pos1, self.pos1, Point2D(0,0))
+                        self.EventMode, self.pos1, self.pos1, e.speed)
             
             if self.multiActive:
                 
@@ -147,7 +147,7 @@ class MTemu(object):
                 self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
                 self.__rightIDup()
                 Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
-                        self.EventMode, self.pos2, self.pos2, Point2D(0,0))
+                        self.EventMode, self.pos2, self.pos2, -e.speed)
                             
             self.__drawTouch()
         return True
@@ -186,14 +186,14 @@ class MTemu(object):
         if e.button == 1:
             self.mouseState = 'Up'
             Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
-                    self.EventMode, self.pos1, self.pos1, Point2D(0,0))
+                    self.EventMode, self.pos1, self.pos1, e.speed)
             self.pos1 = (-1,-1)
             self.mouseDown1 = (-1,-1)
 
             
             if self.multiActive:
                 Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                        self.EventMode, self.pos2, self.pos2, Point2D(0,0))
+                        self.EventMode, self.pos2, self.pos2, -e.speed)
                 self.pos2 = (-1,-1)
                 self.mouseDown2 = (-1,-1)
 
