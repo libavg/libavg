@@ -85,7 +85,13 @@ class DynamicsTestCase(AVGTestCase):
             if isVideo:
                 self.node.play()
             self.node = None
-        
+       
+        def killNode():
+            self.node = Player.getElementByID("nodeid1")
+            self.node.unlink(True)
+            gone = Player.getElementByID("nodeid1")
+            self.assert_(gone == None)
+
         def removeAgain():
             node = Player.getElementByID("nodeid1")
             node.unlink()
@@ -110,6 +116,8 @@ class DynamicsTestCase(AVGTestCase):
                      lambda: self.compareImage(testName+"4", warnOnImageDiff),
                      reAddNode,
                      lambda: self.compareImage(testName+"5", warnOnImageDiff),
+                     killNode,
+                     reAddNode,
                      removeAgain
                     ))
         
