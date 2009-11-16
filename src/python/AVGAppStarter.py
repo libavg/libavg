@@ -26,12 +26,14 @@ import math
 import time
 
 from libavg import avg, Point2D
+from mtemu import MTemu
+from AVGAppStarterHelp import MThelp
+
 try:
     from alib.clicktest import ClickTest
 except ImportError:
     ClickTest = None
 
-from mtemu import MTemu
 
 g_player = avg.Player.get()
 g_log = avg.Logger.get()
@@ -139,22 +141,25 @@ class AVGAppStarter(object):
                 int(debugWindowSize.x), int(debugWindowSize.y),
                 0 # color depth
                 )
-
-        self.__keyBindings = {}
-        rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKey)
-
-        self.bindKey('o', self.__dumpObjects)
-        self.bindKey('m', self.__showMemoryUsage)
-        self.bindKey('.', self.__switchClickTest)
-        if MTemu is not None:
-            self.bindKey('t', self.__switchMtemu)
+                
+        self.__keyBindDown = {}
+        self.__keyBindUp = {}
+        rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
+        rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
         
+        self.bindKey('o', self.__dumpObjects, 'dump objects')
+        self.bindKey('m', self.__showMemoryUsage, 'show memory usage')
+        self.bindKey('.', self.__switchClickTest, 'start clicktest')
+        self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
+        self.bindKey('#', self.activateHelp, 'HELP')  
+        
+        self.displayHelp = MThelp(self)
+        self.showingHelp = False
         self.__showingMemGraph = False
-
         self.__runningClickTest = False
         self._initClickTest()
-
         self._mtEmu = None
+
         
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
@@ -172,28 +177,55 @@ class AVGAppStarter(object):
         self._activeApp = self._appInstance
         self._appInstance.enter()
 
+
     def _initClickTest(self):
         if ClickTest:
             self._clickTest = ClickTest(self._appNode, multiClick=False)
         else:
             self._clickTest = None
             
-    def bindKey(self, key, func):
-        if key in self.__keyBindings:
-            raise KeyError # no double key bindings
-        self.__keyBindings[key] = func
-
+    def bindKey(self, key, func, funcName, state = 'Down'):
+        if state == 'Down':   
+            if key in self.__keyBindDown:
+                raise KeyError # no double key bindings
+            self.__keyBindDown[key] = (func, funcName)
+        elif state == 'Up':
+            if key in self.__keyBindUp:
+                raise KeyError # no double key bindings
+            self.__keyBindUp[key] = (func, funcName)
+        else:
+            raise KeyError # keystate = 1: 'Down', 2: 'Down and Up'
+            
     def unbindKey(self, key):
-        del self.__keyBindings[key]
-
-    def __onKey(self, event):
+        del self.__keyBindDown[key]
+        if key in self.__keyBindUp:
+            del self.__keyBindUp[key]
+    
+    def getKeyDowns(self):
+        return self.__keyBindDown
+            
+    def setKeyDowns(self, newkeyBindDown):
+        self.__keyBindDown = newkeyBindDown
+    
+    def getKeyUps(self):
+        return self.__keyBindUp
+            
+    def setKeyUps(self, newkeyBindUp):
+        self.__keyBindUp = newkeyBindUp   
+         
+    def __onKeyDown(self, event):
         handledByApp = self._activeApp.onKey(event)
         if handledByApp:
             return
-        elif event.keystring in self.__keyBindings:
-            self.__keyBindings[event.keystring]()
+        elif event.keystring in self.__keyBindDown:
+            self.__keyBindDown[event.keystring][0]()
             return
-
+            
+    def __onKeyUp(self, event):
+        if event.keystring in self.__keyBindUp:
+            self.__keyBindUp[event.keystring][0]()
+            return
+    
     def __dumpObjects(self):
         gc.collect()
         testHelper = g_player.getTestHelper()
@@ -208,7 +240,7 @@ class AVGAppStarter(object):
         else:
             self.__memGraph = MemGraph()
         self.__showingMemGraph = not(self.__showingMemGraph)
-
+    
     def __switchClickTest(self):
         if self._clickTest:
             if self.__runningClickTest:
@@ -223,9 +255,26 @@ class AVGAppStarter(object):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            self.bindKey('left ctrl', self._mtEmu.changeMode)
+            self.bindKey('left ctrl', self._mtEmu.changeMode, 'switch event mode')
+            self.bindKey('right ctrl', self._mtEmu.changeMode, 'switch event mode')
+            self.bindKey('left shift', self._mtEmu.multiTouch, 'create 2nd event')
+            self.bindKey('right shift', self._mtEmu.multiTouch, 'create 2nd event')
+            self.bindKey('left shift', self._mtEmu.multiTouch, 'create 2nd event', 'Up')
+            self.bindKey('right shift', self._mtEmu.multiTouch, 'create 2nd event', 'Up')
+            
         else:
             self.unbindKey('left ctrl')
+            self.unbindKey('right ctrl')
+            self.unbindKey('left shift')
+            self.unbindKey('right shift')
             self._mtEmu.delete()
             self._mtEmu = None
-            
+    
+    def activateHelp(self):
+        if self.showingHelp == False:
+            self.showingHelp = True
+        else:
+            self.showingHelp = False  
+        self.displayHelp.showHelp()
+    
+
