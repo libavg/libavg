@@ -89,6 +89,9 @@ void StateAnim::setDebug(bool bDebug)
     
 bool StateAnim::step()
 {
+    // Make sure the object isn't deleted until the end of the method.
+    AnimPtr tempThis = shared_from_this();  
+
     if (!m_sCurStateName.empty()) {
         const AnimState& curState = m_States[m_sCurStateName];
         bool bDone = curState.m_pAnim->step();
