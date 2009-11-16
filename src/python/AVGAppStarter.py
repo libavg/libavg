@@ -194,7 +194,7 @@ class AVGAppStarter(object):
                 raise KeyError # no double key bindings
             self.__keyBindUp[key] = (func, funcName)
         else:
-            raise KeyError # keystate = 1: 'Down', 2: 'Down and Up'
+            raise KeyError 
             
     def unbindKey(self, key):
         del self.__keyBindDown[key]
