@@ -151,7 +151,7 @@ class AVGAppStarter(object):
         self.bindKey('m', self.__showMemoryUsage, 'show memory usage')
         self.bindKey('.', self.__switchClickTest, 'start clicktest')
         self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
-        self.bindKey('#', self.activateHelp, 'HELP')  
+        self.bindKey('l', self.activateHelp, 'HELP')  
         
         self.displayHelp = MThelp(self)
         self.showingHelp = False
