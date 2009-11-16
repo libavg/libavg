@@ -58,7 +58,7 @@ void Shape::setBitmap(const Bitmap* pBmp)
         m_pImage->setFilename("");
     }
     if (m_pImage->getState() == Image::GPU) {
-        downloadTexture();
+        m_pSurface->downloadTexture();
         if (prevState != Image::GPU) {
             m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
         }
@@ -70,7 +70,7 @@ void Shape::moveToGPU(SDLDisplayEngine* pEngine)
     m_pSurface->attach(pEngine);
     m_pImage->moveToGPU(pEngine);
     if (m_pImage->getState() == Image::GPU) {
-        downloadTexture();
+        m_pSurface->downloadTexture();
     }
     m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
 }
@@ -95,20 +95,14 @@ void Shape::draw()
 {
     bool bIsTextured = (m_pImage->getState() == Image::GPU);
     if (bIsTextured) {
-        m_pImage->getSurface()->activate();
+        m_pSurface->activate();
     }
     m_pImage->getEngine()->enableTexture(bIsTextured);
     m_pImage->getEngine()->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
     if (bIsTextured) {
-        m_pImage->getSurface()->deactivate();
+        m_pSurface->deactivate();
     }
-}
-
-void Shape::downloadTexture()
-{
-    OGLSurface * pSurface = m_pImage->getSurface();
-    pSurface->downloadTexture();
 }
 
 }
