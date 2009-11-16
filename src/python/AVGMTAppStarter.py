@@ -24,12 +24,13 @@ import os
 import math
 from libavg import avg
 from AVGAppStarter import AVGAppStarter
+
 try:
     from alib.calibrator.CamCalibrator import Calibrator
 except ImportError:
     Calibrator = None
     #from .camcalibrator import Calibrator
-
+    
 try:
     from alib.clicktest import ClickTest
 except ImportError:
@@ -96,7 +97,7 @@ class AVGMTAppStarter (AVGAppStarter):
             rootNode = g_player.getRootNode()
             rootNode.appendChild(self.__calibratorNode)
             self.__calibratorNode.size = rootNode.size
-            self.__calibrator = Calibrator(self.__calibratorNode)
+            self.__calibrator = Calibrator(self.__calibratorNode, self)
             self.__calibrator.setOnCalibrationSuccess(self.__onCalibrationSuccess)
         else:
             self.__calibrator = None
@@ -107,11 +108,12 @@ class AVGMTAppStarter (AVGAppStarter):
         g_player.getRootNode().appendChild(self.__trackerImageNode)
 
         self.__updateTrackerImageFixup()
+        
+        self.bindKey('h', self.tracker.resetHistory, 'RESET tracker history')
+        self.bindKey('d', self.toggleTrackerImage, 'toggle tracker image')
 
-        self.bindKey('h', self.tracker.resetHistory)
-        self.bindKey('d', self.toggleTrackerImage)
         if self.__calibrator:
-            self.bindKey('c', self.__enterCalibrator)
+            self.bindKey('c', self.__enterCalibrator, 'enter calibrator')
 
     def _initClickTest(self):
         if ClickTest:
@@ -132,9 +134,10 @@ class AVGMTAppStarter (AVGAppStarter):
 
     def __enterCalibrator(self):
         def leaveCalibrator():
+            
             self.unbindKey('e')
             self._activeApp = self._appInstance
-            self._appInstance.enter()
+            self._appInstance.enter()  
             self.__calibrator.leave()
             self._appNode.opacity = 1
             self._appNode.active = True
@@ -144,15 +147,15 @@ class AVGMTAppStarter (AVGAppStarter):
         if self.__calibrator.isRunning():
             print "calibrator already running!"
             return
-
-        self.bindKey('e', leaveCalibrator)
+      
         self._activeApp = self.__calibrator
-        self.__calibrator.enter()
+        self.__calibrator.enter()     
+        self.bindKey('e', leaveCalibrator, 'leave Calibrator')
         self._appInstance.leave()
         self.__calibratorNode.opacity = 1
         self.__calibratorNode.active = True
         self._appNode.opacity = 0
         self._appNode.active = False
-
+      
 AVGMTAppStarter.instance = None
 
