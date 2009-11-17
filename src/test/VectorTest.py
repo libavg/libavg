@@ -617,7 +617,10 @@ class VectorTestCase(AVGTestCase):
             mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32))
             mesh.texcoords = ((0,0),(1,0),(0,1),(1,1),(0.5,0.5))
             mesh.triangles = ((1,1,1),(2,2,2),(3,3,3),(4,4,4)) 
-            
+
+        def setHref():
+            mesh.texhref = "rgb24alpha-64x64.png"
+
         def setIllegalVertexes():
             mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32), (16,16))
            
@@ -640,8 +643,10 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testMesh3", False),
                  setTriangles,
                  lambda: self.compareImage("testMesh4", False),
+                 setHref,
+                 lambda: self.compareImage("testMesh5", False),
                  setTrianglesSameItem,
-                 lambda: self.compareImage("testMesh5", False)
+                 lambda: self.compareImage("testMesh6", False)
                 ))
 
 def vectorTestSuite(tests):
