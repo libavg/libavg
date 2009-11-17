@@ -80,7 +80,7 @@ void MeshNode::setVertexCoords(const vector<DPoint>& coords)
 {
     isValid(coords);
     m_VertexCoords = coords;
-    setDrawNeeded(false);
+    setDrawNeeded(true);
 }
 
 const vector<DPoint>& MeshNode::getTexCoords() const
@@ -112,20 +112,20 @@ void MeshNode::setTriangles(const vector<IntTriple>& triangles)
                 "Triangle Index Out of Range < 0"));
         }
         
-        if( static_cast<unsigned int>(triangles[i].x) > triangles.size() || 
-            static_cast<unsigned int>(triangles[i].y) > triangles.size() ||
-            static_cast<unsigned int>(triangles[i].z) > triangles.size()){
+        if( static_cast<unsigned int>(triangles[i].x) > m_VertexCoords.size() || 
+            static_cast<unsigned int>(triangles[i].y) > m_VertexCoords.size() ||
+            static_cast<unsigned int>(triangles[i].z) > m_VertexCoords.size()){
             throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 "Triangle Index Out of Range > max triangles"));
         }
     }   
     m_Triangles = triangles;
+    setDrawNeeded(true);
 }
 
 int MeshNode::getNumVertexes()
 {
-    int numVertex = getNumDifferentPts(m_VertexCoords);
-    return numVertex;
+    return m_VertexCoords.size();
 }
 
 int MeshNode::getNumIndexes()
