@@ -255,10 +255,14 @@ class VectorTestCase(AVGTestCase):
             self.rect.setFillBitmap(bmp)
         
         def clearFillBitmap():
-            bmp = avg.Bitmap("rgb24-64x64.png")
             self.rect.fillcolor = "FF0000"
             self.rect.setFillBitmap(None)
-        
+
+        def setTransparentBorder():
+            self.rect.fillopacity = 0
+            self.rect.texhref = "rectborder.png"
+            self.rect.strokewidth = 10
+
         canvas = self.makeEmptyCanvas()
         addRect()
         self.start(None,
@@ -277,6 +281,8 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testTexturedRect7", False),
                  setFillBitmap,
                  lambda: self.compareImage("testTexturedRect6", False),
+                 setTransparentBorder,
+                 lambda: self.compareImage("testTexturedRect8", False),
                 ))
 
     def testCurve(self):

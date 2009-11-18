@@ -126,12 +126,12 @@ NodePtr RectNode::getElementByPos(const DPoint & pos)
 
 int RectNode::getNumVertexes()
 {
-    return 4*4;
+    return (4+1)*2;
 }
 
 int RectNode::getNumIndexes()
 {
-    return 6*4;
+    return 4*6;
 }
 
 int RectNode::getNumFillVertexes()
@@ -152,24 +152,13 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     DPoint p2(m_Rect.tl.x, m_Rect.br.y);
     DPoint p3 = m_Rect.br;
     DPoint p4(m_Rect.br.x, m_Rect.tl.y);
-    DPoint rp1 = p1.getRotatedPivot(m_Angle, pivot);
-    DPoint rp2 = p2.getRotatedPivot(m_Angle, pivot);
-    DPoint rp3 = p3.getRotatedPivot(m_Angle, pivot);
-    DPoint rp4 = p4.getRotatedPivot(m_Angle, pivot);
-
-    double width = getStrokeWidth();
-    pVertexArray->addLineData(color, rp1, rp2, width, m_TexCoords[0], m_TexCoords[1]);
-    pVertexArray->addLineData(color, rp3, rp4, width, m_TexCoords[2], m_TexCoords[3]);
-    p1.x -= width/2;
-    p2.x -= width/2;
-    p3.x += width/2;
-    p4.x += width/2;
-    rp1 = p1.getRotatedPivot(m_Angle, pivot);
-    rp2 = p2.getRotatedPivot(m_Angle, pivot);
-    rp3 = p3.getRotatedPivot(m_Angle, pivot);
-    rp4 = p4.getRotatedPivot(m_Angle, pivot);
-    pVertexArray->addLineData(color, rp2, rp3, width, m_TexCoords[1], m_TexCoords[2]);
-    pVertexArray->addLineData(color, rp4, rp1, width, m_TexCoords[3], m_TexCoords[4]);
+    
+    vector<DPoint> pts; 
+    pts.push_back(p1.getRotatedPivot(m_Angle, pivot));
+    pts.push_back(p2.getRotatedPivot(m_Angle, pivot));
+    pts.push_back(p3.getRotatedPivot(m_Angle, pivot));
+    pts.push_back(p4.getRotatedPivot(m_Angle, pivot));
+    calcPolyLine(pts, m_TexCoords, true, LJ_MITER, pVertexArray, color);
 }
 
 void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
