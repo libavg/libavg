@@ -189,6 +189,24 @@ void getGLShadingLanguageVersion(int & major, int& minor)
     }
 }
 
+string AVG_API oglModeToString(int mode)
+{
+    switch (mode) {
+        case GL_ALPHA:
+            return "GL_ALPHA";
+        case GL_RGB:
+            return "GL_RGB";
+        case GL_RGBA:
+            return "GL_RGBA";
+        case GL_BGR:
+            return "GL_BGR";
+        case GL_BGRA:
+            return "GL_BGRA";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 #ifdef _WIN32
 #define GL_ALL_CLIENT_ATTRIB_BITS GL_CLIENT_ALL_ATTRIB_BITS 
 #endif

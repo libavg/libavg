@@ -121,24 +121,6 @@ void OGLTiledSurface::setWarpedVertexCoords(const VertexGrid& grid)
     m_TileVertices = grid;
 }
 
-string getGlModeString(int Mode) 
-{
-    switch (Mode) {
-        case GL_ALPHA:
-            return "GL_ALPHA";
-        case GL_RGB:
-            return "GL_RGB";
-        case GL_RGBA:
-            return "GL_RGBA";
-        case GL_BGR:
-            return "GL_BGR";
-        case GL_BGRA:
-            return "GL_BGRA";
-        default:
-            return "UNKNOWN";
-    }
-}
-
 void OGLTiledSurface::bind() 
 {
     if (!m_bBound) {
@@ -197,8 +179,8 @@ void OGLTiledSurface::blt(const DPoint& destSize, DisplayEngine::BlendMode mode)
     AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " 
             << destSize.y << ")" << ", m_pf: " 
             << Bitmap::getPixelFormatString(pf) << ", " 
-            << getGlModeString(getEngine()->getOGLSrcMode(pf)) << "-->" 
-            << getGlModeString(getEngine()->getOGLDestMode(pf)));
+            << oglModeToString(getEngine()->getOGLSrcMode(pf)) << "-->" 
+            << oglModeToString(getEngine()->getOGLDestMode(pf)));
 }
 
 IntPoint OGLTiledSurface::getNumTiles()
