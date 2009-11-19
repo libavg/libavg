@@ -290,9 +290,8 @@ namespace avg {
                 // EventOnMove means events are discarded when the cursor doesn't move.
                 // But even if the cursor doesn't move, we have to make sure we don't
                 // discard any events that have related info.
-                bool bBlobEventOnMove = bEventOnMove || 
-                        (pNewBlob->getFirstRelated() && !bTouch);
-                pStream->blobChanged(pNewBlob, time, bBlobEventOnMove);
+                bool bKeepAllEvents = !bEventOnMove || (pNewBlob->getFirstRelated() && !bTouch);
+                pStream->blobChanged(pNewBlob, time, !bKeepAllEvents);
                 pNewBlob->calcNextCenter(pOldBlob->getCenter());
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
