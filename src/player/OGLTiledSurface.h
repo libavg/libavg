@@ -68,7 +68,6 @@ class AVG_API OGLTiledSurface: public OGLSurface {
 
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
-        VertexGrid m_FinalVertices;
         VertexArray * m_pVertexes;
         std::vector<std::vector<DPoint> > m_TexCoords;
 };

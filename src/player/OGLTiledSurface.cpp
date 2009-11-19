@@ -163,7 +163,7 @@ void OGLTiledSurface::blta8(const DPoint& DestSize, double opacity,
     blt(DestSize, Mode);
 }
 
-void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
+void OGLTiledSurface::blt(const DPoint& destSize, DisplayEngine::BlendMode mode)
 {
     if (!m_bBound) {
         bind();
@@ -171,21 +171,17 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
     getEngine()->enableGLColorArray(false);
     getEngine()->enableTexture(true);
     getEngine()->setBlendMode(mode);
-
-    for (unsigned int y=0; y<m_FinalVertices.size(); y++) {
-        for (unsigned int x=0; x<m_FinalVertices[y].size(); x++) {
-            m_FinalVertices[y][x] = DestSize*m_TileVertices[y][x];
-        }
-    }
+    glPushMatrix();
+    glScaled(destSize.x, destSize.y, 1);
 
     m_pVertexes->reset();
-    for (unsigned y=0; y<m_FinalVertices.size()-1; y++) {
-        for (unsigned x=0; x<m_FinalVertices[0].size()-1; x++) {
+    for (unsigned y=0; y<m_TileVertices.size()-1; y++) {
+        for (unsigned x=0; x<m_TileVertices[0].size()-1; x++) {
             int curVertex=m_pVertexes->getCurVert();
-            m_pVertexes->appendPos(m_FinalVertices[y][x], m_TexCoords[y][x]); 
-            m_pVertexes->appendPos(m_FinalVertices[y][x+1], m_TexCoords[y][x+1]); 
-            m_pVertexes->appendPos(m_FinalVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
-            m_pVertexes->appendPos(m_FinalVertices[y+1][x], m_TexCoords[y+1][x]); 
+            m_pVertexes->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
+            m_pVertexes->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
+            m_pVertexes->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
+            m_pVertexes->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
             m_pVertexes->appendQuadIndexes(
                     curVertex+1, curVertex, curVertex+2, curVertex+3);
         }
@@ -195,9 +191,11 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
     m_pVertexes->draw();
     deactivate();
 
+    glPopMatrix();
+
     PixelFormat pf = getPixelFormat();
-    AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
-            << DestSize.y << ")" << ", m_pf: " 
+    AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " 
+            << destSize.y << ")" << ", m_pf: " 
             << Bitmap::getPixelFormatString(pf) << ", " 
             << getGlModeString(getEngine()->getOGLSrcMode(pf)) << "-->" 
             << getGlModeString(getEngine()->getOGLDestMode(pf)));
@@ -224,7 +222,6 @@ void OGLTiledSurface::calcVertexGrid(VertexGrid& grid)
             calcTileVertex(x, y, grid[y][x]);
         }
     }
-    m_FinalVertices = std::vector<std::vector<DPoint> >(numTiles.y+1, TileVerticesLine);
 
     if (m_pVertexes) {
         delete m_pVertexes;
