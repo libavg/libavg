@@ -163,6 +163,12 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("test").href = u"ö.png"
             os.remove(u"ö.png")
 
+        def testImageResize():
+            node = Player.getElementByID("test")
+            node.href = "rgb24alpha-64x64.png"
+            node.pos = (0, 0)
+            node.size = (128, 128)
+
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadFile("image.avg")
@@ -182,6 +188,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(1),
                  setUnicodeHref,
                  lambda: self.compareImage("testimg2", False),
+                 testImageResize,
+                 lambda: self.compareImage("testimg3", False),
                 ))
 
     def testImageMask(self):
