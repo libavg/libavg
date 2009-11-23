@@ -45,6 +45,7 @@ os.chdir(SrcDir)
 
 from PluginTest import *
 from PlayerTest import *
+from ImageTest import *
 from VectorTest import *
 from WordsTest import *
 from AVTest import *
@@ -114,6 +115,7 @@ else:
     availableSuites = {
             'plugin': (pluginTestSuite,{}),
             'player': (playerTestSuite, {'bpp':options.bpp}),
+            'image': (imageTestSuite, {}),
             'vector': (vectorTestSuite, {}),
             'words': (wordsTestSuite, {}),
             'av': (AVTestSuite, {}),

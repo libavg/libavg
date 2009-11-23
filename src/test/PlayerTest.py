@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
 # Copyright (C) 2003-2008 Ulrich von Zadow
@@ -140,16 +141,30 @@ class PlayerTestCase(AVGTestCase):
         self.assertException(lambda: pt[2])
         self.assert_(almostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10)))
 
+    def testBasics(self):
+        def getFramerate():
+            framerate = Player.getEffectiveFramerate()
+            self.assert_(framerate > 0)
+
+        Player.showCursor(0)
+        Player.showCursor(1)
+        Player.loadString("""
+            <?xml version="1.0"?>
+            <avg width="160" height="120">
+                <image id="test1" href="rgb24-65x65.png"/>
+            </avg>
+        """)
+        self.start(None,
+                 (getFramerate,
+                  lambda: self.compareImage("testbasics", False), 
+                 ))
+
     def testImage(self):
         def loadNewFile():
             self.assert_(Player.getElementByID("test").getMediaSize() == (65,65))
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
             Player.getElementByID("test1").href = "rgb24alpha-64x64.png"
             self.assert_(Player.getElementByID("test").getMediaSize() == (64,64))
-
-        def getFramerate():
-            framerate = Player.getEffectiveFramerate()
-            self.assert_(framerate > 0)
 
         def testImageSize():
             img = Player.createNode('image', {'size':avg.Point2D(23,42), 
@@ -169,8 +184,6 @@ class PlayerTestCase(AVGTestCase):
             node.pos = (0, 0)
             node.size = (128, 128)
 
-        Player.showCursor(0)
-        Player.showCursor(1)
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
         self.assert_(node.width == 65)
@@ -180,7 +193,6 @@ class PlayerTestCase(AVGTestCase):
         testImageSize()
         self.start(None,
                 (lambda: self.compareImage("testimg", False), 
-                 getFramerate,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
                  lambda: Player.setGamma(0.3, 0.3, 0.3),
@@ -1105,6 +1117,7 @@ class PlayerTestCase(AVGTestCase):
 def playerTestSuite(bpp, tests):
     availableTests = (
             "testPoint",
+            "testBasics",
             "testImage",
             "testImageMask",
             "testMipmap",
