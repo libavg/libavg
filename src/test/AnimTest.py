@@ -412,8 +412,3 @@ def animTestSuite(tests):
     return AVGTestSuite(availableTests, AnimTestCase, tests)
 
 Player = avg.Player.get()
-
-if __name__ == '__main__':
-    runStandaloneTest(animTestSuite)
-
-

@@ -564,7 +564,3 @@ def wordsTestSuite(tests):
     return AVGTestSuite (availableTests, WordsTestCase, tests)
 
 Player = avg.Player.get()
-if __name__ == '__main__':
-    runStandaloneTest (wordsTestSuite)
-
-

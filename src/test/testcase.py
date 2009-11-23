@@ -203,12 +203,3 @@ def AVGTestSuite (availableTests, TestCase, tests, extraargs=(), extrakwargs={})
     for name in testNames:
         suite.addTest(TestCase(*([name,]+list(extraargs)), **extrakwargs ))
     return suite
-
-def runStandaloneTest(suite):
-    runner = unittest.TextTestRunner()
-    rc = runner.run(suite(None))
-    if rc.wasSuccessful():
-        return 0
-    else:
-        return 1
-

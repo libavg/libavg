@@ -553,8 +553,3 @@ def pythonTestSuite (tests):
 
 Player = avg.Player.get()
 anim.init(avg)
-
-if __name__ == '__main__':
-    runStandaloneTest (pythonTestSuite)
-
-

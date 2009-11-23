@@ -461,7 +461,3 @@ def AVTestSuite(tests):
     return AVGTestSuite(availableTests, AVTestCase, tests)
 
 Player = avg.Player.get()
-
-if __name__ == '__main__':
-    runStandaloneTest(AVTestSuite)
-

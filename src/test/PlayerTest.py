@@ -1152,6 +1152,3 @@ def playerTestSuite(bpp, tests):
     return AVGTestSuite(availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})
 
 Player = avg.Player.get()
-
-if __name__ == '__main__':
-    runStandaloneTest(playerTestSuite)

@@ -675,8 +675,3 @@ def vectorTestSuite(tests):
     return AVGTestSuite (availableTests, VectorTestCase, tests)
 
 Player = avg.Player.get()
-
-if __name__ == '__main__':
-    runStandaloneTest (vectorTestSuite)
-
-

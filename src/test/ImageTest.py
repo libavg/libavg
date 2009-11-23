@@ -95,6 +95,3 @@ def imageTestSuite(tests):
 
 Player = avg.Player.get()
 
-if __name__ == '__main__':
-    runStandaloneTest(imageTestSuite)
-
