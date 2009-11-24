@@ -133,7 +133,6 @@ SDLDisplayEngine::SDLDisplayEngine()
         exit(-1);
     }
     initTranslationTable();
-    SDL_EnableUNICODE(true);
 }
 
 SDLDisplayEngine::~SDLDisplayEngine()
@@ -287,6 +286,8 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 
 //    dumpSDLGLParams();
     m_bEnableCrop = false;
+
+    SDL_EnableUNICODE(1);
 }
 
 #ifdef _WIN32
