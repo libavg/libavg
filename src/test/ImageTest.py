@@ -65,7 +65,7 @@ class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
 
-    def testHRef(self):
+    def testImageHRef(self):
         def createXmlNode(pos):
             return Player.createNode(
                     """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))        
@@ -80,10 +80,12 @@ class ImageTestCase(AVGTestCase):
             root.appendChild(dictNode)
             noAttachNode = createXmlNode((80, y))
             noAttachNode.href = "rgb24alpha-32x32.png"
+            self.assert_(noAttachNode.size == avg.Point2D(32,32))
             root.appendChild(noAttachNode)
             attachNode = createXmlNode((112, y))
             root.appendChild(attachNode)
             attachNode.href = "rgb24alpha-32x32.png"
+            self.assert_(noAttachNode.size == avg.Point2D(32,32))
 
         self._loadEmpty()
         addNodes(16)
@@ -92,10 +94,73 @@ class ImageTestCase(AVGTestCase):
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgHRef2", False),
                 ))
+      
+    def testImagePos(self):
+        def createXmlNode(pos):
+            return Player.createNode(
+                    """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))        
+
+        def createDictNode(pos):
+            return Player.createNode("image", {"pos":pos, "href":"rgb24-32x32.png"})       
+        def addNodes(y):
+            root = Player.getRootNode()
+            xmlNode = createXmlNode((16, y))
+            root.appendChild(xmlNode)
+            dictNode = createDictNode((48, y))
+            root.appendChild(dictNode)
+            noAttachNode = createXmlNode((0, 0))
+            noAttachNode.pos = avg.Point2D(80, y)
+            root.appendChild(noAttachNode)
+            attachNode = createXmlNode((0, 0))
+            root.appendChild(attachNode)
+            attachNode.pos = avg.Point2D(112, y)
+
+        self._loadEmpty()
+        addNodes(16)
+        self.start(None,
+                (lambda: self.compareImage("testImgPos1", False),
+                 lambda: addNodes(48),
+                 lambda: self.compareImage("testImgPos2", False),
+                ))
+
+    def testImageSize(self):
+        def createXmlNode(pos, size):
+            return Player.createNode(
+                    """<image pos="%s" size="%s" href="rgb24-64x64.png"/>"""
+                    %(str(pos), str(size))) 
+
+        def createDictNode(pos, size):
+            return Player.createNode("image", {"pos":pos, "size":size,
+                    "href":"rgb24-64x64.png"}) 
+
+        def addNodes(y):
+            root = Player.getRootNode()
+            xmlNode = createXmlNode((16, y), (32, 32))
+            root.appendChild(xmlNode)
+            dictNode = createDictNode((48, y), (32, 32))
+            root.appendChild(dictNode)
+            noAttachNode = createXmlNode((80, y), (0, 0))
+            noAttachNode.size = avg.Point2D(32, 32)
+            root.appendChild(noAttachNode)
+            attachNode = createXmlNode((112, y), (0, 0))
+            root.appendChild(attachNode)
+            attachNode.size = avg.Point2D(32, 32)
+
+        self._loadEmpty()
+        addNodes(16)
+        self.start(None,
+                (lambda: self.compareImage("testImgSize1", False),
+                 lambda: addNodes(48),
+                 lambda: self.compareImage("testImgSize2", False),
+                ))
         
 
+
 def imageTestSuite(tests):
-    availableTests = ("testHRef",
+    availableTests = (
+            "testImageHRef",
+            "testImagePos",
+            "testImageSize",
             )
     return AVGTestSuite(availableTests, ImageTestCase, tests)
 
