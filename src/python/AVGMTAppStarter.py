@@ -97,7 +97,7 @@ class AVGMTAppStarter (AVGAppStarter):
             rootNode = g_player.getRootNode()
             rootNode.appendChild(self.__calibratorNode)
             self.__calibratorNode.size = rootNode.size
-            self.__calibrator = Calibrator(self.__calibratorNode, self)
+            self.__calibrator = Calibrator(self.__calibratorNode, appStarter=self)
             self.__calibrator.setOnCalibrationSuccess(self.__onCalibrationSuccess)
         else:
             self.__calibrator = None
