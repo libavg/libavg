@@ -68,22 +68,28 @@ class ImageTestCase(AVGTestCase):
     def testHRef(self):
         def createXmlNode(pos):
             return Player.createNode(
-                    """<image pos="%s" href="rgb24alpha-64x64.png"/>"""%str(pos))        
+                    """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))        
 
         def createDictNode(pos):
-            return Player.createNode("image", {"pos":pos, "href":"rgb24-64x64.png"})       
+            return Player.createNode("image", {"pos":pos, "href":"rgb24-32x32.png"})       
         def addNodes(y):
             root = Player.getRootNode()
-            node1 = createXmlNode((16, y))
-            root.appendChild(node1)
-            node2 = createDictNode((80, y))
-            root.appendChild(node2)
+            xmlNode = createXmlNode((16, y))
+            root.appendChild(xmlNode)
+            dictNode = createDictNode((48, y))
+            root.appendChild(dictNode)
+            noAttachNode = createXmlNode((80, y))
+            noAttachNode.href = "rgb24alpha-32x32.png"
+            root.appendChild(noAttachNode)
+            attachNode = createXmlNode((112, y))
+            root.appendChild(attachNode)
+            attachNode.href = "rgb24alpha-32x32.png"
 
         self._loadEmpty()
         addNodes(16)
         self.start(None,
                 (lambda: self.compareImage("testImgHRef1", False),
-                 lambda: addNodes(32),
+                 lambda: addNodes(48),
                  lambda: self.compareImage("testImgHRef2", False),
                 ))
         
