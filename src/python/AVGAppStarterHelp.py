@@ -26,7 +26,7 @@
 """
 this class is for displaying all active keys. 
 
-        '#'     -->      on/off. 
+        '?'     -->      on/off. 
 """
 
 from libavg import avg
@@ -90,7 +90,7 @@ class MThelp():
         self.__stackOfBackups.append(self.__keyBindUp)
         self.__appstarter.setKeyDowns({})
         self.__appstarter.setKeyUps({}) 
-        self.__appstarter.bindKey('l', self.__appstarter.activateHelp, 'HELP')
+        self.__appstarter.bindKey('?', self.__appstarter.activateHelp, 'HELP')
       
     def restoreKeys(self):
         # restore keybindings if last active app will be active again.

@@ -151,7 +151,7 @@ class AVGAppStarter(object):
         self.bindKey('m', self.__showMemoryUsage, 'show memory usage')
         self.bindKey('.', self.__switchClickTest, 'start clicktest')
         self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
-        self.bindKey('l', self.activateHelp, 'HELP')  
+        self.bindKey('?', self.activateHelp, 'HELP')  
         
         self.displayHelp = MThelp(self)
         self.showingHelp = False
@@ -213,14 +213,30 @@ class AVGAppStarter(object):
     def setKeyUps(self, newkeyBindUp):
         self.__keyBindUp = newkeyBindUp   
          
+    def __unicodeInKeyBindings(self, event):
+        for key in self.__keyBindDown.iterkeys():
+            if unichr(event.unicode) == unicode(key):
+                return True   
+            else:
+                pass
+        return False
+   
+            
     def __onKeyDown(self, event):
         handledByApp = self._activeApp.onKey(event)
         if handledByApp:
             return
         elif event.keystring in self.__keyBindDown:
-            self.__keyBindDown[event.keystring][0]()
+            if event.unicode == event.keycode:
+                self.__keyBindDown[event.keystring][0]()
+            elif event.unicode == 0:
+                self.__keyBindDown[event.keystring][0]()
             return
-            
+        elif self.__unicodeInKeyBindings(event):          
+            if event.unicode != event.keycode:
+                self.__keyBindDown[str(unichr(event.unicode))][0]()
+  
+              
     def __onKeyUp(self, event):
         if event.keystring in self.__keyBindUp:
             self.__keyBindUp[event.keystring][0]()
