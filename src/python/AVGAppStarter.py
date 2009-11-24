@@ -153,7 +153,7 @@ class AVGAppStarter(object):
         self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
         self.bindKey('?', self.activateHelp, 'HELP')  
         
-        self.displayHelp = MThelp(self)
+        self.helpInstance = MThelp(self)
         self.showingHelp = False
         self.__showingMemGraph = False
         self.__runningClickTest = False
@@ -291,6 +291,6 @@ class AVGAppStarter(object):
             self.showingHelp = True
         else:
             self.showingHelp = False  
-        self.displayHelp.showHelp()
+        self.helpInstance.showHelp()
     
 
