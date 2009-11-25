@@ -25,6 +25,8 @@
 #include "../graphics/PBOImage.h"
 #include "../graphics/OGLHelper.h"
 
+#include <stdio.h>
+
 using namespace std;
 
 namespace avg {
