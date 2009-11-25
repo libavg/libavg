@@ -136,15 +136,19 @@ class ImageTestCase(AVGTestCase):
         def addNodes(y):
             root = Player.getRootNode()
             xmlNode = createXmlNode((16, y), (32, 32))
+            self.assert_(xmlNode.size == avg.Point2D(32, 32))
             root.appendChild(xmlNode)
             dictNode = createDictNode((48, y), (32, 32))
+            self.assert_(dictNode.size == avg.Point2D(32, 32))
             root.appendChild(dictNode)
             noAttachNode = createXmlNode((80, y), (0, 0))
             noAttachNode.size = avg.Point2D(32, 32)
+            self.assert_(noAttachNode.size == avg.Point2D(32, 32))
             root.appendChild(noAttachNode)
             attachNode = createXmlNode((112, y), (0, 0))
             root.appendChild(attachNode)
             attachNode.size = avg.Point2D(32, 32)
+            self.assert_(attachNode.size == avg.Point2D(32, 32))
 
         self._loadEmpty()
         addNodes(16)
@@ -153,7 +157,35 @@ class ImageTestCase(AVGTestCase):
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgSize2", False),
                 ))
+       
+    def testImageWarp(self):
+        def createNode(pos):
+            return Player.createNode("image", {"pos":pos, "href":"rgb24-32x32.png",
+                    "maxtilewidth":16, "maxtileheight":8}) 
+
+        def moveVertex(node):
+            grid = node.getWarpedVertexCoords()
+            grid[0][1] = (grid[0][1][0]+0.25, grid[0][1][1]+0.25)
+            node.setWarpedVertexCoords(grid)
+
+        def testEarlyAccessException():
+            root = Player.getRootNode()
+            node = createNode((16, 16))
+            root.appendChild(node)
+            self.assertException(node.getWarpedVertexCoords)
+            node.unlink()
+
+        def addNode():
+            node = createNode((16, 16))
+            Player.getRootNode().appendChild(node)
+            moveVertex(node)
         
+        self._loadEmpty()
+        testEarlyAccessException()
+        self.start(None,
+                (lambda: addNode(),
+                 lambda: self.compareImage("testImgWarp1", False),
+                ))
 
 
 def imageTestSuite(tests):
@@ -161,6 +193,7 @@ def imageTestSuite(tests):
             "testImageHRef",
             "testImagePos",
             "testImageSize",
+            "testImageWarp",
             )
     return AVGTestSuite(availableTests, ImageTestCase, tests)
 
