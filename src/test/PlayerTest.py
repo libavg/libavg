@@ -157,52 +157,10 @@ class PlayerTestCase(AVGTestCase):
         self.start(None,
                  (getFramerate,
                   lambda: self.compareImage("testbasics", False), 
+                  lambda: Player.setGamma(0.3, 0.3, 0.3),
+                  lambda: Player.showCursor(0),
+                  lambda: Player.showCursor(1),
                  ))
-
-    def testImage(self):
-        def loadNewFile():
-            self.assert_(Player.getElementByID("test").getMediaSize() == (65,65))
-            Player.getElementByID("test").href = "rgb24alpha-64x64.png"
-            Player.getElementByID("test1").href = "rgb24alpha-64x64.png"
-            self.assert_(Player.getElementByID("test").getMediaSize() == (64,64))
-
-        def testImageSize():
-            img = Player.createNode('image', {'size':avg.Point2D(23,42), 
-                    'href':'rgb24alpha-64x64.png'})
-            self.assert_(img.size == avg.Point2D(23,42))
-
-        def setUnicodeHref():
-            # Can't check unicode filenames into svn or the windows client breaks.
-            # So we rename the file locally.
-            shutil.copyfile("oe.png", u"ö.png")
-            Player.getElementByID("test").href = u"ö.png"
-            os.remove(u"ö.png")
-
-        def testImageResize():
-            node = Player.getElementByID("test")
-            node.href = "rgb24alpha-64x64.png"
-            node.pos = (0, 0)
-            node.size = (128, 128)
-
-        Player.loadFile("image.avg")
-        node = Player.getElementByID("test")
-        self.assert_(node.width == 65)
-        self.assert_(node.height == 65)
-        self.assert_(node.pos == (64, 30))
-        self.assert_(node.size == (65, 65))
-        testImageSize()
-        self.start(None,
-                (lambda: self.compareImage("testimg", False), 
-                 loadNewFile, 
-                 lambda: self.compareImage("testimgload", False),
-                 lambda: Player.setGamma(0.3, 0.3, 0.3),
-                 lambda: Player.showCursor(0),
-                 lambda: Player.showCursor(1),
-                 setUnicodeHref,
-                 lambda: self.compareImage("testimg2", False),
-                 testImageResize,
-                 lambda: self.compareImage("testimg3", False),
-                ))
 
     def testImageMask(self):
         def setMask():
@@ -842,21 +800,10 @@ class PlayerTestCase(AVGTestCase):
             RelPos = Player.getElementByID("obscured").getRelPos((50,52))
             self.assert_(RelPos == (0, 0))
         
-        def testIllegalSet1():
-            node = Player.getElementByID("nestedimg1")
-            node.pos.x = 23
-        
-        def testIllegalSet2():
-            node = Player.getElementByID("nestedimg1")
-            node.size.x = 23
-        
         self.start("avg.avg",
                 (lambda: self.compareImage("testMove1", False),
                  moveit,
-                 checkRelPos,
-                 lambda: self.compareImage("testMove2", False),
-                 lambda: self.assertException(testIllegalSet1),
-                 lambda: self.assertException(testIllegalSet2),
+                 checkRelPos
                 ))
 
     def testSetBitmap(self):
@@ -1118,7 +1065,6 @@ def playerTestSuite(bpp, tests):
     availableTests = (
             "testPoint",
             "testBasics",
-            "testImage",
             "testImageMask",
             "testMipmap",
             "testDivResize",
