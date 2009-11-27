@@ -250,7 +250,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     m_pCamera->setFeature(CAM_FEATURE_GAMMA, Gamma);
     m_pCamera->setFeature(CAM_FEATURE_GAIN, Gain);
     m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Shutter);
-    m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION, StrobeDuration);
+    m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION, StrobeDuration, true);
 
     if (bNewCameraMask) {
         if (sCameraMaskFName == "") {
