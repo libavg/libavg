@@ -40,7 +40,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
 
 TESTS=testgraphics testgpu
 
-EXTRA_DIST = rgb24-64x64.png $(wildcard baseline/*.png) $(wildcard testfiles/*.png) 
+EXTRA_DIST = $(wildcard baseline/*.png) $(wildcard testfiles/*.png) 
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
