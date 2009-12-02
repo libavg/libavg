@@ -38,6 +38,11 @@ class MThelp():
     def __init__(self, appStarter):
         self.__appstarter = appStarter
         self.__stackOfBackups = []      
+        self.__stackKeyDown = []
+        self.__stackKeyUp = []
+        self.__stackUnicodeDown = []
+        self.__stackUnicodeUp = []
+        
         self.__rectNode = g_player.createNode("""
             <div id="RectNode" opacity="0" sensitive="False" x="5" y="10" size="(450,450)"> 
                 <rect id="rectWhite" strokewidth="0" fillopacity="0.1" 
@@ -56,13 +61,26 @@ class MThelp():
        
     def showHelp(self):
         show = self.__appstarter.showingHelp
-        self.__keyBindDown = self.__appstarter.getKeyDowns()
+        
+        self.__keyBindDown = self.__appstarter.getKeys('key', 'down')
+        self.__keyBindUp = self.__appstarter.getKeys('key', 'up')
+        self.__keycodeBindDown = self.__appstarter.getKeys('unicode', 'down')
+        self.__keycodeBindUp = self.__appstarter.getKeys('unicode', 'up')
+        
+        
         TextHelp = ''   
         if show == True:
+            TextHelp = TextHelp + "<span><b>   ACTIVE KEYS </b><br/></span>"
             for key in sorted(self.__keyBindDown.iterkeys()):
                 funcName = self.__keyBindDown[key][1]
                 TextHelp = TextHelp + \
                     "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+            
+            for key in sorted(self.__keycodeBindDown.iterkeys()):
+                funcName = self.__keycodeBindDown[key][1]
+                TextHelp = TextHelp + \
+                    "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+            
             self.__keysNode.text = TextHelp
             self.__rectNode.opacity = 1
             g_player.getElementByID('rectWhite').size = self.__keysNode.getMediaSize()
@@ -83,20 +101,27 @@ class MThelp():
         
         self.__appstarter.showingHelp = False
         self.showHelp()
-        self.__keyBindDown = self.__appstarter.getKeyDowns()
-        self.__keyBindUp = self.__appstarter.getKeyUps()
         
-        self.__stackOfBackups.append(self.__keyBindDown)
-        self.__stackOfBackups.append(self.__keyBindUp)
-        self.__appstarter.setKeyDowns({})
-        self.__appstarter.setKeyUps({}) 
-        self.__appstarter.bindKey('?', self.__appstarter.activateHelp, 'HELP')
-      
+        self.__stackKeyDown.append(self.__appstarter.getKeys('key', 'down'))
+        self.__stackKeyUp.append(self.__appstarter.getKeys('key', 'up'))
+        self.__stackUnicodeDown.append(self.__appstarter.getKeys('unicode','down'))
+        self.__stackUnicodeUp.append(self.__appstarter.getKeys('unicode','up'))
+        
+        self.__appstarter.setKeys({}, 'key', 'down')
+        self.__appstarter.setKeys({}, 'key', 'up')
+        self.__appstarter.setKeys({}, 'unicode', 'down')
+        self.__appstarter.setKeys({}, 'unicode', 'up')
+        self.__appstarter.bindUnicode('?', self.__appstarter.activateHelp, 'HELP')
+        
     def restoreKeys(self):
         # restore keybindings if last active app will be active again.
         # stored keys will be restored in the keybindings.
         
         self.__appstarter.showingHelp = False
         self.showHelp()  
-        self.__keyBindUp = self.__appstarter.setKeyUps(self.__stackOfBackups.pop())
-        self.__keyBindDown = self.__appstarter.setKeyDowns(self.__stackOfBackups.pop())
+        
+        self.__appstarter.setKeys(self.__stackKeyDown.pop(), 'key', 'down')
+        self.__appstarter.setKeys(self.__stackKeyUp.pop(), 'key', 'up')
+        self.__appstarter.setKeys(self.__stackUnicodeDown.pop(), 'unicode', 'down')
+        self.__appstarter.setKeys(self.__stackUnicodeUp.pop(), 'unicode', 'up')
+        

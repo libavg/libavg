@@ -140,9 +140,7 @@ class MTemu(object):
             self.__leftIDup()
             Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORDOWN,
                         self.EventMode, self.pos1, self.pos1, e.speed)
-            
             if self.multiActive:
-                
                 self.mouseDown2 = e.pos - Point2D(20,20)
                 self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
                 self.__rightIDup()
