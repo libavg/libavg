@@ -18,7 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-// DUMMY
 
 #include "GraphicsTest.h"
 #include "GPUBrightnessFilter.h"
