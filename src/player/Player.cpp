@@ -419,6 +419,15 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
+void Player::addEventSource(IEventSource * pSource)
+{
+    if (!m_pEventDispatcher) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "You must use loadFile() before addEventSource().");
+    }
+    m_pEventDispatcher->addSource(pSource);
+}
+
 TrackerEventSource * Player::addTracker()
 {
     TrackerConfig Config;
@@ -431,11 +440,6 @@ TrackerEventSource * Player::addTracker()
     IntPoint CaptureSize(Config.getPointParam("/camera/size/"));
     string sCaptureFormat = Config.getParam("/camera/format/@value");
     double FrameRate = Config.getDoubleParam("/camera/framerate/@value");
-
-    if (!m_pEventDispatcher) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "You must use loadFile() before addTracker().");
-    }
 
     PixelFormat camPF = Bitmap::stringToPixelFormat(sCaptureFormat);
     if (camPF == NO_PIXELFORMAT) {
@@ -452,7 +456,7 @@ TrackerEventSource * Player::addTracker()
             << pCamera->getDriverName());
     m_pTracker = new TrackerEventSource(pCamera, Config, 
             IntPoint(m_DP.m_Width, m_DP.m_Height), true);
-    m_pEventDispatcher->addSource(m_pTracker);
+    addEventSource(m_pTracker);
     if (m_bIsPlaying) {
         m_pTracker->start();
     }
