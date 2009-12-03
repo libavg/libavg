@@ -38,16 +38,25 @@ except ImportError:
 g_player = avg.Player.get()
 g_log = avg.Logger.get()
 
-class MemGraph():
-    def __init__(self):
-        self.__memGraphStartTime = g_player.getFrameTime()
-        self.__usage = [0]
-        self.__maxUsage = [0]
-        self.__minutesUsage = [0]
-        self.__minutesMaxUsage = [0]
-        rootNode = g_player.getRootNode()
-        size = avg.Point2D(rootNode.width-20, rootNode.height/6)
-        self.__node = g_player.createNode("""
+
+class Graph():
+    def __init__(self, graph,getValue):
+        self._getValue = getValue
+
+        self._values = []
+        self._xSkip = 5
+        self._lastCurUsage = 0
+        
+        self._memGraphStartTime = g_player.getFrameTime()
+        self._curUsage = 0
+        self._usage = [0]
+        self._maxUsage = [0]
+        self._minutesUsage = [0]
+        self._minutesMaxUsage = [0]
+        self._rootNode = g_player.getRootNode()
+        size = avg.Point2D(self._rootNode.width-20, self._rootNode.height/6)
+        
+        self._node = g_player.createNode("""
             <div opacity="0" sensitive="False" x="10" y="10" size="%(size)s"> 
                 <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
                         size="%(size)s"/>
@@ -55,55 +64,102 @@ class MemGraph():
                 <words x="10" y="%(wordsheight1)i" color="000080"/>
                 <polyline color="008000"/>
                 <polyline color="000080"/>
+                <words x="10" y="0" color="000080"/>
             </div>""" 
             % {'size': str(size), 'wordsheight0':size.y-22, 'wordsheight1':size.y-39})
-        self.__graphSize = size-avg.Point2D(20, 20)
-        rootNode.appendChild(self.__node)
-        self.__textNode0 = self.__node.getChild(1)
-        self.__textNode1 = self.__node.getChild(2)
-        self.__maxLineNode = self.__node.getChild(3)
-        self.__lineNode = self.__node.getChild(4)
-        self.__interval = g_player.setInterval(1000, self.__nextSample)
-        self.__sampleNum = 0
-        avg.fadeIn(self.__node, 300)
+        
+        self._graphSize = size-avg.Point2D(20, 20)
+        self._rootNode.appendChild(self._node)
+        self._textNode0 = self._node.getChild(1)
+        self._textNode1 = self._node.getChild(2)
+        self._maxLineNode = self._node.getChild(3)
+        self._lineNode = self._node.getChild(4)
+        self.__graphText = self._node.getChild(5)
+        self.__graphText.text = graph
+
+        self._setup()
+        self._sampleNum = 0
+        avg.fadeIn(self._node, 300)
+        
+    def _setup(self):
+        raise RuntimeError, 'Please overload _setup() function'
+    
+    def setYpos(self,ypos):
+        self._node.y = ypos
 
     def delete(self):
         def kill():
-            self.__node.unlink()
-        avg.LinearAnim(self.__node, "opacity", 300, 1, 0, None, kill).start()
-        g_player.clearInterval(self.__interval)
+            self._node.unlink()
+        avg.LinearAnim(self._node, "opacity", 300, 1, 0, None, kill).start()
+        g_player.clearInterval(self._interval)
+        self._interval = None
 
-    def __nextSample(self):
-        curUsage = avg.getMemoryUsage()
-        self.__usage.append(curUsage)
-        maxUsage = self.__maxUsage[-1]
+    
+        
+class MemGraph(Graph):
+    def _setup(self):
+        self._interval = g_player.setInterval(1000, self._nextMemSample)
+        
+    def _nextMemSample(self):
+        curUsage = self._getValue()
+        self._usage.append(curUsage)
+        maxUsage = self._maxUsage[-1]
         if curUsage>maxUsage:
             maxUsage = curUsage
             lastMaxChangeTime = time.time()
-            self.__textNode1.text = ("Last increase in maximum: "
+            self._textNode1.text = ("Last increase in maximum: "
                     +time.strftime("%H:%M:%S", time.localtime(lastMaxChangeTime)))
-        self.__maxUsage.append(maxUsage)
-        self.__sampleNum += 1
-        if self.__sampleNum % 60 == 0:
-            lastMinuteAverage = sum(self.__usage[-60:])/60
-            self.__minutesUsage.append(lastMinuteAverage)
-            self.__minutesMaxUsage.append(maxUsage)
+        self._maxUsage.append(maxUsage)
+        self._sampleNum += 1
+        if self._sampleNum % 60 == 0:
+            lastMinuteAverage = sum(self._usage[-60:])/60
+            self._minutesUsage.append(lastMinuteAverage)
+            self._minutesMaxUsage.append(maxUsage)
 
-        if self.__sampleNum < 60*60:
-            self.__plotLine(self.__usage, self.__lineNode, maxUsage)
-            self.__plotLine(self.__maxUsage, self.__maxLineNode, maxUsage)
+        if self._sampleNum < 60*60:
+            self._plotLine(self._usage, self._lineNode, maxUsage)
+            self._plotLine(self._maxUsage, self._maxLineNode, maxUsage)
         else:
-            self.__plotLine(self.__minutesUsage, self.__lineNode, maxUsage)
-            self.__plotLine(self.__minutesMaxUsage, self.__maxLineNode, maxUsage)
-        self.__textNode0.text = ("Max. memory usage: %(size).2f MB"
+            self._plotLine(self._minutesUsage, self._lineNode, maxUsage)
+            self._plotLine(self._minutesMaxUsage, self._maxLineNode, maxUsage)
+        self._textNode0.text = ("Max. memory usage: %(size).2f MB"
                 %{"size":maxUsage/(1024*1024.)})
 
-    def __plotLine(self, data, node, maxy):
-        yfactor = self.__graphSize.y/float(maxy)
-        xfactor = self.__graphSize.x/float(len(data)-1)
+    def _plotLine(self, data, node, maxy):
+        yfactor = self._graphSize.y/float(maxy)
+        xfactor = self._graphSize.x/float(len(data)-1)
         node.pos = [(pos[0]*xfactor+10, (maxy-pos[1])*yfactor+10) 
                 for pos in enumerate(data)]
 
+class FrameRateGraph(Graph):
+    def _setup(self):
+        self._interval = g_player.setOnFrameHandler(self._nextFrameTimeSample)         
+
+    def _nextFrameTimeSample(self):       
+        val = self._frameTimeSample()
+        self._appendValue(val)
+        
+    def _appendValue(self,value):
+        y = value + self._rootNode.height/6
+        numValues = int(self._rootNode.width/self._xSkip)+1
+        self._values = (self._values + [y])[-numValues:]
+        #print self._values
+        self._plotGraph()
+        
+    def _frameTimeSample(self):
+        frameTime = self._getValue()  
+        diff = frameTime - self._lastCurUsage
+        self._lastCurUsage = frameTime
+        #self._textNode1.text = ("FrameTime: %.f" %diff + " ms")
+        return -diff
+
+    def _plotGraph(self):
+        self._lineNode.pos = self._getCoords()
+        #print self._lineNode.pos
+        
+    def _getCoords(self):
+        return zip(xrange(10,len(self._values)*self._xSkip, self._xSkip), self._values)
+    
 class AVGAppStarter(object):
     """Starts an AVGApp"""
     def __init__(self, appClass, resolution, debugWindowSize = None):
@@ -117,6 +173,7 @@ class AVGAppStarter(object):
 
         width = int(resolution.x)
         height = int(resolution.y)
+        self.__graphs = 0
         # dynamic avg creation in order to set resolution
         g_player.loadString("""
 <?xml version="1.0"?>
@@ -152,6 +209,7 @@ class AVGAppStarter(object):
         
         self.bindKey('o', self.__dumpObjects, 'dump objects')
         self.bindKey('m', self.__showMemoryUsage, 'show memory usage')
+        self.bindKey('f', self.__showFrameRateUsage, 'show frameTime usage')
         self.bindKey('.', self.__switchClickTest, 'start clicktest', 'up')
         self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
         self.bindUnicode('?', self.activateHelp, 'HELP')  
@@ -160,6 +218,7 @@ class AVGAppStarter(object):
         self.helpInstance = MThelp(self)
         self.showingHelp = False
         self.__showingMemGraph = False
+        self.__showingFrGraph = False
         self.__runningClickTest = False
         self._initClickTest()
         self._mtEmu = None
@@ -301,9 +360,30 @@ class AVGAppStarter(object):
         if self.__showingMemGraph:
             self.__memGraph.delete()
             self.__memGraph = None
+            self.__graphs = self.__graphs -1
+            if(self.__graphs == 1 ):
+                self.__frGraph.setYpos(10)
         else:
-            self.__memGraph = MemGraph()
+            self.__memGraph = MemGraph("Memory Graph", getValue = lambda: avg.getMemoryUsage())         
+            self.__graphs = self.__graphs +1          
+            if(self.__graphs > 1 ):
+                self.__memGraph.setYpos(190)       
         self.__showingMemGraph = not(self.__showingMemGraph)
+     
+        
+    def __showFrameRateUsage(self):
+        if self.__showingFrGraph:
+            self.__frGraph.delete()
+            self.__frGraph = None
+            self.__graphs = self.__graphs -1
+            if(self.__graphs == 1 ):
+                self.__memGraph.setYpos(10)
+        else:      
+            self.__frGraph = FrameRateGraph("FrameTime Graph",getValue = lambda: g_player.getFrameTime())
+            self.__graphs = self.__graphs +1 
+            if(self.__graphs >1):               
+                self.__frGraph.setYpos(190)           
+        self.__showingFrGraph = not(self.__showingFrGraph)
     
     def __switchClickTest(self):
         if self._clickTest:
