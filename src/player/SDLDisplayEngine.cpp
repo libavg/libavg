@@ -80,27 +80,6 @@ namespace avg {
 
 double SDLDisplayEngine::s_RefreshRate = 0.0;
 
-void dumpSDLGLParams() {
-    int value;
-    cerr << "SDL display parameters used: "<< endl;
-    SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &value);
-    fprintf(stderr,"  SDL_GL_RED_SIZE = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE,  &value);
-    fprintf(stderr,"  SDL_GL_GREEN_SIZE = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE , &value);
-    fprintf(stderr,"  SDL_GL_BLUE_SIZE = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE , &value);
-    fprintf(stderr,"  SDL_GL_ALPHA_SIZE = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE , &value);
-    fprintf(stderr,"  SDL_GL_DEPTH_SIZE = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER , &value);
-    fprintf(stderr,"  SDL_GL_DOUBLEBUFFER = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_BUFFER_SIZE , &value);
-    fprintf(stderr,"  SDL_GL_BUFFER_SIZE = %d\n",value);
-    SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE , &value);
-    fprintf(stderr,"  SDL_GL_STENCIL_SIZE = %d\n",value);
-}
-
 void safeSetAttribute( SDL_GLattr attr, int value) 
 {
     int err = SDL_GL_SetAttribute(attr, value);
@@ -279,12 +258,10 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 
     m_Width = DP.m_Width;
     m_Height = DP.m_Height;
-    initInput();
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
     logConfig();
 
-//    dumpSDLGLParams();
     m_bEnableCrop = false;
 
     SDL_EnableUNICODE(1);
@@ -811,11 +788,6 @@ void SDLDisplayEngine::calcRefreshRate() {
 
 vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
-void SDLDisplayEngine::initInput()
-{
-    initJoysticks();
-}
-
 const char * getEventTypeName(unsigned char Type) 
 {
     switch(Type) {
@@ -1012,28 +984,6 @@ EventPtr SDLDisplayEngine::createKeyEvent
             SDLEvent.key.keysym.scancode, KeyCode,
             SDL_GetKeyName(SDLEvent.key.keysym.sym), SDLEvent.key.keysym.unicode, Modifiers));
     return pEvent;
-}
-
-void SDLDisplayEngine::initJoysticks() 
-{
-/*
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-    SDL_JoystickEventState(SDL_ENABLE);
-    cerr << "**** Number of joysticks: " << SDL_NumJoysticks() << endl;
-    for (int i=0; i<SDL_NumJoysticks(); i++) {
-        SDL_Joystick * pJoystick = SDL_JoystickOpen(i);
-        if (!pJoystick) {
-            cerr << "Warning: could not open joystick # " << i << "of"
-                << SDL_NumJoysticks() << endl;
-        } else {
-            printf("Opened Joystick %i\n", i);
-            printf("Name: %s\n", SDL_JoystickName(i));
-            printf("Number of Axes: %d\n", SDL_JoystickNumAxes(pJoystick));
-            printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(pJoystick));
-            printf("Number of Balls: %d\n", SDL_JoystickNumBalls(pJoystick));
-        }
-    }
-*/
 }
 
 void SDLDisplayEngine::initTranslationTable()

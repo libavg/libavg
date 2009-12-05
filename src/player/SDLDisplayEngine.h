@@ -95,9 +95,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
-        void initInput();
         void initTranslationTable();
-        void initJoysticks();
         void logConfig(); 
         virtual void swapBuffers();
         void clip(bool forward);
