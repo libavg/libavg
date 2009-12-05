@@ -41,11 +41,6 @@ else:
 from testcase import *
 
 # features to test:
-#   href
-#   pos
-#   size
-#   warp, tile size
-#   getBitmap
 #   blendmode
 #   maskhref, maskpos, masksize
 #   mipmap
@@ -217,6 +212,51 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgWarp1", False),
                 ))
 
+    def testBitmap(self):
+        def getBitmap(node):
+            bmp = node.getBitmap()
+            self.assert_(bmp.getSize() == (65,65))
+            self.assert_(bmp.getFormat() == avg.R8G8B8X8 or 
+                    bmp.getFormat() == avg.B8G8R8X8)
+            node.setBitmap(bmp)
+        
+        def loadFromBitmap(pos, orighref):
+            node = Player.createNode('image',
+                    {'pos':pos, 'size':(32, 32), 'href':orighref})
+            bmp = avg.Bitmap('rgb24-65x65.png')
+            self.assert_(bmp.getSize() == (65,65))
+            node.setBitmap(bmp)
+            Player.getRootNode().appendChild(node)
+        
+        def testUnicode():
+            # Can't check unicode filenames into svn or the windows client breaks.
+            # So we rename the file locally.
+            shutil.copyfile("oe.png", u"ö.png")
+            bmp = avg.Bitmap(u"ö.png")
+            os.remove(u"ö.png")
+
+        def setNullBitmap():
+            node.setBitmap(None)
+
+        node = Player.createNode("image", {"href":"rgb24-65x65.png", "size":(32, 32)})
+        getBitmap(node)
+        
+        self._loadEmpty()
+        node = Player.createNode('image',
+                {'pos':(0,0), 'size':(32, 32), 'href':"rgb24-65x65.png"})
+        Player.getRootNode().appendChild(node)
+        getBitmap(node)
+        loadFromBitmap((32,0), "")
+        loadFromBitmap((64,0), "rgb24alpha-64x64.png")
+        testUnicode()
+        self.start(None,
+                (lambda: getBitmap(node),
+                 lambda: loadFromBitmap((32,32), ""),
+                 lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
+                 lambda: self.compareImage("testBitmap1", False),
+                 lambda: self.assertException(setNullBitmap)
+                ))
+
 
 def imageTestSuite(tests):
     availableTests = (
@@ -224,6 +264,7 @@ def imageTestSuite(tests):
             "testImagePos",
             "testImageSize",
             "testImageWarp",
+            "testBitmap",
             )
     return AVGTestSuite(availableTests, ImageTestCase, tests)
 

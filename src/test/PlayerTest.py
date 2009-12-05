@@ -252,35 +252,6 @@ class PlayerTestCase(AVGTestCase):
                     lambda: checkSize(23,22),
                     ))
 
-    def testBitmap(self):
-        def getBitmap(node):
-            Bmp = node.getBitmap()
-            self.assert_(Bmp.getSize() == (65,65))
-            self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or 
-                    Bmp.getFormat() == avg.B8G8R8X8)
-            node.setBitmap(Bmp)
-        
-        def loadBitmap():
-            Bmp = avg.Bitmap("greyscale.png")
-            self.assert_(Bmp.getSize() == (64,64))
-            self.assert_(Bmp.getFormat() == avg.I8)
-        
-        def testUnicode():
-            # Can't check unicode filenames into svn or the windows client breaks.
-            # So we rename the file locally.
-            shutil.copyfile("oe.png", u"ö.png")
-            Bmp = avg.Bitmap(u"ö.png")
-            os.remove(u"ö.png")
-
-        Player.loadFile("image.avg")
-        node = Player.getElementByID("test")
-        getBitmap(node)
-#        loadBitmap()
-        testUnicode()
-        self.start(None,
-                (lambda: getBitmap(Player.getElementByID("test")),
-                ))
-
     def testRotate(self):
         def onOuterDown(Event):
             self.onOuterDownCalled = True
@@ -806,34 +777,6 @@ class PlayerTestCase(AVGTestCase):
                  checkRelPos
                 ))
 
-    def testSetBitmap(self):
-        def setBitmap():
-            node = Player.createNode('image',{'y':65})
-            bitmap = avg.Bitmap('rgb24-65x65.png')
-            node.setBitmap(bitmap)
-            parent = Player.getElementByID("mainavgnode")
-            parent.appendChild(node)
-        
-        def setBitmapLinked(nodeID):
-            node = Player.getElementByID(nodeID)
-            bitmap = avg.Bitmap('rgb24-65x65.png')
-            node.setBitmap(bitmap)
-        
-        def setNullBitmap():
-            node = Player.getElementByID("fullimg")
-            node.setBitmap(None)
-
-        self.start("setbitmap.avg",
-                (
-                    setBitmap,
-                    lambda: self.compareImage("testSetBitmap1", False),
-                    lambda: setBitmapLinked("fullimg"),
-                    lambda: self.compareImage("testSetBitmap2", False),
-                    lambda: setBitmapLinked("emptyimg"),
-                    lambda: self.compareImage("testSetBitmap3", False),
-                    lambda: self.assertException(setNullBitmap)
-                ))
-
     def testBlend(self):
         self.start("blend.avg",
                 [lambda: self.compareImage("testBlend", False)])
@@ -1068,7 +1011,6 @@ def playerTestSuite(bpp, tests):
             "testImageMask",
             "testMipmap",
             "testDivResize",
-            "testBitmap",
             "testRotate",
             "testRotate2",
             "testRotate3",
@@ -1086,7 +1028,6 @@ def playerTestSuite(bpp, tests):
             "testPanoImage",
             "testBroken",
             "testMove",
-            "testSetBitmap",
             "testBlend",
             "testCropImage",
             "testCropMovie",
