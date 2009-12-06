@@ -40,20 +40,6 @@ else:
 
 from testcase import *
 
-# features to test:
-#   mipmap
-# 
-# situations to test features in:
-#   xml ctor before play
-#   xml ctor after play
-#   dict ctor before play
-#   dict ctor after play
-#   before play, before attach
-#   before play, after attach
-#   after play, before attach
-#   after play, after attach
-
-
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
@@ -417,6 +403,19 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgMaskSize3", False)
                 ))
 
+    def testImageMipmap(self):
+        Player.loadString("""
+            <?xml version="1.0"?>
+            <avg id="imageavg" width="160" height="120">
+                <image width="64" height="64" href="checker.png"/>
+                <image x="64" width="64" height="64" href="checker.png" mipmap="true"/>
+            </avg>
+        
+        """)
+        self.start(None, 
+                [lambda: self.compareImage("testMipmap", False)
+                ])
+
 
 def imageTestSuite(tests):
     availableTests = (
@@ -428,7 +427,8 @@ def imageTestSuite(tests):
             "testBlendMode",
             "testImageMask",
             "testImageMaskPos",
-            "testImageMaskSize"
+            "testImageMaskSize",
+            "testImageMipmap",
             )
     return AVGTestSuite(availableTests, ImageTestCase, tests)
 

@@ -162,18 +162,6 @@ class PlayerTestCase(AVGTestCase):
                   lambda: Player.showCursor(1),
                  ))
 
-    def testMipmap(self):
-        Player.loadString("""
-            <?xml version="1.0"?>
-            <avg id="imageavg" width="160" height="120">
-                <image width="64" height="64" href="checker.png"/>
-                <image x="64" width="64" height="64" href="checker.png" mipmap="true"/>
-            </avg>
-        
-        """)
-        self.start(None, 
-                [lambda: self.compareImage("testmipmap1", False)])
-
     def testDivResize(self):
         def checkSize (w, h):
             self.assert_(node.width == w)
