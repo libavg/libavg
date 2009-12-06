@@ -942,7 +942,6 @@ def playerTestSuite(bpp, tests):
     availableTests = (
             "testPoint",
             "testBasics",
-            "testMipmap",
             "testDivResize",
             "testRotate",
             "testRotate2",
