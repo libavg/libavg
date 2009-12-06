@@ -41,7 +41,6 @@ else:
 from testcase import *
 
 # features to test:
-#   maskhref, maskpos, masksize
 #   mipmap
 # 
 # situations to test features in:
@@ -285,6 +284,139 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlend2", False)
                 ))
 
+    def _isMaskSupported(self):
+        try:
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png"})
+            return True
+        except RuntimeError:
+            return False
+
+    def testImageMask(self):
+        def createNode(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32)})
+            Player.getRootNode().appendChild(node)
+
+        def setNoAttach(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "pos":pos, "size":(32, 32)})
+            node.maskhref = "mask.png"
+            Player.getRootNode().appendChild(node)
+
+        def setAttach(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "pos":pos, "size":(32, 32)})
+            Player.getRootNode().appendChild(node)
+            node.maskhref = "mask.png"
+
+        def changeHRef():
+            node.maskhref = "mask2.png" 
+
+        def changeBaseHRef():
+            node.href = "greyscale.png" 
+
+        def setMaskNotFound():
+            node.maskhref = "nonexistentmask.png"        
+            
+        self._loadEmpty()
+        if not(self._isMaskSupported()):
+            print "Skipping testImageMask - no shader support."
+            return
+        createNode((0,0))
+        node = Player.getRootNode().getChild(0)
+        setNoAttach((32,0))
+        setAttach((64,0))
+        self.start(None,
+                (lambda: createNode((0, 32)),
+                 lambda: setNoAttach((32,32)),
+                 lambda: setAttach((64,32)),
+                 lambda: self.compareImage("testImgMask1", False),
+                 changeHRef,
+                 lambda: self.compareImage("testImgMask2", False),
+                 changeBaseHRef,
+                 lambda: self.compareImage("testImgMask3", False),
+                 setMaskNotFound
+                ))
+
+    def testImageMaskPos(self):
+        def createNode(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32), 
+                    "maskpos": (32, 32)})
+            Player.getRootNode().appendChild(node)
+            
+        def setNoAttach(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32)})
+            node.maskpos = (32, 32)
+            Player.getRootNode().appendChild(node)
+
+        def setAttach(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32)})
+            Player.getRootNode().appendChild(node)
+            node.maskpos = (32, 32)
+
+        self._loadEmpty()
+        if not(self._isMaskSupported()):
+            print "Skipping testImageMaskPos - no shader support."
+            return
+        createNode((0,0))
+        setNoAttach((32,0))
+        setAttach((64,0))
+        self.start(None,
+                (lambda: createNode((0, 32)),
+                 lambda: setNoAttach((32,32)),
+                 lambda: setAttach((64,32)),
+                 lambda: self.compareImage("testImgMaskPos", False)
+                ))
+
+    def testImageMaskSize(self):
+        def createNode(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32), 
+                    "masksize": (48, 48)})
+            Player.getRootNode().appendChild(node)
+            
+        def setNoAttach(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32)})
+            node.masksize = (48, 48)
+            Player.getRootNode().appendChild(node)
+
+        def setAttach(pos):
+            node = Player.createNode("image", {"href": "rgb24-65x65.png", 
+                    "maskhref": "mask.png", "pos":pos, "size":(32, 32)})
+            Player.getRootNode().appendChild(node)
+            node.masksize = (48, 48)
+
+        def setPos():
+            node.maskpos = (16, 16)
+
+        def resetPos():
+            node.maskpos = (0, 0)
+            node.masksize = (0, 0)
+
+        self._loadEmpty()
+        if not(self._isMaskSupported()):
+            print "Skipping testImageMaskPos - no shader support."
+            return
+        createNode((0,0))
+        node = Player.getRootNode().getChild(0)
+        setNoAttach((32,0))
+        setAttach((64,0))
+        self.start(None,
+                (lambda: createNode((0, 32)),
+                 lambda: setNoAttach((32,32)),
+                 lambda: setAttach((64,32)),
+                 lambda: self.compareImage("testImgMaskSize1", False),
+                 setPos,
+                 lambda: self.compareImage("testImgMaskSize2", False),
+                 resetPos,
+                 lambda: self.compareImage("testImgMaskSize3", False)
+                ))
+
 
 def imageTestSuite(tests):
     availableTests = (
@@ -293,7 +425,10 @@ def imageTestSuite(tests):
             "testImageSize",
             "testImageWarp",
             "testBitmap",
-            "testBlendMode"
+            "testBlendMode",
+            "testImageMask",
+            "testImageMaskPos",
+            "testImageMaskSize"
             )
     return AVGTestSuite(availableTests, ImageTestCase, tests)
 
