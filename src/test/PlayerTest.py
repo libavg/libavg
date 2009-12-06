@@ -777,10 +777,6 @@ class PlayerTestCase(AVGTestCase):
                  checkRelPos
                 ))
 
-    def testBlend(self):
-        self.start("blend.avg",
-                [lambda: self.compareImage("testBlend", False)])
-
     def testCropImage(self):
         def moveTLCrop():
             node = Player.getElementByID("img")
@@ -1028,7 +1024,6 @@ def playerTestSuite(bpp, tests):
             "testPanoImage",
             "testBroken",
             "testMove",
-            "testBlend",
             "testCropImage",
             "testCropMovie",
             "testWarp",

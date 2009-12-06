@@ -41,7 +41,6 @@ else:
 from testcase import *
 
 # features to test:
-#   blendmode
 #   maskhref, maskpos, masksize
 #   mipmap
 # 
@@ -264,6 +263,28 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.assertException(setNullBitmap)
                 ))
 
+    def testBlendMode(self):
+        def setBlendMode():
+            Player.getElementByID("blend").blendmode="add"
+        
+        Player.loadString("""
+            <?xml version="1.0"?>
+            <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+            <avg width="160" height="120">
+                <image x="0" y="0" href="freidrehen.jpg"/>
+                <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
+                <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" blendmode="add"/>
+                <image x="48" y="0" opacity="0.6" href="rgb24-65x65.png" blendmode="min"/>
+                <image x="48" y="48" opacity="0.6" href="rgb24-65x65.png" 
+                        blendmode="max"/>
+            </avg>
+        """)
+        self.start(None,
+                (lambda: self.compareImage("testBlend1", False),
+                 setBlendMode,
+                 lambda: self.compareImage("testBlend2", False)
+                ))
+
 
 def imageTestSuite(tests):
     availableTests = (
@@ -272,6 +293,7 @@ def imageTestSuite(tests):
             "testImageSize",
             "testImageWarp",
             "testBitmap",
+            "testBlendMode"
             )
     return AVGTestSuite(availableTests, ImageTestCase, tests)
 
