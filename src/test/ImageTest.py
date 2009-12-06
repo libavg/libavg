@@ -219,6 +219,7 @@ class ImageTestCase(AVGTestCase):
             self.assert_(bmp.getFormat() == avg.R8G8B8X8 or 
                     bmp.getFormat() == avg.B8G8R8X8)
             node.setBitmap(bmp)
+            self.assert_(node.getMediaSize() == (65,65))
         
         def loadFromBitmap(pos, orighref):
             node = Player.createNode('image',
@@ -226,6 +227,7 @@ class ImageTestCase(AVGTestCase):
             bmp = avg.Bitmap('rgb24-65x65.png')
             self.assert_(bmp.getSize() == (65,65))
             node.setBitmap(bmp)
+            self.assert_(node.getMediaSize() == (65,65))
             Player.getRootNode().appendChild(node)
         
         def testUnicode():
@@ -240,17 +242,22 @@ class ImageTestCase(AVGTestCase):
 
         node = Player.createNode("image", {"href":"rgb24-65x65.png", "size":(32, 32)})
         getBitmap(node)
-        
+
         self._loadEmpty()
         node = Player.createNode('image',
                 {'pos':(0,0), 'size':(32, 32), 'href':"rgb24-65x65.png"})
         Player.getRootNode().appendChild(node)
         getBitmap(node)
+        self.assert_(node.size == (32,32))
         loadFromBitmap((32,0), "")
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
         testUnicode()
+        # TODO: The first line is a workaround for a strange test failure on vista
+        # 64 bit. (Symptoms: node.getBitmap() sometimes returns garbage if called on
+        # the first frame). Make sure this really is a driver/OS bug. 
         self.start(None,
-                (lambda: getBitmap(node),
+                (None, 
+                 lambda: getBitmap(node),
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1", False),
