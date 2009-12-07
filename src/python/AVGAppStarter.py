@@ -44,8 +44,9 @@ class Graph():
         self._getValue = getValue
 
         self._values = []
-        self._xSkip = 5
+        self._xSkip = 2
         self._lastCurUsage = 0
+        self._maxFrameTime = 0
         
         self._memGraphStartTime = g_player.getFrameTime()
         self._curUsage = 0
@@ -99,7 +100,7 @@ class Graph():
 class MemGraph(Graph):
     def _setup(self):
         self._interval = g_player.setInterval(1000, self._nextMemSample)
-        
+
     def _nextMemSample(self):
         curUsage = self._getValue()
         self._usage.append(curUsage)
@@ -134,28 +135,39 @@ class MemGraph(Graph):
 class FrameRateGraph(Graph):
     def _setup(self):
         self._interval = g_player.setOnFrameHandler(self._nextFrameTimeSample)         
-
+           
     def _nextFrameTimeSample(self):       
         val = self._frameTimeSample()
         self._appendValue(val)
+        self._sampleNum += 1
         
     def _appendValue(self,value):
         y = value + self._rootNode.height/6
-        numValues = int(self._rootNode.width/self._xSkip)+1
+        numValues = int(self._rootNode.width/self._xSkip)-10    
         self._values = (self._values + [y])[-numValues:]
-        #print self._values
         self._plotGraph()
         
     def _frameTimeSample(self):
         frameTime = self._getValue()  
-        diff = frameTime - self._lastCurUsage
+        diff = frameTime - self._lastCurUsage       
+        #if(self._sampleNum % 1800 == 0):
+           # self._maxFrameTime = 0
+        if(self._sampleNum<2):
+            self._maxFrameTime = 0
+        if(diff>self._maxFrameTime):
+            lastMaxChangeTime = time.time()     
+            self._maxFrameTime = diff
+            self._textNode0.text = ("Max FrameTime: %.f" %self._maxFrameTime + " ms" + 
+                "   Time: " +time.strftime("%H:%M:%S", time.localtime(lastMaxChangeTime)))
+        if diff>self._node.y-1:
+            y = self._node.y-1
+            
         self._lastCurUsage = frameTime
-        #self._textNode1.text = ("FrameTime: %.f" %diff + " ms")
+        self._textNode1.text = ("Current FrameTime: %.f" %diff + " ms" )      
         return -diff
 
     def _plotGraph(self):
         self._lineNode.pos = self._getCoords()
-        #print self._lineNode.pos
         
     def _getCoords(self):
         return zip(xrange(10,len(self._values)*self._xSkip, self._xSkip), self._values)
