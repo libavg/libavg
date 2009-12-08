@@ -174,7 +174,7 @@ class WordsTestCase(AVGTestCase):
             node.opacity = 0.5
 
         def setSize():
-            rect = Player.createNode('rect', {'pos':(40, 30), 'size':(80, 60)})
+            rect = Player.createNode('rect', {'pos':(39.5, 30.5), 'size':(80, 60)})
             Player.getRootNode().appendChild(rect)
             node.masksize = (160, 120)
             node.opacity = 1 
