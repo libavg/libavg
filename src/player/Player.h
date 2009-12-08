@@ -36,6 +36,7 @@
 #include "MouseState.h"
 
 #include "../base/IFrameEndListener.h"
+#include "../base/IPlaybackEndListener.h"
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
 
@@ -127,6 +128,8 @@ class AVG_API Player : IEventSink
 
         void registerFrameEndListener(IFrameEndListener* pListener);
         void unregisterFrameEndListener(IFrameEndListener* pListener);
+        void registerPlaybackEndListener(IPlaybackEndListener* pListener);
+        void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
         std::string getCurDirName();
@@ -213,6 +216,7 @@ class AVG_API Player : IEventSink
         double m_Volume;
 
         Signal<IFrameEndListener> m_FrameEndSignal;
+        Signal<IPlaybackEndListener> m_PlaybackEndSignal;
         Signal<IPreRenderListener> m_PreRenderSignal;
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;

@@ -103,6 +103,7 @@ Player::Player()
       m_FrameTime(0),
       m_Volume(1),
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
+      m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
       m_PreRenderSignal(&IPreRenderListener::onPreRender),
       m_dtd(0),
       m_bPythonAvailable(true)
@@ -665,6 +666,16 @@ void Player::registerFrameEndListener(IFrameEndListener* pListener)
 void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
 {
     m_FrameEndSignal.disconnect(pListener);
+}
+
+void Player::registerPlaybackEndListener(IPlaybackEndListener* pListener)
+{
+    m_PlaybackEndSignal.connect(pListener);
+}
+
+void Player::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
+{
+    m_PlaybackEndSignal.disconnect(pListener);
 }
 
 void Player::registerPreRenderListener(IPreRenderListener* pListener)
@@ -1349,6 +1360,7 @@ void Player::cleanup()
         delete m_pTracker;
         m_pTracker = 0;
     }
+    m_PlaybackEndSignal.emit();
 
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
