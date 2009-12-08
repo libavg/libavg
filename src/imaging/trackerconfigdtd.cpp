@@ -32,7 +32,7 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT camera (driver|device|fw800|format|size|framerate|brightness|gamma|gain|"
 "        shutter|strobeduration)* >\n"
 "<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|"
-"       contourprecision|wipeborder|touch|track)* >\n"
+"       contourprecision|wipeborder|historydelay|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|"
 "       bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
@@ -113,6 +113,10 @@ const char * g_pTrackerConfigDTD =
 
 "<!ELEMENT wipeborder EMPTY>\n"
 "<!ATTLIST wipeborder\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT historydelay EMPTY>\n"
+"<!ATTLIST historydelay\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT similarity EMPTY>\n"

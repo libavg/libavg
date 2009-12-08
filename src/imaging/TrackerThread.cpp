@@ -70,6 +70,8 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_TouchThreshold(0),
       m_TrackThreshold(0),
       m_WipeBorder(0),
+      m_HistoryDelay(-1),
+      m_StartTime(0),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target),
@@ -112,6 +114,14 @@ bool TrackerThread::init()
         m_pImagingContext = 0;
         m_pBandpassFilter = FilterPtr(new FilterFastBandpass());
     }
+    try {
+        m_StartTime = TimeSource::get()->getCurrentMillisecs(); 
+        m_HistoryDelay = m_pConfig->getIntParam("/tracker/historydelay/@value");
+    } catch (Exception& e) {
+        AVG_TRACE(Logger::WARNING, e.GetStr());
+    }
+    
+    
 // Done in TrackerEventSource::ctor to work around Leopard/libdc1394 threading issue.
 //    m_pCamera->open();
     return true;
@@ -119,6 +129,13 @@ bool TrackerThread::init()
 
 bool TrackerThread::work()
 {
+    if ((m_HistoryDelay + m_StartTime) < TimeSource::get()->getCurrentMillisecs() 
+            && m_HistoryDelay != -1) 
+    {   
+        resetHistory();
+        m_HistoryDelay = -1;
+    }
+    
     BitmapPtr pCamBmp;
     {
         ScopeTimer Timer(ProfilingZoneCapture);
@@ -263,7 +280,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
         }
     }
     m_pConfig = TrackerConfigPtr(new TrackerConfig(Config));
-
+        
     setBitmaps(ROI, ppBitmaps);
     createBandpassFilter();
 }
