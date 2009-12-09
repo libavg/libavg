@@ -615,7 +615,7 @@ class VectorTestCase(AVGTestCase):
             mesh.texcoords = ((1,1),(1,1),(1,1),(1,1),(0.5,0.5))
         
         def setTriangles():
-            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(32, 32))
+            mesh.vertexcoords = ((0,0), (64,0), (0,64), (64, 64),(31.5, 32))
             mesh.texcoords = ((0,0),(1,0),(0,1),(1,1),(0.5,0.5))
             mesh.triangles = ((3,1,4),(1,3,4),(1,2,4),(2,0,4))   
             
