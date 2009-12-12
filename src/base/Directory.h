@@ -42,6 +42,7 @@ public:
 
     int open(bool bCreateIfMissing = false);
     DirEntryPtr getNextEntry();
+    const std::string& getName();
     void empty();
 
 private:

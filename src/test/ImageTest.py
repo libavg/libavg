@@ -78,14 +78,19 @@ class ImageTestCase(AVGTestCase):
             self.assert_(attachNode.size == avg.Point2D(32,32))
 
         def setUnicodeHref():
-            root = Player.getRootNode()
-            # Can't check unicode filenames into svn or the windows client breaks.
-            # So we rename the file locally.
-            shutil.copyfile("oe.png", u"ö.png")
-            node = createXmlNode((16, 16))
-            root.appendChild(node)
-            node.href = u"ö.png"
-            os.remove(u"ö.png")
+            if isDirWritable():
+                root = Player.getRootNode()
+                # Can't check unicode filenames into svn or the windows client breaks.
+                # So we rename the file locally.
+                shutil.copyfile("oe.png", u"ö.png")
+                node = createXmlNode((16, 16))
+                root.appendChild(node)
+                node.href = u"ö.png"
+                os.remove(u"ö.png")
+
+        def compareUnicode():
+            if isDirWritable():
+                self.compareImage("testImgHRef3", False)
 
         self._loadEmpty()
         addNodes(16)
@@ -94,7 +99,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgHRef2", False),
                  setUnicodeHref,
-                 lambda: self.compareImage("testImgHRef3", False),
+                 compareUnicode
                 ))
       
     def testImagePos(self):
@@ -215,11 +220,12 @@ class ImageTestCase(AVGTestCase):
             Player.getRootNode().appendChild(node)
         
         def testUnicode():
-            # Can't check unicode filenames into svn or the windows client breaks.
-            # So we rename the file locally.
-            shutil.copyfile("oe.png", u"ö.png")
-            bmp = avg.Bitmap(u"ö.png")
-            os.remove(u"ö.png")
+            if isDirWritable():
+                # Can't check unicode filenames into svn or the windows client breaks.
+                # So we rename the file locally.
+                shutil.copyfile("oe.png", u"ö.png")
+                bmp = avg.Bitmap(u"ö.png")
+                os.remove(u"ö.png")
 
         def setNullBitmap():
             node.setBitmap(None)

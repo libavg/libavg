@@ -116,6 +116,11 @@ DirEntryPtr Directory::getNextEntry()
 #endif
 }
     
+const std::string& Directory::getName()
+{
+    return m_sName;
+}
+
 void Directory::empty()
 {
     DirEntryPtr pEntry;

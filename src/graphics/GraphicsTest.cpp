@@ -30,6 +30,7 @@
 #include <Magick++.h>
 
 #include <iostream>
+#include <sstream>
 #include <math.h>
 
 namespace avg {
@@ -44,12 +45,15 @@ GraphicsTest::GraphicsTest(const string& sName, int indentLevel)
 
 void GraphicsTest::createResultImgDir()
 {
-    Directory dir(getSrcDirName()+"resultimages");
+    Directory dir("resultimages");
     int ok = dir.open(true);
     if (ok == 0) {
         dir.empty();
     } else {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Could not create result image dir.");
+        stringstream s;
+        s << "Could not create result image dir '" << dir.getName() << "'.";
+        cerr << s.str() << endl;
+        throw Exception(AVG_ERR_VIDEO_GENERAL, s.str());
     }
 }
 
@@ -89,7 +93,7 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
         }
     } catch (Magick::Exception & ex) {
         cerr << ex.what() << endl;
-        ResultBmp.save(getSrcDirName()+"resultimages/"+sFName+".png");
+        ResultBmp.save("resultimages/"+sFName+".png");
         throw;
     }
     testEqual(ResultBmp, *pBaselineBmp, sFName, maxAverage, maxStdDev);
@@ -106,7 +110,7 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
                 sFName << "'. average=" << average << ", stdDev=" << stdDev);
 //        ResultBmp.dump();
 //        BaselineBmp.dump();
-        string sResultName = getSrcDirName()+"resultimages/"+sFName;
+        string sResultName = "resultimages/"+sFName;
         ResultBmp.save(sResultName+".png");
         BaselineBmp.save(sResultName+"_baseline.png");
         BitmapPtr pDiffBmp(ResultBmp.subtract(&BaselineBmp));

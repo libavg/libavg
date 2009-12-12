@@ -37,7 +37,6 @@ if platform.system() == 'Windows':
 else:    
     import avg
 
-CREATE_BASELINE_IMAGES = False
 BASELINE_DIR = "baseline"
 RESULT_DIR = "resultimages"
 
@@ -99,32 +98,28 @@ class AVGTestCase(unittest.TestCase):
         self.curFrame += 1
 
     def compareImage(self, fileName, warn):
-        global CREATE_BASELINE_IMAGES
         global ourSaveDifferences
         Bmp = self.__Player.screenshot()
-        if CREATE_BASELINE_IMAGES:
-            Bmp.save(BASELINE_DIR+"/"+fileName+".png")
-        else:
-            try:
-                BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-                DiffBmp = Bmp.subtract(BaselineBmp)
-                average = DiffBmp.getAvg()
-                stdDev = DiffBmp.getStdDev()
-                if (average > 0.1 or stdDev > 0.5):
-                    if ourSaveDifferences:
-                        Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                        BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                        DiffBmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                if (average > 2 or stdDev > 6):
-                    print ("  "+fileName+
-                            ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
-                            {'avg':average, 'stddev':stdDev})
-                    if not(warn):
-                        self.assert_(False)
-            except RuntimeError:
-                Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
-                raise
+        try:
+            BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
+            DiffBmp = Bmp.subtract(BaselineBmp)
+            average = DiffBmp.getAvg()
+            stdDev = DiffBmp.getStdDev()
+            if (average > 0.1 or stdDev > 0.5):
+                if ourSaveDifferences:
+                    Bmp.save(RESULT_DIR+"/"+fileName+".png")
+                    BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
+                    DiffBmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+            if (average > 2 or stdDev > 6):
+                print ("  "+fileName+
+                        ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
+                        {'avg':average, 'stddev':stdDev})
+                if not(warn):
+                    self.assert_(False)
+        except RuntimeError:
+            Bmp.save(RESULT_DIR+"/"+fileName+".png")
+            self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
+            raise
 
     def areSimilarBmps(self, bmp1, bmp2, maxAvg, maxStdDev):
         DiffBmp = bmp1.subtract(bmp2)
@@ -172,6 +167,9 @@ def setUsePixelBuffers(val):
     g_CustomOGLOptions = True
     g_UsePixelBuffers = val
 
+
+def isDirWritable():
+    return ourSaveDifferences
 
 def rmBrokenDir():
     try:
