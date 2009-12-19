@@ -21,10 +21,6 @@
 
 #include "OGLHelper.h"
 
-#ifdef __APPLE__
-#include "AppleGLHelper.h"
-#endif
-
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
@@ -351,13 +347,7 @@ namespace glproc {
         }
         s_bInitialized = true;
         loadGLLibrary();
-#ifdef __APPLE__
-        OSStatus err = aglInitEntryPoints();
-        if (noErr != err) {
-            AVG_TRACE(Logger::ERROR, 
-                    "Couldn't initialize Apple OpenGL entry points.");
-        }
-#endif    
+        
         GenBuffers = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
         BufferData = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
         BufferSubData = (PFNGLBUFFERSUBDATAPROC)getFuzzyProcAddress("glBufferSubData");
@@ -365,7 +355,8 @@ namespace glproc {
         BindBuffer = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
         MapBuffer = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
         UnmapBuffer = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
-        GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress("glGetBufferSubData");
+        GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress
+                ("glGetBufferSubData");
 
         CreateShaderObject = (PFNGLCREATESHADEROBJECTARBPROC)
                 getFuzzyProcAddress("glCreateShaderObject");

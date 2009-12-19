@@ -1,13 +1,5 @@
 INCLUDES = -I.. $(MAGICK_CFLAGS) @GL_CFLAGS@
 
-if APPLE
-    APPLE_SOURCES = AppleGLHelper.cpp
-    APPLE_INCLUDES = AppleGLHelper.h
-else
-    APPLE_SOURCES =
-    APPLE_INCLUDES =
-endif
-
 ALL_H = Bitmap.h Filter.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
@@ -22,8 +14,7 @@ ALL_H = Bitmap.h Filter.h\
         FilterNormalize.h FilterFloodfill.h FilterDilation.h FilterErosion.h \
         FilterGetAlpha.h IteratingGPUFilter.h FBO.h \
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h \
-        FilterResizeGaussian.h \
-        $(APPLE_INCLUDES)
+        FilterResizeGaussian.h 
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
@@ -35,8 +26,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
         FilterGetAlpha.cpp IteratingGPUFilter.cpp FBO.cpp \
-        FilterResizeBilinear.cpp FilterResizeGaussian.cpp \
-        $(APPLE_SOURCES)
+        FilterResizeBilinear.cpp FilterResizeGaussian.cpp
 
 TESTS=testgraphics testgpu
 
