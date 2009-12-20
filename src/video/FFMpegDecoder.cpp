@@ -903,7 +903,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
                 }
             }
         }
-#if !defined(__i386__) && !defined(_WIN32)
+#if defined(__POWERPC__)
         FilterFlipRGBA().applyInPlace(pBmp);
 #endif
     }
