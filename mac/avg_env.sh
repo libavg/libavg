@@ -15,5 +15,6 @@ else
         export PYTHONPATH=${AVG_PATH}/lib/python2.6/site-packages/:$PYTHONPATH
     else
         export PYTHONPATH=${AVG_PATH}/lib/python/2.5/site-packages/:$PYTHONPATH
+    fi
     export AVG_MAC_ENV_SET=1
 fi
