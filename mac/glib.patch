@@ -1,0 +1,4 @@
+54c54
+< #if !(defined(__APPLE__) && defined(__LP64__)) && !defined(USE_LIBICONV_GNU) && defined (_LIBICONV_H)
+---
+> #if !defined(USE_LIBICONV_GNU) && defined (_LIBICONV_H)
