@@ -30,5 +30,8 @@ cd ..
 cd glib-2.21.3/glib
 patch -R gconvert.c < ../../../libavg/mac/glib.patch
 cd ../..
+cd ffmpeg/libswscale
+patch -p0 <../../../libavg/mac/ffmpeg.broken-yuv.patch
+cd ../..
 
 echo "Done"

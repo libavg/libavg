@@ -43,8 +43,8 @@ buildlibjpeg()
 
 buildlibpng()
 {
-    cd libpng-1.2.12
-    CFLAGS="-fno-common" ./configure --prefix=${AVG_PATH} --disable-shared
+    cd libpng-1.2.41
+    ./configure --prefix=${AVG_PATH} --disable-shared
     make clean
     make -j3
     make install
@@ -54,7 +54,7 @@ buildlibpng()
 buildglib()
 {
     cd glib-2.21.3
-    LDFLAGS="$LDFLAGS -lresolv" ./configure  --prefix=${AVG_PATH} --disable-shared --enable-static 
+    LDFLAGS="-framework ApplicationServices $LDFLAGS -lresolv" ./configure  --prefix=${AVG_PATH} --disable-shared --enable-static 
     make clean
     make -j3
     make install
@@ -73,6 +73,16 @@ buildfontconfig()
     cd ..    
 }
 
+buildboost()
+{
+    cd boost_1_41_0
+    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread 
+    ./bjam clean
+    ./bjam install
+    cd ..
+    rm -f ../lib/libboost_thread.dylib
+    rm -f ../lib/libboost_python.dylib
+}
 if [[ x"${AVG_PATH}" == "x" ]]
 then
     echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
@@ -89,6 +99,9 @@ clean
 
 cd ../deps
 
+DARWINVER=`uname -r`
+DARWINMAJORVER=${DARWINVER%%.*}
+
 buildLib libtool-2.2.6
 buildLib autoconf-2.63
 buildLib automake-1.11
@@ -99,8 +112,14 @@ buildlibpng
 buildLib libxml2-2.6.32 --disable-shared
 buildLib GraphicsMagick-1.1.10 "--without-x --without-perl --disable-shared --disable-delegate-build --without-modules --without-bzlib --without-dps --without-gslib --without-wmf --without-xml --without-ttf --with-quantum-depth=8"
 buildLib pkg-config-0.20
-buildLib ffmpeg "--disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio"
-buildLib SDL-1.2.13 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
+if [[ "DARWINMAJORVER" == "10" ]]
+then
+    buildLib ffmpeg "--arch=x86_64 --disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio --disable-decoder=vc1 --disable-decoder=wmv3"
+else
+    buildLib ffmpeg "--disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio"
+fi
+
+buildLib SDL-1.2.14 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
@@ -110,10 +129,7 @@ buildLib expat-2.0.0 --disable-shared
 buildfontconfig
 
 buildLib pango-1.24.4 "--disable-shared --without-x --with-included-modules=yes"
-buildLib boost_1_34_1 "--with-libraries=python,thread"
-rm -f ../include/boost
-ln -fs ../include/boost-1_34_1/boost/ ../include/boost
-ln -fs ../lib/libboost_thread-mt.a ../lib/libboost_thread.a
+buildboost
 
 buildLib libdc1394-2.0.2 "--disable-shared --disable-doxygen-doc --without-x"
 
