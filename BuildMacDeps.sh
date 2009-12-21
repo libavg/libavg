@@ -112,7 +112,7 @@ buildlibpng
 buildLib libxml2-2.6.32 --disable-shared
 buildLib GraphicsMagick-1.1.10 "--without-x --without-perl --disable-shared --disable-delegate-build --without-modules --without-bzlib --without-dps --without-gslib --without-wmf --without-xml --without-ttf --with-quantum-depth=8"
 buildLib pkg-config-0.20
-if [[ "DARWINMAJORVER" == "10" ]]
+if [[ "${DARWINMAJORVER}" == "10" ]]
 then
     buildLib ffmpeg "--arch=x86_64 --disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio --disable-decoder=vc1 --disable-decoder=wmv3"
 else
