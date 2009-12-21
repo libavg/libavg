@@ -58,7 +58,7 @@ BOOST_PYTHON_MODULE(avg)
         "The main libavg module.\n"
         "G{classtree Node}\n\n"
         "G{classtree Bitmap}\n\n"
-        "G{classtree Tracker TrackerCalibrator}\n\n "
+        "G{classtree Tracker TrackerCalibrator}\n\n"
         "G{classtree Logger}\n\n"
         "G{classtree ConradRelais ParPort}";
 
