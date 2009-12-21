@@ -55,13 +55,12 @@ BOOST_PYTHON_MODULE(avg)
     docstring_options doc_options(true, false);
 
     scope().attr("__doc__") =
-        "The main libavg module.\n";
-//        "G{classtree Node} "
-//        "G{classtree Event}\n";
-//        "G{classtree Bitmap}\n";
-//        "G{classtree Tracker TrackerCalibrator}\n"
-//        "G{classtree Logger}\n"
-//        "G{classtree ConradRelais ParPort}";
+        "The main libavg module.\n"
+        "G{classtree Node}\n\n"
+        "G{classtree Bitmap}\n\n"
+        "G{classtree Tracker TrackerCalibrator}\n\n "
+        "G{classtree Logger}\n\n"
+        "G{classtree ConradRelais ParPort}";
 
     scope().attr("svnrevision") = "$Rev$";
     scope().attr("svndate") =
