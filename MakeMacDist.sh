@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.9.0
+export VERSION=1.0.0.pre1
 export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
 fixLib()
@@ -82,6 +82,6 @@ LIBAVGDIR=`pwd`
 
 makeOneDist $INSTALL_PATH_10_5 2.5
 cd $LIBAVGDIR
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.mpkg
-hdiutil create libavg-mac-${VERSION}.dmg -srcfolder libavg.mpkg -ov 
+/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.pkg
+hdiutil create libavg-mac-${VERSION}.dmg -srcfolder libavg.pkg -ov 
 hdiutil internet-enable -yes libavg-mac-${VERSION}.dmg
