@@ -4,7 +4,6 @@ set -e
 set -x
 
 export VERSION=1.0.0.pre1
-export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
 fixLib()
 {
@@ -35,7 +34,7 @@ makeOneDist()
     mkdir avg/test
     mkdir avg/video
     mkdir avg/video/testfiles
-    cp -Rv /Library/Python/$PYTHON_VER/site-packages/libavg/ .
+    cp -Rv ${BUILDDIR}/site-packages/libavg/ .
     strip -S avg.0.so
     cp ../../libavg/src/avgrc avg
     mkdir etc
@@ -58,15 +57,6 @@ makeOneDist()
     cd $LIBAVGDIR/src/video/testfiles/
     cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 ${AVG_PATH}/dist/libavg/avg/video/testfiles
 
-#    cd $LIBAVGDIR/../dist/libavg
-    # Fix up library references and build one version of the package.
-#    distLib libMagick++.10 $INSTALL_PATH
-#    distLib libWand.10 $INSTALL_PATH
-#    fixLib libMagick++.10.dylib libWand.10 $INSTALL_PATH 
-#    distLib libMagick.10 $INSTALL_PATH 
-#    fixLib libMagick++.10.dylib libMagick.10 $INSTALL_PATH 
-#    fixLib libWand.10.dylib libMagick.10 $INSTALL_PATH 
-
     cd $LIBAVGDIR/../bindist
     rm -rf *
     cp /usr/local/bin/avg_* .
@@ -79,9 +69,21 @@ then
 fi
 
 LIBAVGDIR=`pwd`
+DARWINVER=`uname -r`
+DARWINMAJORVER=${DARWINVER%%.*}
 
-makeOneDist $INSTALL_PATH_10_5 2.5
+if [[ "${DARWINMAJORVER}" == "10" ]]
+then
+    PYTHONVERSION=2.6
+    OSXVERSION=10.6
+    BUILDDIR=${AVG_PATH}/lib/python2.6/
+else
+    PYTHONVERSION=2.5
+    OSXVERSION=10.5
+    BUILDDIR=${AVG_PATH}/lib/python/2.5/
+fi
+makeOneDist /Library/Python/${PYTHONVERSION}/site-packages/libavg ${PYTHONVERSION} 
 cd $LIBAVGDIR
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.pkg
-hdiutil create libavg-mac-${VERSION}.dmg -srcfolder libavg.pkg -ov 
-hdiutil internet-enable -yes libavg-mac-${VERSION}.dmg
+/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.${OSXVERSION}.pmdoc -v -o libavg.pkg
+hdiutil create libavg-mac-${OSXVERSION}-${VERSION}.dmg -srcfolder libavg.pkg -ov 
+hdiutil internet-enable -yes libavg-mac-${OSXVERSION}-${VERSION}.dmg
