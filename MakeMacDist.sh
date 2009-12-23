@@ -80,7 +80,9 @@ then
 else
     PYTHONVERSION=2.5
     OSXVERSION=10.5
-    BUILDDIR=${AVG_PATH}/lib/python/2.5/
+    BUILDDIR=/Library/Python/2.5
+    sudo rm -rf ${BUILDDIR}/site-packages/libavg
+    sudo make install
 fi
 makeOneDist /Library/Python/${PYTHONVERSION}/site-packages/libavg ${PYTHONVERSION} 
 cd $LIBAVGDIR
