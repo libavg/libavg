@@ -36,6 +36,7 @@ makeOneDist()
     mkdir avg/video/testfiles
     cp -Rv ${BUILDDIR}/site-packages/libavg/ .
     strip -S avg.0.so
+    rm avg.a avg.la
     cp ../../libavg/src/avgrc avg
     mkdir etc
     cp -R /etc/fonts etc/
