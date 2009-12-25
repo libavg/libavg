@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=1.0.0.pre1
+export VERSION=1.0.0.pre2
 
 fixLib()
 {
@@ -60,7 +60,12 @@ makeOneDist()
 
     cd $LIBAVGDIR/../bindist
     rm -rf *
-    cp /usr/local/bin/avg_* .
+    if [[ "${OSXVERSION}" == "10.6" ]]
+    then
+        cp $AVG_PATH/bin/avg_* .
+    else
+        cp /usr/local/bin/avg_* .
+    fi
 }
 
 if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
