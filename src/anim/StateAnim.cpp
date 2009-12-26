@@ -63,7 +63,8 @@ AnimPtr StateAnim::create(const vector<AnimState>& states)
     
 void StateAnim::abort()
 {
-    assert(false);
+    throw Exception(AVG_ERR_UNSUPPORTED, 
+            "StateAnim.abort is not defined. Set the state to empty instead.");
 }
 
 void StateAnim::setState(const std::string& sName, bool bKeepAttr)

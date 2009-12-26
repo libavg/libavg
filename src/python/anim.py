@@ -18,6 +18,10 @@
 # Current versions can be found at www.libavg.de
 #
 
+"""
+Provides a framework for time-based animations. Deprecated - there is a better
+framework in the avg module.
+"""
 
 import math
 

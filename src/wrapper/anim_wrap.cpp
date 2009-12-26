@@ -153,20 +153,33 @@ void export_anim()
     from_python_sequence<vector<AnimPtr>, variable_capacity_policy>();
     from_python_sequence<vector<AnimState>, variable_capacity_policy>();
     
-    def("getNumRunningAnims", SimpleAnim::getNumRunningAnims);
+    def("getNumRunningAnims", AttrAnim::getNumRunningAnims,
+            "Returns the total number of running attribute-based animations (this\n"
+            "includes LinearAnim, EaseInOutAnim and ContinuousAnim). Useful for\n"
+            "debugging memory leaks.");
     
-    class_<Anim, boost::shared_ptr<Anim>, boost::noncopyable>("Anim", no_init)
-        .def("setStartCallback", &Anim::setStartCallback)
-        .def("setStopCallback", &Anim::setStopCallback)
+    class_<Anim, boost::shared_ptr<Anim>, boost::noncopyable>("Anim",
+            "Base class for all animations.", no_init)
+        .def("setStartCallback", &Anim::setStartCallback,
+                "Sets a python callable to be invoked when the animation starts. "
+                "Corresponds to the constructor parameter onStart")
+        .def("setStopCallback", &Anim::setStopCallback,
+                "Sets a python callable to invoke when the animation has "
+                "finished running. Corresponds to the constructor parameter onStop.")
         .def("abort", &Anim::abort, "Stops the animation.")
-        .def("isRunning", &Anim::isRunning)
+        .def("isRunning", &Anim::isRunning,
+                "Returns True if the animation is currently executing")
         ;
 
     class_<AttrAnim, boost::shared_ptr<AttrAnim>, bases<Anim>, boost::noncopyable>
             ("AttrAnim", no_init)
-        .def("start", &AttrAnim::start, start_overloads(args("bKeepAttr")))
+        .def("start", &AttrAnim::start, start_overloads(args("bKeepAttr"),
+            "Starts the animation. \n"
+            "@param bKeepAttr: If this parameter is set to True, the animation doesn't "
+            "set the attribute value when starting. Instead, it calculates a virtual "
+            "start time from the current attribute value and proceeds from there."))
         ;
-
+ 
     class_<SimpleAnim, boost::shared_ptr<SimpleAnim>, bases<AttrAnim>, 
             boost::noncopyable>("SimpleAnim",
             "Base class for animations that change libavg node attributes by\n"
@@ -202,7 +215,7 @@ void export_anim()
                 "abort has been called or because another animation for the same\n"
                 "attribute has been started.\n")
         ;
-    
+   
     class_<EaseInOutAnim, boost::shared_ptr<EaseInOutAnim>, bases<SimpleAnim>, 
             boost::noncopyable>("EaseInOutAnim",
             "Class that animates an attribute of a libavg node. The animation proceeds\n"
@@ -213,43 +226,101 @@ void export_anim()
         .def("__init__", make_constructor(EaseInOutAnim_create7))
         .def("__init__", make_constructor(EaseInOutAnim_create8))
         .def("__init__", make_constructor(EaseInOutAnim_create9))
-        .def("__init__", make_constructor(EaseInOutAnim::create))
+        .def("__init__", make_constructor(EaseInOutAnim::create),
+                "@param node: The libavg node object to animate.\n"
+                "@param attrName: The name of the attribute to change. Must be a \n"
+                "numeric attribute.\n"
+                "@param duration: The length of the animation in milliseconds.\n"
+                "@param startValue: Initial value of the attribute.\n"
+                "@param endValue: Value of the attribute after duration has elapsed.\n"
+                "@param useInt: If True, the attribute is always set to an integer\n"
+                "value.\n"
+                "@param easeInDuration: The duration of the ease-in phase in \n"
+                "milliseconds.\n"
+                "@param easeOutDuration: The duration of the ease-out phase in \n"
+                "milliseconds.\n"
+                "@param onStart: Python callable to invoke when the animation starts.\n"
+                "@param onStop: Python callable to invoke when the animation has \n"
+                "finished running, either because it's run the allotted time, because\n"
+                "abort has been called or because another animation for the same\n"
+                "attribute has been started.\n")
         ;
    
     class_<ContinuousAnim, boost::shared_ptr<ContinuousAnim>, bases<AttrAnim>, 
-            boost::noncopyable>("ContinuousAnim", no_init)
+            boost::noncopyable>("ContinuousAnim", 
+            "Class that animates an attribute of a libavg node continuously and "
+            "linearly. The animation will not stop until the abort() method is called. "
+            "A possible use case is the continuous rotation of an object.",
+            no_init)
         .def("__init__", make_constructor(ContinuousAnim_create4)) 
         .def("__init__", make_constructor(ContinuousAnim_create5)) 
         .def("__init__", make_constructor(ContinuousAnim_create6)) 
-        .def("__init__", make_constructor(ContinuousAnim_create7)) 
+        .def("__init__", make_constructor(ContinuousAnim_create7), 
+                "@param node: The libavg node object to animate.\n"
+                "@param attrName: The name of the attribute to change. Must be a \n"
+                "numeric attribute.\n"
+                "@param startValue: Initial value of the attribute.\n"
+                "@param speed: Attribute change per second.\n"
+                "@param useInt: If True, the attribute is always set to an integer\n"
+                "value.\n"
+                "@param onStart: Python callable to invoke when the animation starts.\n"
+                "@param onStop: Python callable to invoke when the animation has \n"
+                "finished running, either because abort has been called or because \n"
+                "another animation for the same attribute has been started.\n")
         ;
 
     class_<WaitAnim, boost::shared_ptr<WaitAnim>, bases<Anim>, boost::noncopyable>(
-            "WaitAnim", no_init)
+            "WaitAnim",
+            "Animation that simply does nothing for a specified duration. Useful "
+            "in the context of StateAnims.",
+            no_init)
         .def("__init__", make_constructor(WaitAnim_create0))
         .def("__init__", make_constructor(WaitAnim_create1))
         .def("__init__", make_constructor(WaitAnim_create2))
-        .def("__init__", make_constructor(WaitAnim::create))
+        .def("__init__", make_constructor(WaitAnim::create),
+                "@param duration: The length of the animation in milliseconds.\n"
+                "@param onStart: Python callable to invoke when the animation starts.\n"
+                "@param onStop: Python callable to invoke when the animation has \n"
+                "finished running, either because it's run the allotted time or because\n"
+                "abort has been called.\n")
         .def("start", &WaitAnim::start, start_overloads(args("bKeepAttr")))
         ;
     
     class_<ParallelAnim, boost::shared_ptr<ParallelAnim>, bases<Anim>, 
-            boost::noncopyable>("ParallelAnim", no_init)
+            boost::noncopyable>("ParallelAnim",
+            "Animation that executes several child animations at the same time. The "
+            "duration of the ParallelAnim is the maximum of the child's durations or "
+            "maxAge, whatever is shorter.",
+            no_init)
         .def("__init__", make_constructor(ParallelAnim_create1))
         .def("__init__", make_constructor(ParallelAnim_create2))
         .def("__init__", make_constructor(ParallelAnim_create3))
-        .def("__init__", make_constructor(ParallelAnim::create))
+        .def("__init__", make_constructor(ParallelAnim::create),
+                "@param anims: A list of child animations.\n"
+                "@param onStart: Python callable to invoke when the animation starts.\n"
+                "@param onStop: Python callable to invoke when the animation has \n"
+                "finished running, either because it's run the allotted time or because\n"
+                "abort has been called.\n"
+                "@param maxAge: The maximum duration of the animation in milliseconds.\n")
         .def("start", &ParallelAnim::start, start_overloads(args("bKeepAttr")))
         ;
       
-    class_<AnimState, boost::noncopyable>("AnimState", no_init)
+    class_<AnimState, boost::noncopyable>("AnimState",
+            "One state of a StateAnim.", no_init)
         .def(init<const string&, AnimPtr>())
-        .def(init<const string&, AnimPtr, const string& >())
+        .def(init<const string&, AnimPtr, const string& >(
+            "@param name: The name of the state. Used in StateAnim.set/getState().\n"
+            "@param anim: The child animation to run when this state is active.\n"
+            "@param nextName: The name of the state to enter when this state is done.\n"))
         ;
 
     class_<StateAnim, boost::shared_ptr<StateAnim>, bases<Anim>, 
-            boost::noncopyable>("StateAnim", no_init)
-        .def("__init__", make_constructor(StateAnim::create))
+            boost::noncopyable>("StateAnim",
+            "Animation that executes one of several child animations depending on it's "
+            "current state.",
+            no_init)
+        .def("__init__", make_constructor(StateAnim::create),
+            "@param states: A list of AnimState objects.")
         .def("setState", &StateAnim::setState, setState_overloads(args("bKeepAttr")))
         .def("getState", make_function(&StateAnim::getState,
                 return_value_policy<copy_const_reference>()), "")
