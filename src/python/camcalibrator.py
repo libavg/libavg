@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # libavg - Media Playback Engine.
@@ -22,250 +21,277 @@
 #
 
 
-import sys, os, math, stat
-from libavg import avg
+import os
+from . import avg, Point2D
+from .trackerhelper import TrackerImageFlipper
+from .AVGApp import AVGApp
+from .AVGAppUtil import getMediaDir
+from collections import deque
 
-class CamCalibrator:
-    def __init__(self, Player, Tracker, CameraType, ParentNode):
-        self.__Player = Player
-        self.__Tracker = Tracker
+datadir = getMediaDir(__file__, 'data')
+
+
+g_player = avg.Player.get()
+g_tracker = None
+g_trackerParameters = [
+        {'nameFmt':"Track Threshold: %.0f",
+            'path':"/tracker/track/threshold/@value",
+            'min':1, 'max':255, 'increment':1},
+        {'nameFmt':"Touch Threshold: %.0f",
+            'path':"/tracker/touch/threshold/@value",
+            'min':1, 'max':255, 'increment':1},
+        {'nameFmt':"Brightness: %.0f",
+            'path':"/camera/brightness/@value",
+            'min':1, 'max':255, 'increment':1},
+        {'nameFmt':"Shutter: %.0f",
+            'path':"/camera/shutter/@value",
+            'min':1, 'max':533, 'increment':1},
+        {'nameFmt':"Gain: %.0f",
+            'path':"/camera/gain/@value",
+            'min':16, 'max':64, 'increment':1},
+        ]
+
+class CamCalibrator(AVGApp):
+    def __init__(self, parentNode, appStarter):
+        AVGApp.__init__(self, parentNode)
+
+    def init(self):
+        global g_tracker
+        print "CAMCALIBRATOR INIT"
+        print "CAMCALIBRATOR INIT"
+        print "CAMCALIBRATOR INIT"
+        print "CAMCALIBRATOR INIT"
+        print "CAMCALIBRATOR INIT"
+        g_tracker = g_player.getTracker()
+        self._parentNode.mediadir = datadir
+        self.__trackerImageFlipper = TrackerImageFlipper()
+        avgfd = open(os.path.join(datadir, "camcalibrator.avg"))
+        avg_contents = avgfd.read()
+        avgfd.close()
+        self.__mainNode = g_player.createNode(avg_contents)
+        self._parentNode.appendChild(self.__mainNode)
+
         self.__curParam = 0
         self.__saveIndex = 0
-        self.__onFrameID = Player.setOnFrameHandler(self.onFrame)
-        self.__makeParamList(CameraType)
-        self.__parentNode = ParentNode
-        node = Player.createNode('<image href="black.png" opacity="1"/>')
-        node.width = ParentNode.width
-        node.height = ParentNode.height
-        ParentNode.appendChild(node)
-        node = Player.createNode('<image id="cc_distorted"/>')
-        ParentNode.appendChild(node)
-        node = Player.createNode('<image id="cc_fingers"/>')
-        ParentNode.appendChild(node)
-        node = Player.createNode('''
-            <div id="cc_gui" x="30" y="30" >
-                <image x="0" y="13" width="500" height="215" 
-                        href="black.png" opacity="0.6"/>
-                <words x="2" y="13" text="camera" fontsize="16" font="Eurostile" color="00FF00"/>
-                <image x="2" y="32" href="CamImgBorder.png"/>
-                <image id="cc_camera" x="4" y="34" width="160" height="120"/>
-                
-                <words x="168" y="13" text="nohistory" fontsize="16" font="Eurostile" color="00FF00"/>
-                <image x="168" y="32" href="CamImgBorder.png"/>
-                <image id="cc_nohistory" x="170" y="34" width="160" height="120"/>
-                
-                <words x="334" y="13" text="histogram" fontsize="16" font="Eurostile" color="00FF00"/>
-                <image x="334" y="32" href="CamImgBorder.png"/>
-                <image id="cc_histogram" x="336" y="34" width="160" height="120"/>
-        
-                <words id="cc_param0" x="2" y="162" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param1" x="2" y="178" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param2" x="2" y="194" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param3" x="2" y="210" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param4" x="168" y="162" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param5" x="168" y="178" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param6" x="168" y="194" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param7" x="168" y="210" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param8" x="304" y="162" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param9" x="428" y="162" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param10" x="304" y="178" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param11" x="428" y="178" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param12" x="304" y="194" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param13" x="428" y="194" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param14" x="304" y="210" fontsize="13" font="Eurostile"/> 
-                <words id="cc_param15" x="428" y="210" fontsize="13" font="Eurostile"/> 
-            </div>
-        ''')
-        node.width = ParentNode.width
-        node.height = ParentNode.height
-        ParentNode.appendChild(node)
-        self.__isActive = True
-        self.__switchActive()
+        self.__showCoordCalibrator = False
 
-    def __flipBitmap(self, ImgName):
-        Node = self.__player.getElementByID(ImgName)
-        Grid = Node.getOrigVertexCoords()
-        Grid = [ [ (pos[0], 1-pos[1]) for pos in line ] for line in Grid]
-        Node.setWarpedVertexCoords(Grid)
+        coordDiv = g_player.getElementByID("coordcalibrator")
+        coordDiv.opacity = 0
+        coordDiv.active = False
+        self.__coordCalibrator = CoordCalibrator(coordDiv)
+        self.__coordCalibrator.init()
+        self.__onCalibrationSuccess = lambda: None
 
-    def __switchActive(self):
-        self.__isActive = not(self.__isActive)
-        if self.__isActive:
-            self.__parentNode.active = 1 
-            self.__parentNode.opacity = 1
-            self.__displayParams()
-            self.__onFrameID = self.__Player.setOnFrameHandler(self.onFrame)
-        else:
-            self.__parentNode.active = 0 
-            self.__parentNode.opacity = 0
-            self.__Player.clearInterval(self.__onFrameID)
-        self.__Tracker.setDebugImages(self.__isActive, self.__isActive)
+    def _enter(self):
+        self.__onFrameHandler = g_player.setOnFrameHandler(self.__updateBitmaps)
+        g_tracker.setDebugImages(True, True)
+        self.__displayParams() # XXX
 
-    def __makeParamList(self, CameraType):
-        if CameraType == "Fire-i":
-            self.__paramList = [
-                # Camera
-                {'Name':"Brightness", 
-                 'path':"/camera/brightness/@value", 
-                 'min':128, 'max':383, 'increment':1, 'precision':0},
-                {'Name':"Exposure", 
-                 'path':"/camera/exposure/@value", 
-                 'min':0, 'max':511, 'increment':1, 'precision':0},
-                {'Name':"Shutter", 
-                 'path':"/camera/shutter/@value", 
-                 'min':0, 'max':7, 'increment':1, 'precision':0},
-                {'Name':"Gain", 
-                 'path':"/camera/gain/@value", 
-                 'min':0, 'max':255, 'increment':1, 'precision':0}
-            ]
-        elif CameraType == "FireFly":
-            self.__paramList = [
-                # Camera
-                {'Name':"Brightness", 
-                 'path':"/camera/brightness/@value", 
-                 'min':1, 'max':255, 'increment':1, 'precision':0},
-                {'Name':"Exposure", 
-                 'path':"/camera/exposure/@value", 
-                 'min':7, 'max':62, 'increment':1, 'precision':0},
-                {'Name':"Shutter", 
-                 'path':"/camera/shutter/@value", 
-                 'min':1, 'max':533, 'increment':1, 'precision':0},
-                {'Name':"Gain", 
-                 'path':"/camera/gain/@value", 
-                 'min':16, 'max':64, 'increment':1, 'precision':0}
-            ]
-        else:
-            print("CamCalibrator: unknown CameraType")
-            sys.exit()
+    def _leave(self):
+        g_player.clearInterval(self.__onFrameHandler)
+        # XXX: extremely ugly kludge! change libavg toggleTrackerImage() api?
+        g_tracker.setDebugImages(False, False)
+        from .AVGMTAppStarter import AVGMTAppStarter # kludge to avoid circular import
+        AVGMTAppStarter.instance.toggleTrackerImage()
+        AVGMTAppStarter.instance.toggleTrackerImage()
 
-        self.__paramList.extend([
-            # Tracker
-            {'Name':"Threshold", 
-             'path':"/tracker/track/threshold/@value", 
-             'min':1, 'max':255, 'increment':1, 'precision':0},
-            {'Name':"Min Area", 
-             'path':"/tracker/track/areabounds/@min", 
-             'min':1, 'max':1000000, 'increment':3, 'precision':0},
-            {'Name':"Max Area", 
-             'path':"/tracker/track/areabounds/@max", 
-             'min':20, 'max':1000000, 'increment':10, 'precision':0},
-            {'Name':"Contour Precision", 
-             'path':"/tracker/contourprecision/@value", 
-             'min':0, 'max':1000, 'increment':1, 'precision':0},
-        
-            # Transform
-            {'Name':"Displacement x", 
-             'path':"/transform/displaydisplacement/@x", 
-             'min':-5000, 'max':0, 'increment':1, 'precision':0},
-            {'Name':"y", 
-             'path':"/transform/displaydisplacement/@y", 
-             'min':-5000, 'max':0, 'increment':1, 'precision':0},
-            {'Name':"Scale x", 
-             'path':"/transform/displayscale/@x", 
-             'min':-3, 'max':8, 'increment':0.01, 'precision':2},
-            {'Name':"y", 
-             'path':"/transform/displayscale/@y", 
-             'min':-3, 'max':8, 'increment':0.01, 'precision':2},
-            {'Name':"Distortion p2", 
-             'path':"/transform/distortionparams/@p2", 
-             'min':-3, 'max':3, 'increment':0.001, 'precision':3},
-            {'Name':"p3", 
-             'path':"/transform/distortionparams/@p3", 
-             'min':-3, 'max':3, 'increment':0.001, 'precision':3},
-            {'Name':"Trapezoid", 
-             'path':"/transform/trapezoid/@value", 
-             'min':-3, 'max':3, 'increment':0.00001, 'precision':5},
-            {'Name':"Angle", 
-             'path':"/transform/angle/@value", 
-             'min':-3.15, 'max':3.15, 'increment':0.01, 'precision':2},
-        ])
+    def __getParam(self, Path):
+        return int(g_tracker.getParam(Path))
+
+    def __setParam(self, Path, Val):
+        g_tracker.setParam(Path, str(Val))
+
+    def __displayParams(self):
+        for (i, param) in enumerate(g_trackerParameters):
+            node = g_player.getElementByID("param%u" % i)
+            val = float(self.__getParam(param['path']))
+            node.text = param['nameFmt'] % val
+            if self.__curParam == i:
+                node.color = "FFFFFF"
+            else:
+                node.color = "A0A0FF"
 
     def __changeParam(self, Change):
-        param = self.__paramList[self.__curParam]
-        if param['increment'] >= 1:
-            Val = int(self.__Tracker.getParam(param['path']))
-        else:
-            Val = float(self.__Tracker.getParam(param['path']))
-        Val += Change*param['increment']
-        if Val < param['min']:
-            Val = param['min']
-        if Val > param['max']:
-            Val = param['max']
-        self.__Tracker.setParam(param['path'], str(Val))
-        
-    def __displayParams(self):
-        i = 0
-        for Param in self.__paramList:
-            Node = self.__Player.getElementByID("cc_param"+str(i))
-            Path = Param['path']
-            Val = float(self.__Tracker.getParam(Path))
-            Node.text = Param['Name']+": "+('%(val).'+str(Param['precision'])+'f') % {'val': Val}
-            if self.__curParam == i:
-                Node.color = "FFFFFF"
-            else:
-                Node.color = "A0A0FF"
-            i += 1 
+        curParam = g_trackerParameters[self.__curParam]
+        Val = self.__getParam(curParam['path'])
+        Val += Change*curParam['increment']
+        if Val < curParam['min']:
+            Val = curParam['min']
+        if Val > curParam['max']:
+            Val = curParam['max']
+        self.__setParam(curParam['path'], Val)
 
-    def __saveTrackerImage(self, ImageID, ImageName):
-        self.__Tracker.getImage(ImageID).save(
-                "img"+str(self.__saveIndex)+"_"+ImageName+".png")
-    
-    def onFrame(self):
-        def showTrackerImage(TrackerImageID, NodeID, w=None, h=None):
-            Bitmap = self.__Tracker.getImage(TrackerImageID)
-            Node = self.__Player.getElementByID(NodeID)
-            Node.setBitmap(Bitmap)
-            if w != None:
-                Node.width=w
-                Node.height=h
-        showTrackerImage(avg.IMG_DISTORTED, "cc_distorted", 
-                self.__parentNode.width, self.__parentNode.height)
-        showTrackerImage(avg.IMG_FINGERS, "cc_fingers",
-                self.__parentNode.width, self.__parentNode.height)
-        showTrackerImage(avg.IMG_CAMERA, "cc_camera", 160, 120)
-        showTrackerImage(avg.IMG_NOHISTORY, "cc_nohistory", 160, 120)
-        showTrackerImage(avg.IMG_HISTOGRAM, "cc_histogram", 160, 120)
+    def __updateBitmaps(self):
+        for nodeID, imageID in (
+                ("camera", avg.IMG_CAMERA),
+                ("distorted", avg.IMG_DISTORTED),
+                ("nohistory", avg.IMG_NOHISTORY),
+                ("histogram", avg.IMG_HISTOGRAM),
+                ("bkgnd", avg.IMG_DISTORTED),
+                ):
+            node = g_player.getElementByID(nodeID)
+            oldSize = node.size
+            self.__trackerImageFlipper.loadTrackerImage(
+                    node = node,
+                    imageID = imageID)
+            node.size = oldSize
 
-    def onKeyUp(self, Event):
-        if Event.keystring == "t":
-            self.__switchActive()
-            return True
-        else:
-            if self.__isActive:
-                if Event.keystring == "up":
-                    if self.__curParam > 0:
-                        self.__curParam -= 1
-                elif Event.keystring == "down":
-                    if self.__curParam < len(self.__paramList)-1:
-                        self.__curParam += 1
-                elif Event.keystring == "left":
-                    self.__changeParam(-1)
-                elif Event.keystring == "right":
-                    self.__changeParam(1)
-                elif Event.keystring == "page up":
-                    self.__changeParam(-10)
-                elif Event.keystring == "page down":
-                    self.__changeParam(10)
-                elif Event.keystring == "h":
-                    self.__Tracker.resetHistory()
-                    print "History reset"
-                elif Event.keystring == "s":
-                    self.__Tracker.saveConfig("")
-                    print ("Tracker configuration saved.")
-                elif Event.keystring == "w":
-                    self.__saveIndex += 1
-                    self.__saveTrackerImage(avg.IMG_CAMERA, "camera")
-                    self.__saveTrackerImage(avg.IMG_DISTORTED, "distorted")
-                    self.__saveTrackerImage(avg.IMG_NOHISTORY, "nohistory")
-                    self.__saveTrackerImage(avg.IMG_HIGHPASS, "highpass")
-                    self.__saveTrackerImage(avg.IMG_FINGERS, "fingers")
-                    print ("Images saved.")
-                elif Event.keystring == "i":
-                    self.__showImages()
-                else:
-                    return False
-                self.__displayParams()
+    def __saveImages(self):
+        self.__saveIndex += 1
+        for (imageID, name) in [
+                (avg.IMG_CAMERA, "camera"),
+                (avg.IMG_DISTORTED,"distorted"),
+                (avg.IMG_NOHISTORY,"nohistory"),
+                (avg.IMG_HIGHPASS,"highpass"),
+                (avg.IMG_FINGERS,"fingers"),
+                ]:
+            bitmap = g_tracker.getImage(imageID)
+            bitmap.save("img_%u_%s.png" % (self.__saveIndex, name))
+
+    def setOnCalibrationSuccess(self, callback):
+        self.__onCalibrationSuccess = callback
+
+    def toggleCoordCalibrator(self):
+        self.__showCoordCalibrator ^= True
+        coordDiv = g_player.getElementByID("coordcalibrator")
+        if self.__showCoordCalibrator: # enabling
+            coordDiv.opacity = 1
+            coordDiv.active = True
+            def afterCoordCal():
+                self.toggleCoordCalibrator()
+                self.__onCalibrationSuccess()
+                self.__trackerImageFlipper.readConfig()
+            self.__coordCalibrator.enter(onLeave = afterCoordCal)
+        else: # disabling
+            coordDiv.opacity = 0
+            coordDiv.active = False
+
+    def onKey(self, event):
+        if self.__showCoordCalibrator:
+            if self.__coordCalibrator.onKey(event):
                 return True
-            else:
-                return False
+        if event.keystring == "c":
+            self.toggleCoordCalibrator()
+        elif event.keystring == "up":
+            if self.__curParam > 0:
+                self.__curParam -= 1
+        elif event.keystring == "down":
+            if self.__curParam < len(g_trackerParameters)-1:
+                self.__curParam += 1
+        elif event.keystring == "left":
+            self.__changeParam(-1)
+        elif event.keystring == "right":
+            self.__changeParam(1)
+        elif event.keystring == "page up":
+            self.__changeParam(10)
+        elif event.keystring == "page down":
+            self.__changeParam(-10)
+        elif event.keystring == "w":
+            self.__saveImages()
+            print "Images saved."
+        elif event.keystring == "s":
+            g_tracker.saveConfig()
+            print "tracker config saved."
+        elif event.keystring == "d":
+            from .AVGMTAppStarter import AVGMTAppStarter # kludge to avoid circular import
+            AVGMTAppStarter.instance.toggleTrackerImage()
+            g_tracker.setDebugImages(True, True)
+        else:
+            return False
+        self.__displayParams() # XXX
+        return True
+
+class MessageBox(object):
+    def __init__(self, parentNode, pos, maxLines):
+        self.__divNode = g_player.createNode('div',{})
+        self.__divNode.pos = pos
+        parentNode.appendChild(self.__divNode)
+        self.__nodes = deque()
+        self.__maxLines = maxLines
+        self.__nodeOffset = 13
+
+    def clear(self):
+        for node in self.__nodes:
+            node.unlink()
+        self.__nodes.clear()
+
+    def write(self, msg):
+        if len(self.__nodes) > self.__maxLines:
+            oldestLine = self.__nodes.popleft()
+            oldestLine.unlink()
+            for node in self.__nodes:
+                node.y -= self.__nodeOffset
+
+        y = len(self.__nodes) * self.__nodeOffset
+        node = g_player.createNode('words', {
+            'fontsize': 10,
+            'text': msg,
+            'font': 'Eurostile',
+            'color': '00ff00',
+            'pos': Point2D(0, y),
+            })
+        self.__divNode.appendChild(node)
+        self.__nodes.append(node)
+
+
+class CoordCalibrator(AVGApp):
+    def init(self):
+        self._parentNode.mediadir = datadir
+        self.__msgBox = MessageBox(parentNode = self._parentNode,
+                pos = Point2D(100, 100), maxLines = 38)
+        self.__crosshair = g_player.createNode("image",
+                {'href': 'crosshair.png'})
+        self._parentNode.appendChild(self.__crosshair)
+        for type_ in avg.CURSORDOWN, avg.CURSORMOTION, avg.CURSORUP:
+            self._parentNode.setEventHandler(type_, avg.TOUCH, self.__onCursorEvent)
+
+    def _enter(self):
+        self.__savedShutter = g_tracker.getParam("/camera/shutter/@value")
+        g_tracker.setParam("/camera/shutter/@value", "11")
+        self.__savedGain = g_tracker.getParam("/camera/gain/@value")
+        g_tracker.setParam("/camera/gain/@value", "23")
+
+        # start after modifed tracker settings take effect
+        g_player.setTimeout(0, self.__startCalibration)
+
+    def __startCalibration(self):
+        self.__CPPCal = g_tracker.startCalibration()
+        self.__msgBox.write("Starting calibration.")
+        self.__curPointIndex = 0
+        self.__lastCenter = None
+        self.__moveMarker()
+
+    def _leave(self):
+        g_tracker.setParam("/camera/shutter/@value", self.__savedShutter)
+        g_tracker.setParam("/camera/gain/@value", self.__savedGain)
+        self.__msgBox.clear()
+
+    def __nextPoint(self):
+        if self.__lastCenter:
+            self.__msgBox.write("Using %.2f, %.2f" % self.__lastCenter)
+            self.__CPPCal.setCamPoint(self.__lastCenter)
+        self.__lastCenter = None
+        calibrationDone = not self.__CPPCal.nextPoint()
+        self.__moveMarker()
+        if calibrationDone:
+            g_tracker.endCalibration()
+            self.leave()
+
+    def __moveMarker(self):
+        newPos =  self.__CPPCal.getDisplayPoint()
+        self.__crosshair.pos = Point2D(newPos) - self.__crosshair.size / 2
+        self.__curPointIndex += 1
+        self.__msgBox.write("Calibrating point "+str(self.__curPointIndex))
+
+    def __onCursorEvent(self, event):
+        self.__lastCenter = event.center[0], event.center[1]
+        self.__msgBox.write("cursor event with center %.2f, %.2f" % self.__lastCenter)
+
+    def onKey(self, event):
+        if event.keystring == "space":
+            self.__nextPoint()
+        elif event.keystring == "e":
+            g_tracker.abortCalibration()
+            self.leave()
+        return True # ignore all other keys!
 

@@ -28,8 +28,7 @@ from AVGAppStarter import AVGAppStarter
 try:
     from alib.calibrator.CamCalibrator import Calibrator
 except ImportError:
-    Calibrator = None
-    #from .camcalibrator import Calibrator
+    from .camcalibrator import CamCalibrator as Calibrator
     
 try:
     from alib.clicktest import ClickTest
@@ -99,6 +98,7 @@ class AVGMTAppStarter (AVGAppStarter):
             self.__calibratorNode.size = rootNode.size
             self.__calibrator = Calibrator(self.__calibratorNode, appStarter=self)
             self.__calibrator.setOnCalibrationSuccess(self.__onCalibrationSuccess)
+            self.__calibrator.init()
         else:
             self.__calibrator = None
 
