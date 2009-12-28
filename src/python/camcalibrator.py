@@ -57,11 +57,6 @@ class CamCalibrator(AVGApp):
 
     def init(self):
         global g_tracker
-        print "CAMCALIBRATOR INIT"
-        print "CAMCALIBRATOR INIT"
-        print "CAMCALIBRATOR INIT"
-        print "CAMCALIBRATOR INIT"
-        print "CAMCALIBRATOR INIT"
         g_tracker = g_player.getTracker()
         self._parentNode.mediadir = datadir
         self.__trackerImageFlipper = TrackerImageFlipper()
