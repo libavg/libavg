@@ -43,14 +43,12 @@ public:
     void runTests() 
     {
         Player player;
-        char * pszDir = getenv("srcdir");
-        string sFName;
-        if (pszDir) {
-            sFName = string(pszDir)+ "/../test/image.avg";
-        } else {
-            sFName = "../test/image.avg";
-        }
-        player.loadFile(sFName);
+        player.loadString(
+        "    <?xml version=\"1.0\"?>"
+        "    <avg width=\"160\" height=\"120\">"
+        "      <words text=\"foo\"/>"
+        "    </avg>"
+        );
         player.disablePython();
         if (!getenv("AVG_CONSOLE_TEST")) {
             player.initPlayback();
