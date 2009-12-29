@@ -308,12 +308,12 @@ void Player::play()
             }
         } catch (...) {
             cleanup();
-            m_bIsPlaying = false;
             throw;
         }
         cleanup();
         AVG_TRACE(Logger::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
+        m_bIsPlaying = false;
         AVG_TRACE(Logger::ERROR, ex.GetStr());
         throw;
     }

@@ -40,6 +40,8 @@ else:
 
 from testcase import *
 
+g_IsMaskSupported = None
+
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
@@ -277,12 +279,18 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def _isMaskSupported(self):
-        try:
+        global g_IsMaskSupported
+        if g_IsMaskSupported == None:
+            self._loadEmpty()
             node = Player.createNode("image", {"href": "rgb24-65x65.png", 
                     "maskhref": "mask.png"})
-            return True
-        except RuntimeError:
-            return False
+            Player.getRootNode().appendChild(node)
+            try:
+                self.start(None, [])
+                g_IsMaskSupported = True
+            except RuntimeError:
+                g_IsMaskSupported = False
+        return g_IsMaskSupported
 
     def testImageMask(self):
         def createNode(pos):
@@ -311,10 +319,10 @@ class ImageTestCase(AVGTestCase):
         def setMaskNotFound():
             node.maskhref = "nonexistentmask.png"        
             
-        self._loadEmpty()
         if not(self._isMaskSupported()):
             print "Skipping testImageMask - no shader support."
             return
+        self._loadEmpty()
         createNode((0,0))
         node = Player.getRootNode().getChild(0)
         setNoAttach((32,0))
