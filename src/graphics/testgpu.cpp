@@ -387,8 +387,11 @@ int main(int nargs, char** args)
     bool bOK = true;
     try {
         OGLImagingContext context(IntPoint(64, 64));
-
         try {
+            if (!queryOGLExtension("GL_ARB_fragment_shader")) {
+                throw Exception(AVG_ERR_UNSUPPORTED, 
+                        "Fragment shaders not supported on this Machine. ");
+            }
             GPUTestSuite Suite;
             Suite.runTests();
             bOK = Suite.isOk();
