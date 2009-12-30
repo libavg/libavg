@@ -469,7 +469,7 @@ class VectorTestCase(AVGTestCase):
         
         def onMouseDown(event):
             self.__mouseDownCalled = True
-        
+       
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
@@ -493,6 +493,14 @@ class VectorTestCase(AVGTestCase):
                         20, 87, 1),
                  lambda: self.assert_(self.__mouseDownCalled)
                 ))
+
+    def testSelfIntersectPolygon(self):
+        canvas = self.makeEmptyCanvas()
+        polygon = Player.createNode("polygon", {"strokewidth":3, "color":"FF00FF",
+                "pos": ((100.5,10.5), (100.5,30.5), (120.5, 10.5), (120.5,30.5)),
+                "fillcolor": "00FFFF", "fillopacity": 0.5})
+        canvas.insertChild(polygon, 0)
+        self.assertException(lambda: self.start(None, []))
 
     def testTexturedPolygon(self):
         def texturePolygon():
@@ -668,6 +676,7 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+            "testSelfIntersectPolygon",
             "testTexturedPolygon",
             "testCircle",
             "testMesh",
