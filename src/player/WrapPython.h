@@ -27,6 +27,10 @@
 #  define DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
 #endif
 
+// libstdc++ and python headers both define _XOPEN_SOURCE (Ubuntu 9.10, gcc 4.4, 
+// python 2.6.4)
+#undef _POSIX_C_SOURCE
+#undef _XOPEN_SOURCE
 #include <Python.h>
 
 #undef HAVE_STAT
