@@ -76,7 +76,7 @@ BitmapPtr OGLTexture::lockBmp()
                 (m_ActiveSize.x+1)*(m_ActiveSize.y+1)*Bitmap::getBytesPerPixel(m_pf),
                 0, GL_DYNAMIC_DRAW);
         unsigned char * pBuffer = (unsigned char *)
-            glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+            glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_READ_WRITE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLTexture::lockBmp: glMapBuffer()");
         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);

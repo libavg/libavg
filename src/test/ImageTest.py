@@ -206,6 +206,7 @@ class ImageTestCase(AVGTestCase):
     def testBitmap(self):
         def getBitmap(node):
             bmp = node.getBitmap()
+            bmp.save("foo.png")
             self.assert_(bmp.getSize() == (65,65))
             self.assert_(bmp.getFormat() == avg.R8G8B8X8 or 
                     bmp.getFormat() == avg.B8G8R8X8)
@@ -244,12 +245,8 @@ class ImageTestCase(AVGTestCase):
         loadFromBitmap((32,0), "")
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
         testUnicode()
-        # TODO: The first line is a workaround for a strange test failure on vista
-        # 64 bit. (Symptoms: node.getBitmap() sometimes returns garbage if called on
-        # the first frame). Make sure this really is a driver/OS bug. 
         self.start(None,
-                (None, 
-                 lambda: getBitmap(node),
+                (lambda: getBitmap(node),
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1", False),
