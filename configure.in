@@ -2,7 +2,7 @@ AC_PREREQ(2.53)
 AC_INIT(libavg, 1.0.0.pre2, uzadow@libavg.de)
 AC_CANONICAL_TARGET
 
-LT_INIT()
+LT_INIT([disable-static])
 
 MAJOR_VERSION=1
 MINOR_VERSION=0
