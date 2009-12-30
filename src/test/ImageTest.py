@@ -206,7 +206,6 @@ class ImageTestCase(AVGTestCase):
     def testBitmap(self):
         def getBitmap(node):
             bmp = node.getBitmap()
-            bmp.save("foo.png")
             self.assert_(bmp.getSize() == (65,65))
             self.assert_(bmp.getFormat() == avg.R8G8B8X8 or 
                     bmp.getFormat() == avg.B8G8R8X8)
