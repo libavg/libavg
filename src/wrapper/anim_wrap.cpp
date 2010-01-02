@@ -317,14 +317,18 @@ void export_anim()
     class_<StateAnim, boost::shared_ptr<StateAnim>, bases<Anim>, 
             boost::noncopyable>("StateAnim",
             "Animation that executes one of several child animations depending on it's "
-            "current state.",
+            "current state. The state can be None, in which case no animation is "
+            "executed. None is the initial state. Note that changing the state of an "
+            "animation during a start or stop callback of a child animation is not "
+            "possible. An attempt to do so is silently ignored.",
             no_init)
         .def("__init__", make_constructor(StateAnim::create),
             "@param states: A list of AnimState objects.")
         .def("setState", &StateAnim::setState, setState_overloads(args("bKeepAttr")))
         .def("getState", make_function(&StateAnim::getState,
                 return_value_policy<copy_const_reference>()), "")
-        .def("setDebug", &StateAnim::setDebug, "")
+        .def("setDebug", &StateAnim::setDebug, 
+            "Setting this to true causes all state changes to be printed on the console.")
         ;
 
     def("fadeIn", fadeIn, fadeIn_overloads(args("max", "stopCallback"),
