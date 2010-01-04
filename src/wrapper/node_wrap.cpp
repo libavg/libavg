@@ -88,11 +88,15 @@ void export_node()
                 "the root node, returns None.\n")
         .def("unlink", &Node::unlink, unlink_overloads(args("bKill"),
                 "unlink(kill) -> None\n"
-                "Removes a node from it's parent container. Equivalent to\n"
-                "node.getParent().removeChild(node.getParent().indexOf(node)), except\n"
-                "that if the node has no parent, unlink does nothing. Normally,\n"
-                "unlink moves the node's textures back to the CPU. If kill=True,\n"
-                "this step is skipped, saving some time.\n"))
+                "Removes a node from it's parent container. Equivalent to "
+                "node.getParent().removeChild(node.getParent().indexOf(node)), except "
+                "that if the node has no parent, unlink does nothing. Normally, unlink "
+                "moves the node's textures back to the CPU and preserves event handlers. "
+                "If kill=True, this step is skipped. Event handlers are reset, all "
+                "textures are deleted and the href is reset to empty in this case, "
+                "saving some time and making sure there are no references to the node "
+                "left on the libavg side. kill should always be set to true if the node "
+                "will not be used after the unlink."))
         .def("setEventCapture", &Node::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node\n"

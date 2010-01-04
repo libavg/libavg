@@ -136,6 +136,13 @@ void Node::disconnect(bool bKill)
     }
     Player::get()->removeNodeID(m_ID);
     setState(NS_UNCONNECTED);
+    if (bKill) {
+        EventHandlerMap::iterator it;
+        for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+            Py_DECREF(it->second);
+        }
+        m_EventHandlerMap.clear();
+    }
 }
 
 const string& Node::getID() const
