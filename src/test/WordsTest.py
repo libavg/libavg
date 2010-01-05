@@ -68,7 +68,9 @@ class WordsTestCase(AVGTestCase):
                 variant="bold" text="Bold"/>
           </avg>
         """)
-        pos = Player.getElementByID("sanstext").getGlyphPos(0)
+        node = Player.getElementByID("sanstext")
+        self.assert_(node.size != (0,0))
+        pos = node.getGlyphPos(0)
         self.start(None,
                 (lambda: self.compareImage("testSimpleWords", True),
                  checkFont,

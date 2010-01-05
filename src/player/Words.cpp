@@ -116,6 +116,7 @@ Words::Words(const ArgList& Args)
     setWrapMode(Args.getArgVal<string>("wrapmode"));
     setText(Args.getArgVal<UTF8String>("text"));
     m_Color = colorStringToColor(m_sColorName);
+    setViewport(-32767, -32767, -32767, -32767);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 

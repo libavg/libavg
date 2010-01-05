@@ -56,6 +56,7 @@ class ImageTestCase(AVGTestCase):
         def createDictNode(pos):
             node = Player.createNode("image", {"pos":pos, "href":"rgb24-32x32.png"})
             self.assert_(node.getMediaSize() == avg.Point2D(32, 32))
+            self.assert_(node.size == avg.Point2D(32, 32))
             return node
 
         def addNodes(y):
