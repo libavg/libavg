@@ -227,7 +227,7 @@ class ImageTestCase(AVGTestCase):
             s = bmp.getPixels()
             bmp1 = avg.Bitmap(bmp.getSize(), avg.R8G8B8X8, "sample")
             bmp1.setPixels(s)
-            bmp1.save("foo.png")
+            self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
         def testUnicode():
             if isDirWritable():
