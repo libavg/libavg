@@ -903,9 +903,6 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
                 }
             }
         }
-#if defined(__POWERPC__)
-        FilterFlipRGBA().applyInPlace(pBmp);
-#endif
     }
 }
        
