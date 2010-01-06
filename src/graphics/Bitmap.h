@@ -76,6 +76,7 @@ typedef boost::shared_ptr<Histogram> HistogramPtr;
 class AVG_API Bitmap
 {
 public:
+    Bitmap(DPoint Size, PixelFormat PF, const UTF8String& sName="");
     Bitmap(IntPoint Size, PixelFormat PF, const UTF8String& sName="");
     Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
             int Stride, bool bCopyBits, const UTF8String& sName="");

@@ -222,6 +222,13 @@ class ImageTestCase(AVGTestCase):
             self.assert_(node.getMediaSize() == (65,65))
             Player.getRootNode().appendChild(node)
         
+        def testStringConversion():
+            bmp = avg.Bitmap('rgb24-65x65.png')
+            s = bmp.getPixels()
+            bmp1 = avg.Bitmap(bmp.getSize(), avg.R8G8B8X8, "sample")
+            bmp1.setPixels(s)
+            bmp1.save("foo.png")
+
         def testUnicode():
             if isDirWritable():
                 # Can't check unicode filenames into svn or the windows client breaks.
@@ -244,6 +251,7 @@ class ImageTestCase(AVGTestCase):
         self.assert_(node.size == (32,32))
         loadFromBitmap((32,0), "")
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
+        testStringConversion()
         testUnicode()
         self.start(None,
                 (lambda: getBitmap(node),

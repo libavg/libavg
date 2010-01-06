@@ -55,6 +55,19 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src);
 
 bool Bitmap::s_bMagickInitialized = false;
 
+Bitmap::Bitmap(DPoint Size, PixelFormat PF, const UTF8String& sName)
+    : m_Size(Size),
+      m_PF(PF),
+      m_pBits(0),
+      m_bOwnsBits(true),
+      m_sName(sName)
+{
+//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
+//        << sName << ")" << endl;
+    ObjectCounter::get()->incRef(&typeid(*this));
+    allocBits();
+}
+
 Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const UTF8String& sName)
     : m_Size(Size),
       m_PF(PF),
