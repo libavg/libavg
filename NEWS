@@ -1,3 +1,41 @@
+libavg 1.0.0 - January 8, 2010
+
+  svn revision 4489
+
+  New Features:
+
+    * hinting is now optional in words node.
+    * Multitouch emulation module added to AVGMTApp.
+    * masks now work with words nodes.
+    * Added video.volume property and video.hasAudio() method.
+    * Added AVG_LOG_CATEGORIES environment variable. Log configuration is now
+      done using the environment and not by calling a method.
+    * Added maskpos and masksize attribute so masks can be moved and rescaled.
+    * Added Player.getKeyModifierState()
+    * Added sse2 version of yuv->rgb color conversion.
+    * Added avg_videoinfo.sh.
+    * Added mesh node.
+    * Added avg_showcamera --resetbus to reset the firewire bus after crashes.
+
+  Other Improvements:
+    * New anim framework is now stable.
+    * Snow Leopard compatibility.
+    * avg_showcamera has much better command line handling.
+    * The test suite is faster and a lot more comprehensive.
+    * hrefs and mediadirs are now unicode-aware, so filenames like "ö.png" 
+      should work.
+    * node.unlink(True) now deletes all event handlers in the node, making
+      it a lot easier to avoid memory leaks. 
+    * Lots of bug fixes:
+      - Windows gamma is now reset correctly on program end.
+      - Linux vsync now much more stable.
+      - Setting node.pos.x now throws an error instead of being ignored. 
+        Same for all other Point2D attributes.
+      - video.getNumFrames() now returns the exact number of frames.
+      - Behaviour of nodes before Player.play() and when they are not in the
+        avg tree is now much more stable.
+      - Fixed words node sensitive area for centered and right-aligned nodes.
+
 libavg 1.0.0.pre3 - January 6, 2010
 
   svn revision 4475
