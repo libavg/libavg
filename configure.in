@@ -39,7 +39,10 @@ PKG_CHECK_MODULES([FFMPEG], [libavutil libavcodec libavformat libswscale], [LIBF
 CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
 CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
 AC_SUBST(LIBFFMPEG)
-AC_CHECK_HEADERS([libavformat/avformat.h])dnl
+AC_CHECK_HEADERS([libavformat/avformat.h])
+if test -z "$FFMPEG_CFLAGS" || test -z "$FFMPEG_LIBS"; then
+  AC_MSG_ERROR([Could not find ffmpeg development libraries.])
+fi
 
 AM_PATH_PYTHON
 
