@@ -37,7 +37,10 @@ def getMediaDirFromNode(node, path=''):
     Recursively build the mediadir path, starting from the given node.
     '''
     if node.getParent():
-        return getMediaDirFromNode(node.getParent(), os.path.join(node.mediadir, path))
+        if type(node) in (avg.DivNode, avg.AVGNode):
+            return getMediaDirFromNode(node.getParent(), os.path.join(node.mediadir, path))
+        else:
+            return getMediaDirFromNode(node.getParent(), path)
     else:
         return path
 
