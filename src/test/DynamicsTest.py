@@ -277,9 +277,7 @@ class DynamicsTestCase(AVGTestCase):
                 resetEventString,
                 lambda: click (65,55),
                 lambda: self.assert_(self.__eventString=='d'),
-                )
-                )
-
+                ))
 
     def testComplexDiv(self):
         def setImageID(imgNode):
@@ -318,6 +316,18 @@ class DynamicsTestCase(AVGTestCase):
                  lambda: self.compareImage("testComplexDiv1", False),
                 ))
 
+    def testNodeCustomization(self):
+        def testNodeReference():
+            node1 = Player.createNode("image", {"id":"foo", "pos":(23, 42)})
+            Player.getRootNode().appendChild(node1)
+            node1.customAttribute = "bbb"
+            node2 = Player.getElementByID("foo")
+            self.assert_(node1==node2)
+            self.assert_(node2.customAttribute == "bbb")
+            node1.unlink(True)
+        self._loadEmpty()
+        testNodeReference()
+
     def testDynamicMediaDir(self):
         def attachNode():
             Player.getRootNode().appendChild(imageNode1)
@@ -344,6 +354,7 @@ def dynamicsTestSuite(tests):
             "testEventBubbling",
             "testDynamicEventCapture",
             "testComplexDiv",
+            "testNodeCustomization",
             "testDynamicMediaDir"
             )
 
