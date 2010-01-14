@@ -36,6 +36,7 @@ if platform.system() == 'Windows':
     from libavg import avg    # Under windows, there is no uninstalled version.
 else:
     import avg
+    from nodeconstructors import *
 
 from testcase import *
 
@@ -317,16 +318,35 @@ class DynamicsTestCase(AVGTestCase):
                 ))
 
     def testNodeCustomization(self):
-        def testNodeReference():
+        def testNodePythonAttribute():
             node1 = Player.createNode("image", {"id":"foo", "pos":(23, 42)})
             Player.getRootNode().appendChild(node1)
             node1.customAttribute = "bbb"
             node2 = Player.getElementByID("foo")
             self.assert_(node1==node2)
             self.assert_(node2.customAttribute == "bbb")
+            node3 = Player.getRootNode().getChild(0)
+            self.assert_(node3.customAttribute == "bbb")
             node1.unlink(True)
+
+        def testNodePythonSubclass():
+            class CustomImage(avg.Image):
+                def __new__(cls, newPos):
+                    return super(CustomImage, cls).__new__(cls, pos=newPos,
+                            href="rgb24-64x64.png")
+
+            customNode = avg.Image(id="foo")
+            self.assert_(customNode.id == "foo")
+            customImage = CustomImage((23, 42))
+            Player.getRootNode().appendChild(customImage)
+            customImage = None
+            retrievedImage = Player.getRootNode().getChild(0)
+            self.assert_(retrievedImage.pos == (23,42))
+            self.assert_(retrievedImage.href == "rgb24-64x64.png")
+
         self._loadEmpty()
-        testNodeReference()
+        testNodePythonAttribute()
+        testNodePythonSubclass()
 
     def testDynamicMediaDir(self):
         def attachNode():
