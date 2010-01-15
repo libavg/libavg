@@ -1,6 +1,3 @@
-import avg
-from nodeconstructors import *
-
 from avg import *
 import anim
 import draggable
