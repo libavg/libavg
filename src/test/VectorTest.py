@@ -98,7 +98,7 @@ class VectorTestCase(AVGTestCase):
         def addLines():
             for i in xrange(500):
                 y = i+2.5
-                line = Player.createNode("line", {"pos1":(2, y), "pos2":(10, y)})
+                line = avg.LineNode(pos1=(2, y), pos2=(10, y))
                 canvas.appendChild(line)
        
         canvas = self.makeEmptyCanvas()
@@ -109,8 +109,8 @@ class VectorTestCase(AVGTestCase):
 
     def testTexturedLine(self):
         def addLine():
-            line = Player.createNode("line", {"pos1":(2, 20), "pos2":(100, 20),
-                    "texhref":"rgb24-64x64.png", "strokewidth":30})
+            line = avg.LineNode(pos1=(2, 20), pos2=(100, 20), texhref="rgb24-64x64.png",
+                    strokewidth=30)
             canvas.appendChild(line)
         
         def removeLine():
@@ -153,8 +153,7 @@ class VectorTestCase(AVGTestCase):
 
     def testLineOpacity(self):
         def addLine():
-            line = Player.createNode("line", 
-                    {"pos1":(2, 2.5), "pos2":(158, 2.5), "opacity":0.5})
+            line = avg.LineNode(pos1=(2, 2.5), pos2=(158, 2.5), opacity=0.5)
             canvas.appendChild(line)
         
         def changeCanvasOpacity():
@@ -171,8 +170,8 @@ class VectorTestCase(AVGTestCase):
 
     def testRect(self):
         def addRect():
-            rect = Player.createNode("rect",
-                    {"pos":(2, 2), "size":(50, 30), "fillopacity":1, "strokewidth":0})
+            rect = avg.RectNode(pos=(2, 2), size=(50, 30), fillopacity=1, 
+                    strokewidth=0)
             canvas.appendChild(rect)
             rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             return rect
@@ -189,8 +188,8 @@ class VectorTestCase(AVGTestCase):
             rect.angle = 1.57
         
         def addRect2():
-            rect = Player.createNode("rect",
-                    {"pos":(60, 2), "size":(50, 30), "fillopacity":1, "strokewidth":2})
+            rect = avg.RectNode(pos=(60, 2), size=(50, 30), fillopacity=1, 
+                    strokewidth=2)
             rect.color = "FFFF00"
             canvas.insertChild(rect, 0)
         
@@ -222,11 +221,9 @@ class VectorTestCase(AVGTestCase):
 
     def testTexturedRect(self):
         def addRect():
-            self.rect = Player.createNode("rect",
-                    {"pos":(20, 20), "size":(50, 40), "fillopacity":1,
-                     "filltexcoord1": (1,1), "filltexcoord2": (0,0),
-                     "texcoords": (1, 0.75, 0.5, 0.25, 0),
-                     "strokewidth":20, "texhref":"rgb24-64x64.png"})
+            self.rect = avg.RectNode(pos=(20, 20), size=(50, 40), fillopacity=1,
+                     filltexcoord1=(1,1), filltexcoord2=(0,0), strokewidth=20,
+                     texcoords=(1, 0.75, 0.5, 0.25, 0), texhref="rgb24-64x64.png")
             canvas.appendChild(self.rect)
             return self.rect
         
@@ -287,9 +284,8 @@ class VectorTestCase(AVGTestCase):
 
     def testCurve(self):
         def addCurve():
-            curve = Player.createNode("curve",
-                {"pos1":(10.5, 10), "pos2":(10.5, 80), "pos3":(80.5, 80), 
-                 "pos4":(80.5, 10)})
+            curve = avg.CurveNode(pos1=(10.5, 10), pos2=(10.5, 80), pos3=(80.5, 80), 
+                    pos4=(80.5, 10))
             canvas.appendChild(curve)
             return curve
         
@@ -302,9 +298,8 @@ class VectorTestCase(AVGTestCase):
             curve.pos3 = (80.5, 120)
         
         def addCurve2():
-            curve = Player.createNode("curve",
-                {"pos1":(30.5, 10), "pos2":(30.5, 120), "pos3":(100.5, 120),
-                 "pos4":(100.5, 10)})
+            curve = avg.CurveNode(pos1=(30.5, 10), pos2=(30.5, 120), pos3=(100.5, 120),
+                 pos4=(100.5, 10))
             curve.color="FF0000"
             canvas.appendChild(curve)
         
@@ -322,9 +317,8 @@ class VectorTestCase(AVGTestCase):
 
     def testTexturedCurve(self):
         def addCurve():
-            curve = Player.createNode("curve",
-                {"pos1":(10.5, 10), "pos2":(10.5, 80), "pos3":(80.5, 80), 
-                 "pos4":(80.5, 10), "strokewidth":20, "texhref":"rgb24-64x64.png"})
+            curve = avg.CurveNode(pos1=(10.5, 10), pos2=(10.5, 80), pos3=(80.5, 80), 
+                 pos4=(80.5, 10), strokewidth=20, texhref="rgb24-64x64.png")
             canvas.appendChild(curve)
             return curve
         
@@ -342,8 +336,8 @@ class VectorTestCase(AVGTestCase):
 
     def testPolyLine(self):
         def addPolyLine():
-            polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF",
-                    "pos": [(10,10), (50,10), (90,50), (90, 90)]})
+            polyline = avg.PolyLineNode(strokewidth=2, color="FF00FF", 
+                    pos=[(10,10), (50,10), (90,50), (90, 90)])
             canvas.appendChild(polyline)
             return polyline
         
@@ -398,10 +392,9 @@ class VectorTestCase(AVGTestCase):
 
     def testTexturedPolyLine(self):
         def texturePolyLine():
-            polyline = Player.createNode("polyline", 
-                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png",
-                     "pos":((10,10), (50,10), (90,50), (90, 90)),
-                     "texcoords":(0, 0.3, 0.7, 1) })
+            polyline = avg.PolyLineNode(strokewidth=20, color="FF00FF", 
+                    texhref="rgb24-64x64.png", pos=((10,10), (50,10), (90,50), (90, 90)),
+                    texcoords=(0, 0.3, 0.7, 1))
             canvas.appendChild(polyline)
             return polyline
         
@@ -429,8 +422,8 @@ class VectorTestCase(AVGTestCase):
 
     def testPolygon(self):
         def addPolygon():
-            polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF",
-                    "pos": ((10,10), (50,10), (90,50), (90, 90))})
+            polygon = avg.PolygonNode(strokewidth=2, color="FF00FF",
+                    pos=((10,10), (50,10), (90,50), (90, 90)))
             polygon.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             canvas.appendChild(polygon)
             return polygon
@@ -458,8 +451,8 @@ class VectorTestCase(AVGTestCase):
             polygon.pos = pos
         
         def addPolygon2():
-            polygon = Player.createNode("polygon", {"strokewidth":3, "color":"FF00FF",
-                    "pos": ((100.5,10.5), (100.5,30.5), (120.5,30.5), (120.5, 10.5))})
+            polygon = avg.PolygonNode(strokewidth=3, color="FF00FF",
+                    pos=((100.5,10.5), (100.5,30.5), (120.5,30.5), (120.5, 10.5)))
             canvas.insertChild(polygon, 0)
         
         def miterPolygons():
@@ -496,17 +489,16 @@ class VectorTestCase(AVGTestCase):
 
     def testSelfIntersectPolygon(self):
         canvas = self.makeEmptyCanvas()
-        polygon = Player.createNode("polygon", {"strokewidth":3, "color":"FF00FF",
-                "pos": ((100.5,10.5), (100.5,30.5), (120.5, 10.5), (120.5,30.5)),
-                "fillcolor": "00FFFF", "fillopacity": 0.5})
+        polygon = avg.PolygonNode(strokewidth=3, color="FF00FF",
+                pos=((100.5,10.5), (100.5,30.5), (120.5, 10.5), (120.5,30.5)),
+                fillcolor="00FFFF", fillopacity=0.5)
         canvas.insertChild(polygon, 0)
         self.assertException(lambda: self.start(None, []))
 
     def testTexturedPolygon(self):
         def texturePolygon():
-            polygon = Player.createNode("polygon", 
-                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png",
-                     "pos":((10,10), (50,10), (90,50), (90, 90))})
+            polygon = avg.PolygonNode(strokewidth=20, color="FF00FF", 
+                    texhref="rgb24-64x64.png", pos=((10,10), (50,10), (90,50), (90, 90)))
             canvas.appendChild(polygon)
             return polygon
         
@@ -547,7 +539,7 @@ class VectorTestCase(AVGTestCase):
 
     def testCircle(self):
         def addCircle():
-            circle = Player.createNode("circle", {"pos":(30, 30), "r":20})
+            circle = avg.CircleNode(pos=(30, 30), r=20)
             circle.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             canvas.appendChild(circle)
             return circle
@@ -602,13 +594,12 @@ class VectorTestCase(AVGTestCase):
         
     def testMesh(self):
         def addMesh():
-            div = Player.createNode("div", {})
-            mesh = Player.createNode("mesh", 
-                    {"texhref":"rgb24-64x64.png",
-                     "vertexcoords":((0,0), (64,0), (0,64), (64, 64),(32, 32)),
-                     "texcoords":((0,0),(1,0),(0,1),(1,1),(0.5,0.5)),
-                     "triangles":((0,1,4),(1,3,4),(3,2,4),(2,0,4))                    
-                     })
+            div = avg.DivNode()
+            mesh = avg.MeshNode(
+                    texhref="rgb24-64x64.png",
+                    vertexcoords=((0,0), (64,0), (0,64), (64, 64),(32, 32)),
+                    texcoords=((0,0),(1,0),(0,1),(1,1),(0.5,0.5)),
+                    triangles=((0,1,4),(1,3,4),(3,2,4),(2,0,4)))
             div.appendChild(mesh)
             div.x = 50
             div.y = 30

@@ -28,6 +28,7 @@
 #include "../base/Exception.h"
 
 #include "../player/BoostPython.h"
+#include "../player/Player.h"
 
 #include <string>
 
@@ -380,5 +381,11 @@ public:
     operator avg::DPoint() const;
 };
 
+template<const char * pszType> 
+avg::NodePtr createNode(const boost::python::tuple &args, 
+        const boost::python::dict &attrs)
+{
+    return avg::Player::get()->createNode(pszType, attrs);
+}
 
 #endif

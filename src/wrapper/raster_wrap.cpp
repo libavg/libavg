@@ -22,7 +22,6 @@
 #include "WrapHelper.h"
 #include "raw_constructor.hpp"
 
-#include "../player/Player.h"
 #include "../player/CameraNode.h"
 #include "../player/ImageNode.h"
 #include "../player/VideoNode.h"
@@ -100,14 +99,10 @@ struct UTF8String_from_string
     }
 };
 
-char imageName[] = "image";
-
-template<const char * pszType> 
-NodePtr createNode(const tuple &args, const dict &attrs)
-{
-    return Player::get()->createNode(pszType, attrs);
-}
-
+char imageNodeName[] = "image";
+char cameraNodeName[] = "camera";
+char videoNodeName[] = "video";
+char wordsNodeName[] = "words";
 
 void export_raster()
 {
@@ -189,7 +184,7 @@ void export_raster()
             "program start. Alpha channels of the image files are used as\n"
             "transparency information.\n",
             no_init)
-        .def("__init__", raw_constructor(createNode<imageName>))
+        .def("__init__", raw_constructor(createNode<imageNodeName>))
         .def("setBitmap", &ImageNode::setBitmap, 
                 "setBitmap(bitmap)\n"
                 "Sets the bitmap pixels of the image.\n"
@@ -207,6 +202,7 @@ void export_raster()
             "as the camera properties in .avgtrackerrc and are explained under\n"
             "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)
+        .def("__init__", raw_constructor(createNode<cameraNodeName>))
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
         .add_property("driver", make_function(&CameraNode::getDriverName,
@@ -248,6 +244,7 @@ void export_raster()
             "Video nodes display a video file. Video formats and codecs supported\n"
             "are all formats that ffmpeg/libavcodec supports.\n",
             no_init)
+        .def("__init__", raw_constructor(createNode<videoNodeName>))
         .def("play", &VideoNode::play,
                 "play()\n"
                 "Starts video playback.")
@@ -336,6 +333,7 @@ void export_raster()
             "portions of the text are rendered to the left of or above the position,\n"
             "for instance when italics are used.\n",
             no_init)
+        .def("__init__", raw_constructor(createNode<wordsNodeName>))
         .add_property("font", 
                 make_function(&WordsNode::getFont,
                         return_value_policy<copy_const_reference>()),

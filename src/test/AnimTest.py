@@ -358,8 +358,7 @@ class AnimTestCase(AVGTestCase):
         Player.loadString('<avg width="160" height="120"/>')
         self.nodes = []
         for i in range(3):
-            node = Player.createNode("image", 
-                    {"id":str(i), "x":64, "y": i*20, "href":"rgb24-64x64.png"})
+            node = avg.ImageNode(id=str(i), pos=(64, i*20), href="rgb24-64x64.png")
             Player.getRootNode().appendChild(node)
             self.nodes.append(node)
         Player.setFakeFPS(10)

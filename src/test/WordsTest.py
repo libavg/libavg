@@ -51,7 +51,7 @@ class WordsTestCase(AVGTestCase):
         def checkUnicodeText():
             node = Player.getElementByID("sanstext")
             node.text = u"föa"
-            newNode = Player.createNode("words", {"text":u"öäü"})
+            newNode = avg.WordsNode(text=u"öäü")
         
         fontList = avg.WordsNode.getFontFamilies()
         try:
@@ -81,7 +81,7 @@ class WordsTestCase(AVGTestCase):
         def posAlmostEqual(pos1, pos2):
             return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
         
-        node = Player.createNode("words", {"text":"Bold", "font":"Bitstream Vera Sans"})
+        node = avg.WordsNode(text="Bold", font="Bitstream Vera Sans")
         self.assert_(node.getGlyphPos(0) == (0,0))
         size = node.getGlyphSize(0)
         self.assert_(posAlmostEqual(size, (10, 18)))
@@ -176,7 +176,7 @@ class WordsTestCase(AVGTestCase):
             node.opacity = 0.5
 
         def setSize():
-            rect = Player.createNode('rect', {'pos':(39.5, 30.5), 'size':(80, 60)})
+            rect = avg.RectNode(pos=(39.5, 30.5), size=(80, 60))
             Player.getRootNode().appendChild(rect)
             node.masksize = (160, 120)
             node.opacity = 1 
@@ -258,11 +258,8 @@ class WordsTestCase(AVGTestCase):
         
         def createUsingDict():
             Player.getElementByID("words").unlink()
-            node = Player.createNode("words", {
-                    "id":"words", "x":1, "y":1, "fontsize":12, "width":120,
-                    "font":"Bitstream Vera Sans", "variant": "roman",
-                    "text":self.text
-                })
+            node = avg.WordsNode(id="words", pos=(1,1), fontsize=12, width=120,
+                    font="Bitstream Vera Sans", variant="roman", text=self.text)
             Player.getRootNode().appendChild(node)
         
         self.text = """
@@ -353,14 +350,9 @@ class WordsTestCase(AVGTestCase):
 
     def testRawText(self):
         def createDynNodes():
-            self.dictdnode = Player.createNode("words", 
-                    {'text':'&lt;test dyndict&amp;', 
-                     'rawtextmode':True, 
-                     'x':1, 
-                     'y':65, 
-                     'font':'Bitstream Vera Sans', 
-                     'variant': 'roman', 
-                     'fontsize':12})
+            self.dictdnode = avg.WordsNode(text='&lt;test dyndict&amp;', 
+                    rawtextmode=True, pos=(1,65), font='Bitstream Vera Sans', 
+                    variant='roman', fontsize=12)
             Player.getRootNode().appendChild(self.dictdnode)
 
             self.xmldnode = Player.createNode("""
@@ -508,8 +500,8 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testInvalidColor(self):
-        def testColor(color):
-            Player.createNode('words', {'color':color})
+        def testColor(col):
+            avg.WordsNode(color=col)
         
         def assignValidColor():
             testColor('123456')
