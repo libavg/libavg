@@ -20,7 +20,9 @@
 //
 
 #include "WrapHelper.h"
+#include "raw_constructor.hpp"
 
+#include "../player/Player.h"
 #include "../player/CameraNode.h"
 #include "../player/ImageNode.h"
 #include "../player/Video.h"
@@ -97,6 +99,14 @@ struct UTF8String_from_string
         data->convertible = storage;
     }
 };
+
+char imageName[] = "image";
+
+template<const char * pszType> 
+NodePtr createNode(const tuple &args, const dict &attrs)
+{
+    return Player::get()->createNode(pszType, attrs);
+}
 
 
 void export_raster()
@@ -179,6 +189,7 @@ void export_raster()
             "program start. Alpha channels of the image files are used as\n"
             "transparency information.\n",
             no_init)
+        .def("__init__", raw_constructor(createNode<imageName>))
         .def("setBitmap", &ImageNode::setBitmap, 
                 "setBitmap(bitmap)\n"
                 "Sets the bitmap pixels of the image.\n"

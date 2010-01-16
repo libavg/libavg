@@ -2,7 +2,7 @@
 INCLUDES = -I. -I../player \
 		@XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @DC1394_2_CFLAGS@
 
-ALL_H = WrapHelper.h
+ALL_H = WrapHelper.h raw_constructor.hpp
 
 if APPLE
     XGL_LIBS =
