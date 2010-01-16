@@ -185,8 +185,10 @@ void FilledVectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
-    glColor4d(1.0, 1.0, 1.0, curOpacity);
-    m_pFillShape->draw();
+    if (curOpacity > 0.01) {
+        glColor4d(1.0, 1.0, 1.0, curOpacity);
+        m_pFillShape->draw();
+    }
     VectorNode::render(rect);
 }
 
