@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PanoImage_H_
-#define _PanoImage_H_
+#ifndef _PanoImageNode_H_
+#define _PanoImageNode_H_
 
 #include "../api.h"
 #include "../avgconfigwrapper.h"
@@ -36,13 +36,13 @@ namespace avg {
     
 class SDLDisplayEngine;
 
-class AVG_API PanoImage: public AreaNode
+class AVG_API PanoImageNode: public AreaNode
 {
     public:
         static NodeDefinition createDefinition();
         
-        PanoImage(const ArgList& Args);
-        virtual ~PanoImage();
+        PanoImageNode(const ArgList& Args);
+        virtual ~PanoImageNode();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -96,5 +96,5 @@ class AVG_API PanoImage: public AreaNode
 
 }
 
-#endif //_PanoImage_H_
+#endif //_PanoImageNode_H_
 

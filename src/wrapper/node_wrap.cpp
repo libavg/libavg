@@ -33,8 +33,8 @@ void export_devices();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/PanoImage.h"
-#include "../player/Sound.h"
+#include "../player/PanoImageNode.h"
+#include "../player/SoundNode.h"
 #include "../player/LineNode.h"
 #include "../player/RectNode.h"
 #include "../player/CurveNode.h"
@@ -272,75 +272,75 @@ void export_node()
                 "with cropping.)")
     ;
 
-    class_<Sound, bases<AreaNode> >("Sound",
+    class_<SoundNode, bases<AreaNode> >("SoundNode",
             "A sound played from a file.\n",
             no_init)
-        .def("play", &Sound::play,
+        .def("play", &SoundNode::play,
                 "play()\n"
                 "Starts audio playback.")
-        .def("stop", &Sound::stop,
+        .def("stop", &SoundNode::stop,
                 "stop()\n"
                 "Stops audio playback. Closes the object and 'rewinds' the playback\n"
                 "cursor.")
-        .def("pause", &Sound::pause,
+        .def("pause", &SoundNode::pause,
                 "pause()\n"
                 "Stops audio playback but doesn't close the object. The playback\n"
                 "cursor stays at the same position.")
-        .def("setEOFCallback", &Sound::setEOFCallback,
+        .def("setEOFCallback", &SoundNode::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"
                 "file.")
-        .def("getAudioCodec", &Sound::getAudioCodec,
+        .def("getAudioCodec", &SoundNode::getAudioCodec,
                 "getAudioCodec() -> acodec\n"
                 "Returns the codec used as a string such as 'mp2'\n")
-        .def("getAudioSampleRate", &Sound::getAudioSampleRate,
+        .def("getAudioSampleRate", &SoundNode::getAudioSampleRate,
                 "getAudioSampleRate() -> samplerate\n"
                 "Returns the sample rate in samples per second (for example, 44100).\n")
-        .def("getNumAudioChannels", &Sound::getNumAudioChannels,
+        .def("getNumAudioChannels", &SoundNode::getNumAudioChannels,
                 "getNumAudioChannels() -> numchannels\n"
                 "Returns the number of channels. 2 for stereo, etc.\n")
-        .add_property("href", make_function(&Sound::getHRef, 
-                return_value_policy<copy_const_reference>()), &Sound::setHRef,
+        .add_property("href", make_function(&SoundNode::getHRef, 
+                return_value_policy<copy_const_reference>()), &SoundNode::setHRef,
                 "The source filename of the sound.\n")
-        .add_property("loop", &Sound::getLoop,
+        .add_property("loop", &SoundNode::getLoop,
                 "Whether to start the sound again when it has ended (ro).\n")
-        .add_property("duration", &Sound::getDuration,
+        .add_property("duration", &SoundNode::getDuration,
                 "The duration of the sound file in milliseconds (ro).\n")
-        .add_property("volume", &Sound::getVolume, &Sound::setVolume,
+        .add_property("volume", &SoundNode::getVolume, &SoundNode::setVolume,
                 "Audio playback volume for this sound. 0 is silence, 1 passes media\n"
                 "file volume through unchanged. Values higher than 1 can be used to\n"
                 "amplify sound if the sound file doesn't use the complete dynamic\n"
                 "range.\n")
     ;
 
-    class_<PanoImage, bases<AreaNode> >("PanoImage",
+    class_<PanoImageNode, bases<AreaNode> >("PanoImageNode",
             "A panorama image displayed in cylindrical projection.\n",
             no_init)
-        .def("getScreenPosFromPanoPos", &PanoImage::getScreenPosFromPanoPos,
+        .def("getScreenPosFromPanoPos", &PanoImageNode::getScreenPosFromPanoPos,
                 "getScreenPosFromPanoPos(panoPos) -> pos\n"
                 "Converts a position in panorama image pixels to pixels in coordinates\n"
                 "relative to the node, taking into account the current rotation angle.\n")
-        .def("getScreenPosFromAngle", &PanoImage::getScreenPosFromAngle,
+        .def("getScreenPosFromAngle", &PanoImageNode::getScreenPosFromAngle,
                 "getScreenPosFromAngle(angle) -> pos\n"
                 "Converts panorama angle to pixels in coordinates\n"
                 "relative to the node, taking into account the current rotation angle.\n")
-        .add_property("href", make_function(&PanoImage::getHRef, 
-                return_value_policy<copy_const_reference>()), &PanoImage::setHRef,
+        .add_property("href", make_function(&PanoImageNode::getHRef, 
+                return_value_policy<copy_const_reference>()), &PanoImageNode::setHRef,
                 "The source filename of the image.\n")
-        .add_property("sensorwidth", &PanoImage::getSensorWidth, 
-                &PanoImage::setSensorWidth,
+        .add_property("sensorwidth", &PanoImageNode::getSensorWidth, 
+                &PanoImageNode::setSensorWidth,
                 "The width of the sensor used to make the image. This value\n"
                 "is used together with sensorheight and focallength to\n"
                 "determine the projection to use.\n")
-        .add_property("sensorheight", &PanoImage::getSensorHeight, 
-                &PanoImage::setSensorHeight,
+        .add_property("sensorheight", &PanoImageNode::getSensorHeight, 
+                &PanoImageNode::setSensorHeight,
                 "The height of the sensor used to make the image.\n")
-        .add_property("focallength", &PanoImage::getFocalLength, 
-                &PanoImage::setFocalLength,
+        .add_property("focallength", &PanoImageNode::getFocalLength, 
+                &PanoImageNode::setFocalLength,
                 "The focal length of the lens in millimeters.\n")
-        .add_property("rotation", &PanoImage::getRotation, &PanoImage::setRotation,
+        .add_property("rotation", &PanoImageNode::getRotation, &PanoImageNode::setRotation,
                 "The current angle the viewer is looking at in radians.\n")
-        .add_property("maxrotation", &PanoImage::getMaxRotation,
+        .add_property("maxrotation", &PanoImageNode::getMaxRotation,
                 "The maximum angle the viewer can look at.\n")
     ;
 
@@ -477,11 +477,11 @@ void export_node()
     
     class_<MeshNode, bases<VectorNode>, boost::noncopyable>("MeshNode", no_init)
         .add_property("vertexcoords", make_function(&MeshNode::getVertexCoords,
-        		return_value_policy<copy_const_reference>()), &MeshNode::setVertexCoords)
+                return_value_policy<copy_const_reference>()), &MeshNode::setVertexCoords)
         .add_property("texcoords", make_function(&MeshNode::getTexCoords,
-        		return_value_policy<copy_const_reference>()), &MeshNode::setTexCoords)
+                return_value_policy<copy_const_reference>()), &MeshNode::setTexCoords)
         .add_property("triangles", make_function(&MeshNode::getTriangles,
-        		return_value_policy<copy_const_reference>()), &MeshNode::setTriangles)
+                return_value_policy<copy_const_reference>()), &MeshNode::setTriangles)
     ;
     
 }

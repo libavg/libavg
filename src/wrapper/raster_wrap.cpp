@@ -25,8 +25,8 @@
 #include "../player/Player.h"
 #include "../player/CameraNode.h"
 #include "../player/ImageNode.h"
-#include "../player/Video.h"
-#include "../player/Words.h"
+#include "../player/VideoNode.h"
+#include "../player/WordsNode.h"
 
 using namespace boost::python;
 using namespace avg;
@@ -184,8 +184,8 @@ void export_raster()
                 "performance hit for every image change. (ro)\n")
     ;
 
-    class_<ImageNode, bases<RasterNode> >("Image",
-            "A static raster image on the screen. Images are loaded from files on\n"
+    class_<ImageNode, bases<RasterNode> >("ImageNode",
+            "A static raster image on the screen. ImageNodess are loaded from files on\n"
             "program start. Alpha channels of the image files are used as\n"
             "transparency information.\n",
             no_init)
@@ -202,7 +202,7 @@ void export_raster()
                 "The source filename of the image.\n")
     ;
 
-    class_<CameraNode, bases<RasterNode> >("Camera",
+    class_<CameraNode, bases<RasterNode> >("CameraNode",
             "A node that displays the image of a camera. The properties are the same\n"
             "as the camera properties in .avgtrackerrc and are explained under\n"
             "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
@@ -244,87 +244,87 @@ void export_raster()
         .staticmethod("resetFirewireBus")
     ;
         
-    class_<Video, bases<RasterNode> >("Video",
+    class_<VideoNode, bases<RasterNode> >("VideoNode",
             "Video nodes display a video file. Video formats and codecs supported\n"
             "are all formats that ffmpeg/libavcodec supports.\n",
             no_init)
-        .def("play", &Video::play,
+        .def("play", &VideoNode::play,
                 "play()\n"
                 "Starts video playback.")
-        .def("stop", &Video::stop,
+        .def("stop", &VideoNode::stop,
                 "stop()\n"
                 "Stops video playback. Closes the file and 'rewinds' the playback\n"
                 "cursor.")
-        .def("pause", &Video::pause,
+        .def("pause", &VideoNode::pause,
                 "pause()\n"
                 "Stops video playback but doesn't close the object. The playback\n"
                 "cursor stays at the same position.")
-        .def("getNumFrames", &Video::getNumFrames,
+        .def("getNumFrames", &VideoNode::getNumFrames,
                 "getNumFrames()")
-        .def("getNumFramesQueued", &Video::getNumFramesQueued,
+        .def("getNumFramesQueued", &VideoNode::getNumFramesQueued,
                 "getNumFramesQueued()\n"
                 "Returns the number of frames already decoded and waiting for playback.")
-        .def("getCurFrame", &Video::getCurFrame,
+        .def("getCurFrame", &VideoNode::getCurFrame,
                 "getCurFrame()\n"
                 "Returns the video frame currently playing.")
-        .def("seekToFrame", &Video::seekToFrame,
+        .def("seekToFrame", &VideoNode::seekToFrame,
                 "seekToFrame(num)\n"
                 "Moves the playback cursor to the frame given.")
-        .def("getStreamPixelFormat", &Video::getStreamPixelFormat,
+        .def("getStreamPixelFormat", &VideoNode::getStreamPixelFormat,
                 "getStreamPixelFormat() -> string\n"
                 "Returns the pixel format of the video file as a string. Possible\n"
                 "pixel formats are described in\n"
                 "http://cekirdek.pardus.org.tr/~ismail/ffmpeg-docs/ffmpeg-r_2libavutil_2avutil_8h.html\n")
-        .def("getDuration", &Video::getDuration,
+        .def("getDuration", &VideoNode::getDuration,
                 "getDuration() -> duration\n"
                 "Returns the duration of the video in milliseconds./n")
-        .def("getBitrate", &Video::getBitrate,
+        .def("getBitrate", &VideoNode::getBitrate,
                 "getBitrate() -> bitrate\n"
                 "Returns the number of bits in the file per second./n")
-        .def("getVideoCodec", &Video::getVideoCodec,
+        .def("getVideoCodec", &VideoNode::getVideoCodec,
                 "getVideoCodec() -> vcodec\n"
                 "Returns the video codec used as a string such as 'mpeg4'.\n")
-        .def("getAudioCodec", &Video::getAudioCodec,
+        .def("getAudioCodec", &VideoNode::getAudioCodec,
                 "getAudioCodec() -> acodec\n"
                 "Returns the audio codec used as a string such as 'mp2'\n")
-        .def("getAudioSampleRate", &Video::getAudioSampleRate,
+        .def("getAudioSampleRate", &VideoNode::getAudioSampleRate,
                 "getAudioSampleRate() -> samplerate\n"
                 "Returns the sample rate in samples per second (for example, 44100).\n")
-        .def("getNumAudioChannels", &Video::getNumAudioChannels,
+        .def("getNumAudioChannels", &VideoNode::getNumAudioChannels,
                 "getNumAudioChannels() -> numchannels\n"
                 "Returns the number of audio channels. 2 for stereo, etc.\n")
-        .def("getCurTime", &Video::getCurTime,
+        .def("getCurTime", &VideoNode::getCurTime,
                 "getCurTime()\n"
                 "Returns seconds of playback time since video start.")
-        .def("seekToTime", &Video::seekToTime,
+        .def("seekToTime", &VideoNode::seekToTime,
                 "seekToTime(secs)\n"
                 "Moves the playback cursor to the time given.")
-        .def("hasAudio", &Video::hasAudio,
+        .def("hasAudio", &VideoNode::hasAudio,
                 "hasAudio() -> bool\n"
                 "Returns true if the video contains an audio stream. Throws an\n"
                 "exception if the video has not been opened yet.\n")
-        .def("setEOFCallback", &Video::setEOFCallback,
+        .def("setEOFCallback", &VideoNode::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"
                 "file.")
-        .add_property("fps", &Video::getFPS,
+        .add_property("fps", &VideoNode::getFPS,
                 "Returns the nominal frames per second the object should display at.\n")
         .add_property("href", 
-                make_function(&Video::getHRef,
+                make_function(&VideoNode::getHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&Video::setHRef,
+                make_function(&VideoNode::setHRef,
                         return_value_policy<copy_const_reference>()),
                 "The source filename of the video.\n")
-        .add_property("loop", &Video::getLoop,
+        .add_property("loop", &VideoNode::getLoop,
                 "Whether to start the video again when it has ended (ro).\n")
-        .add_property("volume", &Video::getVolume, &Video::setVolume,
+        .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume,
                 "Audio playback volume for this video. 0 is silence, 1 passes media\n"
                 "file volume through unchanged. Values higher than 1 can be used to\n"
                 "amplify sound if the sound file doesn't use the complete dynamic\n"
                 "range. If there is no audio track, the call is ignored.\n")
     ;
 
-    class_<Words, bases<RasterNode> >("Words",
+    class_<WordsNode, bases<RasterNode> >("WordsNode",
             "A words node displays formatted text. Rendering is done by pango. All\n"
             "properties are set in pixels. International and multi-byte character\n"
             "sets are fully supported. Words nodes should use UTF-8 to encode\n"
@@ -337,26 +337,26 @@ void export_raster()
             "for instance when italics are used.\n",
             no_init)
         .add_property("font", 
-                make_function(&Words::getFont,
+                make_function(&WordsNode::getFont,
                         return_value_policy<copy_const_reference>()),
-                make_function(&Words::setFont,
+                make_function(&WordsNode::setFont,
                         return_value_policy<copy_const_reference>()),
                 "The family name of the truetype font to use. This font must\n"
                 "be installed in the system (for instance using the installfonts.sh\n"
                 "script in the main libavg source directory) or available in a fonts/\n"
                 "subdirectory of the current directory.\n")
         .add_property("variant", 
-                make_function(&Words::getFontVariant,
+                make_function(&WordsNode::getFontVariant,
                         return_value_policy<copy_const_reference>()),
-                make_function(&Words::setFontVariant,
+                make_function(&WordsNode::setFontVariant,
                         return_value_policy<copy_const_reference>()),
                 "The variant (bold, italic, etc.) of the truetype font to use. To\n"
                 "figure out which variants are available, use the avg_showfonts.py\n"
                 "utility.\n")
         .add_property("text", 
-                make_function(&Words::getText,
+                make_function(&WordsNode::getText,
                         return_value_policy<copy_const_reference>()),
-                make_function(&Words::setText,
+                make_function(&WordsNode::setText,
                         return_value_policy<copy_const_reference>()),
                 "The string to display. In the avg file, this is either the\n"
                 "text attribute of the words node or the content of the words\n"
@@ -366,62 +366,64 @@ void export_raster()
                 "Markup can also be used if the text is set using python.\n"
                 "Markup parsing is controlled with 'rawtextmode' property.\n")
         .add_property("color", 
-                make_function(&Words::getColor,
+                make_function(&WordsNode::getColor,
                         return_value_policy<copy_const_reference>()),
-                make_function(&Words::setColor,
+                make_function(&WordsNode::setColor,
                         return_value_policy<copy_const_reference>()),
                 "The color of the text in standard html color notation:\n" 
                 "FF0000 is red, 00FF00 green, etc.\n")
-        .add_property("fontsize", &Words::getFontSize, &Words::setFontSize,
+        .add_property("fontsize", &WordsNode::getFontSize, &WordsNode::setFontSize,
                 "The font size in pixels. Fractional sizes are supported.\n")
-        .add_property("parawidth", &deprecatedGet<Words>, &deprecatedSet<Words>)
-        .add_property("indent", &Words::getIndent, &Words::setIndent,
+        .add_property("parawidth", &deprecatedGet<WordsNode>, &deprecatedSet<WordsNode>)
+        .add_property("indent", &WordsNode::getIndent, &WordsNode::setIndent,
                 "The indentation of the first line of the paragraph.\n")
-        .add_property("linespacing", &Words::getLineSpacing, &Words::setLineSpacing,
+        .add_property("linespacing", &WordsNode::getLineSpacing, 
+                &WordsNode::setLineSpacing,
                 "The number of pixels between different lines of a\n"
                 "paragraph.\n")
-        .add_property("alignment", &Words::getAlignment, &Words::setAlignment,
+        .add_property("alignment", &WordsNode::getAlignment, &WordsNode::setAlignment,
                 "The paragraph alignment. Possible values are 'left',\n"
                 "'center' and 'right'.\n")
-        .add_property("wrapmode", &Words::getWrapMode, &Words::setWrapMode,
+        .add_property("wrapmode", &WordsNode::getWrapMode, &WordsNode::setWrapMode,
                 "Paragraph's wrap behaviour. Possible values are\n"
                 "'word' (break to the nearest space, default), 'char' (break\n"
                 "at any position) and 'wordchar' (break words but fall back"
                 "to char mode if there is no free space for a full word).")
-        .add_property("justify", &Words::getJustify, &Words::setJustify,
+        .add_property("justify", &WordsNode::getJustify, &WordsNode::setJustify,
                 "Whether each complete line should be stretched to fill\n"
                 "the entire width of the layout. Default is false.\n")
-        .add_property("rawtextmode", &Words::getRawTextMode, &Words::setRawTextMode,
+        .add_property("rawtextmode", &WordsNode::getRawTextMode, 
+                &WordsNode::setRawTextMode,
                 "Sets whether the text should be parsed (False, default) or\n"
                 "interpreted as raw string (True).\n")
-        .add_property("letterspacing", &Words::getLetterSpacing, 
-                &Words::setLetterSpacing,
+        .add_property("letterspacing", &WordsNode::getLetterSpacing, 
+                &WordsNode::setLetterSpacing,
                 "The amount of space between the idividual glyphs of the text in\n"
                 "pixels, with 0 being standard spacing and negative values indicating\n"
                 "packed text (less letter spacing than normal). Only active when text\n"
                 "attribute markup is not being used.\n")
-        .add_property("hint", &Words::getHint, &Words::setHint,
+        .add_property("hint", &WordsNode::getHint, &WordsNode::setHint,
                 "Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)\n"
                 "should be used when rendering the text. Unfortunately, this setting\n"
                 "does not override the fontconfig settings in\n"
                 "/etc/fonts/conf.d/*-hinting.conf or other fontconfig configuration\n"
                 "files.\n")
-        .def("getGlyphPos", &Words::getGlyphPos,
+        .def("getGlyphPos", &WordsNode::getGlyphPos,
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"
                 "The position is a Point2D, in pixels, and relative to the words\n"
                 "node.\n")
-        .def("getGlyphSize", &Words::getGlyphSize,
+        .def("getGlyphSize", &WordsNode::getGlyphSize,
                 "getGlyphSize(i)->pos\n"
                 "Returns the size of the glyph at byte index i in the layout.\n"
                 "The position is a Point2D, in pixels.\n")
-        .def("getFontFamilies", make_function(&Words::getFontFamilies, 
+        .def("getFontFamilies", make_function(&WordsNode::getFontFamilies, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFontFamilies")
-        .def("getFontVariants", make_function(&Words::getFontVariants, 
+        .def("getFontVariants", make_function(&WordsNode::getFontVariants, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFontVariants")
-        .def("addFontDir", &Words::addFontDir,
+        .def("addFontDir", &WordsNode::addFontDir,
                 "addFontDir(s)\n"
                 "Adds a directory to be searched for fonts."
                 "This only works before Player.play().")

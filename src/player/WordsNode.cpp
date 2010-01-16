@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Words.h"
+#include "WordsNode.h"
 #include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
@@ -44,7 +44,7 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Words::createDefinition()
+NodeDefinition WordsNode::createDefinition()
 {
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
@@ -82,27 +82,29 @@ NodeDefinition Words::createDefinition()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    return NodeDefinition("words", Node::buildNode<Words>)
+    return NodeDefinition("words", Node::buildNode<WordsNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
-        .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_sFontName)))
-        .addArg(Arg<string>("variant", "", false, offsetof(Words, m_sFontVariant)))
+        .addArg(Arg<string>("font", "arial", false, offsetof(WordsNode, m_sFontName)))
+        .addArg(Arg<string>("variant", "", false, offsetof(WordsNode, m_sFontVariant)))
         .addArg(Arg<UTF8String>("text", ""))
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_sColorName)))
-        .addArg(Arg<double>("fontsize", 15, false, offsetof(Words, m_FontSize)))
-        .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
-        .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
+        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
+        .addArg(Arg<double>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
+        .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
+        .addArg(Arg<double>("linespacing", -1, false, offsetof(WordsNode, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
         .addArg(Arg<string>("wrapmode", "word"))
-        .addArg(Arg<bool>("justify", false, false, offsetof(Words, m_bJustify)))
-        .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)))
-        .addArg(Arg<double>("letterspacing", 0, false, offsetof(Words, m_LetterSpacing)))
-        .addArg(Arg<bool>("hint", true, false, offsetof(Words, m_bHint)))
+        .addArg(Arg<bool>("justify", false, false, offsetof(WordsNode, m_bJustify)))
+        .addArg(Arg<bool>("rawtextmode", false, false, 
+                offsetof(WordsNode, m_bRawTextMode)))
+        .addArg(Arg<double>("letterspacing", 0, false, 
+                offsetof(WordsNode, m_LetterSpacing)))
+        .addArg(Arg<bool>("hint", true, false, offsetof(WordsNode, m_bHint)))
         ;
 }
 
-Words::Words(const ArgList& Args)
+WordsNode::WordsNode(const ArgList& Args)
     : m_StringExtents(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
@@ -120,7 +122,7 @@ Words::Words(const ArgList& Args)
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Words::~Words()
+WordsNode::~WordsNode()
 {
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
@@ -131,7 +133,7 @@ Words::~Words()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void Words::setTextFromNodeValue(const string& sText)
+void WordsNode::setTextFromNodeValue(const string& sText)
 {
 //    cerr << "NODE VALUE: " << sText << "|" << endl;
     // Gives priority to Node Values only if they aren't empty
@@ -141,20 +143,21 @@ void Words::setTextFromNodeValue(const string& sText)
     }
 }
 
-void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void WordsNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
     m_bFontChanged = true;
     m_bDrawNeeded = true;
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void Words::connect()
+void WordsNode::connect()
 {
     RasterNode::connect();
     checkReload();
 }
 
-void Words::disconnect(bool bKill)
+void WordsNode::disconnect(bool bKill)
 {
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
@@ -164,7 +167,7 @@ void Words::disconnect(bool bKill)
     RasterNode::disconnect(bKill);
 }
 
-string Words::getAlignment() const
+string WordsNode::getAlignment() const
 {
     switch(m_Alignment) {
         case PANGO_ALIGN_LEFT:
@@ -179,7 +182,7 @@ string Words::getAlignment() const
     }
 }
 
-void Words::setAlignment(const string& sAlign)
+void WordsNode::setAlignment(const string& sAlign)
 {
     if (sAlign == "left") {
         m_Alignment = PANGO_ALIGN_LEFT;
@@ -189,104 +192,105 @@ void Words::setAlignment(const string& sAlign)
         m_Alignment = PANGO_ALIGN_RIGHT;
     } else {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Words alignment "+sAlign+" not supported."));
+                "WordsNode alignment "+sAlign+" not supported."));
     }
 
     m_bDrawNeeded = true;
 }
 
-bool Words::getJustify() const
+bool WordsNode::getJustify() const
 {
     return m_bJustify;
 }
 
-void Words::setJustify(bool bJustify)
+void WordsNode::setJustify(bool bJustify)
 {
     m_bJustify = bJustify;
     m_bDrawNeeded = true;
 }
 
-double Words::getLetterSpacing() const
+double WordsNode::getLetterSpacing() const
 {
     return m_LetterSpacing;
 }
 
-void Words::setLetterSpacing(double letterSpacing)
+void WordsNode::setLetterSpacing(double letterSpacing)
 {
     m_LetterSpacing = letterSpacing;
     m_bDrawNeeded = true;
 }
 
-bool Words::getHint() const
+bool WordsNode::getHint() const
 {
     return m_bHint;
 }
 
-void Words::setHint(bool bHint)
+void WordsNode::setHint(bool bHint)
 {
     m_bHint = bHint;
 }
 
 
-double Words::getWidth() 
+double WordsNode::getWidth() 
 {
     drawString();
     return AreaNode::getWidth();
 }
 
-double Words::getHeight()
+double WordsNode::getHeight()
 {
     drawString();
     return AreaNode::getHeight();
 }
 
-NodePtr Words::getElementByPos(const DPoint & pos)
+NodePtr WordsNode::getElementByPos(const DPoint & pos)
 {
     drawString();
     DPoint relPos = pos-DPoint(m_PosOffset);
     return AreaNode::getElementByPos(relPos);
 }
 
-const std::string& Words::getFont() const
+const std::string& WordsNode::getFont() const
 {
     return m_sFontName;
 }
 
-void Words::setFont(const std::string& sName)
+void WordsNode::setFont(const std::string& sName)
 {
     m_sFontName = sName;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
 
-const std::string& Words::getFontVariant() const
+const std::string& WordsNode::getFontVariant() const
 {
     return m_sFontVariant;
 }
 
-void Words::addFontDir(const std::string& sDir)
+void WordsNode::addFontDir(const std::string& sDir)
 {
     TextEngine::get(true).addFontDir(sDir);
     TextEngine::get(false).addFontDir(sDir);
 }
 
-void Words::setFontVariant(const std::string& sVariant)
+void WordsNode::setFontVariant(const std::string& sVariant)
 {
     m_sFontVariant = sVariant;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
 
-const UTF8String& Words::getText() const 
+const UTF8String& WordsNode::getText() const 
 {
     return m_sRawText;
 }
 
-void Words::setText(const UTF8String& sText)
+void WordsNode::setText(const UTF8String& sText)
 {
     if (sText.length() > 32767) {
         throw(Exception(AVG_ERR_INVALID_ARGS, 
-                string("Words::setText: string too long (") + toString(sText.length()) + ")"));
+                string("WordsNode::setText: string too long (") 
+                        + toString(sText.length()) + ")"));
     }
 //    cerr << "setText(): " << sText << "|" << endl;
     if (m_sRawText != sText) {
@@ -301,58 +305,58 @@ void Words::setText(const UTF8String& sText)
     }
 }
 
-const std::string& Words::getColor() const
+const std::string& WordsNode::getColor() const
 {
     return m_sColorName;
 }
 
-void Words::setColor(const std::string& sColor)
+void WordsNode::setColor(const std::string& sColor)
 {
     m_sColorName = sColor;
     m_Color = colorStringToColor(m_sColorName);
     m_bDrawNeeded = true;
 }
 
-double Words::getFontSize() const
+double WordsNode::getFontSize() const
 {
     return m_FontSize;
 }
 
-void Words::setFontSize(double Size)
+void WordsNode::setFontSize(double Size)
 {
     m_FontSize = Size;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
 
-int Words::getIndent() const
+int WordsNode::getIndent() const
 {
     return m_Indent;
 }
 
-void Words::setIndent(int Indent)
+void WordsNode::setIndent(int Indent)
 {
     m_Indent = Indent;
     m_bDrawNeeded = true;
 }
 
-double Words::getLineSpacing() const
+double WordsNode::getLineSpacing() const
 {
     return m_LineSpacing;
 }
 
-void Words::setLineSpacing(double LineSpacing)
+void WordsNode::setLineSpacing(double LineSpacing)
 {
     m_LineSpacing = LineSpacing;
     m_bDrawNeeded = true;
 }
 
-bool Words::getRawTextMode() const
+bool WordsNode::getRawTextMode() const
 {
     return m_bRawTextMode;
 }
 
-void Words::setRawTextMode(bool RawTextMode)
+void WordsNode::setRawTextMode(bool RawTextMode)
 {
     if (RawTextMode != m_bRawTextMode) {
         m_sText = m_sRawText;
@@ -366,19 +370,19 @@ void Words::setRawTextMode(bool RawTextMode)
     }
 }
 
-DPoint Words::getGlyphPos(int i)
+DPoint WordsNode::getGlyphPos(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
     return DPoint(double(rect.x)/PANGO_SCALE, double(rect.y)/PANGO_SCALE);
 }
 
-DPoint Words::getGlyphSize(int i)
+DPoint WordsNode::getGlyphSize(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
     return DPoint(double(rect.width)/PANGO_SCALE, double(rect.height)/PANGO_SCALE);
 }
 
-void Words::setWrapMode(const string& sWrapMode)
+void WordsNode::setWrapMode(const string& sWrapMode)
 {
     if (sWrapMode == "word") {
         m_WrapMode = PANGO_WRAP_WORD;
@@ -388,13 +392,13 @@ void Words::setWrapMode(const string& sWrapMode)
         m_WrapMode = PANGO_WRAP_WORD_CHAR;
     } else {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Words wrapping mode "+sWrapMode+" not supported."));
+                "WordsNode wrapping mode "+sWrapMode+" not supported."));
     }
 
     m_bDrawNeeded = true;
 }
 
-string Words::getWrapMode() const
+string WordsNode::getWrapMode() const
 {
     switch(m_WrapMode) {
         case PANGO_WRAP_WORD:
@@ -409,7 +413,7 @@ string Words::getWrapMode() const
     }
 }
 
-void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
+void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 {
     UTF8String sTextWithoutBreaks = applyBR(m_sText);
     bool bOk;
@@ -430,8 +434,8 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 }
 
-void Words::setMaterialMask(MaterialInfo& material, const DPoint& pos, const DPoint& size, 
-        const DPoint& mediaSize)
+void WordsNode::setMaterialMask(MaterialInfo& material, const DPoint& pos, 
+        const DPoint& size, const DPoint& mediaSize)
 {
     DPoint maskSize;
     DPoint maskPos;
@@ -446,9 +450,9 @@ void Words::setMaterialMask(MaterialInfo& material, const DPoint& pos, const DPo
     material.setMaskCoords(maskPos, maskSize);
 }
 
-static ProfilingZone DrawStringProfilingZone("  Words::drawString");
+static ProfilingZone DrawStringProfilingZone("  WordsNode::drawString");
 
-void Words::drawString()
+void WordsNode::drawString()
 {
     assert (m_sText.length() < 32767);
     if (!m_bDrawNeeded) {
@@ -587,15 +591,15 @@ void Words::drawString()
     }
 }
 
-void Words::preRender()
+void WordsNode::preRender()
 {
     Node::preRender();
     drawString();
 }
 
-static ProfilingZone RenderProfilingZone("Words::render");
+static ProfilingZone RenderProfilingZone("WordsNode::render");
 
-void Words::render(const DRect& Rect)
+void WordsNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
@@ -610,23 +614,23 @@ void Words::render(const DRect& Rect)
     }
 }
 
-IntPoint Words::getMediaSize()
+IntPoint WordsNode::getMediaSize()
 {
     drawString();
     return m_StringExtents;
 }
 
-const vector<string>& Words::getFontFamilies()
+const vector<string>& WordsNode::getFontFamilies()
 {
     return TextEngine::get(true).getFontFamilies();
 }
 
-const vector<string>& Words::getFontVariants(const string& sFontName)
+const vector<string>& WordsNode::getFontVariants(const string& sFontName)
 {
     return TextEngine::get(true).getFontVariants(sFontName);
 }
 
-string Words::removeExcessSpaces(const string & sText)
+string WordsNode::removeExcessSpaces(const string & sText)
 {
     string s = sText;
     size_t lastPos = s.npos;
@@ -643,7 +647,7 @@ string Words::removeExcessSpaces(const string & sText)
     return s;
 }
         
-PangoRectangle Words::getGlyphRect(int i)
+PangoRectangle WordsNode::getGlyphRect(int i)
 {
     
     if (i >= int(g_utf8_strlen(m_sText.c_str(), -1)) || i < 0) {
@@ -666,7 +670,7 @@ PangoRectangle Words::getGlyphRect(int i)
     return rect;
 }
 
-void Words::setParsedText(const UTF8String& sText)
+void WordsNode::setParsedText(const UTF8String& sText)
 {
     m_sText = removeExcessSpaces(sText);
     m_bDrawNeeded = true;
@@ -681,7 +685,7 @@ void Words::setParsedText(const UTF8String& sText)
     m_bParsedText = true;
 }
 
-UTF8String Words::applyBR(const UTF8String& sText)
+UTF8String WordsNode::applyBR(const UTF8String& sText)
 {
     UTF8String sResult(sText);
     UTF8String sLowerText = tolower(sResult); 

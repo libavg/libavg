@@ -53,12 +53,12 @@ class WordsTestCase(AVGTestCase):
             node.text = u"föa"
             newNode = Player.createNode("words", {"text":u"öäü"})
         
-        fontList = avg.Words.getFontFamilies()
+        fontList = avg.WordsNode.getFontFamilies()
         try:
             fontList.index("Bitstream Vera Sans")
         except ValueError:
             self.assert_(False)
-        variantList = avg.Words.getFontVariants("Bitstream Vera Sans")
+        variantList = avg.WordsNode.getFontVariants("Bitstream Vera Sans")
         self.assert_(len(variantList) >= 4)
         Player.loadString("""
           <avg width="160" height="120">
@@ -534,7 +534,7 @@ class WordsTestCase(AVGTestCase):
                     ))
 
     def testFontDir(self):
-        avg.Words.addFontDir('extrafonts')
+        avg.WordsNode.addFontDir('extrafonts')
         Player.loadString("""
           <avg width="160" height="120">
             <words font="testaddfontdir" fontsize="50" text="ABAAA"/>

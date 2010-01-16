@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Video_H_
-#define _Video_H_
+#ifndef _VideoNode_H_
+#define _VideoNode_H_
 
 // Python docs say python.h should be included before any standard headers (!)
 #include "../api.h"
@@ -39,13 +39,13 @@ namespace avg {
 
 class IVideoDecoder;
 
-class AVG_API Video : public RasterNode, IFrameEndListener, IAudioSource
+class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();
         
-        Video (const ArgList& Args);
-        virtual ~Video ();
+        VideoNode (const ArgList& Args);
+        virtual ~VideoNode ();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);

@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Sound_H_
-#define _Sound_H_
+#ifndef _SoundNode_H_
+#define _SoundNode_H_
 
 #include "../api.h"
 
@@ -34,13 +34,13 @@ namespace avg {
 
 class IVideoDecoder;
 
-class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
+class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();
 
-        Sound (const ArgList& Args);
-        virtual ~Sound ();
+        SoundNode (const ArgList& Args);
+        virtual ~SoundNode ();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);

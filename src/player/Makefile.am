@@ -18,15 +18,15 @@ GL_INCLUDES = OGLSurface.h OGLTiledSurface.h SDLDisplayEngine.h OGLTexture.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
-ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h Video.h\
+ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h\
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h Region.h \
         Node.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h \
-        Image.h ImageNode.h Timeout.h Words.h WrapPython.h \
+        Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
-        Event.h KeyEvent.h PanoImage.h TestHelper.h \
+        Event.h KeyEvent.h PanoImageNode.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
-        TouchEvent.h EventStream.h BoostPython.h Sound.h MouseState.h \
+        TouchEvent.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h \
         $(GL_INCLUDES)
@@ -62,14 +62,14 @@ testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGIC
 
 libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
-        Arg.cpp Node.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp Video.cpp \
+        Arg.cpp Node.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Region.cpp \
-        PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
+        PanoImageNode.cpp WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
-        TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp Sound.cpp \
+        TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         $(APPLE_SOURCES) $(ALL_H)

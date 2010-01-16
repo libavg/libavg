@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "PanoImage.h"
+#include "PanoImageNode.h"
 #include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 
@@ -46,89 +46,89 @@ const int TEX_WIDTH = 64;
 
 namespace avg {
 
-NodeDefinition PanoImage::createDefinition()
+NodeDefinition PanoImageNode::createDefinition()
 {
-    return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
+    return NodeDefinition("panoimage", Node::buildNode<PanoImageNode>)
         .extendDefinition(AreaNode::createDefinition())
-        .addArg(Arg<UTF8String>("href", "", false, offsetof(PanoImage, m_href)))
-        .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
-        .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
-        .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImage, m_FocalLength)))
-        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImage, m_Rotation)));
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(PanoImageNode, m_href)))
+        .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImageNode, m_SensorWidth)))
+        .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImageNode, m_SensorHeight)))
+        .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImageNode, m_FocalLength)))
+        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImageNode, m_Rotation)));
 }
 
-PanoImage::PanoImage (const ArgList& Args)
+PanoImageNode::PanoImageNode (const ArgList& Args)
 {
     Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
     load();
 }
 
-PanoImage::~PanoImage ()
+PanoImageNode::~PanoImageNode ()
 {
     clearTextures();
 }
 
-void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void PanoImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     
     setupTextures();
 }
 
-void PanoImage::disconnect(bool bKill)
+void PanoImageNode::disconnect(bool bKill)
 {
     clearTextures();
     AreaNode::disconnect(bKill);
 }
 
-static ProfilingZone PanoRenderProfilingZone("PanoImage::render");
+static ProfilingZone PanoRenderProfilingZone("PanoImageNode::render");
 
-void PanoImage::render(const DRect& Rect)
+void PanoImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(PanoRenderProfilingZone);
     glPushMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glPushMatrix()");
+            "PanoImageNode::render: glPushMatrix()");
     glproc::ActiveTexture(GL_TEXTURE0);
 
     gluLookAt(0, 0, 0,  // Eye
               0, 0, -1, // Center
               0, 1, 0); // Up.
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: gluLookAt()");
+            "PanoImageNode::render: gluLookAt()");
 
     glMatrixMode(GL_PROJECTION);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glMatrixMode(GL_PROJECTION)");
+            "PanoImageNode::render: glMatrixMode(GL_PROJECTION)");
     glPushMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glPushMatrix()");
+            "PanoImageNode::render: glPushMatrix()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glLoadIdentity()");
+            "PanoImageNode::render: glLoadIdentity()");
 
     calcProjection();
     gluPerspective(m_fovy*180/PI, m_aspect, 0.1, 2);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: gluPerspective()");
+            "PanoImageNode::render: gluPerspective()");
     glMatrixMode(GL_MODELVIEW);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glMatrixMode(GL_MODELVIEW)");
+            "PanoImageNode::render: glMatrixMode(GL_MODELVIEW)");
 
     glDisable (GL_CLIP_PLANE0);
     glDisable (GL_CLIP_PLANE1);
     glDisable (GL_CLIP_PLANE2);
     glDisable (GL_CLIP_PLANE3);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glDisable(GL_CLIP_PLANEx)");
+            "PanoImageNode::render: glDisable(GL_CLIP_PLANEx)");
     DPoint Vpt = getSize();
     glViewport(0, 0, int(Vpt.x), int(Vpt.y));
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glViewport()");
+            "PanoImageNode::render: glViewport()");
     glColor4d(1.0, 1.0, 1.0, getEffectiveOpacity());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glColor4d()");
+            "PanoImageNode::render: glColor4d()");
 //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     double HorizOffset = m_Rotation+m_fovy*m_aspect/2;
@@ -137,7 +137,7 @@ void PanoImage::render(const DRect& Rect)
         unsigned int TexID = m_TileTextureIDs[i];
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::render: glBindTexture()");
+                "PanoImageNode::render: glBindTexture()");
         double StartAngle=i*m_SliceAngle-HorizOffset;
         double StartX = sin(StartAngle);
         double StartZ = -cos(StartAngle);
@@ -161,20 +161,20 @@ void PanoImage::render(const DRect& Rect)
         glVertex3d(EndX, m_CylHeight, EndZ);
         glEnd();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::render: glEnd()");
+                "PanoImageNode::render: glEnd()");
     }
 
     // Restore previous GL state.
     glViewport(0, 0, getDisplayEngine()->getWidth(), getDisplayEngine()->getHeight());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glViewport() restore");
+            "PanoImageNode::render: glViewport() restore");
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 }
 
-double PanoImage::getScreenPosFromAngle(double Angle) const
+double PanoImageNode::getScreenPosFromAngle(double Angle) const
 {
     double HorizOffsetAngle = Angle-m_Rotation-m_fovy*m_aspect/2;
     double PixelDistFromCenter = m_FocalLength*tan(HorizOffsetAngle)/m_SensorWidth
@@ -182,18 +182,18 @@ double PanoImage::getScreenPosFromAngle(double Angle) const
     return PixelDistFromCenter+getSize().x/2;
 }
 
-double PanoImage::getScreenPosFromPanoPos(int PanoPos) const
+double PanoImageNode::getScreenPosFromPanoPos(int PanoPos) const
 {
     double AnglePerPixel = m_CylAngle*1/double(m_pBmp->getSize().x);
     return getScreenPosFromAngle(AnglePerPixel*PanoPos);
 }
 
-const UTF8String& PanoImage::getHRef() const
+const UTF8String& PanoImageNode::getHRef() const
 {
     return m_href;
 }
 
-void PanoImage::setHRef(const UTF8String& href)
+void PanoImageNode::setHRef(const UTF8String& href)
 {
     m_href = href;
     load();
@@ -202,52 +202,52 @@ void PanoImage::setHRef(const UTF8String& href)
     }
 }
 
-double PanoImage::getSensorWidth () const
+double PanoImageNode::getSensorWidth () const
 {
     return m_SensorWidth;
 }
 
-void PanoImage::setSensorWidth (double sensorWidth)
+void PanoImageNode::setSensorWidth (double sensorWidth)
 {
     m_SensorWidth = sensorWidth;
 }
 
-double PanoImage::getSensorHeight () const
+double PanoImageNode::getSensorHeight () const
 {
     return m_SensorHeight;
 }
 
-void PanoImage::setSensorHeight (double sensorHeight)
+void PanoImageNode::setSensorHeight (double sensorHeight)
 {
     m_SensorHeight = sensorHeight;
 }
 
-double PanoImage::getFocalLength () const
+double PanoImageNode::getFocalLength () const
 {
     return m_FocalLength;
 }
 
-void PanoImage::setFocalLength (double focalLength)
+void PanoImageNode::setFocalLength (double focalLength)
 {
     m_FocalLength = focalLength;
 }
 
-double PanoImage::getRotation () const
+double PanoImageNode::getRotation () const
 {
     return m_Rotation;
 }
 
-void PanoImage::setRotation (double rotation)
+void PanoImageNode::setRotation (double rotation)
 {
     m_Rotation = rotation;
 }
 
-double PanoImage::getMaxRotation () const
+double PanoImageNode::getMaxRotation () const
 {
     return m_MaxRotation;
 }
 
-void PanoImage::calcProjection()
+void PanoImageNode::calcProjection()
 {
     // Takes SensorWidth, SensorHeight and FocalLength and calculates
     // loads of derived values needed for projection.
@@ -259,14 +259,14 @@ void PanoImage::calcProjection()
     m_MaxRotation = m_CylAngle-m_fovy*m_aspect;
 }
 
-DPoint PanoImage::getPreferredMediaSize()
+DPoint PanoImageNode::getPreferredMediaSize()
 {
     double SensorAspect = m_SensorWidth/m_SensorHeight;
     double Width = m_pBmp->getSize().y*SensorAspect;
     return DPoint(Width, m_pBmp->getSize().y);
 }
 
-void PanoImage::load()
+void PanoImageNode::load()
 {
     m_Filename = m_href;
     AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
@@ -286,7 +286,7 @@ void PanoImage::load()
     }
 }
 
-void PanoImage::setupTextures()
+void PanoImageNode::setupTextures()
 {
     if (!m_TileTextureIDs.empty()) {
         clearTextures();
@@ -295,16 +295,16 @@ void PanoImage::setupTextures()
     int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
     glproc::ActiveTexture(GL_TEXTURE0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::setupTextures: glproc::ActiveTexture(GL_TEXTURE0);");
+            "PanoImageNode::setupTextures: glproc::ActiveTexture(GL_TEXTURE0);");
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::setupTextures: glPixelStorei(GL_UNPACK_ALIGNMENT)");
+            "PanoImageNode::setupTextures: glPixelStorei(GL_UNPACK_ALIGNMENT)");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_pBmp->getSize().x);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::setupTextures: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+            "PanoImageNode::setupTextures: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     glEnable(GL_TEXTURE_2D);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::setupTextures: glEnable(GL_TEXTURE_2D);");
+            "PanoImageNode::setupTextures: glEnable(GL_TEXTURE_2D);");
     for (int i=0; i<NumTextures; i++) {
         BitmapPtr pRegion;
         if (i != NumTextures-1) {
@@ -320,11 +320,11 @@ void PanoImage::setupTextures()
         unsigned int TexID;
         glGenTextures(1, &TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::setupTextures: glGenTextures()");
+                "PanoImageNode::setupTextures: glGenTextures()");
         m_TileTextureIDs.push_back(TexID);
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::setupTextures: glBindTexture()");
+                "PanoImageNode::setupTextures: glBindTexture()");
 
         glTexParameteri(GL_TEXTURE_2D,
                 GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -333,7 +333,7 @@ void PanoImage::setupTextures()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::setupTextures: glTexParameteri()");
+                "PanoImageNode::setupTextures: glTexParameteri()");
         
         int DestMode;
         if (pRegion->getPixelFormat() == R8G8B8X8) {
@@ -345,17 +345,17 @@ void PanoImage::setupTextures()
                 DestMode, TEX_WIDTH, m_TexHeight, 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::setupTextures: glTexImage2D()");
+                "PanoImageNode::setupTextures: glTexImage2D()");
         unsigned char * pStartPos = pRegion->getPixels();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                 pRegion->getSize().x, pRegion->getSize().y,
                 GL_RGBA, GL_UNSIGNED_BYTE, pStartPos);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "PanoImage::setupTextures: glTexSubImage2D()");
+                "PanoImageNode::setupTextures: glTexSubImage2D()");
    }
 }
 
-void PanoImage::clearTextures()
+void PanoImageNode::clearTextures()
 {
     for (unsigned int i=0; i<m_TileTextureIDs.size(); ++i) {
         unsigned int TexID = m_TileTextureIDs[i];
@@ -364,7 +364,7 @@ void PanoImage::clearTextures()
     m_TileTextureIDs.clear();
 }
 
-SDLDisplayEngine * PanoImage::getSDLEngine()
+SDLDisplayEngine * PanoImageNode::getSDLEngine()
 {
     return dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
 }

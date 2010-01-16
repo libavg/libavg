@@ -23,7 +23,6 @@
 
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
-#include "Words.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

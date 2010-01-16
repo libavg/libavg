@@ -328,13 +328,13 @@ class DynamicsTestCase(AVGTestCase):
 
         def testNodePythonSubclass():
 
-            class CustomImage(avg.Image):
+            class CustomImageNode(avg.ImageNode):
                 def __init__(self, p):
-                    avg.Image.__init__(self, pos=p, href="rgb24-64x64.png")
+                    avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png")
 
-            customNode = avg.Image(id="foo")
+            customNode = avg.ImageNode(id="foo")
             self.assert_(customNode.id == "foo")
-            customImage = CustomImage((23, 42))
+            customImage = CustomImageNode((23, 42))
             Player.getRootNode().appendChild(customImage)
             customImage = None
             retrievedImage = Player.getRootNode().getChild(0)

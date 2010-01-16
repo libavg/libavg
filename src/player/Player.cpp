@@ -24,12 +24,12 @@
 #include "../avgconfigwrapper.h"
 #include "AVGNode.h"
 #include "DivNode.h"
-#include "Words.h"
-#include "Video.h"
+#include "WordsNode.h"
+#include "VideoNode.h"
 #include "CameraNode.h"
 #include "ImageNode.h"
-#include "PanoImage.h"
-#include "Sound.h"
+#include "PanoImageNode.h"
+#include "SoundNode.h"
 #include "LineNode.h"
 #include "RectNode.h"
 #include "CurveNode.h"
@@ -120,11 +120,11 @@ Player::Player()
     registerNodeType(AVGNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
     registerNodeType(ImageNode::createDefinition());
-    registerNodeType(Words::createDefinition());
-    registerNodeType(Video::createDefinition());
+    registerNodeType(WordsNode::createDefinition());
+    registerNodeType(VideoNode::createDefinition());
     registerNodeType(CameraNode::createDefinition());
-    registerNodeType(PanoImage::createDefinition());
-    registerNodeType(Sound::createDefinition());
+    registerNodeType(PanoImageNode::createDefinition());
+    registerNodeType(SoundNode::createDefinition());
     registerNodeType(LineNode::createDefinition());
     registerNodeType(RectNode::createDefinition());
     registerNodeType(CurveNode::createDefinition());
@@ -1077,7 +1077,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<Words>(curNode)->setTextFromNodeValue(s);
+        boost::dynamic_pointer_cast<WordsNode>(curNode)->setTextFromNodeValue(s);
     }
 
     // If this is the root node, remember it.

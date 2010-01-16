@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#include "Sound.h"
+#include "SoundNode.h"
 #include "Player.h"
 #include "NodeDefinition.h"
 
@@ -44,17 +44,17 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Sound::createDefinition()
+NodeDefinition SoundNode::createDefinition()
 {
-    return NodeDefinition("sound", Node::buildNode<Sound>)
+    return NodeDefinition("sound", Node::buildNode<SoundNode>)
         .extendDefinition(AreaNode::createDefinition())
-        .addArg(Arg<UTF8String>("href", "", false, offsetof(Sound, m_href)))
-        .addArg(Arg<bool>("loop", false, false, offsetof(Sound, m_bLoop)))
-        .addArg(Arg<double>("volume", 1.0, false, offsetof(Sound, m_Volume)))
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
+        .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
+        .addArg(Arg<double>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))
         ;
 }
 
-Sound::Sound(const ArgList& Args)
+SoundNode::SoundNode(const ArgList& Args)
     : m_Filename(""),
       m_pEOFCallback(0),
       m_pDecoder(0),
@@ -71,7 +71,7 @@ Sound::Sound(const ArgList& Args)
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Sound::~Sound()
+SoundNode::~SoundNode()
 {
     Player::get()->unregisterFrameEndListener(this);
     if (m_pDecoder) {
@@ -84,48 +84,48 @@ Sound::~Sound()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-long long Sound::getDuration() const
+long long SoundNode::getDuration() const
 {
     exceptionIfUnloaded("getDuration");
     return m_pDecoder->getVideoInfo().m_Duration;
 }
 
-std::string Sound::getAudioCodec() const
+std::string SoundNode::getAudioCodec() const
 {
     exceptionIfUnloaded("getAudioCodec");
     return m_pDecoder->getVideoInfo().m_sACodec;
 }
 
-int Sound::getAudioSampleRate() const
+int SoundNode::getAudioSampleRate() const
 {
     exceptionIfUnloaded("getAudioSampleRate");
     return m_pDecoder->getVideoInfo().m_SampleRate;
 }
 
-int Sound::getNumAudioChannels() const
+int SoundNode::getNumAudioChannels() const
 {
     exceptionIfUnloaded("getNumAudioChannels");
     return m_pDecoder->getVideoInfo().m_NumAudioChannels;
 }
 
-long long Sound::getCurTime() const
+long long SoundNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
     return m_pDecoder->getCurTime();
 }
 
-void Sound::seekToTime(long long Time)
+void SoundNode::seekToTime(long long Time)
 {
     exceptionIfUnloaded("seekToTime");
     seek(Time);
 }
 
-bool Sound::getLoop() const
+bool SoundNode::getLoop() const
 {
     return m_bLoop;
 }
 
-void Sound::setEOFCallback(PyObject * pEOFCallback)
+void SoundNode::setEOFCallback(PyObject * pEOFCallback)
 {
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
@@ -134,7 +134,7 @@ void Sound::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
     if (!pAudioEngine) {
@@ -154,44 +154,44 @@ void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void Sound::disconnect(bool bKill)
+void SoundNode::disconnect(bool bKill)
 {
     changeSoundState(Unloaded);
     AreaNode::disconnect(bKill);
 }
 
-void Sound::play()
+void SoundNode::play()
 {
     changeSoundState(Playing);
 }
 
-void Sound::stop()
+void SoundNode::stop()
 {
     changeSoundState(Unloaded);
 }
 
-void Sound::pause()
+void SoundNode::pause()
 {
     changeSoundState(Paused);
 }
 
-const UTF8String& Sound::getHRef() const
+const UTF8String& SoundNode::getHRef() const
 {
     return m_href;
 }
 
-void Sound::setHRef(const UTF8String& href)
+void SoundNode::setHRef(const UTF8String& href)
 {
     m_href = href;
     checkReload();
 }
 
-double Sound::getVolume()
+double SoundNode::getVolume()
 {
     return m_Volume;
 }
 
-void Sound::setVolume(double Volume)
+void SoundNode::setVolume(double Volume)
 {
     if (Volume < 0) {
         Volume = 0;
@@ -202,7 +202,7 @@ void Sound::setVolume(double Volume)
     }
 }
 
-void Sound::checkReload()
+void SoundNode::checkReload()
 {
     string fileName (m_href);
     if (m_href != "") {
@@ -221,14 +221,14 @@ void Sound::checkReload()
     }
 }
 
-void Sound::onFrameEnd()
+void SoundNode::onFrameEnd()
 {
     if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
         onEOF();
     }
 }
 
-int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
+int SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_State == Playing) {
         return m_pDecoder->fillAudioBuffer(pBuffer);
@@ -237,7 +237,7 @@ int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
     }
 }
 
-void Sound::changeSoundState(SoundState NewSoundState)
+void SoundNode::changeSoundState(SoundState NewSoundState)
 {
     if (NewSoundState == m_State) {
         return;
@@ -264,7 +264,7 @@ void Sound::changeSoundState(SoundState NewSoundState)
     m_State = NewSoundState;
 }
 
-void Sound::seek(long long DestTime) 
+void SoundNode::seek(long long DestTime) 
 {
     m_pDecoder->seek(DestTime);
     m_StartTime = Player::get()->getFrameTime() - DestTime;
@@ -272,18 +272,19 @@ void Sound::seek(long long DestTime)
     m_PauseStartTime = Player::get()->getFrameTime();
 }
 
-void Sound::open()
+void SoundNode::open()
 {
     m_pDecoder->open(m_Filename, true);
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("Sound: Opening "+m_Filename+" failed. No audio stream found."));
+                string("SoundNode: Opening "+m_Filename
+                        +" failed. No audio stream found."));
     }
 }
 
-void Sound::startDecoding()
+void SoundNode::startDecoding()
 {
     m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
     if (getAudioEngine()) {
@@ -291,7 +292,7 @@ void Sound::startDecoding()
     }
 }
 
-void Sound::close()
+void SoundNode::close()
 {
     if (getAudioEngine()) {
         getAudioEngine()->removeSource(this);
@@ -299,15 +300,15 @@ void Sound::close()
     m_pDecoder->close();
 }
 
-void Sound::exceptionIfUnloaded(const std::string& sFuncName) const
+void SoundNode::exceptionIfUnloaded(const std::string& sFuncName) const
 {
     if (m_State == Unloaded) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("Sound.")+sFuncName+" failed: video not loaded.");
+                string("SoundNode.")+sFuncName+" failed: video not loaded.");
     }
 }
 
-void Sound::onEOF()
+void SoundNode::onEOF()
 {
     seek(0);
     if (!m_bLoop) {

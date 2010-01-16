@@ -34,7 +34,6 @@ void export_anim();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/PanoImage.h"
 #include "../player/TrackerEventSource.h"
 #include "../player/TouchEvent.h"
 

@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Words_H_
-#define _Words_H_
+#ifndef _WordsNode_H_
+#define _WordsNode_H_
 
 #include "../api.h"
 #include "RasterNode.h"
@@ -34,13 +34,13 @@
 
 namespace avg {
 
-class AVG_API Words : public RasterNode
+class AVG_API WordsNode : public RasterNode
 {
     public:
         static NodeDefinition createDefinition();
         
-        Words(const ArgList& Args);
-        virtual ~Words();
+        WordsNode(const ArgList& Args);
+        virtual ~WordsNode();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -143,5 +143,5 @@ class AVG_API Words : public RasterNode
 
 }
 
-#endif //_Words_H_
+#endif //_WordsNode_H_
 

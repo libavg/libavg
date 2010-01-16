@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#include "Video.h"
+#include "VideoNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "OGLTiledSurface.h"
@@ -49,19 +49,19 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Video::createDefinition()
+NodeDefinition VideoNode::createDefinition()
 {
-    return NodeDefinition("video", Node::buildNode<Video>)
+    return NodeDefinition("video", Node::buildNode<VideoNode>)
         .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<UTF8String>("href", "", false, offsetof(Video, m_href)))
-        .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
-        .addArg(Arg<bool>("threaded", true, false, offsetof(Video, m_bThreaded)))
-        .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)))
-        .addArg(Arg<double>("volume", 1.0, false, offsetof(Video, m_Volume)))
+        .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
+        .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
+        .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))
+        .addArg(Arg<double>("fps", 0.0, false, offsetof(VideoNode, m_FPS)))
+        .addArg(Arg<double>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
         ;
 }
 
-Video::Video(const ArgList& Args)
+VideoNode::VideoNode(const ArgList& Args)
     : m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false),
@@ -85,7 +85,7 @@ Video::Video(const ArgList& Args)
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Video::~Video()
+VideoNode::~VideoNode()
 {
     if (m_pDecoder) {
         delete m_pDecoder;
@@ -97,7 +97,7 @@ Video::~Video()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+void VideoNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
     checkReload();
@@ -113,53 +113,53 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void Video::connect()
+void VideoNode::connect()
 {
     Player::get()->registerFrameEndListener(this);
     RasterNode::connect();
 }
 
-void Video::disconnect(bool bKill)
+void VideoNode::disconnect(bool bKill)
 {
     Player::get()->unregisterFrameEndListener(this);
     changeVideoState(Unloaded);
     RasterNode::disconnect(bKill);
 }
 
-void Video::play()
+void VideoNode::play()
 {
     changeVideoState(Playing);
 }
 
-void Video::stop()
+void VideoNode::stop()
 {
     changeVideoState(Unloaded);
 }
 
-void Video::pause()
+void VideoNode::pause()
 {
     changeVideoState(Paused);
 }
 
-int Video::getNumFrames() const
+int VideoNode::getNumFrames() const
 {
     exceptionIfUnloaded("getNumFrames");
     return m_pDecoder->getVideoInfo().m_NumFrames;
 }
 
-int Video::getCurFrame() const
+int VideoNode::getCurFrame() const
 {
     exceptionIfUnloaded("getCurFrame");
     return m_pDecoder->getCurFrame();
 }
 
-int Video::getNumFramesQueued() const
+int VideoNode::getNumFramesQueued() const
 {
     exceptionIfUnloaded("getNumFramesQueued");
     return m_pDecoder->getNumFramesQueued();
 }
 
-void Video::seekToFrame(int FrameNum)
+void VideoNode::seekToFrame(int FrameNum)
 {
     exceptionIfUnloaded("seekToFrame");
     if (getCurFrame() != FrameNum) {
@@ -168,78 +168,78 @@ void Video::seekToFrame(int FrameNum)
     }
 }
 
-std::string Video::getStreamPixelFormat() const
+std::string VideoNode::getStreamPixelFormat() const
 {
     exceptionIfUnloaded("getStreamPixelFormat");
     return m_pDecoder->getVideoInfo().m_sPixelFormat;
 }
 
-long long Video::getDuration() const
+long long VideoNode::getDuration() const
 {
     exceptionIfUnloaded("getDuration");
     return m_pDecoder->getVideoInfo().m_Duration;
 }
 
-int Video::getBitrate() const
+int VideoNode::getBitrate() const
 {
     exceptionIfUnloaded("getBitrate");
     return m_pDecoder->getVideoInfo().m_Bitrate;
 }
 
-string Video::getVideoCodec() const
+string VideoNode::getVideoCodec() const
 {
     exceptionIfUnloaded("getVideoCodec");
     return m_pDecoder->getVideoInfo().m_sVCodec;
 }
 
-std::string Video::getAudioCodec() const
+std::string VideoNode::getAudioCodec() const
 {
     exceptionIfNoAudio("getAudioCodec");
     return m_pDecoder->getVideoInfo().m_sACodec;
 }
 
-int Video::getAudioSampleRate() const
+int VideoNode::getAudioSampleRate() const
 {
     exceptionIfNoAudio("getAudioSampleRate");
     return m_pDecoder->getVideoInfo().m_SampleRate;
 }
 
-int Video::getNumAudioChannels() const
+int VideoNode::getNumAudioChannels() const
 {
     exceptionIfNoAudio("getNumAudioChannels");
     return m_pDecoder->getVideoInfo().m_NumAudioChannels;
 }
 
-long long Video::getCurTime() const
+long long VideoNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
     return m_pDecoder->getCurTime();
 }
 
-void Video::seekToTime(long long Time)
+void VideoNode::seekToTime(long long Time)
 {
     exceptionIfUnloaded("seekToTime");
     seek(Time);
     m_bSeekPending = true;
 }
 
-bool Video::getLoop() const
+bool VideoNode::getLoop() const
 {
     return m_bLoop;
 }
 
-bool Video::isThreaded() const
+bool VideoNode::isThreaded() const
 {
     return m_bThreaded;
 }
 
-bool Video::hasAudio() const
+bool VideoNode::hasAudio() const
 {
     exceptionIfUnloaded("hasAudio");
     return m_pDecoder->getVideoInfo().m_bHasAudio;
 }
 
-void Video::setEOFCallback(PyObject * pEOFCallback)
+void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 {
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
@@ -252,23 +252,23 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
     }
 }
 
-const UTF8String& Video::getHRef() const
+const UTF8String& VideoNode::getHRef() const
 {
     return m_href;
 }
 
-void Video::setHRef(const UTF8String& href)
+void VideoNode::setHRef(const UTF8String& href)
 {
     m_href = href;
     checkReload();
 }
 
-double Video::getVolume()
+double VideoNode::getVolume()
 {
     return m_Volume;
 }
 
-void Video::setVolume(double Volume)
+void VideoNode::setVolume(double Volume)
 {
     if (Volume < 0) {
         Volume = 0;
@@ -279,7 +279,7 @@ void Video::setVolume(double Volume)
     }
 }
 
-void Video::checkReload()
+void VideoNode::checkReload()
 {
     string fileName (m_href);
     if (m_href != "") {
@@ -298,7 +298,7 @@ void Video::checkReload()
     RasterNode::checkReload();
 }
 
-void Video::onFrameEnd()
+void VideoNode::onFrameEnd()
 {
     if (m_bEOFPending) {
         onEOF();
@@ -306,7 +306,7 @@ void Video::onFrameEnd()
     }
 }
 
-int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
+int VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     assert(m_bThreaded);
     if (m_VideoState == Playing) {
@@ -316,7 +316,7 @@ int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
     }
 }
 
-void Video::changeVideoState(VideoState NewVideoState)
+void VideoNode::changeVideoState(VideoState NewVideoState)
 {
     if (m_VideoState == NewVideoState) {
         return;
@@ -344,7 +344,7 @@ void Video::changeVideoState(VideoState NewVideoState)
     m_VideoState = NewVideoState;
 }
 
-void Video::seek(long long DestTime) 
+void VideoNode::seek(long long DestTime) 
 {
     m_pDecoder->seek(DestTime);
     m_StartTime = Player::get()->getFrameTime() - DestTime;
@@ -354,7 +354,7 @@ void Video::seek(long long DestTime)
     m_bSeekPending = true;
 }
 
-void Video::open() 
+void VideoNode::open() 
 {
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
@@ -371,7 +371,7 @@ void Video::open()
     m_bFrameAvailable = false;
 }
 
-void Video::startDecoding()
+void VideoNode::startDecoding()
 {
     const AudioParams * pAP = 0;
     if (getAudioEngine()) {
@@ -402,7 +402,7 @@ void Video::startDecoding()
     }
 }
 
-void Video::close()
+void VideoNode::close()
 {
     if (hasAudio() && getAudioEngine()) {
         getAudioEngine()->removeSource(this);
@@ -414,12 +414,12 @@ void Video::close()
     }
 }
 
-PixelFormat Video::getPixelFormat() 
+PixelFormat VideoNode::getPixelFormat() 
 {
     return m_pDecoder->getPixelFormat();
 }
 
-IntPoint Video::getMediaSize()
+IntPoint VideoNode::getMediaSize()
 {
     if (m_pDecoder && m_pDecoder->getState() != IVideoDecoder::CLOSED) {
         return m_pDecoder->getSize();
@@ -428,12 +428,12 @@ IntPoint Video::getMediaSize()
     }
 }
 
-double Video::getFPS() const
+double VideoNode::getFPS() const
 {
     return m_pDecoder->getFPS();
 }
 
-long long Video::getNextFrameTime() const
+long long VideoNode::getNextFrameTime() const
 {
     switch (m_VideoState) {
         case Unloaded:
@@ -448,24 +448,24 @@ long long Video::getNextFrameTime() const
     }
 }
 
-void Video::exceptionIfNoAudio(const std::string& sFuncName) const
+void VideoNode::exceptionIfNoAudio(const std::string& sFuncName) const
 {
     exceptionIfUnloaded(sFuncName);
     if (!hasAudio()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("Video.")+sFuncName+" failed: no audio stream.");
+                string("VideoNode.")+sFuncName+" failed: no audio stream.");
     }
 }
 
-void Video::exceptionIfUnloaded(const std::string& sFuncName) const
+void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 {
     if (m_VideoState == Unloaded) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
-                string("Video.")+sFuncName+" failed: video not loaded.");
+                string("VideoNode.")+sFuncName+" failed: video not loaded.");
     }
 }
 
-void Video::preRender()
+void VideoNode::preRender()
 {
     Node::preRender();
     if (getEffectiveOpacity() <= 0.01 && m_VideoState == Playing) {
@@ -474,9 +474,9 @@ void Video::preRender()
     }
 }
 
-static ProfilingZone RenderProfilingZone("Video::render");
+static ProfilingZone RenderProfilingZone("VideoNode::render");
 
-void Video::render(const DRect& Rect)
+void VideoNode::render(const DRect& Rect)
 {
     switch(m_VideoState) {
         case Playing:
@@ -507,7 +507,7 @@ void Video::render(const DRect& Rect)
     }
 }
 
-bool Video::renderToSurface(OGLTiledSurface * pSurface)
+bool VideoNode::renderToSurface(OGLTiledSurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();
@@ -558,7 +558,7 @@ bool Video::renderToSurface(OGLTiledSurface * pSurface)
     return (FrameAvailable == FA_NEW_FRAME);
 }
 
-void Video::onEOF()
+void VideoNode::onEOF()
 {
     if (m_pEOFCallback) {
         PyObject * arglist = Py_BuildValue("()");
