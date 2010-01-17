@@ -1025,9 +1025,19 @@ void Player::registerNodeType(NodeDefinition Def, const char* pParentNames[])
     m_bDirtyDTD = true;
 }
 
-NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
+NodePtr Player::createNode(const string& sType, const boost::python::dict& params)
 {
-    NodePtr pNode = m_NodeRegistry.createNode(sType, PyDict);
+    DivNodePtr pParentNode;
+    boost::python::dict attrs = params;
+    if (params.has_key("parent")) {
+        boost::python::object parent = params["parent"];
+        attrs.attr("__delitem__")("parent");
+        pParentNode = boost::python::extract<DivNodePtr>(parent);
+    }
+    NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
+    if (pParentNode) {
+        pParentNode->appendChild(pNode);
+    }
     return pNode;
 }
 

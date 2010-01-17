@@ -187,9 +187,8 @@ class DynamicsTestCase(AVGTestCase):
                     </div>
                     """)
             else:
-                imgNode = Player.createNode("image", {"href":"rgb24-64x64.png"})
-                node = Player.createNode("div", {})
-                node.appendChild(imgNode)
+                node = avg.DivNode()
+                imgNode = avg.ImageNode(href="rgb24-64x64.png", parent=node)
             return node
 
         self.__runDynamicsTest(createDiv, "testDivDynamics")

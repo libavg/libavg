@@ -53,8 +53,8 @@ class ImageTestCase(AVGTestCase):
             self.assert_(node.getMediaSize() == avg.Point2D(32, 32))
             return node
 
-        def createDictNode(p):
-            node = avg.ImageNode(pos=p, href="rgb24-32x32.png")
+        def createDictNode(root, p):
+            node = avg.ImageNode(pos=p, href="rgb24-32x32.png", parent=root)
             self.assert_(node.getMediaSize() == avg.Point2D(32, 32))
             self.assert_(node.size == avg.Point2D(32, 32))
             return node
@@ -65,8 +65,7 @@ class ImageTestCase(AVGTestCase):
             xmlNode = createXmlNode((16, y))
             root.appendChild(xmlNode)
             
-            dictNode = createDictNode((48, y))
-            root.appendChild(dictNode)
+            createDictNode(root, (48, y))
             
             noAttachNode = createXmlNode((80, y))
             noAttachNode.href = "rgb24alpha-32x32.png"
@@ -110,8 +109,8 @@ class ImageTestCase(AVGTestCase):
             return Player.createNode(
                     """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))        
 
-        def createDictNode(p):
-            return avg.ImageNode(pos=p, href="rgb24-32x32.png")
+        def createDictNode(root, p):
+            return avg.ImageNode(pos=p, href="rgb24-32x32.png", parent=root)
 
         def illegalMove(node):
             self.assertException(node.pos.x == 23)
@@ -121,8 +120,7 @@ class ImageTestCase(AVGTestCase):
             root = Player.getRootNode()
             xmlNode = createXmlNode((16, y))
             root.appendChild(xmlNode)
-            dictNode = createDictNode((48, y))
-            root.appendChild(dictNode)
+            createDictNode(root, (48, y))
             noAttachNode = createXmlNode((0, 0))
             noAttachNode.pos = avg.Point2D(80, y)
             illegalMove(noAttachNode)
@@ -373,8 +371,7 @@ class ImageTestCase(AVGTestCase):
     def testImageMaskSize(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), masksize=(48, 48))
-            Player.getRootNode().appendChild(node)
+                    pos=p, size=(32, 32), masksize=(48, 48), parent=Player.getRootNode())
             
         def setNoAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -384,8 +381,7 @@ class ImageTestCase(AVGTestCase):
 
         def setAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            Player.getRootNode().appendChild(node)
+                    pos=p, size=(32, 32), parent=Player.getRootNode())
             node.masksize = (48, 48)
 
         def setPos():

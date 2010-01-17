@@ -88,15 +88,13 @@ class AVTestCase(AVGTestCase):
 
         def checkAudioFile():
             node = avg.VideoNode(href="../video/testfiles/44.1kHz_16bit_stereo.wav",
-                    threaded=isThreaded)
-            Player.getRootNode().appendChild(node)
+                    threaded=isThreaded, parent=Player.getRootNode())
             self.assertException(node.pause)
 
         for isThreaded in (False, True):
             self._loadEmpty()
             node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48-sound.avi",
-                        threaded=isThreaded)
-            Player.getRootNode().appendChild(node)
+                        threaded=isThreaded, parent=Player.getRootNode())
             checkInfo()
             checkExceptions()
             self.start(None,
@@ -147,8 +145,8 @@ class AVTestCase(AVGTestCase):
 
     def testVideoState(self):
         self._loadEmpty()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False)
-        Player.getRootNode().appendChild(node)
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
+                parent=Player.getRootNode())
         Player.setFakeFPS(25)
         self.start(None,
                 (lambda: node.play(),
@@ -175,8 +173,8 @@ class AVTestCase(AVGTestCase):
             node.active=1
         
         self._loadEmpty()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False)
-        Player.getRootNode().appendChild(node)
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
+                parent=Player.getRootNode())
         Player.setFakeFPS(25)
         self.start(None,
                 (lambda: node.play(),
@@ -206,8 +204,8 @@ class AVTestCase(AVGTestCase):
             self.assertException(node.play)
 
         self._loadEmpty()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False)
-        Player.getRootNode().appendChild(node)
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
+                parent=Player.getRootNode())
         Player.setFakeFPS(25)
         testVideoNotFound()
         setHRefUnloaded()
@@ -255,12 +253,11 @@ class AVTestCase(AVGTestCase):
             Player.setFakeFPS(25)
             self._loadEmpty()
             if useCustomFPS:
-                videoNode = avg.VideoNode(loop=True, fps=25, threaded=False, 
-                         href="../video/testfiles/mjpeg-48x48.avi")
+                videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, fps=25,
+                        threaded=False, href="../video/testfiles/mjpeg-48x48.avi")
             else:
-                videoNode = avg.VideoNode(loop=True, 
+                videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, 
                         href="../video/testfiles/mjpeg-48x48.avi", threaded=False)
-            Player.getRootNode().appendChild(videoNode)
             self.start(None,
                     (lambda: videoNode.play(),
                      lambda: seek(100),
@@ -352,8 +349,8 @@ class AVTestCase(AVGTestCase):
                 self.assert_(node.volume == volume)
 
             self._loadEmpty()
-            node = avg.SoundNode(href="../video/testfiles/"+filename)
-            Player.getRootNode().appendChild(node)
+            node = avg.SoundNode(href="../video/testfiles/"+filename, 
+                    parent=Player.getRootNode())
             self.start(None,
                     (
                      lambda: setVolume(0.5),
@@ -393,13 +390,13 @@ class AVTestCase(AVGTestCase):
             self.assertException(node.getNumAudioChannels)
 
         def checkVideoFile():
-            node = avg.SoundNode(href="../video/testfiles/mpeg1-48x48.mpg")
-            Player.getRootNode().appendChild(node)
+            node = avg.SoundNode(href="../video/testfiles/mpeg1-48x48.mpg",
+                    parent=Player.getRootNode())
             self.assertException(node.pause)
 
         self._loadEmpty()
-        node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_stereo.wav")
-        Player.getRootNode().appendChild(node)
+        node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_stereo.wav",
+                    parent=Player.getRootNode())
         checkInfo()
         checkExceptions()
         self.start(None,
@@ -410,8 +407,8 @@ class AVTestCase(AVGTestCase):
 
     def testBrokenSound(self):
         def openSound():
-            node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_6Chan.ogg")
-            Player.getRootNode().appendChild(node)
+            node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_6Chan.ogg",
+                    parent=Player.getRootNode())
             self.assertException(node.play)
 
         self._loadEmpty()
