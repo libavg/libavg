@@ -27,7 +27,7 @@ class AVGApp(object):
     def __init__(self, parentNode):
         """initialization before Player.play()
         Use this only when needed, e.g. for
-        Words.addFontDir(). Do not forget to call
+        WordsNode.addFontDir(). Do not forget to call
         super(YourApp, self).__init__(parentNode)"""
         self.__isRunning = False
         self._parentNode = parentNode

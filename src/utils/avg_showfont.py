@@ -35,7 +35,7 @@ Player.loadString("""
 """)
 if len(sys.argv) ==1:
     print "Available fonts: "
-    fontList = avg.Words.getFontFamilies()
+    fontList = avg.WordsNode.getFontFamilies()
     print fontList
     print
     print "Usage: showfont.py <fontname> [<text>]"
@@ -47,7 +47,7 @@ else:
         displayText=sys.argv[2]
     else:
         displayText=""
-variants = avg.Words.getFontVariants(fontname)
+variants = avg.WordsNode.getFontVariants(fontname)
 print variants
 rootNode = Player.getRootNode()
 y = 10

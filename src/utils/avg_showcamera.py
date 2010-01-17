@@ -87,12 +87,12 @@ Player.loadString("""
 """ %optdict)
 
 if options.dump:
-    avg.Camera.dumpCameras()
+    avg.CameraNode.dumpCameras()
     exit(0)
 
 if options.resetbus:
     Log.trace(Log.APP, "Resetting firewire bus.")
-    avg.Camera.resetFirewireBus()
+    avg.CameraNode.resetFirewireBus()
     time.sleep(1)
     if not options.driver:
         exit(0)
