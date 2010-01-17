@@ -31,6 +31,7 @@
 #include "../../base/Logger.h"
 #include "../../graphics/OGLHelper.h"
 #include "../../wrapper/WrapHelper.h"
+#include "../../wrapper/raw_constructor.hpp"
 
 #include <string>
 #include <iostream>
@@ -121,13 +122,10 @@ void ColorNode::render(const DRect& rect)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+char colorNodeName[] = "colornode";
+
 NodeDefinition ColorNode::createNodeDefinition()
 {
-    class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
-        .add_property("floatparam", &ColorNode::getFloat, &ColorNode::setFloat)
-        .add_property("fillcolor", make_function(&ColorNode::getFillColor,
-        return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
-       
     return NodeDefinition("colornode", (NodeBuilder)ColorNode::buildNode<ColorNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<float>("floatparam", 0.0f, false,
@@ -138,8 +136,24 @@ NodeDefinition ColorNode::createNodeDefinition()
  
 }
 
+using namespace avg;
+
+BOOST_PYTHON_MODULE(colorplugin)
+{
+    class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
+        .def("__init__", raw_constructor(createNode<colorNodeName>))
+        .add_property("floatparam", &ColorNode::getFloat, &ColorNode::setFloat)
+        .add_property("fillcolor", make_function(&ColorNode::getFillColor,
+        return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
+}
+
 AVG_PLUGIN_API void registerPlugin()
 {
+    initcolorplugin();
+    object avgModule(handle<>(borrowed(PyImport_AddModule("avg"))));
+    object colorModule(handle<>(PyImport_ImportModule("colorplugin")));
+    avgModule.attr("colorplugin") = colorModule;
+
     avg::NodeDefinition myNodeDefinition = avg::ColorNode::createNodeDefinition();
     const char* allowedParentNodeNames[] = {"avg", 0};
 
