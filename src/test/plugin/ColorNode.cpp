@@ -150,9 +150,9 @@ BOOST_PYTHON_MODULE(colorplugin)
 AVG_PLUGIN_API void registerPlugin()
 {
     initcolorplugin();
-    object avgModule(handle<>(borrowed(PyImport_AddModule("avg"))));
+    object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
     object colorModule(handle<>(PyImport_ImportModule("colorplugin")));
-    avgModule.attr("colorplugin") = colorModule;
+    mainModule.attr("colorplugin") = colorModule;
 
     avg::NodeDefinition myNodeDefinition = avg::ColorNode::createNodeDefinition();
     const char* allowedParentNodeNames[] = {"avg", 0};

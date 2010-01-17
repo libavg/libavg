@@ -52,7 +52,7 @@ class PluginTestCase(AVGTestCase):
                 Player.loadPlugin("libColorNode")
             
         def usePlugin1():
-            node = avg.colorplugin.ColorNode(fillcolor="7f7f00", id="mynode1")
+            node = colorplugin.ColorNode(fillcolor="7f7f00", id="mynode1")
             Player.getElementByID("container").appendChild(node)
             
             mynode = Player.getElementByID("mynode1")
