@@ -502,7 +502,7 @@ bool Player::clearInterval(int id)
     vector<Timeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
-            if (it == m_PendingTimeouts.begin()) {
+            if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
                 m_bCurrentTimeoutDeleted = true;
             }
             delete *it;
