@@ -269,16 +269,9 @@ NodePtr DivNode::getElementByPos(const DPoint & pos)
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            // TODO: Move coordinate handling to Node (& get rid of AreaNode entirely?)
-            AreaNodePtr pCurChild = dynamic_pointer_cast<AreaNode>(getChild(i));
-            NodePtr pFoundNode;
-            DPoint relPos;
-            if (pCurChild) {
-                relPos = pCurChild->toLocal(pos);
-                pFoundNode = pCurChild->getElementByPos(relPos);
-            } else {
-                pFoundNode = getChild(i)->getElementByPos(pos);
-            }
+            NodePtr pCurChild = getChild(i);
+            DPoint relPos = pCurChild->toLocal(pos);
+            NodePtr pFoundNode = pCurChild->getElementByPos(relPos);
             if (pFoundNode) {
                 return pFoundNode;
             }

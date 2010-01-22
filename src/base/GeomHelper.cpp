@@ -154,14 +154,14 @@ bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
     pointOutside.x -= 1;
 
     DLineSegment line0(pointOutside, pt);
-    DPoint lastPt = *(--poly.end());
+    const DPoint* pLastPt = &(*--poly.end());
     bool ptInPoly = false;
     for (it=poly.begin(); it != poly.end(); ++it) {
-        DLineSegment line1(lastPt, *it);
+        DLineSegment line1(*pLastPt, *it);
         if (lineSegmentsIntersect(line0, line1)) {
             ptInPoly = !ptInPoly;
         }
-        lastPt = *it;
+        pLastPt = &(*it);
     }
     return ptInPoly;
 }
