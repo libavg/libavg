@@ -1215,7 +1215,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             pDestNodes.push_back(pEventCaptureNode);
             bIsCapturing = true;
         }
-    } 
+    }
+    
+    if (pCursorNodes.size() == 0 && pEvent->getSource() != Event::MOUSE) {
+        AVG_TRACE(Logger::WARNING, "Cursor event at " << pos << " hit no nodes");
+    }
 
     vector<NodeWeakPtr> pLastCursorNodes;
     {
