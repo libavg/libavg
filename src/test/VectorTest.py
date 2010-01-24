@@ -462,7 +462,10 @@ class VectorTestCase(AVGTestCase):
         
         def onMouseDown(event):
             self.__mouseDownCalled = True
-       
+      
+        def addEmptyPolygon():
+            avg.PolygonNode(parent=canvas, fillopacity=1)
+
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
@@ -484,7 +487,8 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.assert_(self.__mouseDownCalled == False),
                  lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         20, 87, 1),
-                 lambda: self.assert_(self.__mouseDownCalled)
+                 lambda: self.assert_(self.__mouseDownCalled),
+                 addEmptyPolygon
                 ))
 
     def testSelfIntersectPolygon(self):

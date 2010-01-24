@@ -107,8 +107,7 @@ void PolygonNode::setLineJoin(const string& s)
 
 NodePtr PolygonNode::getElementByPos(const DPoint & pos)
 {
-    if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts))
-    {
+    if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
         return getThis();
     } else {
         return NodePtr();
@@ -157,11 +156,19 @@ int PolygonNode::getNumIndexes()
 
 int PolygonNode::getNumFillVertexes()
 {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 3) {
+        return 0;
+    }
     return m_Pts.size();
 }
 
 int PolygonNode::getNumFillIndexes()
 {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 3) {
+        return 0;
+    }
     return (m_Pts.size()-2)*3;
 }
 
