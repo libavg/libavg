@@ -54,6 +54,9 @@ bool snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
     return true;
 }
 
+
+// TODO: There's code that's probably faster in Graphics Gems V: 
+// http://tog.acm.org/resources/GraphicsGems/gemsv/ch7-5/
 void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
 {
     /* allocate and initialize list of Vertices in polygon */

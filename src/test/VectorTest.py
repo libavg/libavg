@@ -492,12 +492,14 @@ class VectorTestCase(AVGTestCase):
                 ))
 
     def testSelfIntersectPolygon(self):
+        def addPolygon():
+            polygon = avg.PolygonNode(strokewidth=3, color="FF00FF",
+                    pos=((100.5, 10.5), (100.5, 30.5), (120.5, 10.5), (120.5, 30.5)),
+                    fillcolor="00FFFF", fillopacity=0.5)
+            canvas.insertChild(polygon, 0)
+                
         canvas = self.makeEmptyCanvas()
-        polygon = avg.PolygonNode(strokewidth=3, color="FF00FF",
-                pos=((100.5,10.5), (100.5,30.5), (120.5, 10.5), (120.5,30.5)),
-                fillcolor="00FFFF", fillopacity=0.5)
-        canvas.insertChild(polygon, 0)
-        self.assertException(lambda: self.start(None, []))
+        self.assertException(lambda: self.start(None, [addPolygon]))
 
     def testTexturedPolygon(self):
         def texturePolygon():

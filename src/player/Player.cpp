@@ -752,7 +752,12 @@ void Player::doFrame()
             ScopeTimer Timer(RenderProfilingZone);
             if (m_bPythonAvailable) {
                 Py_BEGIN_ALLOW_THREADS;
-                m_pDisplayEngine->render(m_pRootNode);
+                try {
+                    m_pDisplayEngine->render(m_pRootNode);
+                } catch(...) {
+                    Py_BLOCK_THREADS;
+                    throw;
+                }
                 Py_END_ALLOW_THREADS;
             } else {
                 m_pDisplayEngine->render(m_pRootNode);
