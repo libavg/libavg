@@ -184,6 +184,11 @@ void OGLSurface::unlockBmps()
     }
 }
 
+BitmapPtr OGLSurface::readbackBmp()
+{
+    return m_pTextures[0]->readbackBmp();
+}
+
 BitmapPtr OGLSurface::lockMaskBmp()
 {
     assert(m_Material.getHasMask());

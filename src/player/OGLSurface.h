@@ -51,6 +51,7 @@ public:
 
     BitmapPtr lockBmp(int i=0);
     void unlockBmps();
+    BitmapPtr readbackBmp();
     BitmapPtr lockMaskBmp();
     void unlockMaskBmp();
     const MaterialInfo& getMaterial() const;

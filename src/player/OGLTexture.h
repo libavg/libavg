@@ -47,6 +47,7 @@ public:
 
     BitmapPtr lockBmp();
     void unlockBmp();
+    BitmapPtr readbackBmp();
     void download() const;
 
     void setMaterial(const MaterialInfo& material);
@@ -63,7 +64,8 @@ private:
     MaterialInfo m_Material;
     
     unsigned m_TexID;
-    GLuint m_hPixelBuffer;
+    GLuint m_hWritePixelBuffer;
+    GLuint m_hReadPixelBuffer;
     BitmapPtr m_pBmp;
     
     SDLDisplayEngine * m_pEngine;

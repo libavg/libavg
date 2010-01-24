@@ -59,7 +59,8 @@ OGLTexture::~OGLTexture()
     glDeleteTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::~OGLTexture: glDeleteTextures()");
     if (m_MemoryMode == PBO) {
-        glproc::DeleteBuffers(1, &m_hPixelBuffer);
+        glproc::DeleteBuffers(1, &m_hWritePixelBuffer);
+        glproc::DeleteBuffers(1, &m_hReadPixelBuffer);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLTexture::~OGLTexture: glDeleteBuffers()");
     }
@@ -69,19 +70,17 @@ OGLTexture::~OGLTexture()
 BitmapPtr OGLTexture::lockBmp()
 {
     if (m_MemoryMode == PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLTexture::lockBmp: glBindBuffer()");
+        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::lockBmp: glBindBuffer()");
         glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
                 (m_ActiveSize.x+1)*(m_ActiveSize.y+1)*Bitmap::getBytesPerPixel(m_pf),
                 0, GL_DYNAMIC_DRAW);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::lockBmp: glBufferData()");
         unsigned char * pBuffer = (unsigned char *)
-            glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_READ_WRITE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLTexture::lockBmp: glMapBuffer()");
+            glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::lockBmp: glMapBuffer()");
         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLTexture::lockBmp: glBindBuffer(0)");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::lockBmp: glBindBuffer(0)");
 
         m_pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf, pBuffer, 
                     m_ActiveSize.x*Bitmap::getBytesPerPixel(m_pf), false));
@@ -92,7 +91,7 @@ BitmapPtr OGLTexture::lockBmp()
 void OGLTexture::unlockBmp()
 {
     if (m_MemoryMode == PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
+        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLTexture::unlockBmp: glBindBuffer()");
         glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
@@ -105,22 +104,53 @@ void OGLTexture::unlockBmp()
     }
 }
 
+BitmapPtr OGLTexture::readbackBmp()
+{
+    if (m_MemoryMode == PBO) {
+        glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_hReadPixelBuffer);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glBindBuffer()");
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLTexture::readbackBmp: GL_PACK_ALIGNMENT");
+        glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+        glproc::BufferData(GL_PIXEL_PACK_BUFFER_EXT, 
+                m_ActiveSize.x*m_ActiveSize.y*Bitmap::getBytesPerPixel(m_pf),
+                0, GL_STREAM_READ);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glBufferData()");
+        glBindTexture(GL_TEXTURE_2D, m_TexID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glBindTexture()");
+        glGetTexImage(GL_TEXTURE_2D, 0, m_pEngine->getOGLSrcMode(m_pf), 
+                m_pEngine->getOGLPixelType(m_pf), 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glGetTexImage()");
+        unsigned char * pBuffer = (unsigned char *)
+                glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glMapBuffer()");
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf, pBuffer, 
+                    m_ActiveSize.x*Bitmap::getBytesPerPixel(m_pf), true));
+        glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glUnmapBuffer()");
+        glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::readbackBmp: glBindBuffer(0)");
+        return pBmp;
+    } else {
+        return BitmapPtr(new Bitmap(*m_pBmp));
+    }
+}
+
 static ProfilingZone TexSubImageProfilingZone("OGLTexture::texture download");
 static ProfilingZone MipmapProfilingZone("OGLTexture::mipmap generation");
 
 void OGLTexture::download() const
 {
     if (m_MemoryMode == PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
+        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::download: glBindBuffer()");
     }
 
     glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::download: glBindTexture()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::download: glBindTexture()");
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::download: GL_UNPACK_ALIGNMENT");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::download: GL_UNPACK_ALIGNMENT");
     unsigned char * pStartPos = 0;
     if (m_MemoryMode == OGL) {
         pStartPos += (ptrdiff_t)(m_pBmp->getPixels());
@@ -172,10 +202,11 @@ void OGLTexture::createBitmap()
 {
     switch (m_MemoryMode) {
         case PBO:
-            glproc::GenBuffers(1, &m_hPixelBuffer);
+            glproc::GenBuffers(1, &m_hReadPixelBuffer);
+            glproc::GenBuffers(1, &m_hWritePixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glGenBuffers()");
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
+            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glBindBuffer()");
             glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 

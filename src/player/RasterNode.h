@@ -71,7 +71,7 @@ class AVG_API RasterNode: public AreaNode
 
         NodePtr getElementByPos(const DPoint & pos);
 
-        virtual Bitmap* getBitmap();
+        virtual BitmapPtr getBitmap();
         
     protected:
         RasterNode();

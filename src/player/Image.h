@@ -54,7 +54,7 @@ class AVG_API Image
         void setFilename(const std::string& sFilename);
         const std::string& getFilename() const;
         
-        Bitmap* getBitmap();
+        BitmapPtr getBitmap();
         IntPoint getSize();
         PixelFormat getPixelFormat();
         OGLSurface* getSurface();

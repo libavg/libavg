@@ -52,7 +52,7 @@ class AVG_API ImageNode : public RasterNode
         
         virtual void render(const DRect& Rect);
         
-        virtual Bitmap* getBitmap();
+        virtual BitmapPtr getBitmap();
         virtual IntPoint getMediaSize();
 
     private:

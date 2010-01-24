@@ -230,14 +230,13 @@ NodePtr RasterNode::getElementByPos(const DPoint & pos)
     }
 }
 
-Bitmap* RasterNode::getBitmap()
+BitmapPtr RasterNode::getBitmap()
 {
-    Bitmap * pBmp = 0;
     if (m_pSurface) {
-        pBmp = new Bitmap(*(m_pSurface->lockBmp()));
-        m_pSurface->unlockBmps();
+        return m_pSurface->readbackBmp();
+    } else {
+        return BitmapPtr(); 
     }
-    return pBmp;
 }
 
 DisplayEngine::BlendMode RasterNode::getBlendMode() const

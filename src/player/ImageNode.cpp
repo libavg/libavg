@@ -127,7 +127,7 @@ void ImageNode::checkReload()
     RasterNode::checkReload();
 }
 
-Bitmap * ImageNode::getBitmap()
+BitmapPtr ImageNode::getBitmap()
 {
     return m_pImage->getBitmap();
 }
