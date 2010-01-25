@@ -108,11 +108,13 @@ class MTemu(object):
         self.__p2.unlink()
         self.__p1 = self.__p2 = None
         self.__container = self.__node2root = self.__layer = None
-        Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
-                    self.EventMode, self.pos1, self.pos1, Point2D(0,0))
-        Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                    self.EventMode, self.pos2, self.pos2, Point2D(0,0))
-        
+        if self.pos1 != (-1,-1) and self.pos2 != (-1,-1):
+            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
+                        self.EventMode, self.pos1, self.pos1, Point2D(0,0))
+            Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
+                        self.EventMode, self.pos2, self.pos2, Point2D(0,0))
+                    
+                        
     def __leftIDup(self):
         self.ID = self.ID + (1,0)
         
