@@ -142,6 +142,8 @@ class AVG_API Player : IEventSink
         void loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
+        
+        void setEventHook(PyObject * pyfunc);
 
     private:
         void initConfig();
@@ -225,6 +227,8 @@ class AVG_API Player : IEventSink
 
         static Player * s_pPlayer;
         friend void deletePlayer();
+        
+        PyObject * m_EventHookPyFunc;
 };
 
 }

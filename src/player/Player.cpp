@@ -106,7 +106,8 @@ Player::Player()
       m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
       m_PreRenderSignal(&IPreRenderListener::onPreRender),
       m_dtd(0),
-      m_bPythonAvailable(true)
+      m_bPythonAvailable(true),
+      m_EventHookPyFunc(Py_None)
 {
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
@@ -1153,6 +1154,13 @@ bool Player::handleEvent(EventPtr pEvent)
 {
     assert(pEvent);
    
+    if (m_EventHookPyFunc != Py_None) {
+        // If the catchall returns true, stop processing the event
+        if (boost::python::call<bool>(m_EventHookPyFunc, pEvent)) {
+            return true;
+        }
+    }
+    
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
         m_MouseState.setEvent(pMouseEvent);
         pMouseEvent->setLastDownPos(m_MouseState.getLastDownPos());
@@ -1429,6 +1437,19 @@ string Player::getPluginPath() const
 void Player::loadPlugin(const std::string& name)
 {
     PluginManager::get().loadPlugin(name);
+}
+
+void Player::setEventHook(PyObject * pyfunc)
+{
+    if (m_EventHookPyFunc != Py_None) {
+        Py_DECREF(m_EventHookPyFunc);
+    }
+
+    if (pyfunc != Py_None) {
+        Py_INCREF(pyfunc);
+    }
+
+    m_EventHookPyFunc = pyfunc;
 }
 
 }
