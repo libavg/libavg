@@ -70,7 +70,7 @@ class MTemu(object):
         
         self.__layer = Player.createNode(''' 
                 <words id="displayEmu" x="%(posX)i" y="%(posY)i" fontsize="20" opacity="1" 
-                color="DDDDDD" text="multitouch emulation active!" sensitive="False" />
+                color="DDDDDD" text="Multitouch emulation active" sensitive="False" />
                 '''
                 % {'posX':posX, 'posY':posY} 
                 )
