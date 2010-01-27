@@ -1336,6 +1336,7 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
     return 0;
 }    
 
+// TODO: We should be using GL_BGRA in all cases.
 int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
 {
     switch (pf) {
@@ -1359,6 +1360,8 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
     return 0;
 }
 
+// TODO: On a mac, GL_UNSIGNED_INT_8_8_8_8_REV is preferred for RGBA _and_ BGRA source 
+// textures.
 int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 {
     switch (pf) {
