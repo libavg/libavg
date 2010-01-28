@@ -29,7 +29,6 @@ from xml.dom import minidom
 from xml import dom
 import os
 
-
 parser = OptionParser("usage: %prog <videofilename> [options]")
 parser.add_option("-x", "--xml", dest = "xml", action="store_true",
         help = "Set to enable output as xml")
@@ -120,32 +119,36 @@ def CSVtable(node):
 def showInfo(node):    
     global len_filename
     node.play()
-    
-    info = "{File:%d}{Duration:12}{Bitrate:15}{VideoCodes:13}{VideoSize:11}{Pixel:14}{FPS:10}{AudioCodec:12}{SampleRate:13}{Channels:8}" % (len_filename+2)
     if node.hasAudio():
-        print (info.format(
-            File=str(os.path.basename(node.href)), 
-            Duration=str(node.getDuration()/1000.), 
-            Bitrate=str(node.getBitrate()), 
-            VideoCodes=node.getVideoCodec(), 
-            VideoSize=str(node.getMediaSize()), 
-            Pixel=node.getStreamPixelFormat(), 
-            FPS='%2.2f'%node.fps, 
-            AudioCodec=node.getAudioCodec(), 
-            SampleRate=str(node.getAudioSampleRate()), 
-            Channels=str(node.getNumAudioChannels())))
-    else: 
-        print (info.format(
-            File=str(os.path.basename(node.href)), 
-            Duration=str(node.getDuration()/1000.), 
-            Bitrate=str(node.getBitrate()), 
-            VideoCodes=node.getVideoCodec(), 
-            VideoSize=str(node.getMediaSize()), 
-            Pixel=node.getStreamPixelFormat(), 
-            FPS='%2.2f'%node.fps, 
-            AudioCodec=' ', 
-            SampleRate=' ', 
-            Channels=' '))
+        vFile = str(os.path.basename(node.href)).ljust(len_filename+2)
+        vDuration = str(node.getDuration()/1000.).ljust(12)
+        vBitrate = str(node.getBitrate()).ljust(15) 
+        vVideoCodec = str(node.getVideoCodec()).ljust(13)
+        vVideoSize = str(node.getMediaSize()).ljust(11)
+        vPixel = str(node.getStreamPixelFormat()).ljust(14)
+        vFPS = str(node.fps).ljust(10)
+        vAudioCodec = str(node.getAudioCodec()).ljust(12)
+        vSampleRate = str(node.getAudioSampleRate()).ljust(13)
+        vChannels = str(node.getNumAudioChannels()).ljust(8)
+        
+        info = vFile + vDuration + vVideoCodec + vVideoSize + vPixel + vFPS + vAudioCodec + vSampleRate + vChannels
+        
+        print info
+    else:
+        vFile = str(os.path.basename(node.href)).ljust(len_filename+2)
+        vDuration = str(node.getDuration()/1000.).ljust(12)
+        vBitrate = str(node.getBitrate()).ljust(15) 
+        vVideoCodec = str(node.getVideoCodec()).ljust(13)
+        vVideoSize = str(node.getMediaSize()).ljust(11)
+        vPixel = str(node.getStreamPixelFormat()).ljust(14)
+        vFPS = str(node.fps).ljust(10)
+        vAudioCodec = "".ljust(12)
+        vSampleRate = "".ljust(13)
+        vChannels = "".ljust(8)
+        
+        info = vFile + vDuration + vVideoCodec + vVideoSize + vPixel + vFPS + vAudioCodec + vSampleRate + vChannels
+        
+        print info
         
     
             
@@ -185,19 +188,21 @@ else:
             CSVtable(node)
         else:
             if i == 0:
-                title = "{File:%d}{Duration:12}{Bitrate:15}{VideoCodes:13}{VideoSize:11}{Pixel:14}{FPS:10}{AudioCodec:12}{SampleRate:13}{Channels:8}" % (len_filename+2)
-                print (title.format(
-                    File="File",
-                    Duration="Duration[s]",
-                    Bitrate="Bitrate [b/s]",
-                    VideoCodes="VideoCodec",
-                    VideoSize="VideoSize",
-                    Pixel="Pixel format", 
-                    FPS="FPS", 
-                    AudioCodec="AudioCodec", 
-                    SampleRate="Sample rate", 
-                    Channels="Channels"))
-                print ""
+                vFile = "File".ljust(len_filename+2)
+                vDuration = "Duration[s]".ljust(12)
+                vBitrate = "Bitrate [b/s]".ljust(15) 
+                vVideoCodec = "VideoCodec".ljust(13)
+                vVideoSize = "VideoSize".ljust(11)
+                vPixel = "Pixel format".ljust(14)
+                vFPS = "FPS".ljust(10)
+                vAudioCodec = "AudioCodec".ljust(12)
+                vSampleRate = "Sample rate".ljust(13)
+                vChannels = "Channels".ljust(8)
+                
+                title = vFile + vDuration + vVideoCodec + vVideoSize + vPixel + vFPS + vAudioCodec + vSampleRate + vChannels
+                
+                print title
+                
                 showInfo(node)
             else:    
                 showInfo(node)
