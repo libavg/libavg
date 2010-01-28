@@ -51,7 +51,7 @@ RectNode::RectNode(const ArgList& Args)
     : FilledVectorNode(Args)
 {
     Args.setMembers(this);
-    m_Rect.setSize(Args.getArgVal<DPoint>("size"));
+    setSize(Args.getArgVal<DPoint>("size"));
 }
 
 RectNode::~RectNode()

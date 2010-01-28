@@ -192,6 +192,7 @@ void VertexArray::reset()
 
 void VertexArray::update()
 {
+//    cerr << (void*)this << "VertexArray::update m_NumVerts=" << m_NumVerts << ", m_NumIndexes=" << m_NumIndexes << ", m_CurVert=" << m_CurVert << ", m_CurIndex=" << m_CurIndex << endl;
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
         glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumVerts*sizeof(T2V3C4Vertex),
@@ -218,7 +219,7 @@ void VertexArray::draw()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    glDrawElements(GL_TRIANGLES, m_NumIndexes, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_CurIndex, GL_UNSIGNED_INT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw():2");
 }
 

@@ -27,6 +27,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"
+#include "../base/StringHelper.h"
 
 #include <iostream>
 #include <string>
@@ -49,6 +50,11 @@ OGLTexture::OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
         m_Size.y = nextpow2(m_ActiveSize.y);
     } else {
         m_Size = m_ActiveSize;
+    }
+    if (m_Size.x > pEngine->getMaxTexSize() || m_Size.y > pEngine->getMaxTexSize()) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large (" +toString(m_Size)
+                + "). Maximum supported by graphics card is "
+                + toString(pEngine->getMaxTexSize()));
     }
     createBitmap();
     createTexture();
