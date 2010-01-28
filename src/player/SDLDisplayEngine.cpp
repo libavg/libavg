@@ -396,7 +396,6 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode)
         pVA->changeSize(8000, 8000);  // Breaks at 1000 nodes.
         pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
         if (pVA->getCurVert() != 0) {
-            pVA->changeSize(pVA->getCurVert(), pVA->getCurIndex());
             pVA->update();
             pShape->draw();
         }
