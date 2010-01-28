@@ -526,7 +526,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 BitmapPtr SDLDisplayEngine::screenshot()
 {
     
-    BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8, "screenshot"));
+    BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), B8G8R8X8, "screenshot"));
     if (isParallels()) {
         // Workaround for buggy GL_FRONT on virtual machines running under parallels.
         glReadBuffer(GL_BACK);
@@ -534,10 +534,9 @@ BitmapPtr SDLDisplayEngine::screenshot()
         glReadBuffer(GL_FRONT);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
-    glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
+    glReadPixels(0, 0, m_Width, m_Height, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
-//    FilterFlipRGB().applyInPlace(pBmp);
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }
@@ -1350,6 +1349,7 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
             return GL_BGRA;
         case R8G8B8X8:
         case R8G8B8A8:
+            assert(false);
             return GL_RGBA;
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 

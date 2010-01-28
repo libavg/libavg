@@ -356,14 +356,14 @@ public:
 
     void runTests() 
     {
-        BitmapPtr pBmp = loadTestBmp("spike", R8G8B8A8);
+        BitmapPtr pBmp = loadTestBmp("spike", B8G8R8A8);
         BitmapPtr pSrcBmp(new Bitmap(pBmp->getSize(), R32G32B32A32F));
         pSrcBmp->copyPixels(*pBmp); 
         IteratingGPUTestFilter f(pBmp->getSize());
         BitmapPtr pDestBmp = f.apply(pSrcBmp);
-        BitmapPtr pByteDestBmp(new Bitmap(pBmp->getSize(), R8G8B8A8));
+        BitmapPtr pByteDestBmp(new Bitmap(pBmp->getSize(), B8G8R8A8));
         pByteDestBmp->copyPixels(*pDestBmp);
-        testEqual(*pByteDestBmp, "iteratingGPUFilter", R8G8B8A8);
+        testEqual(*pByteDestBmp, "iteratingGPUFilter", B8G8R8A8);
     }
 };
 

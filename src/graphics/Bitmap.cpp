@@ -169,25 +169,25 @@ Bitmap::Bitmap(const UTF8String& sURI)
     PixelPacket * pSrcPixels = Img.getPixels(0, 0, Img.columns(), Img.rows());
     m_Size = IntPoint(Img.columns(), Img.rows());
     if (Img.matte()) {
-        m_PF = R8G8B8A8;
+        m_PF = B8G8R8A8;
     } else {
-        m_PF = R8G8B8X8;
+        m_PF = B8G8R8X8;
     }
     allocBits();
     for (int y=0; y<m_Size.y; ++y) {
         Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
         PixelPacket * pSrcLine = pSrcPixels+y*Img.columns();
-        if (m_PF == R8G8B8A8) {
+        if (m_PF == B8G8R8A8) {
             for (int x=0; x<m_Size.x; ++x) {
-                *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
-                        pSrcLine->blue, 255-pSrcLine->opacity);
+                *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
+                        pSrcLine->red, 255-pSrcLine->opacity);
                 pSrcLine++;
                 pDestLine++;
             }
         } else {
             for (int x=0; x<m_Size.x; ++x) {
-                *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
-                        pSrcLine->blue, 255);
+                *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
+                        pSrcLine->red, 255);
                 pSrcLine++;
                 pDestLine++;
             }

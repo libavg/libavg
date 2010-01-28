@@ -63,8 +63,6 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
         BitmapPtr pBmp(new Bitmap(getSrcDirName()+"testfiles/"+sFName+".png"));
         if (pf == I8) {
             return FilterGrayscale().apply(pBmp);
-        } else {
-            FilterFlipRGB().applyInPlace(pBmp);
         }
         return pBmp;
     } catch (Magick::Exception & ex) {
@@ -82,11 +80,6 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
         switch (pf) {
             case I8:
                 FilterGrayscale().applyInPlace(pBaselineBmp);
-                break;
-            case B8G8R8:
-            case B8G8R8A8:
-            case B8G8R8X8:
-                FilterFlipRGB().applyInPlace(pBaselineBmp);
                 break;
             default:
                 break;

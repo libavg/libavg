@@ -221,7 +221,7 @@ class ImageTestCase(AVGTestCase):
         def testStringConversion():
             bmp = avg.Bitmap('rgb24-65x65.png')
             s = bmp.getPixels()
-            bmp1 = avg.Bitmap(bmp.getSize(), avg.R8G8B8X8, "sample")
+            bmp1 = avg.Bitmap(bmp.getSize(), avg.B8G8R8X8, "sample")
             bmp1.setPixels(s)
             self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 

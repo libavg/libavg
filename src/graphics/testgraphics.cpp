@@ -85,7 +85,8 @@ BitmapPtr initBmp(PixelFormat PF)
                 *(pPixel+1) = 0;
             }
             if (pBmp->getBytesPerPixel() > 2) {
-                *(pPixel+2) = 16*y;
+                *(pPixel+2) = x;
+                *(pPixel) = 16*y;
             }
             if (pBmp->getBytesPerPixel() > 3) {
                 *(pPixel+3) = 0x80;
@@ -111,8 +112,8 @@ public:
         runPFTests(I8);
         runPFTests(I16);
         runPFTests(YCbCr422);
-        runLineTest(R8G8B8A8, Pixel32(255,0,0,255));
-        runLineTest(R8G8B8, Pixel24(255,0,0));
+        runLineTest(B8G8R8A8, Pixel32(0,0,255,255));
+        runLineTest(B8G8R8, Pixel24(0,0,255));
         runLineTest(I8, Pixel8(255));
 
         cerr << "    Testing OwnsBits." << endl;
@@ -190,8 +191,8 @@ public:
             cerr << "    Testing YUV->RGB conversion." << endl;
             testYUV2RGB();
         }
-        runSaveTest(R8G8B8A8);
-        runSaveTest(R8G8B8X8);
+        runSaveTest(B8G8R8A8);
+        runSaveTest(B8G8R8X8);
     }
     
 private:
@@ -752,8 +753,8 @@ public:
     void runTests()
     {
         runTestsWithBmp(initBmp(I8), "I8");
-        runTestsWithBmp(initBmp(R8G8B8), "R8G8B8");
-        runTestsWithBmp(initBmp(R8G8B8X8), "R8G8B8X8");
+        runTestsWithBmp(initBmp(B8G8R8), "B8G8R8");
+        runTestsWithBmp(initBmp(B8G8R8X8), "B8G8R8X8");
     }
 
 private:

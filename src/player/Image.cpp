@@ -41,7 +41,7 @@ namespace avg {
 
 Image::Image(OGLSurface * pSurface, const string& sFilename, bool bTiled)
     : m_sFilename(sFilename),
-      m_pBmp(new Bitmap(IntPoint(1,1), R8G8B8X8)),
+      m_pBmp(new Bitmap(IntPoint(1,1), B8G8R8X8)),
       m_pSurface(pSurface),
       m_pEngine(0),
       m_State(NOT_AVAILABLE),
@@ -125,7 +125,7 @@ void Image::setFilename(const std::string& sFilename)
         m_pSurface->destroy();
     }
     m_State = NOT_AVAILABLE;
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), B8G8R8X8));
     m_sFilename = sFilename;
     load();
     if (m_pEngine) {
@@ -209,9 +209,9 @@ void Image::setupSurface()
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
 {
     PixelFormat pf;
-    pf = R8G8B8X8;
+    pf = B8G8R8X8;
     if (bmp.hasAlpha()) {
-        pf = R8G8B8A8;
+        pf = B8G8R8A8;
     }
     if (bmp.getPixelFormat() == I8) {
         pf = I8;
