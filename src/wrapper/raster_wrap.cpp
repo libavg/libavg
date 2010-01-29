@@ -127,7 +127,6 @@ void export_raster()
                 "Changes the current coordinates of all vertices.\n"
                 "@param grid: list of lists of coordinate tuples.")
         .def("getBitmap", &RasterNode::getBitmap,
-                return_value_policy<manage_new_object>(),
                 "getBitmap() -> Bitmap\n\n"
                 "Returns a copy of the bitmap that the node contains.")
         .add_property("maxtilewidth", &RasterNode::getMaxTileWidth,

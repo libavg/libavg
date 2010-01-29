@@ -107,8 +107,7 @@ void PolygonNode::setLineJoin(const string& s)
 
 NodePtr PolygonNode::getElementByPos(const DPoint & pos)
 {
-    if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts))
-    {
+    if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
         return getThis();
     } else {
         return NodePtr();
@@ -157,22 +156,20 @@ int PolygonNode::getNumIndexes()
 
 int PolygonNode::getNumFillVertexes()
 {
-
-    if (getFillOpacity() < 0.001 || m_Pts.size() < 3) {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 3) {
         return 0;
-    } else {
-        return m_Pts.size();
     }
+    return m_Pts.size();
 }
 
 int PolygonNode::getNumFillIndexes()
 {
-    if (getFillOpacity() < 0.001 || m_Pts.size() < 3) {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 3) {
         return 0;
-    } else {
-        return (m_Pts.size()-2)*3;
     }
-
+    return (m_Pts.size()-2)*3;
 }
 
 void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

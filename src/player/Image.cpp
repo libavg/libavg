@@ -113,11 +113,7 @@ void Image::moveToCPU()
     if (m_State != GPU) {
         return;
     }
-    BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
-    m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), 
-                pSurfaceBmp->getPixelFormat()));
-    m_pBmp->copyPixels(*pSurfaceBmp);
-    m_pSurface->unlockBmps();
+    m_pBmp = m_pSurface->readbackBmp();
     m_State = CPU;
     m_pEngine = 0;
     m_pSurface->destroy();
@@ -142,14 +138,12 @@ const string& Image::getFilename() const
     return m_sFilename;
 }
 
-Bitmap* Image::getBitmap()
+BitmapPtr Image::getBitmap()
 {
     if (m_State == GPU) {
-        Bitmap* pBmp = new Bitmap(*(m_pSurface->lockBmp()));
-        m_pSurface->unlockBmps();
-        return pBmp;
+        return m_pSurface->readbackBmp();
     } else {
-        return new Bitmap(*m_pBmp);
+        return BitmapPtr(new Bitmap(*m_pBmp));
     }
 }
 

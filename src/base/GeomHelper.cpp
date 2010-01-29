@@ -144,6 +144,9 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
 // but we're not using the code in a speed-critical place so far.
 bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
 {
+    if (poly.size() < 3) {
+        return false;
+    }
     DPoint pointOutside(0,0);
     vector<DPoint>::const_iterator it;
     for (it=poly.begin(); it != poly.end(); ++it) {

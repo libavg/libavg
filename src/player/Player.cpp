@@ -502,7 +502,7 @@ bool Player::clearInterval(int id)
     vector<Timeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
-            if (it == m_PendingTimeouts.begin()) {
+            if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
                 m_bCurrentTimeoutDeleted = true;
             }
             delete *it;
@@ -752,7 +752,12 @@ void Player::doFrame()
             ScopeTimer Timer(RenderProfilingZone);
             if (m_bPythonAvailable) {
                 Py_BEGIN_ALLOW_THREADS;
-                m_pDisplayEngine->render(m_pRootNode);
+                try {
+                    m_pDisplayEngine->render(m_pRootNode);
+                } catch(...) {
+                    Py_BLOCK_THREADS;
+                    throw;
+                }
                 Py_END_ALLOW_THREADS;
             } else {
                 m_pDisplayEngine->render(m_pRootNode);

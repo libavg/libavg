@@ -32,7 +32,7 @@ CmdLine::CmdLine(int argc, char **argv)
     for (int i = 1; i < argc; ++i) {
         string sArg(argv[i]);
         if (sArg.substr(0, 2) == "--") {
-            size_t DelimPos = sArg.find('=');
+            string::size_type DelimPos = sArg.find('=');
             string sOptName;
             string sOptVal;
             if (DelimPos == sArg.npos) {

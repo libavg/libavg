@@ -118,7 +118,7 @@ void export_bitmap()
         .value("YCbCr422", YCbCr422)
         .export_values();
 
-    class_<Bitmap>("Bitmap",
+    class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap",
             "Class representing a rectangular set of pixels. Bitmaps can be obtained\n"
             "from any RasterNode. For nodes of type Image, the current bitmap can be\n"
             "set as well.",
