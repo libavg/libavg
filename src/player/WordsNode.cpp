@@ -633,8 +633,8 @@ const vector<string>& WordsNode::getFontVariants(const string& sFontName)
 string WordsNode::removeExcessSpaces(const string & sText)
 {
     string s = sText;
-    size_t lastPos = s.npos;
-    size_t pos = s.find_first_of(" \n\r");
+    string::size_type lastPos = s.npos;
+    string::size_type pos = s.find_first_of(" \n\r");
     while (pos != s.npos) {
         s[pos] = ' ';
         if (pos == lastPos+1) {

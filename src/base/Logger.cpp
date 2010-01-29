@@ -78,7 +78,7 @@ Logger::Logger()
         bool bDone = false;
         string sCategory;
         do {
-            unsigned pos = sEnvCategories.find(":");
+            string::size_type pos = sEnvCategories.find(":");
             if (pos == string::npos) {
                 sCategory = sEnvCategories;
                 bDone = true;
