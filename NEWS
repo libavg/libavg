@@ -1,3 +1,23 @@
+libavg 1.0.1 - January 28, 2010
+
+  svn revision 4551
+
+  Bugfixes:
+    * Fixed configure check for ffmpeg dev. libraries (rev 4493).
+    * Fixed crash in PolygonNode if initial fillopacity=0 and fillopacity is 
+      later changed (rev 4503, 4504).
+    * Fixed bug that caused timeouts to fire twice in certain circumstances 
+      (rev 4512).
+    * Empty polygons caused a segfault (rev 4515, 4517).
+    * Fixed crash when an exception was thrown inside render() (rev 4516).
+    * Fix for bitmap readback from texture on Intel & ATI graphics cards (rev 
+      4518).
+    * Error message instead of crash when texture is too big (rev 4526).
+    * Fixed handling of rects with size=(0,0) (bug #101) (rev 4527).
+    * Fixed return type variables of string::find to conform to C++ standard 
+      (rev 4549).
+    * Fixed bogus -lssl on link line under ubuntu (rev 4550).
+
 libavg 1.0.0 - January 8, 2010
 
   svn revision 4489
