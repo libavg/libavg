@@ -237,8 +237,7 @@ class PythonTestCase(AVGTestCase):
             node1 = Player.getElementByID("test")
             node2 = Player.getElementByID("test1")
             self.anim = anim.ParallelAnim(
-                    [ anim.LinearAnim(node0, "x", 200, 0, 2),
-                      anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0),
+                    [ anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0),
                       anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100)
                     ], animStopped)
             self.anim.start()
@@ -248,7 +247,7 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(10)
         self.start("image.avg",
                 (startAnim,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 3),
+                 lambda: self.assert_(anim.getNumRunningAnims() == 2),
                  lambda: self.assert_(not(self.anim.isDone())),
                  lambda: self.compareImage("testParallelAnims1", False),
                  None,

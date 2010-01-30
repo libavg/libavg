@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <avg id="imageavg" width="160" height="120">
-    <image id="mainimg" x="0" y="0"
-        opacity = "1" href="1x1_schachbrett.png"/>
     <image id="testtiles" pos="(0, 30)" size=" ( 65 , 65 ) "
         opacity="1" href="rgb24-65x65.png" maxtilewidth="16" maxtileheight="32"/>
     <image id="test" x="64" y="30"
