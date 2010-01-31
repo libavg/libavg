@@ -53,14 +53,16 @@ public:
         runImageTests("rgb24-64x64", GL_FLOAT);
         runImageTests("rgb24alpha-64x64", GL_FLOAT);
 
-        runPBOFloatbufTestI32F();
-        runPBOFloatbufTestR32G32B32A32F();
-        
-        runPBOBitmapTestR32G32B32A32F();
-        runPBOBitmapTestI32F();
+        if (PBOImage::isFloatFormatSupported()) {
+            runPBOFloatbufTest(I32F);
+            runPBOFloatbufTest(R32G32B32A32F);
+            
+            runPBOFloatBitmapTest(R32G32B32A32F);
+            runPBOFloatBitmapTest(I32F);
 
-        runPBOBitmapTestR32G32B32A32FextR8G8B8A8();
-        runPBOBitmapTestI32FextI8();
+            runPBOBitmapTestIntFloatExtByte(R32G32B32A32F, R8G8B8A8);
+            runPBOBitmapTestIntFloatExtByte(I32F, I8);
+        }
     }
 
 private:
@@ -82,6 +84,7 @@ private:
             }
         }
     }
+
     void compareFloatArrays(float *in, float *out, int n) {
         for (int i=0; i<n; i++) {
             if (fabs(in[i]-out[i])>1e-5) {
@@ -103,12 +106,15 @@ private:
             data[i] = 0.01f * i;
         }
     }
+
     void fillByteArray(unsigned char *data, int n) {
         for (int i = 0; i<n; i++) {
             data[i] = i * 2;
         }
     }
+
     void runPBOFloatbufTest(PixelFormat pf) {
+        cerr << "    Testing PBO (" << Bitmap::getPixelFormatString(pf) << ")" << endl;
         assert(pf == I32F || pf == R32G32B32A32F);
         IntPoint size = IntPoint(11, 3);
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
@@ -120,21 +126,11 @@ private:
         delete[] pixels;
 
     }
-    void runPBOFloatbufTestI32F()
-    {
-        cerr << "    runPBOFloatbufTestI32F" << endl;
-        runPBOFloatbufTest(I32F);
-        return;
-    }
 
-    void runPBOFloatbufTestR32G32B32A32F()
-    {
-        cerr << "    runPBOFloatbufTestR32G32B32A32F" << endl;
-        runPBOFloatbufTest(R32G32B32A32F);
-        return;
-    }
     void runPBOFloatBitmapTest(PixelFormat pf)
     {
+        cerr << "    Testing PBO float bitmaps (" << Bitmap::getPixelFormatString(pf) 
+                << ")" << endl;
         assert(pf == I32F || pf == R32G32B32A32F);
         IntPoint size = IntPoint(5,3);
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
@@ -151,21 +147,10 @@ private:
         delete[] pixels;
     }
 
-    void runPBOBitmapTestI32F()
-    {
-        cerr << "    runPBOBitmapTestI32F" << endl;
-        runPBOFloatBitmapTest(I32F);
-        return;
-    }
-    void runPBOBitmapTestR32G32B32A32F()
-    {
-        cerr << "    runPBOBitmapTestR32G32B32A32F" << endl;
-        runPBOFloatBitmapTest(R32G32B32A32F);
-        return;
-    }
-
     void runPBOBitmapTestIntFloatExtByte(PixelFormat intPF, PixelFormat extPF)
     {
+        cerr << "    Testing PBO bitmaps (" << Bitmap::getPixelFormatString(intPF) 
+                << "-->" << Bitmap::getPixelFormatString(extPF) << ")" << endl;
         IntPoint size = IntPoint(3,5);
         unsigned char *pixels = new unsigned char [
             size.x*size.y*Bitmap::getBytesPerPixel(extPF)];
@@ -180,18 +165,6 @@ private:
             size.x*size.y*Bitmap::getBytesPerPixel(extPF));
 
         delete[] pixels;
-    }
-
-    void runPBOBitmapTestR32G32B32A32FextR8G8B8A8()
-    {
-        cerr << "    runPBOFloatbufTestR32G32B32A32FextR8G8B8A8" << endl;
-        runPBOBitmapTestIntFloatExtByte(R32G32B32A32F, R8G8B8A8);
-    }
-    
-    void runPBOBitmapTestI32FextI8()
-    {
-        cerr << "    runPBOBitmapTestI32FextI8" << endl;
-        runPBOBitmapTestIntFloatExtByte(I32F, I8);
     }
 
     void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)
@@ -375,9 +348,14 @@ public:
     {
         addTest(TestPtr(new FBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        addTest(TestPtr(new BlurFilterTest));
-        addTest(TestPtr(new BandpassFilterTest));
-        addTest(TestPtr(new IteratingGPUFilterTest));
+        if (PBOImage::isFloatFormatSupported()) {
+            addTest(TestPtr(new BlurFilterTest));
+            addTest(TestPtr(new BandpassFilterTest));
+            addTest(TestPtr(new IteratingGPUFilterTest));
+        } else {
+            cerr << "Skipping some GPU tests since float textures are not supported by "
+                    << endl << "the OpenGL configuration." << endl;
+        }
     }
 };
 

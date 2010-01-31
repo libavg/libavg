@@ -41,6 +41,8 @@ public:
             bool bUseInputPBO, bool bUseOutputPBO);
     virtual ~PBOImage();
 
+    static bool isFloatFormatSupported();
+
     void setImage(BitmapPtr pBmp);
     void setImage(float * pData);
     virtual BitmapPtr getImage() const;

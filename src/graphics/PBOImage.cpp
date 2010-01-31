@@ -43,6 +43,10 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
       m_OutputPBO(0)
 {
     assert(getFormat(m_pfInt) == getFormat(m_pfExt));
+    if (getType(m_pfExt) == GL_FLOAT && !isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Float textures not supported by OpenGL configuration.");
+    }
     if (m_bUseInputPBO) {
         m_InputPBO = createInputPBO();
     }
@@ -81,6 +85,11 @@ PBOImage::~PBOImage()
     if (m_bUseOutputPBO) {
         deletePBO(&m_OutputPBO);
     }
+}
+
+bool PBOImage::isFloatFormatSupported()
+{
+    return queryOGLExtension("GL_ARB_texture_float");
 }
 
 void PBOImage::setImage(BitmapPtr pBmp)
