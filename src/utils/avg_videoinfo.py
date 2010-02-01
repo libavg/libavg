@@ -126,7 +126,7 @@ def showInfo(node):
         vVideoCodec = str(node.getVideoCodec()).ljust(13)
         vVideoSize = str(node.getMediaSize()).ljust(11)
         vPixel = str(node.getStreamPixelFormat()).ljust(14)
-        vFPS = str(node.fps).ljust(10)
+        vFPS = str(round(node.fps, 2)).ljust(10)
         vAudioCodec = str(node.getAudioCodec()).ljust(12)
         vSampleRate = str(node.getAudioSampleRate()).ljust(13)
         vChannels = str(node.getNumAudioChannels()).ljust(8)
@@ -141,7 +141,7 @@ def showInfo(node):
         vVideoCodec = str(node.getVideoCodec()).ljust(13)
         vVideoSize = str(node.getMediaSize()).ljust(11)
         vPixel = str(node.getStreamPixelFormat()).ljust(14)
-        vFPS = str(node.fps).ljust(10)
+        vFPS = str(round(node.fps,2)).ljust(10)
         vAudioCodec = "".ljust(12)
         vSampleRate = "".ljust(13)
         vChannels = "".ljust(8)
@@ -170,7 +170,8 @@ if len(args) == 1:
 else:
     for file in args: 
         try:
-            node.href = str(os.path.join(os.path.normpath(os.getcwd() + "/" +str(file))))
+            node.href = str(os.path.abspath(str(file)))    
+            #node.href = str(os.path.join(os.path.normpath(os.getcwd() + "/" +str(file))))
             node.play()
             VideoList.append(node.href)   
         except:
