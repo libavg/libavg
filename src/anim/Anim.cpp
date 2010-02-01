@@ -96,7 +96,13 @@ void Anim::setStopped()
     }
     m_bRunning = false;
     if (m_StopCallback != object()) {
-        call<void>(m_StopCallback.ptr());
+        try {
+            m_StopCallback();
+        } catch (error_already_set &) {
+            cerr << "Python exception in Anim stop callback." << endl;
+            PyErr_Print();
+            exit(5);
+        }
     }
 }
 
