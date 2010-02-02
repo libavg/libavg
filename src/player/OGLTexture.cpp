@@ -259,7 +259,7 @@ void OGLTexture::createTexture()
             0, m_pEngine->getOGLSrcMode(m_pf), m_pEngine->getOGLPixelType(m_pf), 
             pPixels);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::createTexture: glTexImage2D()");
+            "OGLTexture::createTexture: glTexImage2D()");
     if (m_pEngine->usePOTTextures()) {
         free(pPixels);
     }
