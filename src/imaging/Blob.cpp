@@ -125,7 +125,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             BlobPtr pHandBlob = (m_RelatedBlobs)[0].lock();
             if (pHandBlob) {
                 pDestBmp->drawLine(Center, IntPoint(pHandBlob->getCenter()),
-                        Pixel32(0x56, 0xC9, 0xD7, 0xFF));
+                        Pixel32(0xD7, 0xC9, 0x56, 0xFF));
             }
         }
         if (!m_Contour.empty()) {
