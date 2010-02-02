@@ -440,19 +440,19 @@ void TrackerThread::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp,
             if (bTouch) {
                 (*it2)->render(pSrcBmp, pDestBmp, 
                         Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
-                        Pixel32(0xFF, 0x00, 0x00, 0xFF));
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF));
             } else {
                 (*it2)->render(pSrcBmp, pDestBmp, 
-                        Pixel32(0x00, 0xFF, 0xFF, 0x80), Offset, Max, bTouch, true, 
-                        Pixel32(0xFF, 0x00, 0x00, 0xFF));
+                        Pixel32(0xFF, 0xFF, 0x00, 0x80), Offset, Max, bTouch, true, 
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF));
             }
         } else {
             if (bTouch) {
                 (*it2)->render(pSrcBmp, pDestBmp, 
-                        Pixel32(0x00, 0x00, 0xFF, 0xFF), Offset, Max, bTouch, false);
+                        Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, Max, bTouch, false);
             } else {
                 (*it2)->render(pSrcBmp, pDestBmp, 
-                        Pixel32(0x00, 0x80, 0x80, 0x80), Offset, Max, bTouch, false);
+                        Pixel32(0x80, 0x80, 0x00, 0x80), Offset, Max, bTouch, false);
             }
         }
     }
