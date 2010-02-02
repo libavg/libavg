@@ -222,11 +222,11 @@ class AVGAppStarter(object):
         self.bindKey('o', self.__dumpObjects, 'dump objects')
         self.bindKey('m', self.__showMemoryUsage, 'show memory usage')
         self.bindKey('f', self.__showFrameRateUsage, 'show frameTime usage')
-        self.bindKey('.', self.__switchClickTest, 'start clicktest', 'up')
+        self.bindKey('.', self.__switchClickTest, 'start clicktest')
         self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
         self.bindUnicode('?', self.activateHelp, 'HELP')  
         
-         
+
         self.helpInstance = MThelp(self)
         self.showingHelp = False
         self.__showingMemGraph = False
