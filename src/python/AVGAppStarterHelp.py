@@ -76,10 +76,26 @@ class MThelp():
                 TextHelp = TextHelp + \
                     "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
             
+            for key in sorted(self.__keyBindUp.iterkeys()):
+                if key in self.__keyBindDown:
+                    print "hiereirieii"
+                else:
+                    funcName = self.__keyBindUp[key][1]
+                    TextHelp = TextHelp + \
+                        "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+            
             for key in sorted(self.__keycodeBindDown.iterkeys()):
                 funcName = self.__keycodeBindDown[key][1]
                 TextHelp = TextHelp + \
                     "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+            
+            for key in sorted(self.__keycodeBindUp.iterkeys()):
+                if key in self.__keycodeBindDown:
+                    pass
+                else:
+                    funcName = self.__keycodeBindUp[key][1]
+                    TextHelp = TextHelp + \
+                        "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
             
             self.__keysNode.text = TextHelp
             self.__rectNode.opacity = 1
