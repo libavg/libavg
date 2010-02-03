@@ -251,7 +251,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     int Shutter = Config.getIntParam("/camera/shutter/@value");
     int StrobeDuration = Config.getIntParam("/camera/strobeduration/@value");
     string sCameraMaskFName = Config.getParam("/tracker/mask/@value");
-    bool bNewCameraMask = (!m_pConfig || 
+    bool bNewCameraMask = ((m_pCameraMaskBmp == BitmapPtr() && sCameraMaskFName != "") || 
             m_pConfig->getParam("/tracker/mask/@value") != sCameraMaskFName);
     if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Brightness ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Gamma ||
