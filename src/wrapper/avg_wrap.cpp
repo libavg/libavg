@@ -265,7 +265,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getFrameTime", &Player::getFrameTime,
                 "getFrameTime() -> time\n"
                 "Returns the number of milliseconds that have elapsed since playback\n"
-                "has tarted. Honors FakeFPS. The time returned stays constant for an\n"
+                "has started. Honors FakeFPS. The time returned stays constant for an\n"
                 "entire frame; it is the time of the last display update.\n")
         .def("createNode", &Player::createNodeFromXmlString,
                 "createNode(xml) -> node\n"
