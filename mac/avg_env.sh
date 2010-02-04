@@ -4,8 +4,8 @@ then
 else
     export PATH=${AVG_PATH}/bin:${PATH}
     export CPPFLAGS="-I${AVG_PATH}/include "$CPPFLAGS
-    export CXXFLAGS="-O3 -g -Wall -pipe "$CXXFLAGS
-    export CFLAGS="-O3 -g -Wall -pipe "$CFLAGS
+    export CXXFLAGS="-O3 -gstabs -Wall -pipe "$CXXFLAGS
+    export CFLAGS="-O3 -gstabs -Wall -pipe "$CFLAGS
     export LDFLAGS="-L${AVG_PATH}/lib "$LDFLAGS
     export PKG_CONFIG_PATH=${AVG_PATH}/lib/pkgconfig
     DARWINVER=`uname -r`

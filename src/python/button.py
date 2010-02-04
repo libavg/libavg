@@ -18,166 +18,133 @@
 # Current versions can be found at www.libavg.de
 #
 
-avg = None
-g_Player = None
+import platform
 
 try:
     from . import avg
 except ValueError:
-    pass
+    # We're running unit tests
+    if platform.system() == 'Windows':
+        from libavg import avg
+    else:
+        import avg
 
-class Button:
-    def __init__(self, node, clickCallback, id=None):
-        global g_Player
-        g_Player = avg.Player.get()
-        self.__node = node
-        self.__clickCallback = clickCallback
-        self.__isDisabled = False
-        self.__id = id
-        upNode = node.getChild(0)
-        node.width = upNode.width
-        node.height = upNode.height
-        if self.__isMouseOver():
-            self.__setMode(2)
+class Button(avg.DivNode):
+    STATE_UP = 1
+    STATE_DOWN = 2
+    STATE_DISABLED = 3
+    STATE_OUT = 4       # Button is pressed but cursor has moved outside the node.
+
+    def __init__(self,
+                upNode, 
+                downNode = None, 
+                disabledNode = None,
+                onClick = lambda event: None, 
+                onDown = lambda event:None, 
+                isMultitouch = False,
+                **kwargs):
+        if ((downNode and upNode.size != downNode.size) or
+                (disabledNode and upNode.size != disabledNode.size)):
+            raise RuntimeError("The sizes of all nodes in a button must be equal")
+        self.__upNode = upNode
+        self.__downNode = downNode
+        self.__disabledNode = disabledNode
+        self.__onClickCallback = onClick
+        self.__onDownCallback = onDown
+        avg.DivNode.__init__(self, **kwargs)
+        self.size = upNode.size
+        self.appendChild(upNode)
+        if downNode:
+            self.appendChild(downNode)
+        if disabledNode:
+            self.appendChild(disabledNode)
+        self.__state = None
+        self.__cursorsClicking = set()
+        self.__cursorsOverNode = set()
+        self.__isMultitouch = isMultitouch
+        self.__setState(Button.STATE_UP)
+
+    def setEventHandler(self, type, source, func):
+        raise RuntimeError("Setting event handlers for buttons is not supported")
+
+    def setNodes(self, upNode, downNode = None, disabledNode = None):
+        self.__upNode = upNode
+        self.__downNode = downNode
+        self.__disabledNode = disabledNode
+
+    def getState(self):
+        return self.__state
+
+    def setDisabled(self, disabled):
+        if disabled:
+            self.__setState(Button.STATE_DISABLED)
         else:
-            self.__setMode(0)
-        self.__isClicking = False
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown)
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut)
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver)
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onDown)
-        self.__node.setEventHandler(avg.CURSOROUT, avg.TRACK, self.__onOut)
-        self.__node.setEventHandler(avg.CURSOROVER, avg.TRACK, self.__onOver)
-
-    def delete(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-
-    def __isMouseOver(self):
-        Event = g_Player.getMouseState()
-        relPos = self.__node.getRelPos((Event.x, Event.y))
-        return (relPos[0] > 0 and relPos[0] < self.__node.width and
-                relPos[1] > 0 and relPos[1] < self.__node.height)
+            self.__setState(Button.STATE_UP)
 
     def __onDown(self, event):
-        if self.__isDisabled or self.__isClicking:
+        if not(self.__isMultitouch) and not(event.button==1):
             return
-        self.__node.setEventCapture(event.cursorid)
-        if event.source == avg.MOUSE:
-            self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp)
-        else:
-            self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onUp)
-        self.__isClicking = True
-        self.__setMode(1)
+        self.__setState(Button.STATE_DOWN)
+        self.__onDownCallback(event)
+        self.__cursorsClicking.add(event.cursorid)
+        self.__cursorsOverNode.add(event.cursorid)
+        self.setEventCapture(event.cursorid)
 
     def __onUp(self, event):
-        if self.__isDisabled or not(self.__isClicking):
+        if not(self.__isMultitouch) and not(event.button==1):
             return
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, None)
-        try:
-            self.__node.releaseEventCapture(event.cursorid)
-        except RuntimeError:
-            # Ignore 'releaseEventCapture called, but cursor not captured' errors.
-            pass
-        if self.__mode == 1:
-            self.__setMode(2)
-            self.__clickCallback(self)
-        self.__isClicking = False
-
-    def __onOver(self, event):
-        if self.__isDisabled:
-            return
-        if self.__isClicking:
-            self.__setMode(1)
-        else:
-            self.__setMode(2)
+        if event.cursorid in self.__cursorsClicking:
+            self.releaseEventCapture(event.cursorid)
+            self.__cursorsClicking.remove(event.cursorid)
+            if len(self.__cursorsClicking) == 0:
+                self.__setState(Button.STATE_UP)
+                if event.cursorid in self.__cursorsOverNode:
+                    self.__onClickCallback(event)
+            if event.cursorid in self.__cursorsOverNode:
+                self.__cursorsOverNode.remove(event.cursorid)
 
     def __onOut(self, event):
-        if self.__isDisabled:
-            return
-        self.__setMode(0)
+        if event.cursorid in self.__cursorsClicking:
+            self.__cursorsOverNode.remove(event.cursorid)
+        if len(self.__cursorsOverNode) == 0:
+            self.__setState(Button.STATE_OUT)
 
-    def __setMode(self, newMode):
-        self.__mode = newMode
-        for i in range(4):
-            childNode = self.__node.getChild(i)
-            if i == newMode:
-                childNode.opacity = 1
+    def __onOver(self, event):
+        if len(self.__cursorsOverNode) == 0:
+            self.__setState(Button.STATE_DOWN)
+        if event.cursorid in self.__cursorsClicking:
+            self.__cursorsOverNode.add(event.cursorid)
+
+    def __setState(self, state):
+#        print self.__state, " -> ", state
+        for node in (self.__upNode, self.__downNode, self.__disabledNode):
+            if node:
+                node.opacity = 0
+        if self.__isMultitouch:
+            source = avg.TOUCH
+        else:
+            source = avg.MOUSE
+        if state == Button.STATE_UP:
+            curNode = self.__upNode
+            avg.DivNode.setEventHandler(self, avg.CURSORDOWN, source, self.__onDown)
+            avg.DivNode.setEventHandler(self, avg.CURSORUP, source, None)
+            avg.DivNode.setEventHandler(self, avg.CURSOROVER, source, None)
+            avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, None)
+        elif state == Button.STATE_DOWN:
+            if self.__downNode: 
+                curNode = self.__downNode
             else:
-                childNode.opacity = 0
-
-    # TODO: if setDisabled(False) and mouse is over the button it remains disabled
-    def setDisabled(self, disabled):
-        self.__isDisabled = disabled
-        if disabled:
-            try:
-                self.__node.releaseEventCapture()
-            except:
-                pass
-            self.__setMode(3)
+                curNode = self.__upNode
+            avg.DivNode.setEventHandler(self, avg.CURSORDOWN, source, self.__onDown)
+            avg.DivNode.setEventHandler(self, avg.CURSORUP, source, self.__onUp)
+            avg.DivNode.setEventHandler(self, avg.CURSOROVER, source, self.__onOver)
+            avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, self.__onOut)
+        elif state == Button.STATE_DISABLED:
+            curNode = self.__disabledNode
+        elif state == Button.STATE_OUT:
+            assert(self.__state == Button.STATE_DOWN)
+            curNode = self.__upNode
         else:
-            self.__setMode(0)
-
-    def getID(self):
-        return self.__id
-
-
-class Checkbox(Button):
-    def __init__(self, node, clickCallback=None, id=None):
-        self.__node = node
-        self.__setChecked(False)
-        self.__clickCallback = clickCallback
-        Button.__init__(self, node, self.__onClick, id)
-
-    def getState(self):
-        return self.__isChecked
-
-    def setState(self, checked):
-        self.__setChecked(checked)
-
-    def __setChecked(self, checked):
-        self.__isChecked = checked
-        if checked:
-            self.__node.getChild(4).opacity = 1
-        else:
-            self.__node.getChild(4).opacity = 0
-
-    def __onClick(self, Event):
-        self.__setChecked(not(self.__isChecked))
-        if self.__clickCallback != None:
-            self.__clickCallback(self)
-
-
-class Radio(Checkbox):
-    def __init__(self, node, clickCallback=None, id=None):
-        self.__node = node
-        self.__setChecked(False)
-        self.__clickCallback = clickCallback
-        Button.__init__(self, node, self.__onClick, id)
-
-    def getState(self):
-        return self.__isChecked
-
-    def setState(self, checked):
-        self.__setChecked(checked)
-
-    def __setChecked(self, checked):
-        self.__isChecked = checked
-        if checked:
-            self.__node.getChild(4).opacity = 1
-        else:
-            self.__node.getChild(4).opacity = 0
-
-    def __onClick(self, Event):
-        self.__setChecked(True)
-        if self.__clickCallback != None:
-            self.__clickCallback(self)
-
-
-def init(g_avg):
-    global avg
-    avg = g_avg
-
+            assert(False)
+        curNode.opacity = 1
+        self.__state = state 

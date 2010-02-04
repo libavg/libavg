@@ -296,96 +296,31 @@ class PythonTestCase(AVGTestCase):
                 ))
 
     def testButton(self):
+        def onDown(event):
+            self.__down = True
+
         def onClick(event):
             self.__clicked = True
-        
-        def createButton():
-            buttonNode = Player.getElementByID("button") 
-            self.button = button.Button(buttonNode, onClick)
-            buttonNode.getChild(4).opacity = 0
-        
-        def down():
-            self.__sendEvent(avg.CURSORDOWN, 0, 0)
-        
-        def out():
-            self.__sendEvent(avg.CURSORMOTION, 0, 50)
-        
-        def upOutside():
-            self.__sendEvent(avg.CURSORUP, 0, 50)
-        
-        def over():
-            self.__sendEvent(avg.CURSORMOTION, 0, 0)
-        
-        def upInside():
-            self.__sendEvent(avg.CURSORUP, 0, 0)
-        
-        def disable():
-            self.button.setDisabled(True)
-            self.__clicked = False
-        
-        self.__clicked = False
-        button.init(avg)
-        self.start("ButtonTest.avg",
-                (createButton,
-                lambda: self.compareImage("testButtonUp", False),
-                down,
-                lambda: self.compareImage("testButtonDown", False),
-                out,
-                lambda: self.compareImage("testButtonUp", False),
-                upOutside,
-                lambda: self.assert_(not(self.__clicked)),
-                down,
-                lambda: self.compareImage("testButtonDown", False),
-                out,
-                lambda: self.compareImage("testButtonUp", False),
-                over,
-                lambda: self.compareImage("testButtonDown", False),
-                upInside,
-                lambda: self.assert_(self.__clicked),
-                lambda: self.compareImage("testButtonOver", False),
-                out,
-                lambda: self.compareImage("testButtonUp", False),
-                disable,
-                lambda: self.compareImage("testButtonDisabled", False),
-                down,
-                lambda: self.compareImage("testButtonDisabled", False),
-                upInside,
-                lambda: self.assert_(not(self.__clicked)),
-                lambda: self.compareImage("testButtonDisabled", False),
-                out,
-                lambda: self.button.setDisabled(False),
-                lambda: self.compareImage("testButtonUp", False)
-               ))
 
-    def testCheckbox(self):
-        def createCheckbox():
-            self.checkbox = button.Checkbox(Player.getElementByID("button"))
-        
-        def down():
-            self.__sendEvent(avg.CURSORDOWN, 0, 0)
-        
-        def up():
-            self.__sendEvent(avg.CURSORUP, 0, 0)
-        
-        def out():
-            self.__sendEvent(avg.CURSORMOTION, 0, 50)
-        
-        button.init(avg)
-        self.start("ButtonTest.avg",
-                (createCheckbox,
-                lambda: self.compareImage("testCheckboxUp", False),
-                down,
-                lambda: self.compareImage("testCheckboxDown", False),
-                up,
-                lambda: self.assert_(self.checkbox.getState() == True),
-                lambda: self.compareImage("testCheckboxClickedOver", False),
-                out,
-                lambda: self.compareImage("testCheckboxClickedOut", False),
-                down,
-                lambda: self.compareImage("testCheckboxClickedDown", False),
-                up,
-                lambda: self.compareImage("testCheckboxOver", False)
-               ))
+        self._loadEmpty()
+        b = button.Button(
+                parent = Player.getRootNode(),
+                upNode = avg.ImageNode(href="button_up.png"),
+                downNode = avg.ImageNode(href="button_down.png"),
+                onDown = onDown,
+                onClick = onClick,
+                )
+        self.__down = False
+        self.__clicked = False
+        self.start(None,
+                (lambda: self.compareImage("testButtonUp", False),
+                 lambda: self.__sendEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testButtonDown", False),
+                 lambda: self.assert_(self.__down),
+                 lambda: self.__sendEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testButtonUp", False),
+                 lambda: self.assert_(self.__clicked),
+                ))
 
     def testTextArea(self):
         def setup():
@@ -544,7 +479,6 @@ def pythonTestSuite (tests):
         "testStateAnim",
         "testDraggable",
         "testButton",
-        "testCheckbox",
         "testTextArea",
         "testFocusContext",
         )
