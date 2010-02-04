@@ -196,6 +196,15 @@ DPoint TrackerConfig::getPointParam(const std::string& sXPathExpr) const
     return DPoint(getDoubleParam(sXPathExpr+"@x"), getDoubleParam(sXPathExpr+"@y"));
 }
 
+DRect TrackerConfig::getRectParam(const std::string& sXPathExpr) const
+{
+     DPoint pos1 = DPoint(getDoubleParam(sXPathExpr+"@x1"), 
+            getDoubleParam(sXPathExpr+"@y1"));
+     DPoint pos2 = DPoint(getDoubleParam(sXPathExpr+"@x2"),
+            getDoubleParam(sXPathExpr+"@y2"));
+     return DRect(pos1, pos2);
+}
+
 xmlNodePtr TrackerConfig::getXmlNode(const std::string& sXPathExpr) const
 {
     xmlXPathObjectPtr xpElement = findConfigNodes(sXPathExpr);

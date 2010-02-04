@@ -32,12 +32,12 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT camera (driver|device|fw800|format|size|framerate|brightness|gamma|gain|"
 "        shutter|strobeduration)* >\n"
 "<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|"
-"       contourprecision|wipeborder|historydelay|touch|track)* >\n"
+"       contourprecision|historydelay|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|"
 "       bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
-"       angle|displaydisplacement|displayscale|activedisplaysize)* >\n"
+"       angle|displaydisplacement|displayscale|activedisplaysize|displayroi)* >\n"
 
 "<!ELEMENT driver EMPTY>\n"
 "<!ATTLIST driver\n"
@@ -111,10 +111,6 @@ const char * g_pTrackerConfigDTD =
 "<!ATTLIST contourprecision\n"
 "   value CDATA #REQUIRED >\n"
 
-"<!ELEMENT wipeborder EMPTY>\n"
-"<!ATTLIST wipeborder\n"
-"   value CDATA #REQUIRED >\n"
-
 "<!ELEMENT historydelay EMPTY>\n"
 "<!ATTLIST historydelay\n"
 "   value CDATA #REQUIRED >\n"
@@ -163,6 +159,13 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT activedisplaysize EMPTY>\n"
 "<!ATTLIST activedisplaysize\n"
 "   %posAttrs; >\n"
+
+"<!ELEMENT displayroi EMPTY>\n"
+"<!ATTLIST displayroi\n"
+"  x1 CDATA #REQUIRED\n"
+"  y1 CDATA #REQUIRED\n"
+"  x2 CDATA #REQUIRED\n"
+"  y2 CDATA #REQUIRED >\n"
 
 ;
 

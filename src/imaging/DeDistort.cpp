@@ -92,11 +92,16 @@ DeDistort::~DeDistort()
 {
 }
 
-DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
+DRect DeDistort::getDisplayArea(const DPoint& displayExtents)
+{
+    return getActiveBlobArea(DRect(DPoint(0,0), displayExtents));
+}
+
+DRect DeDistort::getActiveBlobArea(const DRect& displayROI)
 {
     DRect ActiveRect;
-    ActiveRect.tl = transformScreenToBlob(DPoint(0, 0));
-    ActiveRect.br = transformScreenToBlob(DPoint(DisplayExtents.x, DisplayExtents.y));
+    ActiveRect.tl = transformScreenToBlob(DPoint(displayROI.tl));
+    ActiveRect.br = transformScreenToBlob(DPoint(displayROI.br));
     if (ActiveRect.height() < 1) {
         double temp = ActiveRect.tl.y;
         ActiveRect.tl.y = ActiveRect.br.y;

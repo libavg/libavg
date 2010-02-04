@@ -121,11 +121,11 @@ namespace avg {
         }
     }
 
-    EventPtr EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+    EventPtr EventStream::pollevent(DeDistortPtr trafo, const DRect& displayROI, 
             CursorEvent::Source Source, bool bEventOnMove)
     {
         assert(m_pBlob);
-        DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
+        DPoint BlobOffset = trafo->getActiveBlobArea(displayROI).tl;
         DPoint pt = m_pBlob->getCenter()+BlobOffset;
         DPoint screenpos = trafo->transformBlobToScreen(pt);
         IntPoint Pos(int(screenpos.x+0.5), 

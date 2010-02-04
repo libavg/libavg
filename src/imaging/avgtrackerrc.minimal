@@ -19,7 +19,6 @@
   <brighterregions value="true"/>
   <eventonmove value="true"/>
   <contourprecision value="0"/>
-  <wipeborder value="0"/>
   <historydelay value="2200"/>
   <mask value=""/>
   <track>
@@ -44,5 +43,6 @@
   <displaydisplacement x="-174.966" y="-145.974"/>
   <displayscale x="2.52439" y="2.55685"/>
   <activedisplaysize x="1280" y="800"/>
+  <displayroi x1="0" y1="0" x2="1280" y2="800"/>
  </transform>
 </trackerconfig>

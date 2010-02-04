@@ -78,7 +78,8 @@ class AVGMTAppStarter (AVGAppStarter):
         fingerBitmap = self.tracker.getImage(avg.IMG_FINGERS)
         node = self.__trackerImageNode
         node.setBitmap(fingerBitmap)
-        node.size = g_player.getRootNode().size
+        node.pos = self.tracker.getDisplayROIPos()
+        node.size = self.tracker.getDisplayROISize()
 
         grid = node.getOrigVertexCoords()
         grid = [ [ transformPos(pos) for pos in line ] for line in grid]

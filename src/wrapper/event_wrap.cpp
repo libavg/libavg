@@ -217,6 +217,8 @@ void export_event()
             "with appropriate parameters.\n"
             "@param imageid: One of IMG_CAMERA, IMG_DISTORTED, IMG_NOHISTORY,\n"
             "IMG_HISTOGRAM, IMG_FINGERS or IMG_HIGHPASS.\n")
+        .def("getDisplayROIPos", &TrackerEventSource::getDisplayROIPos)
+        .def("getDisplayROISize", &TrackerEventSource::getDisplayROISize)
         .def("saveConfig", &TrackerEventSource::saveConfig,
             "saveConfig()\n"
             "Saves the current tracker configuration to the default config file.")

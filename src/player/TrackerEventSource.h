@@ -59,12 +59,12 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
         std::string getParam(const std::string& sElement);
                 
         void resetHistory();
-
         void setDebugImages(bool bImg, bool bFinger);
-
         void saveConfig();
-
         Bitmap * getImage(TrackerImageID ImageID) const;
+        DPoint getDisplayROIPos() const;
+        DPoint getDisplayROISize() const;
+
         std::vector<EventPtr> pollEvents(); //main thread
 
         // implement IBlobTarget
@@ -94,6 +94,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
         DeDistortPtr m_pDeDistort;
         DeDistortPtr m_pOldTransformer;
         IntPoint m_ActiveDisplaySize;
+        DRect m_DisplayROI;
         TrackerCalibrator * m_pCalibrator;
 
         // Used by tracker thread

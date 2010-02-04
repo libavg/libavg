@@ -113,7 +113,7 @@ public:
                 DPoint(1,2)));
         TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(0,0)), DPoint(0,0)));
         TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(1,2)), DPoint(1,2)));
-        TEST(IdentityDistort.getActiveBlobArea(DPoint(1280,720)) == DRect(0,0,1280,720));
+        TEST(IdentityDistort.getDisplayArea(DPoint(1280,720)) == DRect(0,0,1280,720));
 
         DeDistort Scaler = DeDistort(DPoint(1,1),
             Params, 0, 0.0,
@@ -130,7 +130,7 @@ public:
         TEST(almostEqual(Shifter.transformBlobToScreen(DPoint(1,2)), DPoint(2,3)));
         TEST(almostEqual(Shifter.transformScreenToBlob(DPoint(0,0)), DPoint(-1,-1)));
         TEST(almostEqual(Shifter.transformScreenToBlob(DPoint(1,2)), DPoint(0,1)));
-        TEST(Shifter.getActiveBlobArea(DPoint(1,1)) == DRect(-1, -1, 0, 0));
+        TEST(Shifter.getDisplayArea(DPoint(1,1)) == DRect(-1, -1, 0, 0));
 
         vector<double> Cubed;
         Cubed.push_back(0);

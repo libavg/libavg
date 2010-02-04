@@ -49,6 +49,7 @@ public:
     int getIntParam(const std::string& sXPathExpr) const;
     double getDoubleParam(const std::string& sXPathExpr) const;
     DPoint getPointParam(const std::string& sXPathExpr) const;
+    DRect getRectParam(const std::string& sXPathExpr) const;
     xmlNodePtr getXmlNode(const std::string& sXPathExpr) const;
 
     DeDistortPtr getTransform() const;
