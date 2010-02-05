@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<avg width="160" height="120">
+  <div pos="(40, 30)">
+    <image href="rgb24-64x64.png" pos="(40, 30)" size="(80, 60)"/>
+  </div>
+</avg>
+
