@@ -4,15 +4,15 @@
 from libavg import avg
 
 def moveText():
-    Node = Player.getElementByID("ClashText")
-    if Node.x < 200:
-        Node.x += 1
+    node = player.getElementByID("ClashText")
+    if node.x < 200:
+        node.x += 1
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadFile("text.avg")
-Player.setOnFrameHandler(moveText)
+player.loadFile("text.avg")
+player.setOnFrameHandler(moveText)
 
-Player.setVBlankFramerate(1)
-Player.play()
+player.setVBlankFramerate(1)
+player.play()
 

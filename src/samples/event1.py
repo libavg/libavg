@@ -3,16 +3,16 @@
 
 from libavg import avg
 
-def onMouseOver(Event):
-    Node = Player.getElementByID("ClashText")
-    Node.color = "FF8000"
+def onMouseOver(event):
+    node = player.getElementByID("ClashText")
+    node.color = "FF8000"
 
-def onMouseOut(Event):
-    Node = Player.getElementByID("ClashText")
-    Node.color = "FFFFFF"
+def onMouseOut(event):
+    node = player.getElementByID("ClashText")
+    node.color = "FFFFFF"
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadFile("event1.avg")
-Player.play()
+player.loadFile("event1.avg")
+player.play()
 

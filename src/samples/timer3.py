@@ -4,14 +4,14 @@
 from libavg import avg
 
 def moveText():
-    Node = Player.getElementByID("ClashText")
-    if Node.x < 200:
-        Node.x += 20
+    node = player.getElementByID("ClashText")
+    if node.x < 200:
+        node.x += 20
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadFile("text.avg")
-Player.setInterval(200, moveText)
+player.loadFile("text.avg")
+player.setInterval(200, moveText)
 
-Player.play()
+player.play()
 

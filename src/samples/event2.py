@@ -3,16 +3,16 @@
 
 from libavg import avg
 
-def onDiv(Event):
-    Node = Player.getElementByID("ClashText")
-    Node.color = "FF8000"
+def onDiv(event):
+    node = player.getElementByID("ClashText")
+    node.color = "FF8000"
 
-def onWords(Event):
-    Node = Player.getElementByID("ClashText")
-    Node.color = "00FF00"
+def onWords(event):
+    node = player.getElementByID("ClashText")
+    node.color = "00FF00"
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadFile("event2.avg")
-Player.play()
+player.loadFile("event2.avg")
+player.play()
 

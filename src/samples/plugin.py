@@ -3,14 +3,14 @@
 
 from libavg import avg
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadString("""<avg width="160" height="120" id="container" />""")
-Player.pluginPath = "/Users/uzadow/devel/libavg/libavg/src/test/plugin/.libs"
-Player.loadPlugin("libColorNode")
+player.loadString("""<avg width="160" height="120" id="container" />""")
+player.pluginPath = "my_pluginpath"
+player.loadPlugin("libColorNode")
 
-node = Player.createNode('<colornode fillcolor="0f3f7f" id="mynode" />')
-Player.getElementByID("container").appendChild(node)
-mynode = Player.getElementByID("mynode")
+node = player.createNode('<colornode fillcolor="0f3f7f" id="mynode" />')
+player.getElementByID("container").appendChild(node)
+mynode = player.getElementByID("mynode")
 mynode.fillcolor = "7f007f"
-Player.play()
+player.play()

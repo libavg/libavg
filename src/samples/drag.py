@@ -5,24 +5,24 @@ from libavg import avg
 
 offset = None
 
-def onMouseDown(Event):
+def onMouseDown(event):
     global offset
-    Node = Event.node
-    offset = Node.getRelPos((Event.x, Event.y))
-    Node.setEventCapture()
+    node = event.node
+    offset = node.getRelPos((event.x, event.y))
+    node.setEventCapture()
 
-def onMouseMove(Event):
+def onMouseMove(event):
     global offset
-    Node = Event.node
+    node = event.node
     if offset != None:
-        Node.x = Event.x-offset[0]
-        Node.y = Event.y-offset[1]
+        node.x = event.x-offset[0]
+        node.y = event.y-offset[1]
 
-def onMouseUp(Event):
+def onMouseUp(event):
     global offset
-    Node = Event.node
+    node = event.node
     if offset != None:
-        Node.releaseEventCapture()
+        node.releaseEventCapture()
         offset = None;
 
 Player = avg.Player.get()

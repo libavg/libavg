@@ -3,10 +3,10 @@
 
 from libavg import avg
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadFile("text.avg")
-Node = Player.getElementByID("ClashText")
-print Node.x
-Node.x = 200
-Player.play()
+player.loadFile("text.avg")
+node = player.getElementByID("ClashText")
+print node.x
+node.x = 200
+player.play()

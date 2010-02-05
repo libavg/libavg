@@ -3,6 +3,6 @@
 
 from libavg import avg
 
-Player = avg.Player.get()
-Player.loadFile("text.avg")
-Player.play()
+player = avg.Player.get()
+player.loadFile("text.avg")
+player.play()
