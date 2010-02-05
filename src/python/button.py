@@ -75,11 +75,15 @@ class Button(avg.DivNode):
     def getState(self):
         return self.__state
 
-    def setDisabled(self, disabled):
-        if disabled:
-            self.__setState(Button.STATE_DISABLED)
-        else:
+    def enable(self, enabled):
+        if enabled:
             self.__setState(Button.STATE_UP)
+        else:
+            self.__setState(Button.STATE_DISABLED)
+            for id in self.__cursorsClicking:
+                self.releaseEventCapture(id)
+            self.__cursorsClicking = set()
+            self.__cursorsOverNode = set()
 
     def __onDown(self, event):
         if not(self.__isMultitouch) and not(event.button==1):
@@ -141,6 +145,10 @@ class Button(avg.DivNode):
             avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, self.__onOut)
         elif state == Button.STATE_DISABLED:
             curNode = self.__disabledNode
+            avg.DivNode.setEventHandler(self, avg.CURSORDOWN, source, None)
+            avg.DivNode.setEventHandler(self, avg.CURSORUP, source, None)
+            avg.DivNode.setEventHandler(self, avg.CURSOROVER, source, None)
+            avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, None)
         elif state == Button.STATE_OUT:
             assert(self.__state == Button.STATE_DOWN)
             curNode = self.__upNode
