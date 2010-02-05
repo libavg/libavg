@@ -1376,6 +1376,7 @@ void Player::cleanup()
         delete *it;
     }
     m_PendingTimeouts.clear();
+    m_pEventCaptureNode.clear();
     Profiler::get().dumpStatistics();
     if (m_pRootNode) {
         m_pRootNode->disconnect(true);
