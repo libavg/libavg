@@ -662,12 +662,12 @@ class VectorTestCase(AVGTestCase):
 
     def testInactiveVector(self):
         def addVectorNode():
-            node = avg.LineNode(pos1=(2, 2), pos2=(50, 2))
+            node = avg.LineNode(pos1=(2, 2), pos2=(50, 2), strokewidth=2)
             canvas.appendChild(node)
             return node
 
         def addFilledVectorNode():
-            node = avg.RectNode(pos=(2, 6), size=(50, 30))
+            node = avg.RectNode(pos=(2, 6), size=(50, 30), strokewidth=2)
             node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onDown)
             canvas.appendChild(node)
             return node
