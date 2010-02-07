@@ -165,17 +165,19 @@ void FilledVectorNode::preRender()
 void FilledVectorNode::maybeRender(const DRect& Rect)
 {
     assert(getState() == NS_CANRENDER);
-    if (getEffectiveOpacity() > 0.01 || 
-            getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01) 
-    {
-        if (getID() != "") {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                    " with ID " << getID());
-        } else {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
+    if (getActive()) {
+        if (getEffectiveOpacity() > 0.01 || 
+                getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01) 
+        {
+            if (getID() != "") {
+                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                        " with ID " << getID());
+            } else {
+                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
+            }
+            getDisplayEngine()->setBlendMode(getBlendMode());
+            render(Rect);
         }
-        getDisplayEngine()->setBlendMode(getBlendMode());
-        render(Rect);
     }
 }
 

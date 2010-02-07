@@ -660,6 +660,39 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testMesh6", False)
                 ))
 
+    def testInactiveVector(self):
+        def addVectorNode():
+            node = avg.LineNode(pos1=(2, 2), pos2=(50, 2))
+            canvas.appendChild(node)
+            return node
+
+        def addFilledVectorNode():
+            node = avg.RectNode(pos=(2, 6), size=(50, 30))
+            node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onDown)
+            canvas.appendChild(node)
+            return node
+
+        def onDown(Event):
+            vNode.active = False
+            fvNode.active = False
+            self.onDownCalled = not self.onDownCalled
+
+        Helper = Player.getTestHelper()
+        canvas = self.makeEmptyCanvas()
+        vNode = addVectorNode()
+        fvNode = addFilledVectorNode()
+        self.onDownCalled = False
+        self.start(None,
+                (lambda: self.compareImage("testInactiveVector1", False),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        20, 20, 1),
+                 lambda: self.assert_(self.onDownCalled),
+                 lambda: self.compareImage("testInactiveVector2", False),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        20, 20, 1),
+                 lambda: self.assert_(self.onDownCalled)
+                ))
+
 def vectorTestSuite(tests):
     availableTests = (
             "testLine",
@@ -677,6 +710,7 @@ def vectorTestSuite(tests):
             "testTexturedPolygon",
             "testCircle",
             "testMesh",
+            "testInactiveVector",
             )
     return AVGTestSuite (availableTests, VectorTestCase, tests)
 
