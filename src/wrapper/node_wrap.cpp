@@ -315,6 +315,9 @@ void export_node()
         .def("getNumAudioChannels", &SoundNode::getNumAudioChannels,
                 "getNumAudioChannels() -> numchannels\n"
                 "Returns the number of channels. 2 for stereo, etc.\n")
+        .def("seekToTime", &SoundNode::seekToTime,
+                "seekToTime(time)\n"
+                "Moves the playback cursor to the time given.\n")
         .add_property("href", make_function(&SoundNode::getHRef, 
                 return_value_policy<copy_const_reference>()), &SoundNode::setHRef,
                 "The source filename of the sound.\n")
