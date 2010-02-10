@@ -81,6 +81,7 @@ class AVG_API CameraNode : public RasterNode
         int getWhitebalanceU() const;
         int getWhitebalanceV() const;
         void setWhitebalance(int u, int v);
+        void doOneShotWhitebalance();
         int getStrobeDuration() const;
         void setStrobeDuration(int Value);
         

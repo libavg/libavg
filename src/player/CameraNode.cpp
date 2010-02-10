@@ -231,6 +231,14 @@ void CameraNode::setWhitebalance(int u, int v)
     m_pCamera->setWhitebalance(u, v);
 }
 
+void CameraNode::doOneShotWhitebalance()
+{
+    // The first line turns off auto white balance.
+    m_pCamera->setWhitebalance(m_pCamera->getWhitebalanceU(), 
+            m_pCamera->getWhitebalanceV());
+    m_pCamera->setFeatureOneShot(CAM_FEATURE_WHITE_BALANCE);
+}
+
 int CameraNode::getStrobeDuration() const
 {
     return getFeature(CAM_FEATURE_STROBE_DURATION);

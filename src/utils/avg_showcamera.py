@@ -34,6 +34,27 @@ def checkCamera():
         exit(1)
 
 
+def onKey(event):
+    def getWhitebalance():
+        return (camNode.getWhitebalanceU(), camNode.getWhitebalanceV())
+    if event.keystring == "w":
+        print "Setting Whitebalance"
+        camNode.doOneShotWhitebalance()
+    elif event.keystring == "1":
+        (u, v) = getWhitebalance()
+        camNode.setWhitebalance(u-1, v)
+    elif event.keystring == "2":
+        (u, v) = getWhitebalance()
+        camNode.setWhitebalance(u+1, v)
+    elif event.keystring == "3":
+        (u, v) = getWhitebalance()
+        camNode.setWhitebalance(u, v-1)
+    elif event.keystring == "4":
+        (u, v) = getWhitebalance()
+        camNode.setWhitebalance(u, v+1)
+    (u, v) = getWhitebalance()
+    print "u: ", u, ", v: ", v
+
 parser = optparse.OptionParser()
 parser.add_option("-t", "--driver",
                   action="store", 
@@ -67,6 +88,12 @@ parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", defa
 
 if options.driver is None and not options.dump and not options.resetbus:
     parser.print_help()
+    print
+    print "Keys available when image is being displayed:"
+    print "  w: Execute whitebalance."
+    print "  1/2: Decrease/Increase whitebalance u."
+    print "  3/4: Decrease/Increase whitebalance v."
+    print
     print "ERROR: at least '--driver', '--dump' or '--resetbus' options must be specified"
     exit()
 
@@ -85,6 +112,7 @@ Player.loadString("""
 <avg width="%(width)d" height="%(height)d">
 </avg>
 """ %optdict)
+Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKey)
 
 if options.dump:
     avg.CameraNode.dumpCameras()
@@ -99,13 +127,16 @@ if options.resetbus:
 
 Log.trace(Log.APP, "Creating camera:")
 Log.trace(Log.APP, "driver=%(driver)s device=%(device)s" %optdict)
-Log.trace(Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" %optdict)
+Log.trace(Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
+        %optdict)
 Log.trace(Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s" %optdict)
 
 camNode = Player.createNode("camera", 
-        {"driver": options.driver, "device": options.device, "unit": options.unit, "fw800": options.fw800,
-         "capturewidth": options.width, "captureheight": options.height, "pixelformat": options.pixelFormat, 
-         "framerate": options.framerate, "width": options.width, "height": options.height})
+        {"driver": options.driver, "device": options.device, "unit": options.unit, 
+         "fw800": options.fw800, 
+         "capturewidth": options.width, "captureheight": options.height, 
+         "pixelformat": options.pixelFormat, "framerate": options.framerate, 
+         "width": options.width, "height": options.height})
 
 Player.getRootNode().appendChild(camNode)
 
