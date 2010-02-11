@@ -296,141 +296,96 @@ class PythonTestCase(AVGTestCase):
                 ))
 
     def testButton(self):
-        def onDown(event):
-            self.__down = True
-
         def onClick(event):
             self.__clicked = True
-
-        def reset():
-            self.__down = False
+        
+        def createButton():
+            buttonNode = Player.getElementByID("button") 
+            self.button = button.Button(buttonNode, onClick)
+            buttonNode.getChild(4).opacity = 0
+        
+        def down():
+            self.__sendEvent(avg.CURSORDOWN, 0, 0)
+        
+        def out():
+            self.__sendEvent(avg.CURSORMOTION, 0, 50)
+        
+        def upOutside():
+            self.__sendEvent(avg.CURSORUP, 0, 50)
+        
+        def over():
+            self.__sendEvent(avg.CURSORMOTION, 0, 0)
+        
+        def upInside():
+            self.__sendEvent(avg.CURSORUP, 0, 0)
+        
+        def disable():
+            self.button.setDisabled(True)
             self.__clicked = False
-
-        self._loadEmpty()
-        b = button.Button(
-                parent = Player.getRootNode(),
-                upNode = avg.ImageNode(href="button_up.png"),
-                downNode = avg.ImageNode(href="button_down.png"),
-                disabledNode = avg.ImageNode(href="button_disabled.png"),
-                onDown = onDown,
-                onClick = onClick,
-                )
-        self.__down = False
+        
         self.__clicked = False
-        self.start(None,
-                (# Normal click: Down & up over button
-                 lambda: self.compareImage("testButtonUp", False),
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.compareImage("testButtonDown", False),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
-                 lambda: self.compareImage("testButtonUp", False),
-                 lambda: self.assert_(self.__clicked),
-                 reset,
+        button.init(avg)
+        self.start("ButtonTest.avg",
+                (createButton,
+                lambda: self.compareImage("testButtonUp", False),
+                down,
+                lambda: self.compareImage("testButtonDown", False),
+                out,
+                lambda: self.compareImage("testButtonUp", False),
+                upOutside,
+                lambda: self.assert_(not(self.__clicked)),
+                down,
+                lambda: self.compareImage("testButtonDown", False),
+                out,
+                lambda: self.compareImage("testButtonUp", False),
+                over,
+                lambda: self.compareImage("testButtonDown", False),
+                upInside,
+                lambda: self.assert_(self.__clicked),
+                lambda: self.compareImage("testButtonOver", False),
+                out,
+                lambda: self.compareImage("testButtonUp", False),
+                disable,
+                lambda: self.compareImage("testButtonDisabled", False),
+                down,
+                lambda: self.compareImage("testButtonDisabled", False),
+                upInside,
+                lambda: self.assert_(not(self.__clicked)),
+                lambda: self.compareImage("testButtonDisabled", False),
+                out,
+                lambda: self.button.setDisabled(False),
+                lambda: self.compareImage("testButtonUp", False)
+               ))
 
-                 # Down, move away from button, move over button, up
-                 # ==> click
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 50),
-                 lambda: self.compareImage("testButtonUp", False),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 0),
-                 lambda: self.compareImage("testButtonDown", False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(self.__down and self.__clicked),
-                 reset,
-
-                 # Down, move away from button, up ==> no click
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 50),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 50),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 reset,
-
-                 # Disable: Various up/down combinations have no effect
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 reset,
-                 lambda: b.enable(False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: b.enable(True),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
-                ))
-
-    def testMultitouchButton(self):
-        def onDown(event):
-            self.__down = True
-
-        def onClick(event):
-            self.__clicked = True
-
-        def reset():
-            self.__down = False
-            self.__clicked = False
-
-        self._loadEmpty()
-        b = button.Button(
-                parent = Player.getRootNode(),
-                upNode = avg.ImageNode(href="button_up.png"),
-                downNode = avg.ImageNode(href="button_down.png"),
-                onDown = onDown,
-                onClick = onClick,
-                isMultitouch = True
-                )
-        self.__down = False
-        self.__clicked = False
-        self.start(None,
-                (# Two downs, two ups ==> click after second up.
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 reset,
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
-                 lambda: self.compareImage("testButtonDown", False),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
-                 lambda: self.compareImage("testButtonDown", False),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
-                 lambda: self.compareImage("testButtonUp", False),
-                 lambda: self.assert_(self.__clicked),
-                 reset,
-
-                 # Two downs, one out, in up, out up ==> no click
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 50),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 50),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 reset,
-
-                 # Two downs, one out, out up, in up ==> click
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 50),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 50),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(self.__down and self.__clicked),
-                 reset
-                ))
-
-    def testButtonMissingDown(self):
-        self._loadEmpty()
-        b = button.Button(
-                parent = Player.getRootNode(),
-                upNode = avg.ImageNode(href="button_up.png")
-                )
-        self.start(None,
-                (
-                 lambda: self.compareImage("testButtonUp", False),
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.compareImage("testButtonUp", False)
-                ))
+    def testCheckbox(self):
+        def createCheckbox():
+            self.checkbox = button.Checkbox(Player.getElementByID("button"))
+        
+        def down():
+            self.__sendEvent(avg.CURSORDOWN, 0, 0)
+        
+        def up():
+            self.__sendEvent(avg.CURSORUP, 0, 0)
+        
+        def out():
+            self.__sendEvent(avg.CURSORMOTION, 0, 50)
+        
+        button.init(avg)
+        self.start("ButtonTest.avg",
+                (createCheckbox,
+                lambda: self.compareImage("testCheckboxUp", False),
+                down,
+                lambda: self.compareImage("testCheckboxDown", False),
+                up,
+                lambda: self.assert_(self.checkbox.getState() == True),
+                lambda: self.compareImage("testCheckboxClickedOver", False),
+                out,
+                lambda: self.compareImage("testCheckboxClickedOut", False),
+                down,
+                lambda: self.compareImage("testCheckboxClickedDown", False),
+                up,
+                lambda: self.compareImage("testCheckboxOver", False)
+               ))
 
     def testTextArea(self):
         def setup():
@@ -544,8 +499,8 @@ class PythonTestCase(AVGTestCase):
            self.ctx1.clear()
 
        def clickForFocus():
-           self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
-           self.__sendMouseEvent(avg.CURSORUP, 20, 70)
+           self.__sendEvent(avg.CURSORDOWN, 20, 70)
+           self.__sendEvent(avg.CURSORUP, 20, 70)
 
        Player.loadString("""
        <avg width="160" height="120">
@@ -572,15 +527,9 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.compareImage("testFocusContext5", True),
               ))
 
-    def __sendMouseEvent(self, type, x, y):
+    def __sendEvent(self, type, x, y):
         Helper = Player.getTestHelper()
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
-
-    def __sendTouchEvent(self, id, type, x, y):
-        Helper = Player.getTestHelper()
-        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), avg.Point2D(0, 0), 
-                avg.Point2D(0,0))
-        
 
 
 def pythonTestSuite (tests):
@@ -595,8 +544,7 @@ def pythonTestSuite (tests):
         "testStateAnim",
         "testDraggable",
         "testButton",
-        "testMultitouchButton",
-        "testButtonMissingDown",
+        "testCheckbox",
         "testTextArea",
         "testFocusContext",
         )
