@@ -294,7 +294,7 @@ void export_raster()
                 "getCurTime()\n"
                 "Returns seconds of playback time since video start.")
         .def("seekToTime", &VideoNode::seekToTime,
-                "seekToTime(secs)\n"
+                "seekToTime(millisecs)\n"
                 "Moves the playback cursor to the time given.")
         .def("hasAudio", &VideoNode::hasAudio,
                 "hasAudio() -> bool\n"
