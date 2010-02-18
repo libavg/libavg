@@ -76,7 +76,7 @@ class PythonTestCase(AVGTestCase):
                  None,
                  None,
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__anim.isDone),
+                 lambda: self.assert_(self.__anim.isDone()),
                  lambda: self.compareImage(imgBaseName+"2", False),
                  lambda: self.assert_(Player.getElementByID("test").x == 100),
                  startAnim,
@@ -84,7 +84,7 @@ class PythonTestCase(AVGTestCase):
                  abortAnim,
                  lambda: self.assert_(anim.getNumRunningAnims() == 0),
                  lambda: self.compareImage(imgBaseName+"3", False),
-                 lambda: self.assert_(self.__anim.isDone),
+                 lambda: self.assert_(self.__anim.isDone()),
                  None,
                  lambda: self.assert_(not(self.__onStopCalled)),
                  startAnim,
@@ -120,7 +120,7 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testLinearAnimZeroDuration1", False),
                  lambda: self.assert_(anim.getNumRunningAnims() == 0),
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__anim.isDone)
+                 lambda: self.assert_(self.__anim.isDone())
                 ))
         self.__anim = None
 
