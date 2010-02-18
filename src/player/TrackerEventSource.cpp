@@ -80,8 +80,11 @@ namespace avg {
         }
 
         IntRect ROI = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
-        if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
-            AVG_TRACE(Logger::ERROR, "Impossible tracker configuration: Region of interest is " 
+        if (ROI.tl.x < 0 || ROI.tl.y < 0 || 
+                ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) 
+        {
+            AVG_TRACE(Logger::ERROR, 
+                    "Impossible tracker configuration: Region of interest is " 
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
             exit(5);
         }
