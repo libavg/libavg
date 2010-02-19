@@ -105,8 +105,6 @@ void VideoNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     long long CurTime = Player::get()->getFrameTime(); 
     if (m_VideoState != Unloaded) {
         startDecoding();
-        m_StartTime = CurTime;
-        m_PauseTime = 0;
     }
     if (m_VideoState == Paused) {
         m_PauseStartTime = CurTime;
@@ -331,8 +329,6 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
         long long CurTime = Player::get()->getFrameTime(); 
         if (m_VideoState == Unloaded) {
             startDecoding();
-            m_StartTime = CurTime;
-            m_PauseTime = 0;
         }
         if (NewVideoState == Paused) {
             m_PauseStartTime = CurTime;
@@ -366,6 +362,8 @@ void VideoNode::open()
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
                 string("Video: Opening "+m_Filename+" failed. No video stream found."));
     }
+    m_StartTime = Player::get()->getFrameTime();
+    m_PauseTime = 0;
 
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;

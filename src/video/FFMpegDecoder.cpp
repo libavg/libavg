@@ -417,13 +417,6 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
 
 void FFMpegDecoder::seek(long long DestTime) 
 {
-    assert(m_State == DECODING);
-/* XXX: Causes audio hangs.
-    if (DestTime == 0 && m_LastVideoFrameTime == -(long long)(1000.0/m_FPS)) {
-        // Hack to improve performance when looping videos
-        return;
-    }
-*/
     if (m_bFirstPacket && m_pVStream) {
         AVFrame Frame;
         long long FrameTime;
@@ -451,7 +444,7 @@ IntPoint FFMpegDecoder::getSize() const
 
 int FFMpegDecoder::getCurFrame() const
 {
-    assert(m_State == DECODING);
+    assert(m_State != CLOSED);
     return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0+0.5);
 }
 
@@ -462,7 +455,7 @@ int FFMpegDecoder::getNumFramesQueued() const
 
 long long FFMpegDecoder::getCurTime(StreamSelect Stream) const
 {
-    assert(m_State == DECODING);
+    assert(m_State != CLOSED);
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:

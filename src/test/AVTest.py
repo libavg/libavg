@@ -258,8 +258,11 @@ class AVTestCase(AVGTestCase):
             else:
                 videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, 
                         href="../video/testfiles/mjpeg-48x48.avi", threaded=False)
+
+            videoNode.play()
+            seek(26)
             self.start(None,
-                    (lambda: videoNode.play(),
+                    (lambda: self.compareImage("testVideoSeek0", False),
                      lambda: seek(100),
                      lambda: self.compareImage("testVideoSeek1", False),
                      lambda: videoNode.pause(),
