@@ -10,7 +10,7 @@ player.loadString("""
 """)
 mesh = player.createNode("mesh", {"texhref":"rgb24-64x64.png",
         "vertexcoords":((0,0), (64,0), (0,64), (64, 64), (32, 32)),
-        "texcoords":((0,0), (1,0), (0,1), (1,1), (0.3,0.5)),
+        "texcoords":((0,0), (1,0), (0,1), (1,1), (0.5,0.5)),
         "triangles":((0,1,4), (1,3,4), (3,2,4), (2,0,4))
     })
 player.getRootNode().appendChild(mesh)
