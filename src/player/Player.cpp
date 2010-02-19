@@ -978,6 +978,10 @@ void Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_PARSE, 
                     "Root node of an avg tree needs to be an <avg> node."));
         }
+        if (m_pRootNode->getWidth() == 0 || m_pRootNode->getHeight() == 0) {
+            throw (Exception(AVG_ERR_OUT_OF_RANGE,
+                    "<avg> node width and height attributes are mandatory."));
+        }
         registerNode(m_pRootNode);
         m_DP.m_Height = int(m_pRootNode->getHeight());
         m_DP.m_Width = int(m_pRootNode->getWidth());
