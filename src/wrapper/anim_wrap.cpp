@@ -182,13 +182,12 @@ void export_anim()
  
     class_<SimpleAnim, boost::shared_ptr<SimpleAnim>, bases<AttrAnim>, 
             boost::noncopyable>("SimpleAnim",
-            "Base class for animations that change libavg node attributes by\n"
-            "interpolating over a set amount of time. Constructing an animation\n"
-            "object starts the animation. If abort() isn't needed, there is no need\n"
-            "to hold on to the object - it will exist exactly as long as the animation\n"
-            "lasts and then disappear.\n\n"
-            "The animation framework makes sure that only one animation per attribute\n"
-            "of a node runs at any given time. If a second one is started, the first\n"
+            "Base class for animations that change libavg node attributes by"
+            "interpolating over a set amount of time. If abort() isn't needed,"
+            "there is no need to hold on to the object - it will exist exactly as long"
+            "as the animation lasts and then disappear.\n\n"
+            "The animation framework makes sure that only one animation per attribute"
+            "of a node runs at any given time. If a second one is started, the first"
             "one is aborted.",
             no_init)
         ;
