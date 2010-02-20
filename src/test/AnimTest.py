@@ -332,6 +332,12 @@ class AnimTestCase(AVGTestCase):
         def animStopped():
             self.__endCalled = True
 
+        def startFireForgetAnim():
+            avg.ParallelAnim(
+                    [ avg.LinearAnim(self.nodes[0], "x", 200, 0, 60),
+                      avg.LinearAnim(self.nodes[1], "x", 200, 0, 120)
+                    ]).start()
+
         def startAnim():
             self.anim = avg.ParallelAnim(
                     [ avg.LinearAnim(self.nodes[0], "x", 200, 0, 60),
@@ -363,9 +369,11 @@ class AnimTestCase(AVGTestCase):
             self.nodes.append(node)
         Player.setFakeFPS(10)
         self.__endCalled = False
-        #TODO: test abort, max lifetime
         self.start(None,
-                (startAnim,
+                (startFireForgetAnim,
+                 lambda: self.assert_(avg.getNumRunningAnims() == 2),
+                 None,
+                 startAnim,
                  lambda: self.assert_(avg.getNumRunningAnims() == 3),
                  lambda: self.compareImage("testParallelAnimC1", False),
                  lambda: self.assert_(self.anim.isRunning()),
@@ -385,9 +393,7 @@ class AnimTestCase(AVGTestCase):
                  None,
                  lambda: self.assert_(self.__endCalled),
                  lambda: self.assert_(avg.getNumRunningAnims() == 0),
-                 startAnim,
-                 deleteAnim,
-                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
+                 startAnim
                 ))
         self.nodes = []
 

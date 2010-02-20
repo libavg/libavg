@@ -23,6 +23,7 @@
 
 #include "../player/Player.h"
 
+using namespace boost;
 using namespace boost::python;
 using namespace std;
 
@@ -42,7 +43,9 @@ ParallelAnim::ParallelAnim(const vector<AnimPtr>& anims,
 
 ParallelAnim::~ParallelAnim()
 {
-    abort();
+    if (Player::exists()) {
+        abort();
+    }
 }
 
 AnimPtr ParallelAnim::create(const vector<AnimPtr>& anims,
@@ -63,6 +66,7 @@ void ParallelAnim::start(bool bKeepAttr)
         if ((*it)->isRunning()) {
             m_RunningAnims.push_back(*it);
         }
+        m_This = dynamic_pointer_cast<ParallelAnim>(shared_from_this());
     }
 }
 
@@ -75,6 +79,7 @@ void ParallelAnim::abort()
         }
         m_RunningAnims.clear();
         setStopped();
+        m_This = ParallelAnimPtr();
     }
 }
     
@@ -92,6 +97,7 @@ bool ParallelAnim::step()
     }
     if (m_RunningAnims.empty()) {
         setStopped();
+        m_This = ParallelAnimPtr();
         return true;
     }
     if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {

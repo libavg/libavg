@@ -37,11 +37,13 @@ Anim::Anim(const object& startCallback, const object& stopCallback)
       m_bIsRoot(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    Player::get()->registerPlaybackEndListener(this);
 }
 
 Anim::~Anim()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+    Player::get()->unregisterPlaybackEndListener(this);
 }
 
 void Anim::setStartCallback(const object& startCallback)
@@ -89,6 +91,13 @@ void Anim::onPreRender()
     step();
 }
     
+void Anim::onPlaybackEnd()
+{
+    if (m_bRunning) {
+        abort();
+    }
+}
+
 void Anim::setStopped()
 {
     if (m_bIsRoot) {

@@ -27,6 +27,7 @@
 #include "../player/WrapPython.h" 
 
 #include "../base/IPreRenderListener.h"
+#include "../base/IPlaybackEndListener.h"
 
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
@@ -43,7 +44,8 @@ class GroupAnim;
 typedef boost::shared_ptr<class Anim> AnimPtr;
 typedef boost::weak_ptr<class Anim> AnimWeakPtr;
 
-class AVG_API Anim: public boost::enable_shared_from_this<Anim>, IPreRenderListener
+class AVG_API Anim: public boost::enable_shared_from_this<Anim>, IPreRenderListener,
+        IPlaybackEndListener
 {
 public:
     Anim(const boost::python::object& startCallback, 
@@ -58,6 +60,7 @@ public:
     void setHasParent();
     
     virtual void onPreRender();
+    virtual void onPlaybackEnd();
     virtual bool step() = 0;
 
 protected:
