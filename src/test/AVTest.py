@@ -143,6 +143,17 @@ class AVTestCase(AVGTestCase):
             for isThreaded in [False, True]:
                 testVideoFile(filename, isThreaded)
 
+    def testPlayBeforeConnect(self):
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg")
+        node.play()
+        self._loadEmpty()
+        Player.getRootNode().insertChild(node, 0)
+        Player.setFakeFPS(25)
+        self.start(None,
+                (lambda: self.assert_(node.size == (48, 48)),
+                 lambda: self.compareImage("testPlayBeforeConnect", False),
+                )) 
+
     def testVideoState(self):
         self._loadEmpty()
         node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
@@ -433,6 +444,7 @@ def AVTestSuite(tests):
             "testSoundEOF",
             "testVideoInfo",
             "testVideoFiles",
+            "testPlayBeforeConnect",
             "testVideoState",
             "testVideoActive",
             "testVideoHRef",

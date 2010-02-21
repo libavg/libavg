@@ -146,6 +146,8 @@ Player::Player()
 #endif
 
     s_pPlayer = this;
+
+    m_CurDirName = getCWD();
 }
 
 void deletePlayer()
@@ -948,10 +950,6 @@ void Player::internalLoad(const string& sAVG)
         }
         assert (!m_pRootNode);
         m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
-
-        char szBuf[1024];
-        char * pBuf = getcwd(szBuf, 1024);
-        m_CurDirName = string(pBuf)+"/";
         
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue =0;
@@ -1406,6 +1404,8 @@ void Player::cleanup()
     m_MouseState = MouseState();
     m_FrameTime = 0;
     m_bIsPlaying = false;
+
+    m_CurDirName = getCWD();
 }
 
 int Player::addTimeout(Timeout* pTimeout)

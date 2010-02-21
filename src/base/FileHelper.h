@@ -29,6 +29,8 @@ namespace avg {
     
 std::string getPath(const std::string& Filename);
 std::string getFilenamePart(const std::string& Filename);
+std::string getCWD();
+
 bool isAbsPath(const std::string& path);
 
 bool fileExists(const std::string& FileName);
@@ -38,6 +40,7 @@ void readWholeFile(const std::string& sFilename, std::string& sContents);
 void writeWholeFile(const std::string& sFilename, const std::string& sContent);
 
 void copyFile(const std::string& sSourceFile, const std::string& sDestFile);
+
 
 #ifdef WIN32
 #define unlink _unlink

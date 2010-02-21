@@ -81,6 +81,14 @@ string getFilenamePart(const string& Filename)
     return BaseName;
 }
 
+std::string getCWD()
+{
+
+    char szBuf[1024];
+    char * pBuf = getcwd(szBuf, 1024);
+    return string(pBuf)+"/";
+}
+
 bool isAbsPath(const std::string& path)
 {
 #ifdef _WIN32
