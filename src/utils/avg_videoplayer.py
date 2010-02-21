@@ -25,19 +25,7 @@ import sys
 from libavg import avg
 import time
 
-def resize():
-    node = Player.getElementByID("video")
-    sizeFactor = 1280.0/node.width
-    node.width = 1280
-    node.height *= sizeFactor
-
-def dumpInfo():
-    # Should display more info.
-    node = Player.getElementByID("video")
-    print "Audio track: ", node.hasAudio()
-
 def onFrame():
-    node = Player.getElementByID("video")
     curFrame = node.getCurFrame()
     numFrames = node.getNumFrames()
     Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
@@ -56,30 +44,25 @@ def onKey(event):
     elif event.keystring == "down":
         node.volume -= 0.1
         print "Volume: ", node.volume
-    else:
-        print event.keystring
 
 Player = avg.Player.get()
 
+if len(sys.argv) ==1:
+    print "Usage: videoplayer.py <filename>"
+    sys.exit(1)
+
+node = avg.VideoNode(href=sys.argv[1])
+node.play()
 Player.loadString("""
 <?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="720" onkeyup="onKey">
-  <video id="video" x="0" y="0" threaded="true"/>
+<avg size="%(size)s" onkeyup="onKey">
   <words id="curframe" x="10" y="10" font="arial" fontsize="10"/> 
   <words id="curtime" x="10" y="22" font="arial" fontsize="10"/> 
   <words id="framesqueued" x="10" y="34" font="arial" fontsize="10"/> 
 </avg>
-""")
-node = Player.getElementByID("video")
-if len(sys.argv) ==1:
-    print "Usage: videoplayer.py <filename>"
-    sys.exit(1)
-else:
-    node.href=sys.argv[1]
-node.play()
-Player.setTimeout(10, resize)
-Player.setTimeout(10, dumpInfo)
+""" % {'size': str(node.getMediaSize())})
+Player.getRootNode().insertChild(node, 0)
+
 Player.setOnFrameHandler(onFrame)
 Player.setVBlankFramerate(1)
 Player.play()
