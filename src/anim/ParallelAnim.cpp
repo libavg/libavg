@@ -79,7 +79,9 @@ void ParallelAnim::abort()
         }
         m_RunningAnims.clear();
         setStopped();
+        ParallelAnimPtr tempThis = m_This;
         m_This = ParallelAnimPtr();
+        tempThis = ParallelAnimPtr();
     }
 }
     
@@ -97,7 +99,9 @@ bool ParallelAnim::step()
     }
     if (m_RunningAnims.empty()) {
         setStopped();
+        ParallelAnimPtr tempThis = m_This;
         m_This = ParallelAnimPtr();
+        tempThis = ParallelAnimPtr();
         return true;
     }
     if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
