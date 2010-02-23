@@ -25,6 +25,8 @@
 
 #ifndef _WIN32
 #include <libgen.h>
+#else
+#include <direct.h>
 #endif
 #include <stdio.h>
 #include <sys/stat.h>
@@ -85,7 +87,11 @@ std::string getCWD()
 {
 
     char szBuf[1024];
+#ifdef _WIN32
+    char * pBuf = _getcwd(szBuf, 1024);
+#else
     char * pBuf = getcwd(szBuf, 1024);
+#endif
     return string(pBuf)+"/";
 }
 
