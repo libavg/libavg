@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="720" mediadir="/home/uzadow/Videos">
-<!--  <image x="100" y="100"
-      href="rgb24-64x64.png"/>-->
-  <video id="mpeg1" x="0" y="0"  opacity="0.8" href="Bbc Planet Earth 01Of11 Pole To Pole 720P Divx6 Ac3.avi"/> 
-  <video id="mpeg2" x="0" y="0"  opacity="0.8" href="Bbc Planet Earth 02Of11 Mountains 720P Divx6 Ac3.avi"/> 
-  <video id="mpeg3" x="0" y="0"  opacity="0.8" href="Bbc Planet Earth 03Of11 Fresh Water 720P Divx6 Ac3.avi"/> 
-</avg>

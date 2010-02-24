@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="640" height="480" onkeyup="keyup">
-    <div id="databuttons" x="20" y="20">
-    </div>
-</avg>
