@@ -20,10 +20,10 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
-
 import unittest
 import sys
+
+from libavg import avg
 
 class CameraTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):

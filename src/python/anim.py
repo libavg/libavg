@@ -24,18 +24,12 @@ framework in the avg module.
 """
 
 import math
+from libavg import avg
 
-avg = None
 g_Player = None
 
 # Map of all active SimpleAnimations: (node, attribute)->SimpleAnimation
 g_ActiveAnimations = {}
-
-try:
-    from . import avg
-except ValueError:
-    pass
-
 
 def getNumRunningAnims():
     return len(g_ActiveAnimations)

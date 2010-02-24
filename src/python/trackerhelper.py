@@ -1,5 +1,5 @@
 import math
-from . import avg, Point2D, RasterNode
+from libavg import avg, Point2D, RasterNode
 
 g_player = avg.Player.get()
 

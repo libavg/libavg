@@ -21,13 +21,9 @@
 # Current versions can be found at www.libavg.de
 #
 
-avg = None
 g_Player = None
 
-try:
-    from . import avg
-except ValueError:
-    pass
+from libavg import avg
 
 
 class Draggable:

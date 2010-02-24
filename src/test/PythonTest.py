@@ -22,25 +22,7 @@
 
 import unittest
 
-import sys, platform
-
-# Import the correct version of libavg. Since it should be possible to
-# run the tests without installing libavg, we add the location of the 
-# uninstalled libavg to the path.
-# TODO: This is a mess. 
-sys.path += ['../wrapper/.libs', '../python']
-if platform.system() == 'Darwin':
-    sys.path += ['../..']     # Location of libavg in a mac installation. 
-
-if platform.system() == 'Windows':
-    from libavg import avg    # Under windows, there is no uninstalled version.
-else:
-    import avg
-
-if platform.system() == 'Windows':
-    from libavg import anim, draggable, button, textarea
-else:
-    import anim, draggable, button, textarea
+from libavg import avg, anim, draggable, button, textarea
 
 from testcase import *
 

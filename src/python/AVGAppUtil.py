@@ -21,8 +21,7 @@
 #
 
 import os
-from libavg import avg
-from . import mathutil
+from libavg import avg, mathutil
 
 g_player = avg.Player.get()
 

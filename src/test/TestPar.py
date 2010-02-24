@@ -23,9 +23,9 @@
 import unittest
 
 import sys
-sys.path.append('/usr/local/lib/python2.3/site-packages/avg')
-import avg
 import time
+
+from libavg import avg
 
 class ParPortTestCase(unittest.TestCase):
     def test(self):

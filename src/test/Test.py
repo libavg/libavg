@@ -20,6 +20,13 @@
 # Current versions can be found at www.libavg.de
 #
 
+'''
+Entry point for libavg unit tests
+On autotools-based systems, tests are performed on a local libavg package.
+This package is created by symlinking avg.so and a package container.
+On windows instead, tests are carried on after distutils takes care of a
+system-wide installation.
+'''
 import unittest
 
 from optparse import OptionParser, OptionValueError
@@ -27,18 +34,20 @@ import sys
 import os
 import platform
 
-# Import the correct version of libavg. Since it should be possible to
-# run the tests without installing libavg, we add the location of the 
-# uninstalled libavg to the path.
-# TODO: This is a mess. 
-sys.path += ['../wrapper/.libs', '../python']
-if platform.system() == 'Darwin':
-    sys.path += ['../..']     # Location of libavg in a mac installation. 
+def setSymlink(src, dest):
+    if not os.path.exists(dest):
+        os.symlink(src, dest)
+    elif not os.path.islink(dest):
+        raise RuntimeError(
+            '%s exists as a file/directory. Please remove it to perform tests' % dest)
+    
+if platform.system() != 'Windows':
+    sys.path += ['..']
+    setSymlink('python', '../libavg')
+    setSymlink('../wrapper/.libs/avg.so', '../libavg/avg.so')
+    setSymlink('../wrapper/__init__.py', '../libavg/__init__.py')
 
-if platform.system() == 'Windows':
-    from libavg import avg    # Under windows, there is no uninstalled version.
-else:    
-    import avg
+from libavg import avg
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)

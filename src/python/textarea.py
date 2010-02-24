@@ -40,7 +40,6 @@ textarea module provides two classes:
 
 """
 
-avg = None
 g_Player = None
 g_FocusContext = None
 g_LastKeyEvent = None
@@ -71,14 +70,8 @@ DEFAULT_BLUR_OPACITY = 0.3
 import time
 import platform
 
-try:
-    from . import avg, Point2D
-except ValueError:
-    # We're running unit tests
-    if platform.system() == 'Windows':
-        from libavg import Point2D
-    else:
-        from avg import Point2D
+from libavg import avg
+from avg import Point2D
 
 
 class FocusContext:

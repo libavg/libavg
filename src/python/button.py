@@ -18,13 +18,8 @@
 # Current versions can be found at www.libavg.de
 #
 
-avg = None
+from libavg import avg
 g_Player = None
-
-try:
-    from . import avg
-except ValueError:
-    pass
 
 class Button:
     def __init__(self, node, clickCallback, id=None):

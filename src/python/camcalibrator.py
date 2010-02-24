@@ -22,10 +22,10 @@
 
 
 import os
-from . import avg, Point2D
-from .trackerhelper import TrackerImageFlipper
-from .AVGApp import AVGApp
-from .AVGAppUtil import getMediaDir
+from libavg import avg, Point2D
+from libavg.trackerhelper import TrackerImageFlipper
+from libavg.AVGApp import AVGApp
+from libavg.AVGAppUtil import getMediaDir
 from collections import deque
 
 datadir = getMediaDir(__file__, 'data')

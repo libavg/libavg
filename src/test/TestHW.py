@@ -21,9 +21,9 @@
 #
 
 import unittest
-import sys, time, os
+import time
 
-import avg
+from libavg import avg
 
 class ParPortTestCase(unittest.TestCase):
     def test(self):
