@@ -21,9 +21,12 @@
 
 #include "Backtrace.h"
 
+#ifndef _WIN32
 #include <execinfo.h>
-#include <iostream>
 #include <cxxabi.h>
+#endif
+
+#include <iostream>
 
 using namespace std;
 
