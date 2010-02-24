@@ -34,6 +34,7 @@
 #include "BicubicSpline.h"
 #include "BezierCurve.h"
 #include "Signal.h"
+#include "Backtrace.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -687,6 +688,21 @@ public:
     }
 };
 
+class BacktraceTest: public Test {
+public:
+    BacktraceTest()
+        : Test("BacktraceTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        vector<string> sFuncs;
+        getBacktrace(sFuncs);
+        TEST(sFuncs[0].find("runTests") != string::npos);
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -703,6 +719,7 @@ public:
         addTest(TestPtr(new SplineTest));
         addTest(TestPtr(new BezierCurveTest));
         addTest(TestPtr(new SignalTest));
+        addTest(TestPtr(new BacktraceTest));
     }
 };
 

@@ -20,9 +20,11 @@
 //
 
 #include "Exception.h"
+#include "Backtrace.h"
 #include "Logger.h"
 
 #include <cstdlib>
+#include <sstream>
 
 using namespace std;
 
@@ -62,6 +64,15 @@ void fatalError(const std::string& sMsg)
     exit(-1);
 }
 
+void avgAssert(bool b, char * pszFile, int line)
+{
+    if (!b) {
+        stringstream ss;
+        ss << "Assertion failed in " << pszFile << ": " << line;
+        dumpBacktrace();
+        throw(Exception(AVG_ERR_ASSERT_FAILED, ss.str()));
+    }
+}
 
 }
 

@@ -55,6 +55,7 @@
 #define AVG_ERR_CAMERA_FATAL 29
 #define AVG_ERR_CAMERA_NONFATAL 30
 #define AVG_ERR_DEPRECATED 31
+#define AVG_ERR_ASSERT_FAILED 32
 
 namespace avg {
  
@@ -73,6 +74,10 @@ class AVG_API Exception
 };
 
 void fatalError(const std::string& sMsg);
+
+void avgAssert(bool b, char * pszFile, int line);
+
+#define AVG_ASSERT(b) avgAssert(b, __FILE__, __LINE__);
 
 }
 
