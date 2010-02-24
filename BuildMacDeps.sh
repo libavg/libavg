@@ -76,7 +76,8 @@ buildfontconfig()
 buildboost()
 {
     cd boost_1_41_0
-    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread 
+    # Filesystem and system libraries needed only for ColladaDOM.
+    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,filesystem,system 
     ./bjam clean
     ./bjam install
     cd ..
