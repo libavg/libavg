@@ -130,7 +130,7 @@ class AVTestCase(AVGTestCase):
                 testVideoFile(filename, isThreaded)
 
     def testPlayBeforeConnect(self):
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg")
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False)
         node.play()
         self._loadEmpty()
         Player.getRootNode().insertChild(node, 0)
