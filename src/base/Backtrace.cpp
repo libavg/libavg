@@ -26,6 +26,7 @@
 #include <cxxabi.h>
 #endif
 
+#include <stdlib.h>
 #include <iostream>
 
 using namespace std;
