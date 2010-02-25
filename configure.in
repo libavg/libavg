@@ -127,4 +127,5 @@ AC_OUTPUT(Makefile src/Makefile src/test/Makefile src/test/plugin/Makefile
     src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/wrapper/Makefile 
     src/player/Makefile src/parport/Makefile src/graphics/Makefile src/python/Makefile
     src/imaging/Makefile src/video/Makefile src/audio/Makefile src/utils/Makefile 
-    src/anim/Makefile src/python/data/Makefile src/samples/Makefile)
+    src/anim/Makefile src/python/data/Makefile src/samples/Makefile 
+    src/python/ui/Makefile)
