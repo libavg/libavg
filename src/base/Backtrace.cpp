@@ -46,6 +46,25 @@ void dumpBacktrace()
     }
 }
 
+string funcNameFromLine(const string& sLine)
+{
+    try {
+#ifdef __APPLE__
+        string::size_type addressPos = sLine.find("0x");
+        string::size_type namePos = sLine.find(" ", addressPos);
+        namePos++;
+        string::size_type nameEndPos = sLine.find(" ", namePos);
+#else
+        string::size_type namePos = sLine.find("(");
+        namePos++;
+        string::size_type nameEndPos = sLine.find_first_of(")+", namePos);
+#endif
+        return sLine.substr(namePos, nameEndPos-namePos);
+    } catch (exception& e) {
+        return sLine;
+    }
+}
+
 void getBacktrace(std::vector<std::string>& sFuncs)
 {
 #ifndef _WIN32
@@ -54,14 +73,10 @@ void getBacktrace(std::vector<std::string>& sFuncs)
     char** ppszLines = backtrace_symbols(callstack, numFrames);
     for (int i = 1; i < numFrames; ++i) {
         string sLine = ppszLines[i];
-        string::size_type addressPos = sLine.find("0x");
-        string::size_type namePos = sLine.find(" ", addressPos);
-        namePos++;
-        string::size_type nameEndPos = sLine.find(" ", namePos);
-        string sFuncName = sLine.substr(namePos, nameEndPos-namePos);
+        string sFuncName = funcNameFromLine(sLine);
         int result;
-        char * pszDemangledFuncName = abi::__cxa_demangle(sFuncName.c_str(),
-                0, 0, &result);
+        char * pszDemangledFuncName = abi::__cxa_demangle(sFuncName.c_str(), 0, 0,
+                &result);
         if (!result) {
             sFuncName = pszDemangledFuncName;
             free(pszDemangledFuncName);
