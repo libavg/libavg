@@ -699,7 +699,9 @@ public:
     {
         vector<string> sFuncs;
         getBacktrace(sFuncs);
+#ifndef _WIN32
         TEST(sFuncs[0].find("runTests") != string::npos);
+#endif
     }
 };
 
