@@ -19,7 +19,7 @@
 #
 
 """
-Provides a framework for time-based animations. Deprecated - there is a better
+Deprecated framework for time-based animations - there is a better
 framework in the avg module.
 """
 
@@ -50,6 +50,7 @@ def deprecationWarning():
 
 class SimpleAnim:
     """
+    Deprecated.
     Base class for animations that change libavg node attributes by interpolating
     over a set amount of time. Constructing an animation object starts the
     animation. If abort() isn't needed, there is no need to hold on to the object -
@@ -120,6 +121,7 @@ class SimpleAnim:
 
 class LinearAnim(SimpleAnim):
     """
+    Deprecated.
     Class that animates an attribute of a libavg node by interpolating linearly
     between start and end values.
     """
@@ -218,6 +220,7 @@ class EaseInOutAnim(SimpleAnim):
 
 class SplineAnim(SimpleAnim):
     """
+    Deprecated.
     Class that animates an attribute of a libavg node by interpolating 
     between start and end values using a cubic spline.
     """
@@ -272,6 +275,7 @@ class SplineAnim(SimpleAnim):
 
 def fadeOut(node, duration, onStop = None):
     """
+    Deprecated.
     Fades the opacity of a node to zero.
     @param node: The node to fade.
     @param duration: Length of the fade in milliseconds.
@@ -282,6 +286,7 @@ def fadeOut(node, duration, onStop = None):
 
 def fadeIn(node, duration, max=1.0, onStop = None):
     """
+    Deprecated.
     Fades the opacity of a node.
     @param node: The node to fade.
     @param duration: Length of the fade in milliseconds.
@@ -294,6 +299,7 @@ def fadeIn(node, duration, max=1.0, onStop = None):
 
 class ContinuousAnim(SimpleAnim):
     """
+    Deprecated.
     Class that animates an attribute of a libavg node continuously and
     linearly. The animation will not stop until the abort() method is called.
     A possible use case is the continuous rotation of an object.
