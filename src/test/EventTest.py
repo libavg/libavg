@@ -161,28 +161,6 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.keyUpCalled)
                 ))
 
-    def testEvents(self):
-        def onTiltedMouseDown(Event):
-            self.tiltedMouseDownCalled = True
-        
-        def neverCalled(Event):
-            self.neverCalledCalled = True
-
-        Player.loadFile("events.avg")
-        
-        self.tiltedMouseDownCalled=False
-        Player.getElementByID("tilted").setEventHandler(
-                avg.CURSORDOWN, avg.MOUSE, onTiltedMouseDown)
-
-        self.start(None, 
-                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        0, 64, 1),
-                 lambda: self.assert_(not(self.tiltedMouseDownCalled)),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        0, 80, 1),
-                 lambda: self.assert_(self.tiltedMouseDownCalled),
-                ))
-
     def testGlobalEvents(self):
         global mainMouseUpCalled
         global mainMouseDownCalled
@@ -243,6 +221,23 @@ class EventTestCase(AVGTestCase):
                         12, 12, 1),
                  lambda: handlerTester1.assertState(
                         down=False, up=True, over=False, out=False, move=False)
+                ))
+
+    def testTilted(self):
+        self._loadEmpty()
+        root = Player.getRootNode()
+        img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", angle=0.785, parent=root)
+        handlerTester = NodeHandlerTester(self, img)
+        
+        self.start(None, 
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        32, 32, 1),
+                 lambda: handlerTester.assertState(
+                        down=True, up=False, over=True, out=False, move=False),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        0, 0, 1),
+                 lambda: handlerTester.assertState(
+                        down=False, up=False, over=False, out=True, move=False),
                 ))
 
     def testDivEvents(self):
@@ -534,9 +529,9 @@ class EventTestCase(AVGTestCase):
 def eventTestSuite(tests):
     availableTests = (
             "testKeyEvents",
-            "testEvents",
             "testGlobalEvents",
             "testSimpleEvents",
+            "testTilted",
             "testDivEvents",
             "testObscuringEvents",
             "testSensitive",
