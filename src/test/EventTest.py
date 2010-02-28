@@ -130,6 +130,26 @@ class EventTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
 
+    def testKeyEvents(self):
+        def onKeyDown(Event):
+            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
+                self.keyDownCalled = True
+        
+        def onKeyUp(Event):
+            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
+                self.keyUpCalled = True
+        
+        self._loadEmpty()
+        Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
+        Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
+        self.start(None, 
+                (lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 
+                        avg.KEYMOD_NONE),
+                 lambda: self.assert_(self.keyDownCalled),
+                 lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, avg.KEYMOD_NONE),
+                 lambda: self.assert_(self.keyUpCalled)
+                ))
+
     def testEvents(self):
         def deactivateDiv():
             Player.getElementByID("div1").active = False
@@ -350,26 +370,6 @@ class EventTestCase(AVGTestCase):
                     ))
             self.img = None
 
-    def testKeyEvents(self):
-        def onKeyDown(Event):
-            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
-                self.keyDownCalled = True
-        
-        def onKeyUp(Event):
-            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
-                self.keyUpCalled = True
-        
-        self._loadEmpty()
-        Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
-        Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
-        self.start(None, 
-                (lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 
-                        avg.KEYMOD_NONE),
-                 lambda: self.assert_(self.keyDownCalled),
-                 lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, avg.KEYMOD_NONE),
-                 lambda: self.assert_(self.keyUpCalled)
-                ))
-
     def testEventCapture(self):
         def captureEvent():
             global captureMouseDownCalled
@@ -537,13 +537,13 @@ class EventTestCase(AVGTestCase):
 
 def eventTestSuite(tests):
     availableTests = (
+            "testKeyEvents",
             "testEvents",
             "testGlobalEvents",
             "testSimpleEvents",
             "testDivEvents",
             "testObscuringEvents",
             "testSensitive",
-            "testKeyEvents",
             "testEventCapture",
             "testMouseOver",
             "testEventErr"
