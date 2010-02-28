@@ -25,6 +25,7 @@
 #include "TouchEvent.h"
 #include "KeyEvent.h"
 
+#include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
 #include <iostream>
@@ -53,6 +54,7 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
         bool rightButtonState,
         int xPosition, int yPosition, int button)
 {
+    checkEventType(eventType);
     MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
             middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button,
             DPoint(0,0)));
@@ -63,6 +65,7 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
         Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
         const DPoint& speed)
 {
+    checkEventType(eventType);
     BlobPtr pBlob(new Blob(Run(int(pos.y), int(pos.x), int(pos.x)+1)));
     pBlob->calcStats();
     // The id is modified to avoid collisions with real touch events.
@@ -95,6 +98,14 @@ std::vector<EventPtr> TestHelper::pollEvents()
     return TempEvents;
 }
 
+void TestHelper::checkEventType(Event::Type eventType)
+{
+    if (eventType == Event::CURSOROVER || eventType == Event::CURSOROUT) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "TestHelper::fakeXxxEvent: Can't send "
+                "CURSOROVER and CURSOROUT events directly. They are generated "
+                "internally.");
+    }
+}
     
 }
     

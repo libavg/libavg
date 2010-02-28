@@ -57,6 +57,8 @@ class AVG_API TestHelper : public IEventSource
         virtual std::vector<EventPtr> pollEvents();
 
     private:
+        void checkEventType(Event::Type eventType);
+
         Player * m_pPlayer;
         std::vector<EventPtr> m_Events;
 };
