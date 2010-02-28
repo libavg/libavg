@@ -384,8 +384,8 @@ class EventTestCase(AVGTestCase):
                  captureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         100, 10, 1),
-#                 lambda: self.assert_(self.mouseDownCalled and 
-#                        self.mainMouseDownCalled),
+                 lambda: self.assert_(self.mouseDownCalled and 
+                        self.mainMouseDownCalled),
                  lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
                         100, 10, 1),
                  noCaptureEvent,
@@ -500,7 +500,7 @@ class EventTestCase(AVGTestCase):
                         70, 70, 1),
                  lambda: self.assert_(
                         self.img2MouseOverCalled and 
-                        not(self.divMouseOverCalled) and 
+                        self.divMouseOverCalled and 
                         not(self.avgMouseOverCalled) and 
                         not(self.img2MouseOutCalled) and 
                         not(self.divMouseOutCalled) and 
@@ -514,7 +514,7 @@ class EventTestCase(AVGTestCase):
                         not(self.divMouseOverCalled) and 
                         not(self.avgMouseOverCalled) and 
                         self.img2MouseOutCalled and 
-                        not(self.divMouseOutCalled) and 
+                        self.divMouseOutCalled and 
                         not(self.img1MouseOverCalled))
                 ))
 

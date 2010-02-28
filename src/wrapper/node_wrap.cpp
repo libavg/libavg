@@ -112,15 +112,15 @@ void export_node()
                 "will not be used after the unlink."))
         .def("setEventCapture", &Node::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
-                "Sets up event capturing so that cursor events are sent to this node\n"
-                "regardless of the cursor position. cursorid is optional; if left out,\n"
-                "the mouse cursor is captured. If not, events from a specific tracker\n"
-                "cursor are captured. If the node doesn't handle the event, it\n"
-                "propagates to its parent normally. This function is useful for the\n"
-                "implementation of user interface elements such as scroll bars. Only one\n"
-                "node can capture a cursor at any one time. Normal operation can\n"
-                "be restored by calling releaseEventCapture().\n"
-                "@param cursorid: The id of the tracker cursor to capture (optional).\n")
+                "Sets up event capturing so that cursor events are sent to this node"
+                "regardless of the cursor position. cursorid is optional; if left out,"
+                "the mouse cursor is captured. If not, events from a specific tracker"
+                "cursor are captured. The event propagates to the capturing node's"
+                "parent normally. This function is useful for the"
+                "implementation of user interface elements such as scroll bars. Only one"
+                "node can capture a cursor at any one time. Normal operation can"
+                "be restored by calling releaseEventCapture()."
+                "@param cursorid: The id of the tracker cursor to capture (optional).")
         .def("setEventCapture", &Node::setEventCapture)
         .def("releaseEventCapture", &Node::releaseMouseEventCapture,
                 "releaseEventCapture(cursorid)\n"

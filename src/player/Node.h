@@ -97,6 +97,7 @@ class AVG_API Node
         void setSensitive(bool bSensitive);
 
         DivNodePtr getParent() const;
+        std::vector<NodeWeakPtr> getParentChain() const;
         void unlink(bool bKill=false);
 
         void setMouseEventCapture();

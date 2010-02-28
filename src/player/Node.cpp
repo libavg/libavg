@@ -205,6 +205,17 @@ DivNodePtr Node::getParent() const
     }
 }
 
+vector<NodeWeakPtr> Node::getParentChain() const
+{
+    vector<NodeWeakPtr> pNodes;
+    NodePtr pCurNode = m_This.lock();
+    while (pCurNode) {
+        pNodes.push_back(pCurNode);
+        pCurNode = pCurNode->getParent();
+    }
+    return pNodes;
+}
+
 void Node::unlink(bool bKill)
 {
     if (m_pParent.expired()) {

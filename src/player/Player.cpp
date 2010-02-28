@@ -1226,9 +1226,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         if (pEventCaptureNode.expired()) {
             m_pEventCaptureNode.erase(cursorID);
         } else {
-            pDestNodes = vector<NodeWeakPtr>();
-            pDestNodes.push_back(pEventCaptureNode);
-            bIsCapturing = true;
+            pDestNodes = pEventCaptureNode.lock()->getParentChain();
         }
     }
     
