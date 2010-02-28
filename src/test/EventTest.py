@@ -77,13 +77,8 @@ class NodeHandlerTester:
     def __init__(self, testCase, node):
         self.__testCase=testCase
         self.reset()
-
-        node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown) 
-        node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp) 
-        node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver) 
-        node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut) 
-        node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMove) 
-        node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown) 
+        self.__node = node
+        self.setHandlers()
 
     def assertState(self, down, up, over, out, move):
         self.__testCase.assert_(down == self.__downCalled)
@@ -101,6 +96,22 @@ class NodeHandlerTester:
         self.__outCalled=False
         self.__moveCalled=False
         self.__touchDownCalled=False
+
+    def setHandlers(self):
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown) 
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp) 
+        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver) 
+        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut) 
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMove) 
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown) 
+
+    def clearHandlers(self):
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, None) 
 
     def __onDown(self, Event):
         self.__testCase.assert_(Event.type == avg.CURSORDOWN)
@@ -151,20 +162,6 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testEvents(self):
-        def deactivateDiv():
-            Player.getElementByID("div1").active = False
-        
-        def disableHandler():
-            self.mouseDown1Called = False
-            Player.getElementByID("img1").setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
-        
-        def onDeactMouseDown(Event):
-            self.deactMouseDownCalled = True
-        
-        def onDeactMouseOver(Event):
-            self.deactMouseOverLate = self.deactMouseDownCalled
-            self.deactMouseOverCalled = True
-        
         def onTiltedMouseDown(Event):
             self.tiltedMouseDownCalled = True
         
@@ -173,32 +170,12 @@ class EventTestCase(AVGTestCase):
 
         Player.loadFile("events.avg")
         
-        self.neverCalledCalled=False
-        hidden = Player.getElementByID("hidden")
-        hidden.setEventHandler(avg.CURSORUP, avg.MOUSE, neverCalled)
-
-        self.deactMouseOverCalled=False
-        self.deactMouseOverLate=False
-        self.deactMouseDownCalled=False
-        deact = Player.getElementByID("deact")
-        deact.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onDeactMouseDown)
-        deact.setEventHandler(avg.CURSOROVER, avg.MOUSE, onDeactMouseOver)
-
         self.tiltedMouseDownCalled=False
         Player.getElementByID("tilted").setEventHandler(
                 avg.CURSORDOWN, avg.MOUSE, onTiltedMouseDown)
 
         self.start(None, 
-                 (# Test if deactivation between mouse click and mouse out works.
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        70, 10, 1),
-                 lambda: self.assert_(self.deactMouseOverCalled 
-                        and not(self.deactMouseOverLate) and not(self.neverCalledCalled)),
-                 disableHandler,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
-                 lambda: self.assert_(not(self.mouseDown1Called)),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 64, 1),
                  lambda: self.assert_(not(self.tiltedMouseDownCalled)),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -369,6 +346,25 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
                     ))
             self.img = None
+
+    def testChangingHandlers(self):
+        self._loadEmpty()
+        root = Player.getRootNode()
+        img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        handlerTester = NodeHandlerTester(self, img)
+        
+        self.start(None, 
+                (lambda: handlerTester.clearHandlers(),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: handlerTester.assertState(
+                        down=False, up=False, over=False, out=False, move=False),
+                 lambda: handlerTester.setHandlers(),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        10, 10, 1),
+                 lambda: handlerTester.assertState(
+                        down=False, up=True, over=False, out=False, move=False),
+                ))
 
     def testEventCapture(self):
         def captureEvent():
@@ -544,6 +540,7 @@ def eventTestSuite(tests):
             "testDivEvents",
             "testObscuringEvents",
             "testSensitive",
+            "testChangingHandlers",
             "testEventCapture",
             "testMouseOver",
             "testEventErr"
