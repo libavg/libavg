@@ -50,11 +50,15 @@ class AVG_API CursorEvent: public Event
         DPoint getLastDownPos() const;
         void setLastDownPos(const IntPoint& pos);
 
+        friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
+
     protected:
         IntPoint m_Position;
         int m_ID;
         IntPoint m_LastDownPos;
 };
+
+bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
 
 }
 

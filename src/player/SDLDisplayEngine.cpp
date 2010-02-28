@@ -825,54 +825,59 @@ const char * getEventTypeName(unsigned char Type)
 vector<EventPtr> SDLDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
-    vector<EventPtr> Events;
+    vector<EventPtr> events;
 
     while(SDL_PollEvent(&sdlEvent)) {
+        EventPtr pNewEvent;
         switch(sdlEvent.type) {
             case SDL_ACTIVEEVENT:
                 if (sdlEvent.active.state & SDL_APPMOUSEFOCUS) {
                     m_bMouseOverApp = sdlEvent.active.gain != 0;
                     if (!sdlEvent.active.gain) {
-                        Events.push_back(EventPtr(
-                                new MouseEvent (Event::CURSORMOTION, false,
+                        pNewEvent = EventPtr(
+                                new MouseEvent(Event::CURSORMOTION, false,
                                         false, false, IntPoint(-1, -1), 
-                                        MouseEvent::NO_BUTTON, DPoint(0,0))));
+                                        MouseEvent::NO_BUTTON, DPoint(0,0)));
                     }
                 }
             case SDL_MOUSEMOTION:
                 if (m_bMouseOverApp) {
-                    Events.push_back
-                            (createMouseEvent(Event::CURSORMOTION, sdlEvent, MouseEvent::NO_BUTTON));
+                    pNewEvent = createMouseEvent(Event::CURSORMOTION, sdlEvent, 
+                            MouseEvent::NO_BUTTON);
+                    CursorEventPtr pNewCursorEvent = 
+                            boost::dynamic_pointer_cast<CursorEvent>(pNewEvent);
+                    if (!events.empty()) {
+                        CursorEventPtr pLastEvent = 
+                                boost::dynamic_pointer_cast<CursorEvent>(events.back());
+                        if (pLastEvent && *pNewCursorEvent == *pLastEvent) {
+                            pNewEvent = EventPtr();
+                        }
+                    }
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                Events.push_back
-                        (createMouseButtonEvent(Event::CURSORDOWN, sdlEvent));
+                pNewEvent = createMouseButtonEvent(Event::CURSORDOWN, sdlEvent);
                 break;
             case SDL_MOUSEBUTTONUP:
-                Events.push_back
-                        (createMouseButtonEvent(Event::CURSORUP, sdlEvent));
+                pNewEvent = createMouseButtonEvent(Event::CURSORUP, sdlEvent);
                 break;
             case SDL_JOYAXISMOTION:
-//                Events.push_back(createAxisEvent(sdlEvent));
+//                pNewEvent = createAxisEvent(sdlEvent));
                 break;
             case SDL_JOYBUTTONDOWN:
-//                Events.push_back(createButtonEvent(Event::BUTTON_DOWN, sdlEvent));
+//                pNewEvent = createButtonEvent(Event::BUTTON_DOWN, sdlEvent));
                 break;
             case SDL_JOYBUTTONUP:
-//                Events.push_back(createButtonEvent(Event::BUTTON_UP, sdlEvent));
+//                pNewEvent = createButtonEvent(Event::BUTTON_UP, sdlEvent));
                 break;
             case SDL_KEYDOWN:
-                Events.push_back(createKeyEvent(Event::KEYDOWN, sdlEvent));
+                pNewEvent = createKeyEvent(Event::KEYDOWN, sdlEvent);
                 break;
             case SDL_KEYUP:
-                Events.push_back(createKeyEvent(Event::KEYUP, sdlEvent));
+                pNewEvent = createKeyEvent(Event::KEYUP, sdlEvent);
                 break;
             case SDL_QUIT:
-                {
-                    EventPtr pEvent(new Event(Event::QUIT, Event::NONE));
-                    Events.push_back(pEvent);
-                }
+                pNewEvent = EventPtr(new Event(Event::QUIT, Event::NONE));
                 break;
             case SDL_VIDEORESIZE:
                 break;
@@ -880,8 +885,11 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 // Ignore unknown events.
                 break;
         }
+        if (pNewEvent) {
+            events.push_back(pNewEvent);
+        }
     }
-    return Events;
+    return events;
 }
 
 EventPtr SDLDisplayEngine::createMouseEvent

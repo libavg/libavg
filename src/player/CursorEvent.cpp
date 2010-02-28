@@ -73,6 +73,10 @@ void CursorEvent::setLastDownPos(const IntPoint& pos)
     m_LastDownPos = pos;
 }
 
+bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
+{
+    return (event1.m_Position == event2.m_Position && event1.m_When == event2.m_When); 
+}
 
 }
 
