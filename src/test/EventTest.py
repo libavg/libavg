@@ -84,10 +84,8 @@ class EventTestCase(AVGTestCase):
             # Make sure we're getting a Point2D as return value.
             self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
         
-        def testInactiveDiv():
+        def deactivateDiv():
             Player.getElementByID("div1").active = False
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                70, 70, 1)
         
         def disableHandler():
             self.mouseDown1Called = False
@@ -208,6 +206,8 @@ class EventTestCase(AVGTestCase):
 
         self.start(None, 
                 (lambda: self.compareImage("testEvents", False),
+                 # Simple mouse events: down, getMouseState(), up.
+                 # events are inside img1 but outside all other nodes.
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: self.assert_(self.mouseDown1Called and self.mouseOver1Called 
@@ -215,15 +215,27 @@ class EventTestCase(AVGTestCase):
                  getMouseState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
                         12, 12, 1),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, False, False, False,
-                        70, 70, 1),
                  lambda: self.assert_(self.mouseUp1Called and mainMouseUpCalled),
+
+                 # Move outside of node: should trigger mouseout.
+                 lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False,
+                        70, 70, 0),
+                 lambda: self.assert_(self.mouseOut1Called),
+
+                 # Simple mouse events: down inside img2, div1
+                 # TODO: up is missing!
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 70, 1),
                  lambda: self.assert_(self.mouseDown2Called and self.divMouseDownCalled
-                        and self.mouseOut1Called and not(self.obscuredMouseDownCalled)),
-                 testInactiveDiv,
+                        and not(self.obscuredMouseDownCalled)),
+
+                 # Same position, but now the div is inactive. Hidden node should receive 
+                 # the event now.
+                 deactivateDiv,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        70, 70, 1),
                  lambda: self.assert_(self.obscuredMouseDownCalled),
+
                  # Test if deactivation between mouse click and mouse out works.
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 10, 1),
