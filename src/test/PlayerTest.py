@@ -275,15 +275,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.timeout2called))
                 ))
 
-    def testEventErr(self):
-        Player.loadFile("errevent.avg")
-        Player.setTimeout(10, Player.stop)
-        try:
-            Player.play()
-        except NameError:
-            print("(Intentional) NameError caught")
-            self.assert_(1)
-
     def testPanoImage(self):
         def changeProperties():
             node = Player.getElementByID("pano")
@@ -565,7 +556,6 @@ def playerTestSuite(bpp, tests):
             "testInvalidImageFilename",
             "testInvalidVideoFilename",
             "testTimeouts",
-            "testEventErr",
             "testPanoImage",
             "testBroken",
             "testMove",

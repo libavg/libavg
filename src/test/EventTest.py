@@ -61,9 +61,6 @@ def mainMouseDown(Event):
     assert (Event.type == avg.CURSORDOWN)
     mainMouseDownCalled = True
 
-def onErrMouseOver(Event):
-    undefinedFunction()
-
 mainCaptureMouseDownCalled = False
 captureMouseDownCalled = False
 
@@ -405,12 +402,25 @@ class EventTestCase(AVGTestCase):
                         not(self.img1MouseOverCalled))
                 ))
 
+    def testEventErr(self):
+        def onErrMouseOver(Event):
+            undefinedFunction()
+
+        Helper = Player.getTestHelper()
+        self._loadEmpty()
+        Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.MOUSE, onErrMouseOver)
+        self.assertException(lambda:
+                self.start(None,
+                        (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
+                                False, False, False, 10, 10, 0),
+                )))
 
 def eventTestSuite(tests):
     availableTests = (
             "testEvents",
             "testEventCapture",
             "testMouseOver",
+            "testEventErr"
             )
     return AVGTestSuite(availableTests, EventTestCase, tests)
 
