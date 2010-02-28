@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="160" height="120"  
     oncursordown="mainMouseDown" oncursorup="mainMouseUp">
   <image id="img1" x="0" y="0" href="rgb24-65x65.png"/>

@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg id="mainavgnode" width="160" height="120">
   <image id="bkgd" x="0" y="0" href="crop_bkgd.png"
        maxtilewidth="32" maxtileheight="32"/>

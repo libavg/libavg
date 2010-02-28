@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg id="mainavgnode" width="160" height="120">
   <image id="bkgd" x="0" y="0" href="crop_bkgd.png"/>
   <div id="nestedavg" x="40" y="30" opacity="1" 

@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="160" height="120">
   <image id="testtiles" x="0" y="0" opacity="1" href="rgb24-64x64.png"
       maxtilewidth="32" maxtileheight="16"/> 
