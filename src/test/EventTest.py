@@ -61,18 +61,6 @@ def mainMouseDown(Event):
     assert (Event.type == avg.CURSORDOWN)
     mainMouseDownCalled = True
 
-# TODO: Get rid of the following globals
-mainCaptureMouseDownCalled = False
-captureMouseDownCalled = False
-
-def onMainCaptureMouseDown(Event):
-    global mainCaptureMouseDownCalled
-    mainCaptureMouseDownCalled = True
-
-def onCaptureMouseDown(Event):
-    global captureMouseDownCalled
-    captureMouseDownCalled = True
-   
 class NodeHandlerTester:
     def __init__(self, testCase, node):
         self.__testCase=testCase
@@ -362,35 +350,51 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testEventCapture(self):
+        def onMainMouseDown(Event):
+            self.mainMouseDownCalled = True
+
+        def onMouseDown(Event):
+            self.mouseDownCalled = True
+   
         def captureEvent():
-            global captureMouseDownCalled
-            captureMouseDownCalled = False
-            mainCaptureMouseDownCalled = False
-            Player.getElementByID("img1").setEventCapture()
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                    100, 10, 1)
-        
+            self.mouseDownCalled = False
+            self.mainMouseDownCalled = False
+            self.img.setEventCapture()
+                    
         def noCaptureEvent():
-            global captureMouseDownCalled
-            captureMouseDownCalled = False
-            mainCaptureMouseDownCalled = False
-            Player.getElementByID("img1").releaseEventCapture()
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                    100, 10, 1)
-        
-        global captureMouseDownCalled
-        global mainCaptureMouseDownCalled
-        self.start("eventcapture.avg",
+            self.mouseDownCalled = False
+            self.mainMouseDownCalled = False
+            self.img.releaseEventCapture()
+       
+        self.mouseDownCalled = False
+        self.mainMouseDownCalled = False
+
+        self._loadEmpty()
+        root = Player.getRootNode()
+        root.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMainMouseDown)
+        self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        self.img.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
+
+        self.start(None,
                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
-                 lambda: self.assert_(captureMouseDownCalled),
+                 lambda: self.assert_(self.mouseDownCalled),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        10, 10, 1),
                  captureEvent,
-                 lambda: self.assert_(captureMouseDownCalled and 
-                        mainCaptureMouseDownCalled),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        100, 10, 1),
+#                 lambda: self.assert_(self.mouseDownCalled and 
+#                        self.mainMouseDownCalled),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        100, 10, 1),
                  noCaptureEvent,
-                 lambda: self.assert_(not(captureMouseDownCalled) and 
-                        mainCaptureMouseDownCalled)
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        100, 10, 1),
+                 lambda: self.assert_(not(self.mouseDownCalled) and 
+                        self.mainMouseDownCalled)
                 ))
+        self.img = None
 
     def testMouseOver(self):
         def onImg2MouseOver(Event):
