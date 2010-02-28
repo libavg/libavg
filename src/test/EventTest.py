@@ -77,13 +77,6 @@ class EventTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName, 24)
 
     def testEvents(self):
-        def getMouseState():
-            Event = Player.getMouseState()
-            self.assert_(Event.pos == avg.Point2D(10,10))
-            self.assert_(Event.lastdownpos == avg.Point2D(10,10))
-            # Make sure we're getting a Point2D as return value.
-            self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
-        
         def deactivateDiv():
             Player.getElementByID("div1").active = False
         
@@ -95,24 +88,9 @@ class EventTestCase(AVGTestCase):
             self.assert_ (Event.type == avg.CURSORMOTION)
             print "onMouseMove1"
         
-        def onMouseUp1(Event):
-            self.assert_ (Event.type == avg.CURSORUP)
-            self.mouseUp1Called = True
-        
         def onMouseDown1(Event):
             self.assert_ (Event.type == avg.CURSORDOWN)
             self.mouseDown1Called = True
-        
-        def onMouseOver1(Event):
-            self.assert_ (Event.type == avg.CURSOROVER)
-            self.mouseOver1Called = True
-        
-        def onMouseOut1(Event):
-            self.assert_ (Event.type == avg.CURSOROUT)
-            self.mouseOut1Called = True
-        
-        def onTouchDown(Event):
-            self.touchDownCalled = True
         
         def onDivMouseDown(Event):
             self.assert_ (Event.type == avg.CURSORDOWN)
@@ -145,25 +123,13 @@ class EventTestCase(AVGTestCase):
             self.neverCalledCalled = True
 
         Helper = Player.getTestHelper()
-        global mainMouseUpCalled
-        global mainMouseDownCalled
         Player.loadFile("events.avg")
         
         self.mouseMove1Called=False
-        self.mouseUp1Called=False
         self.mouseDown1Called=False
-        self.mouseOver1Called=False
-        self.mouseOut1Called=False
-        self.touchDownCalled = False
-        self.keyDownCalled = False
-        self.keyUpCalled = False
         img1 = Player.getElementByID("img1")
         img1.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onMouseMove1) 
-        img1.setEventHandler(avg.CURSORUP, avg.MOUSE, onMouseUp1) 
         img1.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown1) 
-        img1.setEventHandler(avg.CURSOROVER, avg.MOUSE, onMouseOver1) 
-        img1.setEventHandler(avg.CURSOROUT, avg.MOUSE, onMouseOut1) 
-        img1.setEventHandler(avg.CURSORDOWN, avg.TOUCH, onTouchDown) 
 
         self.neverCalledCalled=False
         hidden = Player.getElementByID("hidden")
@@ -195,19 +161,7 @@ class EventTestCase(AVGTestCase):
                 avg.CURSORDOWN, avg.MOUSE, onTiltedMouseDown)
 
         self.start(None, 
-                (lambda: self.compareImage("testEvents", False),
-                 # Simple mouse events: down, getMouseState(), up.
-                 # events are inside img1 but outside all other nodes.
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
-                 lambda: self.assert_(self.mouseDown1Called and self.mouseOver1Called 
-                        and mainMouseDownCalled and not(self.touchDownCalled)),
-                 getMouseState,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
-                        12, 12, 1),
-                 lambda: self.assert_(self.mouseUp1Called and mainMouseUpCalled),
-
-                 # Simple mouse events: down inside img2, div1
+                (# Simple mouse events: down inside img2, div1
                  # TODO: up is missing!
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 70, 1),
@@ -237,6 +191,86 @@ class EventTestCase(AVGTestCase):
                         0, 80, 1),
                  lambda: self.assert_(self.tiltedMouseDownCalled),
                 ))
+
+    def testGlobalEvents(self):
+        global mainMouseUpCalled
+        global mainMouseDownCalled
+
+        def reset():
+            global mainMouseUpCalled
+            global mainMouseDownCalled
+            mainMouseUpCalled = False
+            mainMouseDownCalled = False
+        
+        Helper = Player.getTestHelper()
+        Player.loadString("""
+            <avg width="160" height="120"  
+                    oncursordown="mainMouseDown" oncursorup="mainMouseUp"/>
+        """)
+        self.start(None, 
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(mainMouseDownCalled and not(mainMouseUpCalled)),
+                 reset,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(not(mainMouseDownCalled) and mainMouseUpCalled)
+                ))
+
+    def testSimpleEvents(self):
+        def getMouseState():
+            Event = Player.getMouseState()
+            self.assert_(Event.pos == avg.Point2D(10,10))
+            self.assert_(Event.lastdownpos == avg.Point2D(10,10))
+            # Make sure we're getting a Point2D as return value.
+            self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
+        
+        def onMouseDown1(Event):
+            self.assert_ (Event.type == avg.CURSORDOWN)
+            self.mouseDown1Called = True
+        
+        def onMouseUp1(Event):
+            self.assert_ (Event.type == avg.CURSORUP)
+            self.mouseUp1Called = True
+        
+        def onTouchDown1(Event):
+            self.touchDown1Called = True
+        
+        def onMouseDown2(Event):
+            self.assert_ (Event.type == avg.CURSORDOWN)
+            self.mouseDown2Called = True
+
+        Helper = Player.getTestHelper()
+        self._loadEmpty()
+        
+        self.mouseUp1Called=False
+        self.mouseDown1Called=False
+        self.touchDown1Called=False
+        self.mouseDown2Called=False
+        
+        root = Player.getRootNode()
+        img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        img1.setEventHandler(avg.CURSORUP, avg.MOUSE, onMouseUp1) 
+        img1.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown1) 
+        img1.setEventHandler(avg.CURSORDOWN, avg.TOUCH, onTouchDown1) 
+
+        img2 = avg.ImageNode(pos=(64,0), href="rgb24-65x65.png", parent=root)
+        img2.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown2) 
+
+        self.start(None, 
+                (# Simple mouse events: down, getMouseState(), up.
+                 # events are inside img1 but outside img2.
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(self.mouseDown1Called and 
+                        not(self.touchDown1Called) and not(self.mouseDown2Called)),
+                 getMouseState,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        12, 12, 1),
+                 lambda: self.assert_(self.mouseUp1Called)
+                ))
+                
+
 
     def testKeyEvents(self):
         def onKeyDown(Event):
@@ -431,6 +465,8 @@ class EventTestCase(AVGTestCase):
 def eventTestSuite(tests):
     availableTests = (
             "testEvents",
+            "testGlobalEvents",
+            "testSimpleEvents",
             "testKeyEvents",
             "testEventCapture",
             "testMouseOver",
