@@ -122,7 +122,6 @@ class EventTestCase(AVGTestCase):
         def neverCalled(Event):
             self.neverCalledCalled = True
 
-        Helper = Player.getTestHelper()
         Player.loadFile("events.avg")
         
         self.mouseMove1Called=False
@@ -202,7 +201,6 @@ class EventTestCase(AVGTestCase):
             mainMouseUpCalled = False
             mainMouseDownCalled = False
         
-        Helper = Player.getTestHelper()
         Player.loadString("""
             <avg width="160" height="120"  
                     oncursordown="mainMouseDown" oncursorup="mainMouseUp"/>
@@ -240,7 +238,6 @@ class EventTestCase(AVGTestCase):
             self.assert_ (Event.type == avg.CURSORDOWN)
             self.mouseDown2Called = True
 
-        Helper = Player.getTestHelper()
         self._loadEmpty()
         
         self.mouseUp1Called=False
@@ -281,7 +278,6 @@ class EventTestCase(AVGTestCase):
             if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
                 self.keyUpCalled = True
         
-        Helper = Player.getTestHelper()
         self._loadEmpty()
         Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
         Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
@@ -296,7 +292,6 @@ class EventTestCase(AVGTestCase):
     def testEventCapture(self):
         def captureEvent():
             global captureMouseDownCalled
-            Helper = Player.getTestHelper()
             captureMouseDownCalled = False
             mainCaptureMouseDownCalled = False
             Player.getElementByID("img1").setEventCapture()
@@ -305,7 +300,6 @@ class EventTestCase(AVGTestCase):
         
         def noCaptureEvent():
             global captureMouseDownCalled
-            Helper = Player.getTestHelper()
             captureMouseDownCalled = False
             mainCaptureMouseDownCalled = False
             Player.getElementByID("img1").releaseEventCapture()
@@ -314,7 +308,6 @@ class EventTestCase(AVGTestCase):
         
         global captureMouseDownCalled
         global mainCaptureMouseDownCalled
-        Helper = Player.getTestHelper()
         self.start("eventcapture.avg",
                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
@@ -453,7 +446,6 @@ class EventTestCase(AVGTestCase):
         def onErrMouseOver(Event):
             undefinedFunction()
 
-        Helper = Player.getTestHelper()
         self._loadEmpty()
         Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.MOUSE, onErrMouseOver)
         self.assertException(lambda:
@@ -475,4 +467,5 @@ def eventTestSuite(tests):
     return AVGTestSuite(availableTests, EventTestCase, tests)
 
 Player = avg.Player.get()
+Helper = Player.getTestHelper()
 
