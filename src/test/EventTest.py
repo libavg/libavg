@@ -141,14 +141,6 @@ class EventTestCase(AVGTestCase):
         def onTiltedMouseDown(Event):
             self.tiltedMouseDownCalled = True
         
-        def onKeyDown(Event):
-            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
-                self.keyDownCalled = True
-        
-        def onKeyUp(Event):
-            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
-                self.keyUpCalled = True
-        
         def neverCalled(Event):
             self.neverCalledCalled = True
 
@@ -172,8 +164,6 @@ class EventTestCase(AVGTestCase):
         img1.setEventHandler(avg.CURSOROVER, avg.MOUSE, onMouseOver1) 
         img1.setEventHandler(avg.CURSOROUT, avg.MOUSE, onMouseOut1) 
         img1.setEventHandler(avg.CURSORDOWN, avg.TOUCH, onTouchDown) 
-        Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
-        Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
 
         self.neverCalledCalled=False
         hidden = Player.getElementByID("hidden")
@@ -251,7 +241,23 @@ class EventTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 80, 1),
                  lambda: self.assert_(self.tiltedMouseDownCalled),
-                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 
+                ))
+
+    def testKeyEvents(self):
+        def onKeyDown(Event):
+            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
+                self.keyDownCalled = True
+        
+        def onKeyUp(Event):
+            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
+                self.keyUpCalled = True
+        
+        Helper = Player.getTestHelper()
+        self._loadEmpty()
+        Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
+        Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
+        self.start(None, 
+                (lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 
                         avg.KEYMOD_NONE),
                  lambda: self.assert_(self.keyDownCalled),
                  lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, avg.KEYMOD_NONE),
@@ -430,6 +436,7 @@ class EventTestCase(AVGTestCase):
 def eventTestSuite(tests):
     availableTests = (
             "testEvents",
+            "testKeyEvents",
             "testEventCapture",
             "testMouseOver",
             "testEventErr"
