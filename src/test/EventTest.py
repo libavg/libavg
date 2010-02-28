@@ -316,33 +316,39 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testSensitive(self):
-        def activateNode(b):
-            self.img.sensitive = b
-        self._loadEmpty()
-        root = Player.getRootNode()
-        self.img = avg.ImageNode(id="img", pos=(0,0), href="rgb24-65x65.png", parent=root)
-        activateNode(False)
-        handlerTester = NodeHandlerTester(self, self.img)
+        # Tests both sensitive and active attributes.
+        def activateNode(useSensitiveAttr, b):
+            if useSensitiveAttr:
+                self.img.sensitive = b
+            else:
+                self.img.active = b
+        for useSensitiveAttr in (True, False):
+            self._loadEmpty()
+            root = Player.getRootNode()
+            self.img = avg.ImageNode(id="img", pos=(0,0), href="rgb24-65x65.png", 
+                    parent=root)
+            handlerTester = NodeHandlerTester(self, self.img)
 
-        self.start(None,
-                (# Node is inactive -> no events.
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
-                 lambda: handlerTester.assertState(
-                        down=False, up=False, over=False, out=False, move=False),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
-                        10, 10, 1),
+            activateNode(useSensitiveAttr, False)
+            self.start(None,
+                    (# Node is inactive -> no events.
+                     lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                            10, 10, 1),
+                     lambda: handlerTester.assertState(
+                            down=False, up=False, over=False, out=False, move=False),
+                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                            10, 10, 1),
 
-                 # Activate the node -> events arrive.
-                 lambda: activateNode(True),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
-                 lambda: handlerTester.assertState(
-                        down=True, up=False, over=True, out=False, move=False),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
-                        10, 10, 1),
-                ))
-        self.img = None
+                     # Activate the node -> events arrive.
+                     lambda: activateNode(useSensitiveAttr, True),
+                     lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                            10, 10, 1),
+                     lambda: handlerTester.assertState(
+                            down=True, up=False, over=True, out=False, move=False),
+                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                            10, 10, 1),
+                    ))
+            self.img = None
 
     def testKeyEvents(self):
         def onKeyDown(Event):
