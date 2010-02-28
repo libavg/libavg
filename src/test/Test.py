@@ -61,6 +61,7 @@ from AVTest import *
 from DynamicsTest import *
 from PythonTest import *
 from AnimTest import *
+from EventTest import *
 
 
 def runConsoleTest():
@@ -131,6 +132,7 @@ else:
             'dynamics': (dynamicsTestSuite, {}),
             'python': (pythonTestSuite, {}),
             'anim': (animTestSuite, {}),
+            'event': (eventTestSuite, {}),
             }
     tests = []
     if len(args): # suite
