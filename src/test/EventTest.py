@@ -207,11 +207,6 @@ class EventTestCase(AVGTestCase):
                         12, 12, 1),
                  lambda: self.assert_(self.mouseUp1Called and mainMouseUpCalled),
 
-                 # Move outside of node: should trigger mouseout.
-                 lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False,
-                        70, 70, 0),
-                 lambda: self.assert_(self.mouseOut1Called),
-
                  # Simple mouse events: down inside img2, div1
                  # TODO: up is missing!
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
