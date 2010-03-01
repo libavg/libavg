@@ -42,7 +42,7 @@ def setSymlink(src, dest):
             '%s exists as a file/directory. Please remove it to perform tests' % dest)
     
 if platform.system() != 'Windows':
-    sys.path += ['..']
+    sys.path.insert(0, '..')
     setSymlink('python', '../libavg')
     setSymlink('../wrapper/.libs/avg.so', '../libavg/avg.so')
     setSymlink('../wrapper/__init__.py', '../libavg/__init__.py')
