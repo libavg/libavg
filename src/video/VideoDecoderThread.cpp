@@ -47,8 +47,7 @@ VideoDecoderThread::~VideoDecoderThread()
 bool VideoDecoderThread::work() 
 {
     if (m_pDecoder->isEOF(SS_VIDEO)) {
-        // replace this with waitForMessage()
-        msleep(10);
+        waitForCommand();
     } else {
         vector<BitmapPtr> pBmps;
         IntPoint Size = m_pDecoder->getSize();

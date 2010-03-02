@@ -49,6 +49,7 @@ public:
     virtual ~WorkerThread();
     void operator()();
 
+    void waitForCommand();
     void stop();
 
 private:
@@ -116,7 +117,20 @@ void WorkerThread<DERIVED_THREAD>::operator()()
                   << e.GetStr());
     }
 }
-    
+
+template<class DERIVED_THREAD>
+void WorkerThread<DERIVED_THREAD>::waitForCommand() 
+{
+    Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(true);
+    Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
+}
+
+template<class DERIVED_THREAD>
+void WorkerThread<DERIVED_THREAD>::stop() 
+{
+    m_bShouldStop = true;
+}
+
 template<class DERIVED_THREAD>
 bool WorkerThread<DERIVED_THREAD>::init()
 {
@@ -141,11 +155,6 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
         }
     }
    
-}
-
-template<class DERIVED_THREAD>
-void WorkerThread<DERIVED_THREAD>::stop() {
-    m_bShouldStop = true;
 }
 
 }

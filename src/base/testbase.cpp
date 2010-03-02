@@ -140,6 +140,7 @@ public:
     bool work()
     {
         (*m_pNumFuncCalls)++;
+        waitForCommand();
         return true;
     }
 
