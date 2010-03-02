@@ -26,8 +26,7 @@
 #include "IVideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
-#include "FrameVideoMsg.h"
-#include "AudioVideoMsg.h"
+#include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
 #include "../audio/AudioParams.h"
@@ -69,11 +68,11 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         
     private:
-        FrameVideoMsgPtr getBmpsForTime(long long timeWanted, 
+        VideoMsgPtr getBmpsForTime(long long timeWanted, 
                 FrameAvailableCode& FrameAvailable);
-        FrameVideoMsgPtr getNextBmps(bool bWait);
+        VideoMsgPtr getNextBmps(bool bWait);
         void waitForSeekDone();
-        void returnFrame(FrameVideoMsgPtr& pFrameMsg);
+        void returnFrame(VideoMsgPtr& pFrameMsg);
 
         DecoderState m_State;
         VideoDecoderPtr m_pSyncDecoder;
@@ -87,7 +86,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         boost::mutex m_AudioMutex;
         AudioDecoderThread::CmdQueuePtr m_pACmdQ;
         VideoMsgQueuePtr m_pAMsgQ;
-        AudioVideoMsgPtr m_pAudioMsg;
+        VideoMsgPtr m_pAudioMsg;
         unsigned char* m_AudioMsgData;
         int m_AudioMsgSize;
 

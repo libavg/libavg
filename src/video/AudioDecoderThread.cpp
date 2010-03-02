@@ -22,9 +22,6 @@
 //
 
 #include "AudioDecoderThread.h"
-#include "AudioVideoMsg.h"
-#include "SeekDoneVideoMsg.h"
-#include "EOFVideoMsg.h"
 
 #include "../base/Logger.h"
 
@@ -62,11 +59,13 @@ bool AudioDecoderThread::work()
             memcpy(pBuffer->getData(), pOldBuffer->getData(),
                     FramesWritten*m_AP.m_Channels*sizeof(short));
         }
-        AudioVideoMsgPtr pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(pBuffer,
-                    m_pDecoder->getCurTime(SS_AUDIO)));
+        VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
+        pVMsg->setAudio(pBuffer, m_pDecoder->getCurTime(SS_AUDIO));
         m_MsgQ.push(pVMsg);
         if (m_pDecoder->isEOF(SS_AUDIO)) {
-            m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg())); 
+            VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
+            pVMsg->setEOF();
+            m_MsgQ.push(pVMsg); 
         }
     }
     return true;
@@ -82,8 +81,9 @@ void AudioDecoderThread::seek(long long DestTime)
     }
     
     m_pDecoder->seek(DestTime);
-    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg(-1, 
-            m_pDecoder->getCurTime(SS_AUDIO))));
+    VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
+    pVMsg->setSeekDone(-1, m_pDecoder->getCurTime(SS_AUDIO));
+    m_MsgQ.push(pVMsg);
 }
 
 void AudioDecoderThread::setVolume(double Volume)

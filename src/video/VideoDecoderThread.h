@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "IVideoDecoder.h"
 #include "VideoMsg.h"
-#include "FrameVideoMsg.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -49,7 +48,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         bool work();
         void seek(long long DestTime);
         void setFPS(double FPS);
-        void returnFrame(FrameVideoMsgPtr pMsg);
+        void returnFrame(VideoMsgPtr pMsg);
 
     private:
         BitmapPtr getBmp(BitmapQueuePtr BmpQ, const IntPoint& Size, 

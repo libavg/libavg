@@ -20,9 +20,6 @@
 //
 
 #include "VideoDemuxerThread.h"
-#include "FrameVideoMsg.h"
-#include "ErrorVideoMsg.h"
-#include "EOFVideoMsg.h"
 
 #include "../base/Logger.h"
 #include "../base/TimeSource.h"

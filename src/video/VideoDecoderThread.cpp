@@ -20,9 +20,6 @@
 //
 
 #include "VideoDecoderThread.h"
-#include "ErrorVideoMsg.h"
-#include "EOFVideoMsg.h"
-#include "SeekDoneVideoMsg.h"
 
 #include "../base/Logger.h"
 
@@ -73,11 +70,14 @@ bool VideoDecoderThread::work()
             }
         }
         if (m_pDecoder->isEOF(SS_VIDEO)) {
-            m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
+            VideoMsgPtr pMsg(new VideoMsg());
+            pMsg->setEOF();
+            m_MsgQ.push(pMsg);
         } else {
             assert(FrameAvailable == FA_NEW_FRAME);
-            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, 
-                    m_pDecoder->getCurTime(SS_VIDEO))));
+            VideoMsgPtr pMsg(new VideoMsg());
+            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+            m_MsgQ.push(pMsg);
             msleep(0);
         }
     }
@@ -103,8 +103,9 @@ void VideoDecoderThread::seek(long long DestTime)
         AudioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
     }
     
-    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg(
-                VideoFrameTime, AudioFrameTime)));
+    VideoMsgPtr pMsg(new VideoMsg());
+    pMsg->setSeekDone(VideoFrameTime, AudioFrameTime);
+    m_MsgQ.push(pMsg);
 }
 
 void VideoDecoderThread::setFPS(double FPS)
@@ -112,13 +113,13 @@ void VideoDecoderThread::setFPS(double FPS)
     m_pDecoder->setFPS(FPS);
 }
 
-void VideoDecoderThread::returnFrame(FrameVideoMsgPtr pMsg)
+void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 {
-    m_pBmpQ->push(pMsg->getBitmap(0));
+    m_pBmpQ->push(pMsg->getFrameBitmap(0));
     PixelFormat PF = m_pDecoder->getPixelFormat();
     if (PF == YCbCr420p || PF ==YCbCrJ420p) {
-        m_pHalfBmpQ->push(pMsg->getBitmap(1));
-        m_pHalfBmpQ->push(pMsg->getBitmap(2));
+        m_pHalfBmpQ->push(pMsg->getFrameBitmap(1));
+        m_pHalfBmpQ->push(pMsg->getFrameBitmap(2));
     }
 }
 
