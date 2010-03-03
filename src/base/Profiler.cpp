@@ -69,6 +69,7 @@ void Profiler::registerThreadProfiler(ThreadProfilerPtr pThreadProfiler)
 
 void Profiler::threadProfilerStopped(ThreadProfilerPtr pThreadProfiler)
 {
+    mutex::scoped_lock Lock(m_Mutex);
     ThreadProfilerArray::iterator it = m_ThreadProfilers.begin();
     bool bFound = false;
     while (it != m_ThreadProfilers.end()) {

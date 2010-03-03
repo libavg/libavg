@@ -66,7 +66,6 @@ private:
     ZoneList m_Zones;
     ZoneList m_ActiveZones;
     bool m_bRunning;
-    boost::thread m_Thread;
 
     static boost::thread_specific_ptr<ThreadProfilerPtr> s_pInstance;
 };
