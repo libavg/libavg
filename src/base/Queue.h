@@ -37,24 +37,24 @@ typedef boost::mutex::scoped_lock scoped_lock;
 template<class QElement>
 class AVG_TEMPLATE_API Queue 
 {
-    public:
-        Queue(int MaxSize=-1);
-        virtual ~Queue();
+public:
+    Queue(int MaxSize=-1);
+    virtual ~Queue();
 
-        bool empty() const;
-        QElement pop(bool bBlock = true);
-        void push(const QElement& Elem);
-        QElement peek(bool bBlock = true) const;
-        int size() const;
-        int getMaxSize() const;
+    bool empty() const;
+    QElement pop(bool bBlock = true);
+    void push(const QElement& Elem);
+    QElement peek(bool bBlock = true) const;
+    int size() const;
+    int getMaxSize() const;
 
-    private:
-        QElement getFrontElement(bool bBlock, scoped_lock& Lock) const;
+private:
+    QElement getFrontElement(bool bBlock, scoped_lock& Lock) const;
 
-        std::deque<QElement> m_Elements;
-        mutable boost::mutex m_Mutex;
-        mutable boost::condition m_Cond;
-        int m_MaxSize;
+    std::deque<QElement> m_Elements;
+    mutable boost::mutex m_Mutex;
+    mutable boost::condition m_Cond;
+    int m_MaxSize;
 };
 
 template<class QElement>
