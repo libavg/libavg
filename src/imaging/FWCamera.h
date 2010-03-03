@@ -30,7 +30,6 @@
 #include "../graphics/Pixel24.h"
 
 #include "../base/Point.h"
-#include "../base/Queue.h"
 #include "../base/WorkerThread.h"
 
 #ifdef AVG_ENABLE_1394_2
@@ -48,8 +47,6 @@ typedef unsigned int dc1394feature_t;
 #include <map>
 
 namespace avg {
-
-typedef Queue<BitmapPtr> BitmapQueue;
 
 class AVG_API FWCamera: public Camera {
 public:
