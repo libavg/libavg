@@ -32,7 +32,7 @@ using namespace std;
 
 namespace avg {
 
-AudioDecoderThread::AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+AudioDecoderThread::AudioDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
         VideoDecoderPtr pDecoder, const AudioParams& AP)
     : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), CmdQ),
       m_MsgQ(MsgQ),

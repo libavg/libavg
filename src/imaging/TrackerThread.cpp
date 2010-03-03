@@ -62,7 +62,7 @@ TrackerThread::TrackerThread(IntRect ROI,
         CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex,
-        CmdQueue& CmdQ,
+        CQueue& CmdQ,
         IBlobTarget *target,
         bool bSubtractHistory,
         TrackerConfig &Config)

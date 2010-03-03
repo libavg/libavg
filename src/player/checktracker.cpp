@@ -89,7 +89,7 @@ public:
     
 
 private:
-    TrackerThread::CmdQueuePtr m_pCmdQ;
+    TrackerThread::CQueuePtr m_pCmdQ;
 };
 
 class TrackerTestSuite: public TestSuite {

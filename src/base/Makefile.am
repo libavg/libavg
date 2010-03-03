@@ -6,7 +6,8 @@ ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h 
         Test.h TestSuite.h OSHelper.h Queue.h WorkerThread.h Command.h ObjectCounter.h \
         Point.h Rect.h Directory.h DirEntry.h StringHelper.h MathHelper.h GeomHelper.h \
         CubicSpline.h BicubicSpline.h BezierCurve.h UTF8String.h Triangle.h \
-        Triangulate.h WideLine.h IntTriple.h DlfcnWrapper.h Signal.h Backtrace.h
+        Triangulate.h WideLine.h IntTriple.h DlfcnWrapper.h Signal.h Backtrace.h \
+        CmdQueue.h
 
 TESTS=testbase
 

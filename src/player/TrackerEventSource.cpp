@@ -65,7 +65,7 @@ namespace avg {
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_pMutex = MutexPtr(new boost::mutex);
-        m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        m_pCmdQueue = TrackerThread::CQueuePtr(new TrackerThread::CQueue);
         m_pDeDistort = m_TrackerConfig.getTransform();
         m_ActiveDisplaySize = DisplayExtents;
         try {
@@ -95,7 +95,7 @@ namespace avg {
 
     TrackerEventSource::~TrackerEventSource()
     {
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
+        m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::stop, _1));
         if (m_pTrackerThread) {
             m_pTrackerThread->join();
             delete m_pTrackerThread;
@@ -146,14 +146,13 @@ namespace avg {
        
     void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
     {
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::setDebugImages, _1, bImg, bFinger)));
+        m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::setDebugImages, _1, bImg, 
+                bFinger));
     }
 
     void TrackerEventSource::resetHistory()
     {
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::resetHistory, _1)));
+        m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::resetHistory, _1));
     }
 
     void TrackerEventSource::saveConfig()
@@ -166,8 +165,8 @@ namespace avg {
         m_pDeDistort = m_TrackerConfig.getTransform();
         DRect Area = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
         createBitmaps(Area);
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::setConfig, _1, m_TrackerConfig, Area, m_pBitmaps)));
+        m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::setConfig, _1, m_TrackerConfig, 
+                Area, m_pBitmaps));
     }
 
     void TrackerEventSource::createBitmaps(const IntRect & Area)

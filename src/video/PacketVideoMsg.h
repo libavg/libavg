@@ -66,7 +66,7 @@ class AVG_API PacketVideoMsg {
 };
 
 typedef boost::shared_ptr<PacketVideoMsg> PacketVideoMsgPtr;
-typedef Queue<PacketVideoMsgPtr> VideoPacketQueue;
+typedef Queue<PacketVideoMsg> VideoPacketQueue;
 typedef boost::shared_ptr<VideoPacketQueue> VideoPacketQueuePtr;
 
 }

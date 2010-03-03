@@ -30,8 +30,7 @@ using namespace std;
 
 namespace avg {
 
-VideoDemuxerThread::VideoDemuxerThread(CmdQueue& CmdQ, 
-                AVFormatContext * pFormatContext)
+VideoDemuxerThread::VideoDemuxerThread(CQueue& CmdQ, AVFormatContext * pFormatContext)
     : WorkerThread<VideoDemuxerThread>("VideoDemuxer", CmdQ),
       m_bEOF(false),
       m_pFormatContext(pFormatContext),

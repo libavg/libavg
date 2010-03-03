@@ -47,7 +47,7 @@ namespace avg {
 
             boost::thread* m_pDemuxThread;
 
-            VideoDemuxerThread::CmdQueuePtr m_pCmdQ;
+            VideoDemuxerThread::CQueuePtr m_pCmdQ;
             std::map<int, VideoPacketQueuePtr> m_PacketQs;
             std::map<int, bool> m_bSeekDone;
 
