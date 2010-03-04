@@ -2,13 +2,13 @@
 // at http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml. 
 
 #include "Triangulate.h"
+#include "Exception.h"
 
 #include "../base/Exception.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <iostream>
 
 namespace avg {
@@ -62,7 +62,7 @@ void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
     /* allocate and initialize list of Vertices in polygon */
 
     int n = contour.size();
-    assert(n>2);
+    AVG_ASSERT(n>2);
 
     int *V = new int[n];
 

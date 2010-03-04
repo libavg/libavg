@@ -20,8 +20,9 @@
 //
 
 #include "FilterFastDownscale.h"
-
 #include "Pixeldefs.h"
+
+#include "../base/Exception.h"
 
 #include <iostream>
 
@@ -42,7 +43,7 @@ FilterFastDownscale::~FilterFastDownscale()
 
 BitmapPtr FilterFastDownscale::apply(BitmapPtr pBmpSrc) 
 {
-    assert(pBmpSrc->getPixelFormat() == I8);
+    AVG_ASSERT(pBmpSrc->getPixelFormat() == I8);
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(pBmpSrc->getSize()/m_Factor, I8,
              pBmpSrc->getName()));
     unsigned char * pSrcLine = pBmpSrc->getPixels();

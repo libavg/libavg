@@ -27,7 +27,6 @@
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 
-#include <assert.h>
 #include <algorithm>
 
 namespace avg {
@@ -213,7 +212,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     } else if (log_level & G_LOG_LEVEL_CRITICAL) {
         s += string("critical: ")+message;
         AVG_TRACE(Logger::ERROR, s);
-        assert(false);
+        AVG_ASSERT(false);
     } else if (log_level & G_LOG_LEVEL_WARNING) {
         s += "warning: ";
     } else if (log_level & G_LOG_LEVEL_MESSAGE) {
@@ -278,7 +277,7 @@ void TextEngine::initFonts()
 PangoFontFamily * TextEngine::getFontFamily(const string& sFamily)
 {
     PangoFontFamily * pFamily = 0;
-    assert(m_NumFontFamilies != 0);
+    AVG_ASSERT(m_NumFontFamilies != 0);
     for (int i=0; i<m_NumFontFamilies; ++i) {
         if (equalIgnoreCase(pango_font_family_get_name(m_ppFontFamilies[i]), sFamily)) {
             pFamily = m_ppFontFamilies[i];

@@ -22,6 +22,7 @@
 #include "VideoMsg.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 namespace avg {
 
@@ -75,43 +76,43 @@ VideoMsg::MsgType VideoMsg::getType()
 
 AudioBufferPtr VideoMsg::getAudioBuffer() const
 {
-    assert(m_MsgType == AUDIO);
+    AVG_ASSERT(m_MsgType == AUDIO);
     return m_pAudioBuffer;
 }
 
 long long VideoMsg::getAudioTime() const
 {
-    assert(m_MsgType == AUDIO);
+    AVG_ASSERT(m_MsgType == AUDIO);
     return m_AudioTime;
 }
 
 const Exception& VideoMsg::getException() const
 {
-    assert(m_MsgType == ERROR);
+    AVG_ASSERT(m_MsgType == ERROR);
     return *m_pEx;
 }
 
 BitmapPtr VideoMsg::getFrameBitmap(int i)
 {
-    assert(m_MsgType == FRAME);
+    AVG_ASSERT(m_MsgType == FRAME);
     return m_pBmps[i];
 }
 
 long long VideoMsg::getFrameTime()
 {
-    assert(m_MsgType == FRAME);
+    AVG_ASSERT(m_MsgType == FRAME);
     return m_FrameTime;
 }
 
 long long VideoMsg::getSeekVideoFrameTime()
 {
-    assert(m_MsgType == SEEK_DONE);
+    AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekVideoFrameTime;
 }
 
 long long VideoMsg::getSeekAudioFrameTime()
 {
-    assert(m_MsgType == SEEK_DONE);
+    AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekAudioFrameTime;
 }
 

@@ -25,6 +25,7 @@
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"
+#include "../base/Exception.h"
 
 #include "../graphics/Filter.h"
 #include "../graphics/Filterfill.h"
@@ -328,7 +329,7 @@ void TrackerThread::resetHistory()
 void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
 {
     HistogramPtr pHist = pSrcBmp->getHistogram(4);
-    assert(pDestBmp->getPixelFormat() == I8);
+    AVG_ASSERT(pDestBmp->getPixelFormat() == I8);
     // Normalize Histogram to 0..255
     int Max1 = 0;
     int Max2 = 0;

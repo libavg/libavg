@@ -24,8 +24,6 @@
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
 
-#include <assert.h>
-
 #include <iostream>
 #include <stddef.h>
 #include <string.h>
@@ -97,7 +95,7 @@ VertexArray::~VertexArray()
 void VertexArray::appendPos(const DPoint& pos, 
         const DPoint& texPos, const Pixel32& color)
 {
-    assert(m_CurVert < m_NumVerts);
+    AVG_ASSERT(m_CurVert < m_NumVerts);
     T2V3C4Vertex* pVertex = &(m_pVertexData[m_CurVert]);
     if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
             pVertex->m_Pos[1] != (GLfloat)pos.y ||
@@ -152,7 +150,7 @@ void VertexArray::changeSize(int numVerts, int numIndexes)
 {
     if ((numVerts < 3 && numVerts != 0) || (numIndexes < 3 && numIndexes != 0)) {
         cerr << "numVerts: " << numVerts << ", numIndexes: " << numIndexes << endl;
-        assert (false);
+        AVG_ASSERT (false);
     }
         
     bool bNewBuffer = false;

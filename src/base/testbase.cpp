@@ -212,13 +212,13 @@ public:
 
     void runTests() 
     {
-        assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+        TEST(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
         {
             DummyClass dummy1;
             DummyClass dummy2;
-            assert(ObjectCounter::get()->getCount(&typeid(dummy1)) == 2);
+            TEST(ObjectCounter::get()->getCount(&typeid(dummy1)) == 2);
         }
-        assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+        TEST(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
     }
 };
 

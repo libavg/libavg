@@ -306,7 +306,7 @@ void VideoNode::onFrameEnd()
 
 int VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    assert(m_bThreaded);
+    AVG_ASSERT(m_bThreaded);
     if (m_VideoState == Playing) {
         return m_pDecoder->fillAudioBuffer(pBuffer);
     } else {
@@ -441,7 +441,7 @@ long long VideoNode::getNextFrameTime() const
         case Playing:
             return Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }

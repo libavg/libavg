@@ -22,7 +22,8 @@
 #include "Filter3x3.h"
 #include "Pixeldefs.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
+
 
 namespace avg {
     
@@ -58,7 +59,7 @@ BitmapPtr Filter3x3::apply(BitmapPtr pBmpSource)
                 convolveLine<Pixel24>(pSrc, pDest, NewSize.x, pBmpSource->getStride());
                 break;
             default:
-                assert(false);
+                AVG_ASSERT(false);
         }
     }
     return pNewBmp;

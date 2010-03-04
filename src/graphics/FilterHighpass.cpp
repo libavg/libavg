@@ -24,6 +24,8 @@
 #include "Pixel8.h"
 #include "Bitmap.h"
 
+#include "../base/Exception.h"
+
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -42,7 +44,7 @@ FilterHighpass::~FilterHighpass()
 
 BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
 {
-    assert(pBmpSrc->getPixelFormat() == I8);
+    AVG_ASSERT(pBmpSrc->getPixelFormat() == I8);
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(pBmpSrc->getSize(), I8,
             pBmpSrc->getName()));
     int SrcStride = pBmpSrc->getStride();

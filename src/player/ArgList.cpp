@@ -186,7 +186,7 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     } else if (pIntTripleVectorArg) {
         avg::setArgValue(pIntTripleVectorArg, sName, Value);
     } else {
-        assert(false);
+        AVG_ASSERT(false);
     }
 }
 
@@ -236,7 +236,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         fromString(sValue, v);
         pIntTripleVectorArg->setValue(v);
     } else {
-        assert(false);
+        AVG_ASSERT(false);
     }   
 }
 

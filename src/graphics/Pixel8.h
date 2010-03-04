@@ -27,7 +27,6 @@
 #include "Pixel32.h"
 
 #include <stdlib.h>
-#include <assert.h>
 
 namespace avg {
 
@@ -119,9 +118,6 @@ inline int Pixel8::boxDist (const Pixel8 Pix) const
 
 inline Pixel8 Pixel8::Blend (int Factor, const Pixel8 Pix1, const Pixel8 Pix2)
 {
-// The following causes a 'C1055: compiler limit : out of keys' error on MSVC 2003
-//  assert(Factor >= 0 && Factor <= 256);
-
   return Pixel8 ((Pix1.get()*Factor+Pix2.get()*(256-Factor))>>8);
 }
 

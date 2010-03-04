@@ -213,7 +213,7 @@ NodePtr AreaNode::getElementByPos(const DPoint & pos)
 
 void AreaNode::maybeRender(const DRect& Rect)
 {
-    assert(getState() == NS_CANRENDER);
+    AVG_ASSERT(getState() == NS_CANRENDER);
     if (getActive()) {
         if (getEffectiveOpacity() > 0.01) {
             if (getID() != "") {

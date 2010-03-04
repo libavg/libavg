@@ -24,6 +24,7 @@
 #include "AudioEngine.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 using namespace std;
 
@@ -44,7 +45,7 @@ AudioEngine::~AudioEngine()
 
 void AudioEngine::setAudioEnabled(bool bEnabled)
 {
-    assert(m_AudioSources.empty());
+    AVG_ASSERT(m_AudioSources.empty());
     m_bEnabled = bEnabled;
     if (m_bEnabled) {
         play();

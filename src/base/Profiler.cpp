@@ -22,6 +22,7 @@
 #include "Profiler.h"
 #include "ThreadProfiler.h"
 #include "Logger.h"
+#include "Exception.h"
 
 #include <sstream>
 #include <iomanip>
@@ -83,7 +84,7 @@ void Profiler::threadProfilerStopped(ThreadProfilerPtr pThreadProfiler)
         }
         ++it;
     }
-    assert(bFound);
+    AVG_ASSERT(bFound);
 }
 
 }

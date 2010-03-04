@@ -22,7 +22,8 @@
 #include "FilterMask.h"
 #include "Pixeldefs.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
+
 #include <stdio.h>
 
 namespace avg {
@@ -33,7 +34,7 @@ FilterMask::FilterMask(BitmapPtr pMaskBmp)
     : Filter(),
       m_pMaskBmp(pMaskBmp)
 {
-    assert(m_pMaskBmp->getPixelFormat() == I8);
+    AVG_ASSERT(m_pMaskBmp->getPixelFormat() == I8);
 }
 
 FilterMask::~FilterMask()
@@ -44,7 +45,7 @@ FilterMask::~FilterMask()
 void FilterMask::applyInPlace(BitmapPtr pBmp) 
 {
     IntPoint size = pBmp->getSize();
-    assert(size == m_pMaskBmp->getSize());
+    AVG_ASSERT(size == m_pMaskBmp->getSize());
     for (int y = 0; y < size.y; y++) {
         unsigned char * pMaskLine = m_pMaskBmp->getPixels()+y*m_pMaskBmp->getStride();
         unsigned char * pLine = pBmp->getPixels()+y*pBmp->getStride();
@@ -75,7 +76,7 @@ void FilterMask::applyInPlace(BitmapPtr pBmp)
                 }
                 break;
             default:
-                assert(false);
+                AVG_ASSERT(false);
         }
     }
 }

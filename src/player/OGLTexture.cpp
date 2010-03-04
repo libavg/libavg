@@ -229,7 +229,7 @@ void OGLTexture::createBitmap()
             m_pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf));
             break;
         default:
-            assert(0);
+            AVG_ASSERT(0);
     }
 }
 

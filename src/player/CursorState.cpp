@@ -21,8 +21,6 @@
 
 #include "CursorState.h"
 
-#include <assert.h>
-
 using namespace std;
 
 namespace avg {

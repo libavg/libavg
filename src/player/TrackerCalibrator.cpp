@@ -23,6 +23,7 @@
 #include "TrackerEventSource.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 #include "../imaging/DeDistort.h"
 
@@ -132,7 +133,7 @@ DeDistortPtr TrackerCalibrator::makeTransformer()
     //        control.gtol = 1e-4;
 
     int dat = int(m_DisplayPoints.size());
-    assert(dat == int(m_CamPoints.size()));
+    AVG_ASSERT(dat == int(m_CamPoints.size()));
 
     //fill in reasonable defaults
     m_DistortParams.clear();
@@ -232,7 +233,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         printf ("terminated after %d evaluations\n", nfev);
     }
 #endif
-    assert(n_par == NUM_PARAMS);
+    AVG_ASSERT(n_par == NUM_PARAMS);
 }
 
 }

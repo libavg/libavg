@@ -23,13 +23,13 @@
 
 #include "MathHelper.h"
 #include "StringHelper.h"
+#include "Exception.h"
 
 #if defined(__SSE__) || defined(_WIN32)
 #include <xmmintrin.h>
 #endif
 
 #include <math.h>
-#include <assert.h>
 #include <float.h>
 
 #include <string>
@@ -38,9 +38,9 @@ namespace avg {
 
 IntTriple::IntTriple()
 {
-	x = 0;
-	y = 0;
-	z = 0;
+    x = 0;
+    y = 0;
+    z = 0;
 }
 
 IntTriple::IntTriple(int X, int Y, int Z)
@@ -60,7 +60,7 @@ IntTriple::IntTriple(const IntTriple& p)
     
 IntTriple::IntTriple(const std::vector<int>& v)
 {
-    assert(v.size() == 3);
+    AVG_ASSERT(v.size() == 3);
     x = v[0];
     y = v[1];
     z = v[2];

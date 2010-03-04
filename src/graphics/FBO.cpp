@@ -136,7 +136,7 @@ void FBO::checkError() const
             case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
                 fprintf(stderr,"framebuffer GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
                 /* you gotta choose different formats */ \
-                assert(0);
+                AVG_ASSERT(0);
                 break;
             case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
                 fprintf(stderr,"framebuffer INCOMPLETE_ATTACHMENT\n");
@@ -164,9 +164,9 @@ void FBO::checkError() const
                 break;
             default:
                 /* programming error; will fail on all hardware */
-                assert(false);
+                AVG_ASSERT(false);
         }
-        assert(false);
+        AVG_ASSERT(false);
     }
 }
 

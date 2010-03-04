@@ -21,6 +21,7 @@
 
 #include "ThreadProfiler.h"
 #include "Logger.h"
+#include "Exception.h"
 
 #include <sstream>
 #include <iomanip>
@@ -80,7 +81,7 @@ void ThreadProfiler::addZone(ProfilingZone& Zone)
                 bParentFound = true;
             }
         }
-        assert(bParentFound);
+        AVG_ASSERT(bParentFound);
         int ParentIndent = pActiveZone->getIndentLevel();
         for (; it != m_Zones.end() && (*it)->getIndentLevel() > ParentIndent; ++it);
     }
@@ -116,7 +117,7 @@ void ThreadProfiler::pushActiveZone(ProfilingZone * pZone)
 
 void ThreadProfiler::popActiveZone(ProfilingZone * pZone)
 {
-    assert(m_ActiveZones.back() == pZone);
+    AVG_ASSERT(m_ActiveZones.back() == pZone);
     m_ActiveZones.pop_back();
 }
 

@@ -24,6 +24,8 @@
 #include "Pixel8.h"
 #include "Bitmap.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
 #include <math.h>
 
@@ -41,7 +43,7 @@ FilterBlur::~FilterBlur()
 
 BitmapPtr FilterBlur::apply(BitmapPtr pBmpSrc)
 {
-    assert(pBmpSrc->getPixelFormat() == I8);
+    AVG_ASSERT(pBmpSrc->getPixelFormat() == I8);
     
     IntPoint Size(pBmpSrc->getSize().x-2, pBmpSrc->getSize().y-2);
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(Size, I8, pBmpSrc->getName()));

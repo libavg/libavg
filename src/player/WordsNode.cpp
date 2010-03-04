@@ -177,7 +177,7 @@ string WordsNode::getAlignment() const
         case PANGO_ALIGN_RIGHT:
             return "right";
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return "";
     }
 }
@@ -408,7 +408,7 @@ string WordsNode::getWrapMode() const
         case PANGO_WRAP_WORD_CHAR:
             return "wordchar";
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return "";
     }
 }
@@ -454,7 +454,7 @@ static ProfilingZone DrawStringProfilingZone("  WordsNode::drawString");
 
 void WordsNode::drawString()
 {
-    assert (m_sText.length() < 32767);
+    AVG_ASSERT (m_sText.length() < 32767);
     if (!m_bDrawNeeded) {
         return;
     }
@@ -525,8 +525,8 @@ void WordsNode::drawString()
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
         pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
-        assert (logical_rect.width < 4096);
-        assert (logical_rect.height < 4096);
+        AVG_ASSERT (logical_rect.width < 4096);
+        AVG_ASSERT (logical_rect.height < 4096);
 //        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
 //                << ink_rect.width << ", " << ink_rect.height << endl;
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 

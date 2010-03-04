@@ -115,7 +115,7 @@ private:
 
     void runPBOFloatbufTest(PixelFormat pf) {
         cerr << "    Testing PBO (" << Bitmap::getPixelFormatString(pf) << ")" << endl;
-        assert(pf == I32F || pf == R32G32B32A32F);
+        AVG_ASSERT(pf == I32F || pf == R32G32B32A32F);
         IntPoint size = IntPoint(11, 3);
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
         float *pixels = new float[numFloats];
@@ -131,7 +131,7 @@ private:
     {
         cerr << "    Testing PBO float bitmaps (" << Bitmap::getPixelFormatString(pf) 
                 << ")" << endl;
-        assert(pf == I32F || pf == R32G32B32A32F);
+        AVG_ASSERT(pf == I32F || pf == R32G32B32A32F);
         IntPoint size = IntPoint(5,3);
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
         float *pixels = new float [numFloats];

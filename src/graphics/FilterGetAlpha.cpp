@@ -20,8 +20,9 @@
 //
 
 #include "FilterGetAlpha.h"
-
 #include "Pixeldefs.h"
+
+#include "../base/Exception.h"
 
 #include <iostream>
 
@@ -41,7 +42,7 @@ FilterGetAlpha::~FilterGetAlpha()
 BitmapPtr FilterGetAlpha::apply(BitmapPtr pBmpSrc) 
 {
     PixelFormat pf = pBmpSrc->getPixelFormat();
-    assert(pf == R8G8B8A8 || pf == B8G8R8A8);
+    AVG_ASSERT(pf == R8G8B8A8 || pf == B8G8R8A8);
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(pBmpSrc->getSize(), I8,
              pBmpSrc->getName()+"alpha"));
     unsigned char * pSrcLine = pBmpSrc->getPixels();

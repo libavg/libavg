@@ -25,9 +25,11 @@
 #include "Bitmap.h"
 
 #include "../base/MathHelper.h"
+#include "../base/Exception.h"
 
 #include <iostream>
 #include <math.h>
+
 using namespace std;
 
 namespace avg {
@@ -44,7 +46,7 @@ FilterGauss::~FilterGauss()
 
 BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
 {
-    assert(pBmpSrc->getPixelFormat() == I8);
+    AVG_ASSERT(pBmpSrc->getPixelFormat() == I8);
     int IntRadius = int(ceil(m_Radius));
     
     // Convolve in x-direction

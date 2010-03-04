@@ -103,7 +103,7 @@ PixelFormat Camera::fwBayerStringToPF(unsigned long reg)
     } else if (sBayerFormat == "YYYY") {
         return I8;
     } else {
-        assert(false);
+        AVG_ASSERT(false);
         return I8;
     }
 

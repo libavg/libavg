@@ -327,7 +327,7 @@ void CameraNode::render(const DRect& Rect)
                 cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: " 
                     << m_pCurBmp->getPixelFormatString() << endl;
             }
-            assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
+            AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
             pBmp->copyPixels(*m_pCurBmp);
             getSurface()->unlockBmps();
             {

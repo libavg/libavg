@@ -24,6 +24,7 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"
+#include "../base/Exception.h"
 
 #include <iostream>
 
@@ -151,7 +152,7 @@ void GPUBlurFilter::calcKernel()
 {
     int KernelCenter = int(ceil(m_StdDev*3));
     m_KernelWidth = KernelCenter*2+1;
-    assert (m_KernelWidth < 256);
+    AVG_ASSERT (m_KernelWidth < 256);
     float sum = 0;
     for (int i=0; i<= KernelCenter; ++i) {
         m_Kernel[KernelCenter+i] = float(exp(-i*i/(2*m_StdDev*m_StdDev))

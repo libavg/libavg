@@ -57,7 +57,7 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size,
     int i = getCamIndex(guid);
     err = m_pCamera->SelectCamera(i);
     err = m_pCamera->InitCamera(TRUE);
-    assert(err == CAM_SUCCESS);
+    AVG_ASSERT(err == CAM_SUCCESS);
 
     if (bFW800) {
         m_pCamera->Set1394b(true);
@@ -77,7 +77,7 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size,
 
     // Start capturing images
     err = m_pCamera->StartImageAcquisition();
-    assert(err == CAM_SUCCESS);
+    AVG_ASSERT(err == CAM_SUCCESS);
 
     // Set camera features
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
@@ -117,17 +117,17 @@ BitmapPtr CMUCamera::getImage(bool bWait)
 {
     if (bWait) {
         unsigned rc = WaitForSingleObject(m_pCamera->GetFrameEvent(), INFINITE);
-        assert(rc == WAIT_OBJECT_0);
+        AVG_ASSERT(rc == WAIT_OBJECT_0);
     } else {
         unsigned rc = WaitForSingleObject(m_pCamera->GetFrameEvent(), 0);
         if (rc == WAIT_TIMEOUT) {
             // No frame yet
             return BitmapPtr();
         }
-        assert(rc == WAIT_OBJECT_0);
+        AVG_ASSERT(rc == WAIT_OBJECT_0);
     }
     int rc2 = m_pCamera->AcquireImageEx(FALSE, NULL);
-    assert(rc2 == CAM_SUCCESS);
+    AVG_ASSERT(rc2 == CAM_SUCCESS);
     unsigned long captureBufferLength;
     unsigned char* pCaptureBuffer = m_pCamera->GetRawData(&captureBufferLength);
 
@@ -319,13 +319,13 @@ void CMUCamera::enablePtGreyBayer()
     
     unsigned long imageDataFormat;
     err = m_pCamera->ReadQuadlet(advOffset+0x48, &imageDataFormat);
-    assert(err == CAM_SUCCESS);
+    AVG_ASSERT(err == CAM_SUCCESS);
     if (imageDataFormat & 0x80000000) {
         err = m_pCamera->WriteQuadlet(advOffset+0x48, 0x80000081);
-        assert(err == CAM_SUCCESS);
+        AVG_ASSERT(err == CAM_SUCCESS);
         unsigned long bayerFormat;
         err = m_pCamera->ReadQuadlet(advOffset+0x40, &bayerFormat);
-        assert(err == CAM_SUCCESS);
+        AVG_ASSERT(err == CAM_SUCCESS);
         PixelFormat exactPF = fwBayerStringToPF(bayerFormat);
         setCamPF(exactPF);
     } else {

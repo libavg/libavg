@@ -61,7 +61,7 @@ void OGLSurface::attach(SDLDisplayEngine * pEngine)
 
 void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 {
-    assert(m_pEngine);
+    AVG_ASSERT(m_pEngine);
     if (m_pTextures[0] && m_Size == size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
@@ -85,8 +85,8 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 
 void OGLSurface::createMask(const IntPoint& size)
 {
-    assert(m_pEngine);
-    assert(m_Material.getHasMask());
+    AVG_ASSERT(m_pEngine);
+    AVG_ASSERT(m_Material.getHasMask());
     m_MaskSize = size;
     m_pMaskTexture = OGLTexturePtr(new OGLTexture(size, I8, m_Material, m_pEngine,
             m_MemoryMode));
@@ -191,7 +191,7 @@ BitmapPtr OGLSurface::readbackBmp()
 
 BitmapPtr OGLSurface::lockMaskBmp()
 {
-    assert(m_Material.getHasMask());
+    AVG_ASSERT(m_Material.getHasMask());
     return m_pMaskTexture->lockBmp();
 }
 

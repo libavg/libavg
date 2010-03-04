@@ -22,6 +22,7 @@
 #include "VideoDecoderThread.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 
 using namespace std;
 
@@ -74,7 +75,7 @@ bool VideoDecoderThread::work()
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
         } else {
-            assert(FrameAvailable == FA_NEW_FRAME);
+            AVG_ASSERT(FrameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
             m_MsgQ.push(pMsg);
@@ -130,7 +131,7 @@ BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size,
         return BitmapPtr(new Bitmap(size, pf)); 
     } else {
         BitmapPtr pBmp = pBmpQ->pop();
-        assert (pBmp->getSize() == size && pBmp->getPixelFormat() == pf);
+        AVG_ASSERT (pBmp->getSize() == size && pBmp->getPixelFormat() == pf);
         return pBmp;
     }
 }

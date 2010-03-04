@@ -72,8 +72,6 @@
 #include <unistd.h>
 #endif
 
-#include <assert.h>
-
 using namespace std;
 
 namespace avg {
@@ -630,7 +628,7 @@ void SDLDisplayEngine::initMacVBlank(int rate)
 {
 #ifdef __APPLE__
     CGLContextObj context = CGLGetCurrentContext();
-    assert (context);
+    AVG_ASSERT (context);
     if (rate > 1) {
         AVG_TRACE(Logger::WARNING,
                 "VBlank rate set to " << rate 
@@ -642,7 +640,7 @@ void SDLDisplayEngine::initMacVBlank(int rate)
     const long l = 1;
 #endif
     CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
-    assert(!err);
+    AVG_ASSERT(!err);
 #endif
 }
 
@@ -722,7 +720,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
             return true;
         case VB_NONE:
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return false;
     }
 }
@@ -1357,7 +1355,7 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
             return GL_BGRA;
         case R8G8B8X8:
         case R8G8B8A8:
-            assert(false);
+            AVG_ASSERT(false);
             return GL_RGBA;
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 

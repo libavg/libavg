@@ -28,6 +28,7 @@
 #include "../player/SDLDisplayEngine.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 
 using namespace std;
 using namespace boost;
@@ -164,7 +165,7 @@ void FilledVectorNode::preRender()
 
 void FilledVectorNode::maybeRender(const DRect& Rect)
 {
-    assert(getState() == NS_CANRENDER);
+    AVG_ASSERT(getState() == NS_CANRENDER);
     if (getActive()) {
         if (getEffectiveOpacity() > 0.01 || 
                 getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01) 

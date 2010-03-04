@@ -42,7 +42,7 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
       m_InputPBO(0),
       m_OutputPBO(0)
 {
-    assert(getFormat(m_pfInt) == getFormat(m_pfExt));
+    AVG_ASSERT(getFormat(m_pfInt) == getFormat(m_pfExt));
     if (getType(m_pfExt) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
@@ -94,9 +94,9 @@ bool PBOImage::isFloatFormatSupported()
 
 void PBOImage::setImage(BitmapPtr pBmp)
 {
-    assert(pBmp->getSize() == m_Size);
-    assert(pBmp->getPixelFormat() == m_pfExt);
-    assert(m_bUseInputPBO);
+    AVG_ASSERT(pBmp->getSize() == m_Size);
+    AVG_ASSERT(pBmp->getPixelFormat() == m_pfExt);
+    AVG_ASSERT(m_bUseInputPBO);
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_InputPBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
@@ -122,7 +122,7 @@ void PBOImage::setImage(BitmapPtr pBmp)
 void PBOImage::setImage(float * pData)
 {
     // We use a temporary PBO here.
-    assert (getType(m_pfExt) == GL_FLOAT);
+    AVG_ASSERT (getType(m_pfExt) == GL_FLOAT);
 
     unsigned TempPBO;
     glproc::GenBuffers(1, &TempPBO);
@@ -159,7 +159,7 @@ void PBOImage::setImage(float * pData)
 
 BitmapPtr PBOImage::getImage() const
 {
-    assert(m_bUseOutputPBO);
+    AVG_ASSERT(m_bUseOutputPBO);
     BitmapPtr pBmp(new Bitmap(m_Size, m_pfExt));
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_OutputPBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::getImage BindBuffer()");
@@ -228,7 +228,7 @@ unsigned PBOImage::getTexID() const
 
 unsigned PBOImage::getOutputPBO() const
 {
-    assert (m_bUseOutputPBO);
+    AVG_ASSERT (m_bUseOutputPBO);
     return m_OutputPBO;
 }
 
@@ -245,7 +245,7 @@ int PBOImage::getType(PixelFormat pf) const
         case I32F:
             return GL_FLOAT;
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }
@@ -263,7 +263,7 @@ int PBOImage::getFormat(PixelFormat pf) const
         case R32G32B32A32F:
             return GL_RGBA;
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }
@@ -291,7 +291,7 @@ int PBOImage::getInternalFormat() const
         case R32G32B32A32F:
             return MY_GL_RGBA32F;
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }

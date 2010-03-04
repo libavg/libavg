@@ -24,6 +24,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 #include <math.h>
 
@@ -57,8 +58,8 @@ namespace avg {
 
     void EventStream::blobChanged(BlobPtr new_blob, long long time, bool bEventOnMove)
     {
-        assert(m_pBlob);
-        assert(new_blob);
+        AVG_ASSERT(m_pBlob);
+        AVG_ASSERT(new_blob);
         m_VanishCounter = 0;
         DPoint c = new_blob->getCenter();
         bool pos_changed;
@@ -124,7 +125,7 @@ namespace avg {
     EventPtr EventStream::pollevent(DeDistortPtr trafo, const IntPoint& displayExtents, 
             CursorEvent::Source Source, bool bEventOnMove)
     {
-        assert(m_pBlob);
+        AVG_ASSERT(m_pBlob);
         DPoint BlobOffset = trafo->getDisplayArea(DPoint(displayExtents)).tl;
         DPoint pt = m_pBlob->getCenter()+BlobOffset;
         DPoint screenpos = trafo->transformBlobToScreen(pt);

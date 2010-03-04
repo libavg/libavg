@@ -177,7 +177,7 @@ dc1394feature_t getFeatureID(CameraFeature Feature)
         case CAM_FEATURE_CAPTURE_QUALITY:
             return DC1394_FEATURE_CAPTURE_QUALITY;
         default:
-            assert(false);
+            AVG_ASSERT(false);
     }
 }
 

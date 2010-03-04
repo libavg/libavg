@@ -21,6 +21,8 @@
 
 #include "FilterWipeBorder.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
 #include <math.h>
 #include <string.h>
@@ -40,7 +42,7 @@ FilterWipeBorder::~FilterWipeBorder()
 
 void FilterWipeBorder::applyInPlace(BitmapPtr pBmp)
 {
-    assert(pBmp->getPixelFormat() == I8);
+    AVG_ASSERT(pBmp->getPixelFormat() == I8);
     if (m_NumPixels != 0) {
         int stride = pBmp->getStride();
         unsigned char * pPixels = pBmp->getPixels();

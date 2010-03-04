@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "Exception.h"
+
 #include <list>
 
 namespace avg {
@@ -72,7 +74,7 @@ void Signal<LISTENEROBJ>::connect(LISTENEROBJ* pListener)
     it = find(m_Listeners.begin(), m_Listeners.end(), pListener);
     // If the listener is already connected, something is wrong, unless we're
     // deleting it at this very moment.
-    assert(it == m_Listeners.end() || 
+    AVG_ASSERT(it == m_Listeners.end() || 
             (*it == m_pCurrentListener && m_bKillCurrentListener));
     m_Listeners.push_back(pListener);
 }
@@ -85,7 +87,7 @@ void Signal<LISTENEROBJ>::disconnect(LISTENEROBJ* pListener)
     } else {
         ListenerIterator it;
         it = find(m_Listeners.begin(), m_Listeners.end(), pListener);
-        assert (it != m_Listeners.end());
+        AVG_ASSERT(it != m_Listeners.end());
         m_Listeners.erase(it);
     }
 }

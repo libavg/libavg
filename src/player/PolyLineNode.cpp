@@ -122,7 +122,7 @@ int PolyLineNode::getNumVertexes()
         case LJ_BEVEL:
             return 3*numPts-2;
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 
@@ -140,7 +140,7 @@ int PolyLineNode::getNumIndexes()
         case LJ_BEVEL:
             return 3*(3*numPts-4);
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }

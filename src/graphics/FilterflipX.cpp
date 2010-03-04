@@ -22,7 +22,7 @@
 #include "FilterflipX.h"
 #include "Pixel32.h"
 
-#include <cstring>
+#include "../base/Exception.h"
 
 namespace avg {
 
@@ -67,7 +67,7 @@ BitmapPtr FilterFlipX::apply(BitmapPtr pBmpSource)
                 }
                 break;
             default: 
-                assert(false);
+                AVG_ASSERT(false);
         } 
         pSrcLine += pBmpSource->getStride();
         pDestLine += pBmpDest->getStride();

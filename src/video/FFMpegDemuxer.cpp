@@ -22,10 +22,10 @@
 #include "FFMpegDemuxer.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 #include <cstring>
 #include <iostream>
-#include <assert.h>
 
 using namespace std;
 
@@ -51,12 +51,12 @@ void FFMpegDemuxer::enableStream(int StreamIndex)
 AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
 {
     // Make sure enableStream was called on StreamIndex.
-    assert(m_PacketLists.size() > 0);
-    assert(StreamIndex > -1 && StreamIndex < 10);
+    AVG_ASSERT(m_PacketLists.size() > 0);
+    AVG_ASSERT(StreamIndex > -1 && StreamIndex < 10);
     if (m_PacketLists.find(StreamIndex) == m_PacketLists.end()) {
         cerr << this << ": getPacket: Stream " << StreamIndex << " not found." << endl;
         dump();
-        assert(false);
+        AVG_ASSERT(false);
     }
     PacketList & CurPacketList = m_PacketLists.find(StreamIndex)->second;
     AVPacket * pPacket;

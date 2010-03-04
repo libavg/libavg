@@ -129,7 +129,8 @@ int PolygonNode::getNumVertexes()
             numVerts = 3*numPts+2;
             break;
         default:
-            assert(false);
+            numVerts = 0;
+            AVG_ASSERT(false);
     }
     return numVerts;
 }
@@ -149,7 +150,8 @@ int PolygonNode::getNumIndexes()
             numIndexes = 9*numPts;
             break;
         default:
-            assert(false);
+            numIndexes = 0;
+            AVG_ASSERT(false);
     }
     return numIndexes;
 }

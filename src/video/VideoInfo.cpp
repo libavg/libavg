@@ -21,7 +21,7 @@
 
 #include "VideoInfo.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
 
 namespace avg {
 
@@ -42,7 +42,7 @@ VideoInfo::VideoInfo(long long duration, int bitrate, bool bHasVideo, bool bHasA
 void VideoInfo::setVideoData(const IntPoint& size, const string& sPixelFormat,
         int numFrames, double streamFPS, double FPS, const string& sVCodec)
 {
-    assert(m_bHasVideo);
+    AVG_ASSERT(m_bHasVideo);
     m_Size = size;
     m_sPixelFormat = sPixelFormat;
     m_NumFrames = numFrames;
@@ -53,7 +53,7 @@ void VideoInfo::setVideoData(const IntPoint& size, const string& sPixelFormat,
 
 void VideoInfo::setAudioData(const string& sACodec, int sampleRate, int numAudioChannels)
 {
-    assert(m_bHasAudio);
+    AVG_ASSERT(m_bHasAudio);
     m_sACodec = sACodec;
     m_SampleRate = sampleRate;
     m_NumAudioChannels = numAudioChannels;

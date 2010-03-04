@@ -22,7 +22,7 @@
 #include "Filterfliprgba.h"
 #include "Pixeldefs.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
 
 namespace avg {
     
@@ -38,7 +38,7 @@ FilterFlipRGBA::~FilterFlipRGBA()
 
 void FilterFlipRGBA::applyInPlace(BitmapPtr pBmp) 
 {
-    assert(pBmp->getBytesPerPixel() == 4);
+    AVG_ASSERT(pBmp->getBytesPerPixel() == 4);
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {
         unsigned char * pLine = pBmp->getPixels()+y*pBmp->getStride();

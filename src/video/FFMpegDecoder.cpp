@@ -202,7 +202,7 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
                 break;
         }
     }
-    assert(!m_pDemuxer);
+    AVG_ASSERT(!m_pDemuxer);
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
     
@@ -287,7 +287,7 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
 
 void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
-    assert(m_State == OPENED);
+    AVG_ASSERT(m_State == OPENED);
     if (m_VStreamIndex >= 0) {
         m_PF = calcPixelFormat(bDeliverYCbCr);
     }
@@ -396,7 +396,7 @@ IVideoDecoder::DecoderState FFMpegDecoder::getState() const
 
 VideoInfo FFMpegDecoder::getVideoInfo() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     long long duration = 0;
     if (m_pVStream || m_pAStream) {
         duration = getDuration();
@@ -438,13 +438,13 @@ void FFMpegDecoder::seek(long long DestTime)
 
 IntPoint FFMpegDecoder::getSize() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     return m_Size;
 }
 
 int FFMpegDecoder::getCurFrame() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0+0.5);
 }
 
@@ -455,14 +455,14 @@ int FFMpegDecoder::getNumFramesQueued() const
 
 long long FFMpegDecoder::getCurTime(StreamSelect Stream) const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:
-            assert(m_pVStream);
+            AVG_ASSERT(m_pVStream);
             return m_LastVideoFrameTime;
         case SS_AUDIO:
-            assert(m_pAStream);
+            AVG_ASSERT(m_pAStream);
             return (long long)m_LastAudioFrameTime;
         default:
             return -1;
@@ -471,7 +471,7 @@ long long FFMpegDecoder::getCurTime(StreamSelect Stream) const
 
 long long FFMpegDecoder::getDuration() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     long long duration;
     AVRational time_base;
     if (m_pVStream) {
@@ -490,7 +490,7 @@ long long FFMpegDecoder::getDuration() const
 
 double FFMpegDecoder::getNominalFPS() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;
 #else
@@ -500,7 +500,7 @@ double FFMpegDecoder::getNominalFPS() const
 
 double FFMpegDecoder::getFPS() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     return m_FPS;
 }
 
@@ -516,7 +516,7 @@ void FFMpegDecoder::setFPS(double FPS)
 
 double FFMpegDecoder::getVolume() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     return m_Volume;
 }
 
@@ -527,7 +527,7 @@ void FFMpegDecoder::setVolume(double Volume)
 
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
-    assert(m_State == DECODING);
+    AVG_ASSERT(m_State == DECODING);
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
@@ -556,7 +556,7 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
         BitmapPtr pBmpCr, long long timeWanted)
 {
-    assert(m_State == DECODING);
+    AVG_ASSERT(m_State == DECODING);
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
@@ -572,14 +572,14 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
 
 void FFMpegDecoder::throwAwayFrame(long long timeWanted)
 {
-    assert(m_State == DECODING);
+    AVG_ASSERT(m_State == DECODING);
     AVFrame Frame;
     readFrameForTime(Frame, timeWanted);
 }
 
 bool FFMpegDecoder::isEOF(StreamSelect Stream) const
 {
-    assert(m_State == DECODING);
+    AVG_ASSERT(m_State == DECODING);
     switch(Stream) {
         case SS_AUDIO:
             return (!m_pAStream || m_bAudioEOF);
@@ -711,13 +711,13 @@ int FFMpegDecoder::decodeAudio()
 
 int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    assert(m_State == DECODING);
+    AVG_ASSERT(m_State == DECODING);
     mutex::scoped_lock Lock(m_AudioMutex);
 
     unsigned char* outputAudioBuffer = (unsigned char*)(pBuffer->getData());
     int outputAudioBufferSize = pBuffer->getNumBytes();
 
-    assert (m_pAStream);
+    AVG_ASSERT (m_pAStream);
     if (m_bAudioEOF) {
         return 0;
     }
@@ -853,7 +853,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
         default:
             AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
                     << pBmp->getPixelFormatString() << " not supported.");
-            assert(false);
+            AVG_ASSERT(false);
     }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     AVCodecContext *enc = &m_pVStream->codec;
@@ -901,7 +901,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
        
 PixelFormat FFMpegDecoder::getPixelFormat() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     return m_PF;
 }
 
@@ -918,7 +918,7 @@ void FFMpegDecoder::initVideoSupport()
 
 int FFMpegDecoder::getNumFrames() const
 {
-    assert(m_State != CLOSED);
+    AVG_ASSERT(m_State != CLOSED);
     // This is broken for some videos, but the code here is correct.
     // So fix ffmpeg :-).
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
@@ -932,7 +932,7 @@ int FFMpegDecoder::getNumFrames() const
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long timeWanted)
 {
-    assert(m_State == DECODING);
+    AVG_ASSERT(m_State == DECODING);
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
 
@@ -978,7 +978,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long tim
 
 void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
-    assert(m_pDemuxer);
+    AVG_ASSERT(m_pDemuxer);
     if (m_bVideoEOF) {
         seek(0);
         return;
