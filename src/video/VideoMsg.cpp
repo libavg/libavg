@@ -38,6 +38,7 @@ VideoMsg::~VideoMsg()
 
 void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, long long audioTime)
 {
+    assert(pAudioBuffer);
     m_MsgType = AUDIO;
     m_pAudioBuffer = pAudioBuffer;
     m_AudioTime = audioTime;
@@ -56,6 +57,7 @@ void VideoMsg::setError(const Exception& ex)
 
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime)
 {
+    assert(pBmps.size() == 1 || pBmps.size() == 3);
     m_MsgType = FRAME;
     m_pBmps = pBmps;
     m_FrameTime = frameTime;
