@@ -384,7 +384,12 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted,
                     return VideoMsgPtr();
                 }
             }
-            assert(pFrameMsg);
+            if (!pFrameMsg) {
+                cerr << "FrameTime=" << FrameTime << ", timeWanted=" << timeWanted 
+                        << ", TimePerFrame=" << TimePerFrame << ", m_bVideoEOF=" 
+                        << m_bVideoEOF << endl;
+                AVG_ASSERT(false);
+            }
             FrameAvailable = FA_NEW_FRAME;
         }
     }

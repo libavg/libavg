@@ -38,6 +38,7 @@ VideoMsg::~VideoMsg()
 
 void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, long long audioTime)
 {
+    assert(m_MsgType == NONE);
     assert(pAudioBuffer);
     m_MsgType = AUDIO;
     m_pAudioBuffer = pAudioBuffer;
@@ -46,17 +47,20 @@ void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, long long audioTime)
 
 void VideoMsg::setEOF()
 {
+    assert(m_MsgType == NONE);
     m_MsgType = END_OF_FILE;
 }
 
 void VideoMsg::setError(const Exception& ex)
 {
+    assert(m_MsgType == NONE);
     m_MsgType = ERROR;
     m_pEx = new Exception(ex);
 }
 
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime)
 {
+    assert(m_MsgType == NONE);
     assert(pBmps.size() == 1 || pBmps.size() == 3);
     m_MsgType = FRAME;
     m_pBmps = pBmps;
@@ -65,6 +69,7 @@ void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime
 
 void VideoMsg::setSeekDone(long long seekVideoFrameTime, long long seekAudioFrameTime)
 {
+    assert(m_MsgType == NONE);
     m_MsgType = SEEK_DONE;
     m_SeekVideoFrameTime = seekVideoFrameTime;
     m_SeekAudioFrameTime = seekAudioFrameTime;

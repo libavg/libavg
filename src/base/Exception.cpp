@@ -64,7 +64,7 @@ void fatalError(const std::string& sMsg)
     exit(-1);
 }
 
-void avgAssert(bool b, char * pszFile, int line)
+void avgAssert(bool b, const char * pszFile, int line)
 {
     if (!b) {
         stringstream ss;
