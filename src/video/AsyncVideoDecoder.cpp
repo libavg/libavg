@@ -398,8 +398,10 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 {
     waitForSeekDone();
     VideoMsgPtr pMsg = m_pVMsgQ->pop(bWait);
-    while (pMsg && pMsg->getType() != VideoMsg::FRAME) {
+    if (pMsg) {
         switch (pMsg->getType()) {
+            case VideoMsg::FRAME:
+                return pMsg;
             case VideoMsg::END_OF_FILE:
                 m_bVideoEOF = true;
                 return VideoMsgPtr();
@@ -410,10 +412,9 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 // Unhandled message type.
                 assert(false);
         }
-        // TODO: The following line is never reached.
-        pMsg = m_pVMsgQ->pop(bWait);
+    } else {
+        return pMsg;
     }
-    return pMsg;
 }
 
 void AsyncVideoDecoder::waitForSeekDone()
