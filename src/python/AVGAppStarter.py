@@ -216,6 +216,8 @@ class AVGAppStarter(object):
         self.__unicodeBindDown = {}
         self.__unicodeBindUp = {}
         
+        self.__notifyNode = None
+        
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
         rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
         
@@ -224,6 +226,7 @@ class AVGAppStarter(object):
         self.bindKey('f', self.__showFrameRateUsage, 'show frameTime usage')
         self.bindKey('.', self.__switchClickTest, 'start clicktest')
         self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
+        self.bindKey('s', self.__screenshot, 'take screenshot')  
         self.bindUnicode('?', self.activateHelp, 'HELP')  
         
 
@@ -426,6 +429,33 @@ class AVGAppStarter(object):
             self._mtEmu.delete()
             self._mtEmu = None
     
+    def __killNotifyNode(self):
+        if self.__notifyNode:
+            self.__notifyNode.unlink()
+            self.__notifyNode = None
+            
+    def __screenshot(self):
+        fnum = 0
+        fnameTemplate = 'screenshot-%03d.png'
+        while os.path.exists(fnameTemplate % fnum):
+            fnum += 1
+        
+        try:
+            g_player.screenshot().save('screenshot-%03d.png' % fnum)
+        except RuntimeError:
+            text = 'Cannot save snapshot file'
+        else:
+            text='Screenshot saved as ' + fnameTemplate % fnum
+        
+        self.__killNotifyNode()
+        
+        self.__notifyNode = avg.WordsNode(
+            text=text, x=g_player.getRootNode().width - 50,
+            y=g_player.getRootNode().height - 50, alignment='right', fontsize=20,
+            sensitive=False, parent=g_player.getRootNode())
+            
+        g_player.setTimeout(2000, self.__killNotifyNode)
+        
     def activateHelp(self):
         if self.showingHelp == False:
             self.showingHelp = True
