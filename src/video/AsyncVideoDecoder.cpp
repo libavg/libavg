@@ -255,10 +255,12 @@ PixelFormat AsyncVideoDecoder::getPixelFormat() const
 
 FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
+    assert(pBmp);
     assert(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
+        assert(pFrameMsg);
         pBmp->copyPixels(*(pFrameMsg->getFrameBitmap(0)));
         returnFrame(pFrameMsg);
     }
@@ -382,6 +384,7 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted,
                     return VideoMsgPtr();
                 }
             }
+            assert(pFrameMsg);
             FrameAvailable = FA_NEW_FRAME;
         }
     }
@@ -407,6 +410,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 // Unhandled message type.
                 assert(false);
         }
+        // TODO: The following line is never reached.
         pMsg = m_pVMsgQ->pop(bWait);
     }
     return pMsg;
