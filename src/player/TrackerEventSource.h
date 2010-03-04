@@ -95,6 +95,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
         DeDistortPtr m_pOldTransformer;
         IntPoint m_ActiveDisplaySize;
         DRect m_DisplayROI;
+        DRect m_OldDisplayROI;
         TrackerCalibrator * m_pCalibrator;
 
         // Used by tracker thread

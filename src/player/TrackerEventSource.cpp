@@ -340,6 +340,8 @@ namespace avg {
     {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.getTransform();
+        m_OldDisplayROI = m_DisplayROI;
+        m_DisplayROI = DRect(DPoint(0,0), DPoint(m_ActiveDisplaySize));
         m_TrackerConfig.setTransform(DeDistortPtr(new DeDistort(
                 DPoint(m_pBitmaps[0]->getSize()), DPoint(m_ActiveDisplaySize))));
         setConfig();
@@ -352,6 +354,7 @@ namespace avg {
     {
         assert(m_pCalibrator);
         m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
+        m_DisplayROI = m_OldDisplayROI;
         DRect Area = m_TrackerConfig.getTransform()->getActiveBlobArea(m_DisplayROI);
         if (Area.size().x*Area.size().y > 1024*1024*8) {
             AVG_TRACE(Logger::WARNING, "Ignoring calibration - resulting area would be " 
@@ -395,7 +398,7 @@ namespace avg {
         bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(m_pDeDistort, m_DisplayROI,
+            pEvent = pStream->pollevent(m_pDeDistort, m_ActiveDisplaySize,
                     source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
