@@ -105,6 +105,7 @@ typename Queue<QElement>::QElementPtr Queue<QElement>::peek(bool bBlock) const
 template<class QElement>
 void Queue<QElement>::push(const QElementPtr& pElem)
 {
+    assert(pElem);
     scoped_lock Lock(m_Mutex);
     if (m_pElements.size() == (unsigned)m_MaxSize) {
         while (m_pElements.size() == (unsigned)m_MaxSize) {
