@@ -21,6 +21,8 @@
 #include "Bitmap.h"
 #include "TwoPassScale.h"
 
+#include "../base/Exception.h"
+
 namespace avg {
 
 FilterResizeGaussian::FilterResizeGaussian(const IntPoint& newSize, double radius)
@@ -32,7 +34,7 @@ FilterResizeGaussian::FilterResizeGaussian(const IntPoint& newSize, double radiu
 BitmapPtr FilterResizeGaussian::apply(BitmapPtr pBmpSrc)
 {
     int bpp = pBmpSrc->getBytesPerPixel();
-    assert(bpp==4 || bpp==3 || bpp==1);
+    AVG_ASSERT(bpp==4 || bpp==3 || bpp==1);
 
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(m_NewSize, 
             pBmpSrc->getPixelFormat(), pBmpSrc->getName()+"_resized"));
@@ -67,7 +69,7 @@ BitmapPtr FilterResizeGaussian::apply(BitmapPtr pBmpSrc)
             }
             break;
         default:
-            assert(false);
+            AVG_ASSERT(false);
     }
     return pBmpDest;
 }

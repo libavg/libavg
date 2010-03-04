@@ -28,6 +28,7 @@
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
 #include "../base/ScopeTimer.h"
+#include "../base/Exception.h"
 
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
@@ -45,7 +46,6 @@
 #include <queue>
 #include <set>
 #include <iostream>
-#include <assert.h>
 
 using namespace std;
 
@@ -301,7 +301,7 @@ namespace avg {
                 BlobPtr pOldBlob = pEntry->m_pOldBlob; 
                 MatchedNewBlobs.insert(pNewBlob);
                 MatchedOldBlobs.insert(pOldBlob);
-                assert (pEvents->find(pOldBlob) != pEvents->end());
+                AVG_ASSERT (pEvents->find(pOldBlob) != pEvents->end());
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
                 // EventOnMove means events are discarded when the cursor doesn't move.
@@ -337,7 +337,7 @@ namespace avg {
 
     TrackerCalibrator* TrackerEventSource::startCalibration()
     {
-        assert(!m_pCalibrator);
+        AVG_ASSERT(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.getTransform();
         m_TrackerConfig.setTransform(DeDistortPtr(new DeDistort(
                 DPoint(m_pBitmaps[0]->getSize()), DPoint(m_ActiveDisplaySize))));
@@ -349,7 +349,7 @@ namespace avg {
 
     void TrackerEventSource::endCalibration()
     {
-        assert(m_pCalibrator);
+        AVG_ASSERT(m_pCalibrator);
         m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
         DRect Area = m_TrackerConfig.getTransform()->getActiveBlobArea(m_DisplayROI);
         if (Area.size().x*Area.size().y > 1024*1024*8) {
@@ -365,7 +365,7 @@ namespace avg {
 
     void TrackerEventSource::abortCalibration()
     {
-        assert(m_pCalibrator);
+        AVG_ASSERT(m_pCalibrator);
         m_TrackerConfig.setTransform(m_pOldTransformer);
         setConfig();
         m_pOldTransformer = DeDistortPtr();

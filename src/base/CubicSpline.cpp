@@ -20,6 +20,7 @@
 //
 
 #include "CubicSpline.h"
+#include "Exception.h"
 
 #include <iostream>
 
@@ -31,7 +32,7 @@ CubicSpline::CubicSpline(const vector<double>& x, const vector<double>& y)
     : m_X(x),
       m_Y(y)
 {
-    assert(x.size() == y.size());
+    AVG_ASSERT(x.size() == y.size());
     // Add fake points before the first and after the last point so all derivatives
     // are defined.
     double edgeX = 2*m_X[0]-m_X[1];

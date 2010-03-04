@@ -121,7 +121,7 @@ void V4LCamera::close()
     vector<Buffer>::iterator it;
     for (it=m_vBuffers.begin(); it != m_vBuffers.end(); ++it) {
         int err = munmap (it->start, it->length);
-        assert (err != -1);
+        AVG_ASSERT (err != -1);
     }
     m_vBuffers.clear();
 
@@ -199,7 +199,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
             return BitmapPtr();
         } else {
             cerr << strerror(errno) << endl;
-            assert(false);
+            AVG_ASSERT(false);
         }
     }
     
@@ -299,7 +299,7 @@ bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
     if (ioctl (m_Fd, VIDIOC_QUERYCTRL, &QueryCtrl) == -1) {
             if (errno != EINVAL) {
                 cerr << "Got " << strerror(errno) << endl;
-                assert(false);
+                AVG_ASSERT(false);
             } else {
                 return false;
             }
@@ -411,13 +411,13 @@ void V4LCamera::startCapture()
         Buf.index       = i;
 
         int err = xioctl (m_Fd, VIDIOC_QBUF, &Buf);
-        assert(err != -1);
+        AVG_ASSERT(err != -1);
     }
     
     Type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     int err= xioctl (m_Fd, VIDIOC_STREAMON, &Type);
-    assert(err != -1);
+    AVG_ASSERT(err != -1);
 }
 
 void V4LCamera::initDevice()
@@ -516,13 +516,13 @@ void V4LCamera::initMMap()
             fatalError(m_sDevice+" does not support memory mapping");
         } else {
             cerr << "errno: " << strerror(errno);
-            assert(false);
+            AVG_ASSERT(false);
         }
     }
     
     if (Req.count < 2) {
         cerr << "Insufficient buffer memory on " << m_sDevice;
-        assert(false);
+        AVG_ASSERT(false);
     }
 
     m_vBuffers.clear();
@@ -538,7 +538,7 @@ void V4LCamera::initMMap()
         Buf.index = i;
 
         if (xioctl (m_Fd, VIDIOC_QUERYBUF, &Buf) == -1) {
-            assert(false);
+            AVG_ASSERT(false);
         }
 
         Tmp.length = Buf.length;
@@ -550,7 +550,7 @@ void V4LCamera::initMMap()
             m_Fd, Buf.m.offset);
 
         if (MAP_FAILED == Tmp.start) {
-            assert(false);
+            AVG_ASSERT(false);
         }
                 
         m_vBuffers.push_back(Tmp);

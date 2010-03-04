@@ -24,6 +24,7 @@
 #include "Blob.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
@@ -61,14 +62,14 @@ RunArray *Blob::getRuns()
 
 void Blob::addRun(const Run & run)
 {
-    assert((m_Runs.end()-1)->m_Row <= run.m_Row);
+    AVG_ASSERT((m_Runs.end()-1)->m_Row <= run.m_Row);
     m_Runs.push_back(run);
 }
 
 
 void Blob::merge(const BlobPtr& other)
 {
-    assert(other);
+    AVG_ASSERT(other);
     RunArray * pOtherRuns=other->getRuns();
     m_Runs.insert(m_Runs.end(), pOtherRuns->begin(), pOtherRuns->end());
     pOtherRuns->clear();
@@ -77,19 +78,19 @@ void Blob::merge(const BlobPtr& other)
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
         int Min, int Max, bool bFinger, bool bMarkCenter, Pixel32 CenterColor)
 {
-    assert (pSrcBmp);
-    assert (pDestBmp);
-    assert (pSrcBmp->getBytesPerPixel() == 1);
-    assert (pDestBmp->getBytesPerPixel() == 4);
-    assert (pSrcBmp->getSize() == pDestBmp->getSize());
+    AVG_ASSERT(pSrcBmp);
+    AVG_ASSERT(pDestBmp);
+    AVG_ASSERT(pSrcBmp->getBytesPerPixel() == 1);
+    AVG_ASSERT(pDestBmp->getBytesPerPixel() == 4);
+    AVG_ASSERT(pSrcBmp->getSize() == pDestBmp->getSize());
     unsigned char *pSrc;
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
     int IntensityScale = 2*256/(max(Max-Min, 1));
     for(RunArray::iterator it=m_Runs.begin();it!=m_Runs.end();++it) {
-        assert (it->m_Row < pSrcBmp->getSize().y);
-        assert (it->m_StartCol >= 0);
-        assert (it->m_EndCol <= pSrcBmp->getSize().x);
+        AVG_ASSERT(it->m_Row < pSrcBmp->getSize().y);
+        AVG_ASSERT(it->m_StartCol >= 0);
+        AVG_ASSERT(it->m_EndCol <= pSrcBmp->getSize().x);
         pSrc = pSrcBmp->getPixels()+it->m_Row*pSrcBmp->getStride();
         pDest = pDestBmp->getPixels()+it->m_Row*pDestBmp->getStride();
         int x_pos = it->m_StartCol;
@@ -111,7 +112,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             x_pos++;
         }
     }
-    assert(m_bStatsAvailable);
+    AVG_ASSERT(m_bStatsAvailable);
     if (bMarkCenter) {
         IntPoint Center = IntPoint(int(m_Center.x+0.5), int(m_Center.y+0.5));
         
@@ -426,7 +427,7 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
             }
         }
     }
-    assert(false);
+    AVG_ASSERT(false);
     return Pt;
 }
 
@@ -572,7 +573,7 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
 
 BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char threshold)
 {
-    assert(image->getPixelFormat() == I8);
+    AVG_ASSERT(image->getPixelFormat() == I8);
     BlobVectorPtr pBlobs = BlobVectorPtr(new BlobVector);
     IntPoint size = image->getSize();
     RunArray *runs1=new RunArray();

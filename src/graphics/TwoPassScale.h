@@ -6,6 +6,8 @@
 
 #include "ContribDefs.h"
 
+#include "../base/Exception.h"
+
 #include <math.h>
 #include <algorithm>
 #include <cstring>
@@ -220,7 +222,7 @@ TwoPassScale<DataClass>::CalcContributions(unsigned uLineSize, unsigned uSrcSize
             res->ContribRow[u].Weights[iSrc-iLeft] = CurWeight;
             dTotalWeight += CurWeight;
         }
-        assert(dTotalWeight >= 0);   // An error in the filter function can cause this
+        AVG_ASSERT(dTotalWeight >= 0);   // An error in the filter function can cause this
         int UsedWeight = 0;
         if (dTotalWeight > 0) {
             // Normalize weight of neighbouring points

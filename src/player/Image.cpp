@@ -167,7 +167,7 @@ PixelFormat Image::getPixelFormat()
 
 OGLSurface* Image::getSurface()
 {
-    assert(m_State != CPU);
+    AVG_ASSERT(m_State != CPU);
     return m_pSurface;
 }
 

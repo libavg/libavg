@@ -25,12 +25,12 @@
 #include "KsMedia.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 #include "../graphics/FilterFlip.h"
 #include "../graphics/Filtergrayscale.h"
 
-#include <assert.h>
 #include <oleauto.h>
 
 #include <math.h>
@@ -188,7 +188,7 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
     hr = pSC->GetNumberOfCapabilities(&Count, &Size);
     checkForDShowError(hr, "DSCamera::dumpMediaTypes::GetNumberOfCapabilities");
 
-    assert(Size == sizeof(VIDEO_STREAM_CONFIG_CAPS));
+    AVG_ASSERT(Size == sizeof(VIDEO_STREAM_CONFIG_CAPS));
     bool bFormatFound = false;
     bool bCloseFormatFound = false;
     AM_MEDIA_TYPE *pmtConfig;
@@ -553,7 +553,7 @@ void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPi
     }
     pEnum->Release();
     // Did not find a matching pin.
-    assert(false);
+    AVG_ASSERT(false);
 }
 
 #pragma warning(disable : 4995)

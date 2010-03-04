@@ -123,7 +123,7 @@ void GraphicsTest::testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp,
 
 int GraphicsTest::sumPixels(Bitmap& Bmp)
 {
-    assert(Bmp.getBytesPerPixel() == 4);
+    AVG_ASSERT(Bmp.getBytesPerPixel() == 4);
     int sum = 0;
     IntPoint size = Bmp.getSize();
     for (int y = 0; y < size.y; y++) {

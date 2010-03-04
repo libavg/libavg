@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 
 #include <iostream>
 
@@ -59,7 +60,7 @@ GPUFilter::~GPUFilter()
 
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
-    assert(m_pFBO);
+    AVG_ASSERT(m_pFBO);
     m_pSrcPBO->setImage(pBmpSource);
     apply(m_pFBO);
     BitmapPtr pFilteredBmp = m_pFBO->getImage(0);
@@ -90,7 +91,7 @@ const IntPoint& GPUFilter::getSize() const
     
 void GPUFilter::setFBO(FBOPtr pFBO)
 {
-    assert(!m_pFBO);
+    AVG_ASSERT(!m_pFBO);
     m_pFBO = pFBO;
 }
 

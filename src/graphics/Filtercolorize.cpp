@@ -23,7 +23,7 @@
 #include "Filtergrayscale.h"
 #include "Pixel24.h"
 
-#include <math.h>
+#include "../base/Exception.h"
 
 namespace avg {
 
@@ -136,7 +136,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp)
                 }
                 break;
             default:
-                assert(false);
+                AVG_ASSERT(false);
         }
         pSrcLine = pSrcLine + pTempBmp->getStride();
         pDestLine = pDestLine + pBmp->getStride();

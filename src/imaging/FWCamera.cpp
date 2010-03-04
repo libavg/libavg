@@ -25,6 +25,7 @@
 #endif
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 #include "../base/StringHelper.h"
@@ -110,13 +111,13 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     } else {
         err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
     }
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
     err = dc1394_video_set_mode(m_pCamera, m_Mode);
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
 
     dc1394framerates_t FrameRates;
     err = dc1394_video_get_supported_framerates(m_pCamera, m_Mode, &FrameRates);
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
     bool bFrameRateSupported = false;
     for (unsigned int i=0; i<FrameRates.num; i++) {
         if (FrameRates.framerates[i] == m_FrameRateConstant) {
@@ -137,7 +138,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     }
 
     err = dc1394_video_set_framerate(m_pCamera, m_FrameRateConstant);
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
 
     err = dc1394_capture_setup(m_pCamera,8, DC1394_CAPTURE_FLAGS_DEFAULT);
     if (err != DC1394_SUCCESS) {
@@ -152,7 +153,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
         throw Exception(AVG_ERR_CAMERA_NONFATAL, "Failed to initialize camera");
     }
     err = dc1394_video_set_transmission(m_pCamera, DC1394_ON);
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
 
     dc1394switch_t status = DC1394_OFF;
 
@@ -160,11 +161,11 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     while( status == DC1394_OFF && i++ < 5 ) {
         usleep(50000);
         err = dc1394_video_get_transmission(m_pCamera, &status);
-        assert(err == DC1394_SUCCESS);
+        AVG_ASSERT(err == DC1394_SUCCESS);
     }
 
     if( i == 5 ) {
-        assert(false);
+        AVG_ASSERT(false);
     }
     // Default to turning off any camera sharpness manipulation.
     setFeature(CAM_FEATURE_SHARPNESS, 0);
@@ -189,7 +190,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
         }
     }
 #else
-    assert(false);
+    AVG_ASSERT(false);
 #endif
 }
 
@@ -420,7 +421,7 @@ void FWCamera::setStrobeDuration(int microsecs)
                 {0x400, 0x600, 0x800, 0x900, 0xA00, 0xB00, 0xC00, 0xD00, 
                  0xE00, 0xF00, 0xFFF};
             int len = sizeof(regValues)/sizeof(*regValues);
-            assert(len == sizeof(realTimes)/sizeof(*realTimes));
+            AVG_ASSERT(len == sizeof(realTimes)/sizeof(*realTimes));
             int i;
             for (i=1; realTimes[i] < targetMillisecs; ++i); 
             double ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
@@ -428,11 +429,11 @@ void FWCamera::setStrobeDuration(int microsecs)
         } 
 
         err = dc1394_set_PIO_register(m_pCamera, 0x08, 0xC0000000);
-        assert(err == DC1394_SUCCESS);
+        AVG_ASSERT(err == DC1394_SUCCESS);
         
         uint32_t strobeRegValue = 0x83001000+durationRegValue;
         err = dc1394_set_strobe_register(m_pCamera, 0x200, strobeRegValue);
-        assert(err == DC1394_SUCCESS);
+        AVG_ASSERT(err == DC1394_SUCCESS);
     }
 #endif
 }
@@ -455,13 +456,13 @@ void FWCamera::enablePtGreyBayer()
     dc1394error_t err; 
     uint32_t imageDataFormat;
     err = dc1394_get_adv_control_register(m_pCamera, 0x48, &imageDataFormat);
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
     if (imageDataFormat & 0x80000000) {
         err = dc1394_set_adv_control_register(m_pCamera, 0x48, 0x80000081);
-        assert(err == DC1394_SUCCESS);
+        AVG_ASSERT(err == DC1394_SUCCESS);
         uint32_t bayerFormat;
         err = dc1394_get_adv_control_register(m_pCamera, 0x40, &bayerFormat);
-        assert(err == DC1394_SUCCESS);
+        AVG_ASSERT(err == DC1394_SUCCESS);
         PixelFormat exactPF = fwBayerStringToPF(bayerFormat);
         if (exactPF == I8) {
             throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
@@ -478,7 +479,7 @@ void FWCamera::dumpCameraInfo()
     dc1394error_t err;
     dc1394featureset_t FeatureSet;
     err = dc1394_feature_get_all(m_pCamera, &FeatureSet);
-    assert(err == DC1394_SUCCESS);
+    AVG_ASSERT(err == DC1394_SUCCESS);
     // TODO: do this using AVG_TRACE
     dc1394_feature_print_all(&FeatureSet, stderr);
 

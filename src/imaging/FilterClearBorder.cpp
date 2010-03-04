@@ -21,6 +21,8 @@
 
 #include "FilterClearBorder.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
 #include <math.h>
 #include <string.h>
@@ -40,9 +42,9 @@ FilterClearBorder::~FilterClearBorder()
 
 void FilterClearBorder::applyInPlace(BitmapPtr pBmp)
 {
-    assert(pBmp->getPixelFormat() == I8);
-    assert(m_NumPixels < pBmp->getSize().x);
-    assert(m_NumPixels < pBmp->getSize().y);
+    AVG_ASSERT(pBmp->getPixelFormat() == I8);
+    AVG_ASSERT(m_NumPixels < pBmp->getSize().x);
+    AVG_ASSERT(m_NumPixels < pBmp->getSize().y);
     if (m_NumPixels != 0) {
         int stride = pBmp->getStride();
         unsigned char * pPixels = pBmp->getPixels();

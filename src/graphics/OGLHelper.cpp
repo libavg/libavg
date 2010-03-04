@@ -28,7 +28,6 @@
 #include <dlfcn.h>
 #endif
 
-#include <assert.h>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
@@ -93,7 +92,7 @@ void OGLErrorCheck(int avgcode, const char * where)
         if (err != GL_INVALID_OPERATION) {
             OGLErrorCheck(avgcode, "  --");
         }
-        assert(false);
+        AVG_ASSERT(false);
     }
 }
 
@@ -106,7 +105,7 @@ void winOGLErrorCheck(BOOL bOK, const string & where)
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
         AVG_TRACE(Logger::ERROR, where+":"+szErr);
-        assert(false);
+        AVG_ASSERT(false);
     }
 }
 #endif
@@ -273,7 +272,7 @@ void loadGLLibrary()
 
 GLfunction getProcAddress(const string& sName)
 {
-    assert(glproc::s_hGLLib);
+    AVG_ASSERT(glproc::s_hGLLib);
 #ifdef _WIN32
     GLfunction pProc = (GLfunction)wglGetProcAddress(sName.c_str());
 /*

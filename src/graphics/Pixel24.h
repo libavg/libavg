@@ -27,8 +27,9 @@
 #include "Pixel32.h"
 #include "Pixel8.h"
 
+#include "../base/Exception.h"
+
 #include <stdlib.h>
-#include <assert.h>
 
 namespace avg {
     
@@ -149,7 +150,7 @@ inline int Pixel24::boxDist (const Pixel24 Pix) const
 
 inline Pixel24 Pixel24::Blend (int Factor, const Pixel24 Pix1, const Pixel24 Pix2)
 {
-  assert(Factor >= 0 && Factor <= 256);
+  AVG_ASSERT(Factor >= 0 && Factor <= 256);
 
   return Pixel24 ((Pix1.getR()*Factor+Pix2.getR()*(256-Factor))>>8,
                     (Pix1.getG()*Factor+Pix2.getG()*(256-Factor))>>8,

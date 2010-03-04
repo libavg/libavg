@@ -26,7 +26,8 @@
 #include "Bitmap.h"
 #include "Filterfill.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -67,7 +68,7 @@ void HistoryPreProcessor::reset()
 
 void HistoryPreProcessor::updateHistory(BitmapPtr pNewBmp)
 {
-    assert(pNewBmp->getSize() == m_pHistoryBmp->getSize());
+    AVG_ASSERT(pNewBmp->getSize() == m_pHistoryBmp->getSize());
     switch (m_State) {
         case NO_IMAGE:
             m_pHistoryBmp->copyPixels(*pNewBmp);

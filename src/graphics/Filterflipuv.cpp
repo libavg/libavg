@@ -22,7 +22,7 @@
 #include "Filterflipuv.h"
 #include "Pixeldefs.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
 
 namespace avg {
     
@@ -38,7 +38,7 @@ FilterFlipUV::~FilterFlipUV()
 
 void FilterFlipUV::applyInPlace(BitmapPtr pBmp) 
 {
-    assert(pBmp->getPixelFormat() == YCbCr422);
+    AVG_ASSERT(pBmp->getPixelFormat() == YCbCr422);
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {
         unsigned char * pLine = pBmp->getPixels()+y*pBmp->getStride();

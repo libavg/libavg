@@ -20,6 +20,7 @@
 //
 
 #include "BicubicSpline.h"
+#include "Exception.h"
 
 #include <iostream>
 
@@ -33,9 +34,9 @@ BicubicSpline::BicubicSpline(const vector<double>& x, const vector<double>& y,
       m_Y(y),
       m_F(f)
 {
-    assert(y.size() == f.size());
+    AVG_ASSERT(y.size() == f.size());
     for (unsigned i=0; i<y.size(); ++i) {
-        assert(x.size() == f[i].size());
+        AVG_ASSERT(x.size() == f[i].size());
     }
 /*
     for (int i=-2; i<=int(m_Y.size()+1); ++i) {
@@ -109,7 +110,7 @@ double BicubicSpline::interpolate(const DPoint& orig)
             j++;
         }
     }
-    assert (j>0 && j<int(m_X.size()));
+    AVG_ASSERT(j>0 && j<int(m_X.size()));
     int i=0;
     if (m_Y[m_Y.size()-1] <= orig.y) {
         i = m_Y.size();
@@ -118,7 +119,7 @@ double BicubicSpline::interpolate(const DPoint& orig)
             i++;
         }
     }
-    assert (i>0 && i<int(m_Y.size()));
+    AVG_ASSERT(i>0 && i<int(m_Y.size()));
 
     vector<vector<double> > coeffs; 
     getCoeffs(i, j, coeffs);

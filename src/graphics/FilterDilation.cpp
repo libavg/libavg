@@ -21,7 +21,8 @@
 
 #include "FilterDilation.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
+
 #include <algorithm>
 
 using namespace std;
@@ -40,7 +41,7 @@ FilterDilation::~FilterDilation()
 
 BitmapPtr FilterDilation::apply(BitmapPtr pSrcBmp) 
 {
-    assert(pSrcBmp->getPixelFormat() == I8);
+    AVG_ASSERT(pSrcBmp->getPixelFormat() == I8);
     IntPoint size = pSrcBmp->getSize();
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(size, I8, pSrcBmp->getName()));
     unsigned char * pSrcLine = pSrcBmp->getPixels();

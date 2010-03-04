@@ -23,14 +23,11 @@
 
 #include "Run.h"
 
-#include <assert.h>
-
 namespace avg {
 
 Run::Run(int row, int start_col, int end_col)
 {
     m_Row = row;
-//    assert(end_col>=start_col);
     m_StartCol = start_col;
     m_EndCol = end_col;
     m_Center = DPoint((m_StartCol + m_EndCol-1)/2., m_Row);

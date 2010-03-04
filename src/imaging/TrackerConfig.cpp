@@ -144,7 +144,7 @@ void TrackerConfig::setParam(const string& sXPathExpr, const string& sValue)
                     string("setParam(): cannot find requested element ")+sXPathExpr));
     
     for(int i = nodes->nodeNr - 1; i >= 0; i--) {
-        assert(nodes->nodeTab[i]);
+        AVG_ASSERT(nodes->nodeTab[i]);
 
         xmlNodeSetContent(nodes->nodeTab[i], BAD_CAST sValue.c_str());
         if (nodes->nodeTab[i]->type != XML_NAMESPACE_DECL)

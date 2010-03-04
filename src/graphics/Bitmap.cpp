@@ -39,7 +39,6 @@
 #include <xmmintrin.h>
 #endif
 
-#include <assert.h>
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -131,8 +130,8 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
 {
 //    cerr << "Bitmap::Bitmap(Bitmap, " << Rect << "), Name: " << m_sName << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
-    assert(Rect.br.x <= Orig.getSize().x);
-    assert(Rect.br.y <= Orig.getSize().y);
+    AVG_ASSERT(Rect.br.x <= Orig.getSize().x);
+    AVG_ASSERT(Rect.br.y <= Orig.getSize().y);
     if (!Orig.getName().empty()) {
         m_sName = Orig.getName()+" part";
     } else {
@@ -287,7 +286,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         break;
                     default: 
                         // Unimplemented conversion.
-                        assert(false);
+                        AVG_ASSERT(false);
                 }
                 break;
             case BAYER8_RGGB:
@@ -318,7 +317,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         break;
                     default: 
                         // Unimplemented conversion.
-                        assert(false);
+                        AVG_ASSERT(false);
                 }
                 break;
             case R32G32B32A32F:
@@ -327,7 +326,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                 } else {
                     cerr << "Can't convert " << Orig.getPixelFormatString() 
                         << " to " << getPixelFormatString() << endl;
-                    assert(false);
+                    AVG_ASSERT(false);
                 }
                 break;
             default:
@@ -338,7 +337,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         } else {
                             cerr << "Can't convert " << Orig.getPixelFormatString() 
                                     << " to " << getPixelFormatString() << endl;
-                            assert(false);
+                            AVG_ASSERT(false);
                         }
                         break;
                     case B8G8R8A8:
@@ -366,7 +365,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         // Unimplemented conversion.
                         cerr << "Can't convert " << Orig.getPixelFormatString() << " to " 
                                 << getPixelFormatString() << endl;
-                        assert(false);
+                        AVG_ASSERT(false);
                 }
         }
     }
@@ -543,7 +542,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
     _m_empty();
 #pragma pack()
 #else
-    assert(m_PF==B8G8R8X8);
+    AVG_ASSERT(m_PF==B8G8R8X8);
     const unsigned char * pYSrc = yOrig.getPixels();
     const unsigned char * pUSrc = uOrig.getPixels();
     const unsigned char * pVSrc = vOrig.getPixels();
@@ -627,7 +626,7 @@ void Bitmap::save(const UTF8String& sFilename)
         default:
             cerr << "Unsupported pixel format " << getPixelFormatString(m_PF) 
                     << endl;
-            assert(false);
+            AVG_ASSERT(false);
     }
     if (AlphaOffset != -1) {
         int Stride = pBmp->getStride();
@@ -900,7 +899,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         default:
             AVG_TRACE(Logger::ERROR, "Bitmap::getBytesPerPixel(): Unknown format " << 
                     getPixelFormatString(PF) << ".");
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }
@@ -928,7 +927,7 @@ bool Bitmap::hasAlpha() const
 
 HistogramPtr Bitmap::getHistogram(int Stride) const
 {
-    assert (m_PF == I8);
+    AVG_ASSERT (m_PF == I8);
     HistogramPtr pHist(new Histogram(256,0));
     const unsigned char * pSrcLine = m_pBits;
     for (int y=0; y < m_Size.y; y+=Stride) {
@@ -944,7 +943,7 @@ HistogramPtr Bitmap::getHistogram(int Stride) const
 
 void Bitmap::getMinMax(int Stride, int& min, int& max) const
 {
-    assert (m_PF == I8);
+    AVG_ASSERT (m_PF == I8);
     const unsigned char * pSrcLine = m_pBits;
     min = 255;
     max = 0;
@@ -965,8 +964,8 @@ void Bitmap::getMinMax(int Stride, int& min, int& max) const
 
 void Bitmap::setAlpha(const Bitmap& alphaBmp)
 {
-    assert(hasAlpha());
-    assert(alphaBmp.getPixelFormat() == I8);
+    AVG_ASSERT(hasAlpha());
+    AVG_ASSERT(alphaBmp.getPixelFormat() == I8);
     unsigned char * pLine = m_pBits;
     const unsigned char * pAlphaLine = alphaBmp.getPixels();
     for (int y=0; y < m_Size.y; y++) {
@@ -1073,8 +1072,8 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
     
 void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
 {
-    assert(getBytesPerPixel() == 4);
-    assert(pOtherBmp->getPixelFormat() == B8G8R8A8 || 
+    AVG_ASSERT(getBytesPerPixel() == 4);
+    AVG_ASSERT(pOtherBmp->getPixelFormat() == B8G8R8A8 || 
             pOtherBmp->getPixelFormat() == R8G8B8A8);
 
     IntRect destRect(pos.x, pos.y, pos.x+pOtherBmp->getSize().x, 
@@ -1257,7 +1256,7 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 
 void Bitmap::allocBits()
 {
-    assert(!m_pBits);
+    AVG_ASSERT(!m_pBits);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     m_Stride = getLineLen();
     if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
@@ -1386,7 +1385,7 @@ void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int W
 
 void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
 {
-    assert(m_PF==B8G8R8X8);
+    AVG_ASSERT(m_PF==B8G8R8X8);
     const unsigned char * pSrc = Orig.getPixels();
     Pixel32 * pDest = (Pixel32*)m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
@@ -1416,7 +1415,7 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
             break;
         default:
             // This routine shouldn't be called with other pixel formats.
-            assert(false);
+            AVG_ASSERT(false);
     }
 }
     
@@ -1446,7 +1445,7 @@ void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, in
  
 void Bitmap::YCbCrtoI8(const Bitmap& Orig)
 {
-    assert(m_PF==I8);
+    AVG_ASSERT(m_PF==I8);
     const unsigned char * pSrc = Orig.getPixels();
     unsigned char * pDest = m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
@@ -1485,14 +1484,14 @@ void Bitmap::YCbCrtoI8(const Bitmap& Orig)
             break;
         default:
             // This routine shouldn't be called with other pixel formats.
-            assert(false);
+            AVG_ASSERT(false);
     }
 }
 
 void Bitmap::I16toI8(const Bitmap& Orig)
 {
-    assert(m_PF == I8);
-    assert(Orig.getPixelFormat() == I16);
+    AVG_ASSERT(m_PF == I8);
+    AVG_ASSERT(Orig.getPixelFormat() == I16);
     const unsigned short * pSrc = (const unsigned short *)Orig.getPixels();
     unsigned char * pDest = m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
@@ -1511,8 +1510,8 @@ void Bitmap::I16toI8(const Bitmap& Orig)
 
 void Bitmap::I8toI16(const Bitmap& Orig)
 {
-    assert(m_PF == I16);
-    assert(Orig.getPixelFormat() == I8);
+    AVG_ASSERT(m_PF == I16);
+    AVG_ASSERT(Orig.getPixelFormat() == I8);
     const unsigned char * pSrc = Orig.getPixels();
     unsigned short * pDest = (unsigned short *)m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
@@ -1531,8 +1530,8 @@ void Bitmap::I8toI16(const Bitmap& Orig)
 
 void Bitmap::I8toRGB(const Bitmap& Orig)
 {
-    assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
-    assert(Orig.getPixelFormat() == I8);
+    AVG_ASSERT(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
+    AVG_ASSERT(Orig.getPixelFormat() == I8);
     const unsigned char * pSrc = Orig.getPixels();
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
@@ -1570,8 +1569,8 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
 
 void Bitmap::ByteRBBAtoFloatRGBA(const Bitmap& Orig)
 {
-    assert(getPixelFormat() == R32G32B32A32F);
-    assert(Orig.getBytesPerPixel() == 4);
+    AVG_ASSERT(getPixelFormat() == R32G32B32A32F);
+    AVG_ASSERT(Orig.getBytesPerPixel() == 4);
     const unsigned char * pSrc = Orig.getPixels();
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
@@ -1591,8 +1590,8 @@ void Bitmap::ByteRBBAtoFloatRGBA(const Bitmap& Orig)
 
 void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
 {
-    assert(getBytesPerPixel() == 4);
-    assert(Orig.getPixelFormat() == R32G32B32A32F);
+    AVG_ASSERT(getBytesPerPixel() == 4);
+    AVG_ASSERT(Orig.getPixelFormat() == R32G32B32A32F);
     const float * pSrc = (const float *)Orig.getPixels();
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
@@ -1617,8 +1616,8 @@ void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
 // TODO: add more CFA patterns (now only the GBRG is defined and used)
 void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
 {
-    assert(getBytesPerPixel() == 4);
-    assert(Orig.getPixelFormat() == BAYER8_GBRG);
+    AVG_ASSERT(getBytesPerPixel() == 4);
+    AVG_ASSERT(Orig.getPixelFormat() == BAYER8_GBRG);
 
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
@@ -1712,8 +1711,8 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
 // TODO: adapt it for RGB24, not just for RGB32
 void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
 {
-    assert(getBytesPerPixel() == 4);
-    assert(pixelFormatIsBayer(Orig.getPixelFormat()));
+    AVG_ASSERT(getBytesPerPixel() == 4);
+    AVG_ASSERT(pixelFormatIsBayer(Orig.getPixelFormat()));
 
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
@@ -1911,7 +1910,7 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
             break;
         default:
             // Unimplemented conversion.
-            assert(false);
+            AVG_ASSERT(false);
     }
 }
 

@@ -20,10 +20,10 @@
 //
 
 #include "ObjectCounter.h"
+#include "Exception.h"
 
 #include <boost/thread/mutex.hpp>
 
-#include <assert.h>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -105,14 +105,14 @@ void ObjectCounter::decRef(const std::type_info* pType)
         cerr << "ObjectCounter for " << demangle(pType->name()) 
                 << " does not exist." << endl;
         // Can't decref a type that hasn't been incref'd.
-        assert (false);
+        AVG_ASSERT(false);
     } else {
         (MapEntry->second)--;
         if (MapEntry->second < 0) {
             cerr << "ObjectCounter: refcount for " << 
                     demangle(MapEntry->first->name()) <<
                     " < 0" << endl;
-            assert (false);
+            AVG_ASSERT(false);
         }
     }
 //    cerr << "decRef " << demangle(pType->name()) << ":" << MapEntry->second << endl;

@@ -23,6 +23,7 @@
 #include "FileHelper.h"
 #include "Logger.h"
 #include "FileHelper.h"
+#include "Exception.h"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -37,7 +38,6 @@
 #include <unistd.h>
 #endif
 
-#include <assert.h>
 #include <stdlib.h>
 #include <cstdlib>
 
@@ -126,11 +126,11 @@ unsigned getMemoryUsage()
     kern_return_t rc;
     mach_port_t task;
     rc = task_for_pid(mach_task_self(), getpid(), &task);
-    assert(rc == KERN_SUCCESS);
+    AVG_ASSERT(rc == KERN_SUCCESS);
     struct task_basic_info taskInfo;
     mach_msg_type_number_t count = TASK_BASIC_INFO_COUNT;
     rc = task_info(task, TASK_BASIC_INFO, (task_info_t)&taskInfo, &count);
-    assert(rc == KERN_SUCCESS);
+    AVG_ASSERT(rc == KERN_SUCCESS);
     return taskInfo.resident_size;
 #else
 #ifdef _WIN32

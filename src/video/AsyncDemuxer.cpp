@@ -20,7 +20,9 @@
 //
 
 #include "AsyncDemuxer.h"
+
 #include "../base/ScopeTimer.h"
+#include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
 #include <boost/bind.hpp>
@@ -87,7 +89,7 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
     waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[StreamIndex]->pop(true);
-    assert (!pPacketMsg->isSeekDone());
+    AVG_ASSERT (!pPacketMsg->isSeekDone());
 
     return pPacketMsg->getPacket();
 }

@@ -21,8 +21,9 @@
 
 #include "MaterialInfo.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
-#include <assert.h>
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void MaterialInfo::setMask(bool bHasMask)
 
 void MaterialInfo::setMaskCoords(const DPoint& pos, const DPoint& size)
 {
-    assert(m_bHasMask);
+    AVG_ASSERT(m_bHasMask);
     m_MaskPos = pos;
     m_MaskSize = size;
 }

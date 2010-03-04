@@ -21,6 +21,8 @@
 #include "Bitmap.h"
 #include "TwoPassScale.h"
 
+#include "../base/Exception.h"
+
 namespace avg {
 
 FilterResizeBilinear::FilterResizeBilinear (const IntPoint& newSize)
@@ -31,7 +33,7 @@ FilterResizeBilinear::FilterResizeBilinear (const IntPoint& newSize)
 BitmapPtr FilterResizeBilinear::apply(BitmapPtr pBmpSrc)
 {
     int bpp = pBmpSrc->getBytesPerPixel();
-    assert(bpp==4 || bpp==3 || bpp==1);
+    AVG_ASSERT(bpp==4 || bpp==3 || bpp==1);
 
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(m_NewSize, 
             pBmpSrc->getPixelFormat(), pBmpSrc->getName()+"_resized"));
@@ -66,7 +68,7 @@ BitmapPtr FilterResizeBilinear::apply(BitmapPtr pBmpSrc)
             }
             break;
         default:
-            assert(false);
+            AVG_ASSERT(false);
     }
     return pBmpDest;
 }

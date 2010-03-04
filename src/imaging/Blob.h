@@ -32,7 +32,6 @@
 
 #include "../base/Point.h"
 
-#include <assert.h>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>

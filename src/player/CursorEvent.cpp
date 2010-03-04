@@ -21,8 +21,11 @@
 //  Original author of this file is igor@c-base.org
 //
 
-#include "Node.h"
 #include "CursorEvent.h"
+
+#include "Node.h"
+
+#include "../base/Exception.h"
 
 namespace avg{
 
@@ -39,7 +42,7 @@ CursorEvent::~CursorEvent()
 
 CursorEventPtr CursorEvent::cloneAs(Type EventType) const
 {
-    assert(false);
+    AVG_ASSERT(false);
     return CursorEventPtr();
 }
 

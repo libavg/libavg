@@ -169,7 +169,7 @@ void VectorNode::preRender()
 
 void VectorNode::maybeRender(const DRect& Rect)
 {
-    assert(getState() == NS_CANRENDER);
+    AVG_ASSERT(getState() == NS_CANRENDER);
     if (getActive()) {
         if (getEffectiveOpacity() > 0.01) {
             if (getID() != "") {
@@ -252,7 +252,7 @@ string VectorNode::lineJoin2String(LineJoin lineJoin)
         case LJ_BEVEL:
             return "bevel";
         default:
-            assert(false);
+            AVG_ASSERT(false);
             return 0;
     }
 }
@@ -402,7 +402,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                 }
                 break;
             default:
-                assert(false);
+                AVG_ASSERT(false);
                 break;
         }
     } else {
@@ -477,7 +477,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                 }
                 break;
             default:
-                assert(false);
+                AVG_ASSERT(false);
         }
     }
 

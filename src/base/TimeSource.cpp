@@ -22,6 +22,7 @@
 #include "TimeSource.h"
 
 #include "Logger.h"
+#include "Exception.h"
 
 #ifdef _WIN32
 #include <time.h>
@@ -42,7 +43,6 @@
 #include <errno.h>
 #include <iostream>
 #include <sstream>
-#include <assert.h>
 
 using namespace std;
 
@@ -57,7 +57,7 @@ TimeSource * TimeSource::get()
         TIMECAPS tc;
         UINT wTimerRes;
         MMRESULT err = timeGetDevCaps(&tc, sizeof(TIMECAPS));
-        assert (err == TIMERR_NOERROR);
+        AVG_ASSERT(err == TIMERR_NOERROR);
         wTimerRes = max(tc.wPeriodMin, 1);
         timeBeginPeriod(wTimerRes); 
 #endif        

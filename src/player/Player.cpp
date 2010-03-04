@@ -77,7 +77,6 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <assert.h>
 #include <math.h>
 
 using namespace std;
@@ -650,7 +649,7 @@ void Player::removeNodeID(const std::string& id)
             m_IDMap.erase(it);
         } else {
             cerr << "removeNodeID(\"" << id << "\") failed." << endl;
-            assert(false);
+            AVG_ASSERT(false);
         }
     }
 }
@@ -948,7 +947,7 @@ void Player::internalLoad(const string& sAVG)
         if (m_pRootNode) {
             cleanup();
         }
-        assert (!m_pRootNode);
+        AVG_ASSERT (!m_pRootNode);
         m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         
         xmlPedanticParserDefault(1);
@@ -1154,7 +1153,7 @@ void Player::handleTimers()
 
 bool Player::handleEvent(EventPtr pEvent)
 {
-    assert(pEvent);
+    AVG_ASSERT(pEvent);
    
     if (m_EventHookPyFunc != Py_None) {
         // If the catchall returns true, stop processing the event

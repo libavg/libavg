@@ -36,7 +36,6 @@
 #include "FilterResizeGaussian.h"
 #endif
 
-#include <assert.h>
 #include <iostream>
 
 namespace avg {
@@ -70,7 +69,7 @@ void registerWindowClass()
   wc.lpszClassName = pClassName;
   
   BOOL bOK = RegisterClass(&wc);
-  assert(bOK);
+  AVG_ASSERT(bOK);
 }
 #endif
 
@@ -93,14 +92,14 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
     AGLPixelFormat format;
     format = aglChoosePixelFormat(NULL, 0, attributes);
-    assert(format);
+    AVG_ASSERT(format);
 
     m_Context = aglCreateContext(format, NULL);
-    assert(m_Context);
+    AVG_ASSERT(m_Context);
     aglDestroyPixelFormat(format);
 
     bool bOk = aglSetCurrentContext(m_Context);
-    assert (bOk);
+    AVG_ASSERT (bOk);
 #else
 #ifdef linux
     Display *dpy;
@@ -116,7 +115,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
             0};
     vi = glXChooseVisual(dpy, DefaultScreen(dpy), attributes);
     m_Context = glXCreateContext(dpy, vi, 0, GL_TRUE);
-    assert(m_Context);
+    AVG_ASSERT(m_Context);
     Pixmap pmp = XCreatePixmap(dpy, RootWindow(dpy, vi->screen),
             8, 8, vi->depth);
     GLXPixmap pixmap = glXCreateGLXPixmap(dpy, vi, pmp);
@@ -197,10 +196,10 @@ void OGLImagingContext::activate()
 {
 #ifdef __APPLE__
     bool bOk = aglSetCurrentContext(m_Context);
-    assert(bOk);
+    AVG_ASSERT(bOk);
 #elif defined _WIN32
     BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
-    assert(bOk);
+    AVG_ASSERT(bOk);
 #endif
     // TODO: X version
 }

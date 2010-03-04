@@ -22,13 +22,13 @@
 #include "Point.h"
 
 #include "MathHelper.h"
+#include "Exception.h"
 
 #if defined(__SSE__) || defined(_WIN32)
 #include <xmmintrin.h>
 #endif
 
 #include <math.h>
-#include <assert.h>
 #include <float.h>
 
 #include <string>
@@ -60,7 +60,7 @@ Point<NUM>::Point(const Point<NUM>& p)
 template<class NUM>
 Point<NUM>::Point(const std::vector<NUM>& v)
 {
-    assert(v.size() == 2);
+    AVG_ASSERT(v.size() == 2);
     x = v[0];
     y = v[1];
 }
@@ -199,7 +199,7 @@ Point<NUM> Point<NUM>::operator *(const Point<NUM>& pt) const
 template<>
 Point<int> Point<int>::fromPolar(double angle, double radius)
 {
-    assert(false);
+    AVG_ASSERT(false);
     return Point<int>(0,0);
 }
 
@@ -212,7 +212,7 @@ Point<double> Point<double>::fromPolar(double angle, double radius)
 template<>
 Point<int> Point<int>::getNormalized() const
 {
-    assert(false);
+    AVG_ASSERT(false);
     return Point<int>(0,0);
 }
 

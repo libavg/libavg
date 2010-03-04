@@ -22,7 +22,7 @@
 #include "Filterfliprgb.h"
 #include "Pixeldefs.h"
 
-#include <assert.h>
+#include "../base/Exception.h"
 
 namespace avg {
     
@@ -60,7 +60,7 @@ void FilterFlipRGB::applyInPlace(BitmapPtr pBmp)
             break;
         default:
             // Only 24 and 32 bpp supported.
-            assert(false);
+            AVG_ASSERT(false);
     }
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {

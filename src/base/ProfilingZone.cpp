@@ -22,6 +22,7 @@
 #include "ProfilingZone.h"
 #include "ThreadProfiler.h"
 #include "ObjectCounter.h"
+#include "Exception.h"
 
 #include <iostream>
 
@@ -64,7 +65,7 @@ void ProfilingZone::start()
 {
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
     if (!pProfiler) {
-        assert(false);
+        AVG_ASSERT(false);
     }
     // Start gets called when the zone is first entered. 
     if (!m_bIsRegistered && pProfiler->isRunning()) {

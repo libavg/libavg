@@ -60,7 +60,7 @@ public:
             s << "testimages/" <<setw(2)<<setfill('0')<<i<< ".png";
             p.push_back(s.str());
         }
-        assert(p.size()>0);
+        AVG_ASSERT(p.size()>0);
         CameraPtr pCam = CameraPtr(new FakeCamera(p));
         BitmapPtr pBitmaps[NUM_TRACKER_IMAGES];
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {

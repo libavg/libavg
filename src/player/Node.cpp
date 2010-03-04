@@ -95,7 +95,7 @@ void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
 
 void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
 {
-    assert(getState() == NS_UNCONNECTED);
+    AVG_ASSERT(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 string("Can't change parent of node (") + m_ID + ")."));
@@ -116,7 +116,7 @@ void Node::removeParent(bool bKill)
 
 void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    assert(getState() == NS_CONNECTED);
+    AVG_ASSERT(getState() == NS_CONNECTED);
     m_pDisplayEngine = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine);
     m_pAudioEngine = pAudioEngine;
     setState(NS_CANRENDER);
@@ -129,7 +129,7 @@ void Node::connect()
 
 void Node::disconnect(bool bKill)
 {
-    assert(getState() != NS_UNCONNECTED);
+    AVG_ASSERT(getState() != NS_UNCONNECTED);
     if (getState() == NS_CANRENDER) {
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
@@ -421,10 +421,10 @@ void Node::setState(Node::NodeState State)
     }
 */
     if (m_State == NS_UNCONNECTED) {
-        assert(State != NS_CANRENDER);
+        AVG_ASSERT(State != NS_CANRENDER);
     }
     if (m_State == NS_CANRENDER) {
-        assert(State != NS_CONNECTED);
+        AVG_ASSERT(State != NS_CONNECTED);
     }
 
     m_State = State;

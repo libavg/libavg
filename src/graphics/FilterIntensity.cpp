@@ -21,6 +21,8 @@
 
 #include "FilterIntensity.h"
 
+#include "../base/Exception.h"
+
 #include <math.h>
 
 namespace avg {
@@ -37,7 +39,7 @@ FilterIntensity::~FilterIntensity()
 
 void FilterIntensity::applyInPlace(BitmapPtr pBmp)
 {
-    assert(pBmp->getPixelFormat() == I8);
+    AVG_ASSERT(pBmp->getPixelFormat() == I8);
     unsigned char * pLine = pBmp->getPixels();
     IntPoint size = pBmp->getSize();
     for (int y = 0; y<size.y; ++y) {
