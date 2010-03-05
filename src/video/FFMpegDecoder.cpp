@@ -854,6 +854,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
             AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
                     << pBmp->getPixelFormatString() << " not supported.");
             AVG_ASSERT(false);
+            DestFmt = PIX_FMT_BGRA;
     }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     AVCodecContext *enc = &m_pVStream->codec;

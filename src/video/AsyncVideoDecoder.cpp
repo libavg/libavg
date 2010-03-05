@@ -357,6 +357,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted, 
         FrameAvailableCode& FrameAvailable)
 {
+    AVG_ASSERT(timeWanted >= 0 || timeWanted == -1);
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
     long long FrameTime = -1000;
     VideoMsgPtr pFrameMsg;

@@ -529,14 +529,23 @@ bool VideoNode::renderToSurface(OGLTiledSurface * pSurface)
         m_FramesPlayed++;
         m_FramesTooLate++;
         m_FramesInRowTooLate++;
-        if ((m_FramesInRowTooLate > 3) ||
-            m_bSeekPending) 
-        {
+        if (m_FramesInRowTooLate > 3 || (m_bSeekPending && m_FramesPlayed != 1)) {
             // Heuristic: If we've missed more than 3 frames in a row, we stop
             // advancing movie time until the decoder has caught up.
+            // The movie time also stays still while waiting for a seek to complete.
             double framerate = Player::get()->getEffectiveFramerate();
             if (framerate != 0) {
                 m_PauseTime += (long long)(1000/framerate);
+                long long curMovieTime = 
+                        Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
+                if (curMovieTime < 0) {
+                    cerr << "----------- curTime < 0 -------------" << endl;
+                    cerr << "FramesPlayed=" << m_FramesPlayed << endl;
+                    cerr << "getFrameTime()=" << Player::get()->getFrameTime() << endl;
+                    cerr << "m_StartTime=" << m_StartTime << endl;
+                    cerr << "m_PauseTime=" << m_PauseTime << endl;
+                    m_PauseTime = Player::get()->getFrameTime()-m_StartTime;
+                }
             }
         }
 //        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
