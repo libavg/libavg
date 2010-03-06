@@ -38,7 +38,7 @@ namespace avg {
 
 class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
     public:
-        VideoDemuxerThread(CmdQueue& CmdQ, AVFormatContext * pFormatContext);
+        VideoDemuxerThread(CQueue& CmdQ, AVFormatContext * pFormatContext);
         virtual ~VideoDemuxerThread();
         bool init();
         bool work();

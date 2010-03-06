@@ -407,8 +407,8 @@ void VideoNode::close()
     }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {
-        AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " 
-                << m_FramesTooLate << " of " << m_FramesPlayed);
+//        AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " 
+//                << m_FramesTooLate << " of " << m_FramesPlayed);
     }
 }
 
@@ -509,41 +509,57 @@ bool VideoNode::renderToSurface(OGLTiledSurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();
-    FrameAvailableCode FrameAvailable;
+    FrameAvailableCode frameAvailable;
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         BitmapPtr pBmp = pSurface->lockBmp(0);
-        FrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
+        frameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
                 pSurface->lockBmp(1), pSurface->lockBmp(2), getNextFrameTime());
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        FrameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
+        frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
     }
     pSurface->unlockBmps();
-    if (FrameAvailable == FA_NEW_FRAME) {
-        m_FramesPlayed++;
-        m_FramesInRowTooLate = 0;
-        pSurface->bind();
-        m_bSeekPending = false;
-        calcMaskPos();
-    } else if (FrameAvailable == FA_STILL_DECODING) {
-        m_FramesPlayed++;
-        m_FramesTooLate++;
-        m_FramesInRowTooLate++;
-        if ((m_FramesInRowTooLate > 3) ||
-            m_bSeekPending) 
-        {
-            // Heuristic: If we've missed more than 3 frames in a row, we stop
-            // advancing movie time until the decoder has caught up.
-            double framerate = Player::get()->getEffectiveFramerate();
-            if (framerate != 0) {
-                m_PauseTime += (long long)(1000/framerate);
+    switch (frameAvailable) {
+        case FA_NEW_FRAME:
+            m_FramesPlayed++;
+            m_FramesInRowTooLate = 0;
+            pSurface->bind();
+            m_bSeekPending = false;
+            calcMaskPos();
+            break;
+        case FA_STILL_DECODING:
+            m_FramesPlayed++;
+            m_FramesTooLate++;
+            m_FramesInRowTooLate++;
+            if (m_FramesInRowTooLate > 3 || (m_bSeekPending && m_FramesPlayed != 1)) {
+                // Heuristic: If we've missed more than 3 frames in a row, we stop
+                // advancing movie time until the decoder has caught up.
+                // The movie time also stays still while waiting for a seek to complete.
+                double framerate = Player::get()->getEffectiveFramerate();
+                if (framerate != 0) {
+                    m_PauseTime += (long long)(1000/framerate);
+                    long long curMovieTime = 
+                            Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
+                    if (curMovieTime < 0) {
+                        cerr << "----------- curTime < 0 -------------" << endl;
+                        cerr << "FramesPlayed=" << m_FramesPlayed << endl;
+                        cerr << "getFrameTime()=" << Player::get()->getFrameTime()
+                                << endl;
+                        cerr << "m_StartTime=" << m_StartTime << endl;
+                        cerr << "m_PauseTime=" << m_PauseTime << endl;
+                        m_PauseTime = Player::get()->getFrameTime()-m_StartTime;
+                    }
+                }
             }
-        }
-//        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
-    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
-        m_FramesInRowTooLate = 0;
-        m_bSeekPending = false;
-//        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
+//            AVG_TRACE(Logger::PROFILE, "Missed video frame.");
+            break;
+        case FA_USE_LAST_FRAME:
+            m_FramesInRowTooLate = 0;
+            m_bSeekPending = false;
+//            AVG_TRACE(Logger::PROFILE, "Video frame reused.");
+            break;
+        default:
+            AVG_ASSERT(false);
     }
     if (m_pDecoder->isEOF()) {
         m_bEOFPending = true;
@@ -553,7 +569,7 @@ bool VideoNode::renderToSurface(OGLTiledSurface * pSurface)
             changeVideoState(Paused);
         }
     }
-    return (FrameAvailable == FA_NEW_FRAME);
+    return (frameAvailable == FA_NEW_FRAME);
 }
 
 void VideoNode::onEOF()

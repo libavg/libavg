@@ -79,12 +79,12 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         std::string m_sFilename;
 
         boost::thread* m_pVDecoderThread;
-        VideoDecoderThread::CmdQueuePtr m_pVCmdQ;
+        VideoDecoderThread::CQueuePtr m_pVCmdQ;
         VideoMsgQueuePtr m_pVMsgQ;
 
         boost::thread* m_pADecoderThread;
         boost::mutex m_AudioMutex;
-        AudioDecoderThread::CmdQueuePtr m_pACmdQ;
+        AudioDecoderThread::CQueuePtr m_pACmdQ;
         VideoMsgQueuePtr m_pAMsgQ;
         VideoMsgPtr m_pAudioMsg;
         unsigned char* m_AudioMsgData;

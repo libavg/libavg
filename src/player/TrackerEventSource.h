@@ -111,7 +111,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
         MutexPtr m_pMutex;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 
-        TrackerThread::CmdQueuePtr m_pCmdQueue;
+        TrackerThread::CQueuePtr m_pCmdQueue;
 };
 
 typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;

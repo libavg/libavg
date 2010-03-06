@@ -39,6 +39,8 @@ VideoMsg::~VideoMsg()
 
 void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, long long audioTime)
 {
+    AVG_ASSERT(m_MsgType == NONE);
+    AVG_ASSERT(pAudioBuffer);
     m_MsgType = AUDIO;
     m_pAudioBuffer = pAudioBuffer;
     m_AudioTime = audioTime;
@@ -46,17 +48,21 @@ void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, long long audioTime)
 
 void VideoMsg::setEOF()
 {
+    AVG_ASSERT(m_MsgType == NONE);
     m_MsgType = END_OF_FILE;
 }
 
 void VideoMsg::setError(const Exception& ex)
 {
+    AVG_ASSERT(m_MsgType == NONE);
     m_MsgType = ERROR;
     m_pEx = new Exception(ex);
 }
 
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime)
 {
+    AVG_ASSERT(m_MsgType == NONE);
+    AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3);
     m_MsgType = FRAME;
     m_pBmps = pBmps;
     m_FrameTime = frameTime;
@@ -64,6 +70,7 @@ void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime
 
 void VideoMsg::setSeekDone(long long seekVideoFrameTime, long long seekAudioFrameTime)
 {
+    AVG_ASSERT(m_MsgType == NONE);
     m_MsgType = SEEK_DONE;
     m_SeekVideoFrameTime = seekVideoFrameTime;
     m_SeekAudioFrameTime = seekAudioFrameTime;

@@ -44,7 +44,7 @@ namespace detail {
 } // namespace detail
 
 template <class F>
-object raw_constructor(F f, std::size_t min_args = 0)
+object raw_constructor(F f, int min_args = 0)
 {
     return detail::make_raw_function(
         objects::py_function(

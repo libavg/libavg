@@ -27,8 +27,10 @@
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <deque>
+#include <iostream>
 
 namespace avg {
 
@@ -38,20 +40,22 @@ template<class QElement>
 class AVG_TEMPLATE_API Queue 
 {
 public:
+    typedef boost::shared_ptr<QElement> QElementPtr;
+
     Queue(int MaxSize=-1);
     virtual ~Queue();
 
     bool empty() const;
-    QElement pop(bool bBlock = true);
-    void push(const QElement& Elem);
-    QElement peek(bool bBlock = true) const;
+    QElementPtr pop(bool bBlock = true);
+    void push(const QElementPtr& Elem);
+    QElementPtr peek(bool bBlock = true) const;
     int size() const;
     int getMaxSize() const;
 
 private:
-    QElement getFrontElement(bool bBlock, scoped_lock& Lock) const;
+    QElementPtr getFrontElement(bool bBlock, scoped_lock& Lock) const;
 
-    std::deque<QElement> m_Elements;
+    std::deque<QElementPtr> m_pElements;
     mutable boost::mutex m_Mutex;
     mutable boost::condition m_Cond;
     int m_MaxSize;
@@ -72,38 +76,43 @@ template<class QElement>
 bool Queue<QElement>::empty() const
 {
     scoped_lock Lock(m_Mutex);
-    return m_Elements.empty();
+    return m_pElements.empty();
 }
 
 template<class QElement>
-QElement Queue<QElement>::pop(bool bBlock)
+typename Queue<QElement>::QElementPtr Queue<QElement>::pop(bool bBlock)
 {
     scoped_lock Lock(m_Mutex);
-    QElement Elem = getFrontElement(bBlock, Lock); 
-    m_Elements.pop_front();
-    m_Cond.notify_one();
-    return Elem;
+    QElementPtr pElem = getFrontElement(bBlock, Lock); 
+    if (pElem) {
+        m_pElements.pop_front();
+        m_Cond.notify_one();
+    }
+    return pElem;
 }
 
 template<class QElement>
-QElement Queue<QElement>::peek(bool bBlock) const
+typename Queue<QElement>::QElementPtr Queue<QElement>::peek(bool bBlock) const
 {
     scoped_lock Lock(m_Mutex);
-    QElement Elem = getFrontElement(bBlock, Lock); 
-    m_Cond.notify_one();
-    return Elem;
+    QElementPtr pElem = getFrontElement(bBlock, Lock); 
+    if (pElem) {
+        m_Cond.notify_one();
+    }
+    return pElem;
 }
 
 template<class QElement>
-void Queue<QElement>::push(const QElement& Elem)
+void Queue<QElement>::push(const QElementPtr& pElem)
 {
+    assert(pElem);
     scoped_lock Lock(m_Mutex);
-    if(m_Elements.size() == (unsigned)m_MaxSize) {
-        while(m_Elements.size() == (unsigned)m_MaxSize) {
+    if (m_pElements.size() == (unsigned)m_MaxSize) {
+        while (m_pElements.size() == (unsigned)m_MaxSize) {
             m_Cond.wait(Lock);
         }
     }
-    m_Elements.push_back(Elem);
+    m_pElements.push_back(pElem);
     m_Cond.notify_one();
 }
 
@@ -111,7 +120,7 @@ template<class QElement>
 int Queue<QElement>::size() const
 {
     scoped_lock Lock(m_Mutex);
-    return int(m_Elements.size());
+    return int(m_pElements.size());
 }
 
 template<class QElement>
@@ -122,18 +131,19 @@ int Queue<QElement>::getMaxSize() const
 }
 
 template<class QElement>
-QElement Queue<QElement>::getFrontElement(bool bBlock, scoped_lock& Lock) const
+typename Queue<QElement>::QElementPtr 
+        Queue<QElement>::getFrontElement(bool bBlock, scoped_lock& Lock) const
 {
-    if(m_Elements.empty()) {
+    if (m_pElements.empty()) {
         if (bBlock) {
-            while(m_Elements.empty()) {
+            while (m_pElements.empty()) {
                 m_Cond.wait(Lock);
             }
         } else {
-            throw Exception(AVG_ERR_QUEUE_EMPTY);
+            return QElementPtr();
         }
     }
-    return m_Elements.front();
+    return m_pElements.front();
 }
 
 }

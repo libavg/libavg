@@ -40,7 +40,7 @@ namespace avg {
 
 class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
-        AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+        AudioDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
                 VideoDecoderPtr pDecoder, const AudioParams& AP);
         virtual ~AudioDecoderThread();
         

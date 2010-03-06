@@ -77,7 +77,7 @@ private:
 };
 
 typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;
-typedef Queue<VideoMsgPtr> VideoMsgQueue;
+typedef Queue<VideoMsg> VideoMsgQueue;
 typedef boost::shared_ptr<VideoMsgQueue> VideoMsgQueuePtr;
 
 }

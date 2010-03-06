@@ -72,7 +72,7 @@ class AVG_API TrackerThread: public WorkerThread<TrackerThread>
                 CameraPtr pCamera, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex,
-                CmdQueue& CmdQ,
+                CQueue& CmdQ,
                 IBlobTarget *target,
                 bool bSubtractHistory,
                 TrackerConfig &config);

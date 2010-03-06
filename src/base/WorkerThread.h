@@ -30,6 +30,7 @@
 #include "Profiler.h"
 #include "ThreadProfiler.h"
 #include "ObjectCounter.h"
+#include "CmdQueue.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -41,10 +42,12 @@ namespace avg {
 template<class DERIVED_THREAD>
 class AVG_TEMPLATE_API WorkerThread {
 public:
-    typedef Queue<Command<DERIVED_THREAD> > CmdQueue;
-    typedef boost::shared_ptr<CmdQueue> CmdQueuePtr;
+    typedef Command<DERIVED_THREAD> Cmd;
+    typedef typename boost::shared_ptr<Cmd> CmdPtr;
+    typedef CmdQueue<DERIVED_THREAD> CQueue;
+    typedef typename boost::shared_ptr<CQueue> CQueuePtr;
 
-    WorkerThread(const std::string& sName, CmdQueue& CmdQ);
+    WorkerThread(const std::string& sName, CQueue& CmdQ);
     WorkerThread(WorkerThread const& other);
     virtual ~WorkerThread();
     void operator()();
@@ -61,11 +64,11 @@ private:
 
     std::string m_sName;
     bool m_bShouldStop;
-    CmdQueue& m_CmdQ;
+    CQueue& m_CmdQ;
 };
 
 template<class DERIVED_THREAD>
-WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CmdQueue& CmdQ)
+WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CQueue& CmdQ)
     : m_sName(sName),
       m_bShouldStop(false),
       m_CmdQ(CmdQ)
@@ -121,8 +124,8 @@ void WorkerThread<DERIVED_THREAD>::operator()()
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::waitForCommand() 
 {
-    Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(true);
-    Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
+    CmdPtr pCmd = m_CmdQ.pop(true);
+    pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
 }
 
 template<class DERIVED_THREAD>
@@ -140,19 +143,15 @@ bool WorkerThread<DERIVED_THREAD>::init()
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::processCommands()
 {
-    if (!m_CmdQ.empty()) {
-        try {
-            // This loop always ends in an exception when the Queue is empty.
-            while (true) {
-                Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(false);
-                Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
-            }
-        } catch (const Exception& e) {
-            if (e.GetCode() != AVG_ERR_QUEUE_EMPTY) {
-                AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
-                        << m_sName << ": " << e.GetStr());
-            }
+    try {
+        CmdPtr pCmd = m_CmdQ.pop(false);
+        while (pCmd) {
+            pCmd->execute(dynamic_cast<DERIVED_THREAD*>(this));
+            pCmd = m_CmdQ.pop(false);
         }
+    } catch (const Exception& e) {
+        AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
+                << m_sName << ": " << e.GetStr());
     }
    
 }

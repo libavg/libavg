@@ -45,7 +45,7 @@
 #define AVG_ERR_LOAD_DURING_PLAYBACK 19
 #define AVG_ERR_CANT_PARSE_STRING 20
 #define AVG_ERR_INVALID_CAPTURE 21
-#define AVG_ERR_QUEUE_EMPTY 22
+
 #define AVG_ERR_NO_NODE 23
 #define AVG_ERR_NO_ARG 24
 #define AVG_ERR_INVALID_ARGS 25
@@ -75,7 +75,7 @@ class AVG_API Exception
 
 void fatalError(const std::string& sMsg);
 
-void avgAssert(bool b, char * pszFile, int line);
+void avgAssert(bool b, const char * pszFile, int line);
 
 #define AVG_ASSERT(b) avgAssert((b != 0), __FILE__, __LINE__);
 

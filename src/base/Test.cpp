@@ -81,7 +81,7 @@ const std::string& Test::getName() const
     return m_sName;
 }
 
-void Test::aggregateStatistics (const Test& ChildTest)
+void Test::aggregateStatistics(const Test& ChildTest)
 {
     m_NumSucceeded += ChildTest.getNumSucceeded();
     m_NumFailed += ChildTest.getNumFailed();

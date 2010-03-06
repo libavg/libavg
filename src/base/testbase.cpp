@@ -43,6 +43,7 @@
 #include <boost/bind.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -66,35 +67,29 @@ public:
 private:
     void runSingleThreadTests()
     {
-        Queue<int> q;
+        Queue<string> q;
+        typedef Queue<string>::QElementPtr ElemPtr;
         TEST(q.empty());
-        q.push(1);
+        q.push(ElemPtr(new string("1")));
         TEST(q.size() == 1);
         TEST(!q.empty());
-        q.push(2);
-        q.push(3);
+        q.push(ElemPtr(new string("2")));
+        q.push(ElemPtr(new string("3")));
         TEST(q.size() == 3);
-        TEST(q.pop() == 1);
-        TEST(q.pop() == 2);
-        q.push(4);
-        TEST(q.pop() == 3);
-        TEST(q.peek() == 4);
-        TEST(q.pop() == 4);
+        TEST(*q.pop() == "1");
+        TEST(*q.pop() == "2");
+        q.push(ElemPtr(new string("4")));
+        TEST(*q.pop() == "3");
+        TEST(*q.peek() == "4");
+        TEST(*q.pop() == "4");
         TEST(q.empty());
-        bool bExceptionThrown = false;
-        try {
-            q.pop(false);
-        } catch (Exception& ex) {
-            if (ex.GetCode() == AVG_ERR_QUEUE_EMPTY) {
-                bExceptionThrown = true;
-            }
-        }
-        TEST(bExceptionThrown);
+        ElemPtr pElem = q.pop(false);
+        TEST(!pElem);
     }
 
     void runMultiThreadTests()
     {
-        Queue<int> q(10);
+        Queue<string> q(10);
         thread pusher(bind(&pushThread, &q));
         thread popper(bind(&popThread, &q));
         pusher.join();
@@ -102,15 +97,19 @@ private:
         TEST(q.empty());
     }
 
-    static void pushThread(Queue<int>* pq)
+    static void pushThread(Queue<string>* pq)
     {
+        typedef Queue<string>::QElementPtr ElemPtr;
         for (int i=0; i<100; ++i) {
-            pq->push(i);
+            stringstream ss;
+            ss << i;
+            string s = ss.str();
+            pq->push(ElemPtr(new string(s)));
             msleep(1);
         }
     }
 
-    static void popThread(Queue<int>* pq)
+    static void popThread(Queue<string>* pq)
     {
         for (int i=0; i<100; ++i) {
             pq->peek();
@@ -122,7 +121,7 @@ private:
 
 class TestWorkerThread: public WorkerThread<TestWorkerThread> {
 public:
-    TestWorkerThread(CmdQueue& CmdQ, int* pNumFuncCalls, int* pIntParam, 
+    TestWorkerThread(CQueue& CmdQ, int* pNumFuncCalls, int* pIntParam, 
             std::string* pStringParam)
         : WorkerThread<TestWorkerThread>("Thread1", CmdQ),
           m_pNumFuncCalls(pNumFuncCalls),
@@ -170,14 +169,14 @@ public:
 
     void runTests() 
     {
-        TestWorkerThread::CmdQueue CmdQ;
+        typedef TestWorkerThread::CmdPtr CmdPtr;
+        TestWorkerThread::CQueue CmdQ;
         boost::thread* pTestThread;
         int NumFuncCalls = 0;
         int IntParam = 0;
         std::string StringParam;
-        CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::doSomething,
-                _1, 23, "foo")));
-        CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::stop, _1)));
+        CmdQ.pushCmd(boost::bind(&TestWorkerThread::doSomething, _1, 23, "foo"));
+        CmdQ.pushCmd(boost::bind(&TestWorkerThread::stop, _1));
         pTestThread = new boost::thread(TestWorkerThread(CmdQ, &NumFuncCalls,
                 &IntParam, &StringParam));
         pTestThread->join();

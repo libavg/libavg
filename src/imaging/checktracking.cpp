@@ -56,7 +56,7 @@ TestTracker()
     MutexPtr pMutex(new boost::mutex);
     TrackerConfig Config;
     Config.setParam("/tracker/touch/threshold/@value", "131");
-    m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+    m_pCmdQ = TrackerThread::CQueuePtr(new TrackerThread::CQueue);
     IntRect ROI(0,0,pCam->getImgSize().x, pCam->getImgSize().y);
     boost::thread Thread(
             TrackerThread(ROI, pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, 
@@ -81,7 +81,7 @@ virtual void update(BlobVectorPtr pBlobs, BitmapPtr)
 
 private:
     int m_FrameNum;
-    TrackerThread::CmdQueuePtr m_pCmdQ;
+    TrackerThread::CQueuePtr m_pCmdQ;
     BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 
 };

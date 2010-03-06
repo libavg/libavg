@@ -28,7 +28,7 @@ using namespace std;
 
 namespace avg {
 
-VideoDecoderThread::VideoDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+VideoDecoderThread::VideoDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
         VideoDecoderPtr pDecoder)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), CmdQ),
       m_MsgQ(MsgQ),
@@ -87,11 +87,8 @@ bool VideoDecoderThread::work()
 
 void VideoDecoderThread::seek(long long DestTime)
 {
-    try {
-        while (!m_MsgQ.empty()) {
-            m_MsgQ.pop(false);
-        }
-    } catch (Exception&) {
+    while (!m_MsgQ.empty()) {
+        m_MsgQ.pop(false);
     }
 
     long long VideoFrameTime = -1;
@@ -127,12 +124,12 @@ void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
         PixelFormat pf)
 {
-    if (pBmpQ->empty()) {
-        return BitmapPtr(new Bitmap(size, pf)); 
-    } else {
-        BitmapPtr pBmp = pBmpQ->pop();
+    BitmapPtr pBmp = pBmpQ->pop(false);
+    if (pBmp) {
         AVG_ASSERT (pBmp->getSize() == size && pBmp->getPixelFormat() == pf);
         return pBmp;
+    } else {
+        return BitmapPtr(new Bitmap(size, pf)); 
     }
 }
 

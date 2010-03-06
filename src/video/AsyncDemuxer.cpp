@@ -38,7 +38,7 @@ typedef boost::mutex::scoped_lock scoped_lock;
 namespace avg {
 
 AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
-    : m_pCmdQ(new VideoDemuxerThread::CmdQueue),
+    : m_pCmdQ(new VideoDemuxerThread::CQueue),
       m_bSeekPending(false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -49,17 +49,14 @@ AsyncDemuxer::~AsyncDemuxer()
 {
     if (m_pDemuxThread) {
         waitForSeekDone();
-        m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
-                &VideoDemuxerThread::stop, _1)));
+        m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::stop, _1));
         map<int, VideoPacketQueuePtr>::iterator it;
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
             // If the Queue is full, this breaks the lock in the thread.
-            try {
-                PacketVideoMsgPtr pPacketMsg;
-                pPacketMsg = it->second->pop(false);
+            PacketVideoMsgPtr pPacketMsg;
+            pPacketMsg = it->second->pop(false);
+            if (pPacketMsg) {
                 pPacketMsg->freePacket();
-            } catch (Exception&) {
-                // This gets thrown if the queue is empty.
             }
         }
         m_pDemuxThread->join();
@@ -68,13 +65,10 @@ AsyncDemuxer::~AsyncDemuxer()
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
-            try {
-                while(true) {
-                    pPacketMsg = pPacketQ->pop(false);
-                    pPacketMsg->freePacket();
-                }
-            } catch (Exception&) {
-                // This gets thrown if the queue is empty.
+            pPacketMsg = pPacketQ->pop(false);
+            while(pPacketMsg) {
+                pPacketMsg->freePacket();
+                pPacketMsg = pPacketQ->pop(false);
             }
         }
     }
@@ -86,8 +80,8 @@ void AsyncDemuxer::enableStream(int StreamIndex)
     VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
     m_PacketQs[StreamIndex] = pPacketQ;
     m_bSeekDone[StreamIndex] = true;
-    m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
-                &VideoDemuxerThread::enableStream, _1, pPacketQ, StreamIndex)));
+    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::enableStream, _1, pPacketQ, 
+            StreamIndex));
 }
 
 AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
@@ -104,8 +98,7 @@ void AsyncDemuxer::seek(long long DestTime)
 {
     waitForSeekDone();
     scoped_lock Lock(m_SeekMutex);
-    m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
-                &VideoDemuxerThread::seek, _1, DestTime)));
+    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, DestTime));
     m_bSeekPending = true;
     bool bAllSeeksDone = true;
     map<int, VideoPacketQueuePtr>::iterator it;
@@ -114,15 +107,15 @@ void AsyncDemuxer::seek(long long DestTime)
         PacketVideoMsgPtr pPacketMsg;
         map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
         itSeekDone->second = false;
-        try {
-            while(!itSeekDone->second) {
+        pPacketMsg = pPacketQ->pop(false);
+        while(pPacketMsg && !itSeekDone->second) {
+            itSeekDone->second = pPacketMsg->isSeekDone();
+            pPacketMsg->freePacket();
+            if (!itSeekDone->second) {
                 pPacketMsg = pPacketQ->pop(false);
-                itSeekDone->second = pPacketMsg->isSeekDone();
-                pPacketMsg->freePacket();
             }
-            itSeekDone->second = true;
-        } catch (Exception&) {
-            // This gets thrown if the queue is empty.
+        }
+        if (!itSeekDone->second) {
             bAllSeeksDone = false;
         }
     }

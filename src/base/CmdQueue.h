@@ -19,36 +19,29 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Command_H_
-#define _Command_H_
+#ifndef _CmdQueue_H_
+#define _CmdQueue_H_
+
+#include "Command.h"
+#include "Queue.h"
 
 #include "../api.h"
-#include <boost/function.hpp>
 
 namespace avg {
 
 template<class RECEIVER>
-class AVG_TEMPLATE_API Command {
+class AVG_TEMPLATE_API CmdQueue: public Queue<Command<RECEIVER> >
+{
 public:
-    typedef boost::function<void(RECEIVER*)> CmdFunc;
-
-    Command(CmdFunc Func);
-    void execute(RECEIVER* pTarget);
-
-private:
-    CmdFunc m_Func;
+    typedef typename Queue<Command<RECEIVER> >::QElementPtr CmdPtr;
+    void pushCmd(typename Command<RECEIVER>::CmdFunc func);
+    
 };
 
 template<class RECEIVER>
-Command<RECEIVER>::Command(CmdFunc Func)
-    : m_Func(Func)
+void CmdQueue<RECEIVER>::pushCmd(typename Command<RECEIVER>::CmdFunc func)
 {
-}
-
-template<class RECEIVER>
-void Command<RECEIVER>::execute(RECEIVER* pTarget)
-{
-    m_Func(pTarget);
+    push(CmdPtr(new Command<RECEIVER>(func)));
 }
 
 }

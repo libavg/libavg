@@ -36,12 +36,12 @@
 
 namespace avg {
 
-typedef Queue<BitmapPtr> BitmapQueue;
+typedef Queue<Bitmap> BitmapQueue;
 typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        VideoDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+        VideoDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
                 VideoDecoderPtr pDecoder);
         virtual ~VideoDecoderThread();
         
