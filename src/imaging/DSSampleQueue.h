@@ -56,7 +56,7 @@ private:
     IntPoint m_Size;
     PixelFormat m_CameraPF;
     PixelFormat m_DestPF;
-    Queue<BitmapPtr> m_BitmapQ;
+    Queue<Bitmap> m_BitmapQ;
 };
 
 }
