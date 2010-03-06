@@ -134,13 +134,17 @@ void DSCamera::open()
 
 void DSCamera::close()
 {
-    m_pAMCameraControl->Release();
+    if (m_pAMCameraControl) {
+        m_pAMCameraControl->Release();
+    }
     m_pMediaControl->Stop();
     RemoveGraphFromRot(m_GraphRegisterID);
     m_pGraph->Release();
     m_pCapture->Release();
     m_pMediaControl->Release();
-    m_pCameraPropControl->Release();
+    if (m_pCameraPropControl) {
+        m_pCameraPropControl->Release();
+    }
     m_pSrcFilter->Release();
     m_pGrabFilter->Release();
     m_pSampleGrabber->Release();

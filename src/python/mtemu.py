@@ -65,11 +65,12 @@ class MTemu(object):
     
     def __init__(self):
         rootNode = Player.getRootNode()
-        posX = rootNode.size.x * 3/4
-        posY = rootNode.size.y-40
+        posX = rootNode.size.x-50
+        posY = rootNode.size.y-50
         
         self.__layer = Player.createNode(''' 
-                <words id="displayEmu" x="%(posX)i" y="%(posY)i" fontsize="20" opacity="1" 
+                <words id="displayEmu" x="%(posX)i" y="%(posY)i" fontsize="20" 
+                opacity="1" alignment="right"
                 color="DDDDDD" text="Multitouch emulation active" sensitive="False" />
                 '''
                 % {'posX':posX, 'posY':posY} 
