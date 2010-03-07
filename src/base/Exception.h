@@ -77,7 +77,7 @@ void fatalError(const std::string& sMsg);
 
 void avgAssert(bool b, const char * pszFile, int line);
 
-#define AVG_ASSERT(b) avgAssert((b != 0), __FILE__, __LINE__);
+#define AVG_ASSERT(b) avgAssert((b) != 0, __FILE__, __LINE__);
 
 }
 
