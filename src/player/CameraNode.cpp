@@ -22,7 +22,7 @@
 #include "CameraNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "OGLSurface.h"
+#include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/TimeSource.h"

@@ -21,7 +21,7 @@
 
 #include "WordsNode.h"
 #include "SDLDisplayEngine.h"
-#include "OGLSurface.h"
+#include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
 #include "TextEngine.h"
 

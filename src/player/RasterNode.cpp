@@ -23,6 +23,7 @@
 
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
+#include "OGLTiledSurface.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

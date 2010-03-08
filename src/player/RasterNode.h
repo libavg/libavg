@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "AreaNode.h"
 #include "DisplayEngine.h"
-#include "OGLTiledSurface.h"
+#include "OGLTexture.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
@@ -34,6 +34,8 @@
 #include <string>
 
 namespace avg {
+
+class OGLTiledSurface;
 
 class AVG_API RasterNode: public AreaNode
 {

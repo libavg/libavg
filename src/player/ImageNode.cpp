@@ -24,6 +24,7 @@
 #include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
+#include "OGLTiledSurface.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
