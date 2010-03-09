@@ -45,32 +45,52 @@ def cleanExit(rc):
         except OSError:
             print 'ERROR: Cannot clean up test package directory'
 
-    sys.exit(rc)
+    if isinstance(rc, Exception):
+        raise rc
+    else:
+        sys.exit(rc)
 
+def symtree(src, dest):
+    os.mkdir(dest)
+    for f in os.listdir(src):
+        fpath = os.path.join(src, f)
+        if (f and f[0] != '.' and
+            (os.path.isdir(fpath) or
+            (os.path.isfile(fpath) and os.path.splitext(f)[1] == '.py'))):
+                os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
+        
 if platform.system() != 'Windows':
-    print 'Creating local libavg python package'
+    g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
     if os.getenv('srcdir') in ('.', None):
-        # We're running make check
-        shutil.copytree('../python', 'libavg')
-        shutil.copy('../wrapper/__init__.py', 'libavg/')
+        if os.path.basename(os.getcwd()) != 'test':
+            raise RuntimeError('Manual tests must be performed inside directory "test"')
+        
+        if os.path.isdir(g_TempPackageDir):
+            print 'Cleaning up old test package'
+            shutil.rmtree(g_TempPackageDir)
+        
+        # We're running make check / manual tests
+        symtree('../python', 'libavg')
+        # os.system('cp -r ../python libavg')
+        os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
     else:
         # make distcheck
-        shutil.copytree('../../../../src/python', 'libavg')
-        shutil.copy('../../../../src/wrapper/__init__.py', 'libavg/')
+        symtree('../../../../src/python', 'libavg')
+        os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
         sys.path.insert(0, os.getcwd())
     
-    shutil.copy('../wrapper/.libs/avg.so', 'libavg/')
-    g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
+    os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
 
     # The following lines help to prevent the test to be run
-    # with an unknown version of libavg, which can be laying somewhere
+    # with an unknown version of libavg, which can be hiding somewhere
     # in the system
     import libavg
 
     cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
     
     if cpfx != os.getcwd():
-        raise RuntimeError('Tests would be performed with a non-local libavg package (%s)'
+        raise RuntimeError(
+            'Tests would be performed with a non-local libavg package (%s)'
             % libavg.__file__)
     
 from libavg import avg
@@ -197,7 +217,6 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except KeyboardInterrupt:
-        print 'CTRL-C'
-        cleanExit(0)
+    except Exception, e:
+        cleanExit(e)
 
