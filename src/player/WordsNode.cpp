@@ -21,7 +21,7 @@
 
 #include "WordsNode.h"
 #include "SDLDisplayEngine.h"
-#include "OGLTiledSurface.h"
+#include "OGLSurface.h"
 #include "NodeDefinition.h"
 #include "TextEngine.h"
 
@@ -151,9 +151,9 @@ void WordsNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void WordsNode::connect()
+void WordsNode::connect(Scene * pScene)
 {
-    RasterNode::connect();
+    RasterNode::connect(pScene);
     checkReload();
 }
 
@@ -579,7 +579,7 @@ void WordsNode::drawString()
 
             getSurface()->unlockBmps();
 
-            getSurface()->bind();
+            bind();
             if (m_LineSpacing == -1) {
                 m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
             }
@@ -606,8 +606,7 @@ void WordsNode::render(const DRect& Rect)
         if (m_PosOffset != IntPoint(0,0)) {
             getDisplayEngine()->pushTransform(DPoint(m_PosOffset), 0, DPoint(0,0));
         }
-        getSurface()->blta8(DPoint(getMediaSize()), getEffectiveOpacity(), m_Color, 
-                getBlendMode());
+        blta8(DPoint(getMediaSize()), getEffectiveOpacity(), m_Color, getBlendMode());
         if (m_PosOffset != IntPoint(0,0)) {
             getDisplayEngine()->popTransform();
         }

@@ -31,17 +31,24 @@ using namespace std;
 
 namespace avg {
 
-FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned texID)
+FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
+        unsigned multisampleSamples)
     : m_Size(size),
-      m_PF(pf)
+      m_PF(pf),
+      m_MultisampleSamples(multisampleSamples)
 {
     m_TexIDs.push_back(texID);
     init();
+    if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
+    }
 }
 
 FBO::FBO(const IntPoint& size, PixelFormat pf, vector<unsigned> texIDs)
     : m_Size(size),
       m_PF(pf),
+      m_MultisampleSamples(1),
       m_TexIDs(texIDs)
 {
     m_TexIDs = texIDs;
@@ -51,19 +58,32 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, vector<unsigned> texIDs)
 FBO::~FBO()
 {
     glproc::DeleteFramebuffers(1, &m_FBO);
+    if (m_MultisampleSamples > 1) {
+        glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
+        glproc::DeleteFramebuffers(1, &m_OutputFBO);
+    }
 }
 
 BitmapPtr FBO::getImage(int i) const
 {
-    activate();
+    if (m_MultisampleSamples == 1) {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    } else {
+        // Copy Multisample FBO to destination fbo
+        glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
+        glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
+        glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
+                GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+    }
     PixelFormat pf = m_pOutputPBO->getExtPF();
     IntPoint size = m_pOutputPBO->getSize();
-    BitmapPtr pBmp(new Bitmap(m_pOutputPBO->getSize(), pf));
+    BitmapPtr pBmp(new Bitmap(size, pf));
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_pOutputPBO->getOutputPBO());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadBuffer()");
-    
+
     glReadPixels (0, 0, size.x, size.y, m_pOutputPBO->getFormat(pf), 
             m_pOutputPBO->getType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
@@ -75,7 +95,7 @@ BitmapPtr FBO::getImage(int i) const
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage: UnmapBuffer()");
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-    deactivate();
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     return pBmp;
 }
  
@@ -84,17 +104,32 @@ void FBO::init()
     m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true));
 
     glproc::GenFramebuffers(1, &m_FBO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO: GenFramebuffers()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: GenFramebuffers()");
 
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "FBO::activate: BindFramebuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: BindFramebuffer()");
 
-    for (unsigned i=0; i<m_TexIDs.size(); ++i) {
-        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
-                GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_RECTANGLE_ARB, 
-                m_TexIDs[i], 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO: glFramebufferTexture2D()");
+    if (m_MultisampleSamples == 1) {
+        for (unsigned i=0; i<m_TexIDs.size(); ++i) {
+            glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
+                    GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_RECTANGLE_ARB, 
+                    m_TexIDs[i], 0);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO: glFramebufferTexture2D()");
+        }
+    } else {
+        glproc::GenRenderbuffers(1, &m_ColorBuffer);
+        glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_ColorBuffer);
+        glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER_EXT, m_MultisampleSamples,
+                GL_RGBA8, m_Size.x, m_Size.y);
+        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                GL_RENDERBUFFER_EXT, m_ColorBuffer);
+        checkError();
+        glproc::GenFramebuffers(1, &m_OutputFBO);
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                GL_TEXTURE_RECTANGLE_ARB, m_TexIDs[0], 0);
+
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: Multisample init");
     }
 
     checkError();
@@ -104,21 +139,25 @@ void FBO::init()
 void FBO::activate() const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "FBO::activate: BindFramebuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::activate: BindFramebuffer()");
     checkError();
 }
 
 void FBO::deactivate() const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "FBO::deactivate: BindFramebuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
 bool FBO::isFBOSupported()
 {
     return queryOGLExtension("GL_EXT_framebuffer_object");
+}
+
+bool FBO::isMultisampleFBOSupported()
+{
+    return queryOGLExtension("GL_EXT_framebuffer_multisample") && 
+            queryOGLExtension("GL_EXT_framebuffer_blit");
 }
     
 void FBO::checkError() const
@@ -147,9 +186,12 @@ void FBO::checkError() const
             case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
                 fprintf(stderr,"framebuffer FRAMEBUFFER_DIMENSIONS\n");
                 break;
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT
+            // Missing in some versions of glext.h
             case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
                 fprintf(stderr,"framebuffer INCOMPLETE_DUPLICATE_ATTACHMENT\n");
                 break;
+#endif
             case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
                 fprintf(stderr,"framebuffer INCOMPLETE_FORMATS\n");
                 break;

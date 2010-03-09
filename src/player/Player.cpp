@@ -40,12 +40,10 @@
 #include "NodeDefinition.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
-
+#include "TestHelper.h"
+#include "MainScene.h"
+#include "OffscreenScene.h"
 #include "TrackerEventSource.h"
-#include "Event.h"
-#include "MouseEvent.h"
-#include "KeyEvent.h"
-
 #include "SDLDisplayEngine.h"
 
 #include "../base/FileHelper.h"
@@ -74,36 +72,29 @@
 #define getcwd _getcwd
 #endif
 
-#include <algorithm>
 #include <iostream>
-#include <sstream>
-#include <math.h>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
     
 Player * Player::s_pPlayer=0;
 
 Player::Player()
-    : m_pRootNode(),
+    : m_pMainScene(0),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_bAudioEnabled(true),
       m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
-      m_pEventCaptureNode(),
-      m_bUseFakeCamera(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
       m_Volume(1),
-      m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
-      m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
-      m_PreRenderSignal(&IPreRenderListener::onPreRender),
       m_dtd(0),
       m_bPythonAvailable(true),
       m_EventHookPyFunc(Py_None)
@@ -118,6 +109,7 @@ Player::Player()
 
     // Register all node types
     registerNodeType(AVGNode::createDefinition());
+    registerNodeType(SceneNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
     registerNodeType(ImageNode::createDefinition());
     registerNodeType(WordsNode::createDefinition());
@@ -133,7 +125,7 @@ Player::Player()
     registerNodeType(CircleNode::createDefinition());
     registerNodeType(MeshNode::createDefinition());
     
-    m_pTestHelper = new TestHelper(this);
+    m_pTestHelper = new TestHelper();
 
     // Early initialization of TextEngine singletons (dualton? ;-))
     // to avoid locale clashes with Magick (bug 54)
@@ -190,31 +182,31 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
         m_DP.m_BPP = bpp;
     }
     if (width) {
-        m_DP.m_WindowWidth = width;
+        m_DP.m_WindowSize.x = width;
     }
     if (height) {
-        m_DP.m_WindowHeight = height;
+        m_DP.m_WindowSize.y = height;
     }
 }
 
 void Player::setWindowPos(int x, int y)
 {
-    m_DP.m_x = x;
-    m_DP.m_y = y;
+    m_DP.m_Pos.x = x;
+    m_DP.m_Pos.y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOW2Textures, bool bUseShaders, 
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples)
 {
-    m_bUsePOW2Textures = bUsePOW2Textures;
-    m_bUseShaders = bUseShaders;
-    m_bUsePixelBuffers = bUsePixelBuffers;
-    m_MultiSampleSamples = MultiSampleSamples;
+    m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
+    m_GLConfig.m_bUseShaders = bUseShaders;
+    m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
+    m_GLConfig.m_MultiSampleSamples = MultiSampleSamples;
 }
 
 void Player::setMultiSampleSamples(int MultiSampleSamples)
 {
-    m_MultiSampleSamples = MultiSampleSamples;
+    m_GLConfig.m_MultiSampleSamples = MultiSampleSamples;
 }
 
 void Player::enableAudio(bool bEnable)
@@ -232,7 +224,35 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-void Player::loadFile(const std::string& sFilename)
+void Player::loadFile(const string& sFilename)
+{
+    NodePtr pNode = loadMainNodeFromFile(sFilename);
+    m_pMainScene = new MainScene(this, pNode);
+    m_DP.m_Size = m_pMainScene->getSize();
+}
+
+void Player::loadString(const string& sAVG)
+{
+    NodePtr pNode = loadMainNodeFromString(sAVG);
+    m_pMainScene = new MainScene(this, pNode);
+    m_DP.m_Size = m_pMainScene->getSize();
+}
+
+void Player::loadSceneFile(const string& sFilename)
+{
+    NodePtr pNode = loadMainNodeFromFile(sFilename);
+    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    m_pScenes.push_back(pScene);
+}
+
+void Player::loadSceneString(const string& sAVG)
+{
+    NodePtr pNode = loadMainNodeFromString(sAVG);
+    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    m_pScenes.push_back(pScene);
+}
+
+NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string RealFilename;
     try {
@@ -253,10 +273,11 @@ void Player::loadFile(const std::string& sFilename)
 
         string sAVG;
         readWholeFile(RealFilename, sAVG);
-        internalLoad(sAVG);
+        NodePtr pNode = internalLoad(sAVG);
 
         // Reset the directory to load assets from to the current dir.
         m_CurDirName = string(pBuf)+"/";
+        return pNode;
     } catch (Exception& ex) {
         switch (ex.GetCode()) {
             case AVG_ERR_XML_PARSE:
@@ -273,13 +294,14 @@ void Player::loadFile(const std::string& sFilename)
     }
 }
 
-void Player::loadString(const std::string& sAVG)
+NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
 
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
-        internalLoad(sEffectiveDoc);
+        NodePtr pNode = internalLoad(sEffectiveDoc);
+        return pNode;
     } catch (Exception& ex) {
         switch (ex.GetCode()) {
             case AVG_ERR_XML_PARSE:
@@ -297,9 +319,15 @@ void Player::loadString(const std::string& sAVG)
 void Player::play()
 {
     try {
+        if (!m_pMainScene) {
+            throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
+        }
         initPlayback();
         try {
-            m_pDisplayEngine->render(m_pRootNode);
+            for (unsigned i=0; i< m_pScenes.size(); ++i) {
+                m_pScenes[i]->render();
+            }
+            m_pMainScene->render();
             if (m_pDisplayEngine->wasFrameLate()) {
                 ThreadProfiler::get()->dumpFrame();
             }
@@ -329,30 +357,30 @@ void Player::stop()
         cleanup();
     }
 }
-        
+
+bool Player::isStopping()
+{
+    return m_bStopping;
+}
+ 
 void Player::initPlayback()
 {
     m_bIsPlaying = true;
-    if (!m_pRootNode) {
-        throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
-    }
     AVG_TRACE(Logger::PLAYER, "Playback started.");
     initGraphics();
     if (m_bAudioEnabled) {
         initAudio();
     }
     try {
-        m_pRootNode->setRenderingEngines(m_pDisplayEngine, m_pAudioEngine);
+        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+        for (unsigned i=0; i<m_pScenes.size(); ++i) {
+            m_pScenes[i]->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+        }
     } catch (Exception&) {
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
         throw;
     }
-
-    m_pEventDispatcher->addSource(m_pEventSource);
-    m_pEventDispatcher->addSource(m_pTestHelper);
-    m_pEventDispatcher->addSink(this);
-
     m_pDisplayEngine->initRender();
     m_bStopping = false;
     if (m_pTracker) {
@@ -422,15 +450,6 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
-void Player::addEventSource(IEventSource * pSource)
-{
-    if (!m_pEventDispatcher) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "You must use loadFile() before addEventSource().");
-    }
-    m_pEventDispatcher->addSource(pSource);
-}
-
 TrackerEventSource * Player::addTracker()
 {
     TrackerConfig Config;
@@ -443,6 +462,11 @@ TrackerEventSource * Player::addTracker()
     IntPoint CaptureSize(Config.getPointParam("/camera/size/"));
     string sCaptureFormat = Config.getParam("/camera/format/@value");
     double FrameRate = Config.getDoubleParam("/camera/framerate/@value");
+
+    if (!m_pMainScene) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "You must use loadFile() before addTracker().");
+    }
 
     PixelFormat camPF = Bitmap::stringToPixelFormat(sCaptureFormat);
     if (camPF == NO_PIXELFORMAT) {
@@ -457,9 +481,8 @@ TrackerEventSource * Player::addTracker()
             FrameRate);
     AVG_TRACE(Logger::CONFIG, "Got Camera " << pCamera->getDevice() << " from driver: " 
             << pCamera->getDriverName());
-    m_pTracker = new TrackerEventSource(pCamera, Config, 
-            IntPoint(m_DP.m_Width, m_DP.m_Height), true);
-    addEventSource(m_pTracker);
+    m_pTracker = new TrackerEventSource(pCamera, Config, m_DP.m_Size, true);
+    m_pMainScene->addEventSource(m_pTracker);
     if (m_bIsPlaying) {
         m_pTracker->start();
     }
@@ -524,7 +547,7 @@ bool Player::clearInterval(int id)
 
 MouseEventPtr Player::getMouseState() const
 {
-    return m_MouseState.getLastEvent();
+    return m_pMainScene->getMouseState();
 }
 
 void Player::setMousePos(const IntPoint& pos)
@@ -593,100 +616,22 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     delete pMask;
 }
 
-void Player::setEventCapture(NodePtr pNode, int cursorID)
-{
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
-                + pNode->getID() + "', but cursor already captured by '"
-                + it->second.lock()->getID() + "'.");
-    } else {
-        m_pEventCaptureNode[cursorID] = pNode;
-    }
-}
-
-void Player::releaseEventCapture(int cursorID)
-{
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE,
-                "releaseEventCapture called, but cursor not captured.");
-    } else {
-        m_pEventCaptureNode.erase(cursorID);
-    }
-
-}
-
 NodePtr Player::getElementByID(const std::string& id)
 {
-    if (m_IDMap.find(id) != m_IDMap.end()) {
-        return m_IDMap.find(id)->second;
+    if (m_pMainScene) {
+        return m_pMainScene->getElementByID(id);
     } else {
         return NodePtr();
     }
 }
         
-void Player::addNodeID(NodePtr pNode)
-{
-    const string& id = pNode->getID();
-    if (id != "") {
-        if (m_IDMap.find(id) != m_IDMap.end() &&
-            m_IDMap.find(id)->second != pNode)
-        {
-            throw (Exception (AVG_ERR_XML_DUPLICATE_ID,
-                string("Error: duplicate id ")+id));
-        }
-        m_IDMap.insert(NodeIDMap::value_type(id, pNode));
-    }
-}
-
-void Player::removeNodeID(const std::string& id)
-{
-    if (id != "") {
-        std::map<std::string, NodePtr>::iterator it;
-        it = m_IDMap.find(id);
-        if (it != m_IDMap.end()) {
-            m_IDMap.erase(it);
-        } else {
-            cerr << "removeNodeID(\"" << id << "\") failed." << endl;
-            AVG_ASSERT(false);
-        }
-    }
-}
-
 AVGNodePtr Player::getRootNode()
 {
-    return m_pRootNode;
-}
-
-void Player::registerFrameEndListener(IFrameEndListener* pListener)
-{
-    m_FrameEndSignal.connect(pListener);
-}
-
-void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
-{
-    m_FrameEndSignal.disconnect(pListener);
-}
-
-void Player::registerPlaybackEndListener(IPlaybackEndListener* pListener)
-{
-    m_PlaybackEndSignal.connect(pListener);
-}
-
-void Player::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
-{
-    m_PlaybackEndSignal.disconnect(pListener);
-}
-
-void Player::registerPreRenderListener(IPreRenderListener* pListener)
-{
-    m_PreRenderSignal.connect(pListener);
-}
-
-void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
-{
-    m_PreRenderSignal.disconnect(pListener);
+    if (m_pMainScene) {
+        return m_pMainScene->getRootNode();
+    } else {
+        return AVGNodePtr();
+    }
 }
 
 string Player::getCurDirName()
@@ -697,8 +642,8 @@ string Player::getCurDirName()
 std::string Player::getRootMediaDir()
 {
     string sMediaDir;
-    if (m_pRootNode) {
-        sMediaDir = m_pRootNode->getEffectiveMediaDir();
+    if (m_pMainScene) {
+        sMediaDir = m_pMainScene->getRootNode()->getEffectiveMediaDir();
     } else {
         sMediaDir = m_CurDirName;
     }
@@ -720,12 +665,40 @@ bool Player::isAudioEnabled() const
     return m_bAudioEnabled;
 }
 
+void Player::registerFrameEndListener(IFrameEndListener* pListener)
+{
+    m_pMainScene->registerFrameEndListener(pListener);
+}
+
+void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
+{
+    m_pMainScene->unregisterFrameEndListener(pListener);
+}
+
+void Player::registerPlaybackEndListener(IPlaybackEndListener* pListener)
+{
+    m_pMainScene->registerPlaybackEndListener(pListener);
+}
+
+void Player::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
+{
+    if (m_pMainScene) {
+        m_pMainScene->unregisterPlaybackEndListener(pListener);
+    }
+}
+
+void Player::registerPreRenderListener(IPreRenderListener* pListener)
+{
+    m_pMainScene->registerPreRenderListener(pListener);
+}
+
+void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
+{
+    m_pMainScene->unregisterPreRenderListener(pListener);
+}
+
 static ProfilingZone MainProfilingZone("Player - Total frame time");
 static ProfilingZone TimersProfilingZone("Player - handleTimers");
-static ProfilingZone EventsProfilingZone("Player - dispatch events");
-static ProfilingZone PreRenderProfilingZone("Player - PreRender");
-static ProfilingZone RenderProfilingZone("Player - render");
-static ProfilingZone FrameEndProfilingZone("Player - onFrameEnd");
 
 void Player::doFrame()
 {
@@ -741,33 +714,9 @@ void Player::doFrame()
             ScopeTimer Timer(TimersProfilingZone);
             handleTimers();
         }
-        {
-            ScopeTimer Timer(EventsProfilingZone);
-            m_pEventDispatcher->dispatch();
-            sendFakeEvents();
-        }
-        {
-            ScopeTimer Timer(PreRenderProfilingZone);
-            m_PreRenderSignal.emit();
-        }
-        if (!m_bStopping) {
-            ScopeTimer Timer(RenderProfilingZone);
-            if (m_bPythonAvailable) {
-                Py_BEGIN_ALLOW_THREADS;
-                try {
-                    m_pDisplayEngine->render(m_pRootNode);
-                } catch(...) {
-                    Py_BLOCK_THREADS;
-                    throw;
-                }
-                Py_END_ALLOW_THREADS;
-            } else {
-                m_pDisplayEngine->render(m_pRootNode);
-            }
-        }
-        {
-            ScopeTimer Timer(FrameEndProfilingZone);
-            m_FrameEndSignal.emit();
+        m_pMainScene->doFrame(m_bPythonAvailable);
+        for (unsigned i=0; i< m_pScenes.size(); ++i) {
+            m_pScenes[i]->doFrame(m_bPythonAvailable);
         }
     }
     if (m_pDisplayEngine->wasFrameLate()) {
@@ -827,15 +776,15 @@ void Player::initConfig()
     }
     m_DP.m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
 
-    m_DP.m_WindowWidth = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
-    m_DP.m_WindowHeight = atoi(pMgr->getOption("scr", "windowheight")->c_str());
+    m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
+    m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
 
-    if (m_DP.m_bFullscreen && (m_DP.m_WindowWidth != 0 || m_DP.m_WindowHeight != 0)) {
+    if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR, 
                 "Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
-    if (m_DP.m_WindowWidth != 0 && m_DP.m_WindowHeight != 0) {
+    if (m_DP.m_WindowSize.x != 0 && m_DP.m_WindowSize.y != 0) {
         AVG_TRACE(Logger::ERROR, "Can't set window width and height at once");
         AVG_TRACE(Logger::ERROR, 
                 "(aspect ratio is determined by avg file). Aborting.");
@@ -846,27 +795,11 @@ void Player::initConfig()
     m_AP.m_SampleRate = atoi(pMgr->getOption("aud", "samplerate")->c_str());
     m_AP.m_OutputBufferSamples = atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
-    m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
-    m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
+    m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
+    m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
-    const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
-    if (psVSyncMode == 0 || *psVSyncMode == "auto") {
-        m_VSyncMode = VSYNC_AUTO;
-    } else if (*psVSyncMode == "ogl") {
-        m_VSyncMode = VSYNC_OGL;
-    } else if (*psVSyncMode == "dri") {
-        m_VSyncMode = VSYNC_DRI;
-    } else if (*psVSyncMode == "none") {
-        m_VSyncMode = VSYNC_NONE;
-    } else {
-        AVG_TRACE(Logger::ERROR, 
-                "avgrc: vsyncmode must be auto, ogl, dri or none. Current value is " 
-                << *psVSyncMode << ". Aborting." );
-        exit(-1);
-    }
-
-    m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-    m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
+    m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
+    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
@@ -877,42 +810,14 @@ void Player::initGraphics()
 
     if (!m_pDisplayEngine) {
         AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
-        AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
-                << (m_bUsePOW2Textures?"true":"false"));
-        string sMode;
-        if (m_bUseShaders) {
-            AVG_TRACE(Logger::CONFIG, "  Use shader support.");
-        } else {
-            AVG_TRACE(Logger::CONFIG, "  No shader support.");
-        }
-        AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
-                << (m_bUsePixelBuffers?"true":"false"));
-        AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
-                << m_MultiSampleSamples);
-        switch (m_VSyncMode) {
-            case VSYNC_AUTO:
-                AVG_TRACE(Logger::CONFIG, "  Auto vsync");
-                break;
-            case VSYNC_OGL:
-                AVG_TRACE(Logger::CONFIG, "  OpenGL vsync");
-                break;
-            case VSYNC_DRI:
-                AVG_TRACE(Logger::CONFIG, "  DRI vsync");
-                break;
-            case VSYNC_NONE:
-                AVG_TRACE(Logger::CONFIG, "  No vsync");
-                break;
-        }
+        m_GLConfig.log();
 
-        m_pDisplayEngine = new SDLDisplayEngine ();
-        m_pEventSource = 
-            dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+        m_pDisplayEngine = new SDLDisplayEngine();
     }
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
-        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_bUseShaders, 
-                m_bUsePixelBuffers, m_MultiSampleSamples, m_VSyncMode);
+        pSDLDisplayEngine->setOGLOptions(m_GLConfig);
     }
     m_pDisplayEngine->init(m_DP);
 }
@@ -933,33 +838,30 @@ void Player::updateDTD()
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
-    if (!m_dtd) {
-        AVG_TRACE(Logger::WARNING, 
-                "DTD not found at " << sDTDFName << ". Not validating xml files.");
-    }
+    assert (m_dtd);
     m_bDirtyDTD = false;
 }
 
-void Player::internalLoad(const string& sAVG)
+NodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
-        if (m_pRootNode) {
+        if (m_pMainScene) {
             cleanup();
         }
-        AVG_ASSERT (!m_pRootNode);
-        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
+        AVG_ASSERT(!m_pMainScene);
         
         xmlPedanticParserDefault(1);
-        xmlDoValidityCheckingDefaultValue =0;
+        xmlDoValidityCheckingDefaultValue=0;
 
         doc = xmlParseMemory(sAVG.c_str(), sAVG.length());
         if (!doc) {
             throw (Exception(AVG_ERR_XML_PARSE, ""));
         }
 
-        if (m_bDirtyDTD)
+        if (m_bDirtyDTD) {
             updateDTD();
+        }
 
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
@@ -970,20 +872,17 @@ void Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_VALID, ""));
         }
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        createNodeFromXml(doc, xmlNode, DivNodePtr());
-        if (!m_pRootNode) {
+        NodePtr pNode = createNodeFromXml(doc, xmlNode, DivNodePtr());
+        if (!pNode) {
             throw (Exception(AVG_ERR_XML_PARSE, 
                     "Root node of an avg tree needs to be an <avg> node."));
         }
-        if (m_pRootNode->getWidth() == 0 || m_pRootNode->getHeight() == 0) {
+        if (dynamic_pointer_cast<DivNode>(pNode)->getSize() == DPoint(0, 0)) {
             throw (Exception(AVG_ERR_OUT_OF_RANGE,
-                    "<avg> node width and height attributes are mandatory."));
+                    "<avg> and <scene> node width and height attributes are mandatory."));
         }
-        registerNode(m_pRootNode);
-        m_DP.m_Height = int(m_pRootNode->getHeight());
-        m_DP.m_Width = int(m_pRootNode->getWidth());
-        
         xmlFreeDoc(doc);
+        return pNode;
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
         if (doc) {
@@ -996,18 +895,6 @@ void Player::internalLoad(const string& sAVG)
             xmlFreeDoc(doc);
         }
         throw;
-    }
-}
-
-
-void Player::registerNode(NodePtr pNode)
-{
-    addNodeID(pNode);    
-    DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
-    if (pDivNode) {
-        for (int i=0; i<pDivNode->getNumChildren(); i++) {
-            registerNode(pDivNode->getChild(i));
-        }
     }
 }
 
@@ -1097,13 +984,6 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         boost::dynamic_pointer_cast<WordsNode>(curNode)->setTextFromNodeValue(s);
     }
 
-    // If this is the root node, remember it.
-    AVGNodePtr pRootNode = boost::dynamic_pointer_cast<AVGNode>(curNode);
-    if (pRootNode) {
-        m_pRootNode = pRootNode;
-        m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED);
-    }
-
     // If this is a container, recurse into children
     DivNodePtr curGroup = boost::dynamic_pointer_cast<DivNode>(curNode);
     if (curGroup) {
@@ -1125,7 +1005,8 @@ void Player::handleTimers()
     m_bInHandleTimers = true;
    
     it = m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime()) && !m_bStopping)
+    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime()) 
+            && !m_bStopping)
     {
         (*it)->Fire(getFrameTime());
         if (m_bCurrentTimeoutDeleted) {
@@ -1150,199 +1031,19 @@ void Player::handleTimers()
     
 }
 
-
-bool Player::handleEvent(EventPtr pEvent)
-{
-    AVG_ASSERT(pEvent);
-   
-    if (m_EventHookPyFunc != Py_None) {
-        // If the catchall returns true, stop processing the event
-        if (boost::python::call<bool>(m_EventHookPyFunc, pEvent)) {
-            return true;
-        }
-    }
-    
-    if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
-        m_MouseState.setEvent(pMouseEvent);
-        pMouseEvent->setLastDownPos(m_MouseState.getLastDownPos());
-    }
-    
-    if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
-        if (pEvent->getType() == Event::CURSOROUT || 
-                pEvent->getType() == Event::CURSOROVER)
-        {
-            pEvent->trace();
-            pEvent->getElement()->handleEvent(pEvent);
-        } else {
-            handleCursorEvent(pCursorEvent);
-        }
-    }
-    else if (KeyEventPtr pKeyEvent = boost::dynamic_pointer_cast<KeyEvent>(pEvent))
-    {
-        pEvent->trace();
-        m_pRootNode->handleEvent(pKeyEvent);
-        if (m_bStopOnEscape
-                && pEvent->getType() == Event::KEYDOWN
-                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
-        {
-            m_bStopping = true;
-        }
-    } else {
-        switch(pEvent->getType()){
-            case Event::QUIT:
-                m_bStopping = true;
-                break;
-            default:
-                AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
-                break;
-        }
-    // Don't pass on any events.
-    }
-    return true; 
-}
-
-void Player::sendFakeEvents()
-{
-    std::map<int, CursorStatePtr>::iterator it;
-    for (it=m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
-        CursorStatePtr state = it->second;
-        handleCursorEvent(state->getLastEvent(), true);
-    }
-}
-
-void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
-{
-    DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
-    int cursorID = pEvent->getCursorID();
-    // Find all nodes under the cursor.
-    vector<NodeWeakPtr> pCursorNodes = getElementsByPos(pos);
-
-    // Determine the nodes the event should be sent to.
-    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
-    bool bIsCapturing = false;
-    if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
-        if (pEventCaptureNode.expired()) {
-            m_pEventCaptureNode.erase(cursorID);
-        } else {
-            pDestNodes = pEventCaptureNode.lock()->getParentChain();
-        }
-    }
-    
-    if (pCursorNodes.size() == 0 && pEvent->getSource() != Event::MOUSE) {
-        AVG_TRACE(Logger::WARNING, "Cursor event at " << pos << " hit no nodes");
-    }
-
-    vector<NodeWeakPtr> pLastCursorNodes;
-    {
-        map<int, CursorStatePtr>::iterator it;
-        it = m_pLastCursorStates.find(cursorID);
-        if (it != m_pLastCursorStates.end()) {
-            pLastCursorNodes = it->second->getNodes();
-        }
-    }
-
-    // Send out events.
-    vector<NodeWeakPtr>::const_iterator itLast;
-    vector<NodeWeakPtr>::iterator itCur;
-    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
-        NodePtr pLastNode = itLast->lock();
-        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            if (itCur->lock() == pLastNode) {
-                break;
-            }
-        }
-        if (itCur == pCursorNodes.end()) {
-            if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
-                sendOver(pEvent, Event::CURSOROUT, pLastNode);
-            }
-        }
-    } 
-
-    // Send over events.
-    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = itCur->lock();
-        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
-                ++itLast) 
-        {
-            if (itLast->lock() == pCurNode) {
-                break;
-            }
-        }
-        if (itLast == pLastCursorNodes.end()) {
-            if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
-                sendOver(pEvent, Event::CURSOROVER, pCurNode);
-            }
-        }
-    } 
-
-    if (!bOnlyCheckCursorOver) {
-        // Iterate through the nodes and send the event to all of them.
-        vector<NodeWeakPtr>::iterator it;
-        for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = (*it).lock();
-            if (pNode) {
-                CursorEventPtr pNodeEvent =
-                        boost::dynamic_pointer_cast<CursorEvent>(pEvent->cloneAs(pEvent->getType()));
-                pNodeEvent->setElement(pNode);
-                if (pNodeEvent->getType() != Event::CURSORMOTION) {
-                    pNodeEvent->trace();
-                }
-                if (pNode->handleEvent(pNodeEvent) == true) {
-                    // stop bubbling
-                    break;
-                }
-            }
-        }
-    }
-    if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
-        // Cursor has disappeared: send out events.
-        if (bIsCapturing) {
-            NodePtr pNode = pDestNodes.begin()->lock();
-            sendOver(pEvent, Event::CURSOROUT, pNode);
-        } else {
-            vector<NodeWeakPtr>::iterator it;
-            for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-                NodePtr pNode = it->lock();
-                sendOver(pEvent, Event::CURSOROUT, pNode);
-            } 
-        }
-        m_pLastCursorStates.erase(cursorID);
-    } else {
-        // Update list of nodes under cursor
-        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
-            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
-        } else {
-            m_pLastCursorStates[cursorID] =
-                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
-        }
-    }
-}
-
-vector<NodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
-{
-    vector<NodeWeakPtr> Elements;
-    NodePtr pNode = m_pRootNode->getElementByPos(pos);
-    while (pNode) {
-        Elements.push_back(pNode);
-        pNode = pNode->getParent();
-    }
-    return Elements;
-}
-
 DisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine;
 }
 
-void Player::useFakeCamera(bool bFake)
-{
-    m_bUseFakeCamera = bFake;
-}
-
-void Player::stopOnEscape(bool bStop)
+void Player::setStopOnEscape(bool bStop)
 {
     m_bStopOnEscape = bStop;
+}
+
+bool Player::getStopOnEscape() const
+{
+    return m_bStopOnEscape;
 }
 
 void Player::setVolume(double volume)
@@ -1358,15 +1059,6 @@ double Player::getVolume() const
     return m_Volume;
 }
 
-void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode)
-{
-    if (pNode) {
-        EventPtr pNewEvent = pOtherEvent->cloneAs(Type);
-        pNewEvent->setElement(pNode);
-        m_pEventDispatcher->sendEvent(pNewEvent);
-    }
-}
-
 void Player::cleanup() 
 {
     // Kill all timeouts.
@@ -1375,18 +1067,17 @@ void Player::cleanup()
         delete *it;
     }
     m_PendingTimeouts.clear();
-    m_pEventCaptureNode.clear();
     Profiler::get().dumpStatistics();
-    if (m_pRootNode) {
-        m_pRootNode->disconnect(true);
+    if (m_pMainScene) {
+        delete m_pMainScene;
+        m_pMainScene = 0;
     }
-    m_pRootNode = AVGNodePtr();
 
     if (m_pTracker) {
         delete m_pTracker;
         m_pTracker = 0;
     }
-    m_PlaybackEndSignal.emit();
+    m_pScenes.clear();
 
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
@@ -1396,9 +1087,6 @@ void Player::cleanup()
         m_pAudioEngine->teardown();
     }
     
-    m_IDMap.clear();
-    m_pEventDispatcher = EventDispatcherPtr();
-    m_MouseState = MouseState();
     m_FrameTime = 0;
     m_bIsPlaying = false;
 
@@ -1452,6 +1140,11 @@ void Player::setEventHook(PyObject * pyfunc)
     }
 
     m_EventHookPyFunc = pyfunc;
+}
+
+PyObject * Player::getEventHook() const
+{
+    return m_EventHookPyFunc;
 }
 
 }

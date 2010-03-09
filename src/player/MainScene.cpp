@@ -1,3 +1,4 @@
+//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
@@ -18,32 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayParams.h"
+#include "MainScene.h"
 
-#include "../base/ObjectCounter.h"
+#include "SDLDisplayEngine.h"
+#include "AVGNode.h"
+
+#include "../base/Exception.h"
+
+using namespace boost;
 
 namespace avg {
-
-DisplayParams::DisplayParams()
-    : m_Pos(-1, -1),
-      m_Size(0, 0),
-      m_bFullscreen(false),
-      m_BPP(24),
-      m_WindowSize(0, 0),
-      m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0)
-{ 
-    ObjectCounter::get()->incRef(&typeid(*this));
-    m_Gamma[0] = -1.0;
-    m_Gamma[1] = -1.0;
-    m_Gamma[2] = -1.0;
-}
-
-DisplayParams::~DisplayParams()
+    
+MainScene::MainScene(Player * pPlayer, NodePtr pRootNode)
+    : Scene(pPlayer, pRootNode)
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+    if (!dynamic_pointer_cast<AVGNode>(pRootNode)) {
+        throw (Exception(AVG_ERR_XML_PARSE, 
+                "Root node of an avg tree needs to be an <avg> node."));
+    }
+}
+
+MainScene::~MainScene()
+{
+}
+
+AVGNodePtr MainScene::getRootNode() const
+{
+    return dynamic_pointer_cast<AVGNode>(Scene::getRootNode());
+}
+
+void MainScene::render()
+{
+    getDisplayEngine()->render(getRootNode(), false);
 }
 
 }
-

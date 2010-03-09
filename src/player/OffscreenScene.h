@@ -19,48 +19,37 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ImageNode_H_
-#define _ImageNode_H_
+#ifndef _OffscreenScene_H_
+#define _OffscreenScene_H_
 
 #include "../api.h"
-#include "RasterNode.h"
-#include "Image.h"
+#include "Scene.h"
+#include "SceneNode.h"
 
-#include "../graphics/Bitmap.h"
-#include "../base/UTF8String.h"
+#include "../graphics/FBO.h"
 
 #include <string>
 
 namespace avg {
 
-class AVG_API ImageNode : public RasterNode
+class AVG_API OffscreenScene: public Scene
 {
     public:
-        static NodeDefinition createDefinition();
-        
-        ImageNode(const ArgList& Args);
-        virtual ~ImageNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
-        virtual void disconnect(bool bKill);
-        virtual void checkReload();
+        OffscreenScene(Player * pPlayer, NodePtr pRootNode);
+        virtual ~OffscreenScene();
+        virtual void initPlayback(DisplayEngine* pDisplayEngine, 
+                AudioEngine* pAudioEngine, TestHelper* pTestHelper);
 
-        const UTF8String& getHRef() const;
-        void setHRef(const UTF8String& href);
-        void setBitmap(const Bitmap * pBmp);
-        
-        virtual void render(const DRect& Rect);
-        
-        virtual BitmapPtr getBitmap();
-        virtual IntPoint getMediaSize();
+        virtual void render();
+        std::string getID() const;
 
     private:
-        UTF8String m_href;
-        ImagePtr m_pImage;
+        FBOPtr m_pFBO;
+        unsigned m_TexID;
 };
 
-}
+typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
 
+}
 #endif
 

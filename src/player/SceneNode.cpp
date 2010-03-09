@@ -1,3 +1,4 @@
+//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
@@ -18,32 +19,43 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayParams.h"
+#include "SceneNode.h"
+#include "Player.h"
 
-#include "../base/ObjectCounter.h"
+#include "NodeDefinition.h"
+
+#include "../base/FileHelper.h"
+
+using namespace std;
 
 namespace avg {
 
-DisplayParams::DisplayParams()
-    : m_Pos(-1, -1),
-      m_Size(0, 0),
-      m_bFullscreen(false),
-      m_BPP(24),
-      m_WindowSize(0, 0),
-      m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0)
-{ 
-    ObjectCounter::get()->incRef(&typeid(*this));
-    m_Gamma[0] = -1.0;
-    m_Gamma[1] = -1.0;
-    m_Gamma[2] = -1.0;
-}
-
-DisplayParams::~DisplayParams()
+NodeDefinition SceneNode::createDefinition()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+    return NodeDefinition("scene", Node::buildNode<SceneNode>)
+        .extendDefinition(DivNode::createDefinition());
+}
+
+SceneNode::SceneNode(const ArgList& Args)
+    : DivNode(Args)
+{
+    Args.setMembers(this);
+}
+
+SceneNode::~SceneNode()
+{
+}
+
+string SceneNode::getEffectiveMediaDir()
+{
+    string sMediaDir = getMediaDir();
+    if (!isAbsPath(sMediaDir)) {
+        sMediaDir = Player::get()->getCurDirName()+sMediaDir;
+    }
+    if (sMediaDir[sMediaDir.length()-1] != '/') {
+        sMediaDir += '/';
+    }
+    return sMediaDir;
 }
 
 }
-

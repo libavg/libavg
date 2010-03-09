@@ -22,9 +22,8 @@
 #include "ImageNode.h"
 
 #include "SDLDisplayEngine.h"
-#include "Player.h"
 #include "NodeDefinition.h"
-#include "OGLTiledSurface.h"
+#include "OGLSurface.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -64,13 +63,14 @@ ImageNode::~ImageNode()
 void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    getSurface()->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void ImageNode::connect()
+void ImageNode::connect(Scene * pScene)
 {
-    RasterNode::connect();
+    RasterNode::connect(pScene);
     checkReload();
 }
 
@@ -99,8 +99,10 @@ void ImageNode::setHRef(const UTF8String& href)
 void ImageNode::setBitmap(const Bitmap * pBmp)
 {
     m_pImage->setBitmap(pBmp);
+    if (getState() == Node::NS_CANRENDER) {
+        bind();
+    }
     m_href = "";
-    IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, -32767, -32767);
 }
 
@@ -110,8 +112,7 @@ void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getState() == Image::GPU) {
-        m_pImage->getTiledSurface()->blt32(getSize(), getEffectiveOpacity(), 
-                getBlendMode());
+        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
@@ -123,7 +124,6 @@ IntPoint ImageNode::getMediaSize()
 void ImageNode::checkReload()
 {
     Node::checkReload(m_href, m_pImage);
-    IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }

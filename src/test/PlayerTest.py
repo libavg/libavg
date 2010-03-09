@@ -540,7 +540,18 @@ class PlayerTestCase(AVGTestCase):
                 (testEscape3, # this should exit the player
                 lambda: self.assert_(False),
                 ))
-            
+
+    def testOffscreen(self):
+        Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene width="160" height="120">
+                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
+            </scene>
+        """)
+        self._loadEmpty()
+        self.start(None, 
+                [None, None])
+
 def playerTestSuite(bpp, tests):
     availableTests = (
             "testPoint",
@@ -565,6 +576,7 @@ def playerTestSuite(bpp, tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
+            "testOffscreen"
             )
     return AVGTestSuite(availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})
 

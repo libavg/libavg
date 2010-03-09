@@ -20,7 +20,6 @@
 //
 
 #include "OGLSurface.h"
-#include "Player.h"
 #include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"

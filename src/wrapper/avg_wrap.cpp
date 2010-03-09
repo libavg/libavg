@@ -36,6 +36,7 @@ void export_anim();
 #include "../player/DivNode.h"
 #include "../player/TrackerEventSource.h"
 #include "../player/TouchEvent.h"
+#include "../player/TestHelper.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -161,7 +162,6 @@ BOOST_PYTHON_MODULE(avg)
     export_anim();
 
     class_<TestHelper>("TestHelper", "Miscelaneous routines used by tests.", no_init)
-        .def("useFakeCamera", &TestHelper::useFakeCamera, "")
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
         .def("fakeTouchEvent", &TestHelper::fakeTouchEvent, "")
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent, "")
@@ -225,6 +225,16 @@ BOOST_PYTHON_MODULE(avg)
                 "loadString(avgString)\n"
                 "Parses avgString and loads the nodes it contains.\n"
                 "@param avgString: An xml string containing an avg node hierarchy.")
+        .def("loadSceneFile", &Player::loadSceneFile,
+                "loadSceneFile(filename)\n"
+                "Loads the scene file specified in filename and adds it to the\n"
+                "registered offscreen scenes.\n"
+                "@param filename: ")
+        .def("loadSceneString", &Player::loadSceneString,
+                "loadSceneString(avgString)\n"
+                "Parses avgString, loads the nodes it contains and adds the hierarchy\n"
+                "to the registered offscreen scenes.\n"
+                "@param filename: ")
         .def("play", &Player::play,
                 "play()\n"
                 "Opens a playback window or screen and starts playback. play returns\n"
@@ -329,7 +339,7 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<manage_new_object>(),
                 "screenshot() -> bitmap\n"
                 "Returns the contents of the current screen as a bitmap.\n")
-        .def("stopOnEscape", &Player::stopOnEscape,
+        .def("stopOnEscape", &Player::setStopOnEscape,
                 "stopOnEscape(stop)\n"
                 "Toggles player stop upon escape keystroke.\n"
                 "@param stop: True if player should stop on escape\n")

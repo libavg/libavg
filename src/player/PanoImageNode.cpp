@@ -165,7 +165,8 @@ void PanoImageNode::render(const DRect& Rect)
     }
 
     // Restore previous GL state.
-    glViewport(0, 0, getDisplayEngine()->getWidth(), getDisplayEngine()->getHeight());
+    IntPoint size = getDisplayEngine()->getSize();
+    glViewport(0, 0, size.x, size.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glViewport() restore");
     glMatrixMode(GL_PROJECTION);

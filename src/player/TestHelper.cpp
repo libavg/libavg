@@ -35,18 +35,12 @@ using namespace std;
 
 namespace avg {
     
-TestHelper::TestHelper(Player * pPlayer)
-    : m_pPlayer(pPlayer)
+TestHelper::TestHelper()
 {
 }
 
 TestHelper::~TestHelper() 
 {
-}
-
-void TestHelper::useFakeCamera(bool bFake)
-{
-    m_pPlayer->useFakeCamera(bFake);
 }
 
 void TestHelper::fakeMouseEvent(Event::Type eventType,

@@ -27,7 +27,6 @@
 
 #include "NodeDefinition.h"
 #include "VectorNode.h"
-#include "Player.h"
 
 #include <cstdlib>
 #include <string>

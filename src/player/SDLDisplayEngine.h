@@ -25,6 +25,8 @@
 #include "../api.h"
 #include "IEventSource.h"
 #include "DisplayEngine.h"
+#include "GLConfig.h"
+
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
@@ -53,7 +55,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
-        virtual void render(AVGNodePtr pRootNode);
+        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown);
         
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
@@ -61,9 +63,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
                 const DPoint& pivot);
         virtual void popTransform();
 
-        virtual int getWidth();
-        virtual int getHeight();
-        virtual int getBPP();
+        virtual IntPoint getSize();
 
         virtual bool isUsingShaders() const; 
         OGLShaderPtr getShader();
@@ -89,9 +89,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         int getOGLPixelType(PixelFormat pf);
         OGLMemoryMode getMemoryModeSupported();
 
-        void setOGLOptions(bool bUsePOW2Textures, bool bUseShaders, 
-                bool bUsePixelBuffers, int MultiSampleSamples, 
-                VSyncMode DesiredVSyncMode);
+        void setOGLOptions(const GLConfig& glConfig);
+        const GLConfig& getOGLOptions() const;
         
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
@@ -109,19 +108,14 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         EventPtr createKeyEvent
                 (Event::Type Type, const SDL_Event & SDLEvent);
         
-        int m_Width;
-        int m_Height;
+        IntPoint m_Size;
         bool m_IsFullscreen;
-        int m_bpp;
-        int m_WindowWidth;
-        int m_WindowHeight;
+        IntPoint m_WindowSize;
         std::vector<DRect> m_ClipRects;
-        bool m_bEnableCrop;
 
         SDL_Surface * m_pScreen;
 
         void checkShaderSupport();
-        bool m_bUseShaders;
         OGLShaderPtr m_pShader;
 
         // Vertical blank stuff.
@@ -141,8 +135,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         IntPoint m_LastMousePos;
         static std::vector<long> KeyCodeTranslationTable;
 
-        // Texture config.
-        bool m_bUsePOTTextures;
         int m_MaxTexSize;
 
         // OpenGL state
@@ -150,12 +142,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bEnableGLColorArray;
         BlendMode m_BlendMode;
 
-        bool m_bShouldUsePOW2Textures;
-        bool m_bShouldUseShaders;
-        bool m_bShouldUsePixelBuffers;
-        int m_MultiSampleSamples;
-        VSyncMode m_DesiredVSyncMode;
-
+        GLConfig m_GLConfig;
+        
         bool m_bCheckedMemoryMode;
         OGLMemoryMode m_MemoryMode;
 };

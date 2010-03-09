@@ -34,7 +34,6 @@
 namespace avg {
 
 class OGLSurface;
-class OGLTiledSurface;
 class SDLDisplayEngine;
 
 class AVG_API Image
@@ -58,7 +57,6 @@ class AVG_API Image
         IntPoint getSize();
         PixelFormat getPixelFormat();
         OGLSurface* getSurface();
-        OGLTiledSurface* getTiledSurface();
         State getState();
         SDLDisplayEngine* getEngine();
 

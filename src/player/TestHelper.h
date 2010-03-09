@@ -31,16 +31,13 @@
 
 namespace avg {
     
-class Player;
-    
 class AVG_API TestHelper : public IEventSource
 {
 
     public: 
-        TestHelper(Player * pPlayer);
+        TestHelper();
         virtual ~TestHelper();
 
-        void useFakeCamera(bool bFake);
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
@@ -58,8 +55,7 @@ class AVG_API TestHelper : public IEventSource
 
     private:
         void checkEventType(Event::Type eventType);
-
-        Player * m_pPlayer;
+        
         std::vector<EventPtr> m_Events;
 };
 

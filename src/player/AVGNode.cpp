@@ -23,8 +23,8 @@
 #include "Player.h"
 
 #include "NodeDefinition.h"
+#include "KeyEvent.h"
 
-#include "../base/XMLHelper.h"
 #include "../base/FileHelper.h"
 
 #include <iostream>
@@ -36,44 +36,21 @@ namespace avg {
 NodeDefinition AVGNode::createDefinition()
 {
     return NodeDefinition("avg", Node::buildNode<AVGNode>)
-        .extendDefinition(DivNode::createDefinition())
-        .addArg(Arg<bool>("enablecrop", true, false, offsetof(AVGNode, m_bEnableCrop)))
+        .extendDefinition(SceneNode::createDefinition())
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));
 }
 
-AVGNode::AVGNode (const ArgList& Args)
-    : DivNode(Args)
+AVGNode::AVGNode(const ArgList& Args)
+    : SceneNode(Args)
 {
     Args.setMembers(this);
     addEventHandler(Event::KEYUP, Event::NONE, Args.getArgVal<string>("onkeyup"));
     addEventHandler(Event::KEYDOWN, Event::NONE, Args.getArgVal<string>("onkeydown"));
-    AreaNode::setAngle(0.0);
 }
 
 AVGNode::~AVGNode()
 {
-}
-
-string AVGNode::getEffectiveMediaDir()
-{
-    string sMediaDir = getMediaDir();
-    if (!isAbsPath(sMediaDir)) {
-        sMediaDir = Player::get()->getCurDirName()+sMediaDir;
-    }
-    if (sMediaDir[sMediaDir.length()-1] != '/') {
-        sMediaDir += '/';
-    }
-    return sMediaDir;
-}
-
-bool AVGNode::getCropSetting() {
-    return m_bEnableCrop;
-}
-
-void AVGNode::setAngle(double angle)
-{
-    
 }
 
 }

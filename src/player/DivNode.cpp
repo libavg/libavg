@@ -23,6 +23,7 @@
 #include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
+#include "Scene.h"
 
 #include "../base/Point.h"
 #include "../base/Exception.h"
@@ -77,11 +78,11 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
 }
 
-void DivNode::connect()
+void DivNode::connect(Scene * pScene)
 {
-    AreaNode::connect();
+    AreaNode::connect(pScene);
     for (int i = 0; i< (int)m_Children.size(); ++i) {
-        m_Children[i]->connect();
+        m_Children[i]->connect(pScene);
     }
 }
 
@@ -184,11 +185,11 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
-        Player::get()->registerNode(pNewNode);
+        getScene()->registerNode(pNewNode);
     }
     m_Children.insert(Pos, pNewNode);
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
-    pNewNode->setParent(Ptr, getState());
+    pNewNode->setParent(Ptr, getState(), getScene());
     if (getState() == NS_CANRENDER) {
         pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
     }

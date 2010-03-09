@@ -23,29 +23,22 @@
 #define _AVGNode_H_
 
 #include "../api.h"
-#include "DivNode.h"
-#include "KeyEvent.h"
+#include "SceneNode.h"
 
 #include <string>
 
 namespace avg {
 
-class AVG_API AVGNode : public DivNode
+class AVG_API AVGNode : public SceneNode
 {
     public:
         static NodeDefinition createDefinition();
         
         AVGNode (const ArgList& Args);
         virtual ~AVGNode ();
-
-        virtual std::string getEffectiveMediaDir();
-        bool getCropSetting();
-        void setAngle(double angle);
-        
-    private:
-        bool m_bEnableCrop;
-
 };
+
+typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 
 }
 

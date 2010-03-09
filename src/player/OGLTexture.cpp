@@ -167,14 +167,12 @@ void OGLTexture::download() const
                 m_pEngine->getOGLSrcMode(m_pf), m_pEngine->getOGLPixelType(m_pf), 
                 pStartPos);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::download: glTexSubImage2D()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::download: glTexSubImage2D()");
     int texFilter;
     if (m_Material.getUseMipmaps()) {
         ScopeTimer Timer(MipmapProfilingZone);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLTexture::download: GenerateMipmap()");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::download: GenerateMipmap()");
         texFilter = GL_LINEAR_MIPMAP_LINEAR;
     } else {
         texFilter = GL_LINEAR;

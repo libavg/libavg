@@ -35,7 +35,7 @@
 
 namespace avg {
 
-class OGLTiledSurface;
+class OGLSurface;
 
 class AVG_API RasterNode: public AreaNode
 {
@@ -75,11 +75,16 @@ class AVG_API RasterNode: public AreaNode
 
         virtual BitmapPtr getBitmap();
         
+        void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode);
+        void blta8(const DPoint& DestSize, double opacity, 
+                const Pixel32& color, DisplayEngine::BlendMode Mode);
+
     protected:
         RasterNode();
-        virtual OGLTiledSurface * getSurface();
+        virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
         void calcMaskPos();
+        void bind();
 
     private:
         void setMaterial(const MaterialInfo& material);
@@ -87,7 +92,14 @@ class AVG_API RasterNode: public AreaNode
                 const DPoint& size, const DPoint& mediaSize);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
-        OGLTiledSurface * m_pSurface;
+        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
+
+        IntPoint getNumTiles();
+        void calcVertexGrid(VertexGrid& grid);
+        void calcTileVertex(int x, int y, DPoint& Vertex);
+        void calcTexCoords();
+
+        OGLSurface * m_pSurface;
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
@@ -99,6 +111,13 @@ class AVG_API RasterNode: public AreaNode
         BitmapPtr m_pMaskBmp;
         DPoint m_MaskPos;
         DPoint m_MaskSize;
+        
+        bool m_bBound;
+
+        IntPoint m_TileSize;
+        VertexGrid m_TileVertices;
+        VertexArray * m_pVertexes;
+        std::vector<std::vector<DPoint> > m_TexCoords;
 };
 
 }

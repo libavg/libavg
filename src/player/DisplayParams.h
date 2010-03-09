@@ -24,24 +24,19 @@
 
 #include "../api.h"
 
-namespace avg {
+#include "../base/Point.h"
 
-enum VSyncMode {
-    VSYNC_AUTO, VSYNC_OGL, VSYNC_DRI, VSYNC_NONE
-};
+namespace avg {
 
 struct AVG_API DisplayParams {
     DisplayParams();
     virtual ~DisplayParams();
 
-    int m_x;
-    int m_y;
-    int m_Width;
-    int m_Height;
+    IntPoint m_Pos;
+    IntPoint m_Size;
     bool m_bFullscreen;
     int m_BPP;
-    int m_WindowWidth;
-    int m_WindowHeight;
+    IntPoint m_WindowSize;
     bool m_bShowCursor;
     int m_VBRate;
     double m_Framerate;

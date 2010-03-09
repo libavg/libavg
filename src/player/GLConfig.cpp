@@ -18,32 +18,37 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayParams.h"
+#include "GLConfig.h"
 
-#include "../base/ObjectCounter.h"
+#include "../base/Logger.h"
 
 namespace avg {
 
-DisplayParams::DisplayParams()
-    : m_Pos(-1, -1),
-      m_Size(0, 0),
-      m_bFullscreen(false),
-      m_BPP(24),
-      m_WindowSize(0, 0),
-      m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0)
-{ 
-    ObjectCounter::get()->incRef(&typeid(*this));
-    m_Gamma[0] = -1.0;
-    m_Gamma[1] = -1.0;
-    m_Gamma[2] = -1.0;
-}
-
-DisplayParams::~DisplayParams()
+GLConfig::GLConfig()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+GLConfig::GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers,
+            int multiSampleSamples)
+    : m_bUsePOTTextures(bUsePOTTextures),
+      m_bUseShaders(bUseShaders),
+      m_bUsePixelBuffers(bUsePixelBuffers),
+      m_MultiSampleSamples(multiSampleSamples)
+{
+}
+
+void GLConfig::log()
+{
+    AVG_TRACE(Logger::CONFIG, "  Shader support: " << (m_bUseShaders?"true":"false"));
+    AVG_TRACE(Logger::CONFIG, "  Pixel buffers: " << (m_bUsePixelBuffers?"true":"false"));
+    AVG_TRACE(Logger::CONFIG, "  Power of 2 textures: " <<
+            (m_bUsePOTTextures?"true":"false"));
+    if (m_MultiSampleSamples == 1) {
+        AVG_TRACE(Logger::CONFIG, "  No multisampling.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "  Multisampling with " << m_MultiSampleSamples 
+                << " samples");
+    }
 }
 
 }
-

@@ -279,12 +279,6 @@ void export_node()
             "size used (i.e. by default, the coordinate system is pixel-based.)\n",
             no_init)
         .def("__init__", raw_constructor(createNode<avgNodeName>))
-        .def("getCropSetting", &AVGNode::getCropSetting,
-                "getCropSetting() -> isCropActive\n\n"
-                "Returns true if cropping is active. Cropping can be turned off\n"
-                "globally in the avg file. (Deprecated. This attribute is only\n"
-                "nessesary because of certain buggy display drivers that don't work\n"
-                "with cropping.)")
     ;
 
     class_<SoundNode, bases<AreaNode> >("SoundNode",

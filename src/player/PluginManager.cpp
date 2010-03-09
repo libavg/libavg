@@ -24,7 +24,6 @@
 #include "PluginManager.h"
 
 #include "NodeDefinition.h"
-#include "Player.h"
 
 #include "../base/DlfcnWrapper.h"
 #include "../base/FileHelper.h"

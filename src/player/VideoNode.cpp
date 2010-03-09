@@ -21,9 +21,10 @@
 #include "VideoNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "OGLTiledSurface.h"
+#include "OGLSurface.h"
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
+#include "Scene.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -111,15 +112,15 @@ void VideoNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void VideoNode::connect()
+void VideoNode::connect(Scene * pScene)
 {
-    Player::get()->registerFrameEndListener(this);
-    RasterNode::connect();
+    pScene->registerFrameEndListener(this);
+    RasterNode::connect(pScene);
 }
 
 void VideoNode::disconnect(bool bKill)
 {
-    Player::get()->unregisterFrameEndListener(this);
+    getScene()->unregisterFrameEndListener(this);
     changeVideoState(Unloaded);
     RasterNode::disconnect(bKill);
 }
@@ -485,7 +486,7 @@ void VideoNode::render(const DRect& Rect)
                     m_bFirstFrameDecoded = true;
                 }
                 if (m_bFirstFrameDecoded) {
-                    getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+                    blt32(getSize(), getEffectiveOpacity(), getBlendMode());
                 }
             }
             break;
@@ -497,7 +498,7 @@ void VideoNode::render(const DRect& Rect)
                 m_bFirstFrameDecoded = true;
             }
             if (m_bFirstFrameDecoded) {
-                getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+                blt32(getSize(), getEffectiveOpacity(), getBlendMode());
             }
             break;
         case Unloaded:
@@ -505,7 +506,7 @@ void VideoNode::render(const DRect& Rect)
     }
 }
 
-bool VideoNode::renderToSurface(OGLTiledSurface * pSurface)
+bool VideoNode::renderToSurface(OGLSurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();
@@ -523,7 +524,7 @@ bool VideoNode::renderToSurface(OGLTiledSurface * pSurface)
         case FA_NEW_FRAME:
             m_FramesPlayed++;
             m_FramesInRowTooLate = 0;
-            pSurface->bind();
+            bind();
             m_bSeekPending = false;
             calcMaskPos();
             break;

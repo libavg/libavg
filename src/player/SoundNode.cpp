@@ -21,6 +21,7 @@
 #include "SoundNode.h"
 #include "Player.h"
 #include "NodeDefinition.h"
+#include "Scene.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -67,13 +68,11 @@ SoundNode::SoundNode(const ArgList& Args)
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
 
-    Player::get()->registerFrameEndListener(this);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 SoundNode::~SoundNode()
 {
-    Player::get()->unregisterFrameEndListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;
@@ -154,9 +153,16 @@ void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
+void SoundNode::connect(Scene * pScene)
+{
+    AreaNode::connect(pScene);
+    pScene->registerFrameEndListener(this);
+}
+
 void SoundNode::disconnect(bool bKill)
 {
     changeSoundState(Unloaded);
+    getScene()->unregisterFrameEndListener(this);
     AreaNode::disconnect(bKill);
 }
 

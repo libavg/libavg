@@ -65,11 +65,18 @@ namespace glproc {
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
     PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
+
     PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
     PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
     PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
     PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
     PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
+    PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
+    PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
+    PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC RenderbufferStorageMultisample;
+    PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
+    PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
+    PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
 #ifdef linux
     PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
@@ -394,6 +401,18 @@ namespace glproc {
                 getFuzzyProcAddress("glFramebufferTexture2D");
         DeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)
                 getFuzzyProcAddress("glDeleteFramebuffers");
+        GenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)
+                getFuzzyProcAddress("glGenRenderbuffers");
+        BindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)
+                getFuzzyProcAddress("glBindRenderbuffer");
+        RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)
+                getFuzzyProcAddress("glRenderbufferStorageMultisample");
+        FramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)
+                getFuzzyProcAddress("glFramebufferRenderbuffer");
+        BlitFramebuffer = (PFNGLBLITFRAMEBUFFEREXTPROC)
+                getFuzzyProcAddress("glBlitFramebuffer");
+        DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)
+                getFuzzyProcAddress("glDeleteRenderbuffers");
 #ifdef linux
         SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
                 getglXProcAddress("glXSwapIntervalSGI");

@@ -27,8 +27,8 @@
 
 #include "../graphics/Filterfliprgb.h"
 
-#include "OGLTiledSurface.h"
 #include "SDLDisplayEngine.h"
+#include "OGLSurface.h"
 
 #include <Magick++.h>
 
@@ -85,9 +85,6 @@ void Image::setBitmap(const Bitmap * pBmp)
         BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
         m_pSurface->unlockBmps();
-        if (m_bTiled) {
-            getTiledSurface()->bind();
-        }
         m_pBmp=BitmapPtr();
         m_State = GPU;
     } else {
@@ -169,11 +166,6 @@ OGLSurface* Image::getSurface()
 {
     AVG_ASSERT(m_State != CPU);
     return m_pSurface;
-}
-
-OGLTiledSurface* Image::getTiledSurface()
-{
-    return dynamic_cast<OGLTiledSurface*>(getSurface());
 }
 
 Image::State Image::getState()

@@ -38,7 +38,6 @@
 namespace avg {
 
 class Region;
-class OGLTiledSurface;
 
 class AVG_API DisplayEngine
 {   
@@ -59,7 +58,7 @@ class AVG_API DisplayEngine
         virtual void setMousePos(const IntPoint& pos) = 0;
         virtual int getKeyModifierState() const = 0;
 
-        virtual void render(AVGNodePtr pRootNode) = 0;
+        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown) = 0;
         void frameWait();
         long long getDisplayTime();
         
@@ -69,9 +68,7 @@ class AVG_API DisplayEngine
                 const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
 
-        virtual int getWidth() = 0;
-        virtual int getHeight() = 0;
-        virtual int getBPP() = 0;
+        virtual IntPoint getSize() = 0;
 
         virtual bool isUsingShaders() const = 0; 
         virtual void showCursor (bool bShow) = 0;

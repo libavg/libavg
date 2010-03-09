@@ -23,41 +23,37 @@
 #define _Player_H_
 
 #include "../api.h"
-#include "IEventSink.h"
-#include "EventDispatcher.h"
 #include "Timeout.h"
-#include "KeyEvent.h"
-#include "MouseEvent.h"
 #include "DisplayEngine.h"
-#include "TestHelper.h"
 #include "NodeRegistry.h"
+#include "MouseEvent.h"
 #include "DisplayParams.h"
-#include "CursorState.h"
-#include "MouseState.h"
-
-#include "../base/IFrameEndListener.h"
-#include "../base/IPlaybackEndListener.h"
-#include "../base/IPreRenderListener.h"
-#include "../base/Signal.h"
+#include "GLConfig.h"
 
 #include "../audio/AudioParams.h"
 
 #include <libxml/parser.h>
 
-#include <map>
 #include <string>
 #include <vector>
 
 namespace avg {
 
-class TrackerEventSource;
 class AudioEngine;
 class Node;
+class TestHelper;
+class MainScene;
+class OffscreenScene;
+class TrackerEventSource;
+class IFrameEndListener;
+class IPlaybackEndListener;
+class IPreRenderListener;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
 
-class AVG_API Player : IEventSink
+class AVG_API Player
 {
     public:
         Player();
@@ -68,15 +64,18 @@ class AVG_API Player : IEventSink
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
         void setWindowPos(int x=0, int y=0);
-        void setOGLOptions(bool bUsePOW2Textures, bool bUseShaders, 
+        void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
         void setMultiSampleSamples(int MultiSampleSamples);
         void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
         void loadFile(const std::string& sFilename);
         void loadString(const std::string& sAVG);
+        void loadSceneFile(const std::string& sFilename);
+        void loadSceneString(const std::string& sAVG);
         void play();
         void stop();
+        bool isStopping();
         void initPlayback();
         void cleanup();
         bool isPlaying();
@@ -91,7 +90,6 @@ class AVG_API Player : IEventSink
         
         NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString(const std::string& sXML);
-        void addEventSource(IEventSource * pSource);
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
         int setInterval(int time, PyObject * pyfunc);
@@ -106,32 +104,19 @@ class AVG_API Player : IEventSink
         Bitmap * screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
-        void setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID);
-        void releaseEventCapture(int cursorID=MOUSECURSORID);
 
         NodePtr getElementByID(const std::string& id);
-        void registerNode(NodePtr pNode);
-        void addNodeID(NodePtr pNode);
-        void removeNodeID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame();
         double getFramerate();
         double getVideoRefreshRate();
         void setGamma(double Red, double Green, double Blue);
-        virtual bool handleEvent(EventPtr pEvent);
         DisplayEngine * getDisplayEngine() const;
-        void useFakeCamera(bool bFake);
-        void stopOnEscape(bool bStop);
+        void setStopOnEscape(bool bStop);
+        bool getStopOnEscape() const;
         void setVolume(double volume);
         double getVolume() const;
-        long long getGPUMemoryUsage();
 
-        void registerFrameEndListener(IFrameEndListener* pListener);
-        void unregisterFrameEndListener(IFrameEndListener* pListener);
-        void registerPlaybackEndListener(IPlaybackEndListener* pListener);
-        void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
-        void registerPreRenderListener(IPreRenderListener* pListener);
-        void unregisterPreRenderListener(IPreRenderListener* pListener);
         std::string getCurDirName();
         std::string getRootMediaDir();
         const NodeDefinition& getNodeDef(const std::string& sType);
@@ -144,6 +129,14 @@ class AVG_API Player : IEventSink
         std::string getPluginPath() const;
         
         void setEventHook(PyObject * pyfunc);
+        PyObject * getEventHook() const;
+
+        void registerFrameEndListener(IFrameEndListener* pListener);
+        void unregisterFrameEndListener(IFrameEndListener* pListener);
+        void registerPlaybackEndListener(IPlaybackEndListener* pListener);
+        void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
+        void registerPreRenderListener(IPreRenderListener* pListener);
+        void unregisterPreRenderListener(IPreRenderListener* pListener);
 
     private:
         void initConfig();
@@ -151,29 +144,23 @@ class AVG_API Player : IEventSink
         void initAudio();
 
         void updateDTD();
-        void internalLoad(const std::string& sAVG);
+
+        NodePtr loadMainNodeFromFile(const std::string& sFilename);
+        NodePtr loadMainNodeFromString(const std::string& sAVG);
+        NodePtr internalLoad(const std::string& sAVG);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
-        void render (bool bRenderEverything);
+        MainScene * m_pMainScene;
 
-        void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
-        void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
-        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
-
-        AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
-        IEventSource * m_pEventSource;
         TestHelper * m_pTestHelper;
        
         bool m_bAudioEnabled;
         std::string m_CurDirName;
         bool m_bStopping;
-        typedef std::map<std::string, NodePtr> NodeIDMap;
-        NodeIDMap m_IDMap;
         NodeRegistry m_NodeRegistry;
 
         TrackerEventSource * m_pTracker;
@@ -187,25 +174,12 @@ class AVG_API Player : IEventSink
         std::vector<Timeout *> m_PendingTimeouts;
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
 
-        EventDispatcherPtr m_pEventDispatcher;
-        MouseState m_MouseState;
-
-        // These are maps for each cursor id.
-        std::map<int, CursorStatePtr> m_pLastCursorStates;
-        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
-
         // Configuration variables.
         DisplayParams m_DP;
         AudioParams m_AP;
-        bool m_bUsePOW2Textures;
-        bool m_bUseShaders;
-        bool m_bUsePixelBuffers;
-        int m_MultiSampleSamples;
-        bool m_bUseFakeCamera;
-        VSyncMode m_VSyncMode;
+        GLConfig m_GLConfig;
 
         bool m_bStopOnEscape;
-
         bool m_bIsPlaying;
 
         // Time calculation
@@ -217,13 +191,13 @@ class AVG_API Player : IEventSink
 
         double m_Volume;
 
-        Signal<IFrameEndListener> m_FrameEndSignal;
-        Signal<IPlaybackEndListener> m_PlaybackEndSignal;
-        Signal<IPreRenderListener> m_PreRenderSignal;
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;
+
+        // Offscreen Scene support
+        std::vector<OffscreenScenePtr> m_pScenes;
 
         static Player * s_pPlayer;
         friend void deletePlayer();
@@ -232,4 +206,4 @@ class AVG_API Player : IEventSink
 };
 
 }
-#endif //_Player_H_
+#endif

@@ -35,7 +35,8 @@ namespace avg {
 class AVG_API FBO
 {
 public:
-    FBO(const IntPoint& size, PixelFormat pf, unsigned texID);
+    FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
+            unsigned multisampleSamples=1);
     FBO(const IntPoint& size, PixelFormat pf, std::vector<unsigned> texIDs);
     virtual ~FBO();
 
@@ -45,6 +46,7 @@ public:
     BitmapPtr getImage(int i) const;
 
     static bool isFBOSupported();
+    static bool isMultisampleFBOSupported();
 
 private:
     void init();
@@ -52,9 +54,14 @@ private:
 
     IntPoint m_Size;
     PixelFormat m_PF;
+    unsigned m_MultisampleSamples;
     PBOImagePtr m_pOutputPBO;
     unsigned m_FBO;
     std::vector<unsigned> m_TexIDs;
+
+    // Multisample support
+    unsigned m_ColorBuffer;
+    unsigned m_OutputFBO;
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;

@@ -18,32 +18,29 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayParams.h"
+#ifndef _GLConfig_H_
+#define _GLConfig_H_
 
-#include "../base/ObjectCounter.h"
+#include "../api.h"
 
 namespace avg {
 
-DisplayParams::DisplayParams()
-    : m_Pos(-1, -1),
-      m_Size(0, 0),
-      m_bFullscreen(false),
-      m_BPP(24),
-      m_WindowSize(0, 0),
-      m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0)
-{ 
-    ObjectCounter::get()->incRef(&typeid(*this));
-    m_Gamma[0] = -1.0;
-    m_Gamma[1] = -1.0;
-    m_Gamma[2] = -1.0;
-}
+struct AVG_API GLConfig {
+    GLConfig();
+    GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers,
+            int multiSampleSamples);
 
-DisplayParams::~DisplayParams()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
+    void log();
+
+    bool m_bUsePOTTextures;
+    bool m_bUseShaders;
+    bool m_bUsePixelBuffers;
+    int m_MultiSampleSamples;
+
+//    OGLMemoryMode m_MemoryMode;
+};
 
 }
+
+#endif
 

@@ -19,48 +19,33 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ImageNode_H_
-#define _ImageNode_H_
+#ifndef _SceneNode_H_
+#define _SceneNode_H_
 
 #include "../api.h"
-#include "RasterNode.h"
-#include "Image.h"
-
-#include "../graphics/Bitmap.h"
-#include "../base/UTF8String.h"
+#include "DivNode.h"
 
 #include <string>
 
 namespace avg {
 
-class AVG_API ImageNode : public RasterNode
+class AVG_API SceneNode : public DivNode
 {
     public:
         static NodeDefinition createDefinition();
         
-        ImageNode(const ArgList& Args);
-        virtual ~ImageNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
-        virtual void disconnect(bool bKill);
-        virtual void checkReload();
+        SceneNode(const ArgList& Args);
+        virtual ~SceneNode();
 
-        const UTF8String& getHRef() const;
-        void setHRef(const UTF8String& href);
-        void setBitmap(const Bitmap * pBmp);
+        virtual std::string getEffectiveMediaDir();
         
-        virtual void render(const DRect& Rect);
-        
-        virtual BitmapPtr getBitmap();
-        virtual IntPoint getMediaSize();
-
     private:
-        UTF8String m_href;
-        ImagePtr m_pImage;
+        bool m_bEnableCrop;
+
 };
+
+typedef boost::shared_ptr<SceneNode> SceneNodePtr;
 
 }
 
 #endif
-

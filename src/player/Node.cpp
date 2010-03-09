@@ -27,6 +27,7 @@
 #include "SDLDisplayEngine.h"
 #include "Arg.h"
 #include "Image.h"
+#include "Scene.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -60,7 +61,8 @@ NodeDefinition Node::createDefinition()
 }
 
 Node::Node()
-    : m_pParent(),
+    : m_pScene(0),
+      m_pParent(),
       m_This(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
@@ -93,7 +95,7 @@ void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
     m_pDefinition = pDefinition;
 }
 
-void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
+void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState, Scene * pScene)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
@@ -102,7 +104,7 @@ void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
     }
     m_pParent = pParent;
     if (parentState != NS_UNCONNECTED) {
-        connect();
+        connect(pScene);
     }
 }
 
@@ -122,8 +124,9 @@ void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAu
     setState(NS_CANRENDER);
 }
 
-void Node::connect()
+void Node::connect(Scene * pScene)
 {
+    m_pScene = pScene;
     setState(NS_CONNECTED);
 }
 
@@ -134,7 +137,7 @@ void Node::disconnect(bool bKill)
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
     }
-    Player::get()->removeNodeID(m_ID);
+    m_pScene->removeNodeID(m_ID);
     setState(NS_UNCONNECTED);
     if (bKill) {
         EventHandlerMap::iterator it;
@@ -237,12 +240,12 @@ void Node::releaseMouseEventCapture()
 
 void Node::setEventCapture(int cursorID) 
 {
-    Player::get()->setEventCapture(getThis(), cursorID);
+    m_pScene->setEventCapture(getThis(), cursorID);
 }
 
 void Node::releaseEventCapture(int cursorID) 
 {
-    Player::get()->releaseEventCapture(cursorID);
+    m_pScene->releaseEventCapture(cursorID);
 }
 
 void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
@@ -321,6 +324,11 @@ void Node::preRender()
 Node::NodeState Node::getState() const
 {
     return m_State;
+}
+
+Scene * Node::getScene() const
+{
+    return m_pScene;
 }
 
 bool Node::operator ==(const Node& other) const

@@ -21,8 +21,7 @@
 
 #include "CameraNode.h"
 #include "DisplayEngine.h"
-#include "Player.h"
-#include "OGLTiledSurface.h"
+#include "OGLSurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/TimeSource.h"
@@ -332,10 +331,10 @@ void CameraNode::render(const DRect& Rect)
             getSurface()->unlockBmps();
             {
                 ScopeTimer Timer(CameraDownloadProfilingZone);
-                getSurface()->bind();
+                bind();
             }
         }
-        getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 

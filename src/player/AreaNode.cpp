@@ -25,8 +25,9 @@
 #include "CursorEvent.h"
 #include "MouseEvent.h"
 #include "DivNode.h"
-#include "Player.h"
 #include "SDLDisplayEngine.h"
+#include "ArgList.h"
+#include "NodeDefinition.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

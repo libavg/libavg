@@ -40,14 +40,15 @@
 
 namespace avg {
 
+class Scene;
 class Node;
 class DivNode;
+class SceneNode;
 class AVGNode;
 class ArgList;
 class DisplayEngine;
 class SDLDisplayEngine;
 class AudioEngine;
-class Player;
 class NodeDefinition;
 class Image;
 class VertexArray;
@@ -56,6 +57,8 @@ typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
+typedef boost::shared_ptr<SceneNode> SceneNodePtr;
+typedef boost::weak_ptr<SceneNode> SceneNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 typedef boost::shared_ptr<Image> ImagePtr;
@@ -76,11 +79,12 @@ class AVG_API Node
         virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args);
-        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState);
+        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
+                Scene * pScene);
         void removeParent(bool bKill);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect();
+        virtual void connect(Scene * pScene);
         virtual void disconnect(bool bKill);
         virtual void checkReload() {};
 
@@ -122,6 +126,7 @@ class AVG_API Node
         std::string getTypeStr() const;
         
         NodeState getState() const;
+        Scene * getScene() const;
 
         bool operator ==(const Node& other) const;
         bool operator !=(const Node& other) const;
@@ -160,6 +165,7 @@ class AVG_API Node
         typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
         EventHandlerMap m_EventHandlerMap;
 
+        Scene * m_pScene;
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
         SDLDisplayEngine * m_pDisplayEngine;

@@ -19,48 +19,26 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ImageNode_H_
-#define _ImageNode_H_
+#ifndef _MainScene_H_
+#define _MainScene_H_
 
 #include "../api.h"
-#include "RasterNode.h"
-#include "Image.h"
-
-#include "../graphics/Bitmap.h"
-#include "../base/UTF8String.h"
-
-#include <string>
+#include "Scene.h"
 
 namespace avg {
 
-class AVG_API ImageNode : public RasterNode
+class AVG_API MainScene: public Scene
 {
     public:
-        static NodeDefinition createDefinition();
-        
-        ImageNode(const ArgList& Args);
-        virtual ~ImageNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
-        virtual void disconnect(bool bKill);
-        virtual void checkReload();
+        MainScene(Player * pPlayer, NodePtr pRootNode);
+        virtual ~MainScene();
 
-        const UTF8String& getHRef() const;
-        void setHRef(const UTF8String& href);
-        void setBitmap(const Bitmap * pBmp);
-        
-        virtual void render(const DRect& Rect);
-        
-        virtual BitmapPtr getBitmap();
-        virtual IntPoint getMediaSize();
+        AVGNodePtr getRootNode() const;
+        virtual void render();
 
     private:
-        UTF8String m_href;
-        ImagePtr m_pImage;
 };
 
 }
-
 #endif
 

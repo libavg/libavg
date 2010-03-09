@@ -29,7 +29,7 @@
 #undef WARNING
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "GL/glext.h"
+#include <GL/glext.h>
 #else
 #include "GL/gl.h"
 #include "GL/glu.h"
@@ -102,7 +102,14 @@ namespace glproc {
     extern AVG_API PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
     extern AVG_API PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
     extern AVG_API PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
-
+    extern AVG_API PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
+    extern AVG_API PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
+    extern AVG_API PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC
+            RenderbufferStorageMultisample;
+    extern AVG_API PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
+    extern AVG_API PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
+    extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
+    
 #ifdef linux
     extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     extern PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;

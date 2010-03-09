@@ -49,7 +49,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect();
+        virtual void connect(Scene * pScene);
         virtual void disconnect(bool bKill);
 
         void play();
@@ -90,7 +90,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         virtual IntPoint getMediaSize();
 
     private:
-        bool renderToSurface(OGLTiledSurface * pSurface);
+        bool renderToSurface(OGLSurface * pSurface);
         void seek(long long DestTime);
         void onEOF();
        
