@@ -120,7 +120,6 @@ void FBO::init()
 
     if (m_MultisampleSamples == 1) {
         for (unsigned i=0; i<m_TexIDs.size(); ++i) {
-            cerr << i << ": " << m_TexIDs[i] << endl;
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
                     GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 
                     m_TexIDs[i], 0);

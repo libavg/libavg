@@ -59,10 +59,15 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glBindTexture()");
+    // Mipmaps needed for FBO support on nVidia cards (!?)
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
     glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormat(), size.x, size.y, 0,
             getFormat(m_pfExt), getType(m_pfExt), 0);
-    cerr << "PBOImage: " << size << endl;
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.

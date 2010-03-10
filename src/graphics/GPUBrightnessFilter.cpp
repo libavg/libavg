@@ -67,14 +67,12 @@ void GPUBrightnessFilter::applyOnGPU()
 void GPUBrightnessFilter::initShader()
 {
     string sProgram =
-        "#extension GL_ARB_texture_rectangle : enable\n" 
-        
         "uniform float alpha;\n"
-        "uniform sampler2DRect Texture;\n"
+        "uniform sampler2D Texture;\n"
 
         "void main(void)\n"
         "{\n"
-        "  vec4 tex =texture2DRect(Texture, gl_TexCoord[0].st);\n" 
+        "  vec4 tex =texture2D(Texture, gl_TexCoord[0].st);\n" 
         "  gl_FragColor.rgb = tex.rgb*alpha;\n"
         "  gl_FragColor.a = tex.a;\n"
         "}\n"
