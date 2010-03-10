@@ -44,6 +44,7 @@ public:
     void deactivate() const;
 
     BitmapPtr getImage(int i) const;
+    unsigned getTexture() const;
 
     static bool isFBOSupported();
     static bool isMultisampleFBOSupported();

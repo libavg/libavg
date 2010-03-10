@@ -66,16 +66,8 @@ FBO::~FBO()
 
 BitmapPtr FBO::getImage(int i) const
 {
-    if (m_MultisampleSamples == 1) {
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
-    } else {
-        // Copy Multisample FBO to destination fbo
-        glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
-        glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
-        glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
-                GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
-    }
+    getTexture();
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     PixelFormat pf = m_pOutputPBO->getExtPF();
     IntPoint size = m_pOutputPBO->getSize();
     BitmapPtr pBmp(new Bitmap(size, pf));
@@ -98,7 +90,20 @@ BitmapPtr FBO::getImage(int i) const
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     return pBmp;
 }
- 
+
+unsigned FBO::getTexture() const
+{
+    if (m_MultisampleSamples != 1) {
+        // Copy Multisample FBO to destination fbo
+        glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
+        glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
+        glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
+                GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+    }
+    return m_TexIDs[0];
+}
+
 void FBO::init()
 {
     m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true));
