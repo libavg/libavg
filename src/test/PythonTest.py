@@ -288,16 +288,22 @@ class PythonTestCase(AVGTestCase):
             self.__clicked = False
 
         self._loadEmpty()
+        
         b = ui.Button(
                 parent = Player.getRootNode(),
                 upNode = avg.ImageNode(href="button_up.png"),
                 downNode = avg.ImageNode(href="button_down.png"),
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
-                onDown = onDown,
-                onClick = onClick,
+                pressHandler = onDown,
+                clickHandler = onClick,
                 )
+        b.pos = (0, 0)
+        xOutDistance = int(b.width * 2)
+        yOutDistance = int(b.height * 2)
+
         self.__down = False
         self.__clicked = False
+        
         self.start(None,
                 (# Normal click: Down & up over button
                  lambda: self.compareImage("testUIButtonUp", False),
@@ -312,7 +318,7 @@ class PythonTestCase(AVGTestCase):
                  # Down, move away from button, move over button, up
                  # ==> click
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 50),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, yOutDistance),
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 0),
                  lambda: self.compareImage("testUIButtonDown", False),
@@ -322,26 +328,103 @@ class PythonTestCase(AVGTestCase):
 
                  # Down, move away from button, up ==> no click
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 50),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 50),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, yOutDistance),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 reset,
+                 
+                 # Move away from button, down, mover over button, up
+                 # ==> no click
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, yOutDistance),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
+                 reset,
+
+                 # Move away from button, down, mover over button, move away from button, up
+                 # ==> no click
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, yOutDistance),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, yOutDistance),
+                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
+                 reset,
+
+                 # Check checkable button
+                 # Set checkable, down, up => pressed, down, up ==> click
+                 lambda: b.setCheckable(True),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 reset,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and self.__clicked),
+                 reset,
+
+                 # not checked, down, out, in, up ==> pressed, not click
+                 lambda: b.setCheckable(True),
+                 lambda: b.setChecked(False),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, yOutDistance),
+                 # Todo: fix this
+                 #lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
 
+                 # checked, down, out, in, up ==> pressed, clicked
+                 lambda: b.setCheckable(True),
+                 lambda: b.setChecked(True),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and self.__clicked),
+                 reset,
+                 
                  # Disable: Various up/down combinations have no effect
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
                  reset,
-                 lambda: b.enable(False),
+                 lambda: b.setDisabled(True),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonDisabled", False),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDisabled", False),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonDisabled", False),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: b.enable(True),
+                 lambda: self.compareImage("testUIButtonDisabled", False),
+                 lambda: b.setDisabled(False),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
                 ))
-
+    
+        
     def testMultitouchButton(self):
         def onDown(event):
             self.__down = True
@@ -358,16 +441,19 @@ class PythonTestCase(AVGTestCase):
                 parent = Player.getRootNode(),
                 upNode = avg.ImageNode(href="button_up.png"),
                 downNode = avg.ImageNode(href="button_down.png"),
-                onDown = onDown,
-                onClick = onClick,
-                isMultitouch = True
+                disabledNode = avg.ImageNode(href="button_disabled.png"),
+                pressHandler = onDown,
+                clickHandler = onClick,
                 )
+        b.pos = (0,0)
+        xOutDistance = b.width * 2
+        yOutDistance = b.height * 2
+        
         self.__down = False
         self.__clicked = False
         self.start(None,
                 (# Two downs, two ups ==> click after second up.
                  lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 reset,
                  lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
                  lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
@@ -379,25 +465,140 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.assert_(self.__clicked),
                  reset,
 
-                 # Two downs, one out, in up, out up ==> no click
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 50),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 50),
-                 lambda: self.assert_(self.__down and not(self.__clicked)),
-                 reset,
-
                  # Two downs, one out, out up, in up ==> click
                  lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
                  lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 50),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, yOutDistance),
                  lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 50),
+                 lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and self.__clicked),
-                 reset
+                 reset,
+                 
+                 # Two down, both out, both in, both up ==> click
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and self.__clicked),
+                 reset,
+
+                 # Two down both out, both up ==> no click
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, yOutDistance),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 reset,
+                                                   
+                 # Two downs, one out, in up, out up ==> no click
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, yOutDistance),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, yOutDistance),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 reset,
+                 
+                 # Check checkable multitouch button
+                 # 2 down, 2 up ==> pressed, not clicked, 
+                 # 2 down, 2 up ==> pressed, clicked
+                 lambda: b.setCheckable(True),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.assert_(self.__down and not(self.__clicked)),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                 # Fix this
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.assert_(self.__down and not(self.__clicked)),
+                 #reset,
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 #lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.assert_(self.__down and not(self.__clicked)),
+                 #lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                 #lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                 #lambda: self.compareImage("testUIButtonUp", False),
+                 #lambda: self.assert_(self.__down and self.__clicked),
+                 
+                 # not checked, 2 down, 2 out, 2 in, first up, second up 
+                 # ==> pressed, not clicked
+                 #lambda: b.setChecked(False),
+                 #lambda: self.compareImage("testUIButtonUp", False),
+                 #lambda: self.__sendMouseEvent(1, avg.CURSORDOWN, 0, 0),
+                 #lambda: self.__sendMouseEvent(2, avg.CURSORDOWN, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.assert_(self.__down and not(self.__clicked)),
+                 #lambda: self.__sendMouseEvent(1, avg.CURSORMOTION, 0, yOutDistance),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendMouseEvent(2, avg.CURSORMOTION, 0, yOutDistance),
+                 #lambda: self.compareImage("testUIButtonUp", False),
+                 #lambda: self.__sendMouseEvent(1, avg.CURSORMOTION, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendMouseEvent(2, avg.CURSORMOTION, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendMouseEvent(1, avg.CURSORUP, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.assert_(self.__down and not(self.__clicked)),
+                 #lambda: self.__sendMouseEvent(2, avg.CURSORUP, 0, 0),
+                 #lambda: self.compareImage("testUIButtonUp", False),
+                 #lambda: self.assert_(self.__down and self.__clicked),
+                 #reset,
+                 
+                 # checked, 2 down, 2 out, 2 in, first up, second up 
+                 # ==> pressed, clicked
+                 #lambda: b.setCheckable(True),
+                 #lambda: b.setChecked(True),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 #lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.assert_(self.__down and not(self.__clicked)),
+                 #lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, yOutDistance),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, yOutDistance),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                 #lambda: self.compareImage("testUIButtonDown", False),
+                 #lambda: self.assert_(self.__down and not(self.__clicked)),
+                 #lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                 #lambda: self.compareImage("testUIButtonUp", False),
+                 #lambda: self.assert_(self.__down and self.__clicked),
+                 #reset,
+                 
                 ))
 
     def testButtonMissingDown(self):
