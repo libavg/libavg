@@ -30,7 +30,7 @@ class Button(libavg.DivNode):
     STATE_DOWN     = 8
     STATE_OVER     = 16
     
-    def __init__(self, upNode, downNode = None, disabledNode = None, 
+    def __init__(self, upNode = None, downNode = None, disabledNode = None, 
                  pressHandler = None, clickHandler = None, **kwargs):
         libavg.DivNode.__init__(self, **kwargs)
         self.crop = False
