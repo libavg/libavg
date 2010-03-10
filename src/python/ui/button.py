@@ -19,134 +19,268 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
-g_Player = None
+import libavg
 
-class Button(avg.DivNode):
-    STATE_UP = 1
-    STATE_DOWN = 2
-    STATE_DISABLED = 3
-    STATE_OUT = 4       # Button is pressed but cursor has moved outside the node.
+g_log = libavg.Logger.get()
 
-    def __init__(self,
-                upNode,
-                downNode = None,
-                disabledNode = None,
-                onClick = lambda event: None,
-                onDown = lambda event:None,
-                isMultitouch = False,
-                **kwargs):
-        if ((downNode and upNode.size != downNode.size) or
-                (disabledNode and upNode.size != disabledNode.size)):
-            raise RuntimeError("The sizes of all nodes in a button must be equal")
-        self.__upNode = upNode
-        self.__downNode = downNode
+
+class Button(libavg.DivNode):
+    STATE_DISABLED = 2
+    STATE_UP       = 4
+    STATE_DOWN     = 8
+    STATE_OVER     = 16
+    
+    def __init__(self, upNode, downNode = None, disabledNode = None, 
+                 pressHandler = None, clickHandler = None, **kwargs):
+        libavg.DivNode.__init__(self, **kwargs)
+        self.crop = False
+        #self.elementoutlinecolor = 'FF0000'
+        
+        self.__upNode       = upNode
+        self.__downNode     = downNode
         self.__disabledNode = disabledNode
-        self.__onClickCallback = onClick
-        self.__onDownCallback = onDown
-        avg.DivNode.__init__(self, **kwargs)
-        self.size = upNode.size
-        self.appendChild(upNode)
-        if downNode:
-            self.appendChild(downNode)
-        if disabledNode:
-            self.appendChild(disabledNode)
-        self.__state = None
-        self.__cursorsClicking = set()
-        self.__cursorsOverNode = set()
-        self.__isMultitouch = isMultitouch
-        self.__setState(Button.STATE_UP)
+        
+        self.__defaultHandler = lambda event: None
+        self.__customPressHandler = pressHandler if pressHandler else self.__defaultHandler
+        self.__customClickHandler = clickHandler if clickHandler else self.__defaultHandler
 
+        self.__capturedCursorIds = set()
+        self.__overCursorIds = set()
+        
+        self.__isCheckable = False
+        self.__isToggled = False
+        
+        self.__state = Button.STATE_UP
+        
+        if self.__upNode and self.__downNode:
+            self.__setup()
+            
+        
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
-
-    def setNodes(self, upNode, downNode = None, disabledNode = None):
+    
+    def setNodes(self, upNode, downNode, disabledNode = None):
         self.__upNode = upNode
         self.__downNode = downNode
         self.__disabledNode = disabledNode
-
-    def getState(self):
-        return self.__state
-
-    def enable(self, enabled):
-        if enabled:
-            self.__setState(Button.STATE_UP)
+        self.__setup()
+        
+    def setPressHandler(self, handler):
+        self.__customPressHandler = handler
+        
+    def setClickHandler(self, handler):
+        self.__customClickHandler = handler
+    
+    def setCheckable(self, val):
+        self.__isCheckable = val
+        
+    def isCheckable(self):
+        return self.__isCheckable
+    
+    def setChecked(self, val):
+        self.__isToggled = val
+        state = Button.STATE_DOWN if self.__isToggled else Button.STATE_UP
+        self.__changeState(state)
+    
+    def isChecked(self):
+        return self.__hasBitState(Button.STATE_DOWN)
+    
+    def setDisabled(self, isDisabled):
+        state = Button.STATE_DISABLED if isDisabled else Button.STATE_UP
+        self.__changeState(state)
+        
+        if self.__hasBitState(Button.STATE_DISABLED):
+            self.__deactivateEventHandler()
         else:
-            self.__setState(Button.STATE_DISABLED)
-            for id in self.__cursorsClicking:
-                self.releaseEventCapture(id)
-            self.__cursorsClicking = set()
-            self.__cursorsOverNode = set()
+            self.__activateEventHandler()
+        
+    def isDisabled(self):
+        return self.__hasBitState(Button.STATE_DISABLED)
+    
+    def __setup(self):
+        self.appendChild(self.__upNode)
+        self.appendChild(self.__downNode)
 
-    def __onDown(self, event):
-        if not(self.__isMultitouch) and not(event.button==1):
-            return
-        self.__setState(Button.STATE_DOWN)
-        self.__onDownCallback(event)
-        self.__cursorsClicking.add(event.cursorid)
-        self.__cursorsOverNode.add(event.cursorid)
-        self.setEventCapture(event.cursorid)
+        if self.__disabledNode:
+            self.appendChild(self.__disabledNode)
+            
+        self.__setState(Button.STATE_UP)
+        self.__activateEventHandler()
+        self.__updateSize()
+        self.__updateNodesVisibility()
+        
+    def __setupReleaseHandlerTemplateMethod(self, handler):
+        libavg.DivNode.setEventHandler(self, libavg.CURSORUP, libavg.MOUSE | libavg.TOUCH, handler)
 
-    def __onUp(self, event):
-        if not(self.__isMultitouch) and not(event.button==1):
-            return
-        if event.cursorid in self.__cursorsClicking:
-            self.releaseEventCapture(event.cursorid)
-            self.__cursorsClicking.remove(event.cursorid)
-            if len(self.__cursorsClicking) == 0:
-                self.__setState(Button.STATE_UP)
-                if event.cursorid in self.__cursorsOverNode:
-                    self.__onClickCallback(event)
-            if event.cursorid in self.__cursorsOverNode:
-                self.__cursorsOverNode.remove(event.cursorid)
+    def __setupPressHandlerTemplateMethod(self, handler):
+        libavg.DivNode.setEventHandler(self, libavg.CURSORDOWN, libavg.MOUSE | libavg.TOUCH, handler)
+     
+    def __setupOverHandlerTemplateMethod(self, handler):
+        libavg.DivNode.setEventHandler(self, libavg.CURSOROVER, libavg.MOUSE | libavg.TOUCH, handler)
+    
+    def __setupOutHandlerTemplateMethod(self, handler):
+        libavg.DivNode.setEventHandler(self, libavg.CURSOROUT, libavg.MOUSE | libavg.TOUCH, handler)
 
-    def __onOut(self, event):
-        if event.cursorid in self.__cursorsClicking:
-            self.__cursorsOverNode.remove(event.cursorid)
-        if len(self.__cursorsOverNode) == 0:
-            self.__setState(Button.STATE_OUT)
+    def __updateNodesVisibility(self):
+        if self.__hasBitState(Button.STATE_UP):
+            self.__setNodesVisibility(self.__upNode)
 
-    def __onOver(self, event):
-        if len(self.__cursorsOverNode) == 0:
-            self.__setState(Button.STATE_DOWN)
-        if event.cursorid in self.__cursorsClicking:
-            self.__cursorsOverNode.add(event.cursorid)
+        elif self.__hasBitState(Button.STATE_DOWN):
+            self.__setNodesVisibility(self.__downNode)
 
+        elif self.__hasBitState(Button.STATE_DISABLED):
+            self.__setNodesVisibility(self.__disabledNode)
+        else:
+            pass
+        
+    def __updateSize(self):
+        self.size = self.__upNode.size
+    
+    def __setNodesVisibility(self, node):
+        nodes = (self.__upNode, self.__downNode, self.__disabledNode)
+        for element in nodes:
+            if not element:
+                continue
+            
+            element.active = False
+            if element == node:
+                element.active = True
+            
+    def __toggleBitState(self, state):
+        self.__state = self.__state ^ state
+    
+    def __extractBitState(self, state):
+        return self.__state & state
+    
+    def __hasBitState(self, state):
+        return self.__state & state
+    
+    def __changeState(self, state):
+        self.__setState(self.__extractBitState(Button.STATE_OVER) | state)
+        self.__updateNodesVisibility()
+    
     def __setState(self, state):
-#        print self.__state, " -> ", state
-        for node in (self.__upNode, self.__downNode, self.__disabledNode):
-            if node:
-                node.opacity = 0
-        if self.__isMultitouch:
-            source = avg.TOUCH
-        else:
-            source = avg.MOUSE
-        if state == Button.STATE_UP:
-            curNode = self.__upNode
-            avg.DivNode.setEventHandler(self, avg.CURSORDOWN, source, self.__onDown)
-            avg.DivNode.setEventHandler(self, avg.CURSORUP, source, None)
-            avg.DivNode.setEventHandler(self, avg.CURSOROVER, source, None)
-            avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, None)
-        elif state == Button.STATE_DOWN:
-            if self.__downNode:
-                curNode = self.__downNode
-            else:
-                curNode = self.__upNode
-            avg.DivNode.setEventHandler(self, avg.CURSORDOWN, source, self.__onDown)
-            avg.DivNode.setEventHandler(self, avg.CURSORUP, source, self.__onUp)
-            avg.DivNode.setEventHandler(self, avg.CURSOROVER, source, self.__onOver)
-            avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, self.__onOut)
-        elif state == Button.STATE_DISABLED:
-            curNode = self.__disabledNode
-            avg.DivNode.setEventHandler(self, avg.CURSORDOWN, source, None)
-            avg.DivNode.setEventHandler(self, avg.CURSORUP, source, None)
-            avg.DivNode.setEventHandler(self, avg.CURSOROVER, source, None)
-            avg.DivNode.setEventHandler(self, avg.CURSOROUT, source, None)
-        elif state == Button.STATE_OUT:
-            assert(self.__state == Button.STATE_DOWN)
-            curNode = self.__upNode
-        else:
-            assert(False)
-        curNode.opacity = 1
-        self.__state = state 
+        self.__state = state
+        
+    def __captureCursor(self, id):
+        self.__capturedCursorIds.add(id)
+        self.setEventCapture(id)
+    
+    def __releaseCapturedCursor(self, id):
+        self.__capturedCursorIds.remove(id)
+        self.releaseEventCapture(id)
+    
+    def __isCursorCaptured(self, id):
+        return id in self.__capturedCursorIds
+    
+    def __getNumberOfCapturedCursors(self):
+        return len(self.__capturedCursorIds)
 
+    def __hasCapuredCursor(self):
+        return len(self.__capturedCursorIds) != 0
+    
+    def __pressHandlerTemplateMethod(self, event):
+        if not self.__isCursorCaptured(event.cursorid):
+            self.__captureCursor(event.cursorid)
+        
+        if event.cursorid not in self.__overCursorIds:
+            self.__overCursorIds.add(event.cursorid)
+
+        if not self.isCheckable():
+            if self.__hasBitState(Button.STATE_DOWN):
+                return 
+
+        if self.isCheckable():
+            self.__isToggled = not self.__isToggled
+        
+        g_log.trace(g_log.APP, 'Press handler called')
+        
+        self.__customPressHandler(event)
+        self.__changeState(Button.STATE_DOWN)
+    
+    def __releaseHandlerTemplateMethod(self, event):
+        numberOfCapturedCursors = self.__getNumberOfCapturedCursors()
+        numberOfOverCursors = len(self.__overCursorIds)
+        
+        if self.__isCursorCaptured(event.cursorid):
+            self.__releaseCapturedCursor(event.cursorid)
+
+        if event.cursorid in self.__overCursorIds:
+            self.__overCursorIds.remove(event.cursorid)
+            
+        if numberOfCapturedCursors > 1:
+            g_log.trace(g_log.APP, 'number of captured cursors is > 1')
+            return
+
+        if  numberOfCapturedCursors == 0:
+            g_log.trace(g_log.APP, 'number of captured cursors is 0')
+            self.__changeState(Button.STATE_UP)
+            return
+        
+        if  numberOfOverCursors == 0:
+            g_log.trace(g_log.APP, 'number of overCursors is 0')
+            if self.isCheckable():
+                self.__isToggled = not self.__isToggled
+                if self.__isToggled:
+                    self.__changeState(Button.STATE_DOWN)
+                else:
+                    self.__changeState(Button.STATE_UP)
+            self.__changeState(Button.STATE_UP)
+            return
+        
+        if self.isCheckable():
+            if self.__isToggled:
+                return
+        
+        isNotDown = not self.__hasBitState(Button.STATE_DOWN)
+        if isNotDown:
+            g_log.trace(g_log.APP, 'button is not down')
+            return
+            
+        g_log.trace(g_log.APP, 'Click handler called')
+        
+        self.__customClickHandler(event)
+        self.__changeState(Button.STATE_UP)
+        if self.__hasCapuredCursor():
+            g_log.trace(g_log.APP, 'Invalid state: Captured Cursor != 0')
+            pass
+
+        if len(self.__overCursorIds):
+            g_log.trace(g_log.APP, 'Invalid state: Over cursor != 0')
+            pass
+        
+    def __overHandlerTemplateMethod(self, event):
+        if event.cursorid not in self.__overCursorIds:
+            self.__overCursorIds.add(event.cursorid)
+        
+        if len(self.__overCursorIds) > 0 and not self.isCheckable():
+            if self.__hasCapuredCursor():
+                self.__changeState(Button.STATE_DOWN)
+                
+        g_log.trace(g_log.APP, 'over handler called')
+        self.__toggleBitState(Button.STATE_OVER)
+        
+    def __outHandlerTemplateMethod(self, event):
+        g_log.trace(g_log.APP, 'out handler called')
+
+        if event.cursorid in self.__overCursorIds:
+            self.__overCursorIds.remove(event.cursorid)
+        
+        if len(self.__overCursorIds) == 0 and not self.isCheckable():
+            self.__changeState(Button.STATE_UP)
+        
+        self.__toggleBitState(Button.STATE_OVER)
+                
+    def __activateEventHandler(self):
+        self.__setupPressHandlerTemplateMethod(self.__pressHandlerTemplateMethod)
+        self.__setupReleaseHandlerTemplateMethod(self.__releaseHandlerTemplateMethod)
+        self.__setupOverHandlerTemplateMethod(self.__overHandlerTemplateMethod)
+        self.__setupOutHandlerTemplateMethod(self.__outHandlerTemplateMethod)
+    
+    def __deactivateEventHandler(self):
+        self.__setupPressHandlerTemplateMethod(self.__defaultHandler)
+        self.__setupReleaseHandlerTemplateMethod(self.__defaultHandler)
+        self.__setupOverHandlerTemplateMethod(self.__defaultHandler)
+        self.__setupOutHandlerTemplateMethod(self.__defaultHandler)
+
+       
