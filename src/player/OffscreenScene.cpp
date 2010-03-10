@@ -53,11 +53,11 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
     Scene::initPlayback(pDisplayEngine, pAudioEngine, pTestHelper);
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glBindTexture()");
     IntPoint size = getSize();
     glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, size.x, size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glTexImage2D()");
 
