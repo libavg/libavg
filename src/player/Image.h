@@ -41,8 +41,7 @@ class AVG_API Image
     public:
         enum State {NOT_AVAILABLE, CPU, GPU};
 
-        Image(OGLSurface * pSurface, const std::string& sFilename, bool bTiled);
-        Image(OGLSurface * pSurface, const Bitmap* pBmp, bool bTiled);
+        Image(OGLSurface * pSurface, const std::string& sFilename);
         virtual ~Image();
 
         void setBitmap(const Bitmap * pBmp);
@@ -71,7 +70,6 @@ class AVG_API Image
         SDLDisplayEngine * m_pEngine;
 
         State m_State;
-        bool m_bTiled;
 };
 
 typedef boost::shared_ptr<Image> ImagePtr;
