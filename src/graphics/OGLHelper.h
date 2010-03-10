@@ -125,9 +125,5 @@ namespace glproc {
 
 }
 
-#ifndef GL_TEXTURE_RECTANGLE_NV
-#define GL_TEXTURE_RECTANGLE_NV           0x84F5
-#endif
-
 #endif
  

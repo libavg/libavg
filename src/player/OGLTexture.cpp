@@ -187,6 +187,11 @@ void OGLTexture::download() const
     }
 }
 
+void OGLTexture::setTexID(unsigned id)
+{
+    AVG_ASSERT(false);
+}
+
 void OGLTexture::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;

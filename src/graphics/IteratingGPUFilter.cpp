@@ -67,8 +67,8 @@ void IteratingGPUFilter::applyOnGPU()
     setupShader();
     for(int i=0;i<2;i++) {
         glproc::ActiveTexture(GL_TEXTURE0+i);        
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
     m_pFBO->activate();
     for(int k=0; k<m_NumIterations; k++) {

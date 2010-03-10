@@ -49,6 +49,7 @@ public:
     void unlockBmp();
     BitmapPtr readbackBmp();
     void download() const;
+    void setTexID(unsigned id);
 
     void setMaterial(const MaterialInfo& material);
     const IntPoint& getTextureSize() const;

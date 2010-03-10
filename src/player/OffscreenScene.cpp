@@ -72,6 +72,7 @@ void OffscreenScene::render()
     m_pFBO->activate();
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->deactivate();
+    m_pFBO->copyToDestTexture();
 //    BitmapPtr pBmp = m_pFBO->getImage(0);
 //    pBmp->save("foo.png");
 }
@@ -79,6 +80,11 @@ void OffscreenScene::render()
 std::string OffscreenScene::getID() const
 {
     return getRootNode()->getID();
+}
+
+unsigned OffscreenScene::getTexID() const
+{
+    return m_pFBO->getTexture();
 }
 
 }

@@ -243,8 +243,6 @@ void OGLImagingContext::setStandardState(const IntPoint & size)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glTexEnvf()");
     glBlendFunc(GL_ONE, GL_ZERO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glBlendFunc()");
-    glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_TEXTURE_RECTANGLE_ARB);");
     glDisable(GL_MULTISAMPLE);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
 
