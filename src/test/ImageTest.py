@@ -32,7 +32,7 @@ g_IsMaskSupported = None
 
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+        AVGTestCase.__init__(self, testFuncName)
 
     def testImageHRef(self):
         def createXmlNode(pos):

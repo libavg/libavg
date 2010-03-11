@@ -28,8 +28,8 @@ from libavg import avg
 from testcase import *
 
 class PlayerTestCase(AVGTestCase):
-    def __init__(self, testFuncName, bpp):
-        AVGTestCase.__init__(self, testFuncName, bpp)
+    def __init__(self, testFuncName):
+        AVGTestCase.__init__(self, testFuncName)
 
     def testPoint(self):
         def almostEqual(p1, p2):
@@ -552,7 +552,7 @@ class PlayerTestCase(AVGTestCase):
         self.start(None, 
                 [None, None])
 
-def playerTestSuite(bpp, tests):
+def playerTestSuite(tests):
     availableTests = (
             "testPoint",
             "testBasics",
@@ -578,6 +578,6 @@ def playerTestSuite(bpp, tests):
             "testStopOnEscape",
             "testOffscreen"
             )
-    return AVGTestSuite(availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})
+    return AVGTestSuite(availableTests, PlayerTestCase, tests)
 
 Player = avg.Player.get()

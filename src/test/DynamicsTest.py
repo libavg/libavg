@@ -27,7 +27,7 @@ from testcase import *
 
 class DynamicsTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+        AVGTestCase.__init__(self, testFuncName)
 
     def __runDynamicsTest(self, createFunc, testName, isVideo = False, 
             warnOnImageDiff = False):

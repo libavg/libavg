@@ -27,7 +27,7 @@ from testcase import *
 
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+        AVGTestCase.__init__(self, testFuncName)
 
     def testAnimType(self, curAnim, imgBaseName):
         def onStop():
@@ -741,51 +741,51 @@ class PythonTestCase(AVGTestCase):
                ))
 
     def testFocusContext(self):
-       def setup():
-           textarea.init(avg)
-           self.ctx1 = textarea.FocusContext()
-           self.ctx2 = textarea.FocusContext()
+        def setup():
+            textarea.init(avg)
+            self.ctx1 = textarea.FocusContext()
+            self.ctx2 = textarea.FocusContext()
+            
+            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
+                self.ctx1, id='ta1')
+            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=16, multiline=True, color='FFFFFF')
+            self.ta1.setText('Lorem ipsum')
+            
+            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
+                self.ctx1, id='ta2')
+            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=14, multiline=False, color='FFFFFF')
+            self.ta2.setText('dolor')
+            
+            self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
+                self.ctx2, disableMouseFocus=True, id='ta3')
+            self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=14, multiline=True, color='FFFFFF')
+            self.ta3.setText('dolor sit amet')
+            
+            textarea.setActiveFocusContext(self.ctx1)
 
-           self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
-               self.ctx1, id='ta1')
-           self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               fontsize=16, multiline=True, color='FFFFFF')
-           self.ta1.setText('Lorem ipsum')
+        def writeChar():
+            helper = Player.getTestHelper()
+            helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
+            helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
+            helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
+            helper.fakeKeyEvent(avg.KEYUP, 66, 66, "B", 66, 0)
+            helper.fakeKeyEvent(avg.KEYDOWN, 67, 67, "C", 67, 0)
+            helper.fakeKeyEvent(avg.KEYUP, 67, 67, "C", 67, 0)
 
-           self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
-               self.ctx1, id='ta2')
-           self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               fontsize=14, multiline=False, color='FFFFFF')
-           self.ta2.setText('dolor')
+        def switchFocus():
+            self.ctx1.cycleFocus()
 
-           self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
-               self.ctx2, disableMouseFocus=True, id='ta3')
-           self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               fontsize=14, multiline=True, color='FFFFFF')
-           self.ta3.setText('dolor sit amet')
+        def clearFocused():
+            self.ctx1.clear()
 
-           textarea.setActiveFocusContext(self.ctx1)
+        def clickForFocus():
+            self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
+            self.__sendMouseEvent(avg.CURSORUP, 20, 70)
 
-       def writeChar():
-           helper = Player.getTestHelper()
-           helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
-           helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
-           helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
-           helper.fakeKeyEvent(avg.KEYUP, 66, 66, "B", 66, 0)
-           helper.fakeKeyEvent(avg.KEYDOWN, 67, 67, "C", 67, 0)
-           helper.fakeKeyEvent(avg.KEYUP, 67, 67, "C", 67, 0)
-
-       def switchFocus():
-           self.ctx1.cycleFocus()
-
-       def clearFocused():
-           self.ctx1.clear()
-
-       def clickForFocus():
-           self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
-           self.__sendMouseEvent(avg.CURSORUP, 20, 70)
-
-       Player.loadString("""
+        Player.loadString("""
        <avg width="160" height="120">
            <div id="ph1" x="2" y="2" width="156" height="54"/>
            <div id="ph2" x="2" y="58" width="76" height="54"/>
@@ -794,21 +794,21 @@ class PythonTestCase(AVGTestCase):
            </div>
        </avg>
        """)
-       self.start(None,
-               (setup,
-                lambda: self.compareImage("testFocusContext1", True),
-                writeChar,
-                lambda: self.compareImage("testFocusContext2", True),
-                switchFocus,
-                writeChar,
-                lambda: self.compareImage("testFocusContext3", True),
-                switchFocus,
-                clearFocused,
-                lambda: self.compareImage("testFocusContext4", True),
-                clickForFocus,
-                clearFocused,
-                lambda: self.compareImage("testFocusContext5", True),
-              ))
+        self.start(None,
+                (setup,
+                 lambda: self.compareImage("testFocusContext1", True),
+                 writeChar,
+                 lambda: self.compareImage("testFocusContext2", True),
+                 switchFocus,
+                 writeChar,
+                 lambda: self.compareImage("testFocusContext3", True),
+                 switchFocus,
+                 clearFocused,
+                 lambda: self.compareImage("testFocusContext4", True),
+                 clickForFocus,
+                 clearFocused,
+                 lambda: self.compareImage("testFocusContext5", True),
+               ))
 
     def __sendMouseEvent(self, type, x, y):
         Helper = Player.getTestHelper()
@@ -837,7 +837,7 @@ def pythonTestSuite (tests):
         "testTextArea",
         "testFocusContext",
         )
-    return AVGTestSuite (availableTests, PythonTestCase, tests)
+    return AVGTestSuite(availableTests, PythonTestCase, tests)
 
 Player = avg.Player.get()
 anim.init(avg)
