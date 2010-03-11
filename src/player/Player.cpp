@@ -227,12 +227,20 @@ void Player::setAudioOptions(int samplerate, int channels)
 void Player::loadFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
+    if (m_pMainScene) {
+        cleanup();
+    }
+
     m_pMainScene = new MainScene(this, pNode);
     m_DP.m_Size = m_pMainScene->getSize();
 }
 
 void Player::loadString(const string& sAVG)
 {
+    if (m_pMainScene) {
+        cleanup();
+    }
+
     NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pMainScene = new MainScene(this, pNode);
     m_DP.m_Size = m_pMainScene->getSize();
@@ -256,8 +264,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string RealFilename;
     try {
-        AVG_TRACE(Logger::MEMORY, 
-                std::string("Player::loadFile(") + sFilename + ")");
+        AVG_TRACE(Logger::MEMORY, std::string("Player::loadFile(") + sFilename + ")");
 
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
@@ -298,7 +305,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
-
+        
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
         NodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
@@ -846,11 +853,6 @@ NodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
-        if (m_pMainScene) {
-            cleanup();
-        }
-        AVG_ASSERT(!m_pMainScene);
-        
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue=0;
 
