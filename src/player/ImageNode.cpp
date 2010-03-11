@@ -24,6 +24,7 @@
 #include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
+#include "Player.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -64,7 +65,12 @@ void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
     getSurface()->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    if (m_pImage) {
+        m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    } else {
+        getSurface()->create(m_pScene->getSize(), B8G8R8X8);
+        getSurface()->setTexID(m_pScene->getTexID());
+    }
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
@@ -77,10 +83,14 @@ void ImageNode::connect(Scene * pScene)
 void ImageNode::disconnect(bool bKill)
 {
     if (bKill) {
-        m_pImage = ImagePtr(new Image(getSurface(), ""));
+        if (m_pImage) {
+            m_pImage = ImagePtr(new Image(getSurface(), ""));
+        }
         m_href = "";
     } else {
-        m_pImage->moveToCPU();
+        if (m_pImage) {
+            m_pImage->moveToCPU();
+        }
     }
     RasterNode::disconnect(bKill);
 }
@@ -111,26 +121,47 @@ static ProfilingZone RenderProfilingZone("ImageNode::render");
 void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_pImage->getState() == Image::GPU) {
+    if (m_pScene || m_pImage->getState() == Image::GPU) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
 IntPoint ImageNode::getMediaSize()
 {
-    return m_pImage->getSize();
+    if (m_pImage) {
+        return m_pImage->getSize();
+    } else {
+        return m_pScene->getSize();
+    }
 }
 
 void ImageNode::checkReload()
 {
-    Node::checkReload(m_href, m_pImage);
-    setViewport(-32767, -32767, -32767, -32767);
+    if (isSceneURL(m_href)) {
+        m_pScene = Player::get()->getSceneFromURL(m_href);
+        if (m_pScene->isRunning()) {
+            getSurface()->setTexID(m_pScene->getTexID());
+        }
+        m_pImage = ImagePtr();
+    } else {
+        Node::checkReload(m_href, m_pImage);
+        setViewport(-32767, -32767, -32767, -32767);
+    }
     RasterNode::checkReload();
 }
 
 BitmapPtr ImageNode::getBitmap()
 {
-    return m_pImage->getBitmap();
+    if (m_pImage) {
+        return m_pImage->getBitmap();
+    } else {
+        return getSurface()->readbackBmp();
+    }
+}
+
+bool ImageNode::isSceneURL(const std::string& sURL)
+{
+    return sURL.find("scene:") == 0;
 }
 
 }

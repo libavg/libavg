@@ -372,10 +372,10 @@ void Player::initPlayback()
         initAudio();
     }
     try {
-        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
         for (unsigned i=0; i<m_pScenes.size(); ++i) {
             m_pScenes[i]->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
         }
+        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
     } catch (Exception&) {
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
@@ -1057,6 +1057,22 @@ void Player::setVolume(double volume)
 double Player::getVolume() const
 {
     return m_Volume;
+}
+
+OffscreenScenePtr Player::getSceneFromURL(const std::string& sURL)
+{
+    if (sURL.substr(0, 6) != "scene:") {
+        throw Exception(AVG_ERR_CANT_PARSE_STRING, 
+                string("Invalid scene url :'")+sURL+"'");
+    }
+    string sSceneID = sURL.substr(6);
+    for (unsigned i=0; i < m_pScenes.size(); ++i) {
+        if (m_pScenes[i]->getID() == sSceneID) {
+            return m_pScenes[i];
+        }
+    }
+    throw Exception(AVG_ERR_CANT_PARSE_STRING, 
+            string("Scene with url '")+sURL+"' not found.");
 }
 
 void Player::cleanup() 

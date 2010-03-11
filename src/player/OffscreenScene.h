@@ -42,6 +42,7 @@ class AVG_API OffscreenScene: public Scene
 
         virtual void render();
         std::string getID() const;
+        bool isRunning() const;
         unsigned getTexID() const;
 
     private:

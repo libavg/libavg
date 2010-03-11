@@ -52,6 +52,8 @@ public:
     BitmapPtr lockBmp(int i=0);
     void unlockBmps();
     BitmapPtr readbackBmp();
+    void setTexID(unsigned id);
+
     BitmapPtr lockMaskBmp();
     void unlockMaskBmp();
     const MaterialInfo& getMaterial() const;
@@ -74,6 +76,7 @@ private:
     PixelFormat m_pf;
     OGLTexturePtr m_pMaskTexture;
     IntPoint m_MaskSize;
+    bool m_bUseForeignTexture;
 
     MaterialInfo m_Material;
 

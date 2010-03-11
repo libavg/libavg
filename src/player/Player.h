@@ -117,6 +117,8 @@ class AVG_API Player
         void setVolume(double volume);
         double getVolume() const;
 
+        OffscreenScenePtr getSceneFromURL(const std::string& sURL);
+
         std::string getCurDirName();
         std::string getRootMediaDir();
         const NodeDefinition& getNodeDef(const std::string& sType);

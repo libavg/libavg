@@ -95,6 +95,11 @@ std::string OffscreenScene::getID() const
     return getRootNode()->getID();
 }
 
+bool OffscreenScene::isRunning() const
+{
+    return (m_pFBO != FBOPtr());
+}
+
 unsigned OffscreenScene::getTexID() const
 {
     return m_pFBO->getTexture();

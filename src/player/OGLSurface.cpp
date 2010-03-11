@@ -37,6 +37,7 @@ namespace avg {
 
 OGLSurface::OGLSurface(const MaterialInfo& material)
     : m_Size(-1,-1),
+      m_bUseForeignTexture(false),
       m_Material(material),
       m_pEngine(0)
 {
@@ -188,6 +189,11 @@ BitmapPtr OGLSurface::readbackBmp()
     return m_pTextures[0]->readbackBmp();
 }
 
+void OGLSurface::setTexID(unsigned id)
+{
+    m_bUseForeignTexture = true;
+    m_pTextures[0]->setTexID(id);
+}
 BitmapPtr OGLSurface::lockMaskBmp()
 {
     AVG_ASSERT(m_Material.getHasMask());
@@ -230,7 +236,7 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
 
 void OGLSurface::downloadTexture()
 {
-    if (m_pTextures[0]) {
+    if (m_pTextures[0] && !m_bUseForeignTexture) {
         m_pTextures[0]->download();
         if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
             m_pTextures[1]->download();
