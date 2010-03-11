@@ -249,15 +249,13 @@ void Player::loadString(const string& sAVG)
 void Player::loadSceneFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
-    m_pScenes.push_back(pScene);
+    registerOffscreenScene(pNode);
 }
 
 void Player::loadSceneString(const string& sAVG)
 {
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
-    m_pScenes.push_back(pScene);
+    registerOffscreenScene(pNode);
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
@@ -721,10 +719,10 @@ void Player::doFrame()
             ScopeTimer Timer(TimersProfilingZone);
             handleTimers();
         }
-        m_pMainScene->doFrame(m_bPythonAvailable);
         for (unsigned i=0; i< m_pScenes.size(); ++i) {
             m_pScenes[i]->doFrame(m_bPythonAvailable);
         }
+        m_pMainScene->doFrame(m_bPythonAvailable);
     }
     if (m_pDisplayEngine->wasFrameLate()) {
         ThreadProfiler::get()->dumpFrame();
@@ -999,6 +997,15 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         }
     }
     return curNode;
+}
+
+void Player::registerOffscreenScene(NodePtr pNode)
+{
+    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    m_pScenes.push_back(pScene);
+    if (m_bIsPlaying) {
+        pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+    }
 }
 
 void Player::handleTimers()

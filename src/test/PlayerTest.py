@@ -542,21 +542,28 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testOffscreen(self):
-        Player.loadSceneString("""
-            <?xml version="1.0"?>
-            <scene id="testscene" width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
-            </scene>
-        """)
+        def createScene(sceneName, x):
+            Player.loadSceneString("""
+                <?xml version="1.0"?>
+                <scene id="%s" width="160" height="120">
+                    <image id="test1" x="%s" href="rgb24-65x65.png" angle="0.4"/>
+                </scene>
+            """%(sceneName, str(x)))
+            print sceneName
+            self.node = avg.ImageNode(parent=Player.getRootNode())
+            self.node.href="scene:"+sceneName
         self._loadEmpty()
-        node = avg.ImageNode(href="scene:testscene", parent=Player.getRootNode())
+        createScene("testscene1", 0)
         self.start(None, 
-                (None, 
+                (
                  lambda: self.compareImage("testOffscreen1", False),
-                 lambda: node.unlink(),
+                 lambda: self.node.unlink(),
                  lambda: self.compareImage("testOffscreen2", False), 
-                 lambda: Player.getRootNode().appendChild(node),
-                 lambda: self.compareImage("testOffscreen1", False)
+                 lambda: Player.getRootNode().appendChild(self.node),
+                 lambda: self.compareImage("testOffscreen1", False),
+                 lambda: self.node.unlink(),
+                 lambda: createScene("testscene2", 80),
+                 lambda: self.compareImage("testOffscreen3", False)
                 ))
 
 def playerTestSuite(bpp, tests):

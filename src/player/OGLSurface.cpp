@@ -94,6 +94,7 @@ void OGLSurface::createMask(const IntPoint& size)
 
 void OGLSurface::destroy()
 {
+    m_bUseForeignTexture = false;
     m_pTextures[0] = OGLTexturePtr();
     m_pTextures[1] = OGLTexturePtr();
     m_pTextures[2] = OGLTexturePtr();

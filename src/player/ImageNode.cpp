@@ -138,15 +138,18 @@ IntPoint ImageNode::getMediaSize()
 void ImageNode::checkReload()
 {
     if (isSceneURL(m_href)) {
+        m_pImage = ImagePtr();
+        OffscreenScenePtr pOldScene = m_pScene;
         m_pScene = Player::get()->getSceneFromURL(m_href);
-        if (m_pScene->isRunning() && getState() == Node::NS_CANRENDER) {
+        if (m_pScene != pOldScene && getState() == Node::NS_CANRENDER) {
+            AVG_ASSERT(m_pScene->isRunning());
+            getSurface()->create(m_pScene->getSize(), B8G8R8X8);
             getSurface()->setTexID(m_pScene->getTexID());
         }
-        m_pImage = ImagePtr();
     } else {
         Node::checkReload(m_href, m_pImage);
-        setViewport(-32767, -32767, -32767, -32767);
     }
+    setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }
 

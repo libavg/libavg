@@ -153,6 +153,7 @@ class AVG_API Player
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
+        void registerOffscreenScene(NodePtr pNode);
 
         MainScene * m_pMainScene;
 
