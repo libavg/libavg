@@ -549,10 +549,14 @@ class PlayerTestCase(AVGTestCase):
             </scene>
         """)
         self._loadEmpty()
-        avg.ImageNode(href="scene:testscene", parent=Player.getRootNode())
+        node = avg.ImageNode(href="scene:testscene", parent=Player.getRootNode())
         self.start(None, 
                 (None, 
-                 lambda: self.compareImage("testOffscreen", False)
+                 lambda: self.compareImage("testOffscreen1", False),
+                 lambda: node.unlink(),
+                 lambda: self.compareImage("testOffscreen2", False), 
+                 lambda: Player.getRootNode().appendChild(node),
+                 lambda: self.compareImage("testOffscreen1", False)
                 ))
 
 def playerTestSuite(bpp, tests):

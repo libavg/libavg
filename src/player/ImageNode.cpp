@@ -139,7 +139,7 @@ void ImageNode::checkReload()
 {
     if (isSceneURL(m_href)) {
         m_pScene = Player::get()->getSceneFromURL(m_href);
-        if (m_pScene->isRunning()) {
+        if (m_pScene->isRunning() && getState() == Node::NS_CANRENDER) {
             getSurface()->setTexID(m_pScene->getTexID());
         }
         m_pImage = ImagePtr();
