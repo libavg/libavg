@@ -65,6 +65,7 @@ private:
     MaterialInfo m_Material;
     
     unsigned m_TexID;
+    bool m_bOwnsTexture;
     GLuint m_hWritePixelBuffer;
     GLuint m_hReadPixelBuffer;
     BitmapPtr m_pBmp;

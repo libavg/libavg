@@ -23,6 +23,7 @@
 
 #include "SDLDisplayEngine.h"
 #include "SceneNode.h"
+#include "OGLTexture.h"
 
 #include "../base/Exception.h"
 
@@ -79,8 +80,14 @@ void OffscreenScene::render()
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
-//    BitmapPtr pBmp = m_pFBO->getImage(0);
-//    pBmp->save("foo.png");
+/*
+    OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
+            MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
+            getDisplayEngine(), PBO));
+    pTex->setTexID(m_TexID);
+    BitmapPtr pBmp = pTex->readbackBmp();
+    pBmp->save("foo.png");
+*/
 }
 
 std::string OffscreenScene::getID() const
