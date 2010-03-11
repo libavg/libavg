@@ -54,7 +54,6 @@ class Button(libavg.DivNode):
         
         if self.__upNode and self.__downNode:
             self.__setup()
-            
         
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
@@ -176,7 +175,7 @@ class Button(libavg.DivNode):
     def __getNumberOfCapturedCursors(self):
         return len(self.__capturedCursorIds)
 
-    def __hasCapuredCursor(self):
+    def __hasCapturedCursor(self):
         return len(self.__capturedCursorIds) != 0
     
     def __pressHandlerTemplateMethod(self, event):
@@ -185,14 +184,10 @@ class Button(libavg.DivNode):
         
         if event.cursorid not in self.__overCursorIds:
             self.__overCursorIds.add(event.cursorid)
-
-        if not self.isCheckable():
-            if self.__hasBitState(Button.STATE_DOWN):
-                return 
-
-        if self.isCheckable():
-            self.__isToggled = not self.__isToggled
         
+        if self.__getNumberOfCapturedCursors() > 1:
+            return
+  
         g_log.trace(g_log.APP, 'Press handler called')
         
         self.__customPressHandler(event)
@@ -213,35 +208,25 @@ class Button(libavg.DivNode):
             return
 
         if  numberOfCapturedCursors == 0:
-            g_log.trace(g_log.APP, 'number of captured cursors is 0')
-            self.__changeState(Button.STATE_UP)
+            g_log.trace(g_log.APP, 'number of captured cursors are 0')
             return
-        
+
         if  numberOfOverCursors == 0:
-            g_log.trace(g_log.APP, 'number of overCursors is 0')
-            if self.isCheckable():
-                self.__isToggled = not self.__isToggled
-                if self.__isToggled:
-                    self.__changeState(Button.STATE_DOWN)
-                else:
-                    self.__changeState(Button.STATE_UP)
-            self.__changeState(Button.STATE_UP)
-            return
-        
-        if self.isCheckable():
-            if self.__isToggled:
-                return
-        
-        isNotDown = not self.__hasBitState(Button.STATE_DOWN)
-        if isNotDown:
-            g_log.trace(g_log.APP, 'button is not down')
+            g_log.trace(g_log.APP, 'number of over cursors is 0')
             return
             
         g_log.trace(g_log.APP, 'Click handler called')
         
         self.__customClickHandler(event)
-        self.__changeState(Button.STATE_UP)
-        if self.__hasCapuredCursor():
+        newState = Button.STATE_UP
+        if self.isCheckable():
+            self.__isToggled = not self.__isToggled
+            if self.__isToggled:
+                newState = Button.STATE_DOWN
+            
+        self.__changeState(newState)
+        
+        if self.__hasCapturedCursor():
             g_log.trace(g_log.APP, 'Invalid state: Captured Cursor != 0')
             pass
 
@@ -252,11 +237,10 @@ class Button(libavg.DivNode):
     def __overHandlerTemplateMethod(self, event):
         if event.cursorid not in self.__overCursorIds:
             self.__overCursorIds.add(event.cursorid)
-        
-        if len(self.__overCursorIds) > 0 and not self.isCheckable():
-            if self.__hasCapuredCursor():
-                self.__changeState(Button.STATE_DOWN)
-                
+            
+        if self.__hasCapturedCursor() and len(self.__overCursorIds):
+            self.__changeState(Button.STATE_DOWN)
+            
         g_log.trace(g_log.APP, 'over handler called')
         self.__toggleBitState(Button.STATE_OVER)
         
@@ -266,8 +250,12 @@ class Button(libavg.DivNode):
         if event.cursorid in self.__overCursorIds:
             self.__overCursorIds.remove(event.cursorid)
         
-        if len(self.__overCursorIds) == 0 and not self.isCheckable():
-            self.__changeState(Button.STATE_UP)
+        if self.__hasCapturedCursor() and not len(self.__overCursorIds):
+            newState = Button.STATE_UP
+            if self.isCheckable():
+                if self.__isToggled:
+                    newState = Button.STATE_DOWN
+            self.__changeState(newState)
         
         self.__toggleBitState(Button.STATE_OVER)
                 
@@ -283,4 +271,4 @@ class Button(libavg.DivNode):
         self.__setupOverHandlerTemplateMethod(self.__defaultHandler)
         self.__setupOutHandlerTemplateMethod(self.__defaultHandler)
 
-       
+        
