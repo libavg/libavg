@@ -799,16 +799,6 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     while(SDL_PollEvent(&sdlEvent)) {
         EventPtr pNewEvent;
         switch(sdlEvent.type) {
-            case SDL_ACTIVEEVENT:
-                if (sdlEvent.active.state & SDL_APPMOUSEFOCUS) {
-                    m_bMouseOverApp = sdlEvent.active.gain != 0;
-                    if (!sdlEvent.active.gain) {
-                        pNewEvent = EventPtr(
-                                new MouseEvent(Event::CURSORMOTION, false,
-                                        false, false, IntPoint(-1, -1), 
-                                        MouseEvent::NO_BUTTON, DPoint(0,0)));
-                    }
-                }
             case SDL_MOUSEMOTION:
                 if (m_bMouseOverApp) {
                     pNewEvent = createMouseEvent(Event::CURSORMOTION, sdlEvent, 
