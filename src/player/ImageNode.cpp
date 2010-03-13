@@ -108,6 +108,7 @@ void ImageNode::setHRef(const UTF8String& href)
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
 {
+    createEmptyImage();
     m_pImage->setBitmap(pBmp);
     if (getState() == Node::NS_CANRENDER) {
         bind();
@@ -147,13 +148,7 @@ void ImageNode::checkReload()
             getSurface()->setTexID(m_pScene->getTexID());
         }
     } else {
-        if (!m_pImage) {
-            m_pScene = OffscreenScenePtr();
-            m_pImage = ImagePtr(new Image(getSurface(), ""));
-            if (getState() == Node::NS_CANRENDER) {
-                m_pImage->moveToGPU(getDisplayEngine());
-            }
-        }
+        createEmptyImage();
         Node::checkReload(m_href, m_pImage);
     }
     setViewport(-32767, -32767, -32767, -32767);
@@ -166,6 +161,17 @@ BitmapPtr ImageNode::getBitmap()
         return m_pImage->getBitmap();
     } else {
         return getSurface()->readbackBmp();
+    }
+}
+
+void ImageNode::createEmptyImage()
+{
+    if (!m_pImage) {
+        m_pScene = OffscreenScenePtr();
+        m_pImage = ImagePtr(new Image(getSurface(), ""));
+        if (getState() == Node::NS_CANRENDER) {
+            m_pImage->moveToGPU(getDisplayEngine());
+        }
     }
 }
 

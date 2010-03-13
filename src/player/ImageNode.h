@@ -57,6 +57,7 @@ class AVG_API ImageNode : public RasterNode
         virtual IntPoint getMediaSize();
 
     private:
+        void createEmptyImage();
         bool isSceneURL(const std::string& sURL);
 
         UTF8String m_href;

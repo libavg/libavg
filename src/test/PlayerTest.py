@@ -555,6 +555,10 @@ class PlayerTestCase(AVGTestCase):
         def changeHRef(href):
             self.node.href=href
 
+        def setBitmap():
+            bitmap = avg.Bitmap("rgb24-65x65.png")
+            self.node.setBitmap(bitmap)
+
         self._loadEmpty()
         createScene("testscene1", 0)
         self.start(None, 
@@ -573,6 +577,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testOffscreen4", False),
                  lambda: changeHRef("scene:testscene1"),
                  lambda: self.compareImage("testOffscreen1", False),
+                 lambda: setBitmap(),
+                 lambda: self.compareImage("testOffscreen4", False),
                 ))
 
 def playerTestSuite(tests):
