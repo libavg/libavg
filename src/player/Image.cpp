@@ -87,9 +87,15 @@ void Image::setBitmap(const Bitmap * pBmp)
 void Image::moveToGPU(SDLDisplayEngine* pEngine)
 {
     m_pEngine = pEngine;
-    if (m_State == CPU) {
+    if (m_pScene) {
+        m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
+        m_pSurface->setTexID(m_pScene->getTexID());
         m_State = GPU;
-        setupSurface();
+    } else {
+        if (m_State == CPU) {
+            m_State = GPU;
+            setupSurface();
+        }
     }
 }
 
@@ -98,8 +104,10 @@ void Image::moveToCPU()
     if (m_State != GPU) {
         return;
     }
-    m_pBmp = m_pSurface->readbackBmp();
-    m_State = CPU;
+    if (!m_pScene) {
+        m_pBmp = m_pSurface->readbackBmp();
+        m_State = CPU;
+    }
     m_pEngine = 0;
     m_pSurface->destroy();
 }
@@ -109,11 +117,39 @@ void Image::setFilename(const std::string& sFilename)
     if (m_State == GPU) {
         m_pSurface->destroy();
     }
+    m_pScene = OffscreenScenePtr();
     m_State = NOT_AVAILABLE;
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), B8G8R8X8));
     m_sFilename = sFilename;
     load();
     if (m_pEngine) {
+        moveToGPU(m_pEngine);
+    }
+}
+
+void Image::setScene(OffscreenScenePtr pScene)
+{
+    if (pScene == m_pScene) {
+        return;
+    }
+    if (!pScene) {
+        m_sFilename = "";
+        switch(m_State) {
+            case CPU:
+                m_pBmp = BitmapPtr();
+                break;
+            case GPU:
+                m_pSurface->destroy();
+                break;
+            default:
+                break;
+        }
+    }
+    m_pScene = pScene;
+    m_State = CPU;
+    if (m_pEngine) {
+        m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
+        m_pSurface->setTexID(m_pScene->getTexID());
         moveToGPU(m_pEngine);
     }
 }
@@ -128,7 +164,11 @@ BitmapPtr Image::getBitmap()
     if (m_State == GPU) {
         return m_pSurface->readbackBmp();
     } else {
-        return BitmapPtr(new Bitmap(*m_pBmp));
+        if (m_pScene) {
+            return BitmapPtr();
+        } else {
+            return BitmapPtr(new Bitmap(*m_pBmp));
+        }
     }
 }
 
@@ -137,7 +177,11 @@ IntPoint Image::getSize()
     if (m_State == GPU) {
         return m_pSurface->getSize();
     } else {
-        return m_pBmp->getSize();
+        if (m_pScene) {
+            return m_pScene->getSize();
+        } else {
+            return m_pBmp->getSize();
+        }
     }
 }
 
@@ -146,7 +190,11 @@ PixelFormat Image::getPixelFormat()
     if (m_State == GPU) {
         return m_pSurface->getPixelFormat();
     } else {
-        return m_pBmp->getPixelFormat();
+        if (m_pScene) {
+            return B8G8R8X8;
+        } else {
+            return m_pBmp->getPixelFormat();
+        }
     }
 }
 

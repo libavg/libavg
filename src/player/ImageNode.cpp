@@ -25,6 +25,7 @@
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
 #include "Player.h"
+#include "OffscreenScene.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -65,12 +66,7 @@ void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
     getSurface()->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-    if (m_pImage) {
-        m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-    } else {
-        getSurface()->create(m_pScene->getSize(), B8G8R8X8);
-        getSurface()->setTexID(m_pScene->getTexID());
-    }
+    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
@@ -83,14 +79,10 @@ void ImageNode::connect(Scene * pScene)
 void ImageNode::disconnect(bool bKill)
 {
     if (bKill) {
-        if (m_pImage) {
-            m_pImage = ImagePtr(new Image(getSurface(), ""));
-        }
+        m_pImage = ImagePtr(new Image(getSurface(), ""));
         m_href = "";
     } else {
-        if (m_pImage) {
-            m_pImage->moveToCPU();
-        }
+        m_pImage->moveToCPU();
     }
     RasterNode::disconnect(bKill);
 }
@@ -108,7 +100,6 @@ void ImageNode::setHRef(const UTF8String& href)
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
 {
-    createEmptyImage();
     m_pImage->setBitmap(pBmp);
     if (getState() == Node::NS_CANRENDER) {
         bind();
@@ -122,33 +113,22 @@ static ProfilingZone RenderProfilingZone("ImageNode::render");
 void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_pScene || m_pImage->getState() == Image::GPU) {
+    if (m_pImage->getState() == Image::GPU) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
 IntPoint ImageNode::getMediaSize()
 {
-    if (m_pImage) {
-        return m_pImage->getSize();
-    } else {
-        return m_pScene->getSize();
-    }
+    return m_pImage->getSize();
 }
 
 void ImageNode::checkReload()
 {
     if (isSceneURL(m_href)) {
-        m_pImage = ImagePtr();
-        OffscreenScenePtr pOldScene = m_pScene;
-        m_pScene = Player::get()->getSceneFromURL(m_href);
-        if (m_pScene != pOldScene && getState() == Node::NS_CANRENDER) {
-            AVG_ASSERT(m_pScene->isRunning());
-            getSurface()->create(m_pScene->getSize(), B8G8R8X8);
-            getSurface()->setTexID(m_pScene->getTexID());
-        }
+        OffscreenScenePtr pScene = Player::get()->getSceneFromURL(m_href);
+        m_pImage->setScene(pScene);
     } else {
-        createEmptyImage();
         Node::checkReload(m_href, m_pImage);
     }
     setViewport(-32767, -32767, -32767, -32767);
@@ -157,22 +137,7 @@ void ImageNode::checkReload()
 
 BitmapPtr ImageNode::getBitmap()
 {
-    if (m_pImage) {
-        return m_pImage->getBitmap();
-    } else {
-        return getSurface()->readbackBmp();
-    }
-}
-
-void ImageNode::createEmptyImage()
-{
-    if (!m_pImage) {
-        m_pScene = OffscreenScenePtr();
-        m_pImage = ImagePtr(new Image(getSurface(), ""));
-        if (getState() == Node::NS_CANRENDER) {
-            m_pImage->moveToGPU(getDisplayEngine());
-        }
-    }
+    return m_pImage->getBitmap();
 }
 
 bool ImageNode::isSceneURL(const std::string& sURL)

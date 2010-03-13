@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "OGLTexture.h"
+#include "OffscreenScene.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"
@@ -50,6 +51,7 @@ class AVG_API Image
         virtual void moveToCPU();
 
         void setFilename(const std::string& sFilename);
+        void setScene(OffscreenScenePtr pScene);
         const std::string& getFilename() const;
         
         BitmapPtr getBitmap();
@@ -68,6 +70,7 @@ class AVG_API Image
         BitmapPtr m_pBmp;
         OGLSurface * m_pSurface;
         SDLDisplayEngine * m_pEngine;
+        OffscreenScenePtr m_pScene;
 
         State m_State;
 };

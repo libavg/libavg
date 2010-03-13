@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "RasterNode.h"
 #include "Image.h"
-#include "OffscreenScene.h"
 
 #include "../graphics/Bitmap.h"
 #include "../base/UTF8String.h"
@@ -57,12 +56,10 @@ class AVG_API ImageNode : public RasterNode
         virtual IntPoint getMediaSize();
 
     private:
-        void createEmptyImage();
         bool isSceneURL(const std::string& sURL);
 
         UTF8String m_href;
         ImagePtr m_pImage;
-        OffscreenScenePtr m_pScene;
 };
 
 }
