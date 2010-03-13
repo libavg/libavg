@@ -547,7 +547,12 @@ bool Player::clearInterval(int id)
 
 MouseEventPtr Player::getMouseState() const
 {
-    return m_pMainScene->getMouseState();
+    if (m_pMainScene) {
+        return m_pMainScene->getMouseState();
+    } else {
+        return MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+                IntPoint(0, 0), MouseEvent::NO_BUTTON, DPoint(0,0)));
+    }
 }
 
 void Player::setMousePos(const IntPoint& pos)
