@@ -549,9 +549,12 @@ class PlayerTestCase(AVGTestCase):
                     <image id="test1" x="%s" href="rgb24-65x65.png" angle="0.4"/>
                 </scene>
             """%(sceneName, str(x)))
-            print sceneName
             self.node = avg.ImageNode(parent=Player.getRootNode())
             self.node.href="scene:"+sceneName
+
+        def changeHRef(href):
+            self.node.href=href
+
         self._loadEmpty()
         createScene("testscene1", 0)
         self.start(None, 
@@ -563,7 +566,13 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testOffscreen1", False),
                  lambda: self.node.unlink(),
                  lambda: createScene("testscene2", 80),
-                 lambda: self.compareImage("testOffscreen3", False)
+                 lambda: self.compareImage("testOffscreen3", False),
+                 lambda: changeHRef("scene:testscene1"),
+                 lambda: self.compareImage("testOffscreen1", False),
+                 lambda: changeHRef("rgb24-65x65.png"),
+                 lambda: self.compareImage("testOffscreen4", False),
+                 lambda: changeHRef("scene:testscene1"),
+                 lambda: self.compareImage("testOffscreen1", False),
                 ))
 
 def playerTestSuite(tests):

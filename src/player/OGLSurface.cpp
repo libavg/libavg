@@ -81,6 +81,7 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
         m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, m_pf, m_Material, m_pEngine,
                 m_MemoryMode));
     }
+    m_bUseForeignTexture = false;
 }
 
 void OGLSurface::createMask(const IntPoint& size)

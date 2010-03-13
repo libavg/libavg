@@ -147,6 +147,13 @@ void ImageNode::checkReload()
             getSurface()->setTexID(m_pScene->getTexID());
         }
     } else {
+        if (!m_pImage) {
+            m_pScene = OffscreenScenePtr();
+            m_pImage = ImagePtr(new Image(getSurface(), ""));
+            if (getState() == Node::NS_CANRENDER) {
+                m_pImage->moveToGPU(getDisplayEngine());
+            }
+        }
         Node::checkReload(m_href, m_pImage);
     }
     setViewport(-32767, -32767, -32767, -32767);
