@@ -133,86 +133,90 @@ def dumpConfig():
     Log.popCategories()
    
 
+def setPow2(option, opt, value, parser):
+    if value not in ('yes','no'):
+        raise OptionValueError('argument must be "yes" or "no"')
+    setUsePOW2Textures(value == 'yes')
+
+def setShaders(option, opt, value, parser):
+    if value not in ('yes','no'):
+        raise OptionValueError('argument must be "yes" or "no"')
+    setUseShaders(value == 'yes')
+
+def setPixBuf(option, opt, value, parser):
+    if value not in ('yes','no'):
+        raise OptionValueError('argument must be "yes" or "no"')
+    setUsePixelBuffers(value == 'yes')
+
+
 def main():
     if os.getenv("AVG_CONSOLE_TEST"):
         runConsoleTest()
-    else:
-        def setPow2(option, opt, value, parser):
-            if value not in ('yes','no'):
-                raise OptionValueError('argument must be "yes" or "no"')
-            setUsePOW2Textures(value == 'yes')
-        def setShaders(option, opt, value, parser):
-            if value not in ('yes','no'):
-                raise OptionValueError('argument must be "yes" or "no"')
-            setUseShaders(value == 'yes')
-        def setPixBuf(option, opt, value, parser):
-            if value not in ('yes','no'):
-                raise OptionValueError('argument must be "yes" or "no"')
-            setUsePixelBuffers(value == 'yes')
+        return
+    
+    parser = OptionParser("usage: %prog [options] [<suite> [testcase] [testcase] [...]]")
+    parser.add_option("-b", "--bpp", dest = "bpp",
+            type = "int",
+            help = "set pixel depth")
+    parser.add_option("-2", "--usepow2textures", dest = "usepow2textures",
+            type = "string",
+            action = 'callback', callback = setPow2,
+            help = "Use power of 2 textures (yes, no)")
+    parser.add_option("-s", "--useshaders", dest = "shaders",
+            type = "string",
+            action = 'callback', callback = setShaders,
+            help = "Use shaders (yes, no)")
+    parser.add_option("-p", "--usepixelbuffers", dest = "usepixelbuffers",
+            type = "string",
+            action = 'callback', callback = setPixBuf,
+            help = "Use pixel buffers (yes, no)")
+    parser.set_defaults(bpp = 24)
+    options, args = parser.parse_args()
 
-        parser = OptionParser("usage: %prog [options] [<suite> [testcase] [testcase] [...]]")
-        parser.add_option("-b", "--bpp", dest = "bpp",
-                type = "int",
-                help = "set pixel depth")
-        parser.add_option("-2", "--usepow2textures", dest = "usepow2textures",
-                type = "string",
-                action = 'callback', callback = setPow2,
-                help = "Use power of 2 textures (yes, no)")
-        parser.add_option("-s", "--useshaders", dest = "shaders",
-                type = "string",
-                action = 'callback', callback = setShaders,
-                help = "Use shaders (yes, no)")
-        parser.add_option("-p", "--usepixelbuffers", dest = "usepixelbuffers",
-                type = "string",
-                action = 'callback', callback = setPixBuf,
-                help = "Use pixel buffers (yes, no)")
-        parser.set_defaults(bpp = 24)
-        options, args = parser.parse_args()
-
-        availableSuites = {
-                'plugin': (pluginTestSuite,{}),
-                'player': (playerTestSuite, {'bpp':options.bpp}),
-                'image': (imageTestSuite, {}),
-                'vector': (vectorTestSuite, {}),
-                'words': (wordsTestSuite, {}),
-                'av': (AVTestSuite, {}),
-                'dynamics': (dynamicsTestSuite, {}),
-                'python': (pythonTestSuite, {}),
-                'anim': (animTestSuite, {}),
-                'event': (eventTestSuite, {}),
-                }
-        tests = []
-        if len(args): # suite
-            suiteName = args.pop(0)
-            if suiteName not in availableSuites:
-                parser.print_usage()
-                print "ERROR: unknown test suite, known suites:"
-                print ", ".join(availableSuites.keys())
-                cleanExit(1)
-            else:
-                suitesToRun = [availableSuites[suiteName]]
-            tests = args
-        else:
-            suitesToRun = availableSuites.values()
-
-        suite = unittest.TestSuite()
-        for s, args in suitesToRun:
-            args.update({'tests':tests})
-            suite.addTest(s(**args))
-
-        Player = avg.Player.get()
-        Player.setMultiSampleSamples(1)
-        dumpConfig()
-        Log = avg.Logger.get()
-
-        runner = unittest.TextTestRunner()
-        rmBrokenDir()
-        rc = runner.run(suite)
-        
-        if rc.wasSuccessful():
-            cleanExit(0)
-        else:
+    availableSuites = [ {'plugin': pluginTestSuite},
+                        {'player': playerTestSuite},
+                        {'image': imageTestSuite},
+                        {'vector': vectorTestSuite},
+                        {'words': wordsTestSuite},
+                        {'av': AVTestSuite},
+                        {'dynamics': dynamicsTestSuite},
+                        {'python': pythonTestSuite},
+                        {'anim': animTestSuite},
+                        {'event': eventTestSuite} ]
+    
+    testSubset = []
+    if len(args): # suite
+        suiteName = args.pop(0)
+        foundSuites = [ suit for suit in availableSuites if suiteName in suit.keys() ]
+        if not(foundSuites):
+            parser.print_usage()
+            print "ERROR: unknown test suite, known suites:"
+            print ", ".join(availableSuites.keys())
             cleanExit(1)
+            
+        suitesToRun = foundSuites
+        testSubset = args
+    else:
+        suitesToRun = availableSuites
+
+    mainSuite = unittest.TestSuite()
+    for element in suitesToRun:
+        suit = element.items()[0][1]
+        mainSuite.addTest(suit(testSubset))
+
+    Player = avg.Player.get()
+    Player.setMultiSampleSamples(1)
+    dumpConfig()
+
+    runner = unittest.TextTestRunner()
+    rmBrokenDir()
+    rc = runner.run(mainSuite)
+    
+    if rc.wasSuccessful():
+        cleanExit(0)
+    else:
+        cleanExit(1)
+
 
 if __name__ == '__main__':
     try:

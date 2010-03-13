@@ -57,20 +57,19 @@ class MTemu(object):
     
     ID = Point2D(10000,0)
     EventMode = avg.TOUCH
-    pos1 = pos2 = Point2D(-1,-1)
-    mouseDown1 = mouseDown2 = Point2D(-1,-1)
-    hover = False  
+    pos1 = pos2 = Player.getMouseState().pos
+    mouseDown1 = mouseDown2 = Player.getMouseState().pos
+    hover = False
     multiActive = False
     mouseState = ''
     
     def __init__(self):
         rootNode = Player.getRootNode()
-        posX = rootNode.size.x-50
-        posY = rootNode.size.y-50
+        posX = rootNode.size.x * 3/4
+        posY = rootNode.size.y-40
         
         self.__layer = Player.createNode(''' 
-                <words id="displayEmu" x="%(posX)i" y="%(posY)i" fontsize="20" 
-                opacity="1" alignment="right"
+                <words id="displayEmu" x="%(posX)i" y="%(posY)i" fontsize="20" opacity="1" 
                 color="DDDDDD" text="Multitouch emulation active" sensitive="False" />
                 '''
                 % {'posX':posX, 'posY':posY} 
@@ -86,7 +85,7 @@ class MTemu(object):
         rootNode.appendChild(self.__container)
         self.__container.appendChild(self.__p1)
         self.__container.appendChild(self.__p2)
-          
+        
         rootNode.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMouseMove)
         rootNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onMouseButtonDown)
         rootNode.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onMouseButtonUp)
@@ -109,12 +108,12 @@ class MTemu(object):
         self.__p2.unlink()
         self.__p1 = self.__p2 = None
         self.__container = self.__node2root = self.__layer = None
-        if self.pos1 != (-1,-1) and self.pos2 != (-1,-1):
-            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
-                        self.EventMode, self.pos1, self.pos1, Point2D(0,0))
-            Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                        self.EventMode, self.pos2, self.pos2, Point2D(0,0))
-                    
+        #if self.pos1 != (-1,-1) and self.pos2 != (-1,-1):
+        Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
+                    self.EventMode, self.pos1, self.pos1, Point2D(0,0))
+        Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
+                    self.EventMode, self.pos2, self.pos2, Point2D(0,0))
+                
                         
     def __leftIDup(self):
         self.ID = self.ID + (1,0)
@@ -130,11 +129,23 @@ class MTemu(object):
         self.idpos2 = int(self.ID.y)
         return self.idpos2
         
-        
+    
+    def __clampPos(self, pos):
+        if pos[0] < 0:
+            pos[0] = 0
+        if pos[1] < 0:
+            pos[1] = 0
+        if pos[0] > Player.getRootNode().size[0]-1:
+            pos[0] = Player.getRootNode().size[0]-1
+        if pos[1] > Player.getRootNode().size[1]-1:
+            pos[1] = Player.getRootNode().size[0]-1
+            
+        return pos
     def __onMouseButtonDown(self,e):
         #activation with a left mouse click.
         #one or two fake UP events will be created (multitouch active or not). 
         #SOURCE depending on EventMode. 
+        
         
         if e.button == 1:
             self.mouseState = 'Down'
@@ -146,6 +157,8 @@ class MTemu(object):
             if self.multiActive:
                 self.mouseDown2 = e.pos - Point2D(20,20)
                 self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
+                self.pos2 = self.__clampPos(self.pos2)
+                
                 self.__rightIDup()
                 Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
                         self.EventMode, self.pos2, self.pos2, -e.speed)
@@ -164,6 +177,7 @@ class MTemu(object):
         if e.leftbuttonstate and self.multiActive:
             self.pos1 = e.pos 
             self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
+            self.pos2 = self.__clampPos(self.pos2)
             Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORMOTION,
                     self.EventMode, self.pos1, self.pos1, e.speed)
             Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORMOTION,
@@ -188,15 +202,15 @@ class MTemu(object):
             self.mouseState = 'Up'
             Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
                     self.EventMode, self.pos1, self.pos1, e.speed)
-            self.pos1 = (-1,-1)
-            self.mouseDown1 = (-1,-1)
-
+            #self.pos1 = (-1,-1)
+            #self.mouseDown1 = (-1,-1)
             
             if self.multiActive:
+                self.pos2 = self.__clampPos(self.pos2)
                 Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
                         self.EventMode, self.pos2, self.pos2, -e.speed)
-                self.pos2 = (-1,-1)
-                self.mouseDown2 = (-1,-1)
+                #self.pos2 = (-1,-1)
+                #self.mouseDown2 = (-1,-1)
 
         return True
             
@@ -245,6 +259,7 @@ class MTemu(object):
         'ctrl left'.
         """ 
         
+        
         self.__eraseDraw()
         Player.getTestHelper().fakeTouchEvent(self.__getLeftID(),  avg.CURSORUP,
                 self.EventMode, self.pos1, self.pos1, Point2D(0,0))
@@ -268,6 +283,7 @@ class MTemu(object):
                 e = Player.getMouseState()
                 self.mouseDown2 = e.pos - Point2D(20,20)
                 self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
+                self.pos2 = self.__clampPos(self.pos2)
                 self.__rightIDup()
                 Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
                         self.EventMode, self.pos2, self.pos2, Point2D(0,0))
@@ -278,6 +294,7 @@ class MTemu(object):
         creates another event if shift and mouse left is pressed.
         if the mouse is not pressed no event will appear.
         """
+        
         self.multiActive = not self.multiActive  
          
         if self.mouseState == 'Down': 
@@ -290,7 +307,8 @@ class MTemu(object):
             if self.multiActive:
                 e = Player.getMouseState()
                 self.mouseDown2 = e.pos - Point2D(20,20)
-                self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos 
+                self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
+                self.pos2 = self.__clampPos(self.pos2)
                 self.__rightIDup() 
                 Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
                         self.EventMode, self.pos2, self.pos2, Point2D(0,0))

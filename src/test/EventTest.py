@@ -127,7 +127,7 @@ class NodeHandlerTester:
 
 class EventTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+        AVGTestCase.__init__(self, testFuncName)
 
     def testKeyEvents(self):
         def onKeyDown(Event):

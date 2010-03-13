@@ -27,7 +27,7 @@ from testcase import *
 
 class AnimTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+        AVGTestCase.__init__(self, testFuncName)
 
     def initScene(self):
         Player.loadString("""

@@ -29,7 +29,7 @@ from testcase import *
 
 class PluginTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+        AVGTestCase.__init__(self, testFuncName)
 
     def testColorNodePlugin(self):
         def loadPlugin():

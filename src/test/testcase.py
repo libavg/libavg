@@ -54,15 +54,14 @@ def setUpVideo(player):
 
 
 class AVGTestCase(unittest.TestCase):
-    def __init__(self, testFuncName, bpp):
+    def __init__(self, testFuncName):
         self.__Player = avg.Player.get()
-        self.__bpp = bpp
         self.__testFuncName = testFuncName
         self.Log = avg.Logger.get()
         unittest.TestCase.__init__(self, testFuncName)
 
     def setUp(self):
-        self.__Player.setResolution(0, 0, 0, self.__bpp)
+        self.__Player.setResolution(0, 0, 0, 0)
         setUpVideo(self.__Player)
         self.__Player.enableAudio(False)
         print "-------- ", self.__testFuncName, " --------"
@@ -126,13 +125,6 @@ class AVGTestCase(unittest.TestCase):
             exceptionRaised = True
         self.assert_(exceptionRaised)
 
-    def getSrcDirName(self):
-        s = os.getenv("srcdir")
-        if s == None:
-            return "./"
-        else:
-            return s+"/"
-
     def _loadEmpty(self):
         self.__Player.loadString("""
         <?xml version="1.0"?>
@@ -175,20 +167,20 @@ def rmBrokenDir():
             global ourSaveDifferences
             ourSaveDifferences = False
 
-def AVGTestSuite (availableTests, TestCase, tests, extraargs=(), extrakwargs={}):
-    suite = unittest.TestSuite()
-    if tests:
-        for testname in tests:
-            if testname in availableTests:
-                name = testname
-            elif 'test'+testname in availableTests:
-                name = 'test' + testname
+def AVGTestSuite (availableTests, AVGTestCaseClass, testSubset):
+    testNames = []
+    if testSubset:
+        for testName in testSubset:
+            if testName in availableTests:
+                testNames.append(testName)
             else:
-                print "no test named %s" % testname
+                print "no test named %s" % testName
                 sys.exit(1)
-            testNames = (name,)
     else:
-            testNames = availableTests
-    for name in testNames:
-        suite.addTest(TestCase(*([name,]+list(extraargs)), **extrakwargs ))
+        testNames = availableTests
+
+    suite = unittest.TestSuite()
+    for testName in testNames:
+        suite.addTest(AVGTestCaseClass(testName))
+    
     return suite
