@@ -541,46 +541,6 @@ class PlayerTestCase(AVGTestCase):
                 lambda: self.assert_(False),
                 ))
 
-    def testOffscreen(self):
-        def createScene(sceneName, x):
-            Player.loadSceneString("""
-                <?xml version="1.0"?>
-                <scene id="%s" width="160" height="120">
-                    <image id="test1" x="%s" href="rgb24-65x65.png" angle="0.4"/>
-                </scene>
-            """%(sceneName, str(x)))
-            self.node = avg.ImageNode(parent=Player.getRootNode())
-            self.node.href="scene:"+sceneName
-
-        def changeHRef(href):
-            self.node.href=href
-
-        def setBitmap():
-            bitmap = avg.Bitmap("rgb24-65x65.png")
-            self.node.setBitmap(bitmap)
-
-        self._loadEmpty()
-        createScene("testscene1", 0)
-        self.start(None, 
-                (
-                 lambda: self.compareImage("testOffscreen1", False),
-                 lambda: self.node.unlink(),
-                 lambda: self.compareImage("testOffscreen2", False), 
-                 lambda: Player.getRootNode().appendChild(self.node),
-                 lambda: self.compareImage("testOffscreen1", False),
-                 lambda: self.node.unlink(),
-                 lambda: createScene("testscene2", 80),
-                 lambda: self.compareImage("testOffscreen3", False),
-                 lambda: changeHRef("scene:testscene1"),
-                 lambda: self.compareImage("testOffscreen1", False),
-                 lambda: changeHRef("rgb24-65x65.png"),
-                 lambda: self.compareImage("testOffscreen4", False),
-                 lambda: changeHRef("scene:testscene1"),
-                 lambda: self.compareImage("testOffscreen1", False),
-                 lambda: setBitmap(),
-                 lambda: self.compareImage("testOffscreen4", False),
-                ))
-
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
@@ -605,7 +565,6 @@ def playerTestSuite(tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
-            "testOffscreen"
             )
     return AVGTestSuite(availableTests, PlayerTestCase, tests)
 

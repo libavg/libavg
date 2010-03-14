@@ -100,6 +100,7 @@ os.chdir(SrcDir)
 
 from PluginTest import *
 from PlayerTest import *
+from OffscreenTest import *
 from ImageTest import *
 from VectorTest import *
 from WordsTest import *
@@ -175,6 +176,7 @@ def main():
 
     availableSuites = [ {'plugin': pluginTestSuite},
                         {'player': playerTestSuite},
+                        {'offscreen': offscreenTestSuite},
                         {'image': imageTestSuite},
                         {'vector': vectorTestSuite},
                         {'words': wordsTestSuite},
