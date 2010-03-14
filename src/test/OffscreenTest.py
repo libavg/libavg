@@ -68,10 +68,24 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.compareImage("testOffscreen4", False),
                 ))
 
+    def testSceneErrors(self):
+        self._loadEmpty()
+        # Missing id
+        self.assertException(
+                lambda: Player.loadSceneString("""<scene size="(160, 120)"/>"""))
+        # Missing size
+        self.assertException(
+                lambda: Player.loadSceneString("""<scene id="foo"/>"""))
+        # Duplicate scene id
+        Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>""")
+        self.assertException(
+                lambda: Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>"""))
+
 
 def offscreenTestSuite(tests):
     availableTests = (
             "testSceneBasics",
+            "testSceneErrors"
             )
     return AVGTestSuite(availableTests, OffscreenTestCase, tests)
 

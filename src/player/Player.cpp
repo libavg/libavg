@@ -889,7 +889,6 @@ NodePtr Player::internalLoad(const string& sAVG)
         xmlFreeDoc(doc);
         return pNode;
     } catch (Exception& ex) {
-        AVG_TRACE(Logger::ERROR, ex.GetStr());
         if (doc) {
             xmlFreeDoc(doc);
         }
@@ -1007,10 +1006,24 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
 void Player::registerOffscreenScene(NodePtr pNode)
 {
     OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    if (findScene(pScene->getID())) {
+        throw (Exception(AVG_ERR_INVALID_ARGS, 
+                string("Duplicate scene id ")+pScene->getID()));
+    }
     m_pScenes.push_back(pScene);
     if (m_bIsPlaying) {
         pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
     }
+}
+
+OffscreenScenePtr Player::findScene(const std::string& sID)
+{
+    for (unsigned i=0; i<m_pScenes.size(); ++i) {
+        if (m_pScenes[i]->getID() == sID) {
+            return m_pScenes[i];
+        }
+    }
+    return OffscreenScenePtr();
 }
 
 void Player::handleTimers()

@@ -59,7 +59,8 @@ NodeDefinition AreaNode::createDefinition()
         .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_UserSize.y)))
         .addArg(Arg<DPoint>("size", DPoint(0.0, 0.0)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
-        .addArg(Arg<DPoint>("pivot", DPoint(-32767, -32767), false, offsetof(AreaNode, m_Pivot)));
+        .addArg(Arg<DPoint>("pivot", DPoint(-32767, -32767), false, 
+                offsetof(AreaNode, m_Pivot)));
 }
 
 AreaNode::AreaNode()

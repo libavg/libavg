@@ -73,6 +73,7 @@ class AVG_API Player
         void loadString(const std::string& sAVG);
         void loadSceneFile(const std::string& sFilename);
         void loadSceneString(const std::string& sAVG);
+        void deleteScene(const std::string& sID);
         void play();
         void stop();
         bool isStopping();
@@ -154,6 +155,7 @@ class AVG_API Player
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
         void registerOffscreenScene(NodePtr pNode);
+        OffscreenScenePtr findScene(const std::string& sID);
 
         MainScene * m_pMainScene;
 
