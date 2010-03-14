@@ -43,6 +43,7 @@ public:
     void activate() const;
     void deactivate() const;
 
+    void copyToDestTexture() const;
     BitmapPtr getImage(int i) const;
     unsigned getTexture() const;
 

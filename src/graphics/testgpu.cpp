@@ -195,7 +195,8 @@ private:
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
-        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
+        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1)
+                .apply(pBmp);
         testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, 0.2, 0.5);
     }
 };
@@ -299,11 +300,11 @@ protected:
     {
         string sCode =
             "#extension GL_ARB_texture_rectangle : enable\n" 
-            "uniform sampler2DRect Texture;\n"
+            "uniform sampler2D Texture;\n"
             "void main(void)\n"
             "{\n"
-            "    gl_FragColor = texture2DRect(Texture,\n"
-            "           vec2(gl_TexCoord[0].s, gl_TexCoord[0].t-10.0));\n"
+            "    gl_FragColor = texture2D(Texture,\n"
+            "           vec2(gl_TexCoord[0].s, gl_TexCoord[0].t-10.0*dFdy(gl_TexCoord[0].y)));\n"
             "}\n";
         s_pShader = OGLShaderPtr(new OGLShader(sCode));
     }

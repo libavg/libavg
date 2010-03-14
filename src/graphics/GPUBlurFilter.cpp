@@ -98,11 +98,9 @@ void GPUBlurFilter::applyOnGPU()
 void GPUBlurFilter::initShaders()
 {
     string sProgramHead =
-        "#extension GL_ARB_texture_rectangle : enable\n" 
-        
-        "uniform sampler2DRect Texture;\n"
+        "uniform sampler2D Texture;\n"
         "uniform int radius;\n"
-        "uniform sampler2DRect kernelTex;\n"
+        "uniform sampler2D kernelTex;\n"
         ;
 
     string sHorizProgram = sProgramHead + 
@@ -110,8 +108,9 @@ void GPUBlurFilter::initShaders()
         "{\n"
         "    vec4 sum = vec4(0,0,0,0);\n"
         "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(i,0));\n"
-        "        float coeff = texture2DRect(kernelTex, vec2(float(i+radius)+0.5,0)).r;\n"
+        "        float dx = dFdx(gl_TexCoord[0].x);\n"
+        "        vec4 tex = texture2D(Texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
+        "        float coeff = texture2D(kernelTex, vec2((float(i+radius)+0.5)/255.,0)).r;\n"
         "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = sum;\n"
@@ -125,8 +124,9 @@ void GPUBlurFilter::initShaders()
         "{\n"
         "    vec4 sum = vec4(0,0,0,0);\n"
         "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(0,i));\n"
-        "        float coeff = texture2DRect(kernelTex, vec2(float(i+radius)+0.5,0)).r;\n"
+        "        float dy = dFdy(gl_TexCoord[0].y);\n"
+        "        vec4 tex = texture2D(Texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
+        "        float coeff = texture2D(kernelTex, vec2((float(i+radius)+0.5)/255.,0)).r;\n"
         "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = sum;\n"

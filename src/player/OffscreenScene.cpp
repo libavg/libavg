@@ -23,6 +23,7 @@
 
 #include "SDLDisplayEngine.h"
 #include "SceneNode.h"
+#include "OGLTexture.h"
 
 #include "../base/Exception.h"
 
@@ -53,11 +54,17 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
     Scene::initPlayback(pDisplayEngine, pAudioEngine, pTestHelper);
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glBindTexture()");
     IntPoint size = getSize();
+    // Mipmaps needed for FBO support on nVidia cards (!?)
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, size.x, size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glTexImage2D()");
 
@@ -72,13 +79,28 @@ void OffscreenScene::render()
     m_pFBO->activate();
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->deactivate();
-//    BitmapPtr pBmp = m_pFBO->getImage(0);
-//    pBmp->save("foo.png");
+    m_pFBO->copyToDestTexture();
+    OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
+            MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
+            getDisplayEngine(), PBO));
+    pTex->setTexID(m_TexID);
+    BitmapPtr pBmp = pTex->readbackBmp();
+    pBmp->save(getID()+".png");
 }
 
 std::string OffscreenScene::getID() const
 {
     return getRootNode()->getID();
+}
+
+bool OffscreenScene::isRunning() const
+{
+    return (m_pFBO != FBOPtr());
+}
+
+unsigned OffscreenScene::getTexID() const
+{
+    return m_pFBO->getTexture();
 }
 
 }

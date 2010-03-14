@@ -62,8 +62,11 @@ OGLTexture::OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
 
 OGLTexture::~OGLTexture()
 {
-    glDeleteTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::~OGLTexture: glDeleteTextures()");
+    if (m_bOwnsTexture) {
+        glDeleteTextures(1, &m_TexID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLTexture::~OGLTexture: glDeleteTextures()");
+    }
     if (m_MemoryMode == PBO) {
         glproc::DeleteBuffers(1, &m_hWritePixelBuffer);
         glproc::DeleteBuffers(1, &m_hReadPixelBuffer);
@@ -187,6 +190,20 @@ void OGLTexture::download() const
     }
 }
 
+void OGLTexture::setTexID(unsigned id)
+{
+    AVG_ASSERT(m_MemoryMode == PBO);
+    AVG_ASSERT(!m_pBmp);
+
+    if (m_bOwnsTexture) {
+        glDeleteTextures(1, &m_TexID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLTexture::~OGLTexture: glDeleteTextures()");
+    }
+    m_TexID = id;
+    m_bOwnsTexture = false;
+}
+
 void OGLTexture::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
@@ -233,6 +250,7 @@ void OGLTexture::createBitmap()
 
 void OGLTexture::createTexture()
 {
+    m_bOwnsTexture = true;
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glGenTextures()");
     glproc::ActiveTexture(GL_TEXTURE0);

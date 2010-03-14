@@ -49,6 +49,7 @@ public:
     void unlockBmp();
     BitmapPtr readbackBmp();
     void download() const;
+    void setTexID(unsigned id);
 
     void setMaterial(const MaterialInfo& material);
     const IntPoint& getTextureSize() const;
@@ -64,6 +65,7 @@ private:
     MaterialInfo m_Material;
     
     unsigned m_TexID;
+    bool m_bOwnsTexture;
     GLuint m_hWritePixelBuffer;
     GLuint m_hReadPixelBuffer;
     BitmapPtr m_pBmp;

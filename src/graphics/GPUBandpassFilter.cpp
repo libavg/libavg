@@ -78,17 +78,15 @@ void GPUBandpassFilter::applyOnGPU()
 void GPUBandpassFilter::initShader()
 {
     string sProgram =
-        "#extension GL_ARB_texture_rectangle : enable\n" 
-       
-        "uniform sampler2DRect minTex;\n"
-        "uniform sampler2DRect maxTex;\n"
+        "uniform sampler2D minTex;\n"
+        "uniform sampler2D maxTex;\n"
         "uniform float postScale;\n"
         "uniform bool bInvert;\n"
 
         "void main(void)\n"
         "{\n"
-        "  vec4 min =texture2DRect(minTex, gl_TexCoord[0].st);\n" 
-        "  vec4 max =texture2DRect(maxTex, gl_TexCoord[0].st);\n"
+        "  vec4 min = texture2D(minTex, gl_TexCoord[0].st);\n" 
+        "  vec4 max = texture2D(maxTex, gl_TexCoord[0].st);\n"
         "  gl_FragColor = vec4(0.502, 0.502, 0.502, 0)+(max-min)*postScale;\n"
         "  if (bInvert) {\n"
         "    gl_FragColor = vec4(1.004,1.004,1.004,1)-gl_FragColor;\n"

@@ -64,9 +64,21 @@ FBO::~FBO()
     }
 }
 
+void FBO::copyToDestTexture() const
+{
+    if (m_MultisampleSamples != 1) {
+        // Copy Multisample FBO to destination fbo
+        glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
+        glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
+        glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
+                GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+    }
+}
+
 BitmapPtr FBO::getImage(int i) const
 {
-    getTexture();
+    copyToDestTexture();
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     PixelFormat pf = m_pOutputPBO->getExtPF();
     IntPoint size = m_pOutputPBO->getSize();
@@ -93,14 +105,6 @@ BitmapPtr FBO::getImage(int i) const
 
 unsigned FBO::getTexture() const
 {
-    if (m_MultisampleSamples != 1) {
-        // Copy Multisample FBO to destination fbo
-        glproc::BindFramebuffer(GL_READ_FRAMEBUFFER_EXT, m_FBO);
-        glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
-        glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
-                GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
-    }
     return m_TexIDs[0];
 }
 
@@ -117,7 +121,7 @@ void FBO::init()
     if (m_MultisampleSamples == 1) {
         for (unsigned i=0; i<m_TexIDs.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
-                    GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_RECTANGLE_ARB, 
+                    GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 
                     m_TexIDs[i], 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO: glFramebufferTexture2D()");
         }
@@ -132,7 +136,7 @@ void FBO::init()
         glproc::GenFramebuffers(1, &m_OutputFBO);
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                GL_TEXTURE_RECTANGLE_ARB, m_TexIDs[0], 0);
+                GL_TEXTURE_2D, m_TexIDs[0], 0);
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: Multisample init");
     }

@@ -57,26 +57,32 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
     // Create the texture and set it's size.
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glGenTextures()");
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glBindTexture()");
+    // Mipmaps needed for FBO support on nVidia cards (!?)
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), size.x, size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormat(), size.x, size.y, 0,
             getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.
     m_pVertexes = new VertexArray(4, 6);
-    m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, m_Size.y));
+    m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, 1));
     m_pVertexes->appendPos(DPoint(0, m_Size.y), DPoint(0, 0));
-    m_pVertexes->appendPos(DPoint(m_Size.x, m_Size.y), DPoint(m_Size.x, 0));
-    m_pVertexes->appendPos(DPoint(m_Size.x, 0), DPoint(m_Size.x, m_Size.y));
+    m_pVertexes->appendPos(DPoint(m_Size.x, m_Size.y), DPoint(1, 0));
+    m_pVertexes->appendPos(DPoint(m_Size.x, 0), DPoint(1, 1));
     m_pVertexes->appendQuadIndexes(1, 0, 2, 3);
 }
 
 PBOImage::~PBOImage()
 {
     delete m_pVertexes;
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: DeleteTextures()");
     if (m_bUseInputPBO) {
@@ -108,12 +114,12 @@ void PBOImage::setImage(BitmapPtr pBmp)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: UnmapBuffer()");
 
     glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glBindTexture()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, m_Size.x, m_Size.y,
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Size.x, m_Size.y,
             getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexSubImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
@@ -139,16 +145,16 @@ void PBOImage::setImage(float * pData)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: UnmapBuffer()");
     
     glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glBindTexture()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), m_Size.x, m_Size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormat(), m_Size.x, m_Size.y, 0,
         getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexImage2D()");
     /*
-    glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, m_Size.x, m_Size.y,
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Size.x, m_Size.y,
             getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexSubImage2D()");
 */
@@ -165,12 +171,12 @@ BitmapPtr PBOImage::getImage() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::getImage BindBuffer()");
 
     glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glBindTexture()");
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
 
-    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, getFormat(m_pfExt), getType(m_pfExt), 0);
+    glGetTexImage(GL_TEXTURE_2D, 0, getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glGetTexImage()");
 /*
@@ -194,14 +200,14 @@ void PBOImage::activateTex(int textureUnit)
 {
     glproc::ActiveTexture(textureUnit);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::activate ActiveTexture()");
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::activate BindTexture()");
 }
     
 void PBOImage::draw()
 {
     glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::draw: glBindTexture()");
     m_pVertexes->draw();
 }
@@ -270,26 +276,18 @@ int PBOImage::getFormat(PixelFormat pf) const
 
 int PBOImage::getInternalFormat() const
 {
-#ifdef linux
-// Actually, this is probably an nvidia driver restriction.
-#   define MY_GL_LUMINANCE32F   GL_FLOAT_R_NV
-#   define MY_GL_RGBA32F        GL_FLOAT_RGBA_NV
-#else
-#   define MY_GL_LUMINANCE32F   GL_LUMINANCE32F_ARB
-#   define MY_GL_RGBA32F        GL_RGBA32F_ARB;
-#endif
     switch (m_pfInt) {
         case I8:
             return GL_LUMINANCE;
         case I32F:
-            return MY_GL_LUMINANCE32F;
+            return GL_LUMINANCE32F_ARB;
         case R8G8B8A8:
         case R8G8B8X8:
         case B8G8R8A8:
         case B8G8R8X8:
             return GL_RGBA;
         case R32G32B32A32F:
-            return MY_GL_RGBA32F;
+            return GL_RGBA32F_ARB;
         default:
             AVG_ASSERT(false);
             return 0;

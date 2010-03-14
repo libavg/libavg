@@ -24,6 +24,8 @@
 #include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
+#include "Player.h"
+#include "OffscreenScene.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -123,7 +125,12 @@ IntPoint ImageNode::getMediaSize()
 
 void ImageNode::checkReload()
 {
-    Node::checkReload(m_href, m_pImage);
+    if (isSceneURL(m_href)) {
+        OffscreenScenePtr pScene = Player::get()->getSceneFromURL(m_href);
+        m_pImage->setScene(pScene);
+    } else {
+        Node::checkReload(m_href, m_pImage);
+    }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }
@@ -131,6 +138,11 @@ void ImageNode::checkReload()
 BitmapPtr ImageNode::getBitmap()
 {
     return m_pImage->getBitmap();
+}
+
+bool ImageNode::isSceneURL(const std::string& sURL)
+{
+    return sURL.find("scene:") == 0;
 }
 
 }

@@ -227,12 +227,20 @@ void Player::setAudioOptions(int samplerate, int channels)
 void Player::loadFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
+    if (m_pMainScene) {
+        cleanup();
+    }
+
     m_pMainScene = new MainScene(this, pNode);
     m_DP.m_Size = m_pMainScene->getSize();
 }
 
 void Player::loadString(const string& sAVG)
 {
+    if (m_pMainScene) {
+        cleanup();
+    }
+
     NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pMainScene = new MainScene(this, pNode);
     m_DP.m_Size = m_pMainScene->getSize();
@@ -241,23 +249,20 @@ void Player::loadString(const string& sAVG)
 void Player::loadSceneFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
-    m_pScenes.push_back(pScene);
+    registerOffscreenScene(pNode);
 }
 
 void Player::loadSceneString(const string& sAVG)
 {
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
-    m_pScenes.push_back(pScene);
+    registerOffscreenScene(pNode);
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string RealFilename;
     try {
-        AVG_TRACE(Logger::MEMORY, 
-                std::string("Player::loadFile(") + sFilename + ")");
+        AVG_TRACE(Logger::MEMORY, std::string("Player::loadFile(") + sFilename + ")");
 
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
@@ -298,7 +303,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
-
+        
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
         NodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
@@ -372,10 +377,10 @@ void Player::initPlayback()
         initAudio();
     }
     try {
-        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
         for (unsigned i=0; i<m_pScenes.size(); ++i) {
             m_pScenes[i]->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
         }
+        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
     } catch (Exception&) {
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
@@ -719,10 +724,10 @@ void Player::doFrame()
             ScopeTimer Timer(TimersProfilingZone);
             handleTimers();
         }
-        m_pMainScene->doFrame(m_bPythonAvailable);
         for (unsigned i=0; i< m_pScenes.size(); ++i) {
             m_pScenes[i]->doFrame(m_bPythonAvailable);
         }
+        m_pMainScene->doFrame(m_bPythonAvailable);
     }
     if (m_pDisplayEngine->wasFrameLate()) {
         ThreadProfiler::get()->dumpFrame();
@@ -851,11 +856,6 @@ NodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
-        if (m_pMainScene) {
-            cleanup();
-        }
-        AVG_ASSERT(!m_pMainScene);
-        
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue=0;
 
@@ -1004,6 +1004,15 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     return curNode;
 }
 
+void Player::registerOffscreenScene(NodePtr pNode)
+{
+    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    m_pScenes.push_back(pScene);
+    if (m_bIsPlaying) {
+        pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+    }
+}
+
 void Player::handleTimers()
 {
     vector<Timeout *>::iterator it;
@@ -1062,6 +1071,22 @@ void Player::setVolume(double volume)
 double Player::getVolume() const
 {
     return m_Volume;
+}
+
+OffscreenScenePtr Player::getSceneFromURL(const std::string& sURL)
+{
+    if (sURL.substr(0, 6) != "scene:") {
+        throw Exception(AVG_ERR_CANT_PARSE_STRING, 
+                string("Invalid scene url :'")+sURL+"'");
+    }
+    string sSceneID = sURL.substr(6);
+    for (unsigned i=0; i < m_pScenes.size(); ++i) {
+        if (m_pScenes[i]->getID() == sSceneID) {
+            return m_pScenes[i];
+        }
+    }
+    throw Exception(AVG_ERR_CANT_PARSE_STRING, 
+            string("Scene with url '")+sURL+"' not found.");
 }
 
 void Player::cleanup() 
