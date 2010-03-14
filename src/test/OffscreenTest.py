@@ -46,16 +46,23 @@ class OffscreenTestCase(AVGTestCase):
             bitmap = avg.Bitmap("rgb24-65x65.png")
             self.node.setBitmap(bitmap)
 
+        def deleteScenes():
+            Player.deleteScene("testscene1")
+            self.assertException(lambda: changeHRef("scene:testscene1"))
+            changeHRef("scene:testscene2")
+            Player.deleteScene("testscene2")
+            self.assertException(lambda: Player.deleteScene("foo"))
+
         self._loadEmpty()
         createScene("testscene1", 0)
         self.start(None, 
                 (
                  lambda: self.compareImage("testOffscreen1", False),
-                 lambda: self.node.unlink(),
+                 self.node.unlink,
                  lambda: self.compareImage("testOffscreen2", False), 
                  lambda: Player.getRootNode().appendChild(self.node),
                  lambda: self.compareImage("testOffscreen1", False),
-                 lambda: self.node.unlink(),
+                 self.node.unlink,
                  lambda: createScene("testscene2", 80),
                  lambda: self.compareImage("testOffscreen3", False),
                  lambda: changeHRef("scene:testscene1"),
@@ -64,8 +71,10 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.compareImage("testOffscreen4", False),
                  lambda: changeHRef("scene:testscene1"),
                  lambda: self.compareImage("testOffscreen1", False),
-                 lambda: setBitmap(),
+                 setBitmap,
                  lambda: self.compareImage("testOffscreen4", False),
+                 deleteScenes,
+                 lambda: self.compareImage("testOffscreen3", False),
                 ))
 
     def testSceneErrors(self):

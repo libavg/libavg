@@ -235,6 +235,11 @@ BOOST_PYTHON_MODULE(avg)
                 "Parses avgString, loads the nodes it contains and adds the hierarchy\n"
                 "to the registered offscreen scenes.\n"
                 "@param filename: ")
+        .def("deleteScene", &Player::deleteScene,
+                "deleteScene(id)\n"
+                "Removes the scene given by id from the player's internal list of"
+                "scenes. If the scene is not referenced by a node, it is deleted."
+                "If it is referenced, it is deleted once the reference is gone.")
         .def("play", &Player::play,
                 "play()\n"
                 "Opens a playback window or screen and starts playback. play returns\n"

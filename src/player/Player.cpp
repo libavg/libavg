@@ -258,6 +258,19 @@ void Player::loadSceneString(const string& sAVG)
     registerOffscreenScene(pNode);
 }
 
+void Player::deleteScene(const string& sID)
+{
+    vector<OffscreenScenePtr>::iterator it;
+    for (it = m_pScenes.begin(); it != m_pScenes.end(); ++it) {
+        if ((*it)->getID() == sID) {
+            m_pScenes.erase(it);
+            return;
+        }
+    }
+    throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+            string("deleteScene: Scene with id ")+sID+"does not exist."));
+}
+
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string RealFilename;
