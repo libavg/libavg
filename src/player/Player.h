@@ -42,6 +42,7 @@ namespace avg {
 class AudioEngine;
 class Node;
 class TestHelper;
+class Scene;
 class MainScene;
 class OffscreenScene;
 class TrackerEventSource;
@@ -51,6 +52,8 @@ class IPreRenderListener;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<Scene> ScenePtr;
+typedef boost::shared_ptr<MainScene> MainScenePtr;
 typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
 
 class AVG_API Player
@@ -71,9 +74,13 @@ class AVG_API Player
         void setAudioOptions(int samplerate, int channels);
         void loadFile(const std::string& sFilename);
         void loadString(const std::string& sAVG);
-        void loadSceneFile(const std::string& sFilename);
-        void loadSceneString(const std::string& sAVG);
+
+        OffscreenScenePtr loadSceneFile(const std::string& sFilename);
+        OffscreenScenePtr loadSceneString(const std::string& sAVG);
         void deleteScene(const std::string& sID);
+        ScenePtr getMainScene() const;
+        OffscreenScenePtr getScene(const std::string& sID) const;
+
         void play();
         void stop();
         bool isStopping();
@@ -154,10 +161,10 @@ class AVG_API Player
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
-        void registerOffscreenScene(NodePtr pNode);
-        OffscreenScenePtr findScene(const std::string& sID);
+        OffscreenScenePtr registerOffscreenScene(NodePtr pNode);
+        OffscreenScenePtr findScene(const std::string& sID) const;
 
-        MainScene * m_pMainScene;
+        MainScenePtr m_pMainScene;
 
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;

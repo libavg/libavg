@@ -82,8 +82,7 @@ namespace avg {
 Player * Player::s_pPlayer=0;
 
 Player::Player()
-    : m_pMainScene(0),
-      m_pDisplayEngine(0),
+    : m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_bAudioEnabled(true),
       m_pTracker(0),
@@ -231,7 +230,7 @@ void Player::loadFile(const string& sFilename)
         cleanup();
     }
 
-    m_pMainScene = new MainScene(this, pNode);
+    m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
 }
 
@@ -242,20 +241,20 @@ void Player::loadString(const string& sAVG)
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    m_pMainScene = new MainScene(this, pNode);
+    m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
 }
 
-void Player::loadSceneFile(const string& sFilename)
+OffscreenScenePtr Player::loadSceneFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    registerOffscreenScene(pNode);
+    return registerOffscreenScene(pNode);
 }
 
-void Player::loadSceneString(const string& sAVG)
+OffscreenScenePtr Player::loadSceneString(const string& sAVG)
 {
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    registerOffscreenScene(pNode);
+    return registerOffscreenScene(pNode);
 }
 
 void Player::deleteScene(const string& sID)
@@ -269,6 +268,22 @@ void Player::deleteScene(const string& sID)
     }
     throw(Exception(AVG_ERR_OUT_OF_RANGE, 
             string("deleteScene: Scene with id ")+sID+"does not exist."));
+}
+
+ScenePtr Player::getMainScene() const
+{
+    return m_pMainScene;
+}
+
+OffscreenScenePtr Player::getScene(const string& sID) const
+{
+    OffscreenScenePtr pScene = findScene(sID);
+    if (pScene) {
+        return pScene;
+    } else {
+        throw (Exception(AVG_ERR_INVALID_ARGS, 
+                string("Player::getScene(): No scene with id '")+sID+"' exists."));
+    }
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
@@ -695,7 +710,9 @@ void Player::registerFrameEndListener(IFrameEndListener* pListener)
 
 void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
 {
-    m_pMainScene->unregisterFrameEndListener(pListener);
+    if (m_pMainScene) {
+        m_pMainScene->unregisterFrameEndListener(pListener);
+    }
 }
 
 void Player::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -717,7 +734,9 @@ void Player::registerPreRenderListener(IPreRenderListener* pListener)
 
 void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 {
-    m_pMainScene->unregisterPreRenderListener(pListener);
+    if (m_pMainScene) {
+        m_pMainScene->unregisterPreRenderListener(pListener);
+    }
 }
 
 static ProfilingZone MainProfilingZone("Player - Total frame time");
@@ -1016,7 +1035,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     return curNode;
 }
 
-void Player::registerOffscreenScene(NodePtr pNode)
+OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
 {
     OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
     if (findScene(pScene->getID())) {
@@ -1027,9 +1046,10 @@ void Player::registerOffscreenScene(NodePtr pNode)
     if (m_bIsPlaying) {
         pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
     }
+    return pScene;
 }
 
-OffscreenScenePtr Player::findScene(const std::string& sID)
+OffscreenScenePtr Player::findScene(const std::string& sID) const
 {
     for (unsigned i=0; i<m_pScenes.size(); ++i) {
         if (m_pScenes[i]->getID() == sID) {
@@ -1125,8 +1145,7 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
     if (m_pMainScene) {
-        delete m_pMainScene;
-        m_pMainScene = 0;
+        m_pMainScene = MainScenePtr();
     }
 
     if (m_pTracker) {

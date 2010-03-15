@@ -64,6 +64,7 @@ class AVG_API Scene: IEventSink
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 
+        SceneNodePtr getRootNode() const;
         NodePtr getElementByID(const std::string& id);
         void registerNode(NodePtr pNode);
         void addNodeID(NodePtr pNode);
@@ -82,7 +83,6 @@ class AVG_API Scene: IEventSink
         virtual void render() = 0;
 
     protected:
-        SceneNodePtr getRootNode() const;
         SDLDisplayEngine* getDisplayEngine() const;
 
     private:

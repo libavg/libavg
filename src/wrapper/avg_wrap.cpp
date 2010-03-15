@@ -37,6 +37,8 @@ void export_anim();
 #include "../player/TrackerEventSource.h"
 #include "../player/TouchEvent.h"
 #include "../player/TestHelper.h"
+#include "../player/Scene.h"
+#include "../player/OffscreenScene.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -239,7 +241,16 @@ BOOST_PYTHON_MODULE(avg)
                 "deleteScene(id)\n"
                 "Removes the scene given by id from the player's internal list of"
                 "scenes. If the scene is not referenced by a node, it is deleted."
-                "If it is referenced, it is deleted once the reference is gone.")
+                "If it is referenced, it is deleted once the reference is gone and not"
+                "immediately.")
+        .def("getMainScene", &Player::getMainScene,
+                "getMainScene() -> scene\n"
+                "Returns the main scene. This is the scene loaded using loadFile or"
+                "loadString and displayed on screen.")
+        .def("getScene", &Player::getScene,
+                "getScene(id) -> scene\n"
+                "Returns a reference to an offscreen scene - one loaded using"
+                "loadSceneXxx")
         .def("play", &Player::play,
                 "play()\n"
                 "Opens a playback window or screen and starts playback. play returns\n"
@@ -405,4 +416,31 @@ BOOST_PYTHON_MODULE(avg)
                 "is set to high.\n")
     ;
 
+    class_<Scene, boost::shared_ptr<Scene>, boost::noncopyable>("Scene", 
+                "A Scene is a tree of nodes. It corresponds to a scenegraph. In a libavg"
+                "session, there is one main scene that gets rendered to the screen and"
+                "zero or more scenes that are rendered offscreen.",
+                no_init)
+        .def("getRootNode", &Scene::getRootNode,
+                "getRootNode() -> node\n"
+                "Returns the root of the scenegraph. For the main scene, this is an <avg>"
+                "node. For an offscreen scene, this is a <scene> node.")
+        .def("getElementByID", &Scene::getElementByID,
+                "getElementByID(id) -> node\n"
+                "Returns an element in the scene's tree."
+                "@param id: id attribute of the node to return.")
+//        .def("screenshot", &Scene::screenshot,
+//               "getImage() -> bitmap\n"
+    ;
+
+    class_<OffscreenScene, boost::shared_ptr<OffscreenScene>, bases<Scene>,
+            boost::noncopyable>("OffscreenScene",
+                "An OffscreenScene is a Scene that is rendered to a texture. It can be"
+                "referenced in the href attribute of an image node.",
+                no_init)
+        .def("getID", &OffscreenScene::getID,
+                "getID() -> id"
+                "Returns the id of the scene. This is the same as"
+                "calling scene.getRootNode().getID().")
+    ;
 }
