@@ -216,7 +216,8 @@ class VectorTestCase(AVGTestCase):
         def newRect():
             self.rect.unlink()
             self.rect = Player.createNode(
-                """<rect pos="(20, 20)" size="(50, 40)" fillopacity="1"                                           filltexcoord1="(1,1)" filltexcoord2="(0,0)"
+                """<rect pos="(20, 20)" size="(50, 40)" fillopacity="1"
+                        filltexcoord1="(1,1)" filltexcoord2="(0,0)"
                         texcoords="(0, 0.25, 0.5, 0.75, 1)"
                         strokewidth="20" texhref="rgb24-64x64.png"/>""")
             canvas.appendChild(self.rect)
