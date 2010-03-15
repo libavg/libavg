@@ -397,7 +397,7 @@ namespace avg {
         bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(m_pDeDistort, m_ActiveDisplaySize,
+            pEvent = pStream->pollevent(m_pDeDistort, m_DisplayROI,
                     source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
