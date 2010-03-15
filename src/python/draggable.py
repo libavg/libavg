@@ -72,8 +72,7 @@ class Draggable:
 
     def __onMove(self, event):
         if event.cursorid == self.__cursorID:
-            self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
-            self.__node.y = self.__startDragPos[1]+event.y-event.lastdownpos[1]
+            self.__node.pos = (self.__startDragPos[0]+event.x-event.lastdownpos[0],self.__startDragPos[1]+event.y-event.lastdownpos[1])
             stopBubble = False
             if self.__onDragMove:
                 stopBubble = self.__onDragMove(event)
