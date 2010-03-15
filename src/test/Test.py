@@ -20,6 +20,72 @@
 # Current versions can be found at www.libavg.de
 #
 
+import sys
+import os
+import platform
+import shutil
+
+
+g_TempPackageDir = None
+
+
+def cleanExit(rc):
+    if g_TempPackageDir is not None:
+        try:
+            shutil.rmtree(g_TempPackageDir)
+        except OSError:
+            print 'ERROR: Cannot clean up test package directory'
+    
+    sys.exit(rc)
+
+
+def symtree(src, dest):
+    os.mkdir(dest)
+    for f in os.listdir(src):
+        fpath = os.path.join(src, f)
+        if (f and f[0] != '.' and
+            (os.path.isdir(fpath) or
+            (os.path.isfile(fpath) and os.path.splitext(f)[1] == '.py'))):
+                os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
+
+        
+if platform.system() != 'Windows':
+    g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
+    if os.getenv('srcdir') in ('.', None):
+        if os.path.basename(os.getcwd()) != 'test':
+            raise RuntimeError('Manual tests must be performed inside directory "test"')
+        
+        if os.path.isdir(g_TempPackageDir):
+            print 'Cleaning up old test package'
+            shutil.rmtree(g_TempPackageDir)
+        
+        # We're running make check / manual tests
+        symtree('../python', 'libavg')
+        # os.system('cp -r ../python libavg')
+        os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
+    else:
+        # make distcheck
+        symtree('../../../../src/python', 'libavg')
+        os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
+        sys.path.insert(0, os.getcwd())
+    
+    os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
+
+    # The following lines help to prevent the test to be run
+    # with an unknown version of libavg, which can be hiding somewhere
+    # in the system
+    import libavg
+
+    cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
+    
+    if cpfx != os.getcwd():
+        raise RuntimeError(
+            'Tests would be performed with a non-local libavg package (%s)'
+            % libavg.__file__)
+
+srcDir = os.getenv("srcdir",".")
+os.chdir(srcDir)
+
 import testapp   
    
 import PluginTest
@@ -36,22 +102,25 @@ import EventTest
 from EventTest import mainMouseDown
 from EventTest import mainMouseUp
 
-try:
-    app = testapp.TestApp()
-    
-    app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
-    app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
-    app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
-    app.registerSuiteFactory('image', ImageTest.imageTestSuite)
-    app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)
-    app.registerSuiteFactory('words', WordsTest.wordsTestSuite)
-    app.registerSuiteFactory('av', AVTest.AVTestSuite)
-    app.registerSuiteFactory('dynamics', DynamicsTest.dynamicsTestSuite)
-    app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
-    app.registerSuiteFactory('anim', AnimTest.animTestSuite)
-    app.registerSuiteFactory('event', EventTest.eventTestSuite)
-    
-    app.run()
 
-except Exception, e:
-    testapp.cleanExit(e)
+app = testapp.TestApp()
+
+app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
+app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
+app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
+app.registerSuiteFactory('image', ImageTest.imageTestSuite)
+app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)
+app.registerSuiteFactory('words', WordsTest.wordsTestSuite)
+app.registerSuiteFactory('av', AVTest.AVTestSuite)
+app.registerSuiteFactory('dynamics', DynamicsTest.dynamicsTestSuite)
+app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
+app.registerSuiteFactory('anim', AnimTest.animTestSuite)
+app.registerSuiteFactory('event', EventTest.eventTestSuite)
+
+
+try:
+    app.run()
+except Exception, exception:
+    raise exception
+finally:
+    cleanExit(app.exitCode())

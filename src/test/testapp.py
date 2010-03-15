@@ -31,13 +31,10 @@ system-wide installation.
 import unittest
 
 import optparse
-import sys
 import os
-import platform
-import shutil
 
-
-g_TempPackageDir = None
+import libavg
+import testcase
 
 
 BASELINE_DIR = "baseline"
@@ -56,75 +53,17 @@ def rmBrokenDir():
             pass
 
 
-def cleanExit(rc):
-    if g_TempPackageDir is not None:
-        try:
-            shutil.rmtree(g_TempPackageDir)
-        except OSError:
-            print 'ERROR: Cannot clean up test package directory'
-
-    if isinstance(rc, Exception):
-        raise rc
-    else:
-        sys.exit(rc)
-
-
-def symtree(src, dest):
-    os.mkdir(dest)
-    for f in os.listdir(src):
-        fpath = os.path.join(src, f)
-        if (f and f[0] != '.' and
-            (os.path.isdir(fpath) or
-            (os.path.isfile(fpath) and os.path.splitext(f)[1] == '.py'))):
-                os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
-
-        
-if platform.system() != 'Windows':
-    g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
-    if os.getenv('srcdir') in ('.', None):
-        if os.path.basename(os.getcwd()) != 'test':
-            raise RuntimeError('Manual tests must be performed inside directory "test"')
-        
-        if os.path.isdir(g_TempPackageDir):
-            print 'Cleaning up old test package'
-            shutil.rmtree(g_TempPackageDir)
-        
-        # We're running make check / manual tests
-        symtree('../python', 'libavg')
-        # os.system('cp -r ../python libavg')
-        os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
-    else:
-        # make distcheck
-        symtree('../../../../src/python', 'libavg')
-        os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
-        sys.path.insert(0, os.getcwd())
-    
-    os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
-
-    # The following lines help to prevent the test to be run
-    # with an unknown version of libavg, which can be hiding somewhere
-    # in the system
-    import libavg
-
-    cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
-    
-    if cpfx != os.getcwd():
-        raise RuntimeError(
-            'Tests would be performed with a non-local libavg package (%s)'
-            % libavg.__file__)
-
-srcDir = os.getenv("srcdir",".")
-os.chdir(srcDir)
-
-
-import testcase
-
 testcase.AVGTestCase.setImageResultDirectory(RESULT_DIR)
 testcase.AVGTestCase.setBaselineImageDirectory(BASELINE_DIR)
 
 
 class TestApp:
+    EXIT_OK = 0
+    EXIT_FAILURE = 1
+        
     def __init__(self):
+        self.__exitOk = TestApp.EXIT_FAILURE
+        
         self.__registeredSuiteFactories = []
         self.__registerdSuiteFactoriesDict = {}
         
@@ -160,6 +99,9 @@ class TestApp:
             self.__setupTestApp()
             self.__run()
     
+    def exitCode(self):
+        return self.__exitOk
+    
     def __iter__(self):
         for name in self.__registeredSuiteFactories:
             yield self.__RegisterdSuitesDict[name]
@@ -173,9 +115,7 @@ class TestApp:
         testResult = testRunner.run(self.__testSuite)
         
         if testResult.wasSuccessful():
-            cleanExit(0)
-        else:
-            cleanExit(1)
+            self.__exitOk = TestApp.EXIT_OK
 
     def __setupTestApp(self):
         self.__setupCommandlineParser()
@@ -227,7 +167,6 @@ class TestApp:
                     print factory
                 print ''
                 self.__optionParser.print_usage()
-                cleanExit(1)
 
             self.__suitesToRun.append(self.getSuiteFactory(suiteFactory))
             self.__suitesTestSubsets = args
