@@ -171,54 +171,48 @@ bool FBO::isMultisampleFBOSupported()
     
 void FBO::checkError() const
 {
-    GLenum status;
-    status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
-    if (status == GL_FRAMEBUFFER_COMPLETE_EXT) {
-        return;
-    } else {
-        fprintf(stderr, "Framebuffer error: %i\n", status);
-        switch(status) {
-            case GL_FRAMEBUFFER_COMPLETE_EXT:
-                fprintf(stderr,"framebuffer complete!\n");
-                break;
-            case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-                fprintf(stderr,"framebuffer GL_FRAMEBUFFER_UNSUPPORTED_EXT\n");
-                /* you gotta choose different formats */ \
-                AVG_ASSERT(0);
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-                fprintf(stderr,"framebuffer INCOMPLETE_ATTACHMENT\n");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-                fprintf(stderr,"framebuffer FRAMEBUFFER_MISSING_ATTACHMENT\n");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-                fprintf(stderr,"framebuffer FRAMEBUFFER_DIMENSIONS\n");
-                break;
+    GLenum status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
+    string sErr;
+    switch(status) {
+        case GL_FRAMEBUFFER_COMPLETE_EXT:
+            return;
+        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+            sErr = "GL_FRAMEBUFFER_UNSUPPORTED_EXT";
+            throw Exception(AVG_ERR_UNSUPPORTED, string("Framebuffer error: ")+sErr);
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+            sErr = "GL_INCOMPLETE_ATTACHMENT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT";
+            break;
 #ifdef GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT
             // Missing in some versions of glext.h
-            case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-                fprintf(stderr,"framebuffer INCOMPLETE_DUPLICATE_ATTACHMENT\n");
-                break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT";
+            break;
 #endif
-            case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-                fprintf(stderr,"framebuffer INCOMPLETE_FORMATS\n");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-                fprintf(stderr,"framebuffer INCOMPLETE_DRAW_BUFFER\n");
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-                fprintf(stderr,"framebuffer INCOMPLETE_READ_BUFFER\n");
-                break;
-            case GL_FRAMEBUFFER_BINDING_EXT:
-                fprintf(stderr,"framebuffer BINDING_EXT\n");
-                break;
-            default:
-                /* programming error; will fail on all hardware */
-                AVG_ASSERT(false);
-        }
-        AVG_ASSERT(false);
+        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT";
+            break;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+            sErr = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT";
+            break;
+        case GL_FRAMEBUFFER_BINDING_EXT:
+            sErr = "GL_FRAMEBUFFER_BINDING_EXT";
+            break;
+        default:
+            sErr = "Unknown error";
+            break;
     }
+    cerr << "Framebuffer error: " << sErr << endl;
+    AVG_ASSERT(false);
 }
 
 } // namespace avg

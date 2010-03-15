@@ -60,20 +60,15 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glBindTexture()");
-    IntPoint size = getSize();
-//    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glTexImage2D()");
-
-    unsigned multiSampleSamples = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine)
-            ->getOGLOptions().m_MultiSampleSamples;
-    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, multiSampleSamples));
+    try {
+        createFBO(true);
+    } catch (const Exception& ex) {
+        if (ex.GetCode() != AVG_ERR_UNSUPPORTED) {
+            throw;
+        } else {
+            createFBO(false);
+        }
+    }
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
@@ -106,6 +101,28 @@ bool OffscreenScene::isRunning() const
 unsigned OffscreenScene::getTexID() const
 {
     return m_pFBO->getTexture();
+}
+
+void OffscreenScene::createFBO(bool bUseMipmaps)
+{
+    IntPoint size = getSize();
+    if (bUseMipmaps) {
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glTexImage2D()");
+
+    unsigned multiSampleSamples = 
+            getDisplayEngine()->getOGLOptions().m_MultiSampleSamples;
+    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, multiSampleSamples));
 }
 
 }

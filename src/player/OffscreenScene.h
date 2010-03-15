@@ -46,6 +46,7 @@ class AVG_API OffscreenScene: public Scene
         unsigned getTexID() const;
 
     private:
+        void createFBO(bool bUseMipmaps);
         FBOPtr m_pFBO;
         unsigned m_TexID;
 };
