@@ -66,6 +66,9 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
         if (ex.GetCode() != AVG_ERR_UNSUPPORTED) {
             throw;
         } else {
+        	glDeleteTextures(1, &m_TexID);
+            glGenTextures(1, &m_TexID);
+            glBindTexture(GL_TEXTURE_2D, m_TexID);
             createFBO(false);
         }
     }
@@ -110,6 +113,7 @@ void OffscreenScene::createFBO(bool bUseMipmaps)
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
