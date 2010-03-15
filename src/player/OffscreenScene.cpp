@@ -84,12 +84,14 @@ void OffscreenScene::render()
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
+/*    
     OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
             MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
             getDisplayEngine(), PBO));
     pTex->setTexID(m_TexID);
     BitmapPtr pBmp = pTex->readbackBmp();
     pBmp->save(getID()+".png");
+*/
 }
 
 std::string OffscreenScene::getID() const
