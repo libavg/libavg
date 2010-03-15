@@ -27,6 +27,17 @@ import math
 from libavg import avg
 from testcase import *
 
+def almostEqual(a,b):
+    try:
+        bOk = True
+        for i in range(len(a)):
+            if math.fabs(a[i]-b[i]) > 0.000001:
+                bOk = False
+        return bOk
+    except:
+        return math.fabs(a-b) < 0.000001
+
+
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -502,7 +513,6 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testMemoryQuery(self):
-        setUpVideo(Player)
         self.assert_(avg.getMemoryUsage() != 0)
 
     def testStopOnEscape(self):
@@ -541,6 +551,18 @@ class PlayerTestCase(AVGTestCase):
                 lambda: self.assert_(False),
                 ))
 
+    def testOffscreen(self):
+        Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene width="160" height="120">
+                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
+            </scene>
+        """)
+        self.loadEmptyScene()
+        self.start(None, 
+                [None, None])
+
+
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
@@ -566,6 +588,6 @@ def playerTestSuite(tests):
             "testMemoryQuery",
             "testStopOnEscape",
             )
-    return AVGTestSuite(availableTests, PlayerTestCase, tests)
+    return createAVGTestSuite(availableTests, PlayerTestCase, tests)
 
 Player = avg.Player.get()

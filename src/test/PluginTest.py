@@ -74,6 +74,6 @@ class PluginTestCase(AVGTestCase):
 
 def pluginTestSuite (tests):
     availableTests = ("testColorNodePlugin",)
-    return AVGTestSuite (availableTests, PluginTestCase, tests)
+    return createAVGTestSuite(availableTests, PluginTestCase, tests)
     
 Player = avg.Player.get()

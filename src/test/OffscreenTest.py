@@ -53,7 +53,7 @@ class OffscreenTestCase(AVGTestCase):
             Player.deleteScene("testscene2")
             self.assertException(lambda: Player.deleteScene("foo"))
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         createScene("testscene1", 0)
         self.start(None, 
                 (
@@ -78,7 +78,7 @@ class OffscreenTestCase(AVGTestCase):
                 ))
 
     def testSceneErrors(self):
-        self._loadEmpty()
+        self.loadEmptyScene()
         # Missing id
         self.assertException(
                 lambda: Player.loadSceneString("""<scene size="(160, 120)"/>"""))
@@ -96,6 +96,6 @@ def offscreenTestSuite(tests):
             "testSceneBasics",
             "testSceneErrors"
             )
-    return AVGTestSuite(availableTests, OffscreenTestCase, tests)
+    return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 
 Player = avg.Player.get()

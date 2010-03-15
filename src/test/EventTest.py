@@ -138,7 +138,7 @@ class EventTestCase(AVGTestCase):
             if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
                 self.keyUpCalled = True
         
-        self._loadEmpty()
+        self.loadEmptyScene()
         Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
         Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
         self.start(None, 
@@ -163,6 +163,7 @@ class EventTestCase(AVGTestCase):
             <avg width="160" height="120"  
                     oncursordown="mainMouseDown" oncursorup="mainMouseUp"/>
         """)
+        
         self.start(None, 
                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
@@ -181,7 +182,7 @@ class EventTestCase(AVGTestCase):
             # Make sure we're getting a Point2D as return value.
             self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
         
-        self._loadEmpty()
+        self.loadEmptyScene()
         root = Player.getRootNode()
         img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
         handlerTester1 = NodeHandlerTester(self, img1)
@@ -212,7 +213,7 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testTilted(self):
-        self._loadEmpty()
+        self.loadEmptyScene()
         root = Player.getRootNode()
         img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", angle=0.785, parent=root)
         handlerTester = NodeHandlerTester(self, img)
@@ -229,7 +230,7 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testDivEvents(self):
-        self._loadEmpty()
+        self.loadEmptyScene()
         root = Player.getRootNode()
         div = avg.DivNode(pos=(0,0), parent=root)
         divHandlerTester = NodeHandlerTester(self, div)
@@ -263,7 +264,7 @@ class EventTestCase(AVGTestCase):
                 ))
 
     def testObscuringEvents(self):
-        self._loadEmpty()
+        self.loadEmptyScene()
         root = Player.getRootNode()
         img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
         handlerTester1 = NodeHandlerTester(self, img1)
@@ -303,7 +304,7 @@ class EventTestCase(AVGTestCase):
             else:
                 self.img.active = b
         for useSensitiveAttr in (True, False):
-            self._loadEmpty()
+            self.loadEmptyScene()
             root = Player.getRootNode()
             self.img = avg.ImageNode(id="img", pos=(0,0), href="rgb24-65x65.png", 
                     parent=root)
@@ -331,7 +332,7 @@ class EventTestCase(AVGTestCase):
             self.img = None
 
     def testChangingHandlers(self):
-        self._loadEmpty()
+        self.loadEmptyScene()
         root = Player.getRootNode()
         img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
         handlerTester = NodeHandlerTester(self, img)
@@ -369,7 +370,7 @@ class EventTestCase(AVGTestCase):
         self.mouseDownCalled = False
         self.mainMouseDownCalled = False
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         root = Player.getRootNode()
         root.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMainMouseDown)
         self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
@@ -522,7 +523,7 @@ class EventTestCase(AVGTestCase):
         def onErrMouseOver(Event):
             undefinedFunction()
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.MOUSE, onErrMouseOver)
         self.assertException(lambda:
                 self.start(None,
@@ -544,7 +545,7 @@ def eventTestSuite(tests):
             "testMouseOver",
             "testEventErr"
             )
-    return AVGTestSuite(availableTests, EventTestCase, tests)
+    return createAVGTestSuite(availableTests, EventTestCase, tests)
 
 Player = avg.Player.get()
 Helper = Player.getTestHelper()

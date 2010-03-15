@@ -85,11 +85,10 @@ class DynamicsTestCase(AVGTestCase):
             self.assert_(gone == None)
         
         def runTest(useXml):
-            self._loadEmpty()
+            self.loadEmptyScene()
             createNode1(useXml)
             Player.stop()
-            setUpVideo(Player)
-            self._loadEmpty()
+            self.loadEmptyScene()
             Player.setFakeFPS(25)
             self.start(None,
                     (lambda: createNode1(useXml),
@@ -205,7 +204,7 @@ class DynamicsTestCase(AVGTestCase):
         Helper = Player.getTestHelper()
         self.captureMouseDownCalled = False
         self.mainMouseUpCalled = False
-        self._loadEmpty()
+        self.loadEmptyScene()
         self.start(None,
                 (createImg,
                  setEventCapture,
@@ -250,7 +249,7 @@ class DynamicsTestCase(AVGTestCase):
         def resetEventString():
             self.__eventString = ''
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         self.start(None, (
                 createNodes,
                 resetEventString,
@@ -287,12 +286,11 @@ class DynamicsTestCase(AVGTestCase):
             node.appendChild(imgNode)
             self.assertException(lambda: setImageID(imgNode))
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         createDiv()
         removeDiv()
         Player.stop()
-        setUpVideo(Player)
-        self._loadEmpty()
+        self.loadEmptyScene()
         Player.setFakeFPS(25)
         self.start(None,
                 (createDiv,
@@ -327,7 +325,7 @@ class DynamicsTestCase(AVGTestCase):
             self.assert_(retrievedImage.href == "rgb24-64x64.png")
             
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         testNodePythonAttribute()
         testNodePythonSubclass()
 
@@ -335,7 +333,7 @@ class DynamicsTestCase(AVGTestCase):
         def attachNode():
             Player.getRootNode().appendChild(imageNode1)
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         Player.getRootNode().mediadir="testmediadir"
         imageNode1 = Player.createNode("image", {"href": "rgb24-64x64a.png"})
         imageNode2 = Player.createNode("image", {"href": "rgb24-64x64a.png", "x":30})
@@ -361,6 +359,6 @@ def dynamicsTestSuite(tests):
             "testDynamicMediaDir"
             )
 
-    return AVGTestSuite (availableTests, DynamicsTestCase, tests)
+    return createAVGTestSuite(availableTests, DynamicsTestCase, tests)
 
 Player = avg.Player.get()

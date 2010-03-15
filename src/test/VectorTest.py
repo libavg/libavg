@@ -698,6 +698,6 @@ def vectorTestSuite(tests):
             "testMesh",
             "testInactiveVector",
             )
-    return AVGTestSuite (availableTests, VectorTestCase, tests)
+    return createAVGTestSuite(availableTests, VectorTestCase, tests)
 
 Player = avg.Player.get()

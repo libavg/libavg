@@ -287,7 +287,7 @@ class PythonTestCase(AVGTestCase):
             self.__down = False
             self.__clicked = False
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         
         b = ui.Button(
                 parent = Player.getRootNode(),
@@ -464,7 +464,7 @@ class PythonTestCase(AVGTestCase):
             self.__down = False
             self.__clicked = False
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         b = ui.Button(
                 parent = Player.getRootNode(),
                 upNode = avg.ImageNode(href="button_up.png"),
@@ -837,7 +837,8 @@ def pythonTestSuite (tests):
         "testTextArea",
         "testFocusContext",
         )
-    return AVGTestSuite(availableTests, PythonTestCase, tests)
+    
+    return createAVGTestSuite(availableTests, PythonTestCase, tests)
 
 Player = avg.Player.get()
 anim.init(avg)

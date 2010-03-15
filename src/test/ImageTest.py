@@ -68,7 +68,7 @@ class ImageTestCase(AVGTestCase):
             self.assert_(attachNode.size == avg.Point2D(32,32))
 
         def setUnicodeHref():
-            if isDirWritable():
+            if self._isCurrentDirWriteable():
                 root = Player.getRootNode()
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
@@ -79,10 +79,10 @@ class ImageTestCase(AVGTestCase):
                 os.remove(u"ö.png")
 
         def compareUnicode():
-            if isDirWritable():
+            if self._isCurrentDirWriteable():
                 self.compareImage("testImgHRef3", False)
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         addNodes(16)
         self.start(None,
                 (lambda: self.compareImage("testImgHRef1", False),
@@ -118,7 +118,7 @@ class ImageTestCase(AVGTestCase):
             attachNode.pos = avg.Point2D(112, y)
             illegalMove(attachNode)
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         addNodes(16)
         self.start(None,
                 (lambda: self.compareImage("testImgPos1", False),
@@ -152,7 +152,7 @@ class ImageTestCase(AVGTestCase):
             attachNode.size = avg.Point2D(32, 32)
             self.assert_(attachNode.size == avg.Point2D(32, 32))
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         addNodes(16)
         self.start(None,
                 (lambda: self.compareImage("testImgSize1", False),
@@ -182,7 +182,7 @@ class ImageTestCase(AVGTestCase):
             Player.getRootNode().appendChild(node)
             moveVertex(node)
         
-        self._loadEmpty()
+        self.loadEmptyScene()
         testEarlyAccessException()
         self.start(None,
                 (lambda: addNode(),
@@ -214,7 +214,7 @@ class ImageTestCase(AVGTestCase):
             self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
         def testUnicode():
-            if isDirWritable():
+            if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
                 shutil.copyfile("oe.png", u"ö.png")
@@ -227,7 +227,7 @@ class ImageTestCase(AVGTestCase):
         node = avg.ImageNode(href="rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         node = avg.ImageNode(pos=(0,0), size=(32, 32), href="rgb24-65x65.png")
         Player.getRootNode().appendChild(node)
         getBitmap(node)
@@ -269,7 +269,7 @@ class ImageTestCase(AVGTestCase):
     def _isMaskSupported(self):
         global g_IsMaskSupported
         if g_IsMaskSupported == None:
-            self._loadEmpty()
+            self.loadEmptyScene()
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png")
             Player.getRootNode().appendChild(node)
             try:
@@ -307,7 +307,7 @@ class ImageTestCase(AVGTestCase):
         if not(self._isMaskSupported()):
             print "Skipping testImageMask - no shader support."
             return
-        self._loadEmpty()
+        self.loadEmptyScene()
         createNode((0,0))
         node = Player.getRootNode().getChild(0)
         setNoAttach((32,0))
@@ -342,7 +342,7 @@ class ImageTestCase(AVGTestCase):
             Player.getRootNode().appendChild(node)
             node.maskpos = (32, 32)
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         if not(self._isMaskSupported()):
             print "Skipping testImageMaskPos - no shader support."
             return
@@ -379,7 +379,7 @@ class ImageTestCase(AVGTestCase):
             node.maskpos = (0, 0)
             node.masksize = (0, 0)
 
-        self._loadEmpty()
+        self.loadEmptyScene()
         if not(self._isMaskSupported()):
             print "Skipping testImageMaskPos - no shader support."
             return
@@ -425,7 +425,7 @@ def imageTestSuite(tests):
             "testImageMaskSize",
             "testImageMipmap",
             )
-    return AVGTestSuite(availableTests, ImageTestCase, tests)
+    return createAVGTestSuite(availableTests, ImageTestCase, tests)
 
 Player = avg.Player.get()
 

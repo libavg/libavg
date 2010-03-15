@@ -400,6 +400,6 @@ def animTestSuite(tests):
         "testParallelAnim",
         "testStateAnim",
         )
-    return AVGTestSuite(availableTests, AnimTestCase, tests)
+    return createAVGTestSuite(availableTests, AnimTestCase, tests)
 
 Player = avg.Player.get()

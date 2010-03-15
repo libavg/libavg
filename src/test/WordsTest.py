@@ -543,6 +543,6 @@ def wordsTestSuite(tests):
             "testInvalidColor",
             "testFontDir",
             )
-    return AVGTestSuite (availableTests, WordsTestCase, tests)
+    return createAVGTestSuite(availableTests, WordsTestCase, tests)
 
 Player = avg.Player.get()
