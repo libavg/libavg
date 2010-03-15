@@ -44,7 +44,7 @@ class AVGTestCase(unittest.TestCase):
         self.__player.setMultiSampleSamples(1)
         self.__player.setResolution(0, 0, 0, 0)
         self.__player.enableAudio(False)
-        print "-------- ", self.__testFuncName, " --------"
+        #print "-------- ", self.__testFuncName, " --------"
     
     @staticmethod
     def setImageResultDirectory(name):

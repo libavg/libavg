@@ -168,7 +168,7 @@ class TestApp:
         self.__player.loadFile("video.avg")
     
     def __run(self):
-        testRunner = unittest.TextTestRunner()
+        testRunner = unittest.TextTestRunner(verbosity = 2)
         rmBrokenDir()
         testResult = testRunner.run(self.__testSuite)
         
