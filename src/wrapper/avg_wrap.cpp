@@ -354,7 +354,6 @@ BOOST_PYTHON_MODULE(avg)
                 "Returns the current modifier keys (shift, ctrl) pressed. The return\n"
                 "value is several KeyModifier values or'ed together.\n")
         .def("screenshot", &Player::screenshot,
-                return_value_policy<manage_new_object>(),
                 "screenshot() -> bitmap\n"
                 "Returns the contents of the current screen as a bitmap.\n")
         .def("stopOnEscape", &Player::setStopOnEscape,
@@ -434,8 +433,13 @@ BOOST_PYTHON_MODULE(avg)
                 "getElementByID(id) -> node\n"
                 "Returns an element in the scene's tree."
                 "@param id: id attribute of the node to return.")
-//        .def("screenshot", &Scene::screenshot,
-//               "getImage() -> bitmap\n"
+/*
+        .def("screenshot", &Scene::screenshot,
+               "getImage() -> bitmap\n"
+               "Returns the image the scene has last rendered. For the main scene, this"
+               "is a real screenshot. For offscreen scenes, this is the image rendered"
+               "offscreen.")
+*/        
     ;
 
     class_<OffscreenScene, boost::shared_ptr<OffscreenScene>, bases<Scene>,

@@ -600,10 +600,9 @@ int Player::getKeyModifierState() const
     return m_pDisplayEngine->getKeyModifierState();
 }
 
-Bitmap * Player::screenshot()
+BitmapPtr Player::screenshot()
 {
-    BitmapPtr pBmp = m_pDisplayEngine->screenshot();
-    return new Bitmap(*pBmp);
+    return m_pDisplayEngine->screenshot();
 }
 
 void Player::showCursor(bool bShow)

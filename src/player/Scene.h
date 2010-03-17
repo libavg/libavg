@@ -35,6 +35,8 @@
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
 
+#include "../graphics/Bitmap.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -72,6 +74,7 @@ class AVG_API Scene: IEventSink
         void doFrame(bool bPythonAvailable);
         virtual bool handleEvent(EventPtr pEvent);
         IntPoint getSize() const;
+//        BitmapPtr screenshot() = 0;
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
