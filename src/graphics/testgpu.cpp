@@ -24,7 +24,6 @@
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
 #include "OGLImagingContext.h"
-#include "IteratingGPUFilter.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -284,64 +283,6 @@ private:
 };
 
 
-class IteratingGPUTestFilter: public IteratingGPUFilter 
-{
-public:
-    IteratingGPUTestFilter(const IntPoint& size)
-        : IteratingGPUFilter(size, 1)
-    {
-        if (!s_pShader) {
-            initShader();
-        }
-    }
-
-protected:
-    void initShader()
-    {
-        string sCode =
-            "#extension GL_ARB_texture_rectangle : enable\n" 
-            "uniform sampler2D Texture;\n"
-            "void main(void)\n"
-            "{\n"
-            "    gl_FragColor = texture2D(Texture,\n"
-            "           vec2(gl_TexCoord[0].s, gl_TexCoord[0].t-10.0*dFdy(gl_TexCoord[0].y)));\n"
-            "}\n";
-        s_pShader = OGLShaderPtr(new OGLShader(sCode));
-    }
-
-    void applyOnce(PBOImagePtr pSrc)
-    {
-        s_pShader->activate();
-        s_pShader->setUniformIntParam("Texture", 0);
-        pSrc->draw();
-    }
-
-private:
-    OGLShaderPtr s_pShader;
-};
-
-
-class IteratingGPUFilterTest: public GraphicsTest {
-public:
-    IteratingGPUFilterTest()
-        : GraphicsTest("IteratingGPUFilterTest", 2)
-    {
-    }
-
-    void runTests() 
-    {
-        BitmapPtr pBmp = loadTestBmp("spike", B8G8R8A8);
-        BitmapPtr pSrcBmp(new Bitmap(pBmp->getSize(), R32G32B32A32F));
-        pSrcBmp->copyPixels(*pBmp); 
-        IteratingGPUTestFilter f(pBmp->getSize());
-        BitmapPtr pDestBmp = f.apply(pSrcBmp);
-        BitmapPtr pByteDestBmp(new Bitmap(pBmp->getSize(), B8G8R8A8));
-        pByteDestBmp->copyPixels(*pDestBmp);
-        testEqual(*pByteDestBmp, "iteratingGPUFilter", B8G8R8A8);
-    }
-};
-
-
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite() 
@@ -352,7 +293,6 @@ public:
         if (PBOImage::isFloatFormatSupported()) {
             addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));
-            addTest(TestPtr(new IteratingGPUFilterTest));
         } else {
             cerr << "Skipping some GPU tests since float textures are not supported by "
                     << endl << "the OpenGL configuration." << endl;

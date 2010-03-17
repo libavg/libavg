@@ -27,7 +27,6 @@
 // XXX: If the following includes are not there, the MS linker optimizes away
 // the classes so they can't be used by plugins anymore (!). Adding /OPT:NOREF
 // to the linker flags doesn't help. 
-#include "IteratingGPUFilter.h"
 #include "FilterGetAlpha.h"
 #include "FilterErosion.h"
 #include "FilterDilation.h"
@@ -171,7 +170,6 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     setSize(size);
 
     setStandardState(size);
-//    IteratingGPUFilter f(IntPoint(100, 100), 15);
 }
 
 OGLImagingContext::~OGLImagingContext()
