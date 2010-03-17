@@ -120,7 +120,7 @@ class AVGTestCase(unittest.TestCase):
         <avg id="avg" width="%d" height="%d">
         </avg>
         """ % (width, height)
-        self.__player.loadString(sceneString)
+        return self.__player.loadString(sceneString)
 
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))

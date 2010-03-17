@@ -72,8 +72,8 @@ class AVG_API Player
         void setMultiSampleSamples(int MultiSampleSamples);
         void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
-        void loadFile(const std::string& sFilename);
-        void loadString(const std::string& sAVG);
+        ScenePtr loadFile(const std::string& sFilename);
+        ScenePtr loadString(const std::string& sAVG);
 
         OffscreenScenePtr loadSceneFile(const std::string& sFilename);
         OffscreenScenePtr loadSceneString(const std::string& sAVG);

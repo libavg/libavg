@@ -91,10 +91,15 @@ class OffscreenTestCase(AVGTestCase):
                 lambda: Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>"""))
 
 
+    def testSceneAPI(self):
+        mainScene = self.loadEmptyScene()
+        self.assert_(mainScene == Player.getMainScene())
+
 def offscreenTestSuite(tests):
     availableTests = (
             "testSceneBasics",
-            "testSceneErrors"
+            "testSceneErrors",
+            "testSceneAPI"
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

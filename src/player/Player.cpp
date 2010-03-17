@@ -223,7 +223,7 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-void Player::loadFile(const string& sFilename)
+ScenePtr Player::loadFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
     if (m_pMainScene) {
@@ -232,9 +232,10 @@ void Player::loadFile(const string& sFilename)
 
     m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
+    return m_pMainScene;
 }
 
-void Player::loadString(const string& sAVG)
+ScenePtr Player::loadString(const string& sAVG)
 {
     if (m_pMainScene) {
         cleanup();
@@ -243,6 +244,7 @@ void Player::loadString(const string& sAVG)
     NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
+    return m_pMainScene;
 }
 
 OffscreenScenePtr Player::loadSceneFile(const string& sFilename)

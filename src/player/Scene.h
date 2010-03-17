@@ -81,6 +81,10 @@ class AVG_API Scene: IEventSink
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
         virtual void render() = 0;
+        
+        bool operator ==(const Scene& other) const;
+        bool operator !=(const Scene& other) const;
+        long getHash() const;
 
     protected:
         SDLDisplayEngine* getDisplayEngine() const;

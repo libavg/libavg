@@ -281,6 +281,22 @@ void Scene::unregisterPreRenderListener(IPreRenderListener* pListener)
     m_PreRenderSignal.disconnect(pListener);
 }
 
+bool Scene::operator ==(const Scene& other) const
+{
+    return this == &other;
+}
+
+bool Scene::operator !=(const Scene& other) const
+{
+    return this != &other;
+}
+
+long Scene::getHash() const
+{
+    return long(this);
+}
+
+
 SDLDisplayEngine* Scene::getDisplayEngine() const
 {
     return dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);

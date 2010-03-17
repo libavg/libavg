@@ -72,6 +72,8 @@ BOOST_PYTHON_MODULE(avg)
     register_ptr_to_python<EventPtr>();
     register_ptr_to_python<MouseEventPtr>();
     register_ptr_to_python<TouchEventPtr>();
+    register_ptr_to_python<ScenePtr>();
+    register_ptr_to_python<OffscreenScenePtr>();
 
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     DPoint_from_python_tuple<DPoint, double>();
@@ -220,12 +222,14 @@ BOOST_PYTHON_MODULE(avg)
                 "nodes with sound can be created. Mainly used to speed up the test\n"
                 "suite.\n")
         .def("loadFile", &Player::loadFile,
-                "loadFile(filename)\n"
-                "Loads the avg file specified in filename.\n"
+                "loadFile(filename) -> scene\n"
+                "Loads the avg file specified in filename. Returns the scene loaded."
+                "The scene is the main scene displayed onscreen."
                 "@param filename: ")
         .def("loadString", &Player::loadString,
-                "loadString(avgString)\n"
-                "Parses avgString and loads the nodes it contains.\n"
+                "loadString(avgString) -> scene\n"
+                "Parses avgString and loads the nodes it contains. Returns the scene"
+                "loaded. The scene is the main scene displayed onscreen."
                 "@param avgString: An xml string containing an avg node hierarchy.")
         .def("loadSceneFile", &Player::loadSceneFile,
                 "loadSceneFile(filename)\n"
@@ -421,6 +425,9 @@ BOOST_PYTHON_MODULE(avg)
                 "session, there is one main scene that gets rendered to the screen and"
                 "zero or more scenes that are rendered offscreen.",
                 no_init)
+        .def(self == self)
+        .def(self != self)
+        .def("__hash__", &Scene::getHash)
         .def("getRootNode", &Scene::getRootNode,
                 "getRootNode() -> node\n"
                 "Returns the root of the scenegraph. For the main scene, this is an <avg>"
