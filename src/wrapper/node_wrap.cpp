@@ -151,6 +151,11 @@ void export_node()
                 "Transforms a position in window coordinates to a position\n"
                 "in coordinates relative to the node.\n"
                 "@param abspos: Absolute coordinate to transform.")
+        .def("getElementByPos", &Node::getElementByPos,
+                "getElementByPos(pos) -> Node\n"
+                "Returns the topmost child node that is at the position given. pos\n"
+                "is in coordinates relative to the called node. The algorithm used\n"
+                "is the same as the cursor hit test algorithm used for events.\n")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
                 "A unique identifier that can be used to reference the node.\n")
@@ -169,11 +174,6 @@ void export_node()
             "Base class for elements in the avg tree that define an area on the screen.\n"
             "Is responsible for coordinate transformations and event handling.\n",
             no_init)
-        .def("getElementByPos", &AreaNode::getElementByPos,
-                "getElementByPos(pos) -> AreaNode\n"
-                "Returns the topmost child node that is at the position given. pos\n"
-                "is in coordinates relative to the called node. The algorithm used\n"
-                "is the same as the cursor hit test algorithm used for events.\n")
         .def("getMediaSize", &AreaNode_getMediaSize,
                 "getMediaSize() -> mediasize\n"
                 "Returns the size in pixels of the media in the node. Image nodes\n"
