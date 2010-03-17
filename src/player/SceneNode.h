@@ -38,10 +38,6 @@ class AVG_API SceneNode : public DivNode
         virtual ~SceneNode();
 
         virtual std::string getEffectiveMediaDir();
-        
-    private:
-        bool m_bEnableCrop;
-
 };
 
 typedef boost::shared_ptr<SceneNode> SceneNodePtr;
