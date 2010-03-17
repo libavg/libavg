@@ -72,8 +72,6 @@ BOOST_PYTHON_MODULE(avg)
     register_ptr_to_python<EventPtr>();
     register_ptr_to_python<MouseEventPtr>();
     register_ptr_to_python<TouchEventPtr>();
-    register_ptr_to_python<ScenePtr>();
-    register_ptr_to_python<OffscreenScenePtr>();
 
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     DPoint_from_python_tuple<DPoint, double>();
