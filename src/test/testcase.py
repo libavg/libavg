@@ -78,6 +78,9 @@ class AVGTestCase(unittest.TestCase):
 
     def compareImage(self, fileName, warn):
         bmp = self.__player.screenshot()
+        self.compareBitmapToFile(bmp, fileName, warn)
+
+    def compareBitmapToFile(self, bmp, fileName, warn):
         try:
             baselineBmp = libavg.Bitmap(AVGTestCase.getBaselineImageDir()+"/"+fileName+".png")
             diffBmp = bmp.subtract(baselineBmp)

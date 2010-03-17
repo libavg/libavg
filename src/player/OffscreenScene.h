@@ -44,6 +44,7 @@ class AVG_API OffscreenScene: public Scene
         std::string getID() const;
         bool isRunning() const;
         unsigned getTexID() const;
+        BitmapPtr screenshot() const;
 
     private:
         void createFBO(bool bUseMipmaps);

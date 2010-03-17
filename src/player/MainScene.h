@@ -35,6 +35,7 @@ class AVG_API MainScene: public Scene
 
         AVGNodePtr getRootNode() const;
         virtual void render();
+        BitmapPtr screenshot() const;
 
     private:
 };

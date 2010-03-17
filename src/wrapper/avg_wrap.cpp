@@ -433,13 +433,11 @@ BOOST_PYTHON_MODULE(avg)
                 "getElementByID(id) -> node\n"
                 "Returns an element in the scene's tree."
                 "@param id: id attribute of the node to return.")
-/*
         .def("screenshot", &Scene::screenshot,
                "getImage() -> bitmap\n"
                "Returns the image the scene has last rendered. For the main scene, this"
                "is a real screenshot. For offscreen scenes, this is the image rendered"
                "offscreen.")
-*/        
     ;
 
     class_<OffscreenScene, boost::shared_ptr<OffscreenScene>, bases<Scene>,

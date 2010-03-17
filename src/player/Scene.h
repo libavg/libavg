@@ -74,7 +74,7 @@ class AVG_API Scene: IEventSink
         void doFrame(bool bPythonAvailable);
         virtual bool handleEvent(EventPtr pEvent);
         IntPoint getSize() const;
-//        BitmapPtr screenshot() = 0;
+        virtual BitmapPtr screenshot() const = 0;
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);

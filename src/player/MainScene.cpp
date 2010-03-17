@@ -53,4 +53,13 @@ void MainScene::render()
     getDisplayEngine()->render(getRootNode(), false);
 }
 
+BitmapPtr MainScene::screenshot() const
+{
+    if (!getDisplayEngine()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "MainScene::screenshot(): Scene is not being rendered. No screenshot available."));
+    }
+    return getDisplayEngine()->screenshot();
+}
+
 }

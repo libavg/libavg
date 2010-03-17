@@ -56,8 +56,7 @@ class OffscreenTestCase(AVGTestCase):
         self.loadEmptyScene()
         createScene("testscene1", 0)
         self.start(None, 
-                (
-                 lambda: self.compareImage("testOffscreen1", False),
+                (lambda: self.compareImage("testOffscreen1", False),
                  self.node.unlink,
                  lambda: self.compareImage("testOffscreen2", False), 
                  lambda: Player.getRootNode().appendChild(self.node),
@@ -89,6 +88,15 @@ class OffscreenTestCase(AVGTestCase):
 
 
     def testSceneAPI(self):
+        def checkMainScreenshot():
+            bmp1 = Player.screenshot()
+            bmp2 = mainScene.screenshot()
+            self.assert_(self.areSimilarBmps(bmp1, bmp2, 0.01, 0.01))
+
+        def checkSceneScreenshot():
+            bmp = offscreenScene.screenshot()
+            self.compareBitmapToFile(bmp, "testOffscreenScreenshot", False)
+
         mainScene = self.loadEmptyScene()
         self.assert_(mainScene == Player.getMainScene())
         offscreenScene = Player.loadSceneString("""
@@ -100,6 +108,10 @@ class OffscreenTestCase(AVGTestCase):
         self.assert_(offscreenScene == Player.getScene("testscene"))
         self.assert_(offscreenScene.getElementByID("test1").href == "rgb24-65x65.png")
         self.assert_(offscreenScene.getElementByID("missingnode") == None)
+        self.assertException(Player.screenshot())
+        self.start(None, 
+                (checkMainScreenshot,
+                 checkSceneScreenshot))
 
 def offscreenTestSuite(tests):
     availableTests = (

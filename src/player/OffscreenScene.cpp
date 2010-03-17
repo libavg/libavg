@@ -77,14 +77,6 @@ void OffscreenScene::render()
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
-/*    
-    OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
-            MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
-            getDisplayEngine(), PBO));
-    pTex->setTexID(m_TexID);
-    BitmapPtr pBmp = pTex->readbackBmp();
-    pBmp->save(getID()+".png");
-*/
 }
 
 std::string OffscreenScene::getID() const
@@ -100,6 +92,19 @@ bool OffscreenScene::isRunning() const
 unsigned OffscreenScene::getTexID() const
 {
     return m_pFBO->getTexture();
+}
+
+BitmapPtr OffscreenScene::screenshot() const
+{
+    if (!isRunning()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "OffscreenScene::screenshot(): Scene is not being rendered. No screenshot available."));
+    }
+    OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
+            MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
+            getDisplayEngine(), PBO));
+    pTex->setTexID(m_TexID);
+    return pTex->readbackBmp();
 }
 
 void OffscreenScene::createFBO(bool bUseMipmaps)
