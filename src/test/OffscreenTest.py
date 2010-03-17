@@ -79,9 +79,6 @@ class OffscreenTestCase(AVGTestCase):
 
     def testSceneErrors(self):
         self.loadEmptyScene()
-        # Missing id
-        self.assertException(
-                lambda: Player.loadSceneString("""<scene size="(160, 120)"/>"""))
         # Missing size
         self.assertException(
                 lambda: Player.loadSceneString("""<scene id="foo"/>"""))

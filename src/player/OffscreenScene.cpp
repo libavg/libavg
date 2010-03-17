@@ -41,10 +41,6 @@ OffscreenScene::OffscreenScene(Player * pPlayer, NodePtr pRootNode)
         throw (Exception(AVG_ERR_XML_PARSE, 
                 "Root node of a scene tree needs to be a <scene> node."));
     }
-    if (pRootNode->getID() == "") {
-        throw (Exception(AVG_ERR_XML_PARSE, 
-                "Root node of a scene tree needs to have an id."));
-    }
 }
 
 OffscreenScene::~OffscreenScene()
