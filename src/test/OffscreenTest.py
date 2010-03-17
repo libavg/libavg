@@ -94,6 +94,15 @@ class OffscreenTestCase(AVGTestCase):
     def testSceneAPI(self):
         mainScene = self.loadEmptyScene()
         self.assert_(mainScene == Player.getMainScene())
+        offscreenScene = Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="testscene" width="160" height="120">
+                <image id="test1" href="rgb24-65x65.png"/>
+            </scene>
+        """)
+        self.assert_(offscreenScene == Player.getScene("testscene"))
+        self.assert_(offscreenScene.getElementByID("test1").href == "rgb24-65x65.png")
+        self.assert_(offscreenScene.getElementByID("missingnode") == None)
 
 def offscreenTestSuite(tests):
     availableTests = (
