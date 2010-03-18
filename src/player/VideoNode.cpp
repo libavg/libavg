@@ -121,6 +121,9 @@ void VideoNode::connect(Scene * pScene)
 void VideoNode::disconnect(bool bKill)
 {
     getScene()->unregisterFrameEndListener(this);
+    if (bKill) {
+        setEOFCallback(Py_None);
+    }
     changeVideoState(Unloaded);
     RasterNode::disconnect(bKill);
 }
