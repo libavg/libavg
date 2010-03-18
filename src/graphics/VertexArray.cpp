@@ -253,14 +253,18 @@ void VertexArray::initBufferCache()
 
 void VertexArray::deleteBufferCache()
 {
-    for (unsigned i=0; i<s_pGLVertexBufferIDs->size(); ++i) {
-        glproc::DeleteBuffers(1, &((*s_pGLVertexBufferIDs)[i]));
+    if (s_pGLVertexBufferIDs.get() != 0) {
+        for (unsigned i=0; i<s_pGLVertexBufferIDs->size(); ++i) {
+            glproc::DeleteBuffers(1, &((*s_pGLVertexBufferIDs)[i]));
+        }
+        s_pGLVertexBufferIDs->clear();
     }
-    s_pGLVertexBufferIDs->clear();
-    for (unsigned i=0; i<s_pGLIndexBufferIDs->size(); ++i) {
-        glproc::DeleteBuffers(1, &((*s_pGLIndexBufferIDs)[i]));
+    if (s_pGLIndexBufferIDs.get() != 0) {
+        for (unsigned i=0; i<s_pGLIndexBufferIDs->size(); ++i) {
+            glproc::DeleteBuffers(1, &((*s_pGLIndexBufferIDs)[i]));
+        }
+        s_pGLIndexBufferIDs->clear();
     }
-    s_pGLIndexBufferIDs->clear();
 }
 
 }
