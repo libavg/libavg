@@ -40,7 +40,7 @@ class OffscreenTestCase(AVGTestCase):
             self.node.href="scene:"+sceneName
 
         def changeHRef(href):
-            self.node.href=href
+            self.node.href = href
 
         def setBitmap():
             bitmap = avg.Bitmap("rgb24-65x65.png")
@@ -74,6 +74,24 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.compareImage("testOffscreen4", False),
                  deleteScenes,
                  lambda: self.compareImage("testOffscreen3", False),
+                ))
+
+    def testSceneResize(self):
+        def setSize():
+            self.node.size = (80, 60)
+
+        self.loadEmptyScene()
+        Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="testscene" width="160" height="120">
+                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
+            </scene>
+        """)
+        self.node = avg.ImageNode(parent=Player.getRootNode())
+        self.node.href="scene:testscene"
+        self.start(None,
+                (setSize,
+                 lambda: self.compareImage("testSceneResize", False)
                 ))
 
     def testSceneErrors(self):
@@ -113,12 +131,15 @@ class OffscreenTestCase(AVGTestCase):
                 (checkMainScreenshot,
                  checkSceneScreenshot))
 
+
 def offscreenTestSuite(tests):
     availableTests = (
             "testSceneBasics",
+            "testSceneResize",
             "testSceneErrors",
             "testSceneAPI"
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
+
 
 Player = avg.Player.get()

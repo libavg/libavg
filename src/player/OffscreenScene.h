@@ -50,6 +50,7 @@ class AVG_API OffscreenScene: public Scene
         void createFBO(bool bUseMipmaps);
         FBOPtr m_pFBO;
         unsigned m_TexID;
+        bool m_bUseMipmaps;
 };
 
 typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;

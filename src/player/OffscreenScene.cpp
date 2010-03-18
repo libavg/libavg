@@ -62,7 +62,7 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
         if (ex.GetCode() != AVG_ERR_UNSUPPORTED) {
             throw;
         } else {
-        	glDeleteTextures(1, &m_TexID);
+            glDeleteTextures(1, &m_TexID);
             glGenTextures(1, &m_TexID);
             glBindTexture(GL_TEXTURE_2D, m_TexID);
             createFBO(false);
@@ -77,6 +77,10 @@ void OffscreenScene::render()
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
+    if (m_bUseMipmaps) {
+        glBindTexture(GL_TEXTURE_2D, m_TexID);
+        glproc::GenerateMipmap(GL_TEXTURE_2D);
+    }
 }
 
 std::string OffscreenScene::getID() const
@@ -109,6 +113,7 @@ BitmapPtr OffscreenScene::screenshot() const
 
 void OffscreenScene::createFBO(bool bUseMipmaps)
 {
+    m_bUseMipmaps = bUseMipmaps;
     IntPoint size = getSize();
     if (bUseMipmaps) {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
