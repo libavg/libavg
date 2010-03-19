@@ -423,6 +423,7 @@ class PythonTestCase(AVGTestCase):
                  lambda: b.setChecked(True),
                  lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.assert_(self.__down),
                  lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 0, yOutDistance),
                  lambda: self.compareImage("testUIButtonDown", False),
@@ -431,6 +432,22 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and self.__clicked),
+                 reset,
+                 
+                 # Test public interface
+                 lambda: b.setCheckable(False),
+                 lambda: b.setChecked(False),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.assert_(not(b.isDisabled())),
+                 lambda: self.assert_(not(b.isChecked())),
+                 lambda: self.assert_(not(b.isCheckable())),
+                 lambda: b.setCheckable(True),
+                 lambda: self.assert_(b.isCheckable()),
+                 lambda: b.setChecked(True),
+                 lambda: self.assert_(b.isChecked()),
+                 lambda: b.setDisabled(True),
+                 lambda: self.assert_(b.isDisabled()),
+                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
                  reset,
                  
                  # Disable: Various up/down combinations have no effect
