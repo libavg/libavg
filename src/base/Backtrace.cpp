@@ -35,6 +35,7 @@ namespace avg {
 
 void dumpBacktrace()
 {
+#ifndef _WIN32
     vector<string> sFuncs;
     getBacktrace(sFuncs);
     int i=0;
@@ -44,6 +45,7 @@ void dumpBacktrace()
         cerr << "  " << i << ": " << *it << endl;
         i++;
     }
+#endif
 }
 
 string funcNameFromLine(const string& sLine)

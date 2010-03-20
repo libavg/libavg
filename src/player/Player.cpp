@@ -921,7 +921,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         }
         xmlFreeDoc(doc);
         return pNode;
-    } catch (Exception& ex) {
+    } catch (Exception&) {
         if (doc) {
             xmlFreeDoc(doc);
         }
