@@ -34,7 +34,7 @@ NodeDefinition SceneNode::createDefinition()
 {
     return NodeDefinition("scene", Node::buildNode<SceneNode>)
         .extendDefinition(DivNode::createDefinition())
-        .addArg(Arg<bool>("handleevents", true, false, 
+        .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(SceneNode, m_bHandleEvents)));
 }
 

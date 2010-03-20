@@ -60,6 +60,7 @@ class AVG_API Scene
         virtual ~Scene();
         virtual void initPlayback(DisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine, TestHelper* pTestHelper);
+        virtual void stopPlayback();
        
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);

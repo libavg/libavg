@@ -50,10 +50,6 @@ Scene::Scene(Player * pPlayer, NodePtr pRootNode)
 
 Scene::~Scene()
 {
-    m_PlaybackEndSignal.emit();
-    m_pRootNode->disconnect(true);
-    m_pRootNode = SceneNodePtr();
-    m_IDMap.clear();
 }
 
 void Scene::initPlayback(DisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
@@ -61,6 +57,14 @@ void Scene::initPlayback(DisplayEngine* pDisplayEngine, AudioEngine* pAudioEngin
 {
     m_pDisplayEngine = pDisplayEngine;
     m_pRootNode->setRenderingEngines(m_pDisplayEngine, pAudioEngine);
+}
+
+void Scene::stopPlayback()
+{
+    m_PlaybackEndSignal.emit();
+    m_pRootNode->disconnect(true);
+    m_pRootNode = SceneNodePtr();
+    m_IDMap.clear();
 }
 
 NodePtr Scene::getElementByID(const std::string& id)

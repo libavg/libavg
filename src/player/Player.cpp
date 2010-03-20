@@ -1146,12 +1146,16 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
     if (m_pMainScene) {
+        m_pMainScene->stopPlayback();
         m_pMainScene = MainScenePtr();
     }
 
     if (m_pTracker) {
         delete m_pTracker;
         m_pTracker = 0;
+    }
+    for (unsigned i=0; i < m_pScenes.size(); ++i) {
+        m_pScenes[i]->stopPlayback();
     }
     m_pScenes.clear();
 

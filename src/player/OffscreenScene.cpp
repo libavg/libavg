@@ -45,7 +45,9 @@ OffscreenScene::OffscreenScene(Player * pPlayer, NodePtr pRootNode)
 
 OffscreenScene::~OffscreenScene()
 {
-    glDeleteTextures(1, &m_TexID);
+    if (isRunning()) {
+        glDeleteTextures(1, &m_TexID);
+    }
 }
 
 void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine, 
@@ -69,6 +71,13 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
         }
     }
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+}
+
+void OffscreenScene::stopPlayback()
+{
+    m_pFBO = FBOPtr();
+    glDeleteTextures(1, &m_TexID);
+    Scene::stopPlayback();
 }
 
 void OffscreenScene::render()

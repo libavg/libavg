@@ -39,6 +39,7 @@ class AVG_API OffscreenScene: public Scene
         virtual ~OffscreenScene();
         virtual void initPlayback(DisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine, TestHelper* pTestHelper);
+        virtual void stopPlayback();
 
         virtual void render();
         virtual BitmapPtr screenshot() const;
