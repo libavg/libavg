@@ -52,6 +52,7 @@ class AVG_API Image
 
         void setFilename(const std::string& sFilename);
         void setScene(OffscreenScenePtr pScene);
+        OffscreenScenePtr getScene() const;
         const std::string& getFilename() const;
         
         BitmapPtr getBitmap();

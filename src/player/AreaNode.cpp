@@ -260,8 +260,7 @@ void AreaNode::setViewport(double x, double y, double width, double height)
 
 const DRect& AreaNode::getRelViewport() const
 {
-//    cerr << "Node " << getID() << ": (" << m_RelViewport.tl.x << ", " 
-//            << m_RelViewport.tl.y << ")" << endl;
+//    cerr << "Node " << getID() << ": " << m_RelViewport << endl;
     return m_RelViewport;
 }
 

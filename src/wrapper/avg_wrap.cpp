@@ -449,5 +449,8 @@ BOOST_PYTHON_MODULE(avg)
                 "getID() -> id"
                 "Returns the id of the scene. This is the same as"
                 "calling scene.getRootNode().getID().")
+        .add_property("handleevents", &OffscreenScene::getHandleEvents, 
+                "True if events that arrive at an image node that is displaying this"
+                "scene are routed to the offscreen scene (ro).")
     ;
 }

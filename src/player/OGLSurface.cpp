@@ -196,6 +196,7 @@ void OGLSurface::setTexID(unsigned id)
     m_bUseForeignTexture = true;
     m_pTextures[0]->setTexID(id);
 }
+
 BitmapPtr OGLSurface::lockMaskBmp()
 {
     AVG_ASSERT(m_Material.getHasMask());

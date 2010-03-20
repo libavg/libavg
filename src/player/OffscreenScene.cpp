@@ -95,6 +95,7 @@ bool OffscreenScene::isRunning() const
 
 unsigned OffscreenScene::getTexID() const
 {
+    AVG_ASSERT(isRunning());
     return m_pFBO->getTexture();
 }
 
@@ -109,6 +110,11 @@ BitmapPtr OffscreenScene::screenshot() const
             getDisplayEngine(), PBO));
     pTex->setTexID(m_TexID);
     return pTex->readbackBmp();
+}
+
+bool OffscreenScene::getHandleEvents() const
+{
+    return getRootNode()->getHandleEvents();
 }
 
 void OffscreenScene::createFBO(bool bUseMipmaps)

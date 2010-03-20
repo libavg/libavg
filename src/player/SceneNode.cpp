@@ -33,7 +33,9 @@ namespace avg {
 NodeDefinition SceneNode::createDefinition()
 {
     return NodeDefinition("scene", Node::buildNode<SceneNode>)
-        .extendDefinition(DivNode::createDefinition());
+        .extendDefinition(DivNode::createDefinition())
+        .addArg(Arg<bool>("handleevents", true, false, 
+                offsetof(SceneNode, m_bHandleEvents)));
 }
 
 SceneNode::SceneNode(const ArgList& Args)
@@ -56,6 +58,11 @@ string SceneNode::getEffectiveMediaDir()
         sMediaDir += '/';
     }
     return sMediaDir;
+}
+
+bool SceneNode::getHandleEvents() const
+{
+    return m_bHandleEvents;
 }
 
 }

@@ -30,12 +30,8 @@ class OffscreenTestCase(AVGTestCase):
     
     def testSceneBasics(self):
         def createScene(sceneName, x):
-            Player.loadSceneString("""
-                <?xml version="1.0"?>
-                <scene id="%s" width="160" height="120">
-                    <image id="test1" x="%s" href="rgb24-65x65.png" angle="0.4"/>
-                </scene>
-            """%(sceneName, str(x)))
+            scene = self.__createOffscreenScene(sceneName)
+            scene.getElementByID("test1").x = x
             self.node = avg.ImageNode(parent=Player.getRootNode())
             self.node.href="scene:"+sceneName
 
@@ -81,12 +77,7 @@ class OffscreenTestCase(AVGTestCase):
             self.node.size = (80, 60)
 
         self.loadEmptyScene()
-        Player.loadSceneString("""
-            <?xml version="1.0"?>
-            <scene id="testscene" width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
-            </scene>
-        """)
+        self.__createOffscreenScene("testscene")
         self.node = avg.ImageNode(parent=Player.getRootNode())
         self.node.href="scene:testscene"
         self.start(None,
@@ -103,7 +94,6 @@ class OffscreenTestCase(AVGTestCase):
         Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>""")
         self.assertException(
                 lambda: Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>"""))
-
 
     def testSceneAPI(self):
         def checkMainScreenshot():
@@ -131,13 +121,67 @@ class OffscreenTestCase(AVGTestCase):
                 (checkMainScreenshot,
                  checkSceneScreenshot))
 
+    def testSceneEvents(self):
+        def onOffscreenImageDown(event):
+            self.__offscreenImageDownCalled = True
+
+        def reset():
+            self.__offscreenImageDownCalled = False
+
+        def setPos():
+            self.node.pos = (80, 60)
+            self.node.size = (80, 60)
+
+        mainScene = self.loadEmptyScene()
+        offscreenScene = Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="offscreenscene" width="160" height="120" handleevents="true">
+                <image id="test1" href="rgb24-65x65.png"/>
+            </scene>
+        """)
+        self.node = avg.ImageNode(parent=Player.getRootNode(), 
+                href="scene:offscreenscene")
+        offscreenImage = offscreenScene.getElementByID("test1")
+        offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown);
+        helper = Player.getTestHelper()
+        self.__offscreenImageDownCalled = False
+        self.start(None,
+                (lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        10, 10, 1),
+                 lambda: self.assert_(self.__offscreenImageDownCalled),
+                 reset,
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        80, 10, 1),
+                 lambda: self.assert_(not(self.__offscreenImageDownCalled)),
+                 reset,
+                 setPos,
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        70, 65, 1),
+                 lambda: self.assert_(not(self.__offscreenImageDownCalled)),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        120, 65, 1),
+                 lambda: self.assert_(not(self.__offscreenImageDownCalled)),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        110, 65, 1),
+                 lambda: self.assert_(self.__offscreenImageDownCalled),
+                ))
+
+    def __createOffscreenScene(self, sceneName):
+        return Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="%s" width="160" height="120">
+                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
+            </scene>
+        """%(sceneName))
+
 
 def offscreenTestSuite(tests):
     availableTests = (
             "testSceneBasics",
             "testSceneResize",
             "testSceneErrors",
-            "testSceneAPI"
+            "testSceneAPI",
+            "testSceneEvents"
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

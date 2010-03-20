@@ -53,7 +53,7 @@ typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<SceneNode> SceneNodePtr;
 
-class AVG_API Scene: IEventSink
+class AVG_API Scene
 {
     public:
         Scene(Player * pPlayer, NodePtr pRootNode);
@@ -61,8 +61,6 @@ class AVG_API Scene: IEventSink
         virtual void initPlayback(DisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine, TestHelper* pTestHelper);
        
-        void addEventSource(IEventSource* pSource);
-        MouseEventPtr getMouseState() const;
         void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 
@@ -71,8 +69,7 @@ class AVG_API Scene: IEventSink
         void registerNode(NodePtr pNode);
         void addNodeID(NodePtr pNode);
         void removeNodeID(const std::string& id);
-        void doFrame(bool bPythonAvailable);
-        virtual bool handleEvent(EventPtr pEvent);
+        virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
 
@@ -90,27 +87,18 @@ class AVG_API Scene: IEventSink
         long getHash() const;
 
     protected:
+        Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
-
-    private:
-        void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
-        void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
+        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
         std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
+    private:
         Player * m_pPlayer;
         SceneNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
        
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
-
-        EventDispatcherPtr m_pEventDispatcher;
-        MouseState m_MouseState;
-
-        // These are maps for each cursor id.
-        std::map<int, CursorStatePtr> m_pLastCursorStates;
-        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         Signal<IPlaybackEndListener> m_PlaybackEndSignal;
         Signal<IFrameEndListener> m_FrameEndSignal;

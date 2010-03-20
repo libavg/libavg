@@ -154,6 +154,11 @@ void Image::setScene(OffscreenScenePtr pScene)
     }
 }
 
+OffscreenScenePtr Image::getScene() const
+{
+    return m_pScene;
+}
+
 const string& Image::getFilename() const
 {
     return m_sFilename;

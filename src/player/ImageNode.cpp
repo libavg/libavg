@@ -135,6 +135,20 @@ void ImageNode::checkReload()
     RasterNode::checkReload();
 }
 
+NodePtr ImageNode::getElementByPos(const DPoint & pos)
+{
+    OffscreenScenePtr pScene = m_pImage->getScene();
+    if (pScene && pScene->getHandleEvents()) {
+        DPoint nodeSize(getSize());
+        DPoint sceneSize(pScene->getSize());
+        DPoint localPos(pos.x*(sceneSize.x/nodeSize.x), 
+                pos.y*(sceneSize.y/nodeSize.y));
+        return pScene->getRootNode()->getElementByPos(localPos);
+    } else {
+        return RasterNode::getElementByPos(pos);
+    }
+}
+
 BitmapPtr ImageNode::getBitmap()
 {
     return m_pImage->getBitmap();
