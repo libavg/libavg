@@ -150,9 +150,22 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                 ))
 
-    def testOffscreenEventCapture(self):
-        pass
+    def testSceneEventCapture(self):
+        def onOffscreenImageDown(event):
+            self.__offscreenImageDownCalled = True
 
+        mainScene, offscreenScene = self.__setupScene(True)
+        offscreenImage = offscreenScene.getElementByID("test1")
+        offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown);
+        helper = Player.getTestHelper()
+        self.__offscreenImageDownCalled = False
+        offscreenImage.setEventCapture()
+        self.start(None,
+                (lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        80, 10, 1),
+                 lambda: self.assert_(self.__offscreenImageDownCalled),
+                ))
+                 
     def __setupScene(self, handleEvents):
         mainScene = self.loadEmptyScene()
         offscreenScene = self.__createOffscreenScene("offscreenscene", handleEvents)
@@ -175,7 +188,8 @@ def offscreenTestSuite(tests):
             "testSceneResize",
             "testSceneErrors",
             "testSceneAPI",
-            "testSceneEvents"
+            "testSceneEvents",
+            "testSceneEventCapture",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 
