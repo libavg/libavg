@@ -60,8 +60,6 @@ class AVG_API FilledVectorNode : public VectorNode
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
 
-        virtual int getNumFillVertexes() = 0;
-        virtual int getNumFillIndexes() = 0;
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
     protected:

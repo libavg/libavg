@@ -80,7 +80,7 @@ void PolyLineNode::setPos(const vector<DPoint>& pts)
     m_TexCoords.clear();
     m_EffTexCoords.clear();
     calcPolyLineCumulDist(m_CumulDist, m_Pts, false);
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
         
 const vector<double>& PolyLineNode::getTexCoords() const
@@ -96,7 +96,7 @@ void PolyLineNode::setTexCoords(const vector<double>& coords)
     }
     m_EffTexCoords.clear();
     m_TexCoords = coords;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 string PolyLineNode::getLineJoin() const
@@ -107,42 +107,7 @@ string PolyLineNode::getLineJoin() const
 void PolyLineNode::setLineJoin(const string& s)
 {
     m_LineJoin = string2LineJoin(s);
-    setDrawNeeded(true);
-}
-
-int PolyLineNode::getNumVertexes()
-{
-    int numPts = getNumDifferentPts(m_Pts);
-    if (numPts < 2) {
-        return 0;
-    }
-    switch (m_LineJoin) {
-        case LJ_MITER:
-            return 2*numPts;
-        case LJ_BEVEL:
-            return 3*numPts-2;
-        default:
-            AVG_ASSERT(false);
-            return 0;
-    }
-
-}
-
-int PolyLineNode::getNumIndexes()
-{
-    int numPts = getNumDifferentPts(m_Pts);
-    if (numPts < 2) {
-        return 0;
-    }
-    switch (m_LineJoin) {
-        case LJ_MITER:
-            return 6*(numPts-1);
-        case LJ_BEVEL:
-            return 3*(3*numPts-4);
-        default:
-            AVG_ASSERT(false);
-            return 0;
-    }
+    setDrawNeeded();
 }
 
 void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

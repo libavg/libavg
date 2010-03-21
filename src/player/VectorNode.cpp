@@ -77,7 +77,7 @@ VectorNode::~VectorNode()
 void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
-    setDrawNeeded(true);
+    setDrawNeeded();
     m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_pShape->moveToGPU(getDisplayEngine());
@@ -102,7 +102,7 @@ void VectorNode::checkReload()
     Node::checkReload(m_TexHRef, m_pShape->getImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pShape->moveToGPU(getDisplayEngine());
-        setDrawNeeded(true);
+        setDrawNeeded();
     }
 }
 
@@ -115,14 +115,14 @@ void VectorNode::setTexHRef(const UTF8String& href)
 {
     m_TexHRef = href;
     checkReload();
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 void VectorNode::setBitmap(const Bitmap * pBmp)
 {
     m_TexHRef = "";
     m_pShape->setBitmap(pBmp);
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const string& VectorNode::getBlendModeStr() const
@@ -147,10 +147,6 @@ void VectorNode::preRender()
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
-    if (m_bVASizeChanged) {
-        ScopeTimer Timer(VASizeProfilingZone);
-        m_bVASizeChanged = false;
-    }
     {
         ScopeTimer Timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
@@ -256,22 +252,14 @@ string VectorNode::lineJoin2String(LineJoin lineJoin)
     }
 }
 
-void VectorNode::setDrawNeeded(bool bSizeChanged)
+void VectorNode::setDrawNeeded()
 {
     m_bDrawNeeded = true;
-    if (bSizeChanged) {
-        m_bVASizeChanged = true;
-    }
 }
         
 bool VectorNode::isDrawNeeded()
 {
     return m_bDrawNeeded;
-}
-
-bool VectorNode::hasVASizeChanged()
-{
-    return m_bVASizeChanged;
 }
 
 void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists, 

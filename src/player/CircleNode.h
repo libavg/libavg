@@ -50,10 +50,6 @@ class AVG_API CircleNode : public FilledVectorNode
         void setTexCoord2(double tc);
 
         NodePtr getElementByPos(const DPoint & pos);
-        virtual int getNumVertexes();
-        virtual int getNumIndexes();
-        virtual int getNumFillVertexes();
-        virtual int getNumFillIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 

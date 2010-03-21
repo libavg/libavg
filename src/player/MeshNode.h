@@ -50,8 +50,6 @@ class AVG_API MeshNode : public VectorNode
         const std::vector<IntTriple>& getTriangles() const;
         void setTriangles(const std::vector<IntTriple>& pts);
 
-        virtual int getNumVertexes();
-        virtual int getNumIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:

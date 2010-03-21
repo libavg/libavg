@@ -86,7 +86,7 @@ void FilledVectorNode::checkReload()
     Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pFillShape->moveToGPU(getDisplayEngine());
-        setDrawNeeded(true);
+        setDrawNeeded();
     }
     VectorNode::checkReload();
 }
@@ -100,14 +100,14 @@ void FilledVectorNode::setFillTexHRef(const UTF8String& href)
 {
     m_FillTexHRef = href;
     checkReload();
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 void FilledVectorNode::setFillBitmap(const Bitmap * pBmp)
 {
     m_FillTexHRef = "";
     m_pFillShape->setBitmap(pBmp);
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const DPoint& FilledVectorNode::getFillTexCoord1() const
@@ -118,7 +118,7 @@ const DPoint& FilledVectorNode::getFillTexCoord1() const
 void FilledVectorNode::setFillTexCoord1(const DPoint& pt)
 {
     m_FillTexCoord1 = pt;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 const DPoint& FilledVectorNode::getFillTexCoord2() const
@@ -129,7 +129,7 @@ const DPoint& FilledVectorNode::getFillTexCoord2() const
 void FilledVectorNode::setFillTexCoord2(const DPoint& pt)
 {
     m_FillTexCoord2 = pt;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double FilledVectorNode::getFillOpacity() const
@@ -140,7 +140,7 @@ double FilledVectorNode::getFillOpacity() const
 void FilledVectorNode::setFillOpacity(double opacity)
 {
     m_FillOpacity = opacity;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 void FilledVectorNode::preRender()
@@ -197,7 +197,7 @@ void FilledVectorNode::setFillColor(const string& sColor)
     if (m_sFillColorName != sColor) {
         m_sFillColorName = sColor;
         m_FillColor = colorStringToColor(m_sFillColorName);
-        setDrawNeeded(false);
+        setDrawNeeded();
     }
 }
 

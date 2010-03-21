@@ -61,8 +61,6 @@ class AVG_API VectorNode : public Node
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
 
-        virtual int getNumVertexes() = 0;
-        virtual int getNumIndexes() = 0;
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
         void setColor(const std::string& sColor);
@@ -78,7 +76,7 @@ class AVG_API VectorNode : public Node
         Pixel32 getColorVal() const;
         DisplayEngine::BlendMode getBlendMode() const;
 
-        void setDrawNeeded(bool bSizeChanged);
+        void setDrawNeeded();
         bool isDrawNeeded();
         bool hasVASizeChanged();
         void calcPolyLineCumulDist(std::vector<double>& cumulDist, 

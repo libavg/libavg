@@ -75,7 +75,7 @@ void PolygonNode::setPos(const vector<DPoint>& pts)
     m_TexCoords.clear();
     m_EffTexCoords.clear();
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
         
 const vector<double>& PolygonNode::getTexCoords() const
@@ -91,7 +91,7 @@ void PolygonNode::setTexCoords(const vector<double>& coords)
     }
     m_EffTexCoords.clear();
     m_TexCoords = coords;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 string PolygonNode::getLineJoin() const
@@ -102,7 +102,7 @@ string PolygonNode::getLineJoin() const
 void PolygonNode::setLineJoin(const string& s)
 {
     m_LineJoin = string2LineJoin(s);
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 NodePtr PolygonNode::getElementByPos(const DPoint & pos)
@@ -112,66 +112,6 @@ NodePtr PolygonNode::getElementByPos(const DPoint & pos)
     } else {
         return NodePtr();
     }
-}
-
-int PolygonNode::getNumVertexes()
-{
-    int numPts = getNumDifferentPts(m_Pts);
-    if (numPts < 3) {
-        return 0;
-    }
-    int numVerts;
-    switch(m_LineJoin) {
-        case LJ_MITER:
-            numVerts = 2*numPts+2;
-            break;
-        case LJ_BEVEL:
-            numVerts = 3*numPts+2;
-            break;
-        default:
-            numVerts = 0;
-            AVG_ASSERT(false);
-    }
-    return numVerts;
-}
-
-int PolygonNode::getNumIndexes()
-{
-    int numPts = getNumDifferentPts(m_Pts);
-    if (numPts < 3) {
-        return 0;
-    }
-    int numIndexes;
-    switch(m_LineJoin) {
-        case LJ_MITER:
-            numIndexes = 6*numPts;
-            break;
-        case LJ_BEVEL:
-            numIndexes = 9*numPts;
-            break;
-        default:
-            numIndexes = 0;
-            AVG_ASSERT(false);
-    }
-    return numIndexes;
-}
-
-int PolygonNode::getNumFillVertexes()
-{
-    int numPts = getNumDifferentPts(m_Pts);
-    if (numPts < 3) {
-        return 0;
-    }
-    return m_Pts.size();
-}
-
-int PolygonNode::getNumFillIndexes()
-{
-    int numPts = getNumDifferentPts(m_Pts);
-    if (numPts < 3) {
-        return 0;
-    }
-    return (m_Pts.size()-2)*3;
 }
 
 void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

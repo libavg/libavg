@@ -79,7 +79,7 @@ void MeshNode::setVertexCoords(const vector<DPoint>& coords)
 {
     isValid(coords);
     m_VertexCoords = coords;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const vector<DPoint>& MeshNode::getTexCoords() const
@@ -91,7 +91,7 @@ void MeshNode::setTexCoords(const vector<DPoint>& coords)
 {
     isValid(coords);
     m_TexCoords = coords;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const vector<IntTriple>& MeshNode::getTriangles() const
@@ -119,18 +119,7 @@ void MeshNode::setTriangles(const vector<IntTriple>& triangles)
         }
     }   
     m_Triangles = triangles;
-    setDrawNeeded(true);
-}
-
-int MeshNode::getNumVertexes()
-{
-    return m_VertexCoords.size();
-}
-
-int MeshNode::getNumIndexes()
-{
-    int numTriangles = m_Triangles.size()*3;
-    return numTriangles;
+    setDrawNeeded();
 }
 
 void MeshNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

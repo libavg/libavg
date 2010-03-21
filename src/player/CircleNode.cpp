@@ -61,7 +61,7 @@ const DPoint& CircleNode::getPos() const
 void CircleNode::setPos(const DPoint& pt) 
 {
     m_Pos = pt;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double CircleNode::getR() const 
@@ -75,7 +75,7 @@ void CircleNode::setR(double r)
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
     }
     m_Radius = r;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 double CircleNode::getTexCoord1() const
@@ -86,7 +86,7 @@ double CircleNode::getTexCoord1() const
 void CircleNode::setTexCoord1(double tc)
 {
     m_TC1 = tc;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double CircleNode::getTexCoord2() const
@@ -97,7 +97,7 @@ double CircleNode::getTexCoord2() const
 void CircleNode::setTexCoord2(double tc)
 {
     m_TC2 = tc;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 NodePtr CircleNode::getElementByPos(const DPoint & pos)
@@ -108,26 +108,6 @@ NodePtr CircleNode::getElementByPos(const DPoint & pos)
     } else {
         return NodePtr();
     }
-}
-
-int CircleNode::getNumVertexes()
-{
-    return (getNumCircumferencePoints()+1)*2;
-}
-
-int CircleNode::getNumIndexes()
-{
-    return getNumCircumferencePoints()*6;
-}
-
-int CircleNode::getNumFillVertexes()
-{
-    return (getNumCircumferencePoints()+1)+1;
-}
-
-int CircleNode::getNumFillIndexes()
-{
-    return getNumCircumferencePoints()*3;
 }
 
 void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

@@ -49,8 +49,6 @@ class AVG_API LineNode : public VectorNode
         double getTexCoord2() const;
         void setTexCoord2(double tc);
 
-        virtual int getNumVertexes();
-        virtual int getNumIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:

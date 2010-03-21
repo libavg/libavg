@@ -61,7 +61,7 @@ const DPoint& LineNode::getPos1() const
 void LineNode::setPos1(const DPoint& pt) 
 {
     m_P1 = pt;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 const DPoint& LineNode::getPos2() const 
@@ -72,7 +72,7 @@ const DPoint& LineNode::getPos2() const
 void LineNode::setPos2(const DPoint& pt) 
 {
     m_P2 = pt;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double LineNode::getTexCoord1() const
@@ -83,7 +83,7 @@ double LineNode::getTexCoord1() const
 void LineNode::setTexCoord1(double tc)
 {
     m_TC1 = tc;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double LineNode::getTexCoord2() const
@@ -94,17 +94,7 @@ double LineNode::getTexCoord2() const
 void LineNode::setTexCoord2(double tc)
 {
     m_TC2 = tc;
-    setDrawNeeded(false);
-}
-
-int LineNode::getNumVertexes()
-{
-    return 4;
-}
-
-int LineNode::getNumIndexes()
-{
-    return 6;
+    setDrawNeeded();
 }
 
 void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

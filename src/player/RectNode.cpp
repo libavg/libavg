@@ -70,7 +70,7 @@ void RectNode::setPos(const DPoint& pt)
     m_Rect.tl = pt;
     m_Rect.setWidth(w);
     m_Rect.setHeight(h);
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 DPoint RectNode::getSize() const 
@@ -82,7 +82,7 @@ void RectNode::setSize(const DPoint& pt)
 {
     m_Rect.setWidth(pt.x);
     m_Rect.setHeight(pt.y);
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 const vector<double>& RectNode::getTexCoords() const
@@ -97,7 +97,7 @@ void RectNode::setTexCoords(const vector<double>& coords)
                 "Number of texture coordinates for a rectangle must be 5."));
     }
     m_TexCoords = coords;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double RectNode::getAngle() const
@@ -108,7 +108,7 @@ double RectNode::getAngle() const
 void RectNode::setAngle(double angle)
 {
     m_Angle = fmod(angle, 2*PI);
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 NodePtr RectNode::getElementByPos(const DPoint & pos)
@@ -122,26 +122,6 @@ NodePtr RectNode::getElementByPos(const DPoint & pos)
     } else {
         return NodePtr();
     }
-}
-
-int RectNode::getNumVertexes()
-{
-    return (4+1)*2;
-}
-
-int RectNode::getNumIndexes()
-{
-    return 4*6;
-}
-
-int RectNode::getNumFillVertexes()
-{
-    return 4;
-}
-
-int RectNode::getNumFillIndexes()
-{
-    return 6;
 }
 
 void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

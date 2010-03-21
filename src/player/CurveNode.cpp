@@ -67,7 +67,7 @@ const DPoint& CurveNode::getPos1() const
 void CurveNode::setPos1(const DPoint& pt) 
 {
     m_P1 = pt;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const DPoint& CurveNode::getPos2() const 
@@ -78,7 +78,7 @@ const DPoint& CurveNode::getPos2() const
 void CurveNode::setPos2(const DPoint& pt) 
 {
     m_P2 = pt;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const DPoint& CurveNode::getPos3() const 
@@ -89,7 +89,7 @@ const DPoint& CurveNode::getPos3() const
 void CurveNode::setPos3(const DPoint& pt) 
 {
     m_P3 = pt;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 const DPoint& CurveNode::getPos4() const 
@@ -100,7 +100,7 @@ const DPoint& CurveNode::getPos4() const
 void CurveNode::setPos4(const DPoint& pt) 
 {
     m_P4 = pt;
-    setDrawNeeded(true);
+    setDrawNeeded();
 }
 
 double CurveNode::getTexCoord1() const
@@ -111,7 +111,7 @@ double CurveNode::getTexCoord1() const
 void CurveNode::setTexCoord1(double tc)
 {
     m_TC1 = tc;
-    setDrawNeeded(false);
+    setDrawNeeded();
 }
 
 double CurveNode::getTexCoord2() const
@@ -122,17 +122,7 @@ double CurveNode::getTexCoord2() const
 void CurveNode::setTexCoord2(double tc)
 {
     m_TC2 = tc;
-    setDrawNeeded(false);
-}
-
-int CurveNode::getNumVertexes()
-{
-    return (getCurveLen()+1)*2;
-}
-
-int CurveNode::getNumIndexes()
-{
-    return (getCurveLen())*2*3;
+    setDrawNeeded();
 }
 
 void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

@@ -49,8 +49,6 @@ class AVG_API PolyLineNode : public VectorNode
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
 
-        virtual int getNumVertexes();
-        virtual int getNumIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
