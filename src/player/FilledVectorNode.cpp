@@ -149,9 +149,6 @@ void FilledVectorNode::preRender()
     double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     VertexArrayPtr pFillVA;
     pFillVA = m_pFillShape->getVertexArray();
-    if (hasVASizeChanged()) {
-        pFillVA->changeSize(getNumFillVertexes(), getNumFillIndexes());
-    }
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
         pFillVA->reset();
         Pixel32 color = getFillColorVal();

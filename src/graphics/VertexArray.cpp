@@ -36,14 +36,11 @@ namespace avg {
 thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLVertexBufferIDs;
 thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLIndexBufferIDs;
 
-VertexArray::VertexArray(int numVerts, int numIndexes, int reserveVerts, 
-        int reserveIndexes)
-    : m_NumVerts(numVerts),
-      m_NumIndexes(numIndexes),
+VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
+    : m_NumVerts(0),
+      m_NumIndexes(0),
       m_ReserveVerts(reserveVerts),
       m_ReserveIndexes(reserveIndexes),
-      m_CurVert(0),
-      m_CurIndex(0),
       m_bDataChanged(true)
 {
     if (m_ReserveVerts < 10) {
@@ -51,12 +48,6 @@ VertexArray::VertexArray(int numVerts, int numIndexes, int reserveVerts,
     }
     if (m_ReserveIndexes < 20) {
         m_ReserveIndexes = 20;
-    }
-    if (m_NumVerts > m_ReserveVerts) {
-        m_ReserveVerts = m_NumVerts;
-    }
-    if (m_NumIndexes > m_ReserveIndexes) {
-        m_ReserveIndexes = m_NumIndexes;
     }
     m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned int[m_ReserveIndexes];
@@ -95,15 +86,17 @@ VertexArray::~VertexArray()
 void VertexArray::appendPos(const DPoint& pos, 
         const DPoint& texPos, const Pixel32& color)
 {
-    AVG_ASSERT(m_CurVert < m_NumVerts);
-    T2V3C4Vertex* pVertex = &(m_pVertexData[m_CurVert]);
+    if (m_NumVerts >= m_ReserveVerts-1) {
+        grow();
+    }
+    T2V3C4Vertex* pVertex = &(m_pVertexData[m_NumVerts]);
     if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
             pVertex->m_Pos[1] != (GLfloat)pos.y ||
             pVertex->m_Tex[0] != (GLfloat)texPos.x || 
             pVertex->m_Tex[1] != (GLfloat)texPos.y ||
             pVertex->m_Color != color)
     {
-        T2V3C4Vertex* pVertex = &m_pVertexData[m_CurVert];
+        T2V3C4Vertex* pVertex = &m_pVertexData[m_NumVerts];
         pVertex->m_Pos[0] = (GLfloat)pos.x;
         pVertex->m_Pos[1] = (GLfloat)pos.y;
         pVertex->m_Pos[2] = 0.0;
@@ -112,26 +105,32 @@ void VertexArray::appendPos(const DPoint& pos,
         pVertex->m_Color = color;
         m_bDataChanged = true;
     }
-    m_CurVert++;
+    m_NumVerts++;
 }
 
 void VertexArray::appendTriIndexes(int v0, int v1, int v2)
 {
-    m_pIndexData[m_CurIndex] = v0;
-    m_pIndexData[m_CurIndex+1] = v1;
-    m_pIndexData[m_CurIndex+2] = v2;
-    m_CurIndex+=3;
+    if (m_NumIndexes >= m_ReserveIndexes-3) {
+        grow();
+    }
+    m_pIndexData[m_NumIndexes] = v0;
+    m_pIndexData[m_NumIndexes+1] = v1;
+    m_pIndexData[m_NumIndexes+2] = v2;
+    m_NumIndexes += 3;
 }
 
 void VertexArray::appendQuadIndexes(int v0, int v1, int v2, int v3)
 {
-    m_pIndexData[m_CurIndex] = v0;
-    m_pIndexData[m_CurIndex+1] = v1;
-    m_pIndexData[m_CurIndex+2] = v2;
-    m_pIndexData[m_CurIndex+3] = v1;
-    m_pIndexData[m_CurIndex+4] = v2;
-    m_pIndexData[m_CurIndex+5] = v3;
-    m_CurIndex+=6;
+    if (m_NumIndexes >= m_ReserveIndexes-6) {
+        grow();
+    }
+    m_pIndexData[m_NumIndexes] = v0;
+    m_pIndexData[m_NumIndexes+1] = v1;
+    m_pIndexData[m_NumIndexes+2] = v2;
+    m_pIndexData[m_NumIndexes+3] = v1;
+    m_pIndexData[m_NumIndexes+4] = v2;
+    m_pIndexData[m_NumIndexes+5] = v3;
+    m_NumIndexes += 6;
 }
 
 void VertexArray::addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, 
@@ -146,51 +145,14 @@ void VertexArray::addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2,
     appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
 
-void VertexArray::changeSize(int numVerts, int numIndexes)
-{
-    if ((numVerts < 3 && numVerts != 0) || (numIndexes < 3 && numIndexes != 0)) {
-        cerr << "numVerts: " << numVerts << ", numIndexes: " << numIndexes << endl;
-        AVG_ASSERT (false);
-    }
-        
-    bool bNewBuffer = false;
-    m_NumVerts = numVerts;
-    m_NumIndexes = numIndexes;
-    if (m_NumVerts > m_ReserveVerts) {
-        m_ReserveVerts = int(m_ReserveVerts*1.5);
-        if (m_ReserveVerts < m_NumVerts) {
-            m_ReserveVerts = m_NumVerts;
-        }
-        delete[] m_pVertexData;
-        m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
-        bNewBuffer = true;
-    }
-    if (m_NumIndexes > m_ReserveIndexes) {
-        m_ReserveIndexes = int(m_ReserveIndexes*1.5);
-        if (m_ReserveIndexes < m_NumIndexes) {
-            m_ReserveIndexes = m_NumIndexes;
-        }
-        delete[] m_pIndexData;
-        m_pIndexData = new unsigned int[m_ReserveIndexes];
-        bNewBuffer = true;
-    }
-    m_CurVert = 0;
-    m_CurIndex = 0;
-    if (bNewBuffer) {
-        setBufferSize();
-    }
-    m_bDataChanged = true;
-}
-
 void VertexArray::reset()
 {
-    m_CurVert = 0;
-    m_CurIndex = 0;
+    m_NumVerts = 0;
+    m_NumIndexes = 0;
 }
 
 void VertexArray::update()
 {
-//    cerr << (void*)this << "VertexArray::update m_NumVerts=" << m_NumVerts << ", m_NumIndexes=" << m_NumIndexes << ", m_CurVert=" << m_CurVert << ", m_CurIndex=" << m_CurIndex << endl;
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
         glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumVerts*sizeof(T2V3C4Vertex),
@@ -217,18 +179,46 @@ void VertexArray::draw()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    glDrawElements(GL_TRIANGLES, m_CurIndex, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_NumIndexes, GL_UNSIGNED_INT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw():2");
 }
 
 int VertexArray::getCurVert() const
 {
-    return m_CurVert;
+    return m_NumVerts;
 }
 
 int VertexArray::getCurIndex() const
 {
-    return m_CurIndex;
+    return m_NumIndexes;
+}
+
+void VertexArray::grow()
+{
+    if (m_NumVerts >= m_ReserveVerts-1) {
+        int oldReserveVerts = m_ReserveVerts;
+        m_ReserveVerts = int(m_ReserveVerts*1.5);
+        if (m_ReserveVerts < m_NumVerts) {
+            m_ReserveVerts = m_NumVerts;
+        }
+        T2V3C4Vertex* pVertexData = m_pVertexData;
+        m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
+        memcpy(m_pVertexData, pVertexData, sizeof(T2V3C4Vertex)*oldReserveVerts);
+        delete[] pVertexData;
+    }
+    if (m_NumIndexes >= m_ReserveIndexes-6) {
+        int oldReserveIndexes = m_ReserveIndexes;
+        m_ReserveIndexes = int(m_ReserveIndexes*1.5);
+        if (m_ReserveIndexes < m_NumIndexes) {
+            m_ReserveIndexes = m_NumIndexes;
+        }
+        unsigned int * pIndexData = m_pIndexData;
+        m_pIndexData = new unsigned int[m_ReserveIndexes];
+        memcpy(m_pIndexData, pIndexData, sizeof(unsigned int)*oldReserveIndexes);
+        delete[] pIndexData;
+    }
+    setBufferSize();
+    m_bDataChanged = true;
 }
 
 void VertexArray::setBufferSize() 

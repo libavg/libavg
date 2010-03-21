@@ -40,8 +40,7 @@ struct T2V3C4Vertex {
 
 class AVG_API VertexArray {
 public:
-    VertexArray(int numVerts, int numIndexes, int reserveVerts = 0, 
-            int reserveIndexes = 0);
+    VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
     virtual ~VertexArray();
 
     virtual void appendPos(const DPoint& pos, 
@@ -50,7 +49,6 @@ public:
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
     void addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, double width,
             double TC1=0, double TC2=1);
-    virtual void changeSize(int numVerts, int numIndexes);
     void reset();
 
     void update();
@@ -64,14 +62,13 @@ public:
     static void deleteBufferCache();
 
 private:
+    void grow();
     void setBufferSize();
 
     int m_NumVerts;
     int m_NumIndexes;
     int m_ReserveVerts;
     int m_ReserveIndexes;
-    int m_CurVert;
-    int m_CurIndex;
     T2V3C4Vertex * m_pVertexData;
     unsigned int * m_pIndexData;
 

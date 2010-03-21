@@ -60,7 +60,7 @@ void Shape::setBitmap(const Bitmap* pBmp)
     if (m_pImage->getState() == Image::GPU) {
         m_pSurface->downloadTexture();
         if (prevState != Image::GPU) {
-            m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
+            m_pVertexArray = VertexArrayPtr(new VertexArray(100, 100));
         }
     }
 }
@@ -72,7 +72,7 @@ void Shape::moveToGPU(SDLDisplayEngine* pEngine)
     if (m_pImage->getState() == Image::GPU) {
         m_pSurface->downloadTexture();
     }
-    m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
+    m_pVertexArray = VertexArrayPtr(new VertexArray(100, 100));
 }
 
 void Shape::moveToCPU()

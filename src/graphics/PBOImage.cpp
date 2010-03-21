@@ -71,7 +71,7 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.
-    m_pVertexes = new VertexArray(4, 6);
+    m_pVertexes = new VertexArray();
     m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, 1));
     m_pVertexes->appendPos(DPoint(0, m_Size.y), DPoint(0, 0));
     m_pVertexes->appendPos(DPoint(m_Size.x, m_Size.y), DPoint(1, 0));

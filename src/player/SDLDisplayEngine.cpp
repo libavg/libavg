@@ -373,7 +373,6 @@ void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown)
         Shape * pShape = new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
         pShape->moveToGPU(this);
         VertexArrayPtr pVA = pShape->getVertexArray();
-        pVA->changeSize(8000, 8000);  // Breaks at 1000 nodes.
         pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
         if (pVA->getCurVert() != 0) {
             pVA->update();

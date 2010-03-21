@@ -149,7 +149,6 @@ void VectorNode::preRender()
     VertexArrayPtr pVA = m_pShape->getVertexArray();
     if (m_bVASizeChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
-        pVA->changeSize(getNumVertexes(), getNumIndexes());
         m_bVASizeChanged = false;
     }
     {
