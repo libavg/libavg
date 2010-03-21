@@ -30,7 +30,7 @@ class OffscreenTestCase(AVGTestCase):
     
     def testSceneBasics(self):
         def createScene(sceneName, x):
-            scene = self.__createOffscreenScene(sceneName)
+            scene = self.__createOffscreenScene(sceneName, False)
             scene.getElementByID("test1").x = x
             self.node = avg.ImageNode(parent=Player.getRootNode())
             self.node.href="scene:"+sceneName
@@ -77,7 +77,7 @@ class OffscreenTestCase(AVGTestCase):
             self.node.size = (80, 60)
 
         self.loadEmptyScene()
-        self.__createOffscreenScene("testscene")
+        self.__createOffscreenScene("testscene", False)
         self.node = avg.ImageNode(parent=Player.getRootNode())
         self.node.href="scene:testscene"
         self.start(None,
@@ -107,13 +107,8 @@ class OffscreenTestCase(AVGTestCase):
 
         mainScene = self.loadEmptyScene()
         self.assert_(mainScene == Player.getMainScene())
-        offscreenScene = Player.loadSceneString("""
-            <?xml version="1.0"?>
-            <scene id="testscene" width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png"/>
-            </scene>
-        """)
-        self.assert_(offscreenScene == Player.getScene("testscene"))
+        offscreenScene = self.__createOffscreenScene("offscreenscene", False)
+        self.assert_(offscreenScene == Player.getScene("offscreenscene"))
         self.assert_(offscreenScene.getElementByID("test1").href == "rgb24-65x65.png")
         self.assert_(offscreenScene.getElementByID("missingnode") == None)
         self.assertException(Player.screenshot())
@@ -133,12 +128,7 @@ class OffscreenTestCase(AVGTestCase):
             self.node.size = (80, 60)
 
         mainScene = self.loadEmptyScene()
-        offscreenScene = Player.loadSceneString("""
-            <?xml version="1.0"?>
-            <scene id="offscreenscene" width="160" height="120" handleevents="true">
-                <image id="test1" href="rgb24-65x65.png"/>
-            </scene>
-        """)
+        offscreenScene = self.__createOffscreenScene("offscreenscene", True)
         self.node = avg.ImageNode(parent=Player.getRootNode(), 
                 href="scene:offscreenscene")
         offscreenImage = offscreenScene.getElementByID("test1")
@@ -166,13 +156,16 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                 ))
 
-    def __createOffscreenScene(self, sceneName):
+    def testOffscreenEventCapture(self):
+        pass 
+
+    def __createOffscreenScene(self, sceneName, handleEvents):
         return Player.loadSceneString("""
             <?xml version="1.0"?>
-            <scene id="%s" width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
+            <scene id="%s" width="160" height="120" handleevents="%s">
+                <image id="test1" href="rgb24-65x65.png"/>
             </scene>
-        """%(sceneName))
+        """%(sceneName, str(handleEvents)))
 
 
 def offscreenTestSuite(tests):
