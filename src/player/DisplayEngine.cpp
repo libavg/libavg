@@ -56,6 +56,8 @@ void DisplayEngine::initRender()
     m_bInitialized = true;
     if (m_VBRate != 0) {
         setVBlankRate(m_VBRate);
+    } else {
+        setFramerate(m_Framerate);
     }
 }
 
@@ -85,7 +87,6 @@ void DisplayEngine::deinitRender()
 void DisplayEngine::setFramerate(double rate)
 {
     if (rate != 0 && m_bInitialized) {
-        // TODO: Is this nessesary?
         initVBlank(0);
     }
     m_Framerate = rate;
