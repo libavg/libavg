@@ -27,34 +27,20 @@
 
 namespace avg {
 
-class AVG_API MainScene: public Scene, IEventSink
+class AVGNode;
+typedef boost::shared_ptr<AVGNode> AVGNodePtr;
+
+class AVG_API MainScene: public Scene
 {
     public:
         MainScene(Player * pPlayer, NodePtr pRootNode);
         virtual ~MainScene();
-        virtual void initPlayback(DisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine, TestHelper* pTestHelper);
-
-        void addEventSource(IEventSource* pSource);
-        MouseEventPtr getMouseState() const;
-
+        
         AVGNodePtr getRootNode() const;
-        virtual void doFrame(bool bPythonAvailable);
-        virtual bool handleEvent(EventPtr pEvent);
         virtual BitmapPtr screenshot() const;
         virtual void render();
 
     private:
-        void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
-        void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
-
-        EventDispatcherPtr m_pEventDispatcher;
-        
-        MouseState m_MouseState;
-
-        // These are maps for each cursor id.
-        std::map<int, CursorStatePtr> m_pLastCursorStates;
 
 };
 

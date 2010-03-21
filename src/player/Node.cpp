@@ -240,12 +240,12 @@ void Node::releaseMouseEventCapture()
 
 void Node::setEventCapture(int cursorID) 
 {
-    m_pScene->setEventCapture(getThis(), cursorID);
+    Player::get()->setEventCapture(getThis(), cursorID);
 }
 
 void Node::releaseEventCapture(int cursorID) 
 {
-    m_pScene->releaseEventCapture(cursorID);
+    Player::get()->releaseEventCapture(cursorID);
 }
 
 void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)

@@ -408,14 +408,18 @@ void Player::initPlayback()
     }
     try {
         for (unsigned i=0; i<m_pScenes.size(); ++i) {
-            m_pScenes[i]->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+            m_pScenes[i]->initPlayback(m_pDisplayEngine, m_pAudioEngine);
         }
-        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine);
     } catch (Exception&) {
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
         throw;
     }
+    m_pEventDispatcher->addSource(m_pEventSource);
+    m_pEventDispatcher->addSource(m_pTestHelper);
+    m_pEventDispatcher->addSink(this);
+
     m_pDisplayEngine->initRender();
     m_bStopping = false;
     if (m_pTracker) {
@@ -480,6 +484,14 @@ void Player::setFakeFPS(double fps)
     }
 }
 
+void Player::addEventSource(IEventSource* pSource)
+{
+    if (!m_pEventDispatcher) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "You must use loadFile() before addEventSource().");
+    }
+    m_pEventDispatcher->addSource(pSource);
+}
 long long Player::getFrameTime()
 {
     return m_FrameTime;
@@ -517,7 +529,7 @@ TrackerEventSource * Player::addTracker()
     AVG_TRACE(Logger::CONFIG, "Got Camera " << pCamera->getDevice() << " from driver: " 
             << pCamera->getDriverName());
     m_pTracker = new TrackerEventSource(pCamera, Config, m_DP.m_Size, true);
-    m_pMainScene->addEventSource(m_pTracker);
+    addEventSource(m_pTracker);
     if (m_bIsPlaying) {
         m_pTracker->start();
     }
@@ -528,6 +540,29 @@ TrackerEventSource * Player::addTracker()
 TrackerEventSource * Player::getTracker()
 {
     return m_pTracker;
+}
+
+void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
+{
+    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
+                + pNode->getID() + "', but cursor already captured by '"
+                + it->second.lock()->getID() + "'.");
+    } else {
+        m_pEventCaptureNode[cursorID] = pNode;
+    }
+}
+
+void Player::releaseEventCapture(int cursorID)
+{
+    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE,
+                "releaseEventCapture called, but cursor not captured.");
+    } else {
+        m_pEventCaptureNode.erase(cursorID);
+    }
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -582,12 +617,7 @@ bool Player::clearInterval(int id)
 
 MouseEventPtr Player::getMouseState() const
 {
-    if (m_pMainScene) {
-        return m_pMainScene->getMouseState();
-    } else {
-        return MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-                IntPoint(0, 0), MouseEvent::NO_BUTTON, DPoint(0,0)));
-    }
+    return m_MouseState.getLastEvent();
 }
 
 void Player::setMousePos(const IntPoint& pos)
@@ -740,6 +770,57 @@ void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
     }
 }
 
+static ProfilingZone EventsProfilingZone("Dispatch events");
+
+bool Player::handleEvent(EventPtr pEvent)
+{
+    AVG_ASSERT(pEvent);
+  
+    PyObject * pEventHook = getEventHook();
+    if (pEventHook != Py_None) {
+        // If the catchall returns true, stop processing the event
+        if (boost::python::call<bool>(pEventHook, pEvent)) {
+            return true;
+        }
+    }
+    if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
+        m_MouseState.setEvent(pMouseEvent);
+        pMouseEvent->setLastDownPos(m_MouseState.getLastDownPos());
+    }
+    
+    if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
+        if (pEvent->getType() == Event::CURSOROUT || 
+                pEvent->getType() == Event::CURSOROVER)
+        {
+            pEvent->trace();
+            pEvent->getElement()->handleEvent(pEvent);
+        } else {
+            handleCursorEvent(pCursorEvent);
+        }
+    }
+    else if (KeyEventPtr pKeyEvent = boost::dynamic_pointer_cast<KeyEvent>(pEvent))
+    {
+        pEvent->trace();
+        getRootNode()->handleEvent(pKeyEvent);
+        if (getStopOnEscape() && pEvent->getType() == Event::KEYDOWN
+                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
+        {
+            stop();
+        }
+    } else {
+        switch(pEvent->getType()){
+            case Event::QUIT:
+                stop();
+                break;
+            default:
+                AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
+                break;
+        }
+    // Don't pass on any events.
+    }
+    return true; 
+}
+
 static ProfilingZone MainProfilingZone("Player - Total frame time");
 static ProfilingZone TimersProfilingZone("Player - handleTimers");
 
@@ -756,6 +837,11 @@ void Player::doFrame()
         {
             ScopeTimer Timer(TimersProfilingZone);
             handleTimers();
+        }
+        {
+            ScopeTimer Timer(EventsProfilingZone);
+            m_pEventDispatcher->dispatch();
+            sendFakeEvents();
         }
         for (unsigned i=0; i< m_pScenes.size(); ++i) {
             m_pScenes[i]->doFrame(m_bPythonAvailable);
@@ -856,6 +942,8 @@ void Player::initGraphics()
         m_GLConfig.log();
 
         m_pDisplayEngine = new SDLDisplayEngine();
+        m_pEventSource =
+            dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
     }
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
@@ -889,6 +977,7 @@ NodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue=0;
 
@@ -1045,7 +1134,7 @@ OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
     }
     m_pScenes.push_back(pScene);
     if (m_bIsPlaying) {
-        pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine, m_pTestHelper);
+        pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine);
     }
     return pScene;
 }
@@ -1058,6 +1147,130 @@ OffscreenScenePtr Player::findScene(const std::string& sID) const
         }
     }
     return OffscreenScenePtr();
+}
+
+void Player::sendFakeEvents()
+{
+    std::map<int, CursorStatePtr>::iterator it;
+    for (it=m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
+        CursorStatePtr state = it->second;
+        handleCursorEvent(state->getLastEvent(), true);
+    }
+}
+
+void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 
+        NodePtr pNode)
+{
+    if (pNode) {
+        EventPtr pNewEvent = pOtherEvent->cloneAs(Type);
+        pNewEvent->setElement(pNode);
+        m_pEventDispatcher->sendEvent(pNewEvent);
+    }
+}
+
+void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+{
+    DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
+    int cursorID = pEvent->getCursorID();
+    // Find all nodes under the cursor.
+    vector<NodeWeakPtr> pCursorNodes = m_pMainScene->getElementsByPos(pos);
+
+    // Determine the nodes the event should be sent to.
+    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    bool bIsCapturing = false;
+    if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
+        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+        if (pEventCaptureNode.expired()) {
+            m_pEventCaptureNode.erase(cursorID);
+        } else {
+            pDestNodes = pEventCaptureNode.lock()->getParentChain();
+        }
+    } 
+
+    vector<NodeWeakPtr> pLastCursorNodes;
+    {
+        map<int, CursorStatePtr>::iterator it;
+        it = m_pLastCursorStates.find(cursorID);
+        if (it != m_pLastCursorStates.end()) {
+            pLastCursorNodes = it->second->getNodes();
+        }
+    }
+
+    // Send out events.
+    vector<NodeWeakPtr>::const_iterator itLast;
+    vector<NodeWeakPtr>::iterator itCur;
+    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
+        NodePtr pLastNode = itLast->lock();
+        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+            if (itCur->lock() == pLastNode) {
+                break;
+            }
+        }
+        if (itCur == pCursorNodes.end()) {
+            if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
+                sendOver(pEvent, Event::CURSOROUT, pLastNode);
+            }
+        }
+    } 
+
+    // Send over events.
+    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+        NodePtr pCurNode = itCur->lock();
+        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
+                ++itLast) 
+        {
+            if (itLast->lock() == pCurNode) {
+                break;
+            }
+        }
+        if (itLast == pLastCursorNodes.end()) {
+            if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
+                sendOver(pEvent, Event::CURSOROVER, pCurNode);
+            }
+        }
+    } 
+
+    if (!bOnlyCheckCursorOver) {
+        // Iterate through the nodes and send the event to all of them.
+        vector<NodeWeakPtr>::iterator it;
+        for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
+            NodePtr pNode = (*it).lock();
+            if (pNode) {
+                CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
+                        pEvent->cloneAs(pEvent->getType()));
+                pNodeEvent->setElement(pNode);
+                if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                    pNodeEvent->trace();
+                }
+                if (pNode->handleEvent(pNodeEvent) == true) {
+                    // stop bubbling
+                    break;
+                }
+            }
+        }
+    }
+    if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
+        // Cursor has disappeared: send out events.
+        if (bIsCapturing) {
+            NodePtr pNode = pDestNodes.begin()->lock();
+            sendOver(pEvent, Event::CURSOROUT, pNode);
+        } else {
+            vector<NodeWeakPtr>::iterator it;
+            for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
+                NodePtr pNode = it->lock();
+                sendOver(pEvent, Event::CURSOROUT, pNode);
+            } 
+        }
+        m_pLastCursorStates.erase(cursorID);
+    } else {
+        // Update list of nodes under cursor
+        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
+            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
+        } else {
+            m_pLastCursorStates[cursorID] =
+                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
+        }
+    }
 }
 
 void Player::handleTimers()
@@ -1144,6 +1357,8 @@ void Player::cleanup()
         delete *it;
     }
     m_PendingTimeouts.clear();
+    m_pEventCaptureNode.clear();
+    m_pLastCursorStates.clear();
     Profiler::get().dumpStatistics();
     if (m_pMainScene) {
         m_pMainScene->stopPlayback();
@@ -1166,6 +1381,8 @@ void Player::cleanup()
     if (m_pAudioEngine) {
         m_pAudioEngine->teardown();
     }
+    m_pEventDispatcher = EventDispatcherPtr();
+    m_MouseState = MouseState();
     
     m_FrameTime = 0;
     m_bIsPlaying = false;

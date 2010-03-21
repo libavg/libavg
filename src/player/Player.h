@@ -29,6 +29,12 @@
 #include "MouseEvent.h"
 #include "DisplayParams.h"
 #include "GLConfig.h"
+#include "IEventSink.h"
+#include "EventDispatcher.h"
+#include "KeyEvent.h"
+#include "MouseEvent.h"
+#include "CursorState.h"
+#include "MouseState.h"
 
 #include "../audio/AudioParams.h"
 
@@ -56,7 +62,7 @@ typedef boost::shared_ptr<Scene> ScenePtr;
 typedef boost::shared_ptr<MainScene> MainScenePtr;
 typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
 
-class AVG_API Player
+class AVG_API Player: IEventSink
 {
     public:
         Player();
@@ -98,15 +104,20 @@ class AVG_API Player
         
         NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString(const std::string& sXML);
-        TrackerEventSource * addTracker();
-        TrackerEventSource * getTracker();
+        
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
 
-        EventPtr getCurEvent() const;
+        void addEventSource(IEventSource* pSource);
         MouseEventPtr getMouseState() const;
+        TrackerEventSource * addTracker();
+        TrackerEventSource * getTracker();
+        void setEventCapture(NodePtr pNode, int cursorID);
+        void releaseEventCapture(int cursorID);
+
+        EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
         BitmapPtr screenshot();
@@ -148,6 +159,8 @@ class AVG_API Player
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
+        virtual bool handleEvent(EventPtr pEvent);
+        
     private:
         void initConfig();
         void initGraphics();
@@ -164,10 +177,15 @@ class AVG_API Player
         OffscreenScenePtr registerOffscreenScene(NodePtr pNode);
         OffscreenScenePtr findScene(const std::string& sID) const;
 
+        void sendFakeEvents();
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
+        void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
+
         MainScenePtr m_pMainScene;
 
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
+        IEventSource * m_pEventSource;
         TestHelper * m_pTestHelper;
        
         bool m_bAudioEnabled;
@@ -208,12 +226,18 @@ class AVG_API Player
 
         bool m_bPythonAvailable;
 
-        // Offscreen Scene support
         std::vector<OffscreenScenePtr> m_pScenes;
 
         static Player * s_pPlayer;
         friend void deletePlayer();
         
+        EventDispatcherPtr m_pEventDispatcher;
+        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
+        
+        MouseState m_MouseState;
+
+        // These are maps for each cursor id.
+        std::map<int, CursorStatePtr> m_pLastCursorStates;
         PyObject * m_EventHookPyFunc;
 };
 

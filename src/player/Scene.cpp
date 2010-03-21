@@ -52,8 +52,7 @@ Scene::~Scene()
 {
 }
 
-void Scene::initPlayback(DisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
-        TestHelper* pTestHelper)
+void Scene::initPlayback(DisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     m_pRootNode->setRenderingEngines(m_pDisplayEngine, pAudioEngine);
@@ -113,29 +112,6 @@ void Scene::removeNodeID(const std::string& id)
             cerr << "removeNodeID(\"" << id << "\") failed." << endl;
             AVG_ASSERT(false);
         }
-    }
-}
-
-void Scene::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
-{
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
-                + pNode->getID() + "', but cursor already captured by '"
-                + it->second.lock()->getID() + "'.");
-    } else {
-        m_pEventCaptureNode[cursorID] = pNode;
-    }
-}
-
-void Scene::releaseEventCapture(int cursorID)
-{
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE,
-                "releaseEventCapture called, but cursor not captured.");
-    } else {
-        m_pEventCaptureNode.erase(cursorID);
     }
 }
 

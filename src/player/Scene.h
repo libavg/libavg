@@ -23,12 +23,6 @@
 #define _Scene_H_
 
 #include "../api.h"
-#include "IEventSink.h"
-#include "EventDispatcher.h"
-#include "KeyEvent.h"
-#include "MouseEvent.h"
-#include "CursorState.h"
-#include "MouseState.h"
 
 #include "../base/IPlaybackEndListener.h"
 #include "../base/IFrameEndListener.h"
@@ -46,6 +40,8 @@ namespace avg {
 class Player;
 class Node;
 class SceneNode;
+class AudioEngine;
+class DisplayEngine;
 class SDLDisplayEngine;
 class TestHelper;
 
@@ -59,12 +55,9 @@ class AVG_API Scene
         Scene(Player * pPlayer, NodePtr pRootNode);
         virtual ~Scene();
         virtual void initPlayback(DisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine, TestHelper* pTestHelper);
+                AudioEngine* pAudioEngine);
         virtual void stopPlayback();
        
-        void setEventCapture(NodePtr pNode, int cursorID);
-        void releaseEventCapture(int cursorID);
-
         SceneNodePtr getRootNode() const;
         NodePtr getElementByID(const std::string& id);
         void registerNode(NodePtr pNode);
@@ -83,6 +76,8 @@ class AVG_API Scene
 
         virtual void render() = 0;
         
+        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+
         bool operator ==(const Scene& other) const;
         bool operator !=(const Scene& other) const;
         long getHash() const;
@@ -90,8 +85,6 @@ class AVG_API Scene
     protected:
         Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
-        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
-        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
     private:
         Player * m_pPlayer;

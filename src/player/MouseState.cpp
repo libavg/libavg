@@ -28,8 +28,8 @@ using namespace std;
 namespace avg {
     MouseState::MouseState()
         : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-                IntPoint(0, 0), MouseEvent::NO_BUTTON, DPoint(0,0))),
-          m_LastDownPos(0,0)
+                IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1))),
+          m_LastDownPos(-1, -1)
     {
     }
 

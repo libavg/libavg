@@ -51,9 +51,9 @@ OffscreenScene::~OffscreenScene()
 }
 
 void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine, TestHelper* pTestHelper)
+        AudioEngine* pAudioEngine)
 {
-    Scene::initPlayback(pDisplayEngine, pAudioEngine, pTestHelper);
+    Scene::initPlayback(pDisplayEngine, pAudioEngine);
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
