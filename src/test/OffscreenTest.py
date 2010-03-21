@@ -76,10 +76,7 @@ class OffscreenTestCase(AVGTestCase):
         def setSize():
             self.node.size = (80, 60)
 
-        self.loadEmptyScene()
-        self.__createOffscreenScene("testscene", False)
-        self.node = avg.ImageNode(parent=Player.getRootNode())
-        self.node.href="scene:testscene"
+        mainScene, offscreenScene = self.__setupScene(False)
         self.start(None,
                 (setSize,
                  lambda: self.compareImage("testSceneResize", False)
@@ -127,10 +124,7 @@ class OffscreenTestCase(AVGTestCase):
             self.node.pos = (80, 60)
             self.node.size = (80, 60)
 
-        mainScene = self.loadEmptyScene()
-        offscreenScene = self.__createOffscreenScene("offscreenscene", True)
-        self.node = avg.ImageNode(parent=Player.getRootNode(), 
-                href="scene:offscreenscene")
+        mainScene, offscreenScene = self.__setupScene(True)
         offscreenImage = offscreenScene.getElementByID("test1")
         offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown);
         helper = Player.getTestHelper()
@@ -157,7 +151,14 @@ class OffscreenTestCase(AVGTestCase):
                 ))
 
     def testOffscreenEventCapture(self):
-        pass 
+        pass
+
+    def __setupScene(self, handleEvents):
+        mainScene = self.loadEmptyScene()
+        offscreenScene = self.__createOffscreenScene("offscreenscene", handleEvents)
+        self.node = avg.ImageNode(parent=Player.getRootNode(), 
+                href="scene:offscreenscene")
+        return (mainScene, offscreenScene)
 
     def __createOffscreenScene(self, sceneName, handleEvents):
         return Player.loadSceneString("""
