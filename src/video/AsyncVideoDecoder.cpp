@@ -243,7 +243,7 @@ double AsyncVideoDecoder::getVolume() const
 void AsyncVideoDecoder::setVolume(double Volume)
 {
     m_Volume = Volume;
-    if (m_VideoInfo.m_bHasAudio && m_pACmdQ) {
+    if (m_State != CLOSED && m_VideoInfo.m_bHasAudio && m_pACmdQ) {
         m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::setVolume, _1, Volume));
     }
 }
