@@ -41,19 +41,11 @@ g_log = avg.Logger.get()
 
 class Graph():
     def __init__(self, graph,getValue):
-        self._getValue = getValue
-
-        self._values = []
-        self._xSkip = 2
-        self._lastCurUsage = 0
-        self._maxFrameTime = 0
-        
+        self._getValue = getValue    
+        self._xSkip = 2     
         self._memGraphStartTime = g_player.getFrameTime()
         self._curUsage = 0
-        self._usage = [0]
-        self._maxUsage = [0]
-        self._minutesUsage = [0]
-        self._minutesMaxUsage = [0]
+         
         self._rootNode = g_player.getRootNode()
         size = avg.Point2D(self._rootNode.width-20, self._rootNode.height/6)
         
@@ -79,7 +71,6 @@ class Graph():
         self.__graphText.text = graph
 
         self._setup()
-        self._sampleNum = 0
         avg.fadeIn(self._node, 300)
         
     def _setup(self):
@@ -94,38 +85,50 @@ class Graph():
         avg.LinearAnim(self._node, "opacity", 300, 1, 0, None, kill).start()
         g_player.clearInterval(self._interval)
         self._interval = None
-
-    
-        
+     
 class MemGraph(Graph):
     def _setup(self):
         self._interval = g_player.setInterval(1000, self._nextMemSample)
-
+        self._memSampleNum = 0
+        self._usage = [0]
+        self._maxUsage = [0]
+        self._minutesUsage = [0]
+        self._minutesMaxUsage = [0]
+        
     def _nextMemSample(self):
         curUsage = self._getValue()
         self._usage.append(curUsage)
         maxUsage = self._maxUsage[-1]
+        
         if curUsage>maxUsage:
             maxUsage = curUsage
             lastMaxChangeTime = time.time()
             self._textNode1.text = ("Last increase in maximum: "
-                    +time.strftime("%H:%M:%S", time.localtime(lastMaxChangeTime)))
+                    +time.strftime("%d.%m.%Y %H:%M:%S", time.localtime(lastMaxChangeTime)))
         self._maxUsage.append(maxUsage)
-        self._sampleNum += 1
-        if self._sampleNum % 60 == 0:
+        self._memSampleNum  += 1
+        
+        if self._memSampleNum  % 60 == 0:
             lastMinuteAverage = sum(self._usage[-60:])/60
             self._minutesUsage.append(lastMinuteAverage)
             self._minutesMaxUsage.append(maxUsage)
-
-        if self._sampleNum < 60*60:
+            
+        if self._memSampleNum  < 60*60:
             self._plotLine(self._usage, self._lineNode, maxUsage)
-            self._plotLine(self._maxUsage, self._maxLineNode, maxUsage)
-        else:
+            self._plotLine(self._maxUsage, self._maxLineNode, maxUsage)              
+        else:             
             self._plotLine(self._minutesUsage, self._lineNode, maxUsage)
             self._plotLine(self._minutesMaxUsage, self._maxLineNode, maxUsage)
+            
         self._textNode0.text = ("Max. memory usage: %(size).2f MB"
                 %{"size":maxUsage/(1024*1024.)})
-
+        
+        if self._memSampleNum % 3600 == 0:
+            del self._usage[0:3600]
+            del self._maxUsage[0:3599]
+            if self._memSampleNum == 604800:
+                self._memSampleNum == 0
+                       
     def _plotLine(self, data, node, maxy):
         yfactor = self._graphSize.y/float(maxy)
         xfactor = self._graphSize.x/float(len(data)-1)
@@ -134,8 +137,13 @@ class MemGraph(Graph):
 
 class FrameRateGraph(Graph):
     def _setup(self):
-        self._interval = g_player.setOnFrameHandler(self._nextFrameTimeSample)         
-           
+        self._interval = g_player.setOnFrameHandler(self._nextFrameTimeSample) 
+        self._sampleNum = 0        
+        self._memSampleNum = 0
+        self._lastCurUsage = 0
+        self._maxFrameTime = 0
+        self._values = []
+        
     def _nextFrameTimeSample(self):       
         val = self._frameTimeSample()
         self._appendValue(val)
@@ -158,7 +166,7 @@ class FrameRateGraph(Graph):
             lastMaxChangeTime = time.time()     
             self._maxFrameTime = diff
             self._textNode0.text = ("Max FrameTime: %.f" %self._maxFrameTime + " ms" + 
-                "   Time: " +time.strftime("%H:%M:%S", time.localtime(lastMaxChangeTime)))
+                "   Time: " +time.strftime("%d.%m.%Y %H:%M:%S", time.localtime(lastMaxChangeTime)))
         if diff>self._node.y-1:
             y = self._node.y-1
             
