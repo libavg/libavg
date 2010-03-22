@@ -1,68 +1,68 @@
 {
    GL_Errors_0
    Memcheck:Cond
-   obj:/usr/lib/libGLcore.so.180.11
+   obj:/usr/lib/libGLcore.so.180.*
 }
 {
    GL_Errors_1
    Memcheck:Param
    ioctl(generic)
-   obj:/lib/ld-2.8.90.so
-   obj:/usr/lib/libGLcore.so.180.11
+   obj:/lib/ld-2.8.*.so
+   obj:/usr/lib/libGLcore.so.180.*
 }
 {
    GL_Leak_0
    Memcheck:Leak
    fun:malloc
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_1
    Memcheck:Leak
    fun:malloc
    fun:realloc
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_2
    Memcheck:Leak
    fun:calloc
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_3
    Memcheck:Leak
    fun:malloc
    fun:_XReply
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_4
    Memcheck:Leak
    fun:malloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_5
    Memcheck:Leak
    fun:realloc
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_6
    Memcheck:Leak
    fun:calloc
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
    fun:_ZN3avg17OGLImagingContextC1ERKNS_5PointIiEE
    fun:main
 }
@@ -70,72 +70,66 @@
    GL_Leak_7
    Memcheck:Leak
    fun:malloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_8
    Memcheck:Leak
    fun:malloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    GL_Leak_9
    Memcheck:Leak
    fun:calloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    <insert a suppression name here>
    Memcheck:Leak
    fun:calloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
-   obj:/usr/lib/libGL.so.180.11
+   obj:/usr/lib/libGL.so.180.*
 }
 {
    getProcAddress
    Memcheck:Addr4
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libc-2.8.90.so
-   fun:_dl_sym
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
    fun:dlsym
    fun:_ZN3avg14getProcAddressERKSs
    fun:_ZN3avg19getFuzzyProcAddressEPKc
@@ -398,14 +392,14 @@
    libasound_0
    Memcheck:Leak
    fun:malloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlopen
    fun:snd_dlopen
    obj:/usr/lib/libasound.so.2.0.0
@@ -429,11 +423,11 @@
    SDL_Unload_0
    Memcheck:Leak
    fun:malloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlclose
    fun:SDL_UnloadObject
 }
@@ -441,12 +435,12 @@
    SDL_Unload_1
    Memcheck:Leak
    fun:malloc
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
-   obj:/lib/ld-2.8.90.so
-   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/tls/i686/cmov/libdl-2.*.so
    fun:dlclose
    fun:SDL_UnloadObject
 }
@@ -518,7 +512,7 @@
    GraphicsMagick
    Memcheck:Param
    write(buf)
-   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.*.so
    fun:_IO_do_write
    fun:_IO_file_close_it
    fun:fclose
@@ -589,7 +583,7 @@
    libdc1394_6
    Memcheck:Param
    write(buf)
-   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.*.so
    fun:raw1394_read
    fun:platform_camera_read
 }
@@ -607,7 +601,7 @@
    libdc1394_8
    Memcheck:Param
    write(buf)
-   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.*.so
    fun:raw1394_write
    fun:platform_camera_write
    fun:dc1394_set_control_registers
@@ -646,7 +640,7 @@
    libdc1394_13
    Memcheck:Param
    ioctl(generic)
-   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.*.so
    fun:dc1394_capture_setup
 }
 {
