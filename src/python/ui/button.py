@@ -34,7 +34,6 @@ class Button(libavg.DivNode):
                  pressHandler = None, clickHandler = None, **kwargs):
         libavg.DivNode.__init__(self, **kwargs)
         self.crop = False
-        #self.elementoutlinecolor = 'FF0000'
         
         self.__upNode       = upNode
         self.__downNode     = downNode
@@ -82,7 +81,7 @@ class Button(libavg.DivNode):
         self.__changeState(state)
     
     def isChecked(self):
-        return self.__hasBitState(Button.STATE_DOWN)
+        return bool(self.__hasBitState(Button.STATE_DOWN))
     
     def setEnabled(self, isEnabled):
         state = Button.STATE_DISABLED if not(isEnabled) else Button.STATE_UP
@@ -96,6 +95,12 @@ class Button(libavg.DivNode):
     def isEnabled(self):
         return not(self.__hasBitState(Button.STATE_DISABLED))
     
+    def setDebug(self, debug):
+        self.elementoutlinecolor = 'FF0000' if debug else ''
+    
+    def isDebug(self):
+        return self.elementoutlinecolor != ''
+    
     def __setup(self):
         self.appendChild(self.__upNode)
         self.appendChild(self.__downNode)
@@ -107,7 +112,7 @@ class Button(libavg.DivNode):
         self.__activateEventHandler()
         self.__updateSize()
         self.__updateNodesVisibility()
-        
+
     def __setupReleaseHandlerTemplateMethod(self, handler):
         libavg.DivNode.setEventHandler(self, libavg.CURSORUP, libavg.MOUSE | libavg.TOUCH, handler)
 
@@ -210,7 +215,6 @@ class Button(libavg.DivNode):
         if  numberOfOverCursors == 0:
             return
         
-        self.__customClickHandler(event)
         newState = Button.STATE_UP
         if self.isCheckable():
             self.__isToggled = not self.__isToggled
@@ -224,6 +228,8 @@ class Button(libavg.DivNode):
 
         if len(self.__overCursorIds):
             pass
+        
+        self.__customClickHandler(event)
         
     def __overHandlerTemplateMethod(self, event):
         if event.cursorid not in self.__overCursorIds:
