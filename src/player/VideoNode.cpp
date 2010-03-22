@@ -303,8 +303,11 @@ void VideoNode::checkReload()
 void VideoNode::onFrameEnd()
 {
     if (m_bEOFPending) {
-        onEOF();
+        // If the VideoNode is unlinked by python in onEOF, the following line prevents
+        // the object from being deleted until we return from this function.
+        NodePtr pTempThis = getThis();         
         m_bEOFPending = false;
+        onEOF();
     }
 }
 
