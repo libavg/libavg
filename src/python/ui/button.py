@@ -84,8 +84,8 @@ class Button(libavg.DivNode):
     def isChecked(self):
         return self.__hasBitState(Button.STATE_DOWN)
     
-    def setDisabled(self, isDisabled):
-        state = Button.STATE_DISABLED if isDisabled else Button.STATE_UP
+    def setEnabled(self, isEnabled):
+        state = Button.STATE_DISABLED if not(isEnabled) else Button.STATE_UP
         self.__changeState(state)
         
         if self.__hasBitState(Button.STATE_DISABLED):
@@ -93,8 +93,8 @@ class Button(libavg.DivNode):
         else:
             self.__activateEventHandler()
         
-    def isDisabled(self):
-        return self.__hasBitState(Button.STATE_DISABLED)
+    def isEnabled(self):
+        return not(self.__hasBitState(Button.STATE_DISABLED))
     
     def __setup(self):
         self.appendChild(self.__upNode)
@@ -188,8 +188,6 @@ class Button(libavg.DivNode):
         if self.__getNumberOfCapturedCursors() > 1:
             return
   
-        # g_log.trace(g_log.APP, 'Press handler called')
-        
         self.__customPressHandler(event)
         self.__changeState(Button.STATE_DOWN)
     
@@ -204,18 +202,13 @@ class Button(libavg.DivNode):
             self.__overCursorIds.remove(event.cursorid)
             
         if numberOfCapturedCursors > 1:
-            #g_log.trace(g_log.APP, 'number of captured cursors is > 1')
             return
 
         if  numberOfCapturedCursors == 0:
-            #g_log.trace(g_log.APP, 'number of captured cursors are 0')
             return
 
         if  numberOfOverCursors == 0:
-            #g_log.trace(g_log.APP, 'number of over cursors is 0')
             return
-            
-        # g_log.trace(g_log.APP, 'Click handler called')
         
         self.__customClickHandler(event)
         newState = Button.STATE_UP
@@ -227,11 +220,9 @@ class Button(libavg.DivNode):
         self.__changeState(newState)
         
         if self.__hasCapturedCursor():
-            #g_log.trace(g_log.APP, 'Invalid state: Captured Cursor != 0')
             pass
 
         if len(self.__overCursorIds):
-            #g_log.trace(g_log.APP, 'Invalid state: Over cursor != 0')
             pass
         
     def __overHandlerTemplateMethod(self, event):
@@ -241,12 +232,9 @@ class Button(libavg.DivNode):
         if self.__hasCapturedCursor() and len(self.__overCursorIds):
             self.__changeState(Button.STATE_DOWN)
             
-        #g_log.trace(g_log.APP, 'over handler called')
         self.__toggleBitState(Button.STATE_OVER)
         
     def __outHandlerTemplateMethod(self, event):
-        #g_log.trace(g_log.APP, 'out handler called')
-
         if event.cursorid in self.__overCursorIds:
             self.__overCursorIds.remove(event.cursorid)
         
