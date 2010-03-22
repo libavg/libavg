@@ -543,7 +543,8 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
                 // advancing movie time until the decoder has caught up.
                 // The movie time also stays still while waiting for a seek to complete.
                 double framerate = Player::get()->getEffectiveFramerate();
-                if (framerate != 0) {
+                long long frameTime = Player::get()->getFrameTime();
+                if (framerate != 0 && m_StartTime != frameTime) {
                     m_PauseTime += (long long)(1000/framerate);
                     long long curMovieTime = 
                             Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
