@@ -319,6 +319,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     int audioBufferSize = pBuffer->getNumBytes();
 
     int bufferLeftToFill = audioBufferSize;
+    VideoMsgPtr pMsg;
     while (bufferLeftToFill > 0) {
         while (m_AudioMsgSize > 0 && bufferLeftToFill > 0) {
             int copyBytes = min(bufferLeftToFill, m_AudioMsgSize);
@@ -332,7 +333,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                     (pBuffer->getFrameSize() * pBuffer->getRate()));
         }
         if (bufferLeftToFill != 0) {
-            VideoMsgPtr pMsg = m_pAMsgQ->pop(false);
+            pMsg = m_pAMsgQ->pop(false);
             if (pMsg) {
                 if (pMsg->getType() == VideoMsg::END_OF_FILE) {
                     m_bAudioEOF = true;
