@@ -7,7 +7,7 @@
    GL_Errors_1
    Memcheck:Param
    ioctl(generic)
-   obj:/lib/ld-2.8.*.so
+   obj:/lib/ld-2.*.so
    obj:/usr/lib/libGLcore.so.180.*
 }
 {
