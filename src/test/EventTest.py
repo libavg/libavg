@@ -530,6 +530,42 @@ class EventTestCase(AVGTestCase):
                         (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
                                 False, False, False, 10, 10, 0),
                 )))
+    
+    def testEventHook(self):
+        def resetState():
+            self.ehookMouseEvent = False
+            self.ehookKeyboardEvent = False
+
+        def cleanup():
+            resetState()
+            Player.setEventHook(None)
+            
+        def handleEvent(event):
+            if isinstance(event, avg.MouseEvent) and event.source == avg.MOUSE:
+                if event.type == avg.CURSORDOWN:
+                    self.ehookMouseEvent = True
+            elif isinstance(event, avg.KeyEvent):
+                self.ehookKeyboardEvent = True
+            else:
+                self.assert_(False)
+            
+        self.loadEmptyScene()
+        resetState()
+
+        Player.setEventHook(handleEvent)
+        self.start(None,
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
+                        False, False, False, 10, 10, 0),
+                lambda: self.assert_(self.ehookMouseEvent),
+                lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
+                lambda: self.assert_(self.ehookKeyboardEvent),
+                cleanup,
+                lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
+                        False, False, False, 10, 10, 0),
+                lambda: self.assert_(not self.ehookMouseEvent),
+                lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
+                lambda: self.assert_(not self.ehookKeyboardEvent),
+            ))
 
 def eventTestSuite(tests):
     availableTests = (
@@ -543,7 +579,8 @@ def eventTestSuite(tests):
             "testChangingHandlers",
             "testEventCapture",
             "testMouseOver",
-            "testEventErr"
+            "testEventErr",
+            "testEventHook",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 
