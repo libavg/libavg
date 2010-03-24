@@ -323,10 +323,12 @@ int VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void VideoNode::changeVideoState(VideoState NewVideoState)
 {
+    long long CurTime = Player::get()->getFrameTime(); 
     if (m_VideoState == NewVideoState) {
         return;
     }
     if (m_VideoState == Unloaded) {
+        m_PauseStartTime = CurTime;
         open();
     }
     if (NewVideoState == Unloaded) {
@@ -340,6 +342,12 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
         if (NewVideoState == Paused) {
             m_PauseStartTime = CurTime;
         } else if (NewVideoState == Playing && m_VideoState == Paused) {
+/*            
+            cerr << "Play after pause:" << endl;
+            cerr << "  getFrameTime()=" << CurTime << endl;
+            cerr << "  m_PauseStartTime=" << m_PauseStartTime << endl;
+            cerr << "  offset=" << (1000.0/m_pDecoder->getFPS()) << endl;
+*/
             m_PauseTime += (CurTime-m_PauseStartTime
                     - (long long)(1000.0/m_pDecoder->getFPS()));
         }
@@ -446,6 +454,12 @@ long long VideoNode::getNextFrameTime() const
         case Paused:
             return m_PauseStartTime-m_StartTime;
         case Playing:
+            if (Player::get()->getFrameTime()-m_StartTime-m_PauseTime < 0) {
+                cerr << "getNextFrameTime < 0" << endl;
+                cerr << "getFrameTime(): " << Player::get()->getFrameTime() << endl;
+                cerr << "m_StartTime: " << m_StartTime << endl;
+                cerr << "m_PauseTime: " << m_PauseTime << endl;
+            }
             return Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
         default:
             AVG_ASSERT(false);
@@ -535,17 +549,23 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
             calcMaskPos();
             break;
         case FA_STILL_DECODING:
-            m_FramesPlayed++;
-            m_FramesTooLate++;
-            m_FramesInRowTooLate++;
-            if (m_FramesInRowTooLate > 3 || (m_bSeekPending && m_FramesPlayed != 1)) {
-                // Heuristic: If we've missed more than 3 frames in a row, we stop
-                // advancing movie time until the decoder has caught up.
-                // The movie time also stays still while waiting for a seek to complete.
+            {
+                m_FramesPlayed++;
+                m_FramesTooLate++;
+                m_FramesInRowTooLate++;
                 double framerate = Player::get()->getEffectiveFramerate();
                 long long frameTime = Player::get()->getFrameTime();
-                if (framerate != 0 && m_StartTime != frameTime) {
-                    m_PauseTime += (long long)(1000/framerate);
+                if (m_VideoState == Playing) {
+                    if (m_FramesInRowTooLate > 3 && framerate != 0) {
+                        // Heuristic: If we've missed more than 3 frames in a row, we stop
+                        // advancing movie time until the decoder has caught up.
+                        m_PauseTime += (long long)(1000/framerate);
+                    }
+                    if (m_bSeekPending) {
+                        // The movie time also stays still while waiting for a seek to 
+                        // complete.
+                        m_PauseTime = frameTime-m_PauseStartTime;
+                    }
                     long long curMovieTime = 
                             Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
                     if (curMovieTime < 0) {
