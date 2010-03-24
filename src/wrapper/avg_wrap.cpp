@@ -68,6 +68,7 @@ BOOST_PYTHON_MODULE(avg)
     register_exception_translator<Exception>(exception_translator);
 #endif
     register_ptr_to_python<DivNodePtr>();
+    register_ptr_to_python<SceneNodePtr>();
     register_ptr_to_python<AVGNodePtr>();
     register_ptr_to_python<EventPtr>();
     register_ptr_to_python<MouseEventPtr>();

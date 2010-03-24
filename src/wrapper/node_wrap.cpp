@@ -33,6 +33,7 @@ void export_devices();
 #include "../base/Exception.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
+#include "../player/SceneNode.h"
 #include "../player/DivNode.h"
 #include "../player/PanoImageNode.h"
 #include "../player/SoundNode.h"
@@ -272,13 +273,16 @@ void export_node()
                 "in.\n")
     ;
 
-    class_<AVGNode, bases<DivNode> >("AVGNode",
-            "Root node of any avg tree. Defines the properties of the display and\n"
-            "handles key press events. The AVGNode's width and height define the\n"
+    class_<SceneNode, bases<DivNode> >("SceneNode",
+            "Root node of a scene graph.",
+            no_init);
+
+    class_<AVGNode, bases<SceneNode> >("AVGNode",
+            "Root node of an onscreen avg tree. Defines the properties of the display"
+            "and handles key press events. The AVGNode's width and height define the\n"
             "coordinate system for the display and are the default for the window\n"
             "size used (i.e. by default, the coordinate system is pixel-based.)\n",
             no_init)
-        .def("__init__", raw_constructor(createNode<avgNodeName>))
     ;
 
     class_<SoundNode, bases<AreaNode> >("SoundNode",

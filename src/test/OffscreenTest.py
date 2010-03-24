@@ -104,6 +104,7 @@ class OffscreenTestCase(AVGTestCase):
 
         mainScene = self.loadEmptyScene()
         self.assert_(mainScene == Player.getMainScene())
+        self.assert_(mainScene.getRootNode() == Player.getRootNode())
         offscreenScene = self.__createOffscreenScene("offscreenscene", False)
         self.assert_(offscreenScene == Player.getScene("offscreenscene"))
         self.assert_(offscreenScene.getElementByID("test1").href == "rgb24-65x65.png")
