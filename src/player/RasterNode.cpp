@@ -384,7 +384,7 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode)
         }
     }
 
-    m_pSurface->activate();
+    m_pSurface->activate(getMediaSize());
     m_pVertexes->draw();
     m_pSurface->deactivate();
 

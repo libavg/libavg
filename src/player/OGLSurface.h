@@ -46,7 +46,7 @@ public:
     virtual void create(const IntPoint& size, PixelFormat pf);
     void createMask(const IntPoint& size);
     virtual void destroy();
-    void activate() const;
+    void activate(const IntPoint& logicalSize = IntPoint(1,1)) const;
     void deactivate() const;
 
     BitmapPtr lockBmp(int i=0);

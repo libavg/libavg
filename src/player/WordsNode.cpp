@@ -105,7 +105,7 @@ NodeDefinition WordsNode::createDefinition()
 }
 
 WordsNode::WordsNode(const ArgList& Args)
-    : m_StringExtents(0,0),
+    : m_LogicalSize(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
       m_bFontChanged(true),
@@ -246,7 +246,7 @@ double WordsNode::getHeight()
 NodePtr WordsNode::getElementByPos(const DPoint & pos)
 {
     drawString();
-    DPoint relPos = pos-DPoint(m_PosOffset);
+    DPoint relPos = pos-DPoint(m_AlignOffset, 0);
     return AreaNode::getElementByPos(relPos);
 }
 
@@ -460,7 +460,7 @@ void WordsNode::drawString()
     }
     ScopeTimer Timer(DrawStringProfilingZone);
     if (m_sText.length() == 0) {
-        m_StringExtents = IntPoint(0,0);
+        m_LogicalSize = IntPoint(0,0);
     } else {
         if (m_bFontChanged) {
             if (m_pFontDescription) {
@@ -527,54 +527,59 @@ void WordsNode::drawString()
         pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
         AVG_ASSERT (logical_rect.width < 4096);
         AVG_ASSERT (logical_rect.height < 4096);
-//        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
-//                << ink_rect.width << ", " << ink_rect.height << endl;
-//        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
-//                << logical_rect.width << ", " << logical_rect.height << endl;
-        m_StringExtents.y = logical_rect.height+2;
+/*        
+        cerr << getID() << endl;
+        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
+                << ink_rect.width << ", " << ink_rect.height << endl;
+        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
+                << logical_rect.width << ", " << logical_rect.height << endl;
+        cerr << "User Size: " << getUserSize() << endl;
+*/        
+        IntPoint bmpSize;
+        bmpSize.y = ink_rect.height;
         if (getUserSize().x == 0) {
-            m_StringExtents.x = logical_rect.width;
-            if (m_Alignment == PANGO_ALIGN_LEFT) {
-                // This makes sure we have enough room for italic text.
-                // XXX: We should really do some calculations based on ink_rect here.
-                m_StringExtents.x += int(m_FontSize/6+1);
-            }
+            bmpSize.x = ink_rect.width;
         } else {
-            m_StringExtents.x = int(getUserSize().x);
+            // User-set paragraph width. Make bitmap a bit bigger to make sure
+            // nothing is cut off.
+            bmpSize.x = int(getUserSize().x);
         }
-        if (m_StringExtents.x == 0) {
-            m_StringExtents.x = 1;
+        if (bmpSize.x == 0) {
+            bmpSize.x = 1;
         }
-        if (m_StringExtents.y == 0) {
-            m_StringExtents.y = 1;
+        if (bmpSize.y == 0) {
+            bmpSize.y = 1;
         }
-//        cerr << "libavg Extents: " << m_StringExtents << endl;
+        m_LogicalSize.y = logical_rect.height;
+        m_LogicalSize.x = logical_rect.width;
         if (getState() == NS_CANRENDER) {
-            getSurface()->create(m_StringExtents, I8);
+            getSurface()->create(bmpSize, I8);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
             FilterFill<unsigned char>(0).applyInPlace(pBmp);
             FT_Bitmap bitmap;
-            bitmap.rows = m_StringExtents.y;
-            bitmap.width = m_StringExtents.x;
+            bitmap.rows = bmpSize.y;
+            bitmap.width = bmpSize.x;
             unsigned char * pLines = pBmp->getPixels();
             bitmap.pitch = pBmp->getStride();
             bitmap.buffer = pLines;
             bitmap.num_grays = 256;
             bitmap.pixel_mode = ft_pixel_mode_grays;
 
-            m_PosOffset = IntPoint(0,0);
-            if (ink_rect.y < 0) {
-                m_PosOffset.y = ink_rect.y;
-            }
-            if (ink_rect.x < 0) {
-                m_PosOffset.x = ink_rect.x;
-            }
-            pango_ft2_render_layout(&bitmap, m_pLayout, -m_PosOffset.x, -m_PosOffset.y);
-            if (m_Alignment == PANGO_ALIGN_CENTER) {
-                m_PosOffset.x -= m_StringExtents.x/2;
-            } else if (m_Alignment == PANGO_ALIGN_RIGHT) {
-                m_PosOffset.x -= m_StringExtents.x;
+            m_InkOffset = IntPoint(ink_rect.x-logical_rect.x, ink_rect.y-logical_rect.y);
+            pango_ft2_render_layout(&bitmap, m_pLayout, -ink_rect.x, -ink_rect.y);
+            switch (m_Alignment) {
+                    case PANGO_ALIGN_LEFT:
+                        m_AlignOffset = 0;
+                        break;
+                    case PANGO_ALIGN_CENTER:
+                        m_AlignOffset = -logical_rect.width/2;
+                        break;
+                    case PANGO_ALIGN_RIGHT:
+                        m_AlignOffset = -logical_rect.width;
+                        break;
+                    default:
+                        AVG_ASSERT(false);
             }
 
             getSurface()->unlockBmps();
@@ -603,11 +608,13 @@ void WordsNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
-        if (m_PosOffset != IntPoint(0,0)) {
-            getDisplayEngine()->pushTransform(DPoint(m_PosOffset), 0, DPoint(0,0));
+        IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
+        if (offset != IntPoint(0,0)) {
+            getDisplayEngine()->pushTransform(DPoint(offset), 0, DPoint(0,0));
         }
-        blta8(DPoint(getMediaSize()), getEffectiveOpacity(), m_Color, getBlendMode());
-        if (m_PosOffset != IntPoint(0,0)) {
+        blta8(DPoint(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
+                getBlendMode());
+        if (offset != IntPoint(0,0)) {
             getDisplayEngine()->popTransform();
         }
     }
@@ -616,7 +623,7 @@ void WordsNode::render(const DRect& Rect)
 IntPoint WordsNode::getMediaSize()
 {
     drawString();
-    return m_StringExtents;
+    return m_LogicalSize;
 }
 
 const vector<string>& WordsNode::getFontFamilies()

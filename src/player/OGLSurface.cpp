@@ -101,7 +101,7 @@ void OGLSurface::destroy()
     m_pTextures[2] = OGLTexturePtr();
 }
 
-void OGLSurface::activate() const
+void OGLSurface::activate(const IntPoint& logicalSize) const
 {
     if (useShader()) {
         OGLShaderPtr pShader = m_pEngine->getShader();
@@ -140,7 +140,13 @@ void OGLSurface::activate() const
             glBindTexture(GL_TEXTURE_2D, m_pMaskTexture->getTexID());
             pShader->setUniformIntParam("maskTexture", 3);
             pShader->setUniformDPointParam("maskPos", m_Material.getMaskPos());
-            pShader->setUniformDPointParam("maskSize", m_Material.getMaskSize());
+            // maskScale is (1,1) for everything excepting words nodes.
+            DPoint maskScale(1,1);
+            if (logicalSize != IntPoint(0,0)) {
+                maskScale = DPoint((double)logicalSize.x/m_Size.x, 
+                        (double)logicalSize.y/m_Size.y);
+            }
+            pShader->setUniformDPointParam("maskSize", m_Material.getMaskSize()*maskScale);
         }
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
