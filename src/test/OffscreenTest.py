@@ -117,8 +117,12 @@ class OffscreenTestCase(AVGTestCase):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
 
+        def onMainDown(event):
+            self.__mainDownCalled = True
+
         def reset():
             self.__offscreenImageDownCalled = False
+            self.__mainDownCalled = False
 
         def setPos():
             self.node.pos = (80, 60)
@@ -126,9 +130,11 @@ class OffscreenTestCase(AVGTestCase):
 
         mainScene, offscreenScene = self.__setupScene(True)
         offscreenImage = offscreenScene.getElementByID("test1")
-        offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown);
+        offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown)
+        Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMainDown)
         helper = Player.getTestHelper()
         self.__offscreenImageDownCalled = False
+        self.__mainDownCalled = False
         self.start(None,
                 (lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         10, 10, 1),
@@ -145,9 +151,16 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         120, 65, 1),
                  lambda: self.assert_(not(self.__offscreenImageDownCalled)),
+                 reset,
                  lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         110, 65, 1),
-                 lambda: self.assert_(self.__offscreenImageDownCalled),
+                 lambda: self.assert_(self.__offscreenImageDownCalled and 
+                        not(self.__mainDownCalled)),
+                 reset,
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        1, 1, 1),
+                 lambda: self.assert_(not(self.__offscreenImageDownCalled) and 
+                        self.__mainDownCalled),
                 ))
 
     def testSceneEventCapture(self):
