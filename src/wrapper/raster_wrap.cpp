@@ -415,6 +415,9 @@ void export_raster()
                 "getGlyphSize(i)->pos\n"
                 "Returns the size of the glyph at byte index i in the layout.\n"
                 "The position is a Point2D, in pixels.\n")
+        .def("getNumLines", &WordsNode::getNumLines,
+                "getNumLines()\n"
+                "Returns the number of lines\n")        
         .def("getFontFamilies", make_function(&WordsNode::getFontFamilies, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFontFamilies")

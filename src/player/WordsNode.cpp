@@ -109,7 +109,8 @@ WordsNode::WordsNode(const ArgList& Args)
       m_pFontDescription(0),
       m_pLayout(0),
       m_bFontChanged(true),
-      m_bDrawNeeded(true)
+      m_bDrawNeeded(true),
+      m_Lines(0)
 {
     m_bParsedText = false;
 
@@ -380,6 +381,16 @@ DPoint WordsNode::getGlyphSize(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
     return DPoint(double(rect.width)/PANGO_SCALE, double(rect.height)/PANGO_SCALE);
+}
+
+int WordsNode::getNumLines()
+{
+    if(m_pLayout){
+        m_Lines = pango_layout_get_line_count(m_pLayout);
+    }else{
+        m_Lines = 0;
+    }
+    return m_Lines;
 }
 
 void WordsNode::setWrapMode(const string& sWrapMode)

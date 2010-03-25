@@ -97,6 +97,8 @@ class AVG_API WordsNode : public RasterNode
         DPoint getGlyphPos(int i);
         DPoint getGlyphSize(int i);
         virtual IntPoint getMediaSize();
+        
+        int getNumLines();
     
         static const std::vector<std::string>& getFontFamilies();
         static const std::vector<std::string>& getFontVariants(
@@ -129,6 +131,8 @@ class AVG_API WordsNode : public RasterNode
         bool m_bJustify;
         double m_LetterSpacing;
         bool m_bHint;
+        int m_Lines;
+        
 
         bool m_bParsedText;
         bool m_bRawTextMode;

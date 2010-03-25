@@ -523,6 +523,10 @@ class WordsTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testFontDir", True),
                 ))
+    
+    def testGetNumLines(self):
+        textNode = avg.WordsNode(text="paragraph 1<br/>paragraph 2<br/>paragraph 3")
+        self.assert_(textNode.getNumLines() == 3)
 
 def wordsTestSuite(tests):
     availableTests = (
@@ -542,6 +546,7 @@ def wordsTestSuite(tests):
             "testPositioning",
             "testInvalidColor",
             "testFontDir",
+            "testGetNumLines",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
 
