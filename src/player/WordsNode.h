@@ -131,9 +131,7 @@ class AVG_API WordsNode : public RasterNode
         bool m_bJustify;
         double m_LetterSpacing;
         bool m_bHint;
-        int m_Lines;
-        
-
+       
         bool m_bParsedText;
         bool m_bRawTextMode;
         IntPoint m_LogicalSize;
@@ -144,6 +142,7 @@ class AVG_API WordsNode : public RasterNode
 
         bool m_bFontChanged;
         bool m_bDrawNeeded;
+        int m_Lines;
 };
 
 }

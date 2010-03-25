@@ -385,6 +385,7 @@ DPoint WordsNode::getGlyphSize(int i)
 
 int WordsNode::getNumLines()
 {
+    drawString();
     if(m_pLayout){
         m_Lines = pango_layout_get_line_count(m_pLayout);
     }else{
