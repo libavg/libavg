@@ -225,6 +225,10 @@ void Player::setAudioOptions(int samplerate, int channels)
 
 ScenePtr Player::loadFile(const string& sFilename)
 {
+    if (m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Can't load a new main scene while the player is running.");
+    }
     NodePtr pNode = loadMainNodeFromFile(sFilename);
     if (m_pMainScene) {
         cleanup();
@@ -237,6 +241,10 @@ ScenePtr Player::loadFile(const string& sFilename)
 
 ScenePtr Player::loadString(const string& sAVG)
 {
+    if (m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Can't load a new main scene while the player is running.");
+    }
     if (m_pMainScene) {
         cleanup();
     }
