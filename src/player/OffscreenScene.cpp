@@ -84,8 +84,8 @@ void OffscreenScene::render()
 {
     m_pFBO->activate();
     getDisplayEngine()->render(getRootNode(), true);
-    m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
+    m_pFBO->deactivate();
     if (m_bUseMipmaps) {
         glBindTexture(GL_TEXTURE_2D, m_TexID);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
@@ -143,7 +143,7 @@ void OffscreenScene::createFBO(bool bUseMipmaps)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glTexImage2D()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::createFBO: glTexImage2D()");
 
     unsigned multiSampleSamples = 
             getDisplayEngine()->getOGLOptions().m_MultiSampleSamples;

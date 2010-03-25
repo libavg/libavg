@@ -78,8 +78,8 @@ void FBO::copyToDestTexture() const
 
 BitmapPtr FBO::getImage(int i) const
 {
-    copyToDestTexture();
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    copyToDestTexture();
     PixelFormat pf = m_pOutputPBO->getExtPF();
     IntPoint size = m_pOutputPBO->getSize();
     BitmapPtr pBmp(new Bitmap(size, pf));
@@ -130,9 +130,11 @@ void FBO::init()
         glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_ColorBuffer);
         glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER_EXT, m_MultisampleSamples,
                 GL_RGBA8, m_Size.x, m_Size.y);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: RenderbufferStorageMultisample");
         glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                 GL_RENDERBUFFER_EXT, m_ColorBuffer);
-        checkError();
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: FramebufferRenderbuffer");
+        checkError("init multisample");
         glproc::GenFramebuffers(1, &m_OutputFBO);
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
@@ -141,7 +143,7 @@ void FBO::init()
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: Multisample init");
     }
 
-    checkError();
+    checkError("init");
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 }
 
@@ -149,7 +151,7 @@ void FBO::activate() const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::activate: BindFramebuffer()");
-    checkError();
+    checkError("activate");
 }
 
 void FBO::deactivate() const
@@ -169,7 +171,7 @@ bool FBO::isMultisampleFBOSupported()
             queryOGLExtension("GL_EXT_framebuffer_blit");
 }
     
-void FBO::checkError() const
+void FBO::checkError(const string& sContext) const
 {
     GLenum status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
     string sErr;
@@ -211,7 +213,7 @@ void FBO::checkError() const
             sErr = "Unknown error";
             break;
     }
-    cerr << "Framebuffer error: " << sErr << endl;
+    cerr << "Framebuffer error (" << sContext << "): " << sErr << endl;
     AVG_ASSERT(false);
 }
 

@@ -72,6 +72,19 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.compareImage("testOffscreen3", False),
                 ))
 
+    def testSceneLoadAfterPlay(self):
+        def __createOffscreenScene():
+            offscreenScene = self.__createOffscreenScene("offscreenscene", False)
+            self.node = avg.ImageNode(parent=Player.getRootNode(), 
+                    href="scene:offscreenscene")
+    
+        self.loadEmptyScene()
+        self.start(None,
+                (
+                 __createOffscreenScene,
+                 lambda: self.compareImage("testOffscreen1", False),
+                ))
+
     def testSceneResize(self):
         def setSize():
             self.node.size = (80, 60)
@@ -199,6 +212,7 @@ class OffscreenTestCase(AVGTestCase):
 def offscreenTestSuite(tests):
     availableTests = (
             "testSceneBasics",
+            "testSceneLoadAfterPlay",
             "testSceneResize",
             "testSceneErrors",
             "testSceneAPI",

@@ -65,7 +65,7 @@ BitmapPtr MainScene::screenshot() const
 
 void MainScene::render()
 {
-    getDisplayEngine()->render(getRootNode(), false);
+    getDisplayEngine()->renderMain(getRootNode(), false);
 }
 
 }

@@ -380,6 +380,11 @@ void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown)
         }
         delete pShape;
     }
+}
+
+void SDLDisplayEngine::renderMain(SceneNodePtr pRootNode, bool bUpsideDown)
+{
+    render(pRootNode, bUpsideDown);
     frameWait();
     swapBuffers();
     checkJitter();

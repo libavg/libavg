@@ -52,7 +52,7 @@ public:
 
 private:
     void init();
-    void checkError() const;
+    void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
     PixelFormat m_PF;

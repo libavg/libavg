@@ -56,6 +56,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual int getKeyModifierState() const;
 
         virtual void render(SceneNodePtr pRootNode, bool bUpsideDown);
+        void renderMain(SceneNodePtr pRootNode, bool bUpsideDown);
         
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
