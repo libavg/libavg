@@ -230,6 +230,7 @@ ScenePtr Player::loadFile(const string& sFilename)
                 "Can't load a new main scene while the player is running.");
     }
     NodePtr pNode = loadMainNodeFromFile(sFilename);
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     if (m_pMainScene) {
         cleanup();
     }
@@ -250,6 +251,7 @@ ScenePtr Player::loadString(const string& sAVG)
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
     return m_pMainScene;
@@ -424,7 +426,7 @@ void Player::initPlayback()
         m_pAudioEngine = 0;
         throw;
     }
-    m_pEventDispatcher->addSource(m_pEventSource);
+    m_pEventDispatcher->addSource(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine));
     m_pEventDispatcher->addSource(m_pTestHelper);
     m_pEventDispatcher->addSink(this);
 
@@ -950,8 +952,6 @@ void Player::initGraphics()
         m_GLConfig.log();
 
         m_pDisplayEngine = new SDLDisplayEngine();
-        m_pEventSource =
-            dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
     }
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
@@ -985,7 +985,6 @@ NodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
-        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue=0;
 

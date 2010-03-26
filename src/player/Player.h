@@ -185,7 +185,6 @@ class AVG_API Player: IEventSink
 
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
-        IEventSource * m_pEventSource;
         TestHelper * m_pTestHelper;
        
         bool m_bAudioEnabled;
