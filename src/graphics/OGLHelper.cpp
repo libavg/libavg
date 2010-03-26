@@ -73,6 +73,7 @@ namespace glproc {
     PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
     PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
     PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
+    PFNGLRENDERBUFFERSTORAGEEXTPROC RenderbufferStorage;
     PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC RenderbufferStorageMultisample;
     PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
     PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
@@ -405,6 +406,8 @@ namespace glproc {
                 getFuzzyProcAddress("glGenRenderbuffers");
         BindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)
                 getFuzzyProcAddress("glBindRenderbuffer");
+        RenderbufferStorage= (PFNGLRENDERBUFFERSTORAGEEXTPROC)
+                getFuzzyProcAddress("glRenderbufferStorage");
         RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)
                 getFuzzyProcAddress("glRenderbufferStorageMultisample");
         FramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)

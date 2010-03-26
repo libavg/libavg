@@ -36,7 +36,7 @@ class AVG_API FBO
 {
 public:
     FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
-            unsigned multisampleSamples=1);
+            unsigned multisampleSamples=1, bool bUseDepthAndStencil=false);
     FBO(const IntPoint& size, PixelFormat pf, std::vector<unsigned> texIDs);
     virtual ~FBO();
 
@@ -49,6 +49,7 @@ public:
 
     static bool isFBOSupported();
     static bool isMultisampleFBOSupported();
+    static bool isPackedDepthStencilSupported();
 
 private:
     void init();
@@ -57,9 +58,12 @@ private:
     IntPoint m_Size;
     PixelFormat m_PF;
     unsigned m_MultisampleSamples;
+    bool m_bUsePackedDepthStencil;
+
     PBOImagePtr m_pOutputPBO;
     unsigned m_FBO;
     std::vector<unsigned> m_TexIDs;
+    unsigned m_StencilBuffer;
 
     // Multisample support
     unsigned m_ColorBuffer;

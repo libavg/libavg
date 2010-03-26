@@ -209,6 +209,21 @@ class OffscreenTestCase(AVGTestCase):
                 (renderScene,
                 ))
         
+    def testSceneCrop(self):
+        mainScene = self.loadEmptyScene()
+        scene = Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="testscene" width="160" height="120">
+                <div pos="(40, 30)" size="(80, 60)">
+                    <image id="test1" pos="(-32, -32)" href="rgb24-65x65.png"/>
+                </div>
+            </scene>
+        """)
+        node = avg.ImageNode(parent=Player.getRootNode(), 
+                href="scene:testscene")
+        self.start(None,
+                (lambda: self.compareImage("testSceneCrop", False),
+                ))
 
     def __setupScene(self, handleEvents):
         mainScene = self.loadEmptyScene()
@@ -236,6 +251,7 @@ def offscreenTestSuite(tests):
             "testSceneEvents",
             "testSceneEventCapture",
             "testSceneRender",
+            "testSceneCrop",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

@@ -70,6 +70,7 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
             createFBO(false);
         }
     }
+    glEnable(GL_STENCIL_TEST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
@@ -87,6 +88,7 @@ void OffscreenScene::render()
                 "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
     }
     m_pFBO->activate();
+    glStencilMask(~0); // I think this is only necessary because of a driver bug.
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
@@ -151,7 +153,7 @@ void OffscreenScene::createFBO(bool bUseMipmaps)
 
     unsigned multiSampleSamples = 
             getDisplayEngine()->getOGLOptions().m_MultiSampleSamples;
-    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, multiSampleSamples));
+    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, multiSampleSamples, true));
 }
 
 }

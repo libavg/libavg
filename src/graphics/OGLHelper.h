@@ -104,6 +104,7 @@ namespace glproc {
     extern AVG_API PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
     extern AVG_API PFNGLGENRENDERBUFFERSEXTPROC GenRenderbuffers;
     extern AVG_API PFNGLBINDRENDERBUFFEREXTPROC BindRenderbuffer;
+    extern AVG_API PFNGLRENDERBUFFERSTORAGEEXTPROC RenderbufferStorage;
     extern AVG_API PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC
             RenderbufferStorageMultisample;
     extern AVG_API PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;

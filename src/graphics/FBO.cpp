@@ -32,10 +32,11 @@ using namespace std;
 namespace avg {
 
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
-        unsigned multisampleSamples)
+        unsigned multisampleSamples, bool bUsePackedDepthStencil)
     : m_Size(size),
       m_PF(pf),
-      m_MultisampleSamples(multisampleSamples)
+      m_MultisampleSamples(multisampleSamples),
+      m_bUsePackedDepthStencil(bUsePackedDepthStencil)
 {
     m_TexIDs.push_back(texID);
     init();
@@ -61,6 +62,9 @@ FBO::~FBO()
     if (m_MultisampleSamples > 1) {
         glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
         glproc::DeleteFramebuffers(1, &m_OutputFBO);
+    }
+    if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
+        glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
     }
 }
 
@@ -110,6 +114,9 @@ unsigned FBO::getTexture() const
 
 void FBO::init()
 {
+    if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support GL_EXT_packed_depth_stencil.");
+    }
     m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true));
 
     glproc::GenFramebuffers(1, &m_FBO);
@@ -125,6 +132,16 @@ void FBO::init()
                     m_TexIDs[i], 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO: glFramebufferTexture2D()");
         }
+        if (m_bUsePackedDepthStencil) {
+            glproc::GenRenderbuffers(1, &m_StencilBuffer);
+            glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_StencilBuffer);
+            glproc::RenderbufferStorage(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL_EXT, 
+                    m_Size.x, m_Size.y);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+                    GL_RENDERBUFFER_EXT, m_StencilBuffer);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+                    GL_RENDERBUFFER_EXT, m_StencilBuffer);
+        }
     } else {
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_ColorBuffer);
@@ -134,6 +151,16 @@ void FBO::init()
         glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                 GL_RENDERBUFFER_EXT, m_ColorBuffer);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: FramebufferRenderbuffer");
+        if (m_bUsePackedDepthStencil) {
+            glproc::GenRenderbuffers(1, &m_StencilBuffer);
+            glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_StencilBuffer);
+            glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER_EXT, 
+                    m_MultisampleSamples, GL_DEPTH_STENCIL_EXT, m_Size.x, m_Size.y);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+                    GL_RENDERBUFFER_EXT, m_StencilBuffer);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+                    GL_RENDERBUFFER_EXT, m_StencilBuffer);
+        }
         checkError("init multisample");
         glproc::GenFramebuffers(1, &m_OutputFBO);
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
@@ -171,6 +198,11 @@ bool FBO::isMultisampleFBOSupported()
             queryOGLExtension("GL_EXT_framebuffer_blit");
 }
     
+bool FBO::isPackedDepthStencilSupported()
+{
+    return queryOGLExtension("GL_EXT_packed_depth_stencil");
+}
+
 void FBO::checkError(const string& sContext) const
 {
     GLenum status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
