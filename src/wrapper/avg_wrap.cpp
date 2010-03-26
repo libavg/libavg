@@ -447,9 +447,14 @@ BOOST_PYTHON_MODULE(avg)
                 "referenced in the href attribute of an image node.",
                 no_init)
         .def("getID", &OffscreenScene::getID,
-                "getID() -> id"
+                "getID() -> id\n"
                 "Returns the id of the scene. This is the same as"
                 "calling scene.getRootNode().getID().")
+        .def("render", &OffscreenScene::render,
+                "render() -> None"
+                "Forces a redraw of the offscreen scene. This makes sure that following "
+                "calls to screenshot() get a current version of the scene and is "
+                "otherwise unnecessary.")
         .add_property("handleevents", &OffscreenScene::getHandleEvents, 
                 "True if events that arrive at an image node that is displaying this"
                 "scene are routed to the offscreen scene (ro).")

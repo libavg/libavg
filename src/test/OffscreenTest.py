@@ -192,7 +192,24 @@ class OffscreenTestCase(AVGTestCase):
                         80, 10, 1),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                 ))
-                 
+                
+    def testSceneRender(self):
+        def renderScene():
+            scene = self.__createOffscreenScene("testscene", False)
+            scene.render()
+            bmp = scene.screenshot()
+            self.compareBitmapToFile(bmp, "testOffscreenScreenshot", False)
+            Player.deleteScene("testscene")
+            scene = None
+
+        mainScene = self.loadEmptyScene()
+        self.assertException(renderScene);
+        Player.deleteScene("testscene")
+        self.start(None,
+                (renderScene,
+                ))
+        
+
     def __setupScene(self, handleEvents):
         mainScene = self.loadEmptyScene()
         offscreenScene = self.__createOffscreenScene("offscreenscene", handleEvents)
@@ -218,6 +235,7 @@ def offscreenTestSuite(tests):
             "testSceneAPI",
             "testSceneEvents",
             "testSceneEventCapture",
+            "testSceneRender",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

@@ -82,6 +82,10 @@ void OffscreenScene::stopPlayback()
 
 void OffscreenScene::render()
 {
+    if (!isRunning()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
+    }
     m_pFBO->activate();
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->copyToDestTexture();
