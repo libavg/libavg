@@ -267,6 +267,10 @@ void export_node()
                 "Returns the index of the child given or -1 if childnode isn't a\n"
                 "child of the container. This function does a linear search through\n"
                 "the list of children until the child is found.")
+        .def("getEffectiveMediaDir", &DivNode::getEffectiveMediaDir,
+                "getEffectiveMediaDir() -> mediadir\n"
+                "Returns the nodes' effective mediadir by traversing the node\n"
+                "hierarchy up to the root node.")
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
                 "The directory that the media files for the children of this node are\n"
