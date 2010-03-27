@@ -88,7 +88,6 @@ void OffscreenScene::render()
                 "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
     }
     m_pFBO->activate();
-    glStencilMask(~0); // I think this is only necessary because of a driver bug.
     getDisplayEngine()->render(getRootNode(), true);
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
