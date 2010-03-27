@@ -143,6 +143,7 @@ void FBO::init()
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
         }
     } else {
+        glEnable(GL_MULTISAMPLE);
         glproc::GenRenderbuffers(1, &m_ColorBuffer);
         glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_ColorBuffer);
         glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER_EXT, m_MultisampleSamples,

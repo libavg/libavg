@@ -24,7 +24,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h\
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Scene.h MainScene.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenScene.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
-        Event.h KeyEvent.h PanoImageNode.h TestHelper.h SceneNode.h \
+        Event.h KeyEvent.h PanoImageNode.h TestHelper.h SceneNode.h OffscreenSceneNode.h\
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
         TouchEvent.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
@@ -64,7 +64,8 @@ libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp Node.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
-        DisplayEngine.cpp Region.cpp Scene.cpp SceneNode.cpp MainScene.cpp \
+        DisplayEngine.cpp Region.cpp Scene.cpp SceneNode.cpp OffscreenSceneNode.cpp \
+        MainScene.cpp \
         PanoImageNode.cpp WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \

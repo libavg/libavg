@@ -108,6 +108,7 @@ Player::Player()
 
     // Register all node types
     registerNodeType(AVGNode::createDefinition());
+    registerNodeType(OffscreenSceneNode::createDefinition());
     registerNodeType(SceneNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
     registerNodeType(ImageNode::createDefinition());
@@ -707,7 +708,7 @@ NodePtr Player::getElementByID(const std::string& id)
 AVGNodePtr Player::getRootNode()
 {
     if (m_pMainScene) {
-        return m_pMainScene->getRootNode();
+        return dynamic_pointer_cast<AVGNode>(m_pMainScene->getRootNode());
     } else {
         return AVGNodePtr();
     }

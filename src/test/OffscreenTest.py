@@ -225,6 +225,40 @@ class OffscreenTestCase(AVGTestCase):
                 (lambda: self.compareImage("testSceneCrop", False),
                 ))
 
+    def testSceneAlpha(self):
+        mainScene = self.loadEmptyScene()
+        scene = Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="testscene" width="80" height="120">
+                <image id="test1" href="rgb24alpha-64x64.png"/>
+            </scene>
+        """)
+        avg.RectNode(parent=Player.getRootNode(), fillcolor="FFFFFF", size=(160,48),
+                fillopacity=1)
+        node = avg.ImageNode(parent=Player.getRootNode(), 
+                href="scene:testscene")
+        avg.ImageNode(parent=Player.getRootNode(), x=64, href="rgb24alpha-64x64.png")
+        self.start(None,
+                (lambda: self.compareImage("testSceneAlpha", False),
+                ))
+
+
+    def testSceneMultisampling(self):
+        mainScene = self.loadEmptyScene()
+        scene = Player.loadSceneString("""
+            <?xml version="1.0"?>
+            <scene id="testscene" width="160" height="120" multisamplesamples="2">
+                <image id="test1" href="rgb24-65x65.png" angle="0.1"/>
+            </scene>
+        """)
+        self.assert_(scene.multisamplesamples == 2)
+        node = avg.ImageNode(parent=Player.getRootNode(), 
+                href="scene:testscene")
+        self.start(None,
+                (lambda: self.compareImage("testSceneMultisample", False),
+                ))
+        
+
     def __setupScene(self, handleEvents):
         mainScene = self.loadEmptyScene()
         offscreenScene = self.__createOffscreenScene("offscreenscene", handleEvents)
@@ -252,6 +286,8 @@ def offscreenTestSuite(tests):
             "testSceneEventCapture",
             "testSceneRender",
             "testSceneCrop",
+            "testSceneAlpha",
+            "testSceneMultisampling",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

@@ -27,16 +27,12 @@
 
 namespace avg {
 
-class AVGNode;
-typedef boost::shared_ptr<AVGNode> AVGNodePtr;
-
 class AVG_API MainScene: public Scene
 {
     public:
         MainScene(Player * pPlayer, NodePtr pRootNode);
         virtual ~MainScene();
         
-        AVGNodePtr getRootNode() const;
         virtual BitmapPtr screenshot() const;
         virtual void render();
 

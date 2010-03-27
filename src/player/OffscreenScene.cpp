@@ -88,7 +88,7 @@ void OffscreenScene::render()
                 "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
     }
     m_pFBO->activate();
-    getDisplayEngine()->render(getRootNode(), true);
+    getDisplayEngine()->render(getRootNode(), true, (getMultiSampleSamples() != 1));
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
     if (m_bUseMipmaps) {
@@ -128,7 +128,13 @@ BitmapPtr OffscreenScene::screenshot() const
 
 bool OffscreenScene::getHandleEvents() const
 {
-    return getRootNode()->getHandleEvents();
+    return dynamic_pointer_cast<OffscreenSceneNode>(getRootNode())->getHandleEvents();
+}
+
+int OffscreenScene::getMultiSampleSamples() const
+{
+    return dynamic_pointer_cast<OffscreenSceneNode>(
+            getRootNode())->getMultiSampleSamples();
 }
 
 void OffscreenScene::createFBO(bool bUseMipmaps)
@@ -150,9 +156,7 @@ void OffscreenScene::createFBO(bool bUseMipmaps)
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::createFBO: glTexImage2D()");
 
-    unsigned multiSampleSamples = 
-            getDisplayEngine()->getOGLOptions().m_MultiSampleSamples;
-    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, multiSampleSamples, true));
+    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, getMultiSampleSamples(), true));
 }
 
 }

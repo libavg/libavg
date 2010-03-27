@@ -75,7 +75,8 @@ class AVG_API RasterNode: public AreaNode
 
         virtual BitmapPtr getBitmap();
         
-        void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode);
+        void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode,
+                bool bPremultipliedAlpha = false);
         void blta8(const DPoint& DestSize, double opacity, 
                 const Pixel32& color, DisplayEngine::BlendMode Mode);
 
@@ -92,7 +93,8 @@ class AVG_API RasterNode: public AreaNode
                 const DPoint& size, const DPoint& mediaSize);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
-        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
+        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode,
+                bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);

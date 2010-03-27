@@ -279,7 +279,8 @@ void export_node()
 
     class_<SceneNode, bases<DivNode> >("SceneNode",
             "Root node of a scene graph.",
-            no_init);
+            no_init)
+    ;
 
     class_<AVGNode, bases<SceneNode> >("AVGNode",
             "Root node of an onscreen avg tree. Defines the properties of the display"

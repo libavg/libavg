@@ -55,8 +55,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
-        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown);
-        void renderMain(SceneNodePtr pRootNode, bool bUpsideDown);
+        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMultisample);
+        void renderMain(SceneNodePtr pRootNode);
         
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
@@ -83,7 +83,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         // OpenGL state setting.
         void enableTexture(bool bEnable);
         void enableGLColorArray(bool bEnable);
-        void setBlendMode(BlendMode mode);
+        void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
         
         int getOGLDestMode(PixelFormat pf);
         int getOGLSrcMode(PixelFormat pf);
@@ -142,6 +142,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bEnableTexture;
         bool m_bEnableGLColorArray;
         BlendMode m_BlendMode;
+        bool m_bPremultipliedAlpha;
 
         GLConfig m_GLConfig;
         

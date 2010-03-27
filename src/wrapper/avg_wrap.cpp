@@ -458,5 +458,8 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("handleevents", &OffscreenScene::getHandleEvents, 
                 "True if events that arrive at an image node that is displaying this"
                 "scene are routed to the offscreen scene (ro).")
+        .add_property("multisamplesamples", &OffscreenScene::getMultiSampleSamples,
+                "Number of samples per pixel to use for multisampling. Setting this to "
+                "1 disables multisampling.")
     ;
 }

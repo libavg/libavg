@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "Scene.h"
-#include "SceneNode.h"
+#include "OffscreenSceneNode.h"
 
 #include "../graphics/FBO.h"
 
@@ -44,6 +44,7 @@ class AVG_API OffscreenScene: public Scene
         virtual void render();
         virtual BitmapPtr screenshot() const;
         bool getHandleEvents() const;
+        int getMultiSampleSamples() const;
 
         std::string getID() const;
         bool isRunning() const;

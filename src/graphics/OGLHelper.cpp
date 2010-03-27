@@ -62,6 +62,8 @@ namespace glproc {
     PFNGLUNIFORM1FARBPROC Uniform1f;
     PFNGLUNIFORM2FARBPROC Uniform2f;
     PFNGLUNIFORM1FVARBPROC Uniform1fv;
+
+    PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
     PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
@@ -387,6 +389,9 @@ namespace glproc {
         Uniform1f = (PFNGLUNIFORM1FARBPROC)getFuzzyProcAddress("glUniform1f");
         Uniform2f = (PFNGLUNIFORM2FARBPROC)getFuzzyProcAddress("glUniform2f");
         Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
+        
+        BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)
+                getFuzzyProcAddress("glBlendFuncSeparate");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
         GenerateMipmap = (PFNGLGENERATEMIPMAPEXTPROC)getFuzzyProcAddress

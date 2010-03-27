@@ -114,7 +114,8 @@ void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getState() == Image::GPU) {
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32(getSize(), getEffectiveOpacity(), getBlendMode(), 
+                bool(m_pImage->getScene()));
     }
 }
 

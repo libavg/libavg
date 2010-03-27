@@ -58,7 +58,7 @@ class AVG_API DisplayEngine
         virtual void setMousePos(const IntPoint& pos) = 0;
         virtual int getKeyModifierState() const = 0;
 
-        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown) = 0;
+        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMultisample) = 0;
         void frameWait();
         long long getDisplayTime();
         

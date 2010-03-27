@@ -49,11 +49,6 @@ MainScene::~MainScene()
 {
 }
 
-AVGNodePtr MainScene::getRootNode() const
-{
-    return dynamic_pointer_cast<AVGNode>(Scene::getRootNode());
-}
-
 BitmapPtr MainScene::screenshot() const
 {
     if (!getDisplayEngine()) {
@@ -65,7 +60,7 @@ BitmapPtr MainScene::screenshot() const
 
 void MainScene::render()
 {
-    getDisplayEngine()->renderMain(getRootNode(), false);
+    getDisplayEngine()->renderMain(getRootNode());
 }
 
 }

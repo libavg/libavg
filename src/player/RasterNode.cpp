@@ -274,10 +274,10 @@ BitmapPtr RasterNode::getBitmap()
 }
 
 void RasterNode::blt32(const DPoint& DestSize, double opacity, 
-        DisplayEngine::BlendMode Mode)
+        DisplayEngine::BlendMode Mode, bool bPremultipliedAlpha)
 {
     glColor4d(1.0, 1.0, 1.0, opacity);
-    blt(DestSize, Mode);
+    blt(DestSize, Mode, bPremultipliedAlpha);
 }
 
 void RasterNode::blta8(const DPoint& DestSize, double opacity, 
@@ -285,7 +285,7 @@ void RasterNode::blta8(const DPoint& DestSize, double opacity,
 {
     glColor4d(double(color.getR())/256, double(color.getG())/256, 
             double(color.getB())/256, opacity);
-    blt(DestSize, Mode);
+    blt(DestSize, Mode, false);
 }
 
 DisplayEngine::BlendMode RasterNode::getBlendMode() const
@@ -360,14 +360,15 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
     }
 }
 
-void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode)
+void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
+        bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
     }
     getDisplayEngine()->enableGLColorArray(false);
     getDisplayEngine()->enableTexture(true);
-    getDisplayEngine()->setBlendMode(mode);
+    getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
     glPushMatrix();
     glScaled(destSize.x, destSize.y, 1);
 

@@ -223,8 +223,6 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     enableTexture(true);
     m_bEnableGLColorArray=true;
     enableGLColorArray(false);
-    m_BlendMode = BLEND_ADD;
-    setBlendMode(BLEND_BLEND);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -314,10 +312,18 @@ void SDLDisplayEngine::logConfig()
 
 static ProfilingZone RootRenderProfilingZone("Root node: render");
 
-void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown)
+void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMultisample)
 {
     pRootNode->preRender();
-    
+    if (bMultisample) {
+        glEnable(GL_MULTISAMPLE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "SDLDisplayEngine::render: glEnable(GL_MULTISAMPLE)");
+    } else {
+        glDisable(GL_MULTISAMPLE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+                "SDLDisplayEngine::render: glDisable(GL_MULTISAMPLE)");
+    }
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -350,9 +356,11 @@ void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown)
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render: glTexEnvf()");
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+    glproc::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 
+            GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render: glBlendFunc()");
+            "SDLDisplayEngine::render: glBlendFuncSeparate()");
     
     const DRect rc(0,0, m_Size.x, m_Size.y);
     glMatrixMode(GL_MODELVIEW);
@@ -372,9 +380,9 @@ void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown)
     }
 }
 
-void SDLDisplayEngine::renderMain(SceneNodePtr pRootNode, bool bUpsideDown)
+void SDLDisplayEngine::renderMain(SceneNodePtr pRootNode)
 {
-    render(pRootNode, bUpsideDown);
+    render(pRootNode, false, (m_GLConfig.m_MultiSampleSamples != 1));
     frameWait();
     swapBuffers();
     checkJitter();
@@ -1241,33 +1249,43 @@ void checkBlendModeError(const char *mode)
     }
 }
 
-void SDLDisplayEngine::setBlendMode(BlendMode mode)
+void SDLDisplayEngine::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 {
-    if (mode != m_BlendMode) {
+    GLenum srcFunc;
+    if (bPremultipliedAlpha) {
+        srcFunc = GL_ONE;
+    } else {
+        srcFunc = GL_SRC_ALPHA;
+    }
+    if (mode != m_BlendMode || m_bPremultipliedAlpha != bPremultipliedAlpha) {
         switch (mode) {
             case BLEND_BLEND:
                 glproc::BlendEquation(GL_FUNC_ADD);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkBlendModeError("blend");
                 break;
             case BLEND_ADD:
                 glproc::BlendEquation(GL_FUNC_ADD);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE, GL_ONE, GL_ONE);
                 checkBlendModeError("add");
                 break;
             case BLEND_MIN:
                 glproc::BlendEquation(GL_MIN);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkBlendModeError("min");
                 break;
             case BLEND_MAX:
                 glproc::BlendEquation(GL_MAX);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkBlendModeError("max");
                 break;
         }
 
         m_BlendMode = mode;
+        m_bPremultipliedAlpha = bPremultipliedAlpha;
     }
 }
 
