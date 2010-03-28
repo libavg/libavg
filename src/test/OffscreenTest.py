@@ -242,6 +242,27 @@ class OffscreenTestCase(AVGTestCase):
                 (lambda: self.compareImage("testSceneAlpha", False),
                 ))
 
+    def testSceneBlendModes(self):
+        def createBaseScene():
+            return Player.loadSceneString("""
+                <scene id="testscene" width="160" height="120">
+                    <image href="freidrehen.jpg"/>
+                    <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
+                    <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" 
+                            blendmode="add"/>
+                    <image x="48" y="0" opacity="0.6" href="rgb24-65x65.png" 
+                            blendmode="min"/>
+                    <image x="48" y="48" opacity="0.6" href="rgb24-65x65.png" 
+                            blendmode="max"/>
+                </scene>
+            """)
+       
+        mainScene = self.loadEmptyScene()
+        scene = createBaseScene()
+        node = avg.ImageNode(parent=Player.getRootNode(), href="scene:testscene")
+        self.start(None,
+                (lambda: self.compareImage("testSceneBlendModes", False),
+                ))
 
     def testSceneMultisampling(self):
         def testIllegalSamples():
@@ -294,6 +315,7 @@ def offscreenTestSuite(tests):
             "testSceneRender",
             "testSceneCrop",
             "testSceneAlpha",
+            "testSceneBlendModes",
             "testSceneMultisampling",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
