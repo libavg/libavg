@@ -236,6 +236,9 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 
     checkShaderSupport();
 
+    m_BlendMode = BLEND_ADD;
+    setBlendMode(BLEND_BLEND, false);
+
     m_Size = DP.m_Size;
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
