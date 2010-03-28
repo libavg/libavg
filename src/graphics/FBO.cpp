@@ -115,7 +115,10 @@ unsigned FBO::getTexture() const
 void FBO::init()
 {
     if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support GL_EXT_packed_depth_stencil.");
+        throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support offscreen cropping (GL_EXT_packed_depth_stencil).");
+    }
+    if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
     m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true));
 
@@ -141,6 +144,8 @@ void FBO::init()
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
     } else {
         glEnable(GL_MULTISAMPLE);
@@ -161,6 +166,8 @@ void FBO::init()
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
             glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                     GL_RENDERBUFFER_EXT, m_StencilBuffer);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
         checkError("init multisample");
         glproc::GenFramebuffers(1, &m_OutputFBO);

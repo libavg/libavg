@@ -245,6 +245,9 @@ class OffscreenTestCase(AVGTestCase):
 
     def testSceneMultisampling(self):
         mainScene = self.loadEmptyScene()
+        if not(avg.OffscreenScene.isMultisampleSupported()):
+            print "Offscreen multisampling not supported - skipping test."
+            return
         scene = Player.loadSceneString("""
             <?xml version="1.0"?>
             <scene id="testscene" width="160" height="120" multisamplesamples="2">

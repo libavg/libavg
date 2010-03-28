@@ -461,5 +461,10 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("multisamplesamples", &OffscreenScene::getMultiSampleSamples,
                 "Number of samples per pixel to use for multisampling. Setting this to "
                 "1 disables multisampling.")
+        .def("isMultisampleSupported", &OffscreenScene::isMultisampleSupported,
+                "isMultisampleSupported() -> bool\n"
+                "True if the machine's OpenGL implementation supports offscreen "
+                "multisampling.")
+        .staticmethod("isMultisampleSupported")
     ;
 }

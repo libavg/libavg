@@ -137,6 +137,11 @@ int OffscreenScene::getMultiSampleSamples() const
             getRootNode())->getMultiSampleSamples();
 }
 
+bool OffscreenScene::isMultisampleSupported()
+{
+    return FBO::isMultisampleFBOSupported();
+}
+
 void OffscreenScene::createFBO(bool bUseMipmaps)
 {
     m_bUseMipmaps = bUseMipmaps;

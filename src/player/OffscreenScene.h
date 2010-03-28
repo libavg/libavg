@@ -50,6 +50,8 @@ class AVG_API OffscreenScene: public Scene
         bool isRunning() const;
         unsigned getTexID() const;
 
+        static bool isMultisampleSupported();
+
     private:
         void createFBO(bool bUseMipmaps);
         FBOPtr m_pFBO;
