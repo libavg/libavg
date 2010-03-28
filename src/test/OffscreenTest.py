@@ -233,8 +233,8 @@ class OffscreenTestCase(AVGTestCase):
                 <image id="test1" href="rgb24alpha-64x64.png"/>
             </scene>
         """)
-        avg.RectNode(parent=Player.getRootNode(), fillcolor="FFFFFF", size=(160,48),
-                fillopacity=1)
+        avg.RectNode(parent=Player.getRootNode(), fillcolor="FFFFFF",
+                pos=(0.5, 0.5), size=(160, 48), fillopacity=1)
         node = avg.ImageNode(parent=Player.getRootNode(), 
                 href="scene:testscene")
         avg.ImageNode(parent=Player.getRootNode(), x=64, href="rgb24alpha-64x64.png")
