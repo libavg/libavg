@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <avg id="mainavgnode" width="160" height="120">
   <image id="mainimg" x="0" y="0" width="100" height="75" 
       href="rgb24-65x65.png"/>

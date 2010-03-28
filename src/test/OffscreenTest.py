@@ -212,7 +212,6 @@ class OffscreenTestCase(AVGTestCase):
     def testSceneCrop(self):
         mainScene = self.loadEmptyScene()
         scene = Player.loadSceneString("""
-            <?xml version="1.0"?>
             <scene id="testscene" width="160" height="120">
                 <div pos="(40, 30)" size="(80, 60)">
                     <image id="test1" pos="(-32, -32)" href="rgb24-65x65.png"/>
@@ -228,7 +227,6 @@ class OffscreenTestCase(AVGTestCase):
     def testSceneAlpha(self):
         mainScene = self.loadEmptyScene()
         scene = Player.loadSceneString("""
-            <?xml version="1.0"?>
             <scene id="testscene" width="80" height="120">
                 <image id="test1" href="rgb24alpha-64x64.png"/>
             </scene>
@@ -296,7 +294,6 @@ class OffscreenTestCase(AVGTestCase):
 
     def __createOffscreenScene(self, sceneName, handleEvents):
         return Player.loadSceneString("""
-            <?xml version="1.0"?>
             <scene id="%s" width="160" height="120" handleevents="%s">
                 <image id="test1" href="rgb24-65x65.png"/>
             </scene>

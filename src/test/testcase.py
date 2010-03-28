@@ -119,7 +119,6 @@ class AVGTestCase(unittest.TestCase):
 
     def loadEmptyScene(self, width = 160, height = 120):
         sceneString = """
-        <?xml version="1.0"?>
         <avg id="avg" width="%d" height="%d">
         </avg>
         """ % (width, height)

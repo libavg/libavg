@@ -249,8 +249,6 @@ class ImageTestCase(AVGTestCase):
             Player.getElementByID("blend").blendmode="add"
         
         Player.loadString("""
-            <?xml version="1.0"?>
-            <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
             <avg width="160" height="120">
                 <image x="0" y="0" href="freidrehen.jpg"/>
                 <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
@@ -400,7 +398,6 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMipmap(self):
         Player.loadString("""
-            <?xml version="1.0"?>
             <avg id="imageavg" width="160" height="120">
                 <image width="64" height="64" href="checker.png"/>
                 <image x="64" width="64" height="64" href="checker.png" mipmap="true"/>

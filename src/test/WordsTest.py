@@ -85,7 +85,6 @@ class WordsTestCase(AVGTestCase):
 
     def testParaWords(self):
         Player.loadString("""
-          <?xml version="1.0"?>
           <avg width="160" height="120">
               <line pos1="(0.5, 0)" pos2="(0.5, 50)" color="FF0000"/>
               <line pos1="(119.5, 0.5)" pos2="(119.5, 50)" color="FF0000"/>

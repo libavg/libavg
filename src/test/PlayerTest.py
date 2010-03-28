@@ -99,7 +99,6 @@ class PlayerTestCase(AVGTestCase):
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadString("""
-            <?xml version="1.0"?>
             <avg width="160" height="120">
                 <image id="test1" href="rgb24-65x65.png"/>
             </avg>
@@ -553,7 +552,6 @@ class PlayerTestCase(AVGTestCase):
 
     def testOffscreen(self):
         Player.loadSceneString("""
-            <?xml version="1.0"?>
             <scene width="160" height="120">
                 <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
             </scene>

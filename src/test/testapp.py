@@ -183,7 +183,6 @@ class TestApp:
         log.pushCategories()
         log.setCategories(log.APP | log.WARNING | log.CONFIG  | 0)
         self.__player.loadString("""
-                <?xml version="1.0"?>
                 <avg id="avg" width="160" height="120">
                 </avg>
                 """)

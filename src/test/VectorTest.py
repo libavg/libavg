@@ -30,8 +30,6 @@ class VectorTestCase(AVGTestCase):
 
     def makeEmptyCanvas(self):
         Player.loadString("""
-            <?xml version="1.0"?>
-            <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
             <avg width="160" height="120">
               <div id="canvas" x="0" y="0" width="160" height="120"/>
             </avg>

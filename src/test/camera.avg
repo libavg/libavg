@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <avg width="1280" height="480">
     <camera id="camera" x="0" y="0" width="640" height="480" driver="firewire"
             capturewidth="640" captureheight="480" pixelformat="I8" framerate="30"
