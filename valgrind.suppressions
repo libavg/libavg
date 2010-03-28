@@ -1,7 +1,7 @@
 {
    GL_Errors_0
    Memcheck:Cond
-   obj:/usr/lib/libGLcore.so.180.*
+   obj:/usr/lib/libGLcore.so.*
 }
 {
    GL_Errors_1
