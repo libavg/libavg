@@ -359,7 +359,6 @@ void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMu
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render: glTexEnvf()");
-    glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
     glproc::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 
             GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
