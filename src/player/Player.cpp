@@ -1140,10 +1140,10 @@ OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
         throw (Exception(AVG_ERR_INVALID_ARGS, 
                 string("Duplicate scene id ")+pScene->getID()));
     }
-    m_pScenes.push_back(pScene);
     if (m_bIsPlaying) {
         pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine);
     }
+    m_pScenes.push_back(pScene);
     return pScene;
 }
 

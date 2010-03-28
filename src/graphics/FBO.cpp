@@ -22,6 +22,7 @@
 #include "FBO.h"
 
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
 #include "../graphics/PBOImage.h"
 #include "../graphics/OGLHelper.h"
 
@@ -153,6 +154,12 @@ void FBO::init()
         glproc::BindRenderbuffer(GL_RENDERBUFFER_EXT, m_ColorBuffer);
         glproc::RenderbufferStorageMultisample(GL_RENDERBUFFER_EXT, m_MultisampleSamples,
                 GL_RGBA8, m_Size.x, m_Size.y);
+        GLenum err = glGetError();
+        if (err == GL_INVALID_VALUE) {
+            throw(Exception(AVG_ERR_UNSUPPORTED, 
+                    string("Unsupported value for number of multisample samples (")
+                    + toString(m_MultisampleSamples) + ")."));
+        }
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: RenderbufferStorageMultisample");
         glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                 GL_RENDERBUFFER_EXT, m_ColorBuffer);

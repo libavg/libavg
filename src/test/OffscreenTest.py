@@ -244,12 +244,15 @@ class OffscreenTestCase(AVGTestCase):
 
 
     def testSceneMultisampling(self):
+        def testIllegalSamples():
+            scene = Player.loadSceneString(
+                    """<scene id="brokenscene" width="160" height="120" 
+                            multisamplesamples="42"/>""")
         mainScene = self.loadEmptyScene()
         if not(avg.OffscreenScene.isMultisampleSupported()):
             print "Offscreen multisampling not supported - skipping test."
             return
         scene = Player.loadSceneString("""
-            <?xml version="1.0"?>
             <scene id="testscene" width="160" height="120" multisamplesamples="2">
                 <image id="test1" href="rgb24-65x65.png" angle="0.1"/>
             </scene>
@@ -259,6 +262,7 @@ class OffscreenTestCase(AVGTestCase):
                 href="scene:testscene")
         self.start(None,
                 (lambda: self.compareImage("testSceneMultisample", False),
+                 lambda: self.assertException(testIllegalSamples),
                 ))
         
 
