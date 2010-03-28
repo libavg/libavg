@@ -45,6 +45,7 @@ class AVG_API OffscreenScene: public Scene
         virtual BitmapPtr screenshot() const;
         bool getHandleEvents() const;
         int getMultiSampleSamples() const;
+        bool getMipmap() const;
 
         std::string getID() const;
         bool isRunning() const;
@@ -53,7 +54,7 @@ class AVG_API OffscreenScene: public Scene
         static bool isMultisampleSupported();
 
     private:
-        void createFBO(bool bUseMipmaps);
+        void createFBO();
         FBOPtr m_pFBO;
         unsigned m_TexID;
         bool m_bUseMipmaps;

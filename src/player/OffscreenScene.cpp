@@ -54,22 +54,12 @@ void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine,
         AudioEngine* pAudioEngine)
 {
     Scene::initPlayback(pDisplayEngine, pAudioEngine);
+    m_bUseMipmaps = getMipmap();
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glBindTexture()");
-    try {
-        createFBO(true);
-    } catch (const Exception& ex) {
-        if (ex.GetCode() != AVG_ERR_UNSUPPORTED) {
-            throw;
-        } else {
-            glDeleteTextures(1, &m_TexID);
-            glGenTextures(1, &m_TexID);
-            glBindTexture(GL_TEXTURE_2D, m_TexID);
-            createFBO(false);
-        }
-    }
+    createFBO();
     glEnable(GL_STENCIL_TEST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
@@ -137,16 +127,20 @@ int OffscreenScene::getMultiSampleSamples() const
             getRootNode())->getMultiSampleSamples();
 }
 
+bool OffscreenScene::getMipmap() const
+{
+    return dynamic_pointer_cast<OffscreenSceneNode>(getRootNode())->getMipmap();
+}
+
 bool OffscreenScene::isMultisampleSupported()
 {
     return FBO::isMultisampleFBOSupported();
 }
 
-void OffscreenScene::createFBO(bool bUseMipmaps)
+void OffscreenScene::createFBO()
 {
-    m_bUseMipmaps = bUseMipmaps;
     IntPoint size = getSize();
-    if (bUseMipmaps) {
+    if (m_bUseMipmaps) {
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {

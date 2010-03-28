@@ -461,6 +461,9 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("multisamplesamples", &OffscreenScene::getMultiSampleSamples,
                 "Number of samples per pixel to use for multisampling. Setting this to "
                 "1 disables multisampling.")
+        .add_property("mipmap", &OffscreenScene::getMipmap,
+                "True if mipmaps are generated and used for the scene.  This is used "
+                "instead of RasterNode.mipmap for images that render the scene.")
         .def("isMultisampleSupported", &OffscreenScene::isMultisampleSupported,
                 "isMultisampleSupported() -> bool\n"
                 "True if the machine's OpenGL implementation supports offscreen "

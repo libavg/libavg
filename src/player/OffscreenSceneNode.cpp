@@ -37,7 +37,9 @@ NodeDefinition OffscreenSceneNode::createDefinition()
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenSceneNode, m_bHandleEvents)))
         .addArg(Arg<int>("multisamplesamples", 1, false, 
-                offsetof(OffscreenSceneNode, m_MultiSampleSamples))); 
+                offsetof(OffscreenSceneNode, m_MultiSampleSamples)))
+        .addArg(Arg<bool>("mipmap", false, false, 
+                offsetof(OffscreenSceneNode, m_bMipmap)));
 }
 
 OffscreenSceneNode::OffscreenSceneNode(const ArgList& Args)
@@ -53,6 +55,11 @@ OffscreenSceneNode::~OffscreenSceneNode()
 bool OffscreenSceneNode::getHandleEvents() const
 {
     return m_bHandleEvents;
+}
+
+bool OffscreenSceneNode::getMipmap() const
+{
+    return m_bMipmap;
 }
 
 int OffscreenSceneNode::getMultiSampleSamples() const

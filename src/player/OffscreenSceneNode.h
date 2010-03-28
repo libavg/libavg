@@ -38,10 +38,12 @@ class AVG_API OffscreenSceneNode : public SceneNode
         virtual ~OffscreenSceneNode();
 
         bool getHandleEvents() const;
+        bool getMipmap() const;
         int getMultiSampleSamples() const;
 
     private:
         bool m_bHandleEvents;
+        bool m_bMipmap;
         int m_MultiSampleSamples;
 };
 

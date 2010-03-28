@@ -283,7 +283,20 @@ class OffscreenTestCase(AVGTestCase):
                 (lambda: self.compareImage("testSceneMultisample", False),
                  lambda: self.assertException(testIllegalSamples),
                 ))
-        
+       
+    def testSceneMipmap(self):
+        mainScene = self.loadEmptyScene()
+
+        scene = Player.loadSceneString("""
+            <scene id="testscene" width="80" height="120" mipmap="True">
+                <image id="test1" href="rgb24alpha-64x64.png"/>
+            </scene>
+        """)
+        node = avg.ImageNode(parent=Player.getRootNode(), size=(40, 30), 
+                href="scene:testscene")
+        self.start(None,
+                (lambda: self.compareImage("testSceneMipmap", False),
+                ))
 
     def __setupScene(self, handleEvents):
         mainScene = self.loadEmptyScene()
@@ -314,6 +327,7 @@ def offscreenTestSuite(tests):
             "testSceneAlpha",
             "testSceneBlendModes",
             "testSceneMultisampling",
+            "testSceneMipmap",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 
