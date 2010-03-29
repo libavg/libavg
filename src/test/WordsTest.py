@@ -526,6 +526,14 @@ class WordsTestCase(AVGTestCase):
     def testGetNumLines(self):
         textNode = avg.WordsNode(text="paragraph 1<br/>paragraph 2<br/>paragraph 3")
         self.assert_(textNode.getNumLines() == 3)
+    
+    def testGetLineExtents(self):        
+        textNode = avg.WordsNode(fontsize = 100,
+                                font = "Bitstream Vera Sans",
+                                text = "bla <br/> blabli <br/> blabliblabla")
+        self.assert_(textNode.getLineExtents(0) == (184,117))
+        textNode.parent = Player.getRootNode()
+        self.assert_(textNode.getLineExtents(1) == (303,117))
 
 def wordsTestSuite(tests):
     availableTests = (
@@ -546,6 +554,7 @@ def wordsTestSuite(tests):
             "testInvalidColor",
             "testFontDir",
             "testGetNumLines",
+            "testGetLineExtents",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
 

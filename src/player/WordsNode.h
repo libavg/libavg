@@ -99,6 +99,7 @@ class AVG_API WordsNode : public RasterNode
         virtual IntPoint getMediaSize();
         
         int getNumLines();
+        DPoint getLineExtents(int line);
     
         static const std::vector<std::string>& getFontFamilies();
         static const std::vector<std::string>& getFontVariants(
@@ -142,7 +143,6 @@ class AVG_API WordsNode : public RasterNode
 
         bool m_bFontChanged;
         bool m_bDrawNeeded;
-        int m_Lines;
 };
 
 }

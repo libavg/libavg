@@ -417,7 +417,11 @@ void export_raster()
                 "The position is a Point2D, in pixels.\n")
         .def("getNumLines", &WordsNode::getNumLines,
                 "getNumLines()\n"
-                "Returns the number of lines\n")        
+                "Returns the number of lines\n")    
+        .def("getLineExtents", &WordsNode::getLineExtents,
+                "getLineExtents(line)->(width,height)\n"
+                "Returns the Width and Height of the specified line \n"
+                "The width and height is a Point2D, in pixels.\n")    
         .def("getFontFamilies", make_function(&WordsNode::getFontFamilies, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFontFamilies")

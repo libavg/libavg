@@ -109,8 +109,7 @@ WordsNode::WordsNode(const ArgList& Args)
       m_pFontDescription(0),
       m_pLayout(0),
       m_bFontChanged(true),
-      m_bDrawNeeded(true),
-      m_Lines(0)
+      m_bDrawNeeded(true)
 {
     m_bParsedText = false;
 
@@ -386,12 +385,20 @@ DPoint WordsNode::getGlyphSize(int i)
 int WordsNode::getNumLines()
 {
     drawString();
-    if(m_pLayout){
-        m_Lines = pango_layout_get_line_count(m_pLayout);
-    }else{
-        m_Lines = 0;
+    return pango_layout_get_line_count(m_pLayout);
+}
+
+DPoint WordsNode::getLineExtents(int line)
+{
+    if(line < 0 or line >= getNumLines()){
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "getLineExtents: The line "+toString(line)+" is not available.");
     }
-    return m_Lines;
+    drawString();
+    PangoRectangle logical_rect;
+    PangoRectangle ink_rect;
+    PangoLayoutLine *layoutLine = pango_layout_get_line_readonly(m_pLayout, line);
+    pango_layout_line_get_pixel_extents(layoutLine, &ink_rect, &logical_rect);
+    return DPoint(double(logical_rect.width), double(logical_rect.height));
 }
 
 void WordsNode::setWrapMode(const string& sWrapMode)
