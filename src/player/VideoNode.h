@@ -93,7 +93,8 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         bool renderToSurface(OGLSurface * pSurface);
         void seek(long long DestTime);
         void onEOF();
-       
+        void updateStatusDueToDecoderEOF();
+
         void open();
         void startDecoding();
         void close();

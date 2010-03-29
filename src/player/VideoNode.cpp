@@ -490,6 +490,10 @@ void VideoNode::preRender()
     if (getEffectiveOpacity() <= 0.01 && m_VideoState == Playing) {
         // Throw away frames that are not visible to make sure the video keeps in sync.
         m_pDecoder->throwAwayFrame(getNextFrameTime());
+
+       if (m_pDecoder->isEOF()) {
+    	   updateStatusDueToDecoderEOF();
+       }
     }
 }
 
@@ -589,14 +593,11 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
         default:
             AVG_ASSERT(false);
     }
+
     if (m_pDecoder->isEOF()) {
-        m_bEOFPending = true;
-        if (m_bLoop) {
-            seek(0);
-        } else {
-            changeVideoState(Paused);
-        }
+    	updateStatusDueToDecoderEOF();
     }
+
     return (frameAvailable == FA_NEW_FRAME);
 }
 
@@ -613,4 +614,16 @@ void VideoNode::onEOF()
     }
 }
 
+
+void VideoNode::updateStatusDueToDecoderEOF()
+{
+	m_bEOFPending = true;
+	if (m_bLoop) {
+		seek(0);
+	} else {
+		changeVideoState(Paused);
+	}
 }
+
+}
+
