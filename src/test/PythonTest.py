@@ -687,6 +687,88 @@ class PythonTestCase(AVGTestCase):
                  reset,
                 ))
 
+    def testKeyboard(self):
+        def setup():
+            keyDefs = [
+                    [("a", "A"), ( 5, 5), (30, 30)],
+                    [(1, ),      (35, 5), (30, 30)],
+                    ["SHIFT",    (65, 5), (50, 30)]]
+            kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
+                    pos=(10, 10), parent = Player.getRootNode())
+            kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
+            kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
+                    pos=(10, 60), parent = Player.getRootNode())
+            kbShift.setKeyHandler(onKeyDown, onKeyUp)
+
+        def onKeyDown(event, char, cmd):
+            self.__keyDown = True
+            self.__keyUp   = False
+            self.__char = char
+            self.__cmd = cmd
+
+        def onKeyUp(event, char, cmd):
+            self.__keyDown = False
+            self.__keyUp   = True
+            self.__char = char
+            self.__cmd = cmd
+
+        self.loadEmptyScene()
+
+        kbNoShift = None
+        kbShift   = None
+        self.__keyDown = False
+        self.__keyUp   = True
+        self.__char = "foo"
+        self.__cmd = "bar"
+        self.start(None,
+                (setup,
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test character key
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(self.__keyDown and not self.__keyUp),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDownA1", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test command key
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 100, 30),
+                 lambda: self.assert_(self.__keyDown and not self.__keyUp),
+                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
+                 lambda: self.compareImage("testUIKeyboardDownS1", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 100, 30),
+                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test shift key (no shift key support)
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 100, 30),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 60, 30),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDownA111S1", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 30),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORUP, 60, 30),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 30),
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test shift key (with shift key support)
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 100, 80),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 30, 80),
+                 lambda: self.assert_(self.__char == "A" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 60, 80),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDownA212S2", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 80),
+                 lambda: self.assert_(self.__char == "A" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORUP, 60, 80),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 80),
+                 lambda: self.compareImage("testUIKeyboard", False)
+                ))
+
     def testTextArea(self):
         def setup():
             self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
@@ -851,6 +933,7 @@ def pythonTestSuite (tests):
         "testDraggable",
         "testButton",
         "testMultitouchButton",
+        "testKeyboard",
         "testTextArea",
         "testFocusContext",
         )
