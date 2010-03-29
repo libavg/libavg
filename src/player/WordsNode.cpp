@@ -390,7 +390,7 @@ int WordsNode::getNumLines()
 
 DPoint WordsNode::getLineExtents(int line)
 {
-    if(line < 0 or line >= getNumLines()){
+    if(line < 0 || line >= getNumLines()){
         throw Exception(AVG_ERR_OUT_OF_RANGE, "getLineExtents: The line "+toString(line)+" is not available.");
     }
     drawString();
