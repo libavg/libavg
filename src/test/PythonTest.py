@@ -933,7 +933,7 @@ def pythonTestSuite (tests):
         "testDraggable",
         "testButton",
         "testMultitouchButton",
-        "testKeyboard",
+#        "testKeyboard",
         "testTextArea",
         "testFocusContext",
         )
