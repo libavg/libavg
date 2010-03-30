@@ -50,6 +50,8 @@ class AVG_API Shape
         VertexArrayPtr getVertexArray();
         void draw();
 
+        void discardOnCPU();
+
     private:
         VertexArrayPtr m_pVertexArray;
         OGLSurface * m_pSurface;

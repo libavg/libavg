@@ -44,6 +44,8 @@ class AVG_API DivNode : public AreaNode
         virtual void connect(Scene * pScene);
         virtual void disconnect(bool bKill);
 
+        virtual DPoint getPivot() const;
+
         bool getCrop() const;
         void setCrop(bool bCrop);
 
