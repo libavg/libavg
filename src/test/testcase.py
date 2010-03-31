@@ -117,11 +117,11 @@ class AVGTestCase(unittest.TestCase):
             exceptionRaised = True
         self.assert_(exceptionRaised)
 
-    def loadEmptyScene(self, width = 160, height = 120):
+    def loadEmptyScene(self, resolution = (160,120)):
         sceneString = """
         <avg id="avg" width="%d" height="%d">
         </avg>
-        """ % (width, height)
+        """ % (resolution[0], resolution[1])
         return self.__player.loadString(sceneString)
 
     def _isCurrentDirWriteable(self):

@@ -261,6 +261,9 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testTimeouts(self):
+        class TestException(Exception):
+            pass
+        
         def timeout1():
             Player.clearInterval(self.timeout1ID)
             Player.clearInterval(self.timeout2ID)
@@ -272,18 +275,36 @@ class PlayerTestCase(AVGTestCase):
         def wait():
             pass
         
+        def throwException():
+            raise TestException
+
+        def initException():
+            self.timeout3ID = Player.setTimeout(0, throwException)
+            
         def setupTimeouts():
             self.timeout1ID = Player.setTimeout(0, timeout1)
             self.timeout2ID = Player.setTimeout(1, timeout2)
-        
+            
         self.timeout1called = False
         self.timeout2called = False
-        self.start("image.avg",
-                (setupTimeouts,
-                 wait,
-                 lambda: self.assert_(self.timeout1called),
-                 lambda: self.assert_(not(self.timeout2called))
-                ))
+        self.__exceptionThrown = False
+        try:
+            self.start("image.avg",
+                    (setupTimeouts,
+                     wait,
+                     lambda: self.assert_(self.timeout1called),
+                     lambda: self.assert_(not(self.timeout2called)),
+                     lambda: initException(),
+                     wait,
+                     wait,
+                     wait,
+                     wait,
+                     wait))
+        except TestException:
+            self.__exceptionThrown = True
+            
+        self.assert_(self.__exceptionThrown)
+        Player.clearInterval(self.timeout3ID)
 
     def testPanoImage(self):
         def changeProperties():

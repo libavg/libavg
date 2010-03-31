@@ -210,6 +210,7 @@ class EventTestCase(AVGTestCase):
                         12, 12, 1),
                  lambda: handlerTester1.assertState(
                         down=False, up=True, over=False, out=False, move=False)
+                 
                 ))
 
     def testTilted(self):
@@ -566,6 +567,31 @@ class EventTestCase(AVGTestCase):
                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
                 lambda: self.assert_(not self.ehookKeyboardEvent),
             ))
+        
+    def testException(self):
+        class TestException(Exception):
+            pass
+        
+        def throwException(event):
+            raise TestException
+        
+        rect = libavg.RectNode(size = (50, 50))
+        rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, throwException)
+        
+        self.loadEmptyScene()
+        libavg.Player.get().getRootNode().appendChild(rect)
+        
+        self.__exceptionThrown = False
+        try:
+            self.start(None,
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 10, 10, 0),
+                 lambda: None))
+        except TestException:
+            self.__exceptionThrown = True
+            
+        self.assert_(self.__exceptionThrown)
+        #libavg.Player.get().getRootNode().removeChild(rect)
+                
 
 def eventTestSuite(tests):
     availableTests = (
@@ -581,6 +607,7 @@ def eventTestSuite(tests):
             "testMouseOver",
             "testEventErr",
             "testEventHook",
+            "testException"
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 

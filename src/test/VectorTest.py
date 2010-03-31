@@ -677,7 +677,8 @@ class VectorTestCase(AVGTestCase):
                         20, 20, 1),
                  lambda: self.assert_(self.onDownCalled)
                 ))
-
+        
+        
 def vectorTestSuite(tests):
     availableTests = (
             "testLine",
@@ -695,7 +696,7 @@ def vectorTestSuite(tests):
             "testTexturedPolygon",
             "testCircle",
             "testMesh",
-            "testInactiveVector",
+            "testInactiveVector"
             )
     return createAVGTestSuite(availableTests, VectorTestCase, tests)
 

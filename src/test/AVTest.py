@@ -334,6 +334,32 @@ class AVTestCase(AVGTestCase):
             testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
             testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
 
+    def testException(self):
+        class TestException(Exception):
+            pass
+        
+        def throwException():
+            raise TestException
+        
+        videoNode = libavg.VideoNode(threaded = False)
+        videoNode.href = "./testmediadir/mjpeg-48x48.avi"
+        videoNode.setEOFCallback(throwException)
+        
+        self.loadEmptyScene()
+        libavg.Player.get().getRootNode().appendChild(videoNode)
+        
+        self.__exceptionThrown = False
+        try:
+            self.start(None,
+                (videoNode.pause,
+                 lambda: videoNode.seekToFrame(videoNode.getNumFrames()),
+                 videoNode.play,
+                 lambda: None))
+        except TestException:
+            self.__exceptionThrown = True
+            
+        self.assert_(self.__exceptionThrown)
+        
     def testVideoEOF(self):
         Player.setFakeFPS(25)
         for filename in ["mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi"]:
@@ -456,6 +482,7 @@ def AVTestSuite(tests):
             "testVideoFPS",
             "testVideoMask",
             "testVideoEOF",
+            "testException"
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 
