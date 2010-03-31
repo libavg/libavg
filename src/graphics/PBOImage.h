@@ -38,7 +38,7 @@ class AVG_API PBOImage {
 
 public:
     PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
-            bool bUseInputPBO, bool bUseOutputPBO);
+            bool bUseInputPBO, bool bUseOutputPBO, bool bMipmap = false);
     virtual ~PBOImage();
 
     static bool isFloatFormatSupported();

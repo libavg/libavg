@@ -33,7 +33,7 @@ using namespace std;
 namespace avg {
 
 PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
-        bool bUseInputPBO, bool bUseOutputPBO)
+        bool bUseInputPBO, bool bUseOutputPBO, bool bMipmap)
     : m_pfInt(pfInternal),
       m_pfExt(pfExternal),
       m_Size(size),
@@ -59,10 +59,14 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glBindTexture()");
-    // Mipmaps needed for FBO support on nVidia cards (!?)
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
+    if (bMipmap) {
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);    
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);

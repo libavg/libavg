@@ -33,14 +33,14 @@ using namespace std;
 namespace avg {
 
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
-        unsigned multisampleSamples, bool bUsePackedDepthStencil)
+        unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
     : m_Size(size),
       m_PF(pf),
       m_MultisampleSamples(multisampleSamples),
       m_bUsePackedDepthStencil(bUsePackedDepthStencil)
 {
     m_TexIDs.push_back(texID);
-    init();
+    init(bMipmap);
     if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
@@ -54,7 +54,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, vector<unsigned> texIDs)
       m_TexIDs(texIDs)
 {
     m_TexIDs = texIDs;
-    init();
+    init(false);
 }
 
 FBO::~FBO()
@@ -113,7 +113,7 @@ unsigned FBO::getTexture() const
     return m_TexIDs[0];
 }
 
-void FBO::init()
+void FBO::init(bool bMipmap)
 {
     if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support offscreen cropping (GL_EXT_packed_depth_stencil).");
@@ -121,7 +121,7 @@ void FBO::init()
     if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
-    m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true));
+    m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true, bMipmap));
 
     glproc::GenFramebuffers(1, &m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: GenFramebuffers()");

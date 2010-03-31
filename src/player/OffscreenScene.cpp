@@ -155,7 +155,8 @@ void OffscreenScene::createFBO()
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::createFBO: glTexImage2D()");
 
-    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, getMultiSampleSamples(), true));
+    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, getMultiSampleSamples(), true,
+            m_bUseMipmaps));
 }
 
 }

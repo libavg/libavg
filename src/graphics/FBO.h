@@ -36,7 +36,8 @@ class AVG_API FBO
 {
 public:
     FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
-            unsigned multisampleSamples=1, bool bUseDepthAndStencil=false);
+            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
+            bool bMipmap=false);
     FBO(const IntPoint& size, PixelFormat pf, std::vector<unsigned> texIDs);
     virtual ~FBO();
 
@@ -52,7 +53,7 @@ public:
     static bool isPackedDepthStencilSupported();
 
 private:
-    void init();
+    void init(bool bMipmap);
     void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
