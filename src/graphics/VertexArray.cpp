@@ -41,6 +41,7 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
       m_NumIndexes(0),
       m_ReserveVerts(reserveVerts),
       m_ReserveIndexes(reserveIndexes),
+      m_bSizeChanged(true),
       m_bDataChanged(true)
 {
     if (m_ReserveVerts < 10) {
@@ -153,11 +154,19 @@ void VertexArray::reset()
 
 void VertexArray::update()
 {
+    if (m_bSizeChanged) {
+        setBufferSize();
+        m_bSizeChanged = false;
+    }
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
+        glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
+            GL_STREAM_DRAW);
         glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumVerts*sizeof(T2V3C4Vertex),
                 m_pVertexData);
         glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
+        glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
+            m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
         glproc::BufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_NumIndexes*sizeof(unsigned int),
                 m_pIndexData);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::update");
@@ -167,9 +176,7 @@ void VertexArray::update()
 
 void VertexArray::draw()
 {
-    if (m_bDataChanged) {
-        update();
-    }
+    update();
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
     glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 0);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 
@@ -195,7 +202,9 @@ int VertexArray::getCurIndex() const
 
 void VertexArray::grow()
 {
+    bool bChanged = false;
     if (m_NumVerts >= m_ReserveVerts-1) {
+        bChanged = true;
         int oldReserveVerts = m_ReserveVerts;
         m_ReserveVerts = int(m_ReserveVerts*1.5);
         if (m_ReserveVerts < m_NumVerts) {
@@ -207,6 +216,7 @@ void VertexArray::grow()
         delete[] pVertexData;
     }
     if (m_NumIndexes >= m_ReserveIndexes-6) {
+        bChanged = true;
         int oldReserveIndexes = m_ReserveIndexes;
         m_ReserveIndexes = int(m_ReserveIndexes*1.5);
         if (m_ReserveIndexes < m_NumIndexes) {
@@ -217,8 +227,10 @@ void VertexArray::grow()
         memcpy(m_pIndexData, pIndexData, sizeof(unsigned int)*oldReserveIndexes);
         delete[] pIndexData;
     }
-    setBufferSize();
-    m_bDataChanged = true;
+    if (bChanged) {
+        m_bSizeChanged = true;
+        m_bDataChanged = true;
+    }
 }
 
 void VertexArray::setBufferSize() 

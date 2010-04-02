@@ -72,6 +72,7 @@ private:
     T2V3C4Vertex * m_pVertexData;
     unsigned int * m_pIndexData;
 
+    bool m_bSizeChanged;
     bool m_bDataChanged;
 
     unsigned int m_GLVertexBufferID;
