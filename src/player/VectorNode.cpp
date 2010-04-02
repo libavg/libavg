@@ -331,7 +331,10 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
         VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     vector<DPoint> pts;
+    pts.reserve(origPts.size());
     vector<double> texCoords;
+    texCoords.reserve(origPts.size());
+
     pts.push_back(origPts[0]);
     texCoords.push_back(origTexCoords[0]);
     for (unsigned i=1; i<origPts.size(); ++i) {
