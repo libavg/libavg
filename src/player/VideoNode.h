@@ -94,6 +94,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         void seek(long long DestTime);
         void onEOF();
         void updateStatusDueToDecoderEOF();
+        void dumpFramesTooLate();
 
         void open();
         void startDecoding();

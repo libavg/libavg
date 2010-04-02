@@ -45,15 +45,16 @@ const long Logger::NONE=0;
 const long Logger::BLTS=1;
 const long Logger::PROFILE=2;
 const long Logger::PROFILE_LATEFRAMES=4;
-const long Logger::EVENTS=8;
-const long Logger::EVENTS2=16;
-const long Logger::CONFIG=32;  
-const long Logger::WARNING=64;
-const long Logger::ERROR=128;  
-const long Logger::MEMORY=256;
-const long Logger::APP=512;
-const long Logger::PLUGIN=1024;
-const long Logger::PLAYER=2048;
+const long Logger::PROFILE_VIDEO=8;
+const long Logger::EVENTS=16;
+const long Logger::EVENTS2=32;
+const long Logger::CONFIG=64;  
+const long Logger::WARNING=128;
+const long Logger::ERROR=256;  
+const long Logger::MEMORY=512;
+const long Logger::APP=1024;
+const long Logger::PLUGIN=2048;
+const long Logger::PLAYER=4096;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex log_Mutex;
@@ -149,6 +150,7 @@ const char * Logger::categoryToString(int category)
             return "BLTS";
         case PROFILE:
         case PROFILE_LATEFRAMES:
+        case PROFILE_VIDEO:
             return "PROFILE";
         case EVENTS:
         case EVENTS2:
@@ -180,6 +182,8 @@ int Logger::stringToCategory(const string& sCategory)
         return PROFILE;
     } else if (sCategory == "PROFILE_LATEFRAMES") {
         return PROFILE_LATEFRAMES;
+    } else if (sCategory == "PROFILE_VIDEO") {
+        return PROFILE_VIDEO;
     } else if (sCategory == "EVENTS") {
         return EVENTS;
     } else if (sCategory == "EVENTS2") {

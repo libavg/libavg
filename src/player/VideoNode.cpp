@@ -422,8 +422,15 @@ void VideoNode::close()
     }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {
-//        AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " 
-//                << m_FramesTooLate << " of " << m_FramesPlayed);
+        string sID;
+        if (getID() == "") {
+            sID = m_href; 
+        } else {
+            sID = getID();
+        }
+        AVG_TRACE(Logger::PROFILE_VIDEO, "Missed video frames for '" << sID << "': " 
+                << m_FramesTooLate << " of " << m_FramesPlayed);
+        m_FramesTooLate = 0;
     }
 }
 
@@ -624,6 +631,7 @@ void VideoNode::updateStatusDueToDecoderEOF()
         changeVideoState(Paused);
     }
 }
+
 
 }
 
