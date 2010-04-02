@@ -492,7 +492,7 @@ void VideoNode::preRender()
         m_pDecoder->throwAwayFrame(getNextFrameTime());
 
        if (m_pDecoder->isEOF()) {
-    	   updateStatusDueToDecoderEOF();
+           updateStatusDueToDecoderEOF();
        }
     }
 }
@@ -595,7 +595,7 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
     }
 
     if (m_pDecoder->isEOF()) {
-    	updateStatusDueToDecoderEOF();
+        updateStatusDueToDecoderEOF();
     }
 
     return (frameAvailable == FA_NEW_FRAME);
@@ -617,12 +617,12 @@ void VideoNode::onEOF()
 
 void VideoNode::updateStatusDueToDecoderEOF()
 {
-	m_bEOFPending = true;
-	if (m_bLoop) {
-		seek(0);
-	} else {
-		changeVideoState(Paused);
-	}
+    m_bEOFPending = true;
+    if (m_bLoop) {
+        seek(0);
+    } else {
+        changeVideoState(Paused);
+    }
 }
 
 }
