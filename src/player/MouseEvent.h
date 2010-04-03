@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "Event.h"
 #include "CursorEvent.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 namespace avg {
 

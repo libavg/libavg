@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "NodeDefinition.h"
 #include "DivNode.h"

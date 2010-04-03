@@ -23,7 +23,7 @@
 #define _VectorNode_H_
 
 #include "../api.h"
-#include "Node.h"
+#include "VisibleNode.h"
 #include "DisplayEngine.h"
 #include "Shape.h"
 

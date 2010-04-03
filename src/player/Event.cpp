@@ -20,7 +20,7 @@
 //
 
 #include "Event.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"

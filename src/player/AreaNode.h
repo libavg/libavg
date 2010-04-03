@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"

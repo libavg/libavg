@@ -20,7 +20,7 @@
 //
 
 #include "MouseEvent.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

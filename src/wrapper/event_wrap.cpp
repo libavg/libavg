@@ -24,7 +24,7 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
-#include "../player/Node.h"
+#include "../player/VisibleNode.h"
 #include "../player/TrackerEventSource.h"
 
 using namespace boost::python;

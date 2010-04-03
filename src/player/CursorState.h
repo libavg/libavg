@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>

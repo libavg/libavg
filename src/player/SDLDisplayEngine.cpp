@@ -25,7 +25,7 @@
 #include "SDLMain.h"
 #endif
 
-#include "Node.h"
+#include "VisibleNode.h"
 #include "AVGNode.h"
 #include "Shape.h"
 

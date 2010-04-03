@@ -26,7 +26,7 @@
 
 #include "../api.h"
 
-#include "Node.h"
+#include "VisibleNode.h"
 #include "ArgList.h"
 
 #include <map>
