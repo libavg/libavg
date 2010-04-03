@@ -54,8 +54,10 @@ class AVG_API Scene
     public:
         Scene(Player * pPlayer, NodePtr pRootNode);
         virtual ~Scene();
-        virtual void initPlayback(DisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine);
+        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
+                AudioEngine* pAudioEngine) = 0;
+        void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
+                int multiSampleSamples);
         virtual void stopPlayback();
        
         SceneNodePtr getRootNode() const;
@@ -74,8 +76,6 @@ class AVG_API Scene
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        virtual void render() = 0;
-        
         std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         bool operator ==(const Scene& other) const;
@@ -85,11 +85,13 @@ class AVG_API Scene
     protected:
         Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
+        void render(bool bUpsideDown);
 
     private:
+        virtual void render()=0;
         Player * m_pPlayer;
         SceneNodePtr m_pRootNode;
-        DisplayEngine * m_pDisplayEngine;
+        SDLDisplayEngine * m_pDisplayEngine;
        
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
@@ -97,6 +99,8 @@ class AVG_API Scene
         Signal<IPlaybackEndListener> m_PlaybackEndSignal;
         Signal<IFrameEndListener> m_FrameEndSignal;
         Signal<IPreRenderListener> m_PreRenderSignal;
+
+        int m_MultiSampleSamples;
 };
 
 }

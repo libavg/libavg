@@ -32,11 +32,12 @@ class AVG_API MainScene: public Scene
     public:
         MainScene(Player * pPlayer, NodePtr pRootNode);
         virtual ~MainScene();
+        void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine);
         
         virtual BitmapPtr screenshot() const;
-        virtual void render();
 
     private:
+        virtual void render();
 
 };
 

@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "SDLDisplayEngine.h"
+#include "Shape.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -52,10 +53,12 @@ Scene::~Scene()
 {
 }
 
-void Scene::initPlayback(DisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine)
+void Scene::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
+        int multiSampleSamples)
 {
     m_pDisplayEngine = pDisplayEngine;
     m_pRootNode->setRenderingEngines(m_pDisplayEngine, pAudioEngine);
+    m_MultiSampleSamples = multiSampleSamples;
 }
 
 void Scene::stopPlayback()
@@ -208,7 +211,7 @@ Player* Scene::getPlayer() const
 
 SDLDisplayEngine* Scene::getDisplayEngine() const
 {
-    return dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+    return m_pDisplayEngine;
 }
 
 vector<NodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
@@ -220,6 +223,72 @@ vector<NodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
         pNode = pNode->getParent();
     }
     return Elements;
+}
+
+
+static ProfilingZone RootRenderProfilingZone("Root node: render");
+
+void Scene::render(bool bUpsideDown)
+{
+    m_pRootNode->preRender();
+    if (m_MultiSampleSamples > 1) {
+        glEnable(GL_MULTISAMPLE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "SDLDisplayEngine::render: glEnable(GL_MULTISAMPLE)");
+    } else {
+        glDisable(GL_MULTISAMPLE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+                "SDLDisplayEngine::render: glDisable(GL_MULTISAMPLE)");
+    }
+    glClearColor(0.0, 0.0, 0.0, 0.0); 
+    glClear(GL_COLOR_BUFFER_BIT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render::glClear(GL_COLOR_BUFFER_BIT)");
+    glStencilMask(~0);
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilMask(0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render::glClear(GL_STENCIL_BUFFER_BIT)");
+    glClear(GL_DEPTH_BUFFER_BIT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render::glClear(GL_DEPTH_BUFFER_BIT)");
+    IntPoint size = IntPoint(m_pRootNode->getSize());
+    glViewport(0, 0, size.x, size.y);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glViewport()");
+    glMatrixMode(GL_PROJECTION);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glMatrixMode()");
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glLoadIdentity()");
+    if (bUpsideDown) {
+        gluOrtho2D(0, size.x, 0, size.y);
+    } else {
+        gluOrtho2D(0, size.x, size.y, 0);
+    }
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: gluOrtho2D()");
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glTexEnvf()");
+    glproc::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 
+            GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render: glBlendFuncSeparate()");
+    
+    const DRect rc(0,0, size.x, size.y);
+    glMatrixMode(GL_MODELVIEW);
+    {
+        ScopeTimer Timer(RootRenderProfilingZone);
+        m_pRootNode->maybeRender(rc);
+
+        Shape * pShape = new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+        pShape->moveToGPU(m_pDisplayEngine);
+        VertexArrayPtr pVA = pShape->getVertexArray();
+        m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
+        if (pVA->getCurVert() != 0) {
+            pVA->update();
+            pShape->draw();
+        }
+        delete pShape;
+    }
 }
 
 }

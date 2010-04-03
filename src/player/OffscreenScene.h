@@ -37,7 +37,7 @@ class AVG_API OffscreenScene: public Scene
     public:
         OffscreenScene(Player * pPlayer, NodePtr pRootNode);
         virtual ~OffscreenScene();
-        virtual void initPlayback(DisplayEngine* pDisplayEngine, 
+        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine);
         virtual void stopPlayback();
 

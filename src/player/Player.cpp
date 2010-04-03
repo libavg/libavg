@@ -412,9 +412,11 @@ void Player::initPlayback()
     }
     try {
         for (unsigned i=0; i<m_pScenes.size(); ++i) {
-            m_pScenes[i]->initPlayback(m_pDisplayEngine, m_pAudioEngine);
+            m_pScenes[i]->initPlayback(
+                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
         }
-        m_pMainScene->initPlayback(m_pDisplayEngine, m_pAudioEngine);
+        m_pMainScene->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
+                m_pAudioEngine);
     } catch (Exception&) {
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
@@ -1137,7 +1139,7 @@ OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
                 string("Duplicate scene id ")+pScene->getID()));
     }
     if (m_bIsPlaying) {
-        pScene->initPlayback(m_pDisplayEngine, m_pAudioEngine);
+        pScene->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
     }
     m_pScenes.push_back(pScene);
     return pScene;

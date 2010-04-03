@@ -50,10 +50,10 @@ OffscreenScene::~OffscreenScene()
     }
 }
 
-void OffscreenScene::initPlayback(DisplayEngine* pDisplayEngine, 
+void OffscreenScene::initPlayback(SDLDisplayEngine* pDisplayEngine, 
         AudioEngine* pAudioEngine)
 {
-    Scene::initPlayback(pDisplayEngine, pAudioEngine);
+    Scene::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
     m_bUseMipmaps = getMipmap();
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
@@ -78,7 +78,7 @@ void OffscreenScene::render()
                 "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
     }
     m_pFBO->activate();
-    getDisplayEngine()->render(getRootNode(), true, (getMultiSampleSamples() != 1));
+    Scene::render(true);
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
     if (m_bUseMipmaps) {

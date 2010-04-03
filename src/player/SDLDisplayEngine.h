@@ -55,9 +55,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
-        virtual void render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMultisample);
-        void renderMain(SceneNodePtr pRootNode);
-        
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
         virtual void pushTransform(const DPoint& translate, double angle, 

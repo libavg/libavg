@@ -49,6 +49,13 @@ MainScene::~MainScene()
 {
 }
 
+void MainScene::initPlayback(SDLDisplayEngine* pDisplayEngine, 
+        AudioEngine* pAudioEngine)
+{
+    Scene::initPlayback(pDisplayEngine, pAudioEngine, 
+            pDisplayEngine->getOGLOptions().m_MultiSampleSamples);
+}
+
 BitmapPtr MainScene::screenshot() const
 {
     if (!getDisplayEngine()) {
@@ -60,7 +67,7 @@ BitmapPtr MainScene::screenshot() const
 
 void MainScene::render()
 {
-    getDisplayEngine()->renderMain(getRootNode());
+    Scene::render(false);
 }
 
 }
