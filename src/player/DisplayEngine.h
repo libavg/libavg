@@ -60,6 +60,8 @@ class AVG_API DisplayEngine
 
         virtual void render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMultisample) = 0;
         void frameWait();
+        virtual void swapBuffers() = 0;
+        void checkJitter();
         long long getDisplayTime();
         
         virtual bool pushClipRect(const DRect& rc) = 0;
@@ -79,7 +81,6 @@ class AVG_API DisplayEngine
         static BlendMode stringToBlendMode(const std::string& s);
 
     protected:
-        void checkJitter();
         
     private:
         virtual bool initVBlank(int rate) = 0;

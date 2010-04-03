@@ -126,7 +126,7 @@ class AVG_API Player: IEventSink
 
         NodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();
-        void doFrame();
+        void doFrame(bool bFirstFrame);
         double getFramerate();
         double getVideoRefreshRate();
         void setGamma(double Red, double Green, double Blue);

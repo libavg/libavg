@@ -370,17 +370,10 @@ void Player::play()
         }
         initPlayback();
         try {
-            for (unsigned i=0; i< m_pScenes.size(); ++i) {
-                m_pScenes[i]->render();
-            }
-            m_pMainScene->render();
-            if (m_pDisplayEngine->wasFrameLate()) {
-                ThreadProfiler::get()->dumpFrame();
-            }
             ThreadProfiler::get()->start();
-
+            doFrame(true);
             while (!m_bStopping) {
-                doFrame();
+                doFrame(false);
             }
         } catch (...) {
             cleanup();
@@ -835,43 +828,46 @@ bool Player::handleEvent(EventPtr pEvent)
 static ProfilingZone MainProfilingZone("Player - Total frame time");
 static ProfilingZone TimersProfilingZone("Player - handleTimers");
 
-void Player::doFrame()
+void Player::doFrame(bool bFirstFrame)
 {
     {
         ScopeTimer Timer(MainProfilingZone);
-        if (m_bFakeFPS) {
-            m_NumFrames++;
-            m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
-        } else {
-            m_FrameTime = m_pDisplayEngine->getDisplayTime();
-        }
-        {
-            ScopeTimer Timer(TimersProfilingZone);
-            handleTimers();
-        }
-        {
-            ScopeTimer Timer(EventsProfilingZone);
-            m_pEventDispatcher->dispatch();
-            sendFakeEvents();
+        if (!bFirstFrame) {
+            if (m_bFakeFPS) {
+                m_NumFrames++;
+                m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
+            } else {
+                m_FrameTime = m_pDisplayEngine->getDisplayTime();
+            }
+            {
+                ScopeTimer Timer(TimersProfilingZone);
+                handleTimers();
+            }
+            {
+                ScopeTimer Timer(EventsProfilingZone);
+                m_pEventDispatcher->dispatch();
+                sendFakeEvents();
+            }
         }
         for (unsigned i=0; i< m_pScenes.size(); ++i) {
             m_pScenes[i]->doFrame(m_bPythonAvailable);
         }
         m_pMainScene->doFrame(m_bPythonAvailable);
+        Py_BEGIN_ALLOW_THREADS;
+        try {
+            m_pDisplayEngine->frameWait();
+            m_pDisplayEngine->swapBuffers();
+            m_pDisplayEngine->checkJitter();
+        } catch(...) {
+            Py_BLOCK_THREADS;
+            throw;
+        }
+        Py_END_ALLOW_THREADS;
     }
     if (m_pDisplayEngine->wasFrameLate()) {
         ThreadProfiler::get()->dumpFrame();
     }
     
-/*
-    long FrameTime = long(MainProfilingZone.getUSecs()/1000);
-    long TargetTime = long(1000/m_pDisplayEngine->getFramerate());
-    if (FrameTime > TargetTime+2) {
-        AVG_TRACE(Logger::PROFILE_LATEFRAMES, "frame too late by " <<
-                FrameTime-TargetTime << " ms.");
-        Profiler::get().dumpFrame();
-    }
-*/
     ThreadProfiler::get()->reset();
 }
 

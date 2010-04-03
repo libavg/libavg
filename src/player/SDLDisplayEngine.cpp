@@ -385,9 +385,6 @@ void SDLDisplayEngine::render(SceneNodePtr pRootNode, bool bUpsideDown, bool bMu
 void SDLDisplayEngine::renderMain(SceneNodePtr pRootNode)
 {
     render(pRootNode, false, (m_GLConfig.m_MultiSampleSamples != 1));
-    frameWait();
-    swapBuffers();
-    checkJitter();
 }
 
 static ProfilingZone PushClipRectProfilingZone("pushClipRect");

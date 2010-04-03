@@ -52,7 +52,7 @@ public:
         player.disablePython();
         if (!getenv("AVG_CONSOLE_TEST")) {
             player.initPlayback();
-            player.doFrame();
+            player.doFrame(false);
             player.cleanup();
         }
         try {
