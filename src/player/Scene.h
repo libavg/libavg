@@ -44,6 +44,7 @@ class AudioEngine;
 class DisplayEngine;
 class SDLDisplayEngine;
 class TestHelper;
+class ProfilingZone;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -85,7 +86,8 @@ class AVG_API Scene
     protected:
         Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
-        void render(IntPoint windowSize, bool bUpsideDown);
+        void render(IntPoint windowSize, bool bUpsideDown,
+                ProfilingZone& renderProfilingZone);
 
     private:
         virtual void render()=0;

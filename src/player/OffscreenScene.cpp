@@ -26,6 +26,7 @@
 #include "OGLTexture.h"
 
 #include "../base/Exception.h"
+#include "../base/ProfilingZone.h"
 
 #include <iostream>
 
@@ -71,6 +72,8 @@ void OffscreenScene::stopPlayback()
     Scene::stopPlayback();
 }
 
+static ProfilingZone OffscreenRenderProfilingZone("Render OffscreenScenes");
+
 void OffscreenScene::render()
 {
     if (!isRunning()) {
@@ -78,7 +81,7 @@ void OffscreenScene::render()
                 "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
     }
     m_pFBO->activate();
-    Scene::render(IntPoint(getRootNode()->getSize()), true);
+    Scene::render(IntPoint(getRootNode()->getSize()), true, OffscreenRenderProfilingZone);
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
     if (m_bUseMipmaps) {

@@ -226,9 +226,8 @@ vector<NodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
 }
 
 
-static ProfilingZone RootRenderProfilingZone("Root node: render");
-
-void Scene::render(IntPoint windowSize, bool bUpsideDown)
+void Scene::render(IntPoint windowSize, bool bUpsideDown,
+        ProfilingZone& renderProfilingZone)
 {
     m_pRootNode->preRender();
     if (m_MultiSampleSamples > 1) {
@@ -276,7 +275,7 @@ void Scene::render(IntPoint windowSize, bool bUpsideDown)
     const DRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);
     {
-        ScopeTimer Timer(RootRenderProfilingZone);
+        ScopeTimer Timer(renderProfilingZone);
         m_pRootNode->maybeRender(rc);
 
         Shape * pShape = new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));

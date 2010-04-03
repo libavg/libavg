@@ -65,9 +65,11 @@ BitmapPtr MainScene::screenshot() const
     return getDisplayEngine()->screenshot();
 }
 
+static ProfilingZone RootRenderProfilingZone("Render MainScene");
+
 void MainScene::render()
 {
-    Scene::render(getDisplayEngine()->getWindowSize(), false);
+    Scene::render(getDisplayEngine()->getWindowSize(), false, RootRenderProfilingZone);
 }
 
 }
