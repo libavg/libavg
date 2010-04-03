@@ -50,13 +50,11 @@ class AVG_API Image
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
 
-        void discardOnCPU();
-
         void setFilename(const std::string& sFilename);
         void setScene(OffscreenScenePtr pScene);
         OffscreenScenePtr getScene() const;
         const std::string& getFilename() const;
-
+        
         BitmapPtr getBitmap();
         IntPoint getSize();
         PixelFormat getPixelFormat();

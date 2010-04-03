@@ -77,11 +77,7 @@ void FilledVectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 
 void FilledVectorNode::disconnect(bool bKill)
 {
-	if (bKill) {
-		m_pFillShape->discardOnCPU();
-	} else {
-		m_pFillShape->moveToCPU();
-	}
+    m_pFillShape->moveToCPU();
     VectorNode::disconnect(bKill);
 }
 

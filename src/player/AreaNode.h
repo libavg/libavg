@@ -84,7 +84,7 @@ class AVG_API AreaNode: public Node
         double getAngle() const;
         void setAngle(double Angle);
         
-        virtual DPoint getPivot() const;
+        DPoint getPivot() const;
         void setPivot(const DPoint& pt);
         
         virtual DPoint toLocal(const DPoint& pos) const;

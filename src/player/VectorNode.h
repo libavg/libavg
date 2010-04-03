@@ -93,9 +93,6 @@ class AVG_API VectorNode : public Node
         int getNumDifferentPts(const std::vector<DPoint>& pts);
 
     private:
-        Shape* createDefaultShape() const;
-
-    private:
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_StrokeWidth;

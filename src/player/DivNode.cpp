@@ -39,10 +39,7 @@
 using namespace std;
 using namespace boost;
 
-#define DEFAULT_SIZE 10000
-
 namespace avg {
-
 
 NodeDefinition DivNode::createDefinition()
 {
@@ -95,15 +92,6 @@ void DivNode::disconnect(bool bKill)
         m_Children[i]->disconnect(bKill);
     }
     AreaNode::disconnect(bKill);
-}
-
-DPoint DivNode::getPivot() const
-{
-	DPoint pivot = AreaNode::getPivot();
-	if (pivot == DPoint(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
-		return DPoint(0, 0);
-	}
-	return pivot;
 }
 
 bool DivNode::getCrop() const
@@ -278,7 +266,7 @@ int DivNode::indexOf(NodePtr pChild)
 NodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     if (reactsToMouseEvents() &&
-            ((getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE) ||
+            ((getSize() == DPoint(10000, 10000) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
@@ -290,7 +278,7 @@ NodePtr DivNode::getElementByPos(const DPoint & pos)
             }
         }
         // Pos isn't in any of the children.
-        if (getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
+        if (getSize() == DPoint(10000, 10000)) {
             // Explicit width/height not given: div itself doesn't react.
             return NodePtr();
         } else {
@@ -334,7 +322,7 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
     }
     if (effColor != Pixel32(0,0,0,0)) {
         DPoint size = getSize();
-        if (size == DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
+        if (size == DPoint(10000, 10000)) {
             DPoint p0 = getAbsPos(DPoint(-4, 0.5));
             DPoint p1 = getAbsPos(DPoint(5, 0.5));
             DPoint p2 = getAbsPos(DPoint(0.5, -4));
@@ -392,7 +380,7 @@ string DivNode::dump(int indent)
 
 IntPoint DivNode::getMediaSize()
 {
-    return IntPoint(DEFAULT_SIZE, DEFAULT_SIZE);
+    return IntPoint(10000,10000);
 }
  
 bool DivNode::isChildTypeAllowed(const string& sType)

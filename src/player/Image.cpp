@@ -104,26 +104,12 @@ void Image::moveToCPU()
     if (m_State != GPU) {
         return;
     }
-
     if (!m_pScene) {
         m_pBmp = m_pSurface->readbackBmp();
+        m_State = CPU;
     }
-    discardOnCPU();
-}
-
-void Image::discardOnCPU()
-{
-	if (m_State != GPU) {
-		return;
-	}
-
-	m_pEngine = 0;
-	m_pSurface->destroy();
-	if (!m_pScene) {
-		m_sFilename = "";
-		m_pBmp = BitmapPtr();
-		m_State = CPU;
-	}
+    m_pEngine = 0;
+    m_pSurface->destroy();
 }
 
 void Image::setFilename(const std::string& sFilename)
