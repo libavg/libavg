@@ -1314,5 +1314,10 @@ const GLConfig& SDLDisplayEngine::getOGLOptions() const
     return m_GLConfig;
 }
 
+const IntPoint& SDLDisplayEngine::getWindowSize() const
+{
+    return m_WindowSize;
+}
+
 }
 

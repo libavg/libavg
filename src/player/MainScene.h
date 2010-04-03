@@ -38,7 +38,6 @@ class AVG_API MainScene: public Scene
 
     private:
         virtual void render();
-
 };
 
 }

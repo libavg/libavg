@@ -228,7 +228,7 @@ vector<NodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
 
 static ProfilingZone RootRenderProfilingZone("Root node: render");
 
-void Scene::render(bool bUpsideDown)
+void Scene::render(IntPoint windowSize, bool bUpsideDown)
 {
     m_pRootNode->preRender();
     if (m_MultiSampleSamples > 1) {
@@ -253,13 +253,13 @@ void Scene::render(bool bUpsideDown)
     glClear(GL_DEPTH_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render::glClear(GL_DEPTH_BUFFER_BIT)");
-    IntPoint size = IntPoint(m_pRootNode->getSize());
-    glViewport(0, 0, size.x, size.y);
+    glViewport(0, 0, windowSize.x, windowSize.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glMatrixMode()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glLoadIdentity()");
+    IntPoint size = IntPoint(m_pRootNode->getSize());
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {

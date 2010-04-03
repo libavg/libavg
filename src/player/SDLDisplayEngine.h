@@ -89,7 +89,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         void setOGLOptions(const GLConfig& glConfig);
         const GLConfig& getOGLOptions() const;
-        
+        const IntPoint& getWindowSize() const;
+
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();

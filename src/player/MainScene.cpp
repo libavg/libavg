@@ -67,7 +67,7 @@ BitmapPtr MainScene::screenshot() const
 
 void MainScene::render()
 {
-    Scene::render(false);
+    Scene::render(getDisplayEngine()->getWindowSize(), false);
 }
 
 }

@@ -85,7 +85,7 @@ class AVG_API Scene
     protected:
         Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
-        void render(bool bUpsideDown);
+        void render(IntPoint windowSize, bool bUpsideDown);
 
     private:
         virtual void render()=0;

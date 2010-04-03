@@ -78,7 +78,7 @@ void OffscreenScene::render()
                 "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
     }
     m_pFBO->activate();
-    Scene::render(true);
+    Scene::render(IntPoint(getRootNode()->getSize()), true);
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
     if (m_bUseMipmaps) {
