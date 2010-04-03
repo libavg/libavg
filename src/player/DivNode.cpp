@@ -48,7 +48,7 @@ NodeDefinition DivNode::createDefinition()
             "circle", "mesh"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
-    return NodeDefinition("div", Node::buildNode<DivNode>)
+    return NodeDefinition("div", VisibleNode::buildNode<DivNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)))
@@ -135,7 +135,7 @@ int DivNode::getNumChildren()
     return int(m_Children.size());
 }
 
-const NodePtr& DivNode::getChild(unsigned i)
+const VisibleNodePtr& DivNode::getChild(unsigned i)
 {
     if (i >= m_Children.size()) {
         stringstream s;
@@ -145,12 +145,12 @@ const NodePtr& DivNode::getChild(unsigned i)
     return m_Children[i];
 }
 
-void DivNode::appendChild(NodePtr pNewNode)
+void DivNode::appendChild(VisibleNodePtr pNewNode)
 {
     insertChild(pNewNode, unsigned(m_Children.size()));
 }
 
-void DivNode::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
+void DivNode::insertChildBefore(VisibleNodePtr pNewNode, VisibleNodePtr pOldChild)
 {
     if (!pOldChild) {
         throw Exception(AVG_ERR_NO_NODE,
@@ -161,7 +161,7 @@ void DivNode::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
 }
 
 
-void DivNode::insertChild(NodePtr pNewNode, unsigned i)
+void DivNode::insertChild(VisibleNodePtr pNewNode, unsigned i)
 {
     if (!pNewNode) {
         throw Exception(AVG_ERR_NO_NODE,
@@ -183,7 +183,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 pNewNode->getID()+"::insertChild: index out of bounds."));
     }
-    std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
+    std::vector<VisibleNodePtr>::iterator Pos = m_Children.begin()+i;
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getScene()->registerNode(pNewNode);
     }
@@ -195,7 +195,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
 }
 
-void DivNode::removeChild(NodePtr pNode)
+void DivNode::removeChild(VisibleNodePtr pNode)
 {
     removeChild(pNode, false);
 }
@@ -205,7 +205,7 @@ void DivNode::removeChild(unsigned i)
     removeChild(i, false);
 }
 
-void DivNode::removeChild(NodePtr pNode, bool bKill)
+void DivNode::removeChild(VisibleNodePtr pNode, bool bKill)
 {
     int i = indexOf(pNode);
     pNode->removeParent(bKill);
@@ -218,12 +218,12 @@ void DivNode::removeChild(unsigned i, bool bKill)
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::removeChild: index "+toString(i)+" out of bounds."));
     }
-    NodePtr pNode = getChild(i);
+    VisibleNodePtr pNode = getChild(i);
     pNode->removeParent(bKill);
     m_Children.erase(m_Children.begin()+i);
 }
 
-void DivNode::reorderChild(NodePtr pNode, unsigned j)
+void DivNode::reorderChild(VisibleNodePtr pNode, unsigned j)
 {
     if (j > m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
@@ -231,7 +231,7 @@ void DivNode::reorderChild(NodePtr pNode, unsigned j)
     }
     int i = indexOf(pNode);
     m_Children.erase(m_Children.begin()+i);
-    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    std::vector<VisibleNodePtr>::iterator Pos = m_Children.begin()+j;
     m_Children.insert(Pos, pNode);
 }
 
@@ -241,13 +241,13 @@ void DivNode::reorderChild(unsigned i, unsigned j)
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::reorderChild: index out of bounds."));
     }
-    NodePtr pNode = getChild(i);
+    VisibleNodePtr pNode = getChild(i);
     m_Children.erase(m_Children.begin()+i);
-    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    std::vector<VisibleNodePtr>::iterator Pos = m_Children.begin()+j;
     m_Children.insert(Pos, pNode);
 }
 
-int DivNode::indexOf(NodePtr pChild)
+int DivNode::indexOf(VisibleNodePtr pChild)
 {
     if (!pChild) {
         throw Exception(AVG_ERR_NO_NODE,
@@ -263,16 +263,16 @@ int DivNode::indexOf(NodePtr pChild)
             +getID()+"'"));
 }
 
-NodePtr DivNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == DPoint(10000, 10000) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            NodePtr pCurChild = getChild(i);
+            VisibleNodePtr pCurChild = getChild(i);
             DPoint relPos = pCurChild->toLocal(pos);
-            NodePtr pFoundNode = pCurChild->getElementByPos(relPos);
+            VisibleNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
             if (pFoundNode) {
                 return pFoundNode;
             }
@@ -280,19 +280,19 @@ NodePtr DivNode::getElementByPos(const DPoint & pos)
         // Pos isn't in any of the children.
         if (getSize() == DPoint(10000, 10000)) {
             // Explicit width/height not given: div itself doesn't react.
-            return NodePtr();
+            return VisibleNodePtr();
         } else {
             // Explicit width/height given for div.
             return getThis();
         }
     } else { 
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
 
 void DivNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->preRender();
     }
@@ -371,7 +371,7 @@ void DivNode::checkReload()
 string DivNode::dump(int indent)
 {
     string dumpStr = AreaNode::dump () + "\n";
-    vector<NodePtr>::iterator it;
+    vector<VisibleNodePtr>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
         dumpStr += (*it)->dump(indent+2)+"\n";
     }

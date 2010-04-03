@@ -48,7 +48,7 @@ namespace avg {
 
 NodeDefinition PanoImageNode::createDefinition()
 {
-    return NodeDefinition("panoimage", Node::buildNode<PanoImageNode>)
+    return NodeDefinition("panoimage", VisibleNode::buildNode<PanoImageNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(PanoImageNode, m_href)))
         .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImageNode, m_SensorWidth)))

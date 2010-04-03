@@ -132,7 +132,7 @@ void RasterNode::checkReload()
             }
         } catch (Magick::Exception & ex) {
             m_sMaskFilename = "";
-            if (getState() != Node::NS_UNCONNECTED) {
+            if (getState() != VisibleNode::NS_UNCONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.what());
             } else {
                 AVG_TRACE(Logger::MEMORY, ex.what());
@@ -143,7 +143,7 @@ void RasterNode::checkReload()
             m_Material.setMask(false);
             setMaterial(m_Material);
         }
-        if (getState() == Node::NS_CANRENDER && m_Material.getHasMask()) {
+        if (getState() == VisibleNode::NS_CANRENDER && m_Material.getHasMask()) {
             m_pSurface->createMask(m_pMaskBmp->getSize());
             downloadMask();
         }
@@ -254,13 +254,13 @@ void RasterNode::setMaskSize(const DPoint& size)
     calcMaskPos();
 }
 
-NodePtr RasterNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr RasterNode::getElementByPos(const DPoint & pos)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {
         return AreaNode::getElementByPos(pos);
     } else {
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
 
@@ -354,7 +354,7 @@ void RasterNode::downloadMask()
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
-    if (!(getState() == Node::NS_CANRENDER)) {
+    if (!(getState() == VisibleNode::NS_CANRENDER)) {
         throw Exception(AVG_ERR_UNSUPPORTED,
             string(sMsg) + ": cannot access vertex coordinates before Player.play().");
     }

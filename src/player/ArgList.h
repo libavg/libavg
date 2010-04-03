@@ -38,7 +38,7 @@ namespace avg {
 
 typedef std::map<std::string, ArgBasePtr> ArgMap;
 
-class Node;
+class VisibleNode;
 
 class AVG_API ArgList
 {
@@ -62,7 +62,7 @@ public:
     
     void setArg(const ArgBase& Arg);
     void setArgs(const ArgList& Args);
-    void setMembers(Node * pNode) const;
+    void setMembers(VisibleNode * pNode) const;
     
     void copyArgsFrom(const ArgList& ArgTemplates);
 

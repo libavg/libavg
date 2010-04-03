@@ -35,7 +35,7 @@ using namespace std;
 
 namespace avg {
     
-OffscreenScene::OffscreenScene(Player * pPlayer, NodePtr pRootNode)
+OffscreenScene::OffscreenScene(Player * pPlayer, VisibleNodePtr pRootNode)
     : Scene(pPlayer, pRootNode)
 {
     if (!pRootNode) {

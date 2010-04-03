@@ -44,7 +44,7 @@ namespace avg {
 
 NodeDefinition ImageNode::createDefinition()
 {
-    return NodeDefinition("image", Node::buildNode<ImageNode>)
+    return NodeDefinition("image", VisibleNode::buildNode<ImageNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)));
 }
@@ -101,7 +101,7 @@ void ImageNode::setHRef(const UTF8String& href)
 void ImageNode::setBitmap(const Bitmap * pBmp)
 {
     m_pImage->setBitmap(pBmp);
-    if (getState() == Node::NS_CANRENDER) {
+    if (getState() == VisibleNode::NS_CANRENDER) {
         bind();
     }
     m_href = "";
@@ -130,13 +130,13 @@ void ImageNode::checkReload()
         OffscreenScenePtr pScene = Player::get()->getSceneFromURL(m_href);
         m_pImage->setScene(pScene);
     } else {
-        Node::checkReload(m_href, m_pImage);
+        VisibleNode::checkReload(m_href, m_pImage);
     }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }
 
-NodePtr ImageNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr ImageNode::getElementByPos(const DPoint & pos)
 {
     OffscreenScenePtr pScene = m_pImage->getScene();
     if (pScene && pScene->getHandleEvents()) {

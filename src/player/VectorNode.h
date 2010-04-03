@@ -35,7 +35,7 @@ namespace avg {
 
 struct WideLine;
 
-class AVG_API VectorNode : public Node
+class AVG_API VectorNode : public VisibleNode
 {
     public:
         enum LineJoin {LJ_MITER, LJ_BEVEL};

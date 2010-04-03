@@ -46,21 +46,21 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Node::createDefinition()
+NodeDefinition VisibleNode::createDefinition()
 {
     return NodeDefinition("node")
-        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
+        .addArg(Arg<string>("id", "", false, offsetof(VisibleNode, m_ID)))
         .addArg(Arg<string>("oncursormove", ""))
         .addArg(Arg<string>("oncursorup", ""))
         .addArg(Arg<string>("oncursordown", ""))
         .addArg(Arg<string>("oncursorover", ""))
         .addArg(Arg<string>("oncursorout", ""))
-        .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
-        .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
-        .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
+        .addArg(Arg<bool>("active", true, false, offsetof(VisibleNode, m_bActive)))
+        .addArg(Arg<bool>("sensitive", true, false, offsetof(VisibleNode, m_bSensitive)))
+        .addArg(Arg<double>("opacity", 1.0, false, offsetof(VisibleNode, m_Opacity)));
 }
 
-Node::Node()
+VisibleNode::VisibleNode()
     : m_pScene(0),
       m_pParent(),
       m_This(),
@@ -71,7 +71,7 @@ Node::Node()
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Node::~Node()
+VisibleNode::~VisibleNode()
 {
     EventHandlerMap::iterator it;
     for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
@@ -80,7 +80,7 @@ Node::~Node()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void Node::setArgs(const ArgList& Args)
+void VisibleNode::setArgs(const ArgList& Args)
 {
     addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
     addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
@@ -89,13 +89,13 @@ void Node::setArgs(const ArgList& Args)
     addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
 }
 
-void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
+void VisibleNode::setThis(VisibleNodeWeakPtr This, const NodeDefinition * pDefinition)
 {
     m_This = This;
     m_pDefinition = pDefinition;
 }
 
-void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState, Scene * pScene)
+void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState, Scene * pScene)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
@@ -108,7 +108,7 @@ void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState, Scene * pSce
     }
 }
 
-void Node::removeParent(bool bKill)
+void VisibleNode::removeParent(bool bKill)
 {
     m_pParent = DivNodePtr();
     if (getState() != NS_UNCONNECTED) {
@@ -116,7 +116,7 @@ void Node::removeParent(bool bKill)
     }
 }
 
-void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     AVG_ASSERT(getState() == NS_CONNECTED);
     m_pDisplayEngine = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine);
@@ -124,13 +124,13 @@ void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAu
     setState(NS_CANRENDER);
 }
 
-void Node::connect(Scene * pScene)
+void VisibleNode::connect(Scene * pScene)
 {
     m_pScene = pScene;
     setState(NS_CONNECTED);
 }
 
-void Node::disconnect(bool bKill)
+void VisibleNode::disconnect(bool bKill)
 {
     AVG_ASSERT(getState() != NS_UNCONNECTED);
     if (getState() == NS_CANRENDER) {
@@ -148,12 +148,12 @@ void Node::disconnect(bool bKill)
     }
 }
 
-const string& Node::getID() const
+const string& VisibleNode::getID() const
 {
     return m_ID;
 }
 
-void Node::setID(const std::string& ID)
+void VisibleNode::setID(const std::string& ID)
 {
     if (getState() != NS_UNCONNECTED) {
         throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
@@ -162,12 +162,12 @@ void Node::setID(const std::string& ID)
     m_ID = ID;
 }
 
-double Node::getOpacity() const 
+double VisibleNode::getOpacity() const 
 {
     return m_Opacity;
 }
 
-void Node::setOpacity(double opacity) 
+void VisibleNode::setOpacity(double opacity) 
 {
     m_Opacity = opacity;
     if (m_Opacity < 0.0) {
@@ -177,29 +177,29 @@ void Node::setOpacity(double opacity)
     }
 }
 
-bool Node::getActive() const 
+bool VisibleNode::getActive() const 
 {
     return m_bActive;
 }
 
-void Node::setActive(bool bActive)
+void VisibleNode::setActive(bool bActive)
 {
     if (bActive != m_bActive) {
         m_bActive = bActive;
     }
 }
 
-bool Node::getSensitive() const 
+bool VisibleNode::getSensitive() const 
 {
     return m_bSensitive;
 }
 
-void Node::setSensitive(bool bSensitive)
+void VisibleNode::setSensitive(bool bSensitive)
 {
     m_bSensitive = bSensitive;
 }
 
-DivNodePtr Node::getParent() const
+DivNodePtr VisibleNode::getParent() const
 {
     if (m_pParent.expired()) {
         return DivNodePtr();
@@ -208,10 +208,10 @@ DivNodePtr Node::getParent() const
     }
 }
 
-vector<NodeWeakPtr> Node::getParentChain() const
+vector<VisibleNodeWeakPtr> VisibleNode::getParentChain() const
 {
-    vector<NodeWeakPtr> pNodes;
-    NodePtr pCurNode = m_This.lock();
+    vector<VisibleNodeWeakPtr> pNodes;
+    VisibleNodePtr pCurNode = m_This.lock();
     while (pCurNode) {
         pNodes.push_back(pCurNode);
         pCurNode = pCurNode->getParent();
@@ -219,7 +219,7 @@ vector<NodeWeakPtr> Node::getParentChain() const
     return pNodes;
 }
 
-void Node::unlink(bool bKill)
+void VisibleNode::unlink(bool bKill)
 {
     if (m_pParent.expired()) {
         return;
@@ -228,27 +228,27 @@ void Node::unlink(bool bKill)
     pParent->removeChild(getThis(), bKill);
 }
 
-void Node::setMouseEventCapture()
+void VisibleNode::setMouseEventCapture()
 {
     setEventCapture(MOUSECURSORID);
 }
 
-void Node::releaseMouseEventCapture()
+void VisibleNode::releaseMouseEventCapture()
 {
     releaseEventCapture(MOUSECURSORID);
 }
 
-void Node::setEventCapture(int cursorID) 
+void VisibleNode::setEventCapture(int cursorID) 
 {
     Player::get()->setEventCapture(getThis(), cursorID);
 }
 
-void Node::releaseEventCapture(int cursorID) 
+void VisibleNode::releaseEventCapture(int cursorID) 
 {
     Player::get()->releaseEventCapture(cursorID);
 }
 
-void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
+void VisibleNode::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
 {
     for (int i=0; i<4; ++i) {
         int source = int(pow(2.,i));
@@ -267,12 +267,12 @@ void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
     }
 }
 
-bool Node::reactsToMouseEvents()
+bool VisibleNode::reactsToMouseEvents()
 {
     return m_bActive && m_bSensitive;
 }
 
-DPoint Node::getRelPos(const DPoint& AbsPos) const 
+DPoint VisibleNode::getRelPos(const DPoint& AbsPos) const 
 {
     DPoint parentPos;
     DivNodePtr pParent = getParent();
@@ -284,7 +284,7 @@ DPoint Node::getRelPos(const DPoint& AbsPos) const
     return toLocal(parentPos);
 }
 
-DPoint Node::getAbsPos(const DPoint& RelPos) const 
+DPoint VisibleNode::getAbsPos(const DPoint& RelPos) const 
 {
     DPoint thisPos = toGlobal(RelPos);
     DPoint parentPos;
@@ -297,22 +297,22 @@ DPoint Node::getAbsPos(const DPoint& RelPos) const
     return parentPos;
 }
 
-DPoint Node::toLocal(const DPoint& globalPos) const
+DPoint VisibleNode::toLocal(const DPoint& globalPos) const
 {
     return globalPos;
 }
 
-DPoint Node::toGlobal(const DPoint& localPos) const
+DPoint VisibleNode::toGlobal(const DPoint& localPos) const
 {
     return localPos;
 }
 
-NodePtr Node::getElementByPos(const DPoint & pos)
+VisibleNodePtr VisibleNode::getElementByPos(const DPoint & pos)
 {
-    return NodePtr();
+    return VisibleNodePtr();
 }
 
-void Node::preRender()
+void VisibleNode::preRender()
 {
     if (getParent()) {
         m_EffectiveOpacity = m_Opacity*getParent()->getEffectiveOpacity();
@@ -321,37 +321,37 @@ void Node::preRender()
     }
 }
 
-Node::NodeState Node::getState() const
+VisibleNode::NodeState VisibleNode::getState() const
 {
     return m_State;
 }
 
-Scene * Node::getScene() const
+Scene * VisibleNode::getScene() const
 {
     return m_pScene;
 }
 
-bool Node::operator ==(const Node& other) const
+bool VisibleNode::operator ==(const VisibleNode& other) const
 {
     return m_This.lock() == other.m_This.lock();
 }
 
-bool Node::operator !=(const Node& other) const
+bool VisibleNode::operator !=(const VisibleNode& other) const
 {
     return m_This.lock() != other.m_This.lock();
 }
 
-long Node::getHash() const
+long VisibleNode::getHash() const
 {
     return long(&*m_This.lock());
 }
 
-const NodeDefinition* Node::getDefinition() const
+const NodeDefinition* VisibleNode::getDefinition() const
 {
     return m_pDefinition;
 }
 
-bool Node::handleEvent(EventPtr pEvent)
+bool VisibleNode::handleEvent(EventPtr pEvent)
 {
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
@@ -362,14 +362,14 @@ bool Node::handleEvent(EventPtr pEvent)
     }
 }
 
-void Node::addEventHandlers(Event::Type EventType, const string& Code)
+void VisibleNode::addEventHandlers(Event::Type EventType, const string& Code)
 {
     addEventHandler(EventType, Event::MOUSE, Code);
     addEventHandler(EventType, Event::TOUCH, Code);
     addEventHandler(EventType, Event::TRACK, Code);
 }
 
-void Node::addEventHandler(Event::Type EventType, Event::Source Source, 
+void VisibleNode::addEventHandler(Event::Type EventType, Event::Source Source, 
         const string& Code)
 {
     PyObject * pFunc = findPythonFunc(Code);
@@ -380,39 +380,39 @@ void Node::addEventHandler(Event::Type EventType, Event::Source Source,
     }
 }
 
-SDLDisplayEngine * Node::getDisplayEngine() const
+SDLDisplayEngine * VisibleNode::getDisplayEngine() const
 {
     return m_pDisplayEngine;
 }
 
-AudioEngine * Node::getAudioEngine() const
+AudioEngine * VisibleNode::getAudioEngine() const
 {
     return m_pAudioEngine;
 }
 
-NodePtr Node::getThis() const
+VisibleNodePtr VisibleNode::getThis() const
 {
     return m_This.lock();
 }
 
-double Node::getEffectiveOpacity()
+double VisibleNode::getEffectiveOpacity()
 {
     return m_EffectiveOpacity;
 }
 
-string Node::dump(int indent)
+string VisibleNode::dump(int indent)
 {
     string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID + 
             "m_Opacity=" + toString(m_Opacity);
     return dumpStr; 
 }
 
-string Node::getTypeStr() const 
+string VisibleNode::getTypeStr() const 
 {
     return m_pDefinition->getName();
 }
 
-void Node::setState(Node::NodeState State)
+void VisibleNode::setState(VisibleNode::NodeState State)
 {
 /*    
     cerr << m_ID << " state: ";
@@ -438,7 +438,7 @@ void Node::setState(Node::NodeState State)
     m_State = State;
 }
         
-void Node::initFilename(string& sFilename)
+void VisibleNode::initFilename(string& sFilename)
 {
     if (sFilename != "") {
         bool bAbsDir = sFilename[0] == '/';
@@ -458,7 +458,7 @@ void Node::initFilename(string& sFilename)
     }
 }
 
-void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
+void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage)
 {
     string sLastFilename = pImage->getFilename();
     string sFilename = sHRef;
@@ -469,7 +469,7 @@ void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
             pImage->setFilename(sFilename);
         } catch (Magick::Exception & ex) {
             pImage->setFilename("");
-            if (getState() != Node::NS_UNCONNECTED) {
+            if (getState() != VisibleNode::NS_UNCONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.what());
             } else {
                 AVG_TRACE(Logger::MEMORY, ex.what());
@@ -478,12 +478,12 @@ void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
     }
 }
 
-bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
+bool VisibleNode::callPython(PyObject * pFunc, EventPtr pEvent)
 {
     return boost::python::call<bool>(pFunc, pEvent);
 }
 
-PyObject * Node::findPythonFunc(const string& Code)
+PyObject * VisibleNode::findPythonFunc(const string& Code)
 {
     if (Code.empty()) {
         return 0;
@@ -504,13 +504,13 @@ PyObject * Node::findPythonFunc(const string& Code)
     }
 }
 
-Node::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
+VisibleNode::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
     : m_Type(EventType),
       m_Source(Source)
 {
 }
 
-bool Node::EventHandlerID::operator < (const EventHandlerID& other) const 
+bool VisibleNode::EventHandlerID::operator < (const EventHandlerID& other) const 
 {
     if (m_Type == other.m_Type) {
         return m_Source < other.m_Source;

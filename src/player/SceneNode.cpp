@@ -32,7 +32,7 @@ namespace avg {
 
 NodeDefinition SceneNode::createDefinition()
 {
-    return NodeDefinition("scenebase", Node::buildNode<SceneNode>)
+    return NodeDefinition("scenebase", VisibleNode::buildNode<SceneNode>)
         .extendDefinition(DivNode::createDefinition());
 }
 

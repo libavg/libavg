@@ -49,7 +49,7 @@ class AVG_API RectNode : public FilledVectorNode
         double getAngle() const;
         void setAngle(double angle);
 
-        NodePtr getElementByPos(const DPoint & pos);
+        VisibleNodePtr getElementByPos(const DPoint & pos);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);

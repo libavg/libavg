@@ -54,19 +54,19 @@ class AVG_API DivNode : public AreaNode
         void setMediaDir(const UTF8String& mediaDir);
 
         int getNumChildren();
-        const NodePtr& getChild(unsigned i);
-        void appendChild(NodePtr pNewNode);
-        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
-        void insertChild(NodePtr pNewNode, unsigned i);
-        void removeChild(NodePtr pNode);
+        const VisibleNodePtr& getChild(unsigned i);
+        void appendChild(VisibleNodePtr pNewNode);
+        void insertChildBefore(VisibleNodePtr pNewNode, VisibleNodePtr pOldChild);
+        void insertChild(VisibleNodePtr pNewNode, unsigned i);
+        void removeChild(VisibleNodePtr pNode);
         void removeChild(unsigned i);
-        void removeChild(NodePtr pNode, bool bKill);
+        void removeChild(VisibleNodePtr pNode, bool bKill);
         void removeChild(unsigned i, bool bKill);
-        void reorderChild(NodePtr pNode, unsigned j);
+        void reorderChild(VisibleNodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);
-        int indexOf(NodePtr pChild);
+        int indexOf(VisibleNodePtr pChild);
 
-        virtual NodePtr getElementByPos(const DPoint & pos);
+        virtual VisibleNodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
         virtual void render(const DRect& rect);
         virtual void renderOutlines(VertexArrayPtr pVA, Pixel32 color);
@@ -84,7 +84,7 @@ class AVG_API DivNode : public AreaNode
         bool m_bCrop;
         std::string m_sElementOutlineColor;
         Pixel32 m_ElementOutlineColor;
-        std::vector<NodePtr> m_Children;
+        std::vector<VisibleNodePtr> m_Children;
 };
 
 }

@@ -82,7 +82,7 @@ NodeDefinition WordsNode::createDefinition()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    return NodeDefinition("words", Node::buildNode<WordsNode>)
+    return NodeDefinition("words", VisibleNode::buildNode<WordsNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
@@ -243,7 +243,7 @@ double WordsNode::getHeight()
     return AreaNode::getHeight();
 }
 
-NodePtr WordsNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr WordsNode::getElementByPos(const DPoint & pos)
 {
     drawString();
     DPoint relPos = pos-DPoint(m_AlignOffset, 0);
@@ -617,7 +617,7 @@ void WordsNode::drawString()
 
 void WordsNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     drawString();
 }
 

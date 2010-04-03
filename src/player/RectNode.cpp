@@ -37,7 +37,7 @@ namespace avg {
 NodeDefinition RectNode::createDefinition()
 {
     double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
-    return NodeDefinition("rect", Node::buildNode<RectNode>)
+    return NodeDefinition("rect", VisibleNode::buildNode<RectNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<DPoint>("size", DPoint(0,0)))
@@ -111,7 +111,7 @@ void RectNode::setAngle(double angle)
     setDrawNeeded();
 }
 
-NodePtr RectNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr RectNode::getElementByPos(const DPoint & pos)
 {
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
     DPoint rpos = pos.getRotatedPivot(m_Angle, pivot);
@@ -120,7 +120,7 @@ NodePtr RectNode::getElementByPos(const DPoint & pos)
     {
         return getThis();
     } else {
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
 

@@ -29,8 +29,8 @@
 
 namespace avg {
 
-class Node;
-typedef boost::shared_ptr<class Node> NodePtr;
+class VisibleNode;
+typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
 
 class AVG_API Event {
     public:
@@ -56,14 +56,14 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        NodePtr getElement() const;
-        void setElement(NodePtr pNode);
+        VisibleNodePtr getElement() const;
+        void setElement(VisibleNodePtr pNode);
         
         friend struct isEventAfter;
         
     protected:
         Type m_Type;
-        NodePtr m_pNode;
+        VisibleNodePtr m_pNode;
         long long m_When;
 
     private:

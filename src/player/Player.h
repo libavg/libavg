@@ -46,7 +46,7 @@
 namespace avg {
 
 class AudioEngine;
-class Node;
+class VisibleNode;
 class TestHelper;
 class Scene;
 class MainScene;
@@ -56,8 +56,8 @@ class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
 
-typedef boost::shared_ptr<Node> NodePtr;
-typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
+typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Scene> ScenePtr;
 typedef boost::shared_ptr<MainScene> MainScenePtr;
 typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
@@ -102,8 +102,8 @@ class AVG_API Player: IEventSink
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
-        NodePtr createNodeFromXmlString(const std::string& sXML);
+        VisibleNodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
+        VisibleNodePtr createNodeFromXmlString(const std::string& sXML);
         
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
@@ -114,7 +114,7 @@ class AVG_API Player: IEventSink
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
-        void setEventCapture(NodePtr pNode, int cursorID);
+        void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 
         EventPtr getCurEvent() const;
@@ -124,7 +124,7 @@ class AVG_API Player: IEventSink
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
 
-        NodePtr getElementByID(const std::string& id);
+        VisibleNodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame(bool bFirstFrame);
         double getFramerate();
@@ -168,17 +168,17 @@ class AVG_API Player: IEventSink
 
         void updateDTD();
 
-        NodePtr loadMainNodeFromFile(const std::string& sFilename);
-        NodePtr loadMainNodeFromString(const std::string& sAVG);
-        NodePtr internalLoad(const std::string& sAVG);
+        VisibleNodePtr loadMainNodeFromFile(const std::string& sFilename);
+        VisibleNodePtr loadMainNodeFromString(const std::string& sAVG);
+        VisibleNodePtr internalLoad(const std::string& sAVG);
 
-        NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
+        VisibleNodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
-        OffscreenScenePtr registerOffscreenScene(NodePtr pNode);
+        OffscreenScenePtr registerOffscreenScene(VisibleNodePtr pNode);
         OffscreenScenePtr findScene(const std::string& sID) const;
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, VisibleNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         MainScenePtr m_pMainScene;
@@ -231,7 +231,7 @@ class AVG_API Player: IEventSink
         friend void deletePlayer();
         
         EventDispatcherPtr m_pEventDispatcher;
-        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
+        std::map<int, VisibleNodeWeakPtr> m_pEventCaptureNode;
         
         MouseState m_MouseState;
 

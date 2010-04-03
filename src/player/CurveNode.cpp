@@ -39,7 +39,7 @@ namespace avg {
 
 NodeDefinition CurveNode::createDefinition()
 {
-    return NodeDefinition("curve", Node::buildNode<CurveNode>)
+    return NodeDefinition("curve", VisibleNode::buildNode<CurveNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(CurveNode, m_P1)))
         .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(CurveNode, m_P2)))

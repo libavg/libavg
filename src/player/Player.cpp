@@ -230,7 +230,7 @@ ScenePtr Player::loadFile(const string& sFilename)
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Can't load a new main scene while the player is running.");
     }
-    NodePtr pNode = loadMainNodeFromFile(sFilename);
+    VisibleNodePtr pNode = loadMainNodeFromFile(sFilename);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     if (m_pMainScene) {
         cleanup();
@@ -251,7 +251,7 @@ ScenePtr Player::loadString(const string& sAVG)
         cleanup();
     }
 
-    NodePtr pNode = loadMainNodeFromString(sAVG);
+    VisibleNodePtr pNode = loadMainNodeFromString(sAVG);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
@@ -260,13 +260,13 @@ ScenePtr Player::loadString(const string& sAVG)
 
 OffscreenScenePtr Player::loadSceneFile(const string& sFilename)
 {
-    NodePtr pNode = loadMainNodeFromFile(sFilename);
+    VisibleNodePtr pNode = loadMainNodeFromFile(sFilename);
     return registerOffscreenScene(pNode);
 }
 
 OffscreenScenePtr Player::loadSceneString(const string& sAVG)
 {
-    NodePtr pNode = loadMainNodeFromString(sAVG);
+    VisibleNodePtr pNode = loadMainNodeFromString(sAVG);
     return registerOffscreenScene(pNode);
 }
 
@@ -299,7 +299,7 @@ OffscreenScenePtr Player::getScene(const string& sID) const
     }
 }
 
-NodePtr Player::loadMainNodeFromFile(const string& sFilename)
+VisibleNodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string RealFilename;
     try {
@@ -319,7 +319,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 
         string sAVG;
         readWholeFile(RealFilename, sAVG);
-        NodePtr pNode = internalLoad(sAVG);
+        VisibleNodePtr pNode = internalLoad(sAVG);
 
         // Reset the directory to load assets from to the current dir.
         m_CurDirName = string(pBuf)+"/";
@@ -340,13 +340,13 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
     }
 }
 
-NodePtr Player::loadMainNodeFromString(const string& sAVG)
+VisibleNodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
         
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
-        NodePtr pNode = internalLoad(sEffectiveDoc);
+        VisibleNodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
     } catch (Exception& ex) {
         switch (ex.GetCode()) {
@@ -548,9 +548,9 @@ TrackerEventSource * Player::getTracker()
     return m_pTracker;
 }
 
-void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
+void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
                 + pNode->getID() + "', but cursor already captured by '"
@@ -562,7 +562,7 @@ void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
 
 void Player::releaseEventCapture(int cursorID)
 {
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
@@ -691,12 +691,12 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     delete pMask;
 }
 
-NodePtr Player::getElementByID(const std::string& id)
+VisibleNodePtr Player::getElementByID(const std::string& id)
 {
     if (m_pMainScene) {
         return m_pMainScene->getElementByID(id);
     } else {
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
         
@@ -980,7 +980,7 @@ void Player::updateDTD()
     m_bDirtyDTD = false;
 }
 
-NodePtr Player::internalLoad(const string& sAVG)
+VisibleNodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
@@ -1005,7 +1005,7 @@ NodePtr Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_VALID, ""));
         }
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        NodePtr pNode = createNodeFromXml(doc, xmlNode, DivNodePtr());
+        VisibleNodePtr pNode = createNodeFromXml(doc, xmlNode, DivNodePtr());
         if (!pNode) {
             throw (Exception(AVG_ERR_XML_PARSE, 
                     "Root node of an avg tree needs to be an <avg> node."));
@@ -1051,7 +1051,7 @@ void Player::registerNodeType(NodeDefinition Def, const char* pParentNames[])
     m_bDirtyDTD = true;
 }
 
-NodePtr Player::createNode(const string& sType, const boost::python::dict& params)
+VisibleNodePtr Player::createNode(const string& sType, const boost::python::dict& params)
 {
     DivNodePtr pParentNode;
     boost::python::dict attrs = params;
@@ -1060,14 +1060,14 @@ NodePtr Player::createNode(const string& sType, const boost::python::dict& param
         attrs.attr("__delitem__")("parent");
         pParentNode = boost::python::extract<DivNodePtr>(parent);
     }
-    NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
+    VisibleNodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
     if (pParentNode) {
         pParentNode->appendChild(pNode);
     }
     return pNode;
 }
 
-NodePtr Player::createNodeFromXmlString(const string& sXML)
+VisibleNodePtr Player::createNodeFromXmlString(const string& sXML)
 {
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =0;
@@ -1078,7 +1078,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
         throw (Exception(AVG_ERR_XML_PARSE, 
                     string("Error parsing xml:\n  ")+sXML));
     }
-    NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+    VisibleNodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
 
     if (m_bDirtyDTD)
         updateDTD();
@@ -1097,16 +1097,16 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
     return pNode;
 }
 
-NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc, 
+VisibleNodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc, 
         const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
 {
-    NodePtr curNode;
+    VisibleNodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
     
     if (!strcmp (nodeType, "text") || 
         !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
-        return NodePtr();
+        return VisibleNodePtr();
     }
     curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
     if (!strcmp (nodeType, "words")) {
@@ -1121,7 +1121,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     if (curGroup) {
         xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
         while (curXmlChild) {
-            NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, curGroup);
+            VisibleNodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, curGroup);
             if (curChild) {
                 curGroup->appendChild(curChild);
             }
@@ -1131,7 +1131,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     return curNode;
 }
 
-OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
+OffscreenScenePtr Player::registerOffscreenScene(VisibleNodePtr pNode)
 {
     OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
     if (findScene(pScene->getID())) {
@@ -1165,7 +1165,7 @@ void Player::sendFakeEvents()
 }
 
 void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 
-        NodePtr pNode)
+        VisibleNodePtr pNode)
 {
     if (pNode) {
         EventPtr pNewEvent = pOtherEvent->cloneAs(Type);
@@ -1179,13 +1179,13 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
     // Find all nodes under the cursor.
-    vector<NodeWeakPtr> pCursorNodes = m_pMainScene->getElementsByPos(pos);
+    vector<VisibleNodeWeakPtr> pCursorNodes = m_pMainScene->getElementsByPos(pos);
 
     // Determine the nodes the event should be sent to.
-    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
     bool bIsCapturing = false;
     if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+        VisibleNodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
         if (pEventCaptureNode.expired()) {
             m_pEventCaptureNode.erase(cursorID);
         } else {
@@ -1193,7 +1193,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     } 
 
-    vector<NodeWeakPtr> pLastCursorNodes;
+    vector<VisibleNodeWeakPtr> pLastCursorNodes;
     {
         map<int, CursorStatePtr>::iterator it;
         it = m_pLastCursorStates.find(cursorID);
@@ -1203,10 +1203,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     // Send out events.
-    vector<NodeWeakPtr>::const_iterator itLast;
-    vector<NodeWeakPtr>::iterator itCur;
+    vector<VisibleNodeWeakPtr>::const_iterator itLast;
+    vector<VisibleNodeWeakPtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
-        NodePtr pLastNode = itLast->lock();
+        VisibleNodePtr pLastNode = itLast->lock();
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
             if (itCur->lock() == pLastNode) {
                 break;
@@ -1221,7 +1221,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = itCur->lock();
+        VisibleNodePtr pCurNode = itCur->lock();
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
                 ++itLast) 
         {
@@ -1238,9 +1238,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
-        vector<NodeWeakPtr>::iterator it;
+        vector<VisibleNodeWeakPtr>::iterator it;
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = (*it).lock();
+            VisibleNodePtr pNode = (*it).lock();
             if (pNode) {
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
@@ -1258,12 +1258,12 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
         if (bIsCapturing) {
-            NodePtr pNode = pDestNodes.begin()->lock();
+            VisibleNodePtr pNode = pDestNodes.begin()->lock();
             sendOver(pEvent, Event::CURSOROUT, pNode);
         } else {
-            vector<NodeWeakPtr>::iterator it;
+            vector<VisibleNodeWeakPtr>::iterator it;
             for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-                NodePtr pNode = it->lock();
+                VisibleNodePtr pNode = it->lock();
                 sendOver(pEvent, Event::CURSOROUT, pNode);
             } 
         }

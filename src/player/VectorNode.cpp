@@ -51,7 +51,7 @@ namespace avg {
 NodeDefinition VectorNode::createDefinition()
 {
     return NodeDefinition("vector")
-        .extendDefinition(Node::createDefinition())
+        .extendDefinition(VisibleNode::createDefinition())
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
@@ -79,7 +79,7 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     setDrawNeeded();
     m_Color = colorStringToColor(m_sColorName);
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    VisibleNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_pShape->moveToGPU(getDisplayEngine());
     m_OldOpacity = -1;
     setBlendModeStr(m_sBlendMode);
@@ -87,20 +87,20 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 
 void VectorNode::connect(Scene * pScene)
 {
-    Node::connect(pScene);
+    VisibleNode::connect(pScene);
     checkReload();
 }
 
 void VectorNode::disconnect(bool bKill)
 {
     m_pShape->moveToCPU();
-    Node::disconnect(bKill);
+    VisibleNode::disconnect(bKill);
 }
 
 void VectorNode::checkReload()
 {
-    Node::checkReload(m_TexHRef, m_pShape->getImage());
-    if (getState() == Node::NS_CANRENDER) {
+    VisibleNode::checkReload(m_TexHRef, m_pShape->getImage());
+    if (getState() == VisibleNode::NS_CANRENDER) {
         m_pShape->moveToGPU(getDisplayEngine());
         setDrawNeeded();
     }
@@ -142,7 +142,7 @@ static ProfilingZone VASizeProfilingZone("VectorNode::resize VA");
 
 void VectorNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     ScopeTimer Timer(PrerenderProfilingZone);
     double curOpacity = getEffectiveOpacity();
 

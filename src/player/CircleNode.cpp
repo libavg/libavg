@@ -34,7 +34,7 @@ namespace avg {
 
 NodeDefinition CircleNode::createDefinition()
 {
-    return NodeDefinition("circle", Node::buildNode<CircleNode>)
+    return NodeDefinition("circle", VisibleNode::buildNode<CircleNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(CircleNode, m_Pos)))
         .addArg(Arg<double>("r", 1, false, offsetof(CircleNode, m_Radius)))
@@ -100,13 +100,13 @@ void CircleNode::setTexCoord2(double tc)
     setDrawNeeded();
 }
 
-NodePtr CircleNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr CircleNode::getElementByPos(const DPoint & pos)
 {
     if (calcDist(pos, m_Pos) <= m_Radius && reactsToMouseEvents())
     {
         return getThis();
     } else {
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
 

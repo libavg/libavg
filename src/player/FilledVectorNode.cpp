@@ -83,8 +83,8 @@ void FilledVectorNode::disconnect(bool bKill)
 
 void FilledVectorNode::checkReload()
 {
-    Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
-    if (getState() == Node::NS_CANRENDER) {
+    VisibleNode::checkReload(m_FillTexHRef, m_pFillShape->getImage());
+    if (getState() == VisibleNode::NS_CANRENDER) {
         m_pFillShape->moveToGPU(getDisplayEngine());
         setDrawNeeded();
     }
@@ -145,7 +145,7 @@ void FilledVectorNode::setFillOpacity(double opacity)
 
 void FilledVectorNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     VertexArrayPtr pFillVA;
     pFillVA = m_pFillShape->getVertexArray();

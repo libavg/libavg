@@ -71,7 +71,7 @@ class AVG_API RasterNode: public AreaNode
         const DPoint& getMaskSize() const;
         void setMaskSize(const DPoint& size);
 
-        NodePtr getElementByPos(const DPoint & pos);
+        VisibleNodePtr getElementByPos(const DPoint & pos);
 
         virtual BitmapPtr getBitmap();
         

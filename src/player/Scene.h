@@ -38,7 +38,7 @@
 namespace avg {
 
 class Player;
-class Node;
+class VisibleNode;
 class SceneNode;
 class AudioEngine;
 class DisplayEngine;
@@ -46,14 +46,14 @@ class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZone;
 
-typedef boost::shared_ptr<Node> NodePtr;
-typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
+typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<SceneNode> SceneNodePtr;
 
 class AVG_API Scene
 {
     public:
-        Scene(Player * pPlayer, NodePtr pRootNode);
+        Scene(Player * pPlayer, VisibleNodePtr pRootNode);
         virtual ~Scene();
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine) = 0;
@@ -62,9 +62,9 @@ class AVG_API Scene
         virtual void stopPlayback();
        
         SceneNodePtr getRootNode() const;
-        NodePtr getElementByID(const std::string& id);
-        void registerNode(NodePtr pNode);
-        void addNodeID(NodePtr pNode);
+        VisibleNodePtr getElementByID(const std::string& id);
+        void registerNode(VisibleNodePtr pNode);
+        void addNodeID(VisibleNodePtr pNode);
         void removeNodeID(const std::string& id);
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
@@ -77,7 +77,7 @@ class AVG_API Scene
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        std::vector<VisibleNodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         bool operator ==(const Scene& other) const;
         bool operator !=(const Scene& other) const;
@@ -95,7 +95,7 @@ class AVG_API Scene
         SceneNodePtr m_pRootNode;
         SDLDisplayEngine * m_pDisplayEngine;
        
-        typedef std::map<std::string, NodePtr> NodeIDMap;
+        typedef std::map<std::string, VisibleNodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
         Signal<IPlaybackEndListener> m_PlaybackEndSignal;
