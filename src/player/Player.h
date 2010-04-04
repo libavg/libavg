@@ -179,6 +179,7 @@ class AVG_API Player: IEventSink
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
         OffscreenScenePtr registerOffscreenScene(VisibleNodePtr pNode);
         OffscreenScenePtr findScene(const std::string& sID) const;
+        void endFrame();
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, VisibleNodePtr pNode);

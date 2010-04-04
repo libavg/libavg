@@ -855,22 +855,31 @@ void Player::doFrame(bool bFirstFrame)
             m_pScenes[i]->doFrame(m_bPythonAvailable);
         }
         m_pMainScene->doFrame(m_bPythonAvailable);
-        Py_BEGIN_ALLOW_THREADS;
-        try {
-            m_pDisplayEngine->frameWait();
-            m_pDisplayEngine->swapBuffers();
-            m_pDisplayEngine->checkJitter();
-        } catch(...) {
-            Py_BLOCK_THREADS;
-            throw;
+        if (m_bPythonAvailable) {
+            Py_BEGIN_ALLOW_THREADS;
+            try {
+                endFrame();
+            } catch(...) {
+                Py_BLOCK_THREADS;
+                throw;
+            }
+            Py_END_ALLOW_THREADS;
+        } else {
+            endFrame();
         }
-        Py_END_ALLOW_THREADS;
     }
     if (m_pDisplayEngine->wasFrameLate()) {
         ThreadProfiler::get()->dumpFrame();
     }
     
     ThreadProfiler::get()->reset();
+}
+
+void Player::endFrame()
+{
+    m_pDisplayEngine->frameWait();
+    m_pDisplayEngine->swapBuffers();
+    m_pDisplayEngine->checkJitter();
 }
 
 double Player::getFramerate()
