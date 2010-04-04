@@ -92,7 +92,7 @@ class AVG_API VisibleNode: public Node
         bool getSensitive() const;
         void setSensitive(bool bSensitive);
 
-        DivNodePtr getParent() const;
+        DivNodePtr getDivParent() const;
         std::vector<VisibleNodeWeakPtr> getParentChain() const;
         void unlink(bool bKill=false);
 
@@ -152,7 +152,6 @@ class AVG_API VisibleNode: public Node
         EventHandlerMap m_EventHandlerMap;
 
         Scene * m_pScene;
-        DivNodeWeakPtr m_pParent;
         SDLDisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
 

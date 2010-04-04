@@ -51,6 +51,9 @@ class AVG_API Node
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args) {};
 
+        virtual void setParent(NodeWeakPtr pParent);
+        NodePtr getParent() const;
+
         virtual const std::string& getID() const;
         virtual void setID(const std::string& ID);
 
@@ -71,6 +74,8 @@ class AVG_API Node
         NodeWeakPtr m_This;
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
+
+        NodeWeakPtr m_pParent;
 };
 
 }

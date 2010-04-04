@@ -63,7 +63,6 @@ NodeDefinition VisibleNode::createDefinition()
 
 VisibleNode::VisibleNode()
     : m_pScene(0),
-      m_pParent(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_State(NS_UNCONNECTED)
@@ -98,11 +97,7 @@ void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
         Scene * pScene)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
-    if (getParent() && !!(pParent.lock())) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                string("Can't change parent of node (") + getID() + ")."));
-    }
-    m_pParent = pParent;
+    Node::setParent(pParent);
     if (parentState != NS_UNCONNECTED) {
         connect(pScene);
     }
@@ -110,7 +105,7 @@ void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
 
 void VisibleNode::removeParent(bool bKill)
 {
-    m_pParent = DivNodePtr();
+    Node::setParent(NodePtr());
     if (getState() != NS_UNCONNECTED) {
         disconnect(bKill);
     }
@@ -195,13 +190,9 @@ void VisibleNode::setSensitive(bool bSensitive)
     m_bSensitive = bSensitive;
 }
 
-DivNodePtr VisibleNode::getParent() const
+DivNodePtr VisibleNode::getDivParent() const
 {
-    if (m_pParent.expired()) {
-        return DivNodePtr();
-    } else {
-        return m_pParent.lock();
-    }
+    return dynamic_pointer_cast<DivNode>(getParent());
 }
 
 vector<VisibleNodeWeakPtr> VisibleNode::getParentChain() const
@@ -210,18 +201,17 @@ vector<VisibleNodeWeakPtr> VisibleNode::getParentChain() const
     VisibleNodePtr pCurNode = getVThis();
     while (pCurNode) {
         pNodes.push_back(pCurNode);
-        pCurNode = pCurNode->getParent();
+        pCurNode = pCurNode->getDivParent();
     }
     return pNodes;
 }
 
 void VisibleNode::unlink(bool bKill)
 {
-    if (m_pParent.expired()) {
-        return;
+    DivNodePtr pParent = getDivParent();
+    if (pParent != DivNodePtr()) {
+        pParent->removeChild(getVThis(), bKill);
     }
-    DivNodePtr pParent = m_pParent.lock();
-    pParent->removeChild(getVThis(), bKill);
 }
 
 void VisibleNode::setMouseEventCapture()
@@ -271,7 +261,7 @@ bool VisibleNode::reactsToMouseEvents()
 DPoint VisibleNode::getRelPos(const DPoint& AbsPos) const 
 {
     DPoint parentPos;
-    DivNodePtr pParent = getParent();
+    DivNodePtr pParent = getDivParent();
     if (!pParent) {
         parentPos = AbsPos;
     } else {
@@ -284,7 +274,7 @@ DPoint VisibleNode::getAbsPos(const DPoint& RelPos) const
 {
     DPoint thisPos = toGlobal(RelPos);
     DPoint parentPos;
-    DivNodePtr pParent = getParent();
+    DivNodePtr pParent = getDivParent();
     if (!pParent) {
         parentPos = thisPos;
     } else {
@@ -311,7 +301,7 @@ VisibleNodePtr VisibleNode::getElementByPos(const DPoint & pos)
 void VisibleNode::preRender()
 {
     if (getParent()) {
-        m_EffectiveOpacity = m_Opacity*getParent()->getEffectiveOpacity();
+        m_EffectiveOpacity = m_Opacity*getDivParent()->getEffectiveOpacity();
     } else {
         m_EffectiveOpacity = m_Opacity;
     }
@@ -414,7 +404,7 @@ void VisibleNode::initFilename(string& sFilename)
         }
 #endif
         if (!bAbsDir) {
-            DivNodePtr pParent = getParent();
+            DivNodePtr pParent = getDivParent();
             if (!pParent) {
                 sFilename = Player::get()->getRootMediaDir()+sFilename;
             } else {

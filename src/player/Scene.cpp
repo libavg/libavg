@@ -220,7 +220,7 @@ vector<VisibleNodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
     VisibleNodePtr pNode = m_pRootNode->getElementByPos(pos);
     while (pNode) {
         Elements.push_back(pNode);
-        pNode = pNode->getParent();
+        pNode = pNode->getDivParent();
     }
     return Elements;
 }

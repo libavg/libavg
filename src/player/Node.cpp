@@ -24,6 +24,7 @@
 #include "NodeDefinition.h"
 #include "Arg.h"
 
+#include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
 
@@ -54,6 +55,24 @@ void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
 {
     m_This = This;
     m_pDefinition = pDefinition;
+}
+
+void Node::setParent(NodeWeakPtr pParent)
+{
+    if (getParent() && !!(pParent.lock())) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                string("Can't change parent of node (") + getID() + ")."));
+    }
+    m_pParent = pParent;
+}
+
+NodePtr Node::getParent() const
+{
+    if (m_pParent.expired()) {
+        return NodePtr();
+    } else {
+        return m_pParent.lock();
+    }
 }
 
 const string& Node::getID() const

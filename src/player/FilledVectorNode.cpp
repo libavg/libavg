@@ -146,7 +146,7 @@ void FilledVectorNode::setFillOpacity(double opacity)
 void FilledVectorNode::preRender()
 {
     VisibleNode::preRender();
-    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
+    double curOpacity = getDivParent()->getEffectiveOpacity()*m_FillOpacity;
     VertexArrayPtr pFillVA;
     pFillVA = m_pFillShape->getVertexArray();
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
@@ -165,7 +165,7 @@ void FilledVectorNode::maybeRender(const DRect& Rect)
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (getActive()) {
         if (getEffectiveOpacity() > 0.01 || 
-                getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01) 
+                getDivParent()->getEffectiveOpacity()*m_FillOpacity > 0.01)
         {
             if (getID() != "") {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
@@ -184,7 +184,7 @@ static ProfilingZone RenderProfilingZone("FilledVectorNode::render");
 void FilledVectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
+    double curOpacity = getDivParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
         glColor4d(1.0, 1.0, 1.0, curOpacity);
         m_pFillShape->draw();
