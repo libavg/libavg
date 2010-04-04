@@ -61,8 +61,6 @@ class AVG_API Node
         void appendChild(NodePtr pNewNode);
         void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
         virtual void insertChild(NodePtr pNewNode, unsigned i);
-        virtual void removeChild(NodePtr pNode);
-        virtual void removeChild(unsigned i);
         void reorderChild(NodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);
         unsigned indexOf(NodePtr pChild);
@@ -82,8 +80,10 @@ class AVG_API Node
     protected:
         Node();
         NodePtr getThis() const;
+        void eraseChild(NodePtr pNode);
 
     private:
+        void eraseChild(unsigned i);
         bool isChildTypeAllowed(const std::string& sType);
 
         NodeWeakPtr m_This;

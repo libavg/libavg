@@ -103,14 +103,6 @@ void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
     }
 }
 
-void VisibleNode::removeParent(bool bKill)
-{
-    Node::setParent(NodePtr());
-    if (getState() != NS_UNCONNECTED) {
-        disconnect(bKill);
-    }
-}
-
 void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {

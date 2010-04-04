@@ -126,13 +126,13 @@ void Node::insertChild(NodePtr pNewNode, unsigned i)
     m_Children.insert(Pos, pNewNode);
 }
 
-void Node::removeChild(NodePtr pNode)
+void Node::eraseChild(NodePtr pNode)
 {
     unsigned i = indexOf(pNode);
-    removeChild(i);
+    eraseChild(i);
 }
 
-void Node::removeChild(unsigned i)
+void Node::eraseChild(unsigned i)
 {
     if (i>m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,

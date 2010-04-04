@@ -131,15 +131,18 @@ void DivNode::removeChild(unsigned i)
 
 void DivNode::removeChild(NodePtr pNode, bool bKill)
 {
-    dynamic_pointer_cast<VisibleNode>(pNode)->removeParent(bKill);
-    Node::removeChild(pNode);
+    pNode->Node::setParent(NodePtr());
+    VisibleNodePtr pVNode = dynamic_pointer_cast<VisibleNode>(pNode);
+    if (pVNode->getState() != NS_UNCONNECTED) {
+        pVNode->disconnect(bKill);
+    }
+    eraseChild(pNode);
 }
 
 void DivNode::removeChild(unsigned i, bool bKill)
 {
     VisibleNodePtr pNode = getVChild(i);
-    pNode->removeParent(bKill);
-    Node::removeChild(i);
+    removeChild(pNode, bKill);
 }
 
 bool DivNode::getCrop() const

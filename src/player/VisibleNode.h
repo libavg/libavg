@@ -74,7 +74,6 @@ class AVG_API VisibleNode: public Node
         virtual void setArgs(const ArgList& Args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
                 Scene * pScene);
-        void removeParent(bool bKill);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect(Scene * pScene);
