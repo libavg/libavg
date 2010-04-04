@@ -26,7 +26,7 @@ using namespace std;
 namespace avg {
 
 CursorState::CursorState(const CursorEventPtr pEvent, 
-        const vector<NodeWeakPtr>& pNodes)
+        const vector<VisibleNodeWeakPtr>& pNodes)
     : m_pNodes(pNodes)
 {
     m_pLastEvent = pEvent;
@@ -37,13 +37,13 @@ CursorState::~CursorState()
 }
 
 void CursorState::setInfo(const CursorEventPtr pEvent, 
-        const vector<NodeWeakPtr>& pNodes)
+        const vector<VisibleNodeWeakPtr>& pNodes)
 {
     m_pLastEvent = pEvent;
     m_pNodes = pNodes;
 }
 
-const vector<NodeWeakPtr>& CursorState::getNodes() const
+const vector<VisibleNodeWeakPtr>& CursorState::getNodes() const
 {
     return m_pNodes;
 }

@@ -51,7 +51,7 @@ void export_devices();
 using namespace boost::python;
 using namespace avg;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, VisibleNode::unlink, 0, 1);
 
 // These function templates essentially call functions such as AreaNode::getPos()
 // and returns a version of the result that doesn't allow setting of the individual
@@ -90,17 +90,24 @@ char meshNodeName[] = "mesh";
 void export_node()
 {
 
-    class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node",
-            "Base class for all elements in the avg tree.",
-            no_init)
+    class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
         .def(self == self)
         .def(self != self)
         .def("__hash__", &Node::getHash)
-        .def("getParent", &Node::getParent,
+        .add_property("id", make_function(&Node::getID,
+                return_value_policy<copy_const_reference>()),  &Node::setID,
+                "A unique identifier that can be used to reference the node (ro).\n")
+        ;
+
+    class_<VisibleNode, bases<Node>, boost::shared_ptr<VisibleNode>, boost::noncopyable>(
+            "VisibleNode",
+            "Base class for all elements in the avg tree.",
+            no_init)
+        .def("getParent", &VisibleNode::getParent,
                 "getParent() -> node\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
-        .def("unlink", &Node::unlink, unlink_overloads(args("bKill"),
+        .def("unlink", &VisibleNode::unlink, unlink_overloads(args("bKill"),
                 "unlink(kill) -> None\n"
                 "Removes a node from it's parent container. Equivalent to "
                 "node.getParent().removeChild(node.getParent().indexOf(node)), except "
@@ -111,7 +118,7 @@ void export_node()
                 "saving some time and making sure there are no references to the node "
                 "left on the libavg side. kill should always be set to true if the node "
                 "will not be used after the unlink."))
-        .def("setEventCapture", &Node::setMouseEventCapture,
+        .def("setEventCapture", &VisibleNode::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node"
                 "regardless of the cursor position. cursorid is optional; if left out,"
@@ -122,13 +129,13 @@ void export_node()
                 "node can capture a cursor at any one time. Normal operation can"
                 "be restored by calling releaseEventCapture()."
                 "@param cursorid: The id of the tracker cursor to capture (optional).")
-        .def("setEventCapture", &Node::setEventCapture)
-        .def("releaseEventCapture", &Node::releaseMouseEventCapture,
+        .def("setEventCapture", &VisibleNode::setEventCapture)
+        .def("releaseEventCapture", &VisibleNode::releaseMouseEventCapture,
                 "releaseEventCapture(cursorid)\n"
                 "Restores normal mouse operation after a call to setEventCapture().\n"
                 "@param cursorid: The id of the tracker cursor to release (optional).\n")
-        .def("releaseEventCapture", &Node::releaseEventCapture)
-        .def("setEventHandler", &Node::setEventHandler,
+        .def("releaseEventCapture", &VisibleNode::releaseEventCapture)
+        .def("setEventHandler", &VisibleNode::setEventHandler,
                 "setEventHandler(type, source, pyfunc)\n"
                 "Sets a callback function that is invoked whenever an event of the\n"
                 "specified type from the specified source occurs. This function is\n"
@@ -142,35 +149,32 @@ void export_node()
                 "NONE for keyboard events. Sources can be or'ed together to set a\n"
                 "handler for several sources at once.\n"
                 "@param pyfunc: The python callable to invoke.\n")
-        .def("getAbsPos", &Node::getAbsPos,
+        .def("getAbsPos", &VisibleNode::getAbsPos,
                 "getAbsPos(relpos) -> abspos\n"
                 "Transforms a position in coordinates relative to the node to a\n"
                 "position in window coordinates.\n"
                 "@param relpos: Relative coordinate to transform.")
-        .def("getRelPos", &Node::getRelPos,
+        .def("getRelPos", &VisibleNode::getRelPos,
                 "getRelPos(abspos) -> relpos\n"
                 "Transforms a position in window coordinates to a position\n"
                 "in coordinates relative to the node.\n"
                 "@param abspos: Absolute coordinate to transform.")
-        .def("getElementByPos", &Node::getElementByPos,
+        .def("getElementByPos", &VisibleNode::getElementByPos,
                 "getElementByPos(pos) -> Node\n"
                 "Returns the topmost child node that is at the position given. pos\n"
                 "is in coordinates relative to the called node. The algorithm used\n"
                 "is the same as the cursor hit test algorithm used for events.\n")
-        .add_property("id", make_function(&Node::getID,
-                return_value_policy<copy_const_reference>()), &Node::setID,
-                "A unique identifier that can be used to reference the node.\n")
-        .add_property("active", &Node::getActive, &Node::setActive,
+        .add_property("active", &VisibleNode::getActive, &VisibleNode::setActive,
                       "If this attribute is true, the node behaves as usual. If not, it\n"
                       "is neither drawn nor does it react to events.\n")
-        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive,
+        .add_property("sensitive", &VisibleNode::getSensitive, &VisibleNode::setSensitive,
                       "A node only reacts to events if sensitive is true.")
-        .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
+        .add_property("opacity", &VisibleNode::getOpacity, &VisibleNode::setOpacity,
                       "A measure of the node's transparency. 0.0 is completely\n"
                       "transparent, 1.0 is completely opaque. Opacity is relative to\n"
                       "the parent node's opacity.\n");
 
-    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
+    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<VisibleNode>, boost::noncopyable>(
             "AreaNode", 
             "Base class for elements in the avg tree that define an area on the screen.\n"
             "Is responsible for coordinate transformations and event handling.\n",
@@ -367,7 +371,7 @@ void export_node()
                 "The maximum angle the viewer can look at.\n")
     ;
 
-    class_<VectorNode, bases<Node>, boost::noncopyable>("VectorNode", 
+    class_<VectorNode, bases<VisibleNode>, boost::noncopyable>("VectorNode", 
             no_init)
         .add_property("strokewidth", &VectorNode::getStrokeWidth, 
                 &VectorNode::setStrokeWidth,

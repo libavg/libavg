@@ -22,25 +22,14 @@
 #include "Node.h"
 
 #include "NodeDefinition.h"
-#include "DivNode.h"
-#include "Player.h"
-#include "SDLDisplayEngine.h"
 #include "Arg.h"
-#include "Image.h"
-#include "Scene.h"
 
-#include "../base/Logger.h"
 #include "../base/Exception.h"
-#include "../base/XMLHelper.h"
-#include "../base/StringHelper.h"
+#include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
-#include "../base/OSHelper.h"
-#include <Magick++.h>
+#include "../base/StringHelper.h"
 
-#include <iostream>
-#ifdef _WIN32
-#include <Windows.h>
-#endif
+#include <string>
 
 using namespace std;
 
@@ -49,44 +38,18 @@ namespace avg {
 NodeDefinition Node::createDefinition()
 {
     return NodeDefinition("node")
-        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
-        .addArg(Arg<string>("oncursormove", ""))
-        .addArg(Arg<string>("oncursorup", ""))
-        .addArg(Arg<string>("oncursordown", ""))
-        .addArg(Arg<string>("oncursorover", ""))
-        .addArg(Arg<string>("oncursorout", ""))
-        .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
-        .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
-        .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
+        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)));
 }
 
 Node::Node()
-    : m_pScene(0),
-      m_pParent(),
-      m_This(),
-      m_pDisplayEngine(0),
-      m_pAudioEngine(0),
-      m_State(NS_UNCONNECTED)
+    : m_This()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Node::~Node()
 {
-    EventHandlerMap::iterator it;
-    for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
-        Py_DECREF(it->second);
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void Node::setArgs(const ArgList& Args)
-{
-    addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
-    addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
-    addEventHandlers(Event::CURSORDOWN, Args.getArgVal<string> ("oncursordown"));
-    addEventHandlers(Event::CURSOROVER, Args.getArgVal<string> ("oncursorover"));
-    addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
 }
 
 void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
@@ -95,57 +58,127 @@ void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
     m_pDefinition = pDefinition;
 }
 
-void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState, Scene * pScene)
+void Node::setParent(NodeWeakPtr pParent)
 {
-    AVG_ASSERT(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                string("Can't change parent of node (") + m_ID + ")."));
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                string("Can't change parent of node (") + getID() + ")."));
     }
     m_pParent = pParent;
-    if (parentState != NS_UNCONNECTED) {
-        connect(pScene);
+}
+
+NodePtr Node::getParent() const
+{
+    if (m_pParent.expired()) {
+        return NodePtr();
+    } else {
+        return m_pParent.lock();
     }
 }
 
-void Node::removeParent(bool bKill)
+unsigned Node::getNumChildren()
 {
-    m_pParent = DivNodePtr();
-    if (getState() != NS_UNCONNECTED) {
-        disconnect(bKill);
+    return m_Children.size();
+}
+
+const NodePtr& Node::getChild(unsigned i)
+{
+    if (i >= m_Children.size()) {
+        stringstream s;
+        s << "Index " << i << " is out of range in Node::getChild()";
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
     }
+    return m_Children[i];
 }
 
-void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void Node::appendChild(NodePtr pNewNode)
 {
-    AVG_ASSERT(getState() == NS_CONNECTED);
-    m_pDisplayEngine = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine);
-    m_pAudioEngine = pAudioEngine;
-    setState(NS_CANRENDER);
+    insertChild(pNewNode, unsigned(m_Children.size()));
 }
 
-void Node::connect(Scene * pScene)
+void Node::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
 {
-    m_pScene = pScene;
-    setState(NS_CONNECTED);
-}
-
-void Node::disconnect(bool bKill)
-{
-    AVG_ASSERT(getState() != NS_UNCONNECTED);
-    if (getState() == NS_CANRENDER) {
-        m_pDisplayEngine = 0;
-        m_pAudioEngine = 0;
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
     }
-    m_pScene->removeNodeID(m_ID);
-    setState(NS_UNCONNECTED);
-    if (bKill) {
-        EventHandlerMap::iterator it;
-        for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
-            Py_DECREF(it->second);
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i);
+}
+
+void Node::insertChild(NodePtr pNewNode, unsigned i)
+{
+    if (!pNewNode) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChild called without a node.");
+    }
+    if (!isChildTypeAllowed(pNewNode->getTypeStr())) {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't insert a node of type "+pNewNode->getTypeStr()+
+                " into a node of type "+getTypeStr()+"."));
+
+    }
+    if (i>m_Children.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                pNewNode->getID()+"::insertChild: index out of bounds."));
+    }
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
+    m_Children.insert(Pos, pNewNode);
+}
+
+void Node::eraseChild(NodePtr pNode)
+{
+    unsigned i = indexOf(pNode);
+    eraseChild(i);
+}
+
+void Node::eraseChild(unsigned i)
+{
+    if (i>m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
+    }
+    m_Children.erase(m_Children.begin()+i);
+}
+
+void Node::reorderChild(NodePtr pNode, unsigned j)
+{
+    if (j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
+    }
+    int i = indexOf(pNode);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
+}
+
+void Node::reorderChild(unsigned i, unsigned j)
+{
+    if (i>m_Children.size()-1 || j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index out of bounds."));
+    }
+    NodePtr pNode = getChild(i);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
+}
+
+unsigned Node::indexOf(NodePtr pChild)
+{
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::indexOf called without a node.");
+    }
+    for (unsigned i = 0; i<m_Children.size(); ++i) {
+        if (m_Children[i] == pChild) {
+            return i;
         }
-        m_EventHandlerMap.clear();
     }
+    throw(Exception(AVG_ERR_OUT_OF_RANGE,
+            "indexOf: node '"+pChild->getID()+"' is not a child of node '"
+            +getID()+"'"));
 }
 
 const string& Node::getID() const
@@ -155,180 +188,7 @@ const string& Node::getID() const
 
 void Node::setID(const std::string& ID)
 {
-    if (getState() != NS_UNCONNECTED) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
-                +" is connected. setID invalid."));
-    }
     m_ID = ID;
-}
-
-double Node::getOpacity() const 
-{
-    return m_Opacity;
-}
-
-void Node::setOpacity(double opacity) 
-{
-    m_Opacity = opacity;
-    if (m_Opacity < 0.0) {
-        m_Opacity = 0.0;
-    } else if (m_Opacity > 1.0) {
-        m_Opacity = 1.0;
-    }
-}
-
-bool Node::getActive() const 
-{
-    return m_bActive;
-}
-
-void Node::setActive(bool bActive)
-{
-    if (bActive != m_bActive) {
-        m_bActive = bActive;
-    }
-}
-
-bool Node::getSensitive() const 
-{
-    return m_bSensitive;
-}
-
-void Node::setSensitive(bool bSensitive)
-{
-    m_bSensitive = bSensitive;
-}
-
-DivNodePtr Node::getParent() const
-{
-    if (m_pParent.expired()) {
-        return DivNodePtr();
-    } else {
-        return m_pParent.lock();
-    }
-}
-
-vector<NodeWeakPtr> Node::getParentChain() const
-{
-    vector<NodeWeakPtr> pNodes;
-    NodePtr pCurNode = m_This.lock();
-    while (pCurNode) {
-        pNodes.push_back(pCurNode);
-        pCurNode = pCurNode->getParent();
-    }
-    return pNodes;
-}
-
-void Node::unlink(bool bKill)
-{
-    if (m_pParent.expired()) {
-        return;
-    }
-    DivNodePtr pParent = m_pParent.lock();
-    pParent->removeChild(getThis(), bKill);
-}
-
-void Node::setMouseEventCapture()
-{
-    setEventCapture(MOUSECURSORID);
-}
-
-void Node::releaseMouseEventCapture()
-{
-    releaseEventCapture(MOUSECURSORID);
-}
-
-void Node::setEventCapture(int cursorID) 
-{
-    Player::get()->setEventCapture(getThis(), cursorID);
-}
-
-void Node::releaseEventCapture(int cursorID) 
-{
-    Player::get()->releaseEventCapture(cursorID);
-}
-
-void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
-{
-    for (int i=0; i<4; ++i) {
-        int source = int(pow(2.,i));
-        if (source & Sources) {
-            EventHandlerID ID(Type, (Event::Source)source);
-            EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
-            if (it != m_EventHandlerMap.end()) {
-                Py_DECREF(it->second);
-                m_EventHandlerMap.erase(it);
-            }
-            if (pFunc != Py_None) {
-                Py_INCREF(pFunc);
-                m_EventHandlerMap[ID] = pFunc;
-            }
-        }
-    }
-}
-
-bool Node::reactsToMouseEvents()
-{
-    return m_bActive && m_bSensitive;
-}
-
-DPoint Node::getRelPos(const DPoint& AbsPos) const 
-{
-    DPoint parentPos;
-    DivNodePtr pParent = getParent();
-    if (!pParent) {
-        parentPos = AbsPos;
-    } else {
-        parentPos = pParent->getRelPos(AbsPos);
-    }
-    return toLocal(parentPos);
-}
-
-DPoint Node::getAbsPos(const DPoint& RelPos) const 
-{
-    DPoint thisPos = toGlobal(RelPos);
-    DPoint parentPos;
-    DivNodePtr pParent = getParent();
-    if (!pParent) {
-        parentPos = thisPos;
-    } else {
-        parentPos = pParent->getAbsPos(thisPos);
-    }
-    return parentPos;
-}
-
-DPoint Node::toLocal(const DPoint& globalPos) const
-{
-    return globalPos;
-}
-
-DPoint Node::toGlobal(const DPoint& localPos) const
-{
-    return localPos;
-}
-
-NodePtr Node::getElementByPos(const DPoint & pos)
-{
-    return NodePtr();
-}
-
-void Node::preRender()
-{
-    if (getParent()) {
-        m_EffectiveOpacity = m_Opacity*getParent()->getEffectiveOpacity();
-    } else {
-        m_EffectiveOpacity = m_Opacity;
-    }
-}
-
-Node::NodeState Node::getState() const
-{
-    return m_State;
-}
-
-Scene * Node::getScene() const
-{
-    return m_pScene;
 }
 
 bool Node::operator ==(const Node& other) const
@@ -351,172 +211,19 @@ const NodeDefinition* Node::getDefinition() const
     return m_pDefinition;
 }
 
-bool Node::handleEvent(EventPtr pEvent)
-{
-    EventHandlerID ID(pEvent->getType(), pEvent->getSource());
-    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
-    if (it!=m_EventHandlerMap.end()) {
-        return callPython(it->second, pEvent);
-    } else {
-        return false;
-    }
-}
-
-void Node::addEventHandlers(Event::Type EventType, const string& Code)
-{
-    addEventHandler(EventType, Event::MOUSE, Code);
-    addEventHandler(EventType, Event::TOUCH, Code);
-    addEventHandler(EventType, Event::TRACK, Code);
-}
-
-void Node::addEventHandler(Event::Type EventType, Event::Source Source, 
-        const string& Code)
-{
-    PyObject * pFunc = findPythonFunc(Code);
-    if (pFunc) {
-        Py_INCREF(pFunc);
-        EventHandlerID ID(EventType, Source);
-        m_EventHandlerMap[ID] = pFunc;
-    }
-}
-
-SDLDisplayEngine * Node::getDisplayEngine() const
-{
-    return m_pDisplayEngine;
-}
-
-AudioEngine * Node::getAudioEngine() const
-{
-    return m_pAudioEngine;
-}
-
 NodePtr Node::getThis() const
 {
     return m_This.lock();
 }
 
-double Node::getEffectiveOpacity()
-{
-    return m_EffectiveOpacity;
-}
-
-string Node::dump(int indent)
-{
-    string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID + 
-            "m_Opacity=" + toString(m_Opacity);
-    return dumpStr; 
-}
-
-string Node::getTypeStr() const 
+string Node::getTypeStr() const
 {
     return m_pDefinition->getName();
 }
 
-void Node::setState(Node::NodeState State)
+bool Node::isChildTypeAllowed(const string& sType)
 {
-/*    
-    cerr << m_ID << " state: ";
-    switch(State) {
-        case NS_UNCONNECTED:
-            cerr << "unconnected" << endl;
-            break;
-        case NS_CONNECTED:
-            cerr << "connected" << endl;
-            break;
-        case NS_CANRENDER:
-            cerr << "canrender" << endl;
-            break;
-    }
-*/
-    if (m_State == NS_UNCONNECTED) {
-        AVG_ASSERT(State != NS_CANRENDER);
-    }
-    if (m_State == NS_CANRENDER) {
-        AVG_ASSERT(State != NS_CONNECTED);
-    }
-
-    m_State = State;
-}
-        
-void Node::initFilename(string& sFilename)
-{
-    if (sFilename != "") {
-        bool bAbsDir = sFilename[0] == '/';
-#ifdef _WIN32
-        if (!bAbsDir) {
-            bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
-        }
-#endif
-        if (!bAbsDir) {
-            DivNodePtr pParent = getParent();
-            if (!pParent) {
-                sFilename = Player::get()->getRootMediaDir()+sFilename;
-            } else {
-                sFilename = pParent->getEffectiveMediaDir()+sFilename;
-            }
-        }
-    }
-}
-
-void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
-{
-    string sLastFilename = pImage->getFilename();
-    string sFilename = sHRef;
-    initFilename(sFilename);
-    if (sLastFilename != sFilename) {
-        try {
-            sFilename = convertUTF8ToFilename(sFilename);
-            pImage->setFilename(sFilename);
-        } catch (Magick::Exception & ex) {
-            pImage->setFilename("");
-            if (getState() != Node::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
-            } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
-            }
-        }
-    }
-}
-
-bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
-{
-    return boost::python::call<bool>(pFunc, pEvent);
-}
-
-PyObject * Node::findPythonFunc(const string& Code)
-{
-    if (Code.empty()) {
-        return 0;
-    } else {
-        PyObject * pModule = PyImport_AddModule("__main__");
-        if (!pModule) {
-            cerr << "Could not find module __main__." << endl;
-            exit(-1);
-        }
-        PyObject * pDict = PyModule_GetDict(pModule);
-        PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
-        if (!pFunc) {
-            AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
-                    "\" not defined for node with id '"+getID()+"'. Aborting.");
-            exit(-1);
-        }
-        return pFunc;
-    }
-}
-
-Node::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
-    : m_Type(EventType),
-      m_Source(Source)
-{
-}
-
-bool Node::EventHandlerID::operator < (const EventHandlerID& other) const 
-{
-    if (m_Type == other.m_Type) {
-        return m_Source < other.m_Source;
-    } else {
-        return m_Type < other.m_Type;
-    }
+    return getDefinition()->isChildAllowed(sType);
 }
 
 }

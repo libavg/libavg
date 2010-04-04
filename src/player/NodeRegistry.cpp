@@ -107,7 +107,7 @@ const NodeDefinition& NodeRegistry::getNodeDef(const string& Type)
 
 void NodeRegistry::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
 {
-    ss << "<!ELEMENT " << Def.getName() << " " << Def.getChildren() << " >\n";
+    ss << "<!ELEMENT " << Def.getName() << " " << Def.getDTDChildrenString() << " >\n";
     if (!Def.getDefaultArgs().getArgMap().empty()) {
         ss << "<!ATTLIST " << Def.getName();
         for(ArgMap::const_iterator argIt = Def.getDefaultArgs().getArgMap().begin(); 

@@ -44,6 +44,13 @@ class AVG_API DivNode : public AreaNode
         virtual void connect(Scene * pScene);
         virtual void disconnect(bool bKill);
 
+        VisibleNodePtr getVChild(unsigned i);
+        virtual void insertChild(NodePtr pNewNode, unsigned i);
+        void removeChild(NodePtr pNode);
+        void removeChild(unsigned i);
+        void removeChild(NodePtr pNode, bool bKill);
+        void removeChild(unsigned i, bool bKill);
+
         bool getCrop() const;
         void setCrop(bool bCrop);
 
@@ -53,20 +60,7 @@ class AVG_API DivNode : public AreaNode
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
-        int getNumChildren();
-        const NodePtr& getChild(unsigned i);
-        void appendChild(NodePtr pNewNode);
-        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
-        void insertChild(NodePtr pNewNode, unsigned i);
-        void removeChild(NodePtr pNode);
-        void removeChild(unsigned i);
-        void removeChild(NodePtr pNode, bool bKill);
-        void removeChild(unsigned i, bool bKill);
-        void reorderChild(NodePtr pNode, unsigned j);
-        void reorderChild(unsigned i, unsigned j);
-        int indexOf(NodePtr pChild);
-
-        virtual NodePtr getElementByPos(const DPoint & pos);
+        virtual VisibleNodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
         virtual void render(const DRect& rect);
         virtual void renderOutlines(VertexArrayPtr pVA, Pixel32 color);
@@ -78,13 +72,10 @@ class AVG_API DivNode : public AreaNode
         IntPoint getMediaSize();
    
     private:
-        bool isChildTypeAllowed(const std::string& sType);
-
         UTF8String m_sMediaDir;
         bool m_bCrop;
         std::string m_sElementOutlineColor;
         Pixel32 m_ElementOutlineColor;
-        std::vector<NodePtr> m_Children;
 };
 
 }

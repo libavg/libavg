@@ -45,7 +45,7 @@ Scene::Scene(Player * pPlayer, NodePtr pRootNode)
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
       m_PreRenderSignal(&IPreRenderListener::onPreRender)
 {
-    m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED, this);
+    m_pRootNode->setParent(DivNodeWeakPtr(), VisibleNode::NS_CONNECTED, this);
     registerNode(m_pRootNode);
 }
 
@@ -69,28 +69,28 @@ void Scene::stopPlayback()
     m_IDMap.clear();
 }
 
-NodePtr Scene::getElementByID(const std::string& id)
+VisibleNodePtr Scene::getElementByID(const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
     } else {
         AVG_TRACE(Logger::WARNING, "getElementByID(\"" << id << "\") failed.");
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
 
-void Scene::registerNode(NodePtr pNode)
+void Scene::registerNode(VisibleNodePtr pNode)
 {
     addNodeID(pNode);    
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (pDivNode) {
-        for (int i=0; i<pDivNode->getNumChildren(); i++) {
-            registerNode(pDivNode->getChild(i));
+        for (unsigned i=0; i<pDivNode->getNumChildren(); i++) {
+            registerNode(pDivNode->getVChild(i));
         }
     }
 }
 
-void Scene::addNodeID(NodePtr pNode)
+void Scene::addNodeID(VisibleNodePtr pNode)
 {
     const string& id = pNode->getID();
     if (id != "") {
@@ -107,7 +107,7 @@ void Scene::addNodeID(NodePtr pNode)
 void Scene::removeNodeID(const std::string& id)
 {
     if (id != "") {
-        std::map<std::string, NodePtr>::iterator it;
+        std::map<std::string, VisibleNodePtr>::iterator it;
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
@@ -214,13 +214,13 @@ SDLDisplayEngine* Scene::getDisplayEngine() const
     return m_pDisplayEngine;
 }
 
-vector<NodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
+vector<VisibleNodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
 {
-    vector<NodeWeakPtr> Elements;
-    NodePtr pNode = m_pRootNode->getElementByPos(pos);
+    vector<VisibleNodeWeakPtr> Elements;
+    VisibleNodePtr pNode = m_pRootNode->getElementByPos(pos);
     while (pNode) {
         Elements.push_back(pNode);
-        pNode = pNode->getParent();
+        pNode = pNode->getDivParent();
     }
     return Elements;
 }

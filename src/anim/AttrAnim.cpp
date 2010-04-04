@@ -33,8 +33,8 @@ AttrAnim::AttrAnimationMap AttrAnim::s_ActiveAnimations;
 
 bool ObjAttrID::operator < (const ObjAttrID& other) const
 {
-    Node * pNode = extract<Node*>(m_Node);
-    Node * pOtherNode = extract<Node*>(other.m_Node);
+    VisibleNode * pNode = extract<VisibleNode*>(m_Node);
+    VisibleNode * pOtherNode = extract<VisibleNode*>(other.m_Node);
     if (pNode < pOtherNode) {
         return true;
     } else if (pNode > pOtherNode) {

@@ -548,9 +548,9 @@ TrackerEventSource * Player::getTracker()
     return m_pTracker;
 }
 
-void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
+void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
                 + pNode->getID() + "', but cursor already captured by '"
@@ -562,7 +562,7 @@ void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
 
 void Player::releaseEventCapture(int cursorID)
 {
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
@@ -691,12 +691,12 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     delete pMask;
 }
 
-NodePtr Player::getElementByID(const std::string& id)
+VisibleNodePtr Player::getElementByID(const std::string& id)
 {
     if (m_pMainScene) {
         return m_pMainScene->getElementByID(id);
     } else {
-        return NodePtr();
+        return VisibleNodePtr();
     }
 }
         
@@ -1014,7 +1014,7 @@ NodePtr Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_VALID, ""));
         }
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        NodePtr pNode = createNodeFromXml(doc, xmlNode, DivNodePtr());
+        NodePtr pNode = createNodeFromXml(doc, xmlNode);
         if (!pNode) {
             throw (Exception(AVG_ERR_XML_PARSE, 
                     "Root node of an avg tree needs to be an <avg> node."));
@@ -1087,7 +1087,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
         throw (Exception(AVG_ERR_XML_PARSE, 
                     string("Error parsing xml:\n  ")+sXML));
     }
-    NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+    NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc));
 
     if (m_bDirtyDTD)
         updateDTD();
@@ -1106,8 +1106,8 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
     return pNode;
 }
 
-NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
+NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
+        const xmlNodePtr xmlNode)
 {
     NodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
@@ -1123,18 +1123,17 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
         boost::dynamic_pointer_cast<WordsNode>(curNode)->setTextFromNodeValue(s);
-    }
-
-    // If this is a container, recurse into children
-    DivNodePtr curGroup = boost::dynamic_pointer_cast<DivNode>(curNode);
-    if (curGroup) {
-        xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
-        while (curXmlChild) {
-            NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, curGroup);
-            if (curChild) {
-                curGroup->appendChild(curChild);
+    } else {
+        // If this is a container, recurse into children
+        if (curNode->getDefinition()->hasChildren()) {
+            xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
+            while (curXmlChild) {
+                NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild);
+                if (curChild) {
+                    curNode->appendChild(curChild);
+                }
+                curXmlChild = curXmlChild->next;
             }
-            curXmlChild = curXmlChild->next;
         }
     }
     return curNode;
@@ -1174,7 +1173,7 @@ void Player::sendFakeEvents()
 }
 
 void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 
-        NodePtr pNode)
+        VisibleNodePtr pNode)
 {
     if (pNode) {
         EventPtr pNewEvent = pOtherEvent->cloneAs(Type);
@@ -1188,13 +1187,13 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
     // Find all nodes under the cursor.
-    vector<NodeWeakPtr> pCursorNodes = m_pMainScene->getElementsByPos(pos);
+    vector<VisibleNodeWeakPtr> pCursorNodes = m_pMainScene->getElementsByPos(pos);
 
     // Determine the nodes the event should be sent to.
-    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
     bool bIsCapturing = false;
     if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+        VisibleNodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
         if (pEventCaptureNode.expired()) {
             m_pEventCaptureNode.erase(cursorID);
         } else {
@@ -1202,7 +1201,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     } 
 
-    vector<NodeWeakPtr> pLastCursorNodes;
+    vector<VisibleNodeWeakPtr> pLastCursorNodes;
     {
         map<int, CursorStatePtr>::iterator it;
         it = m_pLastCursorStates.find(cursorID);
@@ -1212,10 +1211,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     // Send out events.
-    vector<NodeWeakPtr>::const_iterator itLast;
-    vector<NodeWeakPtr>::iterator itCur;
+    vector<VisibleNodeWeakPtr>::const_iterator itLast;
+    vector<VisibleNodeWeakPtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
-        NodePtr pLastNode = itLast->lock();
+        VisibleNodePtr pLastNode = itLast->lock();
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
             if (itCur->lock() == pLastNode) {
                 break;
@@ -1230,7 +1229,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = itCur->lock();
+        VisibleNodePtr pCurNode = itCur->lock();
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
                 ++itLast) 
         {
@@ -1247,9 +1246,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
-        vector<NodeWeakPtr>::iterator it;
+        vector<VisibleNodeWeakPtr>::iterator it;
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = (*it).lock();
+            VisibleNodePtr pNode = (*it).lock();
             if (pNode) {
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
@@ -1267,12 +1266,12 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
         if (bIsCapturing) {
-            NodePtr pNode = pDestNodes.begin()->lock();
+            VisibleNodePtr pNode = pDestNodes.begin()->lock();
             sendOver(pEvent, Event::CURSOROUT, pNode);
         } else {
-            vector<NodeWeakPtr>::iterator it;
+            vector<VisibleNodeWeakPtr>::iterator it;
             for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-                NodePtr pNode = it->lock();
+                VisibleNodePtr pNode = it->lock();
                 sendOver(pEvent, Event::CURSOROUT, pNode);
             } 
         }

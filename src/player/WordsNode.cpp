@@ -243,7 +243,7 @@ double WordsNode::getHeight()
     return AreaNode::getHeight();
 }
 
-NodePtr WordsNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr WordsNode::getElementByPos(const DPoint & pos)
 {
     drawString();
     DPoint relPos = pos-DPoint(m_AlignOffset, 0);
@@ -617,7 +617,7 @@ void WordsNode::drawString()
 
 void WordsNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     drawString();
 }
 

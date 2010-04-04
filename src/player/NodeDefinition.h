@@ -26,7 +26,7 @@
 
 #include "../api.h"
 
-#include "Node.h"
+#include "VisibleNode.h"
 #include "ArgList.h"
 
 #include <map>
@@ -48,8 +48,9 @@ public:
     NodeBuilder getBuilder() const;
     const ArgList& getDefaultArgs() const;
     const std::string& getDTDElements() const;
-    std::string getChildren() const;
+    std::string getDTDChildrenString() const;
     bool isChildAllowed(const std::string& sChild) const;
+    bool hasChildren() const;
     
     NodeDefinition& extendDefinition(const NodeDefinition& Def);
     NodeDefinition& addArg(const ArgBase& newArg);

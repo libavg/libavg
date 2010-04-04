@@ -47,6 +47,7 @@ namespace avg {
 
 class AudioEngine;
 class Node;
+class VisibleNode;
 class TestHelper;
 class Scene;
 class MainScene;
@@ -58,6 +59,8 @@ class IPreRenderListener;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
+typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Scene> ScenePtr;
 typedef boost::shared_ptr<MainScene> MainScenePtr;
 typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
@@ -114,7 +117,7 @@ class AVG_API Player: IEventSink
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
-        void setEventCapture(NodePtr pNode, int cursorID);
+        void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 
         EventPtr getCurEvent() const;
@@ -124,7 +127,7 @@ class AVG_API Player: IEventSink
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
 
-        NodePtr getElementByID(const std::string& id);
+        VisibleNodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame(bool bFirstFrame);
         double getFramerate();
@@ -172,14 +175,14 @@ class AVG_API Player: IEventSink
         NodePtr loadMainNodeFromString(const std::string& sAVG);
         NodePtr internalLoad(const std::string& sAVG);
 
-        NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
+        NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
+                const xmlNodePtr xmlNode);
         OffscreenScenePtr registerOffscreenScene(NodePtr pNode);
         OffscreenScenePtr findScene(const std::string& sID) const;
         void endFrame();
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, VisibleNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         MainScenePtr m_pMainScene;
@@ -232,7 +235,7 @@ class AVG_API Player: IEventSink
         friend void deletePlayer();
         
         EventDispatcherPtr m_pEventDispatcher;
-        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
+        std::map<int, VisibleNodeWeakPtr> m_pEventCaptureNode;
         
         MouseState m_MouseState;
 

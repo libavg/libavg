@@ -26,7 +26,7 @@
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "../imaging/Blob.h"
 #include "../graphics/Bitmap.h"

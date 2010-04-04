@@ -126,7 +126,7 @@ char colorNodeName[] = "colornode";
 
 NodeDefinition ColorNode::createNodeDefinition()
 {
-    return NodeDefinition("colornode", (NodeBuilder)ColorNode::buildNode<ColorNode>)
+    return NodeDefinition("colornode", Node::buildNode<ColorNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<float>("floatparam", 0.0f, false,
                 offsetof(ColorNode, m_FloatParam)))

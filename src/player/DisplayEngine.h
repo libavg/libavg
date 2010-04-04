@@ -23,7 +23,7 @@
 #define _DisplayEngine_H_
 
 #include "../api.h"
-#include "Node.h"
+#include "VisibleNode.h"
 #include "DisplayParams.h"
 
 #include "../video/IVideoDecoder.h"

@@ -23,7 +23,7 @@
 
 #include "ArgList.h"
 
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -125,7 +125,7 @@ void ArgList::setArgs(const ArgList& Args)
     }
 }
     
-void ArgList::setMembers(Node * pNode) const
+void ArgList::setMembers(VisibleNode * pNode) const
 {
     for(ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++)
     {

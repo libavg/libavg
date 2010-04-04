@@ -37,7 +37,7 @@ NodeDefinition PolyLineNode::createDefinition()
 {
     vector<DPoint> v;
     vector<double> vd;
-    return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
+    return NodeDefinition("polyline", VisibleNode::buildNode<PolyLineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))

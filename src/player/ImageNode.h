@@ -52,7 +52,7 @@ class AVG_API ImageNode : public RasterNode
         
         virtual void render(const DRect& Rect);
         
-        NodePtr getElementByPos(const DPoint & pos);
+        VisibleNodePtr getElementByPos(const DPoint & pos);
 
         virtual BitmapPtr getBitmap();
         virtual IntPoint getMediaSize();

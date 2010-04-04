@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "MouseEvent.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 namespace avg {
 

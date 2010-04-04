@@ -382,7 +382,7 @@ public:
 };
 
 template<const char * pszType> 
-avg::NodePtr createNode(const boost::python::tuple &args, 
+avg::NodePtr createNode(const boost::python::tuple &args,
         const boost::python::dict &attrs)
 {
     return avg::Player::get()->createNode(pszType, attrs);

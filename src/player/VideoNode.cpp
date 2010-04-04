@@ -52,7 +52,7 @@ namespace avg {
 
 NodeDefinition VideoNode::createDefinition()
 {
-    return NodeDefinition("video", Node::buildNode<VideoNode>)
+    return NodeDefinition("video", VisibleNode::buildNode<VideoNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
@@ -305,7 +305,7 @@ void VideoNode::onFrameEnd()
     if (m_bEOFPending) {
         // If the VideoNode is unlinked by python in onEOF, the following line prevents
         // the object from being deleted until we return from this function.
-        NodePtr pTempThis = getThis();         
+        NodePtr pTempThis = getThis();
         m_bEOFPending = false;
         onEOF();
     }
@@ -493,7 +493,7 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 
 void VideoNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     if (getEffectiveOpacity() <= 0.01 && m_VideoState == Playing) {
         // Throw away frames that are not visible to make sure the video keeps in sync.
         m_pDecoder->throwAwayFrame(getNextFrameTime());

@@ -34,7 +34,7 @@ namespace avg {
 
 NodeDefinition LineNode::createDefinition()
 {
-    return NodeDefinition("line", Node::buildNode<LineNode>)
+    return NodeDefinition("line", VisibleNode::buildNode<LineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(LineNode, m_P1)))
         .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(LineNode, m_P2)))

@@ -64,7 +64,7 @@ const string& NodeDefinition::getDTDElements() const
     return m_sDTDElements;
 }
 
-string NodeDefinition::getChildren() const
+string NodeDefinition::getDTDChildrenString() const
 {
     if (m_sChildren.empty()) {
         return "EMPTY";
@@ -87,6 +87,11 @@ bool NodeDefinition::isChildAllowed(const string& sChild) const
         }
     }
     return false;
+}
+
+bool NodeDefinition::hasChildren() const
+{
+    return !m_sChildren.empty();
 }
 
 NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)

@@ -48,7 +48,7 @@ namespace avg {
 
 NodeDefinition CameraNode::createDefinition()
 {
-    return NodeDefinition("camera", Node::buildNode<CameraNode>)
+    return NodeDefinition("camera", VisibleNode::buildNode<CameraNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
@@ -301,7 +301,7 @@ static ProfilingZone CameraFetchImage("Camera fetch image");
 
 void CameraNode::preRender()
 {
-    Node::preRender();
+    VisibleNode::preRender();
     ScopeTimer Timer(CameraFetchImage);
     m_pCurBmp = m_pCamera->getImage(false);
     if (m_pCurBmp) {

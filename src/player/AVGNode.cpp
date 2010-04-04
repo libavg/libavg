@@ -35,7 +35,7 @@ namespace avg {
 
 NodeDefinition AVGNode::createDefinition()
 {
-    return NodeDefinition("avg", Node::buildNode<AVGNode>)
+    return NodeDefinition("avg", VisibleNode::buildNode<AVGNode>)
         .extendDefinition(SceneNode::createDefinition())
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));

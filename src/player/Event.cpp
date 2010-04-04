@@ -20,7 +20,7 @@
 //
 
 #include "Event.h"
-#include "Node.h"
+#include "VisibleNode.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -77,12 +77,12 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-void Event::setElement(NodePtr pNode)
+void Event::setElement(VisibleNodePtr pNode)
 {
     m_pNode = pNode;
 }
 
-NodePtr Event::getElement() const
+VisibleNodePtr Event::getElement() const
 {
     return m_pNode;
 }
