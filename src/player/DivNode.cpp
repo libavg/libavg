@@ -73,25 +73,73 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    for  (int i = 0; i<(int)m_Children.size(); ++i) {
-        m_Children[i]->setRenderingEngines(pDisplayEngine, pAudioEngine);
+    for (unsigned i = 0; i<getNumChildren(); ++i) {
+        getVChild(i)->setRenderingEngines(pDisplayEngine, pAudioEngine);
     }
 }
 
 void DivNode::connect(Scene * pScene)
 {
     AreaNode::connect(pScene);
-    for (int i = 0; i< (int)m_Children.size(); ++i) {
-        m_Children[i]->connect(pScene);
+    for (unsigned i = 0; i<getNumChildren(); ++i) {
+        getVChild(i)->connect(pScene);
     }
 }
 
 void DivNode::disconnect(bool bKill)
 {
-    for  (int i = 0; i< (int)m_Children.size(); ++i) {
-        m_Children[i]->disconnect(bKill);
+    for (unsigned i = 0; i<getNumChildren(); ++i) {
+        getVChild(i)->disconnect(bKill);
     }
     AreaNode::disconnect(bKill);
+}
+
+VisibleNodePtr DivNode::getVChild(unsigned i)
+{
+    return dynamic_pointer_cast<VisibleNode>(getChild(i));
+}
+
+void DivNode::insertChild(NodePtr pNewNode, unsigned i)
+{
+    VisibleNodePtr pVNode = dynamic_pointer_cast<VisibleNode>(pNewNode);
+    if (pVNode->getState() == NS_CONNECTED || pVNode->getState() == NS_CANRENDER)
+    {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't connect node with id "+pNewNode->getID()+
+                ": already connected."));
+    }
+    Node::insertChild(pNewNode, i);
+    if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
+        getScene()->registerNode(pVNode);
+    }
+    DivNodePtr Ptr = dynamic_pointer_cast<DivNode>(getThis());
+    pVNode->setParent(Ptr, getState(), getScene());
+    if (getState() == NS_CANRENDER) {
+        pVNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
+    }
+}
+
+void DivNode::removeChild(NodePtr pNode)
+{
+    removeChild(pNode, false);
+}
+
+void DivNode::removeChild(unsigned i)
+{
+    removeChild(i, false);
+}
+
+void DivNode::removeChild(NodePtr pNode, bool bKill)
+{
+    dynamic_pointer_cast<VisibleNode>(pNode)->removeParent(bKill);
+    Node::removeChild(pNode);
+}
+
+void DivNode::removeChild(unsigned i, bool bKill)
+{
+    VisibleNodePtr pNode = getVChild(i);
+    pNode->removeParent(bKill);
+    Node::removeChild(i);
 }
 
 bool DivNode::getCrop() const
@@ -130,139 +178,6 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-int DivNode::getNumChildren()
-{
-    return int(m_Children.size());
-}
-
-const VisibleNodePtr& DivNode::getChild(unsigned i)
-{
-    if (i >= m_Children.size()) {
-        stringstream s;
-        s << "Index " << i << " is out of range in DivNode::getChild()";
-        throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
-    }
-    return m_Children[i];
-}
-
-void DivNode::appendChild(VisibleNodePtr pNewNode)
-{
-    insertChild(pNewNode, unsigned(m_Children.size()));
-}
-
-void DivNode::insertChildBefore(VisibleNodePtr pNewNode, VisibleNodePtr pOldChild)
-{
-    if (!pOldChild) {
-        throw Exception(AVG_ERR_NO_NODE,
-                getID()+"::insertChildBefore called without a node.");
-    }
-    unsigned i = indexOf(pOldChild);
-    insertChild(pNewNode, i);
-}
-
-
-void DivNode::insertChild(VisibleNodePtr pNewNode, unsigned i)
-{
-    if (!pNewNode) {
-        throw Exception(AVG_ERR_NO_NODE,
-                getID()+"::insertChild called without a node.");
-    }
-    if (!isChildTypeAllowed(pNewNode->getTypeStr())) {
-        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
-                "Can't insert a node of type "+pNewNode->getTypeStr()+
-                " into a node of type "+getTypeStr()+"."));
-
-    }
-    if (pNewNode->getState() == NS_CONNECTED || pNewNode->getState() == NS_CANRENDER) 
-    {
-        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
-                "Can't connect node with id "+pNewNode->getID()+
-                ": already connected."));
-    }
-    if (i>m_Children.size()) {
-        throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                pNewNode->getID()+"::insertChild: index out of bounds."));
-    }
-    std::vector<VisibleNodePtr>::iterator Pos = m_Children.begin()+i;
-    if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
-        getScene()->registerNode(pNewNode);
-    }
-    m_Children.insert(Pos, pNewNode);
-    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
-    pNewNode->setParent(Ptr, getState(), getScene());
-    if (getState() == NS_CANRENDER) {
-        pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
-    }
-}
-
-void DivNode::removeChild(VisibleNodePtr pNode)
-{
-    removeChild(pNode, false);
-}
-
-void DivNode::removeChild(unsigned i)
-{
-    removeChild(i, false);
-}
-
-void DivNode::removeChild(VisibleNodePtr pNode, bool bKill)
-{
-    int i = indexOf(pNode);
-    pNode->removeParent(bKill);
-    m_Children.erase(m_Children.begin()+i);
-}
-
-void DivNode::removeChild(unsigned i, bool bKill)
-{
-    if (i>m_Children.size()-1) {
-        throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
-    }
-    VisibleNodePtr pNode = getChild(i);
-    pNode->removeParent(bKill);
-    m_Children.erase(m_Children.begin()+i);
-}
-
-void DivNode::reorderChild(VisibleNodePtr pNode, unsigned j)
-{
-    if (j > m_Children.size()-1) {
-        throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
-    }
-    int i = indexOf(pNode);
-    m_Children.erase(m_Children.begin()+i);
-    std::vector<VisibleNodePtr>::iterator Pos = m_Children.begin()+j;
-    m_Children.insert(Pos, pNode);
-}
-
-void DivNode::reorderChild(unsigned i, unsigned j)
-{
-    if (i>m_Children.size()-1 || j > m_Children.size()-1) {
-        throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                getID()+"::reorderChild: index out of bounds."));
-    }
-    VisibleNodePtr pNode = getChild(i);
-    m_Children.erase(m_Children.begin()+i);
-    std::vector<VisibleNodePtr>::iterator Pos = m_Children.begin()+j;
-    m_Children.insert(Pos, pNode);
-}
-
-int DivNode::indexOf(VisibleNodePtr pChild)
-{
-    if (!pChild) {
-        throw Exception(AVG_ERR_NO_NODE,
-                getID()+"::indexOf called without a node.");
-    }
-    for  (int i = 0; i< (int)m_Children.size(); ++i) {
-        if (m_Children[i] == pChild) {
-            return i;
-        }
-    }
-    throw(Exception(AVG_ERR_OUT_OF_RANGE,
-            "indexOf: node '"+pChild->getID()+"' is not a child of node '"
-            +getID()+"'"));
-}
-
 VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     if (reactsToMouseEvents() &&
@@ -270,7 +185,7 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            VisibleNodePtr pCurChild = getChild(i);
+            VisibleNodePtr pCurChild = getVChild(i);
             DPoint relPos = pCurChild->toLocal(pos);
             VisibleNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
             if (pFoundNode) {
@@ -293,8 +208,8 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
 void DivNode::preRender()
 {
     VisibleNode::preRender();
-    for (int i=0; i<getNumChildren(); i++) {
-        getChild(i)->preRender();
+    for (unsigned i=0; i<getNumChildren(); i++) {
+        getVChild(i)->preRender();
     }
 }
 
@@ -305,8 +220,8 @@ void DivNode::render(const DRect& rect)
         DRect ClipRect(0, 0, Viewport.x, Viewport.y);
         getDisplayEngine()->pushClipRect(ClipRect);
     }
-    for (int i=0; i<getNumChildren(); i++) {
-        getChild(i)->maybeRender(rect);
+    for (unsigned i=0; i<getNumChildren(); i++) {
+        getVChild(i)->maybeRender(rect);
     }
     if (getCrop()) {
         getDisplayEngine()->popClipRect();
@@ -340,8 +255,8 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
             pVA->addLineData(effColor, p3, p0, 1);
         }
     }
-    for (int i=0; i<getNumChildren(); i++) {
-        getChild(i)->renderOutlines(pVA, effColor);
+    for (unsigned i=0; i<getNumChildren(); i++) {
+        getVChild(i)->renderOutlines(pVA, effColor);
     }
 }
 
@@ -363,8 +278,8 @@ string DivNode::getEffectiveMediaDir()
 
 void DivNode::checkReload()
 {
-    for(int i=0; i<getNumChildren(); ++i) {
-        getChild(i)->checkReload();
+    for(unsigned i=0; i<getNumChildren(); ++i) {
+        getVChild(i)->checkReload();
     }
 }
 
@@ -372,8 +287,8 @@ string DivNode::dump(int indent)
 {
     string dumpStr = AreaNode::dump () + "\n";
     vector<VisibleNodePtr>::iterator it;
-    for (it=m_Children.begin(); it<m_Children.end(); it++) {
-        dumpStr += (*it)->dump(indent+2)+"\n";
+    for(unsigned i=0; i<getNumChildren(); ++i) {
+        getVChild(i)->dump(indent+2)+"\n";
     }
     return dumpStr;
 }
@@ -383,9 +298,4 @@ IntPoint DivNode::getMediaSize()
     return IntPoint(10000,10000);
 }
  
-bool DivNode::isChildTypeAllowed(const string& sType)
-{
-    return getDefinition()->isChildAllowed(sType);
-}
-
 }

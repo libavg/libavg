@@ -84,8 +84,8 @@ void Scene::registerNode(VisibleNodePtr pNode)
     addNodeID(pNode);    
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (pDivNode) {
-        for (int i=0; i<pDivNode->getNumChildren(); i++) {
-            registerNode(pDivNode->getChild(i));
+        for (unsigned i=0; i<pDivNode->getNumChildren(); i++) {
+            registerNode(pDivNode->getVChild(i));
         }
     }
 }

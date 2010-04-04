@@ -250,7 +250,7 @@ void export_node()
         .def("insertChild", &DivNode::insertChild,
                 "insertChild(node, pos)\n"
                 "Adds a new child to the container at position pos.")
-        .def("removeChild", (void (DivNode::*)(VisibleNodePtr))(&DivNode::removeChild),
+        .def("removeChild", (void (DivNode::*)(NodePtr))(&DivNode::removeChild),
                 "removeChild(node)\n"
                 "Removes the child given by pNode.")
         .def("removeChild", (void (DivNode::*)(unsigned))(&DivNode::removeChild),
@@ -261,7 +261,7 @@ void export_node()
                 "reorderChild(oldPos, newPos)\n"
                 "Moves the child at index pos so it's at index newPos. This function\n"
                 "can be used to change the order in which the children are drawn.")
-        .def("reorderChild", (void (DivNode::*)(VisibleNodePtr, unsigned))
+        .def("reorderChild", (void (DivNode::*)(NodePtr, unsigned))
                 (&DivNode::reorderChild),
                 "reorderChild(node, newPos)\n"
                 "Moves the child node so it's at index newPos. This function\n"

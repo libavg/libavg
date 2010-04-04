@@ -28,6 +28,8 @@
 #include <boost/weak_ptr.hpp>
 
 #include <string>
+#include <vector>
+
 namespace avg {
 
 class Node;
@@ -54,6 +56,17 @@ class AVG_API Node
         virtual void setParent(NodeWeakPtr pParent);
         NodePtr getParent() const;
 
+        unsigned getNumChildren();
+        const NodePtr& getChild(unsigned i);
+        void appendChild(NodePtr pNewNode);
+        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
+        virtual void insertChild(NodePtr pNewNode, unsigned i);
+        virtual void removeChild(NodePtr pNode);
+        virtual void removeChild(unsigned i);
+        void reorderChild(NodePtr pNode, unsigned j);
+        void reorderChild(unsigned i, unsigned j);
+        unsigned indexOf(NodePtr pChild);
+
         virtual const std::string& getID() const;
         virtual void setID(const std::string& ID);
 
@@ -71,11 +84,14 @@ class AVG_API Node
         NodePtr getThis() const;
 
     private:
+        bool isChildTypeAllowed(const std::string& sType);
+
         NodeWeakPtr m_This;
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
 
         NodeWeakPtr m_pParent;
+        std::vector<NodePtr> m_Children;
 };
 
 }
