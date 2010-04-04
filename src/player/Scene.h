@@ -38,6 +38,7 @@
 namespace avg {
 
 class Player;
+class Node;
 class VisibleNode;
 class SceneNode;
 class AudioEngine;
@@ -46,6 +47,8 @@ class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZone;
 
+typedef boost::shared_ptr<Node> NodePtr;
+typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<SceneNode> SceneNodePtr;
@@ -53,7 +56,7 @@ typedef boost::shared_ptr<SceneNode> SceneNodePtr;
 class AVG_API Scene
 {
     public:
-        Scene(Player * pPlayer, VisibleNodePtr pRootNode);
+        Scene(Player * pPlayer, NodePtr pRootNode);
         virtual ~Scene();
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine) = 0;

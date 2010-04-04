@@ -37,7 +37,7 @@ using namespace boost;
 
 namespace avg {
 
-Scene::Scene(Player * pPlayer, VisibleNodePtr pRootNode)
+Scene::Scene(Player * pPlayer, NodePtr pRootNode)
     : m_pPlayer(pPlayer),
       m_pRootNode(dynamic_pointer_cast<SceneNode>(pRootNode)),
       m_pDisplayEngine(0),

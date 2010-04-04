@@ -105,8 +105,8 @@ class AVG_API Player: IEventSink
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
-        VisibleNodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
-        VisibleNodePtr createNodeFromXmlString(const std::string& sXML);
+        NodePtr createNode(const std::string& sType, const boost::python::dict& PyDict);
+        NodePtr createNodeFromXmlString(const std::string& sXML);
         
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
@@ -171,13 +171,13 @@ class AVG_API Player: IEventSink
 
         void updateDTD();
 
-        VisibleNodePtr loadMainNodeFromFile(const std::string& sFilename);
-        VisibleNodePtr loadMainNodeFromString(const std::string& sAVG);
-        VisibleNodePtr internalLoad(const std::string& sAVG);
+        NodePtr loadMainNodeFromFile(const std::string& sFilename);
+        NodePtr loadMainNodeFromString(const std::string& sAVG);
+        NodePtr internalLoad(const std::string& sAVG);
 
-        VisibleNodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
-        OffscreenScenePtr registerOffscreenScene(VisibleNodePtr pNode);
+        NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
+                const xmlNodePtr xmlNode);
+        OffscreenScenePtr registerOffscreenScene(NodePtr pNode);
         OffscreenScenePtr findScene(const std::string& sID) const;
         void endFrame();
 

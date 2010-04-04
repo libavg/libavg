@@ -230,7 +230,7 @@ ScenePtr Player::loadFile(const string& sFilename)
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Can't load a new main scene while the player is running.");
     }
-    VisibleNodePtr pNode = loadMainNodeFromFile(sFilename);
+    NodePtr pNode = loadMainNodeFromFile(sFilename);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     if (m_pMainScene) {
         cleanup();
@@ -251,7 +251,7 @@ ScenePtr Player::loadString(const string& sAVG)
         cleanup();
     }
 
-    VisibleNodePtr pNode = loadMainNodeFromString(sAVG);
+    NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     m_pMainScene = MainScenePtr(new MainScene(this, pNode));
     m_DP.m_Size = m_pMainScene->getSize();
@@ -260,13 +260,13 @@ ScenePtr Player::loadString(const string& sAVG)
 
 OffscreenScenePtr Player::loadSceneFile(const string& sFilename)
 {
-    VisibleNodePtr pNode = loadMainNodeFromFile(sFilename);
+    NodePtr pNode = loadMainNodeFromFile(sFilename);
     return registerOffscreenScene(pNode);
 }
 
 OffscreenScenePtr Player::loadSceneString(const string& sAVG)
 {
-    VisibleNodePtr pNode = loadMainNodeFromString(sAVG);
+    NodePtr pNode = loadMainNodeFromString(sAVG);
     return registerOffscreenScene(pNode);
 }
 
@@ -299,7 +299,7 @@ OffscreenScenePtr Player::getScene(const string& sID) const
     }
 }
 
-VisibleNodePtr Player::loadMainNodeFromFile(const string& sFilename)
+NodePtr Player::loadMainNodeFromFile(const string& sFilename)
 {
     string RealFilename;
     try {
@@ -319,7 +319,7 @@ VisibleNodePtr Player::loadMainNodeFromFile(const string& sFilename)
 
         string sAVG;
         readWholeFile(RealFilename, sAVG);
-        VisibleNodePtr pNode = internalLoad(sAVG);
+        NodePtr pNode = internalLoad(sAVG);
 
         // Reset the directory to load assets from to the current dir.
         m_CurDirName = string(pBuf)+"/";
@@ -340,13 +340,13 @@ VisibleNodePtr Player::loadMainNodeFromFile(const string& sFilename)
     }
 }
 
-VisibleNodePtr Player::loadMainNodeFromString(const string& sAVG)
+NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
         
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
-        VisibleNodePtr pNode = internalLoad(sEffectiveDoc);
+        NodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
     } catch (Exception& ex) {
         switch (ex.GetCode()) {
@@ -989,7 +989,7 @@ void Player::updateDTD()
     m_bDirtyDTD = false;
 }
 
-VisibleNodePtr Player::internalLoad(const string& sAVG)
+NodePtr Player::internalLoad(const string& sAVG)
 {
     xmlDocPtr doc = 0;
     try {
@@ -1014,7 +1014,7 @@ VisibleNodePtr Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_VALID, ""));
         }
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        VisibleNodePtr pNode = createNodeFromXml(doc, xmlNode, DivNodePtr());
+        NodePtr pNode = createNodeFromXml(doc, xmlNode);
         if (!pNode) {
             throw (Exception(AVG_ERR_XML_PARSE, 
                     "Root node of an avg tree needs to be an <avg> node."));
@@ -1060,7 +1060,7 @@ void Player::registerNodeType(NodeDefinition Def, const char* pParentNames[])
     m_bDirtyDTD = true;
 }
 
-VisibleNodePtr Player::createNode(const string& sType, const boost::python::dict& params)
+NodePtr Player::createNode(const string& sType, const boost::python::dict& params)
 {
     DivNodePtr pParentNode;
     boost::python::dict attrs = params;
@@ -1069,15 +1069,14 @@ VisibleNodePtr Player::createNode(const string& sType, const boost::python::dict
         attrs.attr("__delitem__")("parent");
         pParentNode = boost::python::extract<DivNodePtr>(parent);
     }
-    VisibleNodePtr pNode = dynamic_pointer_cast<VisibleNode>(
-            m_NodeRegistry.createNode(sType, attrs));
+    NodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
     if (pParentNode) {
         pParentNode->appendChild(pNode);
     }
     return pNode;
 }
 
-VisibleNodePtr Player::createNodeFromXmlString(const string& sXML)
+NodePtr Player::createNodeFromXmlString(const string& sXML)
 {
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =0;
@@ -1088,7 +1087,7 @@ VisibleNodePtr Player::createNodeFromXmlString(const string& sXML)
         throw (Exception(AVG_ERR_XML_PARSE, 
                     string("Error parsing xml:\n  ")+sXML));
     }
-    VisibleNodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+    NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc));
 
     if (m_bDirtyDTD)
         updateDTD();
@@ -1107,42 +1106,40 @@ VisibleNodePtr Player::createNodeFromXmlString(const string& sXML)
     return pNode;
 }
 
-VisibleNodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
+NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
+        const xmlNodePtr xmlNode)
 {
-    VisibleNodePtr curNode;
+    NodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
     
     if (!strcmp (nodeType, "text") || 
         !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
-        return VisibleNodePtr();
+        return NodePtr();
     }
-    curNode = dynamic_pointer_cast<VisibleNode>(
-            m_NodeRegistry.createNode(nodeType, xmlNode));
+    curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
     if (!strcmp (nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
         boost::dynamic_pointer_cast<WordsNode>(curNode)->setTextFromNodeValue(s);
-    }
-
-    // If this is a container, recurse into children
-    DivNodePtr curGroup = boost::dynamic_pointer_cast<DivNode>(curNode);
-    if (curGroup) {
-        xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
-        while (curXmlChild) {
-            VisibleNodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, curGroup);
-            if (curChild) {
-                curGroup->appendChild(curChild);
+    } else {
+        // If this is a container, recurse into children
+        if (curNode->getDefinition()->hasChildren()) {
+            xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
+            while (curXmlChild) {
+                NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild);
+                if (curChild) {
+                    curNode->appendChild(curChild);
+                }
+                curXmlChild = curXmlChild->next;
             }
-            curXmlChild = curXmlChild->next;
         }
     }
     return curNode;
 }
 
-OffscreenScenePtr Player::registerOffscreenScene(VisibleNodePtr pNode)
+OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
 {
     OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
     if (findScene(pScene->getID())) {

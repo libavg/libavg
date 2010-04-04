@@ -36,7 +36,7 @@ using namespace std;
 
 namespace avg {
     
-MainScene::MainScene(Player * pPlayer, VisibleNodePtr pRootNode)
+MainScene::MainScene(Player * pPlayer, NodePtr pRootNode)
     : Scene(pPlayer, pRootNode)
 {
     if (!dynamic_pointer_cast<AVGNode>(pRootNode)) {

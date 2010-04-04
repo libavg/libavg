@@ -30,7 +30,7 @@ namespace avg {
 class AVG_API MainScene: public Scene
 {
     public:
-        MainScene(Player * pPlayer, VisibleNodePtr pRootNode);
+        MainScene(Player * pPlayer, NodePtr pRootNode);
         virtual ~MainScene();
         void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine);
         
