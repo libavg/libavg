@@ -39,7 +39,7 @@ NodeDefinition PolygonNode::createDefinition()
 {
     vector<DPoint> v;
     vector<double> vd;
-    return NodeDefinition("polygon", VisibleNode::buildNode<PolygonNode>)
+    return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
@@ -108,7 +108,7 @@ void PolygonNode::setLineJoin(const string& s)
 VisibleNodePtr PolygonNode::getElementByPos(const DPoint & pos)
 {
     if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
-        return getThis();
+        return getVThis();
     } else {
         return VisibleNodePtr();
     }

@@ -25,7 +25,7 @@
 #define _NodeRegistry_H_
 
 #include "../api.h"
-#include "VisibleNode.h"
+#include "Node.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
 
@@ -44,8 +44,8 @@ public:
     void registerNodeType(const NodeDefinition& Def);
     void updateNodeDefinition(const NodeDefinition& Def);
     const NodeDefinition& getNodeDef(const std::string& Type);
-    VisibleNodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    VisibleNodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
+    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
+    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
     
     std::string getDTD() const;
     

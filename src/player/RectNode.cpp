@@ -37,7 +37,7 @@ namespace avg {
 NodeDefinition RectNode::createDefinition()
 {
     double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
-    return NodeDefinition("rect", VisibleNode::buildNode<RectNode>)
+    return NodeDefinition("rect", Node::buildNode<RectNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<DPoint>("size", DPoint(0,0)))
@@ -118,7 +118,7 @@ VisibleNodePtr RectNode::getElementByPos(const DPoint & pos)
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
-        return getThis();
+        return getVThis();
     } else {
         return VisibleNodePtr();
     }

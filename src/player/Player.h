@@ -46,6 +46,7 @@
 namespace avg {
 
 class AudioEngine;
+class Node;
 class VisibleNode;
 class TestHelper;
 class Scene;
@@ -56,6 +57,8 @@ class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
 
+typedef boost::shared_ptr<Node> NodePtr;
+typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Scene> ScenePtr;

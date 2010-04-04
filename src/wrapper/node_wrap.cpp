@@ -90,12 +90,19 @@ char meshNodeName[] = "mesh";
 void export_node()
 {
 
-    class_<VisibleNode, boost::shared_ptr<VisibleNode>, boost::noncopyable>("Node",
-            "Base class for all elements in the avg tree.",
-            no_init)
+    class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
         .def(self == self)
         .def(self != self)
-        .def("__hash__", &VisibleNode::getHash)
+        .def("__hash__", &Node::getHash)
+        .add_property("id", make_function(&Node::getID,
+                return_value_policy<copy_const_reference>()),  &Node::setID,
+                "A unique identifier that can be used to reference the node (ro).\n")
+        ;
+
+    class_<VisibleNode, bases<Node>, boost::shared_ptr<VisibleNode>, boost::noncopyable>(
+            "VisibleNode",
+            "Base class for all elements in the avg tree.",
+            no_init)
         .def("getParent", &VisibleNode::getParent,
                 "getParent() -> node\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
@@ -157,9 +164,6 @@ void export_node()
                 "Returns the topmost child node that is at the position given. pos\n"
                 "is in coordinates relative to the called node. The algorithm used\n"
                 "is the same as the cursor hit test algorithm used for events.\n")
-        .add_property("id", make_function(&VisibleNode::getID,
-                return_value_policy<copy_const_reference>()), &VisibleNode::setID,
-                "A unique identifier that can be used to reference the node.\n")
         .add_property("active", &VisibleNode::getActive, &VisibleNode::setActive,
                       "If this attribute is true, the node behaves as usual. If not, it\n"
                       "is neither drawn nor does it react to events.\n")

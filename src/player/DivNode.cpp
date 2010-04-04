@@ -48,7 +48,7 @@ NodeDefinition DivNode::createDefinition()
             "circle", "mesh"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
-    return NodeDefinition("div", VisibleNode::buildNode<DivNode>)
+    return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)))
@@ -283,7 +283,7 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
             return VisibleNodePtr();
         } else {
             // Explicit width/height given for div.
-            return getThis();
+            return getVThis();
         }
     } else { 
         return VisibleNodePtr();

@@ -50,22 +50,22 @@ void NodeRegistry::updateNodeDefinition(const NodeDefinition& Def)
     m_NodeDefs[Def.getName()] = Def;
 }
 
-VisibleNodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)
+NodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)
 {
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), xmlNode);
     NodeBuilder builder = Def.getBuilder();
-    VisibleNodePtr pNode = builder(Args);
+    NodePtr pNode = builder(Args);
     pNode->setThis(pNode, &Def);
     return pNode;
 }
 
-VisibleNodePtr NodeRegistry::createNode(const string& Type, const boost::python::dict& PyDict)
+NodePtr NodeRegistry::createNode(const string& Type, const boost::python::dict& PyDict)
 {
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), PyDict);
     NodeBuilder builder = Def.getBuilder();
-    VisibleNodePtr pNode = builder(Args);
+    NodePtr pNode = builder(Args);
     pNode->setThis(pNode, &Def);
     return pNode;
 }

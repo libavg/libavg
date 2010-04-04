@@ -43,13 +43,14 @@
 #endif
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
 NodeDefinition VisibleNode::createDefinition()
 {
-    return NodeDefinition("node")
-        .addArg(Arg<string>("id", "", false, offsetof(VisibleNode, m_ID)))
+    return NodeDefinition("visiblenode")
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<string>("oncursormove", ""))
         .addArg(Arg<string>("oncursorup", ""))
         .addArg(Arg<string>("oncursordown", ""))
@@ -63,7 +64,6 @@ NodeDefinition VisibleNode::createDefinition()
 VisibleNode::VisibleNode()
     : m_pScene(0),
       m_pParent(),
-      m_This(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_State(NS_UNCONNECTED)
@@ -80,6 +80,11 @@ VisibleNode::~VisibleNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+VisibleNodePtr VisibleNode::getVThis() const
+{
+    return dynamic_pointer_cast<VisibleNode>(getThis());
+}
+
 void VisibleNode::setArgs(const ArgList& Args)
 {
     addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
@@ -89,18 +94,13 @@ void VisibleNode::setArgs(const ArgList& Args)
     addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
 }
 
-void VisibleNode::setThis(VisibleNodeWeakPtr This, const NodeDefinition * pDefinition)
-{
-    m_This = This;
-    m_pDefinition = pDefinition;
-}
-
-void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState, Scene * pScene)
+void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
+        Scene * pScene)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                string("Can't change parent of node (") + m_ID + ")."));
+                string("Can't change parent of node (") + getID() + ")."));
     }
     m_pParent = pParent;
     if (parentState != NS_UNCONNECTED) {
@@ -116,7 +116,8 @@ void VisibleNode::removeParent(bool bKill)
     }
 }
 
-void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
+        AudioEngine * pAudioEngine)
 {
     AVG_ASSERT(getState() == NS_CONNECTED);
     m_pDisplayEngine = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine);
@@ -137,7 +138,7 @@ void VisibleNode::disconnect(bool bKill)
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
     }
-    m_pScene->removeNodeID(m_ID);
+    m_pScene->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
         EventHandlerMap::iterator it;
@@ -148,18 +149,13 @@ void VisibleNode::disconnect(bool bKill)
     }
 }
 
-const string& VisibleNode::getID() const
-{
-    return m_ID;
-}
-
 void VisibleNode::setID(const std::string& ID)
 {
     if (getState() != NS_UNCONNECTED) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+getID()
                 +" is connected. setID invalid."));
     }
-    m_ID = ID;
+    Node::setID(ID);
 }
 
 double VisibleNode::getOpacity() const 
@@ -211,7 +207,7 @@ DivNodePtr VisibleNode::getParent() const
 vector<VisibleNodeWeakPtr> VisibleNode::getParentChain() const
 {
     vector<VisibleNodeWeakPtr> pNodes;
-    VisibleNodePtr pCurNode = m_This.lock();
+    VisibleNodePtr pCurNode = getVThis();
     while (pCurNode) {
         pNodes.push_back(pCurNode);
         pCurNode = pCurNode->getParent();
@@ -225,7 +221,7 @@ void VisibleNode::unlink(bool bKill)
         return;
     }
     DivNodePtr pParent = m_pParent.lock();
-    pParent->removeChild(getThis(), bKill);
+    pParent->removeChild(getVThis(), bKill);
 }
 
 void VisibleNode::setMouseEventCapture()
@@ -240,7 +236,7 @@ void VisibleNode::releaseMouseEventCapture()
 
 void VisibleNode::setEventCapture(int cursorID) 
 {
-    Player::get()->setEventCapture(getThis(), cursorID);
+    Player::get()->setEventCapture(getVThis(), cursorID);
 }
 
 void VisibleNode::releaseEventCapture(int cursorID) 
@@ -331,26 +327,6 @@ Scene * VisibleNode::getScene() const
     return m_pScene;
 }
 
-bool VisibleNode::operator ==(const VisibleNode& other) const
-{
-    return m_This.lock() == other.m_This.lock();
-}
-
-bool VisibleNode::operator !=(const VisibleNode& other) const
-{
-    return m_This.lock() != other.m_This.lock();
-}
-
-long VisibleNode::getHash() const
-{
-    return long(&*m_This.lock());
-}
-
-const NodeDefinition* VisibleNode::getDefinition() const
-{
-    return m_pDefinition;
-}
-
 bool VisibleNode::handleEvent(EventPtr pEvent)
 {
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
@@ -390,11 +366,6 @@ AudioEngine * VisibleNode::getAudioEngine() const
     return m_pAudioEngine;
 }
 
-VisibleNodePtr VisibleNode::getThis() const
-{
-    return m_This.lock();
-}
-
 double VisibleNode::getEffectiveOpacity()
 {
     return m_EffectiveOpacity;
@@ -402,14 +373,9 @@ double VisibleNode::getEffectiveOpacity()
 
 string VisibleNode::dump(int indent)
 {
-    string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID + 
+    string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + getID() +
             "m_Opacity=" + toString(m_Opacity);
     return dumpStr; 
-}
-
-string VisibleNode::getTypeStr() const 
-{
-    return m_pDefinition->getName();
 }
 
 void VisibleNode::setState(VisibleNode::NodeState State)

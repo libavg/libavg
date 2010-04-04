@@ -1060,7 +1060,8 @@ VisibleNodePtr Player::createNode(const string& sType, const boost::python::dict
         attrs.attr("__delitem__")("parent");
         pParentNode = boost::python::extract<DivNodePtr>(parent);
     }
-    VisibleNodePtr pNode = m_NodeRegistry.createNode(sType, attrs);
+    VisibleNodePtr pNode = dynamic_pointer_cast<VisibleNode>(
+            m_NodeRegistry.createNode(sType, attrs));
     if (pParentNode) {
         pParentNode->appendChild(pNode);
     }
@@ -1108,7 +1109,8 @@ VisibleNodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return VisibleNodePtr();
     }
-    curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
+    curNode = dynamic_pointer_cast<VisibleNode>(
+            m_NodeRegistry.createNode(nodeType, xmlNode));
     if (!strcmp (nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

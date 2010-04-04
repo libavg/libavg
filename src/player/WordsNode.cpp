@@ -82,7 +82,7 @@ NodeDefinition WordsNode::createDefinition()
             "small", "tt", "u", "br"};
     vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
             sChildArray); 
-    return NodeDefinition("words", VisibleNode::buildNode<WordsNode>)
+    return NodeDefinition("words", Node::buildNode<WordsNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)

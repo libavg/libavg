@@ -19,9 +19,10 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Node_H_
-#define _Node_H_
+#ifndef _VisibleNode_H_
+#define _VisibleNode_H_
 
+#include "Node.h"
 #include "Event.h"
 
 #include "../api.h"
@@ -45,11 +46,9 @@ class VisibleNode;
 class DivNode;
 class SceneNode;
 class AVGNode;
-class ArgList;
 class DisplayEngine;
 class SDLDisplayEngine;
 class AudioEngine;
-class NodeDefinition;
 class Image;
 class VertexArray;
 
@@ -64,20 +63,14 @@ typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 typedef boost::shared_ptr<Image> ImagePtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
-class AVG_API VisibleNode
+class AVG_API VisibleNode: public Node
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
         
-        template<class NodeType>
-        static VisibleNodePtr buildNode(const ArgList& Args)
-        {
-            return VisibleNodePtr(new NodeType(Args));
-        }
         static NodeDefinition createDefinition();
         
-        virtual ~VisibleNode() = 0;
-        virtual void setThis(VisibleNodeWeakPtr This, const NodeDefinition * pDefinition);
+        virtual ~VisibleNode();
         virtual void setArgs(const ArgList& Args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
                 Scene * pScene);
@@ -88,7 +81,6 @@ class AVG_API VisibleNode
         virtual void disconnect(bool bKill);
         virtual void checkReload() {};
 
-        virtual const std::string& getID() const;
         void setID(const std::string& ID);
 
         double getOpacity() const;
@@ -123,20 +115,15 @@ class AVG_API VisibleNode
 
         double getEffectiveOpacity();
         virtual std::string dump(int indent = 0);
-        std::string getTypeStr() const;
         
         NodeState getState() const;
         Scene * getScene() const;
 
-        bool operator ==(const VisibleNode& other) const;
-        bool operator !=(const VisibleNode& other) const;
-
-        long getHash() const;
-        virtual const NodeDefinition* getDefinition() const;
         virtual bool handleEvent(EventPtr pEvent); 
 
     protected:
         VisibleNode();
+        VisibleNodePtr getVThis() const;
 
         void addEventHandlers(Event::Type EventType, const std::string& Code);
         void addEventHandler(Event::Type EventType, Event::Source Source, 
@@ -145,7 +132,6 @@ class AVG_API VisibleNode
             
         SDLDisplayEngine * getDisplayEngine() const;
         AudioEngine * getAudioEngine() const;
-        VisibleNodePtr getThis() const;
         void setState(NodeState State);
         void initFilename(std::string& sFilename);
         void checkReload(const std::string& sHRef, const ImagePtr& pImage);
@@ -167,11 +153,9 @@ class AVG_API VisibleNode
 
         Scene * m_pScene;
         DivNodeWeakPtr m_pParent;
-        VisibleNodeWeakPtr m_This;
         SDLDisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
 
-        std::string m_ID;
         double m_Opacity;
         NodeState m_State;
         const NodeDefinition* m_pDefinition;
