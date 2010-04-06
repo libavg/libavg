@@ -39,7 +39,7 @@ For example:
 1) avg.MOUSE | avg.TOUCH filters can be safely reduced to avg.TOUCH
 2) the current libavg button module breaks the emulation
 3) the current libavg Grabbable class breaks the emulation, unless is created with 
-   source = avg.TOUCH parameter
+source = avg.TOUCH parameter
 """
 
 from libavg import avg, Point2D
