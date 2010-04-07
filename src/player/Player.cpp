@@ -74,6 +74,10 @@
 
 #include <iostream>
 
+#ifdef __linux
+#include <fenv.h>
+#endif
+
 using namespace std;
 using namespace boost;
 
@@ -98,6 +102,10 @@ Player::Player()
       m_bPythonAvailable(true),
       m_EventHookPyFunc(Py_None)
 {
+#ifdef __linux
+// Turning this on causes fp exceptions in the linux nvidia drivers.
+//    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW ); 
+#endif
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }

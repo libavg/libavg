@@ -423,7 +423,9 @@ void FFMpegDecoder::seek(long long DestTime)
         readFrame(Frame, FrameTime);
     }
     m_pDemuxer->seek(DestTime + getStartTime());
-    m_LastVideoFrameTime = DestTime - (long long)(1000.0/m_FPS);
+    if (m_pVStream) {
+        m_LastVideoFrameTime = DestTime - (long long)(1000.0/m_FPS);
+    }
     if (m_pAStream) {
         mutex::scoped_lock Lock(m_AudioMutex);
         m_LastAudioFrameTime = double(DestTime);
@@ -925,9 +927,7 @@ int FFMpegDecoder::getNumFrames() const
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
 #else
-    double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
-    return int((m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
-            (m_pVStream->duration/timeUnitsPerSecond));
+    return m_pVStream->nb_frames;
 #endif 
 }
 

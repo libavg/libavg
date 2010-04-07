@@ -23,6 +23,7 @@
 
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
+//#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <stddef.h>
@@ -44,6 +45,7 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
       m_bSizeChanged(true),
       m_bDataChanged(true)
 {
+//    ObjectCounter::get()->incRef(&typeid(*this));
     if (m_ReserveVerts < 10) {
         m_ReserveVerts = 10;
     }
@@ -82,6 +84,7 @@ VertexArray::~VertexArray()
     }
     delete[] m_pVertexData;
     delete[] m_pIndexData;
+//    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void VertexArray::appendPos(const DPoint& pos, 
@@ -91,21 +94,13 @@ void VertexArray::appendPos(const DPoint& pos,
         grow();
     }
     T2V3C4Vertex* pVertex = &(m_pVertexData[m_NumVerts]);
-    if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
-            pVertex->m_Pos[1] != (GLfloat)pos.y ||
-            pVertex->m_Tex[0] != (GLfloat)texPos.x || 
-            pVertex->m_Tex[1] != (GLfloat)texPos.y ||
-            pVertex->m_Color != color)
-    {
-        T2V3C4Vertex* pVertex = &m_pVertexData[m_NumVerts];
-        pVertex->m_Pos[0] = (GLfloat)pos.x;
-        pVertex->m_Pos[1] = (GLfloat)pos.y;
-        pVertex->m_Pos[2] = 0.0;
-        pVertex->m_Tex[0] = (GLfloat)texPos.x;
-        pVertex->m_Tex[1] = (GLfloat)texPos.y;
-        pVertex->m_Color = color;
-        m_bDataChanged = true;
-    }
+    pVertex->m_Pos[0] = (GLfloat)pos.x;
+    pVertex->m_Pos[1] = (GLfloat)pos.y;
+    pVertex->m_Pos[2] = 0.0;
+    pVertex->m_Tex[0] = (GLfloat)texPos.x;
+    pVertex->m_Tex[1] = (GLfloat)texPos.y;
+    pVertex->m_Color = color;
+    m_bDataChanged = true;
     m_NumVerts++;
 }
 
