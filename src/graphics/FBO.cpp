@@ -51,6 +51,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, vector<unsigned> texIDs)
     : m_Size(size),
       m_PF(pf),
       m_MultisampleSamples(1),
+      m_bUsePackedDepthStencil(false),
       m_TexIDs(texIDs)
 {
     m_TexIDs = texIDs;
