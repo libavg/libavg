@@ -23,7 +23,7 @@
 
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
-//#include "../base/ObjectCounter.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <stddef.h>
@@ -45,7 +45,7 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
       m_bSizeChanged(true),
       m_bDataChanged(true)
 {
-//    ObjectCounter::get()->incRef(&typeid(*this));
+    ObjectCounter::get()->incRef(&typeid(*this));
     if (m_ReserveVerts < 10) {
         m_ReserveVerts = 10;
     }
@@ -84,7 +84,7 @@ VertexArray::~VertexArray()
     }
     delete[] m_pVertexData;
     delete[] m_pIndexData;
-//    ObjectCounter::get()->decRef(&typeid(*this));
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void VertexArray::appendPos(const DPoint& pos, 
