@@ -105,4 +105,10 @@ void Shape::draw()
     }
 }
 
+void Shape::discardOnCPU()
+{
+	m_pVertexArray = VertexArrayPtr();
+	m_pImage->discardOnCPU();
+}
+
 }

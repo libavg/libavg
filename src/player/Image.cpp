@@ -41,7 +41,7 @@ namespace avg {
 
 Image::Image(OGLSurface * pSurface, const string& sFilename)
     : m_sFilename(sFilename),
-      m_pBmp(new Bitmap(IntPoint(1,1), B8G8R8X8)),
+      m_pBmp(createDefaultBitmap()),
       m_pSurface(pSurface),
       m_pEngine(0),
       m_State(NOT_AVAILABLE)
@@ -73,7 +73,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
         m_pSurface->unlockBmps();
-        m_pBmp=BitmapPtr();
+        m_pBmp=BitmapPtr(createDefaultBitmap());
         m_State = GPU;
     } else {
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
@@ -104,12 +104,26 @@ void Image::moveToCPU()
     if (m_State != GPU) {
         return;
     }
+
     if (!m_pScene) {
         m_pBmp = m_pSurface->readbackBmp();
-        m_State = CPU;
     }
-    m_pEngine = 0;
-    m_pSurface->destroy();
+    discardOnCPU();
+}
+
+void Image::discardOnCPU()
+{
+	if (m_State != GPU) {
+		return;
+	}
+
+	m_pEngine = 0;
+	m_pSurface->destroy();
+	if (!m_pScene) {
+		m_sFilename = "";
+		m_pBmp = BitmapPtr(createDefaultBitmap());
+		m_State = CPU;
+	}
 }
 
 void Image::setFilename(const std::string& sFilename)
@@ -119,7 +133,7 @@ void Image::setFilename(const std::string& sFilename)
     }
     m_pScene = OffscreenScenePtr();
     m_State = NOT_AVAILABLE;
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), B8G8R8X8));
+    m_pBmp = BitmapPtr(createDefaultBitmap());
     m_sFilename = sFilename;
     load();
     if (m_pEngine) {
@@ -136,7 +150,7 @@ void Image::setScene(OffscreenScenePtr pScene)
         m_sFilename = "";
         switch(m_State) {
             case CPU:
-                m_pBmp = BitmapPtr();
+                m_pBmp = BitmapPtr(createDefaultBitmap());
                 break;
             case GPU:
                 m_pSurface->destroy();
@@ -236,7 +250,7 @@ void Image::setupSurface()
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
     m_pSurface->unlockBmps();
-    m_pBmp=BitmapPtr();
+    m_pBmp=BitmapPtr(createDefaultBitmap());
 }
 
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
@@ -250,6 +264,11 @@ PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
         pf = I8;
     }
     return pf;
+}
+
+Bitmap* Image::createDefaultBitmap() const
+{
+	return new Bitmap(IntPoint(1,1), B8G8R8X8);
 }
 
 }

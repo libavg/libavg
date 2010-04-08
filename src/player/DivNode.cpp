@@ -39,7 +39,10 @@
 using namespace std;
 using namespace boost;
 
+#define DEFAULT_SIZE 10000
+
 namespace avg {
+
 
 NodeDefinition DivNode::createDefinition()
 {
@@ -92,6 +95,15 @@ void DivNode::disconnect(bool bKill)
         getVChild(i)->disconnect(bKill);
     }
     AreaNode::disconnect(bKill);
+}
+
+DPoint DivNode::getPivot() const
+{
+	DPoint pivot = AreaNode::getPivot();
+	if (pivot == DPoint(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
+		return DPoint(0, 0);
+	}
+	return pivot;
 }
 
 VisibleNodePtr DivNode::getVChild(unsigned i)
@@ -184,7 +196,7 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
 VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     if (reactsToMouseEvents() &&
-            ((getSize() == DPoint(10000, 10000) ||
+            ((getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
@@ -196,7 +208,7 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
             }
         }
         // Pos isn't in any of the children.
-        if (getSize() == DPoint(10000, 10000)) {
+        if (getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height not given: div itself doesn't react.
             return VisibleNodePtr();
         } else {
@@ -240,7 +252,7 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
     }
     if (effColor != Pixel32(0,0,0,0)) {
         DPoint size = getSize();
-        if (size == DPoint(10000, 10000)) {
+        if (size == DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
             DPoint p0 = getAbsPos(DPoint(-4, 0.5));
             DPoint p1 = getAbsPos(DPoint(5, 0.5));
             DPoint p2 = getAbsPos(DPoint(0.5, -4));
@@ -298,7 +310,7 @@ string DivNode::dump(int indent)
 
 IntPoint DivNode::getMediaSize()
 {
-    return IntPoint(10000,10000);
+    return IntPoint(DEFAULT_SIZE, DEFAULT_SIZE);
 }
  
 }

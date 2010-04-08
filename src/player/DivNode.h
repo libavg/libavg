@@ -51,6 +51,8 @@ class AVG_API DivNode : public AreaNode
         void removeChild(NodePtr pNode, bool bKill);
         void removeChild(unsigned i, bool bKill);
 
+        virtual DPoint getPivot() const;
+
         bool getCrop() const;
         void setCrop(bool bCrop);
 
