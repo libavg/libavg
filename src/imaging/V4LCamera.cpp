@@ -300,6 +300,7 @@ bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
             if (errno != EINVAL) {
                 cerr << "Got " << strerror(errno) << endl;
                 AVG_ASSERT(false);
+                return false;
             } else {
                 return false;
             }

@@ -178,6 +178,7 @@ dc1394feature_t getFeatureID(CameraFeature Feature)
             return DC1394_FEATURE_CAPTURE_QUALITY;
         default:
             AVG_ASSERT(false);
+            return dc1394feature_t(0);
     }
 }
 
