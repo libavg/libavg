@@ -50,6 +50,7 @@ public:
     ~Point();
 
     Point<NUM> getNormalized() const;
+    Point<NUM> safeGetNormalized() const;
     double getNorm();
     bool isNaN() const;
     bool isInf() const;

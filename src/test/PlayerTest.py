@@ -90,6 +90,7 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(pt[1]==pt.y)
         self.assertException(lambda: pt[2])
         self.assert_(almostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10)))
+        self.assertException(avg.Point2D(0,0).getNormalized)
 
     def testBasics(self):
         def getFramerate():

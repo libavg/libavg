@@ -43,10 +43,10 @@ class_<POINT> export_point(const string& sName, const string& sDoc)
         .def("__str__", &DPointHelper::str)
         .def("__repr__", &DPointHelper::repr)
         .def("__hash__", &DPointHelper::getHash)
-        .def("getNormalized", &DPoint::getNormalized,
+        .def("getNormalized", &DPoint::safeGetNormalized,
                 "getNormalized() -> normalized\n"
                 "Returns a normalized version of the point with the same angle but a\n"
-                "norm of one.")
+                "norm of one. Throws an exception if called on Point2D(0,0).")
         .def("getNorm", &DPoint::getNorm,
                 "getNorm() -> norm\n"
                 "Returns the euclidian norm of the point, that is sqrt(x*x+y*y).")
