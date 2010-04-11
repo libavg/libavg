@@ -230,7 +230,8 @@ class Grabbable:
             try:
                 param = solveEquationMatrix (equationMatrix)
             except (EquationSingular, EquationNotSolvable):
-                print "WARNING: Grabbable: cannot solve equation, skipping movement"
+#                g_log.trace(g_log.APP, 
+#                        "Grabbable: cannot solve equation, skipping movement")
                 return False
 
             absTouchCenter = cursor2.getPos() + (cursor1.getPos() - cursor2.getPos()) / 2
@@ -238,7 +239,7 @@ class Grabbable:
             n_tl = applyAffineTransformation (param, self.o_tl)
             n_bl = applyAffineTransformation (param, self.o_bl)
             n_tr = applyAffineTransformation (param, self.o_tr)
-
+            
             pos = n_tl
             if pos.x > 1e6 and pos.x > self.o_tl.x:
                 pos = self.o_tl
@@ -264,34 +265,30 @@ class Grabbable:
                     angle = angle)
             pivot = relTouchCenter
 
-            def scaleMinMax(pos, size, angle, pivot):
-                # the absolute position of the pivot should change when
-                # resizing, so we track and revert absolute pivot movement
-                oldAbsPivot = getAbsPos(pivot, pos, angle, pivot)
+            # the absolute position of the pivot should change when
+            # resizing, so we track and revert absolute pivot movement
+            oldAbsPivot = getAbsPos(pivot, pos, angle, pivot)
 
-                newSize = getScaledDim (size,
-                        max = self.__maxSize,
-                        min = self.__minSize)
+            newSize = getScaledDim (size,
+                    max = self.__maxSize,
+                    min = self.__minSize)
 
-                ratio = newSize.x / size.x
-                newPivot = pivot * ratio
+            ratio = newSize.x / size.x
+            newPivot = pivot * ratio
 
-                pos += getOffsetForMovedPivot(
-                        oldPivot = pivot,
-                        newPivot = newPivot,
-                        angle = angle)
-                pivot = newPivot
+            pos += getOffsetForMovedPivot(
+                    oldPivot = pivot,
+                    newPivot = newPivot,
+                    angle = angle)
+            oldPivot = pivot
+            pivot = newPivot
 
-                size = newSize
+            size = newSize
 
-                newAbsPivot = getAbsPos(pivot, pos, angle, pivot)
+            newAbsPivot = getAbsPos(pivot, pos, angle, pivot)
 
-                # move node to revert absolute pivot position
-                pos -= (newAbsPivot - oldAbsPivot)
-
-                return (pos, size, angle, pivot)
-
-            (pos, size, angle, pivot) = scaleMinMax(pos, size, angle, pivot)
+            # move node to revert absolute pivot position
+            pos -= (newAbsPivot - oldAbsPivot)
 
         else: # more than 2 clusters
             assert False

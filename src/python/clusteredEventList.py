@@ -20,10 +20,11 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
-from libavg import Point2D
+from libavg import avg, Point2D
 from eventList import EventList, Cursor
 from mathutil import getDistSquared
 
+g_log = avg.Logger.get()
 
 MAX_ITERATIONS=50
 
@@ -239,12 +240,11 @@ class ClusteredEventList:
         self.__tryCalcClusters()
 
         if __hasBrokenCentroids():
-            #print "i have broken centroids"
             self.__centroids=[]
             self.__tryCalcClusters()
-            if __hasBrokenCentroids():
-                print "ignoring fatal error: cannot fix broken centroids: %s" % self.__centroids
-                print "self.__eventList =%s " % self.__eventList
+#            if __hasBrokenCentroids():
+#                g_log.trace(g_log.APP, 
+#                        "Cannot fix broken centroids: %s" % self.__centroids)
         if self.__doNewMotion:
             self.__doNewMotion = False
             self.__resetMotion()

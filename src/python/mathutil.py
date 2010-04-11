@@ -20,6 +20,9 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
+# TODO: Some of this stuff is duplicated - either in Point2D or in MathHelper.h/.cpp.
+# Clean that up.
+
 import math
 from libavg import Point2D
 
