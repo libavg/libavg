@@ -107,8 +107,10 @@ void Image::moveToCPU()
 
     if (!m_pScene) {
         m_pBmp = m_pSurface->readbackBmp();
+        m_State = CPU;
     }
-    discardOnCPU();
+    m_pEngine = 0;
+    m_pSurface->destroy();
 }
 
 void Image::discardOnCPU()
