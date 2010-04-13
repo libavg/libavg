@@ -113,17 +113,17 @@ void Image::moveToCPU()
 
 void Image::discardOnCPU()
 {
-	if (m_State != GPU) {
-		return;
-	}
+    if (m_State != GPU) {
+        return;
+    }
 
-	m_pEngine = 0;
-	m_pSurface->destroy();
-	if (!m_pScene) {
-		m_sFilename = "";
-		m_pBmp = BitmapPtr(createDefaultBitmap());
-		m_State = CPU;
-	}
+    m_pEngine = 0;
+    m_pSurface->destroy();
+    if (!m_pScene) {
+        m_sFilename = "";
+        m_pBmp = BitmapPtr(createDefaultBitmap());
+        m_State = CPU;
+    }
 }
 
 void Image::setFilename(const std::string& sFilename)
@@ -268,7 +268,7 @@ PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
 
 Bitmap* Image::createDefaultBitmap() const
 {
-	return new Bitmap(IntPoint(1,1), B8G8R8X8);
+    return new Bitmap(IntPoint(1,1), B8G8R8X8);
 }
 
 }

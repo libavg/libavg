@@ -61,9 +61,9 @@ NodeDefinition VectorNode::createDefinition()
 
 VectorNode::VectorNode(const ArgList& Args)
 {
-	m_pShape = ShapePtr(createDefaultShape());
+    m_pShape = ShapePtr(createDefaultShape());
 
-	ObjectCounter::get()->incRef(&typeid(*this));
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_TexHRef = Args.getArgVal<UTF8String>("texhref"); 
     setTexHRef(m_TexHRef);
     m_sColorName = Args.getArgVal<string>("color");
@@ -94,12 +94,12 @@ void VectorNode::connect(Scene * pScene)
 
 void VectorNode::disconnect(bool bKill)
 {
-	if (bKill) {
-		m_pShape->discardOnCPU();
-	} else {
-		m_pShape->moveToCPU();
-	}
-	VisibleNode::disconnect(bKill);
+    if (bKill) {
+        m_pShape->discardOnCPU();
+    } else {
+        m_pShape->moveToCPU();
+    }
+    VisibleNode::disconnect(bKill);
 }
 
 void VectorNode::checkReload()
@@ -523,7 +523,7 @@ int VectorNode::getNumDifferentPts(const vector<DPoint>& pts)
 
 Shape* VectorNode::createDefaultShape() const
 {
-	return new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+    return new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
 }
 
 }
