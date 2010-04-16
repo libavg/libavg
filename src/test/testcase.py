@@ -64,6 +64,7 @@ class AVGTestCase(unittest.TestCase):
     
     def start(self, filename, actions):
         self.__setupPlayer()
+        self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
         
         self.assert_(self.__player.isPlaying() == 0)
         if filename != None:
@@ -128,6 +129,8 @@ class AVGTestCase(unittest.TestCase):
         return bool(os.access('.', os.W_OK))
     
     def __nextAction(self):
+        if self.__dumpTestFrames:
+            self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
         if len(self.actions) == self.curFrame:
             self.__player.stop()
         else:
