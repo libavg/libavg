@@ -59,6 +59,8 @@ ImageNode::ImageNode(const ArgList& Args)
 
 ImageNode::~ImageNode()
 {
+    // disconnect(true) should have been called by now.
+    AVG_ASSERT(!m_pImage->getScene());
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -68,6 +70,9 @@ void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     getSurface()->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    if (m_pImage->getSource() == Image::SCENE) {
+        m_pImage->getScene()->addDependentScene(getScene());
+    }
 }
 
 void ImageNode::connect(ScenePtr pScene)
@@ -78,6 +83,10 @@ void ImageNode::connect(ScenePtr pScene)
 
 void ImageNode::disconnect(bool bKill)
 {
+    OffscreenScenePtr pScene = m_pImage->getScene();
+    if (pScene) {
+        pScene->removeDependentScene(getScene());
+    }
     if (bKill) {
         RasterNode::disconnect(bKill);
         m_pImage = ImagePtr(new Image(getSurface()));
@@ -96,11 +105,29 @@ const UTF8String& ImageNode::getHRef() const
 void ImageNode::setHRef(const UTF8String& href)
 {
     m_href = href;
-    checkReload();
+    if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
+    {
+        m_pImage->getScene()->removeDependentScene(getScene());
+    }
+    try {
+        if (href == "") {
+            m_pImage->setEmpty();
+        } else {
+            checkReload();
+        }
+    } catch (const Exception&) {
+        m_href = "";
+        m_pImage->setEmpty();
+        throw;
+    }
 }
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
 {
+    if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
+    {
+        m_pImage->getScene()->removeDependentScene(getScene());
+    }
     m_pImage->setBitmap(pBmp);
     if (getState() == VisibleNode::NS_CANRENDER) {
         bind();
@@ -130,6 +157,9 @@ void ImageNode::checkReload()
     if (isSceneURL(m_href)) {
         OffscreenScenePtr pScene = Player::get()->getSceneFromURL(m_href);
         m_pImage->setScene(pScene);
+        if (getState() == NS_CANRENDER) {
+            pScene->addDependentScene(getScene());
+        }
     } else {
         VisibleNode::checkReload(m_href, m_pImage);
     }

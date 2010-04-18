@@ -24,6 +24,7 @@
 #include "SDLDisplayEngine.h"
 #include "SceneNode.h"
 #include "OGLTexture.h"
+#include "Player.h"
 
 #include "../base/Exception.h"
 #include "../base/ProfilingZone.h"
@@ -140,9 +141,56 @@ unsigned OffscreenScene::getTexID() const
     return m_pFBO->getTexture();
 }
 
+void OffscreenScene::addDependentScene(ScenePtr pScene)
+{
+    m_pDependentScenes.push_back(pScene);
+    Player::get()->newSceneDependency(
+            dynamic_pointer_cast<OffscreenScene>(shared_from_this()));
+}
+
+void OffscreenScene::removeDependentScene(ScenePtr pScene)
+{
+    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
+        if (pScene == m_pDependentScenes[i]) {
+            m_pDependentScenes.erase(m_pDependentScenes.begin()+i);
+//            dump();
+            return;
+        }
+    }
+    AVG_ASSERT(false);
+}
+
+bool OffscreenScene::hasDependentScene(ScenePtr pScene) const
+{
+    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
+        if (pScene == m_pDependentScenes[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool OffscreenScene::hasDependentScenes() const
+{
+    return !m_pDependentScenes.empty();
+}
+
+unsigned OffscreenScene::getNumDependentScenes() const
+{
+    return m_pDependentScenes.size();
+}
+
 bool OffscreenScene::isMultisampleSupported()
 {
     return FBO::isMultisampleFBOSupported();
+}
+
+void OffscreenScene::dump() const
+{
+    cerr << "Scene: " << getRootNode()->getID() << endl;
+    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
+        cerr << " " << m_pDependentScenes[i]->getRootNode()->getID() << endl;
+    }
 }
 
 void OffscreenScene::createFBO()

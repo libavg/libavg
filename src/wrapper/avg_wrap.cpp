@@ -464,6 +464,9 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("mipmap", &OffscreenScene::getMipmap,
                 "True if mipmaps are generated and used for the scene.  This is used "
                 "instead of RasterNode.mipmap for images that render the scene.")
+        .def("getNumDependentScenes", &OffscreenScene::getNumDependentScenes,
+                "Returns the number of scenes that reference this scene. Used mainly "
+                "for unit tests.")
         .def("isMultisampleSupported", &OffscreenScene::isMultisampleSupported,
                 "isMultisampleSupported() -> bool\n"
                 "True if the machine's OpenGL implementation supports offscreen "

@@ -123,11 +123,7 @@ void Image::setEmpty()
     if (m_State == GPU) {
         m_pSurface->destroy();
     }
-    if (m_Source == FILE || m_Source == BITMAP) {
-        m_sFilename = "";
-        m_pBmp = BitmapPtr();
-    }
-    m_Source = NONE;
+    changeSource(NONE);
     assertValid();
 }
 
@@ -169,7 +165,6 @@ void Image::setBitmap(const Bitmap * pBmp)
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
         m_pBmp->copyPixels(*pBmp);
     }
-    m_sFilename = "";
     assertValid();
 }
 
@@ -185,7 +180,6 @@ void Image::setScene(OffscreenScenePtr pScene)
         m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
         m_pSurface->setTexID(m_pScene->getTexID());
     }
-    m_sFilename = "";
     assertValid();
 }
 
@@ -317,6 +311,7 @@ bool Image::changeSource(Source newSource)
                 if (m_State == CPU) {
                     m_pBmp = BitmapPtr();
                 }
+                m_sFilename = "";
                 break;
             case SCENE:
                 m_pScene = OffscreenScenePtr();
