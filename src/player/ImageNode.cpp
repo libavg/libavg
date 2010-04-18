@@ -79,12 +79,13 @@ void ImageNode::connect(Scene * pScene)
 void ImageNode::disconnect(bool bKill)
 {
     if (bKill) {
+        RasterNode::disconnect(bKill);
         m_pImage = ImagePtr(new Image(getSurface()));
         m_href = "";
     } else {
         m_pImage->moveToCPU();
+        RasterNode::disconnect(bKill);
     }
-    RasterNode::disconnect(bKill);
 }
 
 const UTF8String& ImageNode::getHRef() const

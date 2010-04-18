@@ -328,18 +328,16 @@ void Image::assertValid() const
             AVG_ASSERT(!m_pEngine);
             AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
                     bool(m_pBmp));
-//            AVG_ASSERT(!(m_pSurface->isCreated()));
+            AVG_ASSERT(!(m_pSurface->isCreated()));
             break;
         case GPU:
             AVG_ASSERT(m_pEngine);
             AVG_ASSERT(!m_pBmp);
-/*
             if (m_Source != NONE) {
                 AVG_ASSERT(m_pSurface->isCreated());
             } else {
                 AVG_ASSERT(!m_pSurface->isCreated());
             }
-*/            
             break;
         default:
             AVG_ASSERT(false);
