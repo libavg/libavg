@@ -48,6 +48,7 @@ Image::Image(OGLSurface * pSurface)
       m_Source(NONE)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    assertValid();
 }
 
 Image::~Image()
@@ -317,6 +318,34 @@ bool Image::changeSource(Source newSource)
     }
 }
 
+void Image::assertValid() const
+{
+    AVG_ASSERT(m_pSurface);
+    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
+            (m_sFilename != ""));
+    AVG_ASSERT((m_Source == SCENE) == bool(m_pScene));
+    switch (m_State) {
+        case CPU:
+            AVG_ASSERT(!m_pEngine);
+//            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
+//                    bool(m_pBmp));
+//            AVG_ASSERT(!(m_pSurface->isCreated()));
+            break;
+        case GPU:
+            AVG_ASSERT(m_pEngine);
+            AVG_ASSERT(!m_pBmp);
+/*
+            if (m_Source != NONE) {
+                AVG_ASSERT(m_pSurface->isCreated());
+            } else {
+                AVG_ASSERT(!m_pSurface->isCreated());
+            }
+*/            
+            break;
+        default:
+            AVG_ASSERT(false);
+    }
+}
 
 Bitmap* Image::createDefaultBitmap() const
 {

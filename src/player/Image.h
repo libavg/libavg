@@ -69,6 +69,7 @@ class AVG_API Image
         void setupSurface();
         PixelFormat calcSurfacePF(const Bitmap& Bmp);
         bool changeSource(Source newSource);
+        void assertValid() const;
 
         Bitmap* createDefaultBitmap() const;
 

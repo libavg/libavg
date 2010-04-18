@@ -64,6 +64,7 @@ public:
     PixelFormat getPixelFormat();
     IntPoint getSize();
     IntPoint getTextureSize();
+    bool isCreated() const;
 
 protected:
     SDLDisplayEngine * getEngine() const;
