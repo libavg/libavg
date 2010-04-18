@@ -34,6 +34,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace avg {
 
@@ -46,6 +47,7 @@ class DisplayEngine;
 class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZone;
+class Scene;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -53,11 +55,12 @@ typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<SceneNode> SceneNodePtr;
 
-class AVG_API Scene
+class AVG_API Scene: public boost::enable_shared_from_this<Scene>
 {
     public:
-        Scene(Player * pPlayer, NodePtr pRootNode);
+        Scene(Player * pPlayer);
         virtual ~Scene();
+        virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine) = 0;
         void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,

@@ -36,17 +36,22 @@ using namespace std;
 
 namespace avg {
     
-MainScene::MainScene(Player * pPlayer, NodePtr pRootNode)
-    : Scene(pPlayer, pRootNode)
+MainScene::MainScene(Player * pPlayer)
+    : Scene(pPlayer)
 {
-    if (!dynamic_pointer_cast<AVGNode>(pRootNode)) {
-        throw (Exception(AVG_ERR_XML_PARSE, 
-                "Root node of an avg tree needs to be an <avg> node."));
-    }
 }
 
 MainScene::~MainScene()
 {
+}
+
+void MainScene::setRoot(NodePtr pRootNode)
+{
+    Scene::setRoot(pRootNode);
+    if (!dynamic_pointer_cast<AVGNode>(pRootNode)) {
+        throw (Exception(AVG_ERR_XML_PARSE,
+                    "Root node of an avg tree needs to be an <avg> node."));
+    }
 }
 
 void MainScene::initPlayback(SDLDisplayEngine* pDisplayEngine, 

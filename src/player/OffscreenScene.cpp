@@ -35,19 +35,24 @@ using namespace std;
 
 namespace avg {
     
-OffscreenScene::OffscreenScene(Player * pPlayer, NodePtr pRootNode)
-    : Scene(pPlayer, pRootNode)
+OffscreenScene::OffscreenScene(Player * pPlayer)
+    : Scene(pPlayer)
 {
-    if (!pRootNode) {
-        throw (Exception(AVG_ERR_XML_PARSE, 
-                "Root node of a scene tree needs to be a <scene> node."));
-    }
 }
 
 OffscreenScene::~OffscreenScene()
 {
     if (isRunning()) {
         glDeleteTextures(1, &m_TexID);
+    }
+}
+
+void OffscreenScene::setRoot(NodePtr pRootNode)
+{
+    Scene::setRoot(pRootNode);
+    if (!getRootNode()) {
+        throw (Exception(AVG_ERR_XML_PARSE,
+                    "Root node of a scene tree needs to be a <scene> node."));
     }
 }
 
@@ -90,22 +95,6 @@ void OffscreenScene::render()
     }
 }
 
-std::string OffscreenScene::getID() const
-{
-    return getRootNode()->getID();
-}
-
-bool OffscreenScene::isRunning() const
-{
-    return (m_pFBO != FBOPtr());
-}
-
-unsigned OffscreenScene::getTexID() const
-{
-    AVG_ASSERT(isRunning());
-    return m_pFBO->getTexture();
-}
-
 BitmapPtr OffscreenScene::screenshot() const
 {
     if (!isRunning()) {
@@ -133,6 +122,22 @@ int OffscreenScene::getMultiSampleSamples() const
 bool OffscreenScene::getMipmap() const
 {
     return dynamic_pointer_cast<OffscreenSceneNode>(getRootNode())->getMipmap();
+}
+
+std::string OffscreenScene::getID() const
+{
+    return getRootNode()->getID();
+}
+
+bool OffscreenScene::isRunning() const
+{
+    return (m_pFBO != FBOPtr());
+}
+
+unsigned OffscreenScene::getTexID() const
+{
+    AVG_ASSERT(isRunning());
+    return m_pFBO->getTexture();
 }
 
 bool OffscreenScene::isMultisampleSupported()

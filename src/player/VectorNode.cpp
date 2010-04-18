@@ -86,7 +86,7 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     setBlendModeStr(m_sBlendMode);
 }
 
-void VectorNode::connect(Scene * pScene)
+void VectorNode::connect(ScenePtr pScene)
 {
     VisibleNode::connect(pScene);
     checkReload();

@@ -62,7 +62,7 @@ NodeDefinition VisibleNode::createDefinition()
 }
 
 VisibleNode::VisibleNode()
-    : m_pScene(0),
+    : m_pScene(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_State(NS_UNCONNECTED)
@@ -94,7 +94,7 @@ void VisibleNode::setArgs(const ArgList& Args)
 }
 
 void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
-        Scene * pScene)
+        ScenePtr pScene)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
     Node::setParent(pParent);
@@ -112,7 +112,7 @@ void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     setState(NS_CANRENDER);
 }
 
-void VisibleNode::connect(Scene * pScene)
+void VisibleNode::connect(ScenePtr pScene)
 {
     m_pScene = pScene;
     setState(NS_CONNECTED);
@@ -304,7 +304,7 @@ VisibleNode::NodeState VisibleNode::getState() const
     return m_State;
 }
 
-Scene * VisibleNode::getScene() const
+ScenePtr VisibleNode::getScene() const
 {
     return m_pScene;
 }

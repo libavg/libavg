@@ -70,7 +70,7 @@ void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void ImageNode::connect(Scene * pScene)
+void ImageNode::connect(ScenePtr pScene)
 {
     RasterNode::connect(pScene);
     checkReload();

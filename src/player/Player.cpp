@@ -244,7 +244,8 @@ ScenePtr Player::loadFile(const string& sFilename)
         cleanup();
     }
 
-    m_pMainScene = MainScenePtr(new MainScene(this, pNode));
+    m_pMainScene = MainScenePtr(new MainScene(this));
+    m_pMainScene->setRoot(pNode);
     m_DP.m_Size = m_pMainScene->getSize();
     return m_pMainScene;
 }
@@ -261,7 +262,8 @@ ScenePtr Player::loadString(const string& sAVG)
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
-    m_pMainScene = MainScenePtr(new MainScene(this, pNode));
+    m_pMainScene = MainScenePtr(new MainScene(this));
+    m_pMainScene->setRoot(pNode);
     m_DP.m_Size = m_pMainScene->getSize();
     return m_pMainScene;
 }
@@ -1149,7 +1151,8 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
 
 OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
 {
-    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    OffscreenScenePtr pScene(new OffscreenScene(this));
+    pScene->setRoot(pNode);
     if (findScene(pScene->getID())) {
         throw (Exception(AVG_ERR_INVALID_ARGS, 
                 string("Duplicate scene id ")+pScene->getID()));

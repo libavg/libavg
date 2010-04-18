@@ -35,8 +35,9 @@ namespace avg {
 class AVG_API OffscreenScene: public Scene
 {
     public:
-        OffscreenScene(Player * pPlayer, NodePtr pRootNode);
+        OffscreenScene(Player * pPlayer);
         virtual ~OffscreenScene();
+        virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine);
         virtual void stopPlayback();

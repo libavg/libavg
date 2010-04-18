@@ -153,7 +153,7 @@ void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void SoundNode::connect(Scene * pScene)
+void SoundNode::connect(ScenePtr pScene)
 {
     AreaNode::connect(pScene);
     pScene->registerFrameEndListener(this);

@@ -81,7 +81,7 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
 }
 
-void DivNode::connect(Scene * pScene)
+void DivNode::connect(ScenePtr pScene)
 {
     AreaNode::connect(pScene);
     for (unsigned i = 0; i<getNumChildren(); ++i) {
@@ -99,11 +99,11 @@ void DivNode::disconnect(bool bKill)
 
 DPoint DivNode::getPivot() const
 {
-	DPoint pivot = AreaNode::getPivot();
-	if (pivot == DPoint(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
-		return DPoint(0, 0);
-	}
-	return pivot;
+    DPoint pivot = AreaNode::getPivot();
+    if (pivot == DPoint(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
+        return DPoint(0, 0);
+    }
+    return pivot;
 }
 
 VisibleNodePtr DivNode::getVChild(unsigned i)

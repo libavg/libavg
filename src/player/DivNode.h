@@ -41,7 +41,7 @@ class AVG_API DivNode : public AreaNode
         virtual ~DivNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
+        virtual void connect(ScenePtr pScene);
         virtual void disconnect(bool bKill);
 
         VisibleNodePtr getVChild(unsigned i);
