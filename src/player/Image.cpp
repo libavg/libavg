@@ -41,7 +41,6 @@ namespace avg {
 
 Image::Image(OGLSurface * pSurface)
     : m_sFilename(""),
-      m_pBmp(createDefaultBitmap()),
       m_pSurface(pSurface),
       m_pEngine(0),
       m_State(CPU),
@@ -119,7 +118,7 @@ void Image::setEmpty()
     }
     if (m_Source == FILE || m_Source == BITMAP) {
         m_sFilename = "";
-        m_pBmp = BitmapPtr(createDefaultBitmap());
+        m_pBmp = BitmapPtr();
     }
     m_Source = NONE;
 }
@@ -154,7 +153,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
         m_pSurface->unlockBmps();
-        m_pBmp = BitmapPtr(createDefaultBitmap());
+        m_pBmp = BitmapPtr();
     } else {
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
         m_pBmp->copyPixels(*pBmp);
@@ -277,7 +276,7 @@ void Image::setupSurface()
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
     m_pSurface->unlockBmps();
-    m_pBmp=BitmapPtr(createDefaultBitmap());
+    m_pBmp=BitmapPtr();
 }
 
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
@@ -302,7 +301,7 @@ bool Image::changeSource(Source newSource)
             case FILE:
             case BITMAP:
                 if (m_State == CPU) {
-                    m_pBmp = BitmapPtr(createDefaultBitmap());
+                    m_pBmp = BitmapPtr();
                 }
                 break;
             case SCENE:
@@ -327,8 +326,8 @@ void Image::assertValid() const
     switch (m_State) {
         case CPU:
             AVG_ASSERT(!m_pEngine);
-//            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
-//                    bool(m_pBmp));
+            AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
+                    bool(m_pBmp));
 //            AVG_ASSERT(!(m_pSurface->isCreated()));
             break;
         case GPU:
@@ -345,11 +344,6 @@ void Image::assertValid() const
         default:
             AVG_ASSERT(false);
     }
-}
-
-Bitmap* Image::createDefaultBitmap() const
-{
-    return new Bitmap(IntPoint(1,1), B8G8R8X8);
 }
 
 }

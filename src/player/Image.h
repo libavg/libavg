@@ -71,8 +71,6 @@ class AVG_API Image
         bool changeSource(Source newSource);
         void assertValid() const;
 
-        Bitmap* createDefaultBitmap() const;
-
         std::string m_sFilename;
         BitmapPtr m_pBmp;
         OGLSurface * m_pSurface;
