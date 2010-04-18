@@ -44,27 +44,108 @@ Image::Image(OGLSurface * pSurface)
       m_pBmp(createDefaultBitmap()),
       m_pSurface(pSurface),
       m_pEngine(0),
-      m_State(NOT_AVAILABLE)
+      m_State(CPU),
+      m_Source(NONE)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Image::~Image()
 {
-    if (m_State == GPU) {
+    if (m_State == GPU && m_Source != NONE) {
         m_pSurface->destroy();
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         
+void Image::moveToGPU(SDLDisplayEngine* pEngine)
+{
+    m_pEngine = pEngine;
+    if (m_State == CPU) {
+        switch (m_Source) {
+            case FILE:
+            case BITMAP:
+                setupSurface();
+                break;
+            case SCENE:
+                m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
+                m_pSurface->setTexID(m_pScene->getTexID());
+                break;
+            case NONE:
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
+        m_State = GPU;
+    }
+}
+
+void Image::moveToCPU()
+{
+    if (m_State == GPU) {
+        switch (m_Source) {
+            case FILE:
+            case BITMAP:
+                m_pBmp = m_pSurface->readbackBmp();
+                break;
+            case SCENE:
+                break;
+            case NONE:
+                break;
+            default:
+                AVG_ASSERT(false);
+                return;
+        }
+        m_State = CPU;
+        m_pEngine = 0;
+        m_pSurface->destroy();
+    }
+}
+
+void Image::discard()
+{
+    setEmpty();
+    if (m_State == GPU) {
+        m_pEngine = 0;
+    }
+    m_State = CPU;
+}
+
+void Image::setEmpty()
+{
+    if (m_State == GPU) {
+        m_pSurface->destroy();
+    }
+    if (m_Source == FILE || m_Source == BITMAP) {
+        m_sFilename = "";
+        m_pBmp = BitmapPtr(createDefaultBitmap());
+    }
+    m_Source = NONE;
+}
+
+void Image::setFilename(const std::string& sFilename)
+{
+    AVG_TRACE(Logger::MEMORY, "Loading " << sFilename);
+    BitmapPtr pBmp(new Bitmap(sFilename));
+    changeSource(FILE);
+    m_pBmp = pBmp;
+
+    m_sFilename = sFilename;
+    if (m_State == GPU) {
+        m_pSurface->destroy();
+        setupSurface();
+    }
+}
+
 void Image::setBitmap(const Bitmap * pBmp)
 {
-    if(!pBmp) {
+    if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
+    bool bSourceChanged = changeSource(BITMAP);
     PixelFormat pf = calcSurfacePF(*pBmp);
-    if (m_pEngine) {
-        if (m_State == NOT_AVAILABLE || m_pSurface->getSize() != pBmp->getSize() || 
+    if (m_State == GPU) {
+        if (bSourceChanged || m_pSurface->getSize() != pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
             m_pSurface->create(pBmp->getSize(), pf);
@@ -72,100 +153,25 @@ void Image::setBitmap(const Bitmap * pBmp)
         BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
         m_pSurface->unlockBmps();
-        m_pBmp=BitmapPtr(createDefaultBitmap());
-        m_State = GPU;
+        m_pBmp = BitmapPtr(createDefaultBitmap());
     } else {
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
         m_pBmp->copyPixels(*pBmp);
-        m_State = CPU;
     }
     m_sFilename = "";
 
 }
 
-void Image::moveToGPU(SDLDisplayEngine* pEngine)
-{
-    m_pEngine = pEngine;
-    if (m_pScene) {
-        m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
-        m_pSurface->setTexID(m_pScene->getTexID());
-        m_State = GPU;
-    } else {
-        if (m_State == CPU) {
-            m_State = GPU;
-            setupSurface();
-        }
-    }
-}
-
-void Image::moveToCPU()
-{
-    if (m_State != GPU) {
-        return;
-    }
-
-    if (!m_pScene) {
-        m_pBmp = m_pSurface->readbackBmp();
-        m_State = CPU;
-    }
-    m_pEngine = 0;
-    m_pSurface->destroy();
-}
-
-void Image::discardOnCPU()
-{
-    if (m_State != GPU) {
-        return;
-    }
-
-    m_pEngine = 0;
-    m_pSurface->destroy();
-    if (!m_pScene) {
-        m_sFilename = "";
-        m_pBmp = BitmapPtr(createDefaultBitmap());
-        m_State = CPU;
-    }
-}
-
-void Image::setFilename(const std::string& sFilename)
-{
-    if (m_State == GPU) {
-        m_pSurface->destroy();
-    }
-    m_pScene = OffscreenScenePtr();
-    m_State = NOT_AVAILABLE;
-    m_pBmp = BitmapPtr(createDefaultBitmap());
-    m_sFilename = sFilename;
-    load();
-    if (m_pEngine) {
-        moveToGPU(m_pEngine);
-    }
-}
-
 void Image::setScene(OffscreenScenePtr pScene)
 {
-    if (pScene == m_pScene) {
+    if (m_Source == SCENE && pScene == m_pScene) {
         return;
     }
-    if (!pScene) {
-        m_sFilename = "";
-        switch(m_State) {
-            case CPU:
-                m_pBmp = BitmapPtr(createDefaultBitmap());
-                break;
-            case GPU:
-                m_pSurface->destroy();
-                break;
-            default:
-                break;
-        }
-    }
+    changeSource(SCENE);
     m_pScene = pScene;
-    m_State = CPU;
-    if (m_pEngine) {
+    if (m_State == GPU) {
         m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
         m_pSurface->setTexID(m_pScene->getTexID());
-        moveToGPU(m_pEngine);
     }
 }
 
@@ -181,46 +187,70 @@ const string& Image::getFilename() const
 
 BitmapPtr Image::getBitmap()
 {
-    if (m_State == GPU) {
-        return m_pSurface->readbackBmp();
+    if (m_Source == NONE) {
+        return BitmapPtr();
     } else {
-        if (m_pScene) {
-            return BitmapPtr();
-        } else {
-            return BitmapPtr(new Bitmap(*m_pBmp));
+        switch (m_State) {
+            case CPU:
+                if (m_Source == SCENE) {
+                    return BitmapPtr();
+                } else {
+                    return BitmapPtr(new Bitmap(*m_pBmp));
+                }
+            case GPU:
+                return m_pSurface->readbackBmp();
+            default:
+                AVG_ASSERT(false);
+                return BitmapPtr();
         }
     }
 }
 
 IntPoint Image::getSize()
 {
-    if (m_State == GPU) {
-        return m_pSurface->getSize();
+    if (m_Source == NONE) {
+        return IntPoint(0,0);
     } else {
-        if (m_pScene) {
-            return m_pScene->getSize();
-        } else {
-            return m_pBmp->getSize();
+        switch (m_State) {
+            case CPU:
+                if (m_Source == SCENE) {
+                    return m_pScene->getSize();
+                } else {
+                    return m_pBmp->getSize();
+                }
+            case GPU:
+                return m_pSurface->getSize();
+            default:
+                AVG_ASSERT(false);
+                return IntPoint(0,0);
         }
     }
 }
 
 PixelFormat Image::getPixelFormat()
 {
-    if (m_State == GPU) {
-        return m_pSurface->getPixelFormat();
+    if (m_Source == NONE) {
+        return B8G8R8X8;
     } else {
-        if (m_pScene) {
-            return B8G8R8X8;
-        } else {
-            return m_pBmp->getPixelFormat();
+        switch (m_State) {
+            case CPU:
+                if (m_Source == SCENE) {
+                    return B8G8R8X8;
+                } else {
+                    return m_pBmp->getPixelFormat();
+                }
+            case GPU:
+                return m_pSurface->getPixelFormat();
+            default:
+                AVG_ASSERT(false);
+                return B8G8R8X8;
         }
     }
 }
 
 OGLSurface* Image::getSurface()
 {
-    AVG_ASSERT(m_State != CPU);
+    AVG_ASSERT(m_State == GPU);
     return m_pSurface;
 }
 
@@ -229,19 +259,14 @@ Image::State Image::getState()
     return m_State;
 }
 
+Image::Source Image::getSource()
+{
+    return m_Source;
+}
+
 SDLDisplayEngine* Image::getEngine()
 {
     return m_pEngine;
-}
-
-void Image::load()
-{
-    if (m_sFilename == "") {
-        return;
-    }
-    AVG_TRACE(Logger::MEMORY, "Loading " << m_sFilename);
-    m_pBmp = BitmapPtr(new Bitmap(m_sFilename));
-    m_State = CPU;
 }
 
 void Image::setupSurface()
@@ -266,6 +291,32 @@ PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
     }
     return pf;
 }
+
+bool Image::changeSource(Source newSource)
+{
+    if (newSource != m_Source) {
+        switch (m_Source) {
+            case NONE:
+                break;
+            case FILE:
+            case BITMAP:
+                if (m_State == CPU) {
+                    m_pBmp = BitmapPtr(createDefaultBitmap());
+                }
+                break;
+            case SCENE:
+                m_pScene = OffscreenScenePtr();
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
+        m_Source = newSource;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 Bitmap* Image::createDefaultBitmap() const
 {

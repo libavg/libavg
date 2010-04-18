@@ -113,7 +113,7 @@ static ProfilingZone RenderProfilingZone("ImageNode::render");
 void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_pImage->getState() == Image::GPU) {
+    if (m_pImage->getSource() != Image::NONE) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode(), 
                 bool(m_pImage->getScene()));
     }

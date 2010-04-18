@@ -152,6 +152,7 @@ Bitmap::Bitmap(const UTF8String& sURI)
 // It also returns RGB bitmaps, but I think nearly everywhere in libavg, the bytes
 // are swapped and BGR is used.
 //    cerr << "Bitmap::Bitmap(" << sURI << ")" << endl;
+    AVG_ASSERT(sURI != "");
     if (!s_bMagickInitialized) {
         InitializeMagick(0);
         s_bMagickInitialized = true;

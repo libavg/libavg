@@ -414,9 +414,13 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage)
     if (sLastFilename != sFilename) {
         try {
             sFilename = convertUTF8ToFilename(sFilename);
-            pImage->setFilename(sFilename);
+            if (sHRef == "") {
+                pImage->setEmpty();
+            } else {
+                pImage->setFilename(sFilename);
+            }
         } catch (Magick::Exception & ex) {
-            pImage->setFilename("");
+            pImage->setEmpty();
             if (getState() != VisibleNode::NS_UNCONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.what());
             } else {

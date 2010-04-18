@@ -495,7 +495,7 @@ class PlayerTestCase(AVGTestCase):
         def createImageNode():
             # Node is not in tree; mediadir should be root node dir.
             node = avg.ImageNode(href="rgb24-64x64.png")
-            self.assert_(node.size == avg.Point2D(1,1)) # File not found
+            self.assert_(node.size == avg.Point2D(0,0)) # File not found
             node.href = "rgb24-64x64a.png"
             self.assert_(node.size == avg.Point2D(64,64)) # File found
             node = avg.ImageNode(href="rgb24-64x64.png", width=23, height=42)
@@ -528,7 +528,7 @@ class PlayerTestCase(AVGTestCase):
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
                  lambda: self.compareImage("testMediaDir2", False),
-                 lambda: self.assert_(Player.getElementByID("img").width == 1),
+                 lambda: self.assert_(Player.getElementByID("img").width == 0),
                  createNode,
                  setAbsDir
                 ))

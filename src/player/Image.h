@@ -40,19 +40,19 @@ class SDLDisplayEngine;
 class AVG_API Image
 {
     public:
-        enum State {NOT_AVAILABLE, CPU, GPU};
+        enum State {CPU, GPU};
+        enum Source {NONE, FILE, BITMAP, SCENE};
 
         Image(OGLSurface * pSurface);
         virtual ~Image();
 
-        void setBitmap(const Bitmap * pBmp);
-
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
 
-        void discardOnCPU();
-
+        void discard();
+        void setEmpty();
         void setFilename(const std::string& sFilename);
+        void setBitmap(const Bitmap * pBmp);
         void setScene(OffscreenScenePtr pScene);
         OffscreenScenePtr getScene() const;
         const std::string& getFilename() const;
@@ -62,12 +62,13 @@ class AVG_API Image
         PixelFormat getPixelFormat();
         OGLSurface* getSurface();
         State getState();
+        Source getSource();
         SDLDisplayEngine* getEngine();
 
     private:
-        void load();
         void setupSurface();
         PixelFormat calcSurfacePF(const Bitmap& Bmp);
+        bool changeSource(Source newSource);
 
         Bitmap* createDefaultBitmap() const;
 
@@ -78,6 +79,7 @@ class AVG_API Image
         OffscreenScenePtr m_pScene;
 
         State m_State;
+        Source m_Source;
 };
 
 typedef boost::shared_ptr<Image> ImagePtr;

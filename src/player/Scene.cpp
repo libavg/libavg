@@ -278,7 +278,7 @@ void Scene::render(IntPoint windowSize, bool bUpsideDown,
         ScopeTimer Timer(renderProfilingZone);
         m_pRootNode->maybeRender(rc);
 
-        Shape * pShape = new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+        Shape * pShape = new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
         pShape->moveToGPU(m_pDisplayEngine);
         VertexArrayPtr pVA = pShape->getVertexArray();
         m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));

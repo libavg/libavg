@@ -38,7 +38,7 @@ namespace avg {
 class AVG_API Shape
 {
     public:
-        Shape(const std::string& sFilename, const MaterialInfo& material);
+        Shape(const MaterialInfo& material);
         virtual ~Shape();
 
         void setBitmap(const Bitmap * pBmp);
@@ -50,7 +50,7 @@ class AVG_API Shape
         VertexArrayPtr getVertexArray();
         void draw();
 
-        void discardOnCPU();
+        void discard();
 
     private:
         VertexArrayPtr m_pVertexArray;
