@@ -64,11 +64,21 @@ void fatalError(const std::string& sMsg)
     exit(-1);
 }
 
+void debugBreak()
+{
+#ifdef _WIN32
+    __asm int 3;
+#else
+    asm("int $3");
+#endif
+}
+
 void avgAssert(bool b, const char * pszFile, int line)
 {
     if (!b) {
         stringstream ss;
         ss << "Assertion failed in " << pszFile << ": " << line;
+//        debugBreak();
         dumpBacktrace();
         throw(Exception(AVG_ERR_ASSERT_FAILED, ss.str()));
     }
