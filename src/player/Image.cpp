@@ -60,6 +60,7 @@ Image::~Image()
         
 void Image::moveToGPU(SDLDisplayEngine* pEngine)
 {
+    assertValid();
     m_pEngine = pEngine;
     if (m_State == CPU) {
         switch (m_Source) {
@@ -78,10 +79,12 @@ void Image::moveToGPU(SDLDisplayEngine* pEngine)
         }
         m_State = GPU;
     }
+    assertValid();
 }
 
 void Image::moveToCPU()
 {
+    assertValid();
     if (m_State == GPU) {
         switch (m_Source) {
             case FILE:
@@ -100,19 +103,23 @@ void Image::moveToCPU()
         m_pEngine = 0;
         m_pSurface->destroy();
     }
+    assertValid();
 }
 
 void Image::discard()
 {
+    assertValid();
     setEmpty();
     if (m_State == GPU) {
         m_pEngine = 0;
     }
     m_State = CPU;
+    assertValid();
 }
 
 void Image::setEmpty()
 {
+    assertValid();
     if (m_State == GPU) {
         m_pSurface->destroy();
     }
@@ -121,10 +128,12 @@ void Image::setEmpty()
         m_pBmp = BitmapPtr();
     }
     m_Source = NONE;
+    assertValid();
 }
 
 void Image::setFilename(const std::string& sFilename)
 {
+    assertValid();
     AVG_TRACE(Logger::MEMORY, "Loading " << sFilename);
     BitmapPtr pBmp(new Bitmap(sFilename));
     changeSource(FILE);
@@ -135,10 +144,12 @@ void Image::setFilename(const std::string& sFilename)
         m_pSurface->destroy();
         setupSurface();
     }
+    assertValid();
 }
 
 void Image::setBitmap(const Bitmap * pBmp)
 {
+    assertValid();
     if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
@@ -159,11 +170,12 @@ void Image::setBitmap(const Bitmap * pBmp)
         m_pBmp->copyPixels(*pBmp);
     }
     m_sFilename = "";
-
+    assertValid();
 }
 
 void Image::setScene(OffscreenScenePtr pScene)
 {
+    assertValid();
     if (m_Source == SCENE && pScene == m_pScene) {
         return;
     }
@@ -173,6 +185,8 @@ void Image::setScene(OffscreenScenePtr pScene)
         m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
         m_pSurface->setTexID(m_pScene->getTexID());
     }
+    m_sFilename = "";
+    assertValid();
 }
 
 OffscreenScenePtr Image::getScene() const
@@ -320,8 +334,7 @@ bool Image::changeSource(Source newSource)
 void Image::assertValid() const
 {
     AVG_ASSERT(m_pSurface);
-    AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
-            (m_sFilename != ""));
+    AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));
     AVG_ASSERT((m_Source == SCENE) == bool(m_pScene));
     switch (m_State) {
         case CPU:
