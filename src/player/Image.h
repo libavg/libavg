@@ -42,7 +42,7 @@ class AVG_API Image
     public:
         enum State {NOT_AVAILABLE, CPU, GPU};
 
-        Image(OGLSurface * pSurface, const std::string& sFilename);
+        Image(OGLSurface * pSurface);
         virtual ~Image();
 
         void setBitmap(const Bitmap * pBmp);

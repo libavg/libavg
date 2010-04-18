@@ -51,7 +51,7 @@ NodeDefinition ImageNode::createDefinition()
 
 ImageNode::ImageNode(const ArgList& Args)
 {
-    m_pImage = ImagePtr(new Image(getSurface(), ""));
+    m_pImage = ImagePtr(new Image(getSurface()));
     Args.setMembers(this);
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -79,7 +79,7 @@ void ImageNode::connect(Scene * pScene)
 void ImageNode::disconnect(bool bKill)
 {
     if (bKill) {
-        m_pImage = ImagePtr(new Image(getSurface(), ""));
+        m_pImage = ImagePtr(new Image(getSurface()));
         m_href = "";
     } else {
         m_pImage->moveToCPU();

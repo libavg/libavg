@@ -41,7 +41,8 @@ namespace avg {
 Shape::Shape(const string& sFilename, const MaterialInfo& material)
 {
     m_pSurface = new OGLSurface(material);
-    m_pImage = ImagePtr(new Image(m_pSurface, sFilename));
+    m_pImage = ImagePtr(new Image(m_pSurface));
+    m_pImage->setFilename(sFilename);
 }
 
 Shape::~Shape()

@@ -39,15 +39,14 @@ using namespace std;
 
 namespace avg {
 
-Image::Image(OGLSurface * pSurface, const string& sFilename)
-    : m_sFilename(sFilename),
+Image::Image(OGLSurface * pSurface)
+    : m_sFilename(""),
       m_pBmp(createDefaultBitmap()),
       m_pSurface(pSurface),
       m_pEngine(0),
       m_State(NOT_AVAILABLE)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    load();
 }
 
 Image::~Image()
