@@ -321,7 +321,8 @@ OffscreenCanvasPtr Player::getCanvas(const string& sID) const
 void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
 {
     OffscreenCanvasPtr pNewCanvas;
-    for (unsigned i=0; i<m_pCanvases.size(); ++i) {
+    unsigned i;
+    for (i=0; i<m_pCanvases.size(); ++i) {
         if (pCanvas == m_pCanvases[i]) {
             pNewCanvas = m_pCanvases[i];
             m_pCanvases.erase(m_pCanvases.begin()+i);
@@ -330,7 +331,6 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
     }
     assert(pNewCanvas);
     bool bFound = false;
-    unsigned i;
     for (i=0; i<m_pCanvases.size(); ++i) {
         if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {
             bFound = true;
