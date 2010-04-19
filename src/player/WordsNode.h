@@ -44,7 +44,7 @@ class AVG_API WordsNode : public RasterNode
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
+        virtual void connect(ScenePtr pScene);
         virtual void disconnect(bool bKill);
         virtual void preRender();
         virtual void render(const DRect& Rect);

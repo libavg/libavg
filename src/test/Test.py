@@ -36,9 +36,6 @@ def cleanExit(rc):
         except OSError:
             print 'ERROR: Cannot clean up test package directory'
     
-    sys.exit(rc)
-
-
 def symtree(src, dest):
     os.mkdir(dest)
     for f in os.listdir(src):
@@ -120,7 +117,5 @@ app.registerSuiteFactory('event', EventTest.eventTestSuite)
 
 try:
     app.run()
-except Exception, exception:
-    raise exception
 finally:
     cleanExit(app.exitCode())

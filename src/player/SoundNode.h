@@ -39,12 +39,12 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
     public:
         static NodeDefinition createDefinition();
 
-        SoundNode (const ArgList& Args);
-        virtual ~SoundNode ();
+        SoundNode(const ArgList& Args);
+        virtual ~SoundNode();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
+        virtual void connect(ScenePtr pScene);
         virtual void disconnect(bool bKill);
 
         void play();

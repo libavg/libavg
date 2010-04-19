@@ -37,20 +37,26 @@ using namespace boost;
 
 namespace avg {
 
-Scene::Scene(Player * pPlayer, NodePtr pRootNode)
+Scene::Scene(Player * pPlayer)
     : m_pPlayer(pPlayer),
-      m_pRootNode(dynamic_pointer_cast<SceneNode>(pRootNode)),
       m_pDisplayEngine(0),
       m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
       m_PreRenderSignal(&IPreRenderListener::onPreRender)
 {
-    m_pRootNode->setParent(DivNodeWeakPtr(), VisibleNode::NS_CONNECTED, this);
-    registerNode(m_pRootNode);
 }
 
 Scene::~Scene()
 {
+}
+
+void Scene::setRoot(NodePtr pRootNode)
+{
+    assert(!m_pRootNode);
+    m_pRootNode = dynamic_pointer_cast<SceneNode>(pRootNode);
+    m_pRootNode->setParent(DivNodeWeakPtr(), VisibleNode::NS_CONNECTED,
+            shared_from_this());
+    registerNode(m_pRootNode);
 }
 
 void Scene::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
@@ -278,7 +284,7 @@ void Scene::render(IntPoint windowSize, bool bUpsideDown,
         ScopeTimer Timer(renderProfilingZone);
         m_pRootNode->maybeRender(rc);
 
-        Shape * pShape = new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+        Shape * pShape = new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
         pShape->moveToGPU(m_pDisplayEngine);
         VertexArrayPtr pVA = pShape->getVertexArray();
         m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));

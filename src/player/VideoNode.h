@@ -44,12 +44,12 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
     public:
         static NodeDefinition createDefinition();
         
-        VideoNode (const ArgList& Args);
-        virtual ~VideoNode ();
+        VideoNode(const ArgList& Args);
+        virtual ~VideoNode();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
+        virtual void connect(ScenePtr pScene);
         virtual void disconnect(bool bKill);
 
         void play();

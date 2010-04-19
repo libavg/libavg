@@ -272,6 +272,11 @@ IntPoint OGLSurface::getTextureSize()
     return m_pTextures[0]->getTextureSize();
 }
 
+bool OGLSurface::isCreated() const
+{
+    return m_pTextures[0];
+}
+
 SDLDisplayEngine * OGLSurface::getEngine() const
 {
     return m_pEngine;

@@ -54,7 +54,7 @@ NodeDefinition FilledVectorNode::createDefinition()
 
 FilledVectorNode::FilledVectorNode(const ArgList& Args)
     : VectorNode(Args),
-      m_pFillShape(new Shape("", MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
+      m_pFillShape(new Shape(MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
 {
     m_FillTexHRef = Args.getArgVal<UTF8String>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
@@ -77,11 +77,11 @@ void FilledVectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 
 void FilledVectorNode::disconnect(bool bKill)
 {
-	if (bKill) {
-		m_pFillShape->discardOnCPU();
-	} else {
-		m_pFillShape->moveToCPU();
-	}
+    if (bKill) {
+        m_pFillShape->discard();
+    } else {
+        m_pFillShape->moveToCPU();
+    }
     VectorNode::disconnect(bKill);
 }
 

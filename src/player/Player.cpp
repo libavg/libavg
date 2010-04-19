@@ -244,7 +244,8 @@ ScenePtr Player::loadFile(const string& sFilename)
         cleanup();
     }
 
-    m_pMainScene = MainScenePtr(new MainScene(this, pNode));
+    m_pMainScene = MainScenePtr(new MainScene(this));
+    m_pMainScene->setRoot(pNode);
     m_DP.m_Size = m_pMainScene->getSize();
     return m_pMainScene;
 }
@@ -261,7 +262,8 @@ ScenePtr Player::loadString(const string& sAVG)
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
-    m_pMainScene = MainScenePtr(new MainScene(this, pNode));
+    m_pMainScene = MainScenePtr(new MainScene(this));
+    m_pMainScene->setRoot(pNode);
     m_DP.m_Size = m_pMainScene->getSize();
     return m_pMainScene;
 }
@@ -283,12 +285,17 @@ void Player::deleteScene(const string& sID)
     vector<OffscreenScenePtr>::iterator it;
     for (it = m_pScenes.begin(); it != m_pScenes.end(); ++it) {
         if ((*it)->getID() == sID) {
+            if ((*it)->hasDependentScenes()) {
+                throw (Exception(AVG_ERR_INVALID_ARGS,
+                        string("deleteScene: Scene with id ")+sID
+                        +" is still referenced."));
+            }
             m_pScenes.erase(it);
             return;
         }
     }
     throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-            string("deleteScene: Scene with id ")+sID+"does not exist."));
+            string("deleteScene: Scene with id ")+sID+" does not exist."));
 }
 
 ScenePtr Player::getMainScene() const
@@ -305,6 +312,44 @@ OffscreenScenePtr Player::getScene(const string& sID) const
         throw (Exception(AVG_ERR_INVALID_ARGS, 
                 string("Player::getScene(): No scene with id '")+sID+"' exists."));
     }
+}
+
+void Player::newSceneDependency(const OffscreenScenePtr pScene)
+{
+    OffscreenScenePtr pNewScene;
+    for (unsigned i=0; i<m_pScenes.size(); ++i) {
+        if (pScene == m_pScenes[i]) {
+            pNewScene = m_pScenes[i];
+            m_pScenes.erase(m_pScenes.begin()+i);
+            continue;
+        }
+    }
+    assert(pNewScene);
+    bool bFound = false;
+    unsigned i;
+    for (i=0; i<m_pScenes.size(); ++i) {
+        if (pNewScene->hasDependentScene(m_pScenes[i])) {
+            bFound = true;
+            break;
+        }
+    }
+    if (bFound) {
+        for (unsigned j=i; j<m_pScenes.size(); ++j) {
+            if (m_pScenes[j]->hasDependentScene(pNewScene)) {
+                throw Exception(AVG_ERR_INVALID_ARGS,
+                        "Circular dependency between scenes.");
+            }
+        }
+        m_pScenes.insert(m_pScenes.begin()+i, pNewScene);
+    } else {
+        AVG_ASSERT(pNewScene->hasDependentScene(m_pMainScene));
+        m_pScenes.push_back(pNewScene);
+    }
+/*    
+    for (unsigned k=0; k<m_pScenes.size(); ++k) {
+        m_pScenes[k]->dump();
+    }
+*/    
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
@@ -1149,7 +1194,8 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
 
 OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
 {
-    OffscreenScenePtr pScene(new OffscreenScene(this, pNode));
+    OffscreenScenePtr pScene(new OffscreenScene(this));
+    pScene->setRoot(pNode);
     if (findScene(pScene->getID())) {
         throw (Exception(AVG_ERR_INVALID_ARGS, 
                 string("Duplicate scene id ")+pScene->getID()));

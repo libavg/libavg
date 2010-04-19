@@ -38,11 +38,10 @@ using namespace std;
 
 namespace avg {
 
-Shape::Shape(const string& sFilename, const MaterialInfo& material)
+Shape::Shape(const MaterialInfo& material)
 {
     m_pSurface = new OGLSurface(material);
     m_pImage = ImagePtr(new Image(m_pSurface));
-    m_pImage->setFilename(sFilename);
 }
 
 Shape::~Shape()
@@ -56,11 +55,12 @@ void Shape::setBitmap(const Bitmap* pBmp)
     if (pBmp) {
         m_pImage->setBitmap(pBmp);
     } else {
-        m_pImage->setFilename("");
+        m_pImage->setEmpty();
     }
     if (m_pImage->getState() == Image::GPU) {
         m_pSurface->downloadTexture();
         if (prevState != Image::GPU) {
+            // TODO: This shouldn't happen.
             m_pVertexArray = VertexArrayPtr(new VertexArray(100, 100));
         }
     }
@@ -70,7 +70,7 @@ void Shape::moveToGPU(SDLDisplayEngine* pEngine)
 {
     m_pSurface->attach(pEngine);
     m_pImage->moveToGPU(pEngine);
-    if (m_pImage->getState() == Image::GPU) {
+    if (m_pImage->getSource() != Image::NONE) {
         m_pSurface->downloadTexture();
     }
     m_pVertexArray = VertexArrayPtr(new VertexArray(100, 100));
@@ -94,22 +94,24 @@ VertexArrayPtr Shape::getVertexArray()
 
 void Shape::draw()
 {
-    bool bIsTextured = (m_pImage->getState() == Image::GPU);
+    Image::Source source = m_pImage->getSource();
+    bool bIsTextured = (source != Image::NONE);
     if (bIsTextured) {
         m_pSurface->activate();
     }
-    m_pImage->getEngine()->enableTexture(bIsTextured);
-    m_pImage->getEngine()->enableGLColorArray(!bIsTextured);
+    SDLDisplayEngine* pEngine = m_pImage->getEngine();
+    pEngine->enableTexture(bIsTextured);
+    pEngine->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
     if (bIsTextured) {
         m_pSurface->deactivate();
     }
 }
 
-void Shape::discardOnCPU()
+void Shape::discard()
 {
     m_pVertexArray = VertexArrayPtr();
-    m_pImage->discardOnCPU();
+    m_pImage->discard();
 }
 
 }

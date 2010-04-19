@@ -52,6 +52,7 @@ class AudioEngine;
 class Image;
 class VertexArray;
 
+typedef boost::shared_ptr<Scene> ScenePtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
@@ -73,10 +74,10 @@ class AVG_API VisibleNode: public Node
         virtual ~VisibleNode();
         virtual void setArgs(const ArgList& Args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
-                Scene * pScene);
+                ScenePtr pScene);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
+        virtual void connect(ScenePtr pScene);
         virtual void disconnect(bool bKill);
         virtual void checkReload() {};
 
@@ -116,7 +117,7 @@ class AVG_API VisibleNode: public Node
         virtual std::string dump(int indent = 0);
         
         NodeState getState() const;
-        Scene * getScene() const;
+        ScenePtr getScene() const;
 
         virtual bool handleEvent(EventPtr pEvent); 
 
@@ -150,7 +151,7 @@ class AVG_API VisibleNode: public Node
         typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
         EventHandlerMap m_EventHandlerMap;
 
-        Scene * m_pScene;
+        ScenePtr m_pScene;
         SDLDisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
 

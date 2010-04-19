@@ -42,7 +42,7 @@ class AVG_API ImageNode : public RasterNode
         virtual ~ImageNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(Scene * pScene);
+        virtual void connect(ScenePtr pScene);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
 

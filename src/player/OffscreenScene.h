@@ -35,8 +35,9 @@ namespace avg {
 class AVG_API OffscreenScene: public Scene
 {
     public:
-        OffscreenScene(Player * pPlayer, NodePtr pRootNode);
+        OffscreenScene(Player * pPlayer);
         virtual ~OffscreenScene();
+        virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine);
         virtual void stopPlayback();
@@ -51,13 +52,21 @@ class AVG_API OffscreenScene: public Scene
         bool isRunning() const;
         unsigned getTexID() const;
 
-        static bool isMultisampleSupported();
+        void addDependentScene(ScenePtr pScene);
+        void removeDependentScene(ScenePtr pScene);
+        bool hasDependentScene(ScenePtr pScene) const;
+        bool hasDependentScenes() const;
+        unsigned getNumDependentScenes() const;
 
+        static bool isMultisampleSupported();
+        void dump() const;
+ 
     private:
         void createFBO();
         FBOPtr m_pFBO;
         unsigned m_TexID;
         bool m_bUseMipmaps;
+        std::vector<ScenePtr> m_pDependentScenes;
 };
 
 typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;

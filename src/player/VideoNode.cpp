@@ -112,7 +112,7 @@ void VideoNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void VideoNode::connect(Scene * pScene)
+void VideoNode::connect(ScenePtr pScene)
 {
     pScene->registerFrameEndListener(this);
     RasterNode::connect(pScene);

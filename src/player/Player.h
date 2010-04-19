@@ -89,6 +89,7 @@ class AVG_API Player: IEventSink
         void deleteScene(const std::string& sID);
         ScenePtr getMainScene() const;
         OffscreenScenePtr getScene(const std::string& sID) const;
+        void newSceneDependency(const OffscreenScenePtr pScene);
 
         void play();
         void stop();

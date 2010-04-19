@@ -24,6 +24,7 @@
 #include "SDLDisplayEngine.h"
 #include "SceneNode.h"
 #include "OGLTexture.h"
+#include "Player.h"
 
 #include "../base/Exception.h"
 #include "../base/ProfilingZone.h"
@@ -35,19 +36,24 @@ using namespace std;
 
 namespace avg {
     
-OffscreenScene::OffscreenScene(Player * pPlayer, NodePtr pRootNode)
-    : Scene(pPlayer, pRootNode)
+OffscreenScene::OffscreenScene(Player * pPlayer)
+    : Scene(pPlayer)
 {
-    if (!pRootNode) {
-        throw (Exception(AVG_ERR_XML_PARSE, 
-                "Root node of a scene tree needs to be a <scene> node."));
-    }
 }
 
 OffscreenScene::~OffscreenScene()
 {
     if (isRunning()) {
         glDeleteTextures(1, &m_TexID);
+    }
+}
+
+void OffscreenScene::setRoot(NodePtr pRootNode)
+{
+    Scene::setRoot(pRootNode);
+    if (!getRootNode()) {
+        throw (Exception(AVG_ERR_XML_PARSE,
+                    "Root node of a scene tree needs to be a <scene> node."));
     }
 }
 
@@ -90,22 +96,6 @@ void OffscreenScene::render()
     }
 }
 
-std::string OffscreenScene::getID() const
-{
-    return getRootNode()->getID();
-}
-
-bool OffscreenScene::isRunning() const
-{
-    return (m_pFBO != FBOPtr());
-}
-
-unsigned OffscreenScene::getTexID() const
-{
-    AVG_ASSERT(isRunning());
-    return m_pFBO->getTexture();
-}
-
 BitmapPtr OffscreenScene::screenshot() const
 {
     if (!isRunning()) {
@@ -135,9 +125,72 @@ bool OffscreenScene::getMipmap() const
     return dynamic_pointer_cast<OffscreenSceneNode>(getRootNode())->getMipmap();
 }
 
+std::string OffscreenScene::getID() const
+{
+    return getRootNode()->getID();
+}
+
+bool OffscreenScene::isRunning() const
+{
+    return (m_pFBO != FBOPtr());
+}
+
+unsigned OffscreenScene::getTexID() const
+{
+    AVG_ASSERT(isRunning());
+    return m_pFBO->getTexture();
+}
+
+void OffscreenScene::addDependentScene(ScenePtr pScene)
+{
+    m_pDependentScenes.push_back(pScene);
+    Player::get()->newSceneDependency(
+            dynamic_pointer_cast<OffscreenScene>(shared_from_this()));
+}
+
+void OffscreenScene::removeDependentScene(ScenePtr pScene)
+{
+    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
+        if (pScene == m_pDependentScenes[i]) {
+            m_pDependentScenes.erase(m_pDependentScenes.begin()+i);
+//            dump();
+            return;
+        }
+    }
+    AVG_ASSERT(false);
+}
+
+bool OffscreenScene::hasDependentScene(ScenePtr pScene) const
+{
+    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
+        if (pScene == m_pDependentScenes[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool OffscreenScene::hasDependentScenes() const
+{
+    return !m_pDependentScenes.empty();
+}
+
+unsigned OffscreenScene::getNumDependentScenes() const
+{
+    return m_pDependentScenes.size();
+}
+
 bool OffscreenScene::isMultisampleSupported()
 {
     return FBO::isMultisampleFBOSupported();
+}
+
+void OffscreenScene::dump() const
+{
+    cerr << "Scene: " << getRootNode()->getID() << endl;
+    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
+        cerr << " " << m_pDependentScenes[i]->getRootNode()->getID() << endl;
+    }
 }
 
 void OffscreenScene::createFBO()

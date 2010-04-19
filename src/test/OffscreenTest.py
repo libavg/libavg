@@ -23,53 +23,80 @@ import unittest
 
 from libavg import avg
 from testcase import *
+import gc
 
 class OffscreenTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
     
     def testSceneBasics(self):
-        def createScene(sceneName, x):
+        def createScene(isFirst, sceneName, x):
             scene = self.__createOffscreenScene(sceneName, False)
             scene.getElementByID("test1").x = x
-            self.node = avg.ImageNode(parent=Player.getRootNode())
-            self.node.href="scene:"+sceneName
+            node = avg.ImageNode(parent=Player.getRootNode(), id="imagenode")
+            node.href="scene:"+sceneName
+            if isFirst:
+                self.assert_(scene.getNumDependentScenes() == 0)
+                self.scene1 = scene
+            else:
+                self.assert_(scene.getNumDependentScenes() == 1)
+                self.scene2 = scene
 
+        def unlink():
+            self.node = Player.getElementByID("imagenode")
+            self.node.unlink()
+            self.assert_(self.scene1.getNumDependentScenes() == 0)
+            gc.collect()
+
+        def relink():
+            Player.getRootNode().appendChild(self.node)
+            self.node = None
+            self.assert_(self.scene1.getNumDependentScenes() == 1)
+            
         def changeHRef(href):
-            self.node.href = href
+            Player.getElementByID("imagenode").href = href
 
         def setBitmap():
             bitmap = avg.Bitmap("rgb24-65x65.png")
-            self.node.setBitmap(bitmap)
+            Player.getElementByID("imagenode").setBitmap(bitmap)
 
         def deleteScenes():
+            changeHRef("")
+            firstNode.href = ""
             Player.deleteScene("testscene1")
-            self.assertException(lambda: changeHRef("scene:testscene1"))
+#            self.assertException(lambda: changeHRef("scene:testscene1"))
             changeHRef("scene:testscene2")
+#            self.assertException(lambda: Player.deleteScene("testscene2"))
+            changeHRef("")
             Player.deleteScene("testscene2")
-            self.assertException(lambda: Player.deleteScene("foo"))
+#            self.assertException(lambda: Player.deleteScene("foo"))
 
         self.loadEmptyScene()
-        createScene("testscene1", 0)
+        createScene(True, "testscene1", 0)
+        firstNode = Player.getElementByID("imagenode")
         self.start(None, 
                 (lambda: self.compareImage("testOffscreen1", False),
-                 self.node.unlink,
+                 unlink,
                  lambda: self.compareImage("testOffscreen2", False), 
-                 lambda: Player.getRootNode().appendChild(self.node),
+                 relink,
                  lambda: self.compareImage("testOffscreen1", False),
-                 self.node.unlink,
-                 lambda: createScene("testscene2", 80),
+                 unlink,
+                 lambda: createScene(False, "testscene2", 80),
                  lambda: self.compareImage("testOffscreen3", False),
                  lambda: changeHRef("scene:testscene1"),
+                 lambda: self.assert_(self.scene1.getNumDependentScenes() == 1),
+                 lambda: self.assert_(self.scene2.getNumDependentScenes() == 0),
                  lambda: self.compareImage("testOffscreen1", False),
                  lambda: changeHRef("rgb24-65x65.png"),
+                 lambda: self.assert_(self.scene1.getNumDependentScenes() == 0),
                  lambda: self.compareImage("testOffscreen4", False),
                  lambda: changeHRef("scene:testscene1"),
+                 lambda: self.assert_(self.scene1.getNumDependentScenes() == 1),
                  lambda: self.compareImage("testOffscreen1", False),
                  setBitmap,
                  lambda: self.compareImage("testOffscreen4", False),
                  deleteScenes,
-                 lambda: self.compareImage("testOffscreen3", False),
+                 lambda: self.compareImage("testOffscreen5", False),
                 ))
 
     def testSceneLoadAfterPlay(self):
@@ -298,6 +325,41 @@ class OffscreenTestCase(AVGTestCase):
                 (lambda: self.compareImage("testSceneMipmap", False),
                 ))
 
+    def testSceneDependencies(self):
+        def makeCircularRef():
+            self.offscreen1.getElementByID("test1").href = "scene:offscreenscene2"
+            
+        def createTwoScenes():
+            self.offscreen1 = self.__createOffscreenScene("offscreenscene1", False)
+            self.offscreen2 = self.__createOffscreenScene("offscreenscene2", False)
+            self.node = avg.ImageNode(parent=Player.getRootNode(), 
+                    href="scene:offscreenscene1")
+            node = self.offscreen1.getElementByID("test1")
+            node.href = "scene:offscreenscene2"
+            node.size = (80, 60)
+            
+        def exchangeScenes():
+            self.offscreen1.getElementByID("test1").href = "rgb24-65x65.png"
+            self.offscreen2.getElementByID("test1").href = "scene:offscreenscene1"
+            self.node.href = "scene:offscreenscene2"
+            
+        mainScene = self.loadEmptyScene()
+        createTwoScenes()
+        self.offscreen1.getElementByID("test1").href = ""
+        self.offscreen1 = None
+        self.offscreen2 = None
+        self.node.href = ""
+        self.node = None
+        Player.deleteScene("offscreenscene1")
+        Player.deleteScene("offscreenscene2")
+        self.start(None,
+                   (createTwoScenes,
+                    lambda: self.compareImage("testSceneDependencies1", False),
+                    exchangeScenes,
+                    lambda: self.compareImage("testSceneDependencies2", False),
+                    lambda: self.assertException(makeCircularRef),
+                  ))
+
     def __setupScene(self, handleEvents):
         mainScene = self.loadEmptyScene()
         offscreenScene = self.__createOffscreenScene("offscreenscene", handleEvents)
@@ -328,6 +390,7 @@ def offscreenTestSuite(tests):
             "testSceneBlendModes",
             "testSceneMultisampling",
             "testSceneMipmap",
+            "testSceneDependencies",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 
