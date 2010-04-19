@@ -23,7 +23,7 @@
 #include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
-#include "Scene.h"
+#include "Canvas.h"
 
 #include "../base/Point.h"
 #include "../base/Exception.h"

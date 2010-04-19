@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SceneNode_H_
-#define _SceneNode_H_
+#ifndef _CanvasNode_H_
+#define _CanvasNode_H_
 
 #include "../api.h"
 #include "DivNode.h"

@@ -19,11 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MainScene_H_
-#define _MainScene_H_
+#ifndef _MainCanvas_H_
+#define _MainCanvas_H_
 
 #include "../api.h"
-#include "Scene.h"
+#include "Canvas.h"
 
 namespace avg {
 

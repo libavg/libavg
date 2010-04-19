@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OffscreenScene_H_
-#define _OffscreenScene_H_
+#ifndef _OffscreenCanvas_H_
+#define _OffscreenCanvas_H_
 
 #include "../api.h"
-#include "Scene.h"
-#include "OffscreenSceneNode.h"
+#include "Canvas.h"
+#include "OffscreenCanvasNode.h"
 
 #include "../graphics/FBO.h"
 

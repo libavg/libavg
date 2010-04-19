@@ -41,8 +41,8 @@
 #include "PluginManager.h"
 #include "TextEngine.h"
 #include "TestHelper.h"
-#include "MainScene.h"
-#include "OffscreenScene.h"
+#include "MainCanvas.h"
+#include "OffscreenCanvas.h"
 #include "TrackerEventSource.h"
 #include "SDLDisplayEngine.h"
 

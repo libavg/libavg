@@ -27,7 +27,7 @@
 #include "SDLDisplayEngine.h"
 #include "Arg.h"
 #include "Image.h"
-#include "Scene.h"
+#include "Canvas.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

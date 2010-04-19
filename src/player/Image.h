@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "OGLTexture.h"
-#include "OffscreenScene.h"
+#include "OffscreenCanvas.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"

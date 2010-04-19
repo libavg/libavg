@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "SceneNode.h"
+#include "OffscreenCanvasNode.h"
 #include "Player.h"
 
 #include "NodeDefinition.h"
@@ -30,32 +30,41 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition CanvasNode::createDefinition()
+NodeDefinition OffscreenCanvasNode::createDefinition()
 {
-    return NodeDefinition("canvasbase", Node::buildNode<CanvasNode>)
-        .extendDefinition(DivNode::createDefinition());
+    return NodeDefinition("canvas", VisibleNode::buildNode<OffscreenCanvasNode>)
+        .extendDefinition(CanvasNode::createDefinition())
+        .addArg(Arg<bool>("handleevents", false, false, 
+                offsetof(OffscreenCanvasNode, m_bHandleEvents)))
+        .addArg(Arg<int>("multisamplesamples", 1, false, 
+                offsetof(OffscreenCanvasNode, m_MultiSampleSamples)))
+        .addArg(Arg<bool>("mipmap", false, false, 
+                offsetof(OffscreenCanvasNode, m_bMipmap)));
 }
 
-CanvasNode::CanvasNode(const ArgList& Args)
-    : DivNode(Args)
+OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& Args)
+    : CanvasNode(Args)
 {
     Args.setMembers(this);
 }
 
-CanvasNode::~CanvasNode()
+OffscreenCanvasNode::~OffscreenCanvasNode()
 {
 }
 
-string CanvasNode::getEffectiveMediaDir()
+bool OffscreenCanvasNode::getHandleEvents() const
 {
-    string sMediaDir = getMediaDir();
-    if (!isAbsPath(sMediaDir)) {
-        sMediaDir = Player::get()->getCurDirName()+sMediaDir;
-    }
-    if (sMediaDir[sMediaDir.length()-1] != '/') {
-        sMediaDir += '/';
-    }
-    return sMediaDir;
+    return m_bHandleEvents;
+}
+
+bool OffscreenCanvasNode::getMipmap() const
+{
+    return m_bMipmap;
+}
+
+int OffscreenCanvasNode::getMultiSampleSamples() const
+{
+    return m_MultiSampleSamples;
 }
 
 }

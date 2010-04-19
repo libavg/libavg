@@ -33,7 +33,7 @@ void export_devices();
 #include "../base/Exception.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
-#include "../player/SceneNode.h"
+#include "../player/CanvasNode.h"
 #include "../player/DivNode.h"
 #include "../player/PanoImageNode.h"
 #include "../player/SoundNode.h"

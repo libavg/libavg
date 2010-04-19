@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Scene_H_
-#define _Scene_H_
+#ifndef _Canvas_H_
+#define _Canvas_H_
 
 #include "../api.h"
 

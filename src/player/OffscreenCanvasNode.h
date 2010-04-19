@@ -19,11 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OffscreenSceneNode_H_
-#define _OffscreenSceneNode_H_
+#ifndef _OffscreenCanvasNode_H_
+#define _OffscreenCanvasNode_H_
 
 #include "../api.h"
-#include "SceneNode.h"
+#include "CanvasNode.h"
 
 #include <string>
 

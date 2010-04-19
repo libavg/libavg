@@ -21,7 +21,7 @@
 #include "SoundNode.h"
 #include "Player.h"
 #include "NodeDefinition.h"
-#include "Scene.h"
+#include "Canvas.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

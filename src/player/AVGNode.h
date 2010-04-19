@@ -23,7 +23,7 @@
 #define _AVGNode_H_
 
 #include "../api.h"
-#include "SceneNode.h"
+#include "CanvasNode.h"
 
 #include <string>
 

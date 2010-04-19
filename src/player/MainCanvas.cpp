@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "MainScene.h"
+#include "MainCanvas.h"
 
 #include "Player.h"
 #include "SDLDisplayEngine.h"

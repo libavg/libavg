@@ -25,7 +25,7 @@
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
 #include "Player.h"
-#include "OffscreenScene.h"
+#include "OffscreenCanvas.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"

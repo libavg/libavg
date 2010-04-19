@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Scene.h"
+#include "Canvas.h"
 
 #include "Player.h"
 #include "AVGNode.h"

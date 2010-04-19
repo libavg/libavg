@@ -37,8 +37,8 @@ void export_anim();
 #include "../player/TrackerEventSource.h"
 #include "../player/TouchEvent.h"
 #include "../player/TestHelper.h"
-#include "../player/Scene.h"
-#include "../player/OffscreenScene.h"
+#include "../player/Canvas.h"
+#include "../player/OffscreenCanvas.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>

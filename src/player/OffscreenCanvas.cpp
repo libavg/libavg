@@ -19,10 +19,10 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "OffscreenScene.h"
+#include "OffscreenCanvas.h"
 
 #include "SDLDisplayEngine.h"
-#include "SceneNode.h"
+#include "CanvasNode.h"
 #include "OGLTexture.h"
 #include "Player.h"
 

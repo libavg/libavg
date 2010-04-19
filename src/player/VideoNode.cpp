@@ -24,7 +24,7 @@
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
-#include "Scene.h"
+#include "Canvas.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
