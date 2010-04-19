@@ -83,7 +83,7 @@ public:
     Bitmap(const Bitmap& Orig);
     Bitmap(const Bitmap& Orig, bool bOwnsBits);
     Bitmap(Bitmap& Orig, const IntRect& Rect);
-    Bitmap(const UTF8String& sURI);
+    Bitmap(const UTF8String& sName);
     virtual ~Bitmap();
 
     Bitmap &operator= (const Bitmap & Orig);

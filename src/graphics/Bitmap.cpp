@@ -142,24 +142,22 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
     initWithData(pRegionStart, Orig.getStride(), false);
 }
 
-Bitmap::Bitmap(const UTF8String& sURI)
+Bitmap::Bitmap(const UTF8String& sName)
     : m_pBits(0),
-      m_sName(sURI)
+      m_sName(sName)
 {
 // TODO: This function loads grayscale images as RGB. That is because Magick++
 // provides no reliable way to determine whether a bitmap is grayscale or not. Maybe
 // the imagemagick C interface is less buggy? 
 // It also returns RGB bitmaps, but I think nearly everywhere in libavg, the bytes
 // are swapped and BGR is used.
-//    cerr << "Bitmap::Bitmap(" << sURI << ")" << endl;
-    AVG_ASSERT(sURI != "");
     if (!s_bMagickInitialized) {
         InitializeMagick(0);
         s_bMagickInitialized = true;
     }
     Image Img;
     try {
-        string sFilename = convertUTF8ToFilename(sURI);
+        string sFilename = convertUTF8ToFilename(sName);
         Img.read(sFilename);
     } catch(Magick::Warning &e) {
         cerr << e.what() << endl;
