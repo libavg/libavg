@@ -116,8 +116,8 @@ Player::Player()
 
     // Register all node types
     registerNodeType(AVGNode::createDefinition());
-    registerNodeType(OffscreenSceneNode::createDefinition());
-    registerNodeType(SceneNode::createDefinition());
+    registerNodeType(OffscreenCanvasNode::createDefinition());
+    registerNodeType(CanvasNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
     registerNodeType(ImageNode::createDefinition());
     registerNodeType(WordsNode::createDefinition());
@@ -236,122 +236,122 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-ScenePtr Player::loadFile(const string& sFilename)
+CanvasPtr Player::loadFile(const string& sFilename)
 {
     if (m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't load a new main scene while the player is running.");
+                "Can't load a new main canvas while the player is running.");
     }
     NodePtr pNode = loadMainNodeFromFile(sFilename);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
-    if (m_pMainScene) {
+    if (m_pMainCanvas) {
         cleanup();
     }
 
-    m_pMainScene = MainScenePtr(new MainScene(this));
-    m_pMainScene->setRoot(pNode);
-    m_DP.m_Size = m_pMainScene->getSize();
-    return m_pMainScene;
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
+    m_pMainCanvas->setRoot(pNode);
+    m_DP.m_Size = m_pMainCanvas->getSize();
+    return m_pMainCanvas;
 }
 
-ScenePtr Player::loadString(const string& sAVG)
+CanvasPtr Player::loadString(const string& sAVG)
 {
     if (m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't load a new main scene while the player is running.");
+                "Can't load a new main canvas while the player is running.");
     }
-    if (m_pMainScene) {
+    if (m_pMainCanvas) {
         cleanup();
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
-    m_pMainScene = MainScenePtr(new MainScene(this));
-    m_pMainScene->setRoot(pNode);
-    m_DP.m_Size = m_pMainScene->getSize();
-    return m_pMainScene;
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
+    m_pMainCanvas->setRoot(pNode);
+    m_DP.m_Size = m_pMainCanvas->getSize();
+    return m_pMainCanvas;
 }
 
-OffscreenScenePtr Player::loadSceneFile(const string& sFilename)
+OffscreenCanvasPtr Player::loadCanvasFile(const string& sFilename)
 {
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    return registerOffscreenScene(pNode);
+    return registerOffscreenCanvas(pNode);
 }
 
-OffscreenScenePtr Player::loadSceneString(const string& sAVG)
+OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
 {
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    return registerOffscreenScene(pNode);
+    return registerOffscreenCanvas(pNode);
 }
 
-void Player::deleteScene(const string& sID)
+void Player::deleteCanvas(const string& sID)
 {
-    vector<OffscreenScenePtr>::iterator it;
-    for (it = m_pScenes.begin(); it != m_pScenes.end(); ++it) {
+    vector<OffscreenCanvasPtr>::iterator it;
+    for (it = m_pCanvases.begin(); it != m_pCanvases.end(); ++it) {
         if ((*it)->getID() == sID) {
-            if ((*it)->hasDependentScenes()) {
+            if ((*it)->getNumDependentCanvases() > 0) {
                 throw (Exception(AVG_ERR_INVALID_ARGS,
-                        string("deleteScene: Scene with id ")+sID
+                        string("deleteCanvas: Canvas with id ")+sID
                         +" is still referenced."));
             }
-            m_pScenes.erase(it);
+            m_pCanvases.erase(it);
             return;
         }
     }
     throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-            string("deleteScene: Scene with id ")+sID+" does not exist."));
+            string("deleteCanvas: Canvas with id ")+sID+" does not exist."));
 }
 
-ScenePtr Player::getMainScene() const
+CanvasPtr Player::getMainCanvas() const
 {
-    return m_pMainScene;
+    return m_pMainCanvas;
 }
 
-OffscreenScenePtr Player::getScene(const string& sID) const
+OffscreenCanvasPtr Player::getCanvas(const string& sID) const
 {
-    OffscreenScenePtr pScene = findScene(sID);
-    if (pScene) {
-        return pScene;
+    OffscreenCanvasPtr pCanvas = findCanvas(sID);
+    if (pCanvas) {
+        return pCanvas;
     } else {
         throw (Exception(AVG_ERR_INVALID_ARGS, 
-                string("Player::getScene(): No scene with id '")+sID+"' exists."));
+                string("Player::getCanvas(): No canvas with id '")+sID+"' exists."));
     }
 }
 
-void Player::newSceneDependency(const OffscreenScenePtr pScene)
+void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
 {
-    OffscreenScenePtr pNewScene;
-    for (unsigned i=0; i<m_pScenes.size(); ++i) {
-        if (pScene == m_pScenes[i]) {
-            pNewScene = m_pScenes[i];
-            m_pScenes.erase(m_pScenes.begin()+i);
+    OffscreenCanvasPtr pNewCanvas;
+    for (unsigned i=0; i<m_pCanvases.size(); ++i) {
+        if (pCanvas == m_pCanvases[i]) {
+            pNewCanvas = m_pCanvases[i];
+            m_pCanvases.erase(m_pCanvases.begin()+i);
             continue;
         }
     }
-    assert(pNewScene);
+    assert(pNewCanvas);
     bool bFound = false;
     unsigned i;
-    for (i=0; i<m_pScenes.size(); ++i) {
-        if (pNewScene->hasDependentScene(m_pScenes[i])) {
+    for (i=0; i<m_pCanvases.size(); ++i) {
+        if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {
             bFound = true;
             break;
         }
     }
     if (bFound) {
-        for (unsigned j=i; j<m_pScenes.size(); ++j) {
-            if (m_pScenes[j]->hasDependentScene(pNewScene)) {
+        for (unsigned j=i; j<m_pCanvases.size(); ++j) {
+            if (m_pCanvases[j]->hasDependentCanvas(pNewCanvas)) {
                 throw Exception(AVG_ERR_INVALID_ARGS,
-                        "Circular dependency between scenes.");
+                        "Circular dependency between canvases.");
             }
         }
-        m_pScenes.insert(m_pScenes.begin()+i, pNewScene);
+        m_pCanvases.insert(m_pCanvases.begin()+i, pNewCanvas);
     } else {
-        AVG_ASSERT(pNewScene->hasDependentScene(m_pMainScene));
-        m_pScenes.push_back(pNewScene);
+        AVG_ASSERT(pNewCanvas->hasDependentCanvas(m_pMainCanvas));
+        m_pCanvases.push_back(pNewCanvas);
     }
 /*    
-    for (unsigned k=0; k<m_pScenes.size(); ++k) {
-        m_pScenes[k]->dump();
+    for (unsigned k=0; k<m_pCanvases.size(); ++k) {
+        m_pCanvases[k]->dump();
     }
 */    
 }
@@ -422,7 +422,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
 void Player::play()
 {
     try {
-        if (!m_pMainScene) {
+        if (!m_pMainCanvas) {
             throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
         }
         initPlayback();
@@ -468,11 +468,11 @@ void Player::initPlayback()
         initAudio();
     }
     try {
-        for (unsigned i=0; i<m_pScenes.size(); ++i) {
-            m_pScenes[i]->initPlayback(
+        for (unsigned i=0; i<m_pCanvases.size(); ++i) {
+            m_pCanvases[i]->initPlayback(
                     dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
         }
-        m_pMainScene->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
+        m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
                 m_pAudioEngine);
     } catch (Exception&) {
         m_pDisplayEngine = 0;
@@ -573,7 +573,7 @@ TrackerEventSource * Player::addTracker()
     string sCaptureFormat = Config.getParam("/camera/format/@value");
     double FrameRate = Config.getDoubleParam("/camera/framerate/@value");
 
-    if (!m_pMainScene) {
+    if (!m_pMainCanvas) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "You must use loadFile() before addTracker().");
     }
@@ -750,8 +750,8 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
 
 VisibleNodePtr Player::getElementByID(const std::string& id)
 {
-    if (m_pMainScene) {
-        return m_pMainScene->getElementByID(id);
+    if (m_pMainCanvas) {
+        return m_pMainCanvas->getElementByID(id);
     } else {
         return VisibleNodePtr();
     }
@@ -759,8 +759,8 @@ VisibleNodePtr Player::getElementByID(const std::string& id)
         
 AVGNodePtr Player::getRootNode()
 {
-    if (m_pMainScene) {
-        return dynamic_pointer_cast<AVGNode>(m_pMainScene->getRootNode());
+    if (m_pMainCanvas) {
+        return dynamic_pointer_cast<AVGNode>(m_pMainCanvas->getRootNode());
     } else {
         return AVGNodePtr();
     }
@@ -774,8 +774,8 @@ string Player::getCurDirName()
 std::string Player::getRootMediaDir()
 {
     string sMediaDir;
-    if (m_pMainScene) {
-        sMediaDir = m_pMainScene->getRootNode()->getEffectiveMediaDir();
+    if (m_pMainCanvas) {
+        sMediaDir = m_pMainCanvas->getRootNode()->getEffectiveMediaDir();
     } else {
         sMediaDir = m_CurDirName;
     }
@@ -799,37 +799,37 @@ bool Player::isAudioEnabled() const
 
 void Player::registerFrameEndListener(IFrameEndListener* pListener)
 {
-    m_pMainScene->registerFrameEndListener(pListener);
+    m_pMainCanvas->registerFrameEndListener(pListener);
 }
 
 void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
 {
-    if (m_pMainScene) {
-        m_pMainScene->unregisterFrameEndListener(pListener);
+    if (m_pMainCanvas) {
+        m_pMainCanvas->unregisterFrameEndListener(pListener);
     }
 }
 
 void Player::registerPlaybackEndListener(IPlaybackEndListener* pListener)
 {
-    m_pMainScene->registerPlaybackEndListener(pListener);
+    m_pMainCanvas->registerPlaybackEndListener(pListener);
 }
 
 void Player::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
 {
-    if (m_pMainScene) {
-        m_pMainScene->unregisterPlaybackEndListener(pListener);
+    if (m_pMainCanvas) {
+        m_pMainCanvas->unregisterPlaybackEndListener(pListener);
     }
 }
 
 void Player::registerPreRenderListener(IPreRenderListener* pListener)
 {
-    m_pMainScene->registerPreRenderListener(pListener);
+    m_pMainCanvas->registerPreRenderListener(pListener);
 }
 
 void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 {
-    if (m_pMainScene) {
-        m_pMainScene->unregisterPreRenderListener(pListener);
+    if (m_pMainCanvas) {
+        m_pMainCanvas->unregisterPreRenderListener(pListener);
     }
 }
 
@@ -908,10 +908,10 @@ void Player::doFrame(bool bFirstFrame)
                 sendFakeEvents();
             }
         }
-        for (unsigned i=0; i< m_pScenes.size(); ++i) {
-            m_pScenes[i]->doFrame(m_bPythonAvailable);
+        for (unsigned i=0; i< m_pCanvases.size(); ++i) {
+            m_pCanvases[i]->doFrame(m_bPythonAvailable);
         }
-        m_pMainScene->doFrame(m_bPythonAvailable);
+        m_pMainCanvas->doFrame(m_bPythonAvailable);
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
@@ -1078,7 +1078,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         }
         if (dynamic_pointer_cast<DivNode>(pNode)->getSize() == DPoint(0, 0)) {
             throw (Exception(AVG_ERR_OUT_OF_RANGE,
-                    "<avg> and <scene> node width and height attributes are mandatory."));
+                    "<avg> and <canvas> node width and height attributes are mandatory."));
         }
         xmlFreeDoc(doc);
         return pNode;
@@ -1196,29 +1196,29 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     return curNode;
 }
 
-OffscreenScenePtr Player::registerOffscreenScene(NodePtr pNode)
+OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
 {
-    OffscreenScenePtr pScene(new OffscreenScene(this));
-    pScene->setRoot(pNode);
-    if (findScene(pScene->getID())) {
+    OffscreenCanvasPtr pCanvas(new OffscreenCanvas(this));
+    pCanvas->setRoot(pNode);
+    if (findCanvas(pCanvas->getID())) {
         throw (Exception(AVG_ERR_INVALID_ARGS, 
-                string("Duplicate scene id ")+pScene->getID()));
+                string("Duplicate canvas id ")+pCanvas->getID()));
     }
     if (m_bIsPlaying) {
-        pScene->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
+        pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
     }
-    m_pScenes.push_back(pScene);
-    return pScene;
+    m_pCanvases.push_back(pCanvas);
+    return pCanvas;
 }
 
-OffscreenScenePtr Player::findScene(const std::string& sID) const
+OffscreenCanvasPtr Player::findCanvas(const std::string& sID) const
 {
-    for (unsigned i=0; i<m_pScenes.size(); ++i) {
-        if (m_pScenes[i]->getID() == sID) {
-            return m_pScenes[i];
+    for (unsigned i=0; i<m_pCanvases.size(); ++i) {
+        if (m_pCanvases[i]->getID() == sID) {
+            return m_pCanvases[i];
         }
     }
-    return OffscreenScenePtr();
+    return OffscreenCanvasPtr();
 }
 
 void Player::sendFakeEvents()
@@ -1245,7 +1245,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
     // Find all nodes under the cursor.
-    vector<VisibleNodeWeakPtr> pCursorNodes = m_pMainScene->getElementsByPos(pos);
+    vector<VisibleNodeWeakPtr> pCursorNodes = m_pMainCanvas->getElementsByPos(pos);
 
     // Determine the nodes the event should be sent to.
     vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
@@ -1405,20 +1405,20 @@ double Player::getVolume() const
     return m_Volume;
 }
 
-OffscreenScenePtr Player::getSceneFromURL(const std::string& sURL)
+OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
 {
-    if (sURL.substr(0, 6) != "scene:") {
+    if (sURL.substr(0, 7) != "canvas:") {
         throw Exception(AVG_ERR_CANT_PARSE_STRING, 
-                string("Invalid scene url :'")+sURL+"'");
+                string("Invalid canvas url :'")+sURL+"'");
     }
-    string sSceneID = sURL.substr(6);
-    for (unsigned i=0; i < m_pScenes.size(); ++i) {
-        if (m_pScenes[i]->getID() == sSceneID) {
-            return m_pScenes[i];
+    string sCanvasID = sURL.substr(7);
+    for (unsigned i=0; i < m_pCanvases.size(); ++i) {
+        if (m_pCanvases[i]->getID() == sCanvasID) {
+            return m_pCanvases[i];
         }
     }
     throw Exception(AVG_ERR_CANT_PARSE_STRING, 
-            string("Scene with url '")+sURL+"' not found.");
+            string("Canvas with url '")+sURL+"' not found.");
 }
 
 void Player::cleanup() 
@@ -1432,19 +1432,19 @@ void Player::cleanup()
     m_pEventCaptureNode.clear();
     m_pLastCursorStates.clear();
     Profiler::get().dumpStatistics();
-    if (m_pMainScene) {
-        m_pMainScene->stopPlayback();
-        m_pMainScene = MainScenePtr();
+    if (m_pMainCanvas) {
+        m_pMainCanvas->stopPlayback();
+        m_pMainCanvas = MainCanvasPtr();
     }
 
     if (m_pTracker) {
         delete m_pTracker;
         m_pTracker = 0;
     }
-    for (unsigned i=0; i < m_pScenes.size(); ++i) {
-        m_pScenes[i]->stopPlayback();
+    for (unsigned i=0; i < m_pCanvases.size(); ++i) {
+        m_pCanvases[i]->stopPlayback();
     }
-    m_pScenes.clear();
+    m_pCanvases.clear();
 
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();

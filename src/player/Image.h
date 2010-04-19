@@ -53,8 +53,8 @@ class AVG_API Image
         void setEmpty();
         void setFilename(const std::string& sFilename);
         void setBitmap(const Bitmap * pBmp);
-        void setScene(OffscreenScenePtr pScene);
-        OffscreenScenePtr getScene() const;
+        void setCanvas(OffscreenCanvasPtr pCanvas);
+        OffscreenCanvasPtr getCanvas() const;
         const std::string& getFilename() const;
 
         BitmapPtr getBitmap();
@@ -75,7 +75,7 @@ class AVG_API Image
         BitmapPtr m_pBmp;
         OGLSurface * m_pSurface;
         SDLDisplayEngine * m_pEngine;
-        OffscreenScenePtr m_pScene;
+        OffscreenCanvasPtr m_pCanvas;
 
         State m_State;
         Source m_Source;

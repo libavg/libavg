@@ -36,45 +36,45 @@ using namespace std;
 
 namespace avg {
     
-MainScene::MainScene(Player * pPlayer)
-    : Scene(pPlayer)
+MainCanvas::MainCanvas(Player * pPlayer)
+    : Canvas(pPlayer)
 {
 }
 
-MainScene::~MainScene()
+MainCanvas::~MainCanvas()
 {
 }
 
-void MainScene::setRoot(NodePtr pRootNode)
+void MainCanvas::setRoot(NodePtr pRootNode)
 {
-    Scene::setRoot(pRootNode);
+    Canvas::setRoot(pRootNode);
     if (!dynamic_pointer_cast<AVGNode>(pRootNode)) {
         throw (Exception(AVG_ERR_XML_PARSE,
                     "Root node of an avg tree needs to be an <avg> node."));
     }
 }
 
-void MainScene::initPlayback(SDLDisplayEngine* pDisplayEngine, 
+void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine, 
         AudioEngine* pAudioEngine)
 {
-    Scene::initPlayback(pDisplayEngine, pAudioEngine, 
+    Canvas::initPlayback(pDisplayEngine, pAudioEngine, 
             pDisplayEngine->getOGLOptions().m_MultiSampleSamples);
 }
 
-BitmapPtr MainScene::screenshot() const
+BitmapPtr MainCanvas::screenshot() const
 {
     if (!getDisplayEngine()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "MainScene::screenshot(): Scene is not being rendered. No screenshot available."));
+                "MainCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
     }
     return getDisplayEngine()->screenshot();
 }
 
-static ProfilingZone RootRenderProfilingZone("Render MainScene");
+static ProfilingZone RootRenderProfilingZone("Render MainCanvas");
 
-void MainScene::render()
+void MainCanvas::render()
 {
-    Scene::render(getDisplayEngine()->getWindowSize(), false, RootRenderProfilingZone);
+    Canvas::render(getDisplayEngine()->getWindowSize(), false, RootRenderProfilingZone);
 }
 
 }

@@ -151,9 +151,9 @@ void WordsNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void WordsNode::connect(ScenePtr pScene)
+void WordsNode::connect(CanvasPtr pCanvas)
 {
-    RasterNode::connect(pScene);
+    RasterNode::connect(pCanvas);
     checkReload();
 }
 

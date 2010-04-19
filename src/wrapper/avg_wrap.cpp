@@ -68,7 +68,7 @@ BOOST_PYTHON_MODULE(avg)
     register_exception_translator<Exception>(exception_translator);
 #endif
     register_ptr_to_python<DivNodePtr>();
-    register_ptr_to_python<SceneNodePtr>();
+    register_ptr_to_python<CanvasNodePtr>();
     register_ptr_to_python<AVGNodePtr>();
     register_ptr_to_python<EventPtr>();
     register_ptr_to_python<MouseEventPtr>();
@@ -221,39 +221,39 @@ BOOST_PYTHON_MODULE(avg)
                 "nodes with sound can be created. Mainly used to speed up the test\n"
                 "suite.\n")
         .def("loadFile", &Player::loadFile,
-                "loadFile(filename) -> scene\n"
-                "Loads the avg file specified in filename. Returns the scene loaded."
-                "The scene is the main scene displayed onscreen."
+                "loadFile(filename) -> canvas\n"
+                "Loads the avg file specified in filename. Returns the canvas loaded."
+                "The canvas is the main canvas displayed onscreen."
                 "@param filename: ")
         .def("loadString", &Player::loadString,
-                "loadString(avgString) -> scene\n"
-                "Parses avgString and loads the nodes it contains. Returns the scene"
-                "loaded. The scene is the main scene displayed onscreen."
+                "loadString(avgString) -> canvas\n"
+                "Parses avgString and loads the nodes it contains. Returns the canvas"
+                "loaded. The canvas is the main canvas displayed onscreen."
                 "@param avgString: An xml string containing an avg node hierarchy.")
-        .def("loadSceneFile", &Player::loadSceneFile,
-                "loadSceneFile(filename)\n"
-                "Loads the scene file specified in filename and adds it to the\n"
-                "registered offscreen scenes.\n"
+        .def("loadCanvasFile", &Player::loadCanvasFile,
+                "loadCanvasFile(filename)\n"
+                "Loads the canvas file specified in filename and adds it to the\n"
+                "registered offscreen canvases.\n"
                 "@param filename: ")
-        .def("loadSceneString", &Player::loadSceneString,
-                "loadSceneString(avgString)\n"
+        .def("loadCanvasString", &Player::loadCanvasString,
+                "loadCanvasString(avgString)\n"
                 "Parses avgString, loads the nodes it contains and adds the hierarchy\n"
-                "to the registered offscreen scenes.\n"
+                "to the registered offscreen canvases.\n"
                 "@param avgString: An xml string containing an avg node hierarchy.")
-        .def("deleteScene", &Player::deleteScene,
-                "deleteScene(id)\n"
-                "Removes the scene given by id from the player's internal list of"
-                "scenes. If the scene is not referenced by a node, it is deleted."
+        .def("deleteCanvas", &Player::deleteCanvas,
+                "deleteCanvas(id)\n"
+                "Removes the canvas given by id from the player's internal list of"
+                "canvases. If the canvas is not referenced by a node, it is deleted."
                 "If it is referenced, it is deleted once the reference is gone and not"
                 "immediately.")
-        .def("getMainScene", &Player::getMainScene,
-                "getMainScene() -> scene\n"
-                "Returns the main scene. This is the scene loaded using loadFile or"
+        .def("getMainCanvas", &Player::getMainCanvas,
+                "getMainCanvas() -> canvas\n"
+                "Returns the main canvas. This is the canvas loaded using loadFile or"
                 "loadString and displayed on screen.")
-        .def("getScene", &Player::getScene,
-                "getScene(id) -> scene\n"
-                "Returns a reference to an offscreen scene - one loaded using"
-                "loadSceneXxx")
+        .def("getCanvas", &Player::getCanvas,
+                "getCanvas(id) -> canvas\n"
+                "Returns a reference to an offscreen canvas - one loaded using"
+                "loadCanvasXxx")
         .def("play", &Player::play,
                 "play()\n"
                 "Opens a playback window or screen and starts playback. play returns\n"
@@ -418,56 +418,56 @@ BOOST_PYTHON_MODULE(avg)
                 "is set to high.\n")
     ;
 
-    class_<Scene, boost::shared_ptr<Scene>, boost::noncopyable>("Scene", 
-                "A Scene is a tree of nodes. It corresponds to a scenegraph. In a libavg"
-                "session, there is one main scene that gets rendered to the screen and"
-                "zero or more scenes that are rendered offscreen.",
+    class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", 
+                "A Canvas is a tree of nodes. It corresponds to a canvasgraph. In a libavg"
+                "session, there is one main canvas that gets rendered to the screen and"
+                "zero or more canvases that are rendered offscreen.",
                 no_init)
         .def(self == self)
         .def(self != self)
-        .def("__hash__", &Scene::getHash)
-        .def("getRootNode", &Scene::getRootNode,
+        .def("__hash__", &Canvas::getHash)
+        .def("getRootNode", &Canvas::getRootNode,
                 "getRootNode() -> node\n"
-                "Returns the root of the scenegraph. For the main scene, this is an <avg>"
-                "node. For an offscreen scene, this is a <scene> node.")
-        .def("getElementByID", &Scene::getElementByID,
+                "Returns the root of the scenegraph. For the main canvas, this is an <avg>"
+                "node. For an offscreen canvas, this is a <canvas> node.")
+        .def("getElementByID", &Canvas::getElementByID,
                 "getElementByID(id) -> node\n"
-                "Returns an element in the scene's tree."
+                "Returns an element in the canvas's tree."
                 "@param id: id attribute of the node to return.")
-        .def("screenshot", &Scene::screenshot,
+        .def("screenshot", &Canvas::screenshot,
                "getImage() -> bitmap\n"
-               "Returns the image the scene has last rendered. For the main scene, this"
-               "is a real screenshot. For offscreen scenes, this is the image rendered"
+               "Returns the image the canvas has last rendered. For the main canvas, this"
+               "is a real screenshot. For offscreen canvases, this is the image rendered"
                "offscreen.")
     ;
 
-    class_<OffscreenScene, boost::shared_ptr<OffscreenScene>, bases<Scene>,
-            boost::noncopyable>("OffscreenScene",
-                "An OffscreenScene is a Scene that is rendered to a texture. It can be"
+    class_<OffscreenCanvas, boost::shared_ptr<OffscreenCanvas>, bases<Canvas>,
+            boost::noncopyable>("OffscreenCanvas",
+                "An OffscreenCanvas is a Canvas that is rendered to a texture. It can be"
                 "referenced in the href attribute of an image node.",
                 no_init)
-        .def("getID", &OffscreenScene::getID,
+        .def("getID", &OffscreenCanvas::getID,
                 "getID() -> id\n"
-                "Returns the id of the scene. This is the same as"
-                "calling scene.getRootNode().getID().")
-        .def("render", &OffscreenScene::render,
+                "Returns the id of the canvas. This is the same as"
+                "calling canvas.getRootNode().getID().")
+        .def("render", &OffscreenCanvas::render,
                 "render() -> None"
-                "Forces a redraw of the offscreen scene. This makes sure that following "
-                "calls to screenshot() get a current version of the scene and is "
+                "Forces a redraw of the offscreen canvas. This makes sure that following "
+                "calls to screenshot() get a current version of the canvas and is "
                 "otherwise unnecessary.")
-        .add_property("handleevents", &OffscreenScene::getHandleEvents, 
+        .add_property("handleevents", &OffscreenCanvas::getHandleEvents, 
                 "True if events that arrive at an image node that is displaying this"
-                "scene are routed to the offscreen scene (ro).")
-        .add_property("multisamplesamples", &OffscreenScene::getMultiSampleSamples,
+                "canvas are routed to the offscreen canvas (ro).")
+        .add_property("multisamplesamples", &OffscreenCanvas::getMultiSampleSamples,
                 "Number of samples per pixel to use for multisampling. Setting this to "
                 "1 disables multisampling.")
-        .add_property("mipmap", &OffscreenScene::getMipmap,
-                "True if mipmaps are generated and used for the scene.  This is used "
-                "instead of RasterNode.mipmap for images that render the scene.")
-        .def("getNumDependentScenes", &OffscreenScene::getNumDependentScenes,
-                "Returns the number of scenes that reference this scene. Used mainly "
+        .add_property("mipmap", &OffscreenCanvas::getMipmap,
+                "True if mipmaps are generated and used for the canvas.  This is used "
+                "instead of RasterNode.mipmap for images that render the canvas.")
+        .def("getNumDependentCanvases", &OffscreenCanvas::getNumDependentCanvases,
+                "Returns the number of canvases that reference this canvas. Used mainly "
                 "for unit tests.")
-        .def("isMultisampleSupported", &OffscreenScene::isMultisampleSupported,
+        .def("isMultisampleSupported", &OffscreenCanvas::isMultisampleSupported,
                 "isMultisampleSupported() -> bool\n"
                 "True if the machine's OpenGL implementation supports offscreen "
                 "multisampling.")

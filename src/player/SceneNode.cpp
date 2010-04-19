@@ -30,23 +30,23 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition SceneNode::createDefinition()
+NodeDefinition CanvasNode::createDefinition()
 {
-    return NodeDefinition("scenebase", Node::buildNode<SceneNode>)
+    return NodeDefinition("canvasbase", Node::buildNode<CanvasNode>)
         .extendDefinition(DivNode::createDefinition());
 }
 
-SceneNode::SceneNode(const ArgList& Args)
+CanvasNode::CanvasNode(const ArgList& Args)
     : DivNode(Args)
 {
     Args.setMembers(this);
 }
 
-SceneNode::~SceneNode()
+CanvasNode::~CanvasNode()
 {
 }
 
-string SceneNode::getEffectiveMediaDir()
+string CanvasNode::getEffectiveMediaDir()
 {
     string sMediaDir = getMediaDir();
     if (!isAbsPath(sMediaDir)) {

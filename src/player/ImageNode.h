@@ -42,7 +42,7 @@ class AVG_API ImageNode : public RasterNode
         virtual ~ImageNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(ScenePtr pScene);
+        virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
 
@@ -58,7 +58,7 @@ class AVG_API ImageNode : public RasterNode
         virtual IntPoint getMediaSize();
 
     private:
-        bool isSceneURL(const std::string& sURL);
+        bool isCanvasURL(const std::string& sURL);
 
         UTF8String m_href;
         ImagePtr m_pImage;

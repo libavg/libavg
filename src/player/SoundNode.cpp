@@ -153,16 +153,16 @@ void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void SoundNode::connect(ScenePtr pScene)
+void SoundNode::connect(CanvasPtr pCanvas)
 {
-    AreaNode::connect(pScene);
-    pScene->registerFrameEndListener(this);
+    AreaNode::connect(pCanvas);
+    pCanvas->registerFrameEndListener(this);
 }
 
 void SoundNode::disconnect(bool bKill)
 {
     changeSoundState(Unloaded);
-    getScene()->unregisterFrameEndListener(this);
+    getCanvas()->unregisterFrameEndListener(this);
     AreaNode::disconnect(bKill);
 }
 

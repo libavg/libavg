@@ -29,29 +29,29 @@ class OffscreenTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
     
-    def testSceneBasics(self):
-        def createScene(isFirst, sceneName, x):
-            scene = self.__createOffscreenScene(sceneName, False)
-            scene.getElementByID("test1").x = x
+    def testCanvasBasics(self):
+        def createCanvas(isFirst, canvasName, x):
+            canvas = self.__createOffscreenCanvas(canvasName, False)
+            canvas.getElementByID("test1").x = x
             node = avg.ImageNode(parent=Player.getRootNode(), id="imagenode")
-            node.href="scene:"+sceneName
+            node.href="canvas:"+canvasName
             if isFirst:
-                self.assert_(scene.getNumDependentScenes() == 0)
-                self.scene1 = scene
+                self.assert_(canvas.getNumDependentCanvases() == 0)
+                self.canvas1 = canvas
             else:
-                self.assert_(scene.getNumDependentScenes() == 1)
-                self.scene2 = scene
+                self.assert_(canvas.getNumDependentCanvases() == 1)
+                self.canvas2 = canvas
 
         def unlink():
             self.node = Player.getElementByID("imagenode")
             self.node.unlink()
-            self.assert_(self.scene1.getNumDependentScenes() == 0)
+            self.assert_(self.canvas1.getNumDependentCanvases() == 0)
             gc.collect()
 
         def relink():
             Player.getRootNode().appendChild(self.node)
             self.node = None
-            self.assert_(self.scene1.getNumDependentScenes() == 1)
+            self.assert_(self.canvas1.getNumDependentCanvases() == 1)
             
         def changeHRef(href):
             Player.getElementByID("imagenode").href = href
@@ -60,19 +60,19 @@ class OffscreenTestCase(AVGTestCase):
             bitmap = avg.Bitmap("rgb24-65x65.png")
             Player.getElementByID("imagenode").setBitmap(bitmap)
 
-        def deleteScenes():
+        def deleteCanvases():
             changeHRef("")
             firstNode.href = ""
-            Player.deleteScene("testscene1")
-#            self.assertException(lambda: changeHRef("scene:testscene1"))
-            changeHRef("scene:testscene2")
-#            self.assertException(lambda: Player.deleteScene("testscene2"))
+            Player.deleteCanvas("testcanvas1")
+#            self.assertException(lambda: changeHRef("canvas:testcanvas1"))
+            changeHRef("canvas:testcanvas2")
+#            self.assertException(lambda: Player.deleteCanvas("testcanvas2"))
             changeHRef("")
-            Player.deleteScene("testscene2")
-#            self.assertException(lambda: Player.deleteScene("foo"))
+            Player.deleteCanvas("testcanvas2")
+#            self.assertException(lambda: Player.deleteCanvas("foo"))
 
         self.loadEmptyScene()
-        createScene(True, "testscene1", 0)
+        createCanvas(True, "testcanvas1", 0)
         firstNode = Player.getElementByID("imagenode")
         self.start(None, 
                 (lambda: self.compareImage("testOffscreen1", False),
@@ -81,80 +81,80 @@ class OffscreenTestCase(AVGTestCase):
                  relink,
                  lambda: self.compareImage("testOffscreen1", False),
                  unlink,
-                 lambda: createScene(False, "testscene2", 80),
+                 lambda: createCanvas(False, "testcanvas2", 80),
                  lambda: self.compareImage("testOffscreen3", False),
-                 lambda: changeHRef("scene:testscene1"),
-                 lambda: self.assert_(self.scene1.getNumDependentScenes() == 1),
-                 lambda: self.assert_(self.scene2.getNumDependentScenes() == 0),
+                 lambda: changeHRef("canvas:testcanvas1"),
+                 lambda: self.assert_(self.canvas1.getNumDependentCanvases() == 1),
+                 lambda: self.assert_(self.canvas2.getNumDependentCanvases() == 0),
                  lambda: self.compareImage("testOffscreen1", False),
                  lambda: changeHRef("rgb24-65x65.png"),
-                 lambda: self.assert_(self.scene1.getNumDependentScenes() == 0),
+                 lambda: self.assert_(self.canvas1.getNumDependentCanvases() == 0),
                  lambda: self.compareImage("testOffscreen4", False),
-                 lambda: changeHRef("scene:testscene1"),
-                 lambda: self.assert_(self.scene1.getNumDependentScenes() == 1),
+                 lambda: changeHRef("canvas:testcanvas1"),
+                 lambda: self.assert_(self.canvas1.getNumDependentCanvases() == 1),
                  lambda: self.compareImage("testOffscreen1", False),
                  setBitmap,
                  lambda: self.compareImage("testOffscreen4", False),
-                 deleteScenes,
+                 deleteCanvases,
                  lambda: self.compareImage("testOffscreen5", False),
                 ))
 
-    def testSceneLoadAfterPlay(self):
-        def __createOffscreenScene():
-            offscreenScene = self.__createOffscreenScene("offscreenscene", False)
+    def testCanvasLoadAfterPlay(self):
+        def __createOffscreenCanvas():
+            offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", False)
             self.node = avg.ImageNode(parent=Player.getRootNode(), 
-                    href="scene:offscreenscene")
+                    href="canvas:offscreencanvas")
     
         self.loadEmptyScene()
         self.start(None,
                 (
-                 __createOffscreenScene,
+                 __createOffscreenCanvas,
                  lambda: self.compareImage("testOffscreen1", False),
                 ))
 
-    def testSceneResize(self):
+    def testCanvasResize(self):
         def setSize():
             self.node.size = (80, 60)
 
-        mainScene, offscreenScene = self.__setupScene(False)
+        mainCanvas, offscreenCanvas = self.__setupCanvas(False)
         self.start(None,
                 (setSize,
-                 lambda: self.compareImage("testSceneResize", False)
+                 lambda: self.compareImage("testCanvasResize", False)
                 ))
 
-    def testSceneErrors(self):
+    def testCanvasErrors(self):
         self.loadEmptyScene()
         # Missing size
         self.assertException(
-                lambda: Player.loadSceneString("""<scene id="foo"/>"""))
-        # Duplicate scene id
-        Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>""")
+                lambda: Player.loadCanvasString("""<canvas id="foo"/>"""))
+        # Duplicate canvas id
+        Player.loadCanvasString("""<canvas id="foo" size="(160, 120)"/>""")
         self.assertException(
-                lambda: Player.loadSceneString("""<scene id="foo" size="(160, 120)"/>"""))
+                lambda: Player.loadCanvasString("""<canvas id="foo" size="(160, 120)"/>"""))
 
-    def testSceneAPI(self):
+    def testCanvasAPI(self):
         def checkMainScreenshot():
             bmp1 = Player.screenshot()
-            bmp2 = mainScene.screenshot()
+            bmp2 = mainCanvas.screenshot()
             self.assert_(self.areSimilarBmps(bmp1, bmp2, 0.01, 0.01))
 
-        def checkSceneScreenshot():
-            bmp = offscreenScene.screenshot()
+        def checkCanvasScreenshot():
+            bmp = offscreenCanvas.screenshot()
             self.compareBitmapToFile(bmp, "testOffscreenScreenshot", False)
 
-        mainScene = self.loadEmptyScene()
-        self.assert_(mainScene == Player.getMainScene())
-        self.assert_(mainScene.getRootNode() == Player.getRootNode())
-        offscreenScene = self.__createOffscreenScene("offscreenscene", False)
-        self.assert_(offscreenScene == Player.getScene("offscreenscene"))
-        self.assert_(offscreenScene.getElementByID("test1").href == "rgb24-65x65.png")
-        self.assert_(offscreenScene.getElementByID("missingnode") == None)
+        mainCanvas = self.loadEmptyScene()
+        self.assert_(mainCanvas == Player.getMainCanvas())
+        self.assert_(mainCanvas.getRootNode() == Player.getRootNode())
+        offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", False)
+        self.assert_(offscreenCanvas == Player.getCanvas("offscreencanvas"))
+        self.assert_(offscreenCanvas.getElementByID("test1").href == "rgb24-65x65.png")
+        self.assert_(offscreenCanvas.getElementByID("missingnode") == None)
         self.assertException(Player.screenshot())
         self.start(None, 
                 (checkMainScreenshot,
-                 checkSceneScreenshot))
+                 checkCanvasScreenshot))
 
-    def testSceneEvents(self):
+    def testCanvasEvents(self):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
 
@@ -169,8 +169,8 @@ class OffscreenTestCase(AVGTestCase):
             self.node.pos = (80, 60)
             self.node.size = (80, 60)
 
-        mainScene, offscreenScene = self.__setupScene(True)
-        offscreenImage = offscreenScene.getElementByID("test1")
+        mainCanvas, offscreenCanvas = self.__setupCanvas(True)
+        offscreenImage = offscreenCanvas.getElementByID("test1")
         offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown)
         Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMainDown)
         helper = Player.getTestHelper()
@@ -204,12 +204,12 @@ class OffscreenTestCase(AVGTestCase):
                         self.__mainDownCalled),
                 ))
 
-    def testSceneEventCapture(self):
+    def testCanvasEventCapture(self):
         def onOffscreenImageDown(event):
             self.__offscreenImageDownCalled = True
 
-        mainScene, offscreenScene = self.__setupScene(True)
-        offscreenImage = offscreenScene.getElementByID("test1")
+        mainCanvas, offscreenCanvas = self.__setupCanvas(True)
+        offscreenImage = offscreenCanvas.getElementByID("test1")
         offscreenImage.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onOffscreenImageDown);
         helper = Player.getTestHelper()
         self.__offscreenImageDownCalled = False
@@ -220,57 +220,57 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                 ))
                 
-    def testSceneRender(self):
-        def renderScene():
-            scene = self.__createOffscreenScene("testscene", False)
-            scene.render()
-            bmp = scene.screenshot()
+    def testCanvasRender(self):
+        def renderCanvas():
+            canvas = self.__createOffscreenCanvas("testcanvas", False)
+            canvas.render()
+            bmp = canvas.screenshot()
             self.compareBitmapToFile(bmp, "testOffscreenScreenshot", False)
-            Player.deleteScene("testscene")
-            scene = None
+            Player.deleteCanvas("testcanvas")
+            canvas = None
 
-        mainScene = self.loadEmptyScene()
-        self.assertException(renderScene);
-        Player.deleteScene("testscene")
+        mainCanvas = self.loadEmptyScene()
+        self.assertException(renderCanvas);
+        Player.deleteCanvas("testcanvas")
         self.start(None,
-                (renderScene,
+                (renderCanvas,
                 ))
         
-    def testSceneCrop(self):
-        mainScene = self.loadEmptyScene()
-        scene = Player.loadSceneString("""
-            <scene id="testscene" width="160" height="120">
+    def testCanvasCrop(self):
+        mainCanvas = self.loadEmptyScene()
+        canvas = Player.loadCanvasString("""
+            <canvas id="testcanvas" width="160" height="120">
                 <div pos="(40, 30)" size="(80, 60)">
                     <image id="test1" pos="(-32, -32)" href="rgb24-65x65.png"/>
                 </div>
-            </scene>
+            </canvas>
         """)
         node = avg.ImageNode(parent=Player.getRootNode(), 
-                href="scene:testscene")
+                href="canvas:testcanvas")
         self.start(None,
-                (lambda: self.compareImage("testSceneCrop", False),
+                (lambda: self.compareImage("testCanvasCrop", False),
                 ))
 
-    def testSceneAlpha(self):
-        mainScene = self.loadEmptyScene()
-        scene = Player.loadSceneString("""
-            <scene id="testscene" width="80" height="120">
+    def testCanvasAlpha(self):
+        mainCanvas = self.loadEmptyScene()
+        canvas = Player.loadCanvasString("""
+            <canvas id="testcanvas" width="80" height="120">
                 <image id="test1" href="rgb24alpha-64x64.png"/>
-            </scene>
+            </canvas>
         """)
         avg.RectNode(parent=Player.getRootNode(), fillcolor="FFFFFF",
                 pos=(0.5, 0.5), size=(160, 48), fillopacity=1)
         node = avg.ImageNode(parent=Player.getRootNode(), 
-                href="scene:testscene")
+                href="canvas:testcanvas")
         avg.ImageNode(parent=Player.getRootNode(), x=64, href="rgb24alpha-64x64.png")
         self.start(None,
-                (lambda: self.compareImage("testSceneAlpha", False),
+                (lambda: self.compareImage("testCanvasAlpha", False),
                 ))
 
-    def testSceneBlendModes(self):
-        def createBaseScene():
-            return Player.loadSceneString("""
-                <scene id="testscene" width="160" height="120">
+    def testCanvasBlendModes(self):
+        def createBaseCanvas():
+            return Player.loadCanvasString("""
+                <canvas id="testcanvas" width="160" height="120">
                     <image href="freidrehen.jpg"/>
                     <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
                     <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" 
@@ -279,118 +279,118 @@ class OffscreenTestCase(AVGTestCase):
                             blendmode="min"/>
                     <image x="48" y="48" opacity="0.6" href="rgb24-65x65.png" 
                             blendmode="max"/>
-                </scene>
+                </canvas>
             """)
        
-        mainScene = self.loadEmptyScene()
-        scene = createBaseScene()
-        node = avg.ImageNode(parent=Player.getRootNode(), href="scene:testscene")
+        mainCanvas = self.loadEmptyScene()
+        canvas = createBaseCanvas()
+        node = avg.ImageNode(parent=Player.getRootNode(), href="canvas:testcanvas")
         self.start(None,
-                (lambda: self.compareImage("testSceneBlendModes", False),
+                (lambda: self.compareImage("testCanvasBlendModes", False),
                 ))
 
-    def testSceneMultisampling(self):
+    def testCanvasMultisampling(self):
         def testIllegalSamples():
-            scene = Player.loadSceneString(
-                    """<scene id="brokenscene" width="160" height="120" 
+            canvas = Player.loadCanvasString(
+                    """<canvas id="brokencanvas" width="160" height="120" 
                             multisamplesamples="42"/>""")
-        mainScene = self.loadEmptyScene()
-        if not(avg.OffscreenScene.isMultisampleSupported()):
+        mainCanvas = self.loadEmptyScene()
+        if not(avg.OffscreenCanvas.isMultisampleSupported()):
             print "Offscreen multisampling not supported - skipping test."
             return
-        scene = Player.loadSceneString("""
-            <scene id="testscene" width="160" height="120" multisamplesamples="2">
+        canvas = Player.loadCanvasString("""
+            <canvas id="testcanvas" width="160" height="120" multisamplesamples="2">
                 <image id="test1" href="rgb24-65x65.png" angle="0.1"/>
-            </scene>
+            </canvas>
         """)
-        self.assert_(scene.multisamplesamples == 2)
+        self.assert_(canvas.multisamplesamples == 2)
         node = avg.ImageNode(parent=Player.getRootNode(), 
-                href="scene:testscene")
+                href="canvas:testcanvas")
         self.start(None,
-                (lambda: self.compareImage("testSceneMultisample", False),
+                (lambda: self.compareImage("testCanvasMultisample", False),
                  lambda: self.assertException(testIllegalSamples),
                 ))
        
-    def testSceneMipmap(self):
-        mainScene = self.loadEmptyScene()
+    def testCanvasMipmap(self):
+        mainCanvas = self.loadEmptyScene()
 
-        scene = Player.loadSceneString("""
-            <scene id="testscene" width="80" height="120" mipmap="True">
+        canvas = Player.loadCanvasString("""
+            <canvas id="testcanvas" width="80" height="120" mipmap="True">
                 <image id="test1" href="rgb24alpha-64x64.png"/>
-            </scene>
+            </canvas>
         """)
         node = avg.ImageNode(parent=Player.getRootNode(), size=(40, 30), 
-                href="scene:testscene")
+                href="canvas:testcanvas")
         self.start(None,
-                (lambda: self.compareImage("testSceneMipmap", False),
+                (lambda: self.compareImage("testCanvasMipmap", False),
                 ))
 
-    def testSceneDependencies(self):
+    def testCanvasDependencies(self):
         def makeCircularRef():
-            self.offscreen1.getElementByID("test1").href = "scene:offscreenscene2"
+            self.offscreen1.getElementByID("test1").href = "canvas:offscreencanvas2"
             
-        def createTwoScenes():
-            self.offscreen1 = self.__createOffscreenScene("offscreenscene1", False)
-            self.offscreen2 = self.__createOffscreenScene("offscreenscene2", False)
+        def createTwoCanvases():
+            self.offscreen1 = self.__createOffscreenCanvas("offscreencanvas1", False)
+            self.offscreen2 = self.__createOffscreenCanvas("offscreencanvas2", False)
             self.node = avg.ImageNode(parent=Player.getRootNode(), 
-                    href="scene:offscreenscene1")
+                    href="canvas:offscreencanvas1")
             node = self.offscreen1.getElementByID("test1")
-            node.href = "scene:offscreenscene2"
+            node.href = "canvas:offscreencanvas2"
             node.size = (80, 60)
             
-        def exchangeScenes():
+        def exchangeCanvases():
             self.offscreen1.getElementByID("test1").href = "rgb24-65x65.png"
-            self.offscreen2.getElementByID("test1").href = "scene:offscreenscene1"
-            self.node.href = "scene:offscreenscene2"
+            self.offscreen2.getElementByID("test1").href = "canvas:offscreencanvas1"
+            self.node.href = "canvas:offscreencanvas2"
             
-        mainScene = self.loadEmptyScene()
-        createTwoScenes()
+        mainCanvas = self.loadEmptyScene()
+        createTwoCanvases()
         self.offscreen1.getElementByID("test1").href = ""
         self.offscreen1 = None
         self.offscreen2 = None
         self.node.href = ""
         self.node = None
-        Player.deleteScene("offscreenscene1")
-        Player.deleteScene("offscreenscene2")
+        Player.deleteCanvas("offscreencanvas1")
+        Player.deleteCanvas("offscreencanvas2")
         self.start(None,
-                   (createTwoScenes,
-                    lambda: self.compareImage("testSceneDependencies1", False),
-                    exchangeScenes,
-                    lambda: self.compareImage("testSceneDependencies2", False),
+                   (createTwoCanvases,
+                    lambda: self.compareImage("testCanvasDependencies1", False),
+                    exchangeCanvases,
+                    lambda: self.compareImage("testCanvasDependencies2", False),
                     lambda: self.assertException(makeCircularRef),
                   ))
 
-    def __setupScene(self, handleEvents):
-        mainScene = self.loadEmptyScene()
-        offscreenScene = self.__createOffscreenScene("offscreenscene", handleEvents)
+    def __setupCanvas(self, handleEvents):
+        mainCanvas = self.loadEmptyScene()
+        offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", handleEvents)
         self.node = avg.ImageNode(parent=Player.getRootNode(), 
-                href="scene:offscreenscene")
-        return (mainScene, offscreenScene)
+                href="canvas:offscreencanvas")
+        return (mainCanvas, offscreenCanvas)
 
-    def __createOffscreenScene(self, sceneName, handleEvents):
-        return Player.loadSceneString("""
-            <scene id="%s" width="160" height="120" handleevents="%s">
+    def __createOffscreenCanvas(self, canvasName, handleEvents):
+        return Player.loadCanvasString("""
+            <canvas id="%s" width="160" height="120" handleevents="%s">
                 <image id="test1" href="rgb24-65x65.png"/>
-            </scene>
-        """%(sceneName, str(handleEvents)))
+            </canvas>
+        """%(canvasName, str(handleEvents)))
 
 
 def offscreenTestSuite(tests):
     availableTests = (
-            "testSceneBasics",
-            "testSceneLoadAfterPlay",
-            "testSceneResize",
-            "testSceneErrors",
-            "testSceneAPI",
-            "testSceneEvents",
-            "testSceneEventCapture",
-            "testSceneRender",
-            "testSceneCrop",
-            "testSceneAlpha",
-            "testSceneBlendModes",
-            "testSceneMultisampling",
-            "testSceneMipmap",
-            "testSceneDependencies",
+            "testCanvasBasics",
+            "testCanvasLoadAfterPlay",
+            "testCanvasResize",
+            "testCanvasErrors",
+            "testCanvasAPI",
+            "testCanvasEvents",
+            "testCanvasEventCapture",
+            "testCanvasRender",
+            "testCanvasCrop",
+            "testCanvasAlpha",
+            "testCanvasBlendModes",
+            "testCanvasMultisampling",
+            "testCanvasMipmap",
+            "testCanvasDependencies",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

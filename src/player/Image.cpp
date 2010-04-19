@@ -69,8 +69,8 @@ void Image::moveToGPU(SDLDisplayEngine* pEngine)
                 setupSurface();
                 break;
             case SCENE:
-                m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
-                m_pSurface->setTexID(m_pScene->getTexID());
+                m_pSurface->create(m_pCanvas->getSize(), B8G8R8X8);
+                m_pSurface->setTexID(m_pCanvas->getTexID());
                 break;
             case NONE:
                 break;
@@ -168,24 +168,24 @@ void Image::setBitmap(const Bitmap * pBmp)
     assertValid();
 }
 
-void Image::setScene(OffscreenScenePtr pScene)
+void Image::setCanvas(OffscreenCanvasPtr pCanvas)
 {
     assertValid();
-    if (m_Source == SCENE && pScene == m_pScene) {
+    if (m_Source == SCENE && pCanvas == m_pCanvas) {
         return;
     }
     changeSource(SCENE);
-    m_pScene = pScene;
+    m_pCanvas = pCanvas;
     if (m_State == GPU) {
-        m_pSurface->create(m_pScene->getSize(), B8G8R8X8);
-        m_pSurface->setTexID(m_pScene->getTexID());
+        m_pSurface->create(m_pCanvas->getSize(), B8G8R8X8);
+        m_pSurface->setTexID(m_pCanvas->getTexID());
     }
     assertValid();
 }
 
-OffscreenScenePtr Image::getScene() const
+OffscreenCanvasPtr Image::getCanvas() const
 {
-    return m_pScene;
+    return m_pCanvas;
 }
 
 const string& Image::getFilename() const
@@ -222,7 +222,7 @@ IntPoint Image::getSize()
         switch (m_State) {
             case CPU:
                 if (m_Source == SCENE) {
-                    return m_pScene->getSize();
+                    return m_pCanvas->getSize();
                 } else {
                     return m_pBmp->getSize();
                 }
@@ -314,7 +314,7 @@ bool Image::changeSource(Source newSource)
                 m_sFilename = "";
                 break;
             case SCENE:
-                m_pScene = OffscreenScenePtr();
+                m_pCanvas = OffscreenCanvasPtr();
                 break;
             default:
                 AVG_ASSERT(false);
@@ -330,7 +330,7 @@ void Image::assertValid() const
 {
     AVG_ASSERT(m_pSurface);
     AVG_ASSERT((m_Source == FILE) == (m_sFilename != ""));
-    AVG_ASSERT((m_Source == SCENE) == bool(m_pScene));
+    AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
     switch (m_State) {
         case CPU:
             AVG_ASSERT(!m_pEngine);

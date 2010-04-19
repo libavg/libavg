@@ -47,18 +47,18 @@ class Key(avg.ImageNode):
         self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onUpOut)
 
     def __createImage(self, ovlHref):
-        scene = g_player.loadSceneString(
+        canvas = g_player.loadCanvasString(
         '''
-            <scene id="offscreen" size="%s">
+            <canvas id="offscreen" size="%s">
                 <image href="%s" pos="%s"/>
-            </scene>
+            </canvas>
         '''
         %(str(self.size),
           str(self.getParent().getEffectiveMediaDir()) + str(ovlHref),
           str(-self.pos)))
-        scene.render()
-        self.setBitmap(scene.screenshot())
-        g_player.deleteScene('offscreen')
+        canvas.render()
+        self.setBitmap(canvas.screenshot())
+        g_player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
         if not self.__cursorID is None:

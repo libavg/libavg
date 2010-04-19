@@ -62,7 +62,7 @@ NodeDefinition VisibleNode::createDefinition()
 }
 
 VisibleNode::VisibleNode()
-    : m_pScene(),
+    : m_pCanvas(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_State(NS_UNCONNECTED)
@@ -94,12 +94,12 @@ void VisibleNode::setArgs(const ArgList& Args)
 }
 
 void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
-        ScenePtr pScene)
+        CanvasPtr pCanvas)
 {
     AVG_ASSERT(getState() == NS_UNCONNECTED);
     Node::setParent(pParent);
     if (parentState != NS_UNCONNECTED) {
-        connect(pScene);
+        connect(pCanvas);
     }
 }
 
@@ -112,9 +112,9 @@ void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     setState(NS_CANRENDER);
 }
 
-void VisibleNode::connect(ScenePtr pScene)
+void VisibleNode::connect(CanvasPtr pCanvas)
 {
-    m_pScene = pScene;
+    m_pCanvas = pCanvas;
     setState(NS_CONNECTED);
 }
 
@@ -125,7 +125,7 @@ void VisibleNode::disconnect(bool bKill)
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
     }
-    m_pScene->removeNodeID(getID());
+    m_pCanvas->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
         EventHandlerMap::iterator it;
@@ -303,9 +303,9 @@ VisibleNode::NodeState VisibleNode::getState() const
     return m_State;
 }
 
-ScenePtr VisibleNode::getScene() const
+CanvasPtr VisibleNode::getCanvas() const
 {
-    return m_pScene;
+    return m_pCanvas;
 }
 
 bool VisibleNode::handleEvent(EventPtr pEvent)

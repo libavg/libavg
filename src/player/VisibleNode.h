@@ -41,10 +41,10 @@
 
 namespace avg {
 
-class Scene;
+class Canvas;
 class VisibleNode;
 class DivNode;
-class SceneNode;
+class CanvasNode;
 class AVGNode;
 class DisplayEngine;
 class SDLDisplayEngine;
@@ -52,13 +52,13 @@ class AudioEngine;
 class Image;
 class VertexArray;
 
-typedef boost::shared_ptr<Scene> ScenePtr;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
-typedef boost::shared_ptr<SceneNode> SceneNodePtr;
-typedef boost::weak_ptr<SceneNode> SceneNodeWeakPtr;
+typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
+typedef boost::weak_ptr<CanvasNode> CanvasNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 typedef boost::shared_ptr<Image> ImagePtr;
@@ -74,10 +74,10 @@ class AVG_API VisibleNode: public Node
         virtual ~VisibleNode();
         virtual void setArgs(const ArgList& Args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
-                ScenePtr pScene);
+                CanvasPtr pCanvas);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect(ScenePtr pScene);
+        virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload() {};
 
@@ -117,7 +117,7 @@ class AVG_API VisibleNode: public Node
         virtual std::string dump(int indent = 0);
         
         NodeState getState() const;
-        ScenePtr getScene() const;
+        CanvasPtr getCanvas() const;
 
         virtual bool handleEvent(EventPtr pEvent); 
 
@@ -151,7 +151,7 @@ class AVG_API VisibleNode: public Node
         typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
         EventHandlerMap m_EventHandlerMap;
 
-        ScenePtr m_pScene;
+        CanvasPtr m_pCanvas;
         SDLDisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
 

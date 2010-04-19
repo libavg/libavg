@@ -36,58 +36,58 @@ using namespace std;
 
 namespace avg {
     
-OffscreenScene::OffscreenScene(Player * pPlayer)
-    : Scene(pPlayer)
+OffscreenCanvas::OffscreenCanvas(Player * pPlayer)
+    : Canvas(pPlayer)
 {
 }
 
-OffscreenScene::~OffscreenScene()
+OffscreenCanvas::~OffscreenCanvas()
 {
     if (isRunning()) {
         glDeleteTextures(1, &m_TexID);
     }
 }
 
-void OffscreenScene::setRoot(NodePtr pRootNode)
+void OffscreenCanvas::setRoot(NodePtr pRootNode)
 {
-    Scene::setRoot(pRootNode);
+    Canvas::setRoot(pRootNode);
     if (!getRootNode()) {
         throw (Exception(AVG_ERR_XML_PARSE,
-                    "Root node of a scene tree needs to be a <scene> node."));
+                    "Root node of a canvas tree needs to be a <canvas> node."));
     }
 }
 
-void OffscreenScene::initPlayback(SDLDisplayEngine* pDisplayEngine, 
+void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine, 
         AudioEngine* pAudioEngine)
 {
-    Scene::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
+    Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
     m_bUseMipmaps = getMipmap();
     glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glGenTextures()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::initPlayback: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::initPlayback: glBindTexture()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::initPlayback: glBindTexture()");
     createFBO();
     glEnable(GL_STENCIL_TEST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
-void OffscreenScene::stopPlayback()
+void OffscreenCanvas::stopPlayback()
 {
     m_pFBO = FBOPtr();
     glDeleteTextures(1, &m_TexID);
-    Scene::stopPlayback();
+    Canvas::stopPlayback();
 }
 
-static ProfilingZone OffscreenRenderProfilingZone("Render OffscreenScenes");
+static ProfilingZone OffscreenRenderProfilingZone("Render OffscreenCanvas");
 
-void OffscreenScene::render()
+void OffscreenCanvas::render()
 {
     if (!isRunning()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenScene::screenshot(): Player.play() needs to be called before rendering offscreen scenes."));
+                "OffscreenCanvas::screenshot(): Player.play() needs to be called before rendering offscreen canvases."));
     }
     m_pFBO->activate();
-    Scene::render(IntPoint(getRootNode()->getSize()), true, OffscreenRenderProfilingZone);
+    Canvas::render(IntPoint(getRootNode()->getSize()), true, OffscreenRenderProfilingZone);
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
     if (m_bUseMipmaps) {
@@ -96,11 +96,11 @@ void OffscreenScene::render()
     }
 }
 
-BitmapPtr OffscreenScene::screenshot() const
+BitmapPtr OffscreenCanvas::screenshot() const
 {
     if (!isRunning()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenScene::screenshot(): Scene is not being rendered. No screenshot available."));
+                "OffscreenCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
     }
     OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
             MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
@@ -109,50 +109,50 @@ BitmapPtr OffscreenScene::screenshot() const
     return pTex->readbackBmp();
 }
 
-bool OffscreenScene::getHandleEvents() const
+bool OffscreenCanvas::getHandleEvents() const
 {
-    return dynamic_pointer_cast<OffscreenSceneNode>(getRootNode())->getHandleEvents();
+    return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getHandleEvents();
 }
 
-int OffscreenScene::getMultiSampleSamples() const
+int OffscreenCanvas::getMultiSampleSamples() const
 {
-    return dynamic_pointer_cast<OffscreenSceneNode>(
+    return dynamic_pointer_cast<OffscreenCanvasNode>(
             getRootNode())->getMultiSampleSamples();
 }
 
-bool OffscreenScene::getMipmap() const
+bool OffscreenCanvas::getMipmap() const
 {
-    return dynamic_pointer_cast<OffscreenSceneNode>(getRootNode())->getMipmap();
+    return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getMipmap();
 }
 
-std::string OffscreenScene::getID() const
+std::string OffscreenCanvas::getID() const
 {
     return getRootNode()->getID();
 }
 
-bool OffscreenScene::isRunning() const
+bool OffscreenCanvas::isRunning() const
 {
     return (m_pFBO != FBOPtr());
 }
 
-unsigned OffscreenScene::getTexID() const
+unsigned OffscreenCanvas::getTexID() const
 {
     AVG_ASSERT(isRunning());
     return m_pFBO->getTexture();
 }
 
-void OffscreenScene::addDependentScene(ScenePtr pScene)
+void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)
 {
-    m_pDependentScenes.push_back(pScene);
-    Player::get()->newSceneDependency(
-            dynamic_pointer_cast<OffscreenScene>(shared_from_this()));
+    m_pDependentCanvases.push_back(pCanvas);
+    Player::get()->newCanvasDependency(
+            dynamic_pointer_cast<OffscreenCanvas>(shared_from_this()));
 }
 
-void OffscreenScene::removeDependentScene(ScenePtr pScene)
+void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
 {
-    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
-        if (pScene == m_pDependentScenes[i]) {
-            m_pDependentScenes.erase(m_pDependentScenes.begin()+i);
+    for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
+        if (pCanvas == m_pDependentCanvases[i]) {
+            m_pDependentCanvases.erase(m_pDependentCanvases.begin()+i);
 //            dump();
             return;
         }
@@ -160,40 +160,35 @@ void OffscreenScene::removeDependentScene(ScenePtr pScene)
     AVG_ASSERT(false);
 }
 
-bool OffscreenScene::hasDependentScene(ScenePtr pScene) const
+bool OffscreenCanvas::hasDependentCanvas(CanvasPtr pCanvas) const
 {
-    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
-        if (pScene == m_pDependentScenes[i]) {
+    for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
+        if (pCanvas == m_pDependentCanvases[i]) {
             return true;
         }
     }
     return false;
 }
 
-bool OffscreenScene::hasDependentScenes() const
+unsigned OffscreenCanvas::getNumDependentCanvases() const
 {
-    return !m_pDependentScenes.empty();
+    return m_pDependentCanvases.size();
 }
 
-unsigned OffscreenScene::getNumDependentScenes() const
-{
-    return m_pDependentScenes.size();
-}
-
-bool OffscreenScene::isMultisampleSupported()
+bool OffscreenCanvas::isMultisampleSupported()
 {
     return FBO::isMultisampleFBOSupported();
 }
 
-void OffscreenScene::dump() const
+void OffscreenCanvas::dump() const
 {
-    cerr << "Scene: " << getRootNode()->getID() << endl;
-    for (unsigned i=0; i<m_pDependentScenes.size(); ++i) {
-        cerr << " " << m_pDependentScenes[i]->getRootNode()->getID() << endl;
+    cerr << "Canvas: " << getRootNode()->getID() << endl;
+    for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
+        cerr << " " << m_pDependentCanvases[i]->getRootNode()->getID() << endl;
     }
 }
 
-void OffscreenScene::createFBO()
+void OffscreenCanvas::createFBO()
 {
     IntPoint size = getSize();
     if (m_bUseMipmaps) {
@@ -209,7 +204,7 @@ void OffscreenScene::createFBO()
     glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenScene::createFBO: glTexImage2D()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::createFBO: glTexImage2D()");
 
     m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, getMultiSampleSamples(), true,
             m_bUseMipmaps));

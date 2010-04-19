@@ -30,39 +30,39 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition OffscreenSceneNode::createDefinition()
+NodeDefinition OffscreenCanvasNode::createDefinition()
 {
-    return NodeDefinition("scene", VisibleNode::buildNode<OffscreenSceneNode>)
-        .extendDefinition(SceneNode::createDefinition())
+    return NodeDefinition("canvas", VisibleNode::buildNode<OffscreenCanvasNode>)
+        .extendDefinition(CanvasNode::createDefinition())
         .addArg(Arg<bool>("handleevents", false, false, 
-                offsetof(OffscreenSceneNode, m_bHandleEvents)))
+                offsetof(OffscreenCanvasNode, m_bHandleEvents)))
         .addArg(Arg<int>("multisamplesamples", 1, false, 
-                offsetof(OffscreenSceneNode, m_MultiSampleSamples)))
+                offsetof(OffscreenCanvasNode, m_MultiSampleSamples)))
         .addArg(Arg<bool>("mipmap", false, false, 
-                offsetof(OffscreenSceneNode, m_bMipmap)));
+                offsetof(OffscreenCanvasNode, m_bMipmap)));
 }
 
-OffscreenSceneNode::OffscreenSceneNode(const ArgList& Args)
-    : SceneNode(Args)
+OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& Args)
+    : CanvasNode(Args)
 {
     Args.setMembers(this);
 }
 
-OffscreenSceneNode::~OffscreenSceneNode()
+OffscreenCanvasNode::~OffscreenCanvasNode()
 {
 }
 
-bool OffscreenSceneNode::getHandleEvents() const
+bool OffscreenCanvasNode::getHandleEvents() const
 {
     return m_bHandleEvents;
 }
 
-bool OffscreenSceneNode::getMipmap() const
+bool OffscreenCanvasNode::getMipmap() const
 {
     return m_bMipmap;
 }
 
-int OffscreenSceneNode::getMultiSampleSamples() const
+int OffscreenCanvasNode::getMultiSampleSamples() const
 {
     return m_MultiSampleSamples;
 }

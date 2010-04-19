@@ -27,11 +27,11 @@
 
 namespace avg {
 
-class AVG_API MainScene: public Scene
+class AVG_API MainCanvas: public Canvas
 {
     public:
-        MainScene(Player * pPlayer);
-        virtual ~MainScene();
+        MainCanvas(Player * pPlayer);
+        virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
         void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine);
         

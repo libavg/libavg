@@ -60,7 +60,7 @@ ImageNode::ImageNode(const ArgList& Args)
 ImageNode::~ImageNode()
 {
     // disconnect(true) should have been called by now.
-    AVG_ASSERT(!m_pImage->getScene());
+    AVG_ASSERT(!m_pImage->getCanvas());
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -71,21 +71,21 @@ void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if (m_pImage->getSource() == Image::SCENE) {
-        m_pImage->getScene()->addDependentScene(getScene());
+        m_pImage->getCanvas()->addDependentCanvas(getCanvas());
     }
 }
 
-void ImageNode::connect(ScenePtr pScene)
+void ImageNode::connect(CanvasPtr pCanvas)
 {
-    RasterNode::connect(pScene);
+    RasterNode::connect(pCanvas);
     checkReload();
 }
 
 void ImageNode::disconnect(bool bKill)
 {
-    OffscreenScenePtr pScene = m_pImage->getScene();
-    if (pScene) {
-        pScene->removeDependentScene(getScene());
+    OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
+    if (pCanvas) {
+        pCanvas->removeDependentCanvas(getCanvas());
     }
     if (bKill) {
         RasterNode::disconnect(bKill);
@@ -107,7 +107,7 @@ void ImageNode::setHRef(const UTF8String& href)
     m_href = href;
     if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
     {
-        m_pImage->getScene()->removeDependentScene(getScene());
+        m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
     try {
         if (href == "") {
@@ -126,7 +126,7 @@ void ImageNode::setBitmap(const Bitmap * pBmp)
 {
     if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
     {
-        m_pImage->getScene()->removeDependentScene(getScene());
+        m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
     m_pImage->setBitmap(pBmp);
     if (getState() == VisibleNode::NS_CANRENDER) {
@@ -143,7 +143,7 @@ void ImageNode::render(const DRect& Rect)
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getSource() != Image::NONE) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode(), 
-                bool(m_pImage->getScene()));
+                bool(m_pImage->getCanvas()));
     }
 }
 
@@ -154,11 +154,11 @@ IntPoint ImageNode::getMediaSize()
 
 void ImageNode::checkReload()
 {
-    if (isSceneURL(m_href)) {
-        OffscreenScenePtr pScene = Player::get()->getSceneFromURL(m_href);
-        m_pImage->setScene(pScene);
+    if (isCanvasURL(m_href)) {
+        OffscreenCanvasPtr pCanvas = Player::get()->getCanvasFromURL(m_href);
+        m_pImage->setCanvas(pCanvas);
         if (getState() == NS_CANRENDER) {
-            pScene->addDependentScene(getScene());
+            pCanvas->addDependentCanvas(getCanvas());
         }
     } else {
         VisibleNode::checkReload(m_href, m_pImage);
@@ -169,13 +169,13 @@ void ImageNode::checkReload()
 
 VisibleNodePtr ImageNode::getElementByPos(const DPoint & pos)
 {
-    OffscreenScenePtr pScene = m_pImage->getScene();
-    if (pScene && pScene->getHandleEvents()) {
+    OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
+    if (pCanvas && pCanvas->getHandleEvents()) {
         DPoint nodeSize(getSize());
-        DPoint sceneSize(pScene->getSize());
-        DPoint localPos(pos.x*(sceneSize.x/nodeSize.x), 
-                pos.y*(sceneSize.y/nodeSize.y));
-        return pScene->getRootNode()->getElementByPos(localPos);
+        DPoint canvasSize(pCanvas->getSize());
+        DPoint localPos(pos.x*(canvasSize.x/nodeSize.x), 
+                pos.y*(canvasSize.y/nodeSize.y));
+        return pCanvas->getRootNode()->getElementByPos(localPos);
     } else {
         return RasterNode::getElementByPos(pos);
     }
@@ -186,9 +186,9 @@ BitmapPtr ImageNode::getBitmap()
     return m_pImage->getBitmap();
 }
 
-bool ImageNode::isSceneURL(const std::string& sURL)
+bool ImageNode::isCanvasURL(const std::string& sURL)
 {
-    return sURL.find("scene:") == 0;
+    return sURL.find("canvas:") == 0;
 }
 
 }

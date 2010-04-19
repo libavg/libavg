@@ -29,18 +29,18 @@
 
 namespace avg {
 
-class AVG_API SceneNode : public DivNode
+class AVG_API CanvasNode : public DivNode
 {
     public:
         static NodeDefinition createDefinition();
         
-        SceneNode(const ArgList& Args);
-        virtual ~SceneNode();
+        CanvasNode(const ArgList& Args);
+        virtual ~CanvasNode();
 
         virtual std::string getEffectiveMediaDir();
 };
 
-typedef boost::shared_ptr<SceneNode> SceneNodePtr;
+typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 
 }
 

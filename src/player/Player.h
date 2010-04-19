@@ -49,9 +49,9 @@ class AudioEngine;
 class Node;
 class VisibleNode;
 class TestHelper;
-class Scene;
-class MainScene;
-class OffscreenScene;
+class Canvas;
+class MainCanvas;
+class OffscreenCanvas;
 class TrackerEventSource;
 class IFrameEndListener;
 class IPlaybackEndListener;
@@ -61,9 +61,9 @@ typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
-typedef boost::shared_ptr<Scene> ScenePtr;
-typedef boost::shared_ptr<MainScene> MainScenePtr;
-typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
+typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
 class AVG_API Player: IEventSink
 {
@@ -81,15 +81,15 @@ class AVG_API Player: IEventSink
         void setMultiSampleSamples(int MultiSampleSamples);
         void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
-        ScenePtr loadFile(const std::string& sFilename);
-        ScenePtr loadString(const std::string& sAVG);
+        CanvasPtr loadFile(const std::string& sFilename);
+        CanvasPtr loadString(const std::string& sAVG);
 
-        OffscreenScenePtr loadSceneFile(const std::string& sFilename);
-        OffscreenScenePtr loadSceneString(const std::string& sAVG);
-        void deleteScene(const std::string& sID);
-        ScenePtr getMainScene() const;
-        OffscreenScenePtr getScene(const std::string& sID) const;
-        void newSceneDependency(const OffscreenScenePtr pScene);
+        OffscreenCanvasPtr loadCanvasFile(const std::string& sFilename);
+        OffscreenCanvasPtr loadCanvasString(const std::string& sAVG);
+        void deleteCanvas(const std::string& sID);
+        CanvasPtr getMainCanvas() const;
+        OffscreenCanvasPtr getCanvas(const std::string& sID) const;
+        void newCanvasDependency(const OffscreenCanvasPtr pCanvas);
 
         void play();
         void stop();
@@ -140,7 +140,7 @@ class AVG_API Player: IEventSink
         void setVolume(double volume);
         double getVolume() const;
 
-        OffscreenScenePtr getSceneFromURL(const std::string& sURL);
+        OffscreenCanvasPtr getCanvasFromURL(const std::string& sURL);
 
         std::string getCurDirName();
         std::string getRootMediaDir();
@@ -178,15 +178,15 @@ class AVG_API Player: IEventSink
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
                 const xmlNodePtr xmlNode);
-        OffscreenScenePtr registerOffscreenScene(NodePtr pNode);
-        OffscreenScenePtr findScene(const std::string& sID) const;
+        OffscreenCanvasPtr registerOffscreenCanvas(NodePtr pNode);
+        OffscreenCanvasPtr findCanvas(const std::string& sID) const;
         void endFrame();
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, VisibleNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
-        MainScenePtr m_pMainScene;
+        MainCanvasPtr m_pMainCanvas;
 
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
@@ -230,7 +230,7 @@ class AVG_API Player: IEventSink
 
         bool m_bPythonAvailable;
 
-        std::vector<OffscreenScenePtr> m_pScenes;
+        std::vector<OffscreenCanvasPtr> m_pCanvases;
 
         static Player * s_pPlayer;
         friend void deletePlayer();

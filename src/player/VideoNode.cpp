@@ -112,15 +112,15 @@ void VideoNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } 
 }
 
-void VideoNode::connect(ScenePtr pScene)
+void VideoNode::connect(CanvasPtr pCanvas)
 {
-    pScene->registerFrameEndListener(this);
-    RasterNode::connect(pScene);
+    pCanvas->registerFrameEndListener(this);
+    RasterNode::connect(pCanvas);
 }
 
 void VideoNode::disconnect(bool bKill)
 {
-    getScene()->unregisterFrameEndListener(this);
+    getCanvas()->unregisterFrameEndListener(this);
     if (bKill) {
         setEOFCallback(Py_None);
     }

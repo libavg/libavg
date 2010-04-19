@@ -37,7 +37,7 @@ using namespace boost;
 
 namespace avg {
 
-Scene::Scene(Player * pPlayer)
+Canvas::Canvas(Player * pPlayer)
     : m_pPlayer(pPlayer),
       m_pDisplayEngine(0),
       m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
@@ -46,20 +46,20 @@ Scene::Scene(Player * pPlayer)
 {
 }
 
-Scene::~Scene()
+Canvas::~Canvas()
 {
 }
 
-void Scene::setRoot(NodePtr pRootNode)
+void Canvas::setRoot(NodePtr pRootNode)
 {
     assert(!m_pRootNode);
-    m_pRootNode = dynamic_pointer_cast<SceneNode>(pRootNode);
+    m_pRootNode = dynamic_pointer_cast<CanvasNode>(pRootNode);
     m_pRootNode->setParent(DivNodeWeakPtr(), VisibleNode::NS_CONNECTED,
             shared_from_this());
     registerNode(m_pRootNode);
 }
 
-void Scene::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
+void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
         int multiSampleSamples)
 {
     m_pDisplayEngine = pDisplayEngine;
@@ -67,15 +67,15 @@ void Scene::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEn
     m_MultiSampleSamples = multiSampleSamples;
 }
 
-void Scene::stopPlayback()
+void Canvas::stopPlayback()
 {
     m_PlaybackEndSignal.emit();
     m_pRootNode->disconnect(true);
-    m_pRootNode = SceneNodePtr();
+    m_pRootNode = CanvasNodePtr();
     m_IDMap.clear();
 }
 
-VisibleNodePtr Scene::getElementByID(const std::string& id)
+VisibleNodePtr Canvas::getElementByID(const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
@@ -85,7 +85,7 @@ VisibleNodePtr Scene::getElementByID(const std::string& id)
     }
 }
 
-void Scene::registerNode(VisibleNodePtr pNode)
+void Canvas::registerNode(VisibleNodePtr pNode)
 {
     addNodeID(pNode);    
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
@@ -96,7 +96,7 @@ void Scene::registerNode(VisibleNodePtr pNode)
     }
 }
 
-void Scene::addNodeID(VisibleNodePtr pNode)
+void Canvas::addNodeID(VisibleNodePtr pNode)
 {
     const string& id = pNode->getID();
     if (id != "") {
@@ -110,7 +110,7 @@ void Scene::addNodeID(VisibleNodePtr pNode)
     }
 }
 
-void Scene::removeNodeID(const std::string& id)
+void Canvas::removeNodeID(const std::string& id)
 {
     if (id != "") {
         std::map<std::string, VisibleNodePtr>::iterator it;
@@ -124,7 +124,7 @@ void Scene::removeNodeID(const std::string& id)
     }
 }
 
-SceneNodePtr Scene::getRootNode() const
+CanvasNodePtr Canvas::getRootNode() const
 {
     return m_pRootNode;
 }
@@ -133,7 +133,7 @@ static ProfilingZone PreRenderProfilingZone("PreRender");
 static ProfilingZone RenderProfilingZone("Render");
 static ProfilingZone FrameEndProfilingZone("OnFrameEnd");
 
-void Scene::doFrame(bool bPythonAvailable)
+void Canvas::doFrame(bool bPythonAvailable)
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);
@@ -160,67 +160,67 @@ void Scene::doFrame(bool bPythonAvailable)
     }
 }
 
-IntPoint Scene::getSize() const
+IntPoint Canvas::getSize() const
 {
     return IntPoint(m_pRootNode->getSize());
 }
 
-void Scene::registerPlaybackEndListener(IPlaybackEndListener* pListener)
+void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
 {
     m_PlaybackEndSignal.connect(pListener);
 }
 
-void Scene::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
+void Canvas::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
 {
     m_PlaybackEndSignal.disconnect(pListener);
 }
 
-void Scene::registerFrameEndListener(IFrameEndListener* pListener)
+void Canvas::registerFrameEndListener(IFrameEndListener* pListener)
 {
     m_FrameEndSignal.connect(pListener);
 }
 
-void Scene::unregisterFrameEndListener(IFrameEndListener* pListener)
+void Canvas::unregisterFrameEndListener(IFrameEndListener* pListener)
 {
     m_FrameEndSignal.disconnect(pListener);
 }
 
-void Scene::registerPreRenderListener(IPreRenderListener* pListener)
+void Canvas::registerPreRenderListener(IPreRenderListener* pListener)
 {
     m_PreRenderSignal.connect(pListener);
 }
 
-void Scene::unregisterPreRenderListener(IPreRenderListener* pListener)
+void Canvas::unregisterPreRenderListener(IPreRenderListener* pListener)
 {
     m_PreRenderSignal.disconnect(pListener);
 }
 
-bool Scene::operator ==(const Scene& other) const
+bool Canvas::operator ==(const Canvas& other) const
 {
     return this == &other;
 }
 
-bool Scene::operator !=(const Scene& other) const
+bool Canvas::operator !=(const Canvas& other) const
 {
     return this != &other;
 }
 
-long Scene::getHash() const
+long Canvas::getHash() const
 {
     return long(this);
 }
 
-Player* Scene::getPlayer() const
+Player* Canvas::getPlayer() const
 {
     return m_pPlayer;
 }
 
-SDLDisplayEngine* Scene::getDisplayEngine() const
+SDLDisplayEngine* Canvas::getDisplayEngine() const
 {
     return m_pDisplayEngine;
 }
 
-vector<VisibleNodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
+vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
 {
     vector<VisibleNodeWeakPtr> Elements;
     VisibleNodePtr pNode = m_pRootNode->getElementByPos(pos);
@@ -232,7 +232,7 @@ vector<VisibleNodeWeakPtr> Scene::getElementsByPos(const DPoint& pos) const
 }
 
 
-void Scene::render(IntPoint windowSize, bool bUpsideDown,
+void Canvas::render(IntPoint windowSize, bool bUpsideDown,
         ProfilingZone& renderProfilingZone)
 {
     m_pRootNode->preRender();

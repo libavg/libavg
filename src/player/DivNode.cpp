@@ -81,11 +81,11 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
 }
 
-void DivNode::connect(ScenePtr pScene)
+void DivNode::connect(CanvasPtr pCanvas)
 {
-    AreaNode::connect(pScene);
+    AreaNode::connect(pCanvas);
     for (unsigned i = 0; i<getNumChildren(); ++i) {
-        getVChild(i)->connect(pScene);
+        getVChild(i)->connect(pCanvas);
     }
 }
 
@@ -122,10 +122,10 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
     Node::insertChild(pNewNode, i);
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
-        getScene()->registerNode(pVNode);
+        getCanvas()->registerNode(pVNode);
     }
     DivNodePtr Ptr = dynamic_pointer_cast<DivNode>(getThis());
-    pVNode->setParent(Ptr, getState(), getScene());
+    pVNode->setParent(Ptr, getState(), getCanvas());
     if (getState() == NS_CANRENDER) {
         pVNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
     }

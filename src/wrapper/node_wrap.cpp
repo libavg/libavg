@@ -281,12 +281,12 @@ void export_node()
                 "in.\n")
     ;
 
-    class_<SceneNode, bases<DivNode> >("SceneNode",
+    class_<CanvasNode, bases<DivNode> >("CanvasNode",
             "Root node of a scene graph.",
             no_init)
     ;
 
-    class_<AVGNode, bases<SceneNode> >("AVGNode",
+    class_<AVGNode, bases<CanvasNode> >("AVGNode",
             "Root node of an onscreen avg tree. Defines the properties of the display"
             "and handles key press events. The AVGNode's width and height define the\n"
             "coordinate system for the display and are the default for the window\n"

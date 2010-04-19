@@ -36,13 +36,13 @@ namespace avg {
 NodeDefinition AVGNode::createDefinition()
 {
     return NodeDefinition("avg", VisibleNode::buildNode<AVGNode>)
-        .extendDefinition(SceneNode::createDefinition())
+        .extendDefinition(CanvasNode::createDefinition())
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));
 }
 
 AVGNode::AVGNode(const ArgList& Args)
-    : SceneNode(Args)
+    : CanvasNode(Args)
 {
     Args.setMembers(this);
     addEventHandler(Event::KEYUP, Event::NONE, Args.getArgVal<string>("onkeyup"));

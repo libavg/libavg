@@ -41,25 +41,25 @@ namespace avg {
 class Player;
 class Node;
 class VisibleNode;
-class SceneNode;
+class CanvasNode;
 class AudioEngine;
 class DisplayEngine;
 class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZone;
-class Scene;
+class Canvas;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
-typedef boost::shared_ptr<SceneNode> SceneNodePtr;
+typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 
-class AVG_API Scene: public boost::enable_shared_from_this<Scene>
+class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 {
     public:
-        Scene(Player * pPlayer);
-        virtual ~Scene();
+        Canvas(Player * pPlayer);
+        virtual ~Canvas();
         virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine) = 0;
@@ -67,7 +67,7 @@ class AVG_API Scene: public boost::enable_shared_from_this<Scene>
                 int multiSampleSamples);
         virtual void stopPlayback();
        
-        SceneNodePtr getRootNode() const;
+        CanvasNodePtr getRootNode() const;
         VisibleNodePtr getElementByID(const std::string& id);
         void registerNode(VisibleNodePtr pNode);
         void addNodeID(VisibleNodePtr pNode);
@@ -85,8 +85,8 @@ class AVG_API Scene: public boost::enable_shared_from_this<Scene>
 
         std::vector<VisibleNodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
-        bool operator ==(const Scene& other) const;
-        bool operator !=(const Scene& other) const;
+        bool operator ==(const Canvas& other) const;
+        bool operator !=(const Canvas& other) const;
         long getHash() const;
 
     protected:
@@ -98,7 +98,7 @@ class AVG_API Scene: public boost::enable_shared_from_this<Scene>
     private:
         virtual void render()=0;
         Player * m_pPlayer;
-        SceneNodePtr m_pRootNode;
+        CanvasNodePtr m_pRootNode;
         SDLDisplayEngine * m_pDisplayEngine;
        
         typedef std::map<std::string, VisibleNodePtr> NodeIDMap;

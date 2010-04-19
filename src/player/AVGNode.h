@@ -29,7 +29,7 @@
 
 namespace avg {
 
-class AVG_API AVGNode : public SceneNode
+class AVG_API AVGNode : public CanvasNode
 {
     public:
         static NodeDefinition createDefinition();

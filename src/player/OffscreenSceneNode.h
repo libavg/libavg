@@ -29,13 +29,13 @@
 
 namespace avg {
 
-class AVG_API OffscreenSceneNode : public SceneNode
+class AVG_API OffscreenCanvasNode : public CanvasNode
 {
     public:
         static NodeDefinition createDefinition();
         
-        OffscreenSceneNode(const ArgList& Args);
-        virtual ~OffscreenSceneNode();
+        OffscreenCanvasNode(const ArgList& Args);
+        virtual ~OffscreenCanvasNode();
 
         bool getHandleEvents() const;
         bool getMipmap() const;
@@ -47,7 +47,7 @@ class AVG_API OffscreenSceneNode : public SceneNode
         int m_MultiSampleSamples;
 };
 
-typedef boost::shared_ptr<OffscreenSceneNode> OffscreenSceneNodePtr;
+typedef boost::shared_ptr<OffscreenCanvasNode> OffscreenCanvasNodePtr;
 
 }
 

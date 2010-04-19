@@ -32,11 +32,11 @@
 
 namespace avg {
 
-class AVG_API OffscreenScene: public Scene
+class AVG_API OffscreenCanvas: public Canvas
 {
     public:
-        OffscreenScene(Player * pPlayer);
-        virtual ~OffscreenScene();
+        OffscreenCanvas(Player * pPlayer);
+        virtual ~OffscreenCanvas();
         virtual void setRoot(NodePtr pRootNode);
         virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
                 AudioEngine* pAudioEngine);
@@ -52,11 +52,10 @@ class AVG_API OffscreenScene: public Scene
         bool isRunning() const;
         unsigned getTexID() const;
 
-        void addDependentScene(ScenePtr pScene);
-        void removeDependentScene(ScenePtr pScene);
-        bool hasDependentScene(ScenePtr pScene) const;
-        bool hasDependentScenes() const;
-        unsigned getNumDependentScenes() const;
+        void addDependentCanvas(CanvasPtr pCanvas);
+        void removeDependentCanvas(CanvasPtr pCanvas);
+        bool hasDependentCanvas(CanvasPtr pCanvas) const;
+        unsigned getNumDependentCanvases() const;
 
         static bool isMultisampleSupported();
         void dump() const;
@@ -66,10 +65,10 @@ class AVG_API OffscreenScene: public Scene
         FBOPtr m_pFBO;
         unsigned m_TexID;
         bool m_bUseMipmaps;
-        std::vector<ScenePtr> m_pDependentScenes;
+        std::vector<CanvasPtr> m_pDependentCanvases;
 };
 
-typedef boost::shared_ptr<OffscreenScene> OffscreenScenePtr;
+typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
 }
 #endif
