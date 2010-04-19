@@ -147,6 +147,10 @@ Player::Player()
     s_pPlayer = this;
 
     m_CurDirName = getCWD();
+    string sDummy;
+    if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
+        debugBreak();
+    }
 }
 
 void deletePlayer()
