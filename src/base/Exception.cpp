@@ -22,6 +22,7 @@
 #include "Exception.h"
 #include "Backtrace.h"
 #include "Logger.h"
+#include "OSHelper.h"
 
 #include <cstdlib>
 #include <sstream>
@@ -76,13 +77,17 @@ void debugBreak()
 void avgAssert(bool b, const char * pszFile, int line)
 {
     if (!b) {
-        stringstream ss;
-        ss << "Assertion failed in " << pszFile << ": " << line;
-//        debugBreak();
-        dumpBacktrace();
-        throw(Exception(AVG_ERR_ASSERT_FAILED, ss.str()));
+        string sDummy;
+        static bool bBreak = getEnv("AVG_BREAK_ON_ASSERT", sDummy);
+        if (bBreak) {
+            debugBreak();
+        } else {
+            stringstream ss;
+            ss << "Assertion failed in " << pszFile << ": " << line;
+            dumpBacktrace();
+            throw(Exception(AVG_ERR_ASSERT_FAILED, ss.str()));
+        }
     }
 }
 
 }
-
