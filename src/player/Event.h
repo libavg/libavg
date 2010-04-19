@@ -45,7 +45,7 @@ class AVG_API Event {
             RESIZE,
             QUIT 
         };
-        enum Source {MOUSE=1, TOUCH=2, TRACK=4, NONE=8};
+        enum Source {MOUSE=1, TOUCH=2, TRACK=4, CUSTOM=8, NONE=16};
     
         Event(Type type, Source source=NONE, int when=-1);
         Event(const Event& e);

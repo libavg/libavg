@@ -228,8 +228,7 @@ void VisibleNode::releaseEventCapture(int cursorID)
 
 void VisibleNode::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
 {
-    for (int i=0; i<4; ++i) {
-        int source = int(pow(2.,i));
+    for (int source=1; source<=Event::NONE; source*=2) {
         if (source & Sources) {
             EventHandlerID ID(Type, (Event::Source)source);
             EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
