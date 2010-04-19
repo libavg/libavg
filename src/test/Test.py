@@ -29,13 +29,6 @@ import shutil
 g_TempPackageDir = None
 
 
-def cleanExit(rc):
-    if g_TempPackageDir is not None:
-        try:
-            shutil.rmtree(g_TempPackageDir)
-        except OSError:
-            print 'ERROR: Cannot clean up test package directory'
-    
 def symtree(src, dest):
     os.mkdir(dest)
     for f in os.listdir(src):
@@ -118,4 +111,11 @@ app.registerSuiteFactory('event', EventTest.eventTestSuite)
 try:
     app.run()
 finally:
-    cleanExit(app.exitCode())
+    if g_TempPackageDir is not None:
+        try:
+            shutil.rmtree(g_TempPackageDir)
+        except OSError:
+            print 'ERROR: Cannot clean up test package directory'
+
+sys.exit(app.exitCode())
+
