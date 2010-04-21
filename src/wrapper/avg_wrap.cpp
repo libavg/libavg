@@ -455,6 +455,8 @@ BOOST_PYTHON_MODULE(avg)
                 "Forces a redraw of the offscreen canvas. This makes sure that following "
                 "calls to screenshot() get a current version of the canvas and is "
                 "otherwise unnecessary.")
+        .def("registerCameraNode", &OffscreenCanvas::registerCameraNode)
+        .def("unregisterCameraNode", &OffscreenCanvas::unregisterCameraNode)
         .add_property("handleevents", &OffscreenCanvas::getHandleEvents, 
                 "True if events that arrive at an image node that is displaying this"
                 "canvas are routed to the offscreen canvas (ro).")

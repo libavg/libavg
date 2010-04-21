@@ -909,7 +909,7 @@ void Player::doFrame(bool bFirstFrame)
             }
         }
         for (unsigned i=0; i< m_pCanvases.size(); ++i) {
-            m_pCanvases[i]->doFrame(m_bPythonAvailable);
+            dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
         if (m_bPythonAvailable) {
@@ -1343,6 +1343,22 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
         }
     }
+}
+
+void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
+{
+    if (!pOffscreenCanvas->hasRegisteredCamera()) {
+        pOffscreenCanvas->doFrame(m_bPythonAvailable);
+        return;
+    }
+
+    pOffscreenCanvas->updateCameraImage();
+    while (pOffscreenCanvas->isCameraImageAvailable()) {
+        std::cout << "rendering camera image" << std::endl;
+        pOffscreenCanvas->doFrame(m_bPythonAvailable);
+        pOffscreenCanvas->updateCameraImage();
+    }
+    std::cout << "--" << std::endl;
 }
 
 void Player::handleTimers()

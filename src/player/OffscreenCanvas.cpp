@@ -37,7 +37,8 @@ using namespace std;
 namespace avg {
     
 OffscreenCanvas::OffscreenCanvas(Player * pPlayer)
-    : Canvas(pPlayer)
+    : Canvas(pPlayer),
+      m_pCameraNodeRef(NULL)
 {
 }
 
@@ -139,6 +140,36 @@ unsigned OffscreenCanvas::getTexID() const
 {
     AVG_ASSERT(isRunning());
     return m_pFBO->getTexture();
+}
+
+void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
+{
+    m_pCameraNodeRef = pCameraNode;
+    m_pCameraNodeRef->setAutoUpdateCameraImage(false);
+}
+
+void OffscreenCanvas::unregisterCameraNode()
+{
+    m_pCameraNodeRef->setAutoUpdateCameraImage(true);
+    m_pCameraNodeRef = NULL;
+}
+
+void OffscreenCanvas::updateCameraImage()
+{
+    m_pCameraNodeRef->updateCameraImage();
+}
+
+bool OffscreenCanvas::hasRegisteredCamera() const
+{
+    return m_pCameraNodeRef != NULL;
+}
+
+bool OffscreenCanvas::isCameraImageAvailable() const
+{
+    if (!hasRegisteredCamera()) {
+        return false;
+    }
+    return m_pCameraNodeRef->isImageAvailable();
 }
 
 void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)

@@ -70,7 +70,8 @@ NodeDefinition CameraNode::createDefinition()
 
 CameraNode::CameraNode(const ArgList& Args)
     : m_bIsPlaying(false),
-      m_FrameNum(0)
+      m_FrameNum(0),
+      m_bIsAutoUpdateCameraImage(true)
 {
     Args.setMembers(this);
     string sDriver = Args.getArgVal<string>("driver");
@@ -303,13 +304,8 @@ void CameraNode::preRender()
 {
     VisibleNode::preRender();
     ScopeTimer Timer(CameraFetchImage);
-    m_pCurBmp = m_pCamera->getImage(false);
-    if (m_pCurBmp) {
-        BitmapPtr pTempBmp;
-        while (pTempBmp = m_pCamera->getImage(false)) {
-            m_pCurBmp = pTempBmp;
-        }
-        m_FrameNum++;
+    if (isAutoUpdateCameraImage()) {
+        updateToLatestCameraImage();
     }
 }
 
@@ -321,6 +317,7 @@ void CameraNode::render(const DRect& Rect)
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
         if (m_pCurBmp) {
+            m_FrameNum++;
             BitmapPtr pBmp = getSurface()->lockBmp();
             if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
                 cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: " 
@@ -343,5 +340,41 @@ PixelFormat CameraNode::getPixelFormat()
     return m_pCamera->getDestPF();
 }
 
-
+void CameraNode::updateToLatestCameraImage()
+{
+    m_pCurBmp = m_pCamera->getImage(false);
+    if (m_pCurBmp) {
+       BitmapPtr pTempBmp;
+       while (pTempBmp = m_pCamera->getImage(false)) {
+           m_pCurBmp = pTempBmp;
+       }
+    }
 }
+
+void CameraNode::updateCameraImage()
+{
+    if (!isAutoUpdateCameraImage()) {
+        m_pTmpBmp = m_pCamera->getImage(false);
+        if (m_pTmpBmp) {
+            m_pCurBmp = m_pTmpBmp;
+        }
+    }
+}
+
+bool CameraNode::isAutoUpdateCameraImage() const
+{
+    return m_bIsAutoUpdateCameraImage;
+}
+
+void CameraNode::setAutoUpdateCameraImage(bool bVal)
+{
+    m_bIsAutoUpdateCameraImage = bVal;
+}
+
+bool CameraNode::isImageAvailable() const
+{
+    return m_pTmpBmp.get() != NULL;
+}
+
+
+} // namespace avg

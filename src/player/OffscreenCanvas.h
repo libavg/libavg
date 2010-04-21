@@ -26,6 +26,8 @@
 #include "Canvas.h"
 #include "OffscreenCanvasNode.h"
 
+#include "CameraNode.h"
+
 #include "../graphics/FBO.h"
 
 #include <string>
@@ -52,6 +54,12 @@ class AVG_API OffscreenCanvas: public Canvas
         bool isRunning() const;
         unsigned getTexID() const;
 
+        void registerCameraNode(CameraNode* pCameraNode);
+        void unregisterCameraNode();
+        void updateCameraImage();
+        bool hasRegisteredCamera() const;
+        bool isCameraImageAvailable() const;
+
         void addDependentCanvas(CanvasPtr pCanvas);
         void removeDependentCanvas(CanvasPtr pCanvas);
         bool hasDependentCanvas(CanvasPtr pCanvas) const;
@@ -66,6 +74,9 @@ class AVG_API OffscreenCanvas: public Canvas
         unsigned m_TexID;
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
+
+        CameraNode* m_pCameraNodeRef;
+        int m_cameraFrameRate;
 };
 
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;

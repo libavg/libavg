@@ -186,6 +186,8 @@ class AVG_API Player: IEventSink
         void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, VisibleNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
+        void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
+
         MainCanvasPtr m_pMainCanvas;
 
         DisplayEngine * m_pDisplayEngine;

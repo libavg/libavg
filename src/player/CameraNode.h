@@ -85,6 +85,11 @@ class AVG_API CameraNode : public RasterNode
         int getStrobeDuration() const;
         void setStrobeDuration(int Value);
         
+        void updateCameraImage();
+        bool isAutoUpdateCameraImage() const;
+        void setAutoUpdateCameraImage(bool bVal);
+        bool isImageAvailable() const;
+
         virtual void preRender();
         virtual void render(const DRect& Rect);
 
@@ -103,11 +108,15 @@ class AVG_API CameraNode : public RasterNode
         virtual PixelFormat getPixelFormat();
         void setFeature(int FeatureID);
 
+        void updateToLatestCameraImage();
+
         bool m_bIsPlaying;
     
         CameraPtr m_pCamera;
         int m_FrameNum;
         BitmapPtr m_pCurBmp;
+        BitmapPtr m_pTmpBmp;
+        bool m_bIsAutoUpdateCameraImage;
 };
 
 }
