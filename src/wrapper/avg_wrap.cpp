@@ -419,7 +419,7 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", 
-                "A Canvas is a tree of nodes. It corresponds to a canvasgraph. In a libavg"
+                "A Canvas is a tree of nodes. It corresponds to a scenegraph. In a libavg"
                 "session, there is one main canvas that gets rendered to the screen and"
                 "zero or more canvases that are rendered offscreen.",
                 no_init)
