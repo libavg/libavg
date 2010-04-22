@@ -163,6 +163,9 @@ void SoundNode::disconnect(bool bKill)
 {
     changeSoundState(Unloaded);
     getCanvas()->unregisterFrameEndListener(this);
+    if (bKill) {
+        setEOFCallback(Py_None);
+    }
     AreaNode::disconnect(bKill);
 }
 

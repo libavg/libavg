@@ -96,6 +96,8 @@ void Anim::onPlaybackEnd()
     if (m_bRunning) {
         abort();
     }
+    m_StartCallback = object();
+    m_StopCallback = object();
 }
 
 void Anim::setStopped()
