@@ -138,35 +138,24 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
     return true;
 }
 
-// Standard Jordan Curve Theorem (aka ray casting, even-odd-rule, crossing number)
-// point-in-polygon test.
+// Original code from: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html.
 // Precomputing a bounding box for the polygon would speed this up a lot,
-// but we're not using the code in a speed-critical place so far.
+// but it hasn't shown up on any profiles so far.
 bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
 {
     if (poly.size() < 3) {
         return false;
     }
-    DPoint pointOutside(0,0);
-    vector<DPoint>::const_iterator it;
-    for (it=poly.begin(); it != poly.end(); ++it) {
-        if (pointOutside.x > it->x) {
-            pointOutside = *it;
+    bool bPtInPoly = false;
+    for (unsigned i = 0, j = poly.size()-1; i < poly.size(); j = i++) {
+        if (((poly[i].y > pt.y) != (poly[j].y > pt.y)) &&
+                (pt.x < (poly[j].x-poly[i].x)*(pt.y-poly[i].y) / (poly[j].y-poly[i].y)
+                 +poly[i].x))
+        {
+            bPtInPoly = !bPtInPoly;
         }
     }
-    pointOutside.x -= 1;
-
-    DLineSegment line0(pointOutside, pt);
-    const DPoint* pLastPt = &(*--poly.end());
-    bool ptInPoly = false;
-    for (it=poly.begin(); it != poly.end(); ++it) {
-        DLineSegment line1(*pLastPt, *it);
-        if (lineSegmentsIntersect(line0, line1)) {
-            ptInPoly = !ptInPoly;
-        }
-        pLastPt = &(*it);
-    }
-    return ptInPoly;
+    return bPtInPoly;
 }
  
 DPoint getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
