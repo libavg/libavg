@@ -320,7 +320,7 @@ void CameraNode::render(const DRect& Rect)
             m_FrameNum++;
             BitmapPtr pBmp = getSurface()->lockBmp();
             if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
-                cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: " 
+                cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: "
                     << m_pCurBmp->getPixelFormatString() << endl;
             }
             AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
@@ -354,10 +354,8 @@ void CameraNode::updateToLatestCameraImage()
 void CameraNode::updateCameraImage()
 {
     if (!isAutoUpdateCameraImage()) {
-        m_pTmpBmp = m_pCamera->getImage(false);
-        if (m_pTmpBmp) {
-            m_pCurBmp = m_pTmpBmp;
-        }
+        m_pCurBmp = m_pCamera->getImage(false);
+        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
@@ -373,7 +371,7 @@ void CameraNode::setAutoUpdateCameraImage(bool bVal)
 
 bool CameraNode::isImageAvailable() const
 {
-    return m_pTmpBmp.get() != NULL;
+    return m_pCurBmp.get() != NULL;
 }
 
 
