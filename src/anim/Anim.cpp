@@ -43,7 +43,9 @@ Anim::Anim(const object& startCallback, const object& stopCallback)
 Anim::~Anim()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
-    Player::get()->unregisterPlaybackEndListener(this);
+    if (Player::exists()) {
+        Player::get()->unregisterPlaybackEndListener(this);
+    }
 }
 
 void Anim::setStartCallback(const object& startCallback)

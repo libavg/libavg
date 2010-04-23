@@ -1354,11 +1354,9 @@ void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
 
     pOffscreenCanvas->updateCameraImage();
     while (pOffscreenCanvas->isCameraImageAvailable()) {
-        std::cout << "rendering camera image" << std::endl;
         pOffscreenCanvas->doFrame(m_bPythonAvailable);
         pOffscreenCanvas->updateCameraImage();
     }
-    std::cout << "--" << std::endl;
 }
 
 void Player::handleTimers()
