@@ -65,6 +65,8 @@ enum OGLMemoryMode {
 
 void AVG_API pushGLState();
 void AVG_API popGLState();
+void AVG_API saveAVGGLContext();
+void AVG_API restoreAVGGLContext();
 
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);
