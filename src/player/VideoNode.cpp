@@ -163,6 +163,10 @@ int VideoNode::getNumFramesQueued() const
 
 void VideoNode::seekToFrame(int FrameNum)
 {
+    if (FrameNum < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "Can't seek to a negative frame in a video.");
+    }
     exceptionIfUnloaded("seekToFrame");
     if (getCurFrame() != FrameNum) {
         long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
@@ -220,6 +224,10 @@ long long VideoNode::getCurTime() const
 
 void VideoNode::seekToTime(long long Time)
 {
+    if (Time < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE,
+                "Can't seek to a negative time in a video.");
+    }
     exceptionIfUnloaded("seekToTime");
     seek(Time);
     m_bSeekPending = true;
