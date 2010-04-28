@@ -192,9 +192,9 @@ class Button(libavg.DivNode):
         
         if self.__getNumberOfCapturedCursors() > 1:
             return
-  
-        self.__customPressHandler(event)
+        
         self.__changeState(Button.STATE_DOWN)
+        self.__customPressHandler(event)
     
     def __releaseHandlerTemplateMethod(self, event):
         numberOfCapturedCursors = self.__getNumberOfCapturedCursors()
