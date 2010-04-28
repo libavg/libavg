@@ -149,7 +149,6 @@ if not options.noinfo:
     
 
 camNode.play()
-Player.setFramerate(options.framerate)
 Player.setTimeout(100, checkCamera)
 Player.play()
 
