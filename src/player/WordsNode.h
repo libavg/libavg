@@ -107,9 +107,7 @@ class AVG_API WordsNode : public RasterNode
         static void addFontDir(const std::string& sDir);
 
     private:
-        virtual void setMaterialMask(MaterialInfo& material, const DPoint& pos, 
-                const DPoint& size, const DPoint& mediaSize);
-
+        virtual void calcMaskCoords(MaterialInfo& material);
         void drawString();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         void setParsedText(const UTF8String& sText);

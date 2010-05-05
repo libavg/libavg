@@ -100,6 +100,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     if (m_Material.getHasMask()) {
         m_pSurface->createMask(m_pMaskBmp->getSize());
         downloadMask();
+        setMaskCoords();
     }
     
 }
@@ -128,7 +129,7 @@ void RasterNode::checkReload()
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
-                calcMaskPos();
+                setMaskCoords();
             }
         } catch (Magick::Exception & ex) {
             m_sMaskFilename = "";
@@ -148,7 +149,7 @@ void RasterNode::checkReload()
             downloadMask();
         }
     } else {
-        calcMaskPos();
+        setMaskCoords();
     }
 }
 
@@ -240,7 +241,7 @@ const DPoint& RasterNode::getMaskPos() const
 void RasterNode::setMaskPos(const DPoint& pos)
 {
     m_MaskPos = pos;
-    calcMaskPos();
+    setMaskCoords();
 }
 
 const DPoint& RasterNode::getMaskSize() const
@@ -251,7 +252,7 @@ const DPoint& RasterNode::getMaskSize() const
 void RasterNode::setMaskSize(const DPoint& size)
 {
     m_MaskSize = size;
-    calcMaskPos();
+    setMaskCoords();
 }
 
 VisibleNodePtr RasterNode::getElementByPos(const DPoint & pos)
@@ -306,12 +307,26 @@ const MaterialInfo& RasterNode::getMaterial() const
     return m_Material;
 }
 
-void RasterNode::calcMaskPos()
+void RasterNode::setMaskCoords()
 {
     if (m_sMaskFilename != "") {
-        setMaterialMask(m_Material, m_MaskPos, m_MaskSize, DPoint(getMediaSize()));
+        m_Material.setMask(true);
+        calcMaskCoords(m_Material);
         setMaterial(m_Material);
     }
+}
+
+void RasterNode::calcMaskCoords(MaterialInfo& material)
+{
+    DPoint maskSize;
+    DPoint mediaSize = DPoint(getMediaSize());
+    if (m_MaskSize == DPoint(0,0)) {
+        maskSize = DPoint(1,1);
+    } else {
+        maskSize = DPoint(m_MaskSize.x/mediaSize.x, m_MaskSize.y/mediaSize.y);
+    }
+    DPoint maskPos = DPoint(m_MaskPos.x/mediaSize.x, m_MaskPos.y/mediaSize.y);
+    material.setMaskCoords(maskPos, maskSize);
 }
 
 void RasterNode::bind() 
@@ -321,21 +336,6 @@ void RasterNode::bind()
     }
     m_pSurface->downloadTexture();
     m_bBound = true;
-}
-
-void RasterNode::setMaterialMask(MaterialInfo& material, const DPoint& pos, 
-        const DPoint& size, const DPoint& mediaSize)
-{
-    DPoint maskSize;
-    DPoint maskPos;
-    if (size == DPoint(0,0)) {
-        maskSize = DPoint(1,1);
-    } else {
-        maskSize = DPoint(size.x/mediaSize.x, size.y/mediaSize.y);
-    }
-    maskPos = DPoint(pos.x/mediaSize.x, pos.y/mediaSize.y);
-    material.setMask(true);
-    material.setMaskCoords(maskPos, maskSize);
 }
 
 void RasterNode::setMaterial(const MaterialInfo& material)

@@ -453,20 +453,25 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 }
 
-void WordsNode::setMaterialMask(MaterialInfo& material, const DPoint& pos, 
-        const DPoint& size, const DPoint& mediaSize)
+void WordsNode::calcMaskCoords(MaterialInfo& material)
 {
-    DPoint maskSize;
-    DPoint maskPos;
-    if (size == DPoint(0,0)) {
-        maskSize = DPoint(1,1);
-        maskPos = DPoint(pos.x/mediaSize.x, pos.y/mediaSize.y);
+    drawString();
+
+    // Calculate texture coordinates for the mask texture, normalized to
+    // the extents of the text.
+    DPoint normMaskSize;
+    DPoint normMaskPos;
+    DPoint mediaSize = DPoint(getMediaSize());
+    DPoint effMaskPos = getMaskPos()-DPoint(m_InkOffset);
+    DPoint maskSize = getMaskSize();
+    if (maskSize == DPoint(0,0)) {
+        normMaskSize = DPoint(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
+        normMaskPos = DPoint(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
     } else {
-        maskSize = DPoint(size.x/mediaSize.x, size.y/mediaSize.y);
-        maskPos = DPoint(pos.x/size.x, pos.y/size.y);
+        normMaskSize = DPoint(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
+        normMaskPos = DPoint(effMaskPos.x/getMaskSize().x, effMaskPos.y/getMaskSize().y);
     }
-    material.setMask(true);
-    material.setMaskCoords(maskPos, maskSize);
+    material.setMaskCoords(normMaskPos, normMaskSize);
 }
 
 static ProfilingZone DrawStringProfilingZone("  WordsNode::drawString");

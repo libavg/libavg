@@ -84,13 +84,12 @@ class AVG_API RasterNode: public AreaNode
         RasterNode();
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
-        void calcMaskPos();
+        void setMaskCoords();
         void bind();
 
     private:
         void setMaterial(const MaterialInfo& material);
-        virtual void setMaterialMask(MaterialInfo& material, const DPoint& pos, 
-                const DPoint& size, const DPoint& mediaSize);
+        virtual void calcMaskCoords(MaterialInfo& material);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode,

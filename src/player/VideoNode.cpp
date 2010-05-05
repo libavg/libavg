@@ -565,7 +565,7 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
             m_FramesInRowTooLate = 0;
             bind();
             m_bSeekPending = false;
-            calcMaskPos();
+            setMaskCoords();
             break;
         case FA_STILL_DECODING:
             {
