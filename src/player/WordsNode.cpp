@@ -464,6 +464,16 @@ void WordsNode::calcMaskCoords(MaterialInfo& material)
     DPoint mediaSize = DPoint(getMediaSize());
     DPoint effMaskPos = getMaskPos()-DPoint(m_InkOffset);
     DPoint maskSize = getMaskSize();
+    switch (m_Alignment) {
+        case PANGO_ALIGN_LEFT:
+            break;
+        case PANGO_ALIGN_CENTER:
+            effMaskPos.x -= m_AlignOffset+getSize().x/2;
+            break;
+        case PANGO_ALIGN_RIGHT:
+            effMaskPos.x -= m_AlignOffset+getSize().x;
+            break;
+    }
     if (maskSize == DPoint(0,0)) {
         normMaskSize = DPoint(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
         normMaskPos = DPoint(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
@@ -471,6 +481,15 @@ void WordsNode::calcMaskCoords(MaterialInfo& material)
         normMaskSize = DPoint(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
         normMaskPos = DPoint(effMaskPos.x/getMaskSize().x, effMaskPos.y/getMaskSize().y);
     }
+/*    
+    cerr << "calcMaskCoords" << endl;
+    cerr << "  mediaSize: " << getMediaSize() << endl;
+    cerr << "  effMaskPos: " << effMaskPos << endl;
+    cerr << "  m_AlignOffset: " << m_AlignOffset << endl;
+    cerr << "  maskSize: " << maskSize << endl;
+    cerr << "  normMaskSize: " << normMaskSize << endl;
+    cerr << "  normMaskPos: " << normMaskPos << endl;
+*/    
     material.setMaskCoords(normMaskPos, normMaskSize);
 }
 
