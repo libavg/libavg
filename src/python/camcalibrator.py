@@ -161,9 +161,9 @@ class CamCalibrator(AVGApp):
             coordDiv.opacity = 0
             coordDiv.active = False
 
-    def onKey(self, event):
+    def onKeyDown(self, event):
         if self.__showCoordCalibrator:
-            if self.__coordCalibrator.onKey(event):
+            if self.__coordCalibrator.onKeyDown(event):
                 return True
         if event.keystring == "c":
             self.toggleCoordCalibrator()
@@ -282,7 +282,7 @@ class CoordCalibrator(AVGApp):
         self.__lastCenter = event.center[0], event.center[1]
         self.__msgBox.write("cursor event with center %.2f, %.2f" % self.__lastCenter)
 
-    def onKey(self, event):
+    def onKeyDown(self, event):
         if event.keystring == "space":
             self.__nextPoint()
         elif event.keystring == "e":

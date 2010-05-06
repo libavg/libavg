@@ -32,6 +32,9 @@ class AVGApp(object):
         self.__isRunning = False
         self._parentNode = parentNode
         self._starter = None
+        if 'onKey' in dir(self):
+            raise DeprecationWarning, \
+                    'AVGApp.onKey() has been renamed to AVGApp.onKeyDown().'
 
     def init(self):
         """main initialization
@@ -65,7 +68,12 @@ class AVGApp(object):
         self._onLeave()
         self._leave()
 
-    def onKey(self, event):
+    def onKeyDown(self, event):
+        """returns bool indicating if the event was handled
+        by the application """
+        return False
+
+    def onKeyUp(self, event):
         """returns bool indicating if the event was handled
         by the application """
         return False

@@ -344,7 +344,7 @@ class AVGAppStarter(object):
         return x
           
     def __onKeyDown(self, event):
-        handledByApp = self._activeApp.onKey(event)
+        handledByApp = self._activeApp.onKeyDown(event)
         if handledByApp:
             return
         elif event.keystring in self.__keyBindDown:
@@ -355,9 +355,11 @@ class AVGAppStarter(object):
         elif self.__checkUnicode(event, self.__unicodeBindDown) == 2:
             self.__unicodeBindDown[unichr(event.unicode).encode("utf-8")][0]()
             return
-        
-                        
+
     def __onKeyUp(self, event):
+        handledByApp = self._activeApp.onKeyUp(event)
+        if handledByApp:
+            return
         if event.keystring in self.__keyBindUp:
             if event.unicode == event.keycode:
                 self.__keyBindUp[event.keystring][0]()
@@ -370,8 +372,7 @@ class AVGAppStarter(object):
         elif self.__checkUnicode(event, self.__unicodeBindUp) == 2:
             self.__unicodeBindUp[unichr(event.unicode).encode("utf-8")][0]()
             return
-            
-    
+
     def __dumpObjects(self):
         gc.collect()
         testHelper = g_player.getTestHelper()
