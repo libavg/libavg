@@ -172,6 +172,8 @@ public:
             pBmp->copyPixels(*pCopyBmp);
             testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_3");
         }
+        testCopyToGreyscale(R8G8B8X8);
+        testCopyToGreyscale(B8G8R8X8);
         {
             cerr << "    Testing statistics." << endl;
             cerr << "      I8" << endl;
@@ -196,19 +198,6 @@ public:
     }
     
 private:
-    template<class Pixel>
-    void testStatistics(PixelFormat pf, const Pixel& p00, const Pixel& p01,
-            const Pixel& p10, const Pixel& p11)
-    {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), pf));
-        pBmp->setPixel(IntPoint(0,0), p00);
-        pBmp->setPixel(IntPoint(0,1), p01);
-        pBmp->setPixel(IntPoint(1,0), p10);
-        pBmp->setPixel(IntPoint(1,1), p11);
-        TEST(pBmp->getAvg() == 1);
-        TEST(pBmp->getStdDev() == 1);
-    }
-
     void runPFTests(PixelFormat PF)
     {
         cerr << "    Testing " << Bitmap::getPixelFormatString(PF) << endl;
@@ -282,6 +271,41 @@ private:
         Bitmap BaselineBmp2(IntPoint(15,15), PF);
         BaselineBmp2.copyPixels(BaselineBmp);
         testEqual(Bmp, BaselineBmp2, "BmpLineDraw");
+    }
+    
+    void testCopyToGreyscale(PixelFormat pf)
+    {
+        cerr << "    Testing copyPixels - " << Bitmap::getPixelFormatString(pf) << 
+                "->I8." << endl;
+        BitmapPtr pBmp(new Bitmap(IntPoint(4,4), pf));
+        for (int y=0; y<4; ++y) {
+            for (int x=0; x<4; ++x) {
+                unsigned char * pPixel = 
+                    pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
+                pPixel[0] = x*64;
+                pPixel[1] = 128;
+                pPixel[2] = y*64;
+                pPixel[3] = 255;
+            }
+        }
+        pBmp->save("foo.png");
+        BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,4), I8));
+        pCopyBmp->copyPixels(*pBmp);
+        testEqual(*pCopyBmp, string("copyPixels_")+Bitmap::getPixelFormatString(pf)+"_I8",
+                I8, 0.5, 0.5);
+    }
+    
+    template<class Pixel>
+    void testStatistics(PixelFormat pf, const Pixel& p00, const Pixel& p01,
+            const Pixel& p10, const Pixel& p11)
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), pf));
+        pBmp->setPixel(IntPoint(0,0), p00);
+        pBmp->setPixel(IntPoint(0,1), p01);
+        pBmp->setPixel(IntPoint(1,0), p10);
+        pBmp->setPixel(IntPoint(1,1), p11);
+        TEST(pBmp->getAvg() == 1);
+        TEST(pBmp->getStdDev() == 1);
     }
 
     void testYUV2RGB()

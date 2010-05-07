@@ -1878,6 +1878,39 @@ void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& Dest, const Bitmap & Src)
     }
 }
 
+template<>
+void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& Dest, const Bitmap & Src)
+{
+    const unsigned char * pSrcLine = Src.getPixels();
+    unsigned char * pDestLine = Dest.getPixels();
+    int Height = min(Src.getSize().y, Dest.getSize().y);
+    int Width = min(Src.getSize().x, Dest.getSize().x);
+    int SrcStride = Src.getStride();
+    int DestStride = Dest.getStride();
+    bool bRedFirst = (Src.getPixelFormat() == R8G8B8A8) || 
+            (Src.getPixelFormat() == R8G8B8X8);
+    for (int y = 0; y<Height; ++y) {
+        const unsigned char * pSrcPixel = pSrcLine;
+        unsigned char * pDestPixel = pDestLine;
+        if (bRedFirst) {
+            for (int x = 0; x < Width; ++x) {
+                *pDestPixel = ((pSrcPixel[0]*54+pSrcPixel[1]*183+pSrcPixel[2]*19)/256);
+                pSrcPixel+=4;
+                ++pDestPixel;
+            }
+        } else {
+            for (int x = 0; x < Width; ++x) {
+                *pDestPixel = ((pSrcPixel[0]*19+pSrcPixel[1]*183+pSrcPixel[2]*54)/256);
+                pSrcPixel+=4;
+                ++pDestPixel;
+            }
+        }
+        pSrcLine = pSrcLine + SrcStride;
+        pDestLine = pDestLine + DestStride;
+    }
+}
+
+
 template<class Pixel>
 void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
 {
