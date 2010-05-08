@@ -288,7 +288,6 @@ private:
                 pPixel[3] = 255;
             }
         }
-        pBmp->save("foo.png");
         BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,4), I8));
         pCopyBmp->copyPixels(*pBmp);
         testEqual(*pCopyBmp, string("copyPixels_")+Bitmap::getPixelFormatString(pf)+"_I8",
