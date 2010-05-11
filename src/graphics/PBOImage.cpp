@@ -42,7 +42,6 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
       m_InputPBO(0),
       m_OutputPBO(0)
 {
-    AVG_ASSERT(getFormat(m_pfInt) == getFormat(m_pfExt));
     if (getType(m_pfExt) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
@@ -268,10 +267,11 @@ int PBOImage::getFormat(PixelFormat pf) const
             return GL_LUMINANCE;
         case R8G8B8A8:
         case R8G8B8X8:
+            return GL_RGBA;
         case B8G8R8A8:
         case B8G8R8X8:
         case R32G32B32A32F:
-            return GL_RGBA;
+            return GL_BGRA;
         default:
             AVG_ASSERT(false);
             return 0;

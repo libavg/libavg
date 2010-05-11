@@ -103,11 +103,7 @@ BitmapPtr OffscreenCanvas::screenshot() const
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
     }
-    OGLTexturePtr pTex(new OGLTexture(getSize(), B8G8R8X8, 
-            MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, true), 
-            getDisplayEngine(), PBO));
-    pTex->setTexID(m_TexID);
-    return pTex->readbackBmp();
+    return m_pFBO->getImage(0);
 }
 
 bool OffscreenCanvas::getHandleEvents() const
