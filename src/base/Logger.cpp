@@ -29,6 +29,7 @@
 #undef ERROR
 #undef WARNING
 #include <time.h>
+#include <Mmsystem.h>
 #else
 #include <sys/time.h>
 #include <syslog.h>
@@ -126,7 +127,8 @@ void Logger::trace(int category, const std::string& msg)
         __int64 now;
         _time64(&now);
         pTime = _localtime64(&now);
-        unsigned millis = unsigned((now / 1000) % 1000);
+        DWORD tms = timeGetTime();
+        unsigned millis = unsigned(tms % 1000);
 #else
         struct timeval time;
         gettimeofday(&time, NULL);
