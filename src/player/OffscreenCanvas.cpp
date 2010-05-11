@@ -234,10 +234,10 @@ void OffscreenCanvas::createFBO()
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            GL_BGRA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::createFBO: glTexImage2D()");
 
-    m_pFBO = FBOPtr(new FBO(size, R8G8B8X8, m_TexID, getMultiSampleSamples(), true,
+    m_pFBO = FBOPtr(new FBO(size, B8G8R8X8, m_TexID, getMultiSampleSamples(), true,
             m_bUseMipmaps));
 }
 
