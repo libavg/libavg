@@ -42,7 +42,6 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
       m_NumIndexes(0),
       m_ReserveVerts(reserveVerts),
       m_ReserveIndexes(reserveIndexes),
-      m_bSizeChanged(true),
       m_bDataChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -61,7 +60,6 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
-        setBufferSize();
     } else {
         m_GLVertexBufferID = s_pGLVertexBufferIDs->back();
         s_pGLVertexBufferIDs->pop_back();
@@ -149,21 +147,21 @@ void VertexArray::reset()
 
 void VertexArray::update()
 {
-    if (m_bSizeChanged) {
-        setBufferSize();
-        m_bSizeChanged = false;
-    }
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
         glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
-            GL_STREAM_DRAW);
-        glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumVerts*sizeof(T2V3C4Vertex),
-                m_pVertexData);
+                GL_DYNAMIC_DRAW);
+        void * pBuffer = glproc::MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        memcpy(pBuffer, m_pVertexData, m_NumVerts*sizeof(T2V3C4Vertex));
+        glproc::UnmapBuffer(GL_ARRAY_BUFFER);
+        
         glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
         glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
-            m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
-        glproc::BufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_NumIndexes*sizeof(unsigned int),
-                m_pIndexData);
+            m_ReserveIndexes*sizeof(unsigned int), 0, GL_DYNAMIC_DRAW);
+        pBuffer = glproc::MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+        memcpy(pBuffer, m_pIndexData, m_NumIndexes*sizeof(unsigned int));
+        glproc::UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::update");
     }
     m_bDataChanged = false;
@@ -223,19 +221,8 @@ void VertexArray::grow()
         delete[] pIndexData;
     }
     if (bChanged) {
-        m_bSizeChanged = true;
         m_bDataChanged = true;
     }
-}
-
-void VertexArray::setBufferSize() 
-{
-    glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
-    glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
-            GL_STREAM_DRAW);
-    glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
-            m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
 }
 
 void VertexArray::initBufferCache()

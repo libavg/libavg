@@ -159,6 +159,7 @@ void VectorNode::preRender()
             Pixel32 color = getColorVal();
             color.setA((unsigned char)(curOpacity*255));
             calcVertexes(pVA, color);
+            pVA->update();
             m_bDrawNeeded = false;
             m_OldOpacity = curOpacity;
         }

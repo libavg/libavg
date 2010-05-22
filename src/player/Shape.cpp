@@ -87,6 +87,11 @@ ImagePtr Shape::getImage()
     return m_pImage;
 }
 
+bool Shape::isTextured() const
+{
+    return m_pImage->getSource() != Image::NONE;
+}
+
 VertexArrayPtr Shape::getVertexArray()
 {
     return m_pVertexArray;
@@ -94,8 +99,7 @@ VertexArrayPtr Shape::getVertexArray()
 
 void Shape::draw()
 {
-    Image::Source source = m_pImage->getSource();
-    bool bIsTextured = (source != Image::NONE);
+    bool bIsTextured = isTextured();
     if (bIsTextured) {
         m_pSurface->activate();
     }
