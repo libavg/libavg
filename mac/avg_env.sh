@@ -4,14 +4,7 @@ then
 else
     DARWINVER=`uname -r`
     DARWINMAJORVER=${DARWINVER%%.*}
-    if [[ "${DARWINMAJORVER}" == "10" ]]
-    then 
-        # Snow Leopard
-        DEBUGINFOFLAG="-g"
-    else
-        # Leopard
-        DEBUGINFOFLAG="-gstabs"
-    fi
+    DEBUGINFOFLAG="-gstabs"
     export PATH=${AVG_PATH}/bin:${PATH}
     export CPPFLAGS="-I${AVG_PATH}/include "$CPPFLAGS
     export CXXFLAGS="-O3 ${DEBUGINFOFLAG} -Wall -pipe "$CXXFLAGS
@@ -22,7 +15,7 @@ else
     DARWINMAJORVER=${DARWINVER%%.*}
     if [[ "${DARWINMAJORVER}" == "10" ]]
     then
-        export PYTHONPATH=${AVG_PATH}/lib/python2.6/site-packages/:$PYTHONPATH
+        export PYTHONPATH=/usr/local/lib/python2.6/site-packages/:$PYTHONPATH
     else
         export PYTHONPATH=${AVG_PATH}/lib/python/2.5/site-packages/:$PYTHONPATH
     fi
