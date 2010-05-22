@@ -239,7 +239,7 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
         if (rc == -1) {
             m_VStreamIndex = -1;
             char szBuf[256];
-            avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
+            avcodec_string(szBuf, sizeof(szBuf), m_pVStream->codec, 0);
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported codec ("+szBuf+").");
         }
