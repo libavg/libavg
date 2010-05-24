@@ -627,16 +627,21 @@ void Bitmap::save(const UTF8String& sFilename)
                     << endl;
             AVG_ASSERT(false);
     }
-    if (AlphaOffset != -1) {
-        int Stride = pBmp->getStride();
-        unsigned char * pLine = pBmp->getPixels();
-        for (int y=0; y<m_Size.y; ++y) {
-            unsigned char * pPixel = pLine;
-            for (int x=0; x<m_Size.x; ++x) {
-                *(pPixel+AlphaOffset) = 255-*(pPixel+AlphaOffset);
-                pPixel+=4;
+    // Workaround for old GraphicsMagick bug.
+    // GraphicsMagick versioning is broken, so we need to do a string compare at
+    // runtime.
+    if (string(MagickChangeDate) < "20100101") {
+        if (AlphaOffset != -1) {
+            int Stride = pBmp->getStride();
+            unsigned char * pLine = pBmp->getPixels();
+            for (int y=0; y<m_Size.y; ++y) {
+                unsigned char * pPixel = pLine;
+                for (int x=0; x<m_Size.x; ++x) {
+                    *(pPixel+AlphaOffset) = 255-*(pPixel+AlphaOffset);
+                    pPixel+=4;
+                }
+                pLine += Stride;
             }
-            pLine += Stride;
         }
     }
     Magick::Image Img(m_Size.x, m_Size.y, sPF, ChannelFormat, pBmp->getPixels());
