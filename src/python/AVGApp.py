@@ -41,6 +41,11 @@ class AVGApp(object):
         build node hierarchy under self.__parentNode."""
         pass
 
+    def exit(self):
+        """Deinitialization
+        Called after player.play() returns. End of program run."""
+        pass
+
     def _enter(self):
         """enter the application, internal interface.
         override this and start all animations, intervals
@@ -92,5 +97,5 @@ class AVGApp(object):
             starter = AVGMTAppStarter
         else:
             starter = AVGAppStarter
-        return starter(appClass = cls, *args, **kwargs)
+        starter(appClass = cls, *args, **kwargs)
 

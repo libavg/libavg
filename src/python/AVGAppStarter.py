@@ -251,6 +251,7 @@ class AVGAppStarter(object):
         self._appInstance = self._AppClass(self._appNode)
         self._appInstance.setStarter(self)
         g_player.play()
+        self._appInstance.exit()
 
     def _onBeforePlay(self):
         pass
