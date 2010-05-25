@@ -62,8 +62,8 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pFBO);
     m_pSrcPBO->setImage(pBmpSource);
-    apply(m_pFBO);
-    BitmapPtr pFilteredBmp = m_pFBO->getImage(0);
+    apply();
+    BitmapPtr pFilteredBmp = m_pDestPBO->getImage();
     BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
         pDestBmp->copyPixels(*pFilteredBmp);
@@ -73,15 +73,12 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     return pDestBmp;
 }
 
-void GPUFilter::apply(FBOPtr pFBO)
+void GPUFilter::apply()
 {
-    if (!pFBO) {
-        pFBO = m_pFBO;
-    }
     glViewport(0, 0, getSize().x, getSize().y);
-    pFBO->activate();
+    m_pFBO->activate();
     applyOnGPU();
-    pFBO->deactivate();
+    m_pFBO->deactivate();
 }
 
 const IntPoint& GPUFilter::getSize() const

@@ -38,7 +38,7 @@ public:
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
-    virtual void apply(FBOPtr pFBO = FBOPtr());
+    virtual void apply();
     virtual void applyOnGPU() = 0;
     FBOPtr getFBO();
 
