@@ -62,7 +62,7 @@ string funcNameFromLine(const string& sLine)
         string::size_type nameEndPos = sLine.find_first_of(")+", namePos);
 #endif
         return sLine.substr(namePos, nameEndPos-namePos);
-    } catch (exception& e) {
+    } catch (exception&) {
         return sLine;
     }
 }
