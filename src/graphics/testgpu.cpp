@@ -52,7 +52,7 @@ public:
         runImageTests("rgb24-64x64", GL_FLOAT);
         runImageTests("rgb24alpha-64x64", GL_FLOAT);
 
-        if (PBOImage::isFloatFormatSupported()) {
+        if (GLTexture::isFloatFormatSupported()) {
             runPBOFloatbufTest(I32F);
             runPBOFloatbufTest(R32G32B32A32F);
             
@@ -93,13 +93,6 @@ private:
         }
     }
 
-    void setAndCompareImage(PBOImage *pbo, float *in, int n) {
-        pbo->setImage(in);
-        BitmapPtr res = pbo->getImage();
-        float *out = (float*)res->getPixels();
-        compareFloatArrays(in, out, n);
-    }
-
     void fillFloatArray(float *data, int n) {
         for (int i=0;i<n;i++) {
             data[i] = 0.01f * i;
@@ -119,11 +112,6 @@ private:
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
         float *pixels = new float[numFloats];
         fillFloatArray(pixels, numFloats);
-
-        PBOImage pbo(size, pf, pf, false, true);
-        setAndCompareImage(&pbo, pixels, numFloats);
-        delete[] pixels;
-
     }
 
     void runPBOFloatBitmapTest(PixelFormat pf)
@@ -290,7 +278,7 @@ public:
     {
         addTest(TestPtr(new FBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        if (PBOImage::isFloatFormatSupported()) {
+        if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));
         } else {

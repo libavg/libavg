@@ -56,8 +56,7 @@ GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double s
 void GPUBlurFilter::init()
 {
     IntPoint size = getSrcPBO()->getSize();
-    m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I32F, I32F, 
-            false, false));
+    m_pGaussCurveTex = GLTexturePtr(new GLTexture(IntPoint(255, 1), I32F));
     m_pInterPBO = PBOImagePtr(new PBOImage(size, R32G32B32A32F, B8G8R8A8, 
             false, false));
     vector<unsigned> texIDs;
@@ -68,8 +67,6 @@ void GPUBlurFilter::init()
         initShaders();
     }
     calcKernel();
-    m_pGaussCurvePBO->setImage(m_Kernel);
-//    dumpKernel();
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -84,7 +81,7 @@ void GPUBlurFilter::applyOnGPU()
     s_pHorizShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pHorizShader->setUniformIntParam("Texture", 0);
     s_pHorizShader->setUniformIntParam("kernelTex", 1);
-    m_pGaussCurvePBO->activateTex(GL_TEXTURE1);
+    m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(getSrcPBO()->getTexID());
 
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
@@ -170,6 +167,34 @@ void GPUBlurFilter::calcKernel()
         m_Kernel[i] /= sum;
     }
 
+    unsigned tempPBO;
+    glproc::GenBuffers(1, &tempPBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: GenBuffers()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, tempPBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: BindBuffer()");
+    IntPoint size = m_pGaussCurveTex->getSize();
+    int memNeeded = size.x*size.y * Bitmap::getBytesPerPixel(I32F);
+    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, memNeeded, 0, GL_STREAM_DRAW);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage BufferData()");
+    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage MapBuffer()");
+    memcpy(pPBOPixels, m_Kernel, memNeeded);
+    glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: UnmapBuffer()");
+    
+    m_pGaussCurveTex->activate(GL_TEXTURE0);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "GPUBlurFilter::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+    glTexImage2D(GL_TEXTURE_2D, 0, m_pGaussCurveTex->getGLInternalFormat(), 
+            size.x, size.y, 0, GLTexture::getGLFormat(I32F), 
+            GLTexture::getGLType(I32F), 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: glTexImage2D()");
+    
+    glproc::DeleteBuffers(1, &tempPBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: DeleteBuffers()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+ 
 }
 
 } // namespace

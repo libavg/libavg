@@ -19,43 +19,48 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+#ifndef _GLTexture_H_
+#define _GLTexture_H_
 
 #include "../api.h"
-#include "GPUFilter.h"
-#include "PBOImage.h"
-#include "OGLShader.h"
-#include "GLTexture.h"
+#include "Bitmap.h"
+#include "OGLHelper.h"
+
+#include "../base/Point.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class AVG_API GPUBlurFilter: public GPUFilter
-{
-public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev);
-    GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double stdDev);
-    void init();
-    virtual ~GPUBlurFilter();
+class AVG_API GLTexture {
 
-    virtual void applyOnGPU();
+public:
+    GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+    virtual ~GLTexture();
+
+    void activate(int textureUnit);
+    const IntPoint& getSize() const;
+    PixelFormat getPF() const;
+    unsigned getID() const;
+
+    static bool isFloatFormatSupported();
+    static int getGLFormat(PixelFormat pf);
+    static int getGLType(PixelFormat pf);
+    int getGLInternalFormat() const;
 
 private:
-    static void initShaders();
-    void dumpKernel();
-    void calcKernel();
+    IntPoint m_Size;
+    PixelFormat m_pf;
 
-    double m_StdDev;
-    int m_KernelWidth;
-    float m_Kernel[255];
-
-    GLTexturePtr m_pGaussCurveTex;
-    PBOImagePtr m_pInterPBO;
-
-    static OGLShaderPtr s_pHorizShader;
-    static OGLShaderPtr s_pVertShader;
+    unsigned m_TexID;
 };
 
-} // namespace
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+
+}
+
 #endif
+ 
+
 

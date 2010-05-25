@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "Bitmap.h"
 #include "OGLHelper.h"
+#include "GLTexture.h"
 
 #include "../base/Point.h"
 
@@ -41,10 +42,7 @@ public:
             bool bUseInputPBO, bool bUseOutputPBO, bool bMipmap = false);
     virtual ~PBOImage();
 
-    static bool isFloatFormatSupported();
-
     void setImage(BitmapPtr pBmp);
-    void setImage(float * pData);
     virtual BitmapPtr getImage() const;
     void activateTex(int textureUnit);
 
@@ -53,8 +51,6 @@ public:
     const IntPoint& getSize() const;
     unsigned getTexID() const;
     unsigned getOutputPBO() const;
-    int getFormat(PixelFormat pf) const;
-    int getType(PixelFormat pf) const;
 
 private:
     int getInternalFormat() const;
@@ -63,14 +59,14 @@ private:
     void deletePBO(unsigned* pPBO);
     void getPixelStride();
 
-    PixelFormat m_pfInt, m_pfExt;
-    IntPoint m_Size;
+    PixelFormat m_pfExt;
     int m_Precision;
     bool m_bUseInputPBO;
     bool m_bUseOutputPBO;
     unsigned m_InputPBO;
     unsigned m_OutputPBO;
-    unsigned m_TexID;
+
+    GLTexturePtr m_pTex;
 };
 
 typedef boost::shared_ptr<PBOImage> PBOImagePtr;

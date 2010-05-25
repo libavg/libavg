@@ -12,7 +12,7 @@ ALL_H = Bitmap.h Filter.h\
         GPUBrightnessFilter.h GPUBlurFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h FilterIntensity.h \
         FilterNormalize.h FilterFloodfill.h FilterDilation.h FilterErosion.h \
-        FilterGetAlpha.h FBO.h \
+        FilterGetAlpha.h FBO.h GLTexture.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h \
         FilterResizeGaussian.h 
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
@@ -25,7 +25,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
-        FilterGetAlpha.cpp FBO.cpp \
+        FilterGetAlpha.cpp FBO.cpp GLTexture.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp
 
 TESTS=testgraphics testgpu

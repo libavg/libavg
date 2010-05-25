@@ -94,8 +94,8 @@ BitmapPtr FBO::getImage(int i) const
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadBuffer()");
 
-    glReadPixels (0, 0, size.x, size.y, m_pOutputPBO->getFormat(pf), 
-            m_pOutputPBO->getType(pf), 0);
+    glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf), 
+            GLTexture::getGLType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage MapBuffer()");
