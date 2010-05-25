@@ -50,7 +50,6 @@ private:
 
     PBOImagePtr m_pGaussCurvePBO;
     PBOImagePtr m_pInterPBO;
-    FBOPtr m_pInterFBO;
 
     static OGLShaderPtr s_pHorizShader;
     static OGLShaderPtr s_pVertShader;

@@ -75,6 +75,7 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 
 void GPUFilter::apply()
 {
+    AVG_ASSERT(m_pFBO);
     glViewport(0, 0, getSize().x, getSize().y);
     m_pFBO->activate();
     applyOnGPU();
