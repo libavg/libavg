@@ -26,6 +26,7 @@
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
 
+#include <string.h>
 #include <iostream>
 
 using namespace std;
