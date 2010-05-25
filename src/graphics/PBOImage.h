@@ -47,7 +47,6 @@ public:
     void setImage(float * pData);
     virtual BitmapPtr getImage() const;
     void activateTex(int textureUnit);
-    void draw();
 
     PixelFormat getIntPF() const;
     PixelFormat getExtPF() const;
@@ -72,7 +71,6 @@ private:
     unsigned m_InputPBO;
     unsigned m_OutputPBO;
     unsigned m_TexID;
-    VertexArray * m_pVertexes;
 };
 
 typedef boost::shared_ptr<PBOImage> PBOImagePtr;

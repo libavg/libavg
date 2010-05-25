@@ -73,18 +73,10 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
             getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
-    // Create a minimal vertex array to be used for drawing.
-    m_pVertexes = new VertexArray();
-    m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, 1));
-    m_pVertexes->appendPos(DPoint(0, m_Size.y), DPoint(0, 0));
-    m_pVertexes->appendPos(DPoint(m_Size.x, m_Size.y), DPoint(1, 0));
-    m_pVertexes->appendPos(DPoint(m_Size.x, 0), DPoint(1, 1));
-    m_pVertexes->appendQuadIndexes(1, 0, 2, 3);
 }
 
 PBOImage::~PBOImage()
 {
-    delete m_pVertexes;
     glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: DeleteTextures()");
@@ -207,14 +199,6 @@ void PBOImage::activateTex(int textureUnit)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::activate BindTexture()");
 }
     
-void PBOImage::draw()
-{
-    glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::draw: glBindTexture()");
-    m_pVertexes->draw();
-}
-
 PixelFormat PBOImage::getIntPF() const
 {
     return m_pfInt;

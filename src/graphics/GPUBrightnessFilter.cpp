@@ -59,7 +59,7 @@ void GPUBrightnessFilter::applyOnGPU()
     glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"),
             GLfloat(m_Alpha));
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
-    getSrcPBO()->draw();
+    draw(getSrcPBO()->getTexID());
 
     glproc::UseProgramObject(0);
 }

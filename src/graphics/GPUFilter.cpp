@@ -22,6 +22,7 @@
 #include "GPUFilter.h"
 #include "Bitmap.h"
 
+#include "VertexArray.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
@@ -40,6 +41,8 @@ GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest
     if (bOwnFBO) {
         m_pFBO = FBOPtr(new FBO(size, pfDest, m_pDestPBO->getTexID()));
     }
+
+    initVertexArray();
 }
   
 GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, bool bOwnFBO)
@@ -51,10 +54,12 @@ GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, bool bOwnFBO)
         m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), m_pDestPBO->getExtPF(), 
                 m_pDestPBO->getTexID()));
     }
+    initVertexArray();
 }
 
 GPUFilter::~GPUFilter()
 {
+    delete m_pVertexes;
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -82,11 +87,24 @@ void GPUFilter::apply()
     m_pFBO->deactivate();
 }
 
+FBOPtr GPUFilter::getFBO()
+{
+    return m_pFBO;
+}
+
 const IntPoint& GPUFilter::getSize() const
 {
     return m_pSrcPBO->getSize();
 }
     
+void GPUFilter::draw(unsigned texID)
+{
+    glproc::ActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::draw: glBindTexture()");
+    m_pVertexes->draw();
+}
+
 void GPUFilter::setFBO(FBOPtr pFBO)
 {
     AVG_ASSERT(!m_pFBO);
@@ -103,9 +121,16 @@ PBOImagePtr GPUFilter::getDestPBO()
     return m_pDestPBO;
 }
 
-FBOPtr GPUFilter::getFBO()
+void GPUFilter::initVertexArray()
 {
-    return m_pFBO;
+    IntPoint size = m_pSrcPBO->getSize();
+    // Create a minimal vertex array to be used for drawing.
+    m_pVertexes = new VertexArray();
+    m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, 1));
+    m_pVertexes->appendPos(DPoint(0, size.y), DPoint(0, 0));
+    m_pVertexes->appendPos(DPoint(size.x, size.y), DPoint(1, 0));
+    m_pVertexes->appendPos(DPoint(size.x, 0), DPoint(1, 1));
+    m_pVertexes->appendQuadIndexes(1, 0, 2, 3);
 }
 
 } // namespace

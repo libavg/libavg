@@ -64,9 +64,11 @@ void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
     Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
     m_bUseMipmaps = getMipmap();
     glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::initPlayback: glGenTextures()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OffscreenCanvas::initPlayback: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::initPlayback: glBindTexture()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OffscreenCanvas::initPlayback: glBindTexture()");
     createFBO();
     glEnable(GL_STENCIL_TEST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);

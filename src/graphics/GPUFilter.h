@@ -45,6 +45,7 @@ public:
     static bool isSupported();
 
 protected:
+    void draw(unsigned texID);
     void setFBO(FBOPtr pFBO);
     const IntPoint& getSize() const;
 
@@ -52,9 +53,12 @@ protected:
     PBOImagePtr getDestPBO();
 
 private:
+    void initVertexArray();
+
     PBOImagePtr m_pSrcPBO;
     PBOImagePtr m_pDestPBO;
     FBOPtr m_pFBO;
+    VertexArray * m_pVertexes;
 };
 
 } // namespace

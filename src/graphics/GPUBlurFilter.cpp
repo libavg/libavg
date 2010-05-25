@@ -85,14 +85,14 @@ void GPUBlurFilter::applyOnGPU()
     s_pHorizShader->setUniformIntParam("Texture", 0);
     s_pHorizShader->setUniformIntParam("kernelTex", 1);
     m_pGaussCurvePBO->activateTex(GL_TEXTURE1);
-    getSrcPBO()->draw();
+    draw(getSrcPBO()->getTexID());
 
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     s_pVertShader->activate();
     s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pVertShader->setUniformIntParam("Texture", 0);
     s_pVertShader->setUniformIntParam("kernelTex", 1);
-    m_pInterPBO->draw();
+    draw(m_pInterPBO->getTexID());
 }
 
 void GPUBlurFilter::initShaders()
