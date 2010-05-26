@@ -302,10 +302,10 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
     m_GLConfig.log();
     switch (getMemoryModeSupported()) {
-        case PBO:
+        case MM_PBO:
             AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects.");
             break;
-        case OGL:
+        case MM_OGL:
             AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
             break;
     }
@@ -455,7 +455,7 @@ IntPoint SDLDisplayEngine::getSize()
 void SDLDisplayEngine::checkShaderSupport()
 {
     m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
-            getMemoryModeSupported() == PBO &&
+            getMemoryModeSupported() == MM_PBO &&
             !m_GLConfig.m_bUsePOTTextures && m_GLConfig.m_bUseShaders);
     if (m_GLConfig.m_bUseShaders) {
         string sProgram =
@@ -1283,9 +1283,9 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
             m_GLConfig.m_bUsePixelBuffers &&
             !isParallels())
         {
-            m_MemoryMode = PBO;
+            m_MemoryMode = MM_PBO;
         } else {
-            m_MemoryMode = OGL;
+            m_MemoryMode = MM_OGL;
         }
         m_bCheckedMemoryMode = true;
     }

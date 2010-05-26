@@ -59,8 +59,8 @@ void AVG_API getGLShadingLanguageVersion(int & major, int& minor);
 std::string AVG_API oglModeToString(int mode);
 
 enum OGLMemoryMode { 
-    OGL,  // Standard OpenGL
-    PBO   // pixel buffer objects
+    MM_OGL,  // Standard OpenGL
+    MM_PBO   // pixel buffer objects
 };
 
 void AVG_API pushGLState();
