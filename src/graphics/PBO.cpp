@@ -44,13 +44,25 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     int MemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(m_pf);
     glproc::BufferData(target, MemNeeded, 0, usage);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: BufferData()");
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+    glproc::BindBuffer(target, 0);
 }
 
 PBO::~PBO()
 {
     glproc::DeleteBuffers(1, &m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: DeleteBuffers()");
+}
+
+void PBO::activate()
+{
+    glproc::BindBuffer(getTarget(), m_PBOID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::activate()");
+    
+}
+
+void PBO::deactivate()
+{
+    glproc::BindBuffer(getTarget(), 0);
 }
 
 void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)

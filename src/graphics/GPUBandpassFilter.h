@@ -26,7 +26,6 @@
 #include "GPUFilter.h"
 #include "GPUBlurFilter.h"
 #include "Bitmap.h"
-#include "PBOImage.h"
 #include "OGLShader.h"
 
 namespace avg {
@@ -38,15 +37,13 @@ public:
             double postScale, bool bInvert);
     virtual ~GPUBandpassFilter();
 
-    virtual void applyOnGPU();
+    virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
     static void initShader();
 
     double m_PostScale;
     bool m_bInvert;
-    PBOImagePtr m_pMinPBO;
-    PBOImagePtr m_pMaxPBO;
 
     GPUBlurFilter m_MinFilter;
     GPUBlurFilter m_MaxFilter;

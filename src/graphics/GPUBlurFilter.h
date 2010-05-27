@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
-#include "PBOImage.h"
 #include "OGLShader.h"
 #include "GLTexture.h"
 
@@ -34,11 +33,10 @@ class AVG_API GPUBlurFilter: public GPUFilter
 {
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev);
-    GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double stdDev);
     void init();
     virtual ~GPUBlurFilter();
 
-    virtual void applyOnGPU();
+    virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
     static void initShaders();
@@ -50,7 +48,6 @@ private:
     float m_Kernel[255];
 
     GLTexturePtr m_pGaussCurveTex;
-    PBOImagePtr m_pInterPBO;
 
     static OGLShaderPtr s_pHorizShader;
     static OGLShaderPtr s_pVertShader;

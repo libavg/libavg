@@ -35,13 +35,11 @@ OGLShaderPtr GPUBandpassFilter::s_pShader;
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert)
-    : GPUFilter(size, pfSrc, B8G8R8A8, true),
+    : GPUFilter(size, pfSrc, B8G8R8A8),
       m_PostScale(postScale),
       m_bInvert(bInvert),
-      m_pMinPBO(new PBOImage(size, R32G32B32A32F, R32G32B32A32F, false, false)),
-      m_pMaxPBO(new PBOImage(size, R32G32B32A32F, R32G32B32A32F, false, false)),
-      m_MinFilter(getSrcPBO(), m_pMinPBO, min),
-      m_MaxFilter(getSrcPBO(), m_pMaxPBO, max)
+      m_MinFilter(size, pfSrc, min),
+      m_MaxFilter(size, pfSrc, max)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -55,10 +53,10 @@ GPUBandpassFilter::~GPUBandpassFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBandpassFilter::applyOnGPU()
+void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    m_MinFilter.apply();
-    m_MaxFilter.apply();
+    m_MinFilter.apply(pSrcTex);
+    m_MaxFilter.apply(pSrcTex);
 
     getFBO()->activate();
     GLhandleARB hProgram = s_pShader->getProgram();
@@ -67,10 +65,11 @@ void GPUBandpassFilter::applyOnGPU()
             "GPUBandpassFilter::apply: glUseProgramObject()");
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "minTex"), 0);
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "maxTex"), 1);
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), float(m_PostScale));
+    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), 
+            float(m_PostScale));
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "bInvert"), m_bInvert);
-    m_pMaxPBO->activateTex(GL_TEXTURE1);
-    draw(m_pMinPBO->getTexID());
+    m_MaxFilter.getDestTex()->activate(GL_TEXTURE1);
+    draw(m_MinFilter.getDestTex());
 
     glproc::UseProgramObject(0);
 }

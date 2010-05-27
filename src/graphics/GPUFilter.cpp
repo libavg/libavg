@@ -33,30 +33,15 @@ using namespace std;
 namespace avg {
 
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        bool bOwnFBO)
-    : m_pSrcPBO(new PBOImage(size, pfSrc, pfSrc, true, false)),
-      m_pDestPBO(new PBOImage(size, pfDest, pfDest, false, true))
+        unsigned numTextures)
+    : m_pSrcTex(new GLTexture(size, pfSrc)),
+      m_pSrcPBO(new PBO(size, pfSrc, GL_STREAM_DRAW)),
+      m_pFBO(new FBO(size, pfDest, numTextures))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (bOwnFBO) {
-        m_pFBO = FBOPtr(new FBO(size, pfDest, m_pDestPBO->getTexID()));
-    }
-
     initVertexArray();
 }
   
-GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, bool bOwnFBO)
-    : m_pSrcPBO(pSrcPBO),
-      m_pDestPBO(pDestPBO)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    if (bOwnFBO) {
-        m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), m_pDestPBO->getExtPF(), 
-                m_pDestPBO->getTexID()));
-    }
-    initVertexArray();
-}
-
 GPUFilter::~GPUFilter()
 {
     delete m_pVertexes;
@@ -65,12 +50,13 @@ GPUFilter::~GPUFilter()
 
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
-    AVG_ASSERT(m_pFBO);
-    m_pSrcPBO->setImage(pBmpSource);
-    apply();
-    BitmapPtr pFilteredBmp = m_pDestPBO->getImage();
-    BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
+    AVG_ASSERT(m_pSrcTex);
+    m_pSrcPBO->moveBmpToTexture(pBmpSource, m_pSrcTex);
+    apply(m_pSrcTex);
+    BitmapPtr pFilteredBmp = m_pFBO->getImage();
+    BitmapPtr pDestBmp;
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
+        pDestBmp = BitmapPtr(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
         pDestBmp->copyPixels(*pFilteredBmp);
     } else {
         pDestBmp = pFilteredBmp;
@@ -78,12 +64,11 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     return pDestBmp;
 }
 
-void GPUFilter::apply()
+void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
-    AVG_ASSERT(m_pFBO);
     glViewport(0, 0, getSize().x, getSize().y);
     m_pFBO->activate();
-    applyOnGPU();
+    applyOnGPU(pSrcTex);
     m_pFBO->deactivate();
 }
 
@@ -96,29 +81,16 @@ const IntPoint& GPUFilter::getSize() const
 {
     return m_pSrcPBO->getSize();
 }
-    
-void GPUFilter::draw(unsigned texID)
+
+void GPUFilter::draw(GLTexturePtr pTex)
 {
-    glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::draw: glBindTexture()");
+    pTex->activate(GL_TEXTURE0);
     m_pVertexes->draw();
 }
 
-void GPUFilter::setFBO(FBOPtr pFBO)
+GLTexturePtr GPUFilter::getDestTex(int i) const
 {
-    AVG_ASSERT(!m_pFBO);
-    m_pFBO = pFBO;
-}
-
-PBOImagePtr GPUFilter::getSrcPBO()
-{
-    return m_pSrcPBO;
-}
-
-PBOImagePtr GPUFilter::getDestPBO()
-{
-    return m_pDestPBO;
+    return m_pFBO->getTex(i);
 }
 
 void GPUFilter::initVertexArray()

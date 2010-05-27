@@ -44,9 +44,6 @@ OffscreenCanvas::OffscreenCanvas(Player * pPlayer)
 
 OffscreenCanvas::~OffscreenCanvas()
 {
-    if (isRunning()) {
-        glDeleteTextures(1, &m_TexID);
-    }
 }
 
 void OffscreenCanvas::setRoot(NodePtr pRootNode)
@@ -63,13 +60,8 @@ void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
 {
     Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
     m_bUseMipmaps = getMipmap();
-    glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OffscreenCanvas::initPlayback: glGenTextures()");
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OffscreenCanvas::initPlayback: glBindTexture()");
-    createFBO();
+    m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8X8, 1, getMultiSampleSamples(), true,
+            m_bUseMipmaps));
     glEnable(GL_STENCIL_TEST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
@@ -77,7 +69,6 @@ void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
 void OffscreenCanvas::stopPlayback()
 {
     m_pFBO = FBOPtr();
-    glDeleteTextures(1, &m_TexID);
     Canvas::stopPlayback();
 }
 
@@ -94,7 +85,7 @@ void OffscreenCanvas::render()
     m_pFBO->copyToDestTexture();
     m_pFBO->deactivate();
     if (m_bUseMipmaps) {
-        glBindTexture(GL_TEXTURE_2D, m_TexID);
+        m_pFBO->getTex()->activate(GL_TEXTURE0);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
     }
 }
@@ -137,7 +128,7 @@ bool OffscreenCanvas::isRunning() const
 unsigned OffscreenCanvas::getTexID() const
 {
     AVG_ASSERT(isRunning());
-    return m_pFBO->getTexture();
+    return m_pFBO->getTex()->getID();
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
@@ -215,28 +206,6 @@ void OffscreenCanvas::dump() const
     for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
         cerr << " " << m_pDependentCanvases[i]->getRootNode()->getID() << endl;
     }
-}
-
-void OffscreenCanvas::createFBO()
-{
-    IntPoint size = getSize();
-    if (m_bUseMipmaps) {
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
-            GL_BGRA, GL_UNSIGNED_BYTE, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OffscreenCanvas::createFBO: glTexImage2D()");
-
-    m_pFBO = FBOPtr(new FBO(size, B8G8R8X8, m_TexID, getMultiSampleSamples(), true,
-            m_bUseMipmaps));
 }
 
 }

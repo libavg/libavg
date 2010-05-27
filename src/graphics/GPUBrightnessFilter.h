@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "GPUFilter.h"
 #include "Bitmap.h"
-#include "PBOImage.h"
 #include "OGLShader.h"
 
 namespace avg {
@@ -33,10 +32,11 @@ namespace avg {
 class AVG_API GPUBrightnessFilter: public GPUFilter
 {
 public:
-    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, double alpha);
+    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
+            double alpha);
     virtual ~GPUBrightnessFilter();
 
-    virtual void applyOnGPU();
+    virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
     static void initShader();

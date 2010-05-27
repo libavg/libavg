@@ -37,16 +37,7 @@ OGLShaderPtr GPUBlurFilter::s_pHorizShader;
 OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev)
-    : GPUFilter(size, pfSrc, R32G32B32A32F, false),
-      m_StdDev(stdDev)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-
-    init();
-}
-
-GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double stdDev)
-    : GPUFilter(pSrcPBO, pDestPBO, false),
+    : GPUFilter(size, pfSrc, R32G32B32A32F, 2),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -56,14 +47,8 @@ GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double s
 
 void GPUBlurFilter::init()
 {
-    IntPoint size = getSrcPBO()->getSize();
+    IntPoint size = getSize();
     m_pGaussCurveTex = GLTexturePtr(new GLTexture(IntPoint(255, 1), I32F));
-    m_pInterPBO = PBOImagePtr(new PBOImage(size, R32G32B32A32F, B8G8R8A8, 
-            false, false));
-    vector<unsigned> texIDs;
-    texIDs.push_back(getDestPBO()->getTexID());
-    texIDs.push_back(m_pInterPBO->getTexID());
-    setFBO(FBOPtr(new FBO(size, R32G32B32A32F, texIDs)));
     if (!s_pHorizShader) {
         initShaders();
     }
@@ -75,7 +60,7 @@ GPUBlurFilter::~GPUBlurFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBlurFilter::applyOnGPU()
+void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     s_pHorizShader->activate();
@@ -83,14 +68,14 @@ void GPUBlurFilter::applyOnGPU()
     s_pHorizShader->setUniformIntParam("Texture", 0);
     s_pHorizShader->setUniformIntParam("kernelTex", 1);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
-    draw(getSrcPBO()->getTexID());
+    draw(pSrcTex);
 
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     s_pVertShader->activate();
     s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pVertShader->setUniformIntParam("Texture", 0);
     s_pVertShader->setUniformIntParam("kernelTex", 1);
-    draw(m_pInterPBO->getTexID());
+    draw(getDestTex(1));
 }
 
 void GPUBlurFilter::initShaders()

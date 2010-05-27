@@ -24,8 +24,9 @@
 
 #include "../api.h"
 
+#include "GLTexture.h"
 #include "../base/Point.h"
-#include "../graphics/PBOImage.h"
+#include "../graphics/PBO.h"
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -35,18 +36,17 @@ namespace avg {
 class AVG_API FBO
 {
 public:
-    FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
-            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
+    FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
+            unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false, 
             bool bMipmap=false);
-    FBO(const IntPoint& size, PixelFormat pf, std::vector<unsigned> texIDs);
     virtual ~FBO();
 
     void activate() const;
     void deactivate() const;
 
     void copyToDestTexture() const;
-    BitmapPtr getImage(int i) const;
-    unsigned getTexture() const;
+    BitmapPtr getImage(int i=0) const;
+    GLTexturePtr getTex(int i=0) const;
 
     static bool isFBOSupported();
     static bool isMultisampleFBOSupported();
@@ -61,9 +61,9 @@ private:
     unsigned m_MultisampleSamples;
     bool m_bUsePackedDepthStencil;
 
-    PBOImagePtr m_pOutputPBO;
+    PBOPtr m_pOutputPBO;
     unsigned m_FBO;
-    std::vector<unsigned> m_TexIDs;
+    std::vector<GLTexturePtr> m_pTextures;
     unsigned m_StencilBuffer;
 
     // Multisample support

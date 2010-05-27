@@ -69,9 +69,7 @@ class AVG_API OffscreenCanvas: public Canvas
         void dump() const;
  
     private:
-        void createFBO();
         FBOPtr m_pFBO;
-        unsigned m_TexID;
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
 

@@ -36,6 +36,7 @@
 using namespace avg;
 using namespace std;
 
+/*
 class FBOTest: public GraphicsTest {
 public:
     FBOTest()
@@ -162,7 +163,7 @@ private:
     }
 
 };
-
+*/
 class BrightnessFilterTest: public GraphicsTest {
 public:
     BrightnessFilterTest()
@@ -276,7 +277,7 @@ public:
     GPUTestSuite() 
         : TestSuite("GPUTestSuite")
     {
-        addTest(TestPtr(new FBOTest));
+//        addTest(TestPtr(new FBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new BlurFilterTest));

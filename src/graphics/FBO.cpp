@@ -21,10 +21,9 @@
 
 #include "FBO.h"
 
+#include "OGLHelper.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
-#include "../graphics/PBOImage.h"
-#include "../graphics/OGLHelper.h"
 
 #include <stdio.h>
 
@@ -32,30 +31,23 @@ using namespace std;
 
 namespace avg {
 
-FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned texID, 
+FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
     : m_Size(size),
       m_PF(pf),
       m_MultisampleSamples(multisampleSamples),
       m_bUsePackedDepthStencil(bUsePackedDepthStencil)
 {
-    m_TexIDs.push_back(texID);
-    init(bMipmap);
+    AVG_ASSERT(numTextures == 1 || multisampleSamples == 1);
     if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
     }
-}
 
-FBO::FBO(const IntPoint& size, PixelFormat pf, vector<unsigned> texIDs)
-    : m_Size(size),
-      m_PF(pf),
-      m_MultisampleSamples(1),
-      m_bUsePackedDepthStencil(false),
-      m_TexIDs(texIDs)
-{
-    m_TexIDs = texIDs;
-    init(false);
+    for (unsigned i=0; i<numTextures; ++i) {
+        m_pTextures.push_back(GLTexturePtr(new GLTexture(size, pf, bMipmap)));
+    }
+    init(bMipmap);
 }
 
 FBO::~FBO()
@@ -68,6 +60,19 @@ FBO::~FBO()
     if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
         glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
     }
+}
+
+void FBO::activate() const
+{
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::activate: BindFramebuffer()");
+    checkError("activate");
+}
+
+void FBO::deactivate() const
+{
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
 void FBO::copyToDestTexture() const
@@ -86,10 +91,11 @@ BitmapPtr FBO::getImage(int i) const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     copyToDestTexture();
-    PixelFormat pf = m_pOutputPBO->getExtPF();
+    PixelFormat pf = m_pOutputPBO->getPF();
     IntPoint size = m_pOutputPBO->getSize();
     BitmapPtr pBmp(new Bitmap(size, pf));
-    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_pOutputPBO->getOutputPBO());
+
+    m_pOutputPBO->activate();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadBuffer()");
@@ -104,14 +110,14 @@ BitmapPtr FBO::getImage(int i) const
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage: UnmapBuffer()");
-    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
+    m_pOutputPBO->deactivate();
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     return pBmp;
 }
 
-unsigned FBO::getTexture() const
+GLTexturePtr FBO::getTex(int i) const
 {
-    return m_TexIDs[0];
+    return m_pTextures[i];
 }
 
 void FBO::init(bool bMipmap)
@@ -122,7 +128,7 @@ void FBO::init(bool bMipmap)
     if (m_MultisampleSamples > 1 && !isMultisampleFBOSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support multisample offscreen rendering (GL_EXT_framebuffer_multisample).");
     }
-    m_pOutputPBO = PBOImagePtr(new PBOImage(m_Size, m_PF, m_PF, false, true, bMipmap));
+    m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
 
     glproc::GenFramebuffers(1, &m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: GenFramebuffers()");
@@ -131,10 +137,10 @@ void FBO::init(bool bMipmap)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: BindFramebuffer()");
 
     if (m_MultisampleSamples == 1) {
-        for (unsigned i=0; i<m_TexIDs.size(); ++i) {
+        for (unsigned i=0; i<m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
                     GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 
-                    m_TexIDs[i], 0);
+                    m_pTextures[i]->getID(), 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO: glFramebufferTexture2D()");
         }
         if (m_bUsePackedDepthStencil) {
@@ -181,26 +187,13 @@ void FBO::init(bool bMipmap)
         glproc::GenFramebuffers(1, &m_OutputFBO);
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                GL_TEXTURE_2D, m_TexIDs[0], 0);
+                GL_TEXTURE_2D, m_pTextures[0]->getID(), 0);
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: Multisample init");
     }
 
     checkError("init");
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-}
-
-void FBO::activate() const
-{
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::activate: BindFramebuffer()");
-    checkError("activate");
-}
-
-void FBO::deactivate() const
-{
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
 bool FBO::isFBOSupported()

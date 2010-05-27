@@ -35,7 +35,7 @@ OGLShaderPtr GPUBrightnessFilter::s_pShader;
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         double alpha)
-    : GPUFilter(size, pf, B8G8R8A8, true),
+    : GPUFilter(size, pf, B8G8R8A8),
       m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -50,7 +50,7 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBrightnessFilter::applyOnGPU()
+void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     GLhandleARB hProgram = s_pShader->getProgram();
     glproc::UseProgramObject(hProgram);
@@ -59,7 +59,7 @@ void GPUBrightnessFilter::applyOnGPU()
     glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"),
             GLfloat(m_Alpha));
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
-    draw(getSrcPBO()->getTexID());
+    draw(pSrcTex);
 
     glproc::UseProgramObject(0);
 }

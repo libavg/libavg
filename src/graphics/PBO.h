@@ -38,6 +38,9 @@ public:
     PBO(const IntPoint& size, PixelFormat pf, unsigned usage);
     virtual ~PBO();
 
+    void activate();
+    void deactivate();
+
     void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
     virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
 

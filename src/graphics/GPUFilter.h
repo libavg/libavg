@@ -24,8 +24,9 @@
 
 #include "../api.h"
 #include "Filter.h"
+#include "VertexArray.h"
 #include "Bitmap.h"
-#include "PBOImage.h"
+#include "PBO.h"
 #include "FBO.h"
 
 namespace avg {
@@ -33,30 +34,27 @@ namespace avg {
 class AVG_API GPUFilter: public Filter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, bool bOwnFBO);
-    GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, bool bOwnFBO);
+    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
+            unsigned numTextures=1);
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
-    virtual void apply();
-    virtual void applyOnGPU() = 0;
+    virtual void apply(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
     FBOPtr getFBO();
+    GLTexturePtr getDestTex(int i=0) const;
 
     static bool isSupported();
 
 protected:
-    void draw(unsigned texID);
-    void setFBO(FBOPtr pFBO);
+    void draw(GLTexturePtr pTex);
     const IntPoint& getSize() const;
-
-    PBOImagePtr getSrcPBO();
-    PBOImagePtr getDestPBO();
 
 private:
     void initVertexArray();
 
-    PBOImagePtr m_pSrcPBO;
-    PBOImagePtr m_pDestPBO;
+    GLTexturePtr m_pSrcTex;
+    PBOPtr m_pSrcPBO;
     FBOPtr m_pFBO;
     VertexArray * m_pVertexes;
 };
