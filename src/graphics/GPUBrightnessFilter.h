@@ -32,8 +32,8 @@ namespace avg {
 class AVG_API GPUBrightnessFilter: public GPUFilter
 {
 public:
-    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
-            double alpha);
+    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, double alpha, 
+            bool bStandalone=true);
     virtual ~GPUBrightnessFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);

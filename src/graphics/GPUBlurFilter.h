@@ -32,7 +32,8 @@ namespace avg {
 class AVG_API GPUBlurFilter: public GPUFilter
 {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev);
+    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev, 
+            bool bStandalone=true);
     void init();
     virtual ~GPUBlurFilter();
 

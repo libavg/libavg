@@ -47,6 +47,7 @@ public:
     void copyToDestTexture() const;
     BitmapPtr getImage(int i=0) const;
     GLTexturePtr getTex(int i=0) const;
+    const IntPoint& getSize() const;
 
     static bool isFBOSupported();
     static bool isMultisampleFBOSupported();

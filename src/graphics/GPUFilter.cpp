@@ -33,11 +33,13 @@ using namespace std;
 namespace avg {
 
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        unsigned numTextures)
-    : m_pSrcTex(new GLTexture(size, pfSrc)),
-      m_pSrcPBO(new PBO(size, pfSrc, GL_STREAM_DRAW)),
-      m_pFBO(new FBO(size, pfDest, numTextures))
+        bool bStandalone, unsigned numTextures)
+    : m_pFBO(new FBO(size, pfDest, numTextures))
 {
+    if (bStandalone) {
+        m_pSrcTex = GLTexturePtr(new GLTexture(size, pfSrc));
+        m_pSrcPBO = PBOPtr(new PBO(size, pfSrc, GL_STREAM_DRAW));
+    }
     ObjectCounter::get()->incRef(&typeid(*this));
     initVertexArray();
 }
@@ -79,7 +81,7 @@ FBOPtr GPUFilter::getFBO()
 
 const IntPoint& GPUFilter::getSize() const
 {
-    return m_pSrcPBO->getSize();
+    return m_pFBO->getSize();
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)
@@ -95,7 +97,7 @@ GLTexturePtr GPUFilter::getDestTex(int i) const
 
 void GPUFilter::initVertexArray()
 {
-    IntPoint size = m_pSrcPBO->getSize();
+    IntPoint size = m_pFBO->getSize();
     // Create a minimal vertex array to be used for drawing.
     m_pVertexes = new VertexArray();
     m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, 1));

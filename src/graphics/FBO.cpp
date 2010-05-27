@@ -120,6 +120,11 @@ GLTexturePtr FBO::getTex(int i) const
     return m_pTextures[i];
 }
 
+const IntPoint& FBO::getSize() const
+{
+    return m_Size;
+}
+
 void FBO::init(bool bMipmap)
 {
     if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {

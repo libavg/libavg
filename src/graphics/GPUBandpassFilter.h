@@ -34,7 +34,7 @@ class AVG_API GPUBandpassFilter: public GPUFilter
 {
 public:
     GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, double min, double max, 
-            double postScale, bool bInvert);
+            double postScale, bool bInvert, bool bStandalone=true);
     virtual ~GPUBandpassFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);

@@ -35,7 +35,7 @@ class AVG_API GPUFilter: public Filter
 {
 public:
     GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            unsigned numTextures=1);
+            bool bStandalone, unsigned numTextures=1);
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);

@@ -36,8 +36,9 @@ namespace avg {
 OGLShaderPtr GPUBlurFilter::s_pHorizShader;
 OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
-GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev)
-    : GPUFilter(size, pfSrc, R32G32B32A32F, 2),
+GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev, 
+            bool bStandalone)
+    : GPUFilter(size, pfSrc, R32G32B32A32F, bStandalone, 2),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
