@@ -20,6 +20,7 @@
 //
 
 #include "GraphicsTest.h"
+#include "GLTexture.h"
 #include "GPUBrightnessFilter.h"
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
@@ -164,6 +165,40 @@ private:
 
 };
 */
+
+class PBOTest: public GraphicsTest {
+public:
+    PBOTest()
+        : GraphicsTest("PBOTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        runImageTest("rgb24-64x64");
+        runImageTest("rgb24alpha-64x64");
+    }
+
+private:
+    void runImageTest(const string& sFName)
+    {
+        cerr << "    Testing " << sFName << endl;
+        BitmapPtr pOrigBmp = loadTestBmp(sFName);
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat()));
+        PBOPtr pWritePBO = PBOPtr(new PBO(pOrigBmp->getSize(), pOrigBmp->getPixelFormat(),
+                GL_DYNAMIC_DRAW));
+        TEST(!pWritePBO->isReadPBO());
+        pWritePBO->moveBmpToTexture(pOrigBmp, pTex);
+        PBOPtr pReadPBO = PBOPtr(new PBO(pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), 
+                GL_DYNAMIC_READ));
+        TEST(pReadPBO->isReadPBO());
+        BitmapPtr pDestBmp = pReadPBO->moveTextureToBmp(pTex);
+        testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+    }
+
+};
+
 class BrightnessFilterTest: public GraphicsTest {
 public:
     BrightnessFilterTest()
@@ -264,7 +299,6 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName, pf);
         GPUBandpassFilter f(pBmp->getSize(), pf, 0.5, 1.5, 1, false);
         BitmapPtr pDestBmp = f.apply(pBmp);
-        cerr << "        " << pDestBmp->getAvg() << endl;
         TEST(fabs(pDestBmp->getAvg() -128) < 0.06);
         testEqual(*pDestBmp, "bandpass_"+sFName, pf, 0.2, 0.5);
         TEST(pDestBmp->getPixelFormat() == pf);
@@ -277,7 +311,7 @@ public:
     GPUTestSuite() 
         : TestSuite("GPUTestSuite")
     {
-//        addTest(TestPtr(new FBOTest));
+        addTest(TestPtr(new PBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new BlurFilterTest));
