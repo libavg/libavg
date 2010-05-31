@@ -252,6 +252,10 @@ void OGLSurface::downloadTexture()
             m_pTextures[2]->download();
         }
     }
+}
+
+void OGLSurface::downloadMaskTexture()
+{
     if (m_Material.getHasMask()) {
         m_pMaskTexture->download();
     }

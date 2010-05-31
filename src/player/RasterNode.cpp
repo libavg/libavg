@@ -96,13 +96,13 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
     calcVertexGrid(m_TileVertices);
     m_pSurface->setMaterial(m_Material);
+    m_pSurface->downloadTexture();
     setBlendModeStr(m_sBlendMode);
     if (m_Material.getHasMask()) {
         m_pSurface->createMask(m_pMaskBmp->getSize());
         downloadMask();
         setMaskCoords();
     }
-    
 }
 
 void RasterNode::disconnect(bool bKill)
@@ -119,7 +119,6 @@ void RasterNode::disconnect(bool bKill)
 
 void RasterNode::checkReload()
 {
-    m_bBound = false;
     string sLastMaskFilename = m_sMaskFilename;
     string sMaskFilename = m_sMaskHref;
     initFilename(sMaskFilename);
@@ -349,7 +348,7 @@ void RasterNode::downloadMask()
     BitmapPtr pBmp = m_pSurface->lockMaskBmp();
     pBmp->copyPixels(*m_pMaskBmp);
     m_pSurface->unlockMaskBmp();
-    m_pSurface->downloadTexture();
+    m_pSurface->downloadMaskTexture();
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)

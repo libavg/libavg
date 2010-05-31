@@ -60,6 +60,7 @@ public:
     void setMaterial(const MaterialInfo& material);
 
     void downloadTexture();
+    void downloadMaskTexture();
 
     PixelFormat getPixelFormat();
     IntPoint getSize();
