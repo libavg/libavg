@@ -196,8 +196,8 @@ template<class NUM>
 Point<NUM> Rect<NUM>::cropPoint(const Point<NUM>& pt) const
 {
     Point<NUM> Result;
-    Result.x = min(max(pt.x, tl.x), br.x-1);
-    Result.y = min(max(pt.y, tl.y), br.y-1);
+    Result.x = std::min(std::max(pt.x, tl.x), br.x-1);
+    Result.y = std::min(std::max(pt.y, tl.y), br.y-1);
     return Result;
 }
 
