@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "AreaNode.h"
 #include "DisplayEngine.h"
-#include "OGLTexture.h"
+#include "PBOTexture.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
@@ -36,6 +36,8 @@
 namespace avg {
 
 class OGLSurface;
+
+typedef std::vector<std::vector<DPoint> > VertexGrid;
 
 class AVG_API RasterNode: public AreaNode
 {

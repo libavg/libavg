@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OGLTexture_H_
-#define _OGLTexture_H_
+#ifndef _PBOTexture_H_
+#define _PBOTexture_H_
 
 #include "../api.h"
 
@@ -37,13 +37,11 @@ namespace avg {
 class SDLDisplayEngine;
 class VertexArray;
 
-typedef std::vector<std::vector<DPoint> > VertexGrid;
-
-class AVG_API OGLTexture {
+class AVG_API PBOTexture {
 public:
-    OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
+    PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
             SDLDisplayEngine * pEngine, OGLMemoryMode memoryMode);
-    virtual ~OGLTexture();
+    virtual ~PBOTexture();
 
     BitmapPtr lockBmp();
     void unlockBmp();
@@ -74,7 +72,7 @@ private:
     OGLMemoryMode m_MemoryMode;
 };
 
-typedef boost::shared_ptr<OGLTexture> OGLTexturePtr;
+typedef boost::shared_ptr<PBOTexture> PBOTexturePtr;
 
 }
 

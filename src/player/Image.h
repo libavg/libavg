@@ -23,7 +23,6 @@
 #define _Image_H_
 
 #include "../api.h"
-#include "OGLTexture.h"
 #include "OffscreenCanvas.h"
 
 #include "../base/Point.h"

@@ -70,15 +70,15 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
     m_pf = pf;
 
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, I8, m_Material, m_pEngine,
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
                 m_MemoryMode));
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, m_pEngine,
+        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
                 m_MemoryMode));
-        m_pTextures[2] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, m_pEngine,
+        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
                 m_MemoryMode));
     } else {
-        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, m_pf, m_Material, m_pEngine,
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material, m_pEngine,
                 m_MemoryMode));
     }
     m_bUseForeignTexture = false;
@@ -89,16 +89,16 @@ void OGLSurface::createMask(const IntPoint& size)
     AVG_ASSERT(m_pEngine);
     AVG_ASSERT(m_Material.getHasMask());
     m_MaskSize = size;
-    m_pMaskTexture = OGLTexturePtr(new OGLTexture(size, I8, m_Material, m_pEngine,
+    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
             m_MemoryMode));
 }
 
 void OGLSurface::destroy()
 {
     m_bUseForeignTexture = false;
-    m_pTextures[0] = OGLTexturePtr();
-    m_pTextures[1] = OGLTexturePtr();
-    m_pTextures[2] = OGLTexturePtr();
+    m_pTextures[0] = PBOTexturePtr();
+    m_pTextures[1] = PBOTexturePtr();
+    m_pTextures[2] = PBOTexturePtr();
 }
 
 void OGLSurface::activate(const IntPoint& logicalSize) const
@@ -235,10 +235,10 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
         }
     }
     if (bOldHasMask && !m_Material.getHasMask()) {
-        m_pMaskTexture = OGLTexturePtr();
+        m_pMaskTexture = PBOTexturePtr();
     }
     if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
-        m_pMaskTexture = OGLTexturePtr(new OGLTexture(m_MaskSize, I8, m_Material, 
+        m_pMaskTexture = PBOTexturePtr(new PBOTexture(m_MaskSize, I8, m_Material, 
                 m_pEngine, m_MemoryMode));
     }
 }

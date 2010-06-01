@@ -23,7 +23,6 @@
 
 #include "SDLDisplayEngine.h"
 #include "CanvasNode.h"
-#include "OGLTexture.h"
 #include "Player.h"
 
 #include "../base/Exception.h"

@@ -13,8 +13,8 @@ else
     APPLE_LINKFLAGS=
 endif
 
-GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp OGLTexture.cpp GLConfig.cpp
-GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h OGLTexture.h GLConfig.h
+GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp PBOTexture.cpp GLConfig.cpp
+GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h GLConfig.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 

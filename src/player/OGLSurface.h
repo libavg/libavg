@@ -23,7 +23,7 @@
 #define _OGLSurface_H_
 
 #include "../api.h"
-#include "OGLTexture.h"
+#include "PBOTexture.h"
 
 #include "../base/Point.h"
 
@@ -73,10 +73,10 @@ protected:
 private:
     bool useShader() const;
 
-    OGLTexturePtr m_pTextures[3];
+    PBOTexturePtr m_pTextures[3];
     IntPoint m_Size;
     PixelFormat m_pf;
-    OGLTexturePtr m_pMaskTexture;
+    PBOTexturePtr m_pMaskTexture;
     IntPoint m_MaskSize;
     bool m_bUseForeignTexture;
 

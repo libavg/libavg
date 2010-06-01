@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "Image.h"
-#include "OGLTexture.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"
