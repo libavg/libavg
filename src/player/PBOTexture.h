@@ -27,6 +27,7 @@
 #include "MaterialInfo.h"
 
 #include "../graphics/Bitmap.h"
+#include "../graphics/GLTexture.h"
 #include "../graphics/OGLHelper.h"
 #include "../base/Rect.h"
 
@@ -47,7 +48,7 @@ public:
     void unlockBmp();
     BitmapPtr readbackBmp();
     void download() const;
-    void setTexID(unsigned id);
+    void setTex(GLTexturePtr pTex);
 
     void setMaterial(const MaterialInfo& material);
     const IntPoint& getTextureSize() const;
@@ -62,8 +63,7 @@ private:
     PixelFormat m_pf;
     MaterialInfo m_Material;
     
-    unsigned m_TexID;
-    bool m_bOwnsTexture;
+    GLTexturePtr m_pTex;
     GLuint m_hWritePixelBuffer;
     GLuint m_hReadPixelBuffer;
     BitmapPtr m_pBmp;

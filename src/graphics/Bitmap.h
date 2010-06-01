@@ -49,7 +49,8 @@ namespace avg {
 typedef enum {
     B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8, A8B8G8R8, X8B8G8R8,
     R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
-    I8, I16, 
+    I8, I16,
+    A8,
     YCbCr411,  // Interleaved YCbCr: Y,Y,Cb,Y,Y,Cr,... Effectively 12 bits per pixel.
     YCbCr422,  // Interleaved YCbCr: Cb,Y,Cr,Y,...
     YUYV422,   // Interleaved YCbCr, grey values first: Y,Cb,Y,Cr,...

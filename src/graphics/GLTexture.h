@@ -39,7 +39,7 @@ public:
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
     virtual ~GLTexture();
 
-    void activate(int textureUnit);
+    void activate(int textureUnit=GL_TEXTURE0);
     const IntPoint& getSize() const;
     PixelFormat getPF() const;
     unsigned getID() const;

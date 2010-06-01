@@ -52,7 +52,7 @@ public:
     BitmapPtr lockBmp(int i=0);
     void unlockBmps();
     BitmapPtr readbackBmp();
-    void setTexID(unsigned id);
+    void setTex(GLTexturePtr pTex);
 
     BitmapPtr lockMaskBmp();
     void unlockMaskBmp();

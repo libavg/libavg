@@ -124,10 +124,10 @@ bool OffscreenCanvas::isRunning() const
     return (m_pFBO != FBOPtr());
 }
 
-unsigned OffscreenCanvas::getTexID() const
+GLTexturePtr OffscreenCanvas::getTex() const
 {
     AVG_ASSERT(isRunning());
-    return m_pFBO->getTex()->getID();
+    return m_pFBO->getTex();
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)

@@ -891,6 +891,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case I16:
             return 2;
         case I8:
+        case A8:
         case BAYER8:
         case BAYER8_RGGB:
         case BAYER8_GBRG:
@@ -1228,6 +1229,9 @@ void Bitmap::dump(bool bDumpPixels) const
 void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
+    if (m_PF == A8) {
+        m_PF == I8;
+    }
     if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
@@ -1263,6 +1267,9 @@ void Bitmap::allocBits()
     AVG_ASSERT(!m_pBits);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     m_Stride = getLineLen();
+    if (m_PF == A8) {
+        m_PF = I8;
+    }
     if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd width for YCbCr bitmap.");

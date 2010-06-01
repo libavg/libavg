@@ -50,7 +50,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_Size.x, m_Size.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
@@ -98,6 +99,8 @@ int GLTexture::getGLFormat(PixelFormat pf)
         case I8:
         case I32F:
             return GL_LUMINANCE;
+        case A8:
+            return GL_ALPHA;
         case R8G8B8A8:
         case R8G8B8X8:
             return GL_RGBA;
@@ -115,6 +118,7 @@ int GLTexture::getGLType(PixelFormat pf)
 {
     switch (pf) {
         case I8:
+        case A8:
         case R8G8B8A8:
         case R8G8B8X8:
         case B8G8R8A8:
@@ -136,6 +140,8 @@ int GLTexture::getGLInternalFormat() const
             return GL_LUMINANCE;
         case I32F:
             return GL_LUMINANCE32F_ARB;
+        case A8:
+            return GL_ALPHA;
         case R8G8B8A8:
         case R8G8B8X8:
         case B8G8R8A8:

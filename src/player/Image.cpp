@@ -70,7 +70,7 @@ void Image::moveToGPU(SDLDisplayEngine* pEngine)
                 break;
             case SCENE:
                 m_pSurface->create(m_pCanvas->getSize(), B8G8R8X8);
-                m_pSurface->setTexID(m_pCanvas->getTexID());
+                m_pSurface->setTex(m_pCanvas->getTex());
                 break;
             case NONE:
                 break;
@@ -178,7 +178,7 @@ void Image::setCanvas(OffscreenCanvasPtr pCanvas)
     m_pCanvas = pCanvas;
     if (m_State == GPU) {
         m_pSurface->create(m_pCanvas->getSize(), B8G8R8X8);
-        m_pSurface->setTexID(m_pCanvas->getTexID());
+        m_pSurface->setTex(m_pCanvas->getTex());
     }
     assertValid();
 }

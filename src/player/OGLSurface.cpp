@@ -114,7 +114,7 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             case YCbCrJ420p:
                 pShader->setUniformIntParam("colorModel", 2);
                 break;
-            case I8:
+            case A8:
                 pShader->setUniformIntParam("colorModel", 3);
                 break;
             default:
@@ -197,10 +197,10 @@ BitmapPtr OGLSurface::readbackBmp()
     return m_pTextures[0]->readbackBmp();
 }
 
-void OGLSurface::setTexID(unsigned id)
+void OGLSurface::setTex(GLTexturePtr pTex)
 {
     m_bUseForeignTexture = true;
-    m_pTextures[0]->setTexID(id);
+    m_pTextures[0]->setTex(pTex);
 }
 
 BitmapPtr OGLSurface::lockMaskBmp()

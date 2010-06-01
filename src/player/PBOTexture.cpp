@@ -62,11 +62,6 @@ PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
 
 PBOTexture::~PBOTexture()
 {
-    if (m_bOwnsTexture) {
-        glDeleteTextures(1, &m_TexID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::~PBOTexture: glDeleteTextures()");
-    }
     if (m_MemoryMode == MM_PBO) {
         glproc::DeleteBuffers(1, &m_hWritePixelBuffer);
         glproc::DeleteBuffers(1, &m_hReadPixelBuffer);
@@ -126,8 +121,7 @@ BitmapPtr PBOTexture::readbackBmp()
                 m_ActiveSize.x*m_ActiveSize.y*Bitmap::getBytesPerPixel(m_pf),
                 0, GL_STREAM_READ);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glBufferData()");
-        glBindTexture(GL_TEXTURE_2D, m_TexID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glBindTexture()");
+        m_pTex->activate();
         glGetTexImage(GL_TEXTURE_2D, 0, m_pEngine->getOGLSrcMode(m_pf), 
                 m_pEngine->getOGLPixelType(m_pf), 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glGetTexImage()");
@@ -156,8 +150,8 @@ void PBOTexture::download() const
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glBindBuffer()");
     }
 
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glBindTexture()");
+    m_pTex->activate();
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: GL_UNPACK_ALIGNMENT");
     unsigned char * pStartPos = 0;
@@ -167,46 +161,32 @@ void PBOTexture::download() const
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ActiveSize.x, m_ActiveSize.y,
-                m_pEngine->getOGLSrcMode(m_pf), m_pEngine->getOGLPixelType(m_pf), 
+                m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), 
                 pStartPos);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
-    int texFilter;
-    if (m_Material.getUseMipmaps()) {
-        ScopeTimer Timer(MipmapProfilingZone);
-        glproc::GenerateMipmap(GL_TEXTURE_2D);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: GenerateMipmap()");
-        texFilter = GL_LINEAR_MIPMAP_LINEAR;
-    } else {
-        texFilter = GL_LINEAR;
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "PBOTexture::download: glTexParameteri()");
     if (m_MemoryMode == MM_PBO) {
         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glBindBuffer(0)");
     }
 }
 
-void PBOTexture::setTexID(unsigned id)
+void PBOTexture::setTex(GLTexturePtr pTex)
 {
     AVG_ASSERT(m_MemoryMode == MM_PBO);
     AVG_ASSERT(!m_pBmp);
 
-    if (m_bOwnsTexture) {
-        glDeleteTextures(1, &m_TexID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::~PBOTexture: glDeleteTextures()");
-    }
-    m_TexID = id;
-    m_bOwnsTexture = false;
+    m_pTex = pTex;
 }
 
 void PBOTexture::setMaterial(const MaterialInfo& material)
 {
-    m_Material = material;
+    if (m_Material.getUseMipmaps() != material.getUseMipmaps()) {
+        m_Material = material;
+        createTexture();
+    } else {
+        m_Material = material;
+    }
 }
 
 const IntPoint& PBOTexture::getTextureSize() const
@@ -216,7 +196,7 @@ const IntPoint& PBOTexture::getTextureSize() const
 
 unsigned PBOTexture::getTexID() const 
 {
-    return m_TexID;
+    return m_pTex->getID();
 }
 
 void PBOTexture::createBitmap()
@@ -250,33 +230,19 @@ void PBOTexture::createBitmap()
 
 void PBOTexture::createTexture()
 {
-    m_bOwnsTexture = true;
-    glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glGenTextures()");
-    glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glBindTexture()");
+    m_pTex = GLTexturePtr(new GLTexture(m_Size, m_pf, m_Material.getUseMipmaps(),
+            m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_Material.getTexWrapSMode());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_Material.getTexWrapTMode());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "PBOTexture::createTexture: glTexParameteri()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-    char * pPixels = 0;
     if (m_pEngine->usePOTTextures()) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
         int TexMemNeeded = m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);
-        pPixels = new char[TexMemNeeded];
+        char * pPixels = new char[TexMemNeeded];
         memset(pPixels, 0, TexMemNeeded);
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, m_pEngine->getOGLDestMode(m_pf), m_Size.x, m_Size.y, 
-            0, m_pEngine->getOGLSrcMode(m_pf), m_pEngine->getOGLPixelType(m_pf), 
-            pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "PBOTexture::createTexture: glTexImage2D()");
-    if (m_pEngine->usePOTTextures()) {
+        glTexImage2D(GL_TEXTURE_2D, 0, m_pEngine->getOGLDestMode(m_pf), m_Size.x, 
+                m_Size.y, 0, m_pEngine->getOGLSrcMode(m_pf), 
+                m_pEngine->getOGLPixelType(m_pf), pPixels);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
         free(pPixels);
     }
 }

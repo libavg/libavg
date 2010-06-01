@@ -596,7 +596,7 @@ void WordsNode::drawString()
         m_LogicalSize.y = logical_rect.height;
         m_LogicalSize.x = logical_rect.width;
         if (getState() == NS_CANRENDER) {
-            getSurface()->create(bmpSize, I8);
+            getSurface()->create(bmpSize, A8);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
             FilterFill<unsigned char>(0).applyInPlace(pBmp);
