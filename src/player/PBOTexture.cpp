@@ -207,17 +207,6 @@ void PBOTexture::createBitmap()
             glproc::GenBuffers(1, &m_hWritePixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glGenBuffers()");
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glBindBuffer()");
-            glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-                    (m_ActiveSize.x+1)*(m_ActiveSize.y+1)*Bitmap::getBytesPerPixel(m_pf),
-                    0, GL_DYNAMIC_DRAW);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glBufferData()");
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glBindBuffer(0)");
             m_pBmp = BitmapPtr();
             break;
         case MM_OGL:
