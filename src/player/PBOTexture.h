@@ -29,6 +29,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/GLTexture.h"
 #include "../graphics/OGLHelper.h"
+#include "../graphics/PBO.h"
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
@@ -64,8 +65,8 @@ private:
     MaterialInfo m_Material;
     
     GLTexturePtr m_pTex;
-    GLuint m_hWritePixelBuffer;
-    GLuint m_hReadPixelBuffer;
+    PBOPtr m_pWritePBO;
+    PBOPtr m_pReadPBO;
     BitmapPtr m_pBmp;
     
     SDLDisplayEngine * m_pEngine;

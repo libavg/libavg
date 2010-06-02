@@ -44,6 +44,10 @@ public:
     void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
     virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
 
+    BitmapPtr lock();
+    void unlock();
+    void movePBOToTexture(GLTexturePtr pTex);
+
     PixelFormat getPF() const;
     const IntPoint& getSize() const;
     bool isReadPBO() const;

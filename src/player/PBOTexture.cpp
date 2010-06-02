@@ -62,79 +62,32 @@ PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
 
 PBOTexture::~PBOTexture()
 {
-    if (m_MemoryMode == MM_PBO) {
-        glproc::DeleteBuffers(1, &m_hWritePixelBuffer);
-        glproc::DeleteBuffers(1, &m_hReadPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::~PBOTexture: glDeleteBuffers()");
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 BitmapPtr PBOTexture::lockBmp()
 {
     if (m_MemoryMode == MM_PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer()");
-        glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-                (m_ActiveSize.x+1)*(m_ActiveSize.y+1)*Bitmap::getBytesPerPixel(m_pf),
-                0, GL_DYNAMIC_DRAW);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBufferData()");
-        unsigned char * pBuffer = (unsigned char *)
-            glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glMapBuffer()");
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer(0)");
-
-        m_pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf, pBuffer, 
-                    m_ActiveSize.x*Bitmap::getBytesPerPixel(m_pf), false));
+        return m_pWritePBO->lock();
+    } else {
+        return m_pBmp;
     }
-    return m_pBmp;
 }
 
 void PBOTexture::unlockBmp()
 {
     if (m_MemoryMode == MM_PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::unlockBmp: glBindBuffer()");
-        glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::unlockBmp: glUnmapBuffer()");
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::unlockBmp: glBindBuffer(0)");
-        m_pBmp = BitmapPtr();
+        m_pWritePBO->unlock();
     }
 }
 
 BitmapPtr PBOTexture::readbackBmp()
 {
     if (m_MemoryMode == MM_PBO) {
-        glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_hReadPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glBindBuffer()");
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "PBOTexture::readbackBmp: GL_PACK_ALIGNMENT");
-        glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-        glproc::BufferData(GL_PIXEL_PACK_BUFFER_EXT, 
-                m_ActiveSize.x*m_ActiveSize.y*Bitmap::getBytesPerPixel(m_pf),
-                0, GL_STREAM_READ);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glBufferData()");
-        m_pTex->activate();
-        glGetTexImage(GL_TEXTURE_2D, 0, m_pEngine->getOGLSrcMode(m_pf), 
-                m_pEngine->getOGLPixelType(m_pf), 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glGetTexImage()");
-        unsigned char * pBuffer = (unsigned char *)
-                glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glMapBuffer()");
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf, pBuffer, 
-                    m_ActiveSize.x*Bitmap::getBytesPerPixel(m_pf), true));
-        glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glUnmapBuffer()");
-        glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::readbackBmp: glBindBuffer(0)");
-        return pBmp;
+        if (!m_pReadPBO) {
+            m_pReadPBO = PBOPtr(new PBO(m_Size, m_pf, GL_DYNAMIC_READ));
+        }
+        return m_pReadPBO->moveTextureToBmp(m_pTex);
     } else {
         return BitmapPtr(new Bitmap(*m_pBmp));
     }
@@ -145,29 +98,19 @@ static ProfilingZone MipmapProfilingZone("PBOTexture::mipmap generation");
 
 void PBOTexture::download() const
 {
+    ScopeTimer Timer(TexSubImageProfilingZone);
     if (m_MemoryMode == MM_PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hWritePixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glBindBuffer()");
-    }
-
-    m_pTex->activate();
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: GL_UNPACK_ALIGNMENT");
-    unsigned char * pStartPos = 0;
-    if (m_MemoryMode == MM_OGL) {
-        pStartPos += (ptrdiff_t)(m_pBmp->getPixels());
-    }
-    {
-        ScopeTimer Timer(TexSubImageProfilingZone);
+        m_pWritePBO->movePBOToTexture(m_pTex);
+    } else {
+        m_pTex->activate();
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: GL_UNPACK_ALIGNMENT");
+        unsigned char * pStartPos = m_pBmp->getPixels();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ActiveSize.x, m_ActiveSize.y,
                 m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), 
                 pStartPos);
-    }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
-    if (m_MemoryMode == MM_PBO) {
-        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glBindBuffer(0)");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
     }
 }
 
@@ -203,11 +146,10 @@ void PBOTexture::createBitmap()
 {
     switch (m_MemoryMode) {
         case MM_PBO:
-            glproc::GenBuffers(1, &m_hReadPixelBuffer);
-            glproc::GenBuffers(1, &m_hWritePixelBuffer);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glGenBuffers()");
-            m_pBmp = BitmapPtr();
+            {
+                m_pWritePBO = PBOPtr(new PBO(m_ActiveSize, m_pf, GL_DYNAMIC_DRAW));
+                m_pBmp = BitmapPtr();
+            }
             break;
         case MM_OGL:
             m_pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf));
