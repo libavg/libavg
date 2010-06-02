@@ -21,9 +21,20 @@
 #
 
 import os
+from libavg import avg
+g_Player = avg.Player.get()
+g_Log = avg.Logger.get()
+
+try:
+    from win32gui import *
+    from win32con import *
+    g_WIN32 = True
+except:
+    g_WIN32 = False
 
 class AVGApp(object):
     multitouch = False
+    fakeFullscreen = False
     def __init__(self, parentNode):
         """initialization before Player.play()
         Use this only when needed, e.g. for
@@ -89,6 +100,25 @@ class AVGApp(object):
     def setStarter(self, starter):
         self._starter = starter
         
+    @classmethod   
+    def __findWindow(cls, title):
+        def enumWinProc(h, lparams): 
+            lparams.append(h)
+        winList=[]
+        EnumWindows(enumWinProc, winList)
+        for hwnd in winList:
+            curTitle = GetWindowText(hwnd)
+            if IsWindowVisible(hwnd) and title == curTitle:
+                return hwnd
+        return None
+        
+    @classmethod
+    def __fakeFullscreen(cls):
+        hDesk = GetDesktopWindow()
+        (DesktopLeft,DesktopTop,DesktopRight,DesktopBottom) = GetWindowRect(hDesk)
+        w = cls.__findWindow("AVG Renderer")
+        SetWindowPos(w, HWND_TOP, -3, -22, DesktopRight, DesktopBottom+30, 0)
+        
     @classmethod
     def start(cls, *args, **kwargs):
         from AVGAppStarter import AVGAppStarter
@@ -97,5 +127,12 @@ class AVGApp(object):
             starter = AVGMTAppStarter
         else:
             starter = AVGAppStarter
+        cls.avg_deploy = os.getenv("AVG_DEPLOY")
+        if cls.fakeFullscreen and cls.avg_deploy is not None:
+            if g_WIN32:
+                cls.avg_deploy = None
+                g_Player.setTimeout(1000,cls.__fakeFullscreen)
+            else:
+                g_Log.trace(g_Log.ERROR, 'fakeFullscreen works only on Windows')           
         starter(appClass = cls, *args, **kwargs)
 

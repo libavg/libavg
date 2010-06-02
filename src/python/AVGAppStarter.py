@@ -185,7 +185,7 @@ class AVGAppStarter(object):
     def __init__(self, appClass, resolution, debugWindowSize = None):
         self._AppClass = appClass
         resolution = Point2D(resolution)
-        testMode = os.getenv("AVG_DEPLOY") == None
+        testMode = self._AppClass.avg_deploy == None
         if testMode and debugWindowSize is not None:
             debugWindowSize = Point2D(debugWindowSize)
         else:
