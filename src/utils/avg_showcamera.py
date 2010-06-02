@@ -52,6 +52,9 @@ def onKey(event):
     elif event.keystring == "4":
         (u, v) = getWhitebalance()
         camNode.setWhitebalance(u, v+1)
+    elif event.keystring == "s":
+        print "Saving camera image to camimage.png" 
+        camNode.getBitmap().save("camimage.png")
     (u, v) = getWhitebalance()
     print "u: ", u, ", v: ", v
 
