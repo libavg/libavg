@@ -22,6 +22,8 @@
 #ifndef _IPlaybackEndListener_H_
 #define _IPlaybackEndListener_H_
 
+#include "../api.h"
+
 namespace avg {
 
 class AVG_API IPlaybackEndListener {
