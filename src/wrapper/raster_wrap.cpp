@@ -147,7 +147,8 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 &RasterNode::setBlendModeStr,
                 "The method of compositing the node with the nodes under\n"
-                "it. Valid values are 'blend', 'add', 'min' and 'max'.\n")
+                "it. Valid values are 'blend', 'add', 'min' and 'max'. For min and max\n"
+                "blend modes, opacity is ignored.\n")
         .add_property("maskhref", 
                 make_function(&RasterNode::getMaskHRef,
                         return_value_policy<copy_const_reference>()),

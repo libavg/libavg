@@ -253,8 +253,8 @@ class ImageTestCase(AVGTestCase):
                 <image x="0" y="0" href="freidrehen.jpg"/>
                 <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
                 <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" blendmode="add"/>
-                <image x="48" y="0" opacity="0.6" href="rgb24-65x65.png" blendmode="min"/>
-                <image x="48" y="48" opacity="0.6" href="rgb24-65x65.png" 
+                <image x="48" y="0" opacity="1" href="rgb24-65x65.png" blendmode="min"/>
+                <image x="48" y="48" opacity="1" href="rgb24-65x65.png" 
                         blendmode="max"/>
             </avg>
         """)

@@ -275,14 +275,15 @@ class OffscreenTestCase(AVGTestCase):
                     <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
                     <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" 
                             blendmode="add"/>
-                    <image x="48" y="0" opacity="0.6" href="rgb24-65x65.png" 
+                    <image x="48" y="0" opacity="1" href="rgb24-65x65.png" 
                             blendmode="min"/>
-                    <image x="48" y="48" opacity="0.6" href="rgb24-65x65.png" 
+                    <image x="48" y="48" opacity="1" href="rgb24-65x65.png" 
                             blendmode="max"/>
                 </canvas>
             """)
        
         mainCanvas = self.loadEmptyScene()
+        avg.ImageNode(parent=Player.getRootNode(), href="freidrehen.jpg")
         canvas = createBaseCanvas()
         node = avg.ImageNode(parent=Player.getRootNode(), href="canvas:testcanvas")
         self.start(None,
