@@ -1230,7 +1230,7 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
     if (m_PF == A8) {
-        m_PF == I8;
+        m_PF = I8;
     }
     if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
