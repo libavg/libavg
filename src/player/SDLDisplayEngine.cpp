@@ -1178,7 +1178,7 @@ void SDLDisplayEngine::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 {
     GLenum srcFunc;
     if (bPremultipliedAlpha) {
-        srcFunc = GL_ONE;
+        srcFunc = GL_CONSTANT_ALPHA;
     } else {
         srcFunc = GL_SRC_ALPHA;
     }

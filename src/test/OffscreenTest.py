@@ -270,22 +270,23 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasBlendModes(self):
         def createBaseCanvas():
             return Player.loadCanvasString("""
-                <canvas id="testcanvas" width="160" height="120">
-                    <image href="freidrehen.jpg"/>
-                    <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
-                    <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" 
-                            blendmode="add"/>
-                    <image x="48" y="0" opacity="1" href="rgb24-65x65.png" 
-                            blendmode="min"/>
-                    <image x="48" y="48" opacity="1" href="rgb24-65x65.png" 
-                            blendmode="max"/>
+                <canvas id="testcanvas" width="64" height="64">
+                    <image x="0" y="0" href="rgb24alpha-64x64.png"/>
                 </canvas>
             """)
        
         mainCanvas = self.loadEmptyScene()
-        avg.ImageNode(parent=Player.getRootNode(), href="freidrehen.jpg")
         canvas = createBaseCanvas()
-        node = avg.ImageNode(parent=Player.getRootNode(), href="canvas:testcanvas")
+        root = Player.getRootNode()
+        avg.RectNode(parent=root, pos=(48,0), size=(32, 128), fillopacity=1, 
+                fillcolor="808080")
+        avg.ImageNode(parent=root, href="canvas:testcanvas")
+        avg.ImageNode(parent=root, pos=(0,64), href="canvas:testcanvas", 
+                opacity=0.6)
+        avg.ImageNode(parent=root, pos=(64,0), href="canvas:testcanvas", 
+                blendmode="add")
+        avg.ImageNode(parent=root, pos=(64,64), href="canvas:testcanvas", 
+                opacity=0.6, blendmode="add")
         self.start(None,
                 (lambda: self.compareImage("testCanvasBlendModes", False),
                 ))
