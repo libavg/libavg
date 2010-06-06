@@ -69,6 +69,7 @@ namespace glproc {
 
     PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
     PFNGLBLENDEQUATIONPROC BlendEquation;
+    PFNGLBLENDCOLORPROC BlendColor;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
     PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
 
@@ -433,6 +434,7 @@ namespace glproc {
         BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)
                 getFuzzyProcAddress("glBlendFuncSeparate");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
+        BlendColor = (PFNGLBLENDCOLORPROC)getFuzzyProcAddress("glBlendColor");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
         GenerateMipmap = (PFNGLGENERATEMIPMAPEXTPROC)getFuzzyProcAddress
                 ("glGenerateMipmap");

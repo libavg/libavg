@@ -278,7 +278,7 @@ void RasterNode::blt32(const DPoint& DestSize, double opacity,
 {
     glColor4d(1.0, 1.0, 1.0, opacity);
     if (bPremultipliedAlpha) {
-        glBlendColor(1.0, 1.0, 1.0, opacity);
+        glproc::BlendColor(1.0, 1.0, 1.0, opacity);
     }
     blt(DestSize, Mode, bPremultipliedAlpha);
 }

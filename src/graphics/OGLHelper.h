@@ -98,6 +98,7 @@ namespace glproc {
 
     extern AVG_API PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
     extern AVG_API PFNGLBLENDEQUATIONPROC BlendEquation;
+    extern AVG_API PFNGLBLENDCOLORPROC BlendColor;
     extern AVG_API PFNGLACTIVETEXTUREPROC ActiveTexture;
     extern AVG_API PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
 
