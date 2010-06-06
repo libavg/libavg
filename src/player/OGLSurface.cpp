@@ -121,23 +121,19 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 pShader->setUniformIntParam("colorModel", 0);
         }
 
-        glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
+        m_pTextures[0]->activate(GL_TEXTURE0);
         pShader->setUniformIntParam("texture", 0);
         
         if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-            glproc::ActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, m_pTextures[1]->getTexID());
+            m_pTextures[1]->activate(GL_TEXTURE1);
             pShader->setUniformIntParam("cbTexture", 1);
-            glproc::ActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, m_pTextures[2]->getTexID());
+            m_pTextures[2]->activate(GL_TEXTURE2);
             pShader->setUniformIntParam("crTexture", 2);
         }
         
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
-            glproc::ActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, m_pMaskTexture->getTexID());
+            m_pMaskTexture->activate(GL_TEXTURE3);
             pShader->setUniformIntParam("maskTexture", 3);
             pShader->setUniformDPointParam("maskPos", m_Material.getMaskPos());
             // maskScale is (1,1) for everything excepting words nodes.
@@ -151,8 +147,7 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
     } else {
-        glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
+        m_pTextures[0]->activate(GL_TEXTURE0);
         if (m_pEngine->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }

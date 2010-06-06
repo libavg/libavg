@@ -50,10 +50,10 @@ public:
     BitmapPtr readbackBmp();
     void download() const;
     void setTex(GLTexturePtr pTex);
+    void activate(int textureUnit=GL_TEXTURE0);
 
     void setMaterial(const MaterialInfo& material);
     const IntPoint& getTextureSize() const;
-    unsigned getTexID() const;
 
 private:
     void createBitmap();

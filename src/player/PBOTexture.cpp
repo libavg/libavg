@@ -122,6 +122,11 @@ void PBOTexture::setTex(GLTexturePtr pTex)
     m_pTex = pTex;
 }
 
+void PBOTexture::activate(int textureUnit)
+{
+    m_pTex->activate(textureUnit);
+}
+
 void PBOTexture::setMaterial(const MaterialInfo& material)
 {
     if (m_Material.getUseMipmaps() != material.getUseMipmaps()) {
@@ -135,11 +140,6 @@ void PBOTexture::setMaterial(const MaterialInfo& material)
 const IntPoint& PBOTexture::getTextureSize() const
 {
     return m_Size;
-}
-
-unsigned PBOTexture::getTexID() const 
-{
-    return m_pTex->getID();
 }
 
 void PBOTexture::createBitmap()
