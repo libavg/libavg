@@ -273,10 +273,6 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: gluOrtho2D()");
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glTexEnvf()");
-    glproc::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 
-            GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render: glBlendFuncSeparate()");
     
     const DRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);
