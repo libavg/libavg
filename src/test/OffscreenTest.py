@@ -278,8 +278,8 @@ class OffscreenTestCase(AVGTestCase):
         mainCanvas = self.loadEmptyScene()
         canvas = createBaseCanvas()
         root = Player.getRootNode()
-        avg.RectNode(parent=root, pos=(48,0), size=(32, 128), fillopacity=1, 
-                fillcolor="808080")
+        avg.RectNode(parent=root, pos=(48,0), size=(32, 120), strokewidth=2, 
+                fillopacity=1, fillcolor="808080")
         avg.ImageNode(parent=root, href="canvas:testcanvas")
         avg.ImageNode(parent=root, pos=(0,64), href="canvas:testcanvas", 
                 opacity=0.6)
