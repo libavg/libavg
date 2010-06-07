@@ -35,28 +35,51 @@ def checkCamera():
 
 
 def onKey(event):
-    def getWhitebalance():
-        return (camNode.getWhitebalanceU(), camNode.getWhitebalanceV())
+    def addWhitebalance(du = 0, dv = 0):
+        camNode.setWhitebalance(camNode.getWhitebalanceU() + du, 
+                                camNode.getWhitebalanceV() + dv)
+        print "u:", camNode.getWhitebalanceU(), "v:", camNode.getWhitebalanceV()
+    
+    def addGain(gain):
+        camNode.gain += gain
+        print "gain:", camNode.gain
+    
+    def addShutter(shutter):
+        camNode.shutter += shutter
+        print "shutter:", camNode.shutter
+        
     if event.keystring == "w":
         print "Setting Whitebalance"
         camNode.doOneShotWhitebalance()
+    
     elif event.keystring == "1":
-        (u, v) = getWhitebalance()
-        camNode.setWhitebalance(u-1, v)
+        addWhitebalance(du = -1)
+        
     elif event.keystring == "2":
-        (u, v) = getWhitebalance()
-        camNode.setWhitebalance(u+1, v)
+        addWhitebalance(du = 1)
+        
     elif event.keystring == "3":
-        (u, v) = getWhitebalance()
-        camNode.setWhitebalance(u, v-1)
+        addWhitebalance(dv = -1)
+        
     elif event.keystring == "4":
-        (u, v) = getWhitebalance()
-        camNode.setWhitebalance(u, v+1)
+        addWhitebalance(dv = 1)
+        
     elif event.keystring == "s":
         print "Saving camera image to camimage.png" 
         camNode.getBitmap().save("camimage.png")
-    (u, v) = getWhitebalance()
-    print "u: ", u, ", v: ", v
+    
+    elif event.keystring == "left":
+       addShutter(shutter = -1)
+        
+    elif event.keystring == "right":
+        addShutter(shutter = 1)
+    
+    elif event.keystring == "up":
+        addGain(gain = 1)
+    
+    elif event.keystring == "down":
+        addGain(gain = -1)
+    
 
 parser = optparse.OptionParser()
 parser.add_option("-t", "--driver",
