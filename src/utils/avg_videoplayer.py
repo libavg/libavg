@@ -66,6 +66,5 @@ if len(sys.argv) ==1:
 
 node = avg.VideoNode(href=sys.argv[1], loop=True)
 node.play()
-print "size: ", node.getMediaSize()
 VideoPlayer.start(resolution=node.getMediaSize())
 
