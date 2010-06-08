@@ -88,8 +88,10 @@ parser.add_option("-t", "--driver",
                   choices=validDrivers, 
                   help="camera drivers (one of: %s)" %', '.join(validDrivers))
 parser.add_option("-d", "--device",
-                  action="store", dest="device", default="",
-                  help="camera device identifier (may be GUID or device path)")
+                  action = "store", 
+                  dest = "device", 
+                  default = "",
+                  help = "camera device identifier (may be GUID or device path)")
 parser.add_option("-u", "--unit", action="store", dest="unit", default="-1",
           type="int", help="unit number")
 parser.add_option("-w", "--width", dest="width", default="640", type="int",
@@ -157,6 +159,9 @@ Log.trace(Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)
         %optdict)
 Log.trace(Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s" %optdict)
 
+if options.device:
+    options.device = str(int(options.device, 16))
+    
 camNode = Player.createNode("camera", 
         {"driver": options.driver, "device": options.device, "unit": options.unit, 
          "fw800": options.fw800, 
