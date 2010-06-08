@@ -22,20 +22,22 @@
 #
 
 import sys
-from libavg import avg
+from libavg import avg, AVGApp
 import time
+
+g_player = avg.Player.get()
 
 def onFrame():
     curFrame = node.getCurFrame()
     numFrames = node.getNumFrames()
-    Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
+    g_player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
     curVideoTime = node.getCurTime()
-    Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
+    g_player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
     framesQueued = node.getNumFramesQueued()
-    Player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
+    g_player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
 
 def onKey(event):
-    node = Player.getElementByID("video")
+    node = g_player.getElementByID("video")
     if event.keystring == "right":
         node.seekToTime(node.getCurTime()+10000)
     elif event.keystring == "up":
@@ -45,25 +47,25 @@ def onKey(event):
         node.volume -= 0.1
         print "Volume: ", node.volume
 
-Player = avg.Player.get()
+class VideoPlayer(AVGApp):
+    def init(self):
+        global node
+        self._parentNode.appendChild(node)
+        avg.WordsNode(parent=self._parentNode, id="curframe", pos=(10, 10), 
+                font="arial", fontsize=10)
+        avg.WordsNode(parent=self._parentNode, id="curtime", pos=(10, 22), 
+                font="arial", fontsize=10)
+        avg.WordsNode(parent=self._parentNode, id="framesqueued", pos=(10, 34), 
+                font="arial", fontsize=10)
 
+        g_player.setOnFrameHandler(onFrame)
+    
 if len(sys.argv) ==1:
     print "Usage: videoplayer.py <filename>"
     sys.exit(1)
 
-node = avg.VideoNode(href=sys.argv[1])
+node = avg.VideoNode(href=sys.argv[1], loop=True)
 node.play()
-Player.loadString("""
-<?xml version="1.0"?>
-<avg size="%(size)s" onkeyup="onKey">
-  <words id="curframe" x="10" y="10" font="arial" fontsize="10"/> 
-  <words id="curtime" x="10" y="22" font="arial" fontsize="10"/> 
-  <words id="framesqueued" x="10" y="34" font="arial" fontsize="10"/> 
-</avg>
-""" % {'size': str(node.getMediaSize())})
-Player.getRootNode().insertChild(node, 0)
-
-Player.setOnFrameHandler(onFrame)
-Player.setVBlankFramerate(1)
-Player.play()
+print "size: ", node.getMediaSize()
+VideoPlayer.start(resolution=node.getMediaSize())
 
