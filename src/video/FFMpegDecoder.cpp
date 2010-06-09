@@ -287,7 +287,9 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
         m_AP = *pAP;
     } else {
         m_AStreamIndex = -1;
-        avcodec_close(m_pAStream->codec);
+        if (m_pAStream) {
+            avcodec_close(m_pAStream->codec);
+        }
         m_pAStream = 0;
     }
     if (m_AStreamIndex >= 0)
