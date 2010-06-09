@@ -68,6 +68,8 @@ void AVG_API popGLState();
 void AVG_API saveAVGGLContext();
 void AVG_API restoreAVGGLContext();
 
+void AVG_API clearGLBuffers(GLbitfield mask);
+
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);
 

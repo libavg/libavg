@@ -36,7 +36,8 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
     : m_Size(size),
       m_PF(pf),
       m_MultisampleSamples(multisampleSamples),
-      m_bUsePackedDepthStencil(bUsePackedDepthStencil)
+      m_bUsePackedDepthStencil(bUsePackedDepthStencil),
+      m_bMipmap(bMipmap)
 {
     AVG_ASSERT(numTextures == 1 || multisampleSamples == 1);
     if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
@@ -47,7 +48,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
     for (unsigned i=0; i<numTextures; ++i) {
         m_pTextures.push_back(GLTexturePtr(new GLTexture(size, pf, bMipmap)));
     }
-    init(bMipmap);
+    init();
 }
 
 FBO::~FBO()
@@ -75,6 +76,34 @@ void FBO::deactivate() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
+void FBO::setupImagingProjection() const
+{
+    glViewport(0, 0, m_Size.x, m_Size.y);
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, m_Size.x, 0, m_Size.y);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glScaled(m_Size.x, m_Size.y, 1);
+    
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::setupImagingProjection()");
+}
+
+void FBO::drawImagingVertexes()
+{
+    if (!m_pImagingVA) {
+        m_pImagingVA = VertexArrayPtr(new VertexArray);
+        m_pImagingVA->appendPos(DPoint(0,0), DPoint(0,0));
+        m_pImagingVA->appendPos(DPoint(0,1), DPoint(0,1));
+        m_pImagingVA->appendPos(DPoint(1,1), DPoint(1,1));
+        m_pImagingVA->appendPos(DPoint(1,0), DPoint(1,0));
+        m_pImagingVA->appendQuadIndexes(1,0,2,3);
+    }
+    m_pImagingVA->draw();
+}
+
 void FBO::copyToDestTexture() const
 {
     if (m_MultisampleSamples != 1) {
@@ -83,7 +112,12 @@ void FBO::copyToDestTexture() const
         glproc::BindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_OutputFBO);
         glproc::BlitFramebuffer(0, 0, m_Size.x, m_Size.y, 0, 0, m_Size.x, m_Size.y,
                 GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+    }
+    if (m_bMipmap) {
+        for (unsigned i=0; i< m_pTextures.size(); ++i) {
+            m_pTextures[i]->generateMipmaps();
+        }
     }
 }
 
@@ -125,7 +159,7 @@ const IntPoint& FBO::getSize() const
     return m_Size;
 }
 
-void FBO::init(bool bMipmap)
+void FBO::init()
 {
     if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support offscreen cropping (GL_EXT_packed_depth_stencil).");
@@ -142,6 +176,7 @@ void FBO::init(bool bMipmap)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: BindFramebuffer()");
 
     if (m_MultisampleSamples == 1) {
+        glDisable(GL_MULTISAMPLE);
         for (unsigned i=0; i<m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
                     GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 

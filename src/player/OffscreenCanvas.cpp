@@ -79,14 +79,13 @@ void OffscreenCanvas::render()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::screenshot(): Player.play() needs to be called before rendering offscreen canvases."));
     }
+    getDisplayEngine()->setMainFBO(m_pFBO);
     m_pFBO->activate();
-    Canvas::render(IntPoint(getRootNode()->getSize()), true, OffscreenRenderProfilingZone);
-    m_pFBO->copyToDestTexture();
+    Canvas::render(IntPoint(getRootNode()->getSize()), true, 
+            OffscreenRenderProfilingZone);
     m_pFBO->deactivate();
-    if (m_bUseMipmaps) {
-        m_pFBO->getTex()->activate(GL_TEXTURE0);
-        glproc::GenerateMipmap(GL_TEXTURE_2D);
-    }
+    m_pFBO->copyToDestTexture();
+    getDisplayEngine()->setMainFBO(FBOPtr());
 }
 
 BitmapPtr OffscreenCanvas::screenshot() const

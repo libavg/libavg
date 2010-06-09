@@ -25,8 +25,9 @@
 #include "../api.h"
 
 #include "GLTexture.h"
+#include "PBO.h"
+#include "VertexArray.h"
 #include "../base/Point.h"
-#include "../graphics/PBO.h"
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -43,6 +44,8 @@ public:
 
     void activate() const;
     void deactivate() const;
+    void setupImagingProjection() const;
+    void drawImagingVertexes();
 
     void copyToDestTexture() const;
     BitmapPtr getImage(int i=0) const;
@@ -54,13 +57,14 @@ public:
     static bool isPackedDepthStencilSupported();
 
 private:
-    void init(bool bMipmap);
+    void init();
     void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
     PixelFormat m_PF;
     unsigned m_MultisampleSamples;
     bool m_bUsePackedDepthStencil;
+    bool m_bMipmap;
 
     PBOPtr m_pOutputPBO;
     unsigned m_FBO;
@@ -70,6 +74,8 @@ private:
     // Multisample support
     unsigned m_ColorBuffer;
     unsigned m_OutputFBO;
+
+    VertexArrayPtr m_pImagingVA;
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;

@@ -284,6 +284,21 @@ void AVG_API restoreAVGGLContext()
 #endif
 }
 
+void AVG_API clearGLBuffers(GLbitfield mask)
+{
+    glClearColor(0.0, 0.0, 0.0, 0.0); 
+    if (mask & GL_STENCIL_BUFFER_BIT) {
+        glStencilMask(~0);
+        glClearStencil(0);
+    }
+    glClear(mask);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "clearGLBuffers()");
+    if (mask & GL_STENCIL_BUFFER_BIT) {
+        glStencilMask(0);
+    }
+}
+
+
 void invalidGLCall()
 {
     // Use this to cause core dump so we have the stack.

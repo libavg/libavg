@@ -114,6 +114,7 @@ void RasterNode::disconnect(bool bKill)
     if (m_pSurface) {
         m_pSurface->destroy();
     }
+    m_pFBO = FBOPtr();
     AreaNode::disconnect(bKill);
 }
 
@@ -276,19 +277,13 @@ BitmapPtr RasterNode::getBitmap()
 void RasterNode::blt32(const DPoint& DestSize, double opacity, 
         DisplayEngine::BlendMode Mode, bool bPremultipliedAlpha)
 {
-    glColor4d(1.0, 1.0, 1.0, opacity);
-    if (bPremultipliedAlpha) {
-        glproc::BlendColor(1.0, 1.0, 1.0, opacity);
-    }
-    blt(DestSize, Mode, bPremultipliedAlpha);
+    blt(DestSize, Mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
 void RasterNode::blta8(const DPoint& DestSize, double opacity, 
         const Pixel32& color, DisplayEngine::BlendMode Mode)
 {
-    glColor4d(double(color.getR())/256, double(color.getG())/256, 
-            double(color.getB())/256, opacity);
-    blt(DestSize, Mode, false);
+    blt(DestSize, Mode, opacity, color, false);
 }
 
 DisplayEngine::BlendMode RasterNode::getBlendMode() const
@@ -362,15 +357,85 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
     }
 }
 
+void RasterNode::createFBO()
+{
+    if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1))
+    {
+        if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
+            m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
+                    false, getMipmap()));
+        }
+    }
+}
+
 void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
-        bool bPremultipliedAlpha)
+        double opacity, const Pixel32& color, bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
     }
+//    createFBO();
     getDisplayEngine()->enableGLColorArray(false);
     getDisplayEngine()->enableTexture(true);
+    m_pSurface->activate(getMediaSize());
+/*    
+    m_pFBO->activate();
+    clearGLBuffers(GL_COLOR_BUFFER_BIT);
+
+    glColor4d(double(color.getR())/256, double(color.getG())/256, 
+            double(color.getB())/256, 1);
+    if (bPremultipliedAlpha) {
+        glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    getDisplayEngine()->setBlendMode(SDLDisplayEngine::BLEND_BLEND, bPremultipliedAlpha);
+    
+    glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
+    glDisable(GL_MULTISAMPLE);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+    m_pFBO->setupImagingProjection();
+    m_pFBO->drawImagingVertexes();
+
+    glPopAttrib();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
+
+    m_pFBO->deactivate();
+    m_pFBO->copyToDestTexture();
+    m_pSurface->deactivate();
+*/
+/*
+    static int i=0;
+    stringstream ss;
+    ss << "foo" << i << ".png";
+    BitmapPtr pBmp = m_pFBO->getImage(0);
+    pBmp->save(ss.str());
+    i++;
+*/
+//    pBmp->dump(true);
+    FBOPtr pMainFBO = getDisplayEngine()->getMainFBO();
+    if (pMainFBO) {
+        pMainFBO->activate();
+    } else {
+//        m_pFBO->deactivate();
+    }
     getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
+    glColor4d(double(color.getR())/256, double(color.getG())/256, 
+            double(color.getB())/256, opacity);
+    glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
+/*
+    m_pFBO->getTex()->activate(GL_TEXTURE0);
+    if (getDisplayEngine()->isUsingShaders()) {
+        glproc::UseProgramObject(0);
+    }
+*/
+
     glPushMatrix();
     glScaled(destSize.x, destSize.y, 1);
 
@@ -387,11 +452,11 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         }
     }
 
-    m_pSurface->activate(getMediaSize());
     m_pVertexes->draw();
     m_pSurface->deactivate();
 
     glPopMatrix();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix 2");
 
     PixelFormat pf = m_pSurface->getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " 

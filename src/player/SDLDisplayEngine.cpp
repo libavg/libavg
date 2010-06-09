@@ -1319,5 +1319,14 @@ const IntPoint& SDLDisplayEngine::getWindowSize() const
     return m_WindowSize;
 }
 
+void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)
+{
+    m_pFBO = pFBO;
 }
 
+FBOPtr SDLDisplayEngine::getMainFBO() const
+{
+    return m_pFBO;
+}
+
+}

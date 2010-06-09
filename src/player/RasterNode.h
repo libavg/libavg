@@ -30,6 +30,7 @@
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
 #include "../base/UTF8String.h"
+#include "../graphics/FBO.h"
 
 #include <string>
 
@@ -94,8 +95,9 @@ class AVG_API RasterNode: public AreaNode
         virtual void calcMaskCoords(MaterialInfo& material);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
-        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode,
-                bool bPremultipliedAlpha);
+        void createFBO();
+        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode, 
+                double opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
@@ -121,6 +123,9 @@ class AVG_API RasterNode: public AreaNode
         VertexGrid m_TileVertices;
         VertexArray * m_pVertexes;
         std::vector<std::vector<DPoint> > m_TexCoords;
+
+        FBOPtr m_pFBO;
+        GLTexturePtr m_pTex;
 };
 
 }

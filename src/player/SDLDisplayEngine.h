@@ -32,6 +32,7 @@
 #include "../graphics/OGLHelper.h"
 #include "../graphics/OGLShader.h"
 #include "../graphics/VertexArray.h"
+#include "../graphics/FBO.h"
 
 #include <string>
 #include <vector>
@@ -91,6 +92,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
 
+        void setMainFBO(FBOPtr pFBO);
+        FBOPtr getMainFBO() const;
+
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
@@ -146,6 +150,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         
         bool m_bCheckedMemoryMode;
         OGLMemoryMode m_MemoryMode;
+
+        FBOPtr m_pFBO;
 };
 
 }

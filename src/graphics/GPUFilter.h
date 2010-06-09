@@ -51,12 +51,9 @@ protected:
     const IntPoint& getSize() const;
 
 private:
-    void initVertexArray();
-
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;
     FBOPtr m_pFBO;
-    VertexArray * m_pVertexes;
 };
 
 } // namespace

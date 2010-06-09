@@ -47,13 +47,14 @@ class AVTestCase(AVGTestCase):
         Player.setTimeout(10000, onNoEOF)
         Player.play()
         
-    def testVideoEOFWhithZeroOpacity(self):
+    def testVideoEOFWithZeroOpacity(self):
         def onEOF():
             Player.stop()
 
         def onNoEOF():
             self.assert_(False)
 
+        Player.setFakeFPS(25)
         self.loadEmptyScene()
         videoNode = libavg.VideoNode(href = "../video/testfiles/mpeg1-48x48.mpg")
         videoNode.opacity = 0
@@ -341,6 +342,7 @@ class AVTestCase(AVGTestCase):
         def throwException():
             raise TestException
         
+        Player.setFakeFPS(0.1)
         videoNode = libavg.VideoNode(threaded = False)
         videoNode.href = "./testmediadir/mjpeg-48x48.avi"
         videoNode.setEOFCallback(throwException)
@@ -466,7 +468,6 @@ class AVTestCase(AVGTestCase):
 
 def AVTestSuite(tests):
     availableTests = (
-            "testVideoEOFWhithZeroOpacity",
             "testSound",
             "testSoundInfo",
             "testBrokenSound",
@@ -482,7 +483,8 @@ def AVTestSuite(tests):
             "testVideoFPS",
             "testVideoMask",
             "testVideoEOF",
-            "testException"
+            "testVideoEOFWithZeroOpacity",
+            "testException",
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 

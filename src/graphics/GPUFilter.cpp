@@ -41,12 +41,10 @@ GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest
         m_pSrcPBO = PBOPtr(new PBO(size, pfSrc, GL_STREAM_DRAW));
     }
     ObjectCounter::get()->incRef(&typeid(*this));
-    initVertexArray();
 }
   
 GPUFilter::~GPUFilter()
 {
-    delete m_pVertexes;
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -68,8 +66,8 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 
 void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
-    glViewport(0, 0, getSize().x, getSize().y);
     m_pFBO->activate();
+    m_pFBO->setupImagingProjection();
     applyOnGPU(pSrcTex);
     m_pFBO->deactivate();
 }
@@ -87,24 +85,12 @@ const IntPoint& GPUFilter::getSize() const
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pVertexes->draw();
+    m_pFBO->drawImagingVertexes();
 }
 
 GLTexturePtr GPUFilter::getDestTex(int i) const
 {
     return m_pFBO->getTex(i);
-}
-
-void GPUFilter::initVertexArray()
-{
-    IntPoint size = m_pFBO->getSize();
-    // Create a minimal vertex array to be used for drawing.
-    m_pVertexes = new VertexArray();
-    m_pVertexes->appendPos(DPoint(0, 0), DPoint(0, 1));
-    m_pVertexes->appendPos(DPoint(0, size.y), DPoint(0, 0));
-    m_pVertexes->appendPos(DPoint(size.x, size.y), DPoint(1, 0));
-    m_pVertexes->appendPos(DPoint(size.x, 0), DPoint(1, 1));
-    m_pVertexes->appendQuadIndexes(1, 0, 2, 3);
 }
 
 } // namespace

@@ -97,6 +97,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
     private:
         virtual void render()=0;
+        void renderOutlines();
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         SDLDisplayEngine * m_pDisplayEngine;

@@ -105,7 +105,7 @@ TrackerThread::~TrackerThread()
 bool TrackerThread::init()
 {
     try {
-        m_pImagingContext = new OGLImagingContext(m_ROI.size());
+        m_pImagingContext = new OGLImagingContext();
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {
@@ -313,7 +313,6 @@ void TrackerThread::createBandpassFilter()
         double bandpassPostMult = 
             m_pConfig->getDoubleParam("/tracker/touch/bandpasspostmult/@value");
         if (m_pImagingContext) {
-            m_pImagingContext->setSize(m_ROI.size());
             m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
                         bandpassMin, bandpassMax, bandpassPostMult, m_bTrackBrighter));
         }

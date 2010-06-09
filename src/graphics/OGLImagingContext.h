@@ -42,19 +42,16 @@ namespace avg {
 
 class AVG_API OGLImagingContext {
 public:
-    OGLImagingContext(const IntPoint & size);
+    OGLImagingContext();
     virtual ~OGLImagingContext();
 
     void activate();
-    void setSize(const IntPoint & size);
 
     bool isSupported();
 
-    static void setStandardState(const IntPoint & size);
-    static void setSizeState(const IntPoint & size);
-
 private:
-    IntPoint m_Size;
+    void setStandardState();
+
 #ifdef __APPLE__
     AGLContext m_Context;
 #else

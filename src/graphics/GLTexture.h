@@ -40,6 +40,8 @@ public:
     virtual ~GLTexture();
 
     void activate(int textureUnit=GL_TEXTURE0);
+    void generateMipmaps();
+
     const IntPoint& getSize() const;
     PixelFormat getPF() const;
     unsigned getID() const;

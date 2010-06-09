@@ -245,19 +245,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "SDLDisplayEngine::render: glDisable(GL_MULTISAMPLE)");
     }
-    glClearColor(0.0, 0.0, 0.0, 0.0); 
-    glClear(GL_COLOR_BUFFER_BIT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render::glClear(GL_COLOR_BUFFER_BIT)");
-    glStencilMask(~0);
-    glClearStencil(0);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    glStencilMask(0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render::glClear(GL_STENCIL_BUFFER_BIT)");
-    glClear(GL_DEPTH_BUFFER_BIT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render::glClear(GL_DEPTH_BUFFER_BIT)");
+    clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
@@ -280,16 +268,22 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
         ScopeTimer Timer(renderProfilingZone);
         m_pRootNode->maybeRender(rc);
 
-        Shape * pShape = new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
-        pShape->moveToGPU(m_pDisplayEngine);
-        VertexArrayPtr pVA = pShape->getVertexArray();
-        m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
-        if (pVA->getCurVert() != 0) {
-            pVA->update();
-            pShape->draw();
-        }
-        delete pShape;
+        renderOutlines();
     }
+}
+
+void Canvas::renderOutlines()
+{
+    Shape * pShape = new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+    pShape->moveToGPU(m_pDisplayEngine);
+    VertexArrayPtr pVA = pShape->getVertexArray();
+    m_pDisplayEngine->setBlendMode(DisplayEngine::BLEND_BLEND, false);
+    m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
+    if (pVA->getCurVert() != 0) {
+        pVA->update();
+        pShape->draw();
+    }
+    delete pShape;
 }
 
 }

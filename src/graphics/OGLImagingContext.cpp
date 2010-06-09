@@ -85,7 +85,7 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 }
 #endif
 
-OGLImagingContext::OGLImagingContext(const IntPoint & size)
+OGLImagingContext::OGLImagingContext()
 {
 #ifdef __APPLE__
     GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
@@ -166,10 +166,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
                 "GPU imaging not supported by current OpenGL configuration.");
     }
 
-    // Coordinates
-    setSize(size);
-
-    setStandardState(size);
+    setStandardState();
 }
 
 OGLImagingContext::~OGLImagingContext()
@@ -202,12 +199,6 @@ void OGLImagingContext::activate()
     // TODO: X version
 }
 
-void OGLImagingContext::setSize(const IntPoint& size)
-{
-    m_Size = size;
-    setSizeState(size);
-}
-
 bool OGLImagingContext::isSupported()
 {
     int glMajorVer;
@@ -222,10 +213,8 @@ bool OGLImagingContext::isSupported()
             queryOGLExtension("GL_EXT_framebuffer_object"));
 }
 
-void OGLImagingContext::setStandardState(const IntPoint & size)
+void OGLImagingContext::setStandardState()
 {
-    setSizeState(size);
-
     // Shading etc.
     glDisable(GL_BLEND);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_BLEND)");
@@ -248,21 +237,6 @@ void OGLImagingContext::setStandardState(const IntPoint & size)
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-}
-
-void OGLImagingContext::setSizeState(const IntPoint & size)
-{
-    glViewport(0, 0, size.x, size.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glMatrixMode()");
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
-    gluOrtho2D(0, size.x, size.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "gluOrtho2D()");
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
 }
 
 }

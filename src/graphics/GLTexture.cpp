@@ -67,10 +67,17 @@ GLTexture::~GLTexture()
 
 void GLTexture::activate(int textureUnit)
 {
+    // TODO: This should set the complete texture state.
     glproc::ActiveTexture(textureUnit);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::activate ActiveTexture()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::activate BindTexture()");
+}
+
+void GLTexture::generateMipmaps()
+{
+    activate();
+    glproc::GenerateMipmap(GL_TEXTURE_2D);
 }
 
 const IntPoint& GLTexture::getSize() const
