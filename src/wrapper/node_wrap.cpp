@@ -20,6 +20,7 @@
 //
 
 void export_bitmap();
+void export_fx();
 void export_raster();
 void export_event();
 #ifndef WIN32
@@ -212,6 +213,7 @@ void export_node()
                 "Deprecated.\n")
         ;
     export_bitmap();
+    export_fx();
     export_raster();
   
     class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", 

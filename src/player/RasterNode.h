@@ -26,6 +26,7 @@
 #include "AreaNode.h"
 #include "DisplayEngine.h"
 #include "PBOTexture.h"
+#include "FXNode.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
@@ -76,6 +77,7 @@ class AVG_API RasterNode: public AreaNode
 
         VisibleNodePtr getElementByPos(const DPoint & pos);
 
+        void setEffect(FXNodePtr pFXNode);
         virtual BitmapPtr getBitmap();
         
         void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode,
@@ -95,7 +97,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void calcMaskCoords(MaterialInfo& material);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
-        void createFBO();
+        void setupFX();
         void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
@@ -124,8 +126,9 @@ class AVG_API RasterNode: public AreaNode
         VertexArray * m_pVertexes;
         std::vector<std::vector<DPoint> > m_TexCoords;
 
+        
         FBOPtr m_pFBO;
-        GLTexturePtr m_pTex;
+        FXNodePtr m_pFXNode;
 };
 
 }

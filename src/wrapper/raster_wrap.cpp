@@ -131,6 +131,7 @@ void export_raster()
                 "setWarpedVertexCoords(grid)\n"
                 "Changes the current coordinates of all vertices.\n"
                 "@param grid: list of lists of coordinate tuples.")
+        .def("setEffect", &RasterNode::setEffect)
         .def("getBitmap", &RasterNode::getBitmap,
                 "getBitmap() -> Bitmap\n\n"
                 "Returns a copy of the bitmap that the node contains.")

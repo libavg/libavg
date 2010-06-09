@@ -15,7 +15,8 @@ endif
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 pkgpyexec_LTLIBRARIES = avg.la
-avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp event_wrap.cpp \
+avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp \
+        event_wrap.cpp fx_wrap.cpp \
         device_wrap.cpp bitmap_wrap.cpp anim_wrap.cpp $(ALL_H) 
 avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker $(BOOST_PYTHON_LIBS) \
         -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
