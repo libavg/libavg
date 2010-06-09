@@ -107,6 +107,7 @@ void AsyncVideoDecoder::close()
         m_pVDecoderThread->join();
         delete m_pVDecoderThread;
         m_pVDecoderThread = 0;
+        m_pVMsgQ = VideoMsgQueuePtr();
     }
     {
         scoped_lock Lock1(m_AudioMutex);
@@ -117,6 +118,7 @@ void AsyncVideoDecoder::close()
             m_pADecoderThread->join();
             delete m_pADecoderThread;
             m_pADecoderThread = 0;
+            m_pAMsgQ = VideoMsgQueuePtr();
         }
         m_pSyncDecoder->close();
     }        
