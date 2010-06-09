@@ -62,6 +62,8 @@ FFMpegDecoder::FFMpegDecoder ()
       m_Size(0,0),
       m_bUseStreamFPS(true),
       m_AStreamIndex(-1),
+      m_pSampleBuffer(0),
+      m_pResampleBuffer(0),
       m_pAudioResampleContext(0),
       m_Volume(1.0),
       m_LastVolume(1.0),
@@ -244,7 +246,6 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
                     sFilename + ": unsupported codec ("+szBuf+").");
         }
     }
-    
     // Enable audio stream demuxing.
     if (m_AStreamIndex >= 0)
     {
@@ -253,16 +254,6 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
         m_AudioPacket = 0;
         m_AudioPacketData = 0;
         m_AudioPacketSize = 0;
-        
-        m_pSampleBuffer = (char*)av_mallocz(SAMPLE_BUFFER_SIZE);
-        m_SampleBufferStart = 0;
-        m_SampleBufferEnd = 0;
-        m_SampleBufferLeft = SAMPLE_BUFFER_SIZE;
-
-        m_ResampleBufferSize = 0;
-        m_pResampleBuffer = 0;
-        m_ResampleBufferStart = 0;
-        m_ResampleBufferEnd = 0;
         
         m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
@@ -296,6 +287,7 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
         m_AP = *pAP;
     } else {
         m_AStreamIndex = -1;
+        avcodec_close(m_pAStream->codec);
         m_pAStream = 0;
     }
     if (m_AStreamIndex >= 0)
@@ -307,6 +299,16 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
             m_AStreamIndex = -1;
             m_pAStream = 0; 
         } else {
+            m_pSampleBuffer = (char*)av_mallocz(SAMPLE_BUFFER_SIZE);
+            m_SampleBufferStart = 0;
+            m_SampleBufferEnd = 0;
+            m_SampleBufferLeft = SAMPLE_BUFFER_SIZE;
+
+            m_ResampleBufferSize = 0;
+            m_pResampleBuffer = 0;
+            m_ResampleBufferStart = 0;
+            m_ResampleBufferEnd = 0;
+        
             m_pDemuxer->enableStream(m_AStreamIndex);
         }
     }
@@ -347,6 +349,11 @@ void FFMpegDecoder::close()
             delete m_AudioPacket;
             m_AudioPacket = 0;
         }
+        if(m_pAudioResampleContext) {
+            audio_resample_close(m_pAudioResampleContext);
+            m_pAudioResampleContext = 0;
+        }
+        
         if (m_pSampleBuffer) {
             av_free(m_pSampleBuffer);
             m_pSampleBuffer = 0;
@@ -355,11 +362,7 @@ void FFMpegDecoder::close()
             av_free(m_pResampleBuffer);
             m_pResampleBuffer = 0;
         }
-        if(m_pAudioResampleContext) {
-            audio_resample_close(m_pAudioResampleContext);
-            m_pAudioResampleContext = 0;
-        }
-        
+
         m_AudioPacketData = 0;
         m_AudioPacketSize = 0;
         
