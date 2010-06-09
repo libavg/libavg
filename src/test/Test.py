@@ -82,6 +82,7 @@ import PluginTest
 import PlayerTest
 import OffscreenTest
 import ImageTest
+import FXTest
 import VectorTest
 import WordsTest
 import AVTest
@@ -99,6 +100,7 @@ app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
 app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
 app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
 app.registerSuiteFactory('image', ImageTest.imageTestSuite)
+app.registerSuiteFactory('fx', FXTest.fxTestSuite)
 app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)
 app.registerSuiteFactory('words', WordsTest.wordsTestSuite)
 app.registerSuiteFactory('av', AVTest.AVTestSuite)

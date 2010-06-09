@@ -394,7 +394,8 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
-        getDisplayEngine()->setBlendMode(SDLDisplayEngine::BLEND_BLEND, bPremultipliedAlpha);
+        getDisplayEngine()->setBlendMode(SDLDisplayEngine::BLEND_BLEND, 
+                bPremultipliedAlpha);
         
         glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
         glDisable(GL_MULTISAMPLE);
@@ -406,12 +407,6 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         m_pFBO->setupImagingProjection();
         m_pFBO->drawImagingVertexes();
 
-        glPopAttrib();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
 
         m_pFBO->deactivate();
         m_pFBO->copyToDestTexture();
@@ -424,7 +419,16 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         pBmp->save(ss.str());
         i++;
     */
-        m_pFBO->getTex()->activate(GL_TEXTURE0);
+        m_pFXNode->apply(m_pFBO->getTex());
+
+        glPopAttrib();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
+
+        m_pFXNode->getTex()->activate(GL_TEXTURE0);
         if (getDisplayEngine()->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }
