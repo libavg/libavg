@@ -42,19 +42,19 @@ public:
     virtual void connect(SDLDisplayEngine* pEngine);
     virtual void disconnect();
     virtual void setSize(const IntPoint& newSize);
-    void setParams(double brightness, double contrast, double rGamma, double gGamma, 
-            double bGamma);
+    void setParams(float brightness, float contrast, float rGamma, float gGamma, 
+            float bGamma);
 
     virtual void apply(GLTexturePtr pSrcTex);
 
 private:
     void initShader();
 
-    double m_Brightness;
-    double m_Contrast;
-    double m_RGamma;
-    double m_GGamma;
-    double m_BGamma;
+    float m_Brightness;
+    float m_Contrast;
+    float m_RGamma;
+    float m_GGamma;
+    float m_BGamma;
 
     static OGLShaderPtr s_pShader;
 };

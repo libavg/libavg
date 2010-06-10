@@ -64,8 +64,8 @@ void ColorFXNode::setSize(const IntPoint& newSize)
     FXNode::setSize(newSize);
 }
 
-void ColorFXNode::setParams(double brightness, double contrast, double rGamma, 
-        double gGamma, double bGamma)
+void ColorFXNode::setParams(float brightness, float contrast, float rGamma, 
+        float gGamma, float bGamma)
 {
     m_Brightness = brightness;
     m_Contrast = contrast;
