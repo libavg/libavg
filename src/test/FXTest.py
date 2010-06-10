@@ -31,7 +31,7 @@ class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
-    def testFXBasics(self):
+    def testImageNullFX(self):
         def activateFX():
             node2.setEffect(avg.NullFXNode())
 
@@ -50,16 +50,39 @@ class FXTestCase(AVGTestCase):
         node.setEffect(avg.NullFXNode())
         node2 = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(32,0))
         self.start(None,
-                (lambda: self.compareImage("testFXBasics1", False),
+                (lambda: self.compareImage("testImageNullFX1", False),
                  activateFX,
-                 lambda: self.compareImage("testFXBasics1", False),
+                 lambda: self.compareImage("testImageNullFX1", False),
                  newNode,
-                 lambda: self.compareImage("testFXBasics2", False),
+                 lambda: self.compareImage("testImageNullFX2", False),
                 ))
+
+    def testVideoNullFX(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        Player.setFakeFPS(25)
+        node = avg.VideoNode(parent=root, href="../video/testfiles/mjpeg-48x48.avi")
+        node.setEffect(avg.NullFXNode())
+        node.play()
+        self.start(None,
+                (lambda: self.compareImage("testVideoNullFX", False),
+                ))
+
+    def testWordsNullFX(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.WordsNode(parent=root, text="testtext")
+        node.setEffect(avg.NullFXNode())
+        self.start(None,
+                (lambda: self.compareImage("testWordsNullFX", True),
+                ))
+
 
 def fxTestSuite(tests):
     availableTests = (
-            "testFXBasics",
+            "testImageNullFX",
+            "testVideoNullFX",
+            "testWordsNullFX",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 

@@ -79,7 +79,7 @@ void NullFXNode::apply(GLTexturePtr pSrcTex)
 
 void NullFXNode::initShader()
 {
-    if (!s_pShader) {
+//    if (!s_pShader) {
         string sProgram =
             "uniform sampler2D texture;\n"
 
@@ -91,7 +91,7 @@ void NullFXNode::initShader()
             ;
 
         s_pShader = OGLShaderPtr(new OGLShader(sProgram));
-    }
+//    }
 }
 
 }
