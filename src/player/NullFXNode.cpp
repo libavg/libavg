@@ -63,6 +63,10 @@ void NullFXNode::apply(GLTexturePtr pSrcTex)
 {
     s_pShader->activate();
     s_pShader->setUniformIntParam("texture", 0);
+
+    // Shader overwrites everything, so no glClear necessary before.
+    glproc::BlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ZERO);
     FBOPtr pFBO = getFBO();
     pSrcTex->activate();
     pFBO->activate();
@@ -81,7 +85,7 @@ void NullFXNode::initShader()
 
             "void main(void)\n"
             "{\n"
-            "  vec4 tex =texture2D(texture, gl_TexCoord[0].st);\n" 
+            "  vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n" 
             "  gl_FragColor.rgba = tex.rgba;\n"
             "}\n"
             ;

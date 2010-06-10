@@ -32,12 +32,26 @@ class FXTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def testFXBasics(self):
+        def activateFX():
+            node2.setEffect(avg.NullFXNode())
+
+        def newNode():
+            node = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(64,0))
+            node.setEffect(avg.NullFXNode())
+
         self.loadEmptyScene()
         root = Player.getRootNode()
-        node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        node = avg.ImageNode(parent=root, href="rgb24-32x32.png")
         node.setEffect(avg.NullFXNode())
+        node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(0,32))
+        node.setEffect(avg.NullFXNode())
+        node2 = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(32,0))
         self.start(None,
                 (lambda: self.compareImage("testFXBasics1", False),
+                 activateFX,
+                 lambda: self.compareImage("testFXBasics1", False),
+                 newNode,
+                 lambda: self.compareImage("testFXBasics2", False),
                 ))
 
 def fxTestSuite(tests):

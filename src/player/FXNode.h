@@ -46,6 +46,7 @@ public:
     GLTexturePtr getTex();
 
 protected:
+    SDLDisplayEngine* getEngine() const;
     FBOPtr getFBO();
 
 private:

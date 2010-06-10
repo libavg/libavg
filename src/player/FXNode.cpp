@@ -67,6 +67,11 @@ GLTexturePtr FXNode::getTex()
     return m_pFBO->getTex();
 }
 
+SDLDisplayEngine* FXNode::getEngine() const
+{
+    return m_pEngine;
+}
+
 FBOPtr FXNode::getFBO()
 {
     return m_pFBO;
