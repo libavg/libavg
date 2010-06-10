@@ -40,7 +40,7 @@ class FXTestCase(AVGTestCase):
             node.setEffect(avg.NullFXNode())
 
         def addBgNode():
-            node = avg.RectNode(pos=(0,32), size=(64,32), fillopacity=1, 
+            node = avg.RectNode(pos=(0,32), size=(64,32), fillopacity=1, opacity=0,
                     fillcolor="FFFFFF")
             root.insertChild(node, 0)
 
