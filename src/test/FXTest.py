@@ -99,7 +99,7 @@ class FXTestCase(AVGTestCase):
     def testColorFX(self):
         self.loadEmptyScene()
         root = Player.getRootNode()
-        node = avg.ImageNode(parent=root, href="rgb24-32x32.png")
+        node = avg.ImageNode(parent=root, href="colorramp.png")
         effect = avg.ColorFXNode()
         node.setEffect(effect)
         self.start(None,
@@ -108,6 +108,12 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testColorFX2", False),
                  lambda: effect.setParams(0.5,1,1,1,1),
                  lambda: self.compareImage("testColorFX3", False),
+                 lambda: effect.setParams(1,1,0.3,1,1),
+                 lambda: self.compareImage("testColorFX4", False),
+                 lambda: effect.setParams(1,1,1,0.3,1),
+                 lambda: self.compareImage("testColorFX5", False),
+                 lambda: effect.setParams(1,1,1,1,0.3),
+                 lambda: self.compareImage("testColorFX6", False),
                 ))
 
 def fxTestSuite(tests):

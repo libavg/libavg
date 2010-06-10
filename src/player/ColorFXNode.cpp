@@ -80,9 +80,9 @@ void ColorFXNode::apply(GLTexturePtr pSrcTex)
     s_pShader->setUniformIntParam("texture", 0);
     s_pShader->setUniformFloatParam("brightness", m_Brightness);
     s_pShader->setUniformFloatParam("contrast", m_Contrast);
-    s_pShader->setUniformFloatParam("rGamma", m_RGamma);
-    s_pShader->setUniformFloatParam("gGamma", m_GGamma);
-    s_pShader->setUniformFloatParam("bGamma", m_BGamma);
+    s_pShader->setUniformFloatParam("rGamma", 1./m_RGamma);
+    s_pShader->setUniformFloatParam("gGamma", 1./m_GGamma);
+    s_pShader->setUniformFloatParam("bGamma", 1./m_BGamma);
 
     // blt overwrites everything, so no glClear necessary before.
     getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
@@ -112,6 +112,8 @@ void ColorFXNode::initShader()
             "  vec3 avg = vec3(0.5, 0.5, 0.5);\n"
             "  tex.rgb = mix(avg, tex.rgb, contrast);\n"
             "  tex.rgb = tex.rgb*brightness;\n"
+            "  tex.rgb = vec3(pow(tex.r, rGamma), pow(tex.g, gGamma),\n"
+            "          pow(tex.b, bGamma));\n"
             "  gl_FragColor = tex;\n"
             "}\n"
             ;
