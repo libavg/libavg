@@ -19,30 +19,49 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "WrapHelper.h"
-#include "raw_constructor.hpp"
+#ifndef _ColorFXNode_H_
+#define _ColorFXNode_H_
 
-#include "../player/FXNode.h"
-#include "../player/NullFXNode.h"
-#include "../player/ColorFXNode.h"
+#include "../api.h"
+
+#include "FXNode.h"
+#include "../graphics/FBO.h"
+#include "../graphics/OGLShader.h"
 
 #include <boost/shared_ptr.hpp>
 
-using namespace boost::python;
-using namespace avg;
+namespace avg {
 
-void export_fx()
-{
+class SDLDisplayEngine;
 
-    class_<FXNode, boost::shared_ptr<FXNode>, boost::noncopyable>("FXNode", no_init)
-        ;
+class AVG_API ColorFXNode: public FXNode {
+public:
+    ColorFXNode();
+    virtual ~ColorFXNode();
 
-    class_<NullFXNode, bases<FXNode>, boost::shared_ptr<NullFXNode>, boost::noncopyable>(
-            "NullFXNode")
-        ;
+    virtual void connect(SDLDisplayEngine* pEngine);
+    virtual void disconnect();
+    virtual void setSize(const IntPoint& newSize);
+    void setParams(double brightness, double contrast, double rGamma, double gGamma, 
+            double bGamma);
 
-    class_<ColorFXNode, bases<FXNode>, boost::shared_ptr<ColorFXNode>, boost::noncopyable>(
-            "ColorFXNode")
-        .def("setParams", &ColorFXNode::setParams)
-        ;
+    virtual void apply(GLTexturePtr pSrcTex);
+
+private:
+    void initShader();
+
+    double m_Brightness;
+    double m_Contrast;
+    double m_RGamma;
+    double m_GGamma;
+    double m_BGamma;
+
+    static OGLShaderPtr s_pShader;
+};
+
+typedef boost::shared_ptr<ColorFXNode> ColorFXNodePtr;
+
 }
+
+#endif
+

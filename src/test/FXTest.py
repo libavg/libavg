@@ -95,7 +95,20 @@ class FXTestCase(AVGTestCase):
                  setOpacity,
                  lambda: self.compareImage("testCanvasNullFX2", False),
                 ))
- 
+
+    def testColorFX(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.ImageNode(parent=root, href="rgb24-32x32.png")
+        effect = avg.ColorFXNode()
+        node.setEffect(effect)
+        self.start(None,
+                (lambda: self.compareImage("testColorFX1", False),
+                 lambda: effect.setParams(1,2,1,1,1),
+                 lambda: self.compareImage("testColorFX2", False),
+                 lambda: effect.setParams(0.5,1,1,1,1),
+                 lambda: self.compareImage("testColorFX3", False),
+                ))
 
 def fxTestSuite(tests):
     availableTests = (
@@ -103,6 +116,7 @@ def fxTestSuite(tests):
             "testVideoNullFX",
             "testWordsNullFX",
             "testCanvasNullFX",
+            "testColorFX",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 
