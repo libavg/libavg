@@ -67,6 +67,11 @@ GLTexturePtr FXNode::getTex()
     return m_pFBO->getTex();
 }
 
+BitmapPtr FXNode::getImage()
+{
+    return m_pFBO->getImage();
+}
+
 SDLDisplayEngine* FXNode::getEngine() const
 {
     return m_pEngine;

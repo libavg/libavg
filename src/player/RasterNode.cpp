@@ -394,7 +394,7 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
-        getDisplayEngine()->setBlendMode(SDLDisplayEngine::BLEND_BLEND, 
+        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
                 bPremultipliedAlpha);
         
         glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
@@ -411,14 +411,13 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         m_pFBO->deactivate();
         m_pFBO->copyToDestTexture();
         m_pSurface->deactivate();
-    /*
+/*
         static int i=0;
         stringstream ss;
         ss << "foo" << i << ".png";
         BitmapPtr pBmp = m_pFBO->getImage(0);
         pBmp->save(ss.str());
-        i++;
-    */
+  */  
         m_pFXNode->apply(m_pFBO->getTex());
 
         glPopAttrib();
@@ -428,7 +427,14 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         glPopMatrix();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
 
+//        m_pFBO->getTex()->activate(GL_TEXTURE0);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
+/*        
+        stringstream ss1;
+        ss1 << "bar" << i << ".png";
+        i++;
+        m_pFXNode->getImage()->save(ss1.str());
+*/
         if (getDisplayEngine()->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }

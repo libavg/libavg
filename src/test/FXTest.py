@@ -77,12 +77,32 @@ class FXTestCase(AVGTestCase):
                 (lambda: self.compareImage("testWordsNullFX", True),
                 ))
 
+    def testCanvasNullFX(self):
+        def setOpacity():
+            node.opacity=0.6
+
+        Player.loadCanvasString("""
+            <canvas id="offscreen" width="160" height="120">
+                <image href="rgb24-32x32.png"/>
+                <image pos="(32,0)" href="rgb24alpha-32x32.png"/>
+            </canvas>""")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.ImageNode(parent=root, href="canvas:offscreen")
+        node.setEffect(avg.NullFXNode())
+        self.start(None,
+                (lambda: self.compareImage("testCanvasNullFX1", False),
+                 setOpacity,
+                 lambda: self.compareImage("testCanvasNullFX2", False),
+                ))
+ 
 
 def fxTestSuite(tests):
     availableTests = (
             "testImageNullFX",
             "testVideoNullFX",
             "testWordsNullFX",
+            "testCanvasNullFX",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 

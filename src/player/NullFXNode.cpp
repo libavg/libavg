@@ -64,9 +64,8 @@ void NullFXNode::apply(GLTexturePtr pSrcTex)
     s_pShader->activate();
     s_pShader->setUniformIntParam("texture", 0);
 
-    // Shader overwrites everything, so no glClear necessary before.
-    glproc::BlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ZERO);
+    // blt overwrites everything, so no glClear necessary before.
+    getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
     FBOPtr pFBO = getFBO();
     pSrcTex->activate();
     pFBO->activate();

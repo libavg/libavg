@@ -44,6 +44,7 @@ public:
     virtual void apply(GLTexturePtr pSrcTex)=0;
 
     GLTexturePtr getTex();
+    BitmapPtr getImage();
 
 protected:
     SDLDisplayEngine* getEngine() const;

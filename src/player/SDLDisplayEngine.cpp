@@ -1207,6 +1207,12 @@ void SDLDisplayEngine::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkBlendModeError("max");
                 break;
+            case BLEND_COPY:
+                glproc::BlendEquation(GL_FUNC_ADD);
+                glBlendFunc(GL_ONE, GL_ZERO);
+                break;
+            default:
+                AVG_ASSERT(false);
         }
 
         m_BlendMode = mode;
