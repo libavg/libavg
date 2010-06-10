@@ -52,13 +52,9 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
 
 void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    GLhandleARB hProgram = s_pShader->getProgram();
-    glproc::UseProgramObject(hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBrightnessFilter::apply: glUseProgramObject()");
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"),
-            GLfloat(m_Alpha));
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
+    s_pShader->activate();
+    s_pShader->setUniformIntParam("Texture", 0);
+    s_pShader->setUniformFloatParam("alpha", GLfloat(m_Alpha));
     draw(pSrcTex);
 
     glproc::UseProgramObject(0);

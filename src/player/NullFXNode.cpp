@@ -24,7 +24,13 @@
 
 #include "../base/ObjectCounter.h"
 
+#include <string>
+
+using namespace std;
+
 namespace avg {
+
+OGLShaderPtr NullFXNode::s_pShader;
 
 NullFXNode::NullFXNode() 
     : FXNode()
@@ -40,6 +46,7 @@ NullFXNode::~NullFXNode()
 void NullFXNode::connect(SDLDisplayEngine* pEngine)
 {
     FXNode::connect(pEngine);
+    initShader();
 }
 
 void NullFXNode::disconnect()
@@ -54,13 +61,33 @@ void NullFXNode::setSize(const IntPoint& newSize)
 
 void NullFXNode::apply(GLTexturePtr pSrcTex)
 {
+    s_pShader->activate();
+    s_pShader->setUniformIntParam("texture", 0);
     FBOPtr pFBO = getFBO();
     pSrcTex->activate();
     pFBO->activate();
     pFBO->setupImagingProjection();
     pFBO->drawImagingVertexes();
     pFBO->deactivate();
+    glproc::UseProgramObject(0);
     pFBO->copyToDestTexture();
+}
+
+void NullFXNode::initShader()
+{
+    if (!s_pShader) {
+        string sProgram =
+            "uniform sampler2D texture;\n"
+
+            "void main(void)\n"
+            "{\n"
+            "  vec4 tex =texture2D(texture, gl_TexCoord[0].st);\n" 
+            "  gl_FragColor.rgba = tex.rgba;\n"
+            "}\n"
+            ;
+
+        s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+    }
 }
 
 }

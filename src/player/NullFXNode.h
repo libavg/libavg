@@ -26,6 +26,7 @@
 
 #include "FXNode.h"
 #include "../graphics/FBO.h"
+#include "../graphics/OGLShader.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -45,6 +46,9 @@ public:
     virtual void apply(GLTexturePtr pSrcTex);
 
 private:
+    void initShader();
+
+    static OGLShaderPtr s_pShader;
 };
 
 typedef boost::shared_ptr<NullFXNode> NullFXNodePtr;
