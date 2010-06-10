@@ -52,6 +52,7 @@ public:
 protected:
     SDLDisplayEngine* getEngine() const;
     FBOPtr getFBO();
+    const std::string& getStdShaderCode() const;
 
 private:
     virtual void destroyShader()=0;

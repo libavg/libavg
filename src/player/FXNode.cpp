@@ -27,6 +27,8 @@
 
 namespace avg {
 
+using namespace std;
+
 FXNode::FXNode() 
     : m_pEngine(0), 
       m_Size(0, 0)
@@ -88,6 +90,23 @@ SDLDisplayEngine* FXNode::getEngine() const
 FBOPtr FXNode::getFBO()
 {
     return m_pFBO;
+}
+
+const string& FXNode::getStdShaderCode() const
+{
+    static string sCode = 
+        "void unPreMultiplyAlpha(inout vec4 color)\n"
+        "{\n"
+        "  color.rgb /= color.a;\n"
+        "}\n"
+        "\n"
+        "void preMultiplyAlpha(inout vec4 color)\n"
+        "{\n"
+        "  color.rgb *= color.a;\n"
+        "}\n"
+        "\n";
+
+    return sCode;
 }
 
 }
