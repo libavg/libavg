@@ -45,6 +45,9 @@ class FXTestCase(AVGTestCase):
         node.setEffect(avg.NullFXNode())
         node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(0,32))
         node.setEffect(avg.NullFXNode())
+        node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(32,32),
+                opacity=0.6)
+        node.setEffect(avg.NullFXNode())
         node2 = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(32,0))
         self.start(None,
                 (lambda: self.compareImage("testFXBasics1", False),
