@@ -39,6 +39,11 @@ class FXTestCase(AVGTestCase):
             node = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(64,0))
             node.setEffect(avg.NullFXNode())
 
+        def addBgNode():
+            node = avg.RectNode(pos=(0,32), size=(64,32), fillopacity=1, 
+                    fillcolor="FFFFFF")
+            root.insertChild(node, 0)
+
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="rgb24-32x32.png")
@@ -55,6 +60,8 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testImageNullFX1", False),
                  newNode,
                  lambda: self.compareImage("testImageNullFX2", False),
+                 addBgNode,
+                 lambda: self.compareImage("testImageNullFX3", False),
                 ))
 
     def testVideoNullFX(self):
