@@ -104,6 +104,10 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testColorFX(self):
+        def setAlphaImage():
+            node.href="rgb24alpha-64x64.png"
+            effect.setParams(1,2,1,1,1)
+
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="colorramp.png")
@@ -121,7 +125,10 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testColorFX5", False),
                  lambda: effect.setParams(1,1,1,1,0.3),
                  lambda: self.compareImage("testColorFX6", False),
+                 setAlphaImage,
+                 lambda: self.compareImage("testColorFX7", False),
                 ))
+
 
 def fxTestSuite(tests):
     availableTests = (
