@@ -49,6 +49,7 @@ public:
 
 private:
     void initShader();
+    virtual void destroyShader();
 
     float m_Brightness;
     float m_Contrast;

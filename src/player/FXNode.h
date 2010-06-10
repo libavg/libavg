@@ -25,6 +25,7 @@
 #include "../api.h"
 
 #include "../graphics/FBO.h"
+#include "../base/IPlaybackEndListener.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -32,7 +33,7 @@ namespace avg {
 
 class SDLDisplayEngine;
 
-class AVG_API FXNode {
+class AVG_API FXNode: public IPlaybackEndListener {
 public:
     FXNode();
     virtual ~FXNode();
@@ -46,11 +47,15 @@ public:
     GLTexturePtr getTex();
     BitmapPtr getImage();
 
+    virtual void onPlaybackEnd();
+
 protected:
     SDLDisplayEngine* getEngine() const;
     FBOPtr getFBO();
 
 private:
+    virtual void destroyShader()=0;
+
     SDLDisplayEngine* m_pEngine;
     IntPoint m_Size;
     FBOPtr m_pFBO;

@@ -47,6 +47,7 @@ public:
 
 private:
     void initShader();
+    virtual void destroyShader();
 
     static OGLShaderPtr s_pShader;
 };

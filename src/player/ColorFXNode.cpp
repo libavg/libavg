@@ -98,7 +98,7 @@ void ColorFXNode::apply(GLTexturePtr pSrcTex)
 
 void ColorFXNode::initShader()
 {
-//    if (!s_pShader) {
+    if (!s_pShader) {
         string sProgram =
             "uniform sampler2D texture;\n"
             "uniform float brightness;\n"
@@ -132,7 +132,13 @@ void ColorFXNode::initShader()
             ;
 
         s_pShader = OGLShaderPtr(new OGLShader(sProgram));
-//    }
+    }
+}
+
+void ColorFXNode::destroyShader()
+{
+    s_pShader = OGLShaderPtr();
 }
 
 }
+
