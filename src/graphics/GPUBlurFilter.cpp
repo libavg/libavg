@@ -37,9 +37,10 @@ using namespace std;
 
 namespace avg {
 
-GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev, 
-            bool bStandalone)
-    : GPUFilter(size, pfSrc, R32G32B32A32F, bStandalone, 2),
+GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
+        double stdDev, bool bStandalone)
+    : GPUFilter(size, pfSrc, pfDest, bStandalone, 2),
+//    : GPUFilter(size, pfSrc, R32G32B32A32F, bStandalone, 2),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -52,6 +53,12 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double std
 GPUBlurFilter::~GPUBlurFilter()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void GPUBlurFilter::setParam(double stdDev)
+{
+    m_StdDev = stdDev;
+    calcKernel();
 }
 
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -72,6 +79,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->setUniformIntParam("Texture", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
     draw(getDestTex(1));
+    glproc::UseProgramObject(0);
 }
 
 void GPUBlurFilter::initShaders()

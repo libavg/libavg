@@ -130,6 +130,18 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testColorFX7", False),
                 ))
 
+    def testBlurFX(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        effect = avg.BlurFXNode()
+        node.setEffect(effect)
+        self.start(None,
+                (lambda: self.compareImage("testBlurFX1", False),
+                 lambda: effect.setParam(8),
+                 lambda: self.compareImage("testBlurFX2", False),
+                ))
+
 
 def fxTestSuite(tests):
     availableTests = (
@@ -138,6 +150,7 @@ def fxTestSuite(tests):
             "testWordsNullFX",
             "testCanvasNullFX",
             "testColorFX",
+            "testBlurFX",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 

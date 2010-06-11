@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "ColorFXNode.h"
+#include "BlurFXNode.h"
 #include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
@@ -31,39 +31,36 @@ using namespace std;
 
 namespace avg {
 
-ColorFXNode::ColorFXNode() 
-    : FXNode()
+BlurFXNode::BlurFXNode() 
+    : FXNode(),
+      m_StdDev(1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-ColorFXNode::~ColorFXNode()
+BlurFXNode::~BlurFXNode()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ColorFXNode::disconnect()
+void BlurFXNode::disconnect()
 {
-    m_pFilter = GPUColorControlFilterPtr();
+    m_pFilter = GPUBlurFilterPtr();
     FXNode::disconnect();
 }
 
-void ColorFXNode::setParams(float brightness, float contrast, float rGamma, 
-        float gGamma, float bGamma)
+void BlurFXNode::setParam(double stdDev)
 {
-    m_Brightness = brightness;
-    m_Contrast = contrast;
-    m_RGamma = rGamma;
-    m_GGamma = gGamma;
-    m_BGamma = bGamma;
+    m_StdDev = stdDev;
     if (m_pFilter) {
-        m_pFilter->setParams(brightness, contrast, rGamma, gGamma, bGamma);
+        m_pFilter->setParam(stdDev);
     }
 }
 
-GPUFilterPtr ColorFXNode::createFilter(const IntPoint& size)
+GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)
 {
-    m_pFilter = GPUColorControlFilterPtr(new GPUColorControlFilter(size, false));
+    m_pFilter = GPUBlurFilterPtr(new GPUBlurFilter(size, B8G8R8A8, B8G8R8A8, m_StdDev, 
+            false));
     return m_pFilter;
 }
 

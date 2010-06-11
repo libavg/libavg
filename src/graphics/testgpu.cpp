@@ -246,21 +246,25 @@ public:
 */
         cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
+                0.5).apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 0.0004);
         testEqual(*pDestBmp, "blur05_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 1" << endl;
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
+                1).apply(pBmp);
 //        testEqualBrightness(*pDestBmp, *pBmp, 5);
         testEqual(*pDestBmp, "blur1_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 3" << endl;
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 3).apply(pBmp);
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
+                3).apply(pBmp);
 //        testEqualBrightness(*pDestBmp, *pBmp, 5);
         testEqual(*pDestBmp, "blur5_spike", B8G8R8X8, 0.01, 0.1);
 
         cerr << "    Testing flat, stddev 5" << endl;
         pBmp = loadTestBmp("flat");
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 5).apply(pBmp);
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
+                5).apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 1);
         testEqual(*pDestBmp, *pBmp, "blur05_flat");
 
@@ -274,7 +278,8 @@ private:
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 10).apply(pBmp);
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
+                10).apply(pBmp);
         testEqual(*pDestBmp, string("blur_")+sFName, pBmp->getPixelFormat(), 0.2, 0.5);
     }
 };

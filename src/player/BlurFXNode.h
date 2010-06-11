@@ -19,39 +19,39 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+#ifndef _BlurFXNode_H_
+#define _BlurFXNode_H_
 
 #include "../api.h"
-#include "GPUFilter.h"
-#include "GLTexture.h"
+
+#include "FXNode.h"
+#include "../graphics/GPUBlurFilter.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class AVG_API GPUBlurFilter: public GPUFilter
-{
+class SDLDisplayEngine;
+
+class AVG_API BlurFXNode: public FXNode {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            double stdDev, bool bStandalone=true);
-    virtual ~GPUBlurFilter();
-    
+    BlurFXNode();
+    virtual ~BlurFXNode();
+
+    virtual void disconnect();
     void setParam(double stdDev);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    static void initShaders();
-    void dumpKernel();
-    void calcKernel();
+    virtual GPUFilterPtr createFilter(const IntPoint& size);
 
-    double m_StdDev;
-    int m_KernelWidth;
-    float m_Kernel[255];
+    GPUBlurFilterPtr m_pFilter;
 
-    GLTexturePtr m_pGaussCurveTex;
+    float m_StdDev;
 };
 
-typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
+typedef boost::shared_ptr<BlurFXNode> BlurFXNodePtr;
 
-} // namespace
+}
+
 #endif
 
