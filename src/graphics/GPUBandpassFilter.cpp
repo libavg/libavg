@@ -58,15 +58,12 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_MaxFilter.apply(pSrcTex);
 
     getFBO()->activate();
-    GLhandleARB hProgram = getShader(SHADERID)->getProgram();
-    glproc::UseProgramObject(hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBandpassFilter::apply: glUseProgramObject()");
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "minTex"), 0);
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "maxTex"), 1);
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), 
-            float(m_PostScale));
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "bInvert"), m_bInvert);
+    OGLShaderPtr pShader = getShader(SHADERID);
+    pShader->activate();
+    pShader->setUniformIntParam("minTex", 0);
+    pShader->setUniformIntParam("maxTex", 1);
+    pShader->setUniformFloatParam("postScale", float(m_PostScale));
+    pShader->setUniformIntParam("bInvert", m_bInvert);
     m_MaxFilter.getDestTex()->activate(GL_TEXTURE1);
     draw(m_MinFilter.getDestTex());
 
