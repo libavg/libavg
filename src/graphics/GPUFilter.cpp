@@ -25,6 +25,7 @@
 #include "VertexArray.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 
@@ -114,6 +115,58 @@ const string& GPUFilter::getStdShaderCode() const
         "\n";
 
     return sCode;
+}
+
+void dumpKernel(int width, float* pKernel)
+{
+    cerr << "  Kernel width: " << width << endl;
+    float sum = 0;
+    for (int i=0; i<width; ++i) {
+        sum += pKernel[i];
+        cerr << "  " << pKernel[i] << endl;
+    }
+    cerr << "Sum of coefficients: " << sum << endl;
+}
+
+GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev) const
+{
+    int kernelCenter = int(ceil(stdDev*3));
+    int kernelWidth = kernelCenter*2+1;
+    float* pKernel;
+    pKernel = new float[kernelWidth];
+    float sum = 0;
+    for (int i=0; i <= kernelCenter; ++i) {
+        pKernel[kernelCenter+i] = float(exp(-i*i/(2*stdDev*stdDev))
+                /sqrt(2*PI*stdDev*stdDev));
+        sum += pKernel[kernelCenter+i];
+        if (i != 0) {
+            pKernel[kernelCenter-i] = pKernel[kernelCenter+i];
+            sum += pKernel[kernelCenter-i];
+        }
+    }
+
+    // Make sure the sum of coefficients is 1 despite the inaccuracies
+    // introduced by using a kernel of finite size.
+    for (int i=0; i<=kernelWidth; ++i) {
+        pKernel[i] /= sum;
+    }
+//    dumpKernel(kernelWidth, pKernel);
+    
+    IntPoint size(kernelWidth, 1);
+    GLTexturePtr pTex(new GLTexture(size, I32F));
+    PBO pbo(size, I32F, GL_STREAM_DRAW);
+    pbo.activate();
+    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
+    int memNeeded = kernelWidth*sizeof(float);
+    memcpy(pPBOPixels, pKernel, memNeeded);
+    glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
+   
+    pbo.movePBOToTexture(pTex);
+
+    delete[] pKernel;
+    return pTex;
 }
 
 } // namespace

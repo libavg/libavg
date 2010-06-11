@@ -51,6 +51,7 @@ protected:
     void draw(GLTexturePtr pTex);
     const IntPoint& getSize() const;
     const std::string& getStdShaderCode() const;
+    GLTexturePtr calcBlurKernelTex(double stdDev) const;
 
 private:
     GLTexturePtr m_pSrcTex;

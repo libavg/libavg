@@ -40,14 +40,12 @@ namespace avg {
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         double stdDev, bool bStandalone)
     : GPUFilter(size, pfSrc, pfDest, bStandalone, 2),
-//    : GPUFilter(size, pfSrc, R32G32B32A32F, bStandalone, 2),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
-    m_pGaussCurveTex = GLTexturePtr(new GLTexture(IntPoint(255, 1), I32F));
     initShaders();
-    calcKernel();
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -58,15 +56,17 @@ GPUBlurFilter::~GPUBlurFilter()
 void GPUBlurFilter::setParam(double stdDev)
 {
     m_StdDev = stdDev;
-    calcKernel();
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
 }
 
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
+    int kernelWidth = m_pGaussCurveTex->getSize().x;
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
     pHShader->activate();
-    pHShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    pHShader->setUniformFloatParam("width", kernelWidth);
+    pHShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pHShader->setUniformIntParam("Texture", 0);
     pHShader->setUniformIntParam("kernelTex", 1);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
@@ -75,7 +75,8 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
-    pVShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    pVShader->setUniformFloatParam("width", kernelWidth);
+    pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pVShader->setUniformIntParam("Texture", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
     draw(getDestTex(1));
@@ -86,6 +87,7 @@ void GPUBlurFilter::initShaders()
 {
     string sProgramHead =
         "uniform sampler2D Texture;\n"
+        "uniform float width;\n"
         "uniform int radius;\n"
         "uniform sampler2D kernelTex;\n"
         ;
@@ -97,7 +99,8 @@ void GPUBlurFilter::initShaders()
         "    for (int i=-radius; i<=radius; ++i) {\n"
         "        float dx = dFdx(gl_TexCoord[0].x);\n"
         "        vec4 tex = texture2D(Texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
-        "        float coeff = texture2D(kernelTex, vec2((float(i+radius)+0.5)/255.,0)).r;\n"
+        "        float coeff = \n"
+        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
         "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = sum;\n"
@@ -112,7 +115,8 @@ void GPUBlurFilter::initShaders()
         "    for (int i=-radius; i<=radius; ++i) {\n"
         "        float dy = dFdy(gl_TexCoord[0].y);\n"
         "        vec4 tex = texture2D(Texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
-        "        float coeff = texture2D(kernelTex, vec2((float(i+radius)+0.5)/255.,0)).r;\n"
+        "        float coeff = \n"
+        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
         "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = sum;\n"
@@ -121,59 +125,5 @@ void GPUBlurFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
-void GPUBlurFilter::dumpKernel()
-{
-    cerr << "Gauss, std dev " << m_StdDev << endl;
-    cerr << "  Kernel width: " << m_KernelWidth << endl;
-    float sum = 0;
-    for (int i=0; i<m_KernelWidth; ++i) {
-        sum += m_Kernel[i];
-        cerr << "  " << m_Kernel[i] << endl;
-    }
-    cerr << "Sum of coefficients: " << sum << endl;
-}
-
-void GPUBlurFilter::calcKernel()
-{
-    int KernelCenter = int(ceil(m_StdDev*3));
-    m_KernelWidth = KernelCenter*2+1;
-    AVG_ASSERT (m_KernelWidth < 256);
-    float sum = 0;
-    for (int i=0; i<= KernelCenter; ++i) {
-        m_Kernel[KernelCenter+i] = float(exp(-i*i/(2*m_StdDev*m_StdDev))
-                /sqrt(2*PI*m_StdDev*m_StdDev));
-        sum += m_Kernel[KernelCenter+i];
-        if (i != 0) {
-            m_Kernel[KernelCenter-i] = m_Kernel[KernelCenter+i];
-            sum += m_Kernel[KernelCenter-i];
-        }
-    }
-
-    // Make sure the sum of coefficients is 1 despite the inaccuracies
-    // introduced by using a kernel of finite size.
-    for (int i=0; i<=m_KernelWidth; ++i) {
-        m_Kernel[i] /= sum;
-    }
-
-    IntPoint size = m_pGaussCurveTex->getSize();
-    PBO pbo(size, I32F, GL_STREAM_DRAW);
-    pbo.activate();
-    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage MapBuffer()");
-    int memNeeded = size.x*size.y*Bitmap::getBytesPerPixel(I32F);
-    memcpy(pPBOPixels, m_Kernel, memNeeded);
-    glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: UnmapBuffer()");
-    
-    m_pGaussCurveTex->activate(GL_TEXTURE0);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, size.x);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBlurFilter::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    glTexImage2D(GL_TEXTURE_2D, 0, m_pGaussCurveTex->getGLInternalFormat(), 
-            size.x, size.y, 0, GLTexture::getGLFormat(I32F), 
-            GLTexture::getGLType(I32F), 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUBlurFilter::setImage: glTexImage2D()");
-    pbo.deactivate();
-}
 
 } // namespace

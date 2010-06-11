@@ -44,8 +44,6 @@ private:
     void calcKernel();
 
     double m_StdDev;
-    int m_KernelWidth;
-    float m_Kernel[255];
 
     GLTexturePtr m_pGaussCurveTex;
 };
