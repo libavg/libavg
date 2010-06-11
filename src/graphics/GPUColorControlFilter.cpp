@@ -71,9 +71,9 @@ void GPUColorControlFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->setUniformIntParam("texture", 0);
     pShader->setUniformFloatParam("brightness", m_Brightness);
     pShader->setUniformFloatParam("contrast", m_Contrast);
-    pShader->setUniformFloatParam("rGamma", 1./m_RGamma);
-    pShader->setUniformFloatParam("gGamma", 1./m_GGamma);
-    pShader->setUniformFloatParam("bGamma", 1./m_BGamma);
+    pShader->setUniformFloatParam("rGamma", 1.f/m_RGamma);
+    pShader->setUniformFloatParam("gGamma", 1.f/m_GGamma);
+    pShader->setUniformFloatParam("bGamma", 1.f/m_BGamma);
     
     draw(pSrcTex);
 
