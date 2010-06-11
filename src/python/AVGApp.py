@@ -28,6 +28,7 @@ g_Log = avg.Logger.get()
 try:
     from win32gui import *
     from win32con import *
+    from win32api import *
     g_WIN32 = True
 except:
     g_WIN32 = False
@@ -117,7 +118,10 @@ class AVGApp(object):
         hDesk = GetDesktopWindow()
         (DesktopLeft,DesktopTop,DesktopRight,DesktopBottom) = GetWindowRect(hDesk)
         w = cls.__findWindow("AVG Renderer")
-        SetWindowPos(w, HWND_TOP, -3, -22, DesktopRight, DesktopBottom+30, 0)
+        offSetX = 2
+        offSetY = 3
+        SetWindowPos(w, HWND_TOP, -(GetSystemMetrics(SM_CYBORDER)+offSetX), -(GetSystemMetrics(SM_CYCAPTION)+offSetY), DesktopRight, DesktopBottom+30, 0)
+        
         
     @classmethod
     def start(cls, *args, **kwargs):
