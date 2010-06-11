@@ -46,7 +46,7 @@ private:
 
     GPUBlurFilterPtr m_pFilter;
 
-    float m_StdDev;
+    double m_StdDev;
 };
 
 typedef boost::shared_ptr<BlurFXNode> BlurFXNodePtr;
