@@ -104,6 +104,16 @@ void FBO::drawImagingVertexes()
     m_pImagingVA->draw();
 }
 
+PixelFormat FBO::getPF() const
+{
+    return m_PF;
+}
+
+unsigned FBO::getNumTextures() const
+{
+    return m_pTextures.size();
+}
+
 void FBO::copyToDestTexture() const
 {
     if (m_MultisampleSamples != 1) {

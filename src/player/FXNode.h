@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "../graphics/FBO.h"
+#include "../graphics/GPUFilter.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -41,7 +41,7 @@ public:
     virtual void disconnect();
     virtual void setSize(const IntPoint& newSize);
 
-    virtual void apply(GLTexturePtr pSrcTex)=0;
+    virtual void apply(GLTexturePtr pSrcTex);
 
     GLTexturePtr getTex();
     BitmapPtr getImage();
@@ -49,12 +49,13 @@ public:
 protected:
     SDLDisplayEngine* getEngine() const;
     FBOPtr getFBO();
-    const std::string& getStdShaderCode() const;
 
 private:
+    virtual GPUFilterPtr createFilter(const IntPoint& size) = 0;
+
     SDLDisplayEngine* m_pEngine;
     IntPoint m_Size;
-    FBOPtr m_pFBO;
+    GPUFilterPtr m_pFilter;
 };
 
 typedef boost::shared_ptr<FXNode> FXNodePtr;

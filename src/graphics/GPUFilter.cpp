@@ -70,16 +70,22 @@ void GPUFilter::apply(GLTexturePtr pSrcTex)
     m_pFBO->setupImagingProjection();
     applyOnGPU(pSrcTex);
     m_pFBO->deactivate();
+    m_pFBO->copyToDestTexture();
+}
+
+GLTexturePtr GPUFilter::getDestTex(int i) const
+{
+    return m_pFBO->getTex(i);
+}
+
+BitmapPtr GPUFilter::getImage() const
+{
+    return m_pFBO->getImage();
 }
 
 FBOPtr GPUFilter::getFBO()
 {
     return m_pFBO;
-}
-
-const IntPoint& GPUFilter::getSize() const
-{
-    return m_pFBO->getSize();
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)
@@ -88,9 +94,26 @@ void GPUFilter::draw(GLTexturePtr pTex)
     m_pFBO->drawImagingVertexes();
 }
 
-GLTexturePtr GPUFilter::getDestTex(int i) const
+const IntPoint& GPUFilter::getSize() const
 {
-    return m_pFBO->getTex(i);
+    return m_pFBO->getSize();
+}
+
+const string& GPUFilter::getStdShaderCode() const
+{
+    static string sCode = 
+        "void unPreMultiplyAlpha(inout vec4 color)\n"
+        "{\n"
+        "  color.rgb /= color.a;\n"
+        "}\n"
+        "\n"
+        "void preMultiplyAlpha(inout vec4 color)\n"
+        "{\n"
+        "  color.rgb *= color.a;\n"
+        "}\n"
+        "\n";
+
+    return sCode;
 }
 
 } // namespace

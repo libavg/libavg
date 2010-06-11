@@ -46,6 +46,8 @@ public:
     void deactivate() const;
     void setupImagingProjection() const;
     void drawImagingVertexes();
+    PixelFormat getPF() const;
+    unsigned getNumTextures() const;
 
     void copyToDestTexture() const;
     BitmapPtr getImage(int i=0) const;

@@ -45,14 +45,14 @@ void FXNode::connect(SDLDisplayEngine* pEngine)
 {
     m_pEngine = pEngine;
     if (m_Size != IntPoint(0,0)) {
-        m_pFBO = FBOPtr(new FBO(m_Size, B8G8R8A8, 1, 1, false, false));
+        m_pFilter = createFilter(m_Size);
     }
 }
 
 void FXNode::disconnect()
 {
     m_pEngine = 0;
-    m_pFBO = FBOPtr();
+    m_pFilter = GPUFilterPtr();
 }
 
 void FXNode::setSize(const IntPoint& newSize)
@@ -60,19 +60,26 @@ void FXNode::setSize(const IntPoint& newSize)
     if (newSize != m_Size) {
         m_Size = newSize;
         if (m_pEngine) {
-            m_pFBO = FBOPtr(new FBO(m_Size, B8G8R8A8, 1, 1, false, false));
+            m_pFilter = createFilter(m_Size);
         }
     }
 }
 
+void FXNode::apply(GLTexturePtr pSrcTex)
+{
+    // blt overwrites everything, so no glClear necessary before.
+    getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
+    m_pFilter->apply(pSrcTex);
+}
+
 GLTexturePtr FXNode::getTex()
 {
-    return m_pFBO->getTex();
+    return m_pFilter->getDestTex();
 }
 
 BitmapPtr FXNode::getImage()
 {
-    return m_pFBO->getImage();
+    return m_pFilter->getImage();
 }
 
 SDLDisplayEngine* FXNode::getEngine() const
@@ -82,24 +89,7 @@ SDLDisplayEngine* FXNode::getEngine() const
 
 FBOPtr FXNode::getFBO()
 {
-    return m_pFBO;
-}
-
-const string& FXNode::getStdShaderCode() const
-{
-    static string sCode = 
-        "void unPreMultiplyAlpha(inout vec4 color)\n"
-        "{\n"
-        "  color.rgb /= color.a;\n"
-        "}\n"
-        "\n"
-        "void preMultiplyAlpha(inout vec4 color)\n"
-        "{\n"
-        "  color.rgb *= color.a;\n"
-        "}\n"
-        "\n";
-
-    return sCode;
+    return m_pFilter->getFBO();
 }
 
 }

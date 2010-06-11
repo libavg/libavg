@@ -19,37 +19,29 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _NullFXNode_H_
-#define _NullFXNode_H_
+#ifndef _GPUNullFilter_H_
+#define _GPUNullFilter_H_
 
 #include "../api.h"
-
-#include "FXNode.h"
-#include "../graphics/GPUNullFilter.h"
-
-#include <boost/shared_ptr.hpp>
+#include "GPUFilter.h"
+#include "Bitmap.h"
 
 namespace avg {
 
-class SDLDisplayEngine;
-
-class AVG_API NullFXNode: public FXNode {
+class AVG_API GPUNullFilter: public GPUFilter
+{
 public:
-    NullFXNode();
-    virtual ~NullFXNode();
+    GPUNullFilter(const IntPoint& size, bool bStandalone=true);
+    virtual ~GPUNullFilter();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
-    virtual void disconnect();
+    virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    virtual GPUFilterPtr createFilter(const IntPoint& size);
-
-    GPUNullFilterPtr m_pFilter;
+    void initShader();
 };
 
-typedef boost::shared_ptr<NullFXNode> NullFXNodePtr;
+typedef boost::shared_ptr<GPUNullFilter> GPUNullFilterPtr;
 
-}
-
+} // namespace
 #endif
 

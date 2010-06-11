@@ -19,46 +19,57 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "NullFXNode.h"
-#include "SDLDisplayEngine.h"
+#include "GPUNullFilter.h"
+#include "Bitmap.h"
+#include "ShaderRegistry.h"
 
 #include "../base/ObjectCounter.h"
-#include "../graphics/ShaderRegistry.h"
+#include "../base/Exception.h"
 
-#include <string>
+#include <iostream>
+
+#define SHADERID "NULL"
 
 using namespace std;
 
-#define SHADERID "NULLFX"
-
 namespace avg {
 
-NullFXNode::NullFXNode() 
-    : FXNode()
+GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
+    : GPUFilter(size, B8G8R8A8, B8G8R8A8, bStandalone)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+
+    initShader();
 }
 
-NullFXNode::~NullFXNode()
+GPUNullFilter::~GPUNullFilter()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void NullFXNode::connect(SDLDisplayEngine* pEngine)
+void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    FXNode::connect(pEngine);
+    OGLShaderPtr pShader = getShader(SHADERID);
+    pShader->activate();
+    pShader->setUniformIntParam("Texture", 0);
+    draw(pSrcTex);
+
+    glproc::UseProgramObject(0);
 }
 
-void NullFXNode::disconnect()
+void GPUNullFilter::initShader()
 {
-    m_pFilter = GPUNullFilterPtr();
-    FXNode::disconnect();
+    string sProgram =
+        "uniform sampler2D Texture;\n"
+
+        "void main(void)\n"
+        "{\n"
+        "  vec4 tex = texture2D(Texture, gl_TexCoord[0].st);\n" 
+        "  gl_FragColor = tex;\n"
+        "}\n"
+        ;
+
+    getOrCreateShader(SHADERID, sProgram);
 }
 
-GPUFilterPtr NullFXNode::createFilter(const IntPoint& size)
-{
-    m_pFilter = GPUNullFilterPtr(new GPUNullFilter(size, false));
-    return m_pFilter;
-}
-
-}
+} // namespace

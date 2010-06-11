@@ -34,12 +34,7 @@ using namespace std;
 namespace avg {
 
 ColorFXNode::ColorFXNode() 
-    : FXNode(),
-      m_Brightness(1),
-      m_Contrast(1),
-      m_RGamma(1),
-      m_GGamma(1),
-      m_BGamma(1)
+    : FXNode()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -49,20 +44,10 @@ ColorFXNode::~ColorFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ColorFXNode::connect(SDLDisplayEngine* pEngine)
-{
-    FXNode::connect(pEngine);
-    initShader();
-}
-
 void ColorFXNode::disconnect()
 {
+    m_pFilter = GPUColorControlFilterPtr();
     FXNode::disconnect();
-}
-
-void ColorFXNode::setSize(const IntPoint& newSize)
-{
-    FXNode::setSize(newSize);
 }
 
 void ColorFXNode::setParams(float brightness, float contrast, float rGamma, 
@@ -73,57 +58,15 @@ void ColorFXNode::setParams(float brightness, float contrast, float rGamma,
     m_RGamma = rGamma;
     m_GGamma = gGamma;
     m_BGamma = bGamma;
+    if (m_pFilter) {
+        m_pFilter->setParams(brightness, contrast, rGamma, gGamma, bGamma);
+    }
 }
 
-void ColorFXNode::apply(GLTexturePtr pSrcTex)
+GPUFilterPtr ColorFXNode::createFilter(const IntPoint& size)
 {
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
-    pShader->setUniformIntParam("texture", 0);
-    pShader->setUniformFloatParam("brightness", m_Brightness);
-    pShader->setUniformFloatParam("contrast", m_Contrast);
-    pShader->setUniformFloatParam("rGamma", 1./m_RGamma);
-    pShader->setUniformFloatParam("gGamma", 1./m_GGamma);
-    pShader->setUniformFloatParam("bGamma", 1./m_BGamma);
-
-    // blt overwrites everything, so no glClear necessary before.
-    getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
-    FBOPtr pFBO = getFBO();
-    pSrcTex->activate();
-    pFBO->activate();
-    pFBO->setupImagingProjection();
-    pFBO->drawImagingVertexes();
-    pFBO->deactivate();
-    glproc::UseProgramObject(0);
-    pFBO->copyToDestTexture();
-}
-
-void ColorFXNode::initShader()
-{
-    string sProgram =
-        "uniform sampler2D texture;\n"
-        "uniform float brightness;\n"
-        "uniform float contrast;\n"
-        "uniform float rGamma;\n"
-        "uniform float gGamma;\n"
-        "uniform float bGamma;\n"
-        "\n"
-        +getStdShaderCode()+
-        "void main(void)\n"
-        "{\n"
-        "  vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-        "  unPreMultiplyAlpha(tex);\n"
-        "  vec3 avg = vec3(0.5, 0.5, 0.5);\n"
-        "  tex.rgb = mix(avg, tex.rgb, contrast);\n"
-        "  tex.rgb = tex.rgb*brightness;\n"
-        "  tex.rgb = vec3(pow(tex.r, rGamma), pow(tex.g, gGamma),\n"
-        "          pow(tex.b, bGamma));\n"
-        "  preMultiplyAlpha(tex);\n"
-        "  gl_FragColor = tex;\n"
-        "}\n"
-        ;
-
-    getOrCreateShader(SHADERID, sProgram);    
+    m_pFilter = GPUColorControlFilterPtr(new GPUColorControlFilter(size, false));
+    return m_pFilter;
 }
 
 }

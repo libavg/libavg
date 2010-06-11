@@ -8,9 +8,9 @@ ALL_H = Bitmap.h Filter.h\
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
-        VertexArray.h OGLImagingContext.h \
+        VertexArray.h OGLImagingContext.h GPUNullFilter.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GraphicsTest.h\
-        GPUFilter.h GPUBandpassFilter.h FilterIntensity.h \
+        GPUFilter.h GPUBandpassFilter.h GPUColorControlFilter.h FilterIntensity.h \
         FilterNormalize.h FilterFloodfill.h FilterDilation.h FilterErosion.h \
         FilterGetAlpha.h FBO.h GLTexture.h PBO.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h \
@@ -20,8 +20,8 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
-        OGLHelper.cpp OGLShader.cpp \
-        VertexArray.cpp OGLImagingContext.cpp \
+        OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp \
+        VertexArray.cpp OGLImagingContext.cpp GPUColorControlFilter.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \

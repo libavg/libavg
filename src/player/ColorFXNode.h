@@ -25,7 +25,7 @@
 #include "../api.h"
 
 #include "FXNode.h"
-#include "../graphics/FBO.h"
+#include "../graphics/GPUColorControlFilter.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -38,16 +38,14 @@ public:
     ColorFXNode();
     virtual ~ColorFXNode();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
     virtual void disconnect();
-    virtual void setSize(const IntPoint& newSize);
     void setParams(float brightness, float contrast, float rGamma, float gGamma, 
             float bGamma);
 
-    virtual void apply(GLTexturePtr pSrcTex);
-
 private:
-    void initShader();
+    virtual GPUFilterPtr createFilter(const IntPoint& size);
+
+    GPUColorControlFilterPtr m_pFilter;
 
     float m_Brightness;
     float m_Contrast;

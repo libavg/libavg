@@ -41,20 +41,24 @@ public:
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);
     virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
-    FBOPtr getFBO();
     GLTexturePtr getDestTex(int i=0) const;
+    BitmapPtr getImage() const;
 
-    static bool isSupported();
+    FBOPtr getFBO();
+
 
 protected:
     void draw(GLTexturePtr pTex);
     const IntPoint& getSize() const;
+    const std::string& getStdShaderCode() const;
 
 private:
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;
     FBOPtr m_pFBO;
 };
+
+typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;
 
 } // namespace
 #endif
