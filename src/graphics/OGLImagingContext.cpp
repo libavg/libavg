@@ -20,6 +20,8 @@
 //
 
 #include "OGLImagingContext.h"
+#undef check
+#include "ShaderRegistry.h"
 
 #include "../base/Exception.h"
 
@@ -171,6 +173,7 @@ OGLImagingContext::OGLImagingContext()
 
 OGLImagingContext::~OGLImagingContext()
 {
+    ShaderRegistry::kill();
 #ifdef __APPLE__
     if (m_Context) {
         aglSetCurrentContext(0);

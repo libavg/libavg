@@ -19,47 +19,45 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FXNode_H_
-#define _FXNode_H_
+#ifndef _ShaderRegistry_H_ 
+#define _ShaderRegistry_H_
 
 #include "../api.h"
 
-#include "../graphics/FBO.h"
+#include "OGLShader.h"
 
+#include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/tss.hpp>
+
+#include <map>
 
 namespace avg {
 
-class SDLDisplayEngine;
+class ShaderRegistry;
+typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 
-class AVG_API FXNode {
+class AVG_API ShaderRegistry {
 public:
-    FXNode();
-    virtual ~FXNode();
+    static ShaderRegistryPtr& get();
+    static void kill();
+    ShaderRegistry();
+    virtual ~ShaderRegistry();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
-    virtual void disconnect();
-    virtual void setSize(const IntPoint& newSize);
-
-    virtual void apply(GLTexturePtr pSrcTex)=0;
-
-    GLTexturePtr getTex();
-    BitmapPtr getImage();
-
-protected:
-    SDLDisplayEngine* getEngine() const;
-    FBOPtr getFBO();
-    const std::string& getStdShaderCode() const;
+    OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);
+    OGLShaderPtr getShader(const std::string& sID);
 
 private:
-    SDLDisplayEngine* m_pEngine;
-    IntPoint m_Size;
-    FBOPtr m_pFBO;
+    typedef std::map<std::string, OGLShaderPtr> ShaderMap;
+    ShaderMap m_ShaderMap;
+
+    static boost::thread_specific_ptr<ShaderRegistryPtr> s_pInstance;
 };
 
-typedef boost::shared_ptr<FXNode> FXNodePtr;
+OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);
+OGLShaderPtr getShader(const std::string& sID);
+
 
 }
 
 #endif
-

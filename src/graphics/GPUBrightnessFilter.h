@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "GPUFilter.h"
 #include "Bitmap.h"
-#include "OGLShader.h"
 
 namespace avg {
 
@@ -42,8 +41,6 @@ private:
     static void initShader();
 
     double m_Alpha;
-
-    static OGLShaderPtr s_pShader;
 };
 
 } // namespace

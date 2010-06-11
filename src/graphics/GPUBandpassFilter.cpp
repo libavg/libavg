@@ -21,17 +21,18 @@
 
 #include "GPUBandpassFilter.h"
 #include "Bitmap.h"
+#include "ShaderRegistry.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
 #include <iostream>
 
+#define SHADERID "BANDPASS"
+
 using namespace std;
 
 namespace avg {
-
-OGLShaderPtr GPUBandpassFilter::s_pShader;
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert, bool bStandalone)
@@ -43,9 +44,7 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
-    if (!s_pShader) {
-        initShader();
-    }
+    initShader();
 }
 
 GPUBandpassFilter::~GPUBandpassFilter()
@@ -59,7 +58,7 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_MaxFilter.apply(pSrcTex);
 
     getFBO()->activate();
-    GLhandleARB hProgram = s_pShader->getProgram();
+    GLhandleARB hProgram = getShader(SHADERID)->getProgram();
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "GPUBandpassFilter::apply: glUseProgramObject()");
@@ -94,7 +93,7 @@ void GPUBandpassFilter::initShader()
         "}\n"
         ;
 
-    s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+    getOrCreateShader(SHADERID, sProgram);
 }
 
 } // namespace

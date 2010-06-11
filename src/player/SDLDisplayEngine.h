@@ -119,7 +119,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         SDL_Surface * m_pScreen;
 
         void checkShaderSupport();
-        OGLShaderPtr m_pShader;
 
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);

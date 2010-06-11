@@ -38,7 +38,6 @@ FXNode::FXNode()
 
 FXNode::~FXNode()
 {
-    Player::get()->unregisterPlaybackEndListener(this);
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -48,7 +47,6 @@ void FXNode::connect(SDLDisplayEngine* pEngine)
     if (m_Size != IntPoint(0,0)) {
         m_pFBO = FBOPtr(new FBO(m_Size, B8G8R8A8, 1, 1, false, false));
     }
-    Player::get()->registerPlaybackEndListener(this);
 }
 
 void FXNode::disconnect()
@@ -75,11 +73,6 @@ GLTexturePtr FXNode::getTex()
 BitmapPtr FXNode::getImage()
 {
     return m_pFBO->getImage();
-}
-
-void FXNode::onPlaybackEnd()
-{
-    destroyShader();
 }
 
 SDLDisplayEngine* FXNode::getEngine() const

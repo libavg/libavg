@@ -21,17 +21,18 @@
 
 #include "GPUBrightnessFilter.h"
 #include "Bitmap.h"
+#include "ShaderRegistry.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
 #include <iostream>
 
+#define SHADERID "BRIGHTNESS"
+
 using namespace std;
 
 namespace avg {
-
-OGLShaderPtr GPUBrightnessFilter::s_pShader;
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         double alpha, bool bStandalone)
@@ -40,9 +41,7 @@ GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
-    if (!s_pShader) {
-        initShader();
-    }
+    initShader();
 }
 
 GPUBrightnessFilter::~GPUBrightnessFilter()
@@ -52,9 +51,10 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
 
 void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    s_pShader->activate();
-    s_pShader->setUniformIntParam("Texture", 0);
-    s_pShader->setUniformFloatParam("alpha", GLfloat(m_Alpha));
+    OGLShaderPtr pShader = getShader(SHADERID);
+    pShader->activate();
+    pShader->setUniformIntParam("Texture", 0);
+    pShader->setUniformFloatParam("alpha", GLfloat(m_Alpha));
     draw(pSrcTex);
 
     glproc::UseProgramObject(0);
@@ -74,7 +74,7 @@ void GPUBrightnessFilter::initShader()
         "}\n"
         ;
 
-    s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+    getOrCreateShader(SHADERID, sProgram);
 }
 
 } // namespace

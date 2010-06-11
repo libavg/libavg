@@ -21,6 +21,7 @@
 
 #include "GPUBlurFilter.h"
 #include "Bitmap.h"
+#include "ShaderRegistry.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"
@@ -29,12 +30,12 @@
 #include <string.h>
 #include <iostream>
 
+#define SHADERID_HORIZ "HORIZBLUR"
+#define SHADERID_VERT "VERTBLUR"
+
 using namespace std;
 
 namespace avg {
-
-OGLShaderPtr GPUBlurFilter::s_pHorizShader;
-OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev, 
             bool bStandalone)
@@ -43,16 +44,8 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double std
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
-    init();
-}
-
-void GPUBlurFilter::init()
-{
-    IntPoint size = getSize();
     m_pGaussCurveTex = GLTexturePtr(new GLTexture(IntPoint(255, 1), I32F));
-    if (!s_pHorizShader) {
-        initShaders();
-    }
+    initShaders();
     calcKernel();
 }
 
@@ -64,18 +57,20 @@ GPUBlurFilter::~GPUBlurFilter()
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
-    s_pHorizShader->activate();
-    s_pHorizShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
-    s_pHorizShader->setUniformIntParam("Texture", 0);
-    s_pHorizShader->setUniformIntParam("kernelTex", 1);
+    OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
+    pHShader->activate();
+    pHShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    pHShader->setUniformIntParam("Texture", 0);
+    pHShader->setUniformIntParam("kernelTex", 1);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-    s_pVertShader->activate();
-    s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
-    s_pVertShader->setUniformIntParam("Texture", 0);
-    s_pVertShader->setUniformIntParam("kernelTex", 1);
+    OGLShaderPtr pVShader = getShader(SHADERID_VERT);
+    pVShader->activate();
+    pVShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    pVShader->setUniformIntParam("Texture", 0);
+    pVShader->setUniformIntParam("kernelTex", 1);
     draw(getDestTex(1));
 }
 
@@ -100,8 +95,7 @@ void GPUBlurFilter::initShaders()
         "    gl_FragColor = sum;\n"
         "}\n"
         ;
-
-    s_pHorizShader = OGLShaderPtr(new OGLShader(sHorizProgram));
+    getOrCreateShader(SHADERID_HORIZ, sHorizProgram);
 
     string sVertProgram = sProgramHead + 
         "void main(void)\n"
@@ -116,8 +110,7 @@ void GPUBlurFilter::initShaders()
         "    gl_FragColor = sum;\n"
         "}\n"
         ;
-
-    s_pVertShader = OGLShaderPtr(new OGLShader(sVertProgram));
+    getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
 void GPUBlurFilter::dumpKernel()

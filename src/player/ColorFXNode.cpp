@@ -23,14 +23,15 @@
 #include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <string>
 
 using namespace std;
 
-namespace avg {
+#define SHADERID "COLORFX"
 
-OGLShaderPtr ColorFXNode::s_pShader;
+namespace avg {
 
 ColorFXNode::ColorFXNode() 
     : FXNode(),
@@ -76,13 +77,14 @@ void ColorFXNode::setParams(float brightness, float contrast, float rGamma,
 
 void ColorFXNode::apply(GLTexturePtr pSrcTex)
 {
-    s_pShader->activate();
-    s_pShader->setUniformIntParam("texture", 0);
-    s_pShader->setUniformFloatParam("brightness", m_Brightness);
-    s_pShader->setUniformFloatParam("contrast", m_Contrast);
-    s_pShader->setUniformFloatParam("rGamma", 1./m_RGamma);
-    s_pShader->setUniformFloatParam("gGamma", 1./m_GGamma);
-    s_pShader->setUniformFloatParam("bGamma", 1./m_BGamma);
+    OGLShaderPtr pShader = getShader(SHADERID);
+    pShader->activate();
+    pShader->setUniformIntParam("texture", 0);
+    pShader->setUniformFloatParam("brightness", m_Brightness);
+    pShader->setUniformFloatParam("contrast", m_Contrast);
+    pShader->setUniformFloatParam("rGamma", 1./m_RGamma);
+    pShader->setUniformFloatParam("gGamma", 1./m_GGamma);
+    pShader->setUniformFloatParam("bGamma", 1./m_BGamma);
 
     // blt overwrites everything, so no glClear necessary before.
     getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
@@ -98,37 +100,30 @@ void ColorFXNode::apply(GLTexturePtr pSrcTex)
 
 void ColorFXNode::initShader()
 {
-    if (!s_pShader) {
-        string sProgram =
-            "uniform sampler2D texture;\n"
-            "uniform float brightness;\n"
-            "uniform float contrast;\n"
-            "uniform float rGamma;\n"
-            "uniform float gGamma;\n"
-            "uniform float bGamma;\n"
-            "\n"
-            +getStdShaderCode()+
-            "void main(void)\n"
-            "{\n"
-            "  vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-            "  unPreMultiplyAlpha(tex);\n"
-            "  vec3 avg = vec3(0.5, 0.5, 0.5);\n"
-            "  tex.rgb = mix(avg, tex.rgb, contrast);\n"
-            "  tex.rgb = tex.rgb*brightness;\n"
-            "  tex.rgb = vec3(pow(tex.r, rGamma), pow(tex.g, gGamma),\n"
-            "          pow(tex.b, bGamma));\n"
-            "  preMultiplyAlpha(tex);\n"
-            "  gl_FragColor = tex;\n"
-            "}\n"
-            ;
+    string sProgram =
+        "uniform sampler2D texture;\n"
+        "uniform float brightness;\n"
+        "uniform float contrast;\n"
+        "uniform float rGamma;\n"
+        "uniform float gGamma;\n"
+        "uniform float bGamma;\n"
+        "\n"
+        +getStdShaderCode()+
+        "void main(void)\n"
+        "{\n"
+        "  vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
+        "  unPreMultiplyAlpha(tex);\n"
+        "  vec3 avg = vec3(0.5, 0.5, 0.5);\n"
+        "  tex.rgb = mix(avg, tex.rgb, contrast);\n"
+        "  tex.rgb = tex.rgb*brightness;\n"
+        "  tex.rgb = vec3(pow(tex.r, rGamma), pow(tex.g, gGamma),\n"
+        "          pow(tex.b, bGamma));\n"
+        "  preMultiplyAlpha(tex);\n"
+        "  gl_FragColor = tex;\n"
+        "}\n"
+        ;
 
-        s_pShader = OGLShaderPtr(new OGLShader(sProgram));
-    }
-}
-
-void ColorFXNode::destroyShader()
-{
-    s_pShader = OGLShaderPtr();
+    getOrCreateShader(SHADERID, sProgram);    
 }
 
 }

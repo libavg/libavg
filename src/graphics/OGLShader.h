@@ -35,7 +35,6 @@ namespace avg {
 
 class AVG_API OGLShader {
     public:
-        OGLShader(std::string sProgram);
         virtual ~OGLShader();
 
         void activate();
@@ -47,6 +46,9 @@ class AVG_API OGLShader {
         void setUniformDPointParam(const std::string& sName, DPoint pt);
 
     private:
+        OGLShader(std::string sProgram);
+        friend class ShaderRegistry;
+
         void dumpInfoLog(GLhandleARB hObj);
         int safeGetUniformLoc(const std::string& sName);
 

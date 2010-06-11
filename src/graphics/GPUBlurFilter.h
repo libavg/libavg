@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
-#include "OGLShader.h"
 #include "GLTexture.h"
 
 namespace avg {
@@ -34,7 +33,6 @@ class AVG_API GPUBlurFilter: public GPUFilter
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev, 
             bool bStandalone=true);
-    void init();
     virtual ~GPUBlurFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
@@ -49,9 +47,6 @@ private:
     float m_Kernel[255];
 
     GLTexturePtr m_pGaussCurveTex;
-
-    static OGLShaderPtr s_pHorizShader;
-    static OGLShaderPtr s_pVertShader;
 };
 
 } // namespace

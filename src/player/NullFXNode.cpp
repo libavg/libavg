@@ -23,14 +23,15 @@
 #include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <string>
 
 using namespace std;
 
-namespace avg {
+#define SHADERID "NULLFX"
 
-OGLShaderPtr NullFXNode::s_pShader;
+namespace avg {
 
 NullFXNode::NullFXNode() 
     : FXNode()
@@ -61,8 +62,8 @@ void NullFXNode::setSize(const IntPoint& newSize)
 
 void NullFXNode::apply(GLTexturePtr pSrcTex)
 {
-    s_pShader->activate();
-    s_pShader->setUniformIntParam("texture", 0);
+    getShader(SHADERID)->activate();
+    getShader(SHADERID)->setUniformIntParam("texture", 0);
 
     // blt overwrites everything, so no glClear necessary before.
     getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
@@ -78,25 +79,16 @@ void NullFXNode::apply(GLTexturePtr pSrcTex)
 
 void NullFXNode::initShader()
 {
-    if (!s_pShader) {
-        string sProgram =
-            "uniform sampler2D texture;\n"
+    string sProgram =
+        "uniform sampler2D texture;\n"
 
-            "void main(void)\n"
-            "{\n"
-            "  vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n" 
-            "  gl_FragColor.rgba = tex.rgba;\n"
-            "}\n"
-            ;
-
-        s_pShader = OGLShaderPtr(new OGLShader(sProgram));
-    }
+        "void main(void)\n"
+        "{\n"
+        "  vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n" 
+        "  gl_FragColor.rgba = tex.rgba;\n"
+        "}\n"
+        ;
+    getOrCreateShader(SHADERID, sProgram);
 }
-void NullFXNode::destroyShader()
-
-{
-    s_pShader = OGLShaderPtr();
-}
-
 
 }

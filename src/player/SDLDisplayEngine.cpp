@@ -42,6 +42,7 @@
 
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <SDL/SDL.h>
 
@@ -70,6 +71,8 @@
 #else
 #include <unistd.h>
 #endif
+
+#define COLORSPACE_SHADER "COLORSPACE"
 
 using namespace std;
 
@@ -263,6 +266,7 @@ void SDLDisplayEngine::teardown()
         m_pScreen = 0;
     }
     VertexArray::deleteBufferCache();
+    ShaderRegistry::kill();
 }
 
 double SDLDisplayEngine::getRefreshRate() 
@@ -415,7 +419,7 @@ bool SDLDisplayEngine::isUsingShaders() const
 
 OGLShaderPtr SDLDisplayEngine::getShader()
 {
-    return m_pShader;
+    return avg::getShader(COLORSPACE_SHADER);
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)
@@ -517,8 +521,7 @@ void SDLDisplayEngine::checkShaderSupport()
             "    }\n"
             "    gl_FragColor = rgba;\n"
             "}\n";
-
-        m_pShader = OGLShaderPtr(new OGLShader(sProgram));
+        getOrCreateShader(COLORSPACE_SHADER, sProgram);
     }
 }
 

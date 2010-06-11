@@ -26,7 +26,6 @@
 
 #include "FXNode.h"
 #include "../graphics/FBO.h"
-#include "../graphics/OGLShader.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -49,15 +48,12 @@ public:
 
 private:
     void initShader();
-    virtual void destroyShader();
 
     float m_Brightness;
     float m_Contrast;
     float m_RGamma;
     float m_GGamma;
     float m_BGamma;
-
-    static OGLShaderPtr s_pShader;
 };
 
 typedef boost::shared_ptr<ColorFXNode> ColorFXNodePtr;
