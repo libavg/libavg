@@ -68,7 +68,8 @@ class FXTestCase(AVGTestCase):
         self.loadEmptyScene()
         root = Player.getRootNode()
         Player.setFakeFPS(25)
-        node = avg.VideoNode(parent=root, href="../video/testfiles/mjpeg-48x48.avi")
+        node = avg.VideoNode(parent=root, href="../video/testfiles/mjpeg-48x48.avi",
+                threaded=False)
         node.setEffect(avg.NullFXNode())
         node.play()
         self.start(None,
@@ -78,7 +79,7 @@ class FXTestCase(AVGTestCase):
     def testWordsNullFX(self):
         self.loadEmptyScene()
         root = Player.getRootNode()
-        node = avg.WordsNode(parent=root, text="testtext")
+        node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
         node.setEffect(avg.NullFXNode())
         self.start(None,
                 (lambda: self.compareImage("testWordsNullFX", True),
