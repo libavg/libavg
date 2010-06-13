@@ -151,12 +151,12 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
         // This is a brightness-preserving blur.
         // Make sure the sum of coefficients is 1 despite the inaccuracies
         // introduced by using a kernel of finite size.
-        for (int i=0; i<=kernelWidth; ++i) {
+        for (int i=0; i<kernelWidth; ++i) {
             pKernel[i] /= sum;
         }
     } else {
         double factor = opacity/pKernel[kernelCenter];
-        for (int i=0; i<=kernelWidth; ++i) {
+        for (int i=0; i<kernelWidth; ++i) {
             pKernel[i] *= factor;
         }
     }
