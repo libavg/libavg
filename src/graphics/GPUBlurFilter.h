@@ -39,7 +39,7 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    static void initShaders();
+    void initShaders();
     void dumpKernel();
     void calcKernel();
 

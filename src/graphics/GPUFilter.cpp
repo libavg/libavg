@@ -105,12 +105,40 @@ const string& GPUFilter::getStdShaderCode() const
     static string sCode = 
         "void unPreMultiplyAlpha(inout vec4 color)\n"
         "{\n"
-        "  color.rgb /= color.a;\n"
+        "    color.rgb /= color.a;\n"
         "}\n"
         "\n"
         "void preMultiplyAlpha(inout vec4 color)\n"
         "{\n"
-        "  color.rgb *= color.a;\n"
+        "    color.rgb *= color.a;\n"
+        "}\n"
+        "\n"
+        "vec4 getHorizBlurPixel(int radius, float width, sampler2D tex, \n"
+        "        sampler2D kernelTex)\n"
+        "{\n"
+        "    vec4 sum = vec4(0,0,0,0);\n"
+        "    float dx = dFdx(gl_TexCoord[0].x);\n"
+        "    for (int i=-radius; i<=radius; ++i) {\n"
+        "        vec4 tex = texture2D(tex, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
+        "        float coeff = \n"
+        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
+        "        sum += tex*coeff;\n"
+        "    }\n"
+        "    return sum;\n"
+        "}\n"
+        "\n"
+        "vec4 getVertBlurPixel(int radius, float width, sampler2D tex, \n"
+        "        sampler2D kernelTex)\n"
+        "{\n"
+        "    vec4 sum = vec4(0,0,0,0);\n"
+        "    float dy = dFdy(gl_TexCoord[0].y);\n"
+        "    for (int i=-radius; i<=radius; ++i) {\n"
+        "        vec4 tex = texture2D(tex, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
+        "        float coeff = \n"
+        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
+        "        sum += tex*coeff;\n"
+        "    }\n"
+        "    return sum;\n"
         "}\n"
         "\n";
 
@@ -169,4 +197,4 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev) const
     return pTex;
 }
 
-} // namespace
+}

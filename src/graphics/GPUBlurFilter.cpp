@@ -67,7 +67,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pHShader->activate();
     pHShader->setUniformFloatParam("width", kernelWidth);
     pHShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pHShader->setUniformIntParam("Texture", 0);
+    pHShader->setUniformIntParam("texture", 0);
     pHShader->setUniformIntParam("kernelTex", 1);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
@@ -77,7 +77,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->activate();
     pVShader->setUniformFloatParam("width", kernelWidth);
     pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pVShader->setUniformIntParam("Texture", 0);
+    pVShader->setUniformIntParam("texture", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
     draw(getDestTex(1));
     glproc::UseProgramObject(0);
@@ -86,44 +86,28 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 void GPUBlurFilter::initShaders()
 {
     string sProgramHead =
-        "uniform sampler2D Texture;\n"
+        "uniform sampler2D texture;\n"
         "uniform float width;\n"
         "uniform int radius;\n"
         "uniform sampler2D kernelTex;\n"
         ;
 
-    string sHorizProgram = sProgramHead + 
+    string sHorizProgram = sProgramHead + getStdShaderCode() + 
         "void main(void)\n"
         "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        float dx = dFdx(gl_TexCoord[0].x);\n"
-        "        vec4 tex = texture2D(Texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = sum;\n"
+        "    gl_FragColor = getHorizBlurPixel(radius, width, texture, kernelTex);\n"
         "}\n"
         ;
     getOrCreateShader(SHADERID_HORIZ, sHorizProgram);
 
-    string sVertProgram = sProgramHead + 
+    string sVertProgram = sProgramHead + getStdShaderCode() + 
         "void main(void)\n"
         "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        float dy = dFdy(gl_TexCoord[0].y);\n"
-        "        vec4 tex = texture2D(Texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = sum;\n"
+        "    gl_FragColor = getVertBlurPixel(radius, width, texture, kernelTex);\n"
         "}\n"
         ;
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
 
-} // namespace
+}
