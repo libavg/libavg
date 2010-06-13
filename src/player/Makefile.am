@@ -29,7 +29,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h\
         TouchEvent.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
-        NullFXNode.h ColorFXNode.h BlurFXNode.h\
+        NullFXNode.h ColorFXNode.h BlurFXNode.h ShadowFXNode.h \
         $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -75,6 +75,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         OffscreenCanvas.cpp FXNode.cpp \
-        NullFXNode.cpp ColorFXNode.cpp BlurFXNode.cpp \
+        NullFXNode.cpp ColorFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp \
         $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

@@ -19,47 +19,41 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUFilter_H_
-#define _GPUFilter_H_
+#ifndef _GPUShadowFilter_H_
+#define _GPUShadowFilter_H_
 
 #include "../api.h"
-#include "Filter.h"
-#include "VertexArray.h"
-#include "Bitmap.h"
-#include "PBO.h"
-#include "FBO.h"
+#include "GPUFilter.h"
+#include "GLTexture.h"
 
 namespace avg {
 
-class AVG_API GPUFilter: public Filter
+class AVG_API GPUShadowFilter: public GPUFilter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            bool bStandalone, unsigned numTextures=1);
-    virtual ~GPUFilter();
-
-    virtual BitmapPtr apply(BitmapPtr pBmpSource);
-    virtual void apply(GLTexturePtr pSrcTex);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
-    GLTexturePtr getDestTex(int i=0) const;
-    BitmapPtr getImage() const;
-
-    FBOPtr getFBO();
-
-
-protected:
-    void draw(GLTexturePtr pTex);
-    const IntPoint& getSize() const;
-    const std::string& getStdShaderCode() const;
-    GLTexturePtr calcBlurKernelTex(double stdDev, double opacity=-1) const;
+    GPUShadowFilter(const IntPoint& size, const DPoint& offset, double gamma, 
+            double stdDev, double opacity, const Pixel32& color);
+    virtual ~GPUShadowFilter();
+    
+    void setParams(const DPoint& offset, double gamma, double stdDev, 
+            double opacity, const Pixel32& color);
+    virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    GLTexturePtr m_pSrcTex;
-    PBOPtr m_pSrcPBO;
-    FBOPtr m_pFBO;
+    void initShaders();
+    void dumpKernel();
+    void calcKernel();
+
+    DPoint m_Offset;
+    double m_Gamma;
+    double m_StdDev;
+    double m_Opacity;
+    Pixel32 m_Color;
+
+    GLTexturePtr m_pGaussCurveTex;
 };
 
-typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;
+typedef boost::shared_ptr<GPUShadowFilter> GPUShadowFilterPtr;
 
 } // namespace
 #endif

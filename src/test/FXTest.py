@@ -142,6 +142,20 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlurFX2", False),
                 ))
 
+    def testShadowFX(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.ImageNode(parent=root, href="shadow.png")
+        effect = avg.ShadowFXNode()
+        node.setEffect(effect)
+        self.start(None,
+                (lambda: self.compareImage("testShadowFX1", False),
+                 lambda: effect.setParams((0,0), 1, 3, 0.2, "00FFFF"),
+                 lambda: self.compareImage("testShadowFX2", False),
+                 lambda: effect.setParams((2,2), 1, 2, 0.2, "FFFFFF"),
+                 lambda: self.compareImage("testShadowFX3", False),
+                ))
+
 
 def fxTestSuite(tests):
     availableTests = (
@@ -151,6 +165,7 @@ def fxTestSuite(tests):
             "testCanvasNullFX",
             "testColorFX",
             "testBlurFX",
+            "testShadowFX",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 

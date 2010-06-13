@@ -19,47 +19,43 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OGLShader_H_
-#define _OGLShader_H_
+#ifndef _ShadowFXNode_H_
+#define _ShadowFXNode_H_
 
 #include "../api.h"
-#include "OGLHelper.h"
-#include "Pixel32.h"
 
-#include "../base/Point.h"
+#include "FXNode.h"
+#include "../graphics/GPUShadowFilter.h"
 
 #include <boost/shared_ptr.hpp>
-
 #include <string>
 
 namespace avg {
 
-class AVG_API OGLShader {
-    public:
-        virtual ~OGLShader();
+class SDLDisplayEngine;
 
-        void activate();
-        GLhandleARB getProgram();
+class AVG_API ShadowFXNode: public FXNode {
+public:
+    ShadowFXNode();
+    virtual ~ShadowFXNode();
 
-        void setUniformIntParam(const std::string& sName, int val);
-        void setUniformFloatParam(const std::string& sName, float val);
-        void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
-        void setUniformDPointParam(const std::string& sName, DPoint pt);
-        void setUniformColorParam(const std::string& sName, Pixel32 col);
+    virtual void disconnect();
+    void setParams(const DPoint& offset, double gamma, double stdDev, 
+            double opacity, const std::string& sColor);
 
-    private:
-        OGLShader(std::string sProgram);
-        friend class ShaderRegistry;
+private:
+    virtual GPUFilterPtr createFilter(const IntPoint& size);
 
-        void dumpInfoLog(GLhandleARB hObj);
-        int safeGetUniformLoc(const std::string& sName);
+    GPUShadowFilterPtr m_pFilter;
 
-        GLhandleARB m_hFragmentShader;
-        GLhandleARB m_hProgram;
-        std::string m_sProgram;
+    DPoint m_Offset;
+    double m_Gamma;
+    double m_StdDev;
+    double m_Opacity;
+    Pixel32 m_Color;
 };
 
-typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+typedef boost::shared_ptr<ShadowFXNode> ShadowFXNodePtr;
 
 }
 

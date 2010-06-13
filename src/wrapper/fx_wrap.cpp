@@ -26,6 +26,7 @@
 #include "../player/NullFXNode.h"
 #include "../player/ColorFXNode.h"
 #include "../player/BlurFXNode.h"
+#include "../player/ShadowFXNode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -50,5 +51,10 @@ void export_fx()
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>, 
             boost::noncopyable>("BlurFXNode")
         .def("setParam", &BlurFXNode::setParam)
+        ;
+    
+    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>, 
+            boost::noncopyable>("ShadowFXNode")
+        .def("setParams", &ShadowFXNode::setParams)
         ;
 }

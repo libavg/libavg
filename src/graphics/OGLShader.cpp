@@ -102,6 +102,15 @@ void OGLShader::setUniformDPointParam(const std::string& sName, DPoint pt)
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
         
+void OGLShader::setUniformColorParam(const std::string& sName, Pixel32 col)
+{
+    int loc = safeGetUniformLoc(sName);
+    glproc::Uniform4f(loc, col.getR()/255.f, col.getG()/255.f, col.getB()/255.f,
+            col.getA()/255.f);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            (string("OGLShader: glUniform(")+sName+")").c_str());
+}
+        
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
 {
     int InfoLogLength;

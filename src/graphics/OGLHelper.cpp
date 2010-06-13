@@ -65,6 +65,8 @@ namespace glproc {
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLUNIFORM1FARBPROC Uniform1f;
     PFNGLUNIFORM2FARBPROC Uniform2f;
+    PFNGLUNIFORM3FARBPROC Uniform3f;
+    PFNGLUNIFORM4FARBPROC Uniform4f;
     PFNGLUNIFORM1FVARBPROC Uniform1fv;
 
     PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
@@ -444,6 +446,8 @@ namespace glproc {
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
         Uniform1f = (PFNGLUNIFORM1FARBPROC)getFuzzyProcAddress("glUniform1f");
         Uniform2f = (PFNGLUNIFORM2FARBPROC)getFuzzyProcAddress("glUniform2f");
+        Uniform3f = (PFNGLUNIFORM3FARBPROC)getFuzzyProcAddress("glUniform3f");
+        Uniform4f = (PFNGLUNIFORM4FARBPROC)getFuzzyProcAddress("glUniform4f");
         Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
         
         BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)

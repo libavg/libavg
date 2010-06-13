@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUBlurFilter.h"
+#include "GPUShadowFilter.h"
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 
@@ -37,29 +37,38 @@ using namespace std;
 
 namespace avg {
 
-GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        double stdDev, bool bStandalone)
-    : GPUFilter(size, pfSrc, pfDest, bStandalone, 2),
-      m_StdDev(stdDev)
+GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const DPoint& offset, 
+        double gamma, double stdDev, double opacity, const Pixel32& color)
+    : GPUFilter(size, B8G8R8A8, B8G8R8A8, false, 2),
+      m_Offset(offset),
+      m_Gamma(gamma),
+      m_StdDev(stdDev),
+      m_Opacity(opacity),
+      m_Color(color)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     initShaders();
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity);
 }
 
-GPUBlurFilter::~GPUBlurFilter()
+GPUShadowFilter::~GPUShadowFilter()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBlurFilter::setParam(double stdDev)
+void GPUShadowFilter::setParams(const DPoint& offset, double gamma, double stdDev, 
+        double opacity, const Pixel32& color)
 {
+    m_Offset = offset;
+    m_Gamma = gamma;
     m_StdDev = stdDev;
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    m_Opacity = opacity;
+    m_Color = color;
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity);
 }
 
-void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
@@ -77,49 +86,62 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->activate();
     pVShader->setUniformFloatParam("width", kernelWidth);
     pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pVShader->setUniformIntParam("texture", 0);
+    pVShader->setUniformIntParam("hBlurTex", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
+    DPoint texOffset = DPoint(m_Offset.x/getSize().x, m_Offset.y/getSize().y);
+    pVShader->setUniformDPointParam("offset", texOffset);
+    pVShader->setUniformFloatParam("gamma", m_Gamma);
+    pVShader->setUniformColorParam("color", m_Color);
+    pSrcTex->activate(GL_TEXTURE2);
+    pVShader->setUniformIntParam("origTex", 2);
     draw(getDestTex(1));
     glproc::UseProgramObject(0);
 }
 
-void GPUBlurFilter::initShaders()
+void GPUShadowFilter::initShaders()
 {
     string sProgramHead =
-        "uniform sampler2D texture;\n"
         "uniform float width;\n"
         "uniform int radius;\n"
         "uniform sampler2D kernelTex;\n"
         ;
 
-    string sHorizProgram = sProgramHead +
+    string sHorizProgram = sProgramHead + 
+        "uniform sampler2D texture;\n"
         "void main(void)\n"
         "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
+        "    float sum = 0.;\n"
         "    float dx = dFdx(gl_TexCoord[0].x);\n"
         "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
+        "        float a = texture2D(texture, gl_TexCoord[0].st+vec2(float(i)*dx,0)).a;\n"
         "        float coeff = \n"
         "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
+        "        sum += a*coeff;\n"
         "    }\n"
-        "    gl_FragColor = sum;\n"
+        "    gl_FragColor = vec4(sum, sum, sum, sum);\n"
         "}\n"
         ;
     getOrCreateShader(SHADERID_HORIZ, sHorizProgram);
 
     string sVertProgram = sProgramHead +
+        "uniform sampler2D hBlurTex;\n"
+        "uniform sampler2D origTex;\n"
+        "uniform vec2 offset;\n"
+        "uniform float gamma;\n"
+        "uniform vec4 color;\n"
         "void main(void)\n"
         "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
+        "    float sum = 0.;\n"
         "    float dy = dFdy(gl_TexCoord[0].y);\n"
         "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
+        "        float a = texture2D(hBlurTex,\n"
+        "                gl_TexCoord[0].st+vec2(0,float(i)*dy)-offset).a;\n"
         "        float coeff = \n"
         "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
+        "        sum += a*coeff;\n"
         "    }\n"
-        "    gl_FragColor = sum;\n"
+        "    vec4 origCol = texture2D(origTex, gl_TexCoord[0].st);\n"
+        "    gl_FragColor = origCol+(1.-origCol.a)*color*sum;\n"
         "}\n"
         ;
     getOrCreateShader(SHADERID_VERT, sVertProgram);

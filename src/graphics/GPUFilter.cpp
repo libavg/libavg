@@ -112,34 +112,6 @@ const string& GPUFilter::getStdShaderCode() const
         "{\n"
         "    color.rgb *= color.a;\n"
         "}\n"
-        "\n"
-        "vec4 getHorizBlurPixel(int radius, float width, sampler2D tex, \n"
-        "        sampler2D kernelTex)\n"
-        "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    float dx = dFdx(gl_TexCoord[0].x);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(tex, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    return sum;\n"
-        "}\n"
-        "\n"
-        "vec4 getVertBlurPixel(int radius, float width, sampler2D tex, \n"
-        "        sampler2D kernelTex)\n"
-        "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    float dy = dFdy(gl_TexCoord[0].y);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(tex, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    return sum;\n"
-        "}\n"
         "\n";
 
     return sCode;
@@ -156,7 +128,9 @@ void dumpKernel(int width, float* pKernel)
     cerr << "Sum of coefficients: " << sum << endl;
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev) const
+GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
+// If opacity is -1, this is a brightness-preserving blur.
+// Otherwise, opacity is the coefficient of the center pixel.
 {
     int kernelCenter = int(ceil(stdDev*3));
     int kernelWidth = kernelCenter*2+1;
@@ -173,10 +147,18 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev) const
         }
     }
 
-    // Make sure the sum of coefficients is 1 despite the inaccuracies
-    // introduced by using a kernel of finite size.
-    for (int i=0; i<=kernelWidth; ++i) {
-        pKernel[i] /= sum;
+    if (opacity == -1) {
+        // This is a brightness-preserving blur.
+        // Make sure the sum of coefficients is 1 despite the inaccuracies
+        // introduced by using a kernel of finite size.
+        for (int i=0; i<=kernelWidth; ++i) {
+            pKernel[i] /= sum;
+        }
+    } else {
+        double factor = opacity/pKernel[kernelCenter];
+        for (int i=0; i<=kernelWidth; ++i) {
+            pKernel[i] *= factor;
+        }
     }
 //    dumpKernel(kernelWidth, pKernel);
     
