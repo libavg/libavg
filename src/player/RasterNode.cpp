@@ -103,6 +103,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         downloadMask();
         setMaskCoords();
     }
+    setupFX();
 }
 
 void RasterNode::disconnect(bool bKill)

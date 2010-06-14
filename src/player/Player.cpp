@@ -475,8 +475,11 @@ void Player::initPlayback()
         m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
                 m_pAudioEngine);
     } catch (Exception&) {
+        m_pDisplayEngine->teardown();
         m_pDisplayEngine = 0;
-        m_pAudioEngine = 0;
+        if (m_pAudioEngine) {
+            m_pAudioEngine->teardown();
+        }
         throw;
     }
     m_pEventDispatcher->addSource(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine));

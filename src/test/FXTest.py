@@ -27,6 +27,8 @@ import math
 from libavg import avg
 from testcase import *
 
+g_FXSupported = None
+
 class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -109,6 +111,9 @@ class FXTestCase(AVGTestCase):
             node.href="rgb24alpha-64x64.png"
             effect.setParams(1,2,1,1,1)
 
+        if not(self._areFXSupported()):
+            print "Skipping testColorFX - no FX support with this graphics configuration."
+            return
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="colorramp.png")
@@ -131,6 +136,9 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testBlurFX(self):
+        if not(self._areFXSupported()):
+            print "Skipping testColorFX - no FX support with this graphics configuration."
+            return
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -143,6 +151,9 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testShadowFX(self):
+        if not(self._areFXSupported()):
+            print "Skipping testColorFX - no FX support with this graphics configuration."
+            return
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="shadow.png")
@@ -155,6 +166,21 @@ class FXTestCase(AVGTestCase):
                  lambda: effect.setParams((2,2), 1, 2, 0.2, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX3", False),
                 ))
+
+    def _areFXSupported(self):
+        global g_FXSupported
+        if g_FXSupported == None:
+            self.loadEmptyScene()
+            node = avg.ImageNode(href="rgb24-65x65.png")
+            effect = avg.BlurFXNode()
+            node.setEffect(effect)
+            Player.getRootNode().appendChild(node)
+            try:
+                self.start(None, [])
+                g_FXSupported = True
+            except RuntimeError:
+                g_FXSupported = False
+        return g_FXSupported
 
 
 def fxTestSuite(tests):
