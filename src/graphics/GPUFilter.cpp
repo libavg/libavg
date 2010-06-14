@@ -28,6 +28,7 @@
 #include "../base/MathHelper.h"
 
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
