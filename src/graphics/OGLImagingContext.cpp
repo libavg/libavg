@@ -22,6 +22,7 @@
 #include "OGLImagingContext.h"
 #undef check
 #include "ShaderRegistry.h"
+#include "GPUFilter.h"
 
 #include "../base/Exception.h"
 
@@ -174,6 +175,7 @@ OGLImagingContext::OGLImagingContext()
 OGLImagingContext::~OGLImagingContext()
 {
     ShaderRegistry::kill();
+    GPUFilter::glContextGone();
 #ifdef __APPLE__
     if (m_Context) {
         aglSetCurrentContext(0);

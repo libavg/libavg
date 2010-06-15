@@ -29,6 +29,8 @@
 #include "PBO.h"
 #include "FBO.h"
 
+#include <boost/thread/tss.hpp>
+
 namespace avg {
 
 class AVG_API GPUFilter: public Filter
@@ -59,7 +61,7 @@ private:
     PBOPtr m_pSrcPBO;
     FBOPtr m_pFBO;
 
-    static PBOPtr s_pFilterKernelPBO;
+    static boost::thread_specific_ptr<PBOPtr> s_pFilterKernelPBO;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;

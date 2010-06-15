@@ -31,10 +31,11 @@
 #include <string.h>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
-PBOPtr GPUFilter::s_pFilterKernelPBO;
+thread_specific_ptr<PBOPtr> GPUFilter::s_pFilterKernelPBO;
 
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         bool bStandalone, unsigned numTextures)
@@ -94,7 +95,7 @@ FBOPtr GPUFilter::getFBO()
 
 void GPUFilter::glContextGone()
 {
-    s_pFilterKernelPBO = PBOPtr();
+    s_pFilterKernelPBO.reset();
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)
@@ -172,10 +173,11 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     
     IntPoint size(kernelWidth, 1);
     GLTexturePtr pTex(new GLTexture(size, I32F));
-    if (!s_pFilterKernelPBO) {
-        s_pFilterKernelPBO = PBOPtr(new PBO(IntPoint(1024, 1), I32F, GL_STREAM_DRAW));
+    if (s_pFilterKernelPBO.get() == 0) {
+        s_pFilterKernelPBO.reset(new PBOPtr(new PBO(IntPoint(1024, 1), I32F,
+                GL_STREAM_DRAW)));
     }
-    s_pFilterKernelPBO->activate();
+    (*s_pFilterKernelPBO)->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
     int memNeeded = kernelWidth*sizeof(float);
@@ -183,7 +185,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
-    s_pFilterKernelPBO->movePBOToTexture(pTex);
+    (*s_pFilterKernelPBO)->movePBOToTexture(pTex);
 
     delete[] pKernel;
     return pTex;
