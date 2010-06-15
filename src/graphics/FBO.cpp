@@ -144,6 +144,7 @@ BitmapPtr FBO::getImage(int i) const
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadBuffer()");
 
+    cerr << "FBO::getImage: " << Bitmap::getPixelFormatString(pf) << endl;
     glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf), 
             GLTexture::getGLType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");

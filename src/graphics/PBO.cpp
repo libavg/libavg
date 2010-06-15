@@ -147,7 +147,13 @@ void PBO::unlock()
 void PBO::movePBOToTexture(GLTexturePtr pTex)
 {
     AVG_ASSERT(!isReadPBO());
-    AVG_ASSERT(pTex->getSize() == m_Size);
+    IntPoint size = pTex->getSize();
+    if (size.x > m_Size.x) {
+        size.x = m_Size.x;
+    } 
+    if (size.y > m_Size.y) {
+        size.y = m_Size.y;
+    } 
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer()");
     pTex->activate(GL_TEXTURE0);
@@ -155,7 +161,7 @@ void PBO::movePBOToTexture(GLTexturePtr pTex)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBO::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Size.x, m_Size.y,
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             GLTexture::getGLFormat(m_pf), GLTexture::getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::setImage: glTexSubImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);

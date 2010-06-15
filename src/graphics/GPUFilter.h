@@ -46,6 +46,7 @@ public:
 
     FBOPtr getFBO();
 
+    static void glContextGone();
 
 protected:
     void draw(GLTexturePtr pTex);
@@ -57,6 +58,8 @@ private:
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;
     FBOPtr m_pFBO;
+
+    static PBOPtr s_pFilterKernelPBO;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;

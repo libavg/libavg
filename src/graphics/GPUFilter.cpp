@@ -34,6 +34,8 @@ using namespace std;
 
 namespace avg {
 
+PBOPtr GPUFilter::s_pFilterKernelPBO;
+
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         bool bStandalone, unsigned numTextures)
     : m_pFBO(new FBO(size, pfDest, numTextures))
@@ -88,6 +90,11 @@ BitmapPtr GPUFilter::getImage() const
 FBOPtr GPUFilter::getFBO()
 {
     return m_pFBO;
+}
+
+void GPUFilter::glContextGone()
+{
+    s_pFilterKernelPBO = PBOPtr();
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)
@@ -165,8 +172,10 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     
     IntPoint size(kernelWidth, 1);
     GLTexturePtr pTex(new GLTexture(size, I32F));
-    PBO pbo(size, I32F, GL_STREAM_DRAW);
-    pbo.activate();
+    if (!s_pFilterKernelPBO) {
+        s_pFilterKernelPBO = PBOPtr(new PBO(IntPoint(1024, 1), I32F, GL_STREAM_DRAW));
+    }
+    s_pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
     int memNeeded = kernelWidth*sizeof(float);
@@ -174,7 +183,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
-    pbo.movePBOToTexture(pTex);
+    s_pFilterKernelPBO->movePBOToTexture(pTex);
 
     delete[] pKernel;
     return pTex;
