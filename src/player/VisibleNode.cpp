@@ -125,7 +125,7 @@ void VisibleNode::disconnect(bool bKill)
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
     }
-    m_pCanvas->removeNodeID(getID());
+    m_pCanvas.lock()->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
         EventHandlerMap::iterator it;
@@ -305,7 +305,7 @@ VisibleNode::NodeState VisibleNode::getState() const
 
 CanvasPtr VisibleNode::getCanvas() const
 {
-    return m_pCanvas;
+    return m_pCanvas.lock();
 }
 
 bool VisibleNode::handleEvent(EventPtr pEvent)

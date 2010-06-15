@@ -24,6 +24,7 @@
 #include "OGLHelper.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include <stdio.h>
 
@@ -39,6 +40,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
       m_bUsePackedDepthStencil(bUsePackedDepthStencil),
       m_bMipmap(bMipmap)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     AVG_ASSERT(numTextures == 1 || multisampleSamples == 1);
     if (multisampleSamples > 1 && !(isMultisampleFBOSupported())) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -53,6 +55,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
 
 FBO::~FBO()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
     glproc::DeleteFramebuffers(1, &m_FBO);
     if (m_MultisampleSamples > 1) {
         glproc::DeleteRenderbuffers(1, &m_ColorBuffer);

@@ -24,6 +24,7 @@
 
 #include "Node.h"
 #include "Event.h"
+#include "Canvas.h"
 
 #include "../api.h"
 
@@ -41,7 +42,6 @@
 
 namespace avg {
 
-class Canvas;
 class VisibleNode;
 class DivNode;
 class CanvasNode;
@@ -151,7 +151,7 @@ class AVG_API VisibleNode: public Node
         typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
         EventHandlerMap m_EventHandlerMap;
 
-        CanvasPtr m_pCanvas;
+        CanvasWeakPtr m_pCanvas;
         SDLDisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
 

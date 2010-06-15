@@ -27,6 +27,7 @@
 
 #include "../base/Exception.h"
 #include "../base/ProfilingZone.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 
@@ -39,10 +40,12 @@ OffscreenCanvas::OffscreenCanvas(Player * pPlayer)
     : Canvas(pPlayer),
       m_pCameraNodeRef(NULL)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 OffscreenCanvas::~OffscreenCanvas()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void OffscreenCanvas::setRoot(NodePtr pRootNode)

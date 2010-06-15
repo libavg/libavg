@@ -112,5 +112,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         int m_MultiSampleSamples;
 };
 
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
+
 }
 #endif
