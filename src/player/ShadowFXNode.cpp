@@ -34,7 +34,6 @@ namespace avg {
 ShadowFXNode::ShadowFXNode() 
     : FXNode(),
       m_Offset(0,0),
-      m_Gamma(1),
       m_StdDev(1),
       m_Opacity(0.5),
       m_Color(255,255,255,255)
@@ -53,23 +52,22 @@ void ShadowFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void ShadowFXNode::setParams(const DPoint& offset, double gamma, double stdDev, 
-            double opacity, const string& sColor)
+void ShadowFXNode::setParams(const DPoint& offset, double stdDev, double opacity, 
+        const string& sColor)
 {
     m_Offset = offset;
-    m_Gamma = gamma;
     m_StdDev = stdDev;
     m_Opacity = opacity;
     m_Color = colorStringToColor(sColor);
     if (m_pFilter) {
-        m_pFilter->setParams(offset, gamma, stdDev, opacity, m_Color);
+        m_pFilter->setParams(offset, stdDev, opacity, m_Color);
     }
 }
 
 GPUFilterPtr ShadowFXNode::createFilter(const IntPoint& size)
 {
-    m_pFilter = GPUShadowFilterPtr(new GPUShadowFilter(size, m_Offset, m_Gamma,
-            m_StdDev, m_Opacity, m_Color));
+    m_pFilter = GPUShadowFilterPtr(new GPUShadowFilter(size, m_Offset, m_StdDev, 
+            m_Opacity, m_Color));
     return m_pFilter;
 }
 

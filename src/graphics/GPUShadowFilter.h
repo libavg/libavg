@@ -31,12 +31,12 @@ namespace avg {
 class AVG_API GPUShadowFilter: public GPUFilter
 {
 public:
-    GPUShadowFilter(const IntPoint& size, const DPoint& offset, double gamma, 
-            double stdDev, double opacity, const Pixel32& color);
+    GPUShadowFilter(const IntPoint& size, const DPoint& offset, double stdDev,
+            double opacity, const Pixel32& color);
     virtual ~GPUShadowFilter();
     
-    void setParams(const DPoint& offset, double gamma, double stdDev, 
-            double opacity, const Pixel32& color);
+    void setParams(const DPoint& offset, double stdDev, double opacity, 
+            const Pixel32& color);
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
@@ -45,7 +45,6 @@ private:
     void calcKernel();
 
     DPoint m_Offset;
-    double m_Gamma;
     double m_StdDev;
     double m_Opacity;
     Pixel32 m_Color;

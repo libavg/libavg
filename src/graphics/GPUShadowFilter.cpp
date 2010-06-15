@@ -38,10 +38,9 @@ using namespace std;
 namespace avg {
 
 GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const DPoint& offset, 
-        double gamma, double stdDev, double opacity, const Pixel32& color)
+        double stdDev, double opacity, const Pixel32& color)
     : GPUFilter(size, B8G8R8A8, B8G8R8A8, false, 2),
       m_Offset(offset),
-      m_Gamma(gamma),
       m_StdDev(stdDev),
       m_Opacity(opacity),
       m_Color(color)
@@ -57,11 +56,10 @@ GPUShadowFilter::~GPUShadowFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUShadowFilter::setParams(const DPoint& offset, double gamma, double stdDev, 
-        double opacity, const Pixel32& color)
+void GPUShadowFilter::setParams(const DPoint& offset, double stdDev, double opacity, 
+        const Pixel32& color)
 {
     m_Offset = offset;
-    m_Gamma = gamma;
     m_StdDev = stdDev;
     m_Opacity = opacity;
     m_Color = color;
@@ -90,7 +88,6 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->setUniformIntParam("kernelTex", 1);
     DPoint texOffset = DPoint(m_Offset.x/getSize().x, m_Offset.y/getSize().y);
     pVShader->setUniformDPointParam("offset", texOffset);
-    pVShader->setUniformFloatParam("gamma", m_Gamma);
     pVShader->setUniformColorParam("color", m_Color);
     pSrcTex->activate(GL_TEXTURE2);
     pVShader->setUniformIntParam("origTex", 2);

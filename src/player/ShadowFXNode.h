@@ -40,8 +40,8 @@ public:
     virtual ~ShadowFXNode();
 
     virtual void disconnect();
-    void setParams(const DPoint& offset, double gamma, double stdDev, 
-            double opacity, const std::string& sColor);
+    void setParams(const DPoint& offset, double stdDev, double opacity, 
+            const std::string& sColor);
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
@@ -49,7 +49,6 @@ private:
     GPUShadowFilterPtr m_pFilter;
 
     DPoint m_Offset;
-    double m_Gamma;
     double m_StdDev;
     double m_Opacity;
     Pixel32 m_Color;

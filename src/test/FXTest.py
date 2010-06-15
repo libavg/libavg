@@ -161,9 +161,9 @@ class FXTestCase(AVGTestCase):
         node.setEffect(effect)
         self.start(None,
                 (lambda: self.compareImage("testShadowFX1", False),
-                 lambda: effect.setParams((0,0), 1, 3, 0.2, "00FFFF"),
+                 lambda: effect.setParams((0,0), 3, 0.2, "00FFFF"),
                  lambda: self.compareImage("testShadowFX2", False),
-                 lambda: effect.setParams((2,2), 1, 2, 0.2, "FFFFFF"),
+                 lambda: effect.setParams((2,2), 2, 0.2, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX3", False),
                 ))
 
