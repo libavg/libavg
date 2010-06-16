@@ -69,10 +69,13 @@ void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioE
 
 void Canvas::stopPlayback()
 {
-    m_PlaybackEndSignal.emit();
-    m_pRootNode->disconnect(true);
-    m_pRootNode = CanvasNodePtr();
-    m_IDMap.clear();
+    if (m_pDisplayEngine) {
+        m_PlaybackEndSignal.emit();
+        m_pRootNode->disconnect(true);
+        m_pRootNode = CanvasNodePtr();
+        m_IDMap.clear();
+        m_pDisplayEngine = 0;
+    }
 }
 
 VisibleNodePtr Canvas::getElementByID(const std::string& id)

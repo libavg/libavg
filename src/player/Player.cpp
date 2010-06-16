@@ -294,6 +294,7 @@ void Player::deleteCanvas(const string& sID)
                         string("deleteCanvas: Canvas with id ")+sID
                         +" is still referenced."));
             }
+            (*it)->stopPlayback();
             m_pCanvases.erase(it);
             return;
         }
