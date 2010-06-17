@@ -296,6 +296,11 @@ class OffscreenTestCase(AVGTestCase):
             canvas = Player.loadCanvasString(
                     """<canvas id="brokencanvas" width="160" height="120" 
                             multisamplesamples="42"/>""")
+
+        def screenshot():
+            bmp = canvas.screenshot()
+            self.compareBitmapToFile(bmp, "testOffscreenMultisampleScreenshot", False)
+
         mainCanvas = self.loadEmptyScene()
         if not(avg.OffscreenCanvas.isMultisampleSupported()):
             print "Offscreen multisampling not supported - skipping test."
@@ -310,6 +315,7 @@ class OffscreenTestCase(AVGTestCase):
                 href="canvas:testcanvas")
         self.start(None,
                 (lambda: self.compareImage("testCanvasMultisample", False),
+                 screenshot,
                  lambda: self.assertException(testIllegalSamples),
                 ))
        

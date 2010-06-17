@@ -136,8 +136,12 @@ void FBO::copyToDestTexture() const
 
 BitmapPtr FBO::getImage(int i) const
 {
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     copyToDestTexture();
+    if (m_MultisampleSamples != 1) {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+    } else {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    }
     PixelFormat pf = m_pOutputPBO->getPF();
     IntPoint size = m_pOutputPBO->getSize();
     BitmapPtr pBmp(new Bitmap(size, pf));
