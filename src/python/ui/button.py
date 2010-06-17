@@ -260,6 +260,9 @@ class Button(libavg.DivNode):
         self.__setupOutHandlerTemplateMethod(self.__outHandlerTemplateMethod)
     
     def __deactivateEventHandler(self):
+        for id in self.__capturedCursorIds:
+            self.releaseEventCapture(id)
+        self.__capturedCursorIds = set()
         self.__setupPressHandlerTemplateMethod(self.__defaultHandler)
         self.__setupReleaseHandlerTemplateMethod(self.__defaultHandler)
         self.__setupOverHandlerTemplateMethod(self.__defaultHandler)
