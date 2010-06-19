@@ -1209,7 +1209,8 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
                 string("Duplicate canvas id ")+pCanvas->getID()));
     }
     if (m_bIsPlaying) {
-        pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
+        pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), 
+                m_pAudioEngine);
     }
     m_pCanvases.push_back(pCanvas);
     return pCanvas;
