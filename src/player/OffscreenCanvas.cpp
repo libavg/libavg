@@ -38,7 +38,8 @@ namespace avg {
     
 OffscreenCanvas::OffscreenCanvas(Player * pPlayer)
     : Canvas(pPlayer),
-      m_pCameraNodeRef(NULL)
+      m_bIsRendered(false),
+      m_pCameraNodeRef(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -66,12 +67,14 @@ void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
             m_bUseMipmaps));
     glEnable(GL_STENCIL_TEST);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    m_bIsRendered = false;
 }
 
 void OffscreenCanvas::stopPlayback()
 {
     m_pFBO = FBOPtr();
     Canvas::stopPlayback();
+    m_bIsRendered = false;
 }
 
 static ProfilingZone OffscreenRenderProfilingZone("Render OffscreenCanvas");
@@ -89,13 +92,14 @@ void OffscreenCanvas::render()
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
     getDisplayEngine()->setMainFBO(FBOPtr());
+    m_bIsRendered = true;
 }
 
 BitmapPtr OffscreenCanvas::screenshot() const
 {
-    if (!isRunning()) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
+    if (!isRunning() || !m_bIsRendered) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
     return m_pFBO->getImage(0);
 }
@@ -114,6 +118,11 @@ int OffscreenCanvas::getMultiSampleSamples() const
 bool OffscreenCanvas::getMipmap() const
 {
     return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getMipmap();
+}
+
+bool OffscreenCanvas::getAutoRender() const
+{
+    return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getAutoRender();
 }
 
 std::string OffscreenCanvas::getID() const

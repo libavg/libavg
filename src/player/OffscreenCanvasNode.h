@@ -38,13 +38,15 @@ class AVG_API OffscreenCanvasNode : public CanvasNode
         virtual ~OffscreenCanvasNode();
 
         bool getHandleEvents() const;
-        bool getMipmap() const;
         int getMultiSampleSamples() const;
+        bool getMipmap() const;
+        bool getAutoRender() const;
 
     private:
         bool m_bHandleEvents;
-        bool m_bMipmap;
         int m_MultiSampleSamples;
+        bool m_bMipmap;
+        bool m_bAutoRender;
 };
 
 typedef boost::shared_ptr<OffscreenCanvasNode> OffscreenCanvasNodePtr;

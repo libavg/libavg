@@ -1351,15 +1351,18 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
 void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
 {
-    if (!pOffscreenCanvas->hasRegisteredCamera()) {
-        pOffscreenCanvas->doFrame(m_bPythonAvailable);
+    if (!pOffscreenCanvas->getAutoRender()) {
         return;
     }
-
-    pOffscreenCanvas->updateCameraImage();
-    while (pOffscreenCanvas->isCameraImageAvailable()) {
-        pOffscreenCanvas->doFrame(m_bPythonAvailable);
+    if (pOffscreenCanvas->hasRegisteredCamera()) {
         pOffscreenCanvas->updateCameraImage();
+        while (pOffscreenCanvas->isCameraImageAvailable()) {
+            pOffscreenCanvas->doFrame(m_bPythonAvailable);
+            pOffscreenCanvas->updateCameraImage();
+        }
+    } else {
+        pOffscreenCanvas->doFrame(m_bPythonAvailable);
+        return;
     }
 }
 

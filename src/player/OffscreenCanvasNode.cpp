@@ -39,7 +39,9 @@ NodeDefinition OffscreenCanvasNode::createDefinition()
         .addArg(Arg<int>("multisamplesamples", 1, false, 
                 offsetof(OffscreenCanvasNode, m_MultiSampleSamples)))
         .addArg(Arg<bool>("mipmap", false, false, 
-                offsetof(OffscreenCanvasNode, m_bMipmap)));
+                offsetof(OffscreenCanvasNode, m_bMipmap)))
+        .addArg(Arg<bool>("autorender", true, false,
+                offsetof(OffscreenCanvasNode, m_bAutoRender)));
 }
 
 OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& Args)
@@ -57,14 +59,19 @@ bool OffscreenCanvasNode::getHandleEvents() const
     return m_bHandleEvents;
 }
 
+int OffscreenCanvasNode::getMultiSampleSamples() const
+{
+    return m_MultiSampleSamples;
+}
+
 bool OffscreenCanvasNode::getMipmap() const
 {
     return m_bMipmap;
 }
 
-int OffscreenCanvasNode::getMultiSampleSamples() const
+bool OffscreenCanvasNode::getAutoRender() const
 {
-    return m_MultiSampleSamples;
+    return m_bAutoRender;
 }
 
 }

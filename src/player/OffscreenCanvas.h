@@ -49,6 +49,7 @@ class AVG_API OffscreenCanvas: public Canvas
         bool getHandleEvents() const;
         int getMultiSampleSamples() const;
         bool getMipmap() const;
+        bool getAutoRender() const;
 
         std::string getID() const;
         bool isRunning() const;
@@ -73,6 +74,7 @@ class AVG_API OffscreenCanvas: public Canvas
         bool m_bUseMipmaps;
         std::vector<CanvasPtr> m_pDependentCanvases;
 
+        bool m_bIsRendered;
         CameraNode* m_pCameraNodeRef;
         int m_cameraFrameRate;
 };

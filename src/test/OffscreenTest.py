@@ -221,19 +221,26 @@ class OffscreenTestCase(AVGTestCase):
                 ))
                 
     def testCanvasRender(self):
+        def createCanvas():
+            return Player.loadCanvasString("""
+                <canvas id="testcanvas" width="160" height="120" autorender="False">
+                    <image id="test" href="rgb24-65x65.png"/>
+                </canvas>""")
+
+        def testEarlyScreenshotException():
+            self.assertException(offscreenCanvas.screenshot)
+
         def renderCanvas():
-            canvas = self.__createOffscreenCanvas("testcanvas", False)
-            canvas.render()
-            bmp = canvas.screenshot()
+            offscreenCanvas.render()
+            bmp = offscreenCanvas.screenshot()
             self.compareBitmapToFile(bmp, "testOffscreenScreenshot", False)
-            Player.deleteCanvas("testcanvas")
-            canvas = None
 
         mainCanvas = self.loadEmptyScene()
-        self.assertException(renderCanvas);
-        Player.deleteCanvas("testcanvas")
+        offscreenCanvas = createCanvas()
+        self.assertException(renderCanvas)
         self.start(None,
-                (renderCanvas,
+                (testEarlyScreenshotException,
+                 renderCanvas,
                 ))
         
     def testCanvasCrop(self):
