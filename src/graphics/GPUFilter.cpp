@@ -172,16 +172,21 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
 //    dumpKernel(kernelWidth, pKernel);
     
     IntPoint size(kernelWidth, 1);
-    GLTexturePtr pTex(new GLTexture(size, I32F));
+    GLTexturePtr pTex(new GLTexture(size, R32G32B32A32F));
     if (s_pFilterKernelPBO.get() == 0) {
-        s_pFilterKernelPBO.reset(new PBOPtr(new PBO(IntPoint(1024, 1), I32F,
+        s_pFilterKernelPBO.reset(new PBOPtr(new PBO(IntPoint(1024, 1), R32G32B32A32F,
                 GL_STREAM_DRAW)));
     }
     (*s_pFilterKernelPBO)->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
-    int memNeeded = kernelWidth*sizeof(float);
-    memcpy(pPBOPixels, pKernel, memNeeded);
+    float * pCurFloat = (float*)pPBOPixels;
+    for (int i=0; i<kernelWidth; ++i) {
+        for (int j=0; j<4; ++j) {
+            *pCurFloat = pKernel[i];
+            ++pCurFloat;
+        }
+    }
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
