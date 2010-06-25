@@ -257,7 +257,7 @@ class OffscreenTestCase(AVGTestCase):
         mainCanvas = self.loadEmptyScene()
         canvas = Player.loadCanvasString("""
             <canvas id="testcanvas" width="160" height="120">
-                <div pos="(40, 30)" size="(80, 60)">
+                <div pos="(40, 30)" size="(80, 60)" crop="True">
                     <image id="test1" pos="(-32, -32)" href="rgb24-65x65.png"/>
                 </div>
             </canvas>

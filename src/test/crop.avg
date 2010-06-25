@@ -1,8 +1,7 @@
 <avg id="mainavgnode" width="160" height="120">
   <image id="bkgd" x="0" y="0" href="crop_bkgd.png"
        maxtilewidth="32" maxtileheight="32"/>
-  <div id="nestedavg" x="40" y="30"
-       width="80" height="60">
+  <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
     <video id="movie" x="10" y="10" width="40" height="40" threaded="false" 
             href="../video/testfiles/mpeg1-48x48.mpg" fps="30"/>
   </div>

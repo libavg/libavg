@@ -1,9 +1,8 @@
 <avg id="mainavgnode" width="160" height="120">
   <image id="bkgd" x="0" y="0" href="crop_bkgd.png"/>
-  <div id="nestedavg" x="40" y="30" opacity="1" 
-       width="80" height="60">
-    <div id="nestedavg2" x="0" y="0" opacity="1">
-      <div id="nestedavg3" x="0" y="0" opacity="1">
+  <div id="nestedavg" x="40" y="30" opacity="1" width="80" height="60" crop="True">
+    <div id="nestedavg2" x="0" y="0" opacity="1" crop="True">
+      <div id="nestedavg3" x="0" y="0" opacity="1" crop="True">
         <image id="img" x="10" y="10" width="40" height="40" href="rgb24-64x64.png"/>
       </div>
     </div>

@@ -54,7 +54,7 @@ NodeDefinition DivNode::createDefinition()
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
-        .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)))
+        .addArg(Arg<bool>("crop", false, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<string>("elementoutlinecolor", "", false, 
                 offsetof(DivNode, m_sElementOutlineColor)))
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));

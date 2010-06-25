@@ -1,7 +1,7 @@
 <avg width="160" height="120">
   <div x="80" y="0" width="160" height="120" pivot="(0, 0)" angle="1.57">
     <image x="0" y="0" width="16" height="16" href="rgb24-65x65.png"/>
-    <div x="40" y="0" width="110" height="80" pivot="(0, 0)" angle="1.57">
+    <div x="40" y="0" width="110" height="80" pivot="(0, 0)" angle="1.57" crop="True">
         <image x="0" y="0" width="16" height="16" href="rgb24-65x65.png"/>
         <image x="30" y="-6" width="16" height="16" href="rgb24-65x65.png"/>
     </div>
