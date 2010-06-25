@@ -118,7 +118,7 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::trace(int category, const std::string& msg)
+void Logger::trace(int category, const UTF8String& msg)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
     if (category & m_Flags) {

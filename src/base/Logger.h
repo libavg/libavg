@@ -23,6 +23,7 @@
 #define _Logger_H_
 
 #include "../api.h"
+#include "UTF8String.h"
 
 #include <string>
 #include <vector>
@@ -42,7 +43,7 @@ public:
     void setCategories(int flags);
     void pushCategories();
     void popCategories();
-    void trace(int category, const std::string& msg);
+    void trace(int category, const UTF8String& msg);
     inline bool isFlagSet(int category) {
         return (category & m_Flags) != 0;
     }
