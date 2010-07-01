@@ -61,7 +61,10 @@ class Button(libavg.DivNode):
         return self.__upNode
     
     def getDownNode(self):
-        return self.__downNode    
+        return self.__downNode
+    
+    def getDisabledNode(self):
+        return self.__disabledNode
     
     def setNodes(self, upNode, downNode, disabledNode = None):
         self.__upNode = upNode
