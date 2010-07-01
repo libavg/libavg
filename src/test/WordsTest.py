@@ -329,10 +329,18 @@ class WordsTestCase(AVGTestCase):
         def changeUnicodeText():
             Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
         
+        def setNBSP():
+            node = Player.getElementByID("dynamictext")
+            node.width=100
+            node.text=u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
+                    "blindtext4\u00A0lindtext\u00A0blindtext\u00A0"
+
         self.start("i18ntext.avg",
                 (lambda: self.compareImage("testI18NWords1", True),
                  changeUnicodeText,
-                 lambda: self.compareImage("testI18NWords2", True)
+                 lambda: self.compareImage("testI18NWords2", True),
+                 setNBSP,
+                 lambda: self.compareImage("testI18NWords3", True),
                 ))
 
     def testRawText(self):

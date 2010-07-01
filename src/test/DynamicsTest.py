@@ -315,14 +315,19 @@ class DynamicsTestCase(AVGTestCase):
                 def __init__(self, p):
                     avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png")
 
+                def customMethod(self):
+                    pass
+
             customNode = avg.ImageNode(id="foo")
             self.assert_(customNode.id == "foo")
             customImage = CustomImageNode((23, 42))
             Player.getRootNode().appendChild(customImage)
             customImage = None
             retrievedImage = Player.getRootNode().getChild(0)
+            self.assert_(type(retrievedImage) == CustomImageNode)
             self.assert_(retrievedImage.pos == (23,42))
             self.assert_(retrievedImage.href == "rgb24-64x64.png")
+            retrievedImage.customMethod()
             
 
         self.loadEmptyScene()
