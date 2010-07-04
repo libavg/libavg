@@ -332,8 +332,8 @@ class WordsTestCase(AVGTestCase):
         def setNBSP():
             node = Player.getElementByID("dynamictext")
             node.width=100
-            node.text=u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
-                    "blindtext4\u00A0lindtext\u00A0blindtext\u00A0"
+            node.text=(u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
+                    u"blindtext4\u00A0blindtext\u00A0blindtext\u00A0")
 
         self.start("i18ntext.avg",
                 (lambda: self.compareImage("testI18NWords1", True),
