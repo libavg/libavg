@@ -30,7 +30,8 @@ g_logger = avg.Logger.get()
 
 
 class Key(avg.ImageNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, *args, **kwargs):
+    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, sticky=False,
+            *args, **kwargs):
         kwargs['pos'] = keyDef[1]
         kwargs['size'] = keyDef[2]
         kwargs['opacity'] = 0.0
@@ -41,6 +42,9 @@ class Key(avg.ImageNode):
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
+        self.__sticky = sticky
+        if self.__sticky:
+            self.__stickyIsDown = False
         self.__cursorID = None
         self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
         self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUpOut)
@@ -61,22 +65,37 @@ class Key(avg.ImageNode):
         g_player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
-        if self.__cursorID:
+        if self.__sticky:
+            self.__stickyIsDown = not(self.__stickyIsDown)
+            if self.__stickyIsDown:
+                self.__pseudoDown(event)
+            else:
+                self.__pseudoUp(event)
+        else:
+            if self.__cursorID:
+                return
+            self.__pseudoDown(event)
+
+    def __onUpOut(self, event):
+        if not self.__cursorID == event.cursorid:
             return
+        if not (self.__sticky):
+            self.__pseudoUp(event)
+
+    def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
 
         self.opacity = 1.0
         if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
-
-    def __onUpOut(self, event):
-        if not self.__cursorID == event.cursorid:
-            return
+       
+    def __pseudoUp(self, event):
         self.__cursorID = None
 
         self.opacity = 0.0
         if self.__onUpCallback:
             self.__onUpCallback(event, self.__keyCode)
+        
 
 
 class Keyboard(avg.DivNode):
@@ -87,7 +106,8 @@ class Keyboard(avg.DivNode):
     It supports character/command keys and shift key functionality.
     '''
 
-    def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, *args, **kwargs):
+    def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, stickyShift=False,
+            *args, **kwargs):
         '''
         @param  bgHref: background image filename or None
         @param  ovlHref: overlay image filename or None
@@ -96,11 +116,14 @@ class Keyboard(avg.DivNode):
             (<shift keycode> is optional)
             cmd key def format: [<keycode>, <pos>, <size>]
         @param  shiftKeyCode: one of the cmd keycodes or None
+        @param stickyShift: True if shift should work like regular caps lock (needed
+            for single-touch touchscreens)
         '''
         super(Keyboard, self).__init__(*args, **kwargs)
 
         self.__shiftKeyCode = shiftKeyCode
         self.__shiftDownCounter = 0
+        self.__stickyShift = stickyShift
         self.__downKeyHandler = None
         self.__upKeyHandler = None
 
@@ -119,6 +142,7 @@ class Keyboard(avg.DivNode):
                             'Keyboard: Missing keycode(s) for character key: %s' %str(kd))
             else:
                 Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
+                        sticky=(self.__stickyShift and self.__shiftKeyCode == kd[0]),
                         parent=self)
 
     @classmethod
@@ -195,7 +219,8 @@ class Keyboard(avg.DivNode):
                 self.__shiftDownCounter -= 1
             else:
                 g_logger.trace(g_logger.WARNING,
-                        'Keyboard: ShiftDownCounter=0 on [%s] up' %self.__shiftKeyCode)
+                        'Keyboard: ShiftDownCounter=0 on [%s] up' 
+                        %self.__shiftKeyCode)
         if self.__upKeyHandler:
             self.__upKeyHandler(event, None, keyCode)
 
