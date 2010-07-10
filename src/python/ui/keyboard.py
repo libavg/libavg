@@ -36,7 +36,7 @@ class Key(avg.ImageNode):
         kwargs['opacity'] = 0.0
         super(Key, self).__init__(*args, **kwargs)
 
-        if not ovlHref is None:
+        if ovlHref:
             self.__createImage(ovlHref)
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
@@ -61,12 +61,12 @@ class Key(avg.ImageNode):
         g_player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
-        if not self.__cursorID is None:
+        if self.__cursorID:
             return
         self.__cursorID = event.cursorid
 
         self.opacity = 1.0
-        if not self.__onDownCallback is None:
+        if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
 
     def __onUpOut(self, event):
@@ -75,7 +75,7 @@ class Key(avg.ImageNode):
         self.__cursorID = None
 
         self.opacity = 0.0
-        if not self.__onUpCallback is None:
+        if self.__onUpCallback:
             self.__onUpCallback(event, self.__keyCode)
 
 
@@ -104,7 +104,7 @@ class Keyboard(avg.DivNode):
         self.__downKeyHandler = None
         self.__upKeyHandler = None
 
-        if not bgHref is None:
+        if bgHref:
             avg.ImageNode(href=bgHref, parent=self)
         for kd in keyDefs:
             if isinstance(kd[0], tuple):
@@ -174,18 +174,18 @@ class Keyboard(avg.DivNode):
         pass
 
     def __onCharKeyDown(self, event, keyCodes):
-        if not self.__downKeyHandler is None:
+        if self.__downKeyHandler:
             self.__downKeyHandler(event, self._getCharKeyCode(keyCodes), None)
 
     def __onCharKeyUp(self, event, keyCodes):
-        if not self.__upKeyHandler is None:
+        if self.__upKeyHandler:
             self.__upKeyHandler(event, self._getCharKeyCode(keyCodes), None)
 
     def __onCommandKeyDown(self, event, keyCode):
         self._onCommandKeyDown(event, keyCode)
         if keyCode == self.__shiftKeyCode:
             self.__shiftDownCounter += 1
-        if not self.__downKeyHandler is None:
+        if self.__downKeyHandler:
             self.__downKeyHandler(event, None, keyCode)
 
     def __onCommandKeyUp(self, event, keyCode):
@@ -196,6 +196,6 @@ class Keyboard(avg.DivNode):
             else:
                 g_logger.trace(g_logger.WARNING,
                         'Keyboard: ShiftDownCounter=0 on [%s] up' %self.__shiftKeyCode)
-        if not self.__upKeyHandler is None:
+        if self.__upKeyHandler:
             self.__upKeyHandler(event, None, keyCode)
 
