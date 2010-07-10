@@ -106,24 +106,38 @@ class Keyboard(avg.DivNode):
     It supports character/command keys and shift key functionality.
     '''
 
-    def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, stickyShift=False,
-            *args, **kwargs):
+    def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
+            stickyShift=False, *args, **kwargs):
         '''
         @param  bgHref: background image filename or None
         @param  ovlHref: overlay image filename or None
         @param  keyDefs: list of key definitions
-            char key def format: [(<keycode>, <shift keycode>), <pos>, <size>]
+            char key def format: 
+                    [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
             (<shift keycode> is optional)
             cmd key def format: [<keycode>, <pos>, <size>]
         @param  shiftKeyCode: one of the cmd keycodes or None
+        @param  altGrKeyCode: one of the cmd keycodes or None
         @param stickyShift: True if shift should work like regular caps lock (needed
             for single-touch touchscreens)
         '''
+        # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(*args, **kwargs)
 
         self.__shiftKeyCode = shiftKeyCode
         self.__shiftDownCounter = 0
         self.__stickyShift = stickyShift
+        self.__altGrKeyCode = altGrKeyCode
+        self.__altGrKeyCounter = 0
+        if not(self.__shiftKeyCode) and self.__altGrKeyCode:
+            raise RuntimeError(
+                    "Keyboard: If there is an altgr key, there must also be a shift key.")
+        self.__codesPerKey = 1
+        if self.__shiftKeyCode:
+            self.__codesPerKey = 2
+        if self.__altGrKeyCode:
+            self.__codesPerKey = 3
+        
         self.__downKeyHandler = None
         self.__upKeyHandler = None
 
@@ -131,22 +145,19 @@ class Keyboard(avg.DivNode):
             avg.ImageNode(href=bgHref, parent=self)
         for kd in keyDefs:
             if isinstance(kd[0], tuple):
-                if not self.__shiftKeyCode is None and len(kd[0]) == 1:
-                    kd[0] += kd[0]
-                if (self.__shiftKeyCode is None and len(kd[0]) > 0) or \
-                        (not self.__shiftKeyCode is None and len(kd[0]) > 1):
-                    Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
-                            parent=self)
-                else:
-                    g_logger.trace(g_logger.ERROR,
-                            'Keyboard: Missing keycode(s) for character key: %s' %str(kd))
-            else:
-                Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        sticky=(self.__stickyShift and self.__shiftKeyCode == kd[0]),
+                while len(kd[0]) < self.__codesPerKey:
+                    kd[0] += (kd[0][0],)
+                Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
                         parent=self)
+            else:
+                sticky =(self.__stickyShift and 
+                        (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
+                Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
+                        sticky=sticky, parent=self)
 
     @classmethod
-    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr):
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
+            altGrKeyStr=None):
         '''
         Creates key definitions for a row of uniform keys. Useful for creating the 
         keyDefs parameter of the Keyboard constructor.
@@ -162,9 +173,15 @@ class Keyboard(avg.DivNode):
         keyDefs = []
         curPos = startPos
         offset = keySize[0]+spacing
-        for keyCode, shiftKeyCode in zip(keyStr, shiftKeyStr):
-            keyDefs.append([(keyCode, shiftKeyCode), curPos, keySize])
-            curPos = (curPos[0]+offset, curPos[1])
+        if altGrKeyStr:
+            for keyCode, shiftKeyCode, altGrKeyCode in (
+                    zip(keyStr, shiftKeyStr, altGrKeyStr)):
+                keyDefs.append([(keyCode, shiftKeyCode, altGrKeyCode), curPos, keySize])
+                curPos = (curPos[0]+offset, curPos[1])
+        else:
+            for keyCode, shiftKeyCode in zip(keyStr, shiftKeyStr):
+                keyDefs.append([(keyCode, shiftKeyCode), curPos, keySize])
+                curPos = (curPos[0]+offset, curPos[1])
         return keyDefs
 
     def setKeyHandler(self, downHandler, upHandler=None):
@@ -183,7 +200,12 @@ class Keyboard(avg.DivNode):
         Return one of a character keys' keycodes depending on shift key(s) status.
         Overload this method to change character key keycode handling.
         '''
-        return keyCodes[1] if self.__shiftDownCounter else keyCodes[0]
+        if self.__shiftDownCounter:
+            return keyCodes[1]
+        elif self.__altGrKeyCounter:
+            return keyCodes[2]
+        else:
+            return keyCodes[0]
 
     def _onCommandKeyDown(self, event, keyCode):
         '''
@@ -209,6 +231,8 @@ class Keyboard(avg.DivNode):
         self._onCommandKeyDown(event, keyCode)
         if keyCode == self.__shiftKeyCode:
             self.__shiftDownCounter += 1
+        if keyCode == self.__altGrKeyCode:
+            self.__altGrKeyCounter += 1
         if self.__downKeyHandler:
             self.__downKeyHandler(event, None, keyCode)
 
@@ -221,6 +245,8 @@ class Keyboard(avg.DivNode):
                 g_logger.trace(g_logger.WARNING,
                         'Keyboard: ShiftDownCounter=0 on [%s] up' 
                         %self.__shiftKeyCode)
+            if self.__altGrKeyCounter > 0:
+                self.__altGrKeyCounter -= 1
         if self.__upKeyHandler:
             self.__upKeyHandler(event, None, keyCode)
 
