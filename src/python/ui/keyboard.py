@@ -121,6 +121,28 @@ class Keyboard(avg.DivNode):
                 Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
                         parent=self)
 
+    @classmethod
+    def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr):
+        '''
+        Creates key definitions for a row of uniform keys. Useful for creating the 
+        keyDefs parameter of the Keyboard constructor.
+
+        @param startPos: top left pos of the row.
+        @param keySize: Size of each key.
+        @param spacing: Number of empty pixels between two keys.
+        @param keyStr: Unicode string containing the unshifted keycodes
+            (i.e. u"qwertzuiopżś")
+        @param shiftKeyStr: Unicode string containing the shifted keycodes
+            (i.e. u"QWERTZUIOPńć")
+        '''
+        keyDefs = []
+        curPos = startPos
+        offset = keySize[0]+spacing
+        for keyCode, shiftKeyCode in zip(keyStr, shiftKeyStr):
+            keyDefs.append([(keyCode, shiftKeyCode), curPos, keySize])
+            curPos = (curPos[0]+offset, curPos[1])
+        return keyDefs
+
     def setKeyHandler(self, downHandler, upHandler=None):
         '''
         Set down and up key handlers.
