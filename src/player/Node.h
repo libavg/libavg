@@ -60,6 +60,7 @@ class AVG_API Node
         const NodePtr& getChild(unsigned i);
         void appendChild(NodePtr pNewNode);
         void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
+        void insertChildAfter(NodePtr pNewNode, NodePtr pOldChild);
         virtual void insertChild(NodePtr pNewNode, unsigned i);
         void reorderChild(NodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);

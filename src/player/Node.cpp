@@ -106,6 +106,16 @@ void Node::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
     insertChild(pNewNode, i);
 }
 
+void Node::insertChildAfter(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i+1);
+}
+
 void Node::insertChild(NodePtr pNewNode, unsigned i)
 {
     if (!pNewNode) {

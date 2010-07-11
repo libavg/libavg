@@ -247,8 +247,12 @@ void export_node()
                 "Adds a new child to the container behind the last existing child.")
         .def("insertChildBefore", &DivNode::insertChildBefore,
                 "insertChildBefore(newNode, oldChild)\n"
-                "Adds a new child to the container in front of the existing node\n"
-                "oldChild.")
+                "Adds a new child to the container before the existing node\n"
+                "oldChild. In z-order, the new child ist behind the old one.")
+        .def("insertChildAfter", &DivNode::insertChildAfter,
+                "insertChildAfter(newNode, oldChild)\n"
+                "Adds a new child to the container after the existing node\n"
+                "oldChild. In z-order, the new child ist in front of the old one.")
         .def("insertChild", &DivNode::insertChild,
                 "insertChild(node, pos)\n"
                 "Adds a new child to the container at position pos.")
