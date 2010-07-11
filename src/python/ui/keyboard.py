@@ -245,6 +245,7 @@ class Keyboard(avg.DivNode):
                 g_logger.trace(g_logger.WARNING,
                         'Keyboard: ShiftDownCounter=0 on [%s] up' 
                         %self.__shiftKeyCode)
+        elif keyCode == self.__altGrKeyCode:
             if self.__altGrKeyCounter > 0:
                 self.__altGrKeyCounter -= 1
         if self.__upKeyHandler:
