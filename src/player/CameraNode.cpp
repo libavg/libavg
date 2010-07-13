@@ -280,6 +280,10 @@ void CameraNode::open()
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
         getSurface()->unlockBmps();
+    } else if (pf == I8) {
+        FilterFill<Pixel8> Filter(0);
+        Filter.applyInPlace(getSurface()->lockBmp());
+        getSurface()->unlockBmps();
     }
 }
 
