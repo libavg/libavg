@@ -125,6 +125,11 @@ bool OffscreenCanvas::getAutoRender() const
     return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getAutoRender();
 }
 
+void OffscreenCanvas::setAutoRender(bool bAutoRender)
+{
+    dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->setAutoRender(bAutoRender);
+}
+
 std::string OffscreenCanvas::getID() const
 {
     return getRootNode()->getID();

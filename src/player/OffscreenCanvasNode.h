@@ -41,6 +41,7 @@ class AVG_API OffscreenCanvasNode : public CanvasNode
         int getMultiSampleSamples() const;
         bool getMipmap() const;
         bool getAutoRender() const;
+        void setAutoRender(bool bAutoRender);
 
     private:
         bool m_bHandleEvents;

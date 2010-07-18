@@ -50,6 +50,7 @@ class AVG_API OffscreenCanvas: public Canvas
         int getMultiSampleSamples() const;
         bool getMipmap() const;
         bool getAutoRender() const;
+        void setAutoRender(bool bAutoRender);
 
         std::string getID() const;
         bool isRunning() const;

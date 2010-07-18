@@ -74,4 +74,9 @@ bool OffscreenCanvasNode::getAutoRender() const
     return m_bAutoRender;
 }
 
+void OffscreenCanvasNode::setAutoRender(bool bAutoRender)
+{
+    m_bAutoRender = bAutoRender;
+}
+
 }

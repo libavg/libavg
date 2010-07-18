@@ -252,7 +252,36 @@ class OffscreenTestCase(AVGTestCase):
                  recreateCanvas,
                  renderCanvas
                 ))
-        
+
+    def testCanvasAutoRender(self):
+        def createCanvas():
+            canvas = self.__createOffscreenCanvas("testcanvas", False)
+            avg.ImageNode(href="canvas:testcanvas", parent=Player.getRootNode())
+            return canvas
+
+        def disableAutoRender():
+            self.__offscreenCanvas.autorender = False
+
+        def enableAutoRender():
+            self.__offscreenCanvas.autorender = True
+
+        def changeContent():
+            self.__offscreenCanvas.getElementByID("test1").x = 42
+
+        mainCanvas = self.loadEmptyScene()
+        self.__offscreenCanvas = createCanvas()
+        self.start(None,
+                (lambda: self.assert_(self.__offscreenCanvas.autorender),
+                 lambda: self.compareImage("testOffscreenAutoRender1", False),
+                 disableAutoRender,
+                 lambda: self.assert_(not(self.__offscreenCanvas.autorender)),
+                 changeContent,
+                 lambda: self.compareImage("testOffscreenAutoRender1", False),
+                 enableAutoRender,
+                 lambda: self.assert_(self.__offscreenCanvas.autorender),
+                 lambda: self.compareImage("testOffscreenAutoRender2", False)
+                ))
+
     def testCanvasCrop(self):
         mainCanvas = self.loadEmptyScene()
         canvas = Player.loadCanvasString("""
@@ -410,6 +439,7 @@ def offscreenTestSuite(tests):
             "testCanvasEvents",
             "testCanvasEventCapture",
             "testCanvasRender",
+            "testCanvasAutoRender",
             "testCanvasCrop",
             "testCanvasAlpha",
             "testCanvasBlendModes",

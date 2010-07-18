@@ -466,6 +466,9 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("mipmap", &OffscreenCanvas::getMipmap,
                 "True if mipmaps are generated and used for the canvas.  This is used "
                 "instead of RasterNode.mipmap for images that render the canvas.")
+        .add_property("autorender", &OffscreenCanvas::getAutoRender,
+                &OffscreenCanvas::setAutoRender,
+                "Turns autorendering on or off. Default is True.\n")
         .def("getNumDependentCanvases", &OffscreenCanvas::getNumDependentCanvases,
                 "Returns the number of canvases that reference this canvas. Used mainly "
                 "for unit tests.")
