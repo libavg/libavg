@@ -158,8 +158,7 @@ Log.trace(Log.APP, "driver=%(driver)s device=%(device)s" %optdict)
 Log.trace(Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
         %optdict)
 Log.trace(Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s" %optdict)
-
-if options.device:
+if len(options.device) != 0:
     options.device = str(int(options.device, 16))
     
 camNode = Player.createNode("camera", 
