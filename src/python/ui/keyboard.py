@@ -23,6 +23,8 @@
 # Original author of this module: Thomas Schott <scotty at c-base dot org>
 #
 
+import os.path
+
 from libavg import avg
 
 g_player = avg.Player.get()
@@ -51,14 +53,18 @@ class Key(avg.ImageNode):
         self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onUpOut)
 
     def __createImage(self, ovlHref):
+        if os.path.isabs(ovlHref):
+            effectiveHref = ovlHref
+        else:
+            effectiveHref = self.getParent().getEffectiveMediaDir() + ovlHref
         canvas = g_player.loadCanvasString(
         '''
             <canvas id="offscreen" size="%s">
                 <image href="%s" pos="%s"/>
             </canvas>
         '''
-        %(str(self.size),
-          str(self.getParent().getEffectiveMediaDir()) + str(ovlHref),
+        %(str(self.size), 
+          effectiveHref,
           str(-self.pos)))
         canvas.render()
         self.setBitmap(canvas.screenshot())
