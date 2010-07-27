@@ -194,7 +194,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
         } else if (sDriver == "video4linux") {
 #if defined(AVG_ENABLE_V4L2)
             pCamera = CameraPtr(new V4LCamera(sDevice, unit, captureSize, camPF, 
-                    destPF));
+                    destPF, frameRate));
 #else
             AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
                     "Video4Linux support not compiled in.");

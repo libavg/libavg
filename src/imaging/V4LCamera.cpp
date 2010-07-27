@@ -63,12 +63,13 @@ namespace {
 }
 
 V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
-        PixelFormat camPF, PixelFormat destPF)
+        PixelFormat camPF, PixelFormat destPF, double FrameRate)
     : Camera(camPF, destPF),
       m_Fd(-1),
       m_Channel(Channel),
       m_sDevice(sDevice), 
-      m_ImgSize(Size)
+      m_ImgSize(Size),
+      m_FrameRate(FrameRate)
 {
     m_v4lPF = getV4LPF(camPF);
     if (m_sDevice == "") {
@@ -248,8 +249,7 @@ const std::string& V4LCamera::getDriverName() const
 
 double V4LCamera::getFrameRate() const
 {
-    // TODO: PAL or NTSC have different frame rates. So do USB cameras!
-    return 25;
+    return m_FrameRate;
 }
 
 std::string V4LCamera::getFeatureName(V4LCID_t V4LFeature)
@@ -429,6 +429,7 @@ void V4LCamera::initDevice()
     struct v4l2_cropcap CropCap;
     struct v4l2_crop Crop;
     struct v4l2_format Fmt;
+    struct v4l2_streamparm StreamParam;
 
     if (xioctl(m_Fd, VIDIOC_QUERYCAP, &Cap) == -1) {
         close();
@@ -483,6 +484,21 @@ void V4LCamera::initDevice()
                 +strerror(errno)
                 +"'. Try using v4l-info to find out what the device supports."));
     }
+
+    CLEAR(StreamParam);
+
+    StreamParam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    StreamParam.parm.capture.timeperframe.numerator = 1;
+    StreamParam.parm.capture.timeperframe.denominator = (int) m_FrameRate;
+    if (xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam) == -1) {
+        close();
+        throw(Exception(AVG_ERR_CAMERA_NONFATAL,
+                string("Unable to set V4L camera framerate: '")
+                +strerror(errno)
+                +"'. Try using v4l-info to find out what the device supports."));
+    }
+    m_FrameRate = (double)StreamParam.parm.capture.timeperframe.denominator / \
+            (double)StreamParam.parm.capture.timeperframe.numerator;
 
     initMMap ();
     

@@ -42,7 +42,7 @@ class AVG_API V4LCamera: public Camera {
     
     public:
         V4LCamera(std::string sDevice, int Channel, IntPoint Size,
-                PixelFormat camPF, PixelFormat destPF);
+                PixelFormat camPF, PixelFormat destPF, double FrameRate);
         virtual ~V4LCamera();
 
         virtual IntPoint getImgSize();
@@ -79,6 +79,7 @@ class AVG_API V4LCamera: public Camera {
         bool m_bCameraAvailable;
         int m_v4lPF;
         IntPoint m_ImgSize;
+        double m_FrameRate;
         
         void setFeature(V4LCID_t V4LFeature, int Value);
         V4LCID_t getFeatureID(CameraFeature Feature) const;
