@@ -152,7 +152,12 @@ int VideoNode::getNumFrames() const
 int VideoNode::getCurFrame() const
 {
     exceptionIfUnloaded("getCurFrame");
-    return m_pDecoder->getCurFrame();
+    int curFrame = m_pDecoder->getCurFrame();
+    if (curFrame > 0) {
+        return curFrame;
+    } else {
+        return 0;
+    }
 }
 
 int VideoNode::getNumFramesQueued() const
@@ -219,7 +224,12 @@ int VideoNode::getNumAudioChannels() const
 long long VideoNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    return m_pDecoder->getCurTime();
+    long long curTime = m_pDecoder->getCurTime();
+    if (curTime > 0) {
+        return curTime;
+    } else {
+        return 0;
+    }
 }
 
 void VideoNode::seekToTime(long long Time)

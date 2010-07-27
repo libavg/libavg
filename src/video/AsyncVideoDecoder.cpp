@@ -186,7 +186,7 @@ IntPoint AsyncVideoDecoder::getSize() const
 
 int AsyncVideoDecoder::getCurFrame() const
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(m_State != CLOSED);
     return int(getCurTime(SS_VIDEO)*m_VideoInfo.m_StreamFPS/1000.0+0.5);
 }
 
@@ -198,7 +198,7 @@ int AsyncVideoDecoder::getNumFramesQueued() const
 
 long long AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(m_State != CLOSED);
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:

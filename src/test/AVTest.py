@@ -67,6 +67,8 @@ class AVTestCase(AVGTestCase):
     def testVideoInfo(self):
         def checkInfo():
             node.pause()
+            self.assert_(node.getCurFrame() == 0)
+            self.assert_(node.getCurTime() == 0)
             self.assert_(node.getDuration() == 1000)
             self.assert_(node.getBitrate() == 224064)
             self.assert_(node.getVideoCodec() == "mpeg4")
