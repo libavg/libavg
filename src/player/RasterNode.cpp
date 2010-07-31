@@ -360,7 +360,11 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
     if (!(getState() == VisibleNode::NS_CANRENDER)) {
         throw Exception(AVG_ERR_UNSUPPORTED,
-            string(sMsg) + ": cannot access vertex coordinates before Player.play().");
+            string(sMsg) + ": cannot access vertex coordinates before node is bound.");
+    }
+    if (!m_pSurface->isCreated()) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+            string(sMsg) + ": Surface not available.");
     }
 }
 
