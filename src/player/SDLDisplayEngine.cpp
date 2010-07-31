@@ -438,7 +438,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 
 BitmapPtr SDLDisplayEngine::screenshot()
 {
-    BitmapPtr pBmp (new Bitmap(m_Size, B8G8R8X8, "screenshot"));
+    BitmapPtr pBmp (new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     if (isParallels()) {
         // Workaround for buggy GL_FRONT on virtual machines running under parallels.
         glReadBuffer(GL_BACK);
@@ -446,7 +446,7 @@ BitmapPtr SDLDisplayEngine::screenshot()
         glReadBuffer(GL_FRONT);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
-    glReadPixels(0, 0, m_Size.x, m_Size.y, GL_BGRA, GL_UNSIGNED_BYTE, pBmp->getPixels());
+    glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, pBmp->getPixels());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
