@@ -120,10 +120,10 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
                 "Can't connect node with id "+pNewNode->getID()+
                 ": already connected."));
     }
-    Node::insertChild(pNewNode, i);
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getCanvas()->registerNode(pVNode);
     }
+    Node::insertChild(pNewNode, i);
     DivNodePtr Ptr = dynamic_pointer_cast<DivNode>(getThis());
     pVNode->setParent(Ptr, getState(), getCanvas());
     if (getState() == NS_CANRENDER) {

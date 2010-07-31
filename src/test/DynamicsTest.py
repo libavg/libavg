@@ -178,6 +178,18 @@ class DynamicsTestCase(AVGTestCase):
 
         self.__runDynamicsTest(createDiv, "testDivDynamics")
 
+    def testDuplicateID(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(href="rgb24-64x64.png", id="testdup", parent=root)
+        self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
+                id="testdup", parent=root))
+        self.start(None,
+                (self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
+                        id="testdup", parent=root)),
+                )
+                )
+        
     def testDynamicEventCapture(self):
         # Tests if deleting a node that has events captured works.
         def createImg():
@@ -358,6 +370,7 @@ def dynamicsTestSuite(tests):
         #   "testPanoDynamics",
             "testDivDynamics",
             "testEventBubbling",
+            "testDuplicateID",
             "testDynamicEventCapture",
             "testComplexDiv",
             "testNodeCustomization",
