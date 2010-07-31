@@ -83,7 +83,7 @@ void OffscreenCanvas::render()
 {
     if (!isRunning()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenCanvas::screenshot(): Player.play() needs to be called before rendering offscreen canvases."));
+                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
     }
     getDisplayEngine()->setMainFBO(m_pFBO);
     m_pFBO->activate();

@@ -397,6 +397,16 @@ class OffscreenTestCase(AVGTestCase):
             self.offscreen2.getElementByID("test1").href = "canvas:offscreencanvas1"
             self.node.href = "canvas:offscreencanvas2"
             
+        def loadCanvasDepString():
+            Player.loadCanvasString('<canvas id="canvas1" size="(160, 120)"/>')
+            Player.loadCanvasString('''
+                <canvas id="canvas2" size="(160, 120)">
+                    <image href="canvas:canvas1"/>
+                </canvas>
+                ''')
+            Player.deleteCanvas('canvas2')
+            Player.deleteCanvas('canvas1')
+
         mainCanvas = self.loadEmptyScene()
         createTwoCanvases()
         self.offscreen1.getElementByID("test1").href = ""
@@ -412,6 +422,7 @@ class OffscreenTestCase(AVGTestCase):
                     exchangeCanvases,
                     lambda: self.compareImage("testCanvasDependencies2", False),
                     lambda: self.assertException(makeCircularRef),
+                    loadCanvasDepString,
                   ))
 
     def __setupCanvas(self, handleEvents):

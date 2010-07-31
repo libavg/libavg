@@ -1208,11 +1208,16 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
         throw (Exception(AVG_ERR_INVALID_ARGS, 
                 string("Duplicate canvas id ")+pCanvas->getID()));
     }
-    if (m_bIsPlaying) {
-        pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), 
-                m_pAudioEngine);
-    }
     m_pCanvases.push_back(pCanvas);
+    if (m_bIsPlaying) {
+        try {
+            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), 
+                    m_pAudioEngine);
+        } catch (...) {
+            m_pCanvases.pop_back();
+            throw;
+        }
+    }
     return pCanvas;
 }
 
