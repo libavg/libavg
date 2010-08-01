@@ -123,8 +123,9 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getCanvas()->registerNode(pVNode);
     }
-    Node::insertChild(pNewNode, i);
     DivNodePtr Ptr = dynamic_pointer_cast<DivNode>(getThis());
+    pNewNode->checkSetParentError(Ptr); 
+    Node::insertChild(pNewNode, i);
     pVNode->setParent(Ptr, getState(), getCanvas());
     if (getState() == NS_CANRENDER) {
         pVNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());

@@ -58,12 +58,17 @@ void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
     m_pDefinition = pDefinition;
 }
 
-void Node::setParent(NodeWeakPtr pParent)
+void Node::checkSetParentError(NodeWeakPtr pParent)
 {
     if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 string("Can't change parent of node (") + getID() + ")."));
     }
+}
+
+void Node::setParent(NodeWeakPtr pParent)
+{
+    checkSetParentError(pParent);
     m_pParent = pParent;
 }
 

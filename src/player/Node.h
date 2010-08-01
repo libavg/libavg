@@ -53,6 +53,7 @@ class AVG_API Node
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args) {};
 
+        void checkSetParentError(NodeWeakPtr pParent);
         virtual void setParent(NodeWeakPtr pParent);
         NodePtr getParent() const;
 
