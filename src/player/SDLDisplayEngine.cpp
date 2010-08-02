@@ -66,9 +66,7 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 
@@ -425,15 +423,11 @@ OGLShaderPtr SDLDisplayEngine::getShader()
 
 void SDLDisplayEngine::showCursor(bool bShow)
 {
-#ifdef _WIN32
-    ShowCursor(bShow);
-#else
     if (bShow) {
         SDL_ShowCursor(SDL_ENABLE);
     } else {
         SDL_ShowCursor(SDL_DISABLE);
     }
-#endif
 }
 
 BitmapPtr SDLDisplayEngine::screenshot()
