@@ -9,6 +9,7 @@
   <framerate value="60"/>
   <brightness value="1"/>
   <gamma value="0"/>
+  <exposure value="-1">
   <gain value="16"/>
   <shutter value="75"/>
   <strobeduration value="-1"/>

@@ -244,6 +244,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
         *m_pTrafo = *pDeDistort;
     }
     int Brightness = Config.getIntParam("/camera/brightness/@value");
+    int Exposure = Config.getIntParam("/camera/exposure/@value");
     int Gamma = Config.getIntParam("/camera/gamma/@value");
     int Gain = Config.getIntParam("/camera/gain/@value");
     int Shutter = Config.getIntParam("/camera/shutter/@value");
@@ -253,6 +254,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
             m_pConfig->getParam("/tracker/mask/@value") != sCameraMaskFName);
     if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Brightness ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Gamma ||
+             int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != Exposure ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Gain ||
              int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Shutter ||
              int(m_pCamera->getFeature(CAM_FEATURE_STROBE_DURATION)) != StrobeDuration ||
@@ -263,6 +265,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
 
     m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Brightness);
     m_pCamera->setFeature(CAM_FEATURE_GAMMA, Gamma);
+    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Exposure);
     m_pCamera->setFeature(CAM_FEATURE_GAIN, Gain);
     m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Shutter);
     m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION, StrobeDuration, true);
