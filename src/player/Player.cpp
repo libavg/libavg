@@ -164,9 +164,13 @@ Player::~Player()
     if (m_pDisplayEngine) {
         delete m_pDisplayEngine;
     }
+#ifndef _WIN32
+    // This causes libavg progams started under cmd to crash on system shutdown and
+    // when cmd is closed, so it isn't done under windows.
     if (m_pAudioEngine) {
         delete m_pAudioEngine;
     }
+#endif
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
     }
