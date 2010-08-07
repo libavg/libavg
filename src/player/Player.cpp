@@ -205,6 +205,11 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
     }
 }
 
+void Player::setWindowFrame(bool bHasWindowFrame)
+{
+    m_DP.m_bHasWindowFrame = bHasWindowFrame;
+}
+
 void Player::setWindowPos(int x, int y)
 {
     m_DP.m_Pos.x = x;

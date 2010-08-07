@@ -582,6 +582,13 @@ class PlayerTestCase(AVGTestCase):
         self.start(None, 
                 [None, None])
 
+    def testWindowFrame(self):
+        def revertWindowFrame():
+            Player.setWindowFrame(True)
+
+        Player.setWindowFrame(False)
+        self.start('avg.avg',[revertWindowFrame])
+
 
 def playerTestSuite(tests):
     availableTests = (
@@ -607,6 +614,7 @@ def playerTestSuite(tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
+            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)
 

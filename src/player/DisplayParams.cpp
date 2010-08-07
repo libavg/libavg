@@ -32,7 +32,8 @@ DisplayParams::DisplayParams()
       m_WindowSize(0, 0),
       m_bShowCursor(true),
       m_VBRate(1),
-      m_Framerate(0)
+      m_Framerate(0),
+      m_bHasWindowFrame(true)
 { 
     ObjectCounter::get()->incRef(&typeid(*this));
     m_Gamma[0] = -1.0;

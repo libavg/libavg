@@ -75,6 +75,7 @@ class AVG_API Player: IEventSink
 
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
+        void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples);

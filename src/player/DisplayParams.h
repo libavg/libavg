@@ -40,6 +40,7 @@ struct AVG_API DisplayParams {
     bool m_bShowCursor;
     int m_VBRate;
     double m_Framerate;
+    bool m_bHasWindowFrame;
    
     double m_Gamma[3];
 };

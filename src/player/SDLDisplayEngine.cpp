@@ -183,6 +183,11 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     if (DP.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
     }
+    
+    if (!DP.m_bHasWindowFrame) {
+        Flags |= SDL_NOFRAME;
+    }
+
     m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, DP.m_BPP, Flags);
     if (!m_pScreen) {
         AVG_TRACE(Logger::ERROR, "Setting SDL video mode failed: " 

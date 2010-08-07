@@ -186,6 +186,10 @@ BOOST_PYTHON_MODULE(avg)
                 "@param width, height: Set the window size\n"
                 "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
                 "@param bpp: Number of bits per pixel to use.\n")
+        .def("setWindowFrame", &Player::setWindowFrame,
+                "setWindowFrame(bHasWindowFrame)\n"
+                "@param bHasWindowFrame: True if a non-fullscreen player should have a window frame.\n"
+                "If set to False, the player runs with no title bar or window frame.\n")
         .def("setWindowPos", &Player::setWindowPos,
                 "setWindowPos(x, y)\n"
                 "Sets the location of the player window. Must be called before loadFile\n"
