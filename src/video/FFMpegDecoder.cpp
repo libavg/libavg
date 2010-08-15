@@ -80,13 +80,13 @@ FFMpegDecoder::FFMpegDecoder ()
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
 
-    m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp");
+    m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp", false);
     m_pConvertImageLibavgProfilingZone = new ProfilingZone(
-            "FFMpeg: colorspace conv (libavg)");
+            "FFMpeg: colorspace conv (libavg)", false);
     m_pConvertImageSWSProfilingZone = new ProfilingZone(
-            "FFMpeg: colorspace conv (SWS)");
-    m_pCopyImageProfilingZone = new ProfilingZone("FFMpeg: copy image");
-    m_pSetAlphaProfilingZone = new ProfilingZone("FFMpeg: set alpha channel");
+            "FFMpeg: colorspace conv (SWS)", false);
+    m_pCopyImageProfilingZone = new ProfilingZone("FFMpeg: copy image", false);
+    m_pSetAlphaProfilingZone = new ProfilingZone("FFMpeg: set alpha channel", false);
 }
 
 FFMpegDecoder::~FFMpegDecoder ()

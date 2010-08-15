@@ -78,13 +78,8 @@ void ThreadProfiler::addZone(ProfilingZone& Zone)
         ProfilingZone* pActiveZone = m_ActiveZones.back();
         ZoneList::iterator itPrevZone = m_Zones.begin();
         bool bParentFound = false;
-        for (it=m_Zones.begin(); it != m_Zones.end() && !bParentFound; ++it) 
+        for (it=m_Zones.begin(); it != m_Zones.end(); ++it) 
         {
-            if (Zone.getName() == (*it)->getName()) {
-                AVG_TRACE(Logger::WARNING,
-                        "Warning: Two profiling zones have name " <<
-                        Zone.getName());
-            }
             if (pActiveZone == *it) {
                 bParentFound = true;
             }
