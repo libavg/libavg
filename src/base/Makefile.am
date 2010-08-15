@@ -7,7 +7,7 @@ ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h 
         Point.h Rect.h Directory.h DirEntry.h StringHelper.h MathHelper.h GeomHelper.h \
         CubicSpline.h BicubicSpline.h BezierCurve.h UTF8String.h Triangle.h \
         Triangulate.h WideLine.h IntTriple.h DlfcnWrapper.h Signal.h Backtrace.h \
-        CmdQueue.h
+        CmdQueue.h Matrix3x4.h
 
 TESTS=testbase
 
@@ -20,7 +20,7 @@ libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
     TestSuite.cpp ObjectCounter.cpp Point.cpp Directory.cpp DirEntry.cpp \
     StringHelper.cpp MathHelper.cpp GeomHelper.cpp CubicSpline.cpp BicubicSpline.cpp \
     BezierCurve.cpp UTF8String.cpp Triangle.cpp Triangulate.cpp WideLine.cpp \
-    IntTriple.cpp Backtrace.cpp \
+    IntTriple.cpp Backtrace.cpp Matrix3x4.cpp \
     $(ALL_H)
 libbase_a_CXXFLAGS = -Wno-format-y2k
 

@@ -24,6 +24,7 @@
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
 #include "Point.h"
+#include "Matrix3x4.h"
 #include "Triangulate.h"
 #include "GeomHelper.h"
 #include "OSHelper.h"
@@ -160,6 +161,7 @@ private:
     std::string * m_pStringParam;
 };
 
+
 class WorkerThreadTest: public Test {
 public:
     WorkerThreadTest()
@@ -187,6 +189,7 @@ public:
     }
 };
 
+
 class DummyClass {
 public:
     DummyClass()
@@ -201,6 +204,7 @@ public:
 
     int i;
 };
+
 
 class ObjectCounterTest: public Test {
 public:
@@ -220,6 +224,7 @@ public:
         TEST(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
     }
 };
+
 
 // The following pragmas avoid a compiler warning (potential division by 0)
 #ifdef _MSC_VER
@@ -324,6 +329,32 @@ public:
 #pragma optimize("", on)
 #endif
 
+
+class Matrix3x4Test: public Test {
+public:
+    Matrix3x4Test()
+        : Test("Matrix3x4Test", 2)
+    {
+    }
+
+    void runTests()
+    {
+        Matrix3x4 mat1;
+        Matrix3x4 mat2;
+        mat1 *= mat2;
+        TEST(almostEqual(mat1, Matrix3x4()));
+
+        mat2 = Matrix3x4::createTranslate(0,0,0);
+        mat1 *= mat2;
+        TEST(almostEqual(mat1, Matrix3x4()));
+
+        mat2 = Matrix3x4::createScale(1,1,1);
+        mat1 *= mat2;
+        TEST(almostEqual(mat1, Matrix3x4()));
+    }
+};
+
+
 class TriangleTest: public Test {
 public:
     TriangleTest()
@@ -360,6 +391,7 @@ public:
 
 };
 
+
 class FileTest: public Test {
 public:
     FileTest()
@@ -373,6 +405,7 @@ public:
         TEST(getFilenamePart("/foo/bar.txt") == "bar.txt");
     }
 };
+
 
 class OSTest: public Test {
 public:
@@ -391,6 +424,7 @@ public:
 #endif
     }
 };
+
 
 class StringTest: public Test {
 public:
@@ -422,6 +456,7 @@ public:
         TEST(v.size() == 0);
     }
 };
+
 
 class SplineTest: public Test {
 public:
@@ -514,6 +549,7 @@ public:
     }
 };
 
+
 class BezierCurveTest: public Test {
 public:
     BezierCurveTest()
@@ -531,6 +567,7 @@ public:
         TEST(almostEqual(curve.interpolate(0.5), DPoint(0.75,0.5)));
     }
 };
+
 
 class Listener {
 public:
@@ -565,6 +602,7 @@ private:
     bool m_bFuncCalled;
 };
 
+
 class DisconnectingSelfListener: public Listener {
 public:
     DisconnectingSelfListener(Signal<Listener>& signal)
@@ -578,6 +616,7 @@ public:
         m_Signal.disconnect(this);
     }
 };
+
 
 class DisconnectingOtherListener: public Listener {
 public:
@@ -600,6 +639,7 @@ private:
     Listener* m_pOther;
 };
 
+
 class ConnectingOtherListener: public Listener {
 public:
     ConnectingOtherListener(Signal<Listener>& signal, Listener* pOther)
@@ -620,7 +660,6 @@ public:
 private:
     Listener* m_pOther;
 };
-
 
 
 class SignalTest: public Test {
@@ -688,6 +727,7 @@ public:
     }
 };
 
+
 class BacktraceTest: public Test {
 public:
     BacktraceTest()
@@ -705,6 +745,7 @@ public:
     }
 };
 
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -714,6 +755,7 @@ public:
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
         addTest(TestPtr(new PointTest));
+        addTest(TestPtr(new Matrix3x4Test));
         addTest(TestPtr(new TriangleTest));
         addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));
@@ -724,6 +766,7 @@ public:
         addTest(TestPtr(new BacktraceTest));
     }
 };
+
 
 int main(int nargs, char** args)
 {
