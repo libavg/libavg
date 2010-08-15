@@ -72,7 +72,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
     pHShader->activate();
-    pHShader->setUniformFloatParam("width", kernelWidth);
+    pHShader->setUniformFloatParam("width", float(kernelWidth));
     pHShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pHShader->setUniformIntParam("texture", 0);
     pHShader->setUniformIntParam("kernelTex", 1);
@@ -82,7 +82,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
-    pVShader->setUniformFloatParam("width", kernelWidth);
+    pVShader->setUniformFloatParam("width", float(kernelWidth));
     pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pVShader->setUniformIntParam("hBlurTex", 0);
     pVShader->setUniformIntParam("kernelTex", 1);

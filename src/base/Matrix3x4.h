@@ -28,7 +28,7 @@
 
 namespace avg {
    
-struct AVG_API Matrix3x4 {
+class AVG_API Matrix3x4 {
 public:
     float val[3][4];
 

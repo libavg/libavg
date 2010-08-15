@@ -164,7 +164,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
             pKernel[i] /= sum;
         }
     } else {
-        double factor = opacity/pKernel[kernelCenter];
+        float factor = float(opacity/pKernel[kernelCenter]);
         for (int i=0; i<kernelWidth; ++i) {
             pKernel[i] *= factor;
         }
