@@ -23,6 +23,8 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/Matrix3x4.h"
+
 #include <iostream>
 
 using namespace std;
@@ -111,6 +113,22 @@ void OGLShader::setUniformColorParam(const std::string& sName, Pixel32 col)
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
         
+void OGLShader::setUniformMatrix3x4Param(const std::string& sName, const Matrix3x4& mat)
+{
+    int loc = safeGetUniformLoc(sName);
+    GLfloat glMat[4][4];
+    for (int x=0; x<3; ++x) {
+        for (int y=0; y<4; ++y) {
+            glMat[x][y] = mat.val[x][y];
+        }
+    }
+    for (int y=0; y<4; ++y) {
+        glMat[3][y] = 0.0f;
+    }
+
+    glproc::UniformMatrix4fv(loc, 1, GL_TRUE, (GLfloat *)glMat);
+}
+
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
 {
     int InfoLogLength;

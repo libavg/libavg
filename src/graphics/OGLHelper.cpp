@@ -68,6 +68,7 @@ namespace glproc {
     PFNGLUNIFORM3FARBPROC Uniform3f;
     PFNGLUNIFORM4FARBPROC Uniform4f;
     PFNGLUNIFORM1FVARBPROC Uniform1fv;
+    PFNGLUNIFORMMATRIX4FVARBPROC UniformMatrix4fv;
 
     PFNGLBLENDFUNCSEPARATEPROC BlendFuncSeparate;
     PFNGLBLENDEQUATIONPROC BlendEquation;
@@ -449,6 +450,8 @@ namespace glproc {
         Uniform3f = (PFNGLUNIFORM3FARBPROC)getFuzzyProcAddress("glUniform3f");
         Uniform4f = (PFNGLUNIFORM4FARBPROC)getFuzzyProcAddress("glUniform4f");
         Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
+        UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVARBPROC)
+                getFuzzyProcAddress("glUniformMatrix4fv");
         
         BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)
                 getFuzzyProcAddress("glBlendFuncSeparate");

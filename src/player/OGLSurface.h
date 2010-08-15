@@ -26,6 +26,7 @@
 #include "PBOTexture.h"
 
 #include "../base/Point.h"
+#include "../base/Matrix3x4.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
@@ -74,6 +75,7 @@ protected:
 
 private:
     bool useShader() const;
+    Matrix3x4 calcColorspaceMatrix(bool bIsJPEG) const;
 
     PBOTexturePtr m_pTextures[3];
     IntPoint m_Size;

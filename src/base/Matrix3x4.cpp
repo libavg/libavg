@@ -69,7 +69,7 @@ const Matrix3x4& Matrix3x4::operator *=(const Matrix3x4& mat)
                 + val[x][2] * mat.val[2][1];
         float t2 = val[x][0] * mat.val[0][2] + val[x][1] * mat.val[1][2] 
                 + val[x][2] * mat.val[2][2];
-        val[0][3] = val[x][0] * mat.val[0][3] + val[x][1] * mat.val[1][3] 
+        val[x][3] = val[x][0] * mat.val[0][3] + val[x][1] * mat.val[1][3] 
                 + val[x][2] * mat.val[2][3] + val[x][3];
         val[x][0] = t0; 
         val[x][1] = t1; 

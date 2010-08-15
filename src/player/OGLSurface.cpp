@@ -37,6 +37,13 @@ using namespace std;
 
 #define COLORSPACE_SHADER "COLORSPACE"
 
+static float yuvCoeff[3][4] = 
+{
+    {1.0,   0.0,   1.40,  0.0},
+    {1.0, -0.34,  -0.71,  0.0},
+    {1.0,  1.77,    0.0,  0.0},
+};
+
 namespace avg {
 
 OGLSurface::OGLSurface(const MaterialInfo& material)
@@ -113,13 +120,11 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
         switch (m_pf) {
             case YCbCr420p:
+            case YCbCrJ420p:
                 pShader->setUniformIntParam("colorModel", 1);
                 break;
-            case YCbCrJ420p:
-                pShader->setUniformIntParam("colorModel", 2);
-                break;
             case A8:
-                pShader->setUniformIntParam("colorModel", 3);
+                pShader->setUniformIntParam("colorModel", 2);
                 break;
             default:
                 pShader->setUniformIntParam("colorModel", 0);
@@ -133,6 +138,8 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             pShader->setUniformIntParam("cbTexture", 1);
             m_pTextures[2]->activate(GL_TEXTURE2);
             pShader->setUniformIntParam("crTexture", 2);
+            Matrix3x4 mat = calcColorspaceMatrix(m_pf == YCbCrJ420p);
+            pShader->setUniformMatrix3x4Param("colorCoeff", mat);
         }
         
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
@@ -288,35 +295,22 @@ void OGLSurface::createShader()
         "uniform sampler2D cbTexture;\n"
         "uniform sampler2D crTexture;\n"
         "uniform sampler2D maskTexture;\n"
-        "uniform int colorModel;  // 0=rgb, 1=ycbcr, 2=ycbcrj, 3=greyscale\n"
+        "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale\n"
+        "uniform mat4 colorCoeff;\n"
         "uniform bool bUseMask;\n"
         "uniform vec2 maskPos;\n"
         "uniform vec2 maskSize;\n"
         "\n"
         "vec4 convertYCbCr()\n"
         "{\n"
-        "    vec3 ycbcr;\n"
-        "    ycbcr.r = texture2D(texture, gl_TexCoord[0].st).r-0.0625;\n"
-        "    ycbcr.g = texture2D(cbTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-        "    ycbcr.b = texture2D(crTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-        "    vec3 rgb;\n"
-        "    rgb = ycbcr*mat3(1.16,  0.0,   1.60,\n"
-        "                     1.16, -0.39, -0.81,\n"
-        "                     1.16,  2.01,  0.0 );\n"
-        "    return vec4(rgb, gl_Color.a);\n"
-        "}\n"
-        "\n"
-        "vec4 convertYCbCrJ()\n"
-        "{\n"
-        "    vec3 ycbcr;\n"
-        "    ycbcr.r = texture2D(texture, gl_TexCoord[0].st).r;\n"
-        "    ycbcr.g = texture2D(cbTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-        "    ycbcr.b = texture2D(crTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-        "    vec3 rgb;\n"
-        "    rgb = ycbcr*mat3(1,  0.0  , 1.40,\n"
-        "                     1, -0.34, -0.71,\n"
-        "                     1,  1.77,  0.0 );\n"
-        "    return vec4(rgb, gl_Color.a);\n"
+        "    vec4 yuv;\n"
+        "    yuv = vec4(texture2D(texture, gl_TexCoord[0].st).r,\n"
+        "               texture2D(cbTexture, (gl_TexCoord[0].st)).r,\n"
+        "               texture2D(crTexture, (gl_TexCoord[0].st)).r,\n"
+        "               1.0);\n"
+        "    vec4 rgb;\n"
+        "    rgb = colorCoeff*yuv;\n"
+        "    return vec4(rgb.rgb, gl_Color.a);\n"
         "}\n"
         "\n"
         "void main(void)\n"
@@ -328,8 +322,6 @@ void OGLSurface::createShader()
         "    } else if (colorModel == 1) {\n"
         "        rgba = convertYCbCr();\n"
         "    } else if (colorModel == 2) {\n"
-        "        rgba = convertYCbCrJ();\n"
-        "    } else if (colorModel == 3) {\n"
         "        rgba = gl_Color;\n"
         "        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;\n"
         "    } else {\n"
@@ -353,6 +345,17 @@ bool OGLSurface::useShader() const
 {
     return getEngine()->isUsingShaders() && 
             (m_Material.getHasMask() || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
+}
+
+Matrix3x4 OGLSurface::calcColorspaceMatrix(bool bIsJPEG) const
+{
+    Matrix3x4 mat(*yuvCoeff);
+    mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
+    if (!bIsJPEG) {
+        mat *= Matrix3x4::createScale(255.0/(235-16), 255.0/(240-16) , 255.0/(240-16));
+        mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);
+    }
+    return mat;
 }
 
 }

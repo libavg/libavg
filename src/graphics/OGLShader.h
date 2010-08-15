@@ -34,6 +34,8 @@
 
 namespace avg {
 
+class Matrix3x4;
+
 class AVG_API OGLShader {
     public:
         virtual ~OGLShader();
@@ -46,6 +48,7 @@ class AVG_API OGLShader {
         void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
         void setUniformDPointParam(const std::string& sName, DPoint pt);
         void setUniformColorParam(const std::string& sName, Pixel32 col);
+        void setUniformMatrix3x4Param(const std::string& sName, const Matrix3x4& mat);
 
     private:
         OGLShader(std::string sProgram);
