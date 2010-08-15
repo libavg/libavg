@@ -44,6 +44,8 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/ShaderRegistry.h"
 
+#include "OGLSurface.h"
+
 #include <SDL/SDL.h>
 
 #ifdef __APPLE__
@@ -69,8 +71,6 @@
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-
-#define COLORSPACE_SHADER "COLORSPACE"
 
 using namespace std;
 
@@ -421,11 +421,6 @@ bool SDLDisplayEngine::isUsingShaders() const
     return m_GLConfig.m_bUseShaders;
 }
 
-OGLShaderPtr SDLDisplayEngine::getShader()
-{
-    return avg::getShader(COLORSPACE_SHADER);
-}
-
 void SDLDisplayEngine::showCursor(bool bShow)
 {
     if (bShow) {
@@ -462,66 +457,7 @@ void SDLDisplayEngine::checkShaderSupport()
             getMemoryModeSupported() == MM_PBO &&
             !m_GLConfig.m_bUsePOTTextures && m_GLConfig.m_bUseShaders);
     if (m_GLConfig.m_bUseShaders) {
-        string sProgram =
-            "uniform sampler2D texture;\n"
-            "uniform sampler2D yTexture;\n"
-            "uniform sampler2D cbTexture;\n"
-            "uniform sampler2D crTexture;\n"
-            "uniform sampler2D maskTexture;\n"
-            "uniform int colorModel;  // 0=rgb, 1=ycbcr, 2=ycbcrj, 3=greyscale\n"
-            "uniform bool bUseMask;\n"
-            "uniform vec2 maskPos;\n"
-            "uniform vec2 maskSize;\n"
-            "\n"
-            "vec4 convertYCbCr()\n"
-            "{\n"
-            "    vec3 ycbcr;\n"
-            "    ycbcr.r = texture2D(texture, gl_TexCoord[0].st).r-0.0625;\n"
-            "    ycbcr.g = texture2D(cbTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-            "    ycbcr.b = texture2D(crTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-            "    vec3 rgb;\n"
-            "    rgb = ycbcr*mat3(1.16,  0.0,   1.60,\n"
-            "                     1.16, -0.39, -0.81,\n"
-            "                     1.16,  2.01,  0.0 );\n"
-            "    return vec4(rgb, gl_Color.a);\n"
-            "}\n"
-            "\n"
-            "vec4 convertYCbCrJ()\n"
-            "{\n"
-            "    vec3 ycbcr;\n"
-            "    ycbcr.r = texture2D(texture, gl_TexCoord[0].st).r;\n"
-            "    ycbcr.g = texture2D(cbTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-            "    ycbcr.b = texture2D(crTexture, (gl_TexCoord[0].st)).r-0.5;\n"
-            "    vec3 rgb;\n"
-            "    rgb = ycbcr*mat3(1,  0.0  , 1.40,\n"
-            "                     1, -0.34, -0.71,\n"
-            "                     1,  1.77,  0.0 );\n"
-            "    return vec4(rgb, gl_Color.a);\n"
-            "}\n"
-            "\n"
-            "void main(void)\n"
-            "{\n"
-            "    vec4 rgba;\n"
-            "    if (colorModel == 0) {\n"
-            "        rgba = texture2D(texture, gl_TexCoord[0].st);\n"
-            "        rgba.a *= gl_Color.a;\n"
-            "    } else if (colorModel == 1) {\n"
-            "        rgba = convertYCbCr();\n"
-            "    } else if (colorModel == 2) {\n"
-            "        rgba = convertYCbCrJ();\n"
-            "    } else if (colorModel == 3) {\n"
-            "        rgba = gl_Color;\n"
-            "        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;\n"
-            "    } else {\n"
-            "        rgba = vec4(1,1,1,1);\n"
-            "    }\n"
-            "    if (bUseMask) {\n"
-            "        rgba.a *= texture2D(maskTexture,\n"
-            "               (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
-            "    }\n"
-            "    gl_FragColor = rgba;\n"
-            "}\n";
-        getOrCreateShader(COLORSPACE_SHADER, sProgram);
+        OGLSurface::createShader();
     }
 }
 

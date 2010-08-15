@@ -67,6 +67,8 @@ public:
     IntPoint getTextureSize();
     bool isCreated() const;
 
+    static void createShader();
+
 protected:
     SDLDisplayEngine * getEngine() const;
 

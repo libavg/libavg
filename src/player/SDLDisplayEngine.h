@@ -30,8 +30,6 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
-#include "../graphics/OGLShader.h"
-#include "../graphics/VertexArray.h"
 #include "../graphics/FBO.h"
 
 #include <string>
@@ -65,7 +63,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual IntPoint getSize();
 
         virtual bool isUsingShaders() const; 
-        OGLShaderPtr getShader();
         
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot();
