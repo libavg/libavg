@@ -43,6 +43,7 @@ AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, pFormatContext));
+    m_pGetPacketProfilingZone = new ProfilingZone("FFMpeg: get demuxer packet");
 }
 
 AsyncDemuxer::~AsyncDemuxer()
@@ -86,6 +87,7 @@ void AsyncDemuxer::enableStream(int StreamIndex)
 
 AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
 {
+    ScopeTimer Timer(*m_pGetPacketProfilingZone);
     waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[StreamIndex]->pop(true);

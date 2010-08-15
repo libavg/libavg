@@ -54,6 +54,7 @@ namespace avg {
             bool m_bSeekPending;
             boost::mutex m_SeekMutex;
 
+            ProfilingZone * m_pGetPacketProfilingZone;
     };
     typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
 }
