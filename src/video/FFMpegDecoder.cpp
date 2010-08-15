@@ -81,7 +81,12 @@ FFMpegDecoder::FFMpegDecoder ()
     initVideoSupport();
 
     m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp");
-    m_pConvertImageProfilingZone = new ProfilingZone("FFMpeg: convert image");
+    m_pConvertImageLibavgProfilingZone = new ProfilingZone(
+            "FFMpeg: colorspace conv (libavg)");
+    m_pConvertImageSWSProfilingZone = new ProfilingZone(
+            "FFMpeg: colorspace conv (SWS)");
+    m_pCopyImageProfilingZone = new ProfilingZone("FFMpeg: copy image");
+    m_pSetAlphaProfilingZone = new ProfilingZone("FFMpeg: set alpha channel");
 }
 
 FFMpegDecoder::~FFMpegDecoder ()
@@ -539,7 +544,6 @@ FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long timeWant
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
     if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
-        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         convertFrameToBmp(Frame, pBmp);
         return FA_NEW_FRAME;
     }
@@ -569,7 +573,7 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
     if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
-        ScopeTimer Timer(*m_pConvertImageProfilingZone);
+        ScopeTimer Timer(*m_pCopyImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
@@ -870,8 +874,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     {
-//            ScopeTimer Timer(*m_pConvertImageProfilingZone);
         if (DestFmt == PIX_FMT_BGRA && enc->pix_fmt == PIX_FMT_YUV420P) {
+            ScopeTimer Timer(*m_pConvertImageLibavgProfilingZone);
             BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, Frame.data[0],
                     Frame.linesize[0], false));
             BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, Frame.data[1],
@@ -888,9 +892,13 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
                     AVG_TRACE(Logger::ERROR, "FFMpegDecoder: sws initialization failed.");
                 }
             }
-            sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
-                enc->height, DestPict.data, DestPict.linesize);
+            {
+                ScopeTimer Timer(*m_pConvertImageSWSProfilingZone);
+                sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
+                    enc->height, DestPict.data, DestPict.linesize);
+            }
             if (pBmp->getPixelFormat() == B8G8R8X8) {
+                ScopeTimer Timer(*m_pSetAlphaProfilingZone);
                 // Make sure the alpha channel is white.
                 // TODO: This is slow. Make OpenGL do it.
                 unsigned char * pLine = pBmp->getPixels();
