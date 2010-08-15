@@ -80,8 +80,8 @@ FFMpegDecoder::FFMpegDecoder ()
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
 
-//    m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp");
-//    m_pConvertImageProfilingZone = new ProfilingZone("FFMpeg: convert image");
+    m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp");
+    m_pConvertImageProfilingZone = new ProfilingZone("FFMpeg: convert image");
 }
 
 FFMpegDecoder::~FFMpegDecoder ()
@@ -535,10 +535,11 @@ void FFMpegDecoder::setVolume(double Volume)
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-//    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
+    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
     if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
+        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         convertFrameToBmp(Frame, pBmp);
         return FA_NEW_FRAME;
     }
@@ -564,11 +565,11 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
         BitmapPtr pBmpCr, long long timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-//    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
+    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
     if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
-//        ScopeTimer Timer(*m_pConvertImageProfilingZone);
+        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);

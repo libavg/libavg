@@ -47,7 +47,8 @@ public:
     typedef CmdQueue<DERIVED_THREAD> CQueue;
     typedef typename boost::shared_ptr<CQueue> CQueuePtr;
 
-    WorkerThread(const std::string& sName, CQueue& CmdQ);
+    WorkerThread(const std::string& sName, CQueue& CmdQ,
+            long logCategory=Logger::PROFILE);
     WorkerThread(WorkerThread const& other);
     virtual ~WorkerThread();
     void operator()();
@@ -65,13 +66,16 @@ private:
     std::string m_sName;
     bool m_bShouldStop;
     CQueue& m_CmdQ;
+    long m_LogCategory;
 };
 
 template<class DERIVED_THREAD>
-WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CQueue& CmdQ)
+WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CQueue& CmdQ, 
+        long logCategory)
     : m_sName(sName),
       m_bShouldStop(false),
-      m_CmdQ(CmdQ)
+      m_CmdQ(CmdQ),
+      m_LogCategory(logCategory)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -82,6 +86,7 @@ WorkerThread<DERIVED_THREAD>::WorkerThread(WorkerThread const& other)
 {
     m_sName = other.m_sName;
     m_bShouldStop = other.m_bShouldStop;
+    m_LogCategory = other.m_LogCategory;
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
@@ -97,6 +102,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
     try {
         ThreadProfilerPtr pProfiler = ThreadProfiler::get();
         pProfiler->setName(m_sName);
+        pProfiler->setLogCategory(m_LogCategory);
         Profiler::get().registerThreadProfiler(pProfiler);
         bool bOK;
         bOK = init();

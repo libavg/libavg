@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 using namespace boost;
@@ -47,7 +48,8 @@ void ThreadProfiler::kill()
 }
 
 ThreadProfiler::ThreadProfiler()
-    : m_sName("")
+    : m_sName(""),
+      m_LogCategory(Logger::PROFILE)
 {
     m_bRunning = false;
 }
@@ -59,6 +61,12 @@ ThreadProfiler::~ThreadProfiler()
             delete *it;
         }
     }
+}
+
+void ThreadProfiler::setLogCategory(long category)
+{
+    AVG_ASSERT(!m_bRunning);
+    m_LogCategory = category;
 }
 
 void ThreadProfiler::addZone(ProfilingZone& Zone)
@@ -137,18 +145,18 @@ void ThreadProfiler::dumpFrame()
 void ThreadProfiler::dumpStatistics()
 {
     if (!m_Zones.empty()) {
-        AVG_TRACE(Logger::PROFILE, "Thread " << m_sName);
-        AVG_TRACE(Logger::PROFILE, "Zone name                          Avg. time");
-        AVG_TRACE(Logger::PROFILE, "---------                          ---------");
+        AVG_TRACE(m_LogCategory, "Thread " << m_sName);
+        AVG_TRACE(m_LogCategory, "Zone name                          Avg. time");
+        AVG_TRACE(m_LogCategory, "---------                          ---------");
 
         ZoneList::iterator it;
         for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
-            AVG_TRACE(Logger::PROFILE,
+            AVG_TRACE(m_LogCategory,
                     std::setw(35) << std::left 
                     << ((*it)->getIndentString()+(*it)->getName())
                     << std::setw(9) << std::right << (*it)->getAvgUSecs());
         }
-        AVG_TRACE(Logger::PROFILE, "");
+        AVG_TRACE(m_LogCategory, "");
     }
 }
 
