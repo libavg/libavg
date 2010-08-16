@@ -99,6 +99,8 @@ class AVG_API WordsNode : public RasterNode
         virtual IntPoint getMediaSize();
         
         int getNumLines();
+        PyObject* getCharIndexFromPos(DPoint p);
+        std::string getTextAsDisplayed();
         DPoint getLineExtents(int line);
     
         static const std::vector<std::string>& getFontFamilies();

@@ -412,14 +412,26 @@ void export_raster()
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"
                 "The position is a Point2D, in pixels, and relative to the words\n"
-                "node.\n")
+                "node. Formatting html-syntax as <b> or <i> is treated as zero chars,\n"
+                "<br/> is treatet as one char.\n")
         .def("getGlyphSize", &WordsNode::getGlyphSize,
                 "getGlyphSize(i)->pos\n"
                 "Returns the size of the glyph at byte index i in the layout.\n"
-                "The position is a Point2D, in pixels.\n")
+                "The position is a Point2D, in pixels. Formatting html-syntax\n"
+                "as <b> or <i> is treated as zero chars, <br/> is treatet as one char.\n")
         .def("getNumLines", &WordsNode::getNumLines,
                 "getNumLines()\n"
-                "Returns the number of lines\n")    
+                "Returns the number of lines\n")
+        .def("getCharIndexFromPos", &WordsNode::getCharIndexFromPos,
+                "getCharIndexFromPos(p)->index\n"
+                "Returns the number of chars to the position p, or none\n"
+                "if no char is clicked. p is relative to the WordsNode.\n"
+                "Formatting html-syntax as <b> or <i> is treated as zero chars,\n"
+                "<br/> is treatet as one char. To get the text matched to this\n"
+                "use getTextAsDisplayed()\n")
+        .def("getTextAsDisplayed", &WordsNode::getTextAsDisplayed,
+                "Returns the text without text attribute markup language, <br/>\n"
+                "is replaced by \\n \n")
         .def("getLineExtents", &WordsNode::getLineExtents,
                 "getLineExtents(line)->(width,height)\n"
                 "Returns the Width and Height of the specified line \n"

@@ -388,6 +388,27 @@ int WordsNode::getNumLines()
     return pango_layout_get_line_count(m_pLayout);
 }
 
+PyObject* WordsNode::getCharIndexFromPos(DPoint p)
+{
+    int index_;
+    int trailing;
+    drawString();
+    bool bXyToIndex = pango_layout_xy_to_index(m_pLayout,
+                p.x*PANGO_SCALE, p.y*PANGO_SCALE, &index_, &trailing);
+    if(bXyToIndex){
+        const char* pText = pango_layout_get_text(m_pLayout);
+        return Py_BuildValue("l",(g_utf8_pointer_to_offset(pText,pText+index_)));
+    } else {
+        return Py_BuildValue("");
+    }
+}
+
+std::string WordsNode::getTextAsDisplayed()
+{
+    drawString();
+    return pango_layout_get_text(m_pLayout);
+}
+
 DPoint WordsNode::getLineExtents(int line)
 {
     if(line < 0 || line >= getNumLines()){
@@ -703,9 +724,10 @@ PangoRectangle WordsNode::getGlyphRect(int i)
         throw(Exception(AVG_ERR_INVALID_ARGS, 
                 string("getGlyphRect: Index ") + toString(i) + " out of range."));
     }
-    char * pChar = g_utf8_offset_to_pointer(m_sText.c_str(), i);
-    int byteOffset = pChar-m_sText.c_str();
     drawString();
+    const char* pText = pango_layout_get_text(m_pLayout);
+    char * pChar = g_utf8_offset_to_pointer(pText, i);
+    int byteOffset = pChar-pText;
     PangoRectangle rect;
     
     if (m_pLayout) {

@@ -542,7 +542,27 @@ class WordsTestCase(AVGTestCase):
         self.assert_(textNode.getLineExtents(0) == (184,117))
         textNode.parent = Player.getRootNode()
         self.assert_(textNode.getLineExtents(1) == (303,117))
+        
+    def testGetCharIndexFromPos(self):
+        textNode = avg.WordsNode(fontsize=30,
+                      font = "Bitstream Vera Sans",
+                      text = "A B C D E F G H Ä Ö Ü ? Ì Á Í Å Ø ∏ ~ ç Ç Å",
+                      width = 300)
 
+        for k in (1,2,3,23,42):
+            pos = textNode.getGlyphPos(k)
+            char = textNode.getCharIndexFromPos(pos)
+            self.assert_(char == k)
+        
+    def testGetTextAsDisplayed(self):
+        orgText = "A<br/>B C <b>D</b> E F G H <i>Ä</i> Ö Ü ? Ì Á<br/>Í Å Ø ∏ ~ ç Ç Å"
+        orgTextWithout = "A\nB C D E F G H Ä Ö Ü ? Ì Á\nÍ Å Ø ∏ ~ ç Ç Å"
+        textNode = avg.WordsNode(fontsize=30,
+                      font = "Bitstream Vera Sans",
+                      text = orgText,
+                      width = 300)
+        self.assert_(orgTextWithout == textNode.getTextAsDisplayed())
+        
 def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
@@ -563,6 +583,8 @@ def wordsTestSuite(tests):
             "testFontDir",
             "testGetNumLines",
             "testGetLineExtents",
+            "testGetCharIndexFromPos",
+            "testGetTextAsDisplayed",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
 
