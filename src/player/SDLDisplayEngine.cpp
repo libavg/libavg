@@ -68,7 +68,9 @@
 #include <iostream>
 #include <sstream>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -423,11 +425,20 @@ bool SDLDisplayEngine::isUsingShaders() const
 
 void SDLDisplayEngine::showCursor(bool bShow)
 {
+#ifdef _WIN32
+#define MAX_CORE_POINTERS   6
+    // Hack to fix a pointer issue with fullscreen, SDL and touchscreens
+    // Refer to Mantis bug #140
+    for (int i=0; i<MAX_CORE_POINTERS; ++i) {
+        ShowCursor(bShow);
+    }
+#else
     if (bShow) {
         SDL_ShowCursor(SDL_ENABLE);
     } else {
         SDL_ShowCursor(SDL_DISABLE);
     }
+#endif
 }
 
 BitmapPtr SDLDisplayEngine::screenshot()
