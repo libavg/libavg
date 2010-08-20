@@ -53,7 +53,7 @@ Matrix3x4 Matrix3x4::createTranslate(float x, float y, float z)
 
 Matrix3x4 Matrix3x4::createTranslate(const DTriple& tr)
 {
-    return createTranslate(tr.x, tr.y, tr.z);
+    return createTranslate(float(tr.x), float(tr.y), float(tr.z));
 }
 
 Matrix3x4 Matrix3x4::createScale(float x, float y, float z)
@@ -67,7 +67,7 @@ Matrix3x4 Matrix3x4::createScale(float x, float y, float z)
 
 Matrix3x4 Matrix3x4::createScale(const DTriple& tr)
 {
-    return createScale(tr.x, tr.y, tr.z);
+    return createScale(float(tr.x), float(tr.y), float(tr.z));
 }
 
 const Matrix3x4& Matrix3x4::operator *=(const Matrix3x4& mat)

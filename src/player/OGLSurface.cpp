@@ -150,8 +150,8 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             }
         }
 
-        pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
-                1.0);
+        pShader->setUniformVec4fParam("gamma", float(1/m_Gamma.x), float(1/m_Gamma.y), 
+                float(1/m_Gamma.z), 1.0);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
@@ -392,8 +392,8 @@ Matrix3x4 OGLSurface::calcColorspaceMatrix() const
     }
     if (colorIsModified()) {
         mat *= Matrix3x4::createScale(m_Brightness);
-        mat *= Matrix3x4::createTranslate(0.5-m_Contrast.x/2, 0.5-m_Contrast.y/2,
-                0.5-m_Contrast.z/2);
+        mat *= Matrix3x4::createTranslate(float(0.5-m_Contrast.x/2), float(0.5-m_Contrast.y/2),
+                float(0.5-m_Contrast.z/2));
         mat *= Matrix3x4::createScale(m_Contrast);
     }
     return mat;

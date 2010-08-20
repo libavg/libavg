@@ -393,9 +393,9 @@ PyObject* WordsNode::getCharIndexFromPos(DPoint p)
     int index_;
     int trailing;
     drawString();
-    bool bXyToIndex = pango_layout_xy_to_index(m_pLayout,
-                p.x*PANGO_SCALE, p.y*PANGO_SCALE, &index_, &trailing);
-    if(bXyToIndex){
+    gboolean bXyToIndex = pango_layout_xy_to_index(m_pLayout,
+                int(p.x*PANGO_SCALE), int(p.y*PANGO_SCALE), &index_, &trailing);
+    if (bXyToIndex) {
         const char* pText = pango_layout_get_text(m_pLayout);
         return Py_BuildValue("l",(g_utf8_pointer_to_offset(pText,pText+index_)));
     } else {
