@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IntTriple_H_
-#define _IntTriple_H_	
+#ifndef _Triple_H_
+#define _Triple_H_
 
 #include "../api.h"
 
@@ -38,24 +38,30 @@
 
 namespace avg {
 
-class IntTriple
+template<class NUM>
+class AVG_TEMPLATE_API Triple
 {
 public:
-    int x;
-    int y;
-    int z; 
+    NUM x;
+    NUM y;
+    NUM z; 
 
-  	IntTriple();
-    IntTriple(int X,int Y, int Z);
-  	IntTriple(const IntTriple & p);
-    IntTriple(const std::vector<int>& v);
-    ~IntTriple();
+    Triple();
+    Triple(NUM X, NUM Y, NUM Z);
+    Triple(const Triple<NUM> & p);
+    Triple(const std::vector<NUM>& v);
+    ~Triple();
   
 };
 
-std::ostream& operator<<( std::ostream& os, const IntTriple &p);
-std::istream& operator>>(std::istream& is, IntTriple& p);
+template<class NUM>
+std::ostream& operator<<(std::ostream& os, const Triple<NUM> &p);
 
+template<class NUM>
+std::istream& operator>>(std::istream& is, Triple<NUM>& p);
+
+typedef Triple<double> DTriple;
+typedef Triple<int> IntTriple;
 
 }
 

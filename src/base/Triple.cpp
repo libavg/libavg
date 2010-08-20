@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "IntTriple.h"
+#include "Triple.h"
 
 #include "MathHelper.h"
 #include "StringHelper.h"
@@ -36,21 +36,24 @@
 
 namespace avg {
 
-IntTriple::IntTriple()
+template<class NUM>
+Triple<NUM>::Triple()
 {
     x = 0;
     y = 0;
     z = 0;
 }
 
-IntTriple::IntTriple(int X, int Y, int Z)
+template<class NUM>
+Triple<NUM>::Triple(NUM X, NUM Y, NUM Z)
 {
     x = X;
     y = Y;
     z = Z;
 }
 
-IntTriple::IntTriple(const IntTriple& p)
+template<class NUM>
+Triple<NUM>::Triple(const Triple<NUM>& p)
 {
     x = p.x;
     y = p.y;
@@ -58,7 +61,8 @@ IntTriple::IntTriple(const IntTriple& p)
 }
 
     
-IntTriple::IntTriple(const std::vector<int>& v)
+template<class NUM>
+Triple<NUM>::Triple(const std::vector<NUM>& v)
 {
     AVG_ASSERT(v.size() == 3);
     x = v[0];
@@ -66,17 +70,20 @@ IntTriple::IntTriple(const std::vector<int>& v)
     z = v[2];
 }
 
-IntTriple::~IntTriple()
+template<class NUM>
+Triple<NUM>::~Triple()
 {
 }
 
-std::ostream& operator<<( std::ostream& os, const IntTriple &p)
+template<class NUM>
+std::ostream& operator<<(std::ostream& os, const Triple<NUM> &p)
 {
     os << "(" << p.x << "," << p.y << "," << p.z << ")";
     return os;
 }
 
-std::istream& operator>>(std::istream& is, IntTriple& p)
+template<class NUM>
+std::istream& operator>>(std::istream& is, Triple<NUM>& p)
 {
     skipToken(is, '(');
     is >> p.x;
@@ -88,5 +95,13 @@ std::istream& operator>>(std::istream& is, IntTriple& p)
     return is;
 }
 
+// Explicit instantiations.
+template class Triple<double>;
+template std::ostream& operator<<( std::ostream& os, const Triple<double> &p);
+template std::istream& operator>>(std::istream& is, Triple<double>& p);
+
+template class Triple<int>;
+template std::ostream& operator<<( std::ostream& os, const Triple<int> &p);
+template std::istream& operator>>(std::istream& is, Triple<int>& p);
 
 }
