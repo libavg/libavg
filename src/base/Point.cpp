@@ -243,11 +243,11 @@ Point<double> Point<double>::getNormalized() const
 template<class NUM>
 Point<NUM> Point<NUM>::safeGetNormalized() const
 {
-	if (x==0 && y==0) {
-		throw Exception(AVG_ERR_OUT_OF_RANGE, "Can't normalize (0,0).");
-	} else {
-		return getNormalized();
-	}
+    if (x==0 && y==0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Can't normalize (0,0).");
+    } else {
+        return getNormalized();
+    }
 }
 
 template<class NUM>

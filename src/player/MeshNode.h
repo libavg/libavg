@@ -26,7 +26,7 @@
 #include "../api.h"
 #include "VectorNode.h"
 #include "../graphics/Pixel32.h"
-#include "../base/IntTriple.h"
+#include "../base/Triple.h"
 #include <vector>
 
 namespace avg {

@@ -36,6 +36,7 @@ template class Arg<float>;
 template class Arg<string>;
 template class Arg<DPoint>;
 template class Arg<IntTriple>;
+template class Arg<DTriple>;
 template class Arg<vector<double> >;
 template class Arg<vector<DPoint> >;
 template class Arg<vector<IntTriple> >;

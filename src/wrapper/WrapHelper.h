@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "../base/Point.h"
-#include "../base/IntTriple.h"
+#include "../base/Triple.h"
 #include "../base/Exception.h"
 
 #include "../player/BoostPython.h"
@@ -313,12 +313,13 @@ struct DPoint_from_python_tuple
 };
 
 
-struct IntTriple_from_python_tuple
+template<class NUM>
+struct Triple_from_python_tuple
 {
-    IntTriple_from_python_tuple() 
+    Triple_from_python_tuple() 
     {
         boost::python::converter::registry::push_back(
-                &convertible, &construct, boost::python::type_id<avg::IntTriple>());
+                &convertible, &construct, boost::python::type_id<avg::Triple<NUM> >());
     }
     
     static void* convertible(PyObject* obj_ptr)
@@ -330,7 +331,7 @@ struct IntTriple_from_python_tuple
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        avg::IntTriple pt;
+        avg::Triple<NUM> pt;
         PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
         pt.x = (int)PyFloat_AsDouble(pEntry);
         pEntry = PyTuple_GetItem(obj_ptr, 1);
@@ -338,9 +339,9 @@ struct IntTriple_from_python_tuple
         pEntry = PyTuple_GetItem(obj_ptr, 2);
         pt.z = (int)PyFloat_AsDouble(pEntry);
         void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<avg::IntTriple>*)data)
-                    ->storage.bytes;
-        new (storage) avg::IntTriple(pt);
+                (boost::python::converter::rvalue_from_python_storage<avg::Triple<NUM> >*)
+                        data)->storage.bytes;
+        new (storage) avg::Triple<NUM>(pt);
         data->convertible = storage;
     }
 };

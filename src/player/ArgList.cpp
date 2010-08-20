@@ -158,6 +158,7 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<DPoint>* pDPointArg = dynamic_cast<Arg<DPoint>* >(&*pArg);
     Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
+    Arg<DTriple>* pDTripleArg = dynamic_cast<Arg<DTriple>* >(&*pArg);
     Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
     Arg<vector<DPoint> >* pDPointVectorArg = 
             dynamic_cast<Arg<vector<DPoint> >* >(&*pArg);
@@ -183,6 +184,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pDPointVectorArg, sName, Value);
     } else if (pIntTripleArg) {
         avg::setArgValue(pIntTripleArg, sName, Value);
+    } else if (pDTripleArg) {
+        avg::setArgValue(pDTripleArg, sName, Value);
     } else if (pIntTripleVectorArg) {
         avg::setArgValue(pIntTripleVectorArg, sName, Value);
     } else {

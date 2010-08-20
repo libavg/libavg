@@ -79,10 +79,9 @@ BOOST_PYTHON_MODULE(avg)
     DPoint_from_python_tuple<ConstDPoint, double>();
     DPoint_from_python_tuple<IntPoint, int>();
     
-    IntTriple_from_python_tuple();
+    Triple_from_python_tuple<double>();
+    Triple_from_python_tuple<int>();
     
-   // IntTriple_from_python_tuple<IntTriple, int>();
-
     to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
     to_python_converter<vector<string>, to_list<vector<string> > >();    
    

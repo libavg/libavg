@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "Exception.h"
 #include "Point.h"
-#include "IntTriple.h"
+#include "Triple.h"
 
 #include <string>
 #include <sstream>
