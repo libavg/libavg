@@ -51,7 +51,9 @@ NodeDefinition RasterNode::createDefinition()
         .addArg(Arg<DPoint>("maskpos", DPoint(0,0), false,
                 offsetof(RasterNode, m_MaskPos)))
         .addArg(Arg<DPoint>("masksize", DPoint(0,0), false,
-                offsetof(RasterNode, m_MaskSize)));
+                offsetof(RasterNode, m_MaskSize)))
+        .addArg(Arg<DTriple>("gamma", DTriple(1.0,1.0,1.0), false,
+                offsetof(RasterNode, m_Gamma)));
 }
 
 RasterNode::RasterNode()
@@ -103,6 +105,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         downloadMask();
         setMaskCoords();
     }
+    m_pSurface->setGamma(m_Gamma);
     setupFX();
 }
 
@@ -263,6 +266,20 @@ VisibleNodePtr RasterNode::getElementByPos(const DPoint & pos)
         return AreaNode::getElementByPos(pos);
     } else {
         return VisibleNodePtr();
+    }
+}
+
+DTriple RasterNode::getGamma() const
+{
+    return m_Gamma;
+}
+
+void RasterNode::setGamma(const DTriple& gamma)
+{
+    m_Gamma = gamma;
+
+    if (m_pSurface) {
+        m_pSurface->setGamma(m_Gamma);
     }
 }
 

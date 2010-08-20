@@ -75,6 +75,7 @@ BOOST_PYTHON_MODULE(avg)
     register_ptr_to_python<TouchEventPtr>();
 
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
+    to_python_converter<DTriple, Triple_to_python_tuple<double> >();
     DPoint_from_python_tuple<DPoint, double>();
     DPoint_from_python_tuple<ConstDPoint, double>();
     DPoint_from_python_tuple<IntPoint, int>();
@@ -90,6 +91,7 @@ BOOST_PYTHON_MODULE(avg)
     from_python_sequence<vector<string>, variable_capacity_policy>();
   
     from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
+    from_python_sequence<vector<DTriple>, variable_capacity_policy>();
 
     def("getMemoryUsage", getMemoryUsage,
             "Returns the amount of memory used by the application in bytes. More\n"

@@ -113,6 +113,15 @@ void OGLShader::setUniformColorParam(const std::string& sName, Pixel32 col)
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
         
+void OGLShader::setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
+                float w)
+{
+    int loc = safeGetUniformLoc(sName);
+    glproc::Uniform4f(loc, x, y, z, w);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            (string("OGLShader: glUniform(")+sName+")").c_str());
+}
+
 void OGLShader::setUniformMatrix3x4Param(const std::string& sName, const Matrix3x4& mat)
 {
     int loc = safeGetUniformLoc(sName);

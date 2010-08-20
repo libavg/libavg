@@ -164,6 +164,25 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX3", False),
                 ))
 
+    def testGamma(self):
+        def setGamma(val):
+            node.gamma = val
+
+        def testGetGamma(gamma):
+            self.assert_(node.gamma == (gamma))
+
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.ImageNode(parent=root, href="colorramp.png", gamma=(0.5,0.5,0.5))
+        self.assert_(node.gamma == (0.5,0.5,0.5))
+        self.start(None,
+                (lambda: self.compareImage("testGamma1", False),
+                 lambda: setGamma((1.5,2.0,2.5)),
+                 lambda: testGetGamma((1.5,2.0,2.5)),
+                 lambda: self.compareImage("testGamma2", False),
+                ))
+
+
     def _areFXSupported(self, testName):
         global g_FXSupported
         if g_FXSupported == None:
@@ -191,6 +210,7 @@ def fxTestSuite(tests):
             "testColorFX",
             "testBlurFX",
             "testShadowFX",
+            "testGamma",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 

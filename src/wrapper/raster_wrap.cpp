@@ -178,6 +178,13 @@ void export_raster()
                 "Determines whether mipmaps are generated for this node. Setting this\n"
                 "to True improves the quality of minified nodes, but causes a\n"
                 "performance hit for every image change. (ro)\n")
+        .add_property("gamma", &RasterNode::getGamma, &RasterNode::setGamma,
+                "A control for overall brightness of the node. Gamma is a triple that\n"
+                "contains separate values for red, green, and blue. A gamma value of\n"
+                "1.0 in all channels leaves the image unchanged. Higher gamma values\n"
+                "increase, lower values decrease the brightness. In all cases, black\n"
+                "white pixels are not affected by gamma. See also \n"
+                "http://en.wikipedia.org/wiki/Gamma_correction.\n")
     ;
 
     class_<ImageNode, bases<RasterNode> >("ImageNode",

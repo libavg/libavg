@@ -26,6 +26,7 @@
 #include "PBOTexture.h"
 
 #include "../base/Point.h"
+#include "../base/Triple.h"
 #include "../base/Matrix3x4.h"
 
 #include "../graphics/Bitmap.h"
@@ -68,6 +69,7 @@ public:
     IntPoint getTextureSize();
     bool isCreated() const;
 
+    void setGamma(const DTriple& gamma);
     static void createShader();
 
 protected:
@@ -76,6 +78,7 @@ protected:
 private:
     bool useShader() const;
     Matrix3x4 calcColorspaceMatrix(bool bIsJPEG) const;
+    bool gammaIsModified() const;
 
     PBOTexturePtr m_pTextures[3];
     IntPoint m_Size;
@@ -88,6 +91,8 @@ private:
 
     SDLDisplayEngine * m_pEngine;
     OGLMemoryMode m_MemoryMode;
+
+    DTriple m_Gamma;
 };
 
 }

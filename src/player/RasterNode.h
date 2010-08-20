@@ -30,6 +30,7 @@
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
+#include "../base/Triple.h"
 #include "../base/UTF8String.h"
 #include "../graphics/FBO.h"
 
@@ -77,6 +78,8 @@ class AVG_API RasterNode: public AreaNode
 
         VisibleNodePtr getElementByPos(const DPoint & pos);
 
+        DTriple getGamma() const;
+        void setGamma(const DTriple& gamma);
         void setEffect(FXNodePtr pFXNode);
         virtual BitmapPtr getBitmap();
         
@@ -126,7 +129,7 @@ class AVG_API RasterNode: public AreaNode
         VertexArray * m_pVertexes;
         std::vector<std::vector<DPoint> > m_TexCoords;
 
-        
+        DTriple m_Gamma;
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
 };

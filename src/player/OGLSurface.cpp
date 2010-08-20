@@ -50,7 +50,8 @@ OGLSurface::OGLSurface(const MaterialInfo& material)
     : m_Size(-1,-1),
       m_bUseForeignTexture(false),
       m_Material(material),
-      m_pEngine(0)
+      m_pEngine(0),
+      m_Gamma(1,1,1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -141,7 +142,9 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             Matrix3x4 mat = calcColorspaceMatrix(m_pf == YCbCrJ420p);
             pShader->setUniformMatrix3x4Param("colorCoeff", mat);
         }
-        
+        pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
+                1.0);
+
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
             m_pMaskTexture->activate(GL_TEXTURE3);
@@ -173,15 +176,16 @@ void OGLSurface::deactivate() const
         glproc::ActiveTexture(GL_TEXTURE2);
         glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE0);
-        glproc::UseProgramObject(0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
     }
     if (m_Material.getHasMask()) {
         glproc::ActiveTexture(GL_TEXTURE3);
         glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE0);
+    }
+    if (useShader()) {
         glproc::UseProgramObject(0);
     }
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
 }
 
 BitmapPtr OGLSurface::lockBmp(int i)
@@ -287,6 +291,11 @@ bool OGLSurface::isCreated() const
     return m_pTextures[0];
 }
 
+void OGLSurface::setGamma(const DTriple& gamma)
+{
+    m_Gamma = gamma;
+}
+
 void OGLSurface::createShader()
 {
     string sProgram =
@@ -297,6 +306,7 @@ void OGLSurface::createShader()
         "uniform sampler2D maskTexture;\n"
         "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale\n"
         "uniform mat4 colorCoeff;\n"
+        "uniform vec4 gamma;\n"
         "uniform bool bUseMask;\n"
         "uniform vec2 maskPos;\n"
         "uniform vec2 maskSize;\n"
@@ -327,6 +337,7 @@ void OGLSurface::createShader()
         "    } else {\n"
         "        rgba = vec4(1,1,1,1);\n"
         "    }\n"
+        "    rgba = pow(rgba, gamma);\n"
         "    if (bUseMask) {\n"
         "        rgba.a *= texture2D(maskTexture,\n"
         "               (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
@@ -344,7 +355,8 @@ SDLDisplayEngine * OGLSurface::getEngine() const
 bool OGLSurface::useShader() const
 {
     return getEngine()->isUsingShaders() && 
-            (m_Material.getHasMask() || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
+            (m_Material.getHasMask() || m_pf == YCbCr420p || m_pf == YCbCrJ420p ||
+             gammaIsModified());
 }
 
 Matrix3x4 OGLSurface::calcColorspaceMatrix(bool bIsJPEG) const
@@ -356,6 +368,12 @@ Matrix3x4 OGLSurface::calcColorspaceMatrix(bool bIsJPEG) const
         mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);
     }
     return mat;
+}
+
+bool OGLSurface::gammaIsModified() const
+{
+    return (fabs(m_Gamma.x-1.0) > 0.00001 || fabs(m_Gamma.y-1.0) > 0.00001 ||
+           fabs(m_Gamma.z-1.0) > 0.00001);
 }
 
 }

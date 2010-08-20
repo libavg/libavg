@@ -281,6 +281,15 @@ struct Point_to_python_tuple
     }
 };
 
+template<class NUM>
+struct Triple_to_python_tuple
+{
+    static PyObject* convert (avg::Triple<NUM> t)
+    {
+        return boost::python::incref(boost::python::make_tuple(t.x,t.y,t.z).ptr());
+    }
+};
+
 template<class POINT, class ATTR>
 struct DPoint_from_python_tuple
 {
@@ -331,17 +340,17 @@ struct Triple_from_python_tuple
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        avg::Triple<NUM> pt;
+        avg::Triple<NUM> t;
         PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-        pt.x = (int)PyFloat_AsDouble(pEntry);
+        t.x = (NUM)PyFloat_AsDouble(pEntry);
         pEntry = PyTuple_GetItem(obj_ptr, 1);
-        pt.y = (int)PyFloat_AsDouble(pEntry);
+        t.y = (NUM)PyFloat_AsDouble(pEntry);
         pEntry = PyTuple_GetItem(obj_ptr, 2);
-        pt.z = (int)PyFloat_AsDouble(pEntry);
+        t.z = (NUM)PyFloat_AsDouble(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<avg::Triple<NUM> >*)
                         data)->storage.bytes;
-        new (storage) avg::Triple<NUM>(pt);
+        new (storage) avg::Triple<NUM>(t);
         data->convertible = storage;
     }
 };
