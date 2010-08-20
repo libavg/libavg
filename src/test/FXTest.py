@@ -169,7 +169,7 @@ class FXTestCase(AVGTestCase):
             node.gamma = val
 
         def testGetGamma(gamma):
-            self.assert_(node.gamma == (gamma))
+            self.assert_(node.gamma == gamma)
 
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -187,7 +187,7 @@ class FXTestCase(AVGTestCase):
             node.brightness = val
 
         def testGetBrightness(brightness):
-            self.assert_(node.brightness == (brightness))
+            self.assert_(node.brightness == brightness)
 
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -198,6 +198,25 @@ class FXTestCase(AVGTestCase):
                  lambda: setBrightness((1.5,2.0,2.5)),
                  lambda: testGetBrightness((1.5,2.0,2.5)),
                  lambda: self.compareImage("testBrightness2", False),
+                ))
+
+
+    def testContrast(self):
+        def setContrast(val):
+            node.contrast = val
+
+        def testGetContrast(contrast):
+            self.assert_(node.contrast == contrast)
+
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
+        self.assert_(node.contrast == (0.5,0.5,0.5))
+        self.start(None,
+                (lambda: self.compareImage("testContrast1", False),
+                 lambda: setContrast((1.5,2.0,2.5)),
+                 lambda: testGetContrast((1.5,2.0,2.5)),
+                 lambda: self.compareImage("testContrast2", False),
                 ))
 
 
@@ -230,6 +249,7 @@ def fxTestSuite(tests):
             "testShadowFX",
             "testGamma",
             "testBrightness",
+            "testContrast",
             )
     return createAVGTestSuite(availableTests, FXTestCase, tests)
 

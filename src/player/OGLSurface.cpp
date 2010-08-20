@@ -392,6 +392,9 @@ Matrix3x4 OGLSurface::calcColorspaceMatrix() const
     }
     if (colorIsModified()) {
         mat *= Matrix3x4::createScale(m_Brightness);
+        mat *= Matrix3x4::createTranslate(0.5-m_Contrast.x/2, 0.5-m_Contrast.y/2,
+                0.5-m_Contrast.z/2);
+        mat *= Matrix3x4::createScale(m_Contrast);
     }
     return mat;
 }
