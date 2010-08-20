@@ -51,7 +51,9 @@ OGLSurface::OGLSurface(const MaterialInfo& material)
       m_bUseForeignTexture(false),
       m_Material(material),
       m_pEngine(0),
-      m_Gamma(1,1,1)
+      m_Gamma(1,1,1),
+      m_Brightness(1,1,1),
+      m_Contrast(1,1,1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -139,11 +141,18 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             pShader->setUniformIntParam("cbTexture", 1);
             m_pTextures[2]->activate(GL_TEXTURE2);
             pShader->setUniformIntParam("crTexture", 2);
-            Matrix3x4 mat = calcColorspaceMatrix(m_pf == YCbCrJ420p);
+            Matrix3x4 mat = calcColorspaceMatrix();
             pShader->setUniformMatrix3x4Param("colorCoeff", mat);
+        } else {
+            if (colorIsModified()) {
+                Matrix3x4 mat = calcColorspaceMatrix();
+                pShader->setUniformMatrix3x4Param("colorCoeff", mat);
+            }
         }
+
         pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
                 1.0);
+        pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
@@ -291,9 +300,12 @@ bool OGLSurface::isCreated() const
     return m_pTextures[0];
 }
 
-void OGLSurface::setGamma(const DTriple& gamma)
+void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
+            const DTriple& contrast)
 {
     m_Gamma = gamma;
+    m_Brightness = brightness;
+    m_Contrast = contrast;
 }
 
 void OGLSurface::createShader()
@@ -306,6 +318,7 @@ void OGLSurface::createShader()
         "uniform sampler2D maskTexture;\n"
         "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale\n"
         "uniform mat4 colorCoeff;\n"
+        "uniform bool bUseColorCoeff;\n"
         "uniform vec4 gamma;\n"
         "uniform bool bUseMask;\n"
         "uniform vec2 maskPos;\n"
@@ -328,11 +341,17 @@ void OGLSurface::createShader()
         "    vec4 rgba;\n"
         "    if (colorModel == 0) {\n"
         "        rgba = texture2D(texture, gl_TexCoord[0].st);\n"
+        "        if (bUseColorCoeff) {\n"
+        "           rgba = colorCoeff*rgba;\n"
+        "        };\n"
         "        rgba.a *= gl_Color.a;\n"
         "    } else if (colorModel == 1) {\n"
         "        rgba = convertYCbCr();\n"
         "    } else if (colorModel == 2) {\n"
         "        rgba = gl_Color;\n"
+        "        if (bUseColorCoeff) {\n"
+        "           rgba = colorCoeff*rgba;\n"
+        "        };\n"
         "        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;\n"
         "    } else {\n"
         "        rgba = vec4(1,1,1,1);\n"
@@ -356,16 +375,23 @@ bool OGLSurface::useShader() const
 {
     return getEngine()->isUsingShaders() && 
             (m_Material.getHasMask() || m_pf == YCbCr420p || m_pf == YCbCrJ420p ||
-             gammaIsModified());
+             gammaIsModified() || colorIsModified());
 }
 
-Matrix3x4 OGLSurface::calcColorspaceMatrix(bool bIsJPEG) const
+Matrix3x4 OGLSurface::calcColorspaceMatrix() const
 {
-    Matrix3x4 mat(*yuvCoeff);
-    mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
-    if (!bIsJPEG) {
-        mat *= Matrix3x4::createScale(255.0/(235-16), 255.0/(240-16) , 255.0/(240-16));
-        mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);
+    Matrix3x4 mat;
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        mat = Matrix3x4(*yuvCoeff);
+        mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
+        if (m_pf == YCbCr420p) {
+            mat *= Matrix3x4::createScale(255.0/(235-16), 255.0/(240-16) , 
+                    255.0/(240-16));
+            mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);
+        }
+    }
+    if (colorIsModified()) {
+        mat *= Matrix3x4::createScale(m_Brightness);
     }
     return mat;
 }
@@ -374,6 +400,13 @@ bool OGLSurface::gammaIsModified() const
 {
     return (fabs(m_Gamma.x-1.0) > 0.00001 || fabs(m_Gamma.y-1.0) > 0.00001 ||
            fabs(m_Gamma.z-1.0) > 0.00001);
+}
+
+bool OGLSurface::colorIsModified() const
+{
+    return (fabs(m_Brightness.x-1.0) > 0.00001 || fabs(m_Brightness.y-1.0) > 0.00001 ||
+           fabs(m_Brightness.z-1.0) > 0.00001 || fabs(m_Contrast.x-1.0) > 0.00001 ||
+           fabs(m_Contrast.y-1.0) > 0.00001 || fabs(m_Contrast.z-1.0) > 0.00001);
 }
 
 }

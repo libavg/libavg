@@ -179,12 +179,22 @@ void export_raster()
                 "to True improves the quality of minified nodes, but causes a\n"
                 "performance hit for every image change. (ro)\n")
         .add_property("gamma", &RasterNode::getGamma, &RasterNode::setGamma,
-                "A control for overall brightness of the node. Gamma is a triple that\n"
+                "Allows node-specific gamma correction. gamma is a triple that\n"
                 "contains separate values for red, green, and blue. A gamma value of\n"
                 "1.0 in all channels leaves the image unchanged. Higher gamma values\n"
                 "increase, lower values decrease the brightness. In all cases, black\n"
                 "white pixels are not affected by gamma. See also \n"
                 "http://en.wikipedia.org/wiki/Gamma_correction.\n")
+        .add_property("brightness", &RasterNode::getBrightness, 
+                &RasterNode::setBrightness,
+                "A control for the brightness of the node. brightness is a triple\n"
+                "that contains separate values for red, green, and blue. A brightness\n"
+                "value of 1.0 in all channels leaves the image unchanged.\n")
+        .add_property("contrast", &RasterNode::getContrast, 
+                &RasterNode::setContrast,
+                "A control for the color contrast of the node. contrast is a triple\n"
+                "that contains separate values for red, green, and blue. A contrast\n"
+                "value of 1.0 in all channels leaves the image unchanged.\n")
     ;
 
     class_<ImageNode, bases<RasterNode> >("ImageNode",

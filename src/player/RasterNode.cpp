@@ -53,7 +53,11 @@ NodeDefinition RasterNode::createDefinition()
         .addArg(Arg<DPoint>("masksize", DPoint(0,0), false,
                 offsetof(RasterNode, m_MaskSize)))
         .addArg(Arg<DTriple>("gamma", DTriple(1.0,1.0,1.0), false,
-                offsetof(RasterNode, m_Gamma)));
+                offsetof(RasterNode, m_Gamma)))
+        .addArg(Arg<DTriple>("contrast", DTriple(1.0,1.0,1.0), false,
+                offsetof(RasterNode, m_Contrast)))
+        .addArg(Arg<DTriple>("brightness", DTriple(1.0,1.0,1.0), false,
+                offsetof(RasterNode, m_Brightness)));
 }
 
 RasterNode::RasterNode()
@@ -105,7 +109,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         downloadMask();
         setMaskCoords();
     }
-    m_pSurface->setGamma(m_Gamma);
+    m_pSurface->setColorParams(m_Gamma, m_Brightness, m_Contrast);
     setupFX();
 }
 
@@ -277,9 +281,34 @@ DTriple RasterNode::getGamma() const
 void RasterNode::setGamma(const DTriple& gamma)
 {
     m_Gamma = gamma;
-
     if (m_pSurface) {
-        m_pSurface->setGamma(m_Gamma);
+        m_pSurface->setColorParams(m_Gamma, m_Brightness, m_Contrast);
+    }
+}
+
+DTriple RasterNode::getBrightness() const
+{
+    return m_Brightness;
+}
+
+void RasterNode::setBrightness(const DTriple& brightness)
+{
+    m_Brightness = brightness;
+    if (m_pSurface) {
+        m_pSurface->setColorParams(m_Gamma, m_Brightness, m_Contrast);
+    }
+}
+
+DTriple RasterNode::getContrast() const
+{
+    return m_Contrast;
+}
+
+void RasterNode::setContrast(const DTriple& contrast)
+{
+    m_Contrast = contrast;
+    if (m_pSurface) {
+        m_pSurface->setColorParams(m_Gamma, m_Brightness, m_Contrast);
     }
 }
 

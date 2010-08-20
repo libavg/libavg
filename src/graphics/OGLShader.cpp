@@ -131,9 +131,10 @@ void OGLShader::setUniformMatrix3x4Param(const std::string& sName, const Matrix3
             glMat[x][y] = mat.val[x][y];
         }
     }
-    for (int y=0; y<4; ++y) {
+    for (int y=0; y<3; ++y) {
         glMat[3][y] = 0.0f;
     }
+    glMat[3][3] = 1.0f;
 
     glproc::UniformMatrix4fv(loc, 1, GL_TRUE, (GLfloat *)glMat);
 }

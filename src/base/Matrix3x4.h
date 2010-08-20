@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "Triple.h"
+
 #include <iostream>
 
 namespace avg {
@@ -35,7 +37,9 @@ public:
     Matrix3x4();
     Matrix3x4(const float *);
     static Matrix3x4 createTranslate(float x, float y, float z);
+    static Matrix3x4 createTranslate(const DTriple& tr);
     static Matrix3x4 createScale(float x, float y, float z);
+    static Matrix3x4 createScale(const DTriple& tr);
     
     const Matrix3x4& operator *=(const Matrix3x4& mat);
 

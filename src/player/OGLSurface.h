@@ -69,7 +69,8 @@ public:
     IntPoint getTextureSize();
     bool isCreated() const;
 
-    void setGamma(const DTriple& gamma);
+    void setColorParams(const DTriple& gamma, const DTriple& brightness,
+            const DTriple& contrast);
     static void createShader();
 
 protected:
@@ -77,8 +78,9 @@ protected:
 
 private:
     bool useShader() const;
-    Matrix3x4 calcColorspaceMatrix(bool bIsJPEG) const;
+    Matrix3x4 calcColorspaceMatrix() const;
     bool gammaIsModified() const;
+    bool colorIsModified() const;
 
     PBOTexturePtr m_pTextures[3];
     IntPoint m_Size;
@@ -93,6 +95,8 @@ private:
     OGLMemoryMode m_MemoryMode;
 
     DTriple m_Gamma;
+    DTriple m_Brightness;
+    DTriple m_Contrast;
 };
 
 }
