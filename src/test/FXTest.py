@@ -111,8 +111,7 @@ class FXTestCase(AVGTestCase):
             node.href="rgb24alpha-64x64.png"
             effect.setParams(1,2,1,1,1)
 
-        if not(self._areFXSupported()):
-            print "Skipping testColorFX - no FX support with this graphics configuration."
+        if not(self._areFXSupported("testColorFX")):
             return
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -136,8 +135,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testBlurFX(self):
-        if not(self._areFXSupported()):
-            print "Skipping testColorFX - no FX support with this graphics configuration."
+        if not(self._areFXSupported("testBlurFX")):
             return
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -151,8 +149,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testShadowFX(self):
-        if not(self._areFXSupported()):
-            print "Skipping testColorFX - no FX support with this graphics configuration."
+        if not(self._areFXSupported("testShadowFX")):
             return
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -167,7 +164,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX3", False),
                 ))
 
-    def _areFXSupported(self):
+    def _areFXSupported(self, testName):
         global g_FXSupported
         if g_FXSupported == None:
             self.loadEmptyScene()
@@ -180,6 +177,8 @@ class FXTestCase(AVGTestCase):
                 g_FXSupported = True
             except RuntimeError:
                 g_FXSupported = False
+                print ("Skipping "+testName
+                        +" - no FX support with this graphics configuration.")
         return g_FXSupported
 
 
