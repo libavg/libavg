@@ -199,16 +199,26 @@ class FXTestCase(AVGTestCase):
         def setContrast(val):
             node.contrast = val
 
+        def loadVideo():
+            node.unlink(True)
+            videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
+                    href="../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
+            videoNode.play()
+
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
         self.assert_(node.contrast == (0.5,0.5,0.5))
+        Player.setFakeFPS(10)
         self.start(None,
                 (lambda: self.compareImage("testContrast1", False),
                  lambda: setContrast((1.5,2.0,2.5)),
                  lambda: self.assert_(node.contrast==(1.5,2.0,2.5)),
                  lambda: self.compareImage("testContrast2", False),
+                 loadVideo,
+                 lambda: self.compareImage("testContrast3", False),
                 ))
+        Player.setFakeFPS(-1)
 
 
     def _areFXSupported(self, testName):

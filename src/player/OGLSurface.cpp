@@ -165,7 +165,8 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 maskScale = DPoint((double)logicalSize.x/m_Size.x, 
                         (double)logicalSize.y/m_Size.y);
             }
-            pShader->setUniformDPointParam("maskSize", m_Material.getMaskSize()*maskScale);
+            pShader->setUniformDPointParam("maskSize", 
+                    m_Material.getMaskSize()*maskScale);
         }
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
