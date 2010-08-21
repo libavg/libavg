@@ -382,20 +382,20 @@ bool OGLSurface::useShader() const
 Matrix3x4 OGLSurface::calcColorspaceMatrix() const
 {
     Matrix3x4 mat;
+    if (colorIsModified()) {
+        mat *= Matrix3x4::createScale(m_Brightness);
+        mat *= Matrix3x4::createTranslate(float(0.5-m_Contrast.x/2), 
+                float(0.5-m_Contrast.y/2), float(0.5-m_Contrast.z/2));
+        mat *= Matrix3x4::createScale(m_Contrast);
+    }
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        mat = Matrix3x4(*yuvCoeff);
+        mat *= Matrix3x4(*yuvCoeff);
         mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
         if (m_pf == YCbCr420p) {
             mat *= Matrix3x4::createScale(255.0/(235-16), 255.0/(240-16) , 
                     255.0/(240-16));
             mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);
         }
-    }
-    if (colorIsModified()) {
-        mat *= Matrix3x4::createScale(m_Brightness);
-        mat *= Matrix3x4::createTranslate(float(0.5-m_Contrast.x/2), float(0.5-m_Contrast.y/2),
-                float(0.5-m_Contrast.z/2));
-        mat *= Matrix3x4::createScale(m_Contrast);
     }
     return mat;
 }
