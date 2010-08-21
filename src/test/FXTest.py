@@ -104,32 +104,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testCanvasNullFX2", False),
                 ))
 
-    def testColorFX(self):
-        def setAlphaImage():
-            node.href="rgb24alpha-64x64.png"
-            effect.setParams(1,2,1,1,1)
-
-        self.loadEmptyScene()
-        root = Player.getRootNode()
-        node = avg.ImageNode(parent=root, href="colorramp.png")
-        effect = avg.ColorFXNode()
-        node.setEffect(effect)
-        self.start(None,
-                (lambda: self.compareImage("testColorFX1", False),
-                 lambda: effect.setParams(1,2,1,1,1),
-                 lambda: self.compareImage("testColorFX2", False),
-                 lambda: effect.setParams(0.5,1,1,1,1),
-                 lambda: self.compareImage("testColorFX3", False),
-                 lambda: effect.setParams(1,1,0.3,1,1),
-                 lambda: self.compareImage("testColorFX4", False),
-                 lambda: effect.setParams(1,1,1,0.3,1),
-                 lambda: self.compareImage("testColorFX5", False),
-                 lambda: effect.setParams(1,1,1,1,0.3),
-                 lambda: self.compareImage("testColorFX6", False),
-                 setAlphaImage,
-                 lambda: self.compareImage("testColorFX7", False),
-                ))
-
     def testBlurFX(self):
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -252,7 +226,6 @@ def fxTestSuite(tests):
                 "testVideoNullFX",
                 "testWordsNullFX",
                 "testCanvasNullFX",
-                "testColorFX",
                 "testBlurFX",
                 "testShadowFX",
                 "testGamma",
