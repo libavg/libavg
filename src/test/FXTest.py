@@ -185,9 +185,15 @@ class FXTestCase(AVGTestCase):
 
         def showVideo():
             node.unlink(True)
-            videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
+            self.videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
                     href="../video/testfiles/mpeg1-48x48.mpg", brightness=(0.5,0.5,0.5))
-            videoNode.play()
+            self.videoNode.play()
+
+        def showText():
+            self.videoNode.unlink(True)
+            textNode = avg.WordsNode(parent=root, fontsize=24, font="Bitstream Vera Sans",
+                    brightness=(0.5,0.5,0.5), text="Half-brightness text.",
+                    width=140)
 
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -201,8 +207,11 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testBrightness2", False),
                  showVideo,
                  lambda: self.compareImage("testBrightness3", False),
+                 showText,
+                 lambda: self.compareImage("testBrightness4", False),
                 ))
         Player.setFakeFPS(-1)
+        self.videoNode = None
 
     def testContrast(self):
         def setContrast(val):
