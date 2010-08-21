@@ -168,9 +168,6 @@ class FXTestCase(AVGTestCase):
         def setGamma(val):
             node.gamma = val
 
-        def testGetGamma(gamma):
-            self.assert_(node.gamma == gamma)
-
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="colorramp.png", gamma=(0.5,0.5,0.5))
@@ -178,16 +175,13 @@ class FXTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testGamma1", False),
                  lambda: setGamma((1.5,2.0,2.5)),
-                 lambda: testGetGamma((1.5,2.0,2.5)),
+                 lambda: self.assert_(node.gamma==(1.5,2.0,2.5)),
                  lambda: self.compareImage("testGamma2", False),
                 ))
 
     def testBrightness(self):
         def setBrightness(val):
             node.brightness = val
-
-        def testGetBrightness(brightness):
-            self.assert_(node.brightness == brightness)
 
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -196,7 +190,7 @@ class FXTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testBrightness1", False),
                  lambda: setBrightness((1.5,2.0,2.5)),
-                 lambda: testGetBrightness((1.5,2.0,2.5)),
+                 lambda: self.assert_(node.brightness==(1.5,2.0,2.5)),
                  lambda: self.compareImage("testBrightness2", False),
                 ))
 
@@ -205,9 +199,6 @@ class FXTestCase(AVGTestCase):
         def setContrast(val):
             node.contrast = val
 
-        def testGetContrast(contrast):
-            self.assert_(node.contrast == contrast)
-
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
@@ -215,7 +206,7 @@ class FXTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testContrast1", False),
                  lambda: setContrast((1.5,2.0,2.5)),
-                 lambda: testGetContrast((1.5,2.0,2.5)),
+                 lambda: self.assert_(node.contrast==(1.5,2.0,2.5)),
                  lambda: self.compareImage("testContrast2", False),
                 ))
 
