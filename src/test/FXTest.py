@@ -27,8 +27,6 @@ import math
 from libavg import avg
 from testcase import *
 
-g_FXSupported = None
-
 class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -111,8 +109,6 @@ class FXTestCase(AVGTestCase):
             node.href="rgb24alpha-64x64.png"
             effect.setParams(1,2,1,1,1)
 
-        if not(self._areFXSupported("testColorFX")):
-            return
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="colorramp.png")
@@ -135,8 +131,6 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testBlurFX(self):
-        if not(self._areFXSupported("testBlurFX")):
-            return
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -149,8 +143,6 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testShadowFX(self):
-        if not(self._areFXSupported("testShadowFX")):
-            return
         self.loadEmptyScene()
         root = Player.getRootNode()
         node = avg.ImageNode(parent=root, href="shadow.png")
@@ -238,37 +230,38 @@ class FXTestCase(AVGTestCase):
                 ))
         Player.setFakeFPS(-1)
 
-    def _areFXSupported(self, testName):
-        global g_FXSupported
-        if g_FXSupported == None:
-            self.loadEmptyScene()
-            node = avg.ImageNode(href="rgb24-65x65.png")
-            effect = avg.BlurFXNode()
-            node.setEffect(effect)
-            Player.getRootNode().appendChild(node)
-            try:
-                self.start(None, [])
-                g_FXSupported = True
-            except RuntimeError:
-                g_FXSupported = False
-                print ("Skipping "+testName
-                        +" - no FX support with this graphics configuration.")
-        return g_FXSupported
+def areFXSupported():
+        sceneString = """<avg id="avg" width="160" height="120"/>"""
+        Player.loadString(sceneString)
+        node = avg.ImageNode(href="rgb24-65x65.png")
+        effect = avg.BlurFXNode()
+        node.setEffect(effect)
+        Player.getRootNode().appendChild(node)
+        Player.setTimeout(0, Player.stop)
+        try:
+            Player.play() 
+            return True
+        except RuntimeError:
+            return False
 
 
 def fxTestSuite(tests):
-    availableTests = (
-            "testImageNullFX",
-            "testVideoNullFX",
-            "testWordsNullFX",
-            "testCanvasNullFX",
-            "testColorFX",
-            "testBlurFX",
-            "testShadowFX",
-            "testGamma",
-            "testBrightness",
-            "testContrast",
-            )
-    return createAVGTestSuite(availableTests, FXTestCase, tests)
+    if areFXSupported():
+        availableTests = [
+                "testImageNullFX",
+                "testVideoNullFX",
+                "testWordsNullFX",
+                "testCanvasNullFX",
+                "testColorFX",
+                "testBlurFX",
+                "testShadowFX",
+                "testGamma",
+                "testBrightness",
+                "testContrast",
+            ]
+        return createAVGTestSuite(availableTests, FXTestCase, tests)
+    else:
+        print "Skipping FX tests - no FX support with this graphics configuration."
+        return lambda x: None
 
 Player = avg.Player.get()

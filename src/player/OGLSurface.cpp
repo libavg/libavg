@@ -67,9 +67,15 @@ void OGLSurface::attach(SDLDisplayEngine * pEngine)
 {
     m_pEngine = pEngine;
     m_MemoryMode = m_pEngine->getMemoryModeSupported();
-    if (m_Material.getHasMask() && !getEngine()->isUsingShaders()) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't set mask bitmap since shader support is disabled.");
+    if (!getEngine()->isUsingShaders()) {
+        if (m_Material.getHasMask()) {
+            throw Exception(AVG_ERR_VIDEO_GENERAL,
+                    "Can't set mask bitmap since shader support is disabled.");
+        }
+        if (gammaIsModified() || colorIsModified()) {
+            throw Exception(AVG_ERR_VIDEO_GENERAL,
+                    "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
+        }
     }
 }
 
@@ -307,6 +313,10 @@ void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
     m_Gamma = gamma;
     m_Brightness = brightness;
     m_Contrast = contrast;
+    if (!getEngine()->isUsingShaders() && (gammaIsModified() || colorIsModified())) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+                "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
+    }
 }
 
 void OGLSurface::createShader()
