@@ -185,11 +185,12 @@ void export_raster()
                 "increase, lower values decrease the brightness. In all cases, black\n"
                 "white pixels are not affected by gamma. See also \n"
                 "http://en.wikipedia.org/wiki/Gamma_correction.\n")
-        .add_property("brightness", &RasterNode::getBrightness, 
-                &RasterNode::setBrightness,
-                "A control for the brightness of the node. brightness is a triple\n"
-                "that contains separate values for red, green, and blue. A brightness\n"
-                "value of 1.0 in all channels leaves the image unchanged.\n")
+        .add_property("intensity", &RasterNode::getIntensity, 
+                &RasterNode::setIntensity,
+                "A control for the brightness of the node. intensity is a triple\n"
+                "that contains separate values for red, green, and blue. An intensity\n"
+                "value of 1.0 in all channels leaves the image unchanged. This value\n"
+                "corresponds to the photoshop brightness value.\n")
         .add_property("contrast", &RasterNode::getContrast, 
                 &RasterNode::setContrast,
                 "A control for the color contrast of the node. contrast is a triple\n"
@@ -232,7 +233,7 @@ void export_raster()
         .add_property("sharpness", &CameraNode::getSharpness, &CameraNode::setSharpness)
         .add_property("saturation", &CameraNode::getSaturation, 
                 &CameraNode::setSaturation)
-        .add_property("gamma", &CameraNode::getGamma, &CameraNode::setGamma)
+        .add_property("camgamma", &CameraNode::getCamGamma, &CameraNode::setCamGamma)
         .add_property("shutter", &CameraNode::getShutter, &CameraNode::setShutter)
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
         .add_property("strobeduration", &CameraNode::getStrobeDuration, 

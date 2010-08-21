@@ -72,8 +72,8 @@ class AVG_API CameraNode : public RasterNode
         void setSharpness(int Value);
         int getSaturation() const;
         void setSaturation(int Value);
-        int getGamma() const;
-        void setGamma(int Value);
+        int getCamGamma() const;
+        void setCamGamma(int Value);
         int getShutter() const;
         void setShutter(int Value);
         int getGain() const;

@@ -80,8 +80,8 @@ class AVG_API RasterNode: public AreaNode
 
         DTriple getGamma() const;
         void setGamma(const DTriple& gamma);
-        DTriple getBrightness() const;
-        void setBrightness(const DTriple& brightness);
+        DTriple getIntensity() const;
+        void setIntensity(const DTriple& intensity);
         DTriple getContrast() const;
         void setContrast(const DTriple& contrast);
 
@@ -135,7 +135,7 @@ class AVG_API RasterNode: public AreaNode
         std::vector<std::vector<DPoint> > m_TexCoords;
 
         DTriple m_Gamma;
-        DTriple m_Brightness;
+        DTriple m_Intensity;
         DTriple m_Contrast;
 
         FBOPtr m_pFBO;

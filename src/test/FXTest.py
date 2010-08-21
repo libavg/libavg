@@ -145,36 +145,36 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testGamma2", False),
                 ))
 
-    def testBrightness(self):
-        def setBrightness(val):
-            node.brightness = val
+    def testIntensity(self):
+        def setIntensity(val):
+            node.intensity = val
 
         def showVideo():
             node.unlink(True)
             self.videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../video/testfiles/mpeg1-48x48.mpg", brightness=(0.5,0.5,0.5))
+                    href="../video/testfiles/mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
             self.videoNode.play()
 
         def showText():
             self.videoNode.unlink(True)
             textNode = avg.WordsNode(parent=root, fontsize=24, font="Bitstream Vera Sans",
-                    brightness=(0.5,0.5,0.5), text="Half-brightness text.",
+                    intensity=(0.5,0.5,0.5), text="Half-brightness text.",
                     width=140)
 
         self.loadEmptyScene()
         root = Player.getRootNode()
-        node = avg.ImageNode(parent=root, href="colorramp.png", brightness=(0.5,0.5,0.5))
-        self.assert_(node.brightness == (0.5,0.5,0.5))
+        node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
+        self.assert_(node.intensity == (0.5,0.5,0.5))
         Player.setFakeFPS(10)
         self.start(None,
-                (lambda: self.compareImage("testBrightness1", False),
-                 lambda: setBrightness((1.5,2.0,2.5)),
-                 lambda: self.assert_(node.brightness==(1.5,2.0,2.5)),
-                 lambda: self.compareImage("testBrightness2", False),
+                (lambda: self.compareImage("testIntensity1", False),
+                 lambda: setIntensity((1.5,2.0,2.5)),
+                 lambda: self.assert_(node.intensity==(1.5,2.0,2.5)),
+                 lambda: self.compareImage("testIntensity2", False),
                  showVideo,
-                 lambda: self.compareImage("testBrightness3", False),
+                 lambda: self.compareImage("testIntensity3", False),
                  showText,
-                 lambda: self.compareImage("testBrightness4", False),
+                 lambda: self.compareImage("testIntensity4", False),
                 ))
         Player.setFakeFPS(-1)
         self.videoNode = None
@@ -229,7 +229,7 @@ def fxTestSuite(tests):
                 "testBlurFX",
                 "testShadowFX",
                 "testGamma",
-                "testBrightness",
+                "testIntensity",
                 "testContrast",
             ]
         return createAVGTestSuite(availableTests, FXTestCase, tests)

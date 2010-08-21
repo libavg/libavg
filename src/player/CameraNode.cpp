@@ -62,7 +62,7 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("exposure", -1))
         .addArg(Arg<int>("sharpness", -1))
         .addArg(Arg<int>("saturation", -1))
-        .addArg(Arg<int>("gamma", -1))
+        .addArg(Arg<int>("camgamma", -1))
         .addArg(Arg<int>("shutter", -1))
         .addArg(Arg<int>("gain", -1))
         .addArg(Arg<int>("strobeduration", -1));
@@ -105,7 +105,7 @@ CameraNode::CameraNode(const ArgList& Args)
     m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Args.getArgVal<int>("exposure"));
     m_pCamera->setFeature(CAM_FEATURE_SHARPNESS, Args.getArgVal<int>("sharpness"));
     m_pCamera->setFeature(CAM_FEATURE_SATURATION, Args.getArgVal<int>("saturation"));
-    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Args.getArgVal<int>("gamma"));
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Args.getArgVal<int>("camgamma"));
     m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Args.getArgVal<int>("shutter"));
     m_pCamera->setFeature(CAM_FEATURE_GAIN, Args.getArgVal<int>("gain"));
     m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
@@ -178,12 +178,12 @@ void CameraNode::setSaturation(int Value)
     setFeature(CAM_FEATURE_SATURATION, Value);
 }
 
-int CameraNode::getGamma() const
+int CameraNode::getCamGamma() const
 {
     return getFeature(CAM_FEATURE_GAMMA);
 }
 
-void CameraNode::setGamma(int Value)
+void CameraNode::setCamGamma(int Value)
 {
     setFeature(CAM_FEATURE_GAMMA, Value);
 }
