@@ -85,8 +85,7 @@ CameraNode::CameraNode(const ArgList& Args)
 
     PixelFormat camPF = Bitmap::stringToPixelFormat(sPF);
     if (camPF == NO_PIXELFORMAT) {
-        throw Exception(AVG_ERR_INVALID_ARGS,
-                "Unknown camera pixel format "+sPF+".");
+        throw Exception(AVG_ERR_INVALID_ARGS, "Unknown camera pixel format "+sPF+".");
     }
     PixelFormat destPF;
     if (Bitmap::pixelFormatIsColored(camPF)) {
@@ -97,25 +96,18 @@ CameraNode::CameraNode(const ArgList& Args)
 //    cerr << "CameraNode ctor: " << Bitmap::getPixelFormatString(camPF) << "-->" << 
 //            Bitmap::getPixelFormatString(destPF) << endl;
 
-    m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(Width, Height), camPF, 
-            destPF, FrameRate);
+    m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(Width, Height), 
+            camPF, destPF, FrameRate);
     AVG_TRACE(Logger::CONFIG, "Got Camera " << m_pCamera->getDevice() << " from driver: "
             << m_pCamera->getDriverName());
     
-    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,
-            Args.getArgVal<int>("brightness"));
-    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE,
-            Args.getArgVal<int>("exposure"));
-    m_pCamera->setFeature(CAM_FEATURE_SHARPNESS,
-            Args.getArgVal<int>("sharpness"));
-    m_pCamera->setFeature(CAM_FEATURE_SATURATION,
-            Args.getArgVal<int>("saturation"));
-    m_pCamera->setFeature(CAM_FEATURE_GAMMA,
-            Args.getArgVal<int>("gamma"));
-    m_pCamera->setFeature(CAM_FEATURE_SHUTTER,
-            Args.getArgVal<int>("shutter"));
-    m_pCamera->setFeature(CAM_FEATURE_GAIN,
-            Args.getArgVal<int>("gain"));
+    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Args.getArgVal<int>("brightness"));
+    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Args.getArgVal<int>("exposure"));
+    m_pCamera->setFeature(CAM_FEATURE_SHARPNESS, Args.getArgVal<int>("sharpness"));
+    m_pCamera->setFeature(CAM_FEATURE_SATURATION, Args.getArgVal<int>("saturation"));
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Args.getArgVal<int>("gamma"));
+    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Args.getArgVal<int>("shutter"));
+    m_pCamera->setFeature(CAM_FEATURE_GAIN, Args.getArgVal<int>("gain"));
     m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
             Args.getArgVal<int>("strobeduration"));
 }
