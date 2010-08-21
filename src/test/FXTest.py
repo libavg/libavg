@@ -205,18 +205,19 @@ class FXTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
 
 def areFXSupported():
-        sceneString = """<avg id="avg" width="160" height="120"/>"""
-        Player.loadString(sceneString)
-        node = avg.ImageNode(href="rgb24-65x65.png")
-        effect = avg.BlurFXNode()
-        node.setEffect(effect)
-        Player.getRootNode().appendChild(node)
-        Player.setTimeout(0, Player.stop)
-        try:
-            Player.play() 
-            return True
-        except RuntimeError:
-            return False
+    sceneString = """<avg id="avg" width="160" height="120"/>"""
+    Player.loadString(sceneString)
+    # XXX: The second of the following two lines prevent an opengl error in
+    # testImageNullFX on the Mac (Snow Leopard) for some reason. 
+    node = avg.ImageNode(href="rgb24-65x65.png", parent=Player.getRootNode())
+    node = avg.ImageNode(href="rgb24-65x65.png", parent=Player.getRootNode())
+    node.setEffect(avg.BlurFXNode())
+    Player.setTimeout(0, Player.stop)
+    try:
+        Player.play() 
+        return True
+    except RuntimeError:
+        return False
 
 
 def fxTestSuite(tests):
