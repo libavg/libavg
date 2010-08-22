@@ -75,6 +75,15 @@ class_<POINT> export_point(const string& sName, const string& sDoc)
     ;
 }
 
+struct Pixel32_to_python_tuple
+{
+    static PyObject* convert (avg::Pixel32 px)
+    {
+        return boost::python::incref(boost::python::make_tuple(
+                px.getR(), px.getG(), px.getB(), px.getA()).ptr());
+    }
+};
+
 ConstDPoint Bitmap_getSize(Bitmap* This)
 {
     return (DPoint)(This->getSize());
@@ -118,6 +127,8 @@ void export_bitmap()
         .value("YCbCr422", YCbCr422)
         .export_values();
 
+    to_python_converter<Pixel32, Pixel32_to_python_tuple>();
+
     class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap",
             "Class representing a rectangular set of pixels. Bitmaps can be obtained\n"
             "from any RasterNode. For nodes of type Image, the current bitmap can be\n"
@@ -151,6 +162,10 @@ void export_bitmap()
                 "or pixel format. Can be used to interface to the python imaging\n"
                 "library PIL (U{http://www.pythonware.com/products/pil/}).\n"
                 "@param pixels: Image data as a python string.")
+        .def("getPixel", &Bitmap::getPythonPixel,
+                "getPixel() -> (r,g,b,a)\n\n"
+                "Returns one image pixel als a color tuple. This should only be used\n"
+                "for single pixels, as it is very slow.")
         .def("subtract", &Bitmap::subtract,
                 return_value_policy<manage_new_object>(),
                 "subtract(otherbitmap) -> bmp\n")

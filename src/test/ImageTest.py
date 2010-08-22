@@ -221,6 +221,17 @@ class ImageTestCase(AVGTestCase):
                 bmp = avg.Bitmap(u"ö.png")
                 os.remove(u"ö.png")
 
+        def testGetPixel():
+            bmp = avg.Bitmap('rgb24-65x65.png')
+            self.assert_(bmp.getPixel((1,1)) == (255,0,0,255))
+            self.assert_(bmp.getPixel((33,1)) == (0,255,0,255))
+            bmp = avg.Bitmap('rgb24alpha-64x64.png')
+            self.assert_(bmp.getPixel((1,1)) == (0,0,0,0))
+            self.assert_(bmp.getPixel((63,1)) == (83,255,83,142))
+            bmp = avg.Bitmap('greyscale.png')
+            self.assert_(bmp.getPixel((1,1)) == (255,255,255,255))
+            self.assert_(bmp.getPixel((1,63)) == (0,0,0,255))
+
         def setNullBitmap():
             node.setBitmap(None)
 
@@ -241,6 +252,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1", False),
+                 testGetPixel,
                  lambda: self.assertException(setNullBitmap)
                 ))
 

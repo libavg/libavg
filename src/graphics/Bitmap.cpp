@@ -20,7 +20,6 @@
 //
 
 #include "Bitmap.h"
-#include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
 #include "Pixel8.h"
@@ -984,7 +983,25 @@ void Bitmap::setAlpha(const Bitmap& alphaBmp)
         pLine += m_Stride;
         pAlphaLine += alphaBmp.getStride();
     }
+}
 
+Pixel32 Bitmap::getPythonPixel(const IntPoint& pos)
+{
+    const unsigned char * pPixel = m_pBits+pos.y*m_Stride+pos.x*getBytesPerPixel();
+    switch(getPixelFormat()) {
+        case B8G8R8A8:
+            return Pixel32(pPixel[2], pPixel[1], pPixel[0], pPixel[3]);
+        case B8G8R8X8:
+            return Pixel32(pPixel[2], pPixel[1], pPixel[0], 255);
+        case B8G8R8:
+            return Pixel32(pPixel[2], pPixel[1], pPixel[0]);
+        case I8:
+            return Pixel32(pPixel[0], pPixel[0], pPixel[0]);
+        default:
+            cerr << getPixelFormatString() << endl;
+            AVG_ASSERT(false);
+            return Pixel32();
+    }
 }
 
 bool Bitmap::operator ==(const Bitmap & otherBmp)
