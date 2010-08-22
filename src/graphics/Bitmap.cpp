@@ -985,15 +985,16 @@ void Bitmap::setAlpha(const Bitmap& alphaBmp)
     }
 }
 
-Pixel32 Bitmap::getPythonPixel(const IntPoint& pos)
+Pixel32 Bitmap::getPythonPixel(const DPoint& pos)
 {
-    if (pos.x < 0 || pos.y < 0 || pos.x >= m_Size.x || pos.y >= m_Size.y) {
+    IntPoint intPos(pos);
+    if (intPos.x < 0 || intPos.y < 0 || intPos.x >= m_Size.x || intPos.y >= m_Size.y) {
         stringstream ss;
-        ss << "Bitmap.getPixel(): pos " << pos << " is out of range. Bitmap size is " <<
-                m_Size << endl;
+        ss << "Bitmap.getPixel(): intPos " << intPos << 
+                " is out of range. Bitmap size is " << m_Size << endl;
         throw Exception(AVG_ERR_OUT_OF_RANGE, ss.str());
     }
-    const unsigned char * pPixel = m_pBits+pos.y*m_Stride+pos.x*getBytesPerPixel();
+    const unsigned char * pPixel = m_pBits+intPos.y*m_Stride+intPos.x*getBytesPerPixel();
     switch(getPixelFormat()) {
         case B8G8R8A8:
             return Pixel32(pPixel[2], pPixel[1], pPixel[0], pPixel[3]);

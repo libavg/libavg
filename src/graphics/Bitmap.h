@@ -121,7 +121,7 @@ public:
     void getMinMax(int Stride, int& min, int& max) const;
     void setAlpha(const Bitmap& alphaBmp);
 
-    Pixel32 getPythonPixel(const IntPoint& pos);
+    Pixel32 getPythonPixel(const DPoint& pos);
     template<class Pixel>
     void setPixel(const IntPoint& p, Pixel Color);
     template<class Pixel>
