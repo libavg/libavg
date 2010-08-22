@@ -231,6 +231,7 @@ class ImageTestCase(AVGTestCase):
             bmp = avg.Bitmap('greyscale.png')
             self.assert_(bmp.getPixel((1,1)) == (255,255,255,255))
             self.assert_(bmp.getPixel((1,63)) == (0,0,0,255))
+            self.assertException(lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
             node.setBitmap(None)
