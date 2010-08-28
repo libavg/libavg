@@ -40,6 +40,7 @@
 #include "FilterBandpass.h"
 #include "FilterFastDownscale.h"
 #include "FilterMask.h"
+#include "FilterThreshold.h"
 #include "FilterFloodfill.h"
 #include "FilterDilation.h"
 #include "FilterErosion.h"
@@ -803,6 +804,28 @@ private:
     }
 };
 
+class FilterThresholdTest: public GraphicsTest {
+public:
+    FilterThresholdTest()
+        : GraphicsTest("FilterThresholdTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp(initBmp(I8));
+        BitmapPtr pDestBmp = FilterThreshold(1).apply(pBmp);
+        string sFName = "baseline/ThresholdResult.png";
+//        pDestBmp->save(sFName);
+        sFName = getSrcDirName()+sFName;
+        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
+        BitmapPtr pBaselineBmp = BitmapPtr(
+                new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));
+        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
 class FilterFloodfillTest: public GraphicsTest {
 public:
     FilterFloodfillTest()
@@ -919,6 +942,7 @@ public:
         addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
         addTest(TestPtr(new FilterMaskTest));
+        addTest(TestPtr(new FilterThresholdTest));
         addTest(TestPtr(new FilterFloodfillTest));
         addTest(TestPtr(new FilterDilationTest));
         addTest(TestPtr(new FilterErosionTest));
