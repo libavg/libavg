@@ -112,7 +112,8 @@ class AVG_API Blob
         ContourSeq m_Contour;
 };
 
-BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char object_threshold);
+BlobVectorPtr AVG_API findConnectedComponents(BitmapPtr image, 
+        unsigned char threshold);
 
 }
 
