@@ -52,7 +52,8 @@ class Button(libavg.DivNode):
         self.__state = Button.STATE_UP
         
         if self.__upNode and self.__downNode:
-            self.__setup()
+            self.__setupNodes()
+            self.__activateEventHandler()
         
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
@@ -70,7 +71,7 @@ class Button(libavg.DivNode):
         self.__upNode = upNode
         self.__downNode = downNode
         self.__disabledNode = disabledNode
-        self.__setup()
+        self.__setupNodes()
         
     def setPressHandler(self, handler):
         self.__customPressHandler = handler
@@ -110,15 +111,16 @@ class Button(libavg.DivNode):
     def isDebug(self):
         return self.elementoutlinecolor != ''
     
-    def __setup(self):
+    def __setupNodes(self):
+        while self.getNumChildren() > 0:
+            self.removeChild(self.getChild(0))
+            
         self.appendChild(self.__upNode)
         self.appendChild(self.__downNode)
 
         if self.__disabledNode:
             self.appendChild(self.__disabledNode)
-            
-        self.__setState(Button.STATE_UP)
-        self.__activateEventHandler()
+        
         self.__updateSize()
         self.__updateNodesVisibility()
 

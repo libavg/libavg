@@ -295,8 +295,8 @@ class PythonTestCase(AVGTestCase):
                 downNode = avg.ImageNode(href="button_down.png"),
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
                 pressHandler = onDown,
-                clickHandler = onClick,
-                )
+                clickHandler = onClick)
+        
         b.pos = (0, 0)
         xOutDistance = int(b.width * 2)
         yOutDistance = int(b.height * 2)
@@ -467,7 +467,38 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(not(self.__down)),
                  lambda: self.assert_(not(self.__clicked)),
-                ))
+                 reset,
+
+                 # Checking functionality while resetting the visible nodes
+                 lambda: b.setNodes(upNode = avg.ImageNode(href="button_up.png"),
+                                    downNode = avg.ImageNode(href="button_down.png"),
+                                    disabledNode = avg.ImageNode(href="button_disabled.png")),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.assert_(self.__down and self.__clicked),
+                 reset,
+                 
+                 lambda: b.setEnabled(False),
+                 lambda: b.setNodes(upNode = avg.ImageNode(href="button_up.png"),
+                                    downNode = avg.ImageNode(href="button_down.png"),
+                                    disabledNode = avg.ImageNode(href="button_disabled.png")),
+                 lambda: self.compareImage("testUIButtonDisabled", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.assert_(not(self.__down) and not(self.__clicked)),
+                 reset,
+                 
+                 lambda: b.setEnabled(True),
+                 lambda: b.setNodes(upNode = avg.ImageNode(href="button_up.png"),
+                                    downNode = avg.ImageNode(href="button_down.png"),
+                                    disabledNode = None),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.assert_(self.__down and self.__clicked),
+                 reset,
+                 ))
     
         
     def testMultitouchButton(self):
