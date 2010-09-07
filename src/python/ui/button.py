@@ -53,7 +53,7 @@ class Button(libavg.DivNode):
         
         if self.__upNode and self.__downNode:
             self.__setupNodes()
-            self.__activateEventHandler()
+        self.__activateEventHandler()
         
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
