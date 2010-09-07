@@ -286,7 +286,13 @@ class PythonTestCase(AVGTestCase):
         def reset():
             self.__down = False
             self.__clicked = False
-
+        
+        def printAddress(obj):
+            print obj
+        
+        def setObjectActive(obj, active):
+            obj.active = active
+            
         self.loadEmptyScene()
         
         b = ui.Button(
@@ -296,6 +302,11 @@ class PythonTestCase(AVGTestCase):
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
                 pressHandler = onDown,
                 clickHandler = onClick)
+        
+        b1 = ui.Button(parent=Player.getRootNode(),
+                       active=False,
+                       pressHandler=onDown,
+                       clickHandler=onClick)
         
         b.pos = (0, 0)
         xOutDistance = int(b.width * 2)
@@ -448,6 +459,7 @@ class PythonTestCase(AVGTestCase):
                  lambda: b.setEnabled(False),
                  lambda: self.assert_(not(b.isEnabled())),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
+                 lambda: b.setChecked(False),
                  reset,
                  
                  # Disable: Various up/down combinations have no effect
@@ -498,6 +510,17 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
+                 
+                 # resetting the nodes on an empty button
+                 lambda: setObjectActive(b, False),
+                 lambda: setObjectActive(b1, True),
+                 lambda: b1.setNodes(upNode = avg.ImageNode(href="button_up.png"),
+                                     downNode = avg.ImageNode(href="button_down.png"),
+                                     disabledNode = avg.ImageNode(href="button_disabled.png")),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
+                 lambda: self.assert_(self.__down and self.__clicked),
                  ))
     
         
