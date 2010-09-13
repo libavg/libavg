@@ -90,18 +90,30 @@ private:
 
     void runMultiThreadTests()
     {
-        Queue<string> q(10);
-        thread pusher(bind(&pushThread, &q));
-        thread popper(bind(&popThread, &q));
-        pusher.join();
-        popper.join();
-        TEST(q.empty());
+        {
+            Queue<string> q(10);
+            thread pusher(bind(&pushThread, &q, 100));
+            thread popper(bind(&popThread, &q, 100));
+            pusher.join();
+            popper.join();
+            TEST(q.empty());
+        }
+        {
+            Queue<string> q(10);
+            thread pusher1(bind(&pushThread, &q, 100));
+            thread pusher2(bind(&pushThread, &q, 100));
+            thread popper(bind(&popThread, &q, 200));
+            pusher1.join();
+            pusher2.join();
+            popper.join();
+            TEST(q.empty());
+        }
     }
 
-    static void pushThread(Queue<string>* pq)
+    static void pushThread(Queue<string>* pq, int numPushes)
     {
         typedef Queue<string>::QElementPtr ElemPtr;
-        for (int i=0; i<100; ++i) {
+        for (int i=0; i<numPushes; ++i) {
             stringstream ss;
             ss << i;
             string s = ss.str();
@@ -110,9 +122,9 @@ private:
         }
     }
 
-    static void popThread(Queue<string>* pq)
+    static void popThread(Queue<string>* pq, int numPops)
     {
-        for (int i=0; i<100; ++i) {
+        for (int i=0; i<numPops; ++i) {
             pq->peek();
             pq->pop();
             msleep(3);
