@@ -126,11 +126,16 @@ int GLTexture::getGLType(PixelFormat pf)
     switch (pf) {
         case I8:
         case A8:
+            return GL_UNSIGNED_BYTE;
         case R8G8B8A8:
         case R8G8B8X8:
         case B8G8R8A8:
         case B8G8R8X8:
+#ifdef __APPLE__
+            return GL_UNSIGNED_INT_8_8_8_8_REV;
+#else
             return GL_UNSIGNED_BYTE;
+#endif
         case R32G32B32A32F:
         case I32F:
             return GL_FLOAT;
