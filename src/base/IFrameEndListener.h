@@ -22,6 +22,8 @@
 #ifndef _IFrameEndListener_H_ 
 #define _IFrameEndListener_H_
 
+#include <api.h>
+
 namespace avg {
     
 class AVG_API IFrameEndListener {
