@@ -79,7 +79,7 @@ class DecoderTest: public GraphicsTest {
             VideoDecoderPtr pDecoder;
             pDecoder = VideoDecoderPtr(new FFMpegDecoder());
             if (m_bThreadedDecoder) {
-                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder));
+                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder, 8));
             }
             return pDecoder;
         }

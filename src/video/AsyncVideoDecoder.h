@@ -40,7 +40,7 @@ namespace avg {
 class AVG_API AsyncVideoDecoder: public IVideoDecoder
 {
     public:
-        AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
+        AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength);
         virtual ~AsyncVideoDecoder();
         virtual void open(const std::string& sFilename, bool bSyncDemuxer);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP);
@@ -77,6 +77,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         DecoderState m_State;
         VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;
+        int m_QueueLength;
 
         boost::thread* m_pVDecoderThread;
         VideoDecoderThread::CQueuePtr m_pVCmdQ;

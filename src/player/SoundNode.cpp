@@ -66,7 +66,7 @@ SoundNode::SoundNode(const ArgList& Args)
     m_Filename = m_href;
     initFilename(m_Filename);
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
-    m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
+    m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, 8);
 
     ObjectCounter::get()->incRef(&typeid(*this));
 }

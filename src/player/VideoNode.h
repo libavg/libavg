@@ -117,6 +117,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         bool m_bLoop;
         bool m_bThreaded;
         double m_FPS;
+        int m_QueueLength;
         bool m_bEOFPending;
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;

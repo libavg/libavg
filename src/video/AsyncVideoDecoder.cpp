@@ -35,9 +35,10 @@ using namespace std;
 
 namespace avg {
 
-AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
+AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength)
     : m_State(CLOSED),
       m_pSyncDecoder(pSyncDecoder),
+      m_QueueLength(queueLength),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
       m_PF(NO_PIXELFORMAT),
@@ -80,7 +81,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
         m_LastVideoFrameTime = -1000;
         m_PF = m_pSyncDecoder->getPixelFormat();
         m_pVCmdQ = VideoDecoderThread::CQueuePtr(new VideoDecoderThread::CQueue);
-        m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
+        m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(m_QueueLength));
         m_pVDecoderThread = new boost::thread(
                  VideoDecoderThread(*m_pVCmdQ, *m_pVMsgQ, m_pSyncDecoder));
     }

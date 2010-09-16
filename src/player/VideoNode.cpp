@@ -58,6 +58,8 @@ NodeDefinition VideoNode::createDefinition()
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))
         .addArg(Arg<double>("fps", 0.0, false, offsetof(VideoNode, m_FPS)))
+        .addArg(Arg<int>("queuelength", 8, false, 
+                offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
         ;
 }
@@ -77,9 +79,13 @@ VideoNode::VideoNode(const ArgList& Args)
     Args.setMembers(this);
     m_Filename = m_href;
     initFilename(m_Filename);
+    if (!m_bThreaded && m_QueueLength != 8) {
+        throw Exception(AVG_ERR_INVALID_ARGS, 
+                "Can't set queue length for unthreaded videos because there is no decoder queue in this case.");
+    }
     if (m_bThreaded) {
         VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
-        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
+        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder, m_QueueLength);
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
