@@ -329,7 +329,14 @@ void export_raster()
                 "Sets a python callable to be invoked when the video reaches end of\n"
                 "file.")
         .add_property("fps", &VideoNode::getFPS,
-                "Returns the nominal frames per second the object should display at.\n")
+                "The nominal frames per second the object should display at. Can only be"
+                "set at node construction.")
+        .add_property("queuelength", &VideoNode::getQueueLength,
+                "The length of the decoder queue in video frames. This is the number of"
+                "frames that can be decoded before the first one is displayed. A higher"
+                "number increases memory consumption but also resilience against"
+                "data source latency. Can only be set at node construction. Can't be set"
+                "if threaded=False, since there is no queue in that case.")
         .add_property("href", 
                 make_function(&VideoNode::getHRef,
                         return_value_policy<copy_const_reference>()),

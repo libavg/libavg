@@ -484,6 +484,11 @@ double VideoNode::getFPS() const
     return m_pDecoder->getFPS();
 }
 
+int VideoNode::getQueueLength() const
+{
+    return m_QueueLength;
+}
+
 long long VideoNode::getNextFrameTime() const
 {
     switch (m_VideoState) {

@@ -90,6 +90,10 @@ class AVTestCase(AVGTestCase):
                      checkExceptions,
                      checkAudioFile,
                     ))
+        self.loadEmptyScene()
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48-sound.avi",
+                    queuelength=23, parent=Player.getRootNode())
+        self.assert_(node.queuelength == 23)
 
     def testVideoFiles(self):
         def testVideoFile(filename, isThreaded):

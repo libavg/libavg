@@ -60,7 +60,8 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         void setHRef(const UTF8String& href);
         double getVolume();
         void setVolume(double Volume);
-        virtual double getFPS() const;
+        double getFPS() const;
+        int getQueueLength() const;
         void checkReload();
 
         int getNumFrames() const;
