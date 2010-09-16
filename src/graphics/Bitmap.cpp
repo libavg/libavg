@@ -828,7 +828,7 @@ bool Bitmap::pixelFormatIsBayer(PixelFormat pf)
 
 bool Bitmap::pixelFormatHasAlpha(PixelFormat pf)
 {
-    return pf == B8G8R8A8 || A8B8G8R8 || R8G8B8A8 || A8R8G8B8;
+    return pf == B8G8R8A8 || pf == A8B8G8R8 || pf == R8G8B8A8 || pf == A8R8G8B8;
 }
 
 unsigned char * Bitmap::getPixels()
