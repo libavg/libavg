@@ -85,9 +85,8 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual int getNumFramesQueued() const;
         virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
         virtual void setFPS(double FPS);
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted);
-        virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr, long long timeWanted);
+        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
+                long long timeWanted);
         virtual void throwAwayFrame(long long timeWanted);
         
         // Called from audio decoder thread

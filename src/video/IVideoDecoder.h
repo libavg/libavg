@@ -64,14 +64,22 @@ class AVG_API IVideoDecoder
         virtual void setVolume(double Volume) = 0;
         virtual PixelFormat getPixelFormat() const = 0;
 
-        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long timeWanted) = 0;
-        virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr, long long timeWanted) = 0;
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
+                long long timeWanted);
+        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
+                long long timeWanted) = 0;
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(long long timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
+
+inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
+{
+    std::vector<BitmapPtr> pBmps;
+    pBmps.push_back(pBmp);
+    return renderToBmps(pBmps, timeWanted);
+}
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
 

@@ -51,35 +51,26 @@ bool VideoDecoderThread::work()
         waitForCommand();
     } else {
         vector<BitmapPtr> pBmps;
-        IntPoint Size = m_pDecoder->getSize();
-        PixelFormat PF = m_pDecoder->getPixelFormat();
-        FrameAvailableCode FrameAvailable;
-        if (PF == YCbCr420p || PF ==YCbCrJ420p) {
-            BitmapPtr pBmpY = getBmp(m_pBmpQ, Size, I8);
-            IntPoint HalfSize(Size.x/2, Size.y/2);
-            BitmapPtr pBmpU = getBmp(m_pHalfBmpQ, HalfSize, I8);
-            BitmapPtr pBmpV = getBmp(m_pHalfBmpQ, HalfSize, I8);
-            FrameAvailable = 
-                    m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, -1);
-            if (FrameAvailable == FA_NEW_FRAME) {
-                pBmps.push_back(pBmpY);
-                pBmps.push_back(pBmpU);
-                pBmps.push_back(pBmpV);
-            }
+        IntPoint size = m_pDecoder->getSize();
+        IntPoint halfSize(size.x/2, size.y/2);
+        PixelFormat pf = m_pDecoder->getPixelFormat();
+        FrameAvailableCode frameAvailable;
+        if (pf == YCbCr420p || pf ==YCbCrJ420p) {
+            pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
         } else {
-            BitmapPtr pBmp = getBmp(m_pBmpQ, Size, PF);
-            FrameAvailable = m_pDecoder->renderToBmp(pBmp, -1);
-            if (FrameAvailable == FA_NEW_FRAME) {
-                pBmps.push_back(pBmp);
-            }
+            pBmps.push_back(getBmp(m_pBmpQ, size, pf));
         }
+        frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
+
         if (m_pDecoder->isEOF(SS_VIDEO)) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
         } else {
             ScopeTimer Timer(*m_pPushMsgProfilingZone);
-            AVG_ASSERT(FrameAvailable == FA_NEW_FRAME);
+            AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
             m_MsgQ.push(pMsg);

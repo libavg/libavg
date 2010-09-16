@@ -537,19 +537,6 @@ void FFMpegDecoder::setVolume(double Volume)
     m_Volume = Volume;
 }
 
-FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
-{
-    AVG_ASSERT(m_State == DECODING);
-    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
-    AVFrame Frame;
-    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
-    if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
-        convertFrameToBmp(Frame, pBmp);
-        return FA_NEW_FRAME;
-    }
-    return FA_USE_LAST_FRAME;
-}
-
 void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 {
     unsigned char * pSrc=pData;
@@ -562,21 +549,24 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
         pSrc+=Stride;
         pDest+=DestStride;
     }
-
 }
 
-FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-        BitmapPtr pBmpCr, long long timeWanted)
+FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
+        long long timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
-    AVFrame Frame;
-    FrameAvailableCode FrameAvailable = readFrameForTime(Frame, timeWanted);
-    if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
-        ScopeTimer Timer(*m_pCopyImageProfilingZone);
-        copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
-        copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
-        copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
+    AVFrame frame;
+    FrameAvailableCode frameAvailable = readFrameForTime(frame, timeWanted);
+    if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
+        if (Bitmap::pixelFormatIsPlanar(m_PF)) {
+            ScopeTimer Timer(*m_pCopyImageProfilingZone);
+            for (unsigned i=0; i < pBmps.size(); ++i) {
+                copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+            }
+        } else {
+            convertFrameToBmp(frame, pBmps[0]);
+        }
         return FA_NEW_FRAME;
     }
     return FA_USE_LAST_FRAME;

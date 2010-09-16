@@ -257,30 +257,17 @@ PixelFormat AsyncVideoDecoder::getPixelFormat() const
     return m_PF;
 }
 
-FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
+FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
+        long long timeWanted)
 {
-    AVG_ASSERT(pBmp);
     AVG_ASSERT(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
-        pBmp->copyPixels(*(pFrameMsg->getFrameBitmap(0)));
-        returnFrame(pFrameMsg);
-    }
-    return FrameAvailable;
-}
-
-FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
-       BitmapPtr pBmpCr, long long timeWanted)
-{
-    AVG_ASSERT(m_State == DECODING);
-    FrameAvailableCode FrameAvailable;
-    VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
-    if (FrameAvailable == FA_NEW_FRAME) {
-        pBmpY->copyPixels(*(pFrameMsg->getFrameBitmap(0)));
-        pBmpCb->copyPixels(*(pFrameMsg->getFrameBitmap(1)));
-        pBmpCr->copyPixels(*(pFrameMsg->getFrameBitmap(2)));
+        for (unsigned i=0; i<pBmps.size(); ++i) {
+            pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+        }
         returnFrame(pFrameMsg);
     }
     return FrameAvailable;

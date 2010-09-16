@@ -579,9 +579,11 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
     PixelFormat PF = m_pDecoder->getPixelFormat();
     FrameAvailableCode frameAvailable;
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
-        BitmapPtr pBmp = pSurface->lockBmp(0);
-        frameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
-                pSurface->lockBmp(1), pSurface->lockBmp(2), getNextFrameTime());
+        std::vector<BitmapPtr> pBmps;
+        for (unsigned i=0; i<3; ++i) {
+            pBmps.push_back(pSurface->lockBmp(i));
+        }
+        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime());
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
         frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
