@@ -62,6 +62,7 @@ typedef enum {
                // color components have values from 16...235.
     YCbCrJ420p,// Same as YCbCr420p, but this is the jpeg version with component
                // values in the range 0...255
+    YCbCrA420p,// YCbCr420p with an additional alpha bitmap at full resolution.
     BAYER8,    // Bayer pattern, unspecified RGB ordering. Not allowed in an actual
                // image.
     BAYER8_RGGB,
@@ -106,6 +107,7 @@ public:
     static bool pixelFormatIsColored(PixelFormat pf);
     static bool pixelFormatIsBayer(PixelFormat pf);
     static bool pixelFormatHasAlpha(PixelFormat pf);
+    static bool pixelFormatIsPlanar(PixelFormat pf);
     unsigned char * getPixels();
     const unsigned char * getPixels() const;
     std::string getPixelsAsString() const;

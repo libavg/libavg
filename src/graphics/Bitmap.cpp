@@ -245,7 +245,6 @@ void Bitmap::copyPixels(const Bitmap & Orig)
             case YCbCr422:
             case YUYV422:
             case YCbCr411:
-            case YCbCr420p:
                 switch(m_PF) {
                     case B8G8R8X8:
                         YCbCrtoBGR(Orig);
@@ -713,6 +712,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCr420p";
         case YCbCrJ420p:
             return "YCbCrJ420p";
+        case YCbCrA420p:
+            return "YCbCrA420p";
         case BAYER8:
             return "BAYER8";
         case BAYER8_RGGB:
@@ -791,6 +792,9 @@ PixelFormat Bitmap::stringToPixelFormat(const string& s)
     if (s == "YCbCrJ420p") {
         return YCbCrJ420p;
     }
+    if (s == "YCbCrA420p") {
+        return YCbCrA420p;
+    }
     if (s == "BAYER8") {
         return BAYER8;
     }
@@ -822,13 +826,18 @@ bool Bitmap::pixelFormatIsColored(PixelFormat pf)
 
 bool Bitmap::pixelFormatIsBayer(PixelFormat pf)
 {
-    return (pf == BAYER8_RGGB || pf == BAYER8_GBRG
+    return (pf == BAYER8 || pf == BAYER8_RGGB || pf == BAYER8_GBRG
             || pf == BAYER8_GRBG || pf == BAYER8_BGGR);
 }
 
 bool Bitmap::pixelFormatHasAlpha(PixelFormat pf)
 {
     return pf == B8G8R8A8 || pf == A8B8G8R8 || pf == R8G8B8A8 || pf == A8R8G8B8;
+}
+
+bool Bitmap::pixelFormatIsPlanar(PixelFormat pf)
+{
+    return pf == YCbCr420p || pf == YCbCrJ420p || pf == YCbCrA420p;
 }
 
 unsigned char * Bitmap::getPixels()
@@ -930,8 +939,7 @@ int Bitmap::getMemNeeded() const
 
 bool Bitmap::hasAlpha() const
 {
-    return (m_PF == B8G8R8A8 || m_PF == R8G8B8A8 || m_PF == A8B8G8R8 ||
-            m_PF == A8R8G8B8);
+    return pixelFormatHasAlpha(m_PF);
 }
 
 HistogramPtr Bitmap::getHistogram(int Stride) const
@@ -1261,7 +1269,7 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
     if (m_PF == A8) {
         m_PF = I8;
     }
-    if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
+    if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
             m_Size.x++;
@@ -1294,12 +1302,13 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 void Bitmap::allocBits()
 {
     AVG_ASSERT(!m_pBits);
+    AVG_ASSERT(!pixelFormatIsPlanar(m_PF));
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     m_Stride = getLineLen();
     if (m_PF == A8) {
         m_PF = I8;
     }
-    if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
+    if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd width for YCbCr bitmap.");
             m_Size.x++;
@@ -1510,14 +1519,6 @@ void Bitmap::YCbCrtoI8(const Bitmap& Orig)
         case YCbCr411:
             for (int y=0; y<Height; ++y) {
                 YUV411toI8Line(pSrc, pDest, Width);
-                pDest += m_Stride;
-                pSrc += Orig.getStride();
-            }
-            break;
-        case YCbCr420p: 
-            // Just take the first plane.
-            for (int y=0; y<Height; ++y) {
-                memcpy(pDest, pSrc, m_Stride);
                 pDest += m_Stride;
                 pSrc += Orig.getStride();
             }
