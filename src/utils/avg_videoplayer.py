@@ -50,6 +50,8 @@ def onKey(event):
 class VideoPlayer(AVGApp):
     def init(self):
         global node
+        if node.hasAlpha():
+            self.__makeAlphaBackground()
         self._parentNode.appendChild(node)
         avg.WordsNode(parent=self._parentNode, id="curframe", pos=(10, 10), 
                 font="arial", fontsize=10)
@@ -60,6 +62,21 @@ class VideoPlayer(AVGApp):
 
         g_player.setOnFrameHandler(onFrame)
     
+    def __makeAlphaBackground(self):
+        global node
+        SQUARESIZE=40
+        size = node.getMediaSize()
+        avg.RectNode(parent=self._parentNode, size=node.getMediaSize(), strokewidth=0,
+                fillcolor="FFFFFF", fillopacity=1)
+        for y in xrange(0, int(size.y)/SQUARESIZE):
+            for x in xrange(0, int(size.x)/(SQUARESIZE*2)):
+                pos = avg.Point2D(x*SQUARESIZE*2, y*SQUARESIZE)
+                if y%2==1:
+                    pos += (SQUARESIZE, 0)
+                avg.RectNode(parent=self._parentNode, pos=pos,
+                        size=(SQUARESIZE, SQUARESIZE), strokewidth=0, fillcolor="C0C0C0",
+                        fillopacity=1)
+
 if len(sys.argv) ==1:
     print "Usage: videoplayer.py <filename>"
     sys.exit(1)

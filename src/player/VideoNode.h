@@ -80,6 +80,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         bool getLoop() const;
         bool isThreaded() const;
         bool hasAudio() const;
+        bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
         virtual void render (const DRect& Rect);
@@ -101,7 +102,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         void close();
         enum VideoState {Unloaded, Paused, Playing};
         void changeVideoState(VideoState NewVideoState);
-        PixelFormat getPixelFormat();
+        PixelFormat getPixelFormat() const;
         long long getNextFrameTime() const;
         void exceptionIfNoAudio(const std::string& sFuncName) const;
         void exceptionIfUnloaded(const std::string& sFuncName) const;

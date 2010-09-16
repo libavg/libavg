@@ -252,7 +252,7 @@ void AsyncVideoDecoder::setVolume(double Volume)
 
 PixelFormat AsyncVideoDecoder::getPixelFormat() const
 {
-    AVG_ASSERT(m_State == DECODING);
+    AVG_ASSERT(m_State != CLOSED);
     return m_PF;
 }
 

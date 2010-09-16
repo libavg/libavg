@@ -105,6 +105,7 @@ public:
     static PixelFormat stringToPixelFormat(const std::string& s);
     static bool pixelFormatIsColored(PixelFormat pf);
     static bool pixelFormatIsBayer(PixelFormat pf);
+    static bool pixelFormatHasAlpha(PixelFormat pf);
     unsigned char * getPixels();
     const unsigned char * getPixels() const;
     std::string getPixelsAsString() const;

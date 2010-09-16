@@ -320,6 +320,10 @@ void export_raster()
                 "hasAudio() -> bool\n"
                 "Returns true if the video contains an audio stream. Throws an\n"
                 "exception if the video has not been opened yet.\n")
+        .def("hasAlpha", &VideoNode::hasAlpha,
+                "hasAlpha() -> bool\n"
+                "Returns true if the video contains an alpha (transparency) channel."
+                "Throws an exception if the video has not been opened yet.")
         .def("setEOFCallback", &VideoNode::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of\n"

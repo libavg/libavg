@@ -259,6 +259,13 @@ bool VideoNode::hasAudio() const
     return m_pDecoder->getVideoInfo().m_bHasAudio;
 }
 
+bool VideoNode::hasAlpha() const
+{
+    exceptionIfUnloaded("hasAlpha");
+    PixelFormat pf = getPixelFormat();
+    return Bitmap::pixelFormatHasAlpha(pf); 
+}
+
 void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 {
     if (m_pEOFCallback) {
@@ -452,7 +459,7 @@ void VideoNode::close()
     }
 }
 
-PixelFormat VideoNode::getPixelFormat() 
+PixelFormat VideoNode::getPixelFormat() const 
 {
     return m_pDecoder->getPixelFormat();
 }
