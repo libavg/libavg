@@ -810,7 +810,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
     if (bUseYCbCr) {
         switch(enc->pix_fmt) {
             case PIX_FMT_YUV420P:
-            case PIX_FMT_YUVA420P:
+//            case PIX_FMT_YUVA420P:
                 return YCbCr420p;
             case PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
@@ -818,7 +818,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
                 break;
         }
     }
-    if (enc->pix_fmt == PIX_FMT_BGRA) {
+    if (enc->pix_fmt == PIX_FMT_BGRA || enc->pix_fmt == PIX_FMT_YUVA420P) {
         return B8G8R8A8;
     }
     return B8G8R8X8;

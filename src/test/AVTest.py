@@ -112,7 +112,8 @@ class AVTestCase(AVGTestCase):
                     self.assert_(node.hasAudio())
                 else:
                     self.assert_(not(node.hasAudio()))
-                self.assert_((filename == "rgba-48x48.mov") == node.hasAlpha())
+                self.assert_((filename == "rgba-48x48.mov" or 
+                        filename == "vp6a-yuva-48x48.flv") == node.hasAlpha())
 
             self.loadEmptyScene()
             node = avg.VideoNode(href="../video/testfiles/"+filename, volume=0.8,
@@ -132,7 +133,7 @@ class AVTestCase(AVGTestCase):
                     ))
 
         for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
-                "rgba-48x48.mov", "h264-48x48.h264"]:
+                "rgba-48x48.mov", "h264-48x48.h264", "vp6a-yuva-48x48.flv"]:
             for isThreaded in [False, True]:
                 testVideoFile(filename, isThreaded)
 
