@@ -89,7 +89,7 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
     m_Size = size;
     m_pf = pf;
 
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+    if (pixelFormatIsPlanar(m_pf)) {
         m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
                 m_MemoryMode));
         IntPoint halfSize(size.x/2, size.y/2);
@@ -97,6 +97,10 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
                 m_MemoryMode));
         m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
                 m_MemoryMode));
+        if (pixelFormatHasAlpha(m_pf)) {
+            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
+                m_MemoryMode));
+        }
     } else {
         m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material, m_pEngine,
                 m_MemoryMode));
@@ -119,6 +123,7 @@ void OGLSurface::destroy()
     m_pTextures[0] = PBOTexturePtr();
     m_pTextures[1] = PBOTexturePtr();
     m_pTextures[2] = PBOTexturePtr();
+    m_pTextures[3] = PBOTexturePtr();
 }
 
 void OGLSurface::activate(const IntPoint& logicalSize) const
@@ -132,6 +137,9 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             case YCbCrJ420p:
                 pShader->setUniformIntParam("colorModel", 1);
                 break;
+            case YCbCrA420p:
+                pShader->setUniformIntParam("colorModel", 3);
+                break;
             case A8:
                 pShader->setUniformIntParam("colorModel", 2);
                 break;
@@ -142,11 +150,15 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
         m_pTextures[0]->activate(GL_TEXTURE0);
         pShader->setUniformIntParam("texture", 0);
         
-        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        if (pixelFormatIsPlanar(m_pf)) {
             m_pTextures[1]->activate(GL_TEXTURE1);
             pShader->setUniformIntParam("cbTexture", 1);
             m_pTextures[2]->activate(GL_TEXTURE2);
             pShader->setUniformIntParam("crTexture", 2);
+            if (m_pf == YCbCrA420p) {
+                m_pTextures[3]->activate(GL_TEXTURE3);
+                pShader->setUniformIntParam("aTexture", 3);
+            }
             Matrix3x4 mat = calcColorspaceMatrix();
             pShader->setUniformMatrix3x4Param("colorCoeff", mat);
         } else {
@@ -162,8 +174,8 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
 
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
-            m_pMaskTexture->activate(GL_TEXTURE3);
-            pShader->setUniformIntParam("maskTexture", 3);
+            m_pMaskTexture->activate(GL_TEXTURE4);
+            pShader->setUniformIntParam("maskTexture", 4);
             pShader->setUniformDPointParam("maskPos", m_Material.getMaskPos());
             // maskScale is (1,1) for everything excepting words nodes.
             DPoint maskScale(1,1);
@@ -186,15 +198,19 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
 
 void OGLSurface::deactivate() const
 {
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+    if (pixelFormatIsPlanar(m_pf)) {
         glproc::ActiveTexture(GL_TEXTURE1);
         glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE2);
         glDisable(GL_TEXTURE_2D);
+        if (m_pf == YCbCrA420p) {
+            glproc::ActiveTexture(GL_TEXTURE3);
+            glDisable(GL_TEXTURE_2D);
+        }
         glproc::ActiveTexture(GL_TEXTURE0);
     }
     if (m_Material.getHasMask()) {
-        glproc::ActiveTexture(GL_TEXTURE3);
+        glproc::ActiveTexture(GL_TEXTURE4);
         glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE0);
     }
@@ -211,10 +227,8 @@ BitmapPtr OGLSurface::lockBmp(int i)
 
 void OGLSurface::unlockBmps()
 {
-    m_pTextures[0]->unlockBmp();
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        m_pTextures[1]->unlockBmp();
-        m_pTextures[2]->unlockBmp();
+    for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
+        m_pTextures[i]->unlockBmp();
     }
 }
 
@@ -254,10 +268,8 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
     bool bOldHasMask = m_Material.getHasMask();
     m_Material = material;
     if (m_pTextures[0]) {
-        m_pTextures[0]->setMaterial(material);
-        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-            m_pTextures[1]->setMaterial(material);
-            m_pTextures[2]->setMaterial(material);
+        for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
+            m_pTextures[i]->setMaterial(material);
         }
     }
     if (bOldHasMask && !m_Material.getHasMask()) {
@@ -273,9 +285,12 @@ void OGLSurface::downloadTexture()
 {
     if (m_pTextures[0] && !m_bUseForeignTexture) {
         m_pTextures[0]->download();
-        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        if (pixelFormatIsPlanar(m_pf)) {
             m_pTextures[1]->download();
             m_pTextures[2]->download();
+            if (m_pf == YCbCrA420p) {
+                m_pTextures[3]->download();
+            }
         }
     }
 }
@@ -326,8 +341,9 @@ void OGLSurface::createShader()
         "uniform sampler2D yTexture;\n"
         "uniform sampler2D cbTexture;\n"
         "uniform sampler2D crTexture;\n"
+        "uniform sampler2D aTexture;\n"
         "uniform sampler2D maskTexture;\n"
-        "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale\n"
+        "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale, 3=yuva\n"
         "uniform mat4 colorCoeff;\n"
         "uniform bool bUseColorCoeff;\n"
         "uniform vec4 gamma;\n"
@@ -364,6 +380,9 @@ void OGLSurface::createShader()
         "           rgba = colorCoeff*rgba;\n"
         "        };\n"
         "        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;\n"
+        "    } else if (colorModel == 3) {\n"
+        "        rgba = convertYCbCr();\n"
+        "        rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;\n"
         "    } else {\n"
         "        rgba = vec4(1,1,1,1);\n"
         "    }\n"
@@ -385,8 +404,8 @@ SDLDisplayEngine * OGLSurface::getEngine() const
 bool OGLSurface::useShader() const
 {
     return getEngine()->isUsingShaders() && 
-            (m_Material.getHasMask() || m_pf == YCbCr420p || m_pf == YCbCrJ420p ||
-             gammaIsModified() || colorIsModified());
+            (m_Material.getHasMask() || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
+                    colorIsModified());
 }
 
 Matrix3x4 OGLSurface::calcColorspaceMatrix() const
@@ -398,10 +417,10 @@ Matrix3x4 OGLSurface::calcColorspaceMatrix() const
                 float(0.5-m_Contrast.y/2), float(0.5-m_Contrast.z/2));
         mat *= Matrix3x4::createScale(m_Contrast);
     }
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p || m_pf == YCbCrA420p) {
         mat *= Matrix3x4(*yuvCoeff);
         mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
-        if (m_pf == YCbCr420p) {
+        if (m_pf == YCbCr420p || m_pf == YCbCrA420p) {
             mat *= Matrix3x4::createScale(255.0/(235-16), 255.0/(240-16) , 
                     255.0/(240-16));
             mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);

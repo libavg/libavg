@@ -55,10 +55,13 @@ bool VideoDecoderThread::work()
         IntPoint halfSize(size.x/2, size.y/2);
         PixelFormat pf = m_pDecoder->getPixelFormat();
         FrameAvailableCode frameAvailable;
-        if (pf == YCbCr420p || pf ==YCbCrJ420p) {
+        if (pixelFormatIsPlanar(pf)) {
             pBmps.push_back(getBmp(m_pBmpQ, size, I8));
             pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
             pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+            if (pf == YCbCrA420p) {
+                pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+            }
         } else {
             pBmps.push_back(getBmp(m_pBmpQ, size, pf));
         }
@@ -109,10 +112,13 @@ void VideoDecoderThread::setFPS(double FPS)
 void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 {
     m_pBmpQ->push(pMsg->getFrameBitmap(0));
-    PixelFormat PF = m_pDecoder->getPixelFormat();
-    if (PF == YCbCr420p || PF ==YCbCrJ420p) {
+    PixelFormat pf = m_pDecoder->getPixelFormat();
+    if (pixelFormatIsPlanar(pf)) {
         m_pHalfBmpQ->push(pMsg->getFrameBitmap(1));
         m_pHalfBmpQ->push(pMsg->getFrameBitmap(2));
+        if (pf == YCbCrA420p) {
+            m_pBmpQ->push(pMsg->getFrameBitmap(3));
+        }
     }
 }
 

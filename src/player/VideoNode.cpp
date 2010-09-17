@@ -544,7 +544,7 @@ static ProfilingZone RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render(const DRect& Rect)
 {
-    switch(m_VideoState) {
+    switch (m_VideoState) {
         case Playing:
             {
                 bool bNewFrame = renderToSurface(getSurface());
@@ -576,11 +576,11 @@ void VideoNode::render(const DRect& Rect)
 bool VideoNode::renderToSurface(OGLSurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    PixelFormat PF = m_pDecoder->getPixelFormat();
+    PixelFormat pf = m_pDecoder->getPixelFormat();
     FrameAvailableCode frameAvailable;
-    if (PF == YCbCr420p || PF == YCbCrJ420p) {
+    if (pixelFormatIsPlanar(pf)) {
         std::vector<BitmapPtr> pBmps;
-        for (unsigned i=0; i<3; ++i) {
+        for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
             pBmps.push_back(pSurface->lockBmp(i));
         }
         frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime());

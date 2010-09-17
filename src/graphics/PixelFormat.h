@@ -70,6 +70,7 @@ bool pixelFormatIsColored(PixelFormat pf);
 bool pixelFormatIsBayer(PixelFormat pf);
 bool pixelFormatHasAlpha(PixelFormat pf);
 bool pixelFormatIsPlanar(PixelFormat pf);
+unsigned getNumPixelFormatPlanes(PixelFormat pf);
 
 }
 #endif

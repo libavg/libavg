@@ -82,7 +82,7 @@ private:
     bool gammaIsModified() const;
     bool colorIsModified() const;
 
-    PBOTexturePtr m_pTextures[3];
+    PBOTexturePtr m_pTextures[4];
     IntPoint m_Size;
     PixelFormat m_pf;
     PBOTexturePtr m_pMaskTexture;

@@ -810,10 +810,11 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
     if (bUseYCbCr) {
         switch(enc->pix_fmt) {
             case PIX_FMT_YUV420P:
-//            case PIX_FMT_YUVA420P:
                 return YCbCr420p;
             case PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
+            case PIX_FMT_YUVA420P:
+                return YCbCrA420p;
             default:
                 break;
         }

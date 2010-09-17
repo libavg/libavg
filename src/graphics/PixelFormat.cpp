@@ -198,12 +198,26 @@ bool pixelFormatIsBayer(PixelFormat pf)
 
 bool pixelFormatHasAlpha(PixelFormat pf)
 {
-    return pf == B8G8R8A8 || pf == A8B8G8R8 || pf == R8G8B8A8 || pf == A8R8G8B8;
+    return pf == B8G8R8A8 || pf == A8B8G8R8 || pf == R8G8B8A8 || pf == A8R8G8B8 ||
+            pf == YCbCrA420p;
 }
 
 bool pixelFormatIsPlanar(PixelFormat pf)
 {
     return pf == YCbCr420p || pf == YCbCrJ420p || pf == YCbCrA420p;
+}
+
+unsigned getNumPixelFormatPlanes(PixelFormat pf)
+{
+    switch(pf) {
+        case YCbCr420p:
+        case YCbCrJ420p:
+            return 3;
+        case YCbCrA420p:
+            return 4;
+        default:
+            return 1; 
+    }
 }
 
 }

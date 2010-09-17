@@ -62,7 +62,7 @@ void VideoMsg::setError(const Exception& ex)
 void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
-    AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3);
+    AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3 || pBmps.size() == 4);
     m_MsgType = FRAME;
     m_pBmps = pBmps;
     m_FrameTime = frameTime;
