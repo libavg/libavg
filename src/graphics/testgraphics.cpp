@@ -201,7 +201,7 @@ public:
 private:
     void runPFTests(PixelFormat PF)
     {
-        cerr << "    Testing " << Bitmap::getPixelFormatString(PF) << endl;
+        cerr << "    Testing " << PF << endl;
         BitmapPtr pBmp = initBmp(PF);
         {
             cerr << "      Testing size." <<endl;
@@ -245,7 +245,7 @@ private:
 
     void runSaveTest(PixelFormat PF)
     {
-        cerr << "    Testing save for " << Bitmap::getPixelFormatString(PF) << endl;
+        cerr << "    Testing save for " << PF << endl;
         BitmapPtr pBmp = initBmp(PF);
         pBmp->save("test.tif");
         Bitmap LoadedBmp("test.tif");
@@ -256,7 +256,7 @@ private:
     template<class Pixel>
     void runLineTest(PixelFormat PF, Pixel Color)
     {
-        cerr << "    Testing line drawing for " << Bitmap::getPixelFormatString(PF) << endl;
+        cerr << "    Testing line drawing for " << PF << endl;
         Bitmap Bmp(IntPoint(15, 15), PF);
         memset(Bmp.getPixels(), 0, Bmp.getStride()*15);
         Bmp.drawLine(IntPoint(7,7), IntPoint( 0, 2), Color);
@@ -267,7 +267,7 @@ private:
         Bmp.drawLine(IntPoint(7,7), IntPoint(12,14), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14,12), Color);
-        string sFName = getSrcDirName()+"baseline/LineResult"+Bitmap::getPixelFormatString(PF)+".png";
+        string sFName = getSrcDirName()+"baseline/LineResult"+getPixelFormatString(PF)+".png";
         Bitmap BaselineBmp(sFName);
         Bitmap BaselineBmp2(IntPoint(15,15), PF);
         BaselineBmp2.copyPixels(BaselineBmp);
@@ -276,8 +276,7 @@ private:
     
     void testCopyToGreyscale(PixelFormat pf)
     {
-        cerr << "    Testing copyPixels - " << Bitmap::getPixelFormatString(pf) << 
-                "->I8." << endl;
+        cerr << "    Testing copyPixels - " << pf << "->I8." << endl;
         BitmapPtr pBmp(new Bitmap(IntPoint(4,4), pf));
         for (int y=0; y<4; ++y) {
             for (int x=0; x<4; ++x) {
@@ -291,7 +290,7 @@ private:
         }
         BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,4), I8));
         pCopyBmp->copyPixels(*pBmp);
-        testEqual(*pCopyBmp, string("copyPixels_")+Bitmap::getPixelFormatString(pf)+"_I8",
+        testEqual(*pCopyBmp, string("copyPixels_")+getPixelFormatString(pf)+"_I8",
                 I8, 0.5, 0.5);
     }
     
@@ -913,7 +912,8 @@ private:
     void runTestWithBitmap(BitmapPtr pBmp)
     {
         BitmapPtr pDestBmp = FilterResizeBilinear(IntPoint(32,32)).apply(pBmp);
-        string sName = string("ResizeBilinearResult")+pBmp->getPixelFormatString();
+        string sName = string("ResizeBilinearResult")
+                +getPixelFormatString(pBmp->getPixelFormat());
         testEqual(*pDestBmp, sName, pBmp->getPixelFormat());
     }
 

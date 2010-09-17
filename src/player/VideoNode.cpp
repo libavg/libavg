@@ -269,7 +269,7 @@ bool VideoNode::hasAlpha() const
 {
     exceptionIfUnloaded("hasAlpha");
     PixelFormat pf = getPixelFormat();
-    return Bitmap::pixelFormatHasAlpha(pf); 
+    return pixelFormatHasAlpha(pf); 
 }
 
 void VideoNode::setEOFCallback(PyObject * pEOFCallback)

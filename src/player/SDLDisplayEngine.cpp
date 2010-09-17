@@ -1186,8 +1186,7 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
         case B8G8R8X8:
             return GL_RGBA;    
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
-                    Bitmap::getPixelFormatString(pf) <<
+            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << pf <<
                     " in SDLDisplayEngine::getOGLDestMode()");
     }
     return 0;
@@ -1211,8 +1210,7 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
             AVG_ASSERT(false);
             return GL_RGBA;
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
-                    Bitmap::getPixelFormatString(pf) <<
+            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << pf <<
                     " in SDLDisplayEngine::getOGLSrcMode()");
     }
     return 0;

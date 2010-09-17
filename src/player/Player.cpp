@@ -591,7 +591,7 @@ TrackerEventSource * Player::addTracker()
                 "You must use loadFile() before addTracker().");
     }
 
-    PixelFormat camPF = Bitmap::stringToPixelFormat(sCaptureFormat);
+    PixelFormat camPF = stringToPixelFormat(sCaptureFormat);
     if (camPF == NO_PIXELFORMAT) {
         throw Exception(AVG_ERR_INVALID_ARGS,
                 "Unknown camera pixel format "+sCaptureFormat+".");

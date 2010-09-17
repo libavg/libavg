@@ -143,7 +143,7 @@ void getVideoFormatAndMode(IntPoint& Size, PixelFormat pf,
     if (*pVideoMode == -1 || *pVideoFormat == -1) { 
         throw Exception(AVG_ERR_INVALID_ARGS,
                 "Unsupported or illegal value ("+toString(Size.x)+", "+toString(Size.y)+
-                "), "+Bitmap::getPixelFormatString(pf)+"\" for camera mode.");
+                "), "+getPixelFormatString(pf)+"\" for camera mode.");
     }
 }
 

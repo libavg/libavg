@@ -1,7 +1,7 @@
 INCLUDES = -I.. $(MAGICK_CFLAGS) @GL_CFLAGS@
 
 ALL_H = Bitmap.h Filter.h\
-        Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
+        Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
         FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
@@ -15,7 +15,7 @@ ALL_H = Bitmap.h Filter.h\
         FilterGetAlpha.h FBO.h GLTexture.h PBO.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h ShaderRegistry.h
-ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
+ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \

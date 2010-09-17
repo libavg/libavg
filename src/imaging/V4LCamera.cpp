@@ -155,7 +155,7 @@ int V4LCamera::getV4LPF(PixelFormat pf)
         default:
             throw Exception(AVG_ERR_INVALID_ARGS,
                     "Unsupported or illegal value for camera pixel format '" 
-                + Bitmap::getPixelFormatString(pf) + "'.");
+                + getPixelFormatString(pf) + "'.");
     }
 }
 

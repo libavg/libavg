@@ -55,8 +55,8 @@ Camera::Camera(PixelFormat camPF, PixelFormat destPF)
     : m_CamPF(camPF),
       m_DestPF(destPF)
 {
-//    cerr << "Camera: " << Bitmap::getPixelFormatString(camPF) << "-->" 
-//        << Bitmap::getPixelFormatString(destPF) << endl;
+//    cerr << "Camera: " << getPixelFormatString(camPF) << "-->" 
+//        << getPixelFormatString(destPF) << endl;
 }
 
 PixelFormat Camera::getCamPF() const

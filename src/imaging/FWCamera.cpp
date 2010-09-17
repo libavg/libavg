@@ -243,8 +243,8 @@ BitmapPtr FWCamera::getImage(bool bWait)
         BitmapPtr pCamBmp(new Bitmap(m_Size, getCamPF(), pCaptureBuffer, lineLen, false,
                 "TempCameraBmp"));
         BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
-//        cerr << "CamBmp: " << pCamBmp->getPixelFormatString() << ", DestBmp: " 
-//                << pDestBmp->getPixelFormatString() << endl;
+//        cerr << "CamBmp: " << pCamBmp->getPixelFormat() << ", DestBmp: " 
+//                << pDestBmp->getPixelFormat() << endl;
         dc1394_capture_enqueue(m_pCamera, pFrame);
         return pDestBmp;
     } else {

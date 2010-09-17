@@ -559,7 +559,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     AVFrame frame;
     FrameAvailableCode frameAvailable = readFrameForTime(frame, timeWanted);
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-        if (Bitmap::pixelFormatIsPlanar(m_PF)) {
+        if (pixelFormatIsPlanar(m_PF)) {
             ScopeTimer Timer(*m_pCopyImageProfilingZone);
             for (unsigned i=0; i < pBmps.size(); ++i) {
                 copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
@@ -855,7 +855,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
             break;
         default:
             AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
-                    << pBmp->getPixelFormatString() << " not supported.");
+                    << pBmp->getPixelFormat() << " not supported.");
             AVG_ASSERT(false);
             DestFmt = PIX_FMT_BGRA;
     }

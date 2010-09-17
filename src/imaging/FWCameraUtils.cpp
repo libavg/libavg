@@ -108,7 +108,7 @@ dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf)
     }
     throw Exception(AVG_ERR_CAMERA_FATAL,
             "Unsupported or illegal value ("+toString(Size.x)+", "+toString(Size.y)+
-            "), "+Bitmap::getPixelFormatString(pf)+"\" for camera mode.");
+            "), "+getPixelFormatString(pf)+"\" for camera mode.");
 }
 
 dc1394framerate_t getFrameRateConst(double FrameRate)

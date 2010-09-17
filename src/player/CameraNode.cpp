@@ -83,18 +83,17 @@ CameraNode::CameraNode(const ArgList& Args)
     int Height = Args.getArgVal<int>("captureheight");
     string sPF = Args.getArgVal<string>("pixelformat");
 
-    PixelFormat camPF = Bitmap::stringToPixelFormat(sPF);
+    PixelFormat camPF = stringToPixelFormat(sPF);
     if (camPF == NO_PIXELFORMAT) {
         throw Exception(AVG_ERR_INVALID_ARGS, "Unknown camera pixel format "+sPF+".");
     }
     PixelFormat destPF;
-    if (Bitmap::pixelFormatIsColored(camPF)) {
+    if (pixelFormatIsColored(camPF)) {
         destPF = B8G8R8X8;
     } else {
         destPF = I8;
     }
-//    cerr << "CameraNode ctor: " << Bitmap::getPixelFormatString(camPF) << "-->" << 
-//            Bitmap::getPixelFormatString(destPF) << endl;
+//    cerr << "CameraNode ctor: " << camPF << "-->" << destPF << endl;
 
     m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(Width, Height), 
             camPF, destPF, FrameRate);
@@ -316,8 +315,8 @@ void CameraNode::render(const DRect& Rect)
             m_FrameNum++;
             BitmapPtr pBmp = getSurface()->lockBmp();
             if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
-                cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: "
-                    << m_pCurBmp->getPixelFormatString() << endl;
+                cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
+                    << m_pCurBmp->getPixelFormat() << endl;
             }
             AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
             pBmp->copyPixels(*m_pCurBmp);
