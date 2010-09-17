@@ -69,6 +69,8 @@ void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer
 
     m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
+    // Temporary pf - always assumes shaders will be available.
+    m_PF = m_pSyncDecoder->getPixelFormat();
     m_State = OPENED;
 }
 

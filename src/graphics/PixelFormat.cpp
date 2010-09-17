@@ -21,6 +21,8 @@
 
 #include "PixelFormat.h"
 
+#include "../base/StringHelper.h"
+
 #include <ostream>
 
 using namespace std;
@@ -90,8 +92,10 @@ string getPixelFormatString(PixelFormat pf)
             return "R32G32B32A32F";
         case I32F:
             return "I32F";
+        case NO_PIXELFORMAT:
+            return "NO_PIXELFORMAT";
         default:
-            return "Unknown";
+            return "Unknown " + toString(int(pf));
     }
 }
 

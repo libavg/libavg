@@ -250,6 +250,7 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                     sFilename + ": unsupported codec ("+szBuf+").");
         }
+        m_PF = calcPixelFormat(true);
     }
     // Enable audio stream demuxing.
     if (m_AStreamIndex >= 0)
