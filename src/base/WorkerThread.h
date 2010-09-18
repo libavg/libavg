@@ -124,6 +124,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
     } catch (const Exception& e) {
          AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
                   << e.GetStr());
+         throw;
     }
 }
 
