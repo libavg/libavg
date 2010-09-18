@@ -71,8 +71,7 @@ void ProfilingZone::start()
     if (!m_bIsRegistered && pProfiler->isRunning()) {
         // This stuff makes sure that the zones are registered in the order 
         // they are entered.
-        pProfiler->addZone(*this);
-        m_Indent = pProfiler->getIndent();
+        m_Indent = pProfiler->addZone(*this);
         clear();
         m_bIsRegistered = true;
     }

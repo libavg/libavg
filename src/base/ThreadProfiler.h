@@ -45,7 +45,7 @@ public:
     virtual ~ThreadProfiler();
     void setLogCategory(long category);
  
-    void addZone(ProfilingZone& Zone);
+    int addZone(ProfilingZone& Zone);
     void clear();
     void start();
     bool isRunning();
@@ -54,7 +54,6 @@ public:
     void dumpFrame();
     void dumpStatistics();
     void reset();
-    int getIndent();
     int getNumZones();
 
     const std::string& getName() const;

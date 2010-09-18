@@ -514,7 +514,7 @@ void WordsNode::calcMaskCoords(MaterialInfo& material)
     material.setMaskCoords(normMaskPos, normMaskSize);
 }
 
-static ProfilingZone DrawStringProfilingZone("  WordsNode::drawString");
+static ProfilingZone DrawStringProfilingZone("WordsNode::drawString");
 
 void WordsNode::drawString()
 {

@@ -132,14 +132,14 @@ CanvasNodePtr Canvas::getRootNode() const
     return m_pRootNode;
 }
 
-static ProfilingZone PreRenderProfilingZone("PreRender");
+static ProfilingZone PreRenderSignalProfilingZone("PreRender signal");
 static ProfilingZone RenderProfilingZone("Render");
 static ProfilingZone FrameEndProfilingZone("OnFrameEnd");
 
 void Canvas::doFrame(bool bPythonAvailable)
 {
     {
-        ScopeTimer Timer(PreRenderProfilingZone);
+        ScopeTimer Timer(PreRenderSignalProfilingZone);
         m_PreRenderSignal.emit();
     }
     if (!m_pPlayer->isStopping()) {
@@ -234,11 +234,15 @@ vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
     return Elements;
 }
 
+static ProfilingZone PreRenderProfilingZone("PreRender");
 
 void Canvas::render(IntPoint windowSize, bool bUpsideDown,
         ProfilingZone& renderProfilingZone)
 {
-    m_pRootNode->preRender();
+    {
+        ScopeTimer Timer(PreRenderProfilingZone);
+        m_pRootNode->preRender();
+    }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 

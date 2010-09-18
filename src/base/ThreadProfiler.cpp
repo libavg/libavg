@@ -69,9 +69,10 @@ void ThreadProfiler::setLogCategory(long category)
     m_LogCategory = category;
 }
 
-void ThreadProfiler::addZone(ProfilingZone& Zone)
+int ThreadProfiler::addZone(ProfilingZone& Zone)
 {
     ZoneList::iterator it;
+    int parentIndent = -2;
     if (m_ActiveZones.empty()) {
         it = m_Zones.end();
     } else {
@@ -82,13 +83,16 @@ void ThreadProfiler::addZone(ProfilingZone& Zone)
         {
             if (pActiveZone == *it) {
                 bParentFound = true;
+                break;
             }
         }
         AVG_ASSERT(bParentFound);
-        int ParentIndent = pActiveZone->getIndentLevel();
-        for (; it != m_Zones.end() && (*it)->getIndentLevel() > ParentIndent; ++it);
+        parentIndent = pActiveZone->getIndentLevel();
+        ++it;
+        for (; it != m_Zones.end() && (*it)->getIndentLevel() > parentIndent; ++it);
     }
     m_Zones.insert(it, &Zone);
+    return parentIndent+2;
 }
 
 void ThreadProfiler::clear()
@@ -161,11 +165,6 @@ void ThreadProfiler::reset()
     for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
         (*it)->reset();
     }
-}
-
-int ThreadProfiler::getIndent()
-{
-    return int(2*m_ActiveZones.size());
 }
 
 int ThreadProfiler::getNumZones()
