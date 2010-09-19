@@ -984,9 +984,12 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long tim
     return FA_NEW_FRAME;
 }
 
+static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
+
 void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     AVG_ASSERT(m_pDemuxer);
+    ScopeTimer Timer(DecodeProfilingZone); 
     if (m_bVideoEOF) {
         seek(0);
         return;
