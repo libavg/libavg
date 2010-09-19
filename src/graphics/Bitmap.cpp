@@ -485,7 +485,6 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
         pDestLine += destStride;
         if (bJPEG) {
             for (j = 0; j < Width; j += 8) {
-                // y' = (256*y)
                 // ylo and yhi contain 4 pixels each
                 y = *(__m64*)(&(ptry[j]));
                 ylo = _m_punpcklbw(y, zero);
