@@ -489,14 +489,8 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
                 // ylo and yhi contain 4 pixels each
                 y = *(__m64*)(&(ptry[j]));
                 ylo = _m_punpcklbw(y, zero);
-                imm = _mm_set1_pi16(128);
-                ylo = _m_pmullw(ylo, imm);
-                ylo = _mm_srli_pi16(ylo, 7);
                
                 yhi = _m_punpckhbw(y, zero);
-                imm = _mm_set1_pi16(128);
-                yhi = _m_pmullw(yhi, imm);
-                yhi = _mm_srli_pi16(yhi, 7);
 
                 ut = _m_from_int(*(int *)(ptru + j/2));
                 vt = _m_from_int(*(int *)(ptrv + j/2));
