@@ -869,7 +869,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     {
         if (DestFmt == PIX_FMT_BGRA && (enc->pix_fmt == PIX_FMT_YUV420P || 
                 enc->pix_fmt == PIX_FMT_YUVJ420P)) {
-//            ScopeTimer Timer(*m_pConvertImageLibavgProfilingZone);
+            ScopeTimer Timer(ConvertImageLibavgProfilingZone);
             BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, Frame.data[0],
                     Frame.linesize[0], false));
             BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, Frame.data[1],
@@ -882,9 +882,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
                 m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
                             enc->width, enc->height, DestFmt, SWS_BICUBIC, 
                             NULL, NULL, NULL);
-                if(!m_pSwsContext) {
-                    AVG_TRACE(Logger::ERROR, "FFMpegDecoder: sws initialization failed.");
-                }
+                AVG_ASSERT(m_pSwsContext);
             }
             {
                 ScopeTimer Timer(ConvertImageSWSProfilingZone);
