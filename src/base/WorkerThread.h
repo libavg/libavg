@@ -27,7 +27,6 @@
 #include "Exception.h"
 #include "Logger.h"
 #include "Queue.h"
-#include "Profiler.h"
 #include "ThreadProfiler.h"
 #include "ObjectCounter.h"
 #include "CmdQueue.h"
@@ -103,7 +102,6 @@ void WorkerThread<DERIVED_THREAD>::operator()()
         ThreadProfilerPtr pProfiler = ThreadProfiler::get();
         pProfiler->setName(m_sName);
         pProfiler->setLogCategory(m_LogCategory);
-        Profiler::get().registerThreadProfiler(pProfiler);
         bool bOK;
         bOK = init();
         if (!bOK) {
@@ -120,7 +118,8 @@ void WorkerThread<DERIVED_THREAD>::operator()()
             pProfiler->reset();
         }
         deinit();
-        Profiler::get().threadProfilerStopped(pProfiler);
+        pProfiler->dumpStatistics();
+        pProfiler->kill();
     } catch (const Exception& e) {
          AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
                   << e.GetStr());

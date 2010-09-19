@@ -141,9 +141,8 @@ void VectorNode::setBlendModeStr(const string& sBlendMode)
     m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
 }
 
-static ProfilingZone PrerenderProfilingZone("VectorNode::prerender");
-static ProfilingZone VAProfilingZone("VectorNode::update VA");
-static ProfilingZone VASizeProfilingZone("VectorNode::resize VA");
+static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
+static ProfilingZoneID VAProfilingZone("VectorNode::update VA");
 
 void VectorNode::preRender()
 {
@@ -184,7 +183,7 @@ void VectorNode::maybeRender(const DRect& Rect)
     }
 }
 
-static ProfilingZone RenderProfilingZone("VectorNode::render");
+static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
 void VectorNode::render(const DRect& rect)
 {

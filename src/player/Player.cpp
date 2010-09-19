@@ -53,7 +53,6 @@
 #include "../base/Logger.h"
 #include "../base/ConfigMgr.h"
 #include "../base/XMLHelper.h"
-#include "../base/Profiler.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 #include "../base/MathHelper.h"
@@ -111,7 +110,6 @@ Player::Player()
     }
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
-    Profiler::get().registerThreadProfiler(pProfiler);
     initConfig();
 
     // Register all node types
@@ -846,8 +844,6 @@ void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
     }
 }
 
-static ProfilingZone EventsProfilingZone("Dispatch events");
-
 bool Player::handleEvent(EventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
@@ -897,8 +893,9 @@ bool Player::handleEvent(EventPtr pEvent)
     return true; 
 }
 
-static ProfilingZone MainProfilingZone("Player - Total frame time");
-static ProfilingZone TimersProfilingZone("Player - handleTimers");
+static ProfilingZoneID MainProfilingZone("Player - Total frame time");
+static ProfilingZoneID TimersProfilingZone("Player - handleTimers");
+static ProfilingZoneID EventsProfilingZone("Dispatch events");
 
 void Player::doFrame(bool bFirstFrame)
 {
@@ -1467,7 +1464,7 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     m_pEventCaptureNode.clear();
     m_pLastCursorStates.clear();
-    Profiler::get().dumpStatistics();
+    ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {
         m_pMainCanvas->stopPlayback();
         m_pMainCanvas = MainCanvasPtr();

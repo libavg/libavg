@@ -183,7 +183,7 @@ void FilledVectorNode::maybeRender(const DRect& Rect)
     }
 }
 
-static ProfilingZone RenderProfilingZone("FilledVectorNode::render");
+static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 
 void FilledVectorNode::render(const DRect& rect)
 {

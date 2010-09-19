@@ -70,7 +70,7 @@ BitmapPtr MainCanvas::screenshot() const
     return getDisplayEngine()->screenshot();
 }
 
-static ProfilingZone RootRenderProfilingZone("Render MainCanvas");
+static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
 void MainCanvas::render()
 {

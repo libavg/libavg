@@ -23,39 +23,39 @@
 #define _ProfilingZone_H_
 
 #include "../api.h"
-#include "TimeSource.h"
+#include "ProfilingZoneID.h"
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class AVG_API ProfilingZone {
+class AVG_API ProfilingZone
+{
 public:
-    ProfilingZone(const std::string& sName, bool bIsStatic = true);
+    ProfilingZone(const ProfilingZoneID& zoneID);
     virtual ~ProfilingZone();
-    void clear();
-    bool isStatic();
     
     void start();
+    void stop();
     void reset();
     long long getUSecs() const;
     long long getAvgUSecs() const;
+    void setIndentLevel(int indent);
     int getIndentLevel() const;
     std::string getIndentString() const;
     const std::string& getName() const;
 
-    // Interface to AVGScopeTimer.
-    void add(long long usecs);
-
 private:
-    std::string m_sName;
+    const ProfilingZoneID& m_ZoneID;
     long long m_TimeSum;
     long long m_AvgTime;
+    long long m_StartTime;
     int m_NumFrames;
     int m_Indent;
     bool m_bIsRegistered;
-    bool m_bIsStatic;
 };
+
+typedef boost::shared_ptr<ProfilingZone> ProfilingZonePtr;
 
 }
 

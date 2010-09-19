@@ -132,9 +132,9 @@ CanvasNodePtr Canvas::getRootNode() const
     return m_pRootNode;
 }
 
-static ProfilingZone PreRenderSignalProfilingZone("PreRender signal");
-static ProfilingZone RenderProfilingZone("Render");
-static ProfilingZone FrameEndProfilingZone("OnFrameEnd");
+static ProfilingZoneID PreRenderSignalProfilingZone("PreRender signal");
+static ProfilingZoneID RenderProfilingZone("Render");
+static ProfilingZoneID FrameEndProfilingZone("OnFrameEnd");
 
 void Canvas::doFrame(bool bPythonAvailable)
 {
@@ -234,10 +234,10 @@ vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
     return Elements;
 }
 
-static ProfilingZone PreRenderProfilingZone("PreRender");
+static ProfilingZoneID PreRenderProfilingZone("PreRender");
 
 void Canvas::render(IntPoint windowSize, bool bUpsideDown,
-        ProfilingZone& renderProfilingZone)
+        ProfilingZoneID& renderProfilingZone)
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);

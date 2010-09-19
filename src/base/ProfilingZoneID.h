@@ -19,21 +19,25 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ScopeTimer_H_ 
-#define _ScopeTimer_H_
+#ifndef _ProfilingZoneID_H_ 
+#define _ProfilingZoneID_H_
 
 #include "../api.h"
-#include "ProfilingZoneID.h"
+
+#include <string>
 
 namespace avg {
-    
-class AVG_API ScopeTimer {
+
+class AVG_API ProfilingZoneID
+{
 public:
-    ScopeTimer(ProfilingZoneID& zoneID);
-    virtual ~ScopeTimer();
-   
+    ProfilingZoneID(const std::string& sName);
+    virtual ~ProfilingZoneID();
+    
+    const std::string& getName() const;
+
 private:
-    ProfilingZoneID& m_ZoneID;
+    std::string m_sName;
 };
 
 }

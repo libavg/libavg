@@ -46,7 +46,7 @@ class AudioEngine;
 class DisplayEngine;
 class SDLDisplayEngine;
 class TestHelper;
-class ProfilingZone;
+class ProfilingZoneID;
 class Canvas;
 
 typedef boost::shared_ptr<Node> NodePtr;
@@ -93,7 +93,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
         void render(IntPoint windowSize, bool bUpsideDown,
-                ProfilingZone& renderProfilingZone);
+                ProfilingZoneID& renderProfilingZone);
 
     private:
         virtual void render()=0;

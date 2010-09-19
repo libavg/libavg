@@ -59,7 +59,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         BitmapQueuePtr m_pBmpQ;
         BitmapQueuePtr m_pHalfBmpQ;
         
-        ProfilingZone * m_pPushMsgProfilingZone;
+//        ProfilingZone * m_pPushMsgProfilingZone;
 };
 
 }

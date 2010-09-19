@@ -56,11 +56,6 @@ ThreadProfiler::ThreadProfiler()
 
 ThreadProfiler::~ThreadProfiler() 
 {
-    for (ZoneList::iterator it=m_Zones.begin(); it != m_Zones.end(); ++it) {
-        if (!((*it)->isStatic())) {
-            delete *it;
-        }
-    }
 }
 
 void ThreadProfiler::setLogCategory(long category)
@@ -69,46 +64,8 @@ void ThreadProfiler::setLogCategory(long category)
     m_LogCategory = category;
 }
 
-int ThreadProfiler::addZone(ProfilingZone& Zone)
-{
-    ZoneList::iterator it;
-    int parentIndent = -2;
-    if (m_ActiveZones.empty()) {
-        it = m_Zones.end();
-    } else {
-        ProfilingZone* pActiveZone = m_ActiveZones.back();
-        ZoneList::iterator itPrevZone = m_Zones.begin();
-        bool bParentFound = false;
-        for (it=m_Zones.begin(); it != m_Zones.end(); ++it) 
-        {
-            if (pActiveZone == *it) {
-                bParentFound = true;
-                break;
-            }
-        }
-        AVG_ASSERT(bParentFound);
-        parentIndent = pActiveZone->getIndentLevel();
-        ++it;
-        for (; it != m_Zones.end() && (*it)->getIndentLevel() > parentIndent; ++it);
-    }
-    m_Zones.insert(it, &Zone);
-    return parentIndent+2;
-}
-
-void ThreadProfiler::clear()
-{
-    ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
-        (*it)->clear();
-    }
-    m_Zones.clear();
-    m_ActiveZones.clear();
-    m_bRunning = false;
-}
-
 void ThreadProfiler::start()
 {
-    clear();
     m_bRunning = true;
 }
 
@@ -117,14 +74,26 @@ bool ThreadProfiler::isRunning()
     return m_bRunning;
 }
 
-void ThreadProfiler::pushActiveZone(ProfilingZone * pZone)
+void ThreadProfiler::startZone(const ProfilingZoneID& zoneID)
 {
+    ZoneMap::iterator it = m_ZoneMap.find(&zoneID);
+    ProfilingZonePtr pZone;
+    if (it == m_ZoneMap.end()) {
+        pZone = addZone(zoneID);
+    } else {
+        pZone = it->second;
+    }
+    pZone->start();
     m_ActiveZones.push_back(pZone);
 }
 
-void ThreadProfiler::popActiveZone(ProfilingZone * pZone)
+void ThreadProfiler::stopZone(const ProfilingZoneID& zoneID)
 {
+    ZoneMap::iterator it = m_ZoneMap.find(&zoneID);
+    AVG_ASSERT(it != m_ZoneMap.end());
+    ProfilingZonePtr pZone = it->second;
     AVG_ASSERT(m_ActiveZones.back() == pZone);
+    pZone->stop();
     m_ActiveZones.pop_back();
 }
 
@@ -180,6 +149,36 @@ const std::string& ThreadProfiler::getName() const
 void ThreadProfiler::setName(const std::string& sName)
 {
     m_sName = sName;
+}
+
+
+ProfilingZonePtr ThreadProfiler::addZone(const ProfilingZoneID& zoneID)
+{
+    ProfilingZonePtr pZone(new ProfilingZone(zoneID));
+    m_ZoneMap[&zoneID] = pZone;
+    ZoneList::iterator it;
+    int parentIndent = -2;
+    if (m_ActiveZones.empty()) {
+        it = m_Zones.end();
+    } else {
+        ProfilingZonePtr pActiveZone = m_ActiveZones.back();
+        ZoneList::iterator itPrevZone = m_Zones.begin();
+        bool bParentFound = false;
+        for (it=m_Zones.begin(); it != m_Zones.end(); ++it) 
+        {
+            if (pActiveZone == *it) {
+                bParentFound = true;
+                break;
+            }
+        }
+        AVG_ASSERT(bParentFound);
+        parentIndent = pActiveZone->getIndentLevel();
+        ++it;
+        for (; it != m_Zones.end() && (*it)->getIndentLevel() > parentIndent; ++it);
+    }
+    m_Zones.insert(it, pZone);
+    pZone->setIndentLevel(parentIndent+2);
+    return pZone;
 }
 
 }

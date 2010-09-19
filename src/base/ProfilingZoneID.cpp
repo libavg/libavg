@@ -19,41 +19,24 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Profiler_H_ 
-#define _Profiler_H_
+#include "ProfilingZoneID.h"
 
-#include "../api.h"
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <vector>
+using namespace std;
 
 namespace avg {
 
-class ThreadProfiler;
-typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
-
-class AVG_API Profiler {
-public:
-    static Profiler& get();
-    virtual ~Profiler();
- 
-    void dumpFrame();
-    void dumpStatistics();
-
-    // Interface to ThreadProfiler
-    void registerThreadProfiler(ThreadProfilerPtr pThreadProfiler);
-    void threadProfilerStopped(ThreadProfilerPtr pThreadProfiler);
-
-private:
-    Profiler();
-
-    typedef std::vector<ThreadProfilerPtr> ThreadProfilerArray;
-    ThreadProfilerArray m_ThreadProfilers;
-    boost::mutex m_Mutex;
-};
-
+ProfilingZoneID::ProfilingZoneID(const string& sName)
+    : m_sName(sName)
+{
 }
 
-#endif
+ProfilingZoneID::~ProfilingZoneID() 
+{
+}
+
+const string& ProfilingZoneID::getName() const
+{
+    return m_sName;
+}
+
+}

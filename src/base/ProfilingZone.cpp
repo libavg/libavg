@@ -20,9 +20,8 @@
 //
 
 #include "ProfilingZone.h"
-#include "ThreadProfiler.h"
+#include "TimeSource.h"
 #include "ObjectCounter.h"
-#include "Exception.h"
 
 #include <iostream>
 
@@ -31,14 +30,13 @@ using namespace std;
 
 namespace avg {
 
-ProfilingZone::ProfilingZone(const string& sName, bool bIsStatic)
-    : m_sName(sName),
+ProfilingZone::ProfilingZone(const ProfilingZoneID& zoneID)
+    : m_ZoneID(zoneID),
       m_TimeSum(0),
       m_AvgTime(0),
       m_NumFrames(0),
       m_Indent(0),
-      m_bIsRegistered(false),
-      m_bIsStatic(bIsStatic)
+      m_bIsRegistered(false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -48,34 +46,14 @@ ProfilingZone::~ProfilingZone()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ProfilingZone::clear()
-{
-    m_TimeSum = 0;
-    m_AvgTime = 0;
-    m_NumFrames = 0;
-    m_bIsRegistered = false;
-}
-
-bool ProfilingZone::isStatic()
-{
-    return m_bIsStatic;
-}
-
 void ProfilingZone::start()
 {
-    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
-    if (!pProfiler) {
-        AVG_ASSERT(false);
-    }
-    // Start gets called when the zone is first entered. 
-    if (!m_bIsRegistered && pProfiler->isRunning()) {
-        // This stuff makes sure that the zones are registered in the order 
-        // they are entered.
-        m_Indent = pProfiler->addZone(*this);
-        clear();
-        m_bIsRegistered = true;
-    }
-    pProfiler->pushActiveZone(this);
+    m_StartTime = TimeSource::get()->getCurrentMicrosecs();
+}
+
+void ProfilingZone::stop()
+{
+    m_TimeSum += TimeSource::get()->getCurrentMicrosecs()-m_StartTime;
 }
 
 void ProfilingZone::reset()
@@ -95,6 +73,11 @@ long long ProfilingZone::getAvgUSecs() const
     return m_AvgTime;
 }
 
+void ProfilingZone::setIndentLevel(int indent)
+{
+    m_Indent = indent;
+}
+
 int ProfilingZone::getIndentLevel() const
 {
     return m_Indent;
@@ -107,13 +90,7 @@ string ProfilingZone::getIndentString() const
 
 const string& ProfilingZone::getName() const
 {
-    return m_sName;
+    return m_ZoneID.getName();
 }
     
-void ProfilingZone::add(long long usecs)
-{
-    ThreadProfiler::get()->popActiveZone(this);
-    m_TimeSum += usecs;
-}
-
 }

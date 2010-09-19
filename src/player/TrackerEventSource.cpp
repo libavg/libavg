@@ -209,8 +209,8 @@ namespace avg {
         return m_DisplayROI.size();
     }
 
-    static ProfilingZone ProfilingZoneCalcTrack("trackBlobIDs(track)");
-    static ProfilingZone ProfilingZoneCalcTouch("trackBlobIDs(touch)");
+    static ProfilingZoneID ProfilingZoneCalcTrack("trackBlobIDs(track)");
+    static ProfilingZoneID ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
     void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, 
             BlobVectorPtr pTouchBlobs, long long time)

@@ -215,7 +215,7 @@ IntPoint FWCamera::getImgSize()
 }
 
 
-static ProfilingZone CameraConvertProfilingZone("FW Camera format conversion");
+static ProfilingZoneID CameraConvertProfilingZone("FW Camera format conversion");
 
 BitmapPtr FWCamera::getImage(bool bWait)
 {

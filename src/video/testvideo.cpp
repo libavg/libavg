@@ -40,7 +40,7 @@
 #include "../base/TimeSource.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
-#include "../base/Profiler.h"
+#include "../base/ThreadProfiler.h"
 #include "../base/Directory.h"
 #include "../base/DirEntry.h"
 
@@ -479,7 +479,6 @@ int main(int nargs, char** args)
 {
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
-    Profiler::get().registerThreadProfiler(pProfiler);
 
     deleteOldResultImages();
 

@@ -136,7 +136,7 @@ void ImageNode::setBitmap(const Bitmap * pBmp)
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-static ProfilingZone RenderProfilingZone("ImageNode::render");
+static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
 void ImageNode::render(const DRect& Rect)
 {

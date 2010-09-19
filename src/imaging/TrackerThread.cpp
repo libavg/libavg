@@ -24,6 +24,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
+#include "../base/TimeSource.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Exception.h"
 
@@ -47,17 +48,17 @@ using namespace std;
 
 namespace avg {
 
-static ProfilingZone ProfilingZoneCapture ("Capture");
-static ProfilingZone ProfilingZoneMask ("Mask");
-static ProfilingZone ProfilingZoneTracker ("Tracker");
-static ProfilingZone ProfilingZoneHistory ("History");
-static ProfilingZone ProfilingZoneDistort ("Distort");
-static ProfilingZone ProfilingZoneHistogram ("Histogram");
-static ProfilingZone ProfilingZoneDownscale ("Downscale");
-static ProfilingZone ProfilingZoneBandpass ("Bandpass");
-static ProfilingZone ProfilingZoneComps("ConnectedComps");
-static ProfilingZone ProfilingZoneUpdate("Update");
-static ProfilingZone ProfilingZoneDraw("Draw");
+static ProfilingZoneID ProfilingZoneCapture ("Capture");
+static ProfilingZoneID ProfilingZoneMask ("Mask");
+static ProfilingZoneID ProfilingZoneTracker ("Tracker");
+static ProfilingZoneID ProfilingZoneHistory ("History");
+static ProfilingZoneID ProfilingZoneDistort ("Distort");
+static ProfilingZoneID ProfilingZoneHistogram ("Histogram");
+static ProfilingZoneID ProfilingZoneDownscale ("Downscale");
+static ProfilingZoneID ProfilingZoneBandpass ("Bandpass");
+static ProfilingZoneID ProfilingZoneComps("ConnectedComps");
+static ProfilingZoneID ProfilingZoneUpdate("Update");
+static ProfilingZoneID ProfilingZoneDraw("Draw");
 
 TrackerThread::TrackerThread(IntRect ROI, 
         CameraPtr pCamera,

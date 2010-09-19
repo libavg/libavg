@@ -77,7 +77,7 @@ void OffscreenCanvas::stopPlayback()
     m_bIsRendered = false;
 }
 
-static ProfilingZone OffscreenRenderProfilingZone("Render OffscreenCanvas");
+static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
 
 void OffscreenCanvas::render()
 {

@@ -23,6 +23,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/TimeSource.h"
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
@@ -122,7 +123,7 @@ bool DisplayEngine::wasFrameLate()
     return m_bFrameLate;
 }
 
-static ProfilingZone WaitProfilingZone("Render - wait");
+static ProfilingZoneID WaitProfilingZone("Render - wait");
 
 void DisplayEngine::frameWait()
 {

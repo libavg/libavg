@@ -93,7 +93,7 @@ BitmapPtr PBOTexture::readbackBmp()
     }
 }
 
-static ProfilingZone TexSubImageProfilingZone("Texture download");
+static ProfilingZoneID TexSubImageProfilingZone("Texture download");
 
 void PBOTexture::download() const
 {

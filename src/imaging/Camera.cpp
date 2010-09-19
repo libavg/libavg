@@ -74,7 +74,7 @@ PixelFormat Camera::getDestPF() const
     return m_DestPF;
 }
 
-static ProfilingZone CameraConvertProfilingZone("Camera format conversion");
+static ProfilingZoneID CameraConvertProfilingZone("Camera format conversion");
 
 BitmapPtr Camera::convertCamFrameToDestPF(BitmapPtr pCamBmp)
 {

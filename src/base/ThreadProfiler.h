@@ -37,7 +37,8 @@ namespace avg {
 class ThreadProfiler;
 typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
 
-class AVG_API ThreadProfiler {
+class AVG_API ThreadProfiler
+{
 public:
     static ThreadProfilerPtr& get();
     static void kill();
@@ -45,12 +46,10 @@ public:
     virtual ~ThreadProfiler();
     void setLogCategory(long category);
  
-    int addZone(ProfilingZone& Zone);
-    void clear();
     void start();
     bool isRunning();
-    void pushActiveZone(ProfilingZone * pZone);
-    void popActiveZone(ProfilingZone * pZone);
+    void startZone(const ProfilingZoneID& zoneID);
+    void stopZone(const ProfilingZoneID& zoneID);
     void dumpFrame();
     void dumpStatistics();
     void reset();
@@ -60,11 +59,14 @@ public:
     void setName(const std::string& sName);
 
 private:
+    ProfilingZonePtr addZone(const ProfilingZoneID& zoneID);
     std::string m_sName;
 
-    typedef std::list<ProfilingZone*> ZoneList;
-    ZoneList m_Zones;
+    typedef std::map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
+    typedef std::list<ProfilingZonePtr> ZoneList;
+    ZoneMap m_ZoneMap;
     ZoneList m_ActiveZones;
+    ZoneList m_Zones;
     bool m_bRunning;
     long m_LogCategory;
 

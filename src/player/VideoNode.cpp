@@ -540,7 +540,7 @@ void VideoNode::preRender()
     }
 }
 
-static ProfilingZone RenderProfilingZone("VideoNode::render");
+static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render(const DRect& Rect)
 {

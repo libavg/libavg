@@ -293,7 +293,7 @@ int CameraNode::getFrameNum() const
     return m_FrameNum;
 }
 
-static ProfilingZone CameraFetchImage("Camera fetch image");
+static ProfilingZoneID CameraFetchImage("Camera fetch image");
 
 void CameraNode::preRender()
 {
@@ -304,8 +304,8 @@ void CameraNode::preRender()
     }
 }
 
-static ProfilingZone CameraProfilingZone("Camera::render");
-static ProfilingZone CameraDownloadProfilingZone("Camera tex download");
+static ProfilingZoneID CameraProfilingZone("Camera::render");
+static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
 void CameraNode::render(const DRect& Rect)
 {

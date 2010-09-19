@@ -24,6 +24,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
+#include "../base/TimeSource.h"
 
 using namespace std;
 
@@ -38,18 +39,21 @@ VideoDecoderThread::VideoDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ,
       m_pBmpQ(new BitmapQueue()),
       m_pHalfBmpQ(new BitmapQueue())
 {
-    m_pPushMsgProfilingZone = new ProfilingZone("DecoderThread: push message");
 }
 
 VideoDecoderThread::~VideoDecoderThread()
 {
 }
 
+static ProfilingZoneID DecoderProfilingZone("DecoderThread");
+static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message");
+
 bool VideoDecoderThread::work() 
 {
     if (m_pDecoder->isEOF(SS_VIDEO)) {
         waitForCommand();
     } else {
+        ScopeTimer Timer(DecoderProfilingZone);
         vector<BitmapPtr> pBmps;
         IntPoint size = m_pDecoder->getSize();
         IntPoint halfSize(size.x/2, size.y/2);
@@ -72,7 +76,7 @@ bool VideoDecoderThread::work()
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
         } else {
-            ScopeTimer Timer(*m_pPushMsgProfilingZone);
+            ScopeTimer Timer(PushMsgProfilingZone);
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));

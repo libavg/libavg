@@ -82,7 +82,7 @@ void PanoImageNode::disconnect(bool bKill)
     AreaNode::disconnect(bKill);
 }
 
-static ProfilingZone PanoRenderProfilingZone("PanoImageNode::render");
+static ProfilingZoneID PanoRenderProfilingZone("PanoImageNode::render");
 
 void PanoImageNode::render(const DRect& Rect)
 {

@@ -37,7 +37,6 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
-#include "../base/Profiler.h"
 #include "../base/OSHelper.h"
 
 #include "../graphics/Filterflip.h"
@@ -323,7 +322,7 @@ void SDLDisplayEngine::logConfig()
                 "  Max. texture size is " << getMaxTexSize());
 }
 
-static ProfilingZone PushClipRectProfilingZone("pushClipRect");
+static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
 bool SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
@@ -335,7 +334,7 @@ bool SDLDisplayEngine::pushClipRect(const DRect& rc)
     return true;
 }
 
-static ProfilingZone PopClipRectProfilingZone("popClipRect");
+static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
 void SDLDisplayEngine::popClipRect()
 {
@@ -408,7 +407,7 @@ void SDLDisplayEngine::clip(bool forward)
     }
 }
 
-static ProfilingZone SwapBufferProfilingZone("Render - swap buffers");
+static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()
 {

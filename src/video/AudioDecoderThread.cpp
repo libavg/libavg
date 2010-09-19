@@ -24,6 +24,7 @@
 #include "AudioDecoderThread.h"
 
 #include "../base/Logger.h"
+#include "../base/TimeSource.h"
 
 // In Audio frames.
 #define AUDIO_BUFFER_SIZE 256

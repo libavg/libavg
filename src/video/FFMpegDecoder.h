@@ -120,11 +120,6 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         IntPoint m_Size;
         double m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
-        ProfilingZone * m_pRenderToBmpProfilingZone;
-        ProfilingZone * m_pConvertImageLibavgProfilingZone;
-        ProfilingZone * m_pConvertImageSWSProfilingZone;
-        ProfilingZone * m_pCopyImageProfilingZone;
-        ProfilingZone * m_pSetAlphaProfilingZone;
 
         // Used from audio thread.
         int copyRawAudio(unsigned char* buf, int size);
