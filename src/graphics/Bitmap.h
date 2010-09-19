@@ -59,7 +59,8 @@ public:
     
     // Does pixel format conversion if nessesary.
     void copyPixels(const Bitmap & Orig);
-    void copyYUVPixels(const Bitmap & YOrig, const Bitmap& UOrig, const Bitmap& VOrig);
+    void copyYUVPixels(const Bitmap & YOrig, const Bitmap& UOrig, const Bitmap& VOrig,
+            bool bJPEG);
     void save(const UTF8String& sName);
     
     IntPoint getSize() const;

@@ -173,7 +173,7 @@ public:
 
     void run() {
         Bitmap RGBBmp(IntPoint(1024, 1024), B8G8R8X8);
-        RGBBmp.copyYUVPixels(*m_pYBmp, *m_pUBmp, *m_pVBmp);
+        RGBBmp.copyYUVPixels(*m_pYBmp, *m_pUBmp, *m_pVBmp, false);
     }
 
 private:

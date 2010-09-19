@@ -404,8 +404,51 @@ ostream& operator<<(ostream& os, const __m64 &val)
 }
 #endif
 
+#define YUV_TO_RGB_UNPACK    \
+    /* Input: r, g, b contain 4 words each of the u and v inputs for the color */    \
+    /* channels. ylo and yhi contain 4 words each of the y input. */    \
+\
+    /* duplicate u and v channels and add y    \
+     * each of r,g, b in the form [s1(16), s2(16), s3(16), s4(16)]    \
+     * first interleave, so tmp is [s1(16), s1(16), s2(16), s2(16)]    \
+     * then add y, then interleave again    \
+     * then pack with saturation, to get the desired output of    \
+     *   [s1(8), s1(8), s2(8), s2(8), s3(8), s3(8), s4(8), s4(8)]    \
+     */    \
+    tmp = _m_punpckhwd(r, r);    \
+    tmp = _m_paddsw(tmp, yhi);    \
+    tmp2 = _m_punpcklwd(r, r);    \
+    tmp2 = _m_paddsw(tmp2, ylo);    \
+    r = _m_packuswb(tmp2, tmp);    \
+    \
+    tmp = _m_punpckhwd(g, g);    \
+    tmp2 = _m_punpcklwd(g, g);    \
+    tmp = _m_paddsw(tmp, yhi);    \
+    tmp2 = _m_paddsw(tmp2, ylo);    \
+    g = _m_packuswb(tmp2, tmp);    \
+    \
+    tmp = _m_punpckhwd(b, b);    \
+    tmp2 = _m_punpcklwd(b, b);    \
+    tmp = _m_paddsw(tmp, yhi);    \
+    tmp2 = _m_paddsw(tmp2, ylo);    \
+    b = _m_packuswb(tmp2, tmp);    \
+    \
+    /* now we have 8 8-bit r, g and b samples.  we want these to be packed    \
+     * into 32-bit values.    \
+     */    \
+    imm = _mm_set1_pi32(0xFFFFFFFF);    \
+    tmp = _m_punpcklbw(b, r);    \
+    tmp2 = _m_punpcklbw(g, imm);    \
+    *o++ = _m_punpcklbw(tmp, tmp2);    \
+    *o++ = _m_punpckhbw(tmp, tmp2);    \
+    tmp = _m_punpckhbw(b, r);    \
+    tmp2 = _m_punpckhbw(g, imm);    \
+    *o++ = _m_punpcklbw(tmp, tmp2);    \
+    *o++ = _m_punpckhbw(tmp, tmp2);
+
+
 void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
-        const Bitmap& vOrig)
+        const Bitmap& vOrig, bool bJPEG)
 {
     int Height = min(yOrig.getSize().y, m_Size.y);
     int Width = min(yOrig.getSize().x, m_Size.x);
@@ -440,95 +483,98 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
         int j;
         o = (__m64*)pDestLine;
         pDestLine += destStride;
-        for (j = 0; j < Width; j += 8) {
+        if (bJPEG) {
+            for (j = 0; j < Width; j += 8) {
+                // y' = (256*y)
+                // ylo and yhi contain 4 pixels each
+                y = *(__m64*)(&(ptry[j]));
+                ylo = _m_punpcklbw(y, zero);
+                imm = _mm_set1_pi16(128);
+                ylo = _m_pmullw(ylo, imm);
+                ylo = _mm_srli_pi16(ylo, 7);
+               
+                yhi = _m_punpckhbw(y, zero);
+                imm = _mm_set1_pi16(128);
+                yhi = _m_pmullw(yhi, imm);
+                yhi = _mm_srli_pi16(yhi, 7);
 
-            // y' = (298*(y-16))
-            // ylo and yhi contain 4 pixels each
-            y = *(__m64*)(&(ptry[j]));
-            ylo = _m_punpcklbw(y, zero);
-            imm = _mm_set1_pi16(16);
-            ylo = _m_psubusw(ylo, imm);
-            imm = _mm_set1_pi16(149);
-            ylo = _m_pmullw(ylo, imm);
-            ylo = _mm_srli_pi16(ylo, 7);
-           
-            yhi = _m_punpckhbw(y, zero);
-            imm = _mm_set1_pi16(16);
-            yhi = _m_psubusw(yhi, imm);
-            imm = _mm_set1_pi16(149);
-            yhi = _m_pmullw(yhi, imm);
-            yhi = _mm_srli_pi16(yhi, 7);
+                ut = _m_from_int(*(int *)(ptru + j/2));
+                vt = _m_from_int(*(int *)(ptrv + j/2));
 
-            ut = _m_from_int(*(int *)(ptru + j/2));
-            vt = _m_from_int(*(int *)(ptrv + j/2));
+                ut = _m_punpcklbw(ut, zero);
+                vt = _m_punpcklbw(vt, zero);
 
-            ut = _m_punpcklbw(ut, zero);
-            vt = _m_punpcklbw(vt, zero);
+                /* subtract 128 from u and v */ 
+                imm = _mm_set1_pi16(128);
+                ut = _m_psubw(ut, imm);
+                vt = _m_psubw(vt, imm);
 
-            /* subtract 128 from u and v */ 
-            imm = _mm_set1_pi16(128);
-            ut = _m_psubw(ut, imm);
-            vt = _m_psubw(vt, imm);
+                /* transfer and multiply into r, g, b registers */
+                imm = _mm_set1_pi16(-44);
+                g = _m_pmullw(ut, imm);
+                imm = _mm_set1_pi16(113);
+                b = _m_pmullw(ut, imm);
+                imm = _mm_set1_pi16(179);
+                r = _m_pmullw(vt, imm);
+                imm = _mm_set1_pi16(-91);
+                imm = _m_pmullw(vt, imm);
+                g = _m_paddsw(g, imm);
 
-            /* transfer and multiply into r, g, b registers */
-            imm = _mm_set1_pi16(-50);
-            g = _m_pmullw(ut, imm);
-            imm = _mm_set1_pi16(129);
-            b = _m_pmullw(ut, imm);
-            imm = _mm_set1_pi16(204);
-            r = _m_pmullw(vt, imm);
-            imm = _mm_set1_pi16(-104);
-            imm = _m_pmullw(vt, imm);
-            g = _m_paddsw(g, imm);
+                /* shift r, g and b registers to the right */
+                r = _m_psrawi(r, 7);
+                g = _m_psrawi(g, 7);
+                b = _m_psrawi(b, 6);
+                YUV_TO_RGB_UNPACK
 
-            /* shift r, g and b registers to the right */
-            r = _m_psrawi(r, 7);
-            g = _m_psrawi(g, 7);
-            b = _m_psrawi(b, 6);
-            /* Now r, g, b contain 4 words each of the u and v inputs for the color */
-            /* channels. */
+            }
+        } else {
+            for (j = 0; j < Width; j += 8) {
 
-            /* duplicate u and v channels and add y
-             * each of r,g, b in the form [s1(16), s2(16), s3(16), s4(16)]
-             * first interleave, so tmp is [s1(16), s1(16), s2(16), s2(16)]
-             * then add y, then interleave again
-             * then pack with saturation, to get the desired output of
-             *   [s1(8), s1(8), s2(8), s2(8), s3(8), s3(8), s4(8), s4(8)]
-             */
-            tmp = _m_punpckhwd(r, r);
-            tmp = _m_paddsw(tmp, yhi);
-            tmp2 = _m_punpcklwd(r, r);
-            tmp2 = _m_paddsw(tmp2, ylo);
-            r = _m_packuswb(tmp2, tmp);
+                // y' = (298*(y-16))
+                // ylo and yhi contain 4 pixels each
+                y = *(__m64*)(&(ptry[j]));
+                ylo = _m_punpcklbw(y, zero);
+                imm = _mm_set1_pi16(16);
+                ylo = _m_psubusw(ylo, imm);
+                imm = _mm_set1_pi16(149);
+                ylo = _m_pmullw(ylo, imm);
+                ylo = _mm_srli_pi16(ylo, 7);
+               
+                yhi = _m_punpckhbw(y, zero);
+                imm = _mm_set1_pi16(16);
+                yhi = _m_psubusw(yhi, imm);
+                imm = _mm_set1_pi16(149);
+                yhi = _m_pmullw(yhi, imm);
+                yhi = _mm_srli_pi16(yhi, 7);
 
-            tmp = _m_punpckhwd(g, g);
-            tmp2 = _m_punpcklwd(g, g);
-            tmp = _m_paddsw(tmp, yhi);
-            tmp2 = _m_paddsw(tmp2, ylo);
-            g = _m_packuswb(tmp2, tmp);
+                ut = _m_from_int(*(int *)(ptru + j/2));
+                vt = _m_from_int(*(int *)(ptrv + j/2));
 
-            tmp = _m_punpckhwd(b, b);
-            tmp2 = _m_punpcklwd(b, b);
-            tmp = _m_paddsw(tmp, yhi);
-            tmp2 = _m_paddsw(tmp2, ylo);
-            b = _m_packuswb(tmp2, tmp);
+                ut = _m_punpcklbw(ut, zero);
+                vt = _m_punpcklbw(vt, zero);
 
-            /* now we have 8 8-bit r, g and b samples.  we want these to be packed
-             * into 32-bit values.
-             */
-            //r = _m_from_int(0);
-            //b = _m_from_int(0);
-            imm = _mm_set1_pi32(0xFFFFFFFF);
-            tmp = _m_punpcklbw(b, r);
-            tmp2 = _m_punpcklbw(g, imm);
-            *o++ = _m_punpcklbw(tmp, tmp2);
-            *o++ = _m_punpckhbw(tmp, tmp2);
-            //printf("tmp, tmp2, write1, write2: %llx %llx %llx %llx\n", tmp, tmp2,
-            //                _m_punpcklbw(tmp, tmp2), _m_punpckhbw(tmp, tmp2));
-            tmp = _m_punpckhbw(b, r);
-            tmp2 = _m_punpckhbw(g, imm);
-            *o++ = _m_punpcklbw(tmp, tmp2);
-            *o++ = _m_punpckhbw(tmp, tmp2);
+                /* subtract 128 from u and v */ 
+                imm = _mm_set1_pi16(128);
+                ut = _m_psubw(ut, imm);
+                vt = _m_psubw(vt, imm);
+
+                /* transfer and multiply into r, g, b registers */
+                imm = _mm_set1_pi16(-50);
+                g = _m_pmullw(ut, imm);
+                imm = _mm_set1_pi16(129);
+                b = _m_pmullw(ut, imm);
+                imm = _mm_set1_pi16(204);
+                r = _m_pmullw(vt, imm);
+                imm = _mm_set1_pi16(-104);
+                imm = _m_pmullw(vt, imm);
+                g = _m_paddsw(g, imm);
+
+                /* shift r, g and b registers to the right */
+                r = _m_psrawi(r, 7);
+                g = _m_psrawi(g, 7);
+                b = _m_psrawi(b, 6);
+                YUV_TO_RGB_UNPACK
+            }
         }
         if (i & 0x1) {
             ptru += uStride;

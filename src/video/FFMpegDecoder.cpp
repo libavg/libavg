@@ -867,7 +867,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     {
-        if (DestFmt == PIX_FMT_BGRA && enc->pix_fmt == PIX_FMT_YUV420P) {
+        if (DestFmt == PIX_FMT_BGRA && (enc->pix_fmt == PIX_FMT_YUV420P || 
+                enc->pix_fmt == PIX_FMT_YUVJ420P)) {
 //            ScopeTimer Timer(*m_pConvertImageLibavgProfilingZone);
             BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, Frame.data[0],
                     Frame.linesize[0], false));
@@ -875,7 +876,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
                     Frame.linesize[1], false));
             BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, Frame.data[2],
                     Frame.linesize[2], false));
-            pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV);
+            pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, enc->pix_fmt == PIX_FMT_YUVJ420P);
         } else {
             if (!m_pSwsContext) {
                 m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,

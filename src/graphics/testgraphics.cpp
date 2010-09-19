@@ -323,7 +323,7 @@ private:
         }
         BitmapPtr pRGBBmp = BitmapPtr(new Bitmap(IntPoint(16, 16), B8G8R8X8));
         FilterFill<Pixel32>(Pixel32(255,0,0,255)).applyInPlace(pRGBBmp);
-        pRGBBmp->copyYUVPixels(*pYBmp, *pUBmp, *pVBmp);
+        pRGBBmp->copyYUVPixels(*pYBmp, *pUBmp, *pVBmp, false);
         testEqual(*pRGBBmp, "YUV2RGBResult1", B8G8R8X8, 0.5, 0.5);
     }
 
