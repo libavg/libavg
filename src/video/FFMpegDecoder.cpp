@@ -964,10 +964,6 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     AVG_ASSERT(m_pDemuxer);
     ScopeTimer Timer(DecodeProfilingZone); 
-    if (m_bVideoEOF) {
-        seek(0);
-        return;
-    }
     if (m_bEOFPending) {
         m_bVideoEOF = true;
         m_bEOFPending = false;
@@ -983,7 +979,18 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
     long long dts = 0;
     while (!bGotPicture) {
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
-        if (!pPacket) {
+        m_bFirstPacket = false;
+        if (pPacket) {
+    //        cerr << "decode, size=" << pPacket->size << endl;
+            int Len1 = avcodec_decode_video(enc, &Frame, &bGotPicture, pPacket->data,
+                    pPacket->size);
+            if (Len1 > 0) {
+                AVG_ASSERT(Len1 == pPacket->size);
+            }
+            dts = pPacket->dts;
+            av_free_packet(pPacket);
+            delete pPacket;
+        } else {
             // No more packets -> EOF. Decode the last data we got.
             avcodec_decode_video(enc, &Frame, &bGotPicture, 0, 0);
             if (bGotPicture) {
@@ -997,19 +1004,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
             m_LastVideoFrameTime = FrameTime;
             return;
         }
-//        cerr << "decode, size=" << pPacket->size << endl;
-        int Len1 = avcodec_decode_video(enc, &Frame, &bGotPicture, pPacket->data, 
-                pPacket->size);
-        if (Len1 > 0) {
-            AVG_ASSERT(Len1 == pPacket->size);
-        }
-        dts = pPacket->dts;
-        av_free_packet(pPacket);
-        delete pPacket;
-
     }
     FrameTime = getFrameTime(dts);
-    m_bFirstPacket = false;
 /*
     cerr << "coded_picture_number: " << Frame.coded_picture_number <<
             ", display_picture_number: " << Frame.display_picture_number <<
