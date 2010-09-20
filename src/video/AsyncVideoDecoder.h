@@ -48,6 +48,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         virtual DecoderState getState() const;
         virtual VideoInfo getVideoInfo() const;
         virtual void seek(long long DestTime);
+        virtual void loop();
         virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;

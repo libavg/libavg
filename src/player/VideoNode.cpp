@@ -596,6 +596,7 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
             bind();
             m_bSeekPending = false;
             setMaskCoords();
+//            AVG_TRACE(Logger::PROFILE, "New frame.");
             break;
         case FA_STILL_DECODING:
             {
@@ -640,6 +641,7 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
     }
 
     if (m_pDecoder->isEOF()) {
+//        AVG_TRACE(Logger::PROFILE, "EOF");
         updateStatusDueToDecoderEOF();
     }
 
@@ -664,7 +666,10 @@ void VideoNode::updateStatusDueToDecoderEOF()
 {
     m_bEOFPending = true;
     if (m_bLoop) {
-        seek(0);
+        m_StartTime = Player::get()->getFrameTime();
+        m_PauseTime = 0;
+        m_bFrameAvailable = false;
+        m_pDecoder->loop();
     } else {
         changeVideoState(Paused);
     }

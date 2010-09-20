@@ -181,6 +181,13 @@ void AsyncVideoDecoder::seek(long long DestTime)
     }
 }
 
+void AsyncVideoDecoder::loop()
+{
+    m_LastVideoFrameTime = -1000;
+    m_bAudioEOF = false;
+    m_bVideoEOF = false;
+}
+
 IntPoint AsyncVideoDecoder::getSize() const
 {
     AVG_ASSERT(m_State != CLOSED);
