@@ -1003,68 +1003,54 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 #else
     AVCodecContext *enc = m_pVStream->codec;
 #endif
-    if (enc->codec_id == CODEC_ID_RAWVIDEO) {
-        AVPacket * pPacket;
-        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
-        if (!pPacket) {
-            m_bVideoEOF = true;
-            return;
-        }
-        avpicture_fill((AVPicture*)&Frame, pPacket->data, 
-                enc->pix_fmt, 
-                enc->width, enc->height);
-        av_free_packet(pPacket);
-        delete pPacket;
-    } else {
-        int gotPicture = 0;
-        while (!gotPicture) {
-            if (m_PacketLenLeft <= 0) {
-                if (!m_bFirstPacket) {
-                    av_free_packet(m_pPacket);
-                    delete m_pPacket;
-                }
-                m_bFirstPacket = false;
-                m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
-                if (!m_pPacket) {
-                    // No more packets -> EOF. Decode the last data we got.
-                    avcodec_decode_video(enc, &Frame, &gotPicture, NULL, 0);
-                    if (gotPicture) {
-                        m_bEOFPending = true;
-                    } else {
-                        m_bVideoEOF = true;
-                    }
-                    // We don't have a timestamp for the last frame, so we'll
-                    // calculate it based on the frame before.
-                    FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
-                    m_LastVideoFrameTime = FrameTime;
-                    return;
-                }
-                m_PacketLenLeft = m_pPacket->size;
-                m_pPacketData = m_pPacket->data;
+    int gotPicture = 0;
+    while (!gotPicture) {
+        if (m_PacketLenLeft <= 0) {
+            if (!m_bFirstPacket) {
+                av_free_packet(m_pPacket);
+                delete m_pPacket;
             }
-            int Len1 = avcodec_decode_video(enc, &Frame,
-                    &gotPicture, m_pPacketData, m_PacketLenLeft);
-            if (Len1 <= 0) {
+            m_bFirstPacket = false;
+            m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+            if (!m_pPacket) {
+                // No more packets -> EOF. Decode the last data we got.
+                avcodec_decode_video(enc, &Frame, &gotPicture, NULL, 0);
+                if (gotPicture) {
+                    m_bEOFPending = true;
+                } else {
+                    m_bVideoEOF = true;
+                }
+                // We don't have a timestamp for the last frame, so we'll
+                // calculate it based on the frame before.
+                FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
+                m_LastVideoFrameTime = FrameTime;
+                return;
+            }
+            m_PacketLenLeft = m_pPacket->size;
+            m_pPacketData = m_pPacket->data;
+        }
+        int Len1 = avcodec_decode_video(enc, &Frame,
+                &gotPicture, m_pPacketData, m_PacketLenLeft);
+        if (Len1 <= 0) {
 //                AVG_TRACE(Logger::WARNING, "Error decoding " <<
 //                        m_sFilename);
-                m_PacketLenLeft = 0;
-            } else {
-                m_pPacketData += Len1;
-                m_PacketLenLeft -= Len1;
-            }
+            m_PacketLenLeft = 0;
+        } else {
+            m_pPacketData += Len1;
+            m_PacketLenLeft -= Len1;
         }
-        FrameTime = getFrameTime(m_pPacket);
-/*
-        cerr << "coded_picture_number: " << Frame.coded_picture_number <<
-                ", display_picture_number: " << Frame.display_picture_number <<
-                ", pts: " << Frame.pts << endl;
-
-        cerr << "key_frame: " << Frame.key_frame << 
-               ", pict_type: " << Frame.pict_type << endl;
-        AVFrac spts = m_pVStream->pts;
-        cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
-*/
     }
+    FrameTime = getFrameTime(m_pPacket);
+/*
+    cerr << "coded_picture_number: " << Frame.coded_picture_number <<
+            ", display_picture_number: " << Frame.display_picture_number <<
+            ", pts: " << Frame.pts << endl;
+
+    cerr << "key_frame: " << Frame.key_frame << 
+           ", pict_type: " << Frame.pict_type << endl;
+    AVFrac spts = m_pVStream->pts;
+    cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
+*/
 }
 
 long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
