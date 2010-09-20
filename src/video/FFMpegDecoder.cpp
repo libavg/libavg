@@ -976,8 +976,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 #endif
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
-    long long dts = 0;
-    while (!bGotPicture) {
+    while (!bGotPicture && !m_bVideoEOF) {
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
@@ -987,7 +986,9 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
             if (Len1 > 0) {
                 AVG_ASSERT(Len1 == pPacket->size);
             }
-            dts = pPacket->dts;
+            if (bGotPicture) {
+                FrameTime = getFrameTime(pPacket->dts);
+            }
             av_free_packet(pPacket);
             delete pPacket;
         } else {
@@ -1002,10 +1003,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
             // calculate it based on the frame before.
             FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
             m_LastVideoFrameTime = FrameTime;
-            return;
         }
     }
-    FrameTime = getFrameTime(dts);
 /*
     cerr << "coded_picture_number: " << Frame.coded_picture_number <<
             ", display_picture_number: " << Frame.display_picture_number <<
