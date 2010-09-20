@@ -92,7 +92,8 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         virtual IntPoint getMediaSize();
 
     private:
-        bool renderToSurface(OGLSurface * pSurface);
+        bool renderFrame(OGLSurface * pSurface);
+        FrameAvailableCode renderToSurface(OGLSurface * pSurface);
         void seek(long long DestTime);
         void onEOF();
         void updateStatusDueToDecoderEOF();

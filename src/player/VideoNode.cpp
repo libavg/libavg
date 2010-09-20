@@ -547,7 +547,7 @@ void VideoNode::render(const DRect& Rect)
     switch (m_VideoState) {
         case Playing:
             {
-                bool bNewFrame = renderToSurface(getSurface());
+                bool bNewFrame = renderFrame(getSurface());
                 m_bFrameAvailable = m_bFrameAvailable | bNewFrame;
                 if (m_bFrameAvailable) {
                     m_bFirstFrameDecoded = true;
@@ -559,7 +559,7 @@ void VideoNode::render(const DRect& Rect)
             break;
         case Paused:
             if (!m_bFrameAvailable) {
-                m_bFrameAvailable = renderToSurface(getSurface());
+                m_bFrameAvailable = renderFrame(getSurface());
             }
             if (m_bFrameAvailable) {
                 m_bFirstFrameDecoded = true;
@@ -573,22 +573,18 @@ void VideoNode::render(const DRect& Rect)
     }
 }
 
-bool VideoNode::renderToSurface(OGLSurface * pSurface)
+bool VideoNode::renderFrame(OGLSurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    PixelFormat pf = m_pDecoder->getPixelFormat();
-    FrameAvailableCode frameAvailable;
-    if (pixelFormatIsPlanar(pf)) {
-        std::vector<BitmapPtr> pBmps;
-        for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-            pBmps.push_back(pSurface->lockBmp(i));
+    FrameAvailableCode frameAvailable = renderToSurface(pSurface);
+    if (m_pDecoder->isEOF()) {
+//        AVG_TRACE(Logger::PROFILE, "EOF");
+        updateStatusDueToDecoderEOF();
+        if (m_bLoop) {
+            frameAvailable = renderToSurface(pSurface);
         }
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime());
-    } else {
-        BitmapPtr pBmp = pSurface->lockBmp();
-        frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
     }
-    pSurface->unlockBmps();
+
     switch (frameAvailable) {
         case FA_NEW_FRAME:
             m_FramesPlayed++;
@@ -640,12 +636,25 @@ bool VideoNode::renderToSurface(OGLSurface * pSurface)
             AVG_ASSERT(false);
     }
 
-    if (m_pDecoder->isEOF()) {
-//        AVG_TRACE(Logger::PROFILE, "EOF");
-        updateStatusDueToDecoderEOF();
-    }
-
     return (frameAvailable == FA_NEW_FRAME);
+}
+
+FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
+{
+    FrameAvailableCode frameAvailable;
+    PixelFormat pf = m_pDecoder->getPixelFormat();
+    if (pixelFormatIsPlanar(pf)) {
+        std::vector<BitmapPtr> pBmps;
+        for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+            pBmps.push_back(pSurface->lockBmp(i));
+        }
+        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime());
+    } else {
+        BitmapPtr pBmp = pSurface->lockBmp();
+        frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
+    }
+    pSurface->unlockBmps();
+    return frameAvailable;
 }
 
 void VideoNode::onEOF()
