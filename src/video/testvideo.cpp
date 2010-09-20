@@ -220,9 +220,11 @@ class VideoDecoderTest: public DecoderTest {
                 FrameAvailableCode FrameAvailable = 
                         pDecoder->renderToBmp(pBmp, (long long)CurTime);
                 if (FrameAvailable == FA_NEW_FRAME) {
-//                    stringstream ss;
-//                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
-//                    pBmp->save(ss.str());
+/*                    
+                    stringstream ss;
+                    ss << "resultimages/" << sFilename << NumFrames << ".png";
+                    pBmp->save(ss.str());
+*/                    
                     NumFrames++;
 
                 } else {
@@ -232,7 +234,7 @@ class VideoDecoderTest: public DecoderTest {
                     CurTime += TimePerFrame;
                 }
             }
-//            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
+            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
                 testEqual(*pBmp, sFilename+"_end", B8G8R8X8);

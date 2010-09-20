@@ -112,7 +112,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         // Used from video thread.
         FrameAvailableCode readFrameForTime(AVFrame& Frame, long long timeWanted);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
-        long long getFrameTime(AVPacket* pPacket);
+        long long getFrameTime(long long dts);
         double calcStreamFPS() const;
         std::string getStreamPF() const;
 
@@ -160,9 +160,6 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         bool m_bAudioEOF;
         boost::mutex m_AudioMutex;
         double m_LastAudioFrameTime;
-        unsigned char * m_pPacketData;
-        AVPacket * m_pPacket;
-        int m_PacketLenLeft;
         bool m_bFirstPacket;
         long long m_VideoStartTimestamp;
         long long m_LastVideoFrameTime;

@@ -71,8 +71,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pVStream(0),
       m_pAStream(0),
       m_VStreamIndex(-1),
-      m_pPacketData(0),
-      m_bFirstPacket(0),
+      m_bFirstPacket(false),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1000),
       m_FPS(0)
@@ -230,7 +229,6 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
         m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
 #endif
         m_bFirstPacket = true;
-        m_PacketLenLeft = 0;
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1000;
     
@@ -332,11 +330,6 @@ void FFMpegDecoder::close()
     if(m_pVStream)
     {
         avcodec_close(m_pVStream->codec);
-        if (!m_bFirstPacket) {
-            av_free_packet(m_pPacket);
-            delete m_pPacket;
-        }
-        m_pPacketData = 0;
         m_pVStream = 0;
         m_VStreamIndex = -1;
     }
@@ -942,42 +935,24 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long tim
     AVG_ASSERT(m_State == DECODING);
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
-
-/*
-    bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");
-    if (bDebug) {
-        cerr << m_sFilename << " readFrameForTime " << timeWanted 
-                << ", LastFrameTime= " << m_LastFrameTime << ", diff= " 
-                << timeWanted-m_LastFrameTime << endl;
-    }
-*/    
+//    cerr << m_sFilename << " readFrameForTime " << timeWanted
+//                << ", LastFrameTime= " << m_LastVideoFrameTime << ", diff= " 
+//                << timeWanted-m_LastVideoFrameTime << endl;
     if (timeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
         double TimePerFrame = 1000/m_FPS;
         if (timeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
-/*            
-            if (bDebug) {
-                cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
-                        <<  endl;
-            }
-*/            
+//            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
+//                    <<  endl;
             // The last frame is still current. Display it again.
             return FA_USE_LAST_FRAME;
         } else {
             while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
                 readFrame(Frame, FrameTime);
-/*                
-                if (bDebug) {
-                    cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
-                }
-*/                
+//                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
             }
-/*
-            if (bDebug) {
-                cerr << "  frame ok." << endl;
-            }
-*/            
+//            cerr << "  frame ok." << endl;
         }
     }
     return FA_NEW_FRAME;
@@ -1003,44 +978,41 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 #else
     AVCodecContext *enc = m_pVStream->codec;
 #endif
-    int gotPicture = 0;
-    while (!gotPicture) {
-        if (m_PacketLenLeft <= 0) {
-            if (!m_bFirstPacket) {
-                av_free_packet(m_pPacket);
-                delete m_pPacket;
+    int bGotPicture = 0;
+    AVPacket* pPacket = 0;
+    long long dts = 0;
+    while (!bGotPicture) {
+        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+        if (!pPacket) {
+            // No more packets -> EOF. Decode the last data we got.
+            AVPacket packet;
+            av_init_packet(&packet);
+            packet.data = 0;
+            packet.size = 0;
+            avcodec_decode_video2(enc, &Frame, &bGotPicture, &packet);
+            if (bGotPicture) {
+                m_bEOFPending = true;
+            } else {
+                m_bVideoEOF = true;
             }
-            m_bFirstPacket = false;
-            m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
-            if (!m_pPacket) {
-                // No more packets -> EOF. Decode the last data we got.
-                avcodec_decode_video(enc, &Frame, &gotPicture, NULL, 0);
-                if (gotPicture) {
-                    m_bEOFPending = true;
-                } else {
-                    m_bVideoEOF = true;
-                }
-                // We don't have a timestamp for the last frame, so we'll
-                // calculate it based on the frame before.
-                FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
-                m_LastVideoFrameTime = FrameTime;
-                return;
-            }
-            m_PacketLenLeft = m_pPacket->size;
-            m_pPacketData = m_pPacket->data;
+            // We don't have a timestamp for the last frame, so we'll
+            // calculate it based on the frame before.
+            FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
+            m_LastVideoFrameTime = FrameTime;
+            return;
         }
-        int Len1 = avcodec_decode_video(enc, &Frame,
-                &gotPicture, m_pPacketData, m_PacketLenLeft);
-        if (Len1 <= 0) {
-//                AVG_TRACE(Logger::WARNING, "Error decoding " <<
-//                        m_sFilename);
-            m_PacketLenLeft = 0;
-        } else {
-            m_pPacketData += Len1;
-            m_PacketLenLeft -= Len1;
+//        cerr << "decode, size=" << pPacket->size << endl;
+        int Len1 = avcodec_decode_video2(enc, &Frame, &bGotPicture, pPacket);
+        if (Len1 > 0) {
+            AVG_ASSERT(Len1 == pPacket->size);
         }
+        dts = pPacket->dts;
+        av_free_packet(pPacket);
+        delete pPacket;
+
     }
-    FrameTime = getFrameTime(m_pPacket);
+    FrameTime = getFrameTime(dts);
+    m_bFirstPacket = false;
 /*
     cerr << "coded_picture_number: " << Frame.coded_picture_number <<
             ", display_picture_number: " << Frame.display_picture_number <<
@@ -1053,14 +1025,14 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 */
 }
 
-long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
+long long FFMpegDecoder::getFrameTime(long long dts)
 {
     if (m_VideoStartTimestamp == -1) {
-        m_VideoStartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
+        m_VideoStartTimestamp = (long long)((1000*dts)/m_TimeUnitsPerSecond);
     }
     long long FrameTime;
     if (m_bUseStreamFPS) {
-        FrameTime = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_VideoStartTimestamp;
+        FrameTime = (long long)((1000*dts)/m_TimeUnitsPerSecond)-m_VideoStartTimestamp;
     } else {
         if (m_LastVideoFrameTime == -1000) {
             FrameTime = 0;
