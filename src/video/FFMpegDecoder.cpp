@@ -985,11 +985,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         if (!pPacket) {
             // No more packets -> EOF. Decode the last data we got.
-            AVPacket packet;
-            av_init_packet(&packet);
-            packet.data = 0;
-            packet.size = 0;
-            avcodec_decode_video2(enc, &Frame, &bGotPicture, &packet);
+            avcodec_decode_video(enc, &Frame, &bGotPicture, 0, 0);
             if (bGotPicture) {
                 m_bEOFPending = true;
             } else {
@@ -1002,7 +998,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
             return;
         }
 //        cerr << "decode, size=" << pPacket->size << endl;
-        int Len1 = avcodec_decode_video2(enc, &Frame, &bGotPicture, pPacket);
+        int Len1 = avcodec_decode_video(enc, &Frame, &bGotPicture, pPacket->data, 
+                pPacket->size);
         if (Len1 > 0) {
             AVG_ASSERT(Len1 == pPacket->size);
         }
