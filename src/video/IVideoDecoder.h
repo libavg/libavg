@@ -53,7 +53,7 @@ class AVG_API IVideoDecoder
         virtual VideoInfo getVideoInfo() const = 0;
 
         virtual void seek(long long DestTime) = 0;
-        virtual void loop() {};
+        virtual void loop() = 0;
         virtual IntPoint getSize() const = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;

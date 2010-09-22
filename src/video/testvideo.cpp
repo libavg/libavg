@@ -241,7 +241,7 @@ class VideoDecoderTest: public DecoderTest {
             }
             
             // Test loop.
-            pDecoder->seek(0);
+            pDecoder->loop();
             pDecoder->renderToBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 

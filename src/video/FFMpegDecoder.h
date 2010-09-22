@@ -95,6 +95,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
         // Called from video and audio threads
         virtual void seek(long long DestTime);
+        virtual void loop();
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
 
     private:

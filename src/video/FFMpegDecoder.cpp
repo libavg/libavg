@@ -434,6 +434,11 @@ void FFMpegDecoder::seek(long long DestTime)
     m_bAudioEOF = false;
 }
 
+void FFMpegDecoder::loop()
+{
+    seek(0);
+}
+
 IntPoint FFMpegDecoder::getSize() const
 {
     AVG_ASSERT(m_State != CLOSED);

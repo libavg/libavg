@@ -287,6 +287,26 @@ class AVTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideoFPS", False)
                 ))
 
+    def testVideoLoop(self):
+        def onEOF():
+            self.eof = True
+
+        def onFrame():
+            if self.eof:
+                self.compareImage("testVideoLoop", False)
+                Player.stop()
+
+        for threaded in [False, True]:
+            self.eof = False
+            Player.setFakeFPS(25)
+            self.loadEmptyScene()
+            videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, fps=25,
+                    threaded=threaded, href="../video/testfiles/mpeg1-48x48.mpg")
+            videoNode.setEOFCallback(onEOF)
+            videoNode.play()
+            Player.setOnFrameHandler(onFrame)
+            Player.play()
+
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
             def setMask(href):
@@ -474,6 +494,7 @@ def AVTestSuite(tests):
             "testVideoOpacity",
             "testVideoSeek",
             "testVideoFPS",
+            "testVideoLoop",
             "testVideoMask",
             "testVideoEOF",
             "testException",
