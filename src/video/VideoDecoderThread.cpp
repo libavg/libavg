@@ -52,7 +52,6 @@ bool VideoDecoderThread::work()
 {
     if (m_pDecoder->isEOF(SS_VIDEO)) {
         m_pDecoder->seek(0);
-        waitForCommand();
     } else {
         ScopeTimer Timer(DecoderProfilingZone);
         vector<BitmapPtr> pBmps;
