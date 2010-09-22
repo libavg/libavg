@@ -394,6 +394,7 @@ void VideoNode::seek(long long DestTime)
     m_PauseStartTime = Player::get()->getFrameTime();
     m_bFrameAvailable = false;
     m_bSeekPending = true;
+//    AVG_TRACE(Logger::PROFILE, "seek");
 }
 
 void VideoNode::open() 
@@ -530,13 +531,19 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 void VideoNode::preRender()
 {
     VisibleNode::preRender();
-    if (getEffectiveOpacity() <= 0.01 && m_VideoState == Playing) {
-        // Throw away frames that are not visible to make sure the video keeps in sync.
-        m_pDecoder->throwAwayFrame(getNextFrameTime());
+    if (getEffectiveOpacity() <= 0.01) {
+        if (m_bSeekPending) {
+            renderFrame(getSurface());
+        }
+        if (m_VideoState == Playing) {
+            // Throw away frames that are not visible to make sure the video 
+            // stays in sync.
+            m_pDecoder->throwAwayFrame(getNextFrameTime());
 
-       if (m_pDecoder->isEOF()) {
-           updateStatusDueToDecoderEOF();
-       }
+            if (m_pDecoder->isEOF()) {
+                updateStatusDueToDecoderEOF();
+            }
+        }
     }
 }
 
