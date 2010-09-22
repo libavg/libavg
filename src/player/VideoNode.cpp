@@ -677,6 +677,7 @@ void VideoNode::updateStatusDueToDecoderEOF()
     if (m_bLoop) {
         m_StartTime = Player::get()->getFrameTime();
         m_PauseTime = 0;
+        m_FramesInRowTooLate = 0;
         m_bFrameAvailable = false;
         m_pDecoder->loop();
     } else {
