@@ -390,6 +390,7 @@ void VideoNode::seek(long long DestTime)
 {
     m_pDecoder->seek(DestTime);
     m_StartTime = Player::get()->getFrameTime() - DestTime;
+    m_JitterCompensation = 0.5;
     m_PauseTime = 0;
     m_PauseStartTime = Player::get()->getFrameTime();
     m_bFrameAvailable = false;
@@ -410,6 +411,7 @@ void VideoNode::open()
                 string("Video: Opening "+m_Filename+" failed. No video stream found."));
     }
     m_StartTime = Player::get()->getFrameTime();
+    m_JitterCompensation = 0.5;
     m_PauseTime = 0;
 
     m_bFirstFrameDecoded = false;
@@ -498,13 +500,21 @@ long long VideoNode::getNextFrameTime() const
         case Paused:
             return m_PauseStartTime-m_StartTime;
         case Playing:
-            if (Player::get()->getFrameTime()-m_StartTime-m_PauseTime < 0) {
-                cerr << "getNextFrameTime < 0" << endl;
-                cerr << "getFrameTime(): " << Player::get()->getFrameTime() << endl;
-                cerr << "m_StartTime: " << m_StartTime << endl;
-                cerr << "m_PauseTime: " << m_PauseTime << endl;
+            {
+                if (Player::get()->getFrameTime()-m_StartTime-m_PauseTime < 0) {
+                    cerr << "getNextFrameTime < 0" << endl;
+                    cerr << "getFrameTime(): " << Player::get()->getFrameTime() << endl;
+                    cerr << "m_StartTime: " << m_StartTime << endl;
+                    cerr << "m_PauseTime: " << m_PauseTime << endl;
+                }
+                long long nextFrameTime = Player::get()->getFrameTime()-m_StartTime
+                        -m_PauseTime
+                        -m_JitterCompensation*1000.0/Player::get()->getFramerate();
+                if (nextFrameTime < 0) {
+                    nextFrameTime = 0;
+                }
+                return nextFrameTime;
             }
-            return Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
         default:
             AVG_ASSERT(false);
             return 0;
@@ -585,7 +595,7 @@ bool VideoNode::renderFrame(OGLSurface * pSurface)
     ScopeTimer Timer(RenderProfilingZone);
     FrameAvailableCode frameAvailable = renderToSurface(pSurface);
     if (m_pDecoder->isEOF()) {
-//        AVG_TRACE(Logger::PROFILE, "EOF");
+//        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
         updateStatusDueToDecoderEOF();
         if (m_bLoop) {
             frameAvailable = renderToSurface(pSurface);
@@ -660,6 +670,15 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
         BitmapPtr pBmp = pSurface->lockBmp();
         frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
     }
+
+    // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
+    // are at the border of a frame's time, this can cause irregular display times.
+    // So, if we detect this condition, we adjust the frame time by a small fraction
+    // to move it towards the center of the time slot.
+    long long jitter = getNextFrameTime()-m_pDecoder->getCurTime();
+    if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
+        m_JitterCompensation += 0.2;
+    }
     pSurface->unlockBmps();
     return frameAvailable;
 }
@@ -683,6 +702,7 @@ void VideoNode::updateStatusDueToDecoderEOF()
     m_bEOFPending = true;
     if (m_bLoop) {
         m_StartTime = Player::get()->getFrameTime();
+        m_JitterCompensation = 0.5;
         m_PauseTime = 0;
         m_FramesInRowTooLate = 0;
         m_bFrameAvailable = false;

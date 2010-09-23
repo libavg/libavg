@@ -130,6 +130,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         long long m_StartTime;
         long long m_PauseTime;
         long long m_PauseStartTime;
+        double m_JitterCompensation;
 
         IVideoDecoder * m_pDecoder;
         double m_Volume;

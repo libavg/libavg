@@ -959,7 +959,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, double timeWa
 //            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
 //                    frameTime-timeWanted <<  endl;
         }
-//        cerr << "FRAME OK." << endl;
+//        cerr << "NEW FRAME." << endl;
     }
     return FA_NEW_FRAME;
 }
