@@ -101,7 +101,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
     private:
         void initVideoSupport();
         PixelFormat calcPixelFormat(bool bUseYCbCr);
-        virtual long long getDuration() const;
+        virtual double getDuration() const;
         virtual int getNumFrames() const;
 
         DecoderState m_State;
@@ -111,9 +111,9 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         bool m_bThreadedDemuxer;
 
         // Used from video thread.
-        FrameAvailableCode readFrameForTime(AVFrame& Frame, long long timeWanted);
+        FrameAvailableCode readFrameForTime(AVFrame& Frame, double timeWanted);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
-        long long getFrameTime(long long dts);
+        double getFrameTime(long long dts);
         double calcStreamFPS() const;
         std::string getStreamPF() const;
 
@@ -146,11 +146,11 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         ReSampleContext * m_pAudioResampleContext;
         double m_Volume;
         double m_LastVolume;
-        long long m_AudioStartTimestamp;
+        double m_AudioStartTimestamp;
 
         // Used from video and audio threads.
-        long long readFrame(AVFrame& frame);
-        long long getStartTime();
+        double readFrame(AVFrame& frame);
+        double getStartTime();
 
         IDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
@@ -162,11 +162,11 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         boost::mutex m_AudioMutex;
         double m_LastAudioFrameTime;
         bool m_bFirstPacket;
-        long long m_VideoStartTimestamp;
-        long long m_LastVideoFrameTime;
+        double m_VideoStartTimestamp;
+        double m_LastVideoFrameTime;
 
         double m_FPS;
-        long long m_StreamTimeOffset;
+        double m_StreamTimeOffset;
 
         static bool m_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously
