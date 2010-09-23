@@ -415,8 +415,7 @@ void FFMpegDecoder::seek(long long DestTime)
 {
     if (m_bFirstPacket && m_pVStream) {
         AVFrame Frame;
-        long long FrameTime;
-        readFrame(Frame, FrameTime);
+        readFrame(Frame);
     }
     m_pDemuxer->seek(DestTime + getStartTime());
     if (m_pVStream) {
@@ -553,8 +552,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     AVFrame frame;
     FrameAvailableCode frameAvailable;
     if (timeWanted == -1) {
-        long long frameTime;
-        readFrame(frame, frameTime);
+        readFrame(frame);
         frameAvailable = FA_NEW_FRAME;
     } else {
         frameAvailable = readFrameForTime(frame, timeWanted);
@@ -945,8 +943,6 @@ int FFMpegDecoder::getNumFrames() const
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-    // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
-    long long FrameTime = -1000;
 //    cerr << m_sFilename << " readFrameForTime " << timeWanted
 //                << ", LastFrameTime= " << m_LastVideoFrameTime << ", diff= " 
 //                << timeWanted-m_LastVideoFrameTime << endl;
@@ -958,8 +954,9 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long tim
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
     } else {
-        while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
-            readFrame(Frame, FrameTime);
+        long long frameTime = -1000;
+        while (frameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
+            frameTime = readFrame(Frame);
             //                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
         }
         //            cerr << "  frame ok." << endl;
@@ -969,14 +966,15 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long tim
 
 static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
 
-void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
+long long FFMpegDecoder::readFrame(AVFrame& frame)
 {
     AVG_ASSERT(m_pDemuxer);
     ScopeTimer Timer(DecodeProfilingZone); 
+
     if (m_bEOFPending) {
         m_bVideoEOF = true;
         m_bEOFPending = false;
-        return;
+        return m_LastVideoFrameTime;
     }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     AVCodecContext *enc = &m_pVStream->codec;
@@ -985,24 +983,25 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 #endif
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
+    long long frameTime = -1000;
     while (!bGotPicture && !m_bVideoEOF) {
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
     //        cerr << "decode, size=" << pPacket->size << endl;
-            int Len1 = avcodec_decode_video(enc, &Frame, &bGotPicture, pPacket->data,
+            int Len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
             if (Len1 > 0) {
                 AVG_ASSERT(Len1 == pPacket->size);
             }
             if (bGotPicture) {
-                FrameTime = getFrameTime(pPacket->dts);
+                frameTime = getFrameTime(pPacket->dts);
             }
             av_free_packet(pPacket);
             delete pPacket;
         } else {
             // No more packets -> EOF. Decode the last data we got.
-            avcodec_decode_video(enc, &Frame, &bGotPicture, 0, 0);
+            avcodec_decode_video(enc, &frame, &bGotPicture, 0, 0);
             if (bGotPicture) {
                 m_bEOFPending = true;
             } else {
@@ -1010,10 +1009,12 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
             }
             // We don't have a timestamp for the last frame, so we'll
             // calculate it based on the frame before.
-            FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
-            m_LastVideoFrameTime = FrameTime;
+            frameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
+            m_LastVideoFrameTime = frameTime;
         }
     }
+    AVG_ASSERT(frameTime != -1000)
+    return frameTime;
 /*
     cerr << "coded_picture_number: " << Frame.coded_picture_number <<
             ", display_picture_number: " << Frame.display_picture_number <<
