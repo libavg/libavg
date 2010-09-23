@@ -37,7 +37,7 @@ VideoMsg::~VideoMsg()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, long long audioTime)
+void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, double audioTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     AVG_ASSERT(pAudioBuffer);
@@ -59,7 +59,7 @@ void VideoMsg::setError(const Exception& ex)
     m_pEx = new Exception(ex);
 }
 
-void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime)
+void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3 || pBmps.size() == 4);
@@ -68,7 +68,7 @@ void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime
     m_FrameTime = frameTime;
 }
 
-void VideoMsg::setSeekDone(long long seekVideoFrameTime, long long seekAudioFrameTime)
+void VideoMsg::setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     m_MsgType = SEEK_DONE;
@@ -87,7 +87,7 @@ AudioBufferPtr VideoMsg::getAudioBuffer() const
     return m_pAudioBuffer;
 }
 
-long long VideoMsg::getAudioTime() const
+double VideoMsg::getAudioTime() const
 {
     AVG_ASSERT(m_MsgType == AUDIO);
     return m_AudioTime;
@@ -105,19 +105,19 @@ BitmapPtr VideoMsg::getFrameBitmap(int i)
     return m_pBmps[i];
 }
 
-long long VideoMsg::getFrameTime()
+double VideoMsg::getFrameTime()
 {
     AVG_ASSERT(m_MsgType == FRAME);
     return m_FrameTime;
 }
 
-long long VideoMsg::getSeekVideoFrameTime()
+double VideoMsg::getSeekVideoFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekVideoFrameTime;
 }
 
-long long VideoMsg::getSeekAudioFrameTime()
+double VideoMsg::getSeekAudioFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekAudioFrameTime;

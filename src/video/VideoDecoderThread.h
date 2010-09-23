@@ -46,7 +46,7 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         virtual ~VideoDecoderThread();
         
         bool work();
-        void seek(long long DestTime);
+        void seek(double DestTime);
         void setFPS(double FPS);
         void returnFrame(VideoMsgPtr pMsg);
 

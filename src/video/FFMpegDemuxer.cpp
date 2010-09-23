@@ -94,19 +94,15 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
     return pPacket;
 }
 
-void FFMpegDemuxer::seek(long long DestTime)
+void FFMpegDemuxer::seek(double DestTime)
 {
 #if LIBAVFORMAT_BUILD <= 4616
-    av_seek_frame(m_pFormatContext, -1, 
-            (DestTime*(1000000/1000)));
+    av_seek_frame(m_pFormatContext, -1, DestTime*1000000);
 #else
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    av_seek_frame(m_pFormatContext, -1, 
-            (DestTime*(1000000/1000)), 0);
+    av_seek_frame(m_pFormatContext, -1, DestTime*1000000, 0);
 #else
-     av_seek_frame(m_pFormatContext, -1, 
-             (DestTime * (AV_TIME_BASE/1000)),
-             AVSEEK_FLAG_BACKWARD);
+    av_seek_frame(m_pFormatContext, -1, DestTime*AV_TIME_BASE, AVSEEK_FLAG_BACKWARD);
 #endif
 #endif
     clearPacketCache();

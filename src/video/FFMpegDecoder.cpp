@@ -393,9 +393,9 @@ IVideoDecoder::DecoderState FFMpegDecoder::getState() const
 VideoInfo FFMpegDecoder::getVideoInfo() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    long long duration = 0;
+    double duration = 0;
     if (m_pVStream || m_pAStream) {
-        duration = getDuration()*1000;
+        duration = getDuration();
     }
     VideoInfo info(duration, m_pFormatContext->bit_rate, m_pVStream != 0,
             m_pAStream != 0);
@@ -411,19 +411,19 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
     return info;
 }
 
-void FFMpegDecoder::seek(long long DestTime) 
+void FFMpegDecoder::seek(double DestTime) 
 {
     if (m_bFirstPacket && m_pVStream) {
         AVFrame Frame;
         readFrame(Frame);
     }
-    m_pDemuxer->seek(DestTime + 1000*getStartTime());
+    m_pDemuxer->seek(DestTime + getStartTime());
     if (m_pVStream) {
-        m_LastVideoFrameTime = DestTime/1000.0 - 1.0/m_FPS;
+        m_LastVideoFrameTime = DestTime - 1.0/m_FPS;
     }
     if (m_pAStream) {
         mutex::scoped_lock Lock(m_AudioMutex);
-        m_LastAudioFrameTime = double(DestTime/1000.0);
+        m_LastAudioFrameTime = DestTime;
         m_SampleBufferStart = m_SampleBufferEnd = 0;
         m_SampleBufferLeft = SAMPLE_BUFFER_SIZE;
         m_ResampleBufferStart = m_ResampleBufferEnd = 0;
@@ -455,17 +455,17 @@ int FFMpegDecoder::getNumFramesQueued() const
     return 0;
 }
 
-long long FFMpegDecoder::getCurTime(StreamSelect Stream) const
+double FFMpegDecoder::getCurTime(StreamSelect Stream) const
 {
     AVG_ASSERT(m_State != CLOSED);
     switch(Stream) {
         case SS_DEFAULT:
         case SS_VIDEO:
             AVG_ASSERT(m_pVStream);
-            return (long long)(1000*m_LastVideoFrameTime);
+            return m_LastVideoFrameTime;
         case SS_AUDIO:
             AVG_ASSERT(m_pAStream);
-            return (long long)(1000*m_LastAudioFrameTime);
+            return m_LastAudioFrameTime;
         default:
             return -1;
     }
@@ -484,7 +484,7 @@ double FFMpegDecoder::getDuration() const
         time_base=m_pAStream->time_base;
     }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return double(uration)/AV_TIME_BASE;
+    return double(duration)/AV_TIME_BASE;
 #else
     return double(duration)*av_q2d(time_base);
 #endif 
@@ -545,7 +545,7 @@ static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
-        long long timeWanted)
+        double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer Timer(RenderToBmpProfilingZone);
@@ -555,7 +555,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         readFrame(frame);
         frameAvailable = FA_NEW_FRAME;
     } else {
-        frameAvailable = readFrameForTime(frame, timeWanted/1000.0);
+        frameAvailable = readFrameForTime(frame, timeWanted);
     }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
@@ -571,11 +571,11 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     return FA_USE_LAST_FRAME;
 }
 
-void FFMpegDecoder::throwAwayFrame(long long timeWanted)
+void FFMpegDecoder::throwAwayFrame(double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     AVFrame Frame;
-    readFrameForTime(Frame, timeWanted/1000.0);
+    readFrameForTime(Frame, timeWanted);
 }
 
 bool FFMpegDecoder::isEOF(StreamSelect Stream) const
@@ -786,12 +786,7 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
             m_bAudioEOF = true;
             return pBuffer->getNumFrames()-bufferLeft/(pBuffer->getFrameSize());
         }
-/* 
-        if(m_AudioPacket->dts != AV_NOPTS_VALUE) {
-            long long dts = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
-                    m_AudioPacket->dts - m_AudioStartTimestamp);
-        }
-*/
+
         // Initialize packet data pointers
         m_AudioPacketData = m_AudioPacket->data;
         m_AudioPacketSize = m_AudioPacket->size;

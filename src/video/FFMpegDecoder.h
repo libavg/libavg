@@ -83,18 +83,18 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
+        virtual double getCurTime(StreamSelect Stream = SS_DEFAULT) const;
         virtual void setFPS(double FPS);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
-                long long timeWanted);
-        virtual void throwAwayFrame(long long timeWanted);
+                double timeWanted);
+        virtual void throwAwayFrame(double timeWanted);
         
         // Called from audio decoder thread
         virtual void setVolume(double Volume);
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
         // Called from video and audio threads
-        virtual void seek(long long DestTime);
+        virtual void seek(double DestTime);
         virtual void loop();
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
 

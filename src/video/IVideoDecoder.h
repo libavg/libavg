@@ -52,12 +52,12 @@ class AVG_API IVideoDecoder
         virtual DecoderState getState() const = 0;
         virtual VideoInfo getVideoInfo() const = 0;
 
-        virtual void seek(long long DestTime) = 0;
+        virtual void seek(double DestTime) = 0;
         virtual void loop() = 0;
         virtual IntPoint getSize() const = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const = 0;
+        virtual double getCurTime(StreamSelect Stream = SS_DEFAULT) const = 0;
         virtual double getNominalFPS() const = 0;
         virtual double getFPS() const = 0;
         virtual void setFPS(double FPS) = 0;
@@ -66,16 +66,16 @@ class AVG_API IVideoDecoder
         virtual PixelFormat getPixelFormat() const = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
-                long long timeWanted);
+                double timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
-                long long timeWanted) = 0;
+                double timeWanted) = 0;
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const = 0;
-        virtual void throwAwayFrame(long long timeWanted) = 0;
+        virtual void throwAwayFrame(double timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
-inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, long long timeWanted)
+inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);

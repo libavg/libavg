@@ -31,7 +31,7 @@ VideoInfo::VideoInfo()
 {
 }
 
-VideoInfo::VideoInfo(long long duration, int bitrate, bool bHasVideo, bool bHasAudio)
+VideoInfo::VideoInfo(double duration, int bitrate, bool bHasVideo, bool bHasAudio)
     : m_Duration(duration),
       m_Bitrate(bitrate),
       m_bHasVideo(bHasVideo),

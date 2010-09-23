@@ -194,7 +194,7 @@ std::string VideoNode::getStreamPixelFormat() const
 long long VideoNode::getDuration() const
 {
     exceptionIfUnloaded("getDuration");
-    return m_pDecoder->getVideoInfo().m_Duration;
+    return m_pDecoder->getVideoInfo().m_Duration*1000;
 }
 
 int VideoNode::getBitrate() const
@@ -230,7 +230,7 @@ int VideoNode::getNumAudioChannels() const
 long long VideoNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    long long curTime = m_pDecoder->getCurTime();
+    long long curTime = m_pDecoder->getCurTime()*1000;
     if (curTime > 0) {
         return curTime;
     } else {
@@ -388,7 +388,7 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
 
 void VideoNode::seek(long long DestTime) 
 {
-    m_pDecoder->seek(DestTime);
+    m_pDecoder->seek(double(DestTime)/1000.0);
     m_StartTime = Player::get()->getFrameTime() - DestTime;
     m_JitterCompensation = 0.5;
     m_PauseTime = 0;
@@ -548,7 +548,7 @@ void VideoNode::preRender()
         if (m_VideoState == Playing) {
             // Throw away frames that are not visible to make sure the video 
             // stays in sync.
-            m_pDecoder->throwAwayFrame(getNextFrameTime());
+            m_pDecoder->throwAwayFrame(getNextFrameTime()/1000.0);
 
             if (m_pDecoder->isEOF()) {
                 updateStatusDueToDecoderEOF();
@@ -665,10 +665,10 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
         for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
             pBmps.push_back(pSurface->lockBmp(i));
         }
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime());
+        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0);
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
+        frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime()/1000.0);
     }
 
     // Even with vsync, frame duration has a bit of jitter. If the video frames rendered

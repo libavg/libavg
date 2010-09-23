@@ -46,8 +46,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLeng
       m_bVideoEOF(false),
       m_bSeekPending(false),
       m_Volume(1.0),
-      m_LastVideoFrameTime(-1000),
-      m_LastAudioFrameTime(-1000)
+      m_LastVideoFrameTime(-1),
+      m_LastAudioFrameTime(-1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -80,7 +80,7 @@ void AsyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP
     m_pSyncDecoder->startDecoding(bDeliverYCbCr, pAP);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
     if (m_VideoInfo.m_bHasVideo) {
-        m_LastVideoFrameTime = -1000;
+        m_LastVideoFrameTime = -1;
         m_PF = m_pSyncDecoder->getPixelFormat();
         m_pVCmdQ = VideoDecoderThread::CQueuePtr(new VideoDecoderThread::CQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(m_QueueLength));
@@ -138,7 +138,7 @@ VideoInfo AsyncVideoDecoder::getVideoInfo() const
     return m_VideoInfo;
 }
 
-void AsyncVideoDecoder::seek(long long DestTime)
+void AsyncVideoDecoder::seek(double DestTime)
 {
     AVG_ASSERT(m_State == DECODING);
     waitForSeekDone();
@@ -147,7 +147,7 @@ void AsyncVideoDecoder::seek(long long DestTime)
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
-    m_LastVideoFrameTime = -1000;
+    m_LastVideoFrameTime = -1;
     m_bSeekPending = true;
     if (m_pVCmdQ) {
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::seek, _1, DestTime));
@@ -183,7 +183,7 @@ void AsyncVideoDecoder::seek(long long DestTime)
 
 void AsyncVideoDecoder::loop()
 {
-    m_LastVideoFrameTime = -1000;
+    m_LastVideoFrameTime = -1;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
 }
@@ -197,7 +197,7 @@ IntPoint AsyncVideoDecoder::getSize() const
 int AsyncVideoDecoder::getCurFrame() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    return int(getCurTime(SS_VIDEO)*m_VideoInfo.m_StreamFPS/1000.0+0.5);
+    return int(getCurTime(SS_VIDEO)*m_VideoInfo.m_StreamFPS+0.5);
 }
 
 int AsyncVideoDecoder::getNumFramesQueued() const
@@ -206,7 +206,7 @@ int AsyncVideoDecoder::getNumFramesQueued() const
     return m_pVMsgQ->size();
 }
 
-long long AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
+double AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
 {
     AVG_ASSERT(m_State != CLOSED);
     switch(Stream) {
@@ -267,7 +267,7 @@ PixelFormat AsyncVideoDecoder::getPixelFormat() const
 }
 
 FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
-        long long timeWanted)
+        double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
@@ -297,7 +297,7 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream) const
     }
 }
 
-void AsyncVideoDecoder::throwAwayFrame(long long timeWanted)
+void AsyncVideoDecoder::throwAwayFrame(double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     FrameAvailableCode FrameAvailable;
@@ -354,7 +354,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     return pBuffer->getNumFrames();
 }
         
-VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted, 
+VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(double timeWanted, 
         FrameAvailableCode& FrameAvailable)
 {
     if (timeWanted < 0 && timeWanted != -1) {
@@ -362,13 +362,13 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long timeWanted,
         AVG_ASSERT(false);
     }
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
-    long long FrameTime = -1000;
+    double FrameTime = -1;
     VideoMsgPtr pFrameMsg;
     if (timeWanted == -1) {
         pFrameMsg = getNextBmps(true);
         FrameAvailable = FA_NEW_FRAME;
     } else {
-        double TimePerFrame = 1000.0/getFPS();
+        double TimePerFrame = 1.0/getFPS();
         if (fabs(double(timeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
                 m_LastVideoFrameTime > timeWanted+TimePerFrame) {
             // The last frame is still current. Display it again.

@@ -36,44 +36,44 @@ class AVG_API VideoMsg {
 public:
     enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE};
     VideoMsg();
-    void setAudio(AudioBufferPtr pAudioBuffer, long long audioTime);
+    void setAudio(AudioBufferPtr pAudioBuffer, double audioTime);
     void setEOF();
     void setError(const Exception& ex);
-    void setFrame(const std::vector<BitmapPtr>& pBmps, long long frameTime);
-    void setSeekDone(long long seekVideoFrameTime, long long seekAudioFrameTime);
+    void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime);
+    void setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime);
 
     virtual ~VideoMsg();
 
     MsgType getType();
 
     AudioBufferPtr getAudioBuffer() const;
-    long long getAudioTime() const;
+    double getAudioTime() const;
 
     const Exception& getException() const;
 
     BitmapPtr getFrameBitmap(int i);
-    long long getFrameTime();
+    double getFrameTime();
 
-    long long getSeekVideoFrameTime();
-    long long getSeekAudioFrameTime();
+    double getSeekVideoFrameTime();
+    double getSeekAudioFrameTime();
 
 private:
     MsgType m_MsgType;
 
     // AUDIO
     AudioBufferPtr m_pAudioBuffer;
-    long long m_AudioTime;
+    double m_AudioTime;
 
     // ERROR
     Exception* m_pEx;
 
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
-    long long m_FrameTime; // In Milliseconds since video start.
+    double m_FrameTime; // In Milliseconds since video start.
 
     // SEEK_DONE
-    long long m_SeekVideoFrameTime;
-    long long m_SeekAudioFrameTime;
+    double m_SeekVideoFrameTime;
+    double m_SeekAudioFrameTime;
 };
 
 typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;

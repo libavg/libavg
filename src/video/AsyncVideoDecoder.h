@@ -47,12 +47,12 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         virtual void close();
         virtual DecoderState getState() const;
         virtual VideoInfo getVideoInfo() const;
-        virtual void seek(long long DestTime);
+        virtual void seek(double DestTime);
         virtual void loop();
         virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) const;
+        virtual double getCurTime(StreamSelect Stream = SS_DEFAULT) const;
         virtual double getNominalFPS() const;
         virtual double getFPS() const;
         virtual void setFPS(double FPS);
@@ -61,14 +61,14 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         virtual PixelFormat getPixelFormat() const;
 
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
-                long long timeWanted);
+                double timeWanted);
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
-        virtual void throwAwayFrame(long long timeWanted);
+        virtual void throwAwayFrame(double timeWanted);
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         
     private:
-        VideoMsgPtr getBmpsForTime(long long timeWanted, 
+        VideoMsgPtr getBmpsForTime(double timeWanted, 
                 FrameAvailableCode& FrameAvailable);
         VideoMsgPtr getNextBmps(bool bWait);
         void waitForSeekDone();
@@ -104,8 +104,8 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
         boost::mutex m_SeekMutex;
         double m_Volume;
 
-        long long m_LastVideoFrameTime;
-        long long m_LastAudioFrameTime;
+        double m_LastVideoFrameTime;
+        double m_LastAudioFrameTime;
 };
 
 }

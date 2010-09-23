@@ -87,14 +87,14 @@ bool VideoDecoderThread::work()
     return true;
 }
 
-void VideoDecoderThread::seek(long long DestTime)
+void VideoDecoderThread::seek(double DestTime)
 {
     while (!m_MsgQ.empty()) {
         m_MsgQ.pop(false);
     }
 
-    long long VideoFrameTime = -1;
-    long long AudioFrameTime = -1;
+    double VideoFrameTime = -1;
+    double AudioFrameTime = -1;
     m_pDecoder->seek(DestTime);
     if (m_pDecoder->getVideoInfo().m_bHasVideo) {
         VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);

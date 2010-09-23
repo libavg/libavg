@@ -45,7 +45,7 @@ class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
         void deinit();
 
         void enableStream(VideoPacketQueuePtr pPacketQ, int StreamIndex);
-        void seek(long long DestTime);
+        void seek(double DestTime);
 
     private:
         void onStreamEOF(int StreamIndex);

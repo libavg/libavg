@@ -94,7 +94,7 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
     return pPacketMsg->getPacket();
 }
 
-void AsyncDemuxer::seek(long long DestTime)
+void AsyncDemuxer::seek(double DestTime)
 {
     waitForSeekDone();
     scoped_lock Lock(m_SeekMutex);
