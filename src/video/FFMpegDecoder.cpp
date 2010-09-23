@@ -551,7 +551,14 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer Timer(RenderToBmpProfilingZone);
     AVFrame frame;
-    FrameAvailableCode frameAvailable = readFrameForTime(frame, timeWanted);
+    FrameAvailableCode frameAvailable;
+    if (timeWanted == -1) {
+        long long frameTime;
+        readFrame(frame, frameTime);
+        frameAvailable = FA_NEW_FRAME;
+    } else {
+        frameAvailable = readFrameForTime(frame, timeWanted);
+    }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
             ScopeTimer Timer(CopyImageProfilingZone);
@@ -943,22 +950,19 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long tim
 //    cerr << m_sFilename << " readFrameForTime " << timeWanted
 //                << ", LastFrameTime= " << m_LastVideoFrameTime << ", diff= " 
 //                << timeWanted-m_LastVideoFrameTime << endl;
-    if (timeWanted == -1) {
-        readFrame(Frame, FrameTime);
+    AVG_ASSERT(timeWanted != -1);
+    double TimePerFrame = 1000/m_FPS;
+    if (timeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
+        //            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
+        //                    <<  endl;
+        // The last frame is still current. Display it again.
+        return FA_USE_LAST_FRAME;
     } else {
-        double TimePerFrame = 1000/m_FPS;
-        if (timeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
-//            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
-//                    <<  endl;
-            // The last frame is still current. Display it again.
-            return FA_USE_LAST_FRAME;
-        } else {
-            while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
-                readFrame(Frame, FrameTime);
-//                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
-            }
-//            cerr << "  frame ok." << endl;
+        while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
+            readFrame(Frame, FrameTime);
+            //                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
         }
+        //            cerr << "  frame ok." << endl;
     }
     return FA_NEW_FRAME;
 }
