@@ -44,9 +44,9 @@
 #include "../base/Directory.h"
 #include "../base/DirEntry.h"
 
-#include <stdio.h>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 using namespace avg;
 using namespace std;
