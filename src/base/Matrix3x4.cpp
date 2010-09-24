@@ -116,7 +116,8 @@ std::ostream& operator<<(ostream& os, const Matrix3x4& mat)
 {
     os << "{" << endl;
     for (int y=0; y<4; ++y) {
-        os << "  {" << mat.val[0][y] << "," << mat.val[1][y] << "," << mat.val[2][y] << "}" << endl;
+        os << "  {" << mat.val[0][y] << "," << mat.val[1][y] << "," << mat.val[2][y] 
+                << "}" << endl;
     }
     os << "}" << endl;
     return os;

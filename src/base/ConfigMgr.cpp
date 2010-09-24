@@ -40,11 +40,9 @@ using namespace std;
 
 namespace avg {
 
-ConfigOption::ConfigOption(const string& sName, const string& sValue,
-            const string& sDescription)
+ConfigOption::ConfigOption(const string& sName, const string& sValue)
     : m_sName(sName),
-      m_sValue(sValue),
-      m_sDescription(sDescription)
+      m_sValue(sValue)
 {
 }
 
@@ -68,37 +66,21 @@ ConfigMgr* ConfigMgr::get()
 ConfigMgr::ConfigMgr()
 {
     addSubsys("scr");
-    addOption("scr", "bpp", "24",
-            "Screen bits per pixel. Valid values are 15, 16, 24 and 32.");
-    addOption("scr", "fullscreen", "false",
-            "Whether to run fullscreen (true) or in a window (false).");
-    addOption("scr", "windowwidth", "0",
-            "The width of the window to use. Contents are scaled.");
-    addOption("scr", "windowheight", "0",
-            "The height of the window to use. Contents are scaled.");
-    addOption("scr", "usepow2textures", "false",
-            "If set to true, use only power of 2 textures.");
-    addOption("scr", "useshaders", "true",
-            "Whether to use shaders.");
-    addOption("scr", "usepixelbuffers", "true",
-            "Whether to use pixel buffer objects.");
-    addOption("scr", "multisamplesamples", "1",
-            "Whether to use multisampling and how many"
-            "samples per pixel to use.");
-    addOption("scr", "gamma", "-1,-1,-1",
-            "Display gamma correction values for red,"
-            "green and blue.");
-    addOption("scr", "vsyncmode", "auto",
-            "How to synchronize the display refresh."
-            "Valid values are auto, ogl, dri and none.");
+    addOption("scr", "bpp", "24");
+    addOption("scr", "fullscreen", "false");
+    addOption("scr", "windowwidth", "0");
+    addOption("scr", "windowheight", "0");
+    addOption("scr", "usepow2textures", "false");
+    addOption("scr", "useshaders", "true");
+    addOption("scr", "usepixelbuffers", "true");
+    addOption("scr", "multisamplesamples", "1");
+    addOption("scr", "gamma", "-1,-1,-1");
+    addOption("scr", "vsyncmode", "auto");
     
     addSubsys("aud");
-    addOption("aud", "channels", "2",
-            "Number of output audio channels.");
-    addOption("aud", "samplerate", "44100",
-            "Sampling rate (Hz) of output audio.");
-    addOption("aud", "outputbuffersamples", "1024",
-            "Size of the SDL audio buffer in samples.");
+    addOption("aud", "channels", "2");
+    addOption("aud", "samplerate", "44100");
+    addOption("aud", "outputbuffersamples", "1024");
 
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
@@ -116,16 +98,10 @@ void ConfigMgr::addSubsys(const string& sName)
 }
 
 void ConfigMgr::addOption(const string& sSubsys, const string& sName,
-        const std::string& sDefault, const string& sDescription)
+        const std::string& sDefault)
 {
     ConfigOptionVector& Subsys = m_SubsysOptionMap[sSubsys];
-    Subsys.push_back(ConfigOption(sName, sDefault, sDescription));
-}
-
-void ConfigMgr::addGlobalOption(const string& sName, const string& sDefault,
-        const string& sDescription)
-{
-    m_GlobalOptions.push_back(ConfigOption(sName, sDefault, sDescription));
+    Subsys.push_back(ConfigOption(sName, sDefault));
 }
 
 const ConfigOptionVector* ConfigMgr::getOptions(const string& sSubsys) const
@@ -208,23 +184,8 @@ void ConfigMgr::getGammaOption(const std::string& sSubsys,
     }
 }
 
-const ConfigOptionVector* ConfigMgr::getGlobalOptions() const
+bool ConfigMgr::loadFile(const std::string& sPath)
 {
-    return &m_GlobalOptions;
-}
-
-const string* ConfigMgr::getGlobalOption(const string& sName) const
-{
-    for (unsigned int i=0; i<m_GlobalOptions.size(); i++) {
-        if (m_GlobalOptions[i].m_sName == sName) {
-            return &m_GlobalOptions[i].m_sValue;
-        }
-    }
-    return 0;
-
-}
-
-bool ConfigMgr::loadFile(const std::string& sPath) {
     string sSubsys;
     try {
 #ifndef _WIN32
@@ -270,20 +231,14 @@ bool ConfigMgr::loadFile(const std::string& sPath) {
                             sPath << ": Option " << sSubsys
                             << " has no value. Ignoring.");
                 } else {
-                    if (!xmlStrcmp(pOptionNode->name, (const xmlChar *)"text") &&
-                            !pOptionNode->next)
-                    {   // This is a global option, not a list of subsystem options.
-                        setOption(m_GlobalOptions, doc, pSubsysNode);
-                    } else {
-                        ConfigOptionVector& CurSubsys = getSubsys(sSubsys);
-                        while (pOptionNode) {
-                            if (xmlStrcmp(pOptionNode->name, (const xmlChar *)"text") &&
-                                    xmlStrcmp(pOptionNode->name, (const xmlChar *)"comment"))
-                            {
-                                setOption(CurSubsys, doc, pOptionNode);
-                            }
-                            pOptionNode = pOptionNode->next;
+                    ConfigOptionVector& CurSubsys = getSubsys(sSubsys);
+                    while (pOptionNode) {
+                        if (xmlStrcmp(pOptionNode->name, (const xmlChar *)"text") &&
+                            xmlStrcmp(pOptionNode->name, (const xmlChar *)"comment"))
+                        {
+                            setOption(CurSubsys, doc, pOptionNode);
                         }
+                        pOptionNode = pOptionNode->next;
                     }
                 }
             }
@@ -318,24 +273,22 @@ ConfigOptionVector& ConfigMgr::getSubsys(const string& sName)
     }
 }
 
-void ConfigMgr::setOption(ConfigOptionVector& OptionVector, 
+void ConfigMgr::setOption(ConfigOptionVector& optionVector, 
         xmlDocPtr doc, xmlNodePtr pNode)
 {
     string sName = (const char *)pNode->name;
-    xmlChar * pVal = 
-            xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
+    xmlChar * pVal = xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
     string sValue = (const char *)pVal;
     xmlFree(pVal);
-    setOption(OptionVector, sName, sValue);    
+    setOption(optionVector, sName, sValue);    
 }
 
-void ConfigMgr::setOption(ConfigOptionVector& OptionVector, 
+void ConfigMgr::setOption(ConfigOptionVector& optionVector, 
         const string& sName, const string& sValue)
 {
-    // TODO: Change OptionVector into a map?
-    for (unsigned int i=0; i<OptionVector.size(); i++) {
-        if (OptionVector[i].m_sName == sName) {
-            OptionVector[i].m_sValue = sValue;
+    for (unsigned int i = 0; i < optionVector.size(); i++) {
+        if (optionVector[i].m_sName == sName) {
+            optionVector[i].m_sValue = sValue;
             return;
         }
     }
@@ -344,16 +297,11 @@ void ConfigMgr::setOption(ConfigOptionVector& OptionVector,
 
 void ConfigMgr::dump() const
 {
-    cerr << "Global options: " << endl;
-    for (unsigned int i=0; i<m_GlobalOptions.size(); ++i) {
-        cerr << "  " << m_GlobalOptions[i].m_sName << ": " 
-                << m_GlobalOptions[i].m_sValue << endl;
-    }
     SubsysOptionMap::const_iterator it;
-    for (it=m_SubsysOptionMap.begin(); it != m_SubsysOptionMap.end(); ++it) {
+    for (it = m_SubsysOptionMap.begin(); it != m_SubsysOptionMap.end(); ++it) {
         cerr << (*it).first << ": " << endl;
         const ConfigOptionVector& SubsysOptions = (*it).second;
-        for (unsigned int j=0; j<SubsysOptions.size(); ++j) {
+        for (unsigned int j = 0; j < SubsysOptions.size(); ++j) {
             cerr << "  " << SubsysOptions[j].m_sName << ": " 
                 << SubsysOptions[j].m_sValue << endl;
         }

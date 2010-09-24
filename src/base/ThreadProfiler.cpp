@@ -101,7 +101,7 @@ void ThreadProfiler::dumpFrame()
 {
     AVG_TRACE(Logger::PROFILE_LATEFRAMES, "Frame Profile:");
     ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+    for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
         AVG_TRACE(Logger::PROFILE_LATEFRAMES,
                 std::setw(35) << std::left 
                 << ((*it)->getIndentString() + (*it)->getName()) 
@@ -118,7 +118,7 @@ void ThreadProfiler::dumpStatistics()
         AVG_TRACE(m_LogCategory, "---------                          ---------");
 
         ZoneList::iterator it;
-        for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+        for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
             AVG_TRACE(m_LogCategory,
                     std::setw(35) << std::left 
                     << ((*it)->getIndentString()+(*it)->getName())
@@ -131,7 +131,7 @@ void ThreadProfiler::dumpStatistics()
 void ThreadProfiler::reset()
 {
     ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+    for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
         (*it)->reset();
     }
 }
@@ -164,7 +164,7 @@ ProfilingZonePtr ThreadProfiler::addZone(const ProfilingZoneID& zoneID)
         ProfilingZonePtr pActiveZone = m_ActiveZones.back();
         ZoneList::iterator itPrevZone = m_Zones.begin();
         bool bParentFound = false;
-        for (it=m_Zones.begin(); it != m_Zones.end(); ++it) 
+        for (it = m_Zones.begin(); it != m_Zones.end(); ++it) 
         {
             if (pActiveZone == *it) {
                 bParentFound = true;

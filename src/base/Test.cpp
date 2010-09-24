@@ -32,8 +32,8 @@ namespace avg {
 
 string Test::s_sSrcDirName;
 
-Test::Test(const string & sName, int IndentLevel)
-    : m_IndentLevel(IndentLevel),
+Test::Test(const string & sName, int indentLevel)
+    : m_IndentLevel(indentLevel),
       m_NumSucceeded(0),
       m_NumFailed(0),
       m_sName(sName)
@@ -44,29 +44,29 @@ Test::~Test()
 {
 }
 
-void Test::test (bool b, const char * pszFile, int Line)
+void Test::test (bool b, const char * pszFile, int line)
 {
     if (b) {
         m_NumSucceeded++;
     } else {
         cerr << string(m_IndentLevel, ' ') << "    ---->> failed at " << pszFile
-                << ", " << Line << endl;
+                << ", " << line << endl;
         m_NumFailed++;
     }
 }
 
 
-bool Test::isOk ()
+bool Test::isOk()
 {
     return m_NumFailed == 0;
 }
 
-void Test::setFailed ()
+void Test::setFailed()
 {
     m_NumFailed++;
 }
 
-int Test::getNumSucceeded () const
+int Test::getNumSucceeded() const
 {
     return m_NumSucceeded;
 }

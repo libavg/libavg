@@ -97,11 +97,11 @@ std::istream& operator>>(std::istream& is, Triple<NUM>& p)
 
 // Explicit instantiations.
 template class Triple<double>;
-template std::ostream& operator<<( std::ostream& os, const Triple<double> &p);
+template std::ostream& operator<<(std::ostream& os, const Triple<double> &p);
 template std::istream& operator>>(std::istream& is, Triple<double>& p);
 
 template class Triple<int>;
-template std::ostream& operator<<( std::ostream& os, const Triple<int> &p);
+template std::ostream& operator<<(std::ostream& os, const Triple<int> &p);
 template std::istream& operator>>(std::istream& is, Triple<int>& p);
 
 }

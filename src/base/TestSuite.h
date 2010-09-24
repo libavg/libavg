@@ -36,9 +36,9 @@ public:
     TestSuite(const std::string& sName);
     virtual ~TestSuite();
 
-    void addTest(TestPtr newTest);
+    void addTest(TestPtr pNewTest);
 
-    virtual void runTests ();
+    virtual void runTests();
 
 private:
     std::vector<TestPtr> m_Tests;

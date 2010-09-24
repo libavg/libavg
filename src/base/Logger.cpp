@@ -118,7 +118,7 @@ void Logger::popCategories()
     m_FlagStack.pop_back();
 }
 
-void Logger::trace(int category, const UTF8String& msg)
+void Logger::trace(int category, const UTF8String& sMsg)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
     if (category & m_Flags) {
@@ -140,7 +140,7 @@ void Logger::trace(int category, const UTF8String& msg)
         cerr << "[" << timeString << "." << 
             setw(3) << setfill('0') << millis << setw(0) << "] ";
         cerr << categoryToString(category) << ": ";
-        cerr << msg << endl;
+        cerr << sMsg << endl;
         cerr.flush();
     }
 }

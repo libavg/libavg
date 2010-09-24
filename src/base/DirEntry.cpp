@@ -26,9 +26,9 @@ using namespace std;
 namespace avg {
 
 #ifdef _WIN32
-DirEntry::DirEntry(std::string sDirName, const _finddata_t& FindData)
+DirEntry::DirEntry(string sDirName, const _finddata_t& findData)
     : m_sDirName(sDirName),
-      m_FindData(FindData)
+      m_FindData(findData)
 {
 }
 

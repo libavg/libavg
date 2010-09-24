@@ -27,13 +27,13 @@
 
 namespace avg {
     
-std::string getPath(const std::string& Filename);
-std::string getFilenamePart(const std::string& Filename);
+std::string getPath(const std::string& sFilename);
+std::string getFilenamePart(const std::string& sFilename);
 std::string getCWD();
 
 bool isAbsPath(const std::string& path);
 
-bool fileExists(const std::string& FileName);
+bool fileExists(const std::string& sFilename);
 
 void readWholeFile(const std::string& sFilename, std::string& sContents);
 

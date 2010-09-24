@@ -34,12 +34,10 @@
 namespace avg {
 
 struct ConfigOption {
-    ConfigOption(const std::string& sName, const std::string& sValue,
-            const std::string& sDescription);
+    ConfigOption(const std::string& sName, const std::string& sValue);
 
     std::string m_sName;
     std::string m_sValue;
-    std::string m_sDescription;
 };
 
 typedef std::vector<ConfigOption> ConfigOptionVector;
@@ -50,9 +48,7 @@ public:
 
     void addSubsys(const std::string& sName);
     void addOption(const std::string& sSubsys, const std::string& sName,
-            const std::string& sDefault, const std::string& sDescription);
-    void addGlobalOption(const std::string& sName, const std::string& sDefault, 
-            const std::string& sDescription);
+            const std::string& sDefault);
     
     const ConfigOptionVector* getOptions(const std::string& sSubsys) 
         const;
@@ -65,8 +61,6 @@ public:
     void getGammaOption(const std::string& sSubsys, 
             const std::string& sName, double* Val) const;
 
-    const ConfigOptionVector* getGlobalOptions() const;
-    const std::string* getGlobalOption(const std::string& sName) const;
     void dump() const;
 
 private:
@@ -74,15 +68,13 @@ private:
 
     bool loadFile(const std::string& sPath);
     ConfigOptionVector& getSubsys(const std::string& sName);
-    void setOption(ConfigOptionVector& OptionVector, 
+    void setOption(ConfigOptionVector& optionVector, 
             xmlDocPtr doc, xmlNodePtr pNode);
-    void setOption(ConfigOptionVector& OptionVector, const std::string& sName,
+    void setOption(ConfigOptionVector& optionVector, const std::string& sName,
             const std::string& sValue);
 
     typedef std::map<std::string, ConfigOptionVector> SubsysOptionMap;
     SubsysOptionMap m_SubsysOptionMap;
-
-    ConfigOptionVector m_GlobalOptions;
 
     std::string m_sFName;
 

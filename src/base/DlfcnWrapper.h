@@ -28,7 +28,7 @@
 
 namespace avg {
 
-void* dlopen(const char *path, int ignored);
+void* dlopen(const char *pszPath, int ignored);
 void dlclose(void* handle);
 void* dlsym(void* handle, const char* functionName);
 const char* dlerror();

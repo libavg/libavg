@@ -51,8 +51,7 @@ CubicSpline::~CubicSpline()
 {
 }
 
-double normedInterpolate(double y0, double y1, double y2, double y3,
-    double mu)
+double normedInterpolate(double y0, double y1, double y2, double y3, double mu)
 {
    double mu2 = mu*mu;
    double a0 = y3 - y2 - y0 + y1;

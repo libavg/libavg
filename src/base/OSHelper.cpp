@@ -49,11 +49,10 @@ namespace avg {
 string getWinErrMsg(unsigned err) 
 {
     LPVOID lpMsgBuf;
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-                FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf,
-        0, NULL );
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf,
+            0, NULL );
     string sMsg((char*)lpMsgBuf);
     LocalFree(lpMsgBuf);
     return sMsg;
@@ -64,12 +63,6 @@ string getAvgLibPath()
 {
 #if defined(_WIN32)
     HMODULE hModule = GetModuleHandle("avg.pyd");
-/*
-    if (hModule == 0) {
-        AVG_TRACE(Logger::ERROR, "getAvgLibPath(): " << getWinErrMsg(GetLastError()));
-        exit(5);
-    }
-*/
     char szFilename[1024];
     DWORD ok = GetModuleFileName(hModule, szFilename, sizeof(szFilename));
     if (ok == 0) {
@@ -84,7 +77,6 @@ string getAvgLibPath()
     uint32_t numImages = _dyld_image_count();
     for (uint32_t i=0; i<numImages; i++) {
          const char * pszImageName = _dyld_get_image_name(i);
-// cerr << pszImageName << endl;
          string sFilePart=getFilenamePart(pszImageName);
          if (sFilePart == "avg.so" || sFilePart == "avg.0.so" 
                  || sFilePart == "avg.0.0.0.so") 
@@ -92,10 +84,10 @@ string getAvgLibPath()
              return getPath(pszImageName);
          }
     }
-    char Path[1024];
-    uint32_t PathLen = sizeof(Path);
-    _NSGetExecutablePath(Path, &PathLen);
-    return getPath(Path);
+    char path[1024];
+    uint32_t pathLen = sizeof(path);
+    _NSGetExecutablePath(path, &pathLen);
+    return getPath(path);
 #else
     // For a linux solution, see http://www.autopackage.org/docs/binreloc/
     return "";
@@ -174,7 +166,8 @@ std::string convertUTF8ToFilename(const std::string & sName)
         err1 = WideCharToMultiByte(CP_UTF8, 0, wideShortFName, -1, pShortName, 
                 1024, 0, 0);
         if (err1 == 0) {
-            AVG_TRACE(Logger::WARNING, "Error in unicode conversion (MultiByteToWideChar): " <<
+            AVG_TRACE(Logger::WARNING, 
+                    "Error in unicode conversion (MultiByteToWideChar): " <<
                     getWinErrMsg(GetLastError()));
         }
         return pShortName;

@@ -51,17 +51,17 @@ static xmlExternalEntityLoader DefaultLoaderProc = 0;
 static std::map<string, string> g_DTDMap;
 
 xmlParserInputPtr
-DTDExternalEntityLoader(const char *URL, const char *ID, xmlParserCtxtPtr ctxt) 
+DTDExternalEntityLoader(const char *pURL, const char *pID, xmlParserCtxtPtr ctxt) 
 {
     xmlParserInputPtr ret;
     /* lookup for the fileID depending on ID */
-    std::map<string, string>::iterator it = g_DTDMap.find(URL);
+    std::map<string, string>::iterator it = g_DTDMap.find(pURL);
 
     if (it != g_DTDMap.end()) {
         ret = xmlNewStringInputStream(ctxt, (const xmlChar *)(it->second.c_str()));
         return(ret);
     } else {
-        ret = DefaultLoaderProc(URL, ID, ctxt);
+        ret = DefaultLoaderProc(pURL, pID, ctxt);
         return(ret);
     }
 }

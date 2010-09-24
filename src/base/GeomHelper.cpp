@@ -62,7 +62,7 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
         x1hi=l0.p1.x; 
         x1lo=l0.p0.x;
     }
-    if (xdiff1>0) {
+    if (xdiff1 > 0) {
         if (x1hi < l1.p1.x || l1.p0.x < x1lo) {
             return false;
         }
@@ -78,14 +78,14 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
     double y1lo, y1hi;
 
     /* Y bound box test*/
-    if (ydiff0<0) {
+    if (ydiff0 < 0) {
         y1lo=l0.p1.y; 
         y1hi=l0.p0.y;
     } else {
         y1hi=l0.p1.y; 
         y1lo=l0.p0.y;
     }
-    if (ydiff1>0) {
+    if (ydiff1 > 0) {
         if (y1hi < l1.p1.y || l1.p0.y < y1lo) {
             return false;
         }
@@ -99,28 +99,28 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
     double Cy = l0.p0.y-l1.p0.y;
     double d = ydiff1*Cx - xdiff1*Cy;                  /* alpha numerator*/
     double f = ydiff0*xdiff1 - xdiff0*ydiff1;          /* both denominator*/
-    if (f>0) {                                         /* alpha tests*/
-        if (d<0 || d>f) {
+    if (f > 0) {                                       /* alpha tests*/
+        if (d < 0 || d > f) {
             return false;
         }
     } else {
-        if (d>0 || d<f) {
+        if (d > 0 || d < f) {
             return false;
         }
     }
 
     double e = xdiff0*Cy - ydiff0*Cx;                  /* beta numerator*/
-    if(f>0) {                                          /* beta tests*/
-        if (e<0 || e>f) {
+    if(f > 0) {                                        /* beta tests*/
+        if (e < 0 || e > f) {
             return false;
         }
     } else {
-        if (e>0 || e<f) {
+        if (e > 0 || e < f) {
             return false;
         }
     }
 
-    if (f==0) {
+    if (f == 0) {
         // Theoretically, lines could still intersect in this case, but we don't care
         // because given numerical inaccuracies, the result is random anyway :-).
         return false;
@@ -138,9 +138,10 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
     return true;
 }
 
-// Original code from: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html.
+// Original code from: 
+//     http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html.
 // Precomputing a bounding box for the polygon would speed this up a lot,
-// but it hasn't shown up on any profiles so far.
+// but the function hasn't shown up on any profiles so far.
 bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
 {
     if (poly.size() < 3) {

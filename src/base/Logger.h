@@ -43,7 +43,7 @@ public:
     void setCategories(int flags);
     void pushCategories();
     void popCategories();
-    void trace(int category, const UTF8String& msg);
+    void trace(int category, const UTF8String& sMsg);
     inline bool isFlagSet(int category) {
         return (category & m_Flags) != 0;
     }
@@ -74,10 +74,10 @@ private:
     std::vector<int> m_FlagStack;
 };
 
-#define AVG_TRACE(category, msg) { \
+#define AVG_TRACE(category, sMsg) { \
     if (Logger::get()->isFlagSet(category)) { \
         std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
-        tmp << msg; \
+        tmp << sMsg; \
         Logger::get()->trace(category, tmp.str()); \
     }\
 }

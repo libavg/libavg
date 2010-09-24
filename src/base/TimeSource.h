@@ -36,7 +36,7 @@ public:
     long long getCurrentMillisecs();
     long long getCurrentMicrosecs();
     
-    void sleepUntil(long long ticks);
+    void sleepUntil(long long targetTime);
 
 private:    
     TimeSource();

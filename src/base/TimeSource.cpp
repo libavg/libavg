@@ -100,19 +100,19 @@ long long TimeSource::getCurrentMicrosecs()
     return(ticks);
 }
 
-void TimeSource::sleepUntil(long long TargetTime)
+void TimeSource::sleepUntil(long long targetTime)
 {
     long long now = getCurrentMillisecs();
 #ifdef __APPLE__
-    if (TargetTime > now) { 
-        msleep(TargetTime-now);
+    if (targetTime > now) { 
+        msleep(targetTime-now);
     }
 #else
-    while (now<TargetTime) {
-        if (TargetTime-now<=2) {
+    while (now<targetTime) {
+        if (targetTime-now<=2) {
             msleep(0);
          } else {
-            msleep(int(TargetTime-now-2));
+            msleep(int(targetTime-now-2));
         }
         now = getCurrentMillisecs();
     }

@@ -105,10 +105,10 @@ bool isAbsPath(const std::string& path)
     
 }
 
-bool fileExists(const std::string& FileName)
+bool fileExists(const string& sFilename)
 {
     struct stat myStat;
-    return stat(FileName.c_str(), &myStat) != -1;
+    return stat(sFilename.c_str(), &myStat) != -1;
 }
 
 void readWholeFile(const string& sFilename, string& sContent)
@@ -118,11 +118,11 @@ void readWholeFile(const string& sFilename, string& sContent)
         throw Exception(AVG_ERR_FILEIO, "Opening "+sFilename+
                 " for reading failed.");
     }
-    vector<char> Buffer(65536);
+    vector<char> buffer(65536);
     sContent.resize(0);
     while (File) {
-        File.read(&(*Buffer.begin()), (streamsize)(Buffer.size()));
-        sContent.append(&(*Buffer.begin()),File.gcount());
+        File.read(&(*buffer.begin()), (streamsize)(buffer.size()));
+        sContent.append(&(*buffer.begin()),File.gcount());
     }
     if (!File.eof() || File.bad()) {
         throw Exception(AVG_ERR_FILEIO, "Reading "+sFilename+

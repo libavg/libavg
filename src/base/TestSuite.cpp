@@ -35,15 +35,15 @@ TestSuite::~TestSuite()
 {
 }
 
-void TestSuite::addTest(TestPtr newTest)
+void TestSuite::addTest(TestPtr pNewTest)
 {
-    m_Tests.push_back(newTest);
+    m_Tests.push_back(pNewTest);
 }
 
 void TestSuite::runTests()
 {
     cerr << string(m_IndentLevel, ' ') << "Running suite " << getName() << endl;
-    for (unsigned i=0; i<m_Tests.size(); ++i) {
+    for (unsigned i = 0; i < m_Tests.size(); ++i) {
         cerr << string(m_IndentLevel, ' ') << "  Running " 
                 << m_Tests[i]->getName() << endl;
         try {

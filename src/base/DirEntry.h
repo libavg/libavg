@@ -37,7 +37,7 @@ namespace avg {
 class AVG_API DirEntry {
 public:
 #ifdef _WIN32
-    DirEntry(std::string sDirName, const _finddata_t& FindData);
+    DirEntry(std::string sDirName, const _finddata_t& findData);
 #else
     DirEntry(std::string sDirName, dirent * pEntry);
 #endif

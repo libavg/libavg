@@ -52,7 +52,8 @@ using namespace avg;
 using namespace boost;
 using namespace std;
 
-class QueueTest: public Test {
+class QueueTest: public Test
+{
 public:
     QueueTest()
         : Test("QueueTest", 2)
@@ -132,11 +133,12 @@ private:
     }
 };
 
-class TestWorkerThread: public WorkerThread<TestWorkerThread> {
+class TestWorkerThread: public WorkerThread<TestWorkerThread>
+{
 public:
-    TestWorkerThread(CQueue& CmdQ, int* pNumFuncCalls, int* pIntParam, 
-            std::string* pStringParam)
-        : WorkerThread<TestWorkerThread>("Thread1", CmdQ),
+    TestWorkerThread(CQueue& cmdQ, int* pNumFuncCalls, int* pIntParam, 
+            string* pStringParam)
+        : WorkerThread<TestWorkerThread>("Thread1", cmdQ),
           m_pNumFuncCalls(pNumFuncCalls),
           m_pIntParam(pIntParam),
           m_pStringParam(pStringParam)
@@ -174,7 +176,8 @@ private:
 };
 
 
-class WorkerThreadTest: public Test {
+class WorkerThreadTest: public Test
+{
 public:
     WorkerThreadTest()
         : Test("WorkerThreadTest", 2)
@@ -184,25 +187,26 @@ public:
     void runTests() 
     {
         typedef TestWorkerThread::CmdPtr CmdPtr;
-        TestWorkerThread::CQueue CmdQ;
+        TestWorkerThread::CQueue cmdQ;
         boost::thread* pTestThread;
-        int NumFuncCalls = 0;
-        int IntParam = 0;
-        std::string StringParam;
-        CmdQ.pushCmd(boost::bind(&TestWorkerThread::doSomething, _1, 23, "foo"));
-        CmdQ.pushCmd(boost::bind(&TestWorkerThread::stop, _1));
-        pTestThread = new boost::thread(TestWorkerThread(CmdQ, &NumFuncCalls,
-                &IntParam, &StringParam));
+        int numFuncCalls = 0;
+        int intParam = 0;
+        std::string stringParam;
+        cmdQ.pushCmd(boost::bind(&TestWorkerThread::doSomething, _1, 23, "foo"));
+        cmdQ.pushCmd(boost::bind(&TestWorkerThread::stop, _1));
+        pTestThread = new boost::thread(TestWorkerThread(cmdQ, &numFuncCalls,
+                &intParam, &stringParam));
         pTestThread->join();
         delete pTestThread;
-        TEST(NumFuncCalls == 3);
-        TEST(IntParam == 23);
-        TEST(StringParam == "foo");
+        TEST(numFuncCalls == 3);
+        TEST(intParam == 23);
+        TEST(stringParam == "foo");
     }
 };
 
 
-class DummyClass {
+class DummyClass
+{
 public:
     DummyClass()
     {
@@ -244,7 +248,8 @@ public:
 #pragma warning(push)
 #pragma warning(disable:4723)
 #endif
-class PointTest: public Test {
+class PointTest: public Test
+{
 public:
     PointTest()
         : Test("PointTest", 2)
@@ -326,9 +331,12 @@ public:
             TEST(getLineLineIntersection(p1, v1, p2, v2) == DPoint(1,1));
         }
         TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI, DPoint(15,5)), DPoint(20,10)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*0.5, DPoint(15,5)), DPoint(20,0)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*1.5, DPoint(15,5)), DPoint(10,10)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*2, DPoint(15,5)), DPoint(10,0)));
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*0.5, DPoint(15,5)),
+                DPoint(20,0)));
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*1.5, DPoint(15,5)), 
+                DPoint(10,10)));
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*2, DPoint(15,5)), 
+                DPoint(10,0)));
         TEST(almostEqual(DPoint(23,0).getRotatedPivot(PI*0.5), DPoint(0,23)));
 
         TEST(almostEqual(DPoint(10,0), DPoint::fromPolar(0, 10)));
@@ -342,7 +350,8 @@ public:
 #endif
 
 
-class Matrix3x4Test: public Test {
+class Matrix3x4Test: public Test
+{
 public:
     Matrix3x4Test()
         : Test("Matrix3x4Test", 2)
@@ -367,7 +376,8 @@ public:
 };
 
 
-class TriangleTest: public Test {
+class TriangleTest: public Test
+{
 public:
     TriangleTest()
         : Test("TriangleTest", 2)
@@ -404,7 +414,8 @@ public:
 };
 
 
-class FileTest: public Test {
+class FileTest: public Test
+{
 public:
     FileTest()
         : Test("FileTest", 2)
@@ -419,7 +430,8 @@ public:
 };
 
 
-class OSTest: public Test {
+class OSTest: public Test
+{
 public:
     OSTest()
         : Test("OSTest", 2)
@@ -438,7 +450,8 @@ public:
 };
 
 
-class StringTest: public Test {
+class StringTest: public Test
+{
 public:
     StringTest()
         : Test("StringTest", 2)
@@ -459,7 +472,7 @@ public:
             }
         }
         TEST(bExceptionThrown);
-        TEST(stringToDPoint(" ( 3.4 , 2.1 ) ")== DPoint(3.4, 2.1));
+        TEST(stringToDPoint(" ( 3.4 , 2.1 ) ") == DPoint(3.4, 2.1));
         vector<double> v;
         fromString("(1,2,3,4,5)", v);
         TEST(v.size() == 5 && v[0] == 1 && v[4] == 5);
@@ -470,7 +483,8 @@ public:
 };
 
 
-class SplineTest: public Test {
+class SplineTest: public Test
+{
 public:
     SplineTest()
         : Test("SplineTest", 2)
@@ -562,7 +576,8 @@ public:
 };
 
 
-class BezierCurveTest: public Test {
+class BezierCurveTest: public Test
+{
 public:
     BezierCurveTest()
         : Test("BezierCurveTest", 2)
@@ -581,7 +596,8 @@ public:
 };
 
 
-class Listener {
+class Listener
+{
 public:
     Listener(Signal<Listener>& signal)
         : m_Signal(signal),
@@ -615,7 +631,8 @@ private:
 };
 
 
-class DisconnectingSelfListener: public Listener {
+class DisconnectingSelfListener: public Listener
+{
 public:
     DisconnectingSelfListener(Signal<Listener>& signal)
         : Listener(signal)
@@ -630,7 +647,8 @@ public:
 };
 
 
-class DisconnectingOtherListener: public Listener {
+class DisconnectingOtherListener: public Listener
+{
 public:
     DisconnectingOtherListener(Signal<Listener>& signal, Listener* pOther)
         : Listener(signal),
@@ -652,7 +670,8 @@ private:
 };
 
 
-class ConnectingOtherListener: public Listener {
+class ConnectingOtherListener: public Listener
+{
 public:
     ConnectingOtherListener(Signal<Listener>& signal, Listener* pOther)
         : Listener(signal),
@@ -674,7 +693,8 @@ private:
 };
 
 
-class SignalTest: public Test {
+class SignalTest: public Test
+{
 public:
     SignalTest()
         : Test("SignalTest", 2)
@@ -740,7 +760,8 @@ public:
 };
 
 
-class BacktraceTest: public Test {
+class BacktraceTest: public Test
+{
 public:
     BacktraceTest()
         : Test("BacktraceTest", 2)
@@ -758,7 +779,8 @@ public:
 };
 
 
-class BaseTestSuite: public TestSuite {
+class BaseTestSuite: public TestSuite
+{
 public:
     BaseTestSuite() 
         : TestSuite("BaseTestSuite")
@@ -782,9 +804,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    BaseTestSuite Suite;
-    Suite.runTests();
-    bool bOK = Suite.isOk();
+    BaseTestSuite suite;
+    suite.runTests();
+    bool bOK = suite.isOk();
 
     if (bOK) {
         return 0;

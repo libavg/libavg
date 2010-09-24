@@ -33,20 +33,20 @@ namespace avg {
 class AVG_API Test
 {
 public:
-    Test(const std::string & sName, int IndentLevel);
+    Test(const std::string & sName, int indentLevel);
     virtual ~Test();
 
     bool isOk();
     virtual void runTests() = 0;
 
-    void test(bool b, const char * pszFile, int Line);
+    void test(bool b, const char * pszFile, int line);
     void setFailed();
 
     int getNumSucceeded() const;
     int getNumFailed() const;
     const std::string& getName() const;
 
-    void aggregateStatistics(const Test& ChildTest);
+    void aggregateStatistics(const Test& childTest);
     virtual void printResults();
 
 protected:

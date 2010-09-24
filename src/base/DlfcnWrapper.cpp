@@ -20,6 +20,7 @@
 //
 
 #include "DlfcnWrapper.h"
+
 #include <sstream>
 #include <string.h>
 
@@ -30,23 +31,31 @@
 
 using namespace std;
 
-void* avg::dlopen(const char *path, int ignored) {
-    return LoadLibrary(path);
+namespace avg {
+
+void* dlopen(const char *pszPath, int ignored)
+{
+    return LoadLibrary(pszPath);
 }
 
-void avg::dlclose(void* handle) {
+void dlclose(void* handle)
+{
     FreeLibrary((HMODULE)handle);
 }
 
-void* avg::dlsym(void* handle, const char* functionName) {
+void* dlsym(void* handle, const char* functionName)
+{
     return GetProcAddress((HMODULE)handle, functionName);
 }
 
-const char* avg::dlerror() {
+const char* dlerror()
+{
     static char buffer[1024];
     int err = GetLastError();
     ostringstream ss;
     ss << err;
     strncpy(buffer,ss.str().c_str(),1023);
     return buffer;
+}
+
 }

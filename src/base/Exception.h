@@ -62,11 +62,11 @@ namespace avg {
 class AVG_API Exception 
 {
     public:
-        Exception (int Code, const std::string& sErr = "");
-        Exception (const Exception& ex);
-        virtual ~Exception ();
-        virtual int GetCode () const;
-        virtual const std::string& GetStr () const;
+        Exception(int code, const std::string& sErr = "");
+        Exception(const Exception& ex);
+        virtual ~Exception();
+        virtual int GetCode() const;
+        virtual const std::string& GetStr() const;
 
     private:
         int m_Code;
