@@ -45,28 +45,28 @@ typedef boost::shared_ptr<Histogram> HistogramPtr;
 class AVG_API Bitmap
 {
 public:
-    Bitmap(DPoint Size, PixelFormat PF, const UTF8String& sName="");
-    Bitmap(IntPoint Size, PixelFormat PF, const UTF8String& sName="");
-    Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
-            int Stride, bool bCopyBits, const UTF8String& sName="");
-    Bitmap(const Bitmap& Orig);
-    Bitmap(const Bitmap& Orig, bool bOwnsBits);
-    Bitmap(Bitmap& Orig, const IntRect& Rect);
+    Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName="");
+    Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName="");
+    Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
+            int stride, bool bCopyBits, const UTF8String& sName="");
+    Bitmap(const Bitmap& origBmp);
+    Bitmap(const Bitmap& origBmp, bool bOwnsBits);
+    Bitmap(Bitmap& origBmp, const IntRect& rect);
     Bitmap(const UTF8String& sName);
     virtual ~Bitmap();
 
-    Bitmap &operator= (const Bitmap & Orig);
+    Bitmap &operator =(const Bitmap & origBmp);
     
     // Does pixel format conversion if nessesary.
-    void copyPixels(const Bitmap & Orig);
-    void copyYUVPixels(const Bitmap & YOrig, const Bitmap& UOrig, const Bitmap& VOrig,
+    void copyPixels(const Bitmap & origBmp);
+    void copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp, const Bitmap& vBmp,
             bool bJPEG);
     void save(const UTF8String& sName);
     
     IntPoint getSize() const;
     int getStride() const;
     PixelFormat getPixelFormat() const;
-    void setPixelFormat(PixelFormat PF);
+    void setPixelFormat(PixelFormat pf);
     unsigned char * getPixels();
     const unsigned char * getPixels() const;
     std::string getPixelsAsString() const;
@@ -75,19 +75,19 @@ public:
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;
-    static int getBytesPerPixel(PixelFormat PF);
+    static int getBytesPerPixel(PixelFormat pf);
     int getLineLen() const;
     int getMemNeeded() const;
     bool hasAlpha() const;
-    HistogramPtr getHistogram(int Stride = 1) const;
-    void getMinMax(int Stride, int& min, int& max) const;
+    HistogramPtr getHistogram(int stride = 1) const;
+    void getMinMax(int stride, int& min, int& max) const;
     void setAlpha(const Bitmap& alphaBmp);
 
     Pixel32 getPythonPixel(const DPoint& pos);
-    template<class Pixel>
-    void setPixel(const IntPoint& p, Pixel Color);
-    template<class Pixel>
-    void drawLine(IntPoint p0, IntPoint p1, Pixel Color);
+    template<class PIXEL>
+    void setPixel(const IntPoint& p, PIXEL color);
+    template<class PIXEL>
+    void drawLine(IntPoint p0, IntPoint p1, PIXEL color);
 
     Bitmap * subtract(const Bitmap* pOtherBmp);
     void blt(const Bitmap* pOtherBmp, const IntPoint& pos);
@@ -98,17 +98,17 @@ public:
     void dump(bool bDumpPixels=false) const;
 
 private:
-    void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);
+    void initWithData(unsigned char * pBits, int stride, bool bCopyBits);
     void allocBits();
-    void YCbCrtoBGR(const Bitmap& Orig);
-    void YCbCrtoI8(const Bitmap& Orig);
-    void I8toI16(const Bitmap& Orig);
-    void I8toRGB(const Bitmap& Orig);
-    void I16toI8(const Bitmap& Orig);
-    void ByteRBBAtoFloatRGBA(const Bitmap& Orig);
-    void FloatRGBAtoByteRGBA(const Bitmap& Orig);
-    void BY8toRGBNearest(const Bitmap& Orig);
-    void BY8toRGBBilinear(const Bitmap& Orig);
+    void YCbCrtoBGR(const Bitmap& origBmp);
+    void YCbCrtoI8(const Bitmap& origBmp);
+    void I8toI16(const Bitmap& origBmp);
+    void I8toRGB(const Bitmap& origBmp);
+    void I16toI8(const Bitmap& origBmp);
+    void ByteRBBAtoFloatRGBA(const Bitmap& origBmp);
+    void FloatRGBAtoByteRGBA(const Bitmap& origBmp);
+    void BY8toRGBNearest(const Bitmap& origBmp);
+    void BY8toRGBBilinear(const Bitmap& origBmp);
 
     IntPoint m_Size;
     int m_Stride;
@@ -124,15 +124,15 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 BitmapPtr YCbCr2RGBBitmap(BitmapPtr pYBmp, BitmapPtr pUBmp, BitmapPtr pVBmp);
 
-template<class Pixel>
-void Bitmap::setPixel(const IntPoint& p, Pixel Color)
+template<class PIXEL>
+void Bitmap::setPixel(const IntPoint& p, PIXEL color)
 {
-    *(Pixel*)(&(m_pBits[p.y*m_Stride+p.x*getBytesPerPixel()])) = Color;
+    *(PIXEL*)(&(m_pBits[p.y*m_Stride+p.x*getBytesPerPixel()])) = color;
 }
 
 // TODO: This is slow, and it clips incorrectly. Replace with external lib?
-template<class Pixel>
-void Bitmap::drawLine(IntPoint p0, IntPoint p1, Pixel Color)
+template<class PIXEL>
+void Bitmap::drawLine(IntPoint p0, IntPoint p1, PIXEL color)
 {
     IntRect BmpRect(IntPoint(0,0), m_Size);
     p0 = BmpRect.cropPoint(p0);
@@ -158,9 +158,9 @@ void Bitmap::drawLine(IntPoint p0, IntPoint p1, Pixel Color)
     }
     for (int x = p0.x; x <= p1.x; x++) {
         if (bSteep) {
-            setPixel(IntPoint(y, x), Color); 
+            setPixel(IntPoint(y, x), color); 
         } else {
-            setPixel(IntPoint(x, y), Color);
+            setPixel(IntPoint(x, y), color);
         }
         error += deltay;
         if (error > 0) {

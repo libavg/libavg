@@ -49,96 +49,86 @@ using namespace std;
 namespace avg {
 
 template<class Pixel>
-void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src);
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
 bool Bitmap::s_bMagickInitialized = false;
 
-Bitmap::Bitmap(DPoint Size, PixelFormat PF, const UTF8String& sName)
-    : m_Size(Size),
-      m_PF(PF),
+Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName)
+    : m_Size(size),
+      m_PF(pf),
       m_pBits(0),
       m_bOwnsBits(true),
       m_sName(sName)
 {
-//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
-//        << sName << ")" << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
     allocBits();
 }
 
-Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const UTF8String& sName)
-    : m_Size(Size),
-      m_PF(PF),
+Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName)
+    : m_Size(size),
+      m_PF(pf),
       m_pBits(0),
       m_bOwnsBits(true),
       m_sName(sName)
 {
-//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
-//        << sName << ")" << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
     allocBits();
 }
 
-Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
-        int Stride, bool bCopyBits, const UTF8String& sName)
-    : m_Size(Size),
-      m_PF(PF),
+Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
+        int stride, bool bCopyBits, const UTF8String& sName)
+    : m_Size(size),
+      m_PF(pf),
       m_pBits(0),
       m_sName(sName)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
-//        << (void *)pBits << ", " << Stride << ", " << bCopyBits << ", "
-//        << sName << ")" << endl;
-    initWithData(pBits, Stride, bCopyBits);
+    initWithData(pBits, stride, bCopyBits);
 }
 
-Bitmap::Bitmap(const Bitmap& Orig)
-    : m_Size(Orig.getSize()),
-      m_PF(Orig.getPixelFormat()),
+Bitmap::Bitmap(const Bitmap& origBmp)
+    : m_Size(origBmp.getSize()),
+      m_PF(origBmp.getPixelFormat()),
       m_pBits(0),
-      m_bOwnsBits(Orig.m_bOwnsBits),
-      m_sName(Orig.getName()+" copy")
+      m_bOwnsBits(origBmp.m_bOwnsBits),
+      m_sName(origBmp.getName()+" copy")
 {
-//    cerr << "Bitmap::Bitmap(Bitmap), Name: " << m_sName << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
-    initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
+    initWithData(const_cast<unsigned char *>(origBmp.getPixels()), origBmp.getStride(), 
             m_bOwnsBits);
 }
 
-Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
-    : m_Size(Orig.getSize()),
-      m_PF(Orig.getPixelFormat()),
+Bitmap::Bitmap(const Bitmap& origBmp, bool bOwnsBits)
+    : m_Size(origBmp.getSize()),
+      m_PF(origBmp.getPixelFormat()),
       m_pBits(0),
       m_bOwnsBits(bOwnsBits),
-      m_sName(Orig.getName()+" copy")
+      m_sName(origBmp.getName()+" copy")
 {
-//    cerr << "Bitmap::Bitmap(Bitmap), Name: " << m_sName << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
-    initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
+    initWithData(const_cast<unsigned char *>(origBmp.getPixels()), origBmp.getStride(), 
             m_bOwnsBits);
 }
 
 // Creates a bitmap that is a rectangle in another bitmap. The pixels are
 // still owned by the original bitmap.
-Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
-    : m_Size(Rect.size()),
-      m_PF(Orig.getPixelFormat()),
+Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
+    : m_Size(rect.size()),
+      m_PF(origBmp.getPixelFormat()),
       m_pBits(0),
       m_bOwnsBits(false)
 {
-//    cerr << "Bitmap::Bitmap(Bitmap, " << Rect << "), Name: " << m_sName << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
-    AVG_ASSERT(Rect.br.x <= Orig.getSize().x);
-    AVG_ASSERT(Rect.br.y <= Orig.getSize().y);
-    if (!Orig.getName().empty()) {
-        m_sName = Orig.getName()+" part";
+    AVG_ASSERT(rect.br.x <= origBmp.getSize().x);
+    AVG_ASSERT(rect.br.y <= origBmp.getSize().y);
+    if (!origBmp.getName().empty()) {
+        m_sName = origBmp.getName()+" part";
     } else {
         m_sName = "";
     }
-    unsigned char * pRegionStart = Orig.getPixels()+Rect.tl.y*Orig.getStride()+
-            Rect.tl.x*getBytesPerPixel();
-    initWithData(pRegionStart, Orig.getStride(), false);
+    unsigned char * pRegionStart = origBmp.getPixels()+rect.tl.y*origBmp.getStride()+
+            rect.tl.x*getBytesPerPixel();
+    initWithData(pRegionStart, origBmp.getStride(), false);
 }
 
 Bitmap::Bitmap(const UTF8String& sName)
@@ -154,35 +144,36 @@ Bitmap::Bitmap(const UTF8String& sName)
         InitializeMagick(0);
         s_bMagickInitialized = true;
     }
-    Image Img;
+    Image magickImage;
     try {
         string sFilename = convertUTF8ToFilename(sName);
-        Img.read(sFilename);
-    } catch(Magick::Warning &e) {
+        magickImage.read(sFilename);
+    } catch (Magick::Warning &e) {
         cerr << e.what() << endl;
-    } catch(Magick::ErrorConfigure &) {
+    } catch (Magick::ErrorConfigure &) {
 //        cerr << e.what() << endl;
     }
-    PixelPacket * pSrcPixels = Img.getPixels(0, 0, Img.columns(), Img.rows());
-    m_Size = IntPoint(Img.columns(), Img.rows());
-    if (Img.matte()) {
+    PixelPacket * pSrcPixels = magickImage.getPixels(0, 0, magickImage.columns(),
+            magickImage.rows());
+    m_Size = IntPoint(magickImage.columns(), magickImage.rows());
+    if (magickImage.matte()) {
         m_PF = B8G8R8A8;
     } else {
         m_PF = B8G8R8X8;
     }
     allocBits();
-    for (int y=0; y<m_Size.y; ++y) {
+    for (int y = 0; y < m_Size.y; ++y) {
         Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
-        PixelPacket * pSrcLine = pSrcPixels+y*Img.columns();
+        PixelPacket * pSrcLine = pSrcPixels+y*magickImage.columns();
         if (m_PF == B8G8R8A8) {
-            for (int x=0; x<m_Size.x; ++x) {
+            for (int x = 0; x < m_Size.x; ++x) {
                 *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
                         pSrcLine->red, 255-pSrcLine->opacity);
                 pSrcLine++;
                 pDestLine++;
             }
         } else {
-            for (int x=0; x<m_Size.x; ++x) {
+            for (int x = 0; x < m_Size.x; ++x) {
                 *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
                         pSrcLine->red, 255);
                 pSrcLine++;
@@ -196,7 +187,6 @@ Bitmap::Bitmap(const UTF8String& sName)
 
 Bitmap::~Bitmap()
 {
-//    cerr << "Bitmap::~Bitmap(), Name: " << m_sName << endl;
     ObjectCounter::get()->decRef(&typeid(*this));
     if (m_bOwnsBits) {
         delete[] m_pBits;
@@ -204,56 +194,55 @@ Bitmap::~Bitmap()
     }
 }
 
-Bitmap &Bitmap::operator= (const Bitmap &Orig)
+Bitmap &Bitmap::operator =(const Bitmap &origBmp)
 {
-//    cerr << "Bitmap::operator=()" << endl;
-    if (this != &Orig) {
+    if (this != &origBmp) {
         if (m_bOwnsBits) {
             delete[] m_pBits;
             m_pBits = 0;
         }
-        m_Size = Orig.getSize();
-        m_PF = Orig.getPixelFormat();
-        m_bOwnsBits = Orig.m_bOwnsBits;
-        m_sName = Orig.getName();
-        initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(),
-                m_bOwnsBits);
+        m_Size = origBmp.getSize();
+        m_PF = origBmp.getPixelFormat();
+        m_bOwnsBits = origBmp.m_bOwnsBits;
+        m_sName = origBmp.getName();
+        initWithData(const_cast<unsigned char *>(origBmp.getPixels()),
+                origBmp.getStride(), m_bOwnsBits);
     }
     return *this;
 }
 
-void Bitmap::copyPixels(const Bitmap & Orig)
+void Bitmap::copyPixels(const Bitmap & origBmp)
 {
-//    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(Orig.getPixelFormat()) << "->" 
-//            << getPixelFormatString(m_PF) << endl;
-    if (&Orig == this || Orig.getPixels() == m_pBits) {
+//    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(origBmp.getPixelFormat())
+//            << "->" << getPixelFormatString(m_PF) << endl;
+    if (&origBmp == this || origBmp.getPixels() == m_pBits) {
         return;
     }
-    if (Orig.getPixelFormat() == m_PF) {
-        const unsigned char * pSrc = Orig.getPixels();
+    if (origBmp.getPixelFormat() == m_PF) {
+        const unsigned char * pSrc = origBmp.getPixels();
         unsigned char * pDest = m_pBits;
-        int Height = min(Orig.getSize().y, m_Size.y);
-        int LineLen = min(Orig.getLineLen(), getLineLen());
-        int SrcStride = Orig.getStride();
-        for (int y=0; y<Height; ++y) {
+        int height = min(origBmp.getSize().y, m_Size.y);
+        int LineLen = min(origBmp.getLineLen(), getLineLen());
+        int srcStride = origBmp.getStride();
+        for (int y = 0; y < height; ++y) {
             memcpy(pDest, pSrc, LineLen);
             pDest += m_Stride;
-            pSrc += SrcStride;
+            pSrc += srcStride;
         }
     } else {
-        switch (Orig.getPixelFormat()) {
+        switch (origBmp.getPixelFormat()) {
             case YCbCr422:
             case YUYV422:
             case YCbCr411:
                 switch(m_PF) {
                     case B8G8R8X8:
-                        YCbCrtoBGR(Orig);
+                        YCbCrtoBGR(origBmp);
                         break;
                     case I8:
-                        YCbCrtoI8(Orig);
+                        YCbCrtoI8(origBmp);
                     default: {
                             Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
-                            TempBmp.YCbCrtoBGR(Orig);
+                            TempBmp.YCbCrtoBGR(origBmp);
                             copyPixels(TempBmp);
                         }
                         break;
@@ -261,17 +250,17 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                 break;
             case I16:
                 if (m_PF == I8) {
-                    I16toI8(Orig);
+                    I16toI8(origBmp);
                 } else {
                     Bitmap TempBmp(getSize(), I8, "TempColorConversion");
-                    TempBmp.I16toI8(Orig);
+                    TempBmp.I16toI8(origBmp);
                     copyPixels(TempBmp);
                 }
                 break;
             case I8:
                 switch(m_PF) {
                     case I16:
-                        I8toI16(Orig);
+                        I8toI16(origBmp);
                         break;
                     case B8G8R8X8:
                     case B8G8R8A8:
@@ -279,7 +268,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                     case R8G8B8A8:
                     case B8G8R8:
                     case R8G8B8:
-                        I8toRGB(Orig);
+                        I8toRGB(origBmp);
                         break;
                     default: 
                         // Unimplemented conversion.
@@ -293,16 +282,17 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                 switch(m_PF) {
                     case I8:
                         {
-                            // Bayer patterns are saved as I8 bitmaps. So simply copy that.
-                            const unsigned char * pSrc = Orig.getPixels();
+                            // Bayer patterns are saved as I8 bitmaps. 
+                            // So simply copy that.
+                            const unsigned char * pSrc = origBmp.getPixels();
                             unsigned char * pDest = m_pBits;
-                            int Height = min(Orig.getSize().y, m_Size.y);
-                            int LineLen = min(Orig.getLineLen(), getLineLen());
-                            int SrcStride = Orig.getStride();
-                            for (int y=0; y<Height; ++y) {
-                                memcpy(pDest, pSrc, LineLen);
+                            int height = min(origBmp.getSize().y, m_Size.y);
+                            int lineLen = min(origBmp.getLineLen(), getLineLen());
+                            int srcStride = origBmp.getStride();
+                            for (int y = 0; y < height; ++y) {
+                                memcpy(pDest, pSrc, lineLen);
                                 pDest += m_Stride;
-                                pSrc += SrcStride;
+                                pSrc += srcStride;
                             }
                         }
                         break;
@@ -310,7 +300,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                     case B8G8R8A8:
                     case R8G8B8X8:
                     case R8G8B8A8:
-                        BY8toRGBBilinear(Orig);
+                        BY8toRGBBilinear(origBmp);
                         break;
                     default: 
                         // Unimplemented conversion.
@@ -319,9 +309,9 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                 break;
             case R32G32B32A32F:
                 if (getBytesPerPixel() == 4) {
-                    FloatRGBAtoByteRGBA(Orig);
+                    FloatRGBAtoByteRGBA(origBmp);
                 } else {
-                    cerr << "Can't convert " << Orig.getPixelFormat() << " to " 
+                    cerr << "Can't convert " << origBmp.getPixelFormat() << " to " 
                             << getPixelFormat() << endl;
                     AVG_ASSERT(false);
                 }
@@ -329,10 +319,10 @@ void Bitmap::copyPixels(const Bitmap & Orig)
             default:
                 switch(m_PF) {
                     case R32G32B32A32F:
-                        if (Orig.getBytesPerPixel() == 4) {
-                            ByteRBBAtoFloatRGBA(Orig);
+                        if (origBmp.getBytesPerPixel() == 4) {
+                            ByteRBBAtoFloatRGBA(origBmp);
                         } else {
-                            cerr << "Can't convert " << Orig.getPixelFormat() <<
+                            cerr << "Can't convert " << origBmp.getPixelFormat() <<
                                     " to " << getPixelFormat() << endl;
                             AVG_ASSERT(false);
                         }
@@ -345,22 +335,22 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                     case R8G8B8X8:
                     case A8R8G8B8:
                     case X8R8G8B8:
-                        createTrueColorCopy<Pixel32>(*this, Orig);
+                        createTrueColorCopy<Pixel32>(*this, origBmp);
                         break;
                     case B8G8R8:
                     case R8G8B8:
-                        createTrueColorCopy<Pixel24>(*this, Orig);
+                        createTrueColorCopy<Pixel24>(*this, origBmp);
                         break;
                     case B5G6R5:
                     case R5G6B5:
-                        createTrueColorCopy<Pixel16>(*this, Orig);
+                        createTrueColorCopy<Pixel16>(*this, origBmp);
                         break;
                     case I8:
-                        createTrueColorCopy<Pixel8>(*this, Orig);
+                        createTrueColorCopy<Pixel8>(*this, origBmp);
                         break;
                     default:
                         // Unimplemented conversion.
-                        cerr << "Can't convert " << Orig.getPixelFormat() << " to " <<
+                        cerr << "Can't convert " << origBmp.getPixelFormat() << " to " <<
                                 getPixelFormat() << endl;
                         AVG_ASSERT(false);
                 }
@@ -391,7 +381,7 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
 ostream& operator<<(ostream& os, const __m64 &val)
 {
     unsigned char * pVal = (unsigned char *)(&val);
-    for (int i=0; i<8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         os << hex << setw(2) << setfill('0') << int(pVal[i]);
         if (i%2 == 1) {
             os << " ";
@@ -447,15 +437,15 @@ ostream& operator<<(ostream& os, const __m64 &val)
     *o++ = _m_punpckhbw(tmp, tmp2);
 
 
-void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
-        const Bitmap& vOrig, bool bJPEG)
+void Bitmap::copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp,
+        const Bitmap& vBmp, bool bJPEG)
 {
-    int Height = min(yOrig.getSize().y, m_Size.y);
-    int Width = min(yOrig.getSize().x, m_Size.x);
+    int height = min(yBmp.getSize().y, m_Size.y);
+    int width = min(yBmp.getSize().x, m_Size.x);
 
-    int yStride = yOrig.getStride();
-    int uStride = uOrig.getStride();
-    int vStride = vOrig.getStride();
+    int yStride = yBmp.getStride();
+    int uStride = uBmp.getStride();
+    int vStride = vBmp.getStride();
     int destStride = m_Stride/getBytesPerPixel();
     Pixel32 * pDestLine = (Pixel32*)m_pBits;
 
@@ -475,16 +465,16 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
 
     zero = _mm_setzero_si64(); 
 
-    ptry = yOrig.getPixels();
-    ptru = uOrig.getPixels();
-    ptrv = vOrig.getPixels();
+    ptry = yBmp.getPixels();
+    ptru = uBmp.getPixels();
+    ptrv = vBmp.getPixels();
 
-    for (i = 0; i < Height; i++) {
+    for (i = 0; i < height; i++) {
         int j;
         o = (__m64*)pDestLine;
         pDestLine += destStride;
         if (bJPEG) {
-            for (j = 0; j < Width; j += 8) {
+            for (j = 0; j < width; j += 8) {
                 // ylo and yhi contain 4 pixels each
                 y = *(__m64*)(&(ptry[j]));
                 ylo = _m_punpcklbw(y, zero);
@@ -521,7 +511,7 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
 
             }
         } else {
-            for (j = 0; j < Width; j += 8) {
+            for (j = 0; j < width; j += 8) {
 
                 // y' = (298*(y-16))
                 // ylo and yhi contain 4 pixels each
@@ -579,12 +569,12 @@ void Bitmap::copyYUVPixels(const Bitmap & yOrig, const Bitmap& uOrig,
 #pragma pack()
 #else
     AVG_ASSERT(m_PF==B8G8R8X8);
-    const unsigned char * pYSrc = yOrig.getPixels();
-    const unsigned char * pUSrc = uOrig.getPixels();
-    const unsigned char * pVSrc = vOrig.getPixels();
+    const unsigned char * pYSrc = yBmp.getPixels();
+    const unsigned char * pUSrc = uBmp.getPixels();
+    const unsigned char * pVSrc = vBmp.getPixels();
 
-    for (int y=0; y<Height; ++y) {
-        for (int x=0; x<Width; ++x) {
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
             YUVtoBGR32Pixel(pDestLine + x, pYSrc[x], pUSrc[x/2], pVSrc[x/2]);
         }
         pDestLine += destStride;
@@ -606,9 +596,9 @@ void Bitmap::save(const UTF8String& sFilename)
 //    cerr << "Bitmap::save()" << endl;
     string sPF;
     BitmapPtr pBmp;
-    Magick::StorageType ChannelFormat = Magick::CharPixel;
-    int AlphaOffset = -1;
-    switch(m_PF) {
+    Magick::StorageType channelFormat = Magick::CharPixel;
+    int alphaOffset = -1;
+    switch (m_PF) {
         case B5G6R5:
         case B8G8R8:
         case B8G8R8X8:
@@ -627,27 +617,27 @@ void Bitmap::save(const UTF8String& sFilename)
             break;
         case B8G8R8A8:
             pBmp = BitmapPtr(new Bitmap(*this));
-            AlphaOffset = 3;
+            alphaOffset = 3;
             sPF = "BGRA";
             break;
         case A8B8G8R8:
             pBmp = BitmapPtr(new Bitmap(*this));
-            AlphaOffset = 0;
+            alphaOffset = 0;
             sPF = "ABGR";
             break;
         case R8G8B8A8:
             pBmp = BitmapPtr(new Bitmap(*this));
-            AlphaOffset = 3;
+            alphaOffset = 3;
             sPF = "RGBA";
             break;
         case A8R8G8B8:
             pBmp = BitmapPtr(new Bitmap(*this));
-            AlphaOffset = 0;
+            alphaOffset = 0;
             sPF = "ARGB";
             break;
         case I16:   
             pBmp = BitmapPtr(new Bitmap(*this));
-            ChannelFormat = Magick::ShortPixel;
+            channelFormat = Magick::ShortPixel;
             sPF = "I";
             break;
         case I8:
@@ -656,7 +646,7 @@ void Bitmap::save(const UTF8String& sFilename)
             break;
         case R32G32B32A32F:
             pBmp = BitmapPtr(new Bitmap(*this));
-            ChannelFormat = Magick::FloatPixel;
+            channelFormat = Magick::FloatPixel;
             sPF = "RGBA";
             break;
         default:
@@ -667,21 +657,21 @@ void Bitmap::save(const UTF8String& sFilename)
     // GraphicsMagick versioning is broken, so we need to do a string compare at
     // runtime.
     if (string(MagickChangeDate) < "20100101") {
-        if (AlphaOffset != -1) {
-            int Stride = pBmp->getStride();
+        if (alphaOffset != -1) {
+            int stride = pBmp->getStride();
             unsigned char * pLine = pBmp->getPixels();
-            for (int y=0; y<m_Size.y; ++y) {
+            for (int y = 0; y < m_Size.y; ++y) {
                 unsigned char * pPixel = pLine;
-                for (int x=0; x<m_Size.x; ++x) {
-                    *(pPixel+AlphaOffset) = 255-*(pPixel+AlphaOffset);
+                for (int x = 0; x < m_Size.x; ++x) {
+                    *(pPixel+alphaOffset) = 255-*(pPixel+alphaOffset);
                     pPixel+=4;
                 }
-                pLine += Stride;
+                pLine += stride;
             }
         }
     }
-    Magick::Image Img(m_Size.x, m_Size.y, sPF, ChannelFormat, pBmp->getPixels());
-    Img.write(sFilename);
+    Magick::Image img(m_Size.x, m_Size.y, sPF, channelFormat, pBmp->getPixels());
+    img.write(sFilename);
 }
 
 IntPoint Bitmap::getSize() const
@@ -699,9 +689,9 @@ PixelFormat Bitmap::getPixelFormat() const
     return m_PF;
 }
 
-void Bitmap::setPixelFormat(PixelFormat PF)
+void Bitmap::setPixelFormat(PixelFormat pf)
 {
-    m_PF = PF;
+    m_PF = pf;
 }
 
 unsigned char * Bitmap::getPixels()
@@ -724,13 +714,13 @@ void Bitmap::setPixels(const unsigned char * pPixels)
     memcpy(m_pBits, pPixels, getMemNeeded());
 }
 
-void Bitmap::setPixelsFromString(const std::string& sPixels)
+void Bitmap::setPixelsFromString(const string& sPixels)
 {
     memcpy(m_pBits, sPixels.c_str(), getMemNeeded());
 }
 
 
-const std::string& Bitmap::getName() const
+const string& Bitmap::getName() const
 {
     return m_sName;
 }
@@ -745,9 +735,9 @@ int Bitmap::getBytesPerPixel() const
     return getBytesPerPixel(m_PF);
 }
 
-int Bitmap::getBytesPerPixel(PixelFormat PF)
+int Bitmap::getBytesPerPixel(PixelFormat pf)
 {
-    switch (PF) {
+    switch (pf) {
         case R32G32B32A32F:
             return 16;
         case A8B8G8R8:
@@ -780,7 +770,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
             return 2;
         default:
             AVG_TRACE(Logger::ERROR, "Bitmap::getBytesPerPixel(): Unknown format " << 
-                    getPixelFormatString(PF) << ".");
+                    getPixelFormatString(pf) << ".");
             AVG_ASSERT(false);
             return 0;
     }
@@ -806,40 +796,40 @@ bool Bitmap::hasAlpha() const
     return pixelFormatHasAlpha(m_PF);
 }
 
-HistogramPtr Bitmap::getHistogram(int Stride) const
+HistogramPtr Bitmap::getHistogram(int stride) const
 {
     AVG_ASSERT (m_PF == I8);
     HistogramPtr pHist(new Histogram(256,0));
     const unsigned char * pSrcLine = m_pBits;
-    for (int y=0; y < m_Size.y; y+=Stride) {
+    for (int y = 0; y < m_Size.y; y += stride) {
         const unsigned char * pSrc = pSrcLine;
-        for (int x=0; x<m_Size.x; x+=Stride) {
+        for (int x = 0; x < m_Size.x; x += stride) {
             (*pHist)[(*pSrc)]++;
-            pSrc+=Stride;
+            pSrc += stride;
         }
-        pSrcLine += m_Stride*Stride;
+        pSrcLine += m_Stride*stride;
     }
     return pHist;
 }
 
-void Bitmap::getMinMax(int Stride, int& min, int& max) const
+void Bitmap::getMinMax(int stride, int& min, int& max) const
 {
     AVG_ASSERT (m_PF == I8);
     const unsigned char * pSrcLine = m_pBits;
     min = 255;
     max = 0;
-    for (int y=0; y < m_Size.y; y+=Stride) {
+    for (int y = 0; y < m_Size.y; y += stride) {
         const unsigned char * pSrc = pSrcLine;
-        for (int x=0; x<m_Size.x; x+=Stride) {
+        for (int x = 0; x < m_Size.x; x += stride) {
             if (*pSrc < min) {
                 min = *pSrc;
             }
             if (*pSrc > max) {
                 max = *pSrc;
             }
-            pSrc+=Stride;
+            pSrc += stride;
         }
-        pSrcLine += m_Stride*Stride;
+        pSrcLine += m_Stride*stride;
     }
 }
 
@@ -849,10 +839,10 @@ void Bitmap::setAlpha(const Bitmap& alphaBmp)
     AVG_ASSERT(alphaBmp.getPixelFormat() == I8);
     unsigned char * pLine = m_pBits;
     const unsigned char * pAlphaLine = alphaBmp.getPixels();
-    for (int y=0; y < m_Size.y; y++) {
+    for (int y = 0; y < m_Size.y; y++) {
         unsigned char * pPixel = pLine;
         const unsigned char * pAlphaPixel = pAlphaLine;
-        for (int x=0; x<m_Size.x; x++) {
+        for (int x = 0; x < m_Size.x; x++) {
             pPixel[ALPHAPOS] = *pAlphaPixel;
             pPixel+=4;
             pAlphaPixel++;
@@ -900,11 +890,11 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
     const unsigned char * pSrc = otherBmp.getPixels();
     unsigned char * pDest = m_pBits;
     int LineLen = getLineLen();
-    for (int y=0; y<getSize().y; ++y) {
+    for (int y = 0; y < getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8X8:
             case B8G8R8X8:
-                for (int x=0; x<getSize().x; ++x) {
+                for (int x = 0; x < getSize().x; ++x) {
                     const unsigned char * pSrcPixel = pSrc+x*getBytesPerPixel();
                     unsigned char * pDestPixel = pDest+x*getBytesPerPixel();
                     if (*((Pixel24*)(pDestPixel)) != *((Pixel24*)(pSrcPixel))) {
@@ -941,7 +931,7 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
     int stride = getStride();
     int lineLen = getLineLen();
 
-    for (int y=0; y<getSize().y; ++y) {
+    for (int y = 0; y < getSize().y; ++y) {
         switch(m_PF) {
             case I16: 
                 {
@@ -1005,13 +995,13 @@ double Bitmap::getAvg() const
     double sum = 0;
     unsigned char * pSrc = m_pBits;
     int componentsPerPixel = getBytesPerPixel();
-    for (int y=0; y<getSize().y; ++y) {
+    for (int y = 0; y < getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8X8:
             case B8G8R8X8:
                 {
                     Pixel32 * pSrcPixel = (Pixel32 *)pSrc;
-                    for (int x=0; x<m_Size.x; ++x) {
+                    for (int x = 0; x < m_Size.x; ++x) {
                         sum += pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB();
                         pSrcPixel++;
                     }
@@ -1022,7 +1012,7 @@ double Bitmap::getAvg() const
                 {
                     componentsPerPixel = 1;
                     unsigned short * pSrcPixel = (unsigned short *)pSrc;
-                    for (int x=0; x<m_Size.x; ++x) {
+                    for (int x = 0; x < m_Size.x; ++x) {
                         sum += *pSrcPixel;
                         pSrcPixel++;
                     }
@@ -1031,7 +1021,7 @@ double Bitmap::getAvg() const
             default:
                 {
                     unsigned char * pSrcComponent = pSrc;
-                    for (int x=0; x<getLineLen(); ++x) {
+                    for (int x = 0; x < getLineLen(); ++x) {
                         sum += *pSrcComponent;
                         pSrcComponent++;
                     }
@@ -1050,14 +1040,14 @@ double Bitmap::getStdDev() const
 
     unsigned char * pSrc = m_pBits;
     int componentsPerPixel = getBytesPerPixel();
-    for (int y=0; y<getSize().y; ++y) {
+    for (int y = 0; y < getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8X8:
             case B8G8R8X8:
                 {
                     componentsPerPixel = 3;
                     Pixel32 * pSrcPixel = (Pixel32 *)pSrc;
-                    for (int x=0; x<m_Size.x; ++x) {
+                    for (int x = 0; x < m_Size.x; ++x) {
                         sum += sqr(pSrcPixel->getR()-average);
                         sum += sqr(pSrcPixel->getG()-average);
                         sum += sqr(pSrcPixel->getB()-average);
@@ -1069,7 +1059,7 @@ double Bitmap::getStdDev() const
                 {
                     componentsPerPixel = 1;
                     unsigned short * pSrcPixel = (unsigned short *)pSrc;
-                    for (int x=0; x<m_Size.x; ++x) {
+                    for (int x = 0; x < m_Size.x; ++x) {
                         sum += sqr(*pSrcPixel-average);
                         pSrcPixel++;
                     }
@@ -1078,7 +1068,7 @@ double Bitmap::getStdDev() const
             default:
                 {
                     unsigned char * pSrcComponent = pSrc;
-                    for (int x=0; x<getLineLen(); ++x) {
+                    for (int x = 0; x < getLineLen(); ++x) {
                         sum += sqr(*pSrcComponent-average);
                         pSrcComponent++;
                     }
@@ -1101,21 +1091,21 @@ void Bitmap::dump(bool bDumpPixels) const
     cerr << "  m_bOwnsBits: " << m_bOwnsBits << endl;
     if (bDumpPixels) {
         cerr << "  Pixel data: " << endl;
-        for (int y=0; y<m_Size.y; ++y) {
+        for (int y = 0; y < m_Size.y; ++y) {
             unsigned char * pLine = m_pBits+m_Stride*y;
             cerr << "    ";
-            for (int x=0; x<m_Size.x; ++x) {
+            for (int x = 0; x < m_Size.x; ++x) {
                 if (m_PF == R32G32B32A32F) {
                     float * pPixel = (float*)(pLine+getBytesPerPixel()*x);
                     cerr << "[";
-                    for (int i=0; i<4; ++i) {
+                    for (int i = 0; i < 4; ++i) {
                         cerr << setw(4) << setprecision(2) << pPixel[i] << " ";
                     }
                     cerr << "]";
                 } else {
                     unsigned char * pPixel = pLine+getBytesPerPixel()*x;
                     cerr << "[";
-                    for (int i=0; i<getBytesPerPixel(); ++i) {
+                    for (int i = 0; i < getBytesPerPixel(); ++i) {
                         cerr << hex << setw(2) << (int)(pPixel[i]) << " ";
                     }
                     cerr << "]";
@@ -1127,7 +1117,7 @@ void Bitmap::dump(bool bDumpPixels) const
     }
 }
 
-void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
+void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
     if (m_PF == A8) {
@@ -1148,17 +1138,17 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
     }
     if (bCopyBits) {
         allocBits();
-        if (m_Stride == Stride && Stride == (m_Size.x*getBytesPerPixel())) {
-            memcpy(m_pBits, pBits, Stride*m_Size.y);
+        if (m_Stride == stride && stride == (m_Size.x*getBytesPerPixel())) {
+            memcpy(m_pBits, pBits, stride*m_Size.y);
         } else {
-            for (int y=0; y<m_Size.y; ++y) {
-                memcpy(m_pBits+m_Stride*y, pBits+Stride*y, Stride);
+            for (int y = 0; y < m_Size.y; ++y) {
+                memcpy(m_pBits+m_Stride*y, pBits+stride*y, stride);
             }
         }
         m_bOwnsBits = true;
     } else {
         m_pBits = pBits;
-        m_Stride = Stride;
+        m_Stride = stride;
         m_bOwnsBits = false;
     }
 }
@@ -1190,7 +1180,7 @@ void Bitmap::allocBits()
     }
 }
 
-void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
+void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1202,7 +1192,7 @@ void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     int u1; // Next u;
     const unsigned char * pSrcPixels = pSrcLine;
 
-    for (int x = 0; x < Width/2-1; x++) {
+    for (int x = 0; x < width/2-1; x++) {
         // Two pixels at a time.
         // Source format is YUYV.
         u = pSrcPixels[1];
@@ -1224,7 +1214,7 @@ void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], u, v);
 }
  
-void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
+void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1236,7 +1226,7 @@ void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     int u1; // Next u;
     const unsigned char * pSrcPixels = pSrcLine;
 
-    for (int x = 0; x < Width/2-1; x++) {
+    for (int x = 0; x < width/2-1; x++) {
         // Two pixels at a time.
         // Source format is UYVY.
         u = pSrcPixels[0];
@@ -1258,7 +1248,7 @@ void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], u, v);
 }
  
-void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
+void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1271,14 +1261,14 @@ void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int W
     int u1; // Next u;
     const unsigned char * pSrcPixels = pSrcLine;
 
-    for (int x = 0; x < Width/4; x++) {
+    for (int x = 0; x < width/4; x++) {
         // Four pixels at a time.
         // Source format is UYYVYY.
         u = pSrcPixels[0];
         v0 = v;
         v = pSrcPixels[3];
 
-        if (x < Width/4-1) {
+        if (x < width/4-1) {
             u1 = pSrcPixels[6];
             v1 = pSrcPixels[9];
         } else {
@@ -1296,34 +1286,34 @@ void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int W
     }
 }
 
-void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
+void Bitmap::YCbCrtoBGR(const Bitmap& origBmp)
 {
     AVG_ASSERT(m_PF==B8G8R8X8);
-    const unsigned char * pSrc = Orig.getPixels();
+    const unsigned char * pSrc = origBmp.getPixels();
     Pixel32 * pDest = (Pixel32*)m_pBits;
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
     int StrideInPixels = m_Stride/getBytesPerPixel();
-    switch(Orig.m_PF) {
+    switch(origBmp.m_PF) {
         case YCbCr422:
-            for (int y=0; y<Height; ++y) {
-                UYVY422toBGR32Line(pSrc, pDest, Width);
+            for (int y = 0; y < height; ++y) {
+                UYVY422toBGR32Line(pSrc, pDest, width);
                 pDest += StrideInPixels;
-                pSrc += Orig.getStride();
+                pSrc += origBmp.getStride();
             }
             break;
         case YUYV422:
-            for (int y=0; y<Height; ++y) {
-                YUYV422toBGR32Line(pSrc, pDest, Width);
+            for (int y = 0; y < height; ++y) {
+                YUYV422toBGR32Line(pSrc, pDest, width);
                 pDest += StrideInPixels;
-                pSrc += Orig.getStride();
+                pSrc += origBmp.getStride();
             }
             break;
         case YCbCr411:
-            for (int y=0; y<Height; ++y) {
-                YUV411toBGR32Line(pSrc, pDest, Width);
+            for (int y = 0; y < height; ++y) {
+                YUV411toBGR32Line(pSrc, pDest, width);
                 pDest += StrideInPixels;
-                pSrc += Orig.getStride();
+                pSrc += origBmp.getStride();
             }
             break;
         default:
@@ -1332,59 +1322,57 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
     }
 }
     
-void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int Width)
+void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int width)
 {
     const unsigned char * pSrc = pSrcLine;
     unsigned char * pDest = pDestLine;
-    
-    for (int x = 0; x < Width; x++) {
+    for (int x = 0; x < width; x++) {
         *pDest = *pSrc;
         pDest++;
         pSrc+=2;
     }
 }
  
-void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int Width)
+void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int width)
 {
     const unsigned char * pSrc = pSrcLine;
     unsigned char * pDest = pDestLine;
-    
-    for (int x = 0; x < Width/2; x++) {
+    for (int x = 0; x < width/2; x++) {
         *pDest++ = *pSrc++;
         *pDest++ = *pSrc++;
         pSrc++;
     }
 }
  
-void Bitmap::YCbCrtoI8(const Bitmap& Orig)
+void Bitmap::YCbCrtoI8(const Bitmap& origBmp)
 {
     AVG_ASSERT(m_PF==I8);
-    const unsigned char * pSrc = Orig.getPixels();
+    const unsigned char * pSrc = origBmp.getPixels();
     unsigned char * pDest = m_pBits;
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
-    switch(Orig.m_PF) {
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
+    switch(origBmp.m_PF) {
         case YCbCr422:
-            for (int y=0; y<Height; ++y) {
+            for (int y = 0; y < height; ++y) {
                 // src shifted by one byte to account for UYVY to YUYV 
                 // difference in pixel order.
-                YUYV422toI8Line(pSrc+1, pDest, Width);
+                YUYV422toI8Line(pSrc+1, pDest, width);
                 pDest += m_Stride;
-                pSrc += Orig.getStride();
+                pSrc += origBmp.getStride();
             }
             break;
         case YUYV422:
-            for (int y=0; y<Height; ++y) {
-                YUYV422toI8Line(pSrc, pDest, Width);
+            for (int y = 0; y < height; ++y) {
+                YUYV422toI8Line(pSrc, pDest, width);
                 pDest += m_Stride;
-                pSrc += Orig.getStride();
+                pSrc += origBmp.getStride();
             }
             break;
         case YCbCr411:
-            for (int y=0; y<Height; ++y) {
-                YUV411toI8Line(pSrc, pDest, Width);
+            for (int y = 0; y < height; ++y) {
+                YUV411toI8Line(pSrc, pDest, width);
                 pDest += m_Stride;
-                pSrc += Orig.getStride();
+                pSrc += origBmp.getStride();
             }
             break;
         default:
@@ -1393,124 +1381,124 @@ void Bitmap::YCbCrtoI8(const Bitmap& Orig)
     }
 }
 
-void Bitmap::I16toI8(const Bitmap& Orig)
+void Bitmap::I16toI8(const Bitmap& origBmp)
 {
     AVG_ASSERT(m_PF == I8);
-    AVG_ASSERT(Orig.getPixelFormat() == I16);
-    const unsigned short * pSrc = (const unsigned short *)Orig.getPixels();
+    AVG_ASSERT(origBmp.getPixelFormat() == I16);
+    const unsigned short * pSrc = (const unsigned short *)origBmp.getPixels();
     unsigned char * pDest = m_pBits;
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
-    int SrcStrideInPixels = Orig.getStride()/Orig.getBytesPerPixel();
-    for (int y=0; y<Height; ++y) {
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
+    int srcStrideInPixels = origBmp.getStride()/origBmp.getBytesPerPixel();
+    for (int y = 0; y < height; ++y) {
         const unsigned short * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
-        for (int x=0; x<Width; ++x) {
+        for (int x=0; x<width; ++x) {
             *pDestPixel++ = *pSrcPixel++ >> 8;
         }
         pDest += m_Stride;
-        pSrc += SrcStrideInPixels;
+        pSrc += srcStrideInPixels;
     }
 }
 
-void Bitmap::I8toI16(const Bitmap& Orig)
+void Bitmap::I8toI16(const Bitmap& origBmp)
 {
     AVG_ASSERT(m_PF == I16);
-    AVG_ASSERT(Orig.getPixelFormat() == I8);
-    const unsigned char * pSrc = Orig.getPixels();
+    AVG_ASSERT(origBmp.getPixelFormat() == I8);
+    const unsigned char * pSrc = origBmp.getPixels();
     unsigned short * pDest = (unsigned short *)m_pBits;
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
-    int DestStrideInPixels = m_Stride/getBytesPerPixel();
-    for (int y=0; y<Height; ++y) {
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
+    int destStrideInPixels = m_Stride/getBytesPerPixel();
+    for (int y=0; y<height; ++y) {
         const unsigned char * pSrcPixel = pSrc;
         unsigned short * pDestPixel = pDest;
-        for (int x=0; x<Width; ++x) {
+        for (int x=0; x<width; ++x) {
             *pDestPixel++ = *pSrcPixel++ << 8;
         }
-        pDest += DestStrideInPixels;
-        pSrc += Orig.getStride();
+        pDest += destStrideInPixels;
+        pSrc += origBmp.getStride();
     }
 }
 
-void Bitmap::I8toRGB(const Bitmap& Orig)
+void Bitmap::I8toRGB(const Bitmap& origBmp)
 {
     AVG_ASSERT(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
-    AVG_ASSERT(Orig.getPixelFormat() == I8);
-    const unsigned char * pSrc = Orig.getPixels();
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
+    AVG_ASSERT(origBmp.getPixelFormat() == I8);
+    const unsigned char * pSrc = origBmp.getPixels();
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
     if (getBytesPerPixel() == 4) {
         unsigned int * pDest = (unsigned int *)m_pBits;
-        int DestStrideInPixels = m_Stride/getBytesPerPixel();
-        for (int y=0; y<Height; ++y) {
+        int destStrideInPixels = m_Stride/getBytesPerPixel();
+        for (int y = 0; y < height; ++y) {
             const unsigned char * pSrcPixel = pSrc;
             unsigned int * pDestPixel = pDest;
-            for (int x=0; x<Width; ++x) {
+            for (int x = 0; x < width; ++x) {
                 *pDestPixel = (((((255 << 8)+(*pSrcPixel)) << 8)+
                         *pSrcPixel) << 8) +(*pSrcPixel);
                 pDestPixel ++;
                 pSrcPixel++;
             }
-            pDest += DestStrideInPixels;
-            pSrc += Orig.getStride();
+            pDest += destStrideInPixels;
+            pSrc += origBmp.getStride();
         }
     } else {
         unsigned char * pDest = m_pBits;
-        for (int y=0; y<Height; ++y) {
+        for (int y = 0; y < height; ++y) {
             const unsigned char * pSrcPixel = pSrc;
             unsigned char * pDestPixel = pDest;
-            for (int x=0; x<Width; ++x) {
+            for (int x = 0; x < width; ++x) {
                 *pDestPixel++ = *pSrcPixel;
                 *pDestPixel++ = *pSrcPixel;
                 *pDestPixel++ = *pSrcPixel;
                 pSrcPixel++;
             }
             pDest += getStride();
-            pSrc += Orig.getStride();
+            pSrc += origBmp.getStride();
         }
     }
 }
 
-void Bitmap::ByteRBBAtoFloatRGBA(const Bitmap& Orig)
+void Bitmap::ByteRBBAtoFloatRGBA(const Bitmap& origBmp)
 {
     AVG_ASSERT(getPixelFormat() == R32G32B32A32F);
-    AVG_ASSERT(Orig.getBytesPerPixel() == 4);
-    const unsigned char * pSrc = Orig.getPixels();
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
+    AVG_ASSERT(origBmp.getBytesPerPixel() == 4);
+    const unsigned char * pSrc = origBmp.getPixels();
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
     float * pDest = (float *)m_pBits;
-    for (int y=0; y<Height; ++y) {
+    for (int y = 0; y < height; ++y) {
         const unsigned char * pSrcPixel = pSrc;
         float * pDestPixel = pDest;
-        for (int x=0; x<Width*4; ++x) {
+        for (int x = 0; x < width*4; ++x) {
             *pDestPixel = float(*pSrcPixel)/255;
             pDestPixel ++;
             pSrcPixel++;
         }
         pDest += m_Stride/sizeof(float);
-        pSrc += Orig.getStride();
+        pSrc += origBmp.getStride();
     }
 }
 
-void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
+void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& origBmp)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-    AVG_ASSERT(Orig.getPixelFormat() == R32G32B32A32F);
-    const float * pSrc = (const float *)Orig.getPixels();
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
+    AVG_ASSERT(origBmp.getPixelFormat() == R32G32B32A32F);
+    const float * pSrc = (const float *)origBmp.getPixels();
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
     unsigned char * pDest = m_pBits;
-    for (int y=0; y<Height; ++y) {
+    for (int y = 0; y < height; ++y) {
         const float * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
-        for (int x=0; x<Width*4; ++x) {
+        for (int x = 0; x < width*4; ++x) {
             *pDestPixel = (unsigned char)(*pSrcPixel*255+0.5);
             pDestPixel++;
             pSrcPixel++;
         }
         pDest += m_Stride;
-        pSrc += Orig.getStride()/sizeof(float);
+        pSrc += origBmp.getStride()/sizeof(float);
     }
 }
 
@@ -1519,25 +1507,25 @@ void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
 // Code has been taken and adapted from libdc1394 Bayer conversion
 // TODO: adapt it for RGB24, not just for RGB32
 // TODO: add more CFA patterns (now only the GBRG is defined and used)
-void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
+void Bitmap::BY8toRGBNearest(const Bitmap& origBmp)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-    AVG_ASSERT(Orig.getPixelFormat() == BAYER8_GBRG);
+    AVG_ASSERT(origBmp.getPixelFormat() == BAYER8_GBRG);
 
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
 
-    const int SrcStride = Width;
-    const int DestStride = 4 * Width;
-    int width = Width;
-    int height = Height;
+    const int srcStride = width;
+    const int destStride = 4 * width;
+    int width = width;
+    int height = height;
 
     // CFA Pattern selection: BGGR: blue=-1, swg=0; GRBG: blue=1, swg=1
     // Assuming GBRG
     int blue = 1;
     int greenFirst = 1;
 
-    const unsigned char *pSrcPixel = Orig.getPixels();
+    const unsigned char *pSrcPixel = origBmp.getPixels();
     unsigned char *pDestPixel = (unsigned char *) getPixels();
 
     pDestPixel += 1;
@@ -1550,8 +1538,8 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
 
         if (greenFirst) {
             pDestPixel[-blue] = pSrcPixel[1];
-            pDestPixel[0] = pSrcPixel[SrcStride + 1];
-            pDestPixel[blue] = pSrcPixel[SrcStride];
+            pDestPixel[0] = pSrcPixel[srcStride + 1];
+            pDestPixel[blue] = pSrcPixel[srcStride];
             pDestPixel[2] = 255; // Alpha channel
             ++pSrcPixel;
             pDestPixel += 4;
@@ -1561,12 +1549,12 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
             while (pSrcPixel <= pSrcEndBoundary - 2) {
                 pDestPixel[-1] = pSrcPixel[0];
                 pDestPixel[0] = pSrcPixel[1];
-                pDestPixel[1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[1] = pSrcPixel[srcStride + 1];
                 pDestPixel[2] = 255; // Alpha channel
 
                 pDestPixel[3] = pSrcPixel[2];
-                pDestPixel[4] = pSrcPixel[SrcStride + 2];
-                pDestPixel[5] = pSrcPixel[SrcStride + 1];
+                pDestPixel[4] = pSrcPixel[srcStride + 2];
+                pDestPixel[5] = pSrcPixel[srcStride + 1];
                 pDestPixel[6] = 255; // Alpha channel
                 
                 pSrcPixel += 2;
@@ -1576,12 +1564,12 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
             while (pSrcPixel <= pSrcEndBoundary - 2) {
                 pDestPixel[1] = pSrcPixel[0];
                 pDestPixel[0] = pSrcPixel[1];
-                pDestPixel[-1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[-1] = pSrcPixel[srcStride + 1];
                 
                 pDestPixel[6] = 255; // Alpha channel
                 pDestPixel[5] = pSrcPixel[2];
-                pDestPixel[4] = pSrcPixel[SrcStride + 2];
-                pDestPixel[3] = pSrcPixel[SrcStride + 1];
+                pDestPixel[4] = pSrcPixel[srcStride + 2];
+                pDestPixel[3] = pSrcPixel[srcStride + 1];
                 pDestPixel[2] = 255; // Alpha channel
 
                 pSrcPixel += 2;
@@ -1592,7 +1580,7 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
         if (pSrcPixel < pSrcEndBoundary) {
             pDestPixel[-blue] = pSrcPixel[0];
             pDestPixel[0] = pSrcPixel[1];
-            pDestPixel[blue] = pSrcPixel[SrcStride + 1];
+            pDestPixel[blue] = pSrcPixel[srcStride + 1];
             pDestPixel[2] = 255; // Alpha channel
             ++pSrcPixel;
             pDestPixel += 4;
@@ -1604,8 +1592,8 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
         blue = -blue;
         greenFirst = !greenFirst;
 
-        pSrcPixel += SrcStride;
-        pDestPixel += DestStride;
+        pSrcPixel += srcStride;
+        pDestPixel += destStride;
     }
 }
 */
@@ -1614,22 +1602,20 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
 // Code has been taken and adapted from libdc1394 Bayer conversion
 // Original source is OpenCV Bayer pattern decoding
 // TODO: adapt it for RGB24, not just for RGB32
-void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
+void Bitmap::BY8toRGBBilinear(const Bitmap& origBmp)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-    AVG_ASSERT(pixelFormatIsBayer(Orig.getPixelFormat()));
+    AVG_ASSERT(pixelFormatIsBayer(origBmp.getPixelFormat()));
 
-    int Height = min(Orig.getSize().y, m_Size.y);
-    int Width = min(Orig.getSize().x, m_Size.x);
+    int height = min(origBmp.getSize().y, m_Size.y);
+    int width = min(origBmp.getSize().x, m_Size.x);
 
-    const int SrcStride = Width;
-    const int doubleSrcStride = SrcStride * 2;
-    const int DestStride = 4 * Width;
-    int width = Width;
-    int height = Height;
+    const int srcStride = width;
+    const int doubleSrcStride = srcStride * 2;
+    const int destStride = 4 * width;
 
     // CFA Pattern selection
-    PixelFormat pf = Orig.getPixelFormat();
+    PixelFormat pf = origBmp.getPixelFormat();
     int blue;
     int greenFirst;
     if (pf == BAYER8_BGGR || pf == BAYER8_GBRG) {
@@ -1644,22 +1630,22 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
         greenFirst = 0;
     }
 
-    const unsigned char *pSrcPixel = Orig.getPixels();
+    const unsigned char *pSrcPixel = origBmp.getPixels();
     unsigned char *pDestPixel = (unsigned char *) getPixels();
 
-    pDestPixel += DestStride + 4 + 1;
+    pDestPixel += destStride + 4 + 1;
     height -= 2;
     width -= 2;
 
-    while(height--) {
+    while (height--) {
         int t0, t1;
         const unsigned char *pSrcEndBoundary = pSrcPixel + width;
 
         if (greenFirst) {
             t0 = (pSrcPixel[1] + pSrcPixel[doubleSrcStride + 1] + 1) >> 1;
-            t1 = (pSrcPixel[SrcStride] + pSrcPixel[SrcStride + 2] + 1) >> 1;
+            t1 = (pSrcPixel[srcStride] + pSrcPixel[srcStride + 2] + 1) >> 1;
             pDestPixel[-blue] = (unsigned char) t0;
-            pDestPixel[0] = pSrcPixel[SrcStride + 1];
+            pDestPixel[0] = pSrcPixel[srcStride + 1];
             pDestPixel[blue] = (unsigned char) t1;
             pDestPixel[2] = 255; // Alpha channel
             ++pSrcPixel;
@@ -1667,22 +1653,22 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
         }
                 
         if (blue > 0) {
-            while(pSrcPixel <= pSrcEndBoundary - 2) {
+            while (pSrcPixel <= pSrcEndBoundary - 2) {
                 t0 = (pSrcPixel[0] + pSrcPixel[2] + pSrcPixel[doubleSrcStride] +
                       pSrcPixel[doubleSrcStride + 2] + 2) >> 2;
-                t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
-                      pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
+                t1 = (pSrcPixel[1] + pSrcPixel[srcStride] +
+                      pSrcPixel[srcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
                       2) >> 2;
                 pDestPixel[-1] = (unsigned char) t0;
                 pDestPixel[0] = (unsigned char) t1;
-                pDestPixel[1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[1] = pSrcPixel[srcStride + 1];
                 pDestPixel[2] = 255; // Alpha channel
 
                 t0 = (pSrcPixel[2] + pSrcPixel[doubleSrcStride + 2] + 1) >> 1;
-                t1 = (pSrcPixel[SrcStride + 1] + pSrcPixel[SrcStride + 3] +
+                t1 = (pSrcPixel[srcStride + 1] + pSrcPixel[srcStride + 3] +
                       1) >> 1;
                 pDestPixel[3] = (unsigned char) t0;
-                pDestPixel[4] = pSrcPixel[SrcStride + 2];
+                pDestPixel[4] = pSrcPixel[srcStride + 2];
                 pDestPixel[5] = (unsigned char) t1;
                 pDestPixel[6] = 255; // Alpha channel
                 
@@ -1690,22 +1676,22 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
                 pDestPixel += 8;
             }
         } else {
-            while(pSrcPixel <= pSrcEndBoundary - 2) {
+            while (pSrcPixel <= pSrcEndBoundary - 2) {
                 t0 = (pSrcPixel[0] + pSrcPixel[2] + pSrcPixel[doubleSrcStride] +
                       pSrcPixel[doubleSrcStride + 2] + 2) >> 2;
-                t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
-                      pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
+                t1 = (pSrcPixel[1] + pSrcPixel[srcStride] +
+                      pSrcPixel[srcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
                       2) >> 2;
                 pDestPixel[1] = (unsigned char) t0;
                 pDestPixel[0] = (unsigned char) t1;
-                pDestPixel[-1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[-1] = pSrcPixel[srcStride + 1];
                 pDestPixel[2] = 255; // Alpha channel
 
                 t0 = (pSrcPixel[2] + pSrcPixel[doubleSrcStride + 2] + 1) >> 1;
-                t1 = (pSrcPixel[SrcStride + 1] + pSrcPixel[SrcStride + 3] +
+                t1 = (pSrcPixel[srcStride + 1] + pSrcPixel[srcStride + 3] +
                       1) >> 1;
                 pDestPixel[5] = (unsigned char) t0;
-                pDestPixel[4] = pSrcPixel[SrcStride + 2];
+                pDestPixel[4] = pSrcPixel[srcStride + 2];
                 pDestPixel[3] = (unsigned char) t1;
                 pDestPixel[6] = 255; // Alpha channel
                 
@@ -1717,12 +1703,12 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
         if (pSrcPixel < pSrcEndBoundary) {
             t0 = (pSrcPixel[0] + pSrcPixel[2] + pSrcPixel[doubleSrcStride] +
                   pSrcPixel[doubleSrcStride + 2] + 2) >> 2;
-            t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
-                  pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
+            t1 = (pSrcPixel[1] + pSrcPixel[srcStride] +
+                  pSrcPixel[srcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
                   2) >> 2;
             pDestPixel[-blue] = (unsigned char) t0;
             pDestPixel[0] = (unsigned char) t1;
-            pDestPixel[blue] = pSrcPixel[SrcStride + 1];
+            pDestPixel[blue] = pSrcPixel[srcStride + 1];
             pDestPixel[2] = 255; // Alpha channel
             pSrcPixel++;
             pDestPixel += 4;
@@ -1734,44 +1720,44 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
         blue = -blue;
         greenFirst = !greenFirst;
         
-        pSrcPixel += SrcStride;
-        pDestPixel += DestStride;
+        pSrcPixel += srcStride;
+        pDestPixel += destStride;
     }
 }
 
-template<class DestPixel, class SrcPixel>
-void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
+template<class DESTPIXEL, class SRCPIXEL>
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
 {
-    SrcPixel * pSrcLine = (SrcPixel*) Src.getPixels();
-    DestPixel * pDestLine = (DestPixel*) Dest.getPixels();
-    int Height = min(Src.getSize().y, Dest.getSize().y);
-    int Width = min(Src.getSize().x, Dest.getSize().x);
-    for (int y = 0; y<Height; ++y) {
-        SrcPixel * pSrcPixel = pSrcLine;
-        DestPixel * pDestPixel = pDestLine;
-        for (int x = 0; x < Width; ++x) {
+    SRCPIXEL * pSrcLine = (SRCPIXEL*) srcBmp.getPixels();
+    DESTPIXEL * pDestLine = (DESTPIXEL*) destBmp.getPixels();
+    int height = min(srcBmp.getSize().y, destBmp.getSize().y);
+    int width = min(srcBmp.getSize().x, destBmp.getSize().x);
+    for (int y = 0; y < height; ++y) {
+        SRCPIXEL * pSrcPixel = pSrcLine;
+        DESTPIXEL * pDestPixel = pDestLine;
+        for (int x = 0; x < width; ++x) {
             *pDestPixel = *pSrcPixel;
             ++pSrcPixel;
             ++pDestPixel;
         }
-        pSrcLine = (SrcPixel *)((unsigned char *)pSrcLine + Src.getStride());
-        pDestLine = (DestPixel *)((unsigned char *)pDestLine + Dest.getStride());
+        pSrcLine = (SRCPIXEL *)((unsigned char *)pSrcLine + srcBmp.getStride());
+        pDestLine = (DESTPIXEL *)((unsigned char *)pDestLine + destBmp.getStride());
     }
 }
 
 template<>
-void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& Dest, const Bitmap & Src)
+void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap & srcBmp)
 {
-    const unsigned char * pSrcLine = Src.getPixels();
-    unsigned char * pDestLine = Dest.getPixels();
-    int Height = min(Src.getSize().y, Dest.getSize().y);
-    int Width = min(Src.getSize().x, Dest.getSize().x);
-    int SrcStride = Src.getStride();
-    int DestStride = Dest.getStride();
-    for (int y = 0; y<Height; ++y) {
+    const unsigned char * pSrcLine = srcBmp.getPixels();
+    unsigned char * pDestLine = destBmp.getPixels();
+    int height = min(srcBmp.getSize().y, destBmp.getSize().y);
+    int width = min(srcBmp.getSize().x, destBmp.getSize().x);
+    int srcStride = srcBmp.getStride();
+    int destStride = destBmp.getStride();
+    for (int y = 0; y < height; ++y) {
         const unsigned char * pSrcPixel = pSrcLine;
         unsigned char * pDestPixel = pDestLine;
-        for (int x = 0; x < Width; ++x) {
+        for (int x = 0; x < width; ++x) {
             pDestPixel[0] =
             pDestPixel[1] =
             pDestPixel[2] = *pSrcPixel;
@@ -1779,48 +1765,48 @@ void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& Dest, const Bitmap & Src)
             ++pSrcPixel;
             pDestPixel+=4;
         }
-        pSrcLine = pSrcLine + SrcStride;
-        pDestLine = pDestLine + DestStride;
+        pSrcLine = pSrcLine + srcStride;
+        pDestLine = pDestLine + destStride;
     }
 }
 
 template<>
-void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& Dest, const Bitmap & Src)
+void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap & srcBmp)
 {
-    const unsigned char * pSrcLine = Src.getPixels();
-    unsigned char * pDestLine = Dest.getPixels();
-    int Height = min(Src.getSize().y, Dest.getSize().y);
-    int Width = min(Src.getSize().x, Dest.getSize().x);
-    int SrcStride = Src.getStride();
-    int DestStride = Dest.getStride();
-    bool bRedFirst = (Src.getPixelFormat() == R8G8B8A8) || 
-            (Src.getPixelFormat() == R8G8B8X8);
-    for (int y = 0; y<Height; ++y) {
+    const unsigned char * pSrcLine = srcBmp.getPixels();
+    unsigned char * pDestLine = destBmp.getPixels();
+    int height = min(srcBmp.getSize().y, destBmp.getSize().y);
+    int width = min(srcBmp.getSize().x, destBmp.getSize().x);
+    int srcStride = srcBmp.getStride();
+    int destStride = destBmp.getStride();
+    bool bRedFirst = (srcBmp.getPixelFormat() == R8G8B8A8) || 
+            (srcBmp.getPixelFormat() == R8G8B8X8);
+    for (int y = 0; y<height; ++y) {
         const unsigned char * pSrcPixel = pSrcLine;
         unsigned char * pDestPixel = pDestLine;
         if (bRedFirst) {
-            for (int x = 0; x < Width; ++x) {
+            for (int x = 0; x < width; ++x) {
                 *pDestPixel = ((pSrcPixel[0]*54+pSrcPixel[1]*183+pSrcPixel[2]*19)/256);
                 pSrcPixel+=4;
                 ++pDestPixel;
             }
         } else {
-            for (int x = 0; x < Width; ++x) {
+            for (int x = 0; x < width; ++x) {
                 *pDestPixel = ((pSrcPixel[0]*19+pSrcPixel[1]*183+pSrcPixel[2]*54)/256);
                 pSrcPixel+=4;
                 ++pDestPixel;
             }
         }
-        pSrcLine = pSrcLine + SrcStride;
-        pDestLine = pDestLine + DestStride;
+        pSrcLine = pSrcLine + srcStride;
+        pDestLine = pDestLine + destStride;
     }
 }
 
 
-template<class Pixel>
-void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
+template<class PIXEL>
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
 {
-    switch(Src.getPixelFormat()) {
+    switch(srcBmp.getPixelFormat()) {
         case B8G8R8A8:
         case B8G8R8X8:
         case A8B8G8R8:
@@ -1829,22 +1815,22 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
         case R8G8B8X8:
         case A8R8G8B8:
         case X8R8G8B8:
-            createTrueColorCopy<Pixel, Pixel32>(Dest, Src);
+            createTrueColorCopy<PIXEL, Pixel32>(destBmp, srcBmp);
             break;
         case B8G8R8:
         case R8G8B8:
-            createTrueColorCopy<Pixel, Pixel24>(Dest, Src);
+            createTrueColorCopy<PIXEL, Pixel24>(destBmp, srcBmp);
             break;
         case B5G6R5:
         case R5G6B5:
-            createTrueColorCopy<Pixel, Pixel16>(Dest, Src);
+            createTrueColorCopy<PIXEL, Pixel16>(destBmp, srcBmp);
             break;
         case I8:
         case BAYER8_RGGB:
         case BAYER8_GBRG:
         case BAYER8_GRBG:
         case BAYER8_BGGR:
-            createTrueColorCopy<Pixel, Pixel8>(Dest, Src);
+            createTrueColorCopy<PIXEL, Pixel8>(destBmp, srcBmp);
             break;
         default:
             // Unimplemented conversion.
