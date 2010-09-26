@@ -38,7 +38,7 @@ class AVG_API FakeCamera: public Camera
 {
 public:
     FakeCamera(PixelFormat camPF, PixelFormat destPF);
-    FakeCamera(std::vector<std::string> &pictures);
+    FakeCamera(std::vector<std::string>& pictures);
     virtual ~FakeCamera();
     virtual void open();
     virtual void close();
@@ -52,9 +52,9 @@ public:
     virtual double getFrameRate() const;
     virtual const std::string& getMode() const;
 
-    virtual int getFeature(CameraFeature Feature) const;
-    virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
-    virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual int getFeature(CameraFeature feature) const;
+    virtual void setFeature(CameraFeature feature, int Value, bool bIgnoreOldValue=false);
+    virtual void setFeatureOneShot(CameraFeature feature);
     virtual int getWhitebalanceU() const;
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);

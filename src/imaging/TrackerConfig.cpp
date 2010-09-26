@@ -46,12 +46,12 @@ TrackerConfig::TrackerConfig()
 {
 } 
 
-TrackerConfig::TrackerConfig(const TrackerConfig& Other)
+TrackerConfig::TrackerConfig(const TrackerConfig& other)
 {
     m_Doc = 0;
-    if (Other.m_Doc) {
-        m_Doc = xmlCopyDoc(Other.m_Doc, true);
-        m_sFilename = Other.m_sFilename;
+    if (other.m_Doc) {
+        m_Doc = xmlCopyDoc(other.m_Doc, true);
+        m_sFilename = other.m_sFilename;
         m_pRoot = xmlDocGetRootElement(m_Doc);
     }
 }
@@ -71,7 +71,8 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
     dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     if (!dtd) {
         AVG_TRACE(Logger::WARNING, 
-                "DTD not found at " << sDTDFName << ". Not validating trackerconfig files.");
+                "DTD not found at " << sDTDFName 
+                << ". Not validating trackerconfig files.");
     }
 
     m_Doc = xmlParseFile(sFilename.c_str());
@@ -84,11 +85,10 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
     xmlValidCtxtPtr cvp = xmlNewValidCtxt();
     cvp->error = xmlParserValidityError;
     cvp->warning = xmlParserValidityWarning;
-    int valid=xmlValidateDtd(cvp, m_Doc, dtd);  
+    int isValid = xmlValidateDtd(cvp, m_Doc, dtd);  
     xmlFreeValidCtxt(cvp);
-    if (!valid) {
-        throw (Exception(AVG_ERR_XML_PARSE, 
-                sFilename + " does not validate."));
+    if (!isValid) {
+        throw (Exception(AVG_ERR_XML_PARSE, sFilename + " does not validate."));
     }
 
     m_pRoot = xmlDocGetRootElement(m_Doc);
@@ -143,7 +143,7 @@ void TrackerConfig::setParam(const string& sXPathExpr, const string& sValue)
         throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
                     string("setParam(): cannot find requested element ")+sXPathExpr));
     
-    for(int i = nodes->nodeNr - 1; i >= 0; i--) {
+    for (int i = nodes->nodeNr-1; i >= 0; i--) {
         AVG_ASSERT(nodes->nodeTab[i]);
 
         xmlNodeSetContent(nodes->nodeTab[i], BAD_CAST sValue.c_str());
@@ -167,7 +167,7 @@ string TrackerConfig::getParam(const string& sXPathExpr) const
             "getParam(): expression selects more than one node. Returning the first.");
     }
 
-    xmlChar *xsRc = xmlNodeGetContent(nodes->nodeTab[0]);
+    xmlChar* xsRc = xmlNodeGetContent(nodes->nodeTab[0]);
     string sValue((char *)xsRc);
     
     xmlFree(xsRc);

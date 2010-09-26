@@ -41,8 +41,8 @@ class AVG_API V4LCamera: public Camera {
     };
     
     public:
-        V4LCamera(std::string sDevice, int Channel, IntPoint Size,
-                PixelFormat camPF, PixelFormat destPF, double FrameRate);
+        V4LCamera(std::string sDevice, int Channel, IntPoint size,
+                PixelFormat camPF, PixelFormat destPF, double frameRate);
         virtual ~V4LCamera();
 
         virtual IntPoint getImgSize();

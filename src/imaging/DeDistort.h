@@ -43,23 +43,21 @@ class TrackerConfig;
 class AVG_API DeDistort: public CoordTransformer {
     public:
         DeDistort();
-        DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents);
-        DeDistort(const DPoint &CameraExtents,
-            const std::vector<double>& DistortionParams, 
-            double Angle, double TrapezoidFactor,
-            const DPoint& DisplayOffset, const DPoint& DisplayScale);
-        
+        DeDistort(const DPoint& camExtents, const DPoint& displayExtents);
+        DeDistort(const DPoint& camExtents, const std::vector<double>& distortionParams, 
+                double angle, double trapezoidFactor, const DPoint& displayOffset, 
+                const DPoint& displayScale);
         virtual ~DeDistort();
 
-        DPoint transformBlobToScreen(const DPoint &pt);
-        DPoint transformScreenToBlob(const DPoint &pt);
-        virtual DPoint transform_point(const DPoint & pt); 
-        virtual DPoint inverse_transform_point(const DPoint & pt);
+        DPoint transformBlobToScreen(const DPoint& pt);
+        DPoint transformScreenToBlob(const DPoint& pt);
+        virtual DPoint transform_point(const DPoint& pt); 
+        virtual DPoint inverse_transform_point(const DPoint& pt);
         DRect getDisplayArea(const DPoint& displayExtents);
         DRect getActiveBlobArea(const DRect& displayROI);
 
-        void load(const DPoint &CameraExtents, const TrackerConfig& Config);
-        void save(TrackerConfig& Config);
+        void load(const DPoint &CameraExtents, const TrackerConfig& config);
+        void save(TrackerConfig& config);
 
         bool operator ==(const DeDistort& other) const;
 
@@ -67,10 +65,10 @@ class AVG_API DeDistort: public CoordTransformer {
 
     private:
         double calc_rescale();
-        DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt);
-        DPoint undistort(const std::vector<double> &params, const DPoint &pt);
-        DPoint trapezoid(const double trapezoid_factor, const DPoint &pt);
-        DPoint inv_trapezoid(const double trapezoid_factor, const DPoint &pt);
+        DPoint inverse_undistort(const std::vector<double>& params, const DPoint& pt);
+        DPoint undistort(const std::vector<double>& params, const DPoint& pt);
+        DPoint trapezoid(const double trapezoid_factor, const DPoint& pt);
+        DPoint inv_trapezoid(const double trapezoid_factor, const DPoint& pt);
 
         DPoint m_CamExtents;
         std::vector<double> m_DistortionParams;

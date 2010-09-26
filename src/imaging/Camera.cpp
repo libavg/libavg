@@ -106,17 +106,11 @@ PixelFormat Camera::fwBayerStringToPF(unsigned long reg)
         AVG_ASSERT(false);
         return I8;
     }
+}
 
-}
-/*
-void Camera::fatalError(const string & sMsg)
+string cameraFeatureToString(CameraFeature feature)
 {
-    throw Exception(AVG_ERR_CAMERA, sMsg);
-}
-*/
-string cameraFeatureToString(CameraFeature Feature)
-{
-    switch(Feature) {
+    switch (feature) {
         case CAM_FEATURE_BRIGHTNESS:
             return "brightness";
         case CAM_FEATURE_EXPOSURE:
@@ -215,7 +209,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
             throw Exception(AVG_ERR_INVALID_ARGS,
                     "Unable to set up camera. Camera source '"+sDriver+"' unknown.");
         }
-    } catch (const Exception &e) {
+    } catch (const Exception& e) {
         if (e.GetCode() == AVG_ERR_CAMERA_NONFATAL) {
             AVG_TRACE(Logger::WARNING, e.GetStr());
         } else {
@@ -223,7 +217,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
         }
 
     }
-    if (!pCamera){
+    if (!pCamera) {
         pCamera = CameraPtr(new FakeCamera(camPF, destPF));
     }
     return pCamera;

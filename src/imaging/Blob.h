@@ -50,10 +50,10 @@ typedef std::vector<IntPoint> ContourSeq;
 class AVG_API Blob
 {
     public:
-        Blob(const Run & run);
+        Blob(const Run& run);
         ~Blob();
 
-        void addRun(const Run & run);
+        void addRun(const Run& run);
         void merge(const BlobPtr& other);
         RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -112,7 +112,7 @@ class AVG_API Blob
         ContourSeq m_Contour;
 };
 
-BlobVectorPtr AVG_API findConnectedComponents(BitmapPtr image, 
+BlobVectorPtr AVG_API findConnectedComponents(BitmapPtr pBmp, 
         unsigned char threshold);
 
 }

@@ -29,12 +29,12 @@ namespace avg {
 
 using namespace std;
 
-dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf) 
+dc1394video_mode_t getCamMode(IntPoint size, PixelFormat pf) 
 {
-    if (Size.x == 320 && Size.y == 240 && pf == YCbCr422) {
+    if (size.x == 320 && size.y == 240 && pf == YCbCr422) {
         return DC1394_VIDEO_MODE_320x240_YUV422;
-    } else if (Size.x == 640 && Size.y == 480) {
-        switch(pf) {
+    } else if (size.x == 640 && size.y == 480) {
+        switch (pf) {
             case I8:
             case BAYER8:
                 return DC1394_VIDEO_MODE_640x480_MONO8;
@@ -49,8 +49,8 @@ dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf)
             default:
                 break;
         }
-    } else if (Size.x == 800 && Size.y == 600) {
-        switch(pf) {
+    } else if (size.x == 800 && size.y == 600) {
+        switch (pf) {
             case I8:
             case BAYER8:
                 return DC1394_VIDEO_MODE_800x600_MONO8;
@@ -63,8 +63,8 @@ dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf)
             default:
                 break;
         }
-    } else if (Size.x == 1024 && Size.y == 768) {
-        switch(pf) {
+    } else if (size.x == 1024 && size.y == 768) {
+        switch (pf) {
             case I8:
             case BAYER8:
                 return DC1394_VIDEO_MODE_1024x768_MONO8;
@@ -77,8 +77,8 @@ dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf)
             default:
                 break;
         }
-    } else if (Size.x == 1280 && Size.y == 960) {
-        switch(pf) {
+    } else if (size.x == 1280 && size.y == 960) {
+        switch (pf) {
             case I8:
             case BAYER8:
                 return DC1394_VIDEO_MODE_1280x960_MONO8;
@@ -91,8 +91,8 @@ dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf)
             default:
                 break;
         }
-    } else if (Size.x == 1600 && Size.y == 1200) {
-        switch(pf) {
+    } else if (size.x == 1600 && size.y == 1200) {
+        switch (pf) {
             case I8:
             case BAYER8:
                 return DC1394_VIDEO_MODE_1600x1200_MONO8;
@@ -107,37 +107,37 @@ dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf)
         }
     }
     throw Exception(AVG_ERR_CAMERA_FATAL,
-            "Unsupported or illegal value ("+toString(Size.x)+", "+toString(Size.y)+
+            "Unsupported or illegal value ("+toString(size.x)+", "+toString(size.y)+
             "), "+getPixelFormatString(pf)+"\" for camera mode.");
 }
 
-dc1394framerate_t getFrameRateConst(double FrameRate)
+dc1394framerate_t getFrameRateConst(double frameRate)
 {
-    if (FrameRate == 1.875) {
+    if (frameRate == 1.875) {
         return DC1394_FRAMERATE_1_875;
-    } else if (FrameRate == 3.75) {
+    } else if (frameRate == 3.75) {
         return DC1394_FRAMERATE_3_75;
-    } else if (FrameRate == 7.5) {
+    } else if (frameRate == 7.5) {
         return DC1394_FRAMERATE_7_5;
-    } else if (FrameRate == 15) {
+    } else if (frameRate == 15) {
         return DC1394_FRAMERATE_15;
-    } else if (FrameRate == 30) {
+    } else if (frameRate == 30) {
         return DC1394_FRAMERATE_30;
-    } else if (FrameRate == 60) {
+    } else if (frameRate == 60) {
         return DC1394_FRAMERATE_60;
-    } else if (FrameRate == 120) {
+    } else if (frameRate == 120) {
         return DC1394_FRAMERATE_120;
-    } else if (FrameRate == 240) {
+    } else if (frameRate == 240) {
         return DC1394_FRAMERATE_240;
     } else {
         throw Exception(AVG_ERR_CAMERA_FATAL, string("Illegal value ")
-                +toString(FrameRate)+" for camera framerate.");
+                +toString(frameRate)+" for camera framerate.");
     }
 }
 
-dc1394feature_t getFeatureID(CameraFeature Feature)
+dc1394feature_t getFeatureID(CameraFeature feature)
 {
-    switch(Feature) {
+    switch (feature) {
         case CAM_FEATURE_BRIGHTNESS:
             return DC1394_FEATURE_BRIGHTNESS;
         case CAM_FEATURE_EXPOSURE:

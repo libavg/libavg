@@ -35,19 +35,22 @@
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
-    class AVG_API FilterDistortion: public Filter 
-    {
-        public:
-            FilterDistortion(const IntPoint& SrcSize, CoordTransformerPtr coordtrans);
-            virtual ~FilterDistortion();
-            BitmapPtr apply (BitmapPtr pBmpSource);
-        private:
-            IntPoint m_SrcSize;
-            CoordTransformerPtr m_pTrafo;
-            IntPoint *m_pMap;
-    };
 
-    typedef boost::shared_ptr<FilterDistortion> FilterDistortionPtr;
+// TODO: This class doesn't have a unit test.
+class AVG_API FilterDistortion: public Filter 
+{
+    public:
+        FilterDistortion(const IntPoint& srcSize, CoordTransformerPtr pTransformer);
+        virtual ~FilterDistortion();
+        BitmapPtr apply(BitmapPtr pBmpSource);
+    private:
+        IntPoint m_SrcSize;
+        CoordTransformerPtr m_pTransformer;
+        IntPoint* m_pMap;
+};
+
+typedef boost::shared_ptr<FilterDistortion> FilterDistortionPtr;
+
 }
 
 #endif

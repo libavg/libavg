@@ -24,10 +24,14 @@
 
 #include "CoordTransformer.h"
 
-namespace avg{
+namespace avg {
 
-CoordTransformer::CoordTransformer(){}
+CoordTransformer::CoordTransformer()
+{
+}
+
 CoordTransformer::~CoordTransformer()
 {
 }
+
 }

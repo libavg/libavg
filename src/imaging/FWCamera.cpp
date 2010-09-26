@@ -37,17 +37,17 @@ namespace avg {
 
 using namespace std;
 
-FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size, 
-        PixelFormat camPF, PixelFormat destPF, double FrameRate)
+FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, 
+        PixelFormat camPF, PixelFormat destPF, double frameRate)
     : Camera(camPF, destPF),
-      m_Size(Size),
-      m_FrameRate(FrameRate),
+      m_Size(size),
+      m_FrameRate(frameRate),
       m_WhitebalanceU(-1),
       m_WhitebalanceV(-1)
 {
 #ifdef AVG_ENABLE_1394_2
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
-    m_Mode = getCamMode(Size, camPF);
+    m_Mode = getCamMode(size, camPF);
     dc1394camera_list_t * pCameraList;
 
     m_pDC1394 = dc1394_new();
@@ -55,16 +55,16 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
         throw Exception(AVG_ERR_CAMERA_NONFATAL, 
                 "Failed to initialize firewire subsystem");
     }
-    int err=dc1394_camera_enumerate(m_pDC1394, &pCameraList);
+    int err = dc1394_camera_enumerate(m_pDC1394, &pCameraList);
 
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::ERROR, "Unable to look for cameras");
 #ifdef linux
         AVG_TRACE(Logger::ERROR, "Please check");
         AVG_TRACE(Logger::ERROR,
-                "  - if the kernel modules `ieee1394',`raw1394' and `ohci1394' are loaded");
+              "  - if the kernel modules `ieee1394',`raw1394' and `ohci1394' are loaded");
         AVG_TRACE(Logger::ERROR,
-                "  - if you have read/write access to /dev/raw1394.");
+              "  - if you have read/write access to /dev/raw1394.");
 #endif
         dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA_NONFATAL,"Firewire failure");
@@ -77,7 +77,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     }
     int id_to_use = -1;
     if (guid != 0) {
-        for (unsigned i=0; i<pCameraList->num;++i) {
+        for (unsigned i = 0; i < pCameraList->num; ++i) {
             if (pCameraList->ids[i].guid == guid) {
                 id_to_use = i;
             }       
@@ -115,12 +115,12 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     err = dc1394_video_set_mode(m_pCamera, m_Mode);
     AVG_ASSERT(err == DC1394_SUCCESS);
 
-    dc1394framerates_t FrameRates;
-    err = dc1394_video_get_supported_framerates(m_pCamera, m_Mode, &FrameRates);
+    dc1394framerates_t frameRates;
+    err = dc1394_video_get_supported_framerates(m_pCamera, m_Mode, &frameRates);
     AVG_ASSERT(err == DC1394_SUCCESS);
     bool bFrameRateSupported = false;
-    for (unsigned int i=0; i<FrameRates.num; i++) {
-        if (FrameRates.framerates[i] == m_FrameRateConstant) {
+    for (unsigned int i = 0; i < frameRates.num; i++) {
+        if (frameRates.framerates[i] == m_FrameRateConstant) {
             bFrameRateSupported = true;
             break;
         }
@@ -158,13 +158,13 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     dc1394switch_t status = DC1394_OFF;
 
     int i = 0;
-    while( status == DC1394_OFF && i++ < 5 ) {
+    while (status == DC1394_OFF && i++ < 5) {
         usleep(50000);
         err = dc1394_video_get_transmission(m_pCamera, &status);
         AVG_ASSERT(err == DC1394_SUCCESS);
     }
 
-    if( i == 5 ) {
+    if (i == 5) {
         AVG_ASSERT(false);
     }
     // Default to turning off any camera sharpness manipulation.
@@ -182,10 +182,12 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size,
     
     if (camPF == BAYER8) {
         if (strcmp(m_pCamera->model, "DFx 31BF03") == 0) {
-            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for IS DFx31BF03 camera");
+            AVG_TRACE(Logger::CONFIG,
+                    "Applying bayer pattern fixup for IS DFx31BF03 camera");
             setCamPF(BAYER8_GRBG);
         } else if (strcmp(m_pCamera->vendor, "Point Grey Research") == 0) {
-            AVG_TRACE(Logger::CONFIG, "Applying bayer pattern fixup for PointGrey cameras");
+            AVG_TRACE(Logger::CONFIG,
+                    "Applying bayer pattern fixup for PointGrey cameras");
             enablePtGreyBayer();
         }
     }
@@ -261,7 +263,8 @@ const string& FWCamera::getDevice() const
     static string deviceInfo;
     stringstream ss;
 #ifdef AVG_ENABLE_1394_2
-    ss<<m_pCamera->vendor<<" "<<m_pCamera->model<<" (guid="<<m_pCamera->guid<<", unit="<<m_pCamera->unit<<")";
+    ss << m_pCamera->vendor << " " << m_pCamera->model << " (guid=" << m_pCamera->guid 
+            << ", unit=" << m_pCamera->unit << ")";
 #endif
     deviceInfo = ss.str();
     return deviceInfo;
@@ -282,10 +285,10 @@ double FWCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-int FWCamera::getFeature(CameraFeature Feature) const
+int FWCamera::getFeature(CameraFeature feature) const
 {
 #ifdef AVG_ENABLE_1394_2
-    FeatureMap::const_iterator it = m_Features.find(Feature);
+    FeatureMap::const_iterator it = m_Features.find(feature);
     if (it == m_Features.end()) {
         return 0;
     } else {
@@ -296,36 +299,36 @@ int FWCamera::getFeature(CameraFeature Feature) const
 #endif
 }
 
-void FWCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
+void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
 #ifdef AVG_ENABLE_1394_2
-    if (bIgnoreOldValue || m_Features[Feature] != Value) {
-        m_Features[Feature] = Value;
-        if (Feature == CAM_FEATURE_STROBE_DURATION) {
+    if (bIgnoreOldValue || m_Features[feature] != value) {
+        m_Features[feature] = value;
+        if (feature == CAM_FEATURE_STROBE_DURATION) {
             try {
-                setStrobeDuration(Value);
+                setStrobeDuration(value);
             } catch (Exception& e) {
                 AVG_TRACE(Logger::WARNING, 
                         string("Camera: Setting strobe duration failed. ")+e.GetStr());
             }
         } else {
-            dc1394feature_t FeatureID = getFeatureID(Feature);
-            setFeature(FeatureID, Value);
+            dc1394feature_t FeatureID = getFeatureID(feature);
+            setFeature(FeatureID, value);
             //        dumpCameraInfo();
         }
     }
 #endif
 }
 
-void FWCamera::setFeatureOneShot(CameraFeature Feature)
+void FWCamera::setFeatureOneShot(CameraFeature feature)
 {
 #ifdef AVG_ENABLE_1394_2
-    dc1394feature_t FeatureID = getFeatureID(Feature);
+    dc1394feature_t FeatureID = getFeatureID(feature);
     dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
             DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
-                << cameraFeatureToString(Feature) << ". Error was " << err);
+                << cameraFeatureToString(feature) << ". Error was " << err);
     }
 #endif
 }
@@ -369,25 +372,25 @@ void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 #endif
 }
 
-void FWCamera::setFeature(dc1394feature_t Feature, int Value)
+void FWCamera::setFeature(dc1394feature_t feature, int value)
 {
 #ifdef AVG_ENABLE_1394_2
     dc1394error_t err;
-    if (Value == -1) {
-        err = dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_AUTO);
-        err = dc1394_feature_set_power(m_pCamera, Feature, DC1394_OFF);
+    if (value == -1) {
+        err = dc1394_feature_set_mode(m_pCamera, feature, DC1394_FEATURE_MODE_AUTO);
+        err = dc1394_feature_set_power(m_pCamera, feature, DC1394_OFF);
     } else {
-        dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_MANUAL);
-        err = dc1394_feature_set_power(m_pCamera, Feature, DC1394_ON);
-        err = dc1394_feature_set_value(m_pCamera, Feature, Value);
+        dc1394_feature_set_mode(m_pCamera, feature, DC1394_FEATURE_MODE_MANUAL);
+        err = dc1394_feature_set_power(m_pCamera, feature, DC1394_ON);
+        err = dc1394_feature_set_value(m_pCamera, feature, value);
     }
     if (err != DC1394_SUCCESS) {
-        AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << Feature << 
+        AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << feature << 
                 ". Error was " << err);
     }
 /*
     dc1394feature_info_t featureInfo;
-    featureInfo.id = Feature;
+    featureInfo.id = feature;
     err = dc1394_feature_get(m_pCamera, &featureInfo);
     dc1394_feature_print(&featureInfo, stdout);
 */
@@ -423,7 +426,7 @@ void FWCamera::setStrobeDuration(int microsecs)
             int len = sizeof(regValues)/sizeof(*regValues);
             AVG_ASSERT(len == sizeof(realTimes)/sizeof(*realTimes));
             int i;
-            for (i=1; realTimes[i] < targetMillisecs; ++i); 
+            for (i = 1; realTimes[i] < targetMillisecs; ++i); 
             double ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
             durationRegValue = ratio*regValues[i-1]+(1-ratio)*regValues[i];
         } 

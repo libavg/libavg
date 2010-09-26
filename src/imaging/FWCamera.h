@@ -50,8 +50,8 @@ namespace avg {
 
 class AVG_API FWCamera: public Camera {
 public:
-    FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint Size, PixelFormat camPF, 
-            PixelFormat destPF, double FrameRate);
+    FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, PixelFormat camPF, 
+            PixelFormat destPF, double frameRate);
     virtual ~FWCamera();
 
     virtual IntPoint getImgSize();
@@ -61,9 +61,9 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual int getFeature(CameraFeature Feature) const;
-    virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
-    virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual int getFeature(CameraFeature feature) const;
+    virtual void setFeature(CameraFeature feature, int value, bool bIgnoreOldValue=false);
+    virtual void setFeatureOneShot(CameraFeature feature);
     virtual int getWhitebalanceU() const;
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
@@ -72,7 +72,7 @@ public:
     static void resetBus();
 
 private:
-    void setFeature(dc1394feature_t Feature, int Value);
+    void setFeature(dc1394feature_t feature, int value);
     void setStrobeDuration(int microsecs);
     void getWhitebalance(int* pU, int* pV) const;
     void enablePtGreyBayer();

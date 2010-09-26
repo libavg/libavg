@@ -38,15 +38,15 @@ typedef boost::weak_ptr<class Blob> BlobWeakPtr;
 
 struct Run
 {
-        Run(int row, int start_col, int end_col);
-        int m_Row;
-        int m_StartCol;
-        int m_EndCol;
-        DPoint m_Center;
-        int length() {
-            return m_EndCol-m_StartCol;
-        };
-        BlobWeakPtr m_pBlob;
+    Run(int row, int startCol, int end_col);
+    int m_Row;
+    int m_StartCol;
+    int m_EndCol;
+    DPoint m_Center;
+    int length() {
+        return m_EndCol-m_StartCol;
+    };
+    BlobWeakPtr m_pBlob;
 };
 
 typedef std::vector<Run> RunArray;

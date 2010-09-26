@@ -50,26 +50,26 @@ using namespace std;
 
 // anonymous namespace holding private (C-static-like) functions
 namespace {
-    int xioctl (int Fd, int Request, void * Arg)
+    int xioctl(int fd, int request, void * arg)
     {
-        int Rc;
+        int rc;
 
         do {
-            Rc = ioctl(Fd, Request, Arg);
-        } while (Rc == -1 && EINTR == errno);
+            rc = ioctl(fd, request, arg);
+        } while (rc == -1 && EINTR == errno);
 
-        return Rc;
+        return rc;
     }
 }
 
-V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
-        PixelFormat camPF, PixelFormat destPF, double FrameRate)
+V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size,
+        PixelFormat camPF, PixelFormat destPF, double frameRate)
     : Camera(camPF, destPF),
       m_Fd(-1),
-      m_Channel(Channel),
+      m_Channel(channel),
       m_sDevice(sDevice), 
-      m_ImgSize(Size),
-      m_FrameRate(FrameRate)
+      m_ImgSize(size),
+      m_FrameRate(frameRate)
 {
     m_v4lPF = getV4LPF(camPF);
     if (m_sDevice == "") {
@@ -168,7 +168,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     if (bWait) {
         fd_set Fds;
         struct timeval Tv;
-        int Rc;
+        int rc;
     
         FD_ZERO (&Fds);
         FD_SET (m_Fd, &Fds);
@@ -177,15 +177,15 @@ BitmapPtr V4LCamera::getImage(bool bWait)
         Tv.tv_sec = 2;
         Tv.tv_usec = 0;
     
-        Rc = select (m_Fd + 1, &Fds, NULL, NULL, &Tv);
+        rc = select (m_Fd + 1, &Fds, NULL, NULL, &Tv);
 
         // caught signal or something else  
-        if (Rc == -1) {
+        if (rc == -1) {
             AVG_TRACE(Logger::WARNING, "V4L2: select failed.");
             return BitmapPtr();
         }
         // timeout
-        if (Rc == 0) {
+        if (rc == 0) {
             AVG_TRACE(Logger::WARNING, "V4L2: Timeout while waiting for image data");
             return BitmapPtr();
         }

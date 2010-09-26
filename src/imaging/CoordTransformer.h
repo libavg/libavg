@@ -29,19 +29,17 @@
 
 namespace avg {
 
-
 class AVG_API CoordTransformer
 {
-    public:
-        CoordTransformer();
-        virtual ~CoordTransformer();
+public:
+    CoordTransformer();
+    virtual ~CoordTransformer();
 
-        //virtual void load(const std::string & sFilename);
-        //virtual void save(const std::string & sFilename);
-
-        virtual DPoint transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
-        virtual DPoint inverse_transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
+    virtual DPoint transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
+    virtual DPoint inverse_transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
 };
+
 typedef boost::shared_ptr<CoordTransformer> CoordTransformerPtr;
+
 }
 #endif

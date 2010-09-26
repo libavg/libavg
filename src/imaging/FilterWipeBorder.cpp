@@ -50,11 +50,11 @@ void FilterWipeBorder::applyInPlace(BitmapPtr pBmp)
         IntPoint activeSize = pBmp->getSize()-IntPoint(2*m_NumPixels, 2*m_NumPixels);
 
         unsigned char * pSrcLine = pPixels+stride*m_NumPixels+m_NumPixels;
-        for (int y=m_NumPixels-1; y >= 0; --y) {
+        for (int y = m_NumPixels-1; y >= 0; --y) {
             memcpy(pPixels+stride*y+m_NumPixels, pSrcLine, activeSize.x);
         }
         pSrcLine = pPixels+stride*(size.y-m_NumPixels-1)+m_NumPixels;
-        for (int y=size.y-m_NumPixels; y < size.y; ++y) {
+        for (int y = size.y-m_NumPixels; y < size.y; ++y) {
             memcpy(pPixels+stride*y+m_NumPixels, pSrcLine, activeSize.x);
         }
 

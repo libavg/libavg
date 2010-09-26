@@ -38,7 +38,7 @@ class AVG_API TrackerConfig
 {
 public:
     TrackerConfig();
-    TrackerConfig(const TrackerConfig& Other);
+    TrackerConfig(const TrackerConfig& other);
     virtual ~TrackerConfig();
     
     void load();

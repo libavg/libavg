@@ -45,13 +45,13 @@ FakeCamera::FakeCamera(PixelFormat camPF, PixelFormat destPF)
     m_ImgSize = IntPoint(640, 480);
 }
 
-FakeCamera::FakeCamera(std::vector<std::string> &pictures)
+FakeCamera::FakeCamera(std::vector<std::string>& pictures)
     : Camera(I8, I8),
       m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
     m_ImgSize = IntPoint(640, 480);
-    for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it){
+    for (vector<string>::iterator it = pictures.begin(); it != pictures.end(); ++it) {
         try {
             BitmapPtr pBmp (new Bitmap(*it));
             FilterGrayscale().applyInPlace(pBmp);
@@ -131,16 +131,16 @@ const string& FakeCamera::getMode() const
 }
 
 
-int FakeCamera::getFeature(CameraFeature Feature) const
+int FakeCamera::getFeature(CameraFeature feature) const
 {
     return 0;
 }
 
-void FakeCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
+void FakeCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
 }
 
-void FakeCamera::setFeatureOneShot(CameraFeature Feature)
+void FakeCamera::setFeatureOneShot(CameraFeature feature)
 {
 }
 

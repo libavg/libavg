@@ -68,34 +68,29 @@ class AVG_API IBlobTarget {
 class AVG_API TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
-        TrackerThread(IntRect ROI, 
-                CameraPtr pCamera, 
-                BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
-                MutexPtr pMutex,
-                CQueue& CmdQ,
-                IBlobTarget *target,
-                bool bSubtractHistory,
-                TrackerConfig &config);
+        TrackerThread(IntRect roi, CameraPtr pCamera, 
+                BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES], MutexPtr pMutex, CQueue& cmdQ,
+                IBlobTarget* pTarget, bool bSubtractHistory, TrackerConfig& config);
         virtual ~TrackerThread();
 
         bool init();
         bool work();
         void deinit();
 
-        void setConfig(TrackerConfig Config, IntRect ROI, 
+        void setConfig(TrackerConfig config, IntRect roi, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void setDebugImages(bool bImg, bool bFinger);
         void resetHistory();
     
     private:
-        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setBitmaps(IntRect roi, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void createBandpassFilter();
         void checkMessages();
         void calcHistory();
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
         void calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp, long long time);
-        bool isRelevant(BlobPtr pBlob, int MinArea, int MaxArea,
-                double MinEccentricity, double MaxEccentricity);
+        bool isRelevant(BlobPtr pBlob, int minArea, int maxArea,
+                double minEccentricity, double maxEccentricity);
         BlobVectorPtr findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch);
         void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp,
                 int Offset, bool bTouch);

@@ -25,11 +25,11 @@
 
 namespace avg {
 
-Run::Run(int row, int start_col, int end_col)
+Run::Run(int row, int startCol, int endCol)
 {
     m_Row = row;
-    m_StartCol = start_col;
-    m_EndCol = end_col;
+    m_StartCol = startCol;
+    m_EndCol = endCol;
     m_Center = DPoint((m_StartCol + m_EndCol-1)/2., m_Row);
 }
  
