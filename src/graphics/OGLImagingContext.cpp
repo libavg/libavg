@@ -212,7 +212,6 @@ bool OGLImagingContext::isSupported()
     int slMinorVer;
     getGLVersion(glMajorVer, glMinorVer);
     getGLShadingLanguageVersion(slMajorVer, slMinorVer);
-    // Not sure if we need shader version 1.2 as well - we'll see.
     return (glMajorVer > 1 && queryOGLExtension("GL_ARB_texture_rectangle") && 
             queryOGLExtension("GL_ARB_pixel_buffer_object") &&
             queryOGLExtension("GL_EXT_framebuffer_object"));

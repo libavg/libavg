@@ -50,13 +50,13 @@ BitmapPtr FilterBandpass::apply(BitmapPtr pBmpSrc)
     IntPoint Size = pHPBmp->getSize();
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(Size, I8, pBmpSrc->getName()));
 
-    int LPStride = pLPBmp->getStride();
-    int HPStride = pHPBmp->getStride();
-    int DestStride = pDestBmp->getStride();
-    unsigned char * pLPLine = pLPBmp->getPixels()+m_FilterWidthDiff*LPStride;
+    int lpStride = pLPBmp->getStride();
+    int hpStride = pHPBmp->getStride();
+    int destStride = pDestBmp->getStride();
+    unsigned char * pLPLine = pLPBmp->getPixels()+m_FilterWidthDiff*lpStride;
     unsigned char * pHPLine = pHPBmp->getPixels();
     unsigned char * pDestLine = pDestBmp->getPixels();
-    for (int y = 0; y<Size.y; ++y) {
+    for (int y = 0; y < Size.y; ++y) {
         unsigned char * pLPPixel = pLPLine+m_FilterWidthDiff;
         unsigned char * pHPPixel = pHPLine;
         unsigned char * pDestPixel = pDestLine;
@@ -66,9 +66,9 @@ BitmapPtr FilterBandpass::apply(BitmapPtr pBmpSrc)
             ++pHPPixel;
             ++pDestPixel;
         }
-        pLPLine += LPStride;
-        pHPLine += HPStride;
-        pDestLine += DestStride;
+        pLPLine += lpStride;
+        pHPLine += hpStride;
+        pDestLine += destStride;
     }
     return pDestBmp;
 }

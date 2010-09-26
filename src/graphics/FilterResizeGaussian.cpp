@@ -40,7 +40,7 @@ BitmapPtr FilterResizeGaussian::apply(BitmapPtr pBmpSrc)
             pBmpSrc->getPixelFormat(), pBmpSrc->getName()+"_resized"));
 
     GaussianContribDef f(m_Radius);
-    switch(bpp) {
+    switch (bpp) {
         case 4:
             {
                 TwoPassScale<CDataRGBA_UBYTE> sS(f);

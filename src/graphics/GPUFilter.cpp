@@ -130,7 +130,7 @@ void dumpKernel(int width, float* pKernel)
 {
     cerr << "  Kernel width: " << width << endl;
     float sum = 0;
-    for (int i=0; i<width; ++i) {
+    for (int i = 0; i < width; ++i) {
         sum += pKernel[i];
         cerr << "  " << pKernel[i] << endl;
     }
@@ -146,7 +146,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     float* pKernel;
     pKernel = new float[kernelWidth];
     float sum = 0;
-    for (int i=0; i <= kernelCenter; ++i) {
+    for (int i = 0; i <= kernelCenter; ++i) {
         pKernel[kernelCenter+i] = float(exp(-i*i/(2*stdDev*stdDev))
                 /sqrt(2*PI*stdDev*stdDev));
         sum += pKernel[kernelCenter+i];
@@ -160,12 +160,12 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
         // This is a brightness-preserving blur.
         // Make sure the sum of coefficients is 1 despite the inaccuracies
         // introduced by using a kernel of finite size.
-        for (int i=0; i<kernelWidth; ++i) {
+        for (int i = 0; i < kernelWidth; ++i) {
             pKernel[i] /= sum;
         }
     } else {
         float factor = float(opacity/pKernel[kernelCenter]);
-        for (int i=0; i<kernelWidth; ++i) {
+        for (int i = 0; i < kernelWidth; ++i) {
             pKernel[i] *= factor;
         }
     }
@@ -181,8 +181,8 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
     float * pCurFloat = (float*)pPBOPixels;
-    for (int i=0; i<kernelWidth; ++i) {
-        for (int j=0; j<4; ++j) {
+    for (int i = 0; i < kernelWidth; ++i) {
+        for (int j = 0; j < 4; ++j) {
             *pCurFloat = pKernel[i];
             ++pCurFloat;
         }

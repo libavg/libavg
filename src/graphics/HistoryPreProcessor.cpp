@@ -38,9 +38,9 @@ using namespace std;
 namespace avg {
     
 HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, 
-        unsigned int UpdateInterval, bool bBrighter)
+        unsigned int updateInterval, bool bBrighter)
     : m_FrameCounter(0),
-      m_UpdateInterval(UpdateInterval),
+      m_UpdateInterval(updateInterval),
       m_bBrighter(bBrighter)
 {
     m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I16));
@@ -50,10 +50,11 @@ HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions,
 HistoryPreProcessor::~HistoryPreProcessor()
 {
 }
-void HistoryPreProcessor::setInterval(unsigned int UpdateInterval)
+
+void HistoryPreProcessor::setInterval(unsigned int updateInterval)
 {
     m_FrameCounter = 0;
-    m_UpdateInterval = UpdateInterval;
+    m_UpdateInterval = updateInterval;
 }
 
 unsigned int HistoryPreProcessor::getInterval()
@@ -93,22 +94,21 @@ void HistoryPreProcessor::updateHistory(BitmapPtr pNewBmp)
     }
 }
 
-void HistoryPreProcessor::applyInPlace(BitmapPtr img)
+void HistoryPreProcessor::applyInPlace(BitmapPtr pBmp)
 {
-    updateHistory(img);
+    updateHistory(pBmp);
     unsigned short * pSrc = (unsigned short*)m_pHistoryBmp->getPixels();
-    int SrcStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
-    int DestStride = img->getStride();
-    unsigned char * pDest = img->getPixels();
-    IntPoint Size = img->getSize();
-//    unsigned char Max = 0;
-    for (int y=0; y<Size.y; y++) {
+    int srcStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
+    int destStride = pBmp->getStride();
+    unsigned char * pDest = pBmp->getPixels();
+    IntPoint size = pBmp->getSize();
+    for (int y = 0; y < size.y; y++) {
         const unsigned short * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
         if (m_bBrighter) {
-            for (int x=0; x<Size.x; x++) {
+            for (int x = 0; x < size.x; x++) {
                 unsigned char Src = *pSrcPixel/256;
-                if ((*pDestPixel)>Src) {
+                if ((*pDestPixel) > Src) {
                     *pDestPixel = *pDestPixel-Src;
                 } else {
                     *pDestPixel = 0;
@@ -117,9 +117,9 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img)
                 pSrcPixel++;
             }
         } else {
-            for (int x=0; x<Size.x; x++) {
+            for (int x = 0; x < size.x; x++) {
                 unsigned char Src = *pSrcPixel/256;
-                if ((*pDestPixel)<Src) {
+                if ((*pDestPixel) < Src) {
                     *pDestPixel = Src-*pDestPixel;
                 } else {
                     *pDestPixel = 0;
@@ -128,28 +128,28 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img)
                 pSrcPixel++;
             }
         }
-        pDest += DestStride;
-        pSrc += SrcStride;
+        pDest += destStride;
+        pSrc += srcStride;
     }
 }
 
 // Fast pseudo-normalization with an integer factor.
-void HistoryPreProcessor::normalizeHistogram(BitmapPtr pBmp, unsigned char Max)
+void HistoryPreProcessor::normalizeHistogram(BitmapPtr pBmp, unsigned char max)
 {
-    if (Max < 128) {
-        Max = 128;
+    if (max < 128) {
+        max = 128;
     }
-    int Factor = int(256.0/Max);
+    int factor = int(256.0/max);
     unsigned char * pLine = pBmp->getPixels();
-    IntPoint Size = pBmp->getSize();
-    int Stride = pBmp->getStride();
-    for (int y=0; y<Size.y; y++) {
+    IntPoint size = pBmp->getSize();
+    int stride = pBmp->getStride();
+    for (int y = 0; y < size.y; y++) {
         unsigned char * pPixel = pLine;
-        for (int x=0; x<Size.x; x++) {
-            *pPixel *= Factor;
+        for (int x = 0; x < size.x; x++) {
+            *pPixel *= factor;
             pPixel++;
         }
-        pLine += Stride;
+        pLine += stride;
     }
 }
 

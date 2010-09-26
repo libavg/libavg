@@ -77,8 +77,9 @@ private:
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
     }
 
-    void compareByteArrays(unsigned char *in, unsigned char *out, int n) {
-        for (int i=0; i<n; i++) {
+    void compareByteArrays(unsigned char *in, unsigned char *out, int n)
+    {
+        for (int i = 0; i < n; i++) {
             if (in[i] != out[i]) {
                 TEST_FAILED("compareByteArrays: " + toString((int)in[i]) + " (in) != "
                         + toString((int)out[i]) + " (out)")
@@ -86,34 +87,38 @@ private:
         }
     }
 
-    void compareFloatArrays(float *in, float *out, int n) {
-        for (int i=0; i<n; i++) {
-            if (fabs(in[i]-out[i])>1e-5) {
+    void compareFloatArrays(float *in, float *out, int n)
+    {
+        for (int i = 0; i < n; i++) {
+            if (fabs(in[i]-out[i]) > 1e-5) {
                 TEST_FAILED("compareFloatArrays: " + toString(in[i]) + " (in) != " 
                         + toString(out[i]) + " (out)")
             }
         }
     }
 
-    void fillFloatArray(float *data, int n) {
-        for (int i=0;i<n;i++) {
+    void fillFloatArray(float *data, int n)
+    {
+        for (int i = 0; i < n; i++) {
             data[i] = 0.01f * i;
         }
     }
 
-    void fillByteArray(unsigned char *data, int n) {
+    void fillByteArray(unsigned char *data, int n)
+    {
         for (int i = 0; i<n; i++) {
             data[i] = i * 2;
         }
     }
 
-    void runPBOFloatbufTest(PixelFormat pf) {
+    void runPBOFloatbufTest(PixelFormat pf)
+    {
         cerr << "    Testing PBO (" << Bitmap::getPixelFormatString(pf) << ")" << endl;
         AVG_ASSERT(pf == I32F || pf == R32G32B32A32F);
         IntPoint size = IntPoint(11, 3);
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
-        float *pixels = new float[numFloats];
-        fillFloatArray(pixels, numFloats);
+        float* pPixels = new float[numFloats];
+        fillFloatArray(pPixels, numFloats);
     }
 
     void runPBOFloatBitmapTest(PixelFormat pf)
@@ -123,17 +128,17 @@ private:
         AVG_ASSERT(pf == I32F || pf == R32G32B32A32F);
         IntPoint size = IntPoint(5,3);
         int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
-        float *pixels = new float [numFloats];
-        fillFloatArray(pixels, numFloats);
+        float* pPixels = new float [numFloats];
+        fillFloatArray(pPixels, numFloats);
 
         PBOImagePtr pPBO = PBOImagePtr(new PBOImage(size, pf, pf, true, true));
-        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, pf, (unsigned char*)(pixels),
+        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, pf, (unsigned char*)(pPixels),
             size.x*Bitmap::getBytesPerPixel(pf), false));
         pPBO->setImage(pBmp);
         BitmapPtr res = pPBO->getImage();
-        compareFloatArrays(pixels,(float*)res->getPixels(), numFloats);
+        compareFloatArrays(pPixels,(float*)res->getPixels(), numFloats);
 
-        delete[] pixels;
+        delete[] pPixels;
     }
 
     void runPBOBitmapTestIntFloatExtByte(PixelFormat intPF, PixelFormat extPF)
@@ -141,19 +146,19 @@ private:
         cerr << "    Testing PBO bitmaps (" << Bitmap::getPixelFormatString(intPF) 
                 << "-->" << Bitmap::getPixelFormatString(extPF) << ")" << endl;
         IntPoint size = IntPoint(3,5);
-        unsigned char *pixels = new unsigned char [
+        unsigned char* pPixels = new unsigned char [
             size.x*size.y*Bitmap::getBytesPerPixel(extPF)];
-        fillByteArray(pixels, size.x*size.y*Bitmap::getBytesPerPixel(extPF));
+        fillByteArray(pPixels, size.x*size.y*Bitmap::getBytesPerPixel(extPF));
 
         PBOImagePtr pPBO = PBOImagePtr(new PBOImage(size, intPF, extPF, true, true));
-        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, extPF, pixels,
+        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, extPF, pPixels,
             size.x*Bitmap::getBytesPerPixel(extPF), false));
         pPBO->setImage(pBmp);
         BitmapPtr res = pPBO->getImage();
-        compareByteArrays(pixels, res->getPixels(),
+        compareByteArrays(pPixels, res->getPixels(),
             size.x*size.y*Bitmap::getBytesPerPixel(extPF));
 
-        delete[] pixels;
+        delete[] pPixels;
     }
 
     void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)
@@ -236,11 +241,12 @@ public:
         BitmapPtr pBmp;
         BitmapPtr pDestBmp;
 /*
-        // This has the effect of printing out all the brightness differences for different
-        // kernel sizes.
+        // This has the effect of printing out all the brightness differences for
+        //different kernel sizes.
         pBmp = loadTestBmp("spike");
         for (double stddev = 0.5; stddev < 5; stddev += 0.25) {
-            pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), stddev).apply(pBmp);
+            pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), stddev)
+                    .apply(pBmp);
             testEqualBrightness(*pDestBmp, *pBmp, 1);
         }
 */
@@ -339,9 +345,9 @@ int main(int nargs, char** args)
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "Fragment shaders not supported on this Machine. ");
             }
-            GPUTestSuite Suite;
-            Suite.runTests();
-            bOK = Suite.isOk();
+            GPUTestSuite suite;
+            suite.runTests();
+            bOK = suite.isOk();
         } catch (Exception& ex) {
             cerr << "Exception: " << ex.GetStr() << endl;
         }

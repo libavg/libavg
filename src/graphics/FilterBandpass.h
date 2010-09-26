@@ -32,19 +32,21 @@
 namespace avg {
 
 // XXX: Warning, possibly buggy.
-class AVG_API FilterBandpass: public Filter{
-    public:
-        FilterBandpass(double lowWidth, double highWidth);
-        virtual ~FilterBandpass();
+class AVG_API FilterBandpass: public Filter {
+public:
+    FilterBandpass(double lowWidth, double highWidth);
+    virtual ~FilterBandpass();
 
-        virtual BitmapPtr apply(BitmapPtr pBmpSrc);
+    virtual BitmapPtr apply(BitmapPtr pBmpSrc);
 
-    private:
-        FilterGauss m_HighpassFilter;
-        FilterGauss m_LowpassFilter;
-        int m_FilterWidthDiff;
+private:
+    FilterGauss m_HighpassFilter;
+    FilterGauss m_LowpassFilter;
+    int m_FilterWidthDiff;
 };
 
 typedef boost::shared_ptr<FilterBandpass> FilterBandpassPtr;
+
 }
+
 #endif

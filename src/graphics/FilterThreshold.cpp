@@ -58,4 +58,4 @@ void FilterThreshold::applyInPlace(BitmapPtr pBmp)
     }
 }
 
-} // namespace
+} 

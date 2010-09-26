@@ -29,7 +29,8 @@ namespace avg {
 
 using namespace std;
     
-FilterGrayscale::FilterGrayscale() : Filter()
+FilterGrayscale::FilterGrayscale()
+    : Filter()
 {
 }
 
@@ -76,4 +77,4 @@ BitmapPtr FilterGrayscale::apply(BitmapPtr pBmpSrc)
     return pBmpDest;
 }
 
-} // namespace
+} 

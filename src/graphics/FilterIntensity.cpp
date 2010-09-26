@@ -42,7 +42,7 @@ void FilterIntensity::applyInPlace(BitmapPtr pBmp)
     AVG_ASSERT(pBmp->getPixelFormat() == I8);
     unsigned char * pLine = pBmp->getPixels();
     IntPoint size = pBmp->getSize();
-    for (int y = 0; y<size.y; ++y) {
+    for (int y = 0; y < size.y; ++y) {
         unsigned char * pPixel = pLine;
         for (int x = 0; x < size.x; ++x) {
             *pPixel = (unsigned char)((*pPixel+m_Offset)*m_Factor);
@@ -52,5 +52,5 @@ void FilterIntensity::applyInPlace(BitmapPtr pBmp)
     }
 }
 
-} // namespace
+}
 

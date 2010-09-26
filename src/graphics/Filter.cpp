@@ -48,8 +48,8 @@ void Filter::applyInPlace(BitmapPtr pBmp)
 BitmapPtr Filter::apply(BitmapPtr pBmpSource)
 {
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(*pBmpSource));
-    applyInPlace (pBmpDest);
+    applyInPlace(pBmpDest);
     return pBmpDest;
 }
 
-} // namespace
+}

@@ -99,12 +99,12 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-void OGLErrorCheck(int avgcode, const char * where) 
+void OGLErrorCheck(int avgcode, const string& sWhere) 
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
-        s << "OpenGL error in " << where <<": " << gluErrorString(err) 
+        s << "OpenGL error in " << sWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
         AVG_TRACE(Logger::ERROR, s.str());
         if (err != GL_INVALID_OPERATION) {
@@ -115,14 +115,14 @@ void OGLErrorCheck(int avgcode, const char * where)
 }
 
 #ifdef _WIN32
-void winOGLErrorCheck(BOOL bOK, const string & where) 
+void winOGLErrorCheck(BOOL bOK, const string& sWhere) 
 {
     if (!bOK) {
         char szErr[512];
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
-        AVG_TRACE(Logger::ERROR, where+":"+szErr);
+        AVG_TRACE(Logger::ERROR, sWhere+":"+szErr);
         AVG_ASSERT(false);
     }
 }
@@ -134,7 +134,6 @@ bool queryOGLExtension(const char *extName)
     size_t extNameLen = strlen(extName);
 
     p = (char *)glGetString(GL_EXTENSIONS);
-//    cout << "OpenGL extensions string: " << p << endl;
     if (NULL == p) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get OpenGL extension string.");
     }
@@ -151,7 +150,8 @@ bool queryOGLExtension(const char *extName)
     return false;
 }
 
-bool queryGLXExtension(const char *extName) {
+bool queryGLXExtension(const char *extName)
+{
 #if (defined __APPLE__) || (defined _WIN32)
     return false;
 #else
@@ -162,7 +162,6 @@ bool queryGLXExtension(const char *extName) {
     if (NULL == p) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get GLX extension string.");
     }
-//    cout << "GLX extensions string: " << p << endl;
 
     char * end = p + strlen(p);
 
@@ -179,18 +178,19 @@ bool queryGLXExtension(const char *extName) {
 #endif
 }
 
-void getGLVersion(int & major, int& minor)
+void getGLVersion(int& major, int& minor)
 {
     const char* pVersion = (const char*)glGetString(GL_VERSION);
     sscanf(pVersion, "%d.%d", &major, &minor);
 }
 
-void getGLShadingLanguageVersion(int & major, int& minor)
+void getGLShadingLanguageVersion(int& major, int& minor)
 {
     int glMajor, glMinor;
     getGLVersion(glMajor, glMinor);
 
-    major = minor = 0;
+    major = 0;
+    minor = 0;
     if (glMajor == 1) {
         if (queryOGLExtension("GL_ARB_shading_language_100")) {
             major = 1;
@@ -350,7 +350,8 @@ GLfunction getProcAddress(const string& sName)
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
-        throw Exception(AVG_ERR_VIDEO_GENERAL, string("wglGetProcAddress("+sName+") failed: ") + szErr);
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                string("wglGetProcAddress("+sName+") failed: ") + szErr);
     }
 */
 #else
@@ -377,9 +378,6 @@ GLfunction getFuzzyProcAddress(const char * psz)
     }
     if (!pProc) {
         pProc = invalidGLCall;
-//        AVG_TRACE(Logger::WARNING, "Couldn't initialize pointer to " << psz);
-    } else {
-//        AVG_TRACE(Logger::WARNING, "Pointer to " << psz << " initialized.");
     }
     return pProc;
 }
@@ -387,7 +385,6 @@ GLfunction getFuzzyProcAddress(const char * psz)
 GLfunction getglXProcAddress(const char * psz)
 {
     GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
-    //GLfunction pProc = (GLfunction)glXGetProcAddressARB((const GLubyte *)psz);
     if (!pProc) {
         pProc = invalidGLCall;
     }

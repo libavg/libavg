@@ -33,7 +33,7 @@ namespace avg {
 class AVG_API FilterColorize : public Filter
 {
 public:
-  FilterColorize(double Hue, double Saturation);
+  FilterColorize(double hue, double saturation);
   virtual ~FilterColorize();
   virtual void applyInPlace(BitmapPtr pBmp) ;
 

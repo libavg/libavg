@@ -67,18 +67,18 @@
 using namespace avg;
 using namespace std;
 
-BitmapPtr initBmp(PixelFormat PF)
+BitmapPtr initBmp(PixelFormat pf)
 {
     int height;
-    if (PF == YCbCr422) {
+    if (pf == YCbCr422) {
         height = 10;
     } else {
         height = 7;
 
     }
-    BitmapPtr pBmp(new Bitmap(IntPoint(4,height), PF));
-    for(int y=0; y<height; ++y) {
-        for (int x=0; x<4; ++x) {
+    BitmapPtr pBmp(new Bitmap(IntPoint(4, height), pf));
+    for(int y = 0; y < height; ++y) {
+        for (int x = 0; x < 4; ++x) {
             unsigned char * pPixel = 
                 pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
             *(pPixel) = x;
@@ -119,7 +119,7 @@ public:
 
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
-        for (int i=0; i<4*7*3; ++i) {
+        for (int i = 0; i < 4*7*3; ++i) {
             pData[i] = i;
         }
         Bitmap Bmp1 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, true, "");
@@ -132,8 +132,8 @@ public:
             Bmp1.copyPixels(*pBmp);
             Bitmap Bmp2(IntPoint(4,7), R8G8B8X8);
             Bmp2.copyPixels(Bmp1);
-            for(int y=0; y<7; ++y) {
-                for (int x=0; x<4; ++x) {
+            for(int y = 0; y < 7; ++y) {
+                for (int x = 0; x < 4; ++x) {
                     *(Bmp2.getPixels()+y*Bmp2.getStride()+x
                             *Bmp2.getBytesPerPixel()+3) = 0x80;
                 }
@@ -147,8 +147,8 @@ public:
             BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), R8G8B8));
             pCopyBmp->copyPixels(*pBmp);
             pBmp->copyPixels(*pCopyBmp);
-            for(int y=0; y<7; ++y) {
-                for (int x=0; x<4; ++x) {
+            for(int y = 0; y < 7; ++y) {
+                for (int x = 0; x < 4; ++x) {
                     *(pBmp->getPixels()+y*pBmp->getStride()+x
                             *pBmp->getBytesPerPixel()+3) = 0x80;
                 }
@@ -188,7 +188,6 @@ public:
             cerr << "      R8G8B8" << endl;
             testStatistics(R8G8B8, Pixel24(0,0,0), Pixel24(0,0,0), 
                     Pixel24(2,2,2), Pixel24(2,2,2));
-
         }
         {
             cerr << "    Testing YUV->RGB conversion." << endl;
@@ -199,13 +198,13 @@ public:
     }
     
 private:
-    void runPFTests(PixelFormat PF)
+    void runPFTests(PixelFormat pf)
     {
-        cerr << "    Testing " << PF << endl;
-        BitmapPtr pBmp = initBmp(PF);
+        cerr << "    Testing " << pf << endl;
+        BitmapPtr pBmp = initBmp(pf);
         {
             cerr << "      Testing size." <<endl;
-            if (PF == YCbCr422) {
+            if (pf == YCbCr422) {
                 TEST(pBmp->getSize() == IntPoint(4,10));
             } else {
                 TEST(pBmp->getSize() == IntPoint(4,7));
@@ -213,20 +212,20 @@ private:
         }
         {
             cerr << "      Testing copy constructor." << endl;
-            Bitmap BmpCopy1(*pBmp);
-            testEqual(BmpCopy1, *pBmp, "BmpCopyConstructor");
+            Bitmap bmpCopy1(*pBmp);
+            testEqual(bmpCopy1, *pBmp, "BmpCopyConstructor");
         }
         {
             cerr << "      Testing assignment operator." << endl;
-            Bitmap BmpCopy2 = *pBmp;
-            testEqual(BmpCopy2, *pBmp, "BmpAssignment");
+            Bitmap bmpCopy2 = *pBmp;
+            testEqual(bmpCopy2, *pBmp, "BmpAssignment");
         }
         {
             cerr << "      Testing sub-bitmap constructor." << endl;
-            Bitmap BmpCopy3 (*pBmp, IntRect(IntPoint(0,0), pBmp->getSize()));
-            testEqual(BmpCopy3, *pBmp, "BmpSubBmpCtor");
+            Bitmap bmpCopy3 (*pBmp, IntRect(IntPoint(0,0), pBmp->getSize()));
+            testEqual(bmpCopy3, *pBmp, "BmpSubBmpCtor");
         }
-        if (PF == I8) {
+        if (pf == I8) {
             cerr << "      Testing getHistogram." << endl;
             HistogramPtr pHist = pBmp->getHistogram();
             TEST((*pHist)[0] == 7);
@@ -234,7 +233,7 @@ private:
             TEST((*pHist)[2] == 7);
             TEST((*pHist)[3] == 7);
             bool bOk = true;
-            for (int i=4; i<256; ++i) {
+            for (int i = 4; i < 256; ++i) {
                 if (bOk) {
                     bOk = ((*pHist)[i] == 0);
                 }
@@ -243,35 +242,35 @@ private:
         }
     }
 
-    void runSaveTest(PixelFormat PF)
+    void runSaveTest(PixelFormat pf)
     {
-        cerr << "    Testing save for " << PF << endl;
-        BitmapPtr pBmp = initBmp(PF);
+        cerr << "    Testing save for " << pf << endl;
+        BitmapPtr pBmp = initBmp(pf);
         pBmp->save("test.tif");
         Bitmap LoadedBmp("test.tif");
         ::remove("test.tif");
         testEqual(LoadedBmp, *pBmp, "BmpSave");
     }
 
-    template<class Pixel>
-    void runLineTest(PixelFormat PF, Pixel Color)
+    template<class PIXEL>
+    void runLineTest(PixelFormat pf, PIXEL color)
     {
-        cerr << "    Testing line drawing for " << PF << endl;
-        Bitmap Bmp(IntPoint(15, 15), PF);
-        memset(Bmp.getPixels(), 0, Bmp.getStride()*15);
-        Bmp.drawLine(IntPoint(7,7), IntPoint( 0, 2), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint( 0,12), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint( 2, 0), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint( 2,14), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint(12, 0), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint(12,14), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), Color);
-        Bmp.drawLine(IntPoint(7,7), IntPoint(14,12), Color);
-        string sFName = getSrcDirName()+"baseline/LineResult"+getPixelFormatString(PF)+".png";
-        Bitmap BaselineBmp(sFName);
-        Bitmap BaselineBmp2(IntPoint(15,15), PF);
-        BaselineBmp2.copyPixels(BaselineBmp);
-        testEqual(Bmp, BaselineBmp2, "BmpLineDraw");
+        cerr << "    Testing line drawing for " << pf << endl;
+        Bitmap bmp(IntPoint(15, 15), pf);
+        memset(bmp.getPixels(), 0, bmp.getStride()*15);
+        bmp.drawLine(IntPoint(7,7), IntPoint( 0, 2), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint( 0,12), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint( 2, 0), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint( 2,14), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint(12, 0), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint(12,14), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), color);
+        bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
+        string sFName = getSrcDirName()+"baseline/LineResult"+getPixelFormatString(pf)+".png";
+        Bitmap baselineBmp(sFName);
+        Bitmap baselineBmp2(IntPoint(15,15), pf);
+        baselineBmp2.copyPixels(baselineBmp);
+        testEqual(bmp, baselineBmp2, "BmpLineDraw");
     }
     
     void testCopyToGreyscale(PixelFormat pf)
@@ -294,9 +293,9 @@ private:
                 I8, 0.5, 0.5);
     }
     
-    template<class Pixel>
-    void testStatistics(PixelFormat pf, const Pixel& p00, const Pixel& p01,
-            const Pixel& p10, const Pixel& p11)
+    template<class PIXEL>
+    void testStatistics(PixelFormat pf, const PIXEL& p00, const PIXEL& p01,
+            const PIXEL& p10, const PIXEL& p11)
     {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), pf));
         pBmp->setPixel(IntPoint(0,0), p00);
@@ -343,12 +342,11 @@ public:
     }
 
 private:    
-    void runPFTests(PixelFormat PF) {
-        BitmapPtr pBmp = initBmp(PF);
+    void runPFTests(PixelFormat pf) {
+        BitmapPtr pBmp = initBmp(pf);
         FilterColorize(15, 0).applyInPlace(pBmp);
         FilterColorize(100, 50).applyInPlace(pBmp);
         FilterColorize(50, 100).applyInPlace(pBmp);
-//        pBmp->dump();
     }
 };
 
@@ -367,10 +365,9 @@ public:
     }
 
 private:
-    void runPFTests(PixelFormat PF) {
-        BitmapPtr pBmp = initBmp(PF);
+    void runPFTests(PixelFormat pf) {
+        BitmapPtr pBmp = initBmp(pf);
         FilterGrayscale().applyInPlace(pBmp);
-//        pBmp->dump();
     }
 };
 
@@ -389,10 +386,9 @@ public:
 
 private:
     template<class PixelC>
-    void runPFTests(PixelFormat PF, PixelC Color) {
-        BitmapPtr pBmp = initBmp(PF);
-        FilterFill<PixelC>(Color).applyInPlace(pBmp);
-//        pBmp->dump();
+    void runPFTests(PixelFormat pf, PixelC color) {
+        BitmapPtr pBmp = initBmp(pf);
+        FilterFill<PixelC>(color).applyInPlace(pBmp);
     }
 };
 
@@ -412,21 +408,20 @@ public:
     }
 
 private:
-    void runPFTests(PixelFormat PF) {
-        BitmapPtr pBmp = initBmp(PF);
+    void runPFTests(PixelFormat pf) {
+        BitmapPtr pBmp = initBmp(pf);
         {
             BitmapPtr pBmp1 = FilterFlip().apply(pBmp);
             BitmapPtr pBmp2 = FilterFlip().apply(pBmp1);
             TEST(*pBmp == *pBmp2);
         }
-        pBmp = initBmp(PF);
+        pBmp = initBmp(pf);
         { 
-            Bitmap BmpBaseline = *pBmp;
+            Bitmap baselineBmp = *pBmp;
             FilterFlip().applyInPlace(pBmp);
             FilterFlip().applyInPlace(pBmp);
-            TEST(*pBmp == BmpBaseline);
+            TEST(*pBmp == baselineBmp);
         }
-//        pBmp->dump();
     }
 };
 
@@ -445,20 +440,19 @@ public:
     }
 
 private:
-    void runPFTests(PixelFormat PF) {
-        BitmapPtr pBmp = initBmp(PF);
+    void runPFTests(PixelFormat pf) {
+        BitmapPtr pBmp = initBmp(pf);
         {
             BitmapPtr pBmp1 = FilterFlipRGB().apply(pBmp);
             BitmapPtr pBmp2 = FilterFlipRGB().apply(pBmp1);
             TEST(*pBmp == *pBmp2);
         }
         { 
-            Bitmap BmpBaseline = *pBmp;
+            Bitmap baselineBmp = *pBmp;
             FilterFlipRGB().applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
-            TEST(*pBmp == BmpBaseline);
+            TEST(*pBmp == baselineBmp);
         }
-//        pBmp->dump();
     }
 };
 
@@ -478,12 +472,11 @@ public:
             TEST(*pBmp == *pBmp2);
         }
         { 
-            Bitmap BmpBaseline = *pBmp;
+            Bitmap baselineBmp = *pBmp;
             FilterFlipUV().applyInPlace(pBmp);
             FilterFlipUV().applyInPlace(pBmp);
-            TEST(*pBmp == BmpBaseline);
+            TEST(*pBmp == baselineBmp);
         }
-//        pBmp->dump();
     }
 };
 
@@ -503,11 +496,11 @@ public:
                 sFilename = (string)pSrcDir+"/";
             }
             sFilename += "../test/rgb24-64x64.png";
-            Bitmap TempBmp(sFilename);
+            Bitmap tempBmp(sFilename);
             PixelFormat pf = R8G8B8;    
             BitmapPtr pBmp;
-            pBmp = createBmp(TempBmp.getSize(), pf);
-            pBmp->copyPixels(TempBmp);
+            pBmp = createBmp(tempBmp.getSize(), pf);
+            pBmp->copyPixels(tempBmp);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
         } catch (Magick::Exception & ex) {
@@ -517,10 +510,10 @@ public:
     }
 
 private:
-    BitmapPtr createBmp(const IntPoint& Size, PixelFormat pf)
+    BitmapPtr createBmp(const IntPoint& size, PixelFormat pf)
     {
         BitmapPtr pBmp;
-        pBmp = BitmapPtr(new Bitmap(Size, pf));
+        pBmp = BitmapPtr(new Bitmap(size, pf));
         return pBmp;
     }
 };
@@ -540,37 +533,37 @@ public:
     }
 
 private:
-    template<class PixelT>
-    void runPFTests(PixelFormat PF)
+    template<class PIXEL>
+    void runPFTests(PixelFormat pf)
     {
-        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), PF));
-        initBmp<PixelT>(pBmp);
-        double Mat[9] = 
+        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), pf));
+        initBmp<PIXEL>(pBmp);
+        double mat[9] = 
                 {1,0,2,
                  0,1,0,
                  3,0,4};
-        BitmapPtr pNewBmp = FilterConvol<PixelT>(&(Mat[0]),3,3).apply(pBmp);
+        BitmapPtr pNewBmp = FilterConvol<PIXEL>(&(mat[0]),3,3).apply(pBmp);
         TEST(pNewBmp->getSize() == IntPoint(2,2));
         unsigned char * pLine0 = pNewBmp->getPixels();
-        TEST(*(PixelT*)pLine0 == PixelT(1,0,0));
-        TEST(*(((PixelT*)pLine0)+1) == PixelT(4,0,0));
+        TEST(*(PIXEL*)pLine0 == PIXEL(1,0,0));
+        TEST(*(((PIXEL*)pLine0)+1) == PIXEL(4,0,0));
         unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
-        TEST(*(PixelT*)(pLine1) == PixelT(0,0,9));
-        TEST(*((PixelT*)(pLine1)+1) == PixelT(0,0,16));
+        TEST(*(PIXEL*)(pLine1) == PIXEL(0,0,9));
+        TEST(*((PIXEL*)(pLine1)+1) == PIXEL(0,0,16));
         
     }
     
-    template<class PixelT>
+    template<class PIXEL>
     void initBmp(BitmapPtr pBmp) 
     {
-        PixelT * pPixels = (PixelT *)(pBmp->getPixels());
-        PixelT Color = PixelT(0,0,0);
-        FilterFill<PixelT>(Color).applyInPlace(pBmp);
-        pPixels[0] = PixelT(1,0,0);
-        pPixels[3] = PixelT(2,0,0);
-        pPixels = (PixelT*)((char *)pPixels+3*pBmp->getStride());
-        pPixels[0] = PixelT(0,0,3);
-        pPixels[3] = PixelT(0,0,4);
+        PIXEL * pPixels = (PIXEL *)(pBmp->getPixels());
+        PIXEL color = PIXEL(0,0,0);
+        FilterFill<PIXEL>(color).applyInPlace(pBmp);
+        pPixels[0] = PIXEL(1,0,0);
+        pPixels[3] = PIXEL(2,0,0);
+        pPixels = (PIXEL*)((char *)pPixels+3*pBmp->getStride());
+        pPixels[0] = PIXEL(0,0,3);
+        pPixels[3] = PIXEL(0,0,4);
     }
 };
 
@@ -588,37 +581,37 @@ public:
     }
 
 private:
-    template<class PixelT>
-    void runPFTests(PixelFormat PF)
+    template<class PIXEL>
+    void runPFTests(PixelFormat pf)
     {
-        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), PF));
-        initBmp<PixelT>(pBmp);
-        double Mat[3][3] = 
+        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), pf));
+        initBmp<PIXEL>(pBmp);
+        double mat[3][3] = 
                 {{1,0,2},
                  {0,1,0},
                  {3,0,4}};
-        BitmapPtr pNewBmp = Filter3x3(Mat).apply(pBmp);
+        BitmapPtr pNewBmp = Filter3x3(mat).apply(pBmp);
         TEST(pNewBmp->getSize() == IntPoint(2,2));
         unsigned char * pLine0 = pNewBmp->getPixels();
-        TEST(*(PixelT*)pLine0 == PixelT(1,0,0));
-        TEST(*(((PixelT*)pLine0)+1) == PixelT(4,0,0));
+        TEST(*(PIXEL*)pLine0 == PIXEL(1,0,0));
+        TEST(*(((PIXEL*)pLine0)+1) == PIXEL(4,0,0));
         unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
-        TEST(*(PixelT*)(pLine1) == PixelT(0,0,9));
-        TEST(*((PixelT*)(pLine1)+1) == PixelT(0,0,16));
+        TEST(*(PIXEL*)(pLine1) == PIXEL(0,0,9));
+        TEST(*((PIXEL*)(pLine1)+1) == PIXEL(0,0,16));
         
     }
     
-    template<class PixelT>
+    template<class PIXEL>
     void initBmp(BitmapPtr pBmp) 
     {
-        PixelT * pPixels = (PixelT *)(pBmp->getPixels());
-        PixelT Color = PixelT(0,0,0);
-        FilterFill<PixelT>(Color).applyInPlace(pBmp);
-        pPixels[0] = PixelT(1,0,0);
-        pPixels[3] = PixelT(2,0,0);
-        pPixels = (PixelT*)((char *)pPixels+3*pBmp->getStride());
-        pPixels[0] = PixelT(0,0,3);
-        pPixels[3] = PixelT(0,0,4);
+        PIXEL * pPixels = (PIXEL *)(pBmp->getPixels());
+        PIXEL color = PIXEL(0,0,0);
+        FilterFill<PIXEL>(color).applyInPlace(pBmp);
+        pPixels[0] = PIXEL(1,0,0);
+        pPixels[3] = PIXEL(2,0,0);
+        pPixels = (PIXEL*)((char *)pPixels+3*pBmp->getStride());
+        pPixels[0] = PIXEL(0,0,3);
+        pPixels[3] = PIXEL(0,0,4);
     }
 };
     
@@ -694,12 +687,6 @@ public:
         BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
-//        FilterGauss(1).dumpKernel();
-//        FilterGauss(3).dumpKernel();
-//        FilterGauss(2.1).dumpKernel();
-//        FilterGauss(1.9).dumpKernel();
-//        FilterGauss(4).dumpKernel();
-//        FilterGauss(5).dumpKernel();
         BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
         testEqual(*pDestBmp, "Gauss3Result", I8);
         pDestBmp = FilterGauss(1).apply(pBmp);
@@ -785,7 +772,7 @@ private:
     {
         BitmapPtr pMaskBmp = BitmapPtr(new Bitmap(pBmp->getSize(), I8));
         FilterFill<Pixel8>(0).applyInPlace(pMaskBmp);
-        for (int y=0; y<pBmp->getSize().y; y++) {
+        for (int y = 0; y < pBmp->getSize().y; y++) {
             pMaskBmp->setPixel(IntPoint(1, y), Pixel8(128));
             pMaskBmp->setPixel(IntPoint(2, y), Pixel8(255));
             pMaskBmp->setPixel(IntPoint(3, y), Pixel8(255));
@@ -955,9 +942,9 @@ public:
 int main(int nargs, char** args)
 {
     GraphicsTest::createResultImgDir();
-    GraphicsTestSuite Suite;
-    Suite.runTests();
-    bool bOK = Suite.isOk();
+    GraphicsTestSuite suite;
+    suite.runTests();
+    bool bOK = suite.isOk();
 
     if (bOK) {
         return 0;

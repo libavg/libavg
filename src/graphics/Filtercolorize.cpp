@@ -66,9 +66,9 @@ Pixel24 hls2rgb (double h, double l, double s)
     }
 }
 
-FilterColorize::FilterColorize(double Hue, double Saturation)
-  : m_Hue(Hue),
-    m_Saturation(Saturation)
+FilterColorize::FilterColorize(double hue, double saturation)
+  : m_Hue(hue),
+    m_Saturation(saturation)
 {
 }
 
@@ -80,15 +80,15 @@ FilterColorize::~FilterColorize()
 void FilterColorize::applyInPlace(BitmapPtr pBmp)
 {
     BitmapPtr pTempBmp (FilterGrayscale().apply(pBmp));
-    Pixel24 ColorTable[256];
+    Pixel24 colorTable[256];
     for (int i=0; i<256; i++) {
-        ColorTable[i] = hls2rgb(m_Hue, i, m_Saturation);
+        colorTable[i] = hls2rgb(m_Hue, i, m_Saturation);
     }
 
     unsigned char * pSrcLine = pTempBmp->getPixels();
     unsigned char * pDestLine = pBmp->getPixels();
     IntPoint size = pTempBmp->getSize();
-    for (int y = 0; y<size.y; ++y) {
+    for (int y = 0; y < size.y; ++y) {
         unsigned char * pSrcPixel = pSrcLine;
         switch (pBmp->getPixelFormat()) {
             case R8G8B8A8:
@@ -96,7 +96,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp)
                 {
                     Pixel32 * pDestPixel = (Pixel32 *)pDestLine;
                     for (int x = 0; x < size.x; ++x) {
-                        *pDestPixel = ColorTable[*pSrcPixel];
+                        *pDestPixel = colorTable[*pSrcPixel];
                         ++pSrcPixel;
                         ++pDestPixel;
                     }
@@ -106,7 +106,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp)
                 {
                     Pixel24 * pDestPixel = (Pixel24 *)pDestLine;
                     for (int x = 0; x < size.x; ++x) {
-                        *pDestPixel = ColorTable[*pSrcPixel];
+                        *pDestPixel = colorTable[*pSrcPixel];
                         ++pSrcPixel;
                         ++pDestPixel;
                     }
@@ -117,8 +117,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp)
                 {
                     Pixel32 * pDestPixel = (Pixel32 *)pDestLine;
                     for (int x = 0; x < size.x; ++x) {
-                        *pDestPixel = ColorTable[*pSrcPixel];
-//                        pDestPixel->flipRB();
+                        *pDestPixel = colorTable[*pSrcPixel];
                         ++pSrcPixel;
                         ++pDestPixel;
                     }
@@ -128,8 +127,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp)
                 {
                     Pixel24 * pDestPixel = (Pixel24 *)pDestLine;
                     for (int x = 0; x < size.x; ++x) {
-                        *pDestPixel = ColorTable[*pSrcPixel];
-//                        pDestPixel->flipRB();
+                        *pDestPixel = colorTable[*pSrcPixel];
                         ++pSrcPixel;
                         ++pDestPixel;
                     }
@@ -143,5 +141,5 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp)
     }
 }
 
-} // namespace
+}
 

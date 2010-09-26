@@ -81,4 +81,4 @@ void FilterMask::applyInPlace(BitmapPtr pBmp)
     }
 }
 
-} // namespace
+}

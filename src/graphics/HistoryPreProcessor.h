@@ -35,16 +35,17 @@ namespace avg {
 class AVG_API HistoryPreProcessor: public Filter
 {
     public:
-        HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval, bool bBrighter);
+        HistoryPreProcessor(IntPoint dimensions, unsigned int updateInterval, 
+                bool bBrighter);
         virtual ~HistoryPreProcessor();
         virtual void applyInPlace(BitmapPtr pBmp);
-        void setInterval(unsigned int UpdateInterval);
+        void setInterval(unsigned int updateInterval);
         unsigned int getInterval(); 
         void reset();
 
     private:
         HistoryPreProcessor(const HistoryPreProcessor&) {};
-        void updateHistory(BitmapPtr new_img);
+        void updateHistory(BitmapPtr pNewBmp);
         void normalizeHistogram(BitmapPtr pBmp, unsigned char Max);
         template<int SPEED> void calcAvg(BitmapPtr pNewBmp); 
 
@@ -58,24 +59,25 @@ class AVG_API HistoryPreProcessor: public Filter
 };
 
 template<int SPEED>
-void HistoryPreProcessor::calcAvg(BitmapPtr pNewBmp) {
+void HistoryPreProcessor::calcAvg(BitmapPtr pNewBmp)
+{
     const int SRC_NUMERATOR = SPEED-1;
     const int SRC_DENOMINATOR = SPEED;
     const int DEST_FACTOR = 256/SPEED;
     const unsigned char * pSrc = pNewBmp->getPixels();
     unsigned short * pDest = (unsigned short*)(m_pHistoryBmp->getPixels());
-    int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
-    IntPoint Size = m_pHistoryBmp->getSize();
-    for (int y=0; y<Size.y; y++) {
+    int destStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
+    IntPoint size = m_pHistoryBmp->getSize();
+    for (int y = 0; y < size.y; y++) {
         const unsigned char * pSrcPixel = pSrc;
         unsigned short * pDestPixel = pDest;
-        for (int x=0; x<Size.x; x++) {
+        for (int x = 0; x < size.x; x++) {
             int t = SRC_NUMERATOR*int(*pDestPixel)/SRC_DENOMINATOR;
             *pDestPixel = (t) + int(*pSrcPixel)*DEST_FACTOR;
             pDestPixel++;
             pSrcPixel++;
         }
-        pDest += DestStride;
+        pDest += destStride;
         pSrc += pNewBmp->getStride();
     }
 

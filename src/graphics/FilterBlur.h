@@ -30,7 +30,7 @@
 
 namespace avg {
 
-class AVG_API FilterBlur: public Filter{
+class AVG_API FilterBlur: public Filter {
     public:
         FilterBlur();
         virtual ~FilterBlur();

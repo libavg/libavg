@@ -62,9 +62,9 @@ typedef enum {
     NO_PIXELFORMAT
 } PixelFormat;
 
-std::ostream& operator<<(std::ostream& os, PixelFormat pf);
+std::ostream& operator <<(std::ostream& os, PixelFormat pf);
 
-std::string getPixelFormatString(PixelFormat PF);
+std::string getPixelFormatString(PixelFormat pf);
 PixelFormat stringToPixelFormat(const std::string& s);
 bool pixelFormatIsColored(PixelFormat pf);
 bool pixelFormatIsBayer(PixelFormat pf);

@@ -25,7 +25,7 @@
 
 namespace avg {
 
-FilterResizeBilinear::FilterResizeBilinear (const IntPoint& newSize)
+FilterResizeBilinear::FilterResizeBilinear(const IntPoint& newSize)
     : m_NewSize(newSize)
 {
 }
@@ -39,7 +39,7 @@ BitmapPtr FilterResizeBilinear::apply(BitmapPtr pBmpSrc)
             pBmpSrc->getPixelFormat(), pBmpSrc->getName()+"_resized"));
 
     BilinearContribDef f(0.64);
-    switch(bpp) {
+    switch (bpp) {
         case 4:
             {
                 TwoPassScale<CDataRGBA_UBYTE> sS(f);

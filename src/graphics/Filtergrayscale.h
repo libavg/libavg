@@ -34,7 +34,7 @@ class AVG_API FilterGrayscale : public Filter
 public:
   FilterGrayscale();
   virtual ~FilterGrayscale();
-  virtual BitmapPtr apply(BitmapPtr pBmpSource) ;
+  virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
 };

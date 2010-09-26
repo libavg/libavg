@@ -194,7 +194,7 @@ void FBO::init()
 
     if (m_MultisampleSamples == 1) {
         glDisable(GL_MULTISAMPLE);
-        for (unsigned i=0; i<m_pTextures.size(); ++i) {
+        for (unsigned i = 0; i < m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
                     GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 
                     m_pTextures[i]->getID(), 0);
@@ -273,7 +273,7 @@ void FBO::checkError(const string& sContext) const
 {
     GLenum status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
     string sErr;
-    switch(status) {
+    switch (status) {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
             return;
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:

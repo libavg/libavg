@@ -51,5 +51,5 @@ void FilterNormalize::applyInPlace(BitmapPtr pBmp)
     FilterIntensity(-min, factor).applyInPlace(pBmp); 
 }
 
-} // namespace
+}
 

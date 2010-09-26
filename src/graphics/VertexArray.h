@@ -48,7 +48,7 @@ public:
     void appendTriIndexes(int v0, int v1, int v2);
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
     void addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, double width,
-            double TC1=0, double TC2=1);
+            double tc1=0, double tc2=1);
     void reset();
 
     void update();

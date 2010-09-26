@@ -36,46 +36,40 @@ class Pixel32
 {
 
 public:
-    Pixel32 ();
-    Pixel32 (unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-    Pixel32 (unsigned char r, unsigned char g, unsigned char b);
-    void set (unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-    void set (unsigned char r, unsigned char g, unsigned char b);
-    void setR (unsigned char r);
-    void setG (unsigned char g);
-    void setB (unsigned char b);
-    void setA (unsigned char a);
-    unsigned char getR () const;
-    unsigned char getG () const;
-    unsigned char getB () const;
-    unsigned char getA () const;
+    Pixel32();
+    Pixel32(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+    Pixel32(unsigned char r, unsigned char g, unsigned char b);
+    void set(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+    void set(unsigned char r, unsigned char g, unsigned char b);
+    void setR(unsigned char r);
+    void setG(unsigned char g);
+    void setB(unsigned char b);
+    void setA(unsigned char a);
+    unsigned char getR() const;
+    unsigned char getG() const;
+    unsigned char getB() const;
+    unsigned char getA() const;
     void flipRB();
 
-    bool operator ==(const Pixel32 Pix) const;
-    bool operator !=(const Pixel32 Pix) const;
-    void operator +=(const Pixel32 Pix);
-    void operator -=(const Pixel32 Pix);
+    bool operator ==(const Pixel32 pix) const;
+    bool operator !=(const Pixel32 pix) const;
+    void operator +=(const Pixel32 pix);
+    void operator -=(const Pixel32 pix);
     Pixel32 operator *(float f) const;
     operator unsigned int() const;
 
     // Simple and fast 'distance' between two pixels. Just adds the
     // distances between the color components and treats colors
     // equally.
-    int boxDist (const Pixel32 Pix) const;
+    int boxDist(const Pixel32 pix) const;
 
     std::string AVG_API getColorString() const;
-
-    // Returns a weighed average between two pixels. Factor must be 
-    // between 0 and 256. Factor=256 means Pix1 is the result, Factor=0 
-    // means Pix2 is the result.
-    static Pixel32 blend (int Factor, const Pixel32 Pix1, 
-                            const Pixel32 Pix2);
 
   private:
     unsigned char m_Data[4];
 };
 
-AVG_API std::ostream& operator<<(std::ostream& os, const Pixel32& pix);
+AVG_API std::ostream& operator <<(std::ostream& os, const Pixel32& pix);
 
 AVG_API Pixel32 colorStringToColor(const std::string& s);
 
@@ -106,8 +100,7 @@ inline void Pixel32::set(unsigned char r, unsigned char g, unsigned char b,
   m_Data[ALPHAPOS] = a;
 }
 
-//!
-inline void Pixel32::set (unsigned char r, unsigned char g, unsigned char b)
+inline void Pixel32::set(unsigned char r, unsigned char g, unsigned char b)
 {
   m_Data[REDPOS] = r;
   m_Data[GREENPOS] = g;
@@ -167,43 +160,35 @@ inline void Pixel32::flipRB()
     m_Data[REDPOS] = tmp;
 }
 
-inline int Pixel32::boxDist (const Pixel32 Pix) const
+inline int Pixel32::boxDist(const Pixel32 pix) const
 {
-  return (abs ((int)getR()-Pix.getR()) +
-          abs ((int)getG()-Pix.getG()) +
-          abs ((int)getB()-Pix.getB()));
+  return (abs ((int)getR()-pix.getR()) +
+          abs ((int)getG()-pix.getG()) +
+          abs ((int)getB()-pix.getB()));
 }
 
-inline Pixel32 Pixel32::blend (int Factor, const Pixel32 Pix1, const Pixel32 Pix2)
+inline bool Pixel32::operator ==(const Pixel32 pix) const
 {
-  return Pixel32 ((Pix1.getR()*Factor+Pix2.getR()*(256-Factor))>>8,
-                    (Pix1.getG()*Factor+Pix2.getG()*(256-Factor))>>8,
-                    (Pix1.getB()*Factor+Pix2.getB()*(256-Factor))>>8,
-                    Pix1.getA());
+  return (*(const int *)this == *(const int*)&pix);
 }
 
-inline bool Pixel32::operator ==(const Pixel32 Pix) const
+inline bool Pixel32::operator !=(const Pixel32 pix) const
 {
-  return (*(const int *)this == *(const int*)&Pix);
+  return (!(*this == pix));
 }
 
-inline bool Pixel32::operator !=(const Pixel32 Pix) const
+inline void Pixel32::operator +=(const Pixel32 pix)
 {
-  return (!(*this == Pix));
+  m_Data[0] += pix.m_Data[0];
+  m_Data[1] += pix.m_Data[1];
+  m_Data[2] += pix.m_Data[2];
 }
 
-inline void Pixel32::operator += (const Pixel32 Pix)
+inline void Pixel32::operator -=(const Pixel32 pix)
 {
-  m_Data[0] += Pix.m_Data[0];
-  m_Data[1] += Pix.m_Data[1];
-  m_Data[2] += Pix.m_Data[2];
-}
-
-inline void Pixel32::operator -= (const Pixel32 Pix)
-{
-  m_Data[0] -= Pix.m_Data[0];
-  m_Data[1] -= Pix.m_Data[1];
-  m_Data[2] -= Pix.m_Data[2];
+  m_Data[0] -= pix.m_Data[0];
+  m_Data[1] -= pix.m_Data[1];
+  m_Data[2] -= pix.m_Data[2];
 }
 
 inline Pixel32 Pixel32::operator *(float f) const

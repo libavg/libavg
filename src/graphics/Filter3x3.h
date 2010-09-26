@@ -42,34 +42,34 @@ public:
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
-    template<class Pixel>
+    template<class PIXEL>
     void convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
             int lineLen, int stride) const;
     double m_Mat[3][3];
 };
 
-template<class Pixel>
+template<class PIXEL>
 void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
         int lineLen, int stride) const 
 {
-    Pixel * pSrcPixel = (Pixel *)pSrc;
-    Pixel * pDestPixel = (Pixel *)pDest;
-    for (int x=0; x<lineLen; ++x) {
-        double NewR = 0;
-        double NewG = 0;
-        double NewB = 0;
+    PIXEL * pSrcPixel = (PIXEL *)pSrc;
+    PIXEL * pDestPixel = (PIXEL *)pDest;
+    for (int x = 0; x < lineLen; ++x) {
+        double newR = 0;
+        double newG = 0;
+        double newB = 0;
 
-        for (int i=0; i<3; i++) {
-            for (int j=0; j<3; j++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
                 unsigned char * pLineStart = (unsigned char *)pSrcPixel+i*stride;
-                Pixel SrcPixel = *((Pixel *)pLineStart+j);
-                NewR += SrcPixel.getR()*m_Mat[i][j];
-                NewG += SrcPixel.getG()*m_Mat[i][j];
-                NewB += SrcPixel.getB()*m_Mat[i][j];
+                PIXEL SrcPixel = *((PIXEL *)pLineStart+j);
+                newR += SrcPixel.getR()*m_Mat[i][j];
+                newG += SrcPixel.getG()*m_Mat[i][j];
+                newB += SrcPixel.getB()*m_Mat[i][j];
             }
         }
-        *pDestPixel = Pixel((unsigned char)NewR, (unsigned char)NewG, 
-                (unsigned char)NewB);
+        *pDestPixel = PIXEL((unsigned char)newR, (unsigned char)newG, 
+                (unsigned char)newB);
         
         pSrcPixel++;
         pDestPixel++;

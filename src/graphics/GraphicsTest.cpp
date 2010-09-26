@@ -71,7 +71,7 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
     }
 }
 
-void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelFormat pf, 
+void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelFormat pf, 
         double maxAverage, double maxStdDev) 
 {
     BitmapPtr pBaselineBmp;
@@ -86,48 +86,49 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
         }
     } catch (Magick::Exception & ex) {
         cerr << ex.what() << endl;
-        ResultBmp.save("resultimages/"+sFName+".png");
+        resultBmp.save("resultimages/"+sFName+".png");
         throw;
     }
-    testEqual(ResultBmp, *pBaselineBmp, sFName, maxAverage, maxStdDev);
+    testEqual(resultBmp, *pBaselineBmp, sFName, maxAverage, maxStdDev);
 }
 
-void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp, 
+void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp, 
         const string& sFName, double maxAverage, double maxStdDev)
 {
-    BitmapPtr pDiffBmp = BitmapPtr(ResultBmp.subtract(&BaselineBmp));
+    BitmapPtr pDiffBmp = BitmapPtr(resultBmp.subtract(&baselineBmp));
     double average = pDiffBmp->getAvg();
     double stdDev = pDiffBmp->getStdDev();
     if (average > maxAverage || stdDev > maxStdDev) {
         TEST_FAILED("Error: Decoded image differs from baseline '" << 
                 sFName << "'. average=" << average << ", stdDev=" << stdDev);
-//        ResultBmp.dump();
-//        BaselineBmp.dump();
+//        resultBmp.dump();
+//        baselineBmp.dump();
         string sResultName = "resultimages/"+sFName;
-        ResultBmp.save(sResultName+".png");
-        BaselineBmp.save(sResultName+"_baseline.png");
-        BitmapPtr pDiffBmp(ResultBmp.subtract(&BaselineBmp));
+        resultBmp.save(sResultName+".png");
+        baselineBmp.save(sResultName+"_baseline.png");
+        BitmapPtr pDiffBmp(resultBmp.subtract(&baselineBmp));
         pDiffBmp->save(sResultName+"_diff.png");
     }
 }
 
-void GraphicsTest::testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, 
+void GraphicsTest::testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp, 
         double epsilon)
 {
-    double diff = fabs(ResultBmp.getAvg()-BaselineBmp.getAvg());
+    double diff = fabs(resultBmp.getAvg()-baselineBmp.getAvg());
     if (diff >= epsilon) {
-        cerr << "        Baseline brightness: " << BaselineBmp.getAvg() << ", Result brightness: " 
-                << ResultBmp.getAvg() << ", difference: " << diff << endl;
+        cerr << "        Baseline brightness: " << baselineBmp.getAvg()
+                << ", Result brightness: " << resultBmp.getAvg() << ", difference: " 
+                << diff << endl;
     }
 }
 
-int GraphicsTest::sumPixels(Bitmap& Bmp)
+int GraphicsTest::sumPixels(Bitmap& bmp)
 {
-    AVG_ASSERT(Bmp.getBytesPerPixel() == 4);
+    AVG_ASSERT(bmp.getBytesPerPixel() == 4);
     int sum = 0;
-    IntPoint size = Bmp.getSize();
+    IntPoint size = bmp.getSize();
     for (int y = 0; y < size.y; y++) {
-        unsigned char * pLine = Bmp.getPixels()+y*Bmp.getStride();
+        unsigned char * pLine = bmp.getPixels()+y*bmp.getStride();
         for (int x = 0; x < size.x; x++) { 
             sum += pLine[x*4];
             sum += pLine[x*4+1];

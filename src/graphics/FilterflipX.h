@@ -34,10 +34,10 @@ class AVG_API FilterFlipX: public Filter
 public:
   FilterFlipX();
   virtual ~FilterFlipX();
-  virtual BitmapPtr apply(BitmapPtr pBmpSource) ;
+  virtual BitmapPtr apply(BitmapPtr pBmpSource);
 };
 
-} // namespace
+}
 
 #endif
 

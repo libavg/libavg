@@ -55,7 +55,7 @@ void runPerformanceTest()
 {
     TEST PerfTest;
     long long StartTime = TimeSource::get()->getCurrentMicrosecs();
-    for (int i=0; i<NUM_RUNS; ++i) {
+    for (int i = 0; i < NUM_RUNS; ++i) {
         PerfTest.run();
     }
     double ActiveTime = (TimeSource::get()->getCurrentMicrosecs()-StartTime)/1000.; 

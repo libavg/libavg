@@ -51,7 +51,7 @@ Pixel32 colorStringToColor(const string & s)
     return Pixel32(r,g,b);
 }
 
-std::ostream& operator<<(std::ostream& os, const Pixel32& pix)
+std::ostream& operator <<(std::ostream& os, const Pixel32& pix)
 {
     os << pix.getColorString();
     return os;

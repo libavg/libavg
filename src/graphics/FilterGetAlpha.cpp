@@ -30,7 +30,8 @@ namespace avg {
 
 using namespace std;
     
-FilterGetAlpha::FilterGetAlpha() : Filter()
+FilterGetAlpha::FilterGetAlpha() 
+    : Filter()
 {
 }
 
@@ -48,7 +49,7 @@ BitmapPtr FilterGetAlpha::apply(BitmapPtr pBmpSrc)
     unsigned char * pSrcLine = pBmpSrc->getPixels();
     unsigned char * pDestLine = pBmpDest->getPixels();
     IntPoint size = pBmpDest->getSize();
-    for (int y = 0; y<size.y; ++y) {
+    for (int y = 0; y < size.y; ++y) {
         unsigned char * pSrcPixel = pSrcLine;
         unsigned char * pDstPixel = pDestLine;
         for (int x = 0; x < size.x; ++x) {
@@ -62,4 +63,4 @@ BitmapPtr FilterGetAlpha::apply(BitmapPtr pBmpSrc)
     return pBmpDest;
 }
 
-} // namespace
+}

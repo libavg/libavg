@@ -52,4 +52,5 @@ public:
 typedef boost::shared_ptr<Filter> FilterPtr;
 
 }
+ 
 #endif

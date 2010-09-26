@@ -48,12 +48,12 @@ BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
     AVG_ASSERT(pBmpSrc->getPixelFormat() == I8);
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(pBmpSrc->getSize(), I8,
             pBmpSrc->getName()));
-    int SrcStride = pBmpSrc->getStride();
-    int DestStride = pBmpDest->getStride();
-    unsigned char * pSrcLine = pBmpSrc->getPixels()+3*SrcStride;
-    unsigned char * pDestLine = pBmpDest->getPixels()+3*DestStride;
+    int srcStride = pBmpSrc->getStride();
+    int destStride = pBmpDest->getStride();
+    unsigned char * pSrcLine = pBmpSrc->getPixels()+3*srcStride;
+    unsigned char * pDestLine = pBmpDest->getPixels()+3*destStride;
     IntPoint size = pBmpDest->getSize();
-    for (int y = 3; y<size.y-3; ++y) {
+    for (int y = 3; y < size.y-3; ++y) {
         unsigned char * pSrcPixel = pSrcLine+3;
         unsigned char * pDstPixel = pDestLine;
         *pDstPixel++ = 128;
@@ -68,46 +68,24 @@ BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
             //  0  0  1  0  1  0  0
             //  0 -2  0  0  0 -2  0
             //  0  0  0  0  0  0  0 
-//            *pDstPixel = 128 - int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
-//                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3)+2)/4; 
             *pDstPixel = 128
-                - int(*(pSrcPixel-2*SrcStride-2)*2 + *(pSrcPixel-2*SrcStride+2)*2 - 
-                      *(pSrcPixel-SrcStride-1) - *(pSrcPixel-1*SrcStride+1) -
-                      *(pSrcPixel+SrcStride-1) - *(pSrcPixel+1*SrcStride+1) + 
-                      *(pSrcPixel+2*SrcStride-2)*2 + *(pSrcPixel+2*SrcStride+2)*2+2)/4
+                - int(*(pSrcPixel-2*srcStride-2)*2 + *(pSrcPixel-2*srcStride+2)*2 - 
+                      *(pSrcPixel-srcStride-1) - *(pSrcPixel-1*srcStride+1) -
+                      *(pSrcPixel+srcStride-1) - *(pSrcPixel+1*srcStride+1) + 
+                      *(pSrcPixel+2*srcStride-2)*2 + *(pSrcPixel+2*srcStride+2)*2+2)/4
                 + *pSrcPixel;
-/*
-            unsigned char *pSrc = pSrcPixel-3*SrcStride-3;
-            int Dest = *pSrc;
-            pSrc += 6;
-            Dest += *pSrc;
-            pSrc += SrcStride-5;
-            Dest += *pSrc;
-            pSrc += 4;
-            Dest += *pSrc;
-            pSrc += 4*SrcStride-4;
-            Dest += *pSrc;
-            pSrc += 4;
-            Dest += *pSrc;
-            pSrc += SrcStride-5;
-            Dest += *pSrc;
-            pSrc += 6;
-            Dest += *pSrc;
-            Dest /= 8;
-            *pDstPixel = 128+(*pSrcPixel)-Dest;
-*/
             ++pSrcPixel;
             ++pDstPixel;
         }
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
-        pSrcLine += SrcStride;
-        pDestLine += DestStride;
+        pSrcLine += srcStride;
+        pDestLine += destStride;
     }
     // Set top and bottom borders.
-    memset(pBmpDest->getPixels(), 128, DestStride*3);
-    memset(pBmpDest->getPixels()+DestStride*(size.y-3), 128, DestStride*3);
+    memset(pBmpDest->getPixels(), 128, destStride*3);
+    memset(pBmpDest->getPixels()+destStride*(size.y-3), 128, destStride*3);
     return pBmpDest;
 }
 

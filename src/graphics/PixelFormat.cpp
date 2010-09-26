@@ -29,7 +29,7 @@ using namespace std;
 
 namespace avg {
 
-std::ostream& operator<<(std::ostream& os, PixelFormat pf)
+std::ostream& operator <<(std::ostream& os, PixelFormat pf)
 {
     os << getPixelFormatString(pf);
     return os;
@@ -209,7 +209,7 @@ bool pixelFormatIsPlanar(PixelFormat pf)
 
 unsigned getNumPixelFormatPlanes(PixelFormat pf)
 {
-    switch(pf) {
+    switch (pf) {
         case YCbCr420p:
         case YCbCrJ420p:
             return 3;
