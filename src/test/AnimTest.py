@@ -268,52 +268,6 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assert_(self.__endCalled)
                 ))
 
-    def testStateAnim(self):
-        def state1StopCallback():
-            self.__state1StopCallbackCalled = True
-
-        def state2StartCallback():
-            if self.__state1StopCallbackCalled:
-                self.__stop1Start2CallbackOrder = True
-            self.__state2StartCallbackCalled = True
-
-        def makeAnim():
-            self.anim = avg.StateAnim(
-                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200, 
-                            0, 100, False, None, state1StopCallback), "STATE2"),
-                     avg.AnimState("STATE2", avg.LinearAnim(self.__node, "x", 200, 
-                            100, 50, False, state2StartCallback), "STATE3"),
-                     avg.AnimState("STATE3", avg.WaitAnim())
-                    ])
-#            self.anim.setDebug(True)
-
-        def killAnim():
-            self.anim = None
-
-        self.initScene()
-        self.__state1StopCallbackCalled = False
-        self.__state2StartCallbackCalled = False
-        self.__stop1Start2CallbackOrder = False
-        self.start(None,
-                (makeAnim,
-                 lambda: self.compareImage("testStateAnimC1", False),
-                 lambda: self.anim.setState("STATE1"),
-                 None,
-                 lambda: self.compareImage("testStateAnimC2", False),
-                 lambda: self.assert_(self.anim.getState() == "STATE2"),
-                 lambda: self.compareImage("testStateAnimC3", False),
-                 lambda: self.assert_(self.__state1StopCallbackCalled),
-                 lambda: self.assert_(self.__state2StartCallbackCalled),
-                 lambda: self.assert_(self.__stop1Start2CallbackOrder),
-                 lambda: self.assert_(self.anim.getState() == "STATE3"),
-                 lambda: self.compareImage("testStateAnimC4", False),
-                 lambda: self.anim.setState("STATE1"),
-                 lambda: self.assert_(avg.getNumRunningAnims() == 1),
-                 lambda: self.compareImage("testStateAnimC5", False),
-                 killAnim,
-#                 lambda: Player.getTestHelper().dumpObjects()
-                ))
-
     def testParallelAnim(self):
         def animStopped():
             self.__endCalled = True
@@ -382,6 +336,52 @@ class AnimTestCase(AVGTestCase):
                  startAnim
                 ))
         self.nodes = []
+
+    def testStateAnim(self):
+        def state1StopCallback():
+            self.__state1StopCallbackCalled = True
+
+        def state2StartCallback():
+            if self.__state1StopCallbackCalled:
+                self.__stop1Start2CallbackOrder = True
+            self.__state2StartCallbackCalled = True
+
+        def makeAnim():
+            self.anim = avg.StateAnim(
+                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200, 
+                            0, 100, False, None, state1StopCallback), "STATE2"),
+                     avg.AnimState("STATE2", avg.LinearAnim(self.__node, "x", 200, 
+                            100, 50, False, state2StartCallback), "STATE3"),
+                     avg.AnimState("STATE3", avg.WaitAnim())
+                    ])
+#            self.anim.setDebug(True)
+
+        def killAnim():
+            self.anim = None
+
+        self.initScene()
+        self.__state1StopCallbackCalled = False
+        self.__state2StartCallbackCalled = False
+        self.__stop1Start2CallbackOrder = False
+        self.start(None,
+                (makeAnim,
+                 lambda: self.compareImage("testStateAnimC1", False),
+                 lambda: self.anim.setState("STATE1"),
+                 None,
+                 lambda: self.compareImage("testStateAnimC2", False),
+                 lambda: self.assert_(self.anim.getState() == "STATE2"),
+                 lambda: self.compareImage("testStateAnimC3", False),
+                 lambda: self.assert_(self.__state1StopCallbackCalled),
+                 lambda: self.assert_(self.__state2StartCallbackCalled),
+                 lambda: self.assert_(self.__stop1Start2CallbackOrder),
+                 lambda: self.assert_(self.anim.getState() == "STATE3"),
+                 lambda: self.compareImage("testStateAnimC4", False),
+                 lambda: self.anim.setState("STATE1"),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 1),
+                 lambda: self.compareImage("testStateAnimC5", False),
+                 killAnim,
+#                 lambda: Player.getTestHelper().dumpObjects()
+                ))
 
 
 def animTestSuite(tests):
