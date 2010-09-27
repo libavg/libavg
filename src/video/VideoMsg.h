@@ -69,7 +69,7 @@ private:
 
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
-    double m_FrameTime; // In Milliseconds since video start.
+    double m_FrameTime;
 
     // SEEK_DONE
     double m_SeekVideoFrameTime;

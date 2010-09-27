@@ -328,8 +328,8 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
             bufferLeftToFill -= copyBytes;
             audioBuffer += copyBytes;
 
-            m_LastAudioFrameTime += (long long)(1000.0 * copyBytes / 
-                    (pBuffer->getFrameSize() * pBuffer->getRate()));
+            m_LastAudioFrameTime += copyBytes / 
+                    (pBuffer->getFrameSize() * pBuffer->getRate());
         }
         if (bufferLeftToFill != 0) {
             pMsg = m_pAMsgQ->pop(false);

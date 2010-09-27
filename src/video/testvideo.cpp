@@ -443,18 +443,16 @@ public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
-/*        
         addTest(TestPtr(new VideoDecoderTest(false, false)));
         addTest(TestPtr(new VideoDecoderTest(false, true)));
         addTest(TestPtr(new VideoDecoderTest(true, true)));
-*/
+
         addTest(TestPtr(new AudioDecoderTest(false, true)));
-//        addTest(TestPtr(new AudioDecoderTest(true, true)));
-/*
+        addTest(TestPtr(new AudioDecoderTest(true, true)));
+
         addTest(TestPtr(new AVDecoderTest(false, false)));
         addTest(TestPtr(new AVDecoderTest(false, true)));
         addTest(TestPtr(new AVDecoderTest(true, true)));
-*/ 
     }
 };
 

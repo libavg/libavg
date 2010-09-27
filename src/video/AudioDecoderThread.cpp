@@ -72,7 +72,7 @@ bool AudioDecoderThread::work()
     return true;
 }
 
-void AudioDecoderThread::seek(long long DestTime)
+void AudioDecoderThread::seek(double DestTime)
 {
     try {
         while (!m_MsgQ.empty()) {
