@@ -337,6 +337,21 @@ class AnimTestCase(AVGTestCase):
                 ))
         self.nodes = []
 
+    def testParallelAnimRegistry(self):
+        def makeAnims():
+            avg.ParallelAnim(
+                        [ avg.LinearAnim(self.__node, "x", 200, 0, 60),
+                          avg.LinearAnim(self.__node, "y", 200, 0, 120)
+                        ]).start()
+            
+            avg.LinearAnim(self.__node, "x", 300, 0, 100, False, None).start()
+        
+        self.initScene()
+        self.start(None,
+                (makeAnims,
+                 None
+                ))
+
     def testStateAnim(self):
         def state1StopCallback():
             self.__state1StopCallbackCalled = True
@@ -398,6 +413,7 @@ def animTestSuite(tests):
         "testContinuousAnim",
         "testWaitAnim",
         "testParallelAnim",
+        "testParallelAnimRegistry",
         "testStateAnim",
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)

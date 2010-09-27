@@ -90,7 +90,13 @@ bool ParallelAnim::step()
     assert(isRunning());
     vector<AnimPtr>::iterator it;
     for (it=m_RunningAnims.begin(); it != m_RunningAnims.end(); ) {
-        bool bDone = (*it)->step();
+        AnimPtr pAnim = (*it);
+        bool bDone;
+        if (pAnim->isRunning()) {
+            bDone = pAnim->step();
+        } else {
+            bDone = true;
+        }
         if (bDone) {
             it = m_RunningAnims.erase(it);
         } else {
