@@ -51,10 +51,10 @@ using namespace boost;
 
 namespace avg {
 
-bool FFMpegDecoder::m_bInitialized = false;
+bool FFMpegDecoder::s_bInitialized = false;
 mutex FFMpegDecoder::s_OpenMutex;
 
-FFMpegDecoder::FFMpegDecoder ()
+FFMpegDecoder::FFMpegDecoder()
     : m_State(CLOSED),
       m_pFormatContext(0),
       m_PF(NO_PIXELFORMAT),
@@ -80,7 +80,7 @@ FFMpegDecoder::FFMpegDecoder ()
     initVideoSupport();
 }
 
-FFMpegDecoder::~FFMpegDecoder ()
+FFMpegDecoder::~FFMpegDecoder()
 {
     if (m_pFormatContext) {
         close();
@@ -89,7 +89,7 @@ FFMpegDecoder::~FFMpegDecoder ()
 }
 
 
-void avcodecError(const string & sFilename, int err)
+void avcodecError(const string& sFilename, int err)
 {
     switch(err) {
         case AVERROR_NUMEXPECTED:
@@ -125,28 +125,27 @@ void dump_stream_info(AVFormatContext *s)
         fprintf(stderr, "  Genre: %s\n", s->genre);
 }
 
-int openCodec(AVFormatContext *formatContext, int streamIndex)
+int openCodec(AVFormatContext* pFormatContext, int streamIndex)
 {
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    enc = &(formatContext->streams[streamIndex]->codec);
+    enc = &(pFormatContext->streams[streamIndex]->codec);
 #else
-    enc = formatContext->streams[streamIndex]->codec;
+    enc = pFormatContext->streams[streamIndex]->codec;
 #endif
 //    enc->debug = 0x0001; // see avcodec.h
 
     AVCodec * codec = avcodec_find_decoder(enc->codec_id);
-    if (!codec ||
-        avcodec_open(enc, codec) < 0)
+    if (!codec || avcodec_open(enc, codec) < 0)
     {
         return -1;
     }
     return 0;
 }
 
-void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
+void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
 {
-    mutex::scoped_lock Lock(s_OpenMutex);
+    mutex::scoped_lock lock(s_OpenMutex);
     m_bThreadedDemuxer = bThreadedDemuxer;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
@@ -178,13 +177,13 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
     // Find audio and video streams in the file
     m_VStreamIndex = -1;
     m_AStreamIndex = -1;
-    for(unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
+    for (unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pFormatContext->streams[i]->codec;
 #else         
         AVCodecContext *enc = m_pFormatContext->streams[i]->codec;
 #endif
-        switch(enc->codec_type) {
+        switch (enc->codec_type) {
             case CODEC_TYPE_VIDEO:
                 if (m_VStreamIndex < 0) {
                     m_VStreamIndex = i;
@@ -212,8 +211,7 @@ void FFMpegDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
     }
     
     // Enable video stream demuxing
-    if(m_VStreamIndex >= 0)
-    {
+    if (m_VStreamIndex >= 0) {
         m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
         m_State = OPENED;
         m_pDemuxer->enableStream(m_VStreamIndex);
@@ -319,22 +317,22 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 
 void FFMpegDecoder::close() 
 {
-    mutex::scoped_lock Lock(s_OpenMutex);
-    mutex::scoped_lock Lock2(m_AudioMutex);
+    mutex::scoped_lock lock(s_OpenMutex);
+    mutex::scoped_lock lock2(m_AudioMutex);
     AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
     
     delete m_pDemuxer;
     m_pDemuxer = 0;
     
     // Close audio and video codecs
-    if(m_pVStream)
+    if (m_pVStream)
     {
         avcodec_close(m_pVStream->codec);
         m_pVStream = 0;
         m_VStreamIndex = -1;
     }
 
-    if(m_pAStream)
+    if (m_pAStream)
     {
         avcodec_close(m_pAStream->codec);
         if (m_AudioPacket) {
@@ -342,7 +340,7 @@ void FFMpegDecoder::close()
             delete m_AudioPacket;
             m_AudioPacket = 0;
         }
-        if(m_pAudioResampleContext) {
+        if (m_pAudioResampleContext) {
             audio_resample_close(m_pAudioResampleContext);
             m_pAudioResampleContext = 0;
         }
@@ -351,7 +349,7 @@ void FFMpegDecoder::close()
             av_free(m_pSampleBuffer);
             m_pSampleBuffer = 0;
         }
-        if(m_pResampleBuffer) {
+        if (m_pResampleBuffer) {
             av_free(m_pResampleBuffer);
             m_pResampleBuffer = 0;
         }
@@ -378,7 +376,7 @@ void FFMpegDecoder::close()
         m_pFormatContext = 0;
     }
     
-    if(m_pSwsContext) {
+    if (m_pSwsContext) {
         sws_freeContext(m_pSwsContext);
         m_pSwsContext = 0;
     }
@@ -414,15 +412,15 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
 void FFMpegDecoder::seek(double DestTime) 
 {
     if (m_bFirstPacket && m_pVStream) {
-        AVFrame Frame;
-        readFrame(Frame);
+        AVFrame frame;
+        readFrame(frame);
     }
     m_pDemuxer->seek(DestTime + getStartTime());
     if (m_pVStream) {
         m_LastVideoFrameTime = DestTime - 1.0/m_FPS;
     }
     if (m_pAStream) {
-        mutex::scoped_lock Lock(m_AudioMutex);
+        mutex::scoped_lock lock(m_AudioMutex);
         m_LastAudioFrameTime = DestTime;
         m_SampleBufferStart = m_SampleBufferEnd = 0;
         m_SampleBufferLeft = SAMPLE_BUFFER_SIZE;
@@ -534,7 +532,7 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
     int DestStride = pBmp->getStride();
     int Height = pBmp->getSize().y;
     int Width = pBmp->getSize().x;
-    for (int y=0; y<Height; y++) {
+    for (int y = 0; y < Height; y++) {
         memcpy(pDest, pSrc, Width);
         pSrc+=Stride;
         pDest+=DestStride;
@@ -548,7 +546,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-    ScopeTimer Timer(RenderToBmpProfilingZone);
+    ScopeTimer timer(RenderToBmpProfilingZone);
     AVFrame frame;
     FrameAvailableCode frameAvailable;
     if (timeWanted == -1) {
@@ -559,8 +557,8 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
-            ScopeTimer Timer(CopyImageProfilingZone);
-            for (unsigned i=0; i < pBmps.size(); ++i) {
+            ScopeTimer timer(CopyImageProfilingZone);
+            for (unsigned i = 0; i < pBmps.size(); ++i) {
                 copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
             }
         } else {
@@ -574,8 +572,8 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 void FFMpegDecoder::throwAwayFrame(double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-    AVFrame Frame;
-    readFrameForTime(Frame, timeWanted);
+    AVFrame frame;
+    readFrameForTime(frame, timeWanted);
 }
 
 bool FFMpegDecoder::isEOF(StreamSelect Stream) const
@@ -713,7 +711,7 @@ int FFMpegDecoder::decodeAudio()
 int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     AVG_ASSERT(m_State == DECODING);
-    mutex::scoped_lock Lock(m_AudioMutex);
+    mutex::scoped_lock lock(m_AudioMutex);
 
     unsigned char* outputAudioBuffer = (unsigned char*)(pBuffer->getData());
     int outputAudioBufferSize = pBuffer->getNumBytes();
@@ -823,41 +821,41 @@ static ProfilingZoneID ConvertImageLibavgProfilingZone(
 static ProfilingZoneID ConvertImageSWSProfilingZone("FFMpeg: colorspace conv (SWS)");
 static ProfilingZoneID SetAlphaProfilingZone("FFMpeg: set alpha channel");
 
-void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
+void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
 {
-    AVPicture DestPict;
+    AVPicture destPict;
     unsigned char * pDestBits = pBmp->getPixels();
-    DestPict.data[0] = pDestBits;
-    DestPict.linesize[0] = pBmp->getStride();
+    destPict.data[0] = pDestBits;
+    destPict.linesize[0] = pBmp->getStride();
 #if LIBAVFORMAT_BUILD >= ((50<<16)+(0<<8)+0)
-    ::PixelFormat DestFmt;
+    ::PixelFormat destFmt;
 #else
-    int DestFmt;
+    int destFmt;
 #endif
     switch(pBmp->getPixelFormat()) {
         case R8G8B8X8:
         case R8G8B8A8:
             // XXX: Unused and broken.
-            DestFmt = PIX_FMT_BGRA;
+            destFmt = PIX_FMT_BGRA;
             break;
         case B8G8R8X8:
         case B8G8R8A8:
-            DestFmt = PIX_FMT_BGRA;
+            destFmt = PIX_FMT_BGRA;
             break;
         case R8G8B8:
-            DestFmt = PIX_FMT_RGB24;
+            destFmt = PIX_FMT_RGB24;
             break;
         case B8G8R8:
-            DestFmt = PIX_FMT_BGR24;
+            destFmt = PIX_FMT_BGR24;
             break;
         case YCbCr422:
-            DestFmt = PIX_FMT_YUYV422;
+            destFmt = PIX_FMT_YUYV422;
             break;
         default:
             AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
                     << pBmp->getPixelFormat() << " not supported.");
             AVG_ASSERT(false);
-            DestFmt = PIX_FMT_BGRA;
+            destFmt = PIX_FMT_BGRA;
     }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     AVCodecContext *enc = &m_pVStream->codec;
@@ -865,35 +863,35 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     {
-        if (DestFmt == PIX_FMT_BGRA && (enc->pix_fmt == PIX_FMT_YUV420P || 
+        if (destFmt == PIX_FMT_BGRA && (enc->pix_fmt == PIX_FMT_YUV420P || 
                 enc->pix_fmt == PIX_FMT_YUVJ420P)) {
-            ScopeTimer Timer(ConvertImageLibavgProfilingZone);
-            BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, Frame.data[0],
-                    Frame.linesize[0], false));
-            BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, Frame.data[1],
-                    Frame.linesize[1], false));
-            BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, Frame.data[2],
-                    Frame.linesize[2], false));
+            ScopeTimer timer(ConvertImageLibavgProfilingZone);
+            BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, frame.data[0],
+                    frame.linesize[0], false));
+            BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, frame.data[1],
+                    frame.linesize[1], false));
+            BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
+                    frame.linesize[2], false));
             pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, enc->pix_fmt == PIX_FMT_YUVJ420P);
         } else {
             if (!m_pSwsContext) {
                 m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
-                            enc->width, enc->height, DestFmt, SWS_BICUBIC, 
+                            enc->width, enc->height, destFmt, SWS_BICUBIC, 
                             NULL, NULL, NULL);
                 AVG_ASSERT(m_pSwsContext);
             }
             {
-                ScopeTimer Timer(ConvertImageSWSProfilingZone);
-                sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
-                    enc->height, DestPict.data, DestPict.linesize);
+                ScopeTimer timer(ConvertImageSWSProfilingZone);
+                sws_scale(m_pSwsContext, frame.data, frame.linesize, 0, 
+                    enc->height, destPict.data, destPict.linesize);
             }
             if (pBmp->getPixelFormat() == B8G8R8X8) {
-                ScopeTimer Timer(SetAlphaProfilingZone);
+                ScopeTimer timer(SetAlphaProfilingZone);
                 // Make sure the alpha channel is white.
                 // TODO: This is slow. Make OpenGL do it.
                 unsigned char * pLine = pBmp->getPixels();
                 IntPoint size = pBmp->getSize();
-                for (int y = 0; y<size.y; ++y) {
+                for (int y = 0; y < size.y; ++y) {
                     unsigned char * pPixel = pLine;
                     for (int x = 0; x < size.x; ++x) {
                         pPixel[3] = 0xFF;
@@ -914,9 +912,9 @@ PixelFormat FFMpegDecoder::getPixelFormat() const
 
 void FFMpegDecoder::initVideoSupport()
 {
-    if (!m_bInitialized) {
+    if (!s_bInitialized) {
         av_register_all();
-        m_bInitialized = true;
+        s_bInitialized = true;
         // Tune libavcodec console spam.
 //        av_log_set_level(AV_LOG_DEBUG);
         av_log_set_level(AV_LOG_QUIET);
@@ -935,22 +933,22 @@ int FFMpegDecoder::getNumFrames() const
 #endif 
 }
 
-FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, double timeWanted)
+FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
 //    cerr << "        readFrameForTime " << timeWanted << ", LastFrameTime= " 
 //            << m_LastVideoFrameTime << ", diff= " << m_LastVideoFrameTime-timeWanted 
 //            << endl;
     AVG_ASSERT(timeWanted != -1);
-    double TimePerFrame = 1.0/m_FPS;
-    if (timeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
+    double timePerFrame = 1.0/m_FPS;
+    if (timeWanted-m_LastVideoFrameTime < 0.5*timePerFrame) {
 //        cerr << "DISPLAY AGAIN." << endl;
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
     } else {
         double frameTime = -1;
-        while (frameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
-            frameTime = readFrame(Frame);
+        while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
+            frameTime = readFrame(frame);
 //            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
 //                    frameTime-timeWanted <<  endl;
         }
@@ -964,7 +962,7 @@ static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
 double FFMpegDecoder::readFrame(AVFrame& frame)
 {
     AVG_ASSERT(m_pDemuxer);
-    ScopeTimer Timer(DecodeProfilingZone); 
+    ScopeTimer timer(DecodeProfilingZone); 
 
     if (m_bEOFPending) {
         m_bVideoEOF = true;
@@ -984,10 +982,10 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
         m_bFirstPacket = false;
         if (pPacket) {
     //        cerr << "decode, size=" << pPacket->size << endl;
-            int Len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
+            int len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
-            if (Len1 > 0) {
-                AVG_ASSERT(Len1 == pPacket->size);
+            if (len1 > 0) {
+                AVG_ASSERT(len1 == pPacket->size);
             }
             if (bGotPicture) {
                 frameTime = getFrameTime(pPacket->dts);
@@ -1011,12 +1009,12 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
     AVG_ASSERT(frameTime != -1)
     return frameTime;
 /*
-    cerr << "coded_picture_number: " << Frame.coded_picture_number <<
-            ", display_picture_number: " << Frame.display_picture_number <<
-            ", pts: " << Frame.pts << endl;
+    cerr << "coded_picture_number: " << frame.coded_picture_number <<
+            ", display_picture_number: " << frame.display_picture_number <<
+            ", pts: " << frame.pts << endl;
 
-    cerr << "key_frame: " << Frame.key_frame << 
-           ", pict_type: " << Frame.pict_type << endl;
+    cerr << "key_frame: " << frame.key_frame << 
+           ", pict_type: " << frame.pict_type << endl;
     AVFrac spts = m_pVStream->pts;
     cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
 */
@@ -1027,18 +1025,18 @@ double FFMpegDecoder::getFrameTime(long long dts)
     if (m_VideoStartTimestamp == -1) {
         m_VideoStartTimestamp = double(dts)/m_TimeUnitsPerSecond;
     }
-    double FrameTime;
+    double frameTime;
     if (m_bUseStreamFPS) {
-        FrameTime = double(dts)/m_TimeUnitsPerSecond-m_VideoStartTimestamp;
+        frameTime = double(dts)/m_TimeUnitsPerSecond-m_VideoStartTimestamp;
     } else {
         if (m_LastVideoFrameTime == -1) {
-            FrameTime = 0;
+            frameTime = 0;
         } else {
-            FrameTime = m_LastVideoFrameTime + 1.0/m_FPS;
+            frameTime = m_LastVideoFrameTime + 1.0/m_FPS;
         }
     }
-    m_LastVideoFrameTime = FrameTime;
-    return FrameTime;
+    m_LastVideoFrameTime = frameTime;
+    return frameTime;
 }
 
 double FFMpegDecoder::getStartTime()
@@ -1076,8 +1074,9 @@ void FFMpegDecoder::volumize(AudioBufferPtr pBuffer)
     double curVol = m_Volume;
     double volDiff = m_LastVolume - curVol;
     
-    if(curVol == 1.0 && volDiff == 0.0)
+    if (curVol == 1.0 && volDiff == 0.0) {
         return;
+    }
    
     short * pData = pBuffer->getData();
     for (int i = 0; i < pBuffer->getNumFrames()*pBuffer->getNumChannels(); i++) {

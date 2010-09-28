@@ -51,7 +51,7 @@ AsyncDemuxer::~AsyncDemuxer()
         waitForSeekDone();
         m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::stop, _1));
         map<int, VideoPacketQueuePtr>::iterator it;
-        for (it=m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
+        for (it = m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
             // If the Queue is full, this breaks the lock in the thread.
             PacketVideoMsgPtr pPacketMsg;
             pPacketMsg = it->second->pop(false);
@@ -62,11 +62,11 @@ AsyncDemuxer::~AsyncDemuxer()
         m_pDemuxThread->join();
         delete m_pDemuxThread;
         m_pDemuxThread = 0;
-        for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
             pPacketMsg = pPacketQ->pop(false);
-            while(pPacketMsg) {
+            while (pPacketMsg) {
                 pPacketMsg->freePacket();
                 pPacketMsg = pPacketQ->pop(false);
             }
@@ -75,40 +75,40 @@ AsyncDemuxer::~AsyncDemuxer()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AsyncDemuxer::enableStream(int StreamIndex)
+void AsyncDemuxer::enableStream(int streamIndex)
 {
     VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
-    m_PacketQs[StreamIndex] = pPacketQ;
-    m_bSeekDone[StreamIndex] = true;
+    m_PacketQs[streamIndex] = pPacketQ;
+    m_bSeekDone[streamIndex] = true;
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::enableStream, _1, pPacketQ, 
-            StreamIndex));
+            streamIndex));
 }
 
-AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
+AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 {
     waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
-    PacketVideoMsgPtr pPacketMsg = m_PacketQs[StreamIndex]->pop(true);
+    PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
     AVG_ASSERT (!pPacketMsg->isSeekDone());
 
     return pPacketMsg->getPacket();
 }
 
-void AsyncDemuxer::seek(double DestTime)
+void AsyncDemuxer::seek(double destTime)
 {
     waitForSeekDone();
     scoped_lock Lock(m_SeekMutex);
-    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, DestTime));
+    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
     m_bSeekPending = true;
     bool bAllSeeksDone = true;
     map<int, VideoPacketQueuePtr>::iterator it;
-    for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
         PacketVideoMsgPtr pPacketMsg;
         map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
         itSeekDone->second = false;
         pPacketMsg = pPacketQ->pop(false);
-        while(pPacketMsg && !itSeekDone->second) {
+        while (pPacketMsg && !itSeekDone->second) {
             itSeekDone->second = pPacketMsg->isSeekDone();
             pPacketMsg->freePacket();
             if (!itSeekDone->second) {
@@ -130,7 +130,7 @@ void AsyncDemuxer::waitForSeekDone()
     if (m_bSeekPending) {
         m_bSeekPending = false;
         map<int, VideoPacketQueuePtr>::iterator it;
-        for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
             map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);

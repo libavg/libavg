@@ -43,22 +43,22 @@ FFMpegDemuxer::~FFMpegDemuxer()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void FFMpegDemuxer::enableStream(int StreamIndex)
+void FFMpegDemuxer::enableStream(int streamIndex)
 {
-    m_PacketLists[StreamIndex] = PacketList();
+    m_PacketLists[streamIndex] = PacketList();
 }
 
-AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
+AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
 {
-    // Make sure enableStream was called on StreamIndex.
+    // Make sure enableStream was called on streamIndex.
     AVG_ASSERT(m_PacketLists.size() > 0);
-    AVG_ASSERT(StreamIndex > -1 && StreamIndex < 10);
-    if (m_PacketLists.find(StreamIndex) == m_PacketLists.end()) {
-        cerr << this << ": getPacket: Stream " << StreamIndex << " not found." << endl;
+    AVG_ASSERT(streamIndex > -1 && streamIndex < 10);
+    if (m_PacketLists.find(streamIndex) == m_PacketLists.end()) {
+        cerr << this << ": getPacket: Stream " << streamIndex << " not found." << endl;
         dump();
         AVG_ASSERT(false);
     }
-    PacketList & CurPacketList = m_PacketLists.find(StreamIndex)->second;
+    PacketList & CurPacketList = m_PacketLists.find(streamIndex)->second;
     AVPacket * pPacket;
     if (!CurPacketList.empty()) {
         pPacket = CurPacketList.front();
@@ -75,7 +75,7 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
                 pPacket = 0;
                 return 0;
             }
-            if (pPacket->stream_index != StreamIndex) {
+            if (pPacket->stream_index != streamIndex) {
                 if (m_PacketLists.find(pPacket->stream_index) != m_PacketLists.end()) {
                     av_dup_packet(pPacket);
                     PacketList& OtherPacketList = 
@@ -89,25 +89,25 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
             } else {
                 av_dup_packet(pPacket);
             }
-        } while (!pPacket || pPacket->stream_index != StreamIndex);
+        } while (!pPacket || pPacket->stream_index != streamIndex);
     }
     return pPacket;
 }
 
-void FFMpegDemuxer::seek(double DestTime)
+void FFMpegDemuxer::seek(double destTime)
 {
 #if LIBAVFORMAT_BUILD <= 4616
-    av_seek_frame(m_pFormatContext, -1, DestTime*1000000);
+    av_seek_frame(m_pFormatContext, -1, destTime*1000000);
 #else
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    av_seek_frame(m_pFormatContext, -1, DestTime*1000000, 0);
+    av_seek_frame(m_pFormatContext, -1, destTime*1000000, 0);
 #else
-    av_seek_frame(m_pFormatContext, -1, DestTime*AV_TIME_BASE, AVSEEK_FLAG_BACKWARD);
+    av_seek_frame(m_pFormatContext, -1, destTime*AV_TIME_BASE, AVSEEK_FLAG_BACKWARD);
 #endif
 #endif
     clearPacketCache();
     map<int, PacketList>::iterator it;
-    for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
+    for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         int CurStreamIndex = it->first;
         AVStream * pStream = m_pFormatContext->streams[CurStreamIndex];
         avcodec_flush_buffers(pStream->codec);
@@ -117,10 +117,10 @@ void FFMpegDemuxer::seek(double DestTime)
 void FFMpegDemuxer::clearPacketCache()
 {
     map<int, PacketList>::iterator it;
-    for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
+    for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         PacketList::iterator it2;
         PacketList* thePacketList = &(it->second);
-        for (it2=thePacketList->begin(); it2 != thePacketList->end(); ++it2) {
+        for (it2 = thePacketList->begin(); it2 != thePacketList->end(); ++it2) {
             av_free_packet(*it2);
             delete *it2;
         }
@@ -133,7 +133,7 @@ void FFMpegDemuxer::dump()
     map<int, PacketList>::iterator it;
     cerr << "FFMpegDemuxer " << this << endl;
     cerr << "packetlists.size(): " << int(m_PacketLists.size()) << endl;
-    for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
+    for (it = m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         cerr << "  " << it->first << ":  " << int(it->second.size()) << endl;
     }
 }

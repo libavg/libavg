@@ -168,7 +168,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         double m_FPS;
         double m_StreamTimeOffset;
 
-        static bool m_bInitialized;
+        static bool s_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously
         static boost::mutex s_OpenMutex;   
 };

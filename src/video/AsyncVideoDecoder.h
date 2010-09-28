@@ -39,73 +39,72 @@ namespace avg {
 
 class AVG_API AsyncVideoDecoder: public IVideoDecoder
 {
-    public:
-        AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength);
-        virtual ~AsyncVideoDecoder();
-        virtual void open(const std::string& sFilename, bool bSyncDemuxer);
-        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP);
-        virtual void close();
-        virtual DecoderState getState() const;
-        virtual VideoInfo getVideoInfo() const;
-        virtual void seek(double DestTime);
-        virtual void loop();
-        virtual IntPoint getSize() const;
-        virtual int getCurFrame() const;
-        virtual int getNumFramesQueued() const;
-        virtual double getCurTime(StreamSelect Stream = SS_DEFAULT) const;
-        virtual double getNominalFPS() const;
-        virtual double getFPS() const;
-        virtual void setFPS(double FPS);
-        virtual double getVolume() const;
-        virtual void setVolume(double Volume);
-        virtual PixelFormat getPixelFormat() const;
+public:
+    AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength);
+    virtual ~AsyncVideoDecoder();
+    virtual void open(const std::string& sFilename, bool bSyncDemuxer);
+    virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
+    virtual void close();
+    virtual DecoderState getState() const;
+    virtual VideoInfo getVideoInfo() const;
+    virtual void seek(double destTime);
+    virtual void loop();
+    virtual IntPoint getSize() const;
+    virtual int getCurFrame() const;
+    virtual int getNumFramesQueued() const;
+    virtual double getCurTime(StreamSelect stream = SS_DEFAULT) const;
+    virtual double getNominalFPS() const;
+    virtual double getFPS() const;
+    virtual void setFPS(double fps);
+    virtual double getVolume() const;
+    virtual void setVolume(double volume);
+    virtual PixelFormat getPixelFormat() const;
 
-        virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
-                double timeWanted);
-        virtual bool isEOF(StreamSelect Stream = SS_ALL) const;
-        virtual void throwAwayFrame(double timeWanted);
-        
-        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
-        
-    private:
-        VideoMsgPtr getBmpsForTime(double timeWanted, 
-                FrameAvailableCode& FrameAvailable);
-        VideoMsgPtr getNextBmps(bool bWait);
-        void waitForSeekDone();
-        void returnFrame(VideoMsgPtr& pFrameMsg);
+    virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
+            double timeWanted);
+    virtual bool isEOF(StreamSelect stream = SS_ALL) const;
+    virtual void throwAwayFrame(double timeWanted);
+    
+    virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
+    
+private:
+    VideoMsgPtr getBmpsForTime(double timeWanted, FrameAvailableCode& frameAvailable);
+    VideoMsgPtr getNextBmps(bool bWait);
+    void waitForSeekDone();
+    void returnFrame(VideoMsgPtr& pFrameMsg);
 
-        DecoderState m_State;
-        VideoDecoderPtr m_pSyncDecoder;
-        std::string m_sFilename;
-        int m_QueueLength;
+    DecoderState m_State;
+    VideoDecoderPtr m_pSyncDecoder;
+    std::string m_sFilename;
+    int m_QueueLength;
 
-        boost::thread* m_pVDecoderThread;
-        VideoDecoderThread::CQueuePtr m_pVCmdQ;
-        VideoMsgQueuePtr m_pVMsgQ;
+    boost::thread* m_pVDecoderThread;
+    VideoDecoderThread::CQueuePtr m_pVCmdQ;
+    VideoMsgQueuePtr m_pVMsgQ;
 
-        boost::thread* m_pADecoderThread;
-        boost::mutex m_AudioMutex;
-        AudioDecoderThread::CQueuePtr m_pACmdQ;
-        VideoMsgQueuePtr m_pAMsgQ;
-        VideoMsgPtr m_pAudioMsg;
-        unsigned char* m_AudioMsgData;
-        int m_AudioMsgSize;
+    boost::thread* m_pADecoderThread;
+    boost::mutex m_AudioMutex;
+    AudioDecoderThread::CQueuePtr m_pACmdQ;
+    VideoMsgQueuePtr m_pAMsgQ;
+    VideoMsgPtr m_pAudioMsg;
+    unsigned char* m_AudioMsgData;
+    int m_AudioMsgSize;
 
-        VideoInfo m_VideoInfo;
+    VideoInfo m_VideoInfo;
 
-        IntPoint m_Size;
-        int m_NumFrames;
-        bool m_bUseStreamFPS;
-        PixelFormat m_PF;
-        
-        bool m_bAudioEOF;
-        bool m_bVideoEOF;
-        bool m_bSeekPending;
-        boost::mutex m_SeekMutex;
-        double m_Volume;
+    IntPoint m_Size;
+    int m_NumFrames;
+    bool m_bUseStreamFPS;
+    PixelFormat m_PF;
+    
+    bool m_bAudioEOF;
+    bool m_bVideoEOF;
+    bool m_bSeekPending;
+    boost::mutex m_SeekMutex;
+    double m_Volume;
 
-        double m_LastVideoFrameTime;
-        double m_LastAudioFrameTime;
+    double m_LastVideoFrameTime;
+    double m_LastAudioFrameTime;
 };
 
 }

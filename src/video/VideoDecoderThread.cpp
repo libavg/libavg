@@ -30,11 +30,11 @@ using namespace std;
 
 namespace avg {
 
-VideoDecoderThread::VideoDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
+VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
         VideoDecoderPtr pDecoder)
-    : WorkerThread<VideoDecoderThread>(string("Video Decoder"), CmdQ, 
+    : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
             Logger::PROFILE_VIDEO),
-      m_MsgQ(MsgQ),
+      m_MsgQ(msgQ),
       m_pDecoder(pDecoder),
       m_pBmpQ(new BitmapQueue()),
       m_pHalfBmpQ(new BitmapQueue())
@@ -53,7 +53,7 @@ bool VideoDecoderThread::work()
     if (m_pDecoder->isEOF(SS_VIDEO)) {
         m_pDecoder->seek(0);
     } else {
-        ScopeTimer Timer(DecoderProfilingZone);
+        ScopeTimer timer(DecoderProfilingZone);
         vector<BitmapPtr> pBmps;
         IntPoint size = m_pDecoder->getSize();
         IntPoint halfSize(size.x/2, size.y/2);
@@ -76,7 +76,7 @@ bool VideoDecoderThread::work()
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
         } else {
-            ScopeTimer Timer(PushMsgProfilingZone);
+            ScopeTimer timer(PushMsgProfilingZone);
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));

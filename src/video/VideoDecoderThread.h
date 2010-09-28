@@ -41,7 +41,7 @@ typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        VideoDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
+        VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
                 VideoDecoderPtr pDecoder);
         virtual ~VideoDecoderThread();
         

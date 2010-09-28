@@ -38,9 +38,9 @@ namespace avg {
             AsyncDemuxer(AVFormatContext * pFormatContext);
             virtual ~AsyncDemuxer();
            
-            void enableStream(int StreamIndex);
-            AVPacket * getPacket(int StreamIndex);
-            void seek(double DestTime);
+            void enableStream(int streamIndex);
+            AVPacket * getPacket(int streamIndex);
+            void seek(double destTime);
             
         private:
             void waitForSeekDone();

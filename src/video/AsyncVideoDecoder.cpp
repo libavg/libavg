@@ -113,7 +113,7 @@ void AsyncVideoDecoder::close()
         m_pVMsgQ = VideoMsgQueuePtr();
     }
     {
-        scoped_lock Lock1(m_AudioMutex);
+        scoped_lock lock1(m_AudioMutex);
         if (m_pADecoderThread) {
             m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::stop, _1));
             m_pAMsgQ->pop(false);
@@ -138,11 +138,11 @@ VideoInfo AsyncVideoDecoder::getVideoInfo() const
     return m_VideoInfo;
 }
 
-void AsyncVideoDecoder::seek(double DestTime)
+void AsyncVideoDecoder::seek(double destTime)
 {
     AVG_ASSERT(m_State == DECODING);
     waitForSeekDone();
-    scoped_lock Lock1(m_AudioMutex);
+    scoped_lock lock1(m_AudioMutex);
     scoped_lock Lock2(m_SeekMutex);
     m_bAudioEOF = false;
     m_bVideoEOF = false;
@@ -150,9 +150,9 @@ void AsyncVideoDecoder::seek(double DestTime)
     m_LastVideoFrameTime = -1;
     m_bSeekPending = true;
     if (m_pVCmdQ) {
-        m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::seek, _1, DestTime));
+        m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::seek, _1, destTime));
     } else {
-        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, DestTime));
+        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::seek, _1, destTime));
     }
     bool bDone = false;
     while (!bDone && m_bSeekPending) {
@@ -206,10 +206,10 @@ int AsyncVideoDecoder::getNumFramesQueued() const
     return m_pVMsgQ->size();
 }
 
-double AsyncVideoDecoder::getCurTime(StreamSelect Stream) const
+double AsyncVideoDecoder::getCurTime(StreamSelect stream) const
 {
     AVG_ASSERT(m_State != CLOSED);
-    switch(Stream) {
+    switch (stream) {
         case SS_DEFAULT:
         case SS_VIDEO:
             AVG_ASSERT(m_VideoInfo.m_bHasVideo);
@@ -237,12 +237,12 @@ double AsyncVideoDecoder::getFPS() const
     return m_VideoInfo.m_FPS;
 }
 
-void AsyncVideoDecoder::setFPS(double FPS)
+void AsyncVideoDecoder::setFPS(double fps)
 {
     AVG_ASSERT(!m_pADecoderThread);
-    m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::setFPS, _1, FPS));
-    if (FPS != 0) {
-        m_VideoInfo.m_FPS = FPS;
+    m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::setFPS, _1, fps));
+    if (fps != 0) {
+        m_VideoInfo.m_FPS = fps;
     }
 }
 
@@ -252,11 +252,11 @@ double AsyncVideoDecoder::getVolume() const
     return m_Volume;
 }
 
-void AsyncVideoDecoder::setVolume(double Volume)
+void AsyncVideoDecoder::setVolume(double volume)
 {
-    m_Volume = Volume;
+    m_Volume = volume;
     if (m_State != CLOSED && m_VideoInfo.m_bHasAudio && m_pACmdQ) {
-        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::setVolume, _1, Volume));
+        m_pACmdQ->pushCmd(boost::bind(&AudioDecoderThread::setVolume, _1, volume));
     }
 }
 
@@ -270,22 +270,22 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-    FrameAvailableCode FrameAvailable;
-    VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
-    if (FrameAvailable == FA_NEW_FRAME) {
+    FrameAvailableCode frameAvailable;
+    VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
+    if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
         for (unsigned i=0; i<pBmps.size(); ++i) {
             pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
         }
         returnFrame(pFrameMsg);
     }
-    return FrameAvailable;
+    return frameAvailable;
 }
 
-bool AsyncVideoDecoder::isEOF(StreamSelect Stream) const
+bool AsyncVideoDecoder::isEOF(StreamSelect stream) const
 {
     AVG_ASSERT(m_State == DECODING);
-    switch(Stream) {
+    switch(stream) {
         case SS_AUDIO:
             return (!m_VideoInfo.m_bHasAudio || m_bAudioEOF);
         case SS_VIDEO:
@@ -300,8 +300,8 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream) const
 void AsyncVideoDecoder::throwAwayFrame(double timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
-    FrameAvailableCode FrameAvailable;
-    VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, FrameAvailable);
+    FrameAvailableCode frameAvailable;
+    VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
 }
 
 int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
@@ -311,22 +311,20 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     if (m_bAudioEOF) {
         return 0;
     }
-    scoped_lock Lock(m_AudioMutex);
+    scoped_lock lock(m_AudioMutex);
     waitForSeekDone();
 
-    unsigned char* audioBuffer = (unsigned char *)(pBuffer->getData());
-    int audioBufferSize = pBuffer->getNumBytes();
-
-    int bufferLeftToFill = audioBufferSize;
+    unsigned char* pDest = (unsigned char *)(pBuffer->getData());
+    int bufferLeftToFill = pBuffer->getNumBytes();
     VideoMsgPtr pMsg;
     while (bufferLeftToFill > 0) {
         while (m_AudioMsgSize > 0 && bufferLeftToFill > 0) {
             int copyBytes = min(bufferLeftToFill, m_AudioMsgSize);
-            memcpy(audioBuffer, m_AudioMsgData, copyBytes);
+            memcpy(pDest, m_AudioMsgData, copyBytes);
             m_AudioMsgSize -= copyBytes;
             m_AudioMsgData += copyBytes;
             bufferLeftToFill -= copyBytes;
-            audioBuffer += copyBytes;
+            pDest += copyBytes;
 
             m_LastAudioFrameTime += copyBytes / 
                     (pBuffer->getFrameSize() * pBuffer->getRate());
@@ -346,8 +344,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                 m_AudioMsgData = (unsigned char *)(pMsg->getAudioBuffer()->getData());
                 m_LastAudioFrameTime = pMsg->getAudioTime();
             } else {
-                return pBuffer->getNumFrames()-bufferLeftToFill/
-                    pBuffer->getFrameSize();
+                return pBuffer->getNumFrames()-bufferLeftToFill/pBuffer->getFrameSize();
             }
         }
     }
@@ -355,47 +352,47 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 }
         
 VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(double timeWanted, 
-        FrameAvailableCode& FrameAvailable)
+        FrameAvailableCode& frameAvailable)
 {
     if (timeWanted < 0 && timeWanted != -1) {
         cerr << "Illegal timeWanted: " << timeWanted << endl;
         AVG_ASSERT(false);
     }
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
-    double FrameTime = -1;
+    double frameTime = -1;
     VideoMsgPtr pFrameMsg;
     if (timeWanted == -1) {
         pFrameMsg = getNextBmps(true);
-        FrameAvailable = FA_NEW_FRAME;
+        frameAvailable = FA_NEW_FRAME;
     } else {
-        double TimePerFrame = 1.0/getFPS();
-        if (fabs(double(timeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
-                m_LastVideoFrameTime > timeWanted+TimePerFrame) {
+        double timePerFrame = 1.0/getFPS();
+        if (fabs(double(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
+                m_LastVideoFrameTime > timeWanted+timePerFrame) {
             // The last frame is still current. Display it again.
-            FrameAvailable = FA_USE_LAST_FRAME;
+            frameAvailable = FA_USE_LAST_FRAME;
             return VideoMsgPtr();
         } else {
             if (m_bVideoEOF) {
-                FrameAvailable = FA_USE_LAST_FRAME;
+                frameAvailable = FA_USE_LAST_FRAME;
                 return VideoMsgPtr();
             }
-            while (FrameTime-timeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
+            while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
                 returnFrame(pFrameMsg);
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
-                    FrameTime = pFrameMsg->getFrameTime();
+                    frameTime = pFrameMsg->getFrameTime();
                 } else {
-                    FrameAvailable = FA_STILL_DECODING;
+                    frameAvailable = FA_STILL_DECODING;
                     return VideoMsgPtr();
                 }
             }
             if (!pFrameMsg) {
-                cerr << "FrameTime=" << FrameTime << ", timeWanted=" << timeWanted 
-                        << ", TimePerFrame=" << TimePerFrame << ", m_bVideoEOF=" 
+                cerr << "frameTime=" << frameTime << ", timeWanted=" << timeWanted 
+                        << ", timePerFrame=" << timePerFrame << ", m_bVideoEOF=" 
                         << m_bVideoEOF << endl;
                 AVG_ASSERT(false);
             }
-            FrameAvailable = FA_NEW_FRAME;
+            frameAvailable = FA_NEW_FRAME;
         }
     }
     if (pFrameMsg) {
@@ -430,7 +427,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 
 void AsyncVideoDecoder::waitForSeekDone()
 {
-    scoped_lock Lock(m_SeekMutex);
+    scoped_lock lock(m_SeekMutex);
     if (m_bSeekPending) {
         do {
             VideoMsgPtr pMsg;

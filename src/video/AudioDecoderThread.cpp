@@ -33,12 +33,12 @@ using namespace std;
 
 namespace avg {
 
-AudioDecoderThread::AudioDecoderThread(CQueue& CmdQ, VideoMsgQueue& MsgQ, 
-        VideoDecoderPtr pDecoder, const AudioParams& AP)
-    : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), CmdQ),
-      m_MsgQ(MsgQ),
+AudioDecoderThread::AudioDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
+        VideoDecoderPtr pDecoder, const AudioParams& ap)
+    : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), cmdQ),
+      m_MsgQ(msgQ),
       m_pDecoder(pDecoder),
-      m_AP(AP)
+      m_AP(ap)
 {
 }
 
@@ -53,12 +53,12 @@ bool AudioDecoderThread::work()
         msleep(10);
     } else {
         AudioBufferPtr pBuffer(new AudioBuffer(AUDIO_BUFFER_SIZE, m_AP));
-        int FramesWritten = m_pDecoder->fillAudioBuffer(pBuffer);
-        if (FramesWritten != AUDIO_BUFFER_SIZE) {
+        int framesWritten = m_pDecoder->fillAudioBuffer(pBuffer);
+        if (framesWritten != AUDIO_BUFFER_SIZE) {
             AudioBufferPtr pOldBuffer = pBuffer;
-            pBuffer = AudioBufferPtr(new AudioBuffer(FramesWritten, m_AP));
+            pBuffer = AudioBufferPtr(new AudioBuffer(framesWritten, m_AP));
             memcpy(pBuffer->getData(), pOldBuffer->getData(),
-                    FramesWritten*m_AP.m_Channels*sizeof(short));
+                    framesWritten*m_AP.m_Channels*sizeof(short));
         }
         VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
         pVMsg->setAudio(pBuffer, m_pDecoder->getCurTime(SS_AUDIO));
@@ -72,7 +72,7 @@ bool AudioDecoderThread::work()
     return true;
 }
 
-void AudioDecoderThread::seek(double DestTime)
+void AudioDecoderThread::seek(double destTime)
 {
     try {
         while (!m_MsgQ.empty()) {
@@ -81,15 +81,15 @@ void AudioDecoderThread::seek(double DestTime)
     } catch (Exception&) {
     }
     
-    m_pDecoder->seek(DestTime);
+    m_pDecoder->seek(destTime);
     VideoMsgPtr pVMsg = VideoMsgPtr(new VideoMsg());
     pVMsg->setSeekDone(-1, m_pDecoder->getCurTime(SS_AUDIO));
     m_MsgQ.push(pVMsg);
 }
 
-void AudioDecoderThread::setVolume(double Volume)
+void AudioDecoderThread::setVolume(double volume)
 {
-    m_pDecoder->setVolume(Volume);
+    m_pDecoder->setVolume(volume);
 }
 
 }
