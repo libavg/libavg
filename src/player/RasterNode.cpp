@@ -202,6 +202,7 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& grid)
                 "setWarpedVertexCoords() called with incorrect grid size.");
     }
     m_TileVertices = grid;
+    m_bVertexArrayDirty = true;
 }
 
 int RasterNode::getMaxTileWidth() const
@@ -513,17 +514,20 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     glPushMatrix();
     glScaled(destSize.x, destSize.y, 1);
 
-    m_pVertexes->reset();
-    for (unsigned y=0; y<m_TileVertices.size()-1; y++) {
-        for (unsigned x=0; x<m_TileVertices[0].size()-1; x++) {
-            int curVertex=m_pVertexes->getCurVert();
-            m_pVertexes->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
-            m_pVertexes->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
-            m_pVertexes->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
-            m_pVertexes->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
-            m_pVertexes->appendQuadIndexes(
-                    curVertex+1, curVertex, curVertex+2, curVertex+3);
+    if (m_bVertexArrayDirty) {
+        m_pVertexes->reset();
+        for (unsigned y=0; y<m_TileVertices.size()-1; y++) {
+            for (unsigned x=0; x<m_TileVertices[0].size()-1; x++) {
+                int curVertex=m_pVertexes->getCurVert();
+                m_pVertexes->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
+                m_pVertexes->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
+                m_pVertexes->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
+                m_pVertexes->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
+                m_pVertexes->appendQuadIndexes(
+                        curVertex+1, curVertex, curVertex+2, curVertex+3);
+            }
         }
+        m_bVertexArrayDirty = false;
     }
 
     m_pVertexes->draw();
@@ -563,6 +567,7 @@ void RasterNode::calcVertexGrid(VertexGrid& grid)
     if (m_pVertexes) {
         delete m_pVertexes;
     }
+    m_bVertexArrayDirty = true;
     m_pVertexes = new VertexArray(numTiles.x*numTiles.y*4, numTiles.x*numTiles.y*6);
 }
 
@@ -614,5 +619,6 @@ void RasterNode::calcTexCoords()
             }
         }
     }
+    m_bVertexArrayDirty = true;
 }
 }

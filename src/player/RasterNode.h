@@ -131,6 +131,7 @@ class AVG_API RasterNode: public AreaNode
 
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
+        bool m_bVertexArrayDirty;
         VertexArray * m_pVertexes;
         std::vector<std::vector<DPoint> > m_TexCoords;
 
