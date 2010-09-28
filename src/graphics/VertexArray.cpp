@@ -70,12 +70,12 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
 
 VertexArray::~VertexArray()
 {
-    if (m_ReserveVerts == 10) {
+    if (m_ReserveVerts == 10 && s_pGLVertexBufferIDs.get() != 0) {
         s_pGLVertexBufferIDs->push_back(m_GLVertexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLVertexBufferID);
     }
-    if (m_ReserveIndexes == 20) {
+    if (m_ReserveIndexes == 20 && s_pGLIndexBufferIDs.get() != 0) {
         s_pGLIndexBufferIDs->push_back(m_GLIndexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLIndexBufferID);
@@ -241,12 +241,14 @@ void VertexArray::deleteBufferCache()
             glproc::DeleteBuffers(1, &((*s_pGLVertexBufferIDs)[i]));
         }
         s_pGLVertexBufferIDs->clear();
+        s_pGLVertexBufferIDs.reset();
     }
     if (s_pGLIndexBufferIDs.get() != 0) {
         for (unsigned i=0; i<s_pGLIndexBufferIDs->size(); ++i) {
             glproc::DeleteBuffers(1, &((*s_pGLIndexBufferIDs)[i]));
         }
         s_pGLIndexBufferIDs->clear();
+        s_pGLIndexBufferIDs.reset();
     }
 }
 
