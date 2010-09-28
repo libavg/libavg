@@ -542,7 +542,7 @@ void VideoNode::preRender()
 {
     VisibleNode::preRender();
     if (getEffectiveOpacity() <= 0.01) {
-        if (m_bSeekPending) {
+        if (m_bSeekPending && m_bFirstFrameDecoded) {
             renderFrame(getSurface());
         }
         if (m_VideoState == Playing) {
