@@ -22,6 +22,7 @@
 #ifndef _PixelFormat_H_
 #define _PixelFormat_H_
 
+#include "../api.h"
 #include <string>
 
 namespace avg {
@@ -62,15 +63,15 @@ typedef enum {
     NO_PIXELFORMAT
 } PixelFormat;
 
-std::ostream& operator <<(std::ostream& os, PixelFormat pf);
+AVG_API std::ostream& operator <<(std::ostream& os, PixelFormat pf);
 
-std::string getPixelFormatString(PixelFormat pf);
-PixelFormat stringToPixelFormat(const std::string& s);
-bool pixelFormatIsColored(PixelFormat pf);
-bool pixelFormatIsBayer(PixelFormat pf);
-bool pixelFormatHasAlpha(PixelFormat pf);
-bool pixelFormatIsPlanar(PixelFormat pf);
-unsigned getNumPixelFormatPlanes(PixelFormat pf);
+std::string AVG_API getPixelFormatString(PixelFormat pf);
+PixelFormat AVG_API stringToPixelFormat(const std::string& s);
+bool AVG_API pixelFormatIsColored(PixelFormat pf);
+bool AVG_API pixelFormatIsBayer(PixelFormat pf);
+bool AVG_API pixelFormatHasAlpha(PixelFormat pf);
+bool AVG_API pixelFormatIsPlanar(PixelFormat pf);
+unsigned AVG_API getNumPixelFormatPlanes(PixelFormat pf);
 
 }
 #endif
