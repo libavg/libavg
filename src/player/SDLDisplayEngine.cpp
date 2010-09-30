@@ -44,6 +44,7 @@
 #include "../graphics/ShaderRegistry.h"
 
 #include "OGLSurface.h"
+#include "OffscreenCanvas.h"
 
 #include <SDL/SDL.h>
 

@@ -405,7 +405,8 @@ void VisibleNode::initFilename(string& sFilename)
     }
 }
 
-void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage)
+void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage,
+        Image::TextureCompression comp)
 {
     string sLastFilename = pImage->getFilename();
     string sFilename = sHRef;
@@ -416,7 +417,7 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage)
             if (sHRef == "") {
                 pImage->setEmpty();
             } else {
-                pImage->setFilename(sFilename);
+                pImage->setFilename(sFilename, comp);
             }
         } catch (Magick::Exception & ex) {
             pImage->setEmpty();

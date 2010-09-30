@@ -29,6 +29,7 @@
 
 #include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
+#include "OffscreenCanvas.h"
 
 #include <Magick++.h>
 
@@ -127,7 +128,7 @@ void Image::setEmpty()
     assertValid();
 }
 
-void Image::setFilename(const std::string& sFilename)
+void Image::setFilename(const std::string& sFilename, TextureCompression comp)
 {
     assertValid();
     AVG_TRACE(Logger::MEMORY, "Loading " << sFilename);
@@ -136,6 +137,13 @@ void Image::setFilename(const std::string& sFilename)
     m_pBmp = pBmp;
 
     m_sFilename = sFilename;
+
+    if (comp == TEXTURECOMPRESSION_B5G6R5) {
+        BitmapPtr pNew(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
+        pNew->copyPixels(*pBmp);
+        m_pBmp = pNew;
+    }
+
     if (m_State == GPU) {
         m_pSurface->destroy();
         setupSurface();
@@ -297,6 +305,9 @@ PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
     }
     if (bmp.getPixelFormat() == I8) {
         pf = I8;
+    }
+    if (bmp.getPixelFormat() == B5G6R5) {
+        pf = B5G6R5;
     }
     return pf;
 }

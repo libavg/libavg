@@ -25,6 +25,7 @@
 #include "Node.h"
 #include "Event.h"
 #include "Canvas.h"
+#include "Image.h"
 
 #include "../api.h"
 
@@ -134,7 +135,8 @@ class AVG_API VisibleNode: public Node
         AudioEngine * getAudioEngine() const;
         void setState(NodeState State);
         void initFilename(std::string& sFilename);
-        void checkReload(const std::string& sHRef, const ImagePtr& pImage);
+        void checkReload(const std::string& sHRef, const ImagePtr& pImage,
+                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
 
     private:
         PyObject * findPythonFunc(const std::string& Code);
@@ -166,4 +168,4 @@ class AVG_API VisibleNode: public Node
 
 }
 
-#endif //_Node_H_
+#endif

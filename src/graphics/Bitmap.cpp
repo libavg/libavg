@@ -320,7 +320,7 @@ void Bitmap::copyPixels(const Bitmap & origBmp)
                 switch(m_PF) {
                     case R32G32B32A32F:
                         if (origBmp.getBytesPerPixel() == 4) {
-                            ByteRBBAtoFloatRGBA(origBmp);
+                            ByteRGBAtoFloatRGBA(origBmp);
                         } else {
                             cerr << "Can't convert " << origBmp.getPixelFormat() <<
                                     " to " << getPixelFormat() << endl;
@@ -1460,7 +1460,7 @@ void Bitmap::I8toRGB(const Bitmap& origBmp)
     }
 }
 
-void Bitmap::ByteRBBAtoFloatRGBA(const Bitmap& origBmp)
+void Bitmap::ByteRGBAtoFloatRGBA(const Bitmap& origBmp)
 {
     AVG_ASSERT(getPixelFormat() == R32G32B32A32F);
     AVG_ASSERT(origBmp.getBytesPerPixel() == 4);

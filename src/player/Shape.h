@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "Image.h"
+#include "MaterialInfo.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"

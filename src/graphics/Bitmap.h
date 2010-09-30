@@ -105,7 +105,8 @@ private:
     void I8toI16(const Bitmap& origBmp);
     void I8toRGB(const Bitmap& origBmp);
     void I16toI8(const Bitmap& origBmp);
-    void ByteRBBAtoFloatRGBA(const Bitmap& origBmp);
+    void BGRtoB5G6R5(const Bitmap& origBmp);
+    void ByteRGBAtoFloatRGBA(const Bitmap& origBmp);
     void FloatRGBAtoByteRGBA(const Bitmap& origBmp);
     void BY8toRGBNearest(const Bitmap& origBmp);
     void BY8toRGBBilinear(const Bitmap& origBmp);

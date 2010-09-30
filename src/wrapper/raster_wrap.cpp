@@ -199,7 +199,7 @@ void export_raster()
     ;
 
     class_<ImageNode, bases<RasterNode> >("ImageNode",
-            "A static raster image on the screen. ImageNodess are loaded from files on\n"
+            "A static raster image on the screen. ImageNodes are loaded from files on\n"
             "program start. Alpha channels of the image files are used as\n"
             "transparency information.\n",
             no_init)
@@ -214,6 +214,10 @@ void export_raster()
                 make_function(&ImageNode::setHRef,
                         return_value_policy<copy_const_reference>()),
                 "The source filename of the image.\n")
+        .add_property("compression",
+                &ImageNode::getCompression,
+                "The texture compression used for this image. Valid values are 'none'\n"
+                "and 'B5G6R5'. (ro)\n")
     ;
 
     class_<CameraNode, bases<RasterNode> >("CameraNode",

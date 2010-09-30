@@ -173,6 +173,15 @@ public:
             pBmp->copyPixels(*pCopyBmp);
             testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_3");
         }
+        {
+            cerr << "    Testing copyPixels - B5G6R5->B8G8R8->B5G6R5." << endl;
+            BitmapPtr pBmp = initBmp(B5G6R5);
+            BitmapPtr pBaselineBmp = initBmp(B5G6R5);
+            BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), B8G8R8));
+            pCopyBmp->copyPixels(*pBmp);
+            pBmp->copyPixels(*pCopyBmp);
+            testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_4");
+        }
         testCopyToGreyscale(R8G8B8X8);
         testCopyToGreyscale(B8G8R8X8);
         {

@@ -421,6 +421,18 @@ class ImageTestCase(AVGTestCase):
                 [lambda: self.compareImage("testMipmap", False)
                 ])
 
+    def testImageCompression(self):
+        Player.loadString("""
+            <avg id="imageavg" width="160" height="120">
+                <image id="img" width="64" height="64" href="rgb24-64x64.png"
+                        compression="B5G6R5"/>
+            </avg>
+        
+        """)
+        self.assert_(Player.getElementByID("img").compression == "B5G6R5")
+        self.start(None, 
+                [lambda: self.compareImage("testCompression", False)
+                ])
 
 def imageTestSuite(tests):
     availableTests = (
@@ -434,6 +446,7 @@ def imageTestSuite(tests):
             "testImageMaskPos",
             "testImageMaskSize",
             "testImageMipmap",
+            "testImageCompression",
             )
     return createAVGTestSuite(availableTests, ImageTestCase, tests)
 

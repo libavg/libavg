@@ -115,6 +115,8 @@ int GLTexture::getGLFormat(PixelFormat pf)
         case B8G8R8X8:
         case R32G32B32A32F:
             return GL_BGRA;
+        case B5G6R5:
+            return GL_RGB;
         default:
             AVG_ASSERT(false);
             return 0;
@@ -139,6 +141,8 @@ int GLTexture::getGLType(PixelFormat pf)
         case R32G32B32A32F:
         case I32F:
             return GL_FLOAT;
+        case B5G6R5:
+            return GL_UNSIGNED_SHORT_5_6_5;
         default:
             AVG_ASSERT(false);
             return 0;
@@ -161,6 +165,8 @@ int GLTexture::getGLInternalFormat() const
             return GL_RGBA;
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
+        case B5G6R5:
+            return GL_RGB;
         default:
             AVG_ASSERT(false);
             return 0;

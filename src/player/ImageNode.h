@@ -48,6 +48,7 @@ class AVG_API ImageNode : public RasterNode
 
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
+        const std::string getCompression() const;
         void setBitmap(const Bitmap * pBmp);
         
         virtual void render(const DRect& Rect);
@@ -57,11 +58,17 @@ class AVG_API ImageNode : public RasterNode
         virtual BitmapPtr getBitmap();
         virtual IntPoint getMediaSize();
 
+        static Image::TextureCompression string2compression(const std::string&);
+        static std::string compression2String(Image::TextureCompression);
+
     private:
         bool isCanvasURL(const std::string& sURL);
 
         UTF8String m_href;
+        Image::TextureCompression m_compression;
         ImagePtr m_pImage;
+
+        void setCompression(const std::string& compression);
 };
 
 }

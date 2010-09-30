@@ -25,6 +25,7 @@
 #include "AVGNode.h"
 #include "SDLDisplayEngine.h"
 #include "Shape.h"
+#include "OffscreenCanvas.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"

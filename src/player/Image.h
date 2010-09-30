@@ -23,7 +23,6 @@
 #define _Image_H_
 
 #include "../api.h"
-#include "OffscreenCanvas.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"
@@ -35,12 +34,18 @@ namespace avg {
 
 class OGLSurface;
 class SDLDisplayEngine;
+class OffscreenCanvas;
+typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
 class AVG_API Image
 {
     public:
         enum State {CPU, GPU};
         enum Source {NONE, FILE, BITMAP, SCENE};
+        enum TextureCompression {
+            TEXTURECOMPRESSION_NONE,
+            TEXTURECOMPRESSION_B5G6R5
+        };
 
         Image(OGLSurface * pSurface);
         virtual ~Image();
@@ -50,7 +55,8 @@ class AVG_API Image
 
         void discard();
         void setEmpty();
-        void setFilename(const std::string& sFilename);
+        void setFilename(const std::string& sFilename,
+                TextureCompression comp = TEXTURECOMPRESSION_NONE);
         void setBitmap(const Bitmap * pBmp);
         void setCanvas(OffscreenCanvasPtr pCanvas);
         OffscreenCanvasPtr getCanvas() const;
