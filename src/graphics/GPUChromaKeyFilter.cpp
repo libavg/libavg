@@ -41,7 +41,7 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
       m_HTolerance(30),
       m_STolerance(0.1),
       m_LTolerance(0.4),
-      m_Softness(0)
+      m_Softness(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -87,30 +87,15 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
 
     double h, s, l;
     m_Color.toHSL(h, s, l);
-    double hMax = fmod(h+m_HTolerance, 360);
-    double hMin = fmod(h-m_HTolerance, 360);
-    double hSoftMax = fmod(hMax+(m_Softness*360), 360);
-    double hSoftMin = fmod(hMin-(m_Softness*360), 360);
-    pShader->setUniformFloatParam("hMax", hMax);
-    pShader->setUniformFloatParam("hMin", hMin);
-    pShader->setUniformFloatParam("hSoftMax", hSoftMax);
-    pShader->setUniformFloatParam("hSoftMin", hSoftMin);
-    double sMax = s+m_STolerance;
-    double sMin = s-m_STolerance;
-    double sSoftMax = sMax+m_Softness;
-    double sSoftMin = sMin-m_Softness;
-    pShader->setUniformFloatParam("sMax", sMax);
-    pShader->setUniformFloatParam("sMin", sMin);
-    pShader->setUniformFloatParam("sSoftMax", sSoftMax);
-    pShader->setUniformFloatParam("sSoftMin", sSoftMin);
-    double lMax = l+m_LTolerance;
-    double lMin = l-m_LTolerance;
-    double lSoftMax = lMax+m_Softness;
-    double lSoftMin = lMin-m_Softness;
-    pShader->setUniformFloatParam("lMax", lMax);
-    pShader->setUniformFloatParam("lMin", lMin);
-    pShader->setUniformFloatParam("lSoftMax", lSoftMax);
-    pShader->setUniformFloatParam("lSoftMin", lSoftMin);
+    pShader->setUniformFloatParam("hKey", h);
+    pShader->setUniformFloatParam("hTolerance", m_HTolerance);
+    pShader->setUniformFloatParam("hSoftTolerance", m_HTolerance+m_Softness*360.0);
+    pShader->setUniformFloatParam("sKey", s);
+    pShader->setUniformFloatParam("sTolerance", m_STolerance);
+    pShader->setUniformFloatParam("sSoftTolerance", m_STolerance+m_Softness);
+    pShader->setUniformFloatParam("lKey", l);
+    pShader->setUniformFloatParam("lTolerance", m_LTolerance);
+    pShader->setUniformFloatParam("lSoftTolerance", m_LTolerance+m_Softness);
     draw(pSrcTex);
 
     glproc::UseProgramObject(0);
@@ -121,19 +106,15 @@ void GPUChromaKeyFilter::initShader()
     string sProgram =
         "uniform float alpha;\n"
         "uniform sampler2D texture;\n"
-        "uniform float hMax;\n"
-        "uniform float hMin;\n"
-        "uniform float hSoftMax;\n"
-        "uniform float hSoftMin;\n"
-        "uniform float sMax;\n"
-        "uniform float sMin;\n"
-        "uniform float sSoftMax;\n"
-        "uniform float sSoftMin;\n"
-        "uniform float lMax;\n"
-        "uniform float lMin;\n"
-        "uniform float lSoftMax;\n"
-        "uniform float lSoftMin;\n"
-
+        "uniform float hKey;\n"
+        "uniform float hTolerance;\n"
+        "uniform float hSoftTolerance;\n"
+        "uniform float sTolerance;\n"
+        "uniform float sSoftTolerance;\n"
+        "uniform float sKey;\n"
+        "uniform float lTolerance;\n"
+        "uniform float lSoftTolerance;\n"
+        "uniform float lKey;\n"
 
         "void rgb2hsl(vec4 rgba, out float h, out float s, out float l)\n"
         "{\n"
@@ -177,14 +158,27 @@ void GPUChromaKeyFilter::initShader()
         "    float l;\n"
         "    float alpha;\n"
         "    rgb2hsl(tex, h, s, l);\n"
-        "    if (inBetween(h, hSoftMin, hSoftMax) && inBetween(s, sSoftMin, sSoftMax)\n"
-        "        && inBetween(l, lSoftMin, lSoftMax))\n"
+        "    float hDiff = abs(h-hKey);\n"
+        "    float sDiff = abs(s-sKey);\n"
+        "    float lDiff = abs(l-lKey);\n"
+        "    if (hDiff < hSoftTolerance && sDiff < sSoftTolerance \n"
+        "            && lDiff < lSoftTolerance)\n"
         "    {\n"
         "        alpha = 0.0;\n"
+        "        if (hDiff > hTolerance) {\n"
+        "            alpha = (hDiff-hTolerance)/(hSoftTolerance-hTolerance);\n"
+        "        }\n"
+        "        if (sDiff > sTolerance) {\n"
+        "            alpha = max(alpha,\n"
+        "                   (sDiff-sTolerance)/(sSoftTolerance-sTolerance));\n"
+        "        }\n"
+        "        if (lDiff > lTolerance) {\n"
+        "            alpha = max(alpha,\n"
+        "                   (lDiff-lTolerance)/(lSoftTolerance-lTolerance));\n"
+        "        }\n"
         "    } else {\n"
         "        alpha = 1.0;\n"
         "    }\n"
-        "    h /= 360.0;\n"
         "    gl_FragColor.rgba = vec4(tex.rgb*alpha, alpha);\n"
         "}\n"
         ;
