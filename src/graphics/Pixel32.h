@@ -50,6 +50,7 @@ public:
     unsigned char getB() const;
     unsigned char getA() const;
     void flipRB();
+    void toHSL(double& h, double& s, double& l);
 
     bool operator ==(const Pixel32 pix) const;
     bool operator !=(const Pixel32 pix) const;

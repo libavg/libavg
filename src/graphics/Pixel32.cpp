@@ -27,11 +27,44 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 #include <stdio.h>
 
 namespace avg {
 
 using namespace std;
+
+void Pixel32::toHSL(double& h, double& s, double& l)
+{
+    double r = double(m_Data[REDPOS])/255;
+    double g = double(m_Data[GREENPOS])/255;
+    double b = double(m_Data[BLUEPOS])/255;
+    double maxComp = max(r, max(g, b));
+    double minComp = min(r, min(g, b));
+    l = (maxComp+minComp)/2.0;
+    if (maxComp == minComp) {
+        s = 0.0;
+        h = 0.0;
+    } else {
+        double delta = maxComp-minComp;
+        if (l < 0.5) {
+            s = delta/(maxComp+minComp);
+        } else {
+            s = delta/(2.0-(maxComp+minComp));
+        }
+        if (r == maxComp) {
+            h = (g-b)/delta;
+            if (h < 0.0) {
+                h += 6.0;
+            }
+        } else if (g == maxComp) {
+            h = 2.0+(b-r)/delta;
+        } else if (b == maxComp) {
+            h = 4.0+(r-g)/delta;
+        }
+        h *= 60.0;
+    } 
+}
 
 std::string Pixel32::getColorString() const
 {

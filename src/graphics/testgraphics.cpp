@@ -97,10 +97,43 @@ BitmapPtr initBmp(PixelFormat pf)
     return pBmp;
 }
 
+// TODO: This is very incomplete!
+class PixelTest: public GraphicsTest {
+public:
+    PixelTest()
+      : GraphicsTest("PixelTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        double h, s, l;
+        Pixel32(255, 0, 0).toHSL(h, s, l);
+        TEST(h == 0 && s == 1.0 && l == 0.5);
+        Pixel32(0, 255, 0).toHSL(h, s, l);
+        TEST(h == 120 && s == 1.0 && l == 0.5);
+        Pixel32(0, 0, 255).toHSL(h, s, l);
+        TEST(h == 240 && s == 1.0 && l == 0.5);
+        Pixel32(255, 255, 0).toHSL(h, s, l);
+        TEST(h == 60 && s == 1.0 && l == 0.5);
+        Pixel32(255, 0, 255).toHSL(h, s, l);
+        TEST(h == 300 && s == 1.0 && l == 0.5);
+        Pixel32(0, 255, 255).toHSL(h, s, l);
+        TEST(h == 180 && s == 1.0 && l == 0.5);
+        Pixel32(0, 0, 0).toHSL(h, s, l);
+        TEST(s == 0.0 && l == 0.0);
+        Pixel32(255, 255, 255).toHSL(h, s, l);
+        TEST(s == 0.0 && l == 1.0);
+        Pixel32(128, 128, 128).toHSL(h, s, l);
+        TEST(s == 0.0 && fabs(l-0.5) < 0.02);
+    }
+
+};
+
 class BitmapTest: public GraphicsTest {
 public:
     BitmapTest()
-        : GraphicsTest("BitmapTest", 2)
+      : GraphicsTest("BitmapTest", 2)
     {
     }
 
@@ -920,6 +953,7 @@ public:
     GraphicsTestSuite() 
         : TestSuite("GraphicsTestSuite")
     {
+        addTest(TestPtr(new PixelTest));
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
         addTest(TestPtr(new FilterConvolTest));
