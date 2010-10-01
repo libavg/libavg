@@ -24,6 +24,7 @@
 #include "GPUBrightnessFilter.h"
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
+#include "GPUChromaKeyFilter.h"
 #include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
@@ -229,6 +230,24 @@ private:
     }
 };
 
+class ChromaKeyFilterTest: public GraphicsTest {
+public:
+    ChromaKeyFilterTest()
+        : GraphicsTest("ChromaKeyFilterTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        string sFName = "rgb24-64x64";
+        BitmapPtr pBmp = loadTestBmp(sFName);
+        BitmapPtr pDestBmp;
+        pDestBmp = GPUChromaKeyFilter(pBmp->getSize(), pBmp->getPixelFormat())
+                .apply(pBmp);
+        testEqual(*pDestBmp, string("chromakey_")+sFName, R8G8B8X8, 0.2, 0.5);
+    }
+};
+
 class BlurFilterTest: public GraphicsTest {
 public:
     BlurFilterTest()
@@ -324,6 +343,7 @@ public:
     {
         addTest(TestPtr(new PBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
+        addTest(TestPtr(new ChromaKeyFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));

@@ -68,9 +68,9 @@ void GPUBrightnessFilter::initShader()
 
         "void main(void)\n"
         "{\n"
-        "  vec4 tex =texture2D(Texture, gl_TexCoord[0].st);\n" 
-        "  gl_FragColor.rgb = tex.rgb*alpha;\n"
-        "  gl_FragColor.a = tex.a;\n"
+        "    vec4 tex =texture2D(Texture, gl_TexCoord[0].st);\n" 
+        "    gl_FragColor.rgb = tex.rgb*alpha;\n"
+        "    gl_FragColor.a = tex.a;\n"
         "}\n"
         ;
 
