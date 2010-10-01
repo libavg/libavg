@@ -157,7 +157,7 @@ void GPUChromaKeyFilter::initShader()
         "            }\n"
         "        } else if (rgba.g == maxComp) {\n"
         "            h = 2.0+(rgba.b-rgba.r)/delta;\n"
-        "        } else if (rgba.b == maxComp) {\n"
+        "        } else {\n"
         "            h = 4.0+(rgba.r-rgba.g)/delta;\n"
         "        }\n"
         "        h *= 60.0;\n"

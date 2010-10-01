@@ -87,6 +87,11 @@ void OGLShader::setUniformFloatParam(const std::string& sName, float val)
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
 
+void OGLShader::setUniformFloatParam(const std::string& sName, double val)
+{
+    return setUniformFloatParam(sName, float(val));
+}
+
 void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, 
         float* pVal)
 {
