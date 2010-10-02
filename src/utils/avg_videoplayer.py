@@ -78,7 +78,7 @@ class VideoPlayer(AVGApp):
                         fillopacity=1)
 
 if len(sys.argv) ==1:
-    print "Usage: videoplayer.py <filename>"
+    print "Usage: avg_videoplayer.py <filename>"
     sys.exit(1)
 
 node = avg.VideoNode(href=sys.argv[1], loop=True)
