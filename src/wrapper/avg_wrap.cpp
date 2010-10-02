@@ -47,6 +47,67 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
+struct check_tuple_convertible
+{
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+};
+
+template<class POINT, class ATTR>
+struct DPoint_from_python_tuple: public check_tuple_convertible
+{
+    DPoint_from_python_tuple() 
+    {
+        boost::python::converter::registry::push_back(
+                &convertible, &construct, boost::python::type_id<POINT>());
+    }
+    
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        POINT pt;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        pt.x = (ATTR)PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pt.y = (ATTR)PyFloat_AsDouble(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
+                    ->storage.bytes;
+        new (storage) POINT(pt);
+        data->convertible = storage;
+    }
+};
+
+template<class NUM>
+struct Triple_from_python_tuple: public check_tuple_convertible
+{
+    Triple_from_python_tuple() 
+    {
+        boost::python::converter::registry::push_back(
+                &convertible, &construct, boost::python::type_id<avg::Triple<NUM> >());
+    }
+    
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        avg::Triple<NUM> t;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        t.x = (NUM)PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        t.y = (NUM)PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 2);
+        t.z = (NUM)PyFloat_AsDouble(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<avg::Triple<NUM> >*)
+                        data)->storage.bytes;
+        new (storage) avg::Triple<NUM>(t);
+        data->convertible = storage;
+    }
+};
+
 void exception_translator(Exception const & e) 
 {
     PyErr_SetString(PyExc_RuntimeError, e.GetStr().c_str());
