@@ -239,12 +239,13 @@ public:
 
     void runTests()
     {
-        string sFName = "rgb24-64x64";
+        string sFName = "chromakey";
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
-        pDestBmp = GPUChromaKeyFilter(pBmp->getSize(), pBmp->getPixelFormat())
-                .apply(pBmp);
-        testEqual(*pDestBmp, string("chromakey_")+sFName, R8G8B8X8, 0.2, 0.5);
+        GPUChromaKeyFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        filter.setParams(Pixel32(0,255,0), 0.1, 0.2, 0.3, 0.2);
+        pDestBmp = filter.apply(pBmp);
+        testEqual(*pDestBmp, "ChromaKeyResult", R8G8B8X8, 0.2, 0.5);
     }
 };
 

@@ -38,9 +38,9 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
         bool bStandalone)
     : GPUFilter(size, pf, B8G8R8A8, bStandalone),
       m_Color(0, 255, 0),
-      m_HTolerance(30),
-      m_STolerance(0.1),
-      m_LTolerance(0.4),
+      m_HTolerance(0.0),
+      m_STolerance(0.0),
+      m_LTolerance(0.0),
       m_Softness(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -53,31 +53,15 @@ GPUChromaKeyFilter::~GPUChromaKeyFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUChromaKeyFilter::setColor(const Pixel32& color)
+void GPUChromaKeyFilter::setParams(const Pixel32& color, double hTolerance, 
+        double sTolerance, double lTolerance, double softness)
 {
     m_Color = color;
-}
-
-void GPUChromaKeyFilter::setHueTolerance(double tolerance)
-{
-    m_HTolerance = tolerance;
-}
-
-void GPUChromaKeyFilter::setSaturationTolerance(double tolerance)
-{
-    m_STolerance = tolerance;
-}
-
-void GPUChromaKeyFilter::setLightnessTolerance(double tolerance)
-{
-    m_LTolerance = tolerance;
-}
-
-void GPUChromaKeyFilter::setSoftness(double softness)
-{
+    m_HTolerance = hTolerance;
+    m_STolerance = sTolerance;
+    m_LTolerance = lTolerance;
     m_Softness = softness;
 }
-
 
 void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {

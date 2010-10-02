@@ -42,6 +42,6 @@ private:
 
 typedef boost::shared_ptr<GPUNullFilter> GPUNullFilterPtr;
 
-} // namespace
+}
 #endif
 

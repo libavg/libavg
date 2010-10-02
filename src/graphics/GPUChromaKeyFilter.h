@@ -34,11 +34,8 @@ public:
     GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, bool bStandalone=true);
     virtual ~GPUChromaKeyFilter();
 
-    void setColor(const Pixel32& color);
-    void setHueTolerance(double tolerance);
-    void setSaturationTolerance(double tolerance);
-    void setLightnessTolerance(double tolerance);
-    void setSoftness(double softness);
+    void setParams(const Pixel32& color, double hTolerance, double sTolerance, 
+            double lTolerance, double softness);
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
@@ -51,6 +48,8 @@ private:
     double m_LTolerance;
     double m_Softness;
 };
+
+typedef boost::shared_ptr<GPUChromaKeyFilter> GPUChromaKeyFilterPtr;
 
 }
 #endif
