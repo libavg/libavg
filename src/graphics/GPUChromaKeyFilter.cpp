@@ -72,8 +72,8 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
     double h, s, l;
     m_Color.toHSL(h, s, l);
     pShader->setUniformFloatParam("hKey", h);
-    pShader->setUniformFloatParam("hTolerance", m_HTolerance);
-    pShader->setUniformFloatParam("hSoftTolerance", m_HTolerance+m_Softness*360.0);
+    pShader->setUniformFloatParam("hTolerance", m_HTolerance*360);
+    pShader->setUniformFloatParam("hSoftTolerance", (m_HTolerance+m_Softness)*360.0);
     pShader->setUniformFloatParam("sKey", s);
     pShader->setUniformFloatParam("sTolerance", m_STolerance);
     pShader->setUniformFloatParam("sSoftTolerance", m_STolerance+m_Softness);
@@ -151,7 +151,7 @@ void GPUChromaKeyFilter::initShader()
         "        alpha = 0.0;\n"
         "        if (hDiff > hTolerance) {\n"
         "            alpha = (hDiff-hTolerance)/(hSoftTolerance-hTolerance);\n"
-        "        }\n"
+        "        }\n"        
         "        if (sDiff > sTolerance) {\n"
         "            alpha = max(alpha,\n"
         "                   (sDiff-sTolerance)/(sSoftTolerance-sTolerance));\n"
@@ -163,7 +163,7 @@ void GPUChromaKeyFilter::initShader()
         "    } else {\n"
         "        alpha = 1.0;\n"
         "    }\n"
-        "    gl_FragColor.rgba = vec4(tex.rgb*alpha, alpha);\n"
+        "    gl_FragColor = vec4(alpha*tex.rgb, alpha);\n"
         "}\n"
         ;
 

@@ -483,7 +483,6 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         glPopMatrix();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
 
-//        m_pFBO->getTex()->activate(GL_TEXTURE0);
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
 /*        
         stringstream ss1;

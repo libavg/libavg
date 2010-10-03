@@ -26,6 +26,7 @@
 #include "../player/NullFXNode.h"
 #include "../player/BlurFXNode.h"
 #include "../player/ShadowFXNode.h"
+#include "../player/ChromaKeyFXNode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -50,5 +51,21 @@ void export_fx()
     class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>, 
             boost::noncopyable>("ShadowFXNode")
         .def("setParams", &ShadowFXNode::setParams)
+        ;
+
+    class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>, 
+            boost::noncopyable>("ChromaKeyFXNode")
+        .add_property("color",
+                make_function(&ChromaKeyFXNode::getColor,
+                        return_value_policy<copy_const_reference>()),
+                &ChromaKeyFXNode::setColor)
+        .add_property("htolerance", &ChromaKeyFXNode::getHTolerance,
+                &ChromaKeyFXNode::setHTolerance)
+        .add_property("stolerance", &ChromaKeyFXNode::getSTolerance,
+                &ChromaKeyFXNode::setSTolerance)
+        .add_property("ltolerance", &ChromaKeyFXNode::getLTolerance,
+                &ChromaKeyFXNode::setLTolerance)
+        .add_property("softness", &ChromaKeyFXNode::getSoftness,
+                &ChromaKeyFXNode::setSoftness)
         ;
 }

@@ -243,7 +243,7 @@ public:
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
         GPUChromaKeyFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
-        filter.setParams(Pixel32(0,255,0), 0.1, 0.2, 0.3, 0.2);
+        filter.setParams(Pixel32(0,255,0), 0.1, 0.2, 0.1, 0.1);
         pDestBmp = filter.apply(pBmp);
         testEqual(*pDestBmp, "ChromaKeyResult", R8G8B8X8, 0.2, 0.5);
     }

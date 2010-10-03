@@ -29,8 +29,6 @@
 
 using namespace std;
 
-#define SHADERID "NULLFX"
-
 namespace avg {
 
 NullFXNode::NullFXNode() 
