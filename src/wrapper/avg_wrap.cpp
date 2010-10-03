@@ -108,34 +108,6 @@ struct Triple_from_python_tuple: public check_tuple_convertible
     }
 };
 
-struct Pixel32_from_python_tuple: public check_tuple_convertible
-{
-    Pixel32_from_python_tuple() 
-    {
-        boost::python::converter::registry::push_back(
-                &convertible, &construct, boost::python::type_id<Pixel32>());
-    }
-    
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        unsigned char r, g, b, a;
-        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-        r = (unsigned char)PyInt_AsLong(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 1);
-        g = (unsigned char)PyInt_AsLong(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 2);
-        b = (unsigned char)PyInt_AsLong(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 3);
-        a = (unsigned char)PyInt_AsLong(pEntry);
-        void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<Pixel32>*)
-                        data)->storage.bytes;
-        new (storage) Pixel32(r, g, b, a);
-        data->convertible = storage;
-    }
-};
-
 void exception_translator(Exception const & e) 
 {
     PyErr_SetString(PyExc_RuntimeError, e.GetStr().c_str());
@@ -168,7 +140,6 @@ BOOST_PYTHON_MODULE(avg)
     DPoint_from_python_tuple<DPoint, double>();
     DPoint_from_python_tuple<ConstDPoint, double>();
     DPoint_from_python_tuple<IntPoint, int>();
-    Pixel32_from_python_tuple();
     
     Triple_from_python_tuple<double>();
     Triple_from_python_tuple<int>();

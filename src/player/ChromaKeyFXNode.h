@@ -40,8 +40,8 @@ public:
 
     virtual void disconnect();
 
-    void setColor(const Pixel32& color);
-    const Pixel32& getColor() const;
+    void setColor(const std::string& color);
+    const std::string& getColor() const;
     void setHTolerance(double tolerance);
     double getHTolerance() const;
     void setSTolerance(double tolerance);
@@ -57,6 +57,7 @@ private:
 
     GPUChromaKeyFilterPtr m_pFilter;
 
+    std::string m_sColorName;
     Pixel32 m_Color;
     double m_HTolerance;
     double m_STolerance;

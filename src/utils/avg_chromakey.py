@@ -123,7 +123,7 @@ class Chromakey(AVGApp):
         self.__camNode.play()
         self.__filter = avg.ChromaKeyFXNode()
         self.__camNode.setEffect(self.__filter)
-        self.__filter.color = (0, 0, 255, 255)
+        self.__filter.color = "0000FF"
         self.__filter.htolerance = 0.05
         self.__filter.stolerance = 1.0 
         self.__filter.ltolerance = 1.0
@@ -136,7 +136,7 @@ class Chromakey(AVGApp):
 
         self.__colorWords = avg.WordsNode(pos=(0,0), parent=self.__guiDiv)
         self.__colorRect = avg.RectNode(pos=(200,0), size=(20, 20), 
-                fillcolor=colorToString(self.__filter.color), fillopacity=1, 
+                fillcolor=self.__filter.color, fillopacity=1, 
                 color="FFFFFF", parent=self.__guiDiv)
         self.__camNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
                 self.__onColorDown)
@@ -154,9 +154,10 @@ class Chromakey(AVGApp):
         pos = self.__camNode.getRelPos(event.pos)
         bmp = self.__camNode.getBitmap()
         color = bmp.getPixel(pos)
-        self.__filter.color = color
-        self.__colorWords.text = "Key Color: "+colorToString(color)
-        self.__colorRect.fillcolor=colorToString(color)
+        colorString = colorToString(color)
+        self.__filter.color = colorString
+        self.__colorWords.text = "Key Color: "+colorString
+        self.__colorRect.fillcolor = colorString
 
 
 parser = optparse.OptionParser()

@@ -33,6 +33,7 @@ namespace avg {
 
 ChromaKeyFXNode::ChromaKeyFXNode() 
     : FXNode(),
+      m_sColorName("00FF00"),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
       m_STolerance(0.0),
@@ -54,15 +55,16 @@ void ChromaKeyFXNode::disconnect()
 }
     
 
-void ChromaKeyFXNode::setColor(const Pixel32& color)
+void ChromaKeyFXNode::setColor(const std::string& sColorName)
 {
-    m_Color = color;
+    m_sColorName = sColorName;
+    m_Color = colorStringToColor(m_sColorName);
     setFilterParams();
 }
 
-const Pixel32& ChromaKeyFXNode::getColor() const
+const std::string& ChromaKeyFXNode::getColor() const
 {
-    return m_Color;
+    return m_sColorName;
 }
 
 void ChromaKeyFXNode::setHTolerance(double tolerance)
