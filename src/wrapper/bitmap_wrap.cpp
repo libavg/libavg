@@ -163,7 +163,7 @@ void export_bitmap()
                 "library PIL (U{http://www.pythonware.com/products/pil/}).\n"
                 "@param pixels: Image data as a python string.")
         .def("getPixel", &Bitmap::getPythonPixel,
-                "getPixel() -> (r,g,b,a)\n\n"
+                "getPixel(pos) -> (r,g,b,a)\n\n"
                 "Returns one image pixel als a color tuple. This should only be used\n"
                 "for single pixels, as it is very slow.")
         .def("subtract", &Bitmap::subtract,
