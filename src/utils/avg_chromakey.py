@@ -25,7 +25,7 @@ import optparse
 from libavg import avg, AVGApp
 from libavg import parsecamargs
 
-GUI_SIZE=(640, 150)
+GUI_SIZE=(640, 160)
 
 g_Player = avg.Player.get()
 
@@ -65,7 +65,8 @@ class Slider(avg.DivNode):
 
     def __onSliderMove(self, event):
         numPixelsMoved = float(event.pos.x-event.lastdownpos.x)
-        self.__val = self.__dragStartVal+numPixelsMoved/(self.size.x-14)
+        self.__val = (self.__dragStartVal+numPixelsMoved/(self.size.x-14)
+                *(self.__max-self.__min))
         self.__positionSlider()
 
     def __onSliderUp(self, event):
@@ -94,7 +95,7 @@ class Slider(avg.DivNode):
 
 
 class FXSlider(avg.DivNode):
-    def __init__(self, row, min, max, fxNode, fxAttrName, caption, **kwargs):
+    def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
         self.__slider = Slider(420, min, max, self.__onSliderMove, pos=(200,0),
                 parent=self)
@@ -103,10 +104,14 @@ class FXSlider(avg.DivNode):
         self.__fxNode = fxNode
         self.__fxAttrName = fxAttrName
         self.__caption = caption
+        self.__isInt = isInt
         self.__slider.val = getattr(self.__fxNode, fxAttrName)
 
     def __onSliderMove(self):
-        setattr(self.__fxNode, self.__fxAttrName, self.__slider.val)
+        if self.__isInt:
+            setattr(self.__fxNode, self.__fxAttrName, int(self.__slider.val))
+        else:
+            setattr(self.__fxNode, self.__fxAttrName, self.__slider.val)
         self.__words.text = self.__caption%self.__slider.val
 
 def colorToString(colorTuple):
@@ -142,13 +147,15 @@ class Chromakey(AVGApp):
                 self.__onColorDown)
 
         FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance: %.2f", 
-                parent=self.__guiDiv)
+                False, parent=self.__guiDiv)
         FXSlider(2, 0.0, 1.0, self.__filter, "stolerance", "Saturation Tolerance: %.2f", 
-                parent=self.__guiDiv)
+                False, parent=self.__guiDiv)
         FXSlider(3, 0.0, 1.0, self.__filter, "ltolerance", "Lightness Tolerance: %.2f", 
-                parent=self.__guiDiv)
+                False, parent=self.__guiDiv)
         FXSlider(4, 0.0, 1.0, self.__filter, "softness", "Softness: %.2f", 
-                parent=self.__guiDiv)
+                False, parent=self.__guiDiv)
+        FXSlider(5, 0, 8, self.__filter, "erosion", "Erosion: %i", 
+                True, parent=self.__guiDiv)
 
     def __onColorDown(self, event):
         pos = self.__camNode.getRelPos(event.pos)

@@ -67,5 +67,7 @@ void export_fx()
                 &ChromaKeyFXNode::setLTolerance)
         .add_property("softness", &ChromaKeyFXNode::getSoftness,
                 &ChromaKeyFXNode::setSoftness)
+        .add_property("erosion", &ChromaKeyFXNode::getErosion,
+                &ChromaKeyFXNode::setErosion)
         ;
 }

@@ -111,10 +111,22 @@ double ChromaKeyFXNode::getSoftness() const
     return m_Softness;
 }
 
+void ChromaKeyFXNode::setErosion(int erosion)
+{
+    m_Erosion = erosion;
+    setFilterParams();
+}
+
+int ChromaKeyFXNode::getErosion() const
+{
+    return m_Erosion;
+}
+
 GPUFilterPtr ChromaKeyFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUChromaKeyFilterPtr(new GPUChromaKeyFilter(size, B8G8R8A8, false));
-    m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, m_Softness);
+    m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, m_Softness,
+            m_Erosion);
     return m_pFilter;
 }
 
@@ -122,9 +134,8 @@ void ChromaKeyFXNode::setFilterParams()
 {
     if (m_pFilter) {
         m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, 
-                m_Softness);
+                m_Softness, m_Erosion);
     }
-    
 }
 
 }

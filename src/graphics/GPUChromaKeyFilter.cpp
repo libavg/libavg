@@ -28,7 +28,8 @@
 
 #include <iostream>
 
-#define SHADERID "CHROMAKEY"
+#define SHADERID_CHROMAKEY "CHROMAKEY"
+#define SHADERID_EROSION "CHROMAKEY_EROSION"
 
 using namespace std;
 
@@ -36,12 +37,13 @@ namespace avg {
 
 GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, 
         bool bStandalone)
-    : GPUFilter(size, pf, B8G8R8A8, bStandalone),
+    : GPUFilter(size, pf, B8G8R8A8, bStandalone, 2),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
       m_STolerance(0.0),
       m_LTolerance(0.0),
-      m_Softness(0.0)
+      m_Softness(0.0),
+      m_Erosion(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -54,18 +56,22 @@ GPUChromaKeyFilter::~GPUChromaKeyFilter()
 }
 
 void GPUChromaKeyFilter::setParams(const Pixel32& color, double hTolerance, 
-        double sTolerance, double lTolerance, double softness)
+        double sTolerance, double lTolerance, double softness, int erosion)
 {
     m_Color = color;
     m_HTolerance = hTolerance;
     m_STolerance = sTolerance;
     m_LTolerance = lTolerance;
     m_Softness = softness;
+    m_Erosion = erosion;
 }
 
 void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    OGLShaderPtr pShader = getShader(SHADERID);
+    // Set up double-buffering
+    int curBufferIndex = m_Erosion%2;
+    OGLShaderPtr pShader = getShader(SHADERID_CHROMAKEY);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+curBufferIndex);
     pShader->activate();
     pShader->setUniformIntParam("texture", 0);
 
@@ -80,8 +86,18 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->setUniformFloatParam("lKey", l);
     pShader->setUniformFloatParam("lTolerance", m_LTolerance);
     pShader->setUniformFloatParam("lSoftTolerance", m_LTolerance+m_Softness);
+    pShader->setUniformIntParam("bIsLast", int(m_Erosion==0));
     draw(pSrcTex);
 
+    for (int i = 0; i < m_Erosion; ++i) {
+        curBufferIndex = (curBufferIndex+1)%2;
+        glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+curBufferIndex);
+        pShader = getShader(SHADERID_EROSION);
+        pShader->activate();
+        pShader->setUniformIntParam("texture", 0);
+        pShader->setUniformIntParam("bIsLast", int(i==m_Erosion-1));
+        draw(getDestTex((curBufferIndex+1)%2));
+    }
     glproc::UseProgramObject(0);
 }
 
@@ -99,6 +115,7 @@ void GPUChromaKeyFilter::initShader()
         "uniform float lTolerance;\n"
         "uniform float lSoftTolerance;\n"
         "uniform float lKey;\n"
+        "uniform bool bIsLast;\n"
 
         "void rgb2hsl(vec4 rgba, out float h, out float s, out float l)\n"
         "{\n"
@@ -163,11 +180,40 @@ void GPUChromaKeyFilter::initShader()
         "    } else {\n"
         "        alpha = 1.0;\n"
         "    }\n"
-        "    gl_FragColor = vec4(alpha*tex.rgb, alpha);\n"
+        "    if (bIsLast) {\n"
+        "       gl_FragColor = vec4(tex.rgb*alpha, alpha);\n"
+        "    } else {\n"
+        "       gl_FragColor = vec4(tex.rgb, alpha);\n"
+        "    }\n"
         "}\n"
         ;
+    getOrCreateShader(SHADERID_CHROMAKEY, sProgram);
 
-    getOrCreateShader(SHADERID, sProgram);
+    string sErosionProgram = 
+        "uniform sampler2D texture;\n"
+        "uniform bool bIsLast;\n"
+
+        "void main(void)\n"
+        "{\n"
+        "    float minAlpha = 1.0;\n"
+        "    float dx = dFdx(gl_TexCoord[0].x);\n"
+        "    float dy = dFdy(gl_TexCoord[0].y);\n"
+        "    for (float y = -1.0; y <= 1.0; ++y) {\n"
+        "        for (float x = -1.0; x <= 1.0; ++x) {\n"
+        "           float a = texture2D(texture, gl_TexCoord[0].st+vec2(x*dx,y*dy)).a;\n"
+        "           minAlpha = min(minAlpha, a);\n"
+        "        }\n"
+        "    }\n"
+        "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
+        "    if (bIsLast) {\n"
+        "       gl_FragColor = vec4(tex.rgb*minAlpha, minAlpha);\n"
+        "    } else {\n"
+        "       gl_FragColor = vec4(tex.rgb, minAlpha);\n"
+        "    }\n"
+        "}\n"
+        ;
+    getOrCreateShader(SHADERID_EROSION, sErosionProgram);
+
 }
 
 }

@@ -50,6 +50,8 @@ public:
     double getLTolerance() const;
     void setSoftness(double softness);
     double getSoftness() const;
+    void setErosion(int erosion);
+    int getErosion() const;
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
@@ -63,6 +65,7 @@ private:
     double m_STolerance;
     double m_LTolerance;
     double m_Softness;
+    double m_Erosion;
 };
 
 typedef boost::shared_ptr<ChromaKeyFXNode> ChromaKeyFXNodePtr;
