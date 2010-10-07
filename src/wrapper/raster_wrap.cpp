@@ -348,12 +348,18 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 "The source filename of the video.\n")
         .add_property("loop", &VideoNode::getLoop,
-                "Whether to start the video again when it has ended (ro).\n")
+                "Whether to start the video again when it has ended Can only be"
+                "set at node construction.\n")
         .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume,
                 "Audio playback volume for this video. 0 is silence, 1 passes media\n"
                 "file volume through unchanged. Values higher than 1 can be used to\n"
                 "amplify sound if the sound file doesn't use the complete dynamic\n"
                 "range. If there is no audio track, the call is ignored.\n")
+        .add_property("threaded", &VideoNode::isThreaded,
+                "Whether to use separate threads to decode the video. The default is"
+                "True. Setting this attribute to False makes seeking much quicker. It"
+                "also disables audio and prevents libavg from distributing the CPU"
+                "load over several cores of a multi-core computer.")
     ;
 
     class_<WordsNode, bases<RasterNode> >("WordsNode",

@@ -118,6 +118,7 @@ class AVTestCase(AVGTestCase):
             self.loadEmptyScene()
             node = avg.VideoNode(href="../video/testfiles/"+filename, volume=0.8,
                         threaded=isThreaded)
+            self.assert_(node.threaded == isThreaded)
             setVolume(0.6)
             Player.getRootNode().appendChild(node)
             self.assertException(node.hasAudio)
