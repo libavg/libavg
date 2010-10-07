@@ -407,6 +407,7 @@ void VideoNode::open()
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
+        m_pDecoder->close();
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
                 string("Video: Opening "+m_Filename+" failed. No video stream found."));
     }
