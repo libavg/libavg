@@ -981,7 +981,6 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
-    //        cerr << "decode, size=" << pPacket->size << endl;
             int len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
             if (len1 > 0) {

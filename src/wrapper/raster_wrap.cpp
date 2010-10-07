@@ -316,7 +316,7 @@ void export_raster()
                 "Returns the number of audio channels. 2 for stereo, etc.\n")
         .def("getCurTime", &VideoNode::getCurTime,
                 "getCurTime()\n"
-                "Returns seconds of playback time since video start.")
+                "Returns milliseconds of playback time since video start.")
         .def("seekToTime", &VideoNode::seekToTime,
                 "seekToTime(millisecs)\n"
                 "Moves the playback cursor to the time given.")

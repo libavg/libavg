@@ -331,6 +331,9 @@ void export_node()
         .def("seekToTime", &SoundNode::seekToTime,
                 "seekToTime(time)\n"
                 "Moves the playback cursor to the time given.\n")
+        .def("getCurTime", &SoundNode::getCurTime,
+                "getCurTime()\n"
+                "Returns milliseconds of playback time since audio start.")
         .add_property("href", make_function(&SoundNode::getHRef, 
                 return_value_policy<copy_const_reference>()), &SoundNode::setHRef,
                 "The source filename of the sound.\n")

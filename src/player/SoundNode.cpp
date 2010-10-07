@@ -110,7 +110,7 @@ int SoundNode::getNumAudioChannels() const
 long long SoundNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    return m_pDecoder->getCurTime();
+    return m_pDecoder->getCurTime(SS_AUDIO)*1000;
 }
 
 void SoundNode::seekToTime(long long Time)

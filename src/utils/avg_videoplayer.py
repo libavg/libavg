@@ -36,17 +36,6 @@ def onFrame():
     framesQueued = node.getNumFramesQueued()
     g_player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
 
-def onKey(event):
-    node = g_player.getElementByID("video")
-    if event.keystring == "right":
-        node.seekToTime(node.getCurTime()+10000)
-    elif event.keystring == "up":
-        node.volume += 0.1
-        print "Volume: ", node.volume
-    elif event.keystring == "down":
-        node.volume -= 0.1
-        print "Volume: ", node.volume
-
 class VideoPlayer(AVGApp):
     def init(self):
         global node
