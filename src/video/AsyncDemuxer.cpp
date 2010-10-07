@@ -38,11 +38,12 @@ typedef boost::mutex::scoped_lock scoped_lock;
 namespace avg {
 
 AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
-    : m_pCmdQ(new VideoDemuxerThread::CQueue),
-      m_bSeekPending(false)
+    : m_pDemuxThread(0),
+      m_pCmdQ(new VideoDemuxerThread::CQueue),
+      m_bSeekPending(false),
+      m_pFormatContext(pFormatContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, pFormatContext));
 }
 
 AsyncDemuxer::~AsyncDemuxer()
@@ -73,6 +74,11 @@ AsyncDemuxer::~AsyncDemuxer()
         }
     }
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void AsyncDemuxer::start()
+{
+    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, m_pFormatContext));
 }
 
 void AsyncDemuxer::enableStream(int streamIndex)

@@ -312,6 +312,7 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 m_sFilename + " does not contain any valid audio or video streams.");
     }
+    m_pDemuxer->start();
     m_State = DECODING;
 }
 
@@ -739,11 +740,9 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                 // If the output format is different from the decoded format,
                 // then convert it, else copy it over
                 if (bFormatMatch) {
-                    bytesProduced =
-                        copyRawAudio(pCurBufferPos, bufferLeft);
+                    bytesProduced = copyRawAudio(pCurBufferPos, bufferLeft);
                 } else {
-                    bytesProduced =
-                        copyResampledAudio(pCurBufferPos, bufferLeft);
+                    bytesProduced = copyResampledAudio(pCurBufferPos, bufferLeft);
                 }
                 
                 pCurBufferPos += bytesProduced;
@@ -779,7 +778,6 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
         
         // Get a new packet from the audio stream
         m_AudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
-        
         if(!m_AudioPacket) {
             m_bAudioEOF = true;
             return pBuffer->getNumFrames()-bufferLeft/(pBuffer->getFrameSize());

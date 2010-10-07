@@ -60,6 +60,7 @@ namespace avg {
     class AVG_API IDemuxer {
         public:
             virtual ~IDemuxer() {};
+            virtual void start() {};
            
             virtual void enableStream(int StreamIndex) = 0;
             virtual AVPacket * getPacket(int StreamIndex) = 0;

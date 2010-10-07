@@ -37,6 +37,7 @@ namespace avg {
         public:
             AsyncDemuxer(AVFormatContext * pFormatContext);
             virtual ~AsyncDemuxer();
+            void start();
            
             void enableStream(int streamIndex);
             AVPacket * getPacket(int streamIndex);
@@ -52,6 +53,7 @@ namespace avg {
             std::map<int, bool> m_bSeekDone;
 
             bool m_bSeekPending;
+            AVFormatContext * m_pFormatContext;
             boost::mutex m_SeekMutex;
     };
     typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;
