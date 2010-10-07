@@ -101,7 +101,7 @@ Logger::~Logger()
 void Logger::setCategories(int flags)
 {
     boost::mutex::scoped_lock Lock(log_Mutex);
-    m_Flags = flags | ERROR;
+    m_Flags = flags | ERROR | WARNING;
 }
     
 void Logger::pushCategories()
