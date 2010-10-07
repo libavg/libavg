@@ -675,7 +675,7 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
     // are at the border of a frame's time, this can cause irregular display times.
     // So, if we detect this condition, we adjust the frame time by a small fraction
     // to move it towards the center of the time slot.
-    long long jitter = getNextFrameTime()-m_pDecoder->getCurTime();
+    long long jitter = getNextFrameTime()-m_pDecoder->getCurTime()*1000;
     if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
         m_JitterCompensation += 0.2;
     }
