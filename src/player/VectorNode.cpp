@@ -55,18 +55,19 @@ NodeDefinition VectorNode::createDefinition()
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
-        .addArg(Arg<string>("blendmode", "blend", false, offsetof(VectorNode, m_sBlendMode)))
+        .addArg(Arg<string>("blendmode", "blend", false, 
+                offsetof(VectorNode, m_sBlendMode)))
         ;
 }
 
-VectorNode::VectorNode(const ArgList& Args)
+VectorNode::VectorNode(const ArgList& args)
 {
     m_pShape = ShapePtr(createDefaultShape());
 
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_TexHRef = Args.getArgVal<UTF8String>("texhref"); 
+    m_TexHRef = args.getArgVal<UTF8String>("texhref"); 
     setTexHRef(m_TexHRef);
-    m_sColorName = Args.getArgVal<string>("color");
+    m_sColorName = args.getArgVal<string>("color");
     m_Color = colorStringToColor(m_sColorName);
 }
 
@@ -147,12 +148,12 @@ static ProfilingZoneID VAProfilingZone("VectorNode::update VA");
 void VectorNode::preRender()
 {
     VisibleNode::preRender();
-    ScopeTimer Timer(PrerenderProfilingZone);
+    ScopeTimer timer(PrerenderProfilingZone);
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
     {
-        ScopeTimer Timer(VAProfilingZone);
+        ScopeTimer timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
             pVA->reset();
             Pixel32 color = getColorVal();
@@ -166,7 +167,7 @@ void VectorNode::preRender()
     
 }
 
-void VectorNode::maybeRender(const DRect& Rect)
+void VectorNode::maybeRender(const DRect& rect)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (getActive()) {
@@ -178,7 +179,7 @@ void VectorNode::maybeRender(const DRect& Rect)
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
             getDisplayEngine()->setBlendMode(m_BlendMode);
-            render(Rect);
+            render(rect);
         }
     }
 }
@@ -187,7 +188,7 @@ static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
 void VectorNode::render(const DRect& rect)
 {
-    ScopeTimer Timer(RenderProfilingZone);
+    ScopeTimer timer(RenderProfilingZone);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     double curOpacity = getEffectiveOpacity();
     glColor4d(1.0, 1.0, 1.0, curOpacity);
@@ -275,7 +276,7 @@ void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists,
         vector<double> distances;
         distances.reserve(pts.size());
         double totalDist = 0;
-        for (unsigned i=1; i<pts.size(); ++i) {
+        for (unsigned i = 1; i < pts.size(); ++i) {
             double dist = calcDist(pts[i], pts[i-1]);
             distances.push_back(dist);
             totalDist += dist;
@@ -288,7 +289,7 @@ void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists,
 
         double cumulDist = 0;
         cumulDists.push_back(0);
-        for (unsigned i=0; i<distances.size(); ++i) {
+        for (unsigned i = 0; i < distances.size(); ++i) {
             cumulDist += distances[i]/totalDist;
             cumulDists.push_back(cumulDist);
         }
@@ -309,7 +310,7 @@ void VectorNode::calcEffPolyLineTexCoords(vector<double>& effTC,
         double maxGivenTexCoord = tc[tc.size()-1];
         double maxCumulDist = cumulDist[tc.size()-1];
         int baselineDist = 0;
-        for (unsigned i=tc.size(); i<cumulDist.size(); ++i) {
+        for (unsigned i = tc.size(); i < cumulDist.size(); ++i) {
             int repeatFactor = int(cumulDist[i]/maxCumulDist);
             double effCumulDist = fmod(cumulDist[i], maxCumulDist);
             while (cumulDist[baselineDist+1] < effCumulDist) {
@@ -336,7 +337,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
 
     pts.push_back(origPts[0]);
     texCoords.push_back(origTexCoords[0]);
-    for (unsigned i=1; i<origPts.size(); ++i) {
+    for (unsigned i = 1; i < origPts.size(); ++i) {
         if (calcDistSquared(origPts[i], origPts[i-1])>0.1) {
             pts.push_back(origPts[i]);
             texCoords.push_back(origTexCoords[i]);
@@ -351,7 +352,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
     // Create array of wide lines.
     vector<WideLine> lines;
     lines.reserve(numPts-1);
-    for (int i=0; i<numPts-1; ++i) {
+    for (int i = 0; i < numPts-1; ++i) {
         lines.push_back(WideLine(pts[i], pts[i+1], m_StrokeWidth));
     }
     if (bIsClosed) {
@@ -411,7 +412,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
     } else {
         numNormalSegments = pts.size()-2;
     }
-    for (unsigned i=0; i<numNormalSegments; ++i) {
+    for (unsigned i = 0; i < numNormalSegments; ++i) {
         const WideLine* pLine1 = &(lines[i]);
         const WideLine* pLine2;
         if (i == pts.size()-1) {

@@ -169,9 +169,8 @@ void PBOTexture::createTexture()
         int TexMemNeeded = m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);
         char * pPixels = new char[TexMemNeeded];
         memset(pPixels, 0, TexMemNeeded);
-        glTexImage2D(GL_TEXTURE_2D, 0, m_pEngine->getOGLDestMode(m_pf), m_Size.x, 
-                m_Size.y, 0, m_pEngine->getOGLSrcMode(m_pf), 
-                m_pEngine->getOGLPixelType(m_pf), pPixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_pTex->getGLInternalFormat(), m_Size.x, 
+                m_Size.y, 0, m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), pPixels);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
         free(pPixels);
     }

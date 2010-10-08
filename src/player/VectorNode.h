@@ -42,7 +42,7 @@ class AVG_API VectorNode : public VisibleNode
 
         static NodeDefinition createDefinition();
         
-        VectorNode(const ArgList& Args);
+        VectorNode(const ArgList& args);
         virtual ~VectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -58,7 +58,7 @@ class AVG_API VectorNode : public VisibleNode
         void setBlendModeStr(const std::string& sBlendMode);
 
         virtual void preRender();
-        virtual void maybeRender(const DRect& Rect);
+        virtual void maybeRender(const DRect& rect);
         virtual void render(const DRect& rect);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;

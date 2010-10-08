@@ -73,7 +73,7 @@ class AVG_API VisibleNode: public Node
         static NodeDefinition createDefinition();
         
         virtual ~VisibleNode();
-        virtual void setArgs(const ArgList& Args);
+        virtual void setArgs(const ArgList& args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
                 CanvasPtr pCanvas);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -103,8 +103,8 @@ class AVG_API VisibleNode: public Node
         void releaseEventCapture(int cursorID);
         void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
 
-        DPoint getRelPos(const DPoint& AbsPos) const;
-        DPoint getAbsPos(const DPoint& RelPos) const;
+        DPoint getRelPos(const DPoint& absPos) const;
+        DPoint getAbsPos(const DPoint& relPos) const;
         virtual DPoint toLocal(const DPoint& pos) const;
         virtual DPoint toGlobal(const DPoint& pos) const;
         virtual VisibleNodePtr getElementByPos(const DPoint & pos);
@@ -126,24 +126,24 @@ class AVG_API VisibleNode: public Node
         VisibleNode();
         VisibleNodePtr getVThis() const;
 
-        void addEventHandlers(Event::Type EventType, const std::string& Code);
-        void addEventHandler(Event::Type EventType, Event::Source Source, 
-                const std::string& Code);
+        void addEventHandlers(Event::Type eventType, const std::string& sCode);
+        void addEventHandler(Event::Type eventType, Event::Source source, 
+                const std::string& sCode);
         bool reactsToMouseEvents();
             
         SDLDisplayEngine * getDisplayEngine() const;
         AudioEngine * getAudioEngine() const;
-        void setState(NodeState State);
+        void setState(NodeState state);
         void initFilename(std::string& sFilename);
         void checkReload(const std::string& sHRef, const ImagePtr& pImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
 
     private:
-        PyObject * findPythonFunc(const std::string& Code);
+        PyObject * findPythonFunc(const std::string& sCode);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
 
         struct EventHandlerID {
-            EventHandlerID(Event::Type EventType, Event::Source Source);
+            EventHandlerID(Event::Type eventType, Event::Source source);
 
             bool operator < (const EventHandlerID& other) const;
 

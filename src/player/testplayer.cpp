@@ -75,9 +75,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    PlayerTestSuite Suite;
-    Suite.runTests();
-    bool bOK = Suite.isOk();
+    PlayerTestSuite suite;
+    suite.runTests();
+    bool bOK = suite.isOk();
 
     if (bOK) {
         return 0;

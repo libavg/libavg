@@ -39,7 +39,7 @@ class AVG_API WordsNode : public RasterNode
     public:
         static NodeDefinition createDefinition();
         
-        WordsNode(const ArgList& Args);
+        WordsNode(const ArgList& args);
         virtual ~WordsNode();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -47,7 +47,7 @@ class AVG_API WordsNode : public RasterNode
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void preRender();
-        virtual void render(const DRect& Rect);
+        virtual void render(const DRect& rect);
 
         virtual double getWidth();
         virtual double getHeight();
@@ -71,13 +71,13 @@ class AVG_API WordsNode : public RasterNode
         void setFontSize(double Size);
         
         int getIndent() const;
-        void setIndent(int Indent);
+        void setIndent(int indent);
         
         double getLineSpacing() const;
-        void setLineSpacing(double LineSpacing);
+        void setLineSpacing(double lineSpacing);
         
         bool getRawTextMode() const;
-        void setRawTextMode(bool RawTextMode);
+        void setRawTextMode(bool rawTextMode);
         
         std::string getAlignment() const;
         void setAlignment(const std::string& sAlignment);
@@ -147,5 +147,5 @@ class AVG_API WordsNode : public RasterNode
 
 }
 
-#endif //_WordsNode_H_
+#endif
 

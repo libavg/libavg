@@ -64,7 +64,7 @@ NodeDefinition VideoNode::createDefinition()
         ;
 }
 
-VideoNode::VideoNode(const ArgList& Args)
+VideoNode::VideoNode(const ArgList& args)
     : m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false),
@@ -77,7 +77,7 @@ VideoNode::VideoNode(const ArgList& Args)
       m_pDecoder(0),
       m_Volume(1.0)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
     m_Filename = m_href;
     initFilename(m_Filename);
     if (!m_bThreaded && m_QueueLength != 8) {
@@ -173,16 +173,16 @@ int VideoNode::getNumFramesQueued() const
     return m_pDecoder->getNumFramesQueued();
 }
 
-void VideoNode::seekToFrame(int FrameNum)
+void VideoNode::seekToFrame(int frameNum)
 {
-    if (FrameNum < 0) {
+    if (frameNum < 0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
                 "Can't seek to a negative frame in a video.");
     }
     exceptionIfUnloaded("seekToFrame");
-    if (getCurFrame() != FrameNum) {
-        long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
-        seek(DestTime);
+    if (getCurFrame() != frameNum) {
+        long long destTime = (long long)(frameNum*1000.0/m_pDecoder->getNominalFPS());
+        seek(destTime);
     }
 }
 
@@ -239,14 +239,14 @@ long long VideoNode::getCurTime() const
     }
 }
 
-void VideoNode::seekToTime(long long Time)
+void VideoNode::seekToTime(long long time)
 {
-    if (Time < 0) {
+    if (time < 0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE,
                 "Can't seek to a negative time in a video.");
     }
     exceptionIfUnloaded("seekToTime");
-    seek(Time);
+    seek(time);
     m_bSeekPending = true;
 }
 
@@ -355,43 +355,42 @@ int VideoNode::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void VideoNode::changeVideoState(VideoState NewVideoState)
 {
-    long long CurTime = Player::get()->getFrameTime(); 
+    long long curTime = Player::get()->getFrameTime(); 
     if (m_VideoState == NewVideoState) {
         return;
     }
     if (m_VideoState == Unloaded) {
-        m_PauseStartTime = CurTime;
+        m_PauseStartTime = curTime;
         open();
     }
     if (NewVideoState == Unloaded) {
         close();
     }
     if (getState() == NS_CANRENDER) {
-        long long CurTime = Player::get()->getFrameTime(); 
         if (m_VideoState == Unloaded) {
             startDecoding();
         }
         if (NewVideoState == Paused) {
-            m_PauseStartTime = CurTime;
+            m_PauseStartTime = curTime;
         } else if (NewVideoState == Playing && m_VideoState == Paused) {
 /*            
             cerr << "Play after pause:" << endl;
-            cerr << "  getFrameTime()=" << CurTime << endl;
+            cerr << "  getFrameTime()=" << curTime << endl;
             cerr << "  m_PauseStartTime=" << m_PauseStartTime << endl;
             cerr << "  offset=" << (1000.0/m_pDecoder->getFPS()) << endl;
 */
-            m_PauseTime += (CurTime-m_PauseStartTime
+            m_PauseTime += (curTime-m_PauseStartTime
                     - (long long)(1000.0/m_pDecoder->getFPS()));
         }
     }
     m_VideoState = NewVideoState;
 }
 
-void VideoNode::seek(long long DestTime) 
+void VideoNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
-        m_pDecoder->seek(double(DestTime)/1000.0);
-        m_StartTime = Player::get()->getFrameTime() - DestTime;
+        m_pDecoder->seek(double(destTime)/1000.0);
+        m_StartTime = Player::get()->getFrameTime() - destTime;
         m_JitterCompensation = 0.5;
         m_PauseTime = 0;
         m_PauseStartTime = Player::get()->getFrameTime();
@@ -400,7 +399,7 @@ void VideoNode::seek(long long DestTime)
     } else {
         // If we get a seek command before decoding has really started, we need to defer 
         // the actual seek until the decoder is ready.
-        m_SeekBeforeCanRenderTime = DestTime;
+        m_SeekBeforeCanRenderTime = destTime;
     }
 }
 
@@ -570,7 +569,7 @@ void VideoNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
-void VideoNode::render(const DRect& Rect)
+void VideoNode::render(const DRect& rect)
 {
     switch (m_VideoState) {
         case Playing:
@@ -603,7 +602,7 @@ void VideoNode::render(const DRect& Rect)
 
 bool VideoNode::renderFrame(OGLSurface * pSurface)
 {
-    ScopeTimer Timer(RenderProfilingZone);
+    ScopeTimer timer(RenderProfilingZone);
     FrameAvailableCode frameAvailable = renderToSurface(pSurface);
     if (m_pDecoder->isEOF()) {
 //        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
@@ -673,7 +672,7 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
     PixelFormat pf = m_pDecoder->getPixelFormat();
     if (pixelFormatIsPlanar(pf)) {
         std::vector<BitmapPtr> pBmps;
-        for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+        for (unsigned i = 0; i < getNumPixelFormatPlanes(pf); ++i) {
             pBmps.push_back(pSurface->lockBmp(i));
         }
         frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0);

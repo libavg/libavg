@@ -44,7 +44,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
     public:
         static NodeDefinition createDefinition();
         
-        VideoNode(const ArgList& Args);
+        VideoNode(const ArgList& args);
         virtual ~VideoNode();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -59,7 +59,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
         double getVolume();
-        void setVolume(double Volume);
+        void setVolume(double volume);
         double getFPS() const;
         int getQueueLength() const;
         void checkReload();
@@ -67,7 +67,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         int getNumFrames() const;
         int getCurFrame() const;
         int getNumFramesQueued() const;
-        void seekToFrame(int FrameNum);
+        void seekToFrame(int frameNum);
         std::string getStreamPixelFormat() const;
         long long getDuration() const;
         int getBitrate() const;
@@ -77,14 +77,14 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         int getNumAudioChannels() const;
 
         long long getCurTime() const;
-        void seekToTime(long long Time);
+        void seekToTime(long long time);
         bool getLoop() const;
         bool isThreaded() const;
         bool hasAudio() const;
         bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
-        virtual void render (const DRect& Rect);
+        virtual void render(const DRect& rect);
         virtual void preRender();
         virtual void onFrameEnd();
         
@@ -94,7 +94,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
     private:
         bool renderFrame(OGLSurface * pSurface);
         FrameAvailableCode renderToSurface(OGLSurface * pSurface);
-        void seek(long long DestTime);
+        void seek(long long destTime);
         void onEOF();
         void updateStatusDueToDecoderEOF();
         void dumpFramesTooLate();

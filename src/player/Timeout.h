@@ -31,12 +31,12 @@ namespace avg {
 class AVG_API Timeout
 {
     public:
-        Timeout (int time, PyObject * pyfunc, bool isInterval, long long StartTime);
+        Timeout (int time, PyObject * pyfunc, bool isInterval, long long startTime);
         virtual ~Timeout ();
 
-        bool IsReady(long long Time) const;
+        bool IsReady(long long time) const;
         bool IsInterval() const;
-        void Fire(long long CurTime);
+        void Fire(long long curTime);
         int GetID() const;
         bool operator <(const Timeout& other) const;
 

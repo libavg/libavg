@@ -55,14 +55,14 @@ NodeDefinition SoundNode::createDefinition()
         ;
 }
 
-SoundNode::SoundNode(const ArgList& Args)
+SoundNode::SoundNode(const ArgList& args)
     : m_Filename(""),
       m_pEOFCallback(0),
       m_pDecoder(0),
       m_Volume(1.0),
       m_State(Unloaded)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
     m_Filename = m_href;
     initFilename(m_Filename);
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
@@ -142,14 +142,14 @@ void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
     checkReload();
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    long long CurTime = Player::get()->getFrameTime(); 
+    long long curTime = Player::get()->getFrameTime(); 
     if (m_State != Unloaded) {
         startDecoding();
-        m_StartTime = CurTime;
+        m_StartTime = curTime;
         m_PauseTime = 0;
     }
     if (m_State == Paused) {
-        m_PauseStartTime = CurTime;
+        m_PauseStartTime = curTime;
     } 
 }
 
@@ -200,14 +200,14 @@ double SoundNode::getVolume()
     return m_Volume;
 }
 
-void SoundNode::setVolume(double Volume)
+void SoundNode::setVolume(double volume)
 {
-    if (Volume < 0) {
-        Volume = 0;
+    if (volume < 0) {
+        volume = 0;
     }
-    m_Volume = Volume;
+    m_Volume = volume;
     if (m_pDecoder) {
-        m_pDecoder->setVolume(Volume);
+        m_pDecoder->setVolume(volume);
     }
 }
 
@@ -246,37 +246,37 @@ int SoundNode::fillAudioBuffer(AudioBufferPtr pBuffer)
     }
 }
 
-void SoundNode::changeSoundState(SoundState NewSoundState)
+void SoundNode::changeSoundState(SoundState newSoundState)
 {
-    if (NewSoundState == m_State) {
+    if (newSoundState == m_State) {
         return;
     }
     if (m_State == Unloaded) {
         open();
     }
-    if (NewSoundState == Unloaded) {
+    if (newSoundState == Unloaded) {
         close();
     }
     if (getState() == NS_CANRENDER) {
-        long long CurTime = Player::get()->getFrameTime(); 
+        long long curTime = Player::get()->getFrameTime(); 
         if (m_State == Unloaded) {
             startDecoding();
-            m_StartTime = CurTime;
+            m_StartTime = curTime;
             m_PauseTime = 0;
         }
-        if (NewSoundState == Paused) {
-            m_PauseStartTime = CurTime;
-        } else if (NewSoundState == Playing && m_State == Paused) {
-            m_PauseTime += CurTime-m_PauseStartTime;
+        if (newSoundState == Paused) {
+            m_PauseStartTime = curTime;
+        } else if (newSoundState == Playing && m_State == Paused) {
+            m_PauseTime += curTime-m_PauseStartTime;
         }
     }
-    m_State = NewSoundState;
+    m_State = newSoundState;
 }
 
-void SoundNode::seek(long long DestTime) 
+void SoundNode::seek(long long destTime) 
 {
-    m_pDecoder->seek(DestTime);
-    m_StartTime = Player::get()->getFrameTime() - DestTime;
+    m_pDecoder->seek(destTime);
+    m_StartTime = Player::get()->getFrameTime() - destTime;
     m_PauseTime = 0;
     m_PauseStartTime = Player::get()->getFrameTime();
 }

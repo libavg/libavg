@@ -45,28 +45,28 @@ public:
     {
         DeDistortPtr pTrafo;
         {
-            TrackerCalibrator Calibrator(IntPoint(640, 480), IntPoint(640,480));
+            TrackerCalibrator calibrator(IntPoint(640, 480), IntPoint(640,480));
             bool bDone = false;
             while (!bDone) {
-                IntPoint DisplayPoint(Calibrator.getDisplayPoint());
-                Calibrator.setCamPoint(DPoint(DisplayPoint));
-                bDone = !Calibrator.nextPoint();
+                IntPoint displayPoint(calibrator.getDisplayPoint());
+                calibrator.setCamPoint(DPoint(displayPoint));
+                bDone = !calibrator.nextPoint();
             }
-            pTrafo = Calibrator.makeTransformer();
+            pTrafo = calibrator.makeTransformer();
             TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00))<1);
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
         }
         {
-            TrackerCalibrator Calibrator(IntPoint(640, 480), IntPoint(1280,720));
+            TrackerCalibrator calibrator(IntPoint(640, 480), IntPoint(1280,720));
             bool bDone = false;
             while (!bDone) {
-                IntPoint DisplayPoint(Calibrator.getDisplayPoint());
-                Calibrator.setCamPoint(DPoint(DisplayPoint.x/2, DisplayPoint.y/1.5));
-                bDone = !Calibrator.nextPoint();
+                IntPoint displayPoint(calibrator.getDisplayPoint());
+                calibrator.setCamPoint(DPoint(displayPoint.x/2, displayPoint.y/1.5));
+                bDone = !calibrator.nextPoint();
             }
-            pTrafo = Calibrator.makeTransformer();
+            pTrafo = calibrator.makeTransformer();
             TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50)) <1 );
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
@@ -76,20 +76,20 @@ public:
         }
     }
 
-    bool checkTransform(CoordTransformerPtr pTrafo, const DPoint& SrcPt, 
-            const DPoint& DestPt) 
+    bool checkTransform(CoordTransformerPtr pTrafo, const DPoint& srcPt, 
+            const DPoint& destPt) 
     {
-        DPoint ResultPt = pTrafo->transform_point(SrcPt);
-//        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
-        return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
+        DPoint ResultPt = pTrafo->transform_point(srcPt);
+//        cerr << srcPt << " -> " << ResultPt << ", expected " << destPt << endl;
+        return ((fabs(ResultPt.x-destPt.x) < 0.1) && (fabs(ResultPt.y-destPt.y) < 0.1));
     }
 
     bool checkBlobToScreen(DeDistortPtr pTrafo, 
-            const DPoint& SrcPt, const DPoint& DestPt)
+            const DPoint& srcPt, const DPoint& destPt)
     {
-        DPoint ResultPt = pTrafo->transformBlobToScreen(pTrafo->transform_point(SrcPt));
-//        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
-        return ((fabs(ResultPt.x-DestPt.x) < 1) && (fabs(ResultPt.y-DestPt.y) < 1));
+        DPoint ResultPt = pTrafo->transformBlobToScreen(pTrafo->transform_point(srcPt));
+//        cerr << srcPt << " -> " << ResultPt << ", expected " << destPt << endl;
+        return ((fabs(ResultPt.x-destPt.x) < 1) && (fabs(ResultPt.y-destPt.y) < 1));
     }
    
 };
@@ -106,9 +106,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    CalibratorTestSuite Suite;
-    Suite.runTests();
-    bool bOK = Suite.isOk();
+    CalibratorTestSuite suite;
+    suite.runTests();
+    bool bOK = suite.isOk();
 
     if (bOK) {
         return 0;

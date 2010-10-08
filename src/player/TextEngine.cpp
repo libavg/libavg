@@ -102,7 +102,7 @@ void TextEngine::init()
     pango_font_map_list_families(PANGO_FONT_MAP(m_pFontMap), &m_ppFontFamilies, 
             &m_NumFontFamilies);
     setEnv("LC_CTYPE", sOldLang);
-    for (int i=0; i<m_NumFontFamilies; ++i) {
+    for (int i = 0; i < m_NumFontFamilies; ++i) {
         m_sFonts.push_back(pango_font_family_get_name(m_ppFontFamilies[i]));
     }
     sort(m_sFonts.begin(), m_sFonts.end());
@@ -140,7 +140,7 @@ const vector<string>& TextEngine::getFontVariants(const string& sFontName)
     int numFaces;
     pango_font_family_list_faces (pCurFamily, &ppFaces, &numFaces);
     static vector<string> sVariants;
-    for (int i=0; i<numFaces; ++i) {
+    for (int i = 0; i < numFaces; ++i) {
         sVariants.push_back(pango_font_face_get_face_name(ppFaces[i]));
     }
     g_free(ppFaces);
@@ -174,7 +174,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
         if (sVariant == "") {
             pFace = ppFaces[0];
         } else {
-            for (int i=0; i<numFaces; ++i) {
+            for (int i = 0; i < numFaces; ++i) {
                 if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), sVariant)) {
                     pFace = ppFaces[i];
                 }
@@ -248,17 +248,18 @@ void TextEngine::initFonts()
     }
 
     FcConfig * pConfig = FcConfigCreate();
-    int Ok = (int)FcConfigParseAndLoad(pConfig, 
+    int ok = (int)FcConfigParseAndLoad(pConfig, 
             (const FcChar8 *)(sFontConfPath.c_str()), true);
-    checkFontError(Ok, string("Font error: could not load config file ")+sFontConfPath);
-    Ok = (int)FcConfigBuildFonts(pConfig);
-    checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
-    Ok = (int)FcConfigSetCurrent(pConfig);
-    checkFontError(Ok, string("Font error: FcConfigSetCurrent failed."));
+    checkFontError(ok, string("Font error: could not load config file ")+sFontConfPath);
+    ok = (int)FcConfigBuildFonts(pConfig);
+    checkFontError(ok, string("Font error: FcConfigBuildFonts failed."));
+    ok = (int)FcConfigSetCurrent(pConfig);
+    checkFontError(ok, string("Font error: FcConfigSetCurrent failed."));
     for(std::vector<std::string>::const_iterator it = m_sFontDirs.begin();
-            it != m_sFontDirs.end(); ++it) {
-        Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
-        checkFontError(Ok, string("Font error: FcConfigAppFontAddDir("
+            it != m_sFontDirs.end(); ++it)
+    {
+        ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
+        checkFontError(ok, string("Font error: FcConfigAppFontAddDir("
                     + *it + ") failed."));
     }
     /*
@@ -290,9 +291,9 @@ PangoFontFamily * TextEngine::getFontFamily(const string& sFamily)
     return pFamily;
 }
 
-void TextEngine::checkFontError(int Ok, const string& sMsg)
+void TextEngine::checkFontError(int ok, const string& sMsg)
 {
-    if (Ok == 0) {
+    if (ok == 0) {
         throw Exception(AVG_ERR_FONT_INIT_FAILED, sMsg);
     }
 }

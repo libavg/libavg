@@ -80,7 +80,7 @@ namespace avg {
 
 double SDLDisplayEngine::s_RefreshRate = 0.0;
 
-void safeSetAttribute( SDL_GLattr attr, int value) 
+void safeSetAttribute(SDL_GLattr attr, int value) 
 {
     int err = SDL_GL_SetAttribute(attr, value);
     if (err == -1) {
@@ -119,29 +119,29 @@ SDLDisplayEngine::~SDLDisplayEngine()
 #endif
 }
 
-void SDLDisplayEngine::init(const DisplayParams& DP) 
+void SDLDisplayEngine::init(const DisplayParams& dp) 
 {
 
     stringstream ss;
-    if (DP.m_Pos.x != -1) {
-        ss << DP.m_Pos.x << "," << DP.m_Pos.y;
+    if (dp.m_Pos.x != -1) {
+        ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
 #ifdef linux
     IntPoint oldWindowSize = m_WindowSize;
 #endif
-    double AspectRatio = double(DP.m_Size.x)/double(DP.m_Size.y);
-    if (DP.m_WindowSize == IntPoint(0, 0)) {
-        m_WindowSize = DP.m_Size;
-    } else if (DP.m_WindowSize.x == 0) {
-        m_WindowSize.x = int(DP.m_WindowSize.y*AspectRatio);
-        m_WindowSize.y = DP.m_WindowSize.y;
+    double aspectRatio = double(dp.m_Size.x)/double(dp.m_Size.y);
+    if (dp.m_WindowSize == IntPoint(0, 0)) {
+        m_WindowSize = dp.m_Size;
+    } else if (dp.m_WindowSize.x == 0) {
+        m_WindowSize.x = int(dp.m_WindowSize.y*aspectRatio);
+        m_WindowSize.y = dp.m_WindowSize.y;
     } else {
-        m_WindowSize.x = DP.m_WindowSize.x;
-        m_WindowSize.y = int(DP.m_WindowSize.x/AspectRatio);
+        m_WindowSize.x = dp.m_WindowSize.x;
+        m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
 
-    switch (DP.m_BPP) {
+    switch (dp.m_BPP) {
         case 32:
             safeSetAttribute(SDL_GL_RED_SIZE, 8);
             safeSetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -167,7 +167,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
             safeSetAttribute(SDL_GL_BUFFER_SIZE, 15);
             break;
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << DP.m_BPP <<
+            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << dp.m_BPP <<
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
@@ -182,19 +182,19 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     }
 
     unsigned int Flags = SDL_OPENGL;
-    if (DP.m_bFullscreen) {
+    if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
     }
     
-    if (!DP.m_bHasWindowFrame) {
+    if (!dp.m_bHasWindowFrame) {
         Flags |= SDL_NOFRAME;
     }
 
-    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, DP.m_BPP, Flags);
+    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
     if (!m_pScreen) {
         AVG_TRACE(Logger::ERROR, "Setting SDL video mode failed: " 
                 << SDL_GetError() <<". (size=" << m_WindowSize
-                << ", bpp=" << DP.m_BPP << ", multisamplesamples="
+                << ", bpp=" << dp.m_BPP << ", multisamplesamples="
                 << m_GLConfig.m_MultiSampleSamples << ").");
         exit(-1);
     }
@@ -234,12 +234,12 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    setGamma(DP.m_Gamma[0], DP.m_Gamma[1], DP.m_Gamma[2]);
-    showCursor(DP.m_bShowCursor);
-    if (DP.m_Framerate == 0) {
-        setVBlankRate(DP.m_VBRate);
+    setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
+    showCursor(dp.m_bShowCursor);
+    if (dp.m_Framerate == 0) {
+        setVBlankRate(dp.m_VBRate);
     } else {
-        setFramerate(DP.m_Framerate);
+        setFramerate(dp.m_Framerate);
     }
 
     checkShaderSupport();
@@ -247,7 +247,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     m_BlendMode = BLEND_ADD;
     setBlendMode(BLEND_BLEND, false);
 
-    m_Size = DP.m_Size;
+    m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
     logConfig();
@@ -283,11 +283,11 @@ double SDLDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void SDLDisplayEngine::setGamma(double Red, double Green, double Blue)
+void SDLDisplayEngine::setGamma(double red, double green, double blue)
 {
-    if (Red > 0) {
-        AVG_TRACE(Logger::CONFIG, "Setting gamma to " << Red << ", " << Green << ", " << Blue);
-        int err = SDL_SetGamma(float(Red), float(Green), float(Blue));
+    if (red > 0) {
+        AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", " << blue);
+        int err = SDL_SetGamma(float(red), float(green), float(blue));
         if (err == -1) {
             AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
         }
@@ -319,15 +319,14 @@ void SDLDisplayEngine::logConfig()
             AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
             break;
     }
-        AVG_TRACE(Logger::CONFIG,
-                "  Max. texture size is " << getMaxTexSize());
+    AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
 }
 
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
 bool SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
-    ScopeTimer Timer(PushClipRectProfilingZone);
+    ScopeTimer timer(PushClipRectProfilingZone);
 
     m_ClipRects.push_back(rc);
     clip(true);
@@ -339,7 +338,7 @@ static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
 void SDLDisplayEngine::popClipRect()
 {
-    ScopeTimer Timer(PopClipRectProfilingZone);
+    ScopeTimer timer(PopClipRectProfilingZone);
     
     clip(false);
     m_ClipRects.pop_back();
@@ -412,7 +411,7 @@ static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()
 {
-    ScopeTimer Timer(SwapBufferProfilingZone);
+    ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
@@ -429,7 +428,7 @@ void SDLDisplayEngine::showCursor(bool bShow)
 #define MAX_CORE_POINTERS   6
     // Hack to fix a pointer issue with fullscreen, SDL and touchscreens
     // Refer to Mantis bug #140
-    for (int i=0; i<MAX_CORE_POINTERS; ++i) {
+    for (int i = 0; i < MAX_CORE_POINTERS; ++i) {
         ShowCursor(bShow);
     }
 #else
@@ -451,7 +450,8 @@ BitmapPtr SDLDisplayEngine::screenshot()
         glReadBuffer(GL_FRONT);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
-    glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, pBmp->getPixels());
+    glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
+            pBmp->getPixels());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
@@ -508,8 +508,7 @@ bool SDLDisplayEngine::initVBlank(int rate)
             m_VBMethod = VB_NONE;
         }
 #else
-        if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
-        {
+        if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
             AVG_TRACE(Logger::WARNING, 
                     "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
             m_VBMethod = VB_NONE;
@@ -560,7 +559,8 @@ bool SDLDisplayEngine::initVBlank(int rate)
     return m_VBMethod != VB_NONE;
 }
 
-bool SDLDisplayEngine::vbWait(int rate) {
+bool SDLDisplayEngine::vbWait(int rate)
+{
     switch(m_VBMethod) {
         case VB_SGI:
         case VB_APPLE:
@@ -573,7 +573,8 @@ bool SDLDisplayEngine::vbWait(int rate) {
     }
 }
 
-void SDLDisplayEngine::calcRefreshRate() {
+void SDLDisplayEngine::calcRefreshRate()
+{
     double lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
 #ifdef __APPLE__
@@ -597,7 +598,7 @@ void SDLDisplayEngine::calcRefreshRate() {
                 "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
     }
 #elif defined _WIN32
-     // This isn't correct for multi-monitor systems.
+    // This isn't correct for multi-monitor systems.
     HDC hDC = CreateDC("DISPLAY", NULL,NULL,NULL);
     s_RefreshRate = GetDeviceCaps(hDC, VREFRESH);
     if (s_RefreshRate < 2) {
@@ -605,20 +606,20 @@ void SDLDisplayEngine::calcRefreshRate() {
     }
     DeleteDC(hDC);
 #else 
-    Display * display = XOpenDisplay(0);
-    int PixelClock;
-    XF86VidModeModeLine mode_line;
-    bool bOK = XF86VidModeGetModeLine (display, DefaultScreen(display), 
-            &PixelClock, &mode_line);
+    Display * pDisplay = XOpenDisplay(0);
+    int pixelClock;
+    XF86VidModeModeLine modeLine;
+    bool bOK = XF86VidModeGetModeLine (pDisplay, DefaultScreen(pDisplay), 
+            &pixelClock, &modeLine);
     if (!bOK) {
         AVG_TRACE (Logger::WARNING, 
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
         AVG_TRACE (Logger::WARNING, 
                 "Defaulting to 60 Hz refresh rate.");
     }
-    double HSyncRate = PixelClock*1000.0/mode_line.htotal;
-    s_RefreshRate = HSyncRate/mode_line.vtotal;
-    XCloseDisplay(display);
+    double HSyncRate = pixelClock*1000.0/modeLine.htotal;
+    s_RefreshRate = HSyncRate/modeLine.vtotal;
+    XCloseDisplay(pDisplay);
 #endif
     if (s_RefreshRate == 0) {
         s_RefreshRate = 60;
@@ -632,9 +633,9 @@ void SDLDisplayEngine::calcRefreshRate() {
 
 vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
-const char * getEventTypeName(unsigned char Type) 
+const char * getEventTypeName(unsigned char type) 
 {
-    switch(Type) {
+    switch (type) {
             case SDL_ACTIVEEVENT:
                 return "SDL_ACTIVEEVENT";
             case SDL_KEYDOWN:
@@ -673,9 +674,9 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     SDL_Event sdlEvent;
     vector<EventPtr> events;
 
-    while(SDL_PollEvent(&sdlEvent)) {
+    while (SDL_PollEvent(&sdlEvent)) {
         EventPtr pNewEvent;
-        switch(sdlEvent.type) {
+        switch (sdlEvent.type) {
             case SDL_MOUSEMOTION:
                 if (m_bMouseOverApp) {
                     pNewEvent = createMouseEvent(Event::CURSORMOTION, sdlEvent, 
@@ -728,10 +729,10 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-EventPtr SDLDisplayEngine::createMouseEvent
-        (Event::Type Type, const SDL_Event & SDLEvent, long Button)
+EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
+        long button)
 {
-    int x,y;
+    int x, y;
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
@@ -742,89 +743,88 @@ EventPtr SDLDisplayEngine::createMouseEvent
         double lastFrameTime = 1000/getEffectiveFramerate();
         speed = DPoint(x-m_LastMousePos.x, y-m_LastMousePos.y)/lastFrameTime;
     }
-    MouseEventPtr pEvent(new MouseEvent(Type, (buttonState & SDL_BUTTON(1)) != 0,
+    MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
-            IntPoint(x, y), Button, speed));
+            IntPoint(x, y), button, speed));
     m_LastMousePos = IntPoint(x,y);
     return pEvent; 
 
 }
 
-EventPtr SDLDisplayEngine::createMouseButtonEvent
-        (Event::Type Type, const SDL_Event & SDLEvent) 
+EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type, 
+        const SDL_Event& sdlEvent) 
 {
-    long Button = 0;
-    switch (SDLEvent.button.button) {
+    long button = 0;
+    switch (sdlEvent.button.button) {
         case SDL_BUTTON_LEFT:
-            Button = MouseEvent::LEFT_BUTTON;
+            button = MouseEvent::LEFT_BUTTON;
             break;
         case SDL_BUTTON_MIDDLE:
-            Button = MouseEvent::MIDDLE_BUTTON;
+            button = MouseEvent::MIDDLE_BUTTON;
             break;
         case SDL_BUTTON_RIGHT:
-            Button = MouseEvent::RIGHT_BUTTON;
+            button = MouseEvent::RIGHT_BUTTON;
             break;
         case SDL_BUTTON_WHEELUP:
-            Button = MouseEvent::WHEELUP_BUTTON;
+            button = MouseEvent::WHEELUP_BUTTON;
             break;
         case SDL_BUTTON_WHEELDOWN:
-            Button = MouseEvent::WHEELDOWN_BUTTON;
+            button = MouseEvent::WHEELDOWN_BUTTON;
             break;
     }
-    return createMouseEvent(Type, SDLEvent, Button);
+    return createMouseEvent(type, sdlEvent, button);
  
 }
 
 /*
-EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & SDLEvent)
+EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & sdlEvent)
 {
-    return new AxisEvent(SDLEvent.jaxis.which, SDLEvent.jaxis.axis,
-                SDLEvent.jaxis.value);
+    return new AxisEvent(sdlEvent.jaxis.which, sdlEvent.jaxis.axis,
+                sdlEvent.jaxis.value);
 }
 
 
 EventPtr SDLDisplayEngine::createButtonEvent
-        (Event::Type Type, const SDL_Event & SDLEvent) 
+        (Event::Type type, const SDL_Event & sdlEvent) 
 {
-    return new ButtonEvent(Type, SDLEvent.jbutton.which,
-                SDLEvent.jbutton.button));
+    return new ButtonEvent(type, sdlEvent.jbutton.which,
+                sdlEvent.jbutton.button));
 }
 */
 
-EventPtr SDLDisplayEngine::createKeyEvent
-        (Event::Type Type, const SDL_Event & SDLEvent)
+EventPtr SDLDisplayEngine::createKeyEvent(Event::Type type, const SDL_Event& sdlEvent)
 {
-    long KeyCode = KeyCodeTranslationTable[SDLEvent.key.keysym.sym];
-    unsigned int Modifiers = key::KEYMOD_NONE;
+    long keyCode = KeyCodeTranslationTable[sdlEvent.key.keysym.sym];
+    unsigned int modifiers = key::KEYMOD_NONE;
 
-    if (SDLEvent.key.keysym.mod & KMOD_LSHIFT) 
-        { Modifiers |= key::KEYMOD_LSHIFT; }
-    if (SDLEvent.key.keysym.mod & KMOD_RSHIFT) 
-        { Modifiers |= key::KEYMOD_RSHIFT; }
-    if (SDLEvent.key.keysym.mod & KMOD_LCTRL) 
-        { Modifiers |= key::KEYMOD_LCTRL; }
-    if (SDLEvent.key.keysym.mod & KMOD_RCTRL) 
-        { Modifiers |= key::KEYMOD_RCTRL; }
-    if (SDLEvent.key.keysym.mod & KMOD_LALT) 
-        { Modifiers |= key::KEYMOD_LALT; }
-    if (SDLEvent.key.keysym.mod & KMOD_RALT) 
-        { Modifiers |= key::KEYMOD_RALT; }
-    if (SDLEvent.key.keysym.mod & KMOD_LMETA) 
-        { Modifiers |= key::KEYMOD_LMETA; }
-    if (SDLEvent.key.keysym.mod & KMOD_RMETA) 
-        { Modifiers |= key::KEYMOD_RMETA; }
-    if (SDLEvent.key.keysym.mod & KMOD_NUM) 
-        { Modifiers |= key::KEYMOD_NUM; }
-    if (SDLEvent.key.keysym.mod & KMOD_CAPS) 
-        { Modifiers |= key::KEYMOD_CAPS; }
-    if (SDLEvent.key.keysym.mod & KMOD_MODE) 
-        { Modifiers |= key::KEYMOD_MODE; }
-    if (SDLEvent.key.keysym.mod & KMOD_RESERVED) 
-        { Modifiers |= key::KEYMOD_RESERVED; }
+    if (sdlEvent.key.keysym.mod & KMOD_LSHIFT) 
+        { modifiers |= key::KEYMOD_LSHIFT; }
+    if (sdlEvent.key.keysym.mod & KMOD_RSHIFT) 
+        { modifiers |= key::KEYMOD_RSHIFT; }
+    if (sdlEvent.key.keysym.mod & KMOD_LCTRL) 
+        { modifiers |= key::KEYMOD_LCTRL; }
+    if (sdlEvent.key.keysym.mod & KMOD_RCTRL) 
+        { modifiers |= key::KEYMOD_RCTRL; }
+    if (sdlEvent.key.keysym.mod & KMOD_LALT) 
+        { modifiers |= key::KEYMOD_LALT; }
+    if (sdlEvent.key.keysym.mod & KMOD_RALT) 
+        { modifiers |= key::KEYMOD_RALT; }
+    if (sdlEvent.key.keysym.mod & KMOD_LMETA) 
+        { modifiers |= key::KEYMOD_LMETA; }
+    if (sdlEvent.key.keysym.mod & KMOD_RMETA) 
+        { modifiers |= key::KEYMOD_RMETA; }
+    if (sdlEvent.key.keysym.mod & KMOD_NUM) 
+        { modifiers |= key::KEYMOD_NUM; }
+    if (sdlEvent.key.keysym.mod & KMOD_CAPS) 
+        { modifiers |= key::KEYMOD_CAPS; }
+    if (sdlEvent.key.keysym.mod & KMOD_MODE) 
+        { modifiers |= key::KEYMOD_MODE; }
+    if (sdlEvent.key.keysym.mod & KMOD_RESERVED) 
+        { modifiers |= key::KEYMOD_RESERVED; }
 
-    KeyEventPtr pEvent(new KeyEvent(Type,
-            SDLEvent.key.keysym.scancode, KeyCode,
-            SDL_GetKeyName(SDLEvent.key.keysym.sym), SDLEvent.key.keysym.unicode, Modifiers));
+    KeyEventPtr pEvent(new KeyEvent(type,
+            sdlEvent.key.keysym.scancode, keyCode,
+            SDL_GetKeyName(sdlEvent.key.keysym.sym), sdlEvent.key.keysym.unicode, modifiers));
     return pEvent;
 }
 
@@ -1111,13 +1111,13 @@ void SDLDisplayEngine::enableGLColorArray(bool bEnable)
     }
 }
 
-void checkBlendModeError(const char *mode) 
+void checkBlendModeError(const char * sMode) 
 {    
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         static bool bErrorReported = false;
         if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "<< mode <<
+            AVG_TRACE(Logger::WARNING, "Blendmode "<< sMode <<
                     " not supported by OpenGL implementation.");
             bErrorReported = true;
         }
@@ -1167,65 +1167,6 @@ void SDLDisplayEngine::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 
         m_BlendMode = mode;
         m_bPremultipliedAlpha = bPremultipliedAlpha;
-    }
-}
-
-// This is what OpenGL calls InternalFormat
-int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
-{
-    switch (pf) {
-        case I8:
-            return GL_ALPHA;
-        case R8G8B8:
-        case B8G8R8:
-            return GL_RGB;
-        case R8G8B8A8:
-        case B8G8R8A8:
-            return GL_RGBA;
-        case R8G8B8X8:
-        case B8G8R8X8:
-            return GL_RGBA;    
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << pf <<
-                    " in SDLDisplayEngine::getOGLDestMode()");
-    }
-    return 0;
-}    
-
-// TODO: We should be using GL_BGRA in all cases.
-int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
-{
-    switch (pf) {
-        case I8:
-            return GL_ALPHA;
-        case R8G8B8:
-            return GL_RGB;
-        case B8G8R8:
-            return GL_BGR;
-        case B8G8R8X8:
-        case B8G8R8A8:
-            return GL_BGRA;
-        case R8G8B8X8:
-        case R8G8B8A8:
-            AVG_ASSERT(false);
-            return GL_RGBA;
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << pf <<
-                    " in SDLDisplayEngine::getOGLSrcMode()");
-    }
-    return 0;
-}
-
-// TODO: On a mac, GL_UNSIGNED_INT_8_8_8_8_REV is preferred for RGBA _and_ BGRA source 
-// textures.
-int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
-{
-    switch (pf) {
-        case B8G8R8X8:
-        case B8G8R8A8:
-//            return GL_UNSIGNED_INT_8_8_8_8_REV;
-        default:
-            return GL_UNSIGNED_BYTE;
     }
 }
 

@@ -50,7 +50,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void init(const DisplayParams& DP);
         virtual void teardown();
         virtual double getRefreshRate();
-        virtual void setGamma(double Red, double Green, double Blue);
+        virtual void setGamma(double red, double green, double blue);
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
@@ -80,9 +80,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         void enableGLColorArray(bool bEnable);
         void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
         
-        int getOGLDestMode(PixelFormat pf);
-        int getOGLSrcMode(PixelFormat pf);
-        int getOGLPixelType(PixelFormat pf);
         OGLMemoryMode getMemoryModeSupported();
 
         void setOGLOptions(const GLConfig& glConfig);

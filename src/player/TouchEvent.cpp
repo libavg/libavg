@@ -33,9 +33,9 @@ using namespace std;
 
 namespace avg {
 
-TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 
+TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
         Source source, const DPoint& speed, const IntPoint& lastDownPos)
-    : CursorEvent(id, EventType, Pos, source),
+    : CursorEvent(id, eventType, pos, source),
       m_pBlob(pBlob),
       m_Speed(speed)
 {
@@ -46,10 +46,10 @@ TouchEvent::~TouchEvent()
 {
 }
 
-CursorEventPtr TouchEvent::cloneAs(Type EventType) const
+CursorEventPtr TouchEvent::cloneAs(Type eventType) const
 {
     TouchEventPtr pClone(new TouchEvent(*this));
-    pClone->m_Type = EventType;
+    pClone->m_Type = eventType;
     return pClone;
 }
 
@@ -65,23 +65,23 @@ const BlobPtr TouchEvent::getBlob() const
 
 const DPoint & TouchEvent::getMajorAxis() const
 {
-    const DPoint & Axis0 = m_pBlob->getScaledBasis(0);
-    const DPoint & Axis1 = m_pBlob->getScaledBasis(1);
-    if (calcDist(Axis0, DPoint(0,0)) > calcDist(Axis1, DPoint(0,0))) {
-        return Axis0;
+    const DPoint & axis0 = m_pBlob->getScaledBasis(0);
+    const DPoint & axis1 = m_pBlob->getScaledBasis(1);
+    if (calcDist(axis0, DPoint(0,0)) > calcDist(axis1, DPoint(0,0))) {
+        return axis0;
     } else {
-        return Axis1;
+        return axis1;
     }
 }
 
 const DPoint & TouchEvent::getMinorAxis() const
 {
-    const DPoint & Axis0 = m_pBlob->getScaledBasis(0);
-    const DPoint & Axis1 = m_pBlob->getScaledBasis(1);
-    if (calcDist(Axis0, DPoint(0,0)) > calcDist(Axis1, DPoint(0,0))) {
-        return Axis1;
+    const DPoint & axis0 = m_pBlob->getScaledBasis(0);
+    const DPoint & axis1 = m_pBlob->getScaledBasis(1);
+    if (calcDist(axis0, DPoint(0,0)) > calcDist(axis1, DPoint(0,0))) {
+        return axis1;
     } else {
-        return Axis0;
+        return axis0;
     }
 }
 
@@ -99,7 +99,7 @@ vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
 {
     vector<TouchEventPtr> pRelatedEvents;
     vector<TouchEventWeakPtr>::const_iterator it;
-    for (it=m_RelatedEvents.begin(); it != m_RelatedEvents.end(); ++it) {
+    for (it = m_RelatedEvents.begin(); it != m_RelatedEvents.end(); ++it) {
         pRelatedEvents.push_back((*it).lock());
     }
     return pRelatedEvents;

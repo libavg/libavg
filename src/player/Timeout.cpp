@@ -35,13 +35,13 @@ namespace avg {
 
 int Timeout::s_LastID = 0;
 
-Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval, long long StartTime)
+Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval, long long startTime)
     : m_Interval(time),
       m_PyFunc(pyfunc),
       m_IsInterval(isInterval)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_NextTimeout = m_Interval+StartTime;
+    m_NextTimeout = m_Interval+startTime;
     s_LastID++;
     m_ID = s_LastID;
 
@@ -54,9 +54,9 @@ Timeout::~Timeout()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-bool Timeout::IsReady(long long Time) const
+bool Timeout::IsReady(long long time) const
 {
-    return m_NextTimeout <= Time;
+    return m_NextTimeout <= time;
 }
 
 bool Timeout::IsInterval() const
@@ -64,10 +64,10 @@ bool Timeout::IsInterval() const
     return m_IsInterval;
 }
 
-void Timeout::Fire(long long CurTime)
+void Timeout::Fire(long long curTime)
 {
     if (m_IsInterval) {
-        m_NextTimeout = m_Interval + CurTime;
+        m_NextTimeout = m_Interval + curTime;
     }
     PyObject * arglist = Py_BuildValue("()");
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);

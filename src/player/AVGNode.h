@@ -34,12 +34,12 @@ class AVG_API AVGNode : public CanvasNode
     public:
         static NodeDefinition createDefinition();
         
-        AVGNode (const ArgList& Args);
-        virtual ~AVGNode ();
+        AVGNode(const ArgList& args);
+        virtual ~AVGNode();
 };
 
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 
 }
 
-#endif //_AVGNode_H_
+#endif

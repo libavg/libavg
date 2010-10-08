@@ -39,7 +39,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
     public:
         static NodeDefinition createDefinition();
 
-        SoundNode(const ArgList& Args);
+        SoundNode(const ArgList& args);
         virtual ~SoundNode();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -54,7 +54,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
         double getVolume();
-        void setVolume(double Volume);
+        void setVolume(double volume);
         void checkReload();
 
         long long getDuration() const;
@@ -72,11 +72,11 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
     private:
-        void seek(long long DestTime);
+        void seek(long long destTime);
         void onEOF();
 
         enum SoundState {Unloaded, Paused, Playing};
-        void changeSoundState(SoundState NewSoundState);
+        void changeSoundState(SoundState newSoundState);
         void open();
         void startDecoding();
         void close();

@@ -536,10 +536,8 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix 2");
 
     PixelFormat pf = m_pSurface->getPixelFormat();
-    AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " 
-            << destSize.y << ")" << ", m_pf: " << pf << ", " 
-            << oglModeToString(getDisplayEngine()->getOGLSrcMode(pf)) << "-->" 
-            << oglModeToString(getDisplayEngine()->getOGLDestMode(pf)));
+    AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " << destSize.y << ")" 
+            << ", m_pf: " << pf);
 }
 
 IntPoint RasterNode::getNumTiles()

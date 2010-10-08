@@ -50,18 +50,18 @@ typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(CameraPtr pCamera, const TrackerConfig& Config,
-                const IntPoint& DisplayExtents, bool bSubtractHistory = true);
+        TrackerEventSource(CameraPtr pCamera, const TrackerConfig& config,
+                const IntPoint& displayExtents, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
         void start();
 
-        void setParam(const std::string& sElement, const std::string& Value);
+        void setParam(const std::string& sElement, const std::string& sValue);
         std::string getParam(const std::string& sElement);
                 
         void resetHistory();
         void setDebugImages(bool bImg, bool bFinger);
         void saveConfig();
-        Bitmap * getImage(TrackerImageID ImageID) const;
+        Bitmap * getImage(TrackerImageID imageID) const;
         DPoint getDisplayROIPos() const;
         DPoint getDisplayROISize() const;
 
@@ -78,12 +78,12 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
 
     private:
         void setConfig();
-        void createBitmaps(const IntRect & Area);
+        void createBitmaps(const IntRect& area);
 
         boost::thread* m_pTrackerThread;
 
         // Used by main thread
-        void pollEventType(std::vector<EventPtr>& res, EventMap& Events,
+        void pollEventType(std::vector<EventPtr>& res, EventMap& events,
                 CursorEvent::Source source);
         void copyRelatedInfo(std::vector<EventPtr> pTouchEvents,
                 std::vector<EventPtr> pTrackEvents);

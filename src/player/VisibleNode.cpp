@@ -73,7 +73,7 @@ VisibleNode::VisibleNode()
 VisibleNode::~VisibleNode()
 {
     EventHandlerMap::iterator it;
-    for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+    for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
         Py_DECREF(it->second);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
@@ -84,13 +84,13 @@ VisibleNodePtr VisibleNode::getVThis() const
     return dynamic_pointer_cast<VisibleNode>(getThis());
 }
 
-void VisibleNode::setArgs(const ArgList& Args)
+void VisibleNode::setArgs(const ArgList& args)
 {
-    addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
-    addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
-    addEventHandlers(Event::CURSORDOWN, Args.getArgVal<string> ("oncursordown"));
-    addEventHandlers(Event::CURSOROVER, Args.getArgVal<string> ("oncursorover"));
-    addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
+    addEventHandlers(Event::CURSORMOTION, args.getArgVal<string> ("oncursormove"));
+    addEventHandlers(Event::CURSORUP, args.getArgVal<string> ("oncursorup"));
+    addEventHandlers(Event::CURSORDOWN, args.getArgVal<string> ("oncursordown"));
+    addEventHandlers(Event::CURSOROVER, args.getArgVal<string> ("oncursorover"));
+    addEventHandlers(Event::CURSOROUT, args.getArgVal<string> ("oncursorout"));
 }
 
 void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
@@ -129,20 +129,20 @@ void VisibleNode::disconnect(bool bKill)
     setState(NS_UNCONNECTED);
     if (bKill) {
         EventHandlerMap::iterator it;
-        for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+        for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
             Py_DECREF(it->second);
         }
         m_EventHandlerMap.clear();
     }
 }
 
-void VisibleNode::setID(const std::string& ID)
+void VisibleNode::setID(const std::string& sID)
 {
     if (getState() != NS_UNCONNECTED) {
         throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+getID()
                 +" is connected. setID invalid."));
     }
-    Node::setID(ID);
+    Node::setID(sID);
 }
 
 double VisibleNode::getOpacity() const 
@@ -226,19 +226,19 @@ void VisibleNode::releaseEventCapture(int cursorID)
     Player::get()->releaseEventCapture(cursorID);
 }
 
-void VisibleNode::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
+void VisibleNode::setEventHandler(Event::Type Type, int sources, PyObject * pFunc)
 {
-    for (int source=1; source<=Event::NONE; source*=2) {
-        if (source & Sources) {
-            EventHandlerID ID(Type, (Event::Source)source);
-            EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+    for (int source = 1; source <= Event::NONE; source *= 2) {
+        if (source & sources) {
+            EventHandlerID id(Type, (Event::Source)source);
+            EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
             if (it != m_EventHandlerMap.end()) {
                 Py_DECREF(it->second);
                 m_EventHandlerMap.erase(it);
             }
             if (pFunc != Py_None) {
                 Py_INCREF(pFunc);
-                m_EventHandlerMap[ID] = pFunc;
+                m_EventHandlerMap[id] = pFunc;
             }
         }
     }
@@ -249,21 +249,21 @@ bool VisibleNode::reactsToMouseEvents()
     return m_bActive && m_bSensitive;
 }
 
-DPoint VisibleNode::getRelPos(const DPoint& AbsPos) const 
+DPoint VisibleNode::getRelPos(const DPoint& absPos) const 
 {
     DPoint parentPos;
     DivNodePtr pParent = getDivParent();
     if (!pParent) {
-        parentPos = AbsPos;
+        parentPos = absPos;
     } else {
-        parentPos = pParent->getRelPos(AbsPos);
+        parentPos = pParent->getRelPos(absPos);
     }
     return toLocal(parentPos);
 }
 
-DPoint VisibleNode::getAbsPos(const DPoint& RelPos) const 
+DPoint VisibleNode::getAbsPos(const DPoint& relPos) const 
 {
-    DPoint thisPos = toGlobal(RelPos);
+    DPoint thisPos = toGlobal(relPos);
     DPoint parentPos;
     DivNodePtr pParent = getDivParent();
     if (!pParent) {
@@ -284,7 +284,7 @@ DPoint VisibleNode::toGlobal(const DPoint& localPos) const
     return localPos;
 }
 
-VisibleNodePtr VisibleNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr VisibleNode::getElementByPos(const DPoint& pos)
 {
     return VisibleNodePtr();
 }
@@ -310,8 +310,8 @@ CanvasPtr VisibleNode::getCanvas() const
 
 bool VisibleNode::handleEvent(EventPtr pEvent)
 {
-    EventHandlerID ID(pEvent->getType(), pEvent->getSource());
-    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+    EventHandlerID id(pEvent->getType(), pEvent->getSource());
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it!=m_EventHandlerMap.end()) {
         return callPython(it->second, pEvent);
     } else {
@@ -319,21 +319,21 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
     }
 }
 
-void VisibleNode::addEventHandlers(Event::Type EventType, const string& Code)
+void VisibleNode::addEventHandlers(Event::Type eventType, const string& sCode)
 {
-    addEventHandler(EventType, Event::MOUSE, Code);
-    addEventHandler(EventType, Event::TOUCH, Code);
-    addEventHandler(EventType, Event::TRACK, Code);
+    addEventHandler(eventType, Event::MOUSE, sCode);
+    addEventHandler(eventType, Event::TOUCH, sCode);
+    addEventHandler(eventType, Event::TRACK, sCode);
 }
 
-void VisibleNode::addEventHandler(Event::Type EventType, Event::Source Source, 
-        const string& Code)
+void VisibleNode::addEventHandler(Event::Type eventType, Event::Source source, 
+        const string& sCode)
 {
-    PyObject * pFunc = findPythonFunc(Code);
+    PyObject * pFunc = findPythonFunc(sCode);
     if (pFunc) {
         Py_INCREF(pFunc);
-        EventHandlerID ID(EventType, Source);
-        m_EventHandlerMap[ID] = pFunc;
+        EventHandlerID id(eventType, source);
+        m_EventHandlerMap[id] = pFunc;
     }
 }
 
@@ -359,11 +359,11 @@ string VisibleNode::dump(int indent)
     return dumpStr; 
 }
 
-void VisibleNode::setState(VisibleNode::NodeState State)
+void VisibleNode::setState(VisibleNode::NodeState state)
 {
 /*    
     cerr << m_ID << " state: ";
-    switch(State) {
+    switch(state) {
         case NS_UNCONNECTED:
             cerr << "unconnected" << endl;
             break;
@@ -376,13 +376,13 @@ void VisibleNode::setState(VisibleNode::NodeState State)
     }
 */
     if (m_State == NS_UNCONNECTED) {
-        AVG_ASSERT(State != NS_CANRENDER);
+        AVG_ASSERT(state != NS_CANRENDER);
     }
     if (m_State == NS_CANRENDER) {
-        AVG_ASSERT(State != NS_CONNECTED);
+        AVG_ASSERT(state != NS_CONNECTED);
     }
 
-    m_State = State;
+    m_State = state;
 }
         
 void VisibleNode::initFilename(string& sFilename)
@@ -435,9 +435,9 @@ bool VisibleNode::callPython(PyObject * pFunc, EventPtr pEvent)
     return boost::python::call<bool>(pFunc, pEvent);
 }
 
-PyObject * VisibleNode::findPythonFunc(const string& Code)
+PyObject * VisibleNode::findPythonFunc(const string& sCode)
 {
-    if (Code.empty()) {
+    if (sCode.empty()) {
         return 0;
     } else {
         PyObject * pModule = PyImport_AddModule("__main__");
@@ -446,9 +446,9 @@ PyObject * VisibleNode::findPythonFunc(const string& Code)
             exit(-1);
         }
         PyObject * pDict = PyModule_GetDict(pModule);
-        PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
+        PyObject * pFunc = PyDict_GetItemString(pDict, sCode.c_str());
         if (!pFunc) {
-            AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
+            AVG_TRACE(Logger::ERROR, "Function \"" << sCode << 
                     "\" not defined for node with id '"+getID()+"'. Aborting.");
             exit(-1);
         }
@@ -456,9 +456,9 @@ PyObject * VisibleNode::findPythonFunc(const string& Code)
     }
 }
 
-VisibleNode::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
-    : m_Type(EventType),
-      m_Source(Source)
+VisibleNode::EventHandlerID::EventHandlerID(Event::Type eventType, Event::Source source)
+    : m_Type(eventType),
+      m_Source(source)
 {
 }
 

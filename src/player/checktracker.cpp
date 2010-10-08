@@ -55,31 +55,31 @@ public:
     {
         std::vector<std::string> p = std::vector<std::string>();
         Logger::get()->setCategories(Logger::EVENTS|Logger::EVENTS2);
-        for (int i=0; i<30; ++i) {
+        for (int i = 0; i < 30; ++i) {
             stringstream s;
-            s << "testimages/" <<setw(2)<<setfill('0')<<i<< ".png";
+            s << "testimages/" << setw(2) << setfill('0') << i << ".png";
             p.push_back(s.str());
         }
-        AVG_ASSERT(p.size()>0);
+        AVG_ASSERT(p.size() > 0);
         CameraPtr pCam = CameraPtr(new FakeCamera(p));
         BitmapPtr pBitmaps[NUM_TRACKER_IMAGES];
-        for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
+        for (int i = 0; i < NUM_TRACKER_IMAGES; i++) {
             pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
-        MutexPtr pMutex(new boost::mutex);
 
-        TrackerConfig Config;
+        TrackerConfig config;
         copyFile("../imaging/avgtrackerrc.minimal", "avgtrackerrc");
-        Config.load();
+        config.load();
         TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(
-                new TrackerEventSource(pCam, Config, IntPoint(640, 480), false));
+                new TrackerEventSource(pCam, config, IntPoint(640, 480), false));
 
-        while(1){
+        while (true) {
             msleep(50);
             std::vector<EventPtr> e = pTracker->pollEvents();
-            if(e.size()==0)
-                cerr<<"no new events"<<endl;
-            for(std::vector<EventPtr>::iterator it=e.begin();it!=e.end();++it){
+            if(e.size()==0) {
+                cerr << "no new events" << endl;
+            }
+            for (std::vector<EventPtr>::iterator it = e.begin(); it != e.end(); ++it) {
                 (*it)->trace();
             }
         }
@@ -104,9 +104,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    TrackerTestSuite Suite;
-    Suite.runTests();
-    bool bOK = Suite.isOk();
+    TrackerTestSuite suite;
+    suite.runTests();
+    bool bOK = suite.isOk();
 
     if (bOK) {
         return 0;

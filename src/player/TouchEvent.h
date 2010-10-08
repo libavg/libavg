@@ -44,10 +44,10 @@ typedef boost::weak_ptr<class TouchEvent> TouchEventWeakPtr;
 class AVG_API TouchEvent: public CursorEvent 
 {
     public:
-        TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 
+        TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
                 Source source, const DPoint& speed, const IntPoint& lastDownPos);
         virtual ~TouchEvent();
-        virtual CursorEventPtr cloneAs(Type EventType) const;
+        virtual CursorEventPtr cloneAs(Type eventType) const;
 
         const DPoint& getSpeed() const;
         double getOrientation() const {return m_pBlob->getOrientation();};

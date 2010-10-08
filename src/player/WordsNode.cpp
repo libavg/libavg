@@ -104,7 +104,7 @@ NodeDefinition WordsNode::createDefinition()
         ;
 }
 
-WordsNode::WordsNode(const ArgList& Args)
+WordsNode::WordsNode(const ArgList& args)
     : m_LogicalSize(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
@@ -113,10 +113,10 @@ WordsNode::WordsNode(const ArgList& Args)
 {
     m_bParsedText = false;
 
-    Args.setMembers(this);
-    setAlignment(Args.getArgVal<string>("alignment"));
-    setWrapMode(Args.getArgVal<string>("wrapmode"));
-    setText(Args.getArgVal<UTF8String>("text"));
+    args.setMembers(this);
+    setAlignment(args.getArgVal<string>("alignment"));
+    setWrapMode(args.getArgVal<string>("wrapmode"));
+    setText(args.getArgVal<UTF8String>("text"));
     m_Color = colorStringToColor(m_sColorName);
     setViewport(-32767, -32767, -32767, -32767);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -135,7 +135,6 @@ WordsNode::~WordsNode()
 
 void WordsNode::setTextFromNodeValue(const string& sText)
 {
-//    cerr << "NODE VALUE: " << sText << "|" << endl;
     // Gives priority to Node Values only if they aren't empty
     UTF8String sTemp = removeExcessSpaces(sText);
     if (sTemp.length() != 0) {
@@ -243,7 +242,7 @@ double WordsNode::getHeight()
     return AreaNode::getHeight();
 }
 
-VisibleNodePtr WordsNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr WordsNode::getElementByPos(const DPoint& pos)
 {
     drawString();
     DPoint relPos = pos-DPoint(m_AlignOffset, 0);
@@ -292,7 +291,6 @@ void WordsNode::setText(const UTF8String& sText)
                 string("WordsNode::setText: string too long (") 
                         + toString(sText.length()) + ")"));
     }
-//    cerr << "setText(): " << sText << "|" << endl;
     if (m_sRawText != sText) {
         m_sRawText = sText;
         m_sText = m_sRawText;
@@ -310,7 +308,7 @@ const std::string& WordsNode::getColor() const
     return m_sColorName;
 }
 
-void WordsNode::setColor(const std::string& sColor)
+void WordsNode::setColor(const string& sColor)
 {
     m_sColorName = sColor;
     m_Color = colorStringToColor(m_sColorName);
@@ -334,9 +332,9 @@ int WordsNode::getIndent() const
     return m_Indent;
 }
 
-void WordsNode::setIndent(int Indent)
+void WordsNode::setIndent(int indent)
 {
-    m_Indent = Indent;
+    m_Indent = indent;
     m_bDrawNeeded = true;
 }
 
@@ -345,9 +343,9 @@ double WordsNode::getLineSpacing() const
     return m_LineSpacing;
 }
 
-void WordsNode::setLineSpacing(double LineSpacing)
+void WordsNode::setLineSpacing(double lineSpacing)
 {
-    m_LineSpacing = LineSpacing;
+    m_LineSpacing = lineSpacing;
     m_bDrawNeeded = true;
 }
 
@@ -356,16 +354,16 @@ bool WordsNode::getRawTextMode() const
     return m_bRawTextMode;
 }
 
-void WordsNode::setRawTextMode(bool RawTextMode)
+void WordsNode::setRawTextMode(bool rawTextMode)
 {
-    if (RawTextMode != m_bRawTextMode) {
+    if (rawTextMode != m_bRawTextMode) {
         m_sText = m_sRawText;
-        if (RawTextMode) {
+        if (rawTextMode) {
             m_bParsedText = false;
         } else {
             setParsedText(m_sText);
         }
-        m_bRawTextMode = RawTextMode;
+        m_bRawTextMode = rawTextMode;
         m_bDrawNeeded = true;
     }
 }
@@ -390,14 +388,14 @@ int WordsNode::getNumLines()
 
 PyObject* WordsNode::getCharIndexFromPos(DPoint p)
 {
-    int index_;
+    int index;
     int trailing;
     drawString();
     gboolean bXyToIndex = pango_layout_xy_to_index(m_pLayout,
-                int(p.x*PANGO_SCALE), int(p.y*PANGO_SCALE), &index_, &trailing);
+                int(p.x*PANGO_SCALE), int(p.y*PANGO_SCALE), &index, &trailing);
     if (bXyToIndex) {
         const char* pText = pango_layout_get_text(m_pLayout);
-        return Py_BuildValue("l",(g_utf8_pointer_to_offset(pText,pText+index_)));
+        return Py_BuildValue("l",(g_utf8_pointer_to_offset(pText,pText+index)));
     } else {
         return Py_BuildValue("");
     }
@@ -411,8 +409,9 @@ std::string WordsNode::getTextAsDisplayed()
 
 DPoint WordsNode::getLineExtents(int line)
 {
-    if(line < 0 || line >= getNumLines()){
-        throw Exception(AVG_ERR_OUT_OF_RANGE, "getLineExtents: The line "+toString(line)+" is not available.");
+    if(line < 0 || line >= getNumLines()) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "WordsNode.getLineExtents: line index "
+                +toString(line)+" is out of range.");
     }
     drawString();
     PangoRectangle logical_rect;
@@ -518,11 +517,11 @@ static ProfilingZoneID DrawStringProfilingZone("WordsNode::drawString");
 
 void WordsNode::drawString()
 {
-    AVG_ASSERT (m_sText.length() < 32767);
+    AVG_ASSERT(m_sText.length() < 32767);
     if (!m_bDrawNeeded) {
         return;
     }
-    ScopeTimer Timer(DrawStringProfilingZone);
+    ScopeTimer timer(DrawStringProfilingZone);
     if (m_sText.length() == 0) {
         m_LogicalSize = IntPoint(0,0);
     } else {
@@ -604,8 +603,6 @@ void WordsNode::drawString()
         if (getUserSize().x == 0) {
             bmpSize.x = ink_rect.width;
         } else {
-            // User-set paragraph width. Make bitmap a bit bigger to make sure
-            // nothing is cut off.
             bmpSize.x = int(getUserSize().x);
         }
         if (bmpSize.x == 0) {
@@ -668,9 +665,9 @@ void WordsNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 
-void WordsNode::render(const DRect& Rect)
+void WordsNode::render(const DRect& rect)
 {
-    ScopeTimer Timer(RenderProfilingZone);
+    ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
         if (offset != IntPoint(0,0)) {
