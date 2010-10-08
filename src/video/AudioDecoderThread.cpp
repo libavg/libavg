@@ -74,11 +74,8 @@ bool AudioDecoderThread::work()
 
 void AudioDecoderThread::seek(double destTime)
 {
-    try {
-        while (!m_MsgQ.empty()) {
-            m_MsgQ.pop(false);
-        }
-    } catch (Exception&) {
+    while (!m_MsgQ.empty()) {
+        m_MsgQ.pop(false);
     }
     
     m_pDecoder->seek(destTime);
