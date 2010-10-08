@@ -100,9 +100,9 @@ public:
 
 int main(int nargs, char** args)
 {
-    LimiterTest Test;
-    Test.runTests();
-    bool bOK = Test.isOk();
+    LimiterTest test;
+    test.runTests();
+    bool bOK = test.isOk();
 
     if (bOK) {
         return 0;

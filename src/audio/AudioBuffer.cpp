@@ -28,11 +28,11 @@
 
 namespace avg {
 
-AudioBuffer::AudioBuffer(int numFrames, AudioParams AP)
+AudioBuffer::AudioBuffer(int numFrames, AudioParams ap)
     : m_NumFrames(numFrames),
-      m_AP(AP)
+      m_AP(ap)
 {
-    m_pData = new short[numFrames*sizeof(short)*AP.m_Channels];
+    m_pData = new short[numFrames*sizeof(short)*ap.m_Channels];
 }
 
 AudioBuffer::~AudioBuffer()

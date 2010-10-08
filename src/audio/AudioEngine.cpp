@@ -54,7 +54,7 @@ void AudioEngine::setAudioEnabled(bool bEnabled)
     }
 }
 
-void AudioEngine::init(const AudioParams& AP, double volume)
+void AudioEngine::init(const AudioParams& ap, double volume)
 {
     m_Volume = volume;
 }

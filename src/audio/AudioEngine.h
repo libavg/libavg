@@ -46,7 +46,7 @@ class AVG_API AudioEngine
 
         virtual void setAudioEnabled(bool bEnabled);
         
-        virtual void init(const AudioParams& AP, double volume);
+        virtual void init(const AudioParams& ap, double volume);
         virtual void teardown() = 0;
         
         virtual void play() = 0;
@@ -67,4 +67,4 @@ class AVG_API AudioEngine
 
 }
 
-#endif //_AudioEngine_H_
+#endif

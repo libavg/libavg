@@ -39,7 +39,7 @@ SDLAudioEngine::SDLAudioEngine()
       m_pMixBuffer(0),
       m_pLimiter(0)
 {
-    if (SDL_InitSubSystem(SDL_INIT_AUDIO)==-1) {
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
         exit(-1);
     }
@@ -72,10 +72,10 @@ const AudioParams * SDLAudioEngine::getParams()
     }
 }
 
-void SDLAudioEngine::init(const AudioParams& AP, double volume) 
+void SDLAudioEngine::init(const AudioParams& ap, double volume) 
 {
-    AudioEngine::init(AP, volume);
-    m_AP = AP;
+    AudioEngine::init(ap, volume);
+    m_AP = ap;
     Dynamics<double, 2>* pLimiter = new Dynamics<double, 2>(m_AP.m_SampleRate);
     pLimiter->setThreshold(0.); // in dB
     pLimiter->setAttackTime(0.); // in seconds
@@ -171,7 +171,7 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
         m_pMixBuffer = new double[getChannels()*numFrames];
     }
 
-    for (int i=0; i<getChannels()*numFrames; ++i) {
+    for (int i = 0; i < getChannels()*numFrames; ++i) {
         m_pMixBuffer[i]=0;
     }
     {
@@ -184,9 +184,9 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
         }
     }
     calcVolume(m_pMixBuffer, numFrames*getChannels(), getVolume());
-    for (int i=0; i<numFrames; ++i) {
+    for (int i = 0; i < numFrames; ++i) {
         m_pLimiter->process(m_pMixBuffer+i*getChannels());
-        for (int j=0; j<getChannels(); ++j) {
+        for (int j = 0; j < getChannels(); ++j) {
             ((short*)pDestBuffer)[i*2+j]=short(m_pMixBuffer[i*2+j]*32768);
         }
     }

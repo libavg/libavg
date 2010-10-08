@@ -35,7 +35,7 @@ namespace avg
 class AVG_API AudioBuffer
 {
     public:
-        AudioBuffer(int numFrames, AudioParams AP);
+        AudioBuffer(int numFrames, AudioParams ap);
         virtual ~AudioBuffer();
 
         short* getData();
