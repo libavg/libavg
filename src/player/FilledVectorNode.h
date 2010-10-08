@@ -34,7 +34,7 @@ class AVG_API FilledVectorNode : public VectorNode
     public:
         static NodeDefinition createDefinition();
         
-        FilledVectorNode(const ArgList& Args);
+        FilledVectorNode(const ArgList& args);
         virtual ~FilledVectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);

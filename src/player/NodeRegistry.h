@@ -41,8 +41,8 @@ public:
     NodeRegistry();
     virtual ~NodeRegistry();
     
-    void registerNodeType(const NodeDefinition& Def);
-    void updateNodeDefinition(const NodeDefinition& Def);
+    void registerNodeType(const NodeDefinition& def);
+    void updateNodeDefinition(const NodeDefinition& def);
     const NodeDefinition& getNodeDef(const std::string& Type);
     NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
     NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
@@ -50,7 +50,7 @@ public:
     std::string getDTD() const;
     
 private:
-    void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
+    void writeNodeDTD(const NodeDefinition& def, std::stringstream& ss) const;
     
     typedef std::map<std::string, NodeDefinition> NodeDefMap;
     NodeDefMap m_NodeDefs;

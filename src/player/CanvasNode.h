@@ -34,7 +34,7 @@ class AVG_API CanvasNode : public DivNode
     public:
         static NodeDefinition createDefinition();
         
-        CanvasNode(const ArgList& Args);
+        CanvasNode(const ArgList& args);
         virtual ~CanvasNode();
 
         virtual std::string getEffectiveMediaDir();

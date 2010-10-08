@@ -44,8 +44,8 @@ class AVG_API ArgList
 {
 public:
     ArgList();
-    ArgList(const ArgList& ArgTemplates, const xmlNodePtr xmlNode);
-    ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict);
+    ArgList(const ArgList& argTemplates, const xmlNodePtr xmlNode);
+    ArgList(const ArgList& argTemplates, const boost::python::dict& PyDict);
     virtual ~ArgList();
 
     bool hasArg(const std::string& sName) const;
@@ -60,14 +60,14 @@ public:
 
     const ArgMap& getArgMap() const;
     
-    void setArg(const ArgBase& Arg);
-    void setArgs(const ArgList& Args);
+    void setArg(const ArgBase& newArg);
+    void setArgs(const ArgList& args);
     void setMembers(VisibleNode * pNode) const;
     
-    void copyArgsFrom(const ArgList& ArgTemplates);
+    void copyArgsFrom(const ArgList& argTemplates);
 
 private:
-    void setArgValue(const std::string & sName, const boost::python::object& Value);
+    void setArgValue(const std::string & sName, const boost::python::object& value);
     void setArgValue(const std::string & sName, const std::string & sValue);
     ArgMap m_Args;
 };

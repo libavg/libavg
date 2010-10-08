@@ -36,12 +36,12 @@ namespace avg {
     
     int EventStream::s_LastLabel = 0;
 
-    EventStream::EventStream(BlobPtr first_blob, long long time)
+    EventStream::EventStream(BlobPtr pFirstBlob, long long time)
         : m_Time(time)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
-        m_Id = ++s_LastLabel;
-        m_pBlob = first_blob;
+        m_ID = ++s_LastLabel;
+        m_pBlob = pFirstBlob;
         m_Pos = m_pBlob->getCenter();
         m_OldPos = m_Pos;
         m_FirstPos = m_Pos;
@@ -56,19 +56,19 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
 
-    void EventStream::blobChanged(BlobPtr new_blob, long long time, bool bEventOnMove)
+    void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bEventOnMove)
     {
         AVG_ASSERT(m_pBlob);
-        AVG_ASSERT(new_blob);
+        AVG_ASSERT(pNewBlob);
         m_VanishCounter = 0;
-        DPoint c = new_blob->getCenter();
-        bool pos_changed;
+        DPoint c = pNewBlob->getCenter();
+        bool bPosChanged;
         if (bEventOnMove) {
-            pos_changed = (calcDist(c, m_Pos) > 1);
+            bPosChanged = (calcDist(c, m_Pos) > 1);
         } else {
-            pos_changed = true;
+            bPosChanged = true;
         }
-        switch(m_State) {
+        switch (m_State) {
             case DOWN_PENDING:
                 //finger touch has not been polled yet. update position
                 break;
@@ -77,7 +77,7 @@ namespace avg {
                 break;
             case DOWN_DELIVERED:
                 //fingerdown delivered, change to motion states
-                if (pos_changed)
+                if (bPosChanged)
                     m_State = MOTION_PENDING;
                 else
                     m_State = MOTION_DELIVERED;
@@ -85,27 +85,27 @@ namespace avg {
             case MOTION_PENDING:
                 break;
             case MOTION_DELIVERED:
-                if (pos_changed) {
+                if (bPosChanged) {
                     m_State = MOTION_PENDING;
                 }
                 break;
             default:
                 //pass
                 break;
-        };
-        if (pos_changed) {
+        }
+        if (bPosChanged) {
             m_OldTime = m_Time;
             m_Time = time;
             m_OldPos = m_Pos;
             m_Pos = c;
         }
-        m_pBlob = new_blob;
+        m_pBlob = pNewBlob;
         m_Stale = false;
     };
         
     void EventStream::blobGone()
     {
-        switch(m_State) {
+        switch (m_State) {
             case DOWN_PENDING:
                 m_State = UP_DELIVERED;
                 break;
@@ -115,46 +115,46 @@ namespace avg {
             default:
                 m_State = VANISHED;
                 m_VanishCounter++;
-                if(m_VanishCounter>=MAXMISSINGFRAMES){
+                if (m_VanishCounter >= MAXMISSINGFRAMES) {
                     m_State = UP_PENDING;
                 }
                 break;
         }
     }
 
-    EventPtr EventStream::pollevent(DeDistortPtr trafo, const DRect& displayROI, 
-            CursorEvent::Source Source, bool bEventOnMove)
+    EventPtr EventStream::pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
+            CursorEvent::Source source, bool bEventOnMove)
     {
         AVG_ASSERT(m_pBlob);
-        DPoint BlobOffset = trafo->getActiveBlobArea(displayROI).tl;
+        DPoint BlobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
         DPoint pt = m_pBlob->getCenter()+BlobOffset;
-        DPoint screenpos = trafo->transformBlobToScreen(pt);
-        IntPoint Pos(int(screenpos.x+0.5), 
-                int(screenpos.y+0.5)); 
-        DPoint oldPos = trafo->transformBlobToScreen(m_OldPos + BlobOffset);
-        DPoint newPos = trafo->transformBlobToScreen(m_Pos + BlobOffset);
+        DPoint screenpos = pDeDistort->transformBlobToScreen(pt);
+        IntPoint pos(int(screenpos.x+0.5), int(screenpos.y+0.5)); 
+        DPoint oldPos = pDeDistort->transformBlobToScreen(m_OldPos + BlobOffset);
+        DPoint newPos = pDeDistort->transformBlobToScreen(m_Pos + BlobOffset);
         DPoint speed = getSpeed(oldPos, newPos);
-        DPoint firstDoubleScreenPos = trafo->transformBlobToScreen(m_FirstPos+BlobOffset);
+        DPoint firstDoubleScreenPos = pDeDistort->transformBlobToScreen(
+                m_FirstPos+BlobOffset);
         IntPoint firstScreenPos(int(firstDoubleScreenPos.x+0.5), 
                 int(firstDoubleScreenPos.y+0.5));
-        switch(m_State){
+        switch (m_State) {
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
-                return EventPtr(new TouchEvent(m_Id, Event::CURSORDOWN,
-                        m_pBlob, Pos, Source, speed, firstScreenPos));
+                return EventPtr(new TouchEvent(m_ID, Event::CURSORDOWN,
+                        m_pBlob, pos, source, speed, firstScreenPos));
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
-                return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                        m_pBlob, Pos, Source, speed, firstScreenPos));
+                return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
+                        m_pBlob, pos, source, speed, firstScreenPos));
             case UP_PENDING:
                 m_State = UP_DELIVERED;
-                return EventPtr(new TouchEvent(m_Id, Event::CURSORUP,
-                        m_pBlob, Pos, Source, speed, firstScreenPos));
+                return EventPtr(new TouchEvent(m_ID, Event::CURSORUP,
+                        m_pBlob, pos, source, speed, firstScreenPos));
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
                 if (!bEventOnMove) {
-                    return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                            m_pBlob, Pos, Source, speed, firstScreenPos));
+                    return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
+                            m_pBlob, pos, source, speed, firstScreenPos));
                 } else {
                     return EventPtr();
                 }
@@ -202,7 +202,8 @@ namespace avg {
 
     void EventStream::dump() 
     {
-        cerr << "  " << m_Id << ": " << stateToString(m_State) << ", stale: " << m_Stale << endl;
+        cerr << "  " << m_ID << ": " << stateToString(m_State) << ", stale: " 
+                << m_Stale << endl;
         if (m_State == VANISHED) {
             cerr << "    VanishCounter: " << m_VanishCounter << endl;
         }

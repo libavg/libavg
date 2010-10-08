@@ -40,11 +40,11 @@ ArgList::ArgList()
 {
 }
 
-ArgList::ArgList(const ArgList& ArgTemplates, const xmlNodePtr xmlNode)
+ArgList::ArgList(const ArgList& argTemplates, const xmlNodePtr xmlNode)
 {
-    copyArgsFrom(ArgTemplates);
+    copyArgsFrom(argTemplates);
 
-    for(xmlAttrPtr prop = xmlNode->properties; prop; prop = prop->next)
+    for (xmlAttrPtr prop = xmlNode->properties; prop; prop = prop->next)
     {
         string name = (char*)prop->name;
         string value = (char*)prop->children->content;
@@ -52,13 +52,13 @@ ArgList::ArgList(const ArgList& ArgTemplates, const xmlNodePtr xmlNode)
     }
 }
 
-ArgList::ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict)
+ArgList::ArgList(const ArgList& argTemplates, const boost::python::dict& PyDict)
 {
     // TODO: Check if all required args are being set.
-    copyArgsFrom(ArgTemplates);
+    copyArgsFrom(argTemplates);
     boost::python::list keys = PyDict.keys();
     int nKeys = boost::python::len(keys);
-    for(int i = 0; i < nKeys; i++)
+    for (int i = 0; i < nKeys; i++)
     {
         boost::python::object keyObj = keys[i];
         boost::python::object valObj = PyDict[keyObj];
@@ -116,19 +116,16 @@ void ArgList::setArg(const ArgBase& newArg)
     m_Args.insert(ArgMap::value_type(newArg.getName(), ArgBasePtr(newArg.createCopy())));
 }
 
-void ArgList::setArgs(const ArgList& Args)
+void ArgList::setArgs(const ArgList& args)
 {
-    for(ArgMap::const_iterator it = Args.m_Args.begin(); 
-            it != Args.m_Args.end(); it++)
-    {
+    for (ArgMap::const_iterator it = args.m_Args.begin(); it != args.m_Args.end(); it++) {
         m_Args.insert(*it);
     }
 }
     
 void ArgList::setMembers(VisibleNode * pNode) const
 {
-    for(ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++)
-    {
+    for (ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++) {
         const ArgBasePtr pCurArg = it->second;
         pCurArg->setMember(pNode);
     }
@@ -136,9 +133,10 @@ void ArgList::setMembers(VisibleNode * pNode) const
 }
 
 template<class T>
-void setArgValue(Arg<T>* pArg, const std::string & sName, const boost::python::object& Value)
+void setArgValue(Arg<T>* pArg, const std::string & sName, 
+        const boost::python::object& value)
 {
-    boost::python::extract<T> valProxy(Value);
+    boost::python::extract<T> valProxy(value);
     if (!valProxy.check()) {
         string sTypeName = getFriendlyTypeName(pArg->getValue());
         throw Exception(AVG_ERR_INVALID_ARGS, "Type error in argument "+sName+": "
@@ -147,7 +145,7 @@ void setArgValue(Arg<T>* pArg, const std::string & sName, const boost::python::o
     pArg->setValue(valProxy());
 }
 
-void ArgList::setArgValue(const std::string & sName, const boost::python::object& Value)
+void ArgList::setArgValue(const std::string & sName, const boost::python::object& value)
 {
     ArgBasePtr pArg = getArg(sName);
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
@@ -165,29 +163,29 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<vector<IntTriple> >* pIntTripleVectorArg = 
             dynamic_cast<Arg<vector<IntTriple> >* >(&*pArg);
     if(pStringArg) {
-        avg::setArgValue(pStringArg, sName, Value);
+        avg::setArgValue(pStringArg, sName, value);
     } else if (pUTF8StringArg) {
-        avg::setArgValue(pUTF8StringArg, sName, Value);
+        avg::setArgValue(pUTF8StringArg, sName, value);
     } else if (pIntArg) {
-        avg::setArgValue(pIntArg, sName, Value);
+        avg::setArgValue(pIntArg, sName, value);
     } else if (pDoubleArg) {
-        avg::setArgValue(pDoubleArg, sName, Value);
+        avg::setArgValue(pDoubleArg, sName, value);
     } else if (pFloatArg) {
-        avg::setArgValue(pFloatArg, sName, Value);
+        avg::setArgValue(pFloatArg, sName, value);
     } else if (pBoolArg) {
-        avg::setArgValue(pBoolArg, sName, Value);
+        avg::setArgValue(pBoolArg, sName, value);
     } else if (pDPointArg) {
-        avg::setArgValue(pDPointArg, sName, Value);
+        avg::setArgValue(pDPointArg, sName, value);
     } else if (pDVectorArg) {
-        avg::setArgValue(pDVectorArg, sName, Value);
+        avg::setArgValue(pDVectorArg, sName, value);
     } else if (pDPointVectorArg) {
-        avg::setArgValue(pDPointVectorArg, sName, Value);
+        avg::setArgValue(pDPointVectorArg, sName, value);
     } else if (pIntTripleArg) {
-        avg::setArgValue(pIntTripleArg, sName, Value);
+        avg::setArgValue(pIntTripleArg, sName, value);
     } else if (pDTripleArg) {
-        avg::setArgValue(pDTripleArg, sName, Value);
+        avg::setArgValue(pDTripleArg, sName, value);
     } else if (pIntTripleVectorArg) {
-        avg::setArgValue(pIntTripleVectorArg, sName, Value);
+        avg::setArgValue(pIntTripleVectorArg, sName, value);
     } else {
         AVG_ASSERT(false);
     }
@@ -243,10 +241,10 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     }   
 }
 
-void ArgList::copyArgsFrom(const ArgList& ArgTemplates)
+void ArgList::copyArgsFrom(const ArgList& argTemplates)
 {
-    for(ArgMap::const_iterator it = ArgTemplates.m_Args.begin();
-            it != ArgTemplates.m_Args.end(); it++)
+    for (ArgMap::const_iterator it = argTemplates.m_Args.begin();
+            it != argTemplates.m_Args.end(); it++)
     {
         string sKey = it->first;
         ArgBasePtr pArg = ArgBasePtr(it->second->createCopy());

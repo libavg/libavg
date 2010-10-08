@@ -47,11 +47,11 @@ NodeDefinition RectNode::createDefinition()
         ;
 }
 
-RectNode::RectNode(const ArgList& Args)
-    : FilledVectorNode(Args)
+RectNode::RectNode(const ArgList& args)
+    : FilledVectorNode(args)
 {
-    Args.setMembers(this);
-    setSize(Args.getArgVal<DPoint>("size"));
+    args.setMembers(this);
+    setSize(args.getArgVal<DPoint>("size"));
 }
 
 RectNode::~RectNode()

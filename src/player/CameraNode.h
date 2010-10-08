@@ -41,7 +41,7 @@ class AVG_API CameraNode : public RasterNode
     public:
         static NodeDefinition createDefinition();
         
-        CameraNode(const ArgList& Args);
+        CameraNode(const ArgList& args);
         virtual ~CameraNode();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
@@ -67,23 +67,23 @@ class AVG_API CameraNode : public RasterNode
         }
 
         int getBrightness() const;
-        void setBrightness(int Value);
+        void setBrightness(int value);
         int getSharpness() const;
-        void setSharpness(int Value);
+        void setSharpness(int value);
         int getSaturation() const;
-        void setSaturation(int Value);
+        void setSaturation(int value);
         int getCamGamma() const;
-        void setCamGamma(int Value);
+        void setCamGamma(int value);
         int getShutter() const;
-        void setShutter(int Value);
+        void setShutter(int value);
         int getGain() const;
-        void setGain(int Value);
+        void setGain(int value);
         int getWhitebalanceU() const;
         int getWhitebalanceV() const;
         void setWhitebalance(int u, int v);
         void doOneShotWhitebalance();
         int getStrobeDuration() const;
-        void setStrobeDuration(int Value);
+        void setStrobeDuration(int value);
         
         void updateCameraImage();
         bool isAutoUpdateCameraImage() const;
@@ -100,8 +100,8 @@ class AVG_API CameraNode : public RasterNode
         static void resetFirewireBus();
 
     private:
-        int getFeature (CameraFeature Feature) const;
-        void setFeature (CameraFeature Feature, int Value);
+        int getFeature (CameraFeature feature) const;
+        void setFeature (CameraFeature feature, int value);
 
         virtual double getFPS() const;
         virtual void open();

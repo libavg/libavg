@@ -37,7 +37,7 @@ class VisibleNode;
 class AVG_API ArgBase
 {
 public:
-    ArgBase(std::string Name, bool bRequired, ptrdiff_t MemberOffset);
+    ArgBase(std::string sName, bool bRequired, ptrdiff_t memberOffset);
     virtual ~ArgBase();
     
     std::string getName() const;
@@ -53,7 +53,7 @@ protected:
     bool m_bDefault;
 
 private:
-    std::string m_Name;
+    std::string m_sName;
     bool m_bRequired;
     ptrdiff_t m_MemberOffset;
 };

@@ -52,13 +52,13 @@ NodeDefinition FilledVectorNode::createDefinition()
         ;
 }
 
-FilledVectorNode::FilledVectorNode(const ArgList& Args)
-    : VectorNode(Args),
+FilledVectorNode::FilledVectorNode(const ArgList& args)
+    : VectorNode(args),
       m_pFillShape(new Shape(MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
 {
-    m_FillTexHRef = Args.getArgVal<UTF8String>("filltexhref"); 
+    m_FillTexHRef = args.getArgVal<UTF8String>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
-    m_sFillColorName = Args.getArgVal<string>("fillcolor");
+    m_sFillColorName = args.getArgVal<string>("fillcolor");
     m_FillColor = colorStringToColor(m_sFillColorName);
 }
 

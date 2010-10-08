@@ -34,8 +34,8 @@ namespace avg {
 
 MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
-        const IntPoint& Position, int button, const DPoint& speed)
-    : CursorEvent(MOUSECURSORID, eventType, Position, MOUSE),
+        const IntPoint& pos, int button, const DPoint& speed)
+    : CursorEvent(MOUSECURSORID, eventType, pos, MOUSE),
       m_Speed(speed)
 {
     m_LeftButtonState = leftButtonState;

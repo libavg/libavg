@@ -37,7 +37,7 @@ class AVG_API PolygonNode : public FilledVectorNode
     public:
         static NodeDefinition createDefinition();
         
-        PolygonNode(const ArgList& Args);
+        PolygonNode(const ArgList& args);
         virtual ~PolygonNode();
 
         const std::vector<DPoint>& getPos() const;

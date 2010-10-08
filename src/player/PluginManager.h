@@ -37,11 +37,11 @@ class AVG_API PluginManager
 public:
     class AVG_API PluginNotFound : public Exception {
     public:
-        PluginNotFound(const std::string& message);
+        PluginNotFound(const std::string& sMessage);
     };
     class AVG_API PluginCorrupted : public Exception {
     public:
-        PluginCorrupted(const std::string& message);
+        PluginCorrupted(const std::string& sMessage);
     };
     
     static PluginManager& get();

@@ -36,10 +36,10 @@ NodeDefinition CanvasNode::createDefinition()
         .extendDefinition(DivNode::createDefinition());
 }
 
-CanvasNode::CanvasNode(const ArgList& Args)
-    : DivNode(Args)
+CanvasNode::CanvasNode(const ArgList& args)
+    : DivNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
 }
 
 CanvasNode::~CanvasNode()

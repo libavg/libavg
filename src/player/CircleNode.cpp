@@ -43,10 +43,10 @@ NodeDefinition CircleNode::createDefinition()
         ;
 }
 
-CircleNode::CircleNode(const ArgList& Args)
-    : FilledVectorNode(Args)
+CircleNode::CircleNode(const ArgList& args)
+    : FilledVectorNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
 }
 
 CircleNode::~CircleNode()
@@ -126,56 +126,56 @@ void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     
     typedef vector<DPoint>::iterator DPointIt;
     typedef vector<DPoint>::reverse_iterator DPointRIt;
-    int i=0;
-    for (DPointIt iit=innerCircle.begin()+1, oit=outerCircle.begin()+1; 
-            iit !=innerCircle.end(); ++iit, ++oit)
+    int i = 0;
+    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+            iit != innerCircle.end(); ++iit, ++oit)
     {
         appendCirclePoint(pVertexArray, *iit, *oit, color, i, curVertex);
     }
-    for (DPointRIt iit=innerCircle.rbegin()+1, oit=outerCircle.rbegin()+1; 
-            iit !=innerCircle.rend(); ++iit, ++oit)
+    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+            iit != innerCircle.rend(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(-iit->y, -iit->x);
         DPoint oPt = DPoint(-oit->y, -oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointIt iit=innerCircle.begin()+1, oit=outerCircle.begin()+1; 
-            iit !=innerCircle.end(); ++iit, ++oit)
+    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+            iit != innerCircle.end(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(-iit->y, iit->x);
         DPoint oPt = DPoint(-oit->y, oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointRIt iit=innerCircle.rbegin()+1, oit=outerCircle.rbegin()+1; 
+    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
             iit !=innerCircle.rend(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(iit->x, -iit->y);
         DPoint oPt = DPoint(oit->x, -oit->y);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointIt iit=innerCircle.begin()+1, oit=outerCircle.begin()+1; 
-            iit !=innerCircle.end(); ++iit, ++oit)
+    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+            iit != innerCircle.end(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(-iit->x, -iit->y);
         DPoint oPt = DPoint(-oit->x, -oit->y);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointRIt iit=innerCircle.rbegin()+1, oit=outerCircle.rbegin()+1; 
-            iit !=innerCircle.rend(); ++iit, ++oit)
+    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+            iit != innerCircle.rend(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(iit->y, iit->x);
         DPoint oPt = DPoint(oit->y, oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointIt iit=innerCircle.begin()+1, oit=outerCircle.begin()+1; 
-            iit !=innerCircle.end(); ++iit, ++oit)
+    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+            iit != innerCircle.end(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(iit->y, -iit->x);
         DPoint oPt = DPoint(oit->y, -oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointRIt iit=innerCircle.rbegin()+1, oit=outerCircle.rbegin()+1; 
-            iit !=innerCircle.rend(); ++iit, ++oit)
+    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+            iit != innerCircle.rend(); ++iit, ++oit)
     {
         DPoint iPt = DPoint(-iit->x, iit->y);
         DPoint oPt = DPoint(-oit->x, oit->y);
@@ -196,46 +196,50 @@ void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     vector<DPoint> circlePoints;
     getEigthCirclePoints(circlePoints, m_Radius);
 
-    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
+            ++it)
     {
         DPoint curPt = *it+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1; 
-            it !=circlePoints.rend(); ++it)
+    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1; 
+            it != circlePoints.rend(); ++it)
     {
         DPoint curPt = DPoint(-it->y, -it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
+            ++it)
     {
         DPoint curPt = DPoint(-it->y, it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1; 
-            it !=circlePoints.rend(); ++it)
+    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1; 
+            it != circlePoints.rend(); ++it)
     {
         DPoint curPt = DPoint(it->x, -it->y)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
+            ++it)
     {
         DPoint curPt = DPoint(-it->x, -it->y)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1;
-            it !=circlePoints.rend(); ++it)
+    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1;
+            it != circlePoints.rend(); ++it)
     {
         DPoint curPt = DPoint(it->y, it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
+            ++it)
     {
         DPoint curPt = DPoint(it->y, -it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1;
-            it !=circlePoints.rend(); ++it)
+    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1;
+            it != circlePoints.rend(); ++it)
     {
         DPoint curPt = DPoint(-it->x, it->y)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
@@ -271,7 +275,7 @@ int CircleNode::getNumCircumferencePoints()
 void CircleNode::getEigthCirclePoints(vector<DPoint>& pts, double radius)
 {
     int numPts = getNumCircumferencePoints();
-    for (int i=0; i<=numPts/8; ++i) {
+    for (int i = 0; i <= numPts/8; ++i) {
         double ratio = (double(i)/numPts);
         double angle = ratio*2*3.14159;
         pts.push_back(getCirclePt(angle, radius));

@@ -19,7 +19,7 @@ GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h GLConfig.h
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h\
-        DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h Region.h \
+        DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \
         Node.h VisibleNode.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
@@ -65,7 +65,7 @@ libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp VisibleNode.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
-        DisplayEngine.cpp Region.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
+        DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
         MainCanvas.cpp Node.cpp \
         PanoImageNode.cpp WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \

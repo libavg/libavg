@@ -29,9 +29,9 @@
 
 namespace avg{
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& Position, Source source)
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
             :Event(eventType, source),
-            m_Position(Position),
+            m_Position(position),
             m_ID(id)
 {
 }

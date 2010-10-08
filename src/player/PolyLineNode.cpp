@@ -46,15 +46,15 @@ NodeDefinition PolyLineNode::createDefinition()
         ;
 }
 
-PolyLineNode::PolyLineNode(const ArgList& Args)
-    : VectorNode(Args)
+PolyLineNode::PolyLineNode(const ArgList& args)
+    : VectorNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
     if (m_TexCoords.size() > m_Pts.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Too many texture coordinates in polyline"));
     }
-    setLineJoin(Args.getArgVal<string>("linejoin"));
+    setLineJoin(args.getArgVal<string>("linejoin"));
     calcPolyLineCumulDist(m_CumulDist, m_Pts, false);
 }
 
@@ -70,7 +70,7 @@ const vector<DPoint>& PolyLineNode::getPos() const
 void PolyLineNode::setPos(const vector<DPoint>& pts) 
 {
     vector<DPoint>::const_iterator it;
-    for (it=pts.begin(); it != pts.end(); ++it) {
+    for (it = pts.begin(); it != pts.end(); ++it) {
         if (it->isNaN() || it->isInf()) {
             throw Exception(AVG_ERR_INVALID_ARGS, 
                     "polyline positions must not be nan or inf.");

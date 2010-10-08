@@ -48,15 +48,15 @@ NodeDefinition PolygonNode::createDefinition()
         ;
 }
 
-PolygonNode::PolygonNode(const ArgList& Args)
-    : FilledVectorNode(Args)
+PolygonNode::PolygonNode(const ArgList& args)
+    : FilledVectorNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
     if (m_TexCoords.size() > m_Pts.size()+1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Too many texture coordinates in polygon"));
     }
-    setLineJoin(Args.getArgVal<string>("linejoin"));
+    setLineJoin(args.getArgVal<string>("linejoin"));
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
 }
 
@@ -105,7 +105,7 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-VisibleNodePtr PolygonNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr PolygonNode::getElementByPos(const DPoint& pos)
 {
     if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
         return getVThis();
@@ -149,12 +149,13 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
         }
         vector<int> triIndexes;
         triangulatePolygon(m_Pts, triIndexes);
-        for (unsigned i=0; i<m_Pts.size(); ++i) {
+        for (unsigned i = 0; i < m_Pts.size(); ++i) {
             DPoint texCoord = calcFillTexCoord(m_Pts[i], minCoord, maxCoord);
             pVertexArray->appendPos(m_Pts[i], texCoord, color);
         }
-        for (unsigned i=0; i<triIndexes.size(); i+=3) {
-            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
+        for (unsigned i = 0; i < triIndexes.size(); i+=3) {
+            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
+                    triIndexes[i+2]);
         }
     }
 }

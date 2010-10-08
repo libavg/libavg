@@ -74,11 +74,11 @@ AreaNode::~AreaNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AreaNode::setArgs(const ArgList& Args)
+void AreaNode::setArgs(const ArgList& args)
 {
-    VisibleNode::setArgs(Args);
-    Args.getOverlayedArgVal(&m_RelViewport.tl, "pos", "x", "y", getID());
-    Args.getOverlayedArgVal(&m_UserSize, "size", "width", "height", getID());
+    VisibleNode::setArgs(args);
+    args.getOverlayedArgVal(&m_RelViewport.tl, "pos", "x", "y", getID());
+    args.getOverlayedArgVal(&m_UserSize, "size", "width", "height", getID());
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
 }
@@ -169,9 +169,9 @@ double AreaNode::getAngle() const
     return m_Angle;
 }
 
-void AreaNode::setAngle(double Angle)
+void AreaNode::setAngle(double angle)
 {
-    m_Angle = fmod(Angle, 2*PI);
+    m_Angle = fmod(angle, 2*PI);
 }
 
 DPoint AreaNode::getPivot() const
@@ -202,7 +202,7 @@ DPoint AreaNode::toGlobal(const DPoint& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-VisibleNodePtr AreaNode::getElementByPos(const DPoint & pos)
+VisibleNodePtr AreaNode::getElementByPos(const DPoint& pos)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
@@ -213,7 +213,7 @@ VisibleNodePtr AreaNode::getElementByPos(const DPoint & pos)
     }
 }
 
-void AreaNode::maybeRender(const DRect& Rect)
+void AreaNode::maybeRender(const DRect& rect)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (getActive()) {
@@ -226,7 +226,7 @@ void AreaNode::maybeRender(const DRect& Rect)
             }
             SDLDisplayEngine * pEngine = getDisplayEngine();
             pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-            render(Rect);
+            render(rect);
             pEngine->popTransform();
         }
     }

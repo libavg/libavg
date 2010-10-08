@@ -49,10 +49,10 @@ NodeDefinition CurveNode::createDefinition()
         .addArg(Arg<double>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
 }
 
-CurveNode::CurveNode(const ArgList& Args)
-   : VectorNode(Args)
+CurveNode::CurveNode(const ArgList& args)
+   : VectorNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
 }
 
 CurveNode::~CurveNode()
@@ -131,7 +131,7 @@ void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     
     pVertexArray->appendPos(m_LeftCurve[0], DPoint(m_TC1,1), color);
     pVertexArray->appendPos(m_RightCurve[0], DPoint(m_TC2,0), color);
-    for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
+    for (unsigned i = 0; i < m_LeftCurve.size()-1; ++i) {
         double ratio = i/double(m_LeftCurve.size());
         double tc = (1-ratio)*m_TC1+ratio*m_TC2;
         pVertexArray->appendPos(m_LeftCurve[i+1], DPoint(tc,1), color);
@@ -160,7 +160,7 @@ void CurveNode::updateLines()
     m_LeftCurve.reserve(int(len+1.5));
     m_RightCurve.reserve(int(len+1.5));
 
-    for (unsigned i=0; i<len; ++i) {
+    for (unsigned i = 0; i < len; ++i) {
         double t = i/len;
         addLRCurvePoint(curve.interpolate(t), curve.getDeriv(t));
     }

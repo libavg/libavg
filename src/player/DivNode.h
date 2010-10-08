@@ -37,7 +37,7 @@ class AVG_API DivNode : public AreaNode
     public:
         static NodeDefinition createDefinition();
         
-        DivNode(const ArgList& Args);
+        DivNode(const ArgList& args);
         virtual ~DivNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -82,4 +82,4 @@ class AVG_API DivNode : public AreaNode
 
 }
 
-#endif //_DivNode_H_
+#endif

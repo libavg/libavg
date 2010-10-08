@@ -33,7 +33,7 @@ class AVG_API MouseEvent : public CursorEvent {
     public:
         MouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, bool rightButtonState,
-                const IntPoint& Position, int button, const DPoint& speed);
+                const IntPoint& pos, int button, const DPoint& speed);
         virtual ~MouseEvent();
         
         const DPoint& getSpeed() const;

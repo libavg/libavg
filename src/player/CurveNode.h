@@ -34,7 +34,7 @@ class AVG_API CurveNode : public VectorNode
     public:
         static NodeDefinition createDefinition();
         
-        CurveNode(const ArgList& Args);
+        CurveNode(const ArgList& args);
         virtual ~CurveNode();
 
         const DPoint& getPos1() const;

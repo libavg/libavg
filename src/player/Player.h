@@ -78,8 +78,8 @@ class AVG_API Player: IEventSink
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
-                bool bUsePixelBuffers, int MultiSampleSamples);
-        void setMultiSampleSamples(int MultiSampleSamples);
+                bool bUsePixelBuffers, int multiSampleSamples);
+        void setMultiSampleSamples(int multiSampleSamples);
         void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
         CanvasPtr loadFile(const std::string& sFilename);
@@ -134,7 +134,7 @@ class AVG_API Player: IEventSink
         void doFrame(bool bFirstFrame);
         double getFramerate();
         double getVideoRefreshRate();
-        void setGamma(double Red, double Green, double Blue);
+        void setGamma(double red, double green, double blue);
         DisplayEngine * getDisplayEngine() const;
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
@@ -184,7 +184,7 @@ class AVG_API Player: IEventSink
         void endFrame();
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, VisibleNodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, VisibleNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);

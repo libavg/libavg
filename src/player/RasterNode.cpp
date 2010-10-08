@@ -77,20 +77,20 @@ RasterNode::~RasterNode()
     }
 }
 
-void RasterNode::setArgs(const ArgList& Args)
+void RasterNode::setArgs(const ArgList& args)
 {
-    AreaNode::setArgs(Args);
+    AreaNode::setArgs(args);
     if ((!ispow2(m_MaxTileSize.x) && m_MaxTileSize.x != -1)
             || (!ispow2(m_MaxTileSize.y) && m_MaxTileSize.y != -1)) 
     {
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "maxtilewidth and maxtileheight must be powers of two.");
     }
-    m_Material.setUseMipmaps(Args.getArgVal<bool>("mipmap"));
+    m_Material.setUseMipmaps(args.getArgVal<bool>("mipmap"));
 }
 
-void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine, 
+        AudioEngine* pAudioEngine)
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
@@ -192,7 +192,7 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& grid)
     if (grid.size() != (unsigned)(numTiles.y+1)) {
         bGridOK = false;
     }
-    for (unsigned i = 0; i<grid.size(); ++i) {
+    for (unsigned i = 0; i < grid.size(); ++i) {
         if (grid[i].size() != (unsigned)(numTiles.x+1)) {
             bGridOK = false;
         }
@@ -225,7 +225,7 @@ const std::string& RasterNode::getBlendModeStr() const
     return m_sBlendMode;
 }
 
-void RasterNode::setBlendModeStr(const std::string& sBlendMode)
+void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
     m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
@@ -236,9 +236,9 @@ const UTF8String& RasterNode::getMaskHRef() const
     return m_sMaskHref;
 }
 
-void RasterNode::setMaskHRef(const UTF8String& href)
+void RasterNode::setMaskHRef(const UTF8String& sHref)
 {
-    m_sMaskHref = href;
+    m_sMaskHref = sHref;
     checkReload();
 }
 
@@ -328,16 +328,16 @@ BitmapPtr RasterNode::getBitmap()
     }
 }
 
-void RasterNode::blt32(const DPoint& DestSize, double opacity, 
-        DisplayEngine::BlendMode Mode, bool bPremultipliedAlpha)
+void RasterNode::blt32(const DPoint& destSize, double opacity, 
+        DisplayEngine::BlendMode mode, bool bPremultipliedAlpha)
 {
-    blt(DestSize, Mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
+    blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
-void RasterNode::blta8(const DPoint& DestSize, double opacity, 
-        const Pixel32& color, DisplayEngine::BlendMode Mode)
+void RasterNode::blta8(const DPoint& destSize, double opacity, 
+        const Pixel32& color, DisplayEngine::BlendMode mode)
 {
-    blt(DestSize, Mode, opacity, color, false);
+    blt(destSize, mode, opacity, color, false);
 }
 
 DisplayEngine::BlendMode RasterNode::getBlendMode() const
@@ -515,9 +515,9 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
 
     if (m_bVertexArrayDirty) {
         m_pVertexes->reset();
-        for (unsigned y=0; y<m_TileVertices.size()-1; y++) {
-            for (unsigned x=0; x<m_TileVertices[0].size()-1; x++) {
-                int curVertex=m_pVertexes->getCurVert();
+        for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
+            for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
+                int curVertex = m_pVertexes->getCurVert();
                 m_pVertexes->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
                 m_pVertexes->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
                 m_pVertexes->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
@@ -556,8 +556,8 @@ void RasterNode::calcVertexGrid(VertexGrid& grid)
     IntPoint numTiles = getNumTiles();
     std::vector<DPoint> TileVerticesLine(numTiles.x+1);
     grid = std::vector<std::vector<DPoint> > (numTiles.y+1, TileVerticesLine);
-    for (unsigned y=0; y<grid.size(); y++) {
-        for (unsigned x=0; x<grid[y].size(); x++) {
+    for (unsigned y = 0; y < grid.size(); y++) {
+        for (unsigned x = 0; x < grid[y].size(); x++) {
             calcTileVertex(x, y, grid[y][x]);
         }
     }
@@ -602,8 +602,8 @@ void RasterNode::calcTexCoords()
     vector<DPoint> texCoordLine(numTiles.x+1);
     m_TexCoords = std::vector<std::vector<DPoint> > 
             (numTiles.y+1, texCoordLine);
-    for (unsigned y=0; y<m_TexCoords.size(); y++) {
-        for (unsigned x=0; x<m_TexCoords[y].size(); x++) {
+    for (unsigned y = 0; y < m_TexCoords.size(); y++) {
+        for (unsigned x = 0; x < m_TexCoords[y].size(); x++) {
             if (y == m_TexCoords.size()-1) {
                 m_TexCoords[y][x].y = texCoordExtents.y;
             } else {

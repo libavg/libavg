@@ -41,7 +41,7 @@ class AVG_API NodeDefinition
 {
 public:
     NodeDefinition();
-    NodeDefinition(const std::string& Name, NodeBuilder pBuilder = 0);
+    NodeDefinition(const std::string& sName, NodeBuilder pBuilder = 0);
     virtual ~NodeDefinition();
     
     const std::string& getName() const;

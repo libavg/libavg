@@ -50,12 +50,12 @@ NodeDefinition ImageNode::createDefinition()
         .addArg(Arg<string>("compression", "none"));
 }
 
-ImageNode::ImageNode(const ArgList& Args)
+ImageNode::ImageNode(const ArgList& args)
     : m_compression(Image::TEXTURECOMPRESSION_NONE)
 {
     m_pImage = ImagePtr(new Image(getSurface()));
-    Args.setMembers(this);
-    setCompression(Args.getArgVal<string>("compression"));
+    args.setMembers(this);
+    setCompression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
 }

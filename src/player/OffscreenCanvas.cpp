@@ -185,7 +185,7 @@ void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)
 
 void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
 {
-    for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
+    for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         if (pCanvas == m_pDependentCanvases[i]) {
             m_pDependentCanvases.erase(m_pDependentCanvases.begin()+i);
 //            dump();
@@ -197,7 +197,7 @@ void OffscreenCanvas::removeDependentCanvas(CanvasPtr pCanvas)
 
 bool OffscreenCanvas::hasDependentCanvas(CanvasPtr pCanvas) const
 {
-    for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
+    for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         if (pCanvas == m_pDependentCanvases[i]) {
             return true;
         }
@@ -218,7 +218,7 @@ bool OffscreenCanvas::isMultisampleSupported()
 void OffscreenCanvas::dump() const
 {
     cerr << "Canvas: " << getRootNode()->getID() << endl;
-    for (unsigned i=0; i<m_pDependentCanvases.size(); ++i) {
+    for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         cerr << " " << m_pDependentCanvases[i]->getRootNode()->getID() << endl;
     }
 }

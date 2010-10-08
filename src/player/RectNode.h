@@ -34,7 +34,7 @@ class AVG_API RectNode : public FilledVectorNode
     public:
         static NodeDefinition createDefinition();
         
-        RectNode(const ArgList& Args);
+        RectNode(const ArgList& args);
         virtual ~RectNode();
 
         const DPoint& getPos() const;

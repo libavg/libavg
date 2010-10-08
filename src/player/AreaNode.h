@@ -52,14 +52,14 @@ class AVG_API AreaNode: public VisibleNode
 {
     public:
         template<class NodeType>
-        static VisibleNodePtr buildNode(const ArgList& Args)
+        static VisibleNodePtr buildNode(const ArgList& args)
         {
-            return VisibleNodePtr(new NodeType(Args));
+            return VisibleNodePtr(new NodeType(args));
         }
         static NodeDefinition createDefinition();
         
         virtual ~AreaNode() = 0;
-        virtual void setArgs(const ArgList& Args);
+        virtual void setArgs(const ArgList& args);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         
@@ -82,16 +82,16 @@ class AVG_API AreaNode: public VisibleNode
         void setSize(const DPoint& pt);
 
         double getAngle() const;
-        void setAngle(double Angle);
+        void setAngle(double angle);
         
         virtual DPoint getPivot() const;
         void setPivot(const DPoint& pt);
         
         virtual DPoint toLocal(const DPoint& pos) const;
         virtual DPoint toGlobal(const DPoint& pos) const;
-        virtual VisibleNodePtr getElementByPos(const DPoint & pos);
+        virtual VisibleNodePtr getElementByPos(const DPoint& pos);
 
-        virtual void maybeRender(const DRect& Rect);
+        virtual void maybeRender(const DRect& rect);
         virtual void setViewport(double x, double y, double width, double height);
         virtual const DRect& getRelViewport() const;
 

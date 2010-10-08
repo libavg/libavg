@@ -45,16 +45,19 @@ NodeDefinition MeshNode::createDefinition()
 
     return NodeDefinition("mesh", (NodeBuilder)MeshNode::buildNode<MeshNode>)
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<vector<DPoint> >("vertexcoords", vVert, false, offsetof(MeshNode, m_VertexCoords)))
-        .addArg(Arg<vector<DPoint> >("texcoords", vTex, false, offsetof(MeshNode, m_TexCoords)))
-        .addArg(Arg<vector<IntTriple> >("triangles", vTriangle, false, offsetof(MeshNode, m_Triangles)))
+        .addArg(Arg<vector<DPoint> >("vertexcoords", vVert, false, 
+                offsetof(MeshNode, m_VertexCoords)))
+        .addArg(Arg<vector<DPoint> >("texcoords", vTex, false, 
+                offsetof(MeshNode, m_TexCoords)))
+        .addArg(Arg<vector<IntTriple> >("triangles", vTriangle, false, 
+                offsetof(MeshNode, m_Triangles)))
         ;
 }
 
-MeshNode::MeshNode(const ArgList& Args)
-    : VectorNode(Args)
+MeshNode::MeshNode(const ArgList& args)
+    : VectorNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
     isValid(m_TexCoords);
 }
 
@@ -104,16 +107,18 @@ void MeshNode::setTriangles(const vector<IntTriple>& triangles)
 {
     for (unsigned int i = 0; i < triangles.size(); i++) {
         
-        if( static_cast<unsigned int>(triangles[i].x) < 0 ||
-            static_cast<unsigned int>(triangles[i].y) < 0 || 
-            static_cast<unsigned int>(triangles[i].z) < 0){
+        if (static_cast<unsigned int>(triangles[i].x) < 0 ||
+                static_cast<unsigned int>(triangles[i].y) < 0 || 
+                static_cast<unsigned int>(triangles[i].z) < 0)
+        {
             throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 "Triangle Index Out of Range < 0"));
         }
         
-        if( static_cast<unsigned int>(triangles[i].x) > m_VertexCoords.size() || 
-            static_cast<unsigned int>(triangles[i].y) > m_VertexCoords.size() ||
-            static_cast<unsigned int>(triangles[i].z) > m_VertexCoords.size()){
+        if (static_cast<unsigned int>(triangles[i].x) > m_VertexCoords.size() || 
+                static_cast<unsigned int>(triangles[i].y) > m_VertexCoords.size() ||
+                static_cast<unsigned int>(triangles[i].z) > m_VertexCoords.size())
+        {
             throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 "Triangle Index Out of Range > max triangles"));
         }
@@ -129,7 +134,8 @@ void MeshNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     }
 
     for (unsigned int i = 0; i < m_Triangles.size(); i++) {
-        pVertexArray->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, m_Triangles[i].z);
+        pVertexArray->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, 
+                m_Triangles[i].z);
     }
 }
 

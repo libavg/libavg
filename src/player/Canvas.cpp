@@ -114,10 +114,10 @@ void Canvas::addNodeID(VisibleNodePtr pNode)
     }
 }
 
-void Canvas::removeNodeID(const std::string& id)
+void Canvas::removeNodeID(const string& id)
 {
     if (id != "") {
-        std::map<std::string, VisibleNodePtr>::iterator it;
+        map<string, VisibleNodePtr>::iterator it;
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);

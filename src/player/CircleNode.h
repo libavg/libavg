@@ -34,7 +34,7 @@ class AVG_API CircleNode : public FilledVectorNode
     public:
         static NodeDefinition createDefinition();
         
-        CircleNode(const ArgList& Args);
+        CircleNode(const ArgList& args);
         virtual ~CircleNode();
 
         const DPoint& getPos() const;

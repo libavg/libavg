@@ -36,7 +36,7 @@ class AVG_API MeshNode : public VectorNode
     public:
         static NodeDefinition createDefinition();
         
-        MeshNode(const ArgList& Args);
+        MeshNode(const ArgList& args);
         virtual ~MeshNode();
         
         void isValid(const std::vector<DPoint>& coords);

@@ -227,7 +227,7 @@ BitmapPtr OGLSurface::lockBmp(int i)
 
 void OGLSurface::unlockBmps()
 {
-    for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
+    for (unsigned i = 0; i < getNumPixelFormatPlanes(m_pf); ++i) {
         m_pTextures[i]->unlockBmp();
     }
 }
@@ -268,7 +268,7 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
     bool bOldHasMask = m_Material.getHasMask();
     m_Material = material;
     if (m_pTextures[0]) {
-        for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
+        for (unsigned i = 0; i < getNumPixelFormatPlanes(m_pf); ++i) {
             m_pTextures[i]->setMaterial(material);
         }
     }

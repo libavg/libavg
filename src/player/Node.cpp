@@ -133,7 +133,7 @@ void Node::insertChild(NodePtr pNewNode, unsigned i)
                 " into a node of type "+getTypeStr()+"."));
 
     }
-    if (i>m_Children.size()) {
+    if (i > m_Children.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 pNewNode->getID()+"::insertChild: index out of bounds."));
     }
@@ -149,7 +149,7 @@ void Node::eraseChild(NodePtr pNode)
 
 void Node::eraseChild(unsigned i)
 {
-    if (i>m_Children.size()-1) {
+    if (i > m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::removeChild: index "+toString(i)+" out of bounds."));
     }
@@ -170,7 +170,7 @@ void Node::reorderChild(NodePtr pNode, unsigned j)
 
 void Node::reorderChild(unsigned i, unsigned j)
 {
-    if (i>m_Children.size()-1 || j > m_Children.size()-1) {
+    if (i > m_Children.size()-1 || j > m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::reorderChild: index out of bounds."));
     }
@@ -186,7 +186,7 @@ unsigned Node::indexOf(NodePtr pChild)
         throw Exception(AVG_ERR_NO_NODE,
                 getID()+"::indexOf called without a node.");
     }
-    for (unsigned i = 0; i<m_Children.size(); ++i) {
+    for (unsigned i = 0; i < m_Children.size(); ++i) {
         if (m_Children[i] == pChild) {
             return i;
         }
@@ -201,9 +201,9 @@ const string& Node::getID() const
     return m_ID;
 }
 
-void Node::setID(const std::string& ID)
+void Node::setID(const std::string& id)
 {
-    m_ID = ID;
+    m_ID = id;
 }
 
 bool Node::operator ==(const Node& other) const

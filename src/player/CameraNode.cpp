@@ -68,20 +68,20 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("strobeduration", -1));
 }
 
-CameraNode::CameraNode(const ArgList& Args)
+CameraNode::CameraNode(const ArgList& args)
     : m_bIsPlaying(false),
       m_FrameNum(0),
       m_bIsAutoUpdateCameraImage(true)
 {
-    Args.setMembers(this);
-    string sDriver = Args.getArgVal<string>("driver");
-    string sDevice = Args.getArgVal<string>("device");
-    int unit = Args.getArgVal<int>("unit");
-    bool bFW800 = Args.getArgVal<bool>("fw800");
-    double FrameRate = Args.getArgVal<double>("framerate");
-    int Width = Args.getArgVal<int>("capturewidth");
-    int Height = Args.getArgVal<int>("captureheight");
-    string sPF = Args.getArgVal<string>("pixelformat");
+    args.setMembers(this);
+    string sDriver = args.getArgVal<string>("driver");
+    string sDevice = args.getArgVal<string>("device");
+    int unit = args.getArgVal<int>("unit");
+    bool bFW800 = args.getArgVal<bool>("fw800");
+    double frameRate = args.getArgVal<double>("framerate");
+    int width = args.getArgVal<int>("capturewidth");
+    int height = args.getArgVal<int>("captureheight");
+    string sPF = args.getArgVal<string>("pixelformat");
 
     PixelFormat camPF = stringToPixelFormat(sPF);
     if (camPF == NO_PIXELFORMAT) {
@@ -95,20 +95,20 @@ CameraNode::CameraNode(const ArgList& Args)
     }
 //    cerr << "CameraNode ctor: " << camPF << "-->" << destPF << endl;
 
-    m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(Width, Height), 
-            camPF, destPF, FrameRate);
+    m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(width, height), 
+            camPF, destPF, frameRate);
     AVG_TRACE(Logger::CONFIG, "Got Camera " << m_pCamera->getDevice() << " from driver: "
             << m_pCamera->getDriverName());
     
-    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Args.getArgVal<int>("brightness"));
-    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Args.getArgVal<int>("exposure"));
-    m_pCamera->setFeature(CAM_FEATURE_SHARPNESS, Args.getArgVal<int>("sharpness"));
-    m_pCamera->setFeature(CAM_FEATURE_SATURATION, Args.getArgVal<int>("saturation"));
-    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Args.getArgVal<int>("camgamma"));
-    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Args.getArgVal<int>("shutter"));
-    m_pCamera->setFeature(CAM_FEATURE_GAIN, Args.getArgVal<int>("gain"));
+    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, args.getArgVal<int>("brightness"));
+    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, args.getArgVal<int>("exposure"));
+    m_pCamera->setFeature(CAM_FEATURE_SHARPNESS, args.getArgVal<int>("sharpness"));
+    m_pCamera->setFeature(CAM_FEATURE_SATURATION, args.getArgVal<int>("saturation"));
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA, args.getArgVal<int>("camgamma"));
+    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, args.getArgVal<int>("shutter"));
+    m_pCamera->setFeature(CAM_FEATURE_GAIN, args.getArgVal<int>("gain"));
     m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
-            Args.getArgVal<int>("strobeduration"));
+            args.getArgVal<int>("strobeduration"));
 }
 
 CameraNode::~CameraNode()
@@ -152,9 +152,9 @@ int CameraNode::getBrightness() const
     return getFeature(CAM_FEATURE_BRIGHTNESS);
 }
 
-void CameraNode::setBrightness(int Value)
+void CameraNode::setBrightness(int value)
 {
-    setFeature(CAM_FEATURE_BRIGHTNESS, Value);
+    setFeature(CAM_FEATURE_BRIGHTNESS, value);
 }
 
 int CameraNode::getSharpness() const
@@ -162,9 +162,9 @@ int CameraNode::getSharpness() const
     return getFeature(CAM_FEATURE_SHARPNESS);
 }
 
-void CameraNode::setSharpness(int Value)
+void CameraNode::setSharpness(int value)
 {
-    setFeature(CAM_FEATURE_SHARPNESS, Value);
+    setFeature(CAM_FEATURE_SHARPNESS, value);
 }
 
 int CameraNode::getSaturation() const
@@ -172,9 +172,9 @@ int CameraNode::getSaturation() const
     return getFeature(CAM_FEATURE_SATURATION);
 }
 
-void CameraNode::setSaturation(int Value)
+void CameraNode::setSaturation(int value)
 {
-    setFeature(CAM_FEATURE_SATURATION, Value);
+    setFeature(CAM_FEATURE_SATURATION, value);
 }
 
 int CameraNode::getCamGamma() const
@@ -182,9 +182,9 @@ int CameraNode::getCamGamma() const
     return getFeature(CAM_FEATURE_GAMMA);
 }
 
-void CameraNode::setCamGamma(int Value)
+void CameraNode::setCamGamma(int value)
 {
-    setFeature(CAM_FEATURE_GAMMA, Value);
+    setFeature(CAM_FEATURE_GAMMA, value);
 }
 
 int CameraNode::getShutter() const
@@ -192,9 +192,9 @@ int CameraNode::getShutter() const
     return getFeature(CAM_FEATURE_SHUTTER);
 }
 
-void CameraNode::setShutter(int Value)
+void CameraNode::setShutter(int value)
 {
-    setFeature(CAM_FEATURE_SHUTTER, Value);
+    setFeature(CAM_FEATURE_SHUTTER, value);
 }
 
 int CameraNode::getGain() const
@@ -202,9 +202,9 @@ int CameraNode::getGain() const
     return getFeature(CAM_FEATURE_GAIN);
 }
 
-void CameraNode::setGain(int Value)
+void CameraNode::setGain(int value)
 {
-    setFeature(CAM_FEATURE_GAIN, Value);
+    setFeature(CAM_FEATURE_GAIN, value);
 }
 
 int CameraNode::getWhitebalanceU() const
@@ -235,9 +235,9 @@ int CameraNode::getStrobeDuration() const
     return getFeature(CAM_FEATURE_STROBE_DURATION);
 }
 
-void CameraNode::setStrobeDuration(int Value)
+void CameraNode::setStrobeDuration(int value)
 {
-    setFeature(CAM_FEATURE_STROBE_DURATION, Value);
+    setFeature(CAM_FEATURE_STROBE_DURATION, value);
 }
             
 
@@ -278,14 +278,14 @@ void CameraNode::open()
     }
 }
 
-int CameraNode::getFeature(CameraFeature Feature) const
+int CameraNode::getFeature(CameraFeature feature) const
 {
-    return m_pCamera->getFeature(Feature);
+    return m_pCamera->getFeature(feature);
 }
 
-void CameraNode::setFeature(CameraFeature Feature, int Value)
+void CameraNode::setFeature(CameraFeature feature, int value)
 {
-    m_pCamera->setFeature(Feature, Value);
+    m_pCamera->setFeature(feature, value);
 }
 
 int CameraNode::getFrameNum() const
@@ -307,7 +307,7 @@ void CameraNode::preRender()
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
-void CameraNode::render(const DRect& Rect)
+void CameraNode::render(const DRect& rect)
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
@@ -370,4 +370,4 @@ bool CameraNode::isImageAvailable() const
 }
 
 
-} // namespace avg
+}

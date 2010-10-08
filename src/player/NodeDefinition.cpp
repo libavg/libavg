@@ -34,8 +34,8 @@ NodeDefinition::NodeDefinition() :
 {
 }
 
-NodeDefinition::NodeDefinition(const string& Name, NodeBuilder pBuilder)
-    : m_sName(Name),
+NodeDefinition::NodeDefinition(const string& sName, NodeBuilder pBuilder)
+    : m_sName(sName),
       m_pBuilder(pBuilder)
 {
 }

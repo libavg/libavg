@@ -31,10 +31,10 @@ using namespace std;
 
 namespace avg {
 
-ArgBase::ArgBase(string Name, bool bRequired, ptrdiff_t MemberOffset)
-    : m_Name(Name),
+ArgBase::ArgBase(string sName, bool bRequired, ptrdiff_t memberOffset)
+    : m_sName(sName),
       m_bRequired(bRequired),
-      m_MemberOffset(MemberOffset)
+      m_MemberOffset(memberOffset)
 {
     m_bDefault = true;
 }
@@ -45,7 +45,7 @@ ArgBase::~ArgBase()
     
 string ArgBase::getName() const
 {
-    return m_Name;
+    return m_sName;
 }
 
 bool ArgBase::isDefault() const

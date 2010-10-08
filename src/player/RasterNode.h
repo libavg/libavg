@@ -48,9 +48,9 @@ class AVG_API RasterNode: public AreaNode
         static NodeDefinition createDefinition();
         
         virtual ~RasterNode ();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void setArgs(const ArgList& Args);
+        virtual void setRenderingEngines(DisplayEngine* pDisplayEngine, 
+                AudioEngine* pAudioEngine);
+        virtual void setArgs(const ArgList& args);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
         
@@ -68,7 +68,7 @@ class AVG_API RasterNode: public AreaNode
         DisplayEngine::BlendMode getBlendMode() const;
 
         const UTF8String& getMaskHRef() const;
-        void setMaskHRef(const UTF8String& href);
+        void setMaskHRef(const UTF8String& sHref);
 
         const DPoint& getMaskPos() const;
         void setMaskPos(const DPoint& pos);
@@ -88,10 +88,10 @@ class AVG_API RasterNode: public AreaNode
         void setEffect(FXNodePtr pFXNode);
         virtual BitmapPtr getBitmap();
         
-        void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode,
+        void blt32(const DPoint& destSize, double opacity, DisplayEngine::BlendMode mode,
                 bool bPremultipliedAlpha = false);
-        void blta8(const DPoint& DestSize, double opacity, 
-                const Pixel32& color, DisplayEngine::BlendMode Mode);
+        void blta8(const DPoint& destSize, double opacity, 
+                const Pixel32& color, DisplayEngine::BlendMode mode);
 
     protected:
         RasterNode();
@@ -106,7 +106,7 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         void setupFX();
-        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode, 
+        void blt(const DPoint& destSize, DisplayEngine::BlendMode mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();

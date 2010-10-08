@@ -40,33 +40,33 @@ NodeRegistry::~NodeRegistry()
 {
 }
 
-void NodeRegistry::registerNodeType(const NodeDefinition& Def)
+void NodeRegistry::registerNodeType(const NodeDefinition& def)
 {
-    m_NodeDefs.insert(NodeDefMap::value_type(Def.getName(), Def));
+    m_NodeDefs.insert(NodeDefMap::value_type(def.getName(), def));
 }
 
-void NodeRegistry::updateNodeDefinition(const NodeDefinition& Def)
+void NodeRegistry::updateNodeDefinition(const NodeDefinition& def)
 {
-    m_NodeDefs[Def.getName()] = Def;
+    m_NodeDefs[def.getName()] = def;
 }
 
-NodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)
+NodePtr NodeRegistry::createNode(const string& sType, const xmlNodePtr xmlNode)
 {
-    const NodeDefinition& Def = getNodeDef(Type);
-    ArgList Args(Def.getDefaultArgs(), xmlNode);
-    NodeBuilder builder = Def.getBuilder();
-    NodePtr pNode = builder(Args);
-    pNode->setThis(pNode, &Def);
+    const NodeDefinition& def = getNodeDef(sType);
+    ArgList args(def.getDefaultArgs(), xmlNode);
+    NodeBuilder builder = def.getBuilder();
+    NodePtr pNode = builder(args);
+    pNode->setThis(pNode, &def);
     return pNode;
 }
 
-NodePtr NodeRegistry::createNode(const string& Type, const boost::python::dict& PyDict)
+NodePtr NodeRegistry::createNode(const string& sType, const boost::python::dict& pyDict)
 {
-    const NodeDefinition& Def = getNodeDef(Type);
-    ArgList Args(Def.getDefaultArgs(), PyDict);
-    NodeBuilder builder = Def.getBuilder();
-    NodePtr pNode = builder(Args);
-    pNode->setThis(pNode, &Def);
+    const NodeDefinition& def = getNodeDef(sType);
+    ArgList args(def.getDefaultArgs(), pyDict);
+    NodeBuilder builder = def.getBuilder();
+    NodePtr pNode = builder(args);
+    pNode->setThis(pNode, &def);
     return pNode;
 }
 
@@ -78,44 +78,44 @@ string NodeRegistry::getDTD() const
     
     stringstream ss;
     
-    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin();
+    for (NodeDefMap::const_iterator defIt = m_NodeDefs.begin();
             defIt != m_NodeDefs.end(); defIt++) 
     {
-        const NodeDefinition& Def = defIt->second;
-        writeNodeDTD(Def, ss);
+        const NodeDefinition& def = defIt->second;
+        writeNodeDTD(def, ss);
     }
    
-    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); 
+    for (NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); 
             defIt != m_NodeDefs.end(); defIt++) 
     {
-        const NodeDefinition& Def = defIt->second;
-        ss << Def.getDTDElements();
+        const NodeDefinition& def = defIt->second;
+        ss << def.getDTDElements();
     }
    
     return ss.str();
 }
 
-const NodeDefinition& NodeRegistry::getNodeDef(const string& Type)
+const NodeDefinition& NodeRegistry::getNodeDef(const string& sType)
 {
-    NodeDefMap::const_iterator it = m_NodeDefs.find(Type);
+    NodeDefMap::const_iterator it = m_NodeDefs.find(sType);
     if (it == m_NodeDefs.end()) {
         throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
-            string("Unknown node type ") + Type + " encountered."));
+            string("Unknown node type ") + sType + " encountered."));
     }
     return it->second;
 }
 
-void NodeRegistry::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
+void NodeRegistry::writeNodeDTD(const NodeDefinition& def, stringstream& ss) const
 {
-    ss << "<!ELEMENT " << Def.getName() << " " << Def.getDTDChildrenString() << " >\n";
-    if (!Def.getDefaultArgs().getArgMap().empty()) {
-        ss << "<!ATTLIST " << Def.getName();
-        for(ArgMap::const_iterator argIt = Def.getDefaultArgs().getArgMap().begin(); 
-            argIt !=  Def.getDefaultArgs().getArgMap().end(); argIt++)
+    ss << "<!ELEMENT " << def.getName() << " " << def.getDTDChildrenString() << " >\n";
+    if (!def.getDefaultArgs().getArgMap().empty()) {
+        ss << "<!ATTLIST " << def.getName();
+        for (ArgMap::const_iterator argIt = def.getDefaultArgs().getArgMap().begin(); 
+            argIt != def.getDefaultArgs().getArgMap().end(); argIt++)
         {
             string argName = argIt->first;
             string argType = (argName == "id") ? "ID" : "CDATA";
-            string argRequired = Def.getDefaultArgs().getArg(argName)->isRequired() ?
+            string argRequired = def.getDefaultArgs().getArg(argName)->isRequired() ?
                     "#REQUIRED" : "#IMPLIED";
             ss << "\n    " << argName << " " << argType << " " << argRequired;
         }

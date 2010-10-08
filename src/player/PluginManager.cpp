@@ -44,16 +44,16 @@ using namespace avg;
 #define PLUGIN_EXTENSION ".so"
 #endif
 
-PluginManager::PluginNotFound::PluginNotFound(const string& message) :
-    Exception(AVG_ERR_FILEIO, message) {}
+PluginManager::PluginNotFound::PluginNotFound(const string& sMessage) :
+    Exception(AVG_ERR_FILEIO, sMessage) {}
 
-PluginManager::PluginCorrupted::PluginCorrupted(const string& message) :
-    Exception(AVG_ERR_CORRUPT_PLUGIN, message) {}
+PluginManager::PluginCorrupted::PluginCorrupted(const string& sMessage) :
+    Exception(AVG_ERR_CORRUPT_PLUGIN, sMessage) {}
     
 PluginManager& PluginManager::get()
 {
-    static PluginManager sTheInstance;
-    return sTheInstance;
+    static PluginManager s_Instance;
+    return s_Instance;
 }
 
 PluginManager::PluginManager()
@@ -95,14 +95,15 @@ string PluginManager::locateSharedObject(const string& sFilename)
 {
     vector<string>::iterator i = m_PathComponents.begin();
     string sFullpath;
-    while(i != m_PathComponents.end()) {
+    while (i != m_PathComponents.end()) {
         sFullpath = *i + sFilename;
         if (fileExists(sFullpath)) {
             return sFullpath;
         }
         ++i;
     }
-    string sMessage = "Unable to locate plugin file '" + sFilename + "'. Was looking in " + m_sCurrentSearchPath;
+    string sMessage = "Unable to locate plugin file '" + sFilename 
+            + "'. Was looking in " + m_sCurrentSearchPath;
     AVG_TRACE(Logger::PLUGIN, sMessage);        
     throw PluginNotFound(sMessage);
 }
@@ -119,7 +120,7 @@ string PluginManager::checkDirectory(const string& sDirectory)
     return sFixedDirectory;
 }
 
-void PluginManager::parsePath(const std::string& sPath)
+void PluginManager::parsePath(const string& sPath)
 {
     // break the string into colon separated components
     // and make sure each component has a trailing slash
@@ -141,7 +142,7 @@ void PluginManager::parsePath(const std::string& sPath)
         sDirectory = checkDirectory(sDirectory);
         
         m_PathComponents.push_back(sDirectory);
-    } while(!sRemaining.empty());
+    } while (!sRemaining.empty());
     AVG_TRACE(Logger::PLUGIN, "Plugin search path set to '" << sPath << "'"); 
 }
     
@@ -150,7 +151,8 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
     void *handle = dlopen(sFullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
     if (!handle) {
         string sMessage(dlerror());
-        AVG_TRACE(Logger::PLUGIN, "Could not load plugin. dlopen failed with message '" << sMessage << "'");
+        AVG_TRACE(Logger::PLUGIN, "Could not load plugin. dlopen failed with message '"
+                << sMessage << "'");
         throw PluginCorrupted(sMessage);
     }
     try {
@@ -167,7 +169,7 @@ void PluginManager::registerPlugin(void* handle)
 {
    typedef void (*RegisterPluginPtr)();
    RegisterPluginPtr registerPlugin = 
-       reinterpret_cast<RegisterPluginPtr> (dlsym(handle, "registerPlugin"));
+       reinterpret_cast<RegisterPluginPtr>(dlsym(handle, "registerPlugin"));
 
     if (registerPlugin) {
         registerPlugin();

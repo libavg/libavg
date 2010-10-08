@@ -68,7 +68,7 @@ class AVG_API Node
         unsigned indexOf(NodePtr pChild);
 
         virtual const std::string& getID() const;
-        virtual void setID(const std::string& ID);
+        virtual void setID(const std::string& id);
 
         std::string getTypeStr() const;
         

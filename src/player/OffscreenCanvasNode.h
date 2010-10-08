@@ -34,7 +34,7 @@ class AVG_API OffscreenCanvasNode : public CanvasNode
     public:
         static NodeDefinition createDefinition();
         
-        OffscreenCanvasNode(const ArgList& Args);
+        OffscreenCanvasNode(const ArgList& args);
         virtual ~OffscreenCanvasNode();
 
         bool getHandleEvents() const;

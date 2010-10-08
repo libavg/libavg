@@ -43,10 +43,10 @@ NodeDefinition LineNode::createDefinition()
         ;
 }
 
-LineNode::LineNode(const ArgList& Args)
-    : VectorNode(Args)
+LineNode::LineNode(const ArgList& args)
+    : VectorNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
 }
 
 LineNode::~LineNode()

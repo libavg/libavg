@@ -103,7 +103,7 @@ Player::Player()
 {
 #ifdef __linux
 // Turning this on causes fp exceptions in the linux nvidia drivers.
-//    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW ); 
+//    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW); 
 #endif
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
@@ -215,17 +215,17 @@ void Player::setWindowPos(int x, int y)
 }
 
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
-                bool bUsePixelBuffers, int MultiSampleSamples)
+                bool bUsePixelBuffers, int multiSampleSamples)
 {
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUseShaders = bUseShaders;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
-    m_GLConfig.m_MultiSampleSamples = MultiSampleSamples;
+    m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
 
-void Player::setMultiSampleSamples(int MultiSampleSamples)
+void Player::setMultiSampleSamples(int multiSampleSamples)
 {
-    m_GLConfig.m_MultiSampleSamples = MultiSampleSamples;
+    m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
 
 void Player::enableAudio(bool bEnable)
@@ -330,7 +330,7 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
 {
     OffscreenCanvasPtr pNewCanvas;
     unsigned i;
-    for (i=0; i<m_pCanvases.size(); ++i) {
+    for (i = 0; i < m_pCanvases.size(); ++i) {
         if (pCanvas == m_pCanvases[i]) {
             pNewCanvas = m_pCanvases[i];
             m_pCanvases.erase(m_pCanvases.begin()+i);
@@ -339,14 +339,14 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
     }
     assert(pNewCanvas);
     bool bFound = false;
-    for (i=0; i<m_pCanvases.size(); ++i) {
+    for (i = 0; i < m_pCanvases.size(); ++i) {
         if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {
             bFound = true;
             break;
         }
     }
     if (bFound) {
-        for (unsigned j=i; j<m_pCanvases.size(); ++j) {
+        for (unsigned j = i; j < m_pCanvases.size(); ++j) {
             if (m_pCanvases[j]->hasDependentCanvas(pNewCanvas)) {
                 throw Exception(AVG_ERR_INVALID_ARGS,
                         "Circular dependency between canvases.");
@@ -476,7 +476,7 @@ void Player::initPlayback()
         initAudio();
     }
     try {
-        for (unsigned i=0; i<m_pCanvases.size(); ++i) {
+        for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             m_pCanvases[i]->initPlayback(
                     dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
         }
@@ -573,16 +573,16 @@ long long Player::getFrameTime()
 
 TrackerEventSource * Player::addTracker()
 {
-    TrackerConfig Config;
-    Config.load();
+    TrackerConfig config;
+    config.load();
     CameraPtr pCamera;
 
-    string sDriver = Config.getParam("/camera/driver/@value");
-    string sDevice = Config.getParam("/camera/device/@value");
-    bool bFW800 = Config.getBoolParam("/camera/fw800/@value");
-    IntPoint CaptureSize(Config.getPointParam("/camera/size/"));
-    string sCaptureFormat = Config.getParam("/camera/format/@value");
-    double FrameRate = Config.getDoubleParam("/camera/framerate/@value");
+    string sDriver = config.getParam("/camera/driver/@value");
+    string sDevice = config.getParam("/camera/device/@value");
+    bool bFW800 = config.getBoolParam("/camera/fw800/@value");
+    IntPoint captureSize(config.getPointParam("/camera/size/"));
+    string sCaptureFormat = config.getParam("/camera/format/@value");
+    double frameRate = config.getDoubleParam("/camera/framerate/@value");
 
     if (!m_pMainCanvas) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -596,13 +596,13 @@ TrackerEventSource * Player::addTracker()
     }
     
     AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for " << sDriver
-            << " Camera: " << sDevice << " Size: " << CaptureSize << "format: "
+            << " Camera: " << sDevice << " Size: " << captureSize << "format: "
             << sCaptureFormat);
-    pCamera = createCamera(sDriver, sDevice, -1, bFW800, CaptureSize, camPF, I8, 
-            FrameRate);
+    pCamera = createCamera(sDriver, sDevice, -1, bFW800, captureSize, camPF, I8, 
+            frameRate);
     AVG_TRACE(Logger::CONFIG, "Got Camera " << pCamera->getDevice() << " from driver: " 
             << pCamera->getDriverName());
-    m_pTracker = new TrackerEventSource(pCamera, Config, m_DP.m_Size, true);
+    m_pTracker = new TrackerEventSource(pCamera, config, m_DP.m_Size, true);
     addEventSource(m_pTracker);
     if (m_bIsPlaying) {
         m_pTracker->start();
@@ -619,7 +619,7 @@ TrackerEventSource * Player::getTracker()
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
     std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
+    if (it != m_pEventCaptureNode.end() && !it->second.expired()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
                 + pNode->getID() + "', but cursor already captured by '"
                 + it->second.lock()->getID() + "'.");
@@ -631,7 +631,7 @@ void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 void Player::releaseEventCapture(int cursorID)
 {
     std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
+    if (it == m_pEventCaptureNode.end() || (it->second.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
     } else {
@@ -641,24 +641,24 @@ void Player::releaseEventCapture(int cursorID)
 
 int Player::setInterval(int time, PyObject * pyfunc)
 {
-    Timeout *t = new Timeout(time, pyfunc, true, getFrameTime());
+    Timeout* pTimeout = new Timeout(time, pyfunc, true, getFrameTime());
     if (m_bInHandleTimers) {
-        m_NewTimeouts.push_back(t);
+        m_NewTimeouts.push_back(pTimeout);
     } else {
-        addTimeout(t);
+        addTimeout(pTimeout);
     }
-    return t->GetID();
+    return pTimeout->GetID();
 }
 
 int Player::setTimeout(int time, PyObject * pyfunc)
 {
-    Timeout *t = new Timeout(time, pyfunc, false, getFrameTime());
+    Timeout* pTimeout = new Timeout(time, pyfunc, false, getFrameTime());
     if (m_bInHandleTimers) {
-        m_NewTimeouts.push_back(t);
+        m_NewTimeouts.push_back(pTimeout);
     } else {
-        addTimeout(t);
+        addTimeout(pTimeout);
     }
-    return t->GetID();
+    return pTimeout->GetID();
 }
 
 int Player::setOnFrameHandler(PyObject * pyfunc) 
@@ -669,7 +669,7 @@ int Player::setOnFrameHandler(PyObject * pyfunc)
 bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;
-    for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+    for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
             if (it == m_PendingTimeouts.begin() && m_bInHandleTimers) {
                 m_bCurrentTimeoutDeleted = true;
@@ -679,7 +679,7 @@ bool Player::clearInterval(int id)
             return true;
         }
     }
-    for (it=m_NewTimeouts.begin(); it!=m_NewTimeouts.end(); it++) {
+    for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
             delete *it;
             m_NewTimeouts.erase(it);
@@ -730,9 +730,9 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     unsigned char * pMask = new unsigned char[size.x*size.y/8];
     Pixel32 * pLine = (Pixel32*)(pBmp->getPixels());
     int stride = pBmp->getStride()/4;
-    for (int y=0; y<size.y; ++y) {
+    for (int y = 0; y < size.y; ++y) {
         Pixel32 * pPixel = pLine;
-        for (int x=0; x<size.x; ++x) {
+        for (int x = 0; x < size.x; ++x) {
             if (x % 8 == 0) {
                 i++;
                 pData[i] = 0;
@@ -759,10 +759,10 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     delete pMask;
 }
 
-VisibleNodePtr Player::getElementByID(const std::string& id)
+VisibleNodePtr Player::getElementByID(const std::string& sID)
 {
     if (m_pMainCanvas) {
-        return m_pMainCanvas->getElementByID(id);
+        return m_pMainCanvas->getElementByID(sID);
     } else {
         return VisibleNodePtr();
     }
@@ -880,7 +880,7 @@ bool Player::handleEvent(EventPtr pEvent)
             stop();
         }
     } else {
-        switch(pEvent->getType()){
+        switch (pEvent->getType()) {
             case Event::QUIT:
                 stop();
                 break;
@@ -888,7 +888,6 @@ bool Player::handleEvent(EventPtr pEvent)
                 AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
                 break;
         }
-    // Don't pass on any events.
     }
     return true; 
 }
@@ -918,7 +917,7 @@ void Player::doFrame(bool bFirstFrame)
                 sendFakeEvents();
             }
         }
-        for (unsigned i=0; i< m_pCanvases.size(); ++i) {
+        for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
@@ -965,14 +964,14 @@ double Player::getVideoRefreshRate()
     return m_pDisplayEngine->getRefreshRate();
 }
 
-void Player::setGamma(double Red, double Green, double Blue)
+void Player::setGamma(double red, double green, double blue)
 {
     if (m_pDisplayEngine) {
-        m_pDisplayEngine->setGamma(Red, Green, Blue);
+        m_pDisplayEngine->setGamma(red, green, blue);
     } else {
-        m_DP.m_Gamma[0] = Red;
-        m_DP.m_Gamma[1] = Green;
-        m_DP.m_Gamma[2] = Blue;
+        m_DP.m_Gamma[0] = red;
+        m_DP.m_Gamma[1] = green;
+        m_DP.m_Gamma[2] = blue;
     }
 }
 
@@ -1007,7 +1006,8 @@ void Player::initConfig()
 
     m_AP.m_Channels = atoi(pMgr->getOption("aud", "channels")->c_str());
     m_AP.m_SampleRate = atoi(pMgr->getOption("aud", "samplerate")->c_str());
-    m_AP.m_OutputBufferSamples = atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
+    m_AP.m_OutputBufferSamples = 
+            atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
     m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
@@ -1106,22 +1106,22 @@ NodePtr Player::internalLoad(const string& sAVG)
     }
 }
 
-void Player::registerNodeType(NodeDefinition Def, const char* pParentNames[])
+void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
 {
-    m_NodeRegistry.registerNodeType(Def);
+    m_NodeRegistry.registerNodeType(def);
 
     if (pParentNames) {
-       string sChildArray[1];
-       sChildArray[0] = Def.getName();
-       vector<string> sChildren = vectorFromCArray(1, sChildArray);
-        const char **pCurrParentName = pParentNames;
+        string sChildArray[1];
+        sChildArray[0] = def.getName();
+        vector<string> sChildren = vectorFromCArray(1, sChildArray);
+        const char **ppCurParentName = pParentNames;
 
-        while(*pCurrParentName) {
-            NodeDefinition nodeDefinition = m_NodeRegistry.getNodeDef(*pCurrParentName);
+        while (*ppCurParentName) {
+            NodeDefinition nodeDefinition = m_NodeRegistry.getNodeDef(*ppCurParentName);
             nodeDefinition.addChildren(sChildren);
             m_NodeRegistry.updateNodeDefinition(nodeDefinition);
             
-            ++pCurrParentName;
+            ++ppCurParentName;
         }
     }
     m_bDirtyDTD = true;
@@ -1185,7 +1185,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         return NodePtr();
     }
     curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
-    if (!strcmp (nodeType, "words")) {
+    if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
@@ -1227,7 +1227,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     return pCanvas;
 }
 
-OffscreenCanvasPtr Player::findCanvas(const std::string& sID) const
+OffscreenCanvasPtr Player::findCanvas(const string& sID) const
 {
     for (unsigned i=0; i<m_pCanvases.size(); ++i) {
         if (m_pCanvases[i]->getID() == sID) {
@@ -1240,17 +1240,17 @@ OffscreenCanvasPtr Player::findCanvas(const std::string& sID) const
 void Player::sendFakeEvents()
 {
     std::map<int, CursorStatePtr>::iterator it;
-    for (it=m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
+    for (it = m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
         CursorStatePtr state = it->second;
         handleCursorEvent(state->getLastEvent(), true);
     }
 }
 
-void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 
+void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type, 
         VisibleNodePtr pNode)
 {
     if (pNode) {
-        EventPtr pNewEvent = pOtherEvent->cloneAs(Type);
+        EventPtr pNewEvent = pOtherEvent->cloneAs(type);
         pNewEvent->setElement(pNode);
         m_pEventDispatcher->sendEvent(pNewEvent);
     }
@@ -1458,7 +1458,7 @@ void Player::cleanup()
 {
     // Kill all timeouts.
     vector<Timeout*>::iterator it;
-    for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+    for (it = m_PendingTimeouts.begin(); it != m_PendingTimeouts.end(); it++) {
         delete *it;
     }
     m_PendingTimeouts.clear();
@@ -1474,7 +1474,7 @@ void Player::cleanup()
         delete m_pTracker;
         m_pTracker = 0;
     }
-    for (unsigned i=0; i < m_pCanvases.size(); ++i) {
+    for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
         m_pCanvases[i]->stopPlayback();
     }
     m_pCanvases.clear();
@@ -1497,7 +1497,7 @@ void Player::cleanup()
 
 int Player::addTimeout(Timeout* pTimeout)
 {
-    vector<Timeout*>::iterator it=m_PendingTimeouts.begin();
+    vector<Timeout*>::iterator it = m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (**it)<*pTimeout) {
         it++;
     }
@@ -1509,7 +1509,7 @@ int Player::addTimeout(Timeout* pTimeout)
 void Player::removeTimeout(Timeout* pTimeout)
 {
     delete pTimeout;
-    vector<Timeout*>::iterator it=m_PendingTimeouts.begin();
+    vector<Timeout*>::iterator it = m_PendingTimeouts.begin();
     while (*it != pTimeout) {
         it++;
     }

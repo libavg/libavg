@@ -50,30 +50,31 @@ namespace avg {
 
             // State transitions:
             // Current state       Destination state
-            // DOWN_PENDING     -> DOWN_DELIVERED (CURSORDOWN event), UP_DELIVERED (spurious blob)
+            // DOWN_PENDING     -> DOWN_DELIVERED (CURSORDOWN event), 
+            //                     UP_DELIVERED (spurious blob)
             // DOWN_DELIVERED   -> VANISHED, MOTION_PENDING, MOTION_DELIVERED
             // MOTION_PENDING   -> VANISHED, MOTION_DELIVERED (CURSORMOTION event)
             // MOTION_DELIVERED -> VANISHED, MOTION_PENDING
             // VANISHED         -> MOTION_PENDING, UP_PENDING
             // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
 
-            EventStream(BlobPtr first_blob, long long time);
+            EventStream(BlobPtr pFirstBlob, long long time);
             virtual ~EventStream();
-            void blobChanged(BlobPtr new_blob, long long time, bool bEventOnMove);
+            void blobChanged(BlobPtr pNewBlob, long long time, bool bEventOnMove);
             void blobGone();
-            EventPtr pollevent(DeDistortPtr trafo, const DRect& displayROI, 
-                    CursorEvent::Source Source, bool bEventOnMove);
+            EventPtr pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
+                    CursorEvent::Source source, bool bEventOnMove);
             bool isGone();
             void setStale();
             bool isStale();
             void dump();
-            static std::string stateToString(StreamState State);
+            static std::string stateToString(StreamState state);
 
         private:
             DPoint getSpeed(const DPoint& oldPos, const DPoint& newPos);
 
             bool m_Stale;
-            int m_Id;
+            int m_ID;
             StreamState m_State;
             int m_VanishCounter;
             DPoint m_Pos;

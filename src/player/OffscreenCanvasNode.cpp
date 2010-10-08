@@ -44,10 +44,10 @@ NodeDefinition OffscreenCanvasNode::createDefinition()
                 offsetof(OffscreenCanvasNode, m_bAutoRender)));
 }
 
-OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& Args)
-    : CanvasNode(Args)
+OffscreenCanvasNode::OffscreenCanvasNode(const ArgList& args)
+    : CanvasNode(args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
 }
 
 OffscreenCanvasNode::~OffscreenCanvasNode()

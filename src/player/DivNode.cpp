@@ -60,9 +60,9 @@ NodeDefinition DivNode::createDefinition()
         .addArg(Arg<UTF8String>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
-DivNode::DivNode(const ArgList& Args)
+DivNode::DivNode(const ArgList& args)
 {
-    Args.setMembers(this);
+    args.setMembers(this);
     setElementOutlineColor(m_sElementOutlineColor);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -76,7 +76,7 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    for (unsigned i = 0; i<getNumChildren(); ++i) {
+    for (unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->setRenderingEngines(pDisplayEngine, pAudioEngine);
     }
 }
@@ -84,14 +84,14 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 void DivNode::connect(CanvasPtr pCanvas)
 {
     AreaNode::connect(pCanvas);
-    for (unsigned i = 0; i<getNumChildren(); ++i) {
+    for (unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->connect(pCanvas);
     }
 }
 
 void DivNode::disconnect(bool bKill)
 {
-    for (unsigned i = 0; i<getNumChildren(); ++i) {
+    for (unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->disconnect(bKill);
     }
     AreaNode::disconnect(bKill);
@@ -200,7 +200,7 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
             ((getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
-        for (int i=getNumChildren()-1; i>=0; i--) {
+        for (int i = getNumChildren()-1; i >= 0; i--) {
             VisibleNodePtr pCurChild = getVChild(i);
             DPoint relPos = pCurChild->toLocal(pos);
             VisibleNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
@@ -224,19 +224,19 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
 void DivNode::preRender()
 {
     VisibleNode::preRender();
-    for (unsigned i=0; i<getNumChildren(); i++) {
+    for (unsigned i = 0; i < getNumChildren(); i++) {
         getVChild(i)->preRender();
     }
 }
 
 void DivNode::render(const DRect& rect)
 {
-    DPoint Viewport = getSize();
+    DPoint viewport = getSize();
     if (getCrop()) {
-        DRect ClipRect(0, 0, Viewport.x, Viewport.y);
+        DRect ClipRect(0, 0, viewport.x, viewport.y);
         getDisplayEngine()->pushClipRect(ClipRect);
     }
-    for (unsigned i=0; i<getNumChildren(); i++) {
+    for (unsigned i = 0; i < getNumChildren(); i++) {
         getVChild(i)->maybeRender(rect);
     }
     if (getCrop()) {
@@ -271,7 +271,7 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
             pVA->addLineData(effColor, p3, p0, 1);
         }
     }
-    for (unsigned i=0; i<getNumChildren(); i++) {
+    for (unsigned i = 0; i < getNumChildren(); i++) {
         getVChild(i)->renderOutlines(pVA, effColor);
     }
 }
@@ -294,7 +294,7 @@ string DivNode::getEffectiveMediaDir()
 
 void DivNode::checkReload()
 {
-    for(unsigned i=0; i<getNumChildren(); ++i) {
+    for(unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->checkReload();
     }
 }
@@ -303,7 +303,7 @@ string DivNode::dump(int indent)
 {
     string dumpStr = AreaNode::dump () + "\n";
     vector<VisibleNodePtr>::iterator it;
-    for(unsigned i=0; i<getNumChildren(); ++i) {
+    for(unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->dump(indent+2)+"\n";
     }
     return dumpStr;
