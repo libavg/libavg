@@ -272,25 +272,6 @@ struct from_python_sequence
   }
 };
 
-template<class NUM>
-struct Point_to_python_tuple
-{
-    static PyObject* convert (avg::Point<NUM> pt)
-    {
-        return boost::python::incref(boost::python::make_tuple(pt.x, pt.y).ptr());
-    }
-};
-
-template<class NUM>
-struct Triple_to_python_tuple
-{
-    static PyObject* convert (avg::Triple<NUM> t)
-    {
-        return boost::python::incref(boost::python::make_tuple(t.x,t.y,t.z).ptr());
-    }
-};
-
-
 template<class T>
 double deprecatedGet(T& node)
 {

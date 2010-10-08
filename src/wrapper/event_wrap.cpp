@@ -36,8 +36,7 @@ void export_event()
     boost::python::to_python_converter<vector<TouchEventPtr>, 
         to_tuple<vector<TouchEventPtr> > >();
           
-    boost::python::to_python_converter<ContourSeq, 
-        to_list<ContourSeq> >();    
+    boost::python::to_python_converter<ContourSeq, to_list<ContourSeq> >();    
    
     from_python_sequence<ContourSeq, variable_capacity_policy>();
 

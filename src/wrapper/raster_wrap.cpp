@@ -31,74 +31,6 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
-struct UTF8String_to_unicode
-{
-    static PyObject *convert(const UTF8String & s)
-    {
-        const char * pStr = s.c_str();
-        return PyUnicode_DecodeUTF8(pStr, strlen(pStr), "ignore");
-    }
-};
-
-struct UTF8String_from_unicode
-{
-    UTF8String_from_unicode()
-    {
-        boost::python::converter::registry::push_back(
-                &convertible,
-                &construct,
-                boost::python::type_id<UTF8String>());
-    }
-
-    static void* convertible(PyObject* obj_ptr)
-    {
-        if (!PyUnicode_Check(obj_ptr)) return 0;
-        return obj_ptr;
-    }
-
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        UTF8String s;
-        PyObject * pPyUTF8 = PyUnicode_AsUTF8String(obj_ptr);
-        char * psz = PyString_AsString(pPyUTF8);
-        void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
-                        ->storage.bytes;
-        new (storage) UTF8String(psz);
-        data->convertible = storage;
-    }
-};
-
-struct UTF8String_from_string
-{
-    UTF8String_from_string()
-    {
-        boost::python::converter::registry::push_back(
-                &convertible,
-                &construct,
-                boost::python::type_id<UTF8String>());
-    }
-
-    static void* convertible(PyObject* obj_ptr)
-    {
-        if (!PyString_Check(obj_ptr)) return 0;
-        return obj_ptr;
-    }
-
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        UTF8String s;
-        char * psz = PyString_AsString(obj_ptr);
-        void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
-                        ->storage.bytes;
-        new (storage) UTF8String(psz);
-        data->convertible = storage;
-    }
-};
-
 char imageNodeName[] = "image";
 char cameraNodeName[] = "camera";
 char videoNodeName[] = "video";
@@ -106,10 +38,6 @@ char wordsNodeName[] = "words";
 
 void export_raster()
 {
-    to_python_converter<UTF8String, UTF8String_to_unicode>();
-    UTF8String_from_unicode();
-    UTF8String_from_string();
-
     to_python_converter<VertexGrid, to_list<VertexGrid> >();    
     from_python_sequence<VertexGrid, variable_capacity_policy>();
 

@@ -91,7 +91,6 @@ ConstDPoint Bitmap_getSize(Bitmap* This)
 
 void export_bitmap()
 {
-    from_python_sequence<vector<double>, variable_capacity_policy>();
     export_point<DPoint>("Point2D",
             "A point in 2D space. Supports arithmetic operations on vectors.")
         .def(init<>())

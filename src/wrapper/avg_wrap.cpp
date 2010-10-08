@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+void export_base();
 void export_node();
 void export_event();
 #ifndef WIN32
@@ -47,72 +48,6 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
-struct check_tuple_convertible
-{
-    static void* convertible(PyObject* obj_ptr)
-    {
-        if (!PyTuple_Check(obj_ptr)) return 0;
-        return obj_ptr;
-    }
-};
-
-template<class POINT, class ATTR>
-struct DPoint_from_python_tuple: public check_tuple_convertible
-{
-    DPoint_from_python_tuple() 
-    {
-        boost::python::converter::registry::push_back(
-                &convertible, &construct, boost::python::type_id<POINT>());
-    }
-    
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        POINT pt;
-        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-        pt.x = (ATTR)PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 1);
-        pt.y = (ATTR)PyFloat_AsDouble(pEntry);
-        void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
-                    ->storage.bytes;
-        new (storage) POINT(pt);
-        data->convertible = storage;
-    }
-};
-
-template<class NUM>
-struct Triple_from_python_tuple: public check_tuple_convertible
-{
-    Triple_from_python_tuple() 
-    {
-        boost::python::converter::registry::push_back(
-                &convertible, &construct, boost::python::type_id<Triple<NUM> >());
-    }
-    
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        avg::Triple<NUM> t;
-        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-        t.x = (NUM)PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 1);
-        t.y = (NUM)PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 2);
-        t.z = (NUM)PyFloat_AsDouble(pEntry);
-        void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<Triple<NUM> >*)
-                        data)->storage.bytes;
-        new (storage) Triple<NUM>(t);
-        data->convertible = storage;
-    }
-};
-
-void exception_translator(Exception const & e) 
-{
-    PyErr_SetString(PyExc_RuntimeError, e.GetStr().c_str());
-}
-
 BOOST_PYTHON_MODULE(avg)
 {
     docstring_options doc_options(true, false);
@@ -125,34 +60,14 @@ BOOST_PYTHON_MODULE(avg)
         "G{classtree Logger}\n\n"
         "G{classtree ConradRelais ParPort}";
 
-#if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
-    register_exception_translator<Exception>(exception_translator);
-#endif
+    export_base();
+
     register_ptr_to_python<DivNodePtr>();
     register_ptr_to_python<CanvasNodePtr>();
     register_ptr_to_python<AVGNodePtr>();
     register_ptr_to_python<EventPtr>();
     register_ptr_to_python<MouseEventPtr>();
     register_ptr_to_python<TouchEventPtr>();
-
-    to_python_converter<IntPoint, Point_to_python_tuple<int> >();
-    to_python_converter<DTriple, Triple_to_python_tuple<double> >();
-    DPoint_from_python_tuple<DPoint, double>();
-    DPoint_from_python_tuple<ConstDPoint, double>();
-    DPoint_from_python_tuple<IntPoint, int>();
-    
-    Triple_from_python_tuple<double>();
-    Triple_from_python_tuple<int>();
-    
-    to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
-    to_python_converter<vector<string>, to_list<vector<string> > >();    
-   
-    from_python_sequence<vector<DPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<string>, variable_capacity_policy>();
-  
-    from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
-    from_python_sequence<vector<DTriple>, variable_capacity_policy>();
 
     def("getMemoryUsage", getMemoryUsage,
             "Returns the amount of memory used by the application in bytes. More\n"

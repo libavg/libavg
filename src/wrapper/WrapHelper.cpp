@@ -23,6 +23,7 @@
 
 using namespace avg;
 using namespace std;
+using namespace boost::python;
 
 namespace DPointHelper
 {
@@ -117,4 +118,189 @@ ConstDPoint::operator DPoint() const
     return DPoint(x,y);
 }
 
+
+template<class NUM>
+struct Point_to_python_tuple
+{
+    static PyObject* convert (avg::Point<NUM> pt)
+    {
+        return boost::python::incref(boost::python::make_tuple(pt.x, pt.y).ptr());
+    }
+};
+
+
+template<class NUM>
+struct Triple_to_python_tuple
+{
+    static PyObject* convert (avg::Triple<NUM> t)
+    {
+        return boost::python::incref(boost::python::make_tuple(t.x,t.y,t.z).ptr());
+    }
+};
+
+
+struct check_tuple_convertible
+{
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+};
+
+
+template<class POINT, class ATTR>
+struct DPoint_from_python_tuple: public check_tuple_convertible
+{
+    DPoint_from_python_tuple() 
+    {
+        boost::python::converter::registry::push_back(
+                &convertible, &construct, boost::python::type_id<POINT>());
+    }
+    
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        POINT pt;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        pt.x = (ATTR)PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pt.y = (ATTR)PyFloat_AsDouble(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
+                    ->storage.bytes;
+        new (storage) POINT(pt);
+        data->convertible = storage;
+    }
+};
+
+template<class NUM>
+struct Triple_from_python_tuple: public check_tuple_convertible
+{
+    Triple_from_python_tuple() 
+    {
+        boost::python::converter::registry::push_back(
+                &convertible, &construct, boost::python::type_id<Triple<NUM> >());
+    }
+    
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        avg::Triple<NUM> t;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        t.x = (NUM)PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        t.y = (NUM)PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 2);
+        t.z = (NUM)PyFloat_AsDouble(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<Triple<NUM> >*)
+                        data)->storage.bytes;
+        new (storage) Triple<NUM>(t);
+        data->convertible = storage;
+    }
+};
+
+void exception_translator(Exception const & e) 
+{
+    PyErr_SetString(PyExc_RuntimeError, e.GetStr().c_str());
+}
+
+struct UTF8String_to_unicode
+{
+    static PyObject *convert(const UTF8String & s)
+    {
+        const char * pStr = s.c_str();
+        return PyUnicode_DecodeUTF8(pStr, strlen(pStr), "ignore");
+    }
+};
+
+struct UTF8String_from_unicode
+{
+    UTF8String_from_unicode()
+    {
+        boost::python::converter::registry::push_back(
+                &convertible,
+                &construct,
+                boost::python::type_id<UTF8String>());
+    }
+
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyUnicode_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        UTF8String s;
+        PyObject * pPyUTF8 = PyUnicode_AsUTF8String(obj_ptr);
+        char * psz = PyString_AsString(pPyUTF8);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
+                        ->storage.bytes;
+        new (storage) UTF8String(psz);
+        data->convertible = storage;
+    }
+};
+
+struct UTF8String_from_string
+{
+    UTF8String_from_string()
+    {
+        boost::python::converter::registry::push_back(
+                &convertible,
+                &construct,
+                boost::python::type_id<UTF8String>());
+    }
+
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyString_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        UTF8String s;
+        char * psz = PyString_AsString(obj_ptr);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
+                        ->storage.bytes;
+        new (storage) UTF8String(psz);
+        data->convertible = storage;
+    }
+};
+
+void export_base()
+{
+#if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
+    register_exception_translator<Exception>(exception_translator);
+#endif
+    to_python_converter<IntPoint, Point_to_python_tuple<int> >();
+    to_python_converter<DTriple, Triple_to_python_tuple<double> >();
+    DPoint_from_python_tuple<DPoint, double>();
+    DPoint_from_python_tuple<ConstDPoint, double>();
+    DPoint_from_python_tuple<IntPoint, int>();
+    
+    Triple_from_python_tuple<double>();
+    Triple_from_python_tuple<int>();
+    
+    to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
+    to_python_converter<vector<string>, to_list<vector<string> > >();    
+   
+    from_python_sequence<vector<DPoint>, variable_capacity_policy>();
+    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
+    from_python_sequence<vector<string>, variable_capacity_policy>();
+  
+    from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
+    from_python_sequence<vector<DTriple>, variable_capacity_policy>();
+    from_python_sequence<vector<double>, variable_capacity_policy>();
+    
+    to_python_converter<UTF8String, UTF8String_to_unicode>();
+    UTF8String_from_unicode();
+    UTF8String_from_string();
+}
 

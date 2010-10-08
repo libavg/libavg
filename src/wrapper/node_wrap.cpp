@@ -55,10 +55,10 @@ using namespace avg;
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, VisibleNode::unlink, 0, 1);
 
 // These function templates essentially call functions such as AreaNode::getPos()
-// and returns a version of the result that doesn't allow setting of the individual
+// and return a version of the result that don't allow setting of the individual
 // elements of the DPoint returned.
 // Without this stuff, python code like node.pos.x=30 would fail silently. With it,
-// it throws an exception.
+// it at least throws an exception.
 template<class CLASS, const DPoint& (CLASS::*FUNC)() const>
 ConstDPoint constPointGetterRef(const CLASS& node)
 {
