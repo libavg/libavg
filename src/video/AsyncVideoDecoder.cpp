@@ -274,7 +274,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
-        for (unsigned i=0; i<pBmps.size(); ++i) {
+        for (unsigned i = 0; i < pBmps.size(); ++i) {
             pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
         }
         returnFrame(pFrameMsg);
