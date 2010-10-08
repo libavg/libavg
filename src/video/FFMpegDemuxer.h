@@ -54,6 +54,7 @@ extern "C" {
 }
 
 #include <list>
+#include <vector>
 #include <map>
 
 #include <boost/shared_ptr.hpp>
@@ -62,10 +63,10 @@ namespace avg {
 
     class AVG_API FFMpegDemuxer: public IDemuxer {
         public:
-            FFMpegDemuxer(AVFormatContext * pFormatContext);
+            FFMpegDemuxer(AVFormatContext * pFormatContext, 
+                    std::vector<int> streamIndexes);
             virtual ~FFMpegDemuxer();
            
-            void enableStream(int streamIndex);
             AVPacket * getPacket(int streamIndex);
             void seek(double destTime);
             void dump();

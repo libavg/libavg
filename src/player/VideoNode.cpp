@@ -73,6 +73,7 @@ VideoNode::VideoNode(const ArgList& Args)
       m_pEOFCallback(0),
       m_FramesTooLate(0),
       m_FramesPlayed(0),
+      m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0)
 {
@@ -388,14 +389,19 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
 
 void VideoNode::seek(long long DestTime) 
 {
-    m_pDecoder->seek(double(DestTime)/1000.0);
-    m_StartTime = Player::get()->getFrameTime() - DestTime;
-    m_JitterCompensation = 0.5;
-    m_PauseTime = 0;
-    m_PauseStartTime = Player::get()->getFrameTime();
-    m_bFrameAvailable = false;
-    m_bSeekPending = true;
-//    AVG_TRACE(Logger::PROFILE, "seek");
+    if (getState() == NS_CANRENDER) {    
+        m_pDecoder->seek(double(DestTime)/1000.0);
+        m_StartTime = Player::get()->getFrameTime() - DestTime;
+        m_JitterCompensation = 0.5;
+        m_PauseTime = 0;
+        m_PauseStartTime = Player::get()->getFrameTime();
+        m_bFrameAvailable = false;
+        m_bSeekPending = true;
+    } else {
+        // If we get a seek command before decoding has really started, we need to defer 
+        // the actual seek until the decoder is ready.
+        m_SeekBeforeCanRenderTime = DestTime;
+    }
 }
 
 void VideoNode::open() 
@@ -447,6 +453,10 @@ void VideoNode::startDecoding()
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
         getSurface()->unlockBmps();
+    }
+    if (m_SeekBeforeCanRenderTime != 0) {
+        seek(m_SeekBeforeCanRenderTime);
+        m_SeekBeforeCanRenderTime = 0;
     }
 }
 

@@ -31,21 +31,19 @@ using namespace std;
 
 namespace avg {
 
-FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext)
+FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext, vector<int> streamIndexes)
     : m_pFormatContext(pFormatContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    for (unsigned i = 0; i < streamIndexes.size(); ++i) {
+        m_PacketLists[streamIndexes[i]] = PacketList();
+    }
 }
 
 FFMpegDemuxer::~FFMpegDemuxer()
 {
     clearPacketCache();
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void FFMpegDemuxer::enableStream(int streamIndex)
-{
-    m_PacketLists[streamIndex] = PacketList();
 }
 
 AVPacket * FFMpegDemuxer::getPacket(int streamIndex)

@@ -126,6 +126,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         int m_FramesInRowTooLate;
         int m_FramesPlayed;
         bool m_bSeekPending;
+        long long m_SeekBeforeCanRenderTime;
 
         long long m_StartTime;
         long long m_PauseTime;

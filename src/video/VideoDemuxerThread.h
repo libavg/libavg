@@ -38,7 +38,8 @@ namespace avg {
 
 class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
     public:
-        VideoDemuxerThread(CQueue& cmdQ, AVFormatContext * pFormatContext);
+        VideoDemuxerThread(CQueue& cmdQ, AVFormatContext * pFormatContext, 
+                const std::map<int, VideoPacketQueuePtr>& m_PacketQs);
         virtual ~VideoDemuxerThread();
         bool init();
         bool work();
@@ -49,7 +50,7 @@ class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
 
     private:
         void onStreamEOF(int streamIndex);
-        
+       
         std::map<int, VideoPacketQueuePtr> m_PacketQs;
         std::map<int, bool> m_PacketQbEOF;
         bool m_bEOF;

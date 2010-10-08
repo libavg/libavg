@@ -30,13 +30,19 @@ using namespace std;
 
 namespace avg {
 
-VideoDemuxerThread::VideoDemuxerThread(CQueue& cmdQ, AVFormatContext * pFormatContext)
+VideoDemuxerThread::VideoDemuxerThread(CQueue& cmdQ, AVFormatContext * pFormatContext,
+        const map<int, VideoPacketQueuePtr>& packetQs)
     : WorkerThread<VideoDemuxerThread>("VideoDemuxer", cmdQ),
+      m_PacketQs(packetQs),
       m_bEOF(false),
       m_pFormatContext(pFormatContext),
       m_pDemuxer()
-
 {
+    map<int, VideoPacketQueuePtr>::iterator it;
+    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        int streamIndex = it->first;
+        m_PacketQbEOF[streamIndex] = false;
+    }
 }
 
 VideoDemuxerThread::~VideoDemuxerThread()
@@ -45,9 +51,14 @@ VideoDemuxerThread::~VideoDemuxerThread()
 
 bool VideoDemuxerThread::init()
 {
-    m_pDemuxer = FFMpegDemuxerPtr(new FFMpegDemuxer(m_pFormatContext));
+    map<int, VideoPacketQueuePtr>::iterator it;
+    vector<int> streamIndexes;
+    for (it = m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        streamIndexes.push_back(it->first);
+    }
+    m_pDemuxer = FFMpegDemuxerPtr(new FFMpegDemuxer(m_pFormatContext, streamIndexes));
     return true;
-};
+}
 
 bool VideoDemuxerThread::work() 
 {
@@ -88,14 +99,6 @@ bool VideoDemuxerThread::work()
 
 void VideoDemuxerThread::deinit()
 {
-}
-
-void VideoDemuxerThread::enableStream(VideoPacketQueuePtr pPacketQ, int streamIndex)
-{
-    m_PacketQs[streamIndex] = pPacketQ;
-    m_PacketQbEOF[streamIndex] = false;
-    m_pDemuxer->enableStream(streamIndex);
-    m_bEOF = false;
 }
 
 void VideoDemuxerThread::seek(double destTime)

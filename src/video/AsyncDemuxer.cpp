@@ -37,13 +37,17 @@ typedef boost::mutex::scoped_lock scoped_lock;
 
 namespace avg {
 
-AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
-    : m_pDemuxThread(0),
-      m_pCmdQ(new VideoDemuxerThread::CQueue),
+AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext, vector<int> streamIndexes)
+    : m_pCmdQ(new VideoDemuxerThread::CQueue),
       m_bSeekPending(false),
       m_pFormatContext(pFormatContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    for (unsigned i = 0; i < streamIndexes.size(); ++i) {
+        enableStream(streamIndexes[i]);
+    }
+    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, m_pFormatContext,
+            m_PacketQs));
 }
 
 AsyncDemuxer::~AsyncDemuxer()
@@ -74,20 +78,6 @@ AsyncDemuxer::~AsyncDemuxer()
         }
     }
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void AsyncDemuxer::start()
-{
-    m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, m_pFormatContext));
-}
-
-void AsyncDemuxer::enableStream(int streamIndex)
-{
-    VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
-    m_PacketQs[streamIndex] = pPacketQ;
-    m_bSeekDone[streamIndex] = true;
-    m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::enableStream, _1, pPacketQ, 
-            streamIndex));
 }
 
 AVPacket * AsyncDemuxer::getPacket(int streamIndex)
@@ -128,6 +118,13 @@ void AsyncDemuxer::seek(double destTime)
     if (bAllSeeksDone) {
         m_bSeekPending = false;
     }
+}
+
+void AsyncDemuxer::enableStream(int streamIndex)
+{
+    VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
+    m_PacketQs[streamIndex] = pPacketQ;
+    m_bSeekDone[streamIndex] = true;
 }
 
 void AsyncDemuxer::waitForSeekDone()

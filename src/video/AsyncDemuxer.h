@@ -27,6 +27,7 @@
 #include "VideoDemuxerThread.h"
 
 #include <map>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
@@ -35,15 +36,15 @@ namespace avg {
 
     class AVG_API AsyncDemuxer: public IDemuxer {
         public:
-            AsyncDemuxer(AVFormatContext * pFormatContext);
+            AsyncDemuxer(AVFormatContext * pFormatContext, 
+                    std::vector<int> streamIndexes);
             virtual ~AsyncDemuxer();
-            void start();
            
-            void enableStream(int streamIndex);
             AVPacket * getPacket(int streamIndex);
             void seek(double destTime);
             
         private:
+            void enableStream(int streamIndex);
             void waitForSeekDone();
 
             boost::thread* m_pDemuxThread;

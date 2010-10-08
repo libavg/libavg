@@ -199,22 +199,13 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
                 break;
         }
     }
-    AVG_ASSERT(!m_pDemuxer);
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
-    
-    // Create demuxer to handle streams
-    if (bThreadedDemuxer) {
-        m_pDemuxer = new AsyncDemuxer(m_pFormatContext);
-    } else {
-        m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
-    }
     
     // Enable video stream demuxing
     if (m_VStreamIndex >= 0) {
         m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
         m_State = OPENED;
-        m_pDemuxer->enableStream(m_VStreamIndex);
         
         // Set video parameters
         m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
@@ -267,6 +258,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
                     sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
         }
     }
+
     m_State = OPENED;
 }
 
@@ -304,15 +296,28 @@ void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
             m_pResampleBuffer = 0;
             m_ResampleBufferStart = 0;
             m_ResampleBufferEnd = 0;
-        
-            m_pDemuxer->enableStream(m_AStreamIndex);
         }
     }
     if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 m_sFilename + " does not contain any valid audio or video streams.");
     }
-    m_pDemuxer->start();
+
+    // Create demuxer
+    AVG_ASSERT(!m_pDemuxer);
+    vector<int> streamIndexes;
+    if (m_VStreamIndex >= 0) {
+        streamIndexes.push_back(m_VStreamIndex);
+    }
+    if (m_AStreamIndex >= 0) {
+        streamIndexes.push_back(m_AStreamIndex);
+    }
+    if (m_bThreadedDemuxer) {
+        m_pDemuxer = new AsyncDemuxer(m_pFormatContext, streamIndexes);
+    } else {
+        m_pDemuxer = new FFMpegDemuxer(m_pFormatContext, streamIndexes);
+    }
+    
     m_State = DECODING;
 }
 
@@ -412,6 +417,7 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
 
 void FFMpegDecoder::seek(double DestTime) 
 {
+    AVG_ASSERT(m_State == DECODING);
     if (m_bFirstPacket && m_pVStream) {
         AVFrame frame;
         readFrame(frame);
@@ -959,7 +965,7 @@ static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
 
 double FFMpegDecoder::readFrame(AVFrame& frame)
 {
-    AVG_ASSERT(m_pDemuxer);
+    AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 
 
     if (m_bEOFPending) {
