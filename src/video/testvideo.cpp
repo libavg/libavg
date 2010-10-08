@@ -51,12 +51,6 @@
 using namespace avg;
 using namespace std;
 
-// TODO: 
-//  - Seek forward & back (longer movies)
-//  - Test getNumFrames
-//  - Repeat for other File formats.
-//  - Test YCbCr420p, YCbCr422
-
 
 class DecoderTest: public GraphicsTest {
     public:
@@ -315,8 +309,7 @@ class AudioDecoderTest: public DecoderTest {
                     int totalFramesDecoded = 4;
 
                     readAudioToEOF(pDecoder, totalFramesDecoded, false);
-                    if (sFilename.find(".mp3") == string::npos)
-                    {
+                    if (sFilename.find(".mp3") == string::npos) {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
                         // for mp3 files.

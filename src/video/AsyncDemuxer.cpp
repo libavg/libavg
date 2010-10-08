@@ -85,7 +85,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
     waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[streamIndex]->pop(true);
-    AVG_ASSERT (!pPacketMsg->isSeekDone());
+    AVG_ASSERT(!pPacketMsg->isSeekDone());
 
     return pPacketMsg->getPacket();
 }
