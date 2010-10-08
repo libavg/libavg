@@ -195,7 +195,7 @@ std::string VideoNode::getStreamPixelFormat() const
 long long VideoNode::getDuration() const
 {
     exceptionIfUnloaded("getDuration");
-    return m_pDecoder->getVideoInfo().m_Duration*1000;
+    return (long long)(m_pDecoder->getVideoInfo().m_Duration*1000);
 }
 
 int VideoNode::getBitrate() const
@@ -231,7 +231,7 @@ int VideoNode::getNumAudioChannels() const
 long long VideoNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    long long curTime = m_pDecoder->getCurTime()*1000;
+    long long curTime = (long long)(m_pDecoder->getCurTime()*1000);
     if (curTime > 0) {
         return curTime;
     } else {
@@ -519,7 +519,7 @@ long long VideoNode::getNextFrameTime() const
                 }
                 long long nextFrameTime = Player::get()->getFrameTime()-m_StartTime
                         -m_PauseTime
-                        -m_JitterCompensation*1000.0/Player::get()->getFramerate();
+                        -(long long)(m_JitterCompensation*1000.0/Player::get()->getFramerate());
                 if (nextFrameTime < 0) {
                     nextFrameTime = 0;
                 }
@@ -685,7 +685,7 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
     // are at the border of a frame's time, this can cause irregular display times.
     // So, if we detect this condition, we adjust the frame time by a small fraction
     // to move it towards the center of the time slot.
-    long long jitter = getNextFrameTime()-m_pDecoder->getCurTime()*1000;
+    long long jitter = (long long)(getNextFrameTime()-m_pDecoder->getCurTime()*1000);
     if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
         m_JitterCompensation += 0.2;
     }
