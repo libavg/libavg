@@ -47,7 +47,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual ~SDLDisplayEngine();
 
         // From DisplayEngine
-        virtual void init(const DisplayParams& DP);
+        virtual void init(const DisplayParams& dp);
         virtual void teardown();
         virtual double getRefreshRate();
         virtual void setGamma(double red, double green, double blue);
@@ -95,7 +95,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         void logConfig(); 
         virtual void swapBuffers();
         void clip(bool forward);
-        void setClipPlane(double Eqn[4], int WhichPlane);
         static bool isParallels();
 
         EventPtr createMouseEvent
@@ -145,6 +144,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         OGLMemoryMode m_MemoryMode;
 
         FBOPtr m_pFBO;
+
+        double m_Gamma[3];
 };
 
 }

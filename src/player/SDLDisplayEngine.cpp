@@ -109,6 +109,9 @@ SDLDisplayEngine::SDLDisplayEngine()
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
     }
+    m_Gamma[0] = 1.0;
+    m_Gamma[1] = 1.0;
+    m_Gamma[2] = 1.0;
     initTranslationTable();
 }
 
@@ -262,7 +265,9 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
 void SDLDisplayEngine::teardown()
 {
     if (m_pScreen) {
-        SDL_SetGamma(1.0, 1.0, 1.0);
+        if (m_Gamma[0] != 1.0 || m_Gamma[1] != 1.0 || m_Gamma[2] != 1.0) {
+            SDL_SetGamma(1.0, 1.0, 1.0);
+        }
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_ShowCursor(SDL_ENABLE);
@@ -288,6 +293,9 @@ void SDLDisplayEngine::setGamma(double red, double green, double blue)
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", " << blue);
         int err = SDL_SetGamma(float(red), float(green), float(blue));
+        m_Gamma[0] = red;
+        m_Gamma[1] = green;
+        m_Gamma[2] = blue;
         if (err == -1) {
             AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
         }
