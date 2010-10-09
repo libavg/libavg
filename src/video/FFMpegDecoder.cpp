@@ -783,6 +783,7 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
         m_AudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
         if (!m_AudioPacket) {
             m_bAudioEOF = true;
+            volumize(pBuffer);
             return pBuffer->getNumFrames()-bufferLeft/(pBuffer->getFrameSize());
         }
 
