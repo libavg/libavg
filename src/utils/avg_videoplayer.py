@@ -51,6 +51,18 @@ class VideoPlayer(AVGApp):
 
         g_player.setOnFrameHandler(onFrame)
     
+    def onKeyDown(self, event):
+        global node
+        curTime = node.getCurTime()
+        if event.keystring == "right":
+            node.seekToTime(curTime+10000)
+        elif event.keystring == "left":
+            if curTime > 10000:
+                node.seekToTime(curTime-10000)
+            else:
+                node.seekToTime(0)
+        return True
+
     def __makeAlphaBackground(self):
         global node
         SQUARESIZE=40
