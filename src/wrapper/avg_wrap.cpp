@@ -30,7 +30,6 @@ void export_anim();
 #include "WrapHelper.h"
 
 #include "../base/Logger.h"
-#include "../base/Exception.h"
 #include "../base/OSHelper.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"

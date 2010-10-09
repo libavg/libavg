@@ -21,6 +21,10 @@
 
 #include "WrapHelper.h"
 
+#include "../base/Exception.h"
+
+#include <boost/version.hpp>
+
 using namespace avg;
 using namespace std;
 using namespace boost::python;
