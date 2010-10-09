@@ -92,6 +92,9 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
 
 void AsyncDemuxer::seek(double destTime)
 {
+    // TODO: There is a (theoretical) race condition here - getPacket() and seek() can
+    // be called from different threads. Among other things, this can cause the assert in 
+    // getPacket() to trigger.
     waitForSeekDone();
     scoped_lock Lock(m_SeekMutex);
     m_pCmdQ->pushCmd(boost::bind(&VideoDemuxerThread::seek, _1, destTime));
