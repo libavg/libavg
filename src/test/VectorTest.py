@@ -432,6 +432,7 @@ class VectorTestCase(AVGTestCase):
         
         def addEmptyPoint():
             pos = polygon.pos
+            pos.insert(1, (10, 10))
             pos.append((40, 40))
             polygon.pos = pos
         

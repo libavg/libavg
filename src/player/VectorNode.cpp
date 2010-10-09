@@ -338,7 +338,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
     pts.push_back(origPts[0]);
     texCoords.push_back(origTexCoords[0]);
     for (unsigned i = 1; i < origPts.size(); ++i) {
-        if (calcDistSquared(origPts[i], origPts[i-1])>0.1) {
+        if (calcDistSquared(origPts[i], origPts[i-1]) > 0.1) {
             pts.push_back(origPts[i]);
             texCoords.push_back(origTexCoords[i]);
         }

@@ -130,28 +130,39 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (getNumDifferentPts(m_Pts) < 3) {
         return;
     }
-    if (color.getA() > 0 && m_Pts.size() > 2) {
-        DPoint minCoord = m_Pts[0];
-        DPoint maxCoord = m_Pts[0];
-        for (unsigned i=1; i<m_Pts.size(); ++i) {
-            if (m_Pts[i].x < minCoord.x) {
-                minCoord.x = m_Pts[i].x;
+    // Remove duplicate points
+    vector<DPoint> pts;
+    pts.reserve(m_Pts.size());
+
+    pts.push_back(m_Pts[0]);
+    for (unsigned i = 1; i < m_Pts.size(); ++i) {
+        if (calcDistSquared(m_Pts[i], m_Pts[i-1]) > 0.1) {
+            pts.push_back(m_Pts[i]);
+        }
+    }
+
+    if (color.getA() > 0) {
+        DPoint minCoord = pts[0];
+        DPoint maxCoord = pts[0];
+        for (unsigned i = 1; i < pts.size(); ++i) {
+            if (pts[i].x < minCoord.x) {
+                minCoord.x = pts[i].x;
             }
-            if (m_Pts[i].x > maxCoord.x) {
-                maxCoord.x = m_Pts[i].x;
+            if (pts[i].x > maxCoord.x) {
+                maxCoord.x = pts[i].x;
             }
-            if (m_Pts[i].y < minCoord.y) {
-                minCoord.y = m_Pts[i].y;
+            if (pts[i].y < minCoord.y) {
+                minCoord.y = pts[i].y;
             }
-            if (m_Pts[i].y > maxCoord.y) {
-                maxCoord.y = m_Pts[i].y;
+            if (pts[i].y > maxCoord.y) {
+                maxCoord.y = pts[i].y;
             }
         }
         vector<int> triIndexes;
-        triangulatePolygon(m_Pts, triIndexes);
-        for (unsigned i = 0; i < m_Pts.size(); ++i) {
-            DPoint texCoord = calcFillTexCoord(m_Pts[i], minCoord, maxCoord);
-            pVertexArray->appendPos(m_Pts[i], texCoord, color);
+        triangulatePolygon(pts, triIndexes);
+        for (unsigned i = 0; i < pts.size(); ++i) {
+            DPoint texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
+            pVertexArray->appendPos(pts[i], texCoord, color);
         }
         for (unsigned i = 0; i < triIndexes.size(); i+=3) {
             pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
