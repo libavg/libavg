@@ -121,7 +121,7 @@ std::string removeStartEndSpaces(const string& s)
     return sResult;
 }
 
-string tolower(const string& s)
+string toLowerCase(const string& s)
 {
     string sResult;
     char lower[2];

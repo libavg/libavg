@@ -756,7 +756,7 @@ void WordsNode::setParsedText(const UTF8String& sText)
 UTF8String WordsNode::applyBR(const UTF8String& sText)
 {
     UTF8String sResult(sText);
-    UTF8String sLowerText = tolower(sResult); 
+    UTF8String sLowerText = toLowerCase(sResult); 
     string::size_type pos=sLowerText.find("<br/>");
     while (pos != string::npos) {
         sResult.replace(pos, 5, "\n");
