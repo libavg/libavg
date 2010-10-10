@@ -20,7 +20,6 @@
 //
 
 #include "../api.h"
-#include <string>
 
 #ifdef _DEBUG
 #  undef _DEBUG // Don't let Python force the debug library just because we're debugging.
@@ -32,6 +31,7 @@
 #undef _POSIX_C_SOURCE
 #undef _XOPEN_SOURCE
 #include <Python.h>
+#include <string>
 
 #undef HAVE_STAT
 #undef HAVE_TEMPNAM

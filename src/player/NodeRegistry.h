@@ -25,6 +25,7 @@
 #define _NodeRegistry_H_
 
 #include "../api.h"
+#include "WrapPython.h"
 #include "Node.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
