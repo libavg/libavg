@@ -89,11 +89,16 @@ ConstDPoint Bitmap_getSize(Bitmap* This)
     return (DPoint)(This->getSize());
 }
 
+DPoint* createPoint()
+{
+    return new DPoint(0,0);
+}
+
 void export_bitmap()
 {
     export_point<DPoint>("Point2D",
             "A point in 2D space. Supports arithmetic operations on vectors.")
-        .def(init<>())
+        .def("__init__", make_constructor(createPoint))
         .def(init<double, double>())
         .def(init<vector<double> >())
         .def(init<const DPoint&>())

@@ -54,6 +54,8 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(len(ptMap) == 2)
             self.assert_(ptMap[avg.Point2D(0,0)] == 2)
 
+        pt = avg.Point2D()
+        self.assert_(pt == avg.Point2D(0,0))
         pt = avg.Point2D(10, 10)
         self.assert_(pt[0]==pt.x)
         self.assert_(pt[1]==pt.y)
