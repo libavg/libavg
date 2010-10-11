@@ -491,11 +491,11 @@ bool areConnected(const Run & run1, const Run & run2)
 
 void storeRuns(BlobVectorPtr pBlobs, RunArray* pUpperRuns, RunArray* pLowerRuns)
 {
-    for (RunArray::iterator run1_it = pUpperRuns->begin(); run1_it!=pUpperRuns->end();
+    for (RunArray::iterator run1_it = pUpperRuns->begin(); run1_it != pUpperRuns->end();
             ++run1_it)
     {
-        for (RunArray::iterator run2_it = pLowerRuns->begin(); run2_it!=pLowerRuns->end();
-                ++run2_it)
+        for (RunArray::iterator run2_it = pLowerRuns->begin(); 
+                run2_it != pLowerRuns->end(); ++run2_it)
         {
             if (run2_it->m_StartCol > run1_it->m_EndCol) {
                 break;
@@ -528,7 +528,7 @@ void storeRuns(BlobVectorPtr pBlobs, RunArray* pUpperRuns, RunArray* pLowerRuns)
             }
         }
     }
-    for (RunArray::iterator run2_it = pLowerRuns->begin(); run2_it!=pLowerRuns->end();
+    for (RunArray::iterator run2_it = pLowerRuns->begin(); run2_it != pLowerRuns->end();
             ++run2_it)
     {
         if (run2_it->m_pBlob.expired()) {
@@ -574,7 +574,6 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray* pRuns, unsigned char thresh
     if (bIsInRun) {
         pRuns->push_back(Run(y, runStart, width));
     }
-
 }
 
 BlobVectorPtr findConnectedComponents(BitmapPtr pBmp, unsigned char threshold)
@@ -587,8 +586,7 @@ BlobVectorPtr findConnectedComponents(BitmapPtr pBmp, unsigned char threshold)
 
     int y = 0;
     findRunsInLine(pBmp, 0, pUpperRuns, threshold);
-    for (RunArray::iterator it = pUpperRuns->begin(); it!=pUpperRuns->end(); ++it) 
-    {
+    for (RunArray::iterator it = pUpperRuns->begin(); it!=pUpperRuns->end(); ++it) {
         BlobPtr pBlob = BlobPtr(new Blob(*it));
         pBlobs->push_back(pBlob);
         it->m_pBlob = pBlob;

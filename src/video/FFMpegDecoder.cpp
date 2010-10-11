@@ -231,8 +231,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
         m_PF = calcPixelFormat(true);
     }
     // Enable audio stream demuxing.
-    if (m_AStreamIndex >= 0)
-    {
+    if (m_AStreamIndex >= 0) {
         m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
         
         m_AudioPacket = 0;
@@ -528,6 +527,9 @@ double FFMpegDecoder::getVolume() const
 void FFMpegDecoder::setVolume(double volume)
 {
     m_Volume = volume;
+    if (m_State != DECODING) {
+        m_LastVolume = volume;
+    }
 }
 
 void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride)
@@ -732,10 +734,8 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     bool bFormatMatch = (m_EffectiveSampleRate == m_AP.m_SampleRate &&
                          m_pAStream->codec->channels == m_AP.m_Channels);
 
-    while (true)
-    {
-        while (true)
-        {
+    while (true) {
+        while (true) {
             // Consume any data left in the sample buffers
             while (m_SampleBufferStart < m_SampleBufferEnd ||
                   m_ResampleBufferStart < m_ResampleBufferEnd)
