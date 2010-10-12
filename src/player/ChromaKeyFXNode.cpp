@@ -38,7 +38,9 @@ ChromaKeyFXNode::ChromaKeyFXNode()
       m_HTolerance(0.0),
       m_STolerance(0.0),
       m_LTolerance(0.0),
-      m_Softness(0.0)
+      m_Softness(0.0),
+      m_Erosion(0),
+      m_SpillThreshold(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -122,11 +124,22 @@ int ChromaKeyFXNode::getErosion() const
     return m_Erosion;
 }
 
+void ChromaKeyFXNode::setSpillThreshold(double spillThreshold)
+{
+    m_SpillThreshold = spillThreshold;
+    setFilterParams();
+}
+
+int ChromaKeyFXNode::getSpillThreshold() const
+{
+    return m_SpillThreshold;
+}
+
 GPUFilterPtr ChromaKeyFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUChromaKeyFilterPtr(new GPUChromaKeyFilter(size, B8G8R8A8, false));
     m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, m_Softness,
-            m_Erosion);
+            m_Erosion, m_SpillThreshold);
     return m_pFilter;
 }
 
@@ -134,7 +147,7 @@ void ChromaKeyFXNode::setFilterParams()
 {
     if (m_pFilter) {
         m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, 
-                m_Softness, m_Erosion);
+                m_Softness, m_Erosion, m_SpillThreshold);
     }
 }
 

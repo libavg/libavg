@@ -69,5 +69,7 @@ void export_fx()
                 &ChromaKeyFXNode::setSoftness)
         .add_property("erosion", &ChromaKeyFXNode::getErosion,
                 &ChromaKeyFXNode::setErosion)
+        .add_property("spillthreshold", &ChromaKeyFXNode::getSpillThreshold,
+                &ChromaKeyFXNode::setSpillThreshold)
         ;
 }

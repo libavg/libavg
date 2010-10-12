@@ -43,7 +43,8 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
       m_STolerance(0.0),
       m_LTolerance(0.0),
       m_Softness(0.0),
-      m_Erosion(0)
+      m_Erosion(0),
+      m_SpillThreshold(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -56,7 +57,8 @@ GPUChromaKeyFilter::~GPUChromaKeyFilter()
 }
 
 void GPUChromaKeyFilter::setParams(const Pixel32& color, double hTolerance, 
-        double sTolerance, double lTolerance, double softness, int erosion)
+        double sTolerance, double lTolerance, double softness, int erosion,
+        double spillThreshold)
 {
     m_Color = color;
     m_HTolerance = hTolerance;
@@ -64,6 +66,7 @@ void GPUChromaKeyFilter::setParams(const Pixel32& color, double hTolerance,
     m_LTolerance = lTolerance;
     m_Softness = softness;
     m_Erosion = erosion;
+    m_SpillThreshold = spillThreshold;
 }
 
 void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -86,6 +89,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->setUniformFloatParam("lKey", l);
     pShader->setUniformFloatParam("lTolerance", m_LTolerance);
     pShader->setUniformFloatParam("lSoftTolerance", m_LTolerance+m_Softness);
+    pShader->setUniformFloatParam("spillThreshold", m_SpillThreshold*360);
     pShader->setUniformIntParam("bIsLast", int(m_Erosion==0));
     draw(pSrcTex);
 
@@ -114,6 +118,7 @@ void GPUChromaKeyFilter::initShader()
         "uniform float sKey;\n"
         "uniform float lTolerance;\n"
         "uniform float lSoftTolerance;\n"
+        "uniform float spillThreshold;\n"
         "uniform float lKey;\n"
         "uniform bool bIsLast;\n"
 
@@ -146,9 +151,51 @@ void GPUChromaKeyFilter::initShader()
         "    }\n"
         "}\n"
 
-        "bool inBetween(float val, float min, float max)\n"
+        "vec3 hsl2rgb(float h, float s, float l)\n"
         "{\n"
-        "    return (val >= min && val <= max);\n"
+        "    vec3 rgb = vec3(0.0, 0.0, 0.0);\n"
+        "    float v;\n"
+        "    if (l <= 0.5) {\n"
+        "        v = l*(1.0+s);\n"
+        "    } else {\n"
+        "        v = l+s-l*s;\n"
+        "    }\n"
+        "    if (v > 0.0) {\n"
+        "        float m = 2.0*l-v;\n"
+        "        float sv = (v-m)/v;\n"
+        "        h /= 60.0;\n"
+        "        int sextant = int(h);\n"
+        "        float fract = h-float(sextant);\n"
+        "        float vsf = v * sv * fract;\n"
+        "        float mid1 = m + vsf;\n"
+        "        float mid2 = v - vsf;\n"
+        "        if (sextant == 0) {\n"
+        "            rgb.r = v;\n"
+        "            rgb.g = mid1;\n"
+        "            rgb.b = m;\n"
+        "        } else if (sextant == 1) {\n"
+        "            rgb.r = mid2;\n"
+        "            rgb.g = v;\n"
+        "            rgb.b = m;\n"
+        "        } else if (sextant == 2) {\n"
+        "            rgb.r = m;\n"
+        "            rgb.g = v;\n"
+        "            rgb.b = mid1;\n"
+        "        } else if (sextant == 3) {\n"
+        "            rgb.r = m;\n"
+        "            rgb.g = mid2;\n"
+        "            rgb.b = v;\n"
+        "        } else if (sextant == 4) {\n"
+        "            rgb.r = mid1;\n"
+        "            rgb.g = m;\n"
+        "            rgb.b = v;\n"
+        "        } else if (sextant == 5) {\n"
+        "            rgb.r = v;\n"
+        "            rgb.g = m;\n"
+        "            rgb.b = mid2;\n"
+        "        }\n"
+        "    }\n"
+        "    return rgb;\n"
         "}\n"
 
         "void main(void)\n"
@@ -179,6 +226,18 @@ void GPUChromaKeyFilter::initShader()
         "        }\n"
         "    } else {\n"
         "        alpha = 1.0;\n"
+        "    }\n"
+        "    if (hDiff < spillThreshold) {\n"
+        "        float factor = 1.0-(spillThreshold-hDiff)/spillThreshold;\n"
+        "        s = s*factor;\n"
+/* Variant: Adjust hue        
+        "        if (h < hKey) {\n"
+        "            h = hKey-spillThreshold;\n"
+        "        } else {\n"
+        "            h = hKey+spillThreshold;\n"
+        "        }\n"
+*/        
+        "        tex.rgb = hsl2rgb(h, s, l);\n"
         "    }\n"
         "    if (bIsLast) {\n"
         "       gl_FragColor = vec4(tex.rgb*alpha, alpha);\n"
