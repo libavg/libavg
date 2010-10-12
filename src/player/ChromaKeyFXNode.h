@@ -53,7 +53,7 @@ public:
     void setErosion(int erosion);
     int getErosion() const;
     void setSpillThreshold(double spillThreshold);
-    int getSpillThreshold() const;
+    double getSpillThreshold() const;
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);

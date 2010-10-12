@@ -130,7 +130,7 @@ void ChromaKeyFXNode::setSpillThreshold(double spillThreshold)
     setFilterParams();
 }
 
-int ChromaKeyFXNode::getSpillThreshold() const
+double ChromaKeyFXNode::getSpillThreshold() const
 {
     return m_SpillThreshold;
 }

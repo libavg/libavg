@@ -25,7 +25,7 @@ import optparse
 from libavg import avg, AVGApp
 from libavg import parsecamargs
 
-GUI_SIZE=(640, 160)
+GUI_SIZE=(640, 200)
 
 g_Player = avg.Player.get()
 
@@ -156,6 +156,8 @@ class Chromakey(AVGApp):
                 False, parent=self.__guiDiv)
         FXSlider(5, 0, 8, self.__filter, "erosion", "Erosion: %i", 
                 True, parent=self.__guiDiv)
+        FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression: %.2f", 
+                False, parent=self.__guiDiv)
 
     def __onColorDown(self, event):
         pos = self.__camNode.getRelPos(event.pos)
