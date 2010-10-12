@@ -67,6 +67,9 @@ void GPUChromaKeyFilter::setParams(const Pixel32& color, double hTolerance,
     m_Softness = softness;
     m_Erosion = erosion;
     m_SpillThreshold = spillThreshold;
+    if (m_SpillThreshold <= m_HTolerance) {
+        m_SpillThreshold = m_HTolerance;
+    }
 }
 
 void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -227,9 +230,12 @@ void GPUChromaKeyFilter::initShader()
         "    } else {\n"
         "        alpha = 1.0;\n"
         "    }\n"
-        "    if (hDiff < spillThreshold) {\n"
-        "        float factor = 1.0-(spillThreshold-hDiff)/spillThreshold;\n"
-        "        s = s*factor;\n"
+        "    if (alpha > 0.0 && hDiff < spillThreshold) {\n"
+        "        if (spillThreshold > hTolerance) {\n"
+        "            float factor = max(0.0, 1.0-(spillThreshold-hDiff)\n"
+        "                    /(spillThreshold-hTolerance));\n"
+        "            s = s*factor;\n"
+        "        }\n"
 /* Variant: Adjust hue        
         "        if (h < hKey) {\n"
         "            h = hKey-spillThreshold;\n"

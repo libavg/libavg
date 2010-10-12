@@ -251,7 +251,13 @@ public:
         }
         filter.setParams(Pixel32(0,255,0), 0.0, 0.0, 0.0, 0.0, 0, 0.1);
         pDestBmp = filter.apply(pBmp);
-        testEqual(*pDestBmp, "ChromaKeySpillResult", R8G8B8X8, 0.2, 0.5);
+        testEqual(*pDestBmp, "ChromaKeySpillResult1", R8G8B8X8, 0.2, 0.5);
+        filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.1);
+        pDestBmp = filter.apply(pBmp);
+        testEqual(*pDestBmp, "ChromaKeySpillResult2", R8G8B8X8, 0.2, 0.5);
+        filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.2);
+        pDestBmp = filter.apply(pBmp);
+        testEqual(*pDestBmp, "ChromaKeySpillResult3", R8G8B8X8, 0.2, 0.5);
 
     }
 };
