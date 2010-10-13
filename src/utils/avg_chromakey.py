@@ -183,6 +183,12 @@ class Chromakey(AVGApp):
                 upNode=whitebalanceUpNode, downNode=whitebalanceDownNode,
                 clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
 
+        FXSlider(9, 0, 4000, self.__camNode, "shutter", "Shutter", 
+                True, parent=self.__guiDiv)
+        FXSlider(10, 128, 1023, self.__camNode, "gain", "Gain", 
+                True, parent=self.__guiDiv)
+
+
     def __onColorDown(self, event):
         pos = self.__camNode.getRelPos(event.pos)
         bmp = self.__camNode.getBitmap()
