@@ -23,9 +23,10 @@
 
 import optparse
 from libavg import avg, AVGApp
+from libavg.ui import button
 from libavg import parsecamargs
 
-GUI_SIZE=(640, 200)
+GUI_SIZE=(300, 200)
 
 g_Player = avg.Player.get()
 
@@ -97,10 +98,16 @@ class Slider(avg.DivNode):
 class FXSlider(avg.DivNode):
     def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        self.__slider = Slider(420, min, max, self.__onSliderMove, pos=(200,0),
+        avg.RectNode(pos=(0,8), size=(280,38), color="808080", strokewidth=2,
                 parent=self)
-        self.pos = (0, row*24)
-        self.__words = avg.WordsNode(pos=(0,4), parent=self)
+        textBgRect = avg.RectNode(pos=(8,2), fillcolor="000000", fillopacity=1, 
+                strokewidth=0, parent=self)
+        caption = avg.WordsNode(pos=(10,0), text=caption, parent=self)
+        textBgRect.size = caption.getMediaSize()+(4, 2)
+        self.__words = avg.WordsNode(pos=(240,23), parent=self)
+        self.__slider = Slider(220, min, max, self.__onSliderMove, pos=(15,20),
+                parent=self)
+        self.pos = (0, row*46)
         self.__fxNode = fxNode
         self.__fxAttrName = fxAttrName
         self.__caption = caption
@@ -110,9 +117,11 @@ class FXSlider(avg.DivNode):
     def __onSliderMove(self):
         if self.__isInt:
             setattr(self.__fxNode, self.__fxAttrName, int(self.__slider.val))
+            self.__words.text = "%i"%self.__slider.val
         else:
             setattr(self.__fxNode, self.__fxAttrName, self.__slider.val)
-        self.__words.text = self.__caption%self.__slider.val
+            self.__words.text = "%.2f"%self.__slider.val
+
 
 def colorToString(colorTuple):
     s = "%02X%02X%02X"%colorTuple[:-1]
@@ -137,27 +146,42 @@ class Chromakey(AVGApp):
         self.__createGUI()
 
     def __createGUI(self):
-        self.__guiDiv = avg.DivNode(pos=(10,options.height+10), parent=self._parentNode)
+        self.__guiDiv = avg.DivNode(pos=(options.width+10,10), parent=self._parentNode)
 
-        self.__colorWords = avg.WordsNode(pos=(0,0), parent=self.__guiDiv)
-        self.__colorRect = avg.RectNode(pos=(200,0), size=(20, 20), 
+        self.__colorWords = avg.WordsNode(pos=(0,14), parent=self.__guiDiv)
+        self.__colorWords.text = "Key Color: "+self.__filter.color
+        self.__colorRect = avg.RectNode(pos=(200,12), size=(20, 20), 
                 fillcolor=self.__filter.color, fillopacity=1, 
                 color="FFFFFF", parent=self.__guiDiv)
         self.__camNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
                 self.__onColorDown)
 
-        FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance: %.2f", 
+        FXSlider(1, 0.0, 1.0, self.__filter, "htolerance", "Hue Tolerance", 
                 False, parent=self.__guiDiv)
-        FXSlider(2, 0.0, 1.0, self.__filter, "stolerance", "Saturation Tolerance: %.2f", 
+        FXSlider(2, 0.0, 1.0, self.__filter, "stolerance", "Saturation Tolerance", 
                 False, parent=self.__guiDiv)
-        FXSlider(3, 0.0, 1.0, self.__filter, "ltolerance", "Lightness Tolerance: %.2f", 
+        FXSlider(3, 0.0, 1.0, self.__filter, "ltolerance", "Lightness Tolerance", 
                 False, parent=self.__guiDiv)
-        FXSlider(4, 0.0, 1.0, self.__filter, "softness", "Softness: %.2f", 
+        FXSlider(4, 0.0, 1.0, self.__filter, "softness", "Softness", 
                 False, parent=self.__guiDiv)
-        FXSlider(5, 0, 8, self.__filter, "erosion", "Erosion: %i", 
+        FXSlider(5, 0, 8, self.__filter, "erosion", "Erosion", 
                 True, parent=self.__guiDiv)
-        FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression: %.2f", 
+        FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
                 False, parent=self.__guiDiv)
+
+        whitebalanceUpNode = avg.DivNode()
+        avg.RectNode(size=(100,22), fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
+                parent=whitebalanceUpNode)
+        avg.WordsNode(pos=(4,3), text="Whitebalance", color="000000",
+                parent=whitebalanceUpNode)
+        whitebalanceDownNode = avg.DivNode()
+        avg.RectNode(size=(100,22), fillcolor="000000", fillopacity=1, color="FFFFFF",
+                parent=whitebalanceDownNode)
+        avg.WordsNode(pos=(4,3), text="Whitebalance", color="FFFFFF",
+                parent=whitebalanceDownNode)
+        self.__whitebalanceButton = button.Button(pos=(0,332), 
+                upNode=whitebalanceUpNode, downNode=whitebalanceDownNode,
+                clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
 
     def __onColorDown(self, event):
         pos = self.__camNode.getRelPos(event.pos)
@@ -167,6 +191,11 @@ class Chromakey(AVGApp):
         self.__filter.color = colorString
         self.__colorWords.text = "Key Color: "+colorString
         self.__colorRect.fillcolor = colorString
+
+    def __onWhitebalance(self, event):
+        self.__camNode.setWhitebalance(
+                self.__camNode.getWhitebalanceU(), self.__camNode.getWhitebalanceV())
+        self.__camNode.doOneShotWhitebalance()
 
 
 parser = optparse.OptionParser()
@@ -179,7 +208,7 @@ if options.driver is None:
     print "ERROR: at least '--driver' must be specified"
     exit()
 
-resolution=(max(GUI_SIZE[0], options.width), GUI_SIZE[1]+options.height)
+resolution=(GUI_SIZE[0]+options.width, max(GUI_SIZE[1],options.height))
 
 Chromakey.start(resolution=resolution)
 
