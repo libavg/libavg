@@ -129,6 +129,8 @@ def colorToString(colorTuple):
 
 class Chromakey(AVGApp):
     def init(self):
+        avg.RectNode(size=(options.width,options.height), fillcolor="FF0000", 
+                fillopacity=1, strokewidth=0, parent=self._parentNode)
         self.__camNode = avg.CameraNode(driver=options.driver, device=options.device, 
                  unit=options.unit, fw800=options.fw800, 
                  capturewidth=options.width, captureheight=options.height, 
@@ -183,7 +185,7 @@ class Chromakey(AVGApp):
                 upNode=whitebalanceUpNode, downNode=whitebalanceDownNode,
                 clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
 
-        FXSlider(9, 0, 4000, self.__camNode, "shutter", "Shutter", 
+        FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter", 
                 True, parent=self.__guiDiv)
         FXSlider(10, 128, 1023, self.__camNode, "gain", "Gain", 
                 True, parent=self.__guiDiv)
