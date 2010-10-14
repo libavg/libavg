@@ -239,8 +239,7 @@ public:
 
     void runTests()
     {
-        string sFName = "chromakey";
-        BitmapPtr pBmp = loadTestBmp(sFName);
+        BitmapPtr pBmp = loadTestBmp("chromakey");
         BitmapPtr pDestBmp;
         GPUChromaKeyFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
         for (int erosion = 0; erosion < 3; ++erosion) {
@@ -259,6 +258,10 @@ public:
         pDestBmp = filter.apply(pBmp);
         testEqual(*pDestBmp, "ChromaKeySpillResult3", R8G8B8X8, 0.2, 0.5);
 
+        pBmp = loadTestBmp("chromakey-median");
+        filter.setParams(Pixel32(0,255,0), 0.1, 0.1, 0.1, 0.0, 0, 0.0);
+        pDestBmp = filter.apply(pBmp);
+        testEqual(*pDestBmp, "ChromaKeyMedianResult", R8G8B8X8, 0.2, 0.5);
     }
 };
 
