@@ -90,7 +90,7 @@ class Slider(avg.DivNode):
             self.__val = self.__min
         elif self.__val > self.__max:
             self.__val = self.__max
-        ratio = (self.__val/(self.__max-self.__min))
+        ratio = ((self.__val-self.__min)/(self.__max-self.__min))
         self.__slider.pos = (ratio*(self.size.x-14), 0)
         self.__onChange()
 
