@@ -89,6 +89,9 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
             }
         } while (!pPacket || pPacket->stream_index != streamIndex);
     }
+
+//    double timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
+//    cerr << streamIndex << ": " << pPacket->dts*timeBase << endl;
     return pPacket;
 }
 

@@ -46,12 +46,12 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         virtual ~VideoDecoderThread();
         
         bool work();
-        void seek(double DestTime);
-        void setFPS(double FPS);
+        void seek(double destTime);
+        void setFPS(double fps);
         void returnFrame(VideoMsgPtr pMsg);
 
     private:
-        BitmapPtr getBmp(BitmapQueuePtr BmpQ, const IntPoint& Size, 
+        BitmapPtr getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
                 PixelFormat pf);
         VideoMsgQueue& m_MsgQ;
         VideoDecoderPtr m_pDecoder;

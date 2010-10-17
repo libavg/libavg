@@ -51,7 +51,11 @@ static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message");
 bool VideoDecoderThread::work() 
 {
     if (m_pDecoder->isEOF(SS_VIDEO)) {
-        m_pDecoder->seek(0);
+        if (!m_pDecoder->getVideoInfo().m_bHasAudio ||
+                m_pDecoder->isEOF(SS_AUDIO))
+        {
+            m_pDecoder->seek(0);
+        }
     } else {
         ScopeTimer timer(DecoderProfilingZone);
         vector<BitmapPtr> pBmps;
@@ -77,6 +81,7 @@ bool VideoDecoderThread::work()
             m_MsgQ.push(pMsg);
         } else {
             ScopeTimer timer(PushMsgProfilingZone);
+            
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
@@ -87,7 +92,7 @@ bool VideoDecoderThread::work()
     return true;
 }
 
-void VideoDecoderThread::seek(double DestTime)
+void VideoDecoderThread::seek(double destTime)
 {
     while (!m_MsgQ.empty()) {
         m_MsgQ.pop(false);
@@ -95,7 +100,7 @@ void VideoDecoderThread::seek(double DestTime)
 
     double VideoFrameTime = -1;
     double AudioFrameTime = -1;
-    m_pDecoder->seek(DestTime);
+    m_pDecoder->seek(destTime);
     if (m_pDecoder->getVideoInfo().m_bHasVideo) {
         VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
     }
@@ -108,9 +113,9 @@ void VideoDecoderThread::seek(double DestTime)
     m_MsgQ.push(pMsg);
 }
 
-void VideoDecoderThread::setFPS(double FPS)
+void VideoDecoderThread::setFPS(double fps)
 {
-    m_pDecoder->setFPS(FPS);
+    m_pDecoder->setFPS(fps);
 }
 
 void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
