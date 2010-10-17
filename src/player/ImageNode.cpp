@@ -182,6 +182,9 @@ void ImageNode::checkReload()
 
 VisibleNodePtr ImageNode::getElementByPos(const DPoint & pos)
 {
+    if (!reactsToMouseEvents()) {
+        return VisibleNodePtr();
+    }
     OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
     if (pCanvas && pCanvas->getHandleEvents()) {
         DPoint nodeSize(getSize());
