@@ -242,11 +242,12 @@ double WordsNode::getHeight()
     return AreaNode::getHeight();
 }
 
-VisibleNodePtr WordsNode::getElementByPos(const DPoint& pos)
+void WordsNode::getElementsByPos(const DPoint& pos, 
+                vector<VisibleNodeWeakPtr>& pElements)
 {
     drawString();
     DPoint relPos = pos-DPoint(m_AlignOffset, 0);
-    return AreaNode::getElementByPos(relPos);
+    AreaNode::getElementsByPos(relPos, pElements);
 }
 
 const std::string& WordsNode::getFont() const

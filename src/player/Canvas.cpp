@@ -226,13 +226,9 @@ SDLDisplayEngine* Canvas::getDisplayEngine() const
 
 vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
 {
-    vector<VisibleNodeWeakPtr> Elements;
-    VisibleNodePtr pNode = m_pRootNode->getElementByPos(pos);
-    while (pNode) {
-        Elements.push_back(pNode);
-        pNode = pNode->getDivParent();
-    }
-    return Elements;
+    vector<VisibleNodeWeakPtr> elements;
+    m_pRootNode->getElementsByPos(pos, elements);
+    return elements;
 }
 
 static ProfilingZoneID PreRenderProfilingZone("PreRender");

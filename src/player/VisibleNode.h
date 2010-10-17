@@ -107,7 +107,9 @@ class AVG_API VisibleNode: public Node
         DPoint getAbsPos(const DPoint& relPos) const;
         virtual DPoint toLocal(const DPoint& pos) const;
         virtual DPoint toGlobal(const DPoint& pos) const;
-        virtual VisibleNodePtr getElementByPos(const DPoint & pos);
+        VisibleNodePtr getElementByPos(const DPoint& pos);
+        virtual void getElementsByPos(const DPoint& pos, 
+                std::vector<VisibleNodeWeakPtr>& pElements);
 
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect) {};

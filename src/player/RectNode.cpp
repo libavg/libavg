@@ -111,16 +111,14 @@ void RectNode::setAngle(double angle)
     setDrawNeeded();
 }
 
-VisibleNodePtr RectNode::getElementByPos(const DPoint & pos)
+void RectNode::getElementsByPos(const DPoint& pos, vector<VisibleNodeWeakPtr>& pElements)
 {
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
     DPoint rpos = pos.getRotatedPivot(m_Angle, pivot);
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
-        return getVThis();
-    } else {
-        return VisibleNodePtr();
+        pElements.push_back(getVThis());
     }
 }
 

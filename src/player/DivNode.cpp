@@ -194,7 +194,8 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
+void DivNode::getElementsByPos(const DPoint& pos, 
+                vector<VisibleNodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE) ||
@@ -203,21 +204,17 @@ VisibleNodePtr DivNode::getElementByPos(const DPoint & pos)
         for (int i = getNumChildren()-1; i >= 0; i--) {
             VisibleNodePtr pCurChild = getVChild(i);
             DPoint relPos = pCurChild->toLocal(pos);
-            VisibleNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
-            if (pFoundNode) {
-                return pFoundNode;
+            pCurChild->getElementsByPos(relPos, pElements);
+            if (!pElements.empty()) {
+                pElements.push_back(getVThis());
+                return;
             }
         }
         // Pos isn't in any of the children.
-        if (getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
-            // Explicit width/height not given: div itself doesn't react.
-            return VisibleNodePtr();
-        } else {
-            // Explicit width/height given for div.
-            return getVThis();
+        if (getSize() != DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
+            // Explicit width/height given for div - div reacts on its own.
+            pElements.push_back(getVThis());
         }
-    } else { 
-        return VisibleNodePtr();
     }
 }
 

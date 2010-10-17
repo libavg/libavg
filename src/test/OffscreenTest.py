@@ -196,7 +196,7 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         110, 65, 1),
                  lambda: self.assert_(self.__offscreenImageDownCalled and 
-                        not(self.__mainDownCalled)),
+                        self.__mainDownCalled),
                  reset,
                  lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         1, 1, 1),

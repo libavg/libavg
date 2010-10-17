@@ -202,14 +202,13 @@ DPoint AreaNode::toGlobal(const DPoint& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-VisibleNodePtr AreaNode::getElementByPos(const DPoint& pos)
+void AreaNode::getElementsByPos(const DPoint& pos, 
+                vector<VisibleNodeWeakPtr>& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        return getVThis();
-    } else {
-        return VisibleNodePtr();
+        pElements.push_back(getVThis());
     }
 }
 

@@ -49,7 +49,8 @@ class AVG_API PolygonNode : public FilledVectorNode
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
 
-        VisibleNodePtr getElementByPos(const DPoint & pos);
+        void getElementsByPos(const DPoint& pos, 
+                std::vector<VisibleNodeWeakPtr>& pElements);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);

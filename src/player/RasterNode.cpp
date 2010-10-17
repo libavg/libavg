@@ -264,13 +264,12 @@ void RasterNode::setMaskSize(const DPoint& size)
     setMaskCoords();
 }
 
-VisibleNodePtr RasterNode::getElementByPos(const DPoint & pos)
+void RasterNode::getElementsByPos(const DPoint& pos, 
+                vector<VisibleNodeWeakPtr>& pElements)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {
-        return AreaNode::getElementByPos(pos);
-    } else {
-        return VisibleNodePtr();
+        AreaNode::getElementsByPos(pos, pElements);
     }
 }
 

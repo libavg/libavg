@@ -286,7 +286,18 @@ DPoint VisibleNode::toGlobal(const DPoint& localPos) const
 
 VisibleNodePtr VisibleNode::getElementByPos(const DPoint& pos)
 {
-    return VisibleNodePtr();
+    vector<VisibleNodeWeakPtr> elements;
+    getElementsByPos(pos, elements);
+    if (elements.empty()) {
+        return VisibleNodePtr();
+    } else {
+        return elements[0].lock();
+    }
+}
+
+void VisibleNode::getElementsByPos(const DPoint& pos, 
+                vector<VisibleNodeWeakPtr>& pElements)
+{
 }
 
 void VisibleNode::preRender()

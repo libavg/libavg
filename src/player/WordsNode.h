@@ -52,7 +52,8 @@ class AVG_API WordsNode : public RasterNode
         virtual double getWidth();
         virtual double getHeight();
 
-        VisibleNodePtr getElementByPos(const DPoint & pos);
+        void getElementsByPos(const DPoint& pos, 
+                std::vector<VisibleNodeWeakPtr>& pElements);
         void setTextFromNodeValue(const std::string& sText);
 
         const std::string& getFont() const;

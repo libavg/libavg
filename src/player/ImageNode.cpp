@@ -180,20 +180,20 @@ void ImageNode::checkReload()
     RasterNode::checkReload();
 }
 
-VisibleNodePtr ImageNode::getElementByPos(const DPoint & pos)
+void ImageNode::getElementsByPos(const DPoint& pos, 
+                vector<VisibleNodeWeakPtr>& pElements)
 {
-    if (!reactsToMouseEvents()) {
-        return VisibleNodePtr();
-    }
-    OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
-    if (pCanvas && pCanvas->getHandleEvents()) {
-        DPoint nodeSize(getSize());
-        DPoint canvasSize(pCanvas->getSize());
-        DPoint localPos(pos.x*(canvasSize.x/nodeSize.x), 
-                pos.y*(canvasSize.y/nodeSize.y));
-        return pCanvas->getRootNode()->getElementByPos(localPos);
-    } else {
-        return RasterNode::getElementByPos(pos);
+    if (reactsToMouseEvents()) {
+        OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
+        if (pCanvas && pCanvas->getHandleEvents()) {
+            DPoint nodeSize(getSize());
+            DPoint canvasSize(pCanvas->getSize());
+            DPoint localPos(pos.x*(canvasSize.x/nodeSize.x), 
+                    pos.y*(canvasSize.y/nodeSize.y));
+            pCanvas->getRootNode()->getElementsByPos(localPos, pElements);
+        } else {
+            RasterNode::getElementsByPos(pos, pElements);
+        }
     }
 }
 

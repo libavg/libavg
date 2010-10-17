@@ -89,7 +89,8 @@ class AVG_API AreaNode: public VisibleNode
         
         virtual DPoint toLocal(const DPoint& pos) const;
         virtual DPoint toGlobal(const DPoint& pos) const;
-        virtual VisibleNodePtr getElementByPos(const DPoint& pos);
+        virtual void getElementsByPos(const DPoint& pos, 
+                std::vector<VisibleNodeWeakPtr>& pElements);
 
         virtual void maybeRender(const DRect& rect);
         virtual void setViewport(double x, double y, double width, double height);
