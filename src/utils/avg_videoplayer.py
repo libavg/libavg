@@ -61,7 +61,7 @@ class VideoPlayer(AVGApp):
                 node.seekToTime(curTime-10000)
             else:
                 node.seekToTime(0)
-        return True
+        return False
 
     def __makeAlphaBackground(self):
         global node
