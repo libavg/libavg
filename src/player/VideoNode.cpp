@@ -687,7 +687,10 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
     // to move it towards the center of the time slot.
     long long jitter = (long long)(getNextFrameTime()-m_pDecoder->getCurTime()*1000);
     if (jitter > (long long)(0.4*(1000/m_pDecoder->getFPS()))) {
-        m_JitterCompensation += 0.2;
+        m_JitterCompensation += 0.05;
+        if (m_JitterCompensation > 1) {
+            m_JitterCompensation -= 1;
+        }
     }
     pSurface->unlockBmps();
     return frameAvailable;
