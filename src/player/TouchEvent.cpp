@@ -58,6 +58,31 @@ const DPoint& TouchEvent::getSpeed() const
     return m_Speed;
 }
 
+double TouchEvent::getOrientation() const 
+{
+    return m_pBlob->getOrientation();
+}
+
+double TouchEvent::getArea() const 
+{
+    return m_pBlob->getArea();
+}
+
+double TouchEvent::getInertia() const
+{
+    return m_pBlob->getInertia();
+}
+
+const DPoint & TouchEvent::getCenter() const 
+{
+    return m_pBlob->getCenter();
+}
+
+double TouchEvent::getEccentricity() const 
+{
+    return m_pBlob->getEccentricity();
+}
+
 const BlobPtr TouchEvent::getBlob() const
 {
     return m_pBlob;
