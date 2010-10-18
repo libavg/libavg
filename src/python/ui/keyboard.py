@@ -52,6 +52,11 @@ class Key(avg.ImageNode):
         self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUpOut)
         self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onUpOut)
 
+    def reset(self):
+        if self.__sticky:
+            self.opacity = 0.0
+            self.__stickyIsDown = False
+
     def __createImage(self, ovlHref):
         if os.path.isabs(ovlHref):
             effectiveHref = ovlHref
@@ -147,19 +152,21 @@ class Keyboard(avg.DivNode):
         self.__downKeyHandler = None
         self.__upKeyHandler = None
 
+        self.__keys = []
         if bgHref:
             avg.ImageNode(href=bgHref, parent=self)
         for kd in keyDefs:
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
+                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
                         parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
-                Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
+                key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
                         sticky=sticky, parent=self)
+            self.__keys.append(key)
 
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
@@ -200,6 +207,12 @@ class Keyboard(avg.DivNode):
         '''
         self.__downKeyHandler = downHandler
         self.__upKeyHandler = upHandler
+
+    def reset(self):
+        for key in self.__keys:
+            key.reset()
+        self.__shiftDownCounter = 0
+        self.__altGrKeyCounter = 0
 
     def _getCharKeyCode(self, keyCodes):
         '''
