@@ -55,9 +55,10 @@ class AVG_API TouchEvent: public CursorEvent
         double getInertia() const;
         const DPoint & getCenter() const;
         double getEccentricity() const;
-        const BlobPtr getBlob() const;
         const DPoint & getMajorAxis() const;
         const DPoint & getMinorAxis() const;
+
+        const BlobPtr getBlob() const;
         ContourSeq getContour();
 
         void addRelatedEvent(TouchEventPtr pEvent);
@@ -68,6 +69,13 @@ class AVG_API TouchEvent: public CursorEvent
     private:
         BlobPtr m_pBlob;
         DPoint m_Speed;
+        double m_Orientation;
+        double m_Area;
+        double m_Inertia;
+        DPoint m_Center;
+        double m_Eccentricity;
+        DPoint m_MajorAxis;
+        DPoint m_MinorAxis;
         std::vector<TouchEventWeakPtr> m_RelatedEvents; 
 };
 

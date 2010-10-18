@@ -156,7 +156,7 @@ void export_event()
                 "Angle of the blob. For hovering hands, this is roughly the direction \n"
                 "of the hand (ro).\n")
         .add_property("inertia", &TouchEvent::getInertia)
-        .add_property("eccentricity", &TouchEvent::getInertia)
+        .add_property("eccentricity", &TouchEvent::getEccentricity)
         .add_property("pos", &TouchEvent::getPos,
                 "Position in the global coordinate system (ro).\n")
         .add_property("x", &TouchEvent::getXPosition,

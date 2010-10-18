@@ -72,7 +72,7 @@ Point<NUM>::~Point()
 }
     
 template<class NUM>
-double Point<NUM>::getNorm()
+double Point<NUM>::getNorm() const
 {
     return sqrt(double(x*x+y*y));
 }

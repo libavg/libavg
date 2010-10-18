@@ -27,7 +27,7 @@
 
 #include "../base/Exception.h"
 
-namespace avg{
+namespace avg {
 
 CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
             :Event(eventType, source),
@@ -40,7 +40,7 @@ CursorEvent::~CursorEvent()
 {
 }
 
-CursorEventPtr CursorEvent::cloneAs(Type EventType) const
+CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 {
     AVG_ASSERT(false);
     return CursorEventPtr();

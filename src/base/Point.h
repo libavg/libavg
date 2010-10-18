@@ -51,7 +51,7 @@ public:
 
     Point<NUM> getNormalized() const;
     Point<NUM> safeGetNormalized() const;
-    double getNorm();
+    double getNorm() const;
     bool isNaN() const;
     bool isInf() const;
     Point getRotated(double angle) const;

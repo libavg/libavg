@@ -40,6 +40,30 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
       m_Speed(speed)
 {
     setLastDownPos(lastDownPos);
+    if (pBlob) {
+        m_Orientation = pBlob->getOrientation();
+        m_Area = pBlob->getArea();
+        m_Inertia = pBlob->getInertia();
+        m_Center = pBlob->getCenter();
+        m_Eccentricity = pBlob->getEccentricity();
+        const DPoint& axis0 = m_pBlob->getScaledBasis(0);
+        const DPoint& axis1 = m_pBlob->getScaledBasis(1);
+        if (axis0.getNorm() > axis1.getNorm()) {
+            m_MajorAxis = axis0;
+            m_MinorAxis = axis1;
+        } else {
+            m_MajorAxis = axis1;
+            m_MinorAxis = axis0;
+        }
+    } else {
+        m_Orientation = 0;
+        m_Area = 0;
+        m_Inertia = 0;
+        m_Center = DPoint(0, 0);
+        m_Eccentricity = 0;
+        m_MajorAxis = DPoint(0, 0);
+        m_MinorAxis = DPoint(0, 0);
+    }
 }
 
 TouchEvent::~TouchEvent()
@@ -60,54 +84,42 @@ const DPoint& TouchEvent::getSpeed() const
 
 double TouchEvent::getOrientation() const 
 {
-    return m_pBlob->getOrientation();
+    return m_Orientation;
 }
 
 double TouchEvent::getArea() const 
 {
-    return m_pBlob->getArea();
+    return m_Area;
 }
 
 double TouchEvent::getInertia() const
 {
-    return m_pBlob->getInertia();
+    return m_Inertia;
 }
 
 const DPoint & TouchEvent::getCenter() const 
 {
-    return m_pBlob->getCenter();
+    return m_Center;
 }
 
 double TouchEvent::getEccentricity() const 
 {
-    return m_pBlob->getEccentricity();
+    return m_Eccentricity;
+}
+
+const DPoint & TouchEvent::getMajorAxis() const
+{
+    return m_MajorAxis;
+}
+
+const DPoint & TouchEvent::getMinorAxis() const
+{
+    return m_MinorAxis;
 }
 
 const BlobPtr TouchEvent::getBlob() const
 {
     return m_pBlob;
-}
-
-const DPoint & TouchEvent::getMajorAxis() const
-{
-    const DPoint & axis0 = m_pBlob->getScaledBasis(0);
-    const DPoint & axis1 = m_pBlob->getScaledBasis(1);
-    if (calcDist(axis0, DPoint(0,0)) > calcDist(axis1, DPoint(0,0))) {
-        return axis0;
-    } else {
-        return axis1;
-    }
-}
-
-const DPoint & TouchEvent::getMinorAxis() const
-{
-    const DPoint & axis0 = m_pBlob->getScaledBasis(0);
-    const DPoint & axis1 = m_pBlob->getScaledBasis(1);
-    if (calcDist(axis0, DPoint(0,0)) > calcDist(axis1, DPoint(0,0))) {
-        return axis1;
-    } else {
-        return axis0;
-    }
 }
 
 ContourSeq TouchEvent::getContour()

@@ -41,7 +41,7 @@ class AVG_API CursorEvent: public Event
     public:
         CursorEvent(int id, Type eventType, const IntPoint& position, Source source);
         virtual ~CursorEvent();
-        virtual CursorEventPtr cloneAs(Type EventType) const;
+        virtual CursorEventPtr cloneAs(Type eventType) const;
         DPoint getPos() const;
         int getXPosition() const;
         int getYPosition() const;
