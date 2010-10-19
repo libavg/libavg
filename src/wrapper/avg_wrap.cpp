@@ -296,6 +296,7 @@ BOOST_PYTHON_MODULE(avg)
                 "Adds a camera-based tracker to the avg player. The tracker can be\n"
                 "configured using the default config file and immediately starts\n"
                 "reporting events.")
+        .def("enableAppleMultitouchTrackpad", &Player::enableAppleMultitouchTrackpad)
         .def("getTracker", &Player::getTracker,
                 return_value_policy<reference_existing_object>(),
                 "getTracker()\n"

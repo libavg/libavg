@@ -45,6 +45,9 @@
 #include "OffscreenCanvas.h"
 #include "TrackerEventSource.h"
 #include "SDLDisplayEngine.h"
+#ifdef __APPLE__
+    #include "AppleTrackpadEventSource.h"
+#endif
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -89,6 +92,9 @@ Player::Player()
       m_pAudioEngine(0),
       m_bAudioEnabled(true),
       m_pTracker(0),
+#ifdef __APPLE__      
+      m_pAppleTrackpadEventSource(0),
+#endif      
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
       m_bStopOnEscape(true),
@@ -499,6 +505,11 @@ void Player::initPlayback()
     if (m_pTracker) {
         m_pTracker->start();
     }
+#ifdef __APPLE__    
+    if (m_pAppleTrackpadEventSource) {
+        m_pAppleTrackpadEventSource->start();
+    }
+#endif
 
     m_FrameTime = 0;
     m_NumFrames = 0;
@@ -614,6 +625,20 @@ TrackerEventSource * Player::addTracker()
 TrackerEventSource * Player::getTracker()
 {
     return m_pTracker;
+}
+
+void Player::enableAppleMultitouchTrackpad()
+{
+#ifdef __APPLE__
+    m_pAppleTrackpadEventSource = new AppleTrackpadEventSource;
+    addEventSource(m_pAppleTrackpadEventSource);
+    if (m_bIsPlaying) {
+        m_pAppleTrackpadEventSource->start();
+    }
+#else
+    throw Exception(AVG_ERR_UNSUPPORTED, 
+            "Apple Trackpad not supported on non-OS X computers.");
+#endif
 }
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
@@ -1474,6 +1499,12 @@ void Player::cleanup()
         delete m_pTracker;
         m_pTracker = 0;
     }
+#ifdef __APPLE__
+    if (m_pAppleTrackpadEventSource) {
+        delete m_pAppleTrackpadEventSource;
+        m_pAppleTrackpadEventSource = 0;
+    }
+#endif
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
         m_pCanvases[i]->stopPlayback();
     }

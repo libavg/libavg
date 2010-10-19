@@ -53,6 +53,7 @@ class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
 class TrackerEventSource;
+class AppleTrackpadEventSource;
 class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
@@ -119,6 +120,7 @@ class AVG_API Player: IEventSink
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
+        void enableAppleMultitouchTrackpad();
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 
@@ -201,7 +203,9 @@ class AVG_API Player: IEventSink
         NodeRegistry m_NodeRegistry;
 
         TrackerEventSource * m_pTracker;
-
+#ifdef __APPLE__
+         AppleTrackpadEventSource* m_pAppleTrackpadEventSource;
+#endif
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);
         void handleTimers();

@@ -43,7 +43,6 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
     if (pBlob) {
         m_Orientation = pBlob->getOrientation();
         m_Area = pBlob->getArea();
-        m_Inertia = pBlob->getInertia();
         m_Center = pBlob->getCenter();
         m_Eccentricity = pBlob->getEccentricity();
         const DPoint& axis0 = m_pBlob->getScaledBasis(0);
@@ -58,12 +57,25 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
     } else {
         m_Orientation = 0;
         m_Area = 0;
-        m_Inertia = 0;
         m_Center = DPoint(0, 0);
         m_Eccentricity = 0;
         m_MajorAxis = DPoint(0, 0);
         m_MinorAxis = DPoint(0, 0);
     }
+}
+
+TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
+                const DPoint& speed, const IntPoint& lastDownPos, double orientation,
+                double area, double eccentricity, DPoint majorAxis, DPoint minorAxis)
+    : CursorEvent(id, eventType, pos, source),
+      m_Speed(speed),
+      m_Orientation(orientation),
+      m_Area(area),
+      m_Eccentricity(eccentricity),
+      m_MajorAxis(majorAxis),
+      m_MinorAxis(minorAxis)
+{
+    setLastDownPos(lastDownPos);
 }
 
 TouchEvent::~TouchEvent()
@@ -90,11 +102,6 @@ double TouchEvent::getOrientation() const
 double TouchEvent::getArea() const 
 {
     return m_Area;
-}
-
-double TouchEvent::getInertia() const
-{
-    return m_Inertia;
 }
 
 const DPoint & TouchEvent::getCenter() const 
@@ -124,7 +131,12 @@ const BlobPtr TouchEvent::getBlob() const
 
 ContourSeq TouchEvent::getContour()
 {
-    return m_pBlob->getContour();
+    if (m_pBlob) {
+        return m_pBlob->getContour();
+    } else {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "TouchEvent::getContour: No contour available.");
+    }
 }
 
 void TouchEvent::addRelatedEvent(TouchEventPtr pEvent)
@@ -147,8 +159,8 @@ void TouchEvent::trace()
     Event::trace();
     AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
             << ", ID: " << getCursorID()
-            << ", Area: " << m_pBlob->getArea()
-            << ", Eccentricity: " << m_pBlob->getEccentricity());
+            << ", Area: " << m_Area
+            << ", Eccentricity: " << m_Eccentricity);
 }
       
 }
