@@ -123,6 +123,22 @@ class FXSlider(avg.DivNode):
             self.__words.text = "%.2f"%self.__slider.val
 
 
+class TextButton(button.Button):
+    def __init__(self, text, **kwargs):
+        size = kwargs["size"]
+        upNode = avg.DivNode()
+        avg.RectNode(size=size, fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
+                parent=upNode)
+        avg.WordsNode(pos=(4,3), text=text, color="000000", parent=upNode)
+        downNode = avg.DivNode()
+        avg.RectNode(size=size, fillcolor="000000", fillopacity=1, color="FFFFFF",
+                parent=downNode)
+        avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
+        kwargs["upNode"] = upNode
+        kwargs["downNode"] = downNode
+        button.Button.__init__(self, **kwargs)
+
+
 def colorToString(colorTuple):
     s = "%02X%02X%02X"%colorTuple[:-1]
     return s
@@ -171,19 +187,10 @@ class Chromakey(AVGApp):
         FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
                 False, parent=self.__guiDiv)
 
-        whitebalanceUpNode = avg.DivNode()
-        avg.RectNode(size=(100,22), fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
-                parent=whitebalanceUpNode)
-        avg.WordsNode(pos=(4,3), text="Whitebalance", color="000000",
-                parent=whitebalanceUpNode)
-        whitebalanceDownNode = avg.DivNode()
-        avg.RectNode(size=(100,22), fillcolor="000000", fillopacity=1, color="FFFFFF",
-                parent=whitebalanceDownNode)
-        avg.WordsNode(pos=(4,3), text="Whitebalance", color="FFFFFF",
-                parent=whitebalanceDownNode)
-        self.__whitebalanceButton = button.Button(pos=(0,332), 
-                upNode=whitebalanceUpNode, downNode=whitebalanceDownNode,
+        TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
                 clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
+        TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
+                clickHandler=self.__dumpConfig, parent=self.__guiDiv)
 
         FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter", 
                 True, parent=self.__guiDiv)
@@ -205,6 +212,22 @@ class Chromakey(AVGApp):
                 self.__camNode.getWhitebalanceU(), self.__camNode.getWhitebalanceV())
         self.__camNode.doOneShotWhitebalance()
 
+    def __dumpConfig(self, event):
+        print "Camera:"
+        print "  device=", self.__camNode.device
+        print "  shutter=", self.__camNode.shutter
+        print "  gain=", self.__camNode.gain
+        print "  White Balance: (u=", self.__camNode.getWhitebalanceU(), ", v=", \
+                self.__camNode.getWhitebalanceV()
+        
+        print "Chromakey:"
+        print "  color=", self.__filter.color
+        print "  htolerance=", self.__filter.htolerance
+        print "  stolerance=", self.__filter.stolerance
+        print "  ltolerance=", self.__filter.ltolerance
+        print "  softness=", self.__filter.softness
+        print "  erosion=", self.__filter.erosion
+        print "  spillthreshold=", self.__filter.spillthreshold
 
 parser = optparse.OptionParser()
 parsecamargs.addOptions(parser)
