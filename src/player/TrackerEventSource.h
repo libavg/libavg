@@ -45,10 +45,11 @@ namespace avg {
 
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
-typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 
 class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
 {
+    typedef std::map<BlobPtr, EventStreamPtr> EventMap;
+
     public:
         TrackerEventSource(CameraPtr pCamera, const TrackerConfig& config,
                 const IntPoint& displayExtents, bool bSubtractHistory = true);

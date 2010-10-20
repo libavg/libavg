@@ -627,7 +627,7 @@ TrackerEventSource * Player::getTracker()
     return m_pTracker;
 }
 
-void Player::enableAppleMultitouchTrackpad()
+void Player::enableMultitouch()
 {
 #ifdef __APPLE__
     m_pAppleTrackpadEventSource = new AppleTrackpadEventSource;
@@ -637,7 +637,7 @@ void Player::enableAppleMultitouchTrackpad()
     }
 #else
     throw Exception(AVG_ERR_UNSUPPORTED, 
-            "Apple Trackpad not supported on non-OS X computers.");
+            "Multitouch not supported on non-OS X computers.");
 #endif
 }
 

@@ -411,7 +411,7 @@ void TrackerEventSource::copyRelatedInfo(vector<EventPtr> pTouchEvents,
     // Copy related blobs to related events.
     // Yuck.
     vector<EventPtr>::iterator it;
-    for (it=pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
+    for (it = pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
         TouchEventPtr pTouchEvent = boost::dynamic_pointer_cast<TouchEvent>(*it);
         BlobPtr pTouchBlob = pTouchEvent->getBlob();
         BlobPtr pRelatedBlob = pTouchBlob->getFirstRelated();

@@ -37,6 +37,7 @@ namespace avg {
 AppleTrackpadEventSource* AppleTrackpadEventSource::s_pInstance(0);
 
 AppleTrackpadEventSource::AppleTrackpadEventSource()
+    : m_LastID(0)
 {
     s_pInstance = this;
     cerr << this << endl;
@@ -60,24 +61,46 @@ void AppleTrackpadEventSource::start()
 
 vector<EventPtr> AppleTrackpadEventSource::pollEvents()
 {
-    return vector<EventPtr>();
+    // TODO:
+    // - Consolidate events: one event per ID per frame.
+    // - Thread-safety?
+    // - Keep an eventStream internally and create the vector<EventPtr> in this func.
+    // - (This func should return a pointer to a vector to avoid copying the whole 
+    //   vector.)
+    vector<EventPtr> events = m_Events;
+    m_Events.clear();
+    return events;
 }
 
 void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFingers, 
         double timestamp, int frame)
 {
     for (int i = 0; i < numFingers; i++) {
+        Event::Type eventType;
         Finger* pFinger = &pFingers[i];
-        vector<int>::iterator it;
-        it = find(m_TouchIDs.begin(), m_TouchIDs.end(), pFinger->identifier);
+        set<int>::iterator it = m_TouchIDs.find(pFinger->identifier);
         if (it == m_TouchIDs.end()) {
-            m_TouchIDs.push_back(pFinger->identifier);
+            eventType = Event::CURSORDOWN;
+            m_TouchIDs.insert(pFinger->identifier);
+        } else if (pFinger->state == 7) {
+            eventType = Event::CURSORUP;
+            m_TouchIDs.erase(it);
         } else {
-            if (pFinger->state == 7) {
-                m_TouchIDs.erase(it);
-            }
+            eventType = Event::CURSORMOTION;
         }
-
+        m_LastID++;
+        // TODO: 
+        // - Calc pos, speed using window size
+        // - Keep lastDownPos
+        // - Calc majorAxis, minorAxis from axis+angle
+        IntPoint pos(pFinger->normalized.pos.x*1024, pFinger->normalized.pos.y*768);
+        DPoint speed(pFinger->normalized.vel.x, pFinger->normalized.vel.y);
+        IntPoint lastDownPos(0, 0);
+        double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
+        EventPtr pEvent(new TouchEvent(m_LastID, eventType, pos, Event::TOUCH, speed, 
+                lastDownPos, pFinger->angle, pFinger->size, eccentricity, DPoint(0,0), 
+                DPoint(0,0)));
+        m_Events.push_back(pEvent);
 /*        
         printf("Frame %7d: Angle %6.2f, ellipse %6.3f x%6.3f; "
                 "position (%6.3f,%6.3f) vel (%6.3f,%6.3f) "
@@ -94,11 +117,13 @@ void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFinge
                 f->size, f->unk2);
 */        
     }
-    vector<int>::iterator it;
+/*    
+    set<int>::iterator it;
     for (it = m_TouchIDs.begin(); it != m_TouchIDs.end(); ++it) {
         cerr << *it << " ";
     }
-    printf("\n");
+    cerr << endl;
+*/
 }
 
 int AppleTrackpadEventSource::callback(int device, Finger *data, int nFingers, 

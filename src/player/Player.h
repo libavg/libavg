@@ -120,7 +120,7 @@ class AVG_API Player: IEventSink
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
-        void enableAppleMultitouchTrackpad();
+        void enableMultitouch();
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 
