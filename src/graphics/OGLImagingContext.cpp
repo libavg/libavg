@@ -36,6 +36,7 @@
 #include "FilterGetAlpha.h"
 #include "FilterResizeBilinear.h"
 #include "FilterResizeGaussian.h"
+#include "FilterThreshold.h"
 #endif
 
 #include <iostream>
