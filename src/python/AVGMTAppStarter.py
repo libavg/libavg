@@ -127,15 +127,17 @@ class AVGMTAppStarter (AVGAppStarter):
         trackerAngle = float(self.tracker.getParam('/transform/angle/@value'))
         angle = round(trackerAngle/math.pi) * math.pi
         self.__trackerImageNode.angle = angle
-        self.trackerFlipX = float(self.tracker.getParam('/transform/displayscale/@x')) < 0
-        self.trackerFlipY = float(self.tracker.getParam('/transform/displayscale/@y')) < 0
+        self.trackerFlipX = (float(self.tracker.getParam('/transform/displayscale/@x'))
+                < 0)
+        self.trackerFlipY = (float(self.tracker.getParam('/transform/displayscale/@y')) 
+                < 0)
 
     def __onCalibrationSuccess(self):
         self.__updateTrackerImageFixup()
 
     def __enterCalibrator(self):
+
         def leaveCalibrator():
-            
             self.unbindKey('e')
             self._activeApp = self._appInstance
             self._appInstance.enter()  

@@ -86,6 +86,7 @@ class Graph():
         g_player.clearInterval(self._interval)
         self._interval = None
      
+
 class MemGraph(Graph):
     def _setup(self):
         self._interval = g_player.setInterval(1000, self._nextMemSample)
@@ -104,16 +105,17 @@ class MemGraph(Graph):
             maxUsage = curUsage
             lastMaxChangeTime = time.time()
             self._textNode1.text = ("Last increase in maximum: "
-                    +time.strftime("%d.%m.%Y %H:%M:%S", time.localtime(lastMaxChangeTime)))
+                    +time.strftime("%d.%m.%Y %H:%M:%S", 
+                        time.localtime(lastMaxChangeTime)))
         self._maxUsage.append(maxUsage)
-        self._memSampleNum  += 1
+        self._memSampleNum += 1
         
-        if self._memSampleNum  % 60 == 0:
+        if self._memSampleNum % 60 == 0:
             lastMinuteAverage = sum(self._usage[-60:])/60
             self._minutesUsage.append(lastMinuteAverage)
             self._minutesMaxUsage.append(maxUsage)
             
-        if self._memSampleNum  < 60*60:
+        if self._memSampleNum < 60*60:
             self._plotLine(self._usage, self._lineNode, maxUsage)
             self._plotLine(self._maxUsage, self._maxLineNode, maxUsage)              
         else:             
@@ -134,6 +136,7 @@ class MemGraph(Graph):
         xfactor = self._graphSize.x/float(len(data)-1)
         node.pos = [(pos[0]*xfactor+10, (maxy-pos[1])*yfactor+10) 
                 for pos in enumerate(data)]
+
 
 class FrameRateGraph(Graph):
     def _setup(self):
@@ -160,14 +163,15 @@ class FrameRateGraph(Graph):
         diff = frameTime - self._lastCurUsage       
         #if(self._sampleNum % 1800 == 0):
            # self._maxFrameTime = 0
-        if(self._sampleNum<2):
+        if self._sampleNum < 2:
             self._maxFrameTime = 0
-        if(diff>self._maxFrameTime):
+        if diff > self._maxFrameTime:
             lastMaxChangeTime = time.time()     
             self._maxFrameTime = diff
             self._textNode0.text = ("Max FrameTime: %.f" %self._maxFrameTime + " ms" + 
-                "   Time: " +time.strftime("%d.%m.%Y %H:%M:%S", time.localtime(lastMaxChangeTime)))
-        if diff>self._node.y-1:
+                "   Time: " +time.strftime("%d.%m.%Y %H:%M:%S",
+                time.localtime(lastMaxChangeTime)))
+        if diff > self._node.y-1:
             y = self._node.y-1
             
         self._lastCurUsage = frameTime
@@ -410,7 +414,7 @@ class AVGAppStarter(object):
             if(self.__graphs == 1 ):
                 self.__frGraph.setYpos(10)
         else:
-            self.__memGraph = MemGraph("Memory Graph", getValue = lambda: avg.getMemoryUsage())         
+            self.__memGraph = MemGraph("Memory Graph", getValue = avg.getMemoryUsage)         
             self.__graphs = self.__graphs +1          
             if(self.__graphs > 1 ):
                 self.__memGraph.setYpos(190)       
@@ -425,7 +429,8 @@ class AVGAppStarter(object):
             if(self.__graphs == 1 ):
                 self.__memGraph.setYpos(10)
         else:      
-            self.__frGraph = FrameRateGraph("FrameTime Graph",getValue = lambda: g_player.getFrameTime())
+            self.__frGraph = FrameRateGraph("FrameTime Graph",
+                    getValue = g_player.getFrameTime)
             self.__graphs = self.__graphs +1 
             if(self.__graphs >1):               
                 self.__frGraph.setYpos(190)           

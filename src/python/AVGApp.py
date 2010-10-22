@@ -116,12 +116,13 @@ class AVGApp(object):
     @classmethod
     def __fakeFullscreen(cls):
         hDesk = GetDesktopWindow()
-        (DesktopLeft,DesktopTop,DesktopRight,DesktopBottom) = GetWindowRect(hDesk)
+        (DesktopLeft, DesktopTop, DesktopRight, DesktopBottom) = GetWindowRect(hDesk)
         w = cls.__findWindow("AVG Renderer")
         offSetX = 2
         offSetY = 3
-        SetWindowPos(w, HWND_TOP, -(GetSystemMetrics(SM_CYBORDER)+offSetX), -(GetSystemMetrics(SM_CYCAPTION)+offSetY), DesktopRight, DesktopBottom+30, 0)
-        
+        SetWindowPos(w, HWND_TOP, -(GetSystemMetrics(SM_CYBORDER)+offSetX), 
+                -(GetSystemMetrics(SM_CYCAPTION)+offSetY), 
+                DesktopRight, DesktopBottom+30, 0)
         
     @classmethod
     def start(cls, *args, **kwargs):
@@ -132,6 +133,7 @@ class AVGApp(object):
         else:
             starter = AVGAppStarter
         cls.avg_deploy = os.getenv("AVG_DEPLOY")
+
         if cls.fakeFullscreen and cls.avg_deploy is not None:
             if g_WIN32:
                 cls.avg_deploy = None
