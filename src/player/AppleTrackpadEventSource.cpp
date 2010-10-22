@@ -56,7 +56,6 @@ AppleTrackpadEventSource::~AppleTrackpadEventSource()
 void AppleTrackpadEventSource::start()
 {
     MultitouchEventSource::start();
-    m_pMutex = MutexPtr(new boost::mutex);
     m_Device = MTDeviceCreateDefault();
     MTRegisterContactFrameCallback(m_Device, callback);
     MTDeviceStart(m_Device, 0);
@@ -65,17 +64,15 @@ void AppleTrackpadEventSource::start()
 void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFingers, 
         double timestamp, int frame)
 {
-    boost::mutex::scoped_lock lock(*m_pMutex);
+    boost::mutex::scoped_lock lock(getMutex());
     for (int i = 0; i < numFingers; i++) {
         Finger* pFinger = &pFingers[i];
-        map<int, TouchPtr>::iterator it = m_Touches.find(pFinger->identifier);
-        if (it == m_Touches.end()) {
+        TouchPtr pTouch = getTouch(pFinger->identifier);
+        if (!pTouch) {
             m_LastID++;
             TouchEventPtr pEvent = createEvent(m_LastID, pFinger, Event::CURSORDOWN);
-            TouchPtr pTouch(new Touch(pEvent));
-            m_Touches[pFinger->identifier] = pTouch;
+            addTouch(pFinger->identifier, pEvent);
         } else {
-            TouchPtr pTouch = it->second;
             Event::Type eventType;
             if (pFinger->state == 7) {
                 eventType = Event::CURSORUP;
@@ -85,21 +82,6 @@ void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFinge
             TouchEventPtr pEvent = createEvent(0, pFinger, eventType);
             pTouch->updateEvent(pEvent);
         }
-/*        
-        printf("Frame %7d: Angle %6.2f, ellipse %6.3f x%6.3f; "
-                "position (%6.3f,%6.3f) vel (%6.3f,%6.3f) "
-                "ID %d, state %d [%d %d?] size %6.3f, %6.3f?\n",
-                f->frame,
-                f->angle * 90 / atan2(1,0),
-                f->majorAxis,
-                f->minorAxis,
-                f->normalized.pos.x,
-                f->normalized.pos.y,
-                f->normalized.vel.x,
-                f->normalized.vel.y,
-                f->identifier, f->state, f->foo3, f->foo4,
-                f->size, f->unk2);
-*/        
     }
 /*    
     set<int>::iterator it;

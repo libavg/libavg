@@ -49,12 +49,14 @@ public:
 
 protected:
     const DPoint& getWindowSize() const;
-
-    std::map<int, TouchPtr> m_Touches;
-    MutexPtr m_pMutex;
+    TouchPtr getTouch(int id);
+    void addTouch(int id, TouchEventPtr pInitialEvent);
+    boost::mutex& getMutex();
 
 private:
+    std::map<int, TouchPtr> m_Touches;
     DPoint m_WindowSize;
+    MutexPtr m_pMutex;
 };
 
 typedef boost::shared_ptr<MultitouchEventSource> MultitouchEventSourcePtr;

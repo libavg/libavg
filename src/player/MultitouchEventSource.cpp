@@ -77,5 +77,25 @@ const DPoint& MultitouchEventSource::getWindowSize() const
     return m_WindowSize;
 }
 
+TouchPtr MultitouchEventSource::getTouch(int id)
+{
+    map<int, TouchPtr>::iterator it = m_Touches.find(id);
+    if (it == m_Touches.end()) {
+        return TouchPtr();
+    } else {
+        return it->second;
+    }
+}
+
+void MultitouchEventSource::addTouch(int id, TouchEventPtr pInitialEvent)
+{
+    TouchPtr pTouch(new Touch(pInitialEvent));
+    m_Touches[id] = pTouch;
+}
+    
+boost::mutex& MultitouchEventSource::getMutex()
+{
+    return *m_pMutex;
+}
 
 }
