@@ -25,7 +25,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Touch.h"
+#include "TouchStatus.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -54,10 +54,10 @@ vector<EventPtr> MultitouchEventSource::pollEvents()
     boost::mutex::scoped_lock lock(*m_pMutex);
 
     vector<EventPtr> events;
-    map<int, TouchPtr>::iterator it;
+    map<int, TouchStatusPtr>::iterator it;
     for (it = m_Touches.begin(); it != m_Touches.end(); ) {
-        TouchPtr pTouch = it->second;
-        TouchEventPtr pEvent = pTouch->getEvent();
+        TouchStatusPtr pTouchStatus = it->second;
+        TouchEventPtr pEvent = pTouchStatus->getEvent();
         if (pEvent) {
             events.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {
@@ -77,20 +77,20 @@ const DPoint& MultitouchEventSource::getWindowSize() const
     return m_WindowSize;
 }
 
-TouchPtr MultitouchEventSource::getTouch(int id)
+TouchStatusPtr MultitouchEventSource::getTouchStatus(int id)
 {
-    map<int, TouchPtr>::iterator it = m_Touches.find(id);
+    map<int, TouchStatusPtr>::iterator it = m_Touches.find(id);
     if (it == m_Touches.end()) {
-        return TouchPtr();
+        return TouchStatusPtr();
     } else {
         return it->second;
     }
 }
 
-void MultitouchEventSource::addTouch(int id, TouchEventPtr pInitialEvent)
+void MultitouchEventSource::addTouchStatus(int id, TouchEventPtr pInitialEvent)
 {
-    TouchPtr pTouch(new Touch(pInitialEvent));
-    m_Touches[id] = pTouch;
+    TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
+    m_Touches[id] = pTouchStatus;
 }
     
 boost::mutex& MultitouchEventSource::getMutex()

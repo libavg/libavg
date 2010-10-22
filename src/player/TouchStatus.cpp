@@ -19,11 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Touch.h"
+#include "TouchStatus.h"
 
 namespace avg {
 
-Touch::Touch(TouchEventPtr pEvent)
+TouchStatus::TouchStatus(TouchEventPtr pEvent)
     : m_pEvent(pEvent),
       m_bFirstFrame(true),
       m_LastDownPos(pEvent->getPos()),
@@ -32,21 +32,21 @@ Touch::Touch(TouchEventPtr pEvent)
     pEvent->setLastDownPos(IntPoint(pEvent->getPos()));
 }
 
-Touch::~Touch()
+TouchStatus::~TouchStatus()
 {
 }
 
-const IntPoint& Touch::getLastDownPos()
+const IntPoint& TouchStatus::getLastDownPos()
 {
     return m_LastDownPos;
 }
 
-bool Touch::isFirstFrame()
+bool TouchStatus::isFirstFrame()
 {
     return m_bFirstFrame;
 }
 
-void Touch::updateEvent(TouchEventPtr pEvent)
+void TouchStatus::updateEvent(TouchEventPtr pEvent)
 {
     if (isFirstFrame()) {
         // Always send a cursordown event first.
@@ -65,7 +65,7 @@ void Touch::updateEvent(TouchEventPtr pEvent)
     m_pEvent->setLastDownPos(m_LastDownPos);
 }
 
-TouchEventPtr Touch::getEvent()
+TouchEventPtr TouchStatus::getEvent()
 {
     m_bFirstFrame = false;
     TouchEventPtr pEvent;

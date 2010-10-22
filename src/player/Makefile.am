@@ -27,7 +27,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         Event.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchEventSource.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
-        TouchEvent.h Touch.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
+        TouchEvent.h TouchStatus.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h \
@@ -75,7 +75,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
-        Touch.cpp OffscreenCanvas.cpp FXNode.cpp \
+        TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
         $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

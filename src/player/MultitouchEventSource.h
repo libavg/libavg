@@ -33,8 +33,8 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 namespace avg {
 
-class Touch;
-typedef boost::shared_ptr<class Touch> TouchPtr;
+class TouchStatus;
+typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 
@@ -49,12 +49,12 @@ public:
 
 protected:
     const DPoint& getWindowSize() const;
-    TouchPtr getTouch(int id);
-    void addTouch(int id, TouchEventPtr pInitialEvent);
+    TouchStatusPtr getTouchStatus(int id);
+    void addTouchStatus(int id, TouchEventPtr pInitialEvent);
     boost::mutex& getMutex();
 
 private:
-    std::map<int, TouchPtr> m_Touches;
+    std::map<int, TouchStatusPtr> m_Touches;
     DPoint m_WindowSize;
     MutexPtr m_pMutex;
 };

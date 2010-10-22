@@ -19,17 +19,17 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Touch_H_
-#define _Touch_H_
+#ifndef _TouchStatus_H_
+#define _TouchStatus_H_
 
 #include "TouchEvent.h"
 
 namespace avg {
 
-class Touch {
+class TouchStatus {
 public:
-    Touch(TouchEventPtr pEvent);
-    virtual ~Touch();
+    TouchStatus(TouchEventPtr pEvent);
+    virtual ~TouchStatus();
 
     const IntPoint& getLastDownPos();
     bool isFirstFrame();
@@ -46,7 +46,7 @@ private:
     int m_CursorID;
 };
 
-typedef boost::shared_ptr<class Touch> TouchPtr;
+typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 
 }
 
