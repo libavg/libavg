@@ -96,15 +96,17 @@ int AppleTrackpadEventSource::callback(int device, Finger *data, int nFingers,
 TouchEventPtr AppleTrackpadEventSource::createEvent(int avgID, Finger* pFinger, 
         Event::Type eventType)
 {
-    // TODO: 
-    // - Calc majorAxis, minorAxis from axis+angle
     DPoint size = getWindowSize();
     IntPoint pos(pFinger->normalized.pos.x*size.x, (1-pFinger->normalized.pos.y)*size.y);
     DPoint speed(pFinger->normalized.vel.x*size.x, pFinger->normalized.vel.y*size.y);
     double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
+    DPoint majorAxis = DPoint::fromPolar(pFinger->angle, pFinger->majorAxis);
+    majorAxis.y = -majorAxis.y;
+    DPoint minorAxis = DPoint::fromPolar(pFinger->angle+1.57, pFinger->minorAxis);
+    minorAxis.y = -minorAxis.y;
+
     TouchEventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH, speed, 
-                pFinger->angle, pFinger->size, eccentricity, DPoint(0,0), 
-                DPoint(0,0)));
+                pFinger->angle, pFinger->size, eccentricity, majorAxis, minorAxis)); 
     return pEvent;
 }
 

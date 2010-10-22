@@ -185,18 +185,24 @@ class FrameRateGraph(Graph):
         return zip(xrange(10,len(self._values)*self._xSkip, self._xSkip), self._values)
    
 
-class TouchVisualization(avg.CircleNode):
+class TouchVisualization(avg.DivNode):
     def __init__(self, event, **kwargs):
-        avg.CircleNode.__init__(self, **kwargs)
+        avg.DivNode.__init__(self, **kwargs)
         self.cursorid = event.cursorid
         self.pos = event.pos
-        self.r = 10
-        self.fillcolor = "FFFFFF"
-        self.fillopacity = 0.5
-        self.strokewidth = 0
+        radius = event.majoraxis.getNorm()
+        self.__circle = avg.CircleNode(r=radius, fillcolor="FFFFFF", fillopacity=0.5,
+                strokewidth=0, parent=self)
+        self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis, color="FFFFFF",
+                parent=self)
+        self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis, color="FFFFFF",
+                parent=self)
 
     def move(self, event):
         self.pos = event.pos
+        self.__circle.r = event.majoraxis.getNorm()
+        self.__majorAxis.pos2 = event.majoraxis
+        self.__minorAxis.pos2 = event.minoraxis
 
 
 class AVGAppStarter(object):
