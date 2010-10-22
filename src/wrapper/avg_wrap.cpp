@@ -31,6 +31,7 @@ void export_anim();
 
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
+#include "../base/GeomHelper.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -73,6 +74,12 @@ BOOST_PYTHON_MODULE(avg)
             "precisely, this function returns the resident set size of the process\n"
             "in bytes. This does not include shared libraries or memory paged out to\n"
             "disk.\n");
+
+    def("pointInPolygon", pointInPolygon,
+            "pointInPolygon(point, poly) -> bool\n"
+            "Checks if a point is inside a polygon.\n"
+            "@param point: Point to check.\n"
+            "@param poly: List of points which constitute a polygon to check against.\n");
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"

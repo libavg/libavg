@@ -529,6 +529,11 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testTexturedPolygon6", False)
                 ))
 
+    def testPointInPolygon(self):
+        polygon_pos = [(10, 10), (50, 10), (90, 50), (90, 90)]
+        self.assert_(avg.pointInPolygon((50, 20), polygon_pos))
+        self.assert_(avg.pointInPolygon((10, 20), polygon_pos) == False)
+
     def testCircle(self):
         def addCircle():
             circle = avg.CircleNode(pos=(30, 30), r=20)
@@ -695,6 +700,7 @@ def vectorTestSuite(tests):
             "testPolygon",
             "testSelfIntersectPolygon",
             "testTexturedPolygon",
+            "testPointInPolygon",
             "testCircle",
             "testMesh",
             "testInactiveVector"
