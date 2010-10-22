@@ -82,7 +82,6 @@ vector<EventPtr> AppleTrackpadEventSource::pollEvents()
             ++it;
         }
     }
-
     return events;
 }
 

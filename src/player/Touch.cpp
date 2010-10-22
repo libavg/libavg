@@ -56,6 +56,7 @@ void Touch::updateEvent(TouchEventPtr pEvent)
             // If we get a down and an up in the first frame, we delay the up to the
             // next frame.
             m_pUpEvent = pEvent;
+            m_pUpEvent->setCursorID(m_CursorID);
         }
     } else {
         m_pEvent = pEvent;
