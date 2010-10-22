@@ -360,8 +360,8 @@ public:
     {
         addTest(TestPtr(new PBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        addTest(TestPtr(new ChromaKeyFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
+            addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));
         } else {
