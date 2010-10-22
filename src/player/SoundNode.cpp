@@ -86,7 +86,7 @@ SoundNode::~SoundNode()
 long long SoundNode::getDuration() const
 {
     exceptionIfUnloaded("getDuration");
-    return m_pDecoder->getVideoInfo().m_Duration;
+    return long long(m_pDecoder->getVideoInfo().m_Duration*1000);
 }
 
 std::string SoundNode::getAudioCodec() const
@@ -110,7 +110,7 @@ int SoundNode::getNumAudioChannels() const
 long long SoundNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    return m_pDecoder->getCurTime(SS_AUDIO)*1000;
+    return long long(m_pDecoder->getCurTime(SS_AUDIO)*1000);
 }
 
 void SoundNode::seekToTime(long long Time)
@@ -275,7 +275,7 @@ void SoundNode::changeSoundState(SoundState newSoundState)
 
 void SoundNode::seek(long long destTime) 
 {
-    m_pDecoder->seek(destTime);
+    m_pDecoder->seek(double(destTime)/1000);
     m_StartTime = Player::get()->getFrameTime() - destTime;
     m_PauseTime = 0;
     m_PauseStartTime = Player::get()->getFrameTime();
