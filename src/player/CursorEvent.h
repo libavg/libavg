@@ -45,6 +45,7 @@ class AVG_API CursorEvent: public Event
         DPoint getPos() const;
         int getXPosition() const;
         int getYPosition() const;
+        void setCursorID(int id);
         int getCursorID() const;
 
         DPoint getLastDownPos() const;

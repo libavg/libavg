@@ -25,6 +25,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
+#include "Touch.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -63,14 +64,25 @@ void AppleTrackpadEventSource::start()
 
 vector<EventPtr> AppleTrackpadEventSource::pollEvents()
 {
-    // TODO:
-    // - Consolidate events: one event per ID per frame.
-    // - Keep an eventStream internally and create the vector<EventPtr> in this func.
-    // - (This func should return a pointer to a vector to avoid copying the whole 
-    //   vector.)
     boost::mutex::scoped_lock lock(*m_pMutex);
-    vector<EventPtr> events = m_Events;
-    m_Events.clear();
+
+    vector<EventPtr> events;
+    map<int, TouchPtr>::iterator it;
+    for (it = m_Touches.begin(); it != m_Touches.end(); ) {
+        TouchPtr pTouch = it->second;
+        TouchEventPtr pEvent = pTouch->getEvent();
+        if (pEvent) {
+            events.push_back(pEvent);
+            if (pEvent->getType() == Event::CURSORUP) {
+                m_Touches.erase(it++);
+            } else {
+                ++it;
+            }
+        } else {
+            ++it;
+        }
+    }
+
     return events;
 }
 
@@ -79,36 +91,24 @@ void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFinge
 {
     boost::mutex::scoped_lock lock(*m_pMutex);
     for (int i = 0; i < numFingers; i++) {
-        Event::Type eventType;
         Finger* pFinger = &pFingers[i];
-        map<int, int>::iterator it = m_TouchIDs.find(pFinger->identifier);
-        int avgID;
-        if (it == m_TouchIDs.end()) {
-            eventType = Event::CURSORDOWN;
+        map<int, TouchPtr>::iterator it = m_Touches.find(pFinger->identifier);
+        if (it == m_Touches.end()) {
             m_LastID++;
-            m_TouchIDs[pFinger->identifier] = m_LastID;
-            avgID = m_LastID;
-        } else if (pFinger->state == 7) {
-            eventType = Event::CURSORUP;
-            avgID = it->second;
-            m_TouchIDs.erase(it);
+            TouchEventPtr pEvent = createEvent(m_LastID, pFinger, Event::CURSORDOWN);
+            TouchPtr pTouch(new Touch(pEvent));
+            m_Touches[pFinger->identifier] = pTouch;
         } else {
-            eventType = Event::CURSORMOTION;
-            avgID = it->second;
+            TouchPtr pTouch = it->second;
+            Event::Type eventType;
+            if (pFinger->state == 7) {
+                eventType = Event::CURSORUP;
+            } else {
+                eventType = Event::CURSORMOTION;
+            }
+            TouchEventPtr pEvent = createEvent(0, pFinger, eventType);
+            pTouch->updateEvent(pEvent);
         }
-        // TODO: 
-        // - Keep lastDownPos
-        // - Calc majorAxis, minorAxis from axis+angle
-        IntPoint pos(pFinger->normalized.pos.x*m_WindowSize.x, 
-                (1-pFinger->normalized.pos.y)*m_WindowSize.y);
-        DPoint speed(pFinger->normalized.vel.x*m_WindowSize.x, 
-                pFinger->normalized.vel.y*m_WindowSize.y);
-        IntPoint lastDownPos(0, 0);
-        double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
-        EventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH, speed, 
-                lastDownPos, pFinger->angle, pFinger->size, eccentricity, DPoint(0,0), 
-                DPoint(0,0)));
-        m_Events.push_back(pEvent);
 /*        
         printf("Frame %7d: Angle %6.2f, ellipse %6.3f x%6.3f; "
                 "position (%6.3f,%6.3f) vel (%6.3f,%6.3f) "
@@ -140,6 +140,22 @@ int AppleTrackpadEventSource::callback(int device, Finger *data, int nFingers,
     AVG_ASSERT(s_pInstance != 0);
     s_pInstance->onData(device, data, nFingers, timestamp, frame);
     return 0;
+}
+
+TouchEventPtr AppleTrackpadEventSource::createEvent(int avgID, Finger* pFinger, 
+        Event::Type eventType)
+{
+    // TODO: 
+    // - Calc majorAxis, minorAxis from axis+angle
+    IntPoint pos(pFinger->normalized.pos.x*m_WindowSize.x, 
+            (1-pFinger->normalized.pos.y)*m_WindowSize.y);
+    DPoint speed(pFinger->normalized.vel.x*m_WindowSize.x, 
+            pFinger->normalized.vel.y*m_WindowSize.y);
+    double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
+    TouchEventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH, speed, 
+                pFinger->angle, pFinger->size, eccentricity, DPoint(0,0), 
+                DPoint(0,0)));
+    return pEvent;
 }
 
 }

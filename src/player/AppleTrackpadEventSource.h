@@ -63,6 +63,11 @@ void MTDeviceRelease(MTDeviceRef);
 
 namespace avg {
 
+class Touch;
+typedef boost::shared_ptr<class Touch> TouchPtr;
+class TouchEvent;
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+
 class AVG_API AppleTrackpadEventSource: public IEventSource
 {
 public:
@@ -76,10 +81,11 @@ private:
     void onData(int device, Finger *data, int nFingers, double timestamp, int frame);
     static int callback(int device, Finger *data, int nFingers, double timestamp, 
             int frame);
+    TouchEventPtr createEvent(int avgID, Finger* pFinger, Event::Type eventType);
+
     MTDeviceRef m_Device;
     static AppleTrackpadEventSource* s_pInstance;
-    std::map<int, int> m_TouchIDs;
-    std::vector<EventPtr> m_Events;
+    std::map<int, TouchPtr> m_Touches;
 
     DPoint m_WindowSize;
     int m_LastID;

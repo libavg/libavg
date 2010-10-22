@@ -61,6 +61,11 @@ int CursorEvent::getYPosition() const
     return m_Position.y;
 }
 
+void CursorEvent::setCursorID(int id)
+{
+    m_ID = id;
+}
+
 int CursorEvent::getCursorID() const
 {
     return m_ID;
