@@ -179,7 +179,22 @@ class FrameRateGraph(Graph):
         
     def _getCoords(self):
         return zip(xrange(10,len(self._values)*self._xSkip, self._xSkip), self._values)
-    
+   
+
+class TouchVisualization(avg.CircleNode):
+    def __init__(self, event, **kwargs):
+        avg.CircleNode.__init__(self, **kwargs)
+        self.cursorid = event.cursorid
+        self.pos = event.pos
+        self.r = 10
+        self.fillcolor = "FFFFFF"
+        self.fillopacity = 0.5
+        self.strokewidth = 0
+
+    def move(self, event):
+        self.pos = event.pos
+
+
 class AVGAppStarter(object):
     """Starts an AVGApp"""
     def __init__(self, appClass, resolution, debugWindowSize = None):
@@ -212,6 +227,11 @@ class AVGAppStarter(object):
         self._appNode.size = rootNode.size
         rootNode.appendChild(self._appNode)
 
+        self.__showMTEvents = False
+        self.__touchViss = {} 
+        self.__touchVisOverlay = avg.DivNode(sensitive=False, size=resolution,
+                parent=rootNode)
+
         g_player.showCursor(testMode)
         g_player.setResolution(
                 not testMode, # fullscreen
@@ -229,12 +249,13 @@ class AVGAppStarter(object):
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
         rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
         
-        self.bindKey('o', self.__dumpObjects, 'dump objects')
-        self.bindKey('m', self.__showMemoryUsage, 'show memory usage')
-        self.bindKey('f', self.__showFrameRateUsage, 'show frameTime usage')
-        self.bindKey('.', self.__switchClickTest, 'start clicktest')
-        self.bindKey('t', self.__switchMtemu, 'activate multitouch emulation')  
-        self.bindKey('s', self.__screenshot, 'take screenshot')  
+        self.bindKey('o', self.__dumpObjects, 'Dump objects')
+        self.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
+        self.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
+        self.bindKey('.', self.__switchClickTest, 'Start clicktest')
+        self.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')  
+        self.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')  
+        self.bindKey('s', self.__screenshot, 'Take screenshot')  
         self.bindUnicode('?', self.activateHelp, 'HELP')  
         
 
@@ -438,7 +459,33 @@ class AVGAppStarter(object):
             self.unbindKey('right shift')
             self._mtEmu.delete()
             self._mtEmu = None
-    
+   
+    def __switchShowMTEvents(self):
+        self.__showMTEvents = not(self.__showMTEvents)
+        if self.__showMTEvents:
+            self.__oldEventHook = g_player.getEventHook()
+            g_player.setEventHook(self.__showMTEventHook)
+        else:
+            g_player.setEventHook(self.__oldEventHook)
+            for id, touchVis in self.__touchViss:
+                touchVis.unlink(True)
+            self.__touchViss = {}
+
+    def __showMTEventHook(self, event):
+        if isinstance(event, avg.TouchEvent) and event.source == avg.TOUCH:
+            if event.type == avg.CURSORDOWN:
+                self.__touchViss[event.cursorid] = TouchVisualization(event, 
+                        parent=self.__touchVisOverlay)
+            elif event.type == avg.CURSORMOTION:
+                self.__touchViss[event.cursorid].move(event)
+            elif event.type == avg.CURSORUP:
+                self.__touchViss[event.cursorid].unlink(True)
+                del self.__touchViss[event.cursorid]
+        if self.__oldEventHook:
+            return self.__oldEventHook()
+        else:
+            return False
+
     def __killNotifyNode(self):
         if self.__notifyNode:
             self.__notifyNode.unlink()

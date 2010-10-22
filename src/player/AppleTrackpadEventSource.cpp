@@ -23,6 +23,8 @@
 
 #include "AppleTrackpadEventSource.h"
 #include "TouchEvent.h"
+#include "Player.h"
+#include "AVGNode.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -40,21 +42,21 @@ AppleTrackpadEventSource::AppleTrackpadEventSource()
     : m_LastID(0)
 {
     s_pInstance = this;
-    cerr << this << endl;
 }
 
 AppleTrackpadEventSource::~AppleTrackpadEventSource()
 {
-    s_pInstance = 0;
-    cerr << "~" << this << endl;
     MTDeviceStop(m_Device);
+    MTUnregisterContactFrameCallback(m_Device, callback);
+    MTDeviceRelease(m_Device);
+    s_pInstance = 0;
 }
 
 void AppleTrackpadEventSource::start()
 {
-    cerr << "start " << this << endl;
+    m_WindowSize = Player::get()->getRootNode()->getSize();
+    m_pMutex = MutexPtr(new boost::mutex);
     m_Device = MTDeviceCreateDefault();
-    cerr << m_Device << endl;
     MTRegisterContactFrameCallback(m_Device, callback);
     MTDeviceStart(m_Device, 0);
 }
@@ -63,10 +65,10 @@ vector<EventPtr> AppleTrackpadEventSource::pollEvents()
 {
     // TODO:
     // - Consolidate events: one event per ID per frame.
-    // - Thread-safety?
     // - Keep an eventStream internally and create the vector<EventPtr> in this func.
     // - (This func should return a pointer to a vector to avoid copying the whole 
     //   vector.)
+    boost::mutex::scoped_lock lock(*m_pMutex);
     vector<EventPtr> events = m_Events;
     m_Events.clear();
     return events;
@@ -75,29 +77,35 @@ vector<EventPtr> AppleTrackpadEventSource::pollEvents()
 void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFingers, 
         double timestamp, int frame)
 {
+    boost::mutex::scoped_lock lock(*m_pMutex);
     for (int i = 0; i < numFingers; i++) {
         Event::Type eventType;
         Finger* pFinger = &pFingers[i];
-        set<int>::iterator it = m_TouchIDs.find(pFinger->identifier);
+        map<int, int>::iterator it = m_TouchIDs.find(pFinger->identifier);
+        int avgID;
         if (it == m_TouchIDs.end()) {
             eventType = Event::CURSORDOWN;
-            m_TouchIDs.insert(pFinger->identifier);
+            m_LastID++;
+            m_TouchIDs[pFinger->identifier] = m_LastID;
+            avgID = m_LastID;
         } else if (pFinger->state == 7) {
             eventType = Event::CURSORUP;
+            avgID = it->second;
             m_TouchIDs.erase(it);
         } else {
             eventType = Event::CURSORMOTION;
+            avgID = it->second;
         }
-        m_LastID++;
         // TODO: 
-        // - Calc pos, speed using window size
         // - Keep lastDownPos
         // - Calc majorAxis, minorAxis from axis+angle
-        IntPoint pos(pFinger->normalized.pos.x*1024, pFinger->normalized.pos.y*768);
-        DPoint speed(pFinger->normalized.vel.x, pFinger->normalized.vel.y);
+        IntPoint pos(pFinger->normalized.pos.x*m_WindowSize.x, 
+                (1-pFinger->normalized.pos.y)*m_WindowSize.y);
+        DPoint speed(pFinger->normalized.vel.x*m_WindowSize.x, 
+                pFinger->normalized.vel.y*m_WindowSize.y);
         IntPoint lastDownPos(0, 0);
         double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
-        EventPtr pEvent(new TouchEvent(m_LastID, eventType, pos, Event::TOUCH, speed, 
+        EventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH, speed, 
                 lastDownPos, pFinger->angle, pFinger->size, eccentricity, DPoint(0,0), 
                 DPoint(0,0)));
         m_Events.push_back(pEvent);

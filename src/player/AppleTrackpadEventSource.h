@@ -26,7 +26,10 @@
 #include "CursorEvent.h"
 #include "IEventSource.h"
 
+#include <boost/thread.hpp>
 #include <set>
+
+typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 extern "C" {
 
@@ -51,6 +54,7 @@ typedef int (*MTContactCallbackFunction)(int,Finger*,int,double,int);
 
 MTDeviceRef MTDeviceCreateDefault();
 void MTRegisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction);
+void MTUnregisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction);
 void MTDeviceStart(MTDeviceRef, int);
 void MTDeviceStop(MTDeviceRef);
 void MTDeviceRelease(MTDeviceRef);
@@ -74,10 +78,12 @@ private:
             int frame);
     MTDeviceRef m_Device;
     static AppleTrackpadEventSource* s_pInstance;
-    std::set<int> m_TouchIDs;
+    std::map<int, int> m_TouchIDs;
     std::vector<EventPtr> m_Events;
 
+    DPoint m_WindowSize;
     int m_LastID;
+    MutexPtr m_pMutex;
 };
 
 typedef boost::shared_ptr<AppleTrackpadEventSource> AppleTrackpadEventSourcePtr;

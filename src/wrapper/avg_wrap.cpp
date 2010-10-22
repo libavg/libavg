@@ -385,10 +385,14 @@ BOOST_PYTHON_MODULE(avg)
                 "file extension)\n")
         .def("setEventHook", &Player::setEventHook,
                 "setEventHook(pyfunc)\n"
-                "set a callable which will receive all events passing\n"
+                "Set a callable which will receive all events passing\n"
                 "through Player events' sink. If the function returns True,\n"
                 "the event is not propagated to the underlying listeners.\n"
                 "@param pyfunc: a python callable\n")
+        .def("getEventHook", &Player::getEventHook,
+                "pyfunc = getEventHook()\n"
+                "Returns the function set by the last setEventHook. Can be used to chain"
+                "several event hook functions.")
         .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath,
                 "A colon-separated list of directories where the player\n"
                 "searches for plugins when loadPlugin() is called.\n")
