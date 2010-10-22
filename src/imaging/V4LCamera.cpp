@@ -475,7 +475,6 @@ void V4LCamera::initDevice()
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
     if (xioctl(m_Fd, VIDIOC_S_FMT, &fmt) == -1) {
-        close();
         throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)
@@ -488,7 +487,6 @@ void V4LCamera::initDevice()
     StreamParam.parm.capture.timeperframe.numerator = 1;
     StreamParam.parm.capture.timeperframe.denominator = (int) m_FrameRate;
     if (xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam) == -1) {
-        close();
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
