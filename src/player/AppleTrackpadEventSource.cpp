@@ -55,34 +55,11 @@ AppleTrackpadEventSource::~AppleTrackpadEventSource()
 
 void AppleTrackpadEventSource::start()
 {
-    m_WindowSize = Player::get()->getRootNode()->getSize();
+    MultitouchEventSource::start();
     m_pMutex = MutexPtr(new boost::mutex);
     m_Device = MTDeviceCreateDefault();
     MTRegisterContactFrameCallback(m_Device, callback);
     MTDeviceStart(m_Device, 0);
-}
-
-vector<EventPtr> AppleTrackpadEventSource::pollEvents()
-{
-    boost::mutex::scoped_lock lock(*m_pMutex);
-
-    vector<EventPtr> events;
-    map<int, TouchPtr>::iterator it;
-    for (it = m_Touches.begin(); it != m_Touches.end(); ) {
-        TouchPtr pTouch = it->second;
-        TouchEventPtr pEvent = pTouch->getEvent();
-        if (pEvent) {
-            events.push_back(pEvent);
-            if (pEvent->getType() == Event::CURSORUP) {
-                m_Touches.erase(it++);
-            } else {
-                ++it;
-            }
-        } else {
-            ++it;
-        }
-    }
-    return events;
 }
 
 void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFingers, 
@@ -146,10 +123,9 @@ TouchEventPtr AppleTrackpadEventSource::createEvent(int avgID, Finger* pFinger,
 {
     // TODO: 
     // - Calc majorAxis, minorAxis from axis+angle
-    IntPoint pos(pFinger->normalized.pos.x*m_WindowSize.x, 
-            (1-pFinger->normalized.pos.y)*m_WindowSize.y);
-    DPoint speed(pFinger->normalized.vel.x*m_WindowSize.x, 
-            pFinger->normalized.vel.y*m_WindowSize.y);
+    DPoint size = getWindowSize();
+    IntPoint pos(pFinger->normalized.pos.x*size.x, (1-pFinger->normalized.pos.y)*size.y);
+    DPoint speed(pFinger->normalized.vel.x*size.x, pFinger->normalized.vel.y*size.y);
     double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
     TouchEventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH, speed, 
                 pFinger->angle, pFinger->size, eccentricity, DPoint(0,0), 

@@ -19,65 +19,45 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _AppleTrackpadEventSource_H_
-#define _AppleTrackpadEventSource_H_
+#ifndef _MultitouchEventSource_H_
+#define _MultitouchEventSource_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "CursorEvent.h"
+#include "IEventSource.h"
 
-extern "C" {
+#include <boost/thread.hpp>
+#include <set>
 
-typedef struct { float x,y; } mtPoint;
-typedef struct { mtPoint pos,vel; } mtReadout;
-
-typedef struct {
-  int frame;
-  double timestamp;
-  int identifier, state, foo3, foo4;
-  mtReadout normalized;
-  float size;
-  int zero1;
-  float angle, majorAxis, minorAxis; // ellipsoid
-  mtReadout mm;
-  int zero2[2];
-  float unk2;
-} Finger;
-
-typedef void *MTDeviceRef;
-typedef int (*MTContactCallbackFunction)(int,Finger*,int,double,int);
-
-MTDeviceRef MTDeviceCreateDefault();
-void MTRegisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction);
-void MTUnregisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction);
-void MTDeviceStart(MTDeviceRef, int);
-void MTDeviceStop(MTDeviceRef);
-void MTDeviceRelease(MTDeviceRef);
-
-}
+typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 namespace avg {
 
-class AVG_API AppleTrackpadEventSource: public MultitouchEventSource
+class Touch;
+typedef boost::shared_ptr<class Touch> TouchPtr;
+class TouchEvent;
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+
+class AVG_API MultitouchEventSource: public IEventSource
 {
 public:
-    AppleTrackpadEventSource();
-    virtual ~AppleTrackpadEventSource();
+    MultitouchEventSource();
+    virtual ~MultitouchEventSource() = 0;
     virtual void start();
     
+    std::vector<EventPtr> pollEvents();
+
+protected:
+    const DPoint& getWindowSize() const;
+
+    std::map<int, TouchPtr> m_Touches;
+    MutexPtr m_pMutex;
 
 private:
-    void onData(int device, Finger *data, int nFingers, double timestamp, int frame);
-    static int callback(int device, Finger *data, int nFingers, double timestamp, 
-            int frame);
-    TouchEventPtr createEvent(int avgID, Finger* pFinger, Event::Type eventType);
-
-    MTDeviceRef m_Device;
-    static AppleTrackpadEventSource* s_pInstance;
-
-    int m_LastID;
+    DPoint m_WindowSize;
 };
 
-typedef boost::shared_ptr<AppleTrackpadEventSource> AppleTrackpadEventSourcePtr;
+typedef boost::shared_ptr<MultitouchEventSource> MultitouchEventSourcePtr;
 
 }
 
@@ -104,8 +84,8 @@ typedef boost::shared_ptr<AppleTrackpadEventSource> AppleTrackpadEventSourcePtr;
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _AppleTrackpadEventSource_H_
-#define _AppleTrackpadEventSource_H_
+#ifndef _MultitouchEventSource_H_
+#define _MultitouchEventSource_H_
 
 #include "../api.h"
 #include "CursorEvent.h"
@@ -143,11 +123,11 @@ extern "C" {
 
 namespace avg {
 
-class AVG_API AppleTrackpadEventSource: public IEventSource
+class AVG_API MultitouchEventSource: public IEventSource
 {
     public:
-        AppleTrackpadEventSource();
-        virtual ~AppleTrackpadEventSource();
+        MultitouchEventSource();
+        virtual ~MultitouchEventSource();
         void start();
         
         std::vector<EventPtr> pollEvents();
@@ -156,7 +136,7 @@ class AVG_API AppleTrackpadEventSource: public IEventSource
         MTDeviceRef m_Device;
 };
 
-typedef boost::shared_ptr<AppleTrackpadEventSource> AppleTrackpadEventSourcePtr;
+typedef boost::shared_ptr<MultitouchEventSource> MultitouchEventSourcePtr;
 
 }
 
