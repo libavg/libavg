@@ -467,19 +467,26 @@ class AVGAppStarter(object):
             g_player.setEventHook(self.__showMTEventHook)
         else:
             g_player.setEventHook(self.__oldEventHook)
-            for id, touchVis in self.__touchViss:
+            for id, touchVis in self.__touchViss.items():
                 touchVis.unlink(True)
             self.__touchViss = {}
 
     def __showMTEventHook(self, event):
-        if isinstance(event, avg.TouchEvent) and event.source == avg.TOUCH:
-            if event.type == avg.CURSORDOWN:
-                self.__touchViss[event.cursorid] = TouchVisualization(event, 
+        if (isinstance(event, avg.TouchEvent) and event.source == avg.TOUCH and
+                (event.type == avg.CURSORDOWN or event.type == avg.CURSORMOTION or
+                 event.type == avg.CURSORUP)):
+            try:
+                touchVis = self.__touchViss[event.cursorid]
+            except KeyError:
+                touchVis = TouchVisualization(event, 
                         parent=self.__touchVisOverlay)
+                self.__touchViss[event.cursorid] = touchVis
+            if event.type == avg.CURSORDOWN:
+                pass
             elif event.type == avg.CURSORMOTION:
-                self.__touchViss[event.cursorid].move(event)
+                touchVis.move(event)
             elif event.type == avg.CURSORUP:
-                self.__touchViss[event.cursorid].unlink(True)
+                touchVis.unlink(True)
                 del self.__touchViss[event.cursorid]
         if self.__oldEventHook:
             return self.__oldEventHook()
