@@ -27,7 +27,7 @@
 #include "IEventSource.h"
 
 #include <boost/thread.hpp>
-#include <set>
+#include <map>
 
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
