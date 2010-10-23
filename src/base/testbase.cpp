@@ -41,6 +41,7 @@
 #include "TimeSource.h"
 
 #include <boost/thread/thread.hpp>
+
 #include <boost/bind.hpp>
 
 #include <iostream>
@@ -49,8 +50,8 @@
 #include <stdlib.h>
 
 using namespace avg;
-using namespace boost;
 using namespace std;
+using namespace boost;
 
 class QueueTest: public Test
 {
@@ -93,17 +94,17 @@ private:
     {
         {
             Queue<string> q(10);
-            thread pusher(bind(&pushThread, &q, 100));
-            thread popper(bind(&popThread, &q, 100));
+            thread pusher(boost::bind(&pushThread, &q, 100));
+            thread popper(boost::bind(&popThread, &q, 100));
             pusher.join();
             popper.join();
             TEST(q.empty());
         }
         {
             Queue<string> q(10);
-            thread pusher1(bind(&pushThread, &q, 100));
-            thread pusher2(bind(&pushThread, &q, 100));
-            thread popper(bind(&popThread, &q, 200));
+            thread pusher1(boost::bind(&pushThread, &q, 100));
+            thread pusher2(boost::bind(&pushThread, &q, 100));
+            thread popper(boost::bind(&popThread, &q, 200));
             pusher1.join();
             pusher2.join();
             popper.join();
