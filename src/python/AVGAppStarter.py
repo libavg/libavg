@@ -499,7 +499,6 @@ class AVGAppStarter(object):
             elif event.type == avg.CURSORUP:
                 touchVis.unlink(True)
                 del self.__touchViss[event.cursorid]
-#            print [touchVis.cursorid for i, touchVis in self.__touchViss.items()]
         if self.__oldEventHook:
             return self.__oldEventHook()
         else:

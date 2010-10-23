@@ -49,7 +49,7 @@
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
 #endif
-#ifdef _WIN32
+#if defined(_WIN32) && defined(SM_DIGITIZER)
     #include "Win7TouchEventSource.h"
 #endif
 
