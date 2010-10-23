@@ -53,7 +53,7 @@ class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
 class TrackerEventSource;
-class AppleTrackpadEventSource;
+class MultitouchEventSource;
 class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
@@ -203,9 +203,8 @@ class AVG_API Player: IEventSink
         NodeRegistry m_NodeRegistry;
 
         TrackerEventSource * m_pTracker;
-#ifdef __APPLE__
-         AppleTrackpadEventSource* m_pAppleTrackpadEventSource;
-#endif
+        MultitouchEventSource* m_pMultitouchEventSource;
+
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);
         void handleTimers();

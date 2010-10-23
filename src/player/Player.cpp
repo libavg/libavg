@@ -48,6 +48,9 @@
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
 #endif
+#ifdef _WIN32
+    #include "Win7TouchEventSource.h"
+#endif
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -92,9 +95,7 @@ Player::Player()
       m_pAudioEngine(0),
       m_bAudioEnabled(true),
       m_pTracker(0),
-#ifdef __APPLE__      
-      m_pAppleTrackpadEventSource(0),
-#endif      
+      m_pMultitouchEventSource(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
       m_bStopOnEscape(true),
@@ -505,11 +506,9 @@ void Player::initPlayback()
     if (m_pTracker) {
         m_pTracker->start();
     }
-#ifdef __APPLE__    
-    if (m_pAppleTrackpadEventSource) {
-        m_pAppleTrackpadEventSource->start();
+    if (m_pMultitouchEventSource) {
+        m_pMultitouchEventSource->start();
     }
-#endif
 
     m_FrameTime = 0;
     m_NumFrames = 0;
@@ -630,15 +629,18 @@ TrackerEventSource * Player::getTracker()
 void Player::enableMultitouch()
 {
 #ifdef __APPLE__
-    m_pAppleTrackpadEventSource = new AppleTrackpadEventSource;
-    addEventSource(m_pAppleTrackpadEventSource);
-    if (m_bIsPlaying) {
-        m_pAppleTrackpadEventSource->start();
-    }
+    m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #else
-    throw Exception(AVG_ERR_UNSUPPORTED, 
-            "Multitouch not supported on non-OS X computers.");
+#ifdef _WIN32
+    m_pMultitouchEventSource = new Win7TouchEventSource;
+#else
+    throw Exception(AVG_ERR_UNSUPPORTED, "Multitouch not supported on this os.");
 #endif
+#endif
+    addEventSource(m_pMultitouchEventSource);
+    if (m_bIsPlaying) {
+        m_pMultitouchEventSource->start();
+    }
 }
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
@@ -1499,12 +1501,10 @@ void Player::cleanup()
         delete m_pTracker;
         m_pTracker = 0;
     }
-#ifdef __APPLE__
-    if (m_pAppleTrackpadEventSource) {
-        delete m_pAppleTrackpadEventSource;
-        m_pAppleTrackpadEventSource = 0;
+    if (m_pMultitouchEventSource) {
+        delete m_pMultitouchEventSource;
+        m_pMultitouchEventSource = 0;
     }
-#endif
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
         m_pCanvases[i]->stopPlayback();
     }
