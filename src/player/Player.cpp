@@ -45,6 +45,7 @@
 #include "OffscreenCanvas.h"
 #include "TrackerEventSource.h"
 #include "SDLDisplayEngine.h"
+#include "MultitouchEventSource.h"
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
 #endif
