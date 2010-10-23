@@ -632,7 +632,7 @@ void Player::enableMultitouch()
 #ifdef __APPLE__
     m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #else
-#ifdef _WIN32
+#if defined(_WIN32) && defined(SM_DIGITIZER)
     m_pMultitouchEventSource = new Win7TouchEventSource;
 #else
     throw Exception(AVG_ERR_UNSUPPORTED, "Multitouch not supported on this os.");
