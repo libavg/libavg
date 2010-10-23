@@ -25,6 +25,7 @@
 #include <ctype.h>
 #include <algorithm>
 #include <cstdio>
+#include <iterator>
 
 using namespace std;
 

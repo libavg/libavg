@@ -28,7 +28,7 @@
 #include <vector>
 
 // Fix for non-C99 win compilers up to MSVC++2008
-#if defined _MSC_VER && _MSC_VER <= 1500
+#if defined _MSC_VER
 #define isinf(x) (!_finite(x))
 #define isnan(x) (_isnan(x))
 #endif

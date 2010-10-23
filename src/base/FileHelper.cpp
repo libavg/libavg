@@ -122,7 +122,7 @@ void readWholeFile(const string& sFilename, string& sContent)
     sContent.resize(0);
     while (File) {
         File.read(&(*buffer.begin()), (streamsize)(buffer.size()));
-        sContent.append(&(*buffer.begin()),File.gcount());
+        sContent.append(&(*buffer.begin()), (unsigned)File.gcount());
     }
     if (!File.eof() || File.bad()) {
         throw Exception(AVG_ERR_FILEIO, "Reading "+sFilename+
