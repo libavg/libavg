@@ -86,7 +86,7 @@ SoundNode::~SoundNode()
 long long SoundNode::getDuration() const
 {
     exceptionIfUnloaded("getDuration");
-    return long long(m_pDecoder->getVideoInfo().m_Duration*1000);
+    return (long long)(m_pDecoder->getVideoInfo().m_Duration*1000);
 }
 
 std::string SoundNode::getAudioCodec() const
@@ -110,7 +110,7 @@ int SoundNode::getNumAudioChannels() const
 long long SoundNode::getCurTime() const
 {
     exceptionIfUnloaded("getCurTime");
-    return long long(m_pDecoder->getCurTime(SS_AUDIO)*1000);
+    return (long long)(m_pDecoder->getCurTime(SS_AUDIO)*1000);
 }
 
 void SoundNode::seekToTime(long long Time)
