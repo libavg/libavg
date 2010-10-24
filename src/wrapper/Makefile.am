@@ -6,7 +6,7 @@ ALL_H = WrapHelper.h raw_constructor.hpp
 
 if APPLE
     XGL_LIBS =
-    APPLE_LDFLAGS=-read_only_relocs suppress
+    APPLE_LDFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport 
 else
     XGL_LIBS = -lXxf86vm
     APPLE_LDFLAGS=
