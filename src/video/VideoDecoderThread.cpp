@@ -51,10 +51,11 @@ static ProfilingZoneID PushMsgProfilingZone("DecoderThread: push message");
 bool VideoDecoderThread::work() 
 {
     if (m_pDecoder->isEOF(SS_VIDEO)) {
-        if (!m_pDecoder->getVideoInfo().m_bHasAudio ||
-                m_pDecoder->isEOF(SS_AUDIO))
-        {
+        if (!m_pDecoder->getVideoInfo().m_bHasAudio) {
             m_pDecoder->seek(0);
+        } else {
+            // TODO: Replace this with waitForMessage()
+            msleep(10);
         }
     } else {
         ScopeTimer timer(DecoderProfilingZone);

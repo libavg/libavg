@@ -519,7 +519,8 @@ long long VideoNode::getNextFrameTime() const
                 }
                 long long nextFrameTime = Player::get()->getFrameTime()-m_StartTime
                         -m_PauseTime
-                        -(long long)(m_JitterCompensation*1000.0/Player::get()->getFramerate());
+                        -(long long)(m_JitterCompensation*1000.0/
+                                Player::get()->getFramerate());
                 if (nextFrameTime < 0) {
                     nextFrameTime = 0;
                 }
