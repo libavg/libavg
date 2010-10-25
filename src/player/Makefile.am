@@ -6,7 +6,7 @@ INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadEventSource.cpp
     XGL_LIBS =
-    APPLE_LINKFLAGS=-read_only_relocs suppress
+    APPLE_LINKFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport
 else
     APPLE_SOURCES =
     XGL_LIBS = -lXxf86vm
