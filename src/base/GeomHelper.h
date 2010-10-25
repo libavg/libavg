@@ -29,7 +29,7 @@
 
 namespace avg {
 
-struct DLineSegment {
+struct AVG_API DLineSegment {
 public:
     DLineSegment(const DPoint& pt0, const DPoint& pt1);
     DPoint p0;
@@ -38,11 +38,11 @@ public:
     bool isPointOver(const DPoint& pt);
 };
 
-bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1);
+bool AVG_API lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1);
 
-bool pointInPolygon(const DPoint& pt, const std::vector<DPoint>& poly); 
+bool AVG_API pointInPolygon(const DPoint& pt, const std::vector<DPoint>& poly); 
 
-DPoint getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
+DPoint AVG_API getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
         const DPoint& v2);
 
 }
