@@ -69,7 +69,7 @@ class AVG_API WordsNode : public RasterNode
         void setColor(const std::string& sColor);
         
         double getFontSize() const;
-        void setFontSize(double Size);
+        void setFontSize(double size);
         
         int getIndent() const;
         void setIndent(int indent);

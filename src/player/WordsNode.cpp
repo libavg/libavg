@@ -321,9 +321,12 @@ double WordsNode::getFontSize() const
     return m_FontSize;
 }
 
-void WordsNode::setFontSize(double Size)
+void WordsNode::setFontSize(double size)
 {
-    m_FontSize = Size;
+    if (size <= 1) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Words node: Font size < 1 is illegal.");
+    } 
+    m_FontSize = size;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
