@@ -136,7 +136,6 @@ class AVGApp(object):
 
         if cls.fakeFullscreen and cls.avg_deploy is not None:
             if g_WIN32:
-                cls.avg_deploy = None
                 g_Player.setTimeout(1000,cls.__fakeFullscreen)
             else:
                 g_Log.trace(g_Log.ERROR, 'fakeFullscreen works only on Windows')           

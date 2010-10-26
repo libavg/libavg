@@ -243,8 +243,14 @@ class AVGAppStarter(object):
                 parent=rootNode)
 
         g_player.showCursor(testMode)
+
+        if self._AppClass.fakeFullscreen:
+            fullscreen = False
+        else:
+            fullscreen = not testMode
+
         g_player.setResolution(
-                not testMode, # fullscreen
+                fullscreen,
                 int(debugWindowSize.x), int(debugWindowSize.y),
                 0 # color depth
                 )
