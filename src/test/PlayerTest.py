@@ -584,6 +584,7 @@ class PlayerTestCase(AVGTestCase):
         self.start(None, 
                 [None, None])
 
+    # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
         def revertWindowFrame():
             Player.setWindowFrame(True)
@@ -616,7 +617,7 @@ def playerTestSuite(tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
-            "testWindowFrame",
+#            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)
 
