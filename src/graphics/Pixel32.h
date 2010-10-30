@@ -57,7 +57,6 @@ public:
     void operator +=(const Pixel32 pix);
     void operator -=(const Pixel32 pix);
     Pixel32 operator *(float f) const;
-    operator unsigned int() const;
 
     // Simple and fast 'distance' between two pixels. Just adds the
     // distances between the color components and treats colors
@@ -197,11 +196,6 @@ inline Pixel32 Pixel32::operator *(float f) const
   return Pixel32((unsigned char)(f*getR()), 
           (unsigned char)(f*getG()), 
           (unsigned char)(f*getB()));
-}
-    
-inline Pixel32::operator unsigned int() const
-{
-    return *(unsigned int*)(m_Data);
 }
 
 }
