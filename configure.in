@@ -19,7 +19,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
-CXXFLAGS="-Wno-invalid-offsetof -msse2 -Wall $CXXFLAGS"
+CXXFLAGS="-Wno-invalid-offsetof -msse2 -Wall -D__STDC_CONSTANT_MACROS $CXXFLAGS"
 CFLAGS="-msse2 $CFLAGS"
 OBJC="gcc"
 OBJCFLAGS=""
