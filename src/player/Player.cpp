@@ -46,6 +46,7 @@
 #include "TrackerEventSource.h"
 #include "SDLDisplayEngine.h"
 #include "MultitouchEventSource.h"
+#include "TUIOEventSource.h"
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
 #endif
@@ -629,6 +630,7 @@ TrackerEventSource * Player::getTracker()
 
 void Player::enableMultitouch()
 {
+//    m_pMultitouchEventSource = new TUIOEventSource;
 #ifdef __APPLE__
     m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #else

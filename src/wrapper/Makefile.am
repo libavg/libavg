@@ -24,12 +24,13 @@ avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker $(BOOST_PYTHON_LIBS) \
         @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ @PTHREAD_LIBS@
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la \
-				../audio/libaudio.la \
-				../video/libvideo.la \
-				../graphics/libgraphics.la \
-				../base/libbase.la \
+                ../audio/libaudio.la \
+                ../video/libvideo.la \
+                ../graphics/libgraphics.la \
+                ../base/libbase.la \
                 ../imaging/libimaging.la \
-				../parport/libparport.la \
-				../anim/libanim.la \
-                ../lmfit/liblmfit.la
+                ../parport/libparport.la \
+                ../anim/libanim.la \
+                ../lmfit/liblmfit.la \
+                ../oscpack/liboscpack.la
 pkgpyexec_PYTHON = __init__.py

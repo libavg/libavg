@@ -30,7 +30,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         TouchEvent.h TouchStatus.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
-        NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h \
+        NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOEventSource.h \
         $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -50,7 +50,7 @@ checktracker_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
 testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        ../lmfit/liblmfit.la
+        ../lmfit/liblmfit.la  ../oscpack/liboscpack.la
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ \
@@ -59,7 +59,7 @@ testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        ../lmfit/liblmfit.la
+        ../lmfit/liblmfit.la ../oscpack/liboscpack.la
 testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
@@ -75,7 +75,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
-        TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp \
+        TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOEventSource.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
         $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
