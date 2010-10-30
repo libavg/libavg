@@ -28,6 +28,9 @@
 #ifdef _WIN32
 #define EMULATE_INTTYPES
 #else
+#define __STDC_CONSTANT_MACROS
+/*
+// XXX Do we still need this?
 // This is probably GCC-specific.
 #if !defined INT64_C
 #if defined __WORDSIZE && __WORDSIZE == 64
@@ -36,6 +39,7 @@
 #define INT64_C(c) c ## LL
 #endif
 #endif
+*/
 #endif
 
 extern "C" {
