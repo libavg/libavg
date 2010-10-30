@@ -182,6 +182,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
             pCamera = CameraPtr(new CMUCamera(guid, bFW800, captureSize, camPF, destPF, 
                     frameRate));
 #else
+            guid = 0; // Silence compiler warning
             AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
                     "support not compiled in.");
 #endif
