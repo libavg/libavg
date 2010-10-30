@@ -31,8 +31,6 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
-#include <CoreFoundation/CoreFoundation.h>
-
 using namespace std;
 using namespace osc;
 
