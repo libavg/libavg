@@ -220,6 +220,10 @@ void FBO::init()
                 GL_RGBA8, m_Size.x, m_Size.y);
         GLenum err = glGetError();
         if (err == GL_INVALID_VALUE) {
+            glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+            glproc::DeleteFramebuffers(1, &m_FBO);
+            glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
+            m_pOutputPBO = PBOPtr();
             throw(Exception(AVG_ERR_UNSUPPORTED, 
                     string("Unsupported value for number of multisample samples (")
                     + toString(m_MultisampleSamples) + ")."));

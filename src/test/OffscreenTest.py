@@ -130,7 +130,8 @@ class OffscreenTestCase(AVGTestCase):
         # Duplicate canvas id
         Player.loadCanvasString("""<canvas id="foo" size="(160, 120)"/>""")
         self.assertException(
-                lambda: Player.loadCanvasString("""<canvas id="foo" size="(160, 120)"/>"""))
+                lambda: Player.loadCanvasString(
+                        """<canvas id="foo" size="(160, 120)"/>"""))
 
     def testCanvasAPI(self):
         def checkMainScreenshot():

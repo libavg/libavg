@@ -62,8 +62,10 @@ ImageNode::ImageNode(const ArgList& args)
 
 ImageNode::~ImageNode()
 {
-    // disconnect(true) should have been called by now.
-    AVG_ASSERT(!m_pImage->getCanvas());
+    // XXX: The following assert checks that disconnect(true) has been called.
+    // However, if connect() has been called but rendering never started, 
+    // disconnect isn't called either.
+//    AVG_ASSERT(!m_pImage->getCanvas());
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
