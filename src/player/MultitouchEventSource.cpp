@@ -98,7 +98,7 @@ void MultitouchEventSource::getDeadIDs(const set<int>& liveIDs, set<int>& deadID
     map<int, TouchStatusPtr>::iterator it;
     for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
         int id = it->first;
-        set<int>::iterator foundIt = liveIDs.find(id);
+        set<int>::const_iterator foundIt = liveIDs.find(id);
         if (foundIt == liveIDs.end()) {
             deadIDs.insert(id);
         }

@@ -29,6 +29,10 @@
 #include "../oscpack/OscReceivedElements.h"
 #include "../oscpack/OscPrintReceivedElements.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <set>
 
 namespace avg {
@@ -47,7 +51,7 @@ private:
 #ifndef WIN32
     static void* threadFunc(void* p);
 #else
-    static DWORD WINAPI threadFunc(LPVOID* p);
+    static DWORD WINAPI threadFunc(LPVOID p);
 #endif
     void processBundle(const osc::ReceivedBundle& bundle, 
             const IpEndpointName& remoteEndpoint);

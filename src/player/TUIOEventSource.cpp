@@ -37,6 +37,17 @@ using namespace osc;
 
 namespace avg {
 
+#ifndef WIN32
+void* TUIOEventSource::threadFunc(void* p)
+#else
+DWORD WINAPI TUIOEventSource::threadFunc(LPVOID p)
+#endif
+{
+    TUIOEventSource* pThis = (TUIOEventSource*)p;
+    pThis->m_pSocket->Run();
+    return 0;
+};
+
 TUIOEventSource::TUIOEventSource()
     : m_LastID(0)
 {
@@ -175,21 +186,10 @@ TouchEventPtr TUIOEventSource::createEvent(int id, Event::Type type, DPoint pos,
         DPoint speed)
 {
     DPoint size = getWindowSize();
-    IntPoint screenPos(pos.x*size.x, pos.y*size.y);
-    DPoint screenSpeed(speed.x*size.x, speed.y*size.y);
+    IntPoint screenPos(int(pos.x*size.x+0.5), int(pos.y*size.y+0.5));
+    DPoint screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
     return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH, screenSpeed, 
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
 }
-
-#ifndef WIN32
-void* TUIOEventSource::threadFunc(void* p)
-#else
-DWORD WINAPI TUIOEventSource::threadFunc(LPVOID* p)
-#endif
-{
-    TUIOEventSource* pThis = (TUIOEventSource*)p;
-    pThis->m_pSocket->Run();
-    return 0;
-};
 
 }

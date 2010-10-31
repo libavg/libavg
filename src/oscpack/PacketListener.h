@@ -30,10 +30,11 @@
 #ifndef INCLUDED_PACKETLISTENER_H
 #define INCLUDED_PACKETLISTENER_H
 
+#include "../api.h"
 
 class IpEndpointName;
 
-class PacketListener{
+class AVG_API PacketListener{
 public:
     virtual ~PacketListener() {}
     virtual void ProcessPacket( const char *data, int size, 
