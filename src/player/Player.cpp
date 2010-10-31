@@ -630,18 +630,22 @@ TrackerEventSource * Player::getTracker()
 
 void Player::enableMultitouch()
 {
-    m_pMultitouchEventSource = new TUIOEventSource;
-/*    
-#ifdef __APPLE__
-    m_pMultitouchEventSource = new AppleTrackpadEventSource;
-#else
+    string sDriver("TUIO");
+    bool bFound = getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
+    if (sDriver == "TUIO") {
+        m_pMultitouchEventSource = new TUIOEventSource;
 #if defined(_WIN32) && defined(SM_DIGITIZER)
-    m_pMultitouchEventSource = new Win7TouchEventSource;
-#else
-    throw Exception(AVG_ERR_UNSUPPORTED, "Multitouch not supported on this os.");
+    } else if (sDriver == "WIN7TOUCH") {
+        m_pMultitouchEventSource = new Win7TouchEventSource;
 #endif
+#ifdef __APPLE__
+    } else if (sDriver == "APPLETRACKPAD") {
+        m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #endif
-*/    
+    } else {
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
+                sDriver +"'.");
+    }
     addEventSource(m_pMultitouchEventSource);
     if (m_bIsPlaying) {
         m_pMultitouchEventSource->start();
