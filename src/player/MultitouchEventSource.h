@@ -28,6 +28,7 @@
 
 #include <boost/thread.hpp>
 #include <map>
+#include <set>
 
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
@@ -49,8 +50,11 @@ public:
 
 protected:
     const DPoint& getWindowSize() const;
+    // Note that the id used here is not the libavg cursor id but a touch-driver-specific
+    // id handed up from the driver level.
     TouchStatusPtr getTouchStatus(int id);
     void addTouchStatus(int id, TouchEventPtr pInitialEvent);
+    void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
     boost::mutex& getMutex();
 
 private:

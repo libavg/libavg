@@ -28,6 +28,7 @@
 #include "TouchStatus.h"
 
 #include "../base/Logger.h"
+#include "../base/Point.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
@@ -43,6 +44,9 @@ TUIOEventSource::TUIOEventSource()
 
 TUIOEventSource::~TUIOEventSource()
 {
+    if (m_pSocket) {
+        m_pSocket->Break();
+    }
 }
 
 void TUIOEventSource::start()
@@ -70,7 +74,7 @@ void TUIOEventSource::start()
 void TUIOEventSource::ProcessPacket(const char* pData, int size, 
         const IpEndpointName& remoteEndpoint)
 {
-    cerr << *pData << endl;
+    boost::mutex::scoped_lock lock(getMutex());
     try {
         ReceivedPacket packet(pData, size);
         if (packet.IsBundle()) {
@@ -79,7 +83,7 @@ void TUIOEventSource::ProcessPacket(const char* pData, int size,
             processMessage(ReceivedMessage(packet), remoteEndpoint);
         }
     } catch (MalformedBundleException& e) {
-        std::cerr << "malformed OSC bundle: " << e.what() << std::endl;
+        cerr << "malformed OSC bundle: " << e.what() << endl;
     }
 }
 
@@ -100,7 +104,81 @@ void TUIOEventSource::processBundle(const ReceivedBundle& bundle,
 void TUIOEventSource::processMessage(const ReceivedMessage& msg, 
         const IpEndpointName& remoteEndpoint) 
 {
-    cerr << msg << endl;
+//    cerr << msg << endl;
+    ReceivedMessageArgumentStream args = msg.ArgumentStream();
+    ReceivedMessage::const_iterator arg = msg.ArgumentsBegin();
+
+    if (strcmp(msg.AddressPattern(), "/tuio/2Dcur") == 0) {
+        const char* cmd;
+        args >> cmd;
+
+        if (strcmp(cmd,"set")==0) { 
+            processSet(args);
+        } else if (strcmp(cmd,"alive")==0) {
+            processAlive(args);
+        } else if (strcmp(cmd, "fseq") == 0 ) {
+            int32 fseq;
+            args >> fseq;
+        } 
+    }
+    // TODO: Catch exceptions here - otherwise wrong osc arg types cause a crash.
+}
+
+void TUIOEventSource::processSet(ReceivedMessageArgumentStream& args)
+{
+    osc::int32 tuioID;
+    float xpos, ypos;
+    float xspeed, yspeed;
+    float accel;
+    args >> tuioID >> xpos >> ypos >> xspeed >> yspeed >> accel;
+    DPoint pos(xpos, ypos);
+    DPoint speed(xspeed, yspeed);
+//    cerr << "Set: ID: " << tuioID << ", pos: " << pos << ", speed: " << speed 
+//        << ", accel: " << accel << endl;
+    TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
+    if (!pTouchStatus) {
+        // Down
+        m_LastID++;
+        TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos, speed); 
+        addTouchStatus((long)tuioID, pEvent);
+    } else {
+        // Move
+        TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos, speed); 
+        pTouchStatus->updateEvent(pEvent);
+    }
+}
+
+void TUIOEventSource::processAlive(ReceivedMessageArgumentStream& args)
+{
+    m_LiveTUIOIDs.clear();
+    int32 tuioID;
+    while (!args.Eos()) {
+        args >> tuioID;
+        m_LiveTUIOIDs.insert(tuioID);
+    }
+
+    // Create up events for all ids not in live list.
+    set<int> deadTUIOIDs;
+    getDeadIDs(m_LiveTUIOIDs, deadTUIOIDs);
+    set<int>::iterator it;
+    for (it = deadTUIOIDs.begin(); it != deadTUIOIDs.end(); ++it) {
+        int id = *it;
+        TouchStatusPtr pTouchStatus = getTouchStatus(id);
+        TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
+        TouchEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
+                pOldEvent->cloneAs(Event::CURSORUP));
+        pTouchStatus->updateEvent(pUpEvent);
+    }
+}
+
+TouchEventPtr TUIOEventSource::createEvent(int id, Event::Type type, DPoint pos,
+        DPoint speed)
+{
+    DPoint size = getWindowSize();
+    IntPoint screenPos(pos.x*size.x, pos.y*size.y);
+    DPoint screenSpeed(speed.x*size.x, speed.y*size.y);
+    return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH, screenSpeed, 
+            0, 20, 1, DPoint(5,0), DPoint(0,5)));
 }
 
 #ifndef WIN32

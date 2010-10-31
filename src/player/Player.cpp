@@ -630,7 +630,8 @@ TrackerEventSource * Player::getTracker()
 
 void Player::enableMultitouch()
 {
-//    m_pMultitouchEventSource = new TUIOEventSource;
+    m_pMultitouchEventSource = new TUIOEventSource;
+/*    
 #ifdef __APPLE__
     m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #else
@@ -640,6 +641,7 @@ void Player::enableMultitouch()
     throw Exception(AVG_ERR_UNSUPPORTED, "Multitouch not supported on this os.");
 #endif
 #endif
+*/    
     addEventSource(m_pMultitouchEventSource);
     if (m_bIsPlaying) {
         m_pMultitouchEventSource->start();

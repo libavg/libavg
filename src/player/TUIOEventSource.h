@@ -29,6 +29,7 @@
 #include "../oscpack/OscReceivedElements.h"
 #include "../oscpack/OscPrintReceivedElements.h"
 
+#include <set>
 
 namespace avg {
 
@@ -52,9 +53,13 @@ private:
             const IpEndpointName& remoteEndpoint);
     void processMessage(const osc::ReceivedMessage& msg, 
         const IpEndpointName& remoteEndpoint);
+    void processSet(osc::ReceivedMessageArgumentStream& args);
+    void processAlive(osc::ReceivedMessageArgumentStream& args);
+    TouchEventPtr createEvent(int id, Event::Type type, DPoint pos, DPoint speed);
 
     UdpListeningReceiveSocket* m_pSocket;
     int m_LastID;
+    std::set<int> m_LiveTUIOIDs;
 #ifndef WIN32
     pthread_t m_Thread;
 #else

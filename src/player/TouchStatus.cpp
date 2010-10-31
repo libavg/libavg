@@ -30,6 +30,7 @@ TouchStatus::TouchStatus(TouchEventPtr pEvent)
       m_CursorID(pEvent->getCursorID())
 {
     pEvent->setLastDownPos(IntPoint(pEvent->getPos()));
+    m_pLastEvent = m_pEvent;
 }
 
 TouchStatus::~TouchStatus()
@@ -48,6 +49,7 @@ bool TouchStatus::isFirstFrame()
 
 void TouchStatus::updateEvent(TouchEventPtr pEvent)
 {
+    AVG_ASSERT(pEvent);
     if (isFirstFrame()) {
         // Always send a cursordown event first.
         m_pEvent = boost::dynamic_pointer_cast<TouchEvent>(
@@ -63,7 +65,9 @@ void TouchStatus::updateEvent(TouchEventPtr pEvent)
     }
     m_pEvent->setCursorID(m_CursorID);
     m_pEvent->setLastDownPos(m_LastDownPos);
+    m_pLastEvent = m_pEvent;
 }
+
 
 TouchEventPtr TouchStatus::getEvent()
 {
@@ -78,6 +82,12 @@ TouchEventPtr TouchStatus::getEvent()
         m_pEvent = TouchEventPtr();
     }
     return pEvent;
+}
+
+TouchEventPtr TouchStatus::getLastEvent()
+{
+    AVG_ASSERT(m_pLastEvent);
+    return m_pLastEvent;
 }
 
 }

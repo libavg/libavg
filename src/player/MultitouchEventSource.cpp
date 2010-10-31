@@ -93,6 +93,18 @@ void MultitouchEventSource::addTouchStatus(int id, TouchEventPtr pInitialEvent)
     m_Touches[id] = pTouchStatus;
 }
     
+void MultitouchEventSource::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
+{
+    map<int, TouchStatusPtr>::iterator it;
+    for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
+        int id = it->first;
+        set<int>::iterator foundIt = liveIDs.find(id);
+        if (foundIt == liveIDs.end()) {
+            deadIDs.insert(id);
+        }
+    }
+}
+
 boost::mutex& MultitouchEventSource::getMutex()
 {
     return *m_pMutex;

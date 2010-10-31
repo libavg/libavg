@@ -36,10 +36,11 @@ public:
 
     void updateEvent(TouchEventPtr pEvent);
     TouchEventPtr getEvent();
-    Event::Type getEventType();
+    TouchEventPtr getLastEvent();
 
 private:
     TouchEventPtr m_pEvent;
+    TouchEventPtr m_pLastEvent;
     TouchEventPtr m_pUpEvent;
     bool m_bFirstFrame;
     IntPoint m_LastDownPos;
