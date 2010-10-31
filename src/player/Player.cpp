@@ -631,7 +631,7 @@ TrackerEventSource * Player::getTracker()
 void Player::enableMultitouch()
 {
     string sDriver("TUIO");
-    bool bFound = getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
+    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
     if (sDriver == "TUIO") {
         m_pMultitouchEventSource = new TUIOEventSource;
 #if defined(_WIN32) && defined(SM_DIGITIZER)

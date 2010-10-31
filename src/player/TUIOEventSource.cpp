@@ -94,21 +94,25 @@ void TUIOEventSource::ProcessPacket(const char* pData, int size,
             processMessage(ReceivedMessage(packet), remoteEndpoint);
         }
     } catch (MalformedBundleException& e) {
-        cerr << "malformed OSC bundle: " << e.what() << endl;
+        AVG_TRACE(Logger::WARNING, "Malformed OSC bundle received: " << e.what());
     }
 }
 
 void TUIOEventSource::processBundle(const ReceivedBundle& bundle, 
         const IpEndpointName& remoteEndpoint) 
 {
-    for (ReceivedBundle::const_iterator it = bundle.ElementsBegin(); 
-            it != bundle.ElementsEnd(); ++it) 
-    {
-        if (it->IsBundle()) {
-            processBundle(ReceivedBundle(*it), remoteEndpoint);
-        } else {
-            processMessage(ReceivedMessage(*it), remoteEndpoint);
+    try {
+        for (ReceivedBundle::const_iterator it = bundle.ElementsBegin(); 
+                it != bundle.ElementsEnd(); ++it) 
+        {
+            if (it->IsBundle()) {
+                processBundle(ReceivedBundle(*it), remoteEndpoint);
+            } else {
+                processMessage(ReceivedMessage(*it), remoteEndpoint);
+            }
         }
+    } catch (MalformedBundleException& e) {
+        AVG_TRACE(Logger::WARNING, "Malformed OSC bundle received: " << e.what());
     }
 }
 
@@ -116,23 +120,26 @@ void TUIOEventSource::processMessage(const ReceivedMessage& msg,
         const IpEndpointName& remoteEndpoint) 
 {
 //    cerr << msg << endl;
-    ReceivedMessageArgumentStream args = msg.ArgumentStream();
-    ReceivedMessage::const_iterator arg = msg.ArgumentsBegin();
+    try {
+        ReceivedMessageArgumentStream args = msg.ArgumentStream();
 
-    if (strcmp(msg.AddressPattern(), "/tuio/2Dcur") == 0) {
-        const char* cmd;
-        args >> cmd;
+        if (strcmp(msg.AddressPattern(), "/tuio/2Dcur") == 0) {
+            const char* cmd;
+            args >> cmd;
 
-        if (strcmp(cmd,"set")==0) { 
-            processSet(args);
-        } else if (strcmp(cmd,"alive")==0) {
-            processAlive(args);
-        } else if (strcmp(cmd, "fseq") == 0 ) {
-            int32 fseq;
-            args >> fseq;
-        } 
+            if (strcmp(cmd,"set")==0) { 
+                processSet(args);
+            } else if (strcmp(cmd,"alive")==0) {
+                processAlive(args);
+            } else if (strcmp(cmd, "fseq") == 0 ) {
+                int32 fseq;
+                args >> fseq;
+            } 
+        }
+    } catch (osc::Exception& e) {
+        AVG_TRACE(Logger::WARNING, "Error parsing TUIO message: " << e.what()
+                << ". Message was " << msg);
     }
-    // TODO: Catch exceptions here - otherwise wrong osc arg types cause a crash.
 }
 
 void TUIOEventSource::processSet(ReceivedMessageArgumentStream& args)
