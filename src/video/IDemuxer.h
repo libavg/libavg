@@ -28,7 +28,9 @@
 #ifdef _WIN32
 #define EMULATE_INTTYPES
 #else
+#ifndef __STDC_CONSTANT_MACROS
 #define __STDC_CONSTANT_MACROS
+#endif
 /*
 // XXX Do we still need this?
 // This is probably GCC-specific.
