@@ -167,9 +167,9 @@ void Blob::calcStats()
        Inertia = c_xx + c_yy
        Eccentricity = ...
        */
-    double c_xx = 0;
-    double c_yy =0;
-    double c_xy = 0;
+    double c_xx = 0;  // Variance in x direction
+    double c_yy =0;   // Variance in y direction
+    double c_xy = 0;  // Covariance
     double ll=0;
     double l1;
     double l2;
