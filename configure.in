@@ -1,12 +1,12 @@
 AC_PREREQ(2.53)
-AC_INIT(libavg, 1.0.0, uzadow@libavg.de)
+AC_INIT(libavg, 1.5.0.pre1, uzadow@libavg.de)
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 MAJOR_VERSION=1
-MINOR_VERSION=0
+MINOR_VERSION=5
 MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
 
@@ -70,13 +70,6 @@ if test -z "$BOOST_THREAD_LIB"; then
    AC_MSG_ERROR([boost.thread not found. Aborting.])
 fi
 
-#AC_CHECK_LIB(boost_thread, main, libboost_thread_installed=yes, , )
-#if test -z "$libboost_thread_installed"
-#then
-#    # TODO: Check for boost_thread_mt here.
-#    AC_MSG_ERROR([boost.thread not found. Aborting.])
-#fi
-    
 AC_ARG_ENABLE(dc1394,
               AC_HELP_STRING([--enable-dc1394], 
                     [compile support for firewire cameras]),

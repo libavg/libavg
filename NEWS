@@ -1,3 +1,38 @@
+
+libavg 1.5.0.pre1 - October 31, 2010
+
+  svn revision 5244 
+
+  Major New Features:
+    * Nodes can be constructed directly from python, making createNode unnecessary.
+    * Added support for rendering avg scenes to offscreen canvases.
+    * Added GPU-based effects framework and Blur, Shadow, Chromakey effects.
+    * Added multitouch driver model and support for Apple Magic Trackpads and TUIO 
+      devices.
+    * Support for flash videos with an alpha channel. Decoding is GPU-accellerated.
+
+  Other Changes:
+    * Added color controls (gamma, brightness, contrast) to all RasterNodes.
+    * Node constructors have a parent parameter which makes a following addChild 
+      redundant.
+    * Added Player.setEventHook().
+    * Added onscreen keyboard for touchscreens.
+    * WordsNode.getNumLines(), .getCharIndexFromPos(), .getTextAsDisplayed().
+    * DivNode.getEffectiveMediaDir().
+    * Clearer profiling that works for multiple threads.
+    * Added AVG_BREAK_ON_IMPORT and AVG_BREAK_ON_ASSERT env variables.
+    * Added AVG_DUMP_TEST_FRAMES env variable.
+    * Added Player.setWindowFrame().
+    * Added VideoNode.queuelength.
+    * Video stability & timing improvements.
+    * DivNode crop default is now false.
+    * Node class names are unified: All names end with 'Node': WordsNode, DivNode, etc.
+    * Added ImageNode.compression for 16 bpp texture support.
+    * Added avg_audioplayer.py.
+
+    * Various compiler compatibility fixes: Compiles with gcc 4.5 and VC++ 2010 now.
+    * Lots of bugfixes - see the bug tracker.
+
 libavg 1.0.0 - January 8, 2010
 
   svn revision 4489
