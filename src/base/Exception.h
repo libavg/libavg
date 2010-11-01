@@ -56,6 +56,7 @@
 #define AVG_ERR_CAMERA_NONFATAL 30
 #define AVG_ERR_DEPRECATED 31
 #define AVG_ERR_ASSERT_FAILED 32
+#define AVG_ERR_MT_INIT 33
 
 namespace avg {
  

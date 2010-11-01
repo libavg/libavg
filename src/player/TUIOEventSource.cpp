@@ -62,18 +62,21 @@ TUIOEventSource::~TUIOEventSource()
 
 void TUIOEventSource::start()
 {
+    int port = 3333;
     MultitouchEventSource::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
-                IpEndpointName::ANY_ADDRESS, 3333), this);
+                IpEndpointName::ANY_ADDRESS, port), this);
     } catch (std::exception &e) {
-        cerr << e.what() << endl;
-        throw;
+        throw Exception(AVG_ERR_MT_INIT, 
+                string("TUIO event source: Can't initialize networking. ") + e.what());
     }
     if (!m_pSocket->IsBound()) {
-        cerr << "socket not bound" << endl;
+        throw Exception(AVG_ERR_MT_INIT, "TUIO event source: Socket not bound.");
     }
-    cerr << "TUIOEventSource created" << endl;
+    AVG_TRACE(Logger::CONFIG, "TUIO multitouch event source created, listening on port "
+            << port);
+
 #ifndef WIN32
     pthread_create(&m_Thread, NULL, threadFunc, this);
 #else
