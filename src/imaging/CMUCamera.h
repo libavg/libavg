@@ -62,6 +62,7 @@ private:
     void enablePtGreyBayer();
     void checkCMUError(int code, int type, const std::string& sMsg) const;
     void checkCMUWarning(bool bOk, const std::string& sMsg) const;
+    std::string CMUErrorToString(int code);
 
     std::string m_sDevice;
     IntPoint m_Size;

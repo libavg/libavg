@@ -26,6 +26,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/TimeSource.h"
 
@@ -77,7 +78,11 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size,
 
     // Start capturing images
     err = m_pCamera->StartImageAcquisition();
-    AVG_ASSERT(err == CAM_SUCCESS);
+    if (err != CAM_SUCCESS) {
+        throw Exception(AVG_ERR_CAMERA_NONFATAL,
+                "CMUCamera: Could not start image acquisition. " +
+                CMUErrorToString(err));
+    }
 
     // Set camera features
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
@@ -127,7 +132,11 @@ BitmapPtr CMUCamera::getImage(bool bWait)
         AVG_ASSERT(rc == WAIT_OBJECT_0);
     }
     int rc2 = m_pCamera->AcquireImageEx(FALSE, NULL);
-    AVG_ASSERT(rc2 == CAM_SUCCESS);
+    if (rc2 != CAM_SUCCESS) {
+        throw Exception(AVG_ERR_CAMERA_NONFATAL,
+                "CMUCamera: Could not acquire image from camera. " +
+                CMUErrorToString(rc2));
+    }
     unsigned long captureBufferLength;
     unsigned char* pCaptureBuffer = m_pCamera->GetRawData(&captureBufferLength);
 
@@ -344,6 +353,32 @@ void CMUCamera::checkCMUWarning(bool bOk, const string& sMsg) const
 {
     if (!bOk) {
         AVG_TRACE(Logger::WARNING, sMsg);
+    }
+}
+
+string CMUCamera::CMUErrorToString(int code)
+{
+    if (code == CAM_ERROR) {
+        return "WinI/O returned: " + getWinErrMsg(GetLastError());
+    }
+    string msg = "1394Camera returned: ";
+    switch (code) {
+        case CAM_ERROR_UNSUPPORTED:
+            return msg + "CAM_ERROR_UNSUPPORTED.";
+        case CAM_ERROR_NOT_INITIALIZED:
+            return msg + "CAM_ERROR_NOT_INITIALIZED.";
+        case CAM_ERROR_INVALID_VIDEO_SETTINGS:
+            return msg + "CAM_ERROR_INVALID_VIDEO_SETTINGS.";
+        case CAM_ERROR_BUSY:
+            return msg + "CAM_ERROR_BUSY.";
+        case CAM_ERROR_INSUFFICIENT_RESOURCES:
+            return msg + "CAM_ERROR_INSUFFICIENT_RESOURCES.";
+        case CAM_ERROR_PARAM_OUT_OF_RANGE:
+            return msg + "CAM_ERROR_PARAM_OUT_OF_RANGE.";
+        case CAM_ERROR_FRAME_TIMEOUT:
+            return msg + "CAM_ERROR_FRAME_TIMEOUT.";
+        default:
+            return msg + "unknown error.";
     }
 }
 
