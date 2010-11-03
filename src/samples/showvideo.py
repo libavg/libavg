@@ -8,8 +8,6 @@ g_player = avg.Player.get()
 
 class VideoApp(AVGApp):
     def init(self):
-        g_player.enableMultitouch()
-        g_player.setFramerate(60)
         self.videoNode = VideoNode(
                 href=sys.argv[1],
                 parent=self._parentNode)
