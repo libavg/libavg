@@ -275,7 +275,7 @@ class VectorTestCase(AVGTestCase):
             return curve
         
         def changeCurve():
-            curve.strokewidth = 20
+            curve.strokewidth = 19
             curve.color="FFFF00"
         
         def moveCurve():
