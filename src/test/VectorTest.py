@@ -303,7 +303,7 @@ class VectorTestCase(AVGTestCase):
     def testTexturedCurve(self):
         def addCurve():
             curve = avg.CurveNode(pos1=(10.5, 10), pos2=(10.5, 80), pos3=(80.5, 80), 
-                 pos4=(80.5, 10), strokewidth=20, texhref="rgb24-64x64.png")
+                 pos4=(80.5, 10), strokewidth=19, texhref="rgb24-64x64.png")
             canvas.appendChild(curve)
             return curve
         
