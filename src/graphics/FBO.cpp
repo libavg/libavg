@@ -264,8 +264,10 @@ bool FBO::isFBOSupported()
 
 bool FBO::isMultisampleFBOSupported()
 {
+    int maxSamples;
+    glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
     return queryOGLExtension("GL_EXT_framebuffer_multisample") && 
-            queryOGLExtension("GL_EXT_framebuffer_blit");
+            queryOGLExtension("GL_EXT_framebuffer_blit") && maxSamples > 1;
 }
     
 bool FBO::isPackedDepthStencilSupported()
