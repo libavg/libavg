@@ -266,6 +266,12 @@ bool FBO::isMultisampleFBOSupported()
 {
     int maxSamples;
     glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
+    // For some reason, this fails on Linux/i945 and similar setups. Multisample
+    // FBO is broken anyway on these machines, so we just return false...
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        return false;
+    }
     return queryOGLExtension("GL_EXT_framebuffer_multisample") && 
             queryOGLExtension("GL_EXT_framebuffer_blit") && maxSamples > 1;
 }
