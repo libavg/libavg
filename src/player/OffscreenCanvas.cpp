@@ -212,6 +212,11 @@ unsigned OffscreenCanvas::getNumDependentCanvases() const
 
 bool OffscreenCanvas::isMultisampleSupported()
 {
+    if (!Player::get()->isPlaying()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "OffscreenCanvas::isMultisampleSupported(): Player.play() needs to be called before multisample support can be queried."));
+    }
+
     return FBO::isMultisampleFBOSupported();
 }
 

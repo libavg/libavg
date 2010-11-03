@@ -340,31 +340,38 @@ class OffscreenTestCase(AVGTestCase):
 
     def testCanvasMultisampling(self):
         def testIllegalSamples():
-            canvas = Player.loadCanvasString(
+            self.canvas = Player.loadCanvasString(
                     """<canvas id="brokencanvas" width="160" height="120" 
                             multisamplesamples="42"/>""")
 
         def screenshot():
-            bmp = canvas.screenshot()
+            bmp = self.canvas.screenshot()
             self.compareBitmapToFile(bmp, "testOffscreenMultisampleScreenshot", False)
 
+        def createCanvas():
+            if not(avg.OffscreenCanvas.isMultisampleSupported()):
+                print
+                print "Offscreen multisampling not supported - skipping test."
+                Player.stop()
+                return
+            self.canvas = Player.loadCanvasString("""
+                <canvas id="testcanvas" width="160" height="120" multisamplesamples="2">
+                    <image id="test1" href="rgb24-65x65.png" angle="0.1"/>
+                </canvas>
+            """)
+            self.assert_(self.canvas.multisamplesamples == 2)
+            node = avg.ImageNode(parent=Player.getRootNode(), 
+                    href="canvas:testcanvas")
+            
+
         mainCanvas = self.loadEmptyScene()
-        if not(avg.OffscreenCanvas.isMultisampleSupported()):
-            print "Offscreen multisampling not supported - skipping test."
-            return
-        canvas = Player.loadCanvasString("""
-            <canvas id="testcanvas" width="160" height="120" multisamplesamples="2">
-                <image id="test1" href="rgb24-65x65.png" angle="0.1"/>
-            </canvas>
-        """)
-        self.assert_(canvas.multisamplesamples == 2)
-        node = avg.ImageNode(parent=Player.getRootNode(), 
-                href="canvas:testcanvas")
         self.start(None,
-                (lambda: self.compareImage("testCanvasMultisample", False),
+                (createCanvas,
+                 lambda: self.compareImage("testCanvasMultisample", False),
                  screenshot,
                  lambda: self.assertException(testIllegalSamples),
                 ))
+        self.canvas = None
        
     def testCanvasMipmap(self):
         mainCanvas = self.loadEmptyScene()
