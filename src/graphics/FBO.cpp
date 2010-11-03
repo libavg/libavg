@@ -48,7 +48,13 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
     }
 
     for (unsigned i=0; i<numTextures; ++i) {
-        m_pTextures.push_back(GLTexturePtr(new GLTexture(size, pf, bMipmap)));
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
+        if (bMipmap) {
+            // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
+            // glGenerateMipmaps causes FBO creation to fail(?!).
+            pTex->generateMipmaps();
+        }
+        m_pTextures.push_back(pTex);
     }
     init();
 }

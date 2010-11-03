@@ -50,10 +50,12 @@ public:
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
+    bool hasMipmaps() const;
 
 private:
     IntPoint m_Size;
     PixelFormat m_pf;
+    bool m_bMipmap;
 
     unsigned m_TexID;
 };

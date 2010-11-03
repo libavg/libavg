@@ -100,6 +100,9 @@ void PBOTexture::download() const
     ScopeTimer Timer(TexSubImageProfilingZone);
     if (m_MemoryMode == MM_PBO) {
         m_pWritePBO->movePBOToTexture(m_pTex);
+        if (m_pTex->hasMipmaps()) {
+            m_pTex->generateMipmaps();
+        }
     } else {
         m_pTex->activate();
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);

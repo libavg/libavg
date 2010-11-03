@@ -28,8 +28,8 @@ namespace avg {
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode)
     : m_Size(size),
-      m_pf(pf)
-      
+      m_pf(pf),
+      m_bMipmap(bMipmap)
 {
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -41,10 +41,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glBindTexture()");
     if (bMipmap) {
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);    
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);    
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -78,6 +76,7 @@ void GLTexture::generateMipmaps()
 {
     activate();
     glproc::GenerateMipmap(GL_TEXTURE_2D);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::generateMipmaps()");
 }
 
 const IntPoint& GLTexture::getSize() const
@@ -171,6 +170,11 @@ int GLTexture::getGLInternalFormat() const
             AVG_ASSERT(false);
             return 0;
     }
+}
+
+bool GLTexture::hasMipmaps() const
+{
+    return m_bMipmap;
 }
 
 }
