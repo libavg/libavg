@@ -1,0 +1,70 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2008 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+#ifndef _LinuxMTEventSource_H_
+#define _LinuxMTEventSource_H_
+
+#include "../api.h"
+#include "MultitouchEventSource.h"
+
+#include "../base/Rect.h"
+
+#include <vector>
+#include <map>
+
+struct mtdev;
+
+namespace avg {
+
+class AVG_API LinuxMTEventSource: public MultitouchEventSource
+{
+public:
+    LinuxMTEventSource();
+    virtual ~LinuxMTEventSource();
+    virtual void start();
+
+    std::vector<EventPtr> pollEvents();
+    
+private:
+    TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
+
+    int m_DeviceFD;
+    int m_LastID;
+    mtdev* m_pMTDevice;
+    IntRect m_Dimensions;
+
+    struct TouchData
+    {
+        TouchData() { id = 0; }
+        int id;
+        bool bUp;
+        IntPoint pos;
+    };
+    std::map<int, TouchData> m_Slots;
+
+};
+
+typedef boost::shared_ptr<LinuxMTEventSource> LinuxMTEventSourcePtr;
+
+}
+
+#endif
+

@@ -3,6 +3,9 @@
 /* Enable firewire camera support v.2 */
 #undef AVG_ENABLE_1394_2
 
+/* Enable Linux kernel multitouch */
+#undef AVG_ENABLE_MTDEV
+
 /* Enable parallel port support */
 #undef AVG_ENABLE_PARPORT
 

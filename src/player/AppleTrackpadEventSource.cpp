@@ -18,8 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is igor@c-base.org
-//
 
 #include "AppleTrackpadEventSource.h"
 #include "TouchEvent.h"

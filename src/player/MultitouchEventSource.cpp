@@ -55,7 +55,9 @@ vector<EventPtr> MultitouchEventSource::pollEvents()
 
     vector<EventPtr> events;
     map<int, TouchStatusPtr>::iterator it;
+//    cerr << "--------poll---------" << endl;
     for (it = m_Touches.begin(); it != m_Touches.end(); ) {
+//        cerr << it->first << " ";
         TouchStatusPtr pTouchStatus = it->second;
         TouchEventPtr pEvent = pTouchStatus->getEvent();
         if (pEvent) {
@@ -69,6 +71,7 @@ vector<EventPtr> MultitouchEventSource::pollEvents()
             ++it;
         }
     }
+//    cerr << endl;
     return events;
 }
 

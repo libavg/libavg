@@ -53,7 +53,9 @@
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     #include "Win7TouchEventSource.h"
 #endif
-
+#ifdef AVG_ENABLE_MTDEV
+    #include "LinuxMTEventSource.h"
+#endif
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/OSHelper.h"
@@ -637,6 +639,10 @@ void Player::enableMultitouch()
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
         m_pMultitouchEventSource = new Win7TouchEventSource;
+#endif
+#ifdef AVG_ENABLE_MTDEV
+    } else if (sDriver == "LINUXMT") {
+        m_pMultitouchEventSource = new LinuxMTEventSource;
 #endif
 #ifdef __APPLE__
     } else if (sDriver == "APPLETRACKPAD") {
