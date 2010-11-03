@@ -38,6 +38,7 @@
 
 extern "C" {
 #include <mtdev.h>
+#include <mtdev-mapping.h>
 }
 
 using namespace std;
