@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=1.0.0
+export VERSION=1.5.0-pre2
 
 fixLib()
 {
@@ -55,16 +55,11 @@ makeOneDist()
 
     
     cd $LIBAVGDIR/src/video/testfiles/
-    cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 ${AVG_PATH}/dist/libavg/avg/video/testfiles
+    cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 *.flv ${AVG_PATH}/dist/libavg/avg/video/testfiles
 
     cd $LIBAVGDIR/../bindist
     rm -rf *
-    if [[ "${OSXVERSION}" == "10.6" ]]
-    then
-        cp $AVG_PATH/bin/avg_* .
-    else
-        cp /usr/local/bin/avg_* .
-    fi
+    cp /usr/local/bin/avg_* .
 }
 
 if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
@@ -81,7 +76,7 @@ if [[ "${DARWINMAJORVER}" == "10" ]]
 then
     PYTHONVERSION=2.6
     OSXVERSION=10.6
-    BUILDDIR=${AVG_PATH}/lib/python2.6/
+    BUILDDIR=/usr/local/lib/python2.6/
 else
     PYTHONVERSION=2.5
     OSXVERSION=10.5

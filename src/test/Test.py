@@ -49,10 +49,13 @@ if platform.system() != 'Windows':
             print 'Cleaning up old test package'
             shutil.rmtree(g_TempPackageDir)
         
-        # We're running make check / manual tests
-        symtree('../python', 'libavg')
-        # os.system('cp -r ../python libavg')
-        os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
+        try:
+            # We're running make check / manual tests
+            symtree('../python', 'libavg')
+            # os.system('cp -r ../python libavg')
+            os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
+        except OSError:
+            pass
     else:
         # make distcheck
         symtree('../../../../src/python', 'libavg')
@@ -65,13 +68,15 @@ if platform.system() != 'Windows':
     # with an unknown version of libavg, which can be hiding somewhere
     # in the system
     import libavg
+    libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
+            os.path.dirname(libavg.__file__))
 
     cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
     
-    if cpfx != os.getcwd():
-        raise RuntimeError(
-            'Tests would be performed with a non-local libavg package (%s)'
-            % libavg.__file__)
+#    if cpfx != os.getcwd():
+#        raise RuntimeError(
+#            'Tests would be performed with a non-local libavg package (%s)'
+#            % libavg.__file__)
 
 srcDir = os.getenv("srcdir",".")
 os.chdir(srcDir)
