@@ -314,6 +314,7 @@ void CMUCamera::internalGetFeature(CameraFeature Feature, unsigned short* val1,
     CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
     if (m_pCamera->HasFeature(cmuFeature)) {
         C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
+        pControl->Status();
         pControl->GetValue(val1, val2);
     } else {
         AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
