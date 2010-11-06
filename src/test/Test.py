@@ -22,7 +22,6 @@
 
 import sys
 import os
-import platform
 import shutil
 
 
@@ -39,7 +38,7 @@ def symtree(src, dest):
                 os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
         
-if platform.system() != 'Windows':
+if sys.platform != 'win32':
     g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
     if os.getenv('srcdir') in ('.', None):
         if os.path.basename(os.getcwd()) != 'test':
