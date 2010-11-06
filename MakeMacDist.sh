@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=1.5.0-pre2
+export VERSION=1.5.0
 
 fixLib()
 {
@@ -40,7 +40,7 @@ makeOneDist()
     mkdir etc
     cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
-    cp -Rv Test.sh *.py *.avg *.png *.jpg *.tif ${AVG_PATH}/dist/libavg/avg/test
+    cp -Rv *.py *.avg *.png *.jpg *.tif ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
     cp baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
     mkdir ${AVG_PATH}/dist/libavg/avg/test/testmediadir
