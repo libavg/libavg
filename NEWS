@@ -1,6 +1,6 @@
-libavg 1.5.0.pre3 - November 4, 2010
+libavg 1.5.0 - November 6, 2010
 
-  svn revision 5267
+  svn revision 5270
 
   Major New Features:
     * Nodes can be constructed directly from python, making createNode unnecessary.
@@ -31,6 +31,10 @@ libavg 1.5.0.pre3 - November 4, 2010
 
     * Various compiler compatibility fixes: Compiles with gcc 4.5 and VC++ 2010 now.
     * Lots of bugfixes - see the bug tracker.
+
+libavg 1.5.0.pre3 - November 4, 2010
+
+  svn revision 5267
 
 libavg 1.5.0.pre2 - November 3, 2010
 
