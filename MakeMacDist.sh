@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=1.5.0
+export VERSION=1.5.1
 
 fixLib()
 {
