@@ -32,6 +32,8 @@ struct AVG_API DisplayParams {
     DisplayParams();
     virtual ~DisplayParams();
 
+    void dump() const;
+
     IntPoint m_Pos;
     IntPoint m_Size;
     bool m_bFullscreen;

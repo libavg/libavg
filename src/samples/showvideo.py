@@ -13,4 +13,4 @@ class VideoApp(AVGApp):
                 parent=self._parentNode)
         self.videoNode.play()
         
-VideoApp.start(resolution=(1440, 900), debugWindowSize=(720, 450))
+VideoApp.start(resolution=(1920, 1080), debugWindowSize=(720, 450))

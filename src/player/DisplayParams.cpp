@@ -22,6 +22,10 @@
 
 #include "../base/ObjectCounter.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 DisplayParams::DisplayParams()
@@ -44,6 +48,20 @@ DisplayParams::DisplayParams()
 DisplayParams::~DisplayParams()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void DisplayParams::dump() const
+{
+    cerr << "DisplayParams: " << endl;
+    cerr << "  pos: " << m_Pos << endl;
+    cerr << "  size: " << m_Size << endl;
+    cerr << "  fullscreen: " << m_bFullscreen << endl;
+    cerr << "  bpp: " << m_BPP << endl;
+    cerr << "  window size: " << m_WindowSize << endl;
+    cerr << "  show cursor: " << m_bShowCursor << endl;
+    cerr << "  vbrate: " << m_VBRate << endl;
+    cerr << "  framerate: " << m_Framerate << endl;
+    cerr << "  has window frame: " << m_bHasWindowFrame << endl;
 }
 
 }
