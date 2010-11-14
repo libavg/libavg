@@ -1,3 +1,9 @@
+libavg 1.5.1 - November 14, 2010 (Mac only)
+
+  svn revision 5275
+
+  Fixed bug that caused fullscreen apps to crash on the mac (Bug # 162).
+
 libavg 1.5.0 - November 6, 2010
 
   svn revision 5270
