@@ -395,6 +395,9 @@ BOOST_PYTHON_MODULE(avg)
                 "Set a callable which will receive all events passing\n"
                 "through Player events' sink. If the function returns True,\n"
                 "the event is not propagated to the underlying listeners.\n"
+                "Note that event.node is not set in the callback, since the\n"
+                "system hasn't determined the node to send the event to at that\n"
+                "point.\n"
                 "@param pyfunc: a python callable\n")
         .def("getEventHook", &Player::getEventHook,
                 "pyfunc = getEventHook()\n"
