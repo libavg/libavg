@@ -159,13 +159,17 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 m_pTextures[3]->activate(GL_TEXTURE3);
                 pShader->setUniformIntParam("aTexture", 3);
             }
+        }
+        if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
             Matrix3x4 mat = calcColorspaceMatrix();
-            pShader->setUniformMatrix3x4Param("colorCoeff", mat);
-        } else {
-            if (colorIsModified()) {
-                Matrix3x4 mat = calcColorspaceMatrix();
-                pShader->setUniformMatrix3x4Param("colorCoeff", mat);
-            }
+            pShader->setUniformVec4fParam("colorCoeff0", 
+                    mat.val[0][0], mat.val[1][0], mat.val[2][0], 0);
+            pShader->setUniformVec4fParam("colorCoeff1", 
+                    mat.val[0][1], mat.val[1][1], mat.val[2][1], 0);
+            pShader->setUniformVec4fParam("colorCoeff2", 
+                    mat.val[0][2], mat.val[1][2], mat.val[2][2], 0);
+            pShader->setUniformVec4fParam("colorCoeff3", 
+                    mat.val[0][3], mat.val[1][3], mat.val[2][3], 1);
         }
 
         pShader->setUniformVec4fParam("gamma", float(1/m_Gamma.x), float(1/m_Gamma.y), 
@@ -344,14 +348,17 @@ void OGLSurface::createShader()
         "uniform sampler2D aTexture;\n"
         "uniform sampler2D maskTexture;\n"
         "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale, 3=yuva\n"
-        "uniform mat4 colorCoeff;\n"
+        "uniform vec4 colorCoeff0;\n"
+        "uniform vec4 colorCoeff1;\n"
+        "uniform vec4 colorCoeff2;\n"
+        "uniform vec4 colorCoeff3;\n"
         "uniform bool bUseColorCoeff;\n"
         "uniform vec4 gamma;\n"
         "uniform bool bUseMask;\n"
         "uniform vec2 maskPos;\n"
         "uniform vec2 maskSize;\n"
         "\n"
-        "vec4 convertYCbCr()\n"
+        "vec4 convertYCbCr(mat4 colorCoeff)\n"
         "{\n"
         "    vec4 yuv;\n"
         "    yuv = vec4(texture2D(texture, gl_TexCoord[0].st).r,\n"
@@ -366,6 +373,11 @@ void OGLSurface::createShader()
         "void main(void)\n"
         "{\n"
         "    vec4 rgba;\n"
+        "    mat4 colorCoeff;\n"
+        "    colorCoeff[0] = colorCoeff0;\n"
+        "    colorCoeff[1] = colorCoeff1;\n"
+        "    colorCoeff[2] = colorCoeff2;\n"
+        "    colorCoeff[3] = colorCoeff3;\n"
         "    if (colorModel == 0) {\n"
         "        rgba = texture2D(texture, gl_TexCoord[0].st);\n"
         "        if (bUseColorCoeff) {\n"
@@ -373,7 +385,7 @@ void OGLSurface::createShader()
         "        };\n"
         "        rgba.a *= gl_Color.a;\n"
         "    } else if (colorModel == 1) {\n"
-        "        rgba = convertYCbCr();\n"
+        "        rgba = convertYCbCr(colorCoeff);\n"
         "    } else if (colorModel == 2) {\n"
         "        rgba = gl_Color;\n"
         "        if (bUseColorCoeff) {\n"
@@ -381,7 +393,7 @@ void OGLSurface::createShader()
         "        };\n"
         "        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;\n"
         "    } else if (colorModel == 3) {\n"
-        "        rgba = convertYCbCr();\n"
+        "        rgba = convertYCbCr(colorCoeff);\n"
         "        rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;\n"
         "    } else {\n"
         "        rgba = vec4(1,1,1,1);\n"

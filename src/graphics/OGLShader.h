@@ -51,7 +51,6 @@ class AVG_API OGLShader {
         void setUniformColorParam(const std::string& sName, Pixel32 col);
         void setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
                 float w);
-        void setUniformMatrix3x4Param(const std::string& sName, const Matrix3x4& mat);
 
     private:
         OGLShader(std::string sProgram);
