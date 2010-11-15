@@ -142,19 +142,8 @@ struct Triple_to_python_tuple
     }
 };
 
-
-struct check_tuple_convertible
-{
-    static void* convertible(PyObject* obj_ptr)
-    {
-        if (!PyTuple_Check(obj_ptr)) return 0;
-        return obj_ptr;
-    }
-};
-
-
 template<class POINT, class ATTR>
-struct DPoint_from_python_tuple: public check_tuple_convertible
+struct DPoint_from_python_tuple
 {
     DPoint_from_python_tuple() 
     {
@@ -162,6 +151,17 @@ struct DPoint_from_python_tuple: public check_tuple_convertible
                 &convertible, &construct, boost::python::type_id<POINT>());
     }
     
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) {
+            return 0;
+        }
+        if (PyTuple_Size(obj_ptr) != 2) {
+            return 0;
+        }
+        return obj_ptr;
+    }
+
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
@@ -179,7 +179,7 @@ struct DPoint_from_python_tuple: public check_tuple_convertible
 };
 
 template<class NUM>
-struct Triple_from_python_tuple: public check_tuple_convertible
+struct Triple_from_python_tuple
 {
     Triple_from_python_tuple() 
     {
@@ -187,6 +187,17 @@ struct Triple_from_python_tuple: public check_tuple_convertible
                 &convertible, &construct, boost::python::type_id<Triple<NUM> >());
     }
     
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) {
+            return 0;
+        }
+        if (PyTuple_Size(obj_ptr) != 3) {
+            return 0;
+        }
+        return obj_ptr;
+    }
+
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
