@@ -52,13 +52,8 @@ BOOST_PYTHON_MODULE(avg)
 {
     docstring_options doc_options(true, false);
 
-    scope().attr("__doc__") =
-        "The main libavg module.\n"
-        "G{classtree Node}\n\n"
-        "G{classtree Bitmap}\n\n"
-        "G{classtree Tracker TrackerCalibrator}\n\n"
-        "G{classtree Logger}\n\n"
-        "G{classtree ConradRelais ParPort}";
+//    scope().attr("__doc__") =
+//        "The main libavg module.\n\n";
 
     export_base();
 
@@ -76,10 +71,12 @@ BOOST_PYTHON_MODULE(avg)
             "disk.\n");
 
     def("pointInPolygon", pointInPolygon,
-            "pointInPolygon(point, poly) -> bool\n"
             "Checks if a point is inside a polygon.\n"
-            "@param point: Point to check.\n"
-            "@param poly: List of points which constitute a polygon to check against.\n");
+            "\n"
+            ":param point: Point to check.\n"
+            ":type point: Point2D.\n"
+            ":param poly: List of points which constitute a polygon to check against.\n"
+            ":returns: True if point is inside, False otherwise.");
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
