@@ -212,8 +212,15 @@ class WordsTestCase(AVGTestCase):
 #            node0 = root.getChild(0)
 #            for i in range(len(node0.text)):
 #                print node0.getGlyphPos(i)
-            self.assert_(root.getChild(0).getGlyphPos(6) != 
-                root.getChild(1).getGlyphPos(6))
+            noHint = root.getChild(0)
+            hint = root.getChild(1)
+            posNoHint = noHint.getGlyphPos(6)
+            posHint = hint.getGlyphPos(6)
+            self.assert_(posNoHint != posHint)
+            noHint.hint = True
+            hint.hint = False
+            self.assert_(posNoHint == hint.getGlyphPos(6))
+            self.assert_(posHint == noHint.getGlyphPos(6))
 
         if platform.system() == "Linux":
             print "Skipping testHinting - Linux support requires modified font config."
@@ -562,7 +569,33 @@ class WordsTestCase(AVGTestCase):
                       text = orgText,
                       width = 300)
         self.assert_(orgTextWithout == textNode.getTextAsDisplayed())
+
+    def testSetWidth(self):
+        Player.loadString("""<avg width="160" height="120"></avg>""")
+        text = "42 " * 42
+        textNode = avg.WordsNode(
+                parent=Player.getRootNode(),
+                fontsize = 10,
+                font = "Bitstream Vera Sans",
+                text = text)
         
+        def testSize(p1, p2):
+            self.assert_(abs(p1.x - p2.x) < 5)
+            self.assert_(abs(p1.y - p2.y) < 5)
+        
+        testSize(textNode.size, avg.Point2D(630,13))
+        testSize(textNode.getMediaSize(), avg.Point2D(630,13))
+        mediaSize = textNode.getMediaSize()
+
+        def changeSize():
+            textNode.width = 50 
+            testSize(textNode.size, avg.Point2D(50,182))
+            testSize(textNode.getMediaSize(), avg.Point2D(45,182))
+            self.assert_(mediaSize != textNode.getMediaSize())
+
+        self.start(None, [lambda: changeSize()])
+        
+
 def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
@@ -585,6 +618,7 @@ def wordsTestSuite(tests):
             "testGetLineExtents",
             "testGetCharIndexFromPos",
             "testGetTextAsDisplayed",
+            "testSetWidth",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
 

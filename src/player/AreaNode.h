@@ -73,13 +73,13 @@ class AVG_API AreaNode: public VisibleNode
         void setPos(const DPoint& pt);
 
         virtual double getWidth();
-        void setWidth(double width);
+        virtual void setWidth(double width);
         
         virtual double getHeight();
-        void setHeight(double height);
+        virtual void setHeight(double height);
        
-        DPoint getSize() const;
-        void setSize(const DPoint& pt);
+        virtual DPoint getSize() const;
+        virtual void setSize(const DPoint& pt);
 
         double getAngle() const;
         void setAngle(double angle);

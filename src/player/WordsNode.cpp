@@ -227,8 +227,8 @@ bool WordsNode::getHint() const
 void WordsNode::setHint(bool bHint)
 {
     m_bHint = bHint;
+    m_bDrawNeeded = true;
 }
-
 
 double WordsNode::getWidth() 
 {
@@ -236,10 +236,34 @@ double WordsNode::getWidth()
     return AreaNode::getWidth();
 }
 
+void WordsNode::setWidth(double width)
+{
+    AreaNode::setWidth(width);
+    m_bDrawNeeded = true;
+}
+
 double WordsNode::getHeight()
 {
     drawString();
     return AreaNode::getHeight();
+}
+
+void WordsNode::setHeight(double width)
+{
+    AreaNode::setHeight(width);
+    m_bDrawNeeded = true;
+}
+
+DPoint WordsNode::getSize()
+{
+    drawString();
+    return AreaNode::getSize();
+}
+
+void WordsNode::setSize(const DPoint& pt)
+{
+    AreaNode::setSize(pt);
+    m_bDrawNeeded = true;
 }
 
 void WordsNode::getElementsByPos(const DPoint& pos, 
