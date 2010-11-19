@@ -148,11 +148,7 @@ void export_raster()
                 "and 'B5G6R5'. (ro)\n")
     ;
 
-    class_<CameraNode, bases<RasterNode> >("CameraNode",
-            "A node that displays the image of a camera. The properties are the same\n"
-            "as the camera properties in .avgtrackerrc and are explained under\n"
-            "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
-            no_init)
+    class_<CameraNode, bases<RasterNode> >("CameraNode", no_init)
         .def("__init__", raw_constructor(createNode<cameraNodeName>))
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
@@ -170,12 +166,8 @@ void export_raster()
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
         .add_property("strobeduration", &CameraNode::getStrobeDuration, 
                 &CameraNode::setStrobeDuration)
-        .def("play", &CameraNode::play,
-                "play()\n"
-                "Starts camera playback.")
-        .def("stop", &CameraNode::stop,
-                "stop()\n"
-                "Stops camera playback and closes the camera object.\n")
+        .def("play", &CameraNode::play)
+        .def("stop", &CameraNode::stop)
         .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)
@@ -183,12 +175,7 @@ void export_raster()
         .def("isAvailable", &CameraNode::isAvailable)
         .def("dumpCameras", make_function(&CameraNode::dumpCameras))
         .staticmethod("dumpCameras")
-        .def("resetFirewireBus", &CameraNode::resetFirewireBus,
-                "resetFirewireBus()\n"
-                "Frees all allocated bandwidth and devices on the firewire bus. Helpful\n"
-                "if a program using a firewire device has crashed leaving resources\n"
-                "allocated. Note that all firewire devices (including for instance\n"
-                "external hard drives) are affected.\n")
+        .def("resetFirewireBus", &CameraNode::resetFirewireBus)
         .staticmethod("resetFirewireBus")
     ;
         

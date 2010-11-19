@@ -275,6 +275,7 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
 
 string DivNode::getEffectiveMediaDir()
 {
+    // TODO: There is no test for this function.
     string sMediaDir = m_sMediaDir;
     if (!isAbsPath(sMediaDir)) {
         if (getParent()) {

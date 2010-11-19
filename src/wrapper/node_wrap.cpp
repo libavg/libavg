@@ -177,128 +177,58 @@ void export_node()
 
     class_<AreaNode, boost::shared_ptr<AreaNode>, bases<VisibleNode>, boost::noncopyable>(
             "AreaNode", 
-            "Base class for elements in the avg tree that define an area on the screen.\n"
-            "Is responsible for coordinate transformations and event handling.\n",
             no_init)
-        .def("getMediaSize", &AreaNode_getMediaSize,
-                "getMediaSize() -> mediasize\n"
-                "Returns the size in pixels of the media in the node. Image nodes\n"
-                "return the bitmap size, Camera nodes\n"
-                "the size of a camera frame and Words nodes the amount of space\n"
-                "the text takes. Video nodes return the video size if decoding has\n"
-                "started or (0,0) if not. Decoding starts after play() or pause()\n"
-                "is called and the node can be rendered.")
-        .add_property("x", &AreaNode::getX, &AreaNode::setX,
-                "The position of the node's left edge relative to it's parent node.\n")
-        .add_property("y", &AreaNode::getY, &AreaNode::setY,
-                "The position of the node's top edge relative to it's parent node.\n")
+        .def("getMediaSize", &AreaNode_getMediaSize)
+        .add_property("x", &AreaNode::getX, &AreaNode::setX)
+        .add_property("y", &AreaNode::getY, &AreaNode::setY)
         .add_property("pos", &constPointGetterRef<AreaNode, &AreaNode::getPos>, 
-                &AreaNode::setPos,
-                "The position of the node's top left corner relative to it's parent\n"
-                "node.\n")
+                &AreaNode::setPos)
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
         .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)
-        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
-                "The angle that the node is rotated to in radians. 0 is\n"
-                "unchanged, 3.14 is upside-down.\n")
+        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle)
         .add_property("size", &constPointGetter<AreaNode, &AreaNode::getSize>, 
                 &AreaNode::setSize)
         .add_property("pivot",  &constPointGetter<AreaNode, &AreaNode::getPivot>, 
-                &AreaNode::setPivot,
-                "The position of the point that the node is rotated around.\n"
-                "Default is the center of the node.\n")
-        .add_property("pivotx", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>,
-                "Deprecated.\n")
-        .add_property("pivoty", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>,
-                "Deprecated.\n")
+                &AreaNode::setPivot)
+        .add_property("pivotx", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>)
+        .add_property("pivoty", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>)
         ;
     export_bitmap();
     export_fx();
     export_raster();
   
-    class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", 
-            "A div node is a node that groups other nodes logically and visually.\n"
-            "Its upper left corner is used as point of origin for the coordinates\n"
-            "of its child nodes. Its extents are used to clip the children. Its\n"
-            "opacity is used as base opacity for the child nodes' opacities.\n"
-            "The children of a div node are drawn in the order they are found\n"
-            "in the avg file.",
-            no_init)
+    class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", no_init)
         .def("__init__", raw_constructor(createNode<divNodeName>))
-        .add_property("crop", &DivNode::getCrop, &DivNode::setCrop,
-                "Turns clipping on or off. Default is True.\n")
+        .add_property("crop", &DivNode::getCrop, &DivNode::setCrop)
         .add_property("elementoutlinecolor",
                 make_function(&DivNode::getElementOutlineColor,
                         return_value_policy<copy_const_reference>()),
                 make_function(&DivNode::setElementOutlineColor,
-                        return_value_policy<copy_const_reference>()),
-                "Allows debugging of div node nesting by rendering the outlines of\n"
-                "this div and all its div children in the specified color. Turn off\n"
-                "by setting the color to \"\".\n")
-        .def("getNumChildren", &DivNode::getNumChildren,
-                "getNumChildren() -> numchildren\n"
-                "Returns the number of immediate children that this div contains.")
+                        return_value_policy<copy_const_reference>()))
+        .def("getNumChildren", &DivNode::getNumChildren)
         .def("getChild", make_function(&DivNode::getChild,
-                return_value_policy<copy_const_reference>()),
-                "getChild(pos) -> node\n"
-                "Returns the child at position pos.")
-        .def("appendChild", &DivNode::appendChild,
-                "appendChild(node)\n"
-                "Adds a new child to the container behind the last existing child.")
-        .def("insertChildBefore", &DivNode::insertChildBefore,
-                "insertChildBefore(newNode, oldChild)\n"
-                "Adds a new child to the container before the existing node\n"
-                "oldChild. In z-order, the new child ist behind the old one.")
-        .def("insertChildAfter", &DivNode::insertChildAfter,
-                "insertChildAfter(newNode, oldChild)\n"
-                "Adds a new child to the container after the existing node\n"
-                "oldChild. In z-order, the new child ist in front of the old one.")
-        .def("insertChild", &DivNode::insertChild,
-                "insertChild(node, pos)\n"
-                "Adds a new child to the container at position pos.")
-        .def("removeChild", (void (DivNode::*)(NodePtr))(&DivNode::removeChild),
-                "removeChild(node)\n"
-                "Removes the child given by pNode.")
-        .def("removeChild", (void (DivNode::*)(unsigned))(&DivNode::removeChild),
-                "removeChild(pos)\n"
-                "Removes the child at index pos.")
+                return_value_policy<copy_const_reference>()))
+        .def("appendChild", &DivNode::appendChild)
+        .def("insertChildBefore", &DivNode::insertChildBefore)
+        .def("insertChildAfter", &DivNode::insertChildAfter)
+        .def("insertChild", &DivNode::insertChild)
+        .def("removeChild", (void (DivNode::*)(NodePtr))(&DivNode::removeChild))
+        .def("removeChild", (void (DivNode::*)(unsigned))(&DivNode::removeChild))
         .def("reorderChild", (void (DivNode::*)(unsigned, unsigned))
-                (&DivNode::reorderChild),
-                "reorderChild(oldPos, newPos)\n"
-                "Moves the child at index pos so it's at index newPos. This function\n"
-                "can be used to change the order in which the children are drawn.")
+                (&DivNode::reorderChild))
         .def("reorderChild", (void (DivNode::*)(NodePtr, unsigned))
-                (&DivNode::reorderChild),
-                "reorderChild(node, newPos)\n"
-                "Moves the child node so it's at index newPos. This function\n"
-                "can be used to change the order in which the children are drawn.")
-        .def("indexOf", &DivNode::indexOf,
-                "indexOf(childnode)\n"
-                "Returns the index of the child given or -1 if childnode isn't a\n"
-                "child of the container. This function does a linear search through\n"
-                "the list of children until the child is found.")
-        .def("getEffectiveMediaDir", &DivNode::getEffectiveMediaDir,
-                "getEffectiveMediaDir() -> mediadir\n"
-                "Returns the nodes' effective mediadir by traversing the node\n"
-                "hierarchy up to the root node.")
+                (&DivNode::reorderChild))
+        .def("indexOf", &DivNode::indexOf)
+        .def("getEffectiveMediaDir", &DivNode::getEffectiveMediaDir)
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
-                return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
-                "The directory that the media files for the children of this node are\n"
-                "in.\n")
+                return_value_policy<copy_const_reference>()), &DivNode::setMediaDir)
     ;
 
     class_<CanvasNode, bases<DivNode> >("CanvasNode",
-            "Root node of a scene graph.",
             no_init)
     ;
 
-    class_<AVGNode, bases<CanvasNode> >("AVGNode",
-            "Root node of an onscreen avg tree. Defines the properties of the display\n"
-            "and handles key press events. The AVGNode's width and height define the\n"
-            "coordinate system for the display and are the default for the window\n"
-            "size used (i.e. by default, the coordinate system is pixel-based).\n"
-            "\n",
-            no_init)
+    class_<AVGNode, bases<CanvasNode> >("AVGNode", no_init)
     ;
 
     class_<SoundNode, bases<AreaNode> >("SoundNode",
