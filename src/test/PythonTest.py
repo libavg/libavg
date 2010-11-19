@@ -893,6 +893,37 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.compareImage("testTextArea2", True),
                ))
 
+    def testDragProcessor(self):
+        def onStartDrag(event):
+            self.__dragStartCalled = True
+
+        def onDrag(event, offset):
+            self.assert_(offset == (40,40))
+            self.__dragMoveCalled = True
+
+        def onStopDrag(event, offset):
+            self.assert_(offset == (10,-10))
+            self.__dragEndCalled = True
+
+        self.loadEmptyScene()
+        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        dragProcessor = ui.manipulation.DragProcessor(image, avg.MOUSE, onStartDrag, 
+                onDrag, onStopDrag)
+        self.__dragStartCalled = False
+        self.__dragMoveCalled = False
+        self.__dragEndCalled = False
+        self.start(None,
+                (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(self.__dragStartCalled and 
+                        not(self.__dragMoveCalled) and not(self.__dragEndCalled)),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                 lambda: self.assert_(self.__dragStartCalled and self.__dragMoveCalled 
+                        and not(self.__dragEndCalled)),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
+                 lambda: self.assert_(self.__dragStartCalled and self.__dragMoveCalled 
+                        and self.__dragEndCalled),
+                ))
+
     def testFocusContext(self):
         def setup():
             textarea.init(avg)
@@ -989,6 +1020,7 @@ def pythonTestSuite (tests):
         "testMultitouchButton",
         "testKeyboard",
         "testTextArea",
+        "testDragProcessor",
         "testFocusContext",
         )
     
