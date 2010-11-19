@@ -293,20 +293,10 @@ void export_node()
     ;
 
     class_<AVGNode, bases<CanvasNode> >("AVGNode",
-            "Root node of an onscreen avg tree. Defines the properties of the display"
+            "Root node of an onscreen avg tree. Defines the properties of the display\n"
             "and handles key press events. The AVGNode's width and height define the\n"
             "coordinate system for the display and are the default for the window\n"
-            "size used (i.e. by default, the coordinate system is pixel-based.)\n"
-            "\n"
-            ".. py:method:: __init__(onkeydown: string, onkeyup: string)\n"
-            "\n"
-            "   :param string onkeyup: Name of python function to call when a key up event occurs.\n"
-            "\n"
-            "       .. deprecated:: 1.5\n"
-            "\n"
-            "   :param string onkeydown: Name of python function to call when a key up event occurs.\n"
-            "\n"
-            "       .. deprecated:: 1.5\n"
+            "size used (i.e. by default, the coordinate system is pixel-based).\n"
             "\n",
             no_init)
     ;

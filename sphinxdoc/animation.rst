@@ -6,6 +6,7 @@ Animation
 
     .. autoclass:: Anim
     .. autoclass:: AnimState
+    .. autoclass:: AttrAnim
     .. autoclass:: ContinuousAnim
     .. autoclass:: EaseInOutAnim
     .. autoclass:: LinearAnim

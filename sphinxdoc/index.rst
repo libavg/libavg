@@ -8,6 +8,7 @@ libavg Reference
     nodes
     events
     animation
+    fx
     misc
 
 Indices and tables
