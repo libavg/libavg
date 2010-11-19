@@ -23,8 +23,9 @@ from libavg import avg
 
 
 class DragProcessor:
-    def __init__(self, node, startHandler, moveHandler, endHandler):
+    def __init__(self, node, eventSource, startHandler, moveHandler, endHandler):
         self.__node = node
+        self.__eventSource = eventSource
         self.__startHandler = startHandler
         self.__moveHandler = moveHandler
         self.__endHandler = endHandler
@@ -51,8 +52,8 @@ class DragProcessor:
             self.__endHandler(event, offset)
 
     def __setEventHandlers(self, downHandler, moveHandler, upHandler):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, downHandler)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.TOUCH, moveHandler)
-        self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, upHandler)
+        self.__node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
+        self.__node.setEventHandler(avg.CURSORMOTION, self.__eventSource, moveHandler)
+        self.__node.setEventHandler(avg.CURSORUP, self.__eventSource, upHandler)
 
 
