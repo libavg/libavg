@@ -31,6 +31,19 @@ class DragProcessor:
         self.__endHandler = endHandler
         self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp)
         self.__dragCursorID = None
+        self.__isEnabled = True
+
+    def enable(self, isEnabled):
+        if isEnabled != self.__isEnabled:
+            self.__isEnabled = isEnabled
+            if isEnabled:
+                self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp)
+            else:
+                if self.__dragCursorID:
+                    self.__node.releaseEventCapture(self.__dragCursorID)
+                    self.__dragCursorID = None
+                self.__setEventHandlers(lambda event:None, lambda event:None, 
+                        lambda event:None)
 
     def __onDown(self, event):
         if self.__dragCursorID == None:

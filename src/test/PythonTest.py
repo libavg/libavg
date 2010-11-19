@@ -905,6 +905,13 @@ class PythonTestCase(AVGTestCase):
             self.assert_(offset == (10,-10))
             self.__dragEndCalled = True
 
+        def disable():
+            dragProcessor.enable(False)
+            self.__dragStartCalled = False
+            self.__dragMoveCalled = False
+            self.__dragEndCalled = False
+
+
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
         dragProcessor = ui.manipulation.DragProcessor(image, avg.MOUSE, onStartDrag, 
@@ -922,6 +929,14 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
                  lambda: self.assert_(self.__dragStartCalled and self.__dragMoveCalled 
                         and self.__dragEndCalled),
+                 disable,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(not(self.__dragStartCalled) and 
+                        not(self.__dragMoveCalled) and not(self.__dragEndCalled)),
+                 lambda: dragProcessor.enable(True),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(self.__dragStartCalled and 
+                        not(self.__dragMoveCalled) and not(self.__dragEndCalled)),
                 ))
 
     def testFocusContext(self):
