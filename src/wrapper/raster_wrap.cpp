@@ -41,111 +41,46 @@ void export_raster()
     to_python_converter<VertexGrid, to_list<VertexGrid> >();    
     from_python_sequence<VertexGrid, variable_capacity_policy>();
 
-    class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode",
-            "Base class for all nodes that have a direct 2d raster representation.\n"
-            "This includes Image, Word, Camera, and Video nodes. RasterNodes can\n"
-            "be rotated. Warping of RasterNodes is implemented using a grid of\n"
-            "reference points. The position of each of these points can be changed.\n",
-            no_init) 
-        .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords,
-                "getOrigVertexCoords()\n"
-                "Returns the unwarped coordinate of all vertices as a list\n"
-                "of lists.")
-        .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords,
-                "getWarpedVertexCoords()\n"
-                "Returnes the current coordinate of all vertices as a list\n"
-                "of lists.")
-        .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords,
-                "setWarpedVertexCoords(grid)\n"
-                "Changes the current coordinates of all vertices.\n"
-                "@param grid: list of lists of coordinate tuples.")
+    class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode", no_init) 
+        .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords)
+        .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords)
+        .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords)
         .def("setEffect", &RasterNode::setEffect)
-        .def("getBitmap", &RasterNode::getBitmap,
-                "getBitmap() -> Bitmap\n\n"
-                "Returns a copy of the bitmap that the node contains.")
-        .add_property("maxtilewidth", &RasterNode::getMaxTileWidth,
-                "The maximum width and height of the\n"
-                "tiles used for warping. The effective tile size is also\n"
-                "dependent on hardware and driver limits. (ro)\n")
-        .add_property("maxtileheight", &RasterNode::getMaxTileHeight,
-                "The maximum width and height of the\n"
-                "tiles used for warping. The effective tile size is also\n"
-                "dependent on hardware and driver limits. (ro)\n")
+        .def("getBitmap", &RasterNode::getBitmap)
+        .add_property("maxtilewidth", &RasterNode::getMaxTileWidth)
+        .add_property("maxtileheight", &RasterNode::getMaxTileHeight)
         .add_property("blendmode", 
                 make_function(&RasterNode::getBlendModeStr, 
                         return_value_policy<copy_const_reference>()),
-                &RasterNode::setBlendModeStr,
-                "The method of compositing the node with the nodes under\n"
-                "it. Valid values are 'blend', 'add', 'min' and 'max'. For min and max\n"
-                "blend modes, opacity is ignored.\n")
+                &RasterNode::setBlendModeStr)
         .add_property("maskhref", 
                 make_function(&RasterNode::getMaskHRef,
                         return_value_policy<copy_const_reference>()),
-                &RasterNode::setMaskHRef,
-                "The source filename for a mask image to be used as alpha channel.\n"
-                "Where this file is white, the node is shown. Where it is black, the\n"
-                "node is transparent. If the node is an image with an alpha channel,\n"
-                "the alpha channel is replaced by the mask.\n")
+                &RasterNode::setMaskHRef)
         .add_property("maskpos",
                 make_function(&RasterNode::getMaskPos,
                         return_value_policy<copy_const_reference>()),
-                &RasterNode::setMaskPos,
-                "An offset for the mask image. For images and videos, the offset is\n"
-                "given in image or video pixels, respectively. For words nodes, the\n"
-                "offset is given in screen pixels. If portions of the node extend\n"
-                "outside the mask, the border pixels of the mask are taken.\n")
+                &RasterNode::setMaskPos)
         .add_property("masksize",
                 make_function(&RasterNode::getMaskSize,
                         return_value_policy<copy_const_reference>()),
-                &RasterNode::setMaskSize,
-                "The size of the mask image. For images and videos, the size is\n"
-                "given in image or video pixels, respectively. For words nodes, the\n"
-                "size is given in screen pixels. If portions of the node extend\n"
-                "outside the mask, the border pixels of the mask are taken.\n")
-        .add_property("mipmap", &RasterNode::getMipmap,
-                "Determines whether mipmaps are generated for this node. Setting this\n"
-                "to True improves the quality of minified nodes, but causes a\n"
-                "performance hit for every image change. (ro)\n")
-        .add_property("gamma", &RasterNode::getGamma, &RasterNode::setGamma,
-                "Allows node-specific gamma correction. gamma is a triple that\n"
-                "contains separate values for red, green, and blue. A gamma value of\n"
-                "1.0 in all channels leaves the image unchanged. Higher gamma values\n"
-                "increase, lower values decrease the brightness. In all cases, black\n"
-                "white pixels are not affected by gamma. See also \n"
-                "http://en.wikipedia.org/wiki/Gamma_correction.\n")
-        .add_property("intensity", &RasterNode::getIntensity, 
-                &RasterNode::setIntensity,
-                "A control for the brightness of the node. intensity is a triple\n"
-                "that contains separate values for red, green, and blue. An intensity\n"
-                "value of 1.0 in all channels leaves the image unchanged. This value\n"
-                "corresponds to the photoshop brightness value.\n")
-        .add_property("contrast", &RasterNode::getContrast, 
-                &RasterNode::setContrast,
-                "A control for the color contrast of the node. contrast is a triple\n"
-                "that contains separate values for red, green, and blue. A contrast\n"
-                "value of 1.0 in all channels leaves the image unchanged.\n")
+                &RasterNode::setMaskSize)
+        .add_property("mipmap", &RasterNode::getMipmap)
+        .add_property("gamma", &RasterNode::getGamma, &RasterNode::setGamma)
+        .add_property("intensity", &RasterNode::getIntensity)
+        .add_property("contrast", &RasterNode::getContrast, &RasterNode::setContrast)
     ;
 
-    class_<ImageNode, bases<RasterNode> >("ImageNode",
-            "A static raster image on the screen. ImageNodes are loaded from files on\n"
-            "program start. Alpha channels of the image files are used as\n"
-            "transparency information.\n",
-            no_init)
+    class_<ImageNode, bases<RasterNode> >("ImageNode", no_init)
         .def("__init__", raw_constructor(createNode<imageNodeName>))
-        .def("setBitmap", &ImageNode::setBitmap, 
-                "setBitmap(bitmap)\n"
-                "Sets the bitmap pixels of the image.\n"
-                "@param bitmap: A libavg bitmap object to use.")
+        .def("setBitmap", &ImageNode::setBitmap)
         .add_property("href", 
                 make_function(&ImageNode::getHRef,
                         return_value_policy<copy_const_reference>()),
                 make_function(&ImageNode::setHRef,
-                        return_value_policy<copy_const_reference>()),
-                "The source filename of the image.\n")
+                        return_value_policy<copy_const_reference>()))
         .add_property("compression",
-                &ImageNode::getCompression,
-                "The texture compression used for this image. Valid values are 'none'\n"
-                "and 'B5G6R5'. (ro)\n")
+                &ImageNode::getCompression)
     ;
 
     class_<CameraNode, bases<RasterNode> >("CameraNode", no_init)

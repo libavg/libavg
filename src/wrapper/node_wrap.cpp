@@ -96,8 +96,7 @@ void export_node()
         .def(self != self)
         .def("__hash__", &Node::getHash)
         .add_property("id", make_function(&Node::getID,
-                return_value_policy<copy_const_reference>()),  &Node::setID,
-                "A unique identifier that can be used to reference the node (ro).\n")
+                return_value_policy<copy_const_reference>()),  &Node::setID)
         ;
 
     class_<VisibleNode, bases<Node>, boost::shared_ptr<VisibleNode>, boost::noncopyable>(
@@ -279,36 +278,21 @@ void export_node()
                 "range.\n")
     ;
 
-    class_<PanoImageNode, bases<AreaNode> >("PanoImageNode",
-            "A panorama image displayed in cylindrical projection.\n",
-            no_init)
+    class_<PanoImageNode, bases<AreaNode> >("PanoImageNode", no_init)
         .def("__init__", raw_constructor(createNode<panoImageNodeName>))
-        .def("getScreenPosFromPanoPos", &PanoImageNode::getScreenPosFromPanoPos,
-                "getScreenPosFromPanoPos(panoPos) -> pos\n"
-                "Converts a position in panorama image pixels to pixels in coordinates\n"
-                "relative to the node, taking into account the current rotation angle.\n")
-        .def("getScreenPosFromAngle", &PanoImageNode::getScreenPosFromAngle,
-                "getScreenPosFromAngle(angle) -> pos\n"
-                "Converts panorama angle to pixels in coordinates\n"
-                "relative to the node, taking into account the current rotation angle.\n")
+        .def("getScreenPosFromPanoPos", &PanoImageNode::getScreenPosFromPanoPos)
+        .def("getScreenPosFromAngle", &PanoImageNode::getScreenPosFromAngle)
         .add_property("href", make_function(&PanoImageNode::getHRef, 
-                return_value_policy<copy_const_reference>()), &PanoImageNode::setHRef,
-                "The source filename of the image.\n")
+                return_value_policy<copy_const_reference>()), &PanoImageNode::setHRef)
         .add_property("sensorwidth", &PanoImageNode::getSensorWidth, 
-                &PanoImageNode::setSensorWidth,
-                "The width of the sensor used to make the image. This value\n"
-                "is used together with sensorheight and focallength to\n"
-                "determine the projection to use.\n")
+                &PanoImageNode::setSensorWidth)
         .add_property("sensorheight", &PanoImageNode::getSensorHeight, 
-                &PanoImageNode::setSensorHeight,
-                "The height of the sensor used to make the image.\n")
+                &PanoImageNode::setSensorHeight)
         .add_property("focallength", &PanoImageNode::getFocalLength, 
-                &PanoImageNode::setFocalLength,
-                "The focal length of the lens in millimeters.\n")
-        .add_property("rotation", &PanoImageNode::getRotation, &PanoImageNode::setRotation,
-                "The current angle the viewer is looking at in radians.\n")
-        .add_property("maxrotation", &PanoImageNode::getMaxRotation,
-                "The maximum angle the viewer can look at.\n")
+                &PanoImageNode::setFocalLength)
+        .add_property("rotation", &PanoImageNode::getRotation, 
+                &PanoImageNode::setRotation)
+        .add_property("maxrotation", &PanoImageNode::getMaxRotation)
     ;
 
     class_<VectorNode, bases<VisibleNode>, boost::noncopyable>("VectorNode", 
@@ -340,8 +324,7 @@ void export_node()
             no_init)
         .add_property("filltexhref", make_function(&FilledVectorNode::getFillTexHRef,
                 return_value_policy<copy_const_reference>()), 
-                &FilledVectorNode::setFillTexHRef,
-                "An image file to use as a texture for the area of the node.\n")
+                &FilledVectorNode::setFillTexHRef)
         .add_property("fillcolor", make_function(&FilledVectorNode::getFillColor,
                 return_value_policy<copy_const_reference>()), 
                 &FilledVectorNode::setFillColor)
@@ -353,11 +336,7 @@ void export_node()
         .add_property("filltexcoord2", make_function(&FilledVectorNode::getFillTexCoord2,
                return_value_policy<copy_const_reference>()), 
                &FilledVectorNode::setFillTexCoord2)
-        .def("setFillBitmap", &FilledVectorNode::setFillBitmap, 
-                "setFillBitmap(bitmap)\n"
-                "Sets a bitmap to use as a fill texture. Sets filltexhref to an empty\n"
-                "string.\n"
-                "@param bitmap: A libavg bitmap object to use.")
+        .def("setFillBitmap", &FilledVectorNode::setFillBitmap) 
     ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
