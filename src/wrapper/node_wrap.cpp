@@ -100,79 +100,21 @@ void export_node()
         ;
 
     class_<VisibleNode, bases<Node>, boost::shared_ptr<VisibleNode>, boost::noncopyable>(
-            "VisibleNode",
-            "Base class for all elements in the avg tree.",
-            no_init)
-        .def("getParent", &VisibleNode::getParent,
-                "getParent() -> node\n"
-                "Returns the container (AVGNode or DivNode) the node is in. For\n"
-                "the root node, returns None.\n")
-        .def("unlink", &VisibleNode::unlink, unlink_overloads(args("bKill"),
-                "unlink(kill) -> None\n"
-                "Removes a node from it's parent container. Equivalent to "
-                "node.getParent().removeChild(node.getParent().indexOf(node)), except "
-                "that if the node has no parent, unlink does nothing. Normally, unlink "
-                "moves the node's textures back to the CPU and preserves event handlers. "
-                "If kill=True, this step is skipped. Event handlers are reset, all "
-                "textures are deleted and the href is reset to empty in this case, "
-                "saving some time and making sure there are no references to the node "
-                "left on the libavg side. kill should always be set to true if the node "
-                "will not be used after the unlink."))
-        .def("setEventCapture", &VisibleNode::setMouseEventCapture,
-                "setEventCapture(cursorid)\n"
-                "Sets up event capturing so that cursor events are sent to this node"
-                "regardless of the cursor position. cursorid is optional; if left out,"
-                "the mouse cursor is captured. If not, events from a specific tracker"
-                "cursor are captured. The event propagates to the capturing node's"
-                "parent normally. This function is useful for the"
-                "implementation of user interface elements such as scroll bars. Only one"
-                "node can capture a cursor at any one time. Normal operation can"
-                "be restored by calling releaseEventCapture()."
-                "@param cursorid: The id of the tracker cursor to capture (optional).")
+            "VisibleNode", no_init)
+        .def("getParent", &VisibleNode::getParent)
+        .def("unlink", &VisibleNode::unlink, unlink_overloads(args("bKill")))
+        .def("setEventCapture", &VisibleNode::setMouseEventCapture)
         .def("setEventCapture", &VisibleNode::setEventCapture)
-        .def("releaseEventCapture", &VisibleNode::releaseMouseEventCapture,
-                "releaseEventCapture(cursorid)\n"
-                "Restores normal mouse operation after a call to setEventCapture().\n"
-                "@param cursorid: The id of the tracker cursor to release (optional).\n")
+        .def("releaseEventCapture", &VisibleNode::releaseMouseEventCapture)
         .def("releaseEventCapture", &VisibleNode::releaseEventCapture)
-        .def("setEventHandler", &VisibleNode::setEventHandler,
-                "setEventHandler(type, source, pyfunc)\n"
-                "Sets a callback function that is invoked whenever an event of the\n"
-                "specified type from the specified source occurs. This function is\n"
-                "similar to the event handler node attributes (e.g. oncursordown).\n"
-                "It is more specific since it takes the event source as a parameter\n"
-                "and allows the use of any python callable as callback function.\n"
-                "@param type: One of the event types KEYUP, KEYDOWN, CURSORMOTION,\n"
-                "CURSORUP, CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n"
-                "@param source: MOUSE for mouse events, TOUCH for multitouch touch\n"
-                "events, TRACK for multitouch track events or other tracking, \n"
-                "NONE for keyboard events. Sources can be or'ed together to set a\n"
-                "handler for several sources at once.\n"
-                "@param pyfunc: The python callable to invoke.\n")
-        .def("getAbsPos", &VisibleNode::getAbsPos,
-                "getAbsPos(relpos) -> abspos\n"
-                "Transforms a position in coordinates relative to the node to a\n"
-                "position in window coordinates.\n"
-                "@param relpos: Relative coordinate to transform.")
-        .def("getRelPos", &VisibleNode::getRelPos,
-                "getRelPos(abspos) -> relpos\n"
-                "Transforms a position in window coordinates to a position\n"
-                "in coordinates relative to the node.\n"
-                "@param abspos: Absolute coordinate to transform.")
-        .def("getElementByPos", &VisibleNode::getElementByPos,
-                "getElementByPos(pos) -> Node\n"
-                "Returns the topmost child node that is at the position given. pos\n"
-                "is in coordinates relative to the called node. The algorithm used\n"
-                "is the same as the cursor hit test algorithm used for events.\n")
-        .add_property("active", &VisibleNode::getActive, &VisibleNode::setActive,
-                      "If this attribute is true, the node behaves as usual. If not, it\n"
-                      "is neither drawn nor does it react to events.\n")
-        .add_property("sensitive", &VisibleNode::getSensitive, &VisibleNode::setSensitive,
-                      "A node only reacts to events if sensitive is true.")
-        .add_property("opacity", &VisibleNode::getOpacity, &VisibleNode::setOpacity,
-                      "A measure of the node's transparency. 0.0 is completely\n"
-                      "transparent, 1.0 is completely opaque. Opacity is relative to\n"
-                      "the parent node's opacity.\n");
+        .def("setEventHandler", &VisibleNode::setEventHandler)
+        .def("getAbsPos", &VisibleNode::getAbsPos)
+        .def("getRelPos", &VisibleNode::getRelPos)
+        .def("getElementByPos", &VisibleNode::getElementByPos)
+        .add_property("active", &VisibleNode::getActive, &VisibleNode::setActive)
+        .add_property("sensitive", &VisibleNode::getSensitive, &VisibleNode::setSensitive)
+        .add_property("opacity", &VisibleNode::getOpacity, &VisibleNode::setOpacity)
+        ;
 
     class_<AreaNode, boost::shared_ptr<AreaNode>, bases<VisibleNode>, boost::noncopyable>(
             "AreaNode", 
@@ -230,52 +172,22 @@ void export_node()
     class_<AVGNode, bases<CanvasNode> >("AVGNode", no_init)
     ;
 
-    class_<SoundNode, bases<AreaNode> >("SoundNode",
-            "A sound played from a file.\n",
-            no_init)
+    class_<SoundNode, bases<AreaNode> >("SoundNode", no_init)
         .def("__init__", raw_constructor(createNode<soundNodeName>))
-        .def("play", &SoundNode::play,
-                "play()\n"
-                "Starts audio playback.")
-        .def("stop", &SoundNode::stop,
-                "stop()\n"
-                "Stops audio playback. Closes the object and 'rewinds' the playback\n"
-                "cursor.")
-        .def("pause", &SoundNode::pause,
-                "pause()\n"
-                "Stops audio playback but doesn't close the object. The playback\n"
-                "cursor stays at the same position.")
-        .def("setEOFCallback", &SoundNode::setEOFCallback,
-                "setEOFCallback(pyfunc)\n"
-                "Sets a python callable to be invoked when the video reaches end of\n"
-                "file.")
-        .def("getAudioCodec", &SoundNode::getAudioCodec,
-                "getAudioCodec() -> acodec\n"
-                "Returns the codec used as a string such as 'mp2'\n")
-        .def("getAudioSampleRate", &SoundNode::getAudioSampleRate,
-                "getAudioSampleRate() -> samplerate\n"
-                "Returns the sample rate in samples per second (for example, 44100).\n")
-        .def("getNumAudioChannels", &SoundNode::getNumAudioChannels,
-                "getNumAudioChannels() -> numchannels\n"
-                "Returns the number of channels. 2 for stereo, etc.\n")
-        .def("seekToTime", &SoundNode::seekToTime,
-                "seekToTime(time)\n"
-                "Moves the playback cursor to the time given.\n")
-        .def("getCurTime", &SoundNode::getCurTime,
-                "getCurTime()\n"
-                "Returns milliseconds of playback time since audio start.")
+        .def("play", &SoundNode::play)
+        .def("stop", &SoundNode::stop)
+        .def("pause", &SoundNode::pause)
+        .def("setEOFCallback", &SoundNode::setEOFCallback)
+        .def("getAudioCodec", &SoundNode::getAudioCodec)
+        .def("getAudioSampleRate", &SoundNode::getAudioSampleRate)
+        .def("getNumAudioChannels", &SoundNode::getNumAudioChannels)
+        .def("seekToTime", &SoundNode::seekToTime)
+        .def("getCurTime", &SoundNode::getCurTime)
         .add_property("href", make_function(&SoundNode::getHRef, 
-                return_value_policy<copy_const_reference>()), &SoundNode::setHRef,
-                "The source filename of the sound.\n")
-        .add_property("loop", &SoundNode::getLoop,
-                "Whether to start the sound again when it has ended (ro).\n")
-        .add_property("duration", &SoundNode::getDuration,
-                "The duration of the sound file in milliseconds (ro).\n")
-        .add_property("volume", &SoundNode::getVolume, &SoundNode::setVolume,
-                "Audio playback volume for this sound. 0 is silence, 1 passes media\n"
-                "file volume through unchanged. Values higher than 1 can be used to\n"
-                "amplify sound if the sound file doesn't use the complete dynamic\n"
-                "range.\n")
+                return_value_policy<copy_const_reference>()), &SoundNode::setHRef)
+        .add_property("loop", &SoundNode::getLoop)
+        .add_property("duration", &SoundNode::getDuration)
+        .add_property("volume", &SoundNode::getVolume, &SoundNode::setVolume)
     ;
 
     class_<PanoImageNode, bases<AreaNode> >("PanoImageNode", no_init)
@@ -298,26 +210,16 @@ void export_node()
     class_<VectorNode, bases<VisibleNode>, boost::noncopyable>("VectorNode", 
             no_init)
         .add_property("strokewidth", &VectorNode::getStrokeWidth, 
-                &VectorNode::setStrokeWidth,
-                "The width of the strokes in the vector. For lines, this is the line\n"
-                "width. For rectangles, it is the width of the outline, etc.\n")
+                &VectorNode::setStrokeWidth)
         .add_property("color", make_function(&VectorNode::getColor,
-                return_value_policy<copy_const_reference>()), &VectorNode::setColor,
-                "The color of the strokes in standard html color notation:\n" 
-                "FF0000 is red, 00FF00 green, etc.\n")
+                return_value_policy<copy_const_reference>()), &VectorNode::setColor)
         .add_property("texhref", make_function(&VectorNode::getTexHRef,
-                return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
-                "An image file to use as a texture for the node.\n")
+                return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef)
         .add_property("blendmode", 
                 make_function(&VectorNode::getBlendModeStr, 
                         return_value_policy<copy_const_reference>()),
-                &VectorNode::setBlendModeStr,
-                "The method of compositing the node with the nodes under\n"
-                "it. Valid values are 'blend', 'add', 'min' and 'max'.\n")
-        .def("setBitmap", &VectorNode::setBitmap, 
-                "setBitmap(bitmap)\n"
-                "Sets a bitmap to use as a texture. Sets texhref to an empty string.\n"
-                "@param bitmap: A libavg bitmap object to use.")
+                &VectorNode::setBlendModeStr)
+        .def("setBitmap", &VectorNode::setBitmap)
     ;
 
     class_<FilledVectorNode, bases<VectorNode>, boost::noncopyable>("FilledVectorNode", 
@@ -367,10 +269,7 @@ void export_node()
         .add_property("height", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>) 
         .add_property("texcoords", make_function(&RectNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &RectNode::setTexCoords)
-        .add_property("angle", &RectNode::getAngle, &RectNode::setAngle,
-                "The angle that the rectangle is rotated to in radians. 0 is\n"
-                "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"
-                "center\n")
+        .add_property("angle", &RectNode::getAngle, &RectNode::setAngle)
     ;
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 

@@ -286,7 +286,10 @@ Nodes
 
     .. autoclass:: FilledVectorNode
 
-        Base class for vector nodes which have a filled area and a border.
+        Base class for vector nodes which have a filled area and a border. The area can
+        be filled either with a solid color (:py:attr:`fillcolor`) or with a texture
+        loaded from a file (:py:attr:`filltexhref`) or taken from a bitmap object 
+        (:py:meth:`setFillBitmap`).
 
         .. py:method:: __init__([filltexhref, fillopacity=0, fillcolor="FFFFFF", filltexcoord1=Point2D(0,0), filltexcoord2=Point2D(1,1)])
 
@@ -304,7 +307,7 @@ Nodes
 
         .. py:method:: setFillBitmap(bitmap)
 
-            Sets a bitmap to use as a fill texture. Sets filltexhref to an empty
+            Sets a bitmap to use as a fill texture. Sets :attr:`filltexhref` to an empty
             string.
 
     .. autoclass:: ImageNode
@@ -374,10 +377,10 @@ Nodes
 
     .. autoclass:: PanoImageNode
 
-            A panorama image displayed in cylindrical projection.
+        A panorama image displayed in cylindrical projection.
 
-            .. deprecated:: 1.5
-                This is unsupported and probably buggy.
+        .. deprecated:: 1.5
+            This is unsupported and probably buggy.
 
         .. py:method:: __init__([href, sensorwidth, sensorheight, focallength, rotation])
 
@@ -427,7 +430,7 @@ Nodes
         .. py:attribute:: linejoin
 
             The method by which line segments are joined together. Valid values are 
-            :py:const:`bevel` and :py:const:`miter`
+            :py:const:`bevel` and :py:const:`miter`.
 
         .. py:attribute:: pos
 
@@ -439,14 +442,14 @@ Nodes
             
     .. autoclass:: PolyLineNode
 
-        A figure similar to a polygon, but not closed and never filled. 
+        A figure similar to a :py:class:`PolygonNode`, but not closed and never filled. 
 
         .. py:method:: __init__([linejoin:"bevel", pos, texcoords])
 
         .. py:attribute:: linejoin
 
             The method by which line segments are joined together. Valid values are 
-            :py:const:`bevel` and :py:const:`miter`
+            :py:const:`bevel` and :py:const:`miter`.
 
         .. py:attribute:: pos
 
@@ -476,22 +479,34 @@ Nodes
         
         .. py:method:: __init__([maxtilewidth, maxtileheight, blendmode, mipmap, maskhref, maskpos, masksize, gamma, contrast, intensity])
 
-        .. py:attribute:: maxtilewidth
-
-            The maximum width of the tiles used for warping. The effective tile size is 
-            also dependent on hardware and driver limits. Read-only.
-
-        .. py:attribute:: maxtileheight
-
-            The maximum height of the tiles used for warping. The effective tile size is
-            also dependent on hardware and driver limits. Read-only. 
-
         .. py:attribute:: blendmode
 
             The method of compositing the node with the nodes under
             it. Valid values are :py:const:`blend`, :py:const:`add`, :py:const:`min` 
             and :py:const:`max`. For :py:const:`min` and :py:const:`max`
             blend modes, opacity is ignored.
+
+        .. py:attribute:: contrast
+
+            A control for the color contrast of the node. contrast is a triple
+            that contains separate float values for red, green, and blue. A contrast
+            value of 1.0 in all channels leaves the image unchanged.
+        
+        .. py:attribute:: gamma
+
+            Allows node-specific gamma correction. gamma is a triple that
+            contains separate float values for red, green, and blue. A gamma value of
+            1.0 in all channels leaves the image unchanged. Higher gamma values
+            increase, lower values decrease the brightness. In all cases, black
+            white pixels are not affected by gamma. See also 
+            http://en.wikipedia.org/wiki/Gamma_correction.
+
+        .. py:attribute:: intensity
+
+            A control for the brightness of the node. intensity is a triple
+            that contains separate float values for red, green, and blue. An intensity
+            value of 1.0 in all channels leaves the image unchanged. This value
+            corresponds to the photoshop brightness value.
 
         .. py:attribute:: maskhref
 
@@ -514,6 +529,16 @@ Nodes
             size is given in screen pixels. If portions of the node extend
             outside the mask, the border pixels of the mask are taken.
 
+        .. py:attribute:: maxtileheight
+
+            The maximum height of the tiles used for warping. The effective tile size is
+            also dependent on hardware and driver limits. Read-only. 
+
+        .. py:attribute:: maxtilewidth
+
+            The maximum width of the tiles used for warping. The effective tile size is 
+            also dependent on hardware and driver limits. Read-only.
+
         .. py:attribute:: mipmap
 
             Determines whether mipmaps (http://en.wikipedia.org/wiki/Mipmap) are 
@@ -521,28 +546,6 @@ Nodes
             minified nodes. Depending on the graphics card in use, turning on mipmaps
             may cause a performance hit for every image change. Read-only.
 
-        .. py:attribute:: gamma
-
-            Allows node-specific gamma correction. gamma is a triple that
-            contains separate float values for red, green, and blue. A gamma value of
-            1.0 in all channels leaves the image unchanged. Higher gamma values
-            increase, lower values decrease the brightness. In all cases, black
-            white pixels are not affected by gamma. See also 
-            http://en.wikipedia.org/wiki/Gamma_correction.
-
-        .. py:attribute:: intensity
-
-            A control for the brightness of the node. intensity is a triple
-            that contains separate float values for red, green, and blue. An intensity
-            value of 1.0 in all channels leaves the image unchanged. This value
-            corresponds to the photoshop brightness value.
-
-        .. py:attribute:: contrast
-
-            A control for the color contrast of the node. contrast is a triple
-            that contains separate float values for red, green, and blue. A contrast
-            value of 1.0 in all channels leaves the image unchanged.
-        
         .. py:method:: getBitmap() -> Bitmap
 
             Returns a copy of the bitmap that the node contains.
@@ -555,19 +558,534 @@ Nodes
 
             Returnes the current coordinate of all vertices as a list of lists.
 
+        .. py:method:: setEffect(FXNode)
+
+            Sets an :py:class:`FXNode` that modifies the way the node looks.
+
         .. py:method:: setWarpedVertexCoords(grid)
 
             Changes the current coordinates of all vertices. :py:attr:`grid` is a list of
             lists of coordinate tuples.
 
-        .. py:method:: setEffect(FXNode)
-
-            Sets an :py:class:`FXNode` that modifies the way the node looks.
-
     .. autoclass:: RectNode
+
+        A rectangle that can be filled.
+
+        .. py:method:: __init__([pos, size, angle])
+
+        .. py:attribute:: angle
+
+            The angle that the rectangle is rotated to in radians. 0 is
+            unchanged, 3.14 is upside-down. The rectangle is rotated around it's
+            center.
+
+        .. py:attribute:: pos
+
+            The position of the top left corner of the rectangle.
+
+        .. py:attribute:: size
+
+        .. py:attribute:: texcoords
+
     .. autoclass:: SoundNode
+
+        A sound played from a file.
+
+        .. py:method:: __init__([href, loop=False, volume=1.0])
+
+        .. py:attribute:: duration
+
+            The duration of the sound file in milliseconds. Read-only.
+
+        .. py:attribute:: href
+
+            The source filename of the sound.
+
+        .. py:attribute:: loop
+
+            Whether to start the sound again when it has ended. Read-only.
+
+        .. py:attribute:: volume
+
+            Audio playback volume for this sound. 0 is silence, 1 passes media
+            file volume through unchanged. Values higher than 1 can be used to
+            amplify sound if the sound file doesn't use the complete dynamic
+            range.
+
+        .. py:method:: getAudioCodec() -> string
+
+            Returns the codec used as a string such as :samp:`"mp2"`.
+
+        .. py:method:: getAudioSampleRate() -> int
+
+            Returns the sample rate in samples per second (for example, 44100).
+
+        .. py:method:: getCurTime()
+
+            Returns milliseconds of playback time since audio start.
+
+        .. py:method:: getNumAudioChannels() -> int
+
+            Returns the number of channels. 2 for stereo, etc.
+
+        .. py:method:: pause()
+
+            Stops audio playback but doesn't close the object. The playback
+            cursor stays at the same position.
+
+        .. py:method:: play()
+
+            Starts audio playback.
+
+        .. py:method:: seekToTime(time)
+
+            Moves the playback cursor to the time given in milliseconds.
+
+        .. py:method:: setEOFCallback(pyfunc)
+
+            Sets a python callable to be invoked when the audio reaches end of file.
+
+        .. py:method:: stop()
+
+            Stops audio playback. Closes the object and 'rewinds' the playback cursor.
+
     .. autoclass:: VectorNode
+
+        Base class for all nodes that draw geometrical primitives. All vector nodes 
+        support configurable stroke width. Strokes can be filled either with a solid 
+        color (:py:attr:`color`) or with a texture loaded from a file 
+        (:py:attr:`texhref`) or taken from a bitmap object (:py:meth:`setBitmap`).
+
+        .. py:method:: __init__([color="FFFFFF", strokewidth=1, texhref, blendmode="blend"])
+
+        .. py:attribute:: blendmode
+
+            The method of compositing the node with the nodes under
+            it. Valid values are :py:const:`blend`, :py:const:`add`, :py:const:`min` 
+            and :py:const:`max`. For :py:const:`min` and :py:const:`max`
+            blend modes, opacity is ignored.
+
+        .. py:attribute:: color
+
+            The color of the strokes in standard html color notation:
+            :samp:`"FF0000"` is red, :samp:`"00FF00"` green, etc.
+
+        .. py:attribute:: strokewidth
+
+            The width of the strokes in the vector. For lines, this is the line
+            width. For rectangles, it is the width of the outline, etc.
+
+        .. py:attribute:: texhref
+
+            An image file to use as a texture for the node.
+
+        .. py:method:: setBitmap(bitmap)
+
+            Sets a bitmap to use as a texture. Sets :attr:`texhref` to an empty
+            string.
+
     .. autoclass:: VideoNode
+
+        Video nodes display a video file. Video formats and codecs supported
+        are all formats that ffmpeg/libavcodec supports. Usage is described throughly
+        in the libavg wiki: https://www.libavg.de/wiki/index.php/Videos.
+
+        .. py:method:: __init__([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0])
+
+        .. py:attribute:: fps
+
+            The nominal frames per second the object should display at. Read-only.
+
+        .. py:attribute:: href
+
+            The source filename of the video.
+
+        .. py:attribute:: loop
+
+            Whether to start the video again when it has ended. Read-only.
+
+        .. py:attribute:: queuelength
+
+            The length of the decoder queue in video frames. This is the number of
+            frames that can be decoded before the first one is displayed. A higher
+            number increases memory consumption but also resilience against
+            data source latency. Can only be set at node construction. Can't be set
+            if :samp:`threaded=False`, since there is no queue in that case.
+
+        .. py:attribute:: threaded
+
+            Whether to use separate threads to decode the video. The default is
+            True. Setting this attribute to False makes seeking much quicker. On the 
+            other hand, it also disables audio and prevents libavg from distributing the 
+            CPU load over several cores of a multi-core computer.
+
+        .. py:attribute:: volume
+
+            Audio playback volume for this video. 0 is silence, 1 passes media
+            file volume through unchanged. Values higher than 1 can be used to
+            amplify sound if the sound file doesn't use the complete dynamic
+            range. If there is no audio track, volume is ignored.
+
+        .. py:method:: getAudioCodec() -> string
+
+            Returns the audio codec used as a string such as :samp:`"mp2"`.
+
+        .. py:method:: getAudioSampleRate() -> int
+
+            Returns the sample rate in samples per second (for example, 44100).
+
+        .. py:method:: getBitrate() -> int
+
+            Returns the number of bits in the file per second.
+
+        .. py:method:: getCurFrame() -> int
+
+            Returns the index of the video frame currently playing.
+
+        .. py:method:: getCurTime()
+
+            Returns milliseconds of playback time since video start.
+
+        .. py:method:: getDuration() -> int
+
+            Returns the duration of the video in milliseconds.
+
+        .. py:method:: getNumFrames() -> int
+
+            Returns the number of frames in the video.
+
+        .. py:method:: getNumAudioChannels() -> int 
+
+            Returns the number of audio channels. 2 for stereo, etc.
+
+        .. py:method:: getNumFramesQueued() -> int
+
+            Returns the number of frames already decoded and waiting for playback.
+
+        .. py:method:: getStreamPixelFormat() -> string
+
+            Returns the pixel format of the video file as a string. Possible
+            pixel formats are described in
+            http://cekirdek.pardus.org.tr/~ismail/ffmpeg-docs/ffmpeg-r_2libavutil_2avutil_8h.html
+
+        .. py:method:: getVideoCodec() -> string
+
+            Returns the video codec used as a string such as :samp:`"mpeg4"`.
+
+        .. py:method:: hasAlpha() -> bool
+
+            Returns :keyword:`True` if the video contains an alpha (transparency) channel.
+            Throws an exception if the video has not been opened yet.
+
+        .. py:method:: hasAudio() -> bool
+
+            Returns :keyword:`True` if the video contains an audio stream. Throws an
+            exception if the video has not been opened yet.
+
+        .. py:method:: pause()
+
+            Stops video playback but doesn't close the object. The playback
+            cursor stays at the same position and the decoder queues remain full.
+
+        .. py:method:: play()
+
+            Starts video playback.
+
+        .. py:method:: seekToFrame(num)
+
+            Moves the playback cursor to the frame given.
+
+        .. py:method:: seekToTime(millisecs)
+
+            Moves the playback cursor to the time given.
+
+        .. py:method:: setEOFCallback(pyfunc)
+
+            Sets a python callable to be invoked when the video reaches end of file.
+        
+        .. py:method:: stop()
+
+            Stops video playback. Closes the file, 'rewinds' the playback
+            cursor and clears the decoder queues.
+
     .. autoclass:: VisibleNode
+
+        Base class for all elements in the avg tree that have a visual representation.
+        All nodes except those derived from :py:class:`FXNode` are VisibleNodes.
+
+        .. py:method:: __init__([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, active=True, sensitive=True, opacity=1.0])
+
+            :param string oncursormove:
+
+                Name of python function to call when a cursor moves.
+
+                .. deprecated:: 1.5
+                    Use :func:`setEventHandler()` instead.
+
+            :param string oncursorup:
+
+                Name of python function to call when an up event occurs.
+
+                .. deprecated:: 1.5
+                    Use :func:`setEventHandler()` instead.
+
+            :param string oncursordown:
+
+                Name of python function to call when a down event occurs.
+
+                .. deprecated:: 1.5
+                    Use :func:`setEventHandler()` instead.
+
+            :param string oncursorover:
+
+                Name of python function to call when a cursor enters the node.
+
+                .. deprecated:: 1.5
+                    Use :func:`setEventHandler()` instead.
+
+            :param string oncursorout:
+
+                Name of python function to call when a cursor leaves the node.
+
+                .. deprecated:: 1.5
+                    Use :func:`setEventHandler()` instead.
+
+        .. py:attribute:: active
+
+            If this attribute is true, the node behaves as usual. If not, it
+            is neither drawn nor does it react to events.
+
+        .. py:attribute:: sensitive
+
+            A node only reacts to events if sensitive is true.
+
+        .. py:attribute:: opacity
+
+            A measure of the node's transparency. 0.0 is completely
+            transparent, 1.0 is completely opaque. Opacity is relative to
+            the parent node's opacity.
+
+        .. py:method:: getParent() -> Node
+
+            Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
+            is in. For the root node, returns None.
+
+        .. py:method:: unlink(kill)
+
+            Removes a node from it's parent container. Equivalent to
+            :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
+            except that if the node has no parent, unlink does nothing. Normally, unlink
+            moves the node's textures back to the CPU and preserves event handlers.
+            If :samp:`kill=True`, this step is skipped. Event handlers are reset, all
+            textures are deleted and the href is reset to empty in this case,
+            saving some time and making sure there are no references to the node
+            left on the libavg side. :py:attr:`kill` should always be set to 
+            :keyword:`True` if the node will not be used after the unlink.
+
+        .. py:method:: setEventCapture(cursorid=-1)
+
+            Sets up event capturing so that cursor events are sent to this node
+            regardless of the cursor position. cursorid is optional; if left out,
+            the mouse cursor is captured. If not, events from a specific tracker
+            cursor are captured. The event propagates to the capturing node's
+            parent normally. This function is useful for the
+            implementation of user interface elements such as scroll bars. Only one
+            node can capture a cursor at any one time. Normal operation can
+            be restored by calling :py:func:`releaseEventCapture()`.
+        
+        .. py:method:: releaseEventCapture(cursorid=-1)
+
+            Restores normal cursor event handling after a call to 
+            :py:func:`setEventCapture()`. :py:attr:`cursorid` is the id of the
+            cursor to release. If :py:attr:`cursorid` is not given, the mouse cursor is
+            used.
+
+        .. py:method:: setEventHandler(type, source, pyfunc)
+
+            Sets a callback function that is invoked whenever an event of the
+            specified type from the specified source occurs. This function is
+            similar to the event handler node attributes (e.g. oncursordown).
+            It is more specific since it takes the event source as a parameter
+            and allows the use of any python callable as callback function.
+            
+            :param type:
+            
+                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
+                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
+                :py:const:`CURSOROVER`, :py:const:`CURSOROUT`, :py:const:`RESIZE` or 
+                :py:const:`QUIT`.
+
+            :param source:
+
+                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch touch
+                events, :py:const:`TRACK` for multitouch track events or other tracking,
+                :py:const:`NONE` for keyboard events. Sources can be or'ed together to 
+                set a handler for several sources at once.
+
+            :param pyfunc:
+
+                The python callable to invoke.
+
+        .. py:method:: getAbsPos(relpos) -> Point2D
+
+            Transforms a position in coordinates relative to the node to a
+            position in window coordinates.
+
+        .. py:method:: getRelPos(abspos) -> Point2D
+
+            Transforms a position in window coordinates to a position
+            in coordinates relative to the node.
+
+        .. py:method:: getElementByPos(pos) -> Node
+
+            Returns the topmost child node that is at the position given. :py:attr:`pos`
+            is in coordinates relative to the called node. The algorithm used
+            is the same as the cursor hit test algorithm used for events.
+
     .. autoclass:: WordsNode
+
+        A words node displays formatted text. All
+        properties are set in pixels. International and multi-byte character
+        sets are fully supported. Words nodes use UTF-8 to encode international 
+        characters (use python unicode strings for this).
+        
+        The pos attribute of a words node is the
+        logical top left of the first character for left-aligned text. For
+        centered and right-aligned text, it is the top center and right of the
+        first line, respectively. For latin text, the logical top usually
+        corresponds to the height of the ascender. There may be cases where
+        portions of the text are rendered to the left of or above the logical position,
+        for instance when italics are used.
+
+        Words nodes are rendered using pango internally. 
+
+        .. py:method:: __init__([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, hint=True])
+
+        .. py:attribute:: font 
+
+            The family name of the truetype font to use. Font files can either be 
+            installed in the system, be in a :file:`fonts/` subdirectory of the current
+            directory, or be in a directory specified using :py:meth:`addFontDir`. To
+            figure out which fonts and variants are available, use the 
+            :command:`avg_showfonts.py` utility.
+
+        .. py:attribute:: variant
+
+            The variant (:samp:`bold`, :samp:`italic`, etc.) of the font to use.
+
+        .. py:attribute:: text 
+
+            The string to display. If the node is created using xml, this is either the
+            text attribute of the words node or the content of the words
+            node itself. In the second case, the string can be formatted
+            using the pango text attribute markup language described at
+            http://library.gnome.org/devel/pango/unstable/PangoMarkupFormat.html.
+            Markup can also be used if the text is set using the python attribute.
+
+            Markup parsing can be turned on or off with :py:attr:`rawtextmode` attribute.
+
+        .. py:attribute:: color
+
+            The color of the text in standard html color notation: FF0000 is red, 
+            00FF00 green, etc.
+
+        .. py:attribute:: fontsize
+
+            The font size in pixels. Fractional sizes are supported.
+
+        .. py:attribute:: indent
+
+            The indentation of the first line of the text.
+
+        .. py:attribute:: linespacing
+
+            The number of pixels between different lines of a paragraph. Setting this to
+            :samp:`-1` results in default line spacing.
+
+        .. py:attribute:: alignment
+
+            The paragraph alignment. Possible values are :py:const:`left`,
+            :py:const:`center` and :py:const:`right`.
+
+        .. py:attribute:: wrapmode
+
+            Controls at which points text can wrap to the next line. Possible values are
+            :py:const:`word` (split lines at the nearest whitespace, default), 
+            :py:const:`char` (split at any position, ignoring word breaks) and 
+            :py:const:`wordchar` (split at word boundaries but fall back
+            to char mode if there is no free space for a full word).
+
+        .. py:attribute:: justify
+
+            Whether each complete line should be stretched to fill
+            the entire width of the layout. Default is false.
+
+        .. py:attribute:: rawtextmode
+
+            Sets whether the text should be parsed to apply markup (:keyword:`False`,
+            default) or interpreted as raw string (:keyword:`True`).
+
+        .. py:attribute:: letterspacing
+
+            The amount of space between the idividual glyphs of the text in
+            pixels, with 0 being standard spacing and negative values indicating
+            packed text (less letter spacing than normal). Only active when text
+            attribute markup is not being used.
+
+        .. py:attribute:: hint
+
+            Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)
+            should be used when rendering the text. Unfortunately, this setting
+            does not override the fontconfig settings in
+            :file:`/etc/fonts/conf.d/*-hinting.conf` or other fontconfig configuration
+            files.
+
+        .. py:method:: getGlyphPos(i) -> Point2D
+
+            Returns the position of the glyph at character index :py:attr:`i` in the 
+            layout. The position is in pixels relative to the words
+            node. Formatting markup such as <b> or <i> is treated as zero chars,
+            <br/> is treated as one char.
+
+        .. py:method:: getGlyphSize(i) -> Point2D
+
+            Returns the size in pixels of the glyph at character index :py:attr:`i` in
+            the layout. Formatting markup such 
+            as <b> or <i> is treated as zero chars, <br/> is treated as one char.
+
+        .. py:method:: getNumLines()
+
+            Returns the number of lines in the layout.
+
+        .. py:method:: getCharIndexFromPos(pos) -> int
+
+            Returns the index of the character at the coordinates :py:attr:`pos`, or
+            :keyword:`None` if there is no character at that position. :py:attr:`pos`
+            is relative to the node position.
+            Formatting markup such as <b> or <i> is treated as zero chars,
+            <br/> is treated as one char. To get the text matched to this
+            use :py:meth:`getTextAsDisplayed`.
+
+        .. py:method:: getTextAsDisplayed
+
+            Returns the text without text attribute markup language. <br/>
+            is replaced by \\n.
+
+        .. py:method:: getLineExtents(line) -> Point2D
+
+            Returns the width and height of the specified line in pixels.
+        
+        .. py:classmethod:: getFontFamilies() -> list
+
+            Returns a list of strings containing all font names available.
+
+        .. py:classmethod:: getFontVariants(fontname) -> list
+
+            Returns a list of available variants (:samp:`Regular`, :samp:`Bold`, etc.)
+            of a font.
+
+        .. py:classmethod:: addFontDir
+
+            Adds a directory to be searched for fonts.
+            May only be called before :py:meth:`Player.play`.
 
