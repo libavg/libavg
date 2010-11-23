@@ -24,8 +24,8 @@ from libavg import avg
 g_Player = avg.Player.get()
 
 class DragProcessor:
-    def __init__(self, node, eventSource, startHandler, moveHandler, upHandler,
-            stopHandler=lambda:None, friction=-1):
+    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
+            moveHandler=None, upHandler=None, stopHandler=None, friction=-1):
         self.__node = node
         self.__eventSource = eventSource
         self.__startHandler = startHandler

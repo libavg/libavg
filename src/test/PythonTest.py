@@ -930,8 +930,9 @@ class PythonTestCase(AVGTestCase):
         for self.friction in (-1, 100):
             self.loadEmptyScene()
             image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-            dragProcessor = ui.manipulation.DragProcessor(image, avg.MOUSE, onDragStart, 
-                    onDrag, onDragUp, onDragStop, self.friction)
+            dragProcessor = ui.manipulation.DragProcessor(image, 
+                    startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
+                    stopHandler=onDragStop, friction=self.friction)
             initState()
             self.start(None,
                     (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
