@@ -54,7 +54,7 @@ class DragProcessor:
         if self.__dragCursorID == None:
             if self.__inertiaHandlerID:
                 self.__stopHandler()
-                g_Player.clearTimeout(self.__inertiaHandlerID)
+                g_Player.clearInterval(self.__inertiaHandlerID)
             self.__dragCursorID = event.cursorid
             self.__dragStartPos = event.pos
             self.__node.setEventCapture(event.cursorid)
