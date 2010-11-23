@@ -21,17 +21,22 @@
 
 from libavg import avg
 
+g_Player = avg.Player.get()
 
 class DragProcessor:
-    def __init__(self, node, eventSource, startHandler, moveHandler, endHandler):
+    def __init__(self, node, eventSource, startHandler, moveHandler, upHandler,
+            stopHandler=lambda:None, friction=-1):
         self.__node = node
         self.__eventSource = eventSource
         self.__startHandler = startHandler
         self.__moveHandler = moveHandler
-        self.__endHandler = endHandler
+        self.__stopHandler = stopHandler
+        self.__upHandler = upHandler
         self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp)
         self.__dragCursorID = None
+        self.__friction = friction
         self.__isEnabled = True
+        self.__inertiaHandlerID = None
 
     def enable(self, isEnabled):
         if isEnabled != self.__isEnabled:
@@ -47,26 +52,60 @@ class DragProcessor:
 
     def __onDown(self, event):
         if self.__dragCursorID == None:
+            if self.__inertiaHandlerID:
+                self.__stopHandler()
+                g_Player.clearTimeout(self.__inertiaHandlerID)
             self.__dragCursorID = event.cursorid
             self.__dragStartPos = event.pos
             self.__node.setEventCapture(event.cursorid)
-            self.__startHandler(event)
+            if self.__startHandler:
+                self.__startHandler(event)
+            self.__speed = avg.Point2D(0,0)
+            self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
     def __onMove(self, event):
         if self.__dragCursorID == event.cursorid:
             offset = event.pos - self.__dragStartPos
-            self.__moveHandler(event, offset)
-        
+            if self.__moveHandler:
+                self.__moveHandler(event, offset)
+            self.__speed += 0.1*event.speed
+
+    def __onFrame(self):
+        self.__speed *= 0.9
+
     def __onUp(self, event):
         if self.__dragCursorID == event.cursorid:
             self.__node.releaseEventCapture(event.cursorid)
             self.__dragCursorID = None
             offset = event.pos - self.__dragStartPos
-            self.__endHandler(event, offset)
+            if self.__upHandler:
+                self.__upHandler(event, offset)
+            if self.__friction != -1:
+                g_Player.clearInterval(self.__frameHandlerID)
+                self.__inertiaHandlerID = g_Player.setOnFrameHandler(self.__handleInertia)
+                self.__speed += 0.1*event.speed
+                self.__offset = offset
+            else:
+                if self.__stopHandler:
+                    self.__stopHandler()
+
+    def __handleInertia(self):
+        norm = self.__speed.getNorm()
+        if norm-self.__friction > 0:
+            direction = self.__speed.getNormalized()
+            self.__speed = direction*(norm-self.__friction)
+            self.__offset += self.__speed * g_Player.getFrameDuration()
+            if self.__moveHandler:
+                self.__moveHandler(None, self.__offset)
+        else:
+            self.__speed = avg.Point2D(0,0)
+            if self.__stopHandler:
+                self.__stopHandler()
+            g_Player.clearInterval(self.__inertiaHandlerID)
+            self.__inertiaHandlerID = None
 
     def __setEventHandlers(self, downHandler, moveHandler, upHandler):
         self.__node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
         self.__node.setEventHandler(avg.CURSORMOTION, self.__eventSource, moveHandler)
         self.__node.setEventHandler(avg.CURSORUP, self.__eventSource, upHandler)
-
 

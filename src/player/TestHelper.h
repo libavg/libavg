@@ -41,7 +41,8 @@ class AVG_API TestHelper : public IEventSource
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
-                int xPosition, int yPosition, int button);
+                int xPosition, int yPosition, int button, 
+                const DPoint& speed=DPoint(0,0));
         void fakeTouchEvent(int id, Event::Type eventType,
                 Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
                 const DPoint& speed);

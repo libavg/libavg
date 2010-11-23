@@ -105,6 +105,7 @@ class AVG_API Player: IEventSink
         TestHelper * getTestHelper();
         void setFakeFPS(double fps);
         long long getFrameTime();
+        double getFrameDuration();
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         

@@ -48,6 +48,9 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(fakeMouseEvent_overloads, 
+        TestHelper::fakeMouseEvent, 7, 8);
+
 BOOST_PYTHON_MODULE(avg)
 {
     docstring_options doc_options(true, false);
@@ -145,7 +148,8 @@ BOOST_PYTHON_MODULE(avg)
     export_anim();
 
     class_<TestHelper>("TestHelper", "Miscelaneous routines used by tests.", no_init)
-        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
+        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, 
+                fakeMouseEvent_overloads("speed"))
         .def("fakeTouchEvent", &TestHelper::fakeTouchEvent, "")
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent, "")
         .def("dumpObjects", &TestHelper::dumpObjects, "")
@@ -280,6 +284,7 @@ BOOST_PYTHON_MODULE(avg)
                 "Returns the number of milliseconds that have elapsed since playback\n"
                 "has started. Honors FakeFPS. The time returned stays constant for an\n"
                 "entire frame; it is the time of the last display update.\n")
+        .def("getFrameDuration", &Player::getFrameDuration)
         .def("createNode", &Player::createNodeFromXmlString,
                 "createNode(xml) -> node\n"
                 "Creates a new Node. This node can be used as\n"

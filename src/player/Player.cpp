@@ -580,9 +580,24 @@ void Player::addEventSource(IEventSource* pSource)
     }
     m_pEventDispatcher->addSource(pSource);
 }
+
 long long Player::getFrameTime()
 {
     return m_FrameTime;
+}
+
+double Player::getFrameDuration()
+{
+    if (!m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Must call Player.play() before getFrameDuration().");
+    }
+    double framerate = m_pDisplayEngine->getEffectiveFramerate();
+    if (framerate > 0) {
+        return 1000./framerate;
+    } else {
+        return 0;
+    }
 }
 
 TrackerEventSource * Player::addTracker()

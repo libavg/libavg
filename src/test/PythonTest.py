@@ -894,50 +894,61 @@ class PythonTestCase(AVGTestCase):
                ))
 
     def testDragProcessor(self):
-        def onStartDrag(event):
+        def onDragStart(event):
             self.__dragStartCalled = True
 
         def onDrag(event, offset):
-            self.assert_(offset == (40,40))
+            if self.friction == -1:
+                self.assert_(offset == (40,40))
             self.__dragMoveCalled = True
 
-        def onStopDrag(event, offset):
-            self.assert_(offset == (10,-10))
-            self.__dragEndCalled = True
+        def onDragUp(event, offset):
+            if self.friction == -1:
+                self.assert_(offset == (10,-10))
+            self.__dragUpCalled = True
+
+        def onDragStop():
+            self.__dragStopCalled = True
 
         def disable():
             dragProcessor.enable(False)
+            initState()
+
+        def initState():
             self.__dragStartCalled = False
             self.__dragMoveCalled = False
-            self.__dragEndCalled = False
+            self.__dragUpCalled = False
+            self.__dragStopCalled = False
 
+        def assertDragEvents(start, move, up, stop):
+            self.assert_(self.__dragStartCalled == start and
+                self.__dragMoveCalled == move and
+                self.__dragUpCalled == up and
+                self.__dragStopCalled == stop)
 
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        dragProcessor = ui.manipulation.DragProcessor(image, avg.MOUSE, onStartDrag, 
-                onDrag, onStopDrag)
-        self.__dragStartCalled = False
-        self.__dragMoveCalled = False
-        self.__dragEndCalled = False
-        self.start(None,
-                (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.assert_(self.__dragStartCalled and 
-                        not(self.__dragMoveCalled) and not(self.__dragEndCalled)),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                 lambda: self.assert_(self.__dragStartCalled and self.__dragMoveCalled 
-                        and not(self.__dragEndCalled)),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
-                 lambda: self.assert_(self.__dragStartCalled and self.__dragMoveCalled 
-                        and self.__dragEndCalled),
-                 disable,
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.assert_(not(self.__dragStartCalled) and 
-                        not(self.__dragMoveCalled) and not(self.__dragEndCalled)),
-                 lambda: dragProcessor.enable(True),
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.assert_(self.__dragStartCalled and 
-                        not(self.__dragMoveCalled) and not(self.__dragEndCalled)),
-                ))
+        Player.setFakeFPS(100)
+        for self.friction in (-1, 100):
+            self.loadEmptyScene()
+            image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+            dragProcessor = ui.manipulation.DragProcessor(image, avg.MOUSE, onDragStart, 
+                    onDrag, onDragUp, onDragStop, self.friction)
+            initState()
+            self.start(None,
+                    (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(True, False, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70, 40, 40),
+                     lambda: assertDragEvents(True, True, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20, -30, -50),
+                     lambda: assertDragEvents(True, True, True, True),
+                     disable,
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: dragProcessor.enable(True),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(True, False, False, False),
+                    ))
+        Player.setFakeFPS(-1)
 
     def testFocusContext(self):
         def setup():
@@ -1009,14 +1020,14 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testFocusContext5", True),
                ))
 
-    def __sendMouseEvent(self, type, x, y):
+    def __sendMouseEvent(self, type, x, y, sx=0, sy=0):
         Helper = Player.getTestHelper()
-        Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
+        Helper.fakeMouseEvent(type, True, False, False, x, y, 1, avg.Point2D(sx, sy))
 
-    def __sendTouchEvent(self, id, type, x, y):
+    def __sendTouchEvent(self, id, type, x, y, sx=0, sy=0):
         Helper = Player.getTestHelper()
         Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), avg.Point2D(0, 0), 
-                avg.Point2D(0,0))
+                avg.Point2D(sx,sy))
         
 
 

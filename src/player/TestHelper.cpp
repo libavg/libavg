@@ -46,12 +46,13 @@ TestHelper::~TestHelper()
 void TestHelper::fakeMouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, 
         bool rightButtonState,
-        int xPosition, int yPosition, int button)
+        int xPosition, int yPosition, int button, 
+        const DPoint& speed)
 {
     checkEventType(eventType);
     MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
             middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button,
-            DPoint(0,0)));
+            speed));
     m_Events.push_back(pEvent);
 }
 
