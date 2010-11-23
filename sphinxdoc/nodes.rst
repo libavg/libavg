@@ -138,7 +138,7 @@ Nodes
 
         .. py:method:: isAvailable() -> bool
 
-            Returns True if there is a working device that can deliver images attached to
+            Returns :keyword:`True` if there is a working device that can deliver images attached to
             the CameraNode.
 
         .. py:method:: play()
@@ -206,8 +206,8 @@ Nodes
         A div node is a node that groups other nodes logically and visually.
         Its positino is used as point of origin for the coordinates
         of its child nodes. Its extents can be used to clip the children if crop is set 
-        to True. Its opacity is used as base opacity for the child nodes' opacities.
-        The children of a div node are drawn in the order they are found
+        to :keyword:`True`. Its opacity is used as base opacity for the child nodes' 
+        opacities. The children of a div node are drawn in the order they are found
         in the avg file, so the first one is below all others in z-order.
         
         .. py:method:: __init__([crop=False, elementoutlinecolor, mediadir])
@@ -542,8 +542,8 @@ Nodes
         .. py:attribute:: mipmap
 
             Determines whether mipmaps (http://en.wikipedia.org/wiki/Mipmap) are 
-            generated for this node. Setting this to True improves the quality of 
-            minified nodes. Depending on the graphics card in use, turning on mipmaps
+            generated for this node. Setting this to :keyword:`True` improves the quality
+            of minified nodes. Depending on the graphics card in use, turning on mipmaps
             may cause a performance hit for every image change. Read-only.
 
         .. py:method:: getBitmap() -> Bitmap
@@ -715,9 +715,9 @@ Nodes
         .. py:attribute:: threaded
 
             Whether to use separate threads to decode the video. The default is
-            True. Setting this attribute to False makes seeking much quicker. On the 
-            other hand, it also disables audio and prevents libavg from distributing the 
-            CPU load over several cores of a multi-core computer.
+            :keyword:`True`. Setting this attribute to :keyword:`False` makes seeking much quicker.
+            On the other hand, it also disables audio and prevents libavg from 
+            distributing the CPU load over several cores of a multi-core computer.
 
         .. py:attribute:: volume
 
@@ -813,7 +813,7 @@ Nodes
         Base class for all elements in the avg tree that have a visual representation.
         All nodes except those derived from :py:class:`FXNode` are VisibleNodes.
 
-        .. py:method:: __init__([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, active=True, sensitive=True, opacity=1.0])
+        .. py:method:: __init__([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, active=True, sensitive=True, opacity=1.0, parent])
 
             :param string oncursormove:
 
@@ -850,14 +850,15 @@ Nodes
                 .. deprecated:: 1.5
                     Use :func:`setEventHandler()` instead.
 
+            :param DivNode parent:
+
+                A :py:class:`DivNode` that the newly constructed Node should be appended
+                to.
+
         .. py:attribute:: active
 
             If this attribute is true, the node behaves as usual. If not, it
             is neither drawn nor does it react to events.
-
-        .. py:attribute:: sensitive
-
-            A node only reacts to events if sensitive is true.
 
         .. py:attribute:: opacity
 
@@ -865,22 +866,37 @@ Nodes
             transparent, 1.0 is completely opaque. Opacity is relative to
             the parent node's opacity.
 
+        .. py:attribute:: sensitive
+
+            A node only reacts to events if sensitive is true.
+
+        .. py:method:: getAbsPos(relpos) -> Point2D
+
+            Transforms a position in coordinates relative to the node to a
+            position in window coordinates.
+
+        .. py:method:: getElementByPos(pos) -> Node
+
+            Returns the topmost child node that is at the position given. :py:attr:`pos`
+            is in coordinates relative to the called node. The algorithm used
+            is the same as the cursor hit test algorithm used for events.
+
         .. py:method:: getParent() -> Node
 
             Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
             is in. For the root node, returns None.
 
-        .. py:method:: unlink(kill)
+        .. py:method:: getRelPos(abspos) -> Point2D
 
-            Removes a node from it's parent container. Equivalent to
-            :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
-            except that if the node has no parent, unlink does nothing. Normally, unlink
-            moves the node's textures back to the CPU and preserves event handlers.
-            If :samp:`kill=True`, this step is skipped. Event handlers are reset, all
-            textures are deleted and the href is reset to empty in this case,
-            saving some time and making sure there are no references to the node
-            left on the libavg side. :py:attr:`kill` should always be set to 
-            :keyword:`True` if the node will not be used after the unlink.
+            Transforms a position in window coordinates to a position
+            in coordinates relative to the node.
+
+        .. py:method:: releaseEventCapture(cursorid=-1)
+
+            Restores normal cursor event handling after a call to 
+            :py:func:`setEventCapture()`. :py:attr:`cursorid` is the id of the
+            cursor to release. If :py:attr:`cursorid` is not given, the mouse cursor is
+            used.
 
         .. py:method:: setEventCapture(cursorid=-1)
 
@@ -893,13 +909,6 @@ Nodes
             node can capture a cursor at any one time. Normal operation can
             be restored by calling :py:func:`releaseEventCapture()`.
         
-        .. py:method:: releaseEventCapture(cursorid=-1)
-
-            Restores normal cursor event handling after a call to 
-            :py:func:`setEventCapture()`. :py:attr:`cursorid` is the id of the
-            cursor to release. If :py:attr:`cursorid` is not given, the mouse cursor is
-            used.
-
         .. py:method:: setEventHandler(type, source, pyfunc)
 
             Sets a callback function that is invoked whenever an event of the
@@ -926,21 +935,17 @@ Nodes
 
                 The python callable to invoke.
 
-        .. py:method:: getAbsPos(relpos) -> Point2D
+        .. py:method:: unlink(kill)
 
-            Transforms a position in coordinates relative to the node to a
-            position in window coordinates.
-
-        .. py:method:: getRelPos(abspos) -> Point2D
-
-            Transforms a position in window coordinates to a position
-            in coordinates relative to the node.
-
-        .. py:method:: getElementByPos(pos) -> Node
-
-            Returns the topmost child node that is at the position given. :py:attr:`pos`
-            is in coordinates relative to the called node. The algorithm used
-            is the same as the cursor hit test algorithm used for events.
+            Removes a node from it's parent container. Equivalent to
+            :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
+            except that if the node has no parent, unlink does nothing. Normally, unlink
+            moves the node's textures back to the CPU and preserves event handlers.
+            If :samp:`kill=True`, this step is skipped. Event handlers are reset, all
+            textures are deleted and the href is reset to empty in this case,
+            saving some time and making sure there are no references to the node
+            left on the libavg side. :py:attr:`kill` should always be set to 
+            :keyword:`True` if the node will not be used after the unlink.
 
     .. autoclass:: WordsNode
 
@@ -961,6 +966,16 @@ Nodes
 
         .. py:method:: __init__([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, hint=True])
 
+        .. py:attribute:: alignment
+
+            The paragraph alignment. Possible values are :py:const:`left`,
+            :py:const:`center` and :py:const:`right`.
+
+        .. py:attribute:: color
+
+            The color of the text in standard html color notation: FF0000 is red, 
+            00FF00 green, etc.
+
         .. py:attribute:: font 
 
             The family name of the truetype font to use. Font files can either be 
@@ -969,9 +984,43 @@ Nodes
             figure out which fonts and variants are available, use the 
             :command:`avg_showfonts.py` utility.
 
-        .. py:attribute:: variant
+        .. py:attribute:: fontsize
 
-            The variant (:samp:`bold`, :samp:`italic`, etc.) of the font to use.
+            The font size in pixels. Fractional sizes are supported.
+
+        .. py:attribute:: hint
+
+            Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)
+            should be used when rendering the text. Unfortunately, this setting
+            does not override the fontconfig settings in
+            :file:`/etc/fonts/conf.d/*-hinting.conf` or other fontconfig configuration
+            files.
+
+        .. py:attribute:: indent
+
+            The indentation of the first line of the text.
+
+        .. py:attribute:: justify
+
+            Whether each complete line should be stretched to fill
+            the entire width of the layout. Default is false.
+
+        .. py:attribute:: letterspacing
+
+            The amount of space between the idividual glyphs of the text in
+            pixels, with 0 being standard spacing and negative values indicating
+            packed text (less letter spacing than normal). Only active when text
+            attribute markup is not being used.
+
+        .. py:attribute:: linespacing
+
+            The number of pixels between different lines of a paragraph. Setting this to
+            :samp:`-1` results in default line spacing.
+
+        .. py:attribute:: rawtextmode
+
+            Sets whether the text should be parsed to apply markup (:keyword:`False`,
+            default) or interpreted as raw string (:keyword:`True`).
 
         .. py:attribute:: text 
 
@@ -984,28 +1033,9 @@ Nodes
 
             Markup parsing can be turned on or off with :py:attr:`rawtextmode` attribute.
 
-        .. py:attribute:: color
+        .. py:attribute:: variant
 
-            The color of the text in standard html color notation: FF0000 is red, 
-            00FF00 green, etc.
-
-        .. py:attribute:: fontsize
-
-            The font size in pixels. Fractional sizes are supported.
-
-        .. py:attribute:: indent
-
-            The indentation of the first line of the text.
-
-        .. py:attribute:: linespacing
-
-            The number of pixels between different lines of a paragraph. Setting this to
-            :samp:`-1` results in default line spacing.
-
-        .. py:attribute:: alignment
-
-            The paragraph alignment. Possible values are :py:const:`left`,
-            :py:const:`center` and :py:const:`right`.
+            The variant (:samp:`bold`, :samp:`italic`, etc.) of the font to use.
 
         .. py:attribute:: wrapmode
 
@@ -1015,30 +1045,14 @@ Nodes
             :py:const:`wordchar` (split at word boundaries but fall back
             to char mode if there is no free space for a full word).
 
-        .. py:attribute:: justify
+        .. py:method:: getCharIndexFromPos(pos) -> int
 
-            Whether each complete line should be stretched to fill
-            the entire width of the layout. Default is false.
-
-        .. py:attribute:: rawtextmode
-
-            Sets whether the text should be parsed to apply markup (:keyword:`False`,
-            default) or interpreted as raw string (:keyword:`True`).
-
-        .. py:attribute:: letterspacing
-
-            The amount of space between the idividual glyphs of the text in
-            pixels, with 0 being standard spacing and negative values indicating
-            packed text (less letter spacing than normal). Only active when text
-            attribute markup is not being used.
-
-        .. py:attribute:: hint
-
-            Whether or not hinting (http://en.wikipedia.org/wiki/Font_hinting)
-            should be used when rendering the text. Unfortunately, this setting
-            does not override the fontconfig settings in
-            :file:`/etc/fonts/conf.d/*-hinting.conf` or other fontconfig configuration
-            files.
+            Returns the index of the character at the coordinates :py:attr:`pos`, or
+            :keyword:`None` if there is no character at that position. :py:attr:`pos`
+            is relative to the node position.
+            Formatting markup such as <b> or <i> is treated as zero chars,
+            <br/> is treated as one char. To get the text matched to this
+            use :py:meth:`getTextAsDisplayed`.
 
         .. py:method:: getGlyphPos(i) -> Point2D
 
@@ -1053,28 +1067,24 @@ Nodes
             the layout. Formatting markup such 
             as <b> or <i> is treated as zero chars, <br/> is treated as one char.
 
+        .. py:method:: getLineExtents(line) -> Point2D
+
+            Returns the width and height of the specified line in pixels.
+        
         .. py:method:: getNumLines()
 
             Returns the number of lines in the layout.
-
-        .. py:method:: getCharIndexFromPos(pos) -> int
-
-            Returns the index of the character at the coordinates :py:attr:`pos`, or
-            :keyword:`None` if there is no character at that position. :py:attr:`pos`
-            is relative to the node position.
-            Formatting markup such as <b> or <i> is treated as zero chars,
-            <br/> is treated as one char. To get the text matched to this
-            use :py:meth:`getTextAsDisplayed`.
 
         .. py:method:: getTextAsDisplayed
 
             Returns the text without text attribute markup language. <br/>
             is replaced by \\n.
 
-        .. py:method:: getLineExtents(line) -> Point2D
+        .. py:classmethod:: addFontDir
 
-            Returns the width and height of the specified line in pixels.
-        
+            Adds a directory to be searched for fonts.
+            May only be called before :py:meth:`Player.play`.
+
         .. py:classmethod:: getFontFamilies() -> list
 
             Returns a list of strings containing all font names available.
@@ -1083,9 +1093,4 @@ Nodes
 
             Returns a list of available variants (:samp:`Regular`, :samp:`Bold`, etc.)
             of a font.
-
-        .. py:classmethod:: addFontDir
-
-            Adds a directory to be searched for fonts.
-            May only be called before :py:meth:`Player.play`.
 

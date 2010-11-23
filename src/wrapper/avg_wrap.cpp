@@ -155,324 +155,86 @@ BOOST_PYTHON_MODULE(avg)
         .def("dumpObjects", &TestHelper::dumpObjects, "")
     ;
 
-    class_<Player>("Player", 
-                "The class used to load and play avg files.")
+    class_<Player>("Player") 
         .def("get", &Player::get, 
-                return_value_policy<reference_existing_object>(),
-                "This method gives access to the player, which must have been created.\n"
-                "before by calling the constructor.\n")
+                return_value_policy<reference_existing_object>())
         .staticmethod("get")
-        .def("setResolution", &Player::setResolution,
-                "setResolution(fullscreen, width, height, bpp)\n"
-                "Sets display engine parameters. Must be called before loadFile or\n"
-                "loadString.\n"
-                "@param fullscreen: True if the avg file should be rendered fullscreen.\n"
-                "@param width, height: Set the window size\n"
-                "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
-                "@param bpp: Number of bits per pixel to use.\n")
-        .def("setWindowFrame", &Player::setWindowFrame,
-                "setWindowFrame(bHasWindowFrame)\n"
-                "@param bHasWindowFrame: True if a non-fullscreen player should have a window frame.\n"
-                "If set to False, the player runs with no title bar or window frame.\n")
-        .def("setWindowPos", &Player::setWindowPos,
-                "setWindowPos(x, y)\n"
-                "Sets the location of the player window. Must be called before loadFile\n"
-                "or loadString.\n")
-        .def("setOGLOptions", &Player::setOGLOptions,
-                "setOGLOptions(UsePOW2Textures, UseYCbCrShaders, UsePixelBuffers, MultiSampleSamples)\n"
-                "Determines which OpenGL extensions to check for and use if possible.\n"
-                "Mainly used for debugging purposes while developing libavg, but can\n"
-                "also be used to work around buggy drivers. The values set here\n"
-                "override those in avgrc. Note that with the exception of\n"
-                "MultiSampleSamples, fallbacks are always used - if a feature is\n"
-                "specified that the system doesn't support, a less demanding one will\n"
-                "be used.\n"
-                "@param UsePOW2Textures: If True, restricts textures to power-of-two\n"
-                "dimensions.\n"
-                "@param UseYCbCrShaders: If True, shaders are used to copy YCbCr\n"
-                "to the screen. Results in a major video playback performance boost.\n"
-                "@param UsePixelBuffers: If False, disables the use of OpenGL pixel\n"
-                "buffer objects.\n"
-                "@param MultiSampleSamples: The number of samples per pixel to compute.\n"
-                "This costs performance and smoothes the edges of polygons. A value of\n"
-                "1 turns multisampling (also knowna as FSAA - Full-Screen Antialiasing)\n"
-                "off. Good values are dependent on the graphics driver.\n")
-        .def("setMultiSampleSamples", &Player::setMultiSampleSamples,
-                "setMultiSampleSamples(multiSampleSamples)\n"
-                "@param multiSampleSamples: The number of samples per pixel to compute.\n"
-                "This costs performance and smoothes the edges of polygons. A value of\n"
-                "1 turns multisampling (also knowna as FSAA - Full-Screen Antialiasing)\n"
-                "off. Good values are dependent on the graphics driver.\n")
-        .def("enableAudio", &Player::enableAudio,
-                "enableAudio(bEnable)\n"
-                "Enables or disables audio playback. If audio playback is disabled, no\n"
-                "nodes with sound can be created. Mainly used to speed up the test\n"
-                "suite.\n")
-        .def("loadFile", &Player::loadFile,
-                "loadFile(filename) -> canvas\n"
-                "Loads the avg file specified in filename. Returns the canvas loaded."
-                "The canvas is the main canvas displayed onscreen."
-                "@param filename: ")
-        .def("loadString", &Player::loadString,
-                "loadString(avgString) -> canvas\n"
-                "Parses avgString and loads the nodes it contains. Returns the canvas"
-                "loaded. The canvas is the main canvas displayed onscreen."
-                "@param avgString: An xml string containing an avg node hierarchy.")
-        .def("loadCanvasFile", &Player::loadCanvasFile,
-                "loadCanvasFile(filename)\n"
-                "Loads the canvas file specified in filename and adds it to the\n"
-                "registered offscreen canvases.\n"
-                "@param filename: ")
-        .def("loadCanvasString", &Player::loadCanvasString,
-                "loadCanvasString(avgString)\n"
-                "Parses avgString, loads the nodes it contains and adds the hierarchy\n"
-                "to the registered offscreen canvases.\n"
-                "@param avgString: An xml string containing an avg node hierarchy.")
-        .def("deleteCanvas", &Player::deleteCanvas,
-                "deleteCanvas(id)\n"
-                "Removes the canvas given by id from the player's internal list of"
-                "canvases. If the canvas is not referenced by a node, it is deleted."
-                "If it is referenced, it is deleted once the reference is gone and not"
-                "immediately.")
-        .def("getMainCanvas", &Player::getMainCanvas,
-                "getMainCanvas() -> canvas\n"
-                "Returns the main canvas. This is the canvas loaded using loadFile or"
-                "loadString and displayed on screen.")
-        .def("getCanvas", &Player::getCanvas,
-                "getCanvas(id) -> canvas\n"
-                "Returns a reference to an offscreen canvas - one loaded using"
-                "loadCanvasXxx")
-        .def("play", &Player::play,
-                "play()\n"
-                "Opens a playback window or screen and starts playback. play returns\n"
-                "when playback has ended.\n")
-        .def("stop", &Player::stop,
-                "stop()\n"
-                "Stops playback and resets the video mode if necessary.\n")
-        .def("isPlaying", &Player::isPlaying,
-                "isPlaying() -> bool\n"
-                "Returns True if play() is currently executing, False if not.\n")
-        .def("setFramerate", &Player::setFramerate,
-                "setFramerate(framerate)\n"
-                "Sets the desired framerate for playback. Turns off syncronization\n"
-                "to the vertical blanking interval.\n"
-                "@param framerate: ")
-        .def("setVBlankFramerate", &Player::setVBlankFramerate,
-                "setVBlankFramerate(rate)\n"
-                "Sets the desired number of monitor refreshes before the next\n"
-                "frame is displayed. The resulting framerate is determined by the\n"
-                "monitor refresh rate divided by the rate parameter.\n"
-                "@param rate: Number of vertical blanking intervals to wait.\n")
-        .def("getEffectiveFramerate", &Player::getEffectiveFramerate,
-                "getEffectiveFramerate() -> framerate\n"
-                "Returns the framerate that the player is actually achieving. The\n"
-                "value returned is not averaged and reflects only the current frame.\n")
+        .def("setResolution", &Player::setResolution)
+        .def("setWindowFrame", &Player::setWindowFrame)
+        .def("setWindowPos", &Player::setWindowPos)
+        .def("setOGLOptions", &Player::setOGLOptions)
+        .def("setMultiSampleSamples", &Player::setMultiSampleSamples)
+        .def("enableAudio", &Player::enableAudio)
+        .def("loadFile", &Player::loadFile)
+        .def("loadString", &Player::loadString)
+        .def("loadCanvasFile", &Player::loadCanvasFile)
+        .def("loadCanvasString", &Player::loadCanvasString)
+        .def("deleteCanvas", &Player::deleteCanvas)
+        .def("getMainCanvas", &Player::getMainCanvas)
+        .def("getCanvas", &Player::getCanvas)
+        .def("play", &Player::play)
+        .def("stop", &Player::stop)
+        .def("isPlaying", &Player::isPlaying)
+        .def("setFramerate", &Player::setFramerate)
+        .def("setVBlankFramerate", &Player::setVBlankFramerate)
+        .def("getEffectiveFramerate", &Player::getEffectiveFramerate)
         .def("getTestHelper", &Player::getTestHelper,
-                return_value_policy<reference_existing_object>(),
-                "")
-        .def("setFakeFPS", &Player::setFakeFPS,
-                "setFakeFPS(fps)\n"
-                "Sets a fixed number of virtual frames per second that are used as\n"
-                "clock source for video playback, animations and other time-based\n"
-                "actions. If a value of -1 is given as parameter, the real clock is\n"
-                "used. FakeFPS can be used to get reproducible effects for recordings\n"
-                "or automated tests. Setting FakeFPS has the side-effect of disabling\n"
-                "audio.\n"
-                "@param fps: \n")
-        .def("getFrameTime", &Player::getFrameTime,
-                "getFrameTime() -> time\n"
-                "Returns the number of milliseconds that have elapsed since playback\n"
-                "has started. Honors FakeFPS. The time returned stays constant for an\n"
-                "entire frame; it is the time of the last display update.\n")
+                return_value_policy<reference_existing_object>())
+        .def("setFakeFPS", &Player::setFakeFPS)
+        .def("getFrameTime", &Player::getFrameTime)
         .def("getFrameDuration", &Player::getFrameDuration)
-        .def("createNode", &Player::createNodeFromXmlString,
-                "createNode(xml) -> node\n"
-                "Creates a new Node. This node can be used as\n"
-                "parameter to DivNode::appendChild() and insertChild().\n"
-                "This method will create any type of node, including <div> nodes\n"
-                "with children.\n"
-                "@param xml: xml string in avg syntax that specifies the node to create.")
-        .def("createNode", &Player::createNode,
-                "createNode(type, args) -> node\n"
-                "Creates a new Node. This node can be used as\n"
-                "parameter to DivNode::appendChild() and insertChild().\n"
-                "This method will only create one node at a time.\n"
-                "@param type: type string of the node to create.\n"
-                "@param args: a dictionary specifying attributes of the node.")
+        .def("createNode", &Player::createNodeFromXmlString)
+        .def("createNode", &Player::createNode)
         .def("addTracker", &Player::addTracker,
-                return_value_policy<reference_existing_object>(),
-                "addTracker()\n"
-                "Adds a camera-based tracker to the avg player. The tracker can be\n"
-                "configured using the default config file and immediately starts\n"
-                "reporting events.")
+                return_value_policy<reference_existing_object>())
         .def("enableMultitouch", &Player::enableMultitouch)
         .def("getTracker", &Player::getTracker,
-                return_value_policy<reference_existing_object>(),
-                "getTracker()\n"
-                "returns a tracker previously created with addTracker.")
-        .def("setInterval", &Player::setInterval,
-                "setInterval(time, pyfunc) -> id\n"
-                "Sets a python callable object that should be executed regularly.\n"
-                "setInterval returns an id that can be used to\n"
-                "call clearInterval() to stop the function from being called. The\n"
-                "callback is called at most once per frame.\n"
-                "@param time: Number of milliseconds between two calls.\n"
-                "@param pyfunc: Python callable to execute.\n")
-        .def("setTimeout", &Player::setTimeout, 
-                "setTimeout(time, pyfunc) -> id\n"
-                "Sets a python callable object that should be executed after a set\n"
-                "amount of time. setTimeout returns an id that can be used to\n"
-                "call clearInterval() to stop the function from being called.\n"
-                "@param time: Number of milliseconds before the call.\n"
-                "@param pyfunc: Python callable to execute.\n")
-        .def("setOnFrameHandler", &Player::setOnFrameHandler,
-                "setOnFrameHandler(pyfunc) -> id\n"
-                "Sets a python callable object that should be executed once per frame.\n"
-                "Returns an id that can be used to call clearInterval() to stop the\n"
-                "function from being called.\n"
-                "@param pyfunc: Python callable to execute.\n")
-        .def("clearInterval", &Player::clearInterval,
-                "clearInterval(id) -> ok\n"
-                "Stops a timeout, an interval or an onFrameHandler from being called.\n"
-                "Returns True if there was an interval with the given id, False if not.\n"
-                "@param id: An id returned by setInterval, setTimeout or\n"
-                "setOnFrameHandler.\n")
-        .def("getMouseState", &Player::getMouseState,
-                "getMouseState() -> event\n"
-                "Returns an interface to the last mouse event.\n")
-        .def("getKeyModifierState", &Player::getKeyModifierState,
-                "getKeyModifierState() -> KeyModifier\n"
-                "Returns the current modifier keys (shift, ctrl) pressed. The return\n"
-                "value is several KeyModifier values or'ed together.\n")
-        .def("screenshot", &Player::screenshot,
-                "screenshot() -> bitmap\n"
-                "Returns the contents of the current screen as a bitmap.\n")
-        .def("stopOnEscape", &Player::setStopOnEscape,
-                "stopOnEscape(stop)\n"
-                "Toggles player stop upon escape keystroke.\n"
-                "@param stop: True if player should stop on escape\n")
-        .def("showCursor", &Player::showCursor,
-                "showCursor(show)\n"
-                "Shows or hides the mouse cursor.\n"
-                "@param show: True if the mouse cursor should be visible.\n")
-        .def("setCursor", &Player::setCursor,
-                "setCursor(bitmap, hotspot)\n"
-                "Sets the mouse cursor to the bitmap given. The bitmap must have a size\n"
-                "divisible by 8 and an RGBA pixel format. The cursor generated is\n"
-                "binary black and white with a binary transparency channel. hotspot is\n"
-                "the relative position of the actual pointing coordinate in the\n"
-                "bitmap.\n")
-        .def("getElementByID", &Player::getElementByID,
-                "getElementByID(id) -> node\n"
-                "Returns an element in the avg tree.\n"
-                "@param id: id attribute of the node to return.\n")
-        .def("getRootNode", &Player::getRootNode,
-                "getRootNode() -> node\n"
-                "Returns the outermost element in the avg tree.\n")
-        .def("getFramerate", &Player::getFramerate,
-                "getFramerate() -> rate\n"
-                "Returns the current target framerate in frames per second.\n")
-        .def("getVideoRefreshRate", &Player::getVideoRefreshRate,
-                "getVideoRefreshRate() -> rate\n"
-                "Returns the current hardware video refresh rate in number of\n"
-                "refreshes per second.\n")
-        .def("setGamma", &Player::setGamma,
-                "setGamma(red, green, blue)\n"
-                "Sets display gamma. This is a control for overall brightness and\n"
-                "contrast that leaves black and white unchanged but adjusts greyscale\n"
-                "values. 1.0 is identity, higher values give a brighter image, lower\n"
-                "values a darker one.\n"
-                "@param red, green, blue: \n")
-        .def("setMousePos", &Player::setMousePos,
-                "setMousePos(pos)\n"
-                "Sets the position of the mouse cursor. Generates a mouse motion event.\n"
-                "@param pos: new coordinates as a Point2D.\n")
-        .def("loadPlugin", &Player::loadPlugin,
-                "loadPlugin(name)\n"
-                "load a Plugin and extend the XML DTD.\n"
-                "@param name: name of the plugin (without directory and\n"
-                "file extension)\n")
-        .def("setEventHook", &Player::setEventHook,
-                "setEventHook(pyfunc)\n"
-                "Set a callable which will receive all events passing\n"
-                "through Player events' sink. If the function returns True,\n"
-                "the event is not propagated to the underlying listeners.\n"
-                "Note that event.node is not set in the callback, since the\n"
-                "system hasn't determined the node to send the event to at that\n"
-                "point.\n"
-                "@param pyfunc: a python callable\n")
-        .def("getEventHook", &Player::getEventHook,
-                "pyfunc = getEventHook()\n"
-                "Returns the function set by the last setEventHook. Can be used to chain"
-                "several event hook functions.")
-        .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath,
-                "A colon-separated list of directories where the player\n"
-                "searches for plugins when loadPlugin() is called.\n")
-        .add_property("volume", &Player::getVolume, &Player::setVolume,
-                "Total audio playback volume. 0 is silence, 1 passes media file\n"
-                "volume through unchanged. Values higher than 1 can be used to\n"
-                "amplify playback. A limiter prevents distortion when the volume\n"
-                "is set to high.\n")
+                return_value_policy<reference_existing_object>())
+        .def("setInterval", &Player::setInterval)
+        .def("setTimeout", &Player::setTimeout)
+        .def("setOnFrameHandler", &Player::setOnFrameHandler)
+        .def("clearInterval", &Player::clearInterval)
+        .def("getMouseState", &Player::getMouseState)
+        .def("getKeyModifierState", &Player::getKeyModifierState)
+        .def("screenshot", &Player::screenshot)
+        .def("stopOnEscape", &Player::setStopOnEscape)
+        .def("showCursor", &Player::showCursor)
+        .def("setCursor", &Player::setCursor)
+        .def("getElementByID", &Player::getElementByID)
+        .def("getRootNode", &Player::getRootNode)
+        .def("getFramerate", &Player::getFramerate)
+        .def("getVideoRefreshRate", &Player::getVideoRefreshRate)
+        .def("setGamma", &Player::setGamma)
+        .def("setMousePos", &Player::setMousePos)
+        .def("loadPlugin", &Player::loadPlugin)
+        .def("setEventHook", &Player::setEventHook)
+        .def("getEventHook", &Player::getEventHook)
+        .add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath)
+        .add_property("volume", &Player::getVolume, &Player::setVolume)
     ;
 
-    class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", 
-                "A Canvas is a tree of nodes. It corresponds to a scenegraph. In a libavg"
-                "session, there is one main canvas that gets rendered to the screen and"
-                "zero or more canvases that are rendered offscreen.",
-                no_init)
+    class_<Canvas, boost::shared_ptr<Canvas>, boost::noncopyable>("Canvas", no_init)
         .def(self == self)
         .def(self != self)
         .def("__hash__", &Canvas::getHash)
-        .def("getRootNode", &Canvas::getRootNode,
-                "getRootNode() -> node\n"
-                "Returns the root of the scenegraph. For the main canvas, this is an <avg>"
-                "node. For an offscreen canvas, this is a <canvas> node.")
-        .def("getElementByID", &Canvas::getElementByID,
-                "getElementByID(id) -> node\n"
-                "Returns an element in the canvas's tree."
-                "@param id: id attribute of the node to return.")
-        .def("screenshot", &Canvas::screenshot,
-               "getImage() -> bitmap\n"
-               "Returns the image the canvas has last rendered. For the main canvas, this"
-               "is a real screenshot. For offscreen canvases, this is the image rendered"
-               "offscreen.")
+        .def("getRootNode", &Canvas::getRootNode)
+        .def("getElementByID", &Canvas::getElementByID)
+        .def("screenshot", &Canvas::screenshot)
     ;
 
     class_<OffscreenCanvas, boost::shared_ptr<OffscreenCanvas>, bases<Canvas>,
-            boost::noncopyable>("OffscreenCanvas",
-                "An OffscreenCanvas is a Canvas that is rendered to a texture. It can be"
-                "referenced in the href attribute of an image node.",
-                no_init)
-        .def("getID", &OffscreenCanvas::getID,
-                "getID() -> id\n"
-                "Returns the id of the canvas. This is the same as"
-                "calling canvas.getRootNode().getID().")
-        .def("render", &OffscreenCanvas::render,
-                "render() -> None"
-                "Forces a redraw of the offscreen canvas. This makes sure that following "
-                "calls to screenshot() get a current version of the canvas and is "
-                "otherwise unnecessary.")
+            boost::noncopyable>("OffscreenCanvas", no_init)
+        .def("getID", &OffscreenCanvas::getID)
+        .def("render", &OffscreenCanvas::render)
         .def("registerCameraNode", &OffscreenCanvas::registerCameraNode)
         .def("unregisterCameraNode", &OffscreenCanvas::unregisterCameraNode)
-        .add_property("handleevents", &OffscreenCanvas::getHandleEvents, 
-                "True if events that arrive at an image node that is displaying this"
-                "canvas are routed to the offscreen canvas (ro).")
-        .add_property("multisamplesamples", &OffscreenCanvas::getMultiSampleSamples,
-                "Number of samples per pixel to use for multisampling. Setting this to "
-                "1 disables multisampling.")
-        .add_property("mipmap", &OffscreenCanvas::getMipmap,
-                "True if mipmaps are generated and used for the canvas.  This is used "
-                "instead of RasterNode.mipmap for images that render the canvas.")
+        .add_property("handleevents", &OffscreenCanvas::getHandleEvents)
+        .add_property("multisamplesamples", &OffscreenCanvas::getMultiSampleSamples)
+        .add_property("mipmap", &OffscreenCanvas::getMipmap)
         .add_property("autorender", &OffscreenCanvas::getAutoRender,
-                &OffscreenCanvas::setAutoRender,
-                "Turns autorendering on or off. Default is True.\n")
-        .def("getNumDependentCanvases", &OffscreenCanvas::getNumDependentCanvases,
-                "Returns the number of canvases that reference this canvas. Used mainly "
-                "for unit tests.")
-        .def("isMultisampleSupported", &OffscreenCanvas::isMultisampleSupported,
-                "isMultisampleSupported() -> bool\n"
-                "True if the machine's OpenGL implementation supports offscreen "
-                "multisampling.")
+                &OffscreenCanvas::setAutoRender)
+        .def("getNumDependentCanvases", &OffscreenCanvas::getNumDependentCanvases)
+        .def("isMultisampleSupported", &OffscreenCanvas::isMultisampleSupported)
         .staticmethod("isMultisampleSupported")
     ;
 }
