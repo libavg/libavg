@@ -21,7 +21,7 @@
 
 import unittest
 
-from libavg import avg, anim, draggable, button, textarea, ui
+from libavg import avg, anim, draggable, button, textarea, ui, geom
 
 from testcase import *
 
@@ -1021,6 +1021,36 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testFocusContext5", True),
                ))
 
+    def testRoundedRect(self):
+        def setPos():
+            self.rect.pos = (20.5, 3.5)
+
+        def setSize():
+            self.rect.size = (40, 20)
+
+        def setRadius(r):
+            self.rect.radius = r
+
+        def setFill():
+            self.rect.fillcolor = "0000FF"
+            self.rect.fillopacity = 0.5
+
+        self.loadEmptyScene()
+        self.rect = geom.RoundedRect(parent=Player.getRootNode(), pos=(2.5,2.5), 
+                size=(64,64), radius=5, color="FF0000")
+        self.start(None,
+                (lambda: self.compareImage("testRoundedRect1", True),
+                 setPos,
+                 lambda: self.compareImage("testRoundedRect2", True),
+                 setSize,
+                 lambda: self.compareImage("testRoundedRect3", True),
+                 lambda: self.assertException(setRadius(15)),
+                 lambda: setRadius(10),
+                 lambda: self.compareImage("testRoundedRect4", True),
+                 setFill,
+                 lambda: self.compareImage("testRoundedRect5", True),
+                ))
+
     def __sendMouseEvent(self, type, x, y, sx=0, sy=0):
         Helper = Player.getTestHelper()
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1, avg.Point2D(sx, sy))
@@ -1029,8 +1059,7 @@ class PythonTestCase(AVGTestCase):
         Helper = Player.getTestHelper()
         Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), avg.Point2D(0, 0), 
                 avg.Point2D(sx,sy))
-        
-
+       
 
 def pythonTestSuite (tests):
     availableTests = (
@@ -1049,6 +1078,7 @@ def pythonTestSuite (tests):
         "testTextArea",
         "testDragProcessor",
         "testFocusContext",
+        "testRoundedRect",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
