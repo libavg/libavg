@@ -138,8 +138,8 @@ Nodes
 
         .. py:method:: isAvailable() -> bool
 
-            Returns :keyword:`True` if there is a working device that can deliver images attached to
-            the CameraNode.
+            Returns :keyword:`True` if there is a working device that can deliver images
+            attached to the CameraNode.
 
         .. py:method:: play()
 

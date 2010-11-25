@@ -74,80 +74,20 @@ void export_devices()
         .value("PARPORTDATA7", BIT7)
         .export_values();
     
-    class_<ParPort>("ParPort",
-            "Used for low-level control of the parallel port's data, status and control\n"
-            "lines.")
-        .def("init", &ParPort::init,
-                "init(devicename) -> None\n"
-                "Opens a parallel port.\n"
-                "@param devicename: Device filename to use. If DeviceName is an empty\n"
-                "string, /dev/parport0 is used as device name.")
-        .def("setControlLine", &ParPort::setControlLine,
-                "setControlLine(line, value)\n",
-                "Sets or clears one of the control lines.\n"
-                "@param line: Which control line to modify. Possible values for line\n"
-                "are CONTROL_STROBE, CONTROL_AUTOFD, CONTROL_INIT and CONTROL_SELECT.\n"
-                "@param value: Whether to set (True) or clear (False) the line.\n"
-                "@return: True if the value was set successfully, False otherwise.")
-        .def("getStatusLine", &ParPort::getStatusLine,
-                "getStatusLine(line)\n"
-                "Returns the value of one of the parallel port status lines.\n"
-                "@param line: Which status line to query. Possible values for line are\n"
-                "STATUS_ERROR, STATUS_SELECT, STATUS_PAPEROUT, STATUS_ACK and\n"
-                "STATUS_BUSY.\n"
-                "@return: True if the line is set.\n")
-        .def("setDataLines", &ParPort::setDataLines,
-                "setDataLines(lines)\n"
-                "Sets data lines.\n" 
-                "@param lines: The lines to set. Constants to used for\n"
-                "these lines are PARPORTDATA0-PARPORTDATA7. Several of these constants\n"
-                "can be or'ed together to set several lines. The lines not mentioned in\n"
-                "the parameter are left unchanged.\n"
-                "@return: True if the lines were set, False otherwise.")
-        .def("clearDataLines", &ParPort::clearDataLines,
-                "clearDataLines(lines)\n"
-                "Clears data lines.\n" 
-                "@param lines: The lines to clear. Constants to used for\n"
-                "these lines are PARPORTDATA0-PARPORTDATA7. Several of these constants\n"
-                "can be or'ed together to set several lines. The lines not mentioned in\n"
-                "the parameter are left unchanged.\n"
-                "@return: True if the lines were cleared, False otherwise.")
-        .def("setAllDataLines", &ParPort::setDataLines,
-                "setAllDataLines(lines)\n\n"
-                "Changes the value of all data lines.\n"
-                "@param lines: The lines to set. Constants to used for these\n"
-                "lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
-                "be or'ed together to set several lines. The lines not mentioned in\n"
-                "the parameter are cleared.\n"
-                "@return: True if the lines were set, False otherwise.")
-        .def("isAvailable", &ParPort::isAvailable,
-                "isAvailable()\n\n"
-                "Returns True if the parallel port has been opened successfully, False\n"
-                "otherwise.")
+    class_<ParPort>("ParPort")
+        .def("init", &ParPort::init)
+        .def("setControlLine", &ParPort::setControlLine)
+        .def("getStatusLine", &ParPort::getStatusLine)
+        .def("setDataLines", &ParPort::setDataLines)
+        .def("clearDataLines", &ParPort::clearDataLines)
+        .def("setAllDataLines", &ParPort::setDataLines)
+        .def("isAvailable", &ParPort::isAvailable)
         ;
 
-    class_<ConradRelais>("ConradRelais",
-            "Interface to one or more conrad relais cards connected to a serial port.\n"
-            "Per card, up to eight 220V devices can be connected.",
-            init<Player*, int>(
-                "ConradRelais(AVGPlayer, port)\n\n"
-                "Opens a connection to the relais card(s) connected to a serial port.\n"
-                "@param AVGPlayer: \n"
-                "@param port: The port the device is connected to. The actual device\n"
-                "opened is /dev/ttyS<port>."))
-        .def("getNumCards", &ConradRelais::getNumCards,
-                "getNumCards()\n"
-                "Returns the number of cards connected to the serial port.\n")
-        .def("set", &ConradRelais::set,
-                "set(card, index, value)\n"
-                "Sets or resets one of the relais.\n"
-                "@param card: Zero-based index of the card to address.\n"
-                "@param index: Zero-based index of the relais on the card.\n"
-                "@param value: Whether to set (True) or reset (False) the relais.\n")
-        .def("get", &ConradRelais::get,
-                "get(card, index) -> value\n"
-                "Returns the state of one of the relais.\n"
-                "@param card: Zero-based index of the card to address.\n"
-                "@param index: Zero-based index of the relais on the card.\n");
+    class_<ConradRelais>("ConradRelais", init<Player*, int>())
+        .def("getNumCards", &ConradRelais::getNumCards)
+        .def("set", &ConradRelais::set)
+        .def("get", &ConradRelais::get)
+        ;
 }
 

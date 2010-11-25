@@ -35,27 +35,18 @@ using namespace std;
 using namespace avg;
 
 template<class POINT>
-class_<POINT> export_point(const string& sName, const string& sDoc)
+class_<POINT> export_point(const string& sName)
 {
-    return class_<POINT>(sName.c_str(), sDoc.c_str(), no_init)
+    return class_<POINT>(sName.c_str(), no_init)
         .def("__len__", &DPointHelper::len)
         .def("__getitem__", &DPointHelper::getItem)
         .def("__str__", &DPointHelper::str)
         .def("__repr__", &DPointHelper::repr)
         .def("__hash__", &DPointHelper::getHash)
-        .def("getNormalized", &DPoint::safeGetNormalized,
-                "getNormalized() -> normalized\n"
-                "Returns a normalized version of the point with the same angle but a\n"
-                "norm of one. Throws an exception if called on Point2D(0,0).")
-        .def("getNorm", &DPoint::getNorm,
-                "getNorm() -> norm\n"
-                "Returns the euclidian norm of the point, that is sqrt(x*x+y*y).")
-        .def("getRotated", &DPoint::getRotated,
-                "getRotated(angle) -> pos\n"
-                "Return the position of point rotated around the origin.")
-        .def("getRotated", &DPoint::getRotatedPivot,
-                "getRotated(angle, pivot) -> pos\n"
-                "Return the position of point rotated around pivot.")
+        .def("getNormalized", &DPoint::safeGetNormalized)
+        .def("getNorm", &DPoint::getNorm)
+        .def("getRotated", &DPoint::getRotated)
+        .def("getRotated", &DPoint::getRotatedPivot)
         .def("isNaN", &DPoint::isNaN)
         .def("isInf", &DPoint::isInf)
         .def(self == self)
@@ -66,11 +57,7 @@ class_<POINT> export_point(const string& sName, const string& sDoc)
         .def(float() * self)
         .def(self * float())
         .def(self / float())
-        .def("fromPolar", &DPoint::fromPolar,
-                "fromPolar(angle, radius) -> DPoint\n"
-                "Converts polar to cartesian coordinates. angle is in radians with 0\n"
-                "being the positive x axis. Assuming that y points downward, angle\n"
-                "is clockwise.\n")
+        .def("fromPolar", &DPoint::fromPolar)
         .staticmethod("fromPolar")
     ;
 }
@@ -96,8 +83,7 @@ DPoint* createPoint()
 
 void export_bitmap()
 {
-    export_point<DPoint>("Point2D",
-            "A point in 2D space. Supports arithmetic operations on vectors.")
+    export_point<DPoint>("Point2D")
         .def("__init__", make_constructor(createPoint))
         .def(init<double, double>())
         .def(init<const DPoint&>())
@@ -105,7 +91,7 @@ void export_bitmap()
         .add_property("x", &DPointHelper::getX, &DPointHelper::setX,"")
         .add_property("y", &DPointHelper::getY, &DPointHelper::setY,"")
     ;
-    export_point<ConstDPoint>("ConstPoint2D", "A point in 2D space. Immutable.")
+    export_point<ConstDPoint>("ConstPoint2D")
         .add_property("x", &DPointHelper::getX, "")
         .add_property("y", &DPointHelper::getY, "")
     ;
@@ -132,51 +118,22 @@ void export_bitmap()
 
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 
-    class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap",
-            "Class representing a rectangular set of pixels. Bitmaps can be obtained\n"
-            "from any RasterNode. For nodes of type Image, the current bitmap can be\n"
-            "set as well.",
-            no_init)
+    class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
         .def(init<DPoint, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
         .def(init<UTF8String>())
-        .def("save", &Bitmap::save,
-                "save(filename)\n"
-                "Writes the image to a file. File format is determined using the\n"
-                "extension. Any file format specified by ImageMagick \n"
-                "(U{http://www.imagemagick.org}) can be used.")
-        .def("getSize", &Bitmap_getSize,
-                "getSize()\n\n"
-                "Returns the size of the image in pixels.")
-        .def("getFormat", &Bitmap::getPixelFormat, 
-                "getFormat()\n"
-                "Returns the layout of the pixels in the bitmap.\n"
-                "Possible return values are B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8,\n"
-                "A8B8G8R8, X8B8G8R8, R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8,\n"
-                "X8R8G8B8, I8 and YCbCr422.")
-        .def("getPixels", &Bitmap::getPixelsAsString, 
-                "getPixels()\n"
-                "Returns the raw pixel data in the bitmap as a python string. This\n"
-                "method can be used to interface to the python imaging library PIL\n"
-                "(U{http://www.pythonware.com/products/pil/}).")
-        .def("setPixels", &Bitmap::setPixelsFromString,
-                "setPixels(pixels)\n\n"
-                "Changes the raw pixel data in the bitmap. Doesn't change dimensions \n"
-                "or pixel format. Can be used to interface to the python imaging\n"
-                "library PIL (U{http://www.pythonware.com/products/pil/}).\n"
-                "@param pixels: Image data as a python string.")
-        .def("getPixel", &Bitmap::getPythonPixel,
-                "getPixel(pos) -> (r,g,b,a)\n\n"
-                "Returns one image pixel als a color tuple. This should only be used\n"
-                "for single pixels, as it is very slow.")
+        .def("save", &Bitmap::save)
+        .def("getSize", &Bitmap_getSize)
+        .def("getFormat", &Bitmap::getPixelFormat)
+        .def("getPixels", &Bitmap::getPixelsAsString)
+        .def("setPixels", &Bitmap::setPixelsFromString)
+        .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract,
-                return_value_policy<manage_new_object>(),
-                "subtract(otherbitmap) -> bmp\n")
+                return_value_policy<manage_new_object>())
         .def("getAvg", &Bitmap::getAvg)
         .def("getStdDev", &Bitmap::getStdDev)
         .def("getName", &Bitmap::getName, 
-                return_value_policy<copy_const_reference>(),
-                "getName() -> string\n\n")
+                return_value_policy<copy_const_reference>())
     ;
     
 }
