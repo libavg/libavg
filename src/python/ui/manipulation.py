@@ -50,6 +50,10 @@ class DragProcessor:
                 self.__setEventHandlers(lambda event:None, lambda event:None, 
                         lambda event:None)
 
+    def abortInertia(self):
+        if self.__inertiaHandlerID:
+            self.__stop()
+
     def __onDown(self, event):
         if self.__dragCursorID == None:
             if self.__inertiaHandlerID:
@@ -98,11 +102,14 @@ class DragProcessor:
             if self.__moveHandler:
                 self.__moveHandler(None, self.__offset)
         else:
-            self.__speed = avg.Point2D(0,0)
-            if self.__stopHandler:
-                self.__stopHandler()
-            g_Player.clearInterval(self.__inertiaHandlerID)
-            self.__inertiaHandlerID = None
+            self.__stop()
+
+    def __stop(self):
+        self.__speed = avg.Point2D(0,0)
+        if self.__stopHandler:
+            self.__stopHandler()
+        g_Player.clearInterval(self.__inertiaHandlerID)
+        self.__inertiaHandlerID = None
 
     def __setEventHandlers(self, downHandler, moveHandler, upHandler):
         self.__node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
