@@ -69,6 +69,8 @@ class DragProcessor:
 
     def __onMove(self, event):
         if self.__dragCursorID == event.cursorid:
+            # TODO: Offset is in the global coordinate system. We should really be using
+            # the coordinate system we're in at the moment the drag starts. 
             offset = event.pos - self.__dragStartPos
             if self.__moveHandler:
                 self.__moveHandler(event, offset)

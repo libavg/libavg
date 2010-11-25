@@ -178,6 +178,7 @@ void VertexArray::draw()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
+    // TODO: glDrawRangeElements is allegedly faster.
     glDrawElements(GL_TRIANGLES, m_NumIndexes, GL_UNSIGNED_INT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw():2");
 }
