@@ -314,6 +314,12 @@ void RasterNode::setContrast(const DTriple& contrast)
 
 void RasterNode::setEffect(FXNodePtr pFXNode)
 {
+    if (m_pFXNode && m_pFXNode != pFXNode) {
+        m_pFXNode->disconnect();
+    }
+    if (m_pFXNode && !pFXNode) {
+        m_pFBO = FBOPtr();
+    }
     m_pFXNode = pFXNode;
     setupFX();
 }

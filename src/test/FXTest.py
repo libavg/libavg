@@ -105,14 +105,32 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testBlurFX(self):
+        def removeFX():
+            self.node.setEffect(None)
+
+        def reAddFX():
+            self.node.setEffect(self.effect)
+
+        def addNewFX():
+            effect = avg.BlurFXNode()
+            effect.setParam(8)
+            self.node.setEffect(effect)
+
         self.loadEmptyScene()
         root = Player.getRootNode()
-        node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        effect = avg.BlurFXNode()
-        node.setEffect(effect)
+        self.node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.effect = avg.BlurFXNode()
+        self.node.setEffect(self.effect)
         self.start(None,
                 (lambda: self.compareImage("testBlurFX1", False),
-                 lambda: effect.setParam(8),
+                 lambda: self.effect.setParam(8),
+                 lambda: self.compareImage("testBlurFX2", False),
+                 removeFX,
+                 lambda: self.compareImage("testBlurFX3", False),
+                 reAddFX,
+                 lambda: self.compareImage("testBlurFX2", False),
+                 removeFX,
+                 addNewFX,
                  lambda: self.compareImage("testBlurFX2", False),
                 ))
 
