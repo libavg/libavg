@@ -171,7 +171,7 @@ Event Handling
 
             y position in the global coordinate system. Read-only.
 
-        .. py:methid:: getContour() -> list
+        .. py:method:: getContour() -> list
 
             Returns the contour of the blob as a list of points if supported by the 
             tracker being used.
