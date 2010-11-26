@@ -24,13 +24,14 @@ Effect Nodes
 
             The color to key out. Pixels of this and similar colors are made transparent.
 
+        .. py:attribute: erosion
+
+            Removes single non-keyed-out pixels in larger transparent areas. Values > 1
+            remove larger areas. Useful for removing camera noise.
+
         .. py:attribute:: htolerance
 
             Hue tolerance for the key color. 
-
-        .. py:attribute:: stolerance
-
-            Saturation tolerance for the key color. 
 
         .. py:attribute:: ltolerance
 
@@ -41,16 +42,15 @@ Effect Nodes
             :py:attr:`softness` > 0 causes pixels with a color close to the keyed-out
             colors to become partially transparent. Greater values increase this effect.
 
-        .. py:attribute: erosion
-
-            Removes single non-keyed-out pixels in larger transparent areas. Values > 1
-            remove larger areas. Useful for removing camera noise.
-
         .. py:attribute: spillthreshold
 
             Often, people in greenscreen studios aquire a greenish tint. Spill removal 
             works against this by desaturating pixels that are close to the key color.
             Larger values cause more desaturation.
+
+        .. py:attribute:: stolerance
+
+            Saturation tolerance for the key color. 
 
     .. autoclass:: FXNode
 
@@ -65,4 +65,4 @@ Effect Nodes
 
         Adds a shadow behind the node.
 
-        .. py:method:: setParam(offset, radius, opacity, color)
+        .. py:method:: setParams(offset, radius, opacity, color)

@@ -7,39 +7,35 @@ Nodes
     .. inheritance-diagram:: AreaNode CameraNode CanvasNode CircleNode CurveNode DivNode FilledVectorNode ImageNode LineNode MeshNode Node PanoImageNode PolygonNode PolyLineNode RasterNode RectNode SoundNode VectorNode VideoNode VisibleNode WordsNode
         :parts: 1
 
-    .. autoclass:: AVGNode
+    .. autoclass:: AVGNode([onkeydown: string, onkeyup: string])
 
         Root node of an onscreen avg tree. Defines the properties of the display
         and handles key press events. The AVGNode's width and height define the
         coordinate system for the display and are the default for the window
         size used (i.e. by default, the coordinate system is pixel-based).
 
-        .. py:method:: __init__([onkeydown: string, onkeyup: string])
+        :param string onkeyup:
 
-            :param string onkeyup:
+            Name of python function to call when a key up
+            event occurs.
 
-                Name of python function to call when a key up
-                event occurs.
+            .. deprecated:: 1.5
+                Use :func:`VisibleNode.setEventHandler()` instead.
 
-                .. deprecated:: 1.5
-                    Use :func:`VisibleNode.setEventHandler()` instead.
+        :param string onkeydown:
 
-            :param string onkeydown:
+            Name of python function to call when a key
+            down event occurs.
 
-                Name of python function to call when a key
-                down event occurs.
+            .. deprecated:: 1.5
+                Use :func:`VisibleNode.setEventHandler()` instead.
 
-                .. deprecated:: 1.5
-                    Use :func:`VisibleNode.setEventHandler()` instead.
-
-    .. autoclass:: AreaNode
+    .. autoclass:: AreaNode([x, y, pos, width, height, size, angle, pivot])
 
         Base class for elements in the avg tree that define an area on the screen.
         Responsible for coordinate transformations and event handling. See 
         http://www.libavg.de/wiki/index.php/Coordinate_Systems
         for an explanation of coordinate systems and reference points.
-        
-        .. py:method:: __init__([x, y, pos, width, height, size, angle, pivot])
         
         .. py:method:: getMediaSize() -> avg.Point2D
 
@@ -88,7 +84,7 @@ Nodes
             Default is the center of the node.
 
 
-    .. autoclass:: CameraNode
+    .. autoclass:: CameraNode([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
         A node that displays the image of a camera. The attributes correspond to the 
         camera properties in .avgtrackerrc and are explained under
@@ -97,8 +93,6 @@ Nodes
 
         CameraNodes open the camera device on construction and set the chosen camera 
         parameters immediately.   
-
-        .. py:method:: __init__([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
         .. py:attribute:: brightness
 
@@ -167,11 +161,9 @@ Nodes
 
         Root node of a scene graph.
 
-    .. autoclass:: CircleNode
+    .. autoclass:: CircleNode([r=1, texcoord1=0, texcoord2=1])
 
         A circle. The reference point for a circle is it's center.
-
-        .. py:method:: __init__([r=1, texcoord1=0, texcoord2=1])
 
         .. py:attribute:: r
 
@@ -181,11 +173,11 @@ Nodes
 
         .. py:attribute:: texcoord2
 
-    .. autoclass:: CurveNode
+    .. autoclass:: CurveNode([pos1, pos2, pos3, pos4, texcoord1, texcoord2])
 
-        A bezier curve (`<http://en.wikipedia.org/wiki/Bézier_curve>`_). :py:attr:`pos1`
-        and :py:attr:`pos4` are the two endpoints of the curve. :py:attr:`pos2`
-        and :py:attr:`pos3` are control points.
+        A cubic bezier curve (`<http://en.wikipedia.org/wiki/Bezier_curve>`_). 
+        :py:attr:`pos1` and :py:attr:`pos4` are the two endpoints of the curve. 
+        :py:attr:`pos2` and :py:attr:`pos3` are control points.
 
         .. py:method:: __init__([pos1, pos2, pos3, pos4, texcoord1, texcoord2])
 

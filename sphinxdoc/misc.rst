@@ -30,25 +30,40 @@ Misc. Classes
 
             Loads an image file from disk and returns it as bitmap object.
 
-        .. py:method:: save(filename)
+        .. py:method:: getAvg() -> float
 
-            Writes the image to a file. File format is determined using the
-            extension. Any file format supported by ImageMagick 
-            (http://www.imagemagick.org) can be used.
-
-        .. py:method:: getSize() -> Point2D
-
-            Returns the size of the image in pixels.
+            Returns the average of all bitmap pixels.
 
         .. py:method:: getFormat()
 
             Returns the bitmap's pixel format.
             
+        .. py:method:: getName() -> string
+
+        .. py:method:: getPixel(pos) -> (r,g,b,a)
+
+            Returns one image pixel als a color tuple. This should only be used
+            for single pixels, as it is very slow.
+
         .. py:method:: getPixels() -> string
 
             Returns the raw pixel data in the bitmap as a python string. This
             method can be used to interface to the python imaging library PIL
             (http://www.pythonware.com/products/pil/).
+
+        .. py:method:: getSize() -> Point2D
+
+            Returns the size of the image in pixels.
+
+        .. py:method:: getStdDev() -> float
+
+            Returns the standard deviation of all bitmap pixels.
+
+        .. py:method:: save(filename)
+
+            Writes the image to a file. File format is determined using the
+            extension. Any file format supported by ImageMagick 
+            (http://www.imagemagick.org) can be used.
 
         .. py:method:: setPixels(pixels)
 
@@ -58,26 +73,11 @@ Misc. Classes
             
             :param string pixels: Image data.
 
-        .. py:method:: getPixel(pos) -> (r,g,b,a)
-
-            Returns one image pixel als a color tuple. This should only be used
-            for single pixels, as it is very slow.
-
         .. py:method:: subtract(otherbitmap) -> bmp
 
             Subtracts two bitmaps and returns the result. Used mainly to compare
             test images with the intended results (along with :py:meth:`getAvg` and
             :py:meth:`getStdDev`).
-
-        .. py:method:: getAvg() -> float
-
-            Returns the average of all bitmap pixels.
-
-        .. py:method:: getStdDev() -> float
-
-            Returns the standard deviation of all bitmap pixels.
-
-        .. py:method:: getName() -> string
 
     .. autoclass:: ConradRelais
 
@@ -88,7 +88,7 @@ Misc. Classes
 
             This is unsupported. I don't think you can even buy the hardware anymore.
 
-        .. py:method:: ConradRelais(AVGPlayer, port)
+        .. py:method:: __init__(AVGPlayer, port)
 
             Opens a connection to the relais card(s) connected to a serial port.
 
@@ -96,6 +96,13 @@ Misc. Classes
                 
                 The port the device is connected to. The actual device file
                 opened is :file:`/dev/ttyS<port>`.
+
+        .. py:method:: get(card, index) -> value
+
+            Returns the state of one of the relais.
+
+            :param card: Zero-based index of the card to address.
+            :param index: Zero-based index of the relais on the card.
 
         .. py:method:: getNumCards() -> int
 
@@ -111,13 +118,6 @@ Misc. Classes
             
                 Whether to set (:keyword:`True`) or reset (:keyword:`False`)
                 the relais.
-
-        .. py:method:: get(card, index) -> value
-
-            Returns the state of one of the relais.
-
-            :param card: Zero-based index of the card to address.
-            :param index: Zero-based index of the relais on the card.
 
     .. autoclass:: Logger
 
@@ -169,14 +169,10 @@ Misc. Classes
         the time the message was written, the category of the entry and the message 
         itself.
         
-        .. py:classmethod:: get
+        .. py:method:: popCategories
 
-            This method gives access to the logger. There is only one instance.
-
-        .. py:method:: setCategories(categories)
-
-            Sets the types of messages that should be logged. :py:attr:`categories` is
-            an or'ed sequence of categories.
+            Pops the current set of categories from the internal stack, restoring
+            the state when the corresponding push was called.
 
         .. py:method:: pushCategories
 
@@ -184,10 +180,10 @@ Misc. Classes
             for saving and restoring the logging state so it can be changed
             for a short amount of time.
 
-        .. py:method:: popCategories
+        .. py:method:: setCategories(categories)
 
-            Pops the current set of categories from the internal stack, restoring
-            the state when the corresponding push was called.
+            Sets the types of messages that should be logged. :py:attr:`categories` is
+            an or'ed sequence of categories.
 
         .. py:method:: trace(category, message)
 
@@ -200,6 +196,10 @@ Misc. Classes
 
             :param message: The log message string.
 
+        .. py:classmethod:: get
+
+            This method gives access to the logger. There is only one instance.
+
     .. autoclass:: ParPort
 
         Used for low-level control of the parallel port's data, status and control
@@ -209,7 +209,7 @@ Misc. Classes
 
             This is unsupported and probably buggy.
 
-        .. py:method:: init(devicename)
+        .. py:method:: __init__(devicename)
 
             Opens a parallel port.
 
@@ -217,6 +217,53 @@ Misc. Classes
             
                 Device filename to use. If :py:attr:`devicename` is an empty
                 string, :file:`/dev/parport0` is used as device name.
+
+        .. py:method:: clearDataLines(lines)
+
+            Clears data lines.
+
+            :param lines: 
+            
+                The lines to clear. Constants to used for these lines are 
+                :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`. Several of these 
+                constants can be or'ed together to set several lines. The lines not 
+                mentioned in the parameter are left unchanged.
+
+            :return:
+                
+                :keyword:`True` if the lines were cleared, :keyword:`False` 
+                otherwise.
+
+        .. py:method:: getStatusLine(line)
+
+            Returns the value of one of the parallel port status lines.
+
+            :param line: 
+            
+                Which status line to query. Possible values for line are
+                :py:const:`STATUS_ERROR`, :py:const:`STATUS_SELECT`, 
+                :py:const:`STATUS_PAPEROUT`, :py:const:`STATUS_ACK` and
+                :py:const:`STATUS_BUSY`.
+
+            :return: :keyword:`True` if the line is set.
+
+        .. py:method:: isAvailable()
+
+            Returns :keyword:`True` if the parallel port has been opened successfully, 
+            :keyword:`False` otherwise.
+
+        .. py:method:: setAllDataLines(lines)
+
+            Changes the value of all data lines.
+        
+            :param lines: 
+            
+                The lines to set. Constants to used for these
+                lines are :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`. Several of 
+                these constants can be or'ed together to set several lines. The lines not 
+                mentioned in the parameter are cleared.
+
+            :return: :keyword:`True` if the lines were set, :keyword:`False` otherwise.
 
         .. py:method:: setControlLine(line, value) -> bool
 
@@ -237,19 +284,6 @@ Misc. Classes
                 :keyword:`True` if the value was set successfully, :keyword:`False`
                 otherwise.
 
-        .. py:method:: getStatusLine(line)
-
-            Returns the value of one of the parallel port status lines.
-
-            :param line: 
-            
-                Which status line to query. Possible values for line are
-                :py:const:`STATUS_ERROR`, :py:const:`STATUS_SELECT`, 
-                :py:const:`STATUS_PAPEROUT`, :py:const:`STATUS_ACK` and
-                :py:const:`STATUS_BUSY`.
-
-            :return: :keyword:`True` if the line is set.
-
         .. py:method:: setDataLines(lines)
 
             Sets data lines. 
@@ -264,41 +298,6 @@ Misc. Classes
             :return: 
             
                 :keyword:`True` if the lines were set, :keyword:`False` otherwise.
-
-        .. py:method:: clearDataLines(lines)
-
-            Clears data lines.
-
-            :param lines: 
-            
-                The lines to clear. Constants to used for these lines are 
-                :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`. Several of these 
-                constants can be or'ed together to set several lines. The lines not 
-                mentioned in the parameter are left unchanged.
-
-            :return:
-                
-                :keyword:`True` if the lines were cleared, :keyword:`False` 
-                otherwise.
-
-        .. py:method:: setAllDataLines(lines)
-
-            Changes the value of all data lines.
-        
-            :param lines: 
-            
-                The lines to set. Constants to used for these
-                lines are :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`. Several of 
-                these constants can be or'ed together to set several lines. The lines not 
-                mentioned in the parameter are cleared.
-
-            :return: :keyword:`True` if the lines were set, :keyword:`False` otherwise.
-
-        .. py:method:: isAvailable()
-
-            Returns :keyword:`True` if the parallel port has been opened successfully, 
-            :keyword:`False` otherwise.
-
 
     .. autoclass:: Point2D
 
@@ -321,14 +320,14 @@ Misc. Classes
 
         .. py:attribute:: y
 
+        .. py:method:: getNorm() -> float
+
+            Returns the euclidian norm of the point, that is sqrt(x*x+y*y).
+
         .. py:method:: getNormalized() -> Point2D
 
             Returns a normalized version of the point with the same angle but a
             norm of one. Throws an exception if called on Point2D(0,0).
-
-        .. py:method:: getNorm() -> float
-
-            Returns the euclidian norm of the point, that is sqrt(x*x+y*y).
 
         .. py:method:: getRotated(angle) -> Point2D
 
@@ -337,6 +336,14 @@ Misc. Classes
         .. py:method:: getRotated(angle, pivot) -> Point2D
 
             Return the position of point rotated around :py:attr:`pivot`.
+
+        .. py:method:: isInf() -> bool
+
+            Returns :keyword:`True` if one of the components is infinite.
+
+        .. py:method:: isNaN() -> bool
+
+            Returns :keyword:`True` if one of the components is Not a Number.
 
         .. py:classmethod:: fromPolar(angle, radius) -> Point2D
 
@@ -348,6 +355,13 @@ Misc. Classes
 
         Miscellaneous routines used by tests. Not intended for normal application usage.
 
+    .. autofunction:: getMemoryUsage() -> int
+
+        Returns the amount of memory used by the application in bytes. More
+        precisely, this function returns the resident set size of the process
+        in bytes. This does not include shared libraries or memory paged out to
+        disk.
+
     .. autofunction:: pointInPolygon
 
         Checks if a point is inside a polygon.
@@ -355,11 +369,4 @@ Misc. Classes
         :param Point2D point: Point to check.
         :param poly: List of points which constitute a polygon to check against.
         :returns: :keyword:`True` if point is inside, :keyword:`False` otherwise.
-
-    .. autofunction:: getMemoryUsage() -> int
-
-        Returns the amount of memory used by the application in bytes. More
-        precisely, this function returns the resident set size of the process
-        in bytes. This does not include shared libraries or memory paged out to
-        disk.
 

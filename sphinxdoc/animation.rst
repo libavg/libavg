@@ -38,11 +38,14 @@ Animation
 
     .. autoclass:: AnimState
 
-        One state of a StateAnim.
+        One state of a :py:class:`StateAnim`.
 
         .. py:method:: __init__(name, anim, nextName="")
 
-            :param name: The name of the state. Used in StateAnim.set/getState().
+            :param name: 
+            
+                The name of the state. Used in :py:meth:`StateAnim.setState` and
+                :py:meth:`StateAnim.getState()`.
 
             :param anim: The child animation to run when this state is active.
 
@@ -207,14 +210,14 @@ Animation
 
             :param states: A list of AnimState objects.
 
-        .. py:method:: setState
-        
         .. py:method:: getState
 
         .. py:method:: setDebug(debug)
 
             Setting this to :keyword:`True` causes all state changes to be printed on 
             the console.
+
+        .. py:method:: setState
 
     .. autoclass:: WaitAnim
 

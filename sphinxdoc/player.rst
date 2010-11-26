@@ -15,7 +15,7 @@ Player & Canvas
             Returns the element in the canvas's tree that has the :py:attr:`id`
             given.
         
-        .. py:method:: getImage() -> Bitmap
+        .. py:method:: screenshot() -> Bitmap
 
             Returns the image the canvas has last rendered as :py:class:`Bitmap`. For
             the main canvas, this is a real screenshot. For offscreen canvases, this 
@@ -179,6 +179,14 @@ Player & Canvas
             
             :param id: id attribute of the node to return.
 
+        .. py:method:: getEventHook() -> pyfunc
+
+            Returns the last event hook set using :py:meth:`setEventHook`.
+
+        .. py:method:: getFrameDuration() -> int
+
+            Returns the duration of the last frame in milliseconds.
+
         .. py:method:: getFramerate() -> float
 
             Returns the current target framerate in frames per second. To get the 
@@ -332,8 +340,7 @@ Player & Canvas
             Antialiasing) off. Good values are dependent on the graphics driver and 
             the performance of the graphics card.
 
-        .. py:method:: setOGLOptions(usePOW2Textures, useShaders, usePixelBuffers,
-                multiSampleSamples)
+        .. py:method:: setOGLOptions(usePOW2Textures, useShaders, usePixelBuffers, multiSampleSamples)
 
             Determines which OpenGL extensions to check for and use if possible.
             This method is mainly used for debugging purposes while developing libavg, 
