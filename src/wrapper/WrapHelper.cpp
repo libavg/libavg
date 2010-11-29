@@ -57,7 +57,7 @@ namespace DPointHelper
     }
 
     void checkItemRange(int i) {
-        if (i!=0 && i!=1) {
+        if (i != 0 && i != 1) {
             throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
         }
     }
@@ -143,9 +143,9 @@ struct Triple_to_python_tuple
 };
 
 template<class POINT, class ATTR>
-struct DPoint_from_python_tuple
+struct point_from_python
 {
-    DPoint_from_python_tuple() 
+    point_from_python() 
     {
         boost::python::converter::registry::push_back(
                 &convertible, &construct, boost::python::type_id<POINT>());
@@ -153,10 +153,11 @@ struct DPoint_from_python_tuple
     
     static void* convertible(PyObject* obj_ptr)
     {
-        if (!PyTuple_Check(obj_ptr)) {
+        // Using PySequence_Check here causes infinite recursion.
+        if (!PyTuple_Check(obj_ptr) && !PyList_Check(obj_ptr)) {
             return 0;
         }
-        if (PyTuple_Size(obj_ptr) != 2) {
+        if (PySequence_Size(obj_ptr) != 2) {
             return 0;
         }
         return obj_ptr;
@@ -166,9 +167,9 @@ struct DPoint_from_python_tuple
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
         POINT pt;
-        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
         pt.x = (ATTR)PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pEntry = PySequence_GetItem(obj_ptr, 1);
         pt.y = (ATTR)PyFloat_AsDouble(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
@@ -179,9 +180,9 @@ struct DPoint_from_python_tuple
 };
 
 template<class NUM>
-struct Triple_from_python_tuple
+struct triple_from_python
 {
-    Triple_from_python_tuple() 
+    triple_from_python() 
     {
         boost::python::converter::registry::push_back(
                 &convertible, &construct, boost::python::type_id<Triple<NUM> >());
@@ -189,10 +190,10 @@ struct Triple_from_python_tuple
     
     static void* convertible(PyObject* obj_ptr)
     {
-        if (!PyTuple_Check(obj_ptr)) {
+        if (!PySequence_Check(obj_ptr)) {
             return 0;
         }
-        if (PyTuple_Size(obj_ptr) != 3) {
+        if (PySequence_Size(obj_ptr) != 3) {
             return 0;
         }
         return obj_ptr;
@@ -202,11 +203,11 @@ struct Triple_from_python_tuple
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
         avg::Triple<NUM> t;
-        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
         t.x = (NUM)PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pEntry = PySequence_GetItem(obj_ptr, 1);
         t.y = (NUM)PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 2);
+        pEntry = PySequence_GetItem(obj_ptr, 2);
         t.z = (NUM)PyFloat_AsDouble(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<Triple<NUM> >*)
@@ -296,12 +297,12 @@ void export_base()
 #endif
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     to_python_converter<DTriple, Triple_to_python_tuple<double> >();
-    DPoint_from_python_tuple<DPoint, double>();
-    DPoint_from_python_tuple<ConstDPoint, double>();
-    DPoint_from_python_tuple<IntPoint, int>();
+    point_from_python<DPoint, double>();
+    point_from_python<ConstDPoint, double>();
+    point_from_python<IntPoint, int>();
     
-    Triple_from_python_tuple<double>();
-    Triple_from_python_tuple<int>();
+    triple_from_python<double>();
+    triple_from_python<int>();
     
     to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
     to_python_converter<vector<string>, to_list<vector<string> > >();    

@@ -61,6 +61,7 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(pt[1]==pt.y)
         self.assert_(pt == avg.Point2D(10, 10))
         self.assert_(pt == (10, 10))
+        self.assert_(pt == avg.Point2D([10, 10]))
         self.assert_(pt != avg.Point2D(11, 10))
         self.assert_(str(pt) == "(10,10)")
         pt2 = eval(repr(pt))
