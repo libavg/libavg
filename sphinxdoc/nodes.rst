@@ -196,7 +196,7 @@ Nodes
     .. autoclass:: DivNode
 
         A div node is a node that groups other nodes logically and visually.
-        Its positino is used as point of origin for the coordinates
+        Its position is used as point of origin for the coordinates
         of its child nodes. Its extents can be used to clip the children if crop is set 
         to :keyword:`True`. Its opacity is used as base opacity for the child nodes' 
         opacities. The children of a div node are drawn in the order they are found
