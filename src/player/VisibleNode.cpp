@@ -226,11 +226,11 @@ void VisibleNode::releaseEventCapture(int cursorID)
     Player::get()->releaseEventCapture(cursorID);
 }
 
-void VisibleNode::setEventHandler(Event::Type Type, int sources, PyObject * pFunc)
+void VisibleNode::setEventHandler(Event::Type type, int sources, PyObject * pFunc)
 {
     for (int source = 1; source <= Event::NONE; source *= 2) {
         if (source & sources) {
-            EventHandlerID id(Type, (Event::Source)source);
+            EventHandlerID id(type, (Event::Source)source);
             EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
             if (it != m_EventHandlerMap.end()) {
                 Py_DECREF(it->second);

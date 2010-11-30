@@ -951,6 +951,71 @@ class PythonTestCase(AVGTestCase):
                     ))
         Player.setFakeFPS(-1)
 
+    def testHoldProcessor(self):
+      
+        def onStart():
+            self.__startCalled = True
+
+        def onHold(time):
+            self.__holdCalled = True
+            self.assert_(time >= 0 and time <= 1)
+
+        def onActivate():
+            self.__activateCalled = True
+
+        def onStop():
+            self.__stopCalled = True
+
+        def initState():
+            self.__startCalled = False
+            self.__holdCalled = False
+            self.__activateCalled = False
+            self.__stopCalled = False
+
+        def assertEvents(start, hold, activate, stop):
+            self.assert_(self.__startCalled == start and
+                self.__holdCalled == hold and
+                self.__activateCalled == activate and
+                self.__stopCalled == stop)
+
+        Player.setFakeFPS(2)
+        self.loadEmptyScene()
+        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        holdProcessor = ui.manipulation.HoldProcessor(image,
+            activateDelay=1000, 
+            startHandler=onStart, 
+            holdHandler=onHold, 
+            activateHandler=onActivate, 
+            stopHandler=onStop)
+        initState()
+        self.start(None,
+                (# Standard down-hold-up sequence.
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, True, False, False),
+                 None,
+                 None,
+                 lambda: assertEvents(True, True, True, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, True, True),
+                 
+                 # down-up sequence, hold not long enough.
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False, True),
+
+                 # down-move-up sequence, should abort. 
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 40),
+                 lambda: assertEvents(True, True, False, True),
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 40),
+                 lambda: assertEvents(False, False, False, False),
+                ))
+
+        Player.setFakeFPS(-1)
+
     def testFocusContext(self):
         def setup():
             textarea.init(avg)
@@ -1077,6 +1142,7 @@ def pythonTestSuite (tests):
         "testKeyboard",
         "testTextArea",
         "testDragProcessor",
+        "testHoldProcessor",
         "testFocusContext",
         "testRoundedRect",
         )
