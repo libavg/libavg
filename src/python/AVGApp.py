@@ -44,6 +44,8 @@ class AVGApp(object):
         self.__isRunning = False
         self._parentNode = parentNode
         self._starter = None
+        avg.appInstance = self
+
         if 'onKey' in dir(self):
             raise DeprecationWarning, \
                     'AVGApp.onKey() has been renamed to AVGApp.onKeyDown().'
