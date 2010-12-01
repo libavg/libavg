@@ -953,7 +953,7 @@ class PythonTestCase(AVGTestCase):
 
     def testHoldProcessor(self):
       
-        def onStart():
+        def onStart(pos):
             self.__startCalled = True
 
         def onHold(time):

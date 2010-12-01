@@ -192,7 +192,7 @@ class HoldProcessor(ManipulationProcessor):
         if self.__state == HoldProcessor.UP and newState == HoldProcessor.DOWN:
             pass
         elif self.__state == HoldProcessor.DOWN and newState == HoldProcessor.HOLDING:
-            self.__startHandler()
+            self.__startHandler(self.__startPos)
         elif self.__state == HoldProcessor.HOLDING and newState == HoldProcessor.ACTIVE:
             self.__activateHandler()
         elif newState == HoldProcessor.UP:
