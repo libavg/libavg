@@ -138,11 +138,11 @@ class HoldProcessor(ManipulationProcessor):
 
     # States
     UP = 0          # No action pending
-    DOWN = 1        # Down, but <  activateDelay
-    ACTIVE = 2      # > activateDelay
-    ABORTED = 3     # Moved too far, but still down
+    DOWN = 1        # Down, but <  holdDelay
+    HOLDING = 2     # Down, > holdDelay, < activateDelay
+    ACTIVE = 3      # > activateDelay
 
-    def __init__(self, node, activateDelay, eventSource=avg.TOUCH | avg.MOUSE, 
+    def __init__(self, node, holdDelay, activateDelay, eventSource=avg.TOUCH | avg.MOUSE, 
             startHandler=None, holdHandler=None, activateHandler=None, stopHandler=None):
         ManipulationProcessor.__init__(self, node, eventSource)
         self.__startHandler = startHandler
@@ -150,6 +150,7 @@ class HoldProcessor(ManipulationProcessor):
         self.__activateHandler = activateHandler
         self.__stopHandler = stopHandler
 
+        self.__holdDelay = holdDelay
         self.__activateDelay = activateDelay
 
         self.__frameHandlerID = None
@@ -157,40 +158,48 @@ class HoldProcessor(ManipulationProcessor):
 
     def _handleDown(self, event):
         self.__startPos = event.pos
-        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
-        self.__downTime = g_Player.getFrameTime()
+        self.__startTime = g_Player.getFrameTime()
         self.__changeState(HoldProcessor.DOWN)
+        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
     def _handleMove(self, event):
-        if self.__state == HoldProcessor.DOWN:
-            offset = event.pos - self.__startPos
-            if offset.getNorm() > 5:
-                g_Player.clearInterval(self.__frameHandlerID)
-                self.__changeState(HoldProcessor.ABORTED)
+        offset = event.pos - self.__startPos
+        if offset.getNorm() > 5:
+            self.__startPos = event.pos
+            self.__startTime = g_Player.getFrameTime()
+            self.__changeState(HoldProcessor.DOWN)
 
     def __onFrame(self):
-        relTime = g_Player.getFrameTime()-self.__downTime
+        relTime = g_Player.getFrameTime() - self.__startTime
         if self.__state == HoldProcessor.DOWN:
+            if relTime > self.__holdDelay:
+                self.__changeState(HoldProcessor.HOLDING)
+        if self.__state == HoldProcessor.HOLDING:
             if relTime > self.__activateDelay:
                 self.__changeState(HoldProcessor.ACTIVE)
             else:
                 self.__holdHandler(float(relTime)/self.__activateDelay)
 
     def _handleUp(self, event):
-        if self.__state != HoldProcessor.ABORTED:
-            g_Player.clearInterval(self.__frameHandlerID)
+        g_Player.clearInterval(self.__frameHandlerID)
+        self.__frameHandlerID = None
         self.__changeState(HoldProcessor.UP)
 
     def __changeState(self, newState):
+        if self.__state == newState:
+            return
+#        print self.__state, " -> ", newState
         if self.__state == HoldProcessor.UP and newState == HoldProcessor.DOWN:
+            pass
+        elif self.__state == HoldProcessor.DOWN and newState == HoldProcessor.HOLDING:
             self.__startHandler()
-        elif self.__state == HoldProcessor.DOWN and newState == HoldProcessor.ACTIVE:
+        elif self.__state == HoldProcessor.HOLDING and newState == HoldProcessor.ACTIVE:
             self.__activateHandler()
-        elif self.__state == HoldProcessor.DOWN and newState == HoldProcessor.ABORTED:
-            self.__stopHandler()
-        elif self.__state != HoldProcessor.UP and newState == HoldProcessor.UP:
-            if self.__state != HoldProcessor.ABORTED:
+        elif newState == HoldProcessor.UP:
+            if self.__state != HoldProcessor.DOWN:
                 self.__stopHandler()
+        elif self.__state != HoldProcessor.UP and newState == HoldProcessor.DOWN:
+            self.__stopHandler()
         else:
             assert(False)
         self.__state = newState

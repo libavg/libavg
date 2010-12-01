@@ -973,6 +973,8 @@ class PythonTestCase(AVGTestCase):
             self.__stopCalled = False
 
         def assertEvents(start, hold, activate, stop):
+#            print self.__startCalled, self.__holdCalled, self.__activateCalled,
+#                    self.__stopCalled
             self.assert_(self.__startCalled == start and
                 self.__holdCalled == hold and
                 self.__activateCalled == activate and
@@ -982,7 +984,8 @@ class PythonTestCase(AVGTestCase):
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
         holdProcessor = ui.manipulation.HoldProcessor(image,
-            activateDelay=1000, 
+            holdDelay=1000,
+            activateDelay=2000, 
             startHandler=onStart, 
             holdHandler=onHold, 
             activateHandler=onActivate, 
@@ -991,6 +994,9 @@ class PythonTestCase(AVGTestCase):
         self.start(None,
                 (# Standard down-hold-up sequence.
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False, False),
+                 None,
+                 None,
                  lambda: assertEvents(True, True, False, False),
                  None,
                  None,
@@ -1001,14 +1007,19 @@ class PythonTestCase(AVGTestCase):
                  # down-up sequence, hold not long enough.
                  initState,
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 None,
+                 None,
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, True, False, True),
 
                  # down-move-up sequence, should abort. 
                  initState,
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 None,
+                 None,
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 40),
                  lambda: assertEvents(True, True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 50),
                  initState,
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 40),
                  lambda: assertEvents(False, False, False, False),
