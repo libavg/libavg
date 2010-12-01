@@ -60,6 +60,12 @@ class ManipulationProcessor:
             self.__cursorID = None
             self._handleUp(event)
 
+    def _optionalCallback(self, handler, defaultHandler):
+        if handler:
+            return handler
+        else:
+            return defaultHandler
+
     def __setEventHandlers(self, downHandler, moveHandler, upHandler):
         self.__node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
         self.__node.setEventHandler(avg.CURSORMOTION, self.__eventSource, moveHandler)
@@ -70,10 +76,10 @@ class DragProcessor(ManipulationProcessor):
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
             moveHandler=None, upHandler=None, stopHandler=None, friction=-1):
         ManipulationProcessor.__init__(self, node, eventSource)
-        self.__startHandler = startHandler
-        self.__moveHandler = moveHandler
-        self.__stopHandler = stopHandler
-        self.__upHandler = upHandler
+        self.__startHandler = self._optionalCallback(startHandler, lambda event:None)
+        self.__moveHandler = self._optionalCallback(moveHandler, lambda event,offset:None)
+        self.__stopHandler = self._optionalCallback(stopHandler, lambda:None)
+        self.__upHandler = self._optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
         self.__inertiaHandlerID = None
 
@@ -86,8 +92,7 @@ class DragProcessor(ManipulationProcessor):
                 self.__stopHandler()
                 g_Player.clearInterval(self.__inertiaHandlerID)
             self.__dragStartPos = event.pos
-            if self.__startHandler:
-                self.__startHandler(event)
+            self.__startHandler(event)
             self.__speed = avg.Point2D(0,0)
             self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
@@ -104,16 +109,14 @@ class DragProcessor(ManipulationProcessor):
 
     def _handleUp(self, event):
         offset = event.pos - self.__dragStartPos
-        if self.__upHandler:
-            self.__upHandler(event, offset)
+        self.__upHandler(event, offset)
         g_Player.clearInterval(self.__frameHandlerID)
         if self.__friction != -1:
             self.__inertiaHandlerID = g_Player.setOnFrameHandler(self.__handleInertia)
             self.__speed += 0.1*event.speed
             self.__offset = offset
         else:
-            if self.__stopHandler:
-                self.__stopHandler()
+            self.__stopHandler()
 
     def __handleInertia(self):
         norm = self.__speed.getNorm()
@@ -128,8 +131,7 @@ class DragProcessor(ManipulationProcessor):
 
     def __stop(self):
         self.__speed = avg.Point2D(0,0)
-        if self.__stopHandler:
-            self.__stopHandler()
+        self.__stopHandler()
         g_Player.clearInterval(self.__inertiaHandlerID)
         self.__inertiaHandlerID = None
 
@@ -145,10 +147,11 @@ class HoldProcessor(ManipulationProcessor):
     def __init__(self, node, holdDelay, activateDelay, eventSource=avg.TOUCH | avg.MOUSE, 
             startHandler=None, holdHandler=None, activateHandler=None, stopHandler=None):
         ManipulationProcessor.__init__(self, node, eventSource)
-        self.__startHandler = startHandler
-        self.__holdHandler = holdHandler
-        self.__activateHandler = activateHandler
-        self.__stopHandler = stopHandler
+
+        self.__startHandler = self._optionalCallback(startHandler, lambda pos:None)
+        self.__holdHandler = self._optionalCallback(holdHandler, lambda t:None)
+        self.__activateHandler = self._optionalCallback(activateHandler, lambda:None)
+        self.__stopHandler = self._optionalCallback(stopHandler, lambda:None)
 
         self.__holdDelay = holdDelay
         self.__activateDelay = activateDelay
