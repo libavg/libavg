@@ -4,11 +4,17 @@ Player & Canvas
 .. automodule:: libavg.avg
     :no-members:
 
+    This section describes the classes that provide a framework for rendering. The 
+    :py:class:`Player` class is an interface to the avg renderer. The 
+    :py:class:`Canvas` class and it's descendant :py:class:`OffscreenCanvas` provide 
+    with areas to draw on.
+
     .. autoclass:: Canvas
 
         A Canvas is a tree of nodes. It is the place where a scenegraph is displayed. In
-        a libavg session, there is one main canvas that corresponds to the screen and
-        zero or more canvases that are rendered offscreen. 
+        a libavg session, there is one main canvas that corresponds to the screen (which
+        is of class :py:class:`Canvas`) and zero or more canvases that are rendered 
+        offscreen (which are of class :py:class:`OffscreenCanvas`). 
 
         .. py:method:: getElementByID(id) -> Node
 
@@ -76,7 +82,8 @@ Player & Canvas
 
         .. py:classmethod:: isMultisampleSupported() -> bool
 
-            :keyword:`True` if the machine's OpenGL implementation supports offscreen multisampling.
+            :keyword:`True` if the machine's OpenGL implementation supports offscreen 
+            multisampling.
 
     .. autoclass:: Player
 

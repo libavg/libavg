@@ -22,11 +22,11 @@ Animation
 
             Stops the animation.
 
-        .. py:method:: start
+        .. py:method:: start(keepAttr)
 
             Starts the animation. 
 
-            :param bKeepAttr: 
+            :param keepAttr: 
             
                 If this parameter is set to :keyword:`True`, the animation doesn't 
                 set the attribute value when starting. Instead, it calculates a virtual 
@@ -36,24 +36,22 @@ Animation
 
                 Returns :keyword:`True` if the animation is currently executing.
 
-    .. autoclass:: AnimState
+    .. autoclass:: AnimState(name, anim, nextName="")
 
         One state of a :py:class:`StateAnim`.
 
-        .. py:method:: __init__(name, anim, nextName="")
+        :param name: 
+        
+            The name of the state. Used in :py:meth:`StateAnim.setState` and
+            :py:meth:`StateAnim.getState()`.
 
-            :param name: 
-            
-                The name of the state. Used in :py:meth:`StateAnim.setState` and
-                :py:meth:`StateAnim.getState()`.
+        :param anim: The child animation to run when this state is active.
 
-            :param anim: The child animation to run when this state is active.
-
-            :param nextName: The name of the state to enter when this state is done.
+        :param nextName: The name of the state to enter when this state is done.
 
     .. autoclass:: AttrAnim
 
-    .. autoclass:: ContinuousAnim
+    .. autoclass:: ContinuousAnim(node, attrName, startValue, speed, [useInt=False, startCallback=None, stopCallback=None])
 
         Class that animates an attribute of a libavg node continuously and 
         linearly. The animation will not stop until the :py:meth:`abort()` method is 
@@ -61,128 +59,120 @@ Animation
 
         A possible use case is the continuous rotation of an object.
 
-        .. py:method:: __init__(node, attrName, startValue, speed, [useInt=False, startCallback=None, stopCallback=None])
+        :param node: The libavg node object to animate.
 
-            :param node: The libavg node object to animate.
+        :param attrName: 
+        
+            The name of the attribute to change.
 
-            :param attrName: 
-            
-                The name of the attribute to change.
+        :param startValue: Initial value of the attribute.
 
-            :param startValue: Initial value of the attribute.
+        :param speed: Attribute change per second.
 
-            :param speed: Attribute change per second.
+        :param useInt: 
+        
+            If :keyword:`True`, the attribute is always set to an integer value.
 
-            :param useInt: 
-            
-                If :keyword:`True`, the attribute is always set to an integer value.
+        :param startCallback: Python callable to invoke when the animation starts.
 
-            :param startCallback: Python callable to invoke when the animation starts.
+        :param stopCallback: 
+        
+            Python callable to invoke when the animation has 
+            finished running, either because abort was called or because 
+            another animation for the same attribute was started.
 
-            :param stopCallback: 
-            
-                Python callable to invoke when the animation has 
-                finished running, either because abort was called or because 
-                another animation for the same attribute was started.
-
-    .. autoclass:: EaseInOutAnim
+    .. autoclass:: EaseInOutAnim(node, attrName, duration, startValue, endValue, easeInDuration, easeOutDuration, [useInt=False, startCallback=None, stopCallback=None])
 
         Class that animates an attribute of a libavg node. The animation proceeds
         in three phases: ease-in, linear and ease-out. Start and end speed are
         zero. Ease-in and ease-out phases have the shape of one quadrant of the
         sine curve.
 
-        .. py:method:: __init__(node, attrName, duration, startValue, endValue, easeInDuration, easeOutDuration, [useInt=False, startCallback=None, stopCallback=None])
+        :param node: The libavg node object to animate.
 
-            :param node: The libavg node object to animate.
+        :param attrName:
 
-            :param attrName:
+            The name of the attribute to change.
 
-                The name of the attribute to change.
+        :param duration: The length of the animation in milliseconds.
 
-            :param duration: The length of the animation in milliseconds.
+        :param startValue: Initial value of the attribute.
 
-            :param startValue: Initial value of the attribute.
+        :param endValue: Value of the attribute after duration has elapsed.
 
-            :param endValue: Value of the attribute after duration has elapsed.
+        :param easeInDuration: The duration of the ease-in phase in milliseconds.
 
-            :param easeInDuration: The duration of the ease-in phase in milliseconds.
+        :param easeOutDuration: 
+        
+            The duration of the ease-out phase in milliseconds.
 
-            :param easeOutDuration: 
-            
-                The duration of the ease-out phase in milliseconds.
+        :param useInt: 
+        
+            If :keyword:`True`, the attribute is always set to an integer value.
 
-            :param useInt: 
-            
-                If :keyword:`True`, the attribute is always set to an integer value.
+        :param startCallback: Python callable to invoke when the animation starts.
 
-            :param startCallback: Python callable to invoke when the animation starts.
+        :param stopCallback: 
+        
+            Python callable to invoke when the animation has 
+            finished running, either because it's run the allotted time, because
+            abort was called or because another animation for the same
+            attribute was started.
 
-            :param stopCallback: 
-            
-                Python callable to invoke when the animation has 
-                finished running, either because it's run the allotted time, because
-                abort was called or because another animation for the same
-                attribute was started.
-
-    .. autoclass:: LinearAnim
+    .. autoclass:: LinearAnim(node, attrName, duration, startValue, endValue, [useInt=False, startCallback=None, stopCallback=None])
 
         Class that animates an attribute of a libavg node by interpolating
         linearly between start and end values.
 
-        .. py:method:: __init__(node, attrName, duration, startValue, endValue, [useInt=False, startCallback=None, stopCallback=None])
+        :param node: The libavg node object to animate.
 
-            :param node: The libavg node object to animate.
-
-            :param attrName: 
-            
-                The name of the attribute to change.
-
-            :param duration: The length of the animation in milliseconds.
-
-            :param startValue: Initial value of the attribute.
-
-            :param endValue: Value of the attribute after duration has elapsed.
-
-            :param useInt: 
-
-                If :keyword:`True`, the attribute is always set to an integer value.
-
-            :param startCallback: Python callable to invoke when the animation starts.
-
-            :param stopCallback:
-            
-                Python callable to invoke when the animation has 
-                finished running, either because it's run the allotted time, because
-                abort was called or because another animation for the same
-                attribute was started.
+        :param attrName: 
         
-    .. autoclass:: ParallelAnim
+            The name of the attribute to change.
 
-            Animation that executes several child animations at the same time. The 
-            duration of the ParallelAnim is the maximum of the child's durations or 
-            maxAge, whatever is shorter.
+        :param duration: The length of the animation in milliseconds.
 
-        .. py:method:: __init__(anims, [startCallback, stopCallback, maxAge])
+        :param startValue: Initial value of the attribute.
 
-            :param anims: A list of child animations.
+        :param endValue: Value of the attribute after duration has elapsed.
 
-            :param startCallback: Python callable to invoke when the animation starts.
+        :param useInt: 
 
-            :param stopCallback: 
-                
-                Python callable to invoke when the animation has 
-                finished running, either because it's run the allotted time or because
-                abort was called.
+            If :keyword:`True`, the attribute is always set to an integer value.
 
-            :param maxAge: The maximum duration of the animation in milliseconds.
+        :param startCallback: Python callable to invoke when the animation starts.
+
+        :param stopCallback:
+        
+            Python callable to invoke when the animation has 
+            finished running, either because it's run the allotted time, because
+            abort was called or because another animation for the same
+            attribute was started.
+        
+    .. autoclass:: ParallelAnim(anims, [startCallback, stopCallback, maxAge])
+
+        Animation that executes several child animations at the same time. The 
+        duration of the ParallelAnim is the maximum of the child's durations or 
+        maxAge, whatever is shorter.
+
+        :param anims: A list of child animations.
+
+        :param startCallback: Python callable to invoke when the animation starts.
+
+        :param stopCallback: 
+            
+            Python callable to invoke when the animation has 
+            finished running, either because it's run the allotted time or because
+            abort was called.
+
+        :param maxAge: The maximum duration of the animation in milliseconds.
 
         .. py:method:: start(keepAttr)
 
             Starts the animation by calling :py:meth:`start` for each of the child 
             animations.
 
-            :param bKeepAttr: 
+            :param keepAttr: 
             
                 This parameter is passed to the child animations.
 
@@ -198,7 +188,7 @@ Animation
         of a node runs at any given time. If a second one is started, the first
         one is aborted.
 
-    .. autoclass:: StateAnim
+    .. autoclass:: StateAnim(states)
 
         Animation that executes one of several child animations depending on it's 
         current state. The state can be None, in which case no animation is 
@@ -206,9 +196,7 @@ Animation
         animation during a start or stop callback of a child animation is not 
         possible. An attempt to do so is silently ignored.
 
-        .. py:method:: __init__(states)
-
-            :param states: A list of AnimState objects.
+        :param states: A list of AnimState objects.
 
         .. py:method:: getState
 
@@ -219,22 +207,21 @@ Animation
 
         .. py:method:: setState
 
-    .. autoclass:: WaitAnim
+    .. autoclass:: WaitAnim([duration=-1, startCallback, stopCallback])
+
 
         Animation that simply does nothing for a specified duration. Useful 
         in the context of StateAnims.
 
-        .. py:method:: __init__([duration=-1, startCallback, stopCallback])
+        :param duration: The length of the animation in milliseconds.
+        
+        :param startCallback: Python callable to invoke when the animation starts.
 
-            :param duration: The length of the animation in milliseconds.
-            
-            :param startCallback: Python callable to invoke when the animation starts.
-
-            :param stopCallback: 
-            
-                Python callable to invoke when the animation has 
-                finished running, either because it's run the allotted time or because
-                abort was called.
+        :param stopCallback: 
+        
+            Python callable to invoke when the animation has 
+            finished running, either because it's run the allotted time or because
+            abort was called.
 
         .. py:method:: start
 

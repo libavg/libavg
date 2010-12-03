@@ -1,10 +1,10 @@
-Nodes
-=====
+Area Nodes
+==========
 
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: AreaNode CameraNode CanvasNode CircleNode CurveNode DivNode FilledVectorNode ImageNode LineNode MeshNode Node PanoImageNode PolygonNode PolyLineNode RasterNode RectNode SoundNode VectorNode VideoNode VisibleNode WordsNode
+    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node PanoImageNode RasterNode SoundNode VideoNode VisibleNode WordsNode
         :parts: 1
 
     .. autoclass:: AVGNode([onkeydown: string, onkeyup: string])
@@ -161,39 +161,7 @@ Nodes
 
         Root node of a scene graph.
 
-    .. autoclass:: CircleNode([r=1, texcoord1=0, texcoord2=1])
-
-        A circle. The reference point for a circle is it's center.
-
-        .. py:attribute:: r
-
-            The radius of the circle in pixels.
-
-        .. py:attribute:: texcoord1
-
-        .. py:attribute:: texcoord2
-
-    .. autoclass:: CurveNode([pos1, pos2, pos3, pos4, texcoord1, texcoord2])
-
-        A cubic bezier curve (`<http://en.wikipedia.org/wiki/Bezier_curve>`_). 
-        :py:attr:`pos1` and :py:attr:`pos4` are the two endpoints of the curve. 
-        :py:attr:`pos2` and :py:attr:`pos3` are control points.
-
-        .. py:method:: __init__([pos1, pos2, pos3, pos4, texcoord1, texcoord2])
-
-        .. py:attribute:: pos1
-
-        .. py:attribute:: pos2
-
-        .. py:attribute:: pos3
-
-        .. py:attribute:: pos4
-
-        .. py:attribute:: texcoord1
-
-        .. py:attribute:: texcoord2
-
-    .. autoclass:: DivNode
+    .. autoclass:: DivNode([crop=False, elementoutlinecolor, mediadir])
 
         A div node is a node that groups other nodes logically and visually.
         Its position is used as point of origin for the coordinates
@@ -201,9 +169,7 @@ Nodes
         to :keyword:`True`. Its opacity is used as base opacity for the child nodes' 
         opacities. The children of a div node are drawn in the order they are found
         in the avg file, so the first one is below all others in z-order.
-        
-        .. py:method:: __init__([crop=False, elementoutlinecolor, mediadir])
-
+       
         .. py:attribute:: crop
 
             Boolean that turns clipping on or off.
@@ -273,43 +239,15 @@ Nodes
 
         .. py:method:: getEffectiveMediaDir() -> string
 
-            Returns the nodes' effective mediadir by traversing the node
+            Returns the node's effective mediadir by traversing the node
             hierarchy up to the root node.
 
-    .. autoclass:: FilledVectorNode
-
-        Base class for vector nodes which have a filled area and a border. The area can
-        be filled either with a solid color (:py:attr:`fillcolor`) or with a texture
-        loaded from a file (:py:attr:`filltexhref`) or taken from a bitmap object 
-        (:py:meth:`setFillBitmap`).
-
-        .. py:method:: __init__([filltexhref, fillopacity=0, fillcolor="FFFFFF", filltexcoord1=Point2D(0,0), filltexcoord2=Point2D(1,1)])
-
-        .. py:attribute:: fillcolor
-
-        .. py:attribute:: fillopacity
-
-        .. py:attribute:: filltexcoord1
-
-        .. py:attribute:: filltexcoord2
-
-        .. py:attribute:: filltexhref
-
-            An image file to use as a texture for the area of the node.
-
-        .. py:method:: setFillBitmap(bitmap)
-
-            Sets a bitmap to use as a fill texture. Sets :attr:`filltexhref` to an empty
-            string.
-
-    .. autoclass:: ImageNode
+    .. autoclass:: ImageNode([href, compression])
 
         A static raster image on the screen. The content of an ImageNode can be loaded
         from a file. It can also come from a :py:class:`Bitmap` object or from an 
         :py:class:`OffscreenCanvas`. Alpha channels of the image files are used as
         transparency information.
-
-        .. py:method:: __init__([href, compression])
 
         .. py:attribute:: compression
 
@@ -329,52 +267,12 @@ Nodes
             Sets a bitmap to use as content for the ImageNode. Sets href to an empty 
             string.
 
-    .. autoclass:: LineNode
-
-        A line. :py:attr:`pos1` and :py:attr:`pos2` are the two endpoints of the line.
-
-        .. py:method:: __init__([pos1, pos2, texcoord1, texcoord2])
-
-        .. py:attribute:: pos1
-
-        .. py:attribute:: pos2
-
-        .. py:attribute:: texcoord1
-
-        .. py:attribute:: texcoord2
-
-    .. autoclass:: MeshNode
-
-        This is a generalized mesh of textured triangles. See 
-        https://www.libavg.de/wiki/index.php/Mesh_Node for an example.
-
-        .. py:method:: __init__([vertexcoords, texcoords, triangles])
-
-        .. py:attribute:: texcoords
-
-        .. py:attribute:: triangles
-
-        .. py:attribute:: vertexcoords
-
-    .. autoclass:: Node
-
-        Base class for everything that can be put into an avg tree.
-
-        .. py:method:: __init__([id: string])
-
-        .. py:attribute:: id
-
-            A unique identifier that can be used to reference the node, for instance using
-            :py:meth:`Player.getElementByID`. Read-only.
-
-    .. autoclass:: PanoImageNode
+    .. autoclass:: PanoImageNode([href, sensorwidth, sensorheight, focallength, rotation])
 
         A panorama image displayed in cylindrical projection.
 
         .. deprecated:: 1.5
             This is unsupported and probably buggy.
-
-        .. py:method:: __init__([href, sensorwidth, sensorheight, focallength, rotation])
 
         .. py:attribute:: focallength
 
@@ -412,46 +310,7 @@ Nodes
             Converts panorama angle to pixels in coordinates
             relative to the node, taking into account the current rotation angle.
 
-    .. autoclass:: PolygonNode
-
-        A closed figure bounded by a number of line segments, optionally filled. Filled
-        polygons may not be self-intersecting.
-
-        .. py:method:: __init__([linejoin:"bevel", pos, texcoords])
-
-        .. py:attribute:: linejoin
-
-            The method by which line segments are joined together. Valid values are 
-            :py:const:`bevel` and :py:const:`miter`.
-
-        .. py:attribute:: pos
-
-            A sequence (:py:class:`list` or :py:class:`tuple`) of pixel positions.
-
-        .. py:attribute:: texcoords
-
-            A sequence of float texture coordinates corresponding to the border positions.
-            
-    .. autoclass:: PolyLineNode
-
-        A figure similar to a :py:class:`PolygonNode`, but not closed and never filled. 
-
-        .. py:method:: __init__([linejoin:"bevel", pos, texcoords])
-
-        .. py:attribute:: linejoin
-
-            The method by which line segments are joined together. Valid values are 
-            :py:const:`bevel` and :py:const:`miter`.
-
-        .. py:attribute:: pos
-
-            A sequence (:py:class:`list` or :py:class:`tuple`) of pixel positions.
-
-        .. py:attribute:: texcoords
-
-            A sequence of float texture coordinates corresponding to the border positions.
-            
-    .. autoclass:: RasterNode
+    .. autoclass:: RasterNode([maxtilewidth, maxtileheight, blendmode, mipmap, maskhref, maskpos, masksize, gamma, contrast, intensity])
 
         Base class for all nodes that have a direct 2d raster representation.
         This includes Image, Word, Camera, and Video nodes. The base class implements
@@ -469,8 +328,6 @@ Nodes
         :py:meth:`getWarpedVertexCoords` and :py:meth:`setWarpedVertexCoords`, 
         yielding arbitrary shapes.
         
-        .. py:method:: __init__([maxtilewidth, maxtileheight, blendmode, mipmap, maskhref, maskpos, masksize, gamma, contrast, intensity])
-
         .. py:attribute:: blendmode
 
             The method of compositing the node with the nodes under
@@ -559,31 +416,9 @@ Nodes
             Changes the current coordinates of all vertices. :py:attr:`grid` is a list of
             lists of coordinate tuples.
 
-    .. autoclass:: RectNode
-
-        A rectangle that can be filled.
-
-        .. py:method:: __init__([pos, size, angle])
-
-        .. py:attribute:: angle
-
-            The angle that the rectangle is rotated to in radians. 0 is
-            unchanged, 3.14 is upside-down. The rectangle is rotated around it's
-            center.
-
-        .. py:attribute:: pos
-
-            The position of the top left corner of the rectangle.
-
-        .. py:attribute:: size
-
-        .. py:attribute:: texcoords
-
-    .. autoclass:: SoundNode
+    .. autoclass:: SoundNode([href, loop=False, volume=1.0])
 
         A sound played from a file.
-
-        .. py:method:: __init__([href, loop=False, volume=1.0])
 
         .. py:attribute:: duration
 
@@ -641,48 +476,11 @@ Nodes
 
             Stops audio playback. Closes the object and 'rewinds' the playback cursor.
 
-    .. autoclass:: VectorNode
-
-        Base class for all nodes that draw geometrical primitives. All vector nodes 
-        support configurable stroke width. Strokes can be filled either with a solid 
-        color (:py:attr:`color`) or with a texture loaded from a file 
-        (:py:attr:`texhref`) or taken from a bitmap object (:py:meth:`setBitmap`).
-
-        .. py:method:: __init__([color="FFFFFF", strokewidth=1, texhref, blendmode="blend"])
-
-        .. py:attribute:: blendmode
-
-            The method of compositing the node with the nodes under
-            it. Valid values are :py:const:`blend`, :py:const:`add`, :py:const:`min` 
-            and :py:const:`max`. For :py:const:`min` and :py:const:`max`
-            blend modes, opacity is ignored.
-
-        .. py:attribute:: color
-
-            The color of the strokes in standard html color notation:
-            :samp:`"FF0000"` is red, :samp:`"00FF00"` green, etc.
-
-        .. py:attribute:: strokewidth
-
-            The width of the strokes in the vector. For lines, this is the line
-            width. For rectangles, it is the width of the outline, etc.
-
-        .. py:attribute:: texhref
-
-            An image file to use as a texture for the node.
-
-        .. py:method:: setBitmap(bitmap)
-
-            Sets a bitmap to use as a texture. Sets :attr:`texhref` to an empty
-            string.
-
-    .. autoclass:: VideoNode
+    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0])
 
         Video nodes display a video file. Video formats and codecs supported
         are all formats that ffmpeg/libavcodec supports. Usage is described throughly
         in the libavg wiki: https://www.libavg.de/wiki/index.php/Videos.
-
-        .. py:method:: __init__([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0])
 
         .. py:attribute:: fps
 
@@ -707,9 +505,9 @@ Nodes
         .. py:attribute:: threaded
 
             Whether to use separate threads to decode the video. The default is
-            :keyword:`True`. Setting this attribute to :keyword:`False` makes seeking much quicker.
-            On the other hand, it also disables audio and prevents libavg from 
-            distributing the CPU load over several cores of a multi-core computer.
+            :keyword:`True`. Setting this attribute to :keyword:`False` makes seeking
+            much quicker. On the other hand, it also disables audio and prevents libavg 
+            from distributing the CPU load over several cores of a multi-core computer.
 
         .. py:attribute:: volume
 
@@ -800,146 +598,7 @@ Nodes
             Stops video playback. Closes the file, 'rewinds' the playback
             cursor and clears the decoder queues.
 
-    .. autoclass:: VisibleNode
-
-        Base class for all elements in the avg tree that have a visual representation.
-        All nodes except those derived from :py:class:`FXNode` are VisibleNodes.
-
-        .. py:method:: __init__([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, active=True, sensitive=True, opacity=1.0, parent])
-
-            :param string oncursormove:
-
-                Name of python function to call when a cursor moves.
-
-                .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
-
-            :param string oncursorup:
-
-                Name of python function to call when an up event occurs.
-
-                .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
-
-            :param string oncursordown:
-
-                Name of python function to call when a down event occurs.
-
-                .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
-
-            :param string oncursorover:
-
-                Name of python function to call when a cursor enters the node.
-
-                .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
-
-            :param string oncursorout:
-
-                Name of python function to call when a cursor leaves the node.
-
-                .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
-
-            :param DivNode parent:
-
-                A :py:class:`DivNode` that the newly constructed Node should be appended
-                to.
-
-        .. py:attribute:: active
-
-            If this attribute is true, the node behaves as usual. If not, it
-            is neither drawn nor does it react to events.
-
-        .. py:attribute:: opacity
-
-            A measure of the node's transparency. 0.0 is completely
-            transparent, 1.0 is completely opaque. Opacity is relative to
-            the parent node's opacity.
-
-        .. py:attribute:: sensitive
-
-            A node only reacts to events if sensitive is true.
-
-        .. py:method:: getAbsPos(relpos) -> Point2D
-
-            Transforms a position in coordinates relative to the node to a
-            position in window coordinates.
-
-        .. py:method:: getElementByPos(pos) -> Node
-
-            Returns the topmost child node that is at the position given. :py:attr:`pos`
-            is in coordinates relative to the called node. The algorithm used
-            is the same as the cursor hit test algorithm used for events.
-
-        .. py:method:: getParent() -> Node
-
-            Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
-            is in. For the root node, returns None.
-
-        .. py:method:: getRelPos(abspos) -> Point2D
-
-            Transforms a position in window coordinates to a position
-            in coordinates relative to the node.
-
-        .. py:method:: releaseEventCapture(cursorid=-1)
-
-            Restores normal cursor event handling after a call to 
-            :py:func:`setEventCapture()`. :py:attr:`cursorid` is the id of the
-            cursor to release. If :py:attr:`cursorid` is not given, the mouse cursor is
-            used.
-
-        .. py:method:: setEventCapture(cursorid=-1)
-
-            Sets up event capturing so that cursor events are sent to this node
-            regardless of the cursor position. cursorid is optional; if left out,
-            the mouse cursor is captured. If not, events from a specific tracker
-            cursor are captured. The event propagates to the capturing node's
-            parent normally. This function is useful for the
-            implementation of user interface elements such as scroll bars. Only one
-            node can capture a cursor at any one time. Normal operation can
-            be restored by calling :py:func:`releaseEventCapture()`.
-        
-        .. py:method:: setEventHandler(type, source, pyfunc)
-
-            Sets a callback function that is invoked whenever an event of the
-            specified type from the specified source occurs. This function is
-            similar to the event handler node attributes (e.g. oncursordown).
-            It is more specific since it takes the event source as a parameter
-            and allows the use of any python callable as callback function.
-            
-            :param type:
-            
-                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
-                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
-                :py:const:`CURSOROVER`, :py:const:`CURSOROUT`, :py:const:`RESIZE` or 
-                :py:const:`QUIT`.
-
-            :param source:
-
-                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch touch
-                events, :py:const:`TRACK` for multitouch track events or other tracking,
-                :py:const:`NONE` for keyboard events. Sources can be or'ed together to 
-                set a handler for several sources at once.
-
-            :param pyfunc:
-
-                The python callable to invoke.
-
-        .. py:method:: unlink(kill)
-
-            Removes a node from it's parent container. Equivalent to
-            :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
-            except that if the node has no parent, unlink does nothing. Normally, unlink
-            moves the node's textures back to the CPU and preserves event handlers.
-            If :samp:`kill=True`, this step is skipped. Event handlers are reset, all
-            textures are deleted and the href is reset to empty in this case,
-            saving some time and making sure there are no references to the node
-            left on the libavg side. :py:attr:`kill` should always be set to 
-            :keyword:`True` if the node will not be used after the unlink.
-
-    .. autoclass:: WordsNode
+    .. autoclass:: WordsNode([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, hint=True])
 
         A words node displays formatted text. All
         properties are set in pixels. International and multi-byte character
@@ -955,8 +614,6 @@ Nodes
         for instance when italics are used.
 
         Words nodes are rendered using pango internally. 
-
-        .. py:method:: __init__([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, hint=True])
 
         .. py:attribute:: alignment
 

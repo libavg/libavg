@@ -1,4 +1,4 @@
-Event Handling
+Input Handling
 ==============
 
 .. automodule:: libavg.avg

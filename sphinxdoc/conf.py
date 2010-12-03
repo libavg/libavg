@@ -220,4 +220,4 @@ man_pages = [
      [u'Ulrich von Zadow'], 1)
 ]
 
-#inheritance_graph_attrs = dict(rankdir="TB")
+inheritance_graph_attrs = dict(rankdir="TB")

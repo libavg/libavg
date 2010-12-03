@@ -79,7 +79,7 @@ Misc. Classes
             test images with the intended results (along with :py:meth:`getAvg` and
             :py:meth:`getStdDev`).
 
-    .. autoclass:: ConradRelais
+    .. autoclass:: ConradRelais(AVGPlayer, port)
 
         Interface to one or more conrad relais cards connected to a serial port.
         Per card, up to eight 220V devices can be connected.
@@ -88,14 +88,10 @@ Misc. Classes
 
             This is unsupported. I don't think you can even buy the hardware anymore.
 
-        .. py:method:: __init__(AVGPlayer, port)
-
-            Opens a connection to the relais card(s) connected to a serial port.
-
-            :param port: 
-                
-                The port the device is connected to. The actual device file
-                opened is :file:`/dev/ttyS<port>`.
+        :param port: 
+            
+            The port the device is connected to. The actual device file
+            opened is :file:`/dev/ttyS<port>`.
 
         .. py:method:: get(card, index) -> value
 
@@ -200,23 +196,19 @@ Misc. Classes
 
             This method gives access to the logger. There is only one instance.
 
-    .. autoclass:: ParPort
+    .. autoclass:: ParPort(devicename)
 
         Used for low-level control of the parallel port's data, status and control
-        lines. Linux only.
+        lines. Linux only. The parallel port device is opened on construction.
 
         .. deprecated:: 1.5
 
             This is unsupported and probably buggy.
 
-        .. py:method:: __init__(devicename)
-
-            Opens a parallel port.
-
-            :param devicename: 
-            
-                Device filename to use. If :py:attr:`devicename` is an empty
-                string, :file:`/dev/parport0` is used as device name.
+        :param devicename: 
+        
+            Device filename to use. If :py:attr:`devicename` is an empty
+            string, :file:`/dev/parport0` is used as device name.
 
         .. py:method:: clearDataLines(lines)
 
@@ -299,7 +291,7 @@ Misc. Classes
             
                 :keyword:`True` if the lines were set, :keyword:`False` otherwise.
 
-    .. autoclass:: Point2D
+    .. autoclass:: Point2D([x,y=(0,0)])
 
         A point in 2D space. Supports most arithmetic operations on vectors. The 
         operators :py:attr:`+`, :py:attr:`-`, :py:attr:`==` and :py:attr:`\!=` are 
@@ -309,12 +301,6 @@ Misc. Classes
         
         :py:class:`Point2D` implicitly converts from and to 2-element float tuples and 
         lists, so in most cases you can use one of these types whenever a point is needed.
-
-        .. py:method:: __init__()
-
-            Creates a point initialized to (0,0).
-
-        .. py:method:: __init__(x,y)
 
         .. py:attribute:: x
 
