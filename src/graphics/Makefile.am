@@ -37,14 +37,14 @@ noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
-testgraphics_LDADD = ./libgraphics.la ../base/libbase.la
-testgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
+testgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
-benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la
-benchmarkgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
+benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 testgpu_SOURCES=testgpu.cpp $(ALL_H)
-testgpu_LDADD = ./libgraphics.la ../base/libbase.la
-testgpu_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) @GL_LIBS@ \
+testgpu_LDADD = ./libgraphics.la ../base/libbase.la \
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) @GL_LIBS@ \
         @GLU_LIBS@ @SDL_LIBS@
