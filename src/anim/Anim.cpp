@@ -95,6 +95,7 @@ void Anim::onPreRender()
     
 void Anim::onPlaybackEnd()
 {
+    AnimPtr tempThis = shared_from_this();
     if (m_bRunning) {
         abort();
     }
