@@ -173,7 +173,7 @@ class HoldProcessor(ManipulationProcessor):
             self.__changeState(HoldProcessor.DOWN)
 
     def __onFrame(self):
-        relTime = g_Player.getFrameTime() - self.__startTime - self.__holdDelay
+        relTime = g_Player.getFrameTime() - self.__startTime
         if self.__state == HoldProcessor.DOWN:
             if relTime > self.__holdDelay:
                 self.__changeState(HoldProcessor.HOLDING)
@@ -181,7 +181,8 @@ class HoldProcessor(ManipulationProcessor):
             if relTime > self.__activateDelay:
                 self.__changeState(HoldProcessor.ACTIVE)
             else:
-                self.__holdHandler(float(relTime)/(self.__activateDelay-self.__holdDelay))
+                self.__holdHandler(float(relTime-self.__holdDelay)/
+                        (self.__activateDelay-self.__holdDelay))
 
     def _handleUp(self, event):
         g_Player.clearInterval(self.__frameHandlerID)
@@ -191,7 +192,6 @@ class HoldProcessor(ManipulationProcessor):
     def __changeState(self, newState):
         if self.__state == newState:
             return
-#        print self.__state, " -> ", newState
         if self.__state == HoldProcessor.UP and newState == HoldProcessor.DOWN:
             pass
         elif self.__state == HoldProcessor.DOWN and newState == HoldProcessor.HOLDING:

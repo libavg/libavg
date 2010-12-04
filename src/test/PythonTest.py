@@ -973,8 +973,8 @@ class PythonTestCase(AVGTestCase):
             self.__stopCalled = False
 
         def assertEvents(start, hold, activate, stop):
-#            print self.__startCalled, self.__holdCalled, self.__activateCalled,
-#                    self.__stopCalled
+#            print (self.__startCalled, self.__holdCalled, self.__activateCalled,
+#                    self.__stopCalled)
             self.assert_(self.__startCalled == start and
                 self.__holdCalled == hold and
                 self.__activateCalled == activate and
