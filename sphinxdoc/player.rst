@@ -7,8 +7,8 @@ Player & Canvas
     This section describes the classes that provide a framework for rendering. The 
     :py:class:`Player` class is an interface to the avg renderer. The 
     :py:class:`Canvas` class and it's descendant :py:class:`OffscreenCanvas` provide 
-    with areas to draw on.
-
+    areas to draw on. 
+    
     .. autoclass:: Canvas
 
         A Canvas is a tree of nodes. It is the place where a scenegraph is displayed. In
