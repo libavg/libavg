@@ -1127,6 +1127,44 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testRoundedRect5", True),
                 ))
 
+    def testPieSlice(self):
+        def changeAttrs():
+            self.pieSlice.startangle = -1
+            self.pieSlice.endangle = 3.14
+            self.pieSlice.radius = 50
+            self.pieSlice.pos = (80.5, 60.5)
+            self.pieSlice.fillcolor = "00FFFF"
+            self.pieSlice.fillopacity = 0.5
+
+        self.loadEmptyScene()
+        self.pieSlice = geom.PieSlice(parent=Player.getRootNode(), pos=(20.5,20.5), 
+                radius=40, startangle=0, endangle=1.57, color="FF0000")
+       
+        self.start(None,
+                (lambda: self.compareImage("testPieSlice1", True),
+                 changeAttrs,
+                 lambda: self.compareImage("testPieSlice2", True),
+                ))
+
+    def testArc(self):
+        def changeAttrs():
+            self.arc.startangle = -1
+            self.arc.endangle = 3.14
+            self.arc.radius = 50
+            self.arc.pos = (80.5, 60.5)
+
+        self.loadEmptyScene()
+        self.arc = geom.Arc(parent=Player.getRootNode(), pos=(20.5,20.5), 
+                radius=40, startangle=0, endangle=1.57, color="FF0000")
+       
+        self.start(None,
+                (lambda: self.compareImage("testArc1", True),
+                 changeAttrs,
+                 lambda: self.compareImage("testArc2", True),
+                ))
+
+
+
     def __sendMouseEvent(self, type, x, y, sx=0, sy=0):
         Helper = Player.getTestHelper()
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1, avg.Point2D(sx, sy))
@@ -1156,6 +1194,8 @@ def pythonTestSuite (tests):
         "testHoldProcessor",
         "testFocusContext",
         "testRoundedRect",
+        "testPieSlice",
+        "testArc",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)

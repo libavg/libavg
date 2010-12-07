@@ -75,3 +75,124 @@ class RoundedRect(avg.PolygonNode):
         pos.extend(calcQuarterCircle(self.pos+(r,size.y-r), r, 1.57))
         pos.extend(calcQuarterCircle(self.pos+(r,r), r, 3.14))
         self.polyPos = pos
+
+class PieSlice(avg.PolygonNode):
+    def __init__(self, radius, startangle, endangle, pos=(0,0), parent=None,
+            **kwargs):
+        avg.PolygonNode.__init__(self, **kwargs)
+        self.__pos = avg.Point2D(pos)
+        self.__radius = radius
+        self.__startangle = startangle
+        self.__endangle = endangle
+        self.__calcPolygon()
+        if parent:
+            parent.appendChild(self)
+
+    def getPos(self):
+        return self.__pos
+
+    def setPos(self, pos):
+        self.__pos = avg.Point2D(pos)
+        self.__calcPolygon()
+    polyPos = avg.PolygonNode.pos
+    pos = property(getPos, setPos)
+        
+    def getRadius(self):
+        return self.__radius
+
+    def setRadius(self, radius):
+        self.__radius = radius
+        self.__calcPolygon()
+    radius = property(getRadius, setRadius)
+
+    def getStartAngle(self):
+        return self.__startangle
+
+    def setStartAngle(self, startangle):
+        self.__startangle = startangle
+        self.__calcPolygon()
+    startangle = property(getStartAngle, setStartAngle)
+
+    def getEndAngle(self):
+        return self.__endangle
+
+    def setEndAngle(self, endangle):
+        self.__endangle = endangle
+        self.__calcPolygon()
+    endangle = property(getEndAngle, setEndAngle)
+
+    def __calcPolygon(self):
+
+        def getCirclePoint(i):
+            angle = self.__startangle + (self.__endangle-self.__startangle)*i
+            return avg.Point2D(self.__pos)+avg.Point2D.fromPolar(angle, self.__radius)
+
+        pos = []
+        circlePart = (self.__endangle - self.__startangle)/6.28
+        numPoints = self.__radius*2.*circlePart
+        for i in xrange(0, int(numPoints)):
+            pos.append(getCirclePoint(i/numPoints))
+        pos.append(getCirclePoint(1))
+        pos.append(self.__pos)
+        self.polyPos = pos
+
+class Arc(avg.PolyLineNode):
+    # TODO: Code duplication with PieSlice
+    def __init__(self, radius, startangle, endangle, pos=(0,0), parent=None,
+            **kwargs):
+        avg.PolyLineNode.__init__(self, **kwargs)
+        self.__pos = avg.Point2D(pos)
+        self.__radius = radius
+        self.__startangle = startangle
+        self.__endangle = endangle
+        self.__calcPolygon()
+        if parent:
+            parent.appendChild(self)
+
+    def getPos(self):
+        return self.__pos
+
+    def setPos(self, pos):
+        self.__pos = avg.Point2D(pos)
+        self.__calcPolygon()
+    polyPos = avg.PolyLineNode.pos
+    pos = property(getPos, setPos)
+        
+    def getRadius(self):
+        return self.__radius
+
+    def setRadius(self, radius):
+        self.__radius = radius
+        self.__calcPolygon()
+    radius = property(getRadius, setRadius)
+
+    def getStartAngle(self):
+        return self.__startangle
+
+    def setStartAngle(self, startangle):
+        self.__startangle = startangle
+        self.__calcPolygon()
+    startangle = property(getStartAngle, setStartAngle)
+
+    def getEndAngle(self):
+        return self.__endangle
+
+    def setEndAngle(self, endangle):
+        self.__endangle = endangle
+        self.__calcPolygon()
+    endangle = property(getEndAngle, setEndAngle)
+
+    def __calcPolygon(self):
+
+        def getCirclePoint(i):
+            angle = self.__startangle + (self.__endangle-self.__startangle)*i
+            return avg.Point2D(self.__pos)+avg.Point2D.fromPolar(angle, self.__radius)
+
+        pos = []
+        circlePart = (self.__endangle - self.__startangle)/6.28
+        numPoints = self.__radius*2.*circlePart
+        for i in xrange(0, int(numPoints)):
+            pos.append(getCirclePoint(i/numPoints))
+        pos.append(getCirclePoint(1))
+        self.polyPos = pos
+
