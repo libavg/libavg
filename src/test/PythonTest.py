@@ -1136,6 +1136,9 @@ class PythonTestCase(AVGTestCase):
             self.pieSlice.fillcolor = "00FFFF"
             self.pieSlice.fillopacity = 0.5
 
+        def makeSmall():
+            self.pieSlice.radius = 0.6
+
         self.loadEmptyScene()
         self.pieSlice = geom.PieSlice(parent=Player.getRootNode(), pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
@@ -1144,6 +1147,8 @@ class PythonTestCase(AVGTestCase):
                 (lambda: self.compareImage("testPieSlice1", True),
                  changeAttrs,
                  lambda: self.compareImage("testPieSlice2", True),
+                 makeSmall,
+                 lambda: self.compareImage("testPieSlice3", True),
                 ))
 
     def testArc(self):
