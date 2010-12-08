@@ -137,6 +137,7 @@ class AVG_API Player: IEventSink
         void doFrame(bool bFirstFrame);
         double getFramerate();
         double getVideoRefreshRate();
+        bool isUsingShaders();
         void setGamma(double red, double green, double blue);
         DisplayEngine * getDisplayEngine() const;
         void setStopOnEscape(bool bStop);

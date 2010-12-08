@@ -238,7 +238,13 @@ Player & Canvas
         .. py:method:: isPlaying() -> bool
 
             Returns :keyword:`True` if :py:meth:`play()` is currently executing, 
-            :keyword:`False` if not.)
+            :keyword:`False` if not.
+
+        .. py:method:: isUsingShaders() -> bool
+
+            Returns :keyword:`True` if shader support is enabled and working,
+            :keyword:`False` if not.
+            May only be called after :py:meth:`play()` has been called.
 
         .. py:method:: loadCanvasFile(filename) -> Canvas
 

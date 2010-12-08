@@ -1021,6 +1021,15 @@ double Player::getVideoRefreshRate()
     return m_pDisplayEngine->getRefreshRate();
 }
 
+bool Player::isUsingShaders()
+{
+    if (!m_pDisplayEngine) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Player.isUsingShaders must be called after Player.play().");
+    }
+    return m_pDisplayEngine->isUsingShaders();
+}
+
 void Player::setGamma(double red, double green, double blue)
 {
     if (m_pDisplayEngine) {
