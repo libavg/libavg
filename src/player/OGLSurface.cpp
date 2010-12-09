@@ -39,9 +39,9 @@ using namespace std;
 
 static float yuvCoeff[3][4] = 
 {
-    {1.0,   0.0,   1.40,  0.0},
-    {1.0, -0.34,  -0.71,  0.0},
-    {1.0,  1.77,    0.0,  0.0},
+    {1.0f,   0.0f,   1.40f,  0.0f},
+    {1.0f, -0.34f,  -0.71f,  0.0f},
+    {1.0f,  1.77f,    0.0f,  0.0f},
 };
 
 namespace avg {
@@ -433,9 +433,9 @@ Matrix3x4 OGLSurface::calcColorspaceMatrix() const
         mat *= Matrix3x4(*yuvCoeff);
         mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
         if (m_pf == YCbCr420p || m_pf == YCbCrA420p) {
-            mat *= Matrix3x4::createScale(255.0/(235-16), 255.0/(240-16) , 
-                    255.0/(240-16));
-            mat *= Matrix3x4::createTranslate(-16.0/255, -16.0/255, -16.0/255);
+            mat *= Matrix3x4::createScale(255.0f/(235-16), 255.0f/(240-16) , 
+                    255.0f/(240-16));
+            mat *= Matrix3x4::createTranslate(-16.0f/255, -16.0f/255, -16.0f/255);
         }
     }
     return mat;
