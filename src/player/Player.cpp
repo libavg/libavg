@@ -54,7 +54,7 @@
     #include "Win7TouchEventSource.h"
 #endif
 #ifdef AVG_ENABLE_MTDEV
-    #include "LinuxMTEventSource.h"
+    #include "LibMTDevEventSource.h"
 #endif
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -656,8 +656,8 @@ void Player::enableMultitouch()
         m_pMultitouchEventSource = new Win7TouchEventSource;
 #endif
 #ifdef AVG_ENABLE_MTDEV
-    } else if (sDriver == "LINUXMT") {
-        m_pMultitouchEventSource = new LinuxMTEventSource;
+    } else if (sDriver == "LINUXMTDEV") {
+        m_pMultitouchEventSource = new LibMTDevEventSource;
 #endif
 #ifdef __APPLE__
     } else if (sDriver == "APPLETRACKPAD") {

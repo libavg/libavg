@@ -87,6 +87,13 @@ PKG_CHECK_MODULES([MTDEV], [mtdev],
          AC_MSG_NOTICE(mtdev not found))
 AM_CONDITIONAL(ENABLE_MTDEV, test x"$MTDEV_LIBS" != x)
 
+AX_CHECK_DEFINED([linux/input.h], ABS_MT_SLOT, [enable_linuxmt=yes], [enable_linuxmt=no])
+AM_CONDITIONAL(ENABLE_LINUXMT, test x$enable_linuxmt = xyes)
+if test "$enable_linuxmt" = yes; then
+    AC_DEFINE(AVG_ENABLE_LINUXMT, 1, [Enable linux kernel multitouch support.])
+fi
+
+
 AC_ARG_ENABLE(v4l2,
           AC_HELP_STRING([--enable-v4l2],
                  [compile support for video4linux v2 video devices]),

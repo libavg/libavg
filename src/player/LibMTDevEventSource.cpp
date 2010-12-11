@@ -19,7 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "LinuxMTEventSource.h"
+#include "LibMTDevEventSource.h"
+
+#include "LinuxMTHelper.h"
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
@@ -45,17 +47,13 @@ using namespace std;
 
 namespace avg {
 
-string eventTypeToString(int type);
-string mtCodeToString(int code);
-string synCodeToString(int code);
-
-LinuxMTEventSource::LinuxMTEventSource()
+LibMTDevEventSource::LibMTDevEventSource()
     : m_LastID(0),
       m_pMTDevice(0)
 {
 }
 
-LinuxMTEventSource::~LinuxMTEventSource()
+LibMTDevEventSource::~LibMTDevEventSource()
 {
     if (m_pMTDevice) {
         mtdev_close(m_pMTDevice);
@@ -63,7 +61,7 @@ LinuxMTEventSource::~LinuxMTEventSource()
     }
 }
 
-void LinuxMTEventSource::start()
+void LibMTDevEventSource::start()
 { 
     string sDevice = "/dev/input/event3";
     m_DeviceFD = ::open(sDevice.c_str(), O_RDONLY | O_NONBLOCK);
@@ -91,7 +89,7 @@ void LinuxMTEventSource::start()
     AVG_TRACE(Logger::CONFIG, "Linux MTDev Multitouch event source created.");
 }
 
-std::vector<EventPtr> LinuxMTEventSource::pollEvents()
+std::vector<EventPtr> LibMTDevEventSource::pollEvents()
 {
     struct input_event events[64];
     int numEvents = mtdev_get(m_pMTDevice, m_DeviceFD, events, 64);
@@ -253,7 +251,7 @@ std::vector<EventPtr> LinuxMTEventSource::pollEvents()
     return MultitouchEventSource::pollEvents();
 }
 
-TouchEventPtr LinuxMTEventSource::createEvent(int id, Event::Type type, IntPoint pos)
+TouchEventPtr LibMTDevEventSource::createEvent(int id, Event::Type type, IntPoint pos)
 {
     DPoint size = getWindowSize();
     DPoint normPos = DPoint(double(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),
@@ -261,90 +259,6 @@ TouchEventPtr LinuxMTEventSource::createEvent(int id, Event::Type type, IntPoint
     IntPoint screenPos(int(normPos.x*size.x+0.5), int(normPos.y*size.y+0.5));
     return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH, DPoint(0,0), 
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
-}
-
-string eventTypeToString(int type)
-{
-    switch(type) {
-        case EV_SYN:
-            return "EV_SYN";
-        case EV_KEY:
-            return "EV_KEY";
-        case EV_REL:
-            return "EV_REL";
-        case EV_ABS:
-            return "EV_ABS";
-        case EV_MSC:
-            return "EV_MSC";
-        case EV_SW:
-            return "EV_SW";
-        case EV_LED:
-            return "EV_LED";
-        case EV_SND:
-            return "EV_SND";
-        case EV_REP:
-            return "EV_REP";
-        case EV_FF:
-            return "EV_FF";
-        case EV_PWR:
-            return "EV_PWR";
-        case EV_FF_STATUS:
-            return "EV_FF_STATUS";
-        default:
-            stringstream ss;
-            ss << type;
-            return ss.str();
-    }
-}
-
-string mtCodeToString(int code)
-{
-    switch (code) {
-        case ABS_MT_SLOT:
-            return "ABS_MT_SLOT";
-        case ABS_MT_TOUCH_MAJOR:
-            return "ABS_MT_TOUCH_MAJOR";
-        case ABS_MT_TOUCH_MINOR:
-            return "ABS_MT_TOUCH_MINOR";
-        case ABS_MT_WIDTH_MAJOR:
-            return "ABS_MT_WIDTH_MAJOR";
-        case ABS_MT_WIDTH_MINOR:
-            return "ABS_MT_WIDTH_MINOR";
-        case ABS_MT_ORIENTATION:
-            return "ABS_MT_ORIENTATION";
-        case ABS_MT_POSITION_X:
-            return "ABS_MT_POSITION_X";
-        case ABS_MT_POSITION_Y:
-            return "ABS_MT_POSITION_Y";
-        case ABS_MT_TOOL_TYPE:
-            return "ABS_MT_TOOL_TYPE";
-        case ABS_MT_BLOB_ID:
-            return "ABS_MT_BLOB_ID";
-        case ABS_MT_TRACKING_ID:
-            return "ABS_MT_TRACKING_ID";
-        case ABS_MT_PRESSURE:
-            return "ABS_MT_PRESSURE";
-        default:
-            stringstream ss;
-            ss << code;
-            return ss.str();
-    }
-}
-
-string synCodeToString(int code)
-{
-    switch (code) {
-        case SYN_REPORT:
-            return "SYN_REPORT";
-        case SYN_CONFIG:
-            return "SYN_CONFIG";
-        case SYN_MT_REPORT:
-            return "SYN_MT_REPORT";
-        default:
-            stringstream ss;
-            ss << code;
-            return ss.str();
-    }
 }
            
 }

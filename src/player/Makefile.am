@@ -14,11 +14,19 @@ else
 endif
 
 if ENABLE_MTDEV
-    MTDEV_SOURCES = LinuxMTEventSource.cpp
-    MTDEV_INCLUDES = LinuxMTEventSource.h
+    MTDEV_SOURCES = LibMTDevEventSource.cpp
+    MTDEV_INCLUDES = LibMTDevEventSource.h
 else
     MTDEV_SOURCES =
     MTDEV_INCLUDES =
+endif
+
+if ENABLE_LINUXMT
+    LINUXMT_SOURCES = LinuxMTHelper.cpp LinuxKernelMTEventSource.cpp
+    LINUXMT_INCLUDES = LinuxMTHelper.h LinuxKernelMTEventSource.h
+else
+    LINUXMT_SOURCES =
+    LINUXMT_INCLUDES =
 endif
 
 GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp PBOTexture.cpp GLConfig.cpp
@@ -39,7 +47,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOEventSource.h \
-        $(MTDEV_INCLUDES) $(GL_INCLUDES)
+        $(LINUXMT_INCLUDES) $(MTDEV_INCLUDES) $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
 
@@ -85,5 +93,5 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOEventSource.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
-        $(MTDEV_SOURCES) $(APPLE_SOURCES) $(ALL_H)
+        $(LINUXMT_SOURCES) $(MTDEV_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

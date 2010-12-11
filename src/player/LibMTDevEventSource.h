@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _LinuxMTEventSource_H_
-#define _LinuxMTEventSource_H_
+#ifndef _LibMTDevEventSource_H_
+#define _LibMTDevEventSource_H_
 
 #include "../api.h"
 #include "MultitouchEventSource.h"
@@ -34,11 +34,11 @@ struct mtdev;
 
 namespace avg {
 
-class AVG_API LinuxMTEventSource: public MultitouchEventSource
+class AVG_API LibMTDevEventSource: public MultitouchEventSource
 {
 public:
-    LinuxMTEventSource();
-    virtual ~LinuxMTEventSource();
+    LibMTDevEventSource();
+    virtual ~LibMTDevEventSource();
     virtual void start();
 
     std::vector<EventPtr> pollEvents();
@@ -62,7 +62,7 @@ private:
 
 };
 
-typedef boost::shared_ptr<LinuxMTEventSource> LinuxMTEventSourcePtr;
+typedef boost::shared_ptr<LibMTDevEventSource> LibMTDevEventSourcePtr;
 
 }
 
