@@ -168,11 +168,11 @@ struct point_from_python
     {
         POINT pt;
         PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
-        Py_DECREF(pEntry);
         pt.x = (ATTR)PyFloat_AsDouble(pEntry);
-        pEntry = PySequence_GetItem(obj_ptr, 1);
         Py_DECREF(pEntry);
+        pEntry = PySequence_GetItem(obj_ptr, 1);
         pt.y = (ATTR)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
                     ->storage.bytes;
@@ -207,10 +207,13 @@ struct triple_from_python
         avg::Triple<NUM> t;
         PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
         t.x = (NUM)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
         pEntry = PySequence_GetItem(obj_ptr, 1);
         t.y = (NUM)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
         pEntry = PySequence_GetItem(obj_ptr, 2);
         t.z = (NUM)PyFloat_AsDouble(pEntry);
+        Py_DECREF(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<Triple<NUM> >*)
                         data)->storage.bytes;
