@@ -168,8 +168,10 @@ struct point_from_python
     {
         POINT pt;
         PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
+        Py_DECREF(pEntry);
         pt.x = (ATTR)PyFloat_AsDouble(pEntry);
         pEntry = PySequence_GetItem(obj_ptr, 1);
+        Py_DECREF(pEntry);
         pt.y = (ATTR)PyFloat_AsDouble(pEntry);
         void* storage = (
                 (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
