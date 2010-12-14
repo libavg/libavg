@@ -152,6 +152,7 @@ Player::Player()
 #ifdef _WIN32
     Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
 #endif
+    m_pDisplayEngine = new SDLDisplayEngine();
 
     s_pPlayer = this;
 
@@ -255,6 +256,13 @@ void Player::setAudioOptions(int samplerate, int channels)
     errorIfPlaying("Player.setAudioOptions");
     m_AP.m_SampleRate = samplerate;
     m_AP.m_Channels = channels;
+}
+
+DPoint Player::getScreenResolution() const
+{
+    errorIfPlaying("Player.getScreenResolution");
+    return DPoint(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine)->
+            getScreenResolution());
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -1085,15 +1093,11 @@ void Player::initGraphics()
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
-    if (!m_pDisplayEngine) {
-        AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
-        m_GLConfig.log();
-
-        m_pDisplayEngine = new SDLDisplayEngine();
-    }
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
+        AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
+        m_GLConfig.log();
         pSDLDisplayEngine->setOGLOptions(m_GLConfig);
     }
     m_pDisplayEngine->init(m_DP);
@@ -1441,7 +1445,7 @@ void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
     }
 }
 
-void Player::errorIfPlaying(const std::string& sFunc)
+void Player::errorIfPlaying(const std::string& sFunc) const
 {
     if (m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED, 

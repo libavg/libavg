@@ -83,6 +83,8 @@ class AVG_API Player: IEventSink
         void setMultiSampleSamples(int multiSampleSamples);
         void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
+        DPoint getScreenResolution() const;
+
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);
 
@@ -193,7 +195,7 @@ class AVG_API Player: IEventSink
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
 
-        void errorIfPlaying(const std::string& sFunc);
+        void errorIfPlaying(const std::string& sFunc) const;
 
         MainCanvasPtr m_pMainCanvas;
 

@@ -1225,6 +1225,12 @@ const IntPoint& SDLDisplayEngine::getWindowSize() const
     return m_WindowSize;
 }
 
+IntPoint SDLDisplayEngine::getScreenResolution() const
+{
+    const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+    return IntPoint(pInfo->current_w, pInfo->current_h);
+}
+
 void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)
 {
     m_pFBO = pFBO;

@@ -577,16 +577,6 @@ class PlayerTestCase(AVGTestCase):
                 lambda: self.assert_(False),
                 ))
 
-    def testOffscreen(self):
-        Player.loadSceneString("""
-            <scene width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png" angle="0.4"/>
-            </scene>
-        """)
-        self.loadEmptyScene()
-        self.start(None, 
-                [None, None])
-
     # Not executed due to bug #145 - hangs with some window managers.
     def testWindowFrame(self):
         def revertWindowFrame():
@@ -594,6 +584,10 @@ class PlayerTestCase(AVGTestCase):
 
         Player.setWindowFrame(False)
         self.start('avg.avg',[revertWindowFrame])
+
+    def testGetScreenResolution(self):
+        res = Player.getScreenResolution()
+        self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
 
 
 def playerTestSuite(tests):
@@ -620,6 +614,7 @@ def playerTestSuite(tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
+            "testGetScreenResolution",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)
