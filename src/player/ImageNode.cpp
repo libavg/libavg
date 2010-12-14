@@ -171,10 +171,6 @@ void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
         OffscreenCanvasPtr pCanvas = Player::get()->getCanvasFromURL(m_href);
-        if (hasMask()) {
-            throw Exception(AVG_ERR_UNSUPPORTED,
-                    "Image nodes with a canvas as source can't have masks.");
-        }
         m_pImage->setCanvas(pCanvas);
         if (getState() == NS_CANRENDER) {
             pCanvas->addDependentCanvas(getCanvas());

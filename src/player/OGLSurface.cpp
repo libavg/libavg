@@ -176,6 +176,7 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 float(1/m_Gamma.z), 1.0);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
+        pShader->setUniformIntParam("bPremultipliedAlpha", m_bUseForeignTexture);
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
             m_pMaskTexture->activate(GL_TEXTURE4);
@@ -354,6 +355,7 @@ void OGLSurface::createShader()
         "uniform vec4 colorCoeff3;\n"
         "uniform bool bUseColorCoeff;\n"
         "uniform vec4 gamma;\n"
+        "uniform bool bPremultipliedAlpha;\n"
         "uniform bool bUseMask;\n"
         "uniform vec2 maskPos;\n"
         "uniform vec2 maskSize;\n"
@@ -400,8 +402,13 @@ void OGLSurface::createShader()
         "    }\n"
         "    rgba = pow(rgba, gamma);\n"
         "    if (bUseMask) {\n"
-        "        rgba.a *= texture2D(maskTexture,\n"
-        "               (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
+        "        if (bPremultipliedAlpha) {\n"
+        "            rgba.rgb *= texture2D(maskTexture,\n"
+        "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
+        "        } else {\n"
+        "            rgba.a *= texture2D(maskTexture,\n"
+        "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
+        "        }\n"
         "    }\n"
         "    gl_FragColor = rgba;\n"
         "}\n";

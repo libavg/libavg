@@ -446,12 +446,6 @@ class OffscreenTestCase(AVGTestCase):
                     loadCanvasDepString,
                   ))
 
-    def testCanvasMask(self):
-        self.loadEmptyScene()
-        self.__createOffscreenCanvas("offscreencanvas", False)
-        self.assertException(lambda: avg.ImageNode(href="canvas:offscreencanvas", 
-                maskhref="mask.png", parent=Player.getRootNode()))
-
     def __setupCanvas(self, handleEvents):
         mainCanvas = self.loadEmptyScene()
         offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", handleEvents)
@@ -484,7 +478,6 @@ def offscreenTestSuite(tests):
             "testCanvasMultisampling",
             "testCanvasMipmap",
             "testCanvasDependencies",
-            "testCanvasMask",
             )
     return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
 

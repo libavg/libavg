@@ -335,6 +335,22 @@ class ImageTestCase(AVGTestCase):
                  setMaskNotFound
                 ))
 
+    def testImageMaskCanvas(self):
+        if not(self._isMaskSupported()):
+            print "Skipping testImageMaskCanvas - no shader support."
+            return
+        self.loadEmptyScene()
+        Player.loadCanvasString("""
+            <canvas id="testcanvas" width="64" height="64">
+                <image href="rgb24-64x64.png"/>
+            </canvas>
+        """)
+        node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png")
+        Player.getRootNode().appendChild(node)
+        self.start(None,
+                [lambda: self.compareImage("testImgMaskCanvas", False)
+                ])
+
     def testImageMaskPos(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -443,6 +459,7 @@ def imageTestSuite(tests):
             "testBitmap",
             "testBlendMode",
             "testImageMask",
+            "testImageMaskCanvas",
             "testImageMaskPos",
             "testImageMaskSize",
             "testImageMipmap",
