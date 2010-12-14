@@ -6,16 +6,62 @@ Misc. Classes
 
     .. autoclass:: Bitmap
 
-        Class representing a rectangular set of pixels. Bitmaps can be obtained
-        from any RasterNode. For nodes of type Image, the current bitmap can be
-        set as well.
+        Class representing a rectangular set of pixels in CPU memory. Bitmaps can be 
+        obtained from any :py:class:`RasterNode` or loaded from disk. For nodes of type 
+        :py:class:`ImageNode`, the current bitmap can be set as well.
 
-        The layout of the pixels in the bitmap is determined by it's pixel format.
-        Possible return values are :py:const:`B5G6R5`, :py:const:`B8G8R8`, 
-        :py:const:`B8G8R8A8`, :py:const:`B8G8R8X8`, :py:const:`A8B8G8R8`, 
-        :py:const:`X8B8G8R8`, :py:const:`R5G6B5`, :py:const:`R8G8B8`, 
-        :py:const:`R8G8B8A8`, :py:const:`R8G8B8X8`, :py:const:`A8R8G8B8`,
-        :py:const:`X8R8G8B8`, :py:const:`I8` and :py:const:`YCbCr422`.
+        The layout of the pixels in the bitmap is described by it's pixel format.
+        The names for pixel format constants are confusing. They try to follow logic,
+        but it's a bit elusive: In many cases, each component is described by a single 
+        letter indicating it's role in the pixel and a number indicating the number of 
+        bits used for this component.
+        Components are named in the order they appear in memory. In the cases where
+        the name doesn't follow this logic, reasons for the name are historical or
+        by convention or something, and anyway, most pixel formats are only used 
+        internally and users usually won't come into contact with them. The pixel formats
+        are:
+
+            * :py:const:`B5G6R5`: 16 bits per pixel blue, green, red components.
+            * :py:const:`B8G8R8`: 24 bits per pixel blue, green, red components.
+            * :py:const:`B8G8R8A8`: 32 bits per pixel: blue, green, red and an 
+              alpha (opacity) component.
+            * :py:const:`B8G8R8X8`: 32 bits per pixel, with the last byte unused.
+            * :py:const:`A8B8G8R8`
+            * :py:const:`X8B8G8R8`
+            * :py:const:`R5G6B5`
+            * :py:const:`R8G8B8`
+            * :py:const:`R8G8B8A8`
+            * :py:const:`R8G8B8X8`
+            * :py:const:`A8R8G8B8`
+            * :py:const:`X8R8G8B8`
+            * :py:const:`I8`: 8 bits of greyscale intensity.
+            * :py:const:`I16`: 16 bits of greyscale intensity.
+            * :py:const:`A8`: 8 bits of transparency information.
+            * :py:const:`YCbCr411`: Interleaved YCbCr: Y Y Cb Y Y Cr. 
+              Effectively 12 bits per pixel. Output format of some cameras.
+            * :py:const:`YCbCr422`: Interleaved YCbCr: Cb Y Cr Y.
+              Effectively 16 bits per pixel. Output format of some cameras.
+            * :py:const:`YUYV422`: Like YCbCr422, but grey values come first, so the 
+              order is Y Cb Y Cr.
+            * :py:const:`YCbCr420p`: Not a valid pixel format for a single bitmap, but 
+              still a description of planar bitmap coding. Signifies separate 
+              bitmaps for Y, Cb and Cr components, with Cb and Cr half as big in both x
+              and y dimensions. This is mpeg YCbCr, where the color components have 
+              values from 16...235. Used by many video formats, including mpeg.
+            * :py:const:`YCbCrJ420p`: Same as YCbCr420p, but this is the jpeg version 
+              with component values in the range 0...255. Used in video as well, for 
+              instance in motion jpeg encoding.
+            * :py:const:`YCbCrA420p`: YCbCr420p with an additional alpha (transparency)
+              bitmap at full resolution. Used in flash video with transparency.
+            * :py:const:`BAYER8`: Bayer pattern. This is raw camera sensor data with
+              an unspecified pixel order. The other :py:const:`BAYER_XXX` constants 
+              specify differing camera sensor arrangements.
+            * :py:const:`BAYER8_RGGB`
+            * :py:const:`BAYER8_GBRG`
+            * :py:const:`BAYER8_GRBG`
+            * :py:const:`BAYER8_BGGR`
+            * :py:const:`R32G32B32A32F`: 32 bits per channel float RGBA.
+            * :py:const:`I32F`: 32 bits per channel greyscale intensity.
 
         .. py:method:: __init__(size, pixelFormat, name)
 
@@ -42,7 +88,7 @@ Misc. Classes
 
         .. py:method:: getPixel(pos) -> (r,g,b,a)
 
-            Returns one image pixel als a color tuple. This should only be used
+            Returns one image pixel as a color tuple. This should only be used
             for single pixels, as it is very slow.
 
         .. py:method:: getPixels() -> string
