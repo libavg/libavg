@@ -193,6 +193,8 @@ class AVG_API Player: IEventSink
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
 
+        void errorIfPlaying(const std::string& sFunc);
+
         MainCanvasPtr m_pMainCanvas;
 
         DisplayEngine * m_pDisplayEngine;

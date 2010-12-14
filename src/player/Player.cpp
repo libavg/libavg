@@ -202,6 +202,7 @@ bool Player::exists()
 
 void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
+    errorIfPlaying("Player.setResolution");
     m_DP.m_bFullscreen = bFullscreen;
     if (bpp) {
         m_DP.m_BPP = bpp;
@@ -216,11 +217,13 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 
 void Player::setWindowFrame(bool bHasWindowFrame)
 {
+    errorIfPlaying("Player.setWindowFrame");
     m_DP.m_bHasWindowFrame = bHasWindowFrame;
 }
 
 void Player::setWindowPos(int x, int y)
 {
+    errorIfPlaying("Player.setWindowPos");
     m_DP.m_Pos.x = x;
     m_DP.m_Pos.y = y;
 }
@@ -228,6 +231,7 @@ void Player::setWindowPos(int x, int y)
 void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
                 bool bUsePixelBuffers, int multiSampleSamples)
 {
+    errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
     m_GLConfig.m_bUseShaders = bUseShaders;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
@@ -236,30 +240,26 @@ void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders,
 
 void Player::setMultiSampleSamples(int multiSampleSamples)
 {
+    errorIfPlaying("Player.setMultiSampleSamples");
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
 
 void Player::enableAudio(bool bEnable)
 {
-    if (m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Player.enableAudio must be called before Player.play().");
-    }
+    errorIfPlaying("Player.enableAudio");
     m_bAudioEnabled = bEnable;
 }
 
 void Player::setAudioOptions(int samplerate, int channels)
 {
+    errorIfPlaying("Player.setAudioOptions");
     m_AP.m_SampleRate = samplerate;
     m_AP.m_Channels = channels;
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
 {
-    if (m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't load a new main canvas while the player is running.");
-    }
+    errorIfPlaying("Player.loadFile");
     NodePtr pNode = loadMainNodeFromFile(sFilename);
     m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
     if (m_pMainCanvas) {
@@ -274,10 +274,7 @@ CanvasPtr Player::loadFile(const string& sFilename)
 
 CanvasPtr Player::loadString(const string& sAVG)
 {
-    if (m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't load a new main canvas while the player is running.");
-    }
+    errorIfPlaying("Player.loadString");
     if (m_pMainCanvas) {
         cleanup();
     }
@@ -1441,6 +1438,14 @@ void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
     } else {
         pOffscreenCanvas->doFrame(m_bPythonAvailable);
         return;
+    }
+}
+
+void Player::errorIfPlaying(const std::string& sFunc)
+{
+    if (m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                sFunc + " must be called before Player.play().");
     }
 }
 
