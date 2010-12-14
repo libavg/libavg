@@ -98,6 +98,7 @@ class AVG_API RasterNode: public AreaNode
         RasterNode();
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
+        bool hasMask() const;
         void setMaskCoords();
         void bind();
 

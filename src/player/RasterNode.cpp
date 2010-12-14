@@ -363,6 +363,11 @@ const MaterialInfo& RasterNode::getMaterial() const
     return m_Material;
 }
 
+bool RasterNode::hasMask() const
+{
+    return m_sMaskFilename != "";
+}
+
 void RasterNode::setMaskCoords()
 {
     if (m_sMaskFilename != "") {
