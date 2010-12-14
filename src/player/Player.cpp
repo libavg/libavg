@@ -768,6 +768,12 @@ int Player::getKeyModifierState() const
 
 BitmapPtr Player::screenshot()
 {
+    if (!isPlaying()) {
+    if (!m_bIsPlaying) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Must call Player.play() before screenshot().");
+    }
+    }
     return m_pDisplayEngine->screenshot();
 }
 

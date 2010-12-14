@@ -150,7 +150,7 @@ class OffscreenTestCase(AVGTestCase):
         self.assert_(offscreenCanvas == Player.getCanvas("offscreencanvas"))
         self.assert_(offscreenCanvas.getElementByID("test1").href == "rgb24-65x65.png")
         self.assert_(offscreenCanvas.getElementByID("missingnode") == None)
-        self.assertException(Player.screenshot())
+        self.assertException(Player.screenshot)
         self.start(None, 
                 (checkMainScreenshot,
                  checkCanvasScreenshot))
