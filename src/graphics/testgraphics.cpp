@@ -46,6 +46,7 @@
 #include "FilterErosion.h"
 #include "FilterGetAlpha.h"
 #include "FilterResizeBilinear.h"
+#include "FilterUnmultiplyAlpha.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -948,6 +949,39 @@ private:
 
 };
 
+class FilterUnmultiplyAlphaTest: public GraphicsTest {
+public:
+    FilterUnmultiplyAlphaTest()
+        : GraphicsTest("FilterUnmultiplyAlphaTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(16, 1), B8G8R8A8));
+        for (int x = 0; x < 16; ++x) {
+            unsigned char * pPixel = pBmp->getPixels()+x*4;
+            unsigned char val = 17*x;
+            *(pPixel+REDPOS) = val;
+            *(pPixel+GREENPOS) = val;
+            *(pPixel+BLUEPOS) = val;
+            *(pPixel+ALPHAPOS) = val;
+        }
+        FilterUnmultiplyAlpha().applyInPlace(pBmp);
+        QUIET_TEST(*(pBmp->getPixels()+ALPHAPOS) == 0);
+        for (int x = 1; x < 16; ++x) {
+            unsigned char * pPixel = pBmp->getPixels()+x*4;
+            QUIET_TEST(*(pPixel+REDPOS) == 255);
+            QUIET_TEST(*(pPixel+GREENPOS) == 255);
+            QUIET_TEST(*(pPixel+BLUEPOS) == 255);
+            QUIET_TEST(*(pPixel+ALPHAPOS) == 17*x);
+        }
+    }
+
+private:
+
+};
+
 class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
@@ -978,6 +1012,7 @@ public:
         addTest(TestPtr(new FilterErosionTest));
         addTest(TestPtr(new FilterAlphaTest));
         addTest(TestPtr(new FilterResizeBilinearTest));
+        addTest(TestPtr(new FilterUnmultiplyAlphaTest));
     }
 };
 

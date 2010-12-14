@@ -29,6 +29,8 @@
 #include "../base/ProfilingZone.h"
 #include "../base/ObjectCounter.h"
 
+#include "../graphics/FilterUnmultiplyAlpha.h"
+
 #include <iostream>
 
 using namespace boost;
@@ -62,7 +64,7 @@ void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
         AudioEngine* pAudioEngine)
 {
     m_bUseMipmaps = getMipmap();
-    m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8X8, 1, getMultiSampleSamples(), true,
+    m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
             m_bUseMipmaps));
     Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
     glEnable(GL_STENCIL_TEST);
@@ -101,7 +103,9 @@ BitmapPtr OffscreenCanvas::screenshot() const
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
-    return m_pFBO->getImage(0);
+    BitmapPtr pBmp = m_pFBO->getImage(0);
+    FilterUnmultiplyAlpha().applyInPlace(pBmp);
+    return pBmp;
 }
 
 bool OffscreenCanvas::getHandleEvents() const

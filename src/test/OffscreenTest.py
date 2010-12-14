@@ -313,7 +313,7 @@ class OffscreenTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testCanvasAlpha", False),
                 ))
-
+    
     def testCanvasBlendModes(self):
         def createBaseCanvas():
             return Player.loadCanvasString("""
@@ -356,7 +356,8 @@ class OffscreenTestCase(AVGTestCase):
                 return
             try:
                 self.canvas = Player.loadCanvasString("""
-                    <canvas id="testcanvas" width="160" height="120" multisamplesamples="2">
+                    <canvas id="testcanvas" width="160" height="120" 
+                            multisamplesamples="2">
                         <image id="test1" href="rgb24-65x65.png" angle="0.1"/>
                     </canvas>
                 """)
