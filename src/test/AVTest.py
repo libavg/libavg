@@ -133,9 +133,7 @@ class AVTestCase(AVGTestCase):
                      lambda: node.stop()
                     ))
         videoFiles = ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
-                "rgba-48x48.mov", "h264-48x48.h264"]
-        if Player.isUsingShaders():
-            videoFiles.append("vp6a-yuva-48x48.flv")
+                "rgba-48x48.mov", "h264-48x48.h264", "vp6a-yuva-48x48.flv"]
         for filename in videoFiles:
             for isThreaded in [False, True]:
                 testVideoFile(filename, isThreaded)
