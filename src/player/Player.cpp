@@ -152,7 +152,6 @@ Player::Player()
 #ifdef _WIN32
     Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
 #endif
-    m_pDisplayEngine = new SDLDisplayEngine();
 
     s_pPlayer = this;
 
@@ -258,9 +257,12 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-DPoint Player::getScreenResolution() const
+DPoint Player::getScreenResolution()
 {
     errorIfPlaying("Player.getScreenResolution");
+    if (!m_pDisplayEngine) {
+        m_pDisplayEngine = new SDLDisplayEngine();
+    } 
     return DPoint(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine)->
             getScreenResolution());
 }
@@ -1099,6 +1101,9 @@ void Player::initGraphics()
     // Init display configuration.
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
+    if (!m_pDisplayEngine) {
+        m_pDisplayEngine = new SDLDisplayEngine();
+    } 
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {

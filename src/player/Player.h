@@ -83,7 +83,7 @@ class AVG_API Player: IEventSink
         void setMultiSampleSamples(int multiSampleSamples);
         void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
-        DPoint getScreenResolution() const;
+        DPoint getScreenResolution();
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);
