@@ -138,7 +138,7 @@ void ImageNode::setBitmap(const Bitmap * pBmp)
     {
         m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
-    m_pImage->setBitmap(pBmp);
+    m_pImage->setBitmap(pBmp, m_Compression);
     if (getState() == VisibleNode::NS_CANRENDER) {
         bind();
     }

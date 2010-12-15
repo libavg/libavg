@@ -138,10 +138,15 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
 
     m_sFilename = sFilename;
 
-    if (comp == TEXTURECOMPRESSION_B5G6R5) {
-        BitmapPtr pNew(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
-        pNew->copyPixels(*pBmp);
-        m_pBmp = pNew;
+    switch (comp) {
+        case TEXTURECOMPRESSION_B5G6R5:
+            m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), B5G6R5, sFilename));
+            m_pBmp->copyPixels(*pBmp);
+            break;
+        case TEXTURECOMPRESSION_NONE:
+            break;
+        default:
+            assert(false);
     }
 
     if (m_State == GPU) {
@@ -151,14 +156,24 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
     assertValid();
 }
 
-void Image::setBitmap(const Bitmap * pBmp)
+void Image::setBitmap(const Bitmap * pBmp, TextureCompression comp)
 {
     assertValid();
     if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
     bool bSourceChanged = changeSource(BITMAP);
-    PixelFormat pf = calcSurfacePF(*pBmp);
+    PixelFormat pf;
+    switch (comp) {
+        case TEXTURECOMPRESSION_NONE:
+            pf = calcSurfacePF(*pBmp);
+            break;
+        case TEXTURECOMPRESSION_B5G6R5:
+            pf = B5G6R5;
+            break;
+        default:
+            assert(false);
+    }
     if (m_State == GPU) {
         if (bSourceChanged || m_pSurface->getSize() != pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)

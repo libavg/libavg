@@ -438,17 +438,23 @@ class ImageTestCase(AVGTestCase):
                 ])
 
     def testImageCompression(self):
+        def loadBitmap():
+            bmp = avg.Bitmap("colorramp.png")
+            Player.getElementByID("img").setBitmap(bmp)
+
         Player.loadString("""
             <avg id="imageavg" width="160" height="120">
-                <image id="img" width="64" height="64" href="rgb24-64x64.png"
-                        compression="B5G6R5"/>
+                <image id="img" href="rgb24-64x64.png" compression="B5G6R5"/>
             </avg>
         
         """)
         self.assert_(Player.getElementByID("img").compression == "B5G6R5")
         self.start(None, 
-                [lambda: self.compareImage("testCompression", False)
+                [lambda: self.compareImage("testTexCompression1", False),
+                 loadBitmap,
+                 lambda: self.compareImage("testTexCompression2", False),
                 ])
+
 
 def imageTestSuite(tests):
     availableTests = (
