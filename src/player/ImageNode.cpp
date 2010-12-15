@@ -51,11 +51,11 @@ NodeDefinition ImageNode::createDefinition()
 }
 
 ImageNode::ImageNode(const ArgList& args)
-    : m_compression(Image::TEXTURECOMPRESSION_NONE)
+    : m_Compression(Image::TEXTURECOMPRESSION_NONE)
 {
     m_pImage = ImagePtr(new Image(getSurface()));
     args.setMembers(this);
-    setCompression(args.getArgVal<string>("compression"));
+    m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -129,12 +129,7 @@ void ImageNode::setHRef(const UTF8String& href)
 
 const string ImageNode::getCompression() const
 {
-    return compression2String(m_compression);
-}
-
-void ImageNode::setCompression(const string &compression)
-{
-    m_compression = string2compression(compression);
+    return Image::compression2String(m_Compression);
 }
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
@@ -176,7 +171,7 @@ void ImageNode::checkReload()
             pCanvas->addDependentCanvas(getCanvas());
         }
     } else {
-        VisibleNode::checkReload(m_href, m_pImage, m_compression);
+        VisibleNode::checkReload(m_href, m_pImage, m_Compression);
     }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
@@ -207,31 +202,6 @@ BitmapPtr ImageNode::getBitmap()
 bool ImageNode::isCanvasURL(const std::string& sURL)
 {
     return sURL.find("canvas:") == 0;
-}
-
-Image::TextureCompression ImageNode::string2compression(const string& s)
-{
-    if (s == "none") {
-        return Image::TEXTURECOMPRESSION_NONE;
-    } else if (s == "B5G6R5") {
-        return Image::TEXTURECOMPRESSION_B5G6R5;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Image compression "+s+" not supported."));
-    }
-}
-
-string ImageNode::compression2String(Image::TextureCompression compression)
-{
-    switch(compression) {
-        case Image::TEXTURECOMPRESSION_NONE:
-            return "none";
-        case Image::TEXTURECOMPRESSION_B5G6R5:
-            return "B5G6R5";
-        default:
-            AVG_ASSERT(false);
-            return 0;
-    }
 }
 
 }

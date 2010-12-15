@@ -70,6 +70,9 @@ class AVG_API Image
         Source getSource();
         SDLDisplayEngine* getEngine();
 
+        static TextureCompression string2compression(const std::string& s);
+        static std::string compression2String(TextureCompression compression);
+
     private:
         void setupSurface();
         PixelFormat calcSurfacePF(const Bitmap& Bmp);

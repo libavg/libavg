@@ -285,6 +285,31 @@ SDLDisplayEngine* Image::getEngine()
     return m_pEngine;
 }
 
+Image::TextureCompression Image::string2compression(const string& s)
+{
+    if (s == "none") {
+        return Image::TEXTURECOMPRESSION_NONE;
+    } else if (s == "B5G6R5") {
+        return Image::TEXTURECOMPRESSION_B5G6R5;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Image compression "+s+" not supported."));
+    }
+}
+
+string Image::compression2String(TextureCompression compression)
+{
+    switch(compression) {
+        case Image::TEXTURECOMPRESSION_NONE:
+            return "none";
+        case Image::TEXTURECOMPRESSION_B5G6R5:
+            return "B5G6R5";
+        default:
+            AVG_ASSERT(false);
+            return 0;
+    }
+}
+
 void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
