@@ -165,6 +165,10 @@ IntPoint ImageNode::getMediaSize()
 void ImageNode::checkReload()
 {
     if (isCanvasURL(m_href)) {
+        if (m_Compression != Image::TEXTURECOMPRESSION_NONE) {
+            throw Exception(AVG_ERR_UNSUPPORTED, 
+                    "Texture compression can't be used with canvas hrefs.");
+        }
         OffscreenCanvasPtr pCanvas = Player::get()->getCanvasFromURL(m_href);
         m_pImage->setCanvas(pCanvas);
         if (getState() == NS_CANRENDER) {

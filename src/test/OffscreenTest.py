@@ -100,7 +100,7 @@ class OffscreenTestCase(AVGTestCase):
                 ))
 
     def testCanvasLoadAfterPlay(self):
-        def __createOffscreenCanvas():
+        def createOffscreenCanvas():
             offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", False)
             self.node = avg.ImageNode(parent=Player.getRootNode(), 
                     href="canvas:offscreencanvas")
@@ -108,7 +108,7 @@ class OffscreenTestCase(AVGTestCase):
         self.loadEmptyScene()
         self.start(None,
                 (
-                 __createOffscreenCanvas,
+                 createOffscreenCanvas,
                  lambda: self.compareImage("testOffscreen1", False),
                 ))
 
@@ -143,6 +143,10 @@ class OffscreenTestCase(AVGTestCase):
             bmp = offscreenCanvas.screenshot()
             self.compareBitmapToFile(bmp, "testOffscreenScreenshot", False)
 
+        def createCompressed():
+            avg.ImageNode(href="canvas:offscreencanvas", compression="B5G6R5", 
+                    parent=Player.getRootNode())
+
         mainCanvas = self.loadEmptyScene()
         self.assert_(mainCanvas == Player.getMainCanvas())
         self.assert_(mainCanvas.getRootNode() == Player.getRootNode())
@@ -151,6 +155,7 @@ class OffscreenTestCase(AVGTestCase):
         self.assert_(offscreenCanvas.getElementByID("test1").href == "rgb24-65x65.png")
         self.assert_(offscreenCanvas.getElementByID("missingnode") == None)
         self.assertException(Player.screenshot)
+        self.assertException(createCompressed)
         self.start(None, 
                 (checkMainScreenshot,
                  checkCanvasScreenshot))
