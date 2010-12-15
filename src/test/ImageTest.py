@@ -446,6 +446,9 @@ class ImageTestCase(AVGTestCase):
             self.image.unlink(False)
             Player.getRootNode().appendChild(self.image)
 
+        def checkAlpha():
+            self.image.href="rgb24alpha-64x64.png"
+
         Player.loadString("""
             <avg id="imageavg" width="160" height="120">
                 <image id="img" href="rgb24-64x64.png" compression="B5G6R5"/>
@@ -460,6 +463,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testTexCompression2", False),
                  relink,
                  lambda: self.compareImage("testTexCompression2", False),
+                 lambda: self.assertException(checkAlpha),
                 ])
 
 

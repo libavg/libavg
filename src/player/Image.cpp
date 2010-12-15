@@ -133,6 +133,10 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
     assertValid();
     AVG_TRACE(Logger::MEMORY, "Loading " << sFilename);
     BitmapPtr pBmp(new Bitmap(sFilename));
+    if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "B5G6R5-compressed textures with an alpha channel are not supported.");
+    }
     changeSource(FILE);
     m_pBmp = pBmp;
 
@@ -161,6 +165,10 @@ void Image::setBitmap(const Bitmap * pBmp, TextureCompression comp)
     assertValid();
     if (!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
+    }
+    if (comp == TEXTURECOMPRESSION_B5G6R5 && pBmp->hasAlpha()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "B5G6R5-compressed textures with an alpha channel are not supported.");
     }
     bool bSourceChanged = changeSource(BITMAP);
     PixelFormat pf;
