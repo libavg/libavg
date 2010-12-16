@@ -187,9 +187,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     unsigned int Flags = SDL_OPENGL;
     if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
-#ifdef __APPLE__
-        setEnv("SDL_VIDEO_WINDOW_POS", "0,0");
-#endif
     }
     
     if (!dp.m_bHasWindowFrame) {
