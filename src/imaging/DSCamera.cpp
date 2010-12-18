@@ -27,7 +27,6 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
-#include "../base/TimeSource.h"
 #include "../graphics/FilterFlip.h"
 #include "../graphics/Filtergrayscale.h"
 

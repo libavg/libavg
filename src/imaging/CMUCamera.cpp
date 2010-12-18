@@ -28,7 +28,6 @@
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
-#include "../base/TimeSource.h"
 
 #include <windows.h>
 #include <1394Camera.h>

@@ -24,7 +24,6 @@
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
 
-#include "../base/TimeSource.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"

@@ -64,7 +64,6 @@
 #include "../base/ConfigMgr.h"
 #include "../base/XMLHelper.h"
 #include "../base/ScopeTimer.h"
-#include "../base/TimeSource.h"
 #include "../base/MathHelper.h"
 
 #include "../imaging/Camera.h"
