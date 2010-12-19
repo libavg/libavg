@@ -824,8 +824,8 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     SDL_Cursor * pCursor = SDL_CreateCursor(pData, pMask, size.x, size.y, 
             hotSpot.x, hotSpot.y);
     SDL_SetCursor(pCursor);
-    delete pData;
-    delete pMask;
+    delete[] pData;
+    delete[] pMask;
 }
 
 VisibleNodePtr Player::getElementByID(const std::string& sID)

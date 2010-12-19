@@ -100,7 +100,7 @@ string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName)
         WideCharToMultiByte(CP_ACP, 0, varName.bstrVal, lenWStr, pAStr, lenAStr, NULL, NULL);
         pAStr[lenAStr] = 0;
         s = pAStr;
-        delete pAStr;
+        delete[] pAStr;
     }
 
     VariantClear(&varName);

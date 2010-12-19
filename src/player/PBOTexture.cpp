@@ -175,7 +175,7 @@ void PBOTexture::createTexture()
         glTexImage2D(GL_TEXTURE_2D, 0, m_pTex->getGLInternalFormat(), m_Size.x, 
                 m_Size.y, 0, m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), pPixels);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
-        free(pPixels);
+        delete[] pPixels;
     }
 }
 
