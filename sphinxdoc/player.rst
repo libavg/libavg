@@ -224,6 +224,11 @@ Player & Canvas
 
             Returns the outermost element in the main avg tree.
 
+        .. py:method:: getScreenResolution() -> Point2D
+
+            Returns the size in pixels of the current screen. Must be called before 
+            :py:meth:`play`.
+
         .. py:method:: getTestHelper
 
         .. py:method:: getTracker() -> Tracker
