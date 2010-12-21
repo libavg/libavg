@@ -72,6 +72,7 @@ VisibleNode::VisibleNode()
 
 VisibleNode::~VisibleNode()
 {
+//    killEventHandlers();
     EventHandlerMap::iterator it;
     for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
         Py_DECREF(it->second);
@@ -86,11 +87,11 @@ VisibleNodePtr VisibleNode::getVThis() const
 
 void VisibleNode::setArgs(const ArgList& args)
 {
-    addEventHandlers(Event::CURSORMOTION, args.getArgVal<string> ("oncursormove"));
-    addEventHandlers(Event::CURSORUP, args.getArgVal<string> ("oncursorup"));
-    addEventHandlers(Event::CURSORDOWN, args.getArgVal<string> ("oncursordown"));
-    addEventHandlers(Event::CURSOROVER, args.getArgVal<string> ("oncursorover"));
-    addEventHandlers(Event::CURSOROUT, args.getArgVal<string> ("oncursorout"));
+    addArgEventHandlers(Event::CURSORMOTION, args.getArgVal<string> ("oncursormove"));
+    addArgEventHandlers(Event::CURSORUP, args.getArgVal<string> ("oncursorup"));
+    addArgEventHandlers(Event::CURSORDOWN, args.getArgVal<string> ("oncursordown"));
+    addArgEventHandlers(Event::CURSOROVER, args.getArgVal<string> ("oncursorover"));
+    addArgEventHandlers(Event::CURSOROUT, args.getArgVal<string> ("oncursorout"));
 }
 
 void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
@@ -323,21 +324,21 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
 {
     EventHandlerID id(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
-    if (it!=m_EventHandlerMap.end()) {
+    if (it != m_EventHandlerMap.end()) {
         return callPython(it->second, pEvent);
     } else {
         return false;
     }
 }
 
-void VisibleNode::addEventHandlers(Event::Type eventType, const string& sCode)
+void VisibleNode::addArgEventHandlers(Event::Type eventType, const string& sCode)
 {
-    addEventHandler(eventType, Event::MOUSE, sCode);
-    addEventHandler(eventType, Event::TOUCH, sCode);
-    addEventHandler(eventType, Event::TRACK, sCode);
+    addArgEventHandler(eventType, Event::MOUSE, sCode);
+    addArgEventHandler(eventType, Event::TOUCH, sCode);
+    addArgEventHandler(eventType, Event::TRACK, sCode);
 }
 
-void VisibleNode::addEventHandler(Event::Type eventType, Event::Source source, 
+void VisibleNode::addArgEventHandler(Event::Type eventType, Event::Source source, 
         const string& sCode)
 {
     PyObject * pFunc = findPythonFunc(sCode);

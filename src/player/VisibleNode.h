@@ -128,8 +128,8 @@ class AVG_API VisibleNode: public Node
         VisibleNode();
         VisibleNodePtr getVThis() const;
 
-        void addEventHandlers(Event::Type eventType, const std::string& sCode);
-        void addEventHandler(Event::Type eventType, Event::Source source, 
+        void addArgEventHandlers(Event::Type eventType, const std::string& sCode);
+        void addArgEventHandler(Event::Type eventType, Event::Source source, 
                 const std::string& sCode);
         bool reactsToMouseEvents();
             

@@ -45,8 +45,8 @@ AVGNode::AVGNode(const ArgList& args)
     : CanvasNode(args)
 {
     args.setMembers(this);
-    addEventHandler(Event::KEYUP, Event::NONE, args.getArgVal<string>("onkeyup"));
-    addEventHandler(Event::KEYDOWN, Event::NONE, args.getArgVal<string>("onkeydown"));
+    addArgEventHandler(Event::KEYUP, Event::NONE, args.getArgVal<string>("onkeyup"));
+    addArgEventHandler(Event::KEYDOWN, Event::NONE, args.getArgVal<string>("onkeydown"));
 }
 
 AVGNode::~AVGNode()
