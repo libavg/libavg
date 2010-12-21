@@ -23,9 +23,9 @@ from libavg import avg
 
 g_Player = avg.Player.get()
 
-class ManipulationProcessor:
+class ManipulationProcessor(object):
     def __init__(self, node, eventSource):
-        self.__node = node
+        self._node = node
         self.__eventSource = eventSource
        
         self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp) 
@@ -39,7 +39,7 @@ class ManipulationProcessor:
                 self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp)
             else:
                 if self.__cursorID:
-                    self.__node.releaseEventCapture(self.__cursorID)
+                    self._node.releaseEventCapture(self.__cursorID)
                     self.__cursorID = None
                 self.__setEventHandlers(lambda event:None, lambda event:None, 
                         lambda event:None)
@@ -47,7 +47,7 @@ class ManipulationProcessor:
     def __onDown(self, event):
         if self.__cursorID == None:
             self.__cursorID = event.cursorid
-            self.__node.setEventCapture(event.cursorid)
+            self._node.setEventCapture(event.cursorid)
             self._handleDown(event)
 
     def __onMove(self, event):
@@ -56,7 +56,7 @@ class ManipulationProcessor:
 
     def __onUp(self, event):
         if self.__cursorID == event.cursorid:
-            self.__node.releaseEventCapture(event.cursorid)
+            self._node.releaseEventCapture(event.cursorid)
             self.__cursorID = None
             self._handleUp(event)
 
@@ -66,10 +66,19 @@ class ManipulationProcessor:
         else:
             return defaultHandler
 
+    def _handleUp(self, event):
+        pass
+    
+    def _handleDown(self, event):
+        pass
+    
+    def _handleMove(self, event):
+        pass
+
     def __setEventHandlers(self, downHandler, moveHandler, upHandler):
-        self.__node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
-        self.__node.setEventHandler(avg.CURSORMOTION, self.__eventSource, moveHandler)
-        self.__node.setEventHandler(avg.CURSORUP, self.__eventSource, upHandler)
+        self._node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
+        self._node.setEventHandler(avg.CURSORMOTION, self.__eventSource, moveHandler)
+        self._node.setEventHandler(avg.CURSORUP, self.__eventSource, upHandler)
 
 
 class DragProcessor(ManipulationProcessor):
