@@ -72,11 +72,7 @@ VisibleNode::VisibleNode()
 
 VisibleNode::~VisibleNode()
 {
-//    killEventHandlers();
-    EventHandlerMap::iterator it;
-    for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
-        Py_DECREF(it->second);
-    }
+    killEventHandlers();
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -129,11 +125,7 @@ void VisibleNode::disconnect(bool bKill)
     m_pCanvas.lock()->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
-        EventHandlerMap::iterator it;
-        for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
-            Py_DECREF(it->second);
-        }
-        m_EventHandlerMap.clear();
+        killEventHandlers();
     }
 }
 
@@ -442,11 +434,6 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage,
     }
 }
 
-bool VisibleNode::callPython(PyObject * pFunc, EventPtr pEvent)
-{
-    return boost::python::call<bool>(pFunc, pEvent);
-}
-
 PyObject * VisibleNode::findPythonFunc(const string& sCode)
 {
     if (sCode.empty()) {
@@ -466,6 +453,20 @@ PyObject * VisibleNode::findPythonFunc(const string& sCode)
         }
         return pFunc;
     }
+}
+
+bool VisibleNode::callPython(PyObject * pFunc, EventPtr pEvent)
+{
+    return boost::python::call<bool>(pFunc, pEvent);
+}
+
+void VisibleNode::killEventHandlers()
+{
+    EventHandlerMap::iterator it;
+    for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+        Py_DECREF(it->second);
+    }
+    m_EventHandlerMap.clear();
 }
 
 VisibleNode::EventHandlerID::EventHandlerID(Event::Type eventType, Event::Source source)

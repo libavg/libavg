@@ -143,6 +143,7 @@ class AVG_API VisibleNode: public Node
     private:
         PyObject * findPythonFunc(const std::string& sCode);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
+        void killEventHandlers();
 
         struct EventHandlerID {
             EventHandlerID(Event::Type eventType, Event::Source source);
