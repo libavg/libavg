@@ -72,7 +72,7 @@ VisibleNode::VisibleNode()
 
 VisibleNode::~VisibleNode()
 {
-    killEventHandlers();
+    m_EventHandlerMap.clear();
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -125,7 +125,7 @@ void VisibleNode::disconnect(bool bKill)
     m_pCanvas.lock()->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
-        killEventHandlers();
+        m_EventHandlerMap.clear();
     }
 }
 
@@ -223,18 +223,31 @@ void VisibleNode::setEventHandler(Event::Type type, int sources, PyObject * pFun
 {
     for (int source = 1; source <= Event::NONE; source *= 2) {
         if (source & sources) {
-            EventHandlerID id(type, (Event::Source)source);
+            EventID id(type, (Event::Source)source);
             EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
             if (it != m_EventHandlerMap.end()) {
-                Py_DECREF(it->second);
                 m_EventHandlerMap.erase(it);
             }
             if (pFunc != Py_None) {
-                Py_INCREF(pFunc);
-                m_EventHandlerMap[id] = pFunc;
+                connectEventHandler(type, (Event::Source)source, Py_None, pFunc);
             }
         }
     }
+}
+
+void VisibleNode::connectEventHandler(Event::Type type, Event::Source source, 
+        PyObject * pObj, PyObject * pFunc)
+{
+    EventID id(type, source);
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
+    EventHandlerArrayPtr pEventHandlers;
+    if (it == m_EventHandlerMap.end()) {
+        pEventHandlers = EventHandlerArrayPtr(new EventHandlerArray);
+        m_EventHandlerMap[id] = pEventHandlers;
+    } else {
+        pEventHandlers = it->second;
+    }
+    pEventHandlers->push_back(EventHandler(pObj, pFunc));
 }
 
 bool VisibleNode::reactsToMouseEvents()
@@ -314,10 +327,15 @@ CanvasPtr VisibleNode::getCanvas() const
 
 bool VisibleNode::handleEvent(EventPtr pEvent)
 {
-    EventHandlerID id(pEvent->getType(), pEvent->getSource());
+    EventID id(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it != m_EventHandlerMap.end()) {
-        return callPython(it->second, pEvent);
+        bool bHandled;
+        EventHandlerArrayPtr pEventHandlers = it->second;
+        for (unsigned i = 0; i < pEventHandlers->size(); ++i) {
+            bHandled = callPython((*pEventHandlers)[i].m_pMethod, pEvent);
+        }
+        return bHandled;
     } else {
         return false;
     }
@@ -336,8 +354,7 @@ void VisibleNode::addArgEventHandler(Event::Type eventType, Event::Source source
     PyObject * pFunc = findPythonFunc(sCode);
     if (pFunc) {
         Py_INCREF(pFunc);
-        EventHandlerID id(eventType, source);
-        m_EventHandlerMap[id] = pFunc;
+        connectEventHandler(eventType, source, Py_None, pFunc);
     }
 }
 
@@ -460,28 +477,41 @@ bool VisibleNode::callPython(PyObject * pFunc, EventPtr pEvent)
     return boost::python::call<bool>(pFunc, pEvent);
 }
 
-void VisibleNode::killEventHandlers()
-{
-    EventHandlerMap::iterator it;
-    for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
-        Py_DECREF(it->second);
-    }
-    m_EventHandlerMap.clear();
-}
-
-VisibleNode::EventHandlerID::EventHandlerID(Event::Type eventType, Event::Source source)
+VisibleNode::EventID::EventID(Event::Type eventType, Event::Source source)
     : m_Type(eventType),
       m_Source(source)
 {
 }
 
-bool VisibleNode::EventHandlerID::operator < (const EventHandlerID& other) const 
+bool VisibleNode::EventID::operator < (const EventID& other) const 
 {
     if (m_Type == other.m_Type) {
         return m_Source < other.m_Source;
     } else {
         return m_Type < other.m_Type;
     }
+}
+
+VisibleNode::EventHandler::EventHandler(PyObject * pObj, PyObject * pMethod)
+{
+    Py_INCREF(pObj);
+    m_pObj = pObj;
+    Py_INCREF(pMethod);
+    m_pMethod = pMethod;
+}
+
+VisibleNode::EventHandler::EventHandler(const EventHandler& other)
+{
+    Py_INCREF(other.m_pObj);
+    m_pObj = other.m_pObj;
+    Py_INCREF(other.m_pMethod);
+    m_pMethod = other.m_pMethod;
+}
+
+VisibleNode::EventHandler::~EventHandler()
+{
+    Py_DECREF(m_pObj);
+    Py_DECREF(m_pMethod);
 }
 
 }

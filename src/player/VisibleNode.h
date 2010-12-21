@@ -102,6 +102,8 @@ class AVG_API VisibleNode: public Node
         void setEventCapture(int cursorID);
         void releaseEventCapture(int cursorID);
         void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
+        void connectEventHandler(Event::Type type, Event::Source source, 
+                PyObject * pObj, PyObject * pFunc);
 
         DPoint getRelPos(const DPoint& absPos) const;
         DPoint getAbsPos(const DPoint& relPos) const;
@@ -141,19 +143,31 @@ class AVG_API VisibleNode: public Node
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
 
     private:
-        PyObject * findPythonFunc(const std::string& sCode);
-        bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
-        void killEventHandlers();
+        struct EventID {
+            EventID(Event::Type eventType, Event::Source source);
 
-        struct EventHandlerID {
-            EventHandlerID(Event::Type eventType, Event::Source source);
-
-            bool operator < (const EventHandlerID& other) const;
+            bool operator < (const EventID& other) const;
 
             Event::Type m_Type;
             Event::Source m_Source;
         };
-        typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
+
+        struct EventHandler {
+            EventHandler(PyObject * pObj, PyObject * pMethod);
+            EventHandler(const EventHandler& other);
+            ~EventHandler();
+
+            PyObject * m_pObj;
+            PyObject * m_pMethod;
+        };
+
+        typedef std::vector<EventHandler> EventHandlerArray;
+        typedef boost::shared_ptr<EventHandlerArray> EventHandlerArrayPtr;
+        typedef std::map<EventID, EventHandlerArrayPtr> EventHandlerMap;
+
+        PyObject * findPythonFunc(const std::string& sCode);
+        bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
+
         EventHandlerMap m_EventHandlerMap;
 
         CanvasWeakPtr m_pCanvas;
