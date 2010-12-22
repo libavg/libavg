@@ -157,8 +157,8 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: connectEventHandler(type, source, pyobj, pyfunc)
 
             Sets a callback function that is invoked whenever an event of the
-            specified type from the specified source occurs. Unlike :py:meth:`
-            setEventHandler`, this method allows several handlers for one 
+            specified type from the specified source occurs. Unlike 
+            :py:meth:`setEventHandler`, this method allows several handlers for one 
             type/source-combination. To remove a handler installed using 
             :py:meth:`connectEventHandler`, call :py:meth:`disconnectEventHandler`.
 
@@ -184,10 +184,10 @@ This section describes the base classes for all node classes that libavg provide
 
             :param pyfunc:
 
-                The python callable to invoke. pyfunc takes the event to process as a
-                parameter. This function should not return anything. If 
+                The python callable to invoke. This callable must take the event to 
+                process as a parameter. In contrast to callbacks set up using 
+                :py:meth:`setEventHandler`, it should not return anything. If 
                 :py:meth:`connectEventHandler` is used, all events bubble up the tree.
-
                 pyfunc may not be :keyword:`None`.
 
         .. py:method:: disconnectEventHandler(pyobj, [pyfunc])
@@ -226,14 +226,14 @@ This section describes the base classes for all node classes that libavg provide
             Transforms a position in window coordinates to a position
             in coordinates relative to the node.
 
-        .. py:method:: releaseEventCapture(cursorid=-1)
+        .. py:method:: releaseEventCapture([cursorid])
 
             Restores normal cursor event handling after a call to 
             :py:func:`setEventCapture()`. :py:attr:`cursorid` is the id of the
             cursor to release. If :py:attr:`cursorid` is not given, the mouse cursor is
             used.
 
-        .. py:method:: setEventCapture(cursorid=-1)
+        .. py:method:: setEventCapture([cursorid])
 
             Sets up event capturing so that cursor events are sent to this node
             regardless of the cursor position. cursorid is optional; if left out,
@@ -266,14 +266,15 @@ This section describes the base classes for all node classes that libavg provide
 
             :param pyfunc:
 
-                The python callable to invoke. pyfunc takes the event to process as a
+                The python callable to invoke. This callable must take the event to 
+                process as a
                 parameter. If pyfunc returns :keyword:`None` or :keyword:`False`, the
                 event bubbles up the node tree. If it is :keyword:`True`, bubbling is
                 suppressed.
 
                 If pyfunc is :keyword:`None`, the previous handler is removed.
 
-        .. py:method:: unlink(kill)
+        .. py:method:: unlink([kill=False])
 
             Removes a node from it's parent container. Equivalent to
             :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
