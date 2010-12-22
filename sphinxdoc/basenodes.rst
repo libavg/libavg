@@ -80,7 +80,7 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node([id: string, parent: DivNode=None])
+    .. autoclass:: Node([id: string, parent: DivNode=:keyword:`None`])
 
         Base class for everything that can be put into an avg tree.
 
@@ -154,6 +154,57 @@ This section describes the base classes for all node classes that libavg provide
 
             A node only reacts to events if sensitive is true.
 
+        .. py:method:: connectEventHandler(type, source, pyobj, pyfunc)
+
+            Sets a callback function that is invoked whenever an event of the
+            specified type from the specified source occurs. Unlike :py:meth:`
+            setEventHandler`, this method allows several handlers for one 
+            type/source-combination. To remove a handler installed using 
+            :py:meth:`connectEventHandler`, call :py:meth:`disconnectEventHandler`.
+
+            :param type:
+            
+                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
+                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
+                :py:const:`CURSOROVER`, :py:const:`CURSOROUT`, :py:const:`RESIZE` or 
+                :py:const:`QUIT`.
+
+            :param source:
+
+                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch touch
+                events, :py:const:`TRACK` for multitouch track events or other tracking,
+                :py:const:`NONE` for keyboard events. Sources can be or'ed together to 
+                set a handler for several sources at once.
+
+            :param pyobj:
+
+                The python object that hosts the callback. This parameter is only needed
+                so that :py:meth:`disconnectEventHandler` can be called to remove all
+                handlers hosted by one object in one call.
+
+            :param pyfunc:
+
+                The python callable to invoke. pyfunc takes the event to process as a
+                parameter. This function should not return anything. If 
+                :py:meth:`connectEventHandler` is used, all events bubble up the tree.
+
+                pyfunc may not be :keyword:`None`.
+
+        .. py:method:: disconnectEventHandler(pyobj, [pyfunc])
+
+            Removes one or more event handlers from the node's table of event handlers.
+            If several event handlers conform to the parameters given, all are removed.
+            It is an error if no matching event handler exists.
+
+            :param pyobj:
+
+                The python object that hosts the event handler.
+
+            :param pyfunc:
+
+                The python callable that should not be called anymore. If pyfunc is
+                absent, all callbacks hosted by :py:attr:`pyobj` are removed.
+
         .. py:method:: getAbsPos(relpos) -> Point2D
 
             Transforms a position in coordinates relative to the node to a
@@ -168,7 +219,7 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: getParent() -> Node
 
             Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
-            is in. For the root node, returns None.
+            is in. For the root node, returns :keyword:`None`.
 
         .. py:method:: getRelPos(abspos) -> Point2D
 
@@ -196,11 +247,9 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: setEventHandler(type, source, pyfunc)
 
             Sets a callback function that is invoked whenever an event of the
-            specified type from the specified source occurs. This function is
-            similar to the event handler node attributes (e.g. oncursordown).
-            It is more specific since it takes the event source as a parameter
-            and allows the use of any python callable as callback function.
-            
+            specified type from the specified source occurs. This method removes all 
+            other event handlers from this type/source-combination. 
+
             :param type:
             
                 One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
@@ -217,7 +266,12 @@ This section describes the base classes for all node classes that libavg provide
 
             :param pyfunc:
 
-                The python callable to invoke.
+                The python callable to invoke. pyfunc takes the event to process as a
+                parameter. If pyfunc returns :keyword:`None` or :keyword:`False`, the
+                event bubbles up the node tree. If it is :keyword:`True`, bubbling is
+                suppressed.
+
+                If pyfunc is :keyword:`None`, the previous handler is removed.
 
         .. py:method:: unlink(kill)
 
