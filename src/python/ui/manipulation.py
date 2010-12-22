@@ -41,8 +41,7 @@ class ManipulationProcessor(object):
                 if self.__cursorID:
                     self._node.releaseEventCapture(self.__cursorID)
                     self.__cursorID = None
-                self.__setEventHandlers(lambda event:None, lambda event:None, 
-                        lambda event:None)
+                self._node.disconnectEventHandler(self)
 
     def __onDown(self, event):
         if self.__cursorID == None:
@@ -76,9 +75,12 @@ class ManipulationProcessor(object):
         pass
 
     def __setEventHandlers(self, downHandler, moveHandler, upHandler):
-        self._node.setEventHandler(avg.CURSORDOWN, self.__eventSource, downHandler)
-        self._node.setEventHandler(avg.CURSORMOTION, self.__eventSource, moveHandler)
-        self._node.setEventHandler(avg.CURSORUP, self.__eventSource, upHandler)
+        self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource,
+                self, downHandler)
+        self._node.connectEventHandler(avg.CURSORMOTION, self.__eventSource, 
+                self, moveHandler)
+        self._node.connectEventHandler(avg.CURSORUP, self.__eventSource, 
+                self, upHandler)
 
 
 class DragProcessor(ManipulationProcessor):

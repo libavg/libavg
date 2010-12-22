@@ -102,8 +102,9 @@ class AVG_API VisibleNode: public Node
         void setEventCapture(int cursorID);
         void releaseEventCapture(int cursorID);
         void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
-        void connectEventHandler(Event::Type type, Event::Source source, 
+        void connectEventHandler(Event::Type type, int sources, 
                 PyObject * pObj, PyObject * pFunc);
+        void disconnectEventHandler(PyObject * pObj, PyObject * pFunc=0);
 
         DPoint getRelPos(const DPoint& absPos) const;
         DPoint getAbsPos(const DPoint& relPos) const;
@@ -161,10 +162,12 @@ class AVG_API VisibleNode: public Node
             PyObject * m_pMethod;
         };
 
-        typedef std::vector<EventHandler> EventHandlerArray;
+        typedef std::list<EventHandler> EventHandlerArray;
         typedef boost::shared_ptr<EventHandlerArray> EventHandlerArrayPtr;
         typedef std::map<EventID, EventHandlerArrayPtr> EventHandlerMap;
 
+        void connectOneEventHandler(const EventID& id, PyObject * pObj, PyObject * pFunc);
+        void dumpEventHandlers();
         PyObject * findPythonFunc(const std::string& sCode);
         bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
 

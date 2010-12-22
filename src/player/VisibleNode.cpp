@@ -132,8 +132,8 @@ void VisibleNode::disconnect(bool bKill)
 void VisibleNode::setID(const std::string& sID)
 {
     if (getState() != NS_UNCONNECTED) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+getID()
-                +" is connected. setID invalid."));
+        throw Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+getID()
+                +" is connected. setID invalid.");
     }
     Node::setID(sID);
 }
@@ -229,25 +229,55 @@ void VisibleNode::setEventHandler(Event::Type type, int sources, PyObject * pFun
                 m_EventHandlerMap.erase(it);
             }
             if (pFunc != Py_None) {
-                connectEventHandler(type, (Event::Source)source, Py_None, pFunc);
+                connectOneEventHandler(id, Py_None, pFunc);
             }
         }
     }
 }
 
-void VisibleNode::connectEventHandler(Event::Type type, Event::Source source, 
+void VisibleNode::connectEventHandler(Event::Type type, int sources, 
         PyObject * pObj, PyObject * pFunc)
 {
-    EventID id(type, source);
-    EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
-    EventHandlerArrayPtr pEventHandlers;
-    if (it == m_EventHandlerMap.end()) {
-        pEventHandlers = EventHandlerArrayPtr(new EventHandlerArray);
-        m_EventHandlerMap[id] = pEventHandlers;
-    } else {
-        pEventHandlers = it->second;
+    for (int source = 1; source <= Event::NONE; source *= 2) {
+        if (source & sources) {
+            EventID id(type, (Event::Source)source);
+            connectOneEventHandler(id, pObj, pFunc);
+        }
     }
-    pEventHandlers->push_back(EventHandler(pObj, pFunc));
+//    dumpEventHandlers();
+}
+
+void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
+{
+    int numDisconnected = 0;
+    EventHandlerMap::iterator it;
+    for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end();) {
+        EventHandlerArrayPtr pEventHandlers = it->second;
+        EventHandlerArray::iterator listIt;
+        for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end(); ++listIt)
+        {
+            EventHandler& eventHandler = *listIt;
+            if (eventHandler.m_pObj == pObj &&
+                    (eventHandler.m_pMethod == pFunc || pFunc == 0))
+            {
+                listIt = pEventHandlers->erase(listIt);
+                numDisconnected++;
+            }
+        }
+        
+        if (pEventHandlers->empty()) {
+            EventHandlerMap::iterator itErase = it;
+            ++it;
+            m_EventHandlerMap.erase(itErase);
+        } else {
+            ++it;
+        }
+    }
+    if (numDisconnected == 0) {
+        throw Exception(AVG_ERR_INVALID_ARGS, 
+                "disconnectEventHandler: No handler found.");
+    }
+//    dumpEventHandlers();
 }
 
 bool VisibleNode::reactsToMouseEvents()
@@ -332,8 +362,10 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
     if (it != m_EventHandlerMap.end()) {
         bool bHandled;
         EventHandlerArrayPtr pEventHandlers = it->second;
-        for (unsigned i = 0; i < pEventHandlers->size(); ++i) {
-            bHandled = callPython((*pEventHandlers)[i].m_pMethod, pEvent);
+        EventHandlerArray::iterator listIt;
+        for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end(); ++listIt)
+        {
+            bHandled = callPython(listIt->m_pMethod, pEvent);
         }
         return bHandled;
     } else {
@@ -353,8 +385,8 @@ void VisibleNode::addArgEventHandler(Event::Type eventType, Event::Source source
 {
     PyObject * pFunc = findPythonFunc(sCode);
     if (pFunc) {
-        Py_INCREF(pFunc);
-        connectEventHandler(eventType, source, Py_None, pFunc);
+        EventID id(eventType, source);
+        connectOneEventHandler(id, Py_None, pFunc);
     }
 }
 
@@ -449,6 +481,39 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage,
             }
         }
     }
+}
+
+void VisibleNode::connectOneEventHandler(const EventID& id, PyObject * pObj, 
+        PyObject * pFunc)
+{
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
+    EventHandlerArrayPtr pEventHandlers;
+    if (it == m_EventHandlerMap.end()) {
+        pEventHandlers = EventHandlerArrayPtr(new EventHandlerArray);
+        m_EventHandlerMap[id] = pEventHandlers;
+    } else {
+        pEventHandlers = it->second;
+    }
+    pEventHandlers->push_back(EventHandler(pObj, pFunc));
+}
+
+void VisibleNode::dumpEventHandlers()
+{
+    EventHandlerMap::iterator it;
+    cerr << "-----" << endl;
+    for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+        EventID id = it->first;
+        EventHandlerArrayPtr pEventHandlers = it->second;
+        cerr << "type: " << id.m_Type << ", source: " << id.m_Source << endl;
+        EventHandlerArray::iterator listIt;
+        for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end(); ++listIt)
+        {
+            EventHandler& handler = *listIt;
+            cerr << "  " << handler.m_pObj << ", " << handler.m_pMethod
+                    << endl;
+        }
+    }
+    cerr << "-----" << endl;
 }
 
 PyObject * VisibleNode::findPythonFunc(const string& sCode)

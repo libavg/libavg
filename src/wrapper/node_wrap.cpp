@@ -53,6 +53,8 @@ using namespace boost::python;
 using namespace avg;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, VisibleNode::unlink, 0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(disconnectEventHandler_overloads, 
+        VisibleNode::disconnectEventHandler, 1, 2);
 
 // These function templates essentially call functions such as AreaNode::getPos()
 // and return a version of the result that don't allow setting of the individual
@@ -108,6 +110,9 @@ void export_node()
         .def("releaseEventCapture", &VisibleNode::releaseMouseEventCapture)
         .def("releaseEventCapture", &VisibleNode::releaseEventCapture)
         .def("setEventHandler", &VisibleNode::setEventHandler)
+        .def("connectEventHandler", &VisibleNode::connectEventHandler)
+        .def("disconnectEventHandler", &VisibleNode::disconnectEventHandler,
+                disconnectEventHandler_overloads(args("pFunc")))
         .def("getAbsPos", &VisibleNode::getAbsPos)
         .def("getRelPos", &VisibleNode::getRelPos)
         .def("getElementByPos", &VisibleNode::getElementByPos)

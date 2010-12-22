@@ -23,6 +23,7 @@ import unittest
 
 import time
 import math
+import sys
 
 from libavg import avg
 from testcase import *
@@ -262,6 +263,44 @@ class EventTestCase(AVGTestCase):
                         down=False, up=True, over=False, out=False, move=False),
                  lambda: imgHandlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False)
+                ))
+
+    def testConnectHandler(self):
+        def onDown1(event):
+            self.down1Called = True
+
+        def onDown2(event):
+            self.down2Called = True
+
+        def resetDownCalled():
+            self.down1Called = False
+            self.down2Called = False
+
+        def connectTwoHandlers():
+            self.img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown1)
+            self.img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown2)
+            
+
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+        connectTwoHandlers()
+        self.img.disconnectEventHandler(self, onDown1)
+        self.img.disconnectEventHandler(self, onDown2)
+        connectTwoHandlers()
+        self.img.disconnectEventHandler(self)
+
+        resetDownCalled()
+        self.start(None, 
+                (connectTwoHandlers,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(self.down1Called and self.down2Called),
+                 resetDownCalled,
+                 lambda: self.img.disconnectEventHandler(self, onDown1),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(not(self.down1Called) and self.down2Called),
                 ))
 
     def testObscuringEvents(self):
@@ -600,6 +639,7 @@ def eventTestSuite(tests):
             "testSimpleEvents",
             "testTilted",
             "testDivEvents",
+            "testConnectHandler",
             "testObscuringEvents",
             "testSensitive",
             "testChangingHandlers",
