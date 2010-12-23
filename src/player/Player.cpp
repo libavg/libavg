@@ -681,24 +681,36 @@ void Player::enableMultitouch()
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
-    std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if (it != m_pEventCaptureNode.end() && !it->second.expired()) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
-                + pNode->getID() + "', but cursor already captured by '"
-                + it->second.lock()->getID() + "'.");
+    std::map<int, EventCaptureInfoPtr>::iterator it = 
+            m_EventCaptureInfoMap.find(cursorID);
+    if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
+        EventCaptureInfoPtr pCaptureInfo = it->second;
+        VisibleNodePtr pOldNode = pCaptureInfo->m_pNode.lock(); 
+        if (pOldNode == pNode) {
+            pCaptureInfo->m_CaptureCount++;
+        } else {
+            throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
+                    + pNode->getID() + "', but cursor already captured by '"
+                    + pOldNode->getID() + "'.");
+        }
     } else {
-        m_pEventCaptureNode[cursorID] = pNode;
+        m_EventCaptureInfoMap[cursorID] = EventCaptureInfoPtr(
+                new EventCaptureInfo(pNode));
     }
 }
 
 void Player::releaseEventCapture(int cursorID)
 {
-    std::map<int, VisibleNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    if (it == m_pEventCaptureNode.end() || (it->second.expired()) ) {
+    std::map<int, EventCaptureInfoPtr>::iterator it = 
+            m_EventCaptureInfoMap.find(cursorID);
+    if (it == m_EventCaptureInfoMap.end() || (it->second->m_pNode.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
     } else {
-        m_pEventCaptureNode.erase(cursorID);
+        it->second->m_CaptureCount--;
+        if (it->second->m_CaptureCount == 0) {
+            m_EventCaptureInfoMap.erase(cursorID);
+        }
     }
 }
 
@@ -1343,10 +1355,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     // Determine the nodes the event should be sent to.
     vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
     bool bIsCapturing = false;
-    if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-        VisibleNodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+    if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
+        VisibleNodeWeakPtr pEventCaptureNode = m_EventCaptureInfoMap[cursorID]->m_pNode;
         if (pEventCaptureNode.expired()) {
-            m_pEventCaptureNode.erase(cursorID);
+            m_EventCaptureInfoMap.erase(cursorID);
         } else {
             pDestNodes = pEventCaptureNode.lock()->getParentChain();
         }
@@ -1547,7 +1559,7 @@ void Player::cleanup()
         delete *it;
     }
     m_PendingTimeouts.clear();
-    m_pEventCaptureNode.clear();
+    m_EventCaptureInfoMap.clear();
     m_pLastCursorStates.clear();
     ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {
@@ -1636,6 +1648,12 @@ void Player::setEventHook(PyObject * pyfunc)
 PyObject * Player::getEventHook() const
 {
     return m_EventHookPyFunc;
+}
+
+Player::EventCaptureInfo::EventCaptureInfo(const VisibleNodeWeakPtr& pNode)
+    : m_pNode(pNode),
+      m_CaptureCount(1)
+{
 }
 
 }

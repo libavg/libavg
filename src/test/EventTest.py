@@ -406,7 +406,18 @@ class EventTestCase(AVGTestCase):
             self.mouseDownCalled = False
             self.mainMouseDownCalled = False
             self.img.releaseEventCapture()
-       
+      
+        def doubleCaptureEvent():
+            self.mouseDownCalled = False
+            self.mainMouseDownCalled = False
+            self.img.setEventCapture()
+            self.img.setEventCapture()
+            self.img.releaseEventCapture()
+
+        def releaseTooMuch():
+            self.img.releaseEventCapture()
+            self.assertException(self.img.releaseEventCapture)
+
         self.mouseDownCalled = False
         self.mainMouseDownCalled = False
 
@@ -433,7 +444,15 @@ class EventTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         100, 10, 1),
                  lambda: self.assert_(not(self.mouseDownCalled) and 
-                        self.mainMouseDownCalled)
+                        self.mainMouseDownCalled),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        100, 10, 1),
+                 doubleCaptureEvent,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        100, 10, 1),
+                 lambda: self.assert_(self.mouseDownCalled and 
+                        self.mainMouseDownCalled),
+                 releaseTooMuch,
                 ))
         self.img = None
 

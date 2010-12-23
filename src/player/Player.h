@@ -248,7 +248,15 @@ class AVG_API Player: IEventSink
         friend void deletePlayer();
         
         EventDispatcherPtr m_pEventDispatcher;
-        std::map<int, VisibleNodeWeakPtr> m_pEventCaptureNode;
+        struct EventCaptureInfo {
+            EventCaptureInfo(const VisibleNodeWeakPtr& pNode);
+
+            VisibleNodeWeakPtr m_pNode;
+            int m_CaptureCount;
+        };
+        typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;
+        
+        std::map<int, EventCaptureInfoPtr> m_EventCaptureInfoMap;
         
         MouseState m_MouseState;
 
