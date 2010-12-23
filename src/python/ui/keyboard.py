@@ -110,28 +110,9 @@ class Key(avg.ImageNode):
 
 
 class Keyboard(avg.DivNode):
-    '''
-    Image based Onscreen Keyboard
-
-    Keyboard uses an overlay image and a list of key definitions to create its' keys.
-    It supports character/command keys and shift key functionality.
-    '''
 
     def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
             stickyShift=False, *args, **kwargs):
-        '''
-        @param  bgHref: background image filename or None
-        @param  ovlHref: overlay image filename or None
-        @param  keyDefs: list of key definitions
-            char key def format: 
-                    [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
-            (<shift keycode> is optional)
-            cmd key def format: [<keycode>, <pos>, <size>]
-        @param  shiftKeyCode: one of the cmd keycodes or None
-        @param  altGrKeyCode: one of the cmd keycodes or None
-        @param stickyShift: True if shift should work like regular caps lock (needed
-            for single-touch touchscreens)
-        '''
         # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(*args, **kwargs)
 
@@ -171,18 +152,6 @@ class Keyboard(avg.DivNode):
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
             altGrKeyStr=None):
-        '''
-        Creates key definitions for a row of uniform keys. Useful for creating the 
-        keyDefs parameter of the Keyboard constructor.
-
-        @param startPos: top left pos of the row.
-        @param keySize: Size of each key.
-        @param spacing: Number of empty pixels between two keys.
-        @param keyStr: Unicode string containing the unshifted keycodes
-            (i.e. u"qwertzuiopżś")
-        @param shiftKeyStr: Unicode string containing the shifted keycodes
-            (i.e. u"QWERTZUIOPńć")
-        '''
         keyDefs = []
         curPos = startPos
         offset = keySize[0]+spacing
@@ -198,13 +167,6 @@ class Keyboard(avg.DivNode):
         return keyDefs
 
     def setKeyHandler(self, downHandler, upHandler=None):
-        '''
-        Set down and up key handlers.
-
-        Handler paramter list: (event, char, cmd)
-        @param  downHandler: handler method to call on key down event or None
-        @param  upHandler: handler method to call on key up event or None
-        '''
         self.__downKeyHandler = downHandler
         self.__upKeyHandler = upHandler
 
@@ -216,7 +178,7 @@ class Keyboard(avg.DivNode):
 
     def _getCharKeyCode(self, keyCodes):
         '''
-        Return one of a character keys' keycodes depending on shift key(s) status.
+        Return one of a character key's keycodes depending on shift key(s) status.
         Overload this method to change character key keycode handling.
         '''
         if self.__shiftDownCounter:
