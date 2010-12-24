@@ -109,9 +109,8 @@ Player & Canvas
             configured using the :file:`avgtrackerrc` file and immediately starts
             reporting events.
 
-            Note that there are currently two distinct methods of enabling multitouch:
-            :py:meth:`addTracker` enables the internal tracker. To enable the newer
-            tracker driver subsystem, call :py:meth:`enableMultitouch`.
+            .. deprecated:: 1.5
+                Use :func:`enableMultitouch()` instead. 
 
         .. py:method:: clearInterval(id) -> bool
 
@@ -162,14 +161,28 @@ Player & Canvas
 
         .. py:method:: enableMultitouch
 
-            Enables the multitouch driver subsystem. This subsystem uses external drivers
-            to generate multitouch events. Currently available are TUIO and Mac OS X
-            Multitouch Trackpad drivers, with TUIO being the default. To choose the 
-            driver to use, set the environment variable :envvar:`AVG_MULTITOUCH_DRIVER`
-            to :samp:`TUIO` or :samp:`APPLETRACKPAD`.
+            Enables multitouch event handling. Several drivers are available that 
+            generate multitouch events. To choose a driver, set the environment
+            variable :envvar:`AVG_MULTITOUCH_DRIVER` to the appropriate value:
 
-            To enable the internal tracker, don't call :py:meth:`enableMultitouch`. Call
-            :py:meth:`addTracker` instead.
+            :samp:`TUIO`:
+                Listens for TUIO events from a tracker that conforms to the TUIO 
+                protocol (http://www.tuio.org), a de-facto standard for multitouch
+                events. Listens to events on UDP port 3333.
+
+            :samp:`APPLETRACKPAD`:
+                Uses the trackpad built into Mac Book Pros to generate events. 
+
+            :samp:`LINUXMTDEV`:
+                Uses the linux mtdev library to interface to multitouch devices.
+                Currently hard-coded to open :file:`/dev/input/event3`.
+
+            :samp:`TRACKER`:
+                Enables the internal camera-based tracker. Configuring this tracker is
+                described under https://www.libavg.de/wiki/index.php/Tracker_Setup.
+
+            If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
+            :samp:`TUIO`. 
 
         .. py:method:: getCanvas(id) -> OffscreenCanvas
 
@@ -233,7 +246,8 @@ Player & Canvas
 
         .. py:method:: getTracker() -> Tracker
 
-            Returns a tracker previously created with :py:meth:`addTracker`.
+            Returns a tracker previously created with :py:meth:`addTracker` or 
+            :py:meth:`enableMultitouch` with the internal tracker configured.
 
         .. py:method:: getVideoRefreshRate() -> float
 
