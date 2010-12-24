@@ -54,7 +54,6 @@ void EventDispatcher::dispatch()
 void EventDispatcher::addSource(IEventSource * pSource)
 {
     m_EventSources.push_back(pSource);
-    pSource->initEventSource();
 }
 
 void EventDispatcher::addSink(IEventSink * pSink)

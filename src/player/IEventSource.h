@@ -31,7 +31,6 @@ namespace avg {
 class AVG_API IEventSource {
     public:
         virtual ~IEventSource() {};
-        virtual void initEventSource() {};
         virtual std::vector<EventPtr> pollEvents()=0;
 };
 
