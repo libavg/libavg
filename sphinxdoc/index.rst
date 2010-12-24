@@ -16,6 +16,7 @@ https://www.libavg.de/wiki/index.php/Main_Page.
     events
     animation
     fx
+    ui
     misc
 
 Indices and tables
