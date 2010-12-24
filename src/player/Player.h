@@ -208,8 +208,7 @@ class AVG_API Player: IEventSink
         bool m_bStopping;
         NodeRegistry m_NodeRegistry;
 
-        TrackerEventSource * m_pTracker;
-        MultitouchEventSource* m_pMultitouchEventSource;
+        IEventSource* m_pMultitouchEventSource;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);

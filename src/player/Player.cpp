@@ -97,7 +97,6 @@ Player::Player()
     : m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_bAudioEnabled(true),
-      m_pTracker(0),
       m_pMultitouchEventSource(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -513,9 +512,6 @@ void Player::initPlayback()
 
     m_pDisplayEngine->initRender();
     m_bStopping = false;
-    if (m_pTracker) {
-        m_pTracker->start();
-    }
     if (m_pMultitouchEventSource) {
         m_pMultitouchEventSource->start();
     }
@@ -612,18 +608,20 @@ TrackerEventSource * Player::addTracker()
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "You must use loadFile() before addTracker().");
     }
-    m_pTracker = new TrackerEventSource();
-    addEventSource(m_pTracker);
+    m_pMultitouchEventSource = new TrackerEventSource();
+    addEventSource(m_pMultitouchEventSource);
     if (m_bIsPlaying) {
-        m_pTracker->start();
+        m_pMultitouchEventSource->start();
     }
 
-    return m_pTracker;
+    return dynamic_cast<TrackerEventSource*>(m_pMultitouchEventSource);
 }
 
 TrackerEventSource * Player::getTracker()
 {
-    return m_pTracker;
+    TrackerEventSource* pTracker = dynamic_cast<TrackerEventSource*>(
+            m_pMultitouchEventSource);
+    return pTracker;
 }
 
 void Player::enableMultitouch()
@@ -645,7 +643,7 @@ void Player::enableMultitouch()
         m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #endif
     } else if (sDriver == "TRACKER") {
-//        initTracker();
+        m_pMultitouchEventSource = new TrackerEventSource;
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
@@ -1544,10 +1542,6 @@ void Player::cleanup()
         m_pMainCanvas = MainCanvasPtr();
     }
 
-    if (m_pTracker) {
-        delete m_pTracker;
-        m_pTracker = 0;
-    }
     if (m_pMultitouchEventSource) {
         delete m_pMultitouchEventSource;
         m_pMultitouchEventSource = 0;
