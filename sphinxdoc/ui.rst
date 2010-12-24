@@ -23,9 +23,9 @@ functionality
 
             :param string ovlHref:
             
-                Filename of an image that contains the keyboard with unpressed keys.
+                Filename of an image that contains the keyboard with pressed keys.
 
-            :param keyDefs:
+            :param list keyDefs:
 
                 List of key definitions. Keys can be either character keys::
 
@@ -93,9 +93,7 @@ functionality
             
                 Unicode string containing the keycodes when altgr is pressed.
     
-.. automodule:: libavg.ui.manipulation
-    :no-members:
-
+    
     .. autoclass:: DragProcessor(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, friction=-1])
 
         A :py:class:`DragProcessor` attaches itself to a node's cursor events and 

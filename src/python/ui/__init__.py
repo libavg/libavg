@@ -1,3 +1,3 @@
 from button import Button
 from keyboard import Keyboard
-from manipulation import DragProcessor
+from manipulation import DragProcessor, ManipulationProcessor, HoldProcessor

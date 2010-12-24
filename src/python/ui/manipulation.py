@@ -178,7 +178,7 @@ class HoldProcessor(ManipulationProcessor):
 
     def _handleMove(self, event):
         offset = event.pos - self.__startPos
-        if offset.getNorm() > 5:
+        if offset.getNorm() > 8:
             self.__startPos = event.pos
             self.__startTime = g_Player.getFrameTime()
             self.__changeState(HoldProcessor.DOWN)

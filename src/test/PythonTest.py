@@ -930,7 +930,7 @@ class PythonTestCase(AVGTestCase):
         for self.friction in (-1, 100):
             self.loadEmptyScene()
             image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-            dragProcessor = ui.manipulation.DragProcessor(image, 
+            dragProcessor = ui.DragProcessor(image, 
                     startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
                     stopHandler=onDragStop, friction=self.friction)
             initState()
@@ -983,7 +983,7 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(2)
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        holdProcessor = ui.manipulation.HoldProcessor(image,
+        holdProcessor = ui.HoldProcessor(image,
             holdDelay=1000,
             activateDelay=2000, 
             startHandler=onStart, 
