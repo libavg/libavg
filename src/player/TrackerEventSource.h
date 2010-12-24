@@ -51,8 +51,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
     typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 
     public:
-        TrackerEventSource(CameraPtr pCamera, const TrackerConfig& config,
-                const IntPoint& displayExtents, bool bSubtractHistory = true);
+        TrackerEventSource();
         virtual ~TrackerEventSource();
         void start();
 

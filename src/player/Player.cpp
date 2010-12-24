@@ -608,36 +608,11 @@ double Player::getFrameDuration()
 
 TrackerEventSource * Player::addTracker()
 {
-    TrackerConfig config;
-    config.load();
-    CameraPtr pCamera;
-
-    string sDriver = config.getParam("/camera/driver/@value");
-    string sDevice = config.getParam("/camera/device/@value");
-    bool bFW800 = config.getBoolParam("/camera/fw800/@value");
-    IntPoint captureSize(config.getPointParam("/camera/size/"));
-    string sCaptureFormat = config.getParam("/camera/format/@value");
-    double frameRate = config.getDoubleParam("/camera/framerate/@value");
-
     if (!m_pMainCanvas) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "You must use loadFile() before addTracker().");
     }
-
-    PixelFormat camPF = stringToPixelFormat(sCaptureFormat);
-    if (camPF == NO_PIXELFORMAT) {
-        throw Exception(AVG_ERR_INVALID_ARGS,
-                "Unknown camera pixel format "+sCaptureFormat+".");
-    }
-    
-    AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for " << sDriver
-            << " Camera: " << sDevice << " Size: " << captureSize << "format: "
-            << sCaptureFormat);
-    pCamera = createCamera(sDriver, sDevice, -1, bFW800, captureSize, camPF, I8, 
-            frameRate);
-    AVG_TRACE(Logger::CONFIG, "Got Camera " << pCamera->getDevice() << " from driver: " 
-            << pCamera->getDriverName());
-    m_pTracker = new TrackerEventSource(pCamera, config, m_DP.m_Size, true);
+    m_pTracker = new TrackerEventSource();
     addEventSource(m_pTracker);
     if (m_bIsPlaying) {
         m_pTracker->start();
@@ -669,6 +644,8 @@ void Player::enableMultitouch()
     } else if (sDriver == "APPLETRACKPAD") {
         m_pMultitouchEventSource = new AppleTrackpadEventSource;
 #endif
+    } else if (sDriver == "TRACKER") {
+//        initTracker();
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");

@@ -54,15 +54,7 @@ TESTS=testcalibrator testplayer
 EXTRA_DIST = SDLMain.h
 
 noinst_LTLIBRARIES = libplayer.la
-noinst_PROGRAMS = checktracker testcalibrator testplayer
-checktracker_SOURCES=checktracker.cpp
-checktracker_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
-        ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(MAGICK_LIBS) \
-        $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
-
+noinst_PROGRAMS = testcalibrator testplayer
 testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \

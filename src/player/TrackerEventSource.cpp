@@ -37,6 +37,9 @@
 #include "../imaging/DeDistort.h"
 #include "../imaging/CoordTransformer.h"
 
+#include "Player.h"
+#include "AVGNode.h"
+
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
@@ -51,27 +54,46 @@ using namespace std;
 
 namespace avg {
 
-TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
-        const TrackerConfig& config, const IntPoint& displayExtents,
-        bool bSubtractHistory)
+TrackerEventSource::TrackerEventSource()
     : m_pTrackerThread(0),
-      m_pCamera(pCamera),
-      m_bSubtractHistory(bSubtractHistory),
-      m_pCalibrator(0),
-      m_TrackerConfig(config)
+      m_bSubtractHistory(true),
+      m_pCalibrator(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
-    IntPoint imgSize = pCamera->getImgSize();
+    m_TrackerConfig.load();
+
+    string sDriver = m_TrackerConfig.getParam("/camera/driver/@value");
+    string sDevice = m_TrackerConfig.getParam("/camera/device/@value");
+    bool bFW800 = m_TrackerConfig.getBoolParam("/camera/fw800/@value");
+    IntPoint captureSize(m_TrackerConfig.getPointParam("/camera/size/"));
+    string sCaptureFormat = m_TrackerConfig.getParam("/camera/format/@value");
+    double frameRate = m_TrackerConfig.getDoubleParam("/camera/framerate/@value");
+
+    PixelFormat camPF = stringToPixelFormat(sCaptureFormat);
+    if (camPF == NO_PIXELFORMAT) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Unknown camera pixel format "+sCaptureFormat+".");
+    }
+    
+    AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for " << sDriver
+            << " Camera: " << sDevice << " Size: " << captureSize << "format: "
+            << sCaptureFormat);
+    m_pCamera = createCamera(sDriver, sDevice, -1, bFW800, captureSize, camPF, I8, 
+            frameRate);
+    AVG_TRACE(Logger::CONFIG, "Got Camera " << m_pCamera->getDevice() << " from driver: " 
+            << m_pCamera->getDriverName());
+
+    IntPoint imgSize = m_pCamera->getImgSize();
     m_pBitmaps[0] = BitmapPtr(new Bitmap(imgSize, I8));
     m_pMutex = MutexPtr(new boost::mutex);
     m_pCmdQueue = TrackerThread::CQueuePtr(new TrackerThread::CQueue);
     m_pDeDistort = m_TrackerConfig.getTransform();
-    m_ActiveDisplaySize = displayExtents;
     try {
         m_ActiveDisplaySize = IntPoint(
                 m_TrackerConfig.getPointParam("/transform/activedisplaysize/"));
     } catch (Exception) {
+        m_ActiveDisplaySize = IntPoint(Player::get()->getRootNode()->getSize());
     }
     try {
         m_DisplayROI = m_TrackerConfig.getRectParam("/transform/displayroi/");
