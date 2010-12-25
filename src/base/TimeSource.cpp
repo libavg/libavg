@@ -33,9 +33,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
-#ifdef __APPLE__ 
-#include <mach/mach_time.h>
-#endif
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -68,6 +65,9 @@ TimeSource * TimeSource::get()
 
 TimeSource::TimeSource()
 {
+#ifdef __APPLE__
+    mach_timebase_info(&m_TimebaseInfo);
+#endif
 }
 
 TimeSource::~TimeSource()
@@ -85,9 +85,14 @@ long long TimeSource::getCurrentMicrosecs()
 #ifdef _WIN32
     ticks = (long long)(timeGetTime())*1000;
 #else
+#ifdef __APPLE__
+    long long systemTime = mach_absolute_time();
+    ticks = (systemTime * m_TimebaseInfo.numer/m_TimebaseInfo.denom)/1000;
+#else
     struct timeval now;
     gettimeofday(&now, NULL);
     ticks=((long long)now.tv_sec)*1000000+now.tv_usec;
+#endif    
 #endif    
     return(ticks);
 }

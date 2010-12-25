@@ -24,8 +24,16 @@
 
 #include "../api.h"
 
+#ifdef __APPLE__ 
+#include <mach/mach_time.h>
+#endif
+
 namespace avg {
 
+
+// This class is a monotonic time source with an undefined start time. Time is guarranteed
+// to increase monotonically. The time source has no jumps and does not go backwards,
+// even if system time is changed.
 class AVG_API TimeSource {
 public:
     static TimeSource* get();
@@ -38,6 +46,9 @@ public:
 
 private:    
     TimeSource();
+#ifdef __APPLE__
+    mach_timebase_info_data_t m_TimebaseInfo;
+#endif
     
     static TimeSource* m_pTimeSource;
 };
