@@ -360,7 +360,7 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
     EventID id(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it != m_EventHandlerMap.end()) {
-        bool bHandled;
+        bool bHandled = false;
         EventHandlerArrayPtr pEventHandlers = it->second;
         EventHandlerArray::iterator listIt;
         for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end(); ++listIt)
