@@ -168,7 +168,9 @@ Player & Canvas
             :samp:`TUIO`:
                 Listens for TUIO events from a tracker that conforms to the TUIO 
                 protocol (http://www.tuio.org), a de-facto standard for multitouch
-                events. Listens to events on UDP port 3333.
+                events. By default, it listens to events on the default TUIO UDP port
+                3333, but this can be configured using the environment variable 
+                :envvar:`AVG_TUIO_PORT`.
 
             :samp:`APPLETRACKPAD`:
                 Uses the trackpad built into Mac Book Pros to generate events. 

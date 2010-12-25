@@ -26,6 +26,8 @@
 #include "TouchStatus.h"
 
 #include "../base/Logger.h"
+#include "../base/StringHelper.h"
+#include "../base/OSHelper.h"
 #include "../base/Point.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
@@ -60,7 +62,16 @@ TUIOEventSource::~TUIOEventSource()
 
 void TUIOEventSource::start()
 {
-    int port = 3333;
+    string sPort("3333");
+    getEnv("AVG_TUIO_PORT", sPort);
+    int port;
+    try {
+        port = stringToInt(sPort);
+    } catch (Exception&) {
+        throw Exception(AVG_ERR_TYPE, 
+                string("TUIO event source: AVG_TUIO_PORT set to invalid value '")
+                + sPort + "'");
+    }
     MultitouchEventSource::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
