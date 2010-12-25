@@ -31,13 +31,12 @@
 #include <Mmsystem.h>
 #else
 #include <sys/time.h>
-#include <unistd.h>
-#include <fcntl.h>
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <errno.h>
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 
@@ -81,20 +80,19 @@ long long TimeSource::getCurrentMillisecs()
 
 long long TimeSource::getCurrentMicrosecs()
 {
-    long long ticks;
 #ifdef _WIN32
-    ticks = (long long)(timeGetTime())*1000;
+    return (long long)(timeGetTime())*1000;
 #else
 #ifdef __APPLE__
     long long systemTime = mach_absolute_time();
-    ticks = (systemTime * m_TimebaseInfo.numer/m_TimebaseInfo.denom)/1000;
+    return (systemTime * m_TimebaseInfo.numer/m_TimebaseInfo.denom)/1000;
 #else
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    ticks=((long long)now.tv_sec)*1000000+now.tv_usec;
+    struct timespec now;
+    int rc = clock_gettime(CLOCK_MONOTONIC, &now);
+    assert(rc == 0);
+    return ((long long)now.tv_sec)*1000000+now.tv_nsec/1000;
 #endif    
 #endif    
-    return(ticks);
 }
 
 void TimeSource::sleepUntil(long long targetTime)
