@@ -26,8 +26,6 @@
 
 namespace avg {
 
-typedef unsigned long long CycleCount;
-
 class AVG_API TimeSource {
 public:
     static TimeSource* get();

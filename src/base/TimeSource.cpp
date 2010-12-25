@@ -76,15 +76,7 @@ TimeSource::~TimeSource()
 
 long long TimeSource::getCurrentMillisecs()
 {
-    long long ticks;
-#ifdef _WIN32
-    ticks = timeGetTime();
-#else
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    ticks=((long long)now.tv_sec)*1000+now.tv_usec/1000;
-#endif
-    return ticks;
+    return getCurrentMicrosecs()/1000;
 }
 
 long long TimeSource::getCurrentMicrosecs()
