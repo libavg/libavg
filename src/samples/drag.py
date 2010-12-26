@@ -25,8 +25,13 @@ def onMouseUp(event):
         node.releaseEventCapture()
         offset = None;
 
-Player = avg.Player.get()
+player = avg.Player.get()
 
-Player.loadFile("drag.avg")
-Player.play()
+player.loadFile("text.avg")
+node = player.getElementByID("ClashText")
+node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
+node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onMouseMove)
+node.setEventHandler(avg.CURSORUP, avg.MOUSE, onMouseUp)
+
+player.play()
 
