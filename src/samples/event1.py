@@ -13,6 +13,9 @@ def onMouseOut(event):
 
 player = avg.Player.get()
 
-player.loadFile("event1.avg")
+player.loadFile("text.avg")
+node = player.getElementByID("ClashText")
+node.setEventHandler(avg.CURSOROVER, avg.MOUSE, onMouseOver)
+node.setEventHandler(avg.CURSOROUT, avg.MOUSE, onMouseOut)
 player.play()
 
