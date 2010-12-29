@@ -394,7 +394,7 @@ Misc. Classes
         in bytes. This does not include shared libraries or memory paged out to
         disk.
 
-    .. autofunction:: pointInPolygon
+    .. autofunction:: pointInPolygon(point, poly) -> bool
 
         Checks if a point is inside a polygon.
 
