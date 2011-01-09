@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>\devel\include;$(IncludePath)</IncludePath>
-    <LibraryPath>\devel\libavg\libavg\win\Release;\devel\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Python27\include;\devel\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python27\libs;\devel\libavg\libavg\win\Release;\devel\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -15,7 +15,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;BOOST_PYTHON_STATIC_LIB</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -23,7 +23,11 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>dbghelp.lib;psapi.lib;winmm.lib;libboost_thread-vc100-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <Lib>
+      <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
