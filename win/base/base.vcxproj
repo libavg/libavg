@@ -137,7 +137,6 @@
     <ClCompile Include="..\..\src\base\ScopeTimer.cpp" />
     <ClCompile Include="..\..\src\base\StringHelper.cpp" />
     <ClCompile Include="..\..\src\base\Test.cpp" />
-    <ClCompile Include="..\..\src\base\testbase.cpp" />
     <ClCompile Include="..\..\src\base\TestSuite.cpp" />
     <ClCompile Include="..\..\src\base\ThreadProfiler.cpp" />
     <ClCompile Include="..\..\src\base\TimeSource.cpp" />

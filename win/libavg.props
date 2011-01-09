@@ -21,6 +21,9 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>dbghelp.lib;psapi.lib;winmm.lib;libboost_thread-vc100-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
