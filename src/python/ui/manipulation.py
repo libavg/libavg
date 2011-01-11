@@ -47,17 +47,17 @@ class ManipulationProcessor(object):
         if self.__cursorID == None:
             self.__cursorID = event.cursorid
             self._node.setEventCapture(event.cursorid)
-            self._handleDown(event)
+            return self._handleDown(event)
 
     def __onMove(self, event):
         if self.__cursorID == event.cursorid:
-            self._handleMove(event)
+            return self._handleMove(event)
 
     def __onUp(self, event):
         if self.__cursorID == event.cursorid:
             self._node.releaseEventCapture(event.cursorid)
             self.__cursorID = None
-            self._handleUp(event)
+            return self._handleUp(event)
 
     def _optionalCallback(self, handler, defaultHandler):
         if handler:
