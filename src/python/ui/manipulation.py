@@ -170,6 +170,11 @@ class HoldProcessor(ManipulationProcessor):
         self.__frameHandlerID = None
         self.__state = HoldProcessor.UP
 
+        self.__relTime = 0
+
+    def getRelTime(self):
+        return self.__relTime
+
     def _handleDown(self, event):
         self.__startPos = event.pos
         self.__startTime = g_Player.getFrameTime()
@@ -181,40 +186,34 @@ class HoldProcessor(ManipulationProcessor):
         if offset.getNorm() > 8:
             self.__startPos = event.pos
             self.__startTime = g_Player.getFrameTime()
-            self.__changeState(HoldProcessor.DOWN)
+            if self.__state != HoldProcessor.DOWN:
+                self.__stopHandler()
+                self.__changeState(HoldProcessor.DOWN)
 
     def __onFrame(self):
-        relTime = g_Player.getFrameTime() - self.__startTime
+        self.__relTime = g_Player.getFrameTime() - self.__startTime
         if self.__state == HoldProcessor.DOWN:
-            if relTime > self.__holdDelay:
-                self.__changeState(HoldProcessor.HOLDING)
+            if self.__relTime > self.__holdDelay:
+                holdOk = self.__startHandler(self.__startPos)
+                if holdOk:
+                    self.__changeState(HoldProcessor.HOLDING)
         if self.__state == HoldProcessor.HOLDING:
-            if relTime > self.__activateDelay:
+            if self.__relTime > self.__activateDelay:
+                self.__activateHandler()
                 self.__changeState(HoldProcessor.ACTIVE)
             else:
-                self.__holdHandler(float(relTime-self.__holdDelay)/
+                self.__holdHandler(float(self.__relTime-self.__holdDelay)/
                         (self.__activateDelay-self.__holdDelay))
 
     def _handleUp(self, event):
         g_Player.clearInterval(self.__frameHandlerID)
         self.__frameHandlerID = None
+        if self.__state != HoldProcessor.DOWN:
+            self.__stopHandler()
         self.__changeState(HoldProcessor.UP)
+        self.__relTime = 0
 
     def __changeState(self, newState):
-        if self.__state == newState:
-            return
-        if self.__state == HoldProcessor.UP and newState == HoldProcessor.DOWN:
-            pass
-        elif self.__state == HoldProcessor.DOWN and newState == HoldProcessor.HOLDING:
-            self.__startHandler(self.__startPos)
-        elif self.__state == HoldProcessor.HOLDING and newState == HoldProcessor.ACTIVE:
-            self.__activateHandler()
-        elif newState == HoldProcessor.UP:
-            if self.__state != HoldProcessor.DOWN:
-                self.__stopHandler()
-        elif self.__state != HoldProcessor.UP and newState == HoldProcessor.DOWN:
-            self.__stopHandler()
-        else:
-            assert(False)
+#        print self, ": ", self.__state, " --> ", newState
         self.__state = newState
 
