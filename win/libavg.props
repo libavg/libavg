@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>C:\Python27\include;\devel\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Python27\libs;\devel\libavg\libavg\win\Release;\devel\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Python27\libs;\devel\libavg\libavg\win\Release;\devel\lib;C:\Program Files %28x86%29\CMU\1394Camera\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -24,9 +24,11 @@
     <Link>
       <AdditionalDependencies>dbghelp.lib;psapi.lib;winmm.lib;libboost_thread-vc100-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <Lib>
       <AdditionalOptions>/IGNORE:4006 %(AdditionalOptions)</AdditionalOptions>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />
