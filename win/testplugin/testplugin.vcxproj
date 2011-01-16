@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0AFC225A-A1CF-463E-A516-BF9A0D2F554B}</ProjectGuid>
+    <ProjectGuid>{B51101B0-9DFF-40D0-AFC1-5E41E67C0F73}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>wrapper</RootNamespace>
+    <RootNamespace>testplugin</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -23,6 +23,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -40,15 +41,15 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>avg</TargetName>
-    <TargetExt>.pyd</TargetExt>
+    <TargetName>colornode</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;WRAPPER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TESTPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -59,34 +60,21 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;WRAPPER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>anim.lib;player.lib;video.lib;imaging.lib;graphics.lib;audio.lib;lmfit.lib;oscpack.lib;base.lib;avcodec-52.lib;avformat-52.lib;avutil-49.lib;swscale-0.lib;opengl32.lib;glu32.lib;CORE_RL_Magick++_.lib;CORE_RL_bzlib_.lib;CORE_RL_coders_.lib;CORE_RL_filters_.lib;CORE_RL_jbig_.lib;CORE_RL_jp2_.lib;CORE_RL_jpeg_.lib;CORE_RL_lcms_.lib;CORE_RL_magick_.lib;CORE_RL_png_.lib;CORE_RL_tiff_.lib;CORE_RL_ttf_.lib;CORE_RL_wand_.lib;CORE_RL_wmf_.lib;CORE_RL_xlib_.lib;CORE_RL_zlib_.lib;SDL.lib;1394camera.lib;strmiids.lib;quartz.lib;pango-1.0.lib;pangoft2-1.0.lib;glib-2.0.lib;gobject-2.0.lib;gmodule-2.0.lib;fontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avg.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/force:multiple %(AdditionalOptions)</AdditionalOptions>
     </Link>
-    <CustomBuildStep>
-      <Command>python.exe setup.py install</Command>
-      <Outputs>avg.pyd</Outputs>
-    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\wrapper\anim_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\avg_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\bitmap_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\event_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\fx_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\node_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\raster_wrap.cpp" />
-    <ClCompile Include="..\..\src\wrapper\WrapHelper.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\wrapper\raw_constructor.hpp" />
-    <ClInclude Include="..\..\src\wrapper\WrapHelper.h" />
+    <ClCompile Include="..\..\src\test\plugin\ColorNode.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -62,12 +62,12 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>oscpack.lib;imaging.lib;video.lib;lmfit.lib;pango-1.0.lib;pangoft2-1.0.lib;glib-2.0.lib;gobject-2.0.lib;gmodule-2.0.lib;fontconfig.lib;libboost_python-vc100-mt.lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\player\AreaNode.cpp" />
-    <ClCompile Include="..\..\src\player\Arg.cpp" />
     <ClCompile Include="..\..\src\player\ArgBase.cpp" />
     <ClCompile Include="..\..\src\player\ArgList.cpp" />
     <ClCompile Include="..\..\src\player\AVGNode.cpp" />
