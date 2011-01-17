@@ -33,6 +33,8 @@ AC_SUBST(OBJCLDFLAGS)
 _AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
 
+AC_SEARCH_LIBS([clock_gettime],[rt])
+
 AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
 AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
