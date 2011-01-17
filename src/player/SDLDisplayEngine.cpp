@@ -38,6 +38,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/OSHelper.h"
+#include "../base/StringHelper.h"
 
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
@@ -177,12 +178,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 24);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    if (m_GLConfig.m_MultiSampleSamples > 1) {
-        safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_GLConfig.m_MultiSampleSamples);
-    } else {
-        safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-    }
 
     unsigned int Flags = SDL_OPENGL;
     if (dp.m_bFullscreen) {
@@ -193,13 +188,41 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
         Flags |= SDL_NOFRAME;
     }
 
-    m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+    bool bAllMultisampleValuesTested = false;
+    m_pScreen = 0;
+    while (!bAllMultisampleValuesTested && !m_pScreen) {
+        if (m_GLConfig.m_MultiSampleSamples > 1) {
+            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_GLConfig.m_MultiSampleSamples);
+        } else {
+            safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+        }
+        m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
+        if (!m_pScreen) {
+            switch (m_GLConfig.m_MultiSampleSamples) {
+                case 1:
+                    bAllMultisampleValuesTested = true;
+                    break;
+                case 2:  
+                    m_GLConfig.m_MultiSampleSamples = 1;
+                    break;
+                case 4:  
+                    m_GLConfig.m_MultiSampleSamples = 2;
+                    break;
+                case 8:  
+                    m_GLConfig.m_MultiSampleSamples = 4;
+                    break;
+                default:
+                    m_GLConfig.m_MultiSampleSamples = 8;
+                    break;
+            }
+        }
+    }
     if (!m_pScreen) {
-        AVG_TRACE(Logger::ERROR, "Setting SDL video mode failed: " 
-                << SDL_GetError() <<". (size=" << m_WindowSize
-                << ", bpp=" << dp.m_BPP << ", multisamplesamples="
-                << m_GLConfig.m_MultiSampleSamples << ").");
-        exit(-1);
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
+                + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
+                toString(dp.m_BPP) + ", multisamplesamples=" + 
+                toString(m_GLConfig.m_MultiSampleSamples) + ").");
     }
     glproc::init();
 
