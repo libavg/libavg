@@ -9,7 +9,7 @@ if APPLE
     APPLE_LINKFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport
 else
     APPLE_SOURCES =
-    XGL_LIBS = -lXxf86vm
+    XGL_LIBS = -lXxf86vm -lX11
     APPLE_LINKFLAGS=
 endif
 
