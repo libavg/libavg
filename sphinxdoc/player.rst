@@ -177,7 +177,9 @@ Player & Canvas
 
             :samp:`LINUXMTDEV`:
                 Uses the linux mtdev library to interface to multitouch devices.
-                Currently hard-coded to open :file:`/dev/input/event3`.
+                The environment variable :envvar:`AVG_LINUX_MULTITOUCH_DEVICE` is used
+                to determine which device file to open. Default is 
+                :samp:`/dev/input/event3`.
 
             :samp:`TRACKER`:
                 Enables the internal camera-based tracker. Configuring this tracker is
