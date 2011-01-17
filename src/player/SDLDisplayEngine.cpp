@@ -544,10 +544,16 @@ bool SDLDisplayEngine::initVBlank(int rate)
                     "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
             m_VBMethod = VB_NONE;
         } else {
-            m_VBMethod = VB_SGI;
-            glproc::SwapIntervalSGI(rate);
+            if (queryGLXExtension("GLX_SGI_swap_control")) {
+                m_VBMethod = VB_SGI;
+                glproc::SwapIntervalSGI(rate);
 
-            m_bFirstVBFrame = true;
+                m_bFirstVBFrame = true;
+            } else {
+                AVG_TRACE(Logger::WARNING,
+                        "Linux VBlank setup failed: OpenGL Extension not supported.");
+                m_VBMethod = VB_NONE;
+            }
         }
 #endif
     } else {
@@ -562,7 +568,9 @@ bool SDLDisplayEngine::initVBlank(int rate)
                 break;
             case VB_SGI:
 #ifdef linux            
-                glproc::SwapIntervalSGI(rate);
+                if (queryOGLExtension("GLX_SGI_swap_control")) {
+                    glproc::SwapIntervalSGI(rate);
+                }
 #endif
                 break;
             default:
