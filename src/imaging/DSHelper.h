@@ -32,7 +32,7 @@
 #include <Winsock2.h>
 #include <windows.h>
 #include <dshow.h>
-#include <Qedit.h>
+#include "Qedit.h"
 
 
 static const GUID MEDIASUBTYPE_Y800 = 

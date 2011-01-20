@@ -29,7 +29,7 @@
 #define _WIN32_DCOM
 #include <winsock2.h>
 #include <windows.h>
-#include <Qedit.h>
+#include "qedit.h"
 
 namespace avg {
 
@@ -40,11 +40,11 @@ public:
 
     // ISampleGrabberCB callbacks
     STDMETHODIMP SampleCB(double SampleTime, IMediaSample *pSample);
-	
+    
     // Unused
     STDMETHODIMP BufferCB(double SampleTime, BYTE *pBuffer, long BufferLen);
 
-	BitmapPtr getImage(bool bBlock = true);
+    BitmapPtr getImage(bool bBlock = true);
 
     // Fake.
     STDMETHODIMP_(ULONG) AddRef() { return 2; }

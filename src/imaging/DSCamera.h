@@ -39,7 +39,7 @@
 #define _WIN32_DCOM
 #include <windows.h>
 #include <dshow.h>
-#include <Qedit.h>
+#include "Qedit.h"
 
 namespace avg {
 

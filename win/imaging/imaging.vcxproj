@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{669BEA02-213C-4387-B384-3B1CE60EA647}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>imaging</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\libavg.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\libavg.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Program Files %28x86%29\CMU\1394Camera\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\imaging\Blob.cpp" />
+    <ClCompile Include="..\..\src\imaging\Camera.cpp" />
+    <ClCompile Include="..\..\src\imaging\checktracking.cpp" />
+    <ClCompile Include="..\..\src\imaging\CMUCamera.cpp" />
+    <ClCompile Include="..\..\src\imaging\CMUCameraUtils.cpp" />
+    <ClCompile Include="..\..\src\imaging\CoordTransformer.cpp" />
+    <ClCompile Include="..\..\src\imaging\DeDistort.cpp" />
+    <ClCompile Include="..\..\src\imaging\DSCamera.cpp" />
+    <ClCompile Include="..\..\src\imaging\DSHelper.cpp" />
+    <ClCompile Include="..\..\src\imaging\DSSampleQueue.cpp" />
+    <ClCompile Include="..\..\src\imaging\FakeCamera.cpp" />
+    <ClCompile Include="..\..\src\imaging\FilterClearBorder.cpp" />
+    <ClCompile Include="..\..\src\imaging\FilterDistortion.cpp" />
+    <ClCompile Include="..\..\src\imaging\FilterWipeBorder.cpp" />
+    <ClCompile Include="..\..\src\imaging\FWCamera.cpp" />
+    <ClCompile Include="..\..\src\imaging\Run.cpp" />
+    <ClCompile Include="..\..\src\imaging\TrackerConfig.cpp" />
+    <ClCompile Include="..\..\src\imaging\trackerconfigdtd.cpp" />
+    <ClCompile Include="..\..\src\imaging\TrackerThread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\imaging\Blob.h" />
+    <ClInclude Include="..\..\src\imaging\Camera.h" />
+    <ClInclude Include="..\..\src\imaging\CMUCamera.h" />
+    <ClInclude Include="..\..\src\imaging\CMUCameraUtils.h" />
+    <ClInclude Include="..\..\src\imaging\CoordTransformer.h" />
+    <ClInclude Include="..\..\src\imaging\DeDistort.h" />
+    <ClInclude Include="..\..\src\imaging\DSCamera.h" />
+    <ClInclude Include="..\..\src\imaging\DSHelper.h" />
+    <ClInclude Include="..\..\src\imaging\DSSampleQueue.h" />
+    <ClInclude Include="..\..\src\imaging\FakeCamera.h" />
+    <ClInclude Include="..\..\src\imaging\FilterClearBorder.h" />
+    <ClInclude Include="..\..\src\imaging\FilterDistortion.h" />
+    <ClInclude Include="..\..\src\imaging\FilterWipeBorder.h" />
+    <ClInclude Include="..\..\src\imaging\FWCamera.h" />
+    <ClInclude Include="..\..\src\imaging\FWCameraUtils.h" />
+    <ClInclude Include="..\..\src\imaging\qedit.h" />
+    <ClInclude Include="..\..\src\imaging\Run.h" />
+    <ClInclude Include="..\..\src\imaging\TrackerConfig.h" />
+    <ClInclude Include="..\..\src\imaging\trackerconfigdtd.h" />
+    <ClInclude Include="..\..\src\imaging\TrackerThread.h" />
+    <ClInclude Include="..\..\src\imaging\V4LCamera.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

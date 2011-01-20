@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9B9F3907-0C54-4FF4-AAF3-8FDA3496DB88}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>graphics</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\libavg.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\libavg.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\graphics\Bitmap.h" />
+    <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
+    <ClInclude Include="..\..\src\graphics\FBO.h" />
+    <ClInclude Include="..\..\src\graphics\Filter.h" />
+    <ClInclude Include="..\..\src\graphics\Filter3x3.h" />
+    <ClInclude Include="..\..\src\graphics\FilterBandpass.h" />
+    <ClInclude Include="..\..\src\graphics\FilterBlur.h" />
+    <ClInclude Include="..\..\src\graphics\Filtercolorize.h" />
+    <ClInclude Include="..\..\src\graphics\FilterConvol.h" />
+    <ClInclude Include="..\..\src\graphics\FilterDilation.h" />
+    <ClInclude Include="..\..\src\graphics\FilterErosion.h" />
+    <ClInclude Include="..\..\src\graphics\FilterFastBandpass.h" />
+    <ClInclude Include="..\..\src\graphics\FilterFastDownscale.h" />
+    <ClInclude Include="..\..\src\graphics\Filterfill.h" />
+    <ClInclude Include="..\..\src\graphics\Filterfillrect.h" />
+    <ClInclude Include="..\..\src\graphics\Filterflip.h" />
+    <ClInclude Include="..\..\src\graphics\Filterfliprgb.h" />
+    <ClInclude Include="..\..\src\graphics\Filterfliprgba.h" />
+    <ClInclude Include="..\..\src\graphics\Filterflipuv.h" />
+    <ClInclude Include="..\..\src\graphics\FilterflipX.h" />
+    <ClInclude Include="..\..\src\graphics\FilterFloodfill.h" />
+    <ClInclude Include="..\..\src\graphics\FilterGauss.h" />
+    <ClInclude Include="..\..\src\graphics\FilterGetAlpha.h" />
+    <ClInclude Include="..\..\src\graphics\Filtergrayscale.h" />
+    <ClInclude Include="..\..\src\graphics\FilterHighpass.h" />
+    <ClInclude Include="..\..\src\graphics\FilterId.h" />
+    <ClInclude Include="..\..\src\graphics\FilterIntensity.h" />
+    <ClInclude Include="..\..\src\graphics\FilterMask.h" />
+    <ClInclude Include="..\..\src\graphics\FilterNormalize.h" />
+    <ClInclude Include="..\..\src\graphics\FilterResizeBilinear.h" />
+    <ClInclude Include="..\..\src\graphics\FilterResizeGaussian.h" />
+    <ClInclude Include="..\..\src\graphics\FilterThreshold.h" />
+    <ClInclude Include="..\..\src\graphics\FilterUnmultiplyAlpha.h" />
+    <ClInclude Include="..\..\src\graphics\GLTexture.h" />
+    <ClInclude Include="..\..\src\graphics\GPUBandpassFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUBlurFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUBrightnessFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUChromaKeyFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUNullFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
+    <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
+    <ClInclude Include="..\..\src\graphics\OGLHelper.h" />
+    <ClInclude Include="..\..\src\graphics\OGLImagingContext.h" />
+    <ClInclude Include="..\..\src\graphics\OGLShader.h" />
+    <ClInclude Include="..\..\src\graphics\PBO.h" />
+    <ClInclude Include="..\..\src\graphics\Pixel16.h" />
+    <ClInclude Include="..\..\src\graphics\Pixel24.h" />
+    <ClInclude Include="..\..\src\graphics\Pixel32.h" />
+    <ClInclude Include="..\..\src\graphics\Pixel8.h" />
+    <ClInclude Include="..\..\src\graphics\Pixeldefs.h" />
+    <ClInclude Include="..\..\src\graphics\PixelFormat.h" />
+    <ClInclude Include="..\..\src\graphics\ShaderRegistry.h" />
+    <ClInclude Include="..\..\src\graphics\TwoPassScale.h" />
+    <ClInclude Include="..\..\src\graphics\VertexArray.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
+    <ClCompile Include="..\..\src\graphics\FBO.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filter.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filter3x3.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterBandpass.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterBlur.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filtercolorize.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterDilation.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterErosion.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterFastBandpass.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterFastDownscale.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filterflip.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filterfliprgb.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filterfliprgba.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filterflipuv.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterflipX.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterGauss.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterGetAlpha.cpp" />
+    <ClCompile Include="..\..\src\graphics\Filtergrayscale.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterHighpass.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterIntensity.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterMask.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterNormalize.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterResizeBilinear.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterResizeGaussian.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterThreshold.cpp" />
+    <ClCompile Include="..\..\src\graphics\FilterUnmultiplyAlpha.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLTexture.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUBandpassFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUBlurFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUBrightnessFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUChromaKeyFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUNullFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
+    <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
+    <ClCompile Include="..\..\src\graphics\OGLHelper.cpp" />
+    <ClCompile Include="..\..\src\graphics\OGLImagingContext.cpp" />
+    <ClCompile Include="..\..\src\graphics\OGLShader.cpp" />
+    <ClCompile Include="..\..\src\graphics\PBO.cpp" />
+    <ClCompile Include="..\..\src\graphics\Pixel32.cpp" />
+    <ClCompile Include="..\..\src\graphics\PixelFormat.cpp" />
+    <ClCompile Include="..\..\src\graphics\ShaderRegistry.cpp" />
+    <ClCompile Include="..\..\src\graphics\VertexArray.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
