@@ -14,7 +14,7 @@
 from distutils.core import setup, Extension
 import os, sys, shutil, subprocess
 
-DEVEL_ROOT='../../../../'
+DEVEL_ROOT='../../../'
 LIBAVG_SRC_DIR='../../src/'
 site_packages_path = sys.exec_prefix+"\\Lib\\site-packages\\libavg"
 
@@ -120,7 +120,7 @@ revision = 'svn'
 try:
     nenv = os.environ
     nenv['LANG'] = 'EN'
-    output = subprocess.Popen(["svn", "info", DEVEL_ROOT+'/libavg/libavg'],
+    output = subprocess.Popen(["svn", "info", DEVEL_ROOT+'/libavg'],
         stdout=subprocess.PIPE, env=nenv).communicate()[0]
     f = open("version.txt", "w")
     f.write(output)
