@@ -31,6 +31,7 @@
 #include "../base/Point.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
 
 #include <linux/input.h>
 #include <fcntl.h>
@@ -63,7 +64,8 @@ LibMTDevEventSource::~LibMTDevEventSource()
 
 void LibMTDevEventSource::start()
 { 
-    string sDevice = "/dev/input/event3";
+    string sDevice("/dev/input/event3");
+    getEnv("AVG_LINUX_MULTITOUCH_DEVICE", sDevice);
     m_DeviceFD = ::open(sDevice.c_str(), O_RDONLY | O_NONBLOCK);
     if (m_DeviceFD == -1) {
         throw Exception(AVG_ERR_MT_INIT, 

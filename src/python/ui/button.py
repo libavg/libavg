@@ -206,6 +206,7 @@ class Button(libavg.DivNode):
         
         self.__changeState(Button.STATE_DOWN)
         self.__customPressHandler(event)
+        return True
     
     def __releaseHandlerTemplateMethod(self, event):
         numberOfCapturedCursors = self.__getNumberOfCapturedCursors()
@@ -241,7 +242,8 @@ class Button(libavg.DivNode):
             pass
         
         self.__customClickHandler(event)
-        
+        return True
+    
     def __overHandlerTemplateMethod(self, event):
         if event.cursorid not in self.__overCursorIds:
             self.__overCursorIds.add(event.cursorid)
@@ -250,7 +252,8 @@ class Button(libavg.DivNode):
             self.__changeState(Button.STATE_DOWN)
             
         self.__toggleBitState(Button.STATE_OVER)
-        
+        return True
+    
     def __outHandlerTemplateMethod(self, event):
         if event.cursorid in self.__overCursorIds:
             self.__overCursorIds.remove(event.cursorid)
@@ -263,7 +266,8 @@ class Button(libavg.DivNode):
             self.__changeState(newState)
         
         self.__toggleBitState(Button.STATE_OVER)
-                
+        return True
+    
     def __activateEventHandler(self):
         self.__setupPressHandlerTemplateMethod(self.__pressHandlerTemplateMethod)
         self.__setupReleaseHandlerTemplateMethod(self.__releaseHandlerTemplateMethod)

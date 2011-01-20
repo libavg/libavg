@@ -955,6 +955,7 @@ class PythonTestCase(AVGTestCase):
       
         def onStart(pos):
             self.__startCalled = True
+            return True
 
         def onHold(time):
             self.__holdCalled = True

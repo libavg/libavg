@@ -5,7 +5,7 @@
     <usepow2textures>false</usepow2textures>
     <useshaders>true</useshaders>
     <usepixelbuffers>true</usepixelbuffers>
-    <multisamplesamples>1</multisamplesamples>
+    <multisamplesamples>4</multisamplesamples>
   </scr>
   <aud>
     <channels>2</channels>

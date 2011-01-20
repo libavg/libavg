@@ -33,6 +33,7 @@
 #include <sstream>
 #include <cstring>
 #include <cstdlib>
+#include <assert.h>
 
 #if defined(__APPLE__)
 #include <OpenGL/OpenGL.h>
@@ -304,9 +305,7 @@ void AVG_API clearGLBuffers(GLbitfield mask)
 
 void invalidGLCall()
 {
-    // Use this to cause core dump so we have the stack.
-//    printf("%s");
-    throw Exception(AVG_ERR_VIDEO_GENERAL, "Illegal gl entry point called.");
+    assert(false);
 }
 
 void loadGLLibrary()
