@@ -72,6 +72,12 @@
       </IgnoreSpecificDefaultLibraries>
       <AdditionalOptions>/force:multiple %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <CustomBuildStep>
+      <Command>python.exe setup.py install</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>colornode.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\test\plugin\ColorNode.cpp" />
