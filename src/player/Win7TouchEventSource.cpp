@@ -49,7 +49,7 @@ Win7TouchEventSource::~Win7TouchEventSource()
 
 void Win7TouchEventSource::start()
 {
-#ifdef SM_DIGITIZER
+#ifdef SM_DIGITIZER_
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
     if (multitouchCaps & NID_MULTI_INPUT) {
         AVG_TRACE(Logger::CONFIG, "Enabled Windows 7 Touch driver.");
@@ -75,7 +75,7 @@ void Win7TouchEventSource::start()
 LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg,
         WPARAM wParam, LPARAM lParam)
 {
-#ifdef SM_DIGITIZER
+#ifdef SM_DIGITIZER_
     Win7TouchEventSource * pThis = Win7TouchEventSource::s_pInstance;
     if (uMsg == WM_TOUCH) {
         cerr << "WM_TOUCH" << endl;
@@ -90,7 +90,7 @@ LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg
 
 void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-#ifdef SM_DIGITIZER
+#ifdef SM_DIGITIZER_
     unsigned numInputs = LOWORD(wParam);
     PTOUCHINPUT pInputs = new TOUCHINPUT[numInputs];
     BOOL bOk = GetTouchInputInfo((HTOUCHINPUT)lParam, numInputs, pInputs, 

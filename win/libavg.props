@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>C:\Python27\include;\devel\libavg\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Python27\libs;\devel\libavg\libavg\win\Release;\devel\libavg\lib;C:\Program Files %28x86%29\CMU\1394Camera\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Python27\libs;\devel\libavg\libavg\win\Release;\devel\libavg\lib;$(MSBuildProgramFiles32)\CMU\1394Camera\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
