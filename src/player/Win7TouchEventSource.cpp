@@ -47,12 +47,27 @@ Win7TouchEventSource::~Win7TouchEventSource()
     s_pInstance = 0;
 }
 
+typedef bool (WINAPI* PRTWPROC)(HWND, ULONG);
+
 void Win7TouchEventSource::start()
 {
-#ifdef SM_DIGITIZER_
+#ifdef SM_DIGITIZER
+    AVG_TRACE(Logger::CONFIG, "Using Windows 7 Touch driver.");
+    // We need to do runtime dynamic linking for the Win7 touch functions because they 
+    // aren't present on pre-Win7 systems.
+    HMODULE hUser32 = GetModuleHandle(TEXT("user32.dll"));
+    PRTWPROC pRegisterTouchWindowProc = (PRTWPROC) GetProcAddress(hUser32, 
+            "RegisterTouchWindow");
+    if (!pRegisterTouchWindowProc) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "This version of windows does not support Multitouch input.");
+    }
+    m_pGetTouchInputInfoProc = (GTIIPROC) GetProcAddress(hUser32, "GetTouchInputInfo");
+    m_pCloseTouchInputHandleProc = (CTIHPROC) GetProcAddress(hUser32, 
+            "CloseTouchInputHandle");
+
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
     if (multitouchCaps & NID_MULTI_INPUT) {
-        AVG_TRACE(Logger::CONFIG, "Enabled Windows 7 Touch driver.");
 
         MultitouchEventSource::start();
         SDL_SysWMinfo info;
@@ -60,11 +75,11 @@ void Win7TouchEventSource::start()
         int err = SDL_GetWMInfo(&info);
         AVG_ASSERT(err == 1);
         m_Hwnd = info.window;
-        RegisterTouchWindow(m_Hwnd, 0);
+        pRegisterTouchWindowProc(m_Hwnd, 0);
 
         m_OldWndProc = (WNDPROC)SetWindowLong(m_Hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
     } else {
-        throw Exception(AVG_ERR_UNSUPPORTED, "No multitouch device connected.");
+        throw Exception(AVG_ERR_UNSUPPORTED, "No windows 7 multitouch device connected.");
     }
 #else
     throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -75,7 +90,7 @@ void Win7TouchEventSource::start()
 LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg,
         WPARAM wParam, LPARAM lParam)
 {
-#ifdef SM_DIGITIZER_
+#ifdef SM_DIGITIZER
     Win7TouchEventSource * pThis = Win7TouchEventSource::s_pInstance;
     if (uMsg == WM_TOUCH) {
         cerr << "WM_TOUCH" << endl;
@@ -90,10 +105,10 @@ LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg
 
 void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
-#ifdef SM_DIGITIZER_
+#ifdef SM_DIGITIZER
     unsigned numInputs = LOWORD(wParam);
     PTOUCHINPUT pInputs = new TOUCHINPUT[numInputs];
-    BOOL bOk = GetTouchInputInfo((HTOUCHINPUT)lParam, numInputs, pInputs, 
+    BOOL bOk = m_pGetTouchInputInfoProc((HTOUCHINPUT)lParam, numInputs, pInputs, 
             sizeof(TOUCHINPUT));
     AVG_ASSERT(bOk);
     for (unsigned i = 0; i < numInputs; i++){
@@ -101,7 +116,7 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
             //do something with each touch input entry
     }            
     delete [] pInputs;
-    CloseTouchInputHandle((HTOUCHINPUT)lParam);
+    m_pCloseTouchInputHandleProc((HTOUCHINPUT)lParam);
 #endif
 }
 
