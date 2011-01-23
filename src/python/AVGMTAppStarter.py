@@ -86,35 +86,38 @@ class AVGMTAppStarter (AVGAppStarter):
         node.setWarpedVertexCoords(grid)
 
     def _onBeforePlay(self):
+        global Calibrator
         # we must add the tracker first, calibrator depends on it
-        self.tracker = g_player.addTracker()
+        g_player.enableMultitouch()
+        self.tracker = g_player.getTracker()
 
-        if Calibrator:
-            self.__calibratorNode = g_player.createNode('div',{
-                'opacity': 0,
-                'active': False,
-                })
-            rootNode = g_player.getRootNode()
-            rootNode.appendChild(self.__calibratorNode)
-            self.__calibratorNode.size = rootNode.size
-            self.__calibrator = Calibrator(self.__calibratorNode, appStarter=self)
-            self.__calibrator.setOnCalibrationSuccess(self.__onCalibrationSuccess)
-            self.__calibrator.init()
-        else:
-            self.__calibrator = None
+        if self.tracker:
+            if Calibrator:
+                self.__calibratorNode = g_player.createNode('div',{
+                    'opacity': 0,
+                    'active': False,
+                    })
+                rootNode = g_player.getRootNode()
+                rootNode.appendChild(self.__calibratorNode)
+                self.__calibratorNode.size = rootNode.size
+                self.__calibrator = Calibrator(self.__calibratorNode, appStarter=self)
+                self.__calibrator.setOnCalibrationSuccess(self.__onCalibrationSuccess)
+                self.__calibrator.init()
+            else:
+                self.__calibrator = None
 
-        self.__showTrackerImage = False
-        self.__updateTrackerImageInterval = None
-        self.__trackerImageNode = g_player.createNode('image', {'sensitive': False})
-        g_player.getRootNode().appendChild(self.__trackerImageNode)
+            self.__showTrackerImage = False
+            self.__updateTrackerImageInterval = None
+            self.__trackerImageNode = g_player.createNode('image', {'sensitive': False})
+            g_player.getRootNode().appendChild(self.__trackerImageNode)
 
-        self.__updateTrackerImageFixup()
-        
-        self.bindKey('h', self.tracker.resetHistory, 'RESET tracker history')
-        self.bindKey('d', self.toggleTrackerImage, 'toggle tracker image')
+            self.__updateTrackerImageFixup()
+            
+            self.bindKey('h', self.tracker.resetHistory, 'RESET tracker history')
+            self.bindKey('d', self.toggleTrackerImage, 'toggle tracker image')
 
-        if self.__calibrator:
-            self.bindKey('c', self.__enterCalibrator, 'enter calibrator')
+            if self.__calibrator:
+                self.bindKey('c', self.__enterCalibrator, 'enter calibrator')
 
     def _initClickTest(self):
         if ClickTest:
