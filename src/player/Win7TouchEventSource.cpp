@@ -93,7 +93,6 @@ LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg
 #ifdef SM_DIGITIZER
     Win7TouchEventSource * pThis = Win7TouchEventSource::s_pInstance;
     if (uMsg == WM_TOUCH) {
-        cerr << "WM_TOUCH" << endl;
         pThis->onTouch(hwnd, wParam, lParam);
     }
 
@@ -111,9 +110,26 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
     BOOL bOk = m_pGetTouchInputInfoProc((HTOUCHINPUT)lParam, numInputs, pInputs, 
             sizeof(TOUCHINPUT));
     AVG_ASSERT(bOk);
+    if (numInputs > 0) {
+        cerr << numInputs << endl;
+    }
     for (unsigned i = 0; i < numInputs; i++){
-        TOUCHINPUT ti = pInputs[i];
-            //do something with each touch input entry
+        TOUCHINPUT *pTouchInput = &(pInputs[i]);
+        IntPoint pos(pTouchInput->cxContact/100, pTouchInput->cyContact/100);
+        if (pTouchInput->dwFlags & TOUCHEVENTF_DOWN) {
+            m_LastID++;
+            TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSORDOWN, pos,
+                    Event::TOUCH, DPoint(0,0), 0, 20, 1, DPoint(5,0), DPoint(0,5)));
+            addTouchStatus((long)pTouchInput->dwID, pEvent);
+        } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
+            TouchStatusPtr pTouchStatus = getTouchStatus(pTouchInput->dwID);
+            TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
+
+            TouchEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
+                    Event::CURSORUP, pos, Event::TOUCH, DPoint(0,0), 0, 20, 1, 
+                    DPoint(5,0), DPoint(0,5)));
+            pTouchStatus->updateEvent(pUpEvent);
+        }
     }            
     delete [] pInputs;
     m_pCloseTouchInputHandleProc((HTOUCHINPUT)lParam);
