@@ -56,6 +56,9 @@
 #ifdef AVG_ENABLE_MTDEV
     #include "LibMTDevEventSource.h"
 #endif
+#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+    #include "XInput21MTEventSource.h"
+#endif
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/OSHelper.h"
@@ -633,6 +636,10 @@ void Player::enableMultitouch()
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
         m_pMultitouchEventSource = new Win7TouchEventSource;
+#endif
+#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+    } else if (sDriver == "XINPUT21") {
+        m_pMultitouchEventSource = new XInput21MTEventSource;
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {

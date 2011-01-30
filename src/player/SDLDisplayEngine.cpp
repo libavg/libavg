@@ -48,6 +48,7 @@
 #include "OffscreenCanvas.h"
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_syswm.h>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
@@ -218,6 +219,9 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
             }
         }
     }
+#ifdef __linux
+    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+#endif
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
                 + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
@@ -757,6 +761,14 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_VIDEORESIZE:
                 break;
+/*                
+            case SDL_SYSWMEVENT:
+                {
+                    SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
+                    cerr << "SYSWMEVENT" << endl;
+                }
+                break;
+*/                
             default:
                 // Ignore unknown events.
                 break;
@@ -1251,6 +1263,11 @@ const GLConfig& SDLDisplayEngine::getOGLOptions() const
 const IntPoint& SDLDisplayEngine::getWindowSize() const
 {
     return m_WindowSize;
+}
+
+bool SDLDisplayEngine::isFullscreen() const
+{
+    return m_IsFullscreen;
 }
 
 IntPoint SDLDisplayEngine::getScreenResolution() const

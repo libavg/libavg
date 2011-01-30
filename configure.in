@@ -98,6 +98,8 @@ if test "$enable_linuxmt" = yes; then
     AC_DEFINE(AVG_ENABLE_LINUXMT, 1, [Enable linux kernel multitouch support.])
 fi
 
+AC_CHECK_HEADERS([X11/extensions/XInput2.h], [enable_xinput2=yes], [enable_xinput2=no])
+AM_CONDITIONAL(ENABLE_XINPUT2, test x$enable_xinput2 = xyes)
 
 AC_ARG_ENABLE(v4l2,
           AC_HELP_STRING([--enable-v4l2],

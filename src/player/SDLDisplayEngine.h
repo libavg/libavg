@@ -85,6 +85,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         void setOGLOptions(const GLConfig& glConfig);
         const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
+        bool isFullscreen() const;
         IntPoint getScreenResolution() const;
 
         void setMainFBO(FBOPtr pFBO);

@@ -63,6 +63,9 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
+/* Define to 1 if you have the <X11/extensions/XInput2.h> header file. */
+#undef HAVE_X11_EXTENSIONS_XINPUT2_H
+
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR

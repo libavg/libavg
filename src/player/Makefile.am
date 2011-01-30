@@ -5,12 +5,12 @@ INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadEventSource.cpp
-    XGL_LIBS =
     APPLE_LINKFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport
+    XGL_LIBS =
 else
     APPLE_SOURCES =
-    XGL_LIBS = -lXxf86vm -lX11
     APPLE_LINKFLAGS=
+    XGL_LIBS = -lXxf86vm -lX11
 endif
 
 if ENABLE_MTDEV
@@ -29,10 +29,20 @@ else
     LINUXMT_INCLUDES =
 endif
 
+if ENABLE_XINPUT2
+    XINPUT2_SOURCES = XInput21MTEventSource.cpp
+    XINPUT2_INCLUDES = XInput21MTEventSource.h
+    XINPUT2_LIBS = -lXi
+else
+    XINPUT2_SOURCES =
+    XINPUT2_INCLUDES =
+    XINPUT2_LIBS =
+endif
+
 GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp PBOTexture.cpp GLConfig.cpp
 GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h GLConfig.h
 
-ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
 
 ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \
@@ -47,7 +57,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOEventSource.h \
-        $(LINUXMT_INCLUDES) $(MTDEV_INCLUDES) $(GL_INCLUDES)
+        $(LINUXMT_INCLUDES) $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
 
@@ -60,7 +70,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ \
+        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XINPUT2_LIBS) @LIBFFMPEG@ \
         @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS)
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
@@ -85,5 +95,5 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOEventSource.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
-        $(LINUXMT_SOURCES) $(MTDEV_SOURCES) $(APPLE_SOURCES) $(ALL_H)
+        $(LINUXMT_SOURCES) $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
