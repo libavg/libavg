@@ -95,9 +95,6 @@ std::vector<EventPtr> LibMTDevEventSource::pollEvents()
 {
     struct input_event events[64];
     int numEvents = mtdev_get(m_pMTDevice, m_DeviceFD, events, 64);
-    if (numEvents < 0) {
-        cerr << "numEvents: " << numEvents << endl;
-    }
 /*
     if (numEvents > 0) {
         cerr << "---- read ----" << endl;
