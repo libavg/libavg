@@ -200,7 +200,7 @@ class TouchVisualization(avg.DivNode):
 
     def move(self, event):
         self.pos = event.pos
-        self.__circle.r = event.majoraxis.getNorm()
+        self.__circle.r = event.majoraxis.getNorm()+1
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
 
