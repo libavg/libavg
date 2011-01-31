@@ -77,9 +77,7 @@ class MThelp():
                     "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
             
             for key in sorted(self.__keyBindUp.iterkeys()):
-                if key in self.__keyBindDown:
-                    print "hiereirieii"
-                else:
+                if not(key in self.__keyBindDown):
                     funcName = self.__keyBindUp[key][1]
                     TextHelp = TextHelp + \
                         "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
