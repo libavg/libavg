@@ -19,6 +19,7 @@ else
     libtoolize --copy --force
     aclocal -I m4
 fi
+autoheader
 automake --foreign --add-missing --copy 
 autoconf
 
