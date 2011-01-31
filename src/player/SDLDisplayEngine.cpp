@@ -48,12 +48,12 @@
 #include "OffscreenCanvas.h"
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef linux
+#include <SDL/SDL_syswm.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
 
