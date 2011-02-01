@@ -24,26 +24,28 @@ from libavg import avg
 g_Player = avg.Player.get()
 
 class ManipulationProcessor(object):
-    def __init__(self, node, eventSource):
+    def __init__(self, node, eventSource, initialEvent):
         self._node = node
         self.__eventSource = eventSource
        
-        self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp) 
+        self.__setEventHandlers(self._onDown, self.__onMove, self.__onUp) 
         self.__isEnabled = True
         self.__cursorID = None
+        if initialEvent:
+            self._onDown(initialEvent)
 
     def enable(self, isEnabled):
         if isEnabled != self.__isEnabled:
             self.__isEnabled = isEnabled
             if isEnabled:
-                self.__setEventHandlers(self.__onDown, self.__onMove, self.__onUp)
+                self.__setEventHandlers(self._onDown, self.__onMove, self.__onUp)
             else:
                 if self.__cursorID:
                     self._node.releaseEventCapture(self.__cursorID)
                     self.__cursorID = None
                 self._node.disconnectEventHandler(self)
 
-    def __onDown(self, event):
+    def _onDown(self, event):
         if self.__cursorID == None:
             self.__cursorID = event.cursorid
             self._node.setEventCapture(event.cursorid)
@@ -85,14 +87,15 @@ class ManipulationProcessor(object):
 
 class DragProcessor(ManipulationProcessor):
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
-            moveHandler=None, upHandler=None, stopHandler=None, friction=-1):
-        ManipulationProcessor.__init__(self, node, eventSource)
+            moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
+            friction=-1):
         self.__startHandler = self._optionalCallback(startHandler, lambda event:None)
         self.__moveHandler = self._optionalCallback(moveHandler, lambda event,offset:None)
         self.__stopHandler = self._optionalCallback(stopHandler, lambda:None)
         self.__upHandler = self._optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
         self.__inertiaHandlerID = None
+        ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
 
     def abortInertia(self):
         if self.__inertiaHandlerID:
@@ -156,9 +159,8 @@ class HoldProcessor(ManipulationProcessor):
     ACTIVE = 3      # > activateDelay
 
     def __init__(self, node, holdDelay, activateDelay, eventSource=avg.TOUCH | avg.MOUSE, 
-            startHandler=None, holdHandler=None, activateHandler=None, stopHandler=None):
-        ManipulationProcessor.__init__(self, node, eventSource)
-
+            startHandler=None, holdHandler=None, activateHandler=None, stopHandler=None,
+            initialEvent=None):
         self.__startHandler = self._optionalCallback(startHandler, lambda pos:None)
         self.__holdHandler = self._optionalCallback(holdHandler, lambda t:None)
         self.__activateHandler = self._optionalCallback(activateHandler, lambda:None)
@@ -171,6 +173,7 @@ class HoldProcessor(ManipulationProcessor):
         self.__state = HoldProcessor.UP
 
         self.__relTime = 0
+        ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
 
     def getRelTime(self):
         return self.__relTime
