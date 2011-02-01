@@ -73,6 +73,7 @@ public:
     Point<NUM> operator *(const Point<NUM> & pt) const;
 
     static Point<NUM> fromPolar(double angle, double radius);
+    double getAngle() const;
 };
 
 template<class NUM>

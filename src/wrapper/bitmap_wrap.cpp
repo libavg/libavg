@@ -59,6 +59,7 @@ class_<POINT> export_point(const string& sName)
         .def(self / float())
         .def("fromPolar", &DPoint::fromPolar)
         .staticmethod("fromPolar")
+        .def("getAngle", &DPoint::getAngle)
     ;
 }
 

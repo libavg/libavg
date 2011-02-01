@@ -209,6 +209,12 @@ Point<double> Point<double>::fromPolar(double angle, double radius)
     return Point<double>(cos(angle)*radius, sin(angle)*radius);
 }
 
+template<class NUM>
+double Point<NUM>::getAngle() const
+{
+    return atan2(y, x);
+}
+
 template<>
 Point<int> Point<int>::getNormalized() const
 {
