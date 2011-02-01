@@ -55,11 +55,14 @@ class GameApp(libavg.AVGApp):
     multitouch = True
 
     def __init__(self, *args, **kwargs):
-        avg.WordsNode.addFontDir(libavg.AVGAppUtil.getMediaDir(__file__, 'fonts'))
         global _app
         _app = self
         super(GameApp, self).__init__(*args, **kwargs)
-        self._parentNode.mediadir = libavg.AVGAppUtil.getMediaDir(__file__)
+
+        pkgpath = self._getPackagePath()
+        if pkgpath is not None:
+            avg.WordsNode.addFontDir(libavg.AVGAppUtil.getMediaDir(pkgpath, 'fonts'))
+            self._parentNode.mediadir = libavg.AVGAppUtil.getMediaDir(pkgpath)
 
     @classmethod
     def start(cls, *args, **kwargs):
@@ -107,10 +110,9 @@ class GameApp(libavg.AVGApp):
         
         super(GameApp, cls).start(*args, **kwargs)
 
-
     def getUserdataPath(self, fname):
         '''
-        Returns a path which is platform dependent and that points to a directory
+        Return a path which is platform dependent and that points to a directory
         which can be used to store games data.
         These data will belong to the current user and are not meant for system-wide
         settings.
@@ -134,3 +136,17 @@ class GameApp(libavg.AVGApp):
                 raise
 
         return os.path.join(path, fname)
+
+    def _getPackagePath(self):
+        '''
+        Overload this method in your App class if you want to get 'media' and 'fonts'
+        easily set up (respectively as mediadir for App._parentNode and for local font
+        path).
+        This method should return a relative (to CWD) or absolute path. It can be a file
+        path as well.
+        Eg:
+        
+        def _getPackagePath(self):
+            return __file__
+        '''
+        return None
