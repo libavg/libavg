@@ -23,6 +23,9 @@
 
 #include "TouchEvent.h"
 
+#include "Player.h"
+#include "AVGNode.h"
+
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
@@ -135,6 +138,22 @@ ContourSeq TouchEvent::getContour()
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "TouchEvent::getContour: No contour available.");
+    }
+}
+
+double TouchEvent::getHandOrientation() const
+{
+    if (getSource() == Event::TOUCH) {
+        if (m_RelatedEvents.empty()) {
+            DPoint screenCenter = Player::get()->getRootNode()->getSize()/2;
+            return (m_Center-screenCenter).getAngle();
+        } else {
+            TouchEventPtr pHandEvent = m_RelatedEvents[0].lock();
+            return (pHandEvent->getCenter()-m_Center).getAngle();
+        }
+    } else {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "TouchEvent::getHandOrientation: Only supported for touch events.");
     }
 }
 

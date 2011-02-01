@@ -352,6 +352,11 @@ Misc. Classes
 
         .. py:attribute:: y
 
+        .. py:method:: getAngle() -> float
+
+            Returns the direction of the vector as an angle between pi and -pi, with
+            0 being the positive x axis. Angles run clockwise.
+
         .. py:method:: getNorm() -> float
 
             Returns the euclidian norm of the point, that is sqrt(x*x+y*y).

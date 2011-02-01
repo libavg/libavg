@@ -62,6 +62,7 @@ class AVG_API TouchEvent: public CursorEvent
 
         const BlobPtr getBlob() const;
         ContourSeq getContour();
+        double getHandOrientation() const;
 
         void addRelatedEvent(TouchEventPtr pEvent);
         std::vector<TouchEventPtr> getRelatedEvents() const;

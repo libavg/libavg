@@ -131,6 +131,7 @@ void export_event()
                 return_value_policy<copy_const_reference>()))
         .add_property("speed", make_function(&TouchEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
+        .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
         .def("getContour", &TouchEvent::getContour)
         .add_property("lastdownpos", &CursorEvent::getLastDownPos)

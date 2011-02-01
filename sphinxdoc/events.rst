@@ -125,6 +125,16 @@ Input Handling
 
         .. py:attribute:: eccentricity
 
+        .. py:attribute:: handorientation
+
+            The angle of the hand relative to the finger. :py:attr:`handorientation` is
+            only defined for events with :py:attr:`source`=:py:const:`TOUCH`. If the 
+            tracker has detected a hovering hand attached to the finger, this is the 
+            actual hand-finger angle. If no hand was detected, the angle is approximated 
+            using the position of the touch on the surface. :py:attr:`handorientation`
+            ranges from :py:const:`-pi` to :py:const:`pi`, with 0 being the positive x
+            axis. Angles increase in a clockwise fashion.
+
         .. py:attribute:: lastdownpos
 
             The initial position of the cursor. Useful for implementing dragging.
