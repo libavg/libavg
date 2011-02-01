@@ -82,6 +82,38 @@ void Event::setElement(VisibleNodePtr pNode)
     m_pNode = pNode;
 }
 
+string Event::typeStr() const
+{
+    return typeStr(m_Type);
+}
+
+string Event::typeStr(Event::Type type)
+{
+    switch(type) {
+        case KEYUP:
+            return "KEYUP";
+        case KEYDOWN:
+            return "KEYDOWN";
+        case CURSORMOTION:
+            return "CURSORMOTION";
+        case CURSORUP:
+            return "CURSORUP";
+        case CURSORDOWN:
+            return "CURSORDOWN";
+        case CURSOROVER:
+            return "CURSOROVER";
+        case CURSOROUT:
+            return "CURSOROUT";
+        case RESIZE:
+            return "RESIZE";
+        case QUIT:
+            return "QUIT";
+        default:
+            return "UNKNOWN";
+    }
+        
+}
+
 VisibleNodePtr Event::getElement() const
 {
     return m_pNode;
@@ -89,39 +121,7 @@ VisibleNodePtr Event::getElement() const
 
 void Event::trace()
 {
-    string sType;
-    switch(m_Type) {
-        case KEYUP:
-            sType = "KEYUP";
-            break;
-        case KEYDOWN:
-            sType = "KEYDOWN";
-            break;
-        case CURSORMOTION:
-            sType = "CURSORMOTION";
-            break;
-        case CURSORUP:
-            sType = "CURSORUP";
-            break;
-        case CURSORDOWN:
-            sType = "CURSORDOWN";
-            break;
-        case CURSOROVER:
-            sType = "CURSOROVER";
-            break;
-        case CURSOROUT:
-            sType = "CURSOROUT";
-            break;
-        case RESIZE:
-            sType = "RESIZE";
-            break;
-        case QUIT:
-            sType = "QUIT";
-            break;
-        default:
-            sType = "UNKNOWN EVENT ";
-            break;
-    }
+    string sType = typeStr();
     if (!m_pNode) {
         AVG_TRACE(Logger::EVENTS, sType); 
     } else {

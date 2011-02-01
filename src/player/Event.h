@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include <functional>
+#include <string>
 #include <boost/shared_ptr.hpp>
 #undef _POSIX_C_SOURCE
 
@@ -59,6 +60,9 @@ class AVG_API Event {
         VisibleNodePtr getElement() const;
         void setElement(VisibleNodePtr pNode);
         
+        std::string typeStr() const;
+        static std::string typeStr(Event::Type type);
+
         friend struct isEventAfter;
         
     protected:

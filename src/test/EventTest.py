@@ -279,7 +279,14 @@ class EventTestCase(AVGTestCase):
         def connectTwoHandlers():
             self.img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown1)
             self.img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown2)
-            
+        
+        def connectUnlinkHandler():
+            self.img.disconnectEventHandler(self)
+            self.img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, unlinkHandler)
+            self.img.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown2)
+
+        def unlinkHandler(event):
+            self.img.disconnectEventHandler(self)
 
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -301,6 +308,9 @@ class EventTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: self.assert_(not(self.down1Called) and self.down2Called),
+                 connectUnlinkHandler,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1)
                 ))
 
     def testObscuringEvents(self):

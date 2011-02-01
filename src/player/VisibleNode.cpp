@@ -361,9 +361,11 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
     EventHandlerMap::iterator it = m_EventHandlerMap.find(id);
     if (it != m_EventHandlerMap.end()) {
         bool bHandled = false;
-        EventHandlerArrayPtr pEventHandlers = it->second;
+        // We need to copy the array because python code in callbacks can 
+        /// connect and disconnect event handlers.
+        EventHandlerArray eventHandlers = *(it->second);
         EventHandlerArray::iterator listIt;
-        for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end(); ++listIt)
+        for (listIt = eventHandlers.begin(); listIt != eventHandlers.end(); ++listIt)
         {
             bHandled = callPython(listIt->m_pMethod, pEvent);
         }
@@ -539,7 +541,8 @@ PyObject * VisibleNode::findPythonFunc(const string& sCode)
 
 bool VisibleNode::callPython(PyObject * pFunc, EventPtr pEvent)
 {
-    return boost::python::call<bool>(pFunc, pEvent);
+    bool bOk = boost::python::call<bool>(pFunc, pEvent);
+    return bOk;
 }
 
 VisibleNode::EventID::EventID(Event::Type eventType, Event::Source source)
