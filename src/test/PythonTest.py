@@ -951,6 +951,25 @@ class PythonTestCase(AVGTestCase):
                     ))
         Player.setFakeFPS(-1)
 
+
+    def testDragProcessorInitialEvent(self):
+        def onDown(event):
+            dragProcessor = ui.DragProcessor(self.image, 
+                    startHandler=onDragStart, initialEvent=event)
+           
+        def onDragStart(event):
+            self.__dragStartCalled = True
+
+        self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        self.image.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown)
+        self.__dragStartCalled = False
+        self.start(None,
+                (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                ))
+        assert(self.__dragStartCalled)
+            
+
     def testHoldProcessor(self):
       
         def onStart(pos):
@@ -1197,6 +1216,7 @@ def pythonTestSuite (tests):
         "testKeyboard",
         "testTextArea",
         "testDragProcessor",
+        "testDragProcessorInitialEvent",
         "testHoldProcessor",
         "testFocusContext",
         "testRoundedRect",
