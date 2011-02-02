@@ -171,6 +171,25 @@ class AnimTestCase(AVGTestCase):
                 ))
         self.__anim = None
 
+    def testPingPongStopAnim(self):
+        def forth():
+            anim = avg.LinearAnim(self.__node, 'pos', 100, (50, 100),
+                (100, 100), False, None, back)
+            anim.start()
+            
+        def back():
+            anim = avg.LinearAnim(self.__node, 'pos', 100, (100, 100),
+                (50, 100), False, None, forth)
+            anim.start()
+
+        self.initScene()
+        self.start(None,
+            (forth,
+             None,
+             None,
+             None
+            ))
+
     def testPointAnim(self):
         def startAnim():
             self.__anim.start()
@@ -407,6 +426,7 @@ def animTestSuite(tests):
         "testFadeOut",
         "testNonExistentAttributeAnim",
         "testLinearAnimZeroDuration",
+        "testPingPongStopAnim",
         "testPointAnim",
         "testEaseInOutAnim",
         "testIntAnim",

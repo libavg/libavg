@@ -96,11 +96,11 @@ void Anim::onPreRender()
 void Anim::onPlaybackEnd()
 {
     AnimPtr tempThis = shared_from_this();
+    m_StartCallback = object();
+    m_StopCallback = object();
     if (m_bRunning) {
         abort();
     }
-    m_StartCallback = object();
-    m_StopCallback = object();
 }
 
 void Anim::setStopped()
