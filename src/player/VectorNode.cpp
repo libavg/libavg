@@ -143,18 +143,16 @@ void VectorNode::setBlendModeStr(const string& sBlendMode)
 }
 
 static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
-static ProfilingZoneID VAProfilingZone("VectorNode::update VA");
 
 void VectorNode::preRender()
 {
     VisibleNode::preRender();
-    ScopeTimer timer(PrerenderProfilingZone);
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
     {
-        ScopeTimer timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
+            ScopeTimer timer(PrerenderProfilingZone);
             pVA->reset();
             Pixel32 color = getColorVal();
             color.setA((unsigned char)(curOpacity*255));

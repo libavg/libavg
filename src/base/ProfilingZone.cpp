@@ -20,7 +20,6 @@
 //
 
 #include "ProfilingZone.h"
-#include "TimeSource.h"
 #include "ObjectCounter.h"
 
 #include <iostream>
@@ -44,16 +43,6 @@ ProfilingZone::ProfilingZone(const ProfilingZoneID& zoneID)
 ProfilingZone::~ProfilingZone() 
 {
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void ProfilingZone::start()
-{
-    m_StartTime = TimeSource::get()->getCurrentMicrosecs();
-}
-
-void ProfilingZone::stop()
-{
-    m_TimeSum += TimeSource::get()->getCurrentMicrosecs()-m_StartTime;
 }
 
 void ProfilingZone::reset()

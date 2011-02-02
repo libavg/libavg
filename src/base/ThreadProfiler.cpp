@@ -77,21 +77,24 @@ bool ThreadProfiler::isRunning()
 void ThreadProfiler::startZone(const ProfilingZoneID& zoneID)
 {
     ZoneMap::iterator it = m_ZoneMap.find(&zoneID);
-    ProfilingZonePtr pZone;
+    // Duplicated code to avoid instantiating a new smart pointer when it's not
+    // necessary.
     if (it == m_ZoneMap.end()) {
-        pZone = addZone(zoneID);
+        ProfilingZonePtr pZone = addZone(zoneID);
+        pZone->start();
+        m_ActiveZones.push_back(pZone);
     } else {
-        pZone = it->second;
+        ProfilingZonePtr& pZone = it->second;
+        pZone->start();
+        m_ActiveZones.push_back(pZone);
     }
-    pZone->start();
-    m_ActiveZones.push_back(pZone);
 }
 
 void ThreadProfiler::stopZone(const ProfilingZoneID& zoneID)
 {
     ZoneMap::iterator it = m_ZoneMap.find(&zoneID);
     AVG_ASSERT(it != m_ZoneMap.end());
-    ProfilingZonePtr pZone = it->second;
+    ProfilingZonePtr& pZone = it->second;
     AVG_ASSERT(m_ActiveZones.back() == pZone);
     pZone->stop();
     m_ActiveZones.pop_back();

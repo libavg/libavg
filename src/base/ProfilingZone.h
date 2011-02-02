@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "ProfilingZoneID.h"
+#include "TimeSource.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,8 +36,14 @@ public:
     ProfilingZone(const ProfilingZoneID& zoneID);
     virtual ~ProfilingZone();
     
-    void start();
-    void stop();
+    void start() 
+    {
+        m_StartTime = TimeSource::get()->getCurrentMicrosecs();
+    };
+    void stop()
+    {
+        m_TimeSum += TimeSource::get()->getCurrentMicrosecs()-m_StartTime;
+    };
     void reset();
     long long getUSecs() const;
     long long getAvgUSecs() const;
