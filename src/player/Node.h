@@ -23,6 +23,7 @@
 #define _Node_H_
 
 #include "../api.h"
+#include "../graphics/VertexArray.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -78,6 +79,9 @@ class AVG_API Node
 
         virtual const NodeDefinition* getDefinition() const;
         virtual std::string dump(int indent = 0) = 0;
+
+        virtual void preRender() = 0;
+        virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
 
     protected:
         Node();

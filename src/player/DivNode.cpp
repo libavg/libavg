@@ -222,7 +222,7 @@ void DivNode::preRender()
 {
     VisibleNode::preRender();
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getVChild(i)->preRender();
+        getChild(i)->preRender();
     }
 }
 
@@ -241,7 +241,7 @@ void DivNode::render(const DRect& rect)
     }
 }
 
-void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
+void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
 {
     Pixel32 effColor = color;
     if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
@@ -269,7 +269,7 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
         }
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getVChild(i)->renderOutlines(pVA, effColor);
+        getChild(i)->renderOutlines(pVA, effColor);
     }
 }
 

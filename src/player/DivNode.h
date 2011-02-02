@@ -66,7 +66,7 @@ class AVG_API DivNode : public AreaNode
                 std::vector<VisibleNodeWeakPtr>& pElements);
         virtual void preRender();
         virtual void render(const DRect& rect);
-        virtual void renderOutlines(VertexArrayPtr pVA, Pixel32 color);
+        virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
 
         virtual std::string getEffectiveMediaDir();
         virtual void checkReload();

@@ -117,7 +117,6 @@ class AVG_API VisibleNode: public Node
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect) {};
         virtual void render(const DRect& Rect) {};
-        virtual void renderOutlines(VertexArrayPtr pVA, Pixel32 color) {};
 
         double getEffectiveOpacity();
         virtual std::string dump(int indent = 0);
