@@ -78,7 +78,9 @@ class AVG_API TouchEvent: public CursorEvent
         double m_Eccentricity;
         DPoint m_MajorAxis;
         DPoint m_MinorAxis;
-        std::vector<TouchEventWeakPtr> m_RelatedEvents; 
+        std::vector<TouchEventWeakPtr> m_RelatedEvents;
+        bool m_bHasHandOrientation;
+        double m_HandOrientation; 
 };
 
 }

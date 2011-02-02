@@ -40,7 +40,8 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
         Source source, const DPoint& speed, const IntPoint& lastDownPos)
     : CursorEvent(id, eventType, pos, source),
       m_pBlob(pBlob),
-      m_Speed(speed)
+      m_Speed(speed),
+      m_bHasHandOrientation(false)
 {
     setLastDownPos(lastDownPos);
     if (pBlob) {
@@ -144,12 +145,11 @@ ContourSeq TouchEvent::getContour()
 double TouchEvent::getHandOrientation() const
 {
     if (getSource() == Event::TOUCH) {
-        if (m_RelatedEvents.empty()) {
-            DPoint screenCenter = Player::get()->getRootNode()->getSize()/2;
-            return (m_Center-screenCenter).getAngle();
+        if (m_bHasHandOrientation) {
+            return m_HandOrientation;
         } else {
-            TouchEventPtr pHandEvent = m_RelatedEvents[0].lock();
-            return (pHandEvent->getCenter()-m_Center).getAngle();
+            DPoint screenCenter = Player::get()->getRootNode()->getSize()/2;
+            return (getPos()-screenCenter).getAngle();
         }
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED,
@@ -160,6 +160,11 @@ double TouchEvent::getHandOrientation() const
 void TouchEvent::addRelatedEvent(TouchEventPtr pEvent)
 {
     m_RelatedEvents.push_back(pEvent);
+    if (getSource() == Event::TOUCH && m_RelatedEvents.size() == 1) {
+        TouchEventPtr pHandEvent = m_RelatedEvents.begin()->lock();
+        m_HandOrientation = (pHandEvent->getPos()-getPos()).getAngle();
+        m_bHasHandOrientation = true;
+    }
 }
 
 vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
