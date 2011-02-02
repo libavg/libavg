@@ -28,7 +28,7 @@ class ManipulationProcessor(object):
         self._node = node
         self.__eventSource = eventSource
        
-        self.__setEventHandlers(self._onDown, self.__onMove, self.__onUp) 
+        self.__setEventHandlers(self._onDown, self.__onMove, self._onUp) 
         self.__isEnabled = True
         self.__cursorID = None
         if initialEvent:
@@ -38,7 +38,7 @@ class ManipulationProcessor(object):
         if isEnabled != self.__isEnabled:
             self.__isEnabled = isEnabled
             if isEnabled:
-                self.__setEventHandlers(self._onDown, self.__onMove, self.__onUp)
+                self.__setEventHandlers(self._onDown, self.__onMove, self._onUp)
             else:
                 if self.__cursorID:
                     self._node.releaseEventCapture(self.__cursorID)
@@ -55,7 +55,7 @@ class ManipulationProcessor(object):
         if self.__cursorID == event.cursorid:
             return self._handleMove(event)
 
-    def __onUp(self, event):
+    def _onUp(self, event):
         if self.__cursorID == event.cursorid:
             self._node.releaseEventCapture(event.cursorid)
             self.__cursorID = None
@@ -176,6 +176,9 @@ class HoldProcessor(ManipulationProcessor):
         self.__lastEvent = None
         ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
 
+    def abort(self):
+        self._onUp(self.__lastEvent)
+
     def getRelTime(self):
         return self.__relTime
 
@@ -208,8 +211,8 @@ class HoldProcessor(ManipulationProcessor):
                     self.__changeState(HoldProcessor.HOLDING)
         if self.__state == HoldProcessor.HOLDING:
             if self.__relTime > self.__activateDelay:
-                self.__activateHandler()
                 self.__changeState(HoldProcessor.ACTIVE)
+                self.__activateHandler()
             else:
                 self.__holdHandler(float(self.__relTime-self.__holdDelay)/
                         (self.__activateDelay-self.__holdDelay))
