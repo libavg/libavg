@@ -974,6 +974,7 @@ class PythonTestCase(AVGTestCase):
       
         def onStart(pos):
             self.__startCalled = True
+            self.assert_(self.__holdProcessor.getLastEvent().pos == pos)
             return True
 
         def onHold(time):
@@ -1003,7 +1004,7 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(2)
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        holdProcessor = ui.HoldProcessor(image,
+        self.__holdProcessor = ui.HoldProcessor(image,
             holdDelay=1000,
             activateDelay=2000, 
             startHandler=onStart, 

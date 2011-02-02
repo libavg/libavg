@@ -173,18 +173,24 @@ class HoldProcessor(ManipulationProcessor):
         self.__state = HoldProcessor.UP
 
         self.__relTime = 0
+        self.__lastEvent = None
         ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
 
     def getRelTime(self):
         return self.__relTime
 
+    def getLastEvent(self):
+        return self.__lastEvent
+
     def _handleDown(self, event):
         self.__startPos = event.pos
         self.__startTime = g_Player.getFrameTime()
+        self.__lastEvent = event
         self.__changeState(HoldProcessor.DOWN)
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
     def _handleMove(self, event):
+        self.__lastEvent = event
         offset = event.pos - self.__startPos
         if offset.getNorm() > 8:
             self.__startPos = event.pos
@@ -211,6 +217,7 @@ class HoldProcessor(ManipulationProcessor):
     def _handleUp(self, event):
         g_Player.clearInterval(self.__frameHandlerID)
         self.__frameHandlerID = None
+        self.__lastEvent = None
         if self.__state != HoldProcessor.DOWN:
             self.__stopHandler()
         self.__changeState(HoldProcessor.UP)
