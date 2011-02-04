@@ -52,7 +52,7 @@ class Datastore(object):
     >>> from libavg import gameapp
     
     >>> def validate(data):
-    >>>    return type(data) == list and not isinstance(data[2], Bar)
+    >>>    return type(data) == list and isinstance(data[2], Bar)
 
     >>> myInitialData = [1, 'foo', Bar(12)]
     >>> myDs = gameapp.Datastore('hiscore', myInitialData, validate)
@@ -70,8 +70,9 @@ class Datastore(object):
         tag: an application-wise unique string which is used to key the datastore and
                 set its dump filename.
         initialData: a callable (class, method) or an instance that is used to initialize
-                the datastore when the dumpfile either doesn't exist, it's corrupted or
-                cannot be accessed. Defaults to an empty dict.
+                the datastore when the dumpfile either doesn't exist, it's corrupted, or
+                cannot be accessed or when the loaded data don't comply with the optional
+                validator. Defaults to an empty dict.
         validator: a callable to which stored data are passed and that is able to
                 determine if the data format is expected. If the call returns True, the
                 proposed data are accepted and set. With False as return value the
