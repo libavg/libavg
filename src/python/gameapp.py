@@ -36,39 +36,32 @@ from libavg import avg
 g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 
-_app = None
-
-def app():
-    global _app
-    return _app
-
 
 class Datastore(object):
     '''
     General purpose persistent object (state in self.data)
+
+    Even if it's possible to use Datastore independently from GameApp, the suggested
+    use is described with the following case (given MyApp a subclass of GameApp):
     
-    A possible use case:
-    
-    >>> from libavg import gameapp
-    
+    >>> from mypackage.app import MyApp
+    >>> g_App = MyApp.get()
+
     >>> def validate(data):
     >>>    return type(data) == list and isinstance(data[2], Bar)
 
     >>> myInitialData = [1, 'foo', Bar(12)]
-    >>> myDs = gameapp.Datastore('hiscore', myInitialData, validate)
+    >>> myDs = g_App.initDatastore('hiscore', myInitialData, validate)
     >>> myDs.data[2].foobarize(1)
     >>> myDs.data[0] = 2
     >>> myDs.commit()
-    
-    >>> againMyDs = gameapp.Datastore.get('hiscore')
+
+    >>> againMyDs = g_App.getDatastore('hiscore')
     '''
-    
-    instances = {}
-    
-    def __init__(self, tag, initialData=None, validator=lambda ds: True, autoCommit=True):
+
+    def __init__(self, dumpFile, initialData, validator, autoCommit):
         '''
-        tag: an application-wise unique string which is used to key the datastore and
-                set its dump filename.
+        dumpFile: path to a file which is used for storing and retrieving data
         initialData: a callable (class, method) or an instance that is used to initialize
                 the datastore when the dumpfile either doesn't exist, it's corrupted, or
                 cannot be accessed or when the loaded data don't comply with the optional
@@ -80,17 +73,13 @@ class Datastore(object):
         autoCommit: if True, the datastore sync itself when the program exits (uses
                 atexit). It's always possible to commit() manually.
         '''
-        self.__tag = tag
-        self.__dumpFile = app().getUserdataPath(tag + '.pkl')
-
-        if tag in Datastore.instances:
-            raise RuntimeError('%s already initialized' % self)
+        self.__dumpFile = dumpFile
         
         if hasattr(initialData, '__call__'):
             initialData = initialData()
         elif initialData is None:
             initialData = dict()
-        
+
         if os.path.exists(self.__dumpFile):
             if not os.path.isfile:
                 raise RuntimeError('%s dump file '
@@ -124,26 +113,17 @@ class Datastore(object):
                 else:
                     g_Log.trace(g_Log.APP, '%s successfully '
                             'loaded' % self)
-        
+
         if autoCommit:
             import atexit
             atexit.register(self.commit)
-        
-        Datastore.instances[tag] = self
-    
-    @staticmethod
-    def get(tag):
-        '''
-        Retrieve a Datastore using its tag
-        '''
-        return Datastore.instances.get(tag, None)
-        
+
     def commit(self):
         '''
         Dump Datastore data to disk
         '''
         import time
-        
+
         tempFile = self.__dumpFile + '.tmp.' + str(int(time.time() * 1000))
 
         try:
@@ -171,12 +151,10 @@ class Datastore(object):
             else:
                 g_Log.trace(g_Log.APP, '%s saved' % self)
                 return True
-    
+
     def __repr__(self):
-        return '<%s:%s %s>' % (self.__class__.__name__, self.__tag, self.__dumpFile)
+        return '<%s %s>' % (self.__class__.__name__, self.__dumpFile)
 
-
-ownStarter = False
 
 class GameApp(libavg.AVGApp):
     '''
@@ -184,22 +162,39 @@ class GameApp(libavg.AVGApp):
     define fullscreen behavior and resolution. It defaults to fullscreen and
     sets the resolution as the current desktop's one.
     Multitouch is enabled by default.
-    
-    The variable ownStarter is set to True when the application has been started
-    by commandline, opposing as started by an appChooser.
     '''
     multitouch = True
+    instances = {}
 
     def __init__(self, *args, **kwargs):
-        global _app
-        _app = self
+        appname = self.__class__.__name__
+        if appname in GameApp.instances:
+            raise RuntimeError('App %s already setup' % appname)
+            
+        GameApp.instances[appname] = self
+        
         super(GameApp, self).__init__(*args, **kwargs)
+        
+        self.__datastores = {}
         
         pkgpath = self._getPackagePath()
         if pkgpath is not None:
             avg.WordsNode.addFontDir(libavg.AVGAppUtil.getMediaDir(pkgpath, 'fonts'))
             self._parentNode.mediadir = libavg.AVGAppUtil.getMediaDir(pkgpath)
 
+    @classmethod
+    def get(cls):
+        '''
+        Get the Application instance
+        
+        Note: this class method has to be called from the top-level app class:
+
+        >>> class MyApp(gameapp.GameApp):
+        ...  pass
+        >>> instance = MyApp.get()
+        '''
+        return cls.instances.get(cls.__name__, None)
+        
     @classmethod
     def start(cls, *args, **kwargs):
         import optparse
@@ -241,10 +236,17 @@ class GameApp(libavg.AVGApp):
 
         g_Log.trace(g_Log.APP, 'Setting resolution to: %s' % str(kwargs['resolution']))
 
-        global ownStarter
-        ownStarter = True
-        
         super(GameApp, cls).start(*args, **kwargs)
+
+    def quit(self):
+        '''
+        Quit the application
+        The player is stopped if the application has been started by its own
+        (eg: no appchooser)
+        '''
+        self.leave()
+        if self.getStarter() is not None:
+            g_Player.get().stop()
 
     def getUserdataPath(self, fname):
         '''
@@ -273,6 +275,41 @@ class GameApp(libavg.AVGApp):
 
         return os.path.join(path, fname)
 
+    def initDatastore(self, tag, initialData=None, validator=lambda ds: True,
+            autoCommit=True):
+        '''
+        Initialize and return a Datastore instance
+        
+        tag: a string that references the datastore. Such tags are uniques within
+            the application's scope and may be retrieved from different parts of
+            the game's package with getDatastore() method.
+        
+        See the documentation on Datastore class for the rest of the parameters.
+
+        >>> myDs = MyApp.get().initDatastore('hiscore', [])
+        >>> myDs.data.append(ScoreEntry(12321, 'oxi'))
+        >>> myDs.commit()
+        '''
+
+        if type(tag) != str:
+            raise TypeError('Tag must be a string instead of %s' % type(tag))
+
+        if tag in self.__datastores:
+            raise RuntimeError('Datastore %s already initialized')
+        
+        ds = Datastore(self.getUserdataPath(tag + '.pkl'), initialData, validator,
+                autoCommit)
+                
+        self.__datastores[tag] = ds
+        
+        return ds
+    
+    def getDatastore(self, tag):
+        '''
+        Return an initialized Datastore instance given its tag
+        '''
+        return self.__datastores.get(tag, None)
+        
     def _getPackagePath(self):
         '''
         Overload this method in your App class if you want to get 'media' and 'fonts'
@@ -286,3 +323,5 @@ class GameApp(libavg.AVGApp):
             return __file__
         '''
         return None
+
+

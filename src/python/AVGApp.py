@@ -102,6 +102,9 @@ class AVGApp(object):
 
     def setStarter(self, starter):
         self._starter = starter
+
+    def getStarter(self):
+        return self._starter
         
     @classmethod   
     def __findWindow(cls, title):
