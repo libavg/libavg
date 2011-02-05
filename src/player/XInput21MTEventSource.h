@@ -30,7 +30,7 @@
 #include <X11/Xlib.h>
 #include <vector>
 
-struct mtdev;
+union SDL_Event;
 
 namespace avg {
 
@@ -48,9 +48,11 @@ private:
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
     void dumpEvent(const XEvent& xEvent);
 
+    static int filterEvent(const SDL_Event * pEvent);
+
     int m_LastID;
 
-    Display* m_pDisplay;
+    static Display* s_pDisplay;
     Window m_Win;
     int m_XIOpcode;
 };

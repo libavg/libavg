@@ -44,6 +44,7 @@ using namespace std;
 
 namespace avg {
 
+Display* XInput21MTEventSource::s_pDisplay = 0;
 const char* type_to_name(int evtype);
 
 XInput21MTEventSource::XInput21MTEventSource()
@@ -66,11 +67,11 @@ void XInput21MTEventSource::start()
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
-    m_pDisplay = info.info.x11.display;
+    s_pDisplay = info.info.x11.display;
 
     /* XInput Extension available? */
     int event, error;
-    bool bOk = XQueryExtension(m_pDisplay, "XInputExtension", &m_XIOpcode, 
+    bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode, 
             &event, &error);
     if (!bOk) {
         throw Exception(AVG_ERR_MT_INIT, 
@@ -79,7 +80,7 @@ void XInput21MTEventSource::start()
 
     /* Which version of XI2? We need 2.1 */
     int major = 2, minor = 1;
-    Status status = XIQueryVersion(m_pDisplay, &major, &minor);
+    Status status = XIQueryVersion(s_pDisplay, &major, &minor);
     if (status == BadRequest) {
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput 2.1 multitouch event source: Server does not support XI2");
@@ -108,6 +109,8 @@ void XInput21MTEventSource::start()
     XISetMask(mask.mask, XI_TouchEnd);
 
     XISelectEvents(info.info.x11.display, m_Win, &mask, 1);
+
+    SDL_SetEventFilter(XInput21MTEventSource::filterEvent);
 
     MultitouchEventSource::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
@@ -143,12 +146,12 @@ TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPo
 void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
 {
     XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
-    bool bOk = XGetEventData(m_pDisplay, pCookie);
-    if (bOk && pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
-        cerr << "cookie: " << type_to_name(pCookie->evtype) << endl;
+    if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
+        XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
         switch (pCookie->evtype) {
             case XI_TouchBegin:
-                cerr << "TouchBegin" << endl;
+                cerr << "TouchBegin " << pDevEvent->event_x << "," << pDevEvent->event_y
+                        << endl;
                 break;
             case XI_TouchEnd:
                 cerr << "TouchEnd" << endl;
@@ -161,8 +164,9 @@ void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
                         << endl;
         }
     } else {
-//        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
+        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
     }
+    XFreeEventData(s_pDisplay, pCookie);
 }
 
 // From xinput/test_xi2.c
@@ -195,6 +199,17 @@ const char* type_to_name(int evtype)
                                   name = "unknown event type"; break;
     }
     return name;
+}
+
+int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
+{
+    if (pEvent->type == SDL_SYSWMEVENT) {
+        SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
+        AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
+        XEvent* pXEvent = &pMsg->event.xevent;
+        XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
+        XGetEventData(s_pDisplay, pCookie);
+    }
 }
           
 }
