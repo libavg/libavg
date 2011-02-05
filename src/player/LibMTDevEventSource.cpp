@@ -106,7 +106,7 @@ std::vector<EventPtr> LibMTDevEventSource::pollEvents()
     for (int i = 0; i < numEvents; ++i) {
         input_event event = events[i];
         if (event.type == EV_ABS && event.code == ABS_MT_SLOT) {
-            cerr << ">> slot " << event.value << endl;
+//            cerr << ">> slot " << event.value << endl;
             curSlot = event.value;
         } else {
             TouchData* pTouch;

@@ -45,7 +45,8 @@ using namespace std;
 namespace avg {
 
 Display* XInput21MTEventSource::s_pDisplay = 0;
-const char* type_to_name(int evtype);
+const char* cookieTypeToName(int evtype);
+string xEventTypeToName(int evtype);
 
 XInput21MTEventSource::XInput21MTEventSource()
     : m_LastID(0)
@@ -160,8 +161,8 @@ void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
                 cerr << "TouchMotion" << endl;
                 break;
             default:
-                cerr << "Unhandled XInput event, type: " << type_to_name(pCookie->evtype)
-                        << endl;
+                cerr << "Unhandled XInput event, type: " 
+                        << cookieTypeToName(pCookie->evtype) << endl;
         }
     } else {
         cerr << "Unhandled X11 Event: " << xEvent.type << endl;
@@ -169,8 +170,21 @@ void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
     XFreeEventData(s_pDisplay, pCookie);
 }
 
+int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
+{
+    if (pEvent->type == SDL_SYSWMEVENT) {
+        SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
+        AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
+        XEvent* pXEvent = &pMsg->event.xevent;
+        cerr << "filter event " << xEventTypeToName(pXEvent->type) << endl;
+        XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
+        XGetEventData(s_pDisplay, pCookie);
+    }
+    return 1;
+}
+          
 // From xinput/test_xi2.c
-const char* type_to_name(int evtype)
+const char* cookieTypeToName(int evtype)
 {
     const char *name;
     switch(evtype) {
@@ -201,15 +215,80 @@ const char* type_to_name(int evtype)
     return name;
 }
 
-int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
+string xEventTypeToName(int evtype)
 {
-    if (pEvent->type == SDL_SYSWMEVENT) {
-        SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
-        AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-        XEvent* pXEvent = &pMsg->event.xevent;
-        XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
-        XGetEventData(s_pDisplay, pCookie);
+    switch(evtype) {
+        case KeyPress:
+            return "KeyPress";
+        case KeyRelease:
+            return "KeyRelease";
+        case ButtonPress:
+            return "ButtonPress";
+        case ButtonRelease:
+            return "ButtonRelease";
+        case MotionNotify:
+            return "MotionNotify";
+        case EnterNotify:
+            return "EnterNotify";
+        case LeaveNotify:
+            return "LeaveNotify";
+        case FocusIn:
+            return "FocusIn";
+        case FocusOut:
+            return "FocusOut";
+        case KeymapNotify:
+            return "KeymapNotify";
+        case Expose:
+            return "Expose";
+        case GraphicsExpose:
+            return "GraphicsExpose";
+        case NoExpose:
+            return "NoExpose";
+        case VisibilityNotify:
+            return "VisibilityNotify";
+        case CreateNotify:
+            return "CreateNotify";
+        case DestroyNotify:
+            return "DestroyNotify";
+        case UnmapNotify:
+            return "UnmapNotify";
+        case MapNotify:
+            return "MapNotify";
+        case MapRequest:
+            return "MapRequest";
+        case ReparentNotify:
+            return "ReparentNotify";
+        case ConfigureNotify:
+            return "ConfigureNotify";
+        case ConfigureRequest:
+            return "ConfigureRequest";
+        case GravityNotify:
+            return "GravityNotify";
+        case ResizeRequest:
+            return "ResizeRequest";
+        case CirculateNotify:
+            return "CirculateNotify";
+        case CirculateRequest:
+            return "CirculateRequest";
+        case PropertyNotify:
+            return "PropertyNotify";
+        case SelectionClear:
+            return "SelectionClear";
+        case SelectionRequest:
+            return "SelectionRequest";
+        case SelectionNotify:
+            return "SelectionNotify";
+        case ColormapNotify:
+            return "ColormapNotify";
+        case ClientMessage:
+            return "ClientMessage";
+        case MappingNotify:
+            return "MappingNotify";
+        case GenericEvent:
+            return "GenericEvent";
+        default:
+            return "Unknown event type";
     }
 }
-          
+
 }
