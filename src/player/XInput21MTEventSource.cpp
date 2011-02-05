@@ -44,6 +44,8 @@ using namespace std;
 
 namespace avg {
 
+const char* type_to_name(int evtype);
+
 XInput21MTEventSource::XInput21MTEventSource()
     : m_LastID(0)
 {
@@ -56,6 +58,10 @@ XInput21MTEventSource::~XInput21MTEventSource()
 void XInput21MTEventSource::start()
 {
 #ifdef XI_2_1_Minor
+    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
+            Player::get()->getDisplayEngine());
+    pEngine->setXIMTEventSource(this);
+
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
     int rc = SDL_GetWMInfo(&info);
@@ -63,8 +69,10 @@ void XInput21MTEventSource::start()
     m_pDisplay = info.info.x11.display;
 
     /* XInput Extension available? */
-    int opcode, event, error;
-    if (!XQueryExtension(m_pDisplay, "XInputExtension", &opcode, &event, &error)) {
+    int event, error;
+    bool bOk = XQueryExtension(m_pDisplay, "XInputExtension", &m_XIOpcode, 
+            &event, &error);
+    if (!bOk) {
         throw Exception(AVG_ERR_MT_INIT, 
                 string("XInput 2.1 multitouch event source: X Input extension not available'"));
     }
@@ -81,8 +89,6 @@ void XInput21MTEventSource::start()
                 "XInput 2.1 multitouch event source: Supported version is "
                 +toString(major)+"."+toString(minor)+". 2.1 is needed.");
     }
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
-            Player::get()->getDisplayEngine());
     if (pEngine->isFullscreen()) {
         m_Win = info.info.x11.fswindow;
     } else {
@@ -101,7 +107,7 @@ void XInput21MTEventSource::start()
     XISetMask(mask.mask, XI_TouchOwnership);
     XISetMask(mask.mask, XI_TouchEnd);
 
-    XISelectEvents(info.info.x11.display, info.info.x11.window, &mask, 1);
+    XISelectEvents(info.info.x11.display, m_Win, &mask, 1);
 
     MultitouchEventSource::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
@@ -109,6 +115,11 @@ void XInput21MTEventSource::start()
     throw Exception(AVG_ERR_MT_INIT, 
             string("XInput 2.1 multitouch event source: XInput 2.1 not available'"));
 #endif
+}
+
+void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
+{
+    dumpEvent(xEvent);
 }
 
 std::vector<EventPtr> XInput21MTEventSource::pollEvents()
@@ -128,5 +139,62 @@ TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPo
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
 */
 }
-           
+
+void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
+{
+    XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
+    bool bOk = XGetEventData(m_pDisplay, pCookie);
+    if (bOk && pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
+        cerr << "cookie: " << type_to_name(pCookie->evtype) << endl;
+        switch (pCookie->evtype) {
+            case XI_TouchBegin:
+                cerr << "TouchBegin" << endl;
+                break;
+            case XI_TouchEnd:
+                cerr << "TouchEnd" << endl;
+                break;
+            case XI_TouchMotion:
+                cerr << "TouchMotion" << endl;
+                break;
+            default:
+                cerr << "Unhandled XInput event, type: " << type_to_name(pCookie->evtype)
+                        << endl;
+        }
+    } else {
+//        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
+    }
+}
+
+// From xinput/test_xi2.c
+const char* type_to_name(int evtype)
+{
+    const char *name;
+    switch(evtype) {
+        case XI_DeviceChanged:    name = "DeviceChanged";       break;
+        case XI_KeyPress:         name = "KeyPress";            break;
+        case XI_KeyRelease:       name = "KeyRelease";          break;
+        case XI_ButtonPress:      name = "ButtonPress";         break;
+        case XI_ButtonRelease:    name = "ButtonRelease";       break;
+        case XI_Motion:           name = "Motion";              break;
+        case XI_Enter:            name = "Enter";               break;
+        case XI_Leave:            name = "Leave";               break;
+        case XI_FocusIn:          name = "FocusIn";             break;
+        case XI_FocusOut:         name = "FocusOut";            break;
+        case XI_HierarchyChanged: name = "HierarchyChanged";    break;
+        case XI_PropertyEvent:    name = "PropertyEvent";       break;
+        case XI_RawKeyPress:      name = "RawKeyPress";         break;
+        case XI_RawKeyRelease:    name = "RawKeyRelease";       break;
+        case XI_RawButtonPress:   name = "RawButtonPress";      break;
+        case XI_RawButtonRelease: name = "RawButtonRelease";    break;
+        case XI_RawMotion:        name = "RawMotion";           break;
+        case XI_TouchBegin:       name = "TouchBegin";          break;
+        case XI_TouchEnd:         name = "TouchEnd";            break;
+        case XI_TouchMotion:      name = "TouchMotion";         break;
+        case XI_TouchMotionUnowned:      name = "TouchMotionUnowned";         break;
+        default:
+                                  name = "unknown event type"; break;
+    }
+    return name;
+}
+          
 }

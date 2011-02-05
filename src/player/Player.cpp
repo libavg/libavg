@@ -639,7 +639,8 @@ void Player::enableMultitouch()
 #endif
 #ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
     } else if (sDriver == "XINPUT21") {
-        m_pMultitouchEventSource = new XInput21MTEventSource;
+        XInput21MTEventSource* pXIMTEventSource = new XInput21MTEventSource;
+        m_pMultitouchEventSource = pXIMTEventSource;
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {

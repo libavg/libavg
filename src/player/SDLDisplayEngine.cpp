@@ -21,6 +21,8 @@
 
 
 #include "SDLDisplayEngine.h"
+#include "../avgconfigwrapper.h"
+
 #ifdef __APPLE__
 #include "SDLMain.h"
 #endif
@@ -32,7 +34,9 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-
+#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+#include "XInput21MTEventSource.h"
+#endif
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -221,6 +225,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
 #ifdef __linux
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+    m_pXIMTEventSource = 0;
 #endif
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
@@ -761,14 +766,17 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_VIDEORESIZE:
                 break;
-/*                
             case SDL_SYSWMEVENT:
                 {
+#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
-                    cerr << "SYSWMEVENT" << endl;
+                    AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
+                    if (m_pXIMTEventSource) {
+                        m_pXIMTEventSource->handleXIEvent(pMsg->event.xevent);
+                    }
+#endif
                 }
                 break;
-*/                
             default:
                 // Ignore unknown events.
                 break;
@@ -778,6 +786,12 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
         }
     }
     return events;
+}
+
+void SDLDisplayEngine::setXIMTEventSource(XInput21MTEventSource* pEventSource)
+{
+    AVG_ASSERT(!m_pXIMTEventSource);
+    m_pXIMTEventSource = pEventSource;
 }
 
 EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,

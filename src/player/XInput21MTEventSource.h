@@ -41,15 +41,18 @@ public:
     virtual ~XInput21MTEventSource();
     virtual void start();
 
+    void handleXIEvent(const XEvent& xEvent);
     std::vector<EventPtr> pollEvents();
     
 private:
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
+    void dumpEvent(const XEvent& xEvent);
 
     int m_LastID;
 
     Display* m_pDisplay;
     Window m_Win;
+    int m_XIOpcode;
 };
 
 typedef boost::shared_ptr<XInput21MTEventSource> XInput21MTEventSourcePtr;
