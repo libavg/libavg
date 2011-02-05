@@ -146,6 +146,7 @@ TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPo
 
 void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
 {
+#ifdef XI_2_1_Minor
     XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
     if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
         XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
@@ -168,6 +169,7 @@ void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
         cerr << "Unhandled X11 Event: " << xEvent.type << endl;
     }
     XFreeEventData(s_pDisplay, pCookie);
+#endif
 }
 
 int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
@@ -205,10 +207,12 @@ const char* cookieTypeToName(int evtype)
         case XI_RawButtonPress:   name = "RawButtonPress";      break;
         case XI_RawButtonRelease: name = "RawButtonRelease";    break;
         case XI_RawMotion:        name = "RawMotion";           break;
+#ifdef XI_2_1_Minor
         case XI_TouchBegin:       name = "TouchBegin";          break;
         case XI_TouchEnd:         name = "TouchEnd";            break;
         case XI_TouchMotion:      name = "TouchMotion";         break;
         case XI_TouchMotionUnowned:      name = "TouchMotionUnowned";         break;
+#endif
         default:
                                   name = "unknown event type"; break;
     }
