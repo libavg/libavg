@@ -60,6 +60,7 @@ XInput21MTEventSource::~XInput21MTEventSource()
 void XInput21MTEventSource::start()
 {
 #ifdef XI_2_1_Minor
+    Status status;
     SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
             Player::get()->getDisplayEngine());
     pEngine->setXIMTEventSource(this);
@@ -69,7 +70,10 @@ void XInput21MTEventSource::start()
     int rc = SDL_GetWMInfo(&info);
     AVG_ASSERT(rc != -1);
     s_pDisplay = info.info.x11.display;
+    m_SDLLockFunc = info.info.x11.lock_func;
+    m_SDLUnlockFunc = info.info.x11.unlock_func;
 
+    m_SDLLockFunc();
     /* XInput Extension available? */
     int event, error;
     bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode, 
@@ -81,7 +85,7 @@ void XInput21MTEventSource::start()
 
     /* Which version of XI2? We need 2.1 */
     int major = 2, minor = 1;
-    Status status = XIQueryVersion(s_pDisplay, &major, &minor);
+    status = XIQueryVersion(s_pDisplay, &major, &minor);
     if (status == BadRequest) {
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput 2.1 multitouch event source: Server does not support XI2");
@@ -109,7 +113,9 @@ void XInput21MTEventSource::start()
     XISetMask(mask.mask, XI_TouchOwnership);
     XISetMask(mask.mask, XI_TouchEnd);
 
-    XISelectEvents(info.info.x11.display, m_Win, &mask, 1);
+    status = XISelectEvents(info.info.x11.display, m_Win, &mask, 1);
+    AVG_ASSERT(status == Success);
+    m_SDLUnlockFunc();
 
     SDL_SetEventFilter(XInput21MTEventSource::filterEvent);
 
@@ -147,6 +153,7 @@ TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPo
 void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
 {
 #ifdef XI_2_1_Minor
+    m_SDLLockFunc();
     XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
     if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
         XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
@@ -169,6 +176,7 @@ void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
         cerr << "Unhandled X11 Event: " << xEvent.type << endl;
     }
     XFreeEventData(s_pDisplay, pCookie);
+    m_SDLUnlockFunc();
 #endif
 }
 

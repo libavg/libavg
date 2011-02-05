@@ -54,6 +54,9 @@ private:
 
     static Display* s_pDisplay;
     Window m_Win;
+    void (*m_SDLLockFunc)(void);
+    void (*m_SDLUnlockFunc)(void);
+
     int m_XIOpcode;
 };
 

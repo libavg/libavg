@@ -223,7 +223,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
             }
         }
     }
-#ifdef __linux
+#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     m_pXIMTEventSource = 0;
 #endif
