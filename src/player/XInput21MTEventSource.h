@@ -29,6 +29,7 @@
 
 #include <X11/Xlib.h>
 #include <vector>
+#include <string>
 
 union SDL_Event;
 
@@ -45,6 +46,7 @@ public:
     std::vector<EventPtr> pollEvents();
     
 private:
+    void findMTDevice();
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
 
     static int filterEvent(const SDL_Event * pEvent);
@@ -57,6 +59,9 @@ private:
     void (*m_SDLUnlockFunc)(void);
 
     int m_XIOpcode;
+
+    std::string m_sDeviceName;
+    int m_DeviceID;
 };
 
 typedef boost::shared_ptr<XInput21MTEventSource> XInput21MTEventSourcePtr;

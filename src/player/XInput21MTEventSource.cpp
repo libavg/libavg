@@ -45,6 +45,7 @@ using namespace std;
 namespace avg {
 
 Display* XInput21MTEventSource::s_pDisplay = 0;
+
 const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);
 
@@ -79,7 +80,7 @@ void XInput21MTEventSource::start()
             &event, &error);
     if (!bOk) {
         throw Exception(AVG_ERR_MT_INIT, 
-                string("XInput 2.1 multitouch event source: X Input extension not available'"));
+                "XInput 2.1 multitouch event source: X Input extension not available'");
     }
 
     // Which version of XI2? We need 2.1. 
@@ -99,10 +100,11 @@ void XInput21MTEventSource::start()
     } else {
         m_Win = info.info.x11.wmwindow;
     }
-    cerr << "Input window handle: " << m_Win << endl;
+
+    findMTDevice();
 
     XIEventMask mask;
-    mask.deviceid = XIAllDevices;
+    mask.deviceid = m_DeviceID;
     mask.mask_len = XIMaskLen(XI_LASTEVENT);
     mask.mask = (unsigned char *)calloc(mask.mask_len, sizeof(char));
     memset(mask.mask, 0, mask.mask_len);
@@ -191,6 +193,45 @@ std::vector<EventPtr> XInput21MTEventSource::pollEvents()
 {
 
     return MultitouchEventSource::pollEvents();
+}
+
+void XInput21MTEventSource::findMTDevice()
+{
+    int ndevices;
+    XIDeviceInfo* pDevices;
+    XIDeviceInfo* pDevice;
+
+    pDevices = XIQueryDevice(s_pDisplay, XIAllDevices, &ndevices);
+
+    XITouchClassInfo * pTouchClass = 0;
+    int maxTouches;
+    bool bDirectTouch;
+    for (int i = 0; i < ndevices && !pTouchClass; ++i) {
+        pDevice = &pDevices[i];
+        if (pDevice->use == XISlavePointer) {
+//            cerr << "Device " << pDevice->name << "(id: " << pDevice->deviceid << ")."
+//                    << endl;
+            for (int j = 0; j < pDevice->num_classes; ++j) {
+                XIAnyClassInfo * pClass = pDevice->classes[j];
+                if (pClass->type == XITouchClass) {
+                    pTouchClass = (XITouchClassInfo *)pClass;
+                    m_sDeviceName = pDevice->name;
+                    m_DeviceID = pDevice->deviceid;
+                    maxTouches = pTouchClass->num_touches;
+                    bDirectTouch = pTouchClass->mode == XIDirectTouch;
+                    break;
+                }
+            }
+        }
+    }
+    if (pTouchClass) {
+        AVG_TRACE(Logger::CONFIG, "Using multitouch input device " << m_sDeviceName 
+                << ", max touches: " << maxTouches << ", direct touch: " << bDirectTouch);
+    } else {
+        throw Exception(AVG_ERR_MT_INIT, 
+                "XInput 2.1 multitouch event source: No multitouch device found.");
+    }
+    XIFreeDeviceInfo(pDevices);
 }
 
 TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPoint pos)
