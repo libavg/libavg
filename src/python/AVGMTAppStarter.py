@@ -36,6 +36,7 @@ except ImportError:
     ClickTest = None
 
 g_player = avg.Player.get()
+g_log = avg.Logger.get()
 
 class AVGMTAppStarter (AVGAppStarter):
     def __init__(self, *args, **kwargs):
@@ -88,7 +89,11 @@ class AVGMTAppStarter (AVGAppStarter):
     def _onBeforePlay(self):
         global Calibrator
         # we must add the tracker first, calibrator depends on it
-        g_player.enableMultitouch()
+        try:
+            g_player.enableMultitouch()
+        except RuntimeError as err:
+            g_log.trace(g_log.WARNING, str(err))
+
         self.tracker = g_player.getTracker()
 
         if self.tracker:
