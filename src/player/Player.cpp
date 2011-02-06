@@ -629,8 +629,23 @@ TrackerEventSource * Player::getTracker()
 
 void Player::enableMultitouch()
 {
-    string sDriver("TUIO");
+
+    string sDriver;
     getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
+    if (sDriver == "") {
+#if defined(_WIN32) && defined(SM_DIGITIZER)
+        sDriver = "WIN7TOUCH";
+#elif defined (HAVE_XI2_1)
+        sDriver = "XINPUT21";
+#elif defined (AVG_ENABLE_MTDEV)
+        sDriver = "LINUXMTDEV";
+#elif defined (__APPLE__)
+        sDriver = "APPLETRACKPAD";
+#else
+        throw Exception(AVG_ERR_MT_INIT,
+                "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
+#endif
+    }
     if (sDriver == "TUIO") {
         m_pMultitouchEventSource = new TUIOEventSource;
 #if defined(_WIN32) && defined(SM_DIGITIZER)
@@ -643,7 +658,7 @@ void Player::enableMultitouch()
         m_pMultitouchEventSource = pXIMTEventSource;
 #else
         throw Exception(AVG_ERR_MT_INIT, 
-                string("XInput 2.1 multitouch event source: Support not configured.'"));
+                "XInput 2.1 multitouch event source: Support not configured.'");
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {
