@@ -21,14 +21,6 @@ else
     MTDEV_INCLUDES =
 endif
 
-if ENABLE_LINUXMT
-    LINUXMT_SOURCES = LinuxMTHelper.cpp LinuxKernelMTEventSource.cpp
-    LINUXMT_INCLUDES = LinuxMTHelper.h LinuxKernelMTEventSource.h
-else
-    LINUXMT_SOURCES =
-    LINUXMT_INCLUDES =
-endif
-
 if HAVE_XI2_1
     XINPUT2_SOURCES = XInput21MTEventSource.cpp
     XINPUT2_INCLUDES = XInput21MTEventSource.h
@@ -55,7 +47,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOEventSource.h \
-        $(LINUXMT_INCLUDES) $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
+        $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
 
@@ -93,5 +85,5 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOEventSource.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
-        $(LINUXMT_SOURCES) $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
+        $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

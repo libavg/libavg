@@ -92,12 +92,6 @@ PKG_CHECK_MODULES([MTDEV], [mtdev],
          AC_MSG_NOTICE(mtdev not found))
 AM_CONDITIONAL(ENABLE_MTDEV, test x"$MTDEV_LIBS" != x)
 
-AX_CHECK_DEFINED([linux/input.h], ABS_MT_SLOT, [enable_linuxmt=yes], [enable_linuxmt=no])
-AM_CONDITIONAL(ENABLE_LINUXMT, test x$enable_linuxmt = xyes)
-if test "$enable_linuxmt" = yes; then
-    AC_DEFINE(AVG_ENABLE_LINUXMT, 1, [Enable linux kernel multitouch support.])
-fi
-
 PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.99.1] [inputproto >= 2.0.99.1],
                   HAVE_XI2_1="yes"; AC_DEFINE(HAVE_XI2_1, 1, [XI2_1 available]),
                   HAVE_XI2_1="no");

@@ -21,7 +21,6 @@
 
 #include "LibMTDevEventSource.h"
 
-#include "LinuxMTHelper.h"
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
@@ -172,81 +171,6 @@ std::vector<EventPtr> LibMTDevEventSource::pollEvents()
             }
         }
     }
-
-/*
-    static int numContacts = 0;
-    static int tmpID;
-    static IntPoint tmpPos;
-    
-    struct input_event event[64];
-    char * pReadPos = (char*)(void*)&event;
-    ssize_t numBytes = 0;
-    ssize_t newBytes = -1;
-    while (newBytes != 0) {
-        newBytes = read(m_DeviceFD, pReadPos+numBytes, sizeof(input_event));
-        if (newBytes == -1) {
-            newBytes = 0;
-        }
-        numBytes += newBytes;
-    }
-    AVG_ASSERT(numBytes%sizeof(input_event) == 0);
-
-    if (numBytes > 0) {
-        cerr << "---- read ----" << endl;
-    }
-    for (unsigned i = 0; i < numBytes/sizeof(input_event); ++i) {
-        switch (event[i].type) {
-            case EV_ABS:
-                cerr << "EV_ABS " << mtCodeToString(event[i].code) << endl;
-                switch (event[i].code) {
-                    case ABS_MT_TRACKING_ID:
-                        numContacts++;
-                        tmpID = event[i].value;
-                        break;
-                    case ABS_MT_POSITION_X:
-                        tmpPos.x = event[i].value;
-                        break;
-                    case ABS_MT_POSITION_Y:
-                        tmpPos.y = event[i].value;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case EV_SYN:
-                cerr << "EV_SYN " << synCodeToString(event[i].code) << endl;
-                switch (event[i].code) {
-                    case SYN_MT_REPORT:
-                        {
-                            cerr << "id: " << tmpID << ", pos: " << tmpPos << endl;
-                            TouchStatusPtr pTouchStatus = getTouchStatus(tmpID);
-                            if (!pTouchStatus) {
-                                // Down
-                                m_LastID++;
-                                TouchEventPtr pEvent = createEvent(m_LastID, 
-                                        Event::CURSORDOWN, tmpPos); 
-                                addTouchStatus((long)tmpID, pEvent);
-                            } else {
-                                // Move
-                                TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION,
-                                        tmpPos); 
-                                pTouchStatus->updateEvent(pEvent);
-                            }
-                        }
-                        break;
-                    case SYN_REPORT:
-                        cerr << "SYN_REPORT" << endl;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-//                cerr << "Unexpected type " << eventTypeToString(event[i].type) << endl;
-                break;
-        }
-    }
-*/
     return MultitouchEventSource::pollEvents();
 }
 
