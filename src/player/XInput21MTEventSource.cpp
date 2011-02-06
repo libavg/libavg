@@ -116,24 +116,7 @@ void XInput21MTEventSource::start()
 
     status = XISelectEvents(s_pDisplay, m_Win, &mask, 1);
     AVG_ASSERT(status == Success);
-/*
-    {
-        XIGrabModifiers mods = { XIAnyModifier, 0 };
-        mask.deviceid = XIAllMasterDevices;
-        memset(mask.mask, 0, mask.mask_len);
-        XISetMask(mask.mask, XI_TouchBegin);
-        XISetMask(mask.mask, XI_TouchMotion);
-        XISetMask(mask.mask, XI_TouchMotionUnowned);
-        XISetMask(mask.mask, XI_TouchOwnership);
-        XISetMask(mask.mask, XI_TouchEnd);
-        XIGrabTouchBegin(s_pDisplay, XIAllMasterDevices, m_Win, False, &mask,
-                         1, &mods);
-    }
-*/
-/*    status = XIGrabDevice(s_pDisplay, 11, info.info.x11.window, CurrentTime, 0, GrabModeAsync,
-            GrabModeAsync, true, &mask);
-    cerr << "XIGrabDevice: " << status << endl;
-*/
+
     m_SDLUnlockFunc();
 
     SDL_SetEventFilter(XInput21MTEventSource::filterEvent);
@@ -256,7 +239,7 @@ int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
                 << cookieTypeToName(pCookie->evtype) << endl;
         XGetEventData(s_pDisplay, pCookie);
     } else {
-        cerr << "---- filter: " << int(pEvent->type) << endl;
+//        cerr << "---- filter: " << int(pEvent->type) << endl;
     }
     return 1;
 }

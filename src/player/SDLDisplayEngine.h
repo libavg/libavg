@@ -110,7 +110,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
                 (Event::Type Type, const SDL_Event & SDLEvent);
         
         IntPoint m_Size;
-        bool m_IsFullscreen;
+        bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         std::vector<DRect> m_ClipRects;
 

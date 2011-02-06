@@ -188,7 +188,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
     }
-    
+    m_bIsFullscreen = dp.m_bFullscreen;
+
     if (!dp.m_bHasWindowFrame) {
         Flags |= SDL_NOFRAME;
     }
@@ -1281,7 +1282,7 @@ const IntPoint& SDLDisplayEngine::getWindowSize() const
 
 bool SDLDisplayEngine::isFullscreen() const
 {
-    return m_IsFullscreen;
+    return m_bIsFullscreen;
 }
 
 IntPoint SDLDisplayEngine::getScreenResolution() const
