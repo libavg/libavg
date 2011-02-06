@@ -147,7 +147,52 @@ void XInput21MTEventSource::start()
 
 void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
 {
-    dumpEvent(xEvent);
+    m_SDLLockFunc();
+#ifdef XI_2_1_Minor
+    XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
+    if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
+        XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
+        IntPoint pos(pDevEvent->event_x, pDevEvent->event_y);
+        int xid = pDevEvent->detail;
+        switch (pCookie->evtype) {
+            case XI_TouchBegin:
+                {
+                    cerr << "TouchBegin " << xid << ", " << pos << endl;
+                    m_LastID++;
+                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos); 
+                    addTouchStatus(xid, pEvent);
+                }
+                break;
+            case XI_TouchMotion:
+                {
+                    cerr << "TouchMotion " << xid << ", " << pos << endl;
+                    TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos); 
+                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
+                    AVG_ASSERT(pTouchStatus);
+                    pTouchStatus->updateEvent(pEvent);
+                }
+                break;
+            case XI_TouchEnd:
+                {
+                    cerr << "TouchEnd " << xid << ", " << pos << endl;
+                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
+                    AVG_ASSERT(pTouchStatus);
+                    TouchEventPtr pEvent = createEvent(0, Event::CURSORUP, pos); 
+                    pTouchStatus->updateEvent(pEvent);
+                }
+                break;
+            default:
+                cerr << "Unhandled XInput event, type: " 
+                        << cookieTypeToName(pCookie->evtype) << endl;
+        }
+    } else {
+        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
+    }
+#endif
+
+
+    XFreeEventData(s_pDisplay, pCookie);
+    m_SDLUnlockFunc();
 }
 
 std::vector<EventPtr> XInput21MTEventSource::pollEvents()
@@ -158,44 +203,8 @@ std::vector<EventPtr> XInput21MTEventSource::pollEvents()
 
 TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPoint pos)
 {
-/*
-    DPoint size = getWindowSize();
-    DPoint normPos = DPoint(double(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),
-            double(pos.y-m_Dimensions.tl.y)/m_Dimensions.height());
-    IntPoint screenPos(int(normPos.x*size.x+0.5), int(normPos.y*size.y+0.5));
-    return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH, DPoint(0,0), 
+    return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH, DPoint(0,0), 
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
-*/
-}
-
-void XInput21MTEventSource::dumpEvent(const XEvent& xEvent)
-{
-#ifdef XI_2_1_Minor
-    m_SDLLockFunc();
-    XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
-    if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
-        XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
-        switch (pCookie->evtype) {
-            case XI_TouchBegin:
-                cerr << "TouchBegin " << pDevEvent->event_x << "," << pDevEvent->event_y
-                        << endl;
-                break;
-            case XI_TouchEnd:
-                cerr << "TouchEnd" << endl;
-                break;
-            case XI_TouchMotion:
-                cerr << "TouchMotion" << endl;
-                break;
-            default:
-                cerr << "Unhandled XInput event, type: " 
-                        << cookieTypeToName(pCookie->evtype) << endl;
-        }
-    } else {
-        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
-    }
-    XFreeEventData(s_pDisplay, pCookie);
-    m_SDLUnlockFunc();
-#endif
 }
 
 int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)

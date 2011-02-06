@@ -46,7 +46,6 @@ public:
     
 private:
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
-    void dumpEvent(const XEvent& xEvent);
 
     static int filterEvent(const SDL_Event * pEvent);
 
