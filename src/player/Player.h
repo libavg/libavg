@@ -124,6 +124,7 @@ class AVG_API Player: IEventSink
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
         void enableMultitouch();
+        bool isMultitouchAvailable() const;
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
 

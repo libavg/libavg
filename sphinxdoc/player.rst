@@ -194,6 +194,11 @@ Player & Canvas
             :samp:`APPLETRACKPAD`. Under Linux, the default is :samp:`XINPUT21` if XInput
             2.1 is available on the system, otherwise :samp:`LINUXMTDEV`.
 
+            :py:meth:`enableMultitouch` throws an exception if the chosen driver is not
+            available or no multitouch device could be found. (Exception: Since there is
+            no way to determine if a TUIO device is available, :py:meth:`enableMultitouch`
+            always appears to succeed in this case.)
+
         .. py:method:: getCanvas(id) -> OffscreenCanvas
 
             Returns the offscreen canvas with the :py:attr:`id` given.
@@ -263,6 +268,11 @@ Player & Canvas
 
             Returns the current hardware video refresh rate in number of
             refreshes per second.
+
+        .. py:method:: isMultitouchAvailable() -> bool
+
+            Returns :keyword:`True` if a multitouch device has been configured and is
+            active, :keyword:`False` if not. Must be called after :py:meth:`play()`.
 
         .. py:method:: isPlaying() -> bool
 

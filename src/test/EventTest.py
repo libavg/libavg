@@ -194,6 +194,7 @@ class EventTestCase(AVGTestCase):
         self.start(None, 
                 (# down, getMouseState(), move, up.
                  # events are inside img1 but outside img2.
+                 lambda: self.assert_(not(Player.isMultitouchAvailable())),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: handlerTester1.assertState(
