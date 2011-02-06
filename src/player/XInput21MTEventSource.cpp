@@ -73,7 +73,7 @@ void XInput21MTEventSource::start()
     m_SDLUnlockFunc = info.info.x11.unlock_func;
 
     m_SDLLockFunc();
-    /* XInput Extension available? */
+    // XInput Extension available?
     int event, error;
     bool bOk = XQueryExtension(s_pDisplay, "XInputExtension", &m_XIOpcode, 
             &event, &error);
@@ -82,7 +82,7 @@ void XInput21MTEventSource::start()
                 string("XInput 2.1 multitouch event source: X Input extension not available'"));
     }
 
-    /* Which version of XI2? We need 2.1 */
+    // Which version of XI2? We need 2.1. 
     int major = 2, minor = 1;
     status = XIQueryVersion(s_pDisplay, &major, &minor);
     if (status == BadRequest) {
@@ -201,6 +201,11 @@ TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPo
 
 int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
 {
+    // This is a hook into libsdl event processing. Since libsdl doesn't know about
+    // XInput 2, it doesn't call XGetEventData either. By the time the event arrives
+    // in handleXIEvent(), other events may have arrived and XGetEventData can't be 
+    // called anymore. Hence this function, which calls XGetEventData for each event
+    // that has a cookie.
     if (pEvent->type == SDL_SYSWMEVENT) {
         SDL_SysWMmsg* pMsg = pEvent->syswm.msg;
         AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
