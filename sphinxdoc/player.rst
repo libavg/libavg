@@ -185,6 +185,10 @@ Player & Canvas
                 Enables the internal camera-based tracker. Configuring this tracker is
                 described under https://www.libavg.de/wiki/index.php/Tracker_Setup.
 
+            :samp:`XINPUT21`:
+                Uses X11-based multitouch detection. This needs X11 with XInput 2.1
+                support.
+
             If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
             :samp:`TUIO`. 
 
