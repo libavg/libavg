@@ -37,7 +37,7 @@
 #include <SDL/SDL_syswm.h>
 #include <SDL/SDL.h>
 
-#include <X11/extensions/XI.h>
+#include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
 
 using namespace std;
@@ -59,7 +59,6 @@ XInput21MTEventSource::~XInput21MTEventSource()
 
 void XInput21MTEventSource::start()
 {
-#ifdef XI_2_1_Minor
     Status status;
     SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
             Player::get()->getDisplayEngine());
@@ -139,16 +138,11 @@ void XInput21MTEventSource::start()
 
     MultitouchEventSource::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
-#else
-    throw Exception(AVG_ERR_MT_INIT, 
-            string("XInput 2.1 multitouch event source: XInput 2.1 not available'"));
-#endif
 }
 
 void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
 {
     m_SDLLockFunc();
-#ifdef XI_2_1_Minor
     XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
     if (pCookie->type == GenericEvent && pCookie->extension == m_XIOpcode) {
         XIDeviceEvent* pDevEvent = (XIDeviceEvent*)(pCookie->data);
@@ -188,8 +182,6 @@ void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
     } else {
         cerr << "Unhandled X11 Event: " << xEvent.type << endl;
     }
-#endif
-
 
     XFreeEventData(s_pDisplay, pCookie);
     m_SDLUnlockFunc();
@@ -245,12 +237,10 @@ const char* cookieTypeToName(int evtype)
         case XI_RawButtonPress:   name = "RawButtonPress";      break;
         case XI_RawButtonRelease: name = "RawButtonRelease";    break;
         case XI_RawMotion:        name = "RawMotion";           break;
-#ifdef XI_2_1_Minor
         case XI_TouchBegin:       name = "TouchBegin";          break;
         case XI_TouchEnd:         name = "TouchEnd";            break;
         case XI_TouchMotion:      name = "TouchMotion";         break;
         case XI_TouchMotionUnowned:      name = "TouchMotionUnowned";         break;
-#endif
         default:
                                   name = "unknown event type"; break;
     }

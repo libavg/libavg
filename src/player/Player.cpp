@@ -56,7 +56,7 @@
 #ifdef AVG_ENABLE_MTDEV
     #include "LibMTDevEventSource.h"
 #endif
-#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+#ifdef HAVE_XI2_1
     #include "XInput21MTEventSource.h"
 #endif
 #include "../base/FileHelper.h"
@@ -637,10 +637,13 @@ void Player::enableMultitouch()
     } else if (sDriver == "WIN7TOUCH") {
         m_pMultitouchEventSource = new Win7TouchEventSource;
 #endif
-#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
     } else if (sDriver == "XINPUT21") {
+#ifdef HAVE_XI2_1
         XInput21MTEventSource* pXIMTEventSource = new XInput21MTEventSource;
         m_pMultitouchEventSource = pXIMTEventSource;
+#else
+        throw Exception(AVG_ERR_MT_INIT, 
+                string("XInput 2.1 multitouch event source: Support not configured.'"));
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {

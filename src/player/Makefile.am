@@ -29,14 +29,12 @@ else
     LINUXMT_INCLUDES =
 endif
 
-if ENABLE_XINPUT2
+if HAVE_XI2_1
     XINPUT2_SOURCES = XInput21MTEventSource.cpp
     XINPUT2_INCLUDES = XInput21MTEventSource.h
-    XINPUT2_LIBS = -lXi
 else
     XINPUT2_SOURCES =
     XINPUT2_INCLUDES =
-    XINPUT2_LIBS =
 endif
 
 GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp PBOTexture.cpp GLConfig.cpp
@@ -70,7 +68,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XINPUT2_LIBS) @LIBFFMPEG@ \
+        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) @LIBFFMPEG@ \
         @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS)
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 

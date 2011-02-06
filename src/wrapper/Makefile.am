@@ -12,12 +12,6 @@ else
     APPLE_LDFLAGS=
 endif
 
-if ENABLE_XINPUT2
-    XINPUT2_LIBS = -lXi
-else
-    XINPUT2_LIBS =
-endif
-
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 pkgpyexec_LTLIBRARIES = avg.la
@@ -38,6 +32,6 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../oscpack/liboscpack.la \
                 $(BOOST_PYTHON_LIBS)\
                 -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
-                @DC1394_2_LIBS@ @GLU_LIBS@ $(XINPUT2_LIBS) $(ALL_GL_LIBS) \
+                @DC1394_2_LIBS@ @GLU_LIBS@ $(XI2_1_LIBS) $(ALL_GL_LIBS) \
                 @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ @PTHREAD_LIBS@
 pkgpyexec_PYTHON = __init__.py

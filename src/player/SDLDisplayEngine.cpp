@@ -34,7 +34,7 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+#ifdef HAVE_XI2_1
 #include "XInput21MTEventSource.h"
 #endif
 #include "../base/MathHelper.h"
@@ -223,7 +223,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
             }
         }
     }
-#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+#ifdef HAVE_XI2_1
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     m_pXIMTEventSource = 0;
 #endif
@@ -768,7 +768,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_SYSWMEVENT:
                 {
-#ifdef HAVE_X11_EXTENSIONS_XINPUT2_H
+#ifdef HAVE_XI2_1
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
                     AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
                     if (m_pXIMTEventSource) {
