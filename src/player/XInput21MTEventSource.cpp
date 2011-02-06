@@ -63,7 +63,6 @@ void XInput21MTEventSource::start()
     Status status;
     SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
             Player::get()->getDisplayEngine());
-    pEngine->setXIMTEventSource(this);
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
@@ -80,7 +79,7 @@ void XInput21MTEventSource::start()
             &event, &error);
     if (!bOk) {
         throw Exception(AVG_ERR_MT_INIT, 
-                "XInput 2.1 multitouch event source: X Input extension not available'");
+                "XInput 2.1 multitouch event source: X Input extension not available.");
     }
 
     // Which version of XI2? We need 2.1. 
@@ -121,6 +120,7 @@ void XInput21MTEventSource::start()
 
     SDL_SetEventFilter(XInput21MTEventSource::filterEvent);
 
+    pEngine->setXIMTEventSource(this);
     MultitouchEventSource::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
 }

@@ -86,7 +86,7 @@ class AVGMTAppStarter (AVGAppStarter):
         grid = [ [ transformPos(pos) for pos in line ] for line in grid]
         node.setWarpedVertexCoords(grid)
 
-    def _onBeforePlay(self):
+    def _onStart(self):
         global Calibrator
         # we must add the tracker first, calibrator depends on it
         try:
@@ -123,6 +123,7 @@ class AVGMTAppStarter (AVGAppStarter):
 
             if self.__calibrator:
                 self.bindKey('c', self.__enterCalibrator, 'enter calibrator')
+        AVGAppStarter._onStart(self)
 
     def _initClickTest(self):
         if ClickTest:

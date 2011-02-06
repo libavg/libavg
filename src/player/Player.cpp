@@ -674,10 +674,16 @@ void Player::enableMultitouch()
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }
-    addEventSource(m_pMultitouchEventSource);
     if (m_bIsPlaying) {
-        m_pMultitouchEventSource->start();
+        try {
+            m_pMultitouchEventSource->start();
+        } catch (Exception& e) {
+            delete m_pMultitouchEventSource;
+            m_pMultitouchEventSource = 0;
+            throw;
+        }
     }
+    addEventSource(m_pMultitouchEventSource);
 }
 
 bool Player::isMultitouchAvailable() const
