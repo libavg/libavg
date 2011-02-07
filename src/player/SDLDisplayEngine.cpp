@@ -202,6 +202,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
             safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_GLConfig.m_MultiSampleSamples);
         } else {
             safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
         m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
         if (!m_pScreen) {
