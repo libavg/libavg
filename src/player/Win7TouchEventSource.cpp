@@ -110,18 +110,17 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
     BOOL bOk = m_pGetTouchInputInfoProc((HTOUCHINPUT)lParam, numInputs, pInputs, 
             sizeof(TOUCHINPUT));
     AVG_ASSERT(bOk);
-    if (numInputs > 0) {
-        cerr << numInputs << endl;
-    }
-    for (unsigned i = 0; i < numInputs; i++){
+    for (unsigned i = 0; i < numInputs; i++) {
         TOUCHINPUT *pTouchInput = &(pInputs[i]);
-        IntPoint pos(pTouchInput->cxContact/100, pTouchInput->cyContact/100);
+        IntPoint pos(int(pTouchInput->x/100+0.5), int(pTouchInput->y/100+0.5));
         if (pTouchInput->dwFlags & TOUCHEVENTF_DOWN) {
+                        cerr << "down: " << pos << endl; 
             m_LastID++;
             TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSORDOWN, pos,
                     Event::TOUCH, DPoint(0,0), 0, 20, 1, DPoint(5,0), DPoint(0,5)));
             addTouchStatus((long)pTouchInput->dwID, pEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
+                        cerr << "up: " << pos << endl; 
             TouchStatusPtr pTouchStatus = getTouchStatus(pTouchInput->dwID);
             TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
 
@@ -129,7 +128,14 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
                     Event::CURSORUP, pos, Event::TOUCH, DPoint(0,0), 0, 20, 1, 
                     DPoint(5,0), DPoint(0,5)));
             pTouchStatus->updateEvent(pUpEvent);
-        }
+        } else if (pTouchInput->dwFlags & TOUCHEVENTF_MOVE) {
+                        cerr << "motion: " << pos << endl; 
+                        TouchEventPtr pEvent (new TouchEvent(0, Event::CURSORMOTION, pos,
+                                        Event::TOUCH, DPoint(0,0), 0, 20, 1, DPoint(5,0), DPoint(0,5)));
+            TouchStatusPtr pTouchStatus = getTouchStatus((long)pTouchInput->dwID);
+            AVG_ASSERT(pTouchStatus);
+            pTouchStatus->updateEvent(pEvent);
+                }
     }            
     delete [] pInputs;
     m_pCloseTouchInputHandleProc((HTOUCHINPUT)lParam);
