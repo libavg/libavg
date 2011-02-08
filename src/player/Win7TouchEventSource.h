@@ -44,11 +44,14 @@ private:
     static LRESULT APIENTRY touchWndSubclassProc(HWND hwnd, UINT uMsg,
         WPARAM wParam, LPARAM lParam);
     void onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam);
+    IntPoint calcClientAreaOffset() const;
+
     static Win7TouchEventSource* s_pInstance;
 
     HWND m_Hwnd;
     WNDPROC m_OldWndProc;
     int m_LastID;
+    IntPoint m_ClientAreaOffset;
 
     GTIIPROC m_pGetTouchInputInfoProc;
     CTIHPROC m_pCloseTouchInputHandleProc;

@@ -68,7 +68,6 @@ void Win7TouchEventSource::start()
 
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
     if (multitouchCaps & NID_MULTI_INPUT) {
-
         MultitouchEventSource::start();
         SDL_SysWMinfo info;
         SDL_VERSION(&info.version);
@@ -77,8 +76,8 @@ void Win7TouchEventSource::start()
         m_Hwnd = info.window;
         bool bOk = pRegisterTouchWindowProc(m_Hwnd, TWF_FINETOUCH | TWF_WANTPALM);
         AVG_ASSERT(bOk);
-
         m_OldWndProc = (WNDPROC)SetWindowLong(m_Hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
+        m_ClientAreaOffset = calcClientAreaOffset();
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, "No windows 7 multitouch device connected.");
     }
@@ -95,7 +94,7 @@ LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg
     Win7TouchEventSource * pThis = Win7TouchEventSource::s_pInstance;
     if (uMsg == WM_TOUCH) {
         pThis->onTouch(hwnd, wParam, lParam);
-    } else 
+    } 
 
     return CallWindowProc(pThis->m_OldWndProc, hwnd, uMsg, wParam, lParam); 
 #else
@@ -111,9 +110,17 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
     BOOL bOk = m_pGetTouchInputInfoProc((HTOUCHINPUT)lParam, numInputs, pInputs, 
             sizeof(TOUCHINPUT));
     AVG_ASSERT(bOk);
+    RECT winRect;
+    bOk = GetWindowRect(m_Hwnd, &winRect);
+    AVG_ASSERT(bOk);
     for (unsigned i = 0; i < numInputs; i++) {
         TOUCHINPUT *pTouchInput = &(pInputs[i]);
         IntPoint pos(int(pTouchInput->x/100+0.5), int(pTouchInput->y/100+0.5));
+        pos -= IntPoint(winRect.left, winRect.top)+m_ClientAreaOffset;
+        IntPoint winSize = IntPoint(Player::get()->getRootNode()->getSize());
+        // Restrict coords to be inside window.
+        pos.x = min(max(pos.x, 0), winSize.x-1);
+        pos.y = min(max(pos.y, 0), winSize.y-1);
         if (pTouchInput->dwFlags & TOUCHEVENTF_DOWN) {
             cerr << "down: " << pos << endl; 
             m_LastID++;
@@ -135,12 +142,16 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
             TouchStatusPtr pTouchStatus = getTouchStatus((long)pTouchInput->dwID);
             AVG_ASSERT(pTouchStatus);
             pTouchStatus->updateEvent(pEvent);
-                }
+        }
     }            
     delete [] pInputs;
     m_pCloseTouchInputHandleProc((HTOUCHINPUT)lParam);
 #endif
 }
 
+IntPoint Win7TouchEventSource::calcClientAreaOffset() const
+{
+    return IntPoint(GetSystemMetrics(SM_CYBORDER)+2, GetSystemMetrics(SM_CYCAPTION)+3);
+}
 
 }
