@@ -212,7 +212,7 @@ Point<double> Point<double>::fromPolar(double angle, double radius)
 template<class NUM>
 double Point<NUM>::getAngle() const
 {
-    return atan2(y, x);
+    return atan2(double(y), double(x));
 }
 
 template<>

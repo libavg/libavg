@@ -677,7 +677,7 @@ void Player::enableMultitouch()
     if (m_bIsPlaying) {
         try {
             m_pMultitouchEventSource->start();
-        } catch (Exception& e) {
+        } catch (Exception&) {
             delete m_pMultitouchEventSource;
             m_pMultitouchEventSource = 0;
             throw;
@@ -689,7 +689,7 @@ void Player::enableMultitouch()
 bool Player::isMultitouchAvailable() const
 {
     if (m_bIsPlaying) {
-        return m_pMultitouchEventSource;
+        return m_pMultitouchEventSource != 0;
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before isMultitouchAvailable().");
