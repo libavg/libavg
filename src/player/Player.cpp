@@ -639,8 +639,6 @@ void Player::enableMultitouch()
         sDriver = "XINPUT21";
 #elif defined (AVG_ENABLE_MTDEV)
         sDriver = "LINUXMTDEV";
-#elif defined (__APPLE__)
-        sDriver = "APPLETRACKPAD";
 #else
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");

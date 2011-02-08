@@ -190,9 +190,9 @@ Player & Canvas
                 support.
 
             If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
-            a plattform-specific one. On a Mac, the default driver is 
-            :samp:`APPLETRACKPAD`. Under Linux, the default is :samp:`XINPUT21` if XInput
-            2.1 is available on the system, otherwise :samp:`LINUXMTDEV`.
+            a plattform-specific one. Under Linux, the default is :samp:`XINPUT21` if
+            XInput 2.1 is available on the system, otherwise :samp:`LINUXMTDEV`. Other
+            plattforms will follow.
 
             :py:meth:`enableMultitouch` throws an exception if the chosen driver is not
             available or no multitouch device could be found. (Exception: Since there is
