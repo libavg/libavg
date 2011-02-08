@@ -75,7 +75,8 @@ void Win7TouchEventSource::start()
         int err = SDL_GetWMInfo(&info);
         AVG_ASSERT(err == 1);
         m_Hwnd = info.window;
-        pRegisterTouchWindowProc(m_Hwnd, 0);
+        bool bOk = pRegisterTouchWindowProc(m_Hwnd, TWF_FINETOUCH | TWF_WANTPALM);
+        AVG_ASSERT(bOk);
 
         m_OldWndProc = (WNDPROC)SetWindowLong(m_Hwnd, GWL_WNDPROC, (LONG)touchWndSubclassProc);
     } else {
@@ -94,7 +95,7 @@ LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg
     Win7TouchEventSource * pThis = Win7TouchEventSource::s_pInstance;
     if (uMsg == WM_TOUCH) {
         pThis->onTouch(hwnd, wParam, lParam);
-    }
+    } else 
 
     return CallWindowProc(pThis->m_OldWndProc, hwnd, uMsg, wParam, lParam); 
 #else
@@ -123,7 +124,6 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
             cerr << "up: " << pos << endl; 
             TouchStatusPtr pTouchStatus = getTouchStatus(pTouchInput->dwID);
             TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
-
             TouchEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
                     Event::CURSORUP, pos, Event::TOUCH, DPoint(0,0), 0, 20, 1, 
                     DPoint(5,0), DPoint(0,5)));
