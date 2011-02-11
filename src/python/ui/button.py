@@ -18,6 +18,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
+# Original author of this file is Henrik Thoms
 
 import libavg
 
