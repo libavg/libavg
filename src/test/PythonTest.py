@@ -447,10 +447,8 @@ class PythonTestCase(AVGTestCase):
                  
                  # Test public interface
                  lambda: b.setCheckable(False),
-                 lambda: b.setChecked(False),
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(b.isEnabled()),
-                 lambda: self.assert_(not(b.isChecked())),
                  lambda: self.assert_(not(b.isCheckable())),
                  lambda: b.setCheckable(True),
                  lambda: self.assert_(b.isCheckable()),

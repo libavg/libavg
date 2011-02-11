@@ -26,10 +26,9 @@ g_log = libavg.Logger.get()
 
 
 class Button(libavg.DivNode):
-    STATE_DISABLED = 2
-    STATE_UP       = 4
-    STATE_DOWN     = 8
-    STATE_OVER     = 16
+    STATE_DISABLED = 1
+    STATE_UP       = 2
+    STATE_DOWN     = 3
     
     def __init__(self, upNode = None, downNode = None, disabledNode = None, 
                  pressHandler = None, clickHandler = None, **kwargs):
@@ -49,7 +48,8 @@ class Button(libavg.DivNode):
         
         self.__isCheckable = False
         self.__isToggled = False
-        
+
+        self.__isOver = False
         self.__state = Button.STATE_UP
         
         if self.__upNode and self.__downNode:
@@ -87,24 +87,27 @@ class Button(libavg.DivNode):
         return self.__isCheckable
     
     def setChecked(self, val):
+        assert(self.__isCheckable)
         self.__isToggled = val
         state = Button.STATE_DOWN if self.__isToggled else Button.STATE_UP
         self.__changeState(state)
     
     def isChecked(self):
-        return bool(self.__hasBitState(Button.STATE_DOWN))
+        assert(self.__isCheckable)
+        # XXX: Shouldn't this check self.__isToggled?
+        return self.__state == Button.STATE_DOWN
     
     def setEnabled(self, isEnabled):
         state = Button.STATE_DISABLED if not(isEnabled) else Button.STATE_UP
         self.__changeState(state)
         
-        if self.__hasBitState(Button.STATE_DISABLED):
+        if self.__state == Button.STATE_DISABLED:
             self.__deactivateEventHandler()
         else:
             self.__activateEventHandler()
         
     def isEnabled(self):
-        return not(self.__hasBitState(Button.STATE_DISABLED))
+        return self.__state != Button.STATE_DISABLED
     
     def setDebug(self, debug):
         self.elementoutlinecolor = 'FF0000' if debug else ''
@@ -138,16 +141,17 @@ class Button(libavg.DivNode):
         libavg.DivNode.setEventHandler(self, libavg.CURSOROUT, libavg.MOUSE | libavg.TOUCH, handler)
 
     def __updateNodesVisibility(self):
-        if self.__hasBitState(Button.STATE_UP):
+        if self.__state == Button.STATE_UP:
             self.__setNodesVisibility(self.__upNode)
 
-        elif self.__hasBitState(Button.STATE_DOWN):
+        elif self.__state == Button.STATE_DOWN:
             self.__setNodesVisibility(self.__downNode)
 
-        elif self.__hasBitState(Button.STATE_DISABLED):
+        elif self.__state == Button.STATE_DISABLED:
             self.__setNodesVisibility(self.__disabledNode)
         else:
-            pass
+            # This state doesn't exist.
+            assert(False)
         
     def __updateSize(self):
         self.size = self.__upNode.size
@@ -162,22 +166,10 @@ class Button(libavg.DivNode):
             if element == node:
                 element.active = True
             
-    def __toggleBitState(self, state):
-        self.__state = self.__state ^ state
-    
-    def __extractBitState(self, state):
-        return self.__state & state
-    
-    def __hasBitState(self, state):
-        return self.__state & state
-    
     def __changeState(self, state):
-        self.__setState(self.__extractBitState(Button.STATE_OVER) | state)
+        self.__state = state
         self.__updateNodesVisibility()
     
-    def __setState(self, state):
-        self.__state = state
-        
     def __captureCursor(self, id):
         self.__capturedCursorIds.add(id)
         self.setEventCapture(id)
@@ -252,7 +244,7 @@ class Button(libavg.DivNode):
         if self.__hasCapturedCursor() and len(self.__overCursorIds):
             self.__changeState(Button.STATE_DOWN)
             
-        self.__toggleBitState(Button.STATE_OVER)
+        self.__isOver = not(self.__isOver)
         return True
     
     def __outHandlerTemplateMethod(self, event):
@@ -265,8 +257,8 @@ class Button(libavg.DivNode):
                 if self.__isToggled:
                     newState = Button.STATE_DOWN
             self.__changeState(newState)
-        
-        self.__toggleBitState(Button.STATE_OVER)
+
+        self.__isOver = not(self.__isOver)
         return True
     
     def __activateEventHandler(self):
