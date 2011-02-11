@@ -21,6 +21,8 @@
 
 from libavg import avg
 
+from helper import *
+
 g_Player = avg.Player.get()
 
 class ManipulationProcessor(object):
@@ -61,12 +63,6 @@ class ManipulationProcessor(object):
             self.__cursorID = None
             return self._handleUp(event)
 
-    def _optionalCallback(self, handler, defaultHandler):
-        if handler:
-            return handler
-        else:
-            return defaultHandler
-
     def _handleUp(self, event):
         pass
     
@@ -89,10 +85,10 @@ class DragProcessor(ManipulationProcessor):
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
             moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
             friction=-1):
-        self.__startHandler = self._optionalCallback(startHandler, lambda event:None)
-        self.__moveHandler = self._optionalCallback(moveHandler, lambda event,offset:None)
-        self.__stopHandler = self._optionalCallback(stopHandler, lambda:None)
-        self.__upHandler = self._optionalCallback(upHandler, lambda event,offset:None)
+        self.__startHandler = optionalCallback(startHandler, lambda event:None)
+        self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
+        self.__stopHandler = optionalCallback(stopHandler, lambda:None)
+        self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
         self.__inertiaHandlerID = None
         ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
@@ -161,10 +157,10 @@ class HoldProcessor(ManipulationProcessor):
     def __init__(self, node, holdDelay, activateDelay, eventSource=avg.TOUCH | avg.MOUSE, 
             startHandler=None, holdHandler=None, activateHandler=None, stopHandler=None,
             initialEvent=None):
-        self.__startHandler = self._optionalCallback(startHandler, lambda pos:None)
-        self.__holdHandler = self._optionalCallback(holdHandler, lambda t:None)
-        self.__activateHandler = self._optionalCallback(activateHandler, lambda:None)
-        self.__stopHandler = self._optionalCallback(stopHandler, lambda:None)
+        self.__startHandler = optionalCallback(startHandler, lambda pos:None)
+        self.__holdHandler = optionalCallback(holdHandler, lambda t:None)
+        self.__activateHandler = optionalCallback(activateHandler, lambda:None)
+        self.__stopHandler = optionalCallback(stopHandler, lambda:None)
 
         self.__holdDelay = holdDelay
         self.__activateDelay = activateDelay

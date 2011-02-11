@@ -22,6 +22,8 @@
 
 import libavg
 
+from helper import *
+
 g_log = libavg.Logger.get()
 
 
@@ -40,8 +42,8 @@ class Button(libavg.DivNode):
         self.__disabledNode = disabledNode
         
         self.__defaultHandler = lambda event: None
-        self.__customPressHandler = pressHandler if pressHandler else self.__defaultHandler
-        self.__customClickHandler = clickHandler if clickHandler else self.__defaultHandler
+        self.__pressCallback = optionalCallback(pressHandler, self.__defaultHandler)
+        self.__clickCallback = optionalCallback(clickHandler, self.__defaultHandler)
 
         self.__capturedCursorIds = set()
         self.__overCursorIds = set()
@@ -54,7 +56,7 @@ class Button(libavg.DivNode):
         
         if self.__upNode and self.__downNode:
             self.__setupNodes()
-        self.__activateEventHandler()
+        self.__activateEventHandlers()
         
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
@@ -75,10 +77,10 @@ class Button(libavg.DivNode):
         self.__setupNodes()
         
     def setPressHandler(self, handler):
-        self.__customPressHandler = handler
+        self.__pressCallback = optionalCallback(handler, self.__defaultHandler)
         
     def setClickHandler(self, handler):
-        self.__customClickHandler = handler
+        self.__clickCallback = optionalCallback(handler, self.__defaultHandler)
     
     def setCheckable(self, val):
         self.__isCheckable = val
@@ -102,9 +104,9 @@ class Button(libavg.DivNode):
         self.__changeState(state)
         
         if self.__state == Button.STATE_DISABLED:
-            self.__deactivateEventHandler()
+            self.__deactivateEventHandlers()
         else:
-            self.__activateEventHandler()
+            self.__activateEventHandlers()
         
     def isEnabled(self):
         return self.__state != Button.STATE_DISABLED
@@ -128,17 +130,6 @@ class Button(libavg.DivNode):
         self.__updateSize()
         self.__updateNodesVisibility()
 
-    def __setupReleaseHandlerTemplateMethod(self, handler):
-        libavg.DivNode.setEventHandler(self, libavg.CURSORUP, libavg.MOUSE | libavg.TOUCH, handler)
-
-    def __setupPressHandlerTemplateMethod(self, handler):
-        libavg.DivNode.setEventHandler(self, libavg.CURSORDOWN, libavg.MOUSE | libavg.TOUCH, handler)
-     
-    def __setupOverHandlerTemplateMethod(self, handler):
-        libavg.DivNode.setEventHandler(self, libavg.CURSOROVER, libavg.MOUSE | libavg.TOUCH, handler)
-    
-    def __setupOutHandlerTemplateMethod(self, handler):
-        libavg.DivNode.setEventHandler(self, libavg.CURSOROUT, libavg.MOUSE | libavg.TOUCH, handler)
 
     def __updateNodesVisibility(self):
         if self.__state == Button.STATE_UP:
@@ -187,7 +178,7 @@ class Button(libavg.DivNode):
     def __hasCapturedCursor(self):
         return len(self.__capturedCursorIds) != 0
     
-    def __pressHandlerTemplateMethod(self, event):
+    def __pressHandler(self, event):
         if not self.__isCursorCaptured(event.cursorid):
             self.__captureCursor(event.cursorid)
         
@@ -198,10 +189,10 @@ class Button(libavg.DivNode):
             return
         
         self.__changeState(Button.STATE_DOWN)
-        self.__customPressHandler(event)
+        self.__pressCallback(event)
         return True
     
-    def __releaseHandlerTemplateMethod(self, event):
+    def __releaseHandler(self, event):
         numberOfCapturedCursors = self.__getNumberOfCapturedCursors()
         numberOfOverCursors = len(self.__overCursorIds)
         
@@ -234,10 +225,10 @@ class Button(libavg.DivNode):
         if len(self.__overCursorIds):
             pass
         
-        self.__customClickHandler(event)
+        self.__clickCallback(event)
         return True
     
-    def __overHandlerTemplateMethod(self, event):
+    def __overHandler(self, event):
         if event.cursorid not in self.__overCursorIds:
             self.__overCursorIds.add(event.cursorid)
             
@@ -247,7 +238,7 @@ class Button(libavg.DivNode):
         self.__isOver = not(self.__isOver)
         return True
     
-    def __outHandlerTemplateMethod(self, event):
+    def __outHandler(self, event):
         if event.cursorid in self.__overCursorIds:
             self.__overCursorIds.remove(event.cursorid)
         
@@ -261,19 +252,24 @@ class Button(libavg.DivNode):
         self.__isOver = not(self.__isOver)
         return True
     
-    def __activateEventHandler(self):
-        self.__setupPressHandlerTemplateMethod(self.__pressHandlerTemplateMethod)
-        self.__setupReleaseHandlerTemplateMethod(self.__releaseHandlerTemplateMethod)
-        self.__setupOverHandlerTemplateMethod(self.__overHandlerTemplateMethod)
-        self.__setupOutHandlerTemplateMethod(self.__outHandlerTemplateMethod)
+    def __activateEventHandlers(self):
+        self.__setEventHandlers(self.__pressHandler, self.__releaseHandler,
+                self.__overHandler, self.__outHandler)
     
-    def __deactivateEventHandler(self):
+    def __deactivateEventHandlers(self):
         for id in self.__capturedCursorIds:
             self.releaseEventCapture(id)
         self.__capturedCursorIds = set()
-        self.__setupPressHandlerTemplateMethod(self.__defaultHandler)
-        self.__setupReleaseHandlerTemplateMethod(self.__defaultHandler)
-        self.__setupOverHandlerTemplateMethod(self.__defaultHandler)
-        self.__setupOutHandlerTemplateMethod(self.__defaultHandler)
+        self.__setEventHandlers(self.__defaultHandler, self.__defaultHandler,
+                self.__defaultHandler, self.__defaultHandler)
 
+    def __setEventHandlers(self, pressHandler, releaseHandler, overHandler, outHandler):
         
+        def setOneHandler(type, handler):
+            libavg.DivNode.setEventHandler(self, type, libavg.MOUSE | libavg.TOUCH, 
+                    handler)
+
+        setOneHandler(libavg.CURSORDOWN, pressHandler)
+        setOneHandler(libavg.CURSORUP, releaseHandler)
+        setOneHandler(libavg.CURSOROVER, overHandler)
+        setOneHandler(libavg.CURSOROUT, outHandler)
