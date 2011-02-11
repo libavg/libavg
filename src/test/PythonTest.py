@@ -21,7 +21,7 @@
 
 import unittest
 
-from libavg import avg, anim, draggable, button, textarea, ui, geom
+from libavg import avg, anim, draggable, textarea, ui, geom
 
 from testcase import *
 
