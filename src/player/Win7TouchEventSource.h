@@ -30,8 +30,10 @@
 
 namespace avg {
 
+#ifdef SM_DIGITIZER
 typedef bool (WINAPI* GTIIPROC)(HTOUCHINPUT, UINT, PTOUCHINPUT, int);
 typedef bool (WINAPI* CTIHPROC)(HTOUCHINPUT);
+#endif
 
 class AVG_API Win7TouchEventSource: public MultitouchEventSource
 {
@@ -53,8 +55,10 @@ private:
     int m_LastID;
     IntPoint m_ClientAreaOffset;
 
+#ifdef SM_DIGITIZER
     GTIIPROC m_pGetTouchInputInfoProc;
     CTIHPROC m_pCloseTouchInputHandleProc;
+#endif
 };
 
 typedef boost::shared_ptr<Win7TouchEventSource> Win7TouchEventSourcePtr;
