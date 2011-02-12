@@ -50,6 +50,7 @@
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #ifdef _WIN32
 #pragma warning(push)
@@ -224,7 +225,7 @@ public:
             testStatistics(I8, Pixel8(0), Pixel8(0), Pixel8(2), Pixel8(2));
             cerr << "      R8G8B8A8" << endl;
             testStatistics(R8G8B8A8, Pixel32(0,0,0,0), Pixel32(0,0,0,0), 
-                    Pixel32(2,2,2,2), Pixel32(2,2,2,2));
+                    Pixel32(2,2,2,2), Pixel32(2,2,2,2), 1, 0.707107);
             cerr << "      R8G8B8X8" << endl;
             testStatistics(R8G8B8X8, Pixel32(0,0,0,255), Pixel32(0,0,0,255), 
                     Pixel32(2,2,2,255), Pixel32(2,2,2,255));
@@ -338,15 +339,15 @@ private:
     
     template<class PIXEL>
     void testStatistics(PixelFormat pf, const PIXEL& p00, const PIXEL& p01,
-            const PIXEL& p10, const PIXEL& p11)
+            const PIXEL& p10, const PIXEL& p11, double avg=1, double stdDev=1)
     {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), pf));
         pBmp->setPixel(IntPoint(0,0), p00);
         pBmp->setPixel(IntPoint(0,1), p01);
         pBmp->setPixel(IntPoint(1,0), p10);
         pBmp->setPixel(IntPoint(1,1), p11);
-        TEST(pBmp->getAvg() == 1);
-        TEST(pBmp->getStdDev() == 1);
+        TEST(almostEqual(pBmp->getAvg(), avg));
+        TEST(almostEqual(pBmp->getStdDev(), stdDev));
     }
 
     void testYUV2RGB()

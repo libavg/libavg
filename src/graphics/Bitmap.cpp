@@ -1018,6 +1018,21 @@ double Bitmap::getAvg() const
                     }
                 }
                 break;
+            case R8G8B8A8:
+            case B8G8R8A8:
+                {
+                    Pixel32 * pSrcPixel = (Pixel32 *)pSrc;
+                    for (int x = 0; x < m_Size.x; ++x) {
+                        int a = pSrcPixel->getA();
+                        if (a > 0) {
+                            sum += pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB()+
+                            pSrcPixel->getA();
+                        }
+                        pSrcPixel++;
+                    }
+                    componentsPerPixel = 4;
+                }
+                break;
             default:
                 {
                     unsigned char * pSrcComponent = pSrc;
@@ -1051,6 +1066,23 @@ double Bitmap::getStdDev() const
                         sum += sqr(pSrcPixel->getR()-average);
                         sum += sqr(pSrcPixel->getG()-average);
                         sum += sqr(pSrcPixel->getB()-average);
+                        pSrcPixel++;
+                    }
+                }
+                break;
+            case R8G8B8A8:
+            case B8G8R8A8:
+                {
+                    componentsPerPixel = 4;
+                    Pixel32 * pSrcPixel = (Pixel32 *)pSrc;
+                    for (int x = 0; x < m_Size.x; ++x) {
+                        int a = pSrcPixel->getA();
+                        if (a > 0) {
+                            sum += sqr(pSrcPixel->getR()-average);
+                            sum += sqr(pSrcPixel->getG()-average);
+                            sum += sqr(pSrcPixel->getB()-average);
+                            sum += sqr(pSrcPixel->getA()-average);
+                        }
                         pSrcPixel++;
                     }
                 }
