@@ -255,7 +255,7 @@ void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
     for (it = m_EventHandlerMap.begin(); it != m_EventHandlerMap.end();) {
         EventHandlerArrayPtr pEventHandlers = it->second;
         EventHandlerArray::iterator listIt;
-        for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end(); ++listIt)
+        for (listIt = pEventHandlers->begin(); listIt != pEventHandlers->end();)
         {
             EventHandler& eventHandler = *listIt;
             if (eventHandler.m_pObj == pObj &&
@@ -263,6 +263,8 @@ void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
             {
                 listIt = pEventHandlers->erase(listIt);
                 numDisconnected++;
+            } else {
+                ++listIt;
             }
         }
         
