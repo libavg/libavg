@@ -457,6 +457,7 @@ class PythonTestCase(AVGTestCase):
                  lambda: b.setEnabled(False),
                  lambda: self.assert_(not(b.isEnabled())),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
+                 lambda: b.setEnabled(True),
                  lambda: b.setChecked(False),
                  reset,
                  

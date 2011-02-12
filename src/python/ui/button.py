@@ -90,6 +90,7 @@ class Button(libavg.DivNode):
     
     def setChecked(self, val):
         assert(self.__isCheckable)
+        assert(self.isEnabled())
         self.__isToggled = val
         state = Button.STATE_DOWN if self.__isToggled else Button.STATE_UP
         self.__changeState(state)
@@ -100,6 +101,10 @@ class Button(libavg.DivNode):
         return self.__state == Button.STATE_DOWN
     
     def setEnabled(self, isEnabled):
+        if (isEnabled == self.isEnabled()):
+            # No state change
+            return
+
         state = Button.STATE_DISABLED if not(isEnabled) else Button.STATE_UP
         self.__changeState(state)
         
@@ -253,23 +258,17 @@ class Button(libavg.DivNode):
         return True
     
     def __activateEventHandlers(self):
-        self.__setEventHandlers(self.__pressHandler, self.__releaseHandler,
-                self.__overHandler, self.__outHandler)
+        def setOneHandler(type, handler):
+            self.connectEventHandler(type, libavg.MOUSE | libavg.TOUCH, self, handler)
+
+        setOneHandler(libavg.CURSORDOWN, self.__pressHandler)
+        setOneHandler(libavg.CURSORUP, self.__releaseHandler)
+        setOneHandler(libavg.CURSOROVER, self.__overHandler)
+        setOneHandler(libavg.CURSOROUT, self.__outHandler)
     
     def __deactivateEventHandlers(self):
         for id in self.__capturedCursorIds:
             self.releaseEventCapture(id)
         self.__capturedCursorIds = set()
-        self.__setEventHandlers(self.__defaultHandler, self.__defaultHandler,
-                self.__defaultHandler, self.__defaultHandler)
+        self.disconnectEventHandler(self)
 
-    def __setEventHandlers(self, pressHandler, releaseHandler, overHandler, outHandler):
-        
-        def setOneHandler(type, handler):
-            libavg.DivNode.setEventHandler(self, type, libavg.MOUSE | libavg.TOUCH, 
-                    handler)
-
-        setOneHandler(libavg.CURSORDOWN, pressHandler)
-        setOneHandler(libavg.CURSORUP, releaseHandler)
-        setOneHandler(libavg.CURSOROVER, overHandler)
-        setOneHandler(libavg.CURSOROUT, outHandler)
