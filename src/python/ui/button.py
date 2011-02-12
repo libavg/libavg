@@ -132,36 +132,27 @@ class Button(libavg.DivNode):
         if self.__disabledNode:
             self.appendChild(self.__disabledNode)
         
-        self.__updateSize()
+        self.size = self.__upNode.size
         self.__updateNodesVisibility()
 
 
     def __updateNodesVisibility(self):
+        for element in (self.__upNode, self.__downNode, self.__disabledNode):
+            if element:
+                element.active = False
+
         if self.__state == Button.STATE_UP:
-            self.__setNodesVisibility(self.__upNode)
-
+            activeNode = self.__upNode
         elif self.__state == Button.STATE_DOWN:
-            self.__setNodesVisibility(self.__downNode)
-
+            activeNode = self.__downNode
         elif self.__state == Button.STATE_DISABLED:
-            self.__setNodesVisibility(self.__disabledNode)
+            activeNode = self.__disabledNode
         else:
             # This state doesn't exist.
             assert(False)
+
+        activeNode.active = True
         
-    def __updateSize(self):
-        self.size = self.__upNode.size
-    
-    def __setNodesVisibility(self, node):
-        nodes = (self.__upNode, self.__downNode, self.__disabledNode)
-        for element in nodes:
-            if not element:
-                continue
-            
-            element.active = False
-            if element == node:
-                element.active = True
-            
     def __changeState(self, state):
         self.__state = state
         self.__updateNodesVisibility()
