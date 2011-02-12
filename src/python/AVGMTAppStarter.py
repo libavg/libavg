@@ -91,7 +91,7 @@ class AVGMTAppStarter (AVGAppStarter):
         # we must add the tracker first, calibrator depends on it
         try:
             g_player.enableMultitouch()
-        except RuntimeError as err:
+        except RuntimeError, err:
             g_log.trace(g_log.WARNING, str(err))
 
         self.tracker = g_player.getTracker()
