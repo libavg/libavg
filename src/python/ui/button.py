@@ -118,12 +118,6 @@ class Button(libavg.DivNode):
     def isEnabled(self):
         return self.__state != Button.STATE_DISABLED
     
-    def setDebug(self, debug):
-        self.elementoutlinecolor = 'FF0000' if debug else ''
-    
-    def isDebug(self):
-        return self.elementoutlinecolor != ''
-    
     def __setupNodes(self):
         if self.__activeAreaNode and self.isEnabled():
             self.__deactivateEventHandlers()
@@ -190,12 +184,9 @@ class Button(libavg.DivNode):
         if event.cursorid not in self.__overCursorIds:
             self.__overCursorIds.add(event.cursorid)
         
-        if self.__getNumberOfCapturedCursors() > 1:
-            return
-        
-        self.__changeState(Button.STATE_DOWN)
-        self.__pressCallback(event)
-        return True
+        if self.__getNumberOfCapturedCursors() <= 1:
+            self.__changeState(Button.STATE_DOWN)
+            self.__pressCallback(event)
     
     def __releaseHandler(self, event):
         numberOfCapturedCursors = self.__getNumberOfCapturedCursors()
@@ -207,31 +198,16 @@ class Button(libavg.DivNode):
         if event.cursorid in self.__overCursorIds:
             self.__overCursorIds.remove(event.cursorid)
             
-        if numberOfCapturedCursors > 1:
-            return
-
-        if  numberOfCapturedCursors == 0:
-            return
-
-        if  numberOfOverCursors == 0:
-            return
-        
-        newState = Button.STATE_UP
-        if self.isCheckable():
-            self.__isToggled = not self.__isToggled
-            if self.__isToggled:
-                newState = Button.STATE_DOWN
+        if numberOfCapturedCursors == 1 and numberOfOverCursors == 1:
+            newState = Button.STATE_UP
+            if self.isCheckable():
+                self.__isToggled = not self.__isToggled
+                if self.__isToggled:
+                    newState = Button.STATE_DOWN
+                
+            self.__changeState(newState)
             
-        self.__changeState(newState)
-        
-        if self.__hasCapturedCursor():
-            pass
-
-        if len(self.__overCursorIds):
-            pass
-        
-        self.__clickCallback(event)
-        return True
+            self.__clickCallback(event)
     
     def __overHandler(self, event):
         if event.cursorid not in self.__overCursorIds:
