@@ -33,8 +33,8 @@ class Button(libavg.DivNode):
     STATE_DOWN     = 3
     
     def __init__(self, upNode = None, downNode = None, disabledNode = None, 
-                activeAreaNode = None, pressHandler = None, clickHandler = None, 
-                **kwargs):
+                activeAreaNode = None, pressHandler = None, clickHandler = None,
+                stateChangeHandler = None, **kwargs):
         libavg.DivNode.__init__(self, **kwargs)
         self.crop = False
         
@@ -46,6 +46,8 @@ class Button(libavg.DivNode):
         self.__defaultHandler = lambda event: None
         self.__pressCallback = optionalCallback(pressHandler, self.__defaultHandler)
         self.__clickCallback = optionalCallback(clickHandler, self.__defaultHandler)
+        self.__stateChangeCallback = optionalCallback(stateChangeHandler, 
+                lambda state: None)
 
         self.__capturedCursorIds = set()
         self.__overCursorIds = set()
@@ -72,6 +74,8 @@ class Button(libavg.DivNode):
         return self.__disabledNode
     
     def setNodes(self, upNode, downNode, disabledNode = None, activeAreaNode = None):
+        if self.__activeAreaNode and self.isEnabled():
+            self.__deactivateEventHandlers()
         self.__upNode = upNode
         self.__downNode = downNode
         self.__disabledNode = disabledNode
@@ -119,8 +123,6 @@ class Button(libavg.DivNode):
         return self.__state != Button.STATE_DISABLED
     
     def __setupNodes(self):
-        if self.__activeAreaNode and self.isEnabled():
-            self.__deactivateEventHandlers()
         while self.getNumChildren() > 0:
             self.removeChild(self.getChild(0))
             
@@ -159,6 +161,7 @@ class Button(libavg.DivNode):
     def __changeState(self, state):
         self.__state = state
         self.__updateNodesVisibility()
+        self.__stateChangeCallback(state)
     
     def __captureCursor(self, id):
         self.__capturedCursorIds.add(id)
