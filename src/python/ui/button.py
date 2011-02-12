@@ -33,13 +33,15 @@ class Button(libavg.DivNode):
     STATE_DOWN     = 3
     
     def __init__(self, upNode = None, downNode = None, disabledNode = None, 
-                 pressHandler = None, clickHandler = None, **kwargs):
+                activeAreaNode = None, pressHandler = None, clickHandler = None, 
+                **kwargs):
         libavg.DivNode.__init__(self, **kwargs)
         self.crop = False
         
-        self.__upNode       = upNode
-        self.__downNode     = downNode
+        self.__upNode = upNode
+        self.__downNode = downNode
         self.__disabledNode = disabledNode
+        self.__activeAreaNode = activeAreaNode
         
         self.__defaultHandler = lambda event: None
         self.__pressCallback = optionalCallback(pressHandler, self.__defaultHandler)
@@ -56,7 +58,6 @@ class Button(libavg.DivNode):
         
         if self.__upNode and self.__downNode:
             self.__setupNodes()
-        self.__activateEventHandlers()
         
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
@@ -70,10 +71,11 @@ class Button(libavg.DivNode):
     def getDisabledNode(self):
         return self.__disabledNode
     
-    def setNodes(self, upNode, downNode, disabledNode = None):
+    def setNodes(self, upNode, downNode, disabledNode = None, activeAreaNode = None):
         self.__upNode = upNode
         self.__downNode = downNode
         self.__disabledNode = disabledNode
+        self.__activeAreaNode = activeAreaNode
         self.__setupNodes()
         
     def setPressHandler(self, handler):
@@ -123,6 +125,8 @@ class Button(libavg.DivNode):
         return self.elementoutlinecolor != ''
     
     def __setupNodes(self):
+        if self.__activeAreaNode and self.isEnabled():
+            self.__deactivateEventHandlers()
         while self.getNumChildren() > 0:
             self.removeChild(self.getChild(0))
             
@@ -132,9 +136,14 @@ class Button(libavg.DivNode):
         if self.__disabledNode:
             self.appendChild(self.__disabledNode)
         
-        self.size = self.__upNode.size
-        self.__updateNodesVisibility()
+        if self.__activeAreaNode == None:
+            self.__activeAreaNode = libavg.RectNode(opacity=0, size=self.__upNode.size)
+        self.appendChild(self.__activeAreaNode)
 
+        self.size = self.__activeAreaNode.size
+        self.__updateNodesVisibility()
+        if self.isEnabled():
+            self.__activateEventHandlers()
 
     def __updateNodesVisibility(self):
         for element in (self.__upNode, self.__downNode, self.__disabledNode):
@@ -159,7 +168,7 @@ class Button(libavg.DivNode):
     
     def __captureCursor(self, id):
         self.__capturedCursorIds.add(id)
-        self.setEventCapture(id)
+        self.__activeAreaNode.setEventCapture(id)
     
     def __releaseCapturedCursor(self, id):
         self.__capturedCursorIds.remove(id)
@@ -250,7 +259,8 @@ class Button(libavg.DivNode):
     
     def __activateEventHandlers(self):
         def setOneHandler(type, handler):
-            self.connectEventHandler(type, libavg.MOUSE | libavg.TOUCH, self, handler)
+            self.__activeAreaNode.connectEventHandler(type, libavg.MOUSE | libavg.TOUCH, 
+                    self, handler)
 
         setOneHandler(libavg.CURSORDOWN, self.__pressHandler)
         setOneHandler(libavg.CURSORUP, self.__releaseHandler)
@@ -261,5 +271,5 @@ class Button(libavg.DivNode):
         for id in self.__capturedCursorIds:
             self.releaseEventCapture(id)
         self.__capturedCursorIds = set()
-        self.disconnectEventHandler(self)
+        self.__activeAreaNode.disconnectEventHandler(self)
 

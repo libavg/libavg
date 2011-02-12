@@ -244,6 +244,7 @@ void VisibleNode::connectEventHandler(Event::Type type, int sources,
             connectOneEventHandler(id, pObj, pFunc);
         }
     }
+//    cerr << "connectEventHandler" << endl;
 //    dumpEventHandlers();
 }
 
@@ -277,6 +278,7 @@ void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
         throw Exception(AVG_ERR_INVALID_ARGS, 
                 "disconnectEventHandler: No handler found.");
     }
+//    cerr << "disconnectEventHandler" << endl;
 //    dumpEventHandlers();
 }
 
