@@ -261,15 +261,12 @@ void Player::setAudioOptions(int samplerate, int channels)
 DPoint Player::getScreenResolution()
 {
     errorIfPlaying("Player.getScreenResolution");
-    if (m_pDisplayEngine) {
-        return DPoint(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine)->
-                getScreenResolution());
-    } else {
-        SDLDisplayEngine* pEngine = new SDLDisplayEngine();
-        DPoint size = DPoint(pEngine->getScreenResolution());
-        delete pEngine;
-        return size;
+    if (!m_pDisplayEngine) {
+        m_pDisplayEngine = new SDLDisplayEngine();
     } 
+    DPoint size = DPoint(dynamic_cast<SDLDisplayEngine*>(
+            m_pDisplayEngine)->getScreenResolution());
+    return size;
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -813,9 +810,8 @@ void Player::showCursor(bool bShow)
 {
     if (m_pDisplayEngine) {
         m_pDisplayEngine->showCursor(bShow);
-    } else {
-        m_DP.m_bShowCursor = bShow;
     }
+    m_DP.m_bShowCursor = bShow;
 }
 
 void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
