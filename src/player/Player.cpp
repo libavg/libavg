@@ -261,11 +261,15 @@ void Player::setAudioOptions(int samplerate, int channels)
 DPoint Player::getScreenResolution()
 {
     errorIfPlaying("Player.getScreenResolution");
-    if (!m_pDisplayEngine) {
-        m_pDisplayEngine = new SDLDisplayEngine();
+    if (m_pDisplayEngine) {
+        return DPoint(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine)->
+                getScreenResolution());
+    } else {
+        SDLDisplayEngine* pEngine = new SDLDisplayEngine();
+        DPoint size = DPoint(pEngine->getScreenResolution());
+        delete pEngine;
+        return size;
     } 
-    return DPoint(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine)->
-            getScreenResolution());
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
