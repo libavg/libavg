@@ -12,7 +12,7 @@
 # partial as well as complete copies.
 
 from distutils.core import setup, Extension
-import os, sys, shutil, subprocess
+import os, sys, shutil, subprocess, glob
 
 DEVEL_ROOT='../../../'
 LIBAVG_SRC_DIR='../../src/'
@@ -136,6 +136,21 @@ else:
     if match and match.groups:
         revision = 'r' + match.groups()[0]
 
+scripts = glob.glob(os.path.join(LIBAVG_SRC_DIR, 'utils', 'avg_*.py'))
+batches = []
+
+f = open('batch_template.txt')
+batchTemplate = f.read(1024)
+f.close()
+
+for py in map(os.path.basename, scripts):
+    batch = os.path.splitext(py)[0] + '.bat'
+    fw = open(batch, 'w')
+    fw.write(batchTemplate.replace('#$#PYSCRIPT#$#', py))
+    fw.close()
+    batches.append(batch)
+    
+
 setup(name='libavg',
       version='1.5.0.%s' % revision,
       author='Ulrich von Zadow',
@@ -144,21 +159,9 @@ setup(name='libavg',
       packages=['libavg'],
       package_dir = {'libavg': '.'},
       data_files = data_files_list,
-      scripts=[LIBAVG_SRC_DIR+'utils/avg_showfont.py',
-            LIBAVG_SRC_DIR+'utils/avg_audioplayer.py',
-            LIBAVG_SRC_DIR+'utils/avg_videoplayer.py',
-            LIBAVG_SRC_DIR+'utils/avg_showcamera.py',
-            LIBAVG_SRC_DIR+'utils/avg_videoinfo.py',
-            LIBAVG_SRC_DIR+'utils/avg_showfile.py',
-            LIBAVG_SRC_DIR+'utils/avg_chromakey.py',
-            'avg_showfont.bat',
-            'avg_audioplayer.bat',
-            'avg_videoplayer.bat',
-            'avg_showcamera.bat',
-            'avg_videoinfo.bat',
-            'avg_showfile.bat',
-            'avg_chromakey.bat',
-        ]
+      scripts=scripts + batches,
       )
 
-
+for batch in batches:
+    os.unlink(batch)
+ 

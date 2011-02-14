@@ -1,0 +1,18 @@
+@echo off
+
+setlocal
+
+IF EXIST "%~dp0..\python.exe" (
+  set PYTHON_EXE="%~dp0..\python"
+) ELSE IF EXIST "%~dp0python.exe" (
+  REM virtualenv install
+  set PYTHON_EXE="%~dp0python"
+) ELSE (
+  echo Warning! Unable to find python.exe. Relying on PATH which may fail
+  echo.
+  set PYTHON_EXE=python
+)
+
+%PYTHON_EXE% "%~dp0#$#PYSCRIPT#$#" %*
+
+exit /b %ERRORLEVEL%
