@@ -198,11 +198,12 @@ void XInput21MTEventSource::findMTDevice()
                 XIAnyClassInfo * pClass = pDevice->classes[j];
                 if (pClass->type == XITouchClass) {
                     pTouchClass = (XITouchClassInfo *)pClass;
-                    m_sDeviceName = pDevice->name;
-                    m_DeviceID = pDevice->deviceid;
-                    maxTouches = pTouchClass->num_touches;
-                    bDirectTouch = pTouchClass->mode == XIDirectTouch;
-                    break;
+                    if (pTouchClass->mode == XIDirectTouch) {
+                        m_sDeviceName = pDevice->name;
+                        m_DeviceID = pDevice->deviceid;
+                        maxTouches = pTouchClass->num_touches;
+                        break;
+                    }
                 }
             }
         }
