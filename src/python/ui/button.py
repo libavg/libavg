@@ -116,6 +116,7 @@ class Button(libavg.DivNode):
         
         if self.__state == Button.STATE_DISABLED:
             self.__deactivateEventHandlers()
+            self.__overCursorIds = set()
         else:
             self.__activateEventHandlers()
         
