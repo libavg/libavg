@@ -214,6 +214,16 @@ unsigned OffscreenCanvas::getNumDependentCanvases() const
     return m_pDependentCanvases.size();
 }
 
+bool OffscreenCanvas::isSupported()
+{
+    if (!Player::get()->isPlaying()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "OffscreenCanvas::isSupported(): Player.play() needs to be called before support can be queried."));
+    }
+
+    return FBO::isFBOSupported() && FBO::isPackedDepthStencilSupported();
+}
+
 bool OffscreenCanvas::isMultisampleSupported()
 {
     if (!Player::get()->isPlaying()) {

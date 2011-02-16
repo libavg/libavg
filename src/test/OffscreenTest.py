@@ -465,26 +465,43 @@ class OffscreenTestCase(AVGTestCase):
             </canvas>
         """%(canvasName, str(handleEvents)))
 
+def isOffscreenSupported():
+    
+    def testOffscreenSupported():
+        global offscreenSupported
+        offscreenSupported = avg.OffscreenCanvas.isSupported()
+        Player.stop()
+
+    global offscreenSupported
+    sceneString = """<avg id="avg" width="160" height="120"/>"""
+    Player.loadString(sceneString)
+    Player.setTimeout(0, testOffscreenSupported)
+    Player.play() 
+    return offscreenSupported
 
 def offscreenTestSuite(tests):
-    availableTests = (
-            "testCanvasBasics",
-            "testCanvasLoadAfterPlay",
-            "testCanvasResize",
-            "testCanvasErrors",
-            "testCanvasAPI",
-            "testCanvasEvents",
-            "testCanvasEventCapture",
-            "testCanvasRender",
-            "testCanvasAutoRender",
-            "testCanvasCrop",
-            "testCanvasAlpha",
-            "testCanvasBlendModes",
-            "testCanvasMultisampling",
-            "testCanvasMipmap",
-            "testCanvasDependencies",
-            )
-    return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
+    if isOffscreenSupported():
+        availableTests = (
+                "testCanvasBasics",
+                "testCanvasLoadAfterPlay",
+                "testCanvasResize",
+                "testCanvasErrors",
+                "testCanvasAPI",
+                "testCanvasEvents",
+                "testCanvasEventCapture",
+                "testCanvasRender",
+                "testCanvasAutoRender",
+                "testCanvasCrop",
+                "testCanvasAlpha",
+                "testCanvasBlendModes",
+                "testCanvasMultisampling",
+                "testCanvasMipmap",
+                "testCanvasDependencies",
+                )
+        return createAVGTestSuite(availableTests, OffscreenTestCase, tests)
+    else:
+        print "Skipping offscreen tests - no canvas support with this graphics configuration."
+        return lambda x: None
 
 
 Player = avg.Player.get()

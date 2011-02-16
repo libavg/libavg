@@ -189,6 +189,8 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("autorender", &OffscreenCanvas::getAutoRender,
                 &OffscreenCanvas::setAutoRender)
         .def("getNumDependentCanvases", &OffscreenCanvas::getNumDependentCanvases)
+        .def("isSupported", &OffscreenCanvas::isSupported)
+        .staticmethod("isSupported")
         .def("isMultisampleSupported", &OffscreenCanvas::isMultisampleSupported)
         .staticmethod("isMultisampleSupported")
     ;

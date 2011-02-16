@@ -67,6 +67,7 @@ class AVG_API OffscreenCanvas: public Canvas
         bool hasDependentCanvas(CanvasPtr pCanvas) const;
         unsigned getNumDependentCanvases() const;
 
+        static bool isSupported();
         static bool isMultisampleSupported();
         void dump() const;
  
