@@ -485,8 +485,10 @@ void SDLDisplayEngine::showCursor(bool bShow)
 BitmapPtr SDLDisplayEngine::screenshot()
 {
     BitmapPtr pBmp (new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
-    if (isParallels()) {
-        // Workaround for buggy GL_FRONT on virtual machines running under parallels.
+    string sTmp;
+    bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
+    if (bBroken) {
+        // Workaround for buggy GL_FRONT on some machines.
         glReadBuffer(GL_BACK);
     } else {
         glReadBuffer(GL_FRONT);
@@ -1242,8 +1244,7 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
     if (!m_bCheckedMemoryMode) {
         if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
              queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
-            m_GLConfig.m_bUsePixelBuffers &&
-            !isParallels())
+            m_GLConfig.m_bUsePixelBuffers) 
         {
             m_MemoryMode = MM_PBO;
         } else {
@@ -1252,13 +1253,6 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
         m_bCheckedMemoryMode = true;
     }
     return m_MemoryMode;
-}
-
-bool SDLDisplayEngine::isParallels()
-{
-    static bool bIsParallels = 
-            (string((char*)glGetString(GL_VENDOR)).find("Parallels") != string::npos);
-    return bIsParallels;
 }
 
 void SDLDisplayEngine::setOGLOptions(const GLConfig& glConfig)

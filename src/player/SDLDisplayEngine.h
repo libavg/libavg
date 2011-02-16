@@ -100,7 +100,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         void logConfig(); 
         virtual void swapBuffers();
         void clip(bool forward);
-        static bool isParallels();
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
