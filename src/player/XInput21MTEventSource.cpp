@@ -40,6 +40,12 @@
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
 
+#ifndef XI_TouchUpdate
+    // Working with a preliminary spec. Update names to the current spec.
+    #define XI_TouchUpdate XI_TouchMotion
+    #define XI_TouchUpdateUnowned XI_TouchMotionUnowned
+#endif
+
 using namespace std;
 
 namespace avg {
@@ -108,9 +114,7 @@ void XInput21MTEventSource::start()
     mask.mask = (unsigned char *)calloc(mask.mask_len, sizeof(char));
     memset(mask.mask, 0, mask.mask_len);
     XISetMask(mask.mask, XI_TouchBegin);
-    XISetMask(mask.mask, XI_TouchMotion);
-    XISetMask(mask.mask, XI_TouchMotionUnowned);
-    XISetMask(mask.mask, XI_TouchOwnership);
+    XISetMask(mask.mask, XI_TouchUpdate);
     XISetMask(mask.mask, XI_TouchEnd);
 
     status = XISelectEvents(s_pDisplay, m_Win, &mask, 1);
@@ -136,15 +140,15 @@ void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
         switch (pCookie->evtype) {
             case XI_TouchBegin:
                 {
-                    cerr << "TouchBegin " << xid << ", " << pos << endl;
+//                    cerr << "TouchBegin " << xid << ", " << pos << endl;
                     m_LastID++;
                     TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos); 
                     addTouchStatus(xid, pEvent);
                 }
                 break;
-            case XI_TouchMotion:
+            case XI_TouchUpdate:
                 {
-                    cerr << "TouchMotion " << xid << ", " << pos << endl;
+//                    cerr << "TouchUpdate " << xid << ", " << pos << endl;
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos); 
                     TouchStatusPtr pTouchStatus = getTouchStatus(xid);
                     AVG_ASSERT(pTouchStatus);
@@ -153,7 +157,7 @@ void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
                 break;
             case XI_TouchEnd:
                 {
-                    cerr << "TouchEnd " << xid << ", " << pos << endl;
+//                    cerr << "TouchEnd " << xid << ", " << pos << endl;
                     TouchStatusPtr pTouchStatus = getTouchStatus(xid);
                     AVG_ASSERT(pTouchStatus);
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORUP, pos); 
@@ -161,11 +165,12 @@ void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
                 }
                 break;
             default:
-                cerr << "Unhandled XInput event, type: " 
-                        << cookieTypeToName(pCookie->evtype) << endl;
+                ;
+//                cerr << "Unhandled XInput event, type: " 
+//                        << cookieTypeToName(pCookie->evtype) << endl;
         }
     } else {
-        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
+//        cerr << "Unhandled X11 Event: " << xEvent.type << endl;
     }
 
     XFreeEventData(s_pDisplay, pCookie);
@@ -236,8 +241,8 @@ int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
         AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
         XEvent* pXEvent = &pMsg->event.xevent;
         XGenericEventCookie* pCookie = (XGenericEventCookie*)&(pXEvent->xcookie);
-        cerr << "---- filter xinput event: " << xEventTypeToName(pXEvent->type) << ", "
-                << cookieTypeToName(pCookie->evtype) << endl;
+//        cerr << "---- filter xinput event: " << xEventTypeToName(pXEvent->type) << ", "
+//                << cookieTypeToName(pCookie->evtype) << endl;
         XGetEventData(s_pDisplay, pCookie);
     } else {
 //        cerr << "---- filter: " << int(pEvent->type) << endl;
@@ -250,29 +255,28 @@ const char* cookieTypeToName(int evtype)
 {
     const char *name;
     switch(evtype) {
-        case XI_DeviceChanged:    name = "DeviceChanged";       break;
-        case XI_KeyPress:         name = "KeyPress";            break;
-        case XI_KeyRelease:       name = "KeyRelease";          break;
-        case XI_ButtonPress:      name = "ButtonPress";         break;
-        case XI_ButtonRelease:    name = "ButtonRelease";       break;
-        case XI_Motion:           name = "Motion";              break;
-        case XI_Enter:            name = "Enter";               break;
-        case XI_Leave:            name = "Leave";               break;
-        case XI_FocusIn:          name = "FocusIn";             break;
-        case XI_FocusOut:         name = "FocusOut";            break;
-        case XI_HierarchyChanged: name = "HierarchyChanged";    break;
-        case XI_PropertyEvent:    name = "PropertyEvent";       break;
-        case XI_RawKeyPress:      name = "RawKeyPress";         break;
-        case XI_RawKeyRelease:    name = "RawKeyRelease";       break;
-        case XI_RawButtonPress:   name = "RawButtonPress";      break;
-        case XI_RawButtonRelease: name = "RawButtonRelease";    break;
-        case XI_RawMotion:        name = "RawMotion";           break;
-        case XI_TouchBegin:       name = "TouchBegin";          break;
-        case XI_TouchEnd:         name = "TouchEnd";            break;
-        case XI_TouchMotion:      name = "TouchMotion";         break;
-        case XI_TouchMotionUnowned:      name = "TouchMotionUnowned";         break;
-        default:
-                                  name = "unknown event type"; break;
+        case XI_DeviceChanged:    name = "DeviceChanged";        break;
+        case XI_KeyPress:         name = "KeyPress";             break;
+        case XI_KeyRelease:       name = "KeyRelease";           break;
+        case XI_ButtonPress:      name = "ButtonPress";          break;
+        case XI_ButtonRelease:    name = "ButtonRelease";        break;
+        case XI_Motion:           name = "Motion";               break;
+        case XI_Enter:            name = "Enter";                break;
+        case XI_Leave:            name = "Leave";                break;
+        case XI_FocusIn:          name = "FocusIn";              break;
+        case XI_FocusOut:         name = "FocusOut";             break;
+        case XI_HierarchyChanged: name = "HierarchyChanged";     break;
+        case XI_PropertyEvent:    name = "PropertyEvent";        break;
+        case XI_RawKeyPress:      name = "RawKeyPress";          break;
+        case XI_RawKeyRelease:    name = "RawKeyRelease";        break;
+        case XI_RawButtonPress:   name = "RawButtonPress";       break;
+        case XI_RawButtonRelease: name = "RawButtonRelease";     break;
+        case XI_RawMotion:        name = "RawMotion";            break;
+        case XI_TouchBegin:       name = "TouchBegin";           break;
+        case XI_TouchEnd:         name = "TouchEnd";             break;
+        case XI_TouchUpdate:      name = "TouchUpdate";          break;
+        case XI_TouchUpdateUnowned: name = "TouchUpdateUnowned"; break;
+        default:                  name = "unknown event type";   break;
     }
     return name;
 }
