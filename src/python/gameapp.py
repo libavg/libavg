@@ -178,7 +178,9 @@ class GameApp(libavg.AVGApp):
         self.__datastores = {}
         
         pkgpath = self._getPackagePath()
+        print pkgpath
         if pkgpath is not None:
+            print libavg.AVGAppUtil.getMediaDir(pkgpath, 'fonts')
             avg.WordsNode.addFontDir(libavg.AVGAppUtil.getMediaDir(pkgpath, 'fonts'))
             self._parentNode.mediadir = libavg.AVGAppUtil.getMediaDir(pkgpath)
 

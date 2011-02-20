@@ -191,7 +191,7 @@ void XInput21MTEventSource::findMTDevice()
 
     pDevices = XIQueryDevice(s_pDisplay, XIAllDevices, &ndevices);
 
-    XITouchClassInfo * pTouchClass = 0;
+    XITouchClassInfo* pTouchClass = 0;
     int maxTouches;
     bool bDirectTouch;
     for (int i = 0; i < ndevices && !pTouchClass; ++i) {
@@ -202,8 +202,9 @@ void XInput21MTEventSource::findMTDevice()
             for (int j = 0; j < pDevice->num_classes; ++j) {
                 XIAnyClassInfo * pClass = pDevice->classes[j];
                 if (pClass->type == XITouchClass) {
-                    pTouchClass = (XITouchClassInfo *)pClass;
-                    if (pTouchClass->mode == XIDirectTouch) {
+                    XITouchClassInfo* pTempTouchClass = (XITouchClassInfo *)pClass;
+                    if (pTempTouchClass->mode == XIDirectTouch) {
+                        pTouchClass = pTempTouchClass;
                         m_sDeviceName = pDevice->name;
                         m_DeviceID = pDevice->deviceid;
                         maxTouches = pTouchClass->num_touches;
