@@ -1,3 +1,10 @@
+libavg 1.5.3 - February 20, 2011 (Linux only)
+
+  svn revision 5599
+
+  Major new feature:
+    * Linux XInput 2.1 Multitouch support.
+
 libavg 1.5.1 - November 14, 2010 (Mac only)
 
   svn revision 5275
