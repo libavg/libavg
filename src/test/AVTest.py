@@ -479,6 +479,37 @@ class AVTestCase(AVGTestCase):
         node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_mono.wav")
         self.testEOF(node)
 
+    def testVideoWriter(self):
+        
+        def startWriter():
+            self.videoWriter = avg.VideoWriter(Player.getMainCanvas(), "test.mov", 30)
+
+        def stopWriter():
+            self.videoWriter.stop()
+
+        def openVideo():
+            savedVideoNode = libavg.VideoNode(href="test.mov", threaded=False)
+            savedVideoNode.pause()
+            self.assert_(savedVideoNode.getVideoCodec() == "mjpeg")
+            self.assert_(savedVideoNode.getNumFrames() == 4)
+            self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
+
+        Player.setFakeFPS(30)
+        
+        self.loadEmptyScene()
+        videoNode = libavg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
+                threaded=False, parent=Player.getRootNode())
+        
+        self.start(None,
+            (videoNode.play,
+             startWriter,
+             None,
+             None,
+             None,
+             stopWriter,
+             openVideo,
+            ))
+        
 
 def AVTestSuite(tests):
     availableTests = (
@@ -499,6 +530,7 @@ def AVTestSuite(tests):
             "testVideoMask",
             "testVideoEOF",
             "testException",
+            "testVideoWriter"
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 

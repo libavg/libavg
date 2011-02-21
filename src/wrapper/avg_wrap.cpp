@@ -40,6 +40,7 @@ void export_anim();
 #include "../player/TestHelper.h"
 #include "../player/Canvas.h"
 #include "../player/OffscreenCanvas.h"
+#include "../player/VideoWriter.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -193,5 +194,17 @@ BOOST_PYTHON_MODULE(avg)
         .staticmethod("isSupported")
         .def("isMultisampleSupported", &OffscreenCanvas::isMultisampleSupported)
         .staticmethod("isMultisampleSupported")
+    ;
+
+    class_<VideoWriter, boost::shared_ptr<VideoWriter>, boost::noncopyable>
+            ("VideoWriter", no_init)
+        .def(init<Canvas*, const std::string&, int, int, int, bool>())
+        .def(init<Canvas*, const std::string&, int, int, int>())
+        .def(init<Canvas*, const std::string&, int>())
+        .def("stop", &VideoWriter::stop)
+        .add_property("filename", &VideoWriter::getFileName)
+        .add_property("framerate", &VideoWriter::getFramerate)
+        .add_property("qmin", &VideoWriter::getQMin)
+        .add_property("qmax", &VideoWriter::getQMax)
     ;
 }
