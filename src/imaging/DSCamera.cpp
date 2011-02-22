@@ -51,6 +51,7 @@ DSCamera::DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF,
       m_pCameraPropControl(0),
       m_pSampleQueue(0)
 {
+    m_bColor = (destPF != I8);
     open();
 }
 
@@ -101,14 +102,12 @@ void DSCamera::open()
 
         m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF());
         m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
-
 /*
         cerr << "Grabber type: " << mediaTypeToString(mt.majortype) << 
                 ", subtype: " << mediaSubtypeToString(mt.subtype) << 
                 ", formattype: " << mediaFormattypeToString(mt.formattype) <<
                 endl;
 */
-
         IBaseFilter * pNull;
         hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, 
                                        IID_IBaseFilter, (LPVOID*) &pNull);
@@ -213,7 +212,8 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
         sImageFormats.push_back(ss.str());
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
-                ((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
+                ((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && 
+                        pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
                  (getCamPF() == YCbCr422 && pmtConfig->subtype == MEDIASUBTYPE_UYVY) ||
                  (getCamPF() == YUYV422 && pmtConfig->subtype == MEDIASUBTYPE_YUY2)
             )
