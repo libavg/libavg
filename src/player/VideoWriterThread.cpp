@@ -81,7 +81,7 @@ void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRa
 {
     ffmpeg::av_register_all(); // TODO: make sure this is only done once. 
 //    ffmpeg::av_log_set_level(AV_LOG_DEBUG);
-    m_pOutputFormat = ffmpeg::av_guess_format("mov", NULL, NULL);
+    m_pOutputFormat = ffmpeg::guess_format("mov", NULL, NULL);
     m_pOutputFormat->video_codec = ffmpeg::CODEC_ID_MJPEG;
     m_pOutputFormatContext = ffmpeg::avformat_alloc_context();
 
