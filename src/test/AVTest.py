@@ -494,21 +494,24 @@ class AVTestCase(AVGTestCase):
             self.assert_(savedVideoNode.getNumFrames() == 4)
             self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
 
-        Player.setFakeFPS(30)
-        
-        self.loadEmptyScene()
-        videoNode = libavg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
-                threaded=False, parent=Player.getRootNode())
-        
-        self.start(None,
-            (videoNode.play,
-             startWriter,
-             None,
-             None,
-             None,
-             stopWriter,
-             openVideo,
-            ))
+        if self._isCurrentDirWriteable:
+            Player.setFakeFPS(30)
+            
+            self.loadEmptyScene()
+            videoNode = libavg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
+                    threaded=False, parent=Player.getRootNode())
+            
+            self.start(None,
+                (videoNode.play,
+                 startWriter,
+                 None,
+                 None,
+                 None,
+                 stopWriter,
+                 openVideo,
+                ))
+        else:
+            print "Skipping VideoWriter tests - current dir not writable."
         
 
 def AVTestSuite(tests):
