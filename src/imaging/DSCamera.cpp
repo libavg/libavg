@@ -214,7 +214,8 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
                 ((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
-                 (getCamPF() == YCbCr422 && pmtConfig->subtype == MEDIASUBTYPE_UYVY)
+                 (getCamPF() == YCbCr422 && pmtConfig->subtype == MEDIASUBTYPE_UYVY) ||
+                 (getCamPF() == YUYV422 && pmtConfig->subtype == MEDIASUBTYPE_YUY2)
             )
         {
             if (fabs(m_FrameRate-FrameRate) < 0.001) {
