@@ -494,7 +494,7 @@ class AVTestCase(AVGTestCase):
             self.assert_(savedVideoNode.getNumFrames() == 4)
             self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
 
-        if self._isCurrentDirWriteable:
+        if self._isCurrentDirWriteable():
             Player.setFakeFPS(30)
             
             self.loadEmptyScene()
