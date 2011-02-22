@@ -129,6 +129,8 @@
     <ClCompile Include="..\..\src\player\TUIOEventSource.cpp" />
     <ClCompile Include="..\..\src\player\VectorNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
+    <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
+    <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
     <ClCompile Include="..\..\src\player\VisibleNode.cpp" />
     <ClCompile Include="..\..\src\player\Win7TouchEventSource.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
@@ -200,6 +202,8 @@
     <ClInclude Include="..\..\src\player\TUIOEventSource.h" />
     <ClInclude Include="..\..\src\player\VectorNode.h" />
     <ClInclude Include="..\..\src\player\VideoNode.h" />
+    <ClInclude Include="..\..\src\player\VideoWriter.h" />
+    <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
     <ClInclude Include="..\..\src\player\VisibleNode.h" />
     <ClInclude Include="..\..\src\player\Win7TouchEventSource.h" />
     <ClInclude Include="..\..\src\player\WordsNode.h" />
