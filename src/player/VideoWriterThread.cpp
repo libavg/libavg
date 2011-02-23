@@ -88,8 +88,8 @@ void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRa
 
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
-    snprintf(m_pOutputFormatContext->filename, sizeof(m_pOutputFormatContext->filename),
-             "%s", sFileName.c_str());
+    strncpy(m_pOutputFormatContext->filename, sFileName.c_str(),
+            sizeof(m_pOutputFormatContext->filename));
 
     if (m_pOutputFormat->video_codec != ffmpeg::CODEC_ID_NONE) {
         setupVideoStream(frameRate, qMin, qMax);
