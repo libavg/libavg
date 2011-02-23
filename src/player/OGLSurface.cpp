@@ -439,7 +439,7 @@ void OGLSurface::createShader()
         "    colorCoeff[2] = colorCoeff2;\n"
         "    colorCoeff[3] = colorCoeff3;\n"
 
-
+     
 
           
         "    if (colorModel == 0) {\n"
@@ -447,8 +447,8 @@ void OGLSurface::createShader()
         "        if (bUseColorCoeff) {\n"
         "           rgba = colorCoeff*rgba;\n"
         "        };\n"
-          "rgba.r = 0;\n"
         "        rgba.a *= gl_Color.a;\n"
+          "rgba = Demosaic()\n"
         "    } else if (colorModel == 1) {\n"
         "        rgba = convertYCbCr(colorCoeff);\n"
         "    } else if (colorModel == 2) {\n"
