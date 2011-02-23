@@ -51,6 +51,7 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
 VideoWriter::~VideoWriter()
 {
     stop();
+    m_pThread->join();
 }
 
 void VideoWriter::stop()
@@ -62,7 +63,6 @@ void VideoWriter::stop()
 
         m_bStopped = true;
         m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::stop, _1));
-        m_pThread->join();
         
         m_pCanvas->unregisterFrameEndListener(this);
         m_pCanvas->unregisterPlaybackEndListener(this);

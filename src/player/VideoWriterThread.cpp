@@ -43,7 +43,6 @@ VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFilename,
 
 VideoWriterThread::~VideoWriterThread()
 {
-    close();
 }
 
 void VideoWriterThread::encodeFrame(BitmapPtr pBmp)
