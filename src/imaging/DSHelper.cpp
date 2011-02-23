@@ -118,7 +118,7 @@ PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype, const std::string Des
     } else if (Subtype == MEDIASUBTYPE_UYVY) {
         return YCbCr422;
     } else if (Subtype == MEDIASUBTYPE_YUY2) {
-        return YUYV422;   // Untested
+        return YUYV422;
     } else if (Subtype == MEDIASUBTYPE_RGB565) {
         return B5G6R5;
     } else if (Subtype == MEDIASUBTYPE_Y800 && DesiredPF == "BY8_GBRG") {
