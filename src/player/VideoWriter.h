@@ -23,11 +23,12 @@
 #define _VideoWriter_H_
 
 #include "../api.h"
+
+#include "VideoWriterThread.h"
+
 #include "../base/IFrameEndListener.h"
 #include "../base/IPlaybackEndListener.h"
 #include "../base/Point.h"
-
-#include "VideoWriterThread.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>

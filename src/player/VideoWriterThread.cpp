@@ -27,7 +27,7 @@ using namespace std;
 namespace avg {
 
 const unsigned int VIDEO_BUFFER_SIZE = 400000;
-const ffmpeg::PixelFormat STREAM_PIXEL_FORMAT = ffmpeg::PIX_FMT_YUVJ420P;
+const ::PixelFormat STREAM_PIXEL_FORMAT = ::PIX_FMT_YUVJ420P;
 
 VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
@@ -54,26 +54,26 @@ void VideoWriterThread::encodeFrame(BitmapPtr pBmp)
 void VideoWriterThread::close()
 {
     if (m_pOutputFormatContext) {
-        ffmpeg::av_write_trailer(m_pOutputFormatContext);
-        ffmpeg::avcodec_close(m_pVideoStream->codec);
+        av_write_trailer(m_pOutputFormatContext);
+        avcodec_close(m_pVideoStream->codec);
 
         for (unsigned int i=0; i<m_pOutputFormatContext->nb_streams; i++) {
-            ffmpeg::AVStream* pStream = m_pOutputFormatContext->streams[i];
+            AVStream* pStream = m_pOutputFormatContext->streams[i];
 
-            pStream->discard = ffmpeg::AVDISCARD_ALL;
-            ffmpeg::av_freep(&m_pOutputFormatContext->streams[i]->codec);
-            ffmpeg::av_freep(&m_pOutputFormatContext->streams[i]);
+            pStream->discard = AVDISCARD_ALL;
+            av_freep(&m_pOutputFormatContext->streams[i]->codec);
+            av_freep(&m_pOutputFormatContext->streams[i]);
         }
 
         if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
-            ffmpeg::url_fclose(m_pOutputFormatContext->pb);
+            url_fclose(m_pOutputFormatContext->pb);
         }
 
-        ffmpeg::av_free(m_pOutputFormatContext);
-        ffmpeg::av_free(m_pVideoBuffer);
-        ffmpeg::av_free(m_pConvertedFrame);
-        ffmpeg::av_free(m_pPictureBuffer);
-        ffmpeg::sws_freeContext(m_pFrameConversionContext);
+        av_free(m_pOutputFormatContext);
+        av_free(m_pVideoBuffer);
+        av_free(m_pConvertedFrame);
+        av_free(m_pPictureBuffer);
+        sws_freeContext(m_pFrameConversionContext);
         m_pOutputFormatContext = 0;
     }
 }
@@ -96,19 +96,19 @@ void VideoWriterThread::deinit()
 
 void VideoWriterThread::open()
 {
-    ffmpeg::av_register_all(); // TODO: make sure this is only done once. 
-//    ffmpeg::av_log_set_level(AV_LOG_DEBUG);
-    m_pOutputFormat = ffmpeg::guess_format("mov", NULL, NULL);
-    m_pOutputFormat->video_codec = ffmpeg::CODEC_ID_MJPEG;
+    av_register_all(); // TODO: make sure this is only done once. 
+//    av_log_set_level(AV_LOG_DEBUG);
+    m_pOutputFormat = guess_format("mov", NULL, NULL);
+    m_pOutputFormat->video_codec = CODEC_ID_MJPEG;
 
-    m_pOutputFormatContext = ffmpeg::av_alloc_format_context();
+    m_pOutputFormatContext = av_alloc_format_context();
 
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
             sizeof(m_pOutputFormatContext->filename));
 
-    if (m_pOutputFormat->video_codec != ffmpeg::CODEC_ID_NONE) {
+    if (m_pOutputFormat->video_codec != CODEC_ID_NONE) {
         setupVideoStream();
     }
 
@@ -119,7 +119,7 @@ void VideoWriterThread::open()
     m_pOutputFormatContext->preload = int(muxPreload * AV_TIME_BASE);
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
 
-    ffmpeg::dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
+    dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
 
     openVideoCodec();
 
@@ -131,7 +131,7 @@ void VideoWriterThread::open()
            as long as they're aligned enough for the architecture, and
            they're freed appropriately (such as using av_free for buffers
            allocated with av_malloc) */
-        m_pVideoBuffer = (unsigned char*)(ffmpeg::av_malloc(VIDEO_BUFFER_SIZE));
+        m_pVideoBuffer = (unsigned char*)(av_malloc(VIDEO_BUFFER_SIZE));
     }
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
@@ -143,22 +143,22 @@ void VideoWriterThread::open()
         }
     }
 
-    m_pFrameConversionContext = ffmpeg::sws_getContext(m_Size.x, m_Size.y, 
-            ffmpeg::PIX_FMT_BGRA, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
+    m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y, 
+            ::PIX_FMT_BGRA, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
             SWS_BICUBIC, NULL, NULL, NULL);
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
 
-    ffmpeg::av_write_header(m_pOutputFormatContext);
+    av_write_header(m_pOutputFormatContext);
 }
 
 void VideoWriterThread::setupVideoStream()
 {
-    m_pVideoStream = ffmpeg::av_new_stream(m_pOutputFormatContext, 0);
+    m_pVideoStream = av_new_stream(m_pOutputFormatContext, 0);
 
-    ffmpeg::AVCodecContext* pCodecContext = m_pVideoStream->codec;
-    pCodecContext->codec_id = static_cast<ffmpeg::CodecID>(m_pOutputFormat->video_codec);
-    pCodecContext->codec_type = ffmpeg::CODEC_TYPE_VIDEO;
+    AVCodecContext* pCodecContext = m_pVideoStream->codec;
+    pCodecContext->codec_id = static_cast<CodecID>(m_pOutputFormat->video_codec);
+    pCodecContext->codec_type = CODEC_TYPE_VIDEO;
 
     /* put sample parameters */
     pCodecContext->bit_rate = 400000;
@@ -185,35 +185,35 @@ void VideoWriterThread::setupVideoStream()
 void VideoWriterThread::openVideoCodec()
 {
     /* find the video encoder */
-    ffmpeg::AVCodec* videoCodec = ffmpeg::avcodec_find_encoder(
+    AVCodec* videoCodec = avcodec_find_encoder(
             m_pVideoStream->codec->codec_id);
     if (!videoCodec) {
         cerr << "codec not found" << endl;
     }
 
     /* open the codec */
-    if (ffmpeg::avcodec_open(m_pVideoStream->codec, videoCodec) < 0) {
+    if (avcodec_open(m_pVideoStream->codec, videoCodec) < 0) {
         cerr << "could not open codec" << endl;
     }
 }
 
-ffmpeg::AVFrame* VideoWriterThread::createFrame(ffmpeg::PixelFormat pixelFormat,
+AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat,
         IntPoint size)
 {
-    ffmpeg::AVFrame* pPicture;
+    AVFrame* pPicture;
 
-    pPicture = ffmpeg::avcodec_alloc_frame();
+    pPicture = avcodec_alloc_frame();
     if (!pPicture) {
         return NULL;
     }
 
-    int memNeeded = ffmpeg::avpicture_get_size(pixelFormat, size.x, size.y);
-    m_pPictureBuffer = static_cast<unsigned char*>(ffmpeg::av_malloc(memNeeded));
+    int memNeeded = avpicture_get_size(pixelFormat, size.x, size.y);
+    m_pPictureBuffer = static_cast<unsigned char*>(av_malloc(memNeeded));
     if (!m_pPictureBuffer) {
-        ffmpeg::av_free(pPicture);
+        av_free(pPicture);
         return NULL;
     }
-    ffmpeg::avpicture_fill(reinterpret_cast<ffmpeg::AVPicture*>(pPicture),
+    avpicture_fill(reinterpret_cast<AVPicture*>(pPicture),
             m_pPictureBuffer, pixelFormat, size.x, size.y);
 
     return pPicture;
@@ -228,16 +228,16 @@ void VideoWriterThread::convertImage(BitmapPtr pBitmap)
               0, m_Size.y, m_pConvertedFrame->data, m_pConvertedFrame->linesize);
 }
 
-void VideoWriterThread::writeFrame(ffmpeg::AVFrame* pFrame)
+void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {
-    ffmpeg::AVCodecContext* pCodecContext = m_pVideoStream->codec;
-    int out_size = ffmpeg::avcodec_encode_video(pCodecContext, m_pVideoBuffer,
+    AVCodecContext* pCodecContext = m_pVideoStream->codec;
+    int out_size = avcodec_encode_video(pCodecContext, m_pVideoBuffer,
             VIDEO_BUFFER_SIZE, pFrame);
 
     /* if zero size, it means the image was buffered */
     if (out_size > 0) {
-        ffmpeg::AVPacket packet;
-        ffmpeg::av_init_packet(&packet);
+        AVPacket packet;
+        av_init_packet(&packet);
 
         if (pCodecContext->coded_frame->pts != AV_NOPTS_VALUE) {
             packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
@@ -252,7 +252,7 @@ void VideoWriterThread::writeFrame(ffmpeg::AVFrame* pFrame)
         packet.size = out_size;
 
         /* write the compressed frame in the media file */
-        int ret = ffmpeg::av_interleaved_write_frame(m_pOutputFormatContext, &packet);
+        int ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
         if (ret != 0) {
             std::cerr << "Error while writing video frame" << std::endl;
             assert(false);

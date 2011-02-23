@@ -46,11 +46,9 @@
 #endif
 #endif
 
-namespace ffmpeg {
 extern "C" {
     #include <libavformat/avformat.h>
     #include <libswscale/swscale.h>
-}
 }
 
 #include <string>
@@ -77,10 +75,10 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         void setupVideoStream();
         void openVideoCodec();
 
-        ffmpeg::AVFrame* createFrame(ffmpeg::PixelFormat pixelFormat, IntPoint size);
+        AVFrame* createFrame(::PixelFormat pixelFormat, IntPoint size);
 
         void convertImage(BitmapPtr pBitmap);
-        void writeFrame(ffmpeg::AVFrame* pFrame);
+        void writeFrame(AVFrame* pFrame);
 
         std::string m_sFilename;
         IntPoint m_Size;
@@ -88,15 +86,15 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         int m_QMin;
         int m_QMax;
         
-        ffmpeg::AVOutputFormat* m_pOutputFormat;
-        ffmpeg::AVFormatContext* m_pOutputFormatContext;
-        ffmpeg::AVStream* m_pVideoStream;
-        ffmpeg::SwsContext* m_pFrameConversionContext;
-        ffmpeg::AVFrame* m_pConvertedFrame;
+        AVOutputFormat* m_pOutputFormat;
+        AVFormatContext* m_pOutputFormatContext;
+        AVStream* m_pVideoStream;
+        SwsContext* m_pFrameConversionContext;
+        AVFrame* m_pConvertedFrame;
         unsigned char* m_pPictureBuffer;
         unsigned char* m_pVideoBuffer;
         int m_VideoBufferSize;
-        ffmpeg::PixelFormat m_StreamPixelFormat;
+        PixelFormat m_StreamPixelFormat;
 };
 
 }

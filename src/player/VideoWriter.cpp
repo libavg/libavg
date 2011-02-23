@@ -46,7 +46,11 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_bStopped(false)
 {
     IntPoint size = m_pCanvas->getSize();
+#ifdef WIN32
     int fd = open(m_sOutFileName.c_str(), O_RDWR | O_CREAT);
+#else
+    int fd = open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, S_IRWXU);
+#endif
     if (fd == -1) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 string("Could not open output file '") + m_sOutFileName + "'. Reason: " +
