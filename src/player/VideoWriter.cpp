@@ -27,8 +27,8 @@
 
 #include <fcntl.h>
 #ifdef WIN32
-#define _open open
-#define _O_RDWR O_RDWR
+#define open _open
+#define close _close
 #endif
 
 using namespace std;
@@ -46,7 +46,7 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_bStopped(false)
 {
     IntPoint size = m_pCanvas->getSize();
-    int fd = open(m_sOutFileName.c_str(), O_RDWR);
+    int fd = open(m_sOutFileName.c_str(), O_RDWR | O_CREAT);
     if (fd == -1) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 string("Could not open output file '") + m_sOutFileName + "'. Reason: " +
