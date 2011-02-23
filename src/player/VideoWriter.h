@@ -41,7 +41,7 @@ class Canvas;
 class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
     public:
         VideoWriter(Canvas* pCanvas, const std::string& sOutFileName,
-                int frameRate, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
+                int frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
         virtual ~VideoWriter();
         void stop();
 

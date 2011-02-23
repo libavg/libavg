@@ -392,6 +392,47 @@ Misc. Classes
 
         Miscellaneous routines used by tests. Not intended for normal application usage.
 
+    .. autoclass:: VideoWriter(canvas, filename, [framerate=30, qmin=3, qmax=5, synctoplayback=True])
+
+        Class that writes the contents of a canvas to disk as a video file. The videos
+        are written as motion jpeg-encoded mov files.
+
+        :param canvas:
+
+            A libavg canvas used as source of the video.
+
+        .. py:attribute:: filename
+
+            The name of the file to write to. Read-only.
+
+        .. py:attribute:: framerate
+
+        The speed of the encoded video in frames per second. This is used for two 
+        purposes. First, it determines the nominal playback speed of the video that is
+        encoded in the file. Second, if :py:attr:`synctoplayback` is :keyword:`False`,
+        the :py:class:`VideoWriter` will also use the :py:attr:`framerate` value as
+        the actual number of frames per second to write. Read-only.
+
+        .. py:attribute:: qmin
+
+        .. py:attribute:: qmax
+
+        :py:attr:`qmin` and :py:attr:`qmax` specify the minimum and maximum encoding 
+        quality to use. :samp:`qmin = qmax = 1` give maximum quality at maximum file size.
+        :samp:`qmin=3` and :samp:`qmax=5` (the default) give a good quality and a smaller
+        file.  Read-only.
+
+        .. py:attribute:: synctoplayback
+
+        If :py:attr:`synctoplayback` is :keyword:`True` (the default), each frame played
+        back in the canvas will be written to disk. This makes a lot of sense in 
+        combination with :py:meth:`Canvas.registerCameraNode()`. If not, 
+        :py:attr:`framerate` is used.
+
+        .. py:method:: stop()
+
+        Ends the recording and writes the rest of the file to disk.
+
     .. autofunction:: getMemoryUsage() -> int
 
         Returns the amount of memory used by the application in bytes. More
