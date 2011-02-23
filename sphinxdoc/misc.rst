@@ -395,7 +395,8 @@ Misc. Classes
     .. autoclass:: VideoWriter(canvas, filename, [framerate=30, qmin=3, qmax=5, synctoplayback=True])
 
         Class that writes the contents of a canvas to disk as a video file. The videos
-        are written as motion jpeg-encoded mov files.
+        are written as motion jpeg-encoded mov files. Opening, writing and closing the
+        video file is asynchronous to normal playback.
 
         :param canvas:
 
@@ -431,7 +432,10 @@ Misc. Classes
 
         .. py:method:: stop()
 
-        Ends the recording and writes the rest of the file to disk.
+        Ends the recording and writes the rest of the file to disk. Note that this is
+        asynchronous to normal playback. If you need to immediately re-opening the video
+        file (e.g. for playback in a video node), destroy the python object first. This
+        waits for sync.
 
     .. autofunction:: getMemoryUsage() -> int
 
