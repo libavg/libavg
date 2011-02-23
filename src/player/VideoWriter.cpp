@@ -25,6 +25,12 @@
 
 #include <boost/bind.hpp>
 
+#include <fcntl.h>
+#ifdef WIN32
+#define _open open
+#define _O_RDWR O_RDWR
+#endif
+
 using namespace std;
 
 namespace avg {
@@ -40,6 +46,13 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_bStopped(false)
 {
     IntPoint size = m_pCanvas->getSize();
+    int fd = open(m_sOutFileName.c_str(), O_RDWR);
+    if (fd == -1) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                string("Could not open output file '") + m_sOutFileName + "'. Reason: " +
+                strerror(errno));
+    }
+    close(fd);
     VideoWriterThread writer(m_CmdQueue, m_sOutFileName, size, m_FrameRate, qMin, qMax);
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);

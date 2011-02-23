@@ -138,8 +138,8 @@ void VideoWriterThread::open()
         int retVal = url_fopen(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
                 URL_WRONLY);
         if (retVal < 0) {
-            // TODO: Throw exception
-            cerr << "Could not open output file: " <<  m_sFilename << endl;
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    string("Could not open output file: '") + m_sFilename + "'");
         }
     }
 
