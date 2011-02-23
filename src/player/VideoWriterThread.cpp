@@ -29,22 +29,60 @@ namespace avg {
 const unsigned int VIDEO_BUFFER_SIZE = 400000;
 const ffmpeg::PixelFormat STREAM_PIXEL_FORMAT = ffmpeg::PIX_FMT_YUVJ420P;
 
-VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFileName,
+VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
-    : WorkerThread<VideoWriterThread>(sFileName, CmdQueue),
-      m_Size(size)
+    : WorkerThread<VideoWriterThread>(sFilename, CmdQueue),
+      m_sFilename(sFilename),
+      m_Size(size),
+      m_FrameRate(frameRate),
+      m_QMin(qMin),
+      m_QMax(qMax),
+      m_pOutputFormatContext()
 {
-    open(sFileName, size, frameRate, qMin, qMax);
 }
 
 VideoWriterThread::~VideoWriterThread()
 {
+    close();
 }
 
 void VideoWriterThread::encodeFrame(BitmapPtr pBmp)
 {
     convertImage(pBmp);
     writeFrame(m_pConvertedFrame);
+}
+
+void VideoWriterThread::close()
+{
+    if (m_pOutputFormatContext) {
+        ffmpeg::av_write_trailer(m_pOutputFormatContext);
+        ffmpeg::avcodec_close(m_pVideoStream->codec);
+
+        for (unsigned int i=0; i<m_pOutputFormatContext->nb_streams; i++) {
+            ffmpeg::AVStream* pStream = m_pOutputFormatContext->streams[i];
+
+            pStream->discard = ffmpeg::AVDISCARD_ALL;
+            ffmpeg::av_freep(&m_pOutputFormatContext->streams[i]->codec);
+            ffmpeg::av_freep(&m_pOutputFormatContext->streams[i]);
+        }
+
+        if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
+            ffmpeg::url_fclose(m_pOutputFormatContext->pb);
+        }
+
+        ffmpeg::av_free(m_pOutputFormatContext);
+        ffmpeg::av_free(m_pVideoBuffer);
+        ffmpeg::av_free(m_pConvertedFrame);
+        ffmpeg::av_free(m_pPictureBuffer);
+        ffmpeg::sws_freeContext(m_pFrameConversionContext);
+        m_pOutputFormatContext = 0;
+    }
+}
+
+bool VideoWriterThread::init()
+{
+    open();
+    return true;
 }
 
 bool VideoWriterThread::work()
@@ -54,30 +92,10 @@ bool VideoWriterThread::work()
 
 void VideoWriterThread::deinit()
 {
-    ffmpeg::av_write_trailer(m_pOutputFormatContext);
-    ffmpeg::avcodec_close(m_pVideoStream->codec);
-
-    for (unsigned int i=0; i<m_pOutputFormatContext->nb_streams; i++) {
-        ffmpeg::AVStream* pStream = m_pOutputFormatContext->streams[i];
-
-        pStream->discard = ffmpeg::AVDISCARD_ALL;
-        ffmpeg::av_freep(&m_pOutputFormatContext->streams[i]->codec);
-        ffmpeg::av_freep(&m_pOutputFormatContext->streams[i]);
-    }
-
-    if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
-        ffmpeg::url_fclose(m_pOutputFormatContext->pb);
-    }
-
-    ffmpeg::av_free(m_pOutputFormatContext);
-    ffmpeg::av_free(m_pVideoBuffer);
-    ffmpeg::av_free(m_pConvertedFrame);
-    ffmpeg::av_free(m_pPictureBuffer);
-    ffmpeg::sws_freeContext(m_pFrameConversionContext);
+    close();
 }
 
-void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRate,
-        int qMin, int qMax)
+void VideoWriterThread::open()
 {
     ffmpeg::av_register_all(); // TODO: make sure this is only done once. 
 //    ffmpeg::av_log_set_level(AV_LOG_DEBUG);
@@ -88,11 +106,11 @@ void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRa
 
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
-    strncpy(m_pOutputFormatContext->filename, sFileName.c_str(),
+    strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
             sizeof(m_pOutputFormatContext->filename));
 
     if (m_pOutputFormat->video_codec != ffmpeg::CODEC_ID_NONE) {
-        setupVideoStream(frameRate, qMin, qMax);
+        setupVideoStream();
     }
 
     av_set_parameters(m_pOutputFormatContext, NULL);
@@ -102,7 +120,7 @@ void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRa
     m_pOutputFormatContext->preload = int(muxPreload * AV_TIME_BASE);
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
 
-    ffmpeg::dump_format(m_pOutputFormatContext, 0, sFileName.c_str(), 1);
+    ffmpeg::dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
 
     openVideoCodec();
 
@@ -118,11 +136,11 @@ void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRa
     }
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
-        int retVal = url_fopen(&m_pOutputFormatContext->pb, sFileName.c_str(),
+        int retVal = url_fopen(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
                 URL_WRONLY);
         if (retVal < 0) {
             // TODO: Throw exception
-            cerr << "Could not open output file: " <<  sFileName << endl;
+            cerr << "Could not open output file: " <<  m_sFilename << endl;
         }
     }
 
@@ -135,7 +153,7 @@ void VideoWriterThread::open(const string& sFileName, IntPoint size, int frameRa
     ffmpeg::av_write_header(m_pOutputFormatContext);
 }
 
-void VideoWriterThread::setupVideoStream(int frameRate, int qMin, int qMax)
+void VideoWriterThread::setupVideoStream()
 {
     m_pVideoStream = ffmpeg::av_new_stream(m_pOutputFormatContext, 0);
 
@@ -152,13 +170,13 @@ void VideoWriterThread::setupVideoStream(int frameRate, int qMin, int qMax)
        of which frame timestamps are represented. for fixed-fps content,
        timebase should be 1/framerate and timestamp increments should be
        identically 1. */
-    pCodecContext->time_base.den = frameRate;
+    pCodecContext->time_base.den = m_FrameRate;
     pCodecContext->time_base.num = 1;
     pCodecContext->gop_size = 12; /* emit one intra frame every twelve frames at most */
     pCodecContext->pix_fmt = STREAM_PIXEL_FORMAT;
     // Quality of quantization
-    pCodecContext->qmin = qMin;
-    pCodecContext->qmax = qMax;
+    pCodecContext->qmin = m_QMin;
+    pCodecContext->qmax = m_QMax;
     // some formats want stream headers to be separate
     if (m_pOutputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
         pCodecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;

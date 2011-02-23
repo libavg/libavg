@@ -59,21 +59,22 @@ namespace avg {
 
 class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
     public:
-        VideoWriterThread(CQueue& CmdQueue, const std::string& fileName, IntPoint size,
+        VideoWriterThread(CQueue& CmdQueue, const std::string& sFilename, IntPoint size,
                 int frameRate, int qMin, int qMax);
         virtual ~VideoWriterThread();
-        
+
         void encodeFrame(BitmapPtr pBmp);
+        void close();
 
     private:
-        void open(const std::string& sFileName, IntPoint size, int frameRate,
-                int qMin, int qMax);
+        bool init();
+        void open();
  
         // Called by base class
         virtual bool work();
         virtual void deinit();
 
-        void setupVideoStream(int frameRate, int qMin, int qMax);
+        void setupVideoStream();
         void openVideoCodec();
 
         ffmpeg::AVFrame* createFrame(ffmpeg::PixelFormat pixelFormat, IntPoint size);
@@ -81,7 +82,11 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         void convertImage(BitmapPtr pBitmap);
         void writeFrame(ffmpeg::AVFrame* pFrame);
 
+        std::string m_sFilename;
         IntPoint m_Size;
+        int m_FrameRate;
+        int m_QMin;
+        int m_QMax;
         
         ffmpeg::AVOutputFormat* m_pOutputFormat;
         ffmpeg::AVFormatContext* m_pOutputFormatContext;
