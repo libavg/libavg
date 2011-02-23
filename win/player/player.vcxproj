@@ -81,6 +81,7 @@
     <ClCompile Include="..\..\src\player\CursorEvent.cpp" />
     <ClCompile Include="..\..\src\player\CursorState.cpp" />
     <ClCompile Include="..\..\src\player\CurveNode.cpp" />
+    <ClCompile Include="..\..\src\player\DemosaicFXNode.cpp" />
     <ClCompile Include="..\..\src\player\DisplayEngine.cpp" />
     <ClCompile Include="..\..\src\player\DisplayParams.cpp" />
     <ClCompile Include="..\..\src\player\DivNode.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="..\..\src\player\CursorEvent.h" />
     <ClInclude Include="..\..\src\player\CursorState.h" />
     <ClInclude Include="..\..\src\player\CurveNode.h" />
+    <ClInclude Include="..\..\src\player\DemosaicFXNode.h" />
     <ClInclude Include="..\..\src\player\DisplayEngine.h" />
     <ClInclude Include="..\..\src\player\DisplayParams.h" />
     <ClInclude Include="..\..\src\player\DivNode.h" />

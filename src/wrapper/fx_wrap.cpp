@@ -24,6 +24,7 @@
 
 #include "../player/FXNode.h"
 #include "../player/NullFXNode.h"
+#include "../player/DemosaicFXNode.h"
 #include "../player/BlurFXNode.h"
 #include "../player/ShadowFXNode.h"
 #include "../player/ChromaKeyFXNode.h"
@@ -43,6 +44,11 @@ void export_fx()
             "NullFXNode")
         ;
 
+     class_<DemosaicFXNode, bases<FXNode>, boost::shared_ptr<DemosaicFXNode>, 
+            boost::noncopyable>("DemosaicFXNode")
+        .def("setParam", &DemosaicFXNode::setParam)
+        ;
+
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>, 
             boost::noncopyable>("BlurFXNode")
         .def("setParam", &BlurFXNode::setParam)
@@ -52,7 +58,7 @@ void export_fx()
             boost::noncopyable>("ShadowFXNode")
         .def("setParams", &ShadowFXNode::setParams)
         ;
-
+          
     class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>, 
             boost::noncopyable>("ChromaKeyFXNode")
         .add_property("color",
