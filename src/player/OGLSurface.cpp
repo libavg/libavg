@@ -371,13 +371,225 @@ void OGLSurface::createShader()
         "    rgb = colorCoeff*yuv;\n"
         "    return vec4(rgb.rgb, gl_Color.a);\n"
         "}\n"
-
-        "vec4 demosaic(void)\n"
+        "\n"
+        /* 
+         * Get rgb color from YCbCr on giveb position
+         */
+        "vec4 getRGB_YCbCr_pos(vec2 position)\n"
+        "{\n"
+        "    vec4 rgb;\n"
+        "    vec2 pos;\n"
+        "    pos.x = (position.x < 0) ? 0.0 : position.x;\n"
+        "    pos.x = (position.x > 1.0) ? 1.0 : position.x;\n"
+        "    pos.y = (position.y < 0) ? 0.0 : position.y;\n"
+        "    pos.y = (position.y > 1.0) ? 1.0 : position.y;\n"
+        "    rgb = vec4(texture2D(texture, position).r,\n"
+        "               texture2D(cbTexture, position).r,\n"
+        "               texture2D(crTexture, position).r,\n"
+        "               1.0);\n"
+        "    return vec4(rgb.rgb, gl_Color.a);\n"
+        "}\n"
+        "\n"
+        /* 
+         * Delete colors s.t. the image looks like a bayer-pattern
+         */
+        "vec4 bayerize()\n"
         "{\n"
         "   vec4 rgb = vec4(0.0);\n"
         
-        "   float dx = dFdx(gl_TexCoord[0].x);\n"
-        "   float dy = dFdy(gl_TexCoord[0].y);\n"               
+        "   float dx = dFdx(gl_TexCoord[0].s);\n"
+        "   float dy = dFdy(gl_TexCoord[0].t);\n"               
+
+        "   vec4 tex =texture2D(texture, gl_TexCoord[0].st);\n" 
+        
+
+        //evaluate if the coordinates of the current pixel are even
+        "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
+        "   bool y_even = (mod(floor(gl_TexCoord[0].t/dy), 2.0) == 0.0);\n"
+        //Red
+        "   if ( x_even && y_even ){ \n"
+        "       rgb.r = tex.r;\n"
+        "       rgb.gb = vec2(0.0);\n"
+        "   }\n"
+            
+        //Blue
+        "   if ( !x_even && !y_even ){\n"
+        "       rgb.b = tex.b;\n"
+        "       rgb.rg = vec2(0.0);\n"
+        "   }\n"
+       
+        //Green
+        "   if ( ( !x_even && y_even ) ){\n"
+        "       rgb.g = tex.g;\n"
+        "       rgb.rb = vec2(0.0);\n"
+        "   }\n"
+        "   if ( x_even && !y_even ){\n"
+        "       rgb.g = tex.g;\n"
+       "        rgb.rb = vec2(0.0);\n"
+        "   }\n"
+        "   rgb.a = tex.a;\n"
+        "   return rgb;\n"
+        "}\n"
+        "\n"
+
+        /*
+         * Adaptive fuzzy color interpolation scheme
+         */
+        "float fuzzy_demosaic_step1()\n"
+        "{\n"
+        "   float green = 0.0;\n"
+        
+        "   float dx = dFdx(gl_TexCoord[0].s);\n"
+        "   float dy = dFdy(gl_TexCoord[0].t);\n"               
+         /*
+          *        |omm|
+          *     |mm|om |pm|
+          * |mmo|mo|tex|po|ppo|
+          *     |mp|op |pp|
+          *        |opp|
+          */
+
+        "   vec4 omm =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy*2));\n"
+        "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy));\n"
+
+        "   vec4 mmo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx*2,0));\n" 
+        "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0));\n" 
+        "   vec4 tex =texture2D(texture, gl_TexCoord[0].st);\n" 
+        "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0));\n" 
+        "   vec4 ppo =texture2D(texture, gl_TexCoord[0].st+vec2(dx*2,0));\n" 
+         
+        "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy));\n" 
+        "   vec4 opp =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy*2));\n" 
+        
+        //evaluate if the coordinates of the current pixel are even
+        "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
+        "   bool y_even = (mod(floor(gl_TexCoord[0].t/dy), 2.0) == 0.0);\n"
+        
+        //Red
+        "   if ( x_even && y_even ){ \n"
+        "       float c_hor = 0.5*(-mmo.r + 2.0*mo.g - 2.0*po.g + ppo.r);\n"
+        "       float c_ver = 0.5*(-omm.r + 2.0*om.g - 2.0*op.g + opp.r);\n"
+        "       float i_hor = 0.5*(om.g + op.g) + 0.125*(-omm.r + 2.0*tex.r - opp.r);\n"
+        "       float i_ver = 0.5*(mo.g + po.g) + 0.125*(-mmo.r + 2.0*tex.r - ppo.r);\n"
+        "       if (abs(c_hor)<abs(c_ver)){ \n"
+        "           green = 0.8333*i_hor+0.1667*i_ver;\n"
+        "       } else {\n"
+        "           if (abs(c_ver)<abs(c_hor)) { \n"
+        "               green = 0.8333*i_ver+0.1667*i_hor;\n"
+        "           } else {\n"
+        "               green = 0.5*i_ver+0.5*i_hor;\n"
+        "           }\n"
+        "       }\n"
+        "   }\n"
+            
+        //Blue
+        "   if ( !x_even && !y_even ){\n"
+        "       float c_hor = 0.5*(-mmo.b + 2.0*mo.g - 2.0*po.g + ppo.b);\n"
+        "       float c_ver = 0.5*(-omm.b + 2.0*om.g - 2.0*op.g + opp.b);\n"
+        "       float i_hor = 0.5*(om.g + op.g) + 0.125*(-omm.b + 2.0*tex.b - opp.b);\n"
+        "       float i_ver = 0.5*(mo.g + po.g) + 0.125*(-mmo.b + 2.0*tex.b - ppo.b);\n"
+        "       if (abs(c_hor)<abs(c_ver)){ \n"
+        "           green = 0.8333*i_hor+0.1667*i_ver;\n"
+        "       } else {\n"
+        "           if (abs(c_ver)<abs(c_hor)) { \n"
+        "               green = 0.8333*i_ver+0.1667*i_hor;\n"
+        "           } else {\n"
+        "               green = 0.5*i_ver+0.5*i_hor;\n"
+        "           }\n"
+        "       }\n"
+        "   }\n"
+
+        "   if ( ( !x_even && y_even ) || ( x_even && !y_even )){\n"
+        "       green = tex.g;\n"
+        "   }\n"
+        "   return green;\n"
+        "}\n"
+
+
+        /*
+         * Adaptive fuzzy color interpolation scheme
+         */
+        "float fuzzy_demosaic_step2_3()\n"
+        "{\n"
+        "   float red = 0.0;\n"
+        "   float blue = 0.0;\n"
+        
+        "   float dx = dFdx(gl_TexCoord[0].s);\n"
+        "   float dy = dFdy(gl_TexCoord[0].t);\n"               
+         /*
+          *        |omm|
+          *     |mm|om |pm|
+          * |mmo|mo|tex|po|ppo|
+          *     |mp|op |pp|
+          *        |opp|
+          */
+
+        "   vec4 omm =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy*2));\n"
+        "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy));\n"
+
+        "   vec4 mmo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx*2,0));\n" 
+        "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0));\n" 
+        "   vec4 tex =texture2D(texture, gl_TexCoord[0].st);\n" 
+        "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0));\n" 
+        "   vec4 ppo =texture2D(texture, gl_TexCoord[0].st+vec2(dx*2,0));\n" 
+         
+        "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy));\n" 
+        "   vec4 opp =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy*2));\n" 
+        
+        //evaluate if the coordinates of the current pixel are even
+        "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
+        "   bool y_even = (mod(floor(gl_TexCoord[0].t/dy), 2.0) == 0.0);\n"
+        
+        //Red
+        "   if ( x_even && y_even ){ \n"
+        "       float c_hor = 0.5*(-mmo.r + 2.0*mo.g - 2.0*po.g + ppo.r);\n"
+        "       float c_ver = 0.5*(-omm.r + 2.0*om.g - 2.0*op.g + opp.r);\n"
+        "       float i_hor = 0.5*(om.g + op.g) + 0.125*(-omm.r + 2.0*tex.r - opp.r);\n"
+        "       float i_ver = 0.5*(mo.g + po.g) + 0.125*(-mmo.r + 2.0*tex.r - ppo.r);\n"
+        "       if (abs(c_hor)<abs(c_ver)){ \n"
+        "           green = 0.8333*i_hor+0.1667*i_ver;\n"
+        "       } else {\n"
+        "           if (abs(c_ver)<abs(c_hor)) { \n"
+        "               green = 0.8333*i_ver+0.1667*i_hor;\n"
+        "           } else {\n"
+        "               green = 0.5*i_ver+0.5*i_hor;\n"
+        "           }\n"
+        "       }\n"
+        "   }\n"
+            
+        //Blue
+        "   if ( !x_even && !y_even ){\n"
+        "       float c_hor = 0.5*(-mmo.b + 2.0*mo.g - 2.0*po.g + ppo.b);\n"
+        "       float c_ver = 0.5*(-omm.b + 2.0*om.g - 2.0*op.g + opp.b);\n"
+        "       float i_hor = 0.5*(om.g + op.g) + 0.125*(-omm.b + 2.0*tex.b - opp.b);\n"
+        "       float i_ver = 0.5*(mo.g + po.g) + 0.125*(-mmo.b + 2.0*tex.b - ppo.b);\n"
+        "       if (abs(c_hor)<abs(c_ver)){ \n"
+        "           green = 0.8333*i_hor+0.1667*i_ver;\n"
+        "       } else {\n"
+        "           if (abs(c_ver)<abs(c_hor)) { \n"
+        "               green = 0.8333*i_ver+0.1667*i_hor;\n"
+        "           } else {\n"
+        "               green = 0.5*i_ver+0.5*i_hor;\n"
+        "           }\n"
+        "       }\n"
+        "   }\n"
+
+        "   if ( ( !x_even && y_even ) || ( x_even && !y_even )){\n"
+        "       green = tex.g;\n"
+        "   }\n"
+        "   return green;\n"
+        "}\n"
+
+
+        /*
+         * Bilinear color interpolation scheme
+         */
+        "vec4 bilin_demosaic()\n"
+        "{\n"
+        "   vec4 rgb = vec4(0.0);\n"
+        
+        "   float dx = dFdx(gl_TexCoord[0].s);\n"
+        "   float dy = dFdy(gl_TexCoord[0].t);\n"               
          /*
           * |mm|om |pm|
           * |mo|tex|po|
@@ -397,7 +609,7 @@ void OGLSurface::createShader()
         
         //evaluate if the coordinates of the current pixel are even
         "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
-        "   bool y_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
+        "   bool y_even = (mod(floor(gl_TexCoord[0].t/dy), 2.0) == 0.0);\n"
         //Red
         "   if ( x_even && y_even ){ \n"
         "       rgb.r = tex.r;\n"
@@ -442,7 +654,9 @@ void OGLSurface::createShader()
         "           rgba = colorCoeff*rgba;\n"
         "        };\n"
         "        rgba.a *= gl_Color.a;\n"
-          "rgba = demosaic()\n"
+        //"rgba = bayerize();\n"
+        "rgba = bilin_demosaic();\n"
+        "rgba.g = fuzzy_demosaic_step1();\n"
         "    } else if (colorModel == 1) {\n"
         "        rgba = convertYCbCr(colorCoeff);\n"
         "    } else if (colorModel == 2) {\n"
