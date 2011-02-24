@@ -65,7 +65,7 @@ This section describes the base classes for all node classes that libavg provide
                 root = player.loadFile("scene.avg")
 
         **Create a complete scene graph using inline xml**:
-            :py:meth:`Player.loadString` allows using and avg-formatted xml string to 
+            :py:meth:`Player.loadString` allows using an avg-formatted xml string to 
             create a scene graph of nodes::
 
                 root = player.loadString("""
