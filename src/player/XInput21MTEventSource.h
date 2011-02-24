@@ -62,6 +62,8 @@ private:
 
     std::string m_sDeviceName;
     int m_DeviceID;
+
+    int m_OldMasterDeviceID;
 };
 
 typedef boost::shared_ptr<XInput21MTEventSource> XInput21MTEventSourcePtr;
