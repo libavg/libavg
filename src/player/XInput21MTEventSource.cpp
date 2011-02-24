@@ -56,12 +56,20 @@ const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);
 
 XInput21MTEventSource::XInput21MTEventSource()
-    : m_LastID(0)
+    : m_LastID(0),
+      m_DeviceID(-1)
 {
 }
 
 XInput21MTEventSource::~XInput21MTEventSource()
 {
+    if (m_DeviceID != -1 && m_OldMasterDeviceID != -1) {
+        XIAttachSlaveInfo atInfo;
+        atInfo.type = XIAttachSlave;
+        atInfo.deviceid = m_DeviceID;
+        atInfo.new_master = m_OldMasterDeviceID;
+        XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&atInfo, 1);
+    }
 }
 
 void XInput21MTEventSource::start()
@@ -123,6 +131,12 @@ void XInput21MTEventSource::start()
     m_SDLUnlockFunc();
 
     SDL_SetEventFilter(XInput21MTEventSource::filterEvent);
+  
+    
+    XIDetachSlaveInfo detInfo;
+    detInfo.type = XIDetachSlave;
+    detInfo.deviceid = m_DeviceID;
+    XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
 
     pEngine->setXIMTEventSource(this);
     MultitouchEventSource::start();
@@ -196,9 +210,9 @@ void XInput21MTEventSource::findMTDevice()
     bool bDirectTouch;
     for (int i = 0; i < ndevices && !pTouchClass; ++i) {
         pDevice = &pDevices[i];
-        if (pDevice->use == XISlavePointer) {
-//            cerr << "Device " << pDevice->name << "(id: " << pDevice->deviceid << ")."
-//                    << endl;
+//        cerr << "Device " << pDevice->name << "(id: " << pDevice->deviceid << ")."
+//                << endl;
+        if (pDevice->use == XISlavePointer || pDevice->use == XIFloatingSlave) {
             for (int j = 0; j < pDevice->num_classes; ++j) {
                 XIAnyClassInfo * pClass = pDevice->classes[j];
                 if (pClass->type == XITouchClass) {
@@ -207,6 +221,11 @@ void XInput21MTEventSource::findMTDevice()
                         pTouchClass = pTempTouchClass;
                         m_sDeviceName = pDevice->name;
                         m_DeviceID = pDevice->deviceid;
+                        if (pDevice->use == XISlavePointer) {
+                            m_OldMasterDeviceID = pDevice->attachment;
+                        } else {
+                            m_OldMasterDeviceID = -1;
+                        }
                         maxTouches = pTouchClass->num_touches;
                         break;
                     }
