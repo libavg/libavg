@@ -46,7 +46,6 @@ void export_fx()
 
      class_<DemosaicFXNode, bases<FXNode>, boost::shared_ptr<DemosaicFXNode>, 
             boost::noncopyable>("DemosaicFXNode")
-        .def("setParam", &DemosaicFXNode::setParam)
         ;
 
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>, 

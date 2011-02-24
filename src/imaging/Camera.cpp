@@ -86,6 +86,13 @@ BitmapPtr Camera::convertCamFrameToDestPF(BitmapPtr pCamBmp)
         FilterFlipRGB().applyInPlace(pDestBmp);
     }
 
+    //if (m_CamPF == BAYER8 && m_DestPF == B8G8R8X8) {
+    //    pDestBmp->setPixelFormat(R8G8B8X8);
+    //   FilterFlipRGB().applyInPlace(pDestBmp);  
+    //}
+
+    //TODO apply filter here
+
     return pDestBmp;
 }
 

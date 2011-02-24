@@ -13,8 +13,7 @@ using namespace std;
 namespace avg {
 
 DemosaicFXNode::DemosaicFXNode() 
-    : FXNode(),
-      m_StdDev(1)
+    : FXNode()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -30,18 +29,9 @@ void DemosaicFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void DemosaicFXNode::setParam(double stdDev)
-{
-    m_StdDev = stdDev;
-    if (m_pFilter) {
-        m_pFilter->setParam(stdDev);
-    }
-}
-
 GPUFilterPtr DemosaicFXNode::createFilter(const IntPoint& size)
 {
-    m_pFilter = GPUDemosaicPtr(new GPUDemosaic(size, B8G8R8A8, B8G8R8A8, m_StdDev, 
-            false));
+    m_pFilter = GPUDemosaicPtr(new GPUDemosaic(size, B8G8R8A8, B8G8R8A8, false));
     return m_pFilter;
 }
 

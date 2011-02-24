@@ -18,14 +18,11 @@ public:
     virtual ~DemosaicFXNode();
 
     virtual void disconnect();
-    void setParam(double stdDev);
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
 
     GPUDemosaicPtr m_pFilter;
-
-    double m_StdDev;
 };
 
 typedef boost::shared_ptr<DemosaicFXNode> DemosaicFXNodePtr;
