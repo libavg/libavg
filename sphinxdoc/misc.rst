@@ -408,34 +408,38 @@ Misc. Classes
 
         .. py:attribute:: framerate
 
-        The speed of the encoded video in frames per second. This is used for two 
-        purposes. First, it determines the nominal playback speed of the video that is
-        encoded in the file. Second, if :py:attr:`synctoplayback` is :keyword:`False`,
-        the :py:class:`VideoWriter` will also use the :py:attr:`framerate` value as
-        the actual number of frames per second to write. Read-only.
+            The speed of the encoded video in frames per second. This is used for two 
+            purposes. First, it determines the nominal playback speed of the video that is
+            encoded in the file. Second, if :py:attr:`synctoplayback` is :keyword:`False`,
+            the :py:class:`VideoWriter` will also use the :py:attr:`framerate` value as
+            the actual number of frames per second to write. Read-only.
 
         .. py:attribute:: qmin
 
         .. py:attribute:: qmax
 
-        :py:attr:`qmin` and :py:attr:`qmax` specify the minimum and maximum encoding 
-        quality to use. :samp:`qmin = qmax = 1` give maximum quality at maximum file size.
-        :samp:`qmin=3` and :samp:`qmax=5` (the default) give a good quality and a smaller
-        file.  Read-only.
+            :py:attr:`qmin` and :py:attr:`qmax` specify the minimum and maximum encoding 
+            quality to use. :samp:`qmin = qmax = 1` give maximum quality at maximum file
+            size. :samp:`qmin=3` and :samp:`qmax=5` (the default) give a good quality and
+            a smaller file.  Read-only.
 
         .. py:attribute:: synctoplayback
 
-        If :py:attr:`synctoplayback` is :keyword:`True` (the default), each frame played
-        back in the canvas will be written to disk. This makes a lot of sense in 
-        combination with :py:meth:`Canvas.registerCameraNode()`. If not, 
-        :py:attr:`framerate` is used.
+            If :py:attr:`synctoplayback` is :keyword:`True` (the default), each frame
+            played back in the canvas will be written to disk. This makes a lot of sense
+            in combination with :py:meth:`Canvas.registerCameraNode()`. If not, 
+            :py:attr:`framerate` is used to determine which frames to write to disk. For 
+            instance, if :py:attr:`synctoplayback` is :keyword:`False`,
+            :py:attr:`framerate` is 25 and the player is running at 60 fps, one movie
+            frame will be written for each 2.5 frames of playback. The actual, not the
+            nominal playback speed is used in this case. Read-only.
 
         .. py:method:: stop()
 
-        Ends the recording and writes the rest of the file to disk. Note that this is
-        asynchronous to normal playback. If you need to immediately re-opening the video
-        file (e.g. for playback in a video node), destroy the python object first. This
-        waits for sync.
+            Ends the recording and writes the rest of the file to disk. Note that this is
+            asynchronous to normal playback. If you need to immediately re-open the
+            video file (e.g. for playback in a video node), destroy the python object 
+            first. This waits for sync.
 
     .. autofunction:: getMemoryUsage() -> int
 
