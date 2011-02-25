@@ -43,7 +43,8 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_QMin(qMin),
       m_QMax(qMax),
       m_bSyncToPlayback(bSyncToPlayback),
-      m_bStopped(false)
+      m_bStopped(false),
+      m_CurFrame(0)
 {
     IntPoint size = m_pCanvas->getSize();
 #ifdef WIN32
@@ -61,8 +62,8 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);
     m_pCanvas->registerFrameEndListener(this);
-    // TODO: Why yield here?
-//    m_pVideoWriterThread->yield();
+
+    m_StartTime = Player::get()->getFrameTime();
 }
 
 VideoWriter::~VideoWriter()
@@ -124,18 +125,18 @@ void VideoWriter::handleFrame()
 
 void VideoWriter::addFrame(BitmapPtr pBitmap)
 {
+    m_CurFrame++;
     m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
 }
 
 void VideoWriter::handleAutoSynchronizedFrame()
 {
-    // TODO: Make this work with Player::getFrameTime().
-    int fraction = static_cast<int>(Player::get()->getFramerate() + 0.5)/m_FrameRate;
-    m_FrameIndex = m_FrameIndex % fraction;
-    if (m_FrameIndex == 0) {
+    long long movieTime = Player::get()->getFrameTime() - m_StartTime;
+    int timePerFrame = 1000/m_FrameRate;
+    int wantedFrame = movieTime/timePerFrame;
+    if (wantedFrame > m_CurFrame) {
         handleFrame();
     }
-    m_FrameIndex++;
 }
 
 

@@ -481,8 +481,9 @@ class AVTestCase(AVGTestCase):
 
     def testVideoWriter(self):
         
-        def startWriter():
-            self.videoWriter = avg.VideoWriter(Player.getMainCanvas(), "test.mov", 30)
+        def startWriter(fps, syncToPlayback):
+            self.videoWriter = avg.VideoWriter(Player.getMainCanvas(), "test.mov", fps,
+                    3, 5, syncToPlayback)
 
         def stopWriter():
             self.videoWriter.stop()
@@ -490,11 +491,11 @@ class AVTestCase(AVGTestCase):
         def killWriter():
             self.videoWriter = None
 
-        def openVideo():
+        def checkVideo(numFrames):
             savedVideoNode = libavg.VideoNode(href="test.mov", threaded=False)
             savedVideoNode.pause()
             self.assert_(savedVideoNode.getVideoCodec() == "mjpeg")
-            self.assert_(savedVideoNode.getNumFrames() == 4)
+            self.assert_(savedVideoNode.getNumFrames() == numFrames)
             self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
 
         def testLoadException():
@@ -509,14 +510,22 @@ class AVTestCase(AVGTestCase):
             
             self.start(None,
                 (videoNode.play,
-                 startWriter,
+                 lambda: startWriter(30, True),
                  None,
                  None,
                  None,
                  stopWriter,
                  killWriter,
-                 openVideo,
-                 testLoadException
+                 lambda: checkVideo(4),
+                 testLoadException,
+                 lambda: startWriter(15, False),
+                 None,
+                 None,
+                 None,
+                 None,
+                 stopWriter,
+                 killWriter,
+                 lambda: checkVideo(2),
                 ))
         else:
             print "Skipping VideoWriter tests - current dir not writable."

@@ -72,11 +72,12 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
 
         VideoWriterThread::CQueue m_CmdQueue;
         boost::thread* m_pThread;
-
-        unsigned int m_FrameIndex;
         bool m_bSyncToPlayback;
 
         bool m_bStopped;
+
+        int m_CurFrame;
+        long long m_StartTime;
 };
 
 }
