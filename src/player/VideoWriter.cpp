@@ -35,7 +35,7 @@ using namespace std;
 
 namespace avg {
 
-VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameRate,
+VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, double frameRate,
         int qMin, int qMax, bool bSyncToPlayback)
     : m_pCanvas(pCanvas),
       m_sOutFileName(sOutFileName),
@@ -92,7 +92,7 @@ std::string VideoWriter::getFileName() const
     return m_sOutFileName;
 }
 
-int VideoWriter::getFramerate() const
+double VideoWriter::getFramerate() const
 {
     return m_FrameRate;
 }
@@ -132,8 +132,8 @@ void VideoWriter::addFrame(BitmapPtr pBitmap)
 void VideoWriter::handleAutoSynchronizedFrame()
 {
     long long movieTime = Player::get()->getFrameTime() - m_StartTime;
-    int timePerFrame = 1000/m_FrameRate;
-    int wantedFrame = movieTime/timePerFrame;
+    double timePerFrame = 1000./m_FrameRate;
+    int wantedFrame = int(movieTime/timePerFrame+0.1);
     if (wantedFrame > m_CurFrame) {
         handleFrame();
     }
