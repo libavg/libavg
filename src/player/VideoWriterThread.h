@@ -26,30 +26,11 @@
 
 #include "../base/WorkerThread.h"
 #include "../graphics/Bitmap.h"
+#include "../video/WrapFFMpeg.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#if !defined INT64_C
-#define INT64_C(c) c##i64
-#endif
-#else
-// This is probably GCC-specific.
-#if !defined INT64_C
-#if defined __WORDSIZE && __WORDSIZE == 64
-#define INT64_C(c) c ## L
-#else
-#define INT64_C(c) c ## LL
-#endif
-#endif
-#endif
-
-extern "C" {
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
-}
 
 #include <string>
 

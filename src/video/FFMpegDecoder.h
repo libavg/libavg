@@ -30,33 +30,8 @@
 #include "../base/ProfilingZone.h"
 #include "../avgconfigwrapper.h"
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#if !defined INT64_C
-#define INT64_C(c) c##i64
-#endif
-#else
-// This is probably GCC-specific.
-#if !defined INT64_C
-#if defined __WORDSIZE && __WORDSIZE == 64
-#define INT64_C(c) c ## L
-#else
-#define INT64_C(c) c ## LL
-#endif
-#endif
-#endif
+#include "WrapFFMpeg.h"
 
-extern "C" {
-#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#else
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
-#include <ffmpeg/swscale.h>
-#endif
-}
 #include <boost/thread/mutex.hpp>
 
 namespace avg {

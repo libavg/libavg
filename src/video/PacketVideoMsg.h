@@ -26,26 +26,7 @@
 #include "../base/Queue.h"
 #include "../graphics/Bitmap.h"
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#else
-// This is probably GCC-specific.
-#if !defined INT64_C
-#if defined __WORDSIZE && __WORDSIZE == 64
-#define INT64_C(c) c ## L
-#else
-#define INT64_C(c) c ## LL
-#endif
-#endif
-#endif
-
-extern "C" {
-#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
-#include <libavformat/avformat.h>
-#else
-#include <ffmpeg/avformat.h>
-#endif
-}
+#include "WrapFFMpeg.h"
 
 #include <vector>
 

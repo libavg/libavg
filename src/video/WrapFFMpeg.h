@@ -19,41 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegDemuxer_H_
-#define _FFMpegDemuxer_H_
+#ifndef _WrapFFMpeg_H_
+#define _WrapFFMpeg_H_
 
 #include "../avgconfigwrapper.h"
-#include "IDemuxer.h"
 
-#include "WrapFFMpeg.h"
+#ifdef _WIN32
+#define EMULATE_INTTYPES
+#if !defined INT64_C
+#define INT64_C(c) c##i64
+#endif
+#else
+// XXX Do we still need this?
+// This is probably GCC-specific.
+#if !defined INT64_C
+#if defined __WORDSIZE && __WORDSIZE == 64
+#define INT64_C(c) c ## L
+#else
+#define INT64_C(c) c ## LL
+#endif
+#endif
+#endif
 
-#include <list>
-#include <vector>
-#include <map>
-
-#include <boost/shared_ptr.hpp>
-
-namespace avg {
-
-    class AVG_API FFMpegDemuxer: public IDemuxer {
-        public:
-            FFMpegDemuxer(AVFormatContext * pFormatContext, 
-                    std::vector<int> streamIndexes);
-            virtual ~FFMpegDemuxer();
-           
-            AVPacket * getPacket(int streamIndex);
-            void seek(double destTime);
-            void dump();
-            
-        private:
-            void clearPacketCache();
-
-            typedef std::list<AVPacket *> PacketList;
-            std::map<int, PacketList> m_PacketLists;
-           
-            AVFormatContext * m_pFormatContext;
-    };
-    typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
+extern "C" {
+#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#else
+#include <ffmpeg/avcodec.h>
+#include <ffmpeg/avformat.h>
+#include <ffmpeg/swscale.h>
+#endif
 }
 
 #endif

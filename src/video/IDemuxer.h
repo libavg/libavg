@@ -25,39 +25,7 @@
 #include "../api.h"
 #include <math.h>
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#else
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-/*
-// XXX Do we still need this?
-// This is probably GCC-specific.
-#if !defined INT64_C
-#if defined __WORDSIZE && __WORDSIZE == 64
-#define INT64_C(c) c ## L
-#else
-#define INT64_C(c) c ## LL
-#endif
-#endif
-*/
-#endif
-
-extern "C" {
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable:4244)
-#endif
-#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
-#include <libavformat/avformat.h>
-#else
-#include <ffmpeg/avformat.h>
-#endif
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
-}
+#include "WrapFFMpeg.h"
 
 #include <boost/shared_ptr.hpp>
 
