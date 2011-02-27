@@ -26,10 +26,7 @@
 #include <boost/bind.hpp>
 
 #include <fcntl.h>
-#ifdef WIN32
-#define open _open
-#define close _close
-#endif
+#include <stdio.h>
 
 using namespace std;
 
@@ -48,7 +45,8 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
 {
     IntPoint size = m_pCanvas->getSize();
 #ifdef WIN32
-    int fd = open(m_sOutFileName.c_str(), O_RDWR | O_CREAT);
+    int fd = _open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
+
 #else
     int fd = open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, S_IRWXU);
 #endif
@@ -57,7 +55,12 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
                 string("Could not open output file '") + m_sOutFileName + "'. Reason: " +
                 strerror(errno));
     }
+#ifdef WIN32
+    _close(fd);
+#else
     close(fd);
+#endif
+    remove(m_sOutFileName.c_str());
     VideoWriterThread writer(m_CmdQueue, m_sOutFileName, size, m_FrameRate, qMin, qMax);
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);

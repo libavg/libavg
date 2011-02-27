@@ -498,8 +498,9 @@ class AVTestCase(AVGTestCase):
             self.assert_(savedVideoNode.getNumFrames() == numFrames)
             self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
 
-        def testLoadException():
-            self.assertException(lambda: avg.VideoWriter(Player.getMainCanvas(), "", 30))
+        def testCreateException():
+            self.assertException(lambda: avg.VideoWriter(Player.getMainCanvas(), 
+                    "nonexistentdir/test.mov", 30))
 
         if self._isCurrentDirWriteable():
             Player.setFakeFPS(30)
@@ -517,7 +518,7 @@ class AVTestCase(AVGTestCase):
                  stopWriter,
                  killWriter,
                  lambda: checkVideo(4),
-                 testLoadException,
+                 testCreateException,
                  lambda: startWriter(15, False),
                  None,
                  None,
@@ -527,6 +528,7 @@ class AVTestCase(AVGTestCase):
                  killWriter,
                  lambda: checkVideo(2),
                 ))
+            os.remove("test.mov")    
         else:
             print "Skipping VideoWriter tests - current dir not writable."
         
