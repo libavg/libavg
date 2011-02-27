@@ -26,9 +26,6 @@
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
-#if !defined INT64_C
-#define INT64_C(c) c##i64
-#endif
 #else
 // XXX Do we still need this?
 // This is probably GCC-specific.
