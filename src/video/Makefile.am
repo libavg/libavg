@@ -4,7 +4,7 @@ INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
         PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
-        IDemuxer.h AsyncDemuxer.h VideoInfo.h
+        IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
 
 TESTS=testvideo
 
