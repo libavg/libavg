@@ -27,13 +27,14 @@
 #ifdef _WIN32
 #define EMULATE_INTTYPES
 #else
-// XXX Do we still need this?
 // This is probably GCC-specific.
 #if !defined INT64_C
 #if defined __WORDSIZE && __WORDSIZE == 64
 #define INT64_C(c) c ## L
+#define UINT64_C(c) c ## UL
 #else
 #define INT64_C(c) c ## LL
+#define UINT64_C(c) c ## ULL
 #endif
 #endif
 #endif
