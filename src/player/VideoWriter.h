@@ -42,12 +42,12 @@ class Canvas;
 class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
     public:
         VideoWriter(Canvas* pCanvas, const std::string& sOutFileName,
-                double frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
+                int frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
         virtual ~VideoWriter();
         void stop();
 
         std::string getFileName() const;
-        double getFramerate() const;
+        int getFramerate() const;
         int getQMin() const;
         int getQMax() const;
 
@@ -63,7 +63,7 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
 
         Canvas* m_pCanvas;
         std::string m_sOutFileName;
-        double m_FrameRate;
+        int m_FrameRate;
         int m_QMin;
         int m_QMax;
         IntPoint m_FrameSize;

@@ -35,7 +35,7 @@ using namespace std;
 
 namespace avg {
 
-VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, double frameRate,
+VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameRate,
         int qMin, int qMax, bool bSyncToPlayback)
     : m_pCanvas(pCanvas),
       m_sOutFileName(sOutFileName),
@@ -92,7 +92,7 @@ std::string VideoWriter::getFileName() const
     return m_sOutFileName;
 }
 
-double VideoWriter::getFramerate() const
+int VideoWriter::getFramerate() const
 {
     return m_FrameRate;
 }
