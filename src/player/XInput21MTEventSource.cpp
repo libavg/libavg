@@ -48,28 +48,25 @@
 
 using namespace std;
 
+
 namespace avg {
 
 Display* XInput21MTEventSource::s_pDisplay = 0;
+map<int, struct sigaction*> XInput21MTEventSource::s_OldSignalHandlers;
+int XInput21MTEventSource::s_DeviceID = -1;
+int XInput21MTEventSource::s_OldMasterDeviceID = -1;
 
 const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);
 
 XInput21MTEventSource::XInput21MTEventSource()
-    : m_LastID(0),
-      m_DeviceID(-1)
+    : m_LastID(0)
 {
 }
 
 XInput21MTEventSource::~XInput21MTEventSource()
 {
-    if (m_DeviceID != -1 && m_OldMasterDeviceID != -1) {
-        XIAttachSlaveInfo atInfo;
-        atInfo.type = XIAttachSlave;
-        atInfo.deviceid = m_DeviceID;
-        atInfo.new_master = m_OldMasterDeviceID;
-        XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&atInfo, 1);
-    }
+    cleanup();
 }
 
 void XInput21MTEventSource::start()
@@ -117,7 +114,7 @@ void XInput21MTEventSource::start()
     findMTDevice();
 
     XIEventMask mask;
-    mask.deviceid = m_DeviceID;
+    mask.deviceid = s_DeviceID;
     mask.mask_len = XIMaskLen(XI_LASTEVENT);
     mask.mask = (unsigned char *)calloc(mask.mask_len, sizeof(char));
     memset(mask.mask, 0, mask.mask_len);
@@ -135,9 +132,10 @@ void XInput21MTEventSource::start()
     
     XIDetachSlaveInfo detInfo;
     detInfo.type = XIDetachSlave;
-    detInfo.deviceid = m_DeviceID;
+    detInfo.deviceid = s_DeviceID;
     XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
-
+    setSignalHandlers();
+    
     pEngine->setXIMTEventSource(this);
     MultitouchEventSource::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
@@ -220,11 +218,11 @@ void XInput21MTEventSource::findMTDevice()
                     if (pTempTouchClass->mode == XIDirectTouch) {
                         pTouchClass = pTempTouchClass;
                         m_sDeviceName = pDevice->name;
-                        m_DeviceID = pDevice->deviceid;
+                        s_DeviceID = pDevice->deviceid;
                         if (pDevice->use == XISlavePointer) {
-                            m_OldMasterDeviceID = pDevice->attachment;
+                            s_OldMasterDeviceID = pDevice->attachment;
                         } else {
-                            m_OldMasterDeviceID = -1;
+                            s_OldMasterDeviceID = -1;
                         }
                         maxTouches = pTouchClass->num_touches;
                         break;
@@ -243,10 +241,44 @@ void XInput21MTEventSource::findMTDevice()
     XIFreeDeviceInfo(pDevices);
 }
 
+void XInput21MTEventSource::setSignalHandlers()
+{
+    setSignalHandler(SIGINT);
+    setSignalHandler(SIGHUP);
+    setSignalHandler(SIGTERM);
+    setSignalHandler(SIGSEGV);
+    setSignalHandler(SIGABRT);
+}
+
+void XInput21MTEventSource::setSignalHandler(int signum)
+{
+    struct sigaction new_action;
+
+    new_action.sa_handler = terminationHandler;
+    sigemptyset (&new_action.sa_mask);
+    new_action.sa_flags = 0;
+
+    s_OldSignalHandlers[signum] = new struct sigaction;
+    sigaction (signum, NULL, s_OldSignalHandlers[signum]);
+    if (s_OldSignalHandlers[signum]->sa_handler != SIG_IGN)
+        sigaction (signum, &new_action, NULL);
+}
+
 TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPoint pos)
 {
     return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH, DPoint(0,0), 
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
+}
+
+void XInput21MTEventSource::cleanup()
+{
+    if (s_DeviceID != -1 && s_OldMasterDeviceID != -1) {
+        XIAttachSlaveInfo atInfo;
+        atInfo.type = XIAttachSlave;
+        atInfo.deviceid = s_DeviceID;
+        atInfo.new_master = s_OldMasterDeviceID;
+        XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&atInfo, 1);
+    }
 }
 
 int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
@@ -269,7 +301,13 @@ int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
     }
     return 1;
 }
-          
+      
+void XInput21MTEventSource::terminationHandler(int signum)
+{
+    cleanup();
+    (s_OldSignalHandlers[signum]->sa_handler)(signum);
+}
+
 // From xinput/test_xi2.c
 const char* cookieTypeToName(int evtype)
 {
