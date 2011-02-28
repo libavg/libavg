@@ -108,11 +108,6 @@ void XInput21MTEventSource::start()
                 "XInput 2.1 multitouch event source: Supported version is "
                 +toString(major)+"."+toString(minor)+". 2.1 is needed.");
     }
-    if (pEngine->isFullscreen()) {
-        m_Win = info.info.x11.fswindow;
-    } else {
-        m_Win = info.info.x11.wmwindow;
-    }
 
     findMTDevice();
 
@@ -130,7 +125,7 @@ void XInput21MTEventSource::start()
     XISetMask(mask.mask, XI_TouchUpdate);
     XISetMask(mask.mask, XI_TouchEnd);
 
-    status = XISelectEvents(s_pDisplay, m_Win, &mask, 1);
+    status = XISelectEvents(s_pDisplay, info.info.x11.window, &mask, 1);
     AVG_ASSERT(status == Success);
 
     m_SDLUnlockFunc();
