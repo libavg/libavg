@@ -116,6 +116,11 @@ void XInput21MTEventSource::start()
 
     findMTDevice();
 
+    // SDL grabs the pointer in full screen mode. This breaks touchscreen usage.
+    // Can't use SDL_WM_GrabInput(SDL_GRAB_OFF) because it doesn't work in full
+    // screen mode. Get the display connection and do it manually.
+    XUngrabPointer(info.info.x11.display, CurrentTime);
+
     XIEventMask mask;
     mask.deviceid = m_DeviceID;
     mask.mask_len = XIMaskLen(XI_LASTEVENT);
