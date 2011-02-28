@@ -82,7 +82,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
             }       
         }
         if (id_to_use == -1) {
-            AVG_TRACE(Logger::WARNING, "Firewire GUID=" << guid 
+            AVG_TRACE(Logger::WARNING, "Firewire GUID=" << hex << guid << dec
                     << " requested but not found on bus. Using first camera");
             id_to_use = 0;
         }

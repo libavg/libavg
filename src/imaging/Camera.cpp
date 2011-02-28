@@ -166,7 +166,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
     try {
         if (sDriver == "firewire") {
             char * pszErr;
-            long long guid = strtoll(sDevice.c_str(), &pszErr, 10);
+            long long guid = strtoll(sDevice.c_str(), &pszErr, 16);
             if (strlen(pszErr)) {
                 throw Exception(AVG_ERR_INVALID_ARGS, "'"+sDevice
                         +"' is not a valid GUID.");
