@@ -28,10 +28,7 @@
 #include "../base/Point.h"
 
 #include <X11/Xlib.h>
-#include <signal.h>
-
 #include <vector>
-#include <map>
 #include <string>
 
 union SDL_Event;
@@ -50,29 +47,22 @@ public:
     
 private:
     void findMTDevice();
-    void setSignalHandlers();
-    void setSignalHandler(int signum);
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
-    static void cleanup();
 
     static int filterEvent(const SDL_Event * pEvent);
-    static void terminationHandler(int signum);
 
     int m_LastID;
 
     static Display* s_pDisplay;
-    Window m_Win;
     void (*m_SDLLockFunc)(void);
     void (*m_SDLUnlockFunc)(void);
 
     int m_XIOpcode;
 
     std::string m_sDeviceName;
-    static int s_DeviceID;
+    int m_DeviceID;
 
-    static int s_OldMasterDeviceID;
-
-    static std::map<int, struct sigaction*> s_OldSignalHandlers;
+    int m_OldMasterDeviceID;
 };
 
 typedef boost::shared_ptr<XInput21MTEventSource> XInput21MTEventSourcePtr;
