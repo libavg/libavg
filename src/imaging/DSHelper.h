@@ -52,7 +52,8 @@ PixelFormat mediaSubtypeToPixelFormat(const GUID& subtype);
 
 std::string mediaTypeToString(const GUID& type);
 std::string mediaSubtypeToString(const GUID& subtype);
-std::string mediaFormattypeToString(const GUID & formattype);
+std::string mediaFormattypeToString(const GUID& formattype);
+std::string camImageFormatToString(const AM_MEDIA_TYPE* pMediaType);
 
 bool isDSFeatureCamControl(CameraFeature feature);
 long getDSFeatureID(CameraFeature feature);

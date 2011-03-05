@@ -186,10 +186,7 @@ void DSCamera::setCaptureFormat()
         capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
 
         if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
-            stringstream ss;
-            ss << "(" << bih.biWidth << "x" << bih.biHeight << "), " << capsPF << ", " 
-                    << 10000000./pvih->AvgTimePerFrame << " fps.";
-            sImageFormats.push_back(ss.str());
+            sImageFormats.push_back(camImageFormatToString(pmtConfig));
         }
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
@@ -214,37 +211,30 @@ void DSCamera::setCaptureFormat()
         }
     }
     if (bFormatFound) {
-        AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth << "x"
-                << bih.biHeight << "), " << capsPF << ", "
-                << 10000000./pvih->AvgTimePerFrame << " fps.");
-        hr = pSC->SetFormat(pmtConfig);
-        checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
+        AVG_TRACE(Logger::CONFIG, "Camera image format: " << camImageFormatToString(pmtConfig));
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
         CoTaskMemFree(pmtConfig);
     } else {
         if (bCloseFormatFound) {
             // Set the framerate manually.
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
-            bih = pvih->bmiHeader;
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
-            capsPF = mediaSubtypeToPixelFormat(pmtCloseConfig->subtype);
-            AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth << "x"
-                    << bih.biHeight << "), " << capsPF << ", " 
-                    << 10000000./pvih->AvgTimePerFrame << " fps.");
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
+            AVG_TRACE(Logger::CONFIG, "Camera image format: " 
+                    << camImageFormatToString(pmtCloseConfig));
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
             CoTaskMemFree(pmtCloseConfig);
 
             // TODO: Check if framerate is actually attained.
         } else {
             AVG_TRACE(Logger::WARNING, 
-                "Possibly incomplete list of image formats supported by camera: ");
+                "Possibly incomplete list of camera image formats: ");
             for (unsigned i = 0; i < sImageFormats.size(); i++) {
-                AVG_TRACE(Logger::WARNING, sImageFormats[i]);
+                AVG_TRACE(Logger::WARNING, "  " << sImageFormats[i]);
             }
             throw Exception(AVG_ERR_CAMERA_NONFATAL, 
-                    "Could not find suitable camera image format.");
+                    "Could not find requested camera image format.");
         }
     }
     pSC->Release();

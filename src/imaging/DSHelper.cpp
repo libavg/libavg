@@ -159,7 +159,7 @@ string mediaSubtypeToString(const GUID & subtype)
     }
 }
 
-string mediaFormattypeToString(const GUID & formattype)
+string mediaFormattypeToString(const GUID& formattype)
 {
     if (formattype == FORMAT_None) {
         return "FORMAT_None";
@@ -172,6 +172,17 @@ string mediaFormattypeToString(const GUID & formattype)
     } else {
         return "Unknown";
     }
+}
+
+string camImageFormatToString(const AM_MEDIA_TYPE* pMediaType)
+{
+    stringstream ss;
+    VIDEOINFOHEADER* pVideoInfo = (VIDEOINFOHEADER*)(pMediaType->pbFormat);
+    BITMAPINFOHEADER* pBitmapInfo = &pVideoInfo->bmiHeader;
+    PixelFormat pf = mediaSubtypeToPixelFormat(pMediaType->subtype);
+    ss << "(" << pBitmapInfo->biWidth << "x" << pBitmapInfo->biHeight << "), " << pf 
+            << ", " << 10000000./pVideoInfo->AvgTimePerFrame << " fps.";
+    return ss.str();
 }
 
 bool isDSFeatureCamControl(CameraFeature feature)
