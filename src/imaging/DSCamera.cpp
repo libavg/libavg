@@ -189,6 +189,7 @@ void DSCamera::setCaptureFormat()
             sImageFormats.push_back(camImageFormatToString(pmtConfig));
         }
 
+        bool bFormatUsed = false;
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
                 (getCamPF() == capsPF || (getCamPF() == BAYER8_GBRG && capsPF == I8)))
         {
@@ -200,18 +201,20 @@ void DSCamera::setCaptureFormat()
                 // Not all framerates are reported, so we're going to try this one as 
                 // well.
                 bCloseFormatFound = true;
+                bFormatUsed = true;
                 pmtCloseConfig = pmtConfig;
-            } else {
-                CoTaskMemFree((PVOID)pmtConfig->pbFormat);
-                CoTaskMemFree(pmtConfig);
             }
-        } else {
+        }
+        if (!bFormatUsed) {
             CoTaskMemFree((PVOID)pmtConfig->pbFormat);
             CoTaskMemFree(pmtConfig);
         }
     }
     if (bFormatFound) {
-        AVG_TRACE(Logger::CONFIG, "Camera image format: " << camImageFormatToString(pmtConfig));
+        AVG_TRACE(Logger::CONFIG, "Camera image format: "
+                << camImageFormatToString(pmtConfig));
+        hr = pSC->SetFormat(pmtConfig);
+        checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
         CoTaskMemFree(pmtConfig);
     } else {
