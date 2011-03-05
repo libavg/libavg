@@ -72,7 +72,6 @@ private:
     void findCaptureDevice(IBaseFilter ** ppSrcFilter);
 
     void setCaptureFormat();
-    bool selectMediaType(bool bColor, bool bForce);
     void connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, 
             IBaseFilter *pDest);
     void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, 

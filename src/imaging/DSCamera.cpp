@@ -170,16 +170,6 @@ BitmapPtr DSCamera::getImage(bool bWait)
 
 void DSCamera::setCaptureFormat()
 {
-    // First, look for a camera image format that matches the color selection
-    bool bFound = selectMediaType(m_bColor, false);
-    // Then, look for one that doesn't match and convert the images afterwards.
-    if (!bFound) {
-        selectMediaType(!m_bColor, true);
-    }
-}
-
-bool DSCamera::selectMediaType(bool bColor, bool bForce) 
-{
     IAMStreamConfig *pSC;
     HRESULT hr = m_pCapture->FindInterface(&PIN_CATEGORY_CAPTURE,
             &MEDIATYPE_Video, m_pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
@@ -212,10 +202,10 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
         sImageFormats.push_back(ss.str());
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
-                ((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && 
+                (((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && 
                         pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
                  (getCamPF() == YCbCr422 && pmtConfig->subtype == MEDIASUBTYPE_UYVY) ||
-                 (getCamPF() == YUYV422 && pmtConfig->subtype == MEDIASUBTYPE_YUY2)
+                 (getCamPF() == YUYV422 && pmtConfig->subtype == MEDIASUBTYPE_YUY2))
             )
         {
             if (fabs(m_FrameRate-FrameRate) < 0.001) {
@@ -245,7 +235,7 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
         CoTaskMemFree(pmtConfig);
-        m_bCameraIsColor = bColor;
+        m_bCameraIsColor = m_bColor;
     } else {
         if (bCloseFormatFound) {
             // Set the framerate manually.
@@ -260,12 +250,9 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
             CoTaskMemFree(pmtCloseConfig);
-            m_bCameraIsColor = bColor;
+            m_bCameraIsColor = m_bColor;
 
-            // Check if the framerate is what we wanted.
-//            pSC->GetFormat(&p
-            bFormatFound = true;
-        } else if (bForce) {
+        } else {
             AVG_TRACE(Logger::WARNING, 
                 "Possibly incomplete list of image formats supported by camera: ");
             for (unsigned i=0; i<sImageFormats.size(); i++) {
@@ -276,7 +263,6 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
         }
     }
     pSC->Release();
-    return bFormatFound;
 }
 
 
