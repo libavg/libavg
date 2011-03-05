@@ -107,7 +107,7 @@ string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName)
     return s;
 }
 
-PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype, const std::string DesiredPF)
+PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype)
 {
     if (Subtype == MEDIASUBTYPE_RGB24) {
         return B8G8R8;
@@ -121,15 +121,12 @@ PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype, const std::string Des
         return YUYV422;
     } else if (Subtype == MEDIASUBTYPE_RGB565) {
         return B5G6R5;
-    } else if (Subtype == MEDIASUBTYPE_Y800 && DesiredPF == "BY8_GBRG") {
-        return BAYER8_GBRG;
+//    } else if (Subtype == MEDIASUBTYPE_Y800 && DesiredPF == "BY8_GBRG") {
+//        return BAYER8_GBRG;
     } else if (Subtype == MEDIASUBTYPE_Y800) {
         return I8;
     } else {
-        fatalError(string("mediaSubtypeToPixelFormat: Subtype ") + 
-                mediaSubtypeToString(Subtype) + 
-                " can't be converted to a valid pixel format.");
-        return I8;
+        return NO_PIXELFORMAT;
     }    
 }
 

@@ -81,8 +81,6 @@ private:
     std::string m_sDevice;
     IntPoint m_Size;
     double m_FrameRate;
-    bool m_bColor;
-    bool m_bCameraIsColor;
 
     IGraphBuilder * m_pGraph;
     ICaptureGraphBuilder2 * m_pCapture;

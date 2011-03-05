@@ -48,7 +48,7 @@ void RemoveGraphFromRot(DWORD pdwRegister);
 
 std::string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName);
 
-PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype, const std::string DesiredPF);
+PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype);
 
 std::string mediaTypeToString(const GUID& Type);
 std::string mediaSubtypeToString(const GUID& Subtype);

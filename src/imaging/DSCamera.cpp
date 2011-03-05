@@ -51,7 +51,6 @@ DSCamera::DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF,
       m_pCameraPropControl(0),
       m_pSampleQueue(0)
 {
-    m_bColor = (destPF != I8);
     open();
 }
 
@@ -93,9 +92,6 @@ void DSCamera::open()
         AM_MEDIA_TYPE mt;
         ZeroMemory(&mt, sizeof(AM_MEDIA_TYPE));
         mt.majortype = MEDIATYPE_Video;
-        if (!m_bCameraIsColor) {
-            mt.subtype = MEDIASUBTYPE_Y800;
-        }
 
         hr = m_pSampleGrabber->SetMediaType(&mt);
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
@@ -188,6 +184,7 @@ void DSCamera::setCaptureFormat()
     vector<string> sImageFormats;
     VIDEOINFOHEADER * pvih;
     BITMAPINFOHEADER bih;
+    PixelFormat capsPF;
     for (int i = 0; i < Count; i++) {
         VIDEO_STREAM_CONFIG_CAPS scc;
         hr = pSC->GetStreamCaps(i, &pmtConfig, (BYTE*)&scc);
@@ -195,26 +192,25 @@ void DSCamera::setCaptureFormat()
         pvih = (VIDEOINFOHEADER*)(pmtConfig->pbFormat);
         bih = pvih->bmiHeader;
         double FrameRate = double(10000000L/pvih->AvgTimePerFrame);
-        stringstream ss;
-        ss << "  " << i << ": (" << bih.biWidth << "x" << bih.biHeight << "), " << 
-                mediaSubtypeToString(pmtConfig->subtype) << 
-                ", " << 10000000./pvih->AvgTimePerFrame << " fps.";
-        sImageFormats.push_back(ss.str());
+        capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
+
+        if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
+            stringstream ss;
+            ss << "(" << bih.biWidth << "x" << bih.biHeight << "), " << 
+                    capsPF << ", " << 10000000./pvih->AvgTimePerFrame << " fps.";
+            sImageFormats.push_back(ss.str());
+        }
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
-                (((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && 
-                        pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
-                 (getCamPF() == YCbCr422 && pmtConfig->subtype == MEDIASUBTYPE_UYVY) ||
-                 (getCamPF() == YUYV422 && pmtConfig->subtype == MEDIASUBTYPE_YUY2))
-            )
+                (getCamPF() == capsPF || 
+                 (getCamPF() == BAYER8_GBRG && capsPF == I8)))
         {
             if (fabs(m_FrameRate-FrameRate) < 0.001) {
                 bFormatFound = true;
                 break;
             } else if (!bCloseFormatFound) {
                 // The current format fits everything but the framerate.
-                // Some cameras (Point Grey FireFly, for instance) don't report
-                // all framerates, so we're going to try that as well.
+                // Not all framerates are reported, so we're going to try this one as well.
                 bCloseFormatFound = true;
                 pmtCloseConfig = pmtConfig;
             } else {
@@ -229,29 +225,27 @@ void DSCamera::setCaptureFormat()
     if (bFormatFound) {
         AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
                 << "x" << bih.biHeight << "), "
-                << mediaSubtypeToString(pmtConfig->subtype) << ", " 
-                << 10000000./pvih->AvgTimePerFrame << " fps.");
+                << capsPF << ", " << 10000000./pvih->AvgTimePerFrame << " fps.");
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
         CoTaskMemFree(pmtConfig);
-        m_bCameraIsColor = m_bColor;
     } else {
         if (bCloseFormatFound) {
             // Set the framerate manually.
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
             bih = pvih->bmiHeader;
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
+            capsPF = mediaSubtypeToPixelFormat(pmtCloseConfig->subtype);
             AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
                     << "x" << bih.biHeight << "), "
-                    << mediaSubtypeToString(pmtCloseConfig->subtype) << ", " 
-                    << 10000000./pvih->AvgTimePerFrame << " fps (set manually).");
+                    << capsPF << ", " << 10000000./pvih->AvgTimePerFrame << " fps.");
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
             CoTaskMemFree(pmtCloseConfig);
-            m_bCameraIsColor = m_bColor;
 
+            // TODO: Check if framerate is actually attained.
         } else {
             AVG_TRACE(Logger::WARNING, 
                 "Possibly incomplete list of image formats supported by camera: ");
