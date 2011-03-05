@@ -45,8 +45,8 @@ namespace avg {
 
 class DSCamera: public Camera {
 public:
-    DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF, 
-            PixelFormat destPF, double FrameRate);
+    DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, PixelFormat destPF,
+            double frameRate);
     virtual ~DSCamera();
 
     virtual IntPoint getImgSize();
@@ -56,9 +56,10 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual int getFeature(CameraFeature Feature) const;
-    virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
-    virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual int getFeature(CameraFeature feature) const;
+    virtual void setFeature(CameraFeature feature, int value, 
+            bool bIgnoreOldValue=false);
+    virtual void setFeatureOneShot(CameraFeature feature);
     virtual int getWhitebalanceU() const;
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
@@ -72,10 +73,8 @@ private:
     void findCaptureDevice(IBaseFilter ** ppSrcFilter);
 
     void setCaptureFormat();
-    void connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, 
-            IBaseFilter *pDest);
-    void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, 
-            IPin **ppPin);
+    void connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest);
+    void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION pinDir, IPin **ppPin);
     static void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
 
     std::string m_sDevice;

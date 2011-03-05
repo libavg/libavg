@@ -41,28 +41,21 @@ HRESULT AddGraphToRot(IUnknown *pUnkGraph, DWORD *pdwRegister)
     WCHAR wsz[128];
     HRESULT hr;
 
-    if (!pUnkGraph || !pdwRegister)
+    if (!pUnkGraph || !pdwRegister) {
         return E_POINTER;
+    }
 
-    if (FAILED(GetRunningObjectTable(0, &pROT)))
+    if (FAILED(GetRunningObjectTable(0, &pROT))) {
         return E_FAIL;
+    }
 
-    hr = swprintf(wsz, NUMELMS(wsz), L"FilterGraph %08x pid %08x\0", (DWORD_PTR)pUnkGraph, 
-              GetCurrentProcessId());
+    hr = swprintf(wsz, NUMELMS(wsz), L"FilterGraph %08x pid %08x\0",
+            (DWORD_PTR)pUnkGraph, GetCurrentProcessId());
 
     hr = CreateItemMoniker(L"!", wsz, &pMoniker);
-    if (SUCCEEDED(hr)) 
-    {
-        // Use the ROTFLAGS_REGISTRATIONKEEPSALIVE to ensure a strong reference
-        // to the object.  Using this flag will cause the object to remain
-        // registered until it is explicitly revoked with the Revoke() method.
-        //
-        // Not using this flag means that if GraphEdit remotely connects
-        // to this graph and then GraphEdit exits, this object registration 
-        // will be deleted, causing future attempts by GraphEdit to fail until
-        // this application is restarted or until the graph is registered again.
-        hr = pROT->Register(ROTFLAGS_REGISTRATIONKEEPSALIVE, pUnkGraph, 
-                            pMoniker, pdwRegister);
+    if (SUCCEEDED(hr)) {
+        hr = pROT->Register(ROTFLAGS_REGISTRATIONKEEPSALIVE, pUnkGraph, pMoniker, 
+                pdwRegister);
         pMoniker->Release();
     }
 
@@ -74,8 +67,7 @@ void RemoveGraphFromRot(DWORD pdwRegister)
 {
     IRunningObjectTable *pROT;
 
-    if (SUCCEEDED(GetRunningObjectTable(0, &pROT))) 
-    {
+    if (SUCCEEDED(GetRunningObjectTable(0, &pROT))) {
         pROT->Revoke(pdwRegister);
         pROT->Release();
     }
@@ -94,8 +86,7 @@ string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName)
     string s;
     int lenWStr = SysStringLen(varName.bstrVal);
     int lenAStr = WideCharToMultiByte(CP_ACP, 0, varName.bstrVal, lenWStr, 0, 0, NULL, NULL);
-    if (lenAStr > 0)
-    {
+    if (lenAStr > 0) {
         char* pAStr = new char[lenAStr + 1];
         WideCharToMultiByte(CP_ACP, 0, varName.bstrVal, lenWStr, pAStr, lenAStr, NULL, NULL);
         pAStr[lenAStr] = 0;
@@ -107,85 +98,85 @@ string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName)
     return s;
 }
 
-PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype)
+PixelFormat mediaSubtypeToPixelFormat(const GUID& subtype)
 {
-    if (Subtype == MEDIASUBTYPE_RGB24) {
+    if (subtype == MEDIASUBTYPE_RGB24) {
         return B8G8R8;
-    } else if (Subtype == MEDIASUBTYPE_RGB32) {
+    } else if (subtype == MEDIASUBTYPE_RGB32) {
         return B8G8R8X8;
-    } else if (Subtype == MEDIASUBTYPE_RGB8) {
+    } else if (subtype == MEDIASUBTYPE_RGB8) {
         return I8;
-    } else if (Subtype == MEDIASUBTYPE_UYVY) {
+    } else if (subtype == MEDIASUBTYPE_UYVY) {
         return YCbCr422;
-    } else if (Subtype == MEDIASUBTYPE_YUY2) {
+    } else if (subtype == MEDIASUBTYPE_YUY2) {
         return YUYV422;
-    } else if (Subtype == MEDIASUBTYPE_RGB565) {
+    } else if (subtype == MEDIASUBTYPE_RGB565) {
         return B5G6R5;
 //    } else if (Subtype == MEDIASUBTYPE_Y800 && DesiredPF == "BY8_GBRG") {
 //        return BAYER8_GBRG;
-    } else if (Subtype == MEDIASUBTYPE_Y800) {
+    } else if (subtype == MEDIASUBTYPE_Y800) {
         return I8;
     } else {
         return NO_PIXELFORMAT;
     }    
 }
 
-std::string mediaTypeToString(const GUID& Type)
+std::string mediaTypeToString(const GUID& type)
 {
-    if (Type == MEDIATYPE_Video) {
+    if (type == MEDIATYPE_Video) {
         return "MEDIATYPE_Video";
-    } else if (Type == GUID_NULL) {
+    } else if (type == GUID_NULL) {
         return "GUID_NULL";
     } else {
         return "Unknown";
     }
 }
 
-string mediaSubtypeToString(const GUID & Subtype)
+string mediaSubtypeToString(const GUID & subtype)
 {
-    if (Subtype == MEDIASUBTYPE_RGB24) {
+    if (subtype == MEDIASUBTYPE_RGB24) {
         return "MEDIASUBTYPE_RGB24";
-    } else if (Subtype == MEDIASUBTYPE_RGB32) {
+    } else if (subtype == MEDIASUBTYPE_RGB32) {
         return "MEDIASUBTYPE_RGB32";
-    } else if (Subtype == MEDIASUBTYPE_RGB8) {
+    } else if (subtype == MEDIASUBTYPE_RGB8) {
         return "MEDIASUBTYPE_RGB8";
-    } else if (Subtype == MEDIASUBTYPE_UYVY) {
+    } else if (subtype == MEDIASUBTYPE_UYVY) {
         return "MEDIASUBTYPE_UYVY";
-    } else if (Subtype == MEDIASUBTYPE_YUY2) {
+    } else if (subtype == MEDIASUBTYPE_YUY2) {
         return "MEDIASUBTYPE_YUY2";
-    } else if (Subtype == MEDIASUBTYPE_MJPG) {
+    } else if (subtype == MEDIASUBTYPE_MJPG) {
         return "MEDIASUBTYPE_MJPG";
-    } else if (Subtype == MEDIASUBTYPE_RGB555) {
+    } else if (subtype == MEDIASUBTYPE_RGB555) {
         return "MEDIASUBTYPE_RGB555";
-    } else if (Subtype == MEDIASUBTYPE_RGB565) {
+    } else if (subtype == MEDIASUBTYPE_RGB565) {
         return "MEDIASUBTYPE_RGB565";
-    } else if (Subtype == MEDIASUBTYPE_Y800) {
+    } else if (subtype == MEDIASUBTYPE_Y800) {
         return "MEDIASUBTYPE_Y800";
-    } else if (Subtype == GUID_NULL) {
+    } else if (subtype == GUID_NULL) {
         return "GUID_NULL";
     } else {
         return "Unknown";
     }
 }
 
-string mediaFormattypeToString(const GUID & Formattype)
+string mediaFormattypeToString(const GUID & formattype)
 {
-    if (Formattype == FORMAT_None) {
+    if (formattype == FORMAT_None) {
         return "FORMAT_None";
-    } else if (Formattype == FORMAT_VideoInfo) {
+    } else if (formattype == FORMAT_VideoInfo) {
         return "FORMAT_VideoInfo";
-    } else if (Formattype == FORMAT_VideoInfo2) {
+    } else if (formattype == FORMAT_VideoInfo2) {
         return "FORMAT_VideoInfo2";
-    } else if (Formattype == GUID_NULL) {
+    } else if (formattype == GUID_NULL) {
         return "GUID_NULL";
     } else {
         return "Unknown";
     }
 }
 
-bool isDSFeatureCamControl(CameraFeature Feature)
+bool isDSFeatureCamControl(CameraFeature feature)
 {
-    switch(Feature) {
+    switch(feature) {
         case CAM_FEATURE_BRIGHTNESS:
         case CAM_FEATURE_SHARPNESS:
         case CAM_FEATURE_WHITE_BALANCE:
@@ -209,18 +200,18 @@ bool isDSFeatureCamControl(CameraFeature Feature)
         case CAM_FEATURE_CAPTURE_QUALITY:
         case CAM_FEATURE_CONTRAST:
             AVG_TRACE(Logger::WARNING, "isDSFeatureCamControl: "
-                    +cameraFeatureToString(Feature)+" not supported by DirectShow.");
+                    + cameraFeatureToString(feature) + " not supported by DirectShow.");
             return false;
         default:
             AVG_TRACE(Logger::WARNING, "isDSFeatureCamControl: "
-                    +cameraFeatureToString(Feature)+" unknown.");
+                    + cameraFeatureToString(feature) + " unknown.");
             return false;
     }
 }
 
-long getDSFeatureID(CameraFeature Feature)
+long getDSFeatureID(CameraFeature feature)
 {
-    switch(Feature) {
+    switch(feature) {
         case CAM_FEATURE_BRIGHTNESS:
             return VideoProcAmp_Brightness;
         case CAM_FEATURE_SHARPNESS:
@@ -254,11 +245,11 @@ long getDSFeatureID(CameraFeature Feature)
         case CAM_FEATURE_CAPTURE_SIZE:
         case CAM_FEATURE_CAPTURE_QUALITY:
         case CAM_FEATURE_CONTRAST:
-            AVG_TRACE(Logger::WARNING, "getDSFeatureID: "+cameraFeatureToString(Feature)
+            AVG_TRACE(Logger::WARNING, "getDSFeatureID: "+cameraFeatureToString(feature)
                     +" not supported by DirectShow.");
             return 0;
         default:
-            AVG_TRACE(Logger::WARNING, "getDSFeatureID: "+cameraFeatureToString(Feature)+" unknown.");
+            AVG_TRACE(Logger::WARNING, "getDSFeatureID: "+cameraFeatureToString(feature)+" unknown.");
             return -1;
     }
 }

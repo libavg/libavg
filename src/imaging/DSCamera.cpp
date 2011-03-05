@@ -40,12 +40,12 @@ namespace avg {
 
 using namespace std;
 
-DSCamera::DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF, 
-        PixelFormat destPF, double FrameRate)
+DSCamera::DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, 
+        PixelFormat destPF, double frameRate)
     : Camera(camPF, destPF),
       m_sDevice(sDevice),
-      m_Size(Size),
-      m_FrameRate(FrameRate),
+      m_Size(size),
+      m_FrameRate(frameRate),
       m_pGraph(0),
       m_pCapture(0),
       m_pCameraPropControl(0),
@@ -68,10 +68,9 @@ void DSCamera::open()
         hr = m_pGraph->AddFilter(m_pSrcFilter, L"Video Capture");
         checkForDShowError(hr, "DSCamera::open()::Add capture filter");
 
-        // Create and configure the sample grabber that delivers the frames to
-        // the app.
-        hr = CoCreateInstance(CLSID_SampleGrabber, NULL, 
-                CLSCTX_INPROC_SERVER, IID_IBaseFilter, (LPVOID *)&m_pGrabFilter);
+        // Create and configure the sample grabber that delivers the frames to the app.
+        hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER, 
+                IID_IBaseFilter, (LPVOID *)&m_pGrabFilter);
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber");
         hr = m_pGrabFilter->QueryInterface(IID_ISampleGrabber, 
                 (void **)&m_pSampleGrabber);
@@ -83,7 +82,6 @@ void DSCamera::open()
         hr = m_pSrcFilter->QueryInterface(IID_IAMCameraControl, 
                 (void **)&m_pAMCameraControl);
         checkForDShowError(hr, "DSCamera::getImage()::get IAMCameraControl");
-
 
         hr = m_pGraph->AddFilter(m_pGrabFilter, L"Sample Grabber");
         checkForDShowError(hr, "DSCamera::open()::Add Grabber");
@@ -98,15 +96,10 @@ void DSCamera::open()
 
         m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF());
         m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
-/*
-        cerr << "Grabber type: " << mediaTypeToString(mt.majortype) << 
-                ", subtype: " << mediaSubtypeToString(mt.subtype) << 
-                ", formattype: " << mediaFormattypeToString(mt.formattype) <<
-                endl;
-*/
+
         IBaseFilter * pNull;
         hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, 
-                                       IID_IBaseFilter, (LPVOID*) &pNull);
+                IID_IBaseFilter, (LPVOID*) &pNull);
         checkForDShowError(hr, "DSCamera::open()::Create null filter");
         m_pGraph->AddFilter(pNull, L"NullRender");
         pNull->Release();
@@ -167,50 +160,50 @@ BitmapPtr DSCamera::getImage(bool bWait)
 void DSCamera::setCaptureFormat()
 {
     IAMStreamConfig *pSC;
-    HRESULT hr = m_pCapture->FindInterface(&PIN_CATEGORY_CAPTURE,
-            &MEDIATYPE_Video, m_pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
+    HRESULT hr = m_pCapture->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video, 
+            m_pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
     checkForDShowError(hr, "DSCamera::setCaptureFormat::FindInterface");
 
-    int Count = 0;
-    int Size = 0;
-    hr = pSC->GetNumberOfCapabilities(&Count, &Size);
+    int numCaps = 0;
+    int capsSize = 0;
+    hr = pSC->GetNumberOfCapabilities(&numCaps, &capsSize);
     checkForDShowError(hr, "DSCamera::dumpMediaTypes::GetNumberOfCapabilities");
 
-    AVG_ASSERT(Size == sizeof(VIDEO_STREAM_CONFIG_CAPS));
+    AVG_ASSERT(capsSize == sizeof(VIDEO_STREAM_CONFIG_CAPS));
     bool bFormatFound = false;
     bool bCloseFormatFound = false;
-    AM_MEDIA_TYPE *pmtConfig;
-    AM_MEDIA_TYPE *pmtCloseConfig;
+    AM_MEDIA_TYPE* pmtConfig;
+    AM_MEDIA_TYPE* pmtCloseConfig;
     vector<string> sImageFormats;
-    VIDEOINFOHEADER * pvih;
+    VIDEOINFOHEADER* pvih;
     BITMAPINFOHEADER bih;
     PixelFormat capsPF;
-    for (int i = 0; i < Count; i++) {
+    for (int i = 0; i < numCaps; i++) {
         VIDEO_STREAM_CONFIG_CAPS scc;
         hr = pSC->GetStreamCaps(i, &pmtConfig, (BYTE*)&scc);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::GetStreamCaps");
         pvih = (VIDEOINFOHEADER*)(pmtConfig->pbFormat);
         bih = pvih->bmiHeader;
-        double FrameRate = double(10000000L/pvih->AvgTimePerFrame);
+        double frameRate = double(10000000L/pvih->AvgTimePerFrame);
         capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
 
         if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
             stringstream ss;
-            ss << "(" << bih.biWidth << "x" << bih.biHeight << "), " << 
-                    capsPF << ", " << 10000000./pvih->AvgTimePerFrame << " fps.";
+            ss << "(" << bih.biWidth << "x" << bih.biHeight << "), " << capsPF << ", " 
+                    << 10000000./pvih->AvgTimePerFrame << " fps.";
             sImageFormats.push_back(ss.str());
         }
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
-                (getCamPF() == capsPF || 
-                 (getCamPF() == BAYER8_GBRG && capsPF == I8)))
+                (getCamPF() == capsPF || (getCamPF() == BAYER8_GBRG && capsPF == I8)))
         {
-            if (fabs(m_FrameRate-FrameRate) < 0.001) {
+            if (fabs(m_FrameRate-frameRate) < 0.001) {
                 bFormatFound = true;
                 break;
             } else if (!bCloseFormatFound) {
                 // The current format fits everything but the framerate.
-                // Not all framerates are reported, so we're going to try this one as well.
+                // Not all framerates are reported, so we're going to try this one as 
+                // well.
                 bCloseFormatFound = true;
                 pmtCloseConfig = pmtConfig;
             } else {
@@ -223,9 +216,9 @@ void DSCamera::setCaptureFormat()
         }
     }
     if (bFormatFound) {
-        AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
-                << "x" << bih.biHeight << "), "
-                << capsPF << ", " << 10000000./pvih->AvgTimePerFrame << " fps.");
+        AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth << "x"
+                << bih.biHeight << "), " << capsPF << ", "
+                << 10000000./pvih->AvgTimePerFrame << " fps.");
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
@@ -237,9 +230,9 @@ void DSCamera::setCaptureFormat()
             bih = pvih->bmiHeader;
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
             capsPF = mediaSubtypeToPixelFormat(pmtCloseConfig->subtype);
-            AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
-                    << "x" << bih.biHeight << "), "
-                    << capsPF << ", " << 10000000./pvih->AvgTimePerFrame << " fps.");
+            AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth << "x"
+                    << bih.biHeight << "), " << capsPF << ", " 
+                    << 10000000./pvih->AvgTimePerFrame << " fps.");
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
@@ -249,7 +242,7 @@ void DSCamera::setCaptureFormat()
         } else {
             AVG_TRACE(Logger::WARNING, 
                 "Possibly incomplete list of image formats supported by camera: ");
-            for (unsigned i=0; i<sImageFormats.size(); i++) {
+            for (unsigned i = 0; i < sImageFormats.size(); i++) {
                 AVG_TRACE(Logger::WARNING, sImageFormats[i]);
             }
             throw Exception(AVG_ERR_CAMERA_NONFATAL, 
@@ -276,60 +269,61 @@ double DSCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-int DSCamera::getFeature(CameraFeature Feature) const
+int DSCamera::getFeature(CameraFeature feature) const
 {
-    long Prop = getDSFeatureID(Feature);
-    long Val;
-    long Flags;
+    long prop = getDSFeatureID(feature);
+    long val;
+    long flags;
     HRESULT hr;
-    if (isDSFeatureCamControl(Feature)) {
-        hr = m_pAMCameraControl->Get(Prop, &Val, &Flags);
+    if (isDSFeatureCamControl(feature)) {
+        hr = m_pAMCameraControl->Get(prop, &val, &flags);
     } else {
-        hr = m_pCameraPropControl->Get(Prop, &Val, &Flags);
+        hr = m_pCameraPropControl->Get(prop, &val, &flags);
     }
     if (!SUCCEEDED(hr)) {
         AVG_TRACE(Logger::WARNING, "DSCamera::getFeature "
-                +cameraFeatureToString(Feature)+" failed.");
+                + cameraFeatureToString(feature)+" failed.");
         return 0;
     }
-    return Val;
+    return val;
 }
 
-void DSCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
+void DSCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
-    long Prop = getDSFeatureID(Feature);
+    long prop = getDSFeatureID(feature);
     if (!m_pCameraPropControl) {
         return;
     }
-    long Flags;
-    if (Value == -1) {
-        Flags = KSPROPERTY_VIDEOPROCAMP_FLAGS_AUTO;
+    long flags;
+    if (value == -1) {
+        flags = KSPROPERTY_VIDEOPROCAMP_FLAGS_AUTO;
     } else {
-        Flags = KSPROPERTY_VIDEOPROCAMP_FLAGS_MANUAL;
+        flags = KSPROPERTY_VIDEOPROCAMP_FLAGS_MANUAL;
     }
     HRESULT hr;
-    if (isDSFeatureCamControl(Feature)) {
-        hr = m_pAMCameraControl->Set(Prop, Value, Flags);
+    if (isDSFeatureCamControl(feature)) {
+        hr = m_pAMCameraControl->Set(prop, value, flags);
     } else {
-        hr = m_pCameraPropControl->Set(Prop, Value, Flags);
+        hr = m_pCameraPropControl->Set(prop, value, flags);
     }
     switch (hr) {
         case E_INVALIDARG:
             // TODO: Throw exception
             AVG_TRACE(Logger::ERROR, "DSCamera::setFeature(" 
-                    << cameraFeatureToString(Feature) << ", " << Value << ") failed.");
+                    << cameraFeatureToString(feature) << ", " << value << ") failed.");
             break;
         case E_PROP_ID_UNSUPPORTED:  
         case E_PROP_SET_UNSUPPORTED:
             AVG_TRACE(Logger::ERROR, "DSCamera::setFeature(" 
-                << cameraFeatureToString(Feature) << ") failed: Feature not supported by camera.");
+                << cameraFeatureToString(feature)
+                << ") failed: Feature not supported by camera.");
             break;
         default:
             checkForDShowError(hr, "DSCamera::setFeature()::Set value");
     }
 }
 
-void DSCamera::setFeatureOneShot(CameraFeature Feature)
+void DSCamera::setFeatureOneShot(CameraFeature feature)
 {
     AVG_TRACE(Logger::WARNING, 
             "OneShot feature setting not implemented for DirectShow camera driver.");
@@ -364,21 +358,20 @@ void DSCamera::dumpCameras()
 
     // Create the system device enumerator
     ICreateDevEnum *pDevEnum =NULL;
-    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC,
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
             IID_ICreateDevEnum, (void **) &pDevEnum);
     checkForDShowError(hr, "DSCamera::dumpCameras()::CreateDevEnum");
 
     // Create an enumerator for the video capture devices
     IEnumMoniker *pClassEnum = NULL;
-    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, 
-            &pClassEnum, 0);
+    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
     checkForDShowError(hr, "DSCamera::dumpCameras()::CreateClassEnumerator");
 
     if (pClassEnum == NULL) {
         return;
     }
 
-    IMoniker* pMoniker =NULL;
+    IMoniker* pMoniker = NULL;
     bool bFirst = true;
     while (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
         if (bFirst) {
@@ -386,7 +379,7 @@ void DSCamera::dumpCameras()
             cerr << "DirectShow cameras: " << endl;
             bFirst = false;
         }
-        IPropertyBag *pPropBag;
+        IPropertyBag* pPropBag;
         hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
         checkForDShowError(hr, "DSCamera::dumpCameras()::BindToStorage");
         cerr << "  ----------------------------" << endl;
@@ -408,12 +401,12 @@ void DSCamera::initGraphBuilder()
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::CoInitializeEx");
 
     // Create the filter graph
-    hr = CoCreateInstance (CLSID_FilterGraph, NULL, CLSCTX_INPROC,
-            IID_IGraphBuilder, (void **) &m_pGraph);
+    hr = CoCreateInstance (CLSID_FilterGraph, NULL, CLSCTX_INPROC, IID_IGraphBuilder, 
+            (void **) &m_pGraph);
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::GraphBuilder");
     // Create the capture graph builder
     hr = CoCreateInstance (CLSID_CaptureGraphBuilder2 , NULL, CLSCTX_INPROC,
-                           IID_ICaptureGraphBuilder2, (void **) &m_pCapture);   
+            IID_ICaptureGraphBuilder2, (void **) &m_pCapture);   
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::CaptureGraphBuilder2");
 
     hr = m_pCapture->SetFiltergraph(m_pGraph);
@@ -426,18 +419,18 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
 {
     HRESULT hr = S_OK;
     IBaseFilter * pSrc = NULL;
-    IMoniker* pMoniker =NULL;
-    ICreateDevEnum *pDevEnum =NULL;
+    IMoniker* pMoniker = NULL;
+    ICreateDevEnum *pDevEnum = NULL;
     IEnumMoniker *pClassEnum = NULL;
 
     // Create the system device enumerator
-    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC,
-                           IID_ICreateDevEnum, (void **) &pDevEnum);
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
+            IID_ICreateDevEnum, (void **) &pDevEnum);
     checkForDShowError(hr, "DSCamera::findCaptureDevice()::CreateDevEnum");
 
     // Create an enumerator for the video capture devices
-    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, 
-            &pClassEnum, 0);
+    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 
+            0);
     checkForDShowError(hr, "DSCamera::findCaptureDevice()::CreateClassEnumerator");
 
     // If there are no enumerators for the requested type, then 
@@ -457,7 +450,9 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
         string sFriendlyName = getStringProp(pPropBag, L"FriendlyName");
         string sDevicePath = getStringProp(pPropBag, L"DevicePath");
 
-        if (m_sDevice == sDescription  || m_sDevice == sFriendlyName || sDevicePath.find(m_sDevice) != -1 || m_sDevice == "") {
+        if (m_sDevice == sDescription  || m_sDevice == sFriendlyName || 
+                sDevicePath.find(m_sDevice) != -1 || m_sDevice == "")
+        {
             bFound = true;
         } else {
             pMoniker->Release();
@@ -476,7 +471,8 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
             checkForDShowError(hr, "DSCamera::findCaptureDevice()::BindToStorage");
             pPropBag->Release();
         } else {
-            throw(Exception(AVG_ERR_CAMERA_NONFATAL, "No DirectShow Capture Device found"));
+            throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
+                    "No DirectShow Capture Device found"));
         }
     }
 
@@ -510,7 +506,7 @@ void DSCamera::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc,
     pIn->Release();
 }
 
-void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
+void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION pinDir, IPin **ppPin)
 {
     *ppPin = 0;
     IEnumPins *pEnum = 0;
@@ -519,11 +515,10 @@ void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPi
     checkForDShowError(hr, "DSCamera::ConnectFilters::Connect");
     while (pEnum->Next(1, &pPin, NULL) == S_OK)
     {
-        PIN_DIRECTION ThisPinDir;
-        pPin->QueryDirection(&ThisPinDir);
-        if (ThisPinDir == PinDir)
-        {
-            IPin *pTmp = 0;
+        PIN_DIRECTION thisPinDir;
+        pPin->QueryDirection(&thisPinDir);
+        if (thisPinDir == pinDir) {
+            IPin* pTmp = 0;
             hr = pPin->ConnectedTo(&pTmp);
             if (SUCCEEDED(hr)) { // Already connected, not the pin we want.
                 pTmp->Release();
@@ -541,7 +536,7 @@ void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPi
 }
 
 #pragma warning(disable : 4995)
-void DSCamera::checkForDShowError(HRESULT hr, const string & sLocation)
+void DSCamera::checkForDShowError(HRESULT hr, const string& sLocation)
 {
     if (SUCCEEDED(hr)) {
         return;

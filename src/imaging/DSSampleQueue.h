@@ -35,14 +35,14 @@ namespace avg {
 
 class DSSampleQueue: public ISampleGrabberCB {
 public:
-    DSSampleQueue(IntPoint Size, PixelFormat CameraPF, PixelFormat DestPF);
+    DSSampleQueue(IntPoint Size, PixelFormat cameraPF, PixelFormat destPF);
     virtual ~DSSampleQueue();
 
     // ISampleGrabberCB callbacks
-    STDMETHODIMP SampleCB(double SampleTime, IMediaSample *pSample);
+    STDMETHODIMP SampleCB(double sampleTime, IMediaSample *pSample);
     
     // Unused
-    STDMETHODIMP BufferCB(double SampleTime, BYTE *pBuffer, long BufferLen);
+    STDMETHODIMP BufferCB(double sampleTime, BYTE *pBuffer, long BufferLen);
 
     BitmapPtr getImage(bool bBlock = true);
 

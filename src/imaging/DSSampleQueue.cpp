@@ -26,10 +26,10 @@
 
 namespace avg {
 
-DSSampleQueue::DSSampleQueue(IntPoint Size, PixelFormat CameraPF, PixelFormat DestPF)
-    : m_Size(Size),
-      m_CameraPF(CameraPF),
-      m_DestPF(DestPF)
+DSSampleQueue::DSSampleQueue(IntPoint size, PixelFormat cameraPF, PixelFormat destPF)
+    : m_Size(size),
+      m_CameraPF(cameraPF),
+      m_DestPF(destPF)
 {
 }
 
@@ -37,25 +37,25 @@ DSSampleQueue::~DSSampleQueue()
 {
 }
 
-STDMETHODIMP DSSampleQueue::SampleCB(double SampleTime, IMediaSample *pSample)
+STDMETHODIMP DSSampleQueue::SampleCB(double sampleTime, IMediaSample *pSample)
 {
     unsigned char * pData;
 
     // Get the current image.
     pSample->GetPointer(&pData);
-    int Stride = m_Size.x*Bitmap::getBytesPerPixel(m_CameraPF);
-    Bitmap CamBmp(m_Size, m_CameraPF, pData, Stride, false, "CameraImage");
+    int stride = m_Size.x*Bitmap::getBytesPerPixel(m_CameraPF);
+    Bitmap camBmp(m_Size, m_CameraPF, pData, stride, false, "CameraImage");
 
     // Copy over to bitmap queue, doing pixel format conversion if necessary.
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, m_DestPF, 
             "ConvertedCameraImage"));
-    pDestBmp->copyPixels(CamBmp);
+    pDestBmp->copyPixels(camBmp);
     m_BitmapQ.push(pDestBmp);
 
     return S_OK;
 }
 
-STDMETHODIMP DSSampleQueue::BufferCB(double SampleTime, BYTE *pBuffer, long BufferLen)
+STDMETHODIMP DSSampleQueue::BufferCB(double sampleTime, BYTE *pBuffer, long BufferLen)
 {
     return E_NOTIMPL;
 }

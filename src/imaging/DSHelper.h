@@ -43,19 +43,19 @@ static const GUID MEDIASUBTYPE_Y160 =
 
 namespace avg {
 
-HRESULT AddGraphToRot(IUnknown *pUnkGraph, DWORD *pdwRegister);
+HRESULT AddGraphToRot(IUnknown* pUnkGraph, DWORD* pdwRegister);
 void RemoveGraphFromRot(DWORD pdwRegister);
 
-std::string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName);
+std::string getStringProp(IPropertyBag* pPropBag, LPCOLESTR pszPropName);
 
-PixelFormat mediaSubtypeToPixelFormat(const GUID& Subtype);
+PixelFormat mediaSubtypeToPixelFormat(const GUID& subtype);
 
-std::string mediaTypeToString(const GUID& Type);
-std::string mediaSubtypeToString(const GUID& Subtype);
-std::string mediaFormattypeToString(const GUID & Formattype);
+std::string mediaTypeToString(const GUID& type);
+std::string mediaSubtypeToString(const GUID& subtype);
+std::string mediaFormattypeToString(const GUID & formattype);
 
-bool isDSFeatureCamControl(CameraFeature Feature);
-long getDSFeatureID(CameraFeature Feature);
+bool isDSFeatureCamControl(CameraFeature feature);
+long getDSFeatureID(CameraFeature feature);
 
 }
 
