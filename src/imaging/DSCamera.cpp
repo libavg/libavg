@@ -21,8 +21,6 @@
 
 #include "DSHelper.h"
 #include "DSCamera.h"
-#include "Ks.h"
-#include "KsMedia.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -296,9 +294,9 @@ void DSCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
     }
     long flags;
     if (value == -1) {
-        flags = KSPROPERTY_VIDEOPROCAMP_FLAGS_AUTO;
+        flags = VideoProcAmp_Flags_Auto;
     } else {
-        flags = KSPROPERTY_VIDEOPROCAMP_FLAGS_MANUAL;
+        flags = VideoProcAmp_Flags_Manual;
     }
     HRESULT hr;
     if (isDSFeatureCamControl(feature)) {
