@@ -1,0 +1,54 @@
+.TH AVG_SHOWFONT "1" "March 2011" "libavg 1.5.4" "User Commands"
+.SH NAME
+avg_showcamera \- camera discovery and display tool
+.SH SYNOPSIS
+.B avg_showcamera
+\fI\-l\fR
+.HP
+.B avg_showcamera
+\fI\-r\fR
+.HP
+.B avg_showcamera
+\fI\-t DRIVER [OPTION]...\fR
+.SH DESCRIPTION
+Query and list attached cameras, reset firewire bus, show video stream
+.PP
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show a brief description of the options
+.TP
+\fB\-l\fR, \fB\-\-dump\fR
+dump a list of available cameras
+.TP
+\fB\-r\fR, \fB\-\-resetbus\fR
+reset the firewire bus
+.TP
+\fB\-t\fR, \fB\-\-driver\fR DRIVER
+one of the supported drivers to show camera video (supported: firewire, video4linux, directshow)
+.TP
+\fB\-d\fR, \fB\-\-device\fR DEVICE
+camera device identifier (may be GUID or device path)
+.TP
+\fB\-u\fR, \fB\-\-unit\fR UNIT
+unit number (where applicable)
+.TP
+\fB\-w\fR, \fB\-\-width\fR WIDTH
+capture width
+.TP
+\fB\-e\fR, \fB\-\-height\fR HEIGHT
+capture height
+.TP
+\fB\-p\fR, \fB\-\-pixelformat\fR PIXELFORMAT
+camera frame pixel format (one of: I8, I16, YUV411, YUV422, YUYV422, RGB, BGR, BAYER8)
+.TP
+\fB\-f\fR, \fB\-\-framerate\fR FRAMERATE
+frames per seconds
+.TP
+\fB\-8\fR, \fB\-\-fw800\fR
+set firewire bus speed to s800 (if supported)
+.TP
+\fB\-s\fR, \fB\-\-noinfo\fR
+don't show any info overlayed on the screen
+.SH AUTHOR
+Ulrich Von Zadow <coder@c-base.org>

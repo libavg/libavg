@@ -276,10 +276,6 @@ void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
             ++it;
         }
     }
-    if (numDisconnected == 0) {
-        throw Exception(AVG_ERR_INVALID_ARGS, 
-                "disconnectEventHandler: No handler found.");
-    }
 //    cerr << "disconnectEventHandler" << endl;
 //    dumpEventHandlers();
 }
