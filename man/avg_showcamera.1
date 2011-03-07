@@ -1,4 +1,4 @@
-.TH AVG_SHOWFONT "1" "March 2011" "libavg 1.5.4" "User Commands"
+.TH AVG_SHOWCAMERA "1" "March 2011" "libavg 1.5.4" "User Commands"
 .SH NAME
 avg_showcamera \- camera discovery and display tool
 .SH SYNOPSIS
@@ -11,44 +11,44 @@ avg_showcamera \- camera discovery and display tool
 .B avg_showcamera
 \fI\-t DRIVER [OPTION]...\fR
 .SH DESCRIPTION
-Query and list attached cameras, reset firewire bus, show video stream
+Query and list attached cameras, reset firewire bus, show video stream.
 .PP
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-help\fR
-show a brief description of the options
+Show a brief description of the options.
 .TP
 \fB\-l\fR, \fB\-\-dump\fR
-dump a list of available cameras
+Dump a list of available cameras to the console.
 .TP
 \fB\-r\fR, \fB\-\-resetbus\fR
-reset the firewire bus
+Reset the firewire bus and free allocated bandwidth.
 .TP
 \fB\-t\fR, \fB\-\-driver\fR DRIVER
-one of the supported drivers to show camera video (supported: firewire, video4linux, directshow)
+One of the camera subsystems supported by libavg (supported: firewire, video4linux, directshow).
 .TP
 \fB\-d\fR, \fB\-\-device\fR DEVICE
-camera device identifier (may be GUID or device path)
+Camera device identifier (depending on the driver, a GUID or device path is expected).
 .TP
 \fB\-u\fR, \fB\-\-unit\fR UNIT
-unit number (where applicable)
+Unit number. Used for cameras or other capture devices which deliver several images (e.g. stereo cameras or TV capture cards).
 .TP
 \fB\-w\fR, \fB\-\-width\fR WIDTH
-capture width
+Camera image width.
 .TP
 \fB\-e\fR, \fB\-\-height\fR HEIGHT
-capture height
+Camera image height.
 .TP
 \fB\-p\fR, \fB\-\-pixelformat\fR PIXELFORMAT
-camera frame pixel format (one of: I8, I16, YUV411, YUV422, YUYV422, RGB, BGR, BAYER8)
+Camera pixel format (one of: I8, I16, YUV411, YUV422, YUYV422, RGB, BGR, BAYER8).
 .TP
 \fB\-f\fR, \fB\-\-framerate\fR FRAMERATE
-frames per seconds
+Frames per second.
 .TP
 \fB\-8\fR, \fB\-\-fw800\fR
-set firewire bus speed to s800 (if supported)
+Set firewire bus speed to s800 (if supported).
 .TP
 \fB\-s\fR, \fB\-\-noinfo\fR
-don't show any info overlayed on the screen
+Don't show any info overlayed on the screen.
 .SH AUTHOR
-Ulrich Von Zadow <coder@c-base.org>
+Ulrich von Zadow <coder@c-base.org>

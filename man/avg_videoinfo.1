@@ -1,14 +1,15 @@
-.TH AVG_SHOWFONT "1" "March 2011" "libavg 1.5.4" "User Commands"
+.TH AVG_VIDEOINFO "1" "March 2011" "libavg 1.5.4" "User Commands"
 .SH NAME
 avg_videoinfo \- video inspection tool
 .SH SYNOPSIS
 .B avg_videoinfo
-\fIfile\fR \fI[OPTION]\fR
+\fIfile(s)\fR \fI[OPTION]\fR
 .SH DESCRIPTION
-Dump video and complimentary (audio) information to the console
+Dump video file format information to the console
 .PP
-Inspects the provided file and dumps information about duration, bitrate, video/audio codec,
-video frame size and pixel format, video fps, audio sample rate and number of channels.
+Inspects the given file(s) and dumps information about duration, bitrate, video/audio codec,
+video frame size and pixel format, video fps, audio sample rate and number of channels for
+each file given.
 .PP
 The default output format is text.
 .PP
@@ -17,12 +18,12 @@ XML and CSV formats can be chosen with the appropriate options.
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-help\fR
-show a brief description of the options
+Show a brief description of the options.
 .TP
 \fB\-x\fR, \fB\-\-xml\fR
-XML output format
+XML output format.
 .TP
 \fB\-c\fR, \fB\-\-csv\fR
-CSV output format
+CSV output format.
 .SH AUTHOR
-Ulrich Von Zadow <coder@c-base.org>
+Ulrich von Zadow <coder@c-base.org>

@@ -5,16 +5,15 @@ avg_showfont \- font enumeration and preview tool
 .B avg_showfont
 [\fIfontname\fR] [\fItext\fR]
 .SH DESCRIPTION
-List available font faces and generate preview of their variants
+List available font faces and generate preview of their variants.
 .PP
-Without providing arguments, it generates a list of font family names and prints them on the console.
-Fontconfig is being used for fonts discovery: without specific customization the search path
-is the system's one (including eventual user's path in OSX) plus the $PWD/fonts directory (if
-it exists).
+If invoked without arguments, avg_showfont generates a list of font family names and prints them on the console.
+Fontconfig is used for font discovery. Fonts are searched for in the system font path and in $PWD/fonts. 
 .PP
-When \fBfontname\fR is specified, the chosen font is rendered on a window, with one sample line for
+If \fBfontname\fR is specified, the chosen font is displayed in a window, with one line for
 each available variant.
 .PP
-The optional \fBtext\fR argument is used instead of the default sample text.
+If supplied, the optional \fBtext\fR argument is used instead of the variant name in the
+sample text.
 .SH AUTHOR
-Ulrich Von Zadow <coder@c-base.org>
+Ulrich von Zadow <coder@c-base.org>
