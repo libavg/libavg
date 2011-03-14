@@ -93,6 +93,7 @@ private:
     DSSampleQueue * m_pSampleQueue;
 
     DWORD m_GraphRegisterID;
+    bool m_bUpsideDown;
 };
 
 }

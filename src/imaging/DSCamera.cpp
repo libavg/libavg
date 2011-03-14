@@ -93,7 +93,7 @@ void DSCamera::open()
 
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
 
-        m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF());
+        m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF(), m_bUpsideDown);
         m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
 
         IBaseFilter * pNull;
@@ -176,7 +176,6 @@ void DSCamera::setCaptureFormat()
     vector<string> sImageFormats;
     VIDEOINFOHEADER* pvih;
     BITMAPINFOHEADER bih;
-    bool bUpsideDown;
     PixelFormat capsPF;
     for (int i = 0; i < numCaps; i++) {
         VIDEO_STREAM_CONFIG_CAPS scc;
@@ -193,10 +192,8 @@ void DSCamera::setCaptureFormat()
 
         bool bFormatUsed = false;
         int height = bih.biHeight;
-        bUpsideDown = false;
         if (height < 0) {
             height = -height;
-            bUpsideDown = true;
         }
         if (bih.biWidth == m_Size.x && height == m_Size.y && 
                 (getCamPF() == capsPF || (getCamPF() == BAYER8_GBRG && capsPF == I8)))
@@ -221,6 +218,8 @@ void DSCamera::setCaptureFormat()
     if (bFormatFound) {
         AVG_TRACE(Logger::CONFIG, "Camera image format: "
                 << camImageFormatToString(pmtConfig));
+        int height = ((VIDEOINFOHEADER*)(pmtConfig->pbFormat))->bmiHeader.biHeight;
+        m_bUpsideDown = (height < 0);
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
@@ -230,6 +229,8 @@ void DSCamera::setCaptureFormat()
             // Set the framerate manually.
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
+            int height = pvih->bmiHeader.biHeight;
+            m_bUpsideDown = (height < 0);
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             AVG_TRACE(Logger::CONFIG, "Camera image format: " 

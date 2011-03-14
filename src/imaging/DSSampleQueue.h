@@ -35,7 +35,7 @@ namespace avg {
 
 class DSSampleQueue: public ISampleGrabberCB {
 public:
-    DSSampleQueue(IntPoint Size, PixelFormat cameraPF, PixelFormat destPF);
+    DSSampleQueue(IntPoint Size, PixelFormat cameraPF, PixelFormat destPF, bool bUpsideDown);
     virtual ~DSSampleQueue();
 
     // ISampleGrabberCB callbacks
@@ -56,6 +56,7 @@ private:
     IntPoint m_Size;
     PixelFormat m_CameraPF;
     PixelFormat m_DestPF;
+    bool m_bUpsideDown;
     Queue<Bitmap> m_BitmapQ;
 };
 

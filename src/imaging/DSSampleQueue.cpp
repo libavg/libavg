@@ -19,6 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../graphics/Filterflip.h"
+
 #include "DSSampleQueue.h"
 #include "DSHelper.h"
 
@@ -26,10 +28,12 @@
 
 namespace avg {
 
-DSSampleQueue::DSSampleQueue(IntPoint size, PixelFormat cameraPF, PixelFormat destPF)
+DSSampleQueue::DSSampleQueue(IntPoint size, PixelFormat cameraPF, PixelFormat destPF,
+        bool bUpsideDown)
     : m_Size(size),
       m_CameraPF(cameraPF),
-      m_DestPF(destPF)
+      m_DestPF(destPF),
+      m_bUpsideDown(bUpsideDown)
 {
 }
 
@@ -51,6 +55,9 @@ STDMETHODIMP DSSampleQueue::SampleCB(double sampleTime, IMediaSample *pSample)
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, m_DestPF, 
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(camBmp);
+    if (m_bUpsideDown) {
+        FilterFlip().applyInPlace(pDestBmp);
+    }
     m_BitmapQ.push(pDestBmp);
 
     return S_OK;
