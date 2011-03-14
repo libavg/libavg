@@ -79,6 +79,7 @@ if sys.platform != 'win32':
 
 srcDir = os.getenv("srcdir",".")
 os.chdir(srcDir)
+libavg.avg.WordsNode.addFontDir('foo') # Causes the font info to be reloaded.
 
 import testapp   
    
