@@ -76,10 +76,10 @@ void DSCamera::open()
 
         hr = m_pSrcFilter->QueryInterface(IID_IAMVideoProcAmp, 
                 (void **)&m_pCameraPropControl);
-        checkForDShowError(hr, "DSCamera::getImage()::get IAMVideoProcAmp");
+        checkForDShowError(hr, "DSCamera::open()::get IAMVideoProcAmp");
         hr = m_pSrcFilter->QueryInterface(IID_IAMCameraControl, 
                 (void **)&m_pAMCameraControl);
-        checkForDShowError(hr, "DSCamera::getImage()::get IAMCameraControl");
+        checkForDShowError(hr, "DSCamera::open()::get IAMCameraControl");
 
         hr = m_pGraph->AddFilter(m_pGrabFilter, L"Sample Grabber");
         checkForDShowError(hr, "DSCamera::open()::Add Grabber");
@@ -90,6 +90,7 @@ void DSCamera::open()
         mt.majortype = MEDIATYPE_Video;
 
         hr = m_pSampleGrabber->SetMediaType(&mt);
+
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
 
         m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF());
@@ -175,6 +176,7 @@ void DSCamera::setCaptureFormat()
     vector<string> sImageFormats;
     VIDEOINFOHEADER* pvih;
     BITMAPINFOHEADER bih;
+    bool bUpsideDown;
     PixelFormat capsPF;
     for (int i = 0; i < numCaps; i++) {
         VIDEO_STREAM_CONFIG_CAPS scc;
@@ -190,7 +192,13 @@ void DSCamera::setCaptureFormat()
         }
 
         bool bFormatUsed = false;
-        if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
+        int height = bih.biHeight;
+        bUpsideDown = false;
+        if (height < 0) {
+            height = -height;
+            bUpsideDown = true;
+        }
+        if (bih.biWidth == m_Size.x && height == m_Size.y && 
                 (getCamPF() == capsPF || (getCamPF() == BAYER8_GBRG && capsPF == I8)))
         {
             if (fabs(m_FrameRate-frameRate) < 0.001) {

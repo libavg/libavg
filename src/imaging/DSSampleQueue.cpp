@@ -43,9 +43,10 @@ STDMETHODIMP DSSampleQueue::SampleCB(double sampleTime, IMediaSample *pSample)
 
     // Get the current image.
     pSample->GetPointer(&pData);
-    int stride = m_Size.x*Bitmap::getBytesPerPixel(m_CameraPF);
-    Bitmap camBmp(m_Size, m_CameraPF, pData, stride, false, "CameraImage");
 
+    // TODO: Make the filter deliver an I8 image if the camera delivers one.
+    int stride = m_Size.x*Bitmap::getBytesPerPixel(B8G8R8X8);
+    Bitmap camBmp(m_Size, B8G8R8X8, pData, stride, false, "CameraImage");
     // Copy over to bitmap queue, doing pixel format conversion if necessary.
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, m_DestPF, 
             "ConvertedCameraImage"));
