@@ -63,6 +63,8 @@ if sys.platform != 'win32':
     
     os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
 
+    srcDir = os.getenv("srcdir",".")
+    os.chdir(srcDir)
     # The following lines help to prevent the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
     # in the system
@@ -77,9 +79,6 @@ if sys.platform != 'win32':
 #            'Tests would be performed with a non-local libavg package (%s)'
 #            % libavg.__file__)
 
-srcDir = os.getenv("srcdir",".")
-os.chdir(srcDir)
-libavg.avg.WordsNode.addFontDir('foo') # Causes the font info to be reloaded.
 
 import testapp   
    
