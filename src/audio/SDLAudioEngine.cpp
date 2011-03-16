@@ -105,7 +105,8 @@ void SDLAudioEngine::teardown()
         mutex::scoped_lock Lock(m_Mutex);
         SDL_PauseAudio(1);
     }
-    SDL_CloseAudio();
+    // Optimized away - takes too long.
+//    SDL_CloseAudio();
 
     getSources().clear();
     if (m_pLimiter) {

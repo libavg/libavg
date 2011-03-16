@@ -81,7 +81,6 @@ class AVG_API Player: IEventSink
         void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
                 bool bUsePixelBuffers, int multiSampleSamples);
         void setMultiSampleSamples(int multiSampleSamples);
-        void enableAudio(bool bEnable);
         void setAudioOptions(int samplerate, int channels);
         DPoint getScreenResolution();
 
@@ -155,7 +154,6 @@ class AVG_API Player: IEventSink
         const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
-        bool isAudioEnabled() const;
 
         void loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
@@ -204,7 +202,6 @@ class AVG_API Player: IEventSink
         AudioEngine * m_pAudioEngine;
         TestHelper * m_pTestHelper;
        
-        bool m_bAudioEnabled;
         std::string m_CurDirName;
         bool m_bStopping;
         NodeRegistry m_NodeRegistry;

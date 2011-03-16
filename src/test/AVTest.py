@@ -31,7 +31,6 @@ class AVTestCase(AVGTestCase):
 
     def setUp(self):
         AVGTestCase.setUp(self)
-        Player.enableAudio(True)
 
     def testEOF(self, node):
         def onEOF():

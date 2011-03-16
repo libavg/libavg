@@ -99,7 +99,6 @@ Player * Player::s_pPlayer=0;
 Player::Player()
     : m_pDisplayEngine(0),
       m_pAudioEngine(0),
-      m_bAudioEnabled(true),
       m_pMultitouchEventSource(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -175,11 +174,14 @@ Player::~Player()
         delete m_pDisplayEngine;
     }
 #ifndef _WIN32
+/*    
     // This causes libavg progams started under cmd to crash on system shutdown and
     // when cmd is closed, so it isn't done under windows.
+    // Under Linux (Ubuntu >= 10.10), it takes more than 2 secs to complete...
     if (m_pAudioEngine) {
         delete m_pAudioEngine;
     }
+*/    
 #endif
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
@@ -243,12 +245,6 @@ void Player::setMultiSampleSamples(int multiSampleSamples)
 {
     errorIfPlaying("Player.setMultiSampleSamples");
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
-}
-
-void Player::enableAudio(bool bEnable)
-{
-    errorIfPlaying("Player.enableAudio");
-    m_bAudioEnabled = bEnable;
 }
 
 void Player::setAudioOptions(int samplerate, int channels)
@@ -492,9 +488,7 @@ void Player::initPlayback()
     m_bIsPlaying = true;
     AVG_TRACE(Logger::PLAYER, "Playback started.");
     initGraphics();
-    if (m_bAudioEnabled) {
-        initAudio();
-    }
+    initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             m_pCanvases[i]->initPlayback(
@@ -897,11 +891,6 @@ const NodeDefinition& Player::getNodeDef(const std::string& sType)
 void Player::disablePython()
 {
     m_bPythonAvailable = false;
-}
-
-bool Player::isAudioEnabled() const
-{
-    return m_bAudioEnabled;
 }
 
 void Player::registerFrameEndListener(IFrameEndListener* pListener)
