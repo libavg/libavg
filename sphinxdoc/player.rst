@@ -153,12 +153,6 @@ Player & Canvas
             canvases. It is an error to delete a canvas that is still referenced by
             an image node.
 
-        .. py:method:: enableAudio(bEnable)
-
-            Enables or disables audio playback. If audio playback is disabled, no
-            nodes with sound can be created. Mainly used to speed up the test
-            suite.
-
         .. py:method:: enableMultitouch
 
             Enables multitouch event handling. Several drivers are available that 
