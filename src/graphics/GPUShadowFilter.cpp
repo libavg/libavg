@@ -86,7 +86,8 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pVShader->setUniformIntParam("hBlurTex", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
-    DPoint texOffset = DPoint(m_Offset.x/getSize().x, m_Offset.y/getSize().y);
+    IntPoint size = getSrcSize();
+    DPoint texOffset = DPoint(m_Offset.x/size.x, m_Offset.y/size.y);
     pVShader->setUniformDPointParam("offset", texOffset);
     pVShader->setUniformColorParam("color", m_Color);
     pSrcTex->activate(GL_TEXTURE2);
