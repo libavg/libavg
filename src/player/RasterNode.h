@@ -143,6 +143,7 @@ class AVG_API RasterNode: public AreaNode
 
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
+        ImagingProjectionPtr m_pImagingProjection;
 };
 
 }

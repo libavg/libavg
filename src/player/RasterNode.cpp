@@ -110,6 +110,7 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
+    m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection);
     setupFX();
 }
 
@@ -123,6 +124,7 @@ void RasterNode::disconnect(bool bKill)
         m_pSurface->destroy();
     }
     m_pFBO = FBOPtr();
+    m_pImagingProjection = ImagingProjectionPtr();
     AreaNode::disconnect(bKill);
 }
 
@@ -437,6 +439,7 @@ void RasterNode::setupFX()
                     false, getMipmap()));
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect(getDisplayEngine());
+            m_pImagingProjection->setup(m_pSurface->getSize());
         }
     }
 }
@@ -470,9 +473,8 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
 
-        m_pFBO->setupImagingProjection();
-        m_pFBO->drawImagingVertexes();
-
+        m_pImagingProjection->activate();
+        m_pImagingProjection->draw();
 
         m_pFBO->deactivate();
         m_pFBO->copyToDestTexture();

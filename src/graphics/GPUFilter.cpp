@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 
 #include "VertexArray.h"
+#include "ImagingProjection.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
@@ -55,6 +56,8 @@ void GPUFilter::init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& 
     m_pFBO = FBOPtr(new FBO(destRect.size(), pfDest, numTextures));
     m_SrcSize = srcSize;
     m_DestRect = destRect;
+    m_pProjection = ImagingProjectionPtr(new ImagingProjection);
+    m_pProjection->setup(srcSize, destRect);
     if (bStandalone) {
         m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, pfSrc));
         m_pSrcPBO = PBOPtr(new PBO(srcSize, pfSrc, GL_STREAM_DRAW));
@@ -87,7 +90,7 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
     m_pFBO->activate();
-    m_pFBO->setupImagingProjection();
+    m_pProjection->activate();
     applyOnGPU(pSrcTex);
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
@@ -121,7 +124,7 @@ void GPUFilter::glContextGone()
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pFBO->drawImagingVertexes();
+    m_pProjection->draw();
 }
 
 const IntPoint& GPUFilter::getSrcSize() const

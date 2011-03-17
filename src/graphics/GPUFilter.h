@@ -28,6 +28,7 @@
 #include "Bitmap.h"
 #include "PBO.h"
 #include "FBO.h"
+#include "ImagingProjection.h"
 
 #include <boost/thread/tss.hpp>
 
@@ -69,6 +70,7 @@ private:
     FBOPtr m_pFBO;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
+    ImagingProjectionPtr m_pProjection;
 
     static boost::thread_specific_ptr<PBOPtr> s_pFilterKernelPBO;
 };
