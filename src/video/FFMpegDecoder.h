@@ -31,6 +31,7 @@
 #include "../avgconfigwrapper.h"
 
 #include "WrapFFMpeg.h"
+#include "VDPAU.h"
 
 #include <boost/thread/mutex.hpp>
 
@@ -130,6 +131,8 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         IDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
         AVStream * m_pAStream;
+        VDPAU *m_pVDPAU;
+        AVCCOpaque *m_pOpaque;
         int m_VStreamIndex;
         bool m_bEOFPending;
         bool m_bVideoEOF;

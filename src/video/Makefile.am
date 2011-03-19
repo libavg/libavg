@@ -4,7 +4,7 @@ INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
         PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
-        IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
+        IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h VDPAU.h
 
 TESTS=testvideo
 
@@ -20,7 +20,10 @@ noinst_PROGRAMS=testvideo
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp \
         VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp \
         PacketVideoMsg.cpp AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp \
+        VDPAU.cpp \
         $(ALL_H)
+
+libvideo_la_LIBADD = @LIBVIDEO_LDADD@
 
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \

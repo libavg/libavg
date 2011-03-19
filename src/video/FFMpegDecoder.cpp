@@ -37,6 +37,7 @@
 #include <unistd.h>
 #endif
 #include <errno.h>
+#include "VDPAU.h"
 
 using namespace std;
 using namespace boost;
@@ -70,12 +71,18 @@ FFMpegDecoder::FFMpegDecoder()
       m_pDemuxer(0),
       m_pVStream(0),
       m_pAStream(0),
+      m_pVDPAU(0),
+      m_pOpaque(0),
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
+#ifdef HAVE_VDPAU
+    m_pVDPAU = new VDPAU();
+    m_pOpaque = new AVCCOpaque(m_pVDPAU);
+#endif
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
 }
@@ -86,8 +93,9 @@ FFMpegDecoder::~FFMpegDecoder()
         close();
     }
     ObjectCounter::get()->decRef(&typeid(*this));
+    delete m_pVDPAU;
+    delete m_pOpaque;
 }
-
 
 void avcodecError(const string& sFilename, int err)
 {
@@ -125,7 +133,8 @@ void dump_stream_info(AVFormatContext *s)
         fprintf(stderr, "  Genre: %s\n", s->genre);
 }
 
-int openCodec(AVFormatContext* pFormatContext, int streamIndex)
+int openCodec(AVFormatContext* pFormatContext, int streamIndex, VDPAU *vdpau,
+    AVCCOpaque *opaque)
 {
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
@@ -135,7 +144,14 @@ int openCodec(AVFormatContext* pFormatContext, int streamIndex)
 #endif
 //    enc->debug = 0x0001; // see avcodec.h
 
-    AVCodec * codec = avcodec_find_decoder(enc->codec_id);
+    AVCodec * codec = NULL;
+    if (vdpau) {
+        enc->opaque = opaque;
+        codec = vdpau->openCodec(enc);
+    } else {
+        codec = avcodec_find_decoder(enc->codec_id);
+    }
+
     if (!codec || avcodec_open(enc, codec) < 0) {
         return -1;
     }
@@ -220,7 +236,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1;
     
-        int rc = openCodec(m_pFormatContext, m_VStreamIndex);
+        int rc = openCodec(m_pFormatContext, m_VStreamIndex, m_pVDPAU, m_pOpaque);
         if (rc == -1) {
             m_VStreamIndex = -1;
             char szBuf[256];
@@ -246,7 +262,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
                     *m_pAStream->start_time;
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
-        int rc = openCodec(m_pFormatContext, m_AStreamIndex);
+        int rc = openCodec(m_pFormatContext, m_AStreamIndex, m_pVDPAU,m_pOpaque);
         if (rc == -1) {
             m_AStreamIndex = -1;
             char szBuf[256];
@@ -262,6 +278,9 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
 
 void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
+    if (m_pVDPAU) {
+        m_pVDPAU->init();
+    }
     AVG_ASSERT(m_State == OPENED);
     if (m_VStreamIndex >= 0) {
         m_PF = calcPixelFormat(bDeliverYCbCr);
@@ -565,9 +584,43 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
             ScopeTimer timer(CopyImageProfilingZone);
+#ifdef HAVE_VDPAU
+
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+            AVCodecContext *enc = &m_pVStream->codec;
+#else
+            AVCodecContext *enc = m_pVStream->codec;
+#endif
+            if (enc->pix_fmt == PIX_FMT_VDPAU_H264 || enc->pix_fmt == PIX_FMT_VDPAU_MPEG1
+               || enc->pix_fmt == PIX_FMT_VDPAU_MPEG2) {
+                int Ypitch,UVpitch;VdpStatus st;
+                VdpChromaType chroma_type;
+                vdpau_render_state *render = (vdpau_render_state *)frame.data[0];
+                VdpVideoSurface surface = render->surface;
+                uint32_t width,height;
+                vdp_video_surface_get_parameters(surface,&chroma_type,&width,&height);
+                uint8_t output1[width*height];
+                uint8_t output2[width*height];      
+                uint8_t output3[width*height];
+                Ypitch = width;
+                UVpitch = Ypitch >> 1;
+                uint32_t pitches[3] = {Ypitch,UVpitch,UVpitch};
+                void *dest[3] = {output1,output2,output3};
+                st = vdp_video_surface_get_bits_y_cb_cr(surface,VDP_YCBCR_FORMAT_YV12,
+                    dest,pitches);
+                copyPlaneToBmp(pBmps[0], output1, Ypitch);
+                copyPlaneToBmp(pBmps[1], output3, UVpitch);
+                copyPlaneToBmp(pBmps[2], output2, UVpitch);
+            } else {
+                for (unsigned i = 0; i < pBmps.size(); ++i) {
+                    copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
+                }
+            }
+#else 
             for (unsigned i = 0; i < pBmps.size(); ++i) {
                 copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
             }
+#endif
         } else {
             convertFrameToBmp(frame, pBmps[0]);
         }
@@ -803,6 +856,11 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
     if (bUseYCbCr) {
         switch(enc->pix_fmt) {
             case PIX_FMT_YUV420P:
+#ifdef HAVE_VDPAU
+            case PIX_FMT_VDPAU_H264:
+            case PIX_FMT_VDPAU_MPEG1:
+            case PIX_FMT_VDPAU_MPEG2:
+#endif
                 return YCbCr420p;
             case PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
@@ -984,6 +1042,10 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
+            FrameAge age;
+            if (m_pOpaque) {
+               m_pOpaque->setFrameAge(&age);
+            }
             int len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
             if (len1 > 0) {
