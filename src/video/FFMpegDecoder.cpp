@@ -592,25 +592,24 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
             AVCodecContext *enc = m_pVStream->codec;
 #endif
             if (enc->pix_fmt == PIX_FMT_VDPAU_H264 || enc->pix_fmt == PIX_FMT_VDPAU_MPEG1
-               || enc->pix_fmt == PIX_FMT_VDPAU_MPEG2) {
+                    || enc->pix_fmt == PIX_FMT_VDPAU_MPEG2) 
+            {
                 int Ypitch,UVpitch;VdpStatus st;
                 VdpChromaType chroma_type;
                 vdpau_render_state *render = (vdpau_render_state *)frame.data[0];
                 VdpVideoSurface surface = render->surface;
-                uint32_t width,height;
-                vdp_video_surface_get_parameters(surface,&chroma_type,&width,&height);
-                uint8_t output1[width*height];
-                uint8_t output2[width*height];      
-                uint8_t output3[width*height];
-                Ypitch = width;
-                UVpitch = Ypitch >> 1;
-                uint32_t pitches[3] = {Ypitch,UVpitch,UVpitch};
-                void *dest[3] = {output1,output2,output3};
-                st = vdp_video_surface_get_bits_y_cb_cr(surface,VDP_YCBCR_FORMAT_YV12,
-                    dest,pitches);
-                copyPlaneToBmp(pBmps[0], output1, Ypitch);
-                copyPlaneToBmp(pBmps[1], output3, UVpitch);
-                copyPlaneToBmp(pBmps[2], output2, UVpitch);
+                uint32_t pitches[3] = {
+                    pBmps[0]->getStride(),
+                    pBmps[2]->getStride(),
+                    pBmps[1]->getStride()
+                };
+                void *dest[3] = {
+                    pBmps[0]->getPixels(), 
+                    pBmps[2]->getPixels(),
+                    pBmps[1]->getPixels()
+                };
+                st = vdp_video_surface_get_bits_y_cb_cr(surface, VDP_YCBCR_FORMAT_YV12,
+                        dest, pitches);
             } else {
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
