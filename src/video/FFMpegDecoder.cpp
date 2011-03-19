@@ -567,6 +567,7 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride)
 
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
+static ProfilingZoneID VDPAUDecodeProfilingZone("FFMpeg: VDPAU decode");
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         double timeWanted)
@@ -583,9 +584,8 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
-            ScopeTimer timer(CopyImageProfilingZone);
 #ifdef HAVE_VDPAU
-
+            ScopeTimer timer(VDPAUDecodeProfilingZone);
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
             AVCodecContext *enc = &m_pVStream->codec;
 #else
@@ -616,6 +616,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
                 }
             }
 #else 
+            ScopeTimer timer(CopyImageProfilingZone);
             for (unsigned i = 0; i < pBmps.size(); ++i) {
                 copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
             }
