@@ -1,6 +1,12 @@
 
 INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
         
+if APPLE
+    X_LIBS = 
+else
+    X_LIBS = -lX11
+endif
+
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
         PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
@@ -29,4 +35,4 @@ testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la \
         @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-        @LIBFFMPEG@ $(MAGICK_LIBS)
+        @LIBFFMPEG@ $(MAGICK_LIBS) $(X_LIBS)
