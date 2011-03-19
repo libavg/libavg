@@ -76,7 +76,7 @@ VDPAU::VDPAU():
     m_vdpDecoder(0),
     m_vdpMixer(0),
     m_vdpPresentationQueue(0),
-    m_pixFmt(0),
+    m_pixFmt(PIX_FMT_NONE),
     m_width(0),
     m_height(0)
 {
@@ -320,6 +320,7 @@ AVCodec *VDPAU::openCodec(AVCodecContext *enc)
              enc->get_buffer = VDPAU::getBuffer;
              enc->release_buffer = VDPAU::releaseBuffer;
              enc->draw_horiz_band = VDPAU::drawHorizBand;
+             enc->get_format = VDPAU::getFormat;
              enc->slice_flags = SLICE_FLAG_CODED_ORDER | SLICE_FLAG_ALLOW_FIELD;
         }
     } else {
@@ -397,6 +398,16 @@ void VDPAU::drawHorizBand(struct AVCodecContext *c, const AVFrame *src, int offs
     AVCCOpaque *opaque = (AVCCOpaque *)c->opaque;
     VDPAU *vdpau = opaque->getVDPAU();
     vdpau->render(c, src);
+}
+
+::PixelFormat VDPAU::getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt)
+{
+    switch (pContext->codec_id) {
+        case CODEC_ID_H264:
+            return PIX_FMT_VDPAU_H264;
+        default:
+            return pFmt[0];
+    }
 }
 
 void VDPAU::render(AVCodecContext *context,const AVFrame *frame)

@@ -1129,7 +1129,12 @@ string FFMpegDecoder::getStreamPF() const
     AVCodecContext *pCodec = m_pVStream->codec;
 #endif
     ::PixelFormat pf = pCodec->pix_fmt;
-    return avcodec_get_pix_fmt_name(pf);
+    const char* psz = avcodec_get_pix_fmt_name(pf);
+    string s;
+    if (psz) {
+        s = psz;
+    } 
+    return s;
 }
 
 // TODO: this should be logarithmic...

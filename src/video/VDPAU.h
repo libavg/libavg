@@ -121,6 +121,7 @@ private:
     static void releaseBuffer(struct AVCodecContext *c, AVFrame *frame);
     static void drawHorizBand(AVCodecContext *c, const AVFrame *frame, int offset[4],
         int y, int type, int height);
+    static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
     void render(AVCodecContext *context,const AVFrame *frame);
 
     VdpDevice     m_vdpDevice;
@@ -133,7 +134,7 @@ private:
     VdpDecoder    m_vdpDecoder;
     VdpVideoMixer m_vdpMixer;
     VdpPresentationQueue m_vdpPresentationQueue;
-    int    m_pixFmt;
+    ::PixelFormat  m_pixFmt;
     int    m_width;
     int    m_height;
 
