@@ -346,12 +346,10 @@ PixelFormat CameraNode::getPixelFormat()
 
 void CameraNode::updateToLatestCameraImage()
 {
-    m_pCurBmp = m_pCamera->getImage(false);
-    if (m_pCurBmp) {
-       BitmapPtr pTempBmp;
-       while (pTempBmp = m_pCamera->getImage(false)) {
-           m_pCurBmp = pTempBmp;
-       }
+    BitmapPtr pTmpBmp = m_pCamera->getImage(false);
+    while (pTmpBmp) {
+        m_pCurBmp = pTmpBmp;
+        pTmpBmp = m_pCamera->getImage(false);
     }
 }
 
