@@ -97,6 +97,7 @@ if options.driver is None and not options.dump and not options.resetbus:
     print "  w: Execute whitebalance."
     print "  1/2: Decrease/Increase whitebalance u."
     print "  3/4: Decrease/Increase whitebalance v."
+    print "  s: Take screenshot."
     print
     print "ERROR: at least '--driver', '--dump' or '--resetbus' options must be specified"
     exit()

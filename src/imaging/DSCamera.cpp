@@ -144,8 +144,6 @@ IntPoint DSCamera::getImgSize()
 
 BitmapPtr DSCamera::getImage(bool bWait)
 {
-
-    bool bGotFrame = true;
     BitmapPtr pBmp;
     try {
         pBmp = m_pSampleQueue->getImage(bWait);

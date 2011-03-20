@@ -245,6 +245,16 @@ IntPoint CameraNode::getMediaSize()
     return m_pCamera->getImgSize();
 }
 
+BitmapPtr CameraNode::getBitmap()
+{
+    if (m_pCurBmp) {
+        return m_pCurBmp;
+    } else {
+        throw Exception(AVG_ERR_CAMERA_NONFATAL, 
+                "CameraNode.getBitmap: No camera image available.");
+    }
+}
+
 void CameraNode::dumpCameras()
 {
     avg::dumpCameras();
