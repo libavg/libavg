@@ -83,6 +83,7 @@
     <ClCompile Include="..\..\src\imaging\DeDistort.cpp" />
     <ClCompile Include="..\..\src\imaging\DSCamera.cpp" />
     <ClCompile Include="..\..\src\imaging\DSHelper.cpp" />
+    <ClCompile Include="..\..\src\imaging\DSSampleGrabber.cpp" />
     <ClCompile Include="..\..\src\imaging\DSSampleQueue.cpp" />
     <ClCompile Include="..\..\src\imaging\FakeCamera.cpp" />
     <ClCompile Include="..\..\src\imaging\FilterClearBorder.cpp" />
@@ -103,6 +104,7 @@
     <ClInclude Include="..\..\src\imaging\DeDistort.h" />
     <ClInclude Include="..\..\src\imaging\DSCamera.h" />
     <ClInclude Include="..\..\src\imaging\DSHelper.h" />
+    <ClInclude Include="..\..\src\imaging\DSSampleGrabber.h" />
     <ClInclude Include="..\..\src\imaging\DSSampleQueue.h" />
     <ClInclude Include="..\..\src\imaging\FakeCamera.h" />
     <ClInclude Include="..\..\src\imaging\FilterClearBorder.h" />
