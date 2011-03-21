@@ -40,9 +40,7 @@ public:
 
 private:
     void initShaders();
-    void dumpKernel();
     IntRect calcDestRect(IntPoint size, double stdDev);
-    void calcKernel();
 
     double m_StdDev;
 
