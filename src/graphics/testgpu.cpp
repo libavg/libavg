@@ -286,42 +286,38 @@ public:
             testEqualBrightness(*pDestBmp, *pBmp, 1);
         }
 */
-        cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
         GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5);
-        pDestBmp = filter.apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 0.02);        
-        testEqual(*pDestBmp, "blur05_spike", B8G8R8X8, 0.01, 0.1);
-        cerr << "    Testing spike, stddev 1" << endl;
-        filter.setParam(1);
-        pDestBmp = filter.apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 0.02);
-        testEqual(*pDestBmp, "blur1_spike", B8G8R8X8, 0.01, 0.1);
-        cerr << "    Testing spike, stddev 3" << endl;
-        filter.setParam(3);
-        pDestBmp = filter.apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 0.04);
-        testEqual(*pDestBmp, "blur5_spike", B8G8R8X8, 0.01, 0.1);
+        runImageTest(pBmp, filter, 0.5, "blur05_spike");
+        runImageTest(pBmp, filter, 1, "blur1_spike");
+        runImageTest(pBmp, filter, 3, "blur3_spike");
 
-        cerr << "    Testing flat, stddev 5" << endl;
         pBmp = loadTestBmp("flat");
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
-                5).apply(pBmp);
-        testEqual(*pDestBmp, "blur05_flat", B8G8R8X8, 0.01, 0.1);
+        filter = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 5);
+        runImageTest(pBmp, filter, 5, "blur05_flat", true);
 
-        runImageTests("rgb24-64x64");
-        runImageTests("rgb24alpha-64x64");
+        runImageTest("rgb24-64x64");
+        runImageTest("rgb24alpha-64x64");
     }
 
 private:
-    void runImageTests(const string& sFName)
+    void runImageTest(const string& sFName)
     {
-        cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
-        BitmapPtr pDestBmp;
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
-                2).apply(pBmp);
-        testEqual(*pDestBmp, string("blur_")+sFName, pBmp->getPixelFormat(), 0.2, 0.5);
+        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 2);
+        runImageTest(pBmp, filter, 2, string("blur_")+sFName, true);
+    }
+
+    void runImageTest(BitmapPtr pBmp, GPUBlurFilter& filter, double stdDev, 
+            string sBmpName, bool bIgnoreBrightness = false)
+    {
+        cerr << "    Testing " << sBmpName << ", stddev " << stdDev << endl;
+        filter.setParam(stdDev);
+        BitmapPtr pDestBmp = filter.apply(pBmp);
+        if (!bIgnoreBrightness) {
+            testEqualBrightness(*pDestBmp, *pBmp, 0.03);
+        }
+        testEqual(*pDestBmp, sBmpName, B8G8R8X8, 0.01, 0.1);
     }
 };
 
