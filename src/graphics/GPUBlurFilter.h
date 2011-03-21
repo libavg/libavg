@@ -35,7 +35,7 @@ public:
             double stdDev, bool bStandalone=true);
     virtual ~GPUBlurFilter();
     
-    void setParam(double stdDev);
+    void setStdDev(double stdDev);
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:

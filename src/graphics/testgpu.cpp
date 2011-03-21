@@ -312,7 +312,7 @@ private:
             string sBmpName, bool bIgnoreBrightness = false)
     {
         cerr << "    Testing " << sBmpName << ", stddev " << stdDev << endl;
-        filter.setParam(stdDev);
+        filter.setStdDev(stdDev);
         BitmapPtr pDestBmp = filter.apply(pBmp);
         if (!bIgnoreBrightness) {
             testEqualBrightness(*pDestBmp, *pBmp, 0.03);

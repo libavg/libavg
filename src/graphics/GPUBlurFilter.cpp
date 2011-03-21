@@ -44,7 +44,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     ObjectCounter::get()->incRef(&typeid(*this));
 
     initShaders();
-    setParam(stdDev);
+    setStdDev(stdDev);
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -52,7 +52,7 @@ GPUBlurFilter::~GPUBlurFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBlurFilter::setParam(double stdDev)
+void GPUBlurFilter::setStdDev(double stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);

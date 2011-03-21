@@ -53,7 +53,7 @@ void BlurFXNode::setParam(double stdDev)
 {
     m_StdDev = stdDev;
     if (m_pFilter) {
-        m_pFilter->setParam(stdDev);
+        m_pFilter->setStdDev(stdDev);
     }
 }
 
