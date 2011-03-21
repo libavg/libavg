@@ -118,7 +118,7 @@ class FXTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         root = Player.getRootNode()
-        self.node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
         self.node.setEffect(self.effect)
         self.start(None,

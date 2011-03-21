@@ -60,7 +60,7 @@ void BlurFXNode::setParam(double stdDev)
 GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUBlurFilterPtr(new GPUBlurFilter(size, B8G8R8A8, B8G8R8A8, m_StdDev, 
-            false));
+            false, false));
     return m_pFilter;
 }
 

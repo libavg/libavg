@@ -79,6 +79,13 @@ void GLTexture::generateMipmaps()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::generateMipmaps()");
 }
 
+void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
+{
+    activate();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
+}
+
 const IntPoint& GLTexture::getSize() const
 {
     return m_Size;

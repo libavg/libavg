@@ -41,6 +41,7 @@ public:
 
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
+    void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
     const IntPoint& getSize() const;
     PixelFormat getPF() const;

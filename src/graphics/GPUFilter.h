@@ -51,12 +51,12 @@ public:
     FBOPtr getFBO();
 
     const IntRect& getDestRect() const;
+    const IntPoint& getSrcSize() const;
     
     static void glContextGone();
 
 protected:
     void draw(GLTexturePtr pTex);
-    const IntPoint& getSrcSize() const;
     void setDestRect(const IntRect& rect);
     const std::string& getStdShaderCode() const;
     int getBlurKernelRadius(double stdDev) const;

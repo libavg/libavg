@@ -45,6 +45,7 @@ public:
 
     GLTexturePtr getTex();
     BitmapPtr getImage();
+    DRect getRelDestRect() const;
 
 protected:
     SDLDisplayEngine* getEngine() const;
