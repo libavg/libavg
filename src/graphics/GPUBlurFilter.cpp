@@ -38,12 +38,14 @@ using namespace std;
 namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        double stdDev, bool bStandalone)
-    : GPUFilter(size, pfSrc, calcDestRect(size, stdDev), pfDest, bStandalone, 2)
+        double stdDev, bool bClipBorders, bool bStandalone)
+    : GPUFilter(size, pfSrc, calcDestRect(size, stdDev, bClipBorders), pfDest, 
+            bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     initShaders();
+    m_bClipBorders = bClipBorders;
     setStdDev(stdDev);
 }
 
@@ -56,7 +58,7 @@ void GPUBlurFilter::setStdDev(double stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
-    const IntRect& destRect = calcDestRect(getSrcSize(), stdDev);
+    const IntRect& destRect = calcDestRect(getSrcSize(), stdDev, m_bClipBorders);
     setDestRect(destRect);
     IntRect destRect2(IntPoint(0,0), destRect.size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
@@ -131,11 +133,15 @@ void GPUBlurFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
-IntRect GPUBlurFilter::calcDestRect(IntPoint size, double stdDev)
+IntRect GPUBlurFilter::calcDestRect(IntPoint size, double stdDev, bool bClipBorders)
 {
-    int radius = getBlurKernelRadius(stdDev);
-    IntPoint offset(radius, radius);
-    return IntRect(-offset, size+offset);
+    if (bClipBorders) {
+        return IntRect(IntPoint(0,0), size);
+    } else {
+        int radius = getBlurKernelRadius(stdDev);
+        IntPoint offset(radius, radius);
+        return IntRect(-offset, size+offset);
+    }
 }
 
 }

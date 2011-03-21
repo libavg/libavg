@@ -41,17 +41,18 @@ thread_specific_ptr<PBOPtr> GPUFilter::s_pFilterKernelPBO;
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
             bool bStandalone, unsigned numTextures)
 {
-    init(size, pfSrc, IntRect(IntPoint(0,0), size), pfDest, bStandalone, numTextures);
+    init(size, pfSrc, IntRect(IntPoint(0,0), size), pfDest, bStandalone, GL_CLAMP_TO_EDGE,
+            numTextures);
 }
 
 GPUFilter::GPUFilter(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
         PixelFormat pfDest, bool bStandalone, unsigned numTextures)
 {
-    init(srcSize, pfSrc, destRect, pfDest, bStandalone, numTextures);
+    init(srcSize, pfSrc, destRect, pfDest, bStandalone, GL_CLAMP_TO_BORDER, numTextures);
 }
   
 void GPUFilter::init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
-        PixelFormat pfDest, bool bStandalone, unsigned numTextures)
+        PixelFormat pfDest, bool bStandalone, unsigned texMode, unsigned numTextures)
 {
     m_pFBO = FBOPtr(new FBO(destRect.size(), pfDest, numTextures));
     m_SrcSize = srcSize;
@@ -59,8 +60,7 @@ void GPUFilter::init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& 
     m_pProjection = ImagingProjectionPtr(new ImagingProjection);
     m_pProjection->setup(srcSize, destRect);
     if (bStandalone) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, pfSrc, false, GL_CLAMP_TO_BORDER,
-                GL_CLAMP_TO_BORDER));
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, pfSrc, false, texMode, texMode));
         m_pSrcPBO = PBOPtr(new PBO(srcSize, pfSrc, GL_STREAM_DRAW));
     }
     ObjectCounter::get()->incRef(&typeid(*this));

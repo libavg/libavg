@@ -64,7 +64,7 @@ protected:
 
 private:
     void init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
-            PixelFormat pfDest, bool bStandalone, unsigned numTextures);
+            PixelFormat pfDest, bool bStandalone, unsigned texMode, unsigned numTextures);
 
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;

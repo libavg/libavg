@@ -287,13 +287,15 @@ public:
         }
 */
         pBmp = loadTestBmp("spike");
-        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5);
+        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5,
+                false);
         runImageTest(pBmp, filter, 0.5, "blur05_spike");
         runImageTest(pBmp, filter, 1, "blur1_spike");
         runImageTest(pBmp, filter, 3, "blur3_spike");
 
         pBmp = loadTestBmp("flat");
-        filter = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 5);
+        filter = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 5,
+                false);
         runImageTest(pBmp, filter, 5, "blur05_flat", true);
 
         runImageTest("rgb24-64x64");
@@ -304,7 +306,8 @@ private:
     void runImageTest(const string& sFName)
     {
         BitmapPtr pBmp = loadTestBmp(sFName);
-        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 2);
+        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 2,
+                false);
         runImageTest(pBmp, filter, 2, string("blur_")+sFName, true);
     }
 
@@ -356,9 +359,9 @@ public:
         addTest(TestPtr(new PBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
-//            addTest(TestPtr(new ChromaKeyFilterTest));
+            addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new BlurFilterTest));
-//            addTest(TestPtr(new BandpassFilterTest));
+            addTest(TestPtr(new BandpassFilterTest));
         } else {
             cerr << "Skipping some GPU tests since float textures are not supported by "
                     << endl << "the OpenGL configuration." << endl;

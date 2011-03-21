@@ -32,7 +32,7 @@ class AVG_API GPUBlurFilter: public GPUFilter
 {
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            double stdDev, bool bStandalone=true);
+            double stdDev, bool bClipBorders, bool bStandalone=true);
     virtual ~GPUBlurFilter();
     
     void setStdDev(double stdDev);
@@ -40,9 +40,10 @@ public:
 
 private:
     void initShaders();
-    IntRect calcDestRect(IntPoint size, double stdDev);
+    IntRect calcDestRect(IntPoint size, double stdDev, bool bClipBorders);
 
     double m_StdDev;
+    bool m_bClipBorders;
 
     GLTexturePtr m_pGaussCurveTex;
     ImagingProjectionPtr m_pProjection2;
