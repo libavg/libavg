@@ -59,6 +59,7 @@ protected:
     const IntPoint& getSrcSize() const;
     void setDestRect(const IntRect& rect);
     const std::string& getStdShaderCode() const;
+    int getBlurKernelRadius(double stdDev) const;
     GLTexturePtr calcBlurKernelTex(double stdDev, double opacity=-1) const;
 
 private:

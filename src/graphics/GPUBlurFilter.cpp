@@ -39,13 +39,17 @@ namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         double stdDev, bool bStandalone)
-    : GPUFilter(size, pfSrc, pfDest, bStandalone, 2),
+    : GPUFilter(size, pfSrc, calcDestRect(size, stdDev), pfDest, bStandalone, 2),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     initShaders();
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    const IntRect& dest = getDestRect();
+    IntRect destRect2(IntPoint(0,0), dest.size());
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
+    m_pProjection2->setup(dest.size(), destRect2);
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -72,6 +76,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
+    m_pProjection2->activate();
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
@@ -79,7 +84,8 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pVShader->setUniformIntParam("texture", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
-    draw(getDestTex(1));
+    getDestTex(1)->activate(GL_TEXTURE0);
+    m_pProjection2->draw();
     glproc::UseProgramObject(0);
 }
 
@@ -125,5 +131,11 @@ void GPUBlurFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
+IntRect GPUBlurFilter::calcDestRect(IntPoint size, double stdDev)
+{
+    int radius = getBlurKernelRadius(stdDev);
+    IntPoint offset(radius, radius);
+    return IntRect(-offset, size+offset);
+}
 
 }

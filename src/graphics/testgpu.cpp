@@ -290,25 +290,24 @@ public:
         pBmp = loadTestBmp("spike");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
                 0.5).apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 0.0004);
+        testEqualBrightness(*pDestBmp, *pBmp, 0.02);        
         testEqual(*pDestBmp, "blur05_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 1" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
                 1).apply(pBmp);
-//        testEqualBrightness(*pDestBmp, *pBmp, 5);
+        testEqualBrightness(*pDestBmp, *pBmp, 0.02);
         testEqual(*pDestBmp, "blur1_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 3" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
                 3).apply(pBmp);
-//        testEqualBrightness(*pDestBmp, *pBmp, 5);
+        testEqualBrightness(*pDestBmp, *pBmp, 0.04);
         testEqual(*pDestBmp, "blur5_spike", B8G8R8X8, 0.01, 0.1);
 
         cerr << "    Testing flat, stddev 5" << endl;
         pBmp = loadTestBmp("flat");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
                 5).apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 1);
-        testEqual(*pDestBmp, *pBmp, "blur05_flat");
+        testEqual(*pDestBmp, "blur05_flat", B8G8R8X8, 0.01, 0.1);
 
         runImageTests("rgb24-64x64");
         runImageTests("rgb24alpha-64x64");
@@ -321,7 +320,7 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
-                10).apply(pBmp);
+                2).apply(pBmp);
         testEqual(*pDestBmp, string("blur_")+sFName, pBmp->getPixelFormat(), 0.2, 0.5);
     }
 };
@@ -361,9 +360,9 @@ public:
         addTest(TestPtr(new PBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
-            addTest(TestPtr(new ChromaKeyFilterTest));
+//            addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new BlurFilterTest));
-            addTest(TestPtr(new BandpassFilterTest));
+//            addTest(TestPtr(new BandpassFilterTest));
         } else {
             cerr << "Skipping some GPU tests since float textures are not supported by "
                     << endl << "the OpenGL configuration." << endl;

@@ -59,7 +59,8 @@ void GPUFilter::init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& 
     m_pProjection = ImagingProjectionPtr(new ImagingProjection);
     m_pProjection->setup(srcSize, destRect);
     if (bStandalone) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, pfSrc));
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, pfSrc, false, GL_CLAMP_TO_BORDER,
+                GL_CLAMP_TO_BORDER));
         m_pSrcPBO = PBOPtr(new PBO(srcSize, pfSrc, GL_STREAM_DRAW));
     }
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -166,6 +167,11 @@ void dumpKernel(int width, float* pKernel)
         cerr << "  " << pKernel[i] << endl;
     }
     cerr << "Sum of coefficients: " << sum << endl;
+}
+
+int GPUFilter::getBlurKernelRadius(double stdDev) const
+{
+    return int(ceil(stdDev*3));
 }
 
 GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
