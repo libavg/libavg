@@ -39,17 +39,12 @@ namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         double stdDev, bool bStandalone)
-    : GPUFilter(size, pfSrc, calcDestRect(size, stdDev), pfDest, bStandalone, 2),
-      m_StdDev(stdDev)
+    : GPUFilter(size, pfSrc, calcDestRect(size, stdDev), pfDest, bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     initShaders();
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
-    const IntRect& dest = getDestRect();
-    IntRect destRect2(IntPoint(0,0), dest.size());
-    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
-    m_pProjection2->setup(dest.size(), destRect2);
+    setParam(stdDev);
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -61,6 +56,11 @@ void GPUBlurFilter::setParam(double stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    const IntRect& destRect = calcDestRect(getSrcSize(), stdDev);
+    setDestRect(destRect);
+    IntRect destRect2(IntPoint(0,0), destRect.size());
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
+    m_pProjection2->setup(destRect.size(), destRect2);
 }
 
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)

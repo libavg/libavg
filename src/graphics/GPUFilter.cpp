@@ -135,10 +135,13 @@ const IntPoint& GPUFilter::getSrcSize() const
 
 void GPUFilter::setDestRect(const IntRect& rect)
 {
-    m_DestRect = rect;
-    PixelFormat pf = m_pFBO->getPF();
-    unsigned numTextures = m_pFBO->getNumTextures();
-    m_pFBO = FBOPtr(new FBO(m_DestRect.size(), pf, numTextures));
+    if (rect != m_DestRect) {
+        m_DestRect = rect;
+        PixelFormat pf = m_pFBO->getPF();
+        unsigned numTextures = m_pFBO->getNumTextures();
+        m_pFBO = FBOPtr(new FBO(m_DestRect.size(), pf, numTextures));
+        m_pProjection->setup(m_SrcSize, m_DestRect);
+    }
 }
 
 const string& GPUFilter::getStdShaderCode() const

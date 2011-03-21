@@ -288,18 +288,18 @@ public:
 */
         cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
-                0.5).apply(pBmp);
+        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5);
+        pDestBmp = filter.apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 0.02);        
         testEqual(*pDestBmp, "blur05_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 1" << endl;
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
-                1).apply(pBmp);
+        filter.setParam(1);
+        pDestBmp = filter.apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 0.02);
         testEqual(*pDestBmp, "blur1_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 3" << endl;
-        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F,
-                3).apply(pBmp);
+        filter.setParam(3);
+        pDestBmp = filter.apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 0.04);
         testEqual(*pDestBmp, "blur5_spike", B8G8R8X8, 0.01, 0.1);
 
