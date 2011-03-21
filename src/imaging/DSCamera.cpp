@@ -19,6 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include <InitGuid.h>
+
 #include "DSHelper.h"
 #include "DSCamera.h"
 
@@ -46,8 +48,7 @@ DSCamera::DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF,
       m_FrameRate(frameRate),
       m_pGraph(0),
       m_pCapture(0),
-      m_pCameraPropControl(0),
-      m_pSampleQueue(0)
+      m_pCameraPropControl(0)
 {
     open();
 }
@@ -67,10 +68,10 @@ void DSCamera::open()
         checkForDShowError(hr, "DSCamera::open()::Add capture filter");
 
         // Create and configure the sample grabber that delivers the frames to the app.
-        hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER, 
-                IID_IBaseFilter, (LPVOID *)&m_pGrabFilter);
+        m_pGrabFilter = new CSampleGrabber(NULL, &hr, false);
+        m_pGrabFilter->AddRef();
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber");
-        hr = m_pGrabFilter->QueryInterface(IID_ISampleGrabber, 
+        hr = m_pGrabFilter->QueryInterface(IID_IlibavgGrabber, 
                 (void **)&m_pSampleGrabber);
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber 2");
 
@@ -85,16 +86,13 @@ void DSCamera::open()
         checkForDShowError(hr, "DSCamera::open()::Add Grabber");
         setCaptureFormat();
 
-        AM_MEDIA_TYPE mt;
-        ZeroMemory(&mt, sizeof(AM_MEDIA_TYPE));
-        mt.majortype = MEDIATYPE_Video;
+        CMediaType mt(&MEDIATYPE_Video);
 
-        hr = m_pSampleGrabber->SetMediaType(&mt);
+        hr = m_pSampleGrabber->SetAcceptedMediaType(&mt);
 
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
 
-        m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF(), m_bUpsideDown);
-        m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
+        m_pSampleGrabber->SetCallback(this);
 
         IBaseFilter * pNull;
         hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, 
@@ -134,7 +132,6 @@ void DSCamera::close()
     m_pSrcFilter->Release();
     m_pGrabFilter->Release();
     m_pSampleGrabber->Release();
-    delete m_pSampleQueue;
 }
 
 IntPoint DSCamera::getImgSize()
@@ -148,7 +145,7 @@ BitmapPtr DSCamera::getImage(bool bWait)
     bool bGotFrame = true;
     BitmapPtr pBmp;
     try {
-        pBmp = m_pSampleQueue->getImage(bWait);
+        pBmp = m_BitmapQ.pop(bWait);
     } catch (Exception&) {
         return BitmapPtr();
     }
@@ -347,6 +344,26 @@ void DSCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
     AVG_TRACE(Logger::WARNING, 
             "Whitebalance not implemented for DirectShow camera driver.");
+}
+
+void DSCamera::onSample(IMediaSample * pSample)
+{
+    unsigned char * pData;
+
+    // Get the current image.
+    pSample->GetPointer(&pData);
+
+    // TODO: Make the filter deliver an I8 image if the camera delivers one.
+    int stride = m_Size.x*Bitmap::getBytesPerPixel(getCamPF());
+    Bitmap camBmp(m_Size, getCamPF(), pData, stride, false, "CameraImage");
+    // Copy over to bitmap queue, doing pixel format conversion if necessary.
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, getDestPF(), 
+            "ConvertedCameraImage"));
+    pDestBmp->copyPixels(camBmp);
+    if (m_bUpsideDown) {
+        FilterFlip().applyInPlace(pDestBmp);
+    }
+    m_BitmapQ.push(pDestBmp);
 }
 
 void DSCamera::dumpCameras()
