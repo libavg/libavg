@@ -50,147 +50,113 @@ public:
     virtual void onSample(IMediaSample * pSample)=0;
 };
 
-// We define the interface the app can use to program us
 MIDL_INTERFACE("6B652FFF-11FE-4FCE-92AD-0266B5D7C78F")
 IlibavgGrabber : public IUnknown
 {
-    public:
-        
-        virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType( 
-            CMediaType *pType) = 0;
-        
-        virtual HRESULT STDMETHODCALLTYPE SetCallback( 
-            ISampleCallback * pCallback) = 0;
-        
-        virtual HRESULT STDMETHODCALLTYPE SetDeliveryBuffer( 
-            ALLOCATOR_PROPERTIES props,
+public:
+    virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType(CMediaType* pType) = 0;
+    virtual void STDMETHODCALLTYPE SetCallback(ISampleCallback* pCallback) = 0;
+    virtual HRESULT STDMETHODCALLTYPE SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
             BYTE *pBuffer) = 0;
 };
         
 class CSampleGrabberInPin;
 class CSampleGrabber;
 
-//----------------------------------------------------------------------------
-// This is a special allocator that KNOWS that the person who is creating it
-// will only create one of them. It allocates CMediaSamples that only 
-// reference the buffer location that is set in the pin's renderer's
-// data variable
-//----------------------------------------------------------------------------
-
 class CSampleGrabberAllocator : public CMemAllocator
 {
-    friend class CSampleGrabberInPin;
-    friend class CSampleGrabber;
-
-protected:
-
-    // our pin who created us
-    //
-    CSampleGrabberInPin * m_pPin;
-
 public:
-
-    CSampleGrabberAllocator( CSampleGrabberInPin * pParent, HRESULT *phr ) 
-        : CMemAllocator( TEXT("SampleGrabberAllocator\0"), NULL, phr ) 
-        , m_pPin( pParent )
+    CSampleGrabberAllocator(CSampleGrabberInPin* pParent, HRESULT* phr) 
+        : CMemAllocator(TEXT("SampleGrabberAllocator\0"), NULL, phr),
+          m_pPin(pParent)
     {
     };
 
     ~CSampleGrabberAllocator( )
     {
-        // wipe out m_pBuffer before we try to delete it. It's not an allocated
-        // buffer, and the default destructor will try to free it!
         m_pBuffer = NULL;
     }
 
-    HRESULT Alloc( );
-
+    HRESULT Alloc();
     void ReallyFree();
+    STDMETHODIMP SetProperties(ALLOCATOR_PROPERTIES* pRequest, 
+            ALLOCATOR_PROPERTIES* pActual);
 
-    // Override this to reject anything that does not match the actual buffer
-    // that was created by the application
-    STDMETHODIMP SetProperties(ALLOCATOR_PROPERTIES *pRequest, ALLOCATOR_PROPERTIES *pActual);
+protected:
+    CSampleGrabberInPin * m_pPin;
 
+private:
+    friend class CSampleGrabberInPin;
+    friend class CSampleGrabber;
 };
-
-//----------------------------------------------------------------------------
-// we override the input pin class so we can provide a media type
-// to speed up connection times. When you try to connect a filesourceasync
-// to a transform filter, DirectShow will insert a splitter and then
-// start trying codecs, both audio and video, video codecs first. If
-// your sample grabber's set to connect to audio, unless we do this, it
-// will try all the video codecs first. Connection times are sped up x10
-// for audio with just this minor modification!
-//----------------------------------------------------------------------------
 
 class CSampleGrabberInPin : public CTransInPlaceInputPin
 {
-    friend class CSampleGrabberAllocator;
-    friend class CSampleGrabber;
-
-    CSampleGrabberAllocator * m_pPrivateAllocator;
-    ALLOCATOR_PROPERTIES m_allocprops;
-    BYTE * m_pBuffer;
-    BOOL m_bMediaTypeChanged;
-
-protected:
-
-    CSampleGrabber * SampleGrabber( ) { return (CSampleGrabber*) m_pFilter; }
-    HRESULT SetDeliveryBuffer( ALLOCATOR_PROPERTIES props, BYTE * m_pBuffer );
-
 public:
-
-    CSampleGrabberInPin( CTransInPlaceFilter * pFilter, HRESULT * pHr ) 
-        : CTransInPlaceInputPin( TEXT("SampleGrabberInputPin\0"), pFilter, pHr, L"Input\0" )
-        , m_pPrivateAllocator( NULL )
-        , m_pBuffer( NULL )
-        , m_bMediaTypeChanged( FALSE )
+    CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr ) 
+        : CTransInPlaceInputPin(TEXT("SampleGrabberInputPin\0"), pFilter, pHr, 
+                L"Input\0"),
+          m_pPrivateAllocator(NULL),
+          m_pBuffer(NULL),
+          m_bMediaTypeChanged(FALSE)
     {
-        memset( &m_allocprops, 0, sizeof( m_allocprops ) );
+        memset(&m_allocprops, 0, sizeof(m_allocprops));
     }
 
     ~CSampleGrabberInPin( )
     {
-        if( m_pPrivateAllocator ) delete m_pPrivateAllocator;
+        if (m_pPrivateAllocator) {
+            delete m_pPrivateAllocator;
+        }
     }
 
-    // override to provide major media type for fast connects
-
-    HRESULT GetMediaType( int iPosition, CMediaType *pMediaType );
+    HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
 
     // override this or GetMediaType is never called
-
-    STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
+    STDMETHODIMP EnumMediaTypes(IEnumMediaTypes** ppEnum);
 
     // override this to refuse any allocators besides
     // the one the user wants, if this is set
-
-    STDMETHODIMP NotifyAllocator( IMemAllocator *pAllocator, BOOL bReadOnly );
+    STDMETHODIMP NotifyAllocator(IMemAllocator* pAllocator, BOOL bReadOnly);
 
     // override this so we always return the special allocator, if necessary
+    STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
 
-    STDMETHODIMP GetAllocator( IMemAllocator **ppAllocator );
-
-    HRESULT SetMediaType( const CMediaType *pmt );
+    HRESULT SetMediaType(const CMediaType *pmt);
 
     // we override this to tell whoever's upstream of us what kind of
     // properties we're going to demand to have
-    //
-    STDMETHODIMP GetAllocatorRequirements( ALLOCATOR_PROPERTIES *pProps );
+    STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);
 
+protected:
+    CSampleGrabber * SampleGrabber() { return (CSampleGrabber*) m_pFilter; }
+    HRESULT SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* m_pBuffer);
 
+private:
+    friend class CSampleGrabberAllocator;
+    friend class CSampleGrabber;
 
+    CSampleGrabberAllocator* m_pPrivateAllocator;
+    ALLOCATOR_PROPERTIES m_allocprops;
+    BYTE* m_pBuffer;
+    BOOL m_bMediaTypeChanged;
 };
 
-//----------------------------------------------------------------------------
-//
-//----------------------------------------------------------------------------
 
-class CSampleGrabber : public CTransInPlaceFilter,
-                       public IlibavgGrabber
+class CSampleGrabber : public CTransInPlaceFilter, IlibavgGrabber
 {
-    friend class CSampleGrabberInPin;
-    friend class CSampleGrabberAllocator;
+public:
+    static CUnknown *WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
+    CSampleGrabber(IUnknown* pOuter, HRESULT* pHr, BOOL ModifiesData);
+
+    // Expose ISampleGrabber
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN;
+
+    // IlibavgGrabber
+    STDMETHODIMP GetConnectedMediaType(CMediaType * pmt);
+    void STDMETHODCALLTYPE SetCallback(ISampleCallback* pCallback);
+    STDMETHODIMP SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE * m_pBuffer);
 
 protected:
     ISampleCallback* m_pCallback;
@@ -198,13 +164,8 @@ protected:
 
     BOOL IsReadOnly( ) { return !m_bModifiesData; }
 
-    // PURE, override this to ensure we get 
-    // connected with the right media type
-    HRESULT CheckInputType( const CMediaType * pmt );
-
-    // PURE, override this to callback 
-    // the user when a sample is received
-    HRESULT Transform( IMediaSample * pms );
+    HRESULT CheckInputType(const CMediaType* pmt);
+    HRESULT Transform(IMediaSample* pms);
 
     // override this so we can return S_FALSE directly. 
     // The base class CTransInPlace
@@ -213,24 +174,11 @@ protected:
     // to get Transform( ) to return an S_FALSE value 
     // (which means "stop giving me data"),
     // to Receive( ) and get Receive( ) to return S_FALSE as well.
+    HRESULT Receive(IMediaSample* pms);
 
-    HRESULT Receive( IMediaSample * pms );
-
-public:
-
-    static CUnknown *WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
-
-    // Expose ISampleGrabber
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
-    DECLARE_IUNKNOWN;
-
-    CSampleGrabber( IUnknown * pOuter, HRESULT * pHr, BOOL ModifiesData );
-
-    // IlibavgGrabber
-    STDMETHODIMP SetAcceptedMediaType( const CMediaType * pmt );
-    STDMETHODIMP GetConnectedMediaType( CMediaType * pmt );
-    STDMETHODIMP SetCallback( ISampleCallback* pCallback );
-    STDMETHODIMP SetDeliveryBuffer( ALLOCATOR_PROPERTIES props, BYTE * m_pBuffer );
+private:
+    friend class CSampleGrabberInPin;
+    friend class CSampleGrabberAllocator;
 };
 
 #endif
