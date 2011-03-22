@@ -86,10 +86,6 @@ void DSCamera::open()
         checkForDShowError(hr, "DSCamera::open()::Add Grabber");
         setCaptureFormat();
 
-        CMediaType mt(&MEDIATYPE_Video);
-
-        hr = m_pSampleGrabber->SetAcceptedMediaType(&mt);
-
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
 
         m_pSampleGrabber->SetCallback(this);
@@ -353,7 +349,6 @@ void DSCamera::onSample(IMediaSample * pSample)
     // Get the current image.
     pSample->GetPointer(&pData);
 
-    // TODO: Make the filter deliver an I8 image if the camera delivers one.
     int stride = m_Size.x*Bitmap::getBytesPerPixel(getCamPF());
     Bitmap camBmp(m_Size, getCamPF(), pData, stride, false, "CameraImage");
     // Copy over to bitmap queue, doing pixel format conversion if necessary.
@@ -412,9 +407,7 @@ void DSCamera::dumpCameras()
 
 void DSCamera::initGraphBuilder()
 {
-    HRESULT hr;
-    // TODO: Check if the threading model is ok.
-    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::CoInitializeEx");
 
     // Create the filter graph

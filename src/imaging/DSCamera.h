@@ -43,7 +43,8 @@
 
 namespace avg {
 
-class DSCamera: public Camera, ISampleCallback {
+class DSCamera: public Camera, ISampleCallback
+{
 public:
     DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, PixelFormat destPF,
             double frameRate);

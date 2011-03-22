@@ -1,16 +1,23 @@
-//------------------------------------------------------------------------------
-// File: Grabber.h
 //
-// Desc: DirectShow sample code - Header file for the SampleGrabber
-//       example filter
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2008 Ulrich von Zadow
 //
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Define new GUID and IID for the sample grabber example so that they do NOT
-// conflict with the official DirectX SampleGrabber filter
-//------------------------------------------------------------------------------
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
 
 #ifndef _DSSampleGrabber_H_
 #define _DSSampleGrabber_H_
@@ -29,7 +36,6 @@
 #include <dshowbase/transfrm.h>
 #include <dshowbase/transip.h>
 
-// {2FA4F053-6D60-4cb0-9503-8E89234F3F73}
 // {455A53B7-FC34-4960-94CE-A17A0B23F807}
 DEFINE_GUID(CLSID_libavgGrabber, 
 0x455a53b7, 0xfc34, 0x4960, 0x94, 0xce, 0xa1, 0x7a, 0xb, 0x23, 0xf8, 0x7);
@@ -37,12 +43,6 @@ DEFINE_GUID(CLSID_libavgGrabber,
 // {87F09DC5-12BC-479d-A20F-21133C613037}
 DEFINE_GUID(IID_IlibavgGrabber, 
 0x87f09dc5, 0x12bc, 0x479d, 0xa2, 0xf, 0x21, 0x13, 0x3c, 0x61, 0x30, 0x37);
-
-// We define a callback typedef for this example. 
-// Normally, you would make the SampleGrabber support a COM interface, 
-// and in one of its methods you would pass in a pointer to a COM interface 
-// used for calling back. See the DirectX documentation for the SampleGrabber
-// for more information.
 
 class ISampleCallback 
 {
@@ -56,9 +56,6 @@ IlibavgGrabber : public IUnknown
 {
     public:
         
-        virtual HRESULT STDMETHODCALLTYPE SetAcceptedMediaType( 
-            const CMediaType *pType) = 0;
-        
         virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType( 
             CMediaType *pType) = 0;
         
@@ -70,7 +67,6 @@ IlibavgGrabber : public IUnknown
             BYTE *pBuffer) = 0;
 };
         
-
 class CSampleGrabberInPin;
 class CSampleGrabber;
 
@@ -197,8 +193,6 @@ class CSampleGrabber : public CTransInPlaceFilter,
     friend class CSampleGrabberAllocator;
 
 protected:
-
-    CMediaType m_mtAccept;
     ISampleCallback* m_pCallback;
     CCritSec m_Lock; // serialize access to our data
 

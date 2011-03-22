@@ -1,14 +1,25 @@
-//------------------------------------------------------------------------------
-// File: Grabber.cpp
 //
-// Desc: DirectShow sample code - Implementation file for the SampleGrabber
-//       example filter
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2008 Ulrich von Zadow
 //
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-//------------------------------------------------------------------------------
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
 
 #include "DSSampleGrabber.h"
-//#include <streams.h>     // Active Movie (includes windows.h)
 #include <initguid.h>    // declares DEFINE_GUID to declare an EXTERN_C const.
 
 #include "qedit.h"
@@ -61,41 +72,12 @@ CFactoryTemplate g_Templates[]=
 
 int g_cTemplates = sizeof(g_Templates)/sizeof(g_Templates[0]);
 
-
-////////////////////////////////////////////////////////////////////////
-//
-// Exported entry points for registration and unregistration 
-// (in this case they only call through to default implementations).
-//
-////////////////////////////////////////////////////////////////////////
-/*
-STDAPI DllRegisterServer() 
-{
-    return AMovieDllRegisterServer2(TRUE);
-}
-
-STDAPI DllUnregisterServer() 
-{
-    return AMovieDllRegisterServer2(FALSE);
-}
-*/
-//
-// DllEntryPoint
-//
-extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
-
-BOOL APIENTRY DllMain(HANDLE hModule, 
-                      DWORD  dwReason, 
-                      LPVOID lpReserved)
-{
-    return DllEntryPoint((HINSTANCE)(hModule), dwReason, lpReserved);
-}
-
 //
 // CreateInstance
 //
 // Provide the way for COM to create a CSampleGrabber object
 //
+
 CUnknown * WINAPI CSampleGrabber::CreateInstance(LPUNKNOWN punk, HRESULT *phr) 
 {
     ASSERT(phr);
@@ -111,7 +93,6 @@ CUnknown * WINAPI CSampleGrabber::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
     return pNewObject;   
 
 } // CreateInstance
-
 
 //----------------------------------------------------------------------------
 //
@@ -153,62 +134,16 @@ STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface( REFIID riid, void ** p
 }
 
 
-//----------------------------------------------------------------------------
-// This is where you force the sample grabber to connect with one type
-// or the other. What you do here is crucial to what type of data your
-// app will be dealing with in the sample grabber's callback. For instance,
-// if you don't enforce right-side-up video in this call, you may not get
-// right-side-up video in your callback. It all depends on what you do here.
-//----------------------------------------------------------------------------
-
-HRESULT CSampleGrabber::CheckInputType( const CMediaType * pmt )
+HRESULT CSampleGrabber::CheckInputType(const CMediaType * pmt)
 {
-    CheckPointer(pmt,E_POINTER);
-    CAutoLock lock( &m_Lock );
+    CheckPointer(pmt, E_POINTER);
+    CAutoLock lock(&m_Lock);
 
-    // if the major type is not set, then accept anything
-
-    GUID g = *m_mtAccept.Type( );
-    if( g == GUID_NULL )
-    {
+    if(MEDIATYPE_Video == *pmt->Type( )) {
         return NOERROR;
-    }
-
-    // if the major type is set, don't accept anything else
-
-    if( g != *pmt->Type( ) )
-    {
+    } else {
         return VFW_E_INVALID_MEDIA_TYPE;
     }
-
-    // subtypes must match, if set. if not set, accept anything
-
-    g = *m_mtAccept.Subtype( );
-    if( g == GUID_NULL )
-    {
-        return NOERROR;
-    }
-    if( g != *pmt->Subtype( ) )
-    {
-        return VFW_E_INVALID_MEDIA_TYPE;
-    }
-
-    // format types must match, if one is set
-
-    g = *m_mtAccept.FormatType( );
-    if( g == GUID_NULL )
-    {
-        return NOERROR;
-    }
-    if( g != *pmt->FormatType( ) )
-    {
-        return VFW_E_INVALID_MEDIA_TYPE;
-    }
-
-    // at this point, for this sample code, this is good enough,
-    // but you may want to make it more strict
-
-    return NOERROR;
 }
 
 
@@ -303,26 +238,6 @@ HRESULT CSampleGrabber::Transform ( IMediaSample * pms )
 
 
 //----------------------------------------------------------------------------
-// SetAcceptedMediaType
-//----------------------------------------------------------------------------
-
-STDMETHODIMP CSampleGrabber::SetAcceptedMediaType( const CMediaType * pmt )
-{
-    CAutoLock lock( &m_Lock );
-
-    if( !pmt )
-    {
-        m_mtAccept = CMediaType( );
-        return NOERROR;        
-    }
-
-    HRESULT hr;
-    hr = CopyMediaType( &m_mtAccept, pmt );
-
-    return hr;
-}
-
-//----------------------------------------------------------------------------
 // GetAcceptedMediaType
 //----------------------------------------------------------------------------
 
@@ -393,7 +308,7 @@ HRESULT CSampleGrabberInPin::GetMediaType( int iPosition, CMediaType * pMediaTyp
     }
 
     *pMediaType = CMediaType( );
-    pMediaType->SetType( ((CSampleGrabber*)m_pFilter)->m_mtAccept.Type( ) );
+    pMediaType->SetType(&MEDIATYPE_Video);
 
     return S_OK;
 }
