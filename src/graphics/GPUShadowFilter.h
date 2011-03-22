@@ -43,6 +43,8 @@ private:
     void initShaders();
     void dumpKernel();
     void calcKernel();
+    IntPoint calcOffset(double stdDev);
+    IntRect calcDestRect(IntPoint size, double stdDev, const DPoint& offset);
 
     DPoint m_Offset;
     double m_StdDev;
@@ -50,6 +52,7 @@ private:
     Pixel32 m_Color;
 
     GLTexturePtr m_pGaussCurveTex;
+    ImagingProjectionPtr m_pProjection2;
 };
 
 typedef boost::shared_ptr<GPUShadowFilter> GPUShadowFilterPtr;

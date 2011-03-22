@@ -137,15 +137,19 @@ class FXTestCase(AVGTestCase):
     def testShadowFX(self):
         self.loadEmptyScene()
         root = Player.getRootNode()
-        node = avg.ImageNode(parent=root, href="shadow.png")
+        node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
         effect = avg.ShadowFXNode()
         node.setEffect(effect)
         self.start(None,
                 (lambda: self.compareImage("testShadowFX1", False),
                  lambda: effect.setParams((0,0), 3, 0.2, "00FFFF"),
                  lambda: self.compareImage("testShadowFX2", False),
-                 lambda: effect.setParams((2,2), 2, 0.2, "FFFFFF"),
+                 lambda: effect.setParams((-2,-2), 0.1, 1, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX3", False),
+                 lambda: effect.setParams((2,2), 0.1, 1, "FFFFFF"),
+                 lambda: self.compareImage("testShadowFX4", False),
+                 lambda: effect.setParams((2,2), 3, 0.3, "FFFFFF"),
+                 lambda: self.compareImage("testShadowFX5", False),
                 ))
 
     def testGamma(self):

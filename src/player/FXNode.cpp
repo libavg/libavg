@@ -84,10 +84,7 @@ BitmapPtr FXNode::getImage()
 
 DRect FXNode::getRelDestRect() const
 {
-    DRect destRect(m_pFilter->getDestRect());
-    DPoint srcSize(m_pFilter->getSrcSize());
-    return DRect(destRect.tl.x/srcSize.x, destRect.tl.y/srcSize.y,
-            destRect.br.x/srcSize.x, destRect.br.y/srcSize.y);
+    return m_pFilter->getRelDestRect();
 }
 
 SDLDisplayEngine* FXNode::getEngine() const

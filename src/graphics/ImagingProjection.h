@@ -37,13 +37,14 @@ public:
     virtual ~ImagingProjection();
 
     void setup(IntPoint size);
-    void setup(IntPoint srcSize, IntRect destRect);
+    void setup(IntPoint srcSize, IntRect destRect, IntPoint offset);
     void activate();
     void draw();
 
 private:
     IntPoint m_SrcSize;
     IntRect m_DestRect;
+    IntPoint m_Offset;
     VertexArrayPtr m_pVA;
 };
 

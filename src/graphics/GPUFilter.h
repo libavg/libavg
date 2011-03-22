@@ -40,7 +40,8 @@ public:
     GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
             bool bStandalone, unsigned numTextures=1);
     GPUFilter(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
-            PixelFormat pfDest, bool bStandalone, unsigned numTextures=1);
+            PixelFormat pfDest, const IntPoint& destOffset, bool bStandalone, 
+            unsigned numTextures=1);
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
@@ -52,6 +53,7 @@ public:
 
     const IntRect& getDestRect() const;
     const IntPoint& getSrcSize() const;
+    DRect getRelDestRect() const;
     
     static void glContextGone();
 
@@ -64,7 +66,8 @@ protected:
 
 private:
     void init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
-            PixelFormat pfDest, bool bStandalone, unsigned texMode, unsigned numTextures);
+            PixelFormat pfDest, const IntPoint& destOffset, bool bStandalone, 
+            unsigned texMode, unsigned numTextures);
 
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;

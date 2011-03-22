@@ -38,13 +38,14 @@ ImagingProjection::~ImagingProjection()
 
 void ImagingProjection::setup(IntPoint size)
 {
-    setup(size, IntRect(IntPoint(0,0), size));
+    setup(size, IntRect(IntPoint(0,0), size), IntPoint(0,0));
 }
 
-void ImagingProjection::setup(IntPoint srcSize, IntRect destRect)
+void ImagingProjection::setup(IntPoint srcSize, IntRect destRect, IntPoint offset)
 {
     m_SrcSize = srcSize;
     m_DestRect = destRect;
+    m_Offset = offset;
     DRect dest = destRect;
     DPoint p1 = DPoint(dest.tl.x/srcSize.x, dest.tl.y/srcSize.y);
     DPoint p3 = DPoint(dest.br.x/srcSize.x, dest.br.y/srcSize.y);
@@ -69,7 +70,7 @@ void ImagingProjection::activate()
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glTranslated(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
+    glTranslated(-m_Offset.x, -m_Offset.y, 0);
     glScaled(m_SrcSize.x, m_SrcSize.y, 1);
     
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "ImagingProjection::activate()");
