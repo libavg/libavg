@@ -517,7 +517,7 @@ void DSCamera::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc,
     IPin *pIn = 0;
     getUnconnectedPin(pDest, PINDIR_INPUT, &pIn);
     
-    HRESULT hr = pGraph->Connect(pOut, pIn);
+    HRESULT hr = pGraph->ConnectDirect(pOut, pIn, 0);
     checkForDShowError(hr, "DSCamera::ConnectFilters::Connect");
     pOut->Release();
     pIn->Release();
