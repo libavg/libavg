@@ -34,6 +34,8 @@
 
 #ifdef AVG_ENABLE_VDPAU
 #include "VDPAU.h"
+#include "AVCCOpaque.h"
+#include "FrameAge.h"
 #endif
 
 #include <boost/thread/mutex.hpp>
