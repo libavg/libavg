@@ -29,7 +29,7 @@ using std::endl;
 
 namespace avg {
 
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
 VdpGetProcAddress                        *vdp_get_proc_address;
 VdpDeviceDestroy                        *vdp_device_destroy;
 VdpVideoSurfaceCreate                    *vdp_video_surface_create;
@@ -538,7 +538,7 @@ bool VDPAU::videoToPresentationQueue(OutputSurface &surface,int field)
     return true;
 }
 
-#else        // HAVE_VDPAU
+#else        // AVG_ENABLE_VDPAU
 
 VDPAU::VDPAU()
 {
@@ -553,7 +553,7 @@ bool VDPAU::init()
 {
     return false;
 }
-#endif        // HAVE_VDPAU
+#endif        // AVG_ENABLE_VDPAU
 
 }
 

@@ -132,7 +132,7 @@ AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
 AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
 AC_CHECK_HEADERS([vdpau/vdpau.h],let vdpau_h2=1,let vdpau_h2=0)
 if [[ $vdpau_lib -eq 1 ]] && [[ $vdpau_h1 -eq 1 ]] && [[ $vdpau_h2 -eq 1 ]]; then
-  CPPFLAGS="$CPPFLAGS -DHAVE_VDPAU"
+  AC_DEFINE(AVG_ENABLE_VDPAU, 1, [Enable VDPAU support])
   LIBVIDEO_LDADD="-lvdpau"
 else
   LIBVIDEO_LDADD=""

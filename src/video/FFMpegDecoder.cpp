@@ -79,7 +79,7 @@ FFMpegDecoder::FFMpegDecoder()
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
     m_pVDPAU = new VDPAU();
     m_pOpaque = new AVCCOpaque(m_pVDPAU);
 #endif
@@ -584,7 +584,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     }
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
             ScopeTimer timer(VDPAUDecodeProfilingZone);
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
             AVCodecContext *enc = &m_pVStream->codec;
@@ -856,7 +856,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
     if (bUseYCbCr) {
         switch(enc->pix_fmt) {
             case PIX_FMT_YUV420P:
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
             case PIX_FMT_VDPAU_H264:
             case PIX_FMT_VDPAU_MPEG1:
             case PIX_FMT_VDPAU_MPEG2:

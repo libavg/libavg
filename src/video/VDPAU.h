@@ -29,7 +29,7 @@
 
 #include "WrapFFMpeg.h"
 
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
 #include <vdpau/vdpau.h>
 #include <libavcodec/vdpau.h>
 #endif
@@ -51,7 +51,7 @@ struct FrameAge
 };
 
 
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
 
 #define N_VIDEO_SURFACES            64
 
@@ -67,14 +67,14 @@ extern VdpVideoSurfaceGetParameters *vdp_video_surface_get_parameters;
 extern VdpVideoSurfaceGetBitsYCbCr  *vdp_video_surface_get_bits_y_cb_cr;
 extern VdpOutputSurfaceDestroy *vdp_output_surface_destroy;
 
-#endif //HAVE_VDPAU
+#endif //AVG_ENABLE_VDPAU
 
 
 class VDPAU;
 
 struct OutputSurface
 {
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
     OutputSurface(): m_outputSurface(VDP_INVALID_HANDLE),
         m_videoSurface(VDP_INVALID_HANDLE), m_pVDPAU(0), m_width(0), m_height(0)
     {
@@ -110,7 +110,7 @@ public:
     AVCodec *openCodec(AVCodecContext *enc);
     bool init();
 
-#ifdef HAVE_VDPAU
+#ifdef AVG_ENABLE_VDPAU
     bool videoToPresentationQueue(OutputSurface &surface,int field);
     GLXPixmap getPixmap();
     Display *getDisplay();
