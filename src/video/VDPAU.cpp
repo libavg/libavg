@@ -222,7 +222,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge*
             pRenderState->state |= FF_VDPAU_STATE_USED_FOR_REFERENCE;
 
             if (m_VideoSurfaces[i].m_Size.x != pContext->width ||
-        m_VideoSurfaces[i].m_Size.y != pContext->height)
+                    m_VideoSurfaces[i].m_Size.y != pContext->height)
             {
                 // allocate a new surface, freeing the old one, if any
                 if (m_VideoSurfaces[i].m_Surface != VDP_INVALID_HANDLE) {
@@ -230,7 +230,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge*
                     AVG_ASSERT(status == VDP_STATUS_OK);
                 }
                 status = vdp_video_surface_create(m_sVDPDevice, VDP_CHROMA_TYPE_420,
-        pContext->width, pContext->height, &m_VideoSurfaces[i].m_Surface);
+                        pContext->width, pContext->height, &m_VideoSurfaces[i].m_Surface);
                 AVG_ASSERT(status == VDP_STATUS_OK);
                 m_VideoSurfaces[i].m_Size.x = pContext->width;
                 m_VideoSurfaces[i].m_Size.y = pContext->height;

@@ -622,7 +622,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
                     pBmps[1]->getPixels()
                 };
                 status = vdp_video_surface_get_bits_y_cb_cr(surface,
-        VDP_YCBCR_FORMAT_YV12, dest, pitches);
+                        VDP_YCBCR_FORMAT_YV12, dest, pitches);
             } else {
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
