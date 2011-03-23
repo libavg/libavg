@@ -144,6 +144,22 @@ STDMETHODIMP CSampleGrabber::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
     return ((CSampleGrabberInPin*)m_pInput)->SetDeliveryBuffer(props, m_pBuffer);
 }
 
+CSampleGrabberInPin::CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr) 
+    : CTransInPlaceInputPin(TEXT("SampleGrabberInputPin\0"), pFilter, pHr, L"Input\0"),
+      m_pPrivateAllocator(NULL),
+      m_pBuffer(NULL),
+      m_bMediaTypeChanged(FALSE)
+{
+    memset(&m_allocprops, 0, sizeof(m_allocprops));
+}
+
+CSampleGrabberInPin::~CSampleGrabberInPin()
+{
+    if (m_pPrivateAllocator) {
+        delete m_pPrivateAllocator;
+    }
+}
+
 HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType)
 {
     CheckPointer(pMediaType, E_POINTER);
@@ -235,6 +251,18 @@ HRESULT CSampleGrabberInPin::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE*
     m_pPrivateAllocator = new CSampleGrabberAllocator(this, &hr);
     m_pPrivateAllocator->AddRef();
     return hr;
+}
+
+CSampleGrabberAllocator::CSampleGrabberAllocator(CSampleGrabberInPin* pParent, 
+        HRESULT* phr) 
+    : CMemAllocator(TEXT("SampleGrabberAllocator\0"), NULL, phr),
+       m_pPin(pParent)
+{
+}
+
+CSampleGrabberAllocator::~CSampleGrabberAllocator()
+{
+    m_pBuffer = NULL;
 }
 
 HRESULT CSampleGrabberAllocator::Alloc()

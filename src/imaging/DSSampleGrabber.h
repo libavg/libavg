@@ -66,16 +66,8 @@ class CSampleGrabber;
 class CSampleGrabberAllocator : public CMemAllocator
 {
 public:
-    CSampleGrabberAllocator(CSampleGrabberInPin* pParent, HRESULT* phr) 
-        : CMemAllocator(TEXT("SampleGrabberAllocator\0"), NULL, phr),
-          m_pPin(pParent)
-    {
-    };
-
-    ~CSampleGrabberAllocator( )
-    {
-        m_pBuffer = NULL;
-    }
+    CSampleGrabberAllocator(CSampleGrabberInPin* pParent, HRESULT* phr);
+    ~CSampleGrabberAllocator();
 
     HRESULT Alloc();
     void ReallyFree();
@@ -93,22 +85,8 @@ private:
 class CSampleGrabberInPin : public CTransInPlaceInputPin
 {
 public:
-    CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr ) 
-        : CTransInPlaceInputPin(TEXT("SampleGrabberInputPin\0"), pFilter, pHr, 
-                L"Input\0"),
-          m_pPrivateAllocator(NULL),
-          m_pBuffer(NULL),
-          m_bMediaTypeChanged(FALSE)
-    {
-        memset(&m_allocprops, 0, sizeof(m_allocprops));
-    }
-
-    ~CSampleGrabberInPin( )
-    {
-        if (m_pPrivateAllocator) {
-            delete m_pPrivateAllocator;
-        }
-    }
+    CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr);
+    ~CSampleGrabberInPin();
 
     HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
 
