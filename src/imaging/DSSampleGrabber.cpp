@@ -114,24 +114,13 @@ HRESULT CSampleGrabber::Transform (IMediaSample * pms)
     return NOERROR;
 }
 
-STDMETHODIMP CSampleGrabber::GetConnectedMediaType(CMediaType* pmt) 
-{
-    if (!m_pInput || !m_pInput->IsConnected( )) {
-        return VFW_E_NOT_CONNECTED;
-    }
-
-    return m_pInput->ConnectionMediaType(pmt);
-}
-
-
 void STDMETHODCALLTYPE CSampleGrabber::SetCallback(IDSSampleCallback* pCallback)
 {
     CAutoLock lock( &m_Lock );
     m_pCallback = pCallback;
 }
 
-STDMETHODIMP CSampleGrabber::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, 
-        BYTE* m_pBuffer)
+STDMETHODIMP CSampleGrabber::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* pBuffer)
 {
     if (!InputPin() || !OutputPin()) {
         return E_POINTER;
@@ -141,7 +130,7 @@ STDMETHODIMP CSampleGrabber::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
         return E_INVALIDARG;
     }
 
-    return ((CSampleGrabberInPin*)m_pInput)->SetDeliveryBuffer(props, m_pBuffer);
+    return ((CSampleGrabberInPin*)m_pInput)->SetDeliveryBuffer(props, pBuffer);
 }
 
 CSampleGrabberInPin::CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr) 

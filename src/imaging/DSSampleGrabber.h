@@ -50,7 +50,6 @@ MIDL_INTERFACE("6B652FFF-11FE-4FCE-92AD-0266B5D7C78F")
 IlibavgGrabber : public IUnknown
 {
 public:
-    virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType(CMediaType* pType) = 0;
     virtual void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback) = 0;
     virtual HRESULT STDMETHODCALLTYPE SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
             BYTE *pBuffer) = 0;
@@ -123,7 +122,6 @@ public:
     DECLARE_IUNKNOWN;
 
     // IlibavgGrabber
-    STDMETHODIMP GetConnectedMediaType(CMediaType * pmt);
     void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback);
     STDMETHODIMP SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE * m_pBuffer);
 
