@@ -40,8 +40,7 @@ public:
 
 private:
     void initShaders();
-    IntPoint calcOffset(double stdDev, bool bClipBorders);
-    IntRect calcDestRect(IntPoint size, double stdDev, bool bClipBorders);
+    void setDimensions(IntPoint size, double stdDev, bool bClipBorders);
 
     double m_StdDev;
     bool m_bClipBorders;

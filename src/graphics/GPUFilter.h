@@ -37,12 +37,12 @@ namespace avg {
 class AVG_API GPUFilter: public Filter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            bool bStandalone, unsigned numTextures=1);
-    GPUFilter(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
-            PixelFormat pfDest, const IntPoint& destOffset, bool bStandalone, 
+    GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
             unsigned numTextures=1);
     virtual ~GPUFilter();
+    void setDimensions(const IntPoint& srcSize);
+    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+            const IntPoint& destOffset, unsigned texMode);
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);
@@ -59,15 +59,15 @@ public:
 
 protected:
     void draw(GLTexturePtr pTex);
-    void setDestRect(const IntRect& rect);
     const std::string& getStdShaderCode() const;
     int getBlurKernelRadius(double stdDev) const;
     GLTexturePtr calcBlurKernelTex(double stdDev, double opacity=-1) const;
 
 private:
-    void init(const IntPoint& srcSize, PixelFormat pfSrc, const IntRect& destRect,
-            PixelFormat pfDest, const IntPoint& destOffset, bool bStandalone, 
-            unsigned texMode, unsigned numTextures);
+    PixelFormat m_PFSrc;
+    PixelFormat m_PFDest;
+    bool m_bStandalone;
+    unsigned m_NumTextures;
 
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;

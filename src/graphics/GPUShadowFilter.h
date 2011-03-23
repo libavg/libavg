@@ -43,8 +43,7 @@ private:
     void initShaders();
     void dumpKernel();
     void calcKernel();
-    IntPoint calcOffset(double stdDev);
-    IntRect calcDestRect(IntPoint size, double stdDev, const DPoint& offset);
+    void setDimensions(IntPoint size, double stdDev, const DPoint& offset);
 
     DPoint m_Offset;
     double m_StdDev;

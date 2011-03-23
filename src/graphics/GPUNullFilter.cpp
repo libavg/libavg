@@ -35,10 +35,11 @@ using namespace std;
 namespace avg {
 
 GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(size, B8G8R8A8, B8G8R8A8, bStandalone)
+    : GPUFilter(B8G8R8A8, B8G8R8A8, bStandalone)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
+    setDimensions(size);
     initShader();
 }
 

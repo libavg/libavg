@@ -39,11 +39,11 @@ namespace avg {
 
 GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const DPoint& offset, 
         double stdDev, double opacity, const Pixel32& color)
-    : GPUFilter(size, B8G8R8A8, calcDestRect(size, stdDev, offset), B8G8R8A8, 
-            -calcOffset(stdDev), false, 2)
+    : GPUFilter(B8G8R8A8, B8G8R8A8, false, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
+    setDimensions(size, stdDev, offset);
     initShaders();
     setParams(offset, stdDev, opacity, color);
 }
@@ -61,11 +61,10 @@ void GPUShadowFilter::setParams(const DPoint& offset, double stdDev, double opac
     m_Opacity = opacity;
     m_Color = color;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity);
-    const IntRect& destRect = calcDestRect(getSrcSize(), stdDev, offset);
-    setDestRect(destRect);
-    IntRect destRect2(IntPoint(0,0), destRect.size());
+    setDimensions(getSrcSize(), stdDev, offset);
+    IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
-    m_pProjection2->setup(destRect.size(), destRect2, IntPoint(0,0));
+    m_pProjection2->setup(getDestRect().size(), destRect2, IntPoint(0,0));
 }
 
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -158,18 +157,13 @@ void GPUShadowFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
-IntPoint GPUShadowFilter::calcOffset(double stdDev)
+void GPUShadowFilter::setDimensions(IntPoint size, double stdDev, const DPoint& offset)
 {
     int radius = getBlurKernelRadius(stdDev);
-    return IntPoint(radius, radius);
-}
-
-IntRect GPUShadowFilter::calcDestRect(IntPoint size, double stdDev, 
-        const DPoint& offset)
-{
-    IntPoint radiusOffset = calcOffset(stdDev);
+    IntPoint radiusOffset(radius, radius);
     IntPoint intOffset(offset);
-    return IntRect(intOffset-radiusOffset, intOffset+size+radiusOffset+IntPoint(1,1));
+    IntRect destRect(intOffset-radiusOffset, intOffset+size+radiusOffset+IntPoint(1,1));
+    GPUFilter::setDimensions(size, destRect, -radiusOffset, GL_CLAMP_TO_BORDER);
 }
  
 }
