@@ -26,64 +26,6 @@
 
 #pragma warning(disable: 4800)
 
-const AMOVIESETUP_PIN psudSampleGrabberPins[] =
-{ { L"Input"            // strName
-  , FALSE               // bRendered
-  , FALSE               // bOutput
-  , FALSE               // bZero
-  , FALSE               // bMany
-  , &CLSID_NULL         // clsConnectsToFilter
-  , L""                 // strConnectsToPin
-  , 0                   // nTypes
-  , NULL                // lpTypes
-  }
-, { L"Output"           // strName
-  , FALSE               // bRendered
-  , TRUE                // bOutput
-  , FALSE               // bZero
-  , FALSE               // bMany
-  , &CLSID_NULL         // clsConnectsToFilter
-  , L""                 // strConnectsToPin
-  , 0                   // nTypes
-  , NULL                // lpTypes
-  }
-};
-
-const AMOVIESETUP_FILTER sudSampleGrabber =
-{ &CLSID_libavgGrabber            // clsID
-, L"libavg sample grabber"        // strName
-, MERIT_DO_NOT_USE                // dwMerit
-, 2                               // nPins
-, psudSampleGrabberPins };        // lpPin
-
-
-// Needed for the CreateInstance mechanism
-CFactoryTemplate g_Templates[]=
-{
-    { L"libavg sample grabber"
-        , &CLSID_libavgGrabber
-        , CSampleGrabber::CreateInstance
-        , NULL
-        , &sudSampleGrabber }
-
-};
-
-int g_cTemplates = sizeof(g_Templates)/sizeof(g_Templates[0]);
-
-CUnknown * WINAPI CSampleGrabber::CreateInstance(LPUNKNOWN punk, HRESULT *phr) {
-    ASSERT(phr);
-    
-    CSampleGrabber *pNewObject = new CSampleGrabber(punk, phr);
-
-    if(pNewObject == NULL) {
-        if (phr)
-            *phr = E_OUTOFMEMORY;
-    }
-
-    return pNewObject;   
-
-} // CreateInstance
-
 CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr)
     : CTransInPlaceFilter(TEXT("libavg sample grabber"), (IUnknown*) pOuter, 
               CLSID_libavgGrabber, phr, false),
