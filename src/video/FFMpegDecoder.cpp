@@ -575,6 +575,14 @@ static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
 static ProfilingZoneID VDPAUDecodeProfilingZone("FFMpeg: VDPAU decode");
 
+#ifdef AVG_ENABLE_VDPAU
+bool pixelFormatIsVDPAU(::PixelFormat pf){
+    return (pf == PIX_FMT_VDPAU_H264 || pf == PIX_FMT_VDPAU_MPEG1 ||
+        pf == PIX_FMT_VDPAU_MPEG2 || pf == PIX_FMT_VDPAU_WMV3 ||
+        pf == PIX_FMT_VDPAU_VC1);
+}
+#endif
+
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         double timeWanted)
 {
@@ -597,13 +605,12 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 #else
             AVCodecContext *enc = m_pVStream->codec;
 #endif
-            if (enc->pix_fmt == PIX_FMT_VDPAU_H264 || enc->pix_fmt == PIX_FMT_VDPAU_MPEG1
-                    || enc->pix_fmt == PIX_FMT_VDPAU_MPEG2) 
+            if (pixelFormatIsVDPAU(enc->pix_fmt)) 
             {
-                int Ypitch,UVpitch;VdpStatus st;
+                VdpStatus status;
                 VdpChromaType chroma_type;
-                vdpau_render_state *render = (vdpau_render_state *)frame.data[0];
-                VdpVideoSurface surface = render->surface;
+                vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+                VdpVideoSurface surface = pRenderState->surface;
                 uint32_t pitches[3] = {
                     pBmps[0]->getStride(),
                     pBmps[2]->getStride(),
@@ -614,8 +621,8 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
                     pBmps[2]->getPixels(),
                     pBmps[1]->getPixels()
                 };
-                st = vdp_video_surface_get_bits_y_cb_cr(surface, VDP_YCBCR_FORMAT_YV12,
-                        dest, pitches);
+                status = vdp_video_surface_get_bits_y_cb_cr(surface,
+        VDP_YCBCR_FORMAT_YV12, dest, pitches);
             } else {
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
@@ -866,6 +873,8 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
             case PIX_FMT_VDPAU_H264:
             case PIX_FMT_VDPAU_MPEG1:
             case PIX_FMT_VDPAU_MPEG2:
+            case PIX_FMT_VDPAU_WMV3:
+            case PIX_FMT_VDPAU_VC1:
 #endif
                 return YCbCr420p;
             case PIX_FMT_YUVJ420P:

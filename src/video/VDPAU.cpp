@@ -173,6 +173,12 @@ AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
     if (pContext->codec_id == CODEC_ID_H264) {
         pCodec = avcodec_find_decoder_by_name("h264_vdpau");
     }
+    if (pContext->codec_id == CODEC_ID_WMV3) {
+        pCodec = avcodec_find_decoder_by_name("wmv3_vdpau");
+    }
+    if (pContext->codec_id == CODEC_ID_VC1) {
+        pCodec = avcodec_find_decoder_by_name("vc1_vdpau");
+    }
     if (!pCodec) {
         pCodec = avcodec_find_decoder(pContext->codec_id);
     } else {
@@ -258,6 +264,12 @@ void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
     switch (pContext->codec_id) {
         case CODEC_ID_H264:
             return PIX_FMT_VDPAU_H264;
+        case CODEC_ID_MPEG2VIDEO:
+            return PIX_FMT_VDPAU_MPEG2;
+        case CODEC_ID_WMV3:
+            return PIX_FMT_VDPAU_WMV3;
+        case CODEC_ID_VC1:
+            return PIX_FMT_VDPAU_VC1;
         default:
             return pFmt[0];
     }
@@ -280,6 +292,12 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
                 break;
             case PIX_FMT_VDPAU_H264:
                 profile = VDP_DECODER_PROFILE_H264_HIGH;
+                break;
+            case PIX_FMT_VDPAU_WMV3:
+                profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
+                break;
+            case PIX_FMT_VDPAU_VC1:
+                profile = VDP_DECODER_PROFILE_VC1_SIMPLE;
                 break;
             default:
                 AVG_ASSERT(false);
