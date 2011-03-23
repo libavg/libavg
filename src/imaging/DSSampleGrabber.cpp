@@ -20,6 +20,9 @@
 //
 
 #include "DSSampleGrabber.h"
+
+#include "../base/Exception.h"
+
 #include <initguid.h>
 
 #include "qedit.h"
@@ -98,7 +101,7 @@ CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr)
 
 STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    CheckPointer(ppv, E_POINTER);
+    AVG_ASSERT(ppv);
 
     if (riid == IID_IlibavgGrabber) {                
         return GetInterface((IlibavgGrabber *)this, ppv);
@@ -109,7 +112,7 @@ STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface(REFIID riid, void** ppv
 
 HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt)
 {
-    CheckPointer(pmt, E_POINTER);
+    AVG_ASSERT(pmt);
     CAutoLock lock(&m_Lock);
 
     if (MEDIATYPE_Video == *pmt->Type( )) {
@@ -121,7 +124,7 @@ HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt)
 
 HRESULT CSampleGrabber::Receive(IMediaSample * pms)
 {
-    CheckPointer(pms, E_POINTER);
+    AVG_ASSERT(pms);
 
     HRESULT hr;
     AM_SAMPLE2_PROPERTIES * const pProps = m_pInput->SampleProps();
@@ -135,22 +138,12 @@ HRESULT CSampleGrabber::Receive(IMediaSample * pms)
     }
     if (UsingDifferentAllocators()) {
         pms = Copy(pms);
-        if (pms == NULL) {
-            return E_UNEXPECTED;
-        }
+        AVG_ASSERT(pms);
     }
 
     hr = Transform(pms);
-    if (FAILED(hr)) {
-        DbgLog((LOG_TRACE, 1, TEXT("Error from TransInPlace")));
-        if (UsingDifferentAllocators()) {
-            pms->Release();
-        }
-        return hr;
-    }
-    if (hr == NOERROR) {
-        hr = m_pOutput->Deliver(pms);
-    }
+    AVG_ASSERT(!FAILED(hr));
+    hr = m_pOutput->Deliver(pms);
     if (UsingDifferentAllocators()) {
         pms->Release();
     }
@@ -159,11 +152,12 @@ HRESULT CSampleGrabber::Receive(IMediaSample * pms)
 
 HRESULT CSampleGrabber::Transform(IMediaSample* pms)
 {
-    CheckPointer(pms, E_POINTER);
+    AVG_ASSERT(pms);
     CAutoLock lock(&m_Lock);
 
     if (m_pCallback) {
-        REFERENCE_TIME StartTime, StopTime;
+        REFERENCE_TIME StartTime;
+        REFERENCE_TIME StopTime;
         pms->GetTime( &StartTime, &StopTime);
 
         StartTime += m_pInput->CurrentStartTime();
@@ -182,13 +176,10 @@ void STDMETHODCALLTYPE CSampleGrabber::SetCallback(IDSSampleCallback* pCallback)
 
 STDMETHODIMP CSampleGrabber::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* pBuffer)
 {
-    if (!InputPin() || !OutputPin()) {
-        return E_POINTER;
-    }
-
-    if (InputPin()->IsConnected() || OutputPin()->IsConnected()) {
-        return E_INVALIDARG;
-    }
+    AVG_ASSERT(InputPin());
+    AVG_ASSERT(OutputPin());
+    AVG_ASSERT(!InputPin()->IsConnected());
+    AVG_ASSERT(!OutputPin()->IsConnected());
 
     return ((CSampleGrabberInPin*)m_pInput)->SetDeliveryBuffer(props, pBuffer);
 }
@@ -211,16 +202,13 @@ CSampleGrabberInPin::~CSampleGrabberInPin()
 
 HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType)
 {
-    CheckPointer(pMediaType, E_POINTER);
-
-    if (iPosition < 0) {
-        return E_INVALIDARG;
-    }
+    AVG_ASSERT(pMediaType);
+    AVG_ASSERT(iPosition >= 0);
     if (iPosition > 0) {
         return VFW_S_NO_MORE_ITEMS;
     }
 
-    *pMediaType = CMediaType( );
+    *pMediaType = CMediaType();
     pMediaType->SetType(&MEDIATYPE_Video);
 
     return S_OK;
@@ -228,12 +216,12 @@ HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType)
 
 STDMETHODIMP CSampleGrabberInPin::EnumMediaTypes(IEnumMediaTypes** ppEnum) 
 {
-    CheckPointer(ppEnum, E_POINTER);
+    AVG_ASSERT(ppEnum);
     ValidateReadWritePtr(ppEnum, sizeof(IEnumMediaTypes *));
 
-    if(!((CSampleGrabber*)m_pTIPFilter)->OutputPin( )->IsConnected())
+    if(!((CSampleGrabber*)m_pTIPFilter)->OutputPin()->IsConnected())
     {
-        *ppEnum = new CEnumMediaTypes( this, NULL );
+        *ppEnum = new CEnumMediaTypes(this, NULL);
         return NOERROR;
     }
 
@@ -255,7 +243,7 @@ STDMETHODIMP CSampleGrabberInPin::NotifyAllocator(IMemAllocator* pAllocator,
 STDMETHODIMP CSampleGrabberInPin::GetAllocator(IMemAllocator** ppAllocator)
 {
     if (m_pPrivateAllocator) {
-        CheckPointer(ppAllocator,E_POINTER);
+        AVG_ASSERT(ppAllocator);
 
         *ppAllocator = m_pPrivateAllocator;
         m_pPrivateAllocator->AddRef();
@@ -267,7 +255,7 @@ STDMETHODIMP CSampleGrabberInPin::GetAllocator(IMemAllocator** ppAllocator)
 
 HRESULT CSampleGrabberInPin::GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps)
 {
-    CheckPointer(pProps,E_POINTER);
+    AVG_ASSERT(pProps);
 
     if (m_pPrivateAllocator) {
         *pProps = m_allocprops;
@@ -279,12 +267,8 @@ HRESULT CSampleGrabberInPin::GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pPro
 
 HRESULT CSampleGrabberInPin::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* pBuffer)
 {
-    if (props.cBuffers != 1) {
-        return E_INVALIDARG;
-    }
-    if (!pBuffer) {
-        return E_POINTER;
-    }
+    AVG_ASSERT(props.cBuffers == 1);
+    AVG_ASSERT(pBuffer);
 
     m_allocprops = props;
     m_pBuffer = pBuffer;
@@ -305,7 +289,7 @@ HRESULT CSampleGrabberInPin::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE*
 CSampleGrabberAllocator::CSampleGrabberAllocator(CSampleGrabberInPin* pParent, 
         HRESULT* phr) 
     : CMemAllocator(TEXT("SampleGrabberAllocator\0"), NULL, phr),
-       m_pPin(pParent)
+      m_pPin(pParent)
 {
 }
 
@@ -320,9 +304,7 @@ HRESULT CSampleGrabberAllocator::Alloc()
 
     // Check he has called SetProperties
     HRESULT hr = CBaseAllocator::Alloc();
-    if (FAILED(hr)) {
-        return hr;
-    }
+    AVG_ASSERT(!FAILED(hr));
 
     // If the requirements haven't changed then don't reallocate
     if (hr == S_FALSE) {
@@ -347,20 +329,17 @@ HRESULT CSampleGrabberAllocator::Alloc()
 
     // Create the contiguous memory block for the samples
     // making sure it's properly aligned (64K should be enough!)
-    ASSERT(lAlignedSize % m_lAlignment == 0);
+    AVG_ASSERT(lAlignedSize % m_lAlignment == 0);
 
     // don't create the buffer - use what was passed to us
     //
     m_pBuffer = m_pPin->m_pBuffer;
-
-    if (m_pBuffer == NULL) {
-        return E_OUTOFMEMORY;
-    }
+    AVG_ASSERT(m_pBuffer);
 
     LPBYTE pNext = m_pBuffer;
     CMediaSample *pSample;
 
-    ASSERT(m_lAllocated == 0);
+    AVG_ASSERT(m_lAllocated == 0);
 
     // Create the new samples - we have allocated m_lSize bytes for each sample
     // plus m_lPrefix bytes per sample as a prefix. We set the pointer to
@@ -374,7 +353,7 @@ HRESULT CSampleGrabberAllocator::Alloc()
                                 pNext + m_lPrefix,      // GetPointer() value
                                 m_lSize);               // not including prefix
 
-        ASSERT(SUCCEEDED(hr));
+        AVG_ASSERT(SUCCEEDED(hr));
         m_lFree.Add(pSample);
     }
     m_bChanged = FALSE;
@@ -383,7 +362,7 @@ HRESULT CSampleGrabberAllocator::Alloc()
 
 void CSampleGrabberAllocator::ReallyFree()
 {
-    ASSERT(m_lAllocated == m_lFree.GetCount());
+    AVG_ASSERT(m_lAllocated == m_lFree.GetCount());
 
     CMediaSample *pSample;
     for (;;) {
