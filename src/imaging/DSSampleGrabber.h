@@ -101,7 +101,6 @@ public:
     STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);
 
 protected:
-    CSampleGrabber * SampleGrabber() { return (CSampleGrabber*) m_pFilter; }
     HRESULT SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* m_pBuffer);
 
 private:
@@ -118,10 +117,8 @@ private:
 class CSampleGrabber : public CTransInPlaceFilter, IlibavgGrabber
 {
 public:
-    static CUnknown *WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
     CSampleGrabber(IUnknown* pOuter, HRESULT* pHr);
 
-    // Expose ISampleGrabber
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
     DECLARE_IUNKNOWN;
 
