@@ -98,7 +98,7 @@ private:
     Queue<Bitmap> m_BitmapQ;
 
     DWORD m_GraphRegisterID;
-    bool m_bUpsideDown;
+//    bool m_bUpsideDown;
 };
 
 }

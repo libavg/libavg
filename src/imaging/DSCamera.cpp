@@ -213,7 +213,7 @@ void DSCamera::setCaptureFormat()
         AVG_TRACE(Logger::CONFIG, "Camera image format: "
                 << camImageFormatToString(pmtConfig));
         int height = ((VIDEOINFOHEADER*)(pmtConfig->pbFormat))->bmiHeader.biHeight;
-        m_bUpsideDown = (height < 0);
+//        m_bUpsideDown = (height < 0);
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
@@ -224,7 +224,7 @@ void DSCamera::setCaptureFormat()
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
             int height = pvih->bmiHeader.biHeight;
-            m_bUpsideDown = (height < 0);
+//            m_bUpsideDown = (height < 0);
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             AVG_TRACE(Logger::CONFIG, "Camera image format: " 
@@ -356,9 +356,11 @@ void DSCamera::onSample(IMediaSample * pSample)
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, getDestPF(), 
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(camBmp);
+/*
     if (m_bUpsideDown) {
         FilterFlip().applyInPlace(pDestBmp);
     }
+*/
     m_BitmapQ.push(pDestBmp);
 }
 
