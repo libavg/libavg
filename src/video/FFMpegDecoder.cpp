@@ -37,7 +37,6 @@
 #include <unistd.h>
 #endif
 #include <errno.h>
-#include "VDPAU.h"
 
 using namespace std;
 using namespace boost;
@@ -71,18 +70,16 @@ FFMpegDecoder::FFMpegDecoder()
       m_pDemuxer(0),
       m_pVStream(0),
       m_pAStream(0),
-      m_pVDPAU(0),
-      m_pOpaque(0),
+#ifdef AVG_ENABLE_VDPAU
+      m_VDPAU(),
+      m_Opaque(&m_VDPAU),
+#endif
       m_VStreamIndex(-1),
       m_bFirstPacket(false),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1),
       m_FPS(0)
 {
-#ifdef AVG_ENABLE_VDPAU
-    m_pVDPAU = new VDPAU();
-    m_pOpaque = new AVCCOpaque(m_pVDPAU);
-#endif
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
 }
@@ -93,8 +90,6 @@ FFMpegDecoder::~FFMpegDecoder()
         close();
     }
     ObjectCounter::get()->decRef(&typeid(*this));
-    delete m_pVDPAU;
-    delete m_pOpaque;
 }
 
 void avcodecError(const string& sFilename, int err)
@@ -133,9 +128,14 @@ void dump_stream_info(AVFormatContext *s)
         fprintf(stderr, "  Genre: %s\n", s->genre);
 }
 
-int openCodec(AVFormatContext* pFormatContext, int streamIndex, VDPAU *vdpau,
-    AVCCOpaque *opaque)
+#ifdef AVG_ENABLE_VDPAU
+int openCodec(AVFormatContext* pFormatContext, int streamIndex, VDPAU &vdpau,
+        AVCCOpaque &opaque)
+#else
+int openCodec(AVFormatContext* pFormatContext, int streamIndex)
+#endif
 {
+
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     enc = &(pFormatContext->streams[streamIndex]->codec);
@@ -144,15 +144,14 @@ int openCodec(AVFormatContext* pFormatContext, int streamIndex, VDPAU *vdpau,
 #endif
 //    enc->debug = 0x0001; // see avcodec.h
 
-    AVCodec * codec = NULL;
-    if (vdpau) {
-        enc->opaque = opaque;
-        codec = vdpau->openCodec(enc);
-    } else {
-        codec = avcodec_find_decoder(enc->codec_id);
-    }
-
-    if (!codec || avcodec_open(enc, codec) < 0) {
+    AVCodec * pCodec = 0;
+#ifdef AVG_ENABLE_VDPAU
+    enc->opaque = &opaque;
+    pCodec = vdpau.openCodec(enc);
+#else
+    pCodec = avcodec_find_decoder(enc->codec_id);
+#endif
+    if (!pCodec || avcodec_open(enc, pCodec) < 0) {
         return -1;
     }
     return 0;
@@ -235,8 +234,11 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
         m_bFirstPacket = true;
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1;
-    
-        int rc = openCodec(m_pFormatContext, m_VStreamIndex, m_pVDPAU, m_pOpaque);
+#ifdef AVG_ENABLE_VDPAU
+        int rc = openCodec(m_pFormatContext, m_VStreamIndex, m_VDPAU, m_Opaque);
+#else
+        int rc = openCodec(m_pFormatContext, m_VStreamIndex);
+#endif
         if (rc == -1) {
             m_VStreamIndex = -1;
             char szBuf[256];
@@ -262,7 +264,11 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
                     *m_pAStream->start_time;
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
-        int rc = openCodec(m_pFormatContext, m_AStreamIndex, m_pVDPAU,m_pOpaque);
+#ifdef AVG_ENABLE_VDPAU   
+        int rc = openCodec(m_pFormatContext, m_AStreamIndex, m_VDPAU, m_Opaque);
+#else
+        int rc = openCodec(m_pFormatContext, m_AStreamIndex);
+#endif
         if (rc == -1) {
             m_AStreamIndex = -1;
             char szBuf[256];
@@ -278,9 +284,9 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
 
 void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
-    if (m_pVDPAU) {
-        m_pVDPAU->init();
-    }
+#ifdef AVG_ENABLE_VDPAU
+    m_VDPAU.init();
+#endif
     AVG_ASSERT(m_State == OPENED);
     if (m_VStreamIndex >= 0) {
         m_PF = calcPixelFormat(bDeliverYCbCr);
@@ -1042,10 +1048,10 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
         if (pPacket) {
+#ifdef AVG_ENABLE_VDPAU
             FrameAge age;
-            if (m_pOpaque) {
-               m_pOpaque->setFrameAge(&age);
-            }
+            m_Opaque.setFrameAge(&age);
+#endif
             int len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
             if (len1 > 0) {

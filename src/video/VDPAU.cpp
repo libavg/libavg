@@ -18,8 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
-
 #include <iostream>
 
 #include "VDPAU.h"
@@ -29,7 +27,6 @@ using std::endl;
 
 namespace avg {
 
-#ifdef AVG_ENABLE_VDPAU
 VdpGetProcAddress                        *vdp_get_proc_address;
 VdpDeviceDestroy                        *vdp_device_destroy;
 VdpVideoSurfaceCreate                    *vdp_video_surface_create;
@@ -537,23 +534,6 @@ bool VDPAU::videoToPresentationQueue(OutputSurface &surface,int field)
     }
     return true;
 }
-
-#else        // AVG_ENABLE_VDPAU
-
-VDPAU::VDPAU()
-{
-}
-
-AVCodec *VDPAU::openCodec(AVCodecContext *enc)
-{
-    return NULL;
-}
-
-bool VDPAU::init()
-{
-    return false;
-}
-#endif        // AVG_ENABLE_VDPAU
 
 }
 

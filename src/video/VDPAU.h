@@ -18,21 +18,16 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
-
 #ifndef _VDPAU_H_
 #define _VDPAU_H_
-
 
 #include "../avgconfigwrapper.h"
 #include "../graphics/GL/glx.h"
 
 #include "WrapFFMpeg.h"
 
-#ifdef AVG_ENABLE_VDPAU
 #include <vdpau/vdpau.h>
 #include <libavcodec/vdpau.h>
-#endif
 
 namespace avg{
 
@@ -51,8 +46,6 @@ struct FrameAge
 };
 
 
-#ifdef AVG_ENABLE_VDPAU
-
 #define N_VIDEO_SURFACES            64
 
 struct videoSurface
@@ -67,14 +60,12 @@ extern VdpVideoSurfaceGetParameters *vdp_video_surface_get_parameters;
 extern VdpVideoSurfaceGetBitsYCbCr  *vdp_video_surface_get_bits_y_cb_cr;
 extern VdpOutputSurfaceDestroy *vdp_output_surface_destroy;
 
-#endif //AVG_ENABLE_VDPAU
 
 
 class VDPAU;
 
 struct OutputSurface
 {
-#ifdef AVG_ENABLE_VDPAU
     OutputSurface(): m_outputSurface(VDP_INVALID_HANDLE),
         m_videoSurface(VDP_INVALID_HANDLE), m_pVDPAU(0), m_width(0), m_height(0)
     {
@@ -93,7 +84,6 @@ struct OutputSurface
     VdpOutputSurface m_outputSurface;
     VdpVideoSurface m_videoSurface;
     vdpau_render_state *m_pRender;
-#endif
     VDPAU *m_pVDPAU;
     int   m_width;
     int   m_height;
@@ -110,7 +100,6 @@ public:
     AVCodec *openCodec(AVCodecContext *enc);
     bool init();
 
-#ifdef AVG_ENABLE_VDPAU
     bool videoToPresentationQueue(OutputSurface &surface,int field);
     GLXPixmap getPixmap();
     Display *getDisplay();
@@ -139,7 +128,6 @@ private:
     int    m_height;
 
     videoSurface m_videoSurfaces[N_VIDEO_SURFACES];
-#endif
 
 };
 
