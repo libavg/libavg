@@ -117,44 +117,44 @@ void VDPAU::init()
 
         safeGetProcAddress(VDP_FUNC_ID_DEVICE_DESTROY, (void**)&vdp_device_destroy);
         safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_CREATE,
-        (void**)&vdp_output_surface_create);
+                (void**)&vdp_output_surface_create);
         safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_DESTROY,
-        (void**)&vdp_output_surface_destroy);
+                (void**)&vdp_output_surface_destroy);
         safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE,
-        (void**)&vdp_output_surface_get_bits_native);
+                (void**)&vdp_output_surface_get_bits_native);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_CREATE, 
-        (void**)&vdp_video_surface_create);
+                (void**)&vdp_video_surface_create);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_DESTROY,
-        (void**)&vdp_video_surface_destroy);
+                (void**)&vdp_video_surface_destroy);
         safeGetProcAddress(VDP_FUNC_ID_DECODER_CREATE, (void**)&vdp_decoder_create);
         safeGetProcAddress(VDP_FUNC_ID_DECODER_DESTROY, (void**)&vdp_decoder_destroy);
         safeGetProcAddress(VDP_FUNC_ID_DECODER_RENDER, (void**)&vdp_decoder_render);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_GET_BITS_Y_CB_CR,
-        (void**)&vdp_video_surface_get_bits_y_cb_cr);
+                (void**)&vdp_video_surface_get_bits_y_cb_cr);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_MIXER_CREATE,
-        (void**)&vdp_video_mixer_create);
+                (void**)&vdp_video_mixer_create);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_MIXER_DESTROY,
-        (void**)&vdp_video_mixer_destroy);
+                (void**)&vdp_video_mixer_destroy);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_MIXER_RENDER,
-        (void**)&vdp_video_mixer_render);
+                (void**)&vdp_video_mixer_render);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_CREATE, 
-        (void**)&vdp_presentation_queue_create);
+                (void**)&vdp_presentation_queue_create);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_DESTROY, 
-        (void**)&vdp_presentation_queue_destroy);
+                (void**)&vdp_presentation_queue_destroy);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_TARGET_CREATE_X11,
-        (void**)&vdp_presentation_queue_target_create_x11);
+                (void**)&vdp_presentation_queue_target_create_x11);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_QUERY_SURFACE_STATUS, 
-        (void**)&vdp_presentation_queue_query_surface_status);
+                (void**)&vdp_presentation_queue_query_surface_status);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_DISPLAY,
-        (void**)&vdp_presentation_queue_display);
+                (void**)&vdp_presentation_queue_display);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_GET_TIME,
-        (void**)&vdp_presentation_queue_get_time);
+                (void**)&vdp_presentation_queue_get_time);
         safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_BLOCK_UNTIL_SURFACE_IDLE, 
-        (void**)&vdp_presentation_queue_block_until_surface_idle);
+                (void**)&vdp_presentation_queue_block_until_surface_idle);
         safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_GET_PARAMETERS,
-        (void**)&vdp_video_surface_get_parameters);
+                (void**)&vdp_video_surface_get_parameters);
         safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_GET_PARAMETERS,
-        (void**)&vdp_output_surface_get_parameters);
+                (void**)&vdp_output_surface_get_parameters);
     }
 
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
