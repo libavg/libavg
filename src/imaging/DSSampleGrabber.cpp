@@ -124,7 +124,7 @@ STDMETHODIMP CSampleGrabber::GetConnectedMediaType(CMediaType* pmt)
 }
 
 
-void STDMETHODCALLTYPE CSampleGrabber::SetCallback(ISampleCallback* pCallback)
+void STDMETHODCALLTYPE CSampleGrabber::SetCallback(IDSSampleCallback* pCallback)
 {
     CAutoLock lock( &m_Lock );
     m_pCallback = pCallback;

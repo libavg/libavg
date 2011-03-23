@@ -22,6 +22,8 @@
 #ifndef _DSSampleGrabber_H_
 #define _DSSampleGrabber_H_
 
+#include "IDSSampleCallback.h"
+
 #include <Guiddef.h>
 #define _WIN32_DCOM
 #include <windows.h>
@@ -44,18 +46,12 @@ DEFINE_GUID(CLSID_libavgGrabber,
 DEFINE_GUID(IID_IlibavgGrabber, 
 0x87f09dc5, 0x12bc, 0x479d, 0xa2, 0xf, 0x21, 0x13, 0x3c, 0x61, 0x30, 0x37);
 
-class ISampleCallback 
-{
-public:
-    virtual void onSample(IMediaSample * pSample)=0;
-};
-
 MIDL_INTERFACE("6B652FFF-11FE-4FCE-92AD-0266B5D7C78F")
 IlibavgGrabber : public IUnknown
 {
 public:
     virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType(CMediaType* pType) = 0;
-    virtual void STDMETHODCALLTYPE SetCallback(ISampleCallback* pCallback) = 0;
+    virtual void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback) = 0;
     virtual HRESULT STDMETHODCALLTYPE SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
             BYTE *pBuffer) = 0;
 };
@@ -131,11 +127,11 @@ public:
 
     // IlibavgGrabber
     STDMETHODIMP GetConnectedMediaType(CMediaType * pmt);
-    void STDMETHODCALLTYPE SetCallback(ISampleCallback* pCallback);
+    void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback);
     STDMETHODIMP SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE * m_pBuffer);
 
 protected:
-    ISampleCallback* m_pCallback;
+    IDSSampleCallback* m_pCallback;
     CCritSec m_Lock; // serialize access to our data
 
     HRESULT CheckInputType(const CMediaType* pmt);

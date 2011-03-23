@@ -23,6 +23,7 @@
 
 #include "DSHelper.h"
 #include "DSCamera.h"
+#include "DSSampleGrabber.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

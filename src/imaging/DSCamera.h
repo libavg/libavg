@@ -22,7 +22,7 @@
 #ifndef _DSCamera_H_
 #define _DSCamera_H_
 
-#include "DSSampleGrabber.h"
+#include "IDSSampleCallback.h"
 
 #include "../avgconfigwrapper.h"
 
@@ -41,9 +41,11 @@
 #include <dshow.h>
 #include "Qedit.h"
 
+struct IlibavgGrabber;
+
 namespace avg {
 
-class DSCamera: public Camera, ISampleCallback
+class DSCamera: public Camera, IDSSampleCallback
 {
 public:
     DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, PixelFormat destPF,

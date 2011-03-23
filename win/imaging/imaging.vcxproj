@@ -110,6 +110,7 @@
     <ClInclude Include="..\..\src\imaging\FilterWipeBorder.h" />
     <ClInclude Include="..\..\src\imaging\FWCamera.h" />
     <ClInclude Include="..\..\src\imaging\FWCameraUtils.h" />
+    <ClInclude Include="..\..\src\imaging\IDSSampleCallback.h" />
     <ClInclude Include="..\..\src\imaging\qedit.h" />
     <ClInclude Include="..\..\src\imaging\Run.h" />
     <ClInclude Include="..\..\src\imaging\TrackerConfig.h" />
