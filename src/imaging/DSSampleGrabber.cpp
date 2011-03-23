@@ -30,6 +30,8 @@
 DEFINE_GUID(CLSID_libavgGrabber, 
 0x455a53b7, 0xfc34, 0x4960, 0x94, 0xce, 0xa1, 0x7a, 0xb, 0x23, 0xf8, 0x7);
 
+namespace avg {
+
 class CSampleGrabberAllocator : public CMemAllocator
 {
 public:
@@ -110,7 +112,7 @@ HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt)
     CheckPointer(pmt, E_POINTER);
     CAutoLock lock(&m_Lock);
 
-    if(MEDIATYPE_Video == *pmt->Type( )) {
+    if (MEDIATYPE_Video == *pmt->Type( )) {
         return NOERROR;
     } else {
         return VFW_E_INVALID_MEDIA_TYPE;
@@ -436,3 +438,5 @@ HRESULT CSampleGrabberAllocator::SetProperties(
 
     return S_OK;
 }
+
+};

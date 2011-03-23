@@ -42,6 +42,8 @@
 DEFINE_GUID(IID_IlibavgGrabber, 
 0x87f09dc5, 0x12bc, 0x479d, 0xa2, 0xf, 0x21, 0x13, 0x3c, 0x61, 0x30, 0x37);
 
+namespace avg {
+
 MIDL_INTERFACE("6B652FFF-11FE-4FCE-92AD-0266B5D7C78F")
 IlibavgGrabber : public IUnknown
 {
@@ -85,6 +87,8 @@ protected:
 private:
     friend class CSampleGrabberInPin;
     friend class CSampleGrabberAllocator;
+};
+
 };
 
 #endif

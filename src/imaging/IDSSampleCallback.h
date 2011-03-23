@@ -24,10 +24,14 @@
 
 struct IMediaSample;
 
+namespace avg {
+
 class IDSSampleCallback 
 {
 public:
     virtual void onSample(IMediaSample * pSample)=0;
+};
+
 };
 
 #endif

@@ -41,9 +41,9 @@
 #include <dshow.h>
 #include "Qedit.h"
 
-struct IlibavgGrabber;
-
 namespace avg {
+
+struct IlibavgGrabber;
 
 class DSCamera: public Camera, IDSSampleCallback
 {
