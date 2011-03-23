@@ -122,8 +122,6 @@ public:
     // override this so we always return the special allocator, if necessary
     STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
 
-    HRESULT SetMediaType(const CMediaType *pmt);
-
     // we override this to tell whoever's upstream of us what kind of
     // properties we're going to demand to have
     STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);

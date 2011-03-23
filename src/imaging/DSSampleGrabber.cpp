@@ -36,7 +36,8 @@ CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr)
     IPin *pOutput = GetPin(1);
 }
 
-STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface(REFIID riid, void** ppv) {
+STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+{
     CheckPointer(ppv, E_POINTER);
 
     if (riid == IID_IlibavgGrabber) {                
@@ -46,7 +47,8 @@ STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface(REFIID riid, void** ppv
     }
 }
 
-HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt) {
+HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt)
+{
     CheckPointer(pmt, E_POINTER);
     CAutoLock lock(&m_Lock);
 
@@ -57,7 +59,8 @@ HRESULT CSampleGrabber::CheckInputType(const CMediaType* pmt) {
     }
 }
 
-HRESULT CSampleGrabber::Receive(IMediaSample * pms) {
+HRESULT CSampleGrabber::Receive(IMediaSample * pms)
+{
     CheckPointer(pms, E_POINTER);
 
     HRESULT hr;
@@ -94,7 +97,8 @@ HRESULT CSampleGrabber::Receive(IMediaSample * pms) {
     return hr;
 }
 
-HRESULT CSampleGrabber::Transform (IMediaSample * pms) {
+HRESULT CSampleGrabber::Transform (IMediaSample * pms)
+{
     CheckPointer(pms, E_POINTER);
     CAutoLock lock(&m_Lock);
 
@@ -110,7 +114,8 @@ HRESULT CSampleGrabber::Transform (IMediaSample * pms) {
     return NOERROR;
 }
 
-STDMETHODIMP CSampleGrabber::GetConnectedMediaType(CMediaType* pmt) {
+STDMETHODIMP CSampleGrabber::GetConnectedMediaType(CMediaType* pmt) 
+{
     if (!m_pInput || !m_pInput->IsConnected( )) {
         return VFW_E_NOT_CONNECTED;
     }
@@ -119,7 +124,8 @@ STDMETHODIMP CSampleGrabber::GetConnectedMediaType(CMediaType* pmt) {
 }
 
 
-void STDMETHODCALLTYPE CSampleGrabber::SetCallback(ISampleCallback* pCallback) {
+void STDMETHODCALLTYPE CSampleGrabber::SetCallback(ISampleCallback* pCallback)
+{
     CAutoLock lock( &m_Lock );
     m_pCallback = pCallback;
 }
@@ -138,8 +144,9 @@ STDMETHODIMP CSampleGrabber::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
     return ((CSampleGrabberInPin*)m_pInput)->SetDeliveryBuffer(props, m_pBuffer);
 }
 
-HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType) {
-    CheckPointer(pMediaType,E_POINTER);
+HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType)
+{
+    CheckPointer(pMediaType, E_POINTER);
 
     if (iPosition < 0) {
         return E_INVALIDARG;
@@ -154,7 +161,7 @@ HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType)
     return S_OK;
 }
 
-STDMETHODIMP CSampleGrabberInPin::EnumMediaTypes(IEnumMediaTypes** ppEnum)
+STDMETHODIMP CSampleGrabberInPin::EnumMediaTypes(IEnumMediaTypes** ppEnum) 
 {
     CheckPointer(ppEnum, E_POINTER);
     ValidateReadWritePtr(ppEnum, sizeof(IEnumMediaTypes *));
@@ -180,12 +187,8 @@ STDMETHODIMP CSampleGrabberInPin::NotifyAllocator(IMemAllocator* pAllocator,
     return CTransInPlaceInputPin::NotifyAllocator(pAllocator, bReadOnly);
 }
 
-
-//----------------------------------------------------------------------------
-//
-//----------------------------------------------------------------------------
-
-STDMETHODIMP CSampleGrabberInPin::GetAllocator(IMemAllocator** ppAllocator) {
+STDMETHODIMP CSampleGrabberInPin::GetAllocator(IMemAllocator** ppAllocator)
+{
     if (m_pPrivateAllocator) {
         CheckPointer(ppAllocator,E_POINTER);
 
@@ -234,12 +237,8 @@ HRESULT CSampleGrabberInPin::SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE*
     return hr;
 }
 
-HRESULT CSampleGrabberInPin::SetMediaType(const CMediaType *pmt) {
-    m_bMediaTypeChanged = TRUE;
-    return CTransInPlaceInputPin::SetMediaType(pmt);
-}
-
-HRESULT CSampleGrabberAllocator::Alloc() {
+HRESULT CSampleGrabberAllocator::Alloc()
+{
     CAutoLock lck(this);
 
     // Check he has called SetProperties
