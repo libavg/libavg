@@ -24,8 +24,6 @@
 #include "../base/Exception.h"
 #include <iostream>
 
-using std::cerr;
-using std::endl;
 
 namespace avg {
 
@@ -55,14 +53,6 @@ VdpPresentationQueueBlockUntilSurfaceIdle*
 VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
-inline bool vdpCheck(VdpStatus status, int line)
-{
-    if (status != VDP_STATUS_OK) {
-        cerr << "VDPerror, status=" << status << " line=" << line << endl;
-        return false;
-    }
-    else return true;
-}
 VdpDevice VDPAU::m_sVDPDevice = 0;
 Display* VDPAU::m_sXDisplay = 0;
 
@@ -100,148 +90,78 @@ VDPAU::~VDPAU()
     }
 }
 
-Display *VDPAU::getDisplay()
+void VDPAU::safeGetProcAddress(VdpFuncId functionId, void** functionPointer)
+{
+    VdpStatus status;
+    status = vdp_get_proc_address(m_sVDPDevice, functionId, functionPointer);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+}
+
+Display* VDPAU::getDisplay()
 {
     return m_sXDisplay;
 }
 
-bool VDPAU::init()
+void VDPAU::init()
 {
     if (!m_sVDPDevice) {
         VdpStatus status;
 
         //m_sXDisplay = glXGetCurrentDisplay();
         m_sXDisplay = XOpenDisplay(0);
-        if (!m_sXDisplay) {
-            return false;
-        }
+        AVG_ASSERT(m_sXDisplay);
 
         status = vdp_device_create_x11(m_sXDisplay, DefaultScreen(m_sXDisplay), &m_sVDPDevice,
-        &vdp_get_proc_address);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DEVICE_DESTROY,
-            (void **)&vdp_device_destroy);
-        if (!vdpCheck(status,__LINE__)) {
-             return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_CREATE,
-        (void **)&vdp_output_surface_create);
-        if (!vdpCheck(status,__LINE__)) {
-             return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_DESTROY,
-        (void **)&vdp_output_surface_destroy);
-        if (!vdpCheck(status,__LINE__)) {
-             return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE,
-        (void **)&vdp_output_surface_get_bits_native);
-        if (!vdpCheck(status,__LINE__)) {
-             return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_CREATE, 
-        (void **)&vdp_video_surface_create);
-        if (!vdpCheck(status,__LINE__)) {
-             return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_DESTROY,
-        (void **)&vdp_video_surface_destroy);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DECODER_CREATE,
-        (void **)&vdp_decoder_create);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DECODER_DESTROY,
-        (void **)&vdp_decoder_destroy);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DECODER_RENDER,
-        (void **)&vdp_decoder_render);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_GET_BITS_Y_CB_CR,
-        (void **)&vdp_video_surface_get_bits_y_cb_cr);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_MIXER_CREATE,
-        (void **)&vdp_video_mixer_create);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_MIXER_DESTROY,
-        (void **)&vdp_video_mixer_destroy);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_MIXER_RENDER,
-        (void **)&vdp_video_mixer_render);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_CREATE, 
-        (void **)&vdp_presentation_queue_create);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_DESTROY, 
-        (void **)&vdp_presentation_queue_destroy);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, 
-        VDP_FUNC_ID_PRESENTATION_QUEUE_TARGET_CREATE_X11,
-        (void **)&vdp_presentation_queue_target_create_x11);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, 
-        VDP_FUNC_ID_PRESENTATION_QUEUE_QUERY_SURFACE_STATUS, 
-        (void **)&vdp_presentation_queue_query_surface_status);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_DISPLAY,
-       (void **)&vdp_presentation_queue_display);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_GET_TIME,
-        (void **)&vdp_presentation_queue_get_time);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice,
-        VDP_FUNC_ID_PRESENTATION_QUEUE_BLOCK_UNTIL_SURFACE_IDLE, 
-        (void **)&vdp_presentation_queue_block_until_surface_idle);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_GET_PARAMETERS,
-       (void **)&vdp_video_surface_get_parameters);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
-        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_GET_PARAMETERS,
-        (void **)&vdp_output_surface_get_parameters);
-        if (!vdpCheck(status,__LINE__)) {
-            return false;
-        }
+            &vdp_get_proc_address);
+        AVG_ASSERT(status == VDP_STATUS_OK);
+
+        safeGetProcAddress(VDP_FUNC_ID_DEVICE_DESTROY, (void**)&vdp_device_destroy);
+        safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_CREATE,
+        (void**)&vdp_output_surface_create);
+        safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_DESTROY,
+        (void**)&vdp_output_surface_destroy);
+        safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE,
+        (void**)&vdp_output_surface_get_bits_native);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_CREATE, 
+        (void**)&vdp_video_surface_create);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_DESTROY,
+        (void**)&vdp_video_surface_destroy);
+        safeGetProcAddress(VDP_FUNC_ID_DECODER_CREATE, (void**)&vdp_decoder_create);
+        safeGetProcAddress(VDP_FUNC_ID_DECODER_DESTROY, (void**)&vdp_decoder_destroy);
+        safeGetProcAddress(VDP_FUNC_ID_DECODER_RENDER, (void**)&vdp_decoder_render);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_GET_BITS_Y_CB_CR,
+        (void**)&vdp_video_surface_get_bits_y_cb_cr);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_MIXER_CREATE,
+        (void**)&vdp_video_mixer_create);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_MIXER_DESTROY,
+        (void**)&vdp_video_mixer_destroy);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_MIXER_RENDER,
+        (void**)&vdp_video_mixer_render);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_CREATE, 
+        (void**)&vdp_presentation_queue_create);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_DESTROY, 
+        (void**)&vdp_presentation_queue_destroy);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_TARGET_CREATE_X11,
+        (void**)&vdp_presentation_queue_target_create_x11);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_QUERY_SURFACE_STATUS, 
+        (void**)&vdp_presentation_queue_query_surface_status);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_DISPLAY,
+        (void**)&vdp_presentation_queue_display);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_GET_TIME,
+        (void**)&vdp_presentation_queue_get_time);
+        safeGetProcAddress(VDP_FUNC_ID_PRESENTATION_QUEUE_BLOCK_UNTIL_SURFACE_IDLE, 
+        (void**)&vdp_presentation_queue_block_until_surface_idle);
+        safeGetProcAddress(VDP_FUNC_ID_VIDEO_SURFACE_GET_PARAMETERS,
+        (void**)&vdp_video_surface_get_parameters);
+        safeGetProcAddress(VDP_FUNC_ID_OUTPUT_SURFACE_GET_PARAMETERS,
+        (void**)&vdp_output_surface_get_parameters);
     }
-    
+
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         memset(&m_VideoSurfaces[i].m_RenderState, 0, sizeof(vdpau_render_state));
         m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
         m_VideoSurfaces[i].m_Size = IntPoint(-1,-1);
     }
-    return true;
 }
 
 AVCodec* VDPAU::openCodec(AVCodecContext* pContext)

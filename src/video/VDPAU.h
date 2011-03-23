@@ -84,7 +84,7 @@ public:
     VDPAU();
     ~VDPAU();
     AVCodec* openCodec(AVCodecContext* enc);
-    bool init();
+    void init();
     Display* getDisplay();
 
 private:
