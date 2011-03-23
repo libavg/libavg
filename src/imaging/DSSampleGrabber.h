@@ -147,7 +147,7 @@ class CSampleGrabber : public CTransInPlaceFilter, IlibavgGrabber
 {
 public:
     static CUnknown *WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
-    CSampleGrabber(IUnknown* pOuter, HRESULT* pHr, BOOL ModifiesData);
+    CSampleGrabber(IUnknown* pOuter, HRESULT* pHr);
 
     // Expose ISampleGrabber
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -161,8 +161,6 @@ public:
 protected:
     ISampleCallback* m_pCallback;
     CCritSec m_Lock; // serialize access to our data
-
-    BOOL IsReadOnly( ) { return !m_bModifiesData; }
 
     HRESULT CheckInputType(const CMediaType* pmt);
     HRESULT Transform(IMediaSample* pms);

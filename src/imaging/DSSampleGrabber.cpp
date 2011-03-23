@@ -73,7 +73,7 @@ int g_cTemplates = sizeof(g_Templates)/sizeof(g_Templates[0]);
 CUnknown * WINAPI CSampleGrabber::CreateInstance(LPUNKNOWN punk, HRESULT *phr) {
     ASSERT(phr);
     
-    CSampleGrabber *pNewObject = new CSampleGrabber(punk, phr, FALSE);
+    CSampleGrabber *pNewObject = new CSampleGrabber(punk, phr);
 
     if(pNewObject == NULL) {
         if (phr)
@@ -84,9 +84,9 @@ CUnknown * WINAPI CSampleGrabber::CreateInstance(LPUNKNOWN punk, HRESULT *phr) {
 
 } // CreateInstance
 
-CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr, BOOL ModifiesData)
+CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr)
     : CTransInPlaceFilter(TEXT("libavg sample grabber"), (IUnknown*) pOuter, 
-              CLSID_libavgGrabber, phr, (BOOL)ModifiesData),
+              CLSID_libavgGrabber, phr, false),
       m_pCallback(NULL)
 {
     m_pInput = (CTransInPlaceInputPin*) new CSampleGrabberInPin(this, phr);
@@ -152,8 +152,7 @@ HRESULT CSampleGrabber::Receive(IMediaSample * pms) {
     return hr;
 }
 
-HRESULT CSampleGrabber::Transform (IMediaSample * pms)
-{
+HRESULT CSampleGrabber::Transform (IMediaSample * pms) {
     CheckPointer(pms, E_POINTER);
     CAutoLock lock(&m_Lock);
 

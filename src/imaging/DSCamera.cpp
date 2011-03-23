@@ -68,7 +68,7 @@ void DSCamera::open()
         checkForDShowError(hr, "DSCamera::open()::Add capture filter");
 
         // Create and configure the sample grabber that delivers the frames to the app.
-        m_pGrabFilter = new CSampleGrabber(NULL, &hr, false);
+        m_pGrabFilter = new CSampleGrabber(NULL, &hr);
         m_pGrabFilter->AddRef();
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber");
         hr = m_pGrabFilter->QueryInterface(IID_IlibavgGrabber, 
