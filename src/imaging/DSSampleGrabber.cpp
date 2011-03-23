@@ -26,6 +26,64 @@
 
 #pragma warning(disable: 4800)
 
+// {455A53B7-FC34-4960-94CE-A17A0B23F807}
+DEFINE_GUID(CLSID_libavgGrabber, 
+0x455a53b7, 0xfc34, 0x4960, 0x94, 0xce, 0xa1, 0x7a, 0xb, 0x23, 0xf8, 0x7);
+
+class CSampleGrabberAllocator : public CMemAllocator
+{
+public:
+    CSampleGrabberAllocator(CSampleGrabberInPin* pParent, HRESULT* phr);
+    ~CSampleGrabberAllocator();
+
+    HRESULT Alloc();
+    void ReallyFree();
+    STDMETHODIMP SetProperties(ALLOCATOR_PROPERTIES* pRequest, 
+            ALLOCATOR_PROPERTIES* pActual);
+
+protected:
+    CSampleGrabberInPin * m_pPin;
+
+private:
+    friend class CSampleGrabberInPin;
+    friend class CSampleGrabber;
+};
+
+class CSampleGrabberInPin : public CTransInPlaceInputPin
+{
+public:
+    CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr);
+    ~CSampleGrabberInPin();
+
+    HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
+
+    // override this or GetMediaType is never called
+    STDMETHODIMP EnumMediaTypes(IEnumMediaTypes** ppEnum);
+
+    // override this to refuse any allocators besides
+    // the one the user wants, if this is set
+    STDMETHODIMP NotifyAllocator(IMemAllocator* pAllocator, BOOL bReadOnly);
+
+    // override this so we always return the special allocator, if necessary
+    STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
+
+    // we override this to tell whoever's upstream of us what kind of
+    // properties we're going to demand to have
+    STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);
+
+protected:
+    HRESULT SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* m_pBuffer);
+
+private:
+    friend class CSampleGrabberAllocator;
+    friend class CSampleGrabber;
+
+    CSampleGrabberAllocator* m_pPrivateAllocator;
+    ALLOCATOR_PROPERTIES m_allocprops;
+    BYTE* m_pBuffer;
+    BOOL m_bMediaTypeChanged;
+};
+
 CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr)
     : CTransInPlaceFilter(TEXT("libavg sample grabber"), (IUnknown*) pOuter, 
               CLSID_libavgGrabber, phr, false),
@@ -97,7 +155,7 @@ HRESULT CSampleGrabber::Receive(IMediaSample * pms)
     return hr;
 }
 
-HRESULT CSampleGrabber::Transform (IMediaSample * pms)
+HRESULT CSampleGrabber::Transform(IMediaSample* pms)
 {
     CheckPointer(pms, E_POINTER);
     CAutoLock lock(&m_Lock);

@@ -38,10 +38,6 @@
 #include <dshowbase/transfrm.h>
 #include <dshowbase/transip.h>
 
-// {455A53B7-FC34-4960-94CE-A17A0B23F807}
-DEFINE_GUID(CLSID_libavgGrabber, 
-0x455a53b7, 0xfc34, 0x4960, 0x94, 0xce, 0xa1, 0x7a, 0xb, 0x23, 0xf8, 0x7);
-
 // {87F09DC5-12BC-479d-A20F-21133C613037}
 DEFINE_GUID(IID_IlibavgGrabber, 
 0x87f09dc5, 0x12bc, 0x479d, 0xa2, 0xf, 0x21, 0x13, 0x3c, 0x61, 0x30, 0x37);
@@ -55,63 +51,8 @@ public:
             BYTE *pBuffer) = 0;
 };
         
+class CSampleGrabberAllocator;
 class CSampleGrabberInPin;
-class CSampleGrabber;
-
-class CSampleGrabberAllocator : public CMemAllocator
-{
-public:
-    CSampleGrabberAllocator(CSampleGrabberInPin* pParent, HRESULT* phr);
-    ~CSampleGrabberAllocator();
-
-    HRESULT Alloc();
-    void ReallyFree();
-    STDMETHODIMP SetProperties(ALLOCATOR_PROPERTIES* pRequest, 
-            ALLOCATOR_PROPERTIES* pActual);
-
-protected:
-    CSampleGrabberInPin * m_pPin;
-
-private:
-    friend class CSampleGrabberInPin;
-    friend class CSampleGrabber;
-};
-
-class CSampleGrabberInPin : public CTransInPlaceInputPin
-{
-public:
-    CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr);
-    ~CSampleGrabberInPin();
-
-    HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);
-
-    // override this or GetMediaType is never called
-    STDMETHODIMP EnumMediaTypes(IEnumMediaTypes** ppEnum);
-
-    // override this to refuse any allocators besides
-    // the one the user wants, if this is set
-    STDMETHODIMP NotifyAllocator(IMemAllocator* pAllocator, BOOL bReadOnly);
-
-    // override this so we always return the special allocator, if necessary
-    STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
-
-    // we override this to tell whoever's upstream of us what kind of
-    // properties we're going to demand to have
-    STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);
-
-protected:
-    HRESULT SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE* m_pBuffer);
-
-private:
-    friend class CSampleGrabberAllocator;
-    friend class CSampleGrabber;
-
-    CSampleGrabberAllocator* m_pPrivateAllocator;
-    ALLOCATOR_PROPERTIES m_allocprops;
-    BYTE* m_pBuffer;
-    BOOL m_bMediaTypeChanged;
-};
-
 
 class CSampleGrabber : public CTransInPlaceFilter, IlibavgGrabber
 {
