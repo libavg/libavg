@@ -63,13 +63,13 @@ inline bool vdpCheck(VdpStatus status, int line)
     }
     else return true;
 }
+VdpDevice VDPAU::m_sVDPDevice = 0;
+Display* VDPAU::m_sXDisplay = 0;
 
 VDPAU::VDPAU():
     m_PixFmt(PIX_FMT_NONE),
     m_VDPDecoder(0),
     m_VDPMixer(0),
-    m_VDPDevice(0),
-    m_pXDisplay(0),
     m_Size(-1,-1)
 {
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
@@ -79,143 +79,161 @@ VDPAU::VDPAU():
 
 VDPAU::~VDPAU()
 {
+    VdpStatus status;
+    if (m_VDPMixer) {
+        status = vdp_video_mixer_destroy(m_VDPMixer);
+        AVG_ASSERT(status == VDP_STATUS_OK);
+        m_VDPMixer = VDP_INVALID_HANDLE;
+    }
+    if (m_VDPDecoder) {
+        status = vdp_decoder_destroy(m_VDPDecoder);
+        AVG_ASSERT(status == VDP_STATUS_OK);
+        m_VDPDecoder = VDP_INVALID_HANDLE;
+    }
+    for (int i = 0; i < N_VIDEO_SURFACES; i++) {
+        if (m_VideoSurfaces[i].m_Surface != VDP_INVALID_HANDLE) {
+            status = vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
+            AVG_ASSERT(status == VDP_STATUS_OK);
+            m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
+            m_VideoSurfaces[i].m_Surface = VDP_INVALID_HANDLE;
+        }
+    }
 }
 
 Display *VDPAU::getDisplay()
 {
-    return m_pXDisplay;
+    return m_sXDisplay;
 }
 
 bool VDPAU::init()
 {
-    if (m_VDPDevice) {
-        return true;
-    }
-    VdpStatus status;
+    if (!m_sVDPDevice) {
+        VdpStatus status;
 
-    //m_pXDisplay = glXGetCurrentDisplay();
-    m_pXDisplay = XOpenDisplay(0);
-    if (!m_pXDisplay) {
-        return false;
-    }
+        //m_sXDisplay = glXGetCurrentDisplay();
+        m_sXDisplay = XOpenDisplay(0);
+        if (!m_sXDisplay) {
+            return false;
+        }
 
-    status = vdp_device_create_x11(m_pXDisplay, DefaultScreen(m_pXDisplay), &m_VDPDevice,
+        status = vdp_device_create_x11(m_sXDisplay, DefaultScreen(m_sXDisplay), &m_sVDPDevice,
         &vdp_get_proc_address);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_DEVICE_DESTROY,
-        (void **)&vdp_device_destroy);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_CREATE,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DEVICE_DESTROY,
+            (void **)&vdp_device_destroy);
+        if (!vdpCheck(status,__LINE__)) {
+             return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_CREATE,
         (void **)&vdp_output_surface_create);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_DESTROY,
+        if (!vdpCheck(status,__LINE__)) {
+             return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_DESTROY,
         (void **)&vdp_output_surface_destroy);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE,
+        if (!vdpCheck(status,__LINE__)) {
+             return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE,
         (void **)&vdp_output_surface_get_bits_native);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_CREATE, 
+        if (!vdpCheck(status,__LINE__)) {
+             return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_CREATE, 
         (void **)&vdp_video_surface_create);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_DESTROY,
-       (void **)&vdp_video_surface_destroy);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_DECODER_CREATE,
+        if (!vdpCheck(status,__LINE__)) {
+             return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_DESTROY,
+        (void **)&vdp_video_surface_destroy);
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DECODER_CREATE,
         (void **)&vdp_decoder_create);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_DECODER_DESTROY,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DECODER_DESTROY,
         (void **)&vdp_decoder_destroy);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_DECODER_RENDER,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_DECODER_RENDER,
         (void **)&vdp_decoder_render);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_GET_BITS_Y_CB_CR,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_GET_BITS_Y_CB_CR,
         (void **)&vdp_video_surface_get_bits_y_cb_cr);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_MIXER_CREATE,
-         (void **)&vdp_video_mixer_create);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_MIXER_DESTROY,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_MIXER_CREATE,
+        (void **)&vdp_video_mixer_create);
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_MIXER_DESTROY,
         (void **)&vdp_video_mixer_destroy);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_MIXER_RENDER,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_MIXER_RENDER,
         (void **)&vdp_video_mixer_render);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_CREATE, 
-                                                (void **)&vdp_presentation_queue_create);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_DESTROY, 
-                                                (void **)&vdp_presentation_queue_destroy);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, 
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_CREATE, 
+        (void **)&vdp_presentation_queue_create);
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_DESTROY, 
+        (void **)&vdp_presentation_queue_destroy);
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, 
         VDP_FUNC_ID_PRESENTATION_QUEUE_TARGET_CREATE_X11,
         (void **)&vdp_presentation_queue_target_create_x11);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, 
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, 
         VDP_FUNC_ID_PRESENTATION_QUEUE_QUERY_SURFACE_STATUS, 
         (void **)&vdp_presentation_queue_query_surface_status);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_DISPLAY,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_DISPLAY,
        (void **)&vdp_presentation_queue_display);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_GET_TIME,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_PRESENTATION_QUEUE_GET_TIME,
         (void **)&vdp_presentation_queue_get_time);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice,
         VDP_FUNC_ID_PRESENTATION_QUEUE_BLOCK_UNTIL_SURFACE_IDLE, 
         (void **)&vdp_presentation_queue_block_until_surface_idle);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_GET_PARAMETERS,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_VIDEO_SURFACE_GET_PARAMETERS,
        (void **)&vdp_video_surface_get_parameters);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
-    }
-    status = vdp_get_proc_address(m_VDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_GET_PARAMETERS,
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
+        status = vdp_get_proc_address(m_sVDPDevice, VDP_FUNC_ID_OUTPUT_SURFACE_GET_PARAMETERS,
         (void **)&vdp_output_surface_get_parameters);
-    if (!vdpCheck(status,__LINE__)) {
-         return false;
+        if (!vdpCheck(status,__LINE__)) {
+            return false;
+        }
     }
     
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
@@ -285,7 +303,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge*
                     status = vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
                     AVG_ASSERT(status == VDP_STATUS_OK);
                 }
-                status = vdp_video_surface_create(m_VDPDevice, VDP_CHROMA_TYPE_420,
+                status = vdp_video_surface_create(m_sVDPDevice, VDP_CHROMA_TYPE_420,
         pContext->width, pContext->height, &m_VideoSurfaces[i].m_Surface);
                 AVG_ASSERT(status == VDP_STATUS_OK);
                 m_VideoSurfaces[i].m_Size.x = pContext->width;
@@ -356,18 +374,18 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
             AVG_ASSERT(status == VDP_STATUS_OK);
             m_VDPDecoder = VDP_INVALID_HANDLE;
         }
-        status = vdp_decoder_create(m_VDPDevice, profile, size.x, size.y, 16,
+        status = vdp_decoder_create(m_sVDPDevice, profile, size.x, size.y, 16,
             &m_VDPDecoder);
         AVG_ASSERT(status == VDP_STATUS_OK);
         
         m_PixFmt = pContext->pix_fmt;
         m_Size = size;
 
-        VdpVideoMixerFeature     features[] = {
+        VdpVideoMixerFeature features[] = {
             VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL,
             VDP_VIDEO_MIXER_FEATURE_DEINTERLACE_TEMPORAL_SPATIAL,
         };
-        VdpVideoMixerParameter    params[] = { 
+        VdpVideoMixerParameter params[] = { 
              VDP_VIDEO_MIXER_PARAMETER_VIDEO_SURFACE_WIDTH,
              VDP_VIDEO_MIXER_PARAMETER_VIDEO_SURFACE_HEIGHT,
              VDP_VIDEO_MIXER_PARAMETER_CHROMA_TYPE,
@@ -377,7 +395,7 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
         int  num_layers = 0;
         void const* paramValues [] = { &m_Size.x, &m_Size.y, &chroma, &num_layers };
 
-        status = vdp_video_mixer_create(m_VDPDevice, 2, features, 4, params, paramValues,
+        status = vdp_video_mixer_create(m_sVDPDevice, 2, features, 4, params, paramValues,
         &m_VDPMixer);
         AVG_ASSERT(status == VDP_STATUS_OK);
     }

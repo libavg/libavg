@@ -97,8 +97,8 @@ private:
     void render(AVCodecContext* context, const AVFrame* frame);
     void safeGetProcAddress(VdpFuncId function_id, void** function_pointer);
 
-    VdpDevice m_VDPDevice;
-    Display* m_pXDisplay;
+    static VdpDevice m_sVDPDevice;
+    static Display* m_sXDisplay;
 
     VdpDecoder m_VDPDecoder;
     VdpVideoMixer m_VDPMixer;
