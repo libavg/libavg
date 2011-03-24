@@ -195,13 +195,14 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     if (stdDev == 0) {
         kernelWidth = 1;
         pKernel = new float[1];
-        pKernel[0] = opacity;
+        pKernel[0] = float(opacity);
     } else {
         float tempCoeffs[1024];
         int i=0;
         float coeff;
         do {
-            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*PI*stdDev*stdDev))*opacity;
+            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*PI*stdDev*stdDev))
+                    *float(opacity);
             tempCoeffs[i] = coeff;
             i++;
         } while (coeff > 0.005 && i < 1024);
@@ -220,7 +221,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
         // Make sure the sum of coefficients is opacity despite the inaccuracies
         // introduced by using a kernel of finite size.
         for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] *= opacity/sum;
+            pKernel[i] *= float(opacity)/sum;
         }
     }
 //    dumpKernel(kernelWidth, pKernel);

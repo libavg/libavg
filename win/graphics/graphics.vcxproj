@@ -112,6 +112,7 @@
     <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
     <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
+    <ClInclude Include="..\..\src\graphics\ImagingProjection.h" />
     <ClInclude Include="..\..\src\graphics\OGLHelper.h" />
     <ClInclude Include="..\..\src\graphics\OGLImagingContext.h" />
     <ClInclude Include="..\..\src\graphics\OGLShader.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
     <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
+    <ClCompile Include="..\..\src\graphics\ImagingProjection.cpp" />
     <ClCompile Include="..\..\src\graphics\OGLHelper.cpp" />
     <ClCompile Include="..\..\src\graphics\OGLImagingContext.cpp" />
     <ClCompile Include="..\..\src\graphics\OGLShader.cpp" />
