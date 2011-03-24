@@ -186,9 +186,8 @@ int GPUFilter::getBlurKernelRadius(double stdDev) const
 }
 
 GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
-// If opacity is -1, this is a brightness-preserving blur.
-// Otherwise, opacity is the coefficient of the center pixel.
 {
+    AVG_ASSERT(opacity != -1);
     int kernelCenter = int(ceil(stdDev*3));
     int kernelWidth = kernelCenter*2+1;
     float* pKernel;
@@ -209,18 +208,10 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
         }
     }
 
-    if (opacity == -1) {
-        // This is a brightness-preserving blur.
-        // Make sure the sum of coefficients is 1 despite the inaccuracies
-        // introduced by using a kernel of finite size.
-        for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] /= sum;
-        }
-    } else {
-        float factor = float(opacity/pKernel[kernelCenter]);
-        for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] *= factor;
-        }
+    // Make sure the sum of coefficients is 1 despite the inaccuracies
+    // introduced by using a kernel of finite size, then apply opacity.
+    for (int i = 0; i < kernelWidth; ++i) {
+        pKernel[i] *= opacity/sum;
     }
 //    dumpKernel(kernelWidth, pKernel);
     

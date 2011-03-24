@@ -35,7 +35,7 @@ ShadowFXNode::ShadowFXNode()
     : FXNode(),
       m_Offset(0,0),
       m_StdDev(1),
-      m_Opacity(0.5),
+      m_Opacity(1),
       m_Color(255,255,255,255)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
