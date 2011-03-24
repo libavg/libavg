@@ -530,7 +530,19 @@ class AVTestCase(AVGTestCase):
             os.remove("test.mov")    
         else:
             print "Skipping VideoWriter tests - current dir not writable."
-        
+
+    def test2VideosAtOnce(self):
+        Player.setFakeFPS(25)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        for pos in ((0,0), (80,0)):
+            video = avg.VideoNode(pos=pos, threaded=False, 
+                    href="../video/testfiles/mpeg1-48x48.mpg", parent=root)
+            video.play()
+        self.start(None,
+                [lambda: self.compareImage("test2VideosAtOnce1", False),
+                ])
+
 
 def AVTestSuite(tests):
     availableTests = (
@@ -551,7 +563,8 @@ def AVTestSuite(tests):
             "testVideoMask",
             "testVideoEOF",
             "testException",
-            "testVideoWriter"
+            "testVideoWriter",
+            "test2VideosAtOnce"
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 
