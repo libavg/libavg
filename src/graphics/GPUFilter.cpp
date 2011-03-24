@@ -188,30 +188,38 @@ int GPUFilter::getBlurKernelRadius(double stdDev) const
 GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
 {
     AVG_ASSERT(opacity != -1);
-    int kernelCenter = int(ceil(stdDev*3));
-    int kernelWidth = kernelCenter*2+1;
+    int kernelWidth;
     float* pKernel;
-    pKernel = new float[kernelWidth];
-    float sum = 0;
     if (stdDev == 0) {
-        pKernel[0] = 1;
-        sum = 1;
+        kernelWidth = 1;
+        pKernel = new float[1];
+        pKernel[0] = opacity;
     } else {
+        float tempCoeffs[1024];
+        int i=0;
+        float coeff;
+        do {
+            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*PI*stdDev*stdDev))*opacity;
+            tempCoeffs[i] = coeff;
+            i++;
+        } while (coeff > 0.005 && i < 1024);
+        int kernelCenter = i - 2;
+        kernelWidth = kernelCenter*2+1;
+        pKernel = new float[kernelWidth];
+        float sum = 0;
         for (int i = 0; i <= kernelCenter; ++i) {
-            pKernel[kernelCenter+i] = float(exp(-i*i/(2*stdDev*stdDev))
-                    /sqrt(2*PI*stdDev*stdDev));
-            sum += pKernel[kernelCenter+i];
+            pKernel[kernelCenter+i] = tempCoeffs[i];
+            sum += tempCoeffs[i];
             if (i != 0) {
-                pKernel[kernelCenter-i] = pKernel[kernelCenter+i];
-                sum += pKernel[kernelCenter-i];
+                pKernel[kernelCenter-i] = tempCoeffs[i];
+                sum += tempCoeffs[i];
             }
         }
-    }
-
-    // Make sure the sum of coefficients is 1 despite the inaccuracies
-    // introduced by using a kernel of finite size, then apply opacity.
-    for (int i = 0; i < kernelWidth; ++i) {
-        pKernel[i] *= opacity/sum;
+        // Make sure the sum of coefficients is opacity despite the inaccuracies
+        // introduced by using a kernel of finite size.
+        for (int i = 0; i < kernelWidth; ++i) {
+            pKernel[i] *= opacity/sum;
+        }
     }
 //    dumpKernel(kernelWidth, pKernel);
     
