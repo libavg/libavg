@@ -42,7 +42,7 @@ public:
     virtual ~GPUFilter();
     void setDimensions(const IntPoint& srcSize);
     void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-            const IntPoint& destOffset, unsigned texMode);
+            unsigned texMode);
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);

@@ -61,7 +61,7 @@ void GPUBlurFilter::setStdDev(double stdDev)
     setDimensions(getSrcSize(), stdDev, m_bClipBorders);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
-    m_pProjection2->setup(getDestRect().size(), destRect2, IntPoint(0,0));
+    m_pProjection2->setup(getDestRect().size(), destRect2);
 }
 
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -140,8 +140,7 @@ void GPUBlurFilter::setDimensions(IntPoint size, double stdDev, bool bClipBorder
     } else {
         int radius = getBlurKernelRadius(stdDev);
         IntPoint offset(radius, radius);
-        GPUFilter::setDimensions(size, IntRect(-offset, size+offset), -offset, 
-                GL_CLAMP_TO_BORDER);
+        GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
     }
 }
 

@@ -57,12 +57,11 @@ GPUFilter::~GPUFilter()
 
 void GPUFilter::setDimensions(const IntPoint& srcSize)
 {
-    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), IntPoint(0,0), 
-            GL_CLAMP_TO_EDGE);
+    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
 }
 
 void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
-        const IntPoint& destOffset, unsigned texMode)
+        unsigned texMode)
 {
     bool bProjectionChanged = false;
     if (destRect != m_DestRect) {
@@ -79,7 +78,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     m_SrcSize = srcSize;
     if (bProjectionChanged) {
         m_pProjection = ImagingProjectionPtr(new ImagingProjection);
-        m_pProjection->setup(srcSize, destRect, destOffset);
+        m_pProjection->setup(srcSize, destRect);
     }
 }
   

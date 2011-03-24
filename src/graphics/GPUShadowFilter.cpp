@@ -64,7 +64,7 @@ void GPUShadowFilter::setParams(const DPoint& offset, double stdDev, double opac
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
-    m_pProjection2->setup(getDestRect().size(), destRect2, IntPoint(0,0));
+    m_pProjection2->setup(getDestRect().size(), destRect2);
 }
 
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -165,7 +165,7 @@ void GPUShadowFilter::setDimensions(IntPoint size, double stdDev, const DPoint& 
     IntPoint intOffset(offset);
     IntRect destRect(intOffset-radiusOffset, intOffset+size+radiusOffset+IntPoint(1,1));
     destRect.expand(IntRect(IntPoint(0,0), size));
-    GPUFilter::setDimensions(size, destRect, destRect.tl, GL_CLAMP_TO_BORDER);
+    GPUFilter::setDimensions(size, destRect, GL_CLAMP_TO_BORDER);
 }
  
 }

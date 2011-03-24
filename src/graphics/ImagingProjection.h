@@ -37,7 +37,7 @@ public:
     virtual ~ImagingProjection();
 
     void setup(IntPoint size);
-    void setup(IntPoint srcSize, IntRect destRect, IntPoint offset);
+    void setup(IntPoint srcSize, IntRect destRect);
     void activate();
     void draw();
 
