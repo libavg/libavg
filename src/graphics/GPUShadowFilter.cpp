@@ -109,9 +109,10 @@ void GPUShadowFilter::initShaders()
         "uniform float width;\n"
         "uniform int radius;\n"
         "uniform sampler2D kernelTex;\n"
+        + getStdShaderCode()
         ;
 
-    string sHorizProgram = sProgramHead + 
+    string sHorizProgram = sProgramHead +
         "uniform sampler2D texture;\n"
         "uniform vec2 offset;\n"
         "void main(void)\n"
@@ -148,6 +149,7 @@ void GPUShadowFilter::initShaders()
         "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
         "        sum += a*coeff;\n"
         "    }\n"
+        "    sum = min(1., sum);\n"
         "    vec2 origCoord = gl_TexCoord[0].st;\n"
         "    origCoord = destPos + \n"
         "            vec2(origCoord.s*destSize.x, origCoord.t*destSize.y);\n"

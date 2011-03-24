@@ -157,7 +157,9 @@ const string& GPUFilter::getStdShaderCode() const
     static string sCode = 
         "void unPreMultiplyAlpha(inout vec4 color)\n"
         "{\n"
-        "    color.rgb /= color.a;\n"
+        "    if (color.a > 0.0) {\n"
+        "       color.rgb /= color.a;\n"
+        "    }\n"
         "}\n"
         "\n"
         "void preMultiplyAlpha(inout vec4 color)\n"
