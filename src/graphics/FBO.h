@@ -44,8 +44,6 @@ public:
 
     void activate() const;
     void deactivate() const;
-    void setupImagingProjection() const;
-    void drawImagingVertexes();
     PixelFormat getPF() const;
     unsigned getNumTextures() const;
 
@@ -76,8 +74,6 @@ private:
     // Multisample support
     unsigned m_ColorBuffer;
     unsigned m_OutputFBO;
-
-    VertexArrayPtr m_pImagingVA;
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;

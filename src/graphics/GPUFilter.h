@@ -28,6 +28,7 @@
 #include "Bitmap.h"
 #include "PBO.h"
 #include "FBO.h"
+#include "ImagingProjection.h"
 
 #include <boost/thread/tss.hpp>
 
@@ -36,30 +37,44 @@ namespace avg {
 class AVG_API GPUFilter: public Filter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            bool bStandalone, unsigned numTextures=1);
+    GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
+            unsigned numTextures=1);
     virtual ~GPUFilter();
+    void setDimensions(const IntPoint& srcSize);
+    void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+            unsigned texMode);
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(GLTexturePtr pSrcTex);
     virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
     GLTexturePtr getDestTex(int i=0) const;
     BitmapPtr getImage() const;
-
     FBOPtr getFBO();
 
+    const IntRect& getDestRect() const;
+    const IntPoint& getSrcSize() const;
+    DRect getRelDestRect() const;
+    
     static void glContextGone();
 
 protected:
     void draw(GLTexturePtr pTex);
-    const IntPoint& getSize() const;
     const std::string& getStdShaderCode() const;
+    int getBlurKernelRadius(double stdDev) const;
     GLTexturePtr calcBlurKernelTex(double stdDev, double opacity=-1) const;
 
 private:
+    PixelFormat m_PFSrc;
+    PixelFormat m_PFDest;
+    bool m_bStandalone;
+    unsigned m_NumTextures;
+
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;
     FBOPtr m_pFBO;
+    IntPoint m_SrcSize;
+    IntRect m_DestRect;
+    ImagingProjectionPtr m_pProjection;
 
     static boost::thread_specific_ptr<PBOPtr> s_pFilterKernelPBO;
 };

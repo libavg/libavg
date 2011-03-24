@@ -32,20 +32,21 @@ class AVG_API GPUBlurFilter: public GPUFilter
 {
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            double stdDev, bool bStandalone=true);
+            double stdDev, bool bClipBorders, bool bStandalone=true);
     virtual ~GPUBlurFilter();
     
-    void setParam(double stdDev);
+    void setStdDev(double stdDev);
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
     void initShaders();
-    void dumpKernel();
-    void calcKernel();
+    void setDimensions(IntPoint size, double stdDev, bool bClipBorders);
 
     double m_StdDev;
+    bool m_bClipBorders;
 
     GLTexturePtr m_pGaussCurveTex;
+    ImagingProjectionPtr m_pProjection2;
 };
 
 typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;

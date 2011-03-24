@@ -19,50 +19,40 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "BlurFXNode.h"
-#include "SDLDisplayEngine.h"
+#ifndef _ImagingProjection_H_
+#define _ImagingProjection_H_
 
-#include "../base/ObjectCounter.h"
-#include "../graphics/ShaderRegistry.h"
+#include "../api.h"
 
-#include <string>
-
-using namespace std;
+#include "VertexArray.h"
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 namespace avg {
 
-BlurFXNode::BlurFXNode() 
-    : FXNode(),
-      m_StdDev(1)
+class AVG_API ImagingProjection
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
-}
+public:
+    ImagingProjection();
+    virtual ~ImagingProjection();
 
-BlurFXNode::~BlurFXNode()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
+    void setup(IntPoint size);
+    void setup(IntPoint srcSize, IntRect destRect);
+    void activate();
+    void draw();
 
-void BlurFXNode::disconnect()
-{
-    m_pFilter = GPUBlurFilterPtr();
-    FXNode::disconnect();
-}
+private:
+    IntPoint m_SrcSize;
+    IntRect m_DestRect;
+    IntPoint m_Offset;
+    VertexArrayPtr m_pVA;
+};
 
-void BlurFXNode::setParam(double stdDev)
-{
-    m_StdDev = stdDev;
-    if (m_pFilter) {
-        m_pFilter->setStdDev(stdDev);
-    }
-}
-
-GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)
-{
-    m_pFilter = GPUBlurFilterPtr(new GPUBlurFilter(size, B8G8R8A8, B8G8R8A8, m_StdDev, 
-            false, false));
-    return m_pFilter;
-}
+typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 
 }
+
+
+#endif 
+
 

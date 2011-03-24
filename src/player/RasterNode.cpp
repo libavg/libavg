@@ -110,6 +110,7 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
+    m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection);
     setupFX();
 }
 
@@ -123,6 +124,7 @@ void RasterNode::disconnect(bool bKill)
         m_pSurface->destroy();
     }
     m_pFBO = FBOPtr();
+    m_pImagingProjection = ImagingProjectionPtr();
     AreaNode::disconnect(bKill);
 }
 
@@ -435,8 +437,11 @@ void RasterNode::setupFX()
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
                     false, getMipmap()));
+            GLTexturePtr pTex = m_pFBO->getTex();
+            pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect(getDisplayEngine());
+            m_pImagingProjection->setup(m_pSurface->getSize());
         }
     }
 }
@@ -451,6 +456,7 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     getDisplayEngine()->enableGLColorArray(false);
     getDisplayEngine()->enableTexture(true);
     m_pSurface->activate(getMediaSize());
+    DRect destRect(DPoint(0,0), destSize);
     if (m_pFXNode) {
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT);
@@ -470,9 +476,8 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
 
-        m_pFBO->setupImagingProjection();
-        m_pFBO->drawImagingVertexes();
-
+        m_pImagingProjection->activate();
+        m_pImagingProjection->draw();
 
         m_pFBO->deactivate();
         m_pFBO->copyToDestTexture();
@@ -496,7 +501,7 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
 /*        
         stringstream ss1;
-        ss1 << "bar" << i << ".png";
+        ss1 << "bar" << ".png";
         i++;
         m_pFXNode->getImage()->save(ss1.str());
 */
@@ -505,6 +510,9 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         }
         getDisplayEngine()->setBlendMode(mode, true);
         glColor4d(1.0, 1.0, 1.0, opacity);
+        DRect relDestRect = m_pFXNode->getRelDestRect();
+        destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
+                relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
     //    pBmp->dump(true);
         getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
@@ -521,7 +529,8 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         }
     }
     glPushMatrix();
-    glScaled(destSize.x, destSize.y, 1);
+    glTranslated(destRect.tl.x, destRect.tl.y, 1);
+    glScaled(destRect.size().x, destRect.size().y, 1);
 
     if (m_bVertexArrayDirty) {
         m_pVertexes->reset();
