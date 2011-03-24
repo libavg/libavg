@@ -194,13 +194,18 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     float* pKernel;
     pKernel = new float[kernelWidth];
     float sum = 0;
-    for (int i = 0; i <= kernelCenter; ++i) {
-        pKernel[kernelCenter+i] = float(exp(-i*i/(2*stdDev*stdDev))
-                /sqrt(2*PI*stdDev*stdDev));
-        sum += pKernel[kernelCenter+i];
-        if (i != 0) {
-            pKernel[kernelCenter-i] = pKernel[kernelCenter+i];
-            sum += pKernel[kernelCenter-i];
+    if (stdDev == 0) {
+        pKernel[0] = 1;
+        sum = 1;
+    } else {
+        for (int i = 0; i <= kernelCenter; ++i) {
+            pKernel[kernelCenter+i] = float(exp(-i*i/(2*stdDev*stdDev))
+                    /sqrt(2*PI*stdDev*stdDev));
+            sum += pKernel[kernelCenter+i];
+            if (i != 0) {
+                pKernel[kernelCenter-i] = pKernel[kernelCenter+i];
+                sum += pKernel[kernelCenter-i];
+            }
         }
     }
 

@@ -152,6 +152,8 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX4", False),
                  lambda: effect.setParams((-2,-2), 3, 0.3, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX5", False),
+                 lambda: effect.setParams((0,0), 0, 1, "FFFFFF"),
+                 lambda: self.compareImage("testShadowFX6", False),
                 ))
 
     def testGamma(self):
