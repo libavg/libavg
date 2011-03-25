@@ -37,6 +37,7 @@ class AVG_API GLTexture {
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+    GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false);
     virtual ~GLTexture();
 
     void activate(int textureUnit=GL_TEXTURE0);
@@ -59,6 +60,7 @@ private:
     bool m_bMipmap;
 
     unsigned m_TexID;
+    bool m_bUseForeignTexture;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

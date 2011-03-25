@@ -29,7 +29,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode)
     : m_Size(size),
       m_pf(pf),
-      m_bMipmap(bMipmap)
+      m_bMipmap(bMipmap),
+      m_bUseForeignTexture(false)
 {
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -56,11 +57,22 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 
 }
 
+GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap)
+    : m_Size(size),
+      m_pf(pf),
+      m_bMipmap(bMipmap),
+      m_TexID(glTexID),
+      m_bUseForeignTexture(true)
+{
+}
+
 GLTexture::~GLTexture()
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");
+    if (!m_bUseForeignTexture) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDeleteTextures(1, &m_TexID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");
+    }
 }
 
 void GLTexture::activate(int textureUnit)
