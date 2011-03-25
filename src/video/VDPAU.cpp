@@ -53,14 +53,14 @@ VdpPresentationQueueBlockUntilSurfaceIdle*
 VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 
-VdpDevice VDPAU::m_sVDPDevice = 0;
-Display* VDPAU::m_sXDisplay = 0;
+VdpDevice VDPAU::s_VDPDevice = 0;
+Display* VDPAU::s_pXDisplay = 0;
 
-VDPAU::VDPAU():
-    m_PixFmt(PIX_FMT_NONE),
-    m_VDPDecoder(0),
-    m_VDPMixer(0),
-    m_Size(-1,-1)
+VDPAU::VDPAU()
+    : m_PixFmt(PIX_FMT_NONE),
+      m_VDPDecoder(0),
+      m_VDPMixer(0),
+      m_Size(-1,-1)
 {
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         m_VideoSurfaces[i].m_Surface = VDP_INVALID_HANDLE;
@@ -93,25 +93,25 @@ VDPAU::~VDPAU()
 void VDPAU::safeGetProcAddress(VdpFuncId functionId, void** functionPointer)
 {
     VdpStatus status;
-    status = vdp_get_proc_address(m_sVDPDevice, functionId, functionPointer);
+    status = vdp_get_proc_address(s_VDPDevice, functionId, functionPointer);
     AVG_ASSERT(status == VDP_STATUS_OK);
 }
 
 Display* VDPAU::getDisplay()
 {
-    return m_sXDisplay;
+    return s_pXDisplay;
 }
 
 void VDPAU::init()
 {
-    if (!m_sVDPDevice) {
+    if (!s_VDPDevice) {
         VdpStatus status;
 
-        //m_sXDisplay = glXGetCurrentDisplay();
-        m_sXDisplay = XOpenDisplay(0);
-        AVG_ASSERT(m_sXDisplay);
+        //s_pXDisplay = glXGetCurrentDisplay();
+        s_pXDisplay = XOpenDisplay(0);
+        AVG_ASSERT(s_pXDisplay);
 
-        status = vdp_device_create_x11(m_sXDisplay, DefaultScreen(m_sXDisplay), &m_sVDPDevice,
+        status = vdp_device_create_x11(s_pXDisplay, DefaultScreen(s_pXDisplay), &s_VDPDevice,
             &vdp_get_proc_address);
         AVG_ASSERT(status == VDP_STATUS_OK);
 
@@ -167,17 +167,21 @@ void VDPAU::init()
 AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
 {
     AVCodec* pCodec = 0;
-    if (pContext->codec_id == CODEC_ID_MPEG2VIDEO) {
-        pCodec = avcodec_find_decoder_by_name("mpegvideo_vdpau");
-    }
-    if (pContext->codec_id == CODEC_ID_H264) {
-        pCodec = avcodec_find_decoder_by_name("h264_vdpau");
-    }
-    if (pContext->codec_id == CODEC_ID_WMV3) {
-        pCodec = avcodec_find_decoder_by_name("wmv3_vdpau");
-    }
-    if (pContext->codec_id == CODEC_ID_VC1) {
-        pCodec = avcodec_find_decoder_by_name("vc1_vdpau");
+    switch (pContext->codec_id) {
+        case CODEC_ID_MPEG2VIDEO:
+            pCodec = avcodec_find_decoder_by_name("mpegvideo_vdpau");
+            break;
+        case CODEC_ID_H264:
+            pCodec = avcodec_find_decoder_by_name("h264_vdpau");
+            break;
+        case CODEC_ID_WMV3:
+            pCodec = avcodec_find_decoder_by_name("wmv3_vdpau");
+            break;
+        case CODEC_ID_VC1:
+            pCodec = avcodec_find_decoder_by_name("vc1_vdpau");
+            break;
+        default:
+            pCodec = 0;
     }
     if (!pCodec) {
         pCodec = avcodec_find_decoder(pContext->codec_id);
@@ -201,7 +205,7 @@ int VDPAU::getBuffer(AVCodecContext* pContext, AVFrame* frame)
 
 int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge* frameAge)
 {
-    VdpStatus    status;
+    VdpStatus status;
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         struct vdpau_render_state* pRenderState = &m_VideoSurfaces[i].m_RenderState;
         if (!(pRenderState->state & FF_VDPAU_STATE_USED_FOR_REFERENCE)) {
@@ -229,7 +233,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge*
                     status = vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
                     AVG_ASSERT(status == VDP_STATUS_OK);
                 }
-                status = vdp_video_surface_create(m_sVDPDevice, VDP_CHROMA_TYPE_420,
+                status = vdp_video_surface_create(s_VDPDevice, VDP_CHROMA_TYPE_420,
                         pContext->width, pContext->height, &m_VideoSurfaces[i].m_Surface);
                 AVG_ASSERT(status == VDP_STATUS_OK);
                 m_VideoSurfaces[i].m_Size.x = pContext->width;
@@ -312,8 +316,8 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
             AVG_ASSERT(status == VDP_STATUS_OK);
             m_VDPDecoder = VDP_INVALID_HANDLE;
         }
-        status = vdp_decoder_create(m_sVDPDevice, profile, size.x, size.y, 16,
-            &m_VDPDecoder);
+        status = vdp_decoder_create(s_VDPDevice, profile, size.x, size.y, 16,
+                &m_VDPDecoder);
         AVG_ASSERT(status == VDP_STATUS_OK);
         
         m_PixFmt = pContext->pix_fmt;
@@ -333,14 +337,14 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
         int  num_layers = 0;
         void const* paramValues [] = { &m_Size.x, &m_Size.y, &chroma, &num_layers };
 
-        status = vdp_video_mixer_create(m_sVDPDevice, 2, features, 4, params, paramValues,
-        &m_VDPMixer);
+        status = vdp_video_mixer_create(s_VDPDevice, 2, features, 4, params, paramValues,
+                &m_VDPMixer);
         AVG_ASSERT(status == VDP_STATUS_OK);
     }
 
     status = vdp_decoder_render(m_VDPDecoder, pRenderState->surface,
-        (VdpPictureInfo const*)&(pRenderState->info),
-        pRenderState->bitstream_buffers_used, pRenderState->bitstream_buffers);
+            (VdpPictureInfo const*)&(pRenderState->info),
+            pRenderState->bitstream_buffers_used, pRenderState->bitstream_buffers);
     AVG_ASSERT(status == VDP_STATUS_OK);
 }
 

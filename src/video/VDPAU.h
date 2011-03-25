@@ -79,7 +79,6 @@ extern VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 class VDPAU
 {
-
 public:
     VDPAU();
     ~VDPAU();
@@ -92,13 +91,13 @@ private:
     int getBufferInternal(AVCodecContext* c, AVFrame* frame, FrameAge* age);
     static void releaseBuffer(struct AVCodecContext* c, AVFrame* frame);
     static void drawHorizBand(AVCodecContext* c, const AVFrame* frame, int offset[4],
-        int y, int type, int height);
+            int y, int type, int height);
     static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
     void render(AVCodecContext* context, const AVFrame* frame);
     void safeGetProcAddress(VdpFuncId function_id, void** function_pointer);
 
-    static VdpDevice m_sVDPDevice;
-    static Display* m_sXDisplay;
+    static VdpDevice s_VDPDevice;
+    static Display* s_pXDisplay;
 
     VdpDecoder m_VDPDecoder;
     VdpVideoMixer m_VDPMixer;

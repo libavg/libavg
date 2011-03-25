@@ -577,9 +577,16 @@ static ProfilingZoneID VDPAUDecodeProfilingZone("FFMpeg: VDPAU decode");
 
 #ifdef AVG_ENABLE_VDPAU
 bool pixelFormatIsVDPAU(::PixelFormat pf){
-    return (pf == PIX_FMT_VDPAU_H264 || pf == PIX_FMT_VDPAU_MPEG1 ||
-        pf == PIX_FMT_VDPAU_MPEG2 || pf == PIX_FMT_VDPAU_WMV3 ||
-        pf == PIX_FMT_VDPAU_VC1);
+    switch (pf) {
+        case PIX_FMT_VDPAU_H264:
+        case PIX_FMT_VDPAU_MPEG1:
+        case PIX_FMT_VDPAU_MPEG2:
+        case PIX_FMT_VDPAU_WMV3:
+        case PIX_FMT_VDPAU_VC1:
+            return true;
+        default:
+            return false;
+    }
 }
 #endif
 
