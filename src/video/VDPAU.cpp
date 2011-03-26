@@ -24,6 +24,7 @@
 #include "../base/Exception.h"
 #include <iostream>
 
+using namespace std;
 
 namespace avg {
 
@@ -168,6 +169,10 @@ AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
 {
     AVCodec* pCodec = 0;
     switch (pContext->codec_id) {
+        case CODEC_ID_MPEG1VIDEO:
+            pCodec = avcodec_find_decoder_by_name("mpegvideo_vdpau");
+            pCodec->id = CODEC_ID_MPEG1VIDEO;
+            break;
         case CODEC_ID_MPEG2VIDEO:
             pCodec = avcodec_find_decoder_by_name("mpegvideo_vdpau");
             break;
@@ -268,6 +273,8 @@ void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
     switch (pContext->codec_id) {
         case CODEC_ID_H264:
             return PIX_FMT_VDPAU_H264;
+        case CODEC_ID_MPEG1VIDEO:
+            return PIX_FMT_VDPAU_MPEG1;
         case CODEC_ID_MPEG2VIDEO:
             return PIX_FMT_VDPAU_MPEG2;
         case CODEC_ID_WMV3:

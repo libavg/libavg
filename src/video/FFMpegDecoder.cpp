@@ -588,6 +588,25 @@ bool pixelFormatIsVDPAU(::PixelFormat pf){
             return false;
     }
 }
+
+void getPlanesFromVDPAU(VdpVideoSurface surface, void *YPlane, void *UPlane, void* VPlane,
+        uint32_t YPitch, uint32_t UPitch, uint32_t VPitch)
+{
+    VdpStatus status;
+    uint32_t pitches[3] = {
+        YPitch,
+        VPitch,
+        UPitch
+    };
+    void *dest[3] = {
+        YPlane,
+        VPlane,
+        UPlane
+    };
+    status = vdp_video_surface_get_bits_y_cb_cr(surface, VDP_YCBCR_FORMAT_YV12,
+            dest, pitches);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+}   
 #endif
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
@@ -614,22 +633,11 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 #endif
             if (pixelFormatIsVDPAU(enc->pix_fmt)) 
             {
-                VdpStatus status;
-                VdpChromaType chroma_type;
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
                 VdpVideoSurface surface = pRenderState->surface;
-                uint32_t pitches[3] = {
-                    pBmps[0]->getStride(),
-                    pBmps[2]->getStride(),
-                    pBmps[1]->getStride()
-                };
-                void *dest[3] = {
-                    pBmps[0]->getPixels(), 
-                    pBmps[2]->getPixels(),
-                    pBmps[1]->getPixels()
-                };
-                status = vdp_video_surface_get_bits_y_cb_cr(surface,
-                        VDP_YCBCR_FORMAT_YV12, dest, pitches);
+                getPlanesFromVDPAU(surface, pBmps[0]->getPixels(), pBmps[1]->getPixels(),
+                        pBmps[2]->getPixels(), pBmps[0]->getStride(),
+                        pBmps[1]->getStride(), pBmps[2]->getStride());
             } else {
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
@@ -956,6 +964,34 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
             BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
                     frame.linesize[2], false));
             pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, enc->pix_fmt == PIX_FMT_YUVJ420P);
+#ifdef AVG_ENABLE_VDPAU
+        } else if (destFmt == PIX_FMT_BGRA && pixelFormatIsVDPAU(enc->pix_fmt)) {
+            uint32_t width;
+            uint32_t height;
+            VdpStatus status;
+            VdpChromaType chroma_type;
+            vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+            VdpVideoSurface surface = pRenderState->surface;
+            vdp_video_surface_get_parameters(surface, &chroma_type, &width, &height);
+
+            uint32_t YPitch = width;
+            uint32_t UVPitch = YPitch >> 1;
+
+            uint8_t YPlane[width*YPitch];
+            uint8_t UPlane[width*UVPitch];
+            uint8_t VPlane[width*UVPitch];
+            {
+                ScopeTimer timer(VDPAUDecodeProfilingZone);
+                getPlanesFromVDPAU(surface, YPlane, UPlane, VPlane, YPitch, UVPitch, UVPitch);
+            }
+            {
+                ScopeTimer timer(ConvertImageLibavgProfilingZone);
+                BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, YPlane, YPitch, false));
+                BitmapPtr pBmpU(new Bitmap(pBmp->getSize(), I8, UPlane, UVPitch, false));
+                BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, VPlane, UVPitch, false));
+                pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
+            }
+#endif
         } else {
             if (!m_pSwsContext) {
                 m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
