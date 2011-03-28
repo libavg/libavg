@@ -696,7 +696,7 @@ static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 void WordsNode::render(const DRect& rect)
 {
     ScopeTimer timer(RenderProfilingZone);
-    if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
+    if (m_sText.length() != 0 && isVisible()) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
         if (offset != IntPoint(0,0)) {
             getDisplayEngine()->pushTransform(DPoint(offset), 0, DPoint(0,0));

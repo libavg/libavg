@@ -552,7 +552,7 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 void VideoNode::preRender()
 {
     VisibleNode::preRender();
-    if (getEffectiveOpacity() <= 0.01) {
+    if (!isVisible()) {
         if (m_bSeekPending && m_bFirstFrameDecoded) {
             renderFrame(getSurface());
         }
