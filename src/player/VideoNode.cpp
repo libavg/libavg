@@ -572,32 +572,19 @@ static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render(const DRect& rect)
 {
-    switch (m_VideoState) {
-        case Playing:
-            {
-                bool bNewFrame = renderFrame(getSurface());
-                m_bFrameAvailable = m_bFrameAvailable | bNewFrame;
-                if (m_bFrameAvailable) {
-                    m_bFirstFrameDecoded = true;
-                }
-                if (m_bFirstFrameDecoded) {
-                    blt32(getSize(), getEffectiveOpacity(), getBlendMode());
-                }
-            }
-            break;
-        case Paused:
+    if (m_VideoState != Unloaded) {
+        if (m_VideoState == Playing) {
+            bool bNewFrame = renderFrame(getSurface());
+            m_bFrameAvailable |= bNewFrame;
+        } else { // Paused
             if (!m_bFrameAvailable) {
                 m_bFrameAvailable = renderFrame(getSurface());
             }
-            if (m_bFrameAvailable) {
-                m_bFirstFrameDecoded = true;
-            }
-            if (m_bFirstFrameDecoded) {
-                blt32(getSize(), getEffectiveOpacity(), getBlendMode());
-            }
-            break;
-        case Unloaded:
-            break;
+        }
+        m_bFirstFrameDecoded |= m_bFrameAvailable;
+        if (m_bFirstFrameDecoded) {
+            blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        }
     }
 }
 
