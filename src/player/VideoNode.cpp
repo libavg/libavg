@@ -552,7 +552,19 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 void VideoNode::preRender()
 {
     VisibleNode::preRender();
-    if (!isVisible()) {
+    if (isVisible()) {
+        if (m_VideoState != Unloaded) {
+            if (m_VideoState == Playing) {
+                bool bNewFrame = renderFrame(getSurface());
+                m_bFrameAvailable |= bNewFrame;
+            } else { // Paused
+                if (!m_bFrameAvailable) {
+                    m_bFrameAvailable = renderFrame(getSurface());
+                }
+            }
+            m_bFirstFrameDecoded |= m_bFrameAvailable;
+        }
+    } else {
         if (m_bSeekPending && m_bFirstFrameDecoded) {
             renderFrame(getSurface());
         }
@@ -572,19 +584,8 @@ static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render(const DRect& rect)
 {
-    if (m_VideoState != Unloaded) {
-        if (m_VideoState == Playing) {
-            bool bNewFrame = renderFrame(getSurface());
-            m_bFrameAvailable |= bNewFrame;
-        } else { // Paused
-            if (!m_bFrameAvailable) {
-                m_bFrameAvailable = renderFrame(getSurface());
-            }
-        }
-        m_bFirstFrameDecoded |= m_bFrameAvailable;
-        if (m_bFirstFrameDecoded) {
-            blt32(getSize(), getEffectiveOpacity(), getBlendMode());
-        }
+    if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
+        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
