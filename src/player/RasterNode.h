@@ -89,13 +89,13 @@ class AVG_API RasterNode: public AreaNode
         void setEffect(FXNodePtr pFXNode);
         virtual BitmapPtr getBitmap();
         
+    protected:
+        RasterNode();
         void blt32(const DPoint& destSize, double opacity, DisplayEngine::BlendMode mode,
                 bool bPremultipliedAlpha = false);
         void blta8(const DPoint& destSize, double opacity, 
                 const Pixel32& color, DisplayEngine::BlendMode mode);
 
-    protected:
-        RasterNode();
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
