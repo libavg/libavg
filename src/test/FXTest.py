@@ -156,6 +156,20 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX6", False),
                 ))
 
+    def testWordsShadowFX(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
+                font="Bitstream Vera Sans")
+        effect = avg.ShadowFXNode()
+        effect.setParams((0,0), 1.5, 1.5, "FF0000")
+        node.setEffect(effect)
+        self.start(None,
+                (lambda: self.compareImage("testWordsShadowFX1", True),
+                 lambda: effect.setParams((2,2), 2, 2, "00FFFF"),
+                 lambda: self.compareImage("testWordsShadowFX2", True),
+                ))
+
     def testGamma(self):
         def setGamma(val):
             node.gamma = val
@@ -255,6 +269,7 @@ def fxTestSuite(tests):
                 "testCanvasNullFX",
                 "testBlurFX",
                 "testShadowFX",
+                "testWordsShadowFX",
                 "testGamma",
                 "testIntensity",
                 "testContrast",
