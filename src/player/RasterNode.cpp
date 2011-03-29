@@ -409,14 +409,13 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
 {
     ScopeTimer Timer(FXProfilingZone);
     setupFX();
+    getDisplayEngine()->enableGLColorArray(false);
+    getDisplayEngine()->enableTexture(true);
     if (m_pFXNode) {
         if (!m_bBound) {
             bind();
         }
-        getDisplayEngine()->enableGLColorArray(false);
-        getDisplayEngine()->enableTexture(true);
         m_pSurface->activate(getMediaSize());
-        DRect destRect(DPoint(0,0), destSize);
 
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT);
@@ -445,7 +444,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         pBmp->save(ss.str());
   */  
         m_pFXNode->apply(m_pFBO->getTex());
-//        glMatrixMode(GL_MODELVIEW);
+        
         glPopMatrix();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::renderFX(): glPopMatrix");
 /*        
