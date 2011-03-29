@@ -29,6 +29,7 @@
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
 
 #include <Magick++.h>
 
@@ -401,9 +402,12 @@ void RasterNode::bind()
     m_bBound = true;
 }
 
+static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
+
 void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color, 
         bool bPremultipliedAlpha)
 {
+    ScopeTimer Timer(FXProfilingZone);
     setupFX();
     if (m_pFXNode) {
         if (!m_bBound) {
@@ -424,11 +428,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         }
         getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
                 bPremultipliedAlpha);
-        
-        glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
-        glDisable(GL_MULTISAMPLE);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
+
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
 
@@ -436,7 +436,6 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pImagingProjection->draw();
 
         m_pFBO->deactivate();
-        m_pFBO->copyToDestTexture();
         m_pSurface->deactivate();
 /*
         static int i=0;
@@ -446,11 +445,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         pBmp->save(ss.str());
   */  
         m_pFXNode->apply(m_pFBO->getTex());
-
-        glPopAttrib();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
+//        glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::renderFX(): glPopMatrix");
 /*        

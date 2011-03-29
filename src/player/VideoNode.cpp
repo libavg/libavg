@@ -563,6 +563,9 @@ void VideoNode::preRender()
                 }
             }
             m_bFirstFrameDecoded |= m_bFrameAvailable;
+            if (m_bFirstFrameDecoded) {
+                renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+            }
         }
     } else {
         if (m_bSeekPending && m_bFirstFrameDecoded) {
@@ -578,7 +581,6 @@ void VideoNode::preRender()
             }
         }
     }
-    renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
