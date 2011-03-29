@@ -148,6 +148,12 @@ void ImageNode::setBitmap(const Bitmap * pBmp)
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
+void ImageNode::preRender()
+{
+    VisibleNode::preRender();
+    renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+}
+
 void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);

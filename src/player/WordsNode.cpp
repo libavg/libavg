@@ -689,6 +689,7 @@ void WordsNode::preRender()
 {
     VisibleNode::preRender();
     drawString();
+    renderFX(getSize(), m_Color, false);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");

@@ -101,6 +101,8 @@ class AVG_API RasterNode: public AreaNode
         bool hasMask() const;
         void setMaskCoords();
         void bind();
+        void renderFX(const DPoint& destSize, const Pixel32& color, 
+                bool bPremultipliedAlpha);
 
     private:
         void setMaterial(const MaterialInfo& material);
@@ -110,8 +112,6 @@ class AVG_API RasterNode: public AreaNode
         void setupFX();
         void blt(const DPoint& destSize, DisplayEngine::BlendMode mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
-        void renderFX(const DPoint& destSize, const Pixel32& color, 
-                bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);

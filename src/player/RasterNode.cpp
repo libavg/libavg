@@ -401,6 +401,68 @@ void RasterNode::bind()
     m_bBound = true;
 }
 
+void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color, 
+        bool bPremultipliedAlpha)
+{
+    setupFX();
+    if (m_pFXNode) {
+        if (!m_bBound) {
+            bind();
+        }
+        getDisplayEngine()->enableGLColorArray(false);
+        getDisplayEngine()->enableTexture(true);
+        m_pSurface->activate(getMediaSize());
+        DRect destRect(DPoint(0,0), destSize);
+
+        m_pFBO->activate();
+        clearGLBuffers(GL_COLOR_BUFFER_BIT);
+
+        glColor4d(double(color.getR())/256, double(color.getG())/256, 
+                double(color.getB())/256, 1);
+        if (bPremultipliedAlpha) {
+            glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
+                bPremultipliedAlpha);
+        
+        glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
+        glDisable(GL_MULTISAMPLE);
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+
+        m_pImagingProjection->activate();
+        m_pImagingProjection->draw();
+
+        m_pFBO->deactivate();
+        m_pFBO->copyToDestTexture();
+        m_pSurface->deactivate();
+/*
+        static int i=0;
+        stringstream ss;
+        ss << "foo" << i << ".png";
+        BitmapPtr pBmp = m_pFBO->getImage(0);
+        pBmp->save(ss.str());
+  */  
+        m_pFXNode->apply(m_pFBO->getTex());
+
+        glPopAttrib();
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::renderFX(): glPopMatrix");
+/*        
+        stringstream ss1;
+        ss1 << "bar" << ".png";
+        i++;
+        m_pFXNode->getImage()->save(ss1.str());
+*/
+        glproc::UseProgramObject(0);
+    }
+}
+
 void RasterNode::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
@@ -449,7 +511,6 @@ void RasterNode::setupFX()
 void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         double opacity, const Pixel32& color, bool bPremultipliedAlpha)
 {
-    renderFX(destSize, color, bPremultipliedAlpha);
     if (!m_bBound) {
         bind();
     }
@@ -510,68 +571,6 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     PixelFormat pf = m_pSurface->getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " << destSize.y << ")" 
             << ", m_pf: " << pf);
-}
-
-void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color, 
-        bool bPremultipliedAlpha)
-{
-    setupFX();
-    if (m_pFXNode) {
-        if (!m_bBound) {
-            bind();
-        }
-        getDisplayEngine()->enableGLColorArray(false);
-        getDisplayEngine()->enableTexture(true);
-        m_pSurface->activate(getMediaSize());
-        DRect destRect(DPoint(0,0), destSize);
-
-        m_pFBO->activate();
-        clearGLBuffers(GL_COLOR_BUFFER_BIT);
-
-        glColor4d(double(color.getR())/256, double(color.getG())/256, 
-                double(color.getB())/256, 1);
-        if (bPremultipliedAlpha) {
-            glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
-                bPremultipliedAlpha);
-        
-        glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
-        glDisable(GL_MULTISAMPLE);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-
-        m_pImagingProjection->activate();
-        m_pImagingProjection->draw();
-
-        m_pFBO->deactivate();
-        m_pFBO->copyToDestTexture();
-        m_pSurface->deactivate();
-/*
-        static int i=0;
-        stringstream ss;
-        ss << "foo" << i << ".png";
-        BitmapPtr pBmp = m_pFBO->getImage(0);
-        pBmp->save(ss.str());
-  */  
-        m_pFXNode->apply(m_pFBO->getTex());
-
-        glPopAttrib();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
-/*        
-        stringstream ss1;
-        ss1 << "bar" << ".png";
-        i++;
-        m_pFXNode->getImage()->save(ss1.str());
-*/
-        glproc::UseProgramObject(0);
-    }
 }
 
 IntPoint RasterNode::getNumTiles()

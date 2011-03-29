@@ -51,6 +51,7 @@ class AVG_API ImageNode : public RasterNode
         const std::string getCompression() const;
         void setBitmap(const Bitmap * pBmp);
         
+        virtual void preRender();
         virtual void render(const DRect& Rect);
         
         void getElementsByPos(const DPoint& pos, 

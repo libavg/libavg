@@ -578,6 +578,7 @@ void VideoNode::preRender()
             }
         }
     }
+    renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");

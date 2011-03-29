@@ -327,6 +327,7 @@ void CameraNode::preRender()
             ScopeTimer Timer(CameraDownloadProfilingZone);
             bind();
         }
+        renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;
     }
 }
