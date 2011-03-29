@@ -110,6 +110,8 @@ class AVG_API RasterNode: public AreaNode
         void setupFX();
         void blt(const DPoint& destSize, DisplayEngine::BlendMode mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
+        void renderFX(const DPoint& destSize, const Pixel32& color, 
+                bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
