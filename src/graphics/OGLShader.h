@@ -31,6 +31,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <string>
+#include <map>
 
 namespace avg {
 
@@ -62,6 +63,7 @@ class AVG_API OGLShader {
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
         std::string m_sProgram;
+        std::map<std::string, int> m_UniformLocationMap;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

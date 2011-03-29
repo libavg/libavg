@@ -150,10 +150,17 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
 
 int OGLShader::safeGetUniformLoc(const std::string& sName)
 {
-    int loc = glproc::GetUniformLocation(m_hProgram, sName.c_str());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLShader::setUniformIntParam: GetUniformLocation()");
-    return loc;
+    // TODO: This takes too much time if it's called whenever the parameter is set.
+    map<string, int>::iterator pos = m_UniformLocationMap.find(sName);
+    if (pos == m_UniformLocationMap.end()) {
+        int loc = glproc::GetUniformLocation(m_hProgram, sName.c_str());
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLShader::setUniformIntParam: GetUniformLocation()");
+        m_UniformLocationMap[sName] = loc;
+        return loc;
+    } else {
+        return pos->second;
+    }
 }
  
 
