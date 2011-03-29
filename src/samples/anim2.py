@@ -9,7 +9,7 @@ def startAnim():
 player = avg.Player.get()
 player.loadFile("text.avg")
 
-node = player.getElementByID("ClashText")
+node = player.getElementByID("HelloText")
 animObj = ParallelAnim(
     [LinearAnim(node, "x", 2000, 0, 200),
      LinearAnim(node, "y", 2000, 0, 10)])

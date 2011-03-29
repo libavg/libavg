@@ -4,7 +4,7 @@
 from libavg import avg
 
 def moveText():
-    node = player.getElementByID("ClashText")
+    node = player.getElementByID("HelloText")
     node.x = 200
 
 player = avg.Player.get()
