@@ -36,6 +36,10 @@ BlurFXNode::BlurFXNode()
       m_StdDev(1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    if (!GLTexture::isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "OpenGL configuration doesn't support Blur (no float textures).");
+    }
 }
 
 BlurFXNode::~BlurFXNode()

@@ -39,6 +39,10 @@ ShadowFXNode::ShadowFXNode()
       m_Color(255,255,255,255)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    if (!GLTexture::isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "OpenGL configuration doesn't support Shadow (no float textures).");
+    }
 }
 
 ShadowFXNode::~ShadowFXNode()
