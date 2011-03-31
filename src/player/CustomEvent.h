@@ -19,33 +19,21 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _EventSource_h_
-#define _EventSource_h_
+#ifndef _CustomEvent_H_
+#define _CustomEvent_H_
 
-#include "../api.h"
 #include "Event.h"
-#include <vector>
-
-
-#define EXTRACT_CLASSNAME_STRING( classType ) (#classType)
 
 namespace avg {
 
-class AVG_API IEventSource {
+class AVG_API CustomEvent : public Event {
     public:
-        IEventSource(const std::string& name) : m_sName(name) {}
-        virtual ~IEventSource() {};
-
-        virtual void start() {};
-        virtual std::vector<EventPtr> pollEvents() = 0;
-
-        const std::string& getName() const { return m_sName; }
-
-    private:
-        std::string m_sName;
+        CustomEvent(Type type, Source source=NONE, int when=-1);
+        CustomEvent(const Event& e);
 };
 
-}
+typedef boost::shared_ptr<class CustomEvent> CustomEventPtr;
+
+} // namespace avg
 
 #endif
-

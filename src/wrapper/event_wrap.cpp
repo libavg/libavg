@@ -24,25 +24,69 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
+#include "../player/CustomEvent.h"
+#include "../player/CustomCursorEvent.h"
 #include "../player/VisibleNode.h"
 #include "../player/TrackerEventSource.h"
+
+#include <string>
 
 using namespace boost::python;
 using namespace avg;
 using namespace std;
 
+
+class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
+    public:
+        IEventSourceWrapper(const std::string& name) : IEventSource(name) {
+        }
+
+        virtual void start() {
+            if (override startMethod = this->get_override("start")) {
+                startMethod();
+            }
+            IEventSource::start();
+        }
+
+        void default_start() { return this->IEventSource::start(); }
+
+        virtual std::vector<EventPtr> pollEvents() {
+            return this->get_override("pollEvents")();
+        }
+};
+
+
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEventPtr>, 
         to_tuple<vector<TouchEventPtr> > >();
-          
+
     boost::python::to_python_converter<ContourSeq, to_list<ContourSeq> >();    
    
     from_python_sequence<ContourSeq, variable_capacity_policy>();
+    from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
+    from_python_sequence<vector<CustomEventPtr>, variable_capacity_policy>();
+    from_python_sequence<vector<CustomCursorEventPtr>, variable_capacity_policy>();
 
     class_<Event, boost::noncopyable>("Event", no_init)
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
+        .add_property("eventsourcename",
+                      make_function(&Event::getEventSourceName,
+                                    return_value_policy<copy_const_reference>()))
+    ;
+
+    class_<CustomEvent, bases<Event> >("CustomEvent", init<Event::Type, Event::Source, optional<int> >())
+    ;
+
+    class_<CustomCursorEvent, bases<Event> >("CustomCursorEvent",
+                                             init<int, Event::Type, const IntPoint&, Event::Source>())
+        .add_property("source", &CustomCursorEvent::getSource)
+        .add_property("pos", &CustomCursorEvent::getPos)
+        .add_property("x", &CustomCursorEvent::getXPosition)
+        .add_property("y", &CustomCursorEvent::getYPosition)
+        .add_property("cursorid", &CustomCursorEvent::getCursorID)
+        .add_property("node", &CustomCursorEvent::getElement)
     ;
 
     enum_<Event::Type>("Type")
@@ -147,6 +191,14 @@ void export_event()
         .export_values()
     ;
 
+    class_<IEventSourceWrapper, boost::noncopyable>("EventSource", init<const std::string&>())
+        .def("start", &IEventSource::start, &IEventSourceWrapper::default_start)
+        .def("pollEvents", pure_virtual(&IEventSource::pollEvents))
+        .add_property("name",
+                      make_function(&IEventSource::getName,
+                                    return_value_policy<copy_const_reference>()))
+    ;
+
     class_<TrackerEventSource, boost::noncopyable>("Tracker", no_init)
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>())
@@ -163,7 +215,7 @@ void export_event()
         .def("getParam", &TrackerEventSource::getParam)
         ;
 
-class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
+    class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
         .def("nextPoint", &TrackerCalibrator::nextPoint)
         .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint)
         .def("setCamPoint", &TrackerCalibrator::setCamPoint)

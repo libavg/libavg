@@ -18,34 +18,24 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is igor@c-base.org
+//
 
-#ifndef _EventSource_h_
-#define _EventSource_h_
+#ifndef _CustomCursorEvent_h_
+#define _CustomCursorEvent_h_
 
-#include "../api.h"
-#include "Event.h"
-#include <vector>
-
-
-#define EXTRACT_CLASSNAME_STRING( classType ) (#classType)
+#include "CursorEvent.h"
 
 namespace avg {
 
-class AVG_API IEventSource {
+class AVG_API CustomCursorEvent: public CursorEvent {
     public:
-        IEventSource(const std::string& name) : m_sName(name) {}
-        virtual ~IEventSource() {};
-
-        virtual void start() {};
-        virtual std::vector<EventPtr> pollEvents() = 0;
-
-        const std::string& getName() const { return m_sName; }
-
-    private:
-        std::string m_sName;
+        CustomCursorEvent(int id, Type eventType, const IntPoint& position, Source source);
+        virtual CursorEventPtr cloneAs(Type eventType) const;
 };
 
-}
+typedef boost::shared_ptr<class CustomCursorEvent> CustomCursorEventPtr;
+
+} // namespace avg
 
 #endif
-
