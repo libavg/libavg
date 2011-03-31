@@ -26,13 +26,23 @@
 #include "Event.h"
 #include <vector>
 
+
+#define EXTRACT_CLASSNAME_STRING( classType ) (#classType)
+
 namespace avg {
 
 class AVG_API IEventSource {
     public:
+        IEventSource(const std::string& name) : m_sName(name) {}
         virtual ~IEventSource() {};
+
         virtual void start() {};
         virtual std::vector<EventPtr> pollEvents()=0;
+
+        const std::string& getName() const { return m_sName; }
+
+    private:
+        std::string m_sName;
 };
 
 }

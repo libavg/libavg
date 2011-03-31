@@ -23,13 +23,16 @@
 #define _Event_H_
 
 #include "../api.h"
+//#include "IEventSource.h"
 #include <functional>
 #include <string>
 #include <boost/shared_ptr.hpp>
+
 #undef _POSIX_C_SOURCE
 
 namespace avg {
 
+class IEventSource;
 class VisibleNode;
 typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
 
@@ -57,6 +60,10 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
+        const IEventSource* getEventSource() const;
+        void setEventSource(const IEventSource* eventSource);
+        bool hasEventSource() const;
+        const std::string& getEventSourceName() const;
         VisibleNodePtr getElement() const;
         void setElement(VisibleNodePtr pNode);
         
@@ -74,6 +81,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
+        const IEventSource* m_pEventSource;
         static int s_CurCounter;
 };
 

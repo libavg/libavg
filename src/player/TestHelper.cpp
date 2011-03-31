@@ -39,6 +39,7 @@ using namespace std;
 namespace avg {
     
 TestHelper::TestHelper()
+    : IEventSource(EXTRACT_CLASSNAME_STRING(TestHelper))
 {
 }
 

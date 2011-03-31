@@ -41,8 +41,15 @@ void EventDispatcher::dispatch()
     vector<EventPtr> events;
 
     for (unsigned int i = 0; i < m_EventSources.size(); ++i) {
-        vector<EventPtr> curEvents = m_EventSources[i]->pollEvents();
+        IEventSource* pCurEventSource = m_EventSources[i];
+
+        vector<EventPtr> curEvents = pCurEventSource->pollEvents();
+        vector<EventPtr>::iterator eventIt = curEvents.begin();
         events.insert(events.end(), curEvents.begin(), curEvents.end());
+
+        for ( ; eventIt != curEvents.end(); eventIt++) {
+            (*eventIt)->setEventSource(pCurEventSource);
+        }
     }
 
     vector<EventPtr>::iterator it;

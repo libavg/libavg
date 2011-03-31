@@ -86,6 +86,7 @@ buildboost()
 }
 if [[ x"${AVG_PATH}" == "x" ]]
 then
+    echo ${AVG_PATH}
     echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
     exit -1 
 fi

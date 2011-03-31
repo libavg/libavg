@@ -20,6 +20,7 @@
 //
 
 #include "Event.h"
+#include "IEventSource.h"
 #include "VisibleNode.h"
 
 #include "../base/TimeSource.h"
@@ -38,7 +39,8 @@ int Event::s_CurCounter = 0;
 Event::Event(Type type, Source source, int when)
     : m_Type(type),
       m_pNode(),
-      m_Source(source)
+      m_Source(source),
+      m_pEventSource(NULL)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
@@ -75,6 +77,26 @@ Event::Type Event::getType() const
 Event::Source Event::getSource() const
 {
     return m_Source;
+}
+
+const IEventSource* Event::getEventSource() const
+{
+    return m_pEventSource;
+}
+
+bool Event::hasEventSource() const
+{
+    return m_pEventSource != NULL;
+}
+
+void Event::setEventSource(const IEventSource* eventSource)
+{
+    m_pEventSource = eventSource;
+}
+
+const std::string& Event::getEventSourceName() const
+{
+    return m_pEventSource->getName();
 }
 
 void Event::setElement(VisibleNodePtr pNode)
