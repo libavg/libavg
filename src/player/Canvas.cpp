@@ -278,16 +278,15 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
 
 void Canvas::renderOutlines()
 {
-    Shape * pShape = new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
-    pShape->moveToGPU(m_pDisplayEngine);
-    VertexArrayPtr pVA = pShape->getVertexArray();
+    VertexArrayPtr pVA(new VertexArray);
     m_pDisplayEngine->setBlendMode(DisplayEngine::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     if (pVA->getCurVert() != 0) {
         pVA->update();
-        pShape->draw();
+        m_pDisplayEngine->enableTexture(false);
+        m_pDisplayEngine->enableGLColorArray(true);
+        pVA->draw();
     }
-    delete pShape;
 }
 
 }
