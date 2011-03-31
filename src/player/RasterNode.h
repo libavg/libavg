@@ -87,7 +87,6 @@ class AVG_API RasterNode: public AreaNode
         void setContrast(const DTriple& contrast);
 
         void setEffect(FXNodePtr pFXNode);
-        virtual BitmapPtr getBitmap();
         
     protected:
         RasterNode();

@@ -327,15 +327,6 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     setupFX();
 }
 
-BitmapPtr RasterNode::getBitmap()
-{
-    if (m_pSurface) {
-        return m_pSurface->readbackBmp();
-    } else {
-        return BitmapPtr(); 
-    }
-}
-
 void RasterNode::blt32(const DPoint& destSize, double opacity, 
         DisplayEngine::BlendMode mode, bool bPremultipliedAlpha)
 {
