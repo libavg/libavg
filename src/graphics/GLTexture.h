@@ -60,7 +60,6 @@ private:
     bool m_bMipmap;
 
     unsigned m_TexID;
-    bool m_bUseForeignTexture;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
