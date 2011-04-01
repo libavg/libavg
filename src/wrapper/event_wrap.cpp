@@ -41,6 +41,9 @@ class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
         IEventSourceWrapper(const std::string& name) : IEventSource(name) {
         }
 
+        IEventSourceWrapper(const IEventSource& eventSource) : IEventSource(eventSource) {
+        }
+
         virtual void start() {
             if (override startMethod = this->get_override("start")) {
                 startMethod();
@@ -65,12 +68,14 @@ void export_event()
    
     from_python_sequence<ContourSeq, variable_capacity_policy>();
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
-    from_python_sequence<vector<CustomEventPtr>, variable_capacity_policy>();
-    from_python_sequence<vector<CustomCursorEventPtr>, variable_capacity_policy>();
+
 
     class_<Event, boost::noncopyable>("Event", no_init)
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
+        .add_property("eventsource",
+                      make_function(&Event::getEventSource,
+                                    return_value_policy<reference_existing_object>()))
         .add_property("eventsourcename",
                       make_function(&Event::getEventSourceName,
                                     return_value_policy<copy_const_reference>()))
@@ -191,7 +196,7 @@ void export_event()
         .export_values()
     ;
 
-    class_<IEventSourceWrapper, boost::noncopyable>("EventSource", init<const std::string&>())
+    class_<IEventSourceWrapper>("EventSource", init<const std::string&>())
         .def("start", &IEventSource::start, &IEventSourceWrapper::default_start)
         .def("pollEvents", pure_virtual(&IEventSource::pollEvents))
         .add_property("name",
