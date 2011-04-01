@@ -38,10 +38,14 @@ using namespace std;
 
 class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
     public:
-        IEventSourceWrapper(const std::string& name) : IEventSource(name) {
+        IEventSourceWrapper(const std::string& name)
+            : IEventSource(name)
+        {
         }
 
-        IEventSourceWrapper(const IEventSource& eventSource) : IEventSource(eventSource) {
+        IEventSourceWrapper(const IEventSource& eventSource)
+            : IEventSource(eventSource)
+        {
         }
 
         virtual void start() {
@@ -51,11 +55,14 @@ class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
             IEventSource::start();
         }
 
-        void default_start() { return this->IEventSource::start(); }
+        void default_start() {
+            return this->IEventSource::start();
+        }
 
         virtual std::vector<EventPtr> pollEvents() {
             return this->get_override("pollEvents")();
         }
+
 };
 
 
@@ -102,6 +109,7 @@ void export_event()
         .value("CURSORDOWN", Event::CURSORDOWN)
         .value("CURSOROVER", Event::CURSOROVER)
         .value("CURSOROUT", Event::CURSOROUT)
+        .value("CUSTOMEVENT", Event::CUSTOMEVENT)
         .value("RESIZE", Event::RESIZE)
         .value("QUIT", Event::QUIT)
         .export_values()
@@ -196,7 +204,7 @@ void export_event()
         .export_values()
     ;
 
-    class_<IEventSourceWrapper>("EventSource", init<const std::string&>())
+    class_<IEventSourceWrapper, auto_ptr<IEventSourceWrapper> >("EventSource", init<const std::string&>())
         .def("start", &IEventSource::start, &IEventSourceWrapper::default_start)
         .def("pollEvents", pure_virtual(&IEventSource::pollEvents))
         .add_property("name",

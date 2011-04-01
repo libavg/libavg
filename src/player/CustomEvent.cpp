@@ -27,11 +27,13 @@ namespace avg {
 
 
 CustomEvent::CustomEvent(Type type, Source source, int when)
-    : Event(type, source, when) {
+    : Event(type, source, when)
+{
 }
 
 CustomEvent::CustomEvent(const Event& e)
-    : Event(e) {
+    : Event(e)
+{
 }
 
 } // namespace avg

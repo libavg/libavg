@@ -46,6 +46,7 @@ class AVG_API Event {
             CURSORDOWN,
             CURSOROVER,  
             CURSOROUT,
+            CUSTOMEVENT,
             RESIZE,
             QUIT 
         };

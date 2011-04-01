@@ -47,6 +47,7 @@
 #include "SDLDisplayEngine.h"
 #include "MultitouchEventSource.h"
 #include "TUIOEventSource.h"
+#include "CustomEvent.h"
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
 #endif
@@ -964,7 +965,13 @@ bool Player::handleEvent(EventPtr pEvent)
         {
             stop();
         }
-    } else {
+    }
+    else if (CustomEventPtr pCustomEvent = boost::dynamic_pointer_cast<CustomEvent>(pEvent))
+    {
+        pEvent->trace();
+        getRootNode()->handleEvent(pCustomEvent);
+    }
+    else {
         switch (pEvent->getType()) {
             case Event::QUIT:
                 stop();

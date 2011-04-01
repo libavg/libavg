@@ -66,6 +66,7 @@ typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
+
 class AVG_API Player: IEventSink
 {
     public:
