@@ -29,7 +29,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode)
     : m_Size(size),
       m_pf(pf),
-      m_bMipmap(bMipmap)
+      m_bMipmap(bMipmap),
+      m_bDeleteTex(true)
 {
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -55,19 +56,23 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
 }
 
-GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap)
+GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
+        bool bDeleteTex)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
+      m_bDeleteTex(bDeleteTex),
       m_TexID(glTexID)
 {
 }
 
 GLTexture::~GLTexture()
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");
+    if (m_bDeleteTex) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDeleteTextures(1, &m_TexID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");
+    }
 }
 
 void GLTexture::activate(int textureUnit)
