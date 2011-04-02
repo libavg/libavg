@@ -30,6 +30,7 @@
 #include "../oscpack/OscPrintReceivedElements.h"
 
 #ifdef WIN32
+#include <Winsock2.h>
 #include <windows.h>
 #endif
 

@@ -24,7 +24,10 @@
 
 #include "../player/FXNode.h"
 #include "../player/NullFXNode.h"
-#include "../player/DemosaicFXNode.h"
+#include "../player/LaplaceDemosaicFXNode.h"
+#include "../player/FuzzyDemosaicFXNode.h"
+#include "../player/BilinDemosaicFXNode.h"
+#include "../player/BayerizeFXNode.h"
 #include "../player/BlurFXNode.h"
 #include "../player/ShadowFXNode.h"
 #include "../player/ChromaKeyFXNode.h"
@@ -44,8 +47,20 @@ void export_fx()
             "NullFXNode")
         ;
 
-     class_<DemosaicFXNode, bases<FXNode>, boost::shared_ptr<DemosaicFXNode>, 
-            boost::noncopyable>("DemosaicFXNode")
+     class_<LaplaceDemosaicFXNode, bases<FXNode>, boost::shared_ptr<LaplaceDemosaicFXNode>, 
+            boost::noncopyable>("LaplaceDemosaicFXNode")
+        ;
+
+       class_<FuzzyDemosaicFXNode, bases<FXNode>, boost::shared_ptr<FuzzyDemosaicFXNode>, 
+            boost::noncopyable>("FuzzyDemosaicFXNode")
+        ;
+
+       class_<BilinDemosaicFXNode, bases<FXNode>, boost::shared_ptr<BilinDemosaicFXNode>, 
+            boost::noncopyable>("BilinDemosaicFXNode")
+        ;
+
+       class_<BayerizeFXNode, bases<FXNode>, boost::shared_ptr<BayerizeFXNode>, 
+            boost::noncopyable>("BayerizeFXNode")
         ;
 
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>, 

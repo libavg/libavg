@@ -71,6 +71,8 @@
     <ClCompile Include="..\..\src\player\ArgBase.cpp" />
     <ClCompile Include="..\..\src\player\ArgList.cpp" />
     <ClCompile Include="..\..\src\player\AVGNode.cpp" />
+    <ClCompile Include="..\..\src\player\BayerizeFXNode.cpp" />
+    <ClCompile Include="..\..\src\player\BilinDemosaicFXNode.cpp" />
     <ClCompile Include="..\..\src\player\BlurFXNode.cpp" />
     <ClCompile Include="..\..\src\player\CameraNode.cpp" />
     <ClCompile Include="..\..\src\player\Canvas.cpp" />
@@ -81,7 +83,7 @@
     <ClCompile Include="..\..\src\player\CursorEvent.cpp" />
     <ClCompile Include="..\..\src\player\CursorState.cpp" />
     <ClCompile Include="..\..\src\player\CurveNode.cpp" />
-    <ClCompile Include="..\..\src\player\DemosaicFXNode.cpp" />
+    <ClCompile Include="..\..\src\player\LaplaceDemosaicFXNode.cpp" />
     <ClCompile Include="..\..\src\player\DisplayEngine.cpp" />
     <ClCompile Include="..\..\src\player\DisplayParams.cpp" />
     <ClCompile Include="..\..\src\player\DivNode.cpp" />
@@ -89,6 +91,7 @@
     <ClCompile Include="..\..\src\player\EventDispatcher.cpp" />
     <ClCompile Include="..\..\src\player\EventStream.cpp" />
     <ClCompile Include="..\..\src\player\FilledVectorNode.cpp" />
+    <ClCompile Include="..\..\src\player\FuzzyDemosaicFXNode.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
     <ClCompile Include="..\..\src\player\GLConfig.cpp" />
     <ClCompile Include="..\..\src\player\Image.cpp" />
@@ -127,7 +130,9 @@
     <ClCompile Include="..\..\src\player\TouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TrackerCalibrator.cpp" />
     <ClCompile Include="..\..\src\player\TrackerEventSource.cpp" />
-    <ClCompile Include="..\..\src\player\TUIOEventSource.cpp" />
+    <ClCompile Include="..\..\src\player\TUIOEventSource.cpp">
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ShowIncludes>
+    </ClCompile>
     <ClCompile Include="..\..\src\player\VectorNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
@@ -142,6 +147,8 @@
     <ClInclude Include="..\..\src\player\ArgBase.h" />
     <ClInclude Include="..\..\src\player\ArgList.h" />
     <ClInclude Include="..\..\src\player\AVGNode.h" />
+    <ClInclude Include="..\..\src\player\BayerizeFXNode.h" />
+    <ClInclude Include="..\..\src\player\BilinDemosaicFXNode.h" />
     <ClInclude Include="..\..\src\player\BlurFXNode.h" />
     <ClInclude Include="..\..\src\player\BoostPython.h" />
     <ClInclude Include="..\..\src\player\CameraNode.h" />
@@ -152,7 +159,7 @@
     <ClInclude Include="..\..\src\player\CursorEvent.h" />
     <ClInclude Include="..\..\src\player\CursorState.h" />
     <ClInclude Include="..\..\src\player\CurveNode.h" />
-    <ClInclude Include="..\..\src\player\DemosaicFXNode.h" />
+    <ClInclude Include="..\..\src\player\LaplaceDemosaicFXNode.h" />
     <ClInclude Include="..\..\src\player\DisplayEngine.h" />
     <ClInclude Include="..\..\src\player\DisplayParams.h" />
     <ClInclude Include="..\..\src\player\DivNode.h" />
@@ -160,6 +167,7 @@
     <ClInclude Include="..\..\src\player\EventDispatcher.h" />
     <ClInclude Include="..\..\src\player\EventStream.h" />
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
+    <ClInclude Include="..\..\src\player\FuzzyDemosaicFXNode.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
     <ClInclude Include="..\..\src\player\GLConfig.h" />
     <ClInclude Include="..\..\src\player\IEventSink.h" />

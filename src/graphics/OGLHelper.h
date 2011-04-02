@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #ifdef _WIN32
+#include <winsock2.h>
 #include <windows.h>
 #undef ERROR
 #undef WARNING

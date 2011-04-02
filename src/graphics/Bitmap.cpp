@@ -276,7 +276,7 @@ void Bitmap::copyPixels(const Bitmap & origBmp)
                 }
                 break;
             case BAYER8_RGGB:
-            case BAYER8_GBRG:
+            case BAYER8_GBRG: //kinect output
             case BAYER8_GRBG:
             case BAYER8_BGGR:
                 switch(m_PF) {

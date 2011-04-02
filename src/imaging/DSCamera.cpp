@@ -165,7 +165,7 @@ BitmapPtr DSCamera::getImage(bool bWait)
         return BitmapPtr();
     }
 
-    return pBmp;
+      return pBmp;
 }
 
 void DSCamera::setCaptureFormat()

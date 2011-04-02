@@ -229,6 +229,8 @@ BitmapPtr V4LCamera::getImage(bool bWait)
                 "V4L Camera: failed to enqueue image buffer."));
     }
     
+
+      //TODO: apply convertCamFrameToDestPF() for GPUDemosaic
     return pDestBmp;
 }
 

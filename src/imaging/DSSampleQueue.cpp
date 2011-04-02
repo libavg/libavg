@@ -21,6 +21,7 @@
 
 #include "DSSampleQueue.h"
 #include "DSHelper.h"
+#include "Camera.h"
 
 #include <dshow.h>
 
@@ -50,6 +51,8 @@ STDMETHODIMP DSSampleQueue::SampleCB(double SampleTime, IMediaSample *pSample)
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, m_DestPF, 
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(CamBmp);
+
+      //pDestBmp = convertCamFrameToDestPF(CamBmp);
     m_BitmapQ.push(pDestBmp);
 
     return S_OK;
