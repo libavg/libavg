@@ -32,6 +32,8 @@
 
 namespace avg {
 
+class VDPAUData;
+
 class AVG_API VideoMsg {
 public:
     enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE};
@@ -39,7 +41,8 @@ public:
     void setAudio(AudioBufferPtr pAudioBuffer, double audioTime);
     void setEOF();
     void setError(const Exception& ex);
-    void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime);
+    void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime,
+            VDPAUData *vdpau = 0);
     void setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime);
 
     virtual ~VideoMsg();
@@ -56,6 +59,7 @@ public:
 
     double getSeekVideoFrameTime();
     double getSeekAudioFrameTime();
+    VDPAUData* getVDPAUData();
 
 private:
     MsgType m_MsgType;
@@ -70,10 +74,12 @@ private:
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
     double m_FrameTime;
+    VDPAUData* m_pVDPAUData;
 
     // SEEK_DONE
     double m_SeekVideoFrameTime;
     double m_SeekAudioFrameTime;
+
 };
 
 typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;

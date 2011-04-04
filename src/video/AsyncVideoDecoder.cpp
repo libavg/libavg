@@ -23,6 +23,11 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
+#include "FFMpegDecoder.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUData.h"
+#endif
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -266,6 +271,7 @@ PixelFormat AsyncVideoDecoder::getPixelFormat() const
     return m_PF;
 }
 
+static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU decode");
 FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         double timeWanted)
 {
@@ -274,8 +280,17 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
-        for (unsigned i = 0; i < pBmps.size(); ++i) {
-            pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+        VDPAUData *pVDPAUData = pFrameMsg->getVDPAUData();
+        if(pVDPAUData) {
+#ifdef AVG_ENABLE_VDPAU
+        ScopeTimer timer(VDPAUDecodeProfilingZone);
+        VdpVideoSurface surface = pVDPAUData->getRenderState()->surface;
+        getPlanesFromVDPAU(surface, pBmps[0], pBmps[1], pBmps[2]);
+#endif
+        } else {
+            for (unsigned i = 0; i < pBmps.size(); ++i) {
+                pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+            }
         }
         returnFrame(pFrameMsg);
     }

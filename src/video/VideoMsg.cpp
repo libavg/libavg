@@ -59,12 +59,14 @@ void VideoMsg::setError(const Exception& ex)
     m_pEx = new Exception(ex);
 }
 
-void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime)
+void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime,
+        VDPAUData *vdpau)
 {
     AVG_ASSERT(m_MsgType == NONE);
     AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3 || pBmps.size() == 4);
     m_MsgType = FRAME;
     m_pBmps = pBmps;
+    m_pVDPAUData = vdpau;
     m_FrameTime = frameTime;
 }
 
@@ -121,6 +123,12 @@ double VideoMsg::getSeekAudioFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekAudioFrameTime;
+}
+
+VDPAUData* VideoMsg::getVDPAUData()
+{
+    AVG_ASSERT(m_MsgType == FRAME);
+    return m_pVDPAUData;
 }
 
 }

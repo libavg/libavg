@@ -44,6 +44,11 @@ namespace avg {
 
 class AudioBuffer;
 
+#ifdef AVG_ENABLE_VDPAU
+void getPlanesFromVDPAU(VdpVideoSurface surface, BitmapPtr pBmpY, BitmapPtr pBmpU,
+        BitmapPtr pBmpV);
+#endif
+
 class AVG_API FFMpegDecoder: public IVideoDecoder
 {
     public:
@@ -68,6 +73,10 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual void setFPS(double fps);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 double timeWanted);
+#ifdef AVG_ENABLE_VDPAU
+        virtual FrameAvailableCode renderToVDP(VDPAUData &pVDPAUData);
+#endif
+        virtual bool usesVDPAU() const;
         virtual void throwAwayFrame(double timeWanted);
         
         // Called from audio decoder thread
@@ -97,6 +106,8 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         double getFrameTime(long long dts);
         double calcStreamFPS() const;
         std::string getStreamPF() const;
+        AVCodecContext const * getCodecContext() const;
+        AVCodecContext * getCodecContext();
 
         SwsContext * m_pSwsContext;
         IntPoint m_Size;

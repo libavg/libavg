@@ -25,6 +25,12 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
+#include "../avgconfigwrapper.h"
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAUData.h"
+#else
+class VDPAUData;
+#endif
 
 using namespace std;
 
@@ -74,18 +80,25 @@ bool VideoDecoderThread::work()
         } else {
             pBmps.push_back(getBmp(m_pBmpQ, size, pf));
         }
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
-
+        VDPAUData *pVDPAUData = 0;
+        if(m_pDecoder->usesVDPAU()){
+#ifdef AVG_ENABLE_VDPAU
+            pVDPAUData = new VDPAUData();
+            frameAvailable = m_pDecoder->renderToVDP(*pVDPAUData);
+#endif
+        } else {
+            frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
+        }
         if (m_pDecoder->isEOF(SS_VIDEO)) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
         } else {
             ScopeTimer timer(PushMsgProfilingZone);
-            
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO),
+                    pVDPAUData);
             m_MsgQ.push(pMsg);
             msleep(0);
         }

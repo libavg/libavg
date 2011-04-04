@@ -23,8 +23,6 @@
 
 
 #include "../avgconfigwrapper.h"
-
-
 #include "../graphics/GL/glx.h"
 
 #include "WrapFFMpeg.h"

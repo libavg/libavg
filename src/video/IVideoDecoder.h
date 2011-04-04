@@ -28,10 +28,13 @@
 
 #include "../graphics/Bitmap.h"
 #include "../audio/IAudioSource.h"
+#include "../base/Exception.h"
 
 #include <string>
 
 namespace avg {
+
+class VDPAUData;
 
 enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
@@ -69,17 +72,30 @@ class AVG_API IVideoDecoder
                 double timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 double timeWanted) = 0;
+        virtual FrameAvailableCode renderToVDP(VDPAUData &vdp);
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(double timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
+        virtual bool usesVDPAU() const;
 };
+
 
 inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);
     return renderToBmps(pBmps, timeWanted);
+}
+
+inline bool IVideoDecoder::usesVDPAU() const
+{
+    return false;
+}
+
+inline FrameAvailableCode IVideoDecoder::renderToVDP(VDPAUData &vdp)
+{
+    AVG_ASSERT(false);
 }
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
