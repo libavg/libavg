@@ -120,7 +120,7 @@ def showInfo(node):
     global len_filename
     node.play()
     if node.hasAudio():
-        vFile = str(os.path.basename(node.href)).ljust(len_filename+2)
+        vFile = os.path.basename(node.href).ljust(len_filename+2)
         vDuration = str(node.getDuration()/1000.).ljust(12)
         vBitrate = str(node.getBitrate()).ljust(15) 
         vVideoCodec = str(node.getVideoCodec()).ljust(13)
@@ -135,7 +135,7 @@ def showInfo(node):
         
         print info
     else:
-        vFile = str(os.path.basename(node.href)).ljust(len_filename+2)
+        vFile = os.path.basename(node.href).ljust(len_filename+2)
         vDuration = str(node.getDuration()/1000.).ljust(12)
         vBitrate = str(node.getBitrate()).ljust(15) 
         vVideoCodec = str(node.getVideoCodec()).ljust(13)
@@ -176,13 +176,14 @@ else:
             VideoList.append(node.href)   
         except:
             sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
-    
+   
     for i in xrange(0, len(VideoList)):
-        if len_filename < len(str(os.path.basename(str(VideoList[i])))):
-            len_filename = len(str(os.path.basename(str(VideoList[i]))))
+        curLen = len(os.path.basename(VideoList[i]))
+        if len_filename < curLen:
+            len_filename = curLen
             
     for i in xrange(0, len(VideoList)):
-        node.href = str(VideoList[i])
+        node.href = VideoList[i]
         if options.xml:
             appendXMLChild(node)
         elif options.csv:
