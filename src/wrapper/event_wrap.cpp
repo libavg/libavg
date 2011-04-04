@@ -24,8 +24,6 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
-#include "../player/CustomEvent.h"
-#include "../player/CustomCursorEvent.h"
 #include "../player/VisibleNode.h"
 #include "../player/TrackerEventSource.h"
 
@@ -78,7 +76,7 @@ void export_event()
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
 
-    class_<Event, boost::noncopyable>("Event", no_init)
+    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source, optional<int> >())
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
         .add_property("eventsource",
@@ -89,17 +87,14 @@ void export_event()
                                     return_value_policy<copy_const_reference>()))
     ;
 
-    class_<CustomEvent, bases<Event> >("CustomEvent", init<Event::Type, Event::Source, optional<int> >())
-    ;
-
-    class_<CustomCursorEvent, bases<Event> >("CustomCursorEvent",
-                                             init<int, Event::Type, const IntPoint&, Event::Source>())
-        .add_property("source", &CustomCursorEvent::getSource)
-        .add_property("pos", &CustomCursorEvent::getPos)
-        .add_property("x", &CustomCursorEvent::getXPosition)
-        .add_property("y", &CustomCursorEvent::getYPosition)
-        .add_property("cursorid", &CustomCursorEvent::getCursorID)
-        .add_property("node", &CustomCursorEvent::getElement)
+    class_<CursorEvent, bases<Event> >("CursorEvent",
+                                       init<int, Event::Type, const IntPoint&, Event::Source>())
+        .add_property("source", &CursorEvent::getSource)
+        .add_property("pos", &CursorEvent::getPos)
+        .add_property("x", &CursorEvent::getXPosition)
+        .add_property("y", &CursorEvent::getYPosition)
+        .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
+        .add_property("node", &CursorEvent::getElement)
     ;
 
     enum_<Event::Type>("Type")
@@ -169,7 +164,7 @@ void export_event()
         .add_property("speed", make_function(&MouseEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
         .add_property("lastdownpos", &CursorEvent::getLastDownPos)
-        ;
+    ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", no_init)
         .add_property("source", &TouchEvent::getSource)
@@ -227,11 +222,11 @@ void export_event()
         .def("abortCalibration", &TrackerEventSource::abortCalibration)
         .def("setParam", &TrackerEventSource::setParam)
         .def("getParam", &TrackerEventSource::getParam)
-        ;
+    ;
 
     class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
         .def("nextPoint", &TrackerCalibrator::nextPoint)
         .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint)
         .def("setCamPoint", &TrackerCalibrator::setCamPoint)
-        ;
+    ;
 }

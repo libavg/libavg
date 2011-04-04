@@ -47,7 +47,6 @@
 #include "SDLDisplayEngine.h"
 #include "MultitouchEventSource.h"
 #include "TUIOEventSource.h"
-#include "CustomEvent.h"
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
 #endif
@@ -971,19 +970,13 @@ bool Player::handleEvent(EventPtr pEvent)
             stop();
         }
     }
-    else if (CustomEventPtr pCustomEvent = boost::dynamic_pointer_cast<CustomEvent>(pEvent))
-    {
-        pEvent->trace();
-        getRootNode()->handleEvent(pCustomEvent);
-    }
     else {
-        switch (pEvent->getType()) {
-            case Event::QUIT:
-                stop();
-                break;
-            default:
-                AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
-                break;
+        if (pEvent->getType() != Event::QUIT) {
+            pEvent->trace();
+            getRootNode()->handleEvent(pEvent);
+        }
+        else {
+            stop();
         }
     }
     return true; 

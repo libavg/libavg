@@ -30,9 +30,9 @@
 namespace avg {
 
 CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
-            :Event(eventType, source),
-            m_Position(position),
-            m_ID(id)
+    : Event(eventType, source),
+      m_Position(position),
+      m_ID(id)
 {
 }
 
@@ -42,8 +42,9 @@ CursorEvent::~CursorEvent()
 
 CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 {
-    AVG_ASSERT(false);
-    return CursorEventPtr();
+    CursorEventPtr pClone(new CursorEvent(*this));
+    pClone->m_Type = eventType;
+    return pClone;
 }
 
 DPoint CursorEvent::getPos() const

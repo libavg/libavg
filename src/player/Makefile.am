@@ -39,8 +39,8 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
         Node.h VisibleNode.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
-        EventDispatcher.h CursorEvent.h CustomCursorEvent.h MouseEvent.h \
-        Event.h CustomEvent.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
+        EventDispatcher.h CursorEvent.h MouseEvent.h \
+        Event.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchEventSource.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
         TouchEvent.h TouchStatus.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
@@ -78,8 +78,8 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
         MainCanvas.cpp Node.cpp MultitouchEventSource.cpp \
         PanoImageNode.cpp WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
-        Timeout.cpp Event.cpp CustomEvent.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
-        Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp CustomCursorEvent.cpp \
+        Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
+        Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
         TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
