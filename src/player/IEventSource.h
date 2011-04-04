@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "Event.h"
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 
@@ -44,6 +45,8 @@ class AVG_API IEventSource {
     private:
         std::string m_sName;
 };
+
+typedef boost::shared_ptr<IEventSource> IEventSourcePtr;
 
 }
 

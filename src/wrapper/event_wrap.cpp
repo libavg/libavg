@@ -29,6 +29,7 @@
 #include "../player/VisibleNode.h"
 #include "../player/TrackerEventSource.h"
 
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 using namespace boost::python;
@@ -204,7 +205,7 @@ void export_event()
         .export_values()
     ;
 
-    class_<IEventSourceWrapper, auto_ptr<IEventSourceWrapper> >("EventSource", init<const std::string&>())
+    class_<IEventSourceWrapper, boost::shared_ptr<IEventSourceWrapper> >("EventSource", init<const std::string&>())
         .def("start", &IEventSource::start, &IEventSourceWrapper::default_start)
         .def("pollEvents", pure_virtual(&IEventSource::pollEvents))
         .add_property("name",

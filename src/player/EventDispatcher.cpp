@@ -63,6 +63,12 @@ void EventDispatcher::addSource(IEventSource * pSource)
     m_EventSources.push_back(pSource);
 }
 
+void EventDispatcher::addSource(IEventSourcePtr pSource)
+{
+    m_ManagedEventSources.push_back(pSource);
+    addSource(pSource.get());
+}
+
 void EventDispatcher::addSink(IEventSink * pSink)
 {
     m_EventSinks.push_back(pSink);

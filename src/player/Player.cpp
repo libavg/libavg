@@ -582,6 +582,11 @@ void Player::addEventSource(IEventSource* pSource)
     m_pEventDispatcher->addSource(pSource);
 }
 
+void Player::addEventSource(IEventSourcePtr pSource)
+{
+    m_pEventDispatcher->addSource(pSource);
+}
+
 long long Player::getFrameTime()
 {
     return m_FrameTime;

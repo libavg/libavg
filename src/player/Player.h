@@ -39,6 +39,7 @@
 #include "../audio/AudioParams.h"
 
 #include <libxml/parser.h>
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <vector>
@@ -120,6 +121,7 @@ class AVG_API Player: IEventSink
         bool clearInterval(int id);
 
         void addEventSource(IEventSource* pSource);
+        void addEventSource(IEventSourcePtr pSource);
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();
