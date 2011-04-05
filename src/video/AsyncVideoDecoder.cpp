@@ -172,6 +172,7 @@ void AsyncVideoDecoder::seek(double destTime)
                     m_LastAudioFrameTime = pMsg->getSeekAudioFrameTime();
                     break;
                 case VideoMsg::FRAME:
+                case VideoMsg::VDPAU_FRAME:
                     returnFrame(pMsg);
                     break;
                 default:
@@ -277,10 +278,10 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
-        vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-        if(pRenderState) {
+        if (pFrameMsg->getType() == VideoMsg::VDPAU_FRAME) {
 #ifdef AVG_ENABLE_VDPAU
             ScopeTimer timer(VDPAUDecodeProfilingZone);
+            vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
             VdpVideoSurface surface = pRenderState->surface;
             getPlanesFromVDPAU(surface, pBmps[0], pBmps[1], pBmps[2]);
 #endif
@@ -420,6 +421,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
     if (pMsg) {
         switch (pMsg->getType()) {
             case VideoMsg::FRAME:
+            case VideoMsg::VDPAU_FRAME:
                 return pMsg;
             case VideoMsg::END_OF_FILE:
                 m_bVideoEOF = true;
@@ -455,6 +457,7 @@ void AsyncVideoDecoder::waitForSeekDone()
                     m_LastAudioFrameTime = pMsg->getSeekAudioFrameTime();
                     break;
                 case VideoMsg::FRAME:
+                case VideoMsg::VDPAU_FRAME:
                     returnFrame(pMsg);
                     break;
                 default:

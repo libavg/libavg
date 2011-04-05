@@ -62,27 +62,27 @@ bool VideoDecoderThread::work()
         }
     } else {
         ScopeTimer timer(DecoderProfilingZone);
-        vector<BitmapPtr> pBmps;
-        IntPoint size = m_pDecoder->getSize();
-        IntPoint halfSize(size.x/2, size.y/2);
-        PixelFormat pf = m_pDecoder->getPixelFormat();
-        FrameAvailableCode frameAvailable;
-        if (pixelFormatIsPlanar(pf)) {
-            pBmps.push_back(getBmp(m_pBmpQ, size, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            if (pf == YCbCrA420p) {
-                pBmps.push_back(getBmp(m_pBmpQ, size, I8));
-            }
-        } else {
-            pBmps.push_back(getBmp(m_pBmpQ, size, pf));
-        }
         vdpau_render_state* pRenderState = 0;
+        FrameAvailableCode frameAvailable;
+        vector<BitmapPtr> pBmps;
         if(m_pDecoder->usesVDPAU()){
 #ifdef AVG_ENABLE_VDPAU
             frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
 #endif
         } else {
+            IntPoint size = m_pDecoder->getSize();
+            IntPoint halfSize(size.x/2, size.y/2);
+            PixelFormat pf = m_pDecoder->getPixelFormat();
+            if (pixelFormatIsPlanar(pf)) {
+                pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+                pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+                pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+                if (pf == YCbCrA420p) {
+                    pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+                }
+            } else {
+                pBmps.push_back(getBmp(m_pBmpQ, size, pf));
+            }
             frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
         }
         if (m_pDecoder->isEOF(SS_VIDEO)) {
@@ -93,7 +93,11 @@ bool VideoDecoderThread::work()
             ScopeTimer timer(PushMsgProfilingZone);
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO), pRenderState);
+            if (m_pDecoder->usesVDPAU()) {
+                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
+            } else {
+                pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+            }
             m_MsgQ.push(pMsg);
             msleep(0);
         }
@@ -129,6 +133,9 @@ void VideoDecoderThread::setFPS(double fps)
 
 void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 {
+    if (pMsg->getType() == VideoMsg::VDPAU_FRAME) {
+        return;
+    }
     m_pBmpQ->push(pMsg->getFrameBitmap(0));
     PixelFormat pf = m_pDecoder->getPixelFormat();
     if (pixelFormatIsPlanar(pf)) {

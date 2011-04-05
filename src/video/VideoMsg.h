@@ -36,13 +36,13 @@ namespace avg {
 
 class AVG_API VideoMsg {
 public:
-    enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE};
+    enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE, VDPAU_FRAME};
     VideoMsg();
     void setAudio(AudioBufferPtr pAudioBuffer, double audioTime);
     void setEOF();
     void setError(const Exception& ex);
-    void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime,
-            vdpau_render_state* m_pRenderState = 0);
+    void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime);
+    void setVDPAUFrame(vdpau_render_state* m_pRenderState, double frameTime);
     void setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime);
 
     virtual ~VideoMsg();
@@ -74,6 +74,8 @@ private:
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
     double m_FrameTime;
+
+    // VDPAU_FRAME
     vdpau_render_state* m_pRenderState;
 
     // SEEK_DONE
