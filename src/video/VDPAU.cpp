@@ -251,13 +251,13 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge*
     return 1;
 }
 
-// release the render structure
+// does not release the render structure, that will be unlocked after getting data
 void VDPAU::releaseBuffer(struct AVCodecContext* pContext, AVFrame* frame)
 {
     vdpau_render_state* pRenderState = (vdpau_render_state*)frame->data[0];
-    pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
     frame->data[0] = 0;
 }
+
 
 //main rendering routine
 void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
@@ -353,6 +353,11 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
             (VdpPictureInfo const*)&(pRenderState->info),
             pRenderState->bitstream_buffers_used, pRenderState->bitstream_buffers);
     AVG_ASSERT(status == VDP_STATUS_OK);
+}
+
+void VDPAU::unlockSurface(vdpau_render_state* pRenderState)
+{
+    pRenderState->state &= ~FF_VDPAU_STATE_USED_FOR_REFERENCE;
 }
 
 }

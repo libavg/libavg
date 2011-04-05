@@ -282,8 +282,11 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 #ifdef AVG_ENABLE_VDPAU
             ScopeTimer timer(VDPAUDecodeProfilingZone);
             vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
-            VdpVideoSurface surface = pRenderState->surface;
-            getPlanesFromVDPAU(surface, pBmps[0], pBmps[1], pBmps[2]);
+            if (pixelFormatIsPlanar(m_PF)) {
+                getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+            } else {
+                getPlanesFromVDPAU(pRenderState, pBmps[0]);
+            }
 #endif
         } else {
             for (unsigned i = 0; i < pBmps.size(); ++i) {

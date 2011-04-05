@@ -83,6 +83,7 @@ public:
     AVCodec* openCodec(AVCodecContext* enc);
     void init();
     Display* getDisplay();
+    static void unlockSurface(vdpau_render_state* pRenderState);
 
 private:
     static int getBuffer(AVCodecContext* c, AVFrame* frame);

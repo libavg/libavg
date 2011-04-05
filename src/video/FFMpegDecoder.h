@@ -46,8 +46,9 @@ namespace avg {
 class AudioBuffer;
 
 #ifdef AVG_ENABLE_VDPAU
-void getPlanesFromVDPAU(VdpVideoSurface surface, BitmapPtr pBmpY, BitmapPtr pBmpU,
-        BitmapPtr pBmpV);
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
+        BitmapPtr pBmpU, BitmapPtr pBmpV);
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
 #endif
 
 class AVG_API FFMpegDecoder: public IVideoDecoder

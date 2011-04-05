@@ -65,7 +65,8 @@ bool VideoDecoderThread::work()
         vdpau_render_state* pRenderState = 0;
         FrameAvailableCode frameAvailable;
         vector<BitmapPtr> pBmps;
-        if(m_pDecoder->usesVDPAU()){
+        bool usesVDPAU = m_pDecoder->usesVDPAU();
+        if(usesVDPAU){
 #ifdef AVG_ENABLE_VDPAU
             frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
 #endif
@@ -93,7 +94,7 @@ bool VideoDecoderThread::work()
             ScopeTimer timer(PushMsgProfilingZone);
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
-            if (m_pDecoder->usesVDPAU()) {
+            if (usesVDPAU) {
                 pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
             } else {
                 pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
