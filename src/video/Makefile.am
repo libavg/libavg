@@ -28,7 +28,7 @@ noinst_LTLIBRARIES = libvideo.la
 noinst_PROGRAMS=testvideo
 
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp \
-        VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp \
+        VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp IVideoDecoder.cpp \
         PacketVideoMsg.cpp AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp \
         $(ALL_H)
 

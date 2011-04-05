@@ -28,9 +28,9 @@
 
 #include "../graphics/Bitmap.h"
 #include "../audio/IAudioSource.h"
-#include "../base/Exception.h"
 
 #include <string>
+
 struct vdpau_render_state;
 
 namespace avg {
@@ -78,24 +78,6 @@ class AVG_API IVideoDecoder
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
         virtual bool usesVDPAU() const;
 };
-
-
-inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
-{
-    std::vector<BitmapPtr> pBmps;
-    pBmps.push_back(pBmp);
-    return renderToBmps(pBmps, timeWanted);
-}
-
-inline bool IVideoDecoder::usesVDPAU() const
-{
-    return false;
-}
-
-inline FrameAvailableCode IVideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
-{
-    AVG_ASSERT(false);
-}
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
 
