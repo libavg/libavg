@@ -22,10 +22,6 @@
 #include "FFMpegDecoder.h"
 #include "AsyncDemuxer.h"
 #include "FFMpegDemuxer.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUData.h"
-#endif
-
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -657,7 +653,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
 
 
 #ifdef AVG_ENABLE_VDPAU
-FrameAvailableCode FFMpegDecoder::renderToVDP(VDPAUData &pVDPAUData)
+FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
@@ -670,8 +666,7 @@ FrameAvailableCode FFMpegDecoder::renderToVDP(VDPAUData &pVDPAUData)
         if (usesVDPAU()) 
         {
             vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-            VdpVideoSurface surface = pRenderState->surface;
-            pVDPAUData.setRenderState(pRenderState);
+            *ppRenderState = pRenderState;
         }
         return FA_NEW_FRAME;
     }

@@ -25,9 +25,6 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "FFMpegDecoder.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUData.h"
-#endif
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -280,12 +277,12 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
-        VDPAUData *pVDPAUData = pFrameMsg->getVDPAUData();
-        if(pVDPAUData) {
+        vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+        if(pRenderState) {
 #ifdef AVG_ENABLE_VDPAU
-        ScopeTimer timer(VDPAUDecodeProfilingZone);
-        VdpVideoSurface surface = pVDPAUData->getRenderState()->surface;
-        getPlanesFromVDPAU(surface, pBmps[0], pBmps[1], pBmps[2]);
+            ScopeTimer timer(VDPAUDecodeProfilingZone);
+            VdpVideoSurface surface = pRenderState->surface;
+            getPlanesFromVDPAU(surface, pBmps[0], pBmps[1], pBmps[2]);
 #endif
         } else {
             for (unsigned i = 0; i < pBmps.size(); ++i) {

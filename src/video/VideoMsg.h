@@ -29,10 +29,10 @@
 #include "../audio/AudioBuffer.h"
 
 #include <boost/shared_ptr.hpp>
+struct vdpau_render_state;
 
 namespace avg {
 
-class VDPAUData;
 
 class AVG_API VideoMsg {
 public:
@@ -42,7 +42,7 @@ public:
     void setEOF();
     void setError(const Exception& ex);
     void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime,
-            VDPAUData *vdpau = 0);
+            vdpau_render_state* m_pRenderState = 0);
     void setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime);
 
     virtual ~VideoMsg();
@@ -59,7 +59,7 @@ public:
 
     double getSeekVideoFrameTime();
     double getSeekAudioFrameTime();
-    VDPAUData* getVDPAUData();
+    vdpau_render_state* getRenderState();
 
 private:
     MsgType m_MsgType;
@@ -74,7 +74,7 @@ private:
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
     double m_FrameTime;
-    VDPAUData* m_pVDPAUData;
+    vdpau_render_state* m_pRenderState;
 
     // SEEK_DONE
     double m_SeekVideoFrameTime;

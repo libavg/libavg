@@ -36,6 +36,7 @@
 #include "VDPAU.h"
 #include "AVCCOpaque.h"
 #include "FrameAge.h"
+#include <libavcodec/vdpau.h>
 #endif
 
 #include <boost/thread/mutex.hpp>
@@ -74,7 +75,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 double timeWanted);
 #ifdef AVG_ENABLE_VDPAU
-        virtual FrameAvailableCode renderToVDP(VDPAUData &pVDPAUData);
+        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
 #endif
         virtual bool usesVDPAU() const;
         virtual void throwAwayFrame(double timeWanted);

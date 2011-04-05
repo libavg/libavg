@@ -31,10 +31,9 @@
 #include "../base/Exception.h"
 
 #include <string>
+struct vdpau_render_state;
 
 namespace avg {
-
-class VDPAUData;
 
 enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
@@ -72,7 +71,7 @@ class AVG_API IVideoDecoder
                 double timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 double timeWanted) = 0;
-        virtual FrameAvailableCode renderToVDP(VDPAUData &vdp);
+        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
         virtual bool isEOF(StreamSelect Stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(double timeWanted) = 0;
         
@@ -93,7 +92,7 @@ inline bool IVideoDecoder::usesVDPAU() const
     return false;
 }
 
-inline FrameAvailableCode IVideoDecoder::renderToVDP(VDPAUData &vdp)
+inline FrameAvailableCode IVideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
     AVG_ASSERT(false);
 }
