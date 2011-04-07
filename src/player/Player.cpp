@@ -93,7 +93,7 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-    
+
 Player * Player::s_pPlayer=0;
 
 Player::Player()
@@ -114,7 +114,7 @@ Player::Player()
 {
 #ifdef __linux
 // Turning this on causes fp exceptions in the linux nvidia drivers.
-//    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW); 
+//    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
@@ -141,7 +141,7 @@ Player::Player()
     registerNodeType(PolygonNode::createDefinition());
     registerNodeType(CircleNode::createDefinition());
     registerNodeType(MeshNode::createDefinition());
-    
+
     m_pTestHelper = new TestHelper();
 
     // Early initialization of TextEngine singletons (dualton? ;-))
@@ -174,14 +174,14 @@ Player::~Player()
         delete m_pDisplayEngine;
     }
 #ifndef _WIN32
-/*    
+/*
     // This causes libavg progams started under cmd to crash on system shutdown and
     // when cmd is closed, so it isn't done under windows.
     // Under Linux (Ubuntu >= 10.10), it takes more than 2 secs to complete...
     if (m_pAudioEngine) {
         delete m_pAudioEngine;
     }
-*/    
+*/
 #endif
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
@@ -231,7 +231,7 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders,
                 bool bUsePixelBuffers, int multiSampleSamples)
 {
     errorIfPlaying("Player.setOGLOptions");
@@ -259,7 +259,7 @@ DPoint Player::getScreenResolution()
     errorIfPlaying("Player.getScreenResolution");
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = new SDLDisplayEngine();
-    } 
+    }
     DPoint size = DPoint(dynamic_cast<SDLDisplayEngine*>(
             m_pDisplayEngine)->getScreenResolution());
     return size;
@@ -322,7 +322,7 @@ void Player::deleteCanvas(const string& sID)
             return;
         }
     }
-    throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+    throw(Exception(AVG_ERR_OUT_OF_RANGE,
             string("deleteCanvas: Canvas with id ")+sID+" does not exist."));
 }
 
@@ -337,7 +337,7 @@ OffscreenCanvasPtr Player::getCanvas(const string& sID) const
     if (pCanvas) {
         return pCanvas;
     } else {
-        throw (Exception(AVG_ERR_INVALID_ARGS, 
+        throw (Exception(AVG_ERR_INVALID_ARGS,
                 string("Player::getCanvas(): No canvas with id '")+sID+"' exists."));
     }
 }
@@ -373,11 +373,11 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
         AVG_ASSERT(pNewCanvas->hasDependentCanvas(m_pMainCanvas));
         m_pCanvases.push_back(pNewCanvas);
     }
-/*    
+/*
     for (unsigned k=0; k<m_pCanvases.size(); ++k) {
         m_pCanvases[k]->dump();
     }
-*/    
+*/
 }
 
 NodePtr Player::loadMainNodeFromFile(const string& sFilename)
@@ -391,7 +391,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
         char szBuf[1024];
         char * pBuf = getcwd(szBuf, 1024);
         if (sFilename[0] == '/') {
-            RealFilename = sFilename; 
+            RealFilename = sFilename;
         } else {
             m_CurDirName = string(pBuf)+"/";
             RealFilename = m_CurDirName+sFilename;
@@ -408,11 +408,11 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
     } catch (Exception& ex) {
         switch (ex.GetCode()) {
             case AVG_ERR_XML_PARSE:
-                throw (Exception(AVG_ERR_XML_PARSE, 
+                throw (Exception(AVG_ERR_XML_PARSE,
                         string("Error parsing xml document ")+RealFilename));
                 break;
             case AVG_ERR_XML_VALID:
-                throw (Exception(AVG_ERR_XML_VALID, 
+                throw (Exception(AVG_ERR_XML_VALID,
                         RealFilename + " does not validate."));
                 break;
             default:
@@ -425,7 +425,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
-        
+
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
         NodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
@@ -482,7 +482,7 @@ bool Player::isStopping()
 {
     return m_bStopping;
 }
- 
+
 void Player::initPlayback()
 {
     m_bIsPlaying = true;
@@ -542,7 +542,7 @@ void Player::setVBlankFramerate(int rate)
         m_DP.m_VBRate = rate;
     }
 }
-        
+
 double Player::getEffectiveFramerate()
 {
     if (m_bIsPlaying) {
@@ -608,7 +608,7 @@ double Player::getFrameDuration()
 TrackerEventSource * Player::addTracker()
 {
     if (!m_pMainCanvas) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
+        throw Exception(AVG_ERR_UNSUPPORTED,
                 "You must use loadFile() before addTracker().");
     }
     m_pMultitouchEventSource = new TrackerEventSource();
@@ -655,7 +655,7 @@ void Player::enableMultitouch()
         XInput21MTEventSource* pXIMTEventSource = new XInput21MTEventSource;
         m_pMultitouchEventSource = pXIMTEventSource;
 #else
-        throw Exception(AVG_ERR_MT_INIT, 
+        throw Exception(AVG_ERR_MT_INIT,
                 "XInput 2.1 multitouch event source: Support not configured.'");
 #endif
 #ifdef AVG_ENABLE_MTDEV
@@ -696,11 +696,11 @@ bool Player::isMultitouchAvailable() const
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
-    std::map<int, EventCaptureInfoPtr>::iterator it = 
+    std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
         EventCaptureInfoPtr pCaptureInfo = it->second;
-        VisibleNodePtr pOldNode = pCaptureInfo->m_pNode.lock(); 
+        VisibleNodePtr pOldNode = pCaptureInfo->m_pNode.lock();
         if (pOldNode == pNode) {
             pCaptureInfo->m_CaptureCount++;
         } else {
@@ -716,7 +716,7 @@ void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 
 void Player::releaseEventCapture(int cursorID)
 {
-    std::map<int, EventCaptureInfoPtr>::iterator it = 
+    std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     if (it == m_EventCaptureInfoMap.end() || (it->second->m_pNode.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
@@ -751,7 +751,7 @@ int Player::setTimeout(int time, PyObject * pyfunc)
     return pTimeout->GetID();
 }
 
-int Player::setOnFrameHandler(PyObject * pyfunc) 
+int Player::setOnFrameHandler(PyObject * pyfunc)
 {
     return setInterval(0, pyfunc);
 }
@@ -817,7 +817,7 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
 {
     IntPoint size = pBmp->getSize();
     if (size.x % 8 != 0 || size.y % 8 != 0 || pBmp->getPixelFormat() != R8G8B8A8) {
-        throw Exception(AVG_ERR_INVALID_ARGS, 
+        throw Exception(AVG_ERR_INVALID_ARGS,
                 "setCursor: Bitmap size must be divisible by 8 and in RGBA format.");
     }
     int i = -1;
@@ -847,7 +847,7 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
         }
         pLine += stride;
     }
-    SDL_Cursor * pCursor = SDL_CreateCursor(pData, pMask, size.x, size.y, 
+    SDL_Cursor * pCursor = SDL_CreateCursor(pData, pMask, size.x, size.y,
             hotSpot.x, hotSpot.y);
     SDL_SetCursor(pCursor);
     delete[] pData;
@@ -862,7 +862,7 @@ VisibleNodePtr Player::getElementByID(const std::string& sID)
         return VisibleNodePtr();
     }
 }
-        
+
 AVGNodePtr Player::getRootNode()
 {
     if (m_pMainCanvas) {
@@ -876,7 +876,7 @@ string Player::getCurDirName()
 {
     return m_CurDirName;
 }
-        
+
 std::string Player::getRootMediaDir()
 {
     string sMediaDir;
@@ -937,7 +937,7 @@ void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
 bool Player::handleEvent(EventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-  
+
     PyObject * pEventHook = getEventHook();
     if (pEventHook != Py_None) {
         // If the catchall returns true, stop processing the event
@@ -949,9 +949,9 @@ bool Player::handleEvent(EventPtr pEvent)
         m_MouseState.setEvent(pMouseEvent);
         pMouseEvent->setLastDownPos(m_MouseState.getLastDownPos());
     }
-    
+
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
-        if (pEvent->getType() == Event::CURSOROUT || 
+        if (pEvent->getType() == Event::CURSOROUT ||
                 pEvent->getType() == Event::CURSOROVER)
         {
             pEvent->trace();
@@ -979,7 +979,7 @@ bool Player::handleEvent(EventPtr pEvent)
             stop();
         }
     }
-    return true; 
+    return true;
 }
 
 static ProfilingZoneID MainProfilingZone("Player - Total frame time");
@@ -1027,7 +1027,7 @@ void Player::doFrame(bool bFirstFrame)
     if (m_pDisplayEngine->wasFrameLate()) {
         ThreadProfiler::get()->dumpFrame();
     }
-    
+
     ThreadProfiler::get()->reset();
 }
 
@@ -1057,7 +1057,7 @@ double Player::getVideoRefreshRate()
 bool Player::isUsingShaders()
 {
     if (!m_pDisplayEngine) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
+        throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.isUsingShaders must be called after Player.play().");
     }
     return m_pDisplayEngine->isUsingShaders();
@@ -1078,11 +1078,11 @@ void Player::initConfig()
 {
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
-    
+
     m_DP.m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
     if (m_DP.m_BPP != 15 && m_DP.m_BPP != 16 && m_DP.m_BPP != 24 && m_DP.m_BPP != 32) {
-        AVG_TRACE(Logger::ERROR, 
-                "BPP must be 15, 16, 24 or 32. Current value is " 
+        AVG_TRACE(Logger::ERROR,
+                "BPP must be 15, 16, 24 or 32. Current value is "
                 << m_DP.m_BPP << ". Aborting." );
         exit(-1);
     }
@@ -1092,20 +1092,20 @@ void Player::initConfig()
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
     if (m_DP.m_WindowSize.x != 0 && m_DP.m_WindowSize.y != 0) {
         AVG_TRACE(Logger::ERROR, "Can't set window width and height at once");
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "(aspect ratio is determined by avg file). Aborting.");
         exit(-1);
     }
 
     m_AP.m_Channels = atoi(pMgr->getOption("aud", "channels")->c_str());
     m_AP.m_SampleRate = atoi(pMgr->getOption("aud", "samplerate")->c_str());
-    m_AP.m_OutputBufferSamples = 
+    m_AP.m_OutputBufferSamples =
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
@@ -1123,8 +1123,8 @@ void Player::initGraphics()
 
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = new SDLDisplayEngine();
-    } 
-    SDLDisplayEngine * pSDLDisplayEngine = 
+    }
+    SDLDisplayEngine * pSDLDisplayEngine =
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
         AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
@@ -1173,7 +1173,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
-        int valid=xmlValidateDtd(cvp, doc, m_dtd);  
+        int valid=xmlValidateDtd(cvp, doc, m_dtd);
         xmlFreeValidCtxt(cvp);
         if (!valid) {
             throw (Exception(AVG_ERR_XML_VALID, ""));
@@ -1181,7 +1181,7 @@ NodePtr Player::internalLoad(const string& sAVG)
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
         NodePtr pNode = createNodeFromXml(doc, xmlNode);
         if (!pNode) {
-            throw (Exception(AVG_ERR_XML_PARSE, 
+            throw (Exception(AVG_ERR_XML_PARSE,
                     "Root node of an avg tree needs to be an <avg> node."));
         }
         if (dynamic_pointer_cast<DivNode>(pNode)->getSize() == DPoint(0, 0)) {
@@ -1218,7 +1218,7 @@ void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])
             NodeDefinition nodeDefinition = m_NodeRegistry.getNodeDef(*ppCurParentName);
             nodeDefinition.addChildren(sChildren);
             m_NodeRegistry.updateNodeDefinition(nodeDefinition);
-            
+
             ++ppCurParentName;
         }
     }
@@ -1249,7 +1249,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
     xmlDocPtr doc;
     doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
     if (!doc) {
-        throw (Exception(AVG_ERR_XML_PARSE, 
+        throw (Exception(AVG_ERR_XML_PARSE,
                     string("Error parsing xml:\n  ")+sXML));
     }
     NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc));
@@ -1260,10 +1260,10 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
     xmlValidCtxtPtr cvp = xmlNewValidCtxt();
     cvp->error = xmlParserValidityError;
     cvp->warning = xmlParserValidityWarning;
-    int valid=xmlValidateDtd(cvp, doc, m_dtd);  
+    int valid=xmlValidateDtd(cvp, doc, m_dtd);
     xmlFreeValidCtxt(cvp);
     if (!valid) {
-        throw (Exception(AVG_ERR_XML_PARSE, 
+        throw (Exception(AVG_ERR_XML_PARSE,
                     "Could not validate '"+sXML+"'"));
     }
 
@@ -1276,8 +1276,8 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
 {
     NodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
-    
-    if (!strcmp (nodeType, "text") || 
+
+    if (!strcmp (nodeType, "text") ||
         !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
         return NodePtr();
@@ -1309,13 +1309,13 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     OffscreenCanvasPtr pCanvas(new OffscreenCanvas(this));
     pCanvas->setRoot(pNode);
     if (findCanvas(pCanvas->getID())) {
-        throw (Exception(AVG_ERR_INVALID_ARGS, 
+        throw (Exception(AVG_ERR_INVALID_ARGS,
                 string("Duplicate canvas id ")+pCanvas->getID()));
     }
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), 
+            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
                     m_pAudioEngine);
         } catch (...) {
             m_pCanvases.pop_back();
@@ -1344,7 +1344,7 @@ void Player::sendFakeEvents()
     }
 }
 
-void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type, 
+void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
         VisibleNodePtr pNode)
 {
     if (pNode) {
@@ -1354,12 +1354,13 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
     }
 }
 
-void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
     // Find all nodes under the cursor.
-    vector<VisibleNodeWeakPtr> pCursorNodes = m_pMainCanvas->getElementsByPos(pos);
+    vector<VisibleNodeWeakPtr> pCursorNodes;
+    pDivNode->getElementsByPos(pos, pCursorNodes);
 
     // Determine the nodes the event should be sent to.
     vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
@@ -1371,7 +1372,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         } else {
             pDestNodes = pEventCaptureNode.lock()->getParentChain();
         }
-    } 
+    }
 
     vector<VisibleNodeWeakPtr> pLastCursorNodes;
     {
@@ -1397,13 +1398,13 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                 sendOver(pEvent, Event::CURSOROUT, pLastNode);
             }
         }
-    } 
+    }
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
         VisibleNodePtr pCurNode = itCur->lock();
-        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
-                ++itLast) 
+        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
+                ++itLast)
         {
             if (itLast->lock() == pCurNode) {
                 break;
@@ -1414,7 +1415,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                 sendOver(pEvent, Event::CURSOROVER, pCurNode);
             }
         }
-    } 
+    }
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
@@ -1435,6 +1436,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             }
         }
     }
+
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
         if (bIsCapturing) {
@@ -1445,7 +1447,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
                 VisibleNodePtr pNode = it->lock();
                 sendOver(pEvent, Event::CURSOROUT, pNode);
-            } 
+            }
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
@@ -1457,6 +1459,16 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
         }
     }
+}
+
+void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent)
+{
+    handleCursorEvent(pDivNode, pEvent, false);
+}
+
+void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+{
+    handleCursorEvent(m_pMainCanvas->getRootNode(), pEvent, bOnlyCheckCursorOver);
 }
 
 void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
@@ -1479,7 +1491,7 @@ void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
 void Player::errorIfPlaying(const std::string& sFunc) const
 {
     if (m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
+        throw Exception(AVG_ERR_UNSUPPORTED,
                 sFunc + " must be called before Player.play().");
     }
 }
@@ -1488,9 +1500,9 @@ void Player::handleTimers()
 {
     vector<Timeout *>::iterator it;
     m_bInHandleTimers = true;
-   
+
     it = m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime()) 
+    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime())
             && !m_bStopping)
     {
         (*it)->Fire(getFrameTime());
@@ -1513,7 +1525,7 @@ void Player::handleTimers()
     }
     m_NewTimeouts.clear();
     m_bInHandleTimers = false;
-    
+
 }
 
 DisplayEngine * Player::getDisplayEngine() const
@@ -1547,7 +1559,7 @@ double Player::getVolume() const
 OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
 {
     if (sURL.substr(0, 7) != "canvas:") {
-        throw Exception(AVG_ERR_CANT_PARSE_STRING, 
+        throw Exception(AVG_ERR_CANT_PARSE_STRING,
                 string("Invalid canvas url :'")+sURL+"'");
     }
     string sCanvasID = sURL.substr(7);
@@ -1556,11 +1568,11 @@ OffscreenCanvasPtr Player::getCanvasFromURL(const std::string& sURL)
             return m_pCanvases[i];
         }
     }
-    throw Exception(AVG_ERR_CANT_PARSE_STRING, 
+    throw Exception(AVG_ERR_CANT_PARSE_STRING,
             string("Canvas with url '")+sURL+"' not found.");
 }
 
-void Player::cleanup() 
+void Player::cleanup()
 {
     // Kill all timeouts.
     vector<Timeout*>::iterator it;
@@ -1594,7 +1606,7 @@ void Player::cleanup()
     }
     m_pEventDispatcher = EventDispatcherPtr();
     m_MouseState = MouseState();
-    
+
     m_FrameTime = 0;
     m_bIsPlaying = false;
 
@@ -1627,7 +1639,7 @@ void Player::setPluginPath(const string& newPath)
     PluginManager::get().setSearchPath(newPath);
 }
 
-string Player::getPluginPath() const 
+string Player::getPluginPath() const
 {
     return  PluginManager::get().getSearchPath();
 }

@@ -109,6 +109,7 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     void (Player::*addAndManageEventSource)(IEventSourcePtr) = &Player::addEventSource;
+    void (Player::*handleCursorEvent)(boost::shared_ptr<DivNode>, CursorEventPtr) = &Player::handleCursorEvent;
 
     class_<Player>("Player") 
         .def("get", &Player::get, 
@@ -151,6 +152,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("setOnFrameHandler", &Player::setOnFrameHandler)
         .def("clearInterval", &Player::clearInterval)
         .def("addEventSource", addAndManageEventSource)
+        .def("handleCursorEvent", handleCursorEvent)
         .def("getMouseState", &Player::getMouseState)
         .def("getKeyModifierState", &Player::getKeyModifierState)
         .def("screenshot", &Player::screenshot)
