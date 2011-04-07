@@ -56,7 +56,8 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, bool bThreadedDemuxer);
+        virtual void open(const std::string& sFilename, bool bThreadedDemuxer,
+                bool bUseHardwareAccelleration);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
         virtual DecoderState getState() const;
@@ -92,6 +93,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
     private:
         void initVideoSupport();
+        int openCodec(int streamIndex, bool bUseHardwareAccelleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual double getDuration() const;
         virtual int getNumFrames() const;
