@@ -29,7 +29,6 @@
 #include "../base/ScopeTimer.h"
 #include "../graphics/FilterFlip.h"
 #include "../graphics/Filtergrayscale.h"
-
 #include <oleauto.h>
 
 #include <math.h>
@@ -165,7 +164,24 @@ BitmapPtr DSCamera::getImage(bool bWait)
         return BitmapPtr();
     }
 
-      return pBmp;
+    //if (!bayer_shader) {
+    //    //bayer_shader = GPUBlurFilterPtr(new GPUBlurFilter(pBmp->getSize(), B8G8R8X8, B8G8R8X8, 4.0, true));
+    //    //bayer_shader = GPUNullFilterPtr(new GPUNullFilter(pBmp->getSize(), true));
+    //    //bayer_shader = GPUBayerizePtr(new GPUBayerize(pBmp->getSize(), B8G8R8X8, B8G8R8X8, true));
+    //    //bayer_shader = GPULaplaceDemosaicPtr(new GPULaplaceDemosaic(pBmp->getSize(), B8G8R8X8, B8G8R8X8, true));
+    //    //bayer_shader = GPUFuzzyDemosaicPtr(new GPUFuzzyDemosaic(pBmp->getSize(), B8G8R8X8, B8G8R8X8, true));
+    //    bayer_shader = GPUBilinDemosaicPtr(new GPUBilinDemosaic(pBmp->getSize(), B8G8R8X8, B8G8R8X8, true));
+    //}
+
+    //if (pBmp)
+    //{
+    //    glMatrixMode(GL_MODELVIEW);
+    //    glPushMatrix();
+    //    bayer_shader->applyInPlace(pBmp);
+    //    glPopMatrix();
+    //}
+
+    return pBmp;
 }
 
 void DSCamera::setCaptureFormat()

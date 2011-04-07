@@ -30,6 +30,14 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
+//#include "../graphics/GPUFilter.h"
+//#include "../graphics/GPUFuzzyDemosaic.h"
+//#include "../graphics/GPUBilinDemosaic.h"
+//#include "../graphics/GPULaplaceDemosaic.h"
+//#include "../graphics/GPUBayerize.h"
+//#include "../graphics/GPUBrightnessFilter.h"
+//#include "../graphics/GPUBlurFilter.h"
+//#include "../graphics/GPUNullFilter.h"
 
 #include "../base/Point.h"
 #include "../base/Queue.h"
@@ -44,6 +52,14 @@
 namespace avg {
 
 class DSCamera: public Camera {
+public:
+    //GPUBlurFilterPtr bayer_shader;
+    //GPUBayerizePtr bayer_shader;
+    //GPUFuzzyDemosaicPtr bayer_shader;
+    //GPUNullFilterPtr bayer_shader;
+    //GPULaplaceDemosaicPtr bayer_shader;
+    //GPUBilinDemosaicPtr bayer_shader;
+
 public:
     DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF, 
             PixelFormat destPF, double FrameRate);

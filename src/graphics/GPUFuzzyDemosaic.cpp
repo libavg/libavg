@@ -22,7 +22,7 @@ GPUFuzzyDemosaic::GPUFuzzyDemosaic(const IntPoint& size, PixelFormat pfSrc, Pixe
     : GPUFilter(size, pfSrc, pfDest, bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-
+    
     initShaders();
 }
 
@@ -36,17 +36,20 @@ void GPUFuzzyDemosaic::applyOnGPU(GLTexturePtr pSrcTex)
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr step1_Shader = getShader(SHADERID_STEP_1);
     step1_Shader->activate();
+    step1_Shader->setUniformIntParam("texture", 0);
     draw(pSrcTex);
 
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     OGLShaderPtr step2_Shader = getShader(SHADERID_STEP_2);
     step2_Shader->activate();
-    draw(getDestTex(0));
+    step2_Shader->setUniformIntParam("texture", 0);
+    draw(getDestTex(1));
 
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr step3_Shader = getShader(SHADERID_STEP_3);
     step3_Shader->activate();
-    draw(getDestTex(1));
+    step3_Shader->setUniformIntParam("texture", 0);
+    draw(getDestTex(0));
 
     glproc::UseProgramObject(0);
 }

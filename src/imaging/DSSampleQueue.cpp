@@ -18,7 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
+    
+    
 #include "DSSampleQueue.h"
 #include "DSHelper.h"
 #include "Camera.h"
@@ -30,7 +31,8 @@ namespace avg {
 DSSampleQueue::DSSampleQueue(IntPoint Size, PixelFormat CameraPF, PixelFormat DestPF)
     : m_Size(Size),
       m_CameraPF(CameraPF),
-      m_DestPF(DestPF)
+      m_DestPF(DestPF),
+      m_BitmapQ(2)
 {
 }
 
@@ -52,8 +54,11 @@ STDMETHODIMP DSSampleQueue::SampleCB(double SampleTime, IMediaSample *pSample)
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(CamBmp);
 
-      //pDestBmp = convertCamFrameToDestPF(CamBmp);
     m_BitmapQ.push(pDestBmp);
+
+    //if ((m_BitmapQ.size()+1 < m_BitmapQ.getMaxSize()) ) {
+    //    m_BitmapQ.push(pDestBmp);
+    //}
 
     return S_OK;
 }
@@ -66,6 +71,7 @@ STDMETHODIMP DSSampleQueue::BufferCB(double SampleTime, BYTE *pBuffer, long Buff
 BitmapPtr DSSampleQueue::getImage(bool bBlock)
 {
     // Image is upside-down and contains an invalid alpha channel at this point.
+    //m_BitmapQ.
     return m_BitmapQ.pop(bBlock);
 }
 

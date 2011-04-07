@@ -35,7 +35,6 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
     }
-
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);

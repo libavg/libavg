@@ -57,6 +57,7 @@ private:
     PixelFormat m_CameraPF;
     PixelFormat m_DestPF;
     Queue<Bitmap> m_BitmapQ;
+    
 };
 
 }

@@ -46,7 +46,6 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
     }
-
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
         if (bMipmap) {

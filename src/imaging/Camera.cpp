@@ -85,6 +85,16 @@ BitmapPtr Camera::convertCamFrameToDestPF(BitmapPtr pCamBmp)
         pDestBmp->setPixelFormat(R8G8B8X8);
         FilterFlipRGB().applyInPlace(pDestBmp);
     }
+    
+    //cerr << "dest format: " << m_CamPF<<"\n";
+
+    //pDestBmp->setPixelFormat(R8G8B8X8);
+    //pDestBmp = GPUDemosaic(pDestBmp->getSize(), R8G8B8X8, R8G8B8X8, true).apply(pDestBmp);
+    //GPUFuzzyDemosaic(pDestBmp->getSize(), B8G8R8X8, B8G8R8X8, true).applyInPlace(pDestBmp);
+    //if (m_CamPF == BAYER8 && m_DestPF == B8G8R8X8) {
+    //    pDestBmp->setPixelFormat(R8G8B8X8);
+    //   FilterFlipRGB().applyInPlace(pDestBmp);  
+    //}
 
     //TODO apply filter here
 

@@ -32,6 +32,7 @@ void GPUBilinDemosaic::applyOnGPU(GLTexturePtr pSrcTex)
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr step1_Shader = getShader(SHADERID_STEP_1);
     step1_Shader->activate();
+    step1_Shader->setUniformIntParam("texture", 0);
     draw(pSrcTex);
 
     glproc::UseProgramObject(0);
