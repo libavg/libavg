@@ -173,7 +173,6 @@ void AsyncVideoDecoder::seek(double destTime)
                     m_LastAudioFrameTime = pMsg->getSeekAudioFrameTime();
                     break;
                 case VideoMsg::FRAME:
-                case VideoMsg::VDPAU_FRAME:
                     returnFrame(pMsg);
                     break;
                 default:
@@ -293,8 +292,8 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
             for (unsigned i = 0; i < pBmps.size(); ++i) {
                 pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
             }
+            returnFrame(pFrameMsg);
         }
-        returnFrame(pFrameMsg);
     }
     return frameAvailable;
 }
@@ -394,7 +393,9 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(double timeWanted,
                 return VideoMsgPtr();
             }
             while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
-                returnFrame(pFrameMsg);
+                if (pFrameMsg && pFrameMsg->getType() == VideoMsg::FRAME) {
+                    returnFrame(pFrameMsg);
+                }
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
                     frameTime = pFrameMsg->getFrameTime();
@@ -461,8 +462,9 @@ void AsyncVideoDecoder::waitForSeekDone()
                     m_LastAudioFrameTime = pMsg->getSeekAudioFrameTime();
                     break;
                 case VideoMsg::FRAME:
-                case VideoMsg::VDPAU_FRAME:
                     returnFrame(pMsg);
+                    break;
+                case VideoMsg::VDPAU_FRAME:
                     break;
                 default:
                     // TODO: Handle ERROR messages here.

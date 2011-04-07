@@ -134,9 +134,6 @@ void VideoDecoderThread::setFPS(double fps)
 
 void VideoDecoderThread::returnFrame(VideoMsgPtr pMsg)
 {
-    if (pMsg->getType() == VideoMsg::VDPAU_FRAME) {
-        return;
-    }
     m_pBmpQ->push(pMsg->getFrameBitmap(0));
     PixelFormat pf = m_pDecoder->getPixelFormat();
     if (pixelFormatIsPlanar(pf)) {
