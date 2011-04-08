@@ -52,6 +52,11 @@ using namespace std;
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(fakeMouseEvent_overloads, 
         TestHelper::fakeMouseEvent, 7, 8);
 
+void handleCursorEvent(Player* pPlayer, boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent)
+{
+    pPlayer->handleCursorEvent(pDivNode, pEvent, false);
+}
+
 BOOST_PYTHON_MODULE(avg)
 {
     docstring_options doc_options(true, false);
@@ -109,7 +114,6 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     void (Player::*addAndManageEventSource)(IEventSourcePtr) = &Player::addEventSource;
-    void (Player::*handleCursorEvent)(boost::shared_ptr<DivNode>, CursorEventPtr) = &Player::handleCursorEvent;
 
     class_<Player>("Player") 
         .def("get", &Player::get, 

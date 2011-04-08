@@ -1461,11 +1461,6 @@ void Player::handleCursorEvent(shared_ptr<DivNode> pDivNode, CursorEventPtr pEve
     }
 }
 
-void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent)
-{
-    handleCursorEvent(pDivNode, pEvent, false);
-}
-
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     handleCursorEvent(m_pMainCanvas->getRootNode(), pEvent, bOnlyCheckCursorOver);

@@ -173,7 +173,7 @@ class AVG_API Player: IEventSink
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
         virtual bool handleEvent(EventPtr pEvent);
-        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent);
+        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
         
     private:
         void initConfig();
@@ -195,7 +195,7 @@ class AVG_API Player: IEventSink
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type type, VisibleNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
-        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver);
+
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
 
         void errorIfPlaying(const std::string& sFunc) const;
