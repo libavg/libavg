@@ -7,7 +7,7 @@ else
     X_LIBS = -lX11
 endif
 
-ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
+ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h VideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h \
         PacketVideoMsg.h AsyncVideoDecoder.h VideoDecoderThread.h \
         IDemuxer.h AsyncDemuxer.h VideoInfo.h WrapFFMpeg.h
@@ -28,7 +28,7 @@ noinst_LTLIBRARIES = libvideo.la
 noinst_PROGRAMS=testvideo
 
 libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp \
-        VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp IVideoDecoder.cpp \
+        VideoDecoderThread.cpp AudioDecoderThread.cpp VideoMsg.cpp VideoDecoder.cpp \
         PacketVideoMsg.cpp AsyncVideoDecoder.cpp AsyncDemuxer.cpp VideoInfo.cpp \
         $(ALL_H)
 

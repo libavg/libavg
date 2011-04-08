@@ -405,7 +405,7 @@ void FFMpegDecoder::close()
     m_State = CLOSED;
 }
 
-IVideoDecoder::DecoderState FFMpegDecoder::getState() const
+VideoDecoder::DecoderState FFMpegDecoder::getState() const
 {
     return m_State;
 }

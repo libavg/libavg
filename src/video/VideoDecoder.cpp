@@ -19,24 +19,24 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "../base/Exception.h"
 
 namespace avg {
 
-inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
+FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);
     return renderToBmps(pBmps, timeWanted);
 }
 
-inline bool IVideoDecoder::usesVDPAU() const
+bool VideoDecoder::usesVDPAU() const
 {
     return false;
 }
 
-inline FrameAvailableCode IVideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
+FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
     AVG_ASSERT(false);
 }

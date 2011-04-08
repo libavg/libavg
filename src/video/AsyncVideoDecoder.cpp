@@ -130,7 +130,7 @@ void AsyncVideoDecoder::close()
     }        
 }
 
-IVideoDecoder::DecoderState AsyncVideoDecoder::getState() const
+VideoDecoder::DecoderState AsyncVideoDecoder::getState() const
 {
     return m_State;
 }

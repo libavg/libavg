@@ -485,7 +485,7 @@ PixelFormat VideoNode::getPixelFormat() const
 
 IntPoint VideoNode::getMediaSize()
 {
-    if (m_pDecoder && m_pDecoder->getState() != IVideoDecoder::CLOSED) {
+    if (m_pDecoder && m_pDecoder->getState() != VideoDecoder::CLOSED) {
         return m_pDecoder->getSize();
     } else {
         return IntPoint(0,0);

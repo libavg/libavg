@@ -25,7 +25,7 @@
 #define _AudioDecoderThread_H_
 
 #include "../avgconfigwrapper.h"
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"

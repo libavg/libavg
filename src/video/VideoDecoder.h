@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoDecoder_H_
-#define _IVideoDecoder_H_
+#ifndef _VideoDecoder_H_
+#define _VideoDecoder_H_
 
 #include "../api.h"
 
@@ -43,11 +43,11 @@ enum StreamSelect {
     SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_ALL
 };
 
-class AVG_API IVideoDecoder
+class AVG_API VideoDecoder
 {
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
-        virtual ~IVideoDecoder() {};
+        virtual ~VideoDecoder() {};
         virtual void open(const std::string& sFilename, bool bSyncDemuxer,
                 bool bUseHardwareAcceleration = true) = 0;
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP) = 0;
@@ -80,7 +80,7 @@ class AVG_API IVideoDecoder
         virtual bool usesVDPAU() const;
 };
 
-typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
+typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;
 
 }
 #endif 

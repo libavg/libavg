@@ -23,7 +23,7 @@
 #define _AsyncVideoDecoder_H_
 
 #include "../api.h"
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "VideoDecoderThread.h"
 #include "AudioDecoderThread.h"
 #include "VideoMsg.h"
@@ -37,7 +37,7 @@
 
 namespace avg {
 
-class AVG_API AsyncVideoDecoder: public IVideoDecoder
+class AVG_API AsyncVideoDecoder: public VideoDecoder
 {
 public:
     AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder, int queueLength);

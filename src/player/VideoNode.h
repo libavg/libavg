@@ -34,10 +34,11 @@
 #include "../base/UTF8String.h"
 
 #include "../audio/IAudioSource.h"
+#include "../video/VideoDecoder.h"
 
 namespace avg {
 
-class IVideoDecoder;
+class VideoDecoder;
 
 class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
 {
@@ -133,7 +134,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         long long m_PauseStartTime;
         double m_JitterCompensation;
 
-        IVideoDecoder * m_pDecoder;
+        VideoDecoder * m_pDecoder;
         double m_Volume;
 };
 

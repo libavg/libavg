@@ -23,7 +23,7 @@
 #define _FFMpegDecoder_H_
 
 #include "../avgconfigwrapper.h"
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "IDemuxer.h"
 
 #include "../audio/AudioParams.h"
@@ -45,7 +45,7 @@ namespace avg {
 
 class AudioBuffer;
 
-class AVG_API FFMpegDecoder: public IVideoDecoder
+class AVG_API FFMpegDecoder: public VideoDecoder
 {
     public:
         FFMpegDecoder();
