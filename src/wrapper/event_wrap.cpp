@@ -86,7 +86,8 @@ void export_event()
         .add_property("when", &Event::getWhen)
         .add_property("eventsource",
                       make_function(&Event::getEventSource,
-                                    return_value_policy<copy_const_reference>()))
+                                    return_value_policy<copy_const_reference>()),
+                      &Event::setEventSource)
         .add_property("eventsourcename",
                       make_function(&Event::getEventSourceName,
                                     return_value_policy<copy_const_reference>()))
