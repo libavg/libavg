@@ -113,8 +113,6 @@ BOOST_PYTHON_MODULE(avg)
         .def("dumpObjects", &TestHelper::dumpObjects)
     ;
 
-    void (Player::*addAndManageEventSource)(IEventSourcePtr) = &Player::addEventSource;
-
     class_<Player>("Player") 
         .def("get", &Player::get, 
                 return_value_policy<reference_existing_object>())
@@ -155,7 +153,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("setTimeout", &Player::setTimeout)
         .def("setOnFrameHandler", &Player::setOnFrameHandler)
         .def("clearInterval", &Player::clearInterval)
-        .def("addEventSource", addAndManageEventSource)
+        .def("addEventSource", &Player::addEventSource)
         .def("handleCursorEvent", handleCursorEvent)
         .def("getMouseState", &Player::getMouseState)
         .def("getKeyModifierState", &Player::getKeyModifierState)

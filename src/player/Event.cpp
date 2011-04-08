@@ -40,7 +40,7 @@ Event::Event(Type type, Source source, int when)
     : m_Type(type),
       m_pNode(),
       m_Source(source),
-      m_pEventSource(NULL)
+      m_pEventSource()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
@@ -79,7 +79,7 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-const IEventSource* Event::getEventSource() const
+const IEventSourcePtr& Event::getEventSource() const
 {
     return m_pEventSource;
 }
@@ -89,7 +89,7 @@ bool Event::hasEventSource() const
     return m_pEventSource != NULL;
 }
 
-void Event::setEventSource(const IEventSource* eventSource)
+void Event::setEventSource(IEventSourcePtr eventSource)
 {
     m_pEventSource = eventSource;
 }

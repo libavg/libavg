@@ -41,7 +41,6 @@ class AVG_API EventDispatcher {
         virtual ~EventDispatcher();
         void dispatch();
         
-        void addSource(IEventSource * pSource);
         void addSource(IEventSourcePtr pSource);
         void addSink(IEventSink * pSink);
 
@@ -50,10 +49,8 @@ class AVG_API EventDispatcher {
     private:
         void handleEvent(EventPtr pEvent);
 
-        std::vector<IEventSource*> m_EventSources;
+        std::vector<IEventSourcePtr> m_EventSources;
         std::vector<IEventSink*> m_EventSinks;
-
-        std::vector<IEventSourcePtr> m_ManagedEventSources;
 
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;

@@ -33,6 +33,8 @@
 
 #include "../base/Rect.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <string>
 
 namespace avg {
@@ -101,6 +103,8 @@ class AVG_API DisplayEngine
 
         double m_EffFramerate;
 };
+
+typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 
 }
 

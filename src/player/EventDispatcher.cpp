@@ -41,7 +41,7 @@ void EventDispatcher::dispatch()
     vector<EventPtr> events;
 
     for (unsigned int i = 0; i < m_EventSources.size(); ++i) {
-        IEventSource* pCurEventSource = m_EventSources[i];
+        IEventSourcePtr pCurEventSource = m_EventSources[i];
 
         vector<EventPtr> curEvents = pCurEventSource->pollEvents();
         vector<EventPtr>::iterator eventIt = curEvents.begin();
@@ -58,15 +58,9 @@ void EventDispatcher::dispatch()
     }
 }
 
-void EventDispatcher::addSource(IEventSource * pSource)
-{
-    m_EventSources.push_back(pSource);
-}
-
 void EventDispatcher::addSource(IEventSourcePtr pSource)
 {
-    m_ManagedEventSources.push_back(pSource);
-    addSource(pSource.get());
+    m_EventSources.push_back(pSource);
 }
 
 void EventDispatcher::addSink(IEventSink * pSink)

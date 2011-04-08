@@ -47,6 +47,11 @@ class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
         {
         }
 
+        IEventSourceWrapper(const IEventSourceWrapper& eventSourceWrapper)
+            : IEventSource(eventSourceWrapper)
+        {
+        }
+
         virtual void start() {
             if (override startMethod = this->get_override("start")) {
                 startMethod();
@@ -81,7 +86,7 @@ void export_event()
         .add_property("when", &Event::getWhen)
         .add_property("eventsource",
                       make_function(&Event::getEventSource,
-                                    return_value_policy<reference_existing_object>()))
+                                    return_value_policy<copy_const_reference>()))
         .add_property("eventsourcename",
                       make_function(&Event::getEventSourceName,
                                     return_value_policy<copy_const_reference>()))
@@ -198,6 +203,9 @@ void export_event()
         .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
         .value("IMG_HIGHPASS", TRACKER_IMG_HIGHPASS)
         .export_values()
+    ;
+
+    class_<IEventSourcePtr>("IEventSource")
     ;
 
     class_<IEventSourceWrapper, boost::shared_ptr<IEventSourceWrapper> >("EventSource", init<const std::string&>())

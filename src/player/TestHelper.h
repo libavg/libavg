@@ -27,6 +27,8 @@
 #include "Event.h"
 #include "IEventSource.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <vector>
 
 namespace avg {
@@ -60,6 +62,7 @@ class AVG_API TestHelper : public IEventSource
         std::vector<EventPtr> m_Events;
 };
 
+typedef boost::shared_ptr<TestHelper> TestHelperPtr;
 }
 
 #endif

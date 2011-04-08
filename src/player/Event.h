@@ -61,8 +61,8 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        const IEventSource* getEventSource() const;
-        void setEventSource(const IEventSource* eventSource);
+        const boost::shared_ptr<IEventSource>& getEventSource() const;
+        void setEventSource(boost::shared_ptr<IEventSource> eventSource);
         bool hasEventSource() const;
         const std::string& getEventSourceName() const;
         VisibleNodePtr getElement() const;
@@ -82,7 +82,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
-        const IEventSource* m_pEventSource;
+        boost::shared_ptr<IEventSource> m_pEventSource;
         static int s_CurCounter;
 };
 

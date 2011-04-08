@@ -97,9 +97,9 @@ namespace avg {
 Player * Player::s_pPlayer=0;
 
 Player::Player()
-    : m_pDisplayEngine(0),
+    : m_pDisplayEngine(),
       m_pAudioEngine(0),
-      m_pMultitouchEventSource(0),
+      m_pMultitouchEventSource(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
       m_bStopOnEscape(true),
@@ -142,7 +142,7 @@ Player::Player()
     registerNodeType(CircleNode::createDefinition());
     registerNodeType(MeshNode::createDefinition());
 
-    m_pTestHelper = new TestHelper();
+    m_pTestHelper = TestHelperPtr(new TestHelper());
 
     // Early initialization of TextEngine singletons (dualton? ;-))
     // to avoid locale clashes with Magick (bug 54)
@@ -170,9 +170,6 @@ void deletePlayer()
 
 Player::~Player()
 {
-    if (m_pDisplayEngine) {
-        delete m_pDisplayEngine;
-    }
 #ifndef _WIN32
 /*
     // This causes libavg progams started under cmd to crash on system shutdown and
@@ -186,7 +183,6 @@ Player::~Player()
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
     }
-    delete m_pTestHelper;
 }
 
 Player* Player::get()
@@ -258,10 +254,10 @@ DPoint Player::getScreenResolution()
 {
     errorIfPlaying("Player.getScreenResolution");
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = new SDLDisplayEngine();
+        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
     }
     DPoint size = DPoint(dynamic_cast<SDLDisplayEngine*>(
-            m_pDisplayEngine)->getScreenResolution());
+            m_pDisplayEngine.get())->getScreenResolution());
     return size;
 }
 
@@ -492,19 +488,19 @@ void Player::initPlayback()
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             m_pCanvases[i]->initPlayback(
-                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine), m_pAudioEngine);
+                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()), m_pAudioEngine);
         }
-        m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
+        m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
                 m_pAudioEngine);
     } catch (Exception&) {
         m_pDisplayEngine->teardown();
-        m_pDisplayEngine = 0;
+        m_pDisplayEngine = DisplayEnginePtr();
         if (m_pAudioEngine) {
             m_pAudioEngine->teardown();
         }
         throw;
     }
-    m_pEventDispatcher->addSource(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine));
+    m_pEventDispatcher->addSource(boost::dynamic_pointer_cast<IEventSource>(m_pDisplayEngine));
     m_pEventDispatcher->addSource(m_pTestHelper);
     m_pEventDispatcher->addSink(this);
 
@@ -554,7 +550,7 @@ double Player::getEffectiveFramerate()
 
 TestHelper * Player::getTestHelper()
 {
-    return m_pTestHelper;
+    return m_pTestHelper.get();
 }
 
 void Player::setFakeFPS(double fps)
@@ -572,17 +568,12 @@ void Player::setFakeFPS(double fps)
     }
 }
 
-void Player::addEventSource(IEventSource* pSource)
+void Player::addEventSource(IEventSourcePtr pSource)
 {
     if (!m_pEventDispatcher) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "You must use loadFile() before addEventSource().");
     }
-    m_pEventDispatcher->addSource(pSource);
-}
-
-void Player::addEventSource(IEventSourcePtr pSource)
-{
     m_pEventDispatcher->addSource(pSource);
 }
 
@@ -611,19 +602,19 @@ TrackerEventSource * Player::addTracker()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "You must use loadFile() before addTracker().");
     }
-    m_pMultitouchEventSource = new TrackerEventSource();
+    m_pMultitouchEventSource = IEventSourcePtr(new TrackerEventSource());
     addEventSource(m_pMultitouchEventSource);
     if (m_bIsPlaying) {
         m_pMultitouchEventSource->start();
     }
 
-    return dynamic_cast<TrackerEventSource*>(m_pMultitouchEventSource);
+    return dynamic_cast<TrackerEventSource*>(m_pMultitouchEventSource.get());
 }
 
 TrackerEventSource * Player::getTracker()
 {
     TrackerEventSource* pTracker = dynamic_cast<TrackerEventSource*>(
-            m_pMultitouchEventSource);
+            m_pMultitouchEventSource.get());
     return pTracker;
 }
 
@@ -645,14 +636,14 @@ void Player::enableMultitouch()
 #endif
     }
     if (sDriver == "TUIO") {
-        m_pMultitouchEventSource = new TUIOEventSource;
+        m_pMultitouchEventSource = IEventSourcePtr(new TUIOEventSource);
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchEventSource = new Win7TouchEventSource;
+        m_pMultitouchEventSource = IEventSourcePtr(new Win7TouchEventSource);
 #endif
     } else if (sDriver == "XINPUT21") {
 #ifdef HAVE_XI2_1
-        XInput21MTEventSource* pXIMTEventSource = new XInput21MTEventSource;
+        XInput21MTEventSource* pXIMTEventSource = IEventSourcePtr(new XInput21MTEventSource)
         m_pMultitouchEventSource = pXIMTEventSource;
 #else
         throw Exception(AVG_ERR_MT_INIT,
@@ -660,14 +651,14 @@ void Player::enableMultitouch()
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {
-        m_pMultitouchEventSource = new LibMTDevEventSource;
+        m_pMultitouchEventSource = IEventSourcePtr(new LibMTDevEventSource);
 #endif
 #ifdef __APPLE__
     } else if (sDriver == "APPLETRACKPAD") {
-        m_pMultitouchEventSource = new AppleTrackpadEventSource;
+        m_pMultitouchEventSource = IEventSourcePtr(new AppleTrackpadEventSource);
 #endif
     } else if (sDriver == "TRACKER") {
-        m_pMultitouchEventSource = new TrackerEventSource;
+        m_pMultitouchEventSource = IEventSourcePtr(new TrackerEventSource);
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
@@ -676,8 +667,7 @@ void Player::enableMultitouch()
         try {
             m_pMultitouchEventSource->start();
         } catch (Exception&) {
-            delete m_pMultitouchEventSource;
-            m_pMultitouchEventSource = 0;
+            m_pMultitouchEventSource = IEventSourcePtr();
             throw;
         }
     }
@@ -1122,10 +1112,10 @@ void Player::initGraphics()
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = new SDLDisplayEngine();
+        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
     }
     SDLDisplayEngine * pSDLDisplayEngine =
-            dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
+            dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine.get());
     if (pSDLDisplayEngine) {
         AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
         m_GLConfig.log();
@@ -1315,7 +1305,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine),
+            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
                     m_pAudioEngine);
         } catch (...) {
             m_pCanvases.pop_back();
@@ -1525,7 +1515,7 @@ void Player::handleTimers()
 
 DisplayEngine * Player::getDisplayEngine() const
 {
-    return m_pDisplayEngine;
+    return m_pDisplayEngine.get();
 }
 
 void Player::setStopOnEscape(bool bStop)
@@ -1584,8 +1574,7 @@ void Player::cleanup()
     }
 
     if (m_pMultitouchEventSource) {
-        delete m_pMultitouchEventSource;
-        m_pMultitouchEventSource = 0;
+        m_pMultitouchEventSource = IEventSourcePtr();
     }
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
         m_pCanvases[i]->stopPlayback();

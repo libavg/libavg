@@ -35,6 +35,7 @@
 #include "MouseEvent.h"
 #include "CursorState.h"
 #include "MouseState.h"
+#include "TestHelper.h"
 
 #include "../audio/AudioParams.h"
 
@@ -49,7 +50,6 @@ namespace avg {
 class AudioEngine;
 class Node;
 class VisibleNode;
-class TestHelper;
 class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
@@ -120,7 +120,6 @@ class AVG_API Player: IEventSink
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
 
-        void addEventSource(IEventSource* pSource);
         void addEventSource(IEventSourcePtr pSource);
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
@@ -202,15 +201,15 @@ class AVG_API Player: IEventSink
 
         MainCanvasPtr m_pMainCanvas;
 
-        DisplayEngine * m_pDisplayEngine;
+        DisplayEnginePtr m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
-        TestHelper * m_pTestHelper;
+        TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
         bool m_bStopping;
         NodeRegistry m_NodeRegistry;
 
-        IEventSource* m_pMultitouchEventSource;
+        IEventSourcePtr m_pMultitouchEventSource;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);
