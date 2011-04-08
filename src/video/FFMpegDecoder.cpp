@@ -945,7 +945,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
 #ifdef AVG_ENABLE_VDPAU
         } else if (destFmt == PIX_FMT_BGRA && usesVDPAU()) {
             vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
-            getPlanesFromVDPAU(pRenderState, pBmp);
+            getBitmapFromVDPAU(pRenderState, pBmp);
 #endif
         } else {
             if (!m_pSwsContext) {
@@ -1210,7 +1210,7 @@ void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
     VDPAU::unlockSurface(pRenderState);    
 }
 
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
+void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
 {
     IntPoint YSize = pBmpDest->getSize();
     IntPoint UVSize(YSize.x>>1, YSize.y);

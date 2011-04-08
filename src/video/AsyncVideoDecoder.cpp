@@ -285,7 +285,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
             if (pixelFormatIsPlanar(m_PF)) {
                 getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
             } else {
-                getPlanesFromVDPAU(pRenderState, pBmps[0]);
+                getBitmapFromVDPAU(pRenderState, pBmps[0]);
             }
 #endif
         } else {

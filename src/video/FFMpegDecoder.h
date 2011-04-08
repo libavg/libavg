@@ -170,7 +170,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 #ifdef AVG_ENABLE_VDPAU
 void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
         BitmapPtr pBmpU, BitmapPtr pBmpV);
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
+void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
 #endif
 
 }
