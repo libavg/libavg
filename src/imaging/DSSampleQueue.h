@@ -27,7 +27,6 @@
 #include "../graphics/Bitmap.h"
 
 #define _WIN32_DCOM
-#include <winsock2.h>
 #include <windows.h>
 #include "qedit.h"
 
