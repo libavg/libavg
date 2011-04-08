@@ -4,7 +4,7 @@
 from libavg import avg
 
 def moveText():
-    node = player.getElementByID("ClashText")
+    node = player.getElementByID("HelloText")
     if node.x < 200:
         node.x += 1
 

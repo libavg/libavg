@@ -118,7 +118,7 @@ class AVG_API VisibleNode: public Node
         virtual void maybeRender(const DRect& Rect) {};
         virtual void render(const DRect& Rect) {};
 
-        double getEffectiveOpacity();
+        double getEffectiveOpacity() const;
         virtual std::string dump(int indent = 0);
         
         NodeState getState() const;
@@ -141,6 +141,7 @@ class AVG_API VisibleNode: public Node
         void initFilename(std::string& sFilename);
         void checkReload(const std::string& sHRef, const ImagePtr& pImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+        virtual bool isVisible() const;
 
     private:
         struct EventID {

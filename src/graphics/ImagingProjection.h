@@ -19,43 +19,40 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUShadowFilter_H_
-#define _GPUShadowFilter_H_
+#ifndef _ImagingProjection_H_
+#define _ImagingProjection_H_
 
 #include "../api.h"
-#include "GPUFilter.h"
-#include "GLTexture.h"
+
+#include "VertexArray.h"
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 namespace avg {
 
-class AVG_API GPUShadowFilter: public GPUFilter
+class AVG_API ImagingProjection
 {
 public:
-    GPUShadowFilter(const IntPoint& size, const DPoint& offset, double stdDev,
-            double opacity, const Pixel32& color);
-    virtual ~GPUShadowFilter();
-    
-    void setParams(const DPoint& offset, double stdDev, double opacity, 
-            const Pixel32& color);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    ImagingProjection();
+    virtual ~ImagingProjection();
+
+    void setup(IntPoint size);
+    void setup(IntPoint srcSize, IntRect destRect);
+    void activate();
+    void draw();
 
 private:
-    void initShaders();
-    void dumpKernel();
-    void calcKernel();
-    void setDimensions(IntPoint size, double stdDev, const DPoint& offset);
-
-    DPoint m_Offset;
-    double m_StdDev;
-    double m_Opacity;
-    Pixel32 m_Color;
-
-    GLTexturePtr m_pGaussCurveTex;
-    ImagingProjectionPtr m_pProjection2;
+    IntPoint m_SrcSize;
+    IntRect m_DestRect;
+    IntPoint m_Offset;
+    VertexArrayPtr m_pVA;
 };
 
-typedef boost::shared_ptr<GPUShadowFilter> GPUShadowFilterPtr;
+typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 
-} // namespace
-#endif
+}
+
+
+#endif 
+
 

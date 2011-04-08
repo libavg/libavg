@@ -95,6 +95,7 @@ class AVG_API CameraNode : public RasterNode
 
         int getFrameNum() const;
         IntPoint getMediaSize();
+        virtual BitmapPtr getBitmap();
 
         static void dumpCameras();
         static void resetFirewireBus();
@@ -115,8 +116,8 @@ class AVG_API CameraNode : public RasterNode
         CameraPtr m_pCamera;
         int m_FrameNum;
         BitmapPtr m_pCurBmp;
-        BitmapPtr m_pTmpBmp;
         bool m_bIsAutoUpdateCameraImage;
+        bool m_bNewBmp;
 };
 
 }

@@ -82,6 +82,11 @@ BitmapPtr FXNode::getImage()
     return m_pFilter->getImage();
 }
 
+DRect FXNode::getRelDestRect() const
+{
+    return m_pFilter->getRelDestRect();
+}
+
 SDLDisplayEngine* FXNode::getEngine() const
 {
     return m_pEngine;

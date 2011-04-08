@@ -85,34 +85,6 @@ void FBO::deactivate() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
-void FBO::setupImagingProjection() const
-{
-    glViewport(0, 0, m_Size.x, m_Size.y);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, m_Size.x, 0, m_Size.y);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glScaled(m_Size.x, m_Size.y, 1);
-    
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::setupImagingProjection()");
-}
-
-void FBO::drawImagingVertexes()
-{
-    if (!m_pImagingVA) {
-        m_pImagingVA = VertexArrayPtr(new VertexArray);
-        m_pImagingVA->appendPos(DPoint(0,0), DPoint(0,0));
-        m_pImagingVA->appendPos(DPoint(0,1), DPoint(0,1));
-        m_pImagingVA->appendPos(DPoint(1,1), DPoint(1,1));
-        m_pImagingVA->appendPos(DPoint(1,0), DPoint(1,0));
-        m_pImagingVA->appendQuadIndexes(1,0,2,3);
-    }
-    m_pImagingVA->draw();
-}
-
 PixelFormat FBO::getPF() const
 {
     return m_PF;

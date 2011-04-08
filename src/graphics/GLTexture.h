@@ -37,10 +37,13 @@ class AVG_API GLTexture {
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+    GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false,
+            bool bDeleteTex=false);
     virtual ~GLTexture();
 
     void activate(int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
+    void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
     const IntPoint& getSize() const;
     PixelFormat getPF() const;
@@ -56,6 +59,7 @@ private:
     IntPoint m_Size;
     PixelFormat m_pf;
     bool m_bMipmap;
+    bool m_bDeleteTex;
 
     unsigned m_TexID;
 };

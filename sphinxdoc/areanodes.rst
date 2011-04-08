@@ -126,6 +126,10 @@ Area Nodes
 
         .. py:method:: doOneShotWhitebalance()
 
+        .. py:method:: getBitmap() -> Bitmap
+
+            Returns a copy of the last camera frame.
+
         .. py:method:: getWhitebalanceU() -> int
 
         .. py:method:: getWhitebalanceV() -> int
@@ -262,6 +266,10 @@ Area Nodes
             bitmap as source, call setBitmap().  To use an offscreen canvas as source, 
             use the :samp:`canvas:` protocol: :samp:`href="canvas:{id}"`.
 
+        .. py:method:: getBitmap() -> Bitmap
+
+            Returns a copy of the bitmap that the node contains.
+
         .. py:method:: setBitmap(bitmap)
 
             Sets a bitmap to use as content for the ImageNode. Sets href to an empty 
@@ -394,10 +402,6 @@ Area Nodes
             generated for this node. Setting this to :keyword:`True` improves the quality
             of minified nodes. Depending on the graphics card in use, turning on mipmaps
             may cause a performance hit for every image change. Read-only.
-
-        .. py:method:: getBitmap() -> Bitmap
-
-            Returns a copy of the bitmap that the node contains.
 
         .. py:method:: getOrigVertexCoords() -> list
 

@@ -168,17 +168,15 @@ void VectorNode::preRender()
 void VectorNode::maybeRender(const DRect& rect)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
-    if (getActive()) {
-        if (getEffectiveOpacity() > 0.01) {
-            if (getID() != "") {
-                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                        " with ID " << getID());
-            } else {
-                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-            }
-            getDisplayEngine()->setBlendMode(m_BlendMode);
-            render(rect);
+    if (isVisible()) {
+        if (getID() != "") {
+            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                    " with ID " << getID());
+        } else {
+            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
+        getDisplayEngine()->setBlendMode(m_BlendMode);
+        render(rect);
     }
 }
 

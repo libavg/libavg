@@ -36,6 +36,10 @@ BlurFXNode::BlurFXNode()
       m_StdDev(1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    if (!GLTexture::isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "OpenGL configuration doesn't support Blur (no float textures).");
+    }
 }
 
 BlurFXNode::~BlurFXNode()
@@ -53,14 +57,14 @@ void BlurFXNode::setParam(double stdDev)
 {
     m_StdDev = stdDev;
     if (m_pFilter) {
-        m_pFilter->setParam(stdDev);
+        m_pFilter->setStdDev(stdDev);
     }
 }
 
 GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUBlurFilterPtr(new GPUBlurFilter(size, B8G8R8A8, B8G8R8A8, m_StdDev, 
-            false));
+            false, false));
     return m_pFilter;
 }
 

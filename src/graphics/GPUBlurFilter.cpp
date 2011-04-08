@@ -38,14 +38,15 @@ using namespace std;
 namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        double stdDev, bool bStandalone)
-    : GPUFilter(size, pfSrc, pfDest, bStandalone, 2),
-      m_StdDev(stdDev)
+        double stdDev, bool bClipBorders, bool bStandalone)
+    : GPUFilter(pfSrc, pfDest, bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
+    setDimensions(size, stdDev, bClipBorders);
     initShaders();
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    m_bClipBorders = bClipBorders;
+    setStdDev(stdDev);
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -53,10 +54,14 @@ GPUBlurFilter::~GPUBlurFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBlurFilter::setParam(double stdDev)
+void GPUBlurFilter::setStdDev(double stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    setDimensions(getSrcSize(), stdDev, m_bClipBorders);
+    IntRect destRect2(IntPoint(0,0), getDestRect().size());
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
+    m_pProjection2->setup(getDestRect().size(), destRect2);
 }
 
 void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
@@ -72,6 +77,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
+    m_pProjection2->activate();
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
@@ -79,7 +85,8 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
     pVShader->setUniformIntParam("texture", 0);
     pVShader->setUniformIntParam("kernelTex", 1);
-    draw(getDestTex(1));
+    getDestTex(1)->activate(GL_TEXTURE0);
+    m_pProjection2->draw();
     glproc::UseProgramObject(0);
 }
 
@@ -125,5 +132,16 @@ void GPUBlurFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
+void GPUBlurFilter::setDimensions(IntPoint size, double stdDev, bool bClipBorders)
+{
+    
+    if (bClipBorders) {
+        GPUFilter::setDimensions(size);
+    } else {
+        int radius = getBlurKernelRadius(stdDev);
+        IntPoint offset(radius, radius);
+        GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
+    }
+}
 
 }

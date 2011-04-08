@@ -57,7 +57,6 @@ class AVG_API FilledVectorNode : public VectorNode
         void setFillOpacity(double opacity);
 
         virtual void preRender();
-        virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
 
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
@@ -66,6 +65,7 @@ class AVG_API FilledVectorNode : public VectorNode
         Pixel32 getFillColorVal() const;
         DPoint calcFillTexCoord(const DPoint& pt, const DPoint& minPt, 
                 const DPoint& maxPt);
+        virtual bool isVisible() const;
 
     private:
         double m_OldOpacity;

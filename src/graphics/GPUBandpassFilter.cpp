@@ -36,14 +36,14 @@ namespace avg {
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert, bool bStandalone)
-    : GPUFilter(size, pfSrc, B8G8R8A8, bStandalone),
+    : GPUFilter(pfSrc, B8G8R8A8, bStandalone),
       m_PostScale(postScale),
       m_bInvert(bInvert),
-      m_MinFilter(size, pfSrc, R32G32B32A32F, min, false),
-      m_MaxFilter(size, pfSrc, R32G32B32A32F, max, false)
+      m_MinFilter(size, pfSrc, R32G32B32A32F, min, true, false),
+      m_MaxFilter(size, pfSrc, R32G32B32A32F, max, true, false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-
+    setDimensions(size);
     initShader();
 }
 

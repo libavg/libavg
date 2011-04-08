@@ -70,7 +70,8 @@ NodeDefinition CameraNode::createDefinition()
 CameraNode::CameraNode(const ArgList& args)
     : m_bIsPlaying(false),
       m_FrameNum(0),
-      m_bIsAutoUpdateCameraImage(true)
+      m_bIsAutoUpdateCameraImage(true),
+      m_bNewBmp(false)
 {
     args.setMembers(this);
     string sDriver = args.getArgVal<string>("driver");
@@ -245,6 +246,16 @@ IntPoint CameraNode::getMediaSize()
     return m_pCamera->getImgSize();
 }
 
+BitmapPtr CameraNode::getBitmap()
+{
+    if (m_pCurBmp) {
+        return m_pCurBmp;
+    } else {
+        throw Exception(AVG_ERR_CAMERA_NONFATAL, 
+                "CameraNode.getBitmap: No camera image available.");
+    }
+}
+
 void CameraNode::dumpCameras()
 {
     avg::dumpCameras();
@@ -293,38 +304,40 @@ int CameraNode::getFrameNum() const
 }
 
 static ProfilingZoneID CameraFetchImage("Camera fetch image");
+static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
 void CameraNode::preRender()
 {
     VisibleNode::preRender();
-    ScopeTimer Timer(CameraFetchImage);
     if (isAutoUpdateCameraImage()) {
+        ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
+    }
+    if (m_bNewBmp && isVisible()) {
+        m_FrameNum++;
+        BitmapPtr pBmp = getSurface()->lockBmp();
+        if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
+            cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
+                << m_pCurBmp->getPixelFormat() << endl;
+        }
+        AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
+        pBmp->copyPixels(*m_pCurBmp);
+        getSurface()->unlockBmps();
+        {
+            ScopeTimer Timer(CameraDownloadProfilingZone);
+            bind();
+        }
+        renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+        m_bNewBmp = false;
     }
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
-static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
 void CameraNode::render(const DRect& rect)
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        if (m_pCurBmp) {
-            m_FrameNum++;
-            BitmapPtr pBmp = getSurface()->lockBmp();
-            if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
-                cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
-                    << m_pCurBmp->getPixelFormat() << endl;
-            }
-            AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
-            pBmp->copyPixels(*m_pCurBmp);
-            getSurface()->unlockBmps();
-            {
-                ScopeTimer Timer(CameraDownloadProfilingZone);
-                bind();
-            }
-        }
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
@@ -336,12 +349,11 @@ PixelFormat CameraNode::getPixelFormat()
 
 void CameraNode::updateToLatestCameraImage()
 {
-    m_pCurBmp = m_pCamera->getImage(false);
-    if (m_pCurBmp) {
-       BitmapPtr pTempBmp;
-       while (pTempBmp = m_pCamera->getImage(false)) {
-           m_pCurBmp = pTempBmp;
-       }
+    BitmapPtr pTmpBmp = m_pCamera->getImage(false);
+    while (pTmpBmp) {
+        m_bNewBmp = true;
+        m_pCurBmp = pTmpBmp;
+        pTmpBmp = m_pCamera->getImage(false);
     }
 }
 

@@ -164,25 +164,6 @@ void FilledVectorNode::preRender()
     VectorNode::preRender();
 }
 
-void FilledVectorNode::maybeRender(const DRect& Rect)
-{
-    AVG_ASSERT(getState() == NS_CANRENDER);
-    if (getActive()) {
-        if (getEffectiveOpacity() > 0.01 || 
-                getDivParent()->getEffectiveOpacity()*m_FillOpacity > 0.01)
-        {
-            if (getID() != "") {
-                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                        " with ID " << getID());
-            } else {
-                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-            }
-            getDisplayEngine()->setBlendMode(getBlendMode());
-            render(Rect);
-        }
-    }
-}
-
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 
 void FilledVectorNode::render(const DRect& rect)
@@ -224,6 +205,12 @@ DPoint FilledVectorNode::calcFillTexCoord(const DPoint& pt, const DPoint& minPt,
     texPt.y = (m_FillTexCoord2.y-m_FillTexCoord1.y)*(pt.y-minPt.y)/(maxPt.y-minPt.y)
             +m_FillTexCoord1.y;
     return texPt;
+}
+
+bool FilledVectorNode::isVisible() const
+{
+    return getActive() && (getEffectiveOpacity() > 0.01 || 
+            getDivParent()->getEffectiveOpacity()*m_FillOpacity > 0.01);
 }
 
 }

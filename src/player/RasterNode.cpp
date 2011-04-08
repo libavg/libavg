@@ -29,6 +29,7 @@
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
 
 #include <Magick++.h>
 
@@ -110,6 +111,7 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
+    m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection);
     setupFX();
 }
 
@@ -123,6 +125,7 @@ void RasterNode::disconnect(bool bKill)
         m_pSurface->destroy();
     }
     m_pFBO = FBOPtr();
+    m_pImagingProjection = ImagingProjectionPtr();
     AreaNode::disconnect(bKill);
 }
 
@@ -324,15 +327,6 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     setupFX();
 }
 
-BitmapPtr RasterNode::getBitmap()
-{
-    if (m_pSurface) {
-        return m_pSurface->readbackBmp();
-    } else {
-        return BitmapPtr(); 
-    }
-}
-
 void RasterNode::blt32(const DPoint& destSize, double opacity, 
         DisplayEngine::BlendMode mode, bool bPremultipliedAlpha)
 {
@@ -399,6 +393,61 @@ void RasterNode::bind()
     m_bBound = true;
 }
 
+static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
+
+void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color, 
+        bool bPremultipliedAlpha)
+{
+    ScopeTimer Timer(FXProfilingZone);
+    setupFX();
+    getDisplayEngine()->enableGLColorArray(false);
+    getDisplayEngine()->enableTexture(true);
+    if (m_pFXNode) {
+        if (!m_bBound) {
+            bind();
+        }
+        m_pSurface->activate(getMediaSize());
+
+        m_pFBO->activate();
+        clearGLBuffers(GL_COLOR_BUFFER_BIT);
+
+        glColor4d(double(color.getR())/256, double(color.getG())/256, 
+                double(color.getB())/256, 1);
+        if (bPremultipliedAlpha) {
+            glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
+                bPremultipliedAlpha);
+
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+
+        m_pImagingProjection->activate();
+        m_pImagingProjection->draw();
+
+        m_pFBO->deactivate();
+        m_pSurface->deactivate();
+/*
+        static int i=0;
+        stringstream ss;
+        ss << "foo" << i << ".png";
+        BitmapPtr pBmp = m_pFBO->getImage(0);
+        pBmp->save(ss.str());
+  */  
+        m_pFXNode->apply(m_pFBO->getTex());
+        
+        glPopMatrix();
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::renderFX(): glPopMatrix");
+/*        
+        stringstream ss1;
+        ss1 << "bar" << ".png";
+        i++;
+        m_pFXNode->getImage()->save(ss1.str());
+*/
+        glproc::UseProgramObject(0);
+    }
+}
+
 void RasterNode::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
@@ -435,8 +484,11 @@ void RasterNode::setupFX()
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
                     false, getMipmap()));
+            GLTexturePtr pTex = m_pFBO->getTex();
+            pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect(getDisplayEngine());
+            m_pImagingProjection->setup(m_pSurface->getSize());
         }
     }
 }
@@ -447,69 +499,24 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     if (!m_bBound) {
         bind();
     }
-    setupFX();
     getDisplayEngine()->enableGLColorArray(false);
     getDisplayEngine()->enableTexture(true);
-    m_pSurface->activate(getMediaSize());
+    DRect destRect;
     if (m_pFXNode) {
-        m_pFBO->activate();
-        clearGLBuffers(GL_COLOR_BUFFER_BIT);
-
-        glColor4d(double(color.getR())/256, double(color.getG())/256, 
-                double(color.getB())/256, 1);
-        if (bPremultipliedAlpha) {
-            glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
-                bPremultipliedAlpha);
-        
-        glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
-        glDisable(GL_MULTISAMPLE);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-
-        m_pFBO->setupImagingProjection();
-        m_pFBO->drawImagingVertexes();
-
-
-        m_pFBO->deactivate();
-        m_pFBO->copyToDestTexture();
-        m_pSurface->deactivate();
-/*
-        static int i=0;
-        stringstream ss;
-        ss << "foo" << i << ".png";
-        BitmapPtr pBmp = m_pFBO->getImage(0);
-        pBmp->save(ss.str());
-  */  
-        m_pFXNode->apply(m_pFBO->getTex());
-
-        glPopAttrib();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix");
-
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
-/*        
-        stringstream ss1;
-        ss1 << "bar" << i << ".png";
-        i++;
-        m_pFXNode->getImage()->save(ss1.str());
-*/
-        if (getDisplayEngine()->isUsingShaders()) {
-            glproc::UseProgramObject(0);
-        }
+
         getDisplayEngine()->setBlendMode(mode, true);
         glColor4d(1.0, 1.0, 1.0, opacity);
+        DRect relDestRect = m_pFXNode->getRelDestRect();
+        destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
+                relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
+        m_pSurface->activate(getMediaSize());
     //    pBmp->dump(true);
         getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
         glColor4d(double(color.getR())/256, double(color.getG())/256, 
                 double(color.getB())/256, opacity);
+        destRect = DRect(DPoint(0,0), destSize);
     }
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
     FBOPtr pMainFBO = getDisplayEngine()->getMainFBO();
@@ -521,7 +528,8 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         }
     }
     glPushMatrix();
-    glScaled(destSize.x, destSize.y, 1);
+    glTranslated(destRect.tl.x, destRect.tl.y, 1);
+    glScaled(destRect.size().x, destRect.size().y, 1);
 
     if (m_bVertexArrayDirty) {
         m_pVertexes->reset();
