@@ -46,7 +46,6 @@ void export_raster()
         .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords)
         .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords)
         .def("setEffect", &RasterNode::setEffect)
-        .def("getBitmap", &RasterNode::getBitmap)
         .add_property("maxtilewidth", &RasterNode::getMaxTileWidth)
         .add_property("maxtileheight", &RasterNode::getMaxTileHeight)
         .add_property("blendmode", 
@@ -73,6 +72,7 @@ void export_raster()
 
     class_<ImageNode, bases<RasterNode> >("ImageNode", no_init)
         .def("__init__", raw_constructor(createNode<imageNodeName>))
+        .def("getBitmap", &ImageNode::getBitmap)
         .def("setBitmap", &ImageNode::setBitmap)
         .add_property("href", 
                 make_function(&ImageNode::getHRef,
@@ -103,6 +103,7 @@ void export_raster()
                 &CameraNode::setStrobeDuration)
         .def("play", &CameraNode::play)
         .def("stop", &CameraNode::stop)
+        .def("getBitmap", &CameraNode::getBitmap)
         .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)

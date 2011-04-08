@@ -23,6 +23,7 @@
 #include "Bitmap.h"
 
 #include "VertexArray.h"
+#include "ImagingProjection.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
@@ -37,31 +38,61 @@ namespace avg {
 
 thread_specific_ptr<PBOPtr> GPUFilter::s_pFilterKernelPBO;
 
-GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        bool bStandalone, unsigned numTextures)
-    : m_pFBO(new FBO(size, pfDest, numTextures))
+GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
+        unsigned numTextures)
+    : m_PFSrc(pfSrc),
+      m_PFDest(pfDest),
+      m_bStandalone(bStandalone),
+      m_NumTextures(numTextures),
+      m_SrcSize(0,0),
+      m_DestRect(0,0,0,0)
 {
-    if (bStandalone) {
-        m_pSrcTex = GLTexturePtr(new GLTexture(size, pfSrc));
-        m_pSrcPBO = PBOPtr(new PBO(size, pfSrc, GL_STREAM_DRAW));
-    }
     ObjectCounter::get()->incRef(&typeid(*this));
 }
-  
+
 GPUFilter::~GPUFilter()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+void GPUFilter::setDimensions(const IntPoint& srcSize)
+{
+    setDimensions(srcSize, IntRect(IntPoint(0,0), srcSize), GL_CLAMP_TO_EDGE);
+}
+
+void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
+        unsigned texMode)
+{
+    bool bProjectionChanged = false;
+    if (destRect != m_DestRect) {
+        m_pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, m_NumTextures));
+        m_DestRect = destRect;
+        bProjectionChanged = true;
+    }
+    if (m_bStandalone && srcSize != m_SrcSize) {
+        m_pSrcTex = GLTexturePtr(new GLTexture(srcSize, m_PFSrc, false, texMode, 
+                texMode));
+        m_pSrcPBO = PBOPtr(new PBO(srcSize, m_PFSrc, GL_STREAM_DRAW));
+        bProjectionChanged = true;
+    }
+    m_SrcSize = srcSize;
+    if (bProjectionChanged) {
+        m_pProjection = ImagingProjectionPtr(new ImagingProjection);
+        m_pProjection->setup(srcSize, destRect);
+    }
+}
+  
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
+    AVG_ASSERT(m_pFBO);
     m_pSrcPBO->moveBmpToTexture(pBmpSource, m_pSrcTex);
     apply(m_pSrcTex);
     BitmapPtr pFilteredBmp = m_pFBO->getImage();
     BitmapPtr pDestBmp;
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
-        pDestBmp = BitmapPtr(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
+        pDestBmp = BitmapPtr(new Bitmap(m_DestRect.size(),
+                pBmpSource->getPixelFormat()));
         pDestBmp->copyPixels(*pFilteredBmp);
     } else {
         pDestBmp = pFilteredBmp;
@@ -72,7 +103,7 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
     m_pFBO->activate();
-    m_pFBO->setupImagingProjection();
+    m_pProjection->activate();
     applyOnGPU(pSrcTex);
     m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
@@ -93,6 +124,23 @@ FBOPtr GPUFilter::getFBO()
     return m_pFBO;
 }
 
+const IntRect& GPUFilter::getDestRect() const
+{
+    return m_DestRect;
+}
+
+const IntPoint& GPUFilter::getSrcSize() const
+{
+    return m_SrcSize;
+}
+
+DRect GPUFilter::getRelDestRect() const
+{
+    DPoint srcSize(m_SrcSize);
+    return DRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
+            m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
+}
+
 void GPUFilter::glContextGone()
 {
     s_pFilterKernelPBO.reset();
@@ -101,12 +149,7 @@ void GPUFilter::glContextGone()
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
-    m_pFBO->drawImagingVertexes();
-}
-
-const IntPoint& GPUFilter::getSize() const
-{
-    return m_pFBO->getSize();
+    m_pProjection->draw();
 }
 
 const string& GPUFilter::getStdShaderCode() const
@@ -114,7 +157,9 @@ const string& GPUFilter::getStdShaderCode() const
     static string sCode = 
         "void unPreMultiplyAlpha(inout vec4 color)\n"
         "{\n"
-        "    color.rgb /= color.a;\n"
+        "    if (color.a > 0.0) {\n"
+        "       color.rgb /= color.a;\n"
+        "    }\n"
         "}\n"
         "\n"
         "void preMultiplyAlpha(inout vec4 color)\n"
@@ -137,36 +182,46 @@ void dumpKernel(int width, float* pKernel)
     cerr << "Sum of coefficients: " << sum << endl;
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
-// If opacity is -1, this is a brightness-preserving blur.
-// Otherwise, opacity is the coefficient of the center pixel.
+int GPUFilter::getBlurKernelRadius(double stdDev) const
 {
-    int kernelCenter = int(ceil(stdDev*3));
-    int kernelWidth = kernelCenter*2+1;
-    float* pKernel;
-    pKernel = new float[kernelWidth];
-    float sum = 0;
-    for (int i = 0; i <= kernelCenter; ++i) {
-        pKernel[kernelCenter+i] = float(exp(-i*i/(2*stdDev*stdDev))
-                /sqrt(2*PI*stdDev*stdDev));
-        sum += pKernel[kernelCenter+i];
-        if (i != 0) {
-            pKernel[kernelCenter-i] = pKernel[kernelCenter+i];
-            sum += pKernel[kernelCenter-i];
-        }
-    }
+    return int(ceil(stdDev*3));
+}
 
-    if (opacity == -1) {
-        // This is a brightness-preserving blur.
-        // Make sure the sum of coefficients is 1 despite the inaccuracies
+GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
+{
+    AVG_ASSERT(opacity != -1);
+    int kernelWidth;
+    float* pKernel;
+    if (stdDev == 0) {
+        kernelWidth = 1;
+        pKernel = new float[1];
+        pKernel[0] = float(opacity);
+    } else {
+        float tempCoeffs[1024];
+        int i=0;
+        float coeff;
+        do {
+            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*PI*stdDev*stdDev))
+                    *float(opacity);
+            tempCoeffs[i] = coeff;
+            i++;
+        } while (coeff > 0.005 && i < 1024);
+        int kernelCenter = i - 2;
+        kernelWidth = kernelCenter*2+1;
+        pKernel = new float[kernelWidth];
+        float sum = 0;
+        for (int i = 0; i <= kernelCenter; ++i) {
+            pKernel[kernelCenter+i] = tempCoeffs[i];
+            sum += tempCoeffs[i];
+            if (i != 0) {
+                pKernel[kernelCenter-i] = tempCoeffs[i];
+                sum += tempCoeffs[i];
+            }
+        }
+        // Make sure the sum of coefficients is opacity despite the inaccuracies
         // introduced by using a kernel of finite size.
         for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] /= sum;
-        }
-    } else {
-        float factor = float(opacity/pKernel[kernelCenter]);
-        for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] *= factor;
+            pKernel[i] *= float(opacity)/sum;
         }
     }
 //    dumpKernel(kernelWidth, pKernel);

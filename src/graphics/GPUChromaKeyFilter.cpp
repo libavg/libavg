@@ -37,7 +37,7 @@ namespace avg {
 
 GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf, 
         bool bStandalone)
-    : GPUFilter(size, pf, B8G8R8A8, bStandalone, 2),
+    : GPUFilter(pf, B8G8R8A8, bStandalone, 2),
       m_Color(0, 255, 0),
       m_HTolerance(0.0),
       m_STolerance(0.0),
@@ -48,6 +48,7 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
+    setDimensions(size);
     initShader();
 }
 

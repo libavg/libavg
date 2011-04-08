@@ -95,19 +95,29 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
 void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp, 
         const string& sFName, double maxAverage, double maxStdDev)
 {
-    BitmapPtr pDiffBmp = BitmapPtr(resultBmp.subtract(&baselineBmp));
-    double average = pDiffBmp->getAvg();
-    double stdDev = pDiffBmp->getStdDev();
-    if (average > maxAverage || stdDev > maxStdDev) {
-        TEST_FAILED("Error: Decoded image differs from baseline '" << 
-                sFName << "'. average=" << average << ", stdDev=" << stdDev);
-//        resultBmp.dump();
-//        baselineBmp.dump();
+    BitmapPtr pDiffBmp;
+    try {
+        pDiffBmp = BitmapPtr(resultBmp.subtract(&baselineBmp));
+    } catch (Exception& e) {
+        TEST_FAILED("Error: " << e.GetStr() << ". File: '" << sFName << "'.");
         string sResultName = "resultimages/"+sFName;
         resultBmp.save(sResultName+".png");
         baselineBmp.save(sResultName+"_baseline.png");
-        BitmapPtr pDiffBmp(resultBmp.subtract(&baselineBmp));
-        pDiffBmp->save(sResultName+"_diff.png");
+    }
+    if (pDiffBmp) {
+        double average = pDiffBmp->getAvg();
+        double stdDev = pDiffBmp->getStdDev();
+        if (average > maxAverage || stdDev > maxStdDev) {
+            TEST_FAILED("Error: Decoded image differs from baseline '" << 
+                    sFName << "'. average=" << average << ", stdDev=" << stdDev);
+    //        resultBmp.dump();
+    //        baselineBmp.dump();
+            string sResultName = "resultimages/"+sFName;
+            resultBmp.save(sResultName+".png");
+            baselineBmp.save(sResultName+"_baseline.png");
+            BitmapPtr pDiffBmp(resultBmp.subtract(&baselineBmp));
+            pDiffBmp->save(sResultName+"_diff.png");
+        }
     }
 }
 
@@ -116,9 +126,9 @@ void GraphicsTest::testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp,
 {
     double diff = fabs(resultBmp.getAvg()-baselineBmp.getAvg());
     if (diff >= epsilon) {
-        cerr << "        Baseline brightness: " << baselineBmp.getAvg()
+        TEST_FAILED("Error: Baseline brightness: " << baselineBmp.getAvg()
                 << ", Result brightness: " << resultBmp.getAvg() << ", difference: " 
-                << diff << endl;
+                << diff);
     }
 }
 

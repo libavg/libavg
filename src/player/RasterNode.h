@@ -87,20 +87,21 @@ class AVG_API RasterNode: public AreaNode
         void setContrast(const DTriple& contrast);
 
         void setEffect(FXNodePtr pFXNode);
-        virtual BitmapPtr getBitmap();
         
+    protected:
+        RasterNode();
         void blt32(const DPoint& destSize, double opacity, DisplayEngine::BlendMode mode,
                 bool bPremultipliedAlpha = false);
         void blta8(const DPoint& destSize, double opacity, 
                 const Pixel32& color, DisplayEngine::BlendMode mode);
 
-    protected:
-        RasterNode();
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
         void bind();
+        void renderFX(const DPoint& destSize, const Pixel32& color, 
+                bool bPremultipliedAlpha);
 
     private:
         void setMaterial(const MaterialInfo& material);
@@ -143,6 +144,7 @@ class AVG_API RasterNode: public AreaNode
 
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
+        ImagingProjectionPtr m_pImagingProjection;
 };
 
 }

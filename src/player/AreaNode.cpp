@@ -215,19 +215,17 @@ void AreaNode::getElementsByPos(const DPoint& pos,
 void AreaNode::maybeRender(const DRect& rect)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
-    if (getActive()) {
-        if (getEffectiveOpacity() > 0.01) {
-            if (getID() != "") {
-                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                        " with ID " << getID());
-            } else {
-                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-            }
-            SDLDisplayEngine * pEngine = getDisplayEngine();
-            pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-            render(rect);
-            pEngine->popTransform();
+    if (isVisible()) {
+        if (getID() != "") {
+            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                    " with ID " << getID());
+        } else {
+            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
+        SDLDisplayEngine * pEngine = getDisplayEngine();
+        pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+        render(rect);
+        pEngine->popTransform();
     }
 }
 

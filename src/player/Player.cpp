@@ -586,6 +586,11 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
+long long Player::getTimeSinceLastFrame()
+{
+    return m_pDisplayEngine->getTimeSinceLastFrame();
+}
+
 double Player::getFrameDuration()
 {
     if (!m_bIsPlaying) {

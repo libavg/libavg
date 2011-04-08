@@ -402,7 +402,7 @@ AudioEngine * VisibleNode::getAudioEngine() const
     return m_pAudioEngine;
 }
 
-double VisibleNode::getEffectiveOpacity()
+double VisibleNode::getEffectiveOpacity() const
 {
     return m_EffectiveOpacity;
 }
@@ -483,6 +483,11 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage,
             }
         }
     }
+}
+
+bool VisibleNode::isVisible() const
+{
+    return getActive() && getEffectiveOpacity() > 0.01;
 }
 
 void VisibleNode::connectOneEventHandler(const EventID& id, PyObject * pObj, 

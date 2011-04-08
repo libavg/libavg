@@ -36,11 +36,11 @@ namespace avg {
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         double alpha, bool bStandalone)
-    : GPUFilter(size, pf, B8G8R8A8, bStandalone),
+    : GPUFilter(pf, B8G8R8A8, bStandalone),
       m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-
+    setDimensions(size);
     initShader();
 }
 

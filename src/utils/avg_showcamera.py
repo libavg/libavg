@@ -78,6 +78,12 @@ def onKey(event):
     elif event.keystring == "down":
         addGain(gain = -1)
     
+curFrame = 0
+
+def updateFrameDisplay(node):
+    global curFrame
+    curFrame += 1
+    node.text = "%(cam)d/%(player)d"%{"cam":camNode.framenum, "player":curFrame}
 
 parser = optparse.OptionParser()
 parsecamargs.addOptions(parser)
@@ -97,6 +103,7 @@ if options.driver is None and not options.dump and not options.resetbus:
     print "  w: Execute whitebalance."
     print "  1/2: Decrease/Increase whitebalance u."
     print "  3/4: Decrease/Increase whitebalance v."
+    print "  s: Take screenshot."
     print
     print "ERROR: at least '--driver', '--dump' or '--resetbus' options must be specified"
     exit()
@@ -146,11 +153,11 @@ Player.getRootNode().appendChild(camNode)
 
 if not options.noinfo:
     infoText = "Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f" %optdict
-    infoNode = Player.createNode("words",
-    {"text": infoText, "color": "ff3333", "pos": avg.Point2D(5,5), "fontsize": 14})
-
-    Player.getRootNode().appendChild(infoNode)
-    
+    avg.WordsNode(text=infoText, color="ff3333", pos=(5,5), fontsize=14,
+            parent=Player.getRootNode())
+    frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
+            parent=Player.getRootNode())
+    Player.setOnFrameHandler(lambda:updateFrameDisplay(frameText))
 
 camNode.play()
 Player.setTimeout(100, checkCamera)

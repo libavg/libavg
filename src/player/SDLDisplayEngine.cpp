@@ -581,7 +581,7 @@ bool SDLDisplayEngine::initVBlank(int rate)
                 break;
             case VB_SGI:
 #ifdef linux            
-                if (queryOGLExtension("GLX_SGI_swap_control")) {
+                if (queryGLXExtension("GLX_SGI_swap_control")) {
                     glproc::SwapIntervalSGI(rate);
                 }
 #endif
