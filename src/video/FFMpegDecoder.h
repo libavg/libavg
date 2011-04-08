@@ -45,19 +45,13 @@ namespace avg {
 
 class AudioBuffer;
 
-#ifdef AVG_ENABLE_VDPAU
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
-        BitmapPtr pBmpU, BitmapPtr pBmpV);
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
-#endif
-
 class AVG_API FFMpegDecoder: public IVideoDecoder
 {
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
         virtual void open(const std::string& sFilename, bool bThreadedDemuxer,
-                bool bUseHardwareAccelleration);
+                bool bUseHardwareAcceleration);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
         virtual DecoderState getState() const;
@@ -93,7 +87,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
     private:
         void initVideoSupport();
-        int openCodec(int streamIndex, bool bUseHardwareAccelleration);
+        int openCodec(int streamIndex, bool bUseHardwareAcceleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual double getDuration() const;
         virtual int getNumFrames() const;
@@ -105,8 +99,8 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         bool m_bThreadedDemuxer;
 
         // Used from video thread.
-        FrameAvailableCode readFrameForTime(AVFrame& Frame, double timeWanted);
-        void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
+        FrameAvailableCode readFrameForTime(AVFrame& frame, double timeWanted);
+        void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         double getFrameTime(long long dts);
         double calcStreamFPS() const;
         std::string getStreamPF() const;
@@ -172,6 +166,12 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         // Prevents different decoder instances from executing open/close simultaneously
         static boost::mutex s_OpenMutex;   
 };
+
+#ifdef AVG_ENABLE_VDPAU
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
+        BitmapPtr pBmpU, BitmapPtr pBmpV);
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
+#endif
 
 }
 #endif 

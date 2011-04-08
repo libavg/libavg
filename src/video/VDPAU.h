@@ -32,12 +32,12 @@
 #include <libavcodec/vdpau.h>
 
 
-namespace avg{
-
+namespace avg {
 
 #define N_VIDEO_SURFACES 64
 
 struct FrameAge;
+
 struct VideoSurface
 {
     struct vdpau_render_state m_RenderState;
@@ -80,19 +80,19 @@ class VDPAU
 public:
     VDPAU();
     ~VDPAU();
-    AVCodec* openCodec(AVCodecContext* enc);
+    AVCodec* openCodec(AVCodecContext* pCodec);
     void init();
     Display* getDisplay();
     static void unlockSurface(vdpau_render_state* pRenderState);
 
 private:
-    static int getBuffer(AVCodecContext* c, AVFrame* frame);
-    int getBufferInternal(AVCodecContext* c, AVFrame* frame, FrameAge* age);
-    static void releaseBuffer(struct AVCodecContext* c, AVFrame* frame);
-    static void drawHorizBand(AVCodecContext* c, const AVFrame* frame, int offset[4],
-            int y, int type, int height);
+    static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
+    int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, FrameAge* pAge);
+    static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
+    static void drawHorizBand(AVCodecContext* pContext, const AVFrame* pFrame, 
+            int offset[4], int y, int type, int height);
     static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
-    void render(AVCodecContext* context, const AVFrame* frame);
+    void render(AVCodecContext* pContext, const AVFrame* pFrame);
     void safeGetProcAddress(VdpFuncId function_id, void** function_pointer);
 
     static VdpDevice s_VDPDevice;
@@ -107,5 +107,5 @@ private:
 };
 
 }
-#endif //_VDPAU_H_
+#endif
 

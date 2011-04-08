@@ -23,9 +23,9 @@
 
 namespace avg{
 
-AVCCOpaque::AVCCOpaque(VDPAU* vdpau, FrameAge* frameAge)
-    : m_pVDPAU(vdpau),
-      m_pFrameAge(frameAge)
+AVCCOpaque::AVCCOpaque(VDPAU* pVDPAU, FrameAge* pFrameAge)
+    : m_pVDPAU(pVDPAU),
+      m_pFrameAge(pFrameAge)
 {
 }
 
@@ -34,9 +34,9 @@ FrameAge* AVCCOpaque::getFrameAge()
     return m_pFrameAge;
 }
 
-void AVCCOpaque::setFrameAge(FrameAge* age)
+void AVCCOpaque::setFrameAge(FrameAge* pFrameAge)
 {
-    m_pFrameAge = age;
+    m_pFrameAge = pFrameAge;
 }
 
 VDPAU* AVCCOpaque::getVDPAU()

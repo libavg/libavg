@@ -112,8 +112,8 @@ void VDPAU::init()
         s_pXDisplay = XOpenDisplay(0);
         AVG_ASSERT(s_pXDisplay);
 
-        status = vdp_device_create_x11(s_pXDisplay, DefaultScreen(s_pXDisplay), &s_VDPDevice,
-            &vdp_get_proc_address);
+        status = vdp_device_create_x11(s_pXDisplay, DefaultScreen(s_pXDisplay),
+            &s_VDPDevice, &vdp_get_proc_address);
         AVG_ASSERT(status == VDP_STATUS_OK);
 
         safeGetProcAddress(VDP_FUNC_ID_DEVICE_DESTROY, (void**)&vdp_device_destroy);
@@ -201,33 +201,34 @@ AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
     return pCodec;
 }
 
-int VDPAU::getBuffer(AVCodecContext* pContext, AVFrame* frame)
+int VDPAU::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
 {
-    AVCCOpaque* opaque = (AVCCOpaque*)pContext->opaque;
-    FrameAge* frameAge = opaque->getFrameAge();
-    VDPAU* vdpau = opaque->getVDPAU();
-    return vdpau->getBufferInternal(pContext, frame, frameAge);
+    AVCCOpaque* pOpaque = (AVCCOpaque*)pContext->opaque;
+    FrameAge* pAge = pOpaque->getFrameAge();
+    VDPAU* pVDPAU = pOpaque->getVDPAU();
+    return pVDPAU->getBufferInternal(pContext, pFrame, pAge);
 }
 
-int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge* frameAge)
+int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, 
+        FrameAge* pAge)
 {
     VdpStatus status;
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         struct vdpau_render_state* pRenderState = &m_VideoSurfaces[i].m_RenderState;
         if (!(pRenderState->state & FF_VDPAU_STATE_USED_FOR_REFERENCE)) {
-            frame->data[0] = (uint8_t*)pRenderState;
-            frame->type = FF_BUFFER_TYPE_USER;
+            pFrame->data[0] = (uint8_t*)pRenderState;
+            pFrame->type = FF_BUFFER_TYPE_USER;
 
-            if (frame->reference) { //I-P frame
-                frame->age = frameAge->m_IPAge0;
-                frameAge->m_IPAge0 = frameAge->m_IPAge1;
-                frameAge->m_IPAge1 = 1;
-                frameAge->m_Age++;
+            if (pFrame->reference) { //I-P frame
+                pFrame->age = pAge->m_IPAge0;
+                pAge->m_IPAge0 = pAge->m_IPAge1;
+                pAge->m_IPAge1 = 1;
+                pAge->m_Age++;
             } else {
-                frame->age = frameAge->m_Age;
-                frameAge->m_IPAge0++;
-                frameAge->m_IPAge1++;
-                frameAge->m_Age = 1;
+                pFrame->age = pAge->m_Age;
+                pAge->m_IPAge0++;
+                pAge->m_IPAge1++;
+                pAge->m_Age = 1;
             }
             pRenderState->state |= FF_VDPAU_STATE_USED_FOR_REFERENCE;
 
@@ -253,14 +254,13 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* frame, FrameAge*
 }
 
 // does not release the render structure, that will be unlocked after getting data
-void VDPAU::releaseBuffer(struct AVCodecContext* pContext, AVFrame* frame)
+void VDPAU::releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame)
 {
-    vdpau_render_state* pRenderState = (vdpau_render_state*)frame->data[0];
-    frame->data[0] = 0;
+    pFrame->data[0] = 0;
 }
 
 
-//main rendering routine
+// main rendering routine
 void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
         int offset[4], int y, int type, int height)
 {
@@ -287,10 +287,10 @@ void VDPAU::drawHorizBand(struct AVCodecContext* pContext, const AVFrame* src,
     }
 }
 
-void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
+void VDPAU::render(AVCodecContext* pContext, const AVFrame* pFrame)
 {
-    vdpau_render_state* pRenderState = (vdpau_render_state*)frame->data[0];
-    VdpStatus  status;
+    vdpau_render_state* pRenderState = (vdpau_render_state*)pFrame->data[0];
+    VdpStatus status;
     IntPoint size(pContext->width, pContext->height);
 
     if (pContext->pix_fmt != m_PixFmt || size != m_Size) {
@@ -342,8 +342,8 @@ void VDPAU::render(AVCodecContext* pContext,const AVFrame* frame)
              VDP_VIDEO_MIXER_PARAMETER_LAYERS
         };
         VdpChromaType chroma = VDP_CHROMA_TYPE_420;
-        int  num_layers = 0;
-        void const* paramValues [] = { &m_Size.x, &m_Size.y, &chroma, &num_layers };
+        int  numLayers = 0;
+        void const* paramValues [] = { &m_Size.x, &m_Size.y, &chroma, &numLayers };
 
         status = vdp_video_mixer_create(s_VDPDevice, 2, features, 4, params, paramValues,
                 &m_VDPMixer);

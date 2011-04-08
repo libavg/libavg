@@ -112,51 +112,51 @@ void avcodecError(const string& sFilename, int err)
 }
 
 
-void dump_stream_info(AVFormatContext *s)
+void dump_stream_info(AVFormatContext* pContext)
 {
-    if (s->track != 0)
-        fprintf(stderr, "  Track: %d\n", s->track);
-    if (s->title[0] != '\0')
-        fprintf(stderr, "  Title: %s\n", s->title);
-    if (s->author[0] != '\0')
-        fprintf(stderr, "  Author: %s\n", s->author);
-    if (s->album[0] != '\0')
-        fprintf(stderr, "  Album: %s\n", s->album);
-    if (s->year != 0)
-        fprintf(stderr, "  Year: %d\n", s->year);
-    if (s->genre[0] != '\0')
-        fprintf(stderr, "  Genre: %s\n", s->genre);
+    if (pContext->track != 0)
+        fprintf(stderr, "  Track: %d\n", pContext->track);
+    if (pContext->title[0] != '\0')
+        fprintf(stderr, "  Title: %s\n", pContext->title);
+    if (pContext->author[0] != '\0')
+        fprintf(stderr, "  Author: %s\n", pContext->author);
+    if (pContext->album[0] != '\0')
+        fprintf(stderr, "  Album: %s\n", pContext->album);
+    if (pContext->year != 0)
+        fprintf(stderr, "  Year: %d\n", pContext->year);
+    if (pContext->genre[0] != '\0')
+        fprintf(stderr, "  Genre: %s\n", pContext->genre);
 }
 
-int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAccelleration)
+int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 {
-    AVCodecContext *enc;
+    AVCodecContext* pContext;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    enc = &(m_pFormatContext->streams[streamIndex]->codec);
+    pContext = &(m_pFormatContext->streams[streamIndex]->codec);
 #else
-    enc = m_pFormatContext->streams[streamIndex]->codec;
+    pContext = m_pFormatContext->streams[streamIndex]->codec;
 #endif
-//    enc->debug = 0x0001; // see avcodec.h
+//    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
 #ifdef AVG_ENABLE_VDPAU
-    if (bUseHardwareAccelleration) {
-        enc->opaque = &m_Opaque;
-        pCodec = m_VDPAU.openCodec(enc);
+    if (bUseHardwareAcceleration) {
+        pContext->opaque = &m_Opaque;
+        pCodec = m_VDPAU.openCodec(pContext);
     } else {
-        pCodec = avcodec_find_decoder(enc->codec_id);
+        pCodec = avcodec_find_decoder(pContext->codec_id);
     }
 #else
-    pCodec = avcodec_find_decoder(enc->codec_id);
+    pCodec = avcodec_find_decoder(pContext->codec_id);
 #endif
-    if (!pCodec || avcodec_open(enc, pCodec) < 0) {
+    if (!pCodec || avcodec_open(pContext, pCodec) < 0) {
         return -1;
     }
     return 0;
 }
 
 void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
-        bool bUseHardwareAccelleration)
+        bool bUseHardwareAcceleration)
 {
     mutex::scoped_lock lock(s_OpenMutex);
     m_bThreadedDemuxer = bThreadedDemuxer;
@@ -192,11 +192,11 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     m_AStreamIndex = -1;
     for (unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-        AVCodecContext *enc = &m_pFormatContext->streams[i]->codec;
+        AVCodecContext* pContext = &m_pFormatContext->streams[i]->codec;
 #else         
-        AVCodecContext *enc = m_pFormatContext->streams[i]->codec;
+        AVCodecContext* pContext = m_pFormatContext->streams[i]->codec;
 #endif
-        switch (enc->codec_type) {
+        switch (pContext->codec_type) {
             case CODEC_TYPE_VIDEO:
                 if (m_VStreamIndex < 0) {
                     m_VStreamIndex = i;
@@ -234,7 +234,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1;
 
-        int rc = openCodec(m_VStreamIndex, bUseHardwareAccelleration);
+        int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
         if (rc == -1) {
             m_VStreamIndex = -1;
             char szBuf[256];
@@ -260,7 +260,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                     *m_pAStream->start_time;
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
-        int rc = openCodec(m_AStreamIndex, bUseHardwareAccelleration);
+        int rc = openCodec(m_AStreamIndex, bUseHardwareAcceleration);
         if (rc == -1) {
             m_AStreamIndex = -1;
             char szBuf[256];
@@ -569,40 +569,6 @@ static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
 static ProfilingZoneID VDPAUDecodeProfilingZone("FFMpeg: VDPAU decode");
 
-#ifdef AVG_ENABLE_VDPAU
-
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
-        BitmapPtr pBmpU, BitmapPtr pBmpV)
-{
-    VdpStatus status;
-    void *dest[3] = {
-        pBmpY->getPixels(),
-        pBmpV->getPixels(),
-        pBmpU->getPixels()
-    };
-    uint32_t pitches[3] = {
-        pBmpY->getStride(),
-        pBmpV->getStride(),
-        pBmpU->getStride()
-    };
-    status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
-            VDP_YCBCR_FORMAT_YV12, dest, pitches);
-    AVG_ASSERT(status == VDP_STATUS_OK);
-    VDPAU::unlockSurface(pRenderState);    
-}
-
-void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
-{
-    IntPoint YSize = pBmpDest->getSize();
-    IntPoint UVSize(YSize.x>>1, YSize.y);
-    BitmapPtr pBmpY(new Bitmap(YSize, I8));
-    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
-    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
-    getPlanesFromVDPAU(pRenderState, pBmpY, pBmpU, pBmpV);
-    pBmpDest->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
-}   
-#endif
-
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         double timeWanted)
 {
@@ -622,7 +588,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
             ScopeTimer timer(VDPAUDecodeProfilingZone);
             if (usesVDPAU()) 
             {
-                vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+                vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
                 getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
             } else {
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
@@ -669,8 +635,8 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
 bool FFMpegDecoder::usesVDPAU() const
 {
 #ifdef AVG_ENABLE_VDPAU
-    AVCodecContext const* enc = getCodecContext();
-    return enc->codec && enc->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU;
+    AVCodecContext const* pContext = getCodecContext();
+    return pContext->codec && pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU;
 #else
     return false;
 #endif
@@ -895,9 +861,9 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
 {
-    AVCodecContext const* enc = getCodecContext();
+    AVCodecContext const* pContext = getCodecContext();
     if (bUseYCbCr) {
-        switch(enc->pix_fmt) {
+        switch(pContext->pix_fmt) {
             case PIX_FMT_YUV420P:
 #ifdef AVG_ENABLE_VDPAU
             case PIX_FMT_VDPAU_H264:
@@ -915,7 +881,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
                 break;
         }
     }
-    if (enc->pix_fmt == PIX_FMT_BGRA || enc->pix_fmt == PIX_FMT_YUVA420P) {
+    if (pContext->pix_fmt == PIX_FMT_BGRA || pContext->pix_fmt == PIX_FMT_YUVA420P) {
         return B8G8R8A8;
     }
     return B8G8R8X8;
@@ -962,10 +928,10 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
             AVG_ASSERT(false);
             destFmt = PIX_FMT_BGRA;
     }
-    AVCodecContext const* enc = getCodecContext();
+    AVCodecContext const* pContext = getCodecContext();
     {
-        if (destFmt == PIX_FMT_BGRA && (enc->pix_fmt == PIX_FMT_YUV420P || 
-                enc->pix_fmt == PIX_FMT_YUVJ420P))
+        if (destFmt == PIX_FMT_BGRA && (pContext->pix_fmt == PIX_FMT_YUV420P || 
+                pContext->pix_fmt == PIX_FMT_YUVJ420P))
         {
             ScopeTimer timer(ConvertImageLibavgProfilingZone);
             BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, frame.data[0],
@@ -974,7 +940,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
                     frame.linesize[1], false));
             BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, frame.data[2],
                     frame.linesize[2], false));
-            pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, enc->pix_fmt == PIX_FMT_YUVJ420P);
+            pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
+                    pContext->pix_fmt == PIX_FMT_YUVJ420P);
 #ifdef AVG_ENABLE_VDPAU
         } else if (destFmt == PIX_FMT_BGRA && usesVDPAU()) {
             vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
@@ -982,15 +949,15 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
 #endif
         } else {
             if (!m_pSwsContext) {
-                m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
-                            enc->width, enc->height, destFmt, SWS_BICUBIC, 
-                            NULL, NULL, NULL);
+                m_pSwsContext = sws_getContext(pContext->width, pContext->height, 
+                        pContext->pix_fmt, pContext->width, pContext->height, destFmt, 
+                        SWS_BICUBIC, 0, 0, 0);
                 AVG_ASSERT(m_pSwsContext);
             }
             {
                 ScopeTimer timer(ConvertImageSWSProfilingZone);
                 sws_scale(m_pSwsContext, frame.data, frame.linesize, 0, 
-                    enc->height, destPict.data, destPict.linesize);
+                    pContext->height, destPict.data, destPict.linesize);
             }
             if (pBmp->getPixelFormat() == B8G8R8X8) {
                 ScopeTimer timer(SetAlphaProfilingZone);
@@ -1076,7 +1043,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
         m_bEOFPending = false;
         return m_LastVideoFrameTime;
     }
-    AVCodecContext* enc = getCodecContext();
+    AVCodecContext* pContext = getCodecContext();
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
     double frameTime = -1;
@@ -1088,7 +1055,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             FrameAge age;
             m_Opaque.setFrameAge(&age);
 #endif
-            int len1 = avcodec_decode_video(enc, &frame, &bGotPicture, pPacket->data,
+            int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
             if (len1 > 0) {
                 AVG_ASSERT(len1 == pPacket->size);
@@ -1100,7 +1067,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             delete pPacket;
         } else {
             // No more packets -> EOF. Decode the last data we got.
-            avcodec_decode_video(enc, &frame, &bGotPicture, 0, 0);
+            avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
             if (bGotPicture) {
                 m_bEOFPending = true;
             } else {
@@ -1221,6 +1188,39 @@ AVCodecContext* FFMpegDecoder::getCodecContext()
     return m_pVStream->codec;
 #endif
 }
+
+#ifdef AVG_ENABLE_VDPAU
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
+        BitmapPtr pBmpU, BitmapPtr pBmpV)
+{
+    VdpStatus status;
+    void *dest[3] = {
+        pBmpY->getPixels(),
+        pBmpV->getPixels(),
+        pBmpU->getPixels()
+    };
+    uint32_t pitches[3] = {
+        pBmpY->getStride(),
+        pBmpV->getStride(),
+        pBmpU->getStride()
+    };
+    status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
+            VDP_YCBCR_FORMAT_YV12, dest, pitches);
+    AVG_ASSERT(status == VDP_STATUS_OK);
+    VDPAU::unlockSurface(pRenderState);    
+}
+
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)
+{
+    IntPoint YSize = pBmpDest->getSize();
+    IntPoint UVSize(YSize.x>>1, YSize.y);
+    BitmapPtr pBmpY(new Bitmap(YSize, I8));
+    BitmapPtr pBmpU(new Bitmap(UVSize, I8));
+    BitmapPtr pBmpV(new Bitmap(UVSize, I8));
+    getPlanesFromVDPAU(pRenderState, pBmpY, pBmpU, pBmpV);
+    pBmpDest->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, false);
+}   
+#endif
 
 }
 

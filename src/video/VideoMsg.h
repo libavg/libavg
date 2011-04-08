@@ -29,10 +29,10 @@
 #include "../audio/AudioBuffer.h"
 
 #include <boost/shared_ptr.hpp>
+
 struct vdpau_render_state;
 
 namespace avg {
-
 
 class AVG_API VideoMsg {
 public:
@@ -59,6 +59,7 @@ public:
 
     double getSeekVideoFrameTime();
     double getSeekAudioFrameTime();
+
     vdpau_render_state* getRenderState();
 
 private:

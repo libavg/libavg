@@ -29,9 +29,9 @@ namespace avg{
 class AVCCOpaque
 {
 public:
-    AVCCOpaque(VDPAU* vdpau, FrameAge* frameAge = 0);
+    AVCCOpaque(VDPAU* pVDPAU, FrameAge* pFrameAge = 0);
     FrameAge* getFrameAge();
-    void setFrameAge(FrameAge* age);
+    void setFrameAge(FrameAge* pFrameAge);
     VDPAU* getVDPAU();
 
 private: 

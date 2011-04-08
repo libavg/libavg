@@ -23,14 +23,14 @@
 
 namespace avg{
 
-
 struct FrameAge
 {
-    int    m_Age;
-    int    m_IPAge0;
-    int    m_IPAge1;
     FrameAge();
+    int m_Age;
+    int m_IPAge0;
+    int m_IPAge1;
 };
+
 }
 
 #endif
