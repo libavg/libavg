@@ -49,11 +49,8 @@ IlibavgGrabber : public IUnknown
 {
 public:
     virtual void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback) = 0;
-    virtual HRESULT STDMETHODCALLTYPE SetDeliveryBuffer(ALLOCATOR_PROPERTIES props,
-            BYTE *pBuffer) = 0;
 };
         
-class CSampleGrabberAllocator;
 class CSampleGrabberInPin;
 
 class CSampleGrabber : public CTransInPlaceFilter, IlibavgGrabber
@@ -66,7 +63,6 @@ public:
 
     // IlibavgGrabber
     void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback);
-    STDMETHODIMP SetDeliveryBuffer(ALLOCATOR_PROPERTIES props, BYTE * m_pBuffer);
 
 protected:
     IDSSampleCallback* m_pCallback;
@@ -86,7 +82,6 @@ protected:
 
 private:
     friend class CSampleGrabberInPin;
-    friend class CSampleGrabberAllocator;
 };
 
 };
