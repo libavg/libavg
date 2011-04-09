@@ -73,6 +73,7 @@
 #include <signal.h>
 #include <iostream>
 #include <sstream>
+#include <math.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -673,9 +674,8 @@ void SDLDisplayEngine::calcRefreshRate()
     s_RefreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
 #endif
-    if (s_RefreshRate == 0) {
+    if (s_RefreshRate == 0 || isnan(s_RefreshRate)) {
         s_RefreshRate = 60;
-        AVG_TRACE (Logger::WARNING, "Assuming 60 Hz refresh rate.");
     }
     if (lastRefreshRate != s_RefreshRate) {
         AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
