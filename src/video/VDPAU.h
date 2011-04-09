@@ -84,8 +84,10 @@ public:
     void init();
     Display* getDisplay();
     static void unlockSurface(vdpau_render_state* pRenderState);
+    static bool isAvailable();
 
 private:
+    static bool staticInit();
     static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, FrameAge* pAge);
     static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
@@ -93,7 +95,7 @@ private:
             int offset[4], int y, int type, int height);
     static ::PixelFormat getFormat(AVCodecContext* pContext, const ::PixelFormat* pFmt);
     void render(AVCodecContext* pContext, const AVFrame* pFrame);
-    void safeGetProcAddress(VdpFuncId function_id, void** function_pointer);
+    static void safeGetProcAddress(VdpFuncId function_id, void** function_pointer);
 
     static VdpDevice s_VDPDevice;
     static Display* s_pXDisplay;

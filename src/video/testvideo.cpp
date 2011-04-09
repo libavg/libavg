@@ -450,9 +450,11 @@ public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
-        addVideoTests(true);
         addAudioTests();
         addVideoTests(false);
+        if (VDPAU::isAvailable()) {
+            addVideoTests(true);
+        }
     }
 private:
 
