@@ -38,6 +38,7 @@ public:
     BlurFXNode();
     virtual ~BlurFXNode();
 
+    void connect(SDLDisplayEngine* pEngine);
     virtual void disconnect();
     void setParam(double stdDev);
 

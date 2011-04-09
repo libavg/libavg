@@ -50,6 +50,15 @@ ShadowFXNode::~ShadowFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
+void ShadowFXNode::connect(SDLDisplayEngine* pEngine)
+{
+    if (!GLTexture::isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Cannot create ShadowFX: OpenGL configuration doesn't support Blur (no float textures).");
+    }
+    FXNode::connect(pEngine);
+}
+
 void ShadowFXNode::disconnect()
 {
     m_pFilter = GPUShadowFilterPtr();
