@@ -149,26 +149,27 @@ class AVTestCase(AVGTestCase):
                 )) 
 
     def testVideoState(self):
-        self.loadEmptyScene()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
-                parent=Player.getRootNode())
-        Player.setFakeFPS(25)
-        self.start(None,
-                (lambda: node.play(),
-                 lambda: self.compareImage("testVideoState1", False),
-                 lambda: node.pause(),
-                 lambda: self.compareImage("testVideoState2", False),
-                 lambda: self.compareImage("testVideoState2", False),
-                 lambda: node.play(),
-                 lambda: self.compareImage("testVideoState3", False),
-                 lambda: node.stop(),
-                 lambda: self.compareImage("testVideoState4", False),
-                 lambda: node.pause(),
-                 lambda: self.compareImage("testVideoState5", False),
-                 lambda: self.compareImage("testVideoState5", False),
-                 lambda: node.stop(),
-                 lambda: self.compareImage("testVideoState4", False),
-                ))
+        for accelerated in [True, False]:
+            self.loadEmptyScene()
+            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
+                    threaded=False, accelerated=accelerated, parent=Player.getRootNode())
+            Player.setFakeFPS(25)
+            self.start(None,
+                    (lambda: node.play(),
+                     lambda: self.compareImage("testVideoState1", False),
+                     lambda: node.pause(),
+                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: node.play(),
+                     lambda: self.compareImage("testVideoState3", False),
+                     lambda: node.stop(),
+                     lambda: self.compareImage("testVideoState4", False),
+                     lambda: node.pause(),
+                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: node.stop(),
+                     lambda: self.compareImage("testVideoState4", False),
+                    ))
 
     def testVideoActive(self):
         def deactivate():
@@ -188,7 +189,7 @@ class AVTestCase(AVGTestCase):
                  activate,
                  lambda: self.compareImage("testVideoActive2", False)
                 ))
-       
+
     def testVideoHRef(self):
         def testGetMediaSize():
             self.assert_(node.getMediaSize() == (48, 48))

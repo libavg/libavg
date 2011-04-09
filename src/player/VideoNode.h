@@ -84,6 +84,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         bool hasAudio() const;
         bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
+        bool usesVDPAU() const;
 
         virtual void render(const DRect& rect);
         virtual void preRender();
@@ -136,6 +137,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
 
         VideoDecoder * m_pDecoder;
         double m_Volume;
+        bool m_bUseHardwareAcceleration;
 };
 
 }
