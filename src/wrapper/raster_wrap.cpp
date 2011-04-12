@@ -77,8 +77,7 @@ void export_raster()
         .add_property("href", 
                 make_function(&ImageNode::getHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&ImageNode::setHRef,
-                        return_value_policy<copy_const_reference>()))
+                &ImageNode::setHRef)
         .add_property("compression",
                 &ImageNode::getCompression)
     ;
@@ -141,8 +140,7 @@ void export_raster()
         .add_property("href", 
                 make_function(&VideoNode::getHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&VideoNode::setHRef,
-                        return_value_policy<copy_const_reference>()))
+                &VideoNode::setHRef)
         .add_property("loop", &VideoNode::getLoop)
         .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume)
         .add_property("threaded", &VideoNode::isThreaded)
