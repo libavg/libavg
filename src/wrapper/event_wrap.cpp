@@ -47,14 +47,13 @@ class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
         {
         }
 
-        IEventSourceWrapper(const IEventSourceWrapper& eventSourceWrapper)
-            : IEventSource(eventSourceWrapper)
-        {
-        }
-
         virtual void start() {
             if (override startMethod = this->get_override("start")) {
+#ifdef _WIN32
+                call<void>(startMethod.ptr());.
+#else
                 startMethod();
+#endif
             }
             IEventSource::start();
         }
@@ -64,7 +63,11 @@ class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
         }
 
         virtual std::vector<EventPtr> pollEvents() {
+#ifdef _WIN32
+            return call<void>(this->get_override("pollEvents").ptr());
+#else
             return this->get_override("pollEvents")();
+#endif
         }
 
 };
@@ -209,7 +212,10 @@ void export_event()
     class_<IEventSourcePtr>("IEventSource")
     ;
 
-    class_<IEventSourceWrapper, boost::shared_ptr<IEventSourceWrapper> >("EventSource", init<const std::string&>())
+    class_< IEventSourceWrapper,
+            boost::shared_ptr<IEventSourceWrapper>,
+            boost::noncopyable
+    >("EventSource", init<const std::string&>())
         .def("start", &IEventSource::start, &IEventSourceWrapper::default_start)
         .def("pollEvents", pure_virtual(&IEventSource::pollEvents))
         .add_property("name",
