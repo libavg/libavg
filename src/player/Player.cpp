@@ -51,7 +51,7 @@
     #include "AppleTrackpadInputDevice.h"
 #endif
 #if defined(_WIN32) && defined(SM_DIGITIZER)
-    #include "Win7TouchEventSource.h"
+    #include "Win7TouchInputDevice.h"
 #endif
 #ifdef AVG_ENABLE_MTDEV
     #include "LibMTDevInputDevice.h"
@@ -639,7 +639,7 @@ void Player::enableMultitouch()
         m_pMultitouchInputDevice = IInputDevicePtr(new TUIOInputDevice);
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new Win7TouchEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new Win7TouchInputDevice);
 #endif
     } else if (sDriver == "XINPUT21") {
 #ifdef HAVE_XI2_1
