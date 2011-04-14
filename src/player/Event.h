@@ -61,10 +61,10 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        const boost::shared_ptr<IInputDevice>& getEventSource() const;
-        void setEventSource(boost::shared_ptr<IInputDevice> eventSource);
-        bool hasEventSource() const;
-        const std::string& getEventSourceName() const;
+        const boost::shared_ptr<IInputDevice>& getInputDevice() const;
+        void setInputDevice(boost::shared_ptr<IInputDevice> pInputDevice);
+        bool hasInputDevice() const;
+        const std::string& getInputDeviceName() const;
         VisibleNodePtr getElement() const;
         void setElement(VisibleNodePtr pNode);
         
@@ -82,7 +82,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
-        boost::shared_ptr<IInputDevice> m_pEventSource;
+        boost::shared_ptr<IInputDevice> m_pInputDevice;
         static int s_CurCounter;
 };
 

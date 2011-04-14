@@ -40,15 +40,15 @@ void EventDispatcher::dispatch()
 {
     vector<EventPtr> events;
 
-    for (unsigned int i = 0; i < m_EventSources.size(); ++i) {
-        IInputDevicePtr pCurEventSource = m_EventSources[i];
+    for (unsigned int i = 0; i < m_InputDevices.size(); ++i) {
+        IInputDevicePtr pCurInputDevice = m_InputDevices[i];
 
-        vector<EventPtr> curEvents = pCurEventSource->pollEvents();
+        vector<EventPtr> curEvents = pCurInputDevice->pollEvents();
         vector<EventPtr>::iterator eventIt = curEvents.begin();
         events.insert(events.end(), curEvents.begin(), curEvents.end());
 
         for ( ; eventIt != curEvents.end(); eventIt++) {
-            (*eventIt)->setEventSource(pCurEventSource);
+            (*eventIt)->setInputDevice(pCurInputDevice);
         }
     }
 
@@ -58,9 +58,9 @@ void EventDispatcher::dispatch()
     }
 }
 
-void EventDispatcher::addSource(IInputDevicePtr pSource)
+void EventDispatcher::addInputDevice(IInputDevicePtr pInputDevice)
 {
-    m_EventSources.push_back(pSource);
+    m_InputDevices.push_back(pInputDevice);
 }
 
 void EventDispatcher::addSink(IEventSink * pSink)

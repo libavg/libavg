@@ -120,7 +120,7 @@ class AVG_API Player: IEventSink
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
 
-        void addEventSource(IInputDevicePtr pSource);
+        void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
         TrackerEventSource * addTracker();
         TrackerEventSource * getTracker();

@@ -41,7 +41,7 @@ class AVG_API EventDispatcher {
         virtual ~EventDispatcher();
         void dispatch();
         
-        void addSource(IInputDevicePtr pSource);
+        void addInputDevice(IInputDevicePtr pInputDevice);
         void addSink(IEventSink * pSink);
 
         void sendEvent(EventPtr pEvent);
@@ -49,7 +49,7 @@ class AVG_API EventDispatcher {
     private:
         void handleEvent(EventPtr pEvent);
 
-        std::vector<IInputDevicePtr> m_EventSources;
+        std::vector<IInputDevicePtr> m_InputDevices;
         std::vector<IEventSink*> m_EventSinks;
 
 };

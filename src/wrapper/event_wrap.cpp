@@ -35,15 +35,15 @@ using namespace avg;
 using namespace std;
 
 
-class IEventSourceWrapper : public IInputDevice, public wrapper<IInputDevice> {
+class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice> {
     public:
-        IEventSourceWrapper(const std::string& name)
+        IInputDeviceWrapper(const std::string& name)
             : IInputDevice(name)
         {
         }
 
-        IEventSourceWrapper(const IInputDevice& eventSource)
-            : IInputDevice(eventSource)
+        IInputDeviceWrapper(const IInputDevice& inputDevice)
+            : IInputDevice(inputDevice)
         {
         }
 
@@ -87,12 +87,12 @@ void export_event()
     class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source, optional<int> >())
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
-        .add_property("eventsource",
-                      make_function(&Event::getEventSource,
+        .add_property("inputdevice",
+                      make_function(&Event::getInputDevice,
                                     return_value_policy<copy_const_reference>()),
-                      &Event::setEventSource)
-        .add_property("eventsourcename",
-                      make_function(&Event::getEventSourceName,
+                      &Event::setInputDevice)
+        .add_property("inputdevicename",
+                      make_function(&Event::getInputDeviceName,
                                     return_value_policy<copy_const_reference>()))
     ;
 
@@ -209,14 +209,14 @@ void export_event()
         .export_values()
     ;
 
-    class_<IInputDevicePtr>("IEventSource")
+    class_<IInputDevicePtr>("IInputDevice")
     ;
 
-    class_< IEventSourceWrapper,
-            boost::shared_ptr<IEventSourceWrapper>,
+    class_< IInputDeviceWrapper,
+            boost::shared_ptr<IInputDeviceWrapper>,
             boost::noncopyable
-    >("EventSource", init<const std::string&>())
-        .def("start", &IInputDevice::start, &IEventSourceWrapper::default_start)
+    >("InputDevice", init<const std::string&>())
+        .def("start", &IInputDevice::start, &IInputDeviceWrapper::default_start)
         .def("pollEvents", pure_virtual(&IInputDevice::pollEvents))
         .add_property("name",
                       make_function(&IInputDevice::getName,

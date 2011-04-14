@@ -40,7 +40,7 @@ Event::Event(Type type, Source source, int when)
     : m_Type(type),
       m_pNode(),
       m_Source(source),
-      m_pEventSource()
+      m_pInputDevice()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
@@ -79,24 +79,24 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-const IInputDevicePtr& Event::getEventSource() const
+const IInputDevicePtr& Event::getInputDevice() const
 {
-    return m_pEventSource;
+    return m_pInputDevice;
 }
 
-bool Event::hasEventSource() const
+bool Event::hasInputDevice() const
 {
-    return m_pEventSource != NULL;
+    return m_pInputDevice != NULL;
 }
 
-void Event::setEventSource(IInputDevicePtr eventSource)
+void Event::setInputDevice(IInputDevicePtr pInputDevice)
 {
-    m_pEventSource = eventSource;
+    m_pInputDevice = pInputDevice;
 }
 
-const std::string& Event::getEventSourceName() const
+const std::string& Event::getInputDeviceName() const
 {
-    return m_pEventSource->getName();
+    return m_pInputDevice->getName();
 }
 
 void Event::setElement(VisibleNodePtr pNode)

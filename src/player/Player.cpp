@@ -500,8 +500,8 @@ void Player::initPlayback()
         }
         throw;
     }
-    m_pEventDispatcher->addSource(boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
-    m_pEventDispatcher->addSource(m_pTestHelper);
+    m_pEventDispatcher->addInputDevice(boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
+    m_pEventDispatcher->addInputDevice(m_pTestHelper);
     m_pEventDispatcher->addSink(this);
 
     m_pDisplayEngine->initRender();
@@ -568,13 +568,13 @@ void Player::setFakeFPS(double fps)
     }
 }
 
-void Player::addEventSource(IInputDevicePtr pSource)
+void Player::addInputDevice(IInputDevicePtr pSource)
 {
     if (!m_pEventDispatcher) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "You must use loadFile() before addEventSource().");
     }
-    m_pEventDispatcher->addSource(pSource);
+    m_pEventDispatcher->addInputDevice(pSource);
 }
 
 long long Player::getFrameTime()
@@ -603,7 +603,7 @@ TrackerEventSource * Player::addTracker()
                 "You must use loadFile() before addTracker().");
     }
     m_pMultitouchEventSource = IInputDevicePtr(new TrackerEventSource());
-    addEventSource(m_pMultitouchEventSource);
+    addInputDevice(m_pMultitouchEventSource);
     if (m_bIsPlaying) {
         m_pMultitouchEventSource->start();
     }
@@ -671,7 +671,7 @@ void Player::enableMultitouch()
             throw;
         }
     }
-    addEventSource(m_pMultitouchEventSource);
+    addInputDevice(m_pMultitouchEventSource);
 }
 
 bool Player::isMultitouchAvailable() const
