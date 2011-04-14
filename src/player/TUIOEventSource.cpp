@@ -72,7 +72,7 @@ void TUIOEventSource::start()
                 string("TUIO event source: AVG_TUIO_PORT set to invalid value '")
                 + sPort + "'");
     }
-    MultitouchEventSource::start();
+    MultitouchInputDevice::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
                 IpEndpointName::ANY_ADDRESS, port), this);

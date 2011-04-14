@@ -23,7 +23,7 @@
 #define _LibMTDevEventSource_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 
 #include "../base/Rect.h"
 
@@ -34,7 +34,7 @@ struct mtdev;
 
 namespace avg {
 
-class AVG_API LibMTDevEventSource: public MultitouchEventSource
+class AVG_API LibMTDevEventSource: public MultitouchInputDevice
 {
 public:
     LibMTDevEventSource();

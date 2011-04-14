@@ -69,7 +69,7 @@ void Win7TouchEventSource::start()
 
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
     if (multitouchCaps & NID_MULTI_INPUT) {
-        MultitouchEventSource::start();
+        MultitouchInputDevice::start();
         SDL_SysWMinfo info;
         SDL_VERSION(&info.version);
         int err = SDL_GetWMInfo(&info);

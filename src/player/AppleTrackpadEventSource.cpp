@@ -53,7 +53,7 @@ AppleTrackpadEventSource::~AppleTrackpadEventSource()
 
 void AppleTrackpadEventSource::start()
 {
-    MultitouchEventSource::start();
+    MultitouchInputDevice::start();
     m_Device = MTDeviceCreateDefault();
     MTRegisterContactFrameCallback(m_Device, callback);
     MTDeviceStart(m_Device, 0);

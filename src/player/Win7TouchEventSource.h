@@ -23,7 +23,7 @@
 #define _Win7TouchEventSource_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 
 #undef WIN32_LEAN_AND_MEAN
 #include <SDL/SDL_syswm.h>
@@ -35,7 +35,7 @@ typedef bool (WINAPI* GTIIPROC)(HTOUCHINPUT, UINT, PTOUCHINPUT, int);
 typedef bool (WINAPI* CTIHPROC)(HTOUCHINPUT);
 #endif
 
-class AVG_API Win7TouchEventSource: public MultitouchEventSource
+class AVG_API Win7TouchEventSource: public MultitouchInputDevice
 {
 public:
     Win7TouchEventSource();

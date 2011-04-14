@@ -41,7 +41,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h IEventSink.h VideoNode.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
-        OffscreenCanvasNode.h MultitouchEventSource.h \
+        OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
         TouchEvent.h TouchStatus.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
@@ -76,7 +76,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp VisibleNode.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
-        MainCanvas.cpp Node.cpp MultitouchEventSource.cpp \
+        MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp \
         PanoImageNode.cpp WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \

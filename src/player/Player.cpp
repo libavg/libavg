@@ -45,7 +45,7 @@
 #include "OffscreenCanvas.h"
 #include "TrackerEventSource.h"
 #include "SDLDisplayEngine.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 #include "TUIOEventSource.h"
 #ifdef __APPLE__
     #include "AppleTrackpadEventSource.h"
@@ -99,7 +99,7 @@ Player * Player::s_pPlayer=0;
 Player::Player()
     : m_pDisplayEngine(),
       m_pAudioEngine(0),
-      m_pMultitouchEventSource(),
+      m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
       m_bStopOnEscape(true),
@@ -506,8 +506,8 @@ void Player::initPlayback()
 
     m_pDisplayEngine->initRender();
     m_bStopping = false;
-    if (m_pMultitouchEventSource) {
-        m_pMultitouchEventSource->start();
+    if (m_pMultitouchInputDevice) {
+        m_pMultitouchInputDevice->start();
     }
 
     m_FrameTime = 0;
@@ -602,19 +602,19 @@ TrackerEventSource * Player::addTracker()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "You must use loadFile() before addTracker().");
     }
-    m_pMultitouchEventSource = IInputDevicePtr(new TrackerEventSource());
-    addInputDevice(m_pMultitouchEventSource);
+    m_pMultitouchInputDevice = IInputDevicePtr(new TrackerEventSource());
+    addInputDevice(m_pMultitouchInputDevice);
     if (m_bIsPlaying) {
-        m_pMultitouchEventSource->start();
+        m_pMultitouchInputDevice->start();
     }
 
-    return dynamic_cast<TrackerEventSource*>(m_pMultitouchEventSource.get());
+    return dynamic_cast<TrackerEventSource*>(m_pMultitouchInputDevice.get());
 }
 
 TrackerEventSource * Player::getTracker()
 {
     TrackerEventSource* pTracker = dynamic_cast<TrackerEventSource*>(
-            m_pMultitouchEventSource.get());
+            m_pMultitouchInputDevice.get());
     return pTracker;
 }
 
@@ -636,48 +636,48 @@ void Player::enableMultitouch()
 #endif
     }
     if (sDriver == "TUIO") {
-        m_pMultitouchEventSource = IInputDevicePtr(new TUIOEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new TUIOEventSource);
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchEventSource = IInputDevicePtr(new Win7TouchEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new Win7TouchEventSource);
 #endif
     } else if (sDriver == "XINPUT21") {
 #ifdef HAVE_XI2_1
         XInput21MTEventSource* pXIMTEventSource = IInputDevicePtr(new XInput21MTEventSource)
-        m_pMultitouchEventSource = pXIMTEventSource;
+        m_pMultitouchInputDevice = pXIMTEventSource;
 #else
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput 2.1 multitouch event source: Support not configured.'");
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {
-        m_pMultitouchEventSource = IInputDevicePtr(new LibMTDevEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new LibMTDevEventSource);
 #endif
 #ifdef __APPLE__
     } else if (sDriver == "APPLETRACKPAD") {
-        m_pMultitouchEventSource = IInputDevicePtr(new AppleTrackpadEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new AppleTrackpadEventSource);
 #endif
     } else if (sDriver == "TRACKER") {
-        m_pMultitouchEventSource = IInputDevicePtr(new TrackerEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new TrackerEventSource);
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }
     if (m_bIsPlaying) {
         try {
-            m_pMultitouchEventSource->start();
+            m_pMultitouchInputDevice->start();
         } catch (Exception&) {
-            m_pMultitouchEventSource = IInputDevicePtr();
+            m_pMultitouchInputDevice = IInputDevicePtr();
             throw;
         }
     }
-    addInputDevice(m_pMultitouchEventSource);
+    addInputDevice(m_pMultitouchInputDevice);
 }
 
 bool Player::isMultitouchAvailable() const
 {
     if (m_bIsPlaying) {
-        return m_pMultitouchEventSource != 0;
+        return m_pMultitouchInputDevice != 0;
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before isMultitouchAvailable().");
@@ -1573,8 +1573,8 @@ void Player::cleanup()
         m_pMainCanvas = MainCanvasPtr();
     }
 
-    if (m_pMultitouchEventSource) {
-        m_pMultitouchEventSource = IInputDevicePtr();
+    if (m_pMultitouchInputDevice) {
+        m_pMultitouchInputDevice = IInputDevicePtr();
     }
     for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
         m_pCanvases[i]->stopPlayback();

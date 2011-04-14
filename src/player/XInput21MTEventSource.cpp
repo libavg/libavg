@@ -139,7 +139,7 @@ void XInput21MTEventSource::start()
     XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
 
     pEngine->setXIMTEventSource(this);
-    MultitouchEventSource::start();
+    MultitouchInputDevice::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
 }
 
@@ -194,7 +194,7 @@ void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
 std::vector<EventPtr> XInput21MTEventSource::pollEvents()
 {
 
-    return MultitouchEventSource::pollEvents();
+    return MultitouchInputDevice::pollEvents();
 }
 
 void XInput21MTEventSource::findMTDevice()

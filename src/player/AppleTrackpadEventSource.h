@@ -23,7 +23,7 @@
 #define _AppleTrackpadEventSource_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 
 extern "C" {
 
@@ -57,7 +57,7 @@ void MTDeviceRelease(MTDeviceRef);
 
 namespace avg {
 
-class AVG_API AppleTrackpadEventSource: public MultitouchEventSource
+class AVG_API AppleTrackpadEventSource: public MultitouchInputDevice
 {
 public:
     AppleTrackpadEventSource();

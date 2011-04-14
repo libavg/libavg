@@ -54,7 +54,7 @@ class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
 class TrackerEventSource;
-class MultitouchEventSource;
+class MultitouchInputDevice;
 class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
@@ -209,7 +209,7 @@ class AVG_API Player: IEventSink
         bool m_bStopping;
         NodeRegistry m_NodeRegistry;
 
-        IInputDevicePtr m_pMultitouchEventSource;
+        IInputDevicePtr m_pMultitouchInputDevice;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);

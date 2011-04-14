@@ -23,7 +23,7 @@
 #define _TUIOEventSource_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 #include "../oscpack/UdpSocket.h"
 #include "../oscpack/PacketListener.h"
 #include "../oscpack/OscReceivedElements.h"
@@ -37,7 +37,7 @@
 
 namespace avg {
 
-class AVG_API TUIOEventSource: public MultitouchEventSource, PacketListener
+class AVG_API TUIOEventSource: public MultitouchInputDevice, PacketListener
 {
 public:
     TUIOEventSource();

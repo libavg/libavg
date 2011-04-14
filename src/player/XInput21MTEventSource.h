@@ -23,7 +23,7 @@
 #define _XInput21MTEventSource_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 
 #include "../base/Point.h"
 
@@ -35,7 +35,7 @@ union SDL_Event;
 
 namespace avg {
 
-class AVG_API XInput21MTEventSource: public MultitouchEventSource
+class AVG_API XInput21MTEventSource: public MultitouchInputDevice
 {
 public:
     XInput21MTEventSource();
