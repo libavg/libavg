@@ -29,7 +29,6 @@
 #include "MouseEvent.h"
 #include "DisplayParams.h"
 #include "GLConfig.h"
-#include "IEventSink.h"
 #include "EventDispatcher.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
@@ -68,7 +67,7 @@ typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
 
-class AVG_API Player: IEventSink
+class AVG_API Player
 {
     public:
         Player();
@@ -171,7 +170,7 @@ class AVG_API Player: IEventSink
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        virtual bool handleEvent(EventPtr pEvent);
+        bool handleEvent(EventPtr pEvent);
         void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
         
     private:

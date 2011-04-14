@@ -265,7 +265,7 @@ CanvasPtr Player::loadFile(const string& sFilename)
 {
     errorIfPlaying("Player.loadFile");
     NodePtr pNode = loadMainNodeFromFile(sFilename);
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
     if (m_pMainCanvas) {
         cleanup();
     }
@@ -284,7 +284,7 @@ CanvasPtr Player::loadString(const string& sAVG)
     }
 
     NodePtr pNode = loadMainNodeFromString(sAVG);
-    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pNode);
     m_DP.m_Size = m_pMainCanvas->getSize();
@@ -502,7 +502,6 @@ void Player::initPlayback()
     }
     m_pEventDispatcher->addInputDevice(boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
-    m_pEventDispatcher->addSink(this);
 
     m_pDisplayEngine->initRender();
     m_bStopping = false;

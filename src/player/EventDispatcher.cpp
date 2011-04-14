@@ -21,6 +21,7 @@
 
 #include "EventDispatcher.h"
 #include "Event.h"
+#include "Player.h"
 
 #include <string>
 
@@ -28,7 +29,8 @@ using namespace std;
 
 namespace avg {
 
-EventDispatcher::EventDispatcher()
+EventDispatcher::EventDispatcher(Player* pPlayer)
+    : m_pPlayer(pPlayer)
 {
 }
 
@@ -63,11 +65,6 @@ void EventDispatcher::addInputDevice(IInputDevicePtr pInputDevice)
     m_InputDevices.push_back(pInputDevice);
 }
 
-void EventDispatcher::addSink(IEventSink * pSink)
-{
-    m_EventSinks.push_back(pSink);
-}
-
 void EventDispatcher::sendEvent(EventPtr pEvent)
 {
     handleEvent(pEvent);
@@ -75,12 +72,7 @@ void EventDispatcher::sendEvent(EventPtr pEvent)
 
 void EventDispatcher::handleEvent(EventPtr pEvent)
 {
-    for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
-        if (m_EventSinks[i]->handleEvent(pEvent)) {
-            break;
-        }
-    }
+    m_pPlayer->handleEvent(pEvent);
 }
 
 }
-

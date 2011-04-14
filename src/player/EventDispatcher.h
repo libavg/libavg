@@ -23,7 +23,6 @@
 #define _EventDispatcher_h_
 
 #include "../api.h"
-#include "IEventSink.h"
 #include "IInputDevice.h"
 #include "MouseEvent.h"
 
@@ -34,15 +33,15 @@
 namespace avg {
 
 class Event;
+class Player;
 
 class AVG_API EventDispatcher {
     public:
-        EventDispatcher();
+        EventDispatcher(Player* pPlayer);
         virtual ~EventDispatcher();
         void dispatch();
         
         void addInputDevice(IInputDevicePtr pInputDevice);
-        void addSink(IEventSink * pSink);
 
         void sendEvent(EventPtr pEvent);
 
@@ -50,8 +49,7 @@ class AVG_API EventDispatcher {
         void handleEvent(EventPtr pEvent);
 
         std::vector<IInputDevicePtr> m_InputDevices;
-        std::vector<IEventSink*> m_EventSinks;
-
+        Player* m_pPlayer;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 
