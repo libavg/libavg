@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _EventSource_h_
-#define _EventSource_h_
+#ifndef _IInputDevice_H_
+#define _IInputDevice_H_
 
 #include "../api.h"
 #include "Event.h"
@@ -28,14 +28,14 @@
 #include <vector>
 
 
-#define EXTRACT_CLASSNAME_STRING( classType ) (#classType)
+#define EXTRACT_INPUTDEVICE_CLASSNAME( classType ) (#classType)
 
 namespace avg {
 
-class AVG_API IEventSource {
+class AVG_API IInputDevice {
     public:
-        IEventSource(const std::string& name) : m_sName(name) {}
-        virtual ~IEventSource() {};
+        IInputDevice(const std::string& name) : m_sName(name) {}
+        virtual ~IInputDevice() {};
 
         virtual void start() {};
         virtual std::vector<EventPtr> pollEvents() = 0;
@@ -46,7 +46,7 @@ class AVG_API IEventSource {
         std::string m_sName;
 };
 
-typedef boost::shared_ptr<IEventSource> IEventSourcePtr;
+typedef boost::shared_ptr<IInputDevice> IInputDevicePtr;
 
 }
 

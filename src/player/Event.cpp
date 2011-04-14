@@ -20,7 +20,7 @@
 //
 
 #include "Event.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "VisibleNode.h"
 
 #include "../base/TimeSource.h"
@@ -79,7 +79,7 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-const IEventSourcePtr& Event::getEventSource() const
+const IInputDevicePtr& Event::getEventSource() const
 {
     return m_pEventSource;
 }
@@ -89,7 +89,7 @@ bool Event::hasEventSource() const
     return m_pEventSource != NULL;
 }
 
-void Event::setEventSource(IEventSourcePtr eventSource)
+void Event::setEventSource(IInputDevicePtr eventSource)
 {
     m_pEventSource = eventSource;
 }

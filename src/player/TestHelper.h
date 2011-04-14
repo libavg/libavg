@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "../graphics/Bitmap.h"
 #include "Event.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -33,7 +33,7 @@
 
 namespace avg {
     
-class AVG_API TestHelper : public IEventSource
+class AVG_API TestHelper : public IInputDevice
 {
 
     public: 
@@ -53,7 +53,7 @@ class AVG_API TestHelper : public IEventSource
                 const std::string& keyString, int unicode, int modifiers);
         void dumpObjects();
 
-        // From IEventSource
+        // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
 
     private:

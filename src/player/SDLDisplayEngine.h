@@ -23,7 +23,7 @@
 #define _SDLDisplayEngine_H_
 
 #include "../api.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "DisplayEngine.h"
 #include "GLConfig.h"
 
@@ -42,7 +42,7 @@ namespace avg {
 
 class XInput21MTEventSource;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
+class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
         SDLDisplayEngine();
@@ -69,7 +69,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot();
 
-        // From IEventSource
+        // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
         void setXIMTEventSource(XInput21MTEventSource* pEventSource);
 

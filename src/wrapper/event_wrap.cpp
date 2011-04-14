@@ -35,15 +35,15 @@ using namespace avg;
 using namespace std;
 
 
-class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
+class IEventSourceWrapper : public IInputDevice, public wrapper<IInputDevice> {
     public:
         IEventSourceWrapper(const std::string& name)
-            : IEventSource(name)
+            : IInputDevice(name)
         {
         }
 
-        IEventSourceWrapper(const IEventSource& eventSource)
-            : IEventSource(eventSource)
+        IEventSourceWrapper(const IInputDevice& eventSource)
+            : IInputDevice(eventSource)
         {
         }
 
@@ -55,11 +55,11 @@ class IEventSourceWrapper : public IEventSource, public wrapper<IEventSource> {
                 startMethod();
 #endif
             }
-            IEventSource::start();
+            IInputDevice::start();
         }
 
         void default_start() {
-            return this->IEventSource::start();
+            return this->IInputDevice::start();
         }
 
         virtual std::vector<EventPtr> pollEvents() {
@@ -209,17 +209,17 @@ void export_event()
         .export_values()
     ;
 
-    class_<IEventSourcePtr>("IEventSource")
+    class_<IInputDevicePtr>("IEventSource")
     ;
 
     class_< IEventSourceWrapper,
             boost::shared_ptr<IEventSourceWrapper>,
             boost::noncopyable
     >("EventSource", init<const std::string&>())
-        .def("start", &IEventSource::start, &IEventSourceWrapper::default_start)
-        .def("pollEvents", pure_virtual(&IEventSource::pollEvents))
+        .def("start", &IInputDevice::start, &IEventSourceWrapper::default_start)
+        .def("pollEvents", pure_virtual(&IInputDevice::pollEvents))
         .add_property("name",
-                      make_function(&IEventSource::getName,
+                      make_function(&IInputDevice::getName,
                                     return_value_policy<copy_const_reference>()))
     ;
 

@@ -55,7 +55,7 @@ using namespace std;
 namespace avg {
 
 TrackerEventSource::TrackerEventSource()
-    : IEventSource(EXTRACT_CLASSNAME_STRING(TrackerEventSource)),
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TrackerEventSource)),
       m_pTrackerThread(0),
       m_bSubtractHistory(true),
       m_pCalibrator(0)

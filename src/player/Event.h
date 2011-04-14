@@ -23,7 +23,7 @@
 #define _Event_H_
 
 #include "../api.h"
-//#include "IEventSource.h"
+//#include "IInputDevice.h"
 #include <functional>
 #include <string>
 #include <boost/shared_ptr.hpp>
@@ -32,7 +32,7 @@
 
 namespace avg {
 
-class IEventSource;
+class IInputDevice;
 class VisibleNode;
 typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
 
@@ -61,8 +61,8 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        const boost::shared_ptr<IEventSource>& getEventSource() const;
-        void setEventSource(boost::shared_ptr<IEventSource> eventSource);
+        const boost::shared_ptr<IInputDevice>& getEventSource() const;
+        void setEventSource(boost::shared_ptr<IInputDevice> eventSource);
         bool hasEventSource() const;
         const std::string& getEventSourceName() const;
         VisibleNodePtr getElement() const;
@@ -82,7 +82,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
-        boost::shared_ptr<IEventSource> m_pEventSource;
+        boost::shared_ptr<IInputDevice> m_pEventSource;
         static int s_CurCounter;
 };
 

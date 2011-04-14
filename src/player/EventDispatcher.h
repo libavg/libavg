@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "IEventSink.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "MouseEvent.h"
 
 #include <vector>
@@ -41,7 +41,7 @@ class AVG_API EventDispatcher {
         virtual ~EventDispatcher();
         void dispatch();
         
-        void addSource(IEventSourcePtr pSource);
+        void addSource(IInputDevicePtr pSource);
         void addSink(IEventSink * pSink);
 
         void sendEvent(EventPtr pEvent);
@@ -49,7 +49,7 @@ class AVG_API EventDispatcher {
     private:
         void handleEvent(EventPtr pEvent);
 
-        std::vector<IEventSourcePtr> m_EventSources;
+        std::vector<IInputDevicePtr> m_EventSources;
         std::vector<IEventSink*> m_EventSinks;
 
 };

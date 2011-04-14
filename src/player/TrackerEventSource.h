@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "TrackerCalibrator.h"
 
 #include "../imaging/TrackerThread.h"
@@ -46,7 +46,7 @@ namespace avg {
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 
-class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
+class AVG_API TrackerEventSource: public IBlobTarget, public IInputDevice
 {
     typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 

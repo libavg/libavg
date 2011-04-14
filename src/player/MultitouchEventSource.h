@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 
 #include <boost/thread.hpp>
 #include <map>
@@ -39,7 +39,7 @@ typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 
-class AVG_API MultitouchEventSource: public IEventSource
+class AVG_API MultitouchEventSource: public IInputDevice
 {
 public:
     MultitouchEventSource();

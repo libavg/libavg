@@ -36,7 +36,7 @@ using namespace std;
 namespace avg {
 
 MultitouchEventSource::MultitouchEventSource()
-    : IEventSource(EXTRACT_CLASSNAME_STRING(MultitouchEventSource))
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(MultitouchEventSource))
 {
 }
 

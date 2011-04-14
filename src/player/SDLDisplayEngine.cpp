@@ -95,7 +95,7 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
-    : IEventSource(EXTRACT_CLASSNAME_STRING(SDLDisplayEngine)),
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(IntPoint(0,0)),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
