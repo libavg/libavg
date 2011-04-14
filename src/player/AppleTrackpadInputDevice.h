@@ -77,7 +77,7 @@ private:
     int m_LastID;
 };
 
-typedef boost::shared_ptr<AppleTrackpadInputDevice> AppleTrackpadEventSourcePtr;
+typedef boost::shared_ptr<AppleTrackpadInputDevice> AppleTrackpadInputDevicePtr;
 
 }
 

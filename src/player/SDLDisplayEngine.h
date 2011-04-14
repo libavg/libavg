@@ -71,7 +71,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
-        void setXIMTInputDevice(XInput21MTInputDevice* pEventSource);
+        void setXIMTInputDevice(XInput21MTInputDevice* pInputDevice);
 
         // Texture config.
         void initTextureMode();
@@ -133,7 +133,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bMouseOverApp;
         IntPoint m_LastMousePos;
         static std::vector<long> KeyCodeTranslationTable;
-        XInput21MTInputDevice * m_pXIMTEventSource;
+        XInput21MTInputDevice * m_pXIMTInputDevice;
 
         int m_MaxTexSize;
 

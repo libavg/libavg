@@ -228,7 +228,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
 #ifdef HAVE_XI2_1
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTEventSource = 0;
+    m_pXIMTInputDevice = 0;
 #endif
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
@@ -776,8 +776,8 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
 #ifdef HAVE_XI2_1
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
                     AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-                    if (m_pXIMTEventSource) {
-                        m_pXIMTEventSource->handleXIEvent(pMsg->event.xevent);
+                    if (m_pXIMTInputDevice) {
+                        m_pXIMTInputDevice->handleXIEvent(pMsg->event.xevent);
                     }
 #endif
                 }
@@ -793,10 +793,10 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-void SDLDisplayEngine::setXIMTInputDevice(XInput21MTInputDevice* pEventSource)
+void SDLDisplayEngine::setXIMTInputDevice(XInput21MTInputDevice* pInputDevice)
 {
-    AVG_ASSERT(!m_pXIMTEventSource);
-    m_pXIMTEventSource = pEventSource;
+    AVG_ASSERT(!m_pXIMTInputDevice);
+    m_pXIMTInputDevice = pInputDevice;
 }
 
 EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,

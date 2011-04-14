@@ -572,7 +572,7 @@ void Player::addInputDevice(IInputDevicePtr pSource)
 {
     if (!m_pEventDispatcher) {
         throw Exception(AVG_ERR_UNSUPPORTED,
-                "You must use loadFile() before addEventSource().");
+                "You must use loadFile() before addInputDevice().");
     }
     m_pEventDispatcher->addInputDevice(pSource);
 }
@@ -643,8 +643,8 @@ void Player::enableMultitouch()
 #endif
     } else if (sDriver == "XINPUT21") {
 #ifdef HAVE_XI2_1
-        XInput21MTInputDevice* pXIMTEventSource = IInputDevicePtr(new XInput21MTInputDevice)
-        m_pMultitouchInputDevice = pXIMTEventSource;
+        XInput21MTInputDevice* pXIMTInputDevice = IInputDevicePtr(new XInput21MTInputDevice)
+        m_pMultitouchInputDevice = pXIMTInputDevice;
 #else
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput 2.1 multitouch event source: Support not configured.'");
