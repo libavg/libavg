@@ -42,7 +42,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h IEventSink.h VideoNode.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
-        RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
+        RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
         TouchEvent.h TouchStatus.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
@@ -81,7 +81,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
-        TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
+        TrackerInputDevice.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOEventSource.cpp \

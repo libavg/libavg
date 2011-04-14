@@ -25,7 +25,7 @@
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
 #include "../player/VisibleNode.h"
-#include "../player/TrackerEventSource.h"
+#include "../player/TrackerInputDevice.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -223,20 +223,20 @@ void export_event()
                                     return_value_policy<copy_const_reference>()))
     ;
 
-    class_<TrackerEventSource, boost::noncopyable>("Tracker", no_init)
-        .def("getImage", &TrackerEventSource::getImage,
+    class_<TrackerInputDevice, boost::noncopyable>("Tracker", no_init)
+        .def("getImage", &TrackerInputDevice::getImage,
             return_value_policy<manage_new_object>())
-        .def("getDisplayROIPos", &TrackerEventSource::getDisplayROIPos)
-        .def("getDisplayROISize", &TrackerEventSource::getDisplayROISize)
-        .def("saveConfig", &TrackerEventSource::saveConfig)
-        .def("resetHistory", &TrackerEventSource::resetHistory)
-        .def("setDebugImages", &TrackerEventSource::setDebugImages)
-        .def("startCalibration", &TrackerEventSource::startCalibration,
+        .def("getDisplayROIPos", &TrackerInputDevice::getDisplayROIPos)
+        .def("getDisplayROISize", &TrackerInputDevice::getDisplayROISize)
+        .def("saveConfig", &TrackerInputDevice::saveConfig)
+        .def("resetHistory", &TrackerInputDevice::resetHistory)
+        .def("setDebugImages", &TrackerInputDevice::setDebugImages)
+        .def("startCalibration", &TrackerInputDevice::startCalibration,
             return_value_policy<reference_existing_object>())
-        .def("endCalibration", &TrackerEventSource::endCalibration)
-        .def("abortCalibration", &TrackerEventSource::abortCalibration)
-        .def("setParam", &TrackerEventSource::setParam)
-        .def("getParam", &TrackerEventSource::getParam)
+        .def("endCalibration", &TrackerInputDevice::endCalibration)
+        .def("abortCalibration", &TrackerInputDevice::abortCalibration)
+        .def("setParam", &TrackerInputDevice::setParam)
+        .def("getParam", &TrackerInputDevice::getParam)
     ;
 
     class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)

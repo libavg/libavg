@@ -35,7 +35,7 @@ void export_anim();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/TrackerEventSource.h"
+#include "../player/TrackerInputDevice.h"
 #include "../player/TouchEvent.h"
 #include "../player/TestHelper.h"
 #include "../player/Canvas.h"

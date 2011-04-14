@@ -20,7 +20,7 @@
 //
 
 #include "TrackerCalibrator.h"
-#include "TrackerEventSource.h"
+#include "TrackerInputDevice.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"

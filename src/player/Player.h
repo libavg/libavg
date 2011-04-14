@@ -53,7 +53,7 @@ class VisibleNode;
 class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
-class TrackerEventSource;
+class TrackerInputDevice;
 class MultitouchInputDevice;
 class IFrameEndListener;
 class IPlaybackEndListener;
@@ -122,8 +122,8 @@ class AVG_API Player: IEventSink
 
         void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
-        TrackerEventSource * addTracker();
-        TrackerEventSource * getTracker();
+        TrackerInputDevice * addTracker();
+        TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
         void setEventCapture(VisibleNodePtr pNode, int cursorID);

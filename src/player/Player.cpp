@@ -43,7 +43,7 @@
 #include "TestHelper.h"
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
-#include "TrackerEventSource.h"
+#include "TrackerInputDevice.h"
 #include "SDLDisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOEventSource.h"
@@ -596,24 +596,24 @@ double Player::getFrameDuration()
     }
 }
 
-TrackerEventSource * Player::addTracker()
+TrackerInputDevice * Player::addTracker()
 {
     if (!m_pMainCanvas) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "You must use loadFile() before addTracker().");
     }
-    m_pMultitouchInputDevice = IInputDevicePtr(new TrackerEventSource());
+    m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice());
     addInputDevice(m_pMultitouchInputDevice);
     if (m_bIsPlaying) {
         m_pMultitouchInputDevice->start();
     }
 
-    return dynamic_cast<TrackerEventSource*>(m_pMultitouchInputDevice.get());
+    return dynamic_cast<TrackerInputDevice*>(m_pMultitouchInputDevice.get());
 }
 
-TrackerEventSource * Player::getTracker()
+TrackerInputDevice * Player::getTracker()
 {
-    TrackerEventSource* pTracker = dynamic_cast<TrackerEventSource*>(
+    TrackerInputDevice* pTracker = dynamic_cast<TrackerInputDevice*>(
             m_pMultitouchInputDevice.get());
     return pTracker;
 }
@@ -658,7 +658,7 @@ void Player::enableMultitouch()
         m_pMultitouchInputDevice = IInputDevicePtr(new AppleTrackpadInputDevice);
 #endif
     } else if (sDriver == "TRACKER") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new TrackerEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
