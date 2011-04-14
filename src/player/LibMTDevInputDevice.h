@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _LibMTDevEventSource_H_
-#define _LibMTDevEventSource_H_
+#ifndef _LibMTDevInputDevice_H_
+#define _LibMTDevInputDevice_H_
 
 #include "../api.h"
 #include "MultitouchInputDevice.h"
@@ -34,11 +34,11 @@ struct mtdev;
 
 namespace avg {
 
-class AVG_API LibMTDevEventSource: public MultitouchInputDevice
+class AVG_API LibMTDevInputDevice: public MultitouchInputDevice
 {
 public:
-    LibMTDevEventSource();
-    virtual ~LibMTDevEventSource();
+    LibMTDevInputDevice();
+    virtual ~LibMTDevInputDevice();
     virtual void start();
 
     std::vector<EventPtr> pollEvents();
@@ -62,7 +62,7 @@ private:
 
 };
 
-typedef boost::shared_ptr<LibMTDevEventSource> LibMTDevEventSourcePtr;
+typedef boost::shared_ptr<LibMTDevInputDevice> LibMTDevInputDevicePtr;
 
 }
 

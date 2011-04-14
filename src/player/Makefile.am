@@ -14,8 +14,8 @@ else
 endif
 
 if ENABLE_MTDEV
-    MTDEV_SOURCES = LibMTDevEventSource.cpp
-    MTDEV_INCLUDES = LibMTDevEventSource.h
+    MTDEV_SOURCES = LibMTDevInputDevice.cpp
+    MTDEV_INCLUDES = LibMTDevInputDevice.h
 else
     MTDEV_SOURCES =
     MTDEV_INCLUDES =

@@ -54,7 +54,7 @@
     #include "Win7TouchEventSource.h"
 #endif
 #ifdef AVG_ENABLE_MTDEV
-    #include "LibMTDevEventSource.h"
+    #include "LibMTDevInputDevice.h"
 #endif
 #ifdef HAVE_XI2_1
     #include "XInput21MTInputDevice.h"
@@ -651,7 +651,7 @@ void Player::enableMultitouch()
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new LibMTDevEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new LibMTDevInputDevice);
 #endif
 #ifdef __APPLE__
     } else if (sDriver == "APPLETRACKPAD") {
