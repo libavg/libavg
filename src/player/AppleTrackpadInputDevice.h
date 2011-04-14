@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _AppleTrackpadEventSource_H_
-#define _AppleTrackpadEventSource_H_
+#ifndef _AppleTrackpadInputDevice_H_
+#define _AppleTrackpadInputDevice_H_
 
 #include "../api.h"
 #include "MultitouchInputDevice.h"
@@ -57,11 +57,11 @@ void MTDeviceRelease(MTDeviceRef);
 
 namespace avg {
 
-class AVG_API AppleTrackpadEventSource: public MultitouchInputDevice
+class AVG_API AppleTrackpadInputDevice: public MultitouchInputDevice
 {
 public:
-    AppleTrackpadEventSource();
-    virtual ~AppleTrackpadEventSource();
+    AppleTrackpadInputDevice();
+    virtual ~AppleTrackpadInputDevice();
     virtual void start();
     
 
@@ -72,12 +72,12 @@ private:
     TouchEventPtr createEvent(int avgID, Finger* pFinger, Event::Type eventType);
 
     MTDeviceRef m_Device;
-    static AppleTrackpadEventSource* s_pInstance;
+    static AppleTrackpadInputDevice* s_pInstance;
 
     int m_LastID;
 };
 
-typedef boost::shared_ptr<AppleTrackpadEventSource> AppleTrackpadEventSourcePtr;
+typedef boost::shared_ptr<AppleTrackpadInputDevice> AppleTrackpadEventSourcePtr;
 
 }
 
