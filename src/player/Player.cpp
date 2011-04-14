@@ -46,7 +46,7 @@
 #include "TrackerInputDevice.h"
 #include "SDLDisplayEngine.h"
 #include "MultitouchInputDevice.h"
-#include "TUIOEventSource.h"
+#include "TUIOInputDevice.h"
 #ifdef __APPLE__
     #include "AppleTrackpadInputDevice.h"
 #endif
@@ -636,7 +636,7 @@ void Player::enableMultitouch()
 #endif
     }
     if (sDriver == "TUIO") {
-        m_pMultitouchInputDevice = IInputDevicePtr(new TUIOEventSource);
+        m_pMultitouchInputDevice = IInputDevicePtr(new TUIOInputDevice);
 #if defined(_WIN32) && defined(SM_DIGITIZER)
     } else if (sDriver == "WIN7TOUCH") {
         m_pMultitouchInputDevice = IInputDevicePtr(new Win7TouchEventSource);

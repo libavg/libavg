@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TUIOEventSource_H_
-#define _TUIOEventSource_H_
+#ifndef _TUIOInputDevice_H_
+#define _TUIOInputDevice_H_
 
 #include "../api.h"
 #include "MultitouchInputDevice.h"
@@ -37,11 +37,11 @@
 
 namespace avg {
 
-class AVG_API TUIOEventSource: public MultitouchInputDevice, PacketListener
+class AVG_API TUIOInputDevice: public MultitouchInputDevice, PacketListener
 {
 public:
-    TUIOEventSource();
-    virtual ~TUIOEventSource();
+    TUIOInputDevice();
+    virtual ~TUIOInputDevice();
     virtual void start();
     
     virtual void ProcessPacket(const char* pData, int size, 
@@ -71,7 +71,7 @@ private:
 #endif  
 };
 
-typedef boost::shared_ptr<TUIOEventSource> TUIOEventSourcePtr;
+typedef boost::shared_ptr<TUIOInputDevice> TUIOInputDevicePtr;
 
 }
 
