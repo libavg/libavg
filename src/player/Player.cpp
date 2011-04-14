@@ -57,7 +57,7 @@
     #include "LibMTDevEventSource.h"
 #endif
 #ifdef HAVE_XI2_1
-    #include "XInput21MTEventSource.h"
+    #include "XInput21MTInputDevice.h"
 #endif
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -643,7 +643,7 @@ void Player::enableMultitouch()
 #endif
     } else if (sDriver == "XINPUT21") {
 #ifdef HAVE_XI2_1
-        XInput21MTEventSource* pXIMTEventSource = IInputDevicePtr(new XInput21MTEventSource)
+        XInput21MTInputDevice* pXIMTEventSource = IInputDevicePtr(new XInput21MTInputDevice)
         m_pMultitouchInputDevice = pXIMTEventSource;
 #else
         throw Exception(AVG_ERR_MT_INIT,

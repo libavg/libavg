@@ -40,7 +40,7 @@ union SDL_Event;
 
 namespace avg {
 
-class XInput21MTEventSource;
+class XInput21MTInputDevice;
 
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
@@ -71,7 +71,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
-        void setXIMTEventSource(XInput21MTEventSource* pEventSource);
+        void setXIMTInputDevice(XInput21MTInputDevice* pEventSource);
 
         // Texture config.
         void initTextureMode();
@@ -133,7 +133,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bMouseOverApp;
         IntPoint m_LastMousePos;
         static std::vector<long> KeyCodeTranslationTable;
-        XInput21MTEventSource * m_pXIMTEventSource;
+        XInput21MTInputDevice * m_pXIMTEventSource;
 
         int m_MaxTexSize;
 

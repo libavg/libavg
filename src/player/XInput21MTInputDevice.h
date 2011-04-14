@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _XInput21MTEventSource_H_
-#define _XInput21MTEventSource_H_
+#ifndef _XInput21MTInputDevice_H_
+#define _XInput21MTInputDevice_H_
 
 #include "../api.h"
 #include "MultitouchInputDevice.h"
@@ -35,11 +35,11 @@ union SDL_Event;
 
 namespace avg {
 
-class AVG_API XInput21MTEventSource: public MultitouchInputDevice
+class AVG_API XInput21MTInputDevice: public MultitouchInputDevice
 {
 public:
-    XInput21MTEventSource();
-    virtual ~XInput21MTEventSource();
+    XInput21MTInputDevice();
+    virtual ~XInput21MTInputDevice();
     virtual void start();
 
     void handleXIEvent(const XEvent& xEvent);
@@ -65,7 +65,7 @@ private:
     int m_OldMasterDeviceID;
 };
 
-typedef boost::shared_ptr<XInput21MTEventSource> XInput21MTEventSourcePtr;
+typedef boost::shared_ptr<XInput21MTInputDevice> XInput21MTInputDevicePtr;
 
 }
 

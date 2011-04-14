@@ -22,8 +22,8 @@ else
 endif
 
 if HAVE_XI2_1
-    XINPUT2_SOURCES = XInput21MTEventSource.cpp
-    XINPUT2_INCLUDES = XInput21MTEventSource.h
+    XINPUT2_SOURCES = XInput21MTInputDevice.cpp
+    XINPUT2_INCLUDES = XInput21MTInputDevice.h
 else
     XINPUT2_SOURCES =
     XINPUT2_INCLUDES =

@@ -35,7 +35,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #ifdef HAVE_XI2_1
-#include "XInput21MTEventSource.h"
+#include "XInput21MTInputDevice.h"
 #endif
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -793,7 +793,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-void SDLDisplayEngine::setXIMTEventSource(XInput21MTEventSource* pEventSource)
+void SDLDisplayEngine::setXIMTInputDevice(XInput21MTInputDevice* pEventSource)
 {
     AVG_ASSERT(!m_pXIMTEventSource);
     m_pXIMTEventSource = pEventSource;
