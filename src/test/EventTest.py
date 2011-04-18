@@ -151,6 +151,7 @@ class AnonymousInputDevice(avg.InputDevice):
 
     def pollEvents(self):
         if self.__isInitialized: return []
+        self.__isInitialized = True
         return [ avg.Event(avg.CUSTOMEVENT, avg.CUSTOM) ]
 
 
