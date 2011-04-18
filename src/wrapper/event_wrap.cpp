@@ -50,7 +50,7 @@ class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice> {
         virtual void start() {
             if (override startMethod = this->get_override("start")) {
 #ifdef _WIN32
-                call<void>(startMethod.ptr());.
+                call<void>(startMethod.ptr());
 #else
                 startMethod();
 #endif

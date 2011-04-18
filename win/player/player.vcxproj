@@ -99,7 +99,7 @@
     <ClCompile Include="..\..\src\player\MeshNode.cpp" />
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
     <ClCompile Include="..\..\src\player\MouseState.cpp" />
-    <ClCompile Include="..\..\src\player\MultitouchEventSource.cpp" />
+    <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
     <ClCompile Include="..\..\src\player\NodeDefinition.cpp" />
     <ClCompile Include="..\..\src\player\NodeRegistry.cpp" />
@@ -125,14 +125,14 @@
     <ClCompile Include="..\..\src\player\TouchEvent.cpp" />
     <ClCompile Include="..\..\src\player\TouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TrackerCalibrator.cpp" />
-    <ClCompile Include="..\..\src\player\TrackerEventSource.cpp" />
-    <ClCompile Include="..\..\src\player\TUIOEventSource.cpp" />
+    <ClCompile Include="..\..\src\player\TrackerInputDevice.cpp" />
+    <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\VectorNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
     <ClCompile Include="..\..\src\player\VisibleNode.cpp" />
-    <ClCompile Include="..\..\src\player\Win7TouchEventSource.cpp" />
+    <ClCompile Include="..\..\src\player\Win7TouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -160,8 +160,7 @@
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
     <ClInclude Include="..\..\src\player\GLConfig.h" />
-    <ClInclude Include="..\..\src\player\IEventSink.h" />
-    <ClInclude Include="..\..\src\player\IEventSource.h" />
+    <ClInclude Include="..\..\src\player\IInputDevice.h" />
     <ClInclude Include="..\..\src\player\Image.h" />
     <ClInclude Include="..\..\src\player\ImageNode.h" />
     <ClInclude Include="..\..\src\player\KeyEvent.h" />
@@ -171,7 +170,7 @@
     <ClInclude Include="..\..\src\player\MeshNode.h" />
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
     <ClInclude Include="..\..\src\player\MouseState.h" />
-    <ClInclude Include="..\..\src\player\MultitouchEventSource.h" />
+    <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
     <ClInclude Include="..\..\src\player\NodeDefinition.h" />
     <ClInclude Include="..\..\src\player\NodeRegistry.h" />
@@ -198,14 +197,14 @@
     <ClInclude Include="..\..\src\player\TouchEvent.h" />
     <ClInclude Include="..\..\src\player\TouchStatus.h" />
     <ClInclude Include="..\..\src\player\TrackerCalibrator.h" />
-    <ClInclude Include="..\..\src\player\TrackerEventSource.h" />
-    <ClInclude Include="..\..\src\player\TUIOEventSource.h" />
+    <ClInclude Include="..\..\src\player\TrackerInputDevice.h" />
+    <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />
     <ClInclude Include="..\..\src\player\VectorNode.h" />
     <ClInclude Include="..\..\src\player\VideoNode.h" />
     <ClInclude Include="..\..\src\player\VideoWriter.h" />
     <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
     <ClInclude Include="..\..\src\player\VisibleNode.h" />
-    <ClInclude Include="..\..\src\player\Win7TouchEventSource.h" />
+    <ClInclude Include="..\..\src\player\Win7TouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\WordsNode.h" />
     <ClInclude Include="..\..\src\player\WrapPython.h" />
   </ItemGroup>
