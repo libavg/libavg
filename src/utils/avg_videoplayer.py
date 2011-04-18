@@ -78,11 +78,12 @@ class VideoPlayer(AVGApp):
                         size=(SQUARESIZE, SQUARESIZE), strokewidth=0, fillcolor="C0C0C0",
                         fillopacity=1)
 
-if len(sys.argv) ==1:
-    print "Usage: avg_videoplayer.py <filename>"
+if len(sys.argv) == 1:
+    print "Usage: avg_videoplayer.py <filename> [--disable-accel]"
     sys.exit(1)
 
-node = avg.VideoNode(href=sys.argv[1], loop=True)
+useAccel = len(sys.argv) == 2 or not(sys.argv[2] == "--disable-accel")
+node = avg.VideoNode(href=sys.argv[1], loop=True, accelerated=useAccel)
 node.play()
 VideoPlayer.start(resolution=node.getMediaSize())
 
