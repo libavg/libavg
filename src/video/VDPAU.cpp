@@ -56,7 +56,7 @@ VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 VdpDevice VDPAU::s_VDPDevice = 0;
 Display* VDPAU::s_pXDisplay = 0;
-bool VDPAU::s_bNotWorking = false;
+bool VDPAU::s_bInitFailed = false;
 
 VDPAU::VDPAU()
     : m_PixFmt(PIX_FMT_NONE),
@@ -110,12 +110,13 @@ bool VDPAU::staticInit()
         return true;
     }
 
-    if (s_bNotWorking) {
+    if (s_bInitFailed) {
         return false;
     }
 
     s_pXDisplay = XOpenDisplay(0);
     if (!s_pXDisplay) {
+        s_bInitFailed = true;
         return false;
     }
 
@@ -123,7 +124,7 @@ bool VDPAU::staticInit()
     status = vdp_device_create_x11(s_pXDisplay, DefaultScreen(s_pXDisplay),
         &s_VDPDevice, &vdp_get_proc_address);
     if (status != VDP_STATUS_OK) {
-        s_bNotWorking = true;
+        s_bInitFailed = true;
         return false;
     }
 
