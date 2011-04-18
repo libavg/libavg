@@ -234,14 +234,15 @@ int VDPAU::getBuffer(AVCodecContext* pContext, AVFrame* pFrame)
     return pVDPAU->getBufferInternal(pContext, pFrame, pAge);
 }
 
-int VDPAU::getFreeSurfaceIndex(){
+int VDPAU::getFreeSurfaceIndex()
+{
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         vdpau_render_state* pRenderState = &m_VideoSurfaces[i].m_RenderState;
         if (!(pRenderState->state & FF_VDPAU_STATE_USED_FOR_REFERENCE)) {
             return i;
         }
     }
-    return -1;
+    AVG_ASSERT(false);
 }
 
 int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, 
@@ -249,9 +250,7 @@ int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame,
 {
     VdpStatus status;
     int surfaceIndex = getFreeSurfaceIndex();
-    if (surfaceIndex == -1) {
-        return 1;
-    }
+    
     VideoSurface* pVideoSurface = &m_VideoSurfaces[surfaceIndex];
     vdpau_render_state* pRenderState = &pVideoSurface->m_RenderState;
     pFrame->data[0] = (uint8_t*)pRenderState;
