@@ -1018,9 +1018,16 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, double timeWa
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
     } else {
-        double frameTime = -1;
-        while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
-            frameTime = readFrame(frame);
+        bool bInvalidFrame = true;
+        while (bInvalidFrame && !m_bVideoEOF) {
+            double frameTime = readFrame(frame);
+            bInvalidFrame = frameTime-timeWanted < -0.5*timePerFrame;
+#if AVG_ENABLE_VDPAU
+            if (usesVDPAU() && bInvalidFrame && !m_bVideoEOF) {
+                vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
+                VDPAU::unlockSurface(pRenderState);
+            }
+#endif
 //            cerr << "        readFrame returned time " << frameTime << ", diff= " <<
 //                    frameTime-timeWanted <<  endl;
         }
@@ -1057,6 +1064,8 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
                     pPacket->size);
             if (len1 > 0) {
                 AVG_ASSERT(len1 == pPacket->size);
+            }
+            else {
             }
             if (bGotPicture) {
                 frameTime = getFrameTime(pPacket->dts);
@@ -1205,7 +1214,7 @@ void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
     status = vdp_video_surface_get_bits_y_cb_cr(pRenderState->surface,
             VDP_YCBCR_FORMAT_YV12, dest, pitches);
     AVG_ASSERT(status == VDP_STATUS_OK);
-    VDPAU::unlockSurface(pRenderState);    
+    VDPAU::unlockSurface(pRenderState);
 }
 
 void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest)

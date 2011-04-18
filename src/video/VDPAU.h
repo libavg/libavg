@@ -89,6 +89,7 @@ public:
 private:
     static bool staticInit();
     static int getBuffer(AVCodecContext* pContext, AVFrame* pFrame);
+    int getFreeSurfaceIndex();
     int getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, FrameAge* pAge);
     static void releaseBuffer(struct AVCodecContext* pContext, AVFrame* pFrame);
     static void drawHorizBand(AVCodecContext* pContext, const AVFrame* pFrame, 
