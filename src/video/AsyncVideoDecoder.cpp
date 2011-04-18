@@ -393,8 +393,15 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(double timeWanted,
                 return VideoMsgPtr();
             }
             while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
-                if (pFrameMsg && pFrameMsg->getType() == VideoMsg::FRAME) {
-                    returnFrame(pFrameMsg);
+                if (pFrameMsg) {
+                    if (pFrameMsg->getType() == VideoMsg::FRAME) {
+                        returnFrame(pFrameMsg);
+                    } else {
+#if AVG_ENABLE_VDPAU
+                        vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+                        VDPAU::unlockSurface(pRenderState);
+#endif
+                    }
                 }
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
