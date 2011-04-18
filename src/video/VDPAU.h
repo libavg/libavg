@@ -99,6 +99,7 @@ private:
 
     static VdpDevice s_VDPDevice;
     static Display* s_pXDisplay;
+    static bool s_bNotWorking;
 
     VdpDecoder m_VDPDecoder;
     VdpVideoMixer m_VDPMixer;

@@ -56,6 +56,7 @@ VdpVideoSurfaceGetParameters* vdp_video_surface_get_parameters;
 
 VdpDevice VDPAU::s_VDPDevice = 0;
 Display* VDPAU::s_pXDisplay = 0;
+bool VDPAU::s_bNotWorking = false;
 
 VDPAU::VDPAU()
     : m_PixFmt(PIX_FMT_NONE),
@@ -105,17 +106,24 @@ Display* VDPAU::getDisplay()
 
 bool VDPAU::staticInit()
 {
-    VdpStatus status;
+    if (s_VDPDevice) {
+        return true;
+    }
 
-    //s_pXDisplay = glXGetCurrentDisplay();
+    if (s_bNotWorking) {
+        return false;
+    }
+
     s_pXDisplay = XOpenDisplay(0);
     if (!s_pXDisplay) {
         return false;
     }
 
+    VdpStatus status;
     status = vdp_device_create_x11(s_pXDisplay, DefaultScreen(s_pXDisplay),
         &s_VDPDevice, &vdp_get_proc_address);
     if (status != VDP_STATUS_OK) {
+        s_bNotWorking = true;
         return false;
     }
 
@@ -164,10 +172,8 @@ bool VDPAU::staticInit()
 
 void VDPAU::init()
 {
-    if (!s_VDPDevice) {
-        if (!staticInit()) {
-            return;
-        }
+    if (!staticInit()) {
+        return;
     }
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         memset(&m_VideoSurfaces[i].m_RenderState, 0, sizeof(vdpau_render_state));
@@ -178,16 +184,15 @@ void VDPAU::init()
 
 bool VDPAU::isAvailable()
 {
-    if (!s_VDPDevice) {
-        staticInit();
-    }
+    staticInit();
     return s_VDPDevice;
 }
 
 AVCodec* VDPAU::openCodec(AVCodecContext* pContext)
 {
-    AVCodec* pCodec = 0;
+    staticInit();
 
+    AVCodec* pCodec = 0;
     switch (pContext->codec_id) {
         case CODEC_ID_MPEG1VIDEO:
             pCodec = avcodec_find_decoder_by_name("mpeg1video_vdpau");

@@ -277,9 +277,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
 void FFMpegDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 {
 #ifdef AVG_ENABLE_VDPAU
-    if (m_pVStream && usesVDPAU()) {
-        m_VDPAU.init();
-    }
+    m_VDPAU.init();
 #endif
     AVG_ASSERT(m_State == OPENED);
     if (m_VStreamIndex >= 0) {
