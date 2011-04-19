@@ -43,7 +43,7 @@ class AVTestCase(AVGTestCase):
         Player.getRootNode().appendChild(node)
         node.play()
         node.setEOFCallback(onEOF)
-        Player.setTimeout(10000, onNoEOF)
+        Player.setTimeout(100000, onNoEOF)
         Player.play()
         
     def testVideoInfo(self):

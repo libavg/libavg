@@ -30,7 +30,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_bUseForeignTexture(false)
+      m_bDeleteTex(true)
 {
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -54,21 +54,21 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_Size.x, m_Size.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
-
 }
 
-GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap)
+GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
+        bool bDeleteTex)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_TexID(glTexID),
-      m_bUseForeignTexture(true)
+      m_bDeleteTex(bDeleteTex),
+      m_TexID(glTexID)
 {
 }
 
 GLTexture::~GLTexture()
 {
-    if (!m_bUseForeignTexture) {
+    if (m_bDeleteTex) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glDeleteTextures(1, &m_TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");

@@ -4,7 +4,8 @@
 from libavg import avg
 
 player = avg.Player.get()
-player.loadFile("video.avg")
-videoNode = player.getElementByID("videoid")
+player.loadString("""<avg size="(160,120)"/>""")
+videoNode = avg.VideoNode(href="mpeg1-48x48-sound.avi", pos=(10,10), 
+        parent=player.getRootNode())
 videoNode.play()
 player.play()

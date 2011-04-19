@@ -15,7 +15,7 @@
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;BOOST_PYTHON_DYNAMIC_LIB;BOOST_ALL_DYN_LINK</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;BOOST_PYTHON_DYNAMIC_LIB;BOOST_ALL_DYN_LINK;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>

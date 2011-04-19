@@ -324,15 +324,8 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
         m_pFBO = FBOPtr();
     }
     m_pFXNode = pFXNode;
-    setupFX();
-}
-
-BitmapPtr RasterNode::getBitmap()
-{
-    if (m_pSurface) {
-        return m_pSurface->readbackBmp();
-    } else {
-        return BitmapPtr(); 
+    if (getState() == NS_CANRENDER) {
+        setupFX();
     }
 }
 

@@ -39,11 +39,24 @@ ShadowFXNode::ShadowFXNode()
       m_Color(255,255,255,255)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    if (!GLTexture::isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "OpenGL configuration doesn't support Shadow (no float textures).");
+    }
 }
 
 ShadowFXNode::~ShadowFXNode()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void ShadowFXNode::connect(SDLDisplayEngine* pEngine)
+{
+    if (!GLTexture::isFloatFormatSupported()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Cannot create ShadowFX: OpenGL configuration doesn't support Blur (no float textures).");
+    }
+    FXNode::connect(pEngine);
 }
 
 void ShadowFXNode::disconnect()

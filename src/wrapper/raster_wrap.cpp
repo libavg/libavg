@@ -46,7 +46,6 @@ void export_raster()
         .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords)
         .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords)
         .def("setEffect", &RasterNode::setEffect)
-        .def("getBitmap", &RasterNode::getBitmap)
         .add_property("maxtilewidth", &RasterNode::getMaxTileWidth)
         .add_property("maxtileheight", &RasterNode::getMaxTileHeight)
         .add_property("blendmode", 
@@ -73,12 +72,12 @@ void export_raster()
 
     class_<ImageNode, bases<RasterNode> >("ImageNode", no_init)
         .def("__init__", raw_constructor(createNode<imageNodeName>))
+        .def("getBitmap", &ImageNode::getBitmap)
         .def("setBitmap", &ImageNode::setBitmap)
         .add_property("href", 
                 make_function(&ImageNode::getHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&ImageNode::setHRef,
-                        return_value_policy<copy_const_reference>()))
+                &ImageNode::setHRef)
         .add_property("compression",
                 &ImageNode::getCompression)
     ;
@@ -103,6 +102,7 @@ void export_raster()
                 &CameraNode::setStrobeDuration)
         .def("play", &CameraNode::play)
         .def("stop", &CameraNode::stop)
+        .def("getBitmap", &CameraNode::getBitmap)
         .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)
@@ -140,8 +140,7 @@ void export_raster()
         .add_property("href", 
                 make_function(&VideoNode::getHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&VideoNode::setHRef,
-                        return_value_policy<copy_const_reference>()))
+                &VideoNode::setHRef)
         .add_property("loop", &VideoNode::getLoop)
         .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume)
         .add_property("threaded", &VideoNode::isThreaded)
