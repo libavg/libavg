@@ -23,7 +23,7 @@
 #define _SDLDisplayEngine_H_
 
 #include "../api.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "DisplayEngine.h"
 #include "GLConfig.h"
 
@@ -40,9 +40,9 @@ union SDL_Event;
 
 namespace avg {
 
-class XInput21MTEventSource;
+class XInput21MTInputDevice;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
+class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
         SDLDisplayEngine();
@@ -69,9 +69,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot();
 
-        // From IEventSource
+        // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
-        void setXIMTEventSource(XInput21MTEventSource* pEventSource);
+        void setXIMTInputDevice(XInput21MTInputDevice* pInputDevice);
 
         // Texture config.
         void initTextureMode();
@@ -133,7 +133,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bMouseOverApp;
         IntPoint m_LastMousePos;
         static std::vector<long> KeyCodeTranslationTable;
-        XInput21MTEventSource * m_pXIMTEventSource;
+        XInput21MTInputDevice * m_pXIMTInputDevice;
 
         int m_MaxTexSize;
 

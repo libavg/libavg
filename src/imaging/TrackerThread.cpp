@@ -118,7 +118,7 @@ bool TrackerThread::init()
         AVG_TRACE(Logger::WARNING, e.GetStr());
     }
     
-    // Done in TrackerEventSource::ctor to work around Leopard/libdc1394 threading issue.
+    // Done in TrackerInputDevice::ctor to work around Leopard/libdc1394 threading issue.
     //    m_pCamera->open();
     return true;
 }

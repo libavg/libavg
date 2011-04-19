@@ -21,6 +21,7 @@
 
 #include "EventDispatcher.h"
 #include "Event.h"
+#include "Player.h"
 
 #include <string>
 
@@ -28,7 +29,8 @@ using namespace std;
 
 namespace avg {
 
-EventDispatcher::EventDispatcher()
+EventDispatcher::EventDispatcher(Player* pPlayer)
+    : m_pPlayer(pPlayer)
 {
 }
 
@@ -40,9 +42,16 @@ void EventDispatcher::dispatch()
 {
     vector<EventPtr> events;
 
-    for (unsigned int i = 0; i < m_EventSources.size(); ++i) {
-        vector<EventPtr> curEvents = m_EventSources[i]->pollEvents();
+    for (unsigned int i = 0; i < m_InputDevices.size(); ++i) {
+        IInputDevicePtr pCurInputDevice = m_InputDevices[i];
+
+        vector<EventPtr> curEvents = pCurInputDevice->pollEvents();
+        vector<EventPtr>::iterator eventIt = curEvents.begin();
         events.insert(events.end(), curEvents.begin(), curEvents.end());
+
+        for ( ; eventIt != curEvents.end(); eventIt++) {
+            (*eventIt)->setInputDevice(pCurInputDevice);
+        }
     }
 
     vector<EventPtr>::iterator it;
@@ -51,14 +60,9 @@ void EventDispatcher::dispatch()
     }
 }
 
-void EventDispatcher::addSource(IEventSource * pSource)
+void EventDispatcher::addInputDevice(IInputDevicePtr pInputDevice)
 {
-    m_EventSources.push_back(pSource);
-}
-
-void EventDispatcher::addSink(IEventSink * pSink)
-{
-    m_EventSinks.push_back(pSink);
+    m_InputDevices.push_back(pInputDevice);
 }
 
 void EventDispatcher::sendEvent(EventPtr pEvent)
@@ -68,12 +72,7 @@ void EventDispatcher::sendEvent(EventPtr pEvent)
 
 void EventDispatcher::handleEvent(EventPtr pEvent)
 {
-    for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
-        if (m_EventSinks[i]->handleEvent(pEvent)) {
-            break;
-        }
-    }
+    m_pPlayer->handleEvent(pEvent);
 }
 
 }
-

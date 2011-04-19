@@ -4,7 +4,7 @@ INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         $(MAGICK_CFLAGS) $(MTDEV_CFLAGS)
         
 if APPLE
-    APPLE_SOURCES = SDLMain.m AppleTrackpadEventSource.cpp
+    APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
     APPLE_LINKFLAGS=-read_only_relocs suppress -F/System/Library/PrivateFrameworks -framework MultitouchSupport
     XGL_LIBS =
 else
@@ -14,16 +14,16 @@ else
 endif
 
 if ENABLE_MTDEV
-    MTDEV_SOURCES = LibMTDevEventSource.cpp
-    MTDEV_INCLUDES = LibMTDevEventSource.h
+    MTDEV_SOURCES = LibMTDevInputDevice.cpp
+    MTDEV_INCLUDES = LibMTDevInputDevice.h
 else
     MTDEV_SOURCES =
     MTDEV_INCLUDES =
 endif
 
 if HAVE_XI2_1
-    XINPUT2_SOURCES = XInput21MTEventSource.cpp
-    XINPUT2_INCLUDES = XInput21MTEventSource.h
+    XINPUT2_SOURCES = XInput21MTInputDevice.cpp
+    XINPUT2_INCLUDES = XInput21MTInputDevice.h
 else
     XINPUT2_SOURCES =
     XINPUT2_INCLUDES =
@@ -34,19 +34,19 @@ GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h GLConfig.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
 
-ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoNode.h \
+ALL_H = Player.h PluginManager.h IInputDevice.h IEventSink.h VideoNode.h \
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \
         Node.h VisibleNode.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
-        OffscreenCanvasNode.h MultitouchEventSource.h \
-        RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
+        OffscreenCanvasNode.h MultitouchInputDevice.h \
+        RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
         TouchEvent.h TouchStatus.h EventStream.h BoostPython.h SoundNode.h MouseState.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
-        NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOEventSource.h \
+        NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOInputDevice.h \
         VideoWriter.h VideoWriterThread.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
@@ -76,15 +76,15 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Arg.cpp VisibleNode.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
-        MainCanvas.cpp Node.cpp MultitouchEventSource.cpp \
+        MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp \
         PanoImageNode.cpp WordsNode.cpp CameraNode.cpp NodeDefinition.cpp TextEngine.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
-        TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
+        TrackerInputDevice.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
-        TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOEventSource.cpp \
+        TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
         VideoWriter.cpp VideoWriterThread.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)

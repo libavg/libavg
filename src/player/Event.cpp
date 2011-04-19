@@ -20,6 +20,7 @@
 //
 
 #include "Event.h"
+#include "IInputDevice.h"
 #include "VisibleNode.h"
 
 #include "../base/TimeSource.h"
@@ -38,7 +39,8 @@ int Event::s_CurCounter = 0;
 Event::Event(Type type, Source source, int when)
     : m_Type(type),
       m_pNode(),
-      m_Source(source)
+      m_Source(source),
+      m_pInputDevice()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
@@ -75,6 +77,26 @@ Event::Type Event::getType() const
 Event::Source Event::getSource() const
 {
     return m_Source;
+}
+
+const IInputDevicePtr& Event::getInputDevice() const
+{
+    return m_pInputDevice;
+}
+
+bool Event::hasInputDevice() const
+{
+    return m_pInputDevice != NULL;
+}
+
+void Event::setInputDevice(IInputDevicePtr pInputDevice)
+{
+    m_pInputDevice = pInputDevice;
+}
+
+const std::string& Event::getInputDeviceName() const
+{
+    return m_pInputDevice->getName();
 }
 
 void Event::setElement(VisibleNodePtr pNode)

@@ -21,7 +21,7 @@
 //  Original author of this file is igor@c-base.org
 //
 
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
@@ -35,21 +35,22 @@ using namespace std;
 
 namespace avg {
 
-MultitouchEventSource::MultitouchEventSource()
+MultitouchInputDevice::MultitouchInputDevice()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(MultitouchInputDevice))
 {
 }
 
-MultitouchEventSource::~MultitouchEventSource()
+MultitouchInputDevice::~MultitouchInputDevice()
 {
 }
 
-void MultitouchEventSource::start()
+void MultitouchInputDevice::start()
 {
     m_WindowSize = Player::get()->getRootNode()->getSize();
     m_pMutex = MutexPtr(new boost::mutex);
 }
 
-vector<EventPtr> MultitouchEventSource::pollEvents()
+vector<EventPtr> MultitouchInputDevice::pollEvents()
 {
     boost::mutex::scoped_lock lock(*m_pMutex);
 
@@ -75,12 +76,12 @@ vector<EventPtr> MultitouchEventSource::pollEvents()
     return events;
 }
 
-const DPoint& MultitouchEventSource::getWindowSize() const
+const DPoint& MultitouchInputDevice::getWindowSize() const
 {
     return m_WindowSize;
 }
 
-TouchStatusPtr MultitouchEventSource::getTouchStatus(int id)
+TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
 {
     map<int, TouchStatusPtr>::iterator it = m_Touches.find(id);
     if (it == m_Touches.end()) {
@@ -90,13 +91,13 @@ TouchStatusPtr MultitouchEventSource::getTouchStatus(int id)
     }
 }
 
-void MultitouchEventSource::addTouchStatus(int id, TouchEventPtr pInitialEvent)
+void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
 {
     TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
     m_Touches[id] = pTouchStatus;
 }
     
-void MultitouchEventSource::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
+void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
 {
     map<int, TouchStatusPtr>::iterator it;
     for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
@@ -108,7 +109,7 @@ void MultitouchEventSource::getDeadIDs(const set<int>& liveIDs, set<int>& deadID
     }
 }
 
-boost::mutex& MultitouchEventSource::getMutex()
+boost::mutex& MultitouchInputDevice::getMutex()
 {
     return *m_pMutex;
 }

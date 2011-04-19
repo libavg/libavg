@@ -19,11 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Win7TouchEventSource_H_
-#define _Win7TouchEventSource_H_
+#ifndef _Win7TouchInputDevice_H_
+#define _Win7TouchInputDevice_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
+#include "MultitouchInputDevice.h"
 
 #undef WIN32_LEAN_AND_MEAN
 #include <SDL/SDL_syswm.h>
@@ -35,11 +35,11 @@ typedef bool (WINAPI* GTIIPROC)(HTOUCHINPUT, UINT, PTOUCHINPUT, int);
 typedef bool (WINAPI* CTIHPROC)(HTOUCHINPUT);
 #endif
 
-class AVG_API Win7TouchEventSource: public MultitouchEventSource
+class AVG_API Win7TouchInputDevice: public MultitouchInputDevice
 {
 public:
-    Win7TouchEventSource();
-    virtual ~Win7TouchEventSource();
+    Win7TouchInputDevice();
+    virtual ~Win7TouchInputDevice();
     virtual void start();
 
 private:
@@ -48,7 +48,7 @@ private:
     void onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam);
     IntPoint calcClientAreaOffset() const;
 
-    static Win7TouchEventSource* s_pInstance;
+    static Win7TouchInputDevice* s_pInstance;
 
     HWND m_Hwnd;
     WNDPROC m_OldWndProc;
@@ -61,7 +61,7 @@ private:
 #endif
 };
 
-typedef boost::shared_ptr<Win7TouchEventSource> Win7TouchEventSourcePtr;
+typedef boost::shared_ptr<Win7TouchInputDevice> Win7TouchInputDevicePtr;
 
 }
 

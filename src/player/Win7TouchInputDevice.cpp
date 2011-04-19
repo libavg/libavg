@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Win7TouchEventSource.h"
+#include "Win7TouchInputDevice.h"
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
@@ -34,15 +34,15 @@ using namespace std;
 
 namespace avg {
 
-Win7TouchEventSource* Win7TouchEventSource::s_pInstance(0);
+Win7TouchInputDevice* Win7TouchInputDevice::s_pInstance(0);
 
-Win7TouchEventSource::Win7TouchEventSource()
+Win7TouchInputDevice::Win7TouchInputDevice()
     : m_LastID(0)
 {
     s_pInstance = this;
 }
 
-Win7TouchEventSource::~Win7TouchEventSource()
+Win7TouchInputDevice::~Win7TouchInputDevice()
 {
     SetWindowLong(m_Hwnd, GWL_WNDPROC, (LONG)m_OldWndProc);
     s_pInstance = 0;
@@ -50,7 +50,7 @@ Win7TouchEventSource::~Win7TouchEventSource()
 
 typedef bool (WINAPI* PRTWPROC)(HWND, ULONG);
 
-void Win7TouchEventSource::start()
+void Win7TouchInputDevice::start()
 {
 #ifdef SM_DIGITIZER
     AVG_TRACE(Logger::CONFIG, "Using Windows 7 Touch driver.");
@@ -69,7 +69,7 @@ void Win7TouchEventSource::start()
 
     int multitouchCaps = GetSystemMetrics(SM_DIGITIZER);
     if (multitouchCaps & NID_MULTI_INPUT) {
-        MultitouchEventSource::start();
+        MultitouchInputDevice::start();
         SDL_SysWMinfo info;
         SDL_VERSION(&info.version);
         int err = SDL_GetWMInfo(&info);
@@ -90,11 +90,11 @@ void Win7TouchEventSource::start()
 
 #define MOUSEEVENTF_FROMTOUCH 0xFF515700
 
-LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg,
+LRESULT APIENTRY Win7TouchInputDevice::touchWndSubclassProc(HWND hwnd, UINT uMsg,
         WPARAM wParam, LPARAM lParam)
 {
 #ifdef SM_DIGITIZER
-    Win7TouchEventSource * pThis = Win7TouchEventSource::s_pInstance;
+    Win7TouchInputDevice * pThis = Win7TouchInputDevice::s_pInstance;
     bool bIgnore = false;
     switch(uMsg) {
         case WM_TOUCH:
@@ -120,7 +120,7 @@ LRESULT APIENTRY Win7TouchEventSource::touchWndSubclassProc(HWND hwnd, UINT uMsg
 #endif
 } 
 
-void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
+void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 #ifdef SM_DIGITIZER
     unsigned numInputs = LOWORD(wParam);
@@ -172,7 +172,7 @@ void Win7TouchEventSource::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 #endif
 }
 
-IntPoint Win7TouchEventSource::calcClientAreaOffset() const
+IntPoint Win7TouchInputDevice::calcClientAreaOffset() const
 {
     return IntPoint(GetSystemMetrics(SM_CYBORDER)+2, GetSystemMetrics(SM_CYCAPTION)+3);
 }

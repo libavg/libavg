@@ -19,20 +19,55 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IEventSink_
-#define _IEventSink_
+#ifndef _XInput21MTInputDevice_H_
+#define _XInput21MTInputDevice_H_
 
 #include "../api.h"
-#include "Event.h"
+#include "MultitouchInputDevice.h"
+
+#include "../base/Point.h"
+
+#include <X11/Xlib.h>
+#include <vector>
+#include <string>
+
+union SDL_Event;
 
 namespace avg {
 
-class AVG_API IEventSink {
-    public:
-        virtual ~IEventSink() {};
-        virtual bool handleEvent(EventPtr pEvent) =0;
+class AVG_API XInput21MTInputDevice: public MultitouchInputDevice
+{
+public:
+    XInput21MTInputDevice();
+    virtual ~XInput21MTInputDevice();
+    virtual void start();
+
+    void handleXIEvent(const XEvent& xEvent);
+    std::vector<EventPtr> pollEvents();
+    
+private:
+    void findMTDevice();
+    TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
+
+    static int filterEvent(const SDL_Event * pEvent);
+
+    int m_LastID;
+
+    static Display* s_pDisplay;
+    void (*m_SDLLockFunc)(void);
+    void (*m_SDLUnlockFunc)(void);
+
+    int m_XIOpcode;
+
+    std::string m_sDeviceName;
+    int m_DeviceID;
+
+    int m_OldMasterDeviceID;
 };
 
+typedef boost::shared_ptr<XInput21MTInputDevice> XInput21MTInputDevicePtr;
+
 }
+
 #endif
 

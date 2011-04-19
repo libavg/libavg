@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "LibMTDevEventSource.h"
+#include "LibMTDevInputDevice.h"
 
 #include "TouchEvent.h"
 #include "Player.h"
@@ -47,13 +47,13 @@ using namespace std;
 
 namespace avg {
 
-LibMTDevEventSource::LibMTDevEventSource()
+LibMTDevInputDevice::LibMTDevInputDevice()
     : m_LastID(0),
       m_pMTDevice(0)
 {
 }
 
-LibMTDevEventSource::~LibMTDevEventSource()
+LibMTDevInputDevice::~LibMTDevInputDevice()
 {
     if (m_pMTDevice) {
         mtdev_close(m_pMTDevice);
@@ -61,7 +61,7 @@ LibMTDevEventSource::~LibMTDevEventSource()
     }
 }
 
-void LibMTDevEventSource::start()
+void LibMTDevInputDevice::start()
 { 
     string sDevice("/dev/input/event3");
     getEnv("AVG_LINUX_MULTITOUCH_DEVICE", sDevice);
@@ -86,11 +86,11 @@ void LibMTDevEventSource::start()
     m_Dimensions.tl.y = pAbsInfo->minimum;
     m_Dimensions.br.y = pAbsInfo->maximum;
     
-    MultitouchEventSource::start();
+    MultitouchInputDevice::start();
     AVG_TRACE(Logger::CONFIG, "Linux MTDev Multitouch event source created.");
 }
 
-std::vector<EventPtr> LibMTDevEventSource::pollEvents()
+std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
 {
     struct input_event events[64];
     int numEvents = mtdev_get(m_pMTDevice, m_DeviceFD, events, 64);
@@ -171,10 +171,10 @@ std::vector<EventPtr> LibMTDevEventSource::pollEvents()
             }
         }
     }
-    return MultitouchEventSource::pollEvents();
+    return MultitouchInputDevice::pollEvents();
 }
 
-TouchEventPtr LibMTDevEventSource::createEvent(int id, Event::Type type, IntPoint pos)
+TouchEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
     DPoint size = getWindowSize();
     DPoint normPos = DPoint(double(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),

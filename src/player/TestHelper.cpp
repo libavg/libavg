@@ -39,6 +39,7 @@ using namespace std;
 namespace avg {
     
 TestHelper::TestHelper()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TestHelper))
 {
 }
 
@@ -89,7 +90,7 @@ void TestHelper::dumpObjects()
     cerr << ObjectCounter::get()->dump();
 }
 
-// From IEventSource
+// From IInputDevice
 std::vector<EventPtr> TestHelper::pollEvents()
 {
     vector<EventPtr> TempEvents = m_Events;

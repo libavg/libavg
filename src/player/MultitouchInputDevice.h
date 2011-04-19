@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MultitouchEventSource_H_
-#define _MultitouchEventSource_H_
+#ifndef _MultitouchInputDevice_H_
+#define _MultitouchInputDevice_H_
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 
 #include <boost/thread.hpp>
 #include <map>
@@ -39,11 +39,11 @@ typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 
-class AVG_API MultitouchEventSource: public IEventSource
+class AVG_API MultitouchInputDevice: public IInputDevice
 {
 public:
-    MultitouchEventSource();
-    virtual ~MultitouchEventSource() = 0;
+    MultitouchInputDevice();
+    virtual ~MultitouchInputDevice() = 0;
     virtual void start();
     
     std::vector<EventPtr> pollEvents();
@@ -63,7 +63,7 @@ private:
     MutexPtr m_pMutex;
 };
 
-typedef boost::shared_ptr<MultitouchEventSource> MultitouchEventSourcePtr;
+typedef boost::shared_ptr<MultitouchInputDevice> MultitouchInputDevicePtr;
 
 }
 

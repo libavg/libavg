@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "XInput21MTEventSource.h"
+#include "XInput21MTInputDevice.h"
 
 #include "TouchEvent.h"
 #include "Player.h"
@@ -50,18 +50,18 @@ using namespace std;
 
 namespace avg {
 
-Display* XInput21MTEventSource::s_pDisplay = 0;
+Display* XInput21MTInputDevice::s_pDisplay = 0;
 
 const char* cookieTypeToName(int evtype);
 string xEventTypeToName(int evtype);
 
-XInput21MTEventSource::XInput21MTEventSource()
+XInput21MTInputDevice::XInput21MTInputDevice()
     : m_LastID(0),
       m_DeviceID(-1)
 {
 }
 
-XInput21MTEventSource::~XInput21MTEventSource()
+XInput21MTInputDevice::~XInput21MTInputDevice()
 {
     if (m_DeviceID != -1 && m_OldMasterDeviceID != -1) {
         XIAttachSlaveInfo atInfo;
@@ -72,7 +72,7 @@ XInput21MTEventSource::~XInput21MTEventSource()
     }
 }
 
-void XInput21MTEventSource::start()
+void XInput21MTInputDevice::start()
 {
     Status status;
     SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
@@ -130,7 +130,7 @@ void XInput21MTEventSource::start()
 
     m_SDLUnlockFunc();
 
-    SDL_SetEventFilter(XInput21MTEventSource::filterEvent);
+    SDL_SetEventFilter(XInput21MTInputDevice::filterEvent);
   
     
     XIDetachSlaveInfo detInfo;
@@ -138,12 +138,12 @@ void XInput21MTEventSource::start()
     detInfo.deviceid = m_DeviceID;
     XIChangeHierarchy(s_pDisplay, (XIAnyHierarchyChangeInfo *)&detInfo, 1);
 
-    pEngine->setXIMTEventSource(this);
-    MultitouchEventSource::start();
+    pEngine->setXIMTInputDevice(this);
+    MultitouchInputDevice::start();
     AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
 }
 
-void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
+void XInput21MTInputDevice::handleXIEvent(const XEvent& xEvent)
 {
     m_SDLLockFunc();
     XGenericEventCookie* pCookie = (XGenericEventCookie*)&xEvent.xcookie;
@@ -191,13 +191,13 @@ void XInput21MTEventSource::handleXIEvent(const XEvent& xEvent)
     m_SDLUnlockFunc();
 }
 
-std::vector<EventPtr> XInput21MTEventSource::pollEvents()
+std::vector<EventPtr> XInput21MTInputDevice::pollEvents()
 {
 
-    return MultitouchEventSource::pollEvents();
+    return MultitouchInputDevice::pollEvents();
 }
 
-void XInput21MTEventSource::findMTDevice()
+void XInput21MTInputDevice::findMTDevice()
 {
     int ndevices;
     XIDeviceInfo* pDevices;
@@ -243,13 +243,13 @@ void XInput21MTEventSource::findMTDevice()
     XIFreeDeviceInfo(pDevices);
 }
 
-TouchEventPtr XInput21MTEventSource::createEvent(int id, Event::Type type, IntPoint pos)
+TouchEventPtr XInput21MTInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
     return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH, DPoint(0,0), 
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
 }
 
-int XInput21MTEventSource::filterEvent(const SDL_Event * pEvent)
+int XInput21MTInputDevice::filterEvent(const SDL_Event * pEvent)
 {
     // This is a hook into libsdl event processing. Since libsdl doesn't know about
     // XInput 2, it doesn't call XGetEventData either. By the time the event arrives
