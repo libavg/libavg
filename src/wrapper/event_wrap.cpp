@@ -35,7 +35,8 @@ using namespace avg;
 using namespace std;
 
 
-class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice> {
+class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice>
+{
     public:
         IInputDeviceWrapper(const std::string& name)
             : IInputDevice(name)
@@ -47,27 +48,23 @@ class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice> {
         {
         }
 
-        virtual void start() {
-            if (override startMethod = this->get_override("start")) {
-#ifdef _WIN32
-                call<void>(startMethod.ptr());
-#else
+        virtual void start() 
+        {
+            override startMethod = this->get_override("start");
+            if (startMethod) {
                 startMethod();
-#endif
             }
             IInputDevice::start();
         }
 
-        void default_start() {
+        void default_start() 
+        {
             return this->IInputDevice::start();
         }
 
-        virtual std::vector<EventPtr> pollEvents() {
-#ifdef _WIN32
-            return call<void>(this->get_override("pollEvents").ptr());
-#else
+        virtual std::vector<EventPtr> pollEvents() 
+        {
             return this->get_override("pollEvents")();
-#endif
         }
 
 };
