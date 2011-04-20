@@ -126,6 +126,8 @@ string Event::typeStr(Event::Type type)
             return "CURSOROVER";
         case CURSOROUT:
             return "CURSOROUT";
+        case CUSTOMEVENT:
+            return "CUSTOMEVENT";
         case RESIZE:
             return "RESIZE";
         case QUIT:
