@@ -969,8 +969,6 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
 void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-    AVG_ASSERT(pOtherBmp->getPixelFormat() == B8G8R8A8 || 
-            pOtherBmp->getPixelFormat() == R8G8B8A8);
 
     IntRect destRect(pos.x, pos.y, pos.x+pOtherBmp->getSize().x, 
             pos.y+pOtherBmp->getSize().y);
@@ -979,13 +977,25 @@ void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
         unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
         const unsigned char * pOtherPixel = pOtherBmp->getPixels()+
                 y*pOtherBmp->getStride(); 
-        for (int x = 0; x < destRect.width(); x++) {
-            int srcAlpha = 255-pOtherPixel[3];
-            pSrcPixel[0] = (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
-            pSrcPixel[1] = (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
-            pSrcPixel[2] = (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
-            pSrcPixel += 4;
-            pOtherPixel += 4;
+        if (pOtherBmp->hasAlpha()) {
+            for (int x = 0; x < destRect.width(); x++) {
+                int srcAlpha = 255-pOtherPixel[3];
+                pSrcPixel[0] = 
+                        (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
+                pSrcPixel[1] = 
+                        (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
+                pSrcPixel[2] = 
+                        (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
+                pSrcPixel += 4;
+                pOtherPixel += 4;
+            }
+        } else {
+            for (int x = 0; x < destRect.width(); x++) {
+                *(Pixel32*)pSrcPixel = *(Pixel32*)pOtherPixel;
+                pSrcPixel[3] = 255;
+                pSrcPixel += 4;
+                pOtherPixel += 4;
+            }
         }
     }
 }
