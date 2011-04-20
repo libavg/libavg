@@ -452,9 +452,11 @@ public:
     {
         addAudioTests();
         addVideoTests(false);
+#ifdef AVG_ENABLE_VDPAU
         if (VDPAU::isAvailable()) {
             addVideoTests(true);
         }
+#endif
     }
 private:
 
