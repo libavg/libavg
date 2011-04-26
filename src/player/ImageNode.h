@@ -68,6 +68,8 @@ class AVG_API ImageNode : public RasterNode
         ImagePtr m_pImage;
 };
 
+typedef boost::shared_ptr<ImageNode> ImageNodePtr;
+
 }
 
 #endif
