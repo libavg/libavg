@@ -57,7 +57,7 @@ class AVG_API Image
         void setEmpty();
         void setFilename(const std::string& sFilename,
                 TextureCompression comp = TEXTURECOMPRESSION_NONE);
-        void setBitmap(const Bitmap * pBmp, 
+        void setBitmap(BitmapPtr pBmp, 
                 TextureCompression comp = TEXTURECOMPRESSION_NONE);
         void setCanvas(OffscreenCanvasPtr pCanvas);
         OffscreenCanvasPtr getCanvas() const;

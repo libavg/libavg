@@ -124,7 +124,7 @@ void VectorNode::setTexHRef(const UTF8String& href)
     setDrawNeeded();
 }
 
-void VectorNode::setBitmap(const Bitmap * pBmp)
+void VectorNode::setBitmap(BitmapPtr pBmp)
 {
     m_TexHRef = "";
     m_pShape->setBitmap(pBmp);

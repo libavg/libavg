@@ -132,7 +132,7 @@ const string ImageNode::getCompression() const
     return Image::compression2String(m_Compression);
 }
 
-void ImageNode::setBitmap(const Bitmap * pBmp)
+void ImageNode::setBitmap(BitmapPtr pBmp)
 {
     if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
     {

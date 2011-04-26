@@ -41,7 +41,7 @@ class AVG_API Shape
         Shape(const MaterialInfo& material);
         virtual ~Shape();
 
-        void setBitmap(const Bitmap * pBmp);
+        void setBitmap(BitmapPtr pBmp);
 
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
