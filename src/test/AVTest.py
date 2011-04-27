@@ -544,6 +544,18 @@ class AVTestCase(AVGTestCase):
                 [lambda: self.compareImage("test2VideosAtOnce1", False),
                 ])
 
+    def testVideoAccel(self):
+        accelConfig = avg.VideoNode.getVideoAccelConfig()
+        video = avg.VideoNode(threaded=False, accelerated=False, 
+                href="../video/testfiles/mpeg1-48x48.mpg")
+        video.play()
+        self.assert_(video.accelerated == False)
+        video = avg.VideoNode(threaded=False, accelerated=True, 
+                href="../video/testfiles/mpeg1-48x48.mpg")
+        video.play()
+        self.assert_(video.accelerated == (accelConfig != avg.NO_ACCELERATION))
+
+
 
 def AVTestSuite(tests):
     availableTests = (
@@ -565,7 +577,8 @@ def AVTestSuite(tests):
             "testVideoEOF",
             "testException",
             "testVideoWriter",
-            "test2VideosAtOnce"
+            "test2VideosAtOnce",
+            "testVideoAccel"
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 

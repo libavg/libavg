@@ -289,8 +289,9 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
     }
 }
 
-bool VideoNode::usesVDPAU() const
+bool VideoNode::isAccelerated() const
 {
+    exceptionIfUnloaded("isAccelerated");
     return m_pDecoder->usesVDPAU();
 }
 
@@ -598,6 +599,16 @@ void VideoNode::render(const DRect& rect)
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
+}
+
+VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
+{
+#ifdef AVG_ENABLE_VDPAU
+    if (VDPAU::isAvailable()) {
+        return VDPAU;
+    }
+#endif
+    return NONE;
 }
 
 bool VideoNode::renderFrame(OGLSurface * pSurface)

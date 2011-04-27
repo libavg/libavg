@@ -43,6 +43,8 @@ class VideoDecoder;
 class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
 {
     public:
+        enum VideoAccelType {NONE, VDPAU};
+
         static NodeDefinition createDefinition();
         
         VideoNode(const ArgList& args);
@@ -84,7 +86,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         bool hasAudio() const;
         bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
-        bool usesVDPAU() const;
+        bool isAccelerated() const;
 
         virtual void render(const DRect& rect);
         virtual void preRender();
@@ -92,6 +94,8 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         virtual IntPoint getMediaSize();
+
+        static VideoAccelType getVideoAccelConfig();
 
     private:
         bool renderFrame(OGLSurface * pSurface);
