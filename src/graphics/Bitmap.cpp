@@ -34,10 +34,6 @@
 
 #include <Magick++.h>
 
-#if defined(__SSE__) || defined(_WIN32)
-#include <xmmintrin.h>
-#endif
-
 #include <cstring>
 #include <iostream>
 #include <iomanip>

@@ -31,6 +31,11 @@
 #include "../base/UTF8String.h"
 
 #include <boost/shared_ptr.hpp>
+
+#if defined(__SSE__) || defined(_WIN32)
+#include <xmmintrin.h>
+#endif
+
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -170,6 +175,9 @@ void Bitmap::drawLine(IntPoint p0, IntPoint p1, PIXEL color)
         }
     }
 }
+#if defined(__SSE__) || defined(_WIN32)
+std::ostream& operator<<(std::ostream& os, const __m64 &val);
+#endif
 
 }
 #endif
