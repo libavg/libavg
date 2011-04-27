@@ -45,8 +45,8 @@ typedef boost::shared_ptr<Histogram> HistogramPtr;
 class AVG_API Bitmap
 {
 public:
-    Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName="");
-    Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName="");
+    Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName="", int stride=0);
+    Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName="", int stride=0);
     Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
             int stride, bool bCopyBits, const UTF8String& sName="");
     Bitmap(const Bitmap& origBmp);
@@ -99,7 +99,7 @@ public:
 
 private:
     void initWithData(unsigned char * pBits, int stride, bool bCopyBits);
-    void allocBits();
+    void allocBits(int stride=0);
     void YCbCrtoBGR(const Bitmap& origBmp);
     void YCbCrtoI8(const Bitmap& origBmp);
     void I8toI16(const Bitmap& origBmp);

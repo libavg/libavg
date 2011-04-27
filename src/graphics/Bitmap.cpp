@@ -53,7 +53,7 @@ void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
 bool Bitmap::s_bMagickInitialized = false;
 
-Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName)
+Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
       m_PF(pf),
       m_pBits(0),
@@ -61,10 +61,10 @@ Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName)
       m_sName(sName)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    allocBits();
+    allocBits(stride);
 }
 
-Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName)
+Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
       m_PF(pf),
       m_pBits(0),
@@ -72,7 +72,7 @@ Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName)
       m_sName(sName)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    allocBits();
+    allocBits(stride);
 }
 
 Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
@@ -1195,12 +1195,16 @@ void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
     }
 }
 
-void Bitmap::allocBits()
+void Bitmap::allocBits(int stride)
 {
     AVG_ASSERT(!m_pBits);
     AVG_ASSERT(!pixelFormatIsPlanar(m_PF));
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
-    m_Stride = getLineLen();
+    if (stride == 0) {
+        m_Stride = getLineLen();
+    } else {
+        m_Stride = stride;
+    }
     if (m_PF == A8) {
         m_PF = I8;
     }
