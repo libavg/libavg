@@ -34,7 +34,7 @@ GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h GLConfig.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
 
-ALL_H = Player.h PluginManager.h IInputDevice.h IEventSink.h VideoNode.h \
+ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \
         Node.h VisibleNode.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
