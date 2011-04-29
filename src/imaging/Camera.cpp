@@ -26,6 +26,7 @@
 #include "../base/ScopeTimer.h"
 #include "../graphics/Filterfliprgb.h"
 
+
 #if defined(AVG_ENABLE_1394_2)
 #include "../imaging/FWCamera.h"
 #endif
@@ -48,7 +49,7 @@
 #endif
 
 namespace avg {
-
+    
 using namespace std;
 
 Camera::Camera(PixelFormat camPF, PixelFormat destPF)
@@ -80,23 +81,45 @@ BitmapPtr Camera::convertCamFrameToDestPF(BitmapPtr pCamBmp)
 {
     ScopeTimer Timer(CameraConvertProfilingZone);
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(pCamBmp->getSize(), m_DestPF));
-    pDestBmp->copyPixels(*pCamBmp);
+    //begin new part
+    if (pCamBmp->getPixelFormat() == BAYER8_GBRG && m_DestPF == B8G8R8X8) {
+
+        long orig_picture_size = ( pCamBmp->getSize().x ) * ( pCamBmp->getSize().y );
+        long dest_picture_size = orig_picture_size * 4;
+        unsigned char * orig_pBits = pCamBmp->getPixels();
+        unsigned char * dest_pBits = pDestBmp->getPixels();
+
+        //Copy pixels 
+        
+        for (long i = 0; i < orig_picture_size; i++) {
+            dest_pBits[4*i]     = orig_pBits[i];
+            dest_pBits[4*i + 1] = orig_pBits[i];
+            dest_pBits[4*i + 2] = orig_pBits[i];
+            dest_pBits[4*i + 3] = (unsigned char)255;
+        }
+        
+        //Create the filter if it doesn't exist
+        if (!bayer_shader) {
+            bayer_shader = GPUFuzzyDemosaicPtr(new GPUFuzzyDemosaic(pDestBmp->getSize(), B8G8R8X8, B8G8R8X8,true));
+        }
+
+        //Apply filter
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+
+        bayer_shader->applyInPlace(pDestBmp);
+
+        glPopMatrix();
+
+    } else {
+        pDestBmp->copyPixels(*pCamBmp);
+    }
+    //end new part
+    
     if (m_CamPF == R8G8B8 && m_DestPF == B8G8R8X8) {
         pDestBmp->setPixelFormat(R8G8B8X8);
         FilterFlipRGB().applyInPlace(pDestBmp);
     }
-    
-    //cerr << "dest format: " << m_CamPF<<"\n";
-
-    //pDestBmp->setPixelFormat(R8G8B8X8);
-    //pDestBmp = GPUDemosaic(pDestBmp->getSize(), R8G8B8X8, R8G8B8X8, true).apply(pDestBmp);
-    //GPUFuzzyDemosaic(pDestBmp->getSize(), B8G8R8X8, B8G8R8X8, true).applyInPlace(pDestBmp);
-    //if (m_CamPF == BAYER8 && m_DestPF == B8G8R8X8) {
-    //    pDestBmp->setPixelFormat(R8G8B8X8);
-    //   FilterFlipRGB().applyInPlace(pDestBmp);  
-    //}
-
-    //TODO apply filter here
 
     return pDestBmp;
 }

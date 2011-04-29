@@ -54,11 +54,11 @@ STDMETHODIMP DSSampleQueue::SampleCB(double SampleTime, IMediaSample *pSample)
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(CamBmp);
 
-    m_BitmapQ.push(pDestBmp);
+    //m_BitmapQ.push(pDestBmp);
 
-    //if ((m_BitmapQ.size()+1 < m_BitmapQ.getMaxSize()) ) {
-    //    m_BitmapQ.push(pDestBmp);
-    //}
+    if ((m_BitmapQ.size()+1 < m_BitmapQ.getMaxSize()) ) {
+        m_BitmapQ.push(pDestBmp);
+    }
 
     return S_OK;
 }

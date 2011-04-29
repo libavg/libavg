@@ -25,6 +25,8 @@
 #include "../avgconfigwrapper.h"
 #include "../graphics/Bitmap.h"
 
+#include "../graphics/GPUFuzzyDemosaic.h"
+
 #include <boost/shared_ptr.hpp>
 
 #include <string>
@@ -89,6 +91,9 @@ private:
     Camera();
     PixelFormat m_CamPF;
     PixelFormat m_DestPF;
+
+    //for the Bayer conversion
+    GPUFuzzyDemosaicPtr bayer_shader;    
 };
 
 std::string cameraFeatureToString(CameraFeature feature);
@@ -105,4 +110,3 @@ AVG_API void dumpCameras();
 }
 
 #endif
-

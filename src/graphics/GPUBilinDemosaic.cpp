@@ -73,26 +73,26 @@ void GPUBilinDemosaic::initShaders()
         "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
         "   bool y_even = (mod(floor(gl_TexCoord[0].t/dy), 2.0) == 0.0);\n"
         //Red
-        "   if ( x_even && y_even ){ \n"
+        "   if ( !x_even && y_even ){ \n"
         "       rgb.r = tex.r;\n"
         "       rgb.g = (om.g + mo.g + op.g + po.g)/4.0;\n"
         "       rgb.b = (mm.b + pm.b + mp.b + pp.b)/4.0;\n"
         "   }\n"
             
         //Blue
-        "   if ( !x_even && !y_even ){\n"
+        "   if ( x_even && !y_even ){\n"
         "       rgb.r = (mm.r + pm.r + mp.r + pp.r)/4.0;\n"
         "       rgb.g = (om.g + mo.g + op.g + po.g)/4.0;\n"
         "       rgb.b = tex.b;\n"
         "   }\n"
         
         //Green
-        "   if ( ( !x_even && y_even ) ){\n"
+        "   if ( ( x_even && y_even ) ){\n"
         "       rgb.r = (mo.r + po.r)/2.0;\n"
         "       rgb.g = tex.g;\n"
         "       rgb.b = (om.b + op.b)/2.0;\n"
         "   }\n"
-        "   if ( x_even && !y_even ){\n"
+        "   if ( !x_even && !y_even ){\n"
         "       rgb.r = (om.r + op.r)/2.0;\n"
         "       rgb.g = tex.g;\n"
         "       rgb.b = (mo.b + po.b)/2.0;\n"

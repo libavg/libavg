@@ -18,10 +18,11 @@ namespace avg {
 
 GPULaplaceDemosaic::GPULaplaceDemosaic(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         bool bStandalone)
-    : GPUFilter(size, pfSrc, pfDest, bStandalone, 2)
+    : GPUFilter(pfSrc, pfDest, bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-
+    
+    setDimensions(size);
     initShaders();
 }
 
@@ -37,7 +38,6 @@ void GPULaplaceDemosaic::applyOnGPU(GLTexturePtr pSrcTex)
     step1_Shader->activate();
     step1_Shader->setUniformIntParam("texture", 0);
     draw(pSrcTex);
-    
 
     glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     OGLShaderPtr step2_Shader = getShader(SHADERID_STEP_2);
@@ -76,19 +76,19 @@ void GPULaplaceDemosaic::initShaders()
          */
 
              
-            "   vec4 omm=texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy*2));\n"
+        "   vec4 omm=texture2D(texture, gl_TexCoord[0].st+vec2(0.0,-dy*2.0));\n"
             
-            "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy));\n" 
+        "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0.0,-dy));\n" 
 
-            "   vec4 mmo=texture2D(texture, gl_TexCoord[0].st+vec2(-dx*2,0));\n" 
-        "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0));\n" 
+        "   vec4 mmo=texture2D(texture, gl_TexCoord[0].st+vec2(-dx*2.0,0.0));\n" 
+        "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0.0));\n" 
         "   vec4 tex=texture2D(texture, gl_TexCoord[0].st);\n" 
-        "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0));\n" 
-            "   vec4 ppo=texture2D(texture, gl_TexCoord[0].st+vec2(dx*2,0));\n" 
+        "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0.0));\n" 
+        "   vec4 ppo=texture2D(texture, gl_TexCoord[0].st+vec2(dx*2.0,0.0));\n" 
             
-        "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy));\n"  
+        "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0.0,dy));\n"  
             
-            "   vec4 opp=texture2D(texture, gl_TexCoord[0].st+vec2(0,dy*2));\n" 
+        "   vec4 opp=texture2D(texture, gl_TexCoord[0].st+vec2(0.0,dy*2.0));\n" 
         
             //evaluate if the coordinates of the current pixel are even
         "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
@@ -97,7 +97,7 @@ void GPULaplaceDemosaic::initShaders()
 
         "   vec4 ret = tex;\n"
         //Red
-        "   if ( x_even && y_even ){ \n"
+        "   if ( !x_even && y_even ){ \n"
         "       float hor = abs(mo.g + po.g) + abs(2.0*tex.r - mmo.r - ppo.r);\n"
         "       float ver = abs(om.g + op.g) + abs(2.0*tex.r - omm.r - opp.r);\n"
         "       if (hor < ver){ \n"
@@ -112,7 +112,7 @@ void GPULaplaceDemosaic::initShaders()
         "   }\n"
             
         //Blue
-        "   if ( !x_even && !y_even ){\n"
+        "   if ( x_even && !y_even ){\n"
         "       float hor = abs(mo.g + po.g) + abs(2.0*tex.b - mmo.b - ppo.b);\n"
         "       float ver = abs(om.g + op.g) + abs(2.0*tex.b - omm.b - opp.b);\n"
         "       if (hor < ver){ \n"
@@ -148,48 +148,48 @@ void GPULaplaceDemosaic::initShaders()
           *     |mp|op |pp|
           */
 
-            "   vec4 mm =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,-dy));\n" 
-            "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy));\n" 
+        "   vec4 mm =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,-dy));\n" 
+        "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0.0,-dy));\n" 
         "   vec4 pm =texture2D(texture, gl_TexCoord[0].st+vec2(dx,-dy));\n"
 
-        "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0));\n" 
+        "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0.0));\n" 
         "   vec4 tex=texture2D(texture, gl_TexCoord[0].st);\n" 
-        "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0));\n" 
+        "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0.0));\n" 
             
-            "   vec4 mp =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,dy));\n"
-        "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy));\n"
-            "   vec4 pp =texture2D(texture, gl_TexCoord[0].st+vec2(dx,dy));\n"
+        "   vec4 mp =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,dy));\n"
+        "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0.0,dy));\n"
+        "   vec4 pp =texture2D(texture, gl_TexCoord[0].st+vec2(dx,dy));\n"
         
         //evaluate if the coordinates of the current pixel are even
         "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
         "   bool y_even = (mod(floor(gl_TexCoord[0].t/dy), 2.0) == 0.0);\n"
 
-            "   vec4 ret = tex;\n"
+        "   vec4 ret = tex;\n"
 
         //Green with blue in same column
-        "   if ( ( x_even && !y_even ) ){\n"
+        "   if ( ( x_even && y_even ) ){\n"
 
                 //blue
-            "            ret.b = 0.5*(mo.b + po.b) + 0.25*(2.0*tex.g - mo.g - po.g);\n"
+        "       ret.b = 0.5*(mo.b + po.b) + 0.25*(2.0*tex.g - mo.g - po.g);\n"
                 
                 //red
         "       ret.r = 0.5*(om.r + op.r) + 0.25*(2.0*tex.g - om.g - op.g);\n"
         "   }\n"
 
-            //Green with red in same column
-            "   if ( ( !x_even && y_even ) ){\n"
+        //Green with red in same column
+        "   if ( ( !x_even && !y_even ) ){\n"
 
                 //blue
-            "            ret.b = 0.5*(om.b + op.b) + 0.25*(2.0*tex.g - om.g - op.g);\n"
+        "       ret.b = 0.5*(om.b + op.b) + 0.25*(2.0*tex.g - om.g - op.g);\n"
                 
                 //red
         "       ret.r = 0.5*(mo.r + po.r) + 0.25*(2.0*tex.g - mo.g - po.g);\n"
         "   }\n"
 
             //Red
-        "   if ( x_even && y_even ){ \n"
-            "            float d_N = abs(mm.b - pp.b) + abs(2.0*tex.g - mm.g - pp.g);\n"
-            "            float d_P = abs(pm.b - mp.b) + abs(2.0*tex.g - pm.g - mp.g);\n"
+        "   if ( !x_even && y_even ){ \n"
+        "        float d_N = abs(mm.b - pp.b) + abs(2.0*tex.g - mm.g - pp.g);\n"
+        "        float d_P = abs(pm.b - mp.b) + abs(2.0*tex.g - pm.g - mp.g);\n"
 
         "       if (d_N < d_P){ \n"
         "           ret.b = 0.5*(mm.b + pp.b) + 0.25*(2.0*tex.g - mm.g - pp.g);\n"
@@ -203,9 +203,9 @@ void GPULaplaceDemosaic::initShaders()
         "   }\n"
             
         //Blue
-        "   if ( !x_even && !y_even ){\n"
-        "            float d_N = abs(mm.r - pp.r) + abs(2.0*tex.g - mm.g - pp.g);\n"
-            "            float d_P = abs(pm.r - mp.r) + abs(2.0*tex.g - pm.g - mp.g);\n"
+        "   if ( x_even && !y_even ){\n"
+        "        float d_N = abs(mm.r - pp.r) + abs(2.0*tex.g - mm.g - pp.g);\n"
+        "        float d_P = abs(pm.r - mp.r) + abs(2.0*tex.g - pm.g - mp.g);\n"
 
         "       if (d_N < d_P){ \n"
         "           ret.r = 0.5*(mm.r + pp.r) + 0.25*(2.0*tex.g - mm.g - pp.g);\n"

@@ -31,7 +31,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
 //#include "../graphics/GPUFilter.h"
-//#include "../graphics/GPUFuzzyDemosaic.h"
+#include "../graphics/GPUFuzzyDemosaic.h"
 //#include "../graphics/GPUBilinDemosaic.h"
 //#include "../graphics/GPULaplaceDemosaic.h"
 //#include "../graphics/GPUBayerize.h"
@@ -55,7 +55,7 @@ class DSCamera: public Camera {
 public:
     //GPUBlurFilterPtr bayer_shader;
     //GPUBayerizePtr bayer_shader;
-    //GPUFuzzyDemosaicPtr bayer_shader;
+    GPUFuzzyDemosaicPtr bayer_shader;
     //GPUNullFilterPtr bayer_shader;
     //GPULaplaceDemosaicPtr bayer_shader;
     //GPUBilinDemosaicPtr bayer_shader;

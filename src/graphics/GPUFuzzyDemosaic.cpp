@@ -19,10 +19,11 @@ namespace avg {
 
 GPUFuzzyDemosaic::GPUFuzzyDemosaic(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         bool bStandalone)
-    : GPUFilter(size, pfSrc, pfDest, bStandalone, 2)
+    : GPUFilter(pfSrc, pfDest, bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     
+    setDimensions(size);
     initShaders();
 }
 
@@ -43,13 +44,13 @@ void GPUFuzzyDemosaic::applyOnGPU(GLTexturePtr pSrcTex)
     OGLShaderPtr step2_Shader = getShader(SHADERID_STEP_2);
     step2_Shader->activate();
     step2_Shader->setUniformIntParam("texture", 0);
-    draw(getDestTex(1));
+    draw(getDestTex(0));
 
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLShaderPtr step3_Shader = getShader(SHADERID_STEP_3);
     step3_Shader->activate();
     step3_Shader->setUniformIntParam("texture", 0);
-    draw(getDestTex(0));
+    draw(getDestTex(1));
 
     glproc::UseProgramObject(0);
 }
@@ -78,17 +79,17 @@ void GPUFuzzyDemosaic::initShaders()
           *        |opp|
           */
 
-        "   vec4 omm =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy*2));\n"
+        "   vec4 omm =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy*2.0));\n"
         "   vec4 om =texture2D(texture, gl_TexCoord[0].st+vec2(0,-dy));\n"
 
-        "   vec4 mmo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx*2,0));\n" 
+        "   vec4 mmo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx*2.0,0));\n" 
         "   vec4 mo =texture2D(texture, gl_TexCoord[0].st+vec2(-dx,0));\n" 
         "   vec4 tex =texture2D(texture, gl_TexCoord[0].st);\n" 
         "   vec4 po =texture2D(texture, gl_TexCoord[0].st+vec2(dx,0));\n" 
-        "   vec4 ppo =texture2D(texture, gl_TexCoord[0].st+vec2(dx*2,0));\n" 
+        "   vec4 ppo =texture2D(texture, gl_TexCoord[0].st+vec2(dx*2.0,0));\n" 
          
         "   vec4 op =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy));\n" 
-        "   vec4 opp =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy*2));\n" 
+        "   vec4 opp =texture2D(texture, gl_TexCoord[0].st+vec2(0,dy*2.0));\n" 
 
         //evaluate if the coordinates of the current pixel are even
         "   bool x_even = (mod(floor(gl_TexCoord[0].s/dx), 2.0) == 0.0);\n"
@@ -97,7 +98,7 @@ void GPUFuzzyDemosaic::initShaders()
             "   vec4 ret = tex;\n"
 
         //Red
-        "   if ( x_even && y_even ){ \n"
+        "   if ( !x_even && y_even ){ \n"
         "       float c_hor = 0.5*(-mmo.r + 2.0*mo.g - 2.0*po.g + ppo.r);\n"
         "       float c_ver = 0.5*(-omm.r + 2.0*om.g - 2.0*op.g + opp.r);\n"
         "       float i_ver = 0.5*(om.g + op.g) + 0.125*(-omm.r + 2.0*tex.r - opp.r);\n"
@@ -114,7 +115,7 @@ void GPUFuzzyDemosaic::initShaders()
         "   }\n"
             
         //Blue
-        "   if ( !x_even && !y_even ){\n"
+        "   if ( x_even && !y_even ){\n"
         "       float c_hor = 0.5*(-mmo.b + 2.0*mo.g - 2.0*po.g + ppo.b);\n"
         "       float c_ver = 0.5*(-omm.b + 2.0*om.g - 2.0*op.g + opp.b);\n"
         "       float i_ver = 0.5*(om.g + op.g) + 0.125*(-omm.b + 2.0*tex.b - opp.b);\n"
@@ -167,7 +168,7 @@ void GPUFuzzyDemosaic::initShaders()
             "   vec4 ret = tex;\n"
         
         //Red
-        "   if ( x_even && y_even ){ \n"
+        "   if ( !x_even && y_even ){ \n"
         "       float h_nw = mm.b - mm.g;\n"
         "       float h_sw = mp.b - mp.g;\n"
         "       float h_ne = pm.b - pm.g;\n"
@@ -183,7 +184,7 @@ void GPUFuzzyDemosaic::initShaders()
         "   }\n"
             
         //Blue
-        "   if ( !x_even && !y_even ){\n"
+        "   if ( x_even && !y_even ){\n"
         "       float h_nw = mm.r - mm.g;\n"
         "       float h_sw = mp.r - mp.g;\n"
         "       float h_ne = pm.r - pm.g;\n"
@@ -234,7 +235,7 @@ void GPUFuzzyDemosaic::initShaders()
             "   vec4 ret = tex;\n"
 
         //ret.g
-        "   if ( ( !x_even && y_even ) || ( x_even && !y_even ) ){\n"
+        "   if ( ( !x_even && !y_even ) || ( x_even && y_even ) ){\n"
 
                 //blue
         "       float h_n_b = om.b - om.g;\n"
