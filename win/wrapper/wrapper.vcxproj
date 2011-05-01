@@ -67,7 +67,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>anim.lib;player.lib;video.lib;imaging.lib;graphics.lib;audio.lib;lmfit.lib;oscpack.lib;base.lib;avcodec-52.lib;avformat-52.lib;avutil-49.lib;swscale-0.lib;opengl32.lib;glu32.lib;CORE_RL_Magick++_.lib;CORE_RL_bzlib_.lib;CORE_RL_coders_.lib;CORE_RL_filters_.lib;CORE_RL_jbig_.lib;CORE_RL_jp2_.lib;CORE_RL_jpeg_.lib;CORE_RL_lcms_.lib;CORE_RL_magick_.lib;CORE_RL_png_.lib;CORE_RL_tiff_.lib;CORE_RL_ttf_.lib;CORE_RL_wand_.lib;CORE_RL_wmf_.lib;CORE_RL_xlib_.lib;CORE_RL_zlib_.lib;SDL.lib;1394camera.lib;strmiids.lib;quartz.lib;pango-1.0.lib;pangoft2-1.0.lib;glib-2.0.lib;gobject-2.0.lib;gmodule-2.0.lib;fontconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>anim.lib;player.lib;video.lib;imaging.lib;graphics.lib;audio.lib;lmfit.lib;oscpack.lib;base.lib;avcodec-52.lib;avformat-52.lib;avutil-49.lib;swscale-0.lib;opengl32.lib;glu32.lib;CORE_RL_Magick++_.lib;CORE_RL_bzlib_.lib;CORE_RL_coders_.lib;CORE_RL_filters_.lib;CORE_RL_jbig_.lib;CORE_RL_jp2_.lib;CORE_RL_jpeg_.lib;CORE_RL_lcms_.lib;CORE_RL_magick_.lib;CORE_RL_png_.lib;CORE_RL_tiff_.lib;CORE_RL_ttf_.lib;CORE_RL_wand_.lib;CORE_RL_wmf_.lib;CORE_RL_xlib_.lib;CORE_RL_zlib_.lib;SDL.lib;1394camera.lib;strmiids.lib;quartz.lib;pango-1.0.lib;pangoft2-1.0.lib;glib-2.0.lib;gobject-2.0.lib;gmodule-2.0.lib;fontconfig.lib;strmbase.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>

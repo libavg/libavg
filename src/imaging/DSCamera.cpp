@@ -19,8 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include <InitGuid.h>
+
 #include "DSHelper.h"
 #include "DSCamera.h"
+#include "DSSampleGrabber.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -46,8 +49,7 @@ DSCamera::DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF,
       m_FrameRate(frameRate),
       m_pGraph(0),
       m_pCapture(0),
-      m_pCameraPropControl(0),
-      m_pSampleQueue(0)
+      m_pCameraPropControl(0)
 {
     open();
 }
@@ -67,10 +69,10 @@ void DSCamera::open()
         checkForDShowError(hr, "DSCamera::open()::Add capture filter");
 
         // Create and configure the sample grabber that delivers the frames to the app.
-        hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER, 
-                IID_IBaseFilter, (LPVOID *)&m_pGrabFilter);
+        m_pGrabFilter = new CSampleGrabber(NULL, &hr);
+        m_pGrabFilter->AddRef();
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber");
-        hr = m_pGrabFilter->QueryInterface(IID_ISampleGrabber, 
+        hr = m_pGrabFilter->QueryInterface(IID_IlibavgGrabber, 
                 (void **)&m_pSampleGrabber);
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber 2");
 
@@ -85,16 +87,9 @@ void DSCamera::open()
         checkForDShowError(hr, "DSCamera::open()::Add Grabber");
         setCaptureFormat();
 
-        AM_MEDIA_TYPE mt;
-        ZeroMemory(&mt, sizeof(AM_MEDIA_TYPE));
-        mt.majortype = MEDIATYPE_Video;
-
-        hr = m_pSampleGrabber->SetMediaType(&mt);
-
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
 
-        m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF(), m_bUpsideDown);
-        m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
+        m_pSampleGrabber->SetCallback(this);
 
         IBaseFilter * pNull;
         hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, 
@@ -134,7 +129,6 @@ void DSCamera::close()
     m_pSrcFilter->Release();
     m_pGrabFilter->Release();
     m_pSampleGrabber->Release();
-    delete m_pSampleQueue;
 }
 
 IntPoint DSCamera::getImgSize()
@@ -146,7 +140,7 @@ BitmapPtr DSCamera::getImage(bool bWait)
 {
     BitmapPtr pBmp;
     try {
-        pBmp = m_pSampleQueue->getImage(bWait);
+        pBmp = m_BitmapQ.pop(bWait);
     } catch (Exception&) {
         return BitmapPtr();
     }
@@ -217,7 +211,7 @@ void DSCamera::setCaptureFormat()
         AVG_TRACE(Logger::CONFIG, "Camera image format: "
                 << camImageFormatToString(pmtConfig));
         int height = ((VIDEOINFOHEADER*)(pmtConfig->pbFormat))->bmiHeader.biHeight;
-        m_bUpsideDown = (height < 0);
+//        m_bUpsideDown = (height < 0);
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
@@ -228,7 +222,7 @@ void DSCamera::setCaptureFormat()
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
             int height = pvih->bmiHeader.biHeight;
-            m_bUpsideDown = (height < 0);
+//            m_bUpsideDown = (height < 0);
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             AVG_TRACE(Logger::CONFIG, "Camera image format: " 
@@ -347,6 +341,27 @@ void DSCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
             "Whitebalance not implemented for DirectShow camera driver.");
 }
 
+void DSCamera::onSample(IMediaSample * pSample)
+{
+    unsigned char * pData;
+
+    // Get the current image.
+    pSample->GetPointer(&pData);
+
+    int stride = m_Size.x*Bitmap::getBytesPerPixel(getCamPF());
+    Bitmap camBmp(m_Size, getCamPF(), pData, stride, false, "CameraImage");
+    // Copy over to bitmap queue, doing pixel format conversion if necessary.
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, getDestPF(), 
+            "ConvertedCameraImage"));
+    pDestBmp->copyPixels(camBmp);
+/*
+    if (m_bUpsideDown) {
+        FilterFlip().applyInPlace(pDestBmp);
+    }
+*/
+    m_BitmapQ.push(pDestBmp);
+}
+
 void DSCamera::dumpCameras()
 {
     HRESULT hr = S_OK;
@@ -393,9 +408,7 @@ void DSCamera::dumpCameras()
 
 void DSCamera::initGraphBuilder()
 {
-    HRESULT hr;
-    // TODO: Check if the threading model is ok.
-    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::CoInitializeEx");
 
     // Create the filter graph
@@ -498,7 +511,7 @@ void DSCamera::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc,
     IPin *pIn = 0;
     getUnconnectedPin(pDest, PINDIR_INPUT, &pIn);
     
-    HRESULT hr = pGraph->Connect(pOut, pIn);
+    HRESULT hr = pGraph->ConnectDirect(pOut, pIn, 0);
     checkForDShowError(hr, "DSCamera::ConnectFilters::Connect");
     pOut->Release();
     pIn->Release();
