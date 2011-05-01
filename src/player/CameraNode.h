@@ -46,6 +46,8 @@ class AVG_API CameraNode : public RasterNode
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
                 AudioEngine * pAudioEngine);
+        virtual void connect(CanvasPtr pCanvas);
+        virtual void disconnect(bool bKill);
                 
         void play();
         void stop();
