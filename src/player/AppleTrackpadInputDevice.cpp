@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "AppleTrackpadEventSource.h"
+#include "AppleTrackpadInputDevice.h"
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
@@ -35,15 +35,15 @@ using namespace std;
 
 namespace avg {
 
-AppleTrackpadEventSource* AppleTrackpadEventSource::s_pInstance(0);
+AppleTrackpadInputDevice* AppleTrackpadInputDevice::s_pInstance(0);
 
-AppleTrackpadEventSource::AppleTrackpadEventSource()
+AppleTrackpadInputDevice::AppleTrackpadInputDevice()
     : m_LastID(0)
 {
     s_pInstance = this;
 }
 
-AppleTrackpadEventSource::~AppleTrackpadEventSource()
+AppleTrackpadInputDevice::~AppleTrackpadInputDevice()
 {
     MTDeviceStop(m_Device);
     MTUnregisterContactFrameCallback(m_Device, callback);
@@ -51,16 +51,16 @@ AppleTrackpadEventSource::~AppleTrackpadEventSource()
     s_pInstance = 0;
 }
 
-void AppleTrackpadEventSource::start()
+void AppleTrackpadInputDevice::start()
 {
-    MultitouchEventSource::start();
+    MultitouchInputDevice::start();
     m_Device = MTDeviceCreateDefault();
     MTRegisterContactFrameCallback(m_Device, callback);
     MTDeviceStart(m_Device, 0);
     AVG_TRACE(Logger::CONFIG, "Apple Trackpad Multitouch event source created.");
 }
 
-void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFingers, 
+void AppleTrackpadInputDevice::onData(int device, Finger* pFingers, int numFingers, 
         double timestamp, int frame)
 {
     boost::mutex::scoped_lock lock(getMutex());
@@ -84,7 +84,7 @@ void AppleTrackpadEventSource::onData(int device, Finger* pFingers, int numFinge
     }
 }
 
-int AppleTrackpadEventSource::callback(int device, Finger *data, int nFingers, 
+int AppleTrackpadInputDevice::callback(int device, Finger *data, int nFingers, 
         double timestamp, int frame) 
 {
     AVG_ASSERT(s_pInstance != 0);
@@ -92,7 +92,7 @@ int AppleTrackpadEventSource::callback(int device, Finger *data, int nFingers,
     return 0;
 }
 
-TouchEventPtr AppleTrackpadEventSource::createEvent(int avgID, Finger* pFinger, 
+TouchEventPtr AppleTrackpadInputDevice::createEvent(int avgID, Finger* pFinger, 
         Event::Type eventType)
 {
     DPoint size = getWindowSize();

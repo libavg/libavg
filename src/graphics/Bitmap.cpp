@@ -34,10 +34,6 @@
 
 #include <Magick++.h>
 
-#if defined(__SSE__) || defined(_WIN32)
-#include <xmmintrin.h>
-#endif
-
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -53,7 +49,7 @@ void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
 bool Bitmap::s_bMagickInitialized = false;
 
-Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName)
+Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
       m_PF(pf),
       m_pBits(0),
@@ -61,10 +57,10 @@ Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName)
       m_sName(sName)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    allocBits();
+    allocBits(stride);
 }
 
-Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName)
+Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
       m_PF(pf),
       m_pBits(0),
@@ -72,7 +68,7 @@ Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName)
       m_sName(sName)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    allocBits();
+    allocBits(stride);
 }
 
 Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
@@ -969,8 +965,6 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
 void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
-    AVG_ASSERT(pOtherBmp->getPixelFormat() == B8G8R8A8 || 
-            pOtherBmp->getPixelFormat() == R8G8B8A8);
 
     IntRect destRect(pos.x, pos.y, pos.x+pOtherBmp->getSize().x, 
             pos.y+pOtherBmp->getSize().y);
@@ -979,13 +973,25 @@ void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
         unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
         const unsigned char * pOtherPixel = pOtherBmp->getPixels()+
                 y*pOtherBmp->getStride(); 
-        for (int x = 0; x < destRect.width(); x++) {
-            int srcAlpha = 255-pOtherPixel[3];
-            pSrcPixel[0] = (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
-            pSrcPixel[1] = (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
-            pSrcPixel[2] = (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
-            pSrcPixel += 4;
-            pOtherPixel += 4;
+        if (pOtherBmp->hasAlpha()) {
+            for (int x = 0; x < destRect.width(); x++) {
+                int srcAlpha = 255-pOtherPixel[3];
+                pSrcPixel[0] = 
+                        (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
+                pSrcPixel[1] = 
+                        (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
+                pSrcPixel[2] = 
+                        (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
+                pSrcPixel += 4;
+                pOtherPixel += 4;
+            }
+        } else {
+            for (int x = 0; x < destRect.width(); x++) {
+                *(Pixel32*)pSrcPixel = *(Pixel32*)pOtherPixel;
+                pSrcPixel[3] = 255;
+                pSrcPixel += 4;
+                pOtherPixel += 4;
+            }
         }
     }
 }
@@ -1185,12 +1191,16 @@ void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
     }
 }
 
-void Bitmap::allocBits()
+void Bitmap::allocBits(int stride)
 {
     AVG_ASSERT(!m_pBits);
     AVG_ASSERT(!pixelFormatIsPlanar(m_PF));
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
-    m_Stride = getLineLen();
+    if (stride == 0) {
+        m_Stride = getLineLen();
+    } else {
+        m_Stride = stride;
+    }
     if (m_PF == A8) {
         m_PF = I8;
     }

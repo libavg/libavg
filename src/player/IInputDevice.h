@@ -19,50 +19,34 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _LibMTDevEventSource_H_
-#define _LibMTDevEventSource_H_
+#ifndef _IInputDevice_H_
+#define _IInputDevice_H_
 
 #include "../api.h"
-#include "MultitouchEventSource.h"
-
-#include "../base/Rect.h"
-
+#include "Event.h"
+#include <boost/shared_ptr.hpp>
 #include <vector>
-#include <map>
 
-struct mtdev;
+
+#define EXTRACT_INPUTDEVICE_CLASSNAME( classType ) (#classType)
 
 namespace avg {
 
-class AVG_API LibMTDevEventSource: public MultitouchEventSource
-{
-public:
-    LibMTDevEventSource();
-    virtual ~LibMTDevEventSource();
-    virtual void start();
+class AVG_API IInputDevice {
+    public:
+        IInputDevice(const std::string& name) : m_sName(name) {}
+        virtual ~IInputDevice() {};
 
-    std::vector<EventPtr> pollEvents();
-    
-private:
-    TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
+        virtual void start() {};
+        virtual std::vector<EventPtr> pollEvents() = 0;
 
-    int m_DeviceFD;
-    int m_LastID;
-    mtdev* m_pMTDevice;
-    IntRect m_Dimensions;
+        const std::string& getName() const { return m_sName; }
 
-    struct TouchData
-    {
-        TouchData() { id = 0; }
-        int id;
-        bool bUp;
-        IntPoint pos;
-    };
-    std::map<int, TouchData> m_Slots;
-
+    private:
+        std::string m_sName;
 };
 
-typedef boost::shared_ptr<LibMTDevEventSource> LibMTDevEventSourcePtr;
+typedef boost::shared_ptr<IInputDevice> IInputDevicePtr;
 
 }
 

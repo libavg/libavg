@@ -27,7 +27,7 @@
 
 namespace avg {
 
-class AVG_API UTF8String: public std::string
+class AVG_TEMPLATE_API UTF8String: public std::string
 {
 public:
     UTF8String();

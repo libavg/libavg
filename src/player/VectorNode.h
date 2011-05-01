@@ -52,7 +52,7 @@ class AVG_API VectorNode : public VisibleNode
 
         const UTF8String& getTexHRef() const;
         void setTexHRef(const UTF8String& href);
-        void setBitmap(const Bitmap * pBmp);
+        void setBitmap(BitmapPtr pBmp);
 
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);

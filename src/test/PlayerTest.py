@@ -226,8 +226,8 @@ class PlayerTestCase(AVGTestCase):
     def testOutlines(self):
         Player.loadFile("rotate.avg")
         Player.getRootNode().elementoutlinecolor = "FFFFFF"
-        Player.getElementByID("inner").width = 10000
-        Player.getElementByID("inner").height = 10000
+        Player.getElementByID("inner").width = 100000
+        Player.getElementByID("inner").height = 100000
         self.start(None, 
                 [lambda: self.compareImage("testOutlines", False)
                 ])

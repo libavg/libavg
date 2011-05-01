@@ -219,6 +219,7 @@ public:
         }
         testCopyToGreyscale(R8G8B8X8);
         testCopyToGreyscale(B8G8R8X8);
+        testSubtract();
         {
             cerr << "    Testing statistics." << endl;
             cerr << "      I8" << endl;
@@ -336,7 +337,21 @@ private:
         testEqual(*pCopyBmp, string("copyPixels_")+getPixelFormatString(pf)+"_I8",
                 I8, 0.5, 0.5);
     }
-    
+   
+    void testSubtract()
+    {
+        BitmapPtr pBmp1(new Bitmap(IntPoint(4,1), I8));
+        BitmapPtr pBmp2(new Bitmap(IntPoint(4,1), I8));
+        for (int x=0; x<4; ++x) {
+            pBmp1->getPixels()[x] = x;
+            pBmp2->getPixels()[x] = 0;
+        }
+        BitmapPtr pDiffBmp(pBmp1->subtract(&*pBmp2));
+        testEqual(*pDiffBmp, *pBmp1, "BmpSubtract1");
+        pDiffBmp = BitmapPtr(pBmp2->subtract(&*pBmp1));
+        testEqual(*pDiffBmp, *pBmp1, "BmpSubtract2");
+    }
+
     template<class PIXEL>
     void testStatistics(PixelFormat pf, const PIXEL& p00, const PIXEL& p01,
             const PIXEL& p10, const PIXEL& p11, double avg=1, double stdDev=1)

@@ -29,16 +29,17 @@
 #include "MouseEvent.h"
 #include "DisplayParams.h"
 #include "GLConfig.h"
-#include "IEventSink.h"
 #include "EventDispatcher.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "CursorState.h"
 #include "MouseState.h"
+#include "TestHelper.h"
 
 #include "../audio/AudioParams.h"
 
 #include <libxml/parser.h>
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <vector>
@@ -48,12 +49,11 @@ namespace avg {
 class AudioEngine;
 class Node;
 class VisibleNode;
-class TestHelper;
 class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
-class TrackerEventSource;
-class MultitouchEventSource;
+class TrackerInputDevice;
+class MultitouchInputDevice;
 class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
@@ -66,7 +66,8 @@ typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
-class AVG_API Player: IEventSink
+
+class AVG_API Player
 {
     public:
         Player();
@@ -119,10 +120,10 @@ class AVG_API Player: IEventSink
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
 
-        void addEventSource(IEventSource* pSource);
+        void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
-        TrackerEventSource * addTracker();
-        TrackerEventSource * getTracker();
+        TrackerInputDevice * addTracker();
+        TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
@@ -170,7 +171,8 @@ class AVG_API Player: IEventSink
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        virtual bool handleEvent(EventPtr pEvent);
+        bool handleEvent(EventPtr pEvent);
+        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
         
     private:
         void initConfig();
@@ -199,15 +201,15 @@ class AVG_API Player: IEventSink
 
         MainCanvasPtr m_pMainCanvas;
 
-        DisplayEngine * m_pDisplayEngine;
+        DisplayEnginePtr m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
-        TestHelper * m_pTestHelper;
+        TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
         bool m_bStopping;
         NodeRegistry m_NodeRegistry;
 
-        IEventSource* m_pMultitouchEventSource;
+        IInputDevicePtr m_pMultitouchInputDevice;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);

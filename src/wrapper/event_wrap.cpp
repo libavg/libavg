@@ -25,24 +25,82 @@
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
 #include "../player/VisibleNode.h"
-#include "../player/TrackerEventSource.h"
+#include "../player/TrackerInputDevice.h"
+
+#include <boost/shared_ptr.hpp>
+#include <string>
 
 using namespace boost::python;
 using namespace avg;
 using namespace std;
 
+
+class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice>
+{
+    public:
+        IInputDeviceWrapper(const std::string& name)
+            : IInputDevice(name)
+        {
+        }
+
+        IInputDeviceWrapper(const IInputDevice& inputDevice)
+            : IInputDevice(inputDevice)
+        {
+        }
+
+        virtual void start() 
+        {
+            override startMethod = this->get_override("start");
+            if (startMethod) {
+                startMethod();
+            }
+            IInputDevice::start();
+        }
+
+        void default_start() 
+        {
+            return this->IInputDevice::start();
+        }
+
+        virtual std::vector<EventPtr> pollEvents() 
+        {
+            return this->get_override("pollEvents")();
+        }
+
+};
+
+
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEventPtr>, 
         to_tuple<vector<TouchEventPtr> > >();
-          
+
     boost::python::to_python_converter<ContourSeq, to_list<ContourSeq> >();    
    
     from_python_sequence<ContourSeq, variable_capacity_policy>();
+    from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
-    class_<Event, boost::noncopyable>("Event", no_init)
+
+    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source, optional<int> >())
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
+        .add_property("inputdevice",
+                      make_function(&Event::getInputDevice,
+                                    return_value_policy<copy_const_reference>()),
+                      &Event::setInputDevice)
+        .add_property("inputdevicename",
+                      make_function(&Event::getInputDeviceName,
+                                    return_value_policy<copy_const_reference>()))
+    ;
+
+    class_<CursorEvent, bases<Event> >("CursorEvent",
+                                       init<int, Event::Type, const IntPoint&, Event::Source>())
+        .add_property("source", &CursorEvent::getSource)
+        .add_property("pos", &CursorEvent::getPos)
+        .add_property("x", &CursorEvent::getXPosition)
+        .add_property("y", &CursorEvent::getYPosition)
+        .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
+        .add_property("node", &CursorEvent::getElement)
     ;
 
     enum_<Event::Type>("Type")
@@ -53,6 +111,7 @@ void export_event()
         .value("CURSORDOWN", Event::CURSORDOWN)
         .value("CURSOROVER", Event::CURSOROVER)
         .value("CURSOROUT", Event::CURSOROUT)
+        .value("CUSTOMEVENT", Event::CUSTOMEVENT)
         .value("RESIZE", Event::RESIZE)
         .value("QUIT", Event::QUIT)
         .export_values()
@@ -111,7 +170,7 @@ void export_event()
         .add_property("speed", make_function(&MouseEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
         .add_property("lastdownpos", &CursorEvent::getLastDownPos)
-        ;
+    ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", no_init)
         .add_property("source", &TouchEvent::getSource)
@@ -147,25 +206,39 @@ void export_event()
         .export_values()
     ;
 
-    class_<TrackerEventSource, boost::noncopyable>("Tracker", no_init)
-        .def("getImage", &TrackerEventSource::getImage,
-            return_value_policy<manage_new_object>())
-        .def("getDisplayROIPos", &TrackerEventSource::getDisplayROIPos)
-        .def("getDisplayROISize", &TrackerEventSource::getDisplayROISize)
-        .def("saveConfig", &TrackerEventSource::saveConfig)
-        .def("resetHistory", &TrackerEventSource::resetHistory)
-        .def("setDebugImages", &TrackerEventSource::setDebugImages)
-        .def("startCalibration", &TrackerEventSource::startCalibration,
-            return_value_policy<reference_existing_object>())
-        .def("endCalibration", &TrackerEventSource::endCalibration)
-        .def("abortCalibration", &TrackerEventSource::abortCalibration)
-        .def("setParam", &TrackerEventSource::setParam)
-        .def("getParam", &TrackerEventSource::getParam)
-        ;
+    class_<IInputDevicePtr>("IInputDevice")
+    ;
 
-class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
+    class_< IInputDeviceWrapper,
+            boost::shared_ptr<IInputDeviceWrapper>,
+            boost::noncopyable
+    >("InputDevice", init<const std::string&>())
+        .def("start", &IInputDevice::start, &IInputDeviceWrapper::default_start)
+        .def("pollEvents", pure_virtual(&IInputDevice::pollEvents))
+        .add_property("name",
+                      make_function(&IInputDevice::getName,
+                                    return_value_policy<copy_const_reference>()))
+    ;
+
+    class_<TrackerInputDevice, boost::noncopyable>("Tracker", no_init)
+        .def("getImage", &TrackerInputDevice::getImage,
+            return_value_policy<manage_new_object>())
+        .def("getDisplayROIPos", &TrackerInputDevice::getDisplayROIPos)
+        .def("getDisplayROISize", &TrackerInputDevice::getDisplayROISize)
+        .def("saveConfig", &TrackerInputDevice::saveConfig)
+        .def("resetHistory", &TrackerInputDevice::resetHistory)
+        .def("setDebugImages", &TrackerInputDevice::setDebugImages)
+        .def("startCalibration", &TrackerInputDevice::startCalibration,
+            return_value_policy<reference_existing_object>())
+        .def("endCalibration", &TrackerInputDevice::endCalibration)
+        .def("abortCalibration", &TrackerInputDevice::abortCalibration)
+        .def("setParam", &TrackerInputDevice::setParam)
+        .def("getParam", &TrackerInputDevice::getParam)
+    ;
+
+    class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
         .def("nextPoint", &TrackerCalibrator::nextPoint)
         .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint)
         .def("setCamPoint", &TrackerCalibrator::setCamPoint)
-        ;
+    ;
 }

@@ -35,7 +35,7 @@ void export_anim();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/TrackerEventSource.h"
+#include "../player/TrackerInputDevice.h"
 #include "../player/TouchEvent.h"
 #include "../player/TestHelper.h"
 #include "../player/Canvas.h"
@@ -51,6 +51,11 @@ using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(fakeMouseEvent_overloads, 
         TestHelper::fakeMouseEvent, 7, 8);
+
+void handleCursorEvent(Player* pPlayer, boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent)
+{
+    pPlayer->handleCursorEvent(pDivNode, pEvent, false);
+}
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -149,6 +154,8 @@ BOOST_PYTHON_MODULE(avg)
         .def("setTimeout", &Player::setTimeout)
         .def("setOnFrameHandler", &Player::setOnFrameHandler)
         .def("clearInterval", &Player::clearInterval)
+        .def("addInputDevice", &Player::addInputDevice)
+        .def("handleCursorEvent", handleCursorEvent)
         .def("getMouseState", &Player::getMouseState)
         .def("getKeyModifierState", &Player::getKeyModifierState)
         .def("screenshot", &Player::screenshot)

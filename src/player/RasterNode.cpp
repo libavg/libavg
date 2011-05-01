@@ -324,7 +324,9 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
         m_pFBO = FBOPtr();
     }
     m_pFXNode = pFXNode;
-    setupFX();
+    if (getState() == NS_CANRENDER) {
+        setupFX();
+    }
 }
 
 void RasterNode::blt32(const DPoint& destSize, double opacity, 

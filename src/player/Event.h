@@ -23,13 +23,16 @@
 #define _Event_H_
 
 #include "../api.h"
+//#include "IInputDevice.h"
 #include <functional>
 #include <string>
 #include <boost/shared_ptr.hpp>
+
 #undef _POSIX_C_SOURCE
 
 namespace avg {
 
+class IInputDevice;
 class VisibleNode;
 typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
 
@@ -43,6 +46,7 @@ class AVG_API Event {
             CURSORDOWN,
             CURSOROVER,  
             CURSOROUT,
+            CUSTOMEVENT,
             RESIZE,
             QUIT 
         };
@@ -57,6 +61,10 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
+        const boost::shared_ptr<IInputDevice>& getInputDevice() const;
+        void setInputDevice(boost::shared_ptr<IInputDevice> pInputDevice);
+        bool hasInputDevice() const;
+        const std::string& getInputDeviceName() const;
         VisibleNodePtr getElement() const;
         void setElement(VisibleNodePtr pNode);
         
@@ -74,6 +82,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
+        boost::shared_ptr<IInputDevice> m_pInputDevice;
         static int s_CurCounter;
 };
 

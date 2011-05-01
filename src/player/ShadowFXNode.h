@@ -39,6 +39,7 @@ public:
     ShadowFXNode();
     virtual ~ShadowFXNode();
 
+    virtual void connect(SDLDisplayEngine* pEngine);
     virtual void disconnect();
     void setParams(const DPoint& offset, double stdDev, double opacity, 
             const std::string& sColor);

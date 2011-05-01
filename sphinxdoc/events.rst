@@ -135,6 +135,8 @@ Input Handling
             ranges from :py:const:`-pi` to :py:const:`pi`, with 0 being the positive x
             axis. Angles increase in a clockwise fashion.
 
+            For :py:const:`CURSORUP` events, the angle is always approximated.
+
         .. py:attribute:: lastdownpos
 
             The initial position of the cursor. Useful for implementing dragging.

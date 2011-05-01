@@ -19,21 +19,50 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _EventSource_h_
-#define _EventSource_h_
+#ifndef _LibMTDevInputDevice_H_
+#define _LibMTDevInputDevice_H_
 
 #include "../api.h"
-#include "Event.h"
+#include "MultitouchInputDevice.h"
+
+#include "../base/Rect.h"
+
 #include <vector>
+#include <map>
+
+struct mtdev;
 
 namespace avg {
 
-class AVG_API IEventSource {
-    public:
-        virtual ~IEventSource() {};
-        virtual void start() {};
-        virtual std::vector<EventPtr> pollEvents()=0;
+class AVG_API LibMTDevInputDevice: public MultitouchInputDevice
+{
+public:
+    LibMTDevInputDevice();
+    virtual ~LibMTDevInputDevice();
+    virtual void start();
+
+    std::vector<EventPtr> pollEvents();
+    
+private:
+    TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
+
+    int m_DeviceFD;
+    int m_LastID;
+    mtdev* m_pMTDevice;
+    IntRect m_Dimensions;
+
+    struct TouchData
+    {
+        TouchData() { id = 0; }
+        int id;
+        bool bUp;
+        IntPoint pos;
+    };
+    std::map<int, TouchData> m_Slots;
+
 };
+
+typedef boost::shared_ptr<LibMTDevInputDevice> LibMTDevInputDevicePtr;
 
 }
 

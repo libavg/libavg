@@ -21,7 +21,7 @@
 //  Original author of this file is igor@c-base.org
 //
 
-#include "TrackerEventSource.h"
+#include "TrackerInputDevice.h"
 #include "TouchEvent.h"
 #include "EventStream.h"
 
@@ -54,8 +54,9 @@ using namespace std;
 
 namespace avg {
 
-TrackerEventSource::TrackerEventSource()
-    : m_pTrackerThread(0),
+TrackerInputDevice::TrackerInputDevice()
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TrackerInputDevice)),
+      m_pTrackerThread(0),
       m_bSubtractHistory(true),
       m_pCalibrator(0)
 {
@@ -115,7 +116,7 @@ TrackerEventSource::TrackerEventSource()
     setDebugImages(false, false);
 }
 
-TrackerEventSource::~TrackerEventSource()
+TrackerInputDevice::~TrackerInputDevice()
 {
     m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::stop, _1));
     if (m_pTrackerThread) {
@@ -125,7 +126,7 @@ TrackerEventSource::~TrackerEventSource()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void TrackerEventSource::start()
+void TrackerInputDevice::start()
 {
     m_pTrackerThread = new boost::thread(
             TrackerThread(
@@ -142,7 +143,7 @@ void TrackerEventSource::start()
     setConfig();
 }
 
-void TrackerEventSource::setParam(const string& sElement, const string& sValue)
+void TrackerInputDevice::setParam(const string& sElement, const string& sValue)
 {
     string sOldParamVal = m_TrackerConfig.getParam(sElement);
     m_TrackerConfig.setParam(sElement, sValue);
@@ -161,28 +162,28 @@ void TrackerEventSource::setParam(const string& sElement, const string& sValue)
 //        m_TrackerConfig.dump();
 }
 
-string TrackerEventSource::getParam(const string& sElement)
+string TrackerInputDevice::getParam(const string& sElement)
 {
     return m_TrackerConfig.getParam(sElement);
 }
    
-void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
+void TrackerInputDevice::setDebugImages(bool bImg, bool bFinger)
 {
     m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::setDebugImages, _1, bImg, 
             bFinger));
 }
 
-void TrackerEventSource::resetHistory()
+void TrackerInputDevice::resetHistory()
 {
     m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::resetHistory, _1));
 }
 
-void TrackerEventSource::saveConfig()
+void TrackerInputDevice::saveConfig()
 {
     m_TrackerConfig.save();
 }
 
-void TrackerEventSource::setConfig()
+void TrackerInputDevice::setConfig()
 {
     m_pDeDistort = m_TrackerConfig.getTransform();
     DRect area = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
@@ -191,7 +192,7 @@ void TrackerEventSource::setConfig()
             area, m_pBitmaps));
 }
 
-void TrackerEventSource::createBitmaps(const IntRect& area)
+void TrackerInputDevice::createBitmaps(const IntRect& area)
 {
     boost::mutex::scoped_lock lock(*m_pMutex);
     for (int i=1; i<NUM_TRACKER_IMAGES; i++) {
@@ -215,18 +216,18 @@ void TrackerEventSource::createBitmaps(const IntRect& area)
     }
 }
 
-Bitmap * TrackerEventSource::getImage(TrackerImageID imageID) const
+Bitmap * TrackerInputDevice::getImage(TrackerImageID imageID) const
 {
     boost::mutex::scoped_lock lock(*m_pMutex);
     return new Bitmap(*m_pBitmaps[imageID]);
 }
 
-DPoint TrackerEventSource::getDisplayROIPos() const
+DPoint TrackerInputDevice::getDisplayROIPos() const
 {
     return m_DisplayROI.tl;
 }
 
-DPoint TrackerEventSource::getDisplayROISize() const
+DPoint TrackerInputDevice::getDisplayROISize() const
 {
     return m_DisplayROI.size();
 }
@@ -234,7 +235,7 @@ DPoint TrackerEventSource::getDisplayROISize() const
 static ProfilingZoneID ProfilingZoneCalcTrack("trackBlobIDs(track)");
 static ProfilingZoneID ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
-void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, 
+void TrackerInputDevice::update(BlobVectorPtr pTrackBlobs, 
         BlobVectorPtr pTouchBlobs, long long time)
 {
     if (pTrackBlobs) {
@@ -270,7 +271,7 @@ bool operator < (const BlobDistEntryPtr& e1, const BlobDistEntryPtr& e2)
     return e1->m_Dist > e2->m_Dist;
 }
 
-void TrackerEventSource::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time, 
+void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time, 
         bool bTouch)
 {
     EventMap * pEvents;
@@ -353,7 +354,7 @@ void TrackerEventSource::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
     }
 };
 
-TrackerCalibrator* TrackerEventSource::startCalibration()
+TrackerCalibrator* TrackerInputDevice::startCalibration()
 {
     AVG_ASSERT(!m_pCalibrator);
     m_pOldTransformer = m_TrackerConfig.getTransform();
@@ -367,7 +368,7 @@ TrackerCalibrator* TrackerEventSource::startCalibration()
     return m_pCalibrator;
 }
 
-void TrackerEventSource::endCalibration()
+void TrackerInputDevice::endCalibration()
 {
     AVG_ASSERT(m_pCalibrator);
     m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
@@ -384,7 +385,7 @@ void TrackerEventSource::endCalibration()
     m_pOldTransformer = DeDistortPtr();
 }
 
-void TrackerEventSource::abortCalibration()
+void TrackerInputDevice::abortCalibration()
 {
     AVG_ASSERT(m_pCalibrator);
     m_TrackerConfig.setTransform(m_pOldTransformer);
@@ -394,7 +395,7 @@ void TrackerEventSource::abortCalibration()
     m_pCalibrator = 0;
 }
 
-vector<EventPtr> TrackerEventSource::pollEvents()
+vector<EventPtr> TrackerInputDevice::pollEvents()
 {
     boost::mutex::scoped_lock lock(*m_pMutex);
     vector<EventPtr> pTouchEvents;
@@ -407,7 +408,7 @@ vector<EventPtr> TrackerEventSource::pollEvents()
     return pTouchEvents;
 }
 
-void TrackerEventSource::pollEventType(vector<EventPtr>& res, EventMap& Events,
+void TrackerInputDevice::pollEventType(vector<EventPtr>& res, EventMap& Events,
         CursorEvent::Source source) 
 {
     EventPtr pEvent;
@@ -427,7 +428,7 @@ void TrackerEventSource::pollEventType(vector<EventPtr>& res, EventMap& Events,
     }
 }
 
-void TrackerEventSource::copyRelatedInfo(vector<EventPtr> pTouchEvents,
+void TrackerInputDevice::copyRelatedInfo(vector<EventPtr> pTouchEvents,
         vector<EventPtr> pTrackEvents)
 {
     // Copy related blobs to related events.

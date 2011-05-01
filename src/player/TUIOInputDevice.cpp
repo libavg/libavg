@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "TUIOEventSource.h"
+#include "TUIOInputDevice.h"
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
@@ -38,29 +38,29 @@ using namespace osc;
 namespace avg {
 
 #ifndef WIN32
-void* TUIOEventSource::threadFunc(void* p)
+void* TUIOInputDevice::threadFunc(void* p)
 #else
-DWORD WINAPI TUIOEventSource::threadFunc(LPVOID p)
+DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
 #endif
 {
-    TUIOEventSource* pThis = (TUIOEventSource*)p;
+    TUIOInputDevice* pThis = (TUIOInputDevice*)p;
     pThis->m_pSocket->Run();
     return 0;
 };
 
-TUIOEventSource::TUIOEventSource()
+TUIOInputDevice::TUIOInputDevice()
     : m_LastID(0)
 {
 }
 
-TUIOEventSource::~TUIOEventSource()
+TUIOInputDevice::~TUIOInputDevice()
 {
     if (m_pSocket) {
         m_pSocket->Break();
     }
 }
 
-void TUIOEventSource::start()
+void TUIOInputDevice::start()
 {
     string sPort("3333");
     getEnv("AVG_TUIO_PORT", sPort);
@@ -72,7 +72,7 @@ void TUIOEventSource::start()
                 string("TUIO event source: AVG_TUIO_PORT set to invalid value '")
                 + sPort + "'");
     }
-    MultitouchEventSource::start();
+    MultitouchInputDevice::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
                 IpEndpointName::ANY_ADDRESS, port), this);
@@ -94,7 +94,7 @@ void TUIOEventSource::start()
 #endif
 }
 
-void TUIOEventSource::ProcessPacket(const char* pData, int size, 
+void TUIOInputDevice::ProcessPacket(const char* pData, int size, 
         const IpEndpointName& remoteEndpoint)
 {
     boost::mutex::scoped_lock lock(getMutex());
@@ -110,7 +110,7 @@ void TUIOEventSource::ProcessPacket(const char* pData, int size,
     }
 }
 
-void TUIOEventSource::processBundle(const ReceivedBundle& bundle, 
+void TUIOInputDevice::processBundle(const ReceivedBundle& bundle, 
         const IpEndpointName& remoteEndpoint) 
 {
     try {
@@ -128,7 +128,7 @@ void TUIOEventSource::processBundle(const ReceivedBundle& bundle,
     }
 }
 
-void TUIOEventSource::processMessage(const ReceivedMessage& msg, 
+void TUIOInputDevice::processMessage(const ReceivedMessage& msg, 
         const IpEndpointName& remoteEndpoint) 
 {
 //    cerr << msg << endl;
@@ -154,7 +154,7 @@ void TUIOEventSource::processMessage(const ReceivedMessage& msg,
     }
 }
 
-void TUIOEventSource::processSet(ReceivedMessageArgumentStream& args)
+void TUIOInputDevice::processSet(ReceivedMessageArgumentStream& args)
 {
     osc::int32 tuioID;
     float xpos, ypos;
@@ -178,7 +178,7 @@ void TUIOEventSource::processSet(ReceivedMessageArgumentStream& args)
     }
 }
 
-void TUIOEventSource::processAlive(ReceivedMessageArgumentStream& args)
+void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
 {
     m_LiveTUIOIDs.clear();
     int32 tuioID;
@@ -201,7 +201,7 @@ void TUIOEventSource::processAlive(ReceivedMessageArgumentStream& args)
     }
 }
 
-TouchEventPtr TUIOEventSource::createEvent(int id, Event::Type type, DPoint pos,
+TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, DPoint pos,
         DPoint speed)
 {
     DPoint size = getWindowSize();

@@ -35,11 +35,12 @@
 
 #include <iostream>
 #include <sstream>
+#include <limits>
 
 using namespace std;
 using namespace boost;
 
-#define DEFAULT_SIZE 10000
+#define DEFAULT_SIZE 100000
 
 namespace avg {
 

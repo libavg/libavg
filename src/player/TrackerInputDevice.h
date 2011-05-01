@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TrackerEventSource_H_
-#define _TrackerEventSource_H_
+#ifndef _TrackerInputDevice_H_
+#define _TrackerInputDevice_H_
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "TrackerCalibrator.h"
 
 #include "../imaging/TrackerThread.h"
@@ -46,13 +46,13 @@ namespace avg {
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 
-class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
+class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
 {
     typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 
     public:
-        TrackerEventSource();
-        virtual ~TrackerEventSource();
+        TrackerInputDevice();
+        virtual ~TrackerInputDevice();
         void start();
 
         void setParam(const std::string& sElement, const std::string& sValue);
@@ -114,7 +114,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerThread::CQueuePtr m_pCmdQueue;
 };
 
-typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;
+typedef boost::shared_ptr<TrackerInputDevice> TrackerInputDevicePtr;
 
 }
 
