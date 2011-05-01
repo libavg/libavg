@@ -647,8 +647,7 @@ void Player::enableMultitouch()
 #endif
     } else if (sDriver == "XINPUT21") {
 #ifdef HAVE_XI2_1
-        XInput21MTInputDevice* pXIMTInputDevice = IInputDevicePtr(new XInput21MTInputDevice)
-        m_pMultitouchInputDevice = pXIMTInputDevice;
+        m_pMultitouchInputDevice =  IInputDevicePtr(new XInput21MTInputDevice);
 #else
         throw Exception(AVG_ERR_MT_INIT,
                 "XInput 2.1 multitouch event source: Support not configured.'");
