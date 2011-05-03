@@ -1031,8 +1031,8 @@ double Bitmap::getAvg() const
                     for (int x = 0; x < m_Size.x; ++x) {
                         int a = pSrcPixel->getA();
                         if (a > 0) {
-                            sum += pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB()+
-                            pSrcPixel->getA();
+                            sum += ((pSrcPixel->getR()+pSrcPixel->getG()+
+                                    pSrcPixel->getB())*a)/255+pSrcPixel->getA();
                         }
                         pSrcPixel++;
                     }
@@ -1084,9 +1084,9 @@ double Bitmap::getStdDev() const
                     for (int x = 0; x < m_Size.x; ++x) {
                         int a = pSrcPixel->getA();
                         if (a > 0) {
-                            sum += sqr(pSrcPixel->getR()-average);
-                            sum += sqr(pSrcPixel->getG()-average);
-                            sum += sqr(pSrcPixel->getB()-average);
+                            sum += sqr((pSrcPixel->getR()*a)/255-average);
+                            sum += sqr((pSrcPixel->getG()*a)/255-average);
+                            sum += sqr((pSrcPixel->getB()*a)/255-average);
                             sum += sqr(pSrcPixel->getA()-average);
                         }
                         pSrcPixel++;

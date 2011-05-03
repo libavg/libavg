@@ -226,7 +226,7 @@ public:
             testStatistics(I8, Pixel8(0), Pixel8(0), Pixel8(2), Pixel8(2));
             cerr << "      R8G8B8A8" << endl;
             testStatistics(R8G8B8A8, Pixel32(0,0,0,0), Pixel32(0,0,0,0), 
-                    Pixel32(2,2,2,2), Pixel32(2,2,2,2), 1, 0.707107);
+                    Pixel32(255,255,255,255), Pixel32(255,255,255,255), 127.5, 90.1561);
             cerr << "      R8G8B8X8" << endl;
             testStatistics(R8G8B8X8, Pixel32(0,0,0,255), Pixel32(0,0,0,255), 
                     Pixel32(2,2,2,255), Pixel32(2,2,2,255));
@@ -361,8 +361,9 @@ private:
         pBmp->setPixel(IntPoint(0,1), p01);
         pBmp->setPixel(IntPoint(1,0), p10);
         pBmp->setPixel(IntPoint(1,1), p11);
-        TEST(almostEqual(pBmp->getAvg(), avg));
-        TEST(almostEqual(pBmp->getStdDev(), stdDev));
+        cerr << pBmp->getAvg() << ", " << pBmp->getStdDev() << endl;
+        TEST(almostEqual(pBmp->getAvg(), avg, 0.001));
+        TEST(almostEqual(pBmp->getStdDev(), stdDev, 0.001));
     }
 
     void testYUV2RGB()
