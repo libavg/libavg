@@ -361,7 +361,6 @@ private:
         pBmp->setPixel(IntPoint(0,1), p01);
         pBmp->setPixel(IntPoint(1,0), p10);
         pBmp->setPixel(IntPoint(1,1), p11);
-        cerr << pBmp->getAvg() << ", " << pBmp->getStdDev() << endl;
         TEST(almostEqual(pBmp->getAvg(), avg, 0.001));
         TEST(almostEqual(pBmp->getStdDev(), stdDev, 0.001));
     }
