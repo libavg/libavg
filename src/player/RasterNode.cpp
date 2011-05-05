@@ -112,7 +112,7 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection);
-    setupFX();
+    setupFX(true);
 }
 
 void RasterNode::disconnect(bool bKill)
@@ -325,7 +325,7 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
     m_pFXNode = pFXNode;
     if (getState() == NS_CANRENDER) {
-        setupFX();
+        setupFX(true);
     }
 }
 
@@ -401,7 +401,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         bool bPremultipliedAlpha)
 {
     ScopeTimer Timer(FXProfilingZone);
-    setupFX();
+    setupFX(false);
     getDisplayEngine()->enableGLColorArray(false);
     getDisplayEngine()->enableTexture(true);
     if (m_pFXNode) {
@@ -476,20 +476,22 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
     }
 }
 
-void RasterNode::setupFX()
+void RasterNode::setupFX(bool bNewFX)
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
         if (!getDisplayEngine()->isUsingShaders()) {
             throw Exception(AVG_ERR_UNSUPPORTED,
                     "Can't use FX - unsupported on this hardware/driver combination.");
         }
+        if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
+            m_pFXNode->setSize(m_pSurface->getSize());
+            m_pFXNode->connect(getDisplayEngine());
+        }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
                     false, getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-            m_pFXNode->setSize(m_pSurface->getSize());
-            m_pFXNode->connect(getDisplayEngine());
             m_pImagingProjection->setup(m_pSurface->getSize());
         }
     }

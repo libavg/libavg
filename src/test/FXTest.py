@@ -36,8 +36,11 @@ class FXTestCase(AVGTestCase):
             node2.setEffect(avg.NullFXNode())
 
         def newNode():
-            node = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(64,0))
-            node.setEffect(avg.NullFXNode())
+            self.newNode = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(64,0))
+            self.newNode.setEffect(avg.NullFXNode())
+
+        def newFX():
+            self.newNode.setEffect(avg.NullFXNode())
 
         def addBgNode():
             node = avg.RectNode(pos=(0,32), size=(64,32), fillopacity=1, opacity=0,
@@ -59,6 +62,8 @@ class FXTestCase(AVGTestCase):
                  activateFX,
                  lambda: self.compareImage("testImageNullFX1", False),
                  newNode,
+                 lambda: self.compareImage("testImageNullFX2", False),
+                 newFX,
                  lambda: self.compareImage("testImageNullFX2", False),
                  addBgNode,
                  lambda: self.compareImage("testImageNullFX3", False),

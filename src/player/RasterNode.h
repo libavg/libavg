@@ -108,7 +108,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void calcMaskCoords(MaterialInfo& material);
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
-        void setupFX();
+        void setupFX(bool bNewFX);
         void blt(const DPoint& destSize, DisplayEngine::BlendMode mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
