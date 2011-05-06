@@ -313,6 +313,7 @@ void SDLDisplayEngine::teardown()
     }
     VertexArray::deleteBufferCache();
     GPUFilter::glContextGone();
+    FBO::deleteCache();
     ShaderRegistry::kill();
 }
 

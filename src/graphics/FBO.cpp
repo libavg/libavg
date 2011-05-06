@@ -29,8 +29,11 @@
 #include <stdio.h>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
+
+thread_specific_ptr<vector<unsigned int> > FBO::s_pFBOIDs;
 
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
@@ -46,6 +49,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
     }
+    initCache();
 
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
@@ -62,10 +66,10 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
 FBO::~FBO()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
-    glproc::DeleteFramebuffers(1, &m_FBO);
+    returnToCache(m_FBO);
     if (m_MultisampleSamples > 1) {
         glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
-        glproc::DeleteFramebuffers(1, &m_OutputFBO);
+        returnToCache(m_OutputFBO);
     }
     if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
         glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
@@ -154,6 +158,24 @@ const IntPoint& FBO::getSize() const
     return m_Size;
 }
 
+void FBO::initCache()
+{
+    if (s_pFBOIDs.get() == 0) {
+        s_pFBOIDs.reset(new vector<unsigned int>);
+    }
+}
+
+void FBO::deleteCache()
+{
+    if (s_pFBOIDs.get() != 0) {
+        for (unsigned i=0; i<s_pFBOIDs->size(); ++i) {
+            glproc::DeleteFramebuffers(1, &((*s_pFBOIDs)[i]));
+        }
+        s_pFBOIDs->clear();
+        s_pFBOIDs.reset();
+    }
+}
+
 void FBO::init()
 {
     if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
@@ -164,7 +186,7 @@ void FBO::init()
     }
     m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
 
-    glproc::GenFramebuffers(1, &m_FBO);
+    m_FBO = genFramebuffer();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: GenFramebuffers()");
 
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
@@ -223,7 +245,7 @@ void FBO::init()
                     "FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
         checkError("init multisample");
-        glproc::GenFramebuffers(1, &m_OutputFBO);
+        m_OutputFBO = genFramebuffer();
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
                 GL_TEXTURE_2D, m_pTextures[0]->getID(), 0);
@@ -235,6 +257,24 @@ void FBO::init()
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 }
 
+unsigned FBO::genFramebuffer() const
+{
+    unsigned fboID;
+    if (s_pFBOIDs->empty()) {
+        glproc::GenFramebuffers(1, &fboID);
+    } else {
+        fboID = s_pFBOIDs->back();
+        s_pFBOIDs->pop_back();
+    }
+    return fboID;
+}
+
+void FBO::returnToCache(unsigned fboID) 
+{
+    if (s_pFBOIDs.get() != 0) {
+        s_pFBOIDs->push_back(fboID);
+    }
+}
 bool FBO::isFBOSupported()
 {
     return queryOGLExtension("GL_EXT_framebuffer_object");
@@ -305,6 +345,6 @@ void FBO::checkError(const string& sContext) const
     AVG_ASSERT(false);
 }
 
-} // namespace avg
+}
 
 
