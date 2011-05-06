@@ -66,6 +66,16 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
 FBO::~FBO()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+    
+    unsigned oldFBOID;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (GLint*)&oldFBOID);
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    
+    for (unsigned i=0; i<m_pTextures.size(); ++i) {
+        glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT+i, 
+                GL_TEXTURE_2D, 0, 0);
+    }
+    
     returnToCache(m_FBO);
     if (m_MultisampleSamples > 1) {
         glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
@@ -73,7 +83,18 @@ FBO::~FBO()
     }
     if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
         glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
+        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+                GL_RENDERBUFFER_EXT, 0);
+        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+                GL_RENDERBUFFER_EXT, 0);
+        if (m_MultisampleSamples > 1) {
+            glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+            glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                    GL_TEXTURE_2D, 0, 0);
+        }
     }
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, oldFBOID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "~FBO");
 }
 
 void FBO::activate() const
@@ -194,7 +215,7 @@ void FBO::init()
 
     if (m_MultisampleSamples == 1) {
         glDisable(GL_MULTISAMPLE);
-        for (unsigned i = 0; i < m_pTextures.size(); ++i) {
+        for (unsigned i=0; i<m_pTextures.size(); ++i) {
             glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT,
                     GL_COLOR_ATTACHMENT0_EXT+i, GL_TEXTURE_2D, 
                     m_pTextures[i]->getID(), 0);
