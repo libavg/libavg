@@ -61,6 +61,7 @@ class AVG_API Camera
 public:
     Camera(PixelFormat camPF, PixelFormat destPF);
     virtual ~Camera() {};
+    virtual void startCapture() {};
 
     PixelFormat getCamPF() const;
     void setCamPF(PixelFormat pf);

@@ -106,11 +106,15 @@ void DSCamera::open()
         hr = AddGraphToRot(m_pGraph, &m_GraphRegisterID);
         checkForDShowError(hr, "DSCamera::open()::AddGraphToRot");
 
-        hr = m_pMediaControl->Run(); // Start capturing
-        checkForDShowError(hr, "DSCamera::open()::Run");
     } else {
         throw (Exception(AVG_ERR_CAMERA_NONFATAL, "DS Camera unavailable"));
     }
+}
+
+void DSCamera::startCapture()
+{
+    HRESULT hr = m_pMediaControl->Run();
+    checkForDShowError(hr, "DSCamera::open()::Run");
 }
 
 void DSCamera::close()

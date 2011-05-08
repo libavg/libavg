@@ -51,6 +51,7 @@ public:
     DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, PixelFormat destPF,
             double frameRate);
     virtual ~DSCamera();
+    virtual void startCapture();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);

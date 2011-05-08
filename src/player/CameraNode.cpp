@@ -290,6 +290,7 @@ double CameraNode::getFPS() const
 
 void CameraNode::open()
 {
+    m_pCamera->startCapture();
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     getSurface()->create(getMediaSize(), pf);
