@@ -16,6 +16,9 @@ using namespace std;
 
 namespace avg {
 
+// Source for the algorithm:
+// http://scien.stanford.edu/pages/labsite/1999/psych221/projects/99/tingchen/algodep/corrI.html
+
 GPULaplaceDemosaic::GPULaplaceDemosaic(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         bool bStandalone)
     : GPUFilter(pfSrc, pfDest, bStandalone, 2)

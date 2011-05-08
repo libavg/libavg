@@ -17,6 +17,9 @@ using namespace std;
 
 namespace avg {
 
+// Source for the algorithm:
+// http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3880&rep=rep1&type=pdf
+
 GPUFuzzyDemosaic::GPUFuzzyDemosaic(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
         bool bStandalone)
     : GPUFilter(pfSrc, pfDest, bStandalone, 2)
