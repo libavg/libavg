@@ -169,6 +169,7 @@ FWCamera::~FWCamera()
 
 void FWCamera::startCapture()
 {
+#ifdef AVG_ENABLE_1394_2
     int err = dc1394_video_set_transmission(m_pCamera, DC1394_ON);
     AVG_ASSERT(err == DC1394_SUCCESS);
 
@@ -208,6 +209,7 @@ void FWCamera::startCapture()
             enablePtGreyBayer();
         }
     }
+#endif
 }
 
 IntPoint FWCamera::getImgSize()
