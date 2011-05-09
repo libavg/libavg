@@ -41,7 +41,8 @@ if sys.platform != 'win32':
     # '.': make check
     # None: ./Test.py
     # dir name: make distcheck
-    if os.getenv('srcdir') in ('.', None):
+    srcDir = os.getenv("srcdir",".")
+    if srcDir == '.':
         # Running make check or ./Test.py
         if os.path.basename(os.getcwd()) != 'test':
             raise RuntimeError('Manual tests must be performed inside directory "test"')
@@ -52,7 +53,6 @@ if sys.platform != 'win32':
         
         try:
             symtree('../python', 'libavg')
-            # os.system('cp -r ../python libavg')
             os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
         except OSError:
             pass
@@ -64,7 +64,6 @@ if sys.platform != 'win32':
     
     os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
 
-    srcDir = os.getenv("srcdir",".")
     os.chdir(srcDir)
     # The following lines help to prevent the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
