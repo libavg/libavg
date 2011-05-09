@@ -40,7 +40,12 @@ def symtree(src, dest):
         
 if sys.platform != 'win32':
     g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
+    # Possible values for srcdir:
+    # '.': make check
+    # None: ./Test.py
+    # dir name: make distcheck
     if os.getenv('srcdir') in ('.', None):
+        # Running make check or ./Test.py
         if os.path.basename(os.getcwd()) != 'test':
             raise RuntimeError('Manual tests must be performed inside directory "test"')
         
@@ -49,14 +54,13 @@ if sys.platform != 'win32':
             shutil.rmtree(g_TempPackageDir)
         
         try:
-            # We're running make check / manual tests
             symtree('../python', 'libavg')
             # os.system('cp -r ../python libavg')
             os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
         except OSError:
             pass
     else:
-        # make distcheck
+        # Running make distcheck
         symtree('../../../../src/python', 'libavg')
         os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
         sys.path.insert(0, os.getcwd())
