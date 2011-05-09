@@ -53,6 +53,7 @@ public:
     FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, PixelFormat camPF, 
             PixelFormat destPF, double frameRate);
     virtual ~FWCamera();
+    virtual void startCapture();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);

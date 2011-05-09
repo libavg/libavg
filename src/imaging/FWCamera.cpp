@@ -151,7 +151,25 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
         dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA_NONFATAL, "Failed to initialize camera");
     }
-    err = dc1394_video_set_transmission(m_pCamera, DC1394_ON);
+#else
+    AVG_ASSERT(false);
+#endif
+}
+
+FWCamera::~FWCamera()
+{
+#ifdef AVG_ENABLE_1394_2
+    dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+    dc1394_capture_stop(m_pCamera);
+    dc1394_camera_free(m_pCamera);
+    dc1394_free(m_pDC1394);
+#endif
+    AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
+}
+
+void FWCamera::startCapture()
+{
+    int err = dc1394_video_set_transmission(m_pCamera, DC1394_ON);
     AVG_ASSERT(err == DC1394_SUCCESS);
 
     dc1394switch_t status = DC1394_OFF;
@@ -179,7 +197,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
     }
     setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
     
-    if (camPF == BAYER8) {
+    if (getCamPF() == BAYER8) {
         if (strcmp(m_pCamera->model, "DFx 31BF03") == 0) {
             AVG_TRACE(Logger::CONFIG,
                     "Applying bayer pattern fixup for IS DFx31BF03 camera");
@@ -190,20 +208,6 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
             enablePtGreyBayer();
         }
     }
-#else
-    AVG_ASSERT(false);
-#endif
-}
-
-FWCamera::~FWCamera()
-{
-#ifdef AVG_ENABLE_1394_2
-    dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-    dc1394_capture_stop(m_pCamera);
-    dc1394_camera_free(m_pCamera);
-    dc1394_free(m_pDC1394);
-#endif
-    AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
 }
 
 IntPoint FWCamera::getImgSize()
