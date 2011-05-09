@@ -97,6 +97,7 @@ public:
     Bitmap * subtract(const Bitmap* pOtherBmp);
     void blt(const Bitmap* pOtherBmp, const IntPoint& pos);
     double getAvg() const;
+    double getChannelAvg(int channel) const;
     double getStdDev() const;
 
     bool operator ==(const Bitmap & otherBmp);

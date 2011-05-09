@@ -145,6 +145,7 @@ void export_bitmap()
         .def("subtract", &Bitmap::subtract,
                 return_value_policy<manage_new_object>())
         .def("getAvg", &Bitmap::getAvg)
+        .def("getChannelAvg", &Bitmap::getChannelAvg)
         .def("getStdDev", &Bitmap::getStdDev)
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>())

@@ -1054,6 +1054,24 @@ double Bitmap::getAvg() const
     return sum/(getSize().x*getSize().y);
 }
 
+double Bitmap::getChannelAvg(int channel) const
+{
+    AVG_ASSERT(!pixelFormatIsPlanar(m_PF) && !pixelFormatIsBayer(m_PF) && !(m_PF == I16));
+    int bytesPerPixel = getBytesPerPixel();
+    AVG_ASSERT(channel < bytesPerPixel);
+    double sum = 0;
+    unsigned char * pSrcLine = m_pBits;
+    for (int y = 0; y < getSize().y; ++y) {
+        unsigned char * pSrcPixel = pSrcLine;
+        for (int x = 0; x < m_Size.x; ++x) {
+            sum += *(pSrcPixel+channel);
+            pSrcPixel += bytesPerPixel;
+        }
+        pSrcLine += m_Stride;
+    }
+    return sum/(getSize().x*getSize().y);
+}
+
 double Bitmap::getStdDev() const
 {
     double average = getAvg();

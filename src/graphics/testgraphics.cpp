@@ -233,6 +233,8 @@ public:
             cerr << "      R8G8B8" << endl;
             testStatistics(R8G8B8, Pixel24(0,0,0), Pixel24(0,0,0), 
                     Pixel24(2,2,2), Pixel24(2,2,2));
+            cerr << "      ChannelAvg" << endl;
+            testChannelAvg();
         }
         {
             cerr << "    Testing YUV->RGB conversion." << endl;
@@ -311,7 +313,8 @@ private:
         bmp.drawLine(IntPoint(7,7), IntPoint(12,14), color);
         bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), color);
         bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
-        string sFName = getSrcDirName()+"baseline/LineResult"+getPixelFormatString(pf)+".png";
+        string sFName = getSrcDirName() + "baseline/LineResult" + getPixelFormatString(pf)
+                + ".png";
         Bitmap baselineBmp(sFName);
         Bitmap baselineBmp2(IntPoint(15,15), pf);
         baselineBmp2.copyPixels(baselineBmp);
@@ -363,6 +366,18 @@ private:
         pBmp->setPixel(IntPoint(1,1), p11);
         TEST(almostEqual(pBmp->getAvg(), avg, 0.001));
         TEST(almostEqual(pBmp->getStdDev(), stdDev, 0.001));
+    }
+
+    void testChannelAvg()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), R8G8B8));
+        pBmp->setPixel(IntPoint(0,0), Pixel24(0,0,0));
+        pBmp->setPixel(IntPoint(0,1), Pixel24(128,0,0));
+        pBmp->setPixel(IntPoint(1,0), Pixel24(128,128,0));
+        pBmp->setPixel(IntPoint(1,1), Pixel24(128,128,128));
+        TEST(almostEqual(pBmp->getChannelAvg(0), 96));
+        TEST(almostEqual(pBmp->getChannelAvg(1), 64));
+        TEST(almostEqual(pBmp->getChannelAvg(2), 32));
     }
 
     void testYUV2RGB()
