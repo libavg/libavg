@@ -25,9 +25,6 @@ import os
 import shutil
 
 
-g_TempPackageDir = None
-
-
 def symtree(src, dest):
     os.mkdir(dest)
     for f in os.listdir(src):
@@ -39,7 +36,7 @@ def symtree(src, dest):
 
         
 if sys.platform != 'win32':
-    g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
+    tempPackageDir = os.path.join(os.getcwd(), 'libavg')
     # Possible values for srcdir:
     # '.': make check
     # None: ./Test.py
@@ -49,9 +46,9 @@ if sys.platform != 'win32':
         if os.path.basename(os.getcwd()) != 'test':
             raise RuntimeError('Manual tests must be performed inside directory "test"')
         
-        if os.path.isdir(g_TempPackageDir):
+        if os.path.isdir(tempPackageDir):
             print 'Cleaning up old test package'
-            shutil.rmtree(g_TempPackageDir)
+            shutil.rmtree(tempPackageDir)
         
         try:
             symtree('../python', 'libavg')
@@ -78,10 +75,10 @@ if sys.platform != 'win32':
 
     cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
     
-#    if cpfx != os.getcwd():
-#        raise RuntimeError(
-#            'Tests would be performed with a non-local libavg package (%s)'
-#            % libavg.__file__)
+    if sys.platform == 'linux2' and cpfx != os.getcwd():
+        raise RuntimeError(
+            'Tests would be performed with a non-local libavg package (%s)'
+            % libavg.__file__)
 
 
 import testapp   
@@ -117,15 +114,7 @@ app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('event', EventTest.eventTestSuite)
 
-
-try:
-    app.run()
-finally:
-    if g_TempPackageDir is not None:
-        try:
-            shutil.rmtree(g_TempPackageDir)
-        except OSError:
-            print 'ERROR: Cannot clean up test package directory'
+app.run()
 
 sys.exit(app.exitCode())
 
