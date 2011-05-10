@@ -103,7 +103,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
 
     dc1394_camera_free_list(pCameraList);
 
-    dumpCameraInfo();
+//    dumpCameraInfo();
     if (bFW800) {
         dc1394_video_set_operation_mode(m_pCamera, DC1394_OPERATION_MODE_1394B);
         err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_800);
