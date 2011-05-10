@@ -29,7 +29,7 @@ import traceback
 
 g_player = avg.Player.get()
 
-class   CameraTest(AVGApp):
+class CameraTest(AVGApp):
     
     def init(self):  
         self.testNumber = 0   
@@ -70,7 +70,7 @@ class   CameraTest(AVGApp):
                 ('firewire', '', -1, False, 15, 1024, 768, 'I16', self._parentNode), 
                 ('firewire', '', -1, False, 30, 320, 240, 'YUV422', self._parentNode),
                 ('firewire', '', -1, False, 15, 800, 600, 'YUV422', self._parentNode),
-                ('firewire', '', -1, False, 7.5, 1024, 768, 'YUYV422', self._parentNode),
+                ('firewire', '', -1, False, 7.5, 1024, 768, 'YUV422', self._parentNode),
                 ('firewire', '', -1, False, 7.5, 1024, 768, 'YUV411', self._parentNode),
                 ('firewire', '', -1, False, 30, 640, 480, 'RGB', self._parentNode)]
         self.cmds = []
@@ -159,9 +159,9 @@ class   CameraTest(AVGApp):
     def getCamImg (self, param):
         if param in ['saturation', 'setwhitebalance']:
             colour = []
-            colour.append(self.cam.getBitmap().getRGB('r'))
-            colour.append(self.cam.getBitmap().getRGB('g'))
-            colour.append(self.cam.getBitmap().getRGB('b'))
+            colour.append(self.cam.getBitmap().getChannelAvg(0))
+            colour.append(self.cam.getBitmap().getChannelAvg(1))
+            colour.append(self.cam.getBitmap().getChannelAvg(2))
             self.bitMaps.append(colour)
         else:    
             self.bitMaps.append(self.cam.getBitmap().getAvg())
