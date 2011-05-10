@@ -932,7 +932,12 @@ int FFMpegDecoder::getNumFrames() const
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
 #else
-    return int(m_pVStream->nb_frames);
+    int numFrames =  int(m_pVStream->nb_frames);
+    if (numFrames > 0) {
+        return numFrames;
+    } else {
+        return getDuration() * calcStreamFPS();
+    }
 #endif 
 }
 
