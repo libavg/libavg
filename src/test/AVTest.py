@@ -254,8 +254,11 @@ class AVTestCase(AVGTestCase):
         def seek(frame):
             videoNode.seekToFrame(frame)
 
+        def checkCurFrame():
+            self.assert_(videoNode.getCurFrame() == 26)
+
+        Player.setFakeFPS(25)
         for useCustomFPS in [False, True]:
-            Player.setFakeFPS(25)
             self.loadEmptyScene()
             if useCustomFPS:
                 videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, fps=25,
@@ -267,7 +270,8 @@ class AVTestCase(AVGTestCase):
             videoNode.play()
             seek(26)
             self.start(None,
-                    (lambda: self.compareImage("testVideoSeek0", False),
+                    (checkCurFrame,
+                     lambda: self.compareImage("testVideoSeek0", False),
                      lambda: seek(100),
                      lambda: self.compareImage("testVideoSeek1", False),
                      lambda: videoNode.pause(),
@@ -278,6 +282,18 @@ class AVTestCase(AVGTestCase):
                      None,
                      lambda: self.compareImage("testVideoSeek3", False)
                     ))
+
+        def checkSeek():
+            seek(26)
+            self.assert_(videoNode.getCurFrame() != 0)
+
+        self.loadEmptyScene()
+        videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, fps=25,
+                href="../video/testfiles/mjpeg-48x48.avi")
+        videoNode.play()
+        seek(5)
+        self.start(None,
+                (checkSeek,))
 
     def testVideoFPS(self):
         Player.setFakeFPS(25)

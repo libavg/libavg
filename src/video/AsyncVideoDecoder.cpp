@@ -147,7 +147,6 @@ void AsyncVideoDecoder::seek(double destTime)
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
-    m_LastVideoFrameTime = -1;
     m_bSeekPending = true;
     if (m_pVCmdQ) {
         m_pVCmdQ->pushCmd(boost::bind(&VideoDecoderThread::seek, _1, destTime));
