@@ -20,10 +20,24 @@
 # Current versions can be found at www.libavg.de
 #
 
+'''
+Runner for libavg unit tests
+
+On autotools-based systems, tests are performed on a local libavg package.
+This package is created by symlinking all the relevant files in a local, temporary
+directory, letting python find it as first instance.
+On windows, instead, tests are always carried on after distutils installs the package.
+'''
+
 import sys
 import os
 import shutil
+import atexit
 
+def cleanup(folder):
+    if os.path.isdir(folder):
+        print 'Wiping out directory: %s' % folder
+        shutil.rmtree(folder)
 
 def symtree(src, dest):
     os.mkdir(dest)
@@ -34,7 +48,7 @@ def symtree(src, dest):
             (os.path.isfile(fpath) and os.path.splitext(f)[1] == '.py'))):
                 os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
-        
+
 if sys.platform != 'win32':
     tempPackageDir = os.path.join(os.getcwd(), 'libavg')
     # Possible values for srcdir:
@@ -47,37 +61,34 @@ if sys.platform != 'win32':
         if os.path.basename(os.getcwd()) != 'test':
             raise RuntimeError('Manual tests must be performed inside directory "test"')
         
-        if os.path.isdir(tempPackageDir):
-            print 'Cleaning up old test package'
-            shutil.rmtree(tempPackageDir)
+        cleanup(tempPackageDir)
         
-        try:
-            symtree('../python', 'libavg')
-            os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
-        except OSError:
-            pass
+        symtree('../python', 'libavg')
+        os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
         os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
-        sys.path.insert(0, os.getcwd())
+
+        # distcheck doesn't want leftovers (.pyc files)
+        atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
     
+    if not os.path.exists('../wrapper/.libs/avg.so'):
+        raise RuntimeError('Compile libavg before running tests or use "make check"')
+
     os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
 
-    os.chdir(srcDir)
-    # The following lines help to prevent the test to be run
+    # The following line prevents the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
     # in the system
+    sys.path.insert(0, os.getcwd())
+
+    # Meaningful only for distcheck
+    os.chdir(srcDir)
+
     import libavg
     libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
             os.path.dirname(libavg.__file__))
-
-    cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
-    
-    if sys.platform == 'linux2' and cpfx != os.getcwd():
-        raise RuntimeError(
-            'Tests would be performed with a non-local libavg package (%s)'
-            % libavg.__file__)
 
 
 import testapp   

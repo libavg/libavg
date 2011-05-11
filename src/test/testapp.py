@@ -20,14 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-'''
-Entry point for libavg unit tests
-On autotools-based systems, tests are performed on a local libavg package.
-This package is created by copying all the relevant files in a local, temporary
-directory, and its scope is added in order to let python to find it.
-On windows instead, tests are carried on after distutils takes care of a
-system-wide installation.
-'''
 import unittest
 
 import optparse
