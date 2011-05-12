@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <PYTHON_ROOT>C:\Python27</PYTHON_ROOT>
+  </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(PYTHONPATH)\include;..\..\..\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PYTHONPATH)\libs;..\Release;..\..\..\lib;$(MSBuildProgramFiles32)\CMU\1394Camera\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(PYTHON_ROOT)\include;..\..\..\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PYTHON_ROOT)\libs;..\Release;..\..\..\lib;$(MSBuildProgramFiles32)\CMU\1394Camera\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -33,5 +35,10 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BuildMacro Include="PYTHON_ROOT">
+      <Value>$(PYTHON_ROOT)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
 </Project>
