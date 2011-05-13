@@ -679,10 +679,8 @@ void WordsNode::drawString()
             }
         }
     }
-//    if (getState() == NS_CANRENDER) {
-        m_bDrawNeeded = false;
-        setViewport(-32767, -32767, -32767, -32767);
-//    }
+    m_bDrawNeeded = false;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 void WordsNode::preRender()
