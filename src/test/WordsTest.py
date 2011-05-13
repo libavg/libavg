@@ -67,16 +67,17 @@ class WordsTestCase(AVGTestCase):
 
     def testRedrawOnDemand(self):
 
-        def changeText():
+        def changeText(newText):
             size = node.size
-            node.text = "A"
+            node.text = newText 
             self.assert_(node.size != size)
 
         self.loadEmptyScene()
         node = avg.WordsNode(font="Bitstream Vera Sans", fontsize=12, text="foo", 
                 parent=Player.getRootNode())
+        changeText("foobar")
         self.start(None,
-                (changeText,))
+                (lambda: changeText("bar"),))
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):

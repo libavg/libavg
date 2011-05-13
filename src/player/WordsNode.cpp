@@ -145,9 +145,9 @@ void WordsNode::setTextFromNodeValue(const string& sText)
 void WordsNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_bFontChanged = true;
     m_bDrawNeeded = true;
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
 void WordsNode::connect(CanvasPtr pCanvas)
@@ -679,10 +679,10 @@ void WordsNode::drawString()
             }
         }
     }
-    if (getState() == NS_CANRENDER) {
+//    if (getState() == NS_CANRENDER) {
         m_bDrawNeeded = false;
         setViewport(-32767, -32767, -32767, -32767);
-    }
+//    }
 }
 
 void WordsNode::preRender()
