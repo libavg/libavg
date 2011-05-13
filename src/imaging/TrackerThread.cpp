@@ -92,6 +92,7 @@ TrackerThread::TrackerThread(IntRect roi, CameraPtr pCamera,
                 m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
 
     m_pConfig = TrackerConfigPtr(new TrackerConfig(config));
+    m_pCamera->startCapture();
 }
 
 TrackerThread::~TrackerThread()

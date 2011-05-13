@@ -1351,7 +1351,8 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
     }
 }
 
-void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent,
+        bool bOnlyCheckCursorOver)
 {
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
