@@ -230,9 +230,9 @@ void WordsNode::setHint(bool bHint)
     m_bHint = bHint;
 }
 
-double WordsNode::getWidth() 
+double WordsNode::getWidth() const
 {
-    drawString();
+    const_cast<WordsNode*>(this)->drawString();
     return AreaNode::getWidth();
 }
 
@@ -242,9 +242,9 @@ void WordsNode::setWidth(double width)
     AreaNode::setWidth(width);
 }
 
-double WordsNode::getHeight()
+double WordsNode::getHeight() const
 {
-    drawString();
+    const_cast<WordsNode*>(this)->drawString();
     return AreaNode::getHeight();
 }
 
@@ -254,9 +254,9 @@ void WordsNode::setHeight(double width)
     AreaNode::setHeight(width);
 }
 
-DPoint WordsNode::getSize()
+DPoint WordsNode::getSize() const
 {
-    drawString();
+    const_cast<WordsNode*>(this)->drawString();
     return AreaNode::getSize();
 }
 

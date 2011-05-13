@@ -40,7 +40,7 @@ class WordsTestCase(AVGTestCase):
             node = Player.getElementByID("sanstext")
             node.text = u"föa"
             newNode = avg.WordsNode(text=u"öäü")
-        
+       
         fontList = avg.WordsNode.getFontFamilies()
         try:
             fontList.index("Bitstream Vera Sans")
@@ -62,8 +62,21 @@ class WordsTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testSimpleWords", True),
                  checkFont,
-                 checkUnicodeText
+                 checkUnicodeText,
                 ))
+
+    def testRedrawOnDemand(self):
+
+        def changeText():
+            size = node.size
+            node.text = "A"
+            self.assert_(node.size != size)
+
+        self.loadEmptyScene()
+        node = avg.WordsNode(font="Bitstream Vera Sans", fontsize=12, text="foo", 
+                parent=Player.getRootNode())
+        self.start(None,
+                (changeText,))
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
@@ -599,6 +612,7 @@ class WordsTestCase(AVGTestCase):
 def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
+            "testRedrawOnDemand",
             "testGlyphPos",
             "testParaWords",
             "testJustify",
