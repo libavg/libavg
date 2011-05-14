@@ -228,11 +228,6 @@ Player & Canvas
             has started. Honors FakeFPS. The time returned stays constant for an
             entire frame; it is the time of the last display update.
 
-        .. py:method:: getTimeSinceLastFrame() -> int
-
-            Returns the number of milliseconds that have elapsed since the last
-            frame (i.e. the last display update).
-
         .. py:method:: getKeyModifierState() -> KeyModifier
 
             Returns the current modifier keys (:kbd:`shift`, :kbd:`ctrl`) pressed. 
@@ -257,6 +252,11 @@ Player & Canvas
             :py:meth:`play`.
 
         .. py:method:: getTestHelper
+
+        .. py:method:: getTimeSinceLastFrame() -> int
+
+            Returns the number of milliseconds that have elapsed since the last
+            frame (i.e. the last display update).
 
         .. py:method:: getTracker() -> Tracker
 
