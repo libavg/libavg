@@ -103,7 +103,6 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
 
     dc1394_camera_free_list(pCameraList);
 
-//    dumpCameraInfo();
     if (bFW800) {
         dc1394_video_set_operation_mode(m_pCamera, DC1394_OPERATION_MODE_1394B);
         err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_800);
@@ -319,7 +318,6 @@ void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
         } else {
             dc1394feature_t FeatureID = getFeatureID(feature);
             setFeature(FeatureID, value);
-            //        dumpCameraInfo();
         }
     }
 #endif
@@ -481,19 +479,6 @@ void FWCamera::enablePtGreyBayer()
 #endif
 }
 
-void FWCamera::dumpCameraInfo()
-{
-#ifdef AVG_ENABLE_1394_2
-    dc1394error_t err;
-    dc1394featureset_t FeatureSet;
-    err = dc1394_feature_get_all(m_pCamera, &FeatureSet);
-    AVG_ASSERT(err == DC1394_SUCCESS);
-    // TODO: do this using AVG_TRACE
-    dc1394_feature_print_all(&FeatureSet, stderr);
-
-#endif
-}
-
 void FWCamera::dumpCameras()
 {
 #ifdef AVG_ENABLE_1394_2
@@ -512,13 +497,28 @@ void FWCamera::dumpCameras()
                         id.unit);
                 if (pCamera) {
                     dc1394_camera_print_info(pCamera, stderr);
+                    dumpCameraInfo(pCamera);
                     dc1394_camera_free(pCamera);
+                    cerr << endl;
                 }
             }
         }
         dc1394_camera_free_list(pCameraList);
     }
     dc1394_free(pDC1394);
+#endif
+}
+
+void FWCamera::dumpCameraInfo(dc1394camera_t * pCamera)
+{
+#ifdef AVG_ENABLE_1394_2
+    dc1394error_t err;
+    dc1394featureset_t FeatureSet;
+    err = dc1394_feature_get_all(pCamera, &FeatureSet);
+    AVG_ASSERT(err == DC1394_SUCCESS);
+    // TODO: do this using AVG_TRACE
+    dc1394_feature_print_all(&FeatureSet, stderr);
+
 #endif
 }
 
