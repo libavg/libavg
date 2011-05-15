@@ -52,8 +52,8 @@ functionality
 
                 For single-touch devices, the shift key must stay in the pressed state
                 until the next normal key is pressed to have any effect. This is the 
-                behaviour if :py:attr:`stickyShift` is :keyword:`True`. If it is 
-                :keyword:`False` (the default), a 
+                behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
+                :py:const:`False` (the default), a 
                 multitouch device is assumed and shift works like on a physical keyboard.
 
         .. py:method:: reset():
@@ -66,7 +66,7 @@ functionality
             paramters: (event, char, cmd)
 
             :param downHandler: Callable to invoke on key down event or `None`.
-            :param upHandler: Callable to invoke on key up event or :keyword:`None`.
+            :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, keyStr, shiftKeyStr, [altGrKeyStr])
 
@@ -133,7 +133,7 @@ functionality
                 :param event: 
                 
                     The corresponding cursor motion event. If there was no event, 
-                    this parameter is :keyword:`None`.
+                    this parameter is :py:const:`None`.
 
                 :param avg.Point2D offset: 
                 

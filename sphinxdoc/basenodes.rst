@@ -80,7 +80,7 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node([id: string, parent: DivNode=:keyword:`None`])
+    .. autoclass:: Node([id: string, parent: DivNode=None])
 
         Base class for everything that can be put into an avg tree.
 
@@ -188,7 +188,7 @@ This section describes the base classes for all node classes that libavg provide
                 process as a parameter. In contrast to callbacks set up using 
                 :py:meth:`setEventHandler`, it should not return anything. If 
                 :py:meth:`connectEventHandler` is used, all events bubble up the tree.
-                pyfunc may not be :keyword:`None`.
+                pyfunc may not be :py:const:`None`.
 
         .. py:method:: disconnectEventHandler(pyobj, [pyfunc])
 
@@ -219,7 +219,7 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: getParent() -> Node
 
             Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
-            is in. For the root node, returns :keyword:`None`.
+            is in. For the root node, returns :py:const:`None`.
 
         .. py:method:: getRelPos(abspos) -> Point2D
 
@@ -268,11 +268,11 @@ This section describes the base classes for all node classes that libavg provide
 
                 The python callable to invoke. This callable must take the event to 
                 process as a
-                parameter. If pyfunc returns :keyword:`None` or :keyword:`False`, the
-                event bubbles up the node tree. If it is :keyword:`True`, bubbling is
+                parameter. If pyfunc returns :py:const:`None` or :py:const:`False`, the
+                event bubbles up the node tree. If it is :py:const:`True`, bubbling is
                 suppressed.
 
-                If pyfunc is :keyword:`None`, the previous handler is removed.
+                If pyfunc is :py:const:`None`, the previous handler is removed.
 
         .. py:method:: unlink([kill=False])
 
@@ -284,5 +284,5 @@ This section describes the base classes for all node classes that libavg provide
             textures are deleted and the href is reset to empty in this case,
             saving some time and making sure there are no references to the node
             left on the libavg side. :py:attr:`kill` should always be set to 
-            :keyword:`True` if the node will not be used after the unlink.
+            :py:const:`True` if the node will not be used after the unlink.
 

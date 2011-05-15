@@ -158,7 +158,7 @@ Misc. Classes
             :param index: Zero-based index of the relais on the card.
             :param value: 
             
-                Whether to set (:keyword:`True`) or reset (:keyword:`False`)
+                Whether to set (:py:const:`True`) or reset (:py:const:`False`)
                 the relais.
 
     .. autoclass:: Logger
@@ -269,7 +269,7 @@ Misc. Classes
 
             :return:
                 
-                :keyword:`True` if the lines were cleared, :keyword:`False` 
+                :py:const:`True` if the lines were cleared, :py:const:`False` 
                 otherwise.
 
         .. py:method:: getStatusLine(line)
@@ -283,12 +283,12 @@ Misc. Classes
                 :py:const:`STATUS_PAPEROUT`, :py:const:`STATUS_ACK` and
                 :py:const:`STATUS_BUSY`.
 
-            :return: :keyword:`True` if the line is set.
+            :return: :py:const:`True` if the line is set.
 
         .. py:method:: isAvailable()
 
-            Returns :keyword:`True` if the parallel port has been opened successfully, 
-            :keyword:`False` otherwise.
+            Returns :py:const:`True` if the parallel port has been opened successfully, 
+            :py:const:`False` otherwise.
 
         .. py:method:: setAllDataLines(lines)
 
@@ -301,7 +301,7 @@ Misc. Classes
                 these constants can be or'ed together to set several lines. The lines not 
                 mentioned in the parameter are cleared.
 
-            :return: :keyword:`True` if the lines were set, :keyword:`False` otherwise.
+            :return: :py:const:`True` if the lines were set, :py:const:`False` otherwise.
 
         .. py:method:: setControlLine(line, value) -> bool
 
@@ -315,11 +315,11 @@ Misc. Classes
 
             :param value: 
             
-                Whether to set (:keyword:`True`) or clear (:keyword:`False`) the line.
+                Whether to set (:py:const:`True`) or clear (:py:const:`False`) the line.
 
             :return: 
             
-                :keyword:`True` if the value was set successfully, :keyword:`False`
+                :py:const:`True` if the value was set successfully, :py:const:`False`
                 otherwise.
 
         .. py:method:: setDataLines(lines)
@@ -335,7 +335,7 @@ Misc. Classes
 
             :return: 
             
-                :keyword:`True` if the lines were set, :keyword:`False` otherwise.
+                :py:const:`True` if the lines were set, :py:const:`False` otherwise.
 
     .. autoclass:: Point2D([x,y=(0,0)])
 
@@ -376,11 +376,11 @@ Misc. Classes
 
         .. py:method:: isInf() -> bool
 
-            Returns :keyword:`True` if one of the components is infinite.
+            Returns :py:const:`True` if one of the components is infinite.
 
         .. py:method:: isNaN() -> bool
 
-            Returns :keyword:`True` if one of the components is Not a Number.
+            Returns :py:const:`True` if one of the components is Not a Number.
 
         .. py:classmethod:: fromPolar(angle, radius) -> Point2D
 
@@ -410,9 +410,10 @@ Misc. Classes
 
             The speed of the encoded video in frames per second. This is used for two 
             purposes. First, it determines the nominal playback speed of the video that is
-            encoded in the file. Second, if :py:attr:`synctoplayback` is :keyword:`False`,
-            the :py:class:`VideoWriter` will also use the :py:attr:`framerate` value as
-            the actual number of frames per second to write. Read-only.
+            encoded in the file. Second, if :py:attr:`synctoplayback` is 
+            :py:const:`False`, the :py:class:`VideoWriter` will also use the 
+            :py:attr:`framerate` value as the actual number of frames per second to 
+            write. Read-only.
 
         .. py:attribute:: qmin
 
@@ -425,11 +426,11 @@ Misc. Classes
 
         .. py:attribute:: synctoplayback
 
-            If :py:attr:`synctoplayback` is :keyword:`True` (the default), each frame
+            If :py:attr:`synctoplayback` is :py:const:`True` (the default), each frame
             played back in the canvas will be written to disk. This makes a lot of sense
             in combination with :py:meth:`Canvas.registerCameraNode()`. If not, 
             :py:attr:`framerate` is used to determine which frames to write to disk. For 
-            instance, if :py:attr:`synctoplayback` is :keyword:`False`,
+            instance, if :py:attr:`synctoplayback` is :py:const:`False`,
             :py:attr:`framerate` is 25 and the player is running at 60 fps, one movie
             frame will be written for each 2.5 frames of playback. The actual, not the
             nominal playback speed is used in this case. Read-only.
@@ -454,5 +455,5 @@ Misc. Classes
 
         :param Point2D point: Point to check.
         :param poly: List of points which constitute a polygon to check against.
-        :returns: :keyword:`True` if point is inside, :keyword:`False` otherwise.
+        :returns: :py:const:`True` if point is inside, :py:const:`False` otherwise.
 

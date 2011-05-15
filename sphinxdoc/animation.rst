@@ -28,13 +28,13 @@ Animation
 
             :param keepAttr: 
             
-                If this parameter is set to :keyword:`True`, the animation doesn't 
+                If this parameter is set to :py:const:`True`, the animation doesn't 
                 set the attribute value when starting. Instead, it calculates a virtual 
                 start time from the current attribute value and proceeds from there.
 
         .. py:method:: isRunning
 
-                Returns :keyword:`True` if the animation is currently executing.
+                Returns :py:const:`True` if the animation is currently executing.
 
     .. autoclass:: AnimState(name, anim, nextName="")
 
@@ -71,7 +71,7 @@ Animation
 
         :param useInt: 
         
-            If :keyword:`True`, the attribute is always set to an integer value.
+            If :py:const:`True`, the attribute is always set to an integer value.
 
         :param startCallback: Python callable to invoke when the animation starts.
 
@@ -108,7 +108,7 @@ Animation
 
         :param useInt: 
         
-            If :keyword:`True`, the attribute is always set to an integer value.
+            If :py:const:`True`, the attribute is always set to an integer value.
 
         :param startCallback: Python callable to invoke when the animation starts.
 
@@ -138,7 +138,7 @@ Animation
 
         :param useInt: 
 
-            If :keyword:`True`, the attribute is always set to an integer value.
+            If :py:const:`True`, the attribute is always set to an integer value.
 
         :param startCallback: Python callable to invoke when the animation starts.
 
@@ -202,7 +202,7 @@ Animation
 
         .. py:method:: setDebug(debug)
 
-            Setting this to :keyword:`True` causes all state changes to be printed on 
+            Setting this to :py:const:`True` causes all state changes to be printed on 
             the console.
 
         .. py:method:: setState

@@ -67,11 +67,11 @@ Input Handling
 
         .. py:attribute:: leftbuttonstate
 
-            :keyword:`True` if the left mouse button is currently pressed. Read-only.
+            :py:const:`True` if the left mouse button is currently pressed. Read-only.
 
         .. py:attribute:: middlebuttonstate
 
-            :keyword:`True` if the middle mouse button is currently pressed. Read-only.
+            :py:const:`True` if the middle mouse button is currently pressed. Read-only.
 
         .. py:attribute:: node
 
@@ -83,7 +83,7 @@ Input Handling
 
         .. py:attribute:: rightbuttonstate
 
-            :keyword:`True` if the right mouse button is currently pressed. Read-only.
+            :py:const:`True` if the right mouse button is currently pressed. Read-only.
 
         .. py:attribute:: source
 
@@ -274,7 +274,7 @@ Input Handling
 
         .. py:method:: nextPoint() -> bool
 
-            Advances to the next point. Returns :keyword:`False` and ends calibration if
+            Advances to the next point. Returns :py:const:`False` and ends calibration if
             all points have been set.
 
         .. py:method:: setCamPoint(pos)
