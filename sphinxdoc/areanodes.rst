@@ -136,7 +136,7 @@ Area Nodes
 
         .. py:method:: isAvailable() -> bool
 
-            Returns :keyword:`True` if there is a working device that can deliver images
+            Returns :py:const:`True` if there is a working device that can deliver images
             attached to the CameraNode.
 
         .. py:method:: play()
@@ -170,7 +170,7 @@ Area Nodes
         A div node is a node that groups other nodes logically and visually.
         Its position is used as point of origin for the coordinates
         of its child nodes. Its extents can be used to clip the children if crop is set 
-        to :keyword:`True`. Its opacity is used as base opacity for the child nodes' 
+        to :py:const:`True`. Its opacity is used as base opacity for the child nodes' 
         opacities. The children of a div node are drawn in the order they are found
         in the avg file, so the first one is below all others in z-order.
        
@@ -399,7 +399,7 @@ Area Nodes
         .. py:attribute:: mipmap
 
             Determines whether mipmaps (http://en.wikipedia.org/wiki/Mipmap) are 
-            generated for this node. Setting this to :keyword:`True` improves the quality
+            generated for this node. Setting this to :py:const:`True` improves the quality
             of minified nodes. Depending on the graphics card in use, turning on mipmaps
             may cause a performance hit for every image change. Read-only.
 
@@ -509,7 +509,7 @@ Area Nodes
         .. py:attribute:: threaded
 
             Whether to use separate threads to decode the video. The default is
-            :keyword:`True`. Setting this attribute to :keyword:`False` makes seeking
+            :py:const:`True`. Setting this attribute to :py:const:`False` makes seeking
             much quicker. On the other hand, it also disables audio and prevents libavg 
             from distributing the CPU load over several cores of a multi-core computer.
 
@@ -568,12 +568,12 @@ Area Nodes
 
         .. py:method:: hasAlpha() -> bool
 
-            Returns :keyword:`True` if the video contains an alpha (transparency) channel.
-            Throws an exception if the video has not been opened yet.
+            Returns :py:const:`True` if the video contains an alpha (transparency) 
+            channel. Throws an exception if the video has not been opened yet.
 
         .. py:method:: hasAudio() -> bool
 
-            Returns :keyword:`True` if the video contains an audio stream. Throws an
+            Returns :py:const:`True` if the video contains an audio stream. Throws an
             exception if the video has not been opened yet.
 
         .. py:method:: pause()
@@ -672,8 +672,8 @@ Area Nodes
 
         .. py:attribute:: rawtextmode
 
-            Sets whether the text should be parsed to apply markup (:keyword:`False`,
-            default) or interpreted as raw string (:keyword:`True`).
+            Sets whether the text should be parsed to apply markup (:py:const:`False`,
+            default) or interpreted as raw string (:py:const:`True`).
 
         .. py:attribute:: text 
 
@@ -701,7 +701,7 @@ Area Nodes
         .. py:method:: getCharIndexFromPos(pos) -> int
 
             Returns the index of the character at the coordinates :py:attr:`pos`, or
-            :keyword:`None` if there is no character at that position. :py:attr:`pos`
+            :py:const:`None` if there is no character at that position. :py:attr:`pos`
             is relative to the node position.
             Formatting markup such as <b> or <i> is treated as zero chars,
             <br/> is treated as one char. To get the text matched to this
