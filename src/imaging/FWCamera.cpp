@@ -509,18 +509,17 @@ void FWCamera::dumpCameras()
 #endif
 }
 
+#ifdef AVG_ENABLE_1394_2
 void FWCamera::dumpCameraInfo(dc1394camera_t * pCamera)
 {
-#ifdef AVG_ENABLE_1394_2
     dc1394error_t err;
     dc1394featureset_t FeatureSet;
     err = dc1394_feature_get_all(pCamera, &FeatureSet);
     AVG_ASSERT(err == DC1394_SUCCESS);
     // TODO: do this using AVG_TRACE
     dc1394_feature_print_all(&FeatureSet, stderr);
-
-#endif
 }
+#endif
 
 void FWCamera::resetBus()
 {

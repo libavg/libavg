@@ -86,8 +86,8 @@ private:
     dc1394camera_t * m_pCamera;
     dc1394framerate_t m_FrameRateConstant; 
     dc1394video_mode_t m_Mode;            
-#endif
     static void dumpCameraInfo(dc1394camera_t * pCamera);
+#endif
 
     FeatureMap m_Features;
     int m_WhitebalanceU;
