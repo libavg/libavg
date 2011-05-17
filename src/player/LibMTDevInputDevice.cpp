@@ -36,7 +36,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <set>
 
 extern "C" {
 #include <mtdev.h>
@@ -85,26 +84,23 @@ void LibMTDevInputDevice::start()
     pAbsInfo = &(m_pMTDevice->caps.abs[MTDEV_POSITION_Y]);
     m_Dimensions.tl.y = pAbsInfo->minimum;
     m_Dimensions.br.y = pAbsInfo->maximum;
-    
+
     MultitouchInputDevice::start();
     AVG_TRACE(Logger::CONFIG, "Linux MTDev Multitouch event source created.");
 }
 
 std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
 {
-    struct input_event events[64];
-    int numEvents = mtdev_get(m_pMTDevice, m_DeviceFD, events, 64);
-/*
-    if (numEvents > 0) {
-        cerr << "---- read ----" << endl;
-    }
-*/
+    struct input_event event;
     static int curSlot = 0;
 
     set<int> changedIDs;
-    for (int i = 0; i < numEvents; ++i) {
-        input_event event = events[i];
-        if (event.type == EV_ABS && event.code == ABS_MT_SLOT) {
+    while (mtdev_get(m_pMTDevice, m_DeviceFD, &event, 1) > 0) {
+        if (event.type == EV_SYN && event.code == SYN_REPORT) {
+//            cerr << ">> SYN_REPORT" << endl;
+            processEvents(changedIDs);
+            changedIDs.clear();
+        } else if (event.type == EV_ABS && event.code == ABS_MT_SLOT) {
 //            cerr << ">> slot " << event.value << endl;
             curSlot = event.value;
         } else {
@@ -119,7 +115,7 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
                         if (pTouchStatus) {
 //                            cerr << "  --> remove" << endl;
                             TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
-                            TouchEventPtr pUpEvent = 
+                            TouchEventPtr pUpEvent =
                                     boost::dynamic_pointer_cast<TouchEvent>(
                                     pOldEvent->cloneAs(Event::CURSORUP));
                             pTouchStatus->updateEvent(pUpEvent);
@@ -127,51 +123,57 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
                         pTouch->id = -1;
                     } else {
                         pTouch->id = event.value;
+                        changedIDs.insert(curSlot);
                     }
                     break;
                 case ABS_MT_POSITION_X:
 //                    cerr << ">> ABS_MT_POSITION_X: " << event.value << endl;
                     pTouch = &(m_Slots[curSlot]);
                     pTouch->pos.x = event.value;
+                    changedIDs.insert(curSlot);
                     break;
                 case ABS_MT_POSITION_Y:
 //                    cerr << ">> ABS_MT_POSITION_Y: " << event.value << endl;
                     pTouch = &(m_Slots[curSlot]);
                     pTouch->pos.y = event.value;
+                    changedIDs.insert(curSlot);
                     break;
                 default:
                     break;
             }
-//            cerr << ">> new id: " << curSlot << endl;
-            changedIDs.insert(curSlot);
         }
     }
+
+    return MultitouchInputDevice::pollEvents();
+}
+
+void LibMTDevInputDevice::processEvents(const set<int>& changedIDs)
+{
     for (set<int>::iterator it = changedIDs.begin(); it != changedIDs.end(); ++it) {
         map<int, TouchData>::iterator it2 = m_Slots.find(*it);
         if (it2 != m_Slots.end()) {
             const TouchData& touch = it2->second;
-//            cerr << "slot: " << *it << ", id: " << touch.id << ", pos: " << touch.pos 
+//            cerr << "slot: " << *it << ", id: " << touch.id << ", pos: " << touch.pos
 //                    << endl;
 //            AVG_ASSERT(touch.pos.x != 0);
             if (touch.id != -1) {
                 TouchStatusPtr pTouchStatus = getTouchStatus(touch.id);
                 if (!pTouchStatus) {
-//                    cerr << "down" << endl;
                     // Down
                     m_LastID++;
-                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, 
-                            touch.pos); 
+                    TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN,
+                            touch.pos);
+//                    cerr << "down <" << touch.id << "> --> [" << m_LastID << "]" << endl;
                     addTouchStatus((long)touch.id, pEvent);
                 } else {
-//                    cerr << "move" << endl;
+//                    cerr << "move <" << touch.id << "> --> " << touch.pos << endl;
                     // Move
-                    TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, touch.pos); 
+                    TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, touch.pos);
                     pTouchStatus->updateEvent(pEvent);
                 }
             }
         }
     }
-    return MultitouchInputDevice::pollEvents();
 }
 
 TouchEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
@@ -180,8 +182,8 @@ TouchEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoin
     DPoint normPos = DPoint(double(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),
             double(pos.y-m_Dimensions.tl.y)/m_Dimensions.height());
     IntPoint screenPos(int(normPos.x*size.x+0.5), int(normPos.y*size.y+0.5));
-    return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH, DPoint(0,0), 
+    return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH, DPoint(0,0),
             0, 20, 1, DPoint(5,0), DPoint(0,5)));
 }
-           
+
 }

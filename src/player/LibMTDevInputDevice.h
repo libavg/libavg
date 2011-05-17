@@ -28,6 +28,7 @@
 #include "../base/Rect.h"
 
 #include <vector>
+#include <set>
 #include <map>
 
 struct mtdev;
@@ -44,6 +45,7 @@ public:
     std::vector<EventPtr> pollEvents();
     
 private:
+    void processEvents(const std::set<int>& changedIDs);
     TouchEventPtr createEvent(int id, Event::Type type, IntPoint pos);
 
     int m_DeviceFD;
@@ -53,7 +55,7 @@ private:
 
     struct TouchData
     {
-        TouchData() { id = 0; }
+        TouchData() { id = -1; }
         int id;
         bool bUp;
         IntPoint pos;
