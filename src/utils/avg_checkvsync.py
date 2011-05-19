@@ -23,9 +23,6 @@
 #
 
 from libavg import *
-import argparse
-import traceback
-
 
 g_player = avg.Player.get()
 
