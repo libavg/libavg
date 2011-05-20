@@ -37,7 +37,7 @@ Player & Canvas
 
         An OffscreenCanvas is a Canvas that is rendered to a texture. It can be
         referenced in the href attribute of an image node. See 
-        https://www.libavg.de/wiki/index.php/Offscreen_Rendering for an in-depth 
+        https://www.libavg.de/wiki/ProgrammersGuide/OffscreenRendering for an in-depth 
         explanation of using offscreen rendering. Offscreen canvases are created by
         calling :py:meth:`Player.loadCanvasFile` and :py:meth:`Player.loadCanvasString`.
 
@@ -178,7 +178,7 @@ Player & Canvas
 
             :samp:`TRACKER`:
                 Enables the internal camera-based tracker. Configuring this tracker is
-                described under https://www.libavg.de/wiki/index.php/Tracker_Setup.
+                described under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
 
             :samp:`XINPUT21`:
                 Uses X11-based multitouch detection. This needs X11 with XInput 2.1

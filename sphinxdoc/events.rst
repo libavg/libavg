@@ -201,7 +201,7 @@ Input Handling
         A class that uses a camera to track moving objects and delivers the movements 
         as avg events. Create a tracker by using :py:meth:`Player.addTracker()`.
         The properties of this class are explained under
-        https://www.libavg.de/wiki/index.php/Tracker_Setup.
+        https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
 
         This is the internal libavg tracker. For trackers created using 
         :py:meth:`Player.enableMultitouch`, no Tracker object exists.

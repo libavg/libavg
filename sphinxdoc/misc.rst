@@ -109,7 +109,7 @@ Misc. Classes
 
             Writes the image to a file. File format is determined using the
             extension. Any file format supported by ImageMagick 
-            (http://www.imagemagick.org) can be used.
+            (http://www.imagemagick.org/) can be used.
 
         .. py:method:: setPixels(pixels)
 

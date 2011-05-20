@@ -34,7 +34,7 @@ Area Nodes
 
         Base class for elements in the avg tree that define an area on the screen.
         Responsible for coordinate transformations and event handling. See 
-        http://www.libavg.de/wiki/index.php/Coordinate_Systems
+        http://www.libavg.de/wiki/ProgrammersGuide/CoordinateSystems
         for an explanation of coordinate systems and reference points.
         
         .. py:method:: getMediaSize() -> avg.Point2D
@@ -88,7 +88,7 @@ Area Nodes
 
         A node that displays the image of a camera. The attributes correspond to the 
         camera properties in .avgtrackerrc and are explained under
-        http://www.libavg.de/wiki/index.php/Tracker_Setup. An easy way to find the 
+        http://www.libavg.de/wiki/ProgrammersGuide/Tracker. An easy way to find the 
         appropriate parameters for your camera is to use :command:`avg_showcamera.py`.
 
         CameraNodes open the camera device on construction and set the chosen camera 
@@ -484,7 +484,7 @@ Area Nodes
 
         Video nodes display a video file. Video formats and codecs supported
         are all formats that ffmpeg/libavcodec supports. Usage is described throughly
-        in the libavg wiki: https://www.libavg.de/wiki/index.php/Videos.
+        in the libavg wiki: https://www.libavg.de/wiki/ProgrammersGuide/VideoNode.
 
         .. py:attribute:: fps
 
@@ -560,7 +560,7 @@ Area Nodes
 
             Returns the pixel format of the video file as a string. Possible
             pixel formats are described in
-            http://cekirdek.pardus.org.tr/~ismail/ffmpeg-docs/ffmpeg-r_2libavutil_2avutil_8h.html
+            http://ffmpeg.mplayerhq.hu/doxygen/trunk/pixfmt_8h.html#60883d4958a60b91661e97027a85072a
 
         .. py:method:: getVideoCodec() -> string
 
@@ -681,7 +681,7 @@ Area Nodes
             text attribute of the words node or the content of the words
             node itself. In the second case, the string can be formatted
             using the pango text attribute markup language described at
-            http://library.gnome.org/devel/pango/unstable/PangoMarkupFormat.html.
+            http://developer.gnome.org/pango/unstable/PangoMarkupFormat.html.
             Markup can also be used if the text is set using the python attribute.
 
             Markup parsing can be turned on or off with :py:attr:`rawtextmode` attribute.
