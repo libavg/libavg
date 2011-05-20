@@ -936,7 +936,7 @@ int FFMpegDecoder::getNumFrames() const
     if (numFrames > 0) {
         return numFrames;
     } else {
-        return getDuration() * calcStreamFPS();
+        return int(getDuration() * calcStreamFPS());
     }
 #endif 
 }

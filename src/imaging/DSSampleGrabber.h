@@ -24,6 +24,8 @@
 
 #include "IDSSampleCallback.h"
 
+#include "../base/Exception.h"
+
 #include <Guiddef.h>
 #define _WIN32_DCOM
 #include <windows.h>

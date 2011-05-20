@@ -21,11 +21,7 @@
 
 #include "DSSampleGrabber.h"
 
-#include "../base/Exception.h"
-
 #include <initguid.h>
-
-#include "qedit.h"
 
 #pragma warning(disable: 4800)
 
