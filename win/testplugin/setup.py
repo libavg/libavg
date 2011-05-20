@@ -152,7 +152,7 @@ for py in map(os.path.basename, scripts):
     
 
 setup(name='libavg',
-      version='1.5.0.%s' % revision,
+      version='1.6.0.%s' % revision,
       author='Ulrich von Zadow',
       author_email='uzadow@libavg.de',
       url='http://www.libavg.de',
