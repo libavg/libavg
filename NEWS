@@ -1,3 +1,34 @@
+libavg 1.6.0.pre1 - May 20, 2011
+
+  svn revision 5974
+
+  Major New Features:
+    * New Sphinx-based reference.
+    * Unified multitouch interface: internal tracker can now be activated using 
+      enableMultitouch(), Windows 7 touch is supported, linux multitouch using
+      XInput 2.1 and LibMTDev. Drivers are autodetected if possible.
+    * (Finally!) Added clean windows build files for VS 2010 to the open source 
+      distribution.
+
+  Other Changes:
+    * (Finally!) Found an invisible workaround for the Linux/Mesa graphics segfault
+      that's been plaguing us for years (Chase Douglas).
+    * Support for input devices defined in python (Henrik Thoms).
+    * Added VideoWriter class (initial version by Henrik Thoms).
+    * Added initial manipulation classes for multitouch gesture support.
+    * Added connect/disconnectEventHandler functions to replace setEventHandler()
+    * Added Player.getFrameDuration().
+    * Added geom.Arc and geom.PieSlice node classes.
+    * Added Player.isUsingShaders().
+    * Added Player.getScreenResolution().
+    * 16 bit texture support is more robust.
+    * Frame times are now monotonic, so libavg installations survive time zone changes.
+    * libavg can be built with binutils-gold under linux.
+    * Intelligent fallback for multisampling.
+    * FXNodes can now change the size of the node - necessary e.g. for blur and shadow.
+    * Added Player.getTimeSinceLastFrame().
+    * Added avg_checkvsync.py utility.
+
 libavg 1.5.3 - February 20, 2011 (Linux only)
 
   svn revision 5599
