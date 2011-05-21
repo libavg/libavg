@@ -63,8 +63,11 @@ if sys.platform != 'win32':
         
         cleanup(tempPackageDir)
         
-        symtree('../python', 'libavg')
-        os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
+        try:
+            symtree('../python', 'libavg')
+            os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
+        except OSError:
+            pass
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
@@ -73,10 +76,14 @@ if sys.platform != 'win32':
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
     
-    if not os.path.exists('../wrapper/.libs/avg.so'):
+    if os.path.exists('../wrapper/.libs/avg.so'):
+        # Normal case: use the local version (not the installed one)
+        os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
+    elif os.path.exists('../../avg.so'):
+        # Mac version after installer dmg
+        pass
+    else:
         raise RuntimeError('Compile libavg before running tests or use "make check"')
-
-    os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
 
     # The following line prevents the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
