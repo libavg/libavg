@@ -80,6 +80,11 @@ Misc. Classes
 
             Returns the average of all bitmap pixels.
 
+        .. py:method:: getChannelAvg(channel) -> float
+
+            Returns the average of one of the bitmap color channels (red, green or blue). Used for
+            automatic tests.
+
         .. py:method:: getFormat()
 
             Returns the bitmap's pixel format.
