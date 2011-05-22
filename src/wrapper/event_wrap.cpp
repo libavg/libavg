@@ -156,7 +156,7 @@ void export_event()
         .add_property("modifiers", &KeyEvent::getModifiers)
     ;    
     
-    class_<MouseEvent, bases<Event> >("MouseEvent", no_init)
+    class_<MouseEvent, bases<CursorEvent> >("MouseEvent", no_init)
         .add_property("source", &MouseEvent::getSource)
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
@@ -172,7 +172,7 @@ void export_event()
         .add_property("lastdownpos", &CursorEvent::getLastDownPos)
     ;
 
-    class_<TouchEvent, bases<Event> >("TouchEvent", no_init)
+    class_<TouchEvent, bases<CursorEvent> >("TouchEvent", no_init)
         .add_property("source", &TouchEvent::getSource)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
