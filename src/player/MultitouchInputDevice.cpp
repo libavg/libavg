@@ -81,6 +81,11 @@ const DPoint& MultitouchInputDevice::getWindowSize() const
     return m_WindowSize;
 }
 
+int MultitouchInputDevice::getNumTouches() const
+{
+    return m_Touches.size();
+}
+
 TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
 {
     map<int, TouchStatusPtr>::iterator it = m_Touches.find(id);
