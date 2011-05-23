@@ -112,6 +112,7 @@ import DynamicsTest
 import PythonTest
 import AnimTest
 import EventTest
+import AVGAppTest
 from EventTest import mainMouseDown
 from EventTest import mainMouseUp
 
@@ -130,6 +131,7 @@ app.registerSuiteFactory('dynamics', DynamicsTest.dynamicsTestSuite)
 app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('event', EventTest.eventTestSuite)
+app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 
 app.run()
 
