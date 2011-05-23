@@ -86,6 +86,7 @@ bool VideoWriterThread::init()
 
 bool VideoWriterThread::work()
 {
+    waitForCommand();
     return true;
 }
 
