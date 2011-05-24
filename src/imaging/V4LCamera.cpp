@@ -103,7 +103,6 @@ V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size, PixelForma
     }
     
     initDevice();
-    startCapture();
     AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
 }
 
