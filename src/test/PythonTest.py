@@ -21,7 +21,7 @@
 
 import unittest
 
-from libavg import avg, anim, draggable, textarea, ui, geom
+from libavg import avg, anim, draggable, textarea, ui, geom, statemachine
 
 from testcase import *
 
@@ -1188,6 +1188,32 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testArc2", True),
                 ))
 
+    def testStateMachine(self):
+        def atob(oldState, newState):
+            self.atobCalled = True
+
+        def btoc(oldState, newState):
+            self.btocCalled = True
+
+        def btoa(oldState, newState):
+            self.btoaCalled = True
+
+        self.atobCalled = False
+        self.btocCalled = False
+        self.btoaCalled = False
+        machine = statemachine.StateMachine('A')
+        machine.addState('A', {'B': atob, 'nostate': atob})
+        machine.addState('B', {'C': btoc, 'A': btoa})
+        machine.addState('C', {})
+        self.assertException(lambda: machine.changeState('C'))
+        self.assertException(lambda: machine.changeState('nostate'))
+        machine.changeState('B')
+        self.assert_(self.atobCalled)
+        machine.changeState('A')
+        self.assert_(self.btoaCalled)
+        machine.changeState('B')
+        machine.changeState('C')
+        self.assert_(self.btocCalled)
 
 
     def __sendMouseEvent(self, type, x, y, sx=0, sy=0):
@@ -1222,6 +1248,7 @@ def pythonTestSuite (tests):
         "testRoundedRect",
         "testPieSlice",
         "testArc",
+        "testStateMachine",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
