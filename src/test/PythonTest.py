@@ -1192,7 +1192,7 @@ class PythonTestCase(AVGTestCase):
         def atob(oldState, newState):
             self.atobCalled = True
 
-        def btoc(oldState, newState):
+        def btoc():
             self.btocCalled = True
 
         def btoa(oldState, newState):
@@ -1204,7 +1204,7 @@ class PythonTestCase(AVGTestCase):
         machine = statemachine.StateMachine('A')
         machine.addState('A', {'B': atob, 'nostate': atob})
         machine.addState('B', {'C': btoc, 'A': btoa})
-        machine.addState('C', {})
+        machine.addState('C', {'A': None})
         self.assertException(lambda: machine.changeState('C'))
         self.assertException(lambda: machine.changeState('nostate'))
         machine.changeState('B')
@@ -1214,6 +1214,8 @@ class PythonTestCase(AVGTestCase):
         machine.changeState('B')
         machine.changeState('C')
         self.assert_(self.btocCalled)
+        machine.changeState('A')
+        self.assert_(machine.state == 'A')
 
 
     def __sendMouseEvent(self, type, x, y, sx=0, sy=0):

@@ -34,15 +34,24 @@ class StateMachine:
         curTransitions = self.__states[self.__curState]
         if newState in curTransitions:
             transitionFunc = curTransitions[newState]
-            transitionFunc(self.__curState, newState)
+            if transitionFunc != None:
+                try:
+                    transitionFunc(self.__curState, newState)
+                except TypeError:
+                    transitionFunc()
             self.__curState = newState
         else:
             raise RuntimeError('StateMachine: State change from '+self.__curState+' to '+
                     newState+' not allowed.')
 
+    @property
+    def state(self):
+        return self.__curState
+
     def dump(self):
-        for oldState, transitions in enumerate(self.__states):
+        for oldState, transitions in self.__states.iteritems():
             print oldState, ":"
-            for newState, func in enumerate(transitions):
-                print "  --> ", state, ": ", func.__name__
+            for newState, func in transitions.iteritems():
+                print "  -->", newState, ":", func.__name__
+        print "Current state:", self.__curState
 
