@@ -19,14 +19,19 @@
 #
 
 class StateMachine:
-    def __init__(self, startState):
+    def __init__(self, name, startState):
         self.__states = {}
+        self.__name = name
         self.__curState = startState
+        self.__trace = False
 
     def addState(self, state, transitions):
         self.__states[state] = transitions
 
     def changeState(self, newState):
+        if self.__trace:
+            print self.__name, ":", self.__curState, "-->", newState
+
         if not(newState in self.__states):
             raise RuntimeError('StateMachine: Attempt to change to nonexistent state '+
                     newState+'.')
@@ -43,6 +48,9 @@ class StateMachine:
         else:
             raise RuntimeError('StateMachine: State change from '+self.__curState+' to '+
                     newState+' not allowed.')
+
+    def traceChanges(self, trace):
+        self.__trace = trace
 
     @property
     def state(self):

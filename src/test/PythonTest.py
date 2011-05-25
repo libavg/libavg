@@ -1201,7 +1201,7 @@ class PythonTestCase(AVGTestCase):
         self.atobCalled = False
         self.btocCalled = False
         self.btoaCalled = False
-        machine = statemachine.StateMachine('A')
+        machine = statemachine.StateMachine("testmachine", 'A')
         machine.addState('A', {'B': atob, 'nostate': atob})
         machine.addState('B', {'C': btoc, 'A': btoa})
         machine.addState('C', {'A': None})
