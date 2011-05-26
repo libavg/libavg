@@ -18,6 +18,43 @@ Input Handling
 
             The time when the event occured in milliseconds since program start. 
             Read-only.
+        
+        .. py:attribute:: inputdevice
+            
+            The address of the device that emitted the event.
+            Read-only
+
+        .. py:attribute:: inputdevicename
+
+            The name of the device that emitted the event.
+            Read-only.
+    
+    .. autoclass:: CursorEvent
+
+        Base class for all events which contain a position in the global coordinate
+        system.
+     
+        .. py:attribute:: node
+
+            The node that the event occured in. Read-only.
+
+        .. py:attribute:: pos
+
+            Position in the global coordinate system. Read-only.
+
+        .. py:attribute:: source
+
+            The type of the device that emitted the event. Could be either
+            :py:const:`MOUSE`, :py:const:`TOUCH`, :py:const:`TRACK`, :py:const:`CUSTOM`
+            or :py:const:`NONE`
+
+        .. py:attribute:: x
+
+            x position in the global coordinate system. Read-only.
+
+        .. py:attribute:: y
+
+            y position in the global coordinate system. Read-only.
 
     .. autoclass:: KeyEvent
 
@@ -73,14 +110,6 @@ Input Handling
 
             :py:const:`True` if the middle mouse button is currently pressed. Read-only.
 
-        .. py:attribute:: node
-
-            The node that the event occured in. Read-only.
-
-        .. py:attribute:: pos
-
-            Position in the global coordinate system. Read-only.
-
         .. py:attribute:: rightbuttonstate
 
             :py:const:`True` if the right mouse button is currently pressed. Read-only.
@@ -93,14 +122,6 @@ Input Handling
 
             Current speed of the mouse in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
-
-        .. py:attribute:: x
-
-            x position in the global coordinate system. Read-only.
-
-        .. py:attribute:: y
-
-            y position in the global coordinate system. Read-only.
 
     .. autoclass:: TouchEvent
 
@@ -149,18 +170,10 @@ Input Handling
 
             Minor axis of an ellipse that is similar to the blob. Read-only.
 
-        .. py:attribute:: node
-
-            The node that the event occured in. Read-only.
-
         .. py:attribute:: orientation
 
             Angle of the blob in radians. For hovering hands, this is roughly the 
             direction of the hand, modulo 180 degrees. Read-only.
-
-        .. py:attribute:: pos
-
-            Position in the global coordinate system. Read-only.
 
         .. py:attribute:: source
 
@@ -174,14 +187,6 @@ Input Handling
 
             Current speed of the touch in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
-
-        .. py:attribute:: x
-
-            x position in the global coordinate system. Read-only.
-
-        .. py:attribute:: y
-
-            y position in the global coordinate system. Read-only.
 
         .. py:method:: getContour() -> list
 
@@ -279,3 +284,26 @@ Input Handling
 
         .. py:method:: setCamPoint(pos)
 
+    .. autoclass:: InputDevice(name)
+
+        Base class for user defined input devices which feed events to the system. 
+        Once registered to the system by :py:meth:`Player.addInputDevice`, the emitted 
+        events can be processed like any other events.
+
+        .. py:method::  start()
+
+            Initializes the input device if needed. By default this is a empty method.
+        
+        .. py:method:: pollEvents() -> list
+
+            Abstract method which returns a list of pending events. After registering 
+            the input device to the system, this method gets called on every frame.
+
+        .. py:attribute:: name
+
+            The name of the device. Read-only.
+        
+        
+
+            
+         

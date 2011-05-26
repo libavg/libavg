@@ -10,6 +10,7 @@ import anim
 import draggable
 import camcalibrator
 import textarea
+import statemachine
 from grabbable import Grabbable
 from AVGApp import AVGApp
 from AVGAppStarter import AVGAppStarter
