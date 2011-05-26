@@ -197,9 +197,10 @@ class AVGAppTestCase(testcase.AVGTestCase):
                 g_player.setTimeout(0, g_player.stop)
                 
         if os.name == 'nt':
-            FakeFullscreenApp.start()
+            FakeFullscreenApp.start(resolution=TEST_RESOLUTION)
         else:
-            self.assertException(FakeFullscreenApp.start)
+            self.assertException(
+                    lambda: FakeFullscreenApp.start(resolution=TEST_RESOLUTION))
         
 def avgAppTestSuite(tests):
     availableTests = (
