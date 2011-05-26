@@ -58,34 +58,11 @@ class AppStarter(object):
         else:
             debugWindowSize = Point2D(0, 0)
 
-        width = int(resolution.x)
-        height = int(resolution.y)
-        # dynamic avg creation in order to set resolution
-        g_player.loadString("""
-<?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
-<avg width="%(width)u" height="%(height)u">
-</avg>""" % {
-            'width': width,
-            'height': height,
-            })
-        rootNode = g_player.getRootNode()
-
-        self._appNode = g_player.createNode('div',{
-            'opacity': 0,
-            'sensitive': False})
-        # the app should know the size of its "root" node:
-        self._appNode.size = rootNode.size
-        rootNode.appendChild(self._appNode)
-
-        self.__showMTEvents = False
-        self.__touchViss = {} 
-        self.__touchVisOverlay = avg.DivNode(sensitive=False, size=resolution,
-                parent=rootNode)
+        self._setupBaseDivs(resolution)
 
         g_player.showCursor(testMode)
 
-        if appClass.fakeFullscreen:
+        if fakeFullscreen:
             fullscreen = False
         else:
             fullscreen = not testMode
@@ -95,11 +72,15 @@ class AppStarter(object):
                 int(debugWindowSize.x), int(debugWindowSize.y),
                 0 # color depth
                 )
-                
+        
+        self._startApp(appClass)
+    
+    def _startApp(self, appClass):
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
         self._appInstance = appClass(self._appNode)
-        self._keyManager = apphelpers.KeyManager(self._appInstance.onKeyDown,
+        self._keyManager = apphelpers.KeyManager(
+                self._appInstance.onKeyDown,
                 self._appInstance.onKeyUp)
         
         self._setupDefaultKeys()
@@ -107,6 +88,17 @@ class AppStarter(object):
         self._appInstance.setStarter(self)
         g_player.play()
         self._appInstance.exit()
+
+    def _setupBaseDivs(self, resolution):
+        g_player.loadString("""
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
+<avg width="%s" height="%s">
+</avg>""" % (resolution.x, resolution.y))
+
+        rootNode = g_player.getRootNode()
+        self._appNode = avg.DivNode(opacity=0, sensitive=False,
+                size=rootNode.size, parent=rootNode)
 
     def _setupDefaultKeys(self):
         pass
@@ -157,24 +149,34 @@ class AVGAppStarter(AppStarter):
         self.__showingFrGraph = False
         self.__runningClickTest = False
         self.__notifyNode = None
-        # self._initClickTest()
+        self.__showMTEvents = False
 
         super(AVGAppStarter, self).__init__(*args, **kwargs)
         
     def _setupDefaultKeys(self):
+        super(AVGAppStarter, self)._setupDefaultKeys()
         self._keyManager.bindKey('o', self.__dumpObjects, 'Dump objects')
         self._keyManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
         self._keyManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
-        # self._keyManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
+        self._keyManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
         self._keyManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')  
         self._keyManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')  
         self._keyManager.bindKey('s', self.__screenshot, 'Take screenshot')  
 
-    # def _initClickTest(self):
-    #     if ClickTest:
-    #         self._clickTest = ClickTest(self._appNode, multiClick=False)
-    #     else:
-    #         self._clickTest = None
+    def _onBeforePlay(self):
+        super(AVGAppStarter, self)._onBeforePlay()
+        rootNode = g_player.getRootNode()
+        self.__touchViss = {}
+        self.__touchVisOverlay = avg.DivNode(sensitive=False,
+                size=rootNode.size,
+                parent=rootNode)
+        self.__initClickTest()
+        
+    def __initClickTest(self):
+        if ClickTest:
+            self._clickTest = ClickTest(self._appNode, multiClick=False)
+        else:
+            self._clickTest = None
 
     def __dumpObjects(self):
         gc.collect()
