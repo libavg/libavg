@@ -58,12 +58,13 @@ class TouchVisualization(avg.DivNode):
         self.__minorAxis.pos2 = event.minoraxis
 
 
-class AVGAppStarter(object):
+class AppStarter(object):
     """Starts an AVGApp"""
-    def __init__(self, appClass, resolution, debugWindowSize = None):
+    def __init__(self, appClass, resolution, debugWindowSize=None, fakeFullscreen=False):
         self._AppClass = appClass
         resolution = Point2D(resolution)
-        testMode = self._AppClass.avg_deploy == None
+        testMode = not 'AVG_DEPLOY' in os.environ
+        
         if testMode and debugWindowSize is not None:
             debugWindowSize = Point2D(debugWindowSize)
         else:
@@ -399,3 +400,5 @@ class AVGAppStarter(object):
         self.helpInstance.showHelp()
     
 
+# Backward compat
+AVGAppStarter = AppStarter

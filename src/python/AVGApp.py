@@ -22,6 +22,8 @@
 
 import os
 from libavg import avg
+from AVGAppStarter import AppStarter
+
 g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 
@@ -33,10 +35,7 @@ try:
 except:
     g_WIN32 = False
 
-class AVGApp(object):
-    multitouch = False
-    fakeFullscreen = False
-
+class App(object):
     instances = {}
 
     def __init__(self, parentNode):
@@ -153,19 +152,30 @@ class AVGApp(object):
                 DesktopRight, DesktopBottom+30, 0)
         
     @classmethod
-    def start(cls, *args, **kwargs):
-        from AVGAppStarter import AVGAppStarter
+    def start(cls, appStarter=AppStarter, **kwargs):
+        appStarter(appClass = cls, **kwargs)
+
+
+class AVGApp(App):
+    '''Backward compatibility class'''
+    multitouch = False
+    fakeFullscreen = False
+
+    @classmethod
+    def start(cls, **kwargs):
+        # TODO: deprecation warning
+        
         from AVGMTAppStarter import AVGMTAppStarter
         if cls.multitouch:
             starter = AVGMTAppStarter
         else:
-            starter = AVGAppStarter
-        cls.avg_deploy = os.getenv("AVG_DEPLOY")
+            starter = AppStarter
 
-        if cls.fakeFullscreen and cls.avg_deploy is not None:
-            if g_WIN32:
-                g_Player.setTimeout(1000,cls.__fakeFullscreen)
-            else:
-                g_Log.trace(g_Log.ERROR, 'fakeFullscreen works only on Windows')           
-        starter(appClass = cls, *args, **kwargs)
-
+        # if cls.fakeFullscreen and cls.avg_deploy is not None:
+        #     if g_WIN32:
+        #         g_Player.setTimeout(1000,cls.__fakeFullscreen)
+        #     else:
+        #         g_Log.trace(g_Log.ERROR, 'fakeFullscreen works only on Windows')           
+        
+        super(AVGApp, cls).start(appStarter=starter,
+                fakeFullscreen=cls.fakeFullscreen, **kwargs)
