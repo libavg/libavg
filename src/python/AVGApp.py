@@ -36,19 +36,42 @@ except:
 class AVGApp(object):
     multitouch = False
     fakeFullscreen = False
+
+    instances = {}
+
     def __init__(self, parentNode):
         """initialization before Player.play()
         Use this only when needed, e.g. for
         WordsNode.addFontDir(). Do not forget to call
         super(YourApp, self).__init__(parentNode)"""
+
+
+        appname = self.__class__.__name__
+        if appname in AVGApp.instances:
+            raise RuntimeError('App %s already setup' % appname)
+            
+        AVGApp.instances[appname] = self
+
         self.__isRunning = False
         self._parentNode = parentNode
         self._starter = None
-        avg.appInstance = self
 
         if 'onKey' in dir(self):
             raise DeprecationWarning, \
                     'AVGApp.onKey() has been renamed to AVGApp.onKeyDown().'
+
+    @classmethod
+    def get(cls):
+        '''
+        Get the Application instance
+        
+        Note: this class method has to be called from the top-level app class:
+
+        >>> class MyApp(libavg.AVGApp):
+        ...  pass
+        >>> instance = MyApp.get()
+        '''
+        return cls.instances.get(cls.__name__, None)
 
     def init(self):
         """main initialization
