@@ -26,7 +26,7 @@ import gc
 from libavg import avg, Point2D
 import graph
 from mtemu import MTemu
-from AVGAppStarterHelp import MThelp
+import apphelpers
 
 try:
     from alib.clicktest import ClickTest
@@ -34,33 +34,16 @@ except ImportError:
     ClickTest = None
 
 
+DEFAULT_RESOLUTION = (640, 480)
+
 g_player = avg.Player.get()
 g_log = avg.Logger.get()
 
 
-class TouchVisualization(avg.DivNode):
-    def __init__(self, event, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
-        self.cursorid = event.cursorid
-        self.pos = event.pos
-        radius = event.majoraxis.getNorm()
-        self.__circle = avg.CircleNode(r=radius, fillcolor="FFFFFF", fillopacity=0.5,
-                strokewidth=0, parent=self)
-        self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis, color="FFFFFF",
-                parent=self)
-        self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis, color="FFFFFF",
-                parent=self)
-
-    def move(self, event):
-        self.pos = event.pos
-        self.__circle.r = event.majoraxis.getNorm()+1
-        self.__majorAxis.pos2 = event.majoraxis
-        self.__minorAxis.pos2 = event.minoraxis
-
-
 class AppStarter(object):
     """Starts an AVGApp"""
-    def __init__(self, appClass, resolution, debugWindowSize=None, fakeFullscreen=False):
+    def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
+            debugWindowSize=None, fakeFullscreen=False):
         if fakeFullscreen:
             if os.name != 'nt':
                 raise RuntimeError('fakeFullscreen works only under windows')
@@ -77,7 +60,6 @@ class AppStarter(object):
 
         width = int(resolution.x)
         height = int(resolution.y)
-        self.__graphs = 0
         # dynamic avg creation in order to set resolution
         g_player.loadString("""
 <?xml version="1.0"?>
@@ -114,41 +96,21 @@ class AppStarter(object):
                 0 # color depth
                 )
                 
-        self.__keyBindDown = {}
-        self.__keyBindUp = {}
-        self.__unicodeBindDown = {}
-        self.__unicodeBindUp = {}
-        
-        self.__notifyNode = None
-        
-        rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
-        rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
-        
-        self.bindKey('o', self.__dumpObjects, 'Dump objects')
-        self.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
-        self.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
-        self.bindKey('.', self.__switchClickTest, 'Start clicktest')
-        self.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')  
-        self.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')  
-        self.bindKey('s', self.__screenshot, 'Take screenshot')  
-        self.bindUnicode('?', self.activateHelp, 'HELP')  
-        
-
-        self.helpInstance = MThelp(self)
-        self.showingHelp = False
-        self.__showingMemGraph = False
-        self.__showingFrGraph = False
-        self.__runningClickTest = False
-        self._initClickTest()
-        self._mtEmu = None
-
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
         self._appInstance = appClass(self._appNode)
+        self._keyManager = apphelpers.KeyManager(self._appInstance.onKeyDown,
+                self._appInstance.onKeyUp)
+        
+        self._setupDefaultKeys()
+        
         self._appInstance.setStarter(self)
         g_player.play()
         self._appInstance.exit()
 
+    def _setupDefaultKeys(self):
+        pass
+        
     def _onBeforePlay(self):
         pass
 
@@ -159,116 +121,60 @@ class AppStarter(object):
         self._activeApp = self._appInstance
         self._appInstance.enter()
 
-    def _initClickTest(self):
-        if ClickTest:
-            self._clickTest = ClickTest(self._appNode, multiClick=False)
-        else:
-            self._clickTest = None
-            
-    def bindKey(self, key, func, funcName, state = 'down'):
-        if state == 'down':   
-            if key in self.__keyBindDown:
-                raise KeyError # no double key bindings
-            self.__keyBindDown[key] = (func, funcName)
-        elif state == 'up':
-            if key in self.__keyBindUp:
-                print key
-                raise KeyError # no double key bindings
-            self.__keyBindUp[key] = (func, funcName)
-        else:
-            raise KeyError 
-            
-    def unbindKey(self, key):
-        if key in self.__keyBindDown:
-            del self.__keyBindDown[key]
-        if key in self.__keyBindUp:
-            del self.__keyBindUp[key]
-        if key in self.__unicodeBindDown:
-            del self.__unicodeBindDown[key]
-        if key in self.__unicodeBindUp:
-            del self.__unicodeBindUp[key]    
-    
-    def bindUnicode(self, key, func, funcName, state = 'down'):
-        if state == 'down':   
-            if key in self.__unicodeBindDown:
-                raise KeyError # no double key bindings
-            self.__unicodeBindDown[key] = (func, funcName)
-        elif state == 'up':
-            if key in self.__unicodeBindUp:
-                raise KeyError # no double key bindings
-            self.__unicodeBindUp[key] = (func, funcName)
-        else:
-            raise KeyError    
-    
-    def getKeys(self, bindtype = 'key', action = 'down'):
-        if bindtype == 'key':
-            if action == 'down':
-                return self.__keyBindDown
-            elif action == 'up':
-                return self.__keyBindUp
-        elif bindtype == 'unicode':
-            if action == 'down':
-                return self.__unicodeBindDown
-            elif action == 'up':
-                return self.__unicodeBindUp
-    
-    def setKeys(self, newKeyBindings, bindtype = 'key', action = 'down'):
-        if bindtype == 'key':
-            if action == 'down':
-                self.__keyBindDown = newKeyBindings
-            elif action == 'up':
-                self.__keyBindUp = newKeyBindings
-        elif bindtype == 'unicode':
-            if action == 'down':
-                self.__unicodeBindDown = newKeyBindings
-            elif action == 'up':
-                self.__unicodeBindUp = newKeyBindings
-    
-    def __checkUnicode(self, event, Bindings):
-        x = 0
-        try:
-            if str(unichr(event.unicode)) in Bindings: 
-                x = 1
-                return x
-        except: 
-            pass
-        try:
-            if unichr(event.unicode).encode("utf-8") in Bindings:
-                x = 2
-                return x
-        except:
-            pass
-        return x
-          
-    def __onKeyDown(self, event):
-        handledByApp = self._activeApp.onKeyDown(event)
-        if handledByApp:
-            return
-        elif event.keystring in self.__keyBindDown:
-            self.__keyBindDown[event.keystring][0]()   
-        elif self.__checkUnicode(event, self.__unicodeBindDown) == 1:
-            self.__unicodeBindDown[str(unichr(event.unicode))][0]()
-            return
-        elif self.__checkUnicode(event, self.__unicodeBindDown) == 2:
-            self.__unicodeBindDown[unichr(event.unicode).encode("utf-8")][0]()
-            return
+    def __fakeFullscreen(self):
+        import win32gui
+        import win32con
+        import win32api
 
-    def __onKeyUp(self, event):
-        handledByApp = self._activeApp.onKeyUp(event)
-        if handledByApp:
-            return
-        if event.keystring in self.__keyBindUp:
-            if event.unicode == event.keycode:
-                self.__keyBindUp[event.keystring][0]()
-                return
-            elif event.unicode == 0:    #shift and ctrl
-                self.__keyBindUp[event.keystring][0]()
-        elif self.__checkUnicode(event, self.__unicodeBindUp) == 1:
-            self.__unicodeBindUp[str(unichr(event.unicode))][0]()
-            return
-        elif self.__checkUnicode(event, self.__unicodeBindUp) == 2:
-            self.__unicodeBindUp[unichr(event.unicode).encode("utf-8")][0]()
-            return
+        def findWindow(title):
+            def enumWinProc(h, lparams): 
+                lparams.append(h)
+            winList=[]
+            win32gui.EnumWindows(enumWinProc, winList)
+            for hwnd in winList:
+                curTitle = win32gui.GetWindowText(hwnd)
+                if win32gui.IsWindowVisible(hwnd) and title == curTitle:
+                    return hwnd
+            return None
+
+        hDesk = win32gui.GetDesktopWindow()
+        (desktopLeft, desktopTop, desktopRight,
+                desktopBottom) = win32gui.GetWindowRect(hDesk)
+        w = findWindow("AVG Renderer")
+        offSetX = 2
+        offSetY = 3
+        win32gui.SetWindowPos(w, win32con.HWND_TOP,
+                -(win32api.GetSystemMetrics(win32con.SM_CYBORDER) + offSetX),
+                -(win32api.GetSystemMetrics(win32con.SM_CYCAPTION) + offSetY), 
+                desktopRight, desktopBottom + 30, 0)
+
+
+class AVGAppStarter(AppStarter):
+    def __init__(self, *args, **kwargs):
+        self.__graphs = 0
+        self._mtEmu = None
+        self.__showingMemGraph = False
+        self.__showingFrGraph = False
+        self.__runningClickTest = False
+        self.__notifyNode = None
+        # self._initClickTest()
+
+        super(AVGAppStarter, self).__init__(*args, **kwargs)
+        
+    def _setupDefaultKeys(self):
+        self._keyManager.bindKey('o', self.__dumpObjects, 'Dump objects')
+        self._keyManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
+        self._keyManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
+        # self._keyManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
+        self._keyManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')  
+        self._keyManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')  
+        self._keyManager.bindKey('s', self.__screenshot, 'Take screenshot')  
+
+    # def _initClickTest(self):
+    #     if ClickTest:
+    #         self._clickTest = ClickTest(self._appNode, multiClick=False)
+    #     else:
+    #         self._clickTest = None
 
     def __dumpObjects(self):
         gc.collect()
@@ -322,12 +228,18 @@ class AppStarter(object):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            self.bindKey('left ctrl', self._mtEmu.changeMode, 'switch event mode')
-            self.bindKey('right ctrl', self._mtEmu.changeMode, 'switch event mode')
-            self.bindKey('left shift', self._mtEmu.multiTouch, 'create 2nd event')
-            self.bindKey('right shift', self._mtEmu.multiTouch, 'create 2nd event')
-            self.bindKey('left shift', self._mtEmu.multiTouch, 'create 2nd event', 'up')
-            self.bindKey('right shift', self._mtEmu.multiTouch, 'create 2nd event', 'up')
+            self._keyManager.bindKey('left ctrl',
+                    self._mtEmu.changeMode, 'switch event mode')
+            self._keyManager.bindKey('right ctrl',
+                    self._mtEmu.changeMode, 'switch event mode')
+            self._keyManager.bindKey('left shift',
+                    self._mtEmu.multiTouch, 'create 2nd event')
+            self._keyManager.bindKey('right shift',
+                    self._mtEmu.multiTouch, 'create 2nd event')
+            self._keyManager.bindKey('left shift',
+                    self._mtEmu.multiTouch, 'create 2nd event', 'up')
+            self._keyManager.bindKey('right shift',
+                    self._mtEmu.multiTouch, 'create 2nd event', 'up')
             
         else:
             self.unbindKey('left ctrl')
@@ -355,7 +267,7 @@ class AppStarter(object):
             try:
                 touchVis = self.__touchViss[event.cursorid]
             except KeyError:
-                touchVis = TouchVisualization(event, 
+                touchVis = apphelpers.TouchVisualization(event, 
                         parent=self.__touchVisOverlay)
                 self.__touchViss[event.cursorid] = touchVis
             if event.type == avg.CURSORDOWN:
@@ -374,7 +286,7 @@ class AppStarter(object):
         if self.__notifyNode:
             self.__notifyNode.unlink()
             self.__notifyNode = None
-            
+
     def __screenshot(self):
         fnum = 0
         fnameTemplate = 'screenshot-%03d.png'
@@ -396,41 +308,3 @@ class AppStarter(object):
             sensitive=False, parent=g_player.getRootNode())
             
         g_player.setTimeout(2000, self.__killNotifyNode)
-        
-    def __fakeFullscreen(self):
-        import win32gui
-        import win32con
-        import win32api
-
-        def findWindow(title):
-            def enumWinProc(h, lparams): 
-                lparams.append(h)
-            winList=[]
-            win32gui.EnumWindows(enumWinProc, winList)
-            for hwnd in winList:
-                curTitle = win32gui.GetWindowText(hwnd)
-                if win32gui.IsWindowVisible(hwnd) and title == curTitle:
-                    return hwnd
-            return None
-
-        hDesk = win32gui.GetDesktopWindow()
-        (desktopLeft, desktopTop, desktopRight,
-                desktopBottom) = win32gui.GetWindowRect(hDesk)
-        w = findWindow("AVG Renderer")
-        offSetX = 2
-        offSetY = 3
-        win32gui.SetWindowPos(w, win32con.HWND_TOP,
-                -(win32api.GetSystemMetrics(win32con.SM_CYBORDER) + offSetX),
-                -(win32api.GetSystemMetrics(win32con.SM_CYCAPTION) + offSetY), 
-                desktopRight, desktopBottom + 30, 0)
-
-    def activateHelp(self):
-        if self.showingHelp == False:
-            self.showingHelp = True
-        else:
-            self.showingHelp = False  
-        self.helpInstance.showHelp()
-    
-
-# Backward compat
-AVGAppStarter = AppStarter

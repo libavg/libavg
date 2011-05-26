@@ -122,7 +122,7 @@ class App(object):
         
     @classmethod
     def start(cls, appStarter=AppStarter, **kwargs):
-        appStarter(appClass = cls, **kwargs)
+        appStarter(appClass=cls, **kwargs)
 
 
 class AVGApp(App):
@@ -134,11 +134,12 @@ class AVGApp(App):
     def start(cls, **kwargs):
         # TODO: deprecation warning
         
+        from AVGAppStarter import AVGAppStarter
         from AVGMTAppStarter import AVGMTAppStarter
         if cls.multitouch:
             starter = AVGMTAppStarter
         else:
-            starter = AppStarter
+            starter = AVGAppStarter
         
         super(AVGApp, cls).start(appStarter=starter,
                 fakeFullscreen=cls.fakeFullscreen, **kwargs)
