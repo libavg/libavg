@@ -61,7 +61,12 @@ class TouchVisualization(avg.DivNode):
 class AppStarter(object):
     """Starts an AVGApp"""
     def __init__(self, appClass, resolution, debugWindowSize=None, fakeFullscreen=False):
-        self._AppClass = appClass
+        if fakeFullscreen:
+            if os.name != 'nt':
+                raise RuntimeError('fakeFullscreen works only under windows')
+                
+            g_player.setTimeout(0, self.__fakeFullscreen)
+
         resolution = Point2D(resolution)
         testMode = not 'AVG_DEPLOY' in os.environ
         
@@ -98,7 +103,7 @@ class AppStarter(object):
 
         g_player.showCursor(testMode)
 
-        if self._AppClass.fakeFullscreen:
+        if appClass.fakeFullscreen:
             fullscreen = False
         else:
             fullscreen = not testMode
@@ -139,7 +144,7 @@ class AppStarter(object):
 
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
-        self._appInstance = self._AppClass(self._appNode)
+        self._appInstance = appClass(self._appNode)
         self._appInstance.setStarter(self)
         g_player.play()
         self._appInstance.exit()
@@ -392,6 +397,33 @@ class AppStarter(object):
             
         g_player.setTimeout(2000, self.__killNotifyNode)
         
+    def __fakeFullscreen(self):
+        import win32gui
+        import win32con
+        import win32api
+
+        def findWindow(title):
+            def enumWinProc(h, lparams): 
+                lparams.append(h)
+            winList=[]
+            win32gui.EnumWindows(enumWinProc, winList)
+            for hwnd in winList:
+                curTitle = win32gui.GetWindowText(hwnd)
+                if win32gui.IsWindowVisible(hwnd) and title == curTitle:
+                    return hwnd
+            return None
+
+        hDesk = win32gui.GetDesktopWindow()
+        (desktopLeft, desktopTop, desktopRight,
+                desktopBottom) = win32gui.GetWindowRect(hDesk)
+        w = findWindow("AVG Renderer")
+        offSetX = 2
+        offSetY = 3
+        win32gui.SetWindowPos(w, win32con.HWND_TOP,
+                -(win32api.GetSystemMetrics(win32con.SM_CYBORDER) + offSetX),
+                -(win32api.GetSystemMetrics(win32con.SM_CYCAPTION) + offSetY), 
+                desktopRight, desktopBottom + 30, 0)
+
     def activateHelp(self):
         if self.showingHelp == False:
             self.showingHelp = True

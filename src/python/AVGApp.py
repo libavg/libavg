@@ -27,14 +27,6 @@ from AVGAppStarter import AppStarter
 g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 
-try:
-    from win32gui import *
-    from win32con import *
-    from win32api import *
-    g_WIN32 = True
-except:
-    g_WIN32 = False
-
 class App(object):
     instances = {}
 
@@ -128,29 +120,6 @@ class App(object):
     def getStarter(self):
         return self._starter
         
-    @classmethod   
-    def __findWindow(cls, title):
-        def enumWinProc(h, lparams): 
-            lparams.append(h)
-        winList=[]
-        EnumWindows(enumWinProc, winList)
-        for hwnd in winList:
-            curTitle = GetWindowText(hwnd)
-            if IsWindowVisible(hwnd) and title == curTitle:
-                return hwnd
-        return None
-        
-    @classmethod
-    def __fakeFullscreen(cls):
-        hDesk = GetDesktopWindow()
-        (DesktopLeft, DesktopTop, DesktopRight, DesktopBottom) = GetWindowRect(hDesk)
-        w = cls.__findWindow("AVG Renderer")
-        offSetX = 2
-        offSetY = 3
-        SetWindowPos(w, HWND_TOP, -(GetSystemMetrics(SM_CYBORDER)+offSetX), 
-                -(GetSystemMetrics(SM_CYCAPTION)+offSetY), 
-                DesktopRight, DesktopBottom+30, 0)
-        
     @classmethod
     def start(cls, appStarter=AppStarter, **kwargs):
         appStarter(appClass = cls, **kwargs)
@@ -170,12 +139,6 @@ class AVGApp(App):
             starter = AVGMTAppStarter
         else:
             starter = AppStarter
-
-        # if cls.fakeFullscreen and cls.avg_deploy is not None:
-        #     if g_WIN32:
-        #         g_Player.setTimeout(1000,cls.__fakeFullscreen)
-        #     else:
-        #         g_Log.trace(g_Log.ERROR, 'fakeFullscreen works only on Windows')           
         
         super(AVGApp, cls).start(appStarter=starter,
                 fakeFullscreen=cls.fakeFullscreen, **kwargs)

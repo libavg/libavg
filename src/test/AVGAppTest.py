@@ -189,7 +189,17 @@ class AVGAppTestCase(testcase.AVGTestCase):
                     g_player.setTimeout(0, self.nextKey)
     
         ToggleKeysApp.start(resolution=TEST_RESOLUTION)
-        
+    
+    def testFakeFullscreen(self):
+        class FakeFullscreenApp(TestAppBase):
+            fakeFullscreen = True
+            def init(self):
+                g_player.setTimeout(0, g_player.stop)
+                
+        if os.name == 'nt':
+            FakeFullscreenApp.start()
+        else:
+            self.assertException(FakeFullscreenApp.start)
         
 def avgAppTestSuite(tests):
     availableTests = (
@@ -200,5 +210,6 @@ def avgAppTestSuite(tests):
             'testGraphs',
             'testClicktest',
             'testToggleKeys',
+            'testFakeFullscreen',
     )
     return testcase.createAVGTestSuite(availableTests, AVGAppTestCase, tests)
