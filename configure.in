@@ -106,7 +106,7 @@ if test "$enable_v4l2" = maybe; then
         [enable_v4l2=yes],
         [enable_v4l2=no],
         [#include <sys/time.h>
-         #include <linux/videodev.h>])
+         #include <linux/videodev2.h>])
 fi
 AM_CONDITIONAL(ENABLE_V4L2, test x$enable_v4l2 = xyes)
 if test "$enable_v4l2" = yes; then

@@ -301,6 +301,11 @@
    fun:xmlInitCharEncodingHandlers
 }
 {
+   libxml_4
+   Memcheck:Cond
+   fun:inflateReset2
+}
+{
    libSDL
    Memcheck:Cond
    obj:/usr/lib/libSDL-1.2.so.0.11.*

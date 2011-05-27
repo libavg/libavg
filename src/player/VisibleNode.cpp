@@ -259,7 +259,8 @@ void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
         {
             EventHandler& eventHandler = *listIt;
             if (eventHandler.m_pObj == pObj &&
-                    (eventHandler.m_pMethod == pFunc || pFunc == 0))
+                    (pFunc == 0 || 
+                     PyObject_RichCompareBool(eventHandler.m_pMethod, pFunc, Py_EQ)))
             {
                 listIt = pEventHandlers->erase(listIt);
                 numDisconnected++;

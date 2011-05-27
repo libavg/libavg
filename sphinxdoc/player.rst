@@ -239,6 +239,10 @@ Player & Canvas
             Returns the main canvas. This is the canvas loaded using :py:meth:`loadFile`
             or :py:meth:`loadString` and displayed on screen.
 
+        .. py:method:: addInputDevice(inputDevice)
+
+            Registers a :py:class:`InputDevice` to the system.
+
         .. py:method:: getMouseState() -> MouseEvent
 
             Returns the last mouse event generated.
