@@ -76,7 +76,6 @@ namespace avg {
             bool m_Stale;
             int m_ID;
             StreamState m_State;
-            int m_VanishCounter;
             DPoint m_Pos;
             DPoint m_OldPos;
             BlobPtr m_pBlob;

@@ -28,8 +28,6 @@
 
 #include <math.h>
 
-const int MAXMISSINGFRAMES=1;
-
 using namespace std;
 
 namespace avg {
@@ -47,7 +45,6 @@ namespace avg {
         m_State = DOWN_PENDING;
         m_Stale = false;
         m_OldTime = 0;
-        m_VanishCounter = 0;
     }
 
     EventStream::~EventStream()
@@ -59,7 +56,6 @@ namespace avg {
     {
         AVG_ASSERT(m_pBlob);
         AVG_ASSERT(pNewBlob);
-        m_VanishCounter = 0;
         DPoint c = pNewBlob->getCenter();
         bool bPosChanged;
         if (bEventOnMove) {
@@ -112,11 +108,7 @@ namespace avg {
             case UP_DELIVERED:
                 break;
             default:
-                m_State = VANISHED;
-                m_VanishCounter++;
-                if (m_VanishCounter >= MAXMISSINGFRAMES) {
-                    m_State = UP_PENDING;
-                }
+                m_State = UP_PENDING;
                 break;
         }
     }
@@ -199,9 +191,6 @@ namespace avg {
     {
         cerr << "  " << m_ID << ": " << stateToString(m_State) << ", stale: " 
                 << m_Stale << endl;
-        if (m_State == VANISHED) {
-            cerr << "    VanishCounter: " << m_VanishCounter << endl;
-        }
     }
 
     DPoint EventStream::getSpeed(const DPoint& oldPos, const DPoint& newPos)
