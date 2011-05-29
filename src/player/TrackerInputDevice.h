@@ -100,8 +100,6 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
 
         // Used by tracker thread
         void trackBlobIDs(BlobVectorPtr new_blobs, long long time, bool bTouch);
-        BlobPtr matchblob(BlobPtr new_blob, BlobVectorPtr old_blobs, double threshold, 
-                EventMap * pEvents);
 
         // Used by both threads
         EventMap m_TouchEvents;

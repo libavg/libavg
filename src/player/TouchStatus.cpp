@@ -42,15 +42,10 @@ const IntPoint& TouchStatus::getLastDownPos()
     return m_LastDownPos;
 }
 
-bool TouchStatus::isFirstFrame()
-{
-    return m_bFirstFrame;
-}
-
 void TouchStatus::updateEvent(TouchEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-    if (isFirstFrame()) {
+    if (m_bFirstFrame) {
         // Always send a cursordown event first.
         m_pEvent = boost::dynamic_pointer_cast<TouchEvent>(
                 pEvent->cloneAs(Event::CURSORDOWN));

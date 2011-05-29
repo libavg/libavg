@@ -32,7 +32,6 @@ public:
     virtual ~TouchStatus();
 
     const IntPoint& getLastDownPos();
-    bool isFirstFrame();
 
     void updateEvent(TouchEventPtr pEvent);
     TouchEventPtr getEvent();
