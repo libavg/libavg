@@ -37,13 +37,12 @@ using namespace std;
 namespace avg {
 
 TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
-        Source source, const DPoint& speed, const IntPoint& lastDownPos)
+        Source source, const DPoint& speed)
     : CursorEvent(id, eventType, pos, source),
       m_pBlob(pBlob),
       m_Speed(speed),
       m_bHasHandOrientation(false)
 {
-    setLastDownPos(lastDownPos);
     if (pBlob) {
         m_Orientation = pBlob->getOrientation();
         m_Area = pBlob->getArea();

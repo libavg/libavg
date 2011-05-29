@@ -79,7 +79,6 @@ namespace avg {
             int m_VanishCounter;
             DPoint m_Pos;
             DPoint m_OldPos;
-            DPoint m_FirstPos;
             BlobPtr m_pBlob;
             long long m_Time;
             long long m_OldTime;

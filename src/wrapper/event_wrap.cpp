@@ -169,7 +169,6 @@ void export_event()
         .add_property("node", &MouseEvent::getElement)
         .add_property("speed", make_function(&MouseEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
-        .add_property("lastdownpos", &CursorEvent::getLastDownPos)
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", no_init)
@@ -193,7 +192,6 @@ void export_event()
         .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
         .def("getContour", &TouchEvent::getContour)
-        .add_property("lastdownpos", &CursorEvent::getLastDownPos)
         ;
    
     enum_<TrackerImageID>("TrackerImageID")
