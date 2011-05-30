@@ -24,6 +24,8 @@
 
 #include "TouchEvent.h"
 
+#include <vector>
+
 namespace avg {
 
 class TouchStatus {
@@ -36,10 +38,9 @@ public:
     TouchEventPtr getLastEvent();
 
 private:
-    TouchEventPtr m_pEvent;
-    TouchEventPtr m_pLastEvent;
-    TouchEventPtr m_pUpEvent;
-    bool m_bFirstFrame;
+    std::vector<TouchEventPtr> m_pEvents;
+    std::vector<TouchEventPtr> m_pNewEvents;
+
     int m_CursorID;
 };
 

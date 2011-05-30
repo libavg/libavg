@@ -24,11 +24,9 @@
 namespace avg {
 
 TouchStatus::TouchStatus(TouchEventPtr pEvent)
-    : m_pEvent(pEvent),
-      m_bFirstFrame(true),
-      m_CursorID(pEvent->getCursorID())
+    : m_CursorID(pEvent->getCursorID())
 {
-    m_pLastEvent = m_pEvent;
+    m_pNewEvents.push_back(pEvent);
 }
 
 TouchStatus::~TouchStatus()
@@ -38,43 +36,44 @@ TouchStatus::~TouchStatus()
 void TouchStatus::updateEvent(TouchEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-    if (m_bFirstFrame) {
-        // Always send a cursordown event first.
-        m_pEvent = boost::dynamic_pointer_cast<TouchEvent>(
-                pEvent->cloneAs(Event::CURSORDOWN));
+    if (m_pEvents.empty()) {
+        // This is the first frame. Ignore unless cursorup.
         if (pEvent->getType() == Event::CURSORUP) {
-            // If we get a down and an up in the first frame, we delay the up to the
-            // next frame.
-            m_pUpEvent = pEvent;
-            m_pUpEvent->setCursorID(m_CursorID);
+            // Down and up in the first frame. To avoid inconsistencies, both
+            // messages must be delivered. This is the only time that m_pNewEvents
+            // has more than one entry.
+            pEvent->setCursorID(m_CursorID);
+            m_pNewEvents.push_back(pEvent);
         }
     } else {
-        m_pEvent = pEvent;
+        pEvent->setCursorID(m_CursorID);
+        if (m_pNewEvents.empty()) {
+            // No pending events: schedule for delivery.
+            m_pNewEvents.push_back(pEvent);
+        } else {
+            // More than one event per poll: Deliver only the last one.
+            m_pNewEvents[0] = pEvent;
+        }
     }
-    m_pEvent->setCursorID(m_CursorID);
-    m_pLastEvent = m_pEvent;
 }
 
 
 TouchEventPtr TouchStatus::getEvent()
 {
-    m_bFirstFrame = false;
-    TouchEventPtr pEvent;
-    if (!m_pEvent && m_pUpEvent) {
-        // Special case: delayed up.
-        pEvent = m_pUpEvent;
-        m_pUpEvent = TouchEventPtr();
+    if (m_pNewEvents.empty()) {
+        return TouchEventPtr();
     } else {
-        pEvent = m_pEvent;
-        m_pEvent = TouchEventPtr();
+        TouchEventPtr pEvent = m_pNewEvents[0];
+        m_pNewEvents.erase(m_pNewEvents.begin());
+        m_pEvents.push_back(pEvent);
+        return pEvent;
     }
-    return pEvent;
 }
 
 TouchEventPtr TouchStatus::getLastEvent()
 {
-    AVG_ASSERT(m_pLastEvent);
-    return m_pLastEvent;
+    AVG_ASSERT(!m_pEvents.empty());
+    return m_pEvents.back();
 }
 
 }
