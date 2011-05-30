@@ -97,11 +97,6 @@ Input Handling
             Always :samp:`-1` for mouse events, but can be used to handle mouse and 
             tracking events in one handler. Read-only.
 
-        .. py:attribute:: lastdownpos
-
-            The position of the last mouse down event with the same button.
-            Useful for implementing dragging. Read-only.
-
         .. py:attribute:: leftbuttonstate
 
             :py:const:`True` if the left mouse button is currently pressed. Read-only.
@@ -157,10 +152,6 @@ Input Handling
             axis. Angles increase in a clockwise fashion.
 
             For :py:const:`CURSORUP` events, the angle is always approximated.
-
-        .. py:attribute:: lastdownpos
-
-            The initial position of the cursor. Useful for implementing dragging.
 
         .. py:attribute:: majoraxis
 

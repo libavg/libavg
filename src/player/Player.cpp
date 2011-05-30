@@ -940,7 +940,6 @@ bool Player::handleEvent(EventPtr pEvent)
     }
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
         m_MouseState.setEvent(pMouseEvent);
-        pMouseEvent->setLastDownPos(m_MouseState.getLastDownPos());
     }
 
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {

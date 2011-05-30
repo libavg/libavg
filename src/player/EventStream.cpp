@@ -28,8 +28,6 @@
 
 #include <math.h>
 
-const int MAXMISSINGFRAMES=1;
-
 using namespace std;
 
 namespace avg {
@@ -44,11 +42,9 @@ namespace avg {
         m_pBlob = pFirstBlob;
         m_Pos = m_pBlob->getCenter();
         m_OldPos = m_Pos;
-        m_FirstPos = m_Pos;
         m_State = DOWN_PENDING;
         m_Stale = false;
         m_OldTime = 0;
-        m_VanishCounter = 0;
     }
 
     EventStream::~EventStream()
@@ -60,7 +56,6 @@ namespace avg {
     {
         AVG_ASSERT(m_pBlob);
         AVG_ASSERT(pNewBlob);
-        m_VanishCounter = 0;
         DPoint c = pNewBlob->getCenter();
         bool bPosChanged;
         if (bEventOnMove) {
@@ -113,11 +108,7 @@ namespace avg {
             case UP_DELIVERED:
                 break;
             default:
-                m_State = VANISHED;
-                m_VanishCounter++;
-                if (m_VanishCounter >= MAXMISSINGFRAMES) {
-                    m_State = UP_PENDING;
-                }
+                m_State = UP_PENDING;
                 break;
         }
     }
@@ -133,28 +124,24 @@ namespace avg {
         DPoint oldPos = pDeDistort->transformBlobToScreen(m_OldPos + BlobOffset);
         DPoint newPos = pDeDistort->transformBlobToScreen(m_Pos + BlobOffset);
         DPoint speed = getSpeed(oldPos, newPos);
-        DPoint firstDoubleScreenPos = pDeDistort->transformBlobToScreen(
-                m_FirstPos+BlobOffset);
-        IntPoint firstScreenPos(int(firstDoubleScreenPos.x+0.5), 
-                int(firstDoubleScreenPos.y+0.5));
         switch (m_State) {
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return EventPtr(new TouchEvent(m_ID, Event::CURSORDOWN,
-                        m_pBlob, pos, source, speed, firstScreenPos));
+                        m_pBlob, pos, source, speed));
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
-                        m_pBlob, pos, source, speed, firstScreenPos));
+                        m_pBlob, pos, source, speed));
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return EventPtr(new TouchEvent(m_ID, Event::CURSORUP,
-                        m_pBlob, pos, source, speed, firstScreenPos));
+                        m_pBlob, pos, source, speed));
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
                 if (!bEventOnMove) {
                     return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
-                            m_pBlob, pos, source, speed, firstScreenPos));
+                            m_pBlob, pos, source, speed));
                 } else {
                     return EventPtr();
                 }
@@ -204,9 +191,6 @@ namespace avg {
     {
         cerr << "  " << m_ID << ": " << stateToString(m_State) << ", stale: " 
                 << m_Stale << endl;
-        if (m_State == VANISHED) {
-            cerr << "    VanishCounter: " << m_VanishCounter << endl;
-        }
     }
 
     DPoint EventStream::getSpeed(const DPoint& oldPos, const DPoint& newPos)

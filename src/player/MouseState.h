@@ -35,11 +35,9 @@ class AVG_API MouseState {
         
         MouseEventPtr getLastEvent() const;
         void setEvent(MouseEventPtr pEvent);
-        const IntPoint& getLastDownPos() const;
 
     private:
         MouseEventPtr m_pLastMouseEvent;
-        IntPoint m_LastDownPos;
 };
 
 }
