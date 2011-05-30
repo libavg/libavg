@@ -36,17 +36,16 @@ TouchStatus::~TouchStatus()
 void TouchStatus::updateEvent(TouchEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
+    pEvent->setCursorID(m_CursorID);
     if (m_pEvents.empty()) {
         // This is the first frame. Ignore unless cursorup.
         if (pEvent->getType() == Event::CURSORUP) {
             // Down and up in the first frame. To avoid inconsistencies, both
             // messages must be delivered. This is the only time that m_pNewEvents
             // has more than one entry.
-            pEvent->setCursorID(m_CursorID);
             m_pNewEvents.push_back(pEvent);
         }
     } else {
-        pEvent->setCursorID(m_CursorID);
         if (m_pNewEvents.empty()) {
             // No pending events: schedule for delivery.
             m_pNewEvents.push_back(pEvent);
@@ -72,8 +71,12 @@ TouchEventPtr TouchStatus::getEvent()
 
 TouchEventPtr TouchStatus::getLastEvent()
 {
-    AVG_ASSERT(!m_pEvents.empty());
-    return m_pEvents.back();
+    if (m_pNewEvents.empty()) {
+        AVG_ASSERT(!m_pEvents.empty());
+        return m_pEvents.back();
+    } else {
+        return m_pNewEvents.back();
+    }
 }
 
 }
