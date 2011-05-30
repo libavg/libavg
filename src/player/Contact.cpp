@@ -19,21 +19,21 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "TouchStatus.h"
+#include "Contact.h"
 
 namespace avg {
 
-TouchStatus::TouchStatus(TouchEventPtr pEvent)
+Contact::Contact(TouchEventPtr pEvent)
     : m_CursorID(pEvent->getCursorID())
 {
     m_pNewEvents.push_back(pEvent);
 }
 
-TouchStatus::~TouchStatus()
+Contact::~Contact()
 {
 }
 
-void TouchStatus::updateEvent(TouchEventPtr pEvent)
+void Contact::pushEvent(TouchEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
@@ -57,7 +57,7 @@ void TouchStatus::updateEvent(TouchEventPtr pEvent)
 }
 
 
-TouchEventPtr TouchStatus::getEvent()
+TouchEventPtr Contact::pollEvent()
 {
     if (m_pNewEvents.empty()) {
         return TouchEventPtr();
@@ -69,7 +69,7 @@ TouchEventPtr TouchStatus::getEvent()
     }
 }
 
-TouchEventPtr TouchStatus::getLastEvent()
+TouchEventPtr Contact::getLastEvent()
 {
     if (m_pNewEvents.empty()) {
         AVG_ASSERT(!m_pEvents.empty());

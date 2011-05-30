@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TouchStatus_H_
-#define _TouchStatus_H_
+#ifndef _Contact_H_
+#define _Contact_H_
 
 #include "TouchEvent.h"
 
@@ -28,13 +28,13 @@
 
 namespace avg {
 
-class TouchStatus {
+class Contact {
 public:
-    TouchStatus(TouchEventPtr pEvent);
-    virtual ~TouchStatus();
+    Contact(TouchEventPtr pEvent);
+    virtual ~Contact();
 
-    void updateEvent(TouchEventPtr pEvent);
-    TouchEventPtr getEvent();
+    void pushEvent(TouchEventPtr pEvent);
+    TouchEventPtr pollEvent();
     TouchEventPtr getLastEvent();
 
 private:
@@ -44,7 +44,7 @@ private:
     int m_CursorID;
 };
 
-typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
+typedef boost::shared_ptr<class Contact> ContactPtr;
 
 }
 
