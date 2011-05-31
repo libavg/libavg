@@ -280,13 +280,17 @@ class ImageTestCase(AVGTestCase):
                             nextAction=lambda: Player.setTimeout(0, loadBrokenImage)))
 
         def loadBrokenImage():
-            open("broken.png", "w")
+            import tempfile
+            tempFileName = os.path.join(tempfile.gettempdir(),
+                    "broken.png")
+            open(tempFileName, "w")
 
             def cleanupAndTestReturnValue(returnValue):
-                os.unlink("broken.png")
+                os.unlink(tempFileName)
                 expectException(returnValue=returnValue, nextAction=Player.stop)
 
-            avg.BitmapManager.get().loadBitmap("broken.png", cleanupAndTestReturnValue)
+            avg.BitmapManager.get().loadBitmap(tempFileName,
+                    cleanupAndTestReturnValue)
         
         def reportStuck():
             raise RuntimeError("BitmapManager didn't reply "
