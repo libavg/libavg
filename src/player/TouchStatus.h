@@ -31,9 +31,6 @@ public:
     TouchStatus(TouchEventPtr pEvent);
     virtual ~TouchStatus();
 
-    const IntPoint& getLastDownPos();
-    bool isFirstFrame();
-
     void updateEvent(TouchEventPtr pEvent);
     TouchEventPtr getEvent();
     TouchEventPtr getLastEvent();
@@ -43,7 +40,6 @@ private:
     TouchEventPtr m_pLastEvent;
     TouchEventPtr m_pUpEvent;
     bool m_bFirstFrame;
-    IntPoint m_LastDownPos;
     int m_CursorID;
 };
 

@@ -61,11 +61,12 @@ class Slider(avg.DivNode):
         self.__slider.setEventCapture()
         self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onSliderMove)
         self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onSliderUp)
+        self.__sliderDownPos = event.pos
         self.__isDragging = True
         self.__dragStartVal = self.__val
 
     def __onSliderMove(self, event):
-        numPixelsMoved = float(event.pos.x-event.lastdownpos.x)
+        numPixelsMoved = float(event.pos.x-self.__sliderDownPos.x)
         self.__val = (self.__dragStartVal+numPixelsMoved/(self.size.x-14)
                 *(self.__max-self.__min))
         self.__positionSlider()

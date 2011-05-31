@@ -46,8 +46,7 @@ class AVG_API TestHelper : public IInputDevice
                 int xPosition, int yPosition, int button, 
                 const DPoint& speed=DPoint(0,0));
         void fakeTouchEvent(int id, Event::Type eventType,
-                Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
-                const DPoint& speed);
+                Event::Source source, const DPoint& pos, const DPoint& speed);
         void fakeKeyEvent(Event::Type eventType,
                 unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int unicode, int modifiers);

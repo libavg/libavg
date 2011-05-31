@@ -1224,7 +1224,7 @@ class PythonTestCase(AVGTestCase):
 
     def __sendTouchEvent(self, id, type, x, y, sx=0, sy=0):
         Helper = Player.getTestHelper()
-        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), avg.Point2D(0, 0), 
+        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), 
                 avg.Point2D(sx,sy))
        
 

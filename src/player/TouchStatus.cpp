@@ -26,10 +26,8 @@ namespace avg {
 TouchStatus::TouchStatus(TouchEventPtr pEvent)
     : m_pEvent(pEvent),
       m_bFirstFrame(true),
-      m_LastDownPos(pEvent->getPos()),
       m_CursorID(pEvent->getCursorID())
 {
-    pEvent->setLastDownPos(IntPoint(pEvent->getPos()));
     m_pLastEvent = m_pEvent;
 }
 
@@ -37,20 +35,10 @@ TouchStatus::~TouchStatus()
 {
 }
 
-const IntPoint& TouchStatus::getLastDownPos()
-{
-    return m_LastDownPos;
-}
-
-bool TouchStatus::isFirstFrame()
-{
-    return m_bFirstFrame;
-}
-
 void TouchStatus::updateEvent(TouchEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
-    if (isFirstFrame()) {
+    if (m_bFirstFrame) {
         // Always send a cursordown event first.
         m_pEvent = boost::dynamic_pointer_cast<TouchEvent>(
                 pEvent->cloneAs(Event::CURSORDOWN));
@@ -64,7 +52,6 @@ void TouchStatus::updateEvent(TouchEventPtr pEvent)
         m_pEvent = pEvent;
     }
     m_pEvent->setCursorID(m_CursorID);
-    m_pEvent->setLastDownPos(m_LastDownPos);
     m_pLastEvent = m_pEvent;
 }
 
