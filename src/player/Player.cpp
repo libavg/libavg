@@ -69,6 +69,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/MathHelper.h"
 
+#include "../graphics/BitmapManager.h"
+
 #include "../imaging/Camera.h"
 
 #include "../audio/SDLAudioEngine.h"
@@ -273,6 +275,9 @@ CanvasPtr Player::loadFile(const string& sFilename)
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pNode);
     m_DP.m_Size = m_pMainCanvas->getSize();
+
+    registerFrameEndListener(BitmapManager::get());
+    
     return m_pMainCanvas;
 }
 
@@ -288,6 +293,9 @@ CanvasPtr Player::loadString(const string& sAVG)
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pNode);
     m_DP.m_Size = m_pMainCanvas->getSize();
+
+    registerFrameEndListener(BitmapManager::get());
+
     return m_pMainCanvas;
 }
 
@@ -893,6 +901,7 @@ void Player::disablePython()
 
 void Player::registerFrameEndListener(IFrameEndListener* pListener)
 {
+    AVG_ASSERT(m_pMainCanvas);
     m_pMainCanvas->registerFrameEndListener(pListener);
 }
 
@@ -905,6 +914,7 @@ void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
 
 void Player::registerPlaybackEndListener(IPlaybackEndListener* pListener)
 {
+    AVG_ASSERT(m_pMainCanvas);
     m_pMainCanvas->registerPlaybackEndListener(pListener);
 }
 
@@ -917,6 +927,7 @@ void Player::unregisterPlaybackEndListener(IPlaybackEndListener* pListener)
 
 void Player::registerPreRenderListener(IPreRenderListener* pListener)
 {
+    AVG_ASSERT(m_pMainCanvas);
     m_pMainCanvas->registerPreRenderListener(pListener);
 }
 
@@ -1576,6 +1587,8 @@ void Player::cleanup()
     m_pLastCursorStates.clear();
     ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {
+        unregisterFrameEndListener(BitmapManager::get());
+        delete BitmapManager::get();
         m_pMainCanvas->stopPlayback();
         m_pMainCanvas = MainCanvasPtr();
     }

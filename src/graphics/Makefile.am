@@ -1,4 +1,4 @@
-INCLUDES = -I.. $(MAGICK_CFLAGS) @GL_CFLAGS@
+INCLUDES = -I.. $(MAGICK_CFLAGS) @GL_CFLAGS@ @PYTHON_INCLUDES@
 
 ALL_H = Bitmap.h Filter.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
@@ -15,7 +15,8 @@ ALL_H = Bitmap.h Filter.h\
         FilterGetAlpha.h FBO.h GLTexture.h PBO.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
-        ImagingProjection.h
+        ImagingProjection.h BitmapManager.h BitmapManagerThread.h \
+        BitmapManagerMsg.h
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
@@ -29,7 +30,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterGetAlpha.cpp FBO.cpp GLTexture.cpp PBO.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
-        ImagingProjection.cpp
+        ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp BitmapManagerMsg.cpp
 
 if APPLE
     X_LIBS =

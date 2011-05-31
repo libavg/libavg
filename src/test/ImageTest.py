@@ -257,6 +257,49 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.assertException(setNullBitmap)
                 ))
 
+    def testBitmapManager(self):
+        WAIT_TIMEOUT = 2000
+        def expectException(returnValue, nextAction):
+            if isinstance(returnValue, Exception):
+                nextAction()
+            else:
+                raise RuntimeError("Expected exception, got %s (%s)" % (
+                        returnValue, type(returnValue)))
+            
+        def loadValidBitmap():
+            def validBitmapCb(bitmap):
+                self.assert_(not isinstance(bitmap, Exception))
+                Player.setTimeout(0, loadUnexistentBitmap)
+
+            avg.BitmapManager.get().loadBitmap("rgb24alpha-64x64.png", validBitmapCb)
+
+        def loadUnexistentBitmap():
+            avg.BitmapManager.get().loadBitmap("nonexistent.png",
+                    lambda bmp: expectException(
+                            returnValue=bmp,
+                            nextAction=lambda: Player.setTimeout(0, loadBrokenImage)))
+
+        def loadBrokenImage():
+            open("broken.png", "w")
+
+            def cleanupAndTestReturnValue(returnValue):
+                os.unlink("broken.png")
+                expectException(returnValue=returnValue, nextAction=Player.stop)
+
+            avg.BitmapManager.get().loadBitmap("broken.png", cleanupAndTestReturnValue)
+        
+        def reportStuck():
+            raise RuntimeError("BitmapManager didn't reply "
+                    "within %dms timeout" % WAIT_TIMEOUT)
+            Player.stop()
+            
+        self.loadEmptyScene()
+        
+        Player.setTimeout(WAIT_TIMEOUT, reportStuck)
+        Player.setResolution(0, 0, 0, 0)
+        loadValidBitmap()
+        Player.play()
+        
     def testBlendMode(self):
         def setBlendMode():
             Player.getElementByID("blend").blendmode="add"
@@ -474,6 +517,7 @@ def imageTestSuite(tests):
             "testImageSize",
             "testImageWarp",
             "testBitmap",
+            "testBitmapManager",
             "testBlendMode",
             "testImageMask",
             "testImageMaskCanvas",
