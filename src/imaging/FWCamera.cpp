@@ -186,6 +186,7 @@ void FWCamera::startCapture()
     }
     // Default to turning off any camera sharpness manipulation.
     setFeature(CAM_FEATURE_SHARPNESS, 0);
+
     // Turn off possible auto exposure.
     dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_EXPOSURE, 
             DC1394_FEATURE_MODE_MANUAL);
@@ -303,21 +304,38 @@ int FWCamera::getFeature(CameraFeature feature) const
 #endif
 }
 
+bool FWCamera::hasFeature(CameraFeature feature)
+{
+    if (feature == CAM_FEATURE_STROBE_DURATION) {
+        // FIXME
+        return true; 
+    } else {
+        dc1394feature_t featureID = getFeatureID(feature);
+        dc1394bool_t bAvailable;
+        dc1394_feature_is_present(m_pCamera, featureID, &bAvailable);
+        return bAvailable;
+    }
+}
+
 void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
 #ifdef AVG_ENABLE_1394_2
-    if (bIgnoreOldValue || m_Features[feature] != value) {
-        m_Features[feature] = value;
-        if (feature == CAM_FEATURE_STROBE_DURATION) {
-            try {
-                setStrobeDuration(value);
-            } catch (Exception& e) {
-                AVG_TRACE(Logger::WARNING, 
-                        string("Camera: Setting strobe duration failed. ")+e.GetStr());
+    if (hasFeature(feature)) { 
+        if (bIgnoreOldValue || m_Features[feature] != value) {
+            m_Features[feature] = value;
+            if (feature == CAM_FEATURE_STROBE_DURATION) {
+                try {
+                    setStrobeDuration(value);
+                } catch (Exception& e) {
+                    AVG_TRACE(Logger::WARNING, 
+                            string("Camera: Setting strobe duration failed. ") + 
+                            e.GetStr());
+                }
+            } else {
+                dc1394feature_t featureID = getFeatureID(feature);
+                setFeature(featureID, value);
+                //        dumpCameraInfo();
             }
-        } else {
-            dc1394feature_t FeatureID = getFeatureID(feature);
-            setFeature(FeatureID, value);
         }
     }
 #endif
@@ -326,8 +344,8 @@ void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
 void FWCamera::setFeatureOneShot(CameraFeature feature)
 {
 #ifdef AVG_ENABLE_1394_2
-    dc1394feature_t FeatureID = getFeatureID(feature);
-    dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
+    dc1394feature_t featureID = getFeatureID(feature);
+    dc1394error_t err = dc1394_feature_set_mode(m_pCamera, featureID, 
             DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
@@ -355,21 +373,23 @@ int FWCamera::getWhitebalanceV() const
 void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
 #ifdef AVG_ENABLE_1394_2
-    if (bIgnoreOldValue || u != m_WhitebalanceU || v != m_WhitebalanceV) {
-        m_WhitebalanceU = u;
-        m_WhitebalanceV = v;
-        dc1394error_t err;
-        if (u == -1) {
-            err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
-                    DC1394_FEATURE_MODE_AUTO);
-        } else {
-            err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
-                    DC1394_FEATURE_MODE_MANUAL);
-            err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
-        }
-        if (err != DC1394_SUCCESS) {
-            AVG_TRACE(Logger::WARNING,
-                    "Camera: Unable to set whitebalance. Error was " << err);
+    if (hasFeature(CAM_FEATURE_WHITE_BALANCE)) {
+        if (bIgnoreOldValue || u != m_WhitebalanceU || v != m_WhitebalanceV) {
+            m_WhitebalanceU = u;
+            m_WhitebalanceV = v;
+            dc1394error_t err;
+            if (u == -1) {
+                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
+                        DC1394_FEATURE_MODE_AUTO);
+            } else {
+                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
+                        DC1394_FEATURE_MODE_MANUAL);
+                err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
+            }
+            if (err != DC1394_SUCCESS) {
+                AVG_TRACE(Logger::WARNING,
+                        "Camera: Unable to set whitebalance. Error was " << err);
+            }
         }
     }
 #endif

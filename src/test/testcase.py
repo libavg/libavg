@@ -30,8 +30,8 @@ import libavg
 
 
 class AVGTestCase(unittest.TestCase):
-    imageResultDirectory = ''
-    baselineImageResultDirectory = ''
+    imageResultDirectory = "resultimages"
+    baselineImageResultDirectory = "baseline"
     
     def __init__(self, testFuncName):
         unittest.TestCase.__init__(self, testFuncName)
@@ -52,6 +52,20 @@ class AVGTestCase(unittest.TestCase):
     def getImageResultDir():
         return AVGTestCase.imageResultDirectory
     
+    @staticmethod
+    def cleanResultDir():
+        dir = AVGTestCase.getImageResultDir()
+        try:
+            files = os.listdir(dir)
+            for file in files:
+                os.remove(dir+"/"+file)
+        except OSError:
+            try:
+                os.mkdir(dir)
+            except OSError:
+                pass
+
+
     @staticmethod
     def setBaselineImageDirectory(name):
         AVGTestCase.baselineImageResultDirectory = name

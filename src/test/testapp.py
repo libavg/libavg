@@ -29,26 +29,6 @@ import libavg
 import testcase
 
 
-BASELINE_DIR = "baseline"
-RESULT_DIR = "resultimages"
-
-
-def rmBrokenDir():
-    try:
-        files = os.listdir(RESULT_DIR)
-        for file in files:
-            os.remove(RESULT_DIR+"/"+file)
-    except OSError:
-        try:
-            os.mkdir(RESULT_DIR)
-        except OSError:
-            pass
-
-
-testcase.AVGTestCase.setImageResultDirectory(RESULT_DIR)
-testcase.AVGTestCase.setBaselineImageDirectory(BASELINE_DIR)
-
-
 class TestApp:
     EXIT_OK = 0
     EXIT_FAILURE = 1
@@ -77,7 +57,8 @@ class TestApp:
         return list(self.__registeredSuiteFactories)
     
     def getSuiteFactories(self):
-        return [ self.__registerdSuiteFactoriesDict[name] for name in self.__registeredSuiteFactories ]
+        return [ self.__registerdSuiteFactoriesDict[name] 
+                for name in self.__registeredSuiteFactories ]
 
     def registerSuiteFactory(self, name, suite):
         self.__registeredSuiteFactories.append(name)
@@ -103,7 +84,7 @@ class TestApp:
     
     def __run(self):
         testRunner = unittest.TextTestRunner(verbosity = 2)
-        rmBrokenDir()
+        testcase.AVGTestCase.cleanResultDir()
         testResult = testRunner.run(self.__testSuite)
         
         if testResult.wasSuccessful():
