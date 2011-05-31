@@ -306,6 +306,7 @@ int FWCamera::getFeature(CameraFeature feature) const
 
 bool FWCamera::hasFeature(CameraFeature feature)
 {
+#ifdef AVG_ENABLE_1394_2
     if (feature == CAM_FEATURE_STROBE_DURATION) {
         // FIXME
         return true; 
@@ -315,6 +316,9 @@ bool FWCamera::hasFeature(CameraFeature feature)
         dc1394_feature_is_present(m_pCamera, featureID, &bAvailable);
         return bAvailable;
     }
+#else
+    return false;
+#endif
 }
 
 void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
