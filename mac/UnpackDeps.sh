@@ -27,7 +27,7 @@ cd fontconfig-2.7.0
 patch -R Makefile.am <../../libavg/mac/fontconfig-disablecache.patch
 patch fontconfig.pc.in < ../../libavg/mac/fontconfig.pc.in.patch
 cd ..
-cd glib-2.21.3/glib
+cd glib-2.29.2/glib
 patch -R gconvert.c < ../../../libavg/mac/glib.patch
 cd ../..
 cd ffmpeg/libswscale
