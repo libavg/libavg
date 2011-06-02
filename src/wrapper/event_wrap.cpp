@@ -24,6 +24,7 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
+#include "../player/Contact.h"
 #include "../player/VisibleNode.h"
 #include "../player/TrackerInputDevice.h"
 
@@ -101,6 +102,7 @@ void export_event()
         .add_property("y", &CursorEvent::getYPosition)
         .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
         .add_property("node", &CursorEvent::getElement)
+        .add_property("contact", &CursorEvent::getContact)
     ;
 
     enum_<Event::Type>("Type")
@@ -193,7 +195,11 @@ void export_event()
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
         .def("getContour", &TouchEvent::getContour)
         ;
-   
+
+    class_<Contact, boost::shared_ptr<Contact> >("Contact", no_init)
+        .add_property("id", &Contact::getID)
+        ;
+
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
         .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)

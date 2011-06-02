@@ -49,6 +49,8 @@ public:
     CursorEventPtr pollEvent();
     CursorEventPtr getLastEvent();
 
+    int getID() const;
+
 private:
     std::vector<CursorEventPtr> m_pEvents;
     std::vector<CursorEventPtr> m_pNewEvents;

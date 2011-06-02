@@ -22,7 +22,12 @@
 #include "Contact.h"
 
 #include "../base/Exception.h"
+
 #include "CursorEvent.h"
+
+#include <iostream>
+
+using namespace std;
 
 namespace avg {
 
@@ -39,6 +44,7 @@ Contact::~Contact()
 void Contact::setThis(ContactWeakPtr This)
 {
     m_This = This;
+    m_pNewEvents[0]->setContact(getThis());
 }
 
 ContactPtr Contact::getThis() const
@@ -90,6 +96,11 @@ CursorEventPtr Contact::getLastEvent()
     } else {
         return m_pNewEvents.back();
     }
+}
+
+int Contact::getID() const
+{
+    return m_CursorID;
 }
 
 }

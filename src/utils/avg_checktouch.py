@@ -30,7 +30,11 @@ class TouchApp(AVGApp):
     multitouch = True
 
     def init(self):
-        pass
+        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, 
+                self.__onDown)
+
+    def __onDown(self, event):
+        print event.cursorid, event.contact.id
 
 TouchApp.start(resolution=(800,600))
 

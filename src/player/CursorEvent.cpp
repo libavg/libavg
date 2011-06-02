@@ -28,6 +28,10 @@
 
 #include "../base/Exception.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
