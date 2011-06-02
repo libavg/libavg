@@ -36,10 +36,21 @@ Contact::~Contact()
 {
 }
 
+void Contact::setThis(ContactWeakPtr This)
+{
+    m_This = This;
+}
+
+ContactPtr Contact::getThis() const
+{
+    return m_This.lock();
+}
+
 void Contact::pushEvent(CursorEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
+    pEvent->setContact(getThis());
     if (m_pEvents.empty()) {
         // This is the first frame. Ignore unless cursorup.
         if (pEvent->getType() == Event::CURSORUP) {
@@ -58,7 +69,6 @@ void Contact::pushEvent(CursorEventPtr pEvent)
         }
     }
 }
-
 
 CursorEventPtr Contact::pollEvent()
 {

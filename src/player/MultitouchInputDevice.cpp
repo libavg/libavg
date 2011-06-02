@@ -99,6 +99,7 @@ ContactPtr MultitouchInputDevice::getContact(int id)
 void MultitouchInputDevice::addContact(int id, TouchEventPtr pInitialEvent)
 {
     ContactPtr pContact(new Contact(pInitialEvent));
+    pContact->setThis(pContact);
     m_Touches[id] = pContact;
 }
     

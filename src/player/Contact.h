@@ -24,17 +24,26 @@
 
 #include "CursorEvent.h"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 #include <vector>
 
 namespace avg {
 
 class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
+typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
 class Contact {
 public:
     Contact(CursorEventPtr pEvent);
     virtual ~Contact();
+
+    void setThis(ContactWeakPtr This);
+    ContactPtr getThis() const;
 
     void pushEvent(CursorEventPtr pEvent);
     CursorEventPtr pollEvent();
@@ -44,10 +53,10 @@ private:
     std::vector<CursorEventPtr> m_pEvents;
     std::vector<CursorEventPtr> m_pNewEvents;
 
+    ContactWeakPtr m_This;    
+
     int m_CursorID;
 };
-
-typedef boost::shared_ptr<class Contact> ContactPtr;
 
 }
 

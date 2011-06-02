@@ -24,6 +24,7 @@
 #include "CursorEvent.h"
 
 #include "VisibleNode.h"
+#include "Contact.h"
 
 #include "../base/Exception.h"
 
@@ -70,6 +71,16 @@ void CursorEvent::setCursorID(int id)
 int CursorEvent::getCursorID() const
 {
     return m_ID;
+}
+        
+void CursorEvent::setContact(ContactPtr pContact)
+{
+    m_pContact = pContact;
+}
+
+ContactPtr CursorEvent::getContact() const
+{
+    return m_pContact.lock();
 }
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
