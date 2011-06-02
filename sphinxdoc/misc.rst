@@ -132,14 +132,14 @@ Misc. Classes
 
     .. autoclass:: BitmapManager
 
-        Singleton class that allow an asynchronous load of bitmaps. The only instance
-        is accessed by :py:meth:`get`.
+        (EXPERIMENTAL) Singleton class that allow an asynchronous load of bitmaps.
+        The instance is accessed by :py:meth:`get`.
 
         .. py:method:: loadBitmap(fileName, callback)
         
             Asynchronously loads a file into a Bitmap. The provided callback is invoked
             with a Bitmap instance as argument in case of a successful load or with a
-            RuntimeError exception in case of failure.
+            RuntimeError exception instance in case of failure.
 
         .. py:classmethod:: get() -> BitmapManager
 
