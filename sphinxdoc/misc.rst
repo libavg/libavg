@@ -130,6 +130,21 @@ Misc. Classes
             test images with the intended results (along with :py:meth:`getAvg` and
             :py:meth:`getStdDev`).
 
+    .. autoclass:: BitmapManager
+
+        Singleton class that allow an asynchronous load of bitmaps. The only instance
+        is accessed by :py:meth:`get`.
+
+        .. py:method:: loadBitmap(fileName, callback)
+        
+            Asynchronously loads a file into a Bitmap. The provided callback is invoked
+            with a Bitmap instance as argument in case of a successful load or with a
+            RuntimeError exception in case of failure.
+
+        .. py:classmethod:: get() -> BitmapManager
+
+            This method gives access to the BitmapManager instance.
+
     .. autoclass:: ConradRelais(AVGPlayer, port)
 
         Interface to one or more conrad relais cards connected to a serial port.

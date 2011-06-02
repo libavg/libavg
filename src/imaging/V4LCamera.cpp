@@ -205,19 +205,18 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     unsigned char * pCaptureBuffer = (unsigned char*)m_vBuffers[buf.index].start;
    
-    IntPoint size = getImgSize();
     double lineLen;
     switch (getCamPF()) {
         case YCbCr411:
-            lineLen = size.x*1.5;
+            lineLen = m_ImgSize.x*1.5;
             break;
         case YCbCr420p:
-            lineLen = size.x;
+            lineLen = m_ImgSize.x;
             break;
         default:
-            lineLen = size.x*Bitmap::getBytesPerPixel(getCamPF());
+            lineLen = m_ImgSize.x*Bitmap::getBytesPerPixel(getCamPF());
     }
-    BitmapPtr pCamBmp(new Bitmap(size, getCamPF(), pCaptureBuffer, lineLen,
+    BitmapPtr pCamBmp(new Bitmap(m_ImgSize, getCamPF(), pCaptureBuffer, lineLen,
             false, "TempCameraBmp"));
 
     BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
@@ -468,12 +467,13 @@ void V4LCamera::initDevice()
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = getImgSize().x; 
-    fmt.fmt.pix.height = getImgSize().y;
+    fmt.fmt.pix.width = m_ImgSize.x; 
+    fmt.fmt.pix.height = m_ImgSize.y;
     fmt.fmt.pix.pixelformat = m_v4lPF;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
-
-    if (xioctl(m_Fd, VIDIOC_S_FMT, &fmt) == -1) {
+    int rc = xioctl(m_Fd, VIDIOC_S_FMT, &fmt);
+    if (fmt.fmt.pix.width != m_ImgSize.x || fmt.fmt.pix.height != m_ImgSize.y || rc == -1)
+    {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)

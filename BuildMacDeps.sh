@@ -22,7 +22,7 @@ buildLib()
     cd ${LIBNAME}
     ./configure --prefix=${AVG_PATH} ${CONFIG_ARGS}
     make clean
-    make -j3
+    make -j5
     make install
     cd ..
 }
@@ -34,7 +34,7 @@ buildlibjpeg()
     cp ${AVG_PATH}/share/libtool/config/config.guess .
     ./configure --prefix=${AVG_PATH}
     make clean
-    make -j3
+    make -j5
     make install-lib
     make install-headers
     ranlib ../../lib/libjpeg.a
@@ -46,17 +46,17 @@ buildlibpng()
     cd libpng-1.2.41
     ./configure --prefix=${AVG_PATH} --disable-shared
     make clean
-    make -j3
+    make -j5
     make install
     cd ..
 }
 
 buildglib()
 {
-    cd glib-2.21.3
+    cd glib-2.29.2
     LDFLAGS="-framework ApplicationServices $LDFLAGS -lresolv" ./configure  --prefix=${AVG_PATH} --disable-shared --enable-static 
     make clean
-    make -j3
+    make -j5
     make install
     cd ..
 }
@@ -67,7 +67,7 @@ buildfontconfig()
     automake
     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cache-dir=~/.fontconfig
     make clean
-    make -j3
+    make -j5
     sudo make install
     sudo chown -R `whoami` ~/.fontconfig
     cd ..    
@@ -76,8 +76,7 @@ buildfontconfig()
 buildboost()
 {
     cd boost_1_41_0
-    # Filesystem and system libraries needed only for ColladaDOM.
-    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,filesystem,system 
+    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread
     ./bjam clean
     ./bjam install
     cd ..
@@ -122,14 +121,16 @@ else
 fi
 
 buildLib SDL-1.2.14 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
-buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
+buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
-buildLib freetype-2.3.9 "--disable-shared --with-old-mac-fonts"
+buildLib freetype-2.4.4 "--disable-shared --with-old-mac-fonts"
 buildLib expat-2.0.0 --disable-shared
 
 buildfontconfig
 
+buildLib pixman-0.22.0 --disable-shared
+buildLib cairo-1.10.2 "--disable-shared --enable-xlib=no --enable-xlib-xrender=no --enable-quartz=no --enable-quartz-font=no --enable-quartz-image=no --enable-ps=no --enable-pdf=no --enable-svg=no"
 buildLib pango-1.24.4 "--disable-shared --without-x --with-included-modules=yes"
 buildboost
 

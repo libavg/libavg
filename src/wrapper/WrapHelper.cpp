@@ -132,6 +132,16 @@ struct Point_to_python_tuple
     }
 };
 
+struct Exception_to_python_exception
+{
+    static PyObject* convert (avg::Exception ex)
+    {
+        PyObject *arglist = boost::python::incref(Py_BuildValue("(s)", ex.GetStr().c_str()));
+        
+        return boost::python::incref(
+                PyObject_CallObject(PyExc_RuntimeError, arglist));
+    }
+};
 
 template<class NUM>
 struct Triple_to_python_tuple
@@ -300,6 +310,7 @@ void export_base()
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
 #endif
+    to_python_converter<Exception, Exception_to_python_exception>();
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     to_python_converter<DTriple, Triple_to_python_tuple<double> >();
     point_from_python<DPoint, double>();

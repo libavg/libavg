@@ -122,6 +122,18 @@ class PlayerTestCase(AVGTestCase):
                   lambda: Player.showCursor(1),
                  ))
 
+    def testTime(self):
+        def printTime():
+            print Player.getFrameTime(), Player.getFrameDuration(), Player.getEffectiveFramerate()
+
+        self.loadEmptyScene()
+        Player.setFakeFPS(20)
+        self.start(None,
+                (printTime,
+                 printTime,
+                 printTime,
+                 printTime))
+
     def testDivResize(self):
         def checkSize (w, h):
             self.assert_(node.width == w)
@@ -599,6 +611,7 @@ def playerTestSuite(tests):
     availableTests = (
             "testPoint",
             "testBasics",
+#            "testTime",
             "testDivResize",
             "testRotate",
             "testRotate2",

@@ -63,6 +63,7 @@ public:
     virtual double getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
+    bool hasFeature(CameraFeature feature);
     virtual void setFeature(CameraFeature feature, int value, bool bIgnoreOldValue=false);
     virtual void setFeatureOneShot(CameraFeature feature);
     virtual int getWhitebalanceU() const;
