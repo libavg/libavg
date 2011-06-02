@@ -114,8 +114,8 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
 //                        cerr << "up " << pTouch->id << endl;
                         if (pContact) {
 //                            cerr << "  --> remove" << endl;
-                            TouchEventPtr pOldEvent = pContact->getLastEvent();
-                            TouchEventPtr pUpEvent =
+                            CursorEventPtr pOldEvent = pContact->getLastEvent();
+                            CursorEventPtr pUpEvent =
                                     boost::dynamic_pointer_cast<TouchEvent>(
                                     pOldEvent->cloneAs(Event::CURSORUP));
                             pContact->pushEvent(pUpEvent);

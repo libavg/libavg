@@ -60,7 +60,7 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     for (it = m_Touches.begin(); it != m_Touches.end(); ) {
 //        cerr << it->first << " ";
         ContactPtr pContact = it->second;
-        TouchEventPtr pEvent = pContact->pollEvent();
+        CursorEventPtr pEvent = pContact->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {

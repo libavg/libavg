@@ -21,9 +21,12 @@
 
 #include "Contact.h"
 
+#include "../base/Exception.h"
+#include "CursorEvent.h"
+
 namespace avg {
 
-Contact::Contact(TouchEventPtr pEvent)
+Contact::Contact(CursorEventPtr pEvent)
     : m_CursorID(pEvent->getCursorID())
 {
     m_pNewEvents.push_back(pEvent);
@@ -33,7 +36,7 @@ Contact::~Contact()
 {
 }
 
-void Contact::pushEvent(TouchEventPtr pEvent)
+void Contact::pushEvent(CursorEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
@@ -57,19 +60,19 @@ void Contact::pushEvent(TouchEventPtr pEvent)
 }
 
 
-TouchEventPtr Contact::pollEvent()
+CursorEventPtr Contact::pollEvent()
 {
     if (m_pNewEvents.empty()) {
-        return TouchEventPtr();
+        return CursorEventPtr();
     } else {
-        TouchEventPtr pEvent = m_pNewEvents[0];
+        CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
         m_pEvents.push_back(pEvent);
         return pEvent;
     }
 }
 
-TouchEventPtr Contact::getLastEvent()
+CursorEventPtr Contact::getLastEvent()
 {
     if (m_pNewEvents.empty()) {
         AVG_ASSERT(!m_pEvents.empty());

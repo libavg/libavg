@@ -22,24 +22,27 @@
 #ifndef _Contact_H_
 #define _Contact_H_
 
-#include "TouchEvent.h"
+#include "CursorEvent.h"
 
 #include <vector>
 
 namespace avg {
 
+class CursorEvent;
+typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
+
 class Contact {
 public:
-    Contact(TouchEventPtr pEvent);
+    Contact(CursorEventPtr pEvent);
     virtual ~Contact();
 
-    void pushEvent(TouchEventPtr pEvent);
-    TouchEventPtr pollEvent();
-    TouchEventPtr getLastEvent();
+    void pushEvent(CursorEventPtr pEvent);
+    CursorEventPtr pollEvent();
+    CursorEventPtr getLastEvent();
 
 private:
-    std::vector<TouchEventPtr> m_pEvents;
-    std::vector<TouchEventPtr> m_pNewEvents;
+    std::vector<CursorEventPtr> m_pEvents;
+    std::vector<CursorEventPtr> m_pNewEvents;
 
     int m_CursorID;
 };

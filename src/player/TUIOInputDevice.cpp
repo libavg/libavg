@@ -194,8 +194,8 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
     for (it = deadTUIOIDs.begin(); it != deadTUIOIDs.end(); ++it) {
         int id = *it;
         ContactPtr pContact = getContact(id);
-        TouchEventPtr pOldEvent = pContact->getLastEvent();
-        TouchEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
+        CursorEventPtr pOldEvent = pContact->getLastEvent();
+        CursorEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
                 pOldEvent->cloneAs(Event::CURSORUP));
         pContact->pushEvent(pUpEvent);
     }
