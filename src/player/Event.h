@@ -56,8 +56,6 @@ class AVG_API Event {
         Event(const Event& e);
         virtual ~Event();
         
-        virtual void trace();
-
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
@@ -65,17 +63,16 @@ class AVG_API Event {
         void setInputDevice(boost::shared_ptr<IInputDevice> pInputDevice);
         bool hasInputDevice() const;
         const std::string& getInputDeviceName() const;
-        VisibleNodePtr getElement() const;
-        void setElement(VisibleNodePtr pNode);
         
         std::string typeStr() const;
         static std::string typeStr(Event::Type type);
+
+        virtual void trace();
 
         friend struct isEventAfter;
         
     protected:
         Type m_Type;
-        VisibleNodePtr m_pNode;
         long long m_When;
 
     private:

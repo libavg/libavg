@@ -38,7 +38,6 @@ int Event::s_CurCounter = 0;
 
 Event::Event(Type type, Source source, int when)
     : m_Type(type),
-      m_pNode(),
       m_Source(source),
       m_pInputDevice()
 {
@@ -99,11 +98,6 @@ const std::string& Event::getInputDeviceName() const
     return m_pInputDevice->getName();
 }
 
-void Event::setElement(VisibleNodePtr pNode)
-{
-    m_pNode = pNode;
-}
-
 string Event::typeStr() const
 {
     return typeStr(m_Type);
@@ -138,19 +132,10 @@ string Event::typeStr(Event::Type type)
         
 }
 
-VisibleNodePtr Event::getElement() const
-{
-    return m_pNode;
-}
-
 void Event::trace()
 {
     string sType = typeStr();
-    if (!m_pNode) {
-        AVG_TRACE(Logger::EVENTS, sType); 
-    } else {
-        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
-    }
+    AVG_TRACE(Logger::EVENTS, sType); 
 }
 
 }

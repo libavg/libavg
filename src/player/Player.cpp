@@ -956,7 +956,7 @@ bool Player::handleEvent(EventPtr pEvent)
                 pEvent->getType() == Event::CURSOROVER)
         {
             pEvent->trace();
-            pEvent->getElement()->handleEvent(pEvent);
+            pCursorEvent->getNode()->handleEvent(pEvent);
         } else {
             handleCursorEvent(pCursorEvent);
         }
@@ -1353,8 +1353,8 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
         VisibleNodePtr pNode)
 {
     if (pNode) {
-        EventPtr pNewEvent = pOtherEvent->cloneAs(type);
-        pNewEvent->setElement(pNode);
+        CursorEventPtr pNewEvent = pOtherEvent->cloneAs(type);
+        pNewEvent->setNode(pNode);
         m_pEventDispatcher->sendEvent(pNewEvent);
     }
 }
@@ -1368,7 +1368,7 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
     ContactPtr pContact = pEvent->getContact();
     if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
         VisibleNodePtr pNode = pCursorNodes.begin()->lock();
-        pEvent->setElement(pNode);
+        pEvent->setNode(pNode);
         pContact->sendEventToListeners(pEvent);
     } else {
         int cursorID = pEvent->getCursorID();
@@ -1439,7 +1439,7 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
                 if (pNode) {
                     CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                             pEvent->cloneAs(pEvent->getType()));
-                    pNodeEvent->setElement(pNode);
+                    pNodeEvent->setNode(pNode);
                     if (pNodeEvent->getType() != Event::CURSORMOTION) {
                         pNodeEvent->trace();
                     }

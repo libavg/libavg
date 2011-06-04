@@ -27,6 +27,7 @@
 #include "Contact.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
 
 #include <iostream>
 
@@ -76,6 +77,16 @@ int CursorEvent::getCursorID() const
 {
     return m_ID;
 }
+
+void CursorEvent::setNode(VisibleNodePtr pNode)
+{
+    m_pNode = pNode;
+}
+
+VisibleNodePtr CursorEvent::getNode() const
+{
+    return m_pNode;
+}
         
 void CursorEvent::setContact(ContactPtr pContact)
 {
@@ -90,6 +101,16 @@ ContactPtr CursorEvent::getContact() const
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
     return (event1.m_Position == event2.m_Position && event1.m_When == event2.m_When); 
+}
+
+void CursorEvent::trace()
+{
+    string sType = typeStr();
+    if (!m_pNode) {
+        AVG_TRACE(Logger::EVENTS, sType); 
+    } else {
+        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
+    }
 }
 
 }

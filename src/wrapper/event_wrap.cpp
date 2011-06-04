@@ -95,13 +95,13 @@ void export_event()
     ;
 
     class_<CursorEvent, bases<Event> >("CursorEvent",
-                                       init<int, Event::Type, const IntPoint&, Event::Source>())
+            init<int, Event::Type, const IntPoint&, Event::Source>())
         .add_property("source", &CursorEvent::getSource)
         .add_property("pos", &CursorEvent::getPos)
         .add_property("x", &CursorEvent::getXPosition)
         .add_property("y", &CursorEvent::getYPosition)
         .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
-        .add_property("node", &CursorEvent::getElement)
+        .add_property("node", &CursorEvent::getNode)
         .add_property("contact", &CursorEvent::getContact)
     ;
 
@@ -168,7 +168,7 @@ void export_event()
         .add_property("y", &MouseEvent::getYPosition)
         .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
-        .add_property("node", &MouseEvent::getElement)
+        .add_property("node", &MouseEvent::getNode)
         .add_property("speed", make_function(&MouseEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
     ;
@@ -182,7 +182,7 @@ void export_event()
         .add_property("x", &TouchEvent::getXPosition)
         .add_property("y", &TouchEvent::getYPosition)
         .add_property("cursorid", &TouchEvent::getCursorID)
-        .add_property("node", &TouchEvent::getElement)
+        .add_property("node", &TouchEvent::getNode)
         .add_property("center", make_function(&TouchEvent::getCenter,
                 return_value_policy<copy_const_reference>()))
         .add_property("majoraxis", make_function(&TouchEvent::getMajorAxis,

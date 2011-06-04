@@ -54,16 +54,20 @@ class AVG_API CursorEvent: public Event
         int getYPosition() const;
         void setCursorID(int id);
         int getCursorID() const;
+        void setNode(VisibleNodePtr pNode);
+        VisibleNodePtr getNode() const;
 
         void setContact(ContactPtr pContact);
         ContactPtr getContact() const;
 
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
+        virtual void trace();
 
     protected:
         IntPoint m_Position;
         int m_ID;
         ContactPtr m_pContact;
+        VisibleNodePtr m_pNode;
 };
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
