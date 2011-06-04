@@ -23,8 +23,10 @@
 
 #include "CursorEvent.h"
 #include "BoostPython.h"
+#include "Player.h"
 
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
 
 #include <iostream>
 
@@ -46,10 +48,23 @@ Contact::~Contact()
 {
 }
 
+void Contact::disconnectEverything()
+{
+    for (int i = 0; i < m_pListeners.size(); ++i) {
+        Py_DECREF(m_pListeners[i]);
+    }
+    m_pListeners.clear();
+    m_pNewEvents.clear();
+    m_pFirstEvent = CursorEventPtr();
+    m_pLastEvent = CursorEventPtr();
+    Player::get()->deregisterContact(getThis());
+}
+
 void Contact::setThis(ContactWeakPtr This)
 {
     m_This = This;
     m_pNewEvents[0]->setContact(getThis());
+    Player::get()->registerContact(getThis());
 }
 
 ContactPtr Contact::getThis() const
@@ -59,6 +74,11 @@ ContactPtr Contact::getThis() const
     
 void Contact::connectListener(PyObject* pListener)
 {
+    if (Player::get()->isCaptured(m_CursorID)) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE, 
+                "Attempted to connect listener to cursor id " + toString(m_CursorID) +
+                ", but the cursor was already captured.");
+    }
     Py_INCREF(pListener);
     m_pListeners.push_back(pListener);
 }
@@ -174,26 +194,11 @@ void Contact::sendEventToListeners(CursorEventPtr pEvent)
                 boost::dynamic_pointer_cast<Event>(pEvent));
         pEvent->setNode(VisibleNodePtr());
     }
-    if (pEvent->getType() == Event::CURSORUP) {
-        // Last event that this contact will ever receive.
-        disconnectEverything();
-    }
 }
 
 int Contact::getID() const
 {
     return m_CursorID;
-}
-
-void Contact::disconnectEverything()
-{
-    for (int i = 0; i < m_pListeners.size(); ++i) {
-        Py_DECREF(m_pListeners[i]);
-    }
-    m_pListeners.clear();
-    m_pNewEvents.clear();
-    m_pFirstEvent = CursorEventPtr();
-    m_pLastEvent = CursorEventPtr();
 }
 
 void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2)

@@ -131,9 +131,12 @@ class AVG_API Player
         bool isMultitouchAvailable() const;
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
+        bool isCaptured(int cursorID);
         EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
+        void registerContact(ContactPtr pContact);
+        void deregisterContact(ContactPtr pContact);
 
         BitmapPtr screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
@@ -264,8 +267,10 @@ class AVG_API Player
 
         MouseState m_MouseState;
 
-        // This is a map for each cursor id.
+        // The indexes of these maps are cursorids.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
+        std::map<int, ContactPtr> m_pContacts;
+
         PyObject * m_EventHookPyFunc;
 };
 

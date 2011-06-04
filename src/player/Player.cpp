@@ -697,6 +697,12 @@ bool Player::isMultitouchAvailable() const
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
+    std::map<int, ContactPtr>::iterator itContact = m_pContacts.find(cursorID);
+    if (itContact != m_pContacts.end() && (*itContact).second->hasListeners()) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for cursor "
+                + toString(cursorID) + ", but contact has a listener.");
+    }
+
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
@@ -728,6 +734,13 @@ void Player::releaseEventCapture(int cursorID)
             m_EventCaptureInfoMap.erase(cursorID);
         }
     }
+}
+
+bool Player::isCaptured(int cursorID)
+{
+    std::map<int, EventCaptureInfoPtr>::iterator it =
+            m_EventCaptureInfoMap.find(cursorID);
+    return (it != m_EventCaptureInfoMap.end());
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -793,6 +806,20 @@ void Player::setMousePos(const IntPoint& pos)
 int Player::getKeyModifierState() const
 {
     return m_pDisplayEngine->getKeyModifierState();
+}
+
+void Player::registerContact(ContactPtr pContact)
+{
+    int id = pContact->getID();
+    AVG_ASSERT(m_pContacts.find(id) == m_pContacts.end());
+    m_pContacts[id] = pContact;
+}
+
+void Player::deregisterContact(ContactPtr pContact)
+{
+    map<int, ContactPtr>::iterator it;
+    int rc = m_pContacts.erase(pContact->getID());
+    AVG_ASSERT(rc == 1);
 }
 
 BitmapPtr Player::screenshot()
@@ -1476,6 +1503,9 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
             }
         }
     }
+    if (pContact && pEvent->getType() == Event::CURSORUP && !bOnlyCheckCursorOver) {
+        pContact->disconnectEverything();
+    }
 }
 
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
@@ -1594,6 +1624,7 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     m_EventCaptureInfoMap.clear();
     m_pLastCursorStates.clear();
+    m_pContacts.clear();
     ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());

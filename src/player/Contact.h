@@ -44,6 +44,7 @@ class Contact {
 public:
     Contact(CursorEventPtr pEvent);
     virtual ~Contact();
+    void disconnectEverything();
 
     void setThis(ContactWeakPtr This);
     ContactPtr getThis() const;
@@ -66,7 +67,6 @@ public:
     int getID() const;
 
 private:
-    void disconnectEverything();
     void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);
 
     CursorEventPtr m_pFirstEvent;
