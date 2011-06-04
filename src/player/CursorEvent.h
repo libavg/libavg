@@ -56,6 +56,7 @@ class AVG_API CursorEvent: public Event
         int getCursorID() const;
         void setNode(VisibleNodePtr pNode);
         VisibleNodePtr getNode() const;
+        virtual const DPoint& getSpeed() const {};
 
         void setContact(ContactPtr pContact);
         ContactPtr getContact() const;

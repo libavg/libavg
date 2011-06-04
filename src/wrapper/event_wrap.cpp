@@ -102,6 +102,8 @@ void export_event()
         .add_property("y", &CursorEvent::getYPosition)
         .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
         .add_property("node", &CursorEvent::getNode)
+        .add_property("speed", make_function(&CursorEvent::getSpeed,
+                return_value_policy<copy_const_reference>()))
         .add_property("contact", &CursorEvent::getContact)
     ;
 
@@ -159,37 +161,21 @@ void export_event()
     ;    
     
     class_<MouseEvent, bases<CursorEvent> >("MouseEvent", no_init)
-        .add_property("source", &MouseEvent::getSource)
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
-        .add_property("pos", &MouseEvent::getPos)
-        .add_property("x", &MouseEvent::getXPosition)
-        .add_property("y", &MouseEvent::getYPosition)
-        .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
-        .add_property("node", &MouseEvent::getNode)
-        .add_property("speed", make_function(&MouseEvent::getSpeed,
-                return_value_policy<copy_const_reference>()))
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", no_init)
-        .add_property("source", &TouchEvent::getSource)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("eccentricity", &TouchEvent::getEccentricity)
-        .add_property("pos", &TouchEvent::getPos)
-        .add_property("x", &TouchEvent::getXPosition)
-        .add_property("y", &TouchEvent::getYPosition)
-        .add_property("cursorid", &TouchEvent::getCursorID)
-        .add_property("node", &TouchEvent::getNode)
         .add_property("center", make_function(&TouchEvent::getCenter,
                 return_value_policy<copy_const_reference>()))
         .add_property("majoraxis", make_function(&TouchEvent::getMajorAxis,
                 return_value_policy<copy_const_reference>()))
         .add_property("minoraxis", make_function(&TouchEvent::getMinorAxis,
-                return_value_policy<copy_const_reference>()))
-        .add_property("speed", make_function(&TouchEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
         .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
