@@ -23,7 +23,6 @@
 #define _MouseState_h_
 
 #include "../api.h"
-#include "VisibleNode.h"
 
 #include <boost/shared_ptr.hpp>
 

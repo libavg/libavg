@@ -23,7 +23,6 @@
 #define _CursorState_H_
 
 #include "../api.h"
-#include "VisibleNode.h"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
