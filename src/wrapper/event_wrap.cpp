@@ -198,6 +198,8 @@ void export_event()
 
     class_<Contact, boost::shared_ptr<Contact> >("Contact", no_init)
         .add_property("id", &Contact::getID)
+        .def("connectListener", &Contact::connectListener)
+        .def("disconnectListener", &Contact::disconnectListener)
         ;
 
     enum_<TrackerImageID>("TrackerImageID")

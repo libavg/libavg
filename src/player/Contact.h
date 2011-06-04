@@ -27,6 +27,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+// Python docs say python.h should be included before any standard headers (!)
+#include "WrapPython.h"
+
 #include <vector>
 
 namespace avg {
@@ -45,18 +48,26 @@ public:
     void setThis(ContactWeakPtr This);
     ContactPtr getThis() const;
 
+    void connectListener(PyObject* pListener);
+    void disconnectListener(PyObject* pListener);
+
     void pushEvent(CursorEventPtr pEvent);
     CursorEventPtr pollEvent();
     CursorEventPtr getLastEvent();
+    bool hasListeners() const;
+    void sendEventToListeners(CursorEventPtr pEvent);
 
     int getID() const;
 
 private:
+    void disconnectAllListeners();
+
     std::vector<CursorEventPtr> m_pEvents;
     std::vector<CursorEventPtr> m_pNewEvents;
 
     ContactWeakPtr m_This;    
 
+    std::vector<PyObject*> m_pListeners;
     int m_CursorID;
 };
 

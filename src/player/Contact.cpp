@@ -21,9 +21,10 @@
 
 #include "Contact.h"
 
-#include "../base/Exception.h"
-
 #include "CursorEvent.h"
+#include "BoostPython.h"
+
+#include "../base/Exception.h"
 
 #include <iostream>
 
@@ -50,6 +51,31 @@ void Contact::setThis(ContactWeakPtr This)
 ContactPtr Contact::getThis() const
 {
     return m_This.lock();
+}
+    
+void Contact::connectListener(PyObject* pListener)
+{
+    Py_INCREF(pListener);
+    m_pListeners.push_back(pListener);
+}
+
+void Contact::disconnectListener(PyObject* pListener)
+{
+    bool bFound = false;
+    vector<PyObject*>::iterator it = m_pListeners.begin();
+    while (it != m_pListeners.end() && !bFound) {
+        if (PyObject_RichCompareBool(*it, pListener, Py_EQ)) {
+            Py_DECREF(*it);
+            it = m_pListeners.erase(it);
+            bFound = true;
+        } else {
+            it++;
+        }
+    }
+    if (!bFound) {
+        throw Exception(AVG_ERR_INVALID_ARGS, 
+                "Contact.disconnectListener: Not connected.");
+    }
 }
 
 void Contact::pushEvent(CursorEventPtr pEvent)
@@ -84,6 +110,10 @@ CursorEventPtr Contact::pollEvent()
         CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
         m_pEvents.push_back(pEvent);
+        if (pEvent->getType() == Event::CURSORUP) {
+            // Last event that this contact will ever receive.
+            disconnectAllListeners();
+        }
         return pEvent;
     }
 }
@@ -98,9 +128,30 @@ CursorEventPtr Contact::getLastEvent()
     }
 }
 
+bool Contact::hasListeners() const
+{
+    return !m_pListeners.empty();
+}
+
+void Contact::sendEventToListeners(CursorEventPtr pEvent)
+{
+    for (int i = 0; i < m_pListeners.size(); ++i) {
+        boost::python::call<void>(m_pListeners[i], 
+                boost::dynamic_pointer_cast<Event>(pEvent));
+    }
+}
+
 int Contact::getID() const
 {
     return m_CursorID;
+}
+
+void Contact::disconnectAllListeners()
+{
+    for (int i = 0; i < m_pListeners.size(); ++i) {
+        Py_DECREF(m_pListeners[i]);
+    }
+    m_pListeners.clear();
 }
 
 }

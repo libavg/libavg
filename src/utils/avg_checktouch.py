@@ -19,8 +19,6 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is Robert Parcus <betoparcus@gmail.com>
-#
 
 from libavg import *
 
@@ -35,6 +33,10 @@ class TouchApp(AVGApp):
 
     def __onDown(self, event):
         print event.cursorid, event.contact.id
+        event.contact.connectListener(self.__onContact)
+
+    def __onContact(self, event):
+        print "contact!"
 
 TouchApp.start(resolution=(800,600))
 

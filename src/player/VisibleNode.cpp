@@ -366,8 +366,7 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
         /// connect and disconnect event handlers.
         EventHandlerArray eventHandlers = *(it->second);
         EventHandlerArray::iterator listIt;
-        for (listIt = eventHandlers.begin(); listIt != eventHandlers.end(); ++listIt)
-        {
+        for (listIt = eventHandlers.begin(); listIt != eventHandlers.end(); ++listIt) {
             bHandled = callPython(listIt->m_pMethod, pEvent);
         }
         return bHandled;

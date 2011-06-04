@@ -43,6 +43,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace avg {
 
@@ -57,6 +58,7 @@ class MultitouchInputDevice;
 class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
+class Contact;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -65,7 +67,7 @@ typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
-
+typedef boost::shared_ptr<class Contact> ContactPtr;
 
 class AVG_API Player
 {
@@ -127,10 +129,10 @@ class AVG_API Player
         bool isMultitouchAvailable() const;
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
-
         EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
+
         BitmapPtr screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
@@ -171,7 +173,8 @@ class AVG_API Player
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
         bool handleEvent(EventPtr pEvent);
-        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
+        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent,
+                bool bOnlyCheckCursorOver=false);
         
     private:
         void initConfig();
@@ -256,10 +259,10 @@ class AVG_API Player
         typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;
         
         std::map<int, EventCaptureInfoPtr> m_EventCaptureInfoMap;
-        
+
         MouseState m_MouseState;
 
-        // These are maps for each cursor id.
+        // This is a map for each cursor id.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
         PyObject * m_EventHookPyFunc;
 };
