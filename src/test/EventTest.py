@@ -327,17 +327,14 @@ class EventTestCase(AVGTestCase):
         resetDownCalled()
         self.start(None, 
                 (connectTwoHandlers,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
+                 lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.down1Called and self.down2Called),
                  resetDownCalled,
                  lambda: self.img.disconnectEventHandler(self, onDown1),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
+                 lambda: self.fakeClick(10,10),
                  lambda: self.assert_(not(self.down1Called) and self.down2Called),
                  connectUnlinkHandler,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1)
+                 lambda: self.fakeClick(10,10),
                 ))
 
     def testObscuringEvents(self):
@@ -490,6 +487,8 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.mouseDownCalled and 
                         self.mainMouseDownCalled),
                  releaseTooMuch,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        100, 10, 1),
                 ))
         self.img = None
 
@@ -556,7 +555,8 @@ class EventTestCase(AVGTestCase):
                         not(self.img2MouseOutCalled) and 
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
-
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        70, 70, 1),
                  resetState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 10, 1),
@@ -567,6 +567,8 @@ class EventTestCase(AVGTestCase):
                         self.img2MouseOutCalled and 
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        70, 10, 1),
                  
                  resetState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -591,6 +593,8 @@ class EventTestCase(AVGTestCase):
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
 
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
                  resetState,
                  lambda: Player.getElementByID("img2").setEventCapture(),
                  lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
@@ -603,6 +607,8 @@ class EventTestCase(AVGTestCase):
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
 
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        70, 70, 1),
                  resetState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
                         10, 10, 1),
@@ -636,7 +642,8 @@ class EventTestCase(AVGTestCase):
         def eventHandler(event):
             self.hasEventHandlerBeenCalled = True
             self.isCustomInputDeviceSet = event.inputdevice == self.customInputDevice
-            self.isCustomInputDeviceNameSet = event.inputdevicename == self.customInputDevice.name
+            self.isCustomInputDeviceNameSet = (event.inputdevicename == 
+                    self.customInputDevice.name)
         
         def checkResults():
             if not self.hasEventHandlerBeenCalled: return False
@@ -667,7 +674,8 @@ class EventTestCase(AVGTestCase):
         self.hasEventHandlerBeenCalled = False
                 
         def eventHandler(event):
-            self.hasEventHandlerBeenCalled = event.inputdevicename == AnonymousInputDevice.NAME
+            self.hasEventHandlerBeenCalled = (event.inputdevicename ==
+                    AnonymousInputDevice.NAME)
             
         def checkResults():
             if not self.hasEventHandlerBeenCalled: return False
@@ -705,17 +713,15 @@ class EventTestCase(AVGTestCase):
 
         Player.setEventHook(handleEvent)
         self.start(None,
-                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
-                        False, False, False, 10, 10, 0),
-                lambda: self.assert_(self.ehookMouseEvent),
-                lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
-                lambda: self.assert_(self.ehookKeyboardEvent),
-                cleanup,
-                lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
-                        False, False, False, 10, 10, 0),
-                lambda: self.assert_(not self.ehookMouseEvent),
-                lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
-                lambda: self.assert_(not self.ehookKeyboardEvent),
+                (lambda: self.fakeClick(10, 10),
+                 lambda: self.assert_(self.ehookMouseEvent),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
+                 lambda: self.assert_(self.ehookKeyboardEvent),
+                 cleanup,
+                 lambda: self.fakeClick(10, 10),
+                 lambda: self.assert_(not self.ehookMouseEvent),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
+                 lambda: self.assert_(not self.ehookKeyboardEvent),
             ))
         
     def testException(self):
@@ -758,8 +764,8 @@ def eventTestSuite(tests):
             "testMouseOver",
             "testEventErr",
             "testCustomInputDevice",
-            "testAnonymousInputDevice",
             "testEventHook",
+            "testAnonymousInputDevice",
             "testException"
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)

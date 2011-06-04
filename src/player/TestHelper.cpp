@@ -48,6 +48,11 @@ TestHelper::~TestHelper()
 {
 }
 
+void TestHelper::reset()
+{
+    m_Contacts.clear();
+}
+
 void TestHelper::fakeMouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, 
         bool rightButtonState,
@@ -58,7 +63,7 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
     MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
             middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button,
             speed));
-    m_Events.push_back(pEvent);
+    insertCursorEvent(pEvent);
 }
 
 void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
@@ -71,26 +76,7 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
     // The id is modified to avoid collisions with real touch events.
     TouchEventPtr pEvent(new TouchEvent(id+std::numeric_limits<int>::max()/2, eventType, 
             pBlob, IntPoint(pos), source, speed));
-    map<int, ContactPtr>::iterator it = m_Contacts.find(id);
-    switch (pEvent->getType()) {
-        case Event::CURSORDOWN: {
-                AVG_ASSERT(it == m_Contacts.end());
-                ContactPtr pContact(new Contact(pEvent));
-                pContact->setThis(pContact);
-                m_Contacts[id] = pContact;
-            }
-            break;
-        case Event::CURSORMOTION:
-        case Event::CURSORUP: {
-                AVG_ASSERT(it != m_Contacts.end());
-                ContactPtr pContact = (*it).second;
-                pContact->pushEvent(pEvent);
-            }
-            break;
-        default:
-            AVG_ASSERT(false);
-            break;
-    }
+    insertCursorEvent(pEvent);
 }
 
 void TestHelper::fakeKeyEvent(Event::Type eventType,
@@ -129,6 +115,30 @@ std::vector<EventPtr> TestHelper::pollEvents()
 
     m_Events.clear();
     return events;
+}
+
+void TestHelper::insertCursorEvent(CursorEventPtr pEvent)
+{
+    map<int, ContactPtr>::iterator it = m_Contacts.find(pEvent->getCursorID());
+    switch (pEvent->getType()) {
+        case Event::CURSORDOWN: {
+                AVG_ASSERT(it == m_Contacts.end());
+                ContactPtr pContact(new Contact(pEvent));
+                pContact->setThis(pContact);
+                m_Contacts[pEvent->getCursorID()] = pContact;
+            }
+            break;
+        case Event::CURSORMOTION:
+        case Event::CURSORUP: {
+                AVG_ASSERT(it != m_Contacts.end());
+                ContactPtr pContact = (*it).second;
+                pContact->pushEvent(pEvent);
+            }
+            break;
+        default:
+            AVG_ASSERT(false);
+            break;
+    }
 }
 
 void TestHelper::checkEventType(Event::Type eventType)

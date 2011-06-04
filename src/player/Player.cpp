@@ -1624,6 +1624,7 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     m_EventCaptureInfoMap.clear();
     m_pLastCursorStates.clear();
+    m_pTestHelper->reset();
     m_pContacts.clear();
     ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {

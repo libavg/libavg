@@ -463,6 +463,7 @@ class PythonTestCase(AVGTestCase):
                  
                  # Disable: Various up/down combinations have no effect
                  lambda: b.setEnabled(False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.compareImage("testUIButtonDisabled", False),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),

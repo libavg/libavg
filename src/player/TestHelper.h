@@ -36,6 +36,8 @@ namespace avg {
     
 class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
+class CursorEvent;
+typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
 class AVG_API TestHelper : public IInputDevice
 {
@@ -43,6 +45,7 @@ class AVG_API TestHelper : public IInputDevice
     public: 
         TestHelper();
         virtual ~TestHelper();
+        void reset();
 
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
@@ -60,6 +63,7 @@ class AVG_API TestHelper : public IInputDevice
         virtual std::vector<EventPtr> pollEvents();
 
     private:
+        void insertCursorEvent(CursorEventPtr pEvent);
         void checkEventType(Event::Type eventType);
         
         std::vector<EventPtr> m_Events;
