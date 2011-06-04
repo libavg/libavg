@@ -32,17 +32,17 @@ class TouchApp(AVGApp):
                 self.__onDown)
     
     def __onDown(self, event):
-        print "down: ", event.contact.id
         event.contact.connectListener(self.__onContact)
+        contact = event.contact
+        print event.type, contact.id, event.pos, contact.age, \
+                contact.distancefromstart, contact.motionangle, contact.motionvec, \
+                contact.distancetravelled
 
     def __onContact(self, event):
-        if event.type == CURSORMOTION:
-            print "motion: ", event.cursorid, event.pos
-        elif event.type == CURSORUP:
-            print "up: ", event.cursorid, event.pos
-        else:
-            print event.type, event.cursorid
-
+        contact = event.contact
+        print event.type, contact.id, event.pos, contact.age, \
+                contact.distancefromstart, contact.motionangle, contact.motionvec, \
+                contact.distancetravelled
 
 TouchApp.start(resolution=(800,600))
 

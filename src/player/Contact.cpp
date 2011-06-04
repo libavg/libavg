@@ -33,9 +33,13 @@ using namespace std;
 namespace avg {
 
 Contact::Contact(CursorEventPtr pEvent)
-    : m_CursorID(pEvent->getCursorID())
+    : m_bFirstFrame(true),
+      m_CursorID(pEvent->getCursorID()),
+      m_DistanceTravelled(0)
 {
     m_pNewEvents.push_back(pEvent);
+    m_pFirstEvent = pEvent;
+    m_pLastEvent = pEvent;
 }
 
 Contact::~Contact()
@@ -78,13 +82,43 @@ void Contact::disconnectListener(PyObject* pListener)
     }
 }
 
+long long Contact::getAge() const
+{
+    return m_pLastEvent->getWhen() - m_pFirstEvent->getWhen();
+}
+
+double Contact::getDistanceFromStart() const
+{
+    return getMotionVec().getNorm();
+}
+
+double Contact::getMotionAngle() const
+{
+    DPoint motion = getMotionVec();
+    if (motion == DPoint(0,0)) {
+        return 0;
+    } else {
+        return motion.getAngle();
+    }
+}
+
+DPoint Contact::getMotionVec() const
+{
+    return m_pLastEvent->getPos() - m_pFirstEvent->getPos();
+}
+
+double Contact::getDistanceTravelled() const
+{
+    return m_DistanceTravelled;
+}
+
 void Contact::pushEvent(CursorEventPtr pEvent)
 {
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
     pEvent->setContact(getThis());
-    if (m_pEvents.empty()) {
-        // This is the first frame. Ignore unless cursorup.
+    if (m_bFirstFrame) {
+        // Ignore unless cursorup.
         if (pEvent->getType() == Event::CURSORUP) {
             // Down and up in the first frame. To avoid inconsistencies, both
             // messages must be delivered. This is the only time that m_pNewEvents
@@ -109,7 +143,9 @@ CursorEventPtr Contact::pollEvent()
     } else {
         CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
-        m_pEvents.push_back(pEvent);
+        m_bFirstFrame = false;
+        updateDistanceTravelled(m_pLastEvent, pEvent);
+        m_pLastEvent = pEvent;
         AVG_ASSERT(pEvent->getContact() == getThis());
         return pEvent;
     }
@@ -118,8 +154,8 @@ CursorEventPtr Contact::pollEvent()
 CursorEventPtr Contact::getLastEvent()
 {
     if (m_pNewEvents.empty()) {
-        AVG_ASSERT(!m_pEvents.empty());
-        return m_pEvents.back();
+        AVG_ASSERT(m_pLastEvent);
+        return m_pLastEvent;
     } else {
         return m_pNewEvents.back();
     }
@@ -136,6 +172,7 @@ void Contact::sendEventToListeners(CursorEventPtr pEvent)
     for (int i = 0; i < m_pListeners.size(); ++i) {
         boost::python::call<void>(m_pListeners[i], 
                 boost::dynamic_pointer_cast<Event>(pEvent));
+        pEvent->setNode(VisibleNodePtr());
     }
     if (pEvent->getType() == Event::CURSORUP) {
         // Last event that this contact will ever receive.
@@ -154,8 +191,15 @@ void Contact::disconnectEverything()
         Py_DECREF(m_pListeners[i]);
     }
     m_pListeners.clear();
-    m_pEvents.clear();
     m_pNewEvents.clear();
+    m_pFirstEvent = CursorEventPtr();
+    m_pLastEvent = CursorEventPtr();
+}
+
+void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2)
+{
+    double dist = (pEvent2->getPos() - pEvent1->getPos()).getNorm();
+    m_DistanceTravelled += dist;
 }
 
 }

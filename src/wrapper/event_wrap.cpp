@@ -184,6 +184,11 @@ void export_event()
 
     class_<Contact, boost::shared_ptr<Contact> >("Contact", no_init)
         .add_property("id", &Contact::getID)
+        .add_property("age", &Contact::getAge)
+        .add_property("distancefromstart", &Contact::getDistanceFromStart)
+        .add_property("motionangle", &Contact::getMotionAngle)
+        .add_property("motionvec", &Contact::getMotionVec)
+        .add_property("distancetravelled", &Contact::getDistanceTravelled)
         .def("connectListener", &Contact::connectListener)
         .def("disconnectListener", &Contact::disconnectListener)
         ;

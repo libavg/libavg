@@ -22,6 +22,8 @@
 #ifndef _Contact_H_
 #define _Contact_H_
 
+#include "../base/Point.h"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -49,6 +51,12 @@ public:
     void connectListener(PyObject* pListener);
     void disconnectListener(PyObject* pListener);
 
+    long long getAge() const;
+    double getDistanceFromStart() const;
+    double getMotionAngle() const;
+    DPoint getMotionVec() const;
+    double getDistanceTravelled() const;
+
     void pushEvent(CursorEventPtr pEvent);
     CursorEventPtr pollEvent();
     CursorEventPtr getLastEvent();
@@ -59,14 +67,18 @@ public:
 
 private:
     void disconnectEverything();
+    void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);
 
-    std::vector<CursorEventPtr> m_pEvents;
+    CursorEventPtr m_pFirstEvent;
+    CursorEventPtr m_pLastEvent;
     std::vector<CursorEventPtr> m_pNewEvents;
 
+    bool m_bFirstFrame;
     ContactWeakPtr m_This;    
 
     std::vector<PyObject*> m_pListeners;
     int m_CursorID;
+    double m_DistanceTravelled;
 };
 
 }
