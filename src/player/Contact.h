@@ -22,8 +22,6 @@
 #ifndef _Contact_H_
 #define _Contact_H_
 
-#include "CursorEvent.h"
-
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 

@@ -76,7 +76,7 @@ bool MouseEvent::getRightButtonState() const
 void MouseEvent::trace()
 {
     Event::trace();
-    AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
+    AVG_TRACE(Logger::EVENTS2, "pos: " << getPos() 
             << ", button: " << m_Button);
 }
 

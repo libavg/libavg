@@ -73,9 +73,9 @@ class AVG_API Event {
         
     protected:
         Type m_Type;
-        long long m_When;
 
     private:
+        long long m_When;
         int m_Counter;
         Source m_Source;
 

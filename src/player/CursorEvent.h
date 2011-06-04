@@ -64,7 +64,7 @@ class AVG_API CursorEvent: public Event
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
         virtual void trace();
 
-    protected:
+    private:
         IntPoint m_Position;
         int m_ID;
         ContactPtr m_pContact;

@@ -100,7 +100,8 @@ ContactPtr CursorEvent::getContact() const
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Position == event2.m_Position && event1.m_When == event2.m_When); 
+    return (event1.m_Position == event2.m_Position && 
+            event1.getWhen() == event2.getWhen()); 
 }
 
 void CursorEvent::trace()
