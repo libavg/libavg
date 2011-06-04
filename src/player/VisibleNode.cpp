@@ -28,6 +28,7 @@
 #include "Arg.h"
 #include "Image.h"
 #include "Canvas.h"
+#include "MouseEvent.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

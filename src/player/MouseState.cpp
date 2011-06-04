@@ -20,6 +20,7 @@
 //
 
 #include "MouseState.h"
+#include "MouseEvent.h"
 
 #include <iostream>
 

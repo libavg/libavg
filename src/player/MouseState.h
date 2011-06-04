@@ -23,10 +23,14 @@
 #define _MouseState_h_
 
 #include "../api.h"
-#include "MouseEvent.h"
 #include "VisibleNode.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
+
+class MouseEvent;
+typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 
 class AVG_API MouseState {
     public:

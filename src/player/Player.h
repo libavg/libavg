@@ -26,12 +26,8 @@
 #include "Timeout.h"
 #include "DisplayEngine.h"
 #include "NodeRegistry.h"
-#include "MouseEvent.h"
 #include "DisplayParams.h"
 #include "GLConfig.h"
-#include "EventDispatcher.h"
-#include "KeyEvent.h"
-#include "MouseEvent.h"
 #include "CursorState.h"
 #include "MouseState.h"
 #include "TestHelper.h"
@@ -59,6 +55,9 @@ class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
 class Contact;
+class EventDispatcher;
+class MouseEvent;
+class CursorEvent;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -68,6 +67,9 @@ typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 typedef boost::shared_ptr<class Contact> ContactPtr;
+typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
+typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
+typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 
 class AVG_API Player
 {

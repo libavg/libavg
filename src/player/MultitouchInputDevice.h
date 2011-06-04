@@ -23,8 +23,9 @@
 #define _MultitouchInputDevice_H_
 
 #include "../api.h"
-#include "CursorEvent.h"
 #include "IInputDevice.h"
+
+#include "../base/Point.h"
 
 #include <boost/thread.hpp>
 #include <map>
@@ -38,6 +39,8 @@ class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
 class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+class Event;
+typedef boost::shared_ptr<Event> EventPtr;
 
 class AVG_API MultitouchInputDevice: public IInputDevice
 {

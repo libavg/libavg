@@ -61,6 +61,8 @@
     #include "XInput21MTInputDevice.h"
 #endif
 #include "Contact.h"
+#include "KeyEvent.h"
+#include "EventDispatcher.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
