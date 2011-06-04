@@ -60,7 +60,7 @@ public:
     int getID() const;
 
 private:
-    void disconnectAllListeners();
+    void disconnectEverything();
 
     std::vector<CursorEventPtr> m_pEvents;
     std::vector<CursorEventPtr> m_pNewEvents;

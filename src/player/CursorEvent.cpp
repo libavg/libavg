@@ -84,7 +84,7 @@ void CursorEvent::setContact(ContactPtr pContact)
 
 ContactPtr CursorEvent::getContact() const
 {
-    return m_pContact.lock();
+    return m_pContact;
 }
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)

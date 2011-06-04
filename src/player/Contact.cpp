@@ -110,10 +110,7 @@ CursorEventPtr Contact::pollEvent()
         CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
         m_pEvents.push_back(pEvent);
-        if (pEvent->getType() == Event::CURSORUP) {
-            // Last event that this contact will ever receive.
-            disconnectAllListeners();
-        }
+        AVG_ASSERT(pEvent->getContact() == getThis());
         return pEvent;
     }
 }
@@ -135,9 +132,14 @@ bool Contact::hasListeners() const
 
 void Contact::sendEventToListeners(CursorEventPtr pEvent)
 {
+    AVG_ASSERT(pEvent->getContact() == getThis());
     for (int i = 0; i < m_pListeners.size(); ++i) {
         boost::python::call<void>(m_pListeners[i], 
                 boost::dynamic_pointer_cast<Event>(pEvent));
+    }
+    if (pEvent->getType() == Event::CURSORUP) {
+        // Last event that this contact will ever receive.
+        disconnectEverything();
     }
 }
 
@@ -146,12 +148,14 @@ int Contact::getID() const
     return m_CursorID;
 }
 
-void Contact::disconnectAllListeners()
+void Contact::disconnectEverything()
 {
     for (int i = 0; i < m_pListeners.size(); ++i) {
         Py_DECREF(m_pListeners[i]);
     }
     m_pListeners.clear();
+    m_pEvents.clear();
+    m_pNewEvents.clear();
 }
 
 }

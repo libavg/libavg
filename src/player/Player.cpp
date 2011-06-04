@@ -1366,7 +1366,7 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
     vector<VisibleNodeWeakPtr> pCursorNodes;
     pDivNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && pContact->hasListeners()) {
+    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
         VisibleNodePtr pNode = pCursorNodes.begin()->lock();
         pEvent->setElement(pNode);
         pContact->sendEventToListeners(pEvent);

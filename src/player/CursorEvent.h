@@ -63,7 +63,7 @@ class AVG_API CursorEvent: public Event
     protected:
         IntPoint m_Position;
         int m_ID;
-        ContactWeakPtr m_pContact;
+        ContactPtr m_pContact;
 };
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2);

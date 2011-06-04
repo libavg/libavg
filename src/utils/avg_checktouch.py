@@ -30,13 +30,19 @@ class TouchApp(AVGApp):
     def init(self):
         self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, 
                 self.__onDown)
-
+    
     def __onDown(self, event):
-        print event.cursorid, event.contact.id
+        print "down: ", event.contact.id
         event.contact.connectListener(self.__onContact)
 
     def __onContact(self, event):
-        print "contact!"
+        if event.type == CURSORMOTION:
+            print "motion: ", event.cursorid, event.pos
+        elif event.type == CURSORUP:
+            print "up: ", event.cursorid, event.pos
+        else:
+            print event.type, event.cursorid
+
 
 TouchApp.start(resolution=(800,600))
 
