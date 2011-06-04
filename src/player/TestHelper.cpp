@@ -24,6 +24,7 @@
 #include "MouseEvent.h"
 #include "TouchEvent.h"
 #include "KeyEvent.h"
+#include "Contact.h"
 
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
@@ -70,10 +71,27 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
     // The id is modified to avoid collisions with real touch events.
     TouchEventPtr pEvent(new TouchEvent(id+std::numeric_limits<int>::max()/2, eventType, 
             pBlob, IntPoint(pos), source, speed));
-
-    m_Events.push_back(pEvent);
+    map<int, ContactPtr>::iterator it = m_Contacts.find(id);
+    switch (pEvent->getType()) {
+        case Event::CURSORDOWN: {
+                AVG_ASSERT(it == m_Contacts.end());
+                ContactPtr pContact(new Contact(pEvent));
+                pContact->setThis(pContact);
+                m_Contacts[id] = pContact;
+            }
+            break;
+        case Event::CURSORMOTION:
+        case Event::CURSORUP: {
+                AVG_ASSERT(it != m_Contacts.end());
+                ContactPtr pContact = (*it).second;
+                pContact->pushEvent(pEvent);
+            }
+            break;
+        default:
+            AVG_ASSERT(false);
+            break;
+    }
 }
-
 
 void TestHelper::fakeKeyEvent(Event::Type eventType,
         unsigned char scanCode, int keyCode, 
@@ -92,9 +110,25 @@ void TestHelper::dumpObjects()
 // From IInputDevice
 std::vector<EventPtr> TestHelper::pollEvents()
 {
-    vector<EventPtr> TempEvents = m_Events;
+    vector<EventPtr> events = m_Events;
+    map<int, ContactPtr>::iterator it;
+    for (it = m_Contacts.begin(); it != m_Contacts.end(); ) {
+        ContactPtr pContact = it->second;
+        CursorEventPtr pEvent = pContact->pollEvent();
+        if (pEvent) {
+            events.push_back(pEvent);
+            if (pEvent->getType() == Event::CURSORUP) {
+                m_Contacts.erase(it++);
+            } else {
+                ++it;
+            }
+        } else {
+            ++it;
+        }
+    }
+
     m_Events.clear();
-    return TempEvents;
+    return events;
 }
 
 void TestHelper::checkEventType(Event::Type eventType)

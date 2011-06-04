@@ -30,9 +30,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include <vector>
+#include <map>
 
 namespace avg {
     
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
+
 class AVG_API TestHelper : public IInputDevice
 {
 
@@ -59,6 +63,7 @@ class AVG_API TestHelper : public IInputDevice
         void checkEventType(Event::Type eventType);
         
         std::vector<EventPtr> m_Events;
+        std::map<int, ContactPtr> m_Contacts;
 };
 
 typedef boost::shared_ptr<TestHelper> TestHelperPtr;
