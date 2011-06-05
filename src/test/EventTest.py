@@ -765,7 +765,7 @@ class EventTestCase(AVGTestCase):
                 self.assert_(contact.motionvec == (0,0))
                 self.assert_(contact.distancetravelled == 20)
             self.numContactCallbacks += 1
-        
+       
         self.loadEmptyScene()
         root = Player.getRootNode()
         root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
@@ -775,6 +775,17 @@ class EventTestCase(AVGTestCase):
             (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
+            ))
+        self.assert_(self.numContactCallbacks == 2)
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown)
+        self.numContactCallbacks = 0
+        self.start(None,
+            (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 1, 0, 0, 10, 10, 0),
+             lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, 1, 0, 0, 20, 10, 0),
+             lambda: Helper.fakeMouseEvent(avg.CURSORUP, 0, 0, 0, 10, 10, 0),
             ))
         self.assert_(self.numContactCallbacks == 2)
 
