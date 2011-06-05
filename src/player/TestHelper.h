@@ -50,10 +50,9 @@ class AVG_API TestHelper : public IInputDevice
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
-                int xPosition, int yPosition, int button, 
-                const DPoint& speed=DPoint(0,0));
+                int xPosition, int yPosition, int button);
         void fakeTouchEvent(int id, Event::Type eventType,
-                Event::Source source, const DPoint& pos, const DPoint& speed);
+                Event::Source source, const DPoint& pos);
         void fakeKeyEvent(Event::Type eventType,
                 unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int unicode, int modifiers);

@@ -772,10 +772,9 @@ class EventTestCase(AVGTestCase):
         Player.setFakeFPS(25)
         self.numContactCallbacks = 0
         self.start(None,
-            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10), (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10), 
-                    (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10), (0,0)),
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
             ))
         self.assert_(self.numContactCallbacks == 2)
 
@@ -806,13 +805,11 @@ class EventTestCase(AVGTestCase):
         self.numContactCallbacks = 0
         self.numMotionCallbacks = 0
         self.start(None,
-            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10), (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10), 
-                    (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (30,10), 
-                    (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10), (0,0)),
-             lambda: None))
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (30,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
+            ))
         self.assert_(self.numContactCallbacks == 1)
         self.assert_(self.numMotionCallbacks == 1)
         
@@ -837,11 +834,10 @@ class EventTestCase(AVGTestCase):
         self.numContact1Callbacks = 0
         self.numContact2Callbacks = 0
         self.start(None,
-            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10), (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10), 
-                    (0,0)),
-             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10), (0,0)),
-             lambda: None))
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
+            ))
         self.assert_(self.numContact1Callbacks == 1)
         self.assert_(self.numContact2Callbacks == 2)
 

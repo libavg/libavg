@@ -937,9 +937,9 @@ class PythonTestCase(AVGTestCase):
             self.start(None,
                     (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: assertDragEvents(True, False, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70, 40, 40),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
                      lambda: assertDragEvents(True, True, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20, -30, -50),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
                      lambda: assertDragEvents(True, True, True, True),
                      disable,
                      lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -1219,14 +1219,13 @@ class PythonTestCase(AVGTestCase):
         self.assert_(machine.state == 'A')
 
 
-    def __sendMouseEvent(self, type, x, y, sx=0, sy=0):
+    def __sendMouseEvent(self, type, x, y):
         Helper = Player.getTestHelper()
-        Helper.fakeMouseEvent(type, True, False, False, x, y, 1, avg.Point2D(sx, sy))
+        Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
 
-    def __sendTouchEvent(self, id, type, x, y, sx=0, sy=0):
+    def __sendTouchEvent(self, id, type, x, y):
         Helper = Player.getTestHelper()
-        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), 
-                avg.Point2D(sx,sy))
+        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
        
 
 def pythonTestSuite (tests):

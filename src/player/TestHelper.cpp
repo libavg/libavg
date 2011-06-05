@@ -56,18 +56,16 @@ void TestHelper::reset()
 void TestHelper::fakeMouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, 
         bool rightButtonState,
-        int xPosition, int yPosition, int button, 
-        const DPoint& speed)
+        int xPosition, int yPosition, int button)
 {
     checkEventType(eventType);
     MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
-            middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button,
-            speed));
+            middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button));
     insertCursorEvent(pEvent);
 }
 
 void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
-        Event::Source source, const DPoint& pos, const DPoint& speed)
+        Event::Source source, const DPoint& pos)
 {
     checkEventType(eventType);
     BlobPtr pBlob(new Blob(Run(int(pos.y), int(pos.x-1), int(pos.x)+2)));
@@ -75,7 +73,7 @@ void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
     pBlob->calcStats();
     // The id is modified to avoid collisions with real touch events.
     TouchEventPtr pEvent(new TouchEvent(id+std::numeric_limits<int>::max()/2, eventType, 
-            pBlob, IntPoint(pos), source, speed));
+            pBlob, IntPoint(pos), source));
     insertCursorEvent(pEvent);
 }
 
@@ -130,6 +128,10 @@ void TestHelper::insertCursorEvent(CursorEventPtr pEvent)
             break;
         case Event::CURSORMOTION:
         case Event::CURSORUP: {
+                if (it == m_Contacts.end()) {
+                    cerr << "borked: " << pEvent->getCursorID() << ", " << 
+                            pEvent->typeStr() << endl;
+                }
                 AVG_ASSERT(it != m_Contacts.end());
                 ContactPtr pContact = (*it).second;
                 pContact->pushEvent(pEvent);
