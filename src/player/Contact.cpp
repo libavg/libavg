@@ -182,11 +182,7 @@ CursorEventPtr Contact::pollEvent()
         CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
         m_bFirstFrame = false;
-        if (pEvent->getSpeed() == DPoint(0,0)) {
-            pEvent->setSpeed(pEvent->getPos() - m_pLastEvent->getPos());
-            cerr << pEvent->getPos() << ", " << m_pLastEvent->getPos() << ", " <<
-                    pEvent->getPos() - m_pLastEvent->getPos() << endl;
-        }
+        calcSpeed(pEvent, m_pLastEvent);
         updateDistanceTravelled(m_pLastEvent, pEvent);
         m_pLastEvent = pEvent;
         AVG_ASSERT(pEvent->getContact() == getThis());
@@ -230,6 +226,16 @@ int Contact::getID() const
     return m_CursorID;
 }
 
+void Contact::calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent)
+{
+    if (pEvent->getSpeed() == DPoint(0,0)) {
+        DPoint posDiff = pEvent->getPos() - pOldEvent->getPos();
+        long long timeDiff = pEvent->getWhen() - pOldEvent->getWhen();
+        if (timeDiff != 0) {
+            pEvent->setSpeed(posDiff/timeDiff);
+        }
+    }
+}
 void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2)
 {
     double dist = (pEvent2->getPos() - pEvent1->getPos()).getNorm();

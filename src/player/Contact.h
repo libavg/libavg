@@ -67,6 +67,7 @@ public:
     int getID() const;
 
 private:
+    void calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent);
     void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);
 
     CursorEventPtr m_pFirstEvent;
