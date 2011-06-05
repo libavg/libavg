@@ -104,7 +104,7 @@ TouchEventPtr AppleTrackpadInputDevice::createEvent(int avgID, Finger* pFinger,
     DPoint minorAxis = DPoint::fromPolar(pFinger->angle+1.57, pFinger->minorAxis);
     minorAxis.y = -minorAxis.y;
 
-    TouchEventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH, speed, 
+    TouchEventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH,
                 pFinger->angle, pFinger->size, eccentricity, majorAxis, minorAxis)); 
     return pEvent;
 }
