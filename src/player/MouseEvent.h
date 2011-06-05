@@ -36,8 +36,6 @@ class AVG_API MouseEvent : public CursorEvent {
                 const IntPoint& pos, int button, const DPoint& speed, int when=-1);
         virtual ~MouseEvent();
         
-        const DPoint& getSpeed() const;
-
         //REFACTORME: get*ButtonState -> getButtonState(num=*)
         bool getLeftButtonState() const;
         bool getMiddleButtonState() const;
@@ -57,8 +55,6 @@ class AVG_API MouseEvent : public CursorEvent {
         bool m_MiddleButtonState;
         bool m_RightButtonState;
         int m_Button;
-
-        DPoint m_Speed;
 };
 
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;

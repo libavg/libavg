@@ -89,6 +89,16 @@ VisibleNodePtr CursorEvent::getNode() const
     return m_pNode;
 }
         
+void CursorEvent::setSpeed(DPoint speed)
+{
+    m_Speed = speed;
+}
+
+const DPoint& CursorEvent::getSpeed() const
+{
+    return m_Speed;
+}
+
 void CursorEvent::setContact(ContactPtr pContact)
 {
     m_pContact = pContact;

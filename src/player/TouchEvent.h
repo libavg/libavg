@@ -52,7 +52,6 @@ class AVG_API TouchEvent: public CursorEvent
         virtual ~TouchEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
 
-        const DPoint& getSpeed() const;
         double getOrientation() const;
         double getArea() const;
         const DPoint & getCenter() const;
@@ -71,7 +70,6 @@ class AVG_API TouchEvent: public CursorEvent
     
     private:
         BlobPtr m_pBlob;
-        DPoint m_Speed;
         double m_Orientation;
         double m_Area;
         DPoint m_Center;
