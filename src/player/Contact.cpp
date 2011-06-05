@@ -36,6 +36,7 @@ namespace avg {
 
 Contact::Contact(CursorEventPtr pEvent)
     : m_bFirstFrame(true),
+      m_bSendingEvents(false),
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
 {
@@ -89,8 +90,25 @@ void Contact::disconnectListener(PyObject* pListener)
     vector<PyObject*>::iterator it = m_pListeners.begin();
     while (it != m_pListeners.end() && !bFound) {
         if (PyObject_RichCompareBool(*it, pListener, Py_EQ)) {
-            Py_DECREF(*it);
-            it = m_pListeners.erase(it);
+            if (m_bSendingEvents) {
+                // We're inside sendEventToListeners(), so m_pListeners can't be changed
+                // directly.
+                vector<PyObject*>::iterator itDead;
+                for (itDead = m_pDeadListeners.begin(); itDead != m_pDeadListeners.end();
+                        ++itDead)
+                {
+                    // Error handling: Make sure disconnectListeners isn't called twice 
+                    // inside one sendEventToListeners() for the same listener.
+                    if (PyObject_RichCompareBool(*itDead, pListener, Py_EQ)) {
+                        throw Exception(AVG_ERR_INVALID_ARGS, 
+                                "Contact.disconnectListener: Not connected.");
+                    }
+                }
+                m_pDeadListeners.push_back(pListener);
+            } else {
+                Py_DECREF(*it);
+                it = m_pListeners.erase(it);
+             }
             bFound = true;
         } else {
             it++;
@@ -188,12 +206,18 @@ bool Contact::hasListeners() const
 
 void Contact::sendEventToListeners(CursorEventPtr pEvent)
 {
+    m_bSendingEvents = true;
     AVG_ASSERT(pEvent->getContact() == getThis());
     for (int i = 0; i < m_pListeners.size(); ++i) {
         boost::python::call<void>(m_pListeners[i], 
                 boost::dynamic_pointer_cast<Event>(pEvent));
         pEvent->setNode(VisibleNodePtr());
     }
+    m_bSendingEvents = false;
+    for (int i = 0; i < m_pDeadListeners.size(); ++i) {
+        disconnectListener(m_pDeadListeners[i]);
+    }
+    m_pDeadListeners.clear();
 }
 
 int Contact::getID() const

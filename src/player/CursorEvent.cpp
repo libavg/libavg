@@ -35,8 +35,9 @@ using namespace std;
 
 namespace avg {
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
-    : Event(eventType, source),
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+        int when)
+    : Event(eventType, source, when),
       m_Position(position),
       m_ID(id)
 {

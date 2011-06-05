@@ -45,7 +45,8 @@ typedef boost::shared_ptr<class Contact> ContactPtr;
 class AVG_API CursorEvent: public Event 
 {
     public:
-        CursorEvent(int id, Type eventType, const IntPoint& position, Source source);
+        CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+                int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
         DPoint getPos() const;

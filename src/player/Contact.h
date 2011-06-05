@@ -74,9 +74,11 @@ private:
     std::vector<CursorEventPtr> m_pNewEvents;
 
     bool m_bFirstFrame;
-    ContactWeakPtr m_This;    
+    ContactWeakPtr m_This;
+    bool m_bSendingEvents;
 
     std::vector<PyObject*> m_pListeners;
+    std::vector<PyObject*> m_pDeadListeners;
     int m_CursorID;
     double m_DistanceTravelled;
 };

@@ -22,6 +22,7 @@
 #include "Event.h"
 #include "IInputDevice.h"
 #include "VisibleNode.h"
+#include "Player.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -43,7 +44,7 @@ Event::Event(Type type, Source source, int when)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
-        m_When = TimeSource::get()->getCurrentMillisecs();
+        m_When = Player::get()->getFrameTime();
     } else {
         m_When = when;
     }

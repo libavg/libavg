@@ -30,7 +30,7 @@ namespace avg {
 
 MouseState::MouseState()
     : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1)))
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0))
 {
 }
 

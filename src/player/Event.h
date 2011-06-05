@@ -23,7 +23,6 @@
 #define _Event_H_
 
 #include "../api.h"
-//#include "IInputDevice.h"
 #include <functional>
 #include <string>
 #include <boost/shared_ptr.hpp>

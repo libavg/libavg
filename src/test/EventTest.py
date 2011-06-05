@@ -713,6 +713,7 @@ class EventTestCase(AVGTestCase):
             ))
         
     def testException(self):
+
         class TestException(Exception):
             pass
         
@@ -723,19 +724,127 @@ class EventTestCase(AVGTestCase):
         rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, throwException)
         
         self.loadEmptyScene()
-        libavg.Player.get().getRootNode().appendChild(rect)
+        Player.getRootNode().appendChild(rect)
         
         self.__exceptionThrown = False
         try:
             self.start(None,
-                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 10, 10, 0),
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 10, 
+                        10, 0),
                  lambda: None))
         except TestException:
             self.__exceptionThrown = True
             
         self.assert_(self.__exceptionThrown)
-        #libavg.Player.get().getRootNode().removeChild(rect)
-                
+               
+    def testContacts(self):
+
+        def onDown(event):
+            contact = event.contact
+            self.assert_(event.cursorid == contact.id)
+            self.assert_(contact.age == 0)
+            self.assert_(contact.distancefromstart == 0)
+            self.assert_(contact.motionangle == 0)
+            self.assert_(contact.motionvec == (0,0))
+            self.assert_(contact.distancetravelled == 0)
+            contact.connectListener(onContact)
+
+        def onContact(event):
+            contact = event.contact
+            self.assert_(event.cursorid == contact.id)
+            if event.type == avg.CURSORMOTION:
+                self.assert_(contact.age == 40)
+                self.assert_(contact.distancefromstart == 10)
+                self.assert_(contact.motionangle == 0)
+                self.assert_(contact.motionvec == (10,0))
+                self.assert_(contact.distancetravelled == 10)
+            elif event.type == avg.CURSORUP:
+                self.assert_(contact.age == 80)
+                self.assert_(contact.distancefromstart == 0)
+                self.assert_(contact.motionangle == 0)
+                self.assert_(contact.motionvec == (0,0))
+                self.assert_(contact.distancetravelled == 20)
+            self.numContactCallbacks += 1
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
+        Player.setFakeFPS(25)
+        self.numContactCallbacks = 0
+        self.start(None,
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10), (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10), 
+                    (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10), (0,0)),
+            ))
+        self.assert_(self.numContactCallbacks == 2)
+
+    def testContactRegistration(self):
+
+        def onDown(event):
+            root.setEventCapture(event.cursorid)
+            self.assertException(lambda: event.contact.connectListener(onContact))
+            root.releaseEventCapture(event.cursorid)
+
+        def onMotion(event):
+            contact = event.contact
+            contact.connectListener(onContact)
+            self.assertException(lambda: root.setEventCapture(event.cursorid))
+            self.numMotionCallbacks += 1
+
+        def onContact(event):
+            contact = event.contact
+            contact.disconnectListener(onContact)
+            self.assertException(lambda: contact.disconnectListener(onContact))
+            self.numContactCallbacks += 1
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
+        root.connectEventHandler(avg.CURSORMOTION, avg.TOUCH, self, onMotion)
+        Player.setFakeFPS(25)
+        self.numContactCallbacks = 0
+        self.numMotionCallbacks = 0
+        self.start(None,
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10), (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10), 
+                    (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (30,10), 
+                    (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10), (0,0)),
+             lambda: None))
+        self.assert_(self.numContactCallbacks == 1)
+        self.assert_(self.numMotionCallbacks == 1)
+        
+    def testMultiContactRegistration(self):
+
+        def onDown(event):
+            contact = event.contact
+            contact.connectListener(onContact1)
+            contact.connectListener(onContact2)
+
+        def onContact1(event):
+            event.contact.disconnectListener(onContact1)
+            self.numContact1Callbacks += 1
+
+        def onContact2(event):
+            self.numContact2Callbacks += 1
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
+        Player.setFakeFPS(25)
+        self.numContact1Callbacks = 0
+        self.numContact2Callbacks = 0
+        self.start(None,
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10), (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10), 
+                    (0,0)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10), (0,0)),
+             lambda: None))
+        self.assert_(self.numContact1Callbacks == 1)
+        self.assert_(self.numContact2Callbacks == 2)
+
 
 def eventTestSuite(tests):
     availableTests = (
@@ -754,7 +863,10 @@ def eventTestSuite(tests):
             "testCustomInputDevice",
             "testEventHook",
             "testAnonymousInputDevice",
-            "testException"
+            "testException",
+            "testContacts",
+            "testContactRegistration",
+            "testMultiContactRegistration",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 
