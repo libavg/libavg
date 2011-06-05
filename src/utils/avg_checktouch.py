@@ -42,7 +42,7 @@ class TouchApp(AVGApp):
         contact = event.contact
         print event.type, contact.id, event.pos, contact.age, \
                 contact.distancefromstart, contact.motionangle, contact.motionvec, \
-                contact.distancetravelled
+                contact.distancetravelled, event.speed
 
 TouchApp.start(resolution=(800,600))
 

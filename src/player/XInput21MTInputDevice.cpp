@@ -245,8 +245,8 @@ void XInput21MTInputDevice::findMTDevice()
 
 TouchEventPtr XInput21MTInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
-    return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH, DPoint(0,0), 
-            0, 20, 1, DPoint(5,0), DPoint(0,5)));
+    return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH, 0, 20, 1, 
+            DPoint(5,0), DPoint(0,5)));
 }
 
 int XInput21MTInputDevice::filterEvent(const SDL_Event * pEvent)

@@ -39,7 +39,8 @@ CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Sourc
         int when)
     : Event(eventType, source, when),
       m_Position(position),
-      m_ID(id)
+      m_ID(id),
+      m_Speed(0,0)
 {
 }
 

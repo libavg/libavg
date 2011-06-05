@@ -182,6 +182,11 @@ CursorEventPtr Contact::pollEvent()
         CursorEventPtr pEvent = m_pNewEvents[0];
         m_pNewEvents.erase(m_pNewEvents.begin());
         m_bFirstFrame = false;
+        if (pEvent->getSpeed() == DPoint(0,0)) {
+            pEvent->setSpeed(pEvent->getPos() - m_pLastEvent->getPos());
+            cerr << pEvent->getPos() << ", " << m_pLastEvent->getPos() << ", " <<
+                    pEvent->getPos() - m_pLastEvent->getPos() << endl;
+        }
         updateDistanceTravelled(m_pLastEvent, pEvent);
         m_pLastEvent = pEvent;
         AVG_ASSERT(pEvent->getContact() == getThis());
