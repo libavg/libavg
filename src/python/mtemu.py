@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,10 +19,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
-# Original author of this file is Sebastian Maulbeck 
+# Original author of this file is Sebastian Maulbeck
 # <sm (at) archimedes-solutions (dot) de>
-
 
 """
 this class provides a test to emulate one or two TOUCH/TRACK events. 
@@ -30,7 +28,6 @@ by pressing "ctrl left/right" the TOUCH events will be switched into TRACK event
 other way around.
 by pressing "shift left/right" a second event is created whenever the mousebutton (left) 
 is clicked. 
-the second event appears at the position:   mousePosition - (40,40) pixels.
 
 Note: remove any mouse event handling from your application to avoid emulation issues
 
@@ -43,277 +40,118 @@ source = avg.TOUCH parameter
 """
 
 from libavg import avg, Point2D
-import warnings
 
-Player = avg.Player.get()
+g_Player = avg.Player.get()
 
-class MTemu(object): 
-    """
-    this class provides a test method to
-    emulate one or two TOUCH events. 
-    by pressing "ctrl left" the TOUCH events 
-    will be switched into TRACK events.
-    """
-    
-    ID = Point2D(10000,0)
-    EventMode = avg.TOUCH
-    pos1 = pos2 = Player.getMouseState().pos
-    mouseDown1 = mouseDown2 = Player.getMouseState().pos
-    hover = False
-    multiActive = False
-    mouseState = ''
-    
+class MTemu(object):
+
+    mouseState = 'Up'
+    cursorID = 0
+    lastCursorPos = None
+    dualTouch = False
+    secondTouch = False
+    source = avg.TOUCH
+
     def __init__(self):
-        rootNode = Player.getRootNode()
-        posX = rootNode.size.x * 3/4
-        posY = rootNode.size.y-40
-        
-        self.__layer = Player.createNode(''' 
-                <words id="displayEmu" x="%(posX)i" y="%(posY)i" fontsize="20" opacity="1" 
-                color="DDDDDD" text="Multitouch emulation active" sensitive="False" />
-                '''
-                % {'posX':posX, 'posY':posY} 
-                )
-        rootNode.appendChild(self.__layer)  
-                   
-        self.__container = Player.createNode('div', {})
-        self.__p1 = Player.createNode('circle', {'r': 10, 'fillcolor':'ff0000',
-            'fillopacity':0, 'opacity':0, 'sensitive':False})
-        self.__p2 = Player.createNode('circle', {'r': 10, 'fillcolor':'ff0000',
-            'fillopacity':0, 'opacity':0, 'sensitive':False})
+        self.__rootNode = g_Player.getRootNode()
+        self.__rootNode.connectEventHandler(avg.CURSORUP, avg.MOUSE,
+                                            self, self.__onMouseUp)
+        self.__rootNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE,
+                                            self, self.__onMouseDown)
+        self.__rootNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE,
+                                            self, self.__onMouseMotion)
+        posX = self.__rootNode.size.x * 2/5
+        posY = self.__rootNode.size.y-40
 
-        rootNode.appendChild(self.__container)
-        self.__container.appendChild(self.__p1)
-        self.__container.appendChild(self.__p2)
-        
-        rootNode.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMouseMove)
-        rootNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onMouseButtonDown)
-        rootNode.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onMouseButtonUp)
-        
-                    
-    def delete(self): 
-        """
-        after turning off the emulater the function unlinks
-        all nodes of the emulator. so it be garanted that the 
-        application is working as before again.
-        events will be cleared with two UP events.
-        """
-        rootNode = Player.getRootNode()
-        rootNode.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None)
-        rootNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
-        rootNode.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
+        self.__layer = avg.WordsNode(text='Multitouch emulation active',
+                                     pos=(posX, posY),
+                                     color='DDDDDD',
+                                     sensitive=False,
+                                     fontsize=20,
+                                     parent=self.__rootNode)
+
+    def deinit(self):
+        self.__rootNode.disconnectEventHandler(self)
+        self.__rootNode = None
         self.__layer.unlink()
-        self.__container.unlink()
-        self.__p1.unlink()
-        self.__p2.unlink()
-        self.__p1 = self.__p2 = None
-        self.__container = self.__node2root = self.__layer = None
-        #if self.pos1 != (-1,-1) and self.pos2 != (-1,-1):
-        Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
-                    self.EventMode, self.pos1, Point2D(0,0))
-        Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                    self.EventMode, self.pos2, Point2D(0,0))
-                
-                        
-    def __leftIDup(self):
-        self.ID = self.ID + (1,0)
-        
-    def __getLeftID(self):
-        self.idpos1 = int(self.ID.x)
-        return self.idpos1
-        
-    def __rightIDup(self):
-        self.ID = self.ID + (0,1)
-         
-    def __getRightID(self):
-        self.idpos2 = int(self.ID.y)
-        return self.idpos2
-        
-    
+        if self.mouseState == 'Down':
+            self._releaseTouch(self.cursorID)
+            if self.secondTouch:
+                self.releaseTouch(self.cursorID+1)
+
+    def __onMouseDown(self, event):
+        if self.mouseState == 'Up' and event.button == 1:
+            self._sendFakeTouch(self.cursorID, event.pos, event.type)
+            if self.dualTouch and not self.secondTouch:
+                self._sendFakeTouch(self.cursorID+1, event.pos, event.type,
+                                    True)
+                self.secondTouch = True
+            self.mouseState = 'Down'
+            self.lastCursorPos = event.pos
+
+    def __onMouseMotion(self, event):
+        if self.mouseState == 'Down':
+            self._sendFakeTouch(self.cursorID, event.pos, event.type)
+            if self.dualTouch and self.secondTouch:
+                self._sendFakeTouch(self.cursorID+1, event.pos,
+                                    event.type, True)
+            self.lastCursorPos = event.pos
+
+    def __onMouseUp(self, event):
+        if self.mouseState == 'Down' and event.button == 1:
+            self._sendFakeTouch(self.cursorID, event.pos, event.type)
+            if self.dualTouch and self.secondTouch:
+                self._sendFakeTouch(self.cursorID+1, event.pos,
+                                    event.type, True)
+                self.secondTouch = False
+            self.mouseState = 'Up'
+            self.cursorID += 2 #Even for left uneven for right touch
+            self.lastCursorPos = None
+
+    def toggleSource(self):
+        """
+        Switch between avg.TOUC and avg.TRACK - source
+        """
+        if self.mouseState == 'Down':
+            self._releaseTouch(self.cursorID)
+            if self.secondTouch:
+                self._releaseTouch(self.cursorID+1)
+            self.mouseState = 'Up'
+            self.secondTouch = False
+        self.source = avg.TOUCH if self.source == avg.TRACK else avg.TRACK
+
+    def toggleDualTouch(self):
+        self.dualTouch = not(self.dualTouch)
+        if self.mouseState == 'Down':
+            if self.secondTouch:
+                self._releaseTouch(self.cursorID+1)
+            else:
+                self._sendFakeTouch(self.cursorID+1, Point2D(0,0),
+                                   avg.CURSORDOWN, mirror=True)
+            self.secondTouch = not(self.secondTouch)
+
+    def _sendFakeTouch(self, cursorID, pos, touchType, mirror=False):
+        if mirror:
+            pos = pos + Point2D(-20,-20)
+            pos = self.__rootNode.size - Point2D(20,20) - pos
+            pos = self.__clampPos(pos)
+        if not self.lastCursorPos:
+            self.lastCursorPos = self.__clampPos(pos)
+        g_Player.getTestHelper().fakeTouchEvent(cursorID,
+                                    touchType, self.source, pos,
+                                    Point2D(0,0))
+    def _releaseTouch(self, cursorID):
+       self._sendFakeTouch(cursorID, Point2D(0,0),
+                                   avg.CURSORUP)
+
     def __clampPos(self, pos):
         if pos[0] < 0:
             pos[0] = 0
         if pos[1] < 0:
             pos[1] = 0
-        if pos[0] > Player.getRootNode().size[0]-1:
-            pos[0] = Player.getRootNode().size[0]-1
-        if pos[1] > Player.getRootNode().size[1]-1:
-            pos[1] = Player.getRootNode().size[0]-1
-            
+        if pos[0] >= g_Player.getRootNode().size[0]:
+            pos[0] = g_Player.getRootNode().size[0]-1
+        if pos[1] >= g_Player.getRootNode().size[1]:
+            pos[1] = g_Player.getRootNode().size[1]-1
         return pos
-    def __onMouseButtonDown(self,e):
-        #activation with a left mouse click.
-        #one or two fake UP events will be created (multitouch active or not). 
-        #SOURCE depending on EventMode. 
-        
-        
-        if e.button == 1:
-            self.mouseState = 'Down'
-            self.pos1 = e.pos
-            self.mouseDown1 = self.pos1
-            self.__leftIDup()
-            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORDOWN,
-                        self.EventMode, self.pos1, e.speed)
-            if self.multiActive:
-                self.mouseDown2 = e.pos - Point2D(20,20)
-                self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
-                self.pos2 = self.__clampPos(self.pos2)
-                
-                self.__rightIDup()
-                Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
-                        self.EventMode, self.pos2, -e.speed)
-                            
-            self.__drawTouch()
-        return True
 
-    def __onMouseMove(self, e):
-        #is activated if left mouse button is pressed AND moved. 
-        
-        #If the left mouse button is pressed and multitouch (shift) 
-        #is acitvated it creates two fake events. 
-        #One event position will be set to the mouse position. 
-        #the second event will move in relation to the mouse position. 
-        
-        if e.leftbuttonstate and self.multiActive:
-            self.pos1 = e.pos 
-            self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
-            self.pos2 = self.__clampPos(self.pos2)
-            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORMOTION,
-                    self.EventMode, self.pos1, e.speed)
-            Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORMOTION,
-                    self.EventMode, self.pos2, -e.speed)
-            self.__drawTouch()
-            
-        elif e.leftbuttonstate and not self.multiActive:
-            self.pos1 = e.pos
-            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORMOTION,
-                    self.EventMode, self.pos1, e.speed)
-            self.__drawTouch()
-         
-        return True
-       
-       
-    def __onMouseButtonUp(self, e):
-        #one or two fake UP events will be created (multitouch active or not). 
-        #SOURCE depending on EventMode. 
-            
-        self.__eraseDraw()  
-        if e.button == 1:
-            self.mouseState = 'Up'
-            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(), avg.CURSORUP,
-                    self.EventMode, self.pos1, e.speed)
-            #self.pos1 = (-1,-1)
-            #self.mouseDown1 = (-1,-1)
-            
-            if self.multiActive:
-                self.pos2 = self.__clampPos(self.pos2)
-                Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                        self.EventMode, self.pos2, -e.speed)
-                #self.pos2 = (-1,-1)
-                #self.mouseDown2 = (-1,-1)
-
-        return True
-            
-            
-    def __drawTouch(self):
-        #function to draw the fake events. style depending on EventMode.
-        if self.EventMode == avg.TOUCH:
-            self.__p1.pos = self.pos1
-            self.__p1.r = 6
-            self.__p1.fillcolor = 'ff0000'
-            self.__p1.fillopacity = 1
-            
-            self.__p2.pos = self.pos2
-            self.__p2.r = 6 
-            self.__p2.fillcolor = 'ff0000'
-            if self.multiActive:
-                self.__p2.fillopacity = 1
-            else:
-                self.__p2.fillopacity = 0
-        else:
-            self.__p1.r = 13
-            self.__p1.pos = self.pos1
-            self.__p1.fillcolor = 'ffffff'
-            self.__p1.fillopacity = 0.4
-            
-            self.__p2.r = 13
-            self.__p2.pos = self.pos2
-            self.__p2.fillcolor = 'ffffff'
-            if self.multiActive:
-                self.__p2.fillopacity = 0.4
-            else:
-                self.__p2.fillopacity = 0
-        
-        
-    def __eraseDraw(self):
-        #function to erase the fake TOUCH events.
-        
-        self.__p1.fillopacity = 0
-        if self.multiActive:
-            self.__p2.fillopacity = 0
-
-    def changeMode(self):
-        """
-        function to switch between TRACK and TOUCH.
-        it is called from the AVGAppStarter by pressing
-        'ctrl left'.
-        """ 
-        
-        
-        self.__eraseDraw()
-        Player.getTestHelper().fakeTouchEvent(self.__getLeftID(),  avg.CURSORUP,
-                self.EventMode, self.pos1, Point2D(0,0))
-
-        if self.multiActive:
-            Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                    self.EventMode, self.pos2, Point2D(0,0))
-   
-        self.hover = not self.hover
-        if self.hover == True:
-            self.EventMode = avg.TRACK
-        else:
-            self.EventMode = avg.TOUCH            
-            
-        if self.mouseState == 'Down':     
-            self.mouseDown1 = self.pos1  
-            self.__leftIDup()
-            Player.getTestHelper().fakeTouchEvent(self.__getLeftID(),  avg.CURSORDOWN,
-                    self.EventMode, self.pos1, Point2D(0,0))
-            if self.multiActive:
-                e = Player.getMouseState()
-                self.mouseDown2 = e.pos - Point2D(20,20)
-                self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
-                self.pos2 = self.__clampPos(self.pos2)
-                self.__rightIDup()
-                Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
-                        self.EventMode, self.pos2, Point2D(0,0))
-            self.__drawTouch()
-        
-    def multiTouch(self):
-        """
-        creates another event if shift and mouse left is pressed.
-        if the mouse is not pressed no event will appear.
-        """
-        
-        self.multiActive = not self.multiActive  
-         
-        if self.mouseState == 'Down': 
-            self.__eraseDraw()
-            
-            if not self.multiActive:
-                Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORUP,
-                        self.EventMode, self.pos2, Point2D(0,0))
-            
-            if self.multiActive:
-                e = Player.getMouseState()
-                self.mouseDown2 = e.pos - Point2D(20,20)
-                self.pos2 = 2*Point2D(self.mouseDown2) - Point2D(20,20) - e.pos
-                self.pos2 = self.__clampPos(self.pos2)
-                self.__rightIDup() 
-                Player.getTestHelper().fakeTouchEvent(self.__getRightID(), avg.CURSORDOWN,
-                        self.EventMode, self.pos2, Point2D(0,0))
-            
-            self.__drawTouch()
-            
-        return True
-        

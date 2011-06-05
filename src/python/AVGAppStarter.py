@@ -22,7 +22,6 @@
 
 import os
 import gc
-import math
 import time
 
 from libavg import avg, Point2D
@@ -183,26 +182,68 @@ class FrameRateGraph(Graph):
         
     def _getCoords(self):
         return zip(xrange(10,len(self._values)*self._xSkip, self._xSkip), self._values)
-   
+
 
 class TouchVisualization(avg.DivNode):
+    '''Visualisation Class for Touch and Track Events'''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
         self.cursorid = event.cursorid
-        self.pos = event.pos
-        radius = event.majoraxis.getNorm()
-        self.__circle = avg.CircleNode(r=radius, fillcolor="FFFFFF", fillopacity=0.5,
-                strokewidth=0, parent=self)
-        self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis, color="FFFFFF",
-                parent=self)
-        self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis, color="FFFFFF",
-                parent=self)
+        self.pos = avg.Point2D(event.pos)
+        self.positions = [self.pos]
+        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
+
+        if event.source == avg.TOUCH:
+            color = 'e5d8d8'
+        else:
+            color = 'd8e5e5'
+        self.__transparentCircle= avg.CircleNode(r=radius+20,
+                                                 fillcolor=color,
+                                                 fillopacity=0.2,
+                                                 opacity=0.0,
+                                                 strokewidth=1,
+                                                 sensitive=False,
+                                                 parent=self)
+        self.__pulsecircle = avg.CircleNode(r=radius,
+                                            fillcolor=color,
+                                            color=color,
+                                            fillopacity=0.5,
+                                            opacity=0.5,
+                                            strokewidth=1,
+                                            sensitive=False,
+                                            parent=self)
+        self.__majorAxis = avg.LineNode(pos1=(0,0),
+                                        pos2=event.majoraxis,
+                                        color="FFFFFF",
+                                        sensitive=False,
+                                        parent=self)
+        self.__minorAxis = avg.LineNode(pos1=(0,0),
+                                        pos2=event.minoraxis,
+                                        color="FFFFFF",
+                                        sensitive=False, parent=self)
+        fontPos = (self.__pulsecircle.r, 0)
+        avg.WordsNode(pos=fontPos,
+                      text="<br/>".join([str(event.source),str(self.cursorid)]),
+                      parent=self)
+        self.line = avg.PolyLineNode(self.positions,
+                                     color=color,
+                                     parent=kwargs['parent'])
+        pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
+        pulseCircleAnim.start()
+
+    def __del__(self):
+        self.line.unlink(True)
 
     def move(self, event):
         self.pos = event.pos
-        self.__circle.r = event.majoraxis.getNorm()+1
+        self.positions.append(self.pos)
+        if len(self.positions) > 100:
+            self.positions.pop(0)
+        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
+        self.__pulsecircle.r = radius
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
+        self.line.pos = self.positions
 
 
 class AVGAppStarter(object):
@@ -238,9 +279,7 @@ class AVGAppStarter(object):
         rootNode.appendChild(self._appNode)
 
         self.__showMTEvents = False
-        self.__touchViss = {} 
-        self.__touchVisOverlay = avg.DivNode(sensitive=False, size=resolution,
-                parent=rootNode)
+        self.__touchViss = {}
 
         g_player.showCursor(testMode)
 
@@ -411,12 +450,27 @@ class AVGAppStarter(object):
             self.__unicodeBindUp[unichr(event.unicode).encode("utf-8")][0]()
             return
 
+    def __onTouchDown(self, event):
+        touchVis = TouchVisualization(event,
+                        parent=self.__touchVisOverlay)
+        self.__touchViss[event.cursorid] = touchVis
+
+    def __onTouchUp(self, event):
+        if event.cursorid in self.__touchViss:
+            self.__touchViss[event.cursorid].unlink(True)
+            self.__touchViss[event.cursorid] = None
+            del self.__touchViss[event.cursorid]
+
+    def __onTouchMotion(self, event):
+        if event.cursorid in self.__touchViss:
+            self.__touchViss[event.cursorid].move(event)
+
     def __dumpObjects(self):
         gc.collect()
         testHelper = g_player.getTestHelper()
         testHelper.dumpObjects()
         print "Num anims: ", avg.getNumRunningAnims()
-        print "Num python objects: ", len(gc.get_objects()) 
+        print "Num python objects: ", len(gc.get_objects())
 
     def __showMemoryUsage(self):
         if self.__showingMemGraph:
@@ -462,65 +516,50 @@ class AVGAppStarter(object):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            self.bindKey('left ctrl', self._mtEmu.changeMode, 'switch event mode')
-            self.bindKey('right ctrl', self._mtEmu.changeMode, 'switch event mode')
-            self.bindKey('left shift', self._mtEmu.multiTouch, 'create 2nd event')
-            self.bindKey('right shift', self._mtEmu.multiTouch, 'create 2nd event')
-            self.bindKey('left shift', self._mtEmu.multiTouch, 'create 2nd event', 'up')
-            self.bindKey('right shift', self._mtEmu.multiTouch, 'create 2nd event', 'up')
-            
+            self.bindKey('left shift', self._mtEmu.toggleDualTouch, 'Toggle Multitouch Emulation')
+            self.bindKey('right shift', self._mtEmu.toggleDualTouch, 'Toggle Multitouch Emulation')
+            self.bindKey('left ctrl', self._mtEmu.toggleSource, 'Toggle Touch Source')
+            self.bindKey('right ctrl', self._mtEmu.toggleSource, 'Toggle Touch Source')
         else:
+            self._mtEmu.deinit()
             self.unbindKey('left ctrl')
             self.unbindKey('right ctrl')
             self.unbindKey('left shift')
             self.unbindKey('right shift')
-            self._mtEmu.delete()
+
+            del self._mtEmu
             self._mtEmu = None
-   
+
     def __switchShowMTEvents(self):
+        rootNode = g_player.getRootNode()
         self.__showMTEvents = not(self.__showMTEvents)
         if self.__showMTEvents:
-            self.__oldEventHook = g_player.getEventHook()
-            g_player.setEventHook(self.__showMTEventHook)
+            self.__touchVisOverlay = avg.DivNode(sensitive=False, size=self._appNode.size,
+                    parent=rootNode, elementoutlinecolor='FFFFAA')
+            avg.RectNode(parent = self.__touchVisOverlay, size=self._appNode.size,
+                        fillopacity=0.2, fillcolor='000000')
+            rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
+                                         self, self.__onTouchUp)
+            rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,                                                                     self,self.__onTouchDown)
+            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
+                                         self, self.__onTouchMotion)
         else:
-            g_player.setEventHook(self.__oldEventHook)
-            for id, touchVis in self.__touchViss.items():
-                touchVis.unlink(True)
-            self.__touchViss = {}
-
-    def __showMTEventHook(self, event):
-        if (isinstance(event, avg.TouchEvent) and event.source == avg.TOUCH and
-                (event.type == avg.CURSORDOWN or event.type == avg.CURSORMOTION or
-                 event.type == avg.CURSORUP)):
-            try:
-                touchVis = self.__touchViss[event.cursorid]
-            except KeyError:
-                touchVis = TouchVisualization(event, 
-                        parent=self.__touchVisOverlay)
-                self.__touchViss[event.cursorid] = touchVis
-            if event.type == avg.CURSORDOWN:
-                pass
-            elif event.type == avg.CURSORMOTION:
-                touchVis.move(event)
-            elif event.type == avg.CURSORUP:
-                touchVis.unlink(True)
-                del self.__touchViss[event.cursorid]
-        if self.__oldEventHook:
-            return self.__oldEventHook()
-        else:
-            return False
+            rootNode.disconnectEventHandler(self, self.__onTouchDown)
+            rootNode.disconnectEventHandler(self, self.__onTouchUp)
+            rootNode.disconnectEventHandler(self, self.__onTouchMotion)
+            self.__touchVisOverlay.unlink(True)
 
     def __killNotifyNode(self):
         if self.__notifyNode:
             self.__notifyNode.unlink()
             self.__notifyNode = None
-            
+
     def __screenshot(self):
         fnum = 0
         fnameTemplate = 'screenshot-%03d.png'
         while os.path.exists(fnameTemplate % fnum):
             fnum += 1
-        
+
         try:
             g_player.screenshot().save('screenshot-%03d.png' % fnum)
         except RuntimeError:
