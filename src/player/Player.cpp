@@ -1399,110 +1399,111 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
         VisibleNodePtr pNode = pCursorNodes.begin()->lock();
         pEvent->setNode(pNode);
         pContact->sendEventToListeners(pEvent);
-    } else {
-        int cursorID = pEvent->getCursorID();
+    }
+        
+    int cursorID = pEvent->getCursorID();
 
-        // Determine the nodes the event should be sent to.
-        vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
-        bool bIsCapturing = false;
-        if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
-            VisibleNodeWeakPtr pEventCaptureNode = 
-                    m_EventCaptureInfoMap[cursorID]->m_pNode;
-            if (pEventCaptureNode.expired()) {
-                m_EventCaptureInfoMap.erase(cursorID);
-            } else {
-                pDestNodes = pEventCaptureNode.lock()->getParentChain();
-            }
-        }
-
-        vector<VisibleNodeWeakPtr> pLastCursorNodes;
-        {
-            map<int, CursorStatePtr>::iterator it;
-            it = m_pLastCursorStates.find(cursorID);
-            if (it != m_pLastCursorStates.end()) {
-                pLastCursorNodes = it->second->getNodes();
-            }
-        }
-
-        // Send out events.
-        vector<VisibleNodeWeakPtr>::const_iterator itLast;
-        vector<VisibleNodeWeakPtr>::iterator itCur;
-        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
-                ++itLast)
-        {
-            VisibleNodePtr pLastNode = itLast->lock();
-            for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-                if (itCur->lock() == pLastNode) {
-                    break;
-                }
-            }
-            if (itCur == pCursorNodes.end()) {
-                if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
-                    sendOver(pEvent, Event::CURSOROUT, pLastNode);
-                }
-            }
-        }
-
-        // Send over events.
-        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            VisibleNodePtr pCurNode = itCur->lock();
-            for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
-                    ++itLast)
-            {
-                if (itLast->lock() == pCurNode) {
-                    break;
-                }
-            }
-            if (itLast == pLastCursorNodes.end()) {
-                if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
-                    sendOver(pEvent, Event::CURSOROVER, pCurNode);
-                }
-            }
-        }
-
-        if (!bOnlyCheckCursorOver) {
-            // Iterate through the nodes and send the event to all of them.
-            vector<VisibleNodeWeakPtr>::iterator it;
-            for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-                VisibleNodePtr pNode = (*it).lock();
-                if (pNode) {
-                    CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
-                            pEvent->cloneAs(pEvent->getType()));
-                    pNodeEvent->setNode(pNode);
-                    if (pNodeEvent->getType() != Event::CURSORMOTION) {
-                        pNodeEvent->trace();
-                    }
-                    if (pNode->handleEvent(pNodeEvent) == true) {
-                        // stop bubbling
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
-            // Cursor has disappeared: send out events.
-            if (bIsCapturing) {
-                VisibleNodePtr pNode = pDestNodes.begin()->lock();
-                sendOver(pEvent, Event::CURSOROUT, pNode);
-            } else {
-                vector<VisibleNodeWeakPtr>::iterator it;
-                for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-                    VisibleNodePtr pNode = it->lock();
-                    sendOver(pEvent, Event::CURSOROUT, pNode);
-                }
-            }
-            m_pLastCursorStates.erase(cursorID);
+    // Determine the nodes the event should be sent to.
+    vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
+    bool bIsCapturing = false;
+    if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
+        VisibleNodeWeakPtr pEventCaptureNode = 
+                m_EventCaptureInfoMap[cursorID]->m_pNode;
+        if (pEventCaptureNode.expired()) {
+            m_EventCaptureInfoMap.erase(cursorID);
         } else {
-            // Update list of nodes under cursor
-            if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
-                m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
-            } else {
-                m_pLastCursorStates[cursorID] =
-                        CursorStatePtr(new CursorState(pEvent, pCursorNodes));
+            pDestNodes = pEventCaptureNode.lock()->getParentChain();
+        }
+    }
+
+    vector<VisibleNodeWeakPtr> pLastCursorNodes;
+    {
+        map<int, CursorStatePtr>::iterator it;
+        it = m_pLastCursorStates.find(cursorID);
+        if (it != m_pLastCursorStates.end()) {
+            pLastCursorNodes = it->second->getNodes();
+        }
+    }
+
+    // Send out events.
+    vector<VisibleNodeWeakPtr>::const_iterator itLast;
+    vector<VisibleNodeWeakPtr>::iterator itCur;
+    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
+            ++itLast)
+    {
+        VisibleNodePtr pLastNode = itLast->lock();
+        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+            if (itCur->lock() == pLastNode) {
+                break;
+            }
+        }
+        if (itCur == pCursorNodes.end()) {
+            if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
+                sendOver(pEvent, Event::CURSOROUT, pLastNode);
             }
         }
     }
+
+    // Send over events.
+    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+        VisibleNodePtr pCurNode = itCur->lock();
+        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
+                ++itLast)
+        {
+            if (itLast->lock() == pCurNode) {
+                break;
+            }
+        }
+        if (itLast == pLastCursorNodes.end()) {
+            if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
+                sendOver(pEvent, Event::CURSOROVER, pCurNode);
+            }
+        }
+    }
+
+    if (!bOnlyCheckCursorOver) {
+        // Iterate through the nodes and send the event to all of them.
+        vector<VisibleNodeWeakPtr>::iterator it;
+        for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
+            VisibleNodePtr pNode = (*it).lock();
+            if (pNode) {
+                CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
+                        pEvent->cloneAs(pEvent->getType()));
+                pNodeEvent->setNode(pNode);
+                if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                    pNodeEvent->trace();
+                }
+                if (pNode->handleEvent(pNodeEvent) == true) {
+                    // stop bubbling
+                    break;
+                }
+            }
+        }
+    }
+
+    if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
+        // Cursor has disappeared: send out events.
+        if (bIsCapturing) {
+            VisibleNodePtr pNode = pDestNodes.begin()->lock();
+            sendOver(pEvent, Event::CURSOROUT, pNode);
+        } else {
+            vector<VisibleNodeWeakPtr>::iterator it;
+            for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
+                VisibleNodePtr pNode = it->lock();
+                sendOver(pEvent, Event::CURSOROUT, pNode);
+            }
+        }
+        m_pLastCursorStates.erase(cursorID);
+    } else {
+        // Update list of nodes under cursor
+        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
+            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
+        } else {
+            m_pLastCursorStates[cursorID] =
+                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
+        }
+    }
+
     if (pContact && pEvent->getType() == Event::CURSORUP && !bOnlyCheckCursorOver) {
         pContact->disconnectEverything();
     }
