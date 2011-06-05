@@ -28,18 +28,6 @@ import sys
 from libavg import avg
 from testcase import *
 
-def keyUp(Event):
-    print "keyUp"
-
-def keyDown(Event):
-    print "keyDown"
-    print Event
-    print "  Type: "+str(Event.type)
-    print "  keystring: "+Event.keystring
-    print "  scancode: "+str(Event.scancode)
-    print "  keycode: "+str(Event.keycode)
-    print "  modifiers: "+str(Event.modifiers)
-
 def dumpMouseEvent(Event):
     print Event
     print "  type: "+str(Event.type)
