@@ -155,6 +155,7 @@ void Contact::pushEvent(CursorEventPtr pEvent)
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
     pEvent->setContact(getThis());
+
     if (m_bFirstFrame) {
         // Ignore unless cursorup.
         if (pEvent->getType() == Event::CURSORUP) {
@@ -164,12 +165,19 @@ void Contact::pushEvent(CursorEventPtr pEvent)
             m_pNewEvents.push_back(pEvent);
         }
     } else {
-        if (m_pNewEvents.empty()) {
-            // No pending events: schedule for delivery.
-            m_pNewEvents.push_back(pEvent);
+        if (pEvent->getType() == Event::CURSORMOTION && 
+                getLastEvent()->getPos() == pEvent->getPos())
+        {
+            // Ignore motion events without motion.
+            return;
         } else {
-            // More than one event per poll: Deliver only the last one.
-            m_pNewEvents[0] = pEvent;
+            if (m_pNewEvents.empty()) {
+                // No pending events: schedule for delivery.
+                m_pNewEvents.push_back(pEvent);
+            } else {
+                // More than one event per poll: Deliver only the last one.
+                m_pNewEvents[0] = pEvent;
+            }
         }
     }
 }
