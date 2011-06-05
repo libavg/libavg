@@ -103,7 +103,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMethod(VB_NONE),
       m_VBMod(0),
       m_bMouseOverApp(true),
-      m_LastMousePos(-1, -1),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_MaxTexSize(0),
@@ -810,17 +809,17 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
+    DPoint lastMousePos = m_pLastMouseEvent->getPos();
     DPoint speed;
-    if (m_LastMousePos.x == -1) {
+    if (lastMousePos.x == -1) {
         speed = DPoint(0,0);
     } else {
         double lastFrameTime = 1000/getEffectiveFramerate();
-        speed = DPoint(x-m_LastMousePos.x, y-m_LastMousePos.y)/lastFrameTime;
+        speed = DPoint(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
             IntPoint(x, y), button, speed));
-    m_LastMousePos = IntPoint(x,y);
 
     // Contact handling
     if (type == Event::CURSORDOWN && !m_pContact) {
