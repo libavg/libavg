@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "AVGNode.h"
 #include "Contact.h"
+#include "TouchEvent.h"
 #include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
@@ -154,20 +155,20 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 //            cerr << "down: " << pos << endl; 
             m_LastID++;
             TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSORDOWN, pos,
-                    Event::TOUCH, DPoint(0,0), 0, 20, 1, DPoint(5,0), DPoint(0,5)));
+                    Event::TOUCH, 0, 20, 1, DPoint(5,0), DPoint(0,5)));
             addContact((long)pTouchInput->dwID, pEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
 //            cerr << "up: " << pos << endl; 
             ContactPtr pContact = getContact(pTouchInput->dwID);
-            TouchEventPtr pOldEvent = pContact->getLastEvent();
-            TouchEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
-                    Event::CURSORUP, pos, Event::TOUCH, DPoint(0,0), 0, 20, 1, 
+            CursorEventPtr pOldEvent = pContact->getLastEvent();
+            CursorEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
+                    Event::CURSORUP, pos, Event::TOUCH, 0, 20, 1, 
                     DPoint(5,0), DPoint(0,5)));
             pContact->pushEvent(pUpEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_MOVE) {
 //            cerr << "motion: " << pos << endl; 
-            TouchEventPtr pEvent (new TouchEvent(0, Event::CURSORMOTION, pos,
-                    Event::TOUCH, DPoint(0,0), 0, 20, 1, DPoint(5,0), DPoint(0,5)));
+            CursorEventPtr pEvent(new TouchEvent(0, Event::CURSORMOTION, pos,
+                    Event::TOUCH, 0, 20, 1, DPoint(5,0), DPoint(0,5)));
             ContactPtr pContact = getContact((long)pTouchInput->dwID);
             AVG_ASSERT(pContact);
             pContact->pushEvent(pEvent);

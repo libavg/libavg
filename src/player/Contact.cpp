@@ -51,7 +51,7 @@ Contact::~Contact()
 
 void Contact::disconnectEverything()
 {
-    for (int i = 0; i < m_pListeners.size(); ++i) {
+    for (unsigned i = 0; i < m_pListeners.size(); ++i) {
         Py_DECREF(m_pListeners[i]);
     }
     m_pListeners.clear();
@@ -209,13 +209,13 @@ void Contact::sendEventToListeners(CursorEventPtr pEvent)
 {
     m_bSendingEvents = true;
     AVG_ASSERT(pEvent->getContact() == getThis());
-    for (int i = 0; i < m_pListeners.size(); ++i) {
+    for (unsigned i = 0; i < m_pListeners.size(); ++i) {
         boost::python::call<void>(m_pListeners[i], 
                 boost::dynamic_pointer_cast<Event>(pEvent));
         pEvent->setNode(VisibleNodePtr());
     }
     m_bSendingEvents = false;
-    for (int i = 0; i < m_pDeadListeners.size(); ++i) {
+    for (unsigned i = 0; i < m_pDeadListeners.size(); ++i) {
         disconnectListener(m_pDeadListeners[i]);
     }
     m_pDeadListeners.clear();
@@ -232,7 +232,7 @@ void Contact::calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent)
         DPoint posDiff = pEvent->getPos() - pOldEvent->getPos();
         long long timeDiff = pEvent->getWhen() - pOldEvent->getWhen();
         if (timeDiff != 0) {
-            pEvent->setSpeed(posDiff/timeDiff);
+            pEvent->setSpeed(posDiff/double(timeDiff));
         }
     }
 }
