@@ -42,7 +42,7 @@ typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
 class Contact {
 public:
-    Contact(CursorEventPtr pEvent);
+    Contact(CursorEventPtr pEvent, bool bProcessEvents = true);
     virtual ~Contact();
     void disconnectEverything();
 
@@ -59,6 +59,7 @@ public:
     double getDistanceTravelled() const;
 
     void pushEvent(CursorEventPtr pEvent);
+    void addEvent(CursorEventPtr pEvent);
     CursorEventPtr pollEvent();
     CursorEventPtr getLastEvent();
     bool hasListeners() const;
@@ -70,6 +71,8 @@ private:
     void calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent);
     void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);
 
+    bool m_bProcessEvents;  // False for mouse contacts, where event polling is handled 
+                            // externally
     CursorEventPtr m_pFirstEvent;
     CursorEventPtr m_pLastEvent;
     std::vector<CursorEventPtr> m_pNewEvents;

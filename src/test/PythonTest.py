@@ -252,7 +252,7 @@ class PythonTestCase(AVGTestCase):
             Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
         
         def stop():
-            Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
+            Helper.fakeMouseEvent(avg.CURSORUP, False, False, False, 140, 40, 1)
         
         self.__dragEndCalled = False
         self.__dragStartCalled = False
@@ -1221,7 +1221,11 @@ class PythonTestCase(AVGTestCase):
 
     def __sendMouseEvent(self, type, x, y):
         Helper = Player.getTestHelper()
-        Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
+        if type == avg.CURSORUP:
+            button = False
+        else:
+            button = True
+        Helper.fakeMouseEvent(type, button, False, False, x, y, 1)
 
     def __sendTouchEvent(self, id, type, x, y):
         Helper = Player.getTestHelper()

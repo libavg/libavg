@@ -34,13 +34,16 @@ using namespace std;
 
 namespace avg {
 
-Contact::Contact(CursorEventPtr pEvent)
-    : m_bFirstFrame(true),
+Contact::Contact(CursorEventPtr pEvent, bool bProcessEvents)
+    : m_bProcessEvents(bProcessEvents),
+      m_bFirstFrame(true),
       m_bSendingEvents(false),
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
 {
-    m_pNewEvents.push_back(pEvent);
+    if (bProcessEvents) {
+        m_pNewEvents.push_back(pEvent);
+    }
     m_pFirstEvent = pEvent;
     m_pLastEvent = pEvent;
 }
@@ -64,7 +67,7 @@ void Contact::disconnectEverything()
 void Contact::setThis(ContactWeakPtr This)
 {
     m_This = This;
-    m_pNewEvents[0]->setContact(getThis());
+    m_pFirstEvent->setContact(getThis());
     Player::get()->registerContact(getThis());
 }
 
@@ -80,8 +83,16 @@ void Contact::connectListener(PyObject* pListener)
                 "Attempted to connect listener to cursor id " + toString(m_CursorID) +
                 ", but the cursor was already captured.");
     }
-    Py_INCREF(pListener);
-    m_pListeners.push_back(pListener);
+    bool bAlreadyConnected = false;
+    for (unsigned i = 0; i < m_pListeners.size(); ++i) {
+        if (PyObject_RichCompareBool(m_pListeners[i], pListener, Py_EQ)) {
+            bAlreadyConnected = true;
+        }
+    }
+    if (!bAlreadyConnected) {
+        Py_INCREF(pListener);
+        m_pListeners.push_back(pListener);
+    }
 }
 
 void Contact::disconnectListener(PyObject* pListener)
@@ -152,6 +163,7 @@ double Contact::getDistanceTravelled() const
 
 void Contact::pushEvent(CursorEventPtr pEvent)
 {
+    AVG_ASSERT(m_bProcessEvents);
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
     pEvent->setContact(getThis());
@@ -182,8 +194,19 @@ void Contact::pushEvent(CursorEventPtr pEvent)
     }
 }
 
+void Contact::addEvent(CursorEventPtr pEvent)
+{
+    AVG_ASSERT(!m_bProcessEvents);
+    pEvent->setCursorID(m_CursorID);
+    pEvent->setContact(getThis());
+    calcSpeed(pEvent, m_pLastEvent);
+    updateDistanceTravelled(m_pLastEvent, pEvent);
+    m_pLastEvent = pEvent;
+}
+
 CursorEventPtr Contact::pollEvent()
 {
+    AVG_ASSERT(m_bProcessEvents);
     if (m_pNewEvents.empty()) {
         return CursorEventPtr();
     } else {

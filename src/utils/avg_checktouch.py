@@ -28,7 +28,7 @@ class TouchApp(AVGApp):
     multitouch = True
 
     def init(self):
-        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, 
+        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, self, 
                 self.__onDown)
     
     def __onDown(self, event):

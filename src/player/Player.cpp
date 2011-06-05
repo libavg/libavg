@@ -1503,8 +1503,10 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
         }
     }
-
-    if (pContact && pEvent->getType() == Event::CURSORUP && !bOnlyCheckCursorOver) {
+    MouseEventPtr pMouseEvent = dynamic_pointer_cast<MouseEvent>(pEvent);
+    if (!bOnlyCheckCursorOver && pContact && pEvent->getType() == Event::CURSORUP &&
+            (!pMouseEvent || !pMouseEvent->isAnyButtonPressed()))
+    {
         pContact->disconnectEverything();
     }
 }

@@ -186,7 +186,11 @@ class PlayerTestCase(AVGTestCase):
         
         def sendEvent(type, x, y):
             Helper = Player.getTestHelper()
-            Helper.fakeMouseEvent(type, True, False, False,
+            if type == avg.CURSORUP:
+                button = False
+            else:
+                button = True
+            Helper.fakeMouseEvent(type, button, False, False,
                         x, y, 1)
         
         def disableCrop():

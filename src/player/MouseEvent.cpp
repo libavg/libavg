@@ -68,6 +68,11 @@ bool MouseEvent::getRightButtonState() const
     return m_RightButtonState;
 }
 
+bool MouseEvent::isAnyButtonPressed() const
+{
+    return m_LeftButtonState || m_MiddleButtonState || m_RightButtonState;
+}
+
 void MouseEvent::trace()
 {
     Event::trace();

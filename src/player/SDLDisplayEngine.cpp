@@ -34,6 +34,7 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
+#include "Contact.h"
 #ifdef HAVE_XI2_1
 #include "XInput21MTInputDevice.h"
 #endif
@@ -103,6 +104,8 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMod(0),
       m_bMouseOverApp(true),
       m_LastMousePos(-1, -1),
+      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
 {
@@ -818,8 +821,20 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
             IntPoint(x, y), button, speed));
     m_LastMousePos = IntPoint(x,y);
-    return pEvent; 
 
+    // Contact handling
+    if (type == Event::CURSORDOWN && !m_pContact) {
+        m_pContact = ContactPtr(new Contact(pEvent, false));
+        m_pContact->setThis(m_pContact);
+    } else if (!pEvent->isAnyButtonPressed() && m_pContact && type == Event::CURSORUP) {
+        m_pContact->addEvent(pEvent);
+        m_pContact = ContactPtr();
+    } else if (pEvent->isAnyButtonPressed() && m_pContact) {
+        m_pContact->addEvent(pEvent);
+    }
+
+    m_pLastMouseEvent = pEvent;
+    return pEvent; 
 }
 
 EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type, 

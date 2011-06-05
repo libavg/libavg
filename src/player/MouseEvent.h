@@ -41,6 +41,7 @@ class AVG_API MouseEvent : public CursorEvent {
         bool getLeftButtonState() const;
         bool getMiddleButtonState() const;
         bool getRightButtonState() const;
+        bool isAnyButtonPressed() const;
         int getButton() const;
         virtual CursorEventPtr cloneAs(Type EventType) const;
         virtual void trace();

@@ -187,7 +187,7 @@ class EventTestCase(AVGTestCase):
                         10, 10, 1),
                  lambda: self.assert_(mainMouseDownCalled and not(mainMouseUpCalled)),
                  reset,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: self.assert_(not(mainMouseDownCalled) and mainMouseUpCalled)
                 ))
@@ -222,7 +222,7 @@ class EventTestCase(AVGTestCase):
                  lambda: handlerTester1.assertState(
                         down=False, up=False, over=False, out=False, move=True),
 
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         12, 12, 1),
                  lambda: handlerTester1.assertState(
                         down=False, up=True, over=False, out=False, move=False)
@@ -240,7 +240,7 @@ class EventTestCase(AVGTestCase):
                         32, 32, 1),
                  lambda: handlerTester.assertState(
                         down=True, up=False, over=True, out=False, move=False),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         0, 0, 1),
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=False, out=True, move=False),
@@ -272,7 +272,7 @@ class EventTestCase(AVGTestCase):
                  lambda: imgHandlerTester.assertState(
                         down=False, up=False, over=False, out=False, move=True),
         
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         12, 12, 1),
                  lambda: divHandlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False),
@@ -350,7 +350,7 @@ class EventTestCase(AVGTestCase):
                  lambda: handlerTester2.assertState(
                         down=False, up=False, over=False, out=False, move=True),
 
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         12, 12, 1),
                  lambda: handlerTester1.assertState(
                         down=False, up=False, over=False, out=False, move=False),
@@ -379,7 +379,7 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
                      lambda: handlerTester.assertState(
                             down=False, up=False, over=False, out=False, move=False),
-                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                             10, 10, 1),
 
                      # Activate the node -> events arrive.
@@ -388,7 +388,7 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
                      lambda: handlerTester.assertState(
                             down=True, up=False, over=True, out=False, move=False),
-                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                             10, 10, 1),
                     ))
             self.img = None
@@ -406,7 +406,7 @@ class EventTestCase(AVGTestCase):
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=False, out=False, move=False),
                  lambda: handlerTester.setHandlers(),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: handlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False),
@@ -453,21 +453,21 @@ class EventTestCase(AVGTestCase):
                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: self.assert_(self.mouseDownCalled),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  captureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         100, 10, 1),
                  lambda: self.assert_(self.mouseDownCalled and 
                         self.mainMouseDownCalled),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         100, 10, 1),
                  noCaptureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         100, 10, 1),
                  lambda: self.assert_(not(self.mouseDownCalled) and 
                         self.mainMouseDownCalled),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         100, 10, 1),
                  doubleCaptureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -475,7 +475,7 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.mouseDownCalled and 
                         self.mainMouseDownCalled),
                  releaseTooMuch,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         100, 10, 1),
                 ))
         self.img = None
@@ -543,7 +543,7 @@ class EventTestCase(AVGTestCase):
                         not(self.img2MouseOutCalled) and 
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         70, 70, 1),
                  resetState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -555,7 +555,7 @@ class EventTestCase(AVGTestCase):
                         self.img2MouseOutCalled and 
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         70, 10, 1),
                  
                  resetState,
@@ -571,7 +571,7 @@ class EventTestCase(AVGTestCase):
 
                  resetState,
                  killNodeUnderCursor,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: self.assert_(
                         not(self.img2MouseOverCalled) and 
@@ -585,7 +585,7 @@ class EventTestCase(AVGTestCase):
                         10, 10, 1),
                  resetState,
                  lambda: Player.getElementByID("img2").setEventCapture(),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         70, 70, 1),
                  lambda: self.assert_(
                         self.img2MouseOverCalled and 
@@ -598,7 +598,7 @@ class EventTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 70, 1),
                  resetState,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: self.assert_(
                         not(self.img2MouseOverCalled) and 
