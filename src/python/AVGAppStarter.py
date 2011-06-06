@@ -41,18 +41,18 @@ g_log = avg.Logger.get()
 
 
 class AppStarter(object):
-    """Starts an AVGApp"""
+    '''Starts an AVGApp'''
     def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
             debugWindowSize=None, fakeFullscreen=False):
         if fakeFullscreen:
             if os.name != 'nt':
                 raise RuntimeError('fakeFullscreen works only under windows')
-                
+
             g_player.setTimeout(0, self.__fakeFullscreen)
 
         resolution = Point2D(resolution)
         testMode = not 'AVG_DEPLOY' in os.environ
-        
+
         if testMode and debugWindowSize is not None:
             debugWindowSize = Point2D(debugWindowSize)
         else:
@@ -72,9 +72,9 @@ class AppStarter(object):
                 int(debugWindowSize.x), int(debugWindowSize.y),
                 0 # color depth
                 )
-        
+
         self._startApp(appClass)
-    
+
     def _startApp(self, appClass):
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
@@ -82,19 +82,19 @@ class AppStarter(object):
         self._keyManager = apphelpers.KeyManager(
                 self._appInstance.onKeyDown,
                 self._appInstance.onKeyUp)
-        
+
         self._setupDefaultKeys()
-        
+
         self._appInstance.setStarter(self)
         g_player.play()
         self._appInstance.exit()
 
     def _setupBaseDivs(self, resolution):
-        g_player.loadString("""
+        g_player.loadString('''
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
 <avg width="%s" height="%s">
-</avg>""" % (resolution.x, resolution.y))
+</avg>''' % (resolution.x, resolution.y))
 
         rootNode = g_player.getRootNode()
         self._appNode = avg.DivNode(opacity=0, sensitive=False,
@@ -102,7 +102,7 @@ class AppStarter(object):
 
     def _setupDefaultKeys(self):
         pass
-        
+
     def _onBeforePlay(self):
         pass
 
@@ -119,7 +119,7 @@ class AppStarter(object):
         import win32api
 
         def findWindow(title):
-            def enumWinProc(h, lparams): 
+            def enumWinProc(h, lparams):
                 lparams.append(h)
             winList=[]
             win32gui.EnumWindows(enumWinProc, winList)
@@ -132,12 +132,12 @@ class AppStarter(object):
         hDesk = win32gui.GetDesktopWindow()
         (desktopLeft, desktopTop, desktopRight,
                 desktopBottom) = win32gui.GetWindowRect(hDesk)
-        w = findWindow("AVG Renderer")
+        w = findWindow('AVG Renderer')
         offSetX = 2
         offSetY = 3
         win32gui.SetWindowPos(w, win32con.HWND_TOP,
                 -(win32api.GetSystemMetrics(win32con.SM_CYBORDER) + offSetX),
-                -(win32api.GetSystemMetrics(win32con.SM_CYCAPTION) + offSetY), 
+                -(win32api.GetSystemMetrics(win32con.SM_CYCAPTION) + offSetY),
                 desktopRight, desktopBottom + 30, 0)
 
 
@@ -152,16 +152,16 @@ class AVGAppStarter(AppStarter):
         self.__showMTEvents = False
 
         super(AVGAppStarter, self).__init__(*args, **kwargs)
-        
+
     def _setupDefaultKeys(self):
         super(AVGAppStarter, self)._setupDefaultKeys()
         self._keyManager.bindKey('o', self.__dumpObjects, 'Dump objects')
         self._keyManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
         self._keyManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
         self._keyManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
-        self._keyManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')  
-        self._keyManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')  
-        self._keyManager.bindKey('s', self.__screenshot, 'Take screenshot')  
+        self._keyManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
+        self._keyManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
+        self._keyManager.bindKey('s', self.__screenshot, 'Take screenshot')
 
     def _onBeforePlay(self):
         super(AVGAppStarter, self)._onBeforePlay()
@@ -171,7 +171,7 @@ class AVGAppStarter(AppStarter):
                 size=rootNode.size,
                 parent=rootNode)
         self.__initClickTest()
-        
+
     def __initClickTest(self):
         if ClickTest:
             self._clickTest = ClickTest(self._appNode, multiClick=False)
@@ -179,7 +179,7 @@ class AVGAppStarter(AppStarter):
             self._clickTest = None
 
     def __onTouchDown(self, event):
-        touchVis = TouchVisualization(event,
+        touchVis = apphelpers.TouchVisualization(event,
                         parent=self.__touchVisOverlay)
         self.__touchViss[event.cursorid] = touchVis
 
@@ -197,8 +197,8 @@ class AVGAppStarter(AppStarter):
         gc.collect()
         testHelper = g_player.getTestHelper()
         testHelper.dumpObjects()
-        print "Num anims: ", avg.getNumRunningAnims()
-        print "Num python objects: ", len(gc.get_objects())
+        print 'Num anims: ', avg.getNumRunningAnims()
+        print 'Num python objects: ', len(gc.get_objects())
 
     def __showMemoryUsage(self):
         if self.__showingMemGraph:
@@ -208,13 +208,13 @@ class AVGAppStarter(AppStarter):
             if(self.__graphs == 1 ):
                 self.__frGraph.setYpos(10)
         else:
-            self.__memGraph = graph.MemGraph("Memory Graph",
-                    getValue = avg.getMemoryUsage)         
-            self.__graphs = self.__graphs +1          
+            self.__memGraph = graph.MemGraph('Memory Graph',
+                    getValue = avg.getMemoryUsage)
+            self.__graphs = self.__graphs +1
             if(self.__graphs > 1 ):
-                self.__memGraph.setYpos(190)       
+                self.__memGraph.setYpos(190)
         self.__showingMemGraph = not(self.__showingMemGraph)
-     
+
     def __showFrameRateUsage(self):
         if self.__showingFrGraph:
             self.__frGraph.delete()
@@ -222,14 +222,14 @@ class AVGAppStarter(AppStarter):
             self.__graphs = self.__graphs -1
             if(self.__graphs == 1 ):
                 self.__memGraph.setYpos(10)
-        else:      
-            self.__frGraph = graph.FrameRateGraph("FrameTime Graph",
+        else:
+            self.__frGraph = graph.FrameRateGraph('FrameTime Graph',
                     getValue = g_player.getFrameTime)
-            self.__graphs = self.__graphs +1 
-            if(self.__graphs >1):               
-                self.__frGraph.setYpos(190)           
+            self.__graphs = self.__graphs +1
+            if(self.__graphs >1):
+                self.__frGraph.setYpos(190)
         self.__showingFrGraph = not(self.__showingFrGraph)
-    
+
     def __switchClickTest(self):
         if self._clickTest:
             if self.__runningClickTest:
@@ -238,7 +238,7 @@ class AVGAppStarter(AppStarter):
             else:
                 g_log.trace(g_log.APP, 'Starting clicktest')
                 self._clickTest.start()
-            
+
             self.__runningClickTest = not self.__runningClickTest
 
     def __switchMtemu(self):
@@ -252,7 +252,7 @@ class AVGAppStarter(AppStarter):
                     'Toggle Touch Source')
             self._keyManager.bindKey('right ctrl', self._mtEmu.toggleSource,
                     'Toggle Touch Source')
-            
+
         else:
             self._mtEmu.deinit()
             self._keyManager.unbindKey('left ctrl')
@@ -299,13 +299,13 @@ class AVGAppStarter(AppStarter):
         except RuntimeError:
             text = 'Cannot save snapshot file'
         else:
-            text='Screenshot saved as ' + fnameTemplate % fnum
-        
+            text = 'Screenshot saved as ' + fnameTemplate % fnum
+
         self.__killNotifyNode()
-        
+
         self.__notifyNode = avg.WordsNode(
             text=text, x=g_player.getRootNode().width - 50,
             y=g_player.getRootNode().height - 50, alignment='right', fontsize=20,
             sensitive=False, parent=g_player.getRootNode())
-            
+
         g_player.setTimeout(2000, self.__killNotifyNode)

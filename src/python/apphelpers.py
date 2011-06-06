@@ -22,6 +22,7 @@ from libavg import avg
 
 g_player = avg.Player.get()
 
+
 class TouchVisualization(avg.DivNode):
     '''Visualisation Class for Touch and Track Events'''
     def __init__(self, event, **kwargs):

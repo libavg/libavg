@@ -12,8 +12,8 @@ import camcalibrator
 import textarea
 import statemachine
 from grabbable import Grabbable
-from AVGApp import AVGApp
-from AVGAppStarter import AVGAppStarter
+from AVGApp import AVGApp, App
+from AVGAppStarter import AVGAppStarter, AppStarter
 from AVGMTAppStarter import AVGMTAppStarter
 import AVGAppUtil
 import gameapp

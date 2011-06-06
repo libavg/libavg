@@ -64,6 +64,10 @@ class App(object):
         '''
         return cls.instances.get(cls.__name__, None)
 
+    @classmethod
+    def start(cls, appStarter=AppStarter, **kwargs):
+        appStarter(appClass=cls, **kwargs)
+
     def init(self):
         """main initialization
         build node hierarchy under self.__parentNode."""
@@ -119,10 +123,6 @@ class App(object):
 
     def getStarter(self):
         return self._starter
-        
-    @classmethod
-    def start(cls, appStarter=AppStarter, **kwargs):
-        appStarter(appClass=cls, **kwargs)
 
 
 class AVGApp(App):
