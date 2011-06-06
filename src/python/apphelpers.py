@@ -85,6 +85,45 @@ class TouchVisualization(avg.DivNode):
         self.line.pos = self.positions
 
 
+class TouchVisualizationOverlay(avg.DivNode):
+    def __init__(self, **kwargs):
+        super(TouchVisualizationOverlay, self).__init__(**kwargs)
+        self.sensitive = False
+        self.elementoutlinecolor='FFFFAA'
+
+        self.__touchVisElements = {}
+
+        rootNode = g_player.getRootNode()
+        avg.RectNode(parent=self, size=self.size,
+                fillopacity=0.2, fillcolor='000000')
+        rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
+                self, self.__onTouchUp)
+        rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
+                self, self.__onTouchDown)
+        rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
+                self, self.__onTouchMotion)
+    
+    def deinit(self):
+        rootNode = g_player.getRootNode()
+        rootNode.disconnectEventHandler(self, self.__onTouchDown)
+        rootNode.disconnectEventHandler(self, self.__onTouchUp)
+        rootNode.disconnectEventHandler(self, self.__onTouchMotion)
+
+    def __onTouchDown(self, event):
+        touchVis = TouchVisualization(event, parent=self)
+        self.__touchVisElements[event.cursorid] = touchVis
+
+    def __onTouchUp(self, event):
+        if event.cursorid in self.__touchVisElements:
+            self.__touchVisElements[event.cursorid].unlink(True)
+            self.__touchVisElements[event.cursorid] = None
+            del self.__touchVisElements[event.cursorid]
+
+    def __onTouchMotion(self, event):
+        if event.cursorid in self.__touchVisElements:
+            self.__touchVisElements[event.cursorid].move(event)
+
+
 class KeysCaptionNode():
     def __init__(self, keyManager):
         self.__keyManager = keyManager

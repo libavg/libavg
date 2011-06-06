@@ -39,7 +39,7 @@ class App(object):
         '''
 
         appname = self.__class__.__name__
-        if appname in AVGApp.instances:
+        if appname in AVGApp._instances:
             raise RuntimeError('App %s already setup' % appname)
             
         AVGApp._instances[appname] = self

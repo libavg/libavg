@@ -149,7 +149,7 @@ class AVGAppStarter(AppStarter):
         self.__showingFrGraph = False
         self.__runningClickTest = False
         self.__notifyNode = None
-        self.__showMTEvents = False
+        self.__touchVisOverlay = None
 
         super(AVGAppStarter, self).__init__(*args, **kwargs)
 
@@ -166,10 +166,6 @@ class AVGAppStarter(AppStarter):
     def _onBeforePlay(self):
         super(AVGAppStarter, self)._onBeforePlay()
         rootNode = g_player.getRootNode()
-        self.__touchViss = {}
-        self.__touchVisOverlay = avg.DivNode(sensitive=False,
-                size=rootNode.size,
-                parent=rootNode)
         self.__initClickTest()
 
     def __initClickTest(self):
@@ -177,21 +173,6 @@ class AVGAppStarter(AppStarter):
             self._clickTest = ClickTest(self._appNode, multiClick=False)
         else:
             self._clickTest = None
-
-    def __onTouchDown(self, event):
-        touchVis = apphelpers.TouchVisualization(event,
-                        parent=self.__touchVisOverlay)
-        self.__touchViss[event.cursorid] = touchVis
-
-    def __onTouchUp(self, event):
-        if event.cursorid in self.__touchViss:
-            self.__touchViss[event.cursorid].unlink(True)
-            self.__touchViss[event.cursorid] = None
-            del self.__touchViss[event.cursorid]
-
-    def __onTouchMotion(self, event):
-        if event.cursorid in self.__touchViss:
-            self.__touchViss[event.cursorid].move(event)
 
     def __dumpObjects(self):
         gc.collect()
@@ -252,7 +233,6 @@ class AVGAppStarter(AppStarter):
                     'Toggle Touch Source')
             g_kbManager.bindKey('right ctrl', self._mtEmu.toggleSource,
                     'Toggle Touch Source')
-
         else:
             self._mtEmu.deinit()
             g_kbManager.unbindKey('left ctrl')
@@ -264,24 +244,15 @@ class AVGAppStarter(AppStarter):
             self._mtEmu = None
 
     def __switchShowMTEvents(self):
-        rootNode = g_player.getRootNode()
-        self.__showMTEvents = not(self.__showMTEvents)
-        if self.__showMTEvents:
-            self.__touchVisOverlay = avg.DivNode(sensitive=False, size=self._appNode.size,
-                    parent=rootNode, elementoutlinecolor='FFFFAA')
-            avg.RectNode(parent = self.__touchVisOverlay, size=self._appNode.size,
-                    fillopacity=0.2, fillcolor='000000')
-            rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
-                    self, self.__onTouchUp)
-            rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
-                    self, self.__onTouchDown)
-            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
-                    self, self.__onTouchMotion)
+        if self.__touchVisOverlay is None:
+            rootNode = g_player.getRootNode()
+            self.__touchVisOverlay = apphelpers.TouchVisualizationOverlay(
+                    size=self._appNode.size, parent=rootNode)
         else:
-            rootNode.disconnectEventHandler(self, self.__onTouchDown)
-            rootNode.disconnectEventHandler(self, self.__onTouchUp)
-            rootNode.disconnectEventHandler(self, self.__onTouchMotion)
+            self.__touchVisOverlay.deinit()
             self.__touchVisOverlay.unlink(True)
+            del self.__touchVisOverlay
+            self.__touchVisOverlay = None
 
     def __killNotifyNode(self):
         if self.__notifyNode:

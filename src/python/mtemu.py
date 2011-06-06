@@ -60,14 +60,15 @@ class MTemu(object):
                 self, self.__onMouseDown)
         self.__rootNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE,
                 self, self.__onMouseMotion)
-        posX = self.__rootNode.size.x * 2/5
-        posY = self.__rootNode.size.y - 40
+        posX = self.__rootNode.size.x - 15
+        posY = self.__rootNode.size.y - 20
 
         self.__layer = avg.WordsNode(text='Multitouch emulation active',
                 pos=(posX, posY),
+                alignment = 'right',
                 color='DDDDDD',
                 sensitive=False,
-                fontsize=20,
+                fontsize=15,
                 parent=self.__rootNode)
         
     def deinit(self):
