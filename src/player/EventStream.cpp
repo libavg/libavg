@@ -59,9 +59,9 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
     DPoint c = pNewBlob->getCenter();
     bool bPosChanged;
     if (bKeepEvent) {
-        bPosChanged = (calcDist(c, m_Pos) > 1);
-    } else {
         bPosChanged = true;
+    } else {
+        bPosChanged = (calcDist(c, m_Pos) > 1);
     }
     switch (m_State) {
         case DOWN_PENDING:
@@ -139,8 +139,7 @@ EventPtr EventStream::pollevent(DeDistortPtr pDeDistort, const DRect& displayROI
                     m_pBlob, pos, source, speed));
         case DOWN_DELIVERED:
         case MOTION_DELIVERED:
-            return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
-                    m_pBlob, pos, source, speed));
+            return EventPtr();
         case UP_DELIVERED:
         default:
             //return no event

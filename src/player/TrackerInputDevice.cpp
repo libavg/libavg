@@ -326,7 +326,7 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
             pStream = pEvents->find(pOldBlob)->second;
             // Make sure we don't discard any events that have related info.
             bool bKeepAllEvents = pNewBlob->getFirstRelated() && !bTouch;
-            pStream->blobChanged(pNewBlob, time, !bKeepAllEvents);
+            pStream->blobChanged(pNewBlob, time, bKeepAllEvents);
             pNewBlob->calcNextCenter(pOldBlob->getCenter());
             // Update the mapping.
             (*pEvents)[pNewBlob] = pStream;
