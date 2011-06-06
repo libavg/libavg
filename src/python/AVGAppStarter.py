@@ -188,9 +188,9 @@ class TouchVisualization(avg.DivNode):
     '''Visualisation Class for Touch and Track Events'''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        self.cursorid = event.cursorid
+        event.contact.connectListener(self.move)
         self.pos = avg.Point2D(event.pos)
-        self.positions = [self.pos]
+        self.positions = [event.pos]
         radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
 
         if event.source == avg.TOUCH:
@@ -223,7 +223,7 @@ class TouchVisualization(avg.DivNode):
                                         sensitive=False, parent=self)
         fontPos = (self.__pulsecircle.r, 0)
         avg.WordsNode(pos=fontPos,
-                      text="<br/>".join([str(event.source),str(self.cursorid)]),
+                      text="<br/>".join([str(event.source),str(event.cursorid)]),
                       parent=self)
         self.line = avg.PolyLineNode(self.positions,
                                      color=color,
@@ -236,7 +236,7 @@ class TouchVisualization(avg.DivNode):
 
     def move(self, event):
         self.pos = event.pos
-        self.positions.append(self.pos)
+        self.positions.append(event.pos)
         if len(self.positions) > 100:
             self.positions.pop(0)
         radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
@@ -461,10 +461,6 @@ class AVGAppStarter(object):
             self.__touchViss[event.cursorid] = None
             del self.__touchViss[event.cursorid]
 
-    def __onTouchMotion(self, event):
-        if event.cursorid in self.__touchViss:
-            self.__touchViss[event.cursorid].move(event)
-
     def __dumpObjects(self):
         gc.collect()
         testHelper = g_player.getTestHelper()
@@ -541,12 +537,9 @@ class AVGAppStarter(object):
             rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
                                          self, self.__onTouchUp)
             rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,                                                                     self,self.__onTouchDown)
-            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
-                                         self, self.__onTouchMotion)
         else:
             rootNode.disconnectEventHandler(self, self.__onTouchDown)
             rootNode.disconnectEventHandler(self, self.__onTouchUp)
-            rootNode.disconnectEventHandler(self, self.__onTouchMotion)
             self.__touchVisOverlay.unlink(True)
 
     def __killNotifyNode(self):
