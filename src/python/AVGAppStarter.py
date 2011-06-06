@@ -22,6 +22,7 @@
 
 import os
 import gc
+import math
 import time
 
 from libavg import avg, Point2D
@@ -185,10 +186,16 @@ class FrameRateGraph(Graph):
 
 
 class TouchVisualization(avg.DivNode):
-    '''Visualisation Class for Touch and Track Events'''
+    '''Visualisation Class for Touch and Track Events
+       it displays:
+               Event-Type
+               ID
+               Distance from TouchDown-Point
+               Travelled Distance
+    '''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        event.contact.connectListener(self.move)
+        event.contact.connectListener(self.__move)
         self.pos = avg.Point2D(event.pos)
         self.positions = [event.pos]
         radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
@@ -221,20 +228,28 @@ class TouchVisualization(avg.DivNode):
                                         pos2=event.minoraxis,
                                         color="FFFFFF",
                                         sensitive=False, parent=self)
-        fontPos = (self.__pulsecircle.r, 0)
-        avg.WordsNode(pos=fontPos,
+        fontPos = avg.Point2D(self.__pulsecircle.r, 0)
+        textID = avg.WordsNode(pos=fontPos,
                       text="<br/>".join([str(event.source),str(event.cursorid)]),
                       parent=self)
-        self.line = avg.PolyLineNode(self.positions,
+        fontPos.y = textID.height
+        self.distFromStart = avg.WordsNode(pos=fontPos, parent=self, 
+                text=str(event.contact.distancefromstart))
+        fontPos.y += self.distFromStart.height
+        self.distTravelled = avg.WordsNode(pos=fontPos, parent=self,
+                text=str(event.contact.distancetravelled))
+        self.motionPath = avg.PolyLineNode(self.positions,
                                      color=color,
                                      parent=kwargs['parent'])
+        self.motionVector = avg.LineNode(pos1=(0,0) , pos2=event.contact.motionvec,
+            parent=self)
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
     def __del__(self):
-        self.line.unlink(True)
+        self.motionPath.unlink(True)
 
-    def move(self, event):
+    def __move(self, event):
         self.pos = event.pos
         self.positions.append(event.pos)
         if len(self.positions) > 100:
@@ -243,7 +258,10 @@ class TouchVisualization(avg.DivNode):
         self.__pulsecircle.r = radius
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
-        self.line.pos = self.positions
+        self.motionVector.pos2 = event.contact.motionvec
+        self.motionPath.pos = self.positions
+        self.distFromStart.text = str(event.contact.distancefromstart)
+        self.distTravelled.text = str(event.contact.distancetravelled)
 
 
 class AVGAppStarter(object):
