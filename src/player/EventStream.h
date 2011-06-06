@@ -60,10 +60,10 @@ class AVG_API EventStream
 
         EventStream(BlobPtr pFirstBlob, long long time);
         virtual ~EventStream();
-        void blobChanged(BlobPtr pNewBlob, long long time, bool bEventOnMove);
+        void blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent);
         void blobGone();
         EventPtr pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
-                CursorEvent::Source source, bool bEventOnMove);
+                CursorEvent::Source source);
         bool isGone();
         void setStale();
         bool isStale();

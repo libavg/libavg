@@ -31,7 +31,7 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
 "<!ELEMENT camera (driver|device|fw800|format|size|framerate|brightness|gamma|exposure|"
 "       gain|shutter|strobeduration)* >\n"
-"<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|"
+"<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|"
 "       contourprecision|historydelay|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|"
 "       bandpasspostmult)* >\n"
@@ -89,10 +89,6 @@ const char * g_pTrackerConfigDTD =
 
 "<!ELEMENT brighterregions EMPTY>\n"
 "<!ATTLIST brighterregions\n"
-"   value CDATA #REQUIRED >\n"
-
-"<!ELEMENT eventonmove EMPTY>\n"
-"<!ATTLIST eventonmove\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT threshold EMPTY>\n"

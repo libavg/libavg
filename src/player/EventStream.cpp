@@ -52,13 +52,13 @@ EventStream::~EventStream()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bEventOnMove)
+void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
 {
     AVG_ASSERT(m_pBlob);
     AVG_ASSERT(pNewBlob);
     DPoint c = pNewBlob->getCenter();
     bool bPosChanged;
-    if (bEventOnMove) {
+    if (bKeepEvent) {
         bPosChanged = (calcDist(c, m_Pos) > 1);
     } else {
         bPosChanged = true;
@@ -114,7 +114,7 @@ void EventStream::blobGone()
 }
 
 EventPtr EventStream::pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
-        CursorEvent::Source source, bool bEventOnMove)
+        CursorEvent::Source source)
 {
     AVG_ASSERT(m_pBlob);
     DPoint BlobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
@@ -139,12 +139,8 @@ EventPtr EventStream::pollevent(DeDistortPtr pDeDistort, const DRect& displayROI
                     m_pBlob, pos, source, speed));
         case DOWN_DELIVERED:
         case MOTION_DELIVERED:
-            if (!bEventOnMove) {
-                return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
-                        m_pBlob, pos, source, speed));
-            } else {
-                return EventPtr();
-            }
+            return EventPtr(new TouchEvent(m_ID, Event::CURSORMOTION,
+                    m_pBlob, pos, source, speed));
         case UP_DELIVERED:
         default:
             //return no event
