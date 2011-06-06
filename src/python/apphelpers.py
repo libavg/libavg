@@ -22,7 +22,6 @@ from libavg import avg
 
 g_player = avg.Player.get()
 
-
 class TouchVisualization(avg.DivNode):
     '''Visualisation Class for Touch and Track Events'''
     def __init__(self, event, **kwargs):
@@ -124,81 +123,72 @@ class TouchVisualizationOverlay(avg.DivNode):
             self.__touchVisElements[event.cursorid].move(event)
 
 
-class KeysCaptionNode():
-    def __init__(self, keyManager):
-        self.__keyManager = keyManager
-        self.__stackOfBackups = []      
-        self.__stackKeyDown = []
-        self.__stackKeyUp = []
-        self.__stackUnicodeDown = []
-        self.__stackUnicodeUp = []
+class KeysCaptionNode(avg.DivNode):
+    def __init__(self, **kwargs):
+        super(KeysCaptionNode, self).__init__(**kwargs)
+        self.sensitive = False
+        self.opacity = 0
         
-        self.__rectNode = g_player.createNode("""
-            <div id="RectNode" opacity="0" sensitive="False" x="5" y="10" size="(450,450)"> 
-                <rect id="rectWhite" strokewidth="0" fillopacity="0.1" 
-                        fillcolor="FFFFFF" pos="(5,5)" size="(450,450)"/>
-                <rect id="rectBlack" strokewidth="0" fillopacity="0.6" 
-                        fillcolor="000000" pos="(6,6)" size="(451,451)"/>
-            </div>
-        """)
-        self.__keysNode = g_player.createNode("""
-                    <words x="10" y="10" fontsize="18" opacity="1" 
-                            color="DDDDDD" text=""/>
-            """)
-        rootNode = g_player.getRootNode()
-        rootNode.appendChild(self.__rectNode)
-        self.__rectNode.appendChild(self.__keysNode)
+        self.__background = avg.RectNode(fillcolor='000000', fillopacity=0.6,
+                opacity=0, size=(450, 450), parent=self)
+                
+        # self.__stackOfBackups = []
+        # self.__stackKeyDown = []
+        # self.__stackKeyUp = []
+        # self.__stackUnicodeDown = []
+        # self.__stackUnicodeUp = []
+        
+        self.__keysNode = avg.WordsNode(pos=(10, 10), fontsize=18,
+                color='DDDDDD', parent=self)
         
         self.__isShown = False
        
     def toggleHelp(self):
         self.__isShown = not self.__isShown
         
-        self.__keyBindDown = self.__keyManager.getKeys('key', 'down')
-        self.__keyBindUp = self.__keyManager.getKeys('key', 'up')
-        self.__keycodeBindDown = self.__keyManager.getKeys('unicode', 'down')
-        self.__keycodeBindUp = self.__keyManager.getKeys('unicode', 'up')
+        self.__keyBindDown = g_kbManager.getKeys('key', 'down')
+        self.__keyBindUp = g_kbManager.getKeys('key', 'up')
+        self.__keycodeBindDown = g_kbManager.getKeys('unicode', 'down')
+        self.__keycodeBindUp = g_kbManager.getKeys('unicode', 'up')
         
-        
-        TextHelp = ''   
         if self.__isShown:
-            TextHelp = TextHelp + "<span><b>   ACTIVE KEYS </b><br/></span>"
+            helpText = '<span><b>   ACTIVE KEYS </b><br/></span>'
             for key in sorted(self.__keyBindDown.iterkeys()):
                 funcName = self.__keyBindDown[key][1]
-                TextHelp = TextHelp + \
-                    "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+                helpText = helpText + \
+                    '<span><b>%s</b>     <small>%s</small><br/></span>'% (key, funcName)
             
             for key in sorted(self.__keyBindUp.iterkeys()):
                 if not(key in self.__keyBindDown):
                     funcName = self.__keyBindUp[key][1]
-                    TextHelp = TextHelp + \
-                        "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+                    helpText = helpText + \
+                        '<span><b>%s</b>     ' + \
+                        '<small>%s</small><br/></span>'% (key, funcName)
             
             for key in sorted(self.__keycodeBindDown.iterkeys()):
                 funcName = self.__keycodeBindDown[key][1]
-                TextHelp = TextHelp + \
-                    "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+                helpText = helpText + \
+                    '<span><b>%s</b>     <small>%s</small><br/></span>'% (key, funcName)
             
             for key in sorted(self.__keycodeBindUp.iterkeys()):
                 if key in self.__keycodeBindDown:
                     pass
                 else:
                     funcName = self.__keycodeBindUp[key][1]
-                    TextHelp = TextHelp + \
-                        "<span><b>%s</b>     <small>%s</small><br/></span>"% (key, funcName)
+                    helpText = helpText + \
+                        '<span><b>%s</b>     ' + \
+                        '<small>%s</small><br/></span>'% (key, funcName)
             
-            self.__keysNode.text = TextHelp
-            self.__rectNode.opacity = 1
-            g_player.getElementByID('rectWhite').size = self.__keysNode.getMediaSize()
-            g_player.getElementByID('rectBlack').size = self.__keysNode.getMediaSize()
+            self.__keysNode.text = helpText
+            self.opacity = 1
+            self.__background.size = self.__keysNode.getMediaSize()
             
-            self.__rectNode.getParent().reorderChild(
-                    self.__rectNode.getParent().indexOf(self.__rectNode), 
-                    self.__rectNode.getParent().getNumChildren()-1) 
-            
+            self.getParent().reorderChild(
+                    self.getParent().indexOf(self), 
+                    self.getParent().getNumChildren()-1) 
         else:
             self.__keysNode.text = ''
-            self.__rectNode.opacity = 0
+            self.opacity = 0
             
     # def backupKeys(self):
     #     # backup keybindings if you change active app.
@@ -207,16 +197,16 @@ class KeysCaptionNode():
     #     
     #     # self.showHelp()
     #     
-    #     self.__stackKeyDown.append(self.__keyManager.getKeys('key', 'down'))
-    #     self.__stackKeyUp.append(self.__keyManager.getKeys('key', 'up'))
-    #     self.__stackUnicodeDown.append(self.__keyManager.getKeys('unicode','down'))
-    #     self.__stackUnicodeUp.append(self.__keyManager.getKeys('unicode','up'))
+    #     self.__stackKeyDown.append(g_kbManager.getKeys('key', 'down'))
+    #     self.__stackKeyUp.append(g_kbManager.getKeys('key', 'up'))
+    #     self.__stackUnicodeDown.append(g_kbManager.getKeys('unicode','down'))
+    #     self.__stackUnicodeUp.append(g_kbManager.getKeys('unicode','up'))
     #     
-    #     self.__keyManager.setKeys({}, 'key', 'down')
-    #     self.__keyManager.setKeys({}, 'key', 'up')
-    #     self.__keyManager.setKeys({}, 'unicode', 'down')
-    #     self.__keyManager.setKeys({}, 'unicode', 'up')
-    #     self.__keyManager.bindUnicode('?', self.__keyManager.activateHelp, 'HELP')
+    #     g_kbManager.setKeys({}, 'key', 'down')
+    #     g_kbManager.setKeys({}, 'key', 'up')
+    #     g_kbManager.setKeys({}, 'unicode', 'down')
+    #     g_kbManager.setKeys({}, 'unicode', 'up')
+    #     g_kbManager.bindUnicode('?', g_kbManager.activateHelp, 'HELP')
     #     
     # def restoreKeys(self):
     #     # restore keybindings if last active app will be active again.
@@ -224,10 +214,10 @@ class KeysCaptionNode():
     # 
     #     # self.showHelp()  
     #     
-    #     self.__keyManager.setKeys(self.__stackKeyDown.pop(), 'key', 'down')
-    #     self.__keyManager.setKeys(self.__stackKeyUp.pop(), 'key', 'up')
-    #     self.__keyManager.setKeys(self.__stackUnicodeDown.pop(), 'unicode', 'down')
-    #     self.__keyManager.setKeys(self.__stackUnicodeUp.pop(), 'unicode', 'up')
+    #     g_kbManager.setKeys(self.__stackKeyDown.pop(), 'key', 'down')
+    #     g_kbManager.setKeys(self.__stackKeyUp.pop(), 'key', 'up')
+    #     g_kbManager.setKeys(self.__stackUnicodeDown.pop(), 'unicode', 'down')
+    #     g_kbManager.setKeys(self.__stackUnicodeUp.pop(), 'unicode', 'up')
 
 
 class KeyboardManager(object):
@@ -241,6 +231,11 @@ class KeyboardManager(object):
         self.__keyBindUp = {}
         self.__unicodeBindDown = {}
         self.__unicodeBindUp = {}
+
+        self.__onKeyDownCb = lambda e: False
+        self.__onKeyUpCb = lambda e: False
+
+        self.__keyCaptionsNode = None
         
         KeyboardManager._instance = self
     
@@ -251,17 +246,27 @@ class KeyboardManager(object):
         
         return cls._instance
         
-    def setup(self, onKeyDownCb=lambda e: False, onKeyUpCb=lambda e: False):
+    def setup(self, onKeyDownCb, onKeyUpCb):
         rootNode = g_player.getRootNode()
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
         rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
         
         self.__onKeyDownCb = onKeyDownCb
         self.__onKeyUpCb = onKeyUpCb
-        
-        self.__keyCaptionsNode = KeysCaptionNode(self)
+
+        self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=rootNode)
         self.bindUnicode('?', self.__keyCaptionsNode.toggleHelp, 'HELP')
     
+    def teardown(self):
+        self.__keyBindDown = {}
+        self.__keyBindUp = {}
+        self.__unicodeBindDown = {}
+        self.__unicodeBindUp = {}
+        
+        self.__keyCaptionsNode.unlink(True)
+        del self.__keyCaptionsNode
+        self.__keyCaptionsNode = None
+        
     def bindKey(self, key, func, funcName, state = 'down'):
         if state == 'down':   
             if key in self.__keyBindDown:
@@ -278,12 +283,14 @@ class KeyboardManager(object):
     def unbindKey(self, key):
         if key in self.__keyBindDown:
             del self.__keyBindDown[key]
-        if key in self.__keyBindUp:
+        elif key in self.__keyBindUp:
             del self.__keyBindUp[key]
-        if key in self.__unicodeBindDown:
+        elif key in self.__unicodeBindDown:
             del self.__unicodeBindDown[key]
-        if key in self.__unicodeBindUp:
-            del self.__unicodeBindUp[key]    
+        elif key in self.__unicodeBindUp:
+            del self.__unicodeBindUp[key]
+        else:
+            raise KeyError('Key %s not found' % key)
 
     def bindUnicode(self, key, func, funcName, state = 'down'):
         if state == 'down':   
@@ -362,3 +369,5 @@ class KeyboardManager(object):
         elif self.__checkUnicode(event, self.__unicodeBindUp) == 2:
             self.__unicodeBindUp[unichr(event.unicode).encode("utf-8")][0]()
 
+
+g_kbManager = KeyboardManager.get()

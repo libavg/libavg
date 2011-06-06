@@ -88,7 +88,8 @@ class AppStarter(object):
         self._appInstance.setStarter(self)
         g_player.play()
         self._appInstance.exit()
-
+        g_kbManager.teardown()
+        
     def _setupBaseDivs(self, resolution):
         g_player.loadString('''
 <?xml version="1.0"?>
