@@ -134,12 +134,11 @@ class AVGApp(App):
     @classmethod
     def start(cls, **kwargs):
         # TODO: deprecation warning
-        
-        from AVGAppStarter import AVGAppStarter
-        from AVGMTAppStarter import AVGMTAppStarter
         if cls.multitouch:
+            from AVGAppStarter import AVGMTAppStarter
             starter = AVGMTAppStarter
         else:
+            from AVGAppStarter import AVGAppStarter
             starter = AVGAppStarter
         
         super(AVGApp, cls).start(appStarter=starter,

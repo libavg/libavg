@@ -194,7 +194,10 @@ class KeyBinding(object):
         return self.__state
         
     def checkKey(self, key, state):
-        return self.__state == state and self.__key == key
+        if state is not None and self.__state != state:
+            return False
+            
+        return self.__key == key
         
     def checkEvent(self, event, state):
         if self.__state != state:
@@ -243,7 +246,6 @@ class KeyboardManager(object):
         self.__onKeyUpCb = onKeyUpCb
 
         self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=rootNode)
-        self.bindKey('x', lambda:None, 'ciccio', 'up')
     
     def teardown(self):
         self.__keyBindings = []
@@ -280,7 +282,7 @@ class KeyboardManager(object):
         self.__keyBindings.append(KeyBinding(key, funcName, state, func))
         
     def unbindKey(self, key):
-        keyObj = self.__findKeyByKeystring(key, state)
+        keyObj = self.__findKeyByKeystring(key)
         
         if keyObj is not None:
             self.__keyBindings.remove(keyObj)
@@ -297,7 +299,7 @@ class KeyboardManager(object):
         
         return None
         
-    def __findKeyByKeystring(self, key, state):
+    def __findKeyByKeystring(self, key, state=None):
         for keyObj in self.__keyBindings:
             if keyObj.checkKey(key, state):
                 return keyObj
