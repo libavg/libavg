@@ -117,6 +117,8 @@ Player::Player()
       m_Volume(1),
       m_dtd(0),
       m_bPythonAvailable(true),
+      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
 #ifdef __linux
@@ -795,7 +797,7 @@ bool Player::clearInterval(int id)
 
 MouseEventPtr Player::getMouseState() const
 {
-    return m_MouseState.getLastEvent();
+    return m_pLastMouseEvent;
 }
 
 void Player::setMousePos(const IntPoint& pos)
@@ -977,7 +979,7 @@ bool Player::handleEvent(EventPtr pEvent)
         }
     }
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
-        m_MouseState.setEvent(pMouseEvent);
+        m_pLastMouseEvent = pMouseEvent;
     }
 
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
@@ -1653,7 +1655,8 @@ void Player::cleanup()
         m_pAudioEngine->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
-    m_MouseState = MouseState();
+    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
+            false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0));
 
     m_FrameTime = 0;
     m_bIsPlaying = false;

@@ -29,7 +29,6 @@
 #include "DisplayParams.h"
 #include "GLConfig.h"
 #include "CursorState.h"
-#include "MouseState.h"
 #include "TestHelper.h"
 
 #include "../audio/AudioParams.h"
@@ -265,7 +264,7 @@ class AVG_API Player
         
         std::map<int, EventCaptureInfoPtr> m_EventCaptureInfoMap;
 
-        MouseState m_MouseState;
+        MouseEventPtr m_pLastMouseEvent;
 
         // The indexes of these maps are cursorids.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
