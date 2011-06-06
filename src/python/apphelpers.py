@@ -37,36 +37,36 @@ class TouchVisualization(avg.DivNode):
         else:
             color = 'd8e5e5'
         self.__transparentCircle= avg.CircleNode(r=radius+20,
-                                                 fillcolor=color,
-                                                 fillopacity=0.2,
-                                                 opacity=0.0,
-                                                 strokewidth=1,
-                                                 sensitive=False,
-                                                 parent=self)
+                fillcolor=color,
+                fillopacity=0.2,
+                opacity=0.0,
+                strokewidth=1,
+                sensitive=False,
+                parent=self)
         self.__pulsecircle = avg.CircleNode(r=radius,
-                                            fillcolor=color,
-                                            color=color,
-                                            fillopacity=0.5,
-                                            opacity=0.5,
-                                            strokewidth=1,
-                                            sensitive=False,
-                                            parent=self)
+                fillcolor=color,
+                color=color,
+                fillopacity=0.5,
+                opacity=0.5,
+                strokewidth=1,
+                sensitive=False,
+                parent=self)
         self.__majorAxis = avg.LineNode(pos1=(0,0),
-                                        pos2=event.majoraxis,
-                                        color="FFFFFF",
-                                        sensitive=False,
-                                        parent=self)
+                pos2=event.majoraxis,
+                color="FFFFFF",
+                sensitive=False,
+                parent=self)
         self.__minorAxis = avg.LineNode(pos1=(0,0),
-                                        pos2=event.minoraxis,
-                                        color="FFFFFF",
-                                        sensitive=False, parent=self)
+                pos2=event.minoraxis,
+                color="FFFFFF",
+                sensitive=False, parent=self)
         fontPos = (self.__pulsecircle.r, 0)
         avg.WordsNode(pos=fontPos,
-                      text="<br/>".join([str(event.source),str(self.cursorid)]),
-                      parent=self)
+                text="<br/>".join([str(event.source),str(self.cursorid)]),
+                parent=self)
         self.line = avg.PolyLineNode(self.positions,
-                                     color=color,
-                                     parent=kwargs['parent'])
+                color=color,
+                parent=kwargs['parent'])
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
