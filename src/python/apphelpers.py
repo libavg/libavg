@@ -23,23 +23,65 @@ from libavg import avg
 g_player = avg.Player.get()
 
 class TouchVisualization(avg.DivNode):
+    '''Visualisation Class for Touch and Track Events'''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
         self.cursorid = event.cursorid
-        self.pos = event.pos
-        radius = event.majoraxis.getNorm()
-        self.__circle = avg.CircleNode(r=radius, fillcolor="FFFFFF", fillopacity=0.5,
-                strokewidth=0, parent=self)
-        self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis, color="FFFFFF",
-                parent=self)
-        self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis, color="FFFFFF",
-                parent=self)
+        self.pos = avg.Point2D(event.pos)
+        self.positions = [self.pos]
+        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
+
+        if event.source == avg.TOUCH:
+            color = 'e5d8d8'
+        else:
+            color = 'd8e5e5'
+        self.__transparentCircle= avg.CircleNode(r=radius+20,
+                                                 fillcolor=color,
+                                                 fillopacity=0.2,
+                                                 opacity=0.0,
+                                                 strokewidth=1,
+                                                 sensitive=False,
+                                                 parent=self)
+        self.__pulsecircle = avg.CircleNode(r=radius,
+                                            fillcolor=color,
+                                            color=color,
+                                            fillopacity=0.5,
+                                            opacity=0.5,
+                                            strokewidth=1,
+                                            sensitive=False,
+                                            parent=self)
+        self.__majorAxis = avg.LineNode(pos1=(0,0),
+                                        pos2=event.majoraxis,
+                                        color="FFFFFF",
+                                        sensitive=False,
+                                        parent=self)
+        self.__minorAxis = avg.LineNode(pos1=(0,0),
+                                        pos2=event.minoraxis,
+                                        color="FFFFFF",
+                                        sensitive=False, parent=self)
+        fontPos = (self.__pulsecircle.r, 0)
+        avg.WordsNode(pos=fontPos,
+                      text="<br/>".join([str(event.source),str(self.cursorid)]),
+                      parent=self)
+        self.line = avg.PolyLineNode(self.positions,
+                                     color=color,
+                                     parent=kwargs['parent'])
+        pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
+        pulseCircleAnim.start()
+
+    def __del__(self):
+        self.line.unlink(True)
 
     def move(self, event):
         self.pos = event.pos
-        self.__circle.r = event.majoraxis.getNorm()+1
+        self.positions.append(self.pos)
+        if len(self.positions) > 100:
+            self.positions.pop(0)
+        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
+        self.__pulsecircle.r = radius
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
+        self.line.pos = self.positions
 
 
 class KeysCaptionNode():

@@ -174,7 +174,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
         ClicktestApp.start(resolution=TEST_RESOLUTION)
     
     def testToggleKeys(self):
-        TOGGLE_KEYS = ['?', 't']
+        TOGGLE_KEYS = ['?', 't', 'e']
         class ToggleKeysApp(TestAppBase):
             def init(self):
                 self.keys = TOGGLE_KEYS[:]

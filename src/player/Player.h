@@ -108,7 +108,6 @@ class AVG_API Player
         TestHelper * getTestHelper();
         void setFakeFPS(double fps);
         long long getFrameTime();
-        long long getTimeSinceLastFrame();
         double getFrameDuration();
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);

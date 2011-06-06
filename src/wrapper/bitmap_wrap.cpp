@@ -24,6 +24,7 @@
 #include "../player/BoostPython.h"
 
 #include "../graphics/Bitmap.h"
+#include "../graphics/BitmapManager.h"
 
 #include "../base/Point.h"
 
@@ -151,4 +152,10 @@ void export_bitmap()
                 return_value_policy<copy_const_reference>())
     ;
     
+    class_<BitmapManager>("BitmapManager", no_init)
+        .def("get", &BitmapManager::get,
+                return_value_policy<reference_existing_object>())
+        .staticmethod("get")
+        .def("loadBitmap", &BitmapManager::loadBitmap)
+    ;
 }

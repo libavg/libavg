@@ -178,12 +178,27 @@ class AVGAppStarter(AppStarter):
         else:
             self._clickTest = None
 
+    def __onTouchDown(self, event):
+        touchVis = TouchVisualization(event,
+                        parent=self.__touchVisOverlay)
+        self.__touchViss[event.cursorid] = touchVis
+
+    def __onTouchUp(self, event):
+        if event.cursorid in self.__touchViss:
+            self.__touchViss[event.cursorid].unlink(True)
+            self.__touchViss[event.cursorid] = None
+            del self.__touchViss[event.cursorid]
+
+    def __onTouchMotion(self, event):
+        if event.cursorid in self.__touchViss:
+            self.__touchViss[event.cursorid].move(event)
+
     def __dumpObjects(self):
         gc.collect()
         testHelper = g_player.getTestHelper()
         testHelper.dumpObjects()
         print "Num anims: ", avg.getNumRunningAnims()
-        print "Num python objects: ", len(gc.get_objects()) 
+        print "Num python objects: ", len(gc.get_objects())
 
     def __showMemoryUsage(self):
         if self.__showingMemGraph:
@@ -200,7 +215,6 @@ class AVGAppStarter(AppStarter):
                 self.__memGraph.setYpos(190)       
         self.__showingMemGraph = not(self.__showingMemGraph)
      
-        
     def __showFrameRateUsage(self):
         if self.__showingFrGraph:
             self.__frGraph.delete()
@@ -230,59 +244,44 @@ class AVGAppStarter(AppStarter):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            self._keyManager.bindKey('left ctrl',
-                    self._mtEmu.changeMode, 'switch event mode')
-            self._keyManager.bindKey('right ctrl',
-                    self._mtEmu.changeMode, 'switch event mode')
-            self._keyManager.bindKey('left shift',
-                    self._mtEmu.multiTouch, 'create 2nd event')
-            self._keyManager.bindKey('right shift',
-                    self._mtEmu.multiTouch, 'create 2nd event')
-            self._keyManager.bindKey('left shift',
-                    self._mtEmu.multiTouch, 'create 2nd event', 'up')
-            self._keyManager.bindKey('right shift',
-                    self._mtEmu.multiTouch, 'create 2nd event', 'up')
+            self._keyManager.bindKey('left shift', self._mtEmu.toggleDualTouch,
+                    'Toggle Multitouch Emulation')
+            self._keyManager.bindKey('right shift', self._mtEmu.toggleDualTouch,
+                    'Toggle Multitouch Emulation')
+            self._keyManager.bindKey('left ctrl', self._mtEmu.toggleSource,
+                    'Toggle Touch Source')
+            self._keyManager.bindKey('right ctrl', self._mtEmu.toggleSource,
+                    'Toggle Touch Source')
             
         else:
-            self.unbindKey('left ctrl')
-            self.unbindKey('right ctrl')
-            self.unbindKey('left shift')
-            self.unbindKey('right shift')
-            self._mtEmu.delete()
+            self._mtEmu.deinit()
+            self._keyManager.unbindKey('left ctrl')
+            self._keyManager.unbindKey('right ctrl')
+            self._keyManager.unbindKey('left shift')
+            self._keyManager.unbindKey('right shift')
+
+            del self._mtEmu
             self._mtEmu = None
-   
+
     def __switchShowMTEvents(self):
+        rootNode = g_player.getRootNode()
         self.__showMTEvents = not(self.__showMTEvents)
         if self.__showMTEvents:
-            self.__oldEventHook = g_player.getEventHook()
-            g_player.setEventHook(self.__showMTEventHook)
+            self.__touchVisOverlay = avg.DivNode(sensitive=False, size=self._appNode.size,
+                    parent=rootNode, elementoutlinecolor='FFFFAA')
+            avg.RectNode(parent = self.__touchVisOverlay, size=self._appNode.size,
+                    fillopacity=0.2, fillcolor='000000')
+            rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
+                    self, self.__onTouchUp)
+            rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
+                    self, self.__onTouchDown)
+            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
+                    self, self.__onTouchMotion)
         else:
-            g_player.setEventHook(self.__oldEventHook)
-            for id, touchVis in self.__touchViss.items():
-                touchVis.unlink(True)
-            self.__touchViss = {}
-
-    def __showMTEventHook(self, event):
-        if (isinstance(event, avg.TouchEvent) and event.source == avg.TOUCH and
-                (event.type == avg.CURSORDOWN or event.type == avg.CURSORMOTION or
-                 event.type == avg.CURSORUP)):
-            try:
-                touchVis = self.__touchViss[event.cursorid]
-            except KeyError:
-                touchVis = apphelpers.TouchVisualization(event, 
-                        parent=self.__touchVisOverlay)
-                self.__touchViss[event.cursorid] = touchVis
-            if event.type == avg.CURSORDOWN:
-                pass
-            elif event.type == avg.CURSORMOTION:
-                touchVis.move(event)
-            elif event.type == avg.CURSORUP:
-                touchVis.unlink(True)
-                del self.__touchViss[event.cursorid]
-        if self.__oldEventHook:
-            return self.__oldEventHook()
-        else:
-            return False
+            rootNode.disconnectEventHandler(self, self.__onTouchDown)
+            rootNode.disconnectEventHandler(self, self.__onTouchUp)
+            rootNode.disconnectEventHandler(self, self.__onTouchMotion)
+            self.__touchVisOverlay.unlink(True)
 
     def __killNotifyNode(self):
         if self.__notifyNode:
@@ -294,7 +293,7 @@ class AVGAppStarter(AppStarter):
         fnameTemplate = 'screenshot-%03d.png'
         while os.path.exists(fnameTemplate % fnum):
             fnum += 1
-        
+
         try:
             g_player.screenshot().save('screenshot-%03d.png' % fnum)
         except RuntimeError:

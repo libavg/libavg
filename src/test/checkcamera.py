@@ -23,206 +23,206 @@
 #
 
 from libavg import *
-import argparse
+import camcfgs
+import optparse
 import traceback
 
+from testcase import *
 
 g_player = avg.Player.get()
 
-class CameraTest(AVGApp):
-    
-    def init(self):  
-        self.testNumber = 0   
-        self.bitMaps = []
-        validCameras = ('dragonfly', 'firefly')
-        parser = argparse.ArgumentParser(description=
-                'A test to check camera features')
-        parser.add_argument('-c', '--camera', dest='camera', action='store',
-        type=str, choices=validCameras,
-        help = 'Select which camera model to test (Supported: Dragonfly, Firefly)')    
-        args = parser.parse_args()
-        #args.camera = 'firefly'   
-        #args.camera = 'dragonfly'     
-        if args.camera == 'dragonfly':
-            self.dragonfly2()       
-        if args.camera == 'firefly':
-            self.firefly()
-        if args.camera is None:
-            parser.print_help()
-            g_player.stop() 
-    
-    def dragonfly2(self):
-        self.value = {'gain': [0, 346, 683], 'shutter': [0, 351, 704], 
-                'saturation': [0, 3700, 4095], 'camgamma': [0, 1278, 4095], 
-                'brightness': [0, 127, 254], 'setwhitebalance': 
-                [[1,1], [511, 511], [1023, 1023]], 
-                'default': dict(gain=300, shutter=220, saturation=1200, camgamma=1200,
-                brightness=120, setWhitebalance=[450, 450])}
-        self.testValues = [('gain', 10, 30), ('camgamma',30 ,50),
-                ('saturation', 1, 1), ('brightness', 6, 6), ('shutter', 20, 20),
-                ('setwhitebalance',1 ,1)]
-        #driver, device, unit, fw809, framerate, capturewidth, captureheight,
-        #pixelformat, parent
-        self.formats = [
-                ('firewire', '', -1, False, 30, 320, 240, 'YUYV422', self._parentNode),
-                ('firewire', '', -1, False, 30, 1024, 768, 'I8', self._parentNode), 
-                ('firewire', '', -1, False, 7.5, 1024, 768, 'I8', self._parentNode),
-                ('firewire', '', -1, False, 15, 1024, 768, 'I16', self._parentNode), 
-                ('firewire', '', -1, False, 30, 320, 240, 'YUV422', self._parentNode),
-                ('firewire', '', -1, False, 15, 800, 600, 'YUV422', self._parentNode),
-                ('firewire', '', -1, False, 7.5, 1024, 768, 'YUV422', self._parentNode),
-                ('firewire', '', -1, False, 7.5, 1024, 768, 'YUV411', self._parentNode),
-                ('firewire', '', -1, False, 30, 640, 480, 'RGB', self._parentNode)]
-        self.cmds = []
-        self.cmdsBuilder()
-        self.looper()
-    
-    def firefly(self):
-        self.value = {'gain': [16, 30, 64], 'shutter': [1, 150, 531],  
-                'brightness': [1, 130, 255], 'default': 
-                dict(gain=16, shutter=100, brightness=130)}
-        self.testValues = [('gain', 15, 15), ('shutter', 50, 20),('brightness', 10, 10)]
-        self.formats = [
-                ('firewire', '', -1, False, 7.5, 123, 480, 'I8', self._parentNode),
-                ('firewire', '', -1, False, 15, 640, 480, 'I8', self._parentNode),
-                ('firewire', '', -1, False, 7.5, 640, 480, 'I16', self._parentNode),
-                ('firewire', '', -1, False, 15, 640, 480, 'I16', self._parentNode),
-                ('firewire', '', -1, False, 60, 640, 480, 'I8', self._parentNode),
-                ('firewire', '', -1, False, 30, 640, 480, 'I16', self._parentNode),
-                ('firewire', '', -1, False, 30, 640, 480, 'I8', self._parentNode)]
-        self.cmds = []
-        self.cmdsBuilder()
-        self.looper()  
+def parseCmdLine():
+    global g_TestParams
+
+    validCameras = ('Dragonfly', 'FireflyMV', 'Firei', 'DFx31BF03', 'QuickCamProLinux',
+            'QuickCamProBGRWin', 'QuickCamPro9Win')
+    parser = optparse.OptionParser(usage=
+"""%prog cameraname [option]. 
+A test to check camera features support by libavg. Supported cameras are """
++ str(validCameras))
+#    parser.add_argument(dest='camera', action='store', type=str, 
+#            choices=validCameras, help = 'Select which camera model to test.')
+    parser.add_option('--test-params', '-p', dest='testParams', action='store_true',
+            default=False, 
+            help='Execute optional tests for camera params like gain, shutter, etc.')
+    (options, args) = parser.parse_args()
+    g_TestParams = options.testParams
+    if len(args) != 1:
+        parser.error("Must be invoked with camera name as argument")
+    cameraName = args[0]
+    if cameraName == 'Dragonfly':
+        return camcfgs.Dragonfly2
+    elif cameraName == 'FireflyMV':
+        return camcfgs.FireflyMV
+    elif cameraName == 'Firei':
+        return camcfgs.Firei 
+    elif cameraName == 'DFx31BF03':
+        return camcfgs.DFx31BF03Cfg
+    elif cameraName == 'QuickCamProLinux':
+        return camcfgs.QuickCamProLinux
+    elif cameraName == 'QuickCamPro9Win':
+        return camcfgs.QuickCamPro9Win
+    elif cameraName == 'QuickCamProBGRWin':
+        return camcfgs.QuickCamProBGRWin
+    else:
+        parser.error("Unknown camera name '" + cameraName + "'.")
+
+class CameraTestCase(AVGTestCase):
+    def __init__(self, cameraCfg, fmt, testFuncName, *testFuncArgs):
+        self.cameraCfg = cameraCfg
+        self.fmt = fmt
+        self.testFuncArgs = testFuncArgs
+        AVGTestCase.__init__(self, testFuncName)
         
-    def looper(self):
-        time = 0
-        for i in self.formats:
-            set = lambda i=i: self.setCamera(i)
-            if i is self.formats[-1]:
-                run = lambda cmds = self.cmds: self.runCameraTest(cmds)
-                g_player.setTimeout(time, set)
-                g_player.setTimeout(time, run)  
+    def testFormat(self):
+        self.__dumpFormat()
+        self.loadEmptyScene()
+        self.__openCamera()
+        self.actions = [None, None]
+        g_player.setOnFrameHandler(self.__onFrame)
+        g_player.play()
+        self.assert_(self.cam.framenum == 2)
+        self.cam = None
+
+    def testIllegalFormat(self):
+        self.loadEmptyScene()
+        self.assertException(lambda: self.__openCamera())
+
+    def testCreateDelete(self):
+        # Create and delete without ever calling play.
+        self.__openCamera()
+        self.cam.unlink(True)
+
+    def testParams(self):
+        def buildParamActionList(testCfg):
+            actions = []
+            actions.append(setDefaultParams)
+            actions.append(None)
+            for val in testCfg.testValues:
+                actions.append(lambda paramName=testCfg.name, val=val: 
+                        setCamParam(paramName, val))
+                actions.append(None)
+                actions.append(None)
+                actions.append(None)
+                actions.append(lambda name=testCfg.name: calcCamImgAverage(name))
+            actions.append(lambda testCfg=testCfg: checkCamImageChange(testCfg))
+            return actions
+
+        def setDefaultParams():
+            for (paramName, val) in cameraCfg.defaultParams.iteritems():
+                if paramName == "setWhitebalance":
+                    self.cam.setWhitebalance(*val)
+                else:
+                    setattr(self.cam, paramName, val)
+               
+        def setCamParam(paramName, val):
+            if paramName == 'setwhitebalance':
+                self.cam.setWhitebalance(*val)
+            else:
+                setattr(self.cam, paramName, val)
+
+        def calcCamImgAverage(param):
+            bmp = self.cam.getBitmap()
+            self.camBmps.append(bmp)
+            if isColorParam(param):
+                colour = []
+                colour.append(bmp.getChannelAvg(0))
+                colour.append(bmp.getChannelAvg(1))
+                colour.append(bmp.getChannelAvg(2))
+                self.averages.append(colour)
             else:    
-                g_player.setTimeout(time, set)
-                g_player.setTimeout(time + 2000, self.destroyCamera)
-                time += 4000
-    
-    def setCamera(self, format):
-        try:
-            self.cam = avg.CameraNode(driver=format[0], device=format[1], unit=format[2],
-                    fw800=format[3], framerate=format[4], capturewidth=format[5],
-                    captureheight=format[6], pixelformat=format[7], parent=format[8])
-            self.cam.play()
-            if format is not self.formats[-1]:
-                try:
-                    self.frameTest(format)
-                except:
-                    pass
-                    
-        except:
-            print "Settings test FAILED. Settings: "+str(format[:8])
-            traceback.print_exc()
+                self.averages.append(bmp.getAvg())
+
+        def checkCamImageChange(testCfg):
             
-    def frameTest(self, format):
-            self.runCameraTest((lambda: self.setDefault(self.value['default']),
-                    None, None, None, None, None, None, 
-                    lambda a=format: self.frameTestOk(a), None))
-            
-    def frameTestOk(self, format):
-            print "Frames are changing with settings:"+str(format[:8])
-    
-    def runCameraTest(self, actions):
-        self.actions = actions
-        self.curFrame = 0
-        self.next_ID = g_player.setOnFrameHandler(self.nextAction)
-        self.lastCameraFrame = -1  
-    
-    def nextAction(self):
+            def saveCamImages():
+                print
+                print "Average image brightnesses: ",minAverages, medAverages, maxAverages
+                dir = AVGTestCase.getImageResultDir()
+                for (i, category) in enumerate(("min", "med", "max")):
+                    self.camBmps[i].save(dir+"/cam"+testCfg.name+category+".png")
+
+            minAverages = self.averages[0]
+            medAverages = self.averages[1]
+            maxAverages = self.averages[2]
+            ok = False
+            if isColorParam(testCfg.name):
+                pass
+            else:
+                if minAverages+testCfg.minMedDiff > medAverages:
+                    saveCamImages()
+                    self.assert_(False)
+                if medAverages+testCfg.medMaxDiff > maxAverages:
+                    saveCamImages()
+                    self.assert_(False)
+            self.averages = [] 
+            self.camBmps = []
+
+        def isColorParam(paramName):
+            return paramName in ['saturation', 'setwhitebalance']
+
+        testCfg = self.testFuncArgs[0]
+        print >>sys.stderr, testCfg.name, " ",
+        self.loadEmptyScene()
+        self.__openCamera()
+        self.actions = buildParamActionList(testCfg)
+        g_player.setOnFrameHandler(self.__onFrame)
+        self.averages = []
+        self.camBmps = []
+        g_player.play()
+        self.cam = None
+
+    def __openCamera(self):
+        self.cam = avg.CameraNode(driver=self.cameraCfg.driver, 
+                device=self.cameraCfg.device, unit=self.cameraCfg.unit,
+                fw800=self.cameraCfg.fw800, framerate=self.fmt.framerate,
+                capturewidth=self.fmt.size[0], captureheight=self.fmt.size[1],
+                pixelformat=self.fmt.pixelformat,
+                parent=g_player.getRootNode())
+        self.cam.play()
+        self.lastCameraFrame = -1
+        self.assert_(self.cam.isAvailable())
+
+    def __onFrame(self):
+        # We execute one action per camera frame.
+#        print self.cam.framenum
         if self.cam.framenum != self.lastCameraFrame:
-            #print self.curFrame, self.lastCameraFrame, self.cam.framenum
             self.lastCameraFrame += 1
             if len(self.actions) == self.lastCameraFrame:
-                g_player.clearInterval(self.next_ID)
-                pass
+                g_player.stop()
             else:
                 action = self.actions[self.lastCameraFrame]
                 if action != None:
                     action()
-        self.curFrame += 1
-        
-    def setCamParam (self, param, value):
-        if param == 'setwhitebalance':
-            self.cam.setWhitebalance(*value)
-        else:
-            setattr(self.cam, param, value)
-    
-    def getCamImg (self, param):
-        if param in ['saturation', 'setwhitebalance']:
-            colour = []
-            colour.append(self.cam.getBitmap().getChannelAvg(0))
-            colour.append(self.cam.getBitmap().getChannelAvg(1))
-            colour.append(self.cam.getBitmap().getChannelAvg(2))
-            self.bitMaps.append(colour)
-        else:    
-            self.bitMaps.append(self.cam.getBitmap().getAvg())
-        
-    
-    def testCamImage (self, minMedDiff, medMaxDiff, param):
-        ok = False
-        if param == 'saturation':
-            if self.bitMaps[0][0] == self.bitMaps[0][1] == self.bitMaps[0][2] and\
-                    self.bitMaps[0][1] < self.bitMaps[2][1] and\
-                    self.bitMaps[2][1] > self.bitMaps[1][2] > self.bitMaps[2][2]:
-                ok = True  
-        elif param == 'setwhitebalance':
-            if self.bitMaps[0][0] < self.bitMaps[1][0] < self.bitMaps[2][0] and\
-                    self.bitMaps[0][1] > self.bitMaps[1][1] > self.bitMaps[2][1] and\
-                    self.bitMaps[0][2] < self.bitMaps[1][2] < self.bitMaps[2][2]:
-                ok = True       
-        elif self.bitMaps[0]+minMedDiff < self.bitMaps[1] and\
-                    self.bitMaps[1]+medMaxDiff < self.bitMaps[2]:
-            ok = True
-        if ok:    
-            print param+"test: PASSED"
-        else:
-            print param+"test: FAILED (Bitmaps are too similar)"
-            print str(self.bitMaps) 
-        #self.writeAverage(param)
-        del self.bitMaps [:]
-                             
-    def setDefault(self, value):
-        for param in value.keys():
-            if param == "setWhitebalance":
-                self.cam.setWhitebalance(*value[param])
-            else:
-                setattr(self.cam, param, value[param])
-    
-    def destroyCamera(self):
-        try:
-            self.cam.unlink(True)
-            avg.CameraNode.resetFirewireBus()
-            print"camera unlinked"
-        except:
-            print "no camera to unlink"
-        
-    def cmdsBuilder(self):
-        for param, minMedDiff, medMaxDiff in self.testValues:
-                self.cmds.append(lambda: self.setDefault(self.value['default']))
-                self.cmds.append(None)
-                for x in range(3):
-                    self.cmds.append(lambda param=param, x=x: 
-                            self.setCamParam(param, self.value[param][x]))
-                    self.cmds.append(None)
-                    self.cmds.append(None)   #These seem to fix 'shutterTest' problems
-                    self.cmds.append(None)
-                    self.cmds.append(lambda param=param: self.getCamImg(param))
-                    self.cmds.append(None)
-                self.cmds.append(lambda a=minMedDiff, b=medMaxDiff, c=param:
-                            self.testCamImage(a, b, c))
-                self.cmds.append(None) 
-        self.cmds.append(lambda: self.setDefault(self.value['default']))
-        self.cmds.append(g_player.stop)
-        
-if __name__=='__main__':
-    CameraTest.start(resolution=(1024,768))
-    
+
+    def __dumpFormat(self):
+        print >>sys.stderr, str(self.fmt.size)+", "+str(self.fmt.pixelformat)+ \
+                ", "+str(self.fmt.framerate)+" ",
+
+def dumpCameraCfg(cfg):
+    print >>sys.stderr, "Camera config: driver="+cfg.driver+", device="+cfg.device+ \
+            ", unit="+str(cfg.unit)
+
+
+cameraCfg = parseCmdLine()
+AVGTestCase.cleanResultDir()
+suite = unittest.TestSuite()
+dumpCameraCfg(cameraCfg)
+for fmt in cameraCfg.formats:
+    suite.addTest(CameraTestCase(cameraCfg, fmt, "testFormat"))
+suite.addTest(CameraTestCase(cameraCfg, cameraCfg.illegalFormat, "testIllegalFormat"))
+suite.addTest(CameraTestCase(cameraCfg, cameraCfg.formats[0], "testCreateDelete"))
+if g_TestParams:
+    for testCfg in cameraCfg.paramTests:
+        suite.addTest(CameraTestCase(cameraCfg, cameraCfg.formats[0], "testParams", 
+                testCfg))
+testRunner = unittest.TextTestRunner(verbosity = 2)
+testResult = testRunner.run(suite)
+
+if testResult.wasSuccessful():
+    exitCode = 0
+else:
+    exitCode = 1
+sys.exit(exitCode)
+
+

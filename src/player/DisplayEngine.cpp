@@ -54,7 +54,6 @@ void DisplayEngine::initRender()
     m_TimeSpentWaiting = 0;
     m_StartTime = TimeSource::get()->getCurrentMicrosecs();
     m_LastFrameTime = m_StartTime;
-    m_TimeSinceLastFrame = 0;
     m_bInitialized = true;
     if (m_VBRate != 0) {
         setVBlankRate(m_VBRate);
@@ -154,11 +153,6 @@ long long DisplayEngine::getDisplayTime()
     return (m_LastFrameTime-m_StartTime)/1000;
 }
 
-long long DisplayEngine::getTimeSinceLastFrame()
-{
-    return m_TimeSinceLastFrame/1000;
-}
-
 DisplayEngine::BlendMode DisplayEngine::stringToBlendMode(const string& s)
 {
     if (s == "blend") {
@@ -199,7 +193,6 @@ void DisplayEngine::checkJitter()
         m_FramesTooLate++;
     }
 
-    m_TimeSinceLastFrame = frameTime-m_LastFrameTime;
     m_LastFrameTime = frameTime;
     m_TimeSpentWaiting += m_LastFrameTime-m_FrameWaitStartTime;
 //    cerr << m_LastFrameTime << ", m_FrameWaitStartTime=" << m_FrameWaitStartTime << endl;
