@@ -131,12 +131,6 @@ class KeysCaptionNode(avg.DivNode):
         
         self.__background = avg.RectNode(fillcolor='000000', fillopacity=0.6,
                 opacity=0, size=(450, 450), parent=self)
-                
-        # self.__stackOfBackups = []
-        # self.__stackKeyDown = []
-        # self.__stackKeyUp = []
-        # self.__stackUnicodeDown = []
-        # self.__stackUnicodeUp = []
         
         self.__keysNode = avg.WordsNode(pos=(10, 10), fontsize=18,
                 color='DDDDDD', parent=self)
@@ -146,39 +140,21 @@ class KeysCaptionNode(avg.DivNode):
     def toggleHelp(self):
         self.__isShown = not self.__isShown
         
-        self.__keyBindDown = g_kbManager.getKeys('key', 'down')
-        self.__keyBindUp = g_kbManager.getKeys('key', 'up')
-        self.__keycodeBindDown = g_kbManager.getKeys('unicode', 'down')
-        self.__keycodeBindUp = g_kbManager.getKeys('unicode', 'up')
+        keys = g_kbManager.getActiveKeyBindings()
         
         if self.__isShown:
             helpText = '<span><b>   ACTIVE KEYS </b><br/></span>'
-            for key in sorted(self.__keyBindDown.iterkeys()):
-                funcName = self.__keyBindDown[key][1]
-                helpText = helpText + \
-                    '<span><b>%s</b>     <small>%s</small><br/></span>'% (key, funcName)
             
-            for key in sorted(self.__keyBindUp.iterkeys()):
-                if not(key in self.__keyBindDown):
-                    funcName = self.__keyBindUp[key][1]
-                    helpText = helpText + \
-                        '<span><b>%s</b>     ' + \
-                        '<small>%s</small><br/></span>'% (key, funcName)
-            
-            for key in sorted(self.__keycodeBindDown.iterkeys()):
-                funcName = self.__keycodeBindDown[key][1]
-                helpText = helpText + \
-                    '<span><b>%s</b>     <small>%s</small><br/></span>'% (key, funcName)
-            
-            for key in sorted(self.__keycodeBindUp.iterkeys()):
-                if key in self.__keycodeBindDown:
-                    pass
+            for keyObj in sorted(keys, key=lambda ko: ko.key):
+                if keyObj.state == 'up':
+                    stateAddition = ' (up)'
                 else:
-                    funcName = self.__keycodeBindUp[key][1]
-                    helpText = helpText + \
-                        '<span><b>%s</b>     ' + \
-                        '<small>%s</small><br/></span>'% (key, funcName)
-            
+                    stateAddition = ''
+                    
+                helpText += ('<span><b>%s</b>    '
+                        '<small>%s%s</small></span><br/>' % (keyObj.key,
+                                keyObj.description, stateAddition))
+
             self.__keysNode.text = helpText
             self.opacity = 1
             self.__background.size = self.__keysNode.getMediaSize()
@@ -189,48 +165,60 @@ class KeysCaptionNode(avg.DivNode):
         else:
             self.__keysNode.text = ''
             self.opacity = 0
-            
-    # def backupKeys(self):
-    #     # backup keybindings if you change active app.
-    #     # keys will be stored in a dict. keybindings from new function can be loaded
-    #     # and conflicts by double keybindings are reduced to only the active app.
-    #     
-    #     # self.showHelp()
-    #     
-    #     self.__stackKeyDown.append(g_kbManager.getKeys('key', 'down'))
-    #     self.__stackKeyUp.append(g_kbManager.getKeys('key', 'up'))
-    #     self.__stackUnicodeDown.append(g_kbManager.getKeys('unicode','down'))
-    #     self.__stackUnicodeUp.append(g_kbManager.getKeys('unicode','up'))
-    #     
-    #     g_kbManager.setKeys({}, 'key', 'down')
-    #     g_kbManager.setKeys({}, 'key', 'up')
-    #     g_kbManager.setKeys({}, 'unicode', 'down')
-    #     g_kbManager.setKeys({}, 'unicode', 'up')
-    #     g_kbManager.bindUnicode('?', g_kbManager.activateHelp, 'HELP')
-    #     
-    # def restoreKeys(self):
-    #     # restore keybindings if last active app will be active again.
-    #     # stored keys will be restored in the keybindings.
-    # 
-    #     # self.showHelp()  
-    #     
-    #     g_kbManager.setKeys(self.__stackKeyDown.pop(), 'key', 'down')
-    #     g_kbManager.setKeys(self.__stackKeyUp.pop(), 'key', 'up')
-    #     g_kbManager.setKeys(self.__stackUnicodeDown.pop(), 'unicode', 'down')
-    #     g_kbManager.setKeys(self.__stackUnicodeUp.pop(), 'unicode', 'up')
+
+
+class KeyBinding(object):
+    def __init__(self, key, description, state, callback):
+        if not isinstance(key, unicode) and not isinstance(key, str):
+            raise TypeError('KeyBinding key should be either a string or unicode object')
+
+        self.__key = key
+        self.__description = description
+        self.__state = state
+        self.__callback = callback
+
+    def __repr__(self):
+        return '<%s key=%s (%s) state=%s>' % (self.__class__.__name__,
+                self.__key, self.__description, self.__state)
+    
+    @property
+    def key(self):
+        return self.__key
+
+    @property
+    def description(self):
+        return self.__description
+
+    @property
+    def state(self):
+        return self.__state
+        
+    def checkKey(self, key, state):
+        return self.__state == state and self.__key == key
+        
+    def checkEvent(self, event, state):
+        if self.__state != state:
+            return False
+
+        if isinstance(self.__key, unicode):
+            return self.__key == unichr(event.unicode)
+        else:
+            return self.__key == event.keystring
+    
+    def executeCallback(self):
+        self.__callback()
 
 
 class KeyboardManager(object):
     _instance = None
+    TOGGLE_HELP_UNICODE = 63
     
     def __init__(self):
         if self._instance is not None:
             raise RuntimeError('KeyboardManager has been already instantiated')
-            
-        self.__keyBindDown = {}
-        self.__keyBindUp = {}
-        self.__unicodeBindDown = {}
-        self.__unicodeBindUp = {}
+        
+        self.__keyBindings = []
+        self.__keyBindingsStack = []
 
         self.__onKeyDownCb = lambda e: False
         self.__onKeyUpCb = lambda e: False
@@ -255,119 +243,84 @@ class KeyboardManager(object):
         self.__onKeyUpCb = onKeyUpCb
 
         self.__keyCaptionsNode = KeysCaptionNode(pos=(5,5), parent=rootNode)
-        self.bindUnicode('?', self.__keyCaptionsNode.toggleHelp, 'HELP')
+        self.bindKey('x', lambda:None, 'ciccio', 'up')
     
     def teardown(self):
-        self.__keyBindDown = {}
-        self.__keyBindUp = {}
-        self.__unicodeBindDown = {}
-        self.__unicodeBindUp = {}
+        self.__keyBindings = []
         
         self.__keyCaptionsNode.unlink(True)
         del self.__keyCaptionsNode
         self.__keyCaptionsNode = None
+    
+    def push(self):
+        self.__keyBindingsStack.append(self.__keyBindings)
+        self.__keyBindings = []
+    
+    def pop(self):
+        if not self.__keyBindingsStack:
+            raise RuntimeError('Empty stack')
+            
+        self.__keyBindings = self.__keyBindingsStack.pop()
+    
+    def getActiveKeyBindings(self):
+        return self.__keyBindings
         
-    def bindKey(self, key, func, funcName, state = 'down'):
-        if state == 'down':   
-            if key in self.__keyBindDown:
-                raise KeyError # no double key bindings
-            self.__keyBindDown[key] = (func, funcName)
-        elif state == 'up':
-            if key in self.__keyBindUp:
-                print key
-                raise KeyError # no double key bindings
-            self.__keyBindUp[key] = (func, funcName)
-        else:
-            raise KeyError 
+    def bindKey(self, key, func, funcName, state='down'):
+        if isinstance(key, unicode) and state != 'down':
+            raise RuntimeError('bindKey() with unicode keys '
+                    'can be used only with state=down')
 
+        if key == unichr(self.TOGGLE_HELP_UNICODE):
+            raise RuntimeError('%s key is reserved')
+            
+        keyObj = self.__findKeyByKeystring(key, state)
+        if keyObj is not None:
+            raise RuntimeError('Key %s has already been bound (%s)' % (key, keyObj))
+        
+        self.__keyBindings.append(KeyBinding(key, funcName, state, func))
+        
     def unbindKey(self, key):
-        if key in self.__keyBindDown:
-            del self.__keyBindDown[key]
-        elif key in self.__keyBindUp:
-            del self.__keyBindUp[key]
-        elif key in self.__unicodeBindDown:
-            del self.__unicodeBindDown[key]
-        elif key in self.__unicodeBindUp:
-            del self.__unicodeBindUp[key]
+        keyObj = self.__findKeyByKeystring(key, state)
+        
+        if keyObj is not None:
+            self.__keyBindings.remove(keyObj)
         else:
             raise KeyError('Key %s not found' % key)
 
-    def bindUnicode(self, key, func, funcName, state = 'down'):
-        if state == 'down':   
-            if key in self.__unicodeBindDown:
-                raise KeyError # no double key bindings
-            self.__unicodeBindDown[key] = (func, funcName)
-        elif state == 'up':
-            if key in self.__unicodeBindUp:
-                raise KeyError # no double key bindings
-            self.__unicodeBindUp[key] = (func, funcName)
-        else:
-            raise KeyError    
+    def bindUnicode(self, key, func, funcName, state='down'):
+        raise DeprecationWarning('Use bindKey() passing an unicode object as keystring')
 
-    def getKeys(self, bindtype = 'key', action = 'down'):
-        if bindtype == 'key':
-            if action == 'down':
-                return self.__keyBindDown
-            elif action == 'up':
-                return self.__keyBindUp
-        elif bindtype == 'unicode':
-            if action == 'down':
-                return self.__unicodeBindDown
-            elif action == 'up':
-                return self.__unicodeBindUp
-
-    def setKeys(self, newKeyBindings, bindtype = 'key', action = 'down'):
-        if bindtype == 'key':
-            if action == 'down':
-                self.__keyBindDown = newKeyBindings
-            elif action == 'up':
-                self.__keyBindUp = newKeyBindings
-        elif bindtype == 'unicode':
-            if action == 'down':
-                self.__unicodeBindDown = newKeyBindings
-            elif action == 'up':
-                self.__unicodeBindUp = newKeyBindings
-
-    def __checkUnicode(self, event, Bindings):
-        x = 0
-        try:
-            if str(unichr(event.unicode)) in Bindings: 
-                x = 1
-                return x
-        except: 
-            pass
-        try:
-            if unichr(event.unicode).encode("utf-8") in Bindings:
-                x = 2
-                return x
-        except:
-            pass
-        return x
-
+    def __findKeyByEvent(self, event, state):
+        for keyObj in self.__keyBindings:
+            if keyObj.checkEvent(event, state):
+                return keyObj
+        
+        return None
+        
+    def __findKeyByKeystring(self, key, state):
+        for keyObj in self.__keyBindings:
+            if keyObj.checkKey(key, state):
+                return keyObj
+        
+        return None
+        
     def __onKeyDown(self, event):
         if self.__onKeyDownCb(event):
             return
-
-        elif event.keystring in self.__keyBindDown:
-            self.__keyBindDown[event.keystring][0]()   
-        elif self.__checkUnicode(event, self.__unicodeBindDown) == 1:
-            self.__unicodeBindDown[str(unichr(event.unicode))][0]()
-        elif self.__checkUnicode(event, self.__unicodeBindDown) == 2:
-            self.__unicodeBindDown[unichr(event.unicode).encode("utf-8")][0]()
-
+        elif event.unicode == self.TOGGLE_HELP_UNICODE:
+            self.__keyCaptionsNode.toggleHelp()
+        else:
+            keyObj = self.__findKeyByEvent(event, 'down')
+            if keyObj is not None:
+                keyObj.executeCallback()
+            
     def __onKeyUp(self, event):
         if self.__onKeyUpCb(event):
             return
-
-        if event.keystring in self.__keyBindUp:
-            if event.unicode == event.keycode:
-                self.__keyBindUp[event.keystring][0]()
-            elif event.unicode == 0:    #shift and ctrl
-                self.__keyBindUp[event.keystring][0]()
-        elif self.__checkUnicode(event, self.__unicodeBindUp) == 1:
-            self.__unicodeBindUp[str(unichr(event.unicode))][0]()
-        elif self.__checkUnicode(event, self.__unicodeBindUp) == 2:
-            self.__unicodeBindUp[unichr(event.unicode).encode("utf-8")][0]()
+        else:
+            keyObj = self.__findKeyByEvent(event, 'up')
+            if keyObj is not None:
+                keyObj.executeCallback()
 
 
 g_kbManager = KeyboardManager.get()
