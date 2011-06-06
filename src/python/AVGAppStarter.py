@@ -28,11 +28,6 @@ import graph
 from mtemu import MTemu
 import apphelpers
 
-try:
-    from alib.clicktest import ClickTest
-except ImportError:
-    ClickTest = None
-
 
 DEFAULT_RESOLUTION = (640, 480)
 
@@ -148,7 +143,6 @@ class AVGAppStarter(AppStarter):
         self._mtEmu = None
         self.__showingMemGraph = False
         self.__showingFrGraph = False
-        self.__runningClickTest = False
         self.__notifyNode = None
         self.__touchVisOverlay = None
 
@@ -159,7 +153,6 @@ class AVGAppStarter(AppStarter):
         g_kbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
         g_kbManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
         g_kbManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
-        g_kbManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
         g_kbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
         g_kbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
         g_kbManager.bindKey('s', self.__screenshot, 'Take screenshot')
@@ -167,13 +160,6 @@ class AVGAppStarter(AppStarter):
     def _onBeforePlay(self):
         super(AVGAppStarter, self)._onBeforePlay()
         rootNode = g_player.getRootNode()
-        self.__initClickTest()
-
-    def __initClickTest(self):
-        if ClickTest:
-            self._clickTest = ClickTest(self._appNode, multiClick=False)
-        else:
-            self._clickTest = None
 
     def __dumpObjects(self):
         gc.collect()
@@ -211,17 +197,6 @@ class AVGAppStarter(AppStarter):
             if(self.__graphs >1):
                 self.__frGraph.setYpos(190)
         self.__showingFrGraph = not(self.__showingFrGraph)
-
-    def __switchClickTest(self):
-        if self._clickTest:
-            if self.__runningClickTest:
-                g_log.trace(g_log.APP, 'Stopping clicktest')
-                self._clickTest.stop()
-            else:
-                g_log.trace(g_log.APP, 'Starting clicktest')
-                self._clickTest.start()
-
-            self.__runningClickTest = not self.__runningClickTest
 
     def __switchMtemu(self):
         if self._mtEmu is None:

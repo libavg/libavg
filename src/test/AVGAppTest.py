@@ -136,43 +136,6 @@ class AVGAppTestCase(testcase.AVGTestCase):
         
         GraphsApp.start(resolution=TEST_RESOLUTION)
     
-    def testClicktest(self):
-        STATE_WAITING_FIRST_EVENT = 'STATE_WAITING_FIRST_EVENT'
-        STATE_DISCARDING_EVENTS = 'STATE_DISCARDING_EVENTS'
-        STATE_EXPECTING_NO_EVENTS = 'STATE_EXPECTING_NO_EVENTS'
-        
-        class ClicktestApp(TestAppBase):
-            def init(self):
-                button = avg.RectNode(size=TEST_RESOLUTION, parent=self._parentNode)
-                button.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self,
-                        self.trigger)
-                
-                self.singleKeyPress('.')
-                self.failTimerId = g_player.setTimeout(500, self.fail)
-                self.state = STATE_WAITING_FIRST_EVENT
-            
-            def disableClicktest(self):
-                g_player.clearInterval(self.failTimerId)
-                del self.failTimerId
-                self.singleKeyPress('.')
-                self.state = STATE_DISCARDING_EVENTS
-                g_player.setTimeout(200, self.listenAgain)
-            
-            def listenAgain(self):
-                self.state = STATE_EXPECTING_NO_EVENTS
-                g_player.setTimeout(200, g_player.stop)
-                
-            def trigger(self, event):
-                if self.state == STATE_WAITING_FIRST_EVENT:
-                    self.disableClicktest()
-                elif self.state == STATE_EXPECTING_NO_EVENTS:
-                    raise RuntimeError('Clicktest failed to deactivate')
-                
-            def fail(self):
-                raise RuntimeError('No CURSORDOWN from the clicktest detected')
-        
-        ClicktestApp.start(resolution=TEST_RESOLUTION)
-    
     def testToggleKeys(self):
         TOGGLE_KEYS = ['?', 't', 'e']
         class ToggleKeysApp(TestAppBase):
@@ -209,7 +172,6 @@ def avgAppTestSuite(tests):
             'testDebugWindowSize',
             'testScreenshot',
             'testGraphs',
-            'testClicktest',
             'testToggleKeys',
             'testFakeFullscreen',
     )
