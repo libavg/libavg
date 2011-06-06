@@ -197,18 +197,37 @@ class TouchVisualization(avg.DivNode):
             color = 'e5d8d8'
         else:
             color = 'd8e5e5'
-        self.__transparentCircle= avg.CircleNode(r=radius+20, fillcolor=color,
-                fillopacity=0.2, opacity=0.0, strokewidth=1, sensitive=False, parent=self)
-        self.__pulsecircle = avg.CircleNode(r=radius, fillcolor=color, color=color,
-                fillopacity=0.5, opacity=0.5, strokewidth=1, sensitive=False, parent=self)
-        self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis, color="FFFFFF",
-                sensitive=False, parent=self)
-        self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis, color="FFFFFF",
-                sensitive=False, parent=self)
+        self.__transparentCircle= avg.CircleNode(r=radius+20,
+                                                 fillcolor=color,
+                                                 fillopacity=0.2,
+                                                 opacity=0.0,
+                                                 strokewidth=1,
+                                                 sensitive=False,
+                                                 parent=self)
+        self.__pulsecircle = avg.CircleNode(r=radius,
+                                            fillcolor=color,
+                                            color=color,
+                                            fillopacity=0.5,
+                                            opacity=0.5,
+                                            strokewidth=1,
+                                            sensitive=False,
+                                            parent=self)
+        self.__majorAxis = avg.LineNode(pos1=(0,0),
+                                        pos2=event.majoraxis,
+                                        color="FFFFFF",
+                                        sensitive=False,
+                                        parent=self)
+        self.__minorAxis = avg.LineNode(pos1=(0,0),
+                                        pos2=event.minoraxis,
+                                        color="FFFFFF",
+                                        sensitive=False, parent=self)
         fontPos = (self.__pulsecircle.r, 0)
-        avg.WordsNode(pos=fontPos, text="<br/>".join([str(event.source),
-                str(self.cursorid)]), parent=self)
-        self.line = avg.PolyLineNode(self.positions, color=color, parent=kwargs['parent'])
+        avg.WordsNode(pos=fontPos,
+                      text="<br/>".join([str(event.source),str(self.cursorid)]),
+                      parent=self)
+        self.line = avg.PolyLineNode(self.positions,
+                                     color=color,
+                                     parent=kwargs['parent'])
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
@@ -497,10 +516,8 @@ class AVGAppStarter(object):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            self.bindKey('left shift', self._mtEmu.toggleDualTouch,
-                    'Toggle Multitouch Emulation')
-            self.bindKey('right shift', self._mtEmu.toggleDualTouch,
-                    'Toggle Multitouch Emulation')
+            self.bindKey('left shift', self._mtEmu.toggleDualTouch, 'Toggle Multitouch Emulation')
+            self.bindKey('right shift', self._mtEmu.toggleDualTouch, 'Toggle Multitouch Emulation')
             self.bindKey('left ctrl', self._mtEmu.toggleSource, 'Toggle Touch Source')
             self.bindKey('right ctrl', self._mtEmu.toggleSource, 'Toggle Touch Source')
         else:
@@ -520,13 +537,12 @@ class AVGAppStarter(object):
             self.__touchVisOverlay = avg.DivNode(sensitive=False, size=self._appNode.size,
                     parent=rootNode, elementoutlinecolor='FFFFAA')
             avg.RectNode(parent = self.__touchVisOverlay, size=self._appNode.size,
-                    fillopacity=0.2, fillcolor='000000')
-            rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK, self,
-                    self.__onTouchUp)
-            rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK, self,
-                    self.__onTouchDown)
-            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK, self,
-                    self.__onTouchMotion)
+                        fillopacity=0.2, fillcolor='000000')
+            rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
+                                         self, self.__onTouchUp)
+            rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,                                                                     self,self.__onTouchDown)
+            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
+                                         self, self.__onTouchMotion)
         else:
             rootNode.disconnectEventHandler(self, self.__onTouchDown)
             rootNode.disconnectEventHandler(self, self.__onTouchUp)
