@@ -182,8 +182,7 @@ TouchEventPtr LibMTDevInputDevice::createEvent(int id, Event::Type type, IntPoin
     DPoint normPos = DPoint(double(pos.x-m_Dimensions.tl.x)/m_Dimensions.width(),
             double(pos.y-m_Dimensions.tl.y)/m_Dimensions.height());
     IntPoint screenPos(int(normPos.x*size.x+0.5), int(normPos.y*size.y+0.5));
-    return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH,
-            0, 20, 1, DPoint(5,0), DPoint(0,5)));
+    return TouchEventPtr(new TouchEvent(id, type, screenPos, Event::TOUCH));
 }
 
 }

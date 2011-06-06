@@ -207,8 +207,7 @@ TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, DPoint pos,
     DPoint size = getWindowSize();
     IntPoint screenPos(int(pos.x*size.x+0.5), int(pos.y*size.y+0.5));
     DPoint screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
-    TouchEventPtr pEvent(new TouchEvent(id, type, screenPos, Event::TOUCH, 0, 20, 1, 
-            DPoint(5,0), DPoint(0,5)));
+    TouchEventPtr pEvent(new TouchEvent(id, type, screenPos, Event::TOUCH));
     pEvent->setSpeed(screenSpeed/1000);
     return pEvent;
 }

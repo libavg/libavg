@@ -155,20 +155,19 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
 //            cerr << "down: " << pos << endl; 
             m_LastID++;
             TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSORDOWN, pos,
-                    Event::TOUCH, 0, 20, 1, DPoint(5,0), DPoint(0,5)));
+                    Event::TOUCH));
             addContact((long)pTouchInput->dwID, pEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
 //            cerr << "up: " << pos << endl; 
             ContactPtr pContact = getContact(pTouchInput->dwID);
             CursorEventPtr pOldEvent = pContact->getLastEvent();
             CursorEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
-                    Event::CURSORUP, pos, Event::TOUCH, 0, 20, 1, 
-                    DPoint(5,0), DPoint(0,5)));
+                    Event::CURSORUP, pos, Event::TOUCH));
             pContact->pushEvent(pUpEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_MOVE) {
 //            cerr << "motion: " << pos << endl; 
             CursorEventPtr pEvent(new TouchEvent(0, Event::CURSORMOTION, pos,
-                    Event::TOUCH, 0, 20, 1, DPoint(5,0), DPoint(0,5)));
+                    Event::TOUCH));
             ContactPtr pContact = getContact((long)pTouchInput->dwID);
             AVG_ASSERT(pContact);
             pContact->pushEvent(pEvent);
