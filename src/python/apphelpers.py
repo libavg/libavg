@@ -191,8 +191,28 @@ class KeysCaptionNode():
     #     self.__keyManager.setKeys(self.__stackUnicodeUp.pop(), 'unicode', 'up')
 
 
-class KeyManager(object):
-    def __init__(self, onKeyDownCb=lambda e: False, onKeyUpCb=lambda e: False):
+class KeyboardManager(object):
+    _instance = None
+    
+    def __init__(self):
+        if self._instance is not None:
+            raise RuntimeError('KeyboardManager has been already instantiated')
+            
+        self.__keyBindDown = {}
+        self.__keyBindUp = {}
+        self.__unicodeBindDown = {}
+        self.__unicodeBindUp = {}
+        
+        KeyboardManager._instance = self
+    
+    @classmethod
+    def get(cls):
+        if cls._instance is None:
+            cls()
+        
+        return cls._instance
+        
+    def setup(self, onKeyDownCb=lambda e: False, onKeyUpCb=lambda e: False):
         rootNode = g_player.getRootNode()
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
         rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
@@ -200,11 +220,6 @@ class KeyManager(object):
         self.__onKeyDownCb = onKeyDownCb
         self.__onKeyUpCb = onKeyUpCb
         
-        self.__keyBindDown = {}
-        self.__keyBindUp = {}
-        self.__unicodeBindDown = {}
-        self.__unicodeBindUp = {}
-
         self.__keyCaptionsNode = KeysCaptionNode(self)
         self.bindUnicode('?', self.__keyCaptionsNode.toggleHelp, 'HELP')
     

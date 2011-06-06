@@ -28,20 +28,21 @@ g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 
 class App(object):
-    instances = {}
+    _instances = {}
 
     def __init__(self, parentNode):
-        """initialization before Player.play()
+        '''
+        Initialization before Player.play()
         Use this only when needed, e.g. for
         WordsNode.addFontDir(). Do not forget to call
-        super(YourApp, self).__init__(parentNode)"""
-
+        super(YourApp, self).__init__(parentNode)
+        '''
 
         appname = self.__class__.__name__
         if appname in AVGApp.instances:
             raise RuntimeError('App %s already setup' % appname)
             
-        AVGApp.instances[appname] = self
+        AVGApp._instances[appname] = self
 
         self.__isRunning = False
         self._parentNode = parentNode
@@ -62,7 +63,7 @@ class App(object):
         ...  pass
         >>> instance = MyApp.get()
         '''
-        return cls.instances.get(cls.__name__, None)
+        return cls._instances.get(cls.__name__, None)
 
     @classmethod
     def start(cls, appStarter=AppStarter, **kwargs):

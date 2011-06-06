@@ -38,7 +38,7 @@ DEFAULT_RESOLUTION = (640, 480)
 
 g_player = avg.Player.get()
 g_log = avg.Logger.get()
-
+g_kbManager = apphelpers.KeyboardManager.get()
 
 class AppStarter(object):
     '''Starts an AVGApp'''
@@ -79,7 +79,7 @@ class AppStarter(object):
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
         self._appInstance = appClass(self._appNode)
-        self._keyManager = apphelpers.KeyManager(
+        g_kbManager.setup(
                 self._appInstance.onKeyDown,
                 self._appInstance.onKeyUp)
 
@@ -155,13 +155,13 @@ class AVGAppStarter(AppStarter):
 
     def _setupDefaultKeys(self):
         super(AVGAppStarter, self)._setupDefaultKeys()
-        self._keyManager.bindKey('o', self.__dumpObjects, 'Dump objects')
-        self._keyManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
-        self._keyManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
-        self._keyManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
-        self._keyManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
-        self._keyManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
-        self._keyManager.bindKey('s', self.__screenshot, 'Take screenshot')
+        g_kbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
+        g_kbManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
+        g_kbManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
+        g_kbManager.bindKey('.', self.__switchClickTest, 'Start clicktest')
+        g_kbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
+        g_kbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
+        g_kbManager.bindKey('s', self.__screenshot, 'Take screenshot')
 
     def _onBeforePlay(self):
         super(AVGAppStarter, self)._onBeforePlay()
@@ -244,21 +244,21 @@ class AVGAppStarter(AppStarter):
     def __switchMtemu(self):
         if self._mtEmu is None:
             self._mtEmu = MTemu()
-            self._keyManager.bindKey('left shift', self._mtEmu.toggleDualTouch,
+            g_kbManager.bindKey('left shift', self._mtEmu.toggleDualTouch,
                     'Toggle Multitouch Emulation')
-            self._keyManager.bindKey('right shift', self._mtEmu.toggleDualTouch,
+            g_kbManager.bindKey('right shift', self._mtEmu.toggleDualTouch,
                     'Toggle Multitouch Emulation')
-            self._keyManager.bindKey('left ctrl', self._mtEmu.toggleSource,
+            g_kbManager.bindKey('left ctrl', self._mtEmu.toggleSource,
                     'Toggle Touch Source')
-            self._keyManager.bindKey('right ctrl', self._mtEmu.toggleSource,
+            g_kbManager.bindKey('right ctrl', self._mtEmu.toggleSource,
                     'Toggle Touch Source')
 
         else:
             self._mtEmu.deinit()
-            self._keyManager.unbindKey('left ctrl')
-            self._keyManager.unbindKey('right ctrl')
-            self._keyManager.unbindKey('left shift')
-            self._keyManager.unbindKey('right shift')
+            g_kbManager.unbindKey('left ctrl')
+            g_kbManager.unbindKey('right ctrl')
+            g_kbManager.unbindKey('left shift')
+            g_kbManager.unbindKey('right shift')
 
             del self._mtEmu
             self._mtEmu = None
