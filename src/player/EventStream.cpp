@@ -95,7 +95,7 @@ CursorEventPtr EventStream::createEvent(Event::Source source, Event::Type type, 
         BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, const DRect& displayROI)
 {
     DPoint blobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
-    DPoint pt = m_pBlob->getCenter() + blobOffset;
+    DPoint pt = pBlob->getCenter() + blobOffset;
     DPoint screenpos = pDeDistort->transformBlobToScreen(pt);
     IntPoint pos(int(screenpos.x+0.5), int(screenpos.y+0.5)); 
 

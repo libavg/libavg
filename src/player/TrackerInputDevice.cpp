@@ -339,8 +339,10 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
     // Blobs have been matched. Left-overs are new blobs.
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
         if (matchedNewBlobs.find(*it) == matchedNewBlobs.end()) {
-            (*pEvents)[(*it)] = EventStreamPtr(
+            EventStreamPtr pStream = EventStreamPtr(
                     new EventStream(*it, time, m_pDeDistort, m_DisplayROI, source));
+            pStream->setThis(pStream);
+            (*pEvents)[(*it)] = pStream;
         }
     }
 
