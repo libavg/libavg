@@ -67,6 +67,19 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
     }
 }
 
+TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
+        const DPoint& speed, double orientation, double area, double eccentricity, 
+        DPoint majorAxis, DPoint minorAxis)
+    : CursorEvent(id, eventType, pos, source),
+      m_Orientation(orientation),
+      m_Area(area),
+      m_Eccentricity(eccentricity),
+      m_MajorAxis(majorAxis),
+      m_MinorAxis(minorAxis)
+{
+    setSpeed(speed);
+}
+
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source)
     : CursorEvent(id, eventType, pos, source),
       m_Orientation(0),
