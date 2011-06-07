@@ -134,8 +134,10 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         static void calcRefreshRate();
         static double s_RefreshRate;
 
+        // Event handling.
         bool m_bMouseOverApp;
         MouseEventPtr m_pLastMouseEvent;
+        int m_NumMouseButtonsDown;
         ContactPtr m_pContact;
         static std::vector<long> KeyCodeTranslationTable;
         XInput21MTInputDevice * m_pXIMTInputDevice;
