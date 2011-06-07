@@ -78,6 +78,7 @@
     <ClCompile Include="..\..\src\player\checktracker.cpp" />
     <ClCompile Include="..\..\src\player\ChromaKeyFXNode.cpp" />
     <ClCompile Include="..\..\src\player\CircleNode.cpp" />
+    <ClCompile Include="..\..\src\player\Contact.cpp" />
     <ClCompile Include="..\..\src\player\CursorEvent.cpp" />
     <ClCompile Include="..\..\src\player\CursorState.cpp" />
     <ClCompile Include="..\..\src\player\CurveNode.cpp" />
@@ -98,7 +99,6 @@
     <ClCompile Include="..\..\src\player\MaterialInfo.cpp" />
     <ClCompile Include="..\..\src\player\MeshNode.cpp" />
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
-    <ClCompile Include="..\..\src\player\MouseState.cpp" />
     <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
     <ClCompile Include="..\..\src\player\NodeDefinition.cpp" />
@@ -123,7 +123,6 @@
     <ClCompile Include="..\..\src\player\TextEngine.cpp" />
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
     <ClCompile Include="..\..\src\player\TouchEvent.cpp" />
-    <ClCompile Include="..\..\src\player\TouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TrackerCalibrator.cpp" />
     <ClCompile Include="..\..\src\player\TrackerInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
@@ -148,6 +147,7 @@
     <ClInclude Include="..\..\src\player\CanvasNode.h" />
     <ClInclude Include="..\..\src\player\ChromaKeyFXNode.h" />
     <ClInclude Include="..\..\src\player\CircleNode.h" />
+    <ClInclude Include="..\..\src\player\Contact.h" />
     <ClInclude Include="..\..\src\player\CursorEvent.h" />
     <ClInclude Include="..\..\src\player\CursorState.h" />
     <ClInclude Include="..\..\src\player\CurveNode.h" />
@@ -169,7 +169,6 @@
     <ClInclude Include="..\..\src\player\MaterialInfo.h" />
     <ClInclude Include="..\..\src\player\MeshNode.h" />
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
-    <ClInclude Include="..\..\src\player\MouseState.h" />
     <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
     <ClInclude Include="..\..\src\player\NodeDefinition.h" />
@@ -195,7 +194,6 @@
     <ClInclude Include="..\..\src\player\TextEngine.h" />
     <ClInclude Include="..\..\src\player\Timeout.h" />
     <ClInclude Include="..\..\src\player\TouchEvent.h" />
-    <ClInclude Include="..\..\src\player\TouchStatus.h" />
     <ClInclude Include="..\..\src\player\TrackerCalibrator.h" />
     <ClInclude Include="..\..\src\player\TrackerInputDevice.h" />
     <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />

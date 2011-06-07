@@ -24,6 +24,7 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
+#include "../player/Contact.h"
 #include "../player/VisibleNode.h"
 #include "../player/TrackerInputDevice.h"
 
@@ -94,13 +95,16 @@ void export_event()
     ;
 
     class_<CursorEvent, bases<Event> >("CursorEvent",
-                                       init<int, Event::Type, const IntPoint&, Event::Source>())
+            init<int, Event::Type, const IntPoint&, Event::Source>())
         .add_property("source", &CursorEvent::getSource)
         .add_property("pos", &CursorEvent::getPos)
         .add_property("x", &CursorEvent::getXPosition)
         .add_property("y", &CursorEvent::getYPosition)
         .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
-        .add_property("node", &CursorEvent::getElement)
+        .add_property("node", &CursorEvent::getNode)
+        .add_property("speed", make_function(&CursorEvent::getSpeed,
+                return_value_policy<copy_const_reference>()))
+        .add_property("contact", &CursorEvent::getContact)
     ;
 
     enum_<Event::Type>("Type")
@@ -157,43 +161,38 @@ void export_event()
     ;    
     
     class_<MouseEvent, bases<CursorEvent> >("MouseEvent", no_init)
-        .add_property("source", &MouseEvent::getSource)
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
-        .add_property("pos", &MouseEvent::getPos)
-        .add_property("x", &MouseEvent::getXPosition)
-        .add_property("y", &MouseEvent::getYPosition)
-        .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
-        .add_property("node", &MouseEvent::getElement)
-        .add_property("speed", make_function(&MouseEvent::getSpeed,
-                return_value_policy<copy_const_reference>()))
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", no_init)
-        .add_property("source", &TouchEvent::getSource)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("eccentricity", &TouchEvent::getEccentricity)
-        .add_property("pos", &TouchEvent::getPos)
-        .add_property("x", &TouchEvent::getXPosition)
-        .add_property("y", &TouchEvent::getYPosition)
-        .add_property("cursorid", &TouchEvent::getCursorID)
-        .add_property("node", &TouchEvent::getElement)
         .add_property("center", make_function(&TouchEvent::getCenter,
                 return_value_policy<copy_const_reference>()))
         .add_property("majoraxis", make_function(&TouchEvent::getMajorAxis,
                 return_value_policy<copy_const_reference>()))
         .add_property("minoraxis", make_function(&TouchEvent::getMinorAxis,
                 return_value_policy<copy_const_reference>()))
-        .add_property("speed", make_function(&TouchEvent::getSpeed,
-                return_value_policy<copy_const_reference>()))
         .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
         .def("getContour", &TouchEvent::getContour)
         ;
-   
+
+    class_<Contact, boost::shared_ptr<Contact> >("Contact", no_init)
+        .add_property("id", &Contact::getID)
+        .add_property("age", &Contact::getAge)
+        .add_property("distancefromstart", &Contact::getDistanceFromStart)
+        .add_property("motionangle", &Contact::getMotionAngle)
+        .add_property("motionvec", &Contact::getMotionVec)
+        .add_property("distancetravelled", &Contact::getDistanceTravelled)
+        .def("connectListener", &Contact::connectListener)
+        .def("disconnectListener", &Contact::disconnectListener)
+        ;
+
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
         .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)

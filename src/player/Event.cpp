@@ -22,6 +22,7 @@
 #include "Event.h"
 #include "IInputDevice.h"
 #include "VisibleNode.h"
+#include "Player.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -38,13 +39,12 @@ int Event::s_CurCounter = 0;
 
 Event::Event(Type type, Source source, int when)
     : m_Type(type),
-      m_pNode(),
       m_Source(source),
       m_pInputDevice()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
-        m_When = TimeSource::get()->getCurrentMillisecs();
+        m_When = Player::get()->getFrameTime();
     } else {
         m_When = when;
     }
@@ -99,11 +99,6 @@ const std::string& Event::getInputDeviceName() const
     return m_pInputDevice->getName();
 }
 
-void Event::setElement(VisibleNodePtr pNode)
-{
-    m_pNode = pNode;
-}
-
 string Event::typeStr() const
 {
     return typeStr(m_Type);
@@ -138,19 +133,10 @@ string Event::typeStr(Event::Type type)
         
 }
 
-VisibleNodePtr Event::getElement() const
-{
-    return m_pNode;
-}
-
 void Event::trace()
 {
     string sType = typeStr();
-    if (!m_pNode) {
-        AVG_TRACE(Logger::EVENTS, sType); 
-    } else {
-        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
-    }
+    AVG_TRACE(Logger::EVENTS, sType); 
 }
 
 }

@@ -25,7 +25,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "TouchStatus.h"
+#include "Contact.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -55,12 +55,12 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     boost::mutex::scoped_lock lock(*m_pMutex);
 
     vector<EventPtr> events;
-    map<int, TouchStatusPtr>::iterator it;
+    map<int, ContactPtr>::iterator it;
 //    cerr << "--------poll---------" << endl;
     for (it = m_Touches.begin(); it != m_Touches.end(); ) {
 //        cerr << it->first << " ";
-        TouchStatusPtr pTouchStatus = it->second;
-        TouchEventPtr pEvent = pTouchStatus->getEvent();
+        ContactPtr pContact = it->second;
+        CursorEventPtr pEvent = pContact->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {
@@ -86,25 +86,26 @@ int MultitouchInputDevice::getNumTouches() const
     return m_Touches.size();
 }
 
-TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
+ContactPtr MultitouchInputDevice::getContact(int id)
 {
-    map<int, TouchStatusPtr>::iterator it = m_Touches.find(id);
+    map<int, ContactPtr>::iterator it = m_Touches.find(id);
     if (it == m_Touches.end()) {
-        return TouchStatusPtr();
+        return ContactPtr();
     } else {
         return it->second;
     }
 }
 
-void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
+void MultitouchInputDevice::addContact(int id, TouchEventPtr pInitialEvent)
 {
-    TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
-    m_Touches[id] = pTouchStatus;
+    ContactPtr pContact(new Contact(pInitialEvent));
+    pContact->setThis(pContact);
+    m_Touches[id] = pContact;
 }
     
 void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
 {
-    map<int, TouchStatusPtr>::iterator it;
+    map<int, ContactPtr>::iterator it;
     for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
         int id = it->first;
         set<int>::const_iterator foundIt = liveIDs.find(id);

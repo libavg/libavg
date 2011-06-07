@@ -184,9 +184,13 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
             self.assert_(outerNode.getElementByPos((-10, -110)) == None)
         
-        def sendEvent(x, y):
+        def sendEvent(type, x, y):
             Helper = Player.getTestHelper()
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+            if type == avg.CURSORUP:
+                button = False
+            else:
+                button = True
+            Helper.fakeMouseEvent(type, button, False, False,
                         x, y, 1)
         
         def disableCrop():
@@ -202,9 +206,11 @@ class PlayerTestCase(AVGTestCase):
                  testCoordConversions,
                  fakeRotate,
                  lambda: self.compareImage("testRotate1a", False),
-                 lambda: sendEvent(85, 70),
+                 lambda: sendEvent(avg.CURSORDOWN, 85, 70),
+                 lambda: sendEvent(avg.CURSORUP, 85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
-                 lambda: sendEvent(85, 75),
+                 lambda: sendEvent(avg.CURSORDOWN, 85, 75),
+                 lambda: sendEvent(avg.CURSORUP, 85, 75),
                  lambda: self.assert_(self.onOuterDownCalled),
                  disableCrop,
                  lambda: self.compareImage("testRotate1b", False),

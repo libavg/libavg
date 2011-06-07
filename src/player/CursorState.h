@@ -23,8 +23,6 @@
 #define _CursorState_H_
 
 #include "../api.h"
-#include "CursorEvent.h"
-#include "VisibleNode.h"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -33,14 +31,17 @@ namespace avg {
 
 class VisibleNode;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
+class CursorEvent;
+typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 
 class AVG_API CursorState {
-
 public:
-    CursorState(const CursorEventPtr pEvent, const std::vector<VisibleNodeWeakPtr>& pNodes);
+    CursorState(const CursorEventPtr pEvent, 
+            const std::vector<VisibleNodeWeakPtr>& pNodes);
     ~CursorState();
 
-    void setInfo(const CursorEventPtr pEvent, const std::vector<VisibleNodeWeakPtr>& pNodes);
+    void setInfo(const CursorEventPtr pEvent, 
+            const std::vector<VisibleNodeWeakPtr>& pNodes);
     const std::vector<VisibleNodeWeakPtr>& getNodes() const;
     CursorEventPtr getLastEvent() const;
 

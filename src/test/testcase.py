@@ -137,6 +137,11 @@ class AVGTestCase(unittest.TestCase):
         """ % (resolution[0], resolution[1])
         return self.__player.loadString(sceneString)
 
+    def fakeClick(self, x, y):
+        helper = self.__player.getTestHelper()
+        helper.fakeMouseEvent(libavg.CURSORDOWN, True, False, False, x, y, 1)
+        helper.fakeMouseEvent(libavg.CURSORUP, False, False, False, x, y, 1)
+
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     

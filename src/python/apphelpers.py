@@ -23,49 +23,78 @@ from libavg import avg
 g_player = avg.Player.get()
 
 class TouchVisualization(avg.DivNode):
-    '''Visualisation Class for Touch and Track Events'''
+    '''
+    Visualisation Class for Touch and Track Events
+    it displays:
+        Event-Type
+        ID
+        Distance from TouchDown-Point
+        Travelled Distance
+    '''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        self.cursorid = event.cursorid
+        event.contact.connectListener(self.__onContactCB)
         self.pos = avg.Point2D(event.pos)
-        self.positions = [self.pos]
+        self.positions = [event.pos]
         radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
 
         if event.source == avg.TOUCH:
             color = 'e5d8d8'
         else:
             color = 'd8e5e5'
-        self.__transparentCircle= avg.CircleNode(r=radius+20, fillcolor=color,
-                fillopacity=0.2, opacity=0.0, strokewidth=1, sensitive=False,
-                parent=self)
-        self.__pulsecircle = avg.CircleNode(r=radius, fillcolor=color,
-                color=color, fillopacity=0.5, opacity=0.5, strokewidth=1,
+            
+        self.__transparentCircle = avg.CircleNode(r=radius+20, fillcolor=color,
+                fillopacity=0.2, opacity=0.0, strokewidth=1, sensitive=False, parent=self)
+        self.__pulsecircle = avg.CircleNode(r=radius, fillcolor=color, color=color,
+                fillopacity=0.5, opacity=0.5, strokewidth=1,
                 sensitive=False, parent=self)
         self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis,
-                color="FFFFFF", sensitive=False, parent=self)
+                color='FFFFFF', sensitive=False, parent=self)
         self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis,
-                color="FFFFFF", sensitive=False, parent=self)
-        fontPos = (self.__pulsecircle.r, 0)
-        avg.WordsNode(pos=fontPos,
-                text="<br/>".join([str(event.source),str(self.cursorid)]),
+                color='FFFFFF', sensitive=False, parent=self)
+                
+        fontPos = avg.Point2D(self.__pulsecircle.r, 0)
+        textID = avg.WordsNode(pos=fontPos,
+                      text='<br/>'.join([str(event.source),str(event.cursorid)]),
+                      parent=self)
+        fontPos.y = textID.height
+        self.distFromStart = avg.WordsNode(pos=fontPos, parent=self,
+                text=str(event.contact.distancefromstart))
+        fontPos.y += self.distFromStart.height
+        self.distTravelled = avg.WordsNode(pos=fontPos, parent=self,
+                text=str(event.contact.distancetravelled))
+        self.motionPath = avg.PolyLineNode(self.positions,
+                color=color, parent=kwargs['parent'])
+        self.motionVector = avg.LineNode(pos1=(0,0) , pos2=event.contact.motionvec,
                 parent=self)
-        self.line = avg.PolyLineNode(self.positions, color=color, parent=kwargs['parent'])
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
     def __del__(self):
-        self.line.unlink(True)
+        self.motionPath.unlink(True)
+        self.unlink(True)
 
-    def move(self, event):
-        self.pos = event.pos
-        self.positions.append(self.pos)
-        if len(self.positions) > 100:
-            self.positions.pop(0)
-        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
-        self.__pulsecircle.r = radius
-        self.__majorAxis.pos2 = event.majoraxis
-        self.__minorAxis.pos2 = event.minoraxis
-        self.line.pos = self.positions
+    def __onContactCB(self, event):
+        if event.type == avg.CURSORUP:
+                del self
+        else:
+            self.pos = event.pos
+            self.positions.append(event.pos)
+            if len(self.positions) > 100:
+                self.positions.pop(0)
+            
+            if event.majoraxis.getNorm() > 20.0:
+                radius = event.majoraxis.getNorm()
+            else:
+                radius = 20.0
+                
+            self.__pulsecircle.r = radius
+            self.__majorAxis.pos2 = event.majoraxis
+            self.__minorAxis.pos2 = event.minoraxis
+            self.motionVector.pos2 = event.contact.motionvec
+            self.motionPath.pos = self.positions
+            self.distFromStart.text = str(event.contact.distancefromstart)
+            self.distTravelled.text = str(event.contact.distancetravelled)
 
 
 class TouchVisualizationOverlay(avg.DivNode):
@@ -74,37 +103,18 @@ class TouchVisualizationOverlay(avg.DivNode):
         self.sensitive = False
         self.elementoutlinecolor='FFFFAA'
 
-        self.__touchVisElements = {}
-
         rootNode = g_player.getRootNode()
         avg.RectNode(parent=self, size=self.size,
                 fillopacity=0.2, fillcolor='000000')
-        rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
-                self, self.__onTouchUp)
         rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
                 self, self.__onTouchDown)
-        rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
-                self, self.__onTouchMotion)
     
     def deinit(self):
         rootNode = g_player.getRootNode()
         rootNode.disconnectEventHandler(self, self.__onTouchDown)
-        rootNode.disconnectEventHandler(self, self.__onTouchUp)
-        rootNode.disconnectEventHandler(self, self.__onTouchMotion)
 
     def __onTouchDown(self, event):
-        touchVis = TouchVisualization(event, parent=self)
-        self.__touchVisElements[event.cursorid] = touchVis
-
-    def __onTouchUp(self, event):
-        if event.cursorid in self.__touchVisElements:
-            self.__touchVisElements[event.cursorid].unlink(True)
-            self.__touchVisElements[event.cursorid] = None
-            del self.__touchVisElements[event.cursorid]
-
-    def __onTouchMotion(self, event):
-        if event.cursorid in self.__touchVisElements:
-            self.__touchVisElements[event.cursorid].move(event)
+        TouchVisualization(event, parent=self)
 
 
 class KeysCaptionNode(avg.DivNode):

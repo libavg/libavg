@@ -24,15 +24,23 @@
 #include "CursorEvent.h"
 
 #include "VisibleNode.h"
+#include "Contact.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
+
+#include <iostream>
+
+using namespace std;
 
 namespace avg {
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
-    : Event(eventType, source),
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+        int when)
+    : Event(eventType, source, when),
       m_Position(position),
-      m_ID(id)
+      m_ID(id),
+      m_Speed(0,0)
 {
 }
 
@@ -72,9 +80,50 @@ int CursorEvent::getCursorID() const
     return m_ID;
 }
 
+void CursorEvent::setNode(VisibleNodePtr pNode)
+{
+    m_pNode = pNode;
+}
+
+VisibleNodePtr CursorEvent::getNode() const
+{
+    return m_pNode;
+}
+        
+void CursorEvent::setSpeed(DPoint speed)
+{
+    m_Speed = speed;
+}
+
+const DPoint& CursorEvent::getSpeed() const
+{
+    return m_Speed;
+}
+
+void CursorEvent::setContact(ContactPtr pContact)
+{
+    m_pContact = pContact;
+}
+
+ContactPtr CursorEvent::getContact() const
+{
+    return m_pContact;
+}
+
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Position == event2.m_Position && event1.m_When == event2.m_When); 
+    return (event1.m_Position == event2.m_Position && 
+            event1.getWhen() == event2.getWhen()); 
+}
+
+void CursorEvent::trace()
+{
+    string sType = typeStr();
+    if (!m_pNode) {
+        AVG_TRACE(Logger::EVENTS, sType); 
+    } else {
+        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
+    }
 }
 
 }

@@ -23,8 +23,9 @@
 #define _MultitouchInputDevice_H_
 
 #include "../api.h"
-#include "CursorEvent.h"
 #include "IInputDevice.h"
+
+#include "../base/Point.h"
 
 #include <boost/thread.hpp>
 #include <map>
@@ -34,10 +35,12 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 namespace avg {
 
-class TouchStatus;
-typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
 class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+class Event;
+typedef boost::shared_ptr<Event> EventPtr;
 
 class AVG_API MultitouchInputDevice: public IInputDevice
 {
@@ -53,13 +56,13 @@ protected:
     int getNumTouches() const;
     // Note that the id used here is not the libavg cursor id but a touch-driver-specific
     // id handed up from the driver level.
-    TouchStatusPtr getTouchStatus(int id);
-    void addTouchStatus(int id, TouchEventPtr pInitialEvent);
+    ContactPtr getContact(int id);
+    void addContact(int id, TouchEventPtr pInitialEvent);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
     boost::mutex& getMutex();
 
 private:
-    std::map<int, TouchStatusPtr> m_Touches;
+    std::map<int, ContactPtr> m_Touches;
     DPoint m_WindowSize;
     MutexPtr m_pMutex;
 };

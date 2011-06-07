@@ -30,9 +30,9 @@ class ManipulationProcessor(object):
         self._node = node
         self.__eventSource = eventSource
        
-        self.__setEventHandlers(self._onDown, self.__onMove, self._onUp) 
+        self.__setEventHandler() 
         self.__isEnabled = True
-        self.__cursorID = None
+        self.__isActive = False
         if initialEvent:
             self._onDown(initialEvent)
 
@@ -40,45 +40,27 @@ class ManipulationProcessor(object):
         if isEnabled != self.__isEnabled:
             self.__isEnabled = isEnabled
             if isEnabled:
-                self.__setEventHandlers(self._onDown, self.__onMove, self._onUp)
+                self.__setEventHandler()
             else:
-                if self.__cursorID:
-                    self._node.releaseEventCapture(self.__cursorID)
-                    self.__cursorID = None
+                self.__isActive = False
                 self._node.disconnectEventHandler(self)
 
     def _onDown(self, event):
-        if self.__cursorID == None:
-            self.__cursorID = event.cursorid
-            self._node.setEventCapture(event.cursorid)
+        if not(self.__isActive):
+            self.__isActive = True
+            event.contact.connectListener(self.__onContact)
             return self._handleDown(event)
 
-    def __onMove(self, event):
-        if self.__cursorID == event.cursorid:
-            return self._handleMove(event)
+    def __onContact(self, event):
+        if event.type == avg.CURSORMOTION:
+            self._handleMove(event)
+        elif event.type == avg.CURSORUP:
+            self.__isActive = False
+            self._handleUp(event)
 
-    def _onUp(self, event):
-        if self.__cursorID == event.cursorid:
-            self._node.releaseEventCapture(event.cursorid)
-            self.__cursorID = None
-            return self._handleUp(event)
-
-    def _handleUp(self, event):
-        pass
-    
-    def _handleDown(self, event):
-        pass
-    
-    def _handleMove(self, event):
-        pass
-
-    def __setEventHandlers(self, downHandler, moveHandler, upHandler):
-        self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource,
-                self, downHandler)
-        self._node.connectEventHandler(avg.CURSORMOTION, self.__eventSource, 
-                self, moveHandler)
-        self._node.connectEventHandler(avg.CURSORUP, self.__eventSource, 
-                self, upHandler)
+    def __setEventHandler(self):
+        self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
+                self._onDown)
 
 
 class DragProcessor(ManipulationProcessor):
@@ -98,33 +80,30 @@ class DragProcessor(ManipulationProcessor):
             self.__stop()
 
     def _handleDown(self, event):
-            if self.__inertiaHandlerID:
-                self.__stopHandler()
-                g_Player.clearInterval(self.__inertiaHandlerID)
-            self.__dragStartPos = event.pos
-            self.__startHandler(event)
-            self.__speed = avg.Point2D(0,0)
-            self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
+        if self.__inertiaHandlerID:
+            self.__stopHandler()
+            g_Player.clearInterval(self.__inertiaHandlerID)
+        self.__dragStartPos = event.pos
+        self.__startHandler(event)
+        self.__speed = avg.Point2D(0,0)
+        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
     def _handleMove(self, event):
         # TODO: Offset is in the global coordinate system. We should really be using
         # the coordinate system we're in at the moment the drag starts. 
-        offset = event.pos - self.__dragStartPos
-        if self.__moveHandler:
-            self.__moveHandler(event, offset)
+        self.__moveHandler(event, event.contact.motionvec)
         self.__speed += 0.1*event.speed
 
     def __onFrame(self):
         self.__speed *= 0.9
 
     def _handleUp(self, event):
-        offset = event.pos - self.__dragStartPos
-        self.__upHandler(event, offset)
+        self.__upHandler(event, event.contact.motionvec)
         g_Player.clearInterval(self.__frameHandlerID)
         if self.__friction != -1:
             self.__inertiaHandlerID = g_Player.setOnFrameHandler(self.__handleInertia)
             self.__speed += 0.1*event.speed
-            self.__offset = offset
+            self.__offset = event.contact.motionvec
         else:
             self.__stopHandler()
 
@@ -190,8 +169,7 @@ class HoldProcessor(ManipulationProcessor):
 
     def _handleMove(self, event):
         self.__lastEvent = event
-        offset = event.pos - self.__startPos
-        if offset.getNorm() > 8:
+        if event.contact.distancefromstart > 8:
             self.__startPos = event.pos
             self.__startTime = g_Player.getFrameTime()
             if self.__state != HoldProcessor.DOWN:

@@ -23,14 +23,16 @@
 #define _IInputDevice_H_
 
 #include "../api.h"
-#include "Event.h"
 #include <boost/shared_ptr.hpp>
 #include <vector>
-
+#include <string>
 
 #define EXTRACT_INPUTDEVICE_CLASSNAME( classType ) (#classType)
 
 namespace avg {
+
+class Event;
+typedef boost::shared_ptr<Event> EventPtr;
 
 class AVG_API IInputDevice {
     public:
