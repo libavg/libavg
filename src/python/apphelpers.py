@@ -34,7 +34,7 @@ class TouchVisualization(avg.DivNode):
     '''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        event.contact.connectListener(self.__onContactCB)
+        event.contact.connectListener(self.__onMotion, self.__onUp)
         self.pos = avg.Point2D(event.pos)
         self.positions = [event.pos]
         radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
@@ -74,27 +74,27 @@ class TouchVisualization(avg.DivNode):
         self.motionPath.unlink(True)
         self.unlink(True)
 
-    def __onContactCB(self, event):
-        if event.type == avg.CURSORUP:
-                del self
+    def __onMotion(self, event):
+        self.pos = event.pos
+        self.positions.append(event.pos)
+        if len(self.positions) > 100:
+            self.positions.pop(0)
+        
+        if event.majoraxis.getNorm() > 20.0:
+            radius = event.majoraxis.getNorm()
         else:
-            self.pos = event.pos
-            self.positions.append(event.pos)
-            if len(self.positions) > 100:
-                self.positions.pop(0)
+            radius = 20.0
             
-            if event.majoraxis.getNorm() > 20.0:
-                radius = event.majoraxis.getNorm()
-            else:
-                radius = 20.0
-                
-            self.__pulsecircle.r = radius
-            self.__majorAxis.pos2 = event.majoraxis
-            self.__minorAxis.pos2 = event.minoraxis
-            self.motionVector.pos2 = event.contact.motionvec
-            self.motionPath.pos = self.positions
-            self.distFromStart.text = str(event.contact.distancefromstart)
-            self.distTravelled.text = str(event.contact.distancetravelled)
+        self.__pulsecircle.r = radius
+        self.__majorAxis.pos2 = event.majoraxis
+        self.__minorAxis.pos2 = event.minoraxis
+        self.motionVector.pos2 = event.contact.motionvec
+        self.motionPath.pos = self.positions
+        self.distFromStart.text = str(event.contact.distancefromstart)
+        self.distTravelled.text = str(event.contact.distancetravelled)
+
+    def __onUp(self, up):
+        del self
 
 
 class TouchVisualizationOverlay(avg.DivNode):

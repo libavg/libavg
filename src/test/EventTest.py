@@ -747,25 +747,28 @@ class EventTestCase(AVGTestCase):
             self.assert_(contact.motionangle == 0)
             self.assert_(contact.motionvec == (0,0))
             self.assert_(contact.distancetravelled == 0)
-            contact.connectListener(onContact)
+            contact.connectListener(onMotion, onUp)
 
-        def onContact(event):
+        def onMotion(event):
             contact = event.contact
             self.assert_(event.cursorid == contact.id)
-            if event.type == avg.CURSORMOTION:
-                self.assert_(contact.age == 40)
-                self.assert_(contact.distancefromstart == 10)
-                self.assert_(contact.motionangle == 0)
-                self.assert_(contact.motionvec == (10,0))
-                self.assert_(contact.distancetravelled == 10)
-            elif event.type == avg.CURSORUP:
-                self.assert_(contact.age == 80)
-                self.assert_(contact.distancefromstart == 0)
-                self.assert_(contact.motionangle == 0)
-                self.assert_(contact.motionvec == (0,0))
-                self.assert_(contact.distancetravelled == 20)
+            self.assert_(contact.age == 40)
+            self.assert_(contact.distancefromstart == 10)
+            self.assert_(contact.motionangle == 0)
+            self.assert_(contact.motionvec == (10,0))
+            self.assert_(contact.distancetravelled == 10)
             self.numContactCallbacks += 1
-       
+ 
+        def onUp(event):
+            contact = event.contact
+            self.assert_(event.cursorid == contact.id)
+            self.assert_(contact.age == 80)
+            self.assert_(contact.distancefromstart == 0)
+            self.assert_(contact.motionangle == 0)
+            self.assert_(contact.motionvec == (0,0))
+            self.assert_(contact.distancetravelled == 20)
+            self.numContactCallbacks += 1
+
         self.loadEmptyScene()
         root = Player.getRootNode()
         root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
@@ -793,20 +796,21 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             root.setEventCapture(event.cursorid)
-            self.assertException(lambda: event.contact.connectListener(onContact))
+            self.assertException(
+                    lambda: event.contact.connectListener(onContactMotion, None))
             root.releaseEventCapture(event.cursorid)
 
         def onMotion(event):
             contact = event.contact
-            contact.connectListener(onContact)
+            self.contactID = contact.connectListener(onContactMotion, None)
             self.assertException(lambda: root.setEventCapture(event.cursorid))
             self.numMotionCallbacks += 1
             root.disconnectEventHandler(self)
 
-        def onContact(event):
+        def onContactMotion(event):
             contact = event.contact
-            contact.disconnectListener(onContact)
-            self.assertException(lambda: contact.disconnectListener(onContact))
+            contact.disconnectListener(self.contactID)
+            self.assertException(lambda: contact.disconnectListener(self.contactID))
             self.numContactCallbacks += 1
         
         self.loadEmptyScene()
@@ -829,11 +833,11 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             contact = event.contact
-            contact.connectListener(onContact1)
-            contact.connectListener(onContact2)
+            self.contactid = contact.connectListener(onContact1, None)
+            contact.connectListener(onContact2, onContact2)
 
         def onContact1(event):
-            event.contact.disconnectListener(onContact1)
+            event.contact.disconnectListener(self.contactid)
             self.numContact1Callbacks += 1
 
         def onContact2(event):

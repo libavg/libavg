@@ -34,6 +34,8 @@ using namespace std;
 
 namespace avg {
 
+int Contact::s_LastListenerID = 0;
+
 Contact::Contact(CursorEventPtr pEvent, bool bProcessEvents)
     : m_bProcessEvents(bProcessEvents),
       m_bFirstFrame(true),
@@ -54,10 +56,7 @@ Contact::~Contact()
 
 void Contact::disconnectEverything()
 {
-    for (unsigned i = 0; i < m_pListeners.size(); ++i) {
-        Py_DECREF(m_pListeners[i]);
-    }
-    m_pListeners.clear();
+    m_ListenerMap.clear();
     m_pNewEvents.clear();
     m_pFirstEvent = CursorEventPtr();
     m_pLastEvent = CursorEventPtr();
@@ -76,58 +75,32 @@ ContactPtr Contact::getThis() const
     return m_This.lock();
 }
     
-void Contact::connectListener(PyObject* pListener)
+int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 {
     if (Player::get()->isCaptured(m_CursorID)) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, 
                 "Attempted to connect listener to cursor id " + toString(m_CursorID) +
                 ", but the cursor was already captured.");
     }
-    bool bAlreadyConnected = false;
-    for (unsigned i = 0; i < m_pListeners.size(); ++i) {
-        if (PyObject_RichCompareBool(m_pListeners[i], pListener, Py_EQ)) {
-            bAlreadyConnected = true;
-        }
-    }
-    if (!bAlreadyConnected) {
-        Py_INCREF(pListener);
-        m_pListeners.push_back(pListener);
-    }
+    s_LastListenerID++;
+    pair<int, Listener> val = 
+            pair<int, Listener>(s_LastListenerID, Listener(pMotionCallback, pUpCallback));
+    m_ListenerMap.insert(val);
+    return s_LastListenerID;
 }
 
-void Contact::disconnectListener(PyObject* pListener)
+void Contact::disconnectListener(int id)
 {
     bool bFound = false;
-    vector<PyObject*>::iterator it = m_pListeners.begin();
-    while (it != m_pListeners.end() && !bFound) {
-        if (PyObject_RichCompareBool(*it, pListener, Py_EQ)) {
-            if (m_bSendingEvents) {
-                // We're inside sendEventToListeners(), so m_pListeners can't be changed
-                // directly.
-                vector<PyObject*>::iterator itDead;
-                for (itDead = m_pDeadListeners.begin(); itDead != m_pDeadListeners.end();
-                        ++itDead)
-                {
-                    // Error handling: Make sure disconnectListeners isn't called twice 
-                    // inside one sendEventToListeners() for the same listener.
-                    if (PyObject_RichCompareBool(*itDead, pListener, Py_EQ)) {
-                        throw Exception(AVG_ERR_INVALID_ARGS, 
-                                "Contact.disconnectListener: Not connected.");
-                    }
-                }
-                m_pDeadListeners.push_back(pListener);
-            } else {
-                Py_DECREF(*it);
-                it = m_pListeners.erase(it);
-             }
-            bFound = true;
-        } else {
-            it++;
-        }
-    }
-    if (!bFound) {
+    map<int, Listener>::iterator it = m_ListenerMap.find(id);
+    if (it == m_ListenerMap.end() || m_DeadListeners.count(id) != 0) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
-                "Contact.disconnectListener: Not connected.");
+                "Contact.disconnectListener: id " + toString(id) + " is not connected.");
+    }
+    if (m_bSendingEvents) {
+        m_DeadListeners.insert(id);
+    } else {
+        m_ListenerMap.erase(it);
     }
 }
 
@@ -233,23 +206,36 @@ CursorEventPtr Contact::getLastEvent()
 
 bool Contact::hasListeners() const
 {
-    return !m_pListeners.empty();
+    return !(m_ListenerMap.size() == m_DeadListeners.size());
 }
 
-void Contact::sendEventToListeners(CursorEventPtr pEvent)
+void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
 {
     m_bSendingEvents = true;
-    AVG_ASSERT(pEvent->getContact() == getThis());
-    for (unsigned i = 0; i < m_pListeners.size(); ++i) {
-        boost::python::call<void>(m_pListeners[i], 
-                boost::dynamic_pointer_cast<Event>(pEvent));
-        pEvent->setNode(VisibleNodePtr());
+    AVG_ASSERT(pCursorEvent->getContact() == getThis());
+    EventPtr pEvent = boost::dynamic_pointer_cast<Event>(pCursorEvent);
+    for (map<int, Listener>::iterator it = m_ListenerMap.begin(); 
+            it != m_ListenerMap.end(); ++it)
+    {
+        Listener listener = it->second;
+        switch (pCursorEvent->getType()) {
+            case Event::CURSORMOTION:
+                if (listener.m_pMotionCallback != Py_None) {
+                    boost::python::call<void>(listener.m_pMotionCallback, pEvent);
+                }
+                break;
+            case Event::CURSORUP:
+                if (listener.m_pUpCallback != Py_None) {
+                    boost::python::call<void>(listener.m_pUpCallback, pEvent);
+                }
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
+        pCursorEvent->setNode(VisibleNodePtr());
     }
     m_bSendingEvents = false;
-    for (unsigned i = 0; i < m_pDeadListeners.size(); ++i) {
-        disconnectListener(m_pDeadListeners[i]);
-    }
-    m_pDeadListeners.clear();
+    m_DeadListeners.clear();
 }
 
 int Contact::getID() const
@@ -272,6 +258,29 @@ void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEv
     double dist = (pEvent2->getPos() - pEvent1->getPos()).getNorm();
     m_DistanceTravelled += dist;
 }
+
+Contact::Listener::Listener(PyObject * pMotionCallback, PyObject * pUpCallback)
+{
+    Py_INCREF(pMotionCallback);
+    m_pMotionCallback = pMotionCallback;
+    Py_INCREF(pUpCallback);
+    m_pUpCallback = pUpCallback;
+}
+
+Contact::Listener::Listener(const Listener& other)
+{
+    Py_INCREF(other.m_pMotionCallback);
+    m_pMotionCallback = other.m_pMotionCallback;
+    Py_INCREF(other.m_pUpCallback);
+    m_pUpCallback = other.m_pUpCallback;
+}
+
+Contact::Listener::~Listener()
+{
+    Py_DECREF(m_pMotionCallback);
+    Py_DECREF(m_pUpCallback);
+}
+
 
 }
 

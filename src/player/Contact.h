@@ -31,6 +31,8 @@
 #include "WrapPython.h"
 
 #include <vector>
+#include <map>
+#include <set>
 
 namespace avg {
 
@@ -49,8 +51,8 @@ public:
     void setThis(ContactWeakPtr This);
     ContactPtr getThis() const;
 
-    void connectListener(PyObject* pListener);
-    void disconnectListener(PyObject* pListener);
+    int connectListener(PyObject* pMotionCallback, PyObject* pUpCallback);
+    void disconnectListener(int id);
 
     long long getAge() const;
     double getDistanceFromStart() const;
@@ -63,7 +65,7 @@ public:
     CursorEventPtr pollEvent();
     CursorEventPtr getLastEvent();
     bool hasListeners() const;
-    void sendEventToListeners(CursorEventPtr pEvent);
+    void sendEventToListeners(CursorEventPtr pCursorEvent);
 
     int getID() const;
 
@@ -81,8 +83,18 @@ private:
     ContactWeakPtr m_This;
     bool m_bSendingEvents;
 
-    std::vector<PyObject*> m_pListeners;
-    std::vector<PyObject*> m_pDeadListeners;
+    struct Listener
+    {
+        Listener(PyObject * pMotionCallback, PyObject * pUpCallback);
+        Listener(const Listener& other);
+        ~Listener();
+        PyObject* m_pMotionCallback;
+        PyObject* m_pUpCallback;
+    };
+
+    static int s_LastListenerID;
+    std::map<int, Listener> m_ListenerMap;
+    std::set<int> m_DeadListeners;
     int m_CursorID;
     double m_DistanceTravelled;
 };

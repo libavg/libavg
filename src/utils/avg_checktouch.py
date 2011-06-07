@@ -33,7 +33,7 @@ class TouchApp(AVGApp):
     
     def __onDown(self, event):
         if (event.contact):
-            event.contact.connectListener(self.__onContact)
+            event.contact.connectListener(self.__onContact, self.__onContact)
             contact = event.contact
             print event.type, contact.id, event.pos, contact.age, \
                     contact.distancefromstart, contact.motionangle, contact.motionvec, \

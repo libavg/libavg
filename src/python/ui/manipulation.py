@@ -48,15 +48,15 @@ class ManipulationProcessor(object):
     def _onDown(self, event):
         if not(self.__isActive):
             self.__isActive = True
-            event.contact.connectListener(self.__onContact)
+            event.contact.connectListener(self.__onMotion, self.__onUp)
             return self._handleDown(event)
 
-    def __onContact(self, event):
-        if event.type == avg.CURSORMOTION:
-            self._handleMove(event)
-        elif event.type == avg.CURSORUP:
-            self.__isActive = False
-            self._handleUp(event)
+    def __onMotion(self, event):
+        self._handleMove(event)
+
+    def __onUp(self, event):
+        self.__isActive = False
+        self._handleUp(event)
 
     def __setEventHandler(self):
         self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
