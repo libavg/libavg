@@ -65,8 +65,7 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
         bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
     }
     if (bPosChanged) {
-        CursorEventPtr pEvent = createEvent(m_Source, Event::CURSORMOTION, m_ID, pNewBlob,
-                time, m_pDeDistort, m_DisplayROI);
+        CursorEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
         pushEvent(pEvent, false);
     }
     m_pBlob = pNewBlob;
@@ -76,8 +75,7 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
     
 void EventStream::blobGone()
 {
-    CursorEventPtr pEvent = createEvent(m_Source, Event::CURSORUP, m_ID, m_pBlob, 
-            m_LastTime+1, m_pDeDistort, m_DisplayROI);
+    CursorEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
     pushEvent(pEvent, true);
 }
 
