@@ -44,5 +44,5 @@ class TouchApp(AVGApp):
                 contact.distancefromstart, contact.motionangle, contact.motionvec, \
                 contact.distancetravelled, event.speed
 
-TouchApp.start(resolution=(800,600))
+TouchApp.start(resolution=(1280,800))
 

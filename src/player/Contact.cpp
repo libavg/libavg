@@ -161,7 +161,7 @@ double Contact::getDistanceTravelled() const
     return m_DistanceTravelled;
 }
 
-void Contact::pushEvent(CursorEventPtr pEvent)
+void Contact::pushEvent(CursorEventPtr pEvent, bool bCheckMotion)
 {
     AVG_ASSERT(m_bProcessEvents);
     AVG_ASSERT(pEvent);
@@ -177,7 +177,7 @@ void Contact::pushEvent(CursorEventPtr pEvent)
             m_pNewEvents.push_back(pEvent);
         }
     } else {
-        if (pEvent->getType() == Event::CURSORMOTION && 
+        if (bCheckMotion && pEvent->getType() == Event::CURSORMOTION && 
                 getLastEvent()->getPos() == pEvent->getPos())
         {
             // Ignore motion events without motion.

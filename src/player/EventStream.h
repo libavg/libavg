@@ -23,7 +23,8 @@
 #define _TrackerEventStream_H_
 
 #include "../api.h"
-#include "CursorEvent.h"
+#include "Event.h"
+#include "Contact.h"
 
 #include "../base/Point.h"
 
@@ -34,54 +35,34 @@
 
 namespace avg {
 
-class AVG_API EventStream
-//internal class to keep track of blob/event states
+class AVG_API EventStream: public Contact
 {
     public:
-        enum StreamState {
-            DOWN_PENDING, //fresh stream. not polled yet
-            DOWN_DELIVERED, //initial finger down delivered
-            MOTION_PENDING, //recent position change
-            MOTION_DELIVERED, //finger resting
-            VANISHED, // oops, no followup found -- wait a little while
-            UP_PENDING, //finger disappeared, but fingerup yet to be delivered
-            UP_DELIVERED // waiting to be cleared.
-        };
-
-        // State transitions:
-        // Current state       Destination state
-        // DOWN_PENDING     -> DOWN_DELIVERED (CURSORDOWN event), 
-        //                     UP_DELIVERED (spurious blob)
-        // DOWN_DELIVERED   -> VANISHED, MOTION_PENDING, MOTION_DELIVERED
-        // MOTION_PENDING   -> VANISHED, MOTION_DELIVERED (CURSORMOTION event)
-        // MOTION_DELIVERED -> VANISHED, MOTION_PENDING
-        // VANISHED         -> MOTION_PENDING, UP_PENDING
-        // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
-
-        EventStream(BlobPtr pFirstBlob, long long time);
+        EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
+                const DRect& displayROI, Event::Source source);
         virtual ~EventStream();
         void blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent);
         void blobGone();
         EventPtr pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
-                CursorEvent::Source source);
-        bool isGone();
+                Event::Source source);
         void setStale();
         bool isStale();
-        void dump();
-        static std::string stateToString(StreamState state);
 
     private:
-        DPoint getSpeed(const DPoint& oldPos, const DPoint& newPos);
+        CursorEventPtr createEvent(Event::Source source, Event::Type type, int id, 
+                BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, 
+                const DRect& displayROI);
+        CursorEventPtr createEvent(Event::Type type, BlobPtr pBlob, long long time);
 
+        Event::Source m_Source;
+        DeDistortPtr m_pDeDistort;
+        DRect m_DisplayROI;
         bool m_Stale;
         int m_ID;
-        StreamState m_State;
-        DPoint m_Pos;
-        DPoint m_OldPos;
         BlobPtr m_pBlob;
-        long long m_Time;
-        long long m_OldTime;
-        static int s_LastLabel;
+        long long m_LastTime;
+
+        static int s_LastID;
 };
 
 }

@@ -58,7 +58,7 @@ public:
     DPoint getMotionVec() const;
     double getDistanceTravelled() const;
 
-    void pushEvent(CursorEventPtr pEvent);
+    void pushEvent(CursorEventPtr pEvent, bool bCheckMotion=true);
     void addEvent(CursorEventPtr pEvent);
     CursorEventPtr pollEvent();
     CursorEventPtr getLastEvent();

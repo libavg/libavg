@@ -276,12 +276,15 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
 {
     EventMap * pEvents;
     string sConfigPath;
+    Event::Source source;
     if (bTouch) {
         sConfigPath = "/tracker/touch/";
         pEvents = &m_TouchEvents;
+        source = Event::TOUCH;
     } else {
         sConfigPath = "/tracker/track/";
         pEvents = &m_TrackEvents;
+        source = Event::TRACK;
     }
     BlobVector oldBlobs;
     for (EventMap::iterator it = pEvents->begin(); it != pEvents->end(); ++it) {
@@ -336,7 +339,8 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
     // Blobs have been matched. Left-overs are new blobs.
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
         if (matchedNewBlobs.find(*it) == matchedNewBlobs.end()) {
-            (*pEvents)[(*it)] = EventStreamPtr(new EventStream(*it, time));
+            (*pEvents)[(*it)] = EventStreamPtr(
+                    new EventStream(*it, time, m_pDeDistort, m_DisplayROI, source));
         }
     }
 
@@ -409,12 +413,14 @@ void TrackerInputDevice::pollEventType(vector<EventPtr>& res, EventMap& Events,
     EventPtr pEvent;
     for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
         EventStreamPtr pStream = (*it).second;
-        pEvent = pStream->pollevent(m_pDeDistort, m_DisplayROI, source);
+        pEvent = pStream->pollEvent();
         if (pEvent) {
             res.push_back(pEvent);
-        }
-        if ((*it).second->isGone()) {
-            Events.erase(it++);
+            if (pEvent->getType() == Event::CURSORUP) {
+                Events.erase(it++);
+            } else {
+                ++it;
+            }
         } else {
             ++it;
         }
