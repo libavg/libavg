@@ -459,6 +459,10 @@ Player & Canvas
                 Number of bits per pixel to use. Valid values are :samp:`15`, :samp:`16`,
                 :samp:`24` and :samp:`32`.
 
+        .. py:method:: isFullscreen()
+
+            Returns True when the player is running in fullscreen mode.
+            
         .. py:method:: setTimeout(time, pyfunc) -> int
 
             Sets a python callable object that should be executed after a set
