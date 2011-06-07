@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "MultitouchInputDevice.h"
+#include "Event.h"
 #include "../oscpack/UdpSocket.h"
 #include "../oscpack/PacketListener.h"
 #include "../oscpack/OscReceivedElements.h"

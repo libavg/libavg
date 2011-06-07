@@ -22,6 +22,7 @@
 #include "Player.h"
 
 #include "../avgconfigwrapper.h"
+
 #include "AVGNode.h"
 #include "DivNode.h"
 #include "WordsNode.h"
@@ -59,6 +60,10 @@
 #ifdef HAVE_XI2_1
     #include "XInput21MTInputDevice.h"
 #endif
+#include "Contact.h"
+#include "KeyEvent.h"
+#include "EventDispatcher.h"
+
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/OSHelper.h"
@@ -112,6 +117,8 @@ Player::Player()
       m_Volume(1),
       m_dtd(0),
       m_bPythonAvailable(true),
+      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
 #ifdef __linux
@@ -692,6 +699,12 @@ bool Player::isMultitouchAvailable() const
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
+    std::map<int, ContactPtr>::iterator itContact = m_pContacts.find(cursorID);
+    if (itContact != m_pContacts.end() && (*itContact).second->hasListeners()) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for cursor "
+                + toString(cursorID) + ", but contact has a listener.");
+    }
+
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
@@ -723,6 +736,13 @@ void Player::releaseEventCapture(int cursorID)
             m_EventCaptureInfoMap.erase(cursorID);
         }
     }
+}
+
+bool Player::isCaptured(int cursorID)
+{
+    std::map<int, EventCaptureInfoPtr>::iterator it =
+            m_EventCaptureInfoMap.find(cursorID);
+    return (it != m_EventCaptureInfoMap.end());
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -777,7 +797,7 @@ bool Player::clearInterval(int id)
 
 MouseEventPtr Player::getMouseState() const
 {
-    return m_MouseState.getLastEvent();
+    return m_pLastMouseEvent;
 }
 
 void Player::setMousePos(const IntPoint& pos)
@@ -788,6 +808,20 @@ void Player::setMousePos(const IntPoint& pos)
 int Player::getKeyModifierState() const
 {
     return m_pDisplayEngine->getKeyModifierState();
+}
+
+void Player::registerContact(ContactPtr pContact)
+{
+    int id = pContact->getID();
+    AVG_ASSERT(m_pContacts.find(id) == m_pContacts.end());
+    m_pContacts[id] = pContact;
+}
+
+void Player::deregisterContact(ContactPtr pContact)
+{
+    map<int, ContactPtr>::iterator it;
+    int rc = m_pContacts.erase(pContact->getID());
+    AVG_ASSERT(rc == 1);
 }
 
 BitmapPtr Player::screenshot()
@@ -945,7 +979,7 @@ bool Player::handleEvent(EventPtr pEvent)
         }
     }
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
-        m_MouseState.setEvent(pMouseEvent);
+        m_pLastMouseEvent = pMouseEvent;
     }
 
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
@@ -953,7 +987,7 @@ bool Player::handleEvent(EventPtr pEvent)
                 pEvent->getType() == Event::CURSOROVER)
         {
             pEvent->trace();
-            pEvent->getElement()->handleEvent(pEvent);
+            pCursorEvent->getNode()->handleEvent(pEvent);
         } else {
             handleCursorEvent(pCursorEvent);
         }
@@ -1350,8 +1384,8 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
         VisibleNodePtr pNode)
 {
     if (pNode) {
-        EventPtr pNewEvent = pOtherEvent->cloneAs(type);
-        pNewEvent->setElement(pNode);
+        CursorEventPtr pNewEvent = pOtherEvent->cloneAs(type);
+        pNewEvent->setNode(pNode);
         m_pEventDispatcher->sendEvent(pNewEvent);
     }
 }
@@ -1359,17 +1393,24 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
 void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent,
         bool bOnlyCheckCursorOver)
 {
-    DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
-    int cursorID = pEvent->getCursorID();
     // Find all nodes under the cursor.
     vector<VisibleNodeWeakPtr> pCursorNodes;
-    pDivNode->getElementsByPos(pos, pCursorNodes);
+    pDivNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+    ContactPtr pContact = pEvent->getContact();
+    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
+        VisibleNodePtr pNode = pCursorNodes.begin()->lock();
+        pEvent->setNode(pNode);
+        pContact->sendEventToListeners(pEvent);
+    }
+        
+    int cursorID = pEvent->getCursorID();
 
     // Determine the nodes the event should be sent to.
     vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
     bool bIsCapturing = false;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
-        VisibleNodeWeakPtr pEventCaptureNode = m_EventCaptureInfoMap[cursorID]->m_pNode;
+        VisibleNodeWeakPtr pEventCaptureNode = 
+                m_EventCaptureInfoMap[cursorID]->m_pNode;
         if (pEventCaptureNode.expired()) {
             m_EventCaptureInfoMap.erase(cursorID);
         } else {
@@ -1389,7 +1430,9 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
     // Send out events.
     vector<VisibleNodeWeakPtr>::const_iterator itLast;
     vector<VisibleNodeWeakPtr>::iterator itCur;
-    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
+    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
+            ++itLast)
+    {
         VisibleNodePtr pLastNode = itLast->lock();
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
             if (itCur->lock() == pLastNode) {
@@ -1428,7 +1471,7 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
             if (pNode) {
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
-                pNodeEvent->setElement(pNode);
+                pNodeEvent->setNode(pNode);
                 if (pNodeEvent->getType() != Event::CURSORMOTION) {
                     pNodeEvent->trace();
                 }
@@ -1461,6 +1504,12 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
             m_pLastCursorStates[cursorID] =
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
         }
+    }
+    MouseEventPtr pMouseEvent = dynamic_pointer_cast<MouseEvent>(pEvent);
+    if (!bOnlyCheckCursorOver && pContact && pEvent->getType() == Event::CURSORUP &&
+            (!pMouseEvent || !pMouseEvent->isAnyButtonPressed()))
+    {
+        pContact->disconnectEverything();
     }
 }
 
@@ -1580,6 +1629,8 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     m_EventCaptureInfoMap.clear();
     m_pLastCursorStates.clear();
+    m_pTestHelper->reset();
+    m_pContacts.clear();
     ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());
@@ -1604,7 +1655,8 @@ void Player::cleanup()
         m_pAudioEngine->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
-    m_MouseState = MouseState();
+    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
+            false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0));
 
     m_FrameTime = 0;
     m_bIsPlaying = false;

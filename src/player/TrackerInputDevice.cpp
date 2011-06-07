@@ -276,12 +276,15 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
 {
     EventMap * pEvents;
     string sConfigPath;
+    Event::Source source;
     if (bTouch) {
         sConfigPath = "/tracker/touch/";
         pEvents = &m_TouchEvents;
+        source = Event::TOUCH;
     } else {
         sConfigPath = "/tracker/track/";
         pEvents = &m_TrackEvents;
+        source = Event::TRACK;
     }
     BlobVector oldBlobs;
     for (EventMap::iterator it = pEvents->begin(); it != pEvents->end(); ++it) {
@@ -309,7 +312,6 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
     set<BlobPtr> matchedNewBlobs;
     set<BlobPtr> matchedOldBlobs;
     int numMatchedBlobs = 0;
-    bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
     while (!distHeap.empty()) {
         BlobDistEntryPtr pEntry = distHeap.top();
         distHeap.pop();
@@ -325,12 +327,9 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
             AVG_ASSERT (pEvents->find(pOldBlob) != pEvents->end());
             EventStreamPtr pStream;
             pStream = pEvents->find(pOldBlob)->second;
-            // EventOnMove means events are discarded when the cursor doesn't move.
-            // But even if the cursor doesn't move, we have to make sure we don't
-            // discard any events that have related info.
-            bool bKeepAllEvents = !bEventOnMove || 
-                    (pNewBlob->getFirstRelated() && !bTouch);
-            pStream->blobChanged(pNewBlob, time, !bKeepAllEvents);
+            // Make sure we don't discard any events that have related info.
+            bool bKeepAllEvents = pNewBlob->getFirstRelated() && !bTouch;
+            pStream->blobChanged(pNewBlob, time, bKeepAllEvents);
             pNewBlob->calcNextCenter(pOldBlob->getCenter());
             // Update the mapping.
             (*pEvents)[pNewBlob] = pStream;
@@ -340,7 +339,10 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
     // Blobs have been matched. Left-overs are new blobs.
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
         if (matchedNewBlobs.find(*it) == matchedNewBlobs.end()) {
-            (*pEvents)[(*it)] = EventStreamPtr(new EventStream(*it, time));
+            EventStreamPtr pStream = EventStreamPtr(
+                    new EventStream(*it, time, m_pDeDistort, m_DisplayROI, source));
+            pStream->setThis(pStream);
+            (*pEvents)[(*it)] = pStream;
         }
     }
 
@@ -411,16 +413,16 @@ void TrackerInputDevice::pollEventType(vector<EventPtr>& res, EventMap& Events,
         CursorEvent::Source source) 
 {
     EventPtr pEvent;
-    bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
     for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
         EventStreamPtr pStream = (*it).second;
-        pEvent = pStream->pollevent(m_pDeDistort, m_DisplayROI,
-                source, bEventOnMove);
+        pEvent = pStream->pollEvent();
         if (pEvent) {
             res.push_back(pEvent);
-        }
-        if ((*it).second->isGone()) {
-            Events.erase(it++);
+            if (pEvent->getType() == Event::CURSORUP) {
+                Events.erase(it++);
+            } else {
+                ++it;
+            }
         } else {
             ++it;
         }

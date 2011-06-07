@@ -37,6 +37,7 @@ void export_anim();
 #include "../player/DivNode.h"
 #include "../player/TrackerInputDevice.h"
 #include "../player/TouchEvent.h"
+#include "../player/MouseEvent.h"
 #include "../player/TestHelper.h"
 #include "../player/Canvas.h"
 #include "../player/OffscreenCanvas.h"
@@ -48,9 +49,6 @@ void export_anim();
 using namespace boost::python;
 using namespace avg;
 using namespace std;
-
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(fakeMouseEvent_overloads, 
-        TestHelper::fakeMouseEvent, 7, 8);
 
 void handleCursorEvent(Player* pPlayer, boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent)
 {
@@ -106,8 +104,7 @@ BOOST_PYTHON_MODULE(avg)
     export_anim();
 
     class_<TestHelper>("TestHelper", no_init)
-        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, 
-                fakeMouseEvent_overloads())
+        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent)
         .def("fakeTouchEvent", &TestHelper::fakeTouchEvent)
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent)
         .def("dumpObjects", &TestHelper::dumpObjects)

@@ -29,6 +29,9 @@
 
 #include "../base/Point.h"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 namespace avg {
 
 const int MOUSECURSORID=-1;
@@ -36,10 +39,14 @@ const int MOUSECURSORID=-1;
 class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
+
 class AVG_API CursorEvent: public Event 
 {
     public:
-        CursorEvent(int id, Type eventType, const IntPoint& position, Source source);
+        CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+                int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
         DPoint getPos() const;
@@ -47,12 +54,23 @@ class AVG_API CursorEvent: public Event
         int getYPosition() const;
         void setCursorID(int id);
         int getCursorID() const;
+        void setNode(VisibleNodePtr pNode);
+        VisibleNodePtr getNode() const;
+        void setSpeed(DPoint speed);
+        virtual const DPoint& getSpeed() const;
+
+        void setContact(ContactPtr pContact);
+        ContactPtr getContact() const;
 
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
+        virtual void trace();
 
-    protected:
+    private:
         IntPoint m_Position;
         int m_ID;
+        ContactPtr m_pContact;
+        VisibleNodePtr m_pNode;
+        DPoint m_Speed;
 };
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2);

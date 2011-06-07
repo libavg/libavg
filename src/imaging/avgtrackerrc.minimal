@@ -18,7 +18,6 @@
   <prescale value="1"/>
   <historyupdateinterval value="25"/>
   <brighterregions value="true"/>
-  <eventonmove value="true"/>
   <contourprecision value="0"/>
   <historydelay value="2200"/>
   <mask value=""/>

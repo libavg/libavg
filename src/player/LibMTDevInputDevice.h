@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "MultitouchInputDevice.h"
+#include "Event.h"
 
 #include "../base/Rect.h"
 

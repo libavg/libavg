@@ -22,6 +22,7 @@
 
 import os
 import gc
+import math
 import time
 
 from libavg import avg, Point2D
@@ -185,12 +186,18 @@ class FrameRateGraph(Graph):
 
 
 class TouchVisualization(avg.DivNode):
-    '''Visualisation Class for Touch and Track Events'''
+    '''Visualisation Class for Touch and Track Events
+       it displays:
+               Event-Type
+               ID
+               Distance from TouchDown-Point
+               Travelled Distance
+    '''
     def __init__(self, event, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        self.cursorid = event.cursorid
+        event.contact.connectListener(self.__onContactCB)
         self.pos = avg.Point2D(event.pos)
-        self.positions = [self.pos]
+        self.positions = [event.pos]
         radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
 
         if event.source == avg.TOUCH:
@@ -221,29 +228,45 @@ class TouchVisualization(avg.DivNode):
                                         pos2=event.minoraxis,
                                         color="FFFFFF",
                                         sensitive=False, parent=self)
-        fontPos = (self.__pulsecircle.r, 0)
-        avg.WordsNode(pos=fontPos,
-                      text="<br/>".join([str(event.source),str(self.cursorid)]),
+        fontPos = avg.Point2D(self.__pulsecircle.r, 0)
+        textID = avg.WordsNode(pos=fontPos,
+                      text="<br/>".join([str(event.source),str(event.cursorid)]),
                       parent=self)
-        self.line = avg.PolyLineNode(self.positions,
+        fontPos.y = textID.height
+        self.distFromStart = avg.WordsNode(pos=fontPos, parent=self, 
+                text=str(event.contact.distancefromstart))
+        fontPos.y += self.distFromStart.height
+        self.distTravelled = avg.WordsNode(pos=fontPos, parent=self,
+                text=str(event.contact.distancetravelled))
+        self.motionPath = avg.PolyLineNode(self.positions,
                                      color=color,
                                      parent=kwargs['parent'])
+        self.motionVector = avg.LineNode(pos1=(0,0) , pos2=event.contact.motionvec,
+            parent=self)
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
     def __del__(self):
-        self.line.unlink(True)
+        self.motionPath.unlink(True)
+        self.unlink(True)
 
-    def move(self, event):
-        self.pos = event.pos
-        self.positions.append(self.pos)
-        if len(self.positions) > 100:
-            self.positions.pop(0)
-        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
-        self.__pulsecircle.r = radius
-        self.__majorAxis.pos2 = event.majoraxis
-        self.__minorAxis.pos2 = event.minoraxis
-        self.line.pos = self.positions
+    def __onContactCB(self, event):
+        if event.type == avg.CURSORUP:
+                print "Contact up"
+                del self
+        else:
+            self.pos = event.pos
+            self.positions.append(event.pos)
+            if len(self.positions) > 100:
+                self.positions.pop(0)
+            radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
+            self.__pulsecircle.r = radius
+            self.__majorAxis.pos2 = event.majoraxis
+            self.__minorAxis.pos2 = event.minoraxis
+            self.motionVector.pos2 = event.contact.motionvec
+            self.motionPath.pos = self.positions
+            self.distFromStart.text = str(event.contact.distancefromstart)
+            self.distTravelled.text = str(event.contact.distancetravelled)
 
 
 class AVGAppStarter(object):
@@ -279,7 +302,6 @@ class AVGAppStarter(object):
         rootNode.appendChild(self._appNode)
 
         self.__showMTEvents = False
-        self.__touchViss = {}
 
         g_player.showCursor(testMode)
 
@@ -451,19 +473,7 @@ class AVGAppStarter(object):
             return
 
     def __onTouchDown(self, event):
-        touchVis = TouchVisualization(event,
-                        parent=self.__touchVisOverlay)
-        self.__touchViss[event.cursorid] = touchVis
-
-    def __onTouchUp(self, event):
-        if event.cursorid in self.__touchViss:
-            self.__touchViss[event.cursorid].unlink(True)
-            self.__touchViss[event.cursorid] = None
-            del self.__touchViss[event.cursorid]
-
-    def __onTouchMotion(self, event):
-        if event.cursorid in self.__touchViss:
-            self.__touchViss[event.cursorid].move(event)
+        TouchVisualization(event, parent=self.__touchVisOverlay)
 
     def __dumpObjects(self):
         gc.collect()
@@ -538,15 +548,12 @@ class AVGAppStarter(object):
                     parent=rootNode, elementoutlinecolor='FFFFAA')
             avg.RectNode(parent = self.__touchVisOverlay, size=self._appNode.size,
                         fillopacity=0.2, fillcolor='000000')
-            rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
-                                         self, self.__onTouchUp)
+            #rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
+            #                             self, self.__onTouchUp)
             rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,                                                                     self,self.__onTouchDown)
-            rootNode.connectEventHandler(avg.CURSORMOTION, avg.TOUCH | avg.TRACK,
-                                         self, self.__onTouchMotion)
         else:
             rootNode.disconnectEventHandler(self, self.__onTouchDown)
             rootNode.disconnectEventHandler(self, self.__onTouchUp)
-            rootNode.disconnectEventHandler(self, self.__onTouchMotion)
             self.__touchVisOverlay.unlink(True)
 
     def __killNotifyNode(self):

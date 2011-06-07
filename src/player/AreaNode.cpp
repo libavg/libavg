@@ -28,6 +28,7 @@
 #include "SDLDisplayEngine.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
+#include "BoostPython.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -37,7 +38,6 @@
 #include <object.h>
 #include <compile.h>
 #include <eval.h>
-#include "BoostPython.h"
 
 #include <iostream>
 

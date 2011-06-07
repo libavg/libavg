@@ -138,8 +138,7 @@ class MTemu(object):
         if not self.lastCursorPos:
             self.lastCursorPos = self.__clampPos(pos)
         g_Player.getTestHelper().fakeTouchEvent(cursorID,
-                                    touchType, self.source, pos,
-                                    Point2D(0,0))
+                                    touchType, self.source, pos)
     def _releaseTouch(self, cursorID):
        self._sendFakeTouch(cursorID, Point2D(0,0),
                                    avg.CURSORUP)

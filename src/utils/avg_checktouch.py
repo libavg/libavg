@@ -19,8 +19,6 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is Robert Parcus <betoparcus@gmail.com>
-#
 
 from libavg import *
 
@@ -30,7 +28,21 @@ class TouchApp(AVGApp):
     multitouch = True
 
     def init(self):
-        pass
+        self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, self, 
+                self.__onDown)
+    
+    def __onDown(self, event):
+        event.contact.connectListener(self.__onContact)
+        contact = event.contact
+        print event.type, contact.id, event.pos, contact.age, \
+                contact.distancefromstart, contact.motionangle, contact.motionvec, \
+                contact.distancetravelled
 
-TouchApp.start(resolution=(800,600))
+    def __onContact(self, event):
+        contact = event.contact
+        print event.type, contact.id, event.pos, contact.age, \
+                contact.distancefromstart, contact.motionangle, contact.motionvec, \
+                contact.distancetravelled, event.speed
+
+TouchApp.start(resolution=(1280,800))
 

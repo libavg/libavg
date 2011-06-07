@@ -24,7 +24,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "TouchStatus.h"
+#include "Contact.h"
 #include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
@@ -157,25 +157,25 @@ void XInput21MTInputDevice::handleXIEvent(const XEvent& xEvent)
 //                    cerr << "TouchBegin " << xid << ", " << pos << endl;
                     m_LastID++;
                     TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos); 
-                    addTouchStatus(xid, pEvent);
+                    addContact(xid, pEvent);
                 }
                 break;
             case XI_TouchUpdate:
                 {
 //                    cerr << "TouchUpdate " << xid << ", " << pos << endl;
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos); 
-                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
-                    AVG_ASSERT(pTouchStatus);
-                    pTouchStatus->updateEvent(pEvent);
+                    ContactPtr pContact = getContact(xid);
+                    AVG_ASSERT(pContact);
+                    pContact->pushEvent(pEvent);
                 }
                 break;
             case XI_TouchEnd:
                 {
 //                    cerr << "TouchEnd " << xid << ", " << pos << endl;
-                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
-                    AVG_ASSERT(pTouchStatus);
+                    ContactPtr pContact = getContact(xid);
+                    AVG_ASSERT(pContact);
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORUP, pos); 
-                    pTouchStatus->updateEvent(pEvent);
+                    pContact->pushEvent(pEvent);
                 }
                 break;
             default:
@@ -245,8 +245,7 @@ void XInput21MTInputDevice::findMTDevice()
 
 TouchEventPtr XInput21MTInputDevice::createEvent(int id, Event::Type type, IntPoint pos)
 {
-    return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH, DPoint(0,0), 
-            0, 20, 1, DPoint(5,0), DPoint(0,5)));
+    return TouchEventPtr(new TouchEvent(id, type, pos, Event::TOUCH));
 }
 
 int XInput21MTInputDevice::filterEvent(const SDL_Event * pEvent)
