@@ -22,7 +22,7 @@
 
 import os
 from libavg import avg
-from AVGAppStarter import AppStarter
+from appstarter import AppStarter
 
 g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
@@ -135,10 +135,10 @@ class AVGApp(App):
     def start(cls, **kwargs):
         # TODO: deprecation warning
         if cls.multitouch:
-            from AVGAppStarter import AVGMTAppStarter
+            from appstarter import AVGMTAppStarter
             starter = AVGMTAppStarter
         else:
-            from AVGAppStarter import AVGAppStarter
+            from appstarter import AVGAppStarter
             starter = AVGAppStarter
         
         super(AVGApp, cls).start(appStarter=starter,

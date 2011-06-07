@@ -12,7 +12,7 @@ import draggable
 import textarea
 import statemachine
 from grabbable import Grabbable
-from AVGApp import AVGApp, App
-from AVGAppStarter import AVGAppStarter, AVGMTAppStarter, AppStarter
-import AVGAppUtil
+from app import AVGApp, App
+from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
+import utils
 import gameapp

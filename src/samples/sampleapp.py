@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from libavg import avg, AVGApp, AVGAppUtil, anim
-from libavg.AVGAppUtil import getMediaDir
+from libavg import avg, AVGApp, utils, anim
+from libavg.utils import getMediaDir
 
 # usually you need the Player in many places, so it's useful
 # to keep it in a global variable (it's a singleton anyway).
