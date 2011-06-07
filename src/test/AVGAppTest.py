@@ -85,6 +85,15 @@ class AVGAppTestCase(testcase.AVGTestCase):
                 debugWindowSize=Point2D(TEST_RESOLUTION) / 2)
     
     def testScreenshot(self):
+        testFile = 'tmp.%f' % time.time()
+        try:
+            open(testFile, 'w')
+        except IOError:
+            sys.stderr.write('[Skipped] ')
+            return
+        else:
+            os.unlink(testFile)
+            
         expectedFiles = ['screenshot-000.png', 'screenshot-001.png']
 
         def cleanup():
