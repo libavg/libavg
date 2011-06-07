@@ -4,6 +4,33 @@ Input Handling
 .. automodule:: libavg.avg
     :no-members:
 
+    .. autoclass:: CursorEvent
+
+        Base class for all events which contain a position in the global coordinate
+        system.
+    
+        .. py:attribute:: node
+
+            The :py:class:`Node` that the event occured in. Read-only.
+
+        .. py:attribute:: pos
+
+            Position in the global coordinate system. Read-only.
+
+        .. py:attribute:: source
+
+            The type of the device that emitted the event. Supported values are
+            :py:const:`MOUSE`, :py:const:`TOUCH`, :py:const:`TRACK`, :py:const:`CUSTOM`
+            and :py:const:`NONE`.
+
+        .. py:attribute:: x
+
+            x position in the global coordinate system. Read-only.
+
+        .. py:attribute:: y
+
+            y position in the global coordinate system. Read-only.
+
     .. autoclass:: Event
 
         Base class for user input events.
@@ -29,32 +56,24 @@ Input Handling
             The name of the device that emitted the event.
             Read-only.
     
-    .. autoclass:: CursorEvent
+    .. autoclass:: InputDevice(name)
 
-        Base class for all events which contain a position in the global coordinate
-        system.
-     
-        .. py:attribute:: node
+        Base class for user defined input devices which feed events to the system. 
+        Once registered to the system by :py:meth:`Player.addInputDevice`, the emitted 
+        events can be processed like any other events.
 
-            The node that the event occured in. Read-only.
+        .. py:method::  start()
 
-        .. py:attribute:: pos
+            Initializes the input device if needed. By default this is a empty method.
+        
+        .. py:method:: pollEvents() -> list
 
-            Position in the global coordinate system. Read-only.
+            Abstract method which returns a list of pending events. After registering 
+            the input device to the system, this method gets called on every frame.
 
-        .. py:attribute:: source
+        .. py:attribute:: name
 
-            The type of the device that emitted the event. Could be either
-            :py:const:`MOUSE`, :py:const:`TOUCH`, :py:const:`TRACK`, :py:const:`CUSTOM`
-            or :py:const:`NONE`
-
-        .. py:attribute:: x
-
-            x position in the global coordinate system. Read-only.
-
-        .. py:attribute:: y
-
-            y position in the global coordinate system. Read-only.
+            The name of the device. Read-only.
 
     .. autoclass:: KeyEvent
 
@@ -274,27 +293,3 @@ Input Handling
             all points have been set.
 
         .. py:method:: setCamPoint(pos)
-
-    .. autoclass:: InputDevice(name)
-
-        Base class for user defined input devices which feed events to the system. 
-        Once registered to the system by :py:meth:`Player.addInputDevice`, the emitted 
-        events can be processed like any other events.
-
-        .. py:method::  start()
-
-            Initializes the input device if needed. By default this is a empty method.
-        
-        .. py:method:: pollEvents() -> list
-
-            Abstract method which returns a list of pending events. After registering 
-            the input device to the system, this method gets called on every frame.
-
-        .. py:attribute:: name
-
-            The name of the device. Read-only.
-        
-        
-
-            
-         
