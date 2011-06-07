@@ -104,7 +104,7 @@ CursorEventPtr EventStream::createEvent(Event::Source source, Event::Type type, 
 
 CursorEventPtr EventStream::createEvent(Event::Type type, BlobPtr pBlob, long long time)
 {
-    createEvent(m_Source, type, m_ID, pBlob, time, m_pDeDistort, m_DisplayROI);
+    return createEvent(m_Source, type, m_ID, pBlob, time, m_pDeDistort, m_DisplayROI);
 }
 
 }

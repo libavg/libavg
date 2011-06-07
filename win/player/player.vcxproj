@@ -99,7 +99,6 @@
     <ClCompile Include="..\..\src\player\MaterialInfo.cpp" />
     <ClCompile Include="..\..\src\player\MeshNode.cpp" />
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
-    <ClCompile Include="..\..\src\player\MouseState.cpp" />
     <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
     <ClCompile Include="..\..\src\player\NodeDefinition.cpp" />
@@ -170,7 +169,6 @@
     <ClInclude Include="..\..\src\player\MaterialInfo.h" />
     <ClInclude Include="..\..\src\player\MeshNode.h" />
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
-    <ClInclude Include="..\..\src\player\MouseState.h" />
     <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
     <ClInclude Include="..\..\src\player\NodeDefinition.h" />

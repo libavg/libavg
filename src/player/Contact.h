@@ -40,7 +40,7 @@ class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
 typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
-class Contact {
+class AVG_API Contact {
 public:
     Contact(CursorEventPtr pEvent, bool bProcessEvents = true);
     virtual ~Contact();
