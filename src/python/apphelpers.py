@@ -20,7 +20,8 @@
 
 from libavg import avg
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
+
 
 class TouchVisualization(avg.DivNode):
     '''
@@ -54,9 +55,8 @@ class TouchVisualization(avg.DivNode):
                 color='FFFFFF', sensitive=False, parent=self)
                 
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
-        textID = avg.WordsNode(pos=fontPos,
-                      text='<br/>'.join([str(event.source),str(event.cursorid)]),
-                      parent=self)
+        textID = avg.WordsNode(pos=fontPos, text='<br/>'.join([str(event.source),
+                str(event.cursorid)]), parent=self)
         fontPos.y = textID.height
         self.distFromStart = avg.WordsNode(pos=fontPos, parent=self,
                 text=str(event.contact.distancefromstart))
@@ -103,14 +103,14 @@ class TouchVisualizationOverlay(avg.DivNode):
         self.sensitive = False
         self.elementoutlinecolor='FFFFAA'
 
-        rootNode = g_player.getRootNode()
+        rootNode = g_Player.getRootNode()
         avg.RectNode(parent=self, size=self.size,
                 fillopacity=0.2, fillcolor='000000')
         rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,
                 self, self.__onTouchDown)
     
     def deinit(self):
-        rootNode = g_player.getRootNode()
+        rootNode = g_Player.getRootNode()
         rootNode.disconnectEventHandler(self, self.__onTouchDown)
 
     def __onTouchDown(self, event):
@@ -134,7 +134,7 @@ class KeysCaptionNode(avg.DivNode):
     def toggleHelp(self):
         self.__isShown = not self.__isShown
         
-        keys = g_kbManager.getActiveKeyBindings()
+        keys = g_KbManager.getActiveKeyBindings()
         
         if self.__isShown:
             helpText = '<span><b>   ACTIVE KEYS </b><br/></span>'
@@ -232,7 +232,7 @@ class KeyboardManager(object):
         return cls._instance
         
     def setup(self, onKeyDownCb, onKeyUpCb):
-        rootNode = g_player.getRootNode()
+        rootNode = g_Player.getRootNode()
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKeyDown)
         rootNode.setEventHandler(avg.KEYUP, avg.NONE, self.__onKeyUp)
         
@@ -319,4 +319,4 @@ class KeyboardManager(object):
                 keyObj.executeCallback()
 
 
-g_kbManager = KeyboardManager.get()
+g_KbManager = KeyboardManager.get()

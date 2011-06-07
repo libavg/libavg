@@ -22,19 +22,19 @@ import time
 import libavg
 from libavg import avg, Point2D
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 class Graph(object):
     def __init__(self, graph, getValue):
         self._getValue = getValue    
         self._xSkip = 2     
-        self._memGraphStartTime = g_player.getFrameTime()
+        self._memGraphStartTime = g_Player.getFrameTime()
         self._curUsage = 0
          
-        self._rootNode = g_player.getRootNode()
+        self._rootNode = g_Player.getRootNode()
         size = avg.Point2D(self._rootNode.width-20, self._rootNode.height/6)
         
-        self._node = g_player.createNode("""
+        self._node = g_Player.createNode("""
             <div opacity="0" sensitive="False" x="10" y="10" size="%(size)s"> 
                 <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
                         size="%(size)s"/>
@@ -68,13 +68,13 @@ class Graph(object):
         def kill():
             self._node.unlink()
         avg.LinearAnim(self._node, "opacity", 300, 1, 0, None, kill).start()
-        g_player.clearInterval(self._interval)
+        g_Player.clearInterval(self._interval)
         self._interval = None
      
 
 class MemGraph(Graph):
     def _setup(self):
-        self._interval = g_player.setInterval(1000, self._nextMemSample)
+        self._interval = g_Player.setInterval(1000, self._nextMemSample)
         self._memSampleNum = 0
         self._usage = [0]
         self._maxUsage = [0]
@@ -125,7 +125,7 @@ class MemGraph(Graph):
 
 class FrameRateGraph(Graph):
     def _setup(self):
-        self._interval = g_player.setOnFrameHandler(self._nextFrameTimeSample) 
+        self._interval = g_Player.setOnFrameHandler(self._nextFrameTimeSample) 
         self._sampleNum = 0        
         self._memSampleNum = 0
         self._lastCurUsage = 0

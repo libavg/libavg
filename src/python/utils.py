@@ -23,7 +23,7 @@
 import os
 from libavg import avg, mathutil
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 def getMediaDir(_file_, subdir='media'):
     """call with _file_=__file__"""
@@ -44,7 +44,7 @@ def getMediaDirFromNode(node, path=''):
         return path
 
 def createImagePreviewNode(maxSize, absHref):
-    node =  g_player.createNode('image', {'href': absHref})
+    node =  g_Player.createNode('image', {'href': absHref})
     node.size = mathutil.getScaledDim(node.size, max = maxSize)
     return node
 

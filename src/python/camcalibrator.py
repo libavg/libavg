@@ -29,7 +29,7 @@ import apphelpers
 mediadir = os.path.join(os.path.dirname(__file__), 'data')
 g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
-g_kbManager = apphelpers.KeyboardManager.get()
+g_KbManager = apphelpers.KeyboardManager.get()
 
 
 def camera_setup(CameraType):
@@ -266,20 +266,20 @@ class Calibrator(AVGApp):
         
     def _enter(self):
         
-        g_kbManager.push()
+        g_KbManager.push()
         
-        g_kbManager.bindKey('d', self.__trackerSetDebugImages, 'tracker set debug images')
-        g_kbManager.bindKey('b', self.__bigCamImage, 'big cam image')
-        g_kbManager.bindKey('up', self.__keyFuncUP, 'select parameter up')
-        g_kbManager.bindKey('down', self.__keyFuncDOWN, 'select parameter down')
-        g_kbManager.bindKey('left', self.__keyFuncLEFT, 'value up')
-        g_kbManager.bindKey('right', self.__keyFuncRIGHT, 'value down')
-        g_kbManager.bindKey('page up', self.__keyFuncPAGEUp, 'value up * 10')
-        g_kbManager.bindKey('page down', self.__keyFuncPAGEDown, 'value down * 10')
-        g_kbManager.bindKey('s', self.__trackerSaveConfig, 'save configuration')
-        g_kbManager.bindKey('g', self.__toggleGUI, 'toggle GUI')
-        g_kbManager.bindKey('w', self.__saveTrackerIMG, 'SAVE trager image')
-        g_kbManager.bindKey('h', self.appStarter.tracker.resetHistory, 'RESET history')        
+        g_KbManager.bindKey('d', self.__trackerSetDebugImages, 'tracker set debug images')
+        g_KbManager.bindKey('b', self.__bigCamImage, 'big cam image')
+        g_KbManager.bindKey('up', self.__keyFuncUP, 'select parameter up')
+        g_KbManager.bindKey('down', self.__keyFuncDOWN, 'select parameter down')
+        g_KbManager.bindKey('left', self.__keyFuncLEFT, 'value up')
+        g_KbManager.bindKey('right', self.__keyFuncRIGHT, 'value down')
+        g_KbManager.bindKey('page up', self.__keyFuncPAGEUp, 'value up * 10')
+        g_KbManager.bindKey('page down', self.__keyFuncPAGEDown, 'value down * 10')
+        g_KbManager.bindKey('s', self.__trackerSaveConfig, 'save configuration')
+        g_KbManager.bindKey('g', self.__toggleGUI, 'toggle GUI')
+        g_KbManager.bindKey('w', self.__saveTrackerIMG, 'SAVE trager image')
+        g_KbManager.bindKey('h', self.appStarter.tracker.resetHistory, 'RESET history')        
         
         self.appStarter.showTrackerImage()
         self.mainNode.active=True
@@ -296,7 +296,7 @@ class Calibrator(AVGApp):
 
     def _leave(self):
         #unbind all calibrator keys - bind old keys
-        g_kbManager.pop()
+        g_KbManager.pop()
         
         def hideMainNode():
             self.mainNode.opacity=0

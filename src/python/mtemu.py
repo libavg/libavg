@@ -68,7 +68,7 @@ class MTemu(object):
                 alignment = 'right',
                 color='DDDDDD',
                 sensitive=False,
-                fontsize=15,
+                fontsize=18,
                 parent=self.__rootNode)
         
     def deinit(self):

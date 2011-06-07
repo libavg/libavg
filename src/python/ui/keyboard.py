@@ -27,8 +27,8 @@ import os.path
 
 from libavg import avg
 
-g_player = avg.Player.get()
-g_logger = avg.Logger.get()
+g_Player = avg.Player.get()
+g_Logger = avg.Logger.get()
 
 
 class Key(avg.ImageNode):
@@ -62,7 +62,7 @@ class Key(avg.ImageNode):
             effectiveHref = ovlHref
         else:
             effectiveHref = self.getParent().getEffectiveMediaDir() + ovlHref
-        canvas = g_player.loadCanvasString(
+        canvas = g_Player.loadCanvasString(
         '''
             <canvas id="offscreen" size="%s">
                 <image href="%s" pos="%s"/>
@@ -73,7 +73,7 @@ class Key(avg.ImageNode):
           str(-self.pos)))
         canvas.render()
         self.setBitmap(canvas.screenshot())
-        g_player.deleteCanvas('offscreen')
+        g_Player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
         if self.__sticky:
@@ -223,7 +223,7 @@ class Keyboard(avg.DivNode):
             if self.__shiftDownCounter > 0:
                 self.__shiftDownCounter -= 1
             else:
-                g_logger.trace(g_logger.WARNING,
+                g_Logger.trace(g_Logger.WARNING,
                         'Keyboard: ShiftDownCounter=0 on [%s] up' 
                         %self.__shiftKeyCode)
         elif keyCode == self.__altGrKeyCode:

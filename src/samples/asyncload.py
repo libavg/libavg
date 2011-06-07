@@ -20,7 +20,7 @@ import libavg
 
 APP_RESOLUTION = (640, 480)
 
-g_player = libavg.avg.Player.get()
+g_Player = libavg.avg.Player.get()
 
 
 class AsyncLoadApp(libavg.AVGApp):
@@ -38,7 +38,7 @@ class AsyncLoadApp(libavg.AVGApp):
         
         self.__pics = sys.argv[1:]
         self.__currentPic = -1
-        g_player.setOnFrameHandler(self.__onFrame)
+        g_Player.setOnFrameHandler(self.__onFrame)
     
     def onKeyDown(self, event):
         '''

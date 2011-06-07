@@ -22,7 +22,7 @@
 
 from libavg import *
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 class TouchApp(AVGApp):
     multitouch = True
@@ -32,12 +32,11 @@ class TouchApp(AVGApp):
                 self.__onDown)
     
     def __onDown(self, event):
-        if (event.contact):
-            event.contact.connectListener(self.__onContact)
-            contact = event.contact
-            print event.type, contact.id, event.pos, contact.age, \
-                    contact.distancefromstart, contact.motionangle, contact.motionvec, \
-                    contact.distancetravelled
+        event.contact.connectListener(self.__onContact)
+        contact = event.contact
+        print event.type, contact.id, event.pos, contact.age, \
+                contact.distancefromstart, contact.motionangle, contact.motionvec, \
+                contact.distancetravelled
 
     def __onContact(self, event):
         contact = event.contact

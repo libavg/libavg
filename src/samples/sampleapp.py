@@ -6,7 +6,7 @@ from libavg.utils import getMediaDir
 
 # usually you need the Player in many places, so it's useful
 # to keep it in a global variable (it's a singleton anyway).
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 class HelloWorld(AVGApp):
     def init(self):
