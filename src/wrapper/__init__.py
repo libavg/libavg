@@ -4,16 +4,15 @@ from platform import system
 if system() == 'Linux':
     from ctypes import cdll
     cdll.LoadLibrary("libstdc++.so.6")
+del system
 
 from avg import *
 import anim
 import draggable
-import camcalibrator
 import textarea
 import statemachine
 from grabbable import Grabbable
-from AVGApp import AVGApp
-from AVGAppStarter import AVGAppStarter
-from AVGMTAppStarter import AVGMTAppStarter
-import AVGAppUtil
+from app import AVGApp, App
+from appstarter import AVGAppStarter, AVGMTAppStarter, AppStarter
+import utils
 import gameapp

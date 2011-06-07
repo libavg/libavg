@@ -80,6 +80,7 @@ class AVG_API Player
 
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
+        bool isFullscreen();
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 

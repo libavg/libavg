@@ -24,8 +24,6 @@ import libavg
 
 from helper import *
 
-g_log = libavg.Logger.get()
-
 
 class Button(libavg.DivNode):
     STATE_DISABLED = 1

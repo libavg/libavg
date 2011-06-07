@@ -223,6 +223,11 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
     }
 }
 
+bool Player::isFullscreen()
+{
+    return m_DP.m_bFullscreen;
+}
+
 void Player::setWindowFrame(bool bHasWindowFrame)
 {
     errorIfPlaying("Player.setWindowFrame");

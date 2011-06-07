@@ -22,33 +22,52 @@
 
 import os
 from libavg import avg
+from appstarter import AppStarter
+
 g_Player = avg.Player.get()
 g_Log = avg.Logger.get()
 
-try:
-    from win32gui import *
-    from win32con import *
-    from win32api import *
-    g_WIN32 = True
-except:
-    g_WIN32 = False
+class App(object):
+    _instances = {}
 
-class AVGApp(object):
-    multitouch = False
-    fakeFullscreen = False
     def __init__(self, parentNode):
-        """initialization before Player.play()
+        '''
+        Initialization before Player.play()
         Use this only when needed, e.g. for
         WordsNode.addFontDir(). Do not forget to call
-        super(YourApp, self).__init__(parentNode)"""
+        super(YourApp, self).__init__(parentNode)
+        '''
+
+        appname = self.__class__.__name__
+        if appname in AVGApp._instances:
+            raise RuntimeError('App %s already setup' % appname)
+            
+        AVGApp._instances[appname] = self
+
         self.__isRunning = False
         self._parentNode = parentNode
         self._starter = None
-        avg.appInstance = self
 
         if 'onKey' in dir(self):
             raise DeprecationWarning, \
                     'AVGApp.onKey() has been renamed to AVGApp.onKeyDown().'
+
+    @classmethod
+    def get(cls):
+        '''
+        Get the Application instance
+        
+        Note: this class method has to be called from the top-level app class:
+
+        >>> class MyApp(libavg.AVGApp):
+        ...  pass
+        >>> instance = MyApp.get()
+        '''
+        return cls._instances.get(cls.__name__, None)
+
+    @classmethod
+    def start(cls, appStarter=AppStarter, **kwargs):
+        appStarter(appClass=cls, **kwargs)
 
     def init(self):
         """main initialization
@@ -105,44 +124,22 @@ class AVGApp(object):
 
     def getStarter(self):
         return self._starter
-        
-    @classmethod   
-    def __findWindow(cls, title):
-        def enumWinProc(h, lparams): 
-            lparams.append(h)
-        winList=[]
-        EnumWindows(enumWinProc, winList)
-        for hwnd in winList:
-            curTitle = GetWindowText(hwnd)
-            if IsWindowVisible(hwnd) and title == curTitle:
-                return hwnd
-        return None
-        
+
+
+class AVGApp(App):
+    '''Backward compatibility class'''
+    multitouch = False
+    fakeFullscreen = False
+
     @classmethod
-    def __fakeFullscreen(cls):
-        hDesk = GetDesktopWindow()
-        (DesktopLeft, DesktopTop, DesktopRight, DesktopBottom) = GetWindowRect(hDesk)
-        w = cls.__findWindow("AVG Renderer")
-        offSetX = 2
-        offSetY = 3
-        SetWindowPos(w, HWND_TOP, -(GetSystemMetrics(SM_CYBORDER)+offSetX), 
-                -(GetSystemMetrics(SM_CYCAPTION)+offSetY), 
-                DesktopRight, DesktopBottom+30, 0)
-        
-    @classmethod
-    def start(cls, *args, **kwargs):
-        from AVGAppStarter import AVGAppStarter
-        from AVGMTAppStarter import AVGMTAppStarter
+    def start(cls, **kwargs):
+        # TODO: deprecation warning
         if cls.multitouch:
+            from appstarter import AVGMTAppStarter
             starter = AVGMTAppStarter
         else:
+            from appstarter import AVGAppStarter
             starter = AVGAppStarter
-        cls.avg_deploy = os.getenv("AVG_DEPLOY")
-
-        if cls.fakeFullscreen and cls.avg_deploy is not None:
-            if g_WIN32:
-                g_Player.setTimeout(1000,cls.__fakeFullscreen)
-            else:
-                g_Log.trace(g_Log.ERROR, 'fakeFullscreen works only on Windows')           
-        starter(appClass = cls, *args, **kwargs)
-
+        
+        super(AVGApp, cls).start(appStarter=starter,
+                fakeFullscreen=cls.fakeFullscreen, **kwargs)

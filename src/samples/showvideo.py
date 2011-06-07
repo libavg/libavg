@@ -4,7 +4,7 @@
 from libavg import * 
 import sys
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 class VideoApp(AVGApp):
     def init(self):

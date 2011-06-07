@@ -1,7 +1,7 @@
 import math
 from libavg import avg, Point2D, RasterNode
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 class TrackerImageFlipper:
     def __init__(self):
@@ -10,7 +10,7 @@ class TrackerImageFlipper:
     def readConfig(self):
         global g_tracker
         print "reading tracker config"
-        g_tracker = g_player.getTracker()
+        g_tracker = g_Player.getTracker()
         trackerAngle = float(g_tracker.getParam('/transform/angle/@value'))
         self.angle = round(trackerAngle/math.pi) * math.pi
         self.flipX = 0 > float(g_tracker.getParam('/transform/displayscale/@x'))

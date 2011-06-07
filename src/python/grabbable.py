@@ -30,7 +30,7 @@ from mathutil import getAngle, getDistance, getScaledDim, getOffsetForMovedPivot
 
 NUM_SPEEDS = 5
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 def getRelPos(pos, nodePos, angle, pivot):
     return (pos - nodePos).getRotated(-angle, pivot)
@@ -63,7 +63,7 @@ class Grabbable:
             torque = 0.95,
             moveNode = True):
 
-        global g_player
+        global g_Player
         self.__inertia = inertia
         self.__torque = torque
         self.__node = node
@@ -84,7 +84,7 @@ class Grabbable:
         #self.__oldAngle = 0.0
         self.__lastFixPoint = None
         self.__lastNumFingers = 0
-        self.__onFrameHandler = g_player.setOnFrameHandler(self.__onFrame)
+        self.__onFrameHandler = g_Player.setOnFrameHandler(self.__onFrame)
 
         self.__eventList = ClusteredEventList (self.__node,
                 source = source,
@@ -108,13 +108,13 @@ class Grabbable:
         return self.__angle
     
     def delete(self):
-        global g_player
-        g_player.clearInterval(self.__onFrameHandler)
+        global g_Player
+        g_Player.clearInterval(self.__onFrameHandler)
         self.__eventList.delete()
         self.__node = None
 
     def __onFrame(self):
-        global g_player
+        global g_Player
         if len (self.__eventList) == 0:
             # inertia
             if self.__speed.getNorm() < 1:
@@ -230,7 +230,7 @@ class Grabbable:
             try:
                 param = solveEquationMatrix (equationMatrix)
             except (EquationSingular, EquationNotSolvable):
-#                g_log.trace(g_log.APP, 
+#                g_Log.trace(g_Log.APP, 
 #                        "Grabbable: cannot solve equation, skipping movement")
                 return False
 
