@@ -548,12 +548,9 @@ class AVGAppStarter(object):
                     parent=rootNode, elementoutlinecolor='FFFFAA')
             avg.RectNode(parent = self.__touchVisOverlay, size=self._appNode.size,
                         fillopacity=0.2, fillcolor='000000')
-            #rootNode.connectEventHandler(avg.CURSORUP, avg.TOUCH | avg.TRACK,
-            #                             self, self.__onTouchUp)
             rootNode.connectEventHandler(avg.CURSORDOWN, avg.TOUCH | avg.TRACK,                                                                     self,self.__onTouchDown)
         else:
             rootNode.disconnectEventHandler(self, self.__onTouchDown)
-            rootNode.disconnectEventHandler(self, self.__onTouchUp)
             self.__touchVisOverlay.unlink(True)
 
     def __killNotifyNode(self):
