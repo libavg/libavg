@@ -105,6 +105,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
+      m_NumMouseButtonsDown(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
 {
@@ -822,13 +823,25 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
             IntPoint(x, y), button, speed));
 
     // Contact handling
-    if (type == Event::CURSORDOWN && !m_pContact) {
-        m_pContact = ContactPtr(new Contact(pEvent, false));
-        m_pContact->setThis(m_pContact);
-    } else if (!pEvent->isAnyButtonPressed() && m_pContact && type == Event::CURSORUP) {
-        m_pContact->addEvent(pEvent);
-        m_pContact = ContactPtr();
-    } else if (pEvent->isAnyButtonPressed() && m_pContact) {
+    // The buttonstate delivered by libSDL is inconsistent and OS-Dependent, so we
+    // keep our own count of the number of buttons pressed.
+    if (type == Event::CURSORDOWN) {
+        m_NumMouseButtonsDown++;
+        if (m_NumMouseButtonsDown == 1) {
+            m_pContact = ContactPtr(new Contact(pEvent, false));
+            m_pContact->setThis(m_pContact);
+        }
+    }
+    if (type == Event::CURSORUP) {
+        AVG_ASSERT(m_NumMouseButtonsDown > 0);
+        AVG_ASSERT(m_pContact);
+        m_NumMouseButtonsDown--;
+        if (m_NumMouseButtonsDown == 0) {
+            m_pContact->addEvent(pEvent);
+            m_pContact = ContactPtr();
+        }
+    }
+    if (type == Event::CURSORMOTION && m_pContact) {
         m_pContact->addEvent(pEvent);
     }
 
