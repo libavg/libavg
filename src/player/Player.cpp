@@ -650,7 +650,7 @@ void Player::enableMultitouch()
 #elif defined (AVG_ENABLE_MTDEV)
         sDriver = "LINUXMTDEV";
 #else
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER and APPLETRACKPAD.");
+        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
@@ -679,7 +679,7 @@ void Player::enableMultitouch()
     } else if (sDriver == "TRACKER") {
         m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER and APPLETRACKPAD.");
+        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }
@@ -820,6 +820,7 @@ int Player::getKeyModifierState() const
 void Player::registerContact(ContactPtr pContact)
 {
     int id = pContact->getID();
+    cerr << "register: " << id << endl;
     AVG_ASSERT(m_pContacts.find(id) == m_pContacts.end());
     m_pContacts[id] = pContact;
 }
@@ -827,6 +828,7 @@ void Player::registerContact(ContactPtr pContact)
 void Player::deregisterContact(ContactPtr pContact)
 {
     map<int, ContactPtr>::iterator it;
+    cerr << "deregister: " << pContact->getID() << endl;
     int rc = m_pContacts.erase(pContact->getID());
     AVG_ASSERT(rc == 1);
 }

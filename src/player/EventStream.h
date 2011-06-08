@@ -58,6 +58,7 @@ class AVG_API EventStream: public Contact
         DeDistortPtr m_pDeDistort;
         DRect m_DisplayROI;
         bool m_Stale;
+        bool m_bGone;
         int m_ID;
         BlobPtr m_pBlob;
         long long m_LastTime;

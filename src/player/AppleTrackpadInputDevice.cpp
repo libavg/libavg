@@ -75,6 +75,7 @@ void AppleTrackpadInputDevice::onData(int device, Finger* pFingers, int numFinge
             Event::Type eventType;
             if (pFinger->state == 7) {
                 eventType = Event::CURSORUP;
+                removeContactID(pFinger->identifier);
             } else {
                 eventType = Event::CURSORMOTION;
             }

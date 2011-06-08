@@ -58,11 +58,13 @@ protected:
     // id handed up from the driver level.
     ContactPtr getContact(int id);
     void addContact(int id, TouchEventPtr pInitialEvent);
+    void removeContactID(int id);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
     boost::mutex& getMutex();
 
 private:
-    std::map<int, ContactPtr> m_Touches;
+    std::map<int, ContactPtr> m_ContactIDMap;
+    std::set<ContactPtr> m_Contacts;
     DPoint m_WindowSize;
     MutexPtr m_pMutex;
 };

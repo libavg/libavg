@@ -60,7 +60,6 @@ void Contact::disconnectEverything()
     m_pNewEvents.clear();
     m_pFirstEvent = CursorEventPtr();
     m_pLastEvent = CursorEventPtr();
-    Player::get()->deregisterContact(getThis());
 }
 
 void Contact::setThis(ContactWeakPtr This)
@@ -91,7 +90,6 @@ int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 
 void Contact::disconnectListener(int id)
 {
-    bool bFound = false;
     map<int, Listener>::iterator it = m_ListenerMap.find(id);
     if (it == m_ListenerMap.end() || m_DeadListeners.count(id) != 0) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
@@ -136,6 +134,7 @@ double Contact::getDistanceTravelled() const
 
 void Contact::pushEvent(CursorEventPtr pEvent, bool bCheckMotion)
 {
+    cerr << "PushEvent: " << m_CursorID << ", " << pEvent->typeStr() << endl;
     AVG_ASSERT(m_bProcessEvents);
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
@@ -165,6 +164,9 @@ void Contact::pushEvent(CursorEventPtr pEvent, bool bCheckMotion)
             }
         }
     }
+    if (pEvent->getType() == Event::CURSORUP) {
+        Player::get()->deregisterContact(getThis());
+    }
 }
 
 void Contact::addEvent(CursorEventPtr pEvent)
@@ -175,6 +177,9 @@ void Contact::addEvent(CursorEventPtr pEvent)
     calcSpeed(pEvent, m_pLastEvent);
     updateDistanceTravelled(m_pLastEvent, pEvent);
     m_pLastEvent = pEvent;
+    if (pEvent->getType() == Event::CURSORUP) {
+        Player::get()->deregisterContact(getThis());
+    }
 }
 
 CursorEventPtr Contact::pollEvent()

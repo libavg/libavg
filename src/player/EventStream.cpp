@@ -41,6 +41,7 @@ EventStream::EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDis
       m_pDeDistort(pDeDistort),
       m_DisplayROI(displayROI),
       m_Stale(false),
+      m_bGone(false),
       m_ID(s_LastID),
       m_pBlob(pFirstBlob),
       m_LastTime(time)
@@ -75,8 +76,11 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
     
 void EventStream::blobGone()
 {
-    CursorEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
-    pushEvent(pEvent, true);
+    if (!m_bGone) {
+        CursorEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
+        pushEvent(pEvent, true);
+        m_bGone = true;
+    }
 }
 
 void EventStream::setStale()

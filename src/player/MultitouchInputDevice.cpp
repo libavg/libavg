@@ -55,16 +55,16 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     boost::mutex::scoped_lock lock(*m_pMutex);
 
     vector<EventPtr> events;
-    map<int, ContactPtr>::iterator it;
+    set<ContactPtr>::iterator it;
 //    cerr << "--------poll---------" << endl;
-    for (it = m_Touches.begin(); it != m_Touches.end(); ) {
+    for (it = m_Contacts.begin(); it != m_Contacts.end(); ) {
 //        cerr << it->first << " ";
-        ContactPtr pContact = it->second;
+        ContactPtr pContact = *it;
         CursorEventPtr pEvent = pContact->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {
-                m_Touches.erase(it++);
+                m_Contacts.erase(it++);
             } else {
                 ++it;
             }
@@ -83,13 +83,13 @@ const DPoint& MultitouchInputDevice::getWindowSize() const
 
 int MultitouchInputDevice::getNumTouches() const
 {
-    return m_Touches.size();
+    return m_ContactIDMap.size();
 }
 
 ContactPtr MultitouchInputDevice::getContact(int id)
 {
-    map<int, ContactPtr>::iterator it = m_Touches.find(id);
-    if (it == m_Touches.end()) {
+    map<int, ContactPtr>::iterator it = m_ContactIDMap.find(id);
+    if (it == m_ContactIDMap.end()) {
         return ContactPtr();
     } else {
         return it->second;
@@ -100,13 +100,20 @@ void MultitouchInputDevice::addContact(int id, TouchEventPtr pInitialEvent)
 {
     ContactPtr pContact(new Contact(pInitialEvent));
     pContact->setThis(pContact);
-    m_Touches[id] = pContact;
+    m_ContactIDMap[id] = pContact;
+    m_Contacts.insert(pContact);
 }
-    
+
+void MultitouchInputDevice::removeContactID(int id)
+{
+    unsigned numRemoved = m_ContactIDMap.erase(id);
+    AVG_ASSERT(numRemoved == 1);
+}
+
 void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
 {
     map<int, ContactPtr>::iterator it;
-    for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
+    for (it = m_ContactIDMap.begin(); it != m_ContactIDMap.end(); ++it) {
         int id = it->first;
         set<int>::const_iterator foundIt = liveIDs.find(id);
         if (foundIt == liveIDs.end()) {
