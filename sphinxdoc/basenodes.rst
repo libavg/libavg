@@ -276,13 +276,15 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:method:: unlink([kill=False])
 
-            Removes a node from it's parent container. Equivalent to
+            Removes a node from it's parent container and optionally deletes all resources
+            the node holds. In the default case, :py:func:`unlink` is equivalent to
             :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
-            except that if the node has no parent, unlink does nothing. Normally, unlink
-            moves the node's textures back to the CPU and preserves event handlers.
-            If :samp:`kill=True`, this step is skipped. Event handlers are reset, all
-            textures are deleted and the href is reset to empty in this case,
-            saving some time and making sure there are no references to the node
-            left on the libavg side. :py:attr:`kill` should always be set to 
-            :py:const:`True` if the node will not be used after the unlink.
+            except that if the node has no parent, unlink does nothing. Also in the 
+            default case, textures are moved back to the CPU and event handlers are 
+            preserved.
 
+            If :samp:`kill=True`, textures are not moved back. Event handlers for events
+            routed to this node are reset, all textures are deleted and the href is reset
+            to empty in this case, saving some time and making sure there are no 
+            references to the node left on the libavg side. :py:attr:`kill` should always
+            be set to :py:const:`True` if the node will not be used after the unlink.
