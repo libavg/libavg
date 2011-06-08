@@ -198,7 +198,7 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
         TouchEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
                 pOldEvent->cloneAs(Event::CURSORUP));
         pTouchStatus->pushEvent(pUpEvent);
-        removeTouchStatusID(id);
+        removeTouchStatus(id);
     }
 }
 

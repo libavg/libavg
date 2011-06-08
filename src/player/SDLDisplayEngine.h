@@ -41,8 +41,6 @@ union SDL_Event;
 namespace avg {
 
 class XInput21MTInputDevice;
-class Contact;
-typedef boost::shared_ptr<class Contact> ContactPtr;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 
@@ -138,7 +136,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bMouseOverApp;
         MouseEventPtr m_pLastMouseEvent;
         int m_NumMouseButtonsDown;
-        ContactPtr m_pContact;
         static std::vector<long> KeyCodeTranslationTable;
         XInput21MTInputDevice * m_pXIMTInputDevice;
 

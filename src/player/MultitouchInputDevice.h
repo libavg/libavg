@@ -58,7 +58,7 @@ protected:
     // id handed up from the driver level.
     TouchStatusPtr getTouchStatus(int id);
     void addTouchStatus(int id, TouchEventPtr pInitialEvent);
-    void removeTouchStatusID(int id);
+    void removeTouchStatus(int id);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
     boost::mutex& getMutex();
 

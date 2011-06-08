@@ -34,7 +34,6 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#include "Contact.h"
 #ifdef HAVE_XI2_1
 #include "XInput21MTInputDevice.h"
 #endif
@@ -821,9 +820,10 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
             IntPoint(x, y), button, speed));
-
+/*
+    // TODO: Move to player
     // Contact handling
-    // The buttonstate delivered by libSDL is inconsistent and OS-Dependent, so we
+    // The buttonstate delivered by libSDL is inconsistent and OS-dependent, so we
     // keep our own count of the number of buttons pressed.
     if (type == Event::CURSORDOWN) {
         m_NumMouseButtonsDown++;
@@ -844,7 +844,7 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     if (type == Event::CURSORMOTION && m_pContact) {
         m_pContact->addEvent(pEvent);
     }
-
+*/
     m_pLastMouseEvent = pEvent;
     return pEvent; 
 }

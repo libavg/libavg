@@ -102,7 +102,7 @@ void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
     m_Touches[id] = pTouchStatus;
 }
 
-void MultitouchInputDevice::removeTouchStatusID(int id)
+void MultitouchInputDevice::removeTouchStatus(int id)
 {
     unsigned numRemoved = m_Touches.erase(id);
     AVG_ASSERT(numRemoved == 1);

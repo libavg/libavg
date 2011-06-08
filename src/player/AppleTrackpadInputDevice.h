@@ -64,7 +64,6 @@ public:
     AppleTrackpadInputDevice();
     virtual ~AppleTrackpadInputDevice();
     virtual void start();
-    
 
 private:
     void onData(int device, Finger *data, int nFingers, double timestamp, int frame);
