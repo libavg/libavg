@@ -43,8 +43,6 @@ class AVG_API EventStream: public Contact
         virtual ~EventStream();
         void blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent);
         void blobGone();
-        EventPtr pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
-                Event::Source source);
         void setStale();
         bool isStale();
 

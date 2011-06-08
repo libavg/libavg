@@ -25,7 +25,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -55,16 +55,16 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     boost::mutex::scoped_lock lock(*m_pMutex);
 
     vector<EventPtr> events;
-    set<ContactPtr>::iterator it;
+    map<int, TouchStatusPtr>::iterator it;
 //    cerr << "--------poll---------" << endl;
-    for (it = m_Contacts.begin(); it != m_Contacts.end(); ) {
+    for (it = m_Touches.begin(); it != m_Touches.end(); ) {
 //        cerr << it->first << " ";
-        ContactPtr pContact = *it;
-        CursorEventPtr pEvent = pContact->pollEvent();
+        TouchStatusPtr pTouchStatus = it->second;
+        CursorEventPtr pEvent = pTouchStatus->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {
-                m_Contacts.erase(it++);
+                m_Touches.erase(it++);
             } else {
                 ++it;
             }
@@ -83,37 +83,35 @@ const DPoint& MultitouchInputDevice::getWindowSize() const
 
 int MultitouchInputDevice::getNumTouches() const
 {
-    return m_ContactIDMap.size();
+    return m_Touches.size();
 }
 
-ContactPtr MultitouchInputDevice::getContact(int id)
+TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
 {
-    map<int, ContactPtr>::iterator it = m_ContactIDMap.find(id);
-    if (it == m_ContactIDMap.end()) {
-        return ContactPtr();
+    map<int, TouchStatusPtr>::iterator it = m_Touches.find(id);
+    if (it == m_Touches.end()) {
+        return TouchStatusPtr();
     } else {
         return it->second;
     }
 }
 
-void MultitouchInputDevice::addContact(int id, TouchEventPtr pInitialEvent)
+void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
 {
-    ContactPtr pContact(new Contact(pInitialEvent));
-    pContact->setThis(pContact);
-    m_ContactIDMap[id] = pContact;
-    m_Contacts.insert(pContact);
+    TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
+    m_Touches[id] = pTouchStatus;
 }
 
-void MultitouchInputDevice::removeContactID(int id)
+void MultitouchInputDevice::removeTouchStatusID(int id)
 {
-    unsigned numRemoved = m_ContactIDMap.erase(id);
+    unsigned numRemoved = m_Touches.erase(id);
     AVG_ASSERT(numRemoved == 1);
 }
 
 void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
 {
-    map<int, ContactPtr>::iterator it;
-    for (it = m_ContactIDMap.begin(); it != m_ContactIDMap.end(); ++it) {
+    map<int, TouchStatusPtr>::iterator it;
+    for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
         int id = it->first;
         set<int>::const_iterator foundIt = liveIDs.find(id);
         if (foundIt == liveIDs.end()) {
