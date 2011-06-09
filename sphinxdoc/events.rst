@@ -4,11 +4,27 @@ Input Handling
 .. automodule:: libavg.avg
     :no-members:
 
+    .. autoclass:: Contact
+
+        A Contact encapsulates the information of one touch on an input device from
+        the down event to an up event. It exposes some aggregate information about the
+        touch - distance and direction travelled etc. - and allows event handlers that
+        are only called for this single contact.
+
+        For compatibility reasons, a mouse device also produces contacts. A mouse contact
+        exists from the press of a button to its release. If multiple buttons are
+        pressed without a complete release (e.g. LEFTDOWN-RIGHTDOWN-LEFTUP-RIGHTUP), the
+        mouse contact exists for the complete sequence.
+
     .. autoclass:: CursorEvent
 
         Base class for all events which contain a position in the global coordinate
         system.
     
+        .. py:attribute:: contact
+
+            The :py:class:`Contact` that the event belongs to, if there is one. 
+
         .. py:attribute:: node
 
             The :py:class:`Node` that the event occured in. Read-only.
