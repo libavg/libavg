@@ -43,12 +43,12 @@
 
 namespace avg {
 
-class EventStream;
-typedef boost::shared_ptr<EventStream> EventStreamPtr;
+class TrackerTouchStatus;
+typedef boost::shared_ptr<TrackerTouchStatus> TrackerTouchStatusPtr;
 
 class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
 {
-    typedef std::map<BlobPtr, EventStreamPtr> EventMap;
+    typedef std::map<BlobPtr, TrackerTouchStatusPtr> TouchStatusMap;
 
     public:
         TrackerInputDevice();
@@ -83,7 +83,7 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
         boost::thread* m_pTrackerThread;
 
         // Used by main thread
-        void pollEventType(std::vector<EventPtr>& res, EventMap& events,
+        void pollEventType(std::vector<EventPtr>& res, TouchStatusMap& events,
                 CursorEvent::Source source);
         void copyRelatedInfo(std::vector<EventPtr> pTouchEvents,
                 std::vector<EventPtr> pTrackEvents);
@@ -102,8 +102,8 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
         void trackBlobIDs(BlobVectorPtr new_blobs, long long time, bool bTouch);
 
         // Used by both threads
-        EventMap m_TouchEvents;
-        EventMap m_TrackEvents;
+        TouchStatusMap m_TouchEvents;
+        TouchStatusMap m_TrackEvents;
         TrackerConfig m_TrackerConfig;
 
         MutexPtr m_pMutex;

@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TrackerEventStream_H_
-#define _TrackerEventStream_H_
+#ifndef _TrackerTouchStatus_H_
+#define _TrackerTouchStatus_H_
 
 #include "../api.h"
 #include "Event.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 
 #include "../base/Point.h"
 
@@ -35,29 +35,28 @@
 
 namespace avg {
 
-class AVG_API EventStream: public Contact
+class AVG_API TrackerTouchStatus: public TouchStatus
 {
     public:
-        EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
+        TrackerTouchStatus(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
                 const DRect& displayROI, Event::Source source);
-        virtual ~EventStream();
+        virtual ~TrackerTouchStatus();
         void blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent);
         void blobGone();
-        EventPtr pollevent(DeDistortPtr pDeDistort, const DRect& displayROI, 
-                Event::Source source);
         void setStale();
         bool isStale();
 
     private:
-        CursorEventPtr createEvent(Event::Source source, Event::Type type, int id, 
+        TouchEventPtr createEvent(Event::Source source, Event::Type type, int id, 
                 BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, 
                 const DRect& displayROI);
-        CursorEventPtr createEvent(Event::Type type, BlobPtr pBlob, long long time);
+        TouchEventPtr createEvent(Event::Type type, BlobPtr pBlob, long long time);
 
         Event::Source m_Source;
         DeDistortPtr m_pDeDistort;
         DRect m_DisplayROI;
         bool m_Stale;
+        bool m_bGone;
         int m_ID;
         BlobPtr m_pBlob;
         long long m_LastTime;

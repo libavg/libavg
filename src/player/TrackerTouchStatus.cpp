@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "EventStream.h"
+#include "TrackerTouchStatus.h"
 #include "TouchEvent.h"
 
 #include "../base/Logger.h"
@@ -32,75 +32,85 @@ using namespace std;
 
 namespace avg {
     
-int EventStream::s_LastID = 0;
+int TrackerTouchStatus::s_LastID = 0;
 
-EventStream::EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
-        const DRect& displayROI, Event::Source source)
-    : Contact(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
+TrackerTouchStatus::TrackerTouchStatus(BlobPtr pFirstBlob, long long time, 
+        DeDistortPtr pDeDistort, const DRect& displayROI, Event::Source source)
+    : TouchStatus(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
               pDeDistort, displayROI)),
+      m_Source(source),
       m_pDeDistort(pDeDistort),
       m_DisplayROI(displayROI),
       m_Stale(false),
+      m_bGone(false),
       m_ID(s_LastID),
       m_pBlob(pFirstBlob),
       m_LastTime(time)
 {
+    AVG_ASSERT(m_Source == Event::TOUCH || m_Source == Event::TRACK);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-EventStream::~EventStream()
+TrackerTouchStatus::~TrackerTouchStatus()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
+void TrackerTouchStatus::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
 {
     AVG_ASSERT(m_pBlob);
     AVG_ASSERT(pNewBlob);
-    DPoint c = pNewBlob->getCenter();
-    bool bPosChanged;
-    if (bKeepEvent) {
-        bPosChanged = true;
-    } else {
-        bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
+    if (!m_bGone) {
+        DPoint c = pNewBlob->getCenter();
+        bool bPosChanged;
+        if (bKeepEvent) {
+            bPosChanged = true;
+        } else {
+            bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
+        }
+        if (bPosChanged) {
+            TouchEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
+            pushEvent(pEvent, false);
+        }
+        m_pBlob = pNewBlob;
+        m_Stale = false;
+        m_LastTime = time;
     }
-    if (bPosChanged) {
-        CursorEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
-        pushEvent(pEvent, false);
-    }
-    m_pBlob = pNewBlob;
-    m_Stale = false;
-    m_LastTime = time;
 };
     
-void EventStream::blobGone()
+void TrackerTouchStatus::blobGone()
 {
-    CursorEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
-    pushEvent(pEvent, true);
+    if (!m_bGone) {
+        TouchEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
+        pushEvent(pEvent, false);
+        m_bGone = true;
+    }
 }
 
-void EventStream::setStale()
+void TrackerTouchStatus::setStale()
 {
     m_Stale = true;
 }
 
-bool EventStream::isStale() 
+bool TrackerTouchStatus::isStale() 
 {
     return m_Stale;
 }
 
-CursorEventPtr EventStream::createEvent(Event::Source source, Event::Type type, int id, 
-        BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, const DRect& displayROI)
+TouchEventPtr TrackerTouchStatus::createEvent(Event::Source source, Event::Type type, 
+        int id, BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, 
+        const DRect& displayROI)
 {
     DPoint blobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
     DPoint pt = pBlob->getCenter() + blobOffset;
     DPoint screenpos = pDeDistort->transformBlobToScreen(pt);
     IntPoint pos(int(screenpos.x+0.5), int(screenpos.y+0.5)); 
 
-    return CursorEventPtr(new TouchEvent(id, type, pBlob, pos, source));
+    return TouchEventPtr(new TouchEvent(id, type, pBlob, pos, source));
 }
 
-CursorEventPtr EventStream::createEvent(Event::Type type, BlobPtr pBlob, long long time)
+TouchEventPtr TrackerTouchStatus::createEvent(Event::Type type, BlobPtr pBlob, 
+        long long time)
 {
     return createEvent(m_Source, type, m_ID, pBlob, time, m_pDeDistort, m_DisplayROI);
 }

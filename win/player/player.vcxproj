@@ -87,7 +87,6 @@
     <ClCompile Include="..\..\src\player\DivNode.cpp" />
     <ClCompile Include="..\..\src\player\Event.cpp" />
     <ClCompile Include="..\..\src\player\EventDispatcher.cpp" />
-    <ClCompile Include="..\..\src\player\EventStream.cpp" />
     <ClCompile Include="..\..\src\player\FilledVectorNode.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
     <ClCompile Include="..\..\src\player\GLConfig.cpp" />
@@ -123,8 +122,10 @@
     <ClCompile Include="..\..\src\player\TextEngine.cpp" />
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
     <ClCompile Include="..\..\src\player\TouchEvent.cpp" />
+    <ClCompile Include="..\..\src\player\TouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TrackerCalibrator.cpp" />
     <ClCompile Include="..\..\src\player\TrackerInputDevice.cpp" />
+    <ClCompile Include="..\..\src\player\TrackerTouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\VectorNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
@@ -156,7 +157,6 @@
     <ClInclude Include="..\..\src\player\DivNode.h" />
     <ClInclude Include="..\..\src\player\Event.h" />
     <ClInclude Include="..\..\src\player\EventDispatcher.h" />
-    <ClInclude Include="..\..\src\player\EventStream.h" />
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
     <ClInclude Include="..\..\src\player\GLConfig.h" />
@@ -194,8 +194,10 @@
     <ClInclude Include="..\..\src\player\TextEngine.h" />
     <ClInclude Include="..\..\src\player\Timeout.h" />
     <ClInclude Include="..\..\src\player\TouchEvent.h" />
+    <ClInclude Include="..\..\src\player\TouchStatus.h" />
     <ClInclude Include="..\..\src\player\TrackerCalibrator.h" />
     <ClInclude Include="..\..\src\player\TrackerInputDevice.h" />
+    <ClInclude Include="..\..\src\player\TrackerTouchStatus.h" />
     <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />
     <ClInclude Include="..\..\src\player\VectorNode.h" />
     <ClInclude Include="..\..\src\player\VideoNode.h" />

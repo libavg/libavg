@@ -19,47 +19,41 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _EventDispatcher_h_
-#define _EventDispatcher_h_
+#ifndef _TouchStatus_H_
+#define _TouchStatus_H_
 
-#include "../api.h"
-#include "IInputDevice.h"
+#include "../base/Point.h"
+
+#include <boost/shared_ptr.hpp>
 
 #include <vector>
-#include <map>
 
 namespace avg {
 
-class Event;
-typedef boost::shared_ptr<class Event> EventPtr;
-class Contact;
-typedef boost::shared_ptr<class Contact> ContactPtr;
-class Player;
+class TouchEvent;
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 
-class AVG_API EventDispatcher {
-    public:
-        EventDispatcher(Player* pPlayer);
-        virtual ~EventDispatcher();
-        void dispatch();
-        
-        void addInputDevice(IInputDevicePtr pInputDevice);
+class AVG_API TouchStatus {
+public:
+    TouchStatus(TouchEventPtr pEvent);
+    virtual ~TouchStatus();
 
-        void sendEvent(EventPtr pEvent);
-        ContactPtr getContact(int id);
+    void pushEvent(TouchEventPtr pEvent, bool bCheckMotion=true);
+    TouchEventPtr pollEvent();
+    TouchEventPtr getLastEvent();
 
-    private:
-        void handleEvent(EventPtr pEvent);
-        void testAddContact(EventPtr pEvent);
-        void testRemoveContact(EventPtr pEvent);
+    int getID() const;
 
-        std::vector<IInputDevicePtr> m_InputDevices;
-        Player* m_pPlayer;
-        std::map<int, ContactPtr> m_ContactMap;
-        int m_NumMouseButtonsDown;
+private:
+    TouchEventPtr m_pLastEvent;
+    std::vector<TouchEventPtr> m_pNewEvents;
+
+    bool m_bFirstFrame;
+    int m_CursorID;
 };
-typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
+
+typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 
 }
 
 #endif
-

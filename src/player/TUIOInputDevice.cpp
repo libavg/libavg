@@ -23,7 +23,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
@@ -165,16 +165,16 @@ void TUIOInputDevice::processSet(ReceivedMessageArgumentStream& args)
     DPoint speed(xspeed, yspeed);
 //    cerr << "Set: ID: " << tuioID << ", pos: " << pos << ", speed: " << speed 
 //        << ", accel: " << accel << endl;
-    ContactPtr pContact = getContact(tuioID);
-    if (!pContact) {
+    TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
+    if (!pTouchStatus) {
         // Down
         m_LastID++;
         TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos, speed); 
-        addContact((long)tuioID, pEvent);
+        addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
         TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos, speed); 
-        pContact->pushEvent(pEvent);
+        pTouchStatus->pushEvent(pEvent);
     }
 }
 
@@ -193,11 +193,12 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
     set<int>::iterator it;
     for (it = deadTUIOIDs.begin(); it != deadTUIOIDs.end(); ++it) {
         int id = *it;
-        ContactPtr pContact = getContact(id);
-        CursorEventPtr pOldEvent = pContact->getLastEvent();
-        CursorEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
+        TouchStatusPtr pTouchStatus = getTouchStatus(id);
+        TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
+        TouchEventPtr pUpEvent = boost::dynamic_pointer_cast<TouchEvent>(
                 pOldEvent->cloneAs(Event::CURSORUP));
-        pContact->pushEvent(pUpEvent);
+        pTouchStatus->pushEvent(pUpEvent);
+        removeTouchStatus(id);
     }
 }
 

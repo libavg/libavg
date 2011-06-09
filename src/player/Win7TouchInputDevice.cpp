@@ -23,7 +23,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 #include "TouchEvent.h"
 #include "SDLDisplayEngine.h"
 
@@ -156,21 +156,21 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
             m_LastID++;
             TouchEventPtr pEvent (new TouchEvent(m_LastID, Event::CURSORDOWN, pos,
                     Event::TOUCH));
-            addContact((long)pTouchInput->dwID, pEvent);
+            addTouchStatus((long)pTouchInput->dwID, pEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_UP) {
 //            cerr << "up: " << pos << endl; 
-            ContactPtr pContact = getContact(pTouchInput->dwID);
-            CursorEventPtr pOldEvent = pContact->getLastEvent();
-            CursorEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
+            TouchStatusPtr pTouchStatus = getTouchStatus(pTouchInput->dwID);
+            TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
+            TouchEventPtr pUpEvent(new TouchEvent(pOldEvent->getCursorID(), 
                     Event::CURSORUP, pos, Event::TOUCH));
-            pContact->pushEvent(pUpEvent);
+            pTouchStatus->pushEvent(pUpEvent);
         } else if (pTouchInput->dwFlags & TOUCHEVENTF_MOVE) {
 //            cerr << "motion: " << pos << endl; 
-            CursorEventPtr pEvent(new TouchEvent(0, Event::CURSORMOTION, pos,
+            TouchEventPtr pEvent(new TouchEvent(0, Event::CURSORMOTION, pos,
                     Event::TOUCH));
-            ContactPtr pContact = getContact((long)pTouchInput->dwID);
-            AVG_ASSERT(pContact);
-            pContact->pushEvent(pEvent);
+            TouchStatusPtr pTouchStatus = getTouchStatus((long)pTouchInput->dwID);
+            AVG_ASSERT(pTouchStatus);
+            pTouchStatus->pushEvent(pEvent);
         }
     }            
     delete [] pInputs;

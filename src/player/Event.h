@@ -26,12 +26,15 @@
 #include <functional>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #undef _POSIX_C_SOURCE
 
 namespace avg {
 
 class IInputDevice;
+typedef boost::shared_ptr<class IInputDevice> IInputDevicePtr;
+typedef boost::weak_ptr<class IInputDevice> IInputDeviceWeakPtr;
 class VisibleNode;
 typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
 
@@ -58,8 +61,8 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        const boost::shared_ptr<IInputDevice>& getInputDevice() const;
-        void setInputDevice(boost::shared_ptr<IInputDevice> pInputDevice);
+        IInputDevicePtr getInputDevice() const;
+        void setInputDevice(IInputDevicePtr pInputDevice);
         bool hasInputDevice() const;
         const std::string& getInputDeviceName() const;
         
@@ -78,7 +81,7 @@ class AVG_API Event {
         int m_Counter;
         Source m_Source;
 
-        boost::shared_ptr<IInputDevice> m_pInputDevice;
+        IInputDeviceWeakPtr m_pInputDevice;
         static int s_CurCounter;
 };
 

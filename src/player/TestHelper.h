@@ -34,14 +34,13 @@
 
 namespace avg {
     
-class Contact;
-typedef boost::shared_ptr<class Contact> ContactPtr;
+class TouchStatus;
+typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
 class AVG_API TestHelper : public IInputDevice
 {
-
     public: 
         TestHelper();
         virtual ~TestHelper();
@@ -62,11 +61,10 @@ class AVG_API TestHelper : public IInputDevice
         virtual std::vector<EventPtr> pollEvents();
 
     private:
-        void insertCursorEvent(CursorEventPtr pEvent);
         void checkEventType(Event::Type eventType);
         
         std::vector<EventPtr> m_Events;
-        std::map<int, ContactPtr> m_Contacts;
+        std::map<int, TouchStatusPtr> m_Touches;
 };
 
 typedef boost::shared_ptr<TestHelper> TestHelperPtr;

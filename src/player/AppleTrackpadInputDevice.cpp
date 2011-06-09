@@ -23,7 +23,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -66,20 +66,21 @@ void AppleTrackpadInputDevice::onData(int device, Finger* pFingers, int numFinge
     boost::mutex::scoped_lock lock(getMutex());
     for (int i = 0; i < numFingers; i++) {
         Finger* pFinger = &pFingers[i];
-        ContactPtr pContact = getContact(pFinger->identifier);
-        if (!pContact) {
+        TouchStatusPtr pTouchStatus = getTouchStatus(pFinger->identifier);
+        if (!pTouchStatus) {
             m_LastID++;
             TouchEventPtr pEvent = createEvent(m_LastID, pFinger, Event::CURSORDOWN);
-            addContact(pFinger->identifier, pEvent);
+            addTouchStatus(pFinger->identifier, pEvent);
         } else {
             Event::Type eventType;
             if (pFinger->state == 7) {
                 eventType = Event::CURSORUP;
+                removeTouchStatus(pFinger->identifier);
             } else {
                 eventType = Event::CURSORMOTION;
             }
             TouchEventPtr pEvent = createEvent(0, pFinger, eventType);
-            pContact->pushEvent(pEvent);
+            pTouchStatus->pushEvent(pEvent);
         }
     }
 }

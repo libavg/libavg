@@ -24,7 +24,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 
 #include "../base/Logger.h"
 #include "../base/Point.h"
@@ -110,15 +110,15 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
 //                    cerr << ">> ABS_MT_TRACKING_ID: " << event.value << endl;
                     pTouch = &(m_Slots[curSlot]);
                     if (event.value == -1) {
-                        ContactPtr pContact = getContact(pTouch->id);
+                        TouchStatusPtr pTouchStatus = getTouchStatus(pTouch->id);
 //                        cerr << "up " << pTouch->id << endl;
-                        if (pContact) {
+                        if (pTouchStatus) {
 //                            cerr << "  --> remove" << endl;
-                            CursorEventPtr pOldEvent = pContact->getLastEvent();
-                            CursorEventPtr pUpEvent =
+                            TouchEventPtr pOldEvent = pTouchStatus->getLastEvent();
+                            TouchEventPtr pUpEvent =
                                     boost::dynamic_pointer_cast<TouchEvent>(
                                     pOldEvent->cloneAs(Event::CURSORUP));
-                            pContact->pushEvent(pUpEvent);
+                            pTouchStatus->pushEvent(pUpEvent);
                         }
                         pTouch->id = -1;
                     } else {
@@ -157,19 +157,19 @@ void LibMTDevInputDevice::processEvents(const set<int>& changedIDs)
 //                    << endl;
 //            AVG_ASSERT(touch.pos.x != 0);
             if (touch.id != -1) {
-                ContactPtr pContact = getContact(touch.id);
-                if (!pContact) {
+                TouchStatusPtr pTouchStatus = getTouchStatus(touch.id);
+                if (!pTouchStatus) {
                     // Down
                     m_LastID++;
                     TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN,
                             touch.pos);
 //                    cerr << "down <" << touch.id << "> --> [" << m_LastID << "]" << endl;
-                    addContact((long)touch.id, pEvent);
+                    addTouchStatus((long)touch.id, pEvent);
                 } else {
 //                    cerr << "move <" << touch.id << "> --> " << touch.pos << endl;
                     // Move
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, touch.pos);
-                    pContact->pushEvent(pEvent);
+                    pTouchStatus->pushEvent(pEvent);
                 }
             }
         }

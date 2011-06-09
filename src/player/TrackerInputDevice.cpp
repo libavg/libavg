@@ -23,7 +23,7 @@
 
 #include "TrackerInputDevice.h"
 #include "TouchEvent.h"
-#include "EventStream.h"
+#include "TrackerTouchStatus.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -274,7 +274,7 @@ bool operator < (const BlobDistEntryPtr& e1, const BlobDistEntryPtr& e2)
 void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time, 
         bool bTouch)
 {
-    EventMap * pEvents;
+    TouchStatusMap * pEvents;
     string sConfigPath;
     Event::Source source;
     if (bTouch) {
@@ -287,7 +287,7 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
         source = Event::TRACK;
     }
     BlobVector oldBlobs;
-    for (EventMap::iterator it = pEvents->begin(); it != pEvents->end(); ++it) {
+    for (TouchStatusMap::iterator it = pEvents->begin(); it != pEvents->end(); ++it) {
         (*it).second->setStale();
         oldBlobs.push_back((*it).first);
     }
@@ -325,30 +325,30 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
             matchedNewBlobs.insert(pNewBlob);
             matchedOldBlobs.insert(pOldBlob);
             AVG_ASSERT (pEvents->find(pOldBlob) != pEvents->end());
-            EventStreamPtr pStream;
-            pStream = pEvents->find(pOldBlob)->second;
+            TrackerTouchStatusPtr pTouchStatus;
+            pTouchStatus = pEvents->find(pOldBlob)->second;
             // Make sure we don't discard any events that have related info.
             bool bKeepAllEvents = pNewBlob->getFirstRelated() && !bTouch;
-            pStream->blobChanged(pNewBlob, time, bKeepAllEvents);
+            pTouchStatus->blobChanged(pNewBlob, time, bKeepAllEvents);
             pNewBlob->calcNextCenter(pOldBlob->getCenter());
             // Update the mapping.
-            (*pEvents)[pNewBlob] = pStream;
+            (*pEvents)[pNewBlob] = pTouchStatus;
             pEvents->erase(pOldBlob);
         }
     }
     // Blobs have been matched. Left-overs are new blobs.
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
         if (matchedNewBlobs.find(*it) == matchedNewBlobs.end()) {
-            EventStreamPtr pStream = EventStreamPtr(
-                    new EventStream(*it, time, m_pDeDistort, m_DisplayROI, source));
-            pStream->setThis(pStream);
-            (*pEvents)[(*it)] = pStream;
+            TrackerTouchStatusPtr pTouchStatus = TrackerTouchStatusPtr(
+                    new TrackerTouchStatus(*it, time, m_pDeDistort, m_DisplayROI, 
+                            source));
+            (*pEvents)[(*it)] = pTouchStatus;
         }
     }
 
     // All event streams that are still stale haven't been updated: blob is gone, 
     // set the sentinel for this.
-    for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
+    for(TouchStatusMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
         if ((*it).second->isStale()) {
             (*it).second->blobGone();
         }
@@ -409,13 +409,13 @@ vector<EventPtr> TrackerInputDevice::pollEvents()
     return pTouchEvents;
 }
 
-void TrackerInputDevice::pollEventType(vector<EventPtr>& res, EventMap& Events,
+void TrackerInputDevice::pollEventType(vector<EventPtr>& res, TouchStatusMap& Events,
         CursorEvent::Source source) 
 {
     EventPtr pEvent;
-    for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
-        EventStreamPtr pStream = (*it).second;
-        pEvent = pStream->pollEvent();
+    for (TouchStatusMap::iterator it = Events.begin(); it!= Events.end();) {
+        TrackerTouchStatusPtr pTouchStatus = (*it).second;
+        pEvent = pTouchStatus->pollEvent();
         if (pEvent) {
             res.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {

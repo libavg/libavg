@@ -35,8 +35,8 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 namespace avg {
 
-class Contact;
-typedef boost::shared_ptr<class Contact> ContactPtr;
+class TouchStatus;
+typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
 class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 class Event;
@@ -56,13 +56,15 @@ protected:
     int getNumTouches() const;
     // Note that the id used here is not the libavg cursor id but a touch-driver-specific
     // id handed up from the driver level.
-    ContactPtr getContact(int id);
-    void addContact(int id, TouchEventPtr pInitialEvent);
+    TouchStatusPtr getTouchStatus(int id);
+    void addTouchStatus(int id, TouchEventPtr pInitialEvent);
+    void removeTouchStatus(int id);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs);
     boost::mutex& getMutex();
 
 private:
-    std::map<int, ContactPtr> m_Touches;
+    std::map<int, TouchStatusPtr> m_TouchIDMap;
+    std::vector<TouchStatusPtr> m_Touches;
     DPoint m_WindowSize;
     MutexPtr m_pMutex;
 };

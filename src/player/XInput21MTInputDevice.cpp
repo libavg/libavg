@@ -24,7 +24,7 @@
 #include "TouchEvent.h"
 #include "Player.h"
 #include "AVGNode.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 #include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
@@ -157,25 +157,25 @@ void XInput21MTInputDevice::handleXIEvent(const XEvent& xEvent)
 //                    cerr << "TouchBegin " << xid << ", " << pos << endl;
                     m_LastID++;
                     TouchEventPtr pEvent = createEvent(m_LastID, Event::CURSORDOWN, pos); 
-                    addContact(xid, pEvent);
+                    addTouchStatus(xid, pEvent);
                 }
                 break;
             case XI_TouchUpdate:
                 {
 //                    cerr << "TouchUpdate " << xid << ", " << pos << endl;
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORMOTION, pos); 
-                    ContactPtr pContact = getContact(xid);
-                    AVG_ASSERT(pContact);
-                    pContact->pushEvent(pEvent);
+                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
+                    AVG_ASSERT(pTouchStatus);
+                    pTouchStatus->pushEvent(pEvent);
                 }
                 break;
             case XI_TouchEnd:
                 {
 //                    cerr << "TouchEnd " << xid << ", " << pos << endl;
-                    ContactPtr pContact = getContact(xid);
-                    AVG_ASSERT(pContact);
+                    TouchStatusPtr pTouchStatus = getTouchStatus(xid);
+                    AVG_ASSERT(pTouchStatus);
                     TouchEventPtr pEvent = createEvent(0, Event::CURSORUP, pos); 
-                    pContact->pushEvent(pEvent);
+                    pTouchStatus->pushEvent(pEvent);
                 }
                 break;
             default:

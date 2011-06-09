@@ -43,7 +43,8 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         Event.h KeyEvent.h PanoImageNode.h TestHelper.h CanvasNode.h \
         OffscreenCanvasNode.h MultitouchInputDevice.h \
         RasterNode.h CameraNode.h TrackerInputDevice.h TrackerCalibrator.h \
-        TouchEvent.h Contact.h EventStream.h BoostPython.h SoundNode.h \
+        TouchEvent.h Contact.h TouchStatus.h TrackerTouchStatus.h BoostPython.h \
+        SoundNode.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOInputDevice.h \
@@ -81,10 +82,11 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp MaterialInfo.cpp \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
-        TrackerInputDevice.cpp EventStream.cpp TrackerCalibrator.cpp SoundNode.cpp \
+        TrackerInputDevice.cpp TrackerTouchStatus.cpp TrackerCalibrator.cpp \
+        SoundNode.cpp \
         VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
-        Contact.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \
+        Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
         VideoWriter.cpp VideoWriterThread.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)

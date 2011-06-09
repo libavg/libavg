@@ -36,16 +36,11 @@ namespace avg {
 
 int Contact::s_LastListenerID = 0;
 
-Contact::Contact(CursorEventPtr pEvent, bool bProcessEvents)
-    : m_bProcessEvents(bProcessEvents),
-      m_bFirstFrame(true),
-      m_bSendingEvents(false),
+Contact::Contact(CursorEventPtr pEvent)
+    : m_bSendingEvents(false),
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
 {
-    if (bProcessEvents) {
-        m_pNewEvents.push_back(pEvent);
-    }
     m_pFirstEvent = pEvent;
     m_pLastEvent = pEvent;
 }
@@ -54,27 +49,6 @@ Contact::~Contact()
 {
 }
 
-void Contact::disconnectEverything()
-{
-    m_ListenerMap.clear();
-    m_pNewEvents.clear();
-    m_pFirstEvent = CursorEventPtr();
-    m_pLastEvent = CursorEventPtr();
-    Player::get()->deregisterContact(getThis());
-}
-
-void Contact::setThis(ContactWeakPtr This)
-{
-    m_This = This;
-    m_pFirstEvent->setContact(getThis());
-    Player::get()->registerContact(getThis());
-}
-
-ContactPtr Contact::getThis() const
-{
-    return m_This.lock();
-}
-    
 int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 {
     if (Player::get()->isCaptured(m_CursorID)) {
@@ -91,7 +65,6 @@ int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 
 void Contact::disconnectListener(int id)
 {
-    bool bFound = false;
     map<int, Listener>::iterator it = m_ListenerMap.find(id);
     if (it == m_ListenerMap.end() || m_DeadListeners.count(id) != 0) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
@@ -134,74 +107,13 @@ double Contact::getDistanceTravelled() const
     return m_DistanceTravelled;
 }
 
-void Contact::pushEvent(CursorEventPtr pEvent, bool bCheckMotion)
-{
-    AVG_ASSERT(m_bProcessEvents);
-    AVG_ASSERT(pEvent);
-    pEvent->setCursorID(m_CursorID);
-    pEvent->setContact(getThis());
-
-    if (m_bFirstFrame) {
-        // Ignore unless cursorup.
-        if (pEvent->getType() == Event::CURSORUP) {
-            // Down and up in the first frame. To avoid inconsistencies, both
-            // messages must be delivered. This is the only time that m_pNewEvents
-            // has more than one entry.
-            m_pNewEvents.push_back(pEvent);
-        }
-    } else {
-        if (bCheckMotion && pEvent->getType() == Event::CURSORMOTION && 
-                getLastEvent()->getPos() == pEvent->getPos())
-        {
-            // Ignore motion events without motion.
-            return;
-        } else {
-            if (m_pNewEvents.empty()) {
-                // No pending events: schedule for delivery.
-                m_pNewEvents.push_back(pEvent);
-            } else {
-                // More than one event per poll: Deliver only the last one.
-                m_pNewEvents[0] = pEvent;
-            }
-        }
-    }
-}
-
 void Contact::addEvent(CursorEventPtr pEvent)
 {
-    AVG_ASSERT(!m_bProcessEvents);
     pEvent->setCursorID(m_CursorID);
-    pEvent->setContact(getThis());
+    pEvent->setContact(shared_from_this());
     calcSpeed(pEvent, m_pLastEvent);
     updateDistanceTravelled(m_pLastEvent, pEvent);
     m_pLastEvent = pEvent;
-}
-
-CursorEventPtr Contact::pollEvent()
-{
-    AVG_ASSERT(m_bProcessEvents);
-    if (m_pNewEvents.empty()) {
-        return CursorEventPtr();
-    } else {
-        CursorEventPtr pEvent = m_pNewEvents[0];
-        m_pNewEvents.erase(m_pNewEvents.begin());
-        m_bFirstFrame = false;
-        calcSpeed(pEvent, m_pLastEvent);
-        updateDistanceTravelled(m_pLastEvent, pEvent);
-        m_pLastEvent = pEvent;
-        AVG_ASSERT(pEvent->getContact() == getThis());
-        return pEvent;
-    }
-}
-
-CursorEventPtr Contact::getLastEvent()
-{
-    if (m_pNewEvents.empty()) {
-        AVG_ASSERT(m_pLastEvent);
-        return m_pLastEvent;
-    } else {
-        return m_pNewEvents.back();
-    }
 }
 
 bool Contact::hasListeners() const
@@ -212,7 +124,7 @@ bool Contact::hasListeners() const
 void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
 {
     m_bSendingEvents = true;
-    AVG_ASSERT(pCursorEvent->getContact() == getThis());
+    AVG_ASSERT(pCursorEvent->getContact() == shared_from_this());
     EventPtr pEvent = boost::dynamic_pointer_cast<Event>(pCursorEvent);
     for (map<int, Listener>::iterator it = m_ListenerMap.begin(); 
             it != m_ListenerMap.end(); ++it)

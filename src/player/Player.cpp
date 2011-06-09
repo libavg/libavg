@@ -62,6 +62,7 @@
 #endif
 #include "Contact.h"
 #include "KeyEvent.h"
+#include "MouseEvent.h"
 #include "EventDispatcher.h"
 
 #include "../base/FileHelper.h"
@@ -650,7 +651,7 @@ void Player::enableMultitouch()
 #elif defined (AVG_ENABLE_MTDEV)
         sDriver = "LINUXMTDEV";
 #else
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER and APPLETRACKPAD.");
+        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
@@ -679,7 +680,7 @@ void Player::enableMultitouch()
     } else if (sDriver == "TRACKER") {
         m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER and APPLETRACKPAD.");
+        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }
@@ -706,8 +707,8 @@ bool Player::isMultitouchAvailable() const
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
-    std::map<int, ContactPtr>::iterator itContact = m_pContacts.find(cursorID);
-    if (itContact != m_pContacts.end() && (*itContact).second->hasListeners()) {
+    ContactPtr pContact = m_pEventDispatcher->getContact(cursorID);
+    if (pContact && pContact->hasListeners()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for cursor "
                 + toString(cursorID) + ", but contact has a listener.");
     }
@@ -815,20 +816,6 @@ void Player::setMousePos(const IntPoint& pos)
 int Player::getKeyModifierState() const
 {
     return m_pDisplayEngine->getKeyModifierState();
-}
-
-void Player::registerContact(ContactPtr pContact)
-{
-    int id = pContact->getID();
-    AVG_ASSERT(m_pContacts.find(id) == m_pContacts.end());
-    m_pContacts[id] = pContact;
-}
-
-void Player::deregisterContact(ContactPtr pContact)
-{
-    map<int, ContactPtr>::iterator it;
-    int rc = m_pContacts.erase(pContact->getID());
-    AVG_ASSERT(rc == 1);
 }
 
 BitmapPtr Player::screenshot()
@@ -1512,12 +1499,6 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
         }
     }
-    MouseEventPtr pMouseEvent = dynamic_pointer_cast<MouseEvent>(pEvent);
-    if (!bOnlyCheckCursorOver && pContact && pEvent->getType() == Event::CURSORUP &&
-            (!pMouseEvent || !pMouseEvent->isAnyButtonPressed()))
-    {
-        pContact->disconnectEverything();
-    }
 }
 
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
@@ -1637,7 +1618,6 @@ void Player::cleanup()
     m_EventCaptureInfoMap.clear();
     m_pLastCursorStates.clear();
     m_pTestHelper->reset();
-    m_pContacts.clear();
     ThreadProfiler::get()->dumpStatistics();
     if (m_pMainCanvas) {
         unregisterFrameEndListener(BitmapManager::get());

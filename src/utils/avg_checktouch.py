@@ -32,18 +32,22 @@ class TouchApp(AVGApp):
                 self.__onDown)
     
     def __onDown(self, event):
+#        if event.source == avg.MOUSE:
+#            print event.type, event.button
+#        else:
+#            print event.type
         if (event.contact):
             event.contact.connectListener(self.__onContact, self.__onContact)
             contact = event.contact
-            print event.type, contact.id, event.pos, contact.age, \
-                    contact.distancefromstart, contact.motionangle, contact.motionvec, \
-                    contact.distancetravelled
+#            print "new contact: ", contact.id, event.pos, contact.age, \
+#                    contact.distancefromstart, contact.motionangle, contact.motionvec, \
+#                    contact.distancetravelled
 
     def __onContact(self, event):
         contact = event.contact
-        print event.type, contact.id, event.pos, contact.age, \
-                contact.distancefromstart, contact.motionangle, contact.motionvec, \
-                contact.distancetravelled, event.speed
+#        print event.type, contact.id, event.pos, contact.age, \
+#                contact.distancefromstart, contact.motionangle, contact.motionvec, \
+#                contact.distancetravelled, event.speed
 
 TouchApp.start(resolution=(1280,800))
 

@@ -22,15 +22,19 @@
 #include "EventDispatcher.h"
 #include "Event.h"
 #include "Player.h"
+#include "Contact.h"
+#include "CursorEvent.h"
 
 #include <string>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
 EventDispatcher::EventDispatcher(Player* pPlayer)
-    : m_pPlayer(pPlayer)
+    : m_pPlayer(pPlayer),
+      m_NumMouseButtonsDown(0)
 {
 }
 
@@ -56,7 +60,11 @@ void EventDispatcher::dispatch()
 
     vector<EventPtr>::iterator it;
     for (it = events.begin(); it != events.end(); ++it) {
+        EventPtr pEvent = *it;
+//        cerr << "  " << pEvent->typeStr() << ", " << pEvent->getSource() << endl;
+        testAddContact(pEvent);
         handleEvent(*it);
+        testRemoveContact(pEvent);
     }
 }
 
@@ -70,9 +78,80 @@ void EventDispatcher::sendEvent(EventPtr pEvent)
     handleEvent(pEvent);
 }
 
+ContactPtr EventDispatcher::getContact(int id)
+{
+    std::map<int, ContactPtr>::iterator it = m_ContactMap.find(id);
+    if (it == m_ContactMap.end()) {
+        return ContactPtr();
+    } else {
+        return it->second;
+    }
+}
+
 void EventDispatcher::handleEvent(EventPtr pEvent)
 {
     m_pPlayer->handleEvent(pEvent);
+}
+
+void EventDispatcher::testAddContact(EventPtr pEvent)
+{
+    ContactPtr pContact;
+    CursorEventPtr pCursorEvent = dynamic_pointer_cast<CursorEvent>(pEvent);
+    if (pCursorEvent) {
+        switch (pCursorEvent->getType()) {
+            case Event::CURSORDOWN:
+                if (pCursorEvent->getSource() == Event::MOUSE) {
+                    m_NumMouseButtonsDown++;
+                    if (m_NumMouseButtonsDown == 1) {
+                        AVG_ASSERT(!getContact(MOUSECURSORID));
+                        pContact = ContactPtr(new Contact(pCursorEvent));
+                        m_ContactMap[MOUSECURSORID] = pContact;
+                    }
+                } else {
+                    pContact = ContactPtr(new Contact(pCursorEvent));
+                    m_ContactMap[pCursorEvent->getCursorID()] = pContact;
+                }
+                break;
+            case Event::CURSORMOTION:
+            case Event::CURSORUP: {
+                    pContact = getContact(pCursorEvent->getCursorID());
+                    AVG_ASSERT(pContact || (
+                            pCursorEvent->getSource() == Event::MOUSE && 
+                            m_NumMouseButtonsDown == 0));
+                    if (pContact) {
+                        pContact->addEvent(pCursorEvent);
+                    }
+                }
+                break;
+            case Event::CUSTOMEVENT:
+                break;
+            default:
+                cerr << pCursorEvent->typeStr() << endl;
+                AVG_ASSERT(false);
+                break;
+        }
+        if (pContact) {
+            pCursorEvent->setContact(pContact);
+        }
+    }
+}
+
+void EventDispatcher::testRemoveContact(EventPtr pEvent)
+{
+    if (pEvent->getType() == Event::CURSORUP) {
+        if (pEvent->getSource() == Event::MOUSE) {
+            AVG_ASSERT(m_NumMouseButtonsDown > 0);
+            m_NumMouseButtonsDown--;
+            if (m_NumMouseButtonsDown == 0) {
+                int rc = m_ContactMap.erase(MOUSECURSORID);
+                AVG_ASSERT(rc == 1);
+            }
+        } else {
+            int rc = m_ContactMap.erase(
+                    dynamic_pointer_cast<CursorEvent>(pEvent)->getCursorID());
+            AVG_ASSERT(rc == 1);
+        }
+    }
 }
 
 }
