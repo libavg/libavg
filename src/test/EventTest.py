@@ -769,17 +769,32 @@ class EventTestCase(AVGTestCase):
             self.assert_(contact.distancetravelled == 20)
             self.numContactCallbacks += 1
 
+        def onOver(event): 
+            self.numOverCallbacks += 1
+            self.assert_(event.cursorid == event.contact.id)
+
+        def onOut(event): 
+            self.numOutCallbacks += 1
+            self.assert_(event.cursorid == event.contact.id)
+
         self.loadEmptyScene()
         root = Player.getRootNode()
         root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
-        Player.setFakeFPS(25)
         self.numContactCallbacks = 0
+        rect = avg.RectNode(pos=(5,5), size=(10,10), parent=root)
+        rect.connectEventHandler(avg.CURSOROVER, avg.TOUCH, self, onOver)
+        self.numOverCallbacks = 0
+        rect.connectEventHandler(avg.CURSOROUT, avg.TOUCH, self, onOut)
+        self.numOutCallbacks = 0
+        Player.setFakeFPS(25)
         self.start(None,
             (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
             ))
         self.assert_(self.numContactCallbacks == 2)
+        self.assert_(self.numOverCallbacks == 2)
+        self.assert_(self.numOutCallbacks == 2)
         
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -812,14 +827,14 @@ class EventTestCase(AVGTestCase):
             contact.disconnectListener(self.contactID)
             self.assertException(lambda: contact.disconnectListener(self.contactID))
             self.numContactCallbacks += 1
-        
+       
         self.loadEmptyScene()
         root = Player.getRootNode()
         root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
-        root.connectEventHandler(avg.CURSORMOTION, avg.TOUCH, self, onMotion)
-        Player.setFakeFPS(25)
-        self.numContactCallbacks = 0
         self.numMotionCallbacks = 0
+        root.connectEventHandler(avg.CURSORMOTION, avg.TOUCH, self, onMotion)
+        self.numContactCallbacks = 0
+        Player.setFakeFPS(25)
         self.start(None,
             (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
