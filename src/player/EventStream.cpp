@@ -60,27 +60,29 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
 {
     AVG_ASSERT(m_pBlob);
     AVG_ASSERT(pNewBlob);
-    DPoint c = pNewBlob->getCenter();
-    bool bPosChanged;
-    if (bKeepEvent) {
-        bPosChanged = true;
-    } else {
-        bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
+    if (!m_bGone) {
+        DPoint c = pNewBlob->getCenter();
+        bool bPosChanged;
+        if (bKeepEvent) {
+            bPosChanged = true;
+        } else {
+            bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
+        }
+        if (bPosChanged) {
+            TouchEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
+            pushEvent(pEvent, false);
+        }
+        m_pBlob = pNewBlob;
+        m_Stale = false;
+        m_LastTime = time;
     }
-    if (bPosChanged) {
-        TouchEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
-        pushEvent(pEvent, false);
-    }
-    m_pBlob = pNewBlob;
-    m_Stale = false;
-    m_LastTime = time;
 };
     
 void EventStream::blobGone()
 {
     if (!m_bGone) {
         TouchEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
-        pushEvent(pEvent, true);
+        pushEvent(pEvent, false);
         m_bGone = true;
     }
 }

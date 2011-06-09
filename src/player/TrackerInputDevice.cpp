@@ -118,6 +118,7 @@ TrackerInputDevice::TrackerInputDevice()
 
 TrackerInputDevice::~TrackerInputDevice()
 {
+    cerr << "delete tracker" << endl;
     m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::stop, _1));
     if (m_pTrackerThread) {
         m_pTrackerThread->join();

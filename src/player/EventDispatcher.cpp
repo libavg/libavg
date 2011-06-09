@@ -40,7 +40,6 @@ EventDispatcher::EventDispatcher(Player* pPlayer)
 
 EventDispatcher::~EventDispatcher() 
 {
-    m_ContactMap.clear();
 }
 
 void EventDispatcher::dispatch() 
