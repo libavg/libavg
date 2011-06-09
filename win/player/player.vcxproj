@@ -123,6 +123,7 @@
     <ClCompile Include="..\..\src\player\TextEngine.cpp" />
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
     <ClCompile Include="..\..\src\player\TouchEvent.cpp" />
+    <ClCompile Include="..\..\src\player\TouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TrackerCalibrator.cpp" />
     <ClCompile Include="..\..\src\player\TrackerInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\..\src\player\TextEngine.h" />
     <ClInclude Include="..\..\src\player\Timeout.h" />
     <ClInclude Include="..\..\src\player\TouchEvent.h" />
+    <ClInclude Include="..\..\src\player\TouchStatus.h" />
     <ClInclude Include="..\..\src\player\TrackerCalibrator.h" />
     <ClInclude Include="..\..\src\player\TrackerInputDevice.h" />
     <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />
