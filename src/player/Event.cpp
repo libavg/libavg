@@ -79,7 +79,7 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-const IInputDevicePtr& Event::getInputDevice() const
+IInputDevicePtr Event::getInputDevice() const
 {
     return m_pInputDevice.lock();
 }

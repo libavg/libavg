@@ -82,13 +82,11 @@ void export_event()
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
 
-    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source, optional<int> >())
+    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source, 
+            optional<int> >())
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
-        .add_property("inputdevice",
-                      make_function(&Event::getInputDevice,
-                                    return_value_policy<copy_const_reference>()),
-                      &Event::setInputDevice)
+        .add_property("inputdevice", &Event::getInputDevice, &Event::setInputDevice)
         .add_property("inputdevicename",
                       make_function(&Event::getInputDeviceName,
                                     return_value_policy<copy_const_reference>()))

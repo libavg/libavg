@@ -61,7 +61,7 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        const IInputDevicePtr& getInputDevice() const;
+        IInputDevicePtr getInputDevice() const;
         void setInputDevice(IInputDevicePtr pInputDevice);
         bool hasInputDevice() const;
         const std::string& getInputDeviceName() const;
