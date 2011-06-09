@@ -48,7 +48,6 @@ TouchStatus::~TouchStatus()
 
 void TouchStatus::pushEvent(TouchEventPtr pEvent, bool bCheckMotion)
 {
-    cerr << "PushEvent: " << m_CursorID << ", " << pEvent->typeStr() << endl;
     AVG_ASSERT(pEvent);
     pEvent->setCursorID(m_CursorID);
 

@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TrackerEventStream_H_
-#define _TrackerEventStream_H_
+#ifndef _TrackerTouchStatus_H_
+#define _TrackerTouchStatus_H_
 
 #include "../api.h"
 #include "Event.h"
@@ -35,12 +35,12 @@
 
 namespace avg {
 
-class AVG_API EventStream: public TouchStatus
+class AVG_API TrackerTouchStatus: public TouchStatus
 {
     public:
-        EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
+        TrackerTouchStatus(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
                 const DRect& displayROI, Event::Source source);
-        virtual ~EventStream();
+        virtual ~TrackerTouchStatus();
         void blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent);
         void blobGone();
         void setStale();
