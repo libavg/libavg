@@ -81,12 +81,12 @@ Event::Source Event::getSource() const
 
 const IInputDevicePtr& Event::getInputDevice() const
 {
-    return m_pInputDevice;
+    return m_pInputDevice.lock();
 }
 
 bool Event::hasInputDevice() const
 {
-    return m_pInputDevice != NULL;
+    return !m_pInputDevice.expired();
 }
 
 void Event::setInputDevice(IInputDevicePtr pInputDevice)
@@ -96,7 +96,7 @@ void Event::setInputDevice(IInputDevicePtr pInputDevice)
 
 const std::string& Event::getInputDeviceName() const
 {
-    return m_pInputDevice->getName();
+    return m_pInputDevice.lock()->getName();
 }
 
 string Event::typeStr() const
