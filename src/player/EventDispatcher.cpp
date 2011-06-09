@@ -62,6 +62,7 @@ void EventDispatcher::dispatch()
     vector<EventPtr>::iterator it;
     for (it = events.begin(); it != events.end(); ++it) {
         EventPtr pEvent = *it;
+//        cerr << "  " << pEvent->typeStr() << ", " << pEvent->getSource() << endl;
         testAddContact(pEvent);
         handleEvent(*it);
         testRemoveContact(pEvent);

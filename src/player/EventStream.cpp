@@ -38,6 +38,7 @@ EventStream::EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDis
         const DRect& displayROI, Event::Source source)
     : TouchStatus(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
               pDeDistort, displayROI)),
+      m_Source(source),
       m_pDeDistort(pDeDistort),
       m_DisplayROI(displayROI),
       m_Stale(false),
@@ -46,6 +47,7 @@ EventStream::EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDis
       m_pBlob(pFirstBlob),
       m_LastTime(time)
 {
+    AVG_ASSERT(m_Source == Event::TOUCH || m_Source == Event::TRACK);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
