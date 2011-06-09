@@ -341,7 +341,6 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
         if (matchedNewBlobs.find(*it) == matchedNewBlobs.end()) {
             EventStreamPtr pStream = EventStreamPtr(
                     new EventStream(*it, time, m_pDeDistort, m_DisplayROI, source));
-            pStream->setThis(pStream);
             (*pEvents)[(*it)] = pStream;
         }
     }

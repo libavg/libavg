@@ -41,6 +41,7 @@ typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
 class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
+typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
 class AVG_API CursorEvent: public Event 
 {
@@ -68,7 +69,7 @@ class AVG_API CursorEvent: public Event
     private:
         IntPoint m_Position;
         int m_ID;
-        ContactPtr m_pContact;
+        ContactWeakPtr m_pContact;
         VisibleNodePtr m_pNode;
         DPoint m_Speed;
 };

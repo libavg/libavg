@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "Event.h"
-#include "Contact.h"
+#include "TouchStatus.h"
 
 #include "../base/Point.h"
 
@@ -35,7 +35,7 @@
 
 namespace avg {
 
-class AVG_API EventStream: public Contact
+class AVG_API EventStream: public TouchStatus
 {
     public:
         EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
@@ -47,10 +47,10 @@ class AVG_API EventStream: public Contact
         bool isStale();
 
     private:
-        CursorEventPtr createEvent(Event::Source source, Event::Type type, int id, 
+        TouchEventPtr createEvent(Event::Source source, Event::Type type, int id, 
                 BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, 
                 const DRect& displayROI);
-        CursorEventPtr createEvent(Event::Type type, BlobPtr pBlob, long long time);
+        TouchEventPtr createEvent(Event::Type type, BlobPtr pBlob, long long time);
 
         Event::Source m_Source;
         DeDistortPtr m_pDeDistort;

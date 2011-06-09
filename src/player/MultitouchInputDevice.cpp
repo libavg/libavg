@@ -55,16 +55,15 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     boost::mutex::scoped_lock lock(*m_pMutex);
 
     vector<EventPtr> events;
-    map<int, TouchStatusPtr>::iterator it;
+    vector<TouchStatusPtr>::iterator it;
 //    cerr << "--------poll---------" << endl;
     for (it = m_Touches.begin(); it != m_Touches.end(); ) {
 //        cerr << it->first << " ";
-        TouchStatusPtr pTouchStatus = it->second;
-        CursorEventPtr pEvent = pTouchStatus->pollEvent();
+        CursorEventPtr pEvent = (*it)->pollEvent();
         if (pEvent) {
             events.push_back(pEvent);
             if (pEvent->getType() == Event::CURSORUP) {
-                m_Touches.erase(it++);
+                it = m_Touches.erase(it);
             } else {
                 ++it;
             }
@@ -83,13 +82,13 @@ const DPoint& MultitouchInputDevice::getWindowSize() const
 
 int MultitouchInputDevice::getNumTouches() const
 {
-    return m_Touches.size();
+    return m_TouchIDMap.size();
 }
 
 TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
 {
-    map<int, TouchStatusPtr>::iterator it = m_Touches.find(id);
-    if (it == m_Touches.end()) {
+    map<int, TouchStatusPtr>::iterator it = m_TouchIDMap.find(id);
+    if (it == m_TouchIDMap.end()) {
         return TouchStatusPtr();
     } else {
         return it->second;
@@ -99,19 +98,20 @@ TouchStatusPtr MultitouchInputDevice::getTouchStatus(int id)
 void MultitouchInputDevice::addTouchStatus(int id, TouchEventPtr pInitialEvent)
 {
     TouchStatusPtr pTouchStatus(new TouchStatus(pInitialEvent));
-    m_Touches[id] = pTouchStatus;
+    m_TouchIDMap[id] = pTouchStatus;
+    m_Touches.push_back(pTouchStatus);
 }
 
 void MultitouchInputDevice::removeTouchStatus(int id)
 {
-    unsigned numRemoved = m_Touches.erase(id);
+    unsigned numRemoved = m_TouchIDMap.erase(id);
     AVG_ASSERT(numRemoved == 1);
 }
 
 void MultitouchInputDevice::getDeadIDs(const set<int>& liveIDs, set<int>& deadIDs)
 {
     map<int, TouchStatusPtr>::iterator it;
-    for (it = m_Touches.begin(); it != m_Touches.end(); ++it) {
+    for (it = m_TouchIDMap.begin(); it != m_TouchIDMap.end(); ++it) {
         int id = it->first;
         set<int>::const_iterator foundIt = liveIDs.find(id);
         if (foundIt == liveIDs.end()) {

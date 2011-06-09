@@ -33,6 +33,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace avg {
 
@@ -40,16 +41,12 @@ class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
-typedef boost::weak_ptr<class Contact> ContactWeakPtr;
+//typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
-class AVG_API Contact {
+class AVG_API Contact: public boost::enable_shared_from_this<Contact> {
 public:
-    Contact(CursorEventPtr pEvent, bool bProcessEvents = true);
+    Contact(CursorEventPtr pEvent);
     virtual ~Contact();
-    void disconnectEverything();
-
-    void setThis(ContactWeakPtr This);
-    ContactPtr getThis() const;
 
     int connectListener(PyObject* pMotionCallback, PyObject* pUpCallback);
     void disconnectListener(int id);
@@ -60,10 +57,7 @@ public:
     DPoint getMotionVec() const;
     double getDistanceTravelled() const;
 
-    void pushEvent(CursorEventPtr pEvent, bool bCheckMotion=true);
     void addEvent(CursorEventPtr pEvent);
-    CursorEventPtr pollEvent();
-    CursorEventPtr getLastEvent();
     bool hasListeners() const;
     void sendEventToListeners(CursorEventPtr pCursorEvent);
 
@@ -73,14 +67,9 @@ private:
     void calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent);
     void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);
 
-    bool m_bProcessEvents;  // False for mouse contacts, where event polling is handled 
-                            // externally
     CursorEventPtr m_pFirstEvent;
     CursorEventPtr m_pLastEvent;
-    std::vector<CursorEventPtr> m_pNewEvents;
 
-    bool m_bFirstFrame;
-    ContactWeakPtr m_This;
     bool m_bSendingEvents;
 
     struct Listener

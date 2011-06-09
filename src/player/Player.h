@@ -135,8 +135,6 @@ class AVG_API Player
         EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
-        void registerContact(ContactPtr pContact);
-        void deregisterContact(ContactPtr pContact);
 
         BitmapPtr screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
@@ -267,9 +265,8 @@ class AVG_API Player
 
         MouseEventPtr m_pLastMouseEvent;
 
-        // The indexes of these maps are cursorids.
+        // The indexes of this map are cursorids.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
-        std::map<int, ContactPtr> m_pContacts;
 
         PyObject * m_EventHookPyFunc;
 };

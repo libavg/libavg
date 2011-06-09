@@ -24,15 +24,16 @@
 
 #include "../api.h"
 #include "IInputDevice.h"
-#include "MouseEvent.h"
 
 #include <vector>
-#include <queue>
-#include <string>
+#include <map>
 
 namespace avg {
 
 class Event;
+typedef boost::shared_ptr<class Event> EventPtr;
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
 class Player;
 
 class AVG_API EventDispatcher {
@@ -44,12 +45,17 @@ class AVG_API EventDispatcher {
         void addInputDevice(IInputDevicePtr pInputDevice);
 
         void sendEvent(EventPtr pEvent);
+        ContactPtr getContact(int id);
 
     private:
         void handleEvent(EventPtr pEvent);
+        void testAddContact(EventPtr pEvent);
+        void testRemoveContact(EventPtr pEvent);
 
         std::vector<IInputDevicePtr> m_InputDevices;
         Player* m_pPlayer;
+        std::map<int, ContactPtr> m_ContactMap;
+        int m_NumMouseButtonsDown;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 

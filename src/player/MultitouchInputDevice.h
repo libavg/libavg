@@ -63,7 +63,8 @@ protected:
     boost::mutex& getMutex();
 
 private:
-    std::map<int, TouchStatusPtr> m_Touches;
+    std::map<int, TouchStatusPtr> m_TouchIDMap;
+    std::vector<TouchStatusPtr> m_Touches;
     DPoint m_WindowSize;
     MutexPtr m_pMutex;
 };

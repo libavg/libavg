@@ -36,7 +36,7 @@ int EventStream::s_LastID = 0;
 
 EventStream::EventStream(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
         const DRect& displayROI, Event::Source source)
-    : Contact(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
+    : TouchStatus(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
               pDeDistort, displayROI)),
       m_pDeDistort(pDeDistort),
       m_DisplayROI(displayROI),
@@ -66,7 +66,7 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
         bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
     }
     if (bPosChanged) {
-        CursorEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
+        TouchEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
         pushEvent(pEvent, false);
     }
     m_pBlob = pNewBlob;
@@ -77,7 +77,7 @@ void EventStream::blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent)
 void EventStream::blobGone()
 {
     if (!m_bGone) {
-        CursorEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
+        TouchEventPtr pEvent = createEvent(Event::CURSORUP, m_pBlob, m_LastTime+1);
         pushEvent(pEvent, true);
         m_bGone = true;
     }
@@ -93,7 +93,7 @@ bool EventStream::isStale()
     return m_Stale;
 }
 
-CursorEventPtr EventStream::createEvent(Event::Source source, Event::Type type, int id, 
+TouchEventPtr EventStream::createEvent(Event::Source source, Event::Type type, int id, 
         BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, const DRect& displayROI)
 {
     DPoint blobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
@@ -101,10 +101,10 @@ CursorEventPtr EventStream::createEvent(Event::Source source, Event::Type type, 
     DPoint screenpos = pDeDistort->transformBlobToScreen(pt);
     IntPoint pos(int(screenpos.x+0.5), int(screenpos.y+0.5)); 
 
-    return CursorEventPtr(new TouchEvent(id, type, pBlob, pos, source));
+    return TouchEventPtr(new TouchEvent(id, type, pBlob, pos, source));
 }
 
-CursorEventPtr EventStream::createEvent(Event::Type type, BlobPtr pBlob, long long time)
+TouchEventPtr EventStream::createEvent(Event::Type type, BlobPtr pBlob, long long time)
 {
     return createEvent(m_Source, type, m_ID, pBlob, time, m_pDeDistort, m_DisplayROI);
 }
