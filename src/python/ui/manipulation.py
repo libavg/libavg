@@ -48,14 +48,15 @@ class ManipulationProcessor(object):
     def _onDown(self, event):
         if not(self.__isActive):
             self.__isActive = True
-            event.contact.connectListener(self.__onMotion, self.__onUp)
+            self.__listenerid = event.contact.connectListener(self._onMotion, self._onUp)
             return self._handleDown(event)
 
-    def __onMotion(self, event):
+    def _onMotion(self, event):
         self._handleMove(event)
 
-    def __onUp(self, event):
+    def _onUp(self, event):
         self.__isActive = False
+        event.contact.disconnectListener(self.__listenerid)
         self._handleUp(event)
 
     def __setEventHandler(self):
