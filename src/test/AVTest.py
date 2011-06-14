@@ -370,12 +370,12 @@ class AVTestCase(AVGTestCase):
             raise TestException
         
         Player.setFakeFPS(0.1)
-        videoNode = libavg.VideoNode(threaded = False)
+        videoNode = avg.VideoNode(threaded = False)
         videoNode.href = "./testmediadir/mjpeg-48x48.avi"
         videoNode.setEOFCallback(throwException)
         
         self.loadEmptyScene()
-        libavg.Player.get().getRootNode().appendChild(videoNode)
+        avg.Player.get().getRootNode().appendChild(videoNode)
         
         self.__exceptionThrown = False
         try:
@@ -507,7 +507,7 @@ class AVTestCase(AVGTestCase):
             self.videoWriter = None
 
         def checkVideo(numFrames):
-            savedVideoNode = libavg.VideoNode(href="test.mov", threaded=False)
+            savedVideoNode = avg.VideoNode(href="test.mov", threaded=False)
             savedVideoNode.pause()
             self.assert_(savedVideoNode.getVideoCodec() == "mjpeg")
             self.assert_(savedVideoNode.getNumFrames() == numFrames)

@@ -26,7 +26,7 @@ import sys
 import os
 import math
 
-import libavg
+from libavg import avg
 
 
 class AVGTestCase(unittest.TestCase):
@@ -36,9 +36,9 @@ class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName):
         unittest.TestCase.__init__(self, testFuncName)
 
-        self.__player = libavg.Player.get()
+        self.__player = avg.Player.get()
         self.__testFuncName = testFuncName
-        self.__logger = libavg.Logger.get()
+        self.__logger = avg.Logger.get()
 
     def __setupPlayer(self):
         self.__player.setMultiSampleSamples(1)
@@ -95,7 +95,7 @@ class AVGTestCase(unittest.TestCase):
 
     def compareBitmapToFile(self, bmp, fileName, warn):
         try:
-            baselineBmp = libavg.Bitmap(AVGTestCase.getBaselineImageDir()+"/"+fileName+".png")
+            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir()+"/"+fileName+".png")
             diffBmp = bmp.subtract(baselineBmp)
             average = diffBmp.getAvg()
             stdDev = diffBmp.getStdDev()
@@ -139,8 +139,8 @@ class AVGTestCase(unittest.TestCase):
 
     def fakeClick(self, x, y):
         helper = self.__player.getTestHelper()
-        helper.fakeMouseEvent(libavg.CURSORDOWN, True, False, False, x, y, 1)
-        helper.fakeMouseEvent(libavg.CURSORUP, False, False, False, x, y, 1)
+        helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)
+        helper.fakeMouseEvent(avg.CURSORUP, False, False, False, x, y, 1)
 
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
@@ -174,3 +174,68 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
         suite.addTest(AVGTestCaseClass(testName))
     
     return suite
+
+
+class NodeHandlerTester:
+    def __init__(self, testCase, node):
+        self.__testCase=testCase
+        self.reset()
+        self.__node = node
+        self.setHandlers()
+
+    def assertState(self, down, up, over, out, move):
+        self.__testCase.assert_(down == self.__downCalled)
+        self.__testCase.assert_(up == self.__upCalled)
+        self.__testCase.assert_(over == self.__overCalled)
+        self.__testCase.assert_(out == self.__outCalled)
+        self.__testCase.assert_(move == self.__moveCalled)
+        self.__testCase.assert_(not(self.__touchDownCalled))
+        self.reset()
+
+    def reset(self):
+        self.__upCalled=False
+        self.__downCalled=False
+        self.__overCalled=False
+        self.__outCalled=False
+        self.__moveCalled=False
+        self.__touchDownCalled=False
+
+    def setHandlers(self):
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown) 
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp) 
+        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver) 
+        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut) 
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMove) 
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown) 
+
+    def clearHandlers(self):
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None) 
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, None) 
+
+    def __onDown(self, Event):
+        self.__testCase.assert_(Event.type == avg.CURSORDOWN)
+        self.__downCalled = True
+    
+    def __onUp(self, Event):
+        self.__testCase.assert_(Event.type == avg.CURSORUP)
+        self.__upCalled = True
+
+    def __onOver(self, Event):
+        self.__testCase.assert_(Event.type == avg.CURSOROVER)
+        self.__overCalled = True
+    
+    def __onOut(self, Event):
+        self.__testCase.assert_(Event.type == avg.CURSOROUT)
+        self.__outCalled = True
+    
+    def __onMove(self, Event):
+        self.__testCase.assert_(Event.type == avg.CURSORMOTION)
+        self.__moveCalled = True
+    
+    def __onTouchDown(self, Event):
+        self.__touchDownCalled = True
+

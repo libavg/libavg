@@ -50,104 +50,6 @@ def mainMouseDown(Event):
     assert (Event.type == avg.CURSORDOWN)
     mainMouseDownCalled = True
 
-class NodeHandlerTester:
-    def __init__(self, testCase, node):
-        self.__testCase=testCase
-        self.reset()
-        self.__node = node
-        self.setHandlers()
-
-    def assertState(self, down, up, over, out, move):
-        self.__testCase.assert_(down == self.__downCalled)
-        self.__testCase.assert_(up == self.__upCalled)
-        self.__testCase.assert_(over == self.__overCalled)
-        self.__testCase.assert_(out == self.__outCalled)
-        self.__testCase.assert_(move == self.__moveCalled)
-        self.__testCase.assert_(not(self.__touchDownCalled))
-        self.reset()
-
-    def reset(self):
-        self.__upCalled=False
-        self.__downCalled=False
-        self.__overCalled=False
-        self.__outCalled=False
-        self.__moveCalled=False
-        self.__touchDownCalled=False
-
-    def setHandlers(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown) 
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp) 
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver) 
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut) 
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMove) 
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown) 
-
-    def clearHandlers(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, None) 
-
-    def __onDown(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORDOWN)
-        self.__downCalled = True
-    
-    def __onUp(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORUP)
-        self.__upCalled = True
-
-    def __onOver(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSOROVER)
-        self.__overCalled = True
-    
-    def __onOut(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSOROUT)
-        self.__outCalled = True
-    
-    def __onMove(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORMOTION)
-        self.__moveCalled = True
-    
-    def __onTouchDown(self, Event):
-        self.__touchDownCalled = True
-
-
-class CustomInputDevice(avg.InputDevice):
-    def __init__(self, eventReceiverNode=None):
-        if eventReceiverNode:
-            super(CustomInputDevice, self).__init__(self.__class__.__name__, 
-                    eventReceiverNode)
-        else:
-            super(CustomInputDevice, self).__init__(self.__class__.__name__)
-            
-        self.__events = []
-    
-    def pollEvents(self):
-        events = self.__events[:]
-        self.__events = []
-        return events
-
-    def feedEvent(self, event):
-        self.__events.append(event)
-      
-
-class AnonymousInputDevice(avg.InputDevice):
-    def __init__(self, eventReceiverNode=None):
-        if eventReceiverNode:
-            super(AnonymousInputDevice, self).__init__(self.__class__.__name__, 
-                    eventReceiverNode)
-        else:
-            super(AnonymousInputDevice, self).__init__(self.__class__.__name__)
-            
-        self.__isInitialized = False
-
-    def pollEvents(self):
-        if self.__isInitialized: return []
-        self.__isInitialized = True
-        return [ avg.Event(avg.CUSTOMEVENT, avg.CUSTOM) ]
-
 
 class EventTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -627,130 +529,6 @@ class EventTestCase(AVGTestCase):
                                 False, False, False, 10, 10, 0),
                 )))
     
-    def testCustomInputDevice(self):
-        self.loadEmptyScene()
-
-        class DerivedEvent(avg.Event):
-            def __init__(self):
-                super(DerivedEvent, self).__init__(avg.CUSTOMEVENT, avg.NONE)
-                self.property = True
-                
-        self.hasEventHandlerBeenCalled = False
-        self.isCustomInputDeviceSet = False
-        self.isCustomInputDeviceNameSet = False
-        self.hasCustomEventProperty = False
-        
-        def eventHandler(event):
-            self.hasEventHandlerBeenCalled = True
-            self.isCustomInputDeviceSet = event.inputdevice == self.customInputDevice
-            self.isCustomInputDeviceNameSet = (event.inputdevicename == 
-                    self.customInputDevice.name)
-        
-        def customEventEventHandler(event):
-            self.hasCustomEventProperty = event.property
-        
-        def checkAndResetResults():
-            if not self.hasEventHandlerBeenCalled: return False
-            if not self.isCustomInputDeviceSet: return False
-            if not self.isCustomInputDeviceNameSet: return False
-            
-            self.hasEventHandlerBeenCalled = False
-            self.isCustomInputDeviceSet = False
-            self.isCustomInputDeviceNameSet = False
-            return True
-        
-        rectNode = avg.RectNode(parent=Player.getRootNode(), pos=(0, 0), size=(50, 50))
-        rectNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, eventHandler)
-        
-        Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.NONE, eventHandler)
-        Player.getRootNode().setEventHandler(avg.CUSTOMEVENT, avg.NONE, customEventEventHandler)
-        
-        self.customInputDevice = CustomInputDevice()
-        Player.addInputDevice(self.customInputDevice)
-    
-        self.start(None, 
-                (lambda: self.customInputDevice.feedEvent(
-                         avg.Event(avg.CURSORDOWN, avg.NONE)),
-                 lambda: self.assert_(checkAndResetResults()),
-   
-                 lambda: self.customInputDevice.feedEvent(
-                         DerivedEvent()),
-                 lambda: self.assert_(self.hasCustomEventProperty),
-                 
-                 lambda: self.customInputDevice.feedEvent(
-                         avg.MouseEvent(avg.CURSORDOWN, False, False, False, (5, 5), 0)),
-                 lambda: self.assert_(checkAndResetResults()),
-                 
-                 lambda: self.customInputDevice.feedEvent(
-                         avg.TouchEvent(300, avg.CURSORDOWN, (5, 5), avg.TOUCH, (10,10))),
-                 lambda: self.assert_(checkAndResetResults())
-        ))
-    
-    def testAnonymousInputDevice(self):
-        self.loadEmptyScene()
-        
-        self.hasEventHandlerBeenCalled = False
-                
-        def eventHandler(event):
-            self.hasEventHandlerBeenCalled = (event.inputdevicename ==
-                    AnonymousInputDevice.__name__)
-            
-        def checkAndResetResults():
-            if not self.hasEventHandlerBeenCalled: 
-                return False
-            
-            self.hasEventHandlerBeenCalled = False
-            return True
-        
-        Player.getRootNode().setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
-        Player.addInputDevice(AnonymousInputDevice())
-    
-        self.start(None, 
-                (lambda: None,
-                 lambda: None,
-                 lambda: self.assert_(checkAndResetResults())
-        ))
-
-    def testInputDeviceEventReceiverNode(self):
-        self.loadEmptyScene()
-
-        divNode = avg.DivNode(id="div", size=(50, 50), parent=Player.getRootNode())
-        rectNode = avg.RectNode(id="rect", size=(50, 50), parent=Player.getRootNode())
-        
-        self.customInputDevice = CustomInputDevice(divNode)
-        Player.addInputDevice(self.customInputDevice)
-    
-        handlerTester = NodeHandlerTester(self, divNode)
-
-        self.start(None, 
-                (lambda: self.customInputDevice.feedEvent(
-                        avg.MouseEvent(avg.CURSORDOWN, True, False, False, (10, 10), 1)),
-                 lambda: handlerTester.assertState(
-                        down=True, up=False, over=True, out=False, move=False),
-                 
-                 lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORMOTION, True, False, False, (12, 12), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=False, over=False, out=False, move=True),
-                 
-                 lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORMOTION, True, False, False, (100, 100), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=False, over=False, out=True, move=False),
-                 
-                 lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORMOTION, True, False, False, (12, 12), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=False, over=True, out=False, move=True),
-                        
-                 lambda: self.customInputDevice.feedEvent(avg.MouseEvent(
-                         avg.CURSORUP, False, False, False, (12, 12), 1)),
-                 lambda: handlerTester.assertState(
-                        down=False, up=True, over=False, out=False, move=False)
-                 
-                ))
-
-    
     def testEventHook(self):
         def resetState():
             self.ehookMouseEvent = False
@@ -793,7 +571,7 @@ class EventTestCase(AVGTestCase):
         def throwException(event):
             raise TestException
         
-        rect = libavg.RectNode(size = (50, 50))
+        rect = avg.RectNode(size = (50, 50))
         rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, throwException)
         
         self.loadEmptyScene()
@@ -960,10 +738,7 @@ def eventTestSuite(tests):
             "testEventCapture",
             "testMouseOver",
             "testEventErr",
-            "testCustomInputDevice",
             "testEventHook",
-            "testAnonymousInputDevice",
-            "testInputDeviceEventReceiverNode",
             "testException",
             "testContacts",
             "testContactRegistration",
