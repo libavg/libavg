@@ -82,29 +82,6 @@ void export_event()
     from_python_sequence<ContourSeq, variable_capacity_policy>();
     from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
 
-
-    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source, 
-            optional<int> >())
-        .add_property("type", &Event::getType)
-        .add_property("when", &Event::getWhen)
-        .add_property("inputdevice", &Event::getInputDevice)
-        .add_property("inputdevicename",
-                      make_function(&Event::getInputDeviceName,
-                                    return_value_policy<copy_const_reference>()))
-    ;
-
-    class_<CursorEvent, bases<Event> >("CursorEvent", no_init)
-        .add_property("source", &CursorEvent::getSource)
-        .add_property("pos", &CursorEvent::getPos)
-        .add_property("x", &CursorEvent::getXPosition)
-        .add_property("y", &CursorEvent::getYPosition)
-        .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
-        .add_property("node", &CursorEvent::getNode)
-        .add_property("speed", make_function(&CursorEvent::getSpeed,
-                return_value_policy<copy_const_reference>()))
-        .add_property("contact", &CursorEvent::getContact)
-    ;
-
     enum_<Event::Type>("Type")
         .value("KEYUP", Event::KEYUP)
         .value("KEYDOWN", Event::KEYDOWN)
@@ -147,6 +124,29 @@ void export_event()
         .value("KEYMOD_ALT", key::KEYMOD_ALT)
         .value("KEYMOD_META", key::KEYMOD_META)
         .export_values()
+    ;
+
+    class_<Event, boost::noncopyable>("Event", init<Event::Type, Event::Source,
+            optional<int> >())
+        .add_property("type", &Event::getType)
+        .add_property("source", &Event::getSource)
+        .add_property("when", &Event::getWhen)
+        .add_property("inputdevice", &Event::getInputDevice)
+        .add_property("inputdevicename",
+                      make_function(&Event::getInputDeviceName,
+                                    return_value_policy<copy_const_reference>()))
+    ;
+
+    class_<CursorEvent, bases<Event> >("CursorEvent", no_init)
+        .add_property("source", &CursorEvent::getSource)
+        .add_property("pos", &CursorEvent::getPos)
+        .add_property("x", &CursorEvent::getXPosition)
+        .add_property("y", &CursorEvent::getYPosition)
+        .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
+        .add_property("node", &CursorEvent::getNode)
+        .add_property("speed", make_function(&CursorEvent::getSpeed,
+                return_value_policy<copy_const_reference>()))
+        .add_property("contact", &CursorEvent::getContact)
     ;
 
     class_<KeyEvent, bases<Event> >("KeyEvent", no_init)

@@ -16,46 +16,33 @@ Input Handling
         pressed without a complete release (e.g. LEFTDOWN-RIGHTDOWN-LEFTUP-RIGHTUP), the
         mouse contact exists for the complete sequence.
 
-    .. autoclass:: CursorEvent
 
-        Base class for all events which contain a position in the global coordinate
-        system.
-    
-        .. py:attribute:: contact
-
-            The :py:class:`Contact` that the event belongs to, if there is one. 
-
-        .. py:attribute:: node
-
-            The :py:class:`Node` that the event occured in. Read-only.
-
-        .. py:attribute:: pos
-
-            Position in the global coordinate system. Read-only.
-
-        .. py:attribute:: source
-
-            The type of the device that emitted the event. Supported values are
-            :py:const:`MOUSE`, :py:const:`TOUCH`, :py:const:`TRACK`, :py:const:`CUSTOM`
-            and :py:const:`NONE`.
-
-        .. py:attribute:: x
-
-            x position in the global coordinate system. Read-only.
-
-        .. py:attribute:: y
-
-            y position in the global coordinate system. Read-only.
-
-    .. autoclass:: Event
+    .. autoclass:: Event(type, source, [when])
 
         Base class for user input events.
+
+        :param type type:
+
+            The type of the event. See :py:attr:`Event.type`.
+
+        :param source source:
+
+            The source of the event. See :py:attr:`Event.source`.
+
+        :param Integer when:
+
+            The time the event occured
 
         .. py:attribute:: type
 
             One of :py:const:`KEYUP`, :py:const:`KEYDOWN`, :py:const:`CURSORMOTION`,
             :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, :py:const:`CURSOROVER`, 
             :py:const:`CURSOROUT` or :py:const:`QUIT`. Read-only.
+
+        .. py:attribute:: source
+
+            One of :py:const:`MOUSE`, :py:const:`TOUCH`, :py:const:`TRACK`,
+            :py:const:`CUSTOM` or :py:const:`NONE`. Read-only
 
         .. py:attribute:: when
 
@@ -72,56 +59,68 @@ Input Handling
             The name of the device that emitted the event.
             Read-only.
     
-    .. autoclass:: InputDevice(name)
+    .. autoclass:: CursorEvent
 
-        Base class for user defined input devices which feed events to the system. 
-        Once registered to the system by :py:meth:`Player.addInputDevice`, the emitted 
-        events can be processed like any other events.
+        Base class for all events which contain a position in the global coordinate
+        system.
+    
+        .. py:attribute:: contact
 
-        .. py:method::  start()
+            The :py:class:`Contact` that the event belongs to, if there is one. Read-only
 
-            Initializes the input device if needed. By default this is a empty method.
-        
-        .. py:method:: pollEvents() -> list
+        .. py:attribute:: node
 
-            Abstract method which returns a list of pending events. After registering 
-            the input device to the system, this method gets called on every frame.
+            The :py:class:`Node` that the event occured in. Read-only.
 
-        .. py:attribute:: name
+        .. py:attribute:: pos
 
-            The name of the device. Read-only.
+            Position in the global coordinate system. Read-only.
 
-    .. autoclass:: KeyEvent
+        .. py:attribute:: source
 
-        Generated when a key is pressed or released.
+            The type of the device that emitted the event. See :py:attr:`Event.source`. Read-only
 
-        .. py:attribute:: keycode
+        .. py:attribute:: x
 
-            The keycode of the key according to US keyboard layout. Read-only. 
+            x position in the global coordinate system. Read-only.
 
-        .. py:attribute:: keystring
+        .. py:attribute:: y
 
-            A character or word describing the key pressed. Read-only.
+            y position in the global coordinate system. Read-only.
 
-        .. py:attribute:: modifiers
 
-            Any modifier keys (:kbd:`shift`, :kbd:`ctrl`, etc.) pressed. This is a 
-            number of KeyModifier values or'ed together. Read-only. 
 
-        .. py:attribute:: scancode
-
-            The untranslated (hardware-dependent) scancode of the key pressed. 
-            Read-only.
-
-        .. py:attribute:: unicode
-
-            Unicode index of the character. Takes into account the current keyboard
-            layout and any modifiers pressed. This attribute is only filled in the
-            :py:const:`KEYDOWN` event. Read-only.
-
-    .. autoclass:: MouseEvent
+    .. autoclass:: MouseEvent(type, leftButtonState, middleButtonState, rightButtonState, pos, button, [speed, when])
 
         Generated when a mouse-related event occurs.
+
+        :param type:
+    
+            See :py:attr:`Event.type`
+
+        :param Boolean leftButtonState:
+    
+            Specifies if the left mouse button is pressed                    
+
+        :param Boolean middleButtonState:
+
+            Specifies if the middle mouse button is pressed
+
+        :param Boolean rightButtonState:
+
+            Specifies if the right mouse button is pressed
+
+        :param Point2D pos:
+            
+            The position of the event
+
+        :param Integer button:
+
+            The Button that caused the event
+
+        :param Point2D speed:
+
+            The speed of the event
 
         .. py:attribute:: button
 
@@ -146,18 +145,39 @@ Input Handling
 
         .. py:attribute:: source
 
-            Always :py:const:`MOUSE`.
+            Always :py:const:`MOUSE`. Read-only
 
         .. py:attribute:: speed
 
             Current speed of the mouse in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
 
-    .. autoclass:: TouchEvent
+    .. autoclass:: TouchEvent(id, type, pos, source, [speed])
 
         Generated when a touch or other tracking event occurs. Touch events happen 
         only when a multi-touch sensitive surface or other camera tracker is 
         active. 
+
+        :param Integer id:
+            
+            The cursorid of the event
+
+        :param type type:
+
+            See :py:attr:`Event.type`
+
+        :param Point2D pos:
+
+            The position of the event
+
+        :param source source:
+
+            See :py:attr:`Event.source`
+
+        :param Point2D speed:
+
+            The speed of the event
+
 
         .. py:attribute:: area
 
@@ -208,6 +228,7 @@ Input Handling
             used with a DI device, the internal tracker also generates :py:const:`TRACK` 
             events for hands above the surface. When used with an FTIR device, the 
             internal tracker generates :py:const:`TRACK` events for the actual touches.
+            Read-only
 
         .. py:attribute:: speed
 
@@ -226,6 +247,67 @@ Input Handling
             (fingers), the tuple contains one element: the corresponding 
             :py:const:`TRACK` event (hand). For :py:const:`TRACK` events,
             the tuple contains all :py:const:`TOUCH` events that belong to the same hand.
+
+    .. autoclass:: KeyEvent
+
+        Generated when a key is pressed or released.
+
+        .. py:attribute:: keycode
+
+            The keycode of the key according to US keyboard layout. Read-only. 
+
+        .. py:attribute:: keystring
+
+            A character or word describing the key pressed. Read-only.
+
+        .. py:attribute:: modifiers
+
+            Any modifier keys (:kbd:`shift`, :kbd:`ctrl`, etc.) pressed. This is a 
+            number of KeyModifier values or'ed together. Read-only. 
+
+        .. py:attribute:: scancode
+
+            The untranslated (hardware-dependent) scancode of the key pressed. 
+            Read-only.
+
+        .. py:attribute:: unicode
+
+            Unicode index of the character. Takes into account the current keyboard
+            layout and any modifiers pressed. This attribute is only filled in the
+            :py:const:`KEYDOWN` event. Read-only.
+
+    .. autoclass:: InputDevice(name, [eventReceiverNode])
+
+        Base class for user defined input devices which feed events to the system. 
+        Once registered to the system by :py:meth:`Player.addInputDevice`, the emitted 
+        events can be processed like any other events.
+
+        :param String name:
+
+            The name of the input device
+
+        :param DivNode eventReceiverNode:
+            
+            The node the events of this input device will be delivered to. This is useful if 
+            the events should occur on positions outside of the screen. The standard behaviour
+            would be to discard every event with coordinates exceeding the screen dimensions.
+
+        .. py:method::  start()
+
+            Initializes the input device if needed. By default this is a empty method.
+        
+        .. py:method:: pollEvents() -> list
+
+            Abstract method which returns a list of pending events. After registering 
+            the input device to the system, this method gets called on every frame.
+
+        .. py:attribute:: name
+
+            The name of the device. Read-only.
+        
+        .. py:attribute:: eventreceivernode:
+
+            The node the events of this input device will be delivered to. Read-only
 
     .. autoclass:: Tracker
 
