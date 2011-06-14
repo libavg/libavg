@@ -23,6 +23,7 @@
 #define _IInputDevice_H_
 
 #include "../api.h"
+#include "DivNode.h"
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>
@@ -33,19 +34,45 @@ namespace avg {
 
 class Event;
 typedef boost::shared_ptr<Event> EventPtr;
+typedef boost::shared_ptr<DivNode> DivNodePtr;
 
 class AVG_API IInputDevice {
     public:
-        IInputDevice(const std::string& name) : m_sName(name) {}
-        virtual ~IInputDevice() {};
+        IInputDevice(const std::string& name,
+                const DivNodePtr& pEventReceiverNode=DivNodePtr())
+            : m_sName(name),
+              m_pEventReceiverNode(pEventReceiverNode)
+        {
+        }
 
-        virtual void start() {};
+        virtual ~IInputDevice()
+        {
+        };
+
+        virtual void start()
+        {
+        };
+
         virtual std::vector<EventPtr> pollEvents() = 0;
 
-        const std::string& getName() const { return m_sName; }
+        const DivNodePtr& getEventReceiverNode() const
+        {
+            return m_pEventReceiverNode;
+        }
+
+        void setEventReceiverNode(const DivNodePtr pEventReceiverNode)
+        {
+            m_pEventReceiverNode = pEventReceiverNode;
+        }
+
+        const std::string& getName() const
+        {
+            return m_sName;
+        }
 
     private:
         std::string m_sName;
+        DivNodePtr m_pEventReceiverNode;
 };
 
 typedef boost::shared_ptr<IInputDevice> IInputDevicePtr;
@@ -53,4 +80,3 @@ typedef boost::shared_ptr<IInputDevice> IInputDevicePtr;
 }
 
 #endif
-

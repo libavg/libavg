@@ -39,8 +39,9 @@ using namespace std;
 class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice>
 {
     public:
-        IInputDeviceWrapper(const std::string& name)
-            : IInputDevice(name)
+        IInputDeviceWrapper(const std::string& name,
+                const DivNodePtr& pEventReceiverNode=DivNodePtr())
+            : IInputDevice(name, pEventReceiverNode)
         {
         }
 
@@ -86,14 +87,13 @@ void export_event()
             optional<int> >())
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
-        .add_property("inputdevice", &Event::getInputDevice, &Event::setInputDevice)
+        .add_property("inputdevice", &Event::getInputDevice)
         .add_property("inputdevicename",
                       make_function(&Event::getInputDeviceName,
                                     return_value_policy<copy_const_reference>()))
     ;
 
-    class_<CursorEvent, bases<Event> >("CursorEvent",
-            init<int, Event::Type, const IntPoint&, Event::Source>())
+    class_<CursorEvent, bases<Event> >("CursorEvent", no_init)
         .add_property("source", &CursorEvent::getSource)
         .add_property("pos", &CursorEvent::getPos)
         .add_property("x", &CursorEvent::getXPosition)
@@ -158,14 +158,17 @@ void export_event()
         .add_property("modifiers", &KeyEvent::getModifiers)
     ;    
     
-    class_<MouseEvent, bases<CursorEvent> >("MouseEvent", no_init)
+    class_<MouseEvent, bases<CursorEvent> >("MouseEvent",
+            init<Event::Type, bool, bool, bool, const IntPoint&, int,
+                 optional<const DPoint&, int> >())
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("button", &MouseEvent::getButton)
     ;
 
-    class_<TouchEvent, bases<CursorEvent> >("TouchEvent", no_init)
+    class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, Event::Type,
+            const IntPoint&, Event::Source, optional<const DPoint&> >())
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("eccentricity", &TouchEvent::getEccentricity)
@@ -207,11 +210,14 @@ void export_event()
     class_< IInputDeviceWrapper,
             boost::shared_ptr<IInputDeviceWrapper>,
             boost::noncopyable
-    >("InputDevice", init<const std::string&>())
+    >("InputDevice", init<const std::string&, optional<const DivNodePtr&> >())
         .def("start", &IInputDevice::start, &IInputDeviceWrapper::default_start)
         .def("pollEvents", pure_virtual(&IInputDevice::pollEvents))
         .add_property("name",
                       make_function(&IInputDevice::getName,
+                                    return_value_policy<copy_const_reference>()))
+        .add_property("eventreceivernode",
+                      make_function(&IInputDevice::getEventReceiverNode,
                                     return_value_policy<copy_const_reference>()))
     ;
 

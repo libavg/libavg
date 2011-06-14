@@ -80,7 +80,8 @@ TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source sourc
     setSpeed(speed);
 }
 
-TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source)
+TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
+        const DPoint& speed)
     : CursorEvent(id, eventType, pos, source),
       m_Orientation(0),
       m_Area(20),
@@ -88,6 +89,7 @@ TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source sourc
       m_MajorAxis(5, 0),
       m_MinorAxis(0, 5)
 {
+    setSpeed(speed);
 }
 
 TouchEvent::~TouchEvent()
@@ -183,7 +185,7 @@ vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
 
 void TouchEvent::trace()
 {
-    Event::trace();
+    CursorEvent::trace();
     AVG_TRACE(Logger::EVENTS2, "pos: " << getPos() 
             << ", ID: " << getCursorID()
             << ", Area: " << m_Area

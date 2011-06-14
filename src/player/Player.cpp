@@ -1369,8 +1369,8 @@ void Player::sendFakeEvents()
 {
     std::map<int, CursorStatePtr>::iterator it;
     for (it = m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
-        CursorStatePtr state = it->second;
-        handleCursorEvent(state->getLastEvent(), true);
+        CursorStatePtr pState = it->second;
+        handleCursorEvent(pState->getLastEvent(), true);
     }
 }
 
@@ -1384,12 +1384,15 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
     }
 }
 
-void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent,
-        bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     // Find all nodes under the cursor.
     vector<VisibleNodeWeakPtr> pCursorNodes;
-    pDivNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+    DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
+    if (!pEventReceiverNode) {
+        pEventReceiverNode = getRootNode();
+    }
+    pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
     if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
         VisibleNodePtr pNode = pCursorNodes.begin()->lock();
@@ -1401,7 +1404,6 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
 
     // Determine the nodes the event should be sent to.
     vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
-    bool bIsCapturing = false;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
         VisibleNodeWeakPtr pEventCaptureNode = 
                 m_EventCaptureInfoMap[cursorID]->m_pNode;
@@ -1434,9 +1436,7 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
             }
         }
         if (itCur == pCursorNodes.end()) {
-            if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
-                sendOver(pEvent, Event::CURSOROUT, pLastNode);
-            }
+            sendOver(pEvent, Event::CURSOROUT, pLastNode);
         }
     }
 
@@ -1451,9 +1451,7 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
             }
         }
         if (itLast == pLastCursorNodes.end()) {
-            if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
-                sendOver(pEvent, Event::CURSOROVER, pCurNode);
-            }
+            sendOver(pEvent, Event::CURSOROVER, pCurNode);
         }
     }
 
@@ -1479,15 +1477,10 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
 
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
-        if (bIsCapturing) {
-            VisibleNodePtr pNode = pDestNodes.begin()->lock();
+        vector<VisibleNodeWeakPtr>::iterator it;
+        for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
+            VisibleNodePtr pNode = it->lock();
             sendOver(pEvent, Event::CURSOROUT, pNode);
-        } else {
-            vector<VisibleNodeWeakPtr>::iterator it;
-            for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-                VisibleNodePtr pNode = it->lock();
-                sendOver(pEvent, Event::CURSOROUT, pNode);
-            }
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
@@ -1499,11 +1492,6 @@ void Player::handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventP
                     CursorStatePtr(new CursorState(pEvent, pCursorNodes));
         }
     }
-}
-
-void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
-{
-    handleCursorEvent(m_pMainCanvas->getRootNode(), pEvent, bOnlyCheckCursorOver);
 }
 
 void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)

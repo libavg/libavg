@@ -50,10 +50,10 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
-void handleCursorEvent(Player* pPlayer, boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent)
-{
-    pPlayer->handleCursorEvent(pDivNode, pEvent, false);
-}
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
+        fakeTouchEvent, 4, 5)
+
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -105,7 +105,8 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<TestHelper>("TestHelper", no_init)
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent)
-        .def("fakeTouchEvent", &TestHelper::fakeTouchEvent)
+        .def("fakeTouchEvent", &TestHelper::fakeTouchEvent,
+                TestHelper_fakeTouchEvent_overloads())
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent)
         .def("dumpObjects", &TestHelper::dumpObjects)
     ;
@@ -152,7 +153,6 @@ BOOST_PYTHON_MODULE(avg)
         .def("setOnFrameHandler", &Player::setOnFrameHandler)
         .def("clearInterval", &Player::clearInterval)
         .def("addInputDevice", &Player::addInputDevice)
-        .def("handleCursorEvent", handleCursorEvent)
         .def("getMouseState", &Player::getMouseState)
         .def("getKeyModifierState", &Player::getKeyModifierState)
         .def("screenshot", &Player::screenshot)

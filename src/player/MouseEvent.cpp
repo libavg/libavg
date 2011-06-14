@@ -75,7 +75,7 @@ bool MouseEvent::isAnyButtonPressed() const
 
 void MouseEvent::trace()
 {
-    Event::trace();
+    CursorEvent::trace();
     AVG_TRACE(Logger::EVENTS2, "pos: " << getPos() 
             << ", button: " << m_Button);
 }

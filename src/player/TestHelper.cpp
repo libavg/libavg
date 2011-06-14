@@ -65,12 +65,12 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
 }
 
 void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
-        Event::Source source, const DPoint& pos)
+        Event::Source source, const DPoint& pos, const DPoint& speed)
 {
     checkEventType(eventType);
     // The id is modified to avoid collisions with real touch events.
     TouchEventPtr pEvent(new TouchEvent(id+std::numeric_limits<int>::max()/2, eventType, 
-            IntPoint(pos), source));
+            IntPoint(pos), source, speed));
     map<int, TouchStatusPtr>::iterator it = m_Touches.find(pEvent->getCursorID());
     switch (pEvent->getType()) {
         case Event::CURSORDOWN: {

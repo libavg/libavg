@@ -176,9 +176,7 @@ class AVG_API Player
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
         bool handleEvent(EventPtr pEvent);
-        void handleCursorEvent(boost::shared_ptr<DivNode> pDivNode, CursorEventPtr pEvent,
-                bool bOnlyCheckCursorOver=false);
-        
+
     private:
         void initConfig();
         void initGraphics();
@@ -198,6 +196,7 @@ class AVG_API Player
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type type, VisibleNodePtr pNode);
+
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
