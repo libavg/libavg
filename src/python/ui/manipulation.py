@@ -58,6 +58,7 @@ class ManipulationProcessor(object):
         self._handleMove(event)
 
     def _onUp(self, event):
+        assert(self.__isActive)
         self.__isActive = False
         event.contact.disconnectListener(self.__listenerid)
         self._handleUp(event)

@@ -38,6 +38,7 @@ int Contact::s_LastListenerID = 0;
 
 Contact::Contact(CursorEventPtr pEvent)
     : m_bSendingEvents(false),
+      m_bCurListenerIsDead(false),
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
 {
@@ -66,12 +67,12 @@ int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 void Contact::disconnectListener(int id)
 {
     map<int, Listener>::iterator it = m_ListenerMap.find(id);
-    if (it == m_ListenerMap.end() || m_DeadListeners.count(id) != 0) {
+    if (it == m_ListenerMap.end() || (m_CurListenerID == id && m_bCurListenerIsDead)) {
         throw Exception(AVG_ERR_INVALID_ARGS, 
                 "Contact.disconnectListener: id " + toString(id) + " is not connected.");
     }
-    if (m_bSendingEvents) {
-        m_DeadListeners.insert(id);
+    if (m_bSendingEvents && m_CurListenerID == id) {
+        m_bCurListenerIsDead = true;
     } else {
         m_ListenerMap.erase(it);
     }
@@ -118,7 +119,8 @@ void Contact::addEvent(CursorEventPtr pEvent)
 
 bool Contact::hasListeners() const
 {
-    return !(m_ListenerMap.size() == m_DeadListeners.size());
+    return !(m_ListenerMap.empty() || 
+            (m_ListenerMap.size() == 1 && m_bCurListenerIsDead));
 }
 
 void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
@@ -126,10 +128,13 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
     m_bSendingEvents = true;
     AVG_ASSERT(pCursorEvent->getContact() == shared_from_this());
     EventPtr pEvent = boost::dynamic_pointer_cast<Event>(pCursorEvent);
+    m_bCurListenerIsDead = false;
     for (map<int, Listener>::iterator it = m_ListenerMap.begin(); 
-            it != m_ListenerMap.end(); ++it)
+            it != m_ListenerMap.end();)
     {
         Listener listener = it->second;
+        m_CurListenerID = it->first;
+        m_bCurListenerIsDead = false;
         switch (pCursorEvent->getType()) {
             case Event::CURSORMOTION:
                 if (listener.m_pMotionCallback != Py_None) {
@@ -145,14 +150,13 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
                 AVG_ASSERT(false);
         }
         pCursorEvent->setNode(VisibleNodePtr());
+        map<int, Listener>::iterator lastIt = it;
+        ++it;
+        if (m_bCurListenerIsDead) {
+            m_ListenerMap.erase(lastIt);
+        }
     }
     m_bSendingEvents = false;
-    for (set<int>::iterator it=m_DeadListeners.begin(); it != m_DeadListeners.end(); ++it)
-    {
-        int id = *it;
-        m_ListenerMap.erase(id);
-    }
-    m_DeadListeners.clear();
 }
 
 int Contact::getID() const

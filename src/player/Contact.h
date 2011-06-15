@@ -83,7 +83,8 @@ private:
 
     static int s_LastListenerID;
     std::map<int, Listener> m_ListenerMap;
-    std::set<int> m_DeadListeners;
+    int m_CurListenerID;
+    bool m_bCurListenerIsDead;
     int m_CursorID;
     double m_DistanceTravelled;
 };

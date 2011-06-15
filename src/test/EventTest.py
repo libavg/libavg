@@ -699,14 +699,16 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             contact = event.contact
-            self.contactid = contact.connectListener(onContact1, None)
-            contact.connectListener(onContact2, onContact2)
+            self.contactid = contact.connectListener(onContact2, onContact2)
+            contact.connectListener(onContact1, onContact1)
 
         def onContact1(event):
-            event.contact.disconnectListener(self.contactid)
+            if self.numContact1Callbacks == 0:
+                event.contact.disconnectListener(self.contactid)
             self.numContact1Callbacks += 1
 
         def onContact2(event):
+            self.assert_(self.numContact1Callbacks == 0)
             self.numContact2Callbacks += 1
         
         self.loadEmptyScene()
@@ -720,8 +722,9 @@ class EventTestCase(AVGTestCase):
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
             ))
-        self.assert_(self.numContact1Callbacks == 1)
-        self.assert_(self.numContact2Callbacks == 2)
+        self.assert_(self.numContact1Callbacks == 2)
+        # The order of callbacks is unspecified, so onContact2 might be called once.
+        self.assert_(self.numContact2Callbacks <= 1)
 
 
 def eventTestSuite(tests):
