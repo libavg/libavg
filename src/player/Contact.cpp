@@ -147,6 +147,11 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         pCursorEvent->setNode(VisibleNodePtr());
     }
     m_bSendingEvents = false;
+    for (set<int>::iterator it=m_DeadListeners.begin(); it != m_DeadListeners.end(); ++it)
+    {
+        int id = *it;
+        m_ListenerMap.erase(id);
+    }
     m_DeadListeners.clear();
 }
 
