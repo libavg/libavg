@@ -88,6 +88,7 @@ class DragProcessor(ManipulationProcessor):
             self.__stopHandler()
             g_Player.clearInterval(self.__inertiaHandlerID)
         self.__dragStartPos = event.pos
+        self.__dragStartMotionVec = event.contact.motionvec
         self.__startHandler(event)
         self.__speed = avg.Point2D(0,0)
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
@@ -95,7 +96,7 @@ class DragProcessor(ManipulationProcessor):
     def _handleMove(self, event):
         # TODO: Offset is in the global coordinate system. We should really be using
         # the coordinate system we're in at the moment the drag starts. 
-        self.__moveHandler(event, event.contact.motionvec)
+        self.__moveHandler(event, event.contact.motionvec-self.__dragStartMotionVec)
         self.__speed += 0.1*event.speed
 
     def __onFrame(self):

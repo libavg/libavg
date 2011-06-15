@@ -953,19 +953,25 @@ class PythonTestCase(AVGTestCase):
 
 
     def testDragProcessorInitialEvent(self):
-        def onDown(event):
+        def onMotion(event):
             dragProcessor = ui.DragProcessor(self.image, 
-                    startHandler=onDragStart, initialEvent=event)
+                    startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
+            self.image.disconnectEventHandler(self)
            
         def onDragStart(event):
             self.__dragStartCalled = True
 
+        def onDrag(event, offset):
+            self.assert_(offset == (10,0))
+
         self.loadEmptyScene()
         self.image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        self.image.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown)
+        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
         self.__dragStartCalled = False
         self.start(None,
                 (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
                 ))
         assert(self.__dragStartCalled)
             
