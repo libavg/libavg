@@ -112,11 +112,11 @@ V4LCamera::~V4LCamera()
     close();
 }
 
-
 void V4LCamera::close()
 {
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (-1 == xioctl (m_Fd, VIDIOC_STREAMOFF, &type)) {
+    int rc = xioctl(m_Fd, VIDIOC_STREAMOFF, &type);
+    if (rc == -1) {
         AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
     }
     vector<Buffer>::iterator it;
@@ -584,7 +584,7 @@ void V4LCamera::initDevice()
         Crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         Crop.c = CropCap.defrect; /* reset to default */
 
-        if (-1 == xioctl (m_Fd, VIDIOC_S_CROP, &Crop)) {
+        if (-1 == xioctl(m_Fd, VIDIOC_S_CROP, &Crop)) {
             switch (errno) {
                 case EINVAL:
                     /* Cropping not supported. */
@@ -619,7 +619,8 @@ void V4LCamera::initDevice()
     StreamParam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     StreamParam.parm.capture.timeperframe.numerator = 1;
     StreamParam.parm.capture.timeperframe.denominator = (int) m_FrameRate;
-    if (xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam) == -1) {
+    rc = xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam);
+    if (m_FrameRate != StreamParam.parm.capture.timeperframe.denominator || rc == -1) {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
