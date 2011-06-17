@@ -88,6 +88,8 @@ class AVG_API Player
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
         DPoint getScreenResolution();
+        DPoint getDPI();
+        DPoint getPhysicalScreenDimensions();
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);

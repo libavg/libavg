@@ -91,7 +91,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
-        IntPoint getScreenResolution() const;
+        IntPoint getScreenResolution();
+        DPoint getDPI();
+        DPoint getPhysicalScreenDimensions();
 
         void setMainFBO(FBOPtr pFBO);
         FBOPtr getMainFBO() const;
@@ -99,7 +101,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
-        void logConfig(); 
+        void logConfig();
+        void calcScreenDimensions();
         virtual void swapBuffers();
         void clip(bool forward);
 
@@ -113,6 +116,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
+        IntPoint m_ScreenResolution;
+        DPoint m_DPI;
         std::vector<DRect> m_ClipRects;
 
         SDL_Surface * m_pScreen;

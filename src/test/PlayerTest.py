@@ -608,10 +608,15 @@ class PlayerTestCase(AVGTestCase):
         Player.setWindowFrame(False)
         self.start('avg.avg',[revertWindowFrame])
 
-    def testGetScreenResolution(self):
+    def testGetScreenDimensions(self):
         res = Player.getScreenResolution()
         self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
-
+#        dpi = Player.getDPI()
+#        print dpi
+#        self.assert_(dpi.x > 0 and dpi.y > 0 and dpi.x < 10000 and dpi.y < 10000)
+#        mm = Player.getPhysicalScreenDimensions()
+#        print mm
+#        self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
 
 def playerTestSuite(tests):
     availableTests = (
@@ -638,7 +643,7 @@ def playerTestSuite(tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
-            "testGetScreenResolution",
+            "testGetScreenDimensions",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

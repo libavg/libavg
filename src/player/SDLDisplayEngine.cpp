@@ -97,7 +97,8 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
-      m_WindowSize(IntPoint(0,0)),
+      m_WindowSize(0,0),
+      m_DPI(0,0),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
@@ -134,7 +135,7 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp) 
 {
-
+    calcScreenDimensions();
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -284,7 +285,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
 
     checkShaderSupport();
-
     m_BlendMode = BLEND_ADD;
     setBlendMode(BLEND_BLEND, false);
 
@@ -367,6 +367,23 @@ void SDLDisplayEngine::logConfig()
             break;
     }
     AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
+}
+
+void SDLDisplayEngine::calcScreenDimensions()
+{
+    if (m_DPI == DPoint(0,0)) {
+        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+#ifdef linux
+        Display * pDisplay = XOpenDisplay(0);
+        DPoint displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
+        DPoint displayInches = displayMM/25.4;
+        m_DPI.x = m_ScreenResolution.x/displayInches.x;
+        m_DPI.y = m_ScreenResolution.y/displayInches.y;
+#elif defined __APPLE__
+#elif defined WIN32
+#endif
+    }
 }
 
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
@@ -820,31 +837,7 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
             IntPoint(x, y), button, speed));
-/*
-    // TODO: Move to player
-    // Contact handling
-    // The buttonstate delivered by libSDL is inconsistent and OS-dependent, so we
-    // keep our own count of the number of buttons pressed.
-    if (type == Event::CURSORDOWN) {
-        m_NumMouseButtonsDown++;
-        if (m_NumMouseButtonsDown == 1) {
-            m_pContact = ContactPtr(new Contact(pEvent, false));
-            m_pContact->setThis(m_pContact);
-        }
-    }
-    if (type == Event::CURSORUP) {
-        AVG_ASSERT(m_NumMouseButtonsDown > 0);
-        AVG_ASSERT(m_pContact);
-        m_NumMouseButtonsDown--;
-        if (m_NumMouseButtonsDown == 0) {
-            m_pContact->addEvent(pEvent);
-            m_pContact = ContactPtr();
-        }
-    }
-    if (type == Event::CURSORMOTION && m_pContact) {
-        m_pContact->addEvent(pEvent);
-    }
-*/
+
     m_pLastMouseEvent = pEvent;
     return pEvent; 
 }
@@ -1309,10 +1302,26 @@ bool SDLDisplayEngine::isFullscreen() const
     return m_bIsFullscreen;
 }
 
-IntPoint SDLDisplayEngine::getScreenResolution() const
+IntPoint SDLDisplayEngine::getScreenResolution()
 {
-    const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-    return IntPoint(pInfo->current_w, pInfo->current_h);
+    calcScreenDimensions();
+    return m_ScreenResolution;
+}
+
+DPoint SDLDisplayEngine::getDPI()
+{
+    calcScreenDimensions();
+    return m_DPI;
+}
+
+DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
+{
+    calcScreenDimensions();
+    DPoint size;
+    DPoint screenRes = DPoint(getScreenResolution());
+    size.x = screenRes.x/getDPI().x*25.4;
+    size.y = screenRes.y/getDPI().y*25.4;
+    return size;
 }
 
 void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)
