@@ -56,11 +56,6 @@ StateAnim::~StateAnim()
     setState("");
 }
 
-AnimPtr StateAnim::create(const vector<AnimState>& states)
-{
-    return AnimPtr(new StateAnim(states));
-}
-    
 void StateAnim::abort()
 {
     setState("");

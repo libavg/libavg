@@ -30,26 +30,17 @@ namespace avg {
 
 class AVG_API ContinuousAnim: public AttrAnim {
 public:
-    virtual ~ContinuousAnim();
-    
-    static AnimPtr create(const boost::python::object& node, const std::string& sAttrName,
+    ContinuousAnim(const boost::python::object& node, const std::string& sAttrName, 
             const boost::python::object& startValue, 
             const boost::python::object& speed, 
             bool bUseInt=false, 
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
+    virtual ~ContinuousAnim();
     
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     virtual bool step();
-
-protected:
-    ContinuousAnim(const boost::python::object& node, const std::string& sAttrName, 
-            const boost::python::object& startValue, 
-            const boost::python::object& speed, 
-            bool bUseInt, 
-            const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
 
 private:
     boost::python::object m_StartValue;
