@@ -104,35 +104,35 @@ This section describes the base classes for all node classes that libavg provide
                 Name of python function to call when a cursor moves.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursorup:
 
                 Name of python function to call when an up event occurs.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursordown:
 
                 Name of python function to call when a down event occurs.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursorover:
 
                 Name of python function to call when a cursor enters the node.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursorout:
 
                 Name of python function to call when a cursor leaves the node.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param DivNode parent:
 
@@ -259,18 +259,17 @@ This section describes the base classes for all node classes that libavg provide
 
             :param source:
 
-                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch touch
-                events, :py:const:`TRACK` for multitouch track events or other tracking,
-                :py:const:`NONE` for keyboard events. Sources can be or'ed together to 
-                set a handler for several sources at once.
+                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch
+                touch events, :py:const:`TRACK` for multitouch track events or other 
+                tracking, :py:const:`NONE` for keyboard events. Sources can be or'ed 
+                together to set a handler for several sources at once.
 
             :param pyfunc:
 
                 The python callable to invoke. This callable must take the event to 
-                process as a
-                parameter. If pyfunc returns :py:const:`None` or :py:const:`False`, the
-                event bubbles up the node tree. If it is :py:const:`True`, bubbling is
-                suppressed.
+                process as a parameter. If pyfunc returns :py:const:`None` or 
+                :py:const:`False`, the event bubbles up the node tree. If it is 
+                :py:const:`True`, bubbling is suppressed.
 
                 If pyfunc is :py:const:`None`, the previous handler is removed.
 

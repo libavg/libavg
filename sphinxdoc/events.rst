@@ -4,18 +4,66 @@ Input Handling
 .. automodule:: libavg.avg
     :no-members:
 
+    .. inheritance-diagram:: Event CursorEvent MouseEvent TouchEvent KeyEvent
+        :parts: 1
+
     .. autoclass:: Contact
 
         A Contact encapsulates the information of one touch on an input device from
         the down event to an up event. It exposes some aggregate information about the
-        touch - distance and direction travelled etc. - and allows event handlers that
+        touch - distance and direction travelled etc. - and supports event handlers that
         are only called for this single contact.
 
         For compatibility reasons, a mouse device also produces contacts. A mouse contact
         exists from the press of a button to its release. If multiple buttons are
         pressed without a complete release (e.g. LEFTDOWN-RIGHTDOWN-LEFTUP-RIGHTUP), the
         mouse contact exists for the complete sequence. 
-    
+
+        .. py:attribute:: id
+
+            A numerical id for this contact. This corresponds to the 
+            :py:attr:`CursorEvent.cursorid` field. Contacts for touch events have unique
+            ids, while contacts for mouse events always have the :py:attr:`id`
+            :py:const:`-1`. Read-only.
+
+        .. py:attribute:: age
+
+            Time that has passed since the down event in milliseconds. Read-only.
+
+        .. py:attribute:: distancefromstart
+
+            Distance of the current position from the initial position in pixels. 
+            Read-only.
+
+        .. py:attribute:: motionangle
+
+            Angle of the current position from the initial position in radians. Like all
+            angles in libavg, :py:attr:`motionangle` is 0 on the positive x axis and 
+            increases clockwise. Read-only.
+
+        .. py:attribute:: motionvec
+
+            The difference of the current position and the initial position as a
+            :py:class:`Point2D`. Read-only.
+
+
+        .. py:attribute:: distancetravelled
+
+            The total distance travelled since the initial down event. Read-only.
+
+        .. py:method:: connectListener(motionCallback, upCallback) -> id
+
+            Registers event handlers that get called when CURSORMOTION and CURSORUP 
+            events for this :py:class:`Contact` occur. Event handlers can be unregistered
+            using :py:meth:`disconnectListener`. They are automatically unregistered
+            after the up event. The :py:attr:`id` returned is unique for this contact.
+
+        .. py:method:: disconnectListener(id)
+
+            Unregisters an event handler. The parameter is the :py:attr:`id` returned in 
+            :py:meth:`connectListener`. It is an error to call 
+            :py:meth:`disconnectListener` with an invalid id.
+
     .. autoclass:: CursorEvent
 
         Base class for all events which contain a position in the global coordinate
@@ -23,7 +71,12 @@ Input Handling
     
         .. py:attribute:: contact
 
-            The :py:class:`Contact` that the event belongs to, if there is one. Read-only
+            The :py:class:`Contact` that the event belongs to, if there is one. 
+            Read-only.
+
+        .. py:attribute:: cursorid
+
+            An numerical identifier for the current cursor.
 
         .. py:attribute:: node
 
@@ -35,7 +88,8 @@ Input Handling
 
         .. py:attribute:: source
 
-            The type of the device that emitted the event. See :py:attr:`Event.source`. Read-only
+            The type of the device that emitted the event. See :py:attr:`Event.source`. 
+            Read-only.
 
         .. py:attribute:: x
 
@@ -96,17 +150,18 @@ Input Handling
 
         :param String name:
 
-            The name of the input device
+            The name of the input device.
 
         :param DivNode eventReceiverNode:
             
-            The node the events of this input device will be delivered to. This is useful if 
-            the events should occur on positions outside of the screen. The standard behaviour
-            would be to discard every event with coordinates exceeding the screen dimensions.
+            The node the events of this input device will be delivered to. This is useful
+            if the events should occur on positions outside of the screen. The standard 
+            behaviour would be to discard every event with coordinates exceeding the 
+            screen dimensions.
 
         .. py:attribute:: eventreceivernode:
 
-            The node the events of this input device will be delivered to. Read-only
+            The node the events of this input device will be delivered to. Read-only.
 
         .. py:attribute:: name
 
@@ -314,7 +369,7 @@ Input Handling
         The properties of this class are explained under
         https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
 
-        This is the internal libavg tracker. For trackers created using 
+        This is the internal libavg tracker. For touch input sources created using 
         :py:meth:`Player.enableMultitouch`, no Tracker object exists.
         
         .. py:method:: abortCalibration()

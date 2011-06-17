@@ -74,7 +74,7 @@ Area Nodes
             event occurs.
 
             .. deprecated:: 1.5
-                Use :func:`VisibleNode.setEventHandler()` instead.
+                Use :func:`VisibleNode.connectEventHandler()` instead.
 
         :param string onkeydown:
 
@@ -82,7 +82,7 @@ Area Nodes
             down event occurs.
 
             .. deprecated:: 1.5
-                Use :func:`VisibleNode.setEventHandler()` instead.
+                Use :func:`VisibleNode.connectEventHandler()` instead.
 
     .. autoclass:: CameraNode([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
@@ -724,7 +724,7 @@ Area Nodes
 
             Returns the width and height of the specified line in pixels.
         
-        .. py:method:: getNumLines()
+        .. py:method:: getNumLines() -> int
 
             Returns the number of lines in the layout.
 
