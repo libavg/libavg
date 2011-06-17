@@ -381,30 +381,30 @@ int dumpCameras_open(int j)
     return fd;
 }
 
-v4l2_capability dumpCameras_capabilities(int fd)
+v4l2_capability dumpCameraCapabilities(int fd)
 {
     v4l2_capability capability;
     memset(&capability, 0, sizeof(capability));
-    int rc = ioctl(fd,VIDIOC_QUERYCAP,&capability);
-    if (rc != -1){
-        cout << capability.card << ":" <<endl;
+    int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+    if (rc != -1) {
+        cout << capability.card << ":" << endl;
         cout << "    Driver:  " << capability.driver << endl;
-        cout << "  Location:  " <<capability.bus_info;
+        cout << "  Location:  " << capability.bus_info;
         cout << endl << endl;
-        }
+    }
     return capability;
 }
 
-void dumpCameras_supImageFrames(int fd)
+void dumpSupportedImgFormats(int fd)
 {
-    cout << "Suported Image Frames:" << endl;
+    cout << "Suported Image Formats:" << endl;
     for (int i = 0;; i++) {
-        v4l2_fmtdesc     fmtDesc;
-        memset(&fmtDesc,0,sizeof(fmtDesc));
+        v4l2_fmtdesc fmtDesc;
+        memset(&fmtDesc, 0, sizeof(fmtDesc));
         fmtDesc.index = i;
         fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        int rc = ioctl(fd,VIDIOC_ENUM_FMT,&fmtDesc);
-        if (rc == -1){
+        int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
+        if (rc == -1) {
             break; 
         }
         v4l2_frmsizeenum frmSizeEnum;
@@ -413,49 +413,48 @@ void dumpCameras_supImageFrames(int fd)
         frmSizeEnum.pixel_format = fmtDesc.pixelformat;
         bool bSupported = false;
         while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-            const char* pAvgPixelformat;
-            switch (fmtDesc.pixelformat){
-            case v4l2_fourcc('Y','U','Y','V'):
-                pAvgPixelformat = "YUYV422";
-                bSupported = true;
-                break; 
-            case v4l2_fourcc('U','Y','V','Y'):
-                pAvgPixelformat = "YUV422";
-                bSupported = true;
-                break; 
-            case v4l2_fourcc('G','R','E','Y'):
-                pAvgPixelformat = "I8"; 
-                bSupported = true;
-                break; 
-            case v4l2_fourcc('Y','1','6',' '):
-                pAvgPixelformat = "I16";
-                bSupported = true;
-                break; 
-            case v4l2_fourcc('R','G','B','3'):
-                pAvgPixelformat = "RGB";
-                bSupported = true;
-                break; 
-            case v4l2_fourcc('B','G','R','3'):
-                pAvgPixelformat = "BGR";
-                bSupported = true;
-                break; 
-            default:
-                break;
+            string sAvgPixelformat;
+            switch (fmtDesc.pixelformat) {
+                case v4l2_fourcc('Y','U','Y','V'):
+                    sAvgPixelformat = "YUYV422";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('U','Y','V','Y'):
+                    sAvgPixelformat = "YUV422";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('G','R','E','Y'):
+                    sAvgPixelformat = "I8"; 
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('Y','1','6',' '):
+                    sAvgPixelformat = "I16";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('R','G','B','3'):
+                    sAvgPixelformat = "RGB";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('B','G','R','3'):
+                    sAvgPixelformat = "BGR";
+                    bSupported = true;
+                    break; 
+                default:
+                    break;
             }
             
             if (bSupported) {
                 v4l2_frmivalenum frmIvalEnum;
-                cout << "   " << pAvgPixelformat << " ";
+                cout << "   " << sAvgPixelformat << " ";
                 cout << "  (" << frmSizeEnum.discrete.width << ", ";
                 cout << frmSizeEnum.discrete.height << ")";
-                cout << "   fps/";
+                cout << "   fps: ";
                 memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
                 frmIvalEnum.index = 0;      
                 frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;  
                 frmIvalEnum.width = frmSizeEnum.discrete.width;   
                 frmIvalEnum.height = frmSizeEnum.discrete.height;
-                while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0)
-                {
+                while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
                     cout << frmIvalEnum.discrete.denominator << "/";
                     frmIvalEnum.index++;                                 
                 }
@@ -466,44 +465,41 @@ void dumpCameras_supImageFrames(int fd)
     }
 }
 
-void dumpCameras_controls(int fd)
+void dumpCameraControls(int fd)
 {
-    cout << endl << "Camera controls:" << endl;
-    v4l2_queryctrl   queryCtrl;
-    for (queryCtrl.id = V4L2_CID_BASE;
-            queryCtrl.id < V4L2_CID_LASTP1;
-            queryCtrl.id++) 
-    {
+    cout << endl << "Camera Controls:" << endl;
+    v4l2_queryctrl queryCtrl;
+    for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
         int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
         if (rc != -1) {
-                if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED){
-                        continue;
-                }
-                cout << "  " << queryCtrl.name<<":"<<endl;
-                cout << "    Min: " << queryCtrl.minimum << " | ";
-                cout << "Max: " << queryCtrl.maximum << " | ";
-                cout << "Default: "<< queryCtrl.default_value << endl;
+            if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+                continue;
+            }
+            cout << "  " << queryCtrl.name << ":" << endl;
+            cout << "    Min: " << queryCtrl.minimum << " | ";
+            cout << "Max: " << queryCtrl.maximum << " | ";
+            cout << "Default: "<< queryCtrl.default_value << endl;
         } else {
-                if (errno != EINVAL){
-                perror ("VIDIOC_QUERYCTRL");
-                exit (EXIT_FAILURE);
-                }          
+            if (errno != EINVAL) {
+                perror("VIDIOC_QUERYCTRL");
+                exit(EXIT_FAILURE);
+            }          
         }
     }
 }
 
 void V4LCamera::dumpCameras()
 { 
-    for(int j = 0; j<256; j++){
+    for(int j = 0; j < 256; j++){
         int fd = dumpCameras_open(j);
         if (fd != -1) {
             cout << "------------------------Video4linux Camera-------------------------";
             cout << endl;
             cout << "/dev/video" << j << " ";
-            v4l2_capability capability = dumpCameras_capabilities(fd);
+            v4l2_capability capability = dumpCameraCapabilities(fd);
             if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) { 
-                dumpCameras_supImageFrames(fd);   
-                dumpCameras_controls(fd);
+                dumpSupportedImgFormats(fd);   
+                dumpCameraControls(fd);
             } 
             cout << "-------------------------------------------------------------------";
             cout << endl;
