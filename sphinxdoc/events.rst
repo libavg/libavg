@@ -144,9 +144,11 @@ Input Handling
 
     .. autoclass:: InputDevice(name, [eventReceiverNode])
 
-        Base class for user defined input devices which feed events to the system. 
-        Once registered to the system by :py:meth:`Player.addInputDevice`, the emitted 
-        events can be processed like any other events.
+        Base class for input devices which feed events to the system. Derived classes can
+        be either user-defined or one of the predefined libavg input devices. User-defined
+        InputDevice objects are registered with the system by calling 
+        :py:meth:`Player.addInputDevice`. After this, the emitted 
+        events are processed like any other events.
 
         :param String name:
 
@@ -154,10 +156,10 @@ Input Handling
 
         :param DivNode eventReceiverNode:
             
-            The node the events of this input device will be delivered to. This is useful
-            if the events should occur on positions outside of the screen. The standard 
-            behaviour would be to discard every event with coordinates exceeding the 
-            screen dimensions.
+            The root node that the input device will deliver events to. By default, this
+            is the libavg root node. Useful for constricting events to a part of the
+            total canvas or for sending events directly to an offscreen canvas. Event
+            bubbling starts at this node and proceeds down the tree from there.
 
         .. py:attribute:: eventreceivernode:
 
@@ -169,12 +171,12 @@ Input Handling
         
         .. py:method::  start()
 
-            Initializes the input device if needed. By default this is a empty method.
+            Initializes the input device if needed. By default this is an empty method.
         
         .. py:method:: pollEvents() -> list
 
             Abstract method which returns a list of pending events. After registering 
-            the input device to the system, this method gets called on every frame.
+            the input device, this method gets called on every frame.
 
     .. autoclass:: KeyEvent
 

@@ -241,7 +241,7 @@ Player & Canvas
 
         .. py:method:: addInputDevice(inputDevice)
 
-            Registers a :py:class:`InputDevice` to the system.
+            Registers an :py:class:`InputDevice` with the system.
 
         .. py:method:: getMouseState() -> MouseEvent
 
