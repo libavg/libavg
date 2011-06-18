@@ -146,7 +146,7 @@ class AVGAppStarter(AppStarter):
         self.__showingMemGraph = False
         self.__showingFrGraph = False
         self.__notifyNode = None
-        self.__touchVisOverlay = None
+        self.__debugTouchVisOverlay = None
 
         super(AVGAppStarter, self).__init__(*args, **kwargs)
 
@@ -218,15 +218,16 @@ class AVGAppStarter(AppStarter):
             self._mtEmu = None
 
     def __switchShowMTEvents(self):
-        if self.__touchVisOverlay is None:
+        if self.__debugTouchVisOverlay is None:
             rootNode = g_Player.getRootNode()
-            self.__touchVisOverlay = apphelpers.TouchVisualizationOverlay(
+            self.__debugTouchVisOverlay = apphelpers.TouchVisualizationOverlay(
+                    isDebug=True, visClass=apphelpers.DebugTouchVisualization,
                     size=self._appNode.size, parent=rootNode)
         else:
-            self.__touchVisOverlay.deinit()
-            self.__touchVisOverlay.unlink(True)
-            del self.__touchVisOverlay
-            self.__touchVisOverlay = None
+            self.__debugTouchVisOverlay.deinit()
+            self.__debugTouchVisOverlay.unlink(True)
+            del self.__debugTouchVisOverlay
+            self.__debugTouchVisOverlay = None
 
     def __killNotifyNode(self):
         if self.__notifyNode:
@@ -257,6 +258,23 @@ class AVGAppStarter(AppStarter):
 
 
 class AVGMTAppStarter(AVGAppStarter):
+
+    def __init__(self, *args, **kwargs):
+        self.__touchVisOverlay = None
+        super(AVGMTAppStarter, self).__init__(*args, **kwargs)
+
+    def setTouchVisualization(self, visClass):
+        if not(self.__touchVisOverlay is None):
+            self.__touchVisOverlay.deinit()
+            self.__touchVisOverlay.unlink(True)
+            del self.__touchVisOverlay
+            self.__touchVisOverlay = None
+        if not(visClass is None):
+            rootNode = g_Player.getRootNode()
+            self.__touchVisOverlay = apphelpers.TouchVisualizationOverlay(
+                    isDebug=False, visClass=visClass, size=self._appNode.size, 
+                    parent=rootNode)
+
     def toggleTrackerImage(self):
         if self.__showTrackerImage:
             self.hideTrackerImage()

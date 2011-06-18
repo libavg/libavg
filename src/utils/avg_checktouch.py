@@ -30,6 +30,7 @@ class TouchApp(AVGApp):
     def init(self):
         self._parentNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, self, 
                 self.__onDown)
+        self.getStarter().setTouchVisualization(apphelpers.TouchVisualization)
     
     def __onDown(self, event):
 #        if event.source == avg.MOUSE:
