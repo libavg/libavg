@@ -277,22 +277,17 @@ DPoint Player::getScreenResolution()
 
 DPoint Player::getDPI()
 {
-    if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
-    }
-    DPoint dpi = dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine.get())->getDPI();
-    return dpi;
+    return safeGetDisplayEngine()->getDPI();
 }
 
 DPoint Player::getPhysicalScreenDimensions()
 {
-    if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
-    }
-    DPoint size = dynamic_cast<SDLDisplayEngine*>(
-            m_pDisplayEngine.get())->getPhysicalScreenDimensions();
-    return size;
+    return safeGetDisplayEngine()->getPhysicalScreenDimensions();
+}
 
+void Player::assumePhysicalScreenDimensions(const DPoint& size)
+{
+    safeGetDisplayEngine()->assumePhysicalScreenDimensions(size);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -1247,6 +1242,15 @@ NodePtr Player::internalLoad(const string& sAVG)
         }
         throw;
     }
+}
+
+SDLDisplayEnginePtr Player::safeGetDisplayEngine()
+{
+    if (!m_pDisplayEngine) {
+        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
+    }
+    return dynamic_pointer_cast<SDLDisplayEngine>(m_pDisplayEngine);
+
 }
 
 void Player::registerNodeType(NodeDefinition def, const char* pParentNames[])

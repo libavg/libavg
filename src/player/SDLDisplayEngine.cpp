@@ -1326,9 +1326,16 @@ DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
     calcScreenDimensions();
     DPoint size;
     DPoint screenRes = DPoint(getScreenResolution());
-    size.x = screenRes.x/getDPI().x*25.4;
-    size.y = screenRes.y/getDPI().y*25.4;
+    size.x = screenRes.x/m_DPI.x*25.4;
+    size.y = screenRes.y/m_DPI.y*25.4;
     return size;
+}
+
+void SDLDisplayEngine::assumePhysicalScreenDimensions(const DPoint& size)
+{
+    DPoint screenRes = DPoint(getScreenResolution());
+    DPoint sizeInches = size/25.4;
+    m_DPI = DPoint(screenRes.x/sizeInches.x, screenRes.y/sizeInches.y);
 }
 
 void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)

@@ -94,6 +94,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint getScreenResolution();
         DPoint getDPI();
         DPoint getPhysicalScreenDimensions();
+        void assumePhysicalScreenDimensions(const DPoint& size);
 
         void setMainFBO(FBOPtr pFBO);
         FBOPtr getMainFBO() const;

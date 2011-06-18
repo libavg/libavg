@@ -57,6 +57,7 @@ class Contact;
 class EventDispatcher;
 class MouseEvent;
 class CursorEvent;
+class SDLDisplayEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -69,6 +70,7 @@ typedef boost::shared_ptr<class Contact> ContactPtr;
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
+typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 
 class AVG_API Player
 {
@@ -90,6 +92,7 @@ class AVG_API Player
         DPoint getScreenResolution();
         DPoint getDPI();
         DPoint getPhysicalScreenDimensions();
+        void assumePhysicalScreenDimensions(const DPoint& size);
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);
@@ -189,6 +192,7 @@ class AVG_API Player
         NodePtr loadMainNodeFromFile(const std::string& sFilename);
         NodePtr loadMainNodeFromString(const std::string& sAVG);
         NodePtr internalLoad(const std::string& sAVG);
+        SDLDisplayEnginePtr safeGetDisplayEngine();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
                 const xmlNodePtr xmlNode);
@@ -198,7 +202,6 @@ class AVG_API Player
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type type, VisibleNodePtr pNode);
-
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
