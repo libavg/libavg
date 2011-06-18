@@ -384,7 +384,7 @@ void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
 #ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
         m_PPMM = DPoint(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY))
-                *25.4;
+                /25.4;
 #else
     #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
