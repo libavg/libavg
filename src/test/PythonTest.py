@@ -1256,18 +1256,28 @@ class PythonTestCase(AVGTestCase):
         def btoa(oldState, newState):
             self.btoaCalled = True
 
+        def aEntered():
+            self.aEnteredCalled = True
+
+        def aLeft():
+            self.aLeftCalled = True
+
         self.atobCalled = False
         self.btocCalled = False
         self.btoaCalled = False
+        self.aLeftCalled = False
+        self.aEnteredCalled = False
         machine = statemachine.StateMachine("testmachine", 'A')
-        machine.addState('A', {'B': atob, 'nostate': atob})
+        machine.addState('A', {'B': atob, 'nostate': atob}, aEntered, aLeft)
         machine.addState('B', {'C': btoc, 'A': btoa})
         machine.addState('C', {'A': None})
         self.assertException(lambda: machine.changeState('C'))
         self.assertException(lambda: machine.changeState('nostate'))
         machine.changeState('B')
         self.assert_(self.atobCalled)
+        self.assert_(self.aLeftCalled)
         machine.changeState('A')
+        self.assert_(self.aEnteredCalled)
         self.assert_(self.btoaCalled)
         machine.changeState('B')
         machine.changeState('C')

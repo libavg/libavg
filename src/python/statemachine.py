@@ -18,6 +18,12 @@
 # Current versions can be found at www.libavg.de
 #
 
+class State:
+    def __init__(self, transitions, enterFunc, leaveFunc):
+        self.transitions = transitions
+        self.enterFunc = enterFunc
+        self.leaveFunc = leaveFunc
+
 class StateMachine:
     def __init__(self, name, startState):
         self.__states = {}
@@ -25,8 +31,8 @@ class StateMachine:
         self.__curState = startState
         self.__trace = False
 
-    def addState(self, state, transitions):
-        self.__states[state] = transitions
+    def addState(self, state, transitions, enterFunc=None, leaveFunc=None):
+        self.__states[state] = State(transitions, enterFunc, leaveFunc)
 
     def changeState(self, newState):
         if self.__trace:
@@ -36,15 +42,20 @@ class StateMachine:
             raise RuntimeError('StateMachine: Attempt to change to nonexistent state '+
                     newState+'.')
         assert(self.__curState in self.__states)
-        curTransitions = self.__states[self.__curState]
-        if newState in curTransitions:
-            transitionFunc = curTransitions[newState]
+        state = self.__states[self.__curState]
+        if newState in state.transitions:
+            if state.leaveFunc != None:
+                state.leaveFunc()
+            transitionFunc = state.transitions[newState]
             if transitionFunc != None:
                 try:
                     transitionFunc(self.__curState, newState)
                 except TypeError:
                     transitionFunc()
             self.__curState = newState
+            enterFunc = self.__states[self.__curState].enterFunc
+            if enterFunc != None:
+                enterFunc()
         else:
             raise RuntimeError('StateMachine: State change from '+self.__curState+' to '+
                     newState+' not allowed.')
