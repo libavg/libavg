@@ -37,7 +37,8 @@ class TouchVisualization(avg.DivNode):
         event.contact.connectListener(self.__onMotion, self.__onUp)
         self.pos = avg.Point2D(event.pos)
         self.positions = [event.pos]
-        radius = event.majoraxis.getNorm() if event.majoraxis.getNorm() > 20.0 else 20.0
+        self.__fingerSize = 7*g_Player.getPixelsPerMM() # Assume 18mm width for a finger.
+        radius = max(self.__fingerSize, event.majoraxis.getNorm())
 
         if event.source == avg.TOUCH:
             color = 'e5d8d8'
@@ -57,16 +58,11 @@ class TouchVisualization(avg.DivNode):
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
         textID = avg.WordsNode(pos=fontPos, text='<br/>'.join([str(event.source),
                 str(event.cursorid)]), parent=self)
-        fontPos.y = textID.height
-        self.distFromStart = avg.WordsNode(pos=fontPos, parent=self,
-                text=str(event.contact.distancefromstart))
-        fontPos.y += self.distFromStart.height
-        self.distTravelled = avg.WordsNode(pos=fontPos, parent=self,
-                text=str(event.contact.distancetravelled))
+#        textID = avg.WordsNode(pos=fontPos, text=str(event.cursorid), parent=self)
         self.motionPath = avg.PolyLineNode(self.positions,
-                color=color, parent=kwargs['parent'])
-        self.motionVector = avg.LineNode(pos1=(0,0) , pos2=event.contact.motionvec,
-                parent=self)
+                opacity=0.5, color=color, parent=kwargs['parent'])
+        self.motionVector = avg.LineNode(pos1=(0,0) , pos2=-event.contact.motionvec,
+                opacity=0.5, color="C0C0FF", parent=self)
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
@@ -79,19 +75,14 @@ class TouchVisualization(avg.DivNode):
         self.positions.append(event.pos)
         if len(self.positions) > 100:
             self.positions.pop(0)
-        
-        if event.majoraxis.getNorm() > 20.0:
-            radius = event.majoraxis.getNorm()
-        else:
-            radius = 20.0
+       
+        radius = max(self.__fingerSize, event.majoraxis.getNorm())
             
         self.__pulsecircle.r = radius
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
-        self.motionVector.pos2 = event.contact.motionvec
+        self.motionVector.pos2 = -event.contact.motionvec
         self.motionPath.pos = self.positions
-        self.distFromStart.text = str(event.contact.distancefromstart)
-        self.distTravelled.text = str(event.contact.distancetravelled)
 
     def __onUp(self, up):
         del self
