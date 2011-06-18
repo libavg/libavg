@@ -893,7 +893,7 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.compareImage("testTextArea2", True),
                ))
 
-    def testDragProcessor(self):
+    def testDragRecognizer(self):
         def onDragStart(event):
             self.__dragStartCalled = True
 
@@ -930,7 +930,7 @@ class PythonTestCase(AVGTestCase):
         for self.friction in (-1, 100):
             self.loadEmptyScene()
             image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-            dragProcessor = ui.DragProcessor(image, 
+            dragProcessor = ui.DragRecognizer(image, 
                     startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
                     stopHandler=onDragStop, friction=self.friction)
             initState()
@@ -952,9 +952,9 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
 
 
-    def testDragProcessorInitialEvent(self):
+    def testDragRecognizerInitialEvent(self):
         def onMotion(event):
-            dragProcessor = ui.DragProcessor(self.image, 
+            dragProcessor = ui.DragRecognizer(self.image, 
                     startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
             self.image.disconnectEventHandler(self)
            
@@ -976,7 +976,7 @@ class PythonTestCase(AVGTestCase):
         assert(self.__dragStartCalled)
             
 
-    def testHoldProcessor(self):
+    def testHoldRecognizer(self):
       
         def onStart(pos):
             self.__startCalled = True
@@ -1010,7 +1010,7 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(2)
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        self.__holdProcessor = ui.HoldProcessor(image,
+        self.__holdProcessor = ui.HoldRecognizer(image,
             holdDelay=1000,
             activateDelay=2000, 
             startHandler=onStart, 
@@ -1253,9 +1253,9 @@ def pythonTestSuite (tests):
         "testMultitouchButton",
         "testKeyboard",
         "testTextArea",
-        "testDragProcessor",
-        "testDragProcessorInitialEvent",
-        "testHoldProcessor",
+        "testDragRecognizer",
+        "testDragRecognizerInitialEvent",
+        "testHoldRecognizer",
         "testFocusContext",
         "testRoundedRect",
         "testPieSlice",

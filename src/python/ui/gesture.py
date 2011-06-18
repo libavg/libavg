@@ -25,7 +25,8 @@ from helper import *
 
 g_Player = avg.Player.get()
 
-class ManipulationProcessor(object):
+class Recognizer(object):
+
     def __init__(self, node, eventSource, initialEvent):
         self._node = node
         self.__eventSource = eventSource
@@ -68,7 +69,8 @@ class ManipulationProcessor(object):
                 self._onDown)
 
 
-class DragProcessor(ManipulationProcessor):
+class DragRecognizer(Recognizer):
+
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
             moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
             friction=-1):
@@ -78,7 +80,7 @@ class DragProcessor(ManipulationProcessor):
         self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
         self.__inertiaHandlerID = None
-        ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
+        Recognizer.__init__(self, node, eventSource, initialEvent)
 
     def abortInertia(self):
         if self.__inertiaHandlerID:
@@ -131,7 +133,7 @@ class DragProcessor(ManipulationProcessor):
         self.__inertiaHandlerID = None
 
 
-class HoldProcessor(ManipulationProcessor):
+class HoldRecognizer(Recognizer):
 
     # States
     UP = 0          # No action pending
@@ -151,11 +153,11 @@ class HoldProcessor(ManipulationProcessor):
         self.__activateDelay = activateDelay
 
         self.__frameHandlerID = None
-        self.__state = HoldProcessor.UP
+        self.__state = HoldRecognizer.UP
 
         self.__relTime = 0
         self.__lastEvent = None
-        ManipulationProcessor.__init__(self, node, eventSource, initialEvent)
+        Recognizer.__init__(self, node, eventSource, initialEvent)
 
     def abort(self):
         self._onUp(self.__lastEvent)
@@ -170,7 +172,7 @@ class HoldProcessor(ManipulationProcessor):
         self.__startPos = event.pos
         self.__startTime = g_Player.getFrameTime()
         self.__lastEvent = event
-        self.__changeState(HoldProcessor.DOWN)
+        self.__changeState(HoldRecognizer.DOWN)
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
     def _handleMove(self, event):
@@ -178,20 +180,20 @@ class HoldProcessor(ManipulationProcessor):
         if event.contact.distancefromstart > 8:
             self.__startPos = event.pos
             self.__startTime = g_Player.getFrameTime()
-            if self.__state != HoldProcessor.DOWN:
+            if self.__state != HoldRecognizer.DOWN:
                 self.__stopHandler()
-                self.__changeState(HoldProcessor.DOWN)
+                self.__changeState(HoldRecognizer.DOWN)
 
     def __onFrame(self):
         self.__relTime = g_Player.getFrameTime() - self.__startTime
-        if self.__state == HoldProcessor.DOWN:
+        if self.__state == HoldRecognizer.DOWN:
             if self.__relTime > self.__holdDelay:
                 holdOk = self.__startHandler(self.__startPos)
                 if holdOk:
-                    self.__changeState(HoldProcessor.HOLDING)
-        if self.__state == HoldProcessor.HOLDING:
+                    self.__changeState(HoldRecognizer.HOLDING)
+        if self.__state == HoldRecognizer.HOLDING:
             if self.__relTime > self.__activateDelay:
-                self.__changeState(HoldProcessor.ACTIVE)
+                self.__changeState(HoldRecognizer.ACTIVE)
                 self.__activateHandler()
             else:
                 self.__holdHandler(float(self.__relTime-self.__holdDelay)/
@@ -201,9 +203,9 @@ class HoldProcessor(ManipulationProcessor):
         g_Player.clearInterval(self.__frameHandlerID)
         self.__frameHandlerID = None
         self.__lastEvent = None
-        if self.__state != HoldProcessor.DOWN:
+        if self.__state != HoldRecognizer.DOWN:
             self.__stopHandler()
-        self.__changeState(HoldProcessor.UP)
+        self.__changeState(HoldRecognizer.UP)
         self.__relTime = 0
 
     def __changeState(self, newState):
