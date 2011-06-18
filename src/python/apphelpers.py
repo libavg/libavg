@@ -37,13 +37,14 @@ class TouchVisualization(avg.DivNode):
         event.contact.connectListener(self.__onMotion, self.__onUp)
         self.pos = avg.Point2D(event.pos)
         self.positions = [event.pos]
-        self.__fingerSize = 7*g_Player.getPixelsPerMM() # Assume 18mm width for a finger.
+        self.__fingerSize = 7*g_Player.getPixelsPerMM() # Assume 14mm width for a finger.
         radius = max(self.__fingerSize, event.majoraxis.getNorm())
 
         if event.source == avg.TOUCH:
             color = 'e5d8d8'
         else:
             color = 'd8e5e5'
+            self.opacity = 0.5
             
         self.__transparentCircle = avg.CircleNode(r=radius+20, fillcolor=color,
                 fillopacity=0.2, opacity=0.0, strokewidth=1, sensitive=False, parent=self)
@@ -56,13 +57,11 @@ class TouchVisualization(avg.DivNode):
                 color='FFFFFF', sensitive=False, parent=self)
                 
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
-        textID = avg.WordsNode(pos=fontPos, text='<br/>'.join([str(event.source),
-                str(event.cursorid)]), parent=self)
-#        textID = avg.WordsNode(pos=fontPos, text=str(event.cursorid), parent=self)
+        textID = avg.WordsNode(pos=fontPos, text=str(event.cursorid), parent=self)
         self.motionPath = avg.PolyLineNode(self.positions,
-                opacity=0.5, color=color, parent=kwargs['parent'])
+                opacity=0.7, color=color, parent=kwargs['parent'])
         self.motionVector = avg.LineNode(pos1=(0,0) , pos2=-event.contact.motionvec,
-                opacity=0.5, color="C0C0FF", parent=self)
+                opacity=0.4, parent=self)
         pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, radius)
         pulseCircleAnim.start()
 
