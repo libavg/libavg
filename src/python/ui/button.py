@@ -21,7 +21,8 @@
 # Original author of this file is Henrik Thoms
 
 import libavg
-
+from libavg import statemachine
+import gesture
 from helper import *
 
 
@@ -31,10 +32,9 @@ class Button(libavg.DivNode):
     STATE_DOWN     = 3
     
     def __init__(self, upNode = None, downNode = None, disabledNode = None, 
-                activeAreaNode = None, pressHandler = None, clickHandler = None,
-                stateChangeHandler = None, **kwargs):
+            activeAreaNode = None, pressHandler = None, clickHandler = None,
+            stateChangeHandler = None, **kwargs):
         libavg.DivNode.__init__(self, **kwargs)
-        self.crop = False
         
         self.__upNode = upNode
         self.__downNode = downNode
@@ -251,3 +251,66 @@ class Button(libavg.DivNode):
         self.__capturedCursorIds = set()
         self.__activeAreaNode.disconnectEventHandler(self)
 
+
+class TouchButton(libavg.DivNode):
+
+    def __init__(self, upNode, downNode, disabledNode = None, activeAreaNode = None, 
+            fatFingerEnlarge=False, clickHandler = None, **kwargs):
+        libavg.DivNode.__init__(self, **kwargs)
+        
+        self.__upNode = upNode
+        self.__downNode = downNode
+        self.__disabledNode = disabledNode
+        self.__activeAreaNode = activeAreaNode
+        
+        self.__clickHandler = optionalCallback(clickHandler, lambda:None)
+
+        self.__isOver = False
+        self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
+        self.__stateMachine.addState("UP", {"DOWN": None, "DISABLED": None},
+                enterFunc=self.enterUp, leaveFunc=self.leaveUp)
+        self.__stateMachine.addState("DOWN", {"UP": None, "DISABLED": None},
+                enterFunc=self.enterDown, leaveFunc=self.leaveDown)
+        self.__stateMachine.addState("DISABLED", {"UP": None, "DOWN": None},
+                enterFunc=self.enterDown, leaveFunc=self.leaveDown)
+
+        self.appendChild(self.__upNode)
+        self.__upNode.active = True
+        self.appendChild(self.__downNode)
+        self.__downNode.active = False
+
+        if self.__disabledNode:
+            self.appendChild(self.__disabledNode)
+            self.__disabledNode.active = False
+        
+        if self.__activeAreaNode == None:
+            self.__activeAreaNode = self.__upNode
+        else:
+            self.appendChild(self.__activeAreaNode)
+        
+        self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
+                startHandler=self.__onStart, 
+                tapHandler=self.__onTap, 
+                failHandler=self.__onFail)
+
+    def __onStart(self):
+        self.__stateMachine.changeState("DOWN")
+
+    def __onTap(self):
+        self.__stateMachine.changeState("UP")
+        self.__clickHandler()
+
+    def __onFail(self):
+        self.__stateMachine.changeState("UP")
+
+    def enterUp(self):
+        self.__upNode.active = True
+
+    def leaveUp(self):
+        self.__upNode.active = False
+
+    def enterDown(self):
+        self.__downNode.active = True
+
+    def leaveDown(self):
+        self.__downNode.active = False

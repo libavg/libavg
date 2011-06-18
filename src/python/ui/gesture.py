@@ -238,6 +238,7 @@ class TapRecognizer(Recognizer):
     
     def _handleMove(self, event):
         if event.contact.distancefromstart > self.__maxDistance:
+            self._abort(event)
             self.__fail(event)
 
     def _handleUp(self, event):
@@ -250,7 +251,6 @@ class TapRecognizer(Recognizer):
         self.__tapHandler()
    
     def __fail(self, event):
-        self._abort(event)
         self.__failHandler()
         self.__state = TapRecognizer.UP
 

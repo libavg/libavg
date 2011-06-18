@@ -309,7 +309,6 @@ class PythonTestCase(AVGTestCase):
                        clickHandler=onClick)
         
         b.pos = (0, 0)
-        xOutDistance = int(b.width * 2)
         yOutDistance = int(b.height * 2)
 
         self.__down = False
@@ -545,7 +544,6 @@ class PythonTestCase(AVGTestCase):
                 clickHandler = onClick,
                 )
         b.pos = (0,0)
-        xOutDistance = b.width * 2
         yOutDistance = b.height * 2
         
         self.__down = False
@@ -740,6 +738,43 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
                 ))
+
+    def testTouchButton(self):
+    
+        def onClick():
+            self.clicked = True
+
+        def reset():
+            self.clicked = False
+
+        self.loadEmptyScene()
+        button = ui.TouchButton(
+                parent = Player.getRootNode(),
+                upNode = avg.ImageNode(href="button_up.png"),
+                downNode = avg.ImageNode(href="button_down.png"),
+                disabledNode = avg.ImageNode(href="button_disabled.png"),
+                clickHandler = onClick
+                )
+        self.clicked = False
+        self.start(None,
+                (# Standard down->up
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 lambda: self.assert_(not(self.clicked)),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                 lambda: self.assert_(self.clicked),
+                 lambda: self.compareImage("testUIButtonUp", False),
+
+                 # Down, up further away -> no click
+                 reset,
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                 lambda: self.assert_(not(self.clicked)),
+                 lambda: self.compareImage("testUIButtonDown", False),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 0),
+                 lambda: self.assert_(not(self.clicked)),
+                 lambda: self.compareImage("testUIButtonUp", False),
+                ))
+        
 
     def testKeyboard(self):
         def setup():
@@ -1312,6 +1347,7 @@ def pythonTestSuite (tests):
         "testDraggable",
         "testButton",
         "testMultitouchButton",
+        "testTouchButton",
         "testKeyboard",
         "testTextArea",
         "testDragRecognizer",
