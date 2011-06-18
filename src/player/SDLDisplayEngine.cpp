@@ -381,6 +381,10 @@ void SDLDisplayEngine::calcScreenDimensions()
         m_DPI.x = m_ScreenResolution.x/displayInches.x;
         m_DPI.y = m_ScreenResolution.y/displayInches.y;
 #elif defined __APPLE__
+        CGSize displayMM = CGDisplayScreenSize(CGMainDisplayID());
+        DPoint displayInches(DPoint(displayMM.width, displayMM.height)/25.4);
+        m_DPI.x = m_ScreenResolution.x/displayInches.x;
+        m_DPI.y = m_ScreenResolution.y/displayInches.y;
 #elif defined WIN32
 #endif
     }
