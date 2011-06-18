@@ -6,6 +6,8 @@
     <useshaders>true</useshaders>
     <usepixelbuffers>true</usepixelbuffers>
     <multisamplesamples>4</multisamplesamples>
+    <physscreenwidth>0</physscreenwidth>
+    <physscreenheight>0</physscreenheight>
   </scr>
   <aud>
     <channels>2</channels>

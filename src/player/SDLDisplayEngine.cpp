@@ -135,7 +135,7 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp) 
 {
-    calcScreenDimensions();
+    calcScreenDimensions(dp.m_PhysScreenSize);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -369,8 +369,15 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
 }
 
-void SDLDisplayEngine::calcScreenDimensions()
+void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
 {
+    if (physScreenSize != DPoint(0,0)) {
+        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+        m_PPMM.x = m_ScreenResolution.x/physScreenSize.x;
+        m_PPMM.y = m_ScreenResolution.y/physScreenSize.y;
+    }
+
     if (m_PPMM == DPoint(0,0)) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);

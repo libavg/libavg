@@ -1130,6 +1130,9 @@ void Player::initConfig()
 
     m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
+    m_DP.m_PhysScreenSize.x = atof(pMgr->getOption("scr", "physscreenwidth")->c_str());
+    m_DP.m_PhysScreenSize.y = atof(pMgr->getOption("scr", "physscreenheight")->c_str());
+
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR,
