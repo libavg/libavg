@@ -374,18 +374,21 @@ void SDLDisplayEngine::calcScreenDimensions()
     if (m_DPI == DPoint(0,0)) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-#ifdef linux
+#ifdef WIN32
+//        SetProcessDPIAware();
+        HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+        m_DPI = DPoint(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));
+#else
+    #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
         DPoint displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
+    #elif defined __APPLE__
+        CGSize size = CGDisplayScreenSize(CGMainDisplayID());
+        DPoint displayMM(size.width, size.height);
+    #endif
         DPoint displayInches = displayMM/25.4;
         m_DPI.x = m_ScreenResolution.x/displayInches.x;
         m_DPI.y = m_ScreenResolution.y/displayInches.y;
-#elif defined __APPLE__
-        CGSize displayMM = CGDisplayScreenSize(CGMainDisplayID());
-        DPoint displayInches(DPoint(displayMM.width, displayMM.height)/25.4);
-        m_DPI.x = m_ScreenResolution.x/displayInches.x;
-        m_DPI.y = m_ScreenResolution.y/displayInches.y;
-#elif defined WIN32
 #endif
     }
 }
@@ -677,7 +680,7 @@ void SDLDisplayEngine::calcRefreshRate()
     }
 #elif defined _WIN32
     // This isn't correct for multi-monitor systems.
-    HDC hDC = CreateDC("DISPLAY", NULL,NULL,NULL);
+    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
     s_RefreshRate = GetDeviceCaps(hDC, VREFRESH);
     if (s_RefreshRate < 2) {
         s_RefreshRate = 60;
