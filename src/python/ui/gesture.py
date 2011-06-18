@@ -64,6 +64,9 @@ class Recognizer(object):
         event.contact.disconnectListener(self.__listenerid)
         self._handleUp(event)
 
+    def _abort(self, event):
+        event.contact.disconnectListener(self.__listenerid)
+
     def __setEventHandler(self):
         self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
                 self._onDown)
@@ -211,4 +214,43 @@ class HoldRecognizer(Recognizer):
     def __changeState(self, newState):
 #        print self, ": ", self.__state, " --> ", newState
         self.__state = newState
+
+
+class TapRecognizer(Recognizer):
+
+    UP = 0
+    POSSIBLE = 1
+
+    MAX_DISTANCE_IN_MM = 5
+
+    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
+            tapHandler=None, failHandler=None, initialEvent=None):
+        self.__startHandler = optionalCallback(startHandler, lambda:None)
+        self.__tapHandler = optionalCallback(tapHandler, lambda:None)
+        self.__failHandler = optionalCallback(failHandler, lambda:None)
+        self.__state = TapRecognizer.UP
+        self.__maxDistance = TapRecognizer.MAX_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
+        Recognizer.__init__(self, node, eventSource, initialEvent)
+
+    def _handleDown(self, event):
+        self.__state = TapRecognizer.POSSIBLE
+        self.__startHandler()
+    
+    def _handleMove(self, event):
+        if event.contact.distancefromstart > self.__maxDistance:
+            self.__fail(event)
+
+    def _handleUp(self, event):
+        if event.contact.distancefromstart > self.__maxDistance:
+            self.__fail(event)
+        else:
+            self.__recognize()
+
+    def __recognize(self):
+        self.__tapHandler()
+   
+    def __fail(self, event):
+        self._abort(event)
+        self.__failHandler()
+        self.__state = TapRecognizer.UP
 

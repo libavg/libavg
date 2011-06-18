@@ -980,7 +980,7 @@ class PythonTestCase(AVGTestCase):
       
         def onStart(pos):
             self.__startCalled = True
-            self.assert_(self.__holdProcessor.getLastEvent().pos == pos)
+            self.assert_(self.__holdRecognizer.getLastEvent().pos == pos)
             return True
 
         def onHold(time):
@@ -1010,13 +1010,13 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(2)
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        self.__holdProcessor = ui.HoldRecognizer(image,
-            holdDelay=1000,
-            activateDelay=2000, 
-            startHandler=onStart, 
-            holdHandler=onHold, 
-            activateHandler=onActivate, 
-            stopHandler=onStop)
+        self.__holdRecognizer = ui.HoldRecognizer(image,
+                holdDelay=1000,
+                activateDelay=2000, 
+                startHandler=onStart, 
+                holdHandler=onHold, 
+                activateHandler=onActivate, 
+                stopHandler=onStop)
         initState()
         self.start(None,
                 (# Standard down-hold-up sequence.
@@ -1053,6 +1053,57 @@ class PythonTestCase(AVGTestCase):
                 ))
 
         Player.setFakeFPS(-1)
+
+    def testTapRecognizer(self):
+
+        def onStart():
+            self.__startCalled = True
+
+        def onTap():
+            self.__tapCalled = True
+
+        def onFail():
+            self.__failCalled = True
+
+        def initState():
+            self.__startCalled = False
+            self.__tapCalled = False
+            self.__failCalled = False
+
+        def assertEvents(start, tap, fail):
+#            print (self.__startCalled, self.__tapCalled, self.__failCalled)
+            self.assert_(self.__startCalled == start and
+                self.__tapCalled == tap and
+                self.__failCalled == fail)
+
+        self.loadEmptyScene()
+        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        self.__tapRecognizer = ui.TapRecognizer(image,
+                startHandler=onStart,
+                tapHandler=onTap,
+                failHandler=onFail)
+        initState()
+        self.start(None,
+                (# Down-up: recognized as tap.
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-small move-up: recognized as tap.
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 31, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-big move-up: abort
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 100, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, True),
+                ))
 
     def testFocusContext(self):
         def setup():
@@ -1256,6 +1307,7 @@ def pythonTestSuite (tests):
         "testDragRecognizer",
         "testDragRecognizerInitialEvent",
         "testHoldRecognizer",
+        "testTapRecognizer",
         "testFocusContext",
         "testRoundedRect",
         "testPieSlice",

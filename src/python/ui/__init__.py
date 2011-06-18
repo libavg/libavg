@@ -1,3 +1,3 @@
 from button import Button
 from keyboard import Keyboard
-from gesture import Recognizer, DragRecognizer, HoldRecognizer
+from gesture import Recognizer, DragRecognizer, HoldRecognizer, TapRecognizer
