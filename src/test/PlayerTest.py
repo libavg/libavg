@@ -611,14 +611,15 @@ class PlayerTestCase(AVGTestCase):
     def testScreenDimensions(self):
         res = Player.getScreenResolution()
         self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
-        dpi = Player.getDPI()
-        self.assert_(dpi.x > 0 and dpi.y > 0 and dpi.x < 10000 and dpi.y < 10000)
+        ppmm = Player.getPixelsPerMM()
+        self.assert_(ppmm > 0 and ppmm < 10000)
         mm = Player.getPhysicalScreenDimensions()
         self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
+#        print res, ppmm, mm
         Player.assumePhysicalScreenDimensions(mm)
-        newDPI = Player.getDPI()
+        newPPMM = Player.getPixelsPerMM()
         newMM = Player.getPhysicalScreenDimensions()
-        self.assert_(almostEqual(newDPI, dpi))
+        self.assert_(almostEqual(newPPMM, ppmm))
         self.assert_(newMM == mm)
 
 def playerTestSuite(tests):

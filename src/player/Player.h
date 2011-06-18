@@ -90,7 +90,7 @@ class AVG_API Player
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
         DPoint getScreenResolution();
-        DPoint getDPI();
+        double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
         void assumePhysicalScreenDimensions(const DPoint& size);
 

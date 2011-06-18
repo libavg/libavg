@@ -98,7 +98,7 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
-      m_DPI(0,0),
+      m_PPMM(0,0),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
@@ -371,13 +371,13 @@ void SDLDisplayEngine::logConfig()
 
 void SDLDisplayEngine::calcScreenDimensions()
 {
-    if (m_DPI == DPoint(0,0)) {
+    if (m_PPMM == DPoint(0,0)) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
 #ifdef WIN32
-//        SetProcessDPIAware();
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-        m_DPI = DPoint(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));
+        m_PPMM = DPoint(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY))
+                *25.4;
 #else
     #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
@@ -386,9 +386,8 @@ void SDLDisplayEngine::calcScreenDimensions()
         CGSize size = CGDisplayScreenSize(CGMainDisplayID());
         DPoint displayMM(size.width, size.height);
     #endif
-        DPoint displayInches = displayMM/25.4;
-        m_DPI.x = m_ScreenResolution.x/displayInches.x;
-        m_DPI.y = m_ScreenResolution.y/displayInches.y;
+        m_PPMM.x = m_ScreenResolution.x/displayMM.x;
+        m_PPMM.y = m_ScreenResolution.y/displayMM.y;
 #endif
     }
 }
@@ -1315,10 +1314,11 @@ IntPoint SDLDisplayEngine::getScreenResolution()
     return m_ScreenResolution;
 }
 
-DPoint SDLDisplayEngine::getDPI()
+double SDLDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
-    return m_DPI;
+
+    return (m_PPMM.x+m_PPMM.y)/2;
 }
 
 DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
@@ -1326,16 +1326,15 @@ DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
     calcScreenDimensions();
     DPoint size;
     DPoint screenRes = DPoint(getScreenResolution());
-    size.x = screenRes.x/m_DPI.x*25.4;
-    size.y = screenRes.y/m_DPI.y*25.4;
+    size.x = screenRes.x/m_PPMM.x;
+    size.y = screenRes.y/m_PPMM.y;
     return size;
 }
 
 void SDLDisplayEngine::assumePhysicalScreenDimensions(const DPoint& size)
 {
     DPoint screenRes = DPoint(getScreenResolution());
-    DPoint sizeInches = size/25.4;
-    m_DPI = DPoint(screenRes.x/sizeInches.x, screenRes.y/sizeInches.y);
+    m_PPMM = DPoint(screenRes.x/size.x, screenRes.y/size.y);
 }
 
 void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)

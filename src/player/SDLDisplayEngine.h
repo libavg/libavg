@@ -92,7 +92,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
         IntPoint getScreenResolution();
-        DPoint getDPI();
+        double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
         void assumePhysicalScreenDimensions(const DPoint& size);
 
@@ -118,7 +118,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
-        DPoint m_DPI;
+        DPoint m_PPMM;
         std::vector<DRect> m_ClipRects;
 
         SDL_Surface * m_pScreen;

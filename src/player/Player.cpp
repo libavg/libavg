@@ -275,9 +275,9 @@ DPoint Player::getScreenResolution()
     return size;
 }
 
-DPoint Player::getDPI()
+double Player::getPixelsPerMM()
 {
-    return safeGetDisplayEngine()->getDPI();
+    return safeGetDisplayEngine()->getPixelsPerMM();
 }
 
 DPoint Player::getPhysicalScreenDimensions()
