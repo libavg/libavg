@@ -118,9 +118,10 @@ Player & Canvas
             Tells the system to assume a size for the physical screen, overriding 
             operating system information. The parameter is the size in millimeters as a
             :py:class:`Point2D`. This function affects the values returned by 
-            :py:meth:`getPhysicalScreenDimensions` and :py:meth:`getDPI`. It is useful for
-            situations in which the OS cannot know the size (e.g. projectors) and when
-            the automatic functions return wrong values (which happens, unfortunately).
+            :py:meth:`getPhysicalScreenDimensions` and :py:meth:`getPixelsPerMM`. It is
+            useful for situations in which the OS cannot know the size (e.g. projectors)
+            and when the automatic functions return wrong values (which happens,
+            unfortunately, because of operating system deficencies).
 
         .. py:method:: clearInterval(id) -> bool
 
@@ -207,11 +208,6 @@ Player & Canvas
 
             Returns the offscreen canvas with the :py:attr:`id` given.
 
-        .. py:method:: getDPI() -> dpi
-
-            Returns the number of dots per inch of the primary display as a 
-            :py:class:`Point2D`. 
-
         .. py:method:: getEffectiveFramerate() -> float
 
             Returns the framerate that the player is actually achieving. The
@@ -264,6 +260,11 @@ Player & Canvas
         .. py:method:: getPhysicalScreenDimensions() -> Point2D
 
             Returns the size of the primary screen in millimeters.
+
+        .. py:method:: getPixelsPerMM() -> float
+
+            Returns the number of dots per millimeter of the primary display. Assumes
+            square pixels.
 
         .. py:method:: getRootNode() -> Node
 
