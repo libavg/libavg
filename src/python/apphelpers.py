@@ -99,13 +99,14 @@ class DebugTouchVisualization(BaseTouchVisualization):
 class TouchVisualization(BaseTouchVisualization):
 
     mediadir = os.path.join(os.path.dirname(__file__), 'data')
+    bmp = avg.Bitmap(mediadir+"/TouchFeedback.png")
 
     def __init__(self, event, **kwargs):
         BaseTouchVisualization.__init__(self, event, **kwargs)
 
         if event.source == avg.TOUCH:
-            self.__circle = avg.ImageNode(
-                    href=TouchVisualization.mediadir+"/TouchFeedback.png", parent=self)
+            self.__circle = avg.ImageNode(parent=self)
+            self.__circle.setBitmap(TouchVisualization.bmp)
             self.__setRadius(self._radius)
             avg.LinearAnim(self.__circle, "opacity", 200, 0.7, 0.4).start()
         else:
