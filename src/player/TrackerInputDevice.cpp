@@ -115,7 +115,13 @@ TrackerInputDevice::TrackerInputDevice()
     createBitmaps(roi);
     setDebugImages(false, false);
 
-    m_bFindFingertips =  m_TrackerConfig.getBoolParam("/tracker/findfingertips/@value");
+    try {
+        m_bFindFingertips = m_TrackerConfig.getBoolParam(
+                "/tracker/findfingertips/@value");
+    } catch(Exception) {
+        m_bFindFingertips = false;
+    }
+
 }
 
 TrackerInputDevice::~TrackerInputDevice()
