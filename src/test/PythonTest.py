@@ -748,9 +748,12 @@ class PythonTestCase(AVGTestCase):
         def reset():
             self.clicked = False
 
+        def enable(enabled):
+            button.enabled = enabled
+
         def createScene(**kwargs):
             self.loadEmptyScene()
-            ui.TouchButton(
+            return ui.TouchButton(
                     parent = Player.getRootNode(),
                     upNode = avg.ImageNode(href="button_up.png"),
                     downNode = avg.ImageNode(href="button_down.png"),
@@ -770,6 +773,18 @@ class PythonTestCase(AVGTestCase):
                      lambda: self.assert_(self.clicked),
                      lambda: self.compareImage("testUIButtonUp", False),
 
+                     # Disable, down, up -> no click
+                     reset,
+                     lambda: self.assert_(button.enabled),
+                     lambda: enable(False),
+                     lambda: self.assert_(not(button.enabled)),
+                     lambda: self.compareImage("testUIButtonDisabled", False),
+                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: enable(True),
+                     lambda: self.assert_(button.enabled),
+
                      # Down, up further away -> no click
                      reset,
                      lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
@@ -780,18 +795,17 @@ class PythonTestCase(AVGTestCase):
                      lambda: self.compareImage("testUIButtonUp", False),
                     ))
 
-
-        createScene()
+        button = createScene()
         runTest()
 
-        createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
+        button = createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
         runTest()
 
-        createScene(fatFingerEnlarge = True)
+        button = createScene(fatFingerEnlarge = True)
         runTest()
 
         self.loadEmptyScene()
-        ui.TouchButton.fromSrc(
+        button = ui.TouchButton.fromSrc(
                 parent = Player.getRootNode(),
                 upSrc = "button_up.png",
                 downSrc = "button_down.png",

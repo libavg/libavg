@@ -272,7 +272,7 @@ class TouchButton(avg.DivNode):
         self.__stateMachine.addState("DOWN", {"UP": None, "DISABLED": None},
                 enterFunc=self.enterDown, leaveFunc=self.leaveDown)
         self.__stateMachine.addState("DISABLED", {"UP": None, "DOWN": None},
-                enterFunc=self.enterDown, leaveFunc=self.leaveDown)
+                enterFunc=self.enterDisabled, leaveFunc=self.leaveDisabled)
 
         self.appendChild(self.__upNode)
         self.__upNode.active = True
@@ -313,6 +313,19 @@ class TouchButton(avg.DivNode):
         return TouchButton(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
                 **kwargs)
 
+    def getEnabled(self):
+        return self.__stateMachine.state != "DISABLED"
+
+    def setEnabled(self, enabled):
+        if enabled:
+            if self.__stateMachine.state == "DISABLED":
+                self.__stateMachine.changeState("UP")
+        else:
+            if self.__stateMachine.state != "DISABLED":
+                self.__stateMachine.changeState("DISABLED")
+
+    enabled = property(getEnabled, setEnabled)
+
     def __onStart(self):
         self.__stateMachine.changeState("DOWN")
 
@@ -334,3 +347,14 @@ class TouchButton(avg.DivNode):
 
     def leaveDown(self):
         self.__downNode.active = False
+
+    def enterDisabled(self):
+        if self.__disabledNode:
+            self.__disabledNode.active = True
+        self.__tapRecognizer.enable(False)
+
+    def leaveDisabled(self):
+        if self.__disabledNode:
+            self.__disabledNode.active = False
+        self.__tapRecognizer.enable(True)
+
