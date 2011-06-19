@@ -739,6 +739,7 @@ class PythonTestCase(AVGTestCase):
                  reset,
                 ))
 
+
     def testTouchButton(self):
     
         def onClick():
@@ -747,18 +748,18 @@ class PythonTestCase(AVGTestCase):
         def reset():
             self.clicked = False
 
-        for activeAreaNode, fatFingerEnlarge in ((None, False), 
-                (avg.CircleNode(r=5, opacity=0), False), (None, True)):
+        def createScene(**kwargs):
             self.loadEmptyScene()
-            button = ui.TouchButton(
+            ui.TouchButton(
                     parent = Player.getRootNode(),
                     upNode = avg.ImageNode(href="button_up.png"),
                     downNode = avg.ImageNode(href="button_down.png"),
                     disabledNode = avg.ImageNode(href="button_disabled.png"),
-                    activeAreaNode = activeAreaNode,
-                    fatFingerEnlarge = fatFingerEnlarge,
-                    clickHandler = onClick
+                    clickHandler = onClick,
+                    **kwargs
                     )
+
+        def runTest():
             self.clicked = False
             self.start(None,
                     (# Standard down->up
@@ -779,6 +780,26 @@ class PythonTestCase(AVGTestCase):
                      lambda: self.compareImage("testUIButtonUp", False),
                     ))
 
+
+        createScene()
+        runTest()
+
+        createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
+        runTest()
+
+        createScene(fatFingerEnlarge = True)
+        runTest()
+
+        self.loadEmptyScene()
+        ui.TouchButton.fromSrc(
+                parent = Player.getRootNode(),
+                upSrc = "button_up.png",
+                downSrc = "button_down.png",
+                disabledSrc = "button_disabled.png",
+                clickHandler = onClick
+                )
+        runTest()
+        
 
     def testKeyboard(self):
         def setup():

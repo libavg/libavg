@@ -302,6 +302,17 @@ class TouchButton(avg.DivNode):
                 tapHandler=self.__onTap, 
                 failHandler=self.__onFail)
 
+    @classmethod
+    def fromSrc(cls, upSrc, downSrc, disabledSrc=None, **kwargs):
+        upNode = avg.ImageNode(href=upSrc)
+        downNode = avg.ImageNode(href=downSrc)
+        if disabledSrc != None:
+            disabledNode = avg.ImageNode(href=disabledSrc)
+        else:
+            disabledNode = None
+        return TouchButton(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
+                **kwargs)
+
     def __onStart(self):
         self.__stateMachine.changeState("DOWN")
 
