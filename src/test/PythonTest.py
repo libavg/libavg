@@ -747,34 +747,38 @@ class PythonTestCase(AVGTestCase):
         def reset():
             self.clicked = False
 
-        self.loadEmptyScene()
-        button = ui.TouchButton(
-                parent = Player.getRootNode(),
-                upNode = avg.ImageNode(href="button_up.png"),
-                downNode = avg.ImageNode(href="button_down.png"),
-                disabledNode = avg.ImageNode(href="button_disabled.png"),
-                clickHandler = onClick
-                )
-        self.clicked = False
-        self.start(None,
-                (# Standard down->up
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 lambda: self.assert_(not(self.clicked)),
-                 lambda: self.compareImage("testUIButtonDown", False),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
-                 lambda: self.assert_(self.clicked),
-                 lambda: self.compareImage("testUIButtonUp", False),
+        for activeAreaNode, fatFingerEnlarge in ((None, False), 
+                (avg.CircleNode(r=5, opacity=0), False), (None, True)):
+            self.loadEmptyScene()
+            button = ui.TouchButton(
+                    parent = Player.getRootNode(),
+                    upNode = avg.ImageNode(href="button_up.png"),
+                    downNode = avg.ImageNode(href="button_down.png"),
+                    disabledNode = avg.ImageNode(href="button_disabled.png"),
+                    activeAreaNode = activeAreaNode,
+                    fatFingerEnlarge = fatFingerEnlarge,
+                    clickHandler = onClick
+                    )
+            self.clicked = False
+            self.start(None,
+                    (# Standard down->up
+                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(self.clicked),
+                     lambda: self.compareImage("testUIButtonUp", False),
 
-                 # Down, up further away -> no click
-                 reset,
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                 lambda: self.assert_(not(self.clicked)),
-                 lambda: self.compareImage("testUIButtonDown", False),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 0),
-                 lambda: self.assert_(not(self.clicked)),
-                 lambda: self.compareImage("testUIButtonUp", False),
-                ))
-        
+                     # Down, up further away -> no click
+                     reset,
+                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonUp", False),
+                    ))
+
 
     def testKeyboard(self):
         def setup():

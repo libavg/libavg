@@ -20,13 +20,13 @@
 #
 # Original author of this file is Henrik Thoms
 
-import libavg
-from libavg import statemachine
+from libavg import avg, statemachine
 import gesture
 from helper import *
 
+g_Player = avg.Player.get()
 
-class Button(libavg.DivNode):
+class Button(avg.DivNode):
     STATE_DISABLED = 1
     STATE_UP       = 2
     STATE_DOWN     = 3
@@ -34,7 +34,7 @@ class Button(libavg.DivNode):
     def __init__(self, upNode = None, downNode = None, disabledNode = None, 
             activeAreaNode = None, pressHandler = None, clickHandler = None,
             stateChangeHandler = None, **kwargs):
-        libavg.DivNode.__init__(self, **kwargs)
+        avg.DivNode.__init__(self, **kwargs)
         
         self.__upNode = upNode
         self.__downNode = downNode
@@ -132,7 +132,7 @@ class Button(libavg.DivNode):
             self.appendChild(self.__disabledNode)
         
         if self.__activeAreaNode == None:
-            self.__activeAreaNode = libavg.RectNode(opacity=0, size=self.__upNode.size)
+            self.__activeAreaNode = avg.RectNode(opacity=0, size=self.__upNode.size)
         self.appendChild(self.__activeAreaNode)
 
         self.size = self.__activeAreaNode.size
@@ -237,13 +237,13 @@ class Button(libavg.DivNode):
     
     def __activateEventHandlers(self):
         def setOneHandler(type, handler):
-            self.__activeAreaNode.connectEventHandler(type, libavg.MOUSE | libavg.TOUCH, 
+            self.__activeAreaNode.connectEventHandler(type, avg.MOUSE | avg.TOUCH, 
                     self, handler)
 
-        setOneHandler(libavg.CURSORDOWN, self.__pressHandler)
-        setOneHandler(libavg.CURSORUP, self.__releaseHandler)
-        setOneHandler(libavg.CURSOROVER, self.__overHandler)
-        setOneHandler(libavg.CURSOROUT, self.__outHandler)
+        setOneHandler(avg.CURSORDOWN, self.__pressHandler)
+        setOneHandler(avg.CURSORUP, self.__releaseHandler)
+        setOneHandler(avg.CURSOROVER, self.__overHandler)
+        setOneHandler(avg.CURSOROUT, self.__outHandler)
     
     def __deactivateEventHandlers(self):
         for id in self.__capturedCursorIds:
@@ -252,11 +252,11 @@ class Button(libavg.DivNode):
         self.__activeAreaNode.disconnectEventHandler(self)
 
 
-class TouchButton(libavg.DivNode):
+class TouchButton(avg.DivNode):
 
     def __init__(self, upNode, downNode, disabledNode = None, activeAreaNode = None, 
             fatFingerEnlarge=False, clickHandler = None, **kwargs):
-        libavg.DivNode.__init__(self, **kwargs)
+        avg.DivNode.__init__(self, **kwargs)
         
         self.__upNode = upNode
         self.__downNode = downNode
@@ -283,11 +283,20 @@ class TouchButton(libavg.DivNode):
             self.appendChild(self.__disabledNode)
             self.__disabledNode.active = False
         
-        if self.__activeAreaNode == None:
-            self.__activeAreaNode = self.__upNode
+        if fatFingerEnlarge:
+            if self.__activeAreaNode != None:
+                raise(RuntimeError(
+                    "TouchButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
+            size = upNode.size
+            minSize = 20*g_Player.getPixelsPerMM()
+            size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
+            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
         else:
-            self.appendChild(self.__activeAreaNode)
-        
+            if self.__activeAreaNode == None:
+                self.__activeAreaNode = self.__upNode
+            else:
+                self.appendChild(self.__activeAreaNode)
+
         self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
                 startHandler=self.__onStart, 
                 tapHandler=self.__onTap, 
