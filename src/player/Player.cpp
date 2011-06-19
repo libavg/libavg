@@ -1420,7 +1420,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
     pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
+    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver && 
+            !pCursorNodes.empty()) 
+    {
         VisibleNodePtr pNode = pCursorNodes.begin()->lock();
         pEvent->setNode(pNode);
         pContact->sendEventToListeners(pEvent);

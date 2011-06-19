@@ -55,6 +55,11 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
     return pClone;
 }
 
+void CursorEvent::setPos(const DPoint& pos)
+{
+    m_Position = IntPoint(pos);
+}
+
 DPoint CursorEvent::getPos() const
 {
     return DPoint(m_Position);

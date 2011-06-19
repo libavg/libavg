@@ -21,6 +21,7 @@
   <contourprecision value="0"/>
   <historydelay value="2200"/>
   <mask value=""/>
+  <findfingertips value="true"/>
   <track>
    <threshold value="16"/>
    <similarity value="100"/>

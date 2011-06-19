@@ -114,6 +114,8 @@ TrackerInputDevice::TrackerInputDevice()
     m_InitialROI = roi;
     createBitmaps(roi);
     setDebugImages(false, false);
+
+    m_bFindFingertips =  m_TrackerConfig.getBoolParam("/tracker/findfingertips/@value");
 }
 
 TrackerInputDevice::~TrackerInputDevice()
@@ -404,6 +406,9 @@ vector<EventPtr> TrackerInputDevice::pollEvents()
     pollEventType(pTouchEvents, m_TouchEvents, CursorEvent::TOUCH);
     pollEventType(pTrackEvents, m_TrackEvents, CursorEvent::TRACK);
     copyRelatedInfo(pTouchEvents, pTrackEvents);
+    if (m_bFindFingertips) {
+        findFingertips(pTouchEvents);
+    }
     pTouchEvents.insert(pTouchEvents.end(), 
             pTrackEvents.begin(), pTrackEvents.end());
     return pTouchEvents;
@@ -458,8 +463,23 @@ void TrackerInputDevice::copyRelatedInfo(vector<EventPtr> pTouchEvents,
     }
 }
 
+void TrackerInputDevice::findFingertips(std::vector<EventPtr>& pTouchEvents)
+{
+    vector<EventPtr>::iterator it;
+    for (it = pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
+        TouchEventPtr pTouchEvent = boost::dynamic_pointer_cast<TouchEvent>(*it);
+        vector<TouchEventPtr> pTrackEvents = pTouchEvent->getRelatedEvents();
+        if (pTrackEvents.size() > 0) {
+            double handAngle = pTouchEvent->getHandOrientation();
+            double dist = pTouchEvent->getMajorAxis().getNorm();
+            DPoint tweakVec = DPoint::fromPolar(handAngle, dist);
+            DPoint newPos = pTouchEvent->getPos()-tweakVec;
+            newPos.x = max(0.0, min(newPos.x, double(m_ActiveDisplaySize.x)));
+            newPos.y = max(0.0, min(newPos.y, double(m_ActiveDisplaySize.y)));
+            pTouchEvent->setPos(newPos);
+        }
+    }
 }
 
-
-
+}
 

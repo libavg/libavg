@@ -50,6 +50,7 @@ class AVG_API CursorEvent: public Event
                 int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
+        void setPos(const DPoint& pos);
         DPoint getPos() const;
         int getXPosition() const;
         int getYPosition() const;

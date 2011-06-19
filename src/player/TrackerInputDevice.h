@@ -87,6 +87,7 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
                 CursorEvent::Source source);
         void copyRelatedInfo(std::vector<EventPtr> pTouchEvents,
                 std::vector<EventPtr> pTrackEvents);
+        void findFingertips(std::vector<EventPtr>& pTouchEvents);
 
         IntRect m_InitialROI;
         CameraPtr m_pCamera;
@@ -97,6 +98,7 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
         DRect m_DisplayROI;
         DRect m_OldDisplayROI;
         TrackerCalibrator * m_pCalibrator;
+        bool m_bFindFingertips;
 
         // Used by tracker thread
         void trackBlobIDs(BlobVectorPtr new_blobs, long long time, bool bTouch);
