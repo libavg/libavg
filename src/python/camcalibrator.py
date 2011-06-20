@@ -242,7 +242,7 @@ class Calibrator(AVGApp):
             <div id="cal_coordcalibrator" opacity="0" active="false">
               <image x="0" y="0" width="1280" height="800" href="border.png"/>
               <div id="cal_messages" x="100" y="100"/>
-              <image id="cal_crosshair" href="Crosshair.png"/>
+              <image id="cal_crosshair" href="crosshair.png"/>
               <image id="cal_feedback" href="Feedback.png"/>
             </div>
         </div>
