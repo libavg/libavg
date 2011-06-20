@@ -60,6 +60,7 @@ class AVG_API TrackerTouchStatus: public TouchStatus
         int m_ID;
         BlobPtr m_pBlob;
         long long m_LastTime;
+        DPoint m_LastCenter;
 
         static int s_LastID;
 };

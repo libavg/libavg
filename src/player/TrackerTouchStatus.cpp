@@ -45,7 +45,8 @@ TrackerTouchStatus::TrackerTouchStatus(BlobPtr pFirstBlob, long long time,
       m_bGone(false),
       m_ID(s_LastID),
       m_pBlob(pFirstBlob),
-      m_LastTime(time)
+      m_LastTime(time),
+      m_LastCenter(pFirstBlob->getCenter())
 {
     AVG_ASSERT(m_Source == Event::TOUCH || m_Source == Event::TRACK);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -66,9 +67,10 @@ void TrackerTouchStatus::blobChanged(BlobPtr pNewBlob, long long time, bool bKee
         if (bKeepEvent) {
             bPosChanged = true;
         } else {
-            bPosChanged = (calcDist(c, m_pBlob->getCenter()) > 1);
+            bPosChanged = (calcDist(c, m_LastCenter) > 1);
         }
         if (bPosChanged) {
+            m_LastCenter = pNewBlob->getCenter();
             TouchEventPtr pEvent = createEvent(Event::CURSORMOTION, pNewBlob, time);
             pushEvent(pEvent, false);
         }
