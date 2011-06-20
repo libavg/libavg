@@ -477,7 +477,7 @@ void TrackerInputDevice::findFingertips(std::vector<EventPtr>& pTouchEvents)
         vector<TouchEventPtr> pTrackEvents = pTouchEvent->getRelatedEvents();
         if (pTrackEvents.size() > 0) {
             double handAngle = pTouchEvent->getHandOrientation();
-            double dist = pTouchEvent->getMajorAxis().getNorm();
+            double dist = pTouchEvent->getMajorAxis().getNorm()*2;
             DPoint tweakVec = DPoint::fromPolar(handAngle, dist);
             DPoint newPos = pTouchEvent->getPos()-tweakVec;
             newPos.x = max(0.0, min(newPos.x, double(m_ActiveDisplaySize.x)));

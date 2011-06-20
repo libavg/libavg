@@ -70,7 +70,9 @@ class DebugTouchVisualization(BaseTouchVisualization):
                 color='FFFFFF', sensitive=False, parent=self)
         self.__minorAxis = avg.LineNode(pos1=(0,0), pos2=event.minoraxis,
                 color='FFFFFF', sensitive=False, parent=self)
-                
+        if event.source == avg.TOUCH:
+            self.__handAxis = avg.LineNode(pos1=(0,0), pos2=self.__getHandVector(event),
+                    opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
         textID = avg.WordsNode(pos=fontPos, text=str(event.cursorid), parent=self)
         self.motionPath = avg.PolyLineNode(self.positions,
@@ -93,7 +95,12 @@ class DebugTouchVisualization(BaseTouchVisualization):
         self.__majorAxis.pos2 = event.majoraxis
         self.__minorAxis.pos2 = event.minoraxis
         self.motionVector.pos2 = -event.contact.motionvec
+        if event.source == avg.TOUCH:
+            self.__handAxis.pos2 = self.__getHandVector(event)
         self.motionPath.pos = self.positions
+
+    def __getHandVector(self, event):
+        return -avg.Point2D.fromPolar(event.handorientation, 30)
 
 
 class TouchVisualization(BaseTouchVisualization):
