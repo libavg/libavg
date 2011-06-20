@@ -52,11 +52,6 @@ Contact::~Contact()
 
 int Contact::connectListener(PyObject* pMotionCallback, PyObject* pUpCallback)
 {
-    if (Player::get()->isCaptured(m_CursorID)) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE, 
-                "Attempted to connect listener to cursor id " + toString(m_CursorID) +
-                ", but the cursor was already captured.");
-    }
     s_LastListenerID++;
     pair<int, Listener> val = 
             pair<int, Listener>(s_LastListenerID, Listener(pMotionCallback, pUpCallback));

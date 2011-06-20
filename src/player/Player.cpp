@@ -721,12 +721,6 @@ bool Player::isMultitouchAvailable() const
 
 void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
 {
-    ContactPtr pContact = m_pEventDispatcher->getContact(cursorID);
-    if (pContact && pContact->hasListeners()) {
-        throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for cursor "
-                + toString(cursorID) + ", but contact has a listener.");
-    }
-
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {

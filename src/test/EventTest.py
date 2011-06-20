@@ -662,14 +662,11 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             root.setEventCapture(event.cursorid)
-            self.assertException(
-                    lambda: event.contact.connectListener(onContactMotion, None))
             root.releaseEventCapture(event.cursorid)
 
         def onMotion(event):
             contact = event.contact
             self.contactID = contact.connectListener(onContactMotion, None)
-            self.assertException(lambda: root.setEventCapture(event.cursorid))
             self.numMotionCallbacks += 1
             root.disconnectEventHandler(self)
 
