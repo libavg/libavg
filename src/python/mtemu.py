@@ -47,7 +47,6 @@ class MTemu(object):
 
     mouseState = 'Up'
     cursorID = 0
-    lastCursorPos = None
     dualTouch = False
     secondTouch = False
     source = avg.TOUCH
@@ -78,7 +77,7 @@ class MTemu(object):
         if self.mouseState == 'Down':
             self.__releaseTouch(self.cursorID)
             if self.secondTouch:
-                self.releaseTouch(self.cursorID+1)
+                self.__releaseTouch(self.cursorID+1)
 
     def toggleSource(self):
         '''
@@ -103,6 +102,7 @@ class MTemu(object):
             self.secondTouch = not(self.secondTouch)
 
     def __onMouseDown(self, event):
+        self._initialPos = event.pos
         if self.mouseState == 'Up' and event.button == 1:
             self.__sendFakeTouch(self.cursorID, event.pos, event.type)
             if self.dualTouch and not self.secondTouch:
@@ -110,7 +110,6 @@ class MTemu(object):
                         True)
                 self.secondTouch = True
             self.mouseState = 'Down'
-            self.lastCursorPos = event.pos
 
     def __onMouseMotion(self, event):
         if self.mouseState == 'Down':
@@ -118,7 +117,6 @@ class MTemu(object):
             if self.dualTouch and self.secondTouch:
                 self.__sendFakeTouch(self.cursorID+1, event.pos,
                         event.type, True)
-            self.lastCursorPos = event.pos
 
     def __onMouseUp(self, event):
         if self.mouseState == 'Down' and event.button == 1:
@@ -129,17 +127,16 @@ class MTemu(object):
                 self.secondTouch = False
             self.mouseState = 'Up'
             self.cursorID += 2 #Even for left uneven for right touch
-            self.lastCursorPos = None
 
     def __sendFakeTouch(self, cursorID, pos, touchType, mirror=False):
+        offset = Point2D(0,0)
+        if self.dualTouch:
+            offset = Point2D(40, 0)
         if mirror:
-            pos = pos + Point2D(-20,-20)
-            pos = self.__rootNode.size - Point2D(20,20) - pos
-            pos = self.__clampPos(pos)
-        if not self.lastCursorPos:
-            self.lastCursorPos = self.__clampPos(pos)
+            pos = self.__clampPos(2*(self._initialPos)-pos)
+            offset = -offset
         g_Player.getTestHelper().fakeTouchEvent(cursorID,
-                touchType, self.source, pos)
+                touchType, self.source, pos+offset)
                 
     def __releaseTouch(self, cursorID):
        self.__sendFakeTouch(cursorID, Point2D(0,0), avg.CURSORUP)
