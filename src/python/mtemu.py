@@ -69,7 +69,7 @@ class MTemu(object):
                 sensitive=False,
                 fontsize=18,
                 parent=self.__rootNode)
-        
+
     def deinit(self):
         self.__rootNode.disconnectEventHandler(self)
         self.__rootNode = None
@@ -133,11 +133,11 @@ class MTemu(object):
         if self.dualTouch:
             offset = Point2D(40, 0)
         if mirror:
-            pos = self.__clampPos(2*(self._initialPos)-pos)
+            pos = 2*(self._initialPos)-pos
             offset = -offset
         g_Player.getTestHelper().fakeTouchEvent(cursorID,
-                touchType, self.source, pos+offset)
-                
+                touchType, self.source, self.__clampPos(pos+offset))
+
     def __releaseTouch(self, cursorID):
        self.__sendFakeTouch(cursorID, Point2D(0,0), avg.CURSORUP)
 
