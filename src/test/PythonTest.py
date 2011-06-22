@@ -779,19 +779,33 @@ class PythonTestCase(AVGTestCase):
                      lambda: enable(False),
                      lambda: self.assert_(not(button.enabled)),
                      lambda: self.compareImage("testUIButtonDisabled", False),
-                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
-                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                     lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
                      lambda: self.assert_(not(self.clicked)),
                      lambda: enable(True),
                      lambda: self.assert_(button.enabled),
 
                      # Down, up further away -> no click
                      reset,
-                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORUP, 100, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonUp", False),
+
+                     # Down, move further away, up -> no click
+                     reset,
+                     lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORMOTION, 100, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORUP, 100, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonUp", False),
+
+                     # Test if button still reacts after abort
+                     lambda: self.__sendTouchEvent(4, avg.CURSORDOWN, 0, 0),
                      lambda: self.assert_(not(self.clicked)),
                      lambda: self.compareImage("testUIButtonDown", False),
-                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 0),
-                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.__sendTouchEvent(4, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(self.clicked),
                      lambda: self.compareImage("testUIButtonUp", False),
                     ))
 

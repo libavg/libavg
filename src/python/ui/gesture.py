@@ -65,6 +65,7 @@ class Recognizer(object):
         self._handleUp(event)
 
     def _abort(self, event):
+        self.__isActive = False
         event.contact.disconnectListener(self.__listenerid)
 
     def __setEventHandler(self):
