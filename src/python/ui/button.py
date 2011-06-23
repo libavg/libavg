@@ -58,7 +58,13 @@ class Button(avg.DivNode):
         
         if self.__upNode and self.__downNode:
             self.__setupNodes()
-        
+
+    def delete(self):
+        self.__pressCallback = self.__defaultHandler
+        self.__clickCallback = self.__defaultHandler
+        self.__stateChangeCallback = self.__defaultHandler
+        self.__deactivateEventHandlers()
+
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
     
