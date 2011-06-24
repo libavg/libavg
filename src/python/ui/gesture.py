@@ -27,13 +27,14 @@ g_Player = avg.Player.get()
 
 class Recognizer(object):
 
-    def __init__(self, node, eventSource, initialEvent):
+    def __init__(self, node, eventSource, maxContacts, initialEvent):
         self._node = node
         self.__eventSource = eventSource
        
         self.__setEventHandler() 
         self.__isEnabled = True
-        self.__isActive = False
+        self.__maxContacts = maxContacts
+        self._contacts = {}
         if initialEvent:
             self._onDown(initialEvent)
 
@@ -43,30 +44,30 @@ class Recognizer(object):
             if isEnabled:
                 self.__setEventHandler()
             else:
-                if self.__isActive:
-                    self.__contact.disconnectListener(self.__listenerid)
-                self.__isActive = False
+                for contact, listenerid in self._contacts.iteritems():
+                    contact.disconnectListener(listenerid)
+                self._contacts = {}
                 self._node.disconnectEventHandler(self)
 
     def _onDown(self, event):
-        if not(self.__isActive):
-            self.__isActive = True
-            self.__listenerid = event.contact.connectListener(self._onMotion, self._onUp)
-            self.__contact = event.contact
+        if len(self._contacts) < self.__maxContacts:
+            listenerid = event.contact.connectListener(self._onMotion, self._onUp)
+            self._contacts[event.contact] = listenerid
             return self._handleDown(event)
 
     def _onMotion(self, event):
         self._handleMove(event)
 
     def _onUp(self, event):
-        assert(self.__isActive)
-        self.__isActive = False
-        event.contact.disconnectListener(self.__listenerid)
+        listenerid = self._contacts[event.contact]
+        del self._contacts[event.contact]
+        event.contact.disconnectListener(listenerid)
         self._handleUp(event)
 
     def _abort(self, event):
-        self.__isActive = False
-        event.contact.disconnectListener(self.__listenerid)
+        for contact, listenerid in self._contacts.iteritems():
+            contact.disconnectListener(listenerid)
+        self._contacts = {}
 
     def __setEventHandler(self):
         self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
@@ -84,7 +85,7 @@ class DragRecognizer(Recognizer):
         self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
         self.__inertiaHandlerID = None
-        Recognizer.__init__(self, node, eventSource, initialEvent)
+        Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def abortInertia(self):
         if self.__inertiaHandlerID:
@@ -161,7 +162,7 @@ class HoldRecognizer(Recognizer):
 
         self.__relTime = 0
         self.__lastEvent = None
-        Recognizer.__init__(self, node, eventSource, initialEvent)
+        Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def abort(self):
         self._onUp(self.__lastEvent)
@@ -231,7 +232,7 @@ class TapRecognizer(Recognizer):
         self.__failHandler = optionalCallback(failHandler, lambda:None)
         self.__state = TapRecognizer.UP
         self.__maxDistance = TapRecognizer.MAX_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
-        Recognizer.__init__(self, node, eventSource, initialEvent)
+        Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def _handleDown(self, event):
         self.__state = TapRecognizer.POSSIBLE

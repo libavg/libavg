@@ -71,7 +71,6 @@ class IInputDeviceWrapper : public IInputDevice, public wrapper<IInputDevice>
 
 };
 
-
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEventPtr>, 
@@ -192,6 +191,9 @@ void export_event()
         .add_property("distancetravelled", &Contact::getDistanceTravelled)
         .def("connectListener", &Contact::connectListener)
         .def("disconnectListener", &Contact::disconnectListener)
+        .def("__hash__", &Contact::getHash)
+        .def(self == self)
+        .def(self != self)
         ;
 
     enum_<TrackerImageID>("TrackerImageID")

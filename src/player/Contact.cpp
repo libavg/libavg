@@ -159,6 +159,22 @@ int Contact::getID() const
     return m_CursorID;
 }
 
+bool Contact::operator ==(const Contact& other) const
+{
+    return (shared_from_this() == other.shared_from_this());
+}
+
+bool Contact::operator !=(const Contact& other) const
+{
+    return (shared_from_this() != other.shared_from_this());
+}
+
+long Contact::getHash() const
+{
+    return long(&*shared_from_this());
+    
+}
+
 void Contact::calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent)
 {
     if (pEvent->getSpeed() == DPoint(0,0)) {
@@ -169,6 +185,7 @@ void Contact::calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent)
         }
     }
 }
+
 void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2)
 {
     double dist = (pEvent2->getPos() - pEvent1->getPos()).getNorm();

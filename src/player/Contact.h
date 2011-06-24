@@ -62,6 +62,10 @@ public:
     void sendEventToListeners(CursorEventPtr pCursorEvent);
 
     int getID() const;
+    
+    bool operator ==(const Contact& other) const;
+    bool operator !=(const Contact& other) const;
+    long getHash() const;
 
 private:
     void calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent);
