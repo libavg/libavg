@@ -280,6 +280,11 @@ bool almostEqual(const DPoint& pt1, const DPoint& pt2)
     return (fabs(pt1.x-pt2.x)+fabs(pt1.y-pt2.y)) < 0.0001;
 }
 
+double vecAngle(const DPoint& pt1, const DPoint pt2)
+{
+    return (atan2(pt1.y, pt1.x) - atan2(pt2.y, pt2.x));
+}
+
 template<class NUM>
 double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
 {

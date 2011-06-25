@@ -111,6 +111,8 @@ double dotProduct(const DPoint& pt1, const DPoint pt2)
     return pt1.x*pt2.x+pt1.y*pt2.y;
 }
 
+double vecAngle(const DPoint& pt1, const DPoint pt2);
+
 typedef std::vector<DPoint> DPointVector;
 
 }
