@@ -1200,10 +1200,17 @@ class PythonTestCase(AVGTestCase):
             pass
 
         def onMove(transform):
+#            print "move"
             self.transform = transform
+#            print transform
 
         def onUp(transform):
-            pass
+#            print "up"
+            self.transform = transform
+#            print transform
+
+        def checkTransform(expectedTransform):
+            self.assert_(almostEqual(self.transform.m, expectedTransform))
 
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
@@ -1211,12 +1218,20 @@ class PythonTestCase(AVGTestCase):
                 startHandler=onStart, moveHandler=onMove, upHandler=onUp)
         self.start(None,
                 (lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
-                 lambda: self.assert_(almostEqual(self.transform.m, ui.Mat3x3().m)),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 10),
-                 lambda: self.assert_(almostEqual(self.transform.m, ui.Mat3x3().m)),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 20),
-                 lambda: self.assert_(almostEqual(self.transform.m, 
-                        ui.Mat3x3([0, 1, 10], [-1,0,30]).m)),
+                 lambda: checkTransform(ui.Mat3x3().m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
+                 lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 20),
+                 lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 30, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 30, 20),
+                 lambda: checkTransform(ui.Mat3x3.translate([20,0]).m),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 20),
+                 lambda: checkTransform(ui.Mat3x3.translate([20,0]).m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 40, 10),
+                 lambda: checkTransform(ui.Mat3x3.translate([30,0]).m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
+                 lambda: checkTransform(ui.Mat3x3.translate([40,0]).m),
 #                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 20, 20)
                 ))
 

@@ -384,19 +384,24 @@ class TransformRecognizer(Recognizer):
         self.__friction = friction
         self.__baseTransform = Mat3x3()
         self.__transform = Mat3x3()
+        self.__startPosns = []
         Recognizer.__init__(self, node, eventSource, None, initialEvent)
 
     def _handleDown(self, event):
         numContacts = len(self._contacts)
         self.__newPhase()
         if numContacts == 1:
+            self.__baseTransform = Mat3x3()
+            self.__transform = Mat3x3()
             self.__startHandler()
 
     def _handleUp(self, event):
         numContacts = len(self._contacts)
         if numContacts == 1:
-            self.__newPhase()
+            contact = self._contacts.keys()[0]
+            self.__transform = Mat3x3.translate(event.pos - self.__startPosns[0])
             totalTransform = self.__baseTransform.applyMat(self.__transform)
+            self.__newPhase()
             self.__upHandler(totalTransform)
         else:
             # TODO: Calculate motion before up
@@ -406,18 +411,15 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         if numContacts == 1:
             contact = self._contacts.keys()[0]
-            contactInfo = self._contacts[contact]
             self.__transform = Mat3x3.translate(
-                    contact.events[-1].pos - contactInfo.startPos)
+                    contact.events[-1].pos - self.__startPosns[0])
         elif numContacts == 2:
-            contact0, contact0Info = self._contacts.items()[0]
-            contact1, contact1Info = self._contacts.items()[1]
-            start0 = contact0Info.startPos
-            cur0 = contact0.events[-1].pos
-            start1 = contact1Info.startPos
-            cur1 = contact1.events[-1].pos
-            self.__transform = self.__calcAffineTransform(start0, cur0, start1, cur1,
-                    self.__start2)
+            cur0 = self._contacts.keys()[0].events[-1].pos
+            cur1 = self._contacts.keys()[1].events[-1].pos
+            self.__transform = self.__calcAffineTransform(
+                    self.__startPosns[0], cur0, 
+                    self.__startPosns[1], cur1,
+                    self.__startPosns[2])
         totalTransform = self.__baseTransform.applyMat(self.__transform)
         self.__moveHandler(totalTransform)
 
@@ -467,17 +469,13 @@ class TransformRecognizer(Recognizer):
         self.__baseTransform = self.__baseTransform.applyMat(self.__transform)
         self.__transform = Mat3x3()
 
-        for contact, contactInfo in self._contacts.iteritems():
-            contactInfo.startPos = contact.events[-1].pos
-
+        self.__startPosns = []
         numContacts = len(self._contacts)
-        if numContacts == 1:
-            self.__baseTransform = Mat3x3()
-            self.__transform = Mat3x3()
-        elif numContacts == 2:
-            contact0, contact0Info = self._contacts.items()[0]
-            contact1, contact1Info = self._contacts.items()[1]
-            start0 = contact0Info.startPos
-            start1 = contact1Info.startPos
-            self.__start2 = self.__findThirdPoint(start0, start1)
+        contact = self._contacts.keys()[0]
+        self.__startPosns.append(contact.events[-1].pos)
+        if numContacts == 2:
+            contact = self._contacts.keys()[1]
+            self.__startPosns.append(contact.events[-1].pos)
+            self.__startPosns.append(self.__findThirdPoint(self.__startPosns[0], 
+                    self.__startPosns[1]))
         
