@@ -310,6 +310,14 @@ class Mat3x3:
         return Mat3x3([s, 0, 0],
                       [0, s, 0])
 
+    @classmethod
+    def fromNode(cls, node, baseSize):
+        scale = node.size.x/BASE_SIZE.x
+        return ui.Mat3x3.translate(node.pos).applyMat(
+                ui.Mat3x3.rotate(node.angle).applyMat(
+                ui.Mat3x3.scale(scale)))
+        
+
     def __str__(self):
         return self.m.__str__()
 
