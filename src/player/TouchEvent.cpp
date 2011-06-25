@@ -183,6 +183,11 @@ vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
     return pRelatedEvents;
 }
 
+void TouchEvent::removeBlob()
+{
+    m_pBlob = BlobPtr();
+}
+
 void TouchEvent::trace()
 {
     CursorEvent::trace();

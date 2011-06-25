@@ -66,8 +66,10 @@ class AVG_API TouchEvent: public CursorEvent
         void addRelatedEvent(TouchEventPtr pEvent);
         std::vector<TouchEventPtr> getRelatedEvents() const;
 
+        void removeBlob();
+
         virtual void trace();
-    
+
     private:
         BlobPtr m_pBlob;
         double m_Orientation;

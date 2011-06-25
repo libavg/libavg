@@ -113,6 +113,7 @@ void Contact::addEvent(CursorEventPtr pEvent)
     pEvent->setContact(shared_from_this());
     calcSpeed(pEvent, m_Events.back());
     updateDistanceTravelled(m_Events.back(), pEvent);
+    m_Events.back()->removeBlob();
     m_Events.push_back(pEvent);
 }
 

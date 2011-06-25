@@ -67,6 +67,7 @@ class AVG_API CursorEvent: public Event
 
         void setContact(ContactPtr pContact);
         ContactPtr getContact() const;
+        virtual void removeBlob() {};
 
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
         virtual void trace();
