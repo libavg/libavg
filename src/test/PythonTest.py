@@ -1239,6 +1239,14 @@ class PythonTestCase(AVGTestCase):
                        [-5.,      -3.,    1.])
         self.assert_(almostEqual(m.inverse().m, im.m))
 
+        image = avg.ImageNode(pos=(10,20), pivot=(0,0), size=(30,40), angle=1.57, 
+            href="rgb24alpha-64x64.png")
+        mat = ui.Mat3x3.fromNode(image)
+        mat.setNodeTransform(image)
+        self.assert_(almostEqual(image.pos, (10,20)))
+        self.assert_(almostEqual(image.size, (30,40)))
+        self.assert_(almostEqual(image.angle, 1.57))
+
     def testFocusContext(self):
         def setup():
             textarea.init(avg)
