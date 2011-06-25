@@ -282,9 +282,9 @@ bool almostEqual(const DPoint& pt1, const DPoint& pt2)
 
 double vecAngle(const DPoint& pt1, const DPoint pt2)
 {
-    double angle = fmod((atan2(pt1.y, pt1.x) - atan2(pt2.y, pt2.x)), 2*M_PI);
+    double angle = fmod((atan2(pt1.y, pt1.x) - atan2(pt2.y, pt2.x)), 2*PI);
     if (angle < 0) {
-        angle += 2*M_PI;
+        angle += 2*PI;
     }
     return angle;
 }
