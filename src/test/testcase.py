@@ -29,6 +29,17 @@ import math
 from libavg import avg
 
 
+def almostEqual(a,b):
+    try:
+        bOk = True
+        for i in range(len(a)):
+            if not(almostEqual(a[i], b[i])):
+                bOk = False
+        return bOk
+    except:
+        return math.fabs(a-b) < 0.000001
+
+
 class AVGTestCase(unittest.TestCase):
     imageResultDirectory = "resultimages"
     baselineImageResultDirectory = "baseline"

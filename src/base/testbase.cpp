@@ -344,7 +344,7 @@ public:
         TEST(almostEqual(DPoint(0,10), DPoint::fromPolar(PI*0.5, 10)));
         TEST(almostEqual(DPoint(0,-1), DPoint::fromPolar(PI*1.5, 1)));
         TEST(almostEqual(vecAngle(DPoint(0,1),DPoint(1,0)), PI*0.5));
-        TEST(almostEqual(vecAngle(DPoint(0,-1),DPoint(1,0)), -PI*0.5));
+        TEST(almostEqual(vecAngle(DPoint(0,-1),DPoint(1,0)), PI*1.5));
         TEST(almostEqual(vecAngle(DPoint(0,2),DPoint(1,0)), PI*0.5));
     }
 };

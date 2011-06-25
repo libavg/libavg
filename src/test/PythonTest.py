@@ -23,6 +23,7 @@ import unittest
 
 from libavg import avg, anim, draggable, textarea, ui, geom, statemachine
 
+import math
 from testcase import *
 
 class PythonTestCase(AVGTestCase):
@@ -1193,6 +1194,51 @@ class PythonTestCase(AVGTestCase):
                  lambda: assertEvents(True, False, True),
                 ))
 
+    def testTransformRecognizer(self):
+        
+        def onStart():
+            pass
+
+        def onMove(transform):
+            self.transform = transform
+
+        def onUp(transform):
+            pass
+
+        self.loadEmptyScene()
+        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp)
+        self.start(None,
+                (lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: self.assert_(almostEqual(self.transform.m, ui.Mat3x3().m)),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 10),
+                 lambda: self.assert_(almostEqual(self.transform.m, ui.Mat3x3().m)),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 20),
+                 lambda: self.assert_(almostEqual(self.transform.m, 
+                        ui.Mat3x3([0, 1, 10], [-1,0,30]).m)),
+#                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 20, 20)
+                ))
+
+    def testMat3x3(self):
+        t = ui.Mat3x3.translate([1,0,1])
+        v = [1,0,1]
+        self.assert_(t.applyVec(v) == [2,0,1])
+        r = ui.Mat3x3.rotate(math.pi/2)
+        self.assert_(almostEqual(r.applyVec(v), [0,1,1]))
+        t2 = t.applyMat(t)
+        self.assert_(almostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m))
+        self.assert_(almostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m))
+        self.assert_(almostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m))
+        self.assert_(almostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m))
+        m = ui.Mat3x3([-1,  3, -3], 
+                      [ 0, -6,  5],
+                      [-5, -3,  1])
+        im = ui.Mat3x3([3./2,      1., -1./2],
+                       [-25./6, -8./3,  5./6],
+                       [-5.,      -3.,    1.])
+        self.assert_(almostEqual(m.inverse().m, im.m))
+
     def testFocusContext(self):
         def setup():
             textarea.init(avg)
@@ -1407,6 +1453,8 @@ def pythonTestSuite (tests):
         "testDragRecognizerInitialEvent",
         "testHoldRecognizer",
         "testTapRecognizer",
+        "testTransformRecognizer",
+        "testMat3x3",
         "testFocusContext",
         "testRoundedRect",
         "testPieSlice",

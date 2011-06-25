@@ -23,7 +23,15 @@ from libavg import avg
 
 from helper import *
 
+from math import *
+
 g_Player = avg.Player.get()
+
+class ContactData:
+
+    def __init__(self, listenerid):
+        self.listenerid = listenerid
+
 
 class Recognizer(object):
 
@@ -35,6 +43,7 @@ class Recognizer(object):
         self.__isEnabled = True
         self.__maxContacts = maxContacts
         self._contacts = {}
+        self.__dirty = False
         if initialEvent:
             self._onDown(initialEvent)
 
@@ -44,30 +53,53 @@ class Recognizer(object):
             if isEnabled:
                 self.__setEventHandler()
             else:
-                for contact, listenerid in self._contacts.iteritems():
-                    contact.disconnectListener(listenerid)
-                self._contacts = {}
+                self._abort()
                 self._node.disconnectEventHandler(self)
 
     def _onDown(self, event):
-        if len(self._contacts) < self.__maxContacts:
+        if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
             listenerid = event.contact.connectListener(self._onMotion, self._onUp)
-            self._contacts[event.contact] = listenerid
+            self._contacts[event.contact] = ContactData(listenerid)
+            if len(self._contacts) == 1:
+                self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
+            self.__dirty = True
             return self._handleDown(event)
 
     def _onMotion(self, event):
+        self.__dirty = True
         self._handleMove(event)
 
     def _onUp(self, event):
-        listenerid = self._contacts[event.contact]
+        self.__dirty = True
+        listenerid = self._contacts[event.contact].listenerid
+        self._handleUp(event)
         del self._contacts[event.contact]
         event.contact.disconnectListener(listenerid)
-        self._handleUp(event)
+        if self._contacts == {}:
+            g_Player.clearInterval(self.__frameHandlerID)
 
-    def _abort(self, event):
-        for contact, listenerid in self._contacts.iteritems():
-            contact.disconnectListener(listenerid)
+    def _abort(self):
+        for contact, contactData in self._contacts.iteritems():
+            contact.disconnectListener(contactData.listenerid)
         self._contacts = {}
+        g_Player.clearInterval(self.__frameHandlerID)
+
+    def _handleDown(self, event):
+        pass
+
+    def _handleMove(self, event):
+        pass
+
+    def _handleUp(self, event):
+        pass
+
+    def _handleChange(self):
+        pass
+
+    def __onFrame(self):
+        if self.__dirty:
+            self._handleChange()
+            self.__dirty = False
 
     def __setEventHandler(self):
         self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
@@ -240,7 +272,7 @@ class TapRecognizer(Recognizer):
     
     def _handleMove(self, event):
         if event.contact.distancefromstart > self.__maxDistance:
-            self._abort(event)
+            self._abort()
             self.__fail(event)
 
     def _handleUp(self, event):
@@ -256,3 +288,178 @@ class TapRecognizer(Recognizer):
         self.__failHandler()
         self.__state = TapRecognizer.UP
 
+
+class Mat3x3:
+    # Internal class. Will be removed again.
+
+    def __init__(self, row0=(1,0,0), row1=(0,1,0), row2=(0,0,1)):
+        self.m = [row0, row1, row2]
+
+    @classmethod
+    def translate(cls, t):
+        return Mat3x3([1, 0, t[0]],
+                      [0, 1, t[1]])
+
+    @classmethod
+    def rotate(cls, a):
+        return Mat3x3([cos(a), -sin(a), 0],
+                      [sin(a), cos(a), 0])
+
+    @classmethod
+    def scale(cls, s):
+        return Mat3x3([s, 0, 0],
+                      [0, s, 0])
+
+    def __str__(self):
+        return self.m.__str__()
+
+    def applyVec(self, v):
+        m = self.m
+        v1 = []
+        for i in range(3):
+            v1.append(m[i][0]*v[0] + m[i][1]*v[1] + m[i][2]*v[2])
+        return v1
+
+    def applyMat(self, m1):
+        m0 = self.m
+        result = Mat3x3() 
+        for i in range(3):
+            v = []
+            for j in range(3):
+                v.append(m0[i][0]*m1.m[0][j] + m0[i][1]*m1.m[1][j] + m0[i][2]*m1.m[2][j])
+            result.m[i] = v
+        return result
+
+    def det(self):
+        m = self.m
+        return float( m[0][0] * (m[2][2]*m[1][1]-m[2][1]*m[1][2])
+                     -m[1][0] * (m[2][2]*m[0][1]-m[2][1]*m[0][2])
+                     +m[2][0] * (m[1][2]*m[0][1]-m[1][1]*m[0][2]))
+
+    def scalarMult(self, s):
+        m = self.m
+        result = Mat3x3()
+        for i in range(3):
+            v = []
+            for j in range(3):
+                v.append(m[i][j]*s)
+            result.m[i] = v
+        return result
+
+    def inverse(self):
+        m = self.m
+        temp = Mat3x3([  m[2][2]*m[1][1]-m[2][1]*m[1][2],  -(m[2][2]*m[0][1]-m[2][1]*m[0][2]),   m[1][2]*m[0][1]-m[1][1]*m[0][2] ],
+                      [-(m[2][2]*m[1][0]-m[2][0]*m[1][2]),   m[2][2]*m[0][0]-m[2][0]*m[0][2] , -(m[1][2]*m[0][0]-m[1][0]*m[0][2])],
+                      [  m[2][1]*m[1][0]-m[2][0]*m[1][1],  -(m[2][1]*m[0][0]-m[2][0]*m[0][1]),   m[1][1]*m[0][0]-m[1][0]*m[0][1] ])
+        return temp.scalarMult(1/self.det())
+
+
+class TransformRecognizer(Recognizer):
+
+    def __init__(self, node, eventSource=avg.TOUCH, startHandler=None,
+            moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
+            friction=-1):
+        self.__startHandler = optionalCallback(startHandler, lambda:None)
+        self.__moveHandler = optionalCallback(moveHandler, lambda trans, rot, scale:None)
+        self.__stopHandler = optionalCallback(stopHandler, lambda:None)
+        self.__upHandler = optionalCallback(upHandler, lambda offset:None)
+        self.__friction = friction
+        self.__baseTransform = Mat3x3()
+        self.__transform = Mat3x3()
+        Recognizer.__init__(self, node, eventSource, None, initialEvent)
+
+    def _handleDown(self, event):
+        numContacts = len(self._contacts)
+        self.__newPhase()
+        if numContacts == 1:
+            self.__startHandler()
+
+    def _handleUp(self, event):
+        numContacts = len(self._contacts)
+        if numContacts == 1:
+            self.__newPhase()
+            totalTransform = self.__baseTransform.applyMat(self.__transform)
+            self.__upHandler(totalTransform)
+        else:
+            # TODO: Calculate motion before up
+            self.__newPhase()
+
+    def _handleChange(self):
+        numContacts = len(self._contacts)
+        if numContacts == 1:
+            contact = self._contacts.keys()[0]
+            contactInfo = self._contacts[contact]
+            self.__transform = Mat3x3.translate(
+                    contact.events[-1].pos - contactInfo.startPos)
+        elif numContacts == 2:
+            contact0, contact0Info = self._contacts.items()[0]
+            contact1, contact1Info = self._contacts.items()[1]
+            start0 = contact0Info.startPos
+            cur0 = contact0.events[-1].pos
+            start1 = contact1Info.startPos
+            cur1 = contact1.events[-1].pos
+            self.__transform = self.__calcAffineTransform(start0, cur0, start1, cur1,
+                    self.__start2)
+        totalTransform = self.__baseTransform.applyMat(self.__transform)
+        self.__moveHandler(totalTransform)
+
+    def __calcAffineTransform(self, start0, cur0, start1, cur1, start2):
+        # Algorithm from http://mike.teczno.com/notes/two-fingers.html
+
+        def solveLinearEquations(x1, y1, z1,  x2, y2, z2,  x3, y3, z3):
+            # Solves a system of linear equations.
+            #
+            #   z1 = (a * x1) + (b * y1) + c
+            #   z2 = (a * x2) + (b * y2) + c
+            #   z3 = (a * x3) + (b * y3) + c
+            a = ((((z2 - z3) * (y1 - y2)) - ((z1 - z2) * (y2 - y3)))
+                     / (((x2 - x3) * (y1 - y2)) - ((x1 - x2) * (y2 - y3))))
+            b = ((((z2 - z3) * (x1 - x2)) - ((z1 - z2) * (x2 - x3)))
+                     / (((y2 - y3) * (x1 - x2)) - ((y1 - y2) * (x2 - x3))))
+            c = z1 - (x1 * a) - (y1 * b)
+            return [a, b, c]
+
+        cur2 = self.__findThirdPoint(cur0, cur1)
+        xt = solveLinearEquations(
+                start0.x, start0.y, cur0.x,
+                start1.x, start1.y, cur1.x,
+                start2.x, start2.y, cur2.x)
+        yt = solveLinearEquations(
+                start0.x, start0.y, cur0.y,
+                start1.x, start1.y, cur1.y,
+                start2.x, start2.y, cur2.y)
+        return Mat3x3(xt, yt)
+
+    def __findThirdPoint(self, f1, f2):
+        diff = f2 - f1
+        diffAngle = atan2(diff.y, diff.x)
+        diffLen = diff.getNorm()
+
+        vec1 = avg.Point2D.fromPolar(diffAngle+pi/4, diffLen)
+        vec2 = avg.Point2D.fromPolar(diffAngle+3*pi/4, diffLen)
+        slope1 = vec1.y/vec1.x
+        intercept1 = f1.y - slope1*f1.x
+        slope2 = vec2.y/vec2.x
+        intercept2 = f2.y - slope2*f2.x
+        x = (intercept2-intercept1) / (slope1-slope2)
+        return avg.Point2D(x, slope1*x + intercept1)
+
+
+    def __newPhase(self):
+        self.__baseTransform = self.__baseTransform.applyMat(self.__transform)
+        self.__transform = Mat3x3()
+
+        for contact, contactInfo in self._contacts.iteritems():
+            contactInfo.startPos = contact.events[-1].pos
+
+        numContacts = len(self._contacts)
+        if numContacts == 1:
+            self.__baseTransform = Mat3x3()
+            self.__transform = Mat3x3()
+        elif numContacts == 2:
+            contact0, contact0Info = self._contacts.items()[0]
+            contact1, contact1Info = self._contacts.items()[1]
+            start0 = contact0Info.startPos
+            start1 = contact1Info.startPos
+            self.__start2 = self.__findThirdPoint(start0, start1)
+        

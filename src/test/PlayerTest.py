@@ -27,17 +27,6 @@ import math
 from libavg import avg
 from testcase import *
 
-def almostEqual(a,b):
-    try:
-        bOk = True
-        for i in range(len(a)):
-            if math.fabs(a[i]-b[i]) > 0.000001:
-                bOk = False
-        return bOk
-    except:
-        return math.fabs(a-b) < 0.000001
-
-
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)

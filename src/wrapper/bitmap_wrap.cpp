@@ -58,9 +58,11 @@ class_<POINT> export_point(const string& sName)
         .def(float() * self)
         .def(self * float())
         .def(self / float())
+        .def("getAngle", &DPoint::getAngle)
         .def("fromPolar", &DPoint::fromPolar)
         .staticmethod("fromPolar")
-        .def("getAngle", &DPoint::getAngle)
+        .def("angle", &vecAngle)
+        .staticmethod("angle")
     ;
 }
 
