@@ -312,11 +312,20 @@ class Mat3x3:
 
     @classmethod
     def fromNode(cls, node, baseSize):
-        scale = node.size.x/BASE_SIZE.x
-        return ui.Mat3x3.translate(node.pos).applyMat(
-                ui.Mat3x3.rotate(node.angle).applyMat(
-                ui.Mat3x3.scale(scale)))
-        
+        scale = node.size.x/baseSize.x
+        return Mat3x3.translate(node.pos).applyMat(
+                Mat3x3.rotate(node.angle).applyMat(
+                Mat3x3.scale(scale)))
+      
+    def setNodeTransform(self, node, baseSize):
+        v = self.applyVec([0,0,1])
+        node.pos = avg.Point2D(v[0], v[1])
+        v = self.applyVec([1,0,0])
+        scale = avg.Point2D(v[0], v[1]).getNorm()
+        node.size = baseSize*scale
+        m = self.m
+        rot = avg.Point2D(v[0], v[1]).getAngle()
+        node.angle = rot
 
     def __str__(self):
         return self.m.__str__()
