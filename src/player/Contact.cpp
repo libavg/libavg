@@ -102,6 +102,11 @@ double Contact::getDistanceTravelled() const
     return m_DistanceTravelled;
 }
 
+vector<CursorEventPtr> Contact::getEvents() const
+{
+    return m_Events;
+}
+
 void Contact::addEvent(CursorEventPtr pEvent)
 {
     pEvent->setCursorID(m_CursorID);

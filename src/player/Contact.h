@@ -56,6 +56,7 @@ public:
     double getMotionAngle() const;
     DPoint getMotionVec() const;
     double getDistanceTravelled() const;
+    std::vector<CursorEventPtr> getEvents() const;
 
     void addEvent(CursorEventPtr pEvent);
     bool hasListeners() const;

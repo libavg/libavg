@@ -75,6 +75,8 @@ void export_event()
 {
     boost::python::to_python_converter<vector<TouchEventPtr>, 
         to_tuple<vector<TouchEventPtr> > >();
+    boost::python::to_python_converter<vector<CursorEventPtr>, 
+        to_tuple<vector<CursorEventPtr> > >();
 
     boost::python::to_python_converter<ContourSeq, to_list<ContourSeq> >();    
    
@@ -136,7 +138,8 @@ void export_event()
                                     return_value_policy<copy_const_reference>()))
     ;
 
-    class_<CursorEvent, bases<Event> >("CursorEvent", no_init)
+    class_<CursorEvent, boost::shared_ptr<CursorEvent>, bases<Event> >("CursorEvent", 
+            no_init)
         .add_property("source", &CursorEvent::getSource)
         .add_property("pos", &CursorEvent::getPos)
         .add_property("x", &CursorEvent::getXPosition)
@@ -189,6 +192,7 @@ void export_event()
         .add_property("motionangle", &Contact::getMotionAngle)
         .add_property("motionvec", &Contact::getMotionVec)
         .add_property("distancetravelled", &Contact::getDistanceTravelled)
+        .add_property("events", &Contact::getEvents)
         .def("connectListener", &Contact::connectListener)
         .def("disconnectListener", &Contact::disconnectListener)
         .def("__hash__", &Contact::getHash)

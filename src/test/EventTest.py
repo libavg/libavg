@@ -598,6 +598,8 @@ class EventTestCase(AVGTestCase):
             self.assert_(contact.motionangle == 0)
             self.assert_(contact.motionvec == (0,0))
             self.assert_(contact.distancetravelled == 0)
+            self.assert_(contact.events[0].pos == event.pos)
+            self.assert_(len(contact.events) == 1)
             contact.connectListener(onMotion, onUp)
 
         def onMotion(event):
@@ -608,6 +610,8 @@ class EventTestCase(AVGTestCase):
             self.assert_(contact.motionangle == 0)
             self.assert_(contact.motionvec == (10,0))
             self.assert_(contact.distancetravelled == 10)
+            self.assert_(contact.events[-1].pos == event.pos)
+            self.assert_(len(contact.events) > 1)
             self.numContactCallbacks += 1
  
         def onUp(event):
@@ -618,6 +622,8 @@ class EventTestCase(AVGTestCase):
             self.assert_(contact.motionangle == 0)
             self.assert_(contact.motionvec == (0,0))
             self.assert_(contact.distancetravelled == 20)
+            self.assert_(contact.events[-1].pos == event.pos)
+            self.assert_(len(contact.events) > 1)
             self.numContactCallbacks += 1
 
         def onOver(event): 
