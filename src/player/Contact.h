@@ -71,8 +71,7 @@ private:
     void calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent);
     void updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2);
 
-    CursorEventPtr m_pFirstEvent;
-    CursorEventPtr m_pLastEvent;
+    std::vector<CursorEventPtr> m_Events;
 
     bool m_bSendingEvents;
 

@@ -42,8 +42,7 @@ Contact::Contact(CursorEventPtr pEvent)
       m_CursorID(pEvent->getCursorID()),
       m_DistanceTravelled(0)
 {
-    m_pFirstEvent = pEvent;
-    m_pLastEvent = pEvent;
+    m_Events.push_back(pEvent);
 }
 
 Contact::~Contact()
@@ -75,7 +74,7 @@ void Contact::disconnectListener(int id)
 
 long long Contact::getAge() const
 {
-    return m_pLastEvent->getWhen() - m_pFirstEvent->getWhen();
+    return m_Events.back()->getWhen() - m_Events[0]->getWhen();
 }
 
 double Contact::getDistanceFromStart() const
@@ -95,7 +94,7 @@ double Contact::getMotionAngle() const
 
 DPoint Contact::getMotionVec() const
 {
-    return m_pLastEvent->getPos() - m_pFirstEvent->getPos();
+    return m_Events.back()->getPos() - m_Events[0]->getPos();
 }
 
 double Contact::getDistanceTravelled() const
@@ -107,9 +106,9 @@ void Contact::addEvent(CursorEventPtr pEvent)
 {
     pEvent->setCursorID(m_CursorID);
     pEvent->setContact(shared_from_this());
-    calcSpeed(pEvent, m_pLastEvent);
-    updateDistanceTravelled(m_pLastEvent, pEvent);
-    m_pLastEvent = pEvent;
+    calcSpeed(pEvent, m_Events.back());
+    updateDistanceTravelled(m_Events.back(), pEvent);
+    m_Events.push_back(pEvent);
 }
 
 bool Contact::hasListeners() const
