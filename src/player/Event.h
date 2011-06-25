@@ -35,8 +35,6 @@ namespace avg {
 class IInputDevice;
 typedef boost::shared_ptr<class IInputDevice> IInputDevicePtr;
 typedef boost::weak_ptr<class IInputDevice> IInputDeviceWeakPtr;
-class VisibleNode;
-typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
 
 class AVG_API Event {
     public:

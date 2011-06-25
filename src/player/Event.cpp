@@ -21,7 +21,6 @@
 
 #include "Event.h"
 #include "IInputDevice.h"
-#include "VisibleNode.h"
 #include "Player.h"
 
 #include "../base/TimeSource.h"

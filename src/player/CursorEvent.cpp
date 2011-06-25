@@ -92,7 +92,7 @@ void CursorEvent::setNode(VisibleNodePtr pNode)
 
 VisibleNodePtr CursorEvent::getNode() const
 {
-    return m_pNode;
+    return m_pNode.lock();
 }
         
 void CursorEvent::setSpeed(DPoint speed)
@@ -124,10 +124,10 @@ bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 void CursorEvent::trace()
 {
     string sType = typeStr();
-    if (!m_pNode) {
+    if (m_pNode.expired()) {
         AVG_TRACE(Logger::EVENTS, sType); 
     } else {
-        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
+        AVG_TRACE(Logger::EVENTS, m_pNode.lock()->getID()+", "+sType); 
     }
 }
 

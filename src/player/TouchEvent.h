@@ -26,10 +26,8 @@
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "VisibleNode.h"
 
 #include "../imaging/Blob.h"
-#include "../graphics/Bitmap.h"
 #include "../base/Point.h"
 
 #include <math.h>
