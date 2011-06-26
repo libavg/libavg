@@ -1235,6 +1235,15 @@ class PythonTestCase(AVGTestCase):
 #                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 20, 20)
                 ))
 
+    def testKMeans(self):
+        pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
+        means = ui.calcKMeans(pts)
+        self.assert_(means == ([0], [1]))
+
+        pts.append (avg.Point2D(0,4))
+        means = ui.calcKMeans(pts)
+        self.assert_(means == ([0,1], [2]))
+
     def testMat3x3(self):
         t = ui.Mat3x3.translate([1,0,1])
         v = [1,0,1]
@@ -1477,6 +1486,7 @@ def pythonTestSuite (tests):
         "testHoldRecognizer",
         "testTapRecognizer",
         "testTransformRecognizer",
+        "testKMeans",
         "testMat3x3",
         "testFocusContext",
         "testRoundedRect",

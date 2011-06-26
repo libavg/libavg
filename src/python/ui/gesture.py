@@ -373,6 +373,40 @@ class Mat3x3:
         return temp.scalarMult(1/self.det())
 
 
+def calcKMeans(pts):
+    
+    def getCentroid(indexes, pts):
+        c = avg.Point2D(0, 0)
+        for i in indexes:
+            c += pts[i]
+        return c/len(indexes)
+
+    # in: List of points
+    # out: Two lists, each containing indexes into the input list
+    assert(len(pts) > 1)
+    done = False
+    p1 = pts[0]
+    p2 = pts[1]
+    oldP1 = None
+    oldP2 = None
+    while not(p1 == oldP1 and p2 == oldP2):
+        l1 = []
+        l2 = []
+        # Group points
+        for i, pt in enumerate(pts):
+            dist1 = (pt-p1).getNorm()
+            dist2 = (pt-p2).getNorm()
+            if dist1 < dist2:
+                l1.append(i)
+            else:
+                l2.append(i)
+        oldP1 = p1
+        oldP2 = p2
+        p1 = getCentroid(l1, pts)
+        p2 = getCentroid(l2, pts)
+    return l1, l2
+        
+
 class TransformRecognizer(Recognizer):
 
     def __init__(self, node, eventSource=avg.TOUCH, startHandler=None,
@@ -465,7 +499,6 @@ class TransformRecognizer(Recognizer):
         x = (intercept2-intercept1) / (slope1-slope2)
         return avg.Point2D(x, slope1*x + intercept1)
 
-
     def __newPhase(self):
         self.__baseTransform = self.__transform.applyMat(self.__baseTransform)
         self.__transform = Mat3x3()
@@ -479,4 +512,4 @@ class TransformRecognizer(Recognizer):
             self.__startPosns.append(contact.events[-1].pos)
             self.__startPosns.append(self.__findThirdPoint(self.__startPosns[0], 
                     self.__startPosns[1]))
-        
+
