@@ -72,12 +72,11 @@ class Recognizer(object):
     def _onUp(self, event):
         self.__dirty = True
         listenerid = self._contacts[event.contact].listenerid
+        del self._contacts[event.contact]
+        event.contact.disconnectListener(listenerid)
+        if self._contacts == {}:
+            g_Player.clearInterval(self.__frameHandlerID)
         self._handleUp(event)
-        if self._contacts != {}:
-            del self._contacts[event.contact]
-            event.contact.disconnectListener(listenerid)
-            if self._contacts == {}:
-                g_Player.clearInterval(self.__frameHandlerID)
 
     def _abort(self):
         for contact, contactData in self._contacts.iteritems():
@@ -373,14 +372,14 @@ class Mat3x3:
         return temp.scalarMult(1/self.det())
 
 
+def getCentroid(indexes, pts):
+    c = avg.Point2D(0, 0)
+    for i in indexes:
+        c += pts[i]
+    return c/len(indexes)
+
 def calcKMeans(pts):
     
-    def getCentroid(indexes, pts):
-        c = avg.Point2D(0, 0)
-        for i in indexes:
-            c += pts[i]
-        return c/len(indexes)
-
     # in: List of points
     # out: Two lists, each containing indexes into the input list
     assert(len(pts) > 1)
@@ -420,6 +419,7 @@ class TransformRecognizer(Recognizer):
         self.__baseTransform = Mat3x3()
         self.__transform = Mat3x3()
         self.__startPosns = []
+        self.__posns = []
         Recognizer.__init__(self, node, eventSource, None, initialEvent)
 
     def _handleDown(self, event):
@@ -432,12 +432,13 @@ class TransformRecognizer(Recognizer):
 
     def _handleUp(self, event):
         numContacts = len(self._contacts)
-        if numContacts == 1:
-            contact = self._contacts.keys()[0]
+        if numContacts == 0:
+            contact = event.contact
             self.__transform = Mat3x3.translate(event.pos - self.__startPosns[0])
             totalTransform = self.__transform.applyMat(self.__baseTransform)
-            self.__newPhase()
             self.__upHandler(totalTransform)
+        elif numContacts == 1:
+            self.__newPhase()
         else:
             # TODO: Calculate motion before up
             self.__newPhase()
@@ -448,12 +449,16 @@ class TransformRecognizer(Recognizer):
             contact = self._contacts.keys()[0]
             self.__transform = Mat3x3.translate(
                     contact.events[-1].pos - self.__startPosns[0])
-        elif numContacts == 2:
-            cur0 = self._contacts.keys()[0].events[-1].pos
-            cur1 = self._contacts.keys()[1].events[-1].pos
+        else:
+            contactPosns = [contact.events[-1].pos for contact in self._contacts.keys()]
+            if numContacts == 2:
+                self.__posns = contactPosns
+            else:
+                self.__posns = [getCentroid(self.__clusters[i], contactPosns) for
+                        i in range(2)]
             self.__transform = self.__calcAffineTransform(
-                    self.__startPosns[0], cur0, 
-                    self.__startPosns[1], cur1,
+                    self.__startPosns[0], self.__posns[0], 
+                    self.__startPosns[1], self.__posns[1],
                     self.__startPosns[2])
         totalTransform = self.__transform.applyMat(self.__baseTransform)
         self.__moveHandler(totalTransform)
@@ -505,11 +510,18 @@ class TransformRecognizer(Recognizer):
 
         self.__startPosns = []
         numContacts = len(self._contacts)
-        contact = self._contacts.keys()[0]
-        self.__startPosns.append(contact.events[-1].pos)
-        if numContacts == 2:
-            contact = self._contacts.keys()[1]
+        if numContacts == 1:
+            contact = self._contacts.keys()[0]
             self.__startPosns.append(contact.events[-1].pos)
+        else:
+            contactPosns = [contact.events[-1].pos for contact in self._contacts.keys()]
+            if numContacts == 2:
+                self.__startPosns = contactPosns
+            else:
+                self.__clusters = calcKMeans(contactPosns)
+                self.__startPosns = [getCentroid(self.__clusters[i], contactPosns) for
+                        i in range(2)]
+
             self.__startPosns.append(self.__findThirdPoint(self.__startPosns[0], 
                     self.__startPosns[1]))
 

@@ -1200,14 +1200,10 @@ class PythonTestCase(AVGTestCase):
             pass
 
         def onMove(transform):
-#            print "move"
             self.transform = transform
-#            print transform
 
         def onUp(transform):
-#            print "up"
             self.transform = transform
-#            print transform
 
         def checkTransform(expectedTransform):
             self.assert_(almostEqual(self.transform.m, expectedTransform))
@@ -1232,7 +1228,6 @@ class PythonTestCase(AVGTestCase):
                  lambda: checkTransform(ui.Mat3x3.translate([30,0]).m),
                  lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
                  lambda: checkTransform(ui.Mat3x3.translate([40,0]).m),
-#                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 20, 20)
                 ))
 
     def testKMeans(self):
