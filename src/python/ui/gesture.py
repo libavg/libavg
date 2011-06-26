@@ -73,10 +73,11 @@ class Recognizer(object):
         self.__dirty = True
         listenerid = self._contacts[event.contact].listenerid
         self._handleUp(event)
-        del self._contacts[event.contact]
-        event.contact.disconnectListener(listenerid)
-        if self._contacts == {}:
-            g_Player.clearInterval(self.__frameHandlerID)
+        if self._contacts != {}:
+            del self._contacts[event.contact]
+            event.contact.disconnectListener(listenerid)
+            if self._contacts == {}:
+                g_Player.clearInterval(self.__frameHandlerID)
 
     def _abort(self):
         for contact, contactData in self._contacts.iteritems():
