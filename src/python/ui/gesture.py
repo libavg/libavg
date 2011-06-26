@@ -401,7 +401,7 @@ class TransformRecognizer(Recognizer):
         if numContacts == 1:
             contact = self._contacts.keys()[0]
             self.__transform = Mat3x3.translate(event.pos - self.__startPosns[0])
-            totalTransform = self.__baseTransform.applyMat(self.__transform)
+            totalTransform = self.__transform.applyMat(self.__baseTransform)
             self.__newPhase()
             self.__upHandler(totalTransform)
         else:
@@ -421,7 +421,7 @@ class TransformRecognizer(Recognizer):
                     self.__startPosns[0], cur0, 
                     self.__startPosns[1], cur1,
                     self.__startPosns[2])
-        totalTransform = self.__baseTransform.applyMat(self.__transform)
+        totalTransform = self.__transform.applyMat(self.__baseTransform)
         self.__moveHandler(totalTransform)
 
     def __calcAffineTransform(self, start0, cur0, start1, cur1, start2):
@@ -467,7 +467,7 @@ class TransformRecognizer(Recognizer):
 
 
     def __newPhase(self):
-        self.__baseTransform = self.__baseTransform.applyMat(self.__transform)
+        self.__baseTransform = self.__transform.applyMat(self.__baseTransform)
         self.__transform = Mat3x3()
 
         self.__startPosns = []
