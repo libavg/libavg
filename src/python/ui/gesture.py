@@ -53,7 +53,8 @@ class Recognizer(object):
             if isEnabled:
                 self.__setEventHandler()
             else:
-                self._abort()
+                if self._contacts != {}:
+                    self._abort()
                 self._node.disconnectEventHandler(self)
 
     def _onDown(self, event):
