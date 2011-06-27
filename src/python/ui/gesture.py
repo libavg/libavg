@@ -256,7 +256,7 @@ class TapRecognizer(Recognizer):
     UP = 0
     POSSIBLE = 1
 
-    MAX_DISTANCE_IN_MM = 5
+    MAX_DISTANCE_IN_MM = 8
 
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
             tapHandler=None, failHandler=None, initialEvent=None):
