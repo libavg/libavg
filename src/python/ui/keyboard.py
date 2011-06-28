@@ -49,8 +49,8 @@ class Key(avg.ImageNode):
             self.__stickyIsDown = False
         self.__cursorID = None
         self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
-        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUpOut)
-        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onUpOut)
+        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUp)
+        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onOut)
 
     def reset(self):
         if self.__sticky:
@@ -87,11 +87,15 @@ class Key(avg.ImageNode):
                 return
             self.__pseudoDown(event)
 
-    def __onUpOut(self, event):
+    def __onUp(self, event):
         if not self.__cursorID == event.cursorid:
             return
         if not (self.__sticky):
             self.__pseudoUp(event)
+
+    def __onOut(self, event):
+        self.__cursorID = None
+        self.opacity = 0.0
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
