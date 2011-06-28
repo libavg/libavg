@@ -594,7 +594,7 @@ def AVTestSuite(tests):
             "testException",
             "testVideoWriter",
             "test2VideosAtOnce",
-            "testVideoAccel"
+            "testVideoAccel",
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 
