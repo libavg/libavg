@@ -44,15 +44,6 @@ ContinuousAnim::~ContinuousAnim()
 {
 }
 
-AnimPtr ContinuousAnim::create(const object& node, const string& sAttrName, 
-        const object& startValue, const object& speed, 
-        bool bUseInt, const object& startCallback, const object& stopCallback)
-{
-    AnimPtr pAnim = AnimPtr(new ContinuousAnim(node, sAttrName, startValue, 
-            speed, bUseInt, startCallback, stopCallback));
-    return pAnim;
-}
-
 void ContinuousAnim::start(bool bKeepAttr)
 {
     AttrAnim::start();

@@ -49,13 +49,13 @@ class AVG_API WordsNode : public RasterNode
         virtual void preRender();
         virtual void render(const DRect& rect);
 
-        virtual double getWidth();
+        virtual double getWidth() const;
         virtual void setWidth(double width);
 
-        virtual double getHeight();
+        virtual double getHeight() const;
         virtual void setHeight(double width);
 
-        virtual DPoint getSize();
+        virtual DPoint getSize() const;
         virtual void setSize(const DPoint& pt);
 
         void getElementsByPos(const DPoint& pos, 

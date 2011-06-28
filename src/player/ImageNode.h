@@ -49,7 +49,7 @@ class AVG_API ImageNode : public RasterNode
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
         const std::string getCompression() const;
-        void setBitmap(const Bitmap * pBmp);
+        void setBitmap(BitmapPtr pBmp);
         
         virtual void preRender();
         virtual void render(const DRect& Rect);
@@ -67,6 +67,8 @@ class AVG_API ImageNode : public RasterNode
         Image::TextureCompression m_Compression;
         ImagePtr m_pImage;
 };
+
+typedef boost::shared_ptr<ImageNode> ImageNodePtr;
 
 }
 

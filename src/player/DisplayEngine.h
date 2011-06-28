@@ -31,6 +31,8 @@
 
 #include "../base/Rect.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <string>
 
 namespace avg {
@@ -60,7 +62,6 @@ class AVG_API DisplayEngine
         virtual void swapBuffers() = 0;
         void checkJitter();
         long long getDisplayTime();
-        long long getTimeSinceLastFrame();
 
         virtual bool pushClipRect(const DRect& rc) = 0;
         virtual void popClipRect() = 0;
@@ -91,7 +92,6 @@ class AVG_API DisplayEngine
 
         // Per-Frame timings.
         long long m_LastFrameTime;
-        long long m_TimeSinceLastFrame;
         long long m_FrameWaitStartTime;
         long long m_TargetTime;
         int m_VBRate;
@@ -101,6 +101,8 @@ class AVG_API DisplayEngine
 
         double m_EffFramerate;
 };
+
+typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;
 
 }
 

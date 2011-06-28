@@ -22,7 +22,7 @@
 #ifndef _DSCamera_H_
 #define _DSCamera_H_
 
-#include "DSSampleQueue.h"
+#include "IDSSampleCallback.h"
 
 #include "../avgconfigwrapper.h"
 
@@ -43,11 +43,15 @@
 
 namespace avg {
 
-class DSCamera: public Camera {
+struct IlibavgGrabber;
+
+class DSCamera: public Camera, IDSSampleCallback
+{
 public:
     DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, PixelFormat destPF,
             double frameRate);
     virtual ~DSCamera();
+    virtual void startCapture();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
@@ -63,6 +67,8 @@ public:
     virtual int getWhitebalanceU() const;
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
+
+    virtual void onSample(IMediaSample * pSample);
 
     static void dumpCameras();
 
@@ -86,14 +92,14 @@ private:
     IMediaControl * m_pMediaControl;
     IBaseFilter * m_pSrcFilter;
     IBaseFilter * m_pGrabFilter;
-    ISampleGrabber * m_pSampleGrabber;
+    IlibavgGrabber * m_pSampleGrabber;
     IAMVideoProcAmp * m_pCameraPropControl;
     IAMCameraControl * m_pAMCameraControl;
 
-    DSSampleQueue * m_pSampleQueue;
+    Queue<Bitmap> m_BitmapQ;
 
     DWORD m_GraphRegisterID;
-    bool m_bUpsideDown;
+//    bool m_bUpsideDown;
 };
 
 }

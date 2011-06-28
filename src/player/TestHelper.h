@@ -25,41 +25,49 @@
 #include "../api.h"
 #include "../graphics/Bitmap.h"
 #include "Event.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
+
+#include <boost/shared_ptr.hpp>
 
 #include <vector>
+#include <map>
 
 namespace avg {
     
-class AVG_API TestHelper : public IEventSource
-{
+class TouchStatus;
+typedef boost::shared_ptr<class TouchStatus> TouchStatusPtr;
+class CursorEvent;
+typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
+class AVG_API TestHelper : public IInputDevice
+{
     public: 
         TestHelper();
         virtual ~TestHelper();
+        void reset();
 
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
-                int xPosition, int yPosition, int button, 
-                const DPoint& speed=DPoint(0,0));
-        void fakeTouchEvent(int id, Event::Type eventType,
-                Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
-                const DPoint& speed);
+                int xPosition, int yPosition, int button);
+        void fakeTouchEvent(int id, Event::Type eventType, Event::Source source,
+                const DPoint& pos, const DPoint& speed=DPoint(0, 0));
         void fakeKeyEvent(Event::Type eventType,
                 unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int unicode, int modifiers);
         void dumpObjects();
 
-        // From IEventSource
+        // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
 
     private:
         void checkEventType(Event::Type eventType);
         
         std::vector<EventPtr> m_Events;
+        std::map<int, TouchStatusPtr> m_Touches;
 };
 
+typedef boost::shared_ptr<TestHelper> TestHelperPtr;
 }
 
 #endif

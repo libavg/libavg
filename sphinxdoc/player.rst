@@ -37,23 +37,24 @@ Player & Canvas
 
         An OffscreenCanvas is a Canvas that is rendered to a texture. It can be
         referenced in the href attribute of an image node. See 
-        https://www.libavg.de/wiki/index.php/Offscreen_Rendering for an in-depth 
+        https://www.libavg.de/wiki/ProgrammersGuide/OffscreenRendering for an in-depth 
         explanation of using offscreen rendering. Offscreen canvases are created by
         calling :py:meth:`Player.loadCanvasFile` and :py:meth:`Player.loadCanvasString`.
 
         .. py:attribute:: autorender
 
-            Turns autorendering on or off. Default is :keyword:`True`.
+            Turns autorendering on or off. Default is :py:const:`True`.
 
         .. py:attribute:: handleevents
 
-            :keyword:`True` if events that arrive at an image node that is displaying this
-            canvas are routed to the offscreen canvas. Read-only.
+            :py:const:`True` if events that arrive at an image node that is displaying 
+            this canvas are routed to the offscreen canvas. Read-only.
 
         .. py:attribute:: mipmap
 
-            :keyword:`True` if mipmaps are generated and used for the canvas. This is used
-            instead of RasterNode.mipmap for images that render the canvas. Read-only.
+            :py:const:`True` if mipmaps are generated and used for the canvas. This is 
+            used instead of RasterNode.mipmap for images that render the canvas. 
+            Read-only.
 
         .. py:attribute:: multisamplesamples
 
@@ -82,7 +83,7 @@ Player & Canvas
 
         .. py:classmethod:: isMultisampleSupported() -> bool
 
-            :keyword:`True` if the machine's OpenGL implementation supports offscreen 
+            :py:const:`True` if the machine's OpenGL implementation supports offscreen 
             multisampling.
 
     .. autoclass:: Player
@@ -112,11 +113,21 @@ Player & Canvas
             .. deprecated:: 1.5
                 Use :func:`enableMultitouch()` instead. 
 
+        .. py:method:: assumePhysicalScreenDimensions(sizeInMM)
+
+            Tells the system to assume a size for the physical screen, overriding 
+            operating system information. The parameter is the size in millimeters as a
+            :py:class:`Point2D`. This function affects the values returned by 
+            :py:meth:`getPhysicalScreenDimensions` and :py:meth:`getPixelsPerMM`. It is
+            useful for situations in which the OS cannot know the size (e.g. projectors)
+            and when the automatic functions return wrong values (which happens,
+            unfortunately, because of operating system deficencies).
+
         .. py:method:: clearInterval(id) -> bool
 
             Stops a timeout, an interval or an onFrameHandler from being called.
-            Returns :keyword:`True` if there was an interval with the given :py:attr:`id`,
-            :keyword:`False` if not.
+            Returns :py:const:`True` if there was an interval with the given 
+            :py:attr:`id`, :py:const:`False` if not.
             
             :param int id: 
             
@@ -177,7 +188,7 @@ Player & Canvas
 
             :samp:`TRACKER`:
                 Enables the internal camera-based tracker. Configuring this tracker is
-                described under https://www.libavg.de/wiki/index.php/Tracker_Setup.
+                described under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
 
             :samp:`XINPUT21`:
                 Uses X11-based multitouch detection. This needs X11 with XInput 2.1
@@ -228,11 +239,6 @@ Player & Canvas
             has started. Honors FakeFPS. The time returned stays constant for an
             entire frame; it is the time of the last display update.
 
-        .. py:method:: getTimeSinceLastFrame() -> int
-
-            Returns the number of milliseconds that have elapsed since the last
-            frame (i.e. the last display update).
-
         .. py:method:: getKeyModifierState() -> KeyModifier
 
             Returns the current modifier keys (:kbd:`shift`, :kbd:`ctrl`) pressed. 
@@ -243,9 +249,22 @@ Player & Canvas
             Returns the main canvas. This is the canvas loaded using :py:meth:`loadFile`
             or :py:meth:`loadString` and displayed on screen.
 
+        .. py:method:: addInputDevice(inputDevice)
+
+            Registers an :py:class:`InputDevice` with the system.
+
         .. py:method:: getMouseState() -> MouseEvent
 
             Returns the last mouse event generated.
+
+        .. py:method:: getPhysicalScreenDimensions() -> Point2D
+
+            Returns the size of the primary screen in millimeters.
+
+        .. py:method:: getPixelsPerMM() -> float
+
+            Returns the number of dots per millimeter of the primary display. Assumes
+            square pixels.
 
         .. py:method:: getRootNode() -> Node
 
@@ -253,10 +272,14 @@ Player & Canvas
 
         .. py:method:: getScreenResolution() -> Point2D
 
-            Returns the size in pixels of the current screen. Must be called before 
-            :py:meth:`play`.
+            Returns the size in pixels of the current screen.
 
         .. py:method:: getTestHelper
+
+        .. py:method:: getTimeSinceLastFrame() -> int
+
+            Returns the number of milliseconds that have elapsed since the last
+            frame (i.e. the last display update).
 
         .. py:method:: getTracker() -> Tracker
 
@@ -270,18 +293,18 @@ Player & Canvas
 
         .. py:method:: isMultitouchAvailable() -> bool
 
-            Returns :keyword:`True` if a multitouch device has been configured and is
-            active, :keyword:`False` if not. Must be called after :py:meth:`play()`.
+            Returns :py:const:`True` if a multitouch device has been configured and is
+            active, :py:const:`False` if not. Must be called after :py:meth:`play()`.
 
         .. py:method:: isPlaying() -> bool
 
-            Returns :keyword:`True` if :py:meth:`play()` is currently executing, 
-            :keyword:`False` if not.
+            Returns :py:const:`True` if :py:meth:`play()` is currently executing, 
+            :py:const:`False` if not.
 
         .. py:method:: isUsingShaders() -> bool
 
-            Returns :keyword:`True` if shader support is enabled and working,
-            :keyword:`False` if not.
+            Returns :py:const:`True` if shader support is enabled and working,
+            :py:const:`False` if not.
             May only be called after :py:meth:`play()` has been called.
 
         .. py:method:: loadCanvasFile(filename) -> Canvas
@@ -335,7 +358,7 @@ Player & Canvas
         .. py:method:: setEventHook(pyfunc)
 
             Set a callable which will receive all events before the standard event 
-            handlers receive them. If this callable returns :keyword:`True`,
+            handlers receive them. If this callable returns :py:const:`True`,
             the event is not propagated to the standard event handlers.
         
             Generally, :py:meth:`setEventHook` should be used as a last resort. In most
@@ -405,18 +428,18 @@ Player & Canvas
 
             :param bool usePOW2Textures: 
             
-                If :keyword:`True`, restricts textures to power-of-two dimensions.
+                If :py:const:`True`, restricts textures to power-of-two dimensions.
 
             :param bool useShaders: 
             
-                If :keyword:`True`, shaders are used to render effects,
-                do masking and do color space conversions. If :keyword:`False`, video
+                If :py:const:`True`, shaders are used to render effects,
+                do masking and do color space conversions. If :py:const:`False`, video
                 color space conversion is done on the CPU and effects as well as masking
                 are turned off.
                 
             :param bool usePixelBuffers: 
                 
-                If :keyword:`False`, disables the use of OpenGL pixel buffer objects.
+                If :py:const:`False`, disables the use of OpenGL pixel buffer objects.
 
             :param int MultiSampleSamples: 
             
@@ -442,18 +465,22 @@ Player & Canvas
                 
             :param bool fullscreen: 
             
-                :keyword:`True` if the avg file should be rendered fullscreen.
+                :py:const:`True` if the avg file should be rendered fullscreen.
 
             :param int width, height: 
             
-                The window size (if fullscreen is :keyword:`False`)
-                or screen resolution (if fullscreen is :keyword:`True`).
+                The window size (if fullscreen is :py:const:`False`)
+                or screen resolution (if fullscreen is :py:const:`True`).
 
             :param int bpp: 
             
                 Number of bits per pixel to use. Valid values are :samp:`15`, :samp:`16`,
                 :samp:`24` and :samp:`32`.
 
+        .. py:method:: isFullscreen()
+
+            Returns True when the player is running in fullscreen mode.
+            
         .. py:method:: setTimeout(time, pyfunc) -> int
 
             Sets a python callable object that should be executed after a set
@@ -477,9 +504,9 @@ Player & Canvas
 
         .. py:method:: setWindowFrame(hasWindowFrame)
 
-            :py:attr:`hasWindowFrame` should be set to :keyword:`True` if a 
+            :py:attr:`hasWindowFrame` should be set to :py:const:`True` if a 
             non-fullscreen player should have a window frame. If set to 
-            :keyword:`False`, the player runs with no title bar or window frame. Must
+            :py:const:`False`, the player runs with no title bar or window frame. Must
             be called before :py:meth:`play` is called.
 
         .. py:method:: setWindowPos(x, y)
@@ -491,7 +518,7 @@ Player & Canvas
 
             Shows or hides the mouse cursor.
             
-            :param bool show: :keyword:`True` if the mouse cursor should be visible.
+            :param bool show: :py:const:`True` if the mouse cursor should be visible.
 
         .. py:method:: stop()
 
@@ -499,7 +526,7 @@ Player & Canvas
 
         .. py:method:: stopOnEscape(stop)
 
-            Toggles player stop upon escape keystroke. If stop is :keyword:`True` 
+            Toggles player stop upon escape keystroke. If stop is :py:const:`True` 
             (the default), if player will halt playback when :kbd:`Esc` is pressed.
 
         .. py:classmethod:: get() -> Player

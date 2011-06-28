@@ -20,7 +20,8 @@
 //
 
 #include "Event.h"
-#include "VisibleNode.h"
+#include "IInputDevice.h"
+#include "Player.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -37,12 +38,12 @@ int Event::s_CurCounter = 0;
 
 Event::Event(Type type, Source source, int when)
     : m_Type(type),
-      m_pNode(),
-      m_Source(source)
+      m_Source(source),
+      m_pInputDevice()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
-        m_When = TimeSource::get()->getCurrentMillisecs();
+        m_When = Player::get()->getFrameTime();
     } else {
         m_When = when;
     }
@@ -77,9 +78,24 @@ Event::Source Event::getSource() const
     return m_Source;
 }
 
-void Event::setElement(VisibleNodePtr pNode)
+IInputDevicePtr Event::getInputDevice() const
 {
-    m_pNode = pNode;
+    return m_pInputDevice.lock();
+}
+
+bool Event::hasInputDevice() const
+{
+    return !m_pInputDevice.expired();
+}
+
+void Event::setInputDevice(IInputDevicePtr pInputDevice)
+{
+    m_pInputDevice = pInputDevice;
+}
+
+const std::string& Event::getInputDeviceName() const
+{
+    return m_pInputDevice.lock()->getName();
 }
 
 string Event::typeStr() const
@@ -104,6 +120,8 @@ string Event::typeStr(Event::Type type)
             return "CURSOROVER";
         case CURSOROUT:
             return "CURSOROUT";
+        case CUSTOMEVENT:
+            return "CUSTOMEVENT";
         case RESIZE:
             return "RESIZE";
         case QUIT:
@@ -114,19 +132,10 @@ string Event::typeStr(Event::Type type)
         
 }
 
-VisibleNodePtr Event::getElement() const
-{
-    return m_pNode;
-}
-
 void Event::trace()
 {
     string sType = typeStr();
-    if (!m_pNode) {
-        AVG_TRACE(Logger::EVENTS, sType); 
-    } else {
-        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
-    }
+    AVG_TRACE(Logger::EVENTS, sType); 
 }
 
 }

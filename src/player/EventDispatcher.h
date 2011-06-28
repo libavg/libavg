@@ -23,34 +23,39 @@
 #define _EventDispatcher_h_
 
 #include "../api.h"
-#include "IEventSink.h"
-#include "IEventSource.h"
-#include "MouseEvent.h"
+#include "IInputDevice.h"
 
 #include <vector>
-#include <queue>
-#include <string>
+#include <map>
 
 namespace avg {
 
 class Event;
+typedef boost::shared_ptr<class Event> EventPtr;
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
+class Player;
 
 class AVG_API EventDispatcher {
     public:
-        EventDispatcher();
+        EventDispatcher(Player* pPlayer);
         virtual ~EventDispatcher();
         void dispatch();
         
-        void addSource(IEventSource * pSource);
-        void addSink(IEventSink * pSink);
+        void addInputDevice(IInputDevicePtr pInputDevice);
 
         void sendEvent(EventPtr pEvent);
+        ContactPtr getContact(int id);
 
     private:
         void handleEvent(EventPtr pEvent);
+        void testAddContact(EventPtr pEvent);
+        void testRemoveContact(EventPtr pEvent);
 
-        std::vector<IEventSource*> m_EventSources;
-        std::vector<IEventSink*> m_EventSinks;
+        std::vector<IInputDevicePtr> m_InputDevices;
+        Player* m_pPlayer;
+        std::map<int, ContactPtr> m_ContactMap;
+        int m_NumMouseButtonsDown;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 

@@ -26,12 +26,15 @@
 #include <functional>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 #undef _POSIX_C_SOURCE
 
 namespace avg {
 
-class VisibleNode;
-typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
+class IInputDevice;
+typedef boost::shared_ptr<class IInputDevice> IInputDevicePtr;
+typedef boost::weak_ptr<class IInputDevice> IInputDeviceWeakPtr;
 
 class AVG_API Event {
     public:
@@ -43,6 +46,7 @@ class AVG_API Event {
             CURSORDOWN,
             CURSOROVER,  
             CURSOROUT,
+            CUSTOMEVENT,
             RESIZE,
             QUIT 
         };
@@ -52,28 +56,30 @@ class AVG_API Event {
         Event(const Event& e);
         virtual ~Event();
         
-        virtual void trace();
-
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        VisibleNodePtr getElement() const;
-        void setElement(VisibleNodePtr pNode);
+        IInputDevicePtr getInputDevice() const;
+        void setInputDevice(IInputDevicePtr pInputDevice);
+        bool hasInputDevice() const;
+        const std::string& getInputDeviceName() const;
         
         std::string typeStr() const;
         static std::string typeStr(Event::Type type);
+
+        virtual void trace();
 
         friend struct isEventAfter;
         
     protected:
         Type m_Type;
-        VisibleNodePtr m_pNode;
-        long long m_When;
 
     private:
+        long long m_When;
         int m_Counter;
         Source m_Source;
 
+        IInputDeviceWeakPtr m_pInputDevice;
         static int s_CurCounter;
 };
 

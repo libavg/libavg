@@ -37,13 +37,12 @@ using namespace std;
 namespace avg {
 
 TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
-        Source source, const DPoint& speed, const IntPoint& lastDownPos)
+        Source source, const DPoint& speed)
     : CursorEvent(id, eventType, pos, source),
       m_pBlob(pBlob),
-      m_Speed(speed),
       m_bHasHandOrientation(false)
 {
-    setLastDownPos(lastDownPos);
+    setSpeed(speed);
     if (pBlob) {
         m_Orientation = pBlob->getOrientation();
         m_Area = pBlob->getArea();
@@ -60,25 +59,37 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
         }
     } else {
         m_Orientation = 0;
-        m_Area = 0;
+        m_Area = 20;
         m_Center = DPoint(0, 0);
         m_Eccentricity = 0;
-        m_MajorAxis = DPoint(0, 0);
-        m_MinorAxis = DPoint(0, 0);
+        m_MajorAxis = DPoint(5, 0);
+        m_MinorAxis = DPoint(0, 5);
     }
 }
 
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
-                const DPoint& speed, double orientation, double area, 
-                double eccentricity, DPoint majorAxis, DPoint minorAxis)
+        const DPoint& speed, double orientation, double area, double eccentricity, 
+        DPoint majorAxis, DPoint minorAxis)
     : CursorEvent(id, eventType, pos, source),
-      m_Speed(speed),
       m_Orientation(orientation),
       m_Area(area),
       m_Eccentricity(eccentricity),
       m_MajorAxis(majorAxis),
       m_MinorAxis(minorAxis)
 {
+    setSpeed(speed);
+}
+
+TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
+        const DPoint& speed)
+    : CursorEvent(id, eventType, pos, source),
+      m_Orientation(0),
+      m_Area(20),
+      m_Eccentricity(0),
+      m_MajorAxis(5, 0),
+      m_MinorAxis(0, 5)
+{
+    setSpeed(speed);
 }
 
 TouchEvent::~TouchEvent()
@@ -90,11 +101,6 @@ CursorEventPtr TouchEvent::cloneAs(Type eventType) const
     TouchEventPtr pClone(new TouchEvent(*this));
     pClone->m_Type = eventType;
     return pClone;
-}
-
-const DPoint& TouchEvent::getSpeed() const
-{
-    return m_Speed;
 }
 
 double TouchEvent::getOrientation() const 
@@ -177,10 +183,15 @@ vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
     return pRelatedEvents;
 }
 
+void TouchEvent::removeBlob()
+{
+    m_pBlob = BlobPtr();
+}
+
 void TouchEvent::trace()
 {
-    Event::trace();
-    AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
+    CursorEvent::trace();
+    AVG_TRACE(Logger::EVENTS2, "pos: " << getPos() 
             << ", ID: " << getCursorID()
             << ", Area: " << m_Area
             << ", Eccentricity: " << m_Eccentricity);

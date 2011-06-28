@@ -242,8 +242,7 @@ class DynamicsTestCase(AVGTestCase):
 
     def testEventBubbling(self):
         def click (x, y):
-            Helper = Player.getTestHelper()
-            Helper.fakeMouseEvent (avg.CURSORDOWN, True, False, False, x, y, 1)
+            self.fakeClick(x, y)
 
         def createNodes():
             def appendEventString (s):

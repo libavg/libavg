@@ -49,7 +49,7 @@ Shape::~Shape()
     delete m_pSurface;
 }
 
-void Shape::setBitmap(const Bitmap* pBmp)
+void Shape::setBitmap(BitmapPtr pBmp)
 {
     Image::State prevState = m_pImage->getState();
     if (pBmp) {

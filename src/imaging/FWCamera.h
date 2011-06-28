@@ -53,6 +53,7 @@ public:
     FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, PixelFormat camPF, 
             PixelFormat destPF, double frameRate);
     virtual ~FWCamera();
+    virtual void startCapture();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
@@ -62,6 +63,7 @@ public:
     virtual double getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
+    bool hasFeature(CameraFeature feature);
     virtual void setFeature(CameraFeature feature, int value, bool bIgnoreOldValue=false);
     virtual void setFeatureOneShot(CameraFeature feature);
     virtual int getWhitebalanceU() const;
@@ -85,8 +87,8 @@ private:
     dc1394camera_t * m_pCamera;
     dc1394framerate_t m_FrameRateConstant; 
     dc1394video_mode_t m_Mode;            
+    static void dumpCameraInfo(dc1394camera_t * pCamera);
 #endif
-    void dumpCameraInfo();
 
     FeatureMap m_Features;
     int m_WhitebalanceU;

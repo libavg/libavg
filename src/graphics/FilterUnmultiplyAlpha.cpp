@@ -41,15 +41,15 @@ void FilterUnmultiplyAlpha::applyInPlace(BitmapPtr pBmp)
     AVG_ASSERT(pBmp->getBytesPerPixel() == 4);
     IntPoint size = pBmp->getSize();
     for (int y = 0; y < size.y; y++) {
-        unsigned char * pLine = pBmp->getPixels()+y*pBmp->getStride();
+        unsigned char * pPixel = pBmp->getPixels()+y*pBmp->getStride();
         for (int x = 0; x < size.x; x++) { 
-            unsigned char * pPixel = pLine+x*4;
             int alpha = *(pPixel+ALPHAPOS);
             if (alpha != 0) {
                 *(pPixel+REDPOS) = (int(*(pPixel+REDPOS))*255)/alpha;
                 *(pPixel+GREENPOS) = (int(*(pPixel+GREENPOS))*255)/alpha;
                 *(pPixel+BLUEPOS) = (int(*(pPixel+BLUEPOS))*255)/alpha;
             }
+            pPixel += 4;
         }
     }
 }

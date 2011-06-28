@@ -20,13 +20,24 @@
 # Current versions can be found at www.libavg.de
 #
 
+'''
+Runner for libavg unit tests
+
+On autotools-based systems, tests are performed on a local libavg package.
+This package is created by symlinking all the relevant files in a local, temporary
+directory, letting python find it as first instance.
+On windows, instead, tests are always carried on after distutils installs the package.
+'''
+
 import sys
 import os
 import shutil
+import atexit
 
-
-g_TempPackageDir = None
-
+def cleanup(folder):
+    if os.path.isdir(folder):
+        print 'Wiping out directory: %s' % folder
+        shutil.rmtree(folder)
 
 def symtree(src, dest):
     os.mkdir(dest)
@@ -37,47 +48,54 @@ def symtree(src, dest):
             (os.path.isfile(fpath) and os.path.splitext(f)[1] == '.py'))):
                 os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
-        
+
 if sys.platform != 'win32':
-    g_TempPackageDir = os.path.join(os.getcwd(), 'libavg')
-    if os.getenv('srcdir') in ('.', None):
+    tempPackageDir = os.path.join(os.getcwd(), 'libavg')
+    # Possible values for srcdir:
+    # '.': make check
+    # None: ./Test.py
+    # dir name: make distcheck
+    srcDir = os.getenv("srcdir",".")
+    if srcDir == '.':
+        # Running make check or ./Test.py
         if os.path.basename(os.getcwd()) != 'test':
             raise RuntimeError('Manual tests must be performed inside directory "test"')
         
-        if os.path.isdir(g_TempPackageDir):
-            print 'Cleaning up old test package'
-            shutil.rmtree(g_TempPackageDir)
+        cleanup(tempPackageDir)
         
         try:
-            # We're running make check / manual tests
             symtree('../python', 'libavg')
-            # os.system('cp -r ../python libavg')
             os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
         except OSError:
             pass
     else:
-        # make distcheck
+        # Running make distcheck
         symtree('../../../../src/python', 'libavg')
         os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
-        sys.path.insert(0, os.getcwd())
-    
-    os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
 
-    srcDir = os.getenv("srcdir",".")
-    os.chdir(srcDir)
-    # The following lines help to prevent the test to be run
+        # distcheck doesn't want leftovers (.pyc files)
+        atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
+    
+    if os.path.exists('../wrapper/.libs/avg.so'):
+        # Normal case: use the local version (not the installed one)
+        os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
+    elif os.path.exists('../../avg.so'):
+        # Mac version after installer dmg
+        pass
+    else:
+        raise RuntimeError('Compile libavg before running tests or use "make check"')
+
+    # The following line prevents the test to be run
     # with an unknown version of libavg, which can be hiding somewhere
     # in the system
+    sys.path.insert(0, os.getcwd())
+
+    # Meaningful only for distcheck
+    os.chdir(srcDir)
+
     import libavg
     libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
             os.path.dirname(libavg.__file__))
-
-    cpfx = os.path.commonprefix((libavg.__file__, os.getcwd()))
-    
-#    if cpfx != os.getcwd():
-#        raise RuntimeError(
-#            'Tests would be performed with a non-local libavg package (%s)'
-#            % libavg.__file__)
 
 
 import testapp   
@@ -94,34 +112,31 @@ import DynamicsTest
 import PythonTest
 import AnimTest
 import EventTest
+import InputDeviceTest
+import AVGAppTest
 from EventTest import mainMouseDown
 from EventTest import mainMouseUp
 
 
 app = testapp.TestApp()
 
-app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
-app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
-app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
-app.registerSuiteFactory('image', ImageTest.imageTestSuite)
-app.registerSuiteFactory('fx', FXTest.fxTestSuite)
-app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)
-app.registerSuiteFactory('words', WordsTest.wordsTestSuite)
+#app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
+#app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
+#app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
+#app.registerSuiteFactory('image', ImageTest.imageTestSuite)
+#app.registerSuiteFactory('fx', FXTest.fxTestSuite)
+#app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)
+#app.registerSuiteFactory('words', WordsTest.wordsTestSuite)
+
 app.registerSuiteFactory('av', AVTest.AVTestSuite)
-app.registerSuiteFactory('dynamics', DynamicsTest.dynamicsTestSuite)
-app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
-app.registerSuiteFactory('anim', AnimTest.animTestSuite)
-app.registerSuiteFactory('event', EventTest.eventTestSuite)
+#app.registerSuiteFactory('dynamics', DynamicsTest.dynamicsTestSuite)
+#app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
+#app.registerSuiteFactory('anim', AnimTest.animTestSuite)
+#app.registerSuiteFactory('event', EventTest.eventTestSuite)
+#app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
+app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 
-
-try:
-    app.run()
-finally:
-    if g_TempPackageDir is not None:
-        try:
-            shutil.rmtree(g_TempPackageDir)
-        except OSError:
-            print 'ERROR: Cannot clean up test package directory'
+app.run()
 
 sys.exit(app.exitCode())
 

@@ -180,7 +180,8 @@ string camImageFormatToString(const AM_MEDIA_TYPE* pMediaType)
     VIDEOINFOHEADER* pVideoInfo = (VIDEOINFOHEADER*)(pMediaType->pbFormat);
     BITMAPINFOHEADER* pBitmapInfo = &pVideoInfo->bmiHeader;
     PixelFormat pf = mediaSubtypeToPixelFormat(pMediaType->subtype);
-    ss << "(" << pBitmapInfo->biWidth << "x" << pBitmapInfo->biHeight << "), " << pf 
+    int height = abs(pBitmapInfo->biHeight);
+    ss << "(" << pBitmapInfo->biWidth << "x" << height << "), " << pf 
             << ", " << 10000000./pVideoInfo->AvgTimePerFrame << " fps.";
     return ss.str();
 }

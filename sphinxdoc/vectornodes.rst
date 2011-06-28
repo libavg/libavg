@@ -76,7 +76,7 @@ Vector Nodes
     .. autoclass:: MeshNode([vertexcoords, texcoords, triangles])
 
         This is a generalized mesh of textured triangles. See 
-        https://www.libavg.de/wiki/index.php/Mesh_Node for an example.
+        https://www.libavg.de/wiki/ProgrammersGuide/MeshNode for an example.
 
         .. py:attribute:: texcoords
 

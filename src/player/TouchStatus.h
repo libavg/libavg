@@ -22,28 +22,33 @@
 #ifndef _TouchStatus_H_
 #define _TouchStatus_H_
 
-#include "TouchEvent.h"
+#include "../base/Point.h"
+
+#include <boost/shared_ptr.hpp>
+
+#include <vector>
 
 namespace avg {
 
-class TouchStatus {
+class TouchEvent;
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+
+class AVG_API TouchStatus {
 public:
     TouchStatus(TouchEventPtr pEvent);
     virtual ~TouchStatus();
 
-    const IntPoint& getLastDownPos();
-    bool isFirstFrame();
-
-    void updateEvent(TouchEventPtr pEvent);
-    TouchEventPtr getEvent();
+    void pushEvent(TouchEventPtr pEvent, bool bCheckMotion=true);
+    TouchEventPtr pollEvent();
     TouchEventPtr getLastEvent();
 
+    int getID() const;
+
 private:
-    TouchEventPtr m_pEvent;
     TouchEventPtr m_pLastEvent;
-    TouchEventPtr m_pUpEvent;
+    std::vector<TouchEventPtr> m_pNewEvents;
+
     bool m_bFirstFrame;
-    IntPoint m_LastDownPos;
     int m_CursorID;
 };
 

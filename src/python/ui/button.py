@@ -20,23 +20,21 @@
 #
 # Original author of this file is Henrik Thoms
 
-import libavg
-
+from libavg import avg, statemachine
+import gesture
 from helper import *
 
-g_log = libavg.Logger.get()
+g_Player = avg.Player.get()
 
-
-class Button(libavg.DivNode):
+class Button(avg.DivNode):
     STATE_DISABLED = 1
     STATE_UP       = 2
     STATE_DOWN     = 3
     
     def __init__(self, upNode = None, downNode = None, disabledNode = None, 
-                activeAreaNode = None, pressHandler = None, clickHandler = None,
-                stateChangeHandler = None, **kwargs):
-        libavg.DivNode.__init__(self, **kwargs)
-        self.crop = False
+            activeAreaNode = None, pressHandler = None, clickHandler = None,
+            stateChangeHandler = None, **kwargs):
+        avg.DivNode.__init__(self, **kwargs)
         
         self.__upNode = upNode
         self.__downNode = downNode
@@ -60,7 +58,13 @@ class Button(libavg.DivNode):
         
         if self.__upNode and self.__downNode:
             self.__setupNodes()
-        
+
+    def delete(self):
+        self.__pressCallback = self.__defaultHandler
+        self.__clickCallback = self.__defaultHandler
+        self.__stateChangeCallback = self.__defaultHandler
+        self.__deactivateEventHandlers()
+
     def setEventHandler(self, type, source, func):
         raise RuntimeError("Setting event handlers for buttons is not supported")
     
@@ -134,7 +138,7 @@ class Button(libavg.DivNode):
             self.appendChild(self.__disabledNode)
         
         if self.__activeAreaNode == None:
-            self.__activeAreaNode = libavg.RectNode(opacity=0, size=self.__upNode.size)
+            self.__activeAreaNode = avg.RectNode(opacity=0, size=self.__upNode.size)
         self.appendChild(self.__activeAreaNode)
 
         self.size = self.__activeAreaNode.size
@@ -239,17 +243,124 @@ class Button(libavg.DivNode):
     
     def __activateEventHandlers(self):
         def setOneHandler(type, handler):
-            self.__activeAreaNode.connectEventHandler(type, libavg.MOUSE | libavg.TOUCH, 
+            self.__activeAreaNode.connectEventHandler(type, avg.MOUSE | avg.TOUCH, 
                     self, handler)
 
-        setOneHandler(libavg.CURSORDOWN, self.__pressHandler)
-        setOneHandler(libavg.CURSORUP, self.__releaseHandler)
-        setOneHandler(libavg.CURSOROVER, self.__overHandler)
-        setOneHandler(libavg.CURSOROUT, self.__outHandler)
+        setOneHandler(avg.CURSORDOWN, self.__pressHandler)
+        setOneHandler(avg.CURSORUP, self.__releaseHandler)
+        setOneHandler(avg.CURSOROVER, self.__overHandler)
+        setOneHandler(avg.CURSOROUT, self.__outHandler)
     
     def __deactivateEventHandlers(self):
         for id in self.__capturedCursorIds:
             self.releaseEventCapture(id)
         self.__capturedCursorIds = set()
         self.__activeAreaNode.disconnectEventHandler(self)
+
+
+class TouchButton(avg.DivNode):
+
+    def __init__(self, upNode, downNode, disabledNode = None, activeAreaNode = None, 
+            fatFingerEnlarge=False, clickHandler = None, **kwargs):
+        avg.DivNode.__init__(self, **kwargs)
+        
+        self.__upNode = upNode
+        self.__downNode = downNode
+        self.__disabledNode = disabledNode
+        self.__activeAreaNode = activeAreaNode
+        
+        self.__clickHandler = optionalCallback(clickHandler, lambda:None)
+
+        self.__isOver = False
+        self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
+        self.__stateMachine.addState("UP", {"DOWN": None, "DISABLED": None},
+                enterFunc=self.enterUp, leaveFunc=self.leaveUp)
+        self.__stateMachine.addState("DOWN", {"UP": None, "DISABLED": None},
+                enterFunc=self.enterDown, leaveFunc=self.leaveDown)
+        self.__stateMachine.addState("DISABLED", {"UP": None, "DOWN": None},
+                enterFunc=self.enterDisabled, leaveFunc=self.leaveDisabled)
+
+        self.appendChild(self.__upNode)
+        self.__upNode.active = True
+        self.appendChild(self.__downNode)
+        self.__downNode.active = False
+
+        if self.__disabledNode:
+            self.appendChild(self.__disabledNode)
+            self.__disabledNode.active = False
+        
+        if fatFingerEnlarge:
+            if self.__activeAreaNode != None:
+                raise(RuntimeError(
+                    "TouchButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
+            size = upNode.size
+            minSize = 20*g_Player.getPixelsPerMM()
+            size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
+            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
+        else:
+            if self.__activeAreaNode == None:
+                self.__activeAreaNode = self.__upNode
+            else:
+                self.appendChild(self.__activeAreaNode)
+
+        self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
+                startHandler=self.__onStart, 
+                tapHandler=self.__onTap, 
+                failHandler=self.__onFail)
+
+    @classmethod
+    def fromSrc(cls, upSrc, downSrc, disabledSrc=None, **kwargs):
+        upNode = avg.ImageNode(href=upSrc)
+        downNode = avg.ImageNode(href=downSrc)
+        if disabledSrc != None:
+            disabledNode = avg.ImageNode(href=disabledSrc)
+        else:
+            disabledNode = None
+        return TouchButton(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
+                **kwargs)
+
+    def getEnabled(self):
+        return self.__stateMachine.state != "DISABLED"
+
+    def setEnabled(self, enabled):
+        if enabled:
+            if self.__stateMachine.state == "DISABLED":
+                self.__stateMachine.changeState("UP")
+        else:
+            if self.__stateMachine.state != "DISABLED":
+                self.__stateMachine.changeState("DISABLED")
+
+    enabled = property(getEnabled, setEnabled)
+
+    def __onStart(self):
+        self.__stateMachine.changeState("DOWN")
+
+    def __onTap(self):
+        self.__stateMachine.changeState("UP")
+        self.__clickHandler()
+
+    def __onFail(self):
+        self.__stateMachine.changeState("UP")
+
+    def enterUp(self):
+        self.__upNode.active = True
+
+    def leaveUp(self):
+        self.__upNode.active = False
+
+    def enterDown(self):
+        self.__downNode.active = True
+
+    def leaveDown(self):
+        self.__downNode.active = False
+
+    def enterDisabled(self):
+        if self.__disabledNode:
+            self.__disabledNode.active = True
+        self.__tapRecognizer.enable(False)
+
+    def leaveDisabled(self):
+        if self.__disabledNode:
+            self.__disabledNode.active = False
+        self.__tapRecognizer.enable(True)
 

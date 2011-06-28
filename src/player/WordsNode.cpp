@@ -145,9 +145,9 @@ void WordsNode::setTextFromNodeValue(const string& sText)
 void WordsNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_bFontChanged = true;
     m_bDrawNeeded = true;
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
 void WordsNode::connect(CanvasPtr pCanvas)
@@ -230,9 +230,9 @@ void WordsNode::setHint(bool bHint)
     m_bHint = bHint;
 }
 
-double WordsNode::getWidth() 
+double WordsNode::getWidth() const
 {
-    drawString();
+    const_cast<WordsNode*>(this)->drawString();
     return AreaNode::getWidth();
 }
 
@@ -242,9 +242,9 @@ void WordsNode::setWidth(double width)
     AreaNode::setWidth(width);
 }
 
-double WordsNode::getHeight()
+double WordsNode::getHeight() const
 {
-    drawString();
+    const_cast<WordsNode*>(this)->drawString();
     return AreaNode::getHeight();
 }
 
@@ -254,9 +254,9 @@ void WordsNode::setHeight(double width)
     AreaNode::setHeight(width);
 }
 
-DPoint WordsNode::getSize()
+DPoint WordsNode::getSize() const
 {
-    drawString();
+    const_cast<WordsNode*>(this)->drawString();
     return AreaNode::getSize();
 }
 
@@ -679,10 +679,8 @@ void WordsNode::drawString()
             }
         }
     }
-    if (getState() == NS_CANRENDER) {
-        m_bDrawNeeded = false;
-        setViewport(-32767, -32767, -32767, -32767);
-    }
+    m_bDrawNeeded = false;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 void WordsNode::preRender()

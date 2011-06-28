@@ -80,7 +80,7 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node([id: string, parent: DivNode=:keyword:`None`])
+    .. autoclass:: Node([id: string, parent: DivNode=None])
 
         Base class for everything that can be put into an avg tree.
 
@@ -104,35 +104,35 @@ This section describes the base classes for all node classes that libavg provide
                 Name of python function to call when a cursor moves.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursorup:
 
                 Name of python function to call when an up event occurs.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursordown:
 
                 Name of python function to call when a down event occurs.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursorover:
 
                 Name of python function to call when a cursor enters the node.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param string oncursorout:
 
                 Name of python function to call when a cursor leaves the node.
 
                 .. deprecated:: 1.5
-                    Use :func:`setEventHandler()` instead.
+                    Use :func:`connectEventHandler()` instead.
 
             :param DivNode parent:
 
@@ -188,7 +188,7 @@ This section describes the base classes for all node classes that libavg provide
                 process as a parameter. In contrast to callbacks set up using 
                 :py:meth:`setEventHandler`, it should not return anything. If 
                 :py:meth:`connectEventHandler` is used, all events bubble up the tree.
-                pyfunc may not be :keyword:`None`.
+                pyfunc may not be :py:const:`None`.
 
         .. py:method:: disconnectEventHandler(pyobj, [pyfunc])
 
@@ -219,7 +219,7 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: getParent() -> Node
 
             Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
-            is in. For the root node, returns :keyword:`None`.
+            is in. For the root node, returns :py:const:`None`.
 
         .. py:method:: getRelPos(abspos) -> Point2D
 
@@ -259,30 +259,31 @@ This section describes the base classes for all node classes that libavg provide
 
             :param source:
 
-                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch touch
-                events, :py:const:`TRACK` for multitouch track events or other tracking,
-                :py:const:`NONE` for keyboard events. Sources can be or'ed together to 
-                set a handler for several sources at once.
+                :py:const:`MOUSE` for mouse events, :py:const:`TOUCH` for multitouch
+                touch events, :py:const:`TRACK` for multitouch track events or other 
+                tracking, :py:const:`NONE` for keyboard events. Sources can be or'ed 
+                together to set a handler for several sources at once.
 
             :param pyfunc:
 
                 The python callable to invoke. This callable must take the event to 
-                process as a
-                parameter. If pyfunc returns :keyword:`None` or :keyword:`False`, the
-                event bubbles up the node tree. If it is :keyword:`True`, bubbling is
-                suppressed.
+                process as a parameter. If pyfunc returns :py:const:`None` or 
+                :py:const:`False`, the event bubbles up the node tree. If it is 
+                :py:const:`True`, bubbling is suppressed.
 
-                If pyfunc is :keyword:`None`, the previous handler is removed.
+                If pyfunc is :py:const:`None`, the previous handler is removed.
 
         .. py:method:: unlink([kill=False])
 
-            Removes a node from it's parent container. Equivalent to
+            Removes a node from it's parent container and optionally deletes all resources
+            the node holds. In the default case, :py:func:`unlink` is equivalent to
             :samp:`node.getParent().removeChild(node.getParent().indexOf(node))`, 
-            except that if the node has no parent, unlink does nothing. Normally, unlink
-            moves the node's textures back to the CPU and preserves event handlers.
-            If :samp:`kill=True`, this step is skipped. Event handlers are reset, all
-            textures are deleted and the href is reset to empty in this case,
-            saving some time and making sure there are no references to the node
-            left on the libavg side. :py:attr:`kill` should always be set to 
-            :keyword:`True` if the node will not be used after the unlink.
+            except that if the node has no parent, unlink does nothing. Also in the 
+            default case, textures are moved back to the CPU and event handlers are 
+            preserved.
 
+            If :samp:`kill=True`, textures are not moved back. Event handlers for events
+            routed to this node are reset, all textures are deleted and the href is reset
+            to empty in this case, saving some time and making sure there are no 
+            references to the node left on the libavg side. :py:attr:`kill` should always
+            be set to :py:const:`True` if the node will not be used after the unlink.

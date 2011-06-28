@@ -28,6 +28,7 @@
 #include "Arg.h"
 #include "Image.h"
 #include "Canvas.h"
+#include "MouseEvent.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -259,7 +260,8 @@ void VisibleNode::disconnectEventHandler(PyObject * pObj, PyObject * pFunc)
         {
             EventHandler& eventHandler = *listIt;
             if (eventHandler.m_pObj == pObj &&
-                    (eventHandler.m_pMethod == pFunc || pFunc == 0))
+                    (pFunc == 0 || 
+                     PyObject_RichCompareBool(eventHandler.m_pMethod, pFunc, Py_EQ)))
             {
                 listIt = pEventHandlers->erase(listIt);
                 numDisconnected++;
@@ -365,8 +367,7 @@ bool VisibleNode::handleEvent(EventPtr pEvent)
         /// connect and disconnect event handlers.
         EventHandlerArray eventHandlers = *(it->second);
         EventHandlerArray::iterator listIt;
-        for (listIt = eventHandlers.begin(); listIt != eventHandlers.end(); ++listIt)
-        {
+        for (listIt = eventHandlers.begin(); listIt != eventHandlers.end(); ++listIt) {
             bHandled = callPython(listIt->m_pMethod, pEvent);
         }
         return bHandled;

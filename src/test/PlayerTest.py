@@ -27,17 +27,6 @@ import math
 from libavg import avg
 from testcase import *
 
-def almostEqual(a,b):
-    try:
-        bOk = True
-        for i in range(len(a)):
-            if math.fabs(a[i]-b[i]) > 0.000001:
-                bOk = False
-        return bOk
-    except:
-        return math.fabs(a-b) < 0.000001
-
-
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
@@ -122,6 +111,18 @@ class PlayerTestCase(AVGTestCase):
                   lambda: Player.showCursor(1),
                  ))
 
+    def testTime(self):
+        def printTime():
+            print Player.getFrameTime(), Player.getFrameDuration(), Player.getEffectiveFramerate()
+
+        self.loadEmptyScene()
+        Player.setFakeFPS(20)
+        self.start(None,
+                (printTime,
+                 printTime,
+                 printTime,
+                 printTime))
+
     def testDivResize(self):
         def checkSize (w, h):
             self.assert_(node.width == w)
@@ -172,9 +173,13 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
             self.assert_(outerNode.getElementByPos((-10, -110)) == None)
         
-        def sendEvent(x, y):
+        def sendEvent(type, x, y):
             Helper = Player.getTestHelper()
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+            if type == avg.CURSORUP:
+                button = False
+            else:
+                button = True
+            Helper.fakeMouseEvent(type, button, False, False,
                         x, y, 1)
         
         def disableCrop():
@@ -190,9 +195,11 @@ class PlayerTestCase(AVGTestCase):
                  testCoordConversions,
                  fakeRotate,
                  lambda: self.compareImage("testRotate1a", False),
-                 lambda: sendEvent(85, 70),
+                 lambda: sendEvent(avg.CURSORDOWN, 85, 70),
+                 lambda: sendEvent(avg.CURSORUP, 85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
-                 lambda: sendEvent(85, 75),
+                 lambda: sendEvent(avg.CURSORDOWN, 85, 75),
+                 lambda: sendEvent(avg.CURSORUP, 85, 75),
                  lambda: self.assert_(self.onOuterDownCalled),
                  disableCrop,
                  lambda: self.compareImage("testRotate1b", False),
@@ -226,8 +233,8 @@ class PlayerTestCase(AVGTestCase):
     def testOutlines(self):
         Player.loadFile("rotate.avg")
         Player.getRootNode().elementoutlinecolor = "FFFFFF"
-        Player.getElementByID("inner").width = 10000
-        Player.getElementByID("inner").height = 10000
+        Player.getElementByID("inner").width = 100000
+        Player.getElementByID("inner").height = 100000
         self.start(None, 
                 [lambda: self.compareImage("testOutlines", False)
                 ])
@@ -590,15 +597,25 @@ class PlayerTestCase(AVGTestCase):
         Player.setWindowFrame(False)
         self.start('avg.avg',[revertWindowFrame])
 
-    def testGetScreenResolution(self):
+    def testScreenDimensions(self):
         res = Player.getScreenResolution()
         self.assert_(res.x > 0 and res.y > 0 and res.x < 10000 and res.y < 10000)
-
+        ppmm = Player.getPixelsPerMM()
+        self.assert_(ppmm > 0 and ppmm < 10000)
+        mm = Player.getPhysicalScreenDimensions()
+        self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
+#        print res, ppmm, mm
+        Player.assumePhysicalScreenDimensions(mm)
+        newPPMM = Player.getPixelsPerMM()
+        newMM = Player.getPhysicalScreenDimensions()
+        self.assert_(almostEqual(newPPMM, ppmm))
+        self.assert_(newMM == mm)
 
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
             "testBasics",
+#            "testTime",
             "testDivResize",
             "testRotate",
             "testRotate2",
@@ -619,7 +636,7 @@ def playerTestSuite(tests):
             "testMediaDir",
             "testMemoryQuery",
             "testStopOnEscape",
-            "testGetScreenResolution",
+            "testScreenDimensions",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)

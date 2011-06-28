@@ -76,7 +76,6 @@ private:
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
 
-
     // TODO: This assumes one GL context per thread.
     static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLVertexBufferIDs;
     static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLIndexBufferIDs;

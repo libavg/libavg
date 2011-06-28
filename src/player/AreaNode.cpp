@@ -28,6 +28,7 @@
 #include "SDLDisplayEngine.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
+#include "BoostPython.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -37,7 +38,6 @@
 #include <object.h>
 #include <compile.h>
 #include <eval.h>
-#include "BoostPython.h"
 
 #include <iostream>
 
@@ -131,7 +131,7 @@ void AreaNode::setPos(const DPoint& pt)
     setViewport(pt.x, pt.y, -32767, -32767);
 }
 
-double AreaNode::getWidth() 
+double AreaNode::getWidth() const 
 {
     return getRelViewport().width();
 }
@@ -142,7 +142,7 @@ void AreaNode::setWidth(double width)
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-double AreaNode::getHeight()
+double AreaNode::getHeight() const
 {
     return getRelViewport().height();
 }

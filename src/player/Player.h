@@ -26,37 +26,38 @@
 #include "Timeout.h"
 #include "DisplayEngine.h"
 #include "NodeRegistry.h"
-#include "MouseEvent.h"
 #include "DisplayParams.h"
 #include "GLConfig.h"
-#include "IEventSink.h"
-#include "EventDispatcher.h"
-#include "KeyEvent.h"
-#include "MouseEvent.h"
 #include "CursorState.h"
-#include "MouseState.h"
+#include "TestHelper.h"
 
 #include "../audio/AudioParams.h"
 
 #include <libxml/parser.h>
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace avg {
 
 class AudioEngine;
 class Node;
 class VisibleNode;
-class TestHelper;
 class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
-class TrackerEventSource;
-class MultitouchEventSource;
+class TrackerInputDevice;
+class MultitouchInputDevice;
 class IFrameEndListener;
 class IPlaybackEndListener;
 class IPreRenderListener;
+class Contact;
+class EventDispatcher;
+class MouseEvent;
+class CursorEvent;
+class SDLDisplayEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -65,8 +66,13 @@ typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
+typedef boost::shared_ptr<class Contact> ContactPtr;
+typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
+typedef boost::shared_ptr<MouseEvent> MouseEventPtr;
+typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
+typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 
-class AVG_API Player: IEventSink
+class AVG_API Player
 {
     public:
         Player();
@@ -76,6 +82,7 @@ class AVG_API Player: IEventSink
 
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
+        bool isFullscreen();
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
@@ -83,6 +90,9 @@ class AVG_API Player: IEventSink
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
         DPoint getScreenResolution();
+        double getPixelsPerMM();
+        DPoint getPhysicalScreenDimensions();
+        void assumePhysicalScreenDimensions(const DPoint& size);
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);
@@ -106,7 +116,6 @@ class AVG_API Player: IEventSink
         TestHelper * getTestHelper();
         void setFakeFPS(double fps);
         long long getFrameTime();
-        long long getTimeSinceLastFrame();
         double getFrameDuration();
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
@@ -119,18 +128,19 @@ class AVG_API Player: IEventSink
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
 
-        void addEventSource(IEventSource* pSource);
+        void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
-        TrackerEventSource * addTracker();
-        TrackerEventSource * getTracker();
+        TrackerInputDevice * addTracker();
+        TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
         void setEventCapture(VisibleNodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
-
+        bool isCaptured(int cursorID);
         EventPtr getCurEvent() const;
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
+
         BitmapPtr screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
@@ -170,8 +180,8 @@ class AVG_API Player: IEventSink
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        virtual bool handleEvent(EventPtr pEvent);
-        
+        bool handleEvent(EventPtr pEvent);
+
     private:
         void initConfig();
         void initGraphics();
@@ -182,6 +192,7 @@ class AVG_API Player: IEventSink
         NodePtr loadMainNodeFromFile(const std::string& sFilename);
         NodePtr loadMainNodeFromString(const std::string& sAVG);
         NodePtr internalLoad(const std::string& sAVG);
+        SDLDisplayEnginePtr safeGetDisplayEngine();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc,
                 const xmlNodePtr xmlNode);
@@ -199,15 +210,15 @@ class AVG_API Player: IEventSink
 
         MainCanvasPtr m_pMainCanvas;
 
-        DisplayEngine * m_pDisplayEngine;
+        DisplayEnginePtr m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
-        TestHelper * m_pTestHelper;
+        TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
         bool m_bStopping;
         NodeRegistry m_NodeRegistry;
 
-        IEventSource* m_pMultitouchEventSource;
+        IInputDevicePtr m_pMultitouchInputDevice;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);
@@ -255,11 +266,12 @@ class AVG_API Player: IEventSink
         typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;
         
         std::map<int, EventCaptureInfoPtr> m_EventCaptureInfoMap;
-        
-        MouseState m_MouseState;
 
-        // These are maps for each cursor id.
+        MouseEventPtr m_pLastMouseEvent;
+
+        // The indexes of this map are cursorids.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
+
         PyObject * m_EventHookPyFunc;
 };
 

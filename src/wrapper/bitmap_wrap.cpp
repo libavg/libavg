@@ -24,6 +24,7 @@
 #include "../player/BoostPython.h"
 
 #include "../graphics/Bitmap.h"
+#include "../graphics/BitmapManager.h"
 
 #include "../base/Point.h"
 
@@ -57,9 +58,11 @@ class_<POINT> export_point(const string& sName)
         .def(float() * self)
         .def(self * float())
         .def(self / float())
+        .def("getAngle", &DPoint::getAngle)
         .def("fromPolar", &DPoint::fromPolar)
         .staticmethod("fromPolar")
-        .def("getAngle", &DPoint::getAngle)
+        .def("angle", &vecAngle)
+        .staticmethod("angle")
     ;
 }
 
@@ -145,9 +148,16 @@ void export_bitmap()
         .def("subtract", &Bitmap::subtract,
                 return_value_policy<manage_new_object>())
         .def("getAvg", &Bitmap::getAvg)
+        .def("getChannelAvg", &Bitmap::getChannelAvg)
         .def("getStdDev", &Bitmap::getStdDev)
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>())
     ;
     
+    class_<BitmapManager>("BitmapManager", no_init)
+        .def("get", &BitmapManager::get,
+                return_value_policy<reference_existing_object>())
+        .staticmethod("get")
+        .def("loadBitmap", &BitmapManager::loadBitmap)
+    ;
 }

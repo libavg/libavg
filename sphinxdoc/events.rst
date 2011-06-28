@@ -4,9 +4,132 @@ Input Handling
 .. automodule:: libavg.avg
     :no-members:
 
-    .. autoclass:: Event
+    .. inheritance-diagram:: Event CursorEvent MouseEvent TouchEvent KeyEvent
+        :parts: 1
+
+    .. autoclass:: Contact
+
+        A Contact encapsulates the information of one touch on an input device from
+        the down event to an up event. It exposes some aggregate information about the
+        touch - distance and direction travelled etc. - and supports event handlers that
+        are only called for this single contact.
+
+        For compatibility reasons, a mouse device also produces contacts. A mouse contact
+        exists from the press of a button to its release. If multiple buttons are
+        pressed without a complete release (e.g. LEFTDOWN-RIGHTDOWN-LEFTUP-RIGHTUP), the
+        mouse contact exists for the complete sequence. 
+
+        .. py:attribute:: id
+
+            A numerical id for this contact. This corresponds to the 
+            :py:attr:`CursorEvent.cursorid` field. Contacts for touch events have unique
+            ids, while contacts for mouse events always have the :py:attr:`id`
+            :py:const:`-1`. Read-only.
+
+        .. py:attribute:: age
+
+            Time that has passed since the down event in milliseconds. Read-only.
+
+        .. py:attribute:: distancefromstart
+
+            Distance of the current position from the initial position in pixels. 
+            Read-only.
+
+        .. py:attribute:: motionangle
+
+            Angle of the current position from the initial position in radians. Like all
+            angles in libavg, :py:attr:`motionangle` is 0 on the positive x axis and 
+            increases clockwise. Read-only.
+
+        .. py:attribute:: motionvec
+
+            The difference of the current position and the initial position as a
+            :py:class:`Point2D`. Read-only.
+
+
+        .. py:attribute:: distancetravelled
+
+            The total distance travelled since the initial down event. Read-only.
+
+        .. py:method:: connectListener(motionCallback, upCallback) -> id
+
+            Registers event handlers that get called when CURSORMOTION and CURSORUP 
+            events for this :py:class:`Contact` occur. Event handlers can be unregistered
+            using :py:meth:`disconnectListener`. They are automatically unregistered
+            after the up event. The :py:attr:`id` returned is unique for this contact.
+
+        .. py:method:: disconnectListener(id)
+
+            Unregisters an event handler. The parameter is the :py:attr:`id` returned in 
+            :py:meth:`connectListener`. It is an error to call 
+            :py:meth:`disconnectListener` with an invalid id.
+
+    .. autoclass:: CursorEvent
+
+        Base class for all events which contain a position in the global coordinate
+        system.
+    
+        .. py:attribute:: contact
+
+            The :py:class:`Contact` that the event belongs to, if there is one. 
+            Read-only.
+
+        .. py:attribute:: cursorid
+
+            An numerical identifier for the current cursor.
+
+        .. py:attribute:: node
+
+            The :py:class:`Node` that the event occured in. Read-only.
+
+        .. py:attribute:: pos
+
+            Position in the global coordinate system. Read-only.
+
+        .. py:attribute:: source
+
+            The type of the device that emitted the event. See :py:attr:`Event.source`. 
+            Read-only.
+
+        .. py:attribute:: x
+
+            x position in the global coordinate system. Read-only.
+
+        .. py:attribute:: y
+
+            y position in the global coordinate system. Read-only.
+
+
+    .. autoclass:: Event(type, source, [when])
 
         Base class for user input events.
+
+        :param type type:
+
+            The type of the event. See :py:attr:`Event.type`.
+
+        :param source source:
+
+            The source of the event. See :py:attr:`Event.source`.
+
+        :param Integer when:
+
+            The time the event occured
+
+        .. py:attribute:: inputdevice
+            
+            The address of the device that emitted the event.
+            Read-only
+
+        .. py:attribute:: inputdevicename
+
+            The name of the device that emitted the event.
+            Read-only.
+
+        .. py:attribute:: source
+
+            One of :py:const:`MOUSE`, :py:const:`TOUCH`, :py:const:`TRACK`,
+            :py:const:`CUSTOM` or :py:const:`NONE`. Read-only
 
         .. py:attribute:: type
 
@@ -18,6 +141,42 @@ Input Handling
 
             The time when the event occured in milliseconds since program start. 
             Read-only.
+
+    .. autoclass:: InputDevice(name, [eventReceiverNode])
+
+        Base class for input devices which feed events to the system. Derived classes can
+        be either user-defined or one of the predefined libavg input devices. User-defined
+        InputDevice objects are registered with the system by calling 
+        :py:meth:`Player.addInputDevice`. After this, the emitted 
+        events are processed like any other events.
+
+        :param String name:
+
+            The name of the input device.
+
+        :param DivNode eventReceiverNode:
+            
+            The root node that the input device will deliver events to. By default, this
+            is the libavg root node. Useful for constricting events to a part of the
+            total canvas or for sending events directly to an offscreen canvas. Event
+            bubbling starts at this node and proceeds down the tree from there.
+
+        .. py:attribute:: eventreceivernode:
+
+            The node the events of this input device will be delivered to. Read-only.
+
+        .. py:attribute:: name
+
+            The name of the device. Read-only.
+        
+        .. py:method::  start()
+
+            Initializes the input device if needed. By default this is an empty method.
+        
+        .. py:method:: pollEvents() -> list
+
+            Abstract method which returns a list of pending events. After registering 
+            the input device, this method gets called on every frame.
 
     .. autoclass:: KeyEvent
 
@@ -47,9 +206,37 @@ Input Handling
             layout and any modifiers pressed. This attribute is only filled in the
             :py:const:`KEYDOWN` event. Read-only.
 
-    .. autoclass:: MouseEvent
+    .. autoclass:: MouseEvent(type, leftButtonState, middleButtonState, rightButtonState, pos, button, [speed, when])
 
         Generated when a mouse-related event occurs.
+
+        :param type:
+    
+            See :py:attr:`Event.type`
+
+        :param Boolean leftButtonState:
+    
+            Specifies if the left mouse button is pressed                    
+
+        :param Boolean middleButtonState:
+
+            Specifies if the middle mouse button is pressed
+
+        :param Boolean rightButtonState:
+
+            Specifies if the right mouse button is pressed
+
+        :param Point2D pos:
+            
+            The position of the event
+
+        :param Integer button:
+
+            The Button that caused the event
+
+        :param Point2D speed:
+
+            The speed of the event
 
         .. py:attribute:: button
 
@@ -60,53 +247,53 @@ Input Handling
             Always :samp:`-1` for mouse events, but can be used to handle mouse and 
             tracking events in one handler. Read-only.
 
-        .. py:attribute:: lastdownpos
-
-            The position of the last mouse down event with the same button.
-            Useful for implementing dragging. Read-only.
-
         .. py:attribute:: leftbuttonstate
 
-            :keyword:`True` if the left mouse button is currently pressed. Read-only.
+            :py:const:`True` if the left mouse button is currently pressed. Read-only.
 
         .. py:attribute:: middlebuttonstate
 
-            :keyword:`True` if the middle mouse button is currently pressed. Read-only.
-
-        .. py:attribute:: node
-
-            The node that the event occured in. Read-only.
-
-        .. py:attribute:: pos
-
-            Position in the global coordinate system. Read-only.
+            :py:const:`True` if the middle mouse button is currently pressed. Read-only.
 
         .. py:attribute:: rightbuttonstate
 
-            :keyword:`True` if the right mouse button is currently pressed. Read-only.
+            :py:const:`True` if the right mouse button is currently pressed. Read-only.
 
         .. py:attribute:: source
 
-            Always :py:const:`MOUSE`.
+            Always :py:const:`MOUSE`. Read-only
 
         .. py:attribute:: speed
 
             Current speed of the mouse in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
 
-        .. py:attribute:: x
-
-            x position in the global coordinate system. Read-only.
-
-        .. py:attribute:: y
-
-            y position in the global coordinate system. Read-only.
-
-    .. autoclass:: TouchEvent
+    .. autoclass:: TouchEvent(id, type, pos, source, [speed])
 
         Generated when a touch or other tracking event occurs. Touch events happen 
         only when a multi-touch sensitive surface or other camera tracker is 
         active. 
+
+        :param Integer id:
+            
+            The cursorid of the event
+
+        :param type type:
+
+            See :py:attr:`Event.type`
+
+        :param Point2D pos:
+
+            The position of the event
+
+        :param source source:
+
+            See :py:attr:`Event.source`
+
+        :param Point2D speed:
+
+            The speed of the event
+
 
         .. py:attribute:: area
 
@@ -135,9 +322,7 @@ Input Handling
             ranges from :py:const:`-pi` to :py:const:`pi`, with 0 being the positive x
             axis. Angles increase in a clockwise fashion.
 
-        .. py:attribute:: lastdownpos
-
-            The initial position of the cursor. Useful for implementing dragging.
+            For :py:const:`CURSORUP` events, the angle is always approximated.
 
         .. py:attribute:: majoraxis
 
@@ -147,18 +332,10 @@ Input Handling
 
             Minor axis of an ellipse that is similar to the blob. Read-only.
 
-        .. py:attribute:: node
-
-            The node that the event occured in. Read-only.
-
         .. py:attribute:: orientation
 
             Angle of the blob in radians. For hovering hands, this is roughly the 
             direction of the hand, modulo 180 degrees. Read-only.
-
-        .. py:attribute:: pos
-
-            Position in the global coordinate system. Read-only.
 
         .. py:attribute:: source
 
@@ -167,19 +344,12 @@ Input Handling
             used with a DI device, the internal tracker also generates :py:const:`TRACK` 
             events for hands above the surface. When used with an FTIR device, the 
             internal tracker generates :py:const:`TRACK` events for the actual touches.
+            Read-only
 
         .. py:attribute:: speed
 
             Current speed of the touch in pixels per millisecond as a
             :py:class:`Point2D`. Read-only.
-
-        .. py:attribute:: x
-
-            x position in the global coordinate system. Read-only.
-
-        .. py:attribute:: y
-
-            y position in the global coordinate system. Read-only.
 
         .. py:method:: getContour() -> list
 
@@ -199,9 +369,9 @@ Input Handling
         A class that uses a camera to track moving objects and delivers the movements 
         as avg events. Create a tracker by using :py:meth:`Player.addTracker()`.
         The properties of this class are explained under
-        https://www.libavg.de/wiki/index.php/Tracker_Setup.
+        https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
 
-        This is the internal libavg tracker. For trackers created using 
+        This is the internal libavg tracker. For touch input sources created using 
         :py:meth:`Player.enableMultitouch`, no Tracker object exists.
         
         .. py:method:: abortCalibration()
@@ -272,7 +442,7 @@ Input Handling
 
         .. py:method:: nextPoint() -> bool
 
-            Advances to the next point. Returns :keyword:`False` and ends calibration if
+            Advances to the next point. Returns :py:const:`False` and ends calibration if
             all points have been set.
 
         .. py:method:: setCamPoint(pos)

@@ -30,27 +30,19 @@ namespace avg {
 
 class AVG_API EaseInOutAnim: public SimpleAnim {
 public:
-    virtual ~EaseInOutAnim();
-
-    static AnimPtr create(const boost::python::object& node, const std::string& sAttrName, 
+    EaseInOutAnim(const boost::python::object& node, const std::string& sAttrName, 
             long long duration,
             const boost::python::object& pStartValue, 
             const boost::python::object& pEndValue,
             long long easeInDuration, long long easeOutDuration, bool bUseInt=false, 
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
+    virtual ~EaseInOutAnim();
 
 protected:
     virtual double interpolate(double t);
     
 private:
-    EaseInOutAnim(const boost::python::object& node, const std::string& sAttrName, 
-            long long duration,
-            const boost::python::object& pStartValue, 
-            const boost::python::object& pEndValue,
-            long long easeInDuration, long long easeOutDuration, bool bUseInt, 
-            const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
     double m_EaseInDuration;
     double m_EaseOutDuration;
 };

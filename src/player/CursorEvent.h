@@ -29,6 +29,9 @@
 
 #include "../base/Point.h"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 namespace avg {
 
 const int MOUSECURSORID=-1;
@@ -36,27 +39,45 @@ const int MOUSECURSORID=-1;
 class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
+class Contact;
+typedef boost::shared_ptr<class Contact> ContactPtr;
+typedef boost::weak_ptr<class Contact> ContactWeakPtr;
+
+class VisibleNode;
+typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
+typedef boost::weak_ptr<class VisibleNode> VisibleNodeWeakPtr;
+
 class AVG_API CursorEvent: public Event 
 {
     public:
-        CursorEvent(int id, Type eventType, const IntPoint& position, Source source);
+        CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+                int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
+        void setPos(const DPoint& pos);
         DPoint getPos() const;
         int getXPosition() const;
         int getYPosition() const;
         void setCursorID(int id);
         int getCursorID() const;
+        void setNode(VisibleNodePtr pNode);
+        VisibleNodePtr getNode() const;
+        void setSpeed(DPoint speed);
+        virtual const DPoint& getSpeed() const;
 
-        DPoint getLastDownPos() const;
-        void setLastDownPos(const IntPoint& pos);
+        void setContact(ContactPtr pContact);
+        ContactPtr getContact() const;
+        virtual void removeBlob() {};
 
         friend bool operator ==(const CursorEvent& event1, const CursorEvent& event2);
+        virtual void trace();
 
-    protected:
+    private:
         IntPoint m_Position;
         int m_ID;
-        IntPoint m_LastDownPos;
+        ContactWeakPtr m_pContact;
+        VisibleNodeWeakPtr m_pNode;
+        DPoint m_Speed;
 };
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2);

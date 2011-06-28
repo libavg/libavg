@@ -40,15 +40,6 @@ LinearAnim::~LinearAnim()
 {
 }
 
-AnimPtr LinearAnim::create(const object& node, const string& sAttrName, long long duration,
-        const object& pStartValue, const object& pEndValue, bool bUseInt, 
-        const object& startCallback, const object& stopCallback)
-{
-    AnimPtr pAnim = AnimPtr(new LinearAnim(node, sAttrName, duration, pStartValue, 
-            pEndValue, bUseInt, startCallback, stopCallback));
-    return pAnim;
-}
-
 double LinearAnim::interpolate(double t)
 {
     return t;
@@ -63,8 +54,8 @@ AnimPtr fadeIn(const boost::python::object& node, long long duration, double max
         const boost::python::object& stopCallback)
 {
     object startVal = node.attr("opacity");
-    AnimPtr pAnim = LinearAnim::create(node, "opacity", duration, startVal, 
-            object(max), false, object(), stopCallback);
+    AnimPtr pAnim(new LinearAnim(node, "opacity", duration, startVal, 
+            object(max), false, object(), stopCallback));
     pAnim->start(false);
     return pAnim;
 }
@@ -73,12 +64,10 @@ AnimPtr fadeOut(const boost::python::object& node, long long duration,
         const boost::python::object& stopCallback)
 {
     object startVal = node.attr("opacity");
-    AnimPtr pAnim = LinearAnim::create(node, "opacity", duration, startVal, 
-            object(0), false, object(), stopCallback);
+    AnimPtr pAnim(new LinearAnim(node, "opacity", duration, startVal, 
+            object(0), false, object(), stopCallback));
     pAnim->start(true);
     return pAnim;
 }
 
-
-    
 }

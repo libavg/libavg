@@ -192,14 +192,11 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testRect3", False),
                  addRect2,
                  lambda: self.compareImage("testRect4", False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        100, 100, 1),
+                 lambda: self.fakeClick(100, 100),
                  lambda: self.assert_(self.__mouseDownCalled == False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        55, 50, 1),
+                 lambda: self.fakeClick(55, 50),
                  lambda: self.assert_(self.__mouseDownCalled == False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        65, 60, 1),
+                 lambda: self.fakeClick(65, 60),
                  lambda: self.assert_(self.__mouseDownCalled)
                 ))
 
@@ -468,11 +465,9 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon5", True),
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6", False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        50, 50, 1),
+                 lambda: self.fakeClick(50, 50),
                  lambda: self.assert_(self.__mouseDownCalled == False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        20, 87, 1),
+                 lambda: self.fakeClick(20, 87),
                  lambda: self.assert_(self.__mouseDownCalled),
                  addEmptyPolygon
                 ))
@@ -581,11 +576,9 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCircle4", False),
                  setFillTexCoords,
                  lambda: self.compareImage("testCircle5", False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        32, 32, 1),
+                 lambda: self.fakeClick(32, 32),
                  lambda: self.assert_(self.__mouseDownCalled == False),
-                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
-                        67, 50, 1),
+                 lambda: self.fakeClick(67, 50),
                  lambda: self.assert_(self.__mouseDownCalled)
                 ))
         
@@ -675,12 +668,10 @@ class VectorTestCase(AVGTestCase):
         self.onDownCalled = False
         self.start(None,
                 (lambda: self.compareImage("testInactiveVector1", False),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        20, 20, 1),
+                 lambda: self.fakeClick(20, 20),
                  lambda: self.assert_(self.onDownCalled),
                  lambda: self.compareImage("testInactiveVector2", False),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        20, 20, 1),
+                 lambda: self.fakeClick(20, 20),
                  lambda: self.assert_(self.onDownCalled)
                 ))
         

@@ -46,17 +46,6 @@ EaseInOutAnim::~EaseInOutAnim()
 {
 }
 
-AnimPtr EaseInOutAnim::create(const object& node, const string& sAttrName, 
-        long long duration, const object& pStartValue, const object& pEndValue, 
-        long long easeInDuration, long long easeOutDuration, bool bUseInt, 
-        const object& startCallback, const object& stopCallback)
-{
-    AnimPtr pAnim = AnimPtr(new EaseInOutAnim(node, sAttrName, duration, pStartValue, 
-            pEndValue, easeInDuration, easeOutDuration, bUseInt, startCallback, 
-            stopCallback));
-    return pAnim;
-}
-
 double EaseInOutAnim::interpolate(double t)
 {
     double accelDist = m_EaseInDuration*2/PI;

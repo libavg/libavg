@@ -27,13 +27,13 @@ import os.path
 
 from libavg import avg
 
-g_player = avg.Player.get()
-g_logger = avg.Logger.get()
+g_Player = avg.Player.get()
+g_Logger = avg.Logger.get()
 
 
 class Key(avg.ImageNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, sticky=False,
-            *args, **kwargs):
+    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, 
+            onOutCallback=lambda event, keyCode:None, sticky=False, *args, **kwargs):
         kwargs['pos'] = keyDef[1]
         kwargs['size'] = keyDef[2]
         kwargs['opacity'] = 0.0
@@ -44,13 +44,14 @@ class Key(avg.ImageNode):
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
+        self.__onOutCallback = onOutCallback
         self.__sticky = sticky
         if self.__sticky:
             self.__stickyIsDown = False
         self.__cursorID = None
         self.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onDown)
-        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUpOut)
-        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onUpOut)
+        self.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onUp)
+        self.setEventHandler(avg.CURSOROUT, avg.MOUSE | avg.TOUCH, self.__onOut)
 
     def reset(self):
         if self.__sticky:
@@ -62,7 +63,7 @@ class Key(avg.ImageNode):
             effectiveHref = ovlHref
         else:
             effectiveHref = self.getParent().getEffectiveMediaDir() + ovlHref
-        canvas = g_player.loadCanvasString(
+        canvas = g_Player.loadCanvasString(
         '''
             <canvas id="offscreen" size="%s">
                 <image href="%s" pos="%s"/>
@@ -73,7 +74,7 @@ class Key(avg.ImageNode):
           str(-self.pos)))
         canvas.render()
         self.setBitmap(canvas.screenshot())
-        g_player.deleteCanvas('offscreen')
+        g_Player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
         if self.__sticky:
@@ -87,11 +88,19 @@ class Key(avg.ImageNode):
                 return
             self.__pseudoDown(event)
 
-    def __onUpOut(self, event):
+    def __onUp(self, event):
         if not self.__cursorID == event.cursorid:
             return
         if not (self.__sticky):
             self.__pseudoUp(event)
+
+    def __onOut(self, event):
+        if not self.__cursorID == event.cursorid:
+            return
+        if not(self.__sticky):
+            self.__cursorID = None
+            self.opacity = 0.0
+            self.__onOutCallback(event, self.__keyCode)
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
@@ -146,7 +155,7 @@ class Keyboard(avg.DivNode):
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
                 key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        sticky=sticky, parent=self)
+                        self.__onCommandKeyUp, sticky=sticky, parent=self)
             self.__keys.append(key)
 
     @classmethod
@@ -223,7 +232,7 @@ class Keyboard(avg.DivNode):
             if self.__shiftDownCounter > 0:
                 self.__shiftDownCounter -= 1
             else:
-                g_logger.trace(g_logger.WARNING,
+                g_Logger.trace(g_Logger.WARNING,
                         'Keyboard: ShiftDownCounter=0 on [%s] up' 
                         %self.__shiftKeyCode)
         elif keyCode == self.__altGrKeyCode:

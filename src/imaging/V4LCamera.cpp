@@ -62,6 +62,7 @@ namespace {
     }
 }
 
+
 V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size, PixelFormat camPF,
         PixelFormat destPF, double frameRate)
     : Camera(camPF, destPF),
@@ -103,7 +104,6 @@ V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size, PixelForma
     }
     
     initDevice();
-    startCapture();
     AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
 }
 
@@ -112,11 +112,11 @@ V4LCamera::~V4LCamera()
     close();
 }
 
-
 void V4LCamera::close()
 {
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (-1 == xioctl (m_Fd, VIDIOC_STREAMOFF, &type)) {
+    int rc = xioctl(m_Fd, VIDIOC_STREAMOFF, &type);
+    if (rc == -1) {
         AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
     }
     vector<Buffer>::iterator it;
@@ -206,19 +206,18 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     unsigned char * pCaptureBuffer = (unsigned char*)m_vBuffers[buf.index].start;
    
-    IntPoint size = getImgSize();
     double lineLen;
     switch (getCamPF()) {
         case YCbCr411:
-            lineLen = size.x*1.5;
+            lineLen = m_ImgSize.x*1.5;
             break;
         case YCbCr420p:
-            lineLen = size.x;
+            lineLen = m_ImgSize.x;
             break;
         default:
-            lineLen = size.x*Bitmap::getBytesPerPixel(getCamPF());
+            lineLen = m_ImgSize.x*Bitmap::getBytesPerPixel(getCamPF());
     }
-    BitmapPtr pCamBmp(new Bitmap(size, getCamPF(), pCaptureBuffer, lineLen,
+    BitmapPtr pCamBmp(new Bitmap(m_ImgSize, getCamPF(), pCaptureBuffer, lineLen,
             false, "TempCameraBmp"));
 
     BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
@@ -372,9 +371,142 @@ void V4LCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
     setFeature(V4L2_CID_BLUE_BALANCE, v); 
 }
 
-void V4LCamera::dumpCameras()
+int dumpCameras_open(int j)
 {
+    stringstream minorDeviceNumber;
+    minorDeviceNumber << j;
+    string address = "/dev/video";
+    string result = address + minorDeviceNumber.str();  
+    int fd = ::open(result.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
+    return fd;
 }
+
+v4l2_capability dumpCameraCapabilities(int fd)
+{
+    v4l2_capability capability;
+    memset(&capability, 0, sizeof(capability));
+    int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+    if (rc != -1) {
+        cout << capability.card << ":" << endl;
+        cout << "    Driver:  " << capability.driver << endl;
+        cout << "  Location:  " << capability.bus_info;
+        cout << endl << endl;
+    }
+    return capability;
+}
+
+void dumpSupportedImgFormats(int fd)
+{
+    cout << "Suported Image Formats:" << endl;
+    for (int i = 0;; i++) {
+        v4l2_fmtdesc fmtDesc;
+        memset(&fmtDesc, 0, sizeof(fmtDesc));
+        fmtDesc.index = i;
+        fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
+        if (rc == -1) {
+            break; 
+        }
+        v4l2_frmsizeenum frmSizeEnum;
+        memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
+        frmSizeEnum.index = 0;
+        frmSizeEnum.pixel_format = fmtDesc.pixelformat;
+        bool bSupported = false;
+        while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
+            string sAvgPixelformat;
+            switch (fmtDesc.pixelformat) {
+                case v4l2_fourcc('Y','U','Y','V'):
+                    sAvgPixelformat = "YUYV422";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('U','Y','V','Y'):
+                    sAvgPixelformat = "YUV422";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('G','R','E','Y'):
+                    sAvgPixelformat = "I8"; 
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('Y','1','6',' '):
+                    sAvgPixelformat = "I16";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('R','G','B','3'):
+                    sAvgPixelformat = "RGB";
+                    bSupported = true;
+                    break; 
+                case v4l2_fourcc('B','G','R','3'):
+                    sAvgPixelformat = "BGR";
+                    bSupported = true;
+                    break; 
+                default:
+                    break;
+            }
+            
+            if (bSupported) {
+                v4l2_frmivalenum frmIvalEnum;
+                cout << "   " << sAvgPixelformat << " ";
+                cout << "  (" << frmSizeEnum.discrete.width << ", ";
+                cout << frmSizeEnum.discrete.height << ")";
+                cout << "   fps: ";
+                memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
+                frmIvalEnum.index = 0;      
+                frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;  
+                frmIvalEnum.width = frmSizeEnum.discrete.width;   
+                frmIvalEnum.height = frmSizeEnum.discrete.height;
+                while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
+                    cout << frmIvalEnum.discrete.denominator << "/";
+                    frmIvalEnum.index++;                                 
+                }
+                cout << endl;
+            }
+            frmSizeEnum.index++;
+        }
+    }
+}
+
+void dumpCameraControls(int fd)
+{
+    cout << endl << "Camera Controls:" << endl;
+    v4l2_queryctrl queryCtrl;
+    for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
+        int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
+        if (rc != -1) {
+            if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+                continue;
+            }
+            cout << "  " << queryCtrl.name << ":" << endl;
+            cout << "    Min: " << queryCtrl.minimum << " | ";
+            cout << "Max: " << queryCtrl.maximum << " | ";
+            cout << "Default: "<< queryCtrl.default_value << endl;
+        } else {
+            if (errno != EINVAL) {
+                perror("VIDIOC_QUERYCTRL");
+                exit(EXIT_FAILURE);
+            }          
+        }
+    }
+}
+
+void V4LCamera::dumpCameras()
+{ 
+    for(int j = 0; j < 256; j++){
+        int fd = dumpCameras_open(j);
+        if (fd != -1) {
+            cout << "------------------------Video4linux Camera-------------------------";
+            cout << endl;
+            cout << "/dev/video" << j << " ";
+            v4l2_capability capability = dumpCameraCapabilities(fd);
+            if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) { 
+                dumpSupportedImgFormats(fd);   
+                dumpCameraControls(fd);
+            } 
+            cout << "-------------------------------------------------------------------";
+            cout << endl;
+        }
+    }
+}
+
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
@@ -452,7 +584,7 @@ void V4LCamera::initDevice()
         Crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         Crop.c = CropCap.defrect; /* reset to default */
 
-        if (-1 == xioctl (m_Fd, VIDIOC_S_CROP, &Crop)) {
+        if (-1 == xioctl(m_Fd, VIDIOC_S_CROP, &Crop)) {
             switch (errno) {
                 case EINVAL:
                     /* Cropping not supported. */
@@ -469,16 +601,17 @@ void V4LCamera::initDevice()
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = getImgSize().x; 
-    fmt.fmt.pix.height = getImgSize().y;
+    fmt.fmt.pix.width = m_ImgSize.x; 
+    fmt.fmt.pix.height = m_ImgSize.y;
     fmt.fmt.pix.pixelformat = m_v4lPF;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
-
-    if (xioctl(m_Fd, VIDIOC_S_FMT, &fmt) == -1) {
+    int rc = xioctl(m_Fd, VIDIOC_S_FMT, &fmt);
+    if (fmt.fmt.pix.width != m_ImgSize.x || fmt.fmt.pix.height != m_ImgSize.y || rc == -1)
+    {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)
-                +"'. Try using v4l-info to find out what the device supports."));
+                +"'. Try using avg_showcamera.py --dump to find out what the device supports."));
     }
 
     CLEAR(StreamParam);
@@ -486,11 +619,12 @@ void V4LCamera::initDevice()
     StreamParam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     StreamParam.parm.capture.timeperframe.numerator = 1;
     StreamParam.parm.capture.timeperframe.denominator = (int) m_FrameRate;
-    if (xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam) == -1) {
+    rc = xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam);
+    if (m_FrameRate != StreamParam.parm.capture.timeperframe.denominator || rc == -1) {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
-                +"'. Try using v4l-info to find out what the device supports."));
+                +"'. Try using avg_showcamera.py --dump to find out what the device supports."));
     }
     m_FrameRate = (double)StreamParam.parm.capture.timeperframe.denominator / \
             (double)StreamParam.parm.capture.timeperframe.numerator;

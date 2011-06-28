@@ -21,73 +21,88 @@
 
 #include "TouchStatus.h"
 
+#include "TouchEvent.h"
+#include "BoostPython.h"
+#include "Player.h"
+
+#include "../base/Exception.h"
+#include "../base/StringHelper.h"
+
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 TouchStatus::TouchStatus(TouchEventPtr pEvent)
-    : m_pEvent(pEvent),
-      m_bFirstFrame(true),
-      m_LastDownPos(pEvent->getPos()),
+    : m_bFirstFrame(true),
       m_CursorID(pEvent->getCursorID())
 {
-    pEvent->setLastDownPos(IntPoint(pEvent->getPos()));
-    m_pLastEvent = m_pEvent;
+    m_pNewEvents.push_back(pEvent);
+    m_pLastEvent = pEvent;
 }
 
 TouchStatus::~TouchStatus()
 {
 }
 
-const IntPoint& TouchStatus::getLastDownPos()
-{
-    return m_LastDownPos;
-}
-
-bool TouchStatus::isFirstFrame()
-{
-    return m_bFirstFrame;
-}
-
-void TouchStatus::updateEvent(TouchEventPtr pEvent)
+void TouchStatus::pushEvent(TouchEventPtr pEvent, bool bCheckMotion)
 {
     AVG_ASSERT(pEvent);
-    if (isFirstFrame()) {
-        // Always send a cursordown event first.
-        m_pEvent = boost::dynamic_pointer_cast<TouchEvent>(
-                pEvent->cloneAs(Event::CURSORDOWN));
+    pEvent->setCursorID(m_CursorID);
+
+    if (m_bFirstFrame) {
+        // Ignore unless cursorup.
         if (pEvent->getType() == Event::CURSORUP) {
-            // If we get a down and an up in the first frame, we delay the up to the
-            // next frame.
-            m_pUpEvent = pEvent;
-            m_pUpEvent->setCursorID(m_CursorID);
+            // Down and up in the first frame. To avoid inconsistencies, both
+            // messages must be delivered. This is the only time that m_pNewEvents
+            // has more than one entry.
+            m_pNewEvents.push_back(pEvent);
         }
     } else {
-        m_pEvent = pEvent;
+        if (bCheckMotion && pEvent->getType() == Event::CURSORMOTION && 
+                getLastEvent()->getPos() == pEvent->getPos())
+        {
+            // Ignore motion events without motion.
+            return;
+        } else {
+            if (m_pNewEvents.empty()) {
+                // No pending events: schedule for delivery.
+                m_pNewEvents.push_back(pEvent);
+            } else {
+                // More than one event per poll: Deliver only the last one.
+                m_pNewEvents[0] = pEvent;
+            }
+        }
     }
-    m_pEvent->setCursorID(m_CursorID);
-    m_pEvent->setLastDownPos(m_LastDownPos);
-    m_pLastEvent = m_pEvent;
 }
 
-
-TouchEventPtr TouchStatus::getEvent()
+TouchEventPtr TouchStatus::pollEvent()
 {
-    m_bFirstFrame = false;
-    TouchEventPtr pEvent;
-    if (!m_pEvent && m_pUpEvent) {
-        // Special case: delayed up.
-        pEvent = m_pUpEvent;
-        m_pUpEvent = TouchEventPtr();
+    if (m_pNewEvents.empty()) {
+        return TouchEventPtr();
     } else {
-        pEvent = m_pEvent;
-        m_pEvent = TouchEventPtr();
+        TouchEventPtr pEvent = m_pNewEvents[0];
+        m_pNewEvents.erase(m_pNewEvents.begin());
+        m_bFirstFrame = false;
+        m_pLastEvent = pEvent;
+        return pEvent;
     }
-    return pEvent;
 }
 
 TouchEventPtr TouchStatus::getLastEvent()
 {
-    AVG_ASSERT(m_pLastEvent);
-    return m_pLastEvent;
+    if (m_pNewEvents.empty()) {
+        AVG_ASSERT(m_pLastEvent);
+        return m_pLastEvent;
+    } else {
+        return m_pNewEvents.back();
+    }
+}
+
+int TouchStatus::getID() const
+{
+    return m_CursorID;
 }
 
 }

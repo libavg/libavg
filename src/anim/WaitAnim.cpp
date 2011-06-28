@@ -39,13 +39,6 @@ WaitAnim::~WaitAnim()
 {
 }
     
-AnimPtr WaitAnim::create(long long duration, const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback)
-{
-    AnimPtr pAnim = AnimPtr(new WaitAnim(duration, startCallback, stopCallback));
-    return pAnim;
-}
-
 void WaitAnim::start(bool bKeepAttr)
 {
     Anim::start();

@@ -125,6 +125,23 @@ void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
 }
 
+void CameraNode::connect(CanvasPtr pCanvas)
+{
+    if (!m_pCamera) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Can't use camera node after disconnect(True).");
+    }
+    RasterNode::connect(pCanvas);
+}
+
+void CameraNode::disconnect(bool bKill)
+{
+    if (bKill) {
+        m_pCamera = CameraPtr();
+    }
+    RasterNode::disconnect(bKill);
+}
+
 void CameraNode::play()
 {
     if (getState() == NS_CANRENDER) {
@@ -273,6 +290,7 @@ double CameraNode::getFPS() const
 
 void CameraNode::open()
 {
+    m_pCamera->startCapture();
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     getSurface()->create(getMediaSize(), pf);

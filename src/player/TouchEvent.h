@@ -26,10 +26,8 @@
 
 #include "../api.h"
 #include "CursorEvent.h"
-#include "VisibleNode.h"
 
 #include "../imaging/Blob.h"
-#include "../graphics/Bitmap.h"
 #include "../base/Point.h"
 
 #include <math.h>
@@ -45,14 +43,15 @@ class AVG_API TouchEvent: public CursorEvent
 {
     public:
         TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
-                Source source, const DPoint& speed, const IntPoint& lastDownPos);
+                Source source, const DPoint& speed=DPoint(0,0));
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
-                const DPoint& speed, double orientation, double area, 
-                double eccentricity, DPoint majorAxis, DPoint minorAxis);
+                const DPoint& speed, double orientation, double area, double eccentricity,
+                DPoint majorAxis, DPoint minorAxis);
+        TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
+                const DPoint& speed=DPoint(0, 0));
         virtual ~TouchEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
 
-        const DPoint& getSpeed() const;
         double getOrientation() const;
         double getArea() const;
         const DPoint & getCenter() const;
@@ -67,11 +66,12 @@ class AVG_API TouchEvent: public CursorEvent
         void addRelatedEvent(TouchEventPtr pEvent);
         std::vector<TouchEventPtr> getRelatedEvents() const;
 
+        void removeBlob();
+
         virtual void trace();
-    
+
     private:
         BlobPtr m_pBlob;
-        DPoint m_Speed;
         double m_Orientation;
         double m_Area;
         DPoint m_Center;

@@ -28,18 +28,6 @@ import sys
 from libavg import avg
 from testcase import *
 
-def keyUp(Event):
-    print "keyUp"
-
-def keyDown(Event):
-    print "keyDown"
-    print Event
-    print "  Type: "+str(Event.type)
-    print "  keystring: "+Event.keystring
-    print "  scancode: "+str(Event.scancode)
-    print "  keycode: "+str(Event.keycode)
-    print "  modifiers: "+str(Event.modifiers)
-
 def dumpMouseEvent(Event):
     print Event
     print "  type: "+str(Event.type)
@@ -62,69 +50,6 @@ def mainMouseDown(Event):
     assert (Event.type == avg.CURSORDOWN)
     mainMouseDownCalled = True
 
-class NodeHandlerTester:
-    def __init__(self, testCase, node):
-        self.__testCase=testCase
-        self.reset()
-        self.__node = node
-        self.setHandlers()
-
-    def assertState(self, down, up, over, out, move):
-        self.__testCase.assert_(down == self.__downCalled)
-        self.__testCase.assert_(up == self.__upCalled)
-        self.__testCase.assert_(over == self.__overCalled)
-        self.__testCase.assert_(out == self.__outCalled)
-        self.__testCase.assert_(move == self.__moveCalled)
-        self.__testCase.assert_(not(self.__touchDownCalled))
-        self.reset()
-
-    def reset(self):
-        self.__upCalled=False
-        self.__downCalled=False
-        self.__overCalled=False
-        self.__outCalled=False
-        self.__moveCalled=False
-        self.__touchDownCalled=False
-
-    def setHandlers(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown) 
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp) 
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver) 
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut) 
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onMove) 
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onTouchDown) 
-
-    def clearHandlers(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None) 
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, None) 
-
-    def __onDown(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORDOWN)
-        self.__downCalled = True
-    
-    def __onUp(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORUP)
-        self.__upCalled = True
-
-    def __onOver(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSOROVER)
-        self.__overCalled = True
-    
-    def __onOut(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSOROUT)
-        self.__outCalled = True
-    
-    def __onMove(self, Event):
-        self.__testCase.assert_(Event.type == avg.CURSORMOTION)
-        self.__moveCalled = True
-    
-    def __onTouchDown(self, Event):
-        self.__touchDownCalled = True
-        
 
 class EventTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -170,7 +95,7 @@ class EventTestCase(AVGTestCase):
                         10, 10, 1),
                  lambda: self.assert_(mainMouseDownCalled and not(mainMouseUpCalled)),
                  reset,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: self.assert_(not(mainMouseDownCalled) and mainMouseUpCalled)
                 ))
@@ -179,9 +104,6 @@ class EventTestCase(AVGTestCase):
         def getMouseState():
             Event = Player.getMouseState()
             self.assert_(Event.pos == avg.Point2D(10,10))
-            self.assert_(Event.lastdownpos == avg.Point2D(10,10))
-            # Make sure we're getting a Point2D as return value.
-            self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
         
         self.loadEmptyScene()
         root = Player.getRootNode()
@@ -208,7 +130,7 @@ class EventTestCase(AVGTestCase):
                  lambda: handlerTester1.assertState(
                         down=False, up=False, over=False, out=False, move=True),
 
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         12, 12, 1),
                  lambda: handlerTester1.assertState(
                         down=False, up=True, over=False, out=False, move=False)
@@ -226,7 +148,7 @@ class EventTestCase(AVGTestCase):
                         32, 32, 1),
                  lambda: handlerTester.assertState(
                         down=True, up=False, over=True, out=False, move=False),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         0, 0, 1),
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=False, out=True, move=False),
@@ -258,7 +180,7 @@ class EventTestCase(AVGTestCase):
                  lambda: imgHandlerTester.assertState(
                         down=False, up=False, over=False, out=False, move=True),
         
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         12, 12, 1),
                  lambda: divHandlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False),
@@ -301,17 +223,14 @@ class EventTestCase(AVGTestCase):
         resetDownCalled()
         self.start(None, 
                 (connectTwoHandlers,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
+                 lambda: self.fakeClick(10,10),
                  lambda: self.assert_(self.down1Called and self.down2Called),
                  resetDownCalled,
                  lambda: self.img.disconnectEventHandler(self, onDown1),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
+                 lambda: self.fakeClick(10,10),
                  lambda: self.assert_(not(self.down1Called) and self.down2Called),
                  connectUnlinkHandler,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1)
+                 lambda: self.fakeClick(10,10),
                 ))
 
     def testObscuringEvents(self):
@@ -339,7 +258,7 @@ class EventTestCase(AVGTestCase):
                  lambda: handlerTester2.assertState(
                         down=False, up=False, over=False, out=False, move=True),
 
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         12, 12, 1),
                  lambda: handlerTester1.assertState(
                         down=False, up=False, over=False, out=False, move=False),
@@ -368,7 +287,7 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
                      lambda: handlerTester.assertState(
                             down=False, up=False, over=False, out=False, move=False),
-                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                             10, 10, 1),
 
                      # Activate the node -> events arrive.
@@ -377,7 +296,7 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
                      lambda: handlerTester.assertState(
                             down=True, up=False, over=True, out=False, move=False),
-                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                     lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                             10, 10, 1),
                     ))
             self.img = None
@@ -395,7 +314,7 @@ class EventTestCase(AVGTestCase):
                  lambda: handlerTester.assertState(
                         down=False, up=False, over=False, out=False, move=False),
                  lambda: handlerTester.setHandlers(),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: handlerTester.assertState(
                         down=False, up=True, over=False, out=False, move=False),
@@ -442,21 +361,21 @@ class EventTestCase(AVGTestCase):
                 (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: self.assert_(self.mouseDownCalled),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  captureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         100, 10, 1),
                  lambda: self.assert_(self.mouseDownCalled and 
                         self.mainMouseDownCalled),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         100, 10, 1),
                  noCaptureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         100, 10, 1),
                  lambda: self.assert_(not(self.mouseDownCalled) and 
                         self.mainMouseDownCalled),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         100, 10, 1),
                  doubleCaptureEvent,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -464,6 +383,8 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.mouseDownCalled and 
                         self.mainMouseDownCalled),
                  releaseTooMuch,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
+                        100, 10, 1),
                 ))
         self.img = None
 
@@ -530,7 +451,8 @@ class EventTestCase(AVGTestCase):
                         not(self.img2MouseOutCalled) and 
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
-
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
+                        70, 70, 1),
                  resetState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 10, 1),
@@ -541,6 +463,8 @@ class EventTestCase(AVGTestCase):
                         self.img2MouseOutCalled and 
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
+                        70, 10, 1),
                  
                  resetState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -555,7 +479,7 @@ class EventTestCase(AVGTestCase):
 
                  resetState,
                  killNodeUnderCursor,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: self.assert_(
                         not(self.img2MouseOverCalled) and 
@@ -565,9 +489,11 @@ class EventTestCase(AVGTestCase):
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
 
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
                  resetState,
                  lambda: Player.getElementByID("img2").setEventCapture(),
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         70, 70, 1),
                  lambda: self.assert_(
                         self.img2MouseOverCalled and 
@@ -577,8 +503,10 @@ class EventTestCase(AVGTestCase):
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
 
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        70, 70, 1),
                  resetState,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         10, 10, 1),
                  lambda: self.assert_(
                         not(self.img2MouseOverCalled) and 
@@ -624,43 +552,183 @@ class EventTestCase(AVGTestCase):
 
         Player.setEventHook(handleEvent)
         self.start(None,
-                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
-                        False, False, False, 10, 10, 0),
-                lambda: self.assert_(self.ehookMouseEvent),
-                lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
-                lambda: self.assert_(self.ehookKeyboardEvent),
-                cleanup,
-                lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 
-                        False, False, False, 10, 10, 0),
-                lambda: self.assert_(not self.ehookMouseEvent),
-                lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
-                lambda: self.assert_(not self.ehookKeyboardEvent),
+                (lambda: self.fakeClick(10, 10),
+                 lambda: self.assert_(self.ehookMouseEvent),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
+                 lambda: self.assert_(self.ehookKeyboardEvent),
+                 cleanup,
+                 lambda: self.fakeClick(10, 10),
+                 lambda: self.assert_(not self.ehookMouseEvent),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0),
+                 lambda: self.assert_(not self.ehookKeyboardEvent),
             ))
         
     def testException(self):
+
         class TestException(Exception):
             pass
         
         def throwException(event):
             raise TestException
         
-        rect = libavg.RectNode(size = (50, 50))
+        rect = avg.RectNode(size = (50, 50))
         rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, throwException)
         
         self.loadEmptyScene()
-        libavg.Player.get().getRootNode().appendChild(rect)
+        Player.getRootNode().appendChild(rect)
         
         self.__exceptionThrown = False
         try:
             self.start(None,
-                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 10, 10, 0),
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 10, 
+                        10, 0),
                  lambda: None))
         except TestException:
             self.__exceptionThrown = True
             
         self.assert_(self.__exceptionThrown)
-        #libavg.Player.get().getRootNode().removeChild(rect)
-                
+               
+    def testContacts(self):
+
+        def onDown(event):
+            contact = event.contact
+            self.assert_(event.cursorid == contact.id)
+            self.assert_(contact.age == 0)
+            self.assert_(contact.distancefromstart == 0)
+            self.assert_(contact.motionangle == 0)
+            self.assert_(contact.motionvec == (0,0))
+            self.assert_(contact.distancetravelled == 0)
+            self.assert_(contact.events[0].pos == event.pos)
+            self.assert_(len(contact.events) == 1)
+            contact.connectListener(onMotion, onUp)
+
+        def onMotion(event):
+            contact = event.contact
+            self.assert_(event.cursorid == contact.id)
+            self.assert_(contact.age == 40)
+            self.assert_(contact.distancefromstart == 10)
+            self.assert_(contact.motionangle == 0)
+            self.assert_(contact.motionvec == (10,0))
+            self.assert_(contact.distancetravelled == 10)
+            self.assert_(contact.events[-1].pos == event.pos)
+            self.assert_(len(contact.events) > 1)
+            self.numContactCallbacks += 1
+ 
+        def onUp(event):
+            contact = event.contact
+            self.assert_(event.cursorid == contact.id)
+            self.assert_(contact.age == 80)
+            self.assert_(contact.distancefromstart == 0)
+            self.assert_(contact.motionangle == 0)
+            self.assert_(contact.motionvec == (0,0))
+            self.assert_(contact.distancetravelled == 20)
+            self.assert_(contact.events[-1].pos == event.pos)
+            self.assert_(len(contact.events) > 1)
+            self.numContactCallbacks += 1
+
+        def onOver(event): 
+            self.numOverCallbacks += 1
+            self.assert_(event.cursorid == event.contact.id)
+
+        def onOut(event): 
+            self.numOutCallbacks += 1
+            self.assert_(event.cursorid == event.contact.id)
+
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
+        self.numContactCallbacks = 0
+        rect = avg.RectNode(pos=(5,5), size=(10,10), parent=root)
+        rect.connectEventHandler(avg.CURSOROVER, avg.TOUCH, self, onOver)
+        self.numOverCallbacks = 0
+        rect.connectEventHandler(avg.CURSOROUT, avg.TOUCH, self, onOut)
+        self.numOutCallbacks = 0
+        Player.setFakeFPS(25)
+        self.start(None,
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
+            ))
+        self.assert_(self.numContactCallbacks == 2)
+        self.assert_(self.numOverCallbacks == 2)
+        self.assert_(self.numOutCallbacks == 2)
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown)
+        self.numContactCallbacks = 0
+        self.start(None,
+            (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, 1, 0, 0, 10, 10, 0),
+             lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, 1, 0, 0, 20, 10, 0),
+             lambda: Helper.fakeMouseEvent(avg.CURSORUP, 0, 0, 0, 10, 10, 0),
+            ))
+        self.assert_(self.numContactCallbacks == 2)
+
+    def testContactRegistration(self):
+
+        def onDown(event):
+            root.setEventCapture(event.cursorid)
+            root.releaseEventCapture(event.cursorid)
+
+        def onMotion(event):
+            contact = event.contact
+            self.contactID = contact.connectListener(onContactMotion, None)
+            self.numMotionCallbacks += 1
+            root.disconnectEventHandler(self)
+
+        def onContactMotion(event):
+            contact = event.contact
+            contact.disconnectListener(self.contactID)
+            self.assertException(lambda: contact.disconnectListener(self.contactID))
+            self.numContactCallbacks += 1
+       
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
+        self.numMotionCallbacks = 0
+        root.connectEventHandler(avg.CURSORMOTION, avg.TOUCH, self, onMotion)
+        self.numContactCallbacks = 0
+        Player.setFakeFPS(25)
+        self.start(None,
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (30,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (40,10)),
+            ))
+        self.assert_(self.numContactCallbacks == 1)
+        self.assert_(self.numMotionCallbacks == 1)
+        
+    def testMultiContactRegistration(self):
+
+        def onDown(event):
+            contact = event.contact
+            self.contactid = contact.connectListener(onContact2, onContact2)
+            contact.connectListener(onContact1, onContact1)
+
+        def onContact1(event):
+            if self.numContact1Callbacks == 0:
+                event.contact.disconnectListener(self.contactid)
+            self.numContact1Callbacks += 1
+
+        def onContact2(event):
+            self.assert_(self.numContact1Callbacks == 0)
+            self.numContact2Callbacks += 1
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
+        Player.setFakeFPS(25)
+        self.numContact1Callbacks = 0
+        self.numContact2Callbacks = 0
+        self.start(None,
+            (lambda: Helper.fakeTouchEvent(1, avg.CURSORDOWN, avg.TOUCH, (10,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
+             lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
+            ))
+        self.assert_(self.numContact1Callbacks == 2)
+        # The order of callbacks is unspecified, so onContact2 might be called once.
+        self.assert_(self.numContact2Callbacks <= 1)
+
 
 def eventTestSuite(tests):
     availableTests = (
@@ -677,10 +745,12 @@ def eventTestSuite(tests):
             "testMouseOver",
             "testEventErr",
             "testEventHook",
-            "testException"
+            "testException",
+            "testContacts",
+            "testContactRegistration",
+            "testMultiContactRegistration",
             )
     return createAVGTestSuite(availableTests, EventTestCase, tests)
 
 Player = avg.Player.get()
 Helper = Player.getTestHelper()
-

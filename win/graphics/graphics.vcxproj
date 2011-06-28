@@ -70,6 +70,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\graphics\Bitmap.h" />
+    <ClInclude Include="..\..\src\graphics\BitmapManager.h" />
+    <ClInclude Include="..\..\src\graphics\BitmapManagerMsg.h" />
+    <ClInclude Include="..\..\src\graphics\BitmapManagerThread.h" />
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
     <ClInclude Include="..\..\src\graphics\FBO.h" />
     <ClInclude Include="..\..\src\graphics\Filter.h" />
@@ -129,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
+    <ClCompile Include="..\..\src\graphics\BitmapManager.cpp" />
+    <ClCompile Include="..\..\src\graphics\BitmapManagerMsg.cpp" />
+    <ClCompile Include="..\..\src\graphics\BitmapManagerThread.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter3x3.cpp" />

@@ -52,8 +52,8 @@ functionality
 
                 For single-touch devices, the shift key must stay in the pressed state
                 until the next normal key is pressed to have any effect. This is the 
-                behaviour if :py:attr:`stickyShift` is :keyword:`True`. If it is 
-                :keyword:`False` (the default), a 
+                behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
+                :py:const:`False` (the default), a 
                 multitouch device is assumed and shift works like on a physical keyboard.
 
         .. py:method:: reset():
@@ -66,7 +66,7 @@ functionality
             paramters: (event, char, cmd)
 
             :param downHandler: Callable to invoke on key down event or `None`.
-            :param upHandler: Callable to invoke on key up event or :keyword:`None`.
+            :param upHandler: Callable to invoke on key up event or :py:const:`None`.
 
         .. py:classmethod:: makeRowKeyDefs(startPos, keySize, spacing, keyStr, shiftKeyStr, [altGrKeyStr])
 
@@ -94,15 +94,13 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: DragProcessor(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, friction=-1])
+    .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, friction=-1])
 
-        A :py:class:`DragProcessor` attaches itself to a node's cursor events and 
+        A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
         delivers higher-level callbacks that can be used to implement dragging or 
-        drag-like functionality. For multitouch devices, only one drag can happen at
-        a time; subsequent drags are ignored until the first one is released. The 
-        dragging cursor is captured during the drag.
+        drag-like functionality.
 
-        :py:class:`DragProcessor` supports inertia after the node is released.
+        :py:class:`DragRecognizer` supports inertia after the node is released.
         
             :param avg.Node node: The node to attach to.
 
@@ -133,7 +131,7 @@ functionality
                 :param event: 
                 
                     The corresponding cursor motion event. If there was no event, 
-                    this parameter is :keyword:`None`.
+                    this parameter is :py:const:`None`.
 
                 :param avg.Point2D offset: 
                 
@@ -162,9 +160,9 @@ functionality
             Causes inertia processing to end immediately.
 
 
-    .. autoclass:: ManipulationProcessor(node, eventSource)
+    .. autoclass:: Recognizer(node, eventSource)
 
-        Base class for event processors that attach to a node's cursor events and 
+        Base class for gesture recognizers that attach to a node's cursor events and 
         emit higher-level events.
 
             :param Node node: Node to attach to.
@@ -176,4 +174,4 @@ functionality
 
         .. py:method:: enable(isEnabled)
 
-            Enables or disables the :py:class:`ManipulationProcessor`.
+            Enables or disables the :py:class:`Recognizer`.

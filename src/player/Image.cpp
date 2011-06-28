@@ -160,7 +160,7 @@ void Image::setFilename(const std::string& sFilename, TextureCompression comp)
     assertValid();
 }
 
-void Image::setBitmap(const Bitmap * pBmp, TextureCompression comp)
+void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
 {
     assertValid();
     if (!pBmp) {

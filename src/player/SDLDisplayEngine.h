@@ -23,7 +23,7 @@
 #define _SDLDisplayEngine_H_
 
 #include "../api.h"
-#include "IEventSource.h"
+#include "IInputDevice.h"
 #include "DisplayEngine.h"
 #include "GLConfig.h"
 
@@ -40,9 +40,11 @@ union SDL_Event;
 
 namespace avg {
 
-class XInput21MTEventSource;
+class XInput21MTInputDevice;
+class MouseEvent;
+typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 
-class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
+class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
         SDLDisplayEngine();
@@ -69,9 +71,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot();
 
-        // From IEventSource
+        // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
-        void setXIMTEventSource(XInput21MTEventSource* pEventSource);
+        void setXIMTInputDevice(XInput21MTInputDevice* pInputDevice);
 
         // Texture config.
         void initTextureMode();
@@ -89,7 +91,10 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
-        IntPoint getScreenResolution() const;
+        IntPoint getScreenResolution();
+        double getPixelsPerMM();
+        DPoint getPhysicalScreenDimensions();
+        void assumePhysicalScreenDimensions(const DPoint& size);
 
         void setMainFBO(FBOPtr pFBO);
         FBOPtr getMainFBO() const;
@@ -97,7 +102,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
-        void logConfig(); 
+        void logConfig();
+        void calcScreenDimensions(const DPoint& physScreenSize=DPoint(0,0));
         virtual void swapBuffers();
         void clip(bool forward);
 
@@ -111,6 +117,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         IntPoint m_Size;
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
+        IntPoint m_ScreenResolution;
+        DPoint m_PPMM;
         std::vector<DRect> m_ClipRects;
 
         SDL_Surface * m_pScreen;
@@ -130,10 +138,12 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         static void calcRefreshRate();
         static double s_RefreshRate;
 
+        // Event handling.
         bool m_bMouseOverApp;
-        IntPoint m_LastMousePos;
+        MouseEventPtr m_pLastMouseEvent;
+        int m_NumMouseButtonsDown;
         static std::vector<long> KeyCodeTranslationTable;
-        XInput21MTEventSource * m_pXIMTEventSource;
+        XInput21MTInputDevice * m_pXIMTInputDevice;
 
         int m_MaxTexSize;
 

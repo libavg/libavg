@@ -92,6 +92,7 @@ TrackerThread::TrackerThread(IntRect roi, CameraPtr pCamera,
                 m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
 
     m_pConfig = TrackerConfigPtr(new TrackerConfig(config));
+    m_pCamera->startCapture();
 }
 
 TrackerThread::~TrackerThread()
@@ -118,7 +119,7 @@ bool TrackerThread::init()
         AVG_TRACE(Logger::WARNING, e.GetStr());
     }
     
-    // Done in TrackerEventSource::ctor to work around Leopard/libdc1394 threading issue.
+    // Done in TrackerInputDevice::ctor to work around Leopard/libdc1394 threading issue.
     //    m_pCamera->open();
     return true;
 }

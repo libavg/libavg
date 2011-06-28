@@ -56,8 +56,13 @@ public:
     static bool isMultisampleFBOSupported();
     static bool isPackedDepthStencilSupported();
 
+    void initCache();
+    static void deleteCache();
+
 private:
     void init();
+    unsigned genFramebuffer() const;
+    void returnToCache(unsigned fboID);
     void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
@@ -74,12 +79,13 @@ private:
     // Multisample support
     unsigned m_ColorBuffer;
     unsigned m_OutputFBO;
+
+    // TODO: This assumes one GL context per thread.
+    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pFBOIDs;
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;
 
 }
 
-
 #endif 
-

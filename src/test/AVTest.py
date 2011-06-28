@@ -43,7 +43,7 @@ class AVTestCase(AVGTestCase):
         Player.getRootNode().appendChild(node)
         node.play()
         node.setEOFCallback(onEOF)
-        Player.setTimeout(10000, onNoEOF)
+        Player.setTimeout(100000, onNoEOF)
         Player.play()
         
     def testVideoInfo(self):
@@ -255,8 +255,11 @@ class AVTestCase(AVGTestCase):
         def seek(frame):
             videoNode.seekToFrame(frame)
 
+        def checkCurFrame():
+            self.assert_(videoNode.getCurFrame() == 26)
+
+        Player.setFakeFPS(25)
         for useCustomFPS in [False, True]:
-            Player.setFakeFPS(25)
             self.loadEmptyScene()
             if useCustomFPS:
                 videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, fps=25,
@@ -268,7 +271,8 @@ class AVTestCase(AVGTestCase):
             videoNode.play()
             seek(26)
             self.start(None,
-                    (lambda: self.compareImage("testVideoSeek0", False),
+                    (checkCurFrame,
+                     lambda: self.compareImage("testVideoSeek0", False),
                      lambda: seek(100),
                      lambda: self.compareImage("testVideoSeek1", False),
                      lambda: videoNode.pause(),
@@ -279,6 +283,18 @@ class AVTestCase(AVGTestCase):
                      None,
                      lambda: self.compareImage("testVideoSeek3", False)
                     ))
+
+        def checkSeek():
+            seek(26)
+            self.assert_(videoNode.getCurFrame() != 0)
+
+        self.loadEmptyScene()
+        videoNode = avg.VideoNode(parent=Player.getRootNode(), loop=True, fps=25,
+                href="../video/testfiles/mjpeg-48x48.avi")
+        videoNode.play()
+        seek(5)
+        self.start(None,
+                (checkSeek,))
 
     def testVideoFPS(self):
         Player.setFakeFPS(25)
@@ -355,12 +371,12 @@ class AVTestCase(AVGTestCase):
             raise TestException
         
         Player.setFakeFPS(0.1)
-        videoNode = libavg.VideoNode(threaded = False)
+        videoNode = avg.VideoNode(threaded = False)
         videoNode.href = "./testmediadir/mjpeg-48x48.avi"
         videoNode.setEOFCallback(throwException)
         
         self.loadEmptyScene()
-        libavg.Player.get().getRootNode().appendChild(videoNode)
+        avg.Player.get().getRootNode().appendChild(videoNode)
         
         self.__exceptionThrown = False
         try:
@@ -492,7 +508,7 @@ class AVTestCase(AVGTestCase):
             self.videoWriter = None
 
         def checkVideo(numFrames):
-            savedVideoNode = libavg.VideoNode(href="test.mov", threaded=False)
+            savedVideoNode = avg.VideoNode(href="test.mov", threaded=False)
             savedVideoNode.pause()
             self.assert_(savedVideoNode.getVideoCodec() == "mjpeg")
             self.assert_(savedVideoNode.getNumFrames() == numFrames)

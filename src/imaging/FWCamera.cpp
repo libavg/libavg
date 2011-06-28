@@ -103,7 +103,6 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
 
     dc1394_camera_free_list(pCameraList);
 
-    dumpCameraInfo();
     if (bFW800) {
         dc1394_video_set_operation_mode(m_pCamera, DC1394_OPERATION_MODE_1394B);
         err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_800);
@@ -151,7 +150,26 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
         dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA_NONFATAL, "Failed to initialize camera");
     }
-    err = dc1394_video_set_transmission(m_pCamera, DC1394_ON);
+#else
+    AVG_ASSERT(false);
+#endif
+}
+
+FWCamera::~FWCamera()
+{
+#ifdef AVG_ENABLE_1394_2
+    dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+    dc1394_capture_stop(m_pCamera);
+    dc1394_camera_free(m_pCamera);
+    dc1394_free(m_pDC1394);
+#endif
+    AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
+}
+
+void FWCamera::startCapture()
+{
+#ifdef AVG_ENABLE_1394_2
+    int err = dc1394_video_set_transmission(m_pCamera, DC1394_ON);
     AVG_ASSERT(err == DC1394_SUCCESS);
 
     dc1394switch_t status = DC1394_OFF;
@@ -168,6 +186,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
     }
     // Default to turning off any camera sharpness manipulation.
     setFeature(CAM_FEATURE_SHARPNESS, 0);
+
     // Turn off possible auto exposure.
     dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_EXPOSURE, 
             DC1394_FEATURE_MODE_MANUAL);
@@ -179,7 +198,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
     }
     setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
     
-    if (camPF == BAYER8) {
+    if (getCamPF() == BAYER8) {
         if (strcmp(m_pCamera->model, "DFx 31BF03") == 0) {
             AVG_TRACE(Logger::CONFIG,
                     "Applying bayer pattern fixup for IS DFx31BF03 camera");
@@ -190,20 +209,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
             enablePtGreyBayer();
         }
     }
-#else
-    AVG_ASSERT(false);
 #endif
-}
-
-FWCamera::~FWCamera()
-{
-#ifdef AVG_ENABLE_1394_2
-    dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-    dc1394_capture_stop(m_pCamera);
-    dc1394_camera_free(m_pCamera);
-    dc1394_free(m_pDC1394);
-#endif
-    AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
 }
 
 IntPoint FWCamera::getImgSize()
@@ -298,22 +304,42 @@ int FWCamera::getFeature(CameraFeature feature) const
 #endif
 }
 
+bool FWCamera::hasFeature(CameraFeature feature)
+{
+#ifdef AVG_ENABLE_1394_2
+    if (feature == CAM_FEATURE_STROBE_DURATION) {
+        // FIXME
+        return true; 
+    } else {
+        dc1394feature_t featureID = getFeatureID(feature);
+        dc1394bool_t bAvailable;
+        dc1394_feature_is_present(m_pCamera, featureID, &bAvailable);
+        return bAvailable;
+    }
+#else
+    return false;
+#endif
+}
+
 void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
 #ifdef AVG_ENABLE_1394_2
-    if (bIgnoreOldValue || m_Features[feature] != value) {
-        m_Features[feature] = value;
-        if (feature == CAM_FEATURE_STROBE_DURATION) {
-            try {
-                setStrobeDuration(value);
-            } catch (Exception& e) {
-                AVG_TRACE(Logger::WARNING, 
-                        string("Camera: Setting strobe duration failed. ")+e.GetStr());
+    if (hasFeature(feature)) { 
+        if (bIgnoreOldValue || m_Features[feature] != value) {
+            m_Features[feature] = value;
+            if (feature == CAM_FEATURE_STROBE_DURATION) {
+                try {
+                    setStrobeDuration(value);
+                } catch (Exception& e) {
+                    AVG_TRACE(Logger::WARNING, 
+                            string("Camera: Setting strobe duration failed. ") + 
+                            e.GetStr());
+                }
+            } else {
+                dc1394feature_t featureID = getFeatureID(feature);
+                setFeature(featureID, value);
+                //        dumpCameraInfo();
             }
-        } else {
-            dc1394feature_t FeatureID = getFeatureID(feature);
-            setFeature(FeatureID, value);
-            //        dumpCameraInfo();
         }
     }
 #endif
@@ -322,8 +348,8 @@ void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
 void FWCamera::setFeatureOneShot(CameraFeature feature)
 {
 #ifdef AVG_ENABLE_1394_2
-    dc1394feature_t FeatureID = getFeatureID(feature);
-    dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
+    dc1394feature_t featureID = getFeatureID(feature);
+    dc1394error_t err = dc1394_feature_set_mode(m_pCamera, featureID, 
             DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
@@ -351,21 +377,23 @@ int FWCamera::getWhitebalanceV() const
 void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
 #ifdef AVG_ENABLE_1394_2
-    if (bIgnoreOldValue || u != m_WhitebalanceU || v != m_WhitebalanceV) {
-        m_WhitebalanceU = u;
-        m_WhitebalanceV = v;
-        dc1394error_t err;
-        if (u == -1) {
-            err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
-                    DC1394_FEATURE_MODE_AUTO);
-        } else {
-            err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
-                    DC1394_FEATURE_MODE_MANUAL);
-            err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
-        }
-        if (err != DC1394_SUCCESS) {
-            AVG_TRACE(Logger::WARNING,
-                    "Camera: Unable to set whitebalance. Error was " << err);
+    if (hasFeature(CAM_FEATURE_WHITE_BALANCE)) {
+        if (bIgnoreOldValue || u != m_WhitebalanceU || v != m_WhitebalanceV) {
+            m_WhitebalanceU = u;
+            m_WhitebalanceV = v;
+            dc1394error_t err;
+            if (u == -1) {
+                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
+                        DC1394_FEATURE_MODE_AUTO);
+            } else {
+                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
+                        DC1394_FEATURE_MODE_MANUAL);
+                err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
+            }
+            if (err != DC1394_SUCCESS) {
+                AVG_TRACE(Logger::WARNING,
+                        "Camera: Unable to set whitebalance. Error was " << err);
+            }
         }
     }
 #endif
@@ -475,19 +503,6 @@ void FWCamera::enablePtGreyBayer()
 #endif
 }
 
-void FWCamera::dumpCameraInfo()
-{
-#ifdef AVG_ENABLE_1394_2
-    dc1394error_t err;
-    dc1394featureset_t FeatureSet;
-    err = dc1394_feature_get_all(m_pCamera, &FeatureSet);
-    AVG_ASSERT(err == DC1394_SUCCESS);
-    // TODO: do this using AVG_TRACE
-    dc1394_feature_print_all(&FeatureSet, stderr);
-
-#endif
-}
-
 void FWCamera::dumpCameras()
 {
 #ifdef AVG_ENABLE_1394_2
@@ -506,7 +521,9 @@ void FWCamera::dumpCameras()
                         id.unit);
                 if (pCamera) {
                     dc1394_camera_print_info(pCamera, stderr);
+                    dumpCameraInfo(pCamera);
                     dc1394_camera_free(pCamera);
+                    cerr << endl;
                 }
             }
         }
@@ -515,6 +532,18 @@ void FWCamera::dumpCameras()
     dc1394_free(pDC1394);
 #endif
 }
+
+#ifdef AVG_ENABLE_1394_2
+void FWCamera::dumpCameraInfo(dc1394camera_t * pCamera)
+{
+    dc1394error_t err;
+    dc1394featureset_t FeatureSet;
+    err = dc1394_feature_get_all(pCamera, &FeatureSet);
+    AVG_ASSERT(err == DC1394_SUCCESS);
+    // TODO: do this using AVG_TRACE
+    dc1394_feature_print_all(&FeatureSet, stderr);
+}
+#endif
 
 void FWCamera::resetBus()
 {

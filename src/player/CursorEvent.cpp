@@ -24,15 +24,23 @@
 #include "CursorEvent.h"
 
 #include "VisibleNode.h"
+#include "Contact.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
+
+#include <iostream>
+
+using namespace std;
 
 namespace avg {
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source)
-            :Event(eventType, source),
-            m_Position(position),
-            m_ID(id)
+CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& position, Source source,
+        int when)
+    : Event(eventType, source, when),
+      m_Position(position),
+      m_ID(id),
+      m_Speed(0,0)
 {
 }
 
@@ -42,8 +50,14 @@ CursorEvent::~CursorEvent()
 
 CursorEventPtr CursorEvent::cloneAs(Type eventType) const
 {
-    AVG_ASSERT(false);
-    return CursorEventPtr();
+    CursorEventPtr pClone(new CursorEvent(*this));
+    pClone->m_Type = eventType;
+    return pClone;
+}
+
+void CursorEvent::setPos(const DPoint& pos)
+{
+    m_Position = IntPoint(pos);
 }
 
 DPoint CursorEvent::getPos() const
@@ -71,19 +85,50 @@ int CursorEvent::getCursorID() const
     return m_ID;
 }
 
-DPoint CursorEvent::getLastDownPos() const
+void CursorEvent::setNode(VisibleNodePtr pNode)
 {
-    return DPoint(m_LastDownPos);
+    m_pNode = pNode;
 }
 
-void CursorEvent::setLastDownPos(const IntPoint& pos)
+VisibleNodePtr CursorEvent::getNode() const
 {
-    m_LastDownPos = pos;
+    return m_pNode.lock();
+}
+        
+void CursorEvent::setSpeed(DPoint speed)
+{
+    m_Speed = speed;
+}
+
+const DPoint& CursorEvent::getSpeed() const
+{
+    return m_Speed;
+}
+
+void CursorEvent::setContact(ContactPtr pContact)
+{
+    m_pContact = pContact;
+}
+
+ContactPtr CursorEvent::getContact() const
+{
+    return m_pContact.lock();
 }
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2)
 {
-    return (event1.m_Position == event2.m_Position && event1.m_When == event2.m_When); 
+    return (event1.m_Position == event2.m_Position && 
+            event1.getWhen() == event2.getWhen()); 
+}
+
+void CursorEvent::trace()
+{
+    string sType = typeStr();
+    if (m_pNode.expired()) {
+        AVG_TRACE(Logger::EVENTS, sType); 
+    } else {
+        AVG_TRACE(Logger::EVENTS, m_pNode.lock()->getID()+", "+sType); 
+    }
 }
 
 }

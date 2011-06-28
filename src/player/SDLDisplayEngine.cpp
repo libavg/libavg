@@ -35,7 +35,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #ifdef HAVE_XI2_1
-#include "XInput21MTEventSource.h"
+#include "XInput21MTInputDevice.h"
 #endif
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -73,6 +73,7 @@
 #include <signal.h>
 #include <iostream>
 #include <sstream>
+#include <math.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -95,12 +96,16 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
-    : m_WindowSize(IntPoint(0,0)),
+    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
+      m_WindowSize(0,0),
+      m_PPMM(0,0),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
       m_bMouseOverApp(true),
-      m_LastMousePos(-1, -1),
+      m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
+      m_NumMouseButtonsDown(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
 {
@@ -130,7 +135,7 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp) 
 {
-
+    calcScreenDimensions(dp.m_PhysScreenSize);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -227,7 +232,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
 #ifdef HAVE_XI2_1
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTEventSource = 0;
+    m_pXIMTInputDevice = 0;
 #endif
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
@@ -280,7 +285,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
 
     checkShaderSupport();
-
     m_BlendMode = BLEND_ADD;
     setBlendMode(BLEND_BLEND, false);
 
@@ -311,6 +315,7 @@ void SDLDisplayEngine::teardown()
     }
     VertexArray::deleteBufferCache();
     GPUFilter::glContextGone();
+    FBO::deleteCache();
     ShaderRegistry::kill();
 }
 
@@ -362,6 +367,36 @@ void SDLDisplayEngine::logConfig()
             break;
     }
     AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
+}
+
+void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
+{
+    if (physScreenSize != DPoint(0,0)) {
+        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+        m_PPMM.x = m_ScreenResolution.x/physScreenSize.x;
+        m_PPMM.y = m_ScreenResolution.y/physScreenSize.y;
+    }
+
+    if (m_PPMM == DPoint(0,0)) {
+        const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
+        m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
+#ifdef WIN32
+        HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+        m_PPMM = DPoint(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY))
+                /25.4;
+#else
+    #ifdef linux
+        Display * pDisplay = XOpenDisplay(0);
+        DPoint displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
+    #elif defined __APPLE__
+        CGSize size = CGDisplayScreenSize(CGMainDisplayID());
+        DPoint displayMM(size.width, size.height);
+    #endif
+        m_PPMM.x = m_ScreenResolution.x/displayMM.x;
+        m_PPMM.y = m_ScreenResolution.y/displayMM.y;
+#endif
+    }
 }
 
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
@@ -651,7 +686,7 @@ void SDLDisplayEngine::calcRefreshRate()
     }
 #elif defined _WIN32
     // This isn't correct for multi-monitor systems.
-    HDC hDC = CreateDC("DISPLAY", NULL,NULL,NULL);
+    HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
     s_RefreshRate = GetDeviceCaps(hDC, VREFRESH);
     if (s_RefreshRate < 2) {
         s_RefreshRate = 60;
@@ -673,9 +708,8 @@ void SDLDisplayEngine::calcRefreshRate()
     s_RefreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
 #endif
-    if (s_RefreshRate == 0) {
+    if (s_RefreshRate == 0 || isnan(s_RefreshRate)) {
         s_RefreshRate = 60;
-        AVG_TRACE (Logger::WARNING, "Assuming 60 Hz refresh rate.");
     }
     if (lastRefreshRate != s_RefreshRate) {
         AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
@@ -775,8 +809,8 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
 #ifdef HAVE_XI2_1
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
                     AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
-                    if (m_pXIMTEventSource) {
-                        m_pXIMTEventSource->handleXIEvent(pMsg->event.xevent);
+                    if (m_pXIMTInputDevice) {
+                        m_pXIMTInputDevice->handleXIEvent(pMsg->event.xevent);
                     }
 #endif
                 }
@@ -792,10 +826,10 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-void SDLDisplayEngine::setXIMTEventSource(XInput21MTEventSource* pEventSource)
+void SDLDisplayEngine::setXIMTInputDevice(XInput21MTInputDevice* pInputDevice)
 {
-    AVG_ASSERT(!m_pXIMTEventSource);
-    m_pXIMTEventSource = pEventSource;
+    AVG_ASSERT(!m_pXIMTInputDevice);
+    m_pXIMTInputDevice = pInputDevice;
 }
 
 EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& sdlEvent,
@@ -805,19 +839,20 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
+    DPoint lastMousePos = m_pLastMouseEvent->getPos();
     DPoint speed;
-    if (m_LastMousePos.x == -1) {
+    if (lastMousePos.x == -1) {
         speed = DPoint(0,0);
     } else {
         double lastFrameTime = 1000/getEffectiveFramerate();
-        speed = DPoint(x-m_LastMousePos.x, y-m_LastMousePos.y)/lastFrameTime;
+        speed = DPoint(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
             IntPoint(x, y), button, speed));
-    m_LastMousePos = IntPoint(x,y);
-    return pEvent; 
 
+    m_pLastMouseEvent = pEvent;
+    return pEvent; 
 }
 
 EventPtr SDLDisplayEngine::createMouseButtonEvent(Event::Type type, 
@@ -1280,10 +1315,33 @@ bool SDLDisplayEngine::isFullscreen() const
     return m_bIsFullscreen;
 }
 
-IntPoint SDLDisplayEngine::getScreenResolution() const
+IntPoint SDLDisplayEngine::getScreenResolution()
 {
-    const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-    return IntPoint(pInfo->current_w, pInfo->current_h);
+    calcScreenDimensions();
+    return m_ScreenResolution;
+}
+
+double SDLDisplayEngine::getPixelsPerMM()
+{
+    calcScreenDimensions();
+
+    return (m_PPMM.x+m_PPMM.y)/2;
+}
+
+DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
+{
+    calcScreenDimensions();
+    DPoint size;
+    DPoint screenRes = DPoint(getScreenResolution());
+    size.x = screenRes.x/m_PPMM.x;
+    size.y = screenRes.y/m_PPMM.y;
+    return size;
+}
+
+void SDLDisplayEngine::assumePhysicalScreenDimensions(const DPoint& size)
+{
+    DPoint screenRes = DPoint(getScreenResolution());
+    m_PPMM = DPoint(screenRes.x/size.x, screenRes.y/size.y);
 }
 
 void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)

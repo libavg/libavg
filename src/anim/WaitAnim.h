@@ -30,20 +30,17 @@ namespace avg {
 
 class AVG_API WaitAnim: public Anim {
 public:
-    virtual ~WaitAnim();
-   
-    static AnimPtr create(long long duration = -1,
+    WaitAnim(long long duration = -1,
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
-
+    virtual ~WaitAnim();
+   
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     
     virtual bool step();
 
 private:
-    WaitAnim(long long duration, const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
     long long m_Duration;
     long long m_StartTime;
 };

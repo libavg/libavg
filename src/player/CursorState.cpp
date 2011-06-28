@@ -20,6 +20,7 @@
 //
 
 #include "CursorState.h"
+#include "VisibleNode.h"
 
 using namespace std;
 

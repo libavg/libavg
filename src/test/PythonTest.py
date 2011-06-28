@@ -21,8 +21,9 @@
 
 import unittest
 
-from libavg import avg, anim, draggable, textarea, ui, geom
+from libavg import avg, anim, draggable, textarea, ui, geom, statemachine
 
+import math
 from testcase import *
 
 class PythonTestCase(AVGTestCase):
@@ -252,7 +253,7 @@ class PythonTestCase(AVGTestCase):
             Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
         
         def stop():
-            Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
+            Helper.fakeMouseEvent(avg.CURSORUP, False, False, False, 140, 40, 1)
         
         self.__dragEndCalled = False
         self.__dragStartCalled = False
@@ -309,7 +310,6 @@ class PythonTestCase(AVGTestCase):
                        clickHandler=onClick)
         
         b.pos = (0, 0)
-        xOutDistance = int(b.width * 2)
         yOutDistance = int(b.height * 2)
 
         self.__down = False
@@ -463,6 +463,7 @@ class PythonTestCase(AVGTestCase):
                  
                  # Disable: Various up/down combinations have no effect
                  lambda: b.setEnabled(False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.compareImage("testUIButtonDisabled", False),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
@@ -544,7 +545,6 @@ class PythonTestCase(AVGTestCase):
                 clickHandler = onClick,
                 )
         b.pos = (0,0)
-        xOutDistance = b.width * 2
         yOutDistance = b.height * 2
         
         self.__down = False
@@ -740,6 +740,96 @@ class PythonTestCase(AVGTestCase):
                  reset,
                 ))
 
+
+    def testTouchButton(self):
+    
+        def onClick():
+            self.clicked = True
+
+        def reset():
+            self.clicked = False
+
+        def enable(enabled):
+            button.enabled = enabled
+
+        def createScene(**kwargs):
+            self.loadEmptyScene()
+            return ui.TouchButton(
+                    parent = Player.getRootNode(),
+                    upNode = avg.ImageNode(href="button_up.png"),
+                    downNode = avg.ImageNode(href="button_down.png"),
+                    disabledNode = avg.ImageNode(href="button_disabled.png"),
+                    clickHandler = onClick,
+                    **kwargs
+                    )
+
+        def runTest():
+            self.clicked = False
+            self.start(None,
+                    (# Standard down->up
+                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(self.clicked),
+                     lambda: self.compareImage("testUIButtonUp", False),
+
+                     # Disable, down, up -> no click
+                     reset,
+                     lambda: self.assert_(button.enabled),
+                     lambda: enable(False),
+                     lambda: self.assert_(not(button.enabled)),
+                     lambda: self.compareImage("testUIButtonDisabled", False),
+                     lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: enable(True),
+                     lambda: self.assert_(button.enabled),
+
+                     # Down, up further away -> no click
+                     reset,
+                     lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORUP, 100, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonUp", False),
+
+                     # Down, move further away, up -> no click
+                     reset,
+                     lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 0, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORMOTION, 100, 0),
+                     lambda: self.__sendTouchEvent(3, avg.CURSORUP, 100, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonUp", False),
+
+                     # Test if button still reacts after abort
+                     lambda: self.__sendTouchEvent(4, avg.CURSORDOWN, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self.__sendTouchEvent(4, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(self.clicked),
+                     lambda: self.compareImage("testUIButtonUp", False),
+                    ))
+
+        button = createScene()
+        runTest()
+
+        button = createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
+        runTest()
+
+        button = createScene(fatFingerEnlarge = True)
+        runTest()
+
+        self.loadEmptyScene()
+        button = ui.TouchButton.fromSrc(
+                parent = Player.getRootNode(),
+                upSrc = "button_up.png",
+                downSrc = "button_down.png",
+                disabledSrc = "button_disabled.png",
+                clickHandler = onClick
+                )
+        runTest()
+        
+
     def testKeyboard(self):
         def setup():
             keyDefs = [
@@ -892,7 +982,7 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.compareImage("testTextArea2", True),
                ))
 
-    def testDragProcessor(self):
+    def testDragRecognizer(self):
         def onDragStart(event):
             self.__dragStartCalled = True
 
@@ -929,16 +1019,16 @@ class PythonTestCase(AVGTestCase):
         for self.friction in (-1, 100):
             self.loadEmptyScene()
             image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-            dragProcessor = ui.DragProcessor(image, 
+            dragProcessor = ui.DragRecognizer(image, 
                     startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
                     stopHandler=onDragStop, friction=self.friction)
             initState()
             self.start(None,
                     (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: assertDragEvents(True, False, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70, 40, 40),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
                      lambda: assertDragEvents(True, True, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20, -30, -50),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
                      lambda: assertDragEvents(True, True, True, True),
                      disable,
                      lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -951,29 +1041,35 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
 
 
-    def testDragProcessorInitialEvent(self):
-        def onDown(event):
-            dragProcessor = ui.DragProcessor(self.image, 
-                    startHandler=onDragStart, initialEvent=event)
+    def testDragRecognizerInitialEvent(self):
+        def onMotion(event):
+            dragProcessor = ui.DragRecognizer(self.image, 
+                    startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
+            self.image.disconnectEventHandler(self)
            
         def onDragStart(event):
             self.__dragStartCalled = True
 
+        def onDrag(event, offset):
+            self.assert_(offset == (10,0))
+
         self.loadEmptyScene()
         self.image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        self.image.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown)
+        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
         self.__dragStartCalled = False
         self.start(None,
                 (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
                 ))
         assert(self.__dragStartCalled)
             
 
-    def testHoldProcessor(self):
+    def testHoldRecognizer(self):
       
         def onStart(pos):
             self.__startCalled = True
-            self.assert_(self.__holdProcessor.getLastEvent().pos == pos)
+            self.assert_(self.__holdRecognizer.getLastEvent().pos == pos)
             return True
 
         def onHold(time):
@@ -1003,13 +1099,13 @@ class PythonTestCase(AVGTestCase):
         Player.setFakeFPS(2)
         self.loadEmptyScene()
         image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
-        self.__holdProcessor = ui.HoldProcessor(image,
-            holdDelay=1000,
-            activateDelay=2000, 
-            startHandler=onStart, 
-            holdHandler=onHold, 
-            activateHandler=onActivate, 
-            stopHandler=onStop)
+        self.__holdRecognizer = ui.HoldRecognizer(image,
+                holdDelay=1000,
+                activateDelay=2000, 
+                startHandler=onStart, 
+                holdHandler=onHold, 
+                activateHandler=onActivate, 
+                stopHandler=onStop)
         initState()
         self.start(None,
                 (# Standard down-hold-up sequence.
@@ -1046,6 +1142,129 @@ class PythonTestCase(AVGTestCase):
                 ))
 
         Player.setFakeFPS(-1)
+
+    def testTapRecognizer(self):
+
+        def onStart():
+            self.__startCalled = True
+
+        def onTap():
+            self.__tapCalled = True
+
+        def onFail():
+            self.__failCalled = True
+
+        def initState():
+            self.__startCalled = False
+            self.__tapCalled = False
+            self.__failCalled = False
+
+        def assertEvents(start, tap, fail):
+#            print (self.__startCalled, self.__tapCalled, self.__failCalled)
+            self.assert_(self.__startCalled == start and
+                self.__tapCalled == tap and
+                self.__failCalled == fail)
+
+        self.loadEmptyScene()
+        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        self.__tapRecognizer = ui.TapRecognizer(image,
+                startHandler=onStart,
+                tapHandler=onTap,
+                failHandler=onFail)
+        initState()
+        self.start(None,
+                (# Down-up: recognized as tap.
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-small move-up: recognized as tap.
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 31, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-big move-up: abort
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 100, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, True),
+                ))
+
+    def testTransformRecognizer(self):
+        
+        def onStart():
+            pass
+
+        def onMove(transform):
+            self.transform = transform
+
+        def onUp(transform):
+            self.transform = transform
+
+        def checkTransform(expectedTransform):
+            self.assert_(almostEqual(self.transform.m, expectedTransform))
+
+        self.loadEmptyScene()
+        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp)
+        self.start(None,
+                (lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: checkTransform(ui.Mat3x3().m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
+                 lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 20),
+                 lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 30, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 30, 20),
+                 lambda: checkTransform(ui.Mat3x3.translate([20,0]).m),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 20),
+                 lambda: checkTransform(ui.Mat3x3.translate([20,0]).m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 40, 10),
+                 lambda: checkTransform(ui.Mat3x3.translate([30,0]).m),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
+                 lambda: checkTransform(ui.Mat3x3.translate([40,0]).m),
+                ))
+
+    def testKMeans(self):
+        pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
+        means = ui.calcKMeans(pts)
+        self.assert_(means == ([0], [1]))
+
+        pts.append (avg.Point2D(0,4))
+        means = ui.calcKMeans(pts)
+        self.assert_(means == ([0,1], [2]))
+
+    def testMat3x3(self):
+        t = ui.Mat3x3.translate([1,0,1])
+        v = [1,0,1]
+        self.assert_(t.applyVec(v) == [2,0,1])
+        r = ui.Mat3x3.rotate(math.pi/2)
+        self.assert_(almostEqual(r.applyVec(v), [0,1,1]))
+        t2 = t.applyMat(t)
+        self.assert_(almostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m))
+        self.assert_(almostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m))
+        self.assert_(almostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m))
+        self.assert_(almostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m))
+        m = ui.Mat3x3([-1,  3, -3], 
+                      [ 0, -6,  5],
+                      [-5, -3,  1])
+        im = ui.Mat3x3([3./2,      1., -1./2],
+                       [-25./6, -8./3,  5./6],
+                       [-5.,      -3.,    1.])
+        self.assert_(almostEqual(m.inverse().m, im.m))
+
+        image = avg.ImageNode(pos=(10,20), pivot=(0,0), size=(30,40), angle=1.57, 
+            href="rgb24alpha-64x64.png")
+        mat = ui.Mat3x3.fromNode(image)
+        mat.setNodeTransform(image)
+        self.assert_(almostEqual(image.pos, (10,20)))
+        self.assert_(almostEqual(image.size, (30,40)))
+        self.assert_(almostEqual(image.angle, 1.57))
 
     def testFocusContext(self):
         def setup():
@@ -1188,16 +1407,57 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testArc2", True),
                 ))
 
+    def testStateMachine(self):
+        def atob(oldState, newState):
+            self.atobCalled = True
+
+        def btoc():
+            self.btocCalled = True
+
+        def btoa(oldState, newState):
+            self.btoaCalled = True
+
+        def aEntered():
+            self.aEnteredCalled = True
+
+        def aLeft():
+            self.aLeftCalled = True
+
+        self.atobCalled = False
+        self.btocCalled = False
+        self.btoaCalled = False
+        self.aLeftCalled = False
+        self.aEnteredCalled = False
+        machine = statemachine.StateMachine("testmachine", 'A')
+        machine.addState('A', {'B': atob, 'nostate': atob}, aEntered, aLeft)
+        machine.addState('B', {'C': btoc, 'A': btoa})
+        machine.addState('C', {'A': None})
+        self.assertException(lambda: machine.changeState('C'))
+        self.assertException(lambda: machine.changeState('nostate'))
+        machine.changeState('B')
+        self.assert_(self.atobCalled)
+        self.assert_(self.aLeftCalled)
+        machine.changeState('A')
+        self.assert_(self.aEnteredCalled)
+        self.assert_(self.btoaCalled)
+        machine.changeState('B')
+        machine.changeState('C')
+        self.assert_(self.btocCalled)
+        machine.changeState('A')
+        self.assert_(machine.state == 'A')
 
 
-    def __sendMouseEvent(self, type, x, y, sx=0, sy=0):
+    def __sendMouseEvent(self, type, x, y):
         Helper = Player.getTestHelper()
-        Helper.fakeMouseEvent(type, True, False, False, x, y, 1, avg.Point2D(sx, sy))
+        if type == avg.CURSORUP:
+            button = False
+        else:
+            button = True
+        Helper.fakeMouseEvent(type, button, False, False, x, y, 1)
 
-    def __sendTouchEvent(self, id, type, x, y, sx=0, sy=0):
+    def __sendTouchEvent(self, id, type, x, y):
         Helper = Player.getTestHelper()
-        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y), avg.Point2D(0, 0), 
-                avg.Point2D(sx,sy))
+        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
        
 
 def pythonTestSuite (tests):
@@ -1213,15 +1473,21 @@ def pythonTestSuite (tests):
         "testDraggable",
         "testButton",
         "testMultitouchButton",
+        "testTouchButton",
         "testKeyboard",
         "testTextArea",
-        "testDragProcessor",
-        "testDragProcessorInitialEvent",
-        "testHoldProcessor",
+        "testDragRecognizer",
+        "testDragRecognizerInitialEvent",
+        "testHoldRecognizer",
+        "testTapRecognizer",
+        "testTransformRecognizer",
+        "testKMeans",
+        "testMat3x3",
         "testFocusContext",
         "testRoundedRect",
         "testPieSlice",
         "testArc",
+        "testStateMachine",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)

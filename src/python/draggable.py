@@ -55,12 +55,14 @@ class Draggable:
     def __onStart(self, event):
         self.__cursorID = event.cursorid
         self.__isDragging = True
+        self.__lastDownPos = event.pos
         groupsNode = self.__node.getParent()
         groupsNode.reorderChild(groupsNode.indexOf(self.__node), 
                 groupsNode.getNumChildren()-1)
         self.__node.setEventCapture(event.cursorid)
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, self.__onMove)
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, 
+                self.__onMove)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onStop)
         stopBubble = False
         if self.__onDragStart:
@@ -72,7 +74,8 @@ class Draggable:
 
     def __onMove(self, event):
         if event.cursorid == self.__cursorID:
-            self.__node.pos = (self.__startDragPos[0]+event.x-event.lastdownpos[0],self.__startDragPos[1]+event.y-event.lastdownpos[1])
+            self.__node.pos = (self.__startDragPos[0]+event.x-self.__lastDownPos[0],
+                    self.__startDragPos[1]+event.y-self.__lastDownPos[1])
             stopBubble = False
             if self.__onDragMove:
                 stopBubble = self.__onDragMove(event)

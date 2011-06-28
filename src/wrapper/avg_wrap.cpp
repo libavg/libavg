@@ -35,8 +35,9 @@ void export_anim();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/TrackerEventSource.h"
+#include "../player/TrackerInputDevice.h"
 #include "../player/TouchEvent.h"
+#include "../player/MouseEvent.h"
 #include "../player/TestHelper.h"
 #include "../player/Canvas.h"
 #include "../player/OffscreenCanvas.h"
@@ -49,8 +50,10 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(fakeMouseEvent_overloads, 
-        TestHelper::fakeMouseEvent, 7, 8);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
+        fakeTouchEvent, 4, 5)
+
 
 BOOST_PYTHON_MODULE(avg)
 {
@@ -101,9 +104,9 @@ BOOST_PYTHON_MODULE(avg)
     export_anim();
 
     class_<TestHelper>("TestHelper", no_init)
-        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, 
-                fakeMouseEvent_overloads())
-        .def("fakeTouchEvent", &TestHelper::fakeTouchEvent)
+        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent)
+        .def("fakeTouchEvent", &TestHelper::fakeTouchEvent,
+                TestHelper_fakeTouchEvent_overloads())
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent)
         .def("dumpObjects", &TestHelper::dumpObjects)
     ;
@@ -113,11 +116,15 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
         .def("setResolution", &Player::setResolution)
+        .def("isFullscreen", &Player::isFullscreen)
         .def("setWindowFrame", &Player::setWindowFrame)
         .def("setWindowPos", &Player::setWindowPos)
         .def("setOGLOptions", &Player::setOGLOptions)
         .def("setMultiSampleSamples", &Player::setMultiSampleSamples)
         .def("getScreenResolution", &Player::getScreenResolution)
+        .def("getPixelsPerMM", &Player::getPixelsPerMM)
+        .def("getPhysicalScreenDimensions", &Player::getPhysicalScreenDimensions)
+        .def("assumePhysicalScreenDimensions", &Player::assumePhysicalScreenDimensions)
         .def("loadFile", &Player::loadFile)
         .def("loadString", &Player::loadString)
         .def("loadCanvasFile", &Player::loadCanvasFile)
@@ -135,7 +142,6 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<reference_existing_object>())
         .def("setFakeFPS", &Player::setFakeFPS)
         .def("getFrameTime", &Player::getFrameTime)
-        .def("getTimeSinceLastFrame", &Player::getTimeSinceLastFrame)
         .def("getFrameDuration", &Player::getFrameDuration)
         .def("createNode", &Player::createNodeFromXmlString)
         .def("createNode", &Player::createNode)
@@ -149,6 +155,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("setTimeout", &Player::setTimeout)
         .def("setOnFrameHandler", &Player::setOnFrameHandler)
         .def("clearInterval", &Player::clearInterval)
+        .def("addInputDevice", &Player::addInputDevice)
         .def("getMouseState", &Player::getMouseState)
         .def("getKeyModifierState", &Player::getKeyModifierState)
         .def("screenshot", &Player::screenshot)

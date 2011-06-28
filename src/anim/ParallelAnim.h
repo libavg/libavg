@@ -36,7 +36,7 @@ typedef boost::shared_ptr<class ParallelAnim> ParallelAnimPtr;
 class AVG_API ParallelAnim: public Anim {
 public:
     virtual ~ParallelAnim();
-    static AnimPtr create(const std::vector<AnimPtr>& anims,
+    ParallelAnim(const std::vector<AnimPtr>& anims,
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object(),
             long long maxAge=-1);
@@ -47,11 +47,6 @@ public:
     virtual bool step();
 
 private:
-    ParallelAnim(const std::vector<AnimPtr>& anims,
-            const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback,
-            long long maxAge);
-
     std::vector<AnimPtr> m_Anims;
     std::vector<AnimPtr> m_RunningAnims;
     long long m_MaxAge;

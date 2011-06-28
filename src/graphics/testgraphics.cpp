@@ -219,19 +219,22 @@ public:
         }
         testCopyToGreyscale(R8G8B8X8);
         testCopyToGreyscale(B8G8R8X8);
+        testSubtract();
         {
             cerr << "    Testing statistics." << endl;
             cerr << "      I8" << endl;
             testStatistics(I8, Pixel8(0), Pixel8(0), Pixel8(2), Pixel8(2));
             cerr << "      R8G8B8A8" << endl;
             testStatistics(R8G8B8A8, Pixel32(0,0,0,0), Pixel32(0,0,0,0), 
-                    Pixel32(2,2,2,2), Pixel32(2,2,2,2), 1, 0.707107);
+                    Pixel32(255,255,255,255), Pixel32(255,255,255,255), 127.5, 90.1561);
             cerr << "      R8G8B8X8" << endl;
             testStatistics(R8G8B8X8, Pixel32(0,0,0,255), Pixel32(0,0,0,255), 
                     Pixel32(2,2,2,255), Pixel32(2,2,2,255));
             cerr << "      R8G8B8" << endl;
             testStatistics(R8G8B8, Pixel24(0,0,0), Pixel24(0,0,0), 
                     Pixel24(2,2,2), Pixel24(2,2,2));
+            cerr << "      ChannelAvg" << endl;
+            testChannelAvg();
         }
         {
             cerr << "    Testing YUV->RGB conversion." << endl;
@@ -310,7 +313,8 @@ private:
         bmp.drawLine(IntPoint(7,7), IntPoint(12,14), color);
         bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), color);
         bmp.drawLine(IntPoint(7,7), IntPoint(14,12), color);
-        string sFName = getSrcDirName()+"baseline/LineResult"+getPixelFormatString(pf)+".png";
+        string sFName = getSrcDirName() + "baseline/LineResult" + getPixelFormatString(pf)
+                + ".png";
         Bitmap baselineBmp(sFName);
         Bitmap baselineBmp2(IntPoint(15,15), pf);
         baselineBmp2.copyPixels(baselineBmp);
@@ -336,7 +340,21 @@ private:
         testEqual(*pCopyBmp, string("copyPixels_")+getPixelFormatString(pf)+"_I8",
                 I8, 0.5, 0.5);
     }
-    
+   
+    void testSubtract()
+    {
+        BitmapPtr pBmp1(new Bitmap(IntPoint(4,1), I8));
+        BitmapPtr pBmp2(new Bitmap(IntPoint(4,1), I8));
+        for (int x=0; x<4; ++x) {
+            pBmp1->getPixels()[x] = x;
+            pBmp2->getPixels()[x] = 0;
+        }
+        BitmapPtr pDiffBmp(pBmp1->subtract(&*pBmp2));
+        testEqual(*pDiffBmp, *pBmp1, "BmpSubtract1");
+        pDiffBmp = BitmapPtr(pBmp2->subtract(&*pBmp1));
+        testEqual(*pDiffBmp, *pBmp1, "BmpSubtract2");
+    }
+
     template<class PIXEL>
     void testStatistics(PixelFormat pf, const PIXEL& p00, const PIXEL& p01,
             const PIXEL& p10, const PIXEL& p11, double avg=1, double stdDev=1)
@@ -346,8 +364,20 @@ private:
         pBmp->setPixel(IntPoint(0,1), p01);
         pBmp->setPixel(IntPoint(1,0), p10);
         pBmp->setPixel(IntPoint(1,1), p11);
-        TEST(almostEqual(pBmp->getAvg(), avg));
-        TEST(almostEqual(pBmp->getStdDev(), stdDev));
+        TEST(almostEqual(pBmp->getAvg(), avg, 0.001));
+        TEST(almostEqual(pBmp->getStdDev(), stdDev, 0.001));
+    }
+
+    void testChannelAvg()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), R8G8B8));
+        pBmp->setPixel(IntPoint(0,0), Pixel24(0,0,0));
+        pBmp->setPixel(IntPoint(0,1), Pixel24(128,0,0));
+        pBmp->setPixel(IntPoint(1,0), Pixel24(128,128,0));
+        pBmp->setPixel(IntPoint(1,1), Pixel24(128,128,128));
+        TEST(almostEqual(pBmp->getChannelAvg(0), 96));
+        TEST(almostEqual(pBmp->getChannelAvg(1), 64));
+        TEST(almostEqual(pBmp->getChannelAvg(2), 32));
     }
 
     void testYUV2RGB()

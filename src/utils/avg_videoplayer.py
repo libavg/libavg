@@ -25,16 +25,16 @@ import sys
 from libavg import avg, AVGApp
 import time
 
-g_player = avg.Player.get()
+g_Player = avg.Player.get()
 
 def onFrame():
     curFrame = node.getCurFrame()
     numFrames = node.getNumFrames()
-    g_player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
+    g_Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
     curVideoTime = node.getCurTime()
-    g_player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
+    g_Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
     framesQueued = node.getNumFramesQueued()
-    g_player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
+    g_Player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
 
 class VideoPlayer(AVGApp):
     def init(self):
@@ -49,7 +49,7 @@ class VideoPlayer(AVGApp):
         avg.WordsNode(parent=self._parentNode, id="framesqueued", pos=(10, 34), 
                 font="arial", fontsize=10)
 
-        g_player.setOnFrameHandler(onFrame)
+        g_Player.setOnFrameHandler(onFrame)
     
     def onKeyDown(self, event):
         global node

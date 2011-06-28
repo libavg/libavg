@@ -107,7 +107,7 @@ void FilledVectorNode::setFillTexHRef(const UTF8String& href)
     setDrawNeeded();
 }
 
-void FilledVectorNode::setFillBitmap(const Bitmap * pBmp)
+void FilledVectorNode::setFillBitmap(BitmapPtr pBmp)
 {
     m_FillTexHRef = "";
     m_pFillShape->setBitmap(pBmp);
