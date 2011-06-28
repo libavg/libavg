@@ -32,8 +32,8 @@ g_Logger = avg.Logger.get()
 
 
 class Key(avg.ImageNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, sticky=False,
-            *args, **kwargs):
+    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, 
+            onOutCallback=lambda event, keyCode:None, sticky=False, *args, **kwargs):
         kwargs['pos'] = keyDef[1]
         kwargs['size'] = keyDef[2]
         kwargs['opacity'] = 0.0
@@ -44,6 +44,7 @@ class Key(avg.ImageNode):
         self.__keyCode = keyDef[0]
         self.__onDownCallback = onDownCallback
         self.__onUpCallback = onUpCallback
+        self.__onOutCallback = onOutCallback
         self.__sticky = sticky
         if self.__sticky:
             self.__stickyIsDown = False
@@ -94,8 +95,12 @@ class Key(avg.ImageNode):
             self.__pseudoUp(event)
 
     def __onOut(self, event):
-        self.__cursorID = None
-        self.opacity = 0.0
+        if not self.__cursorID == event.cursorid:
+            return
+        if not(self.__sticky):
+            self.__cursorID = None
+            self.opacity = 0.0
+            self.__onOutCallback(event, self.__keyCode)
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
@@ -150,7 +155,7 @@ class Keyboard(avg.DivNode):
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
                 key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        sticky=sticky, parent=self)
+                        self.__onCommandKeyUp, sticky=sticky, parent=self)
             self.__keys.append(key)
 
     @classmethod
