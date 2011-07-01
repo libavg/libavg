@@ -62,7 +62,7 @@ static ProfilingZoneID ProfilingZoneDraw("Draw");
 
 TrackerThread::TrackerThread(IntRect roi, CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES], MutexPtr pMutex, CQueue& cmdQ,
-        IBlobTarget *pTarget, bool bSubtractHistory, TrackerConfig& config)
+        TrackerInputDeviceBase *pTarget, bool bSubtractHistory, TrackerConfig& config)
     : WorkerThread<TrackerThread>("Tracker", cmdQ),
       m_TouchThreshold(0),
       m_TrackThreshold(0),
@@ -534,7 +534,8 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp, long lon
         // Send the blobs to the BlobTarget.
         {
             ScopeTimer timer(ProfilingZoneUpdate);
-            m_pTarget->update(pTrackComps, pTouchComps, time);
+            m_pTarget->updateBlobs(pTrackComps, TRACK_BLOB, time);
+            m_pTarget->updateBlobs(pTouchComps, TOUCH_BLOB, time);
         }
     }
     

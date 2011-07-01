@@ -36,7 +36,7 @@
 using namespace avg;
 using namespace std;
 
-class TestTracker: public IBlobTarget {
+class TestTracker: public TrackerInputDeviceBase {
 
 public:
 

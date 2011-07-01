@@ -54,8 +54,7 @@ using namespace std;
 
 namespace avg {
 
-TrackerInputDevice::TrackerInputDevice()
-    : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(TrackerInputDevice)),
+TrackerInputDevice::TrackerInputDevice():
       m_pTrackerThread(0),
       m_bSubtractHistory(true),
       m_pCalibrator(0)
@@ -243,16 +242,15 @@ DPoint TrackerInputDevice::getDisplayROISize() const
 static ProfilingZoneID ProfilingZoneCalcTrack("trackBlobIDs(track)");
 static ProfilingZoneID ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
-void TrackerInputDevice::update(BlobVectorPtr pTrackBlobs, 
-        BlobVectorPtr pTouchBlobs, long long time)
+void TrackerInputDevice::updateBlobs(BlobVectorPtr pBlobs, BlobType type, long long time)
 {
-    if (pTrackBlobs) {
+    if (type == TRACK_BLOB) {
         ScopeTimer Timer(ProfilingZoneCalcTrack);
-        trackBlobIDs(pTrackBlobs, time, false);
+        trackBlobIDs(pBlobs, time, false);
     }
-    if (pTouchBlobs) {
+    else if (type == TOUCH_BLOB) {
         ScopeTimer Timer(ProfilingZoneCalcTouch);
-        trackBlobIDs(pTouchBlobs, time, true);
+        trackBlobIDs(pBlobs, time, true);
     }
 }
 

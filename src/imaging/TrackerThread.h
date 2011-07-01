@@ -36,6 +36,8 @@
 #include "../graphics/Pixel8.h"
 #include "../graphics/Filter.h"
 
+#include "../player/TrackerInputDeviceBase.h"
+
 #include <boost/thread.hpp>
 
 #include <string>
@@ -56,21 +58,14 @@ typedef enum {
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 class OGLImagingContext;
 
-class AVG_API IBlobTarget {
-    public:
-        virtual ~IBlobTarget() {};
-        // Note that this function is called by TrackerThread in it's own thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs,
-                long long time) = 0;
-};
-
 
 class AVG_API TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
         TrackerThread(IntRect roi, CameraPtr pCamera, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES], MutexPtr pMutex, CQueue& cmdQ,
-                IBlobTarget* pTarget, bool bSubtractHistory, TrackerConfig& config);
+                TrackerInputDeviceBase* pTarget, bool bSubtractHistory,
+                TrackerConfig& config);
         virtual ~TrackerThread();
 
         bool init();
@@ -116,7 +111,7 @@ class AVG_API TrackerThread: public WorkerThread<TrackerThread>
         MutexPtr m_pMutex;
 
         CameraPtr  m_pCamera;
-        IBlobTarget *m_pTarget;
+        TrackerInputDeviceBase *m_pTarget;
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
         FilterDistortionPtr m_pDistorter;
         DeDistortPtr m_pTrafo;

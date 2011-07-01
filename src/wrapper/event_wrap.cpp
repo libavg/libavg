@@ -21,6 +21,7 @@
 
 #include "WrapHelper.h"
 
+#include "../player/DivNode.h"
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"

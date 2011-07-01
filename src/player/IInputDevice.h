@@ -23,7 +23,6 @@
 #define _IInputDevice_H_
 
 #include "../api.h"
-#include "DivNode.h"
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>
@@ -33,6 +32,7 @@
 namespace avg {
 
 class Event;
+class DivNode;
 typedef boost::shared_ptr<Event> EventPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 

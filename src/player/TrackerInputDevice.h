@@ -26,6 +26,7 @@
 #include "CursorEvent.h"
 #include "IInputDevice.h"
 #include "TrackerCalibrator.h"
+#include "TrackerInputDeviceBase.h"
 
 #include "../imaging/TrackerThread.h"
 #include "../imaging/Blob.h"
@@ -46,7 +47,7 @@ namespace avg {
 class TrackerTouchStatus;
 typedef boost::shared_ptr<TrackerTouchStatus> TrackerTouchStatusPtr;
 
-class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
+class AVG_API TrackerInputDevice: public TrackerInputDeviceBase
 {
     typedef std::map<BlobPtr, TrackerTouchStatusPtr> TouchStatusMap;
 
@@ -67,10 +68,9 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
 
         std::vector<EventPtr> pollEvents(); //main thread
 
-        // implement IBlobTarget
+        // implement TrackerInputDeviceBase
         // Called from Tracker Thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs,
-                long long time);
+        virtual void updateBlobs(BlobVectorPtr pBlobs,BlobType type, long long time);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();
