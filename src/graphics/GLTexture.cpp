@@ -122,6 +122,7 @@ int GLTexture::getGLFormat(PixelFormat pf)
 {
     switch (pf) {
         case I8:
+        case I16:
         case I32F:
             return GL_LUMINANCE;
         case A8:
@@ -147,6 +148,8 @@ int GLTexture::getGLType(PixelFormat pf)
         case I8:
         case A8:
             return GL_UNSIGNED_BYTE;
+        case I16:
+            return GL_UNSIGNED_SHORT;
         case R8G8B8A8:
         case R8G8B8X8:
         case B8G8R8A8:
@@ -172,6 +175,7 @@ int GLTexture::getGLInternalFormat() const
     switch (m_pf) {
         case I8:
             return GL_LUMINANCE;
+        case I16:
         case I32F:
             return GL_LUMINANCE32F_ARB;
         case A8:
