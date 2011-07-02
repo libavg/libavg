@@ -44,9 +44,6 @@
 
 namespace avg {
 
-class TrackerTouchStatus;
-typedef boost::shared_ptr<TrackerTouchStatus> TrackerTouchStatusPtr;
-
 class AVG_API TrackerInputDevice: public TrackerInputDeviceBase
 {
     typedef std::map<BlobPtr, TrackerTouchStatusPtr> TouchStatusMap;
@@ -83,8 +80,6 @@ class AVG_API TrackerInputDevice: public TrackerInputDeviceBase
         boost::thread* m_pTrackerThread;
 
         // Used by main thread
-        void pollEventType(std::vector<EventPtr>& res, TouchStatusMap& events,
-                CursorEvent::Source source);
         void copyRelatedInfo(std::vector<EventPtr> pTouchEvents,
                 std::vector<EventPtr> pTrackEvents);
         void findFingertips(std::vector<EventPtr>& pTouchEvents);

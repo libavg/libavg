@@ -22,8 +22,13 @@
 #define _TrackerInputDeviceBase_H_
 
 #include "../api.h"
+#include "CursorEvent.h"
 #include "IInputDevice.h"
 #include "../imaging/Blob.h"
+
+#include <map>
+#include <vector>
+
 
 namespace avg{
 
@@ -32,9 +37,13 @@ typedef enum {
     TRACK_BLOB
 } BlobType;
 
+class TrackerTouchStatus;
+typedef boost::shared_ptr<TrackerTouchStatus> TrackerTouchStatusPtr;
 
 class AVG_API TrackerInputDeviceBase: public IInputDevice
 {
+    typedef std::map<BlobPtr, TrackerTouchStatusPtr> TouchStatusMap;
+
     public:
         TrackerInputDeviceBase(const std::string& name=EXTRACT_INPUTDEVICE_CLASSNAME(TrackerInputDeviceBase))
         :IInputDevice(name)
@@ -44,6 +53,10 @@ class AVG_API TrackerInputDeviceBase: public IInputDevice
 
         // Note that this function is called by TrackerThread in it's own thread!
         virtual void updateBlobs(BlobVectorPtr pBlobs, BlobType type, long long time) = 0;
+
+    protected:
+        void pollEventType(std::vector<EventPtr>& result, TouchStatusMap& Events,
+                CursorEvent::Source source);
 };//End class
 
 }//End namespace avg

@@ -418,26 +418,6 @@ vector<EventPtr> TrackerInputDevice::pollEvents()
     return pTouchEvents;
 }
 
-void TrackerInputDevice::pollEventType(vector<EventPtr>& res, TouchStatusMap& Events,
-        CursorEvent::Source source) 
-{
-    EventPtr pEvent;
-    for (TouchStatusMap::iterator it = Events.begin(); it!= Events.end();) {
-        TrackerTouchStatusPtr pTouchStatus = (*it).second;
-        pEvent = pTouchStatus->pollEvent();
-        if (pEvent) {
-            res.push_back(pEvent);
-            if (pEvent->getType() == Event::CURSORUP) {
-                Events.erase(it++);
-            } else {
-                ++it;
-            }
-        } else {
-            ++it;
-        }
-    }
-}
-
 void TrackerInputDevice::copyRelatedInfo(vector<EventPtr> pTouchEvents,
         vector<EventPtr> pTrackEvents)
 {
