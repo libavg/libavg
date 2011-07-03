@@ -95,14 +95,6 @@ class AVG_API TrackerInputDevice: public TrackerInputDeviceBase
         TrackerCalibrator * m_pCalibrator;
         bool m_bFindFingertips;
 
-        // Used by tracker thread
-        void trackBlobIDs(BlobVectorPtr new_blobs, long long time, bool bTouch);
-
-        // Used by both threads
-        TouchStatusMap m_TouchEvents;
-        TouchStatusMap m_TrackEvents;
-        TrackerConfig m_TrackerConfig;
-
         MutexPtr m_pMutex;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 
