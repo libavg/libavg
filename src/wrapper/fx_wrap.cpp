@@ -27,6 +27,7 @@
 #include "../player/BlurFXNode.h"
 #include "../player/ShadowFXNode.h"
 #include "../player/ChromaKeyFXNode.h"
+#include "../player/HslColorFXNode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -72,4 +73,19 @@ void export_fx()
         .add_property("spillthreshold", &ChromaKeyFXNode::getSpillThreshold,
                 &ChromaKeyFXNode::setSpillThreshold)
         ;
+
+    class_<HslColorFXNode, bases<FXNode>, boost::shared_ptr<HslColorFXNode> >
+            ("HslFXNode", init< optional<float, float, float, bool> >())
+        .def("setParams", &HslColorFXNode::setHSL)
+        .add_property("hue", &HslColorFXNode::getHue,
+                &HslColorFXNode::setHue)
+        .add_property("saturation", &HslColorFXNode::getSaturation,
+                &HslColorFXNode::setSaturation)
+        .add_property("lightness", &HslColorFXNode::getBrightnessOffset,
+                &HslColorFXNode::setBrightnessOffset)
+        .add_property("tint", &HslColorFXNode::isColorizing,
+                &HslColorFXNode::setColorizing)
+        .def("__repr__", &HslColorFXNode::toString)
+        ;
+
 }

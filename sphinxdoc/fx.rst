@@ -24,7 +24,7 @@ Effect Nodes
 
             The color to key out. Pixels of this and similar colors are made transparent.
 
-        .. py:attribute: erosion
+        .. py:attribute:: erosion
 
             Removes single non-keyed-out pixels in larger transparent areas. Values > 1
             remove larger areas. Useful for removing camera noise.
@@ -42,7 +42,7 @@ Effect Nodes
             :py:attr:`softness` > 0 causes pixels with a color close to the keyed-out
             colors to become partially transparent. Greater values increase this effect.
 
-        .. py:attribute: spillthreshold
+        .. py:attribute:: spillthreshold
 
             Often, people in greenscreen studios aquire a greenish tint. Spill removal 
             works against this by desaturating pixels that are close to the key color.
@@ -56,6 +56,31 @@ Effect Nodes
 
         Base class for GPU-based effects. These effects can be added to any 
         :py:class:`Node` by calling :py:meth:`Node:setEffect`
+
+    .. autoclass:: HslFXNode(hue=0.0, saturation=1.0, lightness=0.0, tint=False)
+
+        A realtime Hsl-color converter. It can be used to tint or colorshift a node.
+
+        .. py:attribute:: hue
+
+           Used to get/set the color-angle. Values should be between 0
+           and 360. Invalid values will be clipped off.
+
+        .. py:attribute:: lightness
+           
+           Set :py:attr:`lightness` - offset. Adds a per pixel offset in brightness.
+
+        .. py:attribute:: saturation
+           
+           Set :py:attr:`saturation` of Node. Values should be between 0 and 1. Invalid
+           values will be clipped off.
+
+        .. py:attribute:: tint
+
+           If :py:attr:`tint` is :py:const:`True`, all colors will be tinted according to
+           the current :py:attr:`hue` value
+
+        .. py:method:: setParams(hue, saturation, lightness)
 
     .. autoclass:: NullFXNode
 
