@@ -47,8 +47,8 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         SoundNode.h \
         VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
-        NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h TUIOInputDevice.h \
-        VideoWriter.h VideoWriterThread.h \
+        NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HslColorFXNode.h \
+		TUIOInputDevice.h VideoWriter.h VideoWriterThread.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -88,6 +88,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp MeshNode.cpp \
         Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
-        VideoWriter.cpp VideoWriterThread.cpp \
+		HslColorFXNode.cpp VideoWriter.cpp VideoWriterThread.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
