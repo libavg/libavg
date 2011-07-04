@@ -38,8 +38,8 @@ namespace avg {
 
     class AVG_API HslColorFXNode : public FXNode {
     public:
-            HslColorFXNode(float hue=0.0f, bool colorize = false,
-                    float sat_add=1.0f, float light_add=0.0f);
+            HslColorFXNode(float hue=0.0f, float saturation=1.0f, float lightness=0.0f,
+                bool tint=false );
             virtual ~HslColorFXNode();
             virtual void disconnect();
 

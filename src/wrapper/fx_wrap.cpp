@@ -74,17 +74,16 @@ void export_fx()
                 &ChromaKeyFXNode::setSpillThreshold)
         ;
 
-    class_<HslColorFXNode, bases<FXNode>,
-            boost::shared_ptr<HslColorFXNode> >("HslFXNode")
-        .def(init<float, float, float>())
-        .def("setHSL", &HslColorFXNode::setHSL)
+    class_<HslColorFXNode, bases<FXNode>, boost::shared_ptr<HslColorFXNode> >
+            ("HslFXNode", init< optional<float, float, float, bool> >())
+        .def("setParams", &HslColorFXNode::setHSL)
         .add_property("hue", &HslColorFXNode::getHue,
                 &HslColorFXNode::setHue)
         .add_property("saturation", &HslColorFXNode::getSaturation,
                 &HslColorFXNode::setSaturation)
-        .add_property("brightness", &HslColorFXNode::getBrightnessOffset,
+        .add_property("lightness", &HslColorFXNode::getBrightnessOffset,
                 &HslColorFXNode::setBrightnessOffset)
-        .add_property("colorize", &HslColorFXNode::isColorizing,
+        .add_property("tint", &HslColorFXNode::isColorizing,
                 &HslColorFXNode::setColorizing)
         .def("__repr__", &HslColorFXNode::toString)
         ;

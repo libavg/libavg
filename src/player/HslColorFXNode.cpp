@@ -33,13 +33,13 @@ using namespace std;
 
 namespace avg {
 
-    HslColorFXNode::HslColorFXNode(float hue, bool colorize, float saturation, 
-        float brightnessOffset) :
+    HslColorFXNode::HslColorFXNode(float hue,float saturation, float lightness,
+        bool tint):
         FXNode(),
         m_fHue(hue),
-        m_fBrightnessOffset(brightnessOffset),
+        m_fBrightnessOffset(lightness),
         m_fSaturation(saturation),
-        m_bColorize(colorize)
+        m_bColorize(tint)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
     }
