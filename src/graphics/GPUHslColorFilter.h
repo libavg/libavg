@@ -37,8 +37,8 @@ namespace avg {
 
             virtual void applyOnGPU(GLTexturePtr pSrcTex);
             void initShader();
-            void setParams(float h, float saturation, float brightness_offset,
-                    bool colorize);
+            void setParams(float hue, float saturation=1.0, float brightness_offset=0.0,
+                    bool colorize=false);
 
         private:
             float m_fHue, m_fSaturation, m_fBrightnessOffset;
