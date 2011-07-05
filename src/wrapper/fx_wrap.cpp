@@ -27,7 +27,7 @@
 #include "../player/BlurFXNode.h"
 #include "../player/ShadowFXNode.h"
 #include "../player/ChromaKeyFXNode.h"
-#include "../player/HslColorFXNode.h"
+#include "../player/HueSatFXNode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -44,17 +44,17 @@ void export_fx()
             "NullFXNode")
         ;
 
-    class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>, 
+    class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
             boost::noncopyable>("BlurFXNode")
         .def("setParam", &BlurFXNode::setParam)
         ;
-    
-    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>, 
+
+    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
             boost::noncopyable>("ShadowFXNode")
         .def("setParams", &ShadowFXNode::setParams)
         ;
 
-    class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>, 
+    class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>,
             boost::noncopyable>("ChromaKeyFXNode")
         .add_property("color",
                 make_function(&ChromaKeyFXNode::getColor,
@@ -74,18 +74,17 @@ void export_fx()
                 &ChromaKeyFXNode::setSpillThreshold)
         ;
 
-    class_<HslColorFXNode, bases<FXNode>, boost::shared_ptr<HslColorFXNode> >
-            ("HslFXNode", init< optional<float, float, float, bool> >())
-        .def("setParams", &HslColorFXNode::setHSL)
-        .add_property("hue", &HslColorFXNode::getHue,
-                &HslColorFXNode::setHue)
-        .add_property("saturation", &HslColorFXNode::getSaturation,
-                &HslColorFXNode::setSaturation)
-        .add_property("lightness", &HslColorFXNode::getBrightnessOffset,
-                &HslColorFXNode::setBrightnessOffset)
-        .add_property("tint", &HslColorFXNode::isColorizing,
-                &HslColorFXNode::setColorizing)
-        .def("__repr__", &HslColorFXNode::toString)
+    class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode> >
+            ("HueSatFXNode", init< optional<float, float, float, bool> >())
+        .def("setParams", &HueSatFXNode::setHSL)
+        .add_property("hue", &HueSatFXNode::getHue,
+                &HueSatFXNode::setHue)
+        .add_property("saturation", &HueSatFXNode::getSaturation,
+                &HueSatFXNode::setSaturation)
+        .add_property("lightness", &HueSatFXNode::getLightnessOffset,
+                &HueSatFXNode::setLightnessOffset)
+        .add_property("tint", &HueSatFXNode::isColorizing,
+                &HueSatFXNode::setColorizing)
+        .def("__repr__", &HueSatFXNode::toString)
         ;
-
 }

@@ -57,7 +57,7 @@ Effect Nodes
         Base class for GPU-based effects. These effects can be added to any 
         :py:class:`Node` by calling :py:meth:`Node:setEffect`
 
-    .. autoclass:: HslFXNode(hue=0.0, saturation=1.0, lightness=0.0, tint=False)
+    .. autoclass:: HueSatFXNode(hue=0.0, saturation=1.0, lightness=0.0, tint=False)
 
         A realtime Hsl-color converter. It can be used to tint or colorshift a node.
 

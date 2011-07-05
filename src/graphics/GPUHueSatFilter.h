@@ -20,8 +20,8 @@
 ////
 //
 
-#ifndef _GPUHslColorFilter_H_
-#define _GPUHslColorFilter_H_
+#ifndef _GPUHueSatFilter_H_
+#define _GPUHueSatFilter_H_
 
 #include "../api.h"
 
@@ -29,23 +29,26 @@
 
 namespace avg {
 
-    class AVG_API GPUHslColorFilter : public GPUFilter {
-        public:
-            GPUHslColorFilter(const IntPoint& size, PixelFormat pf,
-                    bool bStandalone=true);
-            virtual ~GPUHslColorFilter();
+class AVG_API GPUHueSatFilter : public GPUFilter
+{
+public:
+    GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
+            bool bStandalone=true);
+    virtual ~GPUHueSatFilter();
 
-            virtual void applyOnGPU(GLTexturePtr pSrcTex);
-            void initShader();
-            void setParams(float hue, float saturation=1.0, float brightness_offset=0.0,
-                    bool colorize=false);
+    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    void initShader();
+    void setParams(float hue, float saturation=1.0, float lightness_offset=0.0,
+            bool colorize=false);
 
-        private:
-            float m_fHue, m_fSaturation, m_fBrightnessOffset;
-            bool m_bColorize;
-    };
+private:
+    float m_fBrightnessOffset;
+    float m_fHue;
+    float m_fSaturation;
+    bool m_bColorize;
+};
 
-    typedef boost::shared_ptr<GPUHslColorFilter> GPUHslColorFilterPtr;
+typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;
 
 } //end namespace avg
 #endif

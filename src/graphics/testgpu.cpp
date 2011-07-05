@@ -25,7 +25,7 @@
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
 #include "GPUChromaKeyFilter.h"
-#include "GPUHslColorFilter.h"
+#include "GPUHueSatFilter.h"
 #include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
@@ -277,7 +277,7 @@ public:
     {
         BitmapPtr pBmp = loadTestBmp("hsl");
         BitmapPtr pDestBmp;
-        GPUHslColorFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        GPUHueSatFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
         //Test hue functionality
         for (int run = 0; run < 3; run++) {
             filter.setParams(run*90);

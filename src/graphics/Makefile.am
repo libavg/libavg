@@ -23,14 +23,15 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp \
-        GPUHslColorFilter.cpp VertexArray.cpp OGLImagingContext.cpp \
+        GPUHueSatFilter.cpp VertexArray.cpp OGLImagingContext.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
         FilterGetAlpha.cpp FBO.cpp GLTexture.cpp PBO.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
-        ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp BitmapManagerMsg.cpp
+        ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp \
+	BitmapManagerMsg.cpp
 
 if APPLE
     X_LIBS =
