@@ -82,6 +82,7 @@ private:
     void connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest);
     void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION pinDir, IPin **ppPin);
     static void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
+    static void dumpImageFormats(IMoniker* pMoniker);
 
     std::string m_sDevice;
     IntPoint m_Size;
