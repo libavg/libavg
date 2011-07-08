@@ -400,17 +400,16 @@ void DSCamera::dumpCameras()
             cout << "  Name: " << getStringProp(pPropBag, L"FriendlyName") << endl;
             cout << "  Description: " << getStringProp(pPropBag, L"Description") << endl;
             cout << "  Device Path: " << getStringProp(pPropBag, L"DevicePath") << endl;
-            pPropBag->Release();
             dumpImageFormats(pMoniker);
-            
+            pPropBag->Release();
         }
         pMoniker->Release();
     }
     else {
         return;
     }
-    pDevEnum->Release();
     pClassEnum->Release();
+    pDevEnum->Release();
 }
 
 void DSCamera::dumpImageFormats(IMoniker* pMoniker)
@@ -422,20 +421,24 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
     // locates the object identified by pMoniker and 
     // returns a pointer to its filter interface
     hr = pMoniker->BindToObject(0,0,IID_IBaseFilter, (void**) &pSrcFilter);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::BindToObject");
+    checkForDShowError(hr, "DSCamera::dumpImageFormats()::BindToObject");
+    if(pSrcFilter == NULL)
+    {
+        return;
+    }
     // Creates an uninitialized instance and returns a pointer to 
     // the IID_ICaptureGraphBuilder2 interface
     hr = CoCreateInstance (CLSID_CaptureGraphBuilder2 , NULL, CLSCTX_INPROC,
             IID_ICaptureGraphBuilder2, (void **) &pCapture);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::CaptureGraphBuilder2");
+    checkForDShowError(hr, "DSCamera::dumpImageFormats()::CaptureGraphBuilder2");
     // searches the graph for a IID_IAMStreamConfig interface, returns a pointer
     hr = pCapture->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video, 
             pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::FindInterface");
+    checkForDShowError(hr, "DSCamera::dumpImageFormats()::FindInterface");
     int numCaps = 0;
     int capsSize = 0;
     hr = pSC->GetNumberOfCapabilities(&numCaps, &capsSize);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::GetNumberOfCapabilities");
+    checkForDShowError(hr, "DSCamera::dumpImageFormats()::GetNumberOfCapabilities");
     AM_MEDIA_TYPE* pmtConfig;
     vector<string> sImageFormats;
     VIDEOINFOHEADER* pvih;
@@ -444,7 +447,7 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
     for (int i = 0; i < numCaps; i++) {
         VIDEO_STREAM_CONFIG_CAPS scc;
         hr = pSC->GetStreamCaps(i, &pmtConfig, (BYTE*)&scc);
-        checkForDShowError(hr, "DSCamera::dumpCameras()::GetStreamCaps");
+        checkForDShowError(hr, "DSCamera::dumpImageFormats()::GetStreamCaps");
         pvih = (VIDEOINFOHEADER*)(pmtConfig->pbFormat);
         bih = pvih->bmiHeader;
         capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
@@ -457,6 +460,7 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
         cout << "    " << sImageFormats[i] << endl;
     }
     pCapture->Release();
+    pSrcFilter->Release();
 }
 
 void DSCamera::initGraphBuilder()
