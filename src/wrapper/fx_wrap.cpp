@@ -74,8 +74,9 @@ void export_fx()
                 &ChromaKeyFXNode::setSpillThreshold)
         ;
 
-    class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode> >
-            ("HueSatFXNode", init< optional<float, float, float, bool> >())
+    class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode>,
+            boost::noncopyable > ("HueSatFXNode", init< optional<float, float, float,
+            bool> >())
         .def("setParams", &HueSatFXNode::setHSL)
         .add_property("hue", &HueSatFXNode::getHue,
                 &HueSatFXNode::setHue)

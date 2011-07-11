@@ -71,3 +71,4 @@ typedef boost::shared_ptr<HueSatFXNode> HueSatFXNodePtr;
 } //end namespace avg
 
 #endif
+
