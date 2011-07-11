@@ -22,8 +22,8 @@
 #include "GPUHueSatFilter.h"
 #include "ShaderRegistry.h"
 
-#include <base/ObjectCounter.h>
-#include <base/Logger.h>
+#include "../base/ObjectCounter.h"
+#include "../base/Logger.h"
 
 #define SHADERID_HSL_COLOR "HSL_COLOR"
 
