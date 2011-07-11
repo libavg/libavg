@@ -10,7 +10,7 @@ ALL_H = Bitmap.h Filter.h\
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
         VertexArray.h OGLImagingContext.h GPUNullFilter.h GPUChromaKeyFilter.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
-        GPUFilter.h GPUBandpassFilter.h GPUHslColorFiler.h FilterIntensity.h \
+        GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h FilterIntensity.h \
         FilterNormalize.h FilterFloodfill.h FilterDilation.h FilterErosion.h \
         FilterGetAlpha.h FBO.h GLTexture.h PBO.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
