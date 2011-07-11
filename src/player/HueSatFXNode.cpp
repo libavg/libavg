@@ -23,9 +23,9 @@
 #include "HueSatFXNode.h"
 #include "SDLDisplayEngine.h"
 
-#include <base/ObjectCounter.h>
-#include <base/Logger.h>
-#include <graphics/ShaderRegistry.h>
+#include "../base/ObjectCounter.h"
+#include "../base/Logger.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include<sstream>
 

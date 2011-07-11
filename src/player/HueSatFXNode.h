@@ -22,10 +22,10 @@
 #ifndef _HueSatFXNode_H_
 #define _HueSatFXNode_H_
 
-#include <api.h>
+#include "../api.h"
 
 #include "FXNode.h"
-#include <graphics/GPUHueSatFilter.h>
+#include "../graphics/GPUHueSatFilter.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
