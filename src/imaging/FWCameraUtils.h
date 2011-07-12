@@ -38,6 +38,8 @@ namespace avg {
 dc1394video_mode_t getCamMode(IntPoint size, PixelFormat pf);
 dc1394framerate_t getFrameRateConst(double frameRate);
 dc1394feature_t getFeatureID(CameraFeature feature);
+const char * VideoModesToString(int mode);
+const char * FrameRatesToString(int frameRate);
 
 }
 

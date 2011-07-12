@@ -89,8 +89,6 @@ private:
     dc1394video_mode_t m_Mode;            
     static void dumpCameraInfo(dc1394camera_t * pCamera);
     static void dumpCameraImageFormats(dc1394camera_t * pCamera);
-    static const char * VideoModesToString(int mode);
-    static const char * FrameRatesToString(int frameRate);
 #endif
 
     FeatureMap m_Features;

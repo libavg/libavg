@@ -91,6 +91,11 @@ private:
     // TODO: Feature strings should really be handled by 
     //       Camera::cameraFeatureToString
     FeatureNamesMap m_FeaturesNames; 
+    
+    static void dumpCameraControls(int fd);
+    static void dumpSupportedImgFormats(int fd);
+    static int dumpCameras_open(int j);
+    
 };
 
 }

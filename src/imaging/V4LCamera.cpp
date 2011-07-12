@@ -371,7 +371,7 @@ void V4LCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
     setFeature(V4L2_CID_BLUE_BALANCE, v); 
 }
 
-int dumpCameras_open(int j)
+int V4LCamera::dumpCameras_open(int j)
 {
     stringstream minorDeviceNumber;
     minorDeviceNumber << j;
@@ -395,7 +395,7 @@ v4l2_capability dumpCameraCapabilities(int fd)
     return capability;
 }
 
-void dumpSupportedImgFormats(int fd)
+void V4LCamera::dumpSupportedImgFormats(int fd)
 {
     cout << "Suported Image Formats:" << endl;
     for (int i = 0;; i++) {
@@ -465,7 +465,7 @@ void dumpSupportedImgFormats(int fd)
     }
 }
 
-void dumpCameraControls(int fd)
+void V4LCamera::dumpCameraControls(int fd)
 {
     cout << endl << "Camera Controls:" << endl;
     v4l2_queryctrl queryCtrl;
