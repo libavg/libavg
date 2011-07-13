@@ -507,6 +507,10 @@ void V4LCamera::dumpCameras()
     }
 }
 
+void V4LCamera::checkCameras()
+{
+}
+
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {

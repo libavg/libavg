@@ -241,4 +241,20 @@ void dumpCameras()
 #endif
 }
 
+void checkCameras()
+{
+#ifdef AVG_ENABLE_1394_2 
+    FWCamera::checkCameras();
+#endif
+#ifdef AVG_ENABLE_CMU1394 
+    CMUCamera::checkCameras();
+#endif
+#ifdef AVG_ENABLE_V4L2 
+    V4LCamera::checkCameras();
+#endif
+#ifdef AVG_ENABLE_DSHOW 
+    DSCamera::checkCameras();
+#endif
+}
+
 }

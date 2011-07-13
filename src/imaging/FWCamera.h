@@ -71,6 +71,7 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
     static void dumpCameras();
+    static void checkCameras();
     static void resetBus();
 
 private:

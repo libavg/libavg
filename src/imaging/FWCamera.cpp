@@ -577,6 +577,10 @@ void FWCamera::dumpCameraImageFormats(dc1394camera_t * pCamera)
 
 #endif
 
+void FWCamera::checkCameras()
+{
+}
+
 void FWCamera::resetBus()
 {
 #ifdef AVG_ENABLE_1394_2

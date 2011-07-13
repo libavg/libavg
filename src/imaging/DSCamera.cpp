@@ -463,6 +463,10 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
     pSrcFilter->Release();
 }
 
+void DScamera::checkCameras()
+{
+}
+
 void DSCamera::initGraphBuilder()
 {
     HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);

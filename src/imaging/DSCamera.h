@@ -71,6 +71,7 @@ public:
     virtual void onSample(IMediaSample * pSample);
 
     static void dumpCameras();
+    static void checkCameras();
 
 private:
     virtual void open();

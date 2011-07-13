@@ -286,6 +286,10 @@ void CMUCamera::dumpCameras()
     delete pCamera;
 }
 
+void CMUCamera::checkCameras()
+{
+}
+
 int CMUCamera::getCamIndex(long long guid)
 {
     if (guid == 0) {
