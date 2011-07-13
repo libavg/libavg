@@ -509,7 +509,83 @@ void V4LCamera::dumpCameras()
 
 void V4LCamera::checkCameras()
 {
+    for(int j = 0; j < 256; j++){
+        int fd = dumpCameras_open(j);
+        if (fd != -1){
+            //dumpCameracapabilities
+            v4l2_capability capability;
+            memset(&capability, 0, sizeof(capability));
+            int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+            if (rc != -1 && (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) ) {
+                for (int i = 0;; i++) {
+                    v4l2_fmtdesc fmtDesc;
+                    memset(&fmtDesc, 0, sizeof(fmtDesc));
+                    fmtDesc.index = i;
+                    fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+                    int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
+                    if (rc == -1) {
+                        break;
+                    }
+                    v4l2_frmsizeenum frmSizeEnum;
+                    memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
+                    frmSizeEnum.index = 0;
+                    frmSizeEnum.pixel_format = fmtDesc.pixelformat;
+                    bool bSupported = false;
+                    while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
+                        string sAvgPixelformat;
+                        switch (fmtDesc.pixelformat) {
+                            case v4l2_fourcc('Y','U','Y','V'):
+                                sAvgPixelformat = "YUYV422";
+                                bSupported = true;
+                                break;
+                            case v4l2_fourcc('U','Y','V','Y'):
+                                sAvgPixelformat = "YUV422";
+                                bSupported = true;
+                                break;
+                            case v4l2_fourcc('G','R','E','Y'):
+                                sAvgPixelformat = "I8";
+                                bSupported = true;
+                                break;
+                            case v4l2_fourcc('Y','1','6',' '):
+                                sAvgPixelformat = "I16";
+                                bSupported = true;
+                                break;
+                            case v4l2_fourcc('R','G','B','3'):
+                                sAvgPixelformat = "RGB";
+                                bSupported = true;
+                                break;
+                            case v4l2_fourcc('B','G','R','3'):
+                                sAvgPixelformat = "BGR";
+                                bSupported = true;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (bSupported) {
+                            v4l2_frmivalenum frmIvalEnum;
+                            memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
+                            frmIvalEnum.index = 0;
+                            frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
+                            frmIvalEnum.width = frmSizeEnum.discrete.width;
+                            frmIvalEnum.height = frmSizeEnum.discrete.height;
+                            while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
+                                // push the following in to a list
+                                // frmSizeEnum.discrete.width
+                                // frmSizeEnum.discrete.height
+                                // sAvgPixelformat
+                                // frmIvalEnum.discrete.denominator ;
+                                frmIvalEnum.index++;
+                            }
+                        }
+                        frmSizeEnum.index++;
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
