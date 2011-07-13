@@ -110,6 +110,8 @@ void export_raster()
         .def("isAvailable", &CameraNode::isAvailable)
         .def("dumpCameras", make_function(&CameraNode::dumpCameras))
         .staticmethod("dumpCameras")
+        .def("checkCameras", make_function(&CameraNode::checkCameras))
+        .staticmethod("checkCameras")
         .def("resetFirewireBus", &CameraNode::resetFirewireBus)
         .staticmethod("resetFirewireBus")
     ;

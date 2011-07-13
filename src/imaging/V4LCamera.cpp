@@ -584,6 +584,9 @@ void V4LCamera::checkCameras()
                                 camConf.height = frmSizeEnum.discrete.height;
                                 camConf.sAvgPixelFormat = sAvgPixelformat;
                                 camConf.framerate = frmIvalEnum.discrete.denominator;
+                                //for debugging purposes
+                                cout << endl << camConf.width << "  "<< camConf.height << "  "<< camConf.sAvgPixelFormat << "  "
+                                << camConf.framerate  << endl;
                                 frmIvalEnum.index++;
                             }
                         }
@@ -594,8 +597,6 @@ void V4LCamera::checkCameras()
         }
     }
 }
-
-
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {

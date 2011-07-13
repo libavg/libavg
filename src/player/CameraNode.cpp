@@ -278,6 +278,11 @@ void CameraNode::dumpCameras()
     avg::dumpCameras();
 }
 
+void CameraNode::checkCameras()
+{
+    avg::checkCameras();
+}
+
 void CameraNode::resetFirewireBus()
 {
     FWCamera::resetBus();
