@@ -413,37 +413,8 @@ void V4LCamera::dumpSupportedImgFormats(int fd)
         frmSizeEnum.pixel_format = fmtDesc.pixelformat;
         bool bSupported = false;
         while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-            string sAvgPixelformat;
-            switch (fmtDesc.pixelformat) {
-                case v4l2_fourcc('Y','U','Y','V'):
-                    sAvgPixelformat = "YUYV422";
-                    bSupported = true;
-                    break;
-                case v4l2_fourcc('U','Y','V','Y'):
-                    sAvgPixelformat = "YUV422";
-                    bSupported = true;
-                    break;
-                case v4l2_fourcc('G','R','E','Y'):
-                    sAvgPixelformat = "I8";
-                    bSupported = true;
-                    break;
-                case v4l2_fourcc('Y','1','6',' '):
-                    sAvgPixelformat = "I16";
-                    bSupported = true;
-                    break;
-                case v4l2_fourcc('R','G','B','3'):
-                    sAvgPixelformat = "RGB";
-                    bSupported = true;
-                    break;
-                case v4l2_fourcc('B','G','R','3'):
-                    sAvgPixelformat = "BGR";
-                    bSupported = true;
-                    break;
-                default:
-                    break;
-            }
-
-            if (bSupported) {
+            const char * sAvgPixelformat = pixelformatToString(fmtDesc.pixelformat);
+            if (sAvgPixelformat != "NOTAVGSUPPORTED") {
                 v4l2_frmivalenum frmIvalEnum;
                 cout << "   " << sAvgPixelformat << " ";
                 cout << "  (" << frmSizeEnum.discrete.width << ", ";
@@ -515,6 +486,35 @@ struct cameraConfiguration
     double framerate; // frmIvalEnum.discrete.denominator ;
 };
 
+const char * V4LCamera::pixelformatToString(unsigned int pixelformat)
+{
+    const char * sAvgPixelformat;
+    switch (pixelformat) {
+        case v4l2_fourcc('Y','U','Y','V'):
+            sAvgPixelformat = "YUYV422";
+            break;
+        case v4l2_fourcc('U','Y','V','Y'):
+            sAvgPixelformat = "YUV422";
+            break;
+        case v4l2_fourcc('G','R','E','Y'):
+            sAvgPixelformat = "I8";
+            break;
+        case v4l2_fourcc('Y','1','6',' '):
+            sAvgPixelformat = "I16";
+            break;
+        case v4l2_fourcc('R','G','B','3'):
+            sAvgPixelformat = "RGB";
+            break;
+        case v4l2_fourcc('B','G','R','3'):
+            sAvgPixelformat = "BGR";
+            break;
+        default:
+            sAvgPixelformat = "NOTAVGSUPPORTED";
+            break;
+    }
+    return sAvgPixelformat;
+}
+
 void V4LCamera::checkCameras()
 {
     for(int j = 0; j < 256; j++){
@@ -539,39 +539,9 @@ void V4LCamera::checkCameras()
                     memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
                     frmSizeEnum.index = 0;
                     frmSizeEnum.pixel_format = fmtDesc.pixelformat;
-                    bool bSupported = false;
                     while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-                        string sAvgPixelformat;
-                        switch (fmtDesc.pixelformat) {
-                            case v4l2_fourcc('Y','U','Y','V'):
-                                sAvgPixelformat = "YUYV422";
-                                bSupported = true;
-                                break;
-                            case v4l2_fourcc('U','Y','V','Y'):
-                                sAvgPixelformat = "YUV422";
-                                bSupported = true;
-                                break;
-                            case v4l2_fourcc('G','R','E','Y'):
-                                sAvgPixelformat = "I8";
-                                bSupported = true;
-                                break;
-                            case v4l2_fourcc('Y','1','6',' '):
-                                sAvgPixelformat = "I16";
-                                bSupported = true;
-                                break;
-                            case v4l2_fourcc('R','G','B','3'):
-                                sAvgPixelformat = "RGB";
-                                bSupported = true;
-                                break;
-                            case v4l2_fourcc('B','G','R','3'):
-                                sAvgPixelformat = "BGR";
-                                bSupported = true;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        if (bSupported) {
+                        const char * sAvgPixelformat = pixelformatToString(fmtDesc.pixelformat);
+                        if (sAvgPixelformat != "NOTAVGSUPPORTED") {
                             v4l2_frmivalenum frmIvalEnum;
                             memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
                             frmIvalEnum.index = 0;
