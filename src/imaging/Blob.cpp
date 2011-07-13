@@ -539,16 +539,17 @@ void storeRuns(BlobVectorPtr pBlobs, RunArray* pUpperRuns, RunArray* pLowerRuns)
     }
 }
 
-void findRunsInLine(BitmapPtr pBmp, int y, RunArray* pRuns, unsigned char threshold)
+void findRunsInLine(BitmapPtr pBmp, int y, RunArray* pRuns, unsigned char threshold,
+        unsigned char upperLimit)
 {
     int runStart=0;
     int runStop=0;
     const unsigned char * pPixel = pBmp->getPixels()+y*pBmp->getStride();
-    bool bIsInRun = *pPixel > threshold;
+    bool bIsInRun = (*pPixel > threshold) && (*pPixel <= upperLimit);
 
     int width = pBmp->getSize().x;
     for (int x = 0; x < width; x++) {
-        bool bPixelInRun = *pPixel > threshold;
+        bool bPixelInRun = (*pPixel > threshold) && (*pPixel <= upperLimit);
         if (bIsInRun != bPixelInRun) {
             if (bIsInRun) {
                 // Only if the run is longer than one pixel.
@@ -576,7 +577,8 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray* pRuns, unsigned char thresh
     }
 }
 
-BlobVectorPtr findConnectedComponents(BitmapPtr pBmp, unsigned char threshold)
+BlobVectorPtr findConnectedComponents(BitmapPtr pBmp, unsigned char threshold,
+        unsigned char upperLimit)
 {
     AVG_ASSERT(pBmp->getPixelFormat() == I8);
     BlobVectorPtr pBlobs = BlobVectorPtr(new BlobVector);
@@ -585,7 +587,7 @@ BlobVectorPtr findConnectedComponents(BitmapPtr pBmp, unsigned char threshold)
     RunArray* pLowerRuns = new RunArray();
 
     int y = 0;
-    findRunsInLine(pBmp, 0, pUpperRuns, threshold);
+    findRunsInLine(pBmp, 0, pUpperRuns, threshold, upperLimit);
     for (RunArray::iterator it = pUpperRuns->begin(); it!=pUpperRuns->end(); ++it) {
         BlobPtr pBlob = BlobPtr(new Blob(*it));
         pBlobs->push_back(pBlob);
@@ -593,7 +595,7 @@ BlobVectorPtr findConnectedComponents(BitmapPtr pBmp, unsigned char threshold)
     }
     
     for (y = 1; y < size.y; y++) {
-        findRunsInLine(pBmp, y, pLowerRuns, threshold);
+        findRunsInLine(pBmp, y, pLowerRuns, threshold, upperLimit);
         storeRuns(pBlobs, pUpperRuns, pLowerRuns);
         RunArray* pTmpRuns = pUpperRuns;
         pUpperRuns = pLowerRuns;

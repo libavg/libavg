@@ -55,7 +55,6 @@ typedef enum {
         NUM_TRACKER_IMAGES
 } TrackerImageID;
 
-typedef boost::shared_ptr<boost::mutex> MutexPtr;
 class OGLImagingContext;
 
 
