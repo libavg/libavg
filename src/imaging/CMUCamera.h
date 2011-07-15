@@ -54,7 +54,8 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
     static void dumpCameras();
-    static void checkCameras();
+    static int countCameras();
+    CameraInfo listCameraInfo(int deviceNumber);
 
 private:
     int getCamIndex(long long guid);

@@ -28,6 +28,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <string>
+#include <list>
 #include <map>
 
 namespace avg {
@@ -56,13 +57,42 @@ enum CameraFeature {
     CAM_FEATURE_STROBE_DURATION
 };
 
+struct CamName {
+    std::string driver;
+    // to check: what should go under "device"? Can it be the same thing for
+    // every driver? path? name? ?
+    std::string device; 
+    int unit;
+    bool fw800;
+};
+
+struct CamImageFormat {
+    int iWidth;
+    int iHeight;
+    std::string sPixelformat;
+    double dFramerate;
+};
+
+struct CamControls {
+    std::string sControlName;
+    int iMin;
+    int iMax;
+    int iDefault;
+};
+    
+struct CameraInfo {
+    CamName                     name;
+    std::list<CamImageFormat>  lImgFormats;
+    std::list<CamControls>      lCamControls;
+};
+
 class AVG_API Camera
 {
 public:
     Camera(PixelFormat camPF, PixelFormat destPF);
     virtual ~Camera() {};
     virtual void startCapture() {};
-
+    
     PixelFormat getCamPF() const;
     void setCamPF(PixelFormat pf);
     PixelFormat getDestPF() const;
@@ -92,6 +122,8 @@ private:
     PixelFormat m_DestPF;
 };
 
+
+
 std::string cameraFeatureToString(CameraFeature feature);
 
 typedef boost::shared_ptr<Camera> CameraPtr;
@@ -102,6 +134,7 @@ AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sD
         PixelFormat destPF, double frameRate);
 
 AVG_API void dumpCameras();
+AVG_API std::list<CameraInfo> listCameraInfo();
 AVG_API void checkCameras();
 
 }

@@ -577,8 +577,15 @@ void FWCamera::dumpCameraImageFormats(dc1394camera_t * pCamera)
 
 #endif
 
-void FWCamera::checkCameras()
+int FWCamera::countCameras(){
+    //TODO:implement
+    //not implemented
+    return 0;
+}
+
+CameraInfo FWCamera::listCameraInfo(int deviceNumber)
 {
+    //TODO:implement
 }
 
 void FWCamera::resetBus()

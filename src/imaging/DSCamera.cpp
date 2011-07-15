@@ -463,8 +463,14 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
     pSrcFilter->Release();
 }
 
-void DScamera::checkCameras()
+int DSCamera::countCameras(){
+    //TODO:implement
+    return 0;
+}
+
+CameraInfo DSCamera::listCameraInfo(int deviceNumber)
 {
+    //TODO:implement
 }
 
 void DSCamera::initGraphBuilder()

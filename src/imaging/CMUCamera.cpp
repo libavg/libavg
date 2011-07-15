@@ -286,8 +286,15 @@ void CMUCamera::dumpCameras()
     delete pCamera;
 }
 
-void CMUCamera::checkCameras()
+int CMUCamera::countCameras(){
+    //TODO:implement
+    //not implemented
+    return 0;
+}
+
+CameraInfo CMUCamera::listCameraInfo(int deviceNumber)
 {
+    //TODO:implement
 }
 
 int CMUCamera::getCamIndex(long long guid)

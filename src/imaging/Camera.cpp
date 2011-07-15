@@ -241,8 +241,38 @@ void dumpCameras()
 #endif
 }
 
+std::list<CameraInfo> listCameraInfo()
+{
+    std::list<CameraInfo> lCamerasInfo;
+/**
+#ifdef AVG_ENABLE_1394_2 //TODO
+    for (int i = 0; i < FWCamera::countCameras(); i++){
+    lCamerasInfo.push_back(FWCamera::listCameraInfo(i));
+    }
+#endif
+#ifdef AVG_ENABLE_CMU1394 //TODO
+    for (int i = 0; i < CMUCamera::countCameras(); i++){
+    lCamerasInfo.push_back(CMUCamera::listCameraInfo(i));
+    }
+#endif
+#ifdef AVG_ENABLE_DSHOW //TODO
+    for (int i = 0; i < DSCamera::countCameras(); i++){
+    lCamerasInfo.push_back(DSCamera::listCameraInfo(i));
+    }
+#endif***/
+#ifdef AVG_ENABLE_V4L2 
+    for (int i = 0; i < V4LCamera::countCameras(); i++){
+    lCamerasInfo.push_back(V4LCamera::listCameraInfo(i));
+    }
+#endif
+    return lCamerasInfo; //what happens here if there are no cameras? How to prevent it?
+}
+
+
 void checkCameras()
 {
+//TODO: get rid of this function
+/***
 #ifdef AVG_ENABLE_1394_2 
     FWCamera::checkCameras();
 #endif
@@ -254,7 +284,7 @@ void checkCameras()
 #endif
 #ifdef AVG_ENABLE_DSHOW 
     DSCamera::checkCameras();
-#endif
+#endif**/
 }
 
 }

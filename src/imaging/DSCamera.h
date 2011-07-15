@@ -71,7 +71,8 @@ public:
     virtual void onSample(IMediaSample * pSample);
 
     static void dumpCameras();
-    static void checkCameras();
+    static int countCameras();
+    CameraInfo listCameraInfo(int deviceNumber);
 
 private:
     virtual void open();

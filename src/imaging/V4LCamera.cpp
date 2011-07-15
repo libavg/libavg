@@ -395,6 +395,14 @@ v4l2_capability dumpCameraCapabilities(int fd)
     return capability;
 }
 
+v4l2_capability getCamCapabilities(int fd)
+{
+    v4l2_capability capability;
+    memset(&capability, 0, sizeof(capability));
+    int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+    return capability;
+}
+
 void V4LCamera::dumpSupportedImgFormats(int fd)
 {
     cout << "Suported Image Formats:" << endl;
@@ -515,58 +523,124 @@ const char * V4LCamera::pixelformatToString(unsigned int pixelformat)
     return sAvgPixelformat;
 }
 
-void V4LCamera::checkCameras()
+int V4LCamera::countCameras(){
+    //TODO:implement
+    //not implemented
+    return 1;
+}
+
+CameraInfo V4LCamera::listCameraInfo(int deviceNumber)
 {
-    for(int j = 0; j < 256; j++){
-        cameraConfiguration camConf;
-        int fd = dumpCameras_open(j);
-        if (fd != -1){
-            //dumpCameracapabilities
-            v4l2_capability capability;
-            memset(&capability, 0, sizeof(capability));
-            int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
-            if (rc != -1 && (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) ) {
-                for (int i = 0;; i++) {
-                    v4l2_fmtdesc fmtDesc;
-                    memset(&fmtDesc, 0, sizeof(fmtDesc));
-                    fmtDesc.index = i;
-                    fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-                    int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
-                    if (rc == -1) {
-                        break;
-                    }
-                    v4l2_frmsizeenum frmSizeEnum;
-                    memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
-                    frmSizeEnum.index = 0;
-                    frmSizeEnum.pixel_format = fmtDesc.pixelformat;
-                    while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-                        const char * sAvgPixelformat = pixelformatToString(fmtDesc.pixelformat);
-                        if (sAvgPixelformat != "NOTAVGSUPPORTED") {
-                            v4l2_frmivalenum frmIvalEnum;
-                            memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
-                            frmIvalEnum.index = 0;
-                            frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
-                            frmIvalEnum.width = frmSizeEnum.discrete.width;
-                            frmIvalEnum.height = frmSizeEnum.discrete.height;
-                            while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
-                                // push the following in to a list later
-                                camConf.width = frmSizeEnum.discrete.width;
-                                camConf.height = frmSizeEnum.discrete.height;
-                                camConf.sAvgPixelFormat = sAvgPixelformat;
-                                camConf.framerate = frmIvalEnum.discrete.denominator;
-                                //for debugging purposes
-                                cout << endl << camConf.width << "  "<< camConf.height << "  "<< camConf.sAvgPixelFormat << "  "
-                                << camConf.framerate  << endl;
-                                frmIvalEnum.index++;
-                            }
-                        }
-                        frmSizeEnum.index++;
-                    }
-                }
-            }
+    int fd = dumpCameras_open(deviceNumber);
+    if (fd != -1){
+        CameraInfo camInfo;
+        camInfo.name = getCamName(fd);
+        v4l2_capability capability = getCamCapabilities(fd);//TODO: getCamCapabilities()
+        if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+            //camInfo.lImgFormats = getCamImgFormats(fd);
+            getCamImgFormats(fd, std::back_inserter(camInfo.lImgFormats));
+            getCamControls(fd, std::back_inserter(camInfo.lCamControls));
+            //camInfo.lCamControls = getCamControls(fd);
+            return camInfo;
         }
     }
 }
+
+CamName V4LCamera::getCamName(int fd) {
+    CamName name;
+    name.driver = "video4linux";
+    std::stringstream ss;
+    ss << fd;
+    name.device = "/dev/video";
+    name.device += ss.str();
+    name.unit = -1;
+    name.fw800 = 0;
+    return name;
+}
+
+typedef std::back_insert_iterator<std::list<CamImageFormat> > OutputIterFormats;
+void V4LCamera::getCamImgFormats(int fd, OutputIterFormats out) {
+    //std::list<CamImageFormat> lImageFormats;    
+    for (int i = 0;; i++) {
+        v4l2_fmtdesc fmtDesc;
+        memset(&fmtDesc, 0, sizeof(fmtDesc));
+        fmtDesc.index = i;
+        fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
+        if (rc == -1) {
+            break;
+        }
+        v4l2_frmsizeenum frmSizeEnum;
+        memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
+        frmSizeEnum.index = 0;
+        frmSizeEnum.pixel_format = fmtDesc.pixelformat;
+        bool bSupported = false;
+        while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
+            std::string sAvgPixelformat = pixelformatToString(fmtDesc.pixelformat);
+            if (sAvgPixelformat != "NOTAVGSUPPORTED") {
+                v4l2_frmivalenum frmIvalEnum;
+                memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
+                frmIvalEnum.index = 0;
+                frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
+                frmIvalEnum.width = frmSizeEnum.discrete.width;
+                frmIvalEnum.height = frmSizeEnum.discrete.height;
+                while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
+                    CamImageFormat camImFormat;  
+                    camImFormat.iWidth = frmSizeEnum.discrete.width;
+                    camImFormat.iHeight = frmSizeEnum.discrete.height;
+                    camImFormat.sPixelformat = sAvgPixelformat;
+                    camImFormat.dFramerate = frmIvalEnum.discrete.denominator;
+                    //this should work... but I don't know how yet...
+                    *(out++) = camImFormat;
+                    //lImageFormats.push_back(camImFormat);
+                    frmIvalEnum.index++;
+                }
+                cout << endl;
+            }
+            frmSizeEnum.index++;
+        }
+    }
+    //return lImageFormats;
+}
+
+const char* V4LtoAVG_ctrlNames(__u8* name)
+{
+    //TODO:implement this, it takes name and converts it to libavg camera crtl names.
+    const char* sControlName = "gain";
+    return sControlName;
+}
+
+typedef std::back_insert_iterator<std::list<CamControls> > OutputIterCtrls;
+void V4LCamera::getCamControls(int fd, OutputIterCtrls out)
+{
+    v4l2_queryctrl queryCtrl;
+    //std::list<CamControls> lCamControls;
+    for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
+        int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
+        if (rc != -1) {
+            if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+                continue;
+            }
+            CamControls camControls;
+            camControls.sControlName = V4LtoAVG_ctrlNames(queryCtrl.name); //TODO:V4LtoAVG_ctrl..
+            camControls.iMin = queryCtrl.minimum;
+            camControls.iMax = queryCtrl.maximum;
+            camControls.iDefault = queryCtrl.default_value;
+            //this should work... but I don't know how yet...
+            *(out++) = camControls;
+            //lCamControls.push_back(camControls);
+        } else {
+            if (errno != EINVAL) {
+                perror("VIDIOC_QUERYCTRL");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+    //return lCamControls;
+}
+
+
+
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
 {
