@@ -100,7 +100,7 @@ class AVG_API CameraNode : public RasterNode
         virtual BitmapPtr getBitmap();
 
         static void dumpCameras();
-        static void checkCameras();
+        static void listCameraInfo();
         static void resetFirewireBus();
 
     private:

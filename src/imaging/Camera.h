@@ -135,7 +135,6 @@ AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sD
 
 AVG_API void dumpCameras();
 AVG_API std::list<CameraInfo> listCameraInfo();
-AVG_API void checkCameras();
 
 }
 

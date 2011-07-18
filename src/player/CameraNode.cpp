@@ -278,9 +278,9 @@ void CameraNode::dumpCameras()
     avg::dumpCameras();
 }
 
-void CameraNode::checkCameras()
+void CameraNode::listCameraInfo()
 {
-    avg::checkCameras();
+    avg::listCameraInfo();
 }
 
 void CameraNode::resetFirewireBus()

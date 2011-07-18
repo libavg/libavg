@@ -486,14 +486,6 @@ void V4LCamera::dumpCameras()
     }
 }
 
-struct cameraConfiguration
-{
-    int width; // frmSizeEnum.discrete.width
-    int height; // frmSizeEnum.discrete.height
-    string sAvgPixelFormat; // sAvgPixelformat
-    double framerate; // frmIvalEnum.discrete.denominator ;
-};
-
 const char * V4LCamera::pixelformatToString(unsigned int pixelformat)
 {
     const char * sAvgPixelformat;
@@ -524,23 +516,32 @@ const char * V4LCamera::pixelformatToString(unsigned int pixelformat)
 }
 
 int V4LCamera::countCameras(){
-    //TODO:implement
-    //not implemented
-    return 1;
+    int numberOfCameras = 0;
+    for(int j = 0; j < 256; j++){
+        int fd = dumpCameras_open(j);
+        if (fd != -1) {
+            numberOfCameras++;
+        }
+    }
+    cout<<numberOfCameras;
+    return numberOfCameras;
 }
 
 CameraInfo V4LCamera::listCameraInfo(int deviceNumber)
 {
     int fd = dumpCameras_open(deviceNumber);
+    cout<<"fd di listCamerainfo"<<fd<<endl;
     if (fd != -1){
         CameraInfo camInfo;
-        camInfo.name = getCamName(fd);
-        v4l2_capability capability = getCamCapabilities(fd);//TODO: getCamCapabilities()
+        camInfo.name = getCamName(deviceNumber);
+        v4l2_capability capability = getCamCapabilities(fd);
         if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
             //camInfo.lImgFormats = getCamImgFormats(fd);
             getCamImgFormats(fd, std::back_inserter(camInfo.lImgFormats));
             getCamControls(fd, std::back_inserter(camInfo.lCamControls));
             //camInfo.lCamControls = getCamControls(fd);
+            //for debug purposes
+            cout<<camInfo.name.driver<<" "<<camInfo.name.device<<" "<<camInfo.name.fw800;
             return camInfo;
         }
     }
@@ -548,6 +549,7 @@ CameraInfo V4LCamera::listCameraInfo(int deviceNumber)
 
 CamName V4LCamera::getCamName(int fd) {
     CamName name;
+    cout<< "fd=" << fd;
     name.driver = "video4linux";
     std::stringstream ss;
     ss << fd;
@@ -555,6 +557,7 @@ CamName V4LCamera::getCamName(int fd) {
     name.device += ss.str();
     name.unit = -1;
     name.fw800 = 0;
+    cout<< "from getcameraname"<<name.device;
     return name;
 }
 
@@ -745,7 +748,8 @@ void V4LCamera::initDevice()
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)
-                +"'. Try using avg_showcamera.py --dump to find out what the device supports."));
+                +"'. Try using avg_showcamera.py --dump to find out what\
+                        the device supports."));
     }
 
     CLEAR(StreamParam);
@@ -758,7 +762,8 @@ void V4LCamera::initDevice()
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
-                +"'. Try using avg_showcamera.py --dump to find out what the device supports."));
+                +"'. Try using avg_showcamera.py --dump to find out what\
+                        the device supports."));
     }
     m_FrameRate = (double)StreamParam.parm.capture.timeperframe.denominator / \
             (double)StreamParam.parm.capture.timeperframe.numerator;

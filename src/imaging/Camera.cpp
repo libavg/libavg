@@ -261,30 +261,13 @@ std::list<CameraInfo> listCameraInfo()
     }
 #endif***/
 #ifdef AVG_ENABLE_V4L2 
-    for (int i = 0; i < V4LCamera::countCameras(); i++){
+    int v4lcameras = V4LCamera::countCameras();
+    for (int i = 0; i < v4lcameras; i++){
     lCamerasInfo.push_back(V4LCamera::listCameraInfo(i));
     }
 #endif
     return lCamerasInfo; //what happens here if there are no cameras? How to prevent it?
 }
 
-
-void checkCameras()
-{
-//TODO: get rid of this function
-/***
-#ifdef AVG_ENABLE_1394_2 
-    FWCamera::checkCameras();
-#endif
-#ifdef AVG_ENABLE_CMU1394 
-    CMUCamera::checkCameras();
-#endif
-#ifdef AVG_ENABLE_V4L2 
-    V4LCamera::checkCameras();
-#endif
-#ifdef AVG_ENABLE_DSHOW 
-    DSCamera::checkCameras();
-#endif**/
-}
 
 }
