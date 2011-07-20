@@ -523,25 +523,40 @@ int V4LCamera::countCameras(){
             numberOfCameras++;
         }
     }
-    cout<<numberOfCameras;
+    //cout<< "countCameras() number of cameras: "<< numberOfCameras << endl;
     return numberOfCameras;
 }
 
 CameraInfo V4LCamera::listCameraInfo(int deviceNumber)
 {
     int fd = dumpCameras_open(deviceNumber);
-    cout<<"fd di listCamerainfo"<<fd<<endl;
+    cout<<"fd di listCamerainfo(): "<<fd<<endl;
     if (fd != -1){
         CameraInfo camInfo;
         camInfo.name = getCamName(deviceNumber);
+        CamName it = camInfo.name;
+        cout << "Camera Driver: " << it.driver << endl;
+        cout << "Camera Device: " << it.device << endl;
+        cout << "Camera Unit:   " << it.unit   << endl;
+        cout << "Camera fw800: " << it.fw800  << endl;
         v4l2_capability capability = getCamCapabilities(fd);
         if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
-            //camInfo.lImgFormats = getCamImgFormats(fd);
             getCamImgFormats(fd, std::back_inserter(camInfo.lImgFormats));
             getCamControls(fd, std::back_inserter(camInfo.lCamControls));
-            //camInfo.lCamControls = getCamControls(fd);
-            //for debug purposes
-            cout<<camInfo.name.driver<<" "<<camInfo.name.device<<" "<<camInfo.name.fw800;
+            //for debug
+            for (std::list<CamImageFormat>::iterator it = camInfo.lImgFormats.begin(); it != camInfo.lImgFormats.end(); it++){
+            cout<<"width: "<< (*it).iWidth << endl;
+            cout<<"height: "<< (*it).iHeight << endl;
+            cout<<"PixelFormat: "<< (*it).sPixelformat << endl;
+            cout<<"Framerate: "<< (*it).dFramerate << endl;
+            }
+            //for debug
+            for (std::list<CamControls>::iterator it = camInfo.lCamControls.begin(); it != camInfo.lCamControls.end(); it++){
+                cout << "Control Name: "<< (*it).sControlName << endl;
+                cout << "Control Min:  "<< (*it).iMin << endl;
+                cout << "Control Max:  "<< (*it).iMax << endl;
+                cout << "Control Default:  "<< (*it).iDefault << endl;
+            }
             return camInfo;
         }
     }
@@ -555,15 +570,16 @@ CamName V4LCamera::getCamName(int fd) {
     ss << fd;
     name.device = "/dev/video";
     name.device += ss.str();
-    name.unit = -1;
+    name.unit = -1;//TODO: is this always -1 ???????
     name.fw800 = 0;
-    cout<< "from getcameraname"<<name.device;
+    //for debug
+    cout << "getcameraname() device:" << name.device << endl;
     return name;
 }
 
+
 typedef std::back_insert_iterator<std::list<CamImageFormat> > OutputIterFormats;
-void V4LCamera::getCamImgFormats(int fd, OutputIterFormats out) {
-    //std::list<CamImageFormat> lImageFormats;    
+void V4LCamera::getCamImgFormats(int fd, OutputIterFormats out) {    
     for (int i = 0;; i++) {
         v4l2_fmtdesc fmtDesc;
         memset(&fmtDesc, 0, sizeof(fmtDesc));
@@ -593,23 +609,22 @@ void V4LCamera::getCamImgFormats(int fd, OutputIterFormats out) {
                     camImFormat.iHeight = frmSizeEnum.discrete.height;
                     camImFormat.sPixelformat = sAvgPixelformat;
                     camImFormat.dFramerate = frmIvalEnum.discrete.denominator;
-                    //this should work... but I don't know how yet...
+                    //dereferencing iterator for assignment.
                     *(out++) = camImFormat;
-                    //lImageFormats.push_back(camImFormat);
                     frmIvalEnum.index++;
                 }
-                cout << endl;
             }
             frmSizeEnum.index++;
         }
     }
-    //return lImageFormats;
 }
 
-const char* V4LtoAVG_ctrlNames(__u8* name)
+string V4LtoAVG_ctrlNames(__u8* name)
 {
-    //TODO:implement this, it takes name and converts it to libavg camera crtl names.
-    const char* sControlName = "gain";
+    //TODO:some controls are not support by libavg, the names should be masked;
+    std::stringstream ss;
+    ss << name;
+    string sControlName = ss.str() ;
     return sControlName;
 }
 
@@ -625,13 +640,12 @@ void V4LCamera::getCamControls(int fd, OutputIterCtrls out)
                 continue;
             }
             CamControls camControls;
-            camControls.sControlName = V4LtoAVG_ctrlNames(queryCtrl.name); //TODO:V4LtoAVG_ctrl..
+            camControls.sControlName =V4LtoAVG_ctrlNames(queryCtrl.name); //TODO:V4LtoAVG_ctrl..
             camControls.iMin = queryCtrl.minimum;
             camControls.iMax = queryCtrl.maximum;
             camControls.iDefault = queryCtrl.default_value;
-            //this should work... but I don't know how yet...
+            //dereferencing iterator for assignment.
             *(out++) = camControls;
-            //lCamControls.push_back(camControls);
         } else {
             if (errno != EINVAL) {
                 perror("VIDIOC_QUERYCTRL");
@@ -639,7 +653,6 @@ void V4LCamera::getCamControls(int fd, OutputIterCtrls out)
             }
         }
     }
-    //return lCamControls;
 }
 
 
