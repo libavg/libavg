@@ -406,41 +406,17 @@ v4l2_capability getCamCapabilities(int fd)
 void V4LCamera::dumpSupportedImgFormats(int fd)
 {
     cout << "Suported Image Formats:" << endl;
-    for (int i = 0;; i++) {
-        v4l2_fmtdesc fmtDesc;
-        memset(&fmtDesc, 0, sizeof(fmtDesc));
-        fmtDesc.index = i;
-        fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
-        if (rc == -1) {
-            break;
+    std::list<CamImageFormat> imgFormats;
+    getCamImgFormats(fd, std::back_inserter(imgFormats));
+    for (std::list<CamImageFormat>::iterator it = imgFormats.begin(); it != imgFormats.end(); it++){
+        cout << "   " << (*it).sPixelformat << " ";
+        cout << "  (" << (*it).iWidth << ", ";
+        cout << (*it).iHeight << ")";
+        cout << "   fps: ";
+        for (std::list<double>::iterator itr = (*it).dFramerate.begin(); itr != (*it).dFramerate.end(); ++itr){
+            cout << (*itr) << "/";
         }
-        v4l2_frmsizeenum frmSizeEnum;
-        memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
-        frmSizeEnum.index = 0;
-        frmSizeEnum.pixel_format = fmtDesc.pixelformat;
-        bool bSupported = false;
-        while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-            const char * sAvgPixelformat = pixelformatToString(fmtDesc.pixelformat);
-            if (sAvgPixelformat != "NOTAVGSUPPORTED") {
-                v4l2_frmivalenum frmIvalEnum;
-                cout << "   " << sAvgPixelformat << " ";
-                cout << "  (" << frmSizeEnum.discrete.width << ", ";
-                cout << frmSizeEnum.discrete.height << ")";
-                cout << "   fps: ";
-                memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
-                frmIvalEnum.index = 0;
-                frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
-                frmIvalEnum.width = frmSizeEnum.discrete.width;
-                frmIvalEnum.height = frmSizeEnum.discrete.height;
-                while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
-                    cout << frmIvalEnum.discrete.denominator << "/";
-                    frmIvalEnum.index++;
-                }
-                cout << endl;
-            }
-            frmSizeEnum.index++;
-        }
+        cout << endl;
     }
 }
 
@@ -545,10 +521,14 @@ CameraInfo V4LCamera::listCameraInfo(int deviceNumber)
             getCamControls(fd, std::back_inserter(camInfo.lCamControls));
             //for debug
             for (std::list<CamImageFormat>::iterator it = camInfo.lImgFormats.begin(); it != camInfo.lImgFormats.end(); it++){
-            cout<<"width: "<< (*it).iWidth << endl;
-            cout<<"height: "<< (*it).iHeight << endl;
-            cout<<"PixelFormat: "<< (*it).sPixelformat << endl;
-            cout<<"Framerate: "<< (*it).dFramerate << endl;
+                cout<<"width: "<< (*it).iWidth << endl;
+                cout<<"height: "<< (*it).iHeight << endl;
+                cout<<"PixelFormat: "<< (*it).sPixelformat << endl;
+                cout<<"Framerate: ";
+                for (std::list<double>::iterator itr = (*it).dFramerate.begin(); itr != (*it).dFramerate.end(); ++itr){
+                    cout << (*itr) << "/";
+                }
+                cout << endl;
             }
             //for debug
             for (std::list<CamControls>::iterator it = camInfo.lCamControls.begin(); it != camInfo.lCamControls.end(); it++){
@@ -603,16 +583,16 @@ void V4LCamera::getCamImgFormats(int fd, OutputIterFormats out) {
                 frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
                 frmIvalEnum.width = frmSizeEnum.discrete.width;
                 frmIvalEnum.height = frmSizeEnum.discrete.height;
+                CamImageFormat camImFormat;  
+                camImFormat.iWidth = frmSizeEnum.discrete.width;
+                camImFormat.iHeight = frmSizeEnum.discrete.height;
+                camImFormat.sPixelformat = sAvgPixelformat;
                 while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
-                    CamImageFormat camImFormat;  
-                    camImFormat.iWidth = frmSizeEnum.discrete.width;
-                    camImFormat.iHeight = frmSizeEnum.discrete.height;
-                    camImFormat.sPixelformat = sAvgPixelformat;
-                    camImFormat.dFramerate = frmIvalEnum.discrete.denominator;
-                    //dereferencing iterator for assignment.
-                    *(out++) = camImFormat;
+                    camImFormat.dFramerate.push_back(frmIvalEnum.discrete.denominator);
                     frmIvalEnum.index++;
                 }
+                //dereferencing iterator for assignment.
+                *(out++) = camImFormat;
             }
             frmSizeEnum.index++;
         }

@@ -70,7 +70,7 @@ struct CamImageFormat {
     int iWidth;
     int iHeight;
     std::string sPixelformat;
-    double dFramerate;
+    std::list<double> dFramerate;
 };
 
 struct CamControls {
