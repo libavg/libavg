@@ -423,23 +423,13 @@ void V4LCamera::dumpSupportedImgFormats(int fd)
 void V4LCamera::dumpCameraControls(int fd)
 {
     cout << endl << "Camera Controls:" << endl;
-    v4l2_queryctrl queryCtrl;
-    for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
-        int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
-        if (rc != -1) {
-            if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-                continue;
-            }
-            cout << "  " << queryCtrl.name << ":" << endl;
-            cout << "    Min: " << queryCtrl.minimum << " | ";
-            cout << "Max: " << queryCtrl.maximum << " | ";
-            cout << "Default: "<< queryCtrl.default_value << endl;
-        } else {
-            if (errno != EINVAL) {
-                perror("VIDIOC_QUERYCTRL");
-                exit(EXIT_FAILURE);
-            }
-        }
+    std::list<CamControls> cameraControls;          
+    getCamControls(fd, std::back_inserter(cameraControls));
+    for (std::list<CamControls>::iterator it = cameraControls.begin(); it != cameraControls.end(); it++){
+        cout << "  " << (*it).sControlName << ":" << endl;
+        cout << "    Min: " << (*it).iMin << " | ";
+        cout << "Max: " << (*it).iMax << " | ";
+        cout << "Default: "<< (*it).iDefault << endl;
     }
 }
 
