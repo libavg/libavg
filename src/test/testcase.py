@@ -85,13 +85,11 @@ class AVGTestCase(unittest.TestCase):
     def getBaselineImageDir():
         return AVGTestCase.baselineImageResultDirectory
     
-    def start(self, filename, actions):
+    def start(self, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
         
         self.assert_(self.__player.isPlaying() == 0)
-        if filename != None:
-            self.__player.loadFile(filename)
         self.actions = actions
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)

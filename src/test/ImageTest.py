@@ -84,8 +84,8 @@ class ImageTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         addNodes(16)
-        self.start(None,
-                (lambda: self.compareImage("testImgHRef1", False),
+        self.start((
+                 lambda: self.compareImage("testImgHRef1", False),
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgHRef2", False),
                  setUnicodeHref,
@@ -120,8 +120,8 @@ class ImageTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         addNodes(16)
-        self.start(None,
-                (lambda: self.compareImage("testImgPos1", False),
+        self.start((
+                 lambda: self.compareImage("testImgPos1", False),
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgPos2", False),
                 ))
@@ -154,8 +154,8 @@ class ImageTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         addNodes(16)
-        self.start(None,
-                (lambda: self.compareImage("testImgSize1", False),
+        self.start((
+                 lambda: self.compareImage("testImgSize1", False),
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgSize2", False),
                 ))
@@ -184,8 +184,8 @@ class ImageTestCase(AVGTestCase):
         
         self.loadEmptyScene()
         testEarlyAccessException()
-        self.start(None,
-                (lambda: addNode(),
+        self.start((
+                 lambda: addNode(),
                  lambda: self.compareImage("testImgWarp1", False),
                 ))
 
@@ -248,8 +248,8 @@ class ImageTestCase(AVGTestCase):
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
         testStringConversion()
         testUnicode()
-        self.start(None,
-                (lambda: getBitmap(node),
+        self.start((
+                 lambda: getBitmap(node),
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1", False),
@@ -318,8 +318,8 @@ class ImageTestCase(AVGTestCase):
                         blendmode="max"/>
             </avg>
         """)
-        self.start(None,
-                (lambda: self.compareImage("testBlend1", False),
+        self.start((
+                 lambda: self.compareImage("testBlend1", False),
                  setBlendMode,
                  lambda: self.compareImage("testBlend2", False)
                 ))
@@ -331,7 +331,7 @@ class ImageTestCase(AVGTestCase):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png")
             Player.getRootNode().appendChild(node)
             try:
-                self.start(None, [])
+                self.start([])
                 g_IsMaskSupported = True
             except RuntimeError:
                 g_IsMaskSupported = False
@@ -370,8 +370,8 @@ class ImageTestCase(AVGTestCase):
         node = Player.getRootNode().getChild(0)
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start(None,
-                (lambda: createNode((0, 32)),
+        self.start((
+                 lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
                  lambda: self.compareImage("testImgMask1", False),
@@ -394,9 +394,7 @@ class ImageTestCase(AVGTestCase):
         """)
         node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png")
         Player.getRootNode().appendChild(node)
-        self.start(None,
-                [lambda: self.compareImage("testImgMaskCanvas", False)
-                ])
+        self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
 
     def testImageMaskPos(self):
         def createNode(p):
@@ -423,8 +421,8 @@ class ImageTestCase(AVGTestCase):
         createNode((0,0))
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start(None,
-                (lambda: createNode((0, 32)),
+        self.start((
+                 lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
                  lambda: self.compareImage("testImgMaskPos", False)
@@ -461,8 +459,8 @@ class ImageTestCase(AVGTestCase):
         node = Player.getRootNode().getChild(0)
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start(None,
-                (lambda: createNode((0, 32)),
+        self.start((
+                 lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
                  lambda: self.compareImage("testImgMaskSize1", False),
@@ -480,9 +478,7 @@ class ImageTestCase(AVGTestCase):
             </avg>
         
         """)
-        self.start(None, 
-                [lambda: self.compareImage("testMipmap", False)
-                ])
+        self.start([lambda: self.compareImage("testMipmap", False)])
 
     def testImageCompression(self):
         def loadBitmap():
@@ -504,8 +500,8 @@ class ImageTestCase(AVGTestCase):
         """)
         self.image = Player.getElementByID("img")
         self.assert_(self.image.compression == "B5G6R5")
-        self.start(None, 
-                [lambda: self.compareImage("testTexCompression1", False),
+        self.start([
+                 lambda: self.compareImage("testTexCompression1", False),
                  loadBitmap,
                  lambda: self.compareImage("testTexCompression2", False),
                  relink,

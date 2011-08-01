@@ -105,8 +105,8 @@ class EventTestCase(AVGTestCase):
         self.customInputDevice = CustomInputDevice()
         Player.addInputDevice(self.customInputDevice)
     
-        self.start(None, 
-                (lambda: self.customInputDevice.feedEvent(
+        self.start(( 
+                 lambda: self.customInputDevice.feedEvent(
                          avg.Event(avg.CURSORDOWN, avg.NONE)),
                  lambda: self.assert_(checkAndResetResults()),
    
@@ -142,8 +142,8 @@ class EventTestCase(AVGTestCase):
         Player.getRootNode().setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
         Player.addInputDevice(AnonymousInputDevice())
     
-        self.start(None, 
-                (lambda: None,
+        self.start(( 
+                 lambda: None,
                  lambda: None,
                  lambda: self.assert_(checkAndResetResults())
         ))
@@ -159,8 +159,8 @@ class EventTestCase(AVGTestCase):
     
         handlerTester = NodeHandlerTester(self, divNode)
 
-        self.start(None, 
-                (lambda: self.customInputDevice.feedEvent(
+        self.start(( 
+                 lambda: self.customInputDevice.feedEvent(
                         avg.MouseEvent(avg.CURSORDOWN, True, False, False, (10, 10), 1)),
                  lambda: handlerTester.assertState(
                         down=True, up=False, over=True, out=False, move=False),

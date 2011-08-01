@@ -90,8 +90,8 @@ class DynamicsTestCase(AVGTestCase):
             Player.stop()
             self.loadEmptyScene()
             Player.setFakeFPS(25)
-            self.start(None,
-                    (lambda: createNode1(useXml),
+            self.start((
+                     lambda: createNode1(useXml),
                      lambda: self.compareImage(testName+"1", warnOnImageDiff),
                      lambda: createNode2(useXml),
                      lambda: self.compareImage(testName+"2", warnOnImageDiff),
@@ -184,8 +184,8 @@ class DynamicsTestCase(AVGTestCase):
         avg.ImageNode(href="rgb24-64x64.png", id="testdup", parent=root)
         self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
                 id="testdup", parent=root))
-        self.start(None,
-                (self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
+        self.start((
+                 self.assertException(lambda: avg.ImageNode(href="rgb24-64x64.png", 
                         id="testdup", parent=root)),
                 ))
        
@@ -197,9 +197,7 @@ class DynamicsTestCase(AVGTestCase):
 
         self.loadEmptyScene()
         self.assertException(changeParent)
-        self.start(None,
-                (self.assertException(changeParent),
-                ))
+        self.start((self.assertException(changeParent),))
 
     def testDynamicEventCapture(self):
         # Tests if deleting a node that has events captured works.
@@ -228,8 +226,8 @@ class DynamicsTestCase(AVGTestCase):
         self.captureMouseDownCalled = False
         self.mainMouseUpCalled = False
         self.loadEmptyScene()
-        self.start(None,
-                (createImg,
+        self.start((
+                 createImg,
                  setEventCapture,
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         100, 10, 1),
@@ -272,7 +270,7 @@ class DynamicsTestCase(AVGTestCase):
             self.__eventString = ''
 
         self.loadEmptyScene()
-        self.start(None, (
+        self.start((
                 createNodes,
                 resetEventString,
                 lambda: click (10,10),
@@ -314,8 +312,8 @@ class DynamicsTestCase(AVGTestCase):
         Player.stop()
         self.loadEmptyScene()
         Player.setFakeFPS(25)
-        self.start(None,
-                (createDiv,
+        self.start((
+                 createDiv,
                  lambda: self.compareImage("testComplexDiv1", False),
                  removeDiv,
                  lambda: self.compareImage("testComplexDiv1", False),
@@ -365,8 +363,8 @@ class DynamicsTestCase(AVGTestCase):
         imageNode1 = Player.createNode("image", {"href": "rgb24-64x64a.png"})
         imageNode2 = Player.createNode("image", {"href": "rgb24-64x64a.png", "x":30})
         Player.getRootNode().appendChild(imageNode2)
-        self.start(None,
-                (lambda: self.compareImage("testDynamicMediaDir1", False),
+        self.start((
+                 lambda: self.compareImage("testDynamicMediaDir1", False),
                  attachNode,
                  lambda: self.compareImage("testDynamicMediaDir2", False)
                 ))

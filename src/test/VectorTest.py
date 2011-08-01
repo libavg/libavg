@@ -68,8 +68,8 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         addLines()
         line = canvas.getChild(0)
-        self.start(None,
-                (lambda: self.compareImage("testline1", False), 
+        self.start((
+                 lambda: self.compareImage("testline1", False), 
                  changeLine,
                  lambda: self.compareImage("testline2", False),
                  moveLine,
@@ -86,8 +86,8 @@ class VectorTestCase(AVGTestCase):
                 canvas.appendChild(line)
        
         canvas = self.makeEmptyCanvas()
-        self.start(None,
-                (addLines,
+        self.start((
+                 addLines,
                  lambda: self.compareImage("testlotsoflines", False), 
                 ))
 
@@ -117,8 +117,8 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         addLine()
-        self.start(None,
-                (lambda: self.compareImage("testtexturedline1", False), 
+        self.start((
+                 lambda: self.compareImage("testtexturedline1", False), 
                  removeLine,
                  lambda: self.compareImage("testtexturedline2", False), 
                  addLine,
@@ -145,8 +145,8 @@ class VectorTestCase(AVGTestCase):
             canvas.getChild(0).opacity = 0.25
         
         canvas = self.makeEmptyCanvas()
-        self.start(None,
-                (addLine,
+        self.start((
+                 addLine,
                  lambda: self.compareImage("testlineopacity1", False), 
                  changeCanvasOpacity,
                  lambda: self.compareImage("testlineopacity2", False), 
@@ -184,8 +184,8 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         rect = addRect()
         helper = Player.getTestHelper()
-        self.start(None,
-                (lambda: self.compareImage("testRect1", False),
+        self.start((
+                 lambda: self.compareImage("testRect1", False),
                  moveRect,
                  lambda: self.compareImage("testRect2", False),
                  rotateRect,
@@ -244,8 +244,8 @@ class VectorTestCase(AVGTestCase):
 
         canvas = self.makeEmptyCanvas()
         addRect()
-        self.start(None,
-                (lambda: self.compareImage("testTexturedRect1", False),
+        self.start((
+                 lambda: self.compareImage("testTexturedRect1", False),
                  newRect,
                  lambda: self.compareImage("testTexturedRect2", False),
                  setTexCoords,
@@ -287,8 +287,8 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.start(None,
-                (lambda: self.compareImage("testCurve1", False),
+        self.start((
+                 lambda: self.compareImage("testCurve1", False),
                  changeCurve,
                  lambda: self.compareImage("testCurve2", False),
                  moveCurve,
@@ -310,8 +310,8 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.start(None,
-                (lambda: self.compareImage("testTexturedCurve1", False),
+        self.start((
+                 lambda: self.compareImage("testTexturedCurve1", False),
                  setTexCoords,
                  lambda: self.compareImage("testTexturedCurve2", False)
                 )) 
@@ -356,8 +356,8 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         polyline = addPolyLine()
-        self.start(None,
-                (lambda: self.compareImage("testPolyLine1", False),
+        self.start((
+                 lambda: self.compareImage("testPolyLine1", False),
                  changePolyLine,
                  lambda: self.compareImage("testPolyLine2", False),
                  miterPolyLine,
@@ -392,8 +392,8 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         polyline = texturePolyLine()
-        self.start(None,
-                (lambda: self.compareImage("testTexturedPolyLine1", False),
+        self.start((
+                 lambda: self.compareImage("testTexturedPolyLine1", False),
                  miter,
                  lambda: self.compareImage("testTexturedPolyLine2", False),
                  setTexCoords,
@@ -453,8 +453,8 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
         helper = Player.getTestHelper()
-        self.start(None,
-                (lambda: self.compareImage("testPolygon1", True),
+        self.start((
+                 lambda: self.compareImage("testPolygon1", True),
                  changePolygon,
                  lambda: self.compareImage("testPolygon2", True),
                  fillPolygon,
@@ -480,7 +480,7 @@ class VectorTestCase(AVGTestCase):
             canvas.insertChild(polygon, 0)
                 
         canvas = self.makeEmptyCanvas()
-        self.assertException(lambda: self.start(None, [addPolygon]))
+        self.assertException(lambda: self.start([addPolygon]))
 
     def testTexturedPolygon(self):
         def texturePolygon():
@@ -510,8 +510,8 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         polygon = texturePolygon()
-        self.start(None,
-                (lambda: self.compareImage("testTexturedPolygon1", False),
+        self.start((
+                 lambda: self.compareImage("testTexturedPolygon1", False),
                  miter,
                  lambda: self.compareImage("testTexturedPolygon2", False),
                  setTexCoords,
@@ -566,8 +566,8 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         circle = addCircle()
         helper = Player.getTestHelper()
-        self.start(None,
-                (lambda: self.compareImage("testCircle1", False), 
+        self.start((
+                 lambda: self.compareImage("testCircle1", False), 
                  changeCircle,
                  lambda: self.compareImage("testCircle2", False),
                  textureCircle,
@@ -630,8 +630,8 @@ class VectorTestCase(AVGTestCase):
         self.assertException(setIllegalVertexes)
         self.assertException(setIllegalTextures)
         self.assertException(setIllegalIndexes)
-        self.start(None,
-                (lambda: self.compareImage("testMesh1", False),
+        self.start((
+                 lambda: self.compareImage("testMesh1", False),
                  setVertexCoords,
                  lambda: self.compareImage("testMesh2", False),
                  setTexCoords,
@@ -666,8 +666,8 @@ class VectorTestCase(AVGTestCase):
         vNode = addVectorNode()
         fvNode = addFilledVectorNode()
         self.onDownCalled = False
-        self.start(None,
-                (lambda: self.compareImage("testInactiveVector1", False),
+        self.start((
+                 lambda: self.compareImage("testInactiveVector1", False),
                  lambda: self.fakeClick(20, 20),
                  lambda: self.assert_(self.onDownCalled),
                  lambda: self.compareImage("testInactiveVector2", False),

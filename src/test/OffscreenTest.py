@@ -74,8 +74,8 @@ class OffscreenTestCase(AVGTestCase):
         self.loadEmptyScene()
         createCanvas(True, "testcanvas1", 0)
         firstNode = Player.getElementByID("imagenode")
-        self.start(None, 
-                (lambda: self.compareImage("testOffscreen1", False),
+        self.start(( 
+                 lambda: self.compareImage("testOffscreen1", False),
                  unlink,
                  lambda: self.compareImage("testOffscreen2", False), 
                  relink,
@@ -106,8 +106,7 @@ class OffscreenTestCase(AVGTestCase):
                     href="canvas:offscreencanvas")
     
         self.loadEmptyScene()
-        self.start(None,
-                (
+        self.start((
                  createOffscreenCanvas,
                  lambda: self.compareImage("testOffscreen1", False),
                 ))
@@ -117,8 +116,8 @@ class OffscreenTestCase(AVGTestCase):
             self.node.size = (80, 60)
 
         mainCanvas, offscreenCanvas = self.__setupCanvas(False)
-        self.start(None,
-                (setSize,
+        self.start((
+                 setSize,
                  lambda: self.compareImage("testCanvasResize", False)
                 ))
 
@@ -156,8 +155,8 @@ class OffscreenTestCase(AVGTestCase):
         self.assert_(offscreenCanvas.getElementByID("missingnode") == None)
         self.assertException(Player.screenshot)
         self.assertException(createCompressed)
-        self.start(None, 
-                (checkMainScreenshot,
+        self.start(( 
+                 checkMainScreenshot,
                  checkCanvasScreenshot))
 
     def testCanvasEvents(self):
@@ -182,8 +181,8 @@ class OffscreenTestCase(AVGTestCase):
         helper = Player.getTestHelper()
         self.__offscreenImageDownCalled = False
         self.__mainDownCalled = False
-        self.start(None,
-                (lambda: self.fakeClick(10, 10),
+        self.start((
+                 lambda: self.fakeClick(10, 10),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                  reset,
                  lambda: self.fakeClick(80, 10),
@@ -214,8 +213,8 @@ class OffscreenTestCase(AVGTestCase):
         helper = Player.getTestHelper()
         self.__offscreenImageDownCalled = False
         offscreenImage.setEventCapture()
-        self.start(None,
-                (lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+        self.start((
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
                         80, 10, 1),
                  lambda: self.assert_(self.__offscreenImageDownCalled),
                 ))
@@ -245,8 +244,8 @@ class OffscreenTestCase(AVGTestCase):
         mainCanvas = self.loadEmptyScene()
         self.__offscreenCanvas = createCanvas()
         self.assertException(renderCanvas)
-        self.start(None,
-                (testEarlyScreenshotException,
+        self.start((
+                 testEarlyScreenshotException,
                  renderCanvas,
                  deleteCanvas,
                  recreateCanvas,
@@ -270,8 +269,8 @@ class OffscreenTestCase(AVGTestCase):
 
         mainCanvas = self.loadEmptyScene()
         self.__offscreenCanvas = createCanvas()
-        self.start(None,
-                (lambda: self.assert_(self.__offscreenCanvas.autorender),
+        self.start((
+                 lambda: self.assert_(self.__offscreenCanvas.autorender),
                  lambda: self.compareImage("testOffscreenAutoRender1", False),
                  disableAutoRender,
                  lambda: self.assert_(not(self.__offscreenCanvas.autorender)),
@@ -293,9 +292,7 @@ class OffscreenTestCase(AVGTestCase):
         """)
         node = avg.ImageNode(parent=Player.getRootNode(), 
                 href="canvas:testcanvas")
-        self.start(None,
-                (lambda: self.compareImage("testCanvasCrop", False),
-                ))
+        self.start((lambda: self.compareImage("testCanvasCrop", False),))
 
     def testCanvasAlpha(self):
         mainCanvas = self.loadEmptyScene()
@@ -309,9 +306,7 @@ class OffscreenTestCase(AVGTestCase):
         node = avg.ImageNode(parent=Player.getRootNode(), 
                 href="canvas:testcanvas")
         avg.ImageNode(parent=Player.getRootNode(), x=64, href="rgb24alpha-64x64.png")
-        self.start(None,
-                (lambda: self.compareImage("testCanvasAlpha", False),
-                ))
+        self.start((lambda: self.compareImage("testCanvasAlpha", False),))
     
     def testCanvasBlendModes(self):
         def createBaseCanvas():
@@ -333,9 +328,7 @@ class OffscreenTestCase(AVGTestCase):
                 blendmode="add")
         avg.ImageNode(parent=root, pos=(64,64), href="canvas:testcanvas", 
                 opacity=0.6, blendmode="add")
-        self.start(None,
-                (lambda: self.compareImage("testCanvasBlendModes", False),
-                ))
+        self.start((lambda: self.compareImage("testCanvasBlendModes", False),))
 
     def testCanvasMultisampling(self):
         def testIllegalSamples():
@@ -371,8 +364,8 @@ class OffscreenTestCase(AVGTestCase):
             
 
         mainCanvas = self.loadEmptyScene()
-        self.start(None,
-                (createCanvas,
+        self.start((
+                 createCanvas,
                  lambda: self.compareImage("testCanvasMultisample", False),
                  screenshot,
                  lambda: self.assertException(testIllegalSamples),
@@ -390,9 +383,7 @@ class OffscreenTestCase(AVGTestCase):
         node = avg.ImageNode(parent=Player.getRootNode(), size=(40, 30), 
                 href="canvas:testcanvas")
         try:
-            self.start(None,
-                    (lambda: self.compareImage("testCanvasMipmap", False),
-                    ))
+            self.start((lambda: self.compareImage("testCanvasMipmap", False),))
         except RuntimeError:
                 print
                 print "Offscreen mipmap init failed - skipping test."
@@ -436,8 +427,8 @@ class OffscreenTestCase(AVGTestCase):
         self.node = None
         Player.deleteCanvas("offscreencanvas1")
         Player.deleteCanvas("offscreencanvas2")
-        self.start(None,
-                   (createTwoCanvases,
+        self.start((
+                    createTwoCanvases,
                     lambda: self.compareImage("testCanvasDependencies1", False),
                     exchangeCanvases,
                     lambda: self.compareImage("testCanvasDependencies2", False),

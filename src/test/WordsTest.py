@@ -59,8 +59,8 @@ class WordsTestCase(AVGTestCase):
         node = Player.getElementByID("sanstext")
         self.assert_(node.size != (0,0))
         pos = node.getGlyphPos(0)
-        self.start(None,
-                (lambda: self.compareImage("testSimpleWords", True),
+        self.start((
+                 lambda: self.compareImage("testSimpleWords", True),
                  checkFont,
                  checkUnicodeText,
                 ))
@@ -76,8 +76,7 @@ class WordsTestCase(AVGTestCase):
         node = avg.WordsNode(font="Bitstream Vera Sans", fontsize=12, text="foo", 
                 parent=Player.getRootNode())
         changeText("foobar")
-        self.start(None,
-                (lambda: changeText("bar"),))
+        self.start((lambda: changeText("bar"),))
 
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
@@ -117,8 +116,7 @@ class WordsTestCase(AVGTestCase):
                       text="Paragraph with custom line spacing."/>
           </avg>
         """)
-        self.start(None,
-                [lambda: self.compareImage("testParaWords", True)])
+        self.start([lambda: self.compareImage("testParaWords", True)])
 
     def testJustify(self):
         Player.loadString("""
@@ -128,8 +126,7 @@ class WordsTestCase(AVGTestCase):
                 text="Justified paragraph more than one line long."/>
           </avg>
         """)
-        self.start(None,
-                [lambda: self.compareImage("testJustify", True)])
+        self.start([lambda: self.compareImage("testJustify", True)])
 
     def testWrapMode(self):
         def setCharMode():
@@ -152,8 +149,8 @@ class WordsTestCase(AVGTestCase):
                 Withaverylongpackedlinewithnobreaks"/>
         </avg>
         """)
-        self.start(None,
-            [lambda: self.compareImage("testWrapMode1", True),
+        self.start([
+             lambda: self.compareImage("testWrapMode1", True),
              setCharMode,
              lambda: self.compareImage("testWrapMode2", True),
              setWordMode,
@@ -205,8 +202,8 @@ class WordsTestCase(AVGTestCase):
         </avg>
         """)
         node = Player.getElementByID("words")
-        self.start(None,
-                (setMask,
+        self.start((
+                 setMask,
                  lambda: self.compareImage("testWordsMask1", False),
                  setColor,
                  lambda: self.compareImage("testWordsMask2", False),
@@ -249,9 +246,7 @@ class WordsTestCase(AVGTestCase):
                   text="Lorem ipsum dolor (hinting)"/>
             </avg>
             """)
-            self.start(None,
-                [checkPositions
-                ])
+            self.start([checkPositions])
 
 
     def testSpanWords(self):
@@ -285,7 +280,7 @@ class WordsTestCase(AVGTestCase):
             </words>
           </avg>
         """)
-        self.start(None,
+        self.start(
                 [lambda: self.compareImage("testSpanWords", True),
                  setTextAttrib,
                  lambda: self.compareImage("testSpanWords", True),
@@ -332,8 +327,9 @@ class WordsTestCase(AVGTestCase):
                 node.text = "except"
             self.assert_(node.text == "except")
         
-        self.start("dynamictext.avg",
-                (lambda: self.compareImage("testDynamicWords1", True),
+        Player.loadFile("dynamictext.avg")
+        self.start((
+                 lambda: self.compareImage("testDynamicWords1", True),
                  changeText,
                  changeHeight,
                  changeFont,
@@ -356,8 +352,9 @@ class WordsTestCase(AVGTestCase):
             node.text=(u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
                     u"blindtext4\u00A0blindtext\u00A0blindtext\u00A0")
 
-        self.start("i18ntext.avg",
-                (lambda: self.compareImage("testI18NWords1", True),
+        Player.loadFile("i18ntext.avg")
+        self.start((
+                 lambda: self.compareImage("testI18NWords1", True),
                  changeUnicodeText,
                  lambda: self.compareImage("testI18NWords2", True),
                  setNBSP,
@@ -395,9 +392,10 @@ class WordsTestCase(AVGTestCase):
             self.xmldnode.text = text
             Player.getElementByID('nodeval').text = text
             Player.getElementByID('attrib').text = text
-        
-        self.start("rawtext.avg",
-                (lambda: self.compareImage("testRawText1", True),
+
+        Player.loadFile("rawtext.avg")
+        self.start((
+                 lambda: self.compareImage("testRawText1", True),
                  createDynNodes,
                  lambda: self.compareImage("testRawText2", True),
                  switchRawMode,
@@ -416,9 +414,7 @@ class WordsTestCase(AVGTestCase):
             </words>
           </avg>
         """)
-        self.start(None,
-                [lambda: self.compareImage("testWordsBR", True)
-                ])
+        self.start([lambda: self.compareImage("testWordsBR", True)])
 
     def testLetterSpacing(self):
         def setSpacing():
@@ -437,8 +433,8 @@ class WordsTestCase(AVGTestCase):
                     variant="roman" letterspacing="2" text="spaced"/>
           </avg>
         """)
-        self.start(None,
-                (lambda: self.compareImage("testLetterSpacing1", True),
+        self.start((
+                 lambda: self.compareImage("testLetterSpacing1", True),
                  setSpacing,
                  lambda: self.compareImage("testLetterSpacing2", True)
                 ))
@@ -484,8 +480,8 @@ class WordsTestCase(AVGTestCase):
         centerWidth = Player.getElementByID("center").getMediaSize()[0]
         rightWidth = Player.getElementByID("right").getMediaSize()[0]
 
-        self.start(None,
-                (lambda: self.compareImage("testPositioning", True),
+        self.start((
+                 lambda: self.compareImage("testPositioning", True),
                  lambda: click((4,20)),
                  lambda: self.assert_(testInside(True)),
                  lambda: click((3,20)),
@@ -534,11 +530,11 @@ class WordsTestCase(AVGTestCase):
           <avg width="160" height="120">
           </avg>
         """)
-        self.start(None, (
-            self.assertException(assignInvalidColor1),
-            self.assertException(assignInvalidColor2),
-            self.assertException(assignInvalidColor3),
-                    ))
+        self.start((
+                 self.assertException(assignInvalidColor1),
+                 self.assertException(assignInvalidColor2),
+                 self.assertException(assignInvalidColor3),
+                ))
 
     def testFontDir(self):
         avg.WordsNode.addFontDir('extrafonts')
@@ -547,9 +543,7 @@ class WordsTestCase(AVGTestCase):
             <words font="testaddfontdir" fontsize="50" text="ABAAA"/>
           </avg>
         """)
-        self.start(None,
-                (lambda: self.compareImage("testFontDir", True),
-                ))
+        self.start((lambda: self.compareImage("testFontDir", True),))
     
     def testGetNumLines(self):
         textNode = avg.WordsNode(text="paragraph 1<br/>paragraph 2<br/>paragraph 3")
@@ -606,7 +600,7 @@ class WordsTestCase(AVGTestCase):
             testSize(textNode.getMediaSize(), avg.Point2D(45,182))
             self.assert_(mediaSize != textNode.getMediaSize())
 
-        self.start(None, [lambda: changeSize()])
+        self.start([lambda: changeSize()])
         
 
 def wordsTestSuite(tests):

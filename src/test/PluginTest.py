@@ -64,7 +64,7 @@ class PluginTestCase(AVGTestCase):
         Player.loadString("""
             <avg width="160" height="120" id="container" />""")
 
-        self.start(None, (
+        self.start(( 
             loadPlugin,
             usePlugin1,
             lambda: self.compareImage("testplugin1", False),
