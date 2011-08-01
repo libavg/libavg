@@ -33,11 +33,9 @@ class WordsTestCase(AVGTestCase):
     
     def testSimpleWords(self):
         def checkFont():
-            node = Player.getElementByID("sanstext")
             self.assert_(node.variant=="bold")
     
         def checkUnicodeText():
-            node = Player.getElementByID("sanstext")
             node.text = u"föa"
             newNode = avg.WordsNode(text=u"öäü")
        
@@ -48,15 +46,12 @@ class WordsTestCase(AVGTestCase):
             self.assert_(False)
         variantList = avg.WordsNode.getFontVariants("Bitstream Vera Sans")
         self.assert_(len(variantList) >= 4)
-        Player.loadString("""
-          <avg width="160" height="120">
-            <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
-                text="Bitstream Vera Sans" variant="roman"/>
-            <words id="sanstext" x="1" y="16" fontsize="12" font="Bitstream Vera Sans" 
-                variant="bold" text="Bold"/>
-          </avg>
-        """)
-        node = Player.getElementByID("sanstext")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.WordsNode (pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                text="Bitstream Vera Sans", variant="roman", parent=root)
+        node = avg.WordsNode (pos=(1,16), fontsize=12, font="Bitstream Vera Sans",
+                text="Bold", variant="bold", parent=root)
         self.assert_(node.size != (0,0))
         pos = node.getGlyphPos(0)
         self.start((
@@ -97,58 +92,52 @@ class WordsTestCase(AVGTestCase):
         self.assertException(lambda: node.getGlyphPos(3))
 
     def testParaWords(self):
-        Player.loadString("""
-          <avg width="160" height="120">
-              <line pos1="(0.5, 0)" pos2="(0.5, 50)" color="FF0000"/>
-              <line pos1="(119.5, 0.5)" pos2="(119.5, 50)" color="FF0000"/>
-              <line pos1="(74.5, 60)" pos2="(74.5, 110)" color="FF0000"/>
-              <words id="para" x="1" y="1" fontsize="12" width="70" 
-                      font="Bitstream Vera Sans"
-                      text="Left-justified paragraph."/>
-              <words id="paracenter" x="120" y="1" fontsize="12" width="70" 
-                      font="Bitstream Vera Sans" alignment="center"
-                      text="Centered paragraph"/>
-              <words id="pararight" x="75" y="60" fontsize="12" width="70" 
-                      font="Bitstream Vera Sans" alignment="right">
-                      Right-justified paragraph.<i>l</i></words>
-              <words id="paralinespacing" x="80" y="60" fontsize="12" width="70" 
-                      font="Bitstream Vera Sans" linespacing="-4"
-                      text="Paragraph with custom line spacing."/>
-          </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.LineNode(pos1=(0.5, 0), pos2=(0.5, 50), color="FF0000", parent=root)
+        avg.LineNode(pos1=(119.5, 0.5), pos2=(119.5, 50), color="FF0000", parent=root)
+        avg.LineNode(pos1=(74.5,60), pos2=(74.5, 110), color="FF0000", parent=root)
+        avg.WordsNode(id="para", pos=(1,1), fontsize=12, width=70,
+                font="Bitstream Vera Sans", text="Left-justified paragraph.", 
+                parent=root)
+        avg.WordsNode(id="paracenter", pos=(120,1), fontsize=12, width=70, 
+                font="Bitstream Vera Sans", text="Centered paragraph", 
+                alignment="center", parent=root)
+        avg.WordsNode(id="pararight", pos=(75,60), fontsize=12, width=70,
+                font="Bitstream Vera Sans", alignment="right",
+                text="Right-justified paragraph.<i>l</i>",
+                parent=root)
+        avg.WordsNode(id="paralinespacing", pos=(80,60), fontsize=12, width=70,
+                font="Bitstream Vera Sans", linespacing=-4,
+                text="Paragraph with custom line spacing.",
+                parent=root)
         self.start([lambda: self.compareImage("testParaWords", True)])
 
     def testJustify(self):
-        Player.loadString("""
-          <avg width="160" height="120">
-            <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
-                variant="roman" justify="true" width="100"
-                text="Justified paragraph more than one line long."/>
-          </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", justify=True, width=100,
+                text="Justified paragraph more than one line long.", parent=root)
         self.start([lambda: self.compareImage("testJustify", True)])
 
     def testWrapMode(self):
         def setCharMode():
-            node = Player.getElementByID("words")
             node.wrapmode = 'char'
         
         def setWordMode():
-            node = Player.getElementByID("words")
             node.wrapmode = 'word'
         
         def setWordCharMode():
-            node = Player.getElementByID("words")
             node.wrapmode = 'wordchar'
             
-        Player.loadString("""
-        <avg width="160" height="120">
-          <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
-              variant="roman" width="100" id="words"
-              text="Wrapped paragraph more than one line long.
-                Withaverylongpackedlinewithnobreaks"/>
-        </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", width=100, 
+                text="""Wrapped paragraph more than one line long.
+                        Withaverylongpackedlinewithnobreaks""",
+                parent=root)
         self.start([
              lambda: self.compareImage("testWrapMode1", True),
              setCharMode,
@@ -186,11 +175,11 @@ class WordsTestCase(AVGTestCase):
         def setDefaultSize():
             node.masksize = (0,0)
 
-        Player.loadString("""
-        <avg width="160" height="120">
-          <words x="0" y="0" fontsize="8" linespacing="-4" font="Bitstream Vera Sans"
-              variant="roman" width="160" id="words"
-              text="Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
+                variant="roman", width=160,
+                text="Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
                     Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \
                     mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext. \
                     Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
@@ -198,10 +187,8 @@ class WordsTestCase(AVGTestCase):
                     mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext. \
                     Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
                     Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \
-                    mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext."/>
-        </avg>
-        """)
-        node = Player.getElementByID("words")
+                    mich weiterzulesen. Denn vorerst bin ich nur ein kleiner Blindtext.",
+                parent=root)
         self.start((
                  setMask,
                  lambda: self.compareImage("testWordsMask1", False),
@@ -236,24 +223,21 @@ class WordsTestCase(AVGTestCase):
         if platform.system() == "Linux":
             print "Skipping testHinting - Linux support requires modified font config."
         else:
-            Player.loadString("""
-            <avg width="160" height="120">
-              <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
-                  variant="roman" hint="false"
-                  text="Lorem ipsum dolor (no hinting)"/>
-              <words x="1" y="15" fontsize="12" font="Bitstream Vera Sans"
-                  variant="roman" hint="true"
-                  text="Lorem ipsum dolor (hinting)"/>
-            </avg>
-            """)
+            self.loadEmptyScene()
+            root = Player.getRootNode()
+            avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                    variant="roman", hint=False, text="Lorem ipsum dolor (no hinting)",
+                    parent=root)
+            avg.WordsNode(pos=(1,15), fontsize=12, font="Bitstream Vera Sans",
+                    variant="roman", hint=True, text="Lorem ipsum dolor (hinting)",
+                    parent=root)
             self.start([checkPositions])
 
 
     def testSpanWords(self):
         def setTextAttrib():
             self.baselineBmp = Player.screenshot()
-            node = Player.getElementByID("words")
-            node.text = self.text
+            Player.getElementByID("words").text = self.text
         
         def checkSameImage():
             bmp = Player.screenshot()
@@ -270,16 +254,16 @@ class WordsTestCase(AVGTestCase):
               <span size='14000' rise='5000' foreground='red'>span</span>, 
               <i>italics</i>, <b>bold</b>
         """
-        Player.loadString("""
-          <avg width="160" height="120">
+        self.loadEmptyScene()
+        node = Player.createNode("""
             <words id="words" x="1" y="1" fontsize="12" width="120" 
                 font="Bitstream Vera Sans" variant="roman">
         """
         +self.text+
         """
             </words>
-          </avg>
         """)
+        Player.getRootNode().appendChild(node)
         self.start(
                 [lambda: self.compareImage("testSpanWords", True),
                  setTextAttrib,
@@ -406,14 +390,10 @@ class WordsTestCase(AVGTestCase):
                 ))
 
     def testWordsBR(self):
-        Player.loadString("""
-          <avg width="160" height="120">
-            <words id="words" x="1" y="1" fontsize="12" 
-                font="Bitstream Vera Sans" variant="roman">
-               paragraph 1<br/>paragraph 2
-            </words>
-          </avg>
-        """)
+        self.loadEmptyScene()
+        root=Player.getRootNode()
+        avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans", variant="roman",
+               text="paragraph 1<br/>paragraph 2", parent=root)
         self.start([lambda: self.compareImage("testWordsBR", True)])
 
     def testLetterSpacing(self):
@@ -421,18 +401,16 @@ class WordsTestCase(AVGTestCase):
             Player.getElementByID("words1").letterspacing=-2
             Player.getElementByID("words2").letterspacing=-2
         
-        Player.loadString("""
-          <avg width="160" height="120">
-            <words id="words1" x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
-                    variant="roman">
-               normal
-               <span letter_spacing="-2048"> packed</span>
-               <span letter_spacing="2048"> spaced</span>
-            </words>
-            <words id="words2" x="1" y="20" fontsize="12" font="Bitstream Vera Sans"
-                    variant="roman" letterspacing="2" text="spaced"/>
-          </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.WordsNode(id="words1", pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman",
+                text="""normal
+                   <span letter_spacing="-2048"> packed</span>
+                   <span letter_spacing="2048"> spaced</span>""",
+                parent=root)
+        avg.WordsNode(id="words2", pos=(1,20), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", letterspacing=2, text="spaced", parent=root)
         self.start((
                  lambda: self.compareImage("testLetterSpacing1", True),
                  setSpacing,
@@ -451,26 +429,26 @@ class WordsTestCase(AVGTestCase):
         def onMouse(event):
             self.clicked = True
 
-        Player.loadString("""
-          <avg width="160" height="120">
-            <line pos1="(4, 20.5)" pos2="(157, 20.5)" color="FF0000"/>
-            <line pos1="(4.5, 20.5)" pos2="(4.5, 110)" color="FF0000"/>
-            <line pos1="(156.5, 20.5)" pos2="(156.5, 110)" color="FF0000"/>
-            <line pos1="(80.5, 20.5)" pos2="(80.5, 110)" color="FF0000"/>
-            <words id="left" x="4" y="20" fontsize="12" font="Bitstream Vera Sans"
-                    variant="roman" text="Norm"/>
-            <words x="45" y="20" fontsize="12" font="Bitstream Vera Sans"
-                    variant="roman" text="orm"/>
-            <words x="75" y="20" fontsize="12" font="Bitstream Vera Sans"
-                    variant="roman" text="ÖÄÜ"/>
-            <words x="4" y="40" fontsize="12" font="Bitstream Vera Sans"
-                    variant="oblique" text="Jtalic"/>
-            <words id="right" x="156" y="60" fontsize="12" alignment="right" 
-                    font="Bitstream Vera Sans" variant="roman" text="Right-aligned"/>
-            <words id="center" x="80" y="80" fontsize="12" alignment="center" 
-                    font="Bitstream Vera Sans" variant="roman" text="Centered"/>
-          </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.LineNode(pos1=(4, 20.5), pos2=(157, 20.5), color="FF0000", parent=root)
+        avg.LineNode(pos1=(4.5, 20.5), pos2=(4.5, 110), color="FF0000", parent=root)
+        avg.LineNode(pos1=(156.5, 20.5), pos2=(156.5, 110), color="FF0000", parent=root)
+        avg.LineNode(pos1=(80.5, 20.5), pos2=(80.5, 110), color="FF0000", parent=root)
+        avg.WordsNode(id="left", pos=(4,20), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", text="Norm", parent=root)
+        avg.WordsNode(pos=(45,20), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", text="orm", parent=root)
+        avg.WordsNode(pos=(75,20), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", text="ÖÄÜ", parent=root)
+        avg.WordsNode(pos=(4,40), fontsize=12, font="Bitstream Vera Sans",
+                variant="oblique", text="Jtalic", parent=root)
+        avg.WordsNode(id="right", pos=(156,60), fontsize=12, alignment="right",
+                font="Bitstream Vera Sans", variant="roman", text="Right-aligned",
+                parent=root)
+        avg.WordsNode(id="center", pos=(80,80), fontsize=12, alignment="center",
+                font="Bitstream Vera Sans", variant="roman", text="Centered",
+                parent=root)
         for id in ["left", "center", "right"]:
             Player.getElementByID(id).setEventHandler(avg.CURSORDOWN, avg.MOUSE,
                     onMouse)

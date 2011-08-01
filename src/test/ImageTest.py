@@ -306,18 +306,19 @@ class ImageTestCase(AVGTestCase):
         
     def testBlendMode(self):
         def setBlendMode():
-            Player.getElementByID("blend").blendmode="add"
+            blendNode.blendmode="add"
         
-        Player.loadString("""
-            <avg width="160" height="120">
-                <image x="0" y="0" href="freidrehen.jpg"/>
-                <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
-                <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" blendmode="add"/>
-                <image x="48" y="0" opacity="1" href="rgb24-65x65.png" blendmode="min"/>
-                <image x="48" y="48" opacity="1" href="rgb24-65x65.png" 
-                        blendmode="max"/>
-            </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(href="freidrehen.jpg", parent=root)
+        blendNode = avg.ImageNode(opacity=0.6, href="rgb24-65x65.png", parent=root)
+        avg.ImageNode(pos=(0,48), opacity=0.6, href="rgb24-65x65.png", blendmode="add",
+                parent=root)
+        avg.ImageNode(pos=(48,0), opacity=1, href="rgb24-65x65.png", blendmode="min",
+                parent=root)
+        avg.ImageNode(pos=(48,48), opacity=1, href="rgb24-65x65.png", blendmode="max",
+                parent=root)
+
         self.start((
                  lambda: self.compareImage("testBlend1", False),
                  setBlendMode,
@@ -471,13 +472,11 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def testImageMipmap(self):
-        Player.loadString("""
-            <avg id="imageavg" width="160" height="120">
-                <image width="64" height="64" href="checker.png"/>
-                <image x="64" width="64" height="64" href="checker.png" mipmap="true"/>
-            </avg>
-        
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(size=(64,64), href="checker.png", parent=root)
+        avg.ImageNode(pos=(64,0), size=(64,64), href="checker.png", mipmap=True, 
+                parent=root)
         self.start([lambda: self.compareImage("testMipmap", False)])
 
     def testImageCompression(self):
@@ -492,13 +491,9 @@ class ImageTestCase(AVGTestCase):
         def checkAlpha():
             self.image.href="rgb24alpha-64x64.png"
 
-        Player.loadString("""
-            <avg id="imageavg" width="160" height="120">
-                <image id="img" href="rgb24-64x64.png" compression="B5G6R5"/>
-            </avg>
-        
-        """)
-        self.image = Player.getElementByID("img")
+        self.loadEmptyScene()
+        self.image = avg.ImageNode(href="rgb24-64x64.png", compression="B5G6R5",
+                parent=Player.getRootNode())
         self.assert_(self.image.compression == "B5G6R5")
         self.start([
                  lambda: self.compareImage("testTexCompression1", False),

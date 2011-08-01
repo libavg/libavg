@@ -29,12 +29,9 @@ class VectorTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def makeEmptyCanvas(self):
-        Player.loadString("""
-            <avg width="160" height="120">
-              <div id="canvas" x="0" y="0" width="160" height="120"/>
-            </avg>
-        """)
-        return Player.getElementByID("canvas")
+        self.loadEmptyScene()
+        canvas = avg.DivNode(id="canvas", size=(160,120), parent=Player.getRootNode())
+        return canvas
 
     def testLine(self):
         def addLines():

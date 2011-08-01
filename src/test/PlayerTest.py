@@ -98,11 +98,9 @@ class PlayerTestCase(AVGTestCase):
 
         Player.showCursor(0)
         Player.showCursor(1)
-        Player.loadString("""
-            <avg width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png"/>
-            </avg>
-        """)
+        self.loadEmptyScene()
+        node = Player.createNode("""<image id="test1" href="rgb24-65x65.png"/>""")
+        Player.getRootNode().appendChild(node)
         self.start((
                   getFramerate,
                   lambda: self.compareImage("testbasics", False), 

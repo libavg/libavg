@@ -226,19 +226,17 @@ class AVTestCase(AVGTestCase):
     def testVideoOpacity(self):
         def testWithFile(filename, testImgName):
             def hide():
-                Player.getElementByID("video").opacity=0
+                self.videoNode.opacity=0
 
             def show():
-                Player.getElementByID("video").opacity=1
+                self.videoNode.opacity=1
 
             Player.setFakeFPS(25)
-            Player.loadString("""
-                <avg width="160" height="120">
-                    <video id="video" x="0" y="0" loop="true" threaded="false"/>
-                </avg>""")
-            Player.getElementByID("video").href=filename
+            self.loadEmptyScene()
+            self.videoNode = avg.VideoNode(href=filename, loop=True, threaded=False,
+                    parent=Player.getRootNode())
             self.start((
-                     lambda: Player.getElementByID("video").play(),
+                     lambda: self.videoNode.play(),
                      None,
                      lambda: self.compareImage(testImgName+"1", False),
                      hide,
@@ -337,12 +335,9 @@ class AVTestCase(AVGTestCase):
                 video.opacity = 0.5
 
             Player.setFakeFPS(25)
-            Player.loadString("""
-                <avg width="160" height="120">
-                    <video id="video" x="0" y="0" opacity="1" threaded="false"/>
-                </avg>""")
-            video = Player.getElementByID("video")
-            video.href = filename
+            self.loadEmptyScene()
+            video = avg.VideoNode(href=filename, threaded=False,
+                    parent=Player.getRootNode())
             video.play()
             self.start([
                      lambda: setMask("mask.png"),
@@ -397,12 +392,9 @@ class AVTestCase(AVGTestCase):
         node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", opacity=0)
         self.testEOF(node)
 
-        Player.loadString("""
-            <avg width="160" height="120">
-                <video id="video" x="0" y="0" opacity="1" threaded="false"
-                        href="../video/testfiles/mpeg1-48x48.mpg"/>
-            </avg>""")
-        video = Player.getElementByID("video")
+        self.loadEmptyScene()
+        video = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
+                parent=Player.getRootNode())
         Player.setFakeFPS(0.1)
 
         video.setEOFCallback(lambda: foo) # Should never be called

@@ -48,21 +48,20 @@ class PluginTestCase(AVGTestCase):
             
         def usePlugin1():
             node = colorplugin.ColorNode(fillcolor="7f7f00", id="mynode1")
-            Player.getElementByID("container").appendChild(node)
+            root.appendChild(node)
             
             mynode = Player.getElementByID("mynode1")
             self.assert_(mynode.fillcolor == "7f7f00")
  
         def usePlugin2():
             node = Player.createNode('<colornode fillcolor="0f3f7f" id="mynode2" />')
-            Player.getElementByID("container").appendChild(node)
+            root.appendChild(node)
 
             mynode = Player.getElementByID("mynode2")
             self.assert_(mynode.fillcolor == "0f3f7f")
 
-       
-        Player.loadString("""
-            <avg width="160" height="120" id="container" />""")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
 
         self.start(( 
             loadPlugin,

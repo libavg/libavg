@@ -30,12 +30,9 @@ class AnimTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def initScene(self):
-        Player.loadString("""
-            <avg width="160" height="120">
-                <image id="test" x="64" y="30" href="rgb24-65x65.png"/>
-            </avg>
-        """)
-        self.__node = Player.getElementByID("test")
+        self.loadEmptyScene()
+        self.__node = avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png",
+                parent=Player.getRootNode())
         Player.setFakeFPS(10)
 
     def testAnimType(self, curAnim, imgBaseName):
@@ -320,7 +317,7 @@ class AnimTestCase(AVGTestCase):
         def deleteAnim():
             self.anim = None
 
-        Player.loadString('<avg width="160" height="120"/>')
+        self.loadEmptyScene()
         self.nodes = []
         for i in range(3):
             node = avg.ImageNode(id=str(i), pos=(64, i*20), href="rgb24-64x64.png")

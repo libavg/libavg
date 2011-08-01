@@ -963,15 +963,12 @@ class PythonTestCase(AVGTestCase):
                 if text != self.ta2.getText():
                     self.assert_(len(text) == 16)
                     break
-            
-        Player.loadString("""
-        <avg width="160" height="120">
-            <div id="ph1" x="2" y="2" width="156" height="96"/>
-            <div id="ph2" x="2" y="100" width="156" height="18"/>
-        </avg>
-        """)
         
-        import time
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
+        avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
+        
         textarea.init(avg, False)
         self.start((
                 setup,
@@ -1314,15 +1311,12 @@ class PythonTestCase(AVGTestCase):
             self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
             self.__sendMouseEvent(avg.CURSORUP, 20, 70)
 
-        Player.loadString("""
-       <avg width="160" height="120">
-           <div id="ph1" x="2" y="2" width="156" height="54"/>
-           <div id="ph2" x="2" y="58" width="76" height="54"/>
-           <div id="ph3" x="80" y="58" width="76" height="54">
-               <image href="1x1_white.png" width="76" height="54"/>
-           </div>
-       </avg>
-       """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.DivNode(id="ph1", pos=(2,2), size=(156,54), parent=root)
+        avg.DivNode(id="ph2", pos=(2,58), size=(76,54), parent=root)
+        div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
+        avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
         self.start((
                  setup,
                  lambda: self.compareImage("testFocusContext1", True),

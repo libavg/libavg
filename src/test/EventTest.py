@@ -75,31 +75,6 @@ class EventTestCase(AVGTestCase):
                  lambda: self.assert_(self.keyUpCalled)
                 ))
 
-    def testGlobalEvents(self):
-        global mainMouseUpCalled
-        global mainMouseDownCalled
-
-        def reset():
-            global mainMouseUpCalled
-            global mainMouseDownCalled
-            mainMouseUpCalled = False
-            mainMouseDownCalled = False
-        
-        Player.loadString("""
-            <avg width="160" height="120"  
-                    oncursordown="mainMouseDown" oncursorup="mainMouseUp"/>
-        """)
-        
-        self.start(( 
-                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                        10, 10, 1),
-                 lambda: self.assert_(mainMouseDownCalled and not(mainMouseUpCalled)),
-                 reset,
-                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
-                        10, 10, 1),
-                 lambda: self.assert_(not(mainMouseDownCalled) and mainMouseUpCalled)
-                ))
-
     def testSimpleEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
@@ -733,7 +708,6 @@ class EventTestCase(AVGTestCase):
 def eventTestSuite(tests):
     availableTests = (
             "testKeyEvents",
-            "testGlobalEvents",
             "testSimpleEvents",
             "testTilted",
             "testDivEvents",
