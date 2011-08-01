@@ -112,8 +112,6 @@ data_files_list += (
         ('Lib/site-packages/libavg/etc/fonts', fontconfig_files),
     )
 
-shutil.copy(LIBAVG_SRC_DIR+'wrapper/__init__.py', '__init__.py')
-
 revision = 'svn'
 
 try:
