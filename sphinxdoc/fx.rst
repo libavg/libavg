@@ -59,12 +59,15 @@ Effect Nodes
 
     .. autoclass:: HueSatFXNode(hue=0.0, saturation=1.0, lightness=0.0, tint=False)
 
-        A realtime Hsl-color converter. It can be used to tint or colorshift a node.
+        Color correction filter that works by converting pixels to the hsl color space 
+        (http://en.wikipedia.org/wiki/HSL_and_HSV), changing the values there and 
+        converting back to rgb. Can be used to change hue,
+        saturation and lightness of a node. Corresponds to the Photoshop Hue/Saturation 
+        dialog.
 
         .. py:attribute:: hue
 
-           Used to get/set the color-angle. Values should be between 0
-           and 360. Invalid values will be clipped off.
+           Used to get/set the color-angle. The interpretation of this 
 
         .. py:attribute:: lightness
            
