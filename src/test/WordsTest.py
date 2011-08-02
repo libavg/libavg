@@ -276,42 +276,40 @@ class WordsTestCase(AVGTestCase):
     
     def testDynamicWords(self):
         def changeText():
-            node = Player.getElementByID("dynamictext")
-            oldwidth = node.width
-            node.text = "blue" 
-            self.assert_(node.width != oldwidth)
-            node.color = "404080"
-            node.x += 10
+            oldwidth = words.width
+            words.text = "blue" 
+            self.assert_(words.width != oldwidth)
+            words.color = "404080"
+            words.x += 10
         
         def changeHeight():
-            node = Player.getElementByID("dynamictext")
-            node.height = 28
+            words.height = 28
         
         def activateText():
-            Player.getElementByID('dynamictext').active = 1
+            words.active = True
         
         def deactivateText():
-            Player.getElementByID('dynamictext').active = 0
+            words.active = False
         
         def changeFont():
-            node = Player.getElementByID("dynamictext")
-            node.font = "Bitstream Vera Sans"
-            node.height = 0
-            node.fontsize = 30
+            words.font = "Bitstream Vera Sans"
+            words.height = 0
+            words.fontsize = 30
         
         def changeFont2():
-            node = Player.getElementByID("dynamictext")
-            node.fontsize = 18
+            words.fontsize = 18
         
         def changeTextWithInvalidTag():
-            node = Player.getElementByID("dynamictext")
             try:
-                node.text = "This <invalid_tag/>bombs"
+                words.text = "This <invalid_tag/>bombs"
             except:
-                node.text = "except"
-            self.assert_(node.text == "except")
-        
-        Player.loadFile("dynamictext.avg")
+                words.text = "except"
+            self.assert_(words.text == "except")
+       
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        words = avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                text="foo", parent=root)
         self.start((
                  lambda: self.compareImage("testDynamicWords1", True),
                  changeText,
@@ -328,15 +326,28 @@ class WordsTestCase(AVGTestCase):
 
     def testI18NWords(self):
         def changeUnicodeText():
-            Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
+            words.text = "Arabic nonsense: ﯿﭗ"
         
         def setNBSP():
-            node = Player.getElementByID("dynamictext")
-            node.width=100
-            node.text=(u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
+            words.width=100
+            words.text=(u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
                     u"blindtext4\u00A0blindtext\u00A0blindtext\u00A0")
 
-        Player.loadFile("i18ntext.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.WordsNode(pos=(1,1), fontsize=14, font="Bitstream Vera Sans",
+                text="一二三四五六七八九", parent=root)
+        words = avg.WordsNode(pos=(1,24), fontsize=12, font="Bitstream Vera Sans",
+                text="foo", parent=root)
+        root.appendChild(
+                Player.createNode("""
+                    <words x="1" y="48" fontsize="12" font="Bitstream Vera Sans">
+                            &amp;
+                    </words>
+                """))
+        avg.WordsNode(pos=(12,48), fontsize=12, font="Bitstream Vera Sans", text="&amp;",
+                rawtextmode=True, parent=root)
+
         self.start((
                  lambda: self.compareImage("testI18NWords1", True),
                  changeUnicodeText,
@@ -360,8 +371,8 @@ class WordsTestCase(AVGTestCase):
         
         def switchRawMode():
             self.dictdnode.rawtextmode = False
-            Player.getElementByID('nodeval').rawtextmode = True
-            Player.getElementByID('attrib').rawtextmode = True
+            valNode.rawtextmode = True
+            attribNode.rawtextmode = True
         
         def bombIt():
             def cantRun():
@@ -374,10 +385,22 @@ class WordsTestCase(AVGTestCase):
             self.dictdnode.rawtextmode = True
             self.dictdnode.text = text
             self.xmldnode.text = text
-            Player.getElementByID('nodeval').text = text
-            Player.getElementByID('attrib').text = text
+            valNode.text = text
+            attribNode.text = text
 
-        Player.loadFile("rawtext.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        attribNode = avg.WordsNode(text="ùnicòdé <b>bold</b>",
+                fontsize=12, pos=(1,5), font="Bitstream Vera Sans", parent=root)
+        valNode = Player.createNode("""
+            <words id="nodeval" fontsize="10" x="1" y="25" font="Bitstream Vera Sans"><b>bold</b> ùnicòdé  &lt;</words>""")
+        root.appendChild(valNode)
+        root.appendChild(
+                Player.createNode("""
+                        <words x="1" y="45" fontsize="15" font="Bitstream Vera Sans">
+                            &amp;
+                        </words>"""))
+
         self.start((
                  lambda: self.compareImage("testRawText1", True),
                  createDynNodes,

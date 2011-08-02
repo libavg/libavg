@@ -556,14 +556,14 @@ class PlayerTestCase(AVGTestCase):
     def testMediaDir(self):
         def createImageNode():
             # Node is not in tree; mediadir should be root node dir.
-            node = avg.ImageNode(href="rgb24-64x64.png")
+            node = avg.ImageNode(href="rgb24-64x64a.png")
             self.assert_(node.size == avg.Point2D(0,0)) # File not found
-            node.href = "rgb24-64x64a.png"
+            node.href = "rgb24-64x64.png"
             self.assert_(node.size == avg.Point2D(64,64)) # File found
-            node = avg.ImageNode(href="rgb24-64x64.png", width=23, height=42)
+            node = avg.ImageNode(href="rgb24-64x64a.png", width=23, height=42)
             # File not found, but custom size
             self.assert_(node.size == avg.Point2D(23,42))
-            node.href = "rgb24-64x64a.png"
+            node.href = "rgb24-64x64.png"
             # File found, custom size stays
             self.assert_(node.size == avg.Point2D(23,42))
             node.size = (0,0)
@@ -571,27 +571,31 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(node.size == avg.Point2D(64,64))
 
         def setDir():
-            Player.getElementByID("main").mediadir="../video/testfiles"
+            div.mediadir="../video/testfiles"
         
         def setAbsDir():
             def absDir():
                 # Should not find any media here...
-                Player.getElementByID("main").mediadir="/testmediadir"
+                div.mediadir="/testmediadir"
 
             self.assertException(absDir)
         
         def createNode():
             node = avg.VideoNode(href="mjpeg1-48x48.avi", fps=30)
-       
-        Player.loadFile("mediadir.avg")
+
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        div = avg.DivNode(mediadir="testmediadir", parent=root)
+        image = avg.ImageNode(pos=(0,30), href="rgb24-64x64a.png", parent=div)
+        video = avg.VideoNode(href="mjpeg-48x48.avi", threaded=False, parent=div)
         self.start((
                  createImageNode,
-                 lambda: Player.getElementByID("video").play(),
+                 lambda: video.play(),
                  lambda: self.compareImage("testMediaDir1", False),
                  setDir,
-                 lambda: Player.getElementByID("video").play(), 
+                 lambda: video.play(), 
                  lambda: self.compareImage("testMediaDir2", False),
-                 lambda: self.assert_(Player.getElementByID("img").width == 0),
+                 lambda: self.assert_(image.width == 0),
                  createNode,
                  setAbsDir
                 ))
