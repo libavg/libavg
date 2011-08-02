@@ -271,19 +271,24 @@ class PlayerTestCase(AVGTestCase):
 
     def testInvalidImageFilename(self):
         def activateNode():
-            Player.getElementByID("enclosingdiv").active = 1
+            div.active = 1
         
-        Player.loadFile("invalidfilename.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        div = avg.DivNode(active=False, parent=root)
+        avg.ImageNode(href="filedoesntexist.png", parent=div)
         self.start([activateNode])
 
     def testInvalidVideoFilename(self):
         def tryplay():
-            assertException(lambda: Player.getElementByID("brokenvideo").play())
+            assertException(lambda: video.play())
         
-        Player.loadFile("invalidvideofilename.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        video = avg.VideoNode(href="filedoesntexist.avi", parent=root)
         self.start((
                  lambda: tryplay,
-                 lambda: Player.getElementByID("brokenvideo").stop()
+                 lambda: video.stop()
                 ))
 
     def testTimeouts(self):
