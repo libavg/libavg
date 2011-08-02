@@ -357,14 +357,30 @@ class PlayerTestCase(AVGTestCase):
                  loadImage
                 ))
 
+    def testAVGFile(self):
+        Player.loadFile("image.avg")
+        self.start((
+                 lambda: self.compareImage("testAVGFile", False),
+                ))
+        self.assertException(lambda: Player.loadFile("filedoesntexist.avg"))
+
     def testBroken(self):
-        def testBrokenFile(filename):
-            self.assertException(lambda: Player.loadFile(filename))
+        def testBrokenString(string):
+            self.assertException(lambda: Player.loadString(string))
         
-        testBrokenFile("filedoesntexist.avg")
-        testBrokenFile("noxml.avg")
-        testBrokenFile("noavg.avg")
-        testBrokenFile("noavg2.avg")
+        # This isn't xml
+        testBrokenString("""
+            xxx<avg width="400" height="300">
+            </avg>
+        """)
+        # This isn't avg
+        testBrokenString("""
+            <bla>hallo
+            </bla>""")
+        testBrokenString("""
+            <avg width="640" height="480" invalidattribute="bla">
+            </avg>
+        """)
 
     def testMove(self):
         def moveit():
@@ -701,6 +717,7 @@ def playerTestSuite(tests):
             "testInvalidVideoFilename",
             "testTimeouts",
             "testPanoImage",
+            "testAVGFile",
             "testBroken",
             "testMove",
             "testCropImage",
