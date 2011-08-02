@@ -387,8 +387,8 @@ class ImageTestCase(AVGTestCase):
                 <image href="rgb24-64x64.png"/>
             </canvas>
         """)
-        node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png")
-        root.appendChild(node)
+        avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
+        node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
         self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
 
     def testImageMaskPos(self):
