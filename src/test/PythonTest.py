@@ -131,17 +131,17 @@ class PythonTestCase(AVGTestCase):
             Player.setTimeout(1000,Player.stop)
 
         def startAnim():
-            node=Player.getElementByID("mainimg")
+            node=Player.getElementByID("testtiles")
             self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
             self.anim.start()
 
         def startAnim2():
-            node=Player.getElementByID("nestedimg1")
+            node=Player.getElementByID("test")
             self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
             self.anim2.start()
 
         def startAnim3():
-            node=Player.getElementByID("nestedimg2")
+            node=Player.getElementByID("test1")
             self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
             self.anim3.start()
 
@@ -155,7 +155,7 @@ class PythonTestCase(AVGTestCase):
 
         Player.setFakeFPS(25)
         anim.init(avg)
-        Player.loadFile("avg.avg")
+        Player.loadFile("image.avg")
         Player.setTimeout(1, onStart)
         Player.play()
 

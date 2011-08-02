@@ -294,9 +294,12 @@ class AVTestCase(AVGTestCase):
 
     def testVideoFPS(self):
         Player.setFakeFPS(25)
-        Player.loadFile("videofps.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        videoNode = avg.VideoNode(size=(80,80), loop=True, threaded=False,
+                href="../video/testfiles/mjpeg-48x48.avi", fps=250, parent=root)
         self.start((
-                 lambda: Player.getElementByID("video").play(),
+                 lambda: videoNode.play(),
                  None,
                  lambda: self.compareImage("testVideoFPS", False)
                 ))

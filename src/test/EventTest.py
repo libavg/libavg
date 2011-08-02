@@ -404,16 +404,18 @@ class EventTestCase(AVGTestCase):
             Parent.removeChild(Parent.indexOf(img1))
         
         Helper = Player.getTestHelper()
-        Player.loadFile("mouseover.avg")
-        img2 = Player.getElementByID("img2")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        img1 = avg.ImageNode(href="rgb24-65x65.png", parent=root)
+        div = avg.DivNode(pos=(65,0), parent=root)
+        img3 = avg.ImageNode(href="rgb24-65x65.png", parent=div)
+        img2 = avg.ImageNode(pos=(0,65), href="rgb24-65x65.png", parent=div)
+        
         img2.setEventHandler(avg.CURSOROVER, avg.MOUSE, onImg2MouseOver)
         img2.setEventHandler(avg.CURSOROUT, avg.MOUSE, onImg2MouseOut)
-        div = Player.getElementByID("div1")
         div.setEventHandler(avg.CURSOROVER, avg.MOUSE, onDivMouseOver)
         div.setEventHandler(avg.CURSOROUT, avg.MOUSE, onDivMouseOut)
-        avgNode = Player.getRootNode()
-        avgNode.setEventHandler(avg.CURSOROVER, avg.MOUSE, onAVGMouseOver)
-        img1 = Player.getElementByID("img1")
+        root.setEventHandler(avg.CURSOROVER, avg.MOUSE, onAVGMouseOver)
         img1.setEventHandler(avg.CURSOROVER, avg.MOUSE, onImg1MouseOver)
         self.start(( 
                  resetState,
@@ -467,7 +469,7 @@ class EventTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  resetState,
-                 lambda: Player.getElementByID("img2").setEventCapture(),
+                 lambda: img2.setEventCapture(),
                  lambda: Helper.fakeMouseEvent(avg.CURSORUP, False, False, False,
                         70, 70, 1),
                  lambda: self.assert_(

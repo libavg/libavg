@@ -136,7 +136,7 @@ class PlayerTestCase(AVGTestCase):
         def setHeight (h):
             node.height = h
 
-        Player.loadFile("avg.avg")
+        self.__initDefaultScene()
         node = Player.getElementByID('nestedavg')
 
         self.start((
@@ -360,8 +360,8 @@ class PlayerTestCase(AVGTestCase):
         def checkRelPos():
             RelPos = Player.getElementByID("obscured").getRelPos((50,52))
             self.assert_(RelPos == (0, 0))
-       
-        Player.loadFile("avg.avg")
+      
+        self.__initDefaultScene()
         self.start((
                  lambda: self.compareImage("testMove1", False),
                  moveit,
@@ -582,14 +582,14 @@ class PlayerTestCase(AVGTestCase):
             self.testStopOnEscapeAlive = True
 
         self.testStopOnEscapeAlive = False
-        Player.loadFile("avg.avg")
+        self.__initDefaultScene()
         self.start((
                  testEscape1,
                  testEscape2,
                  setAlive
                 ))
         self.assert_(self.testStopOnEscapeAlive)
-        Player.loadFile("avg.avg")
+        self.__initDefaultScene()
         self.start((
                  testEscape3, # this should exit the player
                  lambda: self.assert_(False),
@@ -601,7 +601,7 @@ class PlayerTestCase(AVGTestCase):
             Player.setWindowFrame(True)
 
         Player.setWindowFrame(False)
-        Player.loadFile("avg.avg")
+        self.__initDefaultScene()
         self.start([revertWindowFrame])
 
     def testScreenDimensions(self):
@@ -617,6 +617,19 @@ class PlayerTestCase(AVGTestCase):
         newMM = Player.getPhysicalScreenDimensions()
         self.assert_(almostEqual(newPPMM, ppmm))
         self.assert_(newMM == mm)
+
+    def __initDefaultScene(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(id="mainimg", size=(100, 75), href="rgb24-65x65.png", parent=root)
+        div = avg.DivNode(id="nestedavg", pos=(0,32), opacity=1, size=(128, 32),
+                crop=True, parent=root)
+        avg.ImageNode(id="obscured", pos=(0,20), size=(96,40), href="rgb24-65x65.png",
+                parent=div)
+        avg.ImageNode(id="nestedimg1", size=(96,48), href="rgb24-65x65.png",
+                parent=div)
+        avg.ImageNode(id="nestedimg2", pos=(65,0), href="rgb24alpha-64x64.png",
+                parent=div)
 
 def playerTestSuite(tests):
     availableTests = (

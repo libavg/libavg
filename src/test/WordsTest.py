@@ -504,10 +504,7 @@ class WordsTestCase(AVGTestCase):
         def assignInvalidColor3():
             testColor('xxxxxx')
 
-        Player.loadString("""
-          <avg width="160" height="120">
-          </avg>
-        """)
+        self.loadEmptyScene()
         self.start((
                  self.assertException(assignInvalidColor1),
                  self.assertException(assignInvalidColor2),
@@ -516,11 +513,9 @@ class WordsTestCase(AVGTestCase):
 
     def testFontDir(self):
         avg.WordsNode.addFontDir('extrafonts')
-        Player.loadString("""
-          <avg width="160" height="120">
-            <words font="testaddfontdir" fontsize="50" text="ABAAA"/>
-          </avg>
-        """)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.WordsNode(font="testaddfontdir", fontsize=50, text="ABAAA", parent=root)
         self.start((lambda: self.compareImage("testFontDir", True),))
     
     def testGetNumLines(self):
@@ -556,7 +551,7 @@ class WordsTestCase(AVGTestCase):
         self.assert_(orgTextWithout == textNode.getTextAsDisplayed())
 
     def testSetWidth(self):
-        Player.loadString("""<avg width="160" height="120"></avg>""")
+        self.loadEmptyScene()
         text = "42 " * 42
         textNode = avg.WordsNode(
                 parent=Player.getRootNode(),
