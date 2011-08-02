@@ -576,7 +576,11 @@ void Player::setVBlankFramerate(int rate)
 double Player::getEffectiveFramerate()
 {
     if (m_bIsPlaying) {
-        return m_pDisplayEngine->getEffectiveFramerate();
+        if (m_bFakeFPS) {
+            return m_FakeFPS;
+        } else {
+            return m_pDisplayEngine->getEffectiveFramerate();
+        }
     } else {
         return 0;
     }
@@ -622,11 +626,15 @@ double Player::getFrameDuration()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before getFrameDuration().");
     }
-    double framerate = m_pDisplayEngine->getEffectiveFramerate();
-    if (framerate > 0) {
-        return 1000./framerate;
+    if (m_bFakeFPS) {
+        return 1000.0/m_FakeFPS;
     } else {
-        return 0;
+        double framerate = m_pDisplayEngine->getEffectiveFramerate();
+        if (framerate > 0) {
+            return 1000./framerate;
+        } else {
+            return 0;
+        }
     }
 }
 
