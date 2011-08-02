@@ -30,9 +30,9 @@ class AnimTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def initScene(self):
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         self.__node = avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png",
-                parent=Player.getRootNode())
+                parent=root)
         Player.setFakeFPS(10)
 
     def testAnimType(self, curAnim, imgBaseName):
@@ -317,11 +317,11 @@ class AnimTestCase(AVGTestCase):
         def deleteAnim():
             self.anim = None
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         self.nodes = []
         for i in range(3):
             node = avg.ImageNode(id=str(i), pos=(64, i*20), href="rgb24-64x64.png")
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
             self.nodes.append(node)
         Player.setFakeFPS(10)
         self.__endCalled = False

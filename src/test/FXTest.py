@@ -47,8 +47,7 @@ class FXTestCase(AVGTestCase):
                     fillcolor="FFFFFF")
             root.insertChild(node, 0)
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24-32x32.png")
         node.setEffect(avg.NullFXNode())
         node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(0,32))
@@ -70,8 +69,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testVideoNullFX(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         Player.setFakeFPS(25)
         node = avg.VideoNode(parent=root, href="../video/testfiles/mjpeg-48x48.avi",
                 threaded=False)
@@ -80,8 +78,7 @@ class FXTestCase(AVGTestCase):
         self.start((lambda: self.compareImage("testVideoNullFX", False),))
 
     def testWordsNullFX(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
         node.setEffect(avg.NullFXNode())
         self.start((
@@ -97,8 +94,7 @@ class FXTestCase(AVGTestCase):
                 <image href="rgb24-32x32.png"/>
                 <image pos="(32,0)" href="rgb24alpha-32x32.png"/>
             </canvas>""")
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="canvas:offscreen")
         node.setEffect(avg.NullFXNode())
         self.start((
@@ -119,8 +115,7 @@ class FXTestCase(AVGTestCase):
             effect.setParam(8)
             self.node.setEffect(effect)
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
         self.node.setEffect(self.effect)
@@ -138,8 +133,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testShadowFX(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
         node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
         rect.size = node.size + (1, 1)
@@ -160,8 +154,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testWordsShadowFX(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
                 font="Bitstream Vera Sans")
         effect = avg.ShadowFXNode()
@@ -177,8 +170,7 @@ class FXTestCase(AVGTestCase):
         def setGamma(val):
             node.gamma = val
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", gamma=(0.5,0.5,0.5))
         self.assert_(node.gamma == (0.5,0.5,0.5))
         self.start((
@@ -204,8 +196,7 @@ class FXTestCase(AVGTestCase):
                     intensity=(0.5,0.5,0.5), text="Half-brightness text.",
                     width=140)
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
         self.assert_(node.intensity == (0.5,0.5,0.5))
         Player.setFakeFPS(10)
@@ -232,8 +223,7 @@ class FXTestCase(AVGTestCase):
                     href="../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
             videoNode.play()
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
         self.assert_(node.contrast == (0.5,0.5,0.5))
         Player.setFakeFPS(10)
@@ -250,10 +240,11 @@ class FXTestCase(AVGTestCase):
 def areFXSupported():
     sceneString = """<avg id="avg" width="160" height="120"/>"""
     Player.loadString(sceneString)
+    root = Player.getRootNode()
     # XXX: The second of the following two lines prevent an opengl error in
     # testImageNullFX on the Mac (Snow Leopard) for some reason. 
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=Player.getRootNode())
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=Player.getRootNode())
+    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
+    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
     node.setEffect(avg.BlurFXNode())
     Player.setTimeout(0, Player.stop)
     try:

@@ -76,7 +76,6 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-
     @staticmethod
     def setBaselineImageDirectory(name):
         AVGTestCase.baselineImageResultDirectory = name
@@ -144,11 +143,11 @@ class AVGTestCase(unittest.TestCase):
         <avg id="avg" width="%d" height="%d">
         </avg>
         """ % (resolution[0], resolution[1])
-        return self.__player.loadString(sceneString)
+        self.__player.loadString(sceneString)
+        return self.__player.getRootNode()
 
     def initDefaultImageScene(self):
-        self.loadEmptyScene()
-        root = self.__player.getRootNode()
+        root = self.loadEmptyScene()
         avg.ImageNode(id="testtiles", pos=(0,30), size=(65,65), href="rgb24-65x65.png", 
                 maxtilewidth=16, maxtileheight=32, parent=root)
         avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png", pivot=(0,0),

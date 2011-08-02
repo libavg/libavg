@@ -60,9 +60,7 @@ class PluginTestCase(AVGTestCase):
             mynode = Player.getElementByID("mynode2")
             self.assert_(mynode.fillcolor == "0f3f7f")
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
-
+        root = self.loadEmptyScene()
         self.start(( 
             loadPlugin,
             usePlugin1,

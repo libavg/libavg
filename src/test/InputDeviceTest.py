@@ -65,7 +65,7 @@ class EventTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
     
     def testCustomInputDevice(self):
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
 
         class DerivedEvent(avg.Event):
             def __init__(self):
@@ -96,11 +96,11 @@ class EventTestCase(AVGTestCase):
             self.isCustomInputDeviceNameSet = False
             return True
         
-        rectNode = avg.RectNode(parent=Player.getRootNode(), pos=(0, 0), size=(50, 50))
+        rectNode = avg.RectNode(parent=root, pos=(0, 0), size=(50, 50))
         rectNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE|avg.TOUCH, eventHandler)
         
-        Player.getRootNode().setEventHandler(avg.CURSORDOWN, avg.NONE, eventHandler)
-        Player.getRootNode().setEventHandler(avg.CUSTOMEVENT, avg.NONE, customEventEventHandler)
+        root.setEventHandler(avg.CURSORDOWN, avg.NONE, eventHandler)
+        root.setEventHandler(avg.CUSTOMEVENT, avg.NONE, customEventEventHandler)
         
         self.customInputDevice = CustomInputDevice()
         Player.addInputDevice(self.customInputDevice)
@@ -124,7 +124,7 @@ class EventTestCase(AVGTestCase):
         ))
     
     def testAnonymousInputDevice(self):
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         
         self.hasEventHandlerBeenCalled = False
                 
@@ -139,7 +139,7 @@ class EventTestCase(AVGTestCase):
             self.hasEventHandlerBeenCalled = False
             return True
         
-        Player.getRootNode().setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
+        root.setEventHandler(avg.CUSTOMEVENT, avg.CUSTOM, eventHandler)
         Player.addInputDevice(AnonymousInputDevice())
     
         self.start(( 
@@ -149,10 +149,10 @@ class EventTestCase(AVGTestCase):
         ))
 
     def testInputDeviceEventReceiverNode(self):
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
 
-        divNode = avg.DivNode(id="div", size=(50, 50), parent=Player.getRootNode())
-        rectNode = avg.RectNode(id="rect", size=(50, 50), parent=Player.getRootNode())
+        divNode = avg.DivNode(id="div", size=(50, 50), parent=root)
+        rectNode = avg.RectNode(id="rect", size=(50, 50), parent=root)
         
         self.customInputDevice = CustomInputDevice(divNode)
         Player.addInputDevice(self.customInputDevice)

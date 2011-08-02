@@ -29,8 +29,8 @@ class VectorTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def makeEmptyCanvas(self):
-        self.loadEmptyScene()
-        canvas = avg.DivNode(id="canvas", size=(160,120), parent=Player.getRootNode())
+        root = self.loadEmptyScene()
+        canvas = avg.DivNode(id="canvas", size=(160,120), parent=root)
         return canvas
 
     def testLine(self):

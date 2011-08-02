@@ -98,9 +98,9 @@ class PlayerTestCase(AVGTestCase):
 
         Player.showCursor(0)
         Player.showCursor(1)
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         node = Player.createNode("""<image id="test1" href="rgb24-65x65.png"/>""")
-        Player.getRootNode().appendChild(node)
+        root.appendChild(node)
         self.start((
                   getFramerate,
                   lambda: self.compareImage("testbasics", False), 
@@ -113,7 +113,7 @@ class PlayerTestCase(AVGTestCase):
         def printTime():
             print Player.getFrameTime(), Player.getFrameDuration(), Player.getEffectiveFramerate()
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         Player.setFakeFPS(20)
         self.start((
                  printTime,
@@ -204,8 +204,7 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testRotate2(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         
         div1 = avg.DivNode(pos=(80,0), size=(160,120), pivot=(0,0), angle=1.57, 
                 parent=root)
@@ -223,8 +222,7 @@ class PlayerTestCase(AVGTestCase):
         def addPivot (offset):
             node.pivot += offset
         
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         node = avg.DivNode(pos=(80,0), size=(160,120), pivot=(0,0), angle=1.57,
                 crop=True, parent=root)
         div = avg.DivNode(pos=(40,-20), size=(160,120), pivot=(0,0), angle=0.79,
@@ -240,8 +238,8 @@ class PlayerTestCase(AVGTestCase):
            ))
 
     def testOutlines(self):
-        self.__initDefaultRotateScene()
-        Player.getRootNode().elementoutlinecolor = "FFFFFF"
+        root = self.__initDefaultRotateScene()
+        root.elementoutlinecolor = "FFFFFF"
         Player.getElementByID("inner").width = 100000
         Player.getElementByID("inner").height = 100000
         self.start([lambda: self.compareImage("testOutlines", False)])
@@ -273,8 +271,7 @@ class PlayerTestCase(AVGTestCase):
         def activateNode():
             div.active = 1
         
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         div = avg.DivNode(active=False, parent=root)
         avg.ImageNode(href="filedoesntexist.png", parent=div)
         self.start([activateNode])
@@ -283,8 +280,7 @@ class PlayerTestCase(AVGTestCase):
         def tryplay():
             assertException(lambda: video.play())
         
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         video = avg.VideoNode(href="filedoesntexist.avi", parent=root)
         self.start((
                  lambda: tryplay,
@@ -349,8 +345,7 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("pano")
             node.href = "rgb24-65x65.png"
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         avg.ImageNode(size=(320,240), href="rgb24-65x65.png", parent=root)
         avg.PanoImageNode(id="pano", size=(160,120), href="panoimage.png",
                 sensorwidth=4.60, sensorheight=3.97, focallength=12, parent=root)
@@ -418,8 +413,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
         
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         avg.ImageNode(id="bkgd", href="crop_bkgd.png", parent=root)
         root.appendChild(
                 Player.createNode("""
@@ -488,8 +482,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("bkgd").angle = 1.0
         
         Player.setFakeFPS(30)
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         avg.ImageNode(id="bkgd", href="crop_bkgd.png", parent=root)
         root.appendChild(
                 Player.createNode("""
@@ -538,8 +531,7 @@ class PlayerTestCase(AVGTestCase):
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             image.setWarpedVertexCoords(grid)
        
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         image = avg.ImageNode(href="rgb24-64x64.png",
                 maxtilewidth=32, maxtileheight=16, parent=root)
         video = avg.VideoNode(pos=(40,0), size=(80,80), opacity=0.5, loop=True,
@@ -588,8 +580,7 @@ class PlayerTestCase(AVGTestCase):
         def createNode():
             node = avg.VideoNode(href="mjpeg1-48x48.avi", fps=30)
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         div = avg.DivNode(mediadir="testmediadir", parent=root)
         image = avg.ImageNode(pos=(0,30), href="rgb24-64x64a.png", parent=div)
         video = avg.VideoNode(href="mjpeg-48x48.avi", threaded=False, parent=div)
@@ -671,8 +662,7 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(newMM == mm)
 
     def __initDefaultScene(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         avg.ImageNode(id="mainimg", size=(100, 75), href="rgb24-65x65.png", parent=root)
         div = avg.DivNode(id="nestedavg", pos=(0,32), opacity=1, size=(128, 32),
                 crop=True, parent=root)
@@ -684,8 +674,7 @@ class PlayerTestCase(AVGTestCase):
                 parent=div)
 
     def __initDefaultRotateScene(self):
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         div = avg.DivNode(pos=(80,10), size=(80,60), pivot=(0,0), angle=0.274,
                 crop=True, parent=root)
         avg.ImageNode(pos=(10,10), size=(32,32), href="rgb24-65x65.png", parent=div)
@@ -694,6 +683,7 @@ class PlayerTestCase(AVGTestCase):
         innerDiv = avg.DivNode(id="inner", size=(80,60), pivot=(0,0), angle=-0.274,
                 crop=True, parent=outerDiv)
         avg.ImageNode(pos=(10,10), size=(32,32), href="rgb24-65x65.png", parent=innerDiv)
+        return root
 
 def playerTestSuite(tests):
     availableTests = (

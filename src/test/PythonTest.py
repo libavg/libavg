@@ -297,17 +297,17 @@ class PythonTestCase(AVGTestCase):
         def setObjectActive(obj, active):
             obj.active = active
             
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         
         b = ui.Button(
-                parent = Player.getRootNode(),
+                parent = root,
                 upNode = avg.ImageNode(href="button_up.png"),
                 downNode = avg.ImageNode(href="button_down.png"),
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
                 pressHandler = onDown,
                 clickHandler = onClick)
         
-        b1 = ui.Button(parent=Player.getRootNode(),
+        b1 = ui.Button(parent=root,
                        active=False,
                        pressHandler=onDown,
                        clickHandler=onClick)
@@ -538,9 +538,9 @@ class PythonTestCase(AVGTestCase):
             self.__down = False
             self.__clicked = False
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         b = ui.Button(
-                parent = Player.getRootNode(),
+                parent = root,
                 upNode = avg.ImageNode(href="button_up.png"),
                 downNode = avg.ImageNode(href="button_down.png"),
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
@@ -756,9 +756,9 @@ class PythonTestCase(AVGTestCase):
             button.enabled = enabled
 
         def createScene(**kwargs):
-            self.loadEmptyScene()
+            root = self.loadEmptyScene()
             return ui.TouchButton(
-                    parent = Player.getRootNode(),
+                    parent = root,
                     upNode = avg.ImageNode(href="button_up.png"),
                     downNode = avg.ImageNode(href="button_down.png"),
                     disabledNode = avg.ImageNode(href="button_disabled.png"),
@@ -822,9 +822,9 @@ class PythonTestCase(AVGTestCase):
         button = createScene(fatFingerEnlarge = True)
         runTest()
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         button = ui.TouchButton.fromSrc(
-                parent = Player.getRootNode(),
+                parent = root,
                 upSrc = "button_up.png",
                 downSrc = "button_down.png",
                 disabledSrc = "button_disabled.png",
@@ -840,10 +840,10 @@ class PythonTestCase(AVGTestCase):
                     [(1, ),      (35, 5), (30, 30)],
                     ["SHIFT",    (65, 5), (50, 30)]]
             kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
-                    pos=(10, 10), parent = Player.getRootNode())
+                    pos=(10, 10), parent = root)
             kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
             kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
-                    pos=(10, 60), parent = Player.getRootNode())
+                    pos=(10, 60), parent = root)
             kbShift.setKeyHandler(onKeyDown, onKeyUp)
 
         def onKeyDown(event, char, cmd):
@@ -858,7 +858,7 @@ class PythonTestCase(AVGTestCase):
             self.__char = char
             self.__cmd = cmd
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
 
         kbNoShift = None
         kbShift   = None
@@ -964,8 +964,7 @@ class PythonTestCase(AVGTestCase):
                     self.assert_(len(text) == 16)
                     break
         
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
         avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
         
@@ -1017,8 +1016,8 @@ class PythonTestCase(AVGTestCase):
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
-            self.loadEmptyScene()
-            image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+            root = self.loadEmptyScene()
+            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragProcessor = ui.DragRecognizer(image, 
                     startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
                     stopHandler=onDragStop, friction=self.friction)
@@ -1053,8 +1052,8 @@ class PythonTestCase(AVGTestCase):
         def onDrag(event, offset):
             self.assert_(offset == (10,0))
 
-        self.loadEmptyScene()
-        self.image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
         self.__dragStartCalled = False
         self.start((
@@ -1097,8 +1096,8 @@ class PythonTestCase(AVGTestCase):
                 self.__stopCalled == stop)
 
         Player.setFakeFPS(2)
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__holdRecognizer = ui.HoldRecognizer(image,
                 holdDelay=1000,
                 activateDelay=2000, 
@@ -1165,8 +1164,8 @@ class PythonTestCase(AVGTestCase):
                 self.__tapCalled == tap and
                 self.__failCalled == fail)
 
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__tapRecognizer = ui.TapRecognizer(image,
                 startHandler=onStart,
                 tapHandler=onTap,
@@ -1208,8 +1207,8 @@ class PythonTestCase(AVGTestCase):
         def checkTransform(expectedTransform):
             self.assert_(almostEqual(self.transform.m, expectedTransform))
 
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, 
                 startHandler=onStart, moveHandler=onMove, upHandler=onUp)
         self.start((
@@ -1311,8 +1310,7 @@ class PythonTestCase(AVGTestCase):
             self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
             self.__sendMouseEvent(avg.CURSORUP, 20, 70)
 
-        self.loadEmptyScene()
-        root = Player.getRootNode()
+        root = self.loadEmptyScene()
         avg.DivNode(id="ph1", pos=(2,2), size=(156,54), parent=root)
         avg.DivNode(id="ph2", pos=(2,58), size=(76,54), parent=root)
         div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
@@ -1347,8 +1345,8 @@ class PythonTestCase(AVGTestCase):
             self.rect.fillcolor = "0000FF"
             self.rect.fillopacity = 0.5
 
-        self.loadEmptyScene()
-        self.rect = geom.RoundedRect(parent=Player.getRootNode(), pos=(2.5,2.5), 
+        root = self.loadEmptyScene()
+        self.rect = geom.RoundedRect(parent=root, pos=(2.5,2.5), 
                 size=(64,64), radius=5, color="FF0000")
         self.start((
                  lambda: self.compareImage("testRoundedRect1", True),
@@ -1375,8 +1373,8 @@ class PythonTestCase(AVGTestCase):
         def makeSmall():
             self.pieSlice.radius = 0.6
 
-        self.loadEmptyScene()
-        self.pieSlice = geom.PieSlice(parent=Player.getRootNode(), pos=(20.5,20.5), 
+        root = self.loadEmptyScene()
+        self.pieSlice = geom.PieSlice(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
        
         self.start((
@@ -1394,8 +1392,8 @@ class PythonTestCase(AVGTestCase):
             self.arc.radius = 50
             self.arc.pos = (80.5, 60.5)
 
-        self.loadEmptyScene()
-        self.arc = geom.Arc(parent=Player.getRootNode(), pos=(20.5,20.5), 
+        root = self.loadEmptyScene()
+        self.arc = geom.Arc(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
        
         self.start((
