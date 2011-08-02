@@ -80,7 +80,7 @@ class TestApp:
             yield self.__RegisterdSuitesDict[name]
     
     def __runVideoTest(self):
-        self.__player.loadFile("video.avg")
+        self.__player.loadFile("image.avg")
     
     def __run(self):
         testRunner = unittest.TextTestRunner(verbosity = 2)

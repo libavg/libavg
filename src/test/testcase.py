@@ -146,6 +146,15 @@ class AVGTestCase(unittest.TestCase):
         """ % (resolution[0], resolution[1])
         return self.__player.loadString(sceneString)
 
+    def initDefaultImageScene(self):
+        self.loadEmptyScene()
+        root = self.__player.getRootNode()
+        avg.ImageNode(id="testtiles", pos=(0,30), size=(65,65), href="rgb24-65x65.png", 
+                maxtilewidth=16, maxtileheight=32, parent=root)
+        avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png", pivot=(0,0),
+                angle=0.274, parent=root)
+        avg.ImageNode(id="test1", pos=(129,30), href="rgb24-65x65.png", parent=root)
+
     def fakeClick(self, x, y):
         helper = self.__player.getTestHelper()
         helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)

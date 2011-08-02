@@ -183,8 +183,8 @@ class PlayerTestCase(AVGTestCase):
         def disableCrop():
             Player.getElementByID("outer").crop = False
             Player.getElementByID("inner").crop = False
-            
-        Player.loadFile("rotate.avg")
+           
+        self.__initDefaultRotateScene()
         Player.getElementByID("outer").setEventHandler(
                 avg.CURSORDOWN, avg.MOUSE, onOuterDown) 
         self.onOuterDownCalled = False
@@ -204,13 +204,18 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testRotate2(self):
-        Player.loadFile("rotate2.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        
+        div1 = avg.DivNode(pos=(80,0), size=(160,120), pivot=(0,0), angle=1.57, 
+                parent=root)
+        avg.ImageNode(size=(16,16), href="rgb24-65x65.png", parent=div1)
+        div2 = avg.DivNode(pos=(40,0), size=(110,80), pivot=(0,0), angle=1.57,
+                crop=True, parent=div1)
+        avg.ImageNode(pos=(0,0), size=(16,16), href="rgb24-65x65.png", parent=div2)
+        avg.ImageNode(pos=(30,-6), size=(16,16), href="rgb24-65x65.png", parent=div2)
         self.start([lambda: self.compareImage("testRotate2", False)])
         
-    def testRotate3(self):
-        Player.loadFile("rotate3.avg")
-        self.start([lambda: self.compareImage("testRotate3", False)])
-
     def testRotatePivot(self):
         def setPivot (pos):
             node.pivot = pos
@@ -218,24 +223,31 @@ class PlayerTestCase(AVGTestCase):
         def addPivot (offset):
             node.pivot += offset
         
-        Player.loadFile("rotate3.avg")
-        node = Player.getElementByID('div1')
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        node = avg.DivNode(pos=(80,0), size=(160,120), pivot=(0,0), angle=1.57,
+                crop=True, parent=root)
+        div = avg.DivNode(pos=(40,-20), size=(160,120), pivot=(0,0), angle=0.79,
+                crop=True, parent=node)
+        avg.ImageNode(pos=(-10,-10), size=(128,128), href="rgb24-65x65.png", parent=div)
+        avg.ImageNode(pos=(0,10), size=(32,32), href="rgb24-65x65.png", parent=node)
         self.start((
-            lambda: setPivot((10, 10)),
             lambda: self.compareImage("testRotatePivot1", False),
-            lambda: addPivot((-8, 0)),
+            lambda: setPivot((10, 10)),
             lambda: self.compareImage("testRotatePivot2", False),
+            lambda: addPivot((-8, 0)),
+            lambda: self.compareImage("testRotatePivot3", False),
            ))
 
     def testOutlines(self):
-        Player.loadFile("rotate.avg")
+        self.__initDefaultRotateScene()
         Player.getRootNode().elementoutlinecolor = "FFFFFF"
         Player.getElementByID("inner").width = 100000
         Player.getElementByID("inner").height = 100000
         self.start([lambda: self.compareImage("testOutlines", False)])
 
     def testError(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         Player.setTimeout(1, lambda: undefinedFunction)
         Player.setTimeout(50, Player.stop)
         try:
@@ -250,7 +262,7 @@ class PlayerTestCase(AVGTestCase):
             raise ZeroDivisionError
         
         try:
-            Player.loadFile("image.avg")
+            self.initDefaultImageScene()
             self.start([throwException])
         except ZeroDivisionError:
             self.assert_(1)
@@ -303,7 +315,7 @@ class PlayerTestCase(AVGTestCase):
         self.timeout2called = False
         self.__exceptionThrown = False
         try:
-            Player.loadFile("image.avg")
+            self.initDefaultImageScene()
             self.start((
                      setupTimeouts,
                      wait,
@@ -332,7 +344,12 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("pano")
             node.href = "rgb24-65x65.png"
 
-        Player.loadFile("panoimage.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(size=(320,240), href="rgb24-65x65.png", parent=root)
+        avg.PanoImageNode(id="pano", size=(160,120), href="panoimage.png",
+                sensorwidth=4.60, sensorheight=3.97, focallength=12, parent=root)
+        avg.ImageNode(pos=(120,0), size=(40,40), href="rgb24-65x65.png", parent=root)
         self.start((
                  lambda: self.compareImage("testPanoImage", False),
                  lambda: time.sleep,
@@ -395,8 +412,21 @@ class PlayerTestCase(AVGTestCase):
             node.y = 10
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
-       
-        Player.loadFile("crop2.avg")
+        
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(id="bkgd", href="crop_bkgd.png", parent=root)
+        root.appendChild(
+                Player.createNode("""
+                  <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
+                    <div id="nestedavg2" crop="True">
+                      <div id="nestedavg3" crop="True">
+                        <image id="img" x="10" y="10" width="40" height="40" 
+                                href="rgb24-64x64.png"/>
+                      </div>
+                    </div>
+                  </div>
+                """))
         self.start((
                  lambda: self.compareImage("testCropImage1", False),
                  moveTLCrop,
@@ -453,7 +483,17 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("bkgd").angle = 1.0
         
         Player.setFakeFPS(30)
-        Player.loadFile("crop.avg")
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        avg.ImageNode(id="bkgd", href="crop_bkgd.png", parent=root)
+        root.appendChild(
+                Player.createNode("""
+                  <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
+                    <video id="movie" x="10" y="10" width="40" height="40" 
+                            threaded="false" href="../video/testfiles/mpeg1-48x48.mpg" 
+                            fps="30"/>
+                  </div>
+                """))
         self.start((
                  playMovie,
                  lambda: self.compareImage("testCropMovie1", False),
@@ -480,29 +520,32 @@ class PlayerTestCase(AVGTestCase):
 
     def testWarp(self):
         def moveVertex():
-            node = Player.getElementByID("testtiles")
-            grid = node.getWarpedVertexCoords()
+            grid = image.getWarpedVertexCoords()
             grid[1][1] = (grid[1][1][0]+0.06, grid[1][1][1]+0.06)
-            node.setWarpedVertexCoords(grid)
-            node = Player.getElementByID("clogo1")
-            grid = node.getWarpedVertexCoords()
+            image.setWarpedVertexCoords(grid)
+            grid = video.getWarpedVertexCoords()
             grid[0][0] = (grid[0][0][0]+0.06, grid[0][0][1]+0.06)
             grid[1][1] = (grid[1][1][0]-0.06, grid[1][1][1]-0.06)
-            node.setWarpedVertexCoords(grid)
+            video.setWarpedVertexCoords(grid)
         
         def flip():
-            node = Player.getElementByID("testtiles")
-            grid = node.getOrigVertexCoords()
+            grid = image.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
-            node.setWarpedVertexCoords(grid)
-        
-        Player.loadFile("video.avg")
-        node = Player.getElementByID("testtiles")
-        self.assertException(node.getOrigVertexCoords)
-        self.assertException(node.getWarpedVertexCoords)
+            image.setWarpedVertexCoords(grid)
+       
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        image = avg.ImageNode(href="rgb24-64x64.png",
+                maxtilewidth=32, maxtileheight=16, parent=root)
+        video = avg.VideoNode(pos=(40,0), size=(80,80), opacity=0.5, loop=True,
+                href="../video/testfiles/mpeg1-48x48.mpg", threaded=False, fps=30,
+                parent=root)
+
+        self.assertException(image.getOrigVertexCoords)
+        self.assertException(image.getWarpedVertexCoords)
         Player.setFakeFPS(30)
         self.start((
-                 lambda: Player.getElementByID("clogo1").play(),
+                 lambda: video.play(),
                  lambda: self.compareImage("testWarp1", False),
                  moveVertex,
                  lambda: self.compareImage("testWarp2", False),
@@ -631,6 +674,18 @@ class PlayerTestCase(AVGTestCase):
         avg.ImageNode(id="nestedimg2", pos=(65,0), href="rgb24alpha-64x64.png",
                 parent=div)
 
+    def __initDefaultRotateScene(self):
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        div = avg.DivNode(pos=(80,10), size=(80,60), pivot=(0,0), angle=0.274,
+                crop=True, parent=root)
+        avg.ImageNode(pos=(10,10), size=(32,32), href="rgb24-65x65.png", parent=div)
+        outerDiv = avg.DivNode(id="outer", pos=(80,70), size=(80,60),
+                pivot=(0,0), angle=0.274, crop=True, parent=root)
+        innerDiv = avg.DivNode(id="inner", size=(80,60), pivot=(0,0), angle=-0.274,
+                crop=True, parent=outerDiv)
+        avg.ImageNode(pos=(10,10), size=(32,32), href="rgb24-65x65.png", parent=innerDiv)
+
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
@@ -639,7 +694,6 @@ def playerTestSuite(tests):
             "testDivResize",
             "testRotate",
             "testRotate2",
-            "testRotate3",
             "testRotatePivot",
             "testOutlines",
             "testError",

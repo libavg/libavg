@@ -77,7 +77,7 @@ class PythonTestCase(AVGTestCase):
         self.__anim = None
 
     def testLinearAnim(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False)
         self.testAnimType(curAnim, "testLinearAnim")
@@ -91,7 +91,7 @@ class PythonTestCase(AVGTestCase):
             node = Player.getElementByID("test")
             self.__anim.start()
 
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
         self.__anim.setHandler(onStop, None)
@@ -107,13 +107,13 @@ class PythonTestCase(AVGTestCase):
         self.__anim = None
 
     def testEaseInOutAnim(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
         self.testAnimType(curAnim, "testEaseInOutAnim")
 
     def testSplineAnim(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False)
         self.testAnimType(curAnim, "testSplineAnim")
@@ -155,7 +155,7 @@ class PythonTestCase(AVGTestCase):
 
         Player.setFakeFPS(25)
         anim.init(avg)
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         Player.setTimeout(1, onStart)
         Player.play()
 
@@ -170,7 +170,7 @@ class PythonTestCase(AVGTestCase):
         anim.init(avg)
         Player.setFakeFPS(10)
         self.__endCalled = False
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         self.start((
                  startAnim, 
                  lambda: self.assert_(not(self.anim.isDone())),
@@ -195,7 +195,7 @@ class PythonTestCase(AVGTestCase):
         anim.init(avg)
         Player.setFakeFPS(10)
         self.__state2CallbackCalled = False
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         self.start((
                  makeAnim,
                  lambda: self.compareImage("testStateAnim1", False),
@@ -229,7 +229,7 @@ class PythonTestCase(AVGTestCase):
         anim.init(avg)
         self.__endCalled = False
         Player.setFakeFPS(10)
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         self.start((
                  startAnim,
                  lambda: self.assert_(anim.getNumRunningAnims() == 2),
@@ -261,7 +261,7 @@ class PythonTestCase(AVGTestCase):
         self.__dragEndCalled = False
         self.__dragStartCalled = False
         Helper = Player.getTestHelper()    
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         draggable.init(avg)
         dragger = draggable.Draggable(Player.getElementByID("test1"),
                 onDragStart, onDragEnd)
