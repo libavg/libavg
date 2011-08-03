@@ -7,6 +7,49 @@ functionality
 .. automodule:: libavg.ui
     :no-members:
 
+    .. autoclass:: Button([upNode=None, downNode=None, disabledNode=None, activeAreaNode=None, pressHandler=None, clickHandler=None, stateChangeHandler=None])
+
+        A generic button that shows different user-supplied nodes depending on it's
+        state. Possible button states are up, down and disabled. The nodes are attached
+        as children to the Button on construction. For a simple button, image nodes can 
+        be passed. Button behaviour corresponds to standard GUI buttons.
+
+        :param avg.Node upNode: The node displayed when the button is not pressed.
+
+        :param avg.Node downNode: The node displayed when the button is pressed.
+
+        :param avg.Node disabledNode: The node displayed when the button is disabled.
+
+        The callbacks are:
+
+            .. py:method:: pressHandler(event):
+
+                Called when the button is pressed. This happens on a down event.
+                
+                :param event: The corresponding cursor down event. 
+
+            .. py:method:: clickHandler(event):
+
+                Called when the button is clicked. A click is generated when an up event
+                happens inside the button.
+
+            .. py:method:: stateChangeHandler(state):
+
+                Called whenever the button state changes.
+
+        .. py:method:: delete():
+
+        .. py:method:: getUpNode() -> node:
+
+        .. py:method:: getDownNode() -> node:
+
+        .. py:method:: getDisabledNode() -> node:
+
+        .. py:method:: setEnabled(isEnabled):
+
+        .. py:method:: isEnabled():
+
+
     .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
 
         A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
@@ -239,6 +282,7 @@ functionality
 
             Enables or disables the :py:class:`Recognizer`.
 
+
     .. autoclass:: TapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, tapHandler=None, failHandler=None, initialEvent=None])
 
         A :py:class:`TapRecognizer` attaches to a node's cursor events and sends 
@@ -269,6 +313,7 @@ functionality
             .. py:method:: failHandler(event):
 
                 Called if the touch moves too far from the initial position to be a tap.
+
 
     .. autoclass:: TransformRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
 
