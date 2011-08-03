@@ -477,3 +477,51 @@ Misc. Classes
         :param poly: List of points which constitute a polygon to check against.
         :returns: :py:const:`True` if point is inside, :py:const:`False` otherwise.
 
+.. automodule:: libavg.statemachine
+    :no-members:
+
+    .. autoclass:: StateMachine(name, startState)
+
+        A generic state machine, useful for user interface and other states. Consists of
+        a set of states (represented by strings) and possible transitions between the 
+        states. The :py:class:`StateMachine` can be configured to invoke callbacks at
+        specific transitions and when entering or leaving a state. All callbacks are 
+        optional. State changes can be logged for debugging purposes.
+
+        State machines are initialized by calling :py:meth:`addState` for each
+        possible state after constructing it.
+
+        .. py:attribute:: state
+
+            The current state the :py:class:`StateMachine` is in. States are strings.
+
+        .. py:method:: addState(state, transitions, [enterFunc=None, leaveFunc=None])
+
+            Adds a state to the :py:class:`StateMachine`. Must be called before the first
+            changeState.
+
+            :param String state: The name of the state to add.
+            :param transitions: A dict of destinationState: callable pairs. 
+            :param enterFunc: A callable to invoke whenever the state is entered.
+            :param leaveFunc: A callable to invoke whenever the state is left.
+
+        .. py:method:: changeState(newState)
+
+            Changes the state. This includes calling the leave callback for the current
+            state, actually changing the state, calling the transition callback and
+            calling the enter callback for the new state.
+
+            Raises a :py:class:`RuntimeError` if :py:attr:`newState` is not a valid state
+            or if there is no transition defined from the current state to 
+            :py:attr:`newState`.
+
+        .. py:method:: dump()
+
+            Prints all states and transitions to the console.
+
+        .. py:method:: traceChanges(trace)
+
+            If :py:attr:`trace` is set to :py:const:`True`, all state changes are dumped
+            to the console.
+
+
