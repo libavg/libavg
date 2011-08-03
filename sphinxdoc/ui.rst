@@ -94,7 +94,7 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, friction=-1])
+    .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
 
         A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
         delivers higher-level callbacks that can be used to implement dragging or 
@@ -108,6 +108,10 @@ functionality
             
             One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
             etc.).
+
+        :param initialEvent:
+
+            A cursordown event to pass to the recognizer immediately.
 
         :param float friction:
 
@@ -160,7 +164,7 @@ functionality
             Causes inertia processing to end immediately.
 
 
-    .. autoclass:: Recognizer(node, eventSource)
+    .. autoclass:: Recognizer(node, eventSource, maxContacts, initialEvent)
 
         Base class for gesture recognizers that attach to a node's cursor events and 
         emit higher-level events.
@@ -172,6 +176,47 @@ functionality
             One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
             etc.).
 
+        :param maxContacts:
+
+            The maximum number of contacts that the recognizer should handle. 
+            :py:const:`None` if there is no maximum.
+
+        :param initialEvent:
+
+            A cursordown event to pass to the recognizer immediately.
+
         .. py:method:: enable(isEnabled)
 
             Enables or disables the :py:class:`Recognizer`.
+
+    .. autoclass:: TapRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, tapHandler=None, failHandler=None, initialEvent=None])
+
+        A :py:class:`TapRecognizer` attaches to a node's cursor events and sends 
+        higher-level events when a tap (a short touch without a large change of the 
+        cursor position) occurs at this position.
+
+        :param avg.Node node: The node to attach to.
+
+        :param eventSource: 
+            
+            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
+            etc.).
+
+        :param initialEvent:
+
+            A cursordown event to pass to the recognizer immediately.
+        
+        The callbacks are:
+
+            .. py:method:: startHandler():
+
+                Called when a possible tap begins. 
+                
+            .. py:method:: tapHandler():
+
+                Called when a tap is recognized.
+
+            .. py:method:: failHandler(event):
+
+                Called if the touch moves too far from the initial position to be a tap.
+
