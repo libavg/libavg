@@ -121,7 +121,7 @@ Player & Canvas
             :py:meth:`getPhysicalScreenDimensions` and :py:meth:`getPixelsPerMM`. It is
             useful for situations in which the OS cannot know the size (e.g. projectors)
             and when the automatic functions return wrong values (which happens,
-            unfortunately, because of operating system deficencies).
+            unfortunately, because of operating system deficiencies).
 
         .. py:method:: clearInterval(id) -> bool
 

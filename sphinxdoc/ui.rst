@@ -7,6 +7,76 @@ functionality
 .. automodule:: libavg.ui
     :no-members:
 
+    .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
+
+        A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
+        delivers higher-level callbacks that can be used to implement dragging or 
+        drag-like functionality.
+
+        :py:class:`DragRecognizer` supports inertia after the node is released.
+        
+        :param avg.Node node: The node to attach to.
+
+        :param eventSource: 
+            
+            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
+            etc.).
+
+        :param initialEvent:
+
+            A cursordown event to pass to the recognizer immediately.
+
+        :param float friction:
+
+            If set, this parameter enables inertia processing. It describes how 
+            quickly the drag comes to a stop after the cursor is released.
+
+        The callbacks are:
+
+            .. py:method:: startHandler(event):
+
+                Called when a drag begins. 
+                
+                :param event: The corresponding cursor down event. 
+
+            .. py:method:: moveHandler(event, offset):
+
+                Called when the drag should cause a position change. This usually happens
+                in response to a :py:const:`CURSORMOTION` event, but may also happen
+                because of inertia.
+
+                :param event: 
+                
+                    The corresponding cursor motion event. If there was no event, 
+                    this parameter is :py:const:`None`.
+
+                :param avg.Point2D offset: 
+                
+                    The current offset from the start of the drag in global coordinates.
+
+            .. py:method:: upHandler(event, offset):
+
+                Called when the cursor is released. If inertia is enabled, there may be 
+                move events after the up event.
+
+                :param event: 
+                
+                    The corresponding :py:const:`CURSORUP` event.
+
+                :param avg.Point2D offset: 
+                
+                    The current offset from the start of the drag in global coordinates.
+
+            .. py:method:: stopHandler():
+
+                Called when movement stops. This is either directly after the up event
+                or when inertia has run its course.
+
+        .. py:method:: abortInertia():
+
+            Causes inertia processing to end immediately.
+
+
     .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
@@ -94,74 +164,54 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
+    .. autoclass:: Mat3x3([row0=(1,0,0), row1=(0,1,0), row2=(0,0,1)])
 
-        A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
-        delivers higher-level callbacks that can be used to implement dragging or 
-        drag-like functionality.
+        Matrix class for homogenous 2d transforms. This is a temporary class needed by
+        :py:class:`TransformRecognizer`. It will be removed again as soon as a generic 
+        matrix class is available.
 
-        :py:class:`DragRecognizer` supports inertia after the node is released.
-        
-        :param avg.Node node: The node to attach to.
+        .. py:method:: applyMat(m) -> Mat3x3:
 
-        :param eventSource: 
-            
-            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
-            etc.).
+            Applies the matrix to another matrix and returns the result.
 
-        :param initialEvent:
+        .. py:method:: applyVec(v) -> Vec3:
 
-            A cursordown event to pass to the recognizer immediately.
+            Applies the matrix to a 3-component vector and returns the result.
 
-        :param float friction:
+        .. py:method:: det() -> float:
 
-            If set, this parameter enables inertia processing. It describes how 
-            quickly the drag comes to a stop after the cursor is released.
+            Returns the determinant of the matrix.
 
-        The callbacks are:
+        .. py:method:: inverse() -> Mat3x3:
 
-            .. py:method:: startHandler(event):
+            Returns the inverse of the matrix.
 
-                Called when a drag begins. 
-                
-                :param event: The corresponding cursor down event. 
+        .. py:method:: scalarMult(s) -> Mat3x3:
 
-            .. py:method:: moveHandler(event, offset):
+            Returns the matrix multiplied by a scalar.
 
-                Called when the drag should cause a position change. This usually happens
-                in response to a :py:const:`CURSORMOTION` event, but may also happen
-                because of inertia.
+        .. py:method:: setNodeTransform(node):
 
-                :param event: 
-                
-                    The corresponding cursor motion event. If there was no event, 
-                    this parameter is :py:const:`None`.
+            Sets a node's :py:attr:`pos`, :py:attr:`angle` and :py:attr:`size` 
+            attributes to correspond to the matrix. Assumes :samp:`pivot=0`.
 
-                :param avg.Point2D offset: 
-                
-                    The current offset from the start of the drag in global coordinates.
+        .. py:classmethod:: fromNode(node) -> Mat3x3:
 
-            .. py:method:: upHandler(event, offset):
+            Returns the transform matrix of a node computed from its :py:attr:`pos`,
+            :py:attr:`angle` and :py:attr:`size` attributes. Assumes :samp:`pivot=0`.
 
-                Called when the cursor is released. If inertia is enabled, there may be 
-                move events after the up event.
+        .. py:classmethod:: rotate(a) -> Mat3x3:
 
-                :param event: 
-                
-                    The corresponding :py:const:`CURSORUP` event.
+            Factory method that creates a rotation matrix from an angle.
 
-                :param avg.Point2D offset: 
-                
-                    The current offset from the start of the drag in global coordinates.
+        .. py:classmethod:: scale(s) -> Mat3x3:
 
-            .. py:method:: stopHandler():
+            Factory method that creates a nonuniform scale matrix from a 2-component 
+            vector.
 
-                Called when movement stops. This is either directly after the up event
-                or when inertia has run its course.
+        .. py:classmethod:: translate(t) -> Mat3x3:
 
-        .. py:method:: abortInertia():
-
-            Causes inertia processing to end immediately.
+            Factory method that creates a translation matrix from a translation vector.
 
 
     .. autoclass:: Recognizer(node, eventSource, maxContacts, initialEvent)
@@ -220,3 +270,50 @@ functionality
 
                 Called if the touch moves too far from the initial position to be a tap.
 
+    .. autoclass:: TransformRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
+
+        A :py:class:`TransformRecognizer` is used to support drag/zoom/rotate 
+        functionality. From any number of touches on a node, it calculates an aggregate
+        transform that can be used to change the position, size and angle of a node. A
+        usage example can be found under :samp:`src/samples/mttransform.py`.
+
+        :param avg.Node node: The node to attach to.
+
+        :param eventSource: 
+            
+            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
+            etc.).
+
+        :param initialEvent:
+
+            A cursordown event to pass to the recognizer immediately.
+       
+        :param friction:
+
+            Currently not implemented.
+
+        The callbacks are:
+
+            .. py:method:: startHandler():
+
+                Called when a transform begins. 
+                
+            .. py:method:: moveHandler(transform):
+
+                Called whenever the transform changes.
+
+                :param Mat3x3 transform:
+                
+                    The current transformation as a homogenous matrix.
+
+            .. py:method:: upHandler(transform):
+
+                Called when the last touch is released.
+
+                :param Mat3x3 transform:
+                
+                    The current transformation as a homogenous matrix.
+
+            .. py:method:: stopHandler(transform):
+
+                Not implemented.

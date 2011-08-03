@@ -413,7 +413,7 @@ class TransformRecognizer(Recognizer):
             moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
             friction=-1):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
-        self.__moveHandler = optionalCallback(moveHandler, lambda trans, rot, scale:None)
+        self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
         self.__upHandler = optionalCallback(upHandler, lambda offset:None)
         self.__friction = friction
