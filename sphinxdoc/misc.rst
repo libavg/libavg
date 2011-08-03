@@ -491,6 +491,12 @@ Misc. Classes
         State machines are initialized by calling :py:meth:`addState` for each
         possible state after constructing it.
 
+        :param String name:
+        
+            A name for the state machine to be used in debugging output.
+
+        :param String startState:
+
         .. py:attribute:: state
 
             The current state the :py:class:`StateMachine` is in. States are strings.

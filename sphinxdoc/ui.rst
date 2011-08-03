@@ -17,44 +17,44 @@ functionality
 
         Needs offscreen rendering support on the machine.
 
-            :param string bgHref: 
-            
-                Filename of an image that contains the keyboard with unpressed keys.
+        :param string bgHref: 
+        
+            Filename of an image that contains the keyboard with unpressed keys.
 
-            :param string ovlHref:
-            
-                Filename of an image that contains the keyboard with pressed keys.
+        :param string ovlHref:
+        
+            Filename of an image that contains the keyboard with pressed keys.
 
-            :param list keyDefs:
+        :param list keyDefs:
 
-                List of key definitions. Keys can be either character keys::
+            List of key definitions. Keys can be either character keys::
 
-                    [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
+                [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
 
-                or command keys::
+            or command keys::
 
-                    [<keycode>, <pos>, <size>]
+                [<keycode>, <pos>, <size>]
 
-                For character keys, the shift and altgr keycodes are optional. To define
-                entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
+            For character keys, the shift and altgr keycodes are optional. To define
+            entire rows of evenly-spaced keys, use :py:meth:`makeRowKeyDefs`.
 
-            :param shiftKeyCode:
+        :param shiftKeyCode:
 
-                One of the command keycodes. When the key with this code is pressed,
-                pressing other keys causes them to return the shifted keycode.
+            One of the command keycodes. When the key with this code is pressed,
+            pressing other keys causes them to return the shifted keycode.
 
-            :param altGrKeyCode:
+        :param altGrKeyCode:
 
-                One of the command keycodes. When the key with this code is pressed,
-                pressing other keys causes them to return the altgr keycode.
+            One of the command keycodes. When the key with this code is pressed,
+            pressing other keys causes them to return the altgr keycode.
 
-            :param bool stickyShift:
+        :param bool stickyShift:
 
-                For single-touch devices, the shift key must stay in the pressed state
-                until the next normal key is pressed to have any effect. This is the 
-                behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
-                :py:const:`False` (the default), a 
-                multitouch device is assumed and shift works like on a physical keyboard.
+            For single-touch devices, the shift key must stay in the pressed state
+            until the next normal key is pressed to have any effect. This is the 
+            behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
+            :py:const:`False` (the default), a 
+            multitouch device is assumed and shift works like on a physical keyboard.
 
         .. py:method:: reset():
 
@@ -102,17 +102,17 @@ functionality
 
         :py:class:`DragRecognizer` supports inertia after the node is released.
         
-            :param avg.Node node: The node to attach to.
+        :param avg.Node node: The node to attach to.
 
-            :param eventSource: 
-                
-                One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
-                etc.).
+        :param eventSource: 
+            
+            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
+            etc.).
 
-            :param float friction:
+        :param float friction:
 
-                If set, this parameter enables inertia processing. It describes how 
-                quickly the drag comes to a stop after the cursor is released.
+            If set, this parameter enables inertia processing. It describes how 
+            quickly the drag comes to a stop after the cursor is released.
 
         The callbacks are:
 
@@ -165,12 +165,12 @@ functionality
         Base class for gesture recognizers that attach to a node's cursor events and 
         emit higher-level events.
 
-            :param Node node: Node to attach to.
+        :param Node node: Node to attach to.
 
-            :param eventSource: 
-            
-                One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
-                etc.).
+        :param eventSource: 
+        
+            One of the standard event sources (:py:const:`TRACK`, :py:const:`TOUCH` 
+            etc.).
 
         .. py:method:: enable(isEnabled)
 

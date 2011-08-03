@@ -99,45 +99,45 @@ This section describes the base classes for all node classes that libavg provide
         Base class for all elements in the avg tree that have a visual representation.
         All nodes except those derived from :py:class:`FXNode` are VisibleNodes.
 
-            :param string oncursormove:
+        :param string oncursormove:
 
-                Name of python function to call when a cursor moves.
+            Name of python function to call when a cursor moves.
 
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
 
-            :param string oncursorup:
+        :param string oncursorup:
 
-                Name of python function to call when an up event occurs.
+            Name of python function to call when an up event occurs.
 
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
 
-            :param string oncursordown:
+        :param string oncursordown:
 
-                Name of python function to call when a down event occurs.
+            Name of python function to call when a down event occurs.
 
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
 
-            :param string oncursorover:
+        :param string oncursorover:
 
-                Name of python function to call when a cursor enters the node.
+            Name of python function to call when a cursor enters the node.
 
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
 
-            :param string oncursorout:
+        :param string oncursorout:
 
-                Name of python function to call when a cursor leaves the node.
+            Name of python function to call when a cursor leaves the node.
 
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
 
-            :param DivNode parent:
+        :param DivNode parent:
 
-                A :py:class:`DivNode` that the newly constructed Node should be appended
-                to.
+            A :py:class:`DivNode` that the newly constructed Node should be appended
+            to.
 
         .. py:attribute:: active
 

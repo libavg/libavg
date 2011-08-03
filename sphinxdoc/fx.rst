@@ -55,7 +55,7 @@ Effect Nodes
     .. autoclass:: FXNode
 
         Base class for GPU-based effects. These effects can be added to any 
-        :py:class:`Node` by calling :py:meth:`Node:setEffect`
+        :py:class:`Node` by calling :py:meth:`Node:setEffect`.
 
     .. autoclass:: HueSatFXNode(hue=0.0, saturation=1.0, lightness=0.0, tint=False)
 
