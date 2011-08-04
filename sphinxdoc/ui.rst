@@ -27,34 +27,34 @@ functionality
             buttons, where the active area should be larger than the visible button to
             accout for touch inaccuracies.
 
-        The callbacks are:
+        Callbacks:
 
-            .. py:method:: pressHandler(event):
+            .. py:method:: pressHandler(event)
 
                 Called when the button is pressed. This happens on a down event.
                 
                 :param event: The corresponding cursor down event. 
 
-            .. py:method:: clickHandler(event):
+            .. py:method:: clickHandler(event)
 
                 Called when the button is clicked. A click is generated when an up event
                 happens inside the button.
 
-            .. py:method:: stateChangeHandler(state):
+            .. py:method:: stateChangeHandler(state)
 
                 Called whenever the button state changes.
 
-        .. py:method:: delete():
+        .. py:method:: delete()
 
-        .. py:method:: getUpNode() -> Node:
+        .. py:method:: getUpNode() -> Node
 
-        .. py:method:: getDownNode() -> Node:
+        .. py:method:: getDownNode() -> Node
 
-        .. py:method:: getDisabledNode() -> Node:
+        .. py:method:: getDisabledNode() -> Node
 
-        .. py:method:: setEnabled(isEnabled):
+        .. py:method:: setEnabled(isEnabled)
 
-        .. py:method:: isEnabled():
+        .. py:method:: isEnabled()
 
 
     .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
@@ -81,15 +81,15 @@ functionality
             If set, this parameter enables inertia processing. It describes how 
             quickly the drag comes to a stop after the cursor is released.
 
-        The callbacks are:
+        Callbacks:
 
-            .. py:method:: startHandler(event):
+            .. py:method:: startHandler(event)
 
                 Called when a drag begins. 
                 
                 :param event: The corresponding cursor down event. 
 
-            .. py:method:: moveHandler(event, offset):
+            .. py:method:: moveHandler(event, offset)
 
                 Called when the drag should cause a position change. This usually happens
                 in response to a :py:const:`CURSORMOTION` event, but may also happen
@@ -104,7 +104,7 @@ functionality
                 
                     The current offset from the start of the drag in global coordinates.
 
-            .. py:method:: upHandler(event, offset):
+            .. py:method:: upHandler(event, offset)
 
                 Called when the cursor is released. If inertia is enabled, there may be 
                 move events after the up event.
@@ -117,12 +117,12 @@ functionality
                 
                     The current offset from the start of the drag in global coordinates.
 
-            .. py:method:: stopHandler():
+            .. py:method:: stopHandler()
 
                 Called when movement stops. This is either directly after the up event
                 or when inertia has run its course.
 
-        .. py:method:: abortInertia():
+        .. py:method:: abortInertia()
 
             Causes inertia processing to end immediately.
 
@@ -176,11 +176,11 @@ functionality
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
 
-        .. py:method:: reset():
+        .. py:method:: reset()
 
             Resets any sticky keys (shift, altgr) to their default state.
 
-        .. py:method:: setKeyHandler(self, downHandler, [upHandler]):
+        .. py:method:: setKeyHandler(self, downHandler, [upHandler])
 
             Set callbacks to invoke on key press and -release. Handlers take three 
             paramters: (event, char, cmd)
@@ -220,46 +220,46 @@ functionality
         :py:class:`TransformRecognizer`. It will be removed again as soon as a generic 
         matrix class is available.
 
-        .. py:method:: applyMat(m) -> Mat3x3:
+        .. py:method:: applyMat(m) -> Mat3x3
 
             Applies the matrix to another matrix and returns the result.
 
-        .. py:method:: applyVec(v) -> Vec3:
+        .. py:method:: applyVec(v) -> Vec3
 
             Applies the matrix to a 3-component vector and returns the result.
 
-        .. py:method:: det() -> float:
+        .. py:method:: det() -> float
 
             Returns the determinant of the matrix.
 
-        .. py:method:: inverse() -> Mat3x3:
+        .. py:method:: inverse() -> Mat3x3
 
             Returns the inverse of the matrix.
 
-        .. py:method:: scalarMult(s) -> Mat3x3:
+        .. py:method:: scalarMult(s) -> Mat3x3
 
             Returns the matrix multiplied by a scalar.
 
-        .. py:method:: setNodeTransform(node):
+        .. py:method:: setNodeTransform(node)
 
             Sets a node's :py:attr:`pos`, :py:attr:`angle` and :py:attr:`size` 
             attributes to correspond to the matrix. Assumes :samp:`pivot=0`.
 
-        .. py:classmethod:: fromNode(node) -> Mat3x3:
+        .. py:classmethod:: fromNode(node) -> Mat3x3
 
             Returns the transform matrix of a node computed from its :py:attr:`pos`,
             :py:attr:`angle` and :py:attr:`size` attributes. Assumes :samp:`pivot=0`.
 
-        .. py:classmethod:: rotate(a) -> Mat3x3:
+        .. py:classmethod:: rotate(a) -> Mat3x3
 
             Factory method that creates a rotation matrix from an angle.
 
-        .. py:classmethod:: scale(s) -> Mat3x3:
+        .. py:classmethod:: scale(s) -> Mat3x3
 
             Factory method that creates a nonuniform scale matrix from a 2-component 
             vector.
 
-        .. py:classmethod:: translate(t) -> Mat3x3:
+        .. py:classmethod:: translate(t) -> Mat3x3
 
             Factory method that creates a translation matrix from a translation vector.
 
@@ -307,17 +307,17 @@ functionality
 
             A cursordown event to pass to the recognizer immediately.
         
-        The callbacks are:
+        Callbacks:
 
-            .. py:method:: startHandler():
+            .. py:method:: startHandler()
 
                 Called when a possible tap begins. 
                 
-            .. py:method:: tapHandler():
+            .. py:method:: tapHandler()
 
                 Called when a tap is recognized.
 
-            .. py:method:: failHandler(event):
+            .. py:method:: failHandler(event)
 
                 Called if the touch moves too far from the initial position to be a tap.
 
@@ -347,7 +347,7 @@ functionality
             :py:attr:`fatFingerEnlarge` is incompatible with a custom 
             :py:attr:`activeAreaNode`.
 
-        The callbacks are:
+        Callbacks:
 
             .. py:method:: clickHandler(event)
 
@@ -386,13 +386,13 @@ functionality
 
             Currently not implemented.
 
-        The callbacks are:
+        Callbacks:
 
-            .. py:method:: startHandler():
+            .. py:method:: startHandler()
 
                 Called when a transform begins. 
                 
-            .. py:method:: moveHandler(transform):
+            .. py:method:: moveHandler(transform)
 
                 Called whenever the transform changes.
 
@@ -400,7 +400,7 @@ functionality
                 
                     The current transformation as a homogenous matrix.
 
-            .. py:method:: upHandler(transform):
+            .. py:method:: upHandler(transform)
 
                 Called when the last touch is released.
 
@@ -408,6 +408,6 @@ functionality
                 
                     The current transformation as a homogenous matrix.
 
-            .. py:method:: stopHandler(transform):
+            .. py:method:: stopHandler(transform)
 
                 Not implemented.
