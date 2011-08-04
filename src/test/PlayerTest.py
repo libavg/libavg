@@ -98,30 +98,28 @@ class PlayerTestCase(AVGTestCase):
 
         Player.showCursor(0)
         Player.showCursor(1)
-        Player.loadString("""
-            <avg width="160" height="120">
-                <image id="test1" href="rgb24-65x65.png"/>
-            </avg>
-        """)
-        self.start(None,
-                 (getFramerate,
+        root = self.loadEmptyScene()
+        node = Player.createNode("""<image id="test1" href="rgb24-65x65.png"/>""")
+        root.appendChild(node)
+        self.start((
+                  getFramerate,
                   lambda: self.compareImage("testbasics", False), 
                   lambda: Player.setGamma(0.3, 0.3, 0.3),
                   lambda: Player.showCursor(0),
                   lambda: Player.showCursor(1),
                  ))
 
-    def testTime(self):
-        def printTime():
-            print Player.getFrameTime(), Player.getFrameDuration(), Player.getEffectiveFramerate()
+    def testFakeTime(self):
+        def checkTime():
+            self.assert_(Player.getFrameTime() == 50)
+            self.assert_(Player.getFrameDuration() == 50)
+            self.assert_(Player.getEffectiveFramerate() == 20)
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         Player.setFakeFPS(20)
-        self.start(None,
-                (printTime,
-                 printTime,
-                 printTime,
-                 printTime))
+        self.start((
+                 checkTime,
+                ))
 
     def testDivResize(self):
         def checkSize (w, h):
@@ -138,18 +136,18 @@ class PlayerTestCase(AVGTestCase):
         def setHeight (h):
             node.height = h
 
-        Player.loadFile("avg.avg")
+        self.__initDefaultScene()
         node = Player.getElementByID('nestedavg')
 
-        self.start(None,
-                (lambda: checkSize(128, 32),
-                    lambda: setSize((14,15)),
-                    lambda: checkSize(14,15),
-                    lambda: setWidth(23),
-                    lambda: checkSize(23,15),
-                    lambda: setHeight(22),
-                    lambda: checkSize(23,22),
-                    ))
+        self.start((
+                 lambda: checkSize(128, 32),
+                 lambda: setSize((14,15)),
+                 lambda: checkSize(14,15),
+                 lambda: setWidth(23),
+                 lambda: checkSize(23,15),
+                 lambda: setHeight(22),
+                 lambda: checkSize(23,22),
+                ))
 
     def testRotate(self):
         def onOuterDown(Event):
@@ -185,13 +183,13 @@ class PlayerTestCase(AVGTestCase):
         def disableCrop():
             Player.getElementByID("outer").crop = False
             Player.getElementByID("inner").crop = False
-            
-        Player.loadFile("rotate.avg")
+           
+        self.__initDefaultRotateScene()
         Player.getElementByID("outer").setEventHandler(
                 avg.CURSORDOWN, avg.MOUSE, onOuterDown) 
         self.onOuterDownCalled = False
-        self.start(None,
-                (lambda: self.compareImage("testRotate1", False),
+        self.start((
+                 lambda: self.compareImage("testRotate1", False),
                  testCoordConversions,
                  fakeRotate,
                  lambda: self.compareImage("testRotate1a", False),
@@ -206,14 +204,17 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testRotate2(self):
-        self.start("rotate2.avg",
-                [lambda: self.compareImage("testRotate2", False),
-                 ])
+        root = self.loadEmptyScene()
         
-    def testRotate3(self):
-        self.start("rotate3.avg",
-                [lambda: self.compareImage("testRotate3", False)])
-
+        div1 = avg.DivNode(pos=(80,0), size=(160,120), pivot=(0,0), angle=1.57, 
+                parent=root)
+        avg.ImageNode(size=(16,16), href="rgb24-65x65.png", parent=div1)
+        div2 = avg.DivNode(pos=(40,0), size=(110,80), pivot=(0,0), angle=1.57,
+                crop=True, parent=div1)
+        avg.ImageNode(pos=(0,0), size=(16,16), href="rgb24-65x65.png", parent=div2)
+        avg.ImageNode(pos=(30,-6), size=(16,16), href="rgb24-65x65.png", parent=div2)
+        self.start([lambda: self.compareImage("testRotate2", False)])
+        
     def testRotatePivot(self):
         def setPivot (pos):
             node.pivot = pos
@@ -221,26 +222,30 @@ class PlayerTestCase(AVGTestCase):
         def addPivot (offset):
             node.pivot += offset
         
-        Player.loadFile("rotate3.avg")
-        node = Player.getElementByID('div1')
-        self.start(None, (
-            lambda: setPivot((10, 10)),
+        root = self.loadEmptyScene()
+        node = avg.DivNode(pos=(80,0), size=(160,120), pivot=(0,0), angle=1.57,
+                crop=True, parent=root)
+        div = avg.DivNode(pos=(40,-20), size=(160,120), pivot=(0,0), angle=0.79,
+                crop=True, parent=node)
+        avg.ImageNode(pos=(-10,-10), size=(128,128), href="rgb24-65x65.png", parent=div)
+        avg.ImageNode(pos=(0,10), size=(32,32), href="rgb24-65x65.png", parent=node)
+        self.start((
             lambda: self.compareImage("testRotatePivot1", False),
-            lambda: addPivot((-8, 0)),
+            lambda: setPivot((10, 10)),
             lambda: self.compareImage("testRotatePivot2", False),
+            lambda: addPivot((-8, 0)),
+            lambda: self.compareImage("testRotatePivot3", False),
            ))
 
     def testOutlines(self):
-        Player.loadFile("rotate.avg")
-        Player.getRootNode().elementoutlinecolor = "FFFFFF"
+        root = self.__initDefaultRotateScene()
+        root.elementoutlinecolor = "FFFFFF"
         Player.getElementByID("inner").width = 100000
         Player.getElementByID("inner").height = 100000
-        self.start(None, 
-                [lambda: self.compareImage("testOutlines", False)
-                ])
+        self.start([lambda: self.compareImage("testOutlines", False)])
 
     def testError(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         Player.setTimeout(1, lambda: undefinedFunction)
         Player.setTimeout(50, Player.stop)
         try:
@@ -255,8 +260,8 @@ class PlayerTestCase(AVGTestCase):
             raise ZeroDivisionError
         
         try:
-            self.start("image.avg",
-                    [throwException])
+            self.initDefaultImageScene()
+            self.start([throwException])
         except ZeroDivisionError:
             self.assert_(1)
         else:
@@ -264,18 +269,22 @@ class PlayerTestCase(AVGTestCase):
 
     def testInvalidImageFilename(self):
         def activateNode():
-            Player.getElementByID("enclosingdiv").active = 1
+            div.active = 1
         
-        self.start("invalidfilename.avg",
-                [activateNode])
+        root = self.loadEmptyScene()
+        div = avg.DivNode(active=False, parent=root)
+        avg.ImageNode(href="filedoesntexist.png", parent=div)
+        self.start([activateNode])
 
     def testInvalidVideoFilename(self):
         def tryplay():
-            assertException(lambda: Player.getElementByID("brokenvideo").play())
+            assertException(lambda: video.play())
         
-        self.start("invalidvideofilename.avg",
-                (lambda: tryplay,
-                 lambda: Player.getElementByID("brokenvideo").stop()
+        root = self.loadEmptyScene()
+        video = avg.VideoNode(href="filedoesntexist.avi", parent=root)
+        self.start((
+                 lambda: tryplay,
+                 lambda: video.stop()
                 ))
 
     def testTimeouts(self):
@@ -307,8 +316,9 @@ class PlayerTestCase(AVGTestCase):
         self.timeout2called = False
         self.__exceptionThrown = False
         try:
-            self.start("image.avg",
-                    (setupTimeouts,
+            self.initDefaultImageScene()
+            self.start((
+                     setupTimeouts,
                      wait,
                      lambda: self.assert_(self.timeout1called),
                      lambda: self.assert_(not(self.timeout2called)),
@@ -334,21 +344,43 @@ class PlayerTestCase(AVGTestCase):
         def loadImage():
             node = Player.getElementByID("pano")
             node.href = "rgb24-65x65.png"
-        self.start("panoimage.avg",
-                (lambda: self.compareImage("testPanoImage", False),
+
+        root = self.loadEmptyScene()
+        avg.ImageNode(size=(320,240), href="rgb24-65x65.png", parent=root)
+        avg.PanoImageNode(id="pano", size=(160,120), href="panoimage.png",
+                sensorwidth=4.60, sensorheight=3.97, focallength=12, parent=root)
+        avg.ImageNode(pos=(120,0), size=(40,40), href="rgb24-65x65.png", parent=root)
+        self.start((
+                 lambda: self.compareImage("testPanoImage", False),
                  lambda: time.sleep,
                  changeProperties,
                  loadImage
                 ))
 
+    def testAVGFile(self):
+        Player.loadFile("image.avg")
+        self.start((
+                 lambda: self.compareImage("testAVGFile", False),
+                ))
+        self.assertException(lambda: Player.loadFile("filedoesntexist.avg"))
+
     def testBroken(self):
-        def testBrokenFile(filename):
-            self.assertException(lambda: Player.loadFile(filename))
+        def testBrokenString(string):
+            self.assertException(lambda: Player.loadString(string))
         
-        testBrokenFile("filedoesntexist.avg")
-        testBrokenFile("noxml.avg")
-        testBrokenFile("noavg.avg")
-        testBrokenFile("noavg2.avg")
+        # This isn't xml
+        testBrokenString("""
+            xxx<avg width="400" height="300">
+            </avg>
+        """)
+        # This isn't avg
+        testBrokenString("""
+            <bla>hallo
+            </bla>""")
+        testBrokenString("""
+            <avg width="640" height="480" invalidattribute="bla">
+            </avg>
+        """)
 
     def testMove(self):
         def moveit():
@@ -361,9 +393,10 @@ class PlayerTestCase(AVGTestCase):
         def checkRelPos():
             RelPos = Player.getElementByID("obscured").getRelPos((50,52))
             self.assert_(RelPos == (0, 0))
-        
-        self.start("avg.avg",
-                (lambda: self.compareImage("testMove1", False),
+      
+        self.__initDefaultScene()
+        self.start((
+                 lambda: self.compareImage("testMove1", False),
                  moveit,
                  checkRelPos
                 ))
@@ -396,8 +429,21 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
         
-        self.start("crop2.avg",
-                (lambda: self.compareImage("testCropImage1", False),
+        root = self.loadEmptyScene()
+        avg.ImageNode(id="bkgd", href="crop_bkgd.png", parent=root)
+        root.appendChild(
+                Player.createNode("""
+                  <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
+                    <div id="nestedavg2" crop="True">
+                      <div id="nestedavg3" crop="True">
+                        <image id="img" x="10" y="10" width="40" height="40" 
+                                href="rgb24-64x64.png"/>
+                      </div>
+                    </div>
+                  </div>
+                """))
+        self.start((
+                 lambda: self.compareImage("testCropImage1", False),
                  moveTLCrop,
                  lambda: self.compareImage("testCropImage2", False),
                  moveBRCrop,
@@ -452,8 +498,18 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("bkgd").angle = 1.0
         
         Player.setFakeFPS(30)
-        self.start("crop.avg",
-                (playMovie,
+        root = self.loadEmptyScene()
+        avg.ImageNode(id="bkgd", href="crop_bkgd.png", parent=root)
+        root.appendChild(
+                Player.createNode("""
+                  <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
+                    <video id="movie" x="10" y="10" width="40" height="40" 
+                            threaded="false" href="../video/testfiles/mpeg1-48x48.mpg" 
+                            fps="30"/>
+                  </div>
+                """))
+        self.start((
+                 playMovie,
                  lambda: self.compareImage("testCropMovie1", False),
                  moveTLCrop,
                  lambda: self.compareImage("testCropMovie2", False),
@@ -478,29 +534,31 @@ class PlayerTestCase(AVGTestCase):
 
     def testWarp(self):
         def moveVertex():
-            node = Player.getElementByID("testtiles")
-            grid = node.getWarpedVertexCoords()
+            grid = image.getWarpedVertexCoords()
             grid[1][1] = (grid[1][1][0]+0.06, grid[1][1][1]+0.06)
-            node.setWarpedVertexCoords(grid)
-            node = Player.getElementByID("clogo1")
-            grid = node.getWarpedVertexCoords()
+            image.setWarpedVertexCoords(grid)
+            grid = video.getWarpedVertexCoords()
             grid[0][0] = (grid[0][0][0]+0.06, grid[0][0][1]+0.06)
             grid[1][1] = (grid[1][1][0]-0.06, grid[1][1][1]-0.06)
-            node.setWarpedVertexCoords(grid)
+            video.setWarpedVertexCoords(grid)
         
         def flip():
-            node = Player.getElementByID("testtiles")
-            grid = node.getOrigVertexCoords()
+            grid = image.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
-            node.setWarpedVertexCoords(grid)
-        
-        Player.loadFile("video.avg")
-        node = Player.getElementByID("testtiles")
-        self.assertException(node.getOrigVertexCoords)
-        self.assertException(node.getWarpedVertexCoords)
+            image.setWarpedVertexCoords(grid)
+       
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(href="rgb24-64x64.png",
+                maxtilewidth=32, maxtileheight=16, parent=root)
+        video = avg.VideoNode(pos=(40,0), size=(80,80), opacity=0.5, loop=True,
+                href="../video/testfiles/mpeg1-48x48.mpg", threaded=False, fps=30,
+                parent=root)
+
+        self.assertException(image.getOrigVertexCoords)
+        self.assertException(image.getWarpedVertexCoords)
         Player.setFakeFPS(30)
-        self.start(None,
-                (lambda: Player.getElementByID("clogo1").play(),
+        self.start((
+                 lambda: video.play(),
                  lambda: self.compareImage("testWarp1", False),
                  moveVertex,
                  lambda: self.compareImage("testWarp2", False),
@@ -511,14 +569,14 @@ class PlayerTestCase(AVGTestCase):
     def testMediaDir(self):
         def createImageNode():
             # Node is not in tree; mediadir should be root node dir.
-            node = avg.ImageNode(href="rgb24-64x64.png")
+            node = avg.ImageNode(href="rgb24-64x64a.png")
             self.assert_(node.size == avg.Point2D(0,0)) # File not found
-            node.href = "rgb24-64x64a.png"
+            node.href = "rgb24-64x64.png"
             self.assert_(node.size == avg.Point2D(64,64)) # File found
-            node = avg.ImageNode(href="rgb24-64x64.png", width=23, height=42)
+            node = avg.ImageNode(href="rgb24-64x64a.png", width=23, height=42)
             # File not found, but custom size
             self.assert_(node.size == avg.Point2D(23,42))
-            node.href = "rgb24-64x64a.png"
+            node.href = "rgb24-64x64.png"
             # File found, custom size stays
             self.assert_(node.size == avg.Point2D(23,42))
             node.size = (0,0)
@@ -526,26 +584,30 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(node.size == avg.Point2D(64,64))
 
         def setDir():
-            Player.getElementByID("main").mediadir="../video/testfiles"
+            div.mediadir="../video/testfiles"
         
         def setAbsDir():
             def absDir():
                 # Should not find any media here...
-                Player.getElementByID("main").mediadir="/testmediadir"
+                div.mediadir="/testmediadir"
 
             self.assertException(absDir)
         
         def createNode():
             node = avg.VideoNode(href="mjpeg1-48x48.avi", fps=30)
-        
-        self.start("mediadir.avg",
-                (createImageNode,
-                 lambda: Player.getElementByID("video").play(),
+
+        root = self.loadEmptyScene()
+        div = avg.DivNode(mediadir="testmediadir", parent=root)
+        image = avg.ImageNode(pos=(0,30), href="rgb24-64x64a.png", parent=div)
+        video = avg.VideoNode(href="mjpeg-48x48.avi", threaded=False, parent=div)
+        self.start((
+                 createImageNode,
+                 lambda: video.play(),
                  lambda: self.compareImage("testMediaDir1", False),
                  setDir,
-                 lambda: Player.getElementByID("video").play(), 
+                 lambda: video.play(), 
                  lambda: self.compareImage("testMediaDir2", False),
-                 lambda: self.assert_(Player.getElementByID("img").width == 0),
+                 lambda: self.assert_(image.width == 0),
                  createNode,
                  setAbsDir
                 ))
@@ -579,14 +641,17 @@ class PlayerTestCase(AVGTestCase):
             self.testStopOnEscapeAlive = True
 
         self.testStopOnEscapeAlive = False
-        self.start('avg.avg',
-                (testEscape1,
-                testEscape2,
-                setAlive))
+        self.__initDefaultScene()
+        self.start((
+                 testEscape1,
+                 testEscape2,
+                 setAlive
+                ))
         self.assert_(self.testStopOnEscapeAlive)
-        self.start('avg.avg',
-                (testEscape3, # this should exit the player
-                lambda: self.assert_(False),
+        self.__initDefaultScene()
+        self.start((
+                 testEscape3, # this should exit the player
+                 lambda: self.assert_(False),
                 ))
 
     # Not executed due to bug #145 - hangs with some window managers.
@@ -595,7 +660,8 @@ class PlayerTestCase(AVGTestCase):
             Player.setWindowFrame(True)
 
         Player.setWindowFrame(False)
-        self.start('avg.avg',[revertWindowFrame])
+        self.__initDefaultScene()
+        self.start([revertWindowFrame])
 
     def testScreenDimensions(self):
         res = Player.getScreenResolution()
@@ -611,15 +677,38 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(almostEqual(newPPMM, ppmm))
         self.assert_(newMM == mm)
 
+    def __initDefaultScene(self):
+        root = self.loadEmptyScene()
+        avg.ImageNode(id="mainimg", size=(100, 75), href="rgb24-65x65.png", parent=root)
+        div = avg.DivNode(id="nestedavg", pos=(0,32), opacity=1, size=(128, 32),
+                crop=True, parent=root)
+        avg.ImageNode(id="obscured", pos=(0,20), size=(96,40), href="rgb24-65x65.png",
+                parent=div)
+        avg.ImageNode(id="nestedimg1", size=(96,48), href="rgb24-65x65.png",
+                parent=div)
+        avg.ImageNode(id="nestedimg2", pos=(65,0), href="rgb24alpha-64x64.png",
+                parent=div)
+
+    def __initDefaultRotateScene(self):
+        root = self.loadEmptyScene()
+        div = avg.DivNode(pos=(80,10), size=(80,60), pivot=(0,0), angle=0.274,
+                crop=True, parent=root)
+        avg.ImageNode(pos=(10,10), size=(32,32), href="rgb24-65x65.png", parent=div)
+        outerDiv = avg.DivNode(id="outer", pos=(80,70), size=(80,60),
+                pivot=(0,0), angle=0.274, crop=True, parent=root)
+        innerDiv = avg.DivNode(id="inner", size=(80,60), pivot=(0,0), angle=-0.274,
+                crop=True, parent=outerDiv)
+        avg.ImageNode(pos=(10,10), size=(32,32), href="rgb24-65x65.png", parent=innerDiv)
+        return root
+
 def playerTestSuite(tests):
     availableTests = (
             "testPoint",
             "testBasics",
-#            "testTime",
+            "testFakeTime",
             "testDivResize",
             "testRotate",
             "testRotate2",
-            "testRotate3",
             "testRotatePivot",
             "testOutlines",
             "testError",
@@ -628,6 +717,7 @@ def playerTestSuite(tests):
             "testInvalidVideoFilename",
             "testTimeouts",
             "testPanoImage",
+            "testAVGFile",
             "testBroken",
             "testMove",
             "testCropImage",

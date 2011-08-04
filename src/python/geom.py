@@ -76,6 +76,7 @@ class RoundedRect(avg.PolygonNode):
         pos.extend(calcQuarterCircle(self.pos+(r,r), r, 3.14))
         self.polyPos = pos
 
+
 class PieSlice(avg.PolygonNode):
     def __init__(self, radius, startangle, endangle, pos=(0,0), parent=None,
             **kwargs):
@@ -137,6 +138,7 @@ class PieSlice(avg.PolygonNode):
         pos.append(getCirclePoint(1))
         pos.append(self.__pos)
         self.polyPos = pos
+
 
 class Arc(avg.PolyLineNode):
     # TODO: Code duplication with PieSlice

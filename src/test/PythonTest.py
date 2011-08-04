@@ -51,8 +51,8 @@ class PythonTestCase(AVGTestCase):
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
-        self.start(None,
-                (startAnim,
+        self.start((
+                 startAnim,
                  lambda: self.compareImage(imgBaseName+"1", False),
                  lambda: self.assert_(anim.getNumRunningAnims() == 1),
                  None,
@@ -77,7 +77,7 @@ class PythonTestCase(AVGTestCase):
         self.__anim = None
 
     def testLinearAnim(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False)
         self.testAnimType(curAnim, "testLinearAnim")
@@ -91,14 +91,14 @@ class PythonTestCase(AVGTestCase):
             node = Player.getElementByID("test")
             self.__anim.start()
 
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
-        self.start(None,
-                (startAnim,
+        self.start((
+                 startAnim,
                  lambda: self.compareImage("testLinearAnimZeroDuration1", False),
                  lambda: self.assert_(anim.getNumRunningAnims() == 0),
                  lambda: self.assert_(self.__onStopCalled),
@@ -107,13 +107,13 @@ class PythonTestCase(AVGTestCase):
         self.__anim = None
 
     def testEaseInOutAnim(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
         self.testAnimType(curAnim, "testEaseInOutAnim")
 
     def testSplineAnim(self):
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         node = Player.getElementByID("test")
         curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False)
         self.testAnimType(curAnim, "testSplineAnim")
@@ -131,17 +131,17 @@ class PythonTestCase(AVGTestCase):
             Player.setTimeout(1000,Player.stop)
 
         def startAnim():
-            node=Player.getElementByID("mainimg")
+            node=Player.getElementByID("testtiles")
             self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
             self.anim.start()
 
         def startAnim2():
-            node=Player.getElementByID("nestedimg1")
+            node=Player.getElementByID("test")
             self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
             self.anim2.start()
 
         def startAnim3():
-            node=Player.getElementByID("nestedimg2")
+            node=Player.getElementByID("test1")
             self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
             self.anim3.start()
 
@@ -155,7 +155,7 @@ class PythonTestCase(AVGTestCase):
 
         Player.setFakeFPS(25)
         anim.init(avg)
-        Player.loadFile("avg.avg")
+        self.initDefaultImageScene()
         Player.setTimeout(1, onStart)
         Player.play()
 
@@ -170,8 +170,9 @@ class PythonTestCase(AVGTestCase):
         anim.init(avg)
         Player.setFakeFPS(10)
         self.__endCalled = False
-        self.start("image.avg",
-                (startAnim, 
+        self.initDefaultImageScene()
+        self.start((
+                 startAnim, 
                  lambda: self.assert_(not(self.anim.isDone())),
                  None,
                  None,
@@ -194,8 +195,9 @@ class PythonTestCase(AVGTestCase):
         anim.init(avg)
         Player.setFakeFPS(10)
         self.__state2CallbackCalled = False
-        self.start("image.avg",
-                (makeAnim,
+        self.initDefaultImageScene()
+        self.start((
+                 makeAnim,
                  lambda: self.compareImage("testStateAnim1", False),
                  lambda: self.anim.setState("STATE1"),
                  None,
@@ -227,8 +229,9 @@ class PythonTestCase(AVGTestCase):
         anim.init(avg)
         self.__endCalled = False
         Player.setFakeFPS(10)
-        self.start("image.avg",
-                (startAnim,
+        self.initDefaultImageScene()
+        self.start((
+                 startAnim,
                  lambda: self.assert_(anim.getNumRunningAnims() == 2),
                  lambda: self.assert_(not(self.anim.isDone())),
                  lambda: self.compareImage("testParallelAnims1", False),
@@ -258,13 +261,13 @@ class PythonTestCase(AVGTestCase):
         self.__dragEndCalled = False
         self.__dragStartCalled = False
         Helper = Player.getTestHelper()    
-        Player.loadFile("image.avg")
+        self.initDefaultImageScene()
         draggable.init(avg)
         dragger = draggable.Draggable(Player.getElementByID("test1"),
                 onDragStart, onDragEnd)
         dragger.enable()
-        self.start(None,
-                (startDrag,
+        self.start((
+                 startDrag,
                  lambda: self.assert_(self.__dragStartCalled),
                  move,
                  lambda: self.compareImage("testDraggable1", False),
@@ -294,17 +297,17 @@ class PythonTestCase(AVGTestCase):
         def setObjectActive(obj, active):
             obj.active = active
             
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         
         b = ui.Button(
-                parent = Player.getRootNode(),
+                parent = root,
                 upNode = avg.ImageNode(href="button_up.png"),
                 downNode = avg.ImageNode(href="button_down.png"),
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
                 pressHandler = onDown,
                 clickHandler = onClick)
         
-        b1 = ui.Button(parent=Player.getRootNode(),
+        b1 = ui.Button(parent=root,
                        active=False,
                        pressHandler=onDown,
                        clickHandler=onClick)
@@ -315,8 +318,8 @@ class PythonTestCase(AVGTestCase):
         self.__down = False
         self.__clicked = False
         
-        self.start(None,
-                (# Normal click: Down & up over button
+        self.start((
+                 # Normal click: Down & up over button
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 0),
                  lambda: self.compareImage("testUIButtonDown", False),
@@ -535,9 +538,9 @@ class PythonTestCase(AVGTestCase):
             self.__down = False
             self.__clicked = False
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         b = ui.Button(
-                parent = Player.getRootNode(),
+                parent = root,
                 upNode = avg.ImageNode(href="button_up.png"),
                 downNode = avg.ImageNode(href="button_down.png"),
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
@@ -549,8 +552,8 @@ class PythonTestCase(AVGTestCase):
         
         self.__down = False
         self.__clicked = False
-        self.start(None,
-                (# Two downs, two ups ==> click after second up.
+        self.start((
+                 # Two downs, two ups ==> click after second up.
                  lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
                  lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
                  lambda: self.compareImage("testUIButtonDown", False),
@@ -753,9 +756,9 @@ class PythonTestCase(AVGTestCase):
             button.enabled = enabled
 
         def createScene(**kwargs):
-            self.loadEmptyScene()
+            root = self.loadEmptyScene()
             return ui.TouchButton(
-                    parent = Player.getRootNode(),
+                    parent = root,
                     upNode = avg.ImageNode(href="button_up.png"),
                     downNode = avg.ImageNode(href="button_down.png"),
                     disabledNode = avg.ImageNode(href="button_disabled.png"),
@@ -765,8 +768,8 @@ class PythonTestCase(AVGTestCase):
 
         def runTest():
             self.clicked = False
-            self.start(None,
-                    (# Standard down->up
+            self.start((
+                     # Standard down->up
                      lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
                      lambda: self.assert_(not(self.clicked)),
                      lambda: self.compareImage("testUIButtonDown", False),
@@ -819,9 +822,9 @@ class PythonTestCase(AVGTestCase):
         button = createScene(fatFingerEnlarge = True)
         runTest()
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         button = ui.TouchButton.fromSrc(
-                parent = Player.getRootNode(),
+                parent = root,
                 upSrc = "button_up.png",
                 downSrc = "button_down.png",
                 disabledSrc = "button_disabled.png",
@@ -837,10 +840,10 @@ class PythonTestCase(AVGTestCase):
                     [(1, ),      (35, 5), (30, 30)],
                     ["SHIFT",    (65, 5), (50, 30)]]
             kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
-                    pos=(10, 10), parent = Player.getRootNode())
+                    pos=(10, 10), parent = root)
             kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
             kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
-                    pos=(10, 60), parent = Player.getRootNode())
+                    pos=(10, 60), parent = root)
             kbShift.setKeyHandler(onKeyDown, onKeyUp)
 
         def onKeyDown(event, char, cmd):
@@ -855,7 +858,7 @@ class PythonTestCase(AVGTestCase):
             self.__char = char
             self.__cmd = cmd
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
 
         kbNoShift = None
         kbShift   = None
@@ -863,8 +866,8 @@ class PythonTestCase(AVGTestCase):
         self.__keyUp   = True
         self.__char = "foo"
         self.__cmd = "bar"
-        self.start(None,
-                (setup,
+        self.start((
+                 setup,
                  lambda: self.compareImage("testUIKeyboard", False),
                  # test character key
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -960,18 +963,14 @@ class PythonTestCase(AVGTestCase):
                 if text != self.ta2.getText():
                     self.assert_(len(text) == 16)
                     break
-            
-        Player.loadString("""
-        <avg width="160" height="120">
-            <div id="ph1" x="2" y="2" width="156" height="96"/>
-            <div id="ph2" x="2" y="100" width="156" height="18"/>
-        </avg>
-        """)
         
-        import time
+        root = self.loadEmptyScene()
+        avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
+        avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
+        
         textarea.init(avg, False)
-        self.start(None,
-               (setup,
+        self.start((
+                setup,
                 lambda: self.assert_(self.ta1.getText() == 'Lorem ipsum'),
                 lambda: setAndCheck(self.ta1, ''),
                 lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
@@ -1017,14 +1016,14 @@ class PythonTestCase(AVGTestCase):
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
-            self.loadEmptyScene()
-            image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+            root = self.loadEmptyScene()
+            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragProcessor = ui.DragRecognizer(image, 
                     startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
                     stopHandler=onDragStop, friction=self.friction)
             initState()
-            self.start(None,
-                    (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: assertDragEvents(True, False, False, False),
                      lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
                      lambda: assertDragEvents(True, True, False, False),
@@ -1053,12 +1052,12 @@ class PythonTestCase(AVGTestCase):
         def onDrag(event, offset):
             self.assert_(offset == (10,0))
 
-        self.loadEmptyScene()
-        self.image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
         self.__dragStartCalled = False
-        self.start(None,
-                (lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+        self.start((
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
                 ))
@@ -1097,8 +1096,8 @@ class PythonTestCase(AVGTestCase):
                 self.__stopCalled == stop)
 
         Player.setFakeFPS(2)
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__holdRecognizer = ui.HoldRecognizer(image,
                 holdDelay=1000,
                 activateDelay=2000, 
@@ -1107,8 +1106,8 @@ class PythonTestCase(AVGTestCase):
                 activateHandler=onActivate, 
                 stopHandler=onStop)
         initState()
-        self.start(None,
-                (# Standard down-hold-up sequence.
+        self.start((
+                 # Standard down-hold-up sequence.
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: assertEvents(False, False, False, False),
                  None,
@@ -1165,15 +1164,15 @@ class PythonTestCase(AVGTestCase):
                 self.__tapCalled == tap and
                 self.__failCalled == fail)
 
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__tapRecognizer = ui.TapRecognizer(image,
                 startHandler=onStart,
                 tapHandler=onTap,
                 failHandler=onFail)
         initState()
-        self.start(None,
-                (# Down-up: recognized as tap.
+        self.start((
+                 # Down-up: recognized as tap.
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: assertEvents(True, False, False),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
@@ -1208,12 +1207,12 @@ class PythonTestCase(AVGTestCase):
         def checkTransform(expectedTransform):
             self.assert_(almostEqual(self.transform.m, expectedTransform))
 
-        self.loadEmptyScene()
-        image = avg.ImageNode(parent=Player.getRootNode(), href="rgb24-64x64.png")
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, 
                 startHandler=onStart, moveHandler=onMove, upHandler=onUp)
-        self.start(None,
-                (lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+        self.start((
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
                  lambda: checkTransform(ui.Mat3x3().m),
                  lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
                  lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
@@ -1311,17 +1310,13 @@ class PythonTestCase(AVGTestCase):
             self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
             self.__sendMouseEvent(avg.CURSORUP, 20, 70)
 
-        Player.loadString("""
-       <avg width="160" height="120">
-           <div id="ph1" x="2" y="2" width="156" height="54"/>
-           <div id="ph2" x="2" y="58" width="76" height="54"/>
-           <div id="ph3" x="80" y="58" width="76" height="54">
-               <image href="1x1_white.png" width="76" height="54"/>
-           </div>
-       </avg>
-       """)
-        self.start(None,
-                (setup,
+        root = self.loadEmptyScene()
+        avg.DivNode(id="ph1", pos=(2,2), size=(156,54), parent=root)
+        avg.DivNode(id="ph2", pos=(2,58), size=(76,54), parent=root)
+        div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
+        avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
+        self.start((
+                 setup,
                  lambda: self.compareImage("testFocusContext1", True),
                  writeChar,
                  lambda: self.compareImage("testFocusContext2", True),
@@ -1350,11 +1345,11 @@ class PythonTestCase(AVGTestCase):
             self.rect.fillcolor = "0000FF"
             self.rect.fillopacity = 0.5
 
-        self.loadEmptyScene()
-        self.rect = geom.RoundedRect(parent=Player.getRootNode(), pos=(2.5,2.5), 
+        root = self.loadEmptyScene()
+        self.rect = geom.RoundedRect(parent=root, pos=(2.5,2.5), 
                 size=(64,64), radius=5, color="FF0000")
-        self.start(None,
-                (lambda: self.compareImage("testRoundedRect1", True),
+        self.start((
+                 lambda: self.compareImage("testRoundedRect1", True),
                  setPos,
                  lambda: self.compareImage("testRoundedRect2", True),
                  setSize,
@@ -1378,12 +1373,12 @@ class PythonTestCase(AVGTestCase):
         def makeSmall():
             self.pieSlice.radius = 0.6
 
-        self.loadEmptyScene()
-        self.pieSlice = geom.PieSlice(parent=Player.getRootNode(), pos=(20.5,20.5), 
+        root = self.loadEmptyScene()
+        self.pieSlice = geom.PieSlice(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
        
-        self.start(None,
-                (lambda: self.compareImage("testPieSlice1", True),
+        self.start((
+                 lambda: self.compareImage("testPieSlice1", True),
                  changeAttrs,
                  lambda: self.compareImage("testPieSlice2", True),
                  makeSmall,
@@ -1397,12 +1392,12 @@ class PythonTestCase(AVGTestCase):
             self.arc.radius = 50
             self.arc.pos = (80.5, 60.5)
 
-        self.loadEmptyScene()
-        self.arc = geom.Arc(parent=Player.getRootNode(), pos=(20.5,20.5), 
+        root = self.loadEmptyScene()
+        self.arc = geom.Arc(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
        
-        self.start(None,
-                (lambda: self.compareImage("testArc1", True),
+        self.start((
+                 lambda: self.compareImage("testArc1", True),
                  changeAttrs,
                  lambda: self.compareImage("testArc2", True),
                 ))
@@ -1432,6 +1427,7 @@ class PythonTestCase(AVGTestCase):
         machine.addState('A', {'B': atob, 'nostate': atob}, aEntered, aLeft)
         machine.addState('B', {'C': btoc, 'A': btoa})
         machine.addState('C', {'A': None})
+        self.assertException(lambda: machine.addState('C', {'A': None}))
         self.assertException(lambda: machine.changeState('C'))
         self.assertException(lambda: machine.changeState('nostate'))
         machine.changeState('B')
@@ -1445,7 +1441,12 @@ class PythonTestCase(AVGTestCase):
         self.assert_(self.btocCalled)
         machine.changeState('A')
         self.assert_(machine.state == 'A')
+        self.assertException(lambda: machine.addState('illegal', {}))
 
+        # Make a machine with a transition to a nonexistent state.
+        kaputtMachine = statemachine.StateMachine("kaputt", 'A')
+        kaputtMachine.addState('A', {'B': None})
+        self.assertException(lambda: kaputtMachine.changeState('B'))
 
     def __sendMouseEvent(self, type, x, y):
         Helper = Player.getTestHelper()

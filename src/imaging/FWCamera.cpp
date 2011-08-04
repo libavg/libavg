@@ -46,6 +46,10 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
 {
 #ifdef AVG_ENABLE_1394_2
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
+    if (camPF == I16) {
+        throw Exception(AVG_ERR_CAMERA_NONFATAL, 
+                "I16 pixel format is not supported for firewire cameras.");
+    }
     m_Mode = getCamMode(size, camPF);
     dc1394camera_list_t * pCameraList;
 

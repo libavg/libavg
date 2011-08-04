@@ -94,6 +94,9 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         SDLDisplayEngine* getDisplayEngine() const;
         void render(IntPoint windowSize, bool bUpsideDown,
                 ProfilingZoneID& renderProfilingZone);
+        void emitPreRenderSignal(); 
+        void emitFrameEndSignal();
+
 
     private:
         virtual void render()=0;

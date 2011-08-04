@@ -1,4 +1,0 @@
-<avg width="160" height="120">
-  <video id="video" x="0" y="0" width="80" height="80" loop="true" threaded="false"
-      href="../video/testfiles/mjpeg-48x48.avi" fps="250"/>
-</avg>

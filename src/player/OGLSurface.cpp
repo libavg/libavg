@@ -405,10 +405,9 @@ void OGLSurface::createShader()
         "        if (bPremultipliedAlpha) {\n"
         "            rgba.rgb *= texture2D(maskTexture,\n"
         "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
-        "        } else {\n"
-        "            rgba.a *= texture2D(maskTexture,\n"
-        "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
         "        }\n"
+        "        rgba.a *= texture2D(maskTexture,\n"
+        "                (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
         "    }\n"
         "    gl_FragColor = rgba;\n"
         "}\n";

@@ -65,13 +65,11 @@ if sys.platform != 'win32':
         
         try:
             symtree('../python', 'libavg')
-            os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
         except OSError:
             pass
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
-        os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
 
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))

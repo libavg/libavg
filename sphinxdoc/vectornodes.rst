@@ -4,7 +4,7 @@ Vector Nodes
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: CircleNode CurveNode FilledVectorNode LineNode MeshNode Node PolygonNode PolyLineNode RectNode VectorNode VisibleNode 
+    .. inheritance-diagram:: CircleNode CurveNode FilledVectorNode LineNode MeshNode Node PolygonNode PolyLineNode RectNode VectorNode VisibleNode libavg.geom.Arc libavg.geom.PieSlice libavg.geom.RoundedRect
         :parts: 1
 
     .. autoclass:: CircleNode([r=1, texcoord1=0, texcoord2=1])
@@ -169,3 +169,46 @@ Vector Nodes
 
             Sets a bitmap to use as a texture. Sets :attr:`texhref` to an empty
             string.
+
+.. automodule:: libavg.geom
+    :no-members:
+
+    .. autoclass:: Arc(radius, startangle, endangle[, pos=(0,0)])
+
+        An unfilled arc (incomplete circle) from :py:attr:`startangle` to 
+        :py:attr:`endangle`. :py:attr:`pos` is the center of the circle.
+
+        .. py:attribute:: endangle
+
+        .. py:attribute:: pos
+
+        .. py:attribute:: radius
+
+        .. py:attribute:: startangle
+
+
+    .. autoclass:: PieSlice(radius, startangle, endangle[, pos=(0,0)])
+
+        An arc (incomplete circle) from :py:attr:`startangle` to 
+        :py:attr:`endangle` connected to the center of the circle. :py:attr:`pos` is the
+        center of the circle. A :py:class:`PieSlice` can be filled.
+
+        .. py:attribute:: endangle
+
+        .. py:attribute:: pos
+
+        .. py:attribute:: radius
+
+        .. py:attribute:: startangle
+
+
+    .. autoclass:: RoundedRect(size, radius, pos)
+
+        A rectangle with rounded corners. :py:attr:`radius` is the corner radius.
+
+        .. py:attribute:: pos
+
+        .. py:attribute:: radius
+
+        .. py:attribute:: size
+

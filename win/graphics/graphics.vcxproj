@@ -111,6 +111,7 @@
     <ClInclude Include="..\..\src\graphics\GPUBrightnessFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUChromaKeyFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPUHueSatFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUNullFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="..\..\src\graphics\GPUBrightnessFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUChromaKeyFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPUHueSatFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUNullFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />

@@ -1,5 +1,0 @@
-<avg width="160" height="120">
-  <div id="enclosingdiv">
-    <video id="brokenvideo" href="filedoesntexist.avi" threaded="true"/>
-  </div>
-</avg>

@@ -48,7 +48,6 @@ class ImageTestCase(AVGTestCase):
             return node
 
         def addNodes(y):
-            root = Player.getRootNode()
             
             xmlNode = createXmlNode((16, y))
             root.appendChild(xmlNode)
@@ -69,7 +68,6 @@ class ImageTestCase(AVGTestCase):
 
         def setUnicodeHref():
             if self._isCurrentDirWriteable():
-                root = Player.getRootNode()
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
                 shutil.copyfile("oe.png", u"ö.png")
@@ -82,10 +80,10 @@ class ImageTestCase(AVGTestCase):
             if self._isCurrentDirWriteable():
                 self.compareImage("testImgHRef3", False)
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         addNodes(16)
-        self.start(None,
-                (lambda: self.compareImage("testImgHRef1", False),
+        self.start((
+                 lambda: self.compareImage("testImgHRef1", False),
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgHRef2", False),
                  setUnicodeHref,
@@ -105,7 +103,6 @@ class ImageTestCase(AVGTestCase):
             self.assertException(node.pos.y == 23)
 
         def addNodes(y):
-            root = Player.getRootNode()
             xmlNode = createXmlNode((16, y))
             root.appendChild(xmlNode)
             createDictNode(root, (48, y))
@@ -118,10 +115,10 @@ class ImageTestCase(AVGTestCase):
             attachNode.pos = avg.Point2D(112, y)
             illegalMove(attachNode)
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         addNodes(16)
-        self.start(None,
-                (lambda: self.compareImage("testImgPos1", False),
+        self.start((
+                 lambda: self.compareImage("testImgPos1", False),
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgPos2", False),
                 ))
@@ -136,7 +133,6 @@ class ImageTestCase(AVGTestCase):
             return avg.ImageNode(pos=p, size=s, href="rgb24-64x64.png")
 
         def addNodes(y):
-            root = Player.getRootNode()
             xmlNode = createXmlNode((16, y), (32, 32))
             self.assert_(xmlNode.size == avg.Point2D(32, 32))
             root.appendChild(xmlNode)
@@ -152,10 +148,10 @@ class ImageTestCase(AVGTestCase):
             attachNode.size = avg.Point2D(32, 32)
             self.assert_(attachNode.size == avg.Point2D(32, 32))
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         addNodes(16)
-        self.start(None,
-                (lambda: self.compareImage("testImgSize1", False),
+        self.start((
+                 lambda: self.compareImage("testImgSize1", False),
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgSize2", False),
                 ))
@@ -171,7 +167,6 @@ class ImageTestCase(AVGTestCase):
             node.setWarpedVertexCoords(grid)
 
         def testEarlyAccessException():
-            root = Player.getRootNode()
             node = createNode((16, 16))
             root.appendChild(node)
             self.assertException(node.getWarpedVertexCoords)
@@ -179,13 +174,13 @@ class ImageTestCase(AVGTestCase):
 
         def addNode():
             node = createNode((16, 16))
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
             moveVertex(node)
         
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         testEarlyAccessException()
-        self.start(None,
-                (lambda: addNode(),
+        self.start((
+                 lambda: addNode(),
                  lambda: self.compareImage("testImgWarp1", False),
                 ))
 
@@ -204,7 +199,7 @@ class ImageTestCase(AVGTestCase):
             self.assert_(bmp.getSize() == (65,65))
             node.setBitmap(bmp)
             self.assert_(node.getMediaSize() == (65,65))
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
         
         def testStringConversion():
             bmp = avg.Bitmap('rgb24-65x65.png')
@@ -239,17 +234,17 @@ class ImageTestCase(AVGTestCase):
         node = avg.ImageNode(href="rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         node = avg.ImageNode(pos=(0,0), size=(32, 32), href="rgb24-65x65.png")
-        Player.getRootNode().appendChild(node)
+        root.appendChild(node)
         getBitmap(node)
         self.assert_(node.size == (32,32))
         loadFromBitmap((32,0), "")
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
         testStringConversion()
         testUnicode()
-        self.start(None,
-                (lambda: getBitmap(node),
+        self.start((
+                 lambda: getBitmap(node),
                  lambda: loadFromBitmap((32,32), ""),
                  lambda: loadFromBitmap((64,32), "rgb24alpha-64x64.png"),
                  lambda: self.compareImage("testBitmap1", False),
@@ -297,7 +292,7 @@ class ImageTestCase(AVGTestCase):
                     "within %dms timeout" % WAIT_TIMEOUT)
             Player.stop()
             
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         
         Player.setTimeout(WAIT_TIMEOUT, reportStuck)
         Player.setResolution(0, 0, 0, 0)
@@ -306,20 +301,20 @@ class ImageTestCase(AVGTestCase):
         
     def testBlendMode(self):
         def setBlendMode():
-            Player.getElementByID("blend").blendmode="add"
+            blendNode.blendmode="add"
         
-        Player.loadString("""
-            <avg width="160" height="120">
-                <image x="0" y="0" href="freidrehen.jpg"/>
-                <image id="blend" x="0" y="0" opacity="0.6" href="rgb24-65x65.png"/>
-                <image x="0" y="48" opacity="0.6" href="rgb24-65x65.png" blendmode="add"/>
-                <image x="48" y="0" opacity="1" href="rgb24-65x65.png" blendmode="min"/>
-                <image x="48" y="48" opacity="1" href="rgb24-65x65.png" 
-                        blendmode="max"/>
-            </avg>
-        """)
-        self.start(None,
-                (lambda: self.compareImage("testBlend1", False),
+        root = self.loadEmptyScene()
+        avg.ImageNode(href="freidrehen.jpg", parent=root)
+        blendNode = avg.ImageNode(opacity=0.6, href="rgb24-65x65.png", parent=root)
+        avg.ImageNode(pos=(0,48), opacity=0.6, href="rgb24-65x65.png", blendmode="add",
+                parent=root)
+        avg.ImageNode(pos=(48,0), opacity=1, href="rgb24-65x65.png", blendmode="min",
+                parent=root)
+        avg.ImageNode(pos=(48,48), opacity=1, href="rgb24-65x65.png", blendmode="max",
+                parent=root)
+
+        self.start((
+                 lambda: self.compareImage("testBlend1", False),
                  setBlendMode,
                  lambda: self.compareImage("testBlend2", False)
                 ))
@@ -327,11 +322,11 @@ class ImageTestCase(AVGTestCase):
     def _isMaskSupported(self):
         global g_IsMaskSupported
         if g_IsMaskSupported == None:
-            self.loadEmptyScene()
+            root = self.loadEmptyScene()
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png")
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
             try:
-                self.start(None, [])
+                self.start([])
                 g_IsMaskSupported = True
             except RuntimeError:
                 g_IsMaskSupported = False
@@ -341,16 +336,16 @@ class ImageTestCase(AVGTestCase):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
                     pos=p, size=(32, 32))
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
 
         def setNoAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32))
             node.maskhref = "mask.png"
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
 
         def setAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32))
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
             node.maskhref = "mask.png"
 
         def changeHRef():
@@ -365,13 +360,13 @@ class ImageTestCase(AVGTestCase):
         if not(self._isMaskSupported()):
             print "Skipping testImageMask - no shader support."
             return
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         createNode((0,0))
-        node = Player.getRootNode().getChild(0)
+        node = root.getChild(0)
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start(None,
-                (lambda: createNode((0, 32)),
+        self.start((
+                 lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
                  lambda: self.compareImage("testImgMask1", False),
@@ -386,45 +381,43 @@ class ImageTestCase(AVGTestCase):
         if not(self._isMaskSupported()):
             print "Skipping testImageMaskCanvas - no shader support."
             return
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         Player.loadCanvasString("""
             <canvas id="testcanvas" width="64" height="64">
                 <image href="rgb24-64x64.png"/>
             </canvas>
         """)
-        node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png")
-        Player.getRootNode().appendChild(node)
-        self.start(None,
-                [lambda: self.compareImage("testImgMaskCanvas", False)
-                ])
+        avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
+        node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
+        self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
 
     def testImageMaskPos(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
                     pos=p, size=(32, 32), maskpos=(32, 32))
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
             
         def setNoAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
                     pos=p, size=(32, 32))
             node.maskpos = (32, 32)
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
 
         def setAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
                     pos=p, size=(32, 32))
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
             node.maskpos = (32, 32)
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         if not(self._isMaskSupported()):
             print "Skipping testImageMaskPos - no shader support."
             return
         createNode((0,0))
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start(None,
-                (lambda: createNode((0, 32)),
+        self.start((
+                 lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
                  lambda: self.compareImage("testImgMaskPos", False)
@@ -433,17 +426,17 @@ class ImageTestCase(AVGTestCase):
     def testImageMaskSize(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), masksize=(48, 48), parent=Player.getRootNode())
+                    pos=p, size=(32, 32), masksize=(48, 48), parent=root)
             
         def setNoAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
                     pos=p, size=(32, 32))
             node.masksize = (48, 48)
-            Player.getRootNode().appendChild(node)
+            root.appendChild(node)
 
         def setAttach(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), parent=Player.getRootNode())
+                    pos=p, size=(32, 32), parent=root)
             node.masksize = (48, 48)
 
         def setPos():
@@ -453,16 +446,16 @@ class ImageTestCase(AVGTestCase):
             node.maskpos = (0, 0)
             node.masksize = (0, 0)
 
-        self.loadEmptyScene()
+        root = self.loadEmptyScene()
         if not(self._isMaskSupported()):
             print "Skipping testImageMaskPos - no shader support."
             return
         createNode((0,0))
-        node = Player.getRootNode().getChild(0)
+        node = root.getChild(0)
         setNoAttach((32,0))
         setAttach((64,0))
-        self.start(None,
-                (lambda: createNode((0, 32)),
+        self.start((
+                 lambda: createNode((0, 32)),
                  lambda: setNoAttach((32,32)),
                  lambda: setAttach((64,32)),
                  lambda: self.compareImage("testImgMaskSize1", False),
@@ -473,16 +466,11 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def testImageMipmap(self):
-        Player.loadString("""
-            <avg id="imageavg" width="160" height="120">
-                <image width="64" height="64" href="checker.png"/>
-                <image x="64" width="64" height="64" href="checker.png" mipmap="true"/>
-            </avg>
-        
-        """)
-        self.start(None, 
-                [lambda: self.compareImage("testMipmap", False)
-                ])
+        root = self.loadEmptyScene()
+        avg.ImageNode(size=(64,64), href="checker.png", parent=root)
+        avg.ImageNode(pos=(64,0), size=(64,64), href="checker.png", mipmap=True, 
+                parent=root)
+        self.start([lambda: self.compareImage("testMipmap", False)])
 
     def testImageCompression(self):
         def loadBitmap():
@@ -491,21 +479,17 @@ class ImageTestCase(AVGTestCase):
 
         def relink():
             self.image.unlink(False)
-            Player.getRootNode().appendChild(self.image)
+            root.appendChild(self.image)
 
         def checkAlpha():
             self.image.href="rgb24alpha-64x64.png"
 
-        Player.loadString("""
-            <avg id="imageavg" width="160" height="120">
-                <image id="img" href="rgb24-64x64.png" compression="B5G6R5"/>
-            </avg>
-        
-        """)
-        self.image = Player.getElementByID("img")
+        root = self.loadEmptyScene()
+        self.image = avg.ImageNode(href="rgb24-64x64.png", compression="B5G6R5",
+                parent=root)
         self.assert_(self.image.compression == "B5G6R5")
-        self.start(None, 
-                [lambda: self.compareImage("testTexCompression1", False),
+        self.start([
+                 lambda: self.compareImage("testTexCompression1", False),
                  loadBitmap,
                  lambda: self.compareImage("testTexCompression2", False),
                  relink,

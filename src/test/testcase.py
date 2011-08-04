@@ -76,7 +76,6 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-
     @staticmethod
     def setBaselineImageDirectory(name):
         AVGTestCase.baselineImageResultDirectory = name
@@ -85,13 +84,11 @@ class AVGTestCase(unittest.TestCase):
     def getBaselineImageDir():
         return AVGTestCase.baselineImageResultDirectory
     
-    def start(self, filename, actions):
+    def start(self, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
         
         self.assert_(self.__player.isPlaying() == 0)
-        if filename != None:
-            self.__player.loadFile(filename)
         self.actions = actions
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)
@@ -146,7 +143,16 @@ class AVGTestCase(unittest.TestCase):
         <avg id="avg" width="%d" height="%d">
         </avg>
         """ % (resolution[0], resolution[1])
-        return self.__player.loadString(sceneString)
+        self.__player.loadString(sceneString)
+        return self.__player.getRootNode()
+
+    def initDefaultImageScene(self):
+        root = self.loadEmptyScene()
+        avg.ImageNode(id="testtiles", pos=(0,30), size=(65,65), href="rgb24-65x65.png", 
+                maxtilewidth=16, maxtileheight=32, parent=root)
+        avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png", pivot=(0,0),
+                angle=0.274, parent=root)
+        avg.ImageNode(id="test1", pos=(129,30), href="rgb24-65x65.png", parent=root)
 
     def fakeClick(self, x, y):
         helper = self.__player.getTestHelper()

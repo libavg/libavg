@@ -133,16 +133,11 @@ CanvasNodePtr Canvas::getRootNode() const
     return m_pRootNode;
 }
 
-static ProfilingZoneID PreRenderSignalProfilingZone("PreRender signal");
 static ProfilingZoneID RenderProfilingZone("Render");
-static ProfilingZoneID FrameEndProfilingZone("OnFrameEnd");
 
 void Canvas::doFrame(bool bPythonAvailable)
 {
-    {
-        ScopeTimer Timer(PreRenderSignalProfilingZone);
-        m_PreRenderSignal.emit();
-    }
+    emitPreRenderSignal();
     if (!m_pPlayer->isStopping()) {
         ScopeTimer Timer(RenderProfilingZone);
         if (bPythonAvailable) {
@@ -158,10 +153,7 @@ void Canvas::doFrame(bool bPythonAvailable)
             render();
         }
     }
-    {
-        ScopeTimer Timer(FrameEndProfilingZone);
-        m_FrameEndSignal.emit();
-    }
+    emitFrameEndSignal();
 }
 
 IntPoint Canvas::getSize() const
@@ -287,6 +279,22 @@ void Canvas::renderOutlines()
         m_pDisplayEngine->enableGLColorArray(true);
         pVA->draw();
     }
+}
+
+static ProfilingZoneID PreRenderSignalProfilingZone("PreRender signal");
+
+void Canvas::emitPreRenderSignal()
+{
+    ScopeTimer Timer(PreRenderSignalProfilingZone);
+    m_PreRenderSignal.emit();
+}
+
+static ProfilingZoneID FrameEndProfilingZone("OnFrameEnd");
+
+void Canvas::emitFrameEndSignal()
+{
+    ScopeTimer Timer(FrameEndProfilingZone);
+    m_FrameEndSignal.emit();
 }
 
 }

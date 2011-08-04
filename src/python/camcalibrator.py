@@ -258,7 +258,6 @@ class Calibrator(AVGApp):
         self.video = []
         self.__guiOpacity = 1
         self.__showBigCamImage = False
-        self.__ignoreCommands = False
         self.__notificationTimer = None
         self.__onCalibrationSuccess = None
 
@@ -278,8 +277,10 @@ class Calibrator(AVGApp):
         g_KbManager.bindKey('page down', self.__keyFuncPAGEDown, 'value down * 10')
         g_KbManager.bindKey('s', self.__trackerSaveConfig, 'save configuration')
         g_KbManager.bindKey('g', self.__toggleGUI, 'toggle GUI')
+        g_KbManager.bindKey('c', self.__startCoordCalibration,
+                'start geometry calibration')
         g_KbManager.bindKey('w', self.__saveTrackerIMG, 'SAVE trager image')
-        g_KbManager.bindKey('h', self.appStarter.tracker.resetHistory, 'RESET history')        
+        g_KbManager.bindKey('h', self.appStarter.tracker.resetHistory, 'RESET history')
         
         self.appStarter.showTrackerImage()
         self.mainNode.active=True
@@ -319,7 +320,7 @@ class Calibrator(AVGApp):
         self.displayParams()
         self.tracker.resetHistory()
         self.setNotification('')
-        self.__ignoreCommands = False
+        g_KbManager.pop()
         g_Player.getElementByID('cal_params').opacity = 0.9
 
     def __clearNotification(self):
@@ -356,126 +357,76 @@ class Calibrator(AVGApp):
         fps = g_Player.getEffectiveFramerate()
         g_Player.getElementByID("cal_fps").text = '%(val).2f' % {'val': fps} 
         
-        
-        
     def __trackerSetDebugImages(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            self.appStarter.toggleTrackerImage()
-            # toggleTrackerImage() will influence setDebugImages status, so we have to reset it:
-            self.tracker.setDebugImages(True, True)
+        self.appStarter.toggleTrackerImage()
+        # toggleTrackerImage() will influence setDebugImages status, so we have to reset it:
+        self.tracker.setDebugImages(True, True)
                      
     def __bigCamImage(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            print "bigCamImage"
-            self.__showBigCamImage = not(self.__showBigCamImage)
-
+        self.__showBigCamImage = not(self.__showBigCamImage)
         
     def __keyFuncUP(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            if self.curParam > 0:
-                self.curParam -= 1
+        if self.curParam > 0:
+            self.curParam -= 1
         self.displayParams()    
                 
     def __keyFuncDOWN(self):
-        
-        if self.__ignoreCommands:
-            return False
-        else:
-            if self.curParam < len(self.paramList)-1:
-                self.curParam += 1
+        if self.curParam < len(self.paramList)-1:
+            self.curParam += 1
         self.displayParams()  
                 
     def __keyFuncLEFT(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            self.changeParam(-1)
+        self.changeParam(-1)
         self.displayParams()  
         
     def __keyFuncRIGHT(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            self.changeParam(1)  
+        self.changeParam(1)  
         self.displayParams()  
         
     def __keyFuncPAGEUp(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            self.changeParam(10)
+        self.changeParam(10)
         self.displayParams()  
         
     def __keyFuncPAGEDown(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            self.changeParam(-10)
+        self.changeParam(-10)
         self.displayParams()  
                 
     def __trackerSaveConfig(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            self.tracker.saveConfig()
-            self.setNotification('Tracker configuration saved', 2000)
-            g_Log.trace(g_Log.APP, "Tracker configuration saved.")
-            return False
+        self.tracker.saveConfig()
+        self.setNotification('Tracker configuration saved', 2000)
+        g_Log.trace(g_Log.APP, "Tracker configuration saved.")
               
     def __saveTrackerIMG(self):
-        if self.__ignoreCommands:
-            return False
-        else:
-            def saveTrackerImage(id, name):
-                self.tracker.getImage(id).save("img"+str(self.saveIndex)+"_"+name+".png")
-            self.saveIndex += 1
-            saveTrackerImage(avg.IMG_CAMERA, "camera")
-            saveTrackerImage(avg.IMG_DISTORTED, "distorted")
-            saveTrackerImage(avg.IMG_NOHISTORY, "nohistory")
-            saveTrackerImage(avg.IMG_HIGHPASS, "highpass")
-            saveTrackerImage(avg.IMG_FINGERS, "fingers")
-            saveTrackerImage(avg.IMG_HISTOGRAM, "histogram")
-            self.setNotification('Tracker images dumped', 2000)
-            g_Log.trace(g_Log.APP, "Tracker images saved.")
-      
-        
-    def onKeyDown(self, Event):
-        if self.__ignoreCommands:
-            return False
-        if Event.keystring == "c":
-            if not(self.coordCal):
-                self.appStarter.helpInstance.backupKeys()
-                self.__savedShutter = self.tracker.getParam("/camera/shutter/@value")
-                self.tracker.setParam("/camera/shutter/@value", "8")
-                self.__savedGain = self.tracker.getParam("/camera/gain/@value")
-                self.tracker.setParam("/camera/gain/@value", "16")
-                self.__savedStrobe = self.tracker.getParam("/camera/strobeduration/@value")
-                self.tracker.setParam("/camera/strobeduration/@value", "-1")
-                self.coordCal = coordcalibrator.CoordCalibrator(self.tracker, g_Player )
-              
-        elif self.coordCal:
-            ok = self.coordCal.onKeyUp(Event)
-            if not(ok):
-                self.coordCal = None
-                self.tracker.setParam("/camera/shutter/@value", self.__savedShutter)
-                self.tracker.setParam("/camera/gain/@value", self.__savedGain)
-                self.tracker.setParam("/camera/strobeduration/@value", self.__savedStrobe)
-                if self.__onCalibrationSuccess:
-                    self.__onCalibrationSuccess()
-                self.deferredRefresh()
-                self.appStarter.helpInstance.restoreKeys()
-                return False
-        else:
-            return False 
-        self.displayParams()
-        return True     
-            
+        def saveTrackerImage(id, name):
+            self.tracker.getImage(id).save("img"+str(self.saveIndex)+"_"+name+".png")
+
+        self.saveIndex += 1
+        saveTrackerImage(avg.IMG_CAMERA, "camera")
+        saveTrackerImage(avg.IMG_DISTORTED, "distorted")
+        saveTrackerImage(avg.IMG_NOHISTORY, "nohistory")
+        saveTrackerImage(avg.IMG_HIGHPASS, "highpass")
+        saveTrackerImage(avg.IMG_FINGERS, "fingers")
+        saveTrackerImage(avg.IMG_HISTOGRAM, "histogram")
+        self.setNotification('Tracker images dumped', 2000)
+        g_Log.trace(g_Log.APP, "Tracker images saved.")
+    
+    def __startCoordCalibration(self):
+        assert(not self.coordCal)
+
+        self.__savedShutter = self.tracker.getParam("/camera/shutter/@value")
+        self.tracker.setParam("/camera/shutter/@value", "8")
+        self.__savedGain = self.tracker.getParam("/camera/gain/@value")
+        self.tracker.setParam("/camera/gain/@value", "16")
+        self.__savedStrobe = self.tracker.getParam("/camera/strobeduration/@value")
+        self.tracker.setParam("/camera/strobeduration/@value", "-1")
+        self.coordCal = coordcalibrator.CoordCalibrator(self.__onCalibrationTerminated)
+    
+    def __onCalibrationTerminated(self, isSuccessful):
+        self.coordCal = None
+        self.tracker.setParam("/camera/shutter/@value", self.__savedShutter)
+        self.tracker.setParam("/camera/gain/@value", self.__savedGain)
+        self.tracker.setParam("/camera/strobeduration/@value", self.__savedStrobe)
+        self.deferredRefresh()
         
     def setOnCalibrationSuccess(self, callback):
         self.__onCalibrationSuccess = callback
@@ -483,7 +434,7 @@ class Calibrator(AVGApp):
     def deferredRefresh(self):
         g_Player.setTimeout(1500, self.__deferredRefreshCB)
         self.setNotification('Please wait for settlement')
-        self.__ignoreCommands = True
+        g_KbManager.push()
         g_Player.getElementByID('cal_params').opacity = 0.3
 
     def setNotification(self, text, timeout=0):
@@ -491,7 +442,9 @@ class Calibrator(AVGApp):
         if timeout:
             if self.__notificationTimer is not None:
                 g_Player.clearInterval(self.__notificationTimer)
-            self.__notificationTimer = g_Player.setTimeout(timeout, self.__clearNotification)
+            
+            self.__notificationTimer = g_Player.setTimeout(timeout,
+                    self.__clearNotification)
 
     def displayParams(self):
         i = 0

@@ -4,6 +4,9 @@ Animation
 .. automodule:: libavg.avg
     :no-members:
 
+    .. inheritance-diagram:: AnimState ContinuousAnim EaseInOutAnim LinearAnim ParallelAnim StateAnim WaitAnim
+        :parts: 1
+
     .. autoclass:: Anim
 
         Base class for all animations.

@@ -36,10 +36,10 @@ namespace avg {
 
 const int MOUSECURSORID=-1;
 
-class CursorEvent;
+class AVG_API CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
-class Contact;
+class AVG_API Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
 typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
