@@ -280,13 +280,13 @@ public:
         GPUHueSatFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
         //Test hue functionality
         for (int run = 0; run < 3; run++) {
-            filter.setParams(run*90);
+            filter.setParams(run*90.f);
             pDestBmp = filter.apply(pBmp);
             testEqual(*pDestBmp, "HslHueResult"+toString(run), R8G8B8X8, 0, 0);
         }
         //Test colorize functionality
         for (int run = 0; run < 3; run++) {
-            filter.setParams(run*90, 1.0, 0.0, true);
+            filter.setParams(run*90.f, 1.0, 0.0, true);
             pDestBmp = filter.apply(pBmp);
             testEqual(*pDestBmp, "HslColorizeResult"+toString(run), R8G8B8X8, 0, 0);
         }
