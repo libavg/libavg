@@ -60,8 +60,8 @@ bool VDPAU::s_bInitFailed = false;
 
 VDPAU::VDPAU()
     : m_PixFmt(PIX_FMT_NONE),
-      m_VDPDecoder(0),
-      m_VDPMixer(0),
+      m_VDPDecoder(VDP_INVALID_HANDLE),
+      m_VDPMixer(VDP_INVALID_HANDLE),
       m_Size(-1,-1)
 {
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
@@ -72,22 +72,15 @@ VDPAU::VDPAU()
 VDPAU::~VDPAU()
 {
     VdpStatus status;
-    if (m_VDPMixer) {
+    if (m_VDPMixer != VDP_INVALID_HANDLE) {
         status = vdp_video_mixer_destroy(m_VDPMixer);
-        AVG_ASSERT(status == VDP_STATUS_OK);
-        m_VDPMixer = VDP_INVALID_HANDLE;
     }
-    if (m_VDPDecoder) {
+    if (m_VDPDecoder != VDP_INVALID_HANDLE) {
         status = vdp_decoder_destroy(m_VDPDecoder);
-        AVG_ASSERT(status == VDP_STATUS_OK);
-        m_VDPDecoder = VDP_INVALID_HANDLE;
     }
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         if (m_VideoSurfaces[i].m_Surface != VDP_INVALID_HANDLE) {
             status = vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
-            AVG_ASSERT(status == VDP_STATUS_OK);
-            m_VideoSurfaces[i].m_RenderState.surface = VDP_INVALID_HANDLE;
-            m_VideoSurfaces[i].m_Surface = VDP_INVALID_HANDLE;
         }
     }
 }
@@ -348,12 +341,12 @@ void VDPAU::render(AVCodecContext* pContext, const AVFrame* pFrame)
             default:
                 AVG_ASSERT(false);
         }
-        if (m_VDPMixer) {
+        if (m_VDPMixer != VDP_INVALID_HANDLE) {
             status = vdp_video_mixer_destroy(m_VDPMixer);
             AVG_ASSERT(status == VDP_STATUS_OK);
             m_VDPMixer = VDP_INVALID_HANDLE;
         }    
-        if (m_VDPDecoder) {
+        if (m_VDPDecoder != VDP_INVALID_HANDLE) {
             status = vdp_decoder_destroy(m_VDPDecoder);
             AVG_ASSERT(status == VDP_STATUS_OK);
             m_VDPDecoder = VDP_INVALID_HANDLE;
