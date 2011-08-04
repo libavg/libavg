@@ -69,6 +69,8 @@ bool VideoDecoderThread::work()
         if (usesVDPAU) {
 #ifdef AVG_ENABLE_VDPAU
             frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
+#else
+            frameAvailable = FA_NEW_FRAME; // Never executed - silences compiler warning.
 #endif
         } else {
             IntPoint size = m_pDecoder->getSize();

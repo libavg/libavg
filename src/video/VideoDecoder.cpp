@@ -39,6 +39,7 @@ bool VideoDecoder::usesVDPAU() const
 FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
     AVG_ASSERT(false);
+    return FA_NEW_FRAME; // Silence compiler warning.
 }
 
 }
