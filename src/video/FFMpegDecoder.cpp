@@ -257,6 +257,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer)
         }
         if (m_pAStream->codec->sample_fmt != SAMPLE_FMT_S16) {
             m_AStreamIndex = -1;
+            m_pAStream = 0; 
             AVG_TRACE(Logger::WARNING, 
                     sFilename + ": unsupported sample format (!= S16). Disabling audio.");
         }
