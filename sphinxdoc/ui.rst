@@ -7,7 +7,7 @@ functionality
 .. automodule:: libavg.ui
     :no-members:
 
-    .. autoclass:: Button([upNode=None, downNode=None, disabledNode=None, activeAreaNode=None, pressHandler=None, clickHandler=None, stateChangeHandler=None])
+    .. autoclass:: Button(upNode, downNode[, disabledNode=None, activeAreaNode=None, pressHandler=None, clickHandler=None, stateChangeHandler=None])
 
         A generic button that shows different user-supplied nodes depending on it's
         state. Possible button states are up, down and disabled. The nodes are attached
@@ -19,6 +19,13 @@ functionality
         :param avg.Node downNode: The node displayed when the button is pressed.
 
         :param avg.Node disabledNode: The node displayed when the button is disabled.
+
+        :param avg.Node activeAreaNode: 
+        
+            A node that is used only to determine if a click is over the button. Usually,
+            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
+            buttons, where the active area should be larger than the visible button to
+            accout for touch inaccuracies.
 
         The callbacks are:
 
@@ -39,11 +46,11 @@ functionality
 
         .. py:method:: delete():
 
-        .. py:method:: getUpNode() -> node:
+        .. py:method:: getUpNode() -> Node:
 
-        .. py:method:: getDownNode() -> node:
+        .. py:method:: getDownNode() -> Node:
 
-        .. py:method:: getDisabledNode() -> node:
+        .. py:method:: getDisabledNode() -> Node:
 
         .. py:method:: setEnabled(isEnabled):
 
@@ -313,6 +320,48 @@ functionality
             .. py:method:: failHandler(event):
 
                 Called if the touch moves too far from the initial position to be a tap.
+
+
+    .. autoclass:: TouchButton(upNode, downNode, disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+
+        A button made specifically for touch input. Uses the :py:class:`TapRecognizer` to
+        detect clicks.
+
+        :param avg.Node upNode: The node displayed when the button is not pressed.
+
+        :param avg.Node downNode: The node displayed when the button is pressed.
+
+        :param avg.Node disabledNode: The node displayed when the button is disabled.
+
+        :param avg.Node activeAreaNode: 
+        
+            A node that is used only to determine if a click is over the button. Usually,
+            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
+            buttons, where the active area should be larger than the visible button to
+            accout for touch inaccuracies.
+
+        :param bool fatFingerEnlarge:
+
+            If this parameter is set to :py:const:`True`, the button generates it's own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
+
+        The callbacks are:
+
+            .. py:method:: clickHandler(event)
+
+                Called when the button is clicked.
+
+        .. py:attribute:: enabled
+
+            :py:const:`True` if the button accepts input. If the button is disabled,
+            it shows the :py:attr:`disabledNode`.
+
+        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None]) -> Button
+
+            Factory method that creates a button from filenames of the images to be
+            displayed for different states.
 
 
     .. autoclass:: TransformRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
