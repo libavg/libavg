@@ -30,11 +30,22 @@ class StateMachine:
         self.__name = name
         self.__curState = startState
         self.__trace = False
+        self.__initDone = False
 
     def addState(self, state, transitions, enterFunc=None, leaveFunc=None):
+        if self.__initDone:
+            raise RuntimeError(
+                    "StateMachine: Can't add new states after calling changeState")
+        if self.__states.has_key(state):
+            raise RuntimeError("StateMachine: Duplicate state " + state + ".")
+
         self.__states[state] = State(transitions, enterFunc, leaveFunc)
 
     def changeState(self, newState):
+        if not(self.__initDone):
+            self.__initDone = True
+            self.__doSanityCheck()
+
         if self.__trace:
             print self.__name, ":", self.__curState, "-->", newState
 
@@ -74,3 +85,9 @@ class StateMachine:
                 print "  -->", newState, ":", func.__name__
         print "Current state:", self.__curState
 
+    def __doSanityCheck(self):
+        for stateName, state in self.__states.iteritems():
+            for transitionName in state.transitions.iterkeys():
+                if not(self.__states.has_key(transitionName)):
+                    raise RuntimeError("StateMachine: transition " + stateName + " -> " + 
+                            transitionName + " has an unknown destination state.")

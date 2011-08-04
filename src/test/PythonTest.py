@@ -1427,6 +1427,7 @@ class PythonTestCase(AVGTestCase):
         machine.addState('A', {'B': atob, 'nostate': atob}, aEntered, aLeft)
         machine.addState('B', {'C': btoc, 'A': btoa})
         machine.addState('C', {'A': None})
+        self.assertException(lambda: machine.addState('C', {'A': None}))
         self.assertException(lambda: machine.changeState('C'))
         self.assertException(lambda: machine.changeState('nostate'))
         machine.changeState('B')
@@ -1440,7 +1441,12 @@ class PythonTestCase(AVGTestCase):
         self.assert_(self.btocCalled)
         machine.changeState('A')
         self.assert_(machine.state == 'A')
+        self.assertException(lambda: machine.addState('illegal', {}))
 
+        # Make a machine with a transition to a nonexistent state.
+        kaputtMachine = statemachine.StateMachine("kaputt", 'A')
+        kaputtMachine.addState('A', {'B': None})
+        self.assertException(lambda: kaputtMachine.changeState('B'))
 
     def __sendMouseEvent(self, type, x, y):
         Helper = Player.getTestHelper()
