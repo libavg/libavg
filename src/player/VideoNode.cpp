@@ -61,7 +61,7 @@ NodeDefinition VideoNode::createDefinition()
         .addArg(Arg<int>("queuelength", 8, false, 
                 offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
-        .addArg(Arg<bool>("accelerated", true, false,
+        .addArg(Arg<bool>("accelerated", false, false,
                 offsetof(VideoNode, m_bUseHardwareAcceleration)))
         ;
 }
@@ -78,7 +78,7 @@ VideoNode::VideoNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_bUseHardwareAcceleration(true)
+      m_bUseHardwareAcceleration(false)
 {
     args.setMembers(this);
     m_Filename = m_href;
