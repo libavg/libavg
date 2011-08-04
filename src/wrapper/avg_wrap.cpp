@@ -188,7 +188,7 @@ BOOST_PYTHON_MODULE(avg)
     class_<OffscreenCanvas, boost::shared_ptr<OffscreenCanvas>, bases<Canvas>,
             boost::noncopyable>("OffscreenCanvas", no_init)
         .def("getID", &OffscreenCanvas::getID)
-        .def("render", &OffscreenCanvas::render)
+        .def("render", &OffscreenCanvas::manualRender)
         .def("registerCameraNode", &OffscreenCanvas::registerCameraNode)
         .def("unregisterCameraNode", &OffscreenCanvas::unregisterCameraNode)
         .add_property("handleevents", &OffscreenCanvas::getHandleEvents)

@@ -81,22 +81,6 @@ void OffscreenCanvas::stopPlayback()
 
 static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
 
-void OffscreenCanvas::render()
-{
-    if (!isRunning()) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
-    }
-    getDisplayEngine()->setMainFBO(m_pFBO);
-    m_pFBO->activate();
-    Canvas::render(IntPoint(getRootNode()->getSize()), true, 
-            OffscreenRenderProfilingZone);
-    m_pFBO->deactivate();
-    m_pFBO->copyToDestTexture();
-    getDisplayEngine()->setMainFBO(FBOPtr());
-    m_bIsRendered = true;
-}
-
 BitmapPtr OffscreenCanvas::screenshot() const
 {
     if (!isRunning() || !m_bIsRendered) {
@@ -132,6 +116,13 @@ bool OffscreenCanvas::getAutoRender() const
 void OffscreenCanvas::setAutoRender(bool bAutoRender)
 {
     dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->setAutoRender(bAutoRender);
+}
+
+void OffscreenCanvas::manualRender()
+{
+    emitPreRenderSignal(); 
+    render(); 
+    emitFrameEndSignal(); 
 }
 
 std::string OffscreenCanvas::getID() const
@@ -240,6 +231,22 @@ void OffscreenCanvas::dump() const
     for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         cerr << " " << m_pDependentCanvases[i]->getRootNode()->getID() << endl;
     }
+}
+
+void OffscreenCanvas::render()
+{
+    if (!isRunning()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
+    }
+    getDisplayEngine()->setMainFBO(m_pFBO);
+    m_pFBO->activate();
+    Canvas::render(IntPoint(getRootNode()->getSize()), true, 
+            OffscreenRenderProfilingZone);
+    m_pFBO->deactivate();
+    m_pFBO->copyToDestTexture();
+    getDisplayEngine()->setMainFBO(FBOPtr());
+    m_bIsRendered = true;
 }
 
 }

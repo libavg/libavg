@@ -44,13 +44,13 @@ class AVG_API OffscreenCanvas: public Canvas
                 AudioEngine* pAudioEngine);
         virtual void stopPlayback();
 
-        virtual void render();
         virtual BitmapPtr screenshot() const;
         bool getHandleEvents() const;
         int getMultiSampleSamples() const;
         bool getMipmap() const;
         bool getAutoRender() const;
         void setAutoRender(bool bAutoRender);
+        void manualRender(); // This is the render that can be called from python.
 
         std::string getID() const;
         bool isRunning() const;
@@ -71,6 +71,9 @@ class AVG_API OffscreenCanvas: public Canvas
         static bool isMultisampleSupported();
         void dump() const;
  
+    protected:
+        virtual void render();
+
     private:
         FBOPtr m_pFBO;
         bool m_bUseMipmaps;
