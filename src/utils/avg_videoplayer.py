@@ -86,7 +86,7 @@ class VideoPlayer(AVGApp):
                         fillopacity=1)
 
 if len(sys.argv) == 1:
-    print "Usage: avg_videoplayer.py <filename> [--disable-accel]"
+    print "Usage: avg_videoplayer.py <filename> [--disable-accel --fullscreen]"
     sys.exit(1)
 
 parser = optparse.OptionParser()
