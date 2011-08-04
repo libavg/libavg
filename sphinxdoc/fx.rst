@@ -4,6 +4,9 @@ Effect Nodes
 .. automodule:: libavg.avg
     :no-members:
 
+    .. inheritance-diagram:: BlurFXNode ChromaKeyFXNode HueSatFXNode NullFXNode ShadowFXNode
+        :parts: 1
+
     .. autoclass:: BlurFXNode
 
         Blurs the node it is applied to. Corresponds to the Gaussian Blur effect in 

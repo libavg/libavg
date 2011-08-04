@@ -7,6 +7,12 @@ Input Handling
     .. inheritance-diagram:: Event CursorEvent MouseEvent TouchEvent KeyEvent
         :parts: 1
 
+    .. inheritance-diagram:: Contact
+        :parts: 1
+
+    .. inheritance-diagram:: InputDevice
+        :parts: 1
+
     .. autoclass:: Contact
 
         A Contact encapsulates the information of one touch on an input device from

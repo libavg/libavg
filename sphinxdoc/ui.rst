@@ -7,6 +7,12 @@ functionality
 .. automodule:: libavg.ui
     :no-members:
 
+    .. inheritance-diagram:: DragRecognizer TapRecognizer TransformRecognizer
+        :parts: 1
+
+    .. inheritance-diagram:: Button TouchButton Keyboard
+        :parts: 1
+
     .. autoclass:: Button(upNode, downNode[, disabledNode=None, activeAreaNode=None, pressHandler=None, clickHandler=None, stateChangeHandler=None])
 
         A generic button that shows different user-supplied nodes depending on it's

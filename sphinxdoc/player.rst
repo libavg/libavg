@@ -4,6 +4,12 @@ Player & Canvas
 .. automodule:: libavg.avg
     :no-members:
 
+    .. inheritance-diagram:: OffscreenCanvas
+        :parts: 1
+
+    .. inheritance-diagram:: Player
+        :parts: 1
+
     This section describes the classes that provide a framework for rendering. The 
     :py:class:`Player` class is an interface to the avg renderer. The 
     :py:class:`Canvas` class and it's descendant :py:class:`OffscreenCanvas` provide 
