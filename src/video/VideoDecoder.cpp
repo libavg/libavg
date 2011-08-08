@@ -31,11 +31,6 @@ FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
     return renderToBmps(pBmps, timeWanted);
 }
 
-bool VideoDecoder::usesVDPAU() const
-{
-    return false;
-}
-
 FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
     AVG_ASSERT(false);

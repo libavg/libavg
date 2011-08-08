@@ -425,7 +425,7 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
             m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
-                m_pVStream->codec->codec->name);
+                m_pVStream->codec->codec->name, usesVDPAU());
     }
     if (m_pAStream) {
         AVCodecContext * pACodec = m_pAStream->codec;
@@ -624,8 +624,7 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     readFrame(frame);
     frameAvailable = FA_NEW_FRAME;
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-        if (usesVDPAU()) 
-        {
+        if (usesVDPAU()) {
             ScopeTimer timer(VDPAUCopyProfilingZone);
             vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
             *ppRenderState = pRenderState;
@@ -635,16 +634,6 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     return FA_USE_LAST_FRAME;
 }
 #endif
-
-bool FFMpegDecoder::usesVDPAU() const
-{
-#ifdef AVG_ENABLE_VDPAU
-    AVCodecContext const* pContext = getCodecContext();
-    return pContext->codec && (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU);
-#else
-    return false;
-#endif
-}
 
 void FFMpegDecoder::throwAwayFrame(double timeWanted)
 {
@@ -997,6 +986,16 @@ void FFMpegDecoder::initVideoSupport()
 //        av_log_set_level(AV_LOG_DEBUG);
         av_log_set_level(AV_LOG_QUIET);
     }
+}
+
+bool FFMpegDecoder::usesVDPAU() const
+{
+#ifdef AVG_ENABLE_VDPAU
+    AVCodecContext const* pContext = getCodecContext();
+    return pContext->codec && (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU);
+#else
+    return false;
+#endif
 }
 
 int FFMpegDecoder::getNumFrames() const

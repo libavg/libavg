@@ -73,7 +73,6 @@ class AVG_API FFMpegDecoder: public VideoDecoder
 #ifdef AVG_ENABLE_VDPAU
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
 #endif
-        virtual bool usesVDPAU() const;
         virtual void throwAwayFrame(double timeWanted);
         
         // Called from audio decoder thread
@@ -87,6 +86,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
 
     private:
         void initVideoSupport();
+        bool usesVDPAU() const;
         int openCodec(int streamIndex, bool bUseHardwareAcceleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual double getDuration() const;

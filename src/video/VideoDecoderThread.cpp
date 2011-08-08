@@ -65,7 +65,7 @@ bool VideoDecoderThread::work()
         vdpau_render_state* pRenderState = 0;
         FrameAvailableCode frameAvailable;
         vector<BitmapPtr> pBmps;
-        bool usesVDPAU = m_pDecoder->usesVDPAU();
+        bool usesVDPAU = m_pDecoder->getVideoInfo().m_bUsesVDPAU;
         if (usesVDPAU) {
 #ifdef AVG_ENABLE_VDPAU
             frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);

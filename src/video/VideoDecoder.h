@@ -77,7 +77,6 @@ class AVG_API VideoDecoder
         virtual void throwAwayFrame(double timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
-        virtual bool usesVDPAU() const;
 };
 
 typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;

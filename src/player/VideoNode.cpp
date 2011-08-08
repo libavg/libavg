@@ -62,7 +62,7 @@ NodeDefinition VideoNode::createDefinition()
                 offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
         .addArg(Arg<bool>("accelerated", false, false,
-                offsetof(VideoNode, m_bUseHardwareAcceleration)))
+                offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         ;
 }
 
@@ -78,7 +78,7 @@ VideoNode::VideoNode(const ArgList& args)
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
-      m_bUseHardwareAcceleration(false)
+      m_bUsesHardwareAcceleration(false)
 {
     args.setMembers(this);
     m_Filename = m_href;
@@ -292,7 +292,7 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
 bool VideoNode::isAccelerated() const
 {
     exceptionIfUnloaded("isAccelerated");
-    return m_pDecoder->usesVDPAU();
+    return m_bUsesHardwareAcceleration;
 }
 
 const UTF8String& VideoNode::getHRef() const
@@ -417,7 +417,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bThreaded, m_bUseHardwareAcceleration);
+    m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration);
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
@@ -466,6 +466,7 @@ void VideoNode::startDecoding()
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
     }
+    m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
 }
 
 void VideoNode::close()

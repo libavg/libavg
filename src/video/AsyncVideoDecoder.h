@@ -106,6 +106,8 @@ private:
 
     double m_LastVideoFrameTime;
     double m_LastAudioFrameTime;
+
+    bool m_bUsesVDPAU;
 };
 
 }

@@ -141,7 +141,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
 
         VideoDecoder * m_pDecoder;
         double m_Volume;
-        bool m_bUseHardwareAcceleration;
+        bool m_bUsesHardwareAcceleration;
 };
 
 }
