@@ -149,26 +149,27 @@ class AVTestCase(AVGTestCase):
                 )) 
 
     def testVideoState(self):
-        root = self.loadEmptyScene()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
-                parent=root)
-        Player.setFakeFPS(25)
-        self.start((
-                 lambda: node.play(),
-                 lambda: self.compareImage("testVideoState1", False),
-                 lambda: node.pause(),
-                 lambda: self.compareImage("testVideoState2", False),
-                 lambda: self.compareImage("testVideoState2", False),
-                 lambda: node.play(),
-                 lambda: self.compareImage("testVideoState3", False),
-                 lambda: node.stop(),
-                 lambda: self.compareImage("testVideoState4", False),
-                 lambda: node.pause(),
-                 lambda: self.compareImage("testVideoState5", False),
-                 lambda: self.compareImage("testVideoState5", False),
-                 lambda: node.stop(),
-                 lambda: self.compareImage("testVideoState4", False),
-                ))
+        for accelerated in [True, False]:
+            root = self.loadEmptyScene()
+            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
+                    threaded=False, accelerated=accelerated, parent=root)
+            Player.setFakeFPS(25)
+            self.start((
+                     lambda: node.play(),
+                     lambda: self.compareImage("testVideoState1", False),
+                     lambda: node.pause(),
+                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: node.play(),
+                     lambda: self.compareImage("testVideoState3", False),
+                     lambda: node.stop(),
+                     lambda: self.compareImage("testVideoState4", False),
+                     lambda: node.pause(),
+                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: node.stop(),
+                     lambda: self.compareImage("testVideoState4", False),
+                    ))
 
     def testVideoActive(self):
         def deactivate():
@@ -188,7 +189,7 @@ class AVTestCase(AVGTestCase):
                  activate,
                  lambda: self.compareImage("testVideoActive2", False)
                 ))
-       
+
     def testVideoHRef(self):
         def testGetMediaSize():
             self.assert_(node.getMediaSize() == (48, 48))
@@ -539,7 +540,29 @@ class AVTestCase(AVGTestCase):
             os.remove("test.mov")    
         else:
             print "Skipping VideoWriter tests - current dir not writable."
-        
+
+    def test2VideosAtOnce(self):
+        Player.setFakeFPS(25)
+        self.loadEmptyScene()
+        root = Player.getRootNode()
+        for pos in ((0,0), (80,0)):
+            video = avg.VideoNode(pos=pos, threaded=False, 
+                    href="../video/testfiles/mpeg1-48x48.mpg", parent=root)
+            video.play()
+        self.start([lambda: self.compareImage("test2VideosAtOnce1", False),])
+
+    def testVideoAccel(self):
+        accelConfig = avg.VideoNode.getVideoAccelConfig()
+        video = avg.VideoNode(threaded=False, accelerated=False, 
+                href="../video/testfiles/mpeg1-48x48.mpg")
+        video.play()
+        self.assert_(video.accelerated == False)
+        video = avg.VideoNode(threaded=False, accelerated=True, 
+                href="../video/testfiles/mpeg1-48x48.mpg")
+        video.play()
+        self.assert_(video.accelerated == (accelConfig != avg.NO_ACCELERATION))
+
+
 
 def AVTestSuite(tests):
     availableTests = (
@@ -560,7 +583,9 @@ def AVTestSuite(tests):
             "testVideoMask",
             "testVideoEOF",
             "testException",
-            "testVideoWriter"
+            "testVideoWriter",
+            "test2VideosAtOnce",
+            "testVideoAccel",
             )
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 

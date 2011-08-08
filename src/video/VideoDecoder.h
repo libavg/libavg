@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoDecoder_H_
-#define _IVideoDecoder_H_
+#ifndef _VideoDecoder_H_
+#define _VideoDecoder_H_
 
 #include "../api.h"
 
@@ -30,6 +30,8 @@
 #include "../audio/IAudioSource.h"
 
 #include <string>
+
+struct vdpau_render_state;
 
 namespace avg {
 
@@ -41,48 +43,43 @@ enum StreamSelect {
     SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_ALL
 };
 
-class AVG_API IVideoDecoder
+class AVG_API VideoDecoder
 {
     public:
         enum DecoderState {CLOSED, OPENED, DECODING};
-        virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, bool bSyncDemuxer) = 0;
-        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* AP) = 0;
+        virtual ~VideoDecoder() {};
+        virtual void open(const std::string& sFilename, bool bSyncDemuxer,
+                bool bUseHardwareAcceleration = true) = 0;
+        virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP) = 0;
         virtual void close() = 0;
         virtual DecoderState getState() const = 0;
         virtual VideoInfo getVideoInfo() const = 0;
 
-        virtual void seek(double DestTime) = 0;
+        virtual void seek(double destTime) = 0;
         virtual void loop() = 0;
         virtual IntPoint getSize() const = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;
-        virtual double getCurTime(StreamSelect Stream = SS_DEFAULT) const = 0;
+        virtual double getCurTime(StreamSelect stream = SS_DEFAULT) const = 0;
         virtual double getNominalFPS() const = 0;
         virtual double getFPS() const = 0;
-        virtual void setFPS(double FPS) = 0;
+        virtual void setFPS(double fps) = 0;
         virtual double getVolume() const = 0;
-        virtual void setVolume(double Volume) = 0;
+        virtual void setVolume(double volume) = 0;
         virtual PixelFormat getPixelFormat() const = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
                 double timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 double timeWanted) = 0;
-        virtual bool isEOF(StreamSelect Stream = SS_ALL) const = 0;
+        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
+        virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
         virtual void throwAwayFrame(double timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
-inline FrameAvailableCode IVideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
-{
-    std::vector<BitmapPtr> pBmps;
-    pBmps.push_back(pBmp);
-    return renderToBmps(pBmps, timeWanted);
-}
-
-typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
+typedef boost::shared_ptr<VideoDecoder> VideoDecoderPtr;
 
 }
 #endif 

@@ -21,27 +21,27 @@
 # Current versions can be found at www.libavg.de
 #
 
-import sys
-from libavg import avg, AVGApp
+import sys, os
 import time
+import optparse
+from libavg import avg, AVGApp
 
 g_Player = avg.Player.get()
 
-def onFrame():
-    curFrame = node.getCurFrame()
-    numFrames = node.getNumFrames()
-    g_Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
-    curVideoTime = node.getCurTime()
-    g_Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
-    framesQueued = node.getNumFramesQueued()
-    g_Player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
-
 class VideoPlayer(AVGApp):
+
+    def __init__(self, parentNode):
+        if options.fullscreen:
+            g_Player.setResolution(True, 1920, 1200, 0)
+        AVGApp.__init__(self, parentNode)
+
     def init(self):
-        global node
-        if node.hasAlpha():
+        self.node = avg.VideoNode(href=args[0], loop=True, 
+                accelerated=not(options.disableAccel))
+        self.node.play()
+        if self.node.hasAlpha():
             self.__makeAlphaBackground()
-        self._parentNode.appendChild(node)
+        self._parentNode.appendChild(self.node)
         avg.WordsNode(parent=self._parentNode, id="curframe", pos=(10, 10), 
                 font="arial", fontsize=10)
         avg.WordsNode(parent=self._parentNode, id="curtime", pos=(10, 22), 
@@ -49,26 +49,33 @@ class VideoPlayer(AVGApp):
         avg.WordsNode(parent=self._parentNode, id="framesqueued", pos=(10, 34), 
                 font="arial", fontsize=10)
 
-        g_Player.setOnFrameHandler(onFrame)
+        g_Player.setOnFrameHandler(self.onFrame)
     
     def onKeyDown(self, event):
-        global node
-        curTime = node.getCurTime()
+        curTime = self.node.getCurTime()
         if event.keystring == "right":
-            node.seekToTime(curTime+10000)
+            self.node.seekToTime(curTime+10000)
         elif event.keystring == "left":
             if curTime > 10000:
-                node.seekToTime(curTime-10000)
+                self.node.seekToTime(curTime-10000)
             else:
-                node.seekToTime(0)
+                self.node.seekToTime(0)
         return False
 
+    def onFrame(self):
+        curFrame = self.node.getCurFrame()
+        numFrames = self.node.getNumFrames()
+        g_Player.getElementByID("curframe").text = "Frame: %i/%i"%(curFrame, numFrames)
+        curVideoTime = self.node.getCurTime()
+        g_Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
+        framesQueued = self.node.getNumFramesQueued()
+        g_Player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
+
     def __makeAlphaBackground(self):
-        global node
         SQUARESIZE=40
-        size = node.getMediaSize()
-        avg.RectNode(parent=self._parentNode, size=node.getMediaSize(), strokewidth=0,
-                fillcolor="FFFFFF", fillopacity=1)
+        size = self.node.getMediaSize()
+        avg.RectNode(parent=self._parentNode, size=self.node.getMediaSize(), 
+                strokewidth=0, fillcolor="FFFFFF", fillopacity=1)
         for y in xrange(0, int(size.y)/SQUARESIZE):
             for x in xrange(0, int(size.x)/(SQUARESIZE*2)):
                 pos = avg.Point2D(x*SQUARESIZE*2, y*SQUARESIZE)
@@ -78,11 +85,18 @@ class VideoPlayer(AVGApp):
                         size=(SQUARESIZE, SQUARESIZE), strokewidth=0, fillcolor="C0C0C0",
                         fillopacity=1)
 
-if len(sys.argv) ==1:
-    print "Usage: avg_videoplayer.py <filename>"
+if len(sys.argv) == 1:
+    print "Usage: avg_videoplayer.py <filename> [--disable-accel --fullscreen]"
     sys.exit(1)
 
-node = avg.VideoNode(href=sys.argv[1], loop=True)
-node.play()
-VideoPlayer.start(resolution=node.getMediaSize())
+parser = optparse.OptionParser()
+parser.add_option("-d", "--disable-accel", dest="disableAccel", action="store_true",
+        default=False, help="Disable vdpau acceleration.")
+parser.add_option("-f", "--fullscreen", dest="fullscreen", action="store_true",
+        default=False)
+(options, args) = parser.parse_args()
+
+argsNode = avg.VideoNode(href=args[0], loop=True, accelerated=False)
+argsNode.pause()
+VideoPlayer.start(resolution=argsNode.getMediaSize())
 

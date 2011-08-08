@@ -18,46 +18,17 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+#include "FrameAge.h"
 
-#ifndef _VideoInfo_H_
-#define _VideoInfo_H_
+namespace avg{
 
-#include "../api.h"
-
-#include "../base/Point.h"
-
-#include <string>
-
-namespace avg {
-
-struct AVG_API VideoInfo
+FrameAge::FrameAge():
+    m_Age(256*256*256*64),
+    m_IPAge0(256*256*256*64),
+    m_IPAge1(256*256*256*64)
 {
-    VideoInfo();
-    VideoInfo(double duration, int bitrate, bool bHasVideo, bool bHasAudio);
-    void setVideoData(const IntPoint& size, const std::string& sPixelFormat,
-            int numFrames, double streamFPS, double FPS, const std::string& sVCodec,
-            bool bUsesVDPAU);
-
-    void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels);
-
-    double m_Duration;
-    int m_Bitrate;
-
-    bool m_bHasVideo;
-    IntPoint m_Size;
-    std::string m_sPixelFormat;
-    int m_NumFrames;
-    double m_StreamFPS;
-    double m_FPS;
-    std::string m_sVCodec;
-    bool m_bUsesVDPAU;
-
-    bool m_bHasAudio;
-    std::string m_sACodec;
-    int m_SampleRate;
-    int m_NumAudioChannels;
-};
+}
 
 }
-#endif 
+
 

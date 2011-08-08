@@ -25,6 +25,9 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
+#include "../avgconfigwrapper.h"
+
+struct vdpau_render_state;
 
 using namespace std;
 
@@ -59,33 +62,45 @@ bool VideoDecoderThread::work()
         }
     } else {
         ScopeTimer timer(DecoderProfilingZone);
-        vector<BitmapPtr> pBmps;
-        IntPoint size = m_pDecoder->getSize();
-        IntPoint halfSize(size.x/2, size.y/2);
-        PixelFormat pf = m_pDecoder->getPixelFormat();
+        vdpau_render_state* pRenderState = 0;
         FrameAvailableCode frameAvailable;
-        if (pixelFormatIsPlanar(pf)) {
-            pBmps.push_back(getBmp(m_pBmpQ, size, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            if (pf == YCbCrA420p) {
-                pBmps.push_back(getBmp(m_pBmpQ, size, I8));
-            }
+        vector<BitmapPtr> pBmps;
+        bool usesVDPAU = m_pDecoder->getVideoInfo().m_bUsesVDPAU;
+        if (usesVDPAU) {
+#ifdef AVG_ENABLE_VDPAU
+            frameAvailable = m_pDecoder->renderToVDPAU(&pRenderState);
+#else
+            frameAvailable = FA_NEW_FRAME; // Never executed - silences compiler warning.
+#endif
         } else {
-            pBmps.push_back(getBmp(m_pBmpQ, size, pf));
+            IntPoint size = m_pDecoder->getSize();
+            IntPoint halfSize(size.x/2, size.y/2);
+            PixelFormat pf = m_pDecoder->getPixelFormat();
+            if (pixelFormatIsPlanar(pf)) {
+                pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+                pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+                pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+                if (pf == YCbCrA420p) {
+                    pBmps.push_back(getBmp(m_pBmpQ, size, I8));
+                }
+            } else {
+                pBmps.push_back(getBmp(m_pBmpQ, size, pf));
+            }
+            frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
         }
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, -1);
-
         if (m_pDecoder->isEOF(SS_VIDEO)) {
             VideoMsgPtr pMsg(new VideoMsg());
             pMsg->setEOF();
             m_MsgQ.push(pMsg);
         } else {
             ScopeTimer timer(PushMsgProfilingZone);
-            
             AVG_ASSERT(frameAvailable == FA_NEW_FRAME);
             VideoMsgPtr pMsg(new VideoMsg());
-            pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+            if (usesVDPAU) {
+                pMsg->setVDPAUFrame(pRenderState, m_pDecoder->getCurTime(SS_VIDEO));
+            } else {
+                pMsg->setFrame(pBmps, m_pDecoder->getCurTime(SS_VIDEO));
+            }
             m_MsgQ.push(pMsg);
             msleep(0);
         }

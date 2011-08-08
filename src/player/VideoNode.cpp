@@ -61,6 +61,8 @@ NodeDefinition VideoNode::createDefinition()
         .addArg(Arg<int>("queuelength", 8, false, 
                 offsetof(VideoNode, m_QueueLength)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
+        .addArg(Arg<bool>("accelerated", false, false,
+                offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         ;
 }
 
@@ -75,7 +77,8 @@ VideoNode::VideoNode(const ArgList& args)
       m_FramesPlayed(0),
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
-      m_Volume(1.0)
+      m_Volume(1.0),
+      m_bUsesHardwareAcceleration(false)
 {
     args.setMembers(this);
     m_Filename = m_href;
@@ -286,6 +289,12 @@ void VideoNode::setEOFCallback(PyObject * pEOFCallback)
     }
 }
 
+bool VideoNode::isAccelerated() const
+{
+    exceptionIfUnloaded("isAccelerated");
+    return m_bUsesHardwareAcceleration;
+}
+
 const UTF8String& VideoNode::getHRef() const
 {
     return m_href;
@@ -408,7 +417,7 @@ void VideoNode::open()
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->open(m_Filename, m_bThreaded);
+    m_pDecoder->open(m_Filename, m_bThreaded, m_bUsesHardwareAcceleration);
     m_pDecoder->setVolume(m_Volume);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasVideo) {
@@ -457,6 +466,7 @@ void VideoNode::startDecoding()
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
     }
+    m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
 }
 
 void VideoNode::close()
@@ -485,7 +495,7 @@ PixelFormat VideoNode::getPixelFormat() const
 
 IntPoint VideoNode::getMediaSize()
 {
-    if (m_pDecoder && m_pDecoder->getState() != IVideoDecoder::CLOSED) {
+    if (m_pDecoder && m_pDecoder->getState() != VideoDecoder::CLOSED) {
         return m_pDecoder->getSize();
     } else {
         return IntPoint(0,0);
@@ -590,6 +600,16 @@ void VideoNode::render(const DRect& rect)
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
+}
+
+VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
+{
+#ifdef AVG_ENABLE_VDPAU
+    if (VDPAU::isAvailable()) {
+        return VDPAU;
+    }
+#endif
+    return NONE;
 }
 
 bool VideoNode::renderFrame(OGLSurface * pSurface)

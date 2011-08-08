@@ -23,7 +23,7 @@
 #define _FFMpegDecoder_H_
 
 #include "../avgconfigwrapper.h"
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "IDemuxer.h"
 
 #include "../audio/AudioParams.h"
@@ -32,18 +32,26 @@
 
 #include "WrapFFMpeg.h"
 
+#ifdef AVG_ENABLE_VDPAU
+#include "VDPAU.h"
+#include "AVCCOpaque.h"
+#include "FrameAge.h"
+#include <libavcodec/vdpau.h>
+#endif
+
 #include <boost/thread/mutex.hpp>
 
 namespace avg {
 
 class AudioBuffer;
 
-class AVG_API FFMpegDecoder: public IVideoDecoder
+class AVG_API FFMpegDecoder: public VideoDecoder
 {
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, bool bThreadedDemuxer);
+        virtual void open(const std::string& sFilename, bool bThreadedDemuxer,
+                bool bUseHardwareAcceleration);
         virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
         virtual void close();
         virtual DecoderState getState() const;
@@ -62,6 +70,9 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         virtual void setFPS(double fps);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
                 double timeWanted);
+#ifdef AVG_ENABLE_VDPAU
+        virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
+#endif
         virtual void throwAwayFrame(double timeWanted);
         
         // Called from audio decoder thread
@@ -75,6 +86,8 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
     private:
         void initVideoSupport();
+        bool usesVDPAU() const;
+        int openCodec(int streamIndex, bool bUseHardwareAcceleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
         virtual double getDuration() const;
         virtual int getNumFrames() const;
@@ -86,11 +99,13 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         bool m_bThreadedDemuxer;
 
         // Used from video thread.
-        FrameAvailableCode readFrameForTime(AVFrame& Frame, double timeWanted);
-        void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
+        FrameAvailableCode readFrameForTime(AVFrame& frame, double timeWanted);
+        void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
         double getFrameTime(long long dts);
         double calcStreamFPS() const;
         std::string getStreamPF() const;
+        AVCodecContext const * getCodecContext() const;
+        AVCodecContext * getCodecContext();
 
         SwsContext * m_pSwsContext;
         IntPoint m_Size;
@@ -130,6 +145,10 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         IDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
         AVStream * m_pAStream;
+#ifdef AVG_ENABLE_VDPAU
+        VDPAU m_VDPAU;
+        AVCCOpaque m_Opaque;
+#endif
         int m_VStreamIndex;
         bool m_bEOFPending;
         bool m_bVideoEOF;
@@ -147,6 +166,12 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         // Prevents different decoder instances from executing open/close simultaneously
         static boost::mutex s_OpenMutex;   
 };
+
+#ifdef AVG_ENABLE_VDPAU
+void getPlanesFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpY,
+        BitmapPtr pBmpU, BitmapPtr pBmpV);
+void getBitmapFromVDPAU(vdpau_render_state* pRenderState, BitmapPtr pBmpDest);
+#endif
 
 }
 #endif 

@@ -114,6 +114,12 @@ void export_raster()
         .staticmethod("resetFirewireBus")
     ;
         
+    enum_<VideoNode::VideoAccelType>("VideoAccelType")
+        .value("NO_ACCELERATION", VideoNode::NONE)
+        .value("VDPAU", VideoNode::VDPAU)
+        .export_values()
+    ;
+
     class_<VideoNode, bases<RasterNode> >("VideoNode", no_init)
         .def("__init__", raw_constructor(createNode<videoNodeName>))
         .def("play", &VideoNode::play)
@@ -135,6 +141,8 @@ void export_raster()
         .def("hasAudio", &VideoNode::hasAudio)
         .def("hasAlpha", &VideoNode::hasAlpha)
         .def("setEOFCallback", &VideoNode::setEOFCallback)
+        .def("getVideoAccelConfig", &VideoNode::getVideoAccelConfig)
+        .staticmethod("getVideoAccelConfig")
         .add_property("fps", &VideoNode::getFPS)
         .add_property("queuelength", &VideoNode::getQueueLength)
         .add_property("href", 
@@ -144,6 +152,7 @@ void export_raster()
         .add_property("loop", &VideoNode::getLoop)
         .add_property("volume", &VideoNode::getVolume, &VideoNode::setVolume)
         .add_property("threaded", &VideoNode::isThreaded)
+        .add_property("accelerated", &VideoNode::isAccelerated)
     ;
 
     class_<WordsNode, bases<RasterNode> >("WordsNode", no_init)

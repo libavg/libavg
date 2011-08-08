@@ -23,7 +23,7 @@
 #define _VideoDecoderThread_H_
 
 #include "../api.h"
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"

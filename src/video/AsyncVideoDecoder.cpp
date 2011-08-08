@@ -23,6 +23,8 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
+#include "FFMpegDecoder.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -60,14 +62,15 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer)
+void AsyncVideoDecoder::open(const std::string& sFilename, bool bThreadedDemuxer,
+        bool bUseHardwareAccelleration)
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer);
+    m_pSyncDecoder->open(m_sFilename, bThreadedDemuxer, bUseHardwareAccelleration);
     m_VideoInfo = m_pSyncDecoder->getVideoInfo();
     // Temporary pf - always assumes shaders will be available.
     m_PF = m_pSyncDecoder->getPixelFormat();
@@ -127,7 +130,7 @@ void AsyncVideoDecoder::close()
     }        
 }
 
-IVideoDecoder::DecoderState AsyncVideoDecoder::getState() const
+VideoDecoder::DecoderState AsyncVideoDecoder::getState() const
 {
     return m_State;
 }
@@ -265,6 +268,8 @@ PixelFormat AsyncVideoDecoder::getPixelFormat() const
     return m_PF;
 }
 
+static ProfilingZoneID VDPAUDecodeProfilingZone("AsyncVideoDecoder: VDPAU");
+
 FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
         double timeWanted)
 {
@@ -273,10 +278,22 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     VideoMsgPtr pFrameMsg = getBmpsForTime(timeWanted, frameAvailable);
     if (frameAvailable == FA_NEW_FRAME) {
         AVG_ASSERT(pFrameMsg);
-        for (unsigned i = 0; i < pBmps.size(); ++i) {
-            pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+        if (pFrameMsg->getType() == VideoMsg::VDPAU_FRAME) {
+#ifdef AVG_ENABLE_VDPAU
+            ScopeTimer timer(VDPAUDecodeProfilingZone);
+            vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+            if (pixelFormatIsPlanar(m_PF)) {
+                getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
+            } else {
+                getBitmapFromVDPAU(pRenderState, pBmps[0]);
+            }
+#endif
+        } else {
+            for (unsigned i = 0; i < pBmps.size(); ++i) {
+                pBmps[i]->copyPixels(*(pFrameMsg->getFrameBitmap(i)));
+            }
+            returnFrame(pFrameMsg);
         }
-        returnFrame(pFrameMsg);
     }
     return frameAvailable;
 }
@@ -376,7 +393,16 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(double timeWanted,
                 return VideoMsgPtr();
             }
             while (frameTime-timeWanted < -0.5*timePerFrame && !m_bVideoEOF) {
-                returnFrame(pFrameMsg);
+                if (pFrameMsg) {
+                    if (pFrameMsg->getType() == VideoMsg::FRAME) {
+                        returnFrame(pFrameMsg);
+                    } else {
+#if AVG_ENABLE_VDPAU
+                        vdpau_render_state* pRenderState = pFrameMsg->getRenderState();
+                        VDPAU::unlockSurface(pRenderState);
+#endif
+                    }
+                }
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
                     frameTime = pFrameMsg->getFrameTime();
@@ -407,6 +433,7 @@ VideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
     if (pMsg) {
         switch (pMsg->getType()) {
             case VideoMsg::FRAME:
+            case VideoMsg::VDPAU_FRAME:
                 return pMsg;
             case VideoMsg::END_OF_FILE:
                 m_bVideoEOF = true;
@@ -443,6 +470,8 @@ void AsyncVideoDecoder::waitForSeekDone()
                     break;
                 case VideoMsg::FRAME:
                     returnFrame(pMsg);
+                    break;
+                case VideoMsg::VDPAU_FRAME:
                     break;
                 default:
                     // TODO: Handle ERROR messages here.

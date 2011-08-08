@@ -19,46 +19,24 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "VideoInfo.h"
-
+#include "VideoDecoder.h"
 #include "../base/Exception.h"
 
 namespace avg {
 
-using namespace std;
-
-VideoInfo::VideoInfo()
+FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
 {
+    std::vector<BitmapPtr> pBmps;
+    pBmps.push_back(pBmp);
+    return renderToBmps(pBmps, timeWanted);
 }
 
-VideoInfo::VideoInfo(double duration, int bitrate, bool bHasVideo, bool bHasAudio)
-    : m_Duration(duration),
-      m_Bitrate(bitrate),
-      m_bHasVideo(bHasVideo),
-      m_bHasAudio(bHasAudio)
+FrameAvailableCode VideoDecoder::renderToVDPAU(vdpau_render_state** ppRenderState)
 {
-}
-
-void VideoInfo::setVideoData(const IntPoint& size, const string& sPixelFormat,
-        int numFrames, double streamFPS, double FPS, const string& sVCodec,
-        bool bUsesVDPAU)
-{
-    AVG_ASSERT(m_bHasVideo);
-    m_Size = size;
-    m_sPixelFormat = sPixelFormat;
-    m_NumFrames = numFrames;
-    m_StreamFPS = streamFPS;
-    m_FPS = FPS;
-    m_sVCodec = sVCodec;
-    m_bUsesVDPAU = bUsesVDPAU;
-}
-
-void VideoInfo::setAudioData(const string& sACodec, int sampleRate, int numAudioChannels)
-{
-    AVG_ASSERT(m_bHasAudio);
-    m_sACodec = sACodec;
-    m_SampleRate = sampleRate;
-    m_NumAudioChannels = numAudioChannels;
+    AVG_ASSERT(false);
+    return FA_NEW_FRAME; // Silence compiler warning.
 }
 
 }
+
+

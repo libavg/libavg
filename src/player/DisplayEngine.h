@@ -26,8 +26,6 @@
 #include "VisibleNode.h"
 #include "DisplayParams.h"
 
-#include "../video/IVideoDecoder.h"
-
 #include "../graphics/Pixel32.h"
 #include "../graphics/Bitmap.h"
 

@@ -68,6 +68,14 @@ void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime)
     m_FrameTime = frameTime;
 }
 
+void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, double frameTime)
+{
+    AVG_ASSERT(m_MsgType == NONE);
+    m_MsgType = VDPAU_FRAME;
+    m_pRenderState = pRenderState;
+    m_FrameTime = frameTime;
+}
+
 void VideoMsg::setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
@@ -107,7 +115,7 @@ BitmapPtr VideoMsg::getFrameBitmap(int i)
 
 double VideoMsg::getFrameTime()
 {
-    AVG_ASSERT(m_MsgType == FRAME);
+    AVG_ASSERT(m_MsgType == FRAME || m_MsgType == VDPAU_FRAME);
     return m_FrameTime;
 }
 
@@ -121,6 +129,12 @@ double VideoMsg::getSeekAudioFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekAudioFrameTime;
+}
+
+vdpau_render_state* VideoMsg::getRenderState()
+{
+    AVG_ASSERT(m_MsgType == VDPAU_FRAME);
+    return m_pRenderState;
 }
 
 }
