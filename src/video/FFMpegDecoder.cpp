@@ -571,7 +571,7 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int stride)
 
 static ProfilingZoneID RenderToBmpProfilingZone("FFMpeg: renderToBmp");
 static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
-static ProfilingZoneID VDPAUDecodeProfilingZone("FFMpeg: VDPAU decode");
+static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy");
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
         double timeWanted)
@@ -589,12 +589,12 @@ FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps,
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
         if (pixelFormatIsPlanar(m_PF)) {
 #ifdef AVG_ENABLE_VDPAU
-            ScopeTimer timer(VDPAUDecodeProfilingZone);
-            if (usesVDPAU()) 
-            {
+            if (usesVDPAU()) {
+                ScopeTimer timer(VDPAUCopyProfilingZone);
                 vdpau_render_state* pRenderState = (vdpau_render_state *)frame.data[0];
                 getPlanesFromVDPAU(pRenderState, pBmps[0], pBmps[1], pBmps[2]);
             } else {
+                ScopeTimer timer(CopyImageProfilingZone);
                 for (unsigned i = 0; i < pBmps.size(); ++i) {
                     copyPlaneToBmp(pBmps[i], frame.data[i], frame.linesize[i]);
                 }
@@ -624,9 +624,9 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
     readFrame(frame);
     frameAvailable = FA_NEW_FRAME;
     if (!m_bVideoEOF && frameAvailable == FA_NEW_FRAME) {
-        ScopeTimer timer(VDPAUDecodeProfilingZone);
         if (usesVDPAU()) 
         {
+            ScopeTimer timer(VDPAUCopyProfilingZone);
             vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
             *ppRenderState = pRenderState;
         }
@@ -640,7 +640,7 @@ bool FFMpegDecoder::usesVDPAU() const
 {
 #ifdef AVG_ENABLE_VDPAU
     AVCodecContext const* pContext = getCodecContext();
-    return pContext->codec && pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU;
+    return pContext->codec && (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU);
 #else
     return false;
 #endif
