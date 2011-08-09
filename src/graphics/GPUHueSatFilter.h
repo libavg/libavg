@@ -38,11 +38,11 @@ public:
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
     void initShader();
-    void setParams(float hue, float saturation=1.0, float lightness_offset=0.0,
+    void setParams(int hue, int saturation=1, int lightness_offset=0,
             bool colorize=false);
 
 private:
-    float m_fBrightnessOffset;
+    float m_fLightnessOffset;
     float m_fHue;
     float m_fSaturation;
     bool m_bColorize;

@@ -33,7 +33,7 @@ using namespace std;
 
 namespace avg {
 
-HueSatFXNode::HueSatFXNode(float hue,float saturation, float lightness,
+HueSatFXNode::HueSatFXNode(int hue, int saturation, int lightness,
     bool tint):
     FXNode(),
     m_fHue(hue),
@@ -54,24 +54,28 @@ void HueSatFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void HueSatFXNode::setHSL(float hue, float saturation, float lightnessOffset)
+int HueSatFXNode::getHue()
 {
-    setHue(hue);
-    setSaturation(saturation);
-    setLightnessOffset(lightnessOffset);
-}
+    if(m_bColorize){
+        return m_fHue;
+    }
 
-float HueSatFXNode::getHue()
-{
+    if((m_fHue / 180.0) > 1.0)
+    {
+        return -360+m_fHue;
+    }else if((m_fHue / 180.0) < -1.0)
+    {
+        return 360+m_fHue;
+    }
     return m_fHue;
 }
 
-float HueSatFXNode::getSaturation()
+int HueSatFXNode::getSaturation()
 {
     return m_fSaturation;
 }
 
-float HueSatFXNode::getLightnessOffset()
+int HueSatFXNode::getLightnessOffset()
 {
     return m_fLightnessOffset;
 }
@@ -81,27 +85,30 @@ bool HueSatFXNode::isColorizing()
     return m_bColorize;
 }
 
-void HueSatFXNode::setHue(float hue)
+void HueSatFXNode::setHue(int hue)
 {
-    m_fHue = hue;
+    m_fHue = hue % 360;
     setFilterParams();
 }
 
-void HueSatFXNode::setSaturation(float saturation)
+void HueSatFXNode::setSaturation(int saturation)
 {
     m_fSaturation = saturation;
     setFilterParams();
 }
 
-void HueSatFXNode::setLightnessOffset(float lightnessOffset)
+void HueSatFXNode::setLightnessOffset(int lightnessOffset)
 {
-    m_fLightnessOffset = lightnessOffset;
+    m_fLightnessOffset= clamp(lightnessOffset, -100, 100);
     setFilterParams();
 }
 
 void HueSatFXNode::setColorizing(bool colorize)
 {
     m_bColorize = colorize;
+    m_fHue = 0;
+    m_fLightnessOffset = 0;
+    m_fSaturation = m_bColorize ? 50 : 0;
     setFilterParams();
 }
 
@@ -115,17 +122,36 @@ GPUFilterPtr HueSatFXNode::createFilter(const IntPoint& size)
 
 void HueSatFXNode::setFilterParams()
 {
+    int sat;
+    if(m_bColorize){
+        sat = clamp(m_fSaturation, 0, 100);
+        m_fSaturation = sat;
+    }else{
+        sat = clamp(m_fSaturation, -100, 100); 
+        m_fSaturation = sat;
+    }
     if (filterPtr) {
-        filterPtr->setParams(m_fHue, m_fSaturation, m_fLightnessOffset, m_bColorize);
+        filterPtr->setParams(m_fHue, sat, m_fLightnessOffset, m_bColorize);
     }
 }
 
 std::string HueSatFXNode::toString()
 {
     stringstream s;
-    s << "HueSatFXNode( " << m_fHue << ", " << m_fSaturation << ", "
-        << m_fLightnessOffset << " )";
+    s << "HueSatFXNode( Hue: " << m_fHue << ", Saturation: " << m_fSaturation << ", Lightness: "
+        << m_fLightnessOffset << ", Colorize: " << m_bColorize << " )";
     return s.str();
+}
+
+int HueSatFXNode::clamp(int val, int min, int max)
+{
+    int result = val;
+    if(val < min){
+        result = min;
+    }else if(val > max){
+        result = max;
+    }
+    return result;
 }
 } //End namespace avg
 

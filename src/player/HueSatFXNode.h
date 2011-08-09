@@ -38,19 +38,18 @@ class SDLDisplayEngine;
 
 class AVG_API HueSatFXNode : public FXNode {
 public:
-    HueSatFXNode(float hue=0.0f, float saturation=1.0f, float lightness=0.0f,
+    HueSatFXNode(int hue=0, int saturation=0, int lightness=0,
             bool tint=false);
     virtual ~HueSatFXNode();
     virtual void disconnect();
 
-    void setHSL(float hue, float saturation, float lightnessOffset);
-    void setHue(float hue);
-    void setSaturation(float saturation);
-    void setLightnessOffset(float lightnessOffset);
+    void setHue(int hue);
+    void setSaturation(int saturation);
+    void setLightnessOffset(int lightnessOffset);
     void setColorizing(bool colorize);
-    float getHue();
-    float getSaturation();
-    float getLightnessOffset();
+    int getHue();
+    int getSaturation();
+    int getLightnessOffset();
     bool isColorizing();
 
     std::string toString();
@@ -58,12 +57,13 @@ public:
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
     void setFilterParams();
+    int clamp(int val, int min, int max);
 
     GPUHueSatFilterPtr filterPtr;
 
-    float m_fHue;
-    float m_fLightnessOffset;
-    float m_fSaturation;
+    int m_fHue;
+    int m_fLightnessOffset;
+    int m_fSaturation;
     bool m_bColorize;
 };
 

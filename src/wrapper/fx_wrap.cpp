@@ -77,14 +77,13 @@ void export_fx()
     class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode>,
             boost::noncopyable > ("HueSatFXNode", init< optional<float, float, float,
             bool> >())
-        .def("setParams", &HueSatFXNode::setHSL)
         .add_property("hue", &HueSatFXNode::getHue,
                 &HueSatFXNode::setHue)
         .add_property("saturation", &HueSatFXNode::getSaturation,
                 &HueSatFXNode::setSaturation)
         .add_property("lightness", &HueSatFXNode::getLightnessOffset,
                 &HueSatFXNode::setLightnessOffset)
-        .add_property("tint", &HueSatFXNode::isColorizing,
+        .add_property("colorize", &HueSatFXNode::isColorizing,
                 &HueSatFXNode::setColorizing)
         .def("__repr__", &HueSatFXNode::toString)
         ;
