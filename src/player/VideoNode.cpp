@@ -431,6 +431,7 @@ void VideoNode::open()
 
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
+    m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
 }
 
 void VideoNode::startDecoding()
@@ -466,7 +467,6 @@ void VideoNode::startDecoding()
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
     }
-    m_bUsesHardwareAcceleration = videoInfo.m_bUsesVDPAU;
 }
 
 void VideoNode::close()
