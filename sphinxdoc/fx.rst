@@ -70,23 +70,21 @@ Effect Nodes
 
         .. py:attribute:: hue
 
-           Used to get/set the color-angle. The interpretation of this 
+           Used to get/set the color angle. Ranges depend on the current
+           colorize mode and are the same as in Photoshop.
 
         .. py:attribute:: lightness
            
-           Set :py:attr:`lightness` - offset. Adds a per pixel offset in brightness.
+           Set :py:attr:`lightness` offset. Adds a per pixel offset in brightness.
 
         .. py:attribute:: saturation
            
-           Set :py:attr:`saturation` of Node. Values should be between 0 and 1. Invalid
-           values will be clipped off.
+           Set :py:attr:`saturation` of Node. Valid values are the same as in Photoshop.
 
-        .. py:attribute:: tint
+        .. py:attribute:: colorize
 
-           If :py:attr:`tint` is :py:const:`True`, all colors will be tinted according to
+           If :py:attr:`colorize` is :py:const:`True`, all colors will be tinted according to
            the current :py:attr:`hue` value
-
-        .. py:method:: setParams(hue, saturation, lightness)
 
     .. autoclass:: NullFXNode
 

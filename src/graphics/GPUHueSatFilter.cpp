@@ -74,6 +74,9 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
 void GPUHueSatFilter::initShader()
 {
     string sProgramHead =
+            "const vec3 lumCoeff = vec3(0.2125, 0.7154, 0.0721);\n"
+            "const vec3 white = vec3(1.0, 1.0, 1.0);\n"
+            "const vec3 black = vec3(0.0, 0.0, 0.0);\n"
             "uniform sampler2D texture;\n"
             "uniform float hue;\n"
             "uniform float sat;\n"
@@ -90,16 +93,28 @@ void GPUHueSatFilter::initShader()
             "    float h;\n"
             "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
             "    rgb2hsl(tex, tmp, s, l);\n"
-            "    l = clamp(l + l_offset, 0.0, 1.0);\n"
             "    if(b_colorize){\n"
             "       h = hue;\n"
-            "       s = clamp(sat, 0.0, 2.0);\n"
+            "       s = sat;\n"
             "    }\n"
             "    else{\n"
             "       h = hue+tmp;\n"
-            "       s = clamp(sat+s, 0.0, 2.0);\n"
             "    }\n"
-            "    gl_FragColor = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);\n"
+            "    vec4 rgbTex = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);\n"
+            //Saturate in rgb - space to imitate photoshop filter
+            "    if(!b_colorize){ \n"
+            "    s = clamp(sat+s, 0.0, 2.0);\n"
+            "    vec3 intensity = vec3(dot(rgbTex.rgb, lumCoeff));\n"
+            "    rgbTex.rgb = mix(intensity, rgbTex.rgb, s);\n"
+            "    }; \n"
+            //Brightness with black/white pixels to imitate photoshop lightness-offset
+            "    if(l_offset >= 0.0){ \n"
+            "       rgbTex = vec4(mix(rgbTex.rgb, white, l_offset), tex.a);\n"
+            "    }\n"
+            "    else if(l_offset < 0.0){ \n"
+            "       rgbTex = vec4(mix(rgbTex.rgb, black, -l_offset), tex.a);\n"
+            "    } \n"
+            "    gl_FragColor = rgbTex;\n"
             "}\n";
     getOrCreateShader(SHADERID_HSL_COLOR, sProgram);
 }

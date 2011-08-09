@@ -57,6 +57,9 @@ void HueSatFXNode::disconnect()
 int HueSatFXNode::getHue()
 {
     if(m_bColorize){
+        if( m_fHue < 0){
+            return 360 + m_fHue;
+        }
         return m_fHue;
     }
 
@@ -93,7 +96,11 @@ void HueSatFXNode::setHue(int hue)
 
 void HueSatFXNode::setSaturation(int saturation)
 {
-    m_fSaturation = saturation;
+    if(m_bColorize){
+        m_fSaturation = clamp(saturation, 0, 100);
+    }else{
+        m_fSaturation = clamp(saturation, -100, 100); 
+    }
     setFilterParams();
 }
 
@@ -122,16 +129,8 @@ GPUFilterPtr HueSatFXNode::createFilter(const IntPoint& size)
 
 void HueSatFXNode::setFilterParams()
 {
-    int sat;
-    if(m_bColorize){
-        sat = clamp(m_fSaturation, 0, 100);
-        m_fSaturation = sat;
-    }else{
-        sat = clamp(m_fSaturation, -100, 100); 
-        m_fSaturation = sat;
-    }
     if (filterPtr) {
-        filterPtr->setParams(m_fHue, sat, m_fLightnessOffset, m_bColorize);
+        filterPtr->setParams(m_fHue, m_fSaturation, m_fLightnessOffset, m_bColorize);
     }
 }
 
