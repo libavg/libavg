@@ -563,7 +563,6 @@ class AVTestCase(AVGTestCase):
         self.assert_(video.accelerated == (accelConfig != avg.NO_ACCELERATION))
 
 
-
 def AVTestSuite(tests):
     availableTests = (
             "testSound",
