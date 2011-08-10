@@ -30,7 +30,7 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../anim/libanim.la \
                 ../lmfit/liblmfit.la \
                 ../oscpack/liboscpack.la \
-                $(BOOST_PYTHON_LIBS)\
+                @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS)\
                 -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
                 @DC1394_2_LIBS@ @GLU_LIBS@ $(XI2_1_LIBS) $(ALL_GL_LIBS) \
-                @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@
+                @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ @PTHREAD_LIBS@

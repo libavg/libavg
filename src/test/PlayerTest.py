@@ -677,6 +677,17 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(almostEqual(newPPMM, ppmm))
         self.assert_(newMM == mm)
 
+    def testSVG(self):
+        def renderElement():
+            bmp = svgFile.renderElement("rect")
+            self.compareBitmapToFile(bmp, "testSvgRect", False)
+
+        root = self.loadEmptyScene()
+        svgFile = avg.SVG("rect.svg", False)
+        self.start((
+                 renderElement,
+                ))
+
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
         avg.ImageNode(id="mainimg", size=(100, 75), href="rgb24-65x65.png", parent=root)
@@ -727,6 +738,7 @@ def playerTestSuite(tests):
             "testMemoryQuery",
             "testStopOnEscape",
             "testScreenDimensions",
+            "testSVG",
 #            "testWindowFrame",
             )
     return createAVGTestSuite(availableTests, PlayerTestCase, tests)
