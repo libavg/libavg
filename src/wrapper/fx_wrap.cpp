@@ -22,12 +22,13 @@
 #include "WrapHelper.h"
 #include "raw_constructor.hpp"
 
-#include "../player/FXNode.h"
-#include "../player/NullFXNode.h"
 #include "../player/BlurFXNode.h"
-#include "../player/ShadowFXNode.h"
 #include "../player/ChromaKeyFXNode.h"
+#include "../player/FXNode.h"
 #include "../player/HueSatFXNode.h"
+#include "../player/InvertFXNode.h"
+#include "../player/NullFXNode.h"
+#include "../player/ShadowFXNode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -40,18 +41,9 @@ void export_fx()
     class_<FXNode, boost::shared_ptr<FXNode>, boost::noncopyable>("FXNode", no_init)
         ;
 
-    class_<NullFXNode, bases<FXNode>, boost::shared_ptr<NullFXNode>, boost::noncopyable>(
-            "NullFXNode")
-        ;
-
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
             boost::noncopyable>("BlurFXNode")
         .def("setParam", &BlurFXNode::setParam)
-        ;
-
-    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
-            boost::noncopyable>("ShadowFXNode")
-        .def("setParams", &ShadowFXNode::setParams)
         ;
 
     class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>,
@@ -86,5 +78,18 @@ void export_fx()
         .add_property("colorize", &HueSatFXNode::isColorizing,
                 &HueSatFXNode::setColorizing)
         .def("__repr__", &HueSatFXNode::toString)
+        ;
+
+    class_<InvertFXNode, bases<FXNode>, boost::shared_ptr<InvertFXNode>, boost::noncopyable>(
+            "InvertFXNode")
+        ;
+
+    class_<NullFXNode, bases<FXNode>, boost::shared_ptr<NullFXNode>, boost::noncopyable>(
+            "NullFXNode")
+        ;
+
+    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
+            boost::noncopyable>("ShadowFXNode")
+        .def("setParams", &ShadowFXNode::setParams)
         ;
 }

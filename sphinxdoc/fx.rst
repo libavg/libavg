@@ -86,6 +86,10 @@ Effect Nodes
            If :py:attr:`colorize` is :py:const:`True`, all colors will be tinted according to
            the current :py:attr:`hue` value
 
+    .. autoclass:: InvertFXNode
+
+        Color Invert Effect. Inverts colors from nodes that it is attached to.
+
     .. autoclass:: NullFXNode
 
         Do-nothing effect. Exists primarily as aid in debugging libavg.
