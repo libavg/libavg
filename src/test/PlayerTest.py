@@ -678,15 +678,13 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(newMM == mm)
 
     def testSVG(self):
-        def renderElement():
-            bmp = svgFile.renderElement("rect")
-            self.compareBitmapToFile(bmp, "testSvgRect", False)
-
-        root = self.loadEmptyScene()
         svgFile = avg.SVG("rect.svg", False)
-        self.start((
-                 renderElement,
-                ))
+        bmp = svgFile.renderElement("rect")
+        self.compareBitmapToFile(bmp, "testSvgRect", False)
+        bmp = svgFile.renderElement("pos_rect")
+        self.compareBitmapToFile(bmp, "testSvgPosRect", False)
+        bmp = svgFile.renderElement("rect", 5)
+        self.compareBitmapToFile(bmp, "testSvgScaleRect1", False)
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
