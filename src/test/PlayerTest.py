@@ -688,6 +688,8 @@ class PlayerTestCase(AVGTestCase):
         self.compareBitmapToFile(bmp, "testSvgScaleRect1", False)
         bmp = svgFile.renderElement("rect", (20,20))
         self.compareBitmapToFile(bmp, "testSvgScaleRect2", False)
+        self.assertException(lambda: avg.SVG("filedoesntexist.svg", False))
+        self.assertException(lambda: svgFile.renderElement("missing_id"))
 
     def __initDefaultScene(self):
         root = self.loadEmptyScene()
