@@ -695,6 +695,10 @@ class PlayerTestCase(AVGTestCase):
         self.assertException(lambda: avg.SVG("filedoesntexist.svg", False))
         self.assertException(lambda: svgFile.renderElement("missing_id"))
 
+        # unescapeIllustratorIDs
+        svgIllustratorFile = avg.SVG("illustratorRect.svg", True)
+        svgIllustratorFile.getElementSize("pos_rect")
+
         # createImageNode
         root = self.loadEmptyScene()
         self.start((
