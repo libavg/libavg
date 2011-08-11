@@ -116,7 +116,7 @@ NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs
 DPoint SVG::getElementSize(const UTF8String& sElementID)
 {
     SVGElementPtr pElement = getElement(sElementID);
-    return pElement->getSize() + DPoint(2, 2);
+    return pElement->getSize();
 }
 
 BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement, 
@@ -124,7 +124,7 @@ BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement,
 {
     DPoint pos = pElement->getPos();
     DPoint scale(renderSize.x/size.x, renderSize.y/size.y);
-    IntPoint boundingBox = IntPoint(renderSize) + IntPoint(scale);
+    IntPoint boundingBox = IntPoint(renderSize) + IntPoint(scale.x+0.5, scale.y+0.5);
     BitmapPtr pBmp(new Bitmap(boundingBox, B8G8R8A8));
     FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(pBmp);
 
@@ -134,8 +134,6 @@ BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement,
             CAIRO_FORMAT_ARGB32, boundingBox.x, boundingBox.y, 
             pBmp->getStride());
     pCairo = cairo_create(pSurface);
-    cerr << "pos=" << pos << ", size=" << size << ", renderSize:" << renderSize << endl; 
-    cerr << "boundingBox=" << boundingBox << endl;
     cairo_scale(pCairo, scale.x, scale.y);
     cairo_translate(pCairo, -pos.x, -pos.y);
     rsvg_handle_render_cairo_sub(m_pRSVG, pCairo, pElement->getUnescapedID().c_str()); 
