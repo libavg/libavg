@@ -99,6 +99,7 @@ SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
       m_PPMM(0,0),
+      m_ClipLevel(0),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
@@ -401,24 +402,20 @@ void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
 
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-bool SDLDisplayEngine::pushClipRect(const DRect& rc)
+void SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
-
-    m_ClipRects.push_back(rc);
-    clip(true);
-
-    return true;
+    m_ClipLevel++;
+    clip(rc, true);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void SDLDisplayEngine::popClipRect()
+void SDLDisplayEngine::popClipRect(const DRect& rc)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
-    
-    clip(false);
-    m_ClipRects.pop_back();
+    m_ClipLevel--;
+    clip(rc, false);
 }
 
 void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, 
@@ -440,48 +437,41 @@ void SDLDisplayEngine::popTransform()
     glPopMatrix();
 }
 
-void SDLDisplayEngine::clip(bool forward)
+void SDLDisplayEngine::clip(const DRect& rc, bool bForward)
 {
-    if (!m_ClipRects.empty()) {
-        GLenum stencilOp;
-        int level;
-        if(forward) {
-            stencilOp = GL_INCR;
-            level = int(m_ClipRects.size());
-        } else {
-            stencilOp = GL_DECR;
-            level = int(m_ClipRects.size()) - 1;
-        }
-        
-        DRect rc = m_ClipRects.back();
-        
-        // Disable drawing to color buffer
-        glColorMask(0, 0, 0, 0);
-        
-        // Enable drawing to stencil buffer
-        glStencilMask(~0);
-
-        // Draw clip rectangle into stencil buffer
-        glStencilFunc(GL_ALWAYS, 0, 0);
-        glStencilOp(stencilOp, stencilOp, stencilOp);
-
-        glBegin(GL_QUADS);
-            glVertex2d(rc.tl.x, rc.tl.y);
-            glVertex2d(rc.br.x, rc.tl.y);
-            glVertex2d(rc.br.x, rc.br.y);
-            glVertex2d(rc.tl.x, rc.br.y);
-        glEnd();
-
-        // Set stencil test to only let
-        glStencilFunc(GL_LEQUAL, level, ~0);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        
-        // Disable drawing to stencil buffer
-        glStencilMask(0);
-        
-        // Enable drawing to color buffer
-        glColorMask(~0, ~0, ~0, ~0);
+    GLenum stencilOp;
+    if (bForward) {
+        stencilOp = GL_INCR;
+    } else {
+        stencilOp = GL_DECR;
     }
+
+    // Disable drawing to color buffer
+    glColorMask(0, 0, 0, 0);
+
+    // Enable drawing to stencil buffer
+    glStencilMask(~0);
+
+    // Draw clip rectangle into stencil buffer
+    glStencilFunc(GL_ALWAYS, 0, 0);
+    glStencilOp(stencilOp, stencilOp, stencilOp);
+
+    glBegin(GL_QUADS);
+    glVertex2d(rc.tl.x, rc.tl.y);
+    glVertex2d(rc.br.x, rc.tl.y);
+    glVertex2d(rc.br.x, rc.br.y);
+    glVertex2d(rc.tl.x, rc.br.y);
+    glEnd();
+
+    // Set stencil test to only let
+    glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    // Disable drawing to stencil buffer
+    glStencilMask(0);
+
+    // Enable drawing to color buffer
+    glColorMask(~0, ~0, ~0, ~0);
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");

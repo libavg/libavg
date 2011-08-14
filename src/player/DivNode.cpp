@@ -230,15 +230,15 @@ void DivNode::preRender()
 void DivNode::render(const DRect& rect)
 {
     DPoint viewport = getSize();
+    DRect clipRect(0, 0, viewport.x, viewport.y);
     if (getCrop()) {
-        DRect ClipRect(0, 0, viewport.x, viewport.y);
-        getDisplayEngine()->pushClipRect(ClipRect);
+        getDisplayEngine()->pushClipRect(clipRect);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getVChild(i)->maybeRender(rect);
     }
     if (getCrop()) {
-        getDisplayEngine()->popClipRect();
+        getDisplayEngine()->popClipRect(clipRect);
     }
 }
 
