@@ -105,7 +105,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         void logConfig();
         void calcScreenDimensions(const DPoint& physScreenSize=DPoint(0,0));
         virtual void swapBuffers();
-        void clip(const DRect& rc, bool bForward);
+        void clip(const DRect& rc, GLenum stencilOp);
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);

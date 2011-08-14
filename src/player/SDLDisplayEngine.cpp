@@ -406,7 +406,7 @@ void SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(rc, true);
+    clip(rc, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
@@ -415,7 +415,7 @@ void SDLDisplayEngine::popClipRect(const DRect& rc)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(rc, false);
+    clip(rc, GL_DECR);
 }
 
 void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, 
@@ -437,15 +437,8 @@ void SDLDisplayEngine::popTransform()
     glPopMatrix();
 }
 
-void SDLDisplayEngine::clip(const DRect& rc, bool bForward)
+void SDLDisplayEngine::clip(const DRect& rc, GLenum stencilOp)
 {
-    GLenum stencilOp;
-    if (bForward) {
-        stencilOp = GL_INCR;
-    } else {
-        stencilOp = GL_DECR;
-    }
-
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
 
