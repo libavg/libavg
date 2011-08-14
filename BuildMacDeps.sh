@@ -73,6 +73,16 @@ buildfontconfig()
     cd ..    
 }
 
+buildgdkpixbuf()
+{
+    cd gdk-pixbuf-2.23.3
+    LDFLAGS="-framework ApplicationServices $LDFLAGS" ./configure --prefix=${AVG_PATH} --disable-shared
+    make clean
+    make -j5
+    make install
+    cd ..
+}
+
 buildboost()
 {
     cd boost_1_41_0
@@ -96,7 +106,7 @@ then
     exit -1 
 fi
 
-clean
+#clean
 
 cd ../deps
 
@@ -132,6 +142,10 @@ buildfontconfig
 buildLib pixman-0.22.0 --disable-shared
 buildLib cairo-1.10.2 "--disable-shared --enable-xlib=no --enable-xlib-xrender=no --enable-quartz=no --enable-quartz-font=no --enable-quartz-image=no --enable-ps=no --enable-pdf=no --enable-svg=no"
 buildLib pango-1.24.4 "--disable-shared --without-x --with-included-modules=yes"
+
+buildgdkpixbuf
+buildLib librsvg-2.34.0 --disable-shared
+
 buildboost
 
 buildLib libdc1394-2.0.2 "--disable-shared --disable-doxygen-doc --without-x"
