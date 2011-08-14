@@ -402,20 +402,20 @@ void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
 
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void SDLDisplayEngine::pushClipRect(const DRect& rc)
+void SDLDisplayEngine::pushClipRect(VertexArrayPtr pVA)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(rc, GL_INCR);
+    clip(pVA, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void SDLDisplayEngine::popClipRect(const DRect& rc)
+void SDLDisplayEngine::popClipRect(VertexArrayPtr pVA)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(rc, GL_DECR);
+    clip(pVA, GL_DECR);
 }
 
 void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, 
@@ -437,7 +437,7 @@ void SDLDisplayEngine::popTransform()
     glPopMatrix();
 }
 
-void SDLDisplayEngine::clip(const DRect& rc, GLenum stencilOp)
+void SDLDisplayEngine::clip(VertexArrayPtr pVA, GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
@@ -449,12 +449,7 @@ void SDLDisplayEngine::clip(const DRect& rc, GLenum stencilOp)
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    glBegin(GL_QUADS);
-    glVertex2d(rc.tl.x, rc.tl.y);
-    glVertex2d(rc.br.x, rc.tl.y);
-    glVertex2d(rc.br.x, rc.br.y);
-    glVertex2d(rc.tl.x, rc.br.y);
-    glEnd();
+    pVA->draw();
 
     // Set stencil test to only let
     glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);

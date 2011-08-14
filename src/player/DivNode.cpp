@@ -80,6 +80,7 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     for (unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->setRenderingEngines(pDisplayEngine, pAudioEngine);
     }
+    m_pClipVertexes = VertexArrayPtr(new VertexArray());
 }
 
 void DivNode::connect(CanvasPtr pCanvas)
@@ -94,6 +95,9 @@ void DivNode::disconnect(bool bKill)
 {
     for (unsigned i = 0; i < getNumChildren(); ++i) {
         getVChild(i)->disconnect(bKill);
+    }
+    if (m_pClipVertexes) {
+        m_pClipVertexes = VertexArrayPtr();
     }
     AreaNode::disconnect(bKill);
 }
@@ -230,15 +234,22 @@ void DivNode::preRender()
 void DivNode::render(const DRect& rect)
 {
     DPoint viewport = getSize();
-    DRect clipRect(0, 0, viewport.x, viewport.y);
+    
+    m_pClipVertexes->reset();
+    m_pClipVertexes->appendPos(DPoint(0,0), DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(DPoint(0,viewport.y), DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(DPoint(viewport.x,0), DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(viewport, DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
+
     if (getCrop()) {
-        getDisplayEngine()->pushClipRect(clipRect);
+        getDisplayEngine()->pushClipRect(m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getVChild(i)->maybeRender(rect);
     }
     if (getCrop()) {
-        getDisplayEngine()->popClipRect(clipRect);
+        getDisplayEngine()->popClipRect(m_pClipVertexes);
     }
 }
 

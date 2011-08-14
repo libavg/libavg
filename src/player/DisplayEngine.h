@@ -63,8 +63,6 @@ class AVG_API DisplayEngine
         void checkJitter();
         long long getDisplayTime();
 
-        virtual void pushClipRect(const DRect& rc) = 0;
-        virtual void popClipRect(const DRect& rc) = 0;
         virtual void pushTransform(const DPoint& translate, double angle, 
                 const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
