@@ -34,9 +34,9 @@ namespace avg {
 GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
         bool bStandalone) :
     GPUFilter(pf, B8G8R8A8, bStandalone, 2),
+    m_fLightnessOffset(0.0),
     m_fHue(0.0),
-    m_fSaturation(0.0),
-    m_fLightnessOffset(0.0)
+    m_fSaturation(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
