@@ -31,7 +31,9 @@
 #include <string>
 
 namespace avg {
-    
+
+class VertexArray;
+
 class AVG_API DivNode : public AreaNode
 {
     public:
@@ -79,6 +81,8 @@ class AVG_API DivNode : public AreaNode
         bool m_bCrop;
         std::string m_sElementOutlineColor;
         Pixel32 m_ElementOutlineColor;
+
+        VertexArrayPtr m_pClipVertexes;
 };
 
 }

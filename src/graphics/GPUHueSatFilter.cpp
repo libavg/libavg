@@ -35,8 +35,8 @@ GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
         bool bStandalone) :
     GPUFilter(pf, B8G8R8A8, bStandalone, 2),
     m_fHue(0.0),
-    m_fSaturation(1.0),
-    m_fBrightnessOffset(0.0)
+    m_fSaturation(0.0),
+    m_fLightnessOffset(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
@@ -48,12 +48,12 @@ GPUHueSatFilter::~GPUHueSatFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUHueSatFilter::setParams(float hue, float saturation,
-        float light_add, bool colorize)
+void GPUHueSatFilter::setParams(int hue, int saturation,
+        int light_add, bool colorize)
 {
     m_fHue = hue;
-    m_fSaturation = saturation;
-    m_fBrightnessOffset = light_add;
+    m_fSaturation = saturation / 100.0;
+    m_fLightnessOffset = light_add / 100.0;
     m_bColorize = colorize;
 }
 
@@ -64,7 +64,7 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->activate();
     pShader->setUniformFloatParam("hue", m_fHue);
     pShader->setUniformFloatParam("sat", m_fSaturation);
-    pShader->setUniformFloatParam("l_offset", m_fBrightnessOffset);
+    pShader->setUniformFloatParam("l_offset", m_fLightnessOffset);
     pShader->setUniformIntParam("b_colorize", (int)m_bColorize);
     pShader->setUniformIntParam("texture", 0);
     draw(pSrcTex);
@@ -74,6 +74,9 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
 void GPUHueSatFilter::initShader()
 {
     string sProgramHead =
+            "const vec3 lumCoeff = vec3(0.2125, 0.7154, 0.0721);\n"
+            "const vec3 white = vec3(1.0, 1.0, 1.0);\n"
+            "const vec3 black = vec3(0.0, 0.0, 0.0);\n"
             "uniform sampler2D texture;\n"
             "uniform float hue;\n"
             "uniform float sat;\n"
@@ -90,16 +93,30 @@ void GPUHueSatFilter::initShader()
             "    float h;\n"
             "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
             "    rgb2hsl(tex, tmp, s, l);\n"
-            "    s = clamp(sat, 0.0, 1.0);\n"
-            "    l = clamp(l + l_offset, 0.0, 1.0);\n"
-            "    if(!b_colorize){\n"
-            "       h = hue+tmp;\n"
+            "    if(b_colorize){\n"
+            "       h = hue;\n"
+            "       s = sat;\n"
             "    }\n"
             "    else{\n"
-            "       h = hue;\n"
+            "       h = hue+tmp;\n"
             "    }\n"
-            "    gl_FragColor = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);\n"
+            "    vec4 rgbTex = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);\n"
+            //Saturate in rgb - space to imitate photoshop filter
+            "    if(!b_colorize){ \n"
+            "    s = clamp(sat+s, 0.0, 2.0);\n"
+            "    vec3 intensity = vec3(dot(rgbTex.rgb, lumCoeff));\n"
+            "    rgbTex.rgb = mix(intensity, rgbTex.rgb, s);\n"
+            "    }; \n"
+            //Brightness with black/white pixels to imitate photoshop lightness-offset
+            "    if(l_offset >= 0.0){ \n"
+            "       rgbTex = vec4(mix(rgbTex.rgb, white, l_offset), tex.a);\n"
+            "    }\n"
+            "    else if(l_offset < 0.0){ \n"
+            "       rgbTex = vec4(mix(rgbTex.rgb, black, -l_offset), tex.a);\n"
+            "    } \n"
+            "    gl_FragColor = rgbTex;\n"
             "}\n";
     getOrCreateShader(SHADERID_HSL_COLOR, sProgram);
 }
 }//End namespace avg
+

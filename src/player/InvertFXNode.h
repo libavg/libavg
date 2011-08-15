@@ -18,37 +18,41 @@
 ////
 ////  Current versions can be found at www.libavg.de
 ////
-//
 
-#ifndef _GPUHueSatFilter_H_
-#define _GPUHueSatFilter_H_
+#ifndef _InvertFXNode_H_
+#define _InvertFXNode_H_
 
 #include "../api.h"
 
-#include "GPUFilter.h"
+#include "FXNode.h"
+#include "../graphics/GPUInvertFilter.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/python.hpp>
+#include <string>
+
+using namespace std;
 
 namespace avg {
+class SDLDisplayEngine;
 
-class AVG_API GPUHueSatFilter : public GPUFilter
-{
+class AVG_API InvertFXNode : public FXNode {
 public:
-    GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
-            bool bStandalone=true);
-    virtual ~GPUHueSatFilter();
+    InvertFXNode();
+    virtual ~InvertFXNode();
+    virtual void disconnect();
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
-    void initShader();
-    void setParams(int hue, int saturation=1, int lightness_offset=0,
-            bool colorize=false);
+    std::string toString();
 
 private:
-    float m_fLightnessOffset;
-    float m_fHue;
-    float m_fSaturation;
-    bool m_bColorize;
+    virtual GPUFilterPtr createFilter(const IntPoint& size);
+
+    GPUInvertFilterPtr filterPtr;
+
 };
 
-typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;
-
+typedef boost::shared_ptr<InvertFXNode> InvertFXNodePtr;
 } //end namespace avg
+
 #endif
+

@@ -20,35 +20,48 @@
 ////
 //
 
-#ifndef _GPUHueSatFilter_H_
-#define _GPUHueSatFilter_H_
+#include "InvertFXNode.h"
+#include "SDLDisplayEngine.h"
 
-#include "../api.h"
+#include "../base/ObjectCounter.h"
+#include "../base/Logger.h"
+#include "../graphics/ShaderRegistry.h"
 
-#include "GPUFilter.h"
+#include<sstream>
+
+using namespace std;
 
 namespace avg {
 
-class AVG_API GPUHueSatFilter : public GPUFilter
+InvertFXNode::InvertFXNode():
+    FXNode()
 {
-public:
-    GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
-            bool bStandalone=true);
-    virtual ~GPUHueSatFilter();
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
-    void initShader();
-    void setParams(int hue, int saturation=1, int lightness_offset=0,
-            bool colorize=false);
+InvertFXNode::~InvertFXNode() {
+    ObjectCounter::get()->decRef(&typeid(*this));
+}
 
-private:
-    float m_fLightnessOffset;
-    float m_fHue;
-    float m_fSaturation;
-    bool m_bColorize;
-};
+void InvertFXNode::disconnect()
+{
+    filterPtr = GPUInvertFilterPtr();
+    FXNode::disconnect();
+}
 
-typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;
+GPUFilterPtr InvertFXNode::createFilter(const IntPoint& size)
+{
+    filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, B8G8R8A8,
+            false));
+    return filterPtr;
+}
 
-} //end namespace avg
-#endif
+std::string InvertFXNode::toString()
+{
+    stringstream s;
+    s << "InvertFXNode" << std::endl;
+    return s.str();
+}
+
+} //End namespace avg
+

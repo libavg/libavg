@@ -58,8 +58,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
-        virtual bool pushClipRect(const DRect& rc);
-        virtual void popClipRect();
+        virtual void pushClipRect(VertexArrayPtr pVA);
+        virtual void popClipRect(VertexArrayPtr pVA);
         virtual void pushTransform(const DPoint& translate, double angle, 
                 const DPoint& pivot);
         virtual void popTransform();
@@ -105,7 +105,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         void logConfig();
         void calcScreenDimensions(const DPoint& physScreenSize=DPoint(0,0));
         virtual void swapBuffers();
-        void clip(bool forward);
+        void clip(VertexArrayPtr pVA, GLenum stencilOp);
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
@@ -119,7 +119,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
         DPoint m_PPMM;
-        std::vector<DRect> m_ClipRects;
+        int m_ClipLevel;
 
         SDL_Surface * m_pScreen;
 

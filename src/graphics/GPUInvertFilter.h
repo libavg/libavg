@@ -20,8 +20,8 @@
 ////
 //
 
-#ifndef _GPUHueSatFilter_H_
-#define _GPUHueSatFilter_H_
+#ifndef _GPUInvertFilter_H_
+#define _GPUInvertFilter_H_
 
 #include "../api.h"
 
@@ -29,26 +29,19 @@
 
 namespace avg {
 
-class AVG_API GPUHueSatFilter : public GPUFilter
+class AVG_API GPUInvertFilter : public GPUFilter
 {
 public:
-    GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
+    GPUInvertFilter(const IntPoint& size, PixelFormat pf,
             bool bStandalone=true);
-    virtual ~GPUHueSatFilter();
+    virtual ~GPUInvertFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
     void initShader();
-    void setParams(int hue, int saturation=1, int lightness_offset=0,
-            bool colorize=false);
 
-private:
-    float m_fLightnessOffset;
-    float m_fHue;
-    float m_fSaturation;
-    bool m_bColorize;
 };
 
-typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;
+typedef boost::shared_ptr<GPUInvertFilter> GPUInvertFilterPtr;
 
 } //end namespace avg
 #endif
