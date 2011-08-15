@@ -59,9 +59,9 @@ Display* VDPAU::s_pXDisplay = 0;
 bool VDPAU::s_bInitFailed = false;
 
 VDPAU::VDPAU()
-    : m_PixFmt(PIX_FMT_NONE),
-      m_VDPDecoder(VDP_INVALID_HANDLE),
+    : m_VDPDecoder(VDP_INVALID_HANDLE),
       m_VDPMixer(VDP_INVALID_HANDLE),
+      m_PixFmt(PIX_FMT_NONE),
       m_Size(-1,-1)
 {
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
@@ -236,6 +236,7 @@ int VDPAU::getFreeSurfaceIndex()
         }
     }
     AVG_ASSERT(false);
+    return -1;
 }
 
 int VDPAU::getBufferInternal(AVCodecContext* pContext, AVFrame* pFrame, 
