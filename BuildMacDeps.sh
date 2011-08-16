@@ -76,7 +76,7 @@ buildfontconfig()
 buildgdkpixbuf()
 {
     cd gdk-pixbuf-2.23.3
-    LDFLAGS="-framework ApplicationServices $LDFLAGS" ./configure --prefix=${AVG_PATH} --disable-shared
+    LDFLAGS="-framework ApplicationServices $LDFLAGS -lresolv" ./configure --prefix=${AVG_PATH} --disable-shared --with-included-loaders
     make clean
     make -j5
     make install
@@ -106,7 +106,7 @@ then
     exit -1 
 fi
 
-#clean
+clean
 
 cd ../deps
 
