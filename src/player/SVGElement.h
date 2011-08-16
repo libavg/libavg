@@ -22,7 +22,7 @@
 #ifndef _SVGElement_H_
 #define _SVGElement_H_
 
-#include <api.h>
+#include "../api.h"
 
 #include "../base/UTF8String.h"
 #include "../base/Point.h"

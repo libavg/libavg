@@ -124,7 +124,8 @@ BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement,
 {
     DPoint pos = pElement->getPos();
     DPoint scale(renderSize.x/size.x, renderSize.y/size.y);
-    IntPoint boundingBox = IntPoint(renderSize) + IntPoint(scale.x+0.5, scale.y+0.5);
+    IntPoint boundingBox = IntPoint(renderSize) + 
+            IntPoint(int(scale.x+0.5), int(scale.y+0.5));
     BitmapPtr pBmp(new Bitmap(boundingBox, B8G8R8A8));
     FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(pBmp);
 
