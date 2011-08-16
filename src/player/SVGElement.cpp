@@ -63,19 +63,18 @@ UTF8String SVGElement::unescapeID(RsvgHandle* pRSVG, const UTF8String& sFilename
 {
     UTF8String sResult(string("#") + sElementID);
     if (bUnescapeIllustratorIDs) {
+        vector<string> sPossibleIDs;
+        sPossibleIDs.push_back(sResult);
         string::size_type pos = sResult.find("_");
         while (pos != UTF8String::npos) {
             sResult.replace(pos, 1, "_x5F_");
             pos = sResult.find("_", pos+5);
         }
-    }
-    if (bUnescapeIllustratorIDs) {
         // Illustrator adds suffixes to IDs to get rid of duplicates. Even after the
         // duplicates are removed, the suffixes remain :-(.
         // We handle two cases here: 
         // 1) If there is only one version with a suffix, we take that version.
         // 2) If there are duplicate IDs, we throw an error.
-        vector<string> sPossibleIDs;
         sPossibleIDs.push_back(sResult);
         for (int i=1; i<10; ++i) {
             string sTempID = sResult + "_" + toString(i) + "_";
