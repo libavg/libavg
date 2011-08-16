@@ -117,6 +117,7 @@ Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
     ObjectCounter::get()->incRef(&typeid(*this));
     AVG_ASSERT(rect.br.x <= origBmp.getSize().x);
     AVG_ASSERT(rect.br.y <= origBmp.getSize().y);
+    AVG_ASSERT(rect.tl.x >= 0 && rect.tl.y >= 0);
     if (!origBmp.getName().empty()) {
         m_sName = origBmp.getName()+" part";
     } else {
@@ -1213,6 +1214,7 @@ void Bitmap::allocBits(int stride)
 {
     AVG_ASSERT(!m_pBits);
     AVG_ASSERT(!pixelFormatIsPlanar(m_PF));
+    AVG_ASSERT(m_Size.x > 0 && m_Size.y > 0);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     if (stride == 0) {
         m_Stride = getLineLen();
