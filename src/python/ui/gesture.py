@@ -480,16 +480,19 @@ class TransformRecognizer(Recognizer):
             c = z1 - (x1 * a) - (y1 * b)
             return [a, b, c]
 
-        cur2 = self.__findThirdPoint(cur0, cur1)
-        xt = solveLinearEquations(
-                start0.x, start0.y, cur0.x,
-                start1.x, start1.y, cur1.x,
-                start2.x, start2.y, cur2.x)
-        yt = solveLinearEquations(
-                start0.x, start0.y, cur0.y,
-                start1.x, start1.y, cur1.y,
-                start2.x, start2.y, cur2.y)
-        return Mat3x3(xt, yt)
+        if cur0 == cur1:
+            return Mat3x3.translate(cur0-start0)
+        else:
+            cur2 = self.__findThirdPoint(cur0, cur1)
+            xt = solveLinearEquations(
+                    start0.x, start0.y, cur0.x,
+                    start1.x, start1.y, cur1.x,
+                    start2.x, start2.y, cur2.x)
+            yt = solveLinearEquations(
+                    start0.x, start0.y, cur0.y,
+                    start1.x, start1.y, cur1.y,
+                    start2.x, start2.y, cur2.y)
+            return Mat3x3(xt, yt)
 
     def __findThirdPoint(self, f1, f2):
         diff = f2 - f1
