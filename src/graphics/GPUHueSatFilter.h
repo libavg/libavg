@@ -42,9 +42,9 @@ public:
             bool colorize=false);
 
 private:
-    float m_fLightnessOffset;
-    float m_fHue;
-    float m_fSaturation;
+    float m_LightnessOffset;
+    float m_Hue;
+    float m_Saturation;
     bool m_bColorize;
 };
 

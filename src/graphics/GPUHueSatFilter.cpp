@@ -34,9 +34,9 @@ namespace avg {
 GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
         bool bStandalone) :
     GPUFilter(pf, B8G8R8A8, bStandalone, 2),
-    m_fLightnessOffset(0.0),
-    m_fHue(0.0),
-    m_fSaturation(0.0)
+    m_LightnessOffset(0.0),
+    m_Hue(0.0),
+    m_Saturation(0.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
@@ -51,9 +51,9 @@ GPUHueSatFilter::~GPUHueSatFilter()
 void GPUHueSatFilter::setParams(int hue, int saturation,
         int light_add, bool colorize)
 {
-    m_fHue = hue;
-    m_fSaturation = saturation / 100.0;
-    m_fLightnessOffset = light_add / 100.0;
+    m_Hue = float(hue);
+    m_Saturation = saturation / 100.0f;
+    m_LightnessOffset = light_add / 100.0f;
     m_bColorize = colorize;
 }
 
@@ -62,9 +62,9 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
     OGLShaderPtr pShader = getShader(SHADERID_HSL_COLOR);
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     pShader->activate();
-    pShader->setUniformFloatParam("hue", m_fHue);
-    pShader->setUniformFloatParam("sat", m_fSaturation);
-    pShader->setUniformFloatParam("l_offset", m_fLightnessOffset);
+    pShader->setUniformFloatParam("hue", m_Hue);
+    pShader->setUniformFloatParam("sat", m_Saturation);
+    pShader->setUniformFloatParam("l_offset", m_LightnessOffset);
     pShader->setUniformIntParam("b_colorize", (int)m_bColorize);
     pShader->setUniformIntParam("texture", 0);
     draw(pSrcTex);
@@ -103,9 +103,9 @@ void GPUHueSatFilter::initShader()
             "    vec4 rgbTex = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);\n"
             //Saturate in rgb - space to imitate photoshop filter
             "    if(!b_colorize){ \n"
-            "    s = clamp(sat+s, 0.0, 2.0);\n"
-            "    vec3 intensity = vec3(dot(rgbTex.rgb, lumCoeff));\n"
-            "    rgbTex.rgb = mix(intensity, rgbTex.rgb, s);\n"
+            "      s = clamp(sat+s, 0.0, 2.0);\n"
+            "      vec3 intensity = vec3(dot(rgbTex.rgb, lumCoeff));\n"
+            "      rgbTex.rgb = mix(intensity, rgbTex.rgb, s);\n"
             "    }; \n"
             //Brightness with black/white pixels to imitate photoshop lightness-offset
             "    if(l_offset >= 0.0){ \n"
