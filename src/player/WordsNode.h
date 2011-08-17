@@ -117,7 +117,10 @@ class AVG_API WordsNode : public RasterNode
 
     private:
         virtual void calcMaskCoords(MaterialInfo& material);
-        void drawString();
+        void updateFont();
+        void updateLayout();
+        void renderText();
+        void redraw();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         void setParsedText(const UTF8String& sText);
         UTF8String applyBR(const UTF8String& sText);
@@ -144,6 +147,7 @@ class AVG_API WordsNode : public RasterNode
         bool m_bRawTextMode;
         IntPoint m_LogicalSize;
         IntPoint m_InkOffset;
+        IntPoint m_InkSize;
         int m_AlignOffset;
         PangoFontDescription * m_pFontDescription;
         PangoLayout * m_pLayout;
