@@ -116,7 +116,10 @@ class AVG_API WordsNode : public RasterNode
         static void addFontDir(const std::string& sDir);
 
     private:
+        enum RedrawState {FONT_CHANGED, LAYOUT_CHANGED, RENDER_NEEDED, CLEAN};
+
         virtual void calcMaskCoords(MaterialInfo& material);
+        void setDirty(RedrawState newState);
         void updateFont();
         void updateLayout();
         void renderText();
@@ -152,8 +155,7 @@ class AVG_API WordsNode : public RasterNode
         PangoFontDescription * m_pFontDescription;
         PangoLayout * m_pLayout;
 
-        bool m_bFontChanged;
-        bool m_bDrawNeeded;
+        RedrawState m_RedrawState;
 };
 
 }
