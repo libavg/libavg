@@ -40,6 +40,8 @@ if len(sys.argv) ==1:
     print
     print "Usage: showfont.py <fontname> [<text>]"
     print
+    print "  Shows all available variants of a font. If <text> is given, displays the"
+    print "  text. If <fontname> is not given, dumps a list of all fonts available."
     sys.exit(1)
 else:
     fontname=sys.argv[1]

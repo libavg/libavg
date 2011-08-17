@@ -85,16 +85,16 @@ class VideoPlayer(AVGApp):
                         size=(SQUARESIZE, SQUARESIZE), strokewidth=0, fillcolor="C0C0C0",
                         fillopacity=1)
 
-if len(sys.argv) == 1:
-    print "Usage: avg_videoplayer.py <filename> [--disable-accel --fullscreen]"
-    sys.exit(1)
-
-parser = optparse.OptionParser()
+parser = optparse.OptionParser("Usage: %prog <filename> [options]")
 parser.add_option("-d", "--disable-accel", dest="disableAccel", action="store_true",
-        default=False, help="Disable vdpau acceleration.")
+        default=False, help="disable vdpau acceleration")
 parser.add_option("-f", "--fullscreen", dest="fullscreen", action="store_true",
         default=False)
 (options, args) = parser.parse_args()
+
+if len(args) == 0:
+    parser.print_help()
+    sys.exit(1)
 
 argsNode = avg.VideoNode(href=args[0], loop=True, accelerated=False)
 argsNode.pause()
