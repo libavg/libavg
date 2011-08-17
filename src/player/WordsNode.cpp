@@ -542,9 +542,13 @@ void WordsNode::setDirty(RedrawState newState)
     }
 }
 
+static ProfilingZoneID UpdateFontProfilingZone("WordsNode: Update font");
+
 void WordsNode::updateFont()
 {
     if (m_RedrawState == FONT_CHANGED) {
+        ScopeTimer timer(UpdateFontProfilingZone);
+
         if (m_pFontDescription) {
             pango_font_description_free(m_pFontDescription);
         }
@@ -557,10 +561,14 @@ void WordsNode::updateFont()
     }
 }
 
+static ProfilingZoneID UpdateLayoutProfilingZone("WordsNode: Update layout");
+
 void WordsNode::updateLayout()
 {
     updateFont();
     if (m_RedrawState == LAYOUT_CHANGED) {
+        ScopeTimer timer(UpdateLayoutProfilingZone);
+
         if (m_sText.length() == 0) {
             m_LogicalSize = IntPoint(0,0);
             m_RedrawState = RENDER_NEEDED;
@@ -651,6 +659,8 @@ void WordsNode::updateLayout()
     }
 }
 
+static ProfilingZoneID RenderTextProfilingZone("WordsNode: render text");
+
 void WordsNode::renderText()
 {
     AVG_ASSERT(m_RedrawState == RENDER_NEEDED || m_RedrawState == CLEAN);
@@ -660,6 +670,7 @@ void WordsNode::renderText()
     }
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
+            ScopeTimer timer(RenderTextProfilingZone);
             getSurface()->create(m_InkSize, A8);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
@@ -699,12 +710,8 @@ void WordsNode::renderText()
     }
 }
 
-static ProfilingZoneID DrawStringProfilingZone("WordsNode::redraw");
-
 void WordsNode::redraw()
 {
-    ScopeTimer timer(DrawStringProfilingZone);
-
     AVG_ASSERT(m_sText.length() < 32767);
     
     updateLayout();
