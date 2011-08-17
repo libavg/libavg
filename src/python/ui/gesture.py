@@ -495,18 +495,8 @@ class TransformRecognizer(Recognizer):
             return Mat3x3(xt, yt)
 
     def __findThirdPoint(self, f1, f2):
-        diff = f2 - f1
-        diffAngle = atan2(diff.y, diff.x)
-        diffLen = diff.getNorm()
-
-        vec1 = avg.Point2D.fromPolar(diffAngle+pi/4, diffLen)
-        vec2 = avg.Point2D.fromPolar(diffAngle+3*pi/4, diffLen)
-        slope1 = vec1.y/vec1.x
-        intercept1 = f1.y - slope1*f1.x
-        slope2 = vec2.y/vec2.x
-        intercept2 = f2.y - slope2*f2.x
-        x = (intercept2-intercept1) / (slope1-slope2)
-        return avg.Point2D(x, slope1*x + intercept1)
+        offset = (f2-f1).getRotated(pi/2)
+        return f1+offset
 
     def __newPhase(self):
         self.__baseTransform = self.__transform.applyMat(self.__baseTransform)
