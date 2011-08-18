@@ -39,6 +39,21 @@ def almostEqual(a,b):
     except:
         return math.fabs(a-b) < 0.000001
 
+def flatten(l):
+    ltype = type(l)
+    l = list(l)
+    i = 0
+    while i < len(l):
+        while isinstance(l[i], (list, tuple)):
+            if not l[i]:
+                l.pop(i)
+                i -= 1
+                break
+            else:
+                l[i:i + 1] = l[i]
+        i += 1
+    return ltype(l)
+
 
 class AVGTestCase(unittest.TestCase):
     imageResultDirectory = "resultimages"
@@ -89,13 +104,12 @@ class AVGTestCase(unittest.TestCase):
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
         
         self.assert_(self.__player.isPlaying() == 0)
-        self.actions = actions
+        self.actions = flatten(actions)
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)
         self.__player.setFramerate(10000)
         self.__player.play()
         self.assert_(self.__player.isPlaying() == 0)
-
 
     def compareImage(self, fileName, warn):
         bmp = self.__player.screenshot()

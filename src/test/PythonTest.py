@@ -1208,6 +1208,26 @@ class PythonTestCase(AVGTestCase):
 #            print self.transform, expectedTransform
             self.assert_(almostEqual(self.transform.m, expectedTransform.m))
 
+        def createRotTestFrames(expectedTransform):
+            return (
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 20),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 10),
+                 lambda: checkTransform(expectedTransform),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 20),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 10),
+            )
+
+        def createScaleTestFrames(expectedTransform):
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
+                 lambda: checkTransform(expectedTransform),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
+
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, 
@@ -1230,27 +1250,13 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
                  lambda: checkTransform(ui.Mat3x3.translate([40,0])),
 
-                 # Check rotation
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 20),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 10),
-                 lambda: checkTransform(
+                 createRotTestFrames(
                         ui.Mat3x3.translate((0,30)).applyMat(
                         ui.Mat3x3.rotate(math.pi))),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 20),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 10),
 
-                 # Check scale
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
-                 lambda: checkTransform(
+                 createScaleTestFrames(
                         ui.Mat3x3.translate((0,-10)).applyMat(
                         ui.Mat3x3.scale((2,2)))),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
                 ))
 
         # Recognizer with ignoreScale
@@ -1264,25 +1270,10 @@ class PythonTestCase(AVGTestCase):
              lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
              lambda: checkTransform(ui.Mat3x3.translate([10,0])),
 
-             # Check rotation
-             lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-             lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 20),
-             lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 10),
-             lambda: checkTransform(
-                    ui.Mat3x3.translate((0,30)).applyMat(
-                    ui.Mat3x3.rotate(math.pi))),
-             lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 20),
-             lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 10),
-
-             # Check scale
-             lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-             lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
-             lambda: checkTransform(ui.Mat3x3.translate((0,5))),
-             lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
+             createRotTestFrames(
+                ui.Mat3x3.translate((0,30)).applyMat(
+                ui.Mat3x3.rotate(math.pi))),
+             createScaleTestFrames(ui.Mat3x3.translate((0,5))),
             ))
 
         # Recognizer with ignoreRotation
@@ -1296,25 +1287,10 @@ class PythonTestCase(AVGTestCase):
              lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
              lambda: checkTransform(ui.Mat3x3.translate([10,0])),
 
-             # Check rotation
-             lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-             lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 20),
-             lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 10),
-             lambda: checkTransform(ui.Mat3x3()),
-             lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 20),
-             lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 10),
-
-             # Check scale
-             lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-             lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
-             lambda: checkTransform(
-                    ui.Mat3x3.translate((0,-10)).applyMat(
-                    ui.Mat3x3.scale((2,2)))),
-             lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
-             lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
+             createRotTestFrames(ui.Mat3x3()),
+             createScaleTestFrames(
+                ui.Mat3x3.translate((0,-10)).applyMat(
+                ui.Mat3x3.scale((2,2)))),
             ))
 
     def testKMeans(self):
