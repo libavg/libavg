@@ -154,6 +154,7 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
         ++it;
         if (m_bCurListenerIsDead) {
             m_ListenerMap.erase(lastIt);
+            m_bCurListenerIsDead = false;
         }
     }
     m_bSendingEvents = false;
@@ -195,6 +196,17 @@ void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEv
 {
     double dist = (pEvent2->getPos() - pEvent1->getPos()).getNorm();
     m_DistanceTravelled += dist;
+}
+
+void Contact::dumpListeners(string sFuncName)
+{
+    cerr << "  " << sFuncName << ": ";
+    for (map<int, Listener>::iterator it = m_ListenerMap.begin(); 
+            it != m_ListenerMap.end(); ++it)
+    {
+        cerr << it->first << ", ";
+    }
+    cerr << endl;
 }
 
 Contact::Listener::Listener(PyObject * pMotionCallback, PyObject * pUpCallback)

@@ -488,7 +488,17 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage,
 
 bool VisibleNode::isVisible() const
 {
-    return getActive() && getEffectiveOpacity() > 0.01;
+    return getEffectiveActive() && getEffectiveOpacity() > 0.01;
+}
+
+bool VisibleNode::getEffectiveActive() const
+{
+    DivNodePtr pParent = dynamic_pointer_cast<DivNode>(getParent());
+    if (pParent) {
+        return m_bActive && pParent->getEffectiveActive();
+    } else {
+        return m_bActive;
+    }
 }
 
 void VisibleNode::connectOneEventHandler(const EventID& id, PyObject * pObj, 

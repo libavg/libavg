@@ -314,20 +314,27 @@ class Mat3x3:
     @classmethod
     def fromNode(cls, node):
         return Mat3x3.translate(node.pos).applyMat(
+                Mat3x3.translate(node.pivot).applyMat(
                 Mat3x3.rotate(node.angle).applyMat(
-                Mat3x3.scale(node.size)))
+                Mat3x3.translate(-node.pivot).applyMat(
+                Mat3x3.scale(node.size)))))
       
     def setNodeTransform(self, node):
-        v = self.applyVec([0,0,1])
-        node.pos = avg.Point2D(v[0], v[1])
         v = self.applyVec([1,0,0])
         rot = avg.Point2D(v[0], v[1]).getAngle()
         node.angle = rot
+        node.size = self.getScale()
+        node.pivot = node.size/2 
+        v = self.applyVec([0,0,1])
+        node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) - 
+                node.pivot)
+
+    def getScale(self):
+        v = self.applyVec([1,0,0])
         xscale = avg.Point2D(v[0], v[1]).getNorm()
         v = self.applyVec([0,1,0])
         yscale = avg.Point2D(v[0], v[1]).getNorm()
-        node.size = avg.Point2D(xscale, yscale)
-        m = self.m
+        return avg.Point2D(xscale, yscale)
 
     def __str__(self):
         return self.m.__str__()
@@ -411,12 +418,15 @@ class TransformRecognizer(Recognizer):
 
     def __init__(self, node, eventSource=avg.TOUCH, startHandler=None,
             moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
-            friction=-1):
+            friction=-1, ignoreScale=False, ignoreRotation=False):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
         self.__upHandler = optionalCallback(upHandler, lambda offset:None)
+        self.__ignoreScale = ignoreScale
+        self.__ignoreRotation = ignoreRotation
         self.__friction = friction
+
         self.__baseTransform = Mat3x3()
         self.__transform = Mat3x3()
         self.__startPosns = []
@@ -457,12 +467,36 @@ class TransformRecognizer(Recognizer):
             else:
                 self.__posns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
+            if self.__ignoreScale:
+                self.__posns = self.__calcNoScaleMovement(self.__startPosns, self.__posns)
+            if self.__ignoreRotation:
+                self.__posns = self.__calcNoAngleMovement(
+                        self.__startPosns, self.__posns)
             self.__transform = self.__calcAffineTransform(
                     self.__startPosns[0], self.__posns[0], 
                     self.__startPosns[1], self.__posns[1],
                     self.__startPosns[2])
         totalTransform = self.__transform.applyMat(self.__baseTransform)
         self.__moveHandler(totalTransform)
+
+    def __calcNoScaleMovement(self, startPosns, curPosns):
+        # Removes the scaling inherent in the movement of two fingers.
+        # Changes curPosns so the distance between the two positions is the same
+        # as the distance between the two start positions.
+        startDist = (startPosns[0]-startPosns[1]).getNorm()
+        center = (curPosns[0]+curPosns[1])/2
+        curAngle = (curPosns[0]-curPosns[1]).getAngle()
+        newPos0 = center + avg.Point2D.fromPolar(curAngle, startDist/2)
+        newPos1 = center - avg.Point2D.fromPolar(curAngle, startDist/2)
+        return [newPos0, newPos1]
+
+    def __calcNoAngleMovement(self, startPosns, curPosns):
+        startAngle = (startPosns[0]-startPosns[1]).getAngle()
+        center = (curPosns[0]+curPosns[1])/2
+        curDist = (curPosns[0]-curPosns[1]).getNorm()
+        newPos0 = center + avg.Point2D.fromPolar(startAngle, curDist/2) 
+        newPos1 = center - avg.Point2D.fromPolar(startAngle, curDist/2) 
+        return [newPos0, newPos1]
 
     def __calcAffineTransform(self, start0, cur0, start1, cur1, start2):
         # Algorithm from http://mike.teczno.com/notes/two-fingers.html
@@ -480,30 +514,23 @@ class TransformRecognizer(Recognizer):
             c = z1 - (x1 * a) - (y1 * b)
             return [a, b, c]
 
-        cur2 = self.__findThirdPoint(cur0, cur1)
-        xt = solveLinearEquations(
-                start0.x, start0.y, cur0.x,
-                start1.x, start1.y, cur1.x,
-                start2.x, start2.y, cur2.x)
-        yt = solveLinearEquations(
-                start0.x, start0.y, cur0.y,
-                start1.x, start1.y, cur1.y,
-                start2.x, start2.y, cur2.y)
-        return Mat3x3(xt, yt)
+        if cur0 == cur1:
+            return Mat3x3.translate(cur0-start0)
+        else:
+            cur2 = self.__findThirdPoint(cur0, cur1)
+            xt = solveLinearEquations(
+                    start0.x, start0.y, cur0.x,
+                    start1.x, start1.y, cur1.x,
+                    start2.x, start2.y, cur2.x)
+            yt = solveLinearEquations(
+                    start0.x, start0.y, cur0.y,
+                    start1.x, start1.y, cur1.y,
+                    start2.x, start2.y, cur2.y)
+            return Mat3x3(xt, yt)
 
     def __findThirdPoint(self, f1, f2):
-        diff = f2 - f1
-        diffAngle = atan2(diff.y, diff.x)
-        diffLen = diff.getNorm()
-
-        vec1 = avg.Point2D.fromPolar(diffAngle+pi/4, diffLen)
-        vec2 = avg.Point2D.fromPolar(diffAngle+3*pi/4, diffLen)
-        slope1 = vec1.y/vec1.x
-        intercept1 = f1.y - slope1*f1.x
-        slope2 = vec2.y/vec2.x
-        intercept2 = f2.y - slope2*f2.x
-        x = (intercept2-intercept1) / (slope1-slope2)
-        return avg.Point2D(x, slope1*x + intercept1)
+        offset = (f2-f1).getRotated(pi/2)
+        return f1+offset
 
     def __newPhase(self):
         self.__baseTransform = self.__transform.applyMat(self.__baseTransform)

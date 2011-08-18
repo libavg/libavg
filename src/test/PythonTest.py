@@ -1205,29 +1205,93 @@ class PythonTestCase(AVGTestCase):
             self.transform = transform
 
         def checkTransform(expectedTransform):
-            self.assert_(almostEqual(self.transform.m, expectedTransform))
+#            print self.transform, expectedTransform
+            self.assert_(almostEqual(self.transform.m, expectedTransform.m))
+
+        def createRotTestFrames(expectedTransform):
+            return (
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 20),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 10),
+                 lambda: checkTransform(expectedTransform),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 20),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 10),
+            )
+
+        def createScaleTestFrames(expectedTransform):
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
+                 lambda: checkTransform(expectedTransform),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__transformRecognizer = ui.TransformRecognizer(image, 
                 startHandler=onStart, moveHandler=onMove, upHandler=onUp)
         self.start((
+                 # Check up/down handling
                  lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
-                 lambda: checkTransform(ui.Mat3x3().m),
+                 lambda: checkTransform(ui.Mat3x3()),
                  lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
-                 lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
+                 lambda: checkTransform(ui.Mat3x3.translate([10,0])),
                  lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 20),
-                 lambda: checkTransform(ui.Mat3x3.translate([10,0]).m),
+                 lambda: checkTransform(ui.Mat3x3.translate([10,0])),
                  lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 30, 10),
                  lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 30, 20),
-                 lambda: checkTransform(ui.Mat3x3.translate([20,0]).m),
+                 lambda: checkTransform(ui.Mat3x3.translate([20,0])),
                  lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 20),
-                 lambda: checkTransform(ui.Mat3x3.translate([20,0]).m),
+                 lambda: checkTransform(ui.Mat3x3.translate([20,0])),
                  lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 40, 10),
-                 lambda: checkTransform(ui.Mat3x3.translate([30,0]).m),
+                 lambda: checkTransform(ui.Mat3x3.translate([30,0])),
                  lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
-                 lambda: checkTransform(ui.Mat3x3.translate([40,0]).m),
+                 lambda: checkTransform(ui.Mat3x3.translate([40,0])),
+
+                 createRotTestFrames(
+                        ui.Mat3x3.translate((0,30)).applyMat(
+                        ui.Mat3x3.rotate(math.pi))),
+
+                 createScaleTestFrames(
+                        ui.Mat3x3.translate((0,-10)).applyMat(
+                        ui.Mat3x3.scale((2,2)))),
                 ))
+
+        # Recognizer with ignoreScale
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp,
+                ignoreScale=True)
+        self.start((
+             lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+             lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
+             lambda: checkTransform(ui.Mat3x3.translate([10,0])),
+
+             createRotTestFrames(
+                ui.Mat3x3.translate((0,30)).applyMat(
+                ui.Mat3x3.rotate(math.pi))),
+             createScaleTestFrames(ui.Mat3x3.translate((0,5))),
+            ))
+
+        # Recognizer with ignoreRotation
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp,
+                ignoreRotation=True)
+        self.start((
+             lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+             lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
+             lambda: checkTransform(ui.Mat3x3.translate([10,0])),
+
+             createRotTestFrames(ui.Mat3x3()),
+             createScaleTestFrames(
+                ui.Mat3x3.translate((0,-10)).applyMat(
+                ui.Mat3x3.scale((2,2)))),
+            ))
 
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
@@ -1257,7 +1321,7 @@ class PythonTestCase(AVGTestCase):
                        [-5.,      -3.,    1.])
         self.assert_(almostEqual(m.inverse().m, im.m))
 
-        image = avg.ImageNode(pos=(10,20), pivot=(0,0), size=(30,40), angle=1.57, 
+        image = avg.ImageNode(pos=(10,20), size=(30,40), angle=1.57, 
             href="rgb24alpha-64x64.png")
         mat = ui.Mat3x3.fromNode(image)
         mat.setNodeTransform(image)

@@ -142,6 +142,7 @@ class AVG_API VisibleNode: public Node
         void checkReload(const std::string& sHRef, const ImagePtr& pImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
+        bool getEffectiveActive() const;
 
     private:
         struct EventID {

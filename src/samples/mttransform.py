@@ -11,7 +11,7 @@ class TransformApp(libavg.AVGApp):
 
     def init(self):
         self.image = avg.ImageNode(href="rgb24-64x64.png", pos=(100,100),
-                size=BASE_SIZE, pivot=(0,0), parent=self._parentNode)
+                size=BASE_SIZE, parent=self._parentNode)
         self.transformer = ui.TransformRecognizer(
                 node=self.image, 
                 startHandler=self.__onStart,

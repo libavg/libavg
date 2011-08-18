@@ -81,12 +81,12 @@ void AreaNode::setArgs(const ArgList& args)
     args.getOverlayedArgVal(&m_UserSize, "size", "width", "height", getID());
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
+    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 }
 
 void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
-    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     IntPoint MediaSize = getMediaSize();
     if (m_UserSize.x == 0.0) {
         m_RelViewport.setWidth(MediaSize.x);
