@@ -141,42 +141,46 @@ Bitmap::Bitmap(const UTF8String& sName)
         InitializeMagick(0);
         s_bMagickInitialized = true;
     }
-    Image magickImage;
     try {
-        string sFilename = convertUTF8ToFilename(sName);
-        magickImage.read(sFilename);
-    } catch (Magick::Warning &e) {
-        cerr << e.what() << endl;
-    } catch (Magick::ErrorConfigure &) {
-//        cerr << e.what() << endl;
-    }
-    PixelPacket * pSrcPixels = magickImage.getPixels(0, 0, magickImage.columns(),
-            magickImage.rows());
-    m_Size = IntPoint(magickImage.columns(), magickImage.rows());
-    if (magickImage.matte()) {
-        m_PF = B8G8R8A8;
-    } else {
-        m_PF = B8G8R8X8;
-    }
-    allocBits();
-    for (int y = 0; y < m_Size.y; ++y) {
-        Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
-        PixelPacket * pSrcLine = pSrcPixels+y*magickImage.columns();
-        if (m_PF == B8G8R8A8) {
-            for (int x = 0; x < m_Size.x; ++x) {
-                *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
-                        pSrcLine->red, 255-pSrcLine->opacity);
-                pSrcLine++;
-                pDestLine++;
-            }
+        Image magickImage;
+        try {
+            string sFilename = convertUTF8ToFilename(sName);
+            magickImage.read(sFilename);
+        } catch (Magick::Warning &e) {
+            cerr << e.what() << endl;
+        } catch (Magick::ErrorConfigure &) {
+    //        cerr << e.what() << endl;
+        }
+        PixelPacket * pSrcPixels = magickImage.getPixels(0, 0, magickImage.columns(),
+                magickImage.rows());
+        m_Size = IntPoint(magickImage.columns(), magickImage.rows());
+        if (magickImage.matte()) {
+            m_PF = B8G8R8A8;
         } else {
-            for (int x = 0; x < m_Size.x; ++x) {
-                *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
-                        pSrcLine->red, 255);
-                pSrcLine++;
-                pDestLine++;
+            m_PF = B8G8R8X8;
+        }
+        allocBits();
+        for (int y = 0; y < m_Size.y; ++y) {
+            Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
+            PixelPacket * pSrcLine = pSrcPixels+y*magickImage.columns();
+            if (m_PF == B8G8R8A8) {
+                for (int x = 0; x < m_Size.x; ++x) {
+                    *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
+                            pSrcLine->red, 255-pSrcLine->opacity);
+                    pSrcLine++;
+                    pDestLine++;
+                }
+            } else {
+                for (int x = 0; x < m_Size.x; ++x) {
+                    *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
+                            pSrcLine->red, 255);
+                    pSrcLine++;
+                    pDestLine++;
+                }
             }
         }
+    } catch (Magick::Exception & ex) {
+        throw Exception(AVG_ERR_FILEIO, ex.what());
     }
     m_bOwnsBits = true;
     ObjectCounter::get()->incRef(&typeid(*this));

@@ -29,8 +29,6 @@
 #include "OGLSurface.h"
 #include "SDLDisplayEngine.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 

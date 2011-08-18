@@ -27,8 +27,6 @@
 #include "../base/Directory.h"
 #include "../base/Exception.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -65,8 +63,8 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
             return FilterGrayscale().apply(pBmp);
         }
         return pBmp;
-    } catch (Magick::Exception & ex) {
-        cerr << ex.what() << endl;
+    } catch (Exception & ex) {
+        cerr << ex.GetStr() << endl;
         throw;
     }
 }
@@ -84,8 +82,8 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
             default:
                 break;
         }
-    } catch (Magick::Exception & ex) {
-        cerr << ex.what() << endl;
+    } catch (Exception & ex) {
+        cerr << ex.GetStr() << endl;
         resultBmp.save("resultimages/"+sFName+".png");
         throw;
     }

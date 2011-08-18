@@ -31,8 +31,6 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 
-#include <Magick++.h>
-
 using namespace std;
 
 namespace avg {
@@ -142,12 +140,12 @@ void RasterNode::checkReload()
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
                 setMaskCoords();
             }
-        } catch (Magick::Exception & ex) {
+        } catch (Exception & ex) {
             m_sMaskFilename = "";
             if (getState() != VisibleNode::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
+                AVG_TRACE(Logger::ERROR, ex.GetStr());
             } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
+                AVG_TRACE(Logger::MEMORY, ex.GetStr());
             }
         }
         if (m_sMaskFilename == "") {

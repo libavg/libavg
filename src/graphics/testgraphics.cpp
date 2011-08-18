@@ -56,7 +56,6 @@
 #pragma warning(push)
 #pragma warning(disable: 4251)
 #endif
-#include <Magick++.h>
 #ifdef _WIN32
 #pragma warning(pop)
 #endif
@@ -577,8 +576,8 @@ public:
             pBmp->copyPixels(tempBmp);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
-        } catch (Magick::Exception & ex) {
-            cerr << ex.what() << endl;
+        } catch (Exception & ex) {
+            cerr << ex.GetStr() << endl;
             setFailed();
         }
     }
