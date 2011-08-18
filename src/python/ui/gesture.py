@@ -307,6 +307,12 @@ class Mat3x3:
                       [sin(a), cos(a), 0])
 
     @classmethod
+    def pivotRotate(cls, t, a):
+        rot = Mat3x3.rotate(a)
+        trans = Mat3x3.translate(t)
+        return trans.applyMat(rot.applyMat(trans.inverse()))
+
+    @classmethod
     def scale(cls, s):
         return Mat3x3([s[0], 0, 0],
                       [0, s[1], 0])
@@ -467,70 +473,37 @@ class TransformRecognizer(Recognizer):
             else:
                 self.__posns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
-            if self.__ignoreScale:
-                self.__posns = self.__calcNoScaleMovement(self.__startPosns, self.__posns)
+
+            startDelta = self.__startPosns[1]-self.__startPosns[0]
+            curDelta = self.__posns[1]-self.__posns[0]
+
+            pivot = Mat3x3.translate((self.__posns[0]+self.__posns[1])/2)
+            invPivot = pivot.inverse()
+
             if self.__ignoreRotation:
-                self.__posns = self.__calcNoAngleMovement(
-                        self.__startPosns, self.__posns)
-            self.__transform = self.__calcAffineTransform(
-                    self.__startPosns[0], self.__posns[0], 
-                    self.__startPosns[1], self.__posns[1],
-                    self.__startPosns[2])
+                rot = Mat3x3()
+            else:
+                rot = Mat3x3.rotate(avg.Point2D.angle(curDelta, startDelta))
+            
+            if self.__ignoreScale:
+                scale = Mat3x3()
+            else:
+                scaleFactor = ((self.__posns[0]-self.__posns[1]).getNorm() / 
+                        (self.__startPosns[0]-self.__startPosns[1]).getNorm())
+                scale = Mat3x3.scale((scaleFactor, scaleFactor))
+            
+            trans = Mat3x3.translate((self.__posns[0]+self.__posns[1])/2 - 
+                    (self.__startPosns[0]+self.__startPosns[1])/2)
+            
+            self.__transform = (
+                    pivot.applyMat(
+                    rot.applyMat(
+                    scale.applyMat(
+                    invPivot.applyMat(
+                    trans)))))
+
         totalTransform = self.__transform.applyMat(self.__baseTransform)
         self.__moveHandler(totalTransform)
-
-    def __calcNoScaleMovement(self, startPosns, curPosns):
-        # Removes the scaling inherent in the movement of two fingers.
-        # Changes curPosns so the distance between the two positions is the same
-        # as the distance between the two start positions.
-        startDist = (startPosns[0]-startPosns[1]).getNorm()
-        center = (curPosns[0]+curPosns[1])/2
-        curAngle = (curPosns[0]-curPosns[1]).getAngle()
-        newPos0 = center + avg.Point2D.fromPolar(curAngle, startDist/2)
-        newPos1 = center - avg.Point2D.fromPolar(curAngle, startDist/2)
-        return [newPos0, newPos1]
-
-    def __calcNoAngleMovement(self, startPosns, curPosns):
-        startAngle = (startPosns[0]-startPosns[1]).getAngle()
-        center = (curPosns[0]+curPosns[1])/2
-        curDist = (curPosns[0]-curPosns[1]).getNorm()
-        newPos0 = center + avg.Point2D.fromPolar(startAngle, curDist/2) 
-        newPos1 = center - avg.Point2D.fromPolar(startAngle, curDist/2) 
-        return [newPos0, newPos1]
-
-    def __calcAffineTransform(self, start0, cur0, start1, cur1, start2):
-        # Algorithm from http://mike.teczno.com/notes/two-fingers.html
-
-        def solveLinearEquations(x1, y1, z1,  x2, y2, z2,  x3, y3, z3):
-            # Solves a system of linear equations.
-            #
-            #   z1 = (a * x1) + (b * y1) + c
-            #   z2 = (a * x2) + (b * y2) + c
-            #   z3 = (a * x3) + (b * y3) + c
-            a = ((((z2 - z3) * (y1 - y2)) - ((z1 - z2) * (y2 - y3)))
-                     / (((x2 - x3) * (y1 - y2)) - ((x1 - x2) * (y2 - y3))))
-            b = ((((z2 - z3) * (x1 - x2)) - ((z1 - z2) * (x2 - x3)))
-                     / (((y2 - y3) * (x1 - x2)) - ((y1 - y2) * (x2 - x3))))
-            c = z1 - (x1 * a) - (y1 * b)
-            return [a, b, c]
-
-        if cur0 == cur1:
-            return Mat3x3.translate(cur0-start0)
-        else:
-            cur2 = self.__findThirdPoint(cur0, cur1)
-            xt = solveLinearEquations(
-                    start0.x, start0.y, cur0.x,
-                    start1.x, start1.y, cur1.x,
-                    start2.x, start2.y, cur2.x)
-            yt = solveLinearEquations(
-                    start0.x, start0.y, cur0.y,
-                    start1.x, start1.y, cur1.y,
-                    start2.x, start2.y, cur2.y)
-            return Mat3x3(xt, yt)
-
-    def __findThirdPoint(self, f1, f2):
-        offset = (f2-f1).getRotated(pi/2)
-        return f1+offset
 
     def __newPhase(self):
         self.__baseTransform = self.__transform.applyMat(self.__baseTransform)
@@ -549,7 +522,4 @@ class TransformRecognizer(Recognizer):
                 self.__clusters = calcKMeans(contactPosns)
                 self.__startPosns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
-
-            self.__startPosns.append(self.__findThirdPoint(self.__startPosns[0], 
-                    self.__startPosns[1]))
 
