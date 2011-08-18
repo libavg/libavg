@@ -323,14 +323,18 @@ class Mat3x3:
         v = self.applyVec([1,0,0])
         rot = avg.Point2D(v[0], v[1]).getAngle()
         node.angle = rot
-        xscale = avg.Point2D(v[0], v[1]).getNorm()
-        v = self.applyVec([0,1,0])
-        yscale = avg.Point2D(v[0], v[1]).getNorm()
-        node.size = avg.Point2D(xscale, yscale)
+        node.size = self.getScale()
         node.pivot = node.size/2 
         v = self.applyVec([0,0,1])
         node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) - 
                 node.pivot)
+
+    def getScale(self):
+        v = self.applyVec([1,0,0])
+        xscale = avg.Point2D(v[0], v[1]).getNorm()
+        v = self.applyVec([0,1,0])
+        yscale = avg.Point2D(v[0], v[1]).getNorm()
+        return avg.Point2D(xscale, yscale)
 
     def __str__(self):
         return self.m.__str__()
@@ -414,12 +418,16 @@ class TransformRecognizer(Recognizer):
 
     def __init__(self, node, eventSource=avg.TOUCH, startHandler=None,
             moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
-            friction=-1):
+            friction=-1, ignoreScale=False, ignoreRotate=False, ignoreTranslate=False):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
         self.__upHandler = optionalCallback(upHandler, lambda offset:None)
+        self.__ignoreScale = ignoreScale
+        self.__ignoreRotate = ignoreRotate
+        self.__ignoreTranslate = ignoreTranslate
         self.__friction = friction
+
         self.__baseTransform = Mat3x3()
         self.__transform = Mat3x3()
         self.__startPosns = []
@@ -460,12 +468,25 @@ class TransformRecognizer(Recognizer):
             else:
                 self.__posns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
+            if self.__ignoreScale:
+                self.__posns = self.__calcNoScaleMovement(self.__startPosns, self.__posns)
             self.__transform = self.__calcAffineTransform(
                     self.__startPosns[0], self.__posns[0], 
                     self.__startPosns[1], self.__posns[1],
                     self.__startPosns[2])
         totalTransform = self.__transform.applyMat(self.__baseTransform)
         self.__moveHandler(totalTransform)
+
+    def __calcNoScaleMovement(self, startPosns, curPosns):
+        # Removes the scaling inherent in the movement of two fingers.
+        # Changes curPosns so the distance between the two positions is the same
+        # as the distance between the two start positions.
+        startDist = (startPosns[0]-startPosns[1]).getNorm()
+        center = (curPosns[0]+curPosns[1])/2
+        curAngle = (curPosns[0]-curPosns[1]).getAngle()
+        newPos0 = center + avg.Point2D.fromPolar(curAngle, startDist/2)
+        newPos1 = center - avg.Point2D.fromPolar(curAngle, startDist/2)
+        return [newPos0, newPos1]
 
     def __calcAffineTransform(self, start0, cur0, start1, cur1, start2):
         # Algorithm from http://mike.teczno.com/notes/two-fingers.html
