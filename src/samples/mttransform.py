@@ -16,8 +16,7 @@ class TransformApp(libavg.AVGApp):
                 node=self.image, 
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
-                upHandler=self.__onUp,
-                ignoreScale=True)
+                upHandler=self.__onUp)
 
     def __onStart(self):
         self.baseTransform = ui.Mat3x3.fromNode(self.image)

@@ -418,14 +418,13 @@ class TransformRecognizer(Recognizer):
 
     def __init__(self, node, eventSource=avg.TOUCH, startHandler=None,
             moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
-            friction=-1, ignoreScale=False, ignoreRotate=False, ignoreTranslate=False):
+            friction=-1, ignoreScale=False, ignoreRotation=False):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
         self.__upHandler = optionalCallback(upHandler, lambda offset:None)
         self.__ignoreScale = ignoreScale
-        self.__ignoreRotate = ignoreRotate
-        self.__ignoreTranslate = ignoreTranslate
+        self.__ignoreRotation = ignoreRotation
         self.__friction = friction
 
         self.__baseTransform = Mat3x3()
@@ -470,6 +469,9 @@ class TransformRecognizer(Recognizer):
                         i in range(2)]
             if self.__ignoreScale:
                 self.__posns = self.__calcNoScaleMovement(self.__startPosns, self.__posns)
+            if self.__ignoreRotation:
+                self.__posns = self.__calcNoAngleMovement(
+                        self.__startPosns, self.__posns)
             self.__transform = self.__calcAffineTransform(
                     self.__startPosns[0], self.__posns[0], 
                     self.__startPosns[1], self.__posns[1],
@@ -486,6 +488,14 @@ class TransformRecognizer(Recognizer):
         curAngle = (curPosns[0]-curPosns[1]).getAngle()
         newPos0 = center + avg.Point2D.fromPolar(curAngle, startDist/2)
         newPos1 = center - avg.Point2D.fromPolar(curAngle, startDist/2)
+        return [newPos0, newPos1]
+
+    def __calcNoAngleMovement(self, startPosns, curPosns):
+        startAngle = (startPosns[0]-startPosns[1]).getAngle()
+        center = (curPosns[0]+curPosns[1])/2
+        curDist = (curPosns[0]-curPosns[1]).getNorm()
+        newPos0 = center + avg.Point2D.fromPolar(startAngle, curDist/2) 
+        newPos1 = center - avg.Point2D.fromPolar(startAngle, curDist/2) 
         return [newPos0, newPos1]
 
     def __calcAffineTransform(self, start0, cur0, start1, cur1, start2):
