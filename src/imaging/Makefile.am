@@ -38,8 +38,10 @@ noinst_PROGRAMS=testimaging checktracking
 
 testimaging_SOURCES=testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) \
+        @GDK_PIXBUF_LIBS@
 
 checktracking_SOURCES=checktracking.cpp $(ALL_H)
 checktracking_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) \
+        @GDK_PIXBUF_LIBS@

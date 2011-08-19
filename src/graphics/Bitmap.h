@@ -125,6 +125,7 @@ private:
     UTF8String m_sName;
 
     static bool s_bMagickInitialized;
+    static bool s_bGTKInitialized;
 };
 
 typedef boost::shared_ptr<Bitmap> BitmapPtr;

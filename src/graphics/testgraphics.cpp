@@ -292,9 +292,13 @@ private:
     {
         cerr << "    Testing save for " << pf << endl;
         BitmapPtr pBmp = initBmp(pf);
-        pBmp->save("test.tif");
-        Bitmap LoadedBmp("test.tif");
-        ::remove("test.tif");
+        pBmp->save("test.png");
+        Bitmap LoadedBmp("test.png");
+        cerr << "baseline: " << endl;
+        pBmp->dump(true);
+        cerr << "Loaded: " << endl;
+        LoadedBmp.dump(true);
+        ::remove("test.png");
         testEqual(LoadedBmp, *pBmp, "BmpSave");
     }
 

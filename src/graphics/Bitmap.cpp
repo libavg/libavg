@@ -30,16 +30,16 @@
 #include "../base/ObjectCounter.h"
 #include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
+#include "../base/FileHelper.h"
 #include "../base/OSHelper.h"
 
-#include <Magick++.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
 
-using namespace Magick;
 using namespace std;
 
 namespace avg {
@@ -47,7 +47,7 @@ namespace avg {
 template<class Pixel>
 void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
-bool Bitmap::s_bMagickInitialized = false;
+bool Bitmap::s_bGTKInitialized = false;
 
 Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
@@ -132,55 +132,53 @@ Bitmap::Bitmap(const UTF8String& sName)
     : m_pBits(0),
       m_sName(sName)
 {
-// TODO: This function loads grayscale images as RGB. That is because Magick++
-// provides no reliable way to determine whether a bitmap is grayscale or not. Maybe
-// the imagemagick C interface is less buggy? 
-// It also returns RGB bitmaps, but I think nearly everywhere in libavg, the bytes
-// are swapped and BGR is used.
-    if (!s_bMagickInitialized) {
-        InitializeMagick(0);
-        s_bMagickInitialized = true;
+    if (!s_bGTKInitialized) {
+        g_type_init();
+        s_bGTKInitialized = true;
     }
-    try {
-        Image magickImage;
-        try {
-            string sFilename = convertUTF8ToFilename(sName);
-            magickImage.read(sFilename);
-        } catch (Magick::Warning &e) {
-            cerr << e.what() << endl;
-        } catch (Magick::ErrorConfigure &) {
-    //        cerr << e.what() << endl;
-        }
-        PixelPacket * pSrcPixels = magickImage.getPixels(0, 0, magickImage.columns(),
-                magickImage.rows());
-        m_Size = IntPoint(magickImage.columns(), magickImage.rows());
-        if (magickImage.matte()) {
-            m_PF = B8G8R8A8;
-        } else {
-            m_PF = B8G8R8X8;
-        }
-        allocBits();
-        for (int y = 0; y < m_Size.y; ++y) {
-            Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
-            PixelPacket * pSrcLine = pSrcPixels+y*magickImage.columns();
-            if (m_PF == B8G8R8A8) {
-                for (int x = 0; x < m_Size.x; ++x) {
-                    *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
-                            pSrcLine->red, 255-pSrcLine->opacity);
-                    pSrcLine++;
-                    pDestLine++;
-                }
-            } else {
-                for (int x = 0; x < m_Size.x; ++x) {
-                    *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
-                            pSrcLine->red, 255);
-                    pSrcLine++;
-                    pDestLine++;
-                }
+
+    GError* pError = 0;
+    GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_file(sName.c_str(), &pError);
+    if (!pPixBuf) {
+        string sErr = pError->message;
+        g_error_free(pError);
+        throw Exception(AVG_ERR_FILEIO, sErr);
+    }
+    m_Size = IntPoint(gdk_pixbuf_get_width(pPixBuf), gdk_pixbuf_get_height(pPixBuf));
+    if (gdk_pixbuf_get_has_alpha(pPixBuf)) {
+        m_PF = B8G8R8A8;
+    } else {
+        m_PF = B8G8R8X8;
+    }
+    int stride = gdk_pixbuf_get_rowstride(pPixBuf);
+    allocBits();
+    guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);
+    for (int y = 0; y < m_Size.y; ++y) {
+        unsigned char* pDestLine = m_pBits+m_Stride*y;
+        guchar* pSrcLine = pSrc + y*stride;
+        if (m_PF == B8G8R8A8) {
+            unsigned char* pDestPixel = pDestLine;
+            guchar* pSrcPixel = pSrcLine;
+            for (int x = 0; x < m_Size.x; ++x) {
+                pDestPixel[0] = pSrcPixel[2];
+                pDestPixel[1] = pSrcPixel[1];
+                pDestPixel[2] = pSrcPixel[0];
+                pDestPixel[3] = pSrcPixel[3];
+                pDestPixel += 4;
+                pSrcPixel += 4;
             }
+        } else {
+            unsigned char* pDestPixel = pDestLine;
+            guchar* pSrcPixel = pSrcLine;
+            for (int x = 0; x < m_Size.x; ++x) {
+                pDestPixel[0] = pSrcPixel[2];
+                pDestPixel[1] = pSrcPixel[1];
+                pDestPixel[2] = pSrcPixel[0];
+                pDestPixel[3] = 255;
+                pDestPixel += 4;
+                pSrcPixel += 3;
+           } 
         }
-    } catch (Magick::Exception & ex) {
-        throw Exception(AVG_ERR_FILEIO, ex.what());
     }
     m_bOwnsBits = true;
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -590,89 +588,54 @@ void Bitmap::copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp,
 
 void Bitmap::save(const UTF8String& sFilename)
 {
-    if (!s_bMagickInitialized) {
-        InitializeMagick(0);
-        s_bMagickInitialized = true;
+    if (!s_bGTKInitialized) {
+        g_type_init();
+        s_bGTKInitialized = true;
     }
-//    cerr << "Bitmap::save()" << endl;
-    string sPF;
-    BitmapPtr pBmp;
-    Magick::StorageType channelFormat = Magick::CharPixel;
-    int alphaOffset = -1;
+    Bitmap* pTempBmp;
+    bool bCopied = false;
     switch (m_PF) {
-        case B5G6R5:
-        case B8G8R8:
         case B8G8R8X8:
-        case X8B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
-            pBmp->copyPixels(*this);
-            sPF = "BGR";
-            break;
-        case R5G6B5:
-        case R8G8B8:
-        case R8G8B8X8:
-        case X8R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
-            pBmp->copyPixels(*this);
-            sPF = "RGB";
+            pTempBmp = new Bitmap(m_Size, R8G8B8);
+            for (int y = 0; y < m_Size.y; y++) {
+                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+                unsigned char * pDestLine = pTempBmp->getPixels() + 
+                        y*pTempBmp->getStride();
+                for (int x = 0; x < m_Size.x; x++) { 
+                    pDestLine[x*3] = pSrcLine[x*4 + 2];
+                    pDestLine[x*3 + 1] = pSrcLine[x*4 + 1];
+                    pDestLine[x*3 + 2] = pSrcLine[x*4];
+                }
+            }
             break;
         case B8G8R8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 3;
-            sPF = "BGRA";
-            break;
-        case A8B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 0;
-            sPF = "ABGR";
-            break;
-        case R8G8B8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 3;
-            sPF = "RGBA";
-            break;
-        case A8R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 0;
-            sPF = "ARGB";
-            break;
-        case I16:   
-            pBmp = BitmapPtr(new Bitmap(*this));
-            channelFormat = Magick::ShortPixel;
-            sPF = "I";
-            break;
-        case I8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "I";
-            break;
-        case R32G32B32A32F:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            channelFormat = Magick::FloatPixel;
-            sPF = "RGBA";
+            pTempBmp = this;
             break;
         default:
-            cerr << "Unsupported pixel format " << m_PF << endl;
-            AVG_ASSERT(false);
-    }
-    // Workaround for old GraphicsMagick bug.
-    // GraphicsMagick versioning is broken, so we need to do a string compare at
-    // runtime.
-    if (string(MagickChangeDate) < "20100101") {
-        if (alphaOffset != -1) {
-            int stride = pBmp->getStride();
-            unsigned char * pLine = pBmp->getPixels();
-            for (int y = 0; y < m_Size.y; ++y) {
-                unsigned char * pPixel = pLine;
-                for (int x = 0; x < m_Size.x; ++x) {
-                    *(pPixel+alphaOffset) = 255-*(pPixel+alphaOffset);
-                    pPixel+=4;
-                }
-                pLine += stride;
+            if (hasAlpha()) {
+                pTempBmp = new Bitmap(m_Size, R8G8B8A8);
+            } else {
+                pTempBmp = new Bitmap(m_Size, R8G8B8);
             }
-        }
+            pTempBmp->copyPixels(*this);
     }
-    Magick::Image img(m_Size.x, m_Size.y, sPF, channelFormat, pBmp->getPixels());
-    img.write(sFilename);
+    GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_data(pTempBmp->getPixels(), 
+            GDK_COLORSPACE_RGB, pTempBmp->hasAlpha(), 8, m_Size.x, m_Size.y, 
+            pTempBmp->getStride(), 0, 0);
+
+    string sExt = getExtension(sFilename);
+
+    GError* pError = 0;
+    bool bOk = gdk_pixbuf_save(pPixBuf, sFilename.c_str(), sExt.c_str(), &pError, NULL);
+    if (!bOk) {
+        string sErr = pError->message;
+        g_error_free(pError);
+        throw Exception(AVG_ERR_FILEIO, sErr);
+    }
+
+    if (bCopied) {
+        delete pTempBmp;
+    }
 }
 
 IntPoint Bitmap::getSize() const

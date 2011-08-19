@@ -83,7 +83,17 @@ string getFilenamePart(const string& Filename)
     return BaseName;
 }
 
-std::string getCWD()
+string getExtension(const string& sFilename)
+{
+    int pos = int(sFilename.find_last_of("."));
+    if (pos == 0) {
+        return "";
+    } else {
+        return sFilename.substr(pos+1);
+    }
+}
+
+string getCWD()
 {
 
     char szBuf[1024];

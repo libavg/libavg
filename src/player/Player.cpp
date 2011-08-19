@@ -81,9 +81,6 @@
 
 #include "../audio/SDLAudioEngine.h"
 
-#undef HAVE_TEMPNAM
-#include <Magick++.h>
-
 #include <libxml/xmlmemory.h>
 
 #ifdef _WIN32
@@ -153,15 +150,6 @@ Player::Player()
     registerNodeType(MeshNode::createDefinition());
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
-
-    // Early initialization of TextEngine singletons (dualton? ;-))
-    // to avoid locale clashes with Magick (bug 54)
-    TextEngine::get(true);
-    TextEngine::get(false);
-
-#ifdef _WIN32
-    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
-#endif
 
     s_pPlayer = this;
 
