@@ -121,7 +121,6 @@ buildLib tiff-3.8.2 --disable-shared
 buildLib zlib-1.2.3
 buildlibpng
 buildLib libxml2-2.6.32 --disable-shared
-buildLib GraphicsMagick-1.1.10 "--without-x --without-perl --disable-shared --disable-delegate-build --without-modules --without-bzlib --without-dps --without-gslib --without-wmf --without-xml --without-ttf --with-quantum-depth=8"
 buildLib pkg-config-0.20
 if [[ "${DARWINMAJORVER}" == "10" ]]
 then
