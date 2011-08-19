@@ -1,7 +1,7 @@
 INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@\
-        $(MAGICK_CFLAGS) $(MTDEV_CFLAGS)
+        $(MTDEV_CFLAGS)
         
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
@@ -64,8 +64,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) @LIBFFMPEG@ \
-        @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS) \
-        @GDK_PIXBUF_LIBS@
+        @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) @GDK_PIXBUF_LIBS@
         
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
@@ -73,8 +72,7 @@ testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ $(MAGICK_LIBS) \ 
-        @GDK_PIXBUF_LIBS@
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
 
 libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
