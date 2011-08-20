@@ -523,14 +523,6 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         destRect = DRect(DPoint(0,0), destSize);
     }
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
-    FBOPtr pMainFBO = getDisplayEngine()->getMainFBO();
-    if (pMainFBO) {
-        pMainFBO->activate();
-    } else {
-        if (m_pFBO) {
-            m_pFBO->deactivate();
-        }
-    }
     glPushMatrix();
     glTranslated(destRect.tl.x, destRect.tl.y, 1);
     glScaled(destRect.size().x, destRect.size().y, 1);
