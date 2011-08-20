@@ -262,6 +262,11 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
+        FBOPtr pFBO = getDisplayEngine()->getMainFBO();
+        if (pFBO) {
+            pFBO->activate();
+        }
+        
         m_pRootNode->maybeRender(rc);
 
         renderOutlines();
