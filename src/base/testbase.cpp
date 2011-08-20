@@ -471,7 +471,7 @@ public:
         try {
             stringToInt("5a");
         } catch (const Exception& e) {
-            if (e.GetCode() == AVG_ERR_TYPE ) {
+            if (e.getCode() == AVG_ERR_TYPE ) {
                 bExceptionThrown = true;
             }
         }

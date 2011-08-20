@@ -143,9 +143,9 @@ void RasterNode::checkReload()
         } catch (Exception & ex) {
             m_sMaskFilename = "";
             if (getState() != VisibleNode::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.GetStr());
+                AVG_TRACE(Logger::ERROR, ex.getStr());
             } else {
-                AVG_TRACE(Logger::MEMORY, ex.GetStr());
+                AVG_TRACE(Logger::MEMORY, ex.getStr());
             }
         }
         if (m_sMaskFilename == "") {

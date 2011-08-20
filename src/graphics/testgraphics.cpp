@@ -581,7 +581,7 @@ public:
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
         } catch (Exception & ex) {
-            cerr << ex.GetStr() << endl;
+            cerr << ex.getStr() << endl;
             setFailed();
         }
     }

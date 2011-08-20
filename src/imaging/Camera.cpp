@@ -211,8 +211,8 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
                     "Unable to set up camera. Camera source '"+sDriver+"' unknown.");
         }
     } catch (const Exception& e) {
-        if (e.GetCode() == AVG_ERR_CAMERA_NONFATAL) {
-            AVG_TRACE(Logger::WARNING, e.GetStr());
+        if (e.getCode() == AVG_ERR_CAMERA_NONFATAL) {
+            AVG_TRACE(Logger::WARNING, e.getStr());
         } else {
             throw;
         }

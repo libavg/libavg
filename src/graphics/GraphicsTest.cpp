@@ -64,7 +64,7 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
         }
         return pBmp;
     } catch (Exception & ex) {
-        cerr << ex.GetStr() << endl;
+        cerr << ex.getStr() << endl;
         throw;
     }
 }
@@ -83,7 +83,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
                 break;
         }
     } catch (Exception & ex) {
-        cerr << ex.GetStr() << endl;
+        cerr << ex.getStr() << endl;
         resultBmp.save("resultimages/"+sFName+".png");
         throw;
     }
@@ -97,7 +97,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
     try {
         pDiffBmp = BitmapPtr(resultBmp.subtract(&baselineBmp));
     } catch (Exception& e) {
-        TEST_FAILED("Error: " << e.GetStr() << ". File: '" << sFName << "'.");
+        TEST_FAILED("Error: " << e.getStr() << ". File: '" << sFName << "'.");
         string sResultName = "resultimages/"+sFName;
         resultBmp.save(sResultName+".png");
         baselineBmp.save(sResultName+"_baseline.png");

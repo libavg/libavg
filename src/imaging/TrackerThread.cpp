@@ -106,7 +106,7 @@ bool TrackerThread::init()
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {
-        AVG_TRACE(Logger::WARNING, e.GetStr());
+        AVG_TRACE(Logger::WARNING, e.getStr());
         AVG_TRACE(Logger::CONFIG, 
                 "Using CPU for imaging operations (slow and inaccurate).");
         m_pImagingContext = 0;
@@ -116,7 +116,7 @@ bool TrackerThread::init()
         m_StartTime = TimeSource::get()->getCurrentMillisecs(); 
         m_HistoryDelay = m_pConfig->getIntParam("/tracker/historydelay/@value");
     } catch (Exception& e) {
-        AVG_TRACE(Logger::WARNING, e.GetStr());
+        AVG_TRACE(Logger::WARNING, e.getStr());
     }
     
     // Done in TrackerInputDevice::ctor to work around Leopard/libdc1394 threading issue.

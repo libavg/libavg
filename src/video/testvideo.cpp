@@ -172,7 +172,7 @@ class VideoDecoderTest: public DecoderTest {
                 readWholeFile(sFilename, 0.5, expectedNumFrames); 
                 readWholeFile(sFilename, 2, expectedNumFrames/2); 
             } catch (Exception & ex) {
-                cerr << string(m_IndentLevel+6, ' ') << ex.GetStr() << endl;
+                cerr << string(m_IndentLevel+6, ' ') << ex.getStr() << endl;
                 throw;
             }
         }
@@ -333,7 +333,7 @@ class AudioDecoderTest: public DecoderTest {
                 }
 
             } catch (Exception & ex) {
-                cerr << string(m_IndentLevel+6, ' ') << ex.GetStr() << endl;
+                cerr << string(m_IndentLevel+6, ' ') << ex.getStr() << endl;
                 throw;
             }
         }

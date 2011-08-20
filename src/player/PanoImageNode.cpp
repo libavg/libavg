@@ -275,7 +275,7 @@ void PanoImageNode::load()
             
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
         } catch (Exception & ex) {
-            AVG_TRACE(Logger::ERROR, ex.GetStr());
+            AVG_TRACE(Logger::ERROR, ex.getStr());
         }
     }
 

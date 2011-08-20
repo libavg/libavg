@@ -38,8 +38,8 @@ Exception::Exception(int code, const string& sErr)
 }
 
 Exception::Exception(const Exception& ex)
-    : m_Code (ex.GetCode()),
-      m_sErr (ex.GetStr())
+    : m_Code (ex.getCode()),
+      m_sErr (ex.getStr())
 {
 }
 
@@ -47,12 +47,12 @@ Exception::~Exception()
 {
 }
 
-int Exception::GetCode() const
+int Exception::getCode() const
 {
     return m_Code;
 }
 
-const string& Exception::GetStr() const
+const string& Exception::getStr() const
 {
     return m_sErr;
 }
