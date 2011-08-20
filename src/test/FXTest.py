@@ -89,18 +89,28 @@ class FXTestCase(AVGTestCase):
         def setOpacity():
             node.opacity=0.6
 
-        Player.loadCanvasString("""
-            <canvas id="offscreen" width="160" height="120">
-                <image href="rgb24-32x32.png"/>
-                <image pos="(32,0)" href="rgb24alpha-32x32.png"/>
-            </canvas>""")
         root = self.loadEmptyScene()
+        self.__createOffscreenCanvas()
         node = avg.ImageNode(parent=root, href="canvas:offscreen")
         node.setEffect(avg.NullFXNode())
         self.start((
                  lambda: self.compareImage("testCanvasNullFX1", False),
                  setOpacity,
                  lambda: self.compareImage("testCanvasNullFX2", False),
+                ))
+
+    def testNodeInCanvasNullFX(self):
+        root = self.loadEmptyScene()
+        canvas = self.__createOffscreenCanvas()
+        avg.ImageNode(parent=root, href="canvas:offscreen")
+        node = canvas.getElementByID("test")
+        node.setEffect(avg.NullFXNode())
+        rect = avg.RectNode(size=(100,100), color="FF0000", fillcolor="FF0000",
+                fillopacity=1)
+        canvas.getRootNode().insertChild(rect, 0)
+        
+        self.start((
+                 lambda: self.compareImage("testNodeInCanvasNullFX1", False),
                 ))
 
     def testBlurFX(self):
@@ -236,6 +246,14 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testContrast3", False),
                 ))
         Player.setFakeFPS(-1)
+    
+    def __createOffscreenCanvas(self):
+        return Player.loadCanvasString("""
+            <canvas id="offscreen" width="160" height="120">
+                <image href="rgb24-32x32.png"/>
+                <image id="test" pos="(32,0)" href="rgb24alpha-32x32.png"/>
+            </canvas>
+        """)
 
 def areFXSupported():
     sceneString = """<avg id="avg" width="160" height="120"/>"""
@@ -261,6 +279,7 @@ def fxTestSuite(tests):
                 "testVideoNullFX",
                 "testWordsNullFX",
                 "testCanvasNullFX",
+                "testNodeInCanvasNullFX",
                 "testBlurFX",
                 "testShadowFX",
                 "testWordsShadowFX",
