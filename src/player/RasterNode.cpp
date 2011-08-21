@@ -513,8 +513,7 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        m_pSurface->activate(getMediaSize());
-    //    pBmp->dump(true);
+        m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
         glColor4d(double(color.getR())/256, double(color.getG())/256, 
                 double(color.getB())/256, opacity);
