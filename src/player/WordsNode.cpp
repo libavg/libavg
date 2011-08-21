@@ -35,8 +35,7 @@
 
 #include "../graphics/Filterfill.h"
 
-#include <pango/pangoft2.h>
-
+#include <pango/pangocairo.h>
 #include <iostream>
 #include <algorithm>
 
@@ -573,13 +572,12 @@ void WordsNode::updateLayout()
             m_LogicalSize = IntPoint(0,0);
             m_RedrawState = RENDER_NEEDED;
         } else {
-            PangoContext* pContext = TextEngine::get(m_bHint).getPangoContext();
-            pango_context_set_font_description(pContext, m_pFontDescription);
-
             if (m_pLayout) {
                 g_object_unref(m_pLayout);
             }
+            PangoContext* pContext = TextEngine::get(m_bHint).getPangoContext();
             m_pLayout = pango_layout_new(pContext);
+            pango_layout_set_font_description(m_pLayout, m_pFontDescription);
 
             PangoAttrList * pAttrList = 0;
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
@@ -671,23 +669,27 @@ void WordsNode::renderText()
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
-            getSurface()->create(m_InkSize, A8);
+            getSurface()->create(m_InkSize, B8G8R8A8);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
-            FilterFill<unsigned char>(0).applyInPlace(pBmp);
-            FT_Bitmap bitmap;
-            bitmap.rows = m_InkSize.y;
-            bitmap.width = m_InkSize.x;
-            unsigned char * pLines = pBmp->getPixels();
-            bitmap.pitch = pBmp->getStride();
-            bitmap.buffer = pLines;
-            bitmap.num_grays = 256;
-            bitmap.pixel_mode = ft_pixel_mode_grays;
-
+            FilterFill<Pixel32>(Pixel32(0,0,0,0)).apply(pBmp);
             PangoRectangle logical_rect;
             PangoRectangle ink_rect;
             pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
-            pango_ft2_render_layout(&bitmap, m_pLayout, -ink_rect.x, -ink_rect.y);
+
+            cairo_surface_t* pSurface = cairo_image_surface_create_for_data(
+                    pBmp->getPixels(), CAIRO_FORMAT_ARGB32,
+                    m_InkSize.x, m_InkSize.y, pBmp->getStride());
+
+            cairo_t* pCairo = cairo_create(pSurface);
+            cairo_set_source_rgb(pCairo, 
+                    m_Color.getR()/255., m_Color.getG()/255., m_Color.getB()/255.);
+            cairo_move_to(pCairo, -ink_rect.x, -ink_rect.y);
+            pango_cairo_show_layout(pCairo, m_pLayout);
+            
+            cairo_destroy(pCairo);
+            cairo_surface_destroy(pSurface);
+
             switch (m_Alignment) {
                 case PANGO_ALIGN_LEFT:
                     m_AlignOffset = 0;
@@ -741,8 +743,8 @@ void WordsNode::render(const DRect& rect)
         if (offset != IntPoint(0,0)) {
             getDisplayEngine()->pushTransform(DPoint(offset), 0, DPoint(0,0));
         }
-        blta8(DPoint(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
-                getBlendMode());
+        blt32(DPoint(getSurface()->getSize()), getEffectiveOpacity(), getBlendMode(),
+                true);
         if (offset != IntPoint(0,0)) {
             getDisplayEngine()->popTransform();
         }
