@@ -73,6 +73,14 @@ void TextEngine::init()
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pPangoContext, PANGO_DIRECTION_LTR);
 
+    cairo_font_options_t*  pFontOptions = cairo_font_options_create();
+//    cairo_font_options_set_antialias(pFontOptions, CAIRO_ANTIALIAS_GRAY);
+    cairo_font_options_set_hint_style(pFontOptions, CAIRO_HINT_STYLE_SLIGHT);
+    cairo_font_options_set_hint_metrics(pFontOptions, CAIRO_HINT_METRICS_OFF);
+    pango_cairo_context_set_font_options(m_pPangoContext, pFontOptions);
+
+    cairo_font_options_destroy(pFontOptions);
+
     initFonts();
 
     string sOldLang = "";
