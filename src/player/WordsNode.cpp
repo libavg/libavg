@@ -729,7 +729,7 @@ void WordsNode::preRender()
         updateLayout();
     }
     if (m_sText.length() != 0 && isVisible()) {
-        renderFX(getSize(), m_Color, false);
+        renderFX(getSize(), m_Color, true);
     }
 }
 
