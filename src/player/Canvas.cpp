@@ -232,6 +232,10 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
         ScopeTimer Timer(PreRenderProfilingZone);
         m_pRootNode->preRender();
     }
+    FBOPtr pFBO = getDisplayEngine()->getMainFBO();
+    if (pFBO) {
+        pFBO->activate();
+    }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -262,11 +266,6 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
-        FBOPtr pFBO = getDisplayEngine()->getMainFBO();
-        if (pFBO) {
-            pFBO->activate();
-        }
-        
         m_pRootNode->maybeRender(rc);
 
         renderOutlines();
