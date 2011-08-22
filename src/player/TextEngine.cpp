@@ -61,7 +61,8 @@ TextEngine::~TextEngine()
 void TextEngine::init()
 {
     g_type_init();
-    m_pFontMap = PANGO_CAIRO_FONT_MAP(pango_cairo_font_map_new());
+    m_pFontMap = PANGO_CAIRO_FONT_MAP(pango_cairo_font_map_new_for_font_type(
+            CAIRO_FONT_TYPE_FT));
     pango_cairo_font_map_set_resolution(m_pFontMap, 72);
 
     m_pCairoSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1);
