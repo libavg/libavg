@@ -105,7 +105,7 @@ class FXTestCase(AVGTestCase):
         avg.ImageNode(parent=root, href="canvas:offscreen")
         node = canvas.getElementByID("test")
         node.setEffect(avg.NullFXNode())
-        rect = avg.RectNode(size=(100,100), color="FF0000", fillcolor="FF0000",
+        rect = avg.RectNode(size=(100,100), strokewidth=0, fillcolor="FF0000",
                 fillopacity=1)
         canvas.getRootNode().insertChild(rect, 0)
         
