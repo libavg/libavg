@@ -150,7 +150,7 @@ void ImageNode::preRender()
 {
     VisibleNode::preRender();
     if (isVisible()) {
-        renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+        renderFX(getSize(), Pixel32(255, 255, 255, 255), bool(m_pImage->getCanvas()));
     }
 }
 
