@@ -76,7 +76,7 @@ void TextEngine::init()
     cairo_font_options_t*  pFontOptions = cairo_font_options_create();
 //    cairo_font_options_set_antialias(pFontOptions, CAIRO_ANTIALIAS_GRAY);
     cairo_font_options_set_hint_style(pFontOptions, CAIRO_HINT_STYLE_SLIGHT);
-    cairo_font_options_set_hint_metrics(pFontOptions, CAIRO_HINT_METRICS_OFF);
+    cairo_font_options_set_hint_metrics(pFontOptions, CAIRO_HINT_METRICS_ON);
     pango_cairo_context_set_font_options(m_pPangoContext, pFontOptions);
 
     cairo_font_options_destroy(pFontOptions);
