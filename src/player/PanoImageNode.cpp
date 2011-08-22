@@ -34,8 +34,6 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/OGLHelper.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -276,8 +274,8 @@ void PanoImageNode::load()
         try {
             
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
-        } catch (Magick::Exception & ex) {
-            AVG_TRACE(Logger::ERROR, ex.what());
+        } catch (Exception & ex) {
+            AVG_TRACE(Logger::ERROR, ex.getStr());
         }
     }
 

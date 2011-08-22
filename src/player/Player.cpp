@@ -81,9 +81,6 @@
 
 #include "../audio/SDLAudioEngine.h"
 
-#undef HAVE_TEMPNAM
-#include <Magick++.h>
-
 #include <libxml/xmlmemory.h>
 
 #ifdef _WIN32
@@ -153,15 +150,6 @@ Player::Player()
     registerNodeType(MeshNode::createDefinition());
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
-
-    // Early initialization of TextEngine singletons (dualton? ;-))
-    // to avoid locale clashes with Magick (bug 54)
-    TextEngine::get(true);
-    TextEngine::get(false);
-
-#ifdef _WIN32
-    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
-#endif
 
     s_pPlayer = this;
 
@@ -437,7 +425,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
         m_CurDirName = string(pBuf)+"/";
         return pNode;
     } catch (Exception& ex) {
-        switch (ex.GetCode()) {
+        switch (ex.getCode()) {
             case AVG_ERR_XML_PARSE:
                 throw (Exception(AVG_ERR_XML_PARSE,
                         string("Error parsing xml document ")+RealFilename));
@@ -461,7 +449,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
         NodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
     } catch (Exception& ex) {
-        switch (ex.GetCode()) {
+        switch (ex.getCode()) {
             case AVG_ERR_XML_PARSE:
                 throw Exception(AVG_ERR_XML_PARSE, "Error parsing xml string.");
                 break;
@@ -495,7 +483,7 @@ void Player::play()
         AVG_TRACE(Logger::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
         m_bIsPlaying = false;
-        AVG_TRACE(Logger::ERROR, ex.GetStr());
+        AVG_TRACE(Logger::ERROR, ex.getStr());
         throw;
     }
 }
@@ -1235,13 +1223,8 @@ NodePtr Player::internalLoad(const string& sAVG)
         }
         xmlFreeDoc(doc);
         return pNode;
-    } catch (Exception&) {
-        if (doc) {
-            xmlFreeDoc(doc);
-        }
-        throw;
-    } catch (Magick::Exception & ex) {
-        AVG_TRACE(Logger::ERROR, ex.what());
+    } catch (Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.getStr());
         if (doc) {
             xmlFreeDoc(doc);
         }

@@ -25,7 +25,6 @@
 #pragma warning(push)
 #pragma warning(disable:4251)
 #endif
-#include <Magick++.h>
 #ifdef _WIN32
 #pragma warning(pop)
 #endif
@@ -172,8 +171,8 @@ class VideoDecoderTest: public DecoderTest {
                 readWholeFile(sFilename, 1, expectedNumFrames); 
                 readWholeFile(sFilename, 0.5, expectedNumFrames); 
                 readWholeFile(sFilename, 2, expectedNumFrames/2); 
-            } catch (Magick::Exception & ex) {
-                cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
+            } catch (Exception & ex) {
+                cerr << string(m_IndentLevel+6, ' ') << ex.getStr() << endl;
                 throw;
             }
         }
@@ -333,8 +332,8 @@ class AudioDecoderTest: public DecoderTest {
 
                 }
 
-            } catch (Magick::Exception & ex) {
-                cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
+            } catch (Exception & ex) {
+                cerr << string(m_IndentLevel+6, ' ') << ex.getStr() << endl;
                 throw;
             }
         }

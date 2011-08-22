@@ -126,7 +126,7 @@ void OGLSurface::destroy()
     m_pTextures[3] = PBOTexturePtr();
 }
 
-void OGLSurface::activate(const IntPoint& logicalSize) const
+void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
 {
     if (useShader()) {
         OGLShaderPtr pShader = getShader(COLORSPACE_SHADER);
@@ -176,7 +176,8 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 float(1/m_Gamma.z), 1.0);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
-        pShader->setUniformIntParam("bPremultipliedAlpha", m_bUseForeignTexture);
+        pShader->setUniformIntParam("bPremultipliedAlpha", 
+                m_bUseForeignTexture || bPremultipliedAlpha);
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
             m_pMaskTexture->activate(GL_TEXTURE4);

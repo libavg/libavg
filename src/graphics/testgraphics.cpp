@@ -56,7 +56,6 @@
 #pragma warning(push)
 #pragma warning(disable: 4251)
 #endif
-#include <Magick++.h>
 #ifdef _WIN32
 #pragma warning(pop)
 #endif
@@ -293,9 +292,13 @@ private:
     {
         cerr << "    Testing save for " << pf << endl;
         BitmapPtr pBmp = initBmp(pf);
-        pBmp->save("test.tif");
-        Bitmap LoadedBmp("test.tif");
-        ::remove("test.tif");
+        pBmp->save("test.png");
+        Bitmap LoadedBmp("test.png");
+        cerr << "baseline: " << endl;
+        pBmp->dump(true);
+        cerr << "Loaded: " << endl;
+        LoadedBmp.dump(true);
+        ::remove("test.png");
         testEqual(LoadedBmp, *pBmp, "BmpSave");
     }
 
@@ -577,8 +580,8 @@ public:
             pBmp->copyPixels(tempBmp);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
-        } catch (Magick::Exception & ex) {
-            cerr << ex.what() << endl;
+        } catch (Exception & ex) {
+            cerr << ex.getStr() << endl;
             setFailed();
         }
     }

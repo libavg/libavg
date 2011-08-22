@@ -38,8 +38,6 @@
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 

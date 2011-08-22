@@ -42,6 +42,7 @@ void export_anim();
 #include "../player/Canvas.h"
 #include "../player/OffscreenCanvas.h"
 #include "../player/VideoWriter.h"
+#include "../player/SVG.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -214,4 +215,27 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("qmin", &VideoWriter::getQMin)
         .add_property("qmax", &VideoWriter::getQMax)
     ;
+
+    BitmapPtr (SVG::*renderElement1)(const UTF8String&) = &SVG::renderElement;
+    BitmapPtr (SVG::*renderElement2)(const UTF8String&, const DPoint&) = 
+            &SVG::renderElement;
+    BitmapPtr (SVG::*renderElement3)(const UTF8String&, double) = 
+            &SVG::renderElement;
+    NodePtr (SVG::*createImageNode1)(const UTF8String&, const dict&) = 
+            &SVG::createImageNode;
+    NodePtr (SVG::*createImageNode2)(const UTF8String&, const dict&, const DPoint&) = 
+            &SVG::createImageNode;
+    NodePtr (SVG::*createImageNode3)(const UTF8String&, const dict&, double) = 
+            &SVG::createImageNode;
+
+    class_<SVG, boost::noncopyable>("SVG", init<const UTF8String&, bool>())
+        .def("renderElement", renderElement1)
+        .def("renderElement", renderElement2)
+        .def("renderElement", renderElement3)
+        .def("createImageNode", createImageNode1)
+        .def("createImageNode", createImageNode2)
+        .def("createImageNode", createImageNode3)
+        .def("getElementSize", &SVG::getElementSize)
+        ;
+
 }

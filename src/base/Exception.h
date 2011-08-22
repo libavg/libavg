@@ -66,8 +66,8 @@ class AVG_API Exception
         Exception(int code, const std::string& sErr = "");
         Exception(const Exception& ex);
         virtual ~Exception();
-        virtual int GetCode() const;
-        virtual const std::string& GetStr() const;
+        virtual int getCode() const;
+        virtual const std::string& getStr() const;
 
     private:
         int m_Code;

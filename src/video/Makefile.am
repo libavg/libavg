@@ -1,5 +1,5 @@
 
-INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
+INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
         
 if APPLE
     X_LIBS = 
@@ -42,4 +42,6 @@ testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la \
         @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-        @LIBFFMPEG@ $(MAGICK_LIBS) $(X_LIBS)
+        @LIBFFMPEG@ $(X_LIBS) \
+        @GDK_PIXBUF_LIBS@
+

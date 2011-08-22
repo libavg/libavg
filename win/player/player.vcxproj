@@ -120,6 +120,8 @@
     <ClCompile Include="..\..\src\player\ShadowFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Shape.cpp" />
     <ClCompile Include="..\..\src\player\SoundNode.cpp" />
+    <ClCompile Include="..\..\src\player\SVG.cpp" />
+    <ClCompile Include="..\..\src\player\SVGElement.cpp" />
     <ClCompile Include="..\..\src\player\TestHelper.cpp" />
     <ClCompile Include="..\..\src\player\TextEngine.cpp" />
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
@@ -194,6 +196,8 @@
     <ClInclude Include="..\..\src\player\ShadowFXNode.h" />
     <ClInclude Include="..\..\src\player\Shape.h" />
     <ClInclude Include="..\..\src\player\SoundNode.h" />
+    <ClInclude Include="..\..\src\player\SVG.h" />
+    <ClInclude Include="..\..\src\player\SVGElement.h" />
     <ClInclude Include="..\..\src\player\TestHelper.h" />
     <ClInclude Include="..\..\src\player\TextEngine.h" />
     <ClInclude Include="..\..\src\player\Timeout.h" />

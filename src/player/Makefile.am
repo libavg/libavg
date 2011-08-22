@@ -1,7 +1,7 @@
 INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
-        @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
-        @DC1394_2_CFLAGS@ \
-        $(MAGICK_CFLAGS) $(MTDEV_CFLAGS)
+        @PANGOCAIRO_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
+        @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@ \
+        $(MTDEV_CFLAGS)
         
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleTrackpadInputDevice.cpp
@@ -49,6 +49,7 @@ ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         CurveNode.h PolygonNode.h CircleNode.h Shape.h MeshNode.h FXNode.h \
         NullFXNode.h BlurFXNode.h ShadowFXNode.h ChromaKeyFXNode.h HueSatFXNode.h \
         InvertFXNode.h TUIOInputDevice.h VideoWriter.h VideoWriterThread.h \
+        SVG.h SVGElement.h \
         $(MTDEV_INCLUDES) $(GL_INCLUDES) $(XINPUT2_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -61,16 +62,18 @@ testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @PANGOCAIRO_LIBS@ @LIBRSVG_LIBS@\
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(XI2_1_LIBS) @LIBFFMPEG@ \
-        @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS)
+        $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) @GDK_PIXBUF_LIBS@ \
+        @FONTCONFIG_LIBS@
+        
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) 
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@
 
 libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
@@ -89,5 +92,6 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Contact.cpp TouchStatus.cpp OffscreenCanvas.cpp FXNode.cpp TUIOInputDevice.cpp \
         NullFXNode.cpp BlurFXNode.cpp ShadowFXNode.cpp ChromaKeyFXNode.cpp \
         InvertFXNode.cpp HueSatFXNode.cpp VideoWriter.cpp VideoWriterThread.cpp \
+        SVG.cpp SVGElement.cpp \
         $(MTDEV_SOURCES) $(XINPUT2_SOURCES) $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

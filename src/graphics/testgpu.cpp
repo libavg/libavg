@@ -413,11 +413,11 @@ int main(int nargs, char** args)
             suite.runTests();
             bOK = suite.isOk();
         } catch (Exception& ex) {
-            cerr << "Exception: " << ex.GetStr() << endl;
+            cerr << "Exception: " << ex.getStr() << endl;
         }
     } catch (Exception& ex) {
         cerr << "Skipping GPU imaging test." << endl;
-        cerr << "Reason: " << ex.GetStr() << endl;
+        cerr << "Reason: " << ex.getStr() << endl;
         bOK = true;
     }
 

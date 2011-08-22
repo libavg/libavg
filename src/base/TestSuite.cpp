@@ -51,7 +51,7 @@ void TestSuite::runTests()
             aggregateStatistics(*m_Tests[i]);
             m_Tests[i]->printResults();
         } catch (Exception& ex) {
-            cerr << string(m_IndentLevel, ' ') << ex.GetStr() << endl;
+            cerr << string(m_IndentLevel, ' ') << ex.getStr() << endl;
             setFailed();
         } catch (...) {
             cerr << string(m_IndentLevel, ' ') <<

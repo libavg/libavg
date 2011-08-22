@@ -31,8 +31,6 @@
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 

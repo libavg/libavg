@@ -494,7 +494,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testTexCompression2", False),
                  relink,
                  lambda: self.compareImage("testTexCompression2", False),
-                 lambda: self.assertException(checkAlpha),
+                 checkAlpha,
                 ])
 
 

@@ -30,8 +30,6 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <Magick++.h>
-
 
 using namespace std;
 
@@ -58,10 +56,7 @@ FakeCamera::FakeCamera(std::vector<std::string>& pictures)
             m_ImgSize = pBmp->getSize();
             m_pBmpQ->push(pBmp);
         } catch (Exception& ex) {
-            AVG_TRACE(Logger::ERROR, ex.GetStr());
-            throw;
-        } catch (Magick::Exception & ex) {
-            AVG_TRACE(Logger::ERROR, ex.what());
+            AVG_TRACE(Logger::ERROR, ex.getStr());
             throw;
         }
     }

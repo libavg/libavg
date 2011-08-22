@@ -122,7 +122,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
         pProfiler->kill();
     } catch (const Exception& e) {
          AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
-                  << e.GetStr());
+                  << e.getStr());
          throw;
     }
 }
@@ -157,7 +157,7 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
         }
     } catch (const Exception& e) {
         AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
-                << m_sName << ": " << e.GetStr());
+                << m_sName << ": " << e.getStr());
     }
    
 }

@@ -337,7 +337,7 @@ void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
                 } catch (Exception& e) {
                     AVG_TRACE(Logger::WARNING, 
                             string("Camera: Setting strobe duration failed. ") + 
-                            e.GetStr());
+                            e.getStr());
                 }
             } else {
                 dc1394feature_t featureID = getFeatureID(feature);

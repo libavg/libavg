@@ -36,7 +36,6 @@
 #include "../base/StringHelper.h"
 #include "../base/ObjectCounter.h"
 #include "../base/OSHelper.h"
-#include <Magick++.h>
 
 #include <iostream>
 #ifdef _WIN32
@@ -475,12 +474,12 @@ void VisibleNode::checkReload(const std::string& sHRef, const ImagePtr& pImage,
             } else {
                 pImage->setFilename(sFilename, comp);
             }
-        } catch (Magick::Exception & ex) {
+        } catch (Exception& ex) {
             pImage->setEmpty();
             if (getState() != VisibleNode::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
+                AVG_TRACE(Logger::ERROR, ex.getStr());
             } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
+                AVG_TRACE(Logger::MEMORY, ex.getStr());
             }
         }
     }

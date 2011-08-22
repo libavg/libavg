@@ -248,14 +248,14 @@ bool ConfigMgr::loadFile(const std::string& sPath)
         }
         xmlFreeDoc(doc);
     } catch (Exception& e) {
-        switch (e.GetCode()) {
+        switch (e.getCode()) {
             case AVG_ERR_OPTION_SUBSYS_UNKNOWN:
                 AVG_TRACE(Logger::ERROR, "While parsing " << sPath 
-                        << ": Option group " << e.GetStr() << " unknown. Aborting.");
+                        << ": Option group " << e.getStr() << " unknown. Aborting.");
                 exit(255);
             case AVG_ERR_OPTION_UNKNOWN: 
                 AVG_TRACE(Logger::ERROR, "While parsing " << sPath 
-                        << ": Option " << sSubsys << ":" << e.GetStr() 
+                        << ": Option " << sSubsys << ":" << e.getStr() 
                         << " unknown. Aborting.");
                 exit(255);
             default:

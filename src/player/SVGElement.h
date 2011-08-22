@@ -19,35 +19,44 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FileHelper_H_
-#define _FileHelper_H_
+#ifndef _SVGElement_H_
+#define _SVGElement_H_
 
 #include "../api.h"
-#include <string>
+
+#include "../base/UTF8String.h"
+#include "../base/Point.h"
+
+#include <librsvg/rsvg.h>
+#include <boost/shared_ptr.hpp>
+
+#include <map>
 
 namespace avg {
-    
-std::string getPath(const std::string& sFilename);
-std::string getFilenamePart(const std::string& sFilename);
-std::string getExtension(const std::string& sFilename);
-std::string getCWD();
 
-bool isAbsPath(const std::string& path);
+class SVGElement
+{
+public:
+    SVGElement(RsvgHandle* pRSVG, const UTF8String& sFilename,
+            const UTF8String& sElementID, bool bUnescapeIllustratorIDs);
 
-bool fileExists(const std::string& sFilename);
+    const UTF8String& getUnescapedID() const;
+    const DPoint& getPos() const;
+    const DPoint& getSize() const;
 
-void readWholeFile(const std::string& sFilename, std::string& sContents);
+private:
+    UTF8String unescapeID(RsvgHandle* pRSVG, const UTF8String& sFilename, 
+            const UTF8String& sElementID, bool bUnescapeIllustratorIDs);
+    void throwIDNotFound(const UTF8String& sFilename, const UTF8String& sElementID);
 
-void writeWholeFile(const std::string& sFilename, const std::string& sContent);
+    UTF8String m_sUnescapedID;
+    DPoint m_Pos;
+    DPoint m_Size;
+};
 
-void copyFile(const std::string& sSourceFile, const std::string& sDestFile);
-
-
-#ifdef WIN32
-#define unlink _unlink
-#endif
+typedef boost::shared_ptr<SVGElement> SVGElementPtr;
 
 }
 
-#endif 
+#endif
 

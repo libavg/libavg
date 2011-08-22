@@ -1,4 +1,4 @@
-INCLUDES = -I.. $(MAGICK_CFLAGS) @GL_CFLAGS@ @PYTHON_INCLUDES@
+INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
 
 ALL_H = Bitmap.h Filter.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
@@ -48,13 +48,15 @@ libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) $(MAGICK_LIBS)
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) @GDK_PIXBUF_LIBS@
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
 
 testgpu_SOURCES=testgpu.cpp $(ALL_H)
 testgpu_LDADD = ./libgraphics.la ../base/libbase.la -ldl \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) $(MAGICK_LIBS) \
-        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(X_LIBS) \
+        @GL_LIBS@ @GLU_LIBS@ @SDL_LIBS@ \
+        @GDK_PIXBUF_LIBS@
+

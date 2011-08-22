@@ -31,8 +31,6 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 
-#include <Magick++.h>
-
 using namespace std;
 
 namespace avg {
@@ -142,12 +140,12 @@ void RasterNode::checkReload()
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
                 setMaskCoords();
             }
-        } catch (Magick::Exception & ex) {
+        } catch (Exception & ex) {
             m_sMaskFilename = "";
             if (getState() != VisibleNode::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
+                AVG_TRACE(Logger::ERROR, ex.getStr());
             } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
+                AVG_TRACE(Logger::MEMORY, ex.getStr());
             }
         }
         if (m_sMaskFilename == "") {
@@ -515,8 +513,7 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
         destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        m_pSurface->activate(getMediaSize());
-    //    pBmp->dump(true);
+        m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
         glColor4d(double(color.getR())/256, double(color.getG())/256, 
                 double(color.getB())/256, opacity);

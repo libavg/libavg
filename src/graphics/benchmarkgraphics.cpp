@@ -39,8 +39,6 @@
 
 #include "../base/TimeSource.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,7 +46,7 @@
 using namespace avg;
 using namespace std;
 
-#define NUM_RUNS 50
+#define NUM_RUNS 500
 
 template<class TEST>
 void runPerformanceTest()
@@ -79,6 +77,19 @@ private:
     std::string m_sName;
 };
 
+class LoadPNGPerfTest: public PerfTestBase {
+public:
+    LoadPNGPerfTest()
+        : PerfTestBase("LoadPNGPerfTest")
+    {
+    }
+
+    void run()
+    {
+        BitmapPtr pBmp(new Bitmap("testfiles/rgb24alpha-64x64.png"));
+    }
+};
+
 class FillI8PerfTest: public PerfTestBase {
 public:
     FillI8PerfTest() 
@@ -87,7 +98,8 @@ public:
         m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
     }
 
-    void run() {
+    void run()
+    {
         FilterFill<Pixel8> Filter = FilterFill<Pixel8>(Pixel8(0));
         Filter.applyInPlace(m_pBmp);
     }
@@ -104,7 +116,8 @@ public:
         m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
     }
 
-    void run() {
+    void run()
+    {
         FilterFill<Pixel24> Filter = FilterFill<Pixel24>(Pixel24(0,0,0));
         Filter.applyInPlace(m_pBmp);
     }
@@ -121,7 +134,8 @@ public:
         m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
     }
 
-    void run() {
+    void run() 
+    {
         Bitmap CopyBmp = *m_pBmp;
     }
 
@@ -137,7 +151,8 @@ public:
         m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
     }
 
-    void run() {
+    void run()
+    {
         Bitmap CopyBmp (*m_pBmp);
     }
 
@@ -153,7 +168,8 @@ public:
         m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
     }
 
-    void run() {
+    void run()
+    {
         Bitmap CopyBmp (*m_pBmp);
     }
 
@@ -171,7 +187,8 @@ public:
         m_pVBmp = BitmapPtr(new Bitmap(IntPoint(512, 512), I8));
     }
 
-    void run() {
+    void run()
+    {
         Bitmap RGBBmp(IntPoint(1024, 1024), B8G8R8X8);
         RGBBmp.copyYUVPixels(*m_pYBmp, *m_pUBmp, *m_pVBmp, false);
     }
@@ -185,6 +202,7 @@ private:
 
 void runPerformanceTests()
 {
+    runPerformanceTest<LoadPNGPerfTest>();
     runPerformanceTest<FillI8PerfTest>();
     runPerformanceTest<FillRGBPerfTest>();
     runPerformanceTest<EqualityI8PerfTest>();

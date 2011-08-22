@@ -41,40 +41,40 @@ using namespace std;
 
 namespace avg {
 
-string getPath(const string& Filename)
+string getPath(const string& sFilename)
 {
-    if (Filename.length() > 0 && Filename.at(Filename.length()-1) == '/') {
-        return Filename;
+    if (sFilename.length() > 0 && sFilename.at(sFilename.length()-1) == '/') {
+        return sFilename;
     }
 #ifdef _WIN32
-    int pos = int(Filename.find_last_of("\\/"));
-    string DirName;
+    int pos = int(sFilename.find_last_of("\\/"));
+    string dirName;
     if (pos >= 0) {
-        DirName = Filename.substr(0, pos+1);
+        dirName = sFilename.substr(0, pos+1);
     } else {
-        DirName = Filename;
+        dirName = sFilename;
     }
 #else
-    char * pszBuffer = strdup(Filename.c_str());
+    char * pszBuffer = strdup(sFilename.c_str());
 
-    string DirName(dirname(pszBuffer));
+    string dirName(dirname(pszBuffer));
     free(pszBuffer);
-    DirName += "/";
+    dirName += "/";
 #endif
 
-    return DirName;
+    return dirName;
 }
 
-string getFilenamePart(const string& Filename)
+string getFilenamePart(const string& sFilename)
 {
-    if (Filename.find_last_of("\\/") == 0) {
-        return Filename;
+    if (sFilename.find_last_of("\\/") == 0) {
+        return sFilename;
     }
 #ifdef _WIN32
-    int pos = int(Filename.find_last_of("\\/"));
-    string BaseName(Filename.substr(pos+1));
+    int pos = int(sFilename.find_last_of("\\/"));
+    string BaseName(sFilename.substr(pos+1));
 #else
-    char * pszBuffer = strdup(Filename.c_str());
+    char * pszBuffer = strdup(sFilename.c_str());
 
     string BaseName(basename(pszBuffer));
     free(pszBuffer);
@@ -83,7 +83,17 @@ string getFilenamePart(const string& Filename)
     return BaseName;
 }
 
-std::string getCWD()
+string getExtension(const string& sFilename)
+{
+    int pos = int(sFilename.find_last_of("."));
+    if (pos == 0) {
+        return "";
+    } else {
+        return sFilename.substr(pos+1);
+    }
+}
+
+string getCWD()
 {
 
     char szBuf[1024];
@@ -113,18 +123,18 @@ bool fileExists(const string& sFilename)
 
 void readWholeFile(const string& sFilename, string& sContent)
 {
-    ifstream File(sFilename.c_str());
-    if (!File) {
+    ifstream file(sFilename.c_str());
+    if (!file) {
         throw Exception(AVG_ERR_FILEIO, "Opening "+sFilename+
                 " for reading failed.");
     }
     vector<char> buffer(65536);
     sContent.resize(0);
-    while (File) {
-        File.read(&(*buffer.begin()), (streamsize)(buffer.size()));
-        sContent.append(&(*buffer.begin()), (unsigned)File.gcount());
+    while (file) {
+        file.read(&(*buffer.begin()), (streamsize)(buffer.size()));
+        sContent.append(&(*buffer.begin()), (unsigned)file.gcount());
     }
-    if (!File.eof() || File.bad()) {
+    if (!file.eof() || file.bad()) {
         throw Exception(AVG_ERR_FILEIO, "Reading "+sFilename+
                 " failed.");
     }
