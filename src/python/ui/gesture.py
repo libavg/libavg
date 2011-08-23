@@ -117,58 +117,52 @@ class DragRecognizer(Recognizer):
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
         self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
-        self.__inertiaHandlerID = None
+
+        self.__inertiaHandler = None
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def abortInertia(self):
-        if self.__inertiaHandlerID:
-            self.__stop()
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
 
     def _handleDown(self, event):
-        if self.__inertiaHandlerID:
-            self.__stopHandler()
-            g_Player.clearInterval(self.__inertiaHandlerID)
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
+        if self.__friction != -1:
+            self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
+                    self.__onInertiaStop)
+            self.__inertiaHandler.resetPos(event.pos, 0, 0)
         self.__dragStartPos = event.pos
         self.__dragStartMotionVec = event.contact.motionvec
         self.__startHandler(event)
-        self.__speed = avg.Point2D(0,0)
-        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
 
     def _handleMove(self, event):
         # TODO: Offset is in the global coordinate system. We should really be using
         # the coordinate system we're in at the moment the drag starts. 
         self.__moveHandler(event, event.contact.motionvec-self.__dragStartMotionVec)
-        self.__speed += 0.1*event.speed
-
-    def __onFrame(self):
-        self.__speed *= 0.9
+        if self.__friction != -1:
+            self.__inertiaHandler.onDrag(event.pos, 0, 0)
 
     def _handleUp(self, event):
         self.__upHandler(event, event.contact.motionvec)
-        g_Player.clearInterval(self.__frameHandlerID)
         if self.__friction != -1:
-            self.__inertiaHandlerID = g_Player.setOnFrameHandler(self.__handleInertia)
-            self.__speed += 0.1*event.speed
-            self.__offset = event.contact.motionvec
+            self.__inertiaHandler.onDrag(event.pos, 0, 0)
+            self.__inertiaHandler.onUp()
+            self.__offset = event.contact.motionvec-self.__dragStartMotionVec
         else:
             self.__stopHandler()
 
-    def __handleInertia(self):
-        norm = self.__speed.getNorm()
-        if norm-self.__friction > 0:
-            direction = self.__speed.getNormalized()
-            self.__speed = direction*(norm-self.__friction)
-            self.__offset += self.__speed * g_Player.getFrameDuration()
-            if self.__moveHandler:
-                self.__moveHandler(None, self.__offset)
-        else:
-            self.__stop()
+    def __onInertiaMove(self, trans, ang, size):
+        self.__offset += trans 
+        if self.__moveHandler:
+            self.__moveHandler(None, self.__offset)
+   
+    def __onInertiaStop(self):
+        self.__stop()
 
     def __stop(self):
-        self.__speed = avg.Point2D(0,0)
         self.__stopHandler()
-        g_Player.clearInterval(self.__inertiaHandlerID)
-        self.__inertiaHandlerID = None
+        self.__inertiaHandler = None
 
 
 class HoldRecognizer(Recognizer):
@@ -523,3 +517,50 @@ class TransformRecognizer(Recognizer):
                 self.__startPosns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
 
+
+class InertiaHandler():
+    def __init__(self, friction, moveHandler, stopHandler):
+        self.__friction = friction
+        self.__moveHandler = moveHandler
+        self.__stopHandler = stopHandler
+
+        self.__transVel = avg.Point2D(0, 0)
+        self.__angVel = avg.Point2D(0, 0)
+        self.__sizeVel = avg.Point2D(0, 0)
+        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onDragFrame)
+
+    def resetPos(self, trans, ang, size):
+        self.__curTrans = trans
+        self.__curAng = ang
+        self.__curSize = size
+
+    def abort(self):
+       self.__stop() 
+
+    def onDrag(self, newTrans, newAng, newSize):
+        self.__transVel += 0.1*(newTrans-self.__curTrans) / g_Player.getFrameDuration()
+        self.__curTrans = newTrans
+
+    def onUp(self):
+        g_Player.clearInterval(self.__frameHandlerID)
+        self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onInertiaFrame)
+
+    def __onDragFrame(self):
+        self.__transVel *= 0.9
+
+    def __onInertiaFrame(self):
+        norm = self.__transVel.getNorm()
+        if norm - self.__friction > 0:
+            direction = self.__transVel.getNormalized()
+            self.__transVel = direction * (norm-self.__friction)
+            curTrans = self.__transVel * g_Player.getFrameDuration()
+            if self.__moveHandler:
+                self.__moveHandler(curTrans, 0, 0)
+        else:
+            self.__stop()
+
+    def __stop(self):
+        g_Player.clearInterval(self.__frameHandlerID)
+        self.__stopHandler()
+        self.__stopHandler = None
+        self.__moveHandler = None

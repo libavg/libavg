@@ -4,6 +4,8 @@
 from libavg import avg, ui
 import libavg
 
+RESOLUTION = avg.Point2D(800, 600)
+
 def moveNodeToTop(node):
     parent = node.getParent()
     parent.reorderChild(node, parent.getNumChildren()-1)
@@ -54,24 +56,40 @@ class TransformNode(TextRect):
 
 
 class DragNode(TextRect):
-    def __init__(self, text, **kwargs):
+    def __init__(self, text, friction, **kwargs):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
     
         self.dragger = ui.DragRecognizer(
                 node=self,
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
-                upHandler=self.__onUp
+                upHandler=self.__onUp,
+                stopHandler=self.__onStop,
+                friction=friction
                 )
 
     def __onStart(self, event):
         self.__dragStartPos = self.pos
 
     def __onMove(self, event, offset):
-        self.pos = self.__dragStartPos + offset
+        self.__safeMove(offset)
 
     def __onUp(self, event, offset):
+        self.__safeMove(offset)
+
+    def __onStop(self):
+        pass
+
+    def __safeMove(self, offset):
         self.pos = self.__dragStartPos + offset
+        if self.pos.x < 0:
+            self.pos = (0, self.pos.y)
+        elif self.pos.x + self.size.x > RESOLUTION.x:
+            self.pos = (RESOLUTION.x - self.size.x, self.pos.y)
+        if self.pos.y < 0:
+            self.pos = (self.pos.x, 0)
+        elif self.pos.y + self.size.y > RESOLUTION.y:
+            self.pos = (self.pos.x, RESOLUTION.y - self.size.y)
 
 
 class GestureDemoApp(libavg.AVGApp):
@@ -102,8 +120,15 @@ class GestureDemoApp(libavg.AVGApp):
         DragNode(text="DragRecognizer",
                 pos=(300,20),
                 size=(160,50),
+                friction=-1,
+                parent=self._parentNode)
+
+        DragNode(text="DragRecognizer<br/>friction",
+                pos=(300,90),
+                size=(160,50),
+                friction=0.05,
                 parent=self._parentNode)
 
 
 if __name__ == '__main__':
-    GestureDemoApp.start(resolution=(800,600))
+    GestureDemoApp.start(resolution=RESOLUTION)
