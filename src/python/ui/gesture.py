@@ -431,6 +431,7 @@ class TransformRecognizer(Recognizer):
         self.__transform = Mat3x3()
         self.__startPosns = []
         self.__posns = []
+        self.__inertiaHandler = None
         Recognizer.__init__(self, node, eventSource, None, initialEvent)
 
     def _handleDown(self, event):
@@ -440,14 +441,24 @@ class TransformRecognizer(Recognizer):
             self.__baseTransform = Mat3x3()
             self.__transform = Mat3x3()
             self.__startHandler()
+            if self.__inertiaHandler:
+                self.__inertiaHandler.abort()
+            if self.__friction != -1:
+                self.__inertiaHandler = InertiaHandler(self.__friction, 
+                        self.__onInertiaMove, self.__onInertiaStop)
+                self.__inertiaHandler.resetPos(avg.Point2D(0,0), 0, 0)
 
     def _handleUp(self, event):
         numContacts = len(self._contacts)
         if numContacts == 0:
             contact = event.contact
-            self.__transform = Mat3x3.translate(event.pos - self.__startPosns[0])
+            trans = event.pos - self.__startPosns[0]
+            self.__transform = Mat3x3.translate(trans)
             totalTransform = self.__transform.applyMat(self.__baseTransform)
             self.__upHandler(totalTransform)
+            if self.__friction != -1:
+                self.__inertiaHandler.onDrag(trans, 0, 0)
+                self.__inertiaHandler.onUp()
         elif numContacts == 1:
             self.__newPhase()
         else:
@@ -458,8 +469,10 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         if numContacts == 1:
             contact = self._contacts.keys()[0]
-            self.__transform = Mat3x3.translate(
-                    contact.events[-1].pos - self.__startPosns[0])
+            trans = contact.events[-1].pos - self.__startPosns[0]
+            self.__transform = Mat3x3.translate(trans)
+            if self.__friction != -1:
+                self.__inertiaHandler.onDrag(trans, 0, 0)
         else:
             contactPosns = [contact.events[-1].pos for contact in self._contacts.keys()]
             if numContacts == 2:
@@ -517,6 +530,15 @@ class TransformRecognizer(Recognizer):
                 self.__startPosns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
 
+    def __onInertiaMove(self, trans, rot, scale):
+        self.__transform = Mat3x3.translate(trans).applyMat(self.__transform)
+        totalTransform = self.__transform.applyMat(self.__baseTransform)
+        self.__moveHandler(totalTransform)
+
+    def __onInertiaStop(self):
+        self.__stopHandler()
+        self.__inertiaHandler = None
+
 
 class InertiaHandler():
     def __init__(self, friction, moveHandler, stopHandler):
@@ -530,25 +552,31 @@ class InertiaHandler():
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onDragFrame)
 
     def resetPos(self, trans, ang, size):
+#        print "resetPos: ", trans
         self.__curTrans = trans
         self.__curAng = ang
         self.__curSize = size
 
     def abort(self):
-       self.__stop() 
+#        print "abort"
+        self.__stop() 
 
     def onDrag(self, newTrans, newAng, newSize):
         self.__transVel += 0.1*(newTrans-self.__curTrans) / g_Player.getFrameDuration()
+#        print "onDrag: ", newTrans, ", ", self.__transVel
         self.__curTrans = newTrans
 
     def onUp(self):
+#        print "onUp"
         g_Player.clearInterval(self.__frameHandlerID)
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onInertiaFrame)
 
     def __onDragFrame(self):
+#        print "__onDragFrame"
         self.__transVel *= 0.9
 
     def __onInertiaFrame(self):
+#        print "__onInertiaFrame"
         norm = self.__transVel.getNorm()
         if norm - self.__friction > 0:
             direction = self.__transVel.getNormalized()
@@ -560,6 +588,7 @@ class InertiaHandler():
             self.__stop()
 
     def __stop(self):
+#        print "__stop"
         g_Player.clearInterval(self.__frameHandlerID)
         self.__stopHandler()
         self.__stopHandler = None

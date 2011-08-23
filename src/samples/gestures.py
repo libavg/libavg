@@ -31,7 +31,7 @@ class TextRect(avg.DivNode):
 
 
 class TransformNode(TextRect):
-    def __init__(self, text, ignoreScale, ignoreRotation, **kwargs):
+    def __init__(self, text, ignoreScale, ignoreRotation, friction=-1, **kwargs):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
 
         self.transformer = ui.TransformRecognizer(
@@ -40,7 +40,8 @@ class TransformNode(TextRect):
                 moveHandler=self.__onMove,
                 upHandler=self.__onUp,
                 ignoreScale=ignoreScale,
-                ignoreRotation=ignoreRotation
+                ignoreRotation=ignoreRotation,
+                friction=friction
                 )
 
     def __onStart(self):
@@ -56,7 +57,7 @@ class TransformNode(TextRect):
 
 
 class DragNode(TextRect):
-    def __init__(self, text, friction, **kwargs):
+    def __init__(self, text, friction=-1, **kwargs):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
     
         self.dragger = ui.DragRecognizer(
@@ -70,6 +71,7 @@ class DragNode(TextRect):
 
     def __onStart(self, event):
         self.__dragStartPos = self.pos
+        moveNodeToTop(self)
 
     def __onMove(self, event, offset):
         self.__safeMove(offset)
@@ -117,10 +119,17 @@ class GestureDemoApp(libavg.AVGApp):
                 size=(160,50), 
                 parent=self._parentNode)
 
+        TransformNode(text="TransformRecognizer<br/>friction",
+                ignoreRotation=False,
+                ignoreScale=False,
+                pos=(20,230),
+                size=(160,50),
+                friction=0.05,
+                parent=self._parentNode)
+
         DragNode(text="DragRecognizer",
                 pos=(300,20),
                 size=(160,50),
-                friction=-1,
                 parent=self._parentNode)
 
         DragNode(text="DragRecognizer<br/>friction",
