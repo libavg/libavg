@@ -51,9 +51,21 @@ class TransformNode(TextRect):
     def __onMove(self, transform):
         totalTransform = transform.applyMat(self.baseTransform)
         totalTransform.setNodeTransform(self)
+        self.__moveOnScreen()
 
     def __onUp(self, transform):
         pass
+
+    def __moveOnScreen(self):
+        center = self.pos + self.size/2
+        if center.x < 0:
+            self.pos -= (center.x, 0)
+        if center.x > RESOLUTION.x:
+            self.pos += (RESOLUTION.x-center.x, 0)
+        if center.y < 0:
+            self.pos -= (0, center.y)
+        if center.y > RESOLUTION.y:
+            self.pos += (0, RESOLUTION.y-center.y)
 
 
 class DragNode(TextRect):
