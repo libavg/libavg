@@ -114,6 +114,7 @@ void GPUHueSatFilter::initShader()
             "    else if(l_offset < 0.0){ \n"
             "       rgbTex = vec4(mix(rgbTex.rgb, black, -l_offset), tex.a);\n"
             "    } \n"
+            "    preMultiplyAlpha(rgbTex);\n"
             "    gl_FragColor = rgbTex;\n"
             "}\n";
     getOrCreateShader(SHADERID_HSL_COLOR, sProgram);
