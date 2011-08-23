@@ -9,29 +9,33 @@ class TextRect(avg.DivNode):
         avg.DivNode.__init__(self, **kwargs)
         self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor=bgcolor, 
                 color=color, parent=self)
-        self.words = avg.WordsNode(pos=self.size/2-(0,9), color=color, text=text, 
-                alignment="center", parent=self)
+        self.words = avg.WordsNode(color=color, text=text, alignment="center", 
+                parent=self)
+        self.words.pos = (self.size-(0,self.words.size.y)) / 2
 
     def getSize(self):
-        return self.divSize
+        return self.__divSize
 
     def setSize(self, size):
         self.rect.size = size
-        self.words.pos = size/2 - (0,9)
-        self.divSize = size
-    divSize = avg.DivNode.size
+        self.words.pos = (self.size-(0,self.words.size.y)) / 2
+        self.__divSize = size
+    __divSize = avg.DivNode.size
     size = property(getSize, setSize)
 
 
 class TransformNode(TextRect):
-    def __init__(self, text, **kwargs):
+    def __init__(self, text, ignoreScale, ignoreRotation, **kwargs):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
 
         self.transformer = ui.TransformRecognizer(
                 node=self, 
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
-                upHandler=self.__onUp)
+                upHandler=self.__onUp,
+                ignoreScale=ignoreScale,
+                ignoreRotation=ignoreRotation
+                )
 
     def __onStart(self):
         self.baseTransform = ui.Mat3x3.fromNode(self)
@@ -48,8 +52,26 @@ class GestureDemoApp(libavg.AVGApp):
     multitouch = True
 
     def init(self):
-        self.transformNode = TransformNode(text="TransformRecognizer", pos=(20,20),
-                size=(160,50), parent=self._parentNode)
+        TransformNode(text="TransformRecognizer",
+                ignoreRotation=False,
+                ignoreScale=False,
+                pos=(20,20),
+                size=(160,50), 
+                parent=self._parentNode)
+
+        TransformNode(text="TransformRecognizer<br/>ignoreRotation",
+                ignoreRotation=True,
+                ignoreScale=False,
+                pos=(20,90),
+                size=(160,50), 
+                parent=self._parentNode)
+
+        TransformNode(text="TransformRecognizer<br/>ignoreScale",
+                ignoreRotation=False,
+                ignoreScale=True,
+                pos=(20,160),
+                size=(160,50), 
+                parent=self._parentNode)
 
 
 if __name__ == '__main__':
