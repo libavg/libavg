@@ -24,7 +24,7 @@ class TextRect(avg.DivNode):
 
     def setSize(self, size):
         self.rect.size = size
-        self.words.pos = (self.size-(0,self.words.size.y)) / 2
+        self.words.pos = (size-(0,self.words.size.y)) / 2
         self.__divSize = size
     __divSize = avg.DivNode.size
     size = property(getSize, setSize)
