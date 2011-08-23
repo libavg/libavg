@@ -124,7 +124,7 @@ class GestureDemoApp(libavg.AVGApp):
                 ignoreScale=False,
                 pos=(20,230),
                 size=(160,50),
-                friction=0.05,
+                friction=0.02,
                 parent=self._parentNode)
 
         DragNode(text="DragRecognizer",
