@@ -602,15 +602,19 @@ class InertiaHandler():
             direction = self.__transVel.getNormalized()
             self.__transVel = direction * (transNorm-self.__friction)
             curTrans = self.__transVel * g_Player.getFrameDuration()
-            
-            if self.__angVel != 0:
-                angSign = self.__angVel/fabs(self.__angVel)
-                self.__angVel = self.__angVel - angSign*self.__friction/300
-                newAngSign = self.__angVel/fabs(self.__angVel)
-                if newAngSign != angSign:
-                    self.__angVel = 0
-            curAng = self.__angVel * g_Player.getFrameDuration()
-            self.__curPivot += curTrans
+        else:
+            curTrans = avg.Point2D(0, 0)
+
+        if self.__angVel != 0:
+            angSign = self.__angVel/fabs(self.__angVel)
+            self.__angVel = self.__angVel - angSign*self.__friction/200
+            newAngSign = self.__angVel/fabs(self.__angVel)
+            if newAngSign != angSign:
+                self.__angVel = 0
+        curAng = self.__angVel * g_Player.getFrameDuration()
+        self.__curPivot += curTrans
+
+        if transNorm - self.__friction > 0 or self.__angVel != 0:
             if self.__moveHandler:
                 self.__moveHandler(curTrans, self.__curPivot, curAng, 0)
         else:
