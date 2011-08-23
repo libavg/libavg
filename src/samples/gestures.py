@@ -4,6 +4,10 @@
 from libavg import avg, ui
 import libavg
 
+def moveNodeToTop(node):
+    parent = node.getParent()
+    parent.reorderChild(node, parent.getNumChildren()-1)
+
 class TextRect(avg.DivNode):
     def __init__(self, text, color, bgcolor, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
@@ -39,6 +43,7 @@ class TransformNode(TextRect):
 
     def __onStart(self):
         self.baseTransform = ui.Mat3x3.fromNode(self)
+        moveNodeToTop(self)
 
     def __onMove(self, transform):
         totalTransform = transform.applyMat(self.baseTransform)
@@ -46,6 +51,27 @@ class TransformNode(TextRect):
 
     def __onUp(self, transform):
         pass
+
+
+class DragNode(TextRect):
+    def __init__(self, text, **kwargs):
+        TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
+    
+        self.dragger = ui.DragRecognizer(
+                node=self,
+                startHandler=self.__onStart,
+                moveHandler=self.__onMove,
+                upHandler=self.__onUp
+                )
+
+    def __onStart(self, event):
+        self.__dragStartPos = self.pos
+
+    def __onMove(self, event, offset):
+        self.pos = self.__dragStartPos + offset
+
+    def __onUp(self, event, offset):
+        self.pos = self.__dragStartPos + offset
 
 
 class GestureDemoApp(libavg.AVGApp):
@@ -71,6 +97,11 @@ class GestureDemoApp(libavg.AVGApp):
                 ignoreScale=True,
                 pos=(20,160),
                 size=(160,50), 
+                parent=self._parentNode)
+
+        DragNode(text="DragRecognizer",
+                pos=(300,20),
+                size=(160,50),
                 parent=self._parentNode)
 
 
