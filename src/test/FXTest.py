@@ -33,7 +33,8 @@ class FXTestCase(AVGTestCase):
 
     def testImageNullFX(self):
         def activateFX():
-            node2.setEffect(avg.NullFXNode())
+            for node in self.nodes[0]:
+                node.setEffect(avg.NullFXNode())
 
         def newNode():
             self.newNode = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(64,0))
@@ -43,28 +44,42 @@ class FXTestCase(AVGTestCase):
             self.newNode.setEffect(avg.NullFXNode())
 
         def addBgNode():
-            node = avg.RectNode(pos=(0,32), size=(64,32), fillopacity=1, opacity=0,
+            node = avg.RectNode(pos=(0,0), size=(64,96), fillopacity=1, opacity=0,
                     fillcolor="FFFFFF")
             root.insertChild(node, 0)
 
+        # Initial setup is 3x2 images: 
+        # rows: no alpha, alpha, alpha & opacity 0.6
+        # cols: no FX, FX
+        # The two cols should look the same.
         root = self.loadEmptyScene()
-        node = avg.ImageNode(parent=root, href="rgb24-32x32.png")
-        node.setEffect(avg.NullFXNode())
-        node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(0,32))
-        node.setEffect(avg.NullFXNode())
-        node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(32,32),
+        self.nodes = []
+        for fx in (False, True):
+            curNodes = []
+            self.nodes.append(curNodes)
+            def configureNode(node, fx):
+                curNodes.append(node)
+                if fx:
+                    node.x = 32
+                    node.setEffect(avg.NullFXNode())
+
+            node = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(0,0))
+            configureNode(node, fx)
+            node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(0,32))
+            configureNode(node, fx)
+            node = avg.ImageNode(parent=root, href="rgb24alpha-32x32.png", pos=(0,64),
                 opacity=0.6)
-        node.setEffect(avg.NullFXNode())
-        node2 = avg.ImageNode(parent=root, href="rgb24-32x32.png", pos=(32,0))
+            configureNode(node, fx)
+
         self.start((
                  lambda: self.compareImage("testImageNullFX1", False),
-                 activateFX,
-                 lambda: self.compareImage("testImageNullFX1", False),
-                 newNode,
-                 lambda: self.compareImage("testImageNullFX2", False),
-                 newFX,
-                 lambda: self.compareImage("testImageNullFX2", False),
                  addBgNode,
+                 lambda: self.compareImage("testImageNullFX2", False),
+                 activateFX,
+                 lambda: self.compareImage("testImageNullFX2", False),
+                 newNode,
+                 lambda: self.compareImage("testImageNullFX3", False),
+                 newFX,
                  lambda: self.compareImage("testImageNullFX3", False),
                 ))
 
