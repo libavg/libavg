@@ -92,7 +92,7 @@ void GPUHueSatFilter::initShader()
             "    float l;\n"
             "    float h;\n"
             "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-            "    preMultiplyAlpha(tex);\n"
+            "    unPreMultiplyAlpha(tex);\n"
             "    rgb2hsl(tex, tmp, s, l);\n"
             "    if(b_colorize){\n"
             "       h = hue;\n"
