@@ -188,6 +188,9 @@ void AsyncVideoDecoder::loop()
     m_LastVideoFrameTime = -1;
     m_bAudioEOF = false;
     m_bVideoEOF = false;
+    if (getVideoInfo().m_bHasAudio) {
+        seek(0);
+    }
 }
 
 IntPoint AsyncVideoDecoder::getSize() const
