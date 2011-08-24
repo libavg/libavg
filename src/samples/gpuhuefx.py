@@ -32,7 +32,8 @@ class HSL(AVGApp):
     def init(self):
         rootNode = g_Player.getRootNode()
 
-        background = ImageNode(parent = rootNode, href='../graphics/testfiles/hsl.png', size=(640,640))
+        background = ImageNode(parent=rootNode, href='../graphics/testfiles/hsl.png',
+                size=(640,640))
         self.hsl_fx = avg.HueSatFXNode()
         background.setEffect(self.hsl_fx)
         self.sat = avg.WordsNode(pos=(800, 200), text="Sat: " +
@@ -69,6 +70,7 @@ class HSL(AVGApp):
 
     def _increaseHue(self):
         self.hsl_fx.hue += 1
+        self.hue.text = "Hue: " + str(self.hsl_fx.hue)
 
 if __name__ == '__main__':
     HSL.start(resolution=(1000,800),debugWindowSize=(800,600))

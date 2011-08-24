@@ -20,10 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
-import math
-
 from libavg import avg
 from testcase import *
 
