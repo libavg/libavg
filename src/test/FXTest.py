@@ -155,6 +155,34 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlurFX2", False),
                 ))
 
+    def testHueSatFX(self):
+
+        def resetFX():
+            self.effect = avg.HueSatFXNode()
+            self.node.setEffect(self.effect)
+
+        def setParam(param, value):
+            assert(hasattr(self.effect, param))
+            setattr(self.effect, param, value)
+
+        root = self.loadEmptyScene()
+        self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24alpha-64x64.png")
+        resetFX()
+        self.start((
+                lambda: self.compareImage("testHueSatFX1", False),
+                lambda: setParam('saturation', -50),
+                lambda: self.compareImage("testHueSatFX2", False),
+                lambda: setParam('saturation', -100),
+                lambda: self.compareImage("testHueSatFX3", False),
+                lambda: setParam('saturation', -150),
+                lambda: self.compareImage("testHueSatFX3", False),
+                resetFX,
+                lambda: setParam('hue', 180),
+                lambda: self.compareImage("testHueSatFX4", False),
+                lambda: setParam('hue', -180),
+                lambda: self.compareImage("testHueSatFX4", False),
+        ))
+
     def testShadowFX(self):
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
@@ -299,6 +327,7 @@ def fxTestSuite(tests):
                 "testGamma",
                 "testIntensity",
                 "testContrast",
+                "testHueSatFX",
             ]
         return createAVGTestSuite(availableTests, FXTestCase, tests)
     else:
