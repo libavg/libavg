@@ -149,7 +149,6 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
             default:
                 AVG_ASSERT(false);
         }
-        pCursorEvent->setNode(VisibleNodePtr());
         map<int, Listener>::iterator lastIt = it;
         ++it;
         if (m_bCurListenerIsDead) {
