@@ -119,6 +119,7 @@ std::vector<EventPtr> LibMTDevInputDevice::pollEvents()
                                     boost::dynamic_pointer_cast<TouchEvent>(
                                     pOldEvent->cloneAs(Event::CURSORUP));
                             pTouchStatus->pushEvent(pUpEvent);
+                            removeTouchStatus(pTouch->id);
                         }
                         pTouch->id = -1;
                     } else {
