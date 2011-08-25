@@ -275,6 +275,8 @@ class TextArea:
         if focusContext is not None:
             focusContext.register(self)
             self.setFocus(False)
+        else:
+            self.setFocus(True)
 
         g_Player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
         
