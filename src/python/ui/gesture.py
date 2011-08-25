@@ -451,7 +451,7 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         if numContacts == 0:
             contact = event.contact
-            trans = event.pos - self.__startPosns[0]
+            trans = self.__relContactPos(contact) - self.__startPosns[0]
             self.__transform = Mat3x3.translate(trans)
             totalTransform = self.__transform.applyMat(self.__baseTransform)
             self.__upHandler(totalTransform)
@@ -468,12 +468,13 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         if numContacts == 1:
             contact = self._contacts.keys()[0]
-            trans = contact.events[-1].pos - self.__startPosns[0]
+            trans = self.__relContactPos(contact) - self.__startPosns[0]
             self.__transform = Mat3x3.translate(trans)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(trans)
         else:
-            contactPosns = [contact.events[-1].pos for contact in self._contacts.keys()]
+            contactPosns = [self.__relContactPos(contact)
+                    for contact in self._contacts.keys()]
             if numContacts == 2:
                 self.__posns = contactPosns
             else:
@@ -526,9 +527,10 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         if numContacts == 1:
             contact = self._contacts.keys()[0]
-            self.__startPosns.append(contact.events[-1].pos)
+            self.__startPosns.append(self.__relContactPos(contact))
         else:
-            contactPosns = [contact.events[-1].pos for contact in self._contacts.keys()]
+            contactPosns = [self.__relContactPos(contact) 
+                    for contact in self._contacts.keys()]
             if numContacts == 2:
                 self.__startPosns = contactPosns
             else:
@@ -555,6 +557,9 @@ class TransformRecognizer(Recognizer):
     def __onInertiaStop(self):
         self.__stopHandler()
         self.__inertiaHandler = None
+
+    def __relContactPos(self, contact):
+        return self._node.getParent().getRelPos(contact.events[-1].pos)
 
 
 class InertiaHandler():
