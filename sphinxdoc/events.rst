@@ -25,13 +25,6 @@ Input Handling
         pressed without a complete release (e.g. LEFTDOWN-RIGHTDOWN-LEFTUP-RIGHTUP), the
         mouse contact exists for the complete sequence. 
 
-        .. py:attribute:: id
-
-            A numerical id for this contact. This corresponds to the 
-            :py:attr:`CursorEvent.cursorid` field. Contacts for touch events have unique
-            ids, while contacts for mouse events always have the :py:attr:`id`
-            :py:const:`-1`. Read-only.
-
         .. py:attribute:: age
 
             Time that has passed since the down event in milliseconds. Read-only.
@@ -40,6 +33,22 @@ Input Handling
 
             Distance of the current position from the initial position in pixels. 
             Read-only.
+
+        .. py:attribute:: distancetravelled
+
+            The total distance travelled since the initial down event. Read-only.
+
+        .. py:attribute:: events
+
+            An array containing all events that this contact has generated in the past.
+            Read-only.
+
+        .. py:attribute:: id
+
+            A numerical id for this contact. This corresponds to the 
+            :py:attr:`CursorEvent.cursorid` field. Contacts for touch events have unique
+            ids, while contacts for mouse events always have the :py:attr:`id`
+            :py:const:`-1`. ids are not reused. Read-only.
 
         .. py:attribute:: motionangle
 
@@ -51,11 +60,6 @@ Input Handling
 
             The difference of the current position and the initial position as a
             :py:class:`Point2D`. Read-only.
-
-
-        .. py:attribute:: distancetravelled
-
-            The total distance travelled since the initial down event. Read-only.
 
         .. py:method:: connectListener(motionCallback, upCallback) -> id
 
