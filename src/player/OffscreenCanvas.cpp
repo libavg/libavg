@@ -67,8 +67,6 @@ void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
     m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
             m_bUseMipmaps));
     Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
-    glEnable(GL_STENCIL_TEST);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     m_bIsRendered = false;
 }
 

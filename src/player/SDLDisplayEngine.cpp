@@ -257,14 +257,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     initTextureMode();
     if (!queryOGLExtension("GL_ARB_multisample")) {
         m_GLConfig.m_MultiSampleSamples = 1;
-    } else {
-        if (m_GLConfig.m_MultiSampleSamples > 1) {
-            glEnable(GL_MULTISAMPLE);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_MULTISAMPLE);");
-        } else {
-            glDisable(GL_MULTISAMPLE);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_MULTISAMPLE);");
-        }
     }
     if (!queryOGLExtension("GL_ARB_vertex_buffer_object")) {
         throw Exception(AVG_ERR_UNSUPPORTED,
