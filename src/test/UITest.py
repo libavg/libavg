@@ -19,9 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
-from libavg import avg, anim, draggable, textarea, ui, geom, statemachine
+from libavg import avg, textarea, ui
 
 import math
 from testcase import *
@@ -610,8 +608,6 @@ class UITestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
 
-        kbNoShift = None
-        kbShift   = None
         self.__keyDown = False
         self.__keyUp   = True
         self.__char = "foo"
@@ -813,7 +809,7 @@ class UITestCase(AVGTestCase):
     
     def testDragRecognizerInitialEvent(self):
         def onMotion(event):
-            dragProcessor = ui.DragRecognizer(self.image, 
+            ui.DragRecognizer(self.image, 
                     startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
             self.image.disconnectEventHandler(self)
            

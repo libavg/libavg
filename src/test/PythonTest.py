@@ -19,11 +19,8 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
+from libavg import avg, anim, draggable, geom, statemachine
 
-from libavg import avg, anim, draggable, textarea, ui, geom, statemachine
-
-import math
 from testcase import *
 
 class PythonTestCase(AVGTestCase):
