@@ -71,7 +71,12 @@ functionality
 
         :py:class:`DragRecognizer` supports inertia after the node is released.
         
-        :param avg.Node node: The node to attach to.
+        :param avg.Node node: 
+        
+            The node to attach to. The :py:class:`DragRecognizer` registers an event 
+            handler to react to any contacts for this node. The node is also used to 
+            determine the coordinate system for the offsets returned by the callbacks.
+            The :py:class:`DragRecognizer` does not move the node itself.
 
         :param eventSource: 
             
@@ -108,7 +113,8 @@ functionality
 
                 :param avg.Point2D offset: 
                 
-                    The current offset from the start of the drag in global coordinates.
+                    The current offset from the start of the drag in coordinates relative
+                    to the :py:class:`Node`'s parent.
 
             .. py:method:: upHandler(event, offset)
 
@@ -121,7 +127,8 @@ functionality
 
                 :param avg.Point2D offset: 
                 
-                    The current offset from the start of the drag in global coordinates.
+                    The current offset from the start of the drag in coordinates relative
+                    to the :py:class:`Node`'s parent.
 
             .. py:method:: stopHandler()
 
@@ -273,7 +280,8 @@ functionality
     .. autoclass:: Recognizer(node, eventSource, maxContacts, initialEvent)
 
         Base class for gesture recognizers that attach to a node's cursor events and 
-        emit higher-level events.
+        emit higher-level events. A usage example for the recognizers can be found under
+        :samp:`src/samples/gestures.py`.
 
         :param Node node: Node to attach to.
 
@@ -374,10 +382,14 @@ functionality
 
         A :py:class:`TransformRecognizer` is used to support drag/zoom/rotate 
         functionality. From any number of touches on a node, it calculates an aggregate
-        transform that can be used to change the position, size and angle of a node. A
-        usage example can be found under :samp:`src/samples/mttransform.py`.
+        transform that can be used to change the position, size and angle of a node.
+        The class supports intertia after the node is released.
 
-        :param avg.Node node: The node to attach to.
+        :param avg.Node node: The node to attach to. The :py:class:`TransformRecognizer`
+            registers an event handler to react to any contacts for this node. The node
+            is also used to determine the coordinate system for the offsets returned by
+            the callbacks. The :py:class:`TransformRecognizer` does not move the node 
+            itself.
 
         :param eventSource: 
             
@@ -390,7 +402,8 @@ functionality
        
         :param friction:
 
-            Currently not implemented.
+            If set, this parameter enables inertia processing. It describes how 
+            quickly the transform comes to a stop after the cursor is released.
 
         Callbacks:
 
@@ -404,7 +417,9 @@ functionality
 
                 :param Mat3x3 transform:
                 
-                    The current transformation as a homogenous matrix.
+                    The current transformation as a homogenous matrix. The transform is 
+                    relative to the :py:class:`Node`'s parent.
+
 
             .. py:method:: upHandler(transform)
 
@@ -412,8 +427,10 @@ functionality
 
                 :param Mat3x3 transform:
                 
-                    The current transformation as a homogenous matrix.
+                    The current transformation as a homogenous matrix. The transform is 
+                    relative to the :py:class:`Node`'s parent.
 
             .. py:method:: stopHandler(transform)
 
-                Not implemented.
+                Called when movement stops. This is either directly after the up event
+                or when inertia has run its course.
