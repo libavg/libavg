@@ -1039,6 +1039,27 @@ class PythonTestCase(AVGTestCase):
                     ))
         Player.setFakeFPS(-1)
 
+    def testDragRecognizerRelCoords(self):
+        def onDrag(event, offset):
+            self.assert_(almostEqual(offset, (-40,-40)))
+
+        def onStop():
+            self.assert_(almostEqual(offset, (-40,-40)))
+
+        Player.setFakeFPS(100)
+        for self.friction in (-1, 100):
+            root = self.loadEmptyScene()
+            div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
+            image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+            dragProcessor = ui.DragRecognizer(image, moveHandler=onDrag, 
+                    stopHandler=onStop, friction=self.friction)
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                    ))
+        Player.setFakeFPS(-1)
+        
+    
 
     def testDragRecognizerInitialEvent(self):
         def onMotion(event):
@@ -1560,6 +1581,7 @@ def pythonTestSuite (tests):
         "testKeyboard",
         "testTextArea",
         "testDragRecognizer",
+        "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",
         "testHoldRecognizer",
         "testTapRecognizer",

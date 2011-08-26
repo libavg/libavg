@@ -128,27 +128,28 @@ class DragRecognizer(Recognizer):
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
+        pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
                     self.__onInertiaStop)
-            self.__inertiaHandler.resetPos(event.pos, 0, 0)
-        self.__dragStartPos = event.pos
-        self.__dragStartMotionVec = event.contact.motionvec
+            self.__inertiaHandler.resetPos(pos, 0, 0)
+        self.__dragStartPos = pos
         self.__startHandler(event)
 
     def _handleMove(self, event):
-        # TODO: Offset is in the global coordinate system. We should really be using
-        # the coordinate system we're in at the moment the drag starts. 
-        self.__moveHandler(event, event.contact.motionvec-self.__dragStartMotionVec)
+        pos = self.__relEventPos(event)
+        offset = pos - self.__dragStartPos
+        self.__moveHandler(event, offset)
         if self.__friction != -1:
-            self.__inertiaHandler.onDrag(event.pos)
+            self.__inertiaHandler.onDrag(pos)
 
     def _handleUp(self, event):
-        self.__upHandler(event, event.contact.motionvec)
+        pos = self.__relEventPos(event)
+        self.__offset = pos - self.__dragStartPos
+        self.__upHandler(event, self.__offset)
         if self.__friction != -1:
-            self.__inertiaHandler.onDrag(event.pos)
+            self.__inertiaHandler.onDrag(pos)
             self.__inertiaHandler.onUp()
-            self.__offset = event.contact.motionvec-self.__dragStartMotionVec
         else:
             self.__stopHandler()
 
@@ -163,6 +164,9 @@ class DragRecognizer(Recognizer):
     def __stop(self):
         self.__stopHandler()
         self.__inertiaHandler = None
+
+    def __relEventPos(self, event):
+        return self._node.getParent().getRelPos(event.pos)
 
 
 class HoldRecognizer(Recognizer):
