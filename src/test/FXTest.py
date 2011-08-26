@@ -183,6 +183,29 @@ class FXTestCase(AVGTestCase):
                 lambda: self.compareImage("testHueSatFX4", False),
         ))
 
+    def testInvertFX(self):
+
+        def resetFX():
+            self.effect = avg.InvertFXNode()
+            self.node.setEffect(self.effect)
+
+        def redAlphaScene():
+            self.redRect = avg.RectNode(parent=self.root, pos=(5, 5), fillcolor='FF0000',
+                    fillopacity=1, size=(72, 72))
+            self.node = avg.ImageNode(parent=self.root, pos=(10,10),
+                    href="../graphics/testfiles/rgb24alpha-64x64.png")
+            resetFX()
+
+        self.root = self.loadEmptyScene()
+        self.node = avg.ImageNode(parent=self.root, pos=(10,10),
+                href="../graphics/testfiles/hsl.png")
+        resetFX()
+        self.start((
+                lambda: self.compareImage("testInvertFX1", False),
+                redAlphaScene,
+                lambda: self.compareImage("testInvertFX2", False),
+        ))
+
     def testShadowFX(self):
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
@@ -328,6 +351,7 @@ def fxTestSuite(tests):
                 "testIntensity",
                 "testContrast",
                 "testHueSatFX",
+                "testInvertFX",
             ]
         return createAVGTestSuite(availableTests, FXTestCase, tests)
     else:

@@ -59,12 +59,17 @@ void GPUInvertFilter::initShader()
 {
     string sProgramHead =
             "uniform sampler2D texture;\n"
+            +getStdShaderCode()
             ;
     string sProgram = sProgramHead +
             "void main(void)\n"
             "{\n"
+            "    float hue, s, l;\n"
             "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-            "    vec4 result = vec4(1.0-tex.r, 1.0-tex.g, 1.0-tex.b, tex.a); \n"
+            "    unPreMultiplyAlpha(tex);\n"
+            "    rgb2hsl(tex, hue, s, l);\n"
+            "    vec4 result = vec4(hsl2rgb(hue, s, 1.0-l), tex.a);\n"
+            "    preMultiplyAlpha(result);\n"
             "    gl_FragColor = result;\n"
             "}\n";
     getOrCreateShader(SHADERID_INVERT_COLOR, sProgram);
