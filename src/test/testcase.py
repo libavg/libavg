@@ -117,15 +117,18 @@ class AVGTestCase(unittest.TestCase):
 
     def compareBitmapToFile(self, bmp, fileName, warn):
         try:
-            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir()+"/"+fileName+".png")
+            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir() + "/" + fileName
+                    + ".png")
             diffBmp = bmp.subtract(baselineBmp)
             average = diffBmp.getAvg()
             stdDev = diffBmp.getStdDev()
             if (average > 0.1 or stdDev > 0.5):
                 if self._isCurrentDirWriteable():
-                    bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
-                    baselineBmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+"_baseline.png")
-                    diffBmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+"_diff.png")
+                    bmp.save(AVGTestCase.getImageResultDir() + "/" + fileName + ".png")
+                    baselineBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                            + "_baseline.png")
+                    diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                            + "_diff.png")
             if (average > 2 or stdDev > 6):
                 print ("  "+fileName+
                         ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%

@@ -112,6 +112,7 @@ import AnimTest
 import EventTest
 import InputDeviceTest
 import AVGAppTest
+import UITest
 from EventTest import mainMouseDown
 from EventTest import mainMouseUp
 
@@ -131,6 +132,7 @@ app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('event', EventTest.eventTestSuite)
 app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
+app.registerSuiteFactory('ui', UITest.uiTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 
 app.run()
