@@ -44,6 +44,11 @@ using namespace boost;
 #define SAMPLE_BUFFER_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE*3))
 #define VOLUME_FADE_SAMPLES 100
 
+#define QUOTE(str) #str
+#define EXPAND_AND_QUOTE(str) QUOTE(str)
+#pragma message(EXPAND_AND_QUOTE(LIBAVFORMAT_VERSION_MAJOR))
+#pragma message(EXPAND_AND_QUOTE(LIBAVFORMAT_VERSION_MINOR))
+
 namespace avg {
 
 bool FFMpegDecoder::s_bInitialized = false;
