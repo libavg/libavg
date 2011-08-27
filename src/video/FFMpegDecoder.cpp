@@ -709,12 +709,8 @@ int FFMpegDecoder::decodeAudio()
     int lastSampleBufferSize = m_SampleBufferLeft;
 
     // Decode some data from packet into the audio buffer
-#if not(defined(LIBAVFORMAT_VERSION_MAJOR)) || LIBAVFORMAT_VERSION_MAJOR < 52 ||   \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR <= 23)
-    int packetBytesDecoded = avcodec_decode_audio2(m_pAStream->codec, 
-            (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
-            m_AudioPacketData, m_AudioPacketSize);
-#else
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
     AVPacket packet;
     av_init_packet(&packet);
     packet.data = m_AudioPacketData;
@@ -722,6 +718,10 @@ int FFMpegDecoder::decodeAudio()
     int packetBytesDecoded = avcodec_decode_audio3(m_pAStream->codec, 
             (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
             &packet);
+#else
+    int packetBytesDecoded = avcodec_decode_audio2(m_pAStream->codec, 
+            (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
+            m_AudioPacketData, m_AudioPacketSize);
 #endif
 
     // Skip frame on error
@@ -1033,12 +1033,12 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             FrameAge age;
             m_Opaque.setFrameAge(&age);
 #endif
-#if not(defined(LIBAVFORMAT_VERSION_MAJOR)) || LIBAVFORMAT_VERSION_MAJOR < 52 ||   \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR <= 23)
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
+            int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
+#else
             int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
-#else
-            int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #endif
             if (len1 > 0) {
                 AVG_ASSERT(len1 == pPacket->size);
@@ -1052,14 +1052,14 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             delete pPacket;
         } else {
             // No more packets -> EOF. Decode the last data we got.
-#if not(defined(LIBAVFORMAT_VERSION_MAJOR)) || LIBAVFORMAT_VERSION_MAJOR < 52 ||   \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR <= 23)
-            avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
-#else
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
             AVPacket packet;
             packet.data = 0;
             packet.size = 0;
             avcodec_decode_video2(pContext, &frame, &bGotPicture, &packet);
+#else
+            avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
 #endif
             if (bGotPicture) {
                 m_bEOFPending = true;
