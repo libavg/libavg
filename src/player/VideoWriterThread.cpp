@@ -99,10 +99,14 @@ void VideoWriterThread::open()
 {
     av_register_all(); // TODO: make sure this is only done once. 
 //    av_log_set_level(AV_LOG_DEBUG);
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+    m_pOutputFormat = av_guess_format("mov", NULL, NULL);
+#else
     m_pOutputFormat = guess_format("mov", NULL, NULL);
+#endif
     m_pOutputFormat->video_codec = CODEC_ID_MJPEG;
 
-    m_pOutputFormatContext = av_alloc_format_context();
+    m_pOutputFormatContext = avformat_alloc_context();
 
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
@@ -112,15 +116,16 @@ void VideoWriterThread::open()
     if (m_pOutputFormat->video_codec != CODEC_ID_NONE) {
         setupVideoStream();
     }
-
+#if LIBAVFORMAT_VERSION_MAJOR < 52
     av_set_parameters(m_pOutputFormatContext, NULL);
+#endif
 
     double muxPreload = 0.5;
     double muxMaxDelay = 0.7;
     m_pOutputFormatContext->preload = int(muxPreload * AV_TIME_BASE);
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
 
-    dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
+//    av_dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
 
     openVideoCodec();
 
@@ -150,7 +155,11 @@ void VideoWriterThread::open()
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
 
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+    avformat_write_header(m_pOutputFormatContext, 0);
+#else
     av_write_header(m_pOutputFormatContext);
+#endif
 }
 
 void VideoWriterThread::setupVideoStream()
@@ -159,7 +168,7 @@ void VideoWriterThread::setupVideoStream()
 
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     pCodecContext->codec_id = static_cast<CodecID>(m_pOutputFormat->video_codec);
-    pCodecContext->codec_type = CODEC_TYPE_VIDEO;
+    pCodecContext->codec_type = AVMEDIA_TYPE_VIDEO;
 
     /* put sample parameters */
     pCodecContext->bit_rate = 400000;
@@ -240,13 +249,17 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
         AVPacket packet;
         av_init_packet(&packet);
 
-        if (pCodecContext->coded_frame->pts != AV_NOPTS_VALUE) {
+        if ((unsigned long long)(pCodecContext->coded_frame->pts) != AV_NOPTS_VALUE) {
             packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
                     pCodecContext->time_base, m_pVideoStream->time_base);
         }
 
         if (pCodecContext->coded_frame->key_frame) {
+#if LIBAVFORMAT_VERSION_MAJOR > 51
+            packet.flags |= AV_PKT_FLAG_KEY;
+#else
             packet.flags |= PKT_FLAG_KEY;
+#endif
         }
         packet.stream_index = m_pVideoStream->index;
         packet.data = m_pVideoBuffer;

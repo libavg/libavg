@@ -44,11 +44,6 @@ using namespace boost;
 #define SAMPLE_BUFFER_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE*3))
 #define VOLUME_FADE_SAMPLES 100
 
-#if LIBAVFORMAT_BUILD < ((50<<16)+(0<<8)+0)
-#define PIX_FMT_BGRA PIX_FMT_RGBA32
-#define PIX_FMT_YUYV422 PIX_FMT_YUV422
-#endif
-
 namespace avg {
 
 bool FFMpegDecoder::s_bInitialized = false;
@@ -94,6 +89,11 @@ FFMpegDecoder::~FFMpegDecoder()
 
 void avcodecError(const string& sFilename, int err)
 {
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+        char buf[256];
+        av_strerror(err, buf, 256);
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, sFilename + ": " + buf);
+#else
     switch(err) {
         case AVERROR_NUMEXPECTED:
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
@@ -109,33 +109,13 @@ void avcodecError(const string& sFilename, int err)
             s << "'" << sFilename <<  "': Error while opening file (Num:" << err << ")";
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED, s.str());
     }
-}
-
-
-void dump_stream_info(AVFormatContext* pContext)
-{
-    if (pContext->track != 0)
-        fprintf(stderr, "  Track: %d\n", pContext->track);
-    if (pContext->title[0] != '\0')
-        fprintf(stderr, "  Title: %s\n", pContext->title);
-    if (pContext->author[0] != '\0')
-        fprintf(stderr, "  Author: %s\n", pContext->author);
-    if (pContext->album[0] != '\0')
-        fprintf(stderr, "  Album: %s\n", pContext->album);
-    if (pContext->year != 0)
-        fprintf(stderr, "  Year: %d\n", pContext->year);
-    if (pContext->genre[0] != '\0')
-        fprintf(stderr, "  Genre: %s\n", pContext->genre);
+#endif
 }
 
 int FFMpegDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
 {
     AVCodecContext* pContext;
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    pContext = &(m_pFormatContext->streams[streamIndex]->codec);
-#else
     pContext = m_pFormatContext->streams[streamIndex]->codec;
-#endif
 //    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
@@ -164,15 +144,18 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     m_bVideoEOF = false;
     m_bEOFPending = false;
     m_VideoStartTimestamp = -1;
-    AVFormatParameters params;
     int err;
     m_sFilename = sFilename;
 
     AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+    err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
+#else
+    AVFormatParameters params;
     memset(&params, 0, sizeof(params));
-
     err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
             0, 0, &params);
+#endif
     if (err < 0) {
         m_sFilename = "";
         avcodecError(sFilename, err);
@@ -183,26 +166,20 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Could not find codec parameters.");
     }
-//    dump_format(m_pFormatContext, 0, sFilename.c_str(), 0);
-
     av_read_play(m_pFormatContext);
     
     // Find audio and video streams in the file
     m_VStreamIndex = -1;
     m_AStreamIndex = -1;
     for (unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-        AVCodecContext* pContext = &m_pFormatContext->streams[i]->codec;
-#else         
         AVCodecContext* pContext = m_pFormatContext->streams[i]->codec;
-#endif
         switch (pContext->codec_type) {
-            case CODEC_TYPE_VIDEO:
+            case AVMEDIA_TYPE_VIDEO:
                 if (m_VStreamIndex < 0) {
                     m_VStreamIndex = i;
                 }
                 break;
-            case CODEC_TYPE_AUDIO:
+            case AVMEDIA_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
                 if (m_AStreamIndex < 0 && bThreadedDemuxer) {
                     m_AStreamIndex = i;
@@ -212,8 +189,6 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
                 break;
         }
     }
-//    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
-//    dump_stream_info(m_pFormatContext);
     
     // Enable video stream demuxing
     if (m_VStreamIndex >= 0) {
@@ -225,11 +200,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         if (m_bUseStreamFPS) {
             m_FPS = getNominalFPS();
         }
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-        m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
-#else
         m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
-#endif
         m_bFirstPacket = true;
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1;
@@ -255,7 +226,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
         
-        if (m_pAStream->start_time != AV_NOPTS_VALUE) {
+        if ((unsigned long long)m_pAStream->start_time != AV_NOPTS_VALUE) {
             m_AudioStartTimestamp = double(av_q2d(m_pAStream->time_base))
                     *m_pAStream->start_time;
         }
@@ -508,21 +479,13 @@ double FFMpegDecoder::getDuration() const
         duration=m_pAStream->duration;
         time_base=m_pAStream->time_base;
     }
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return double(duration)/AV_TIME_BASE;
-#else
     return double(duration)*av_q2d(time_base);
-#endif 
 }
 
 double FFMpegDecoder::getNominalFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate;
-#else
     return av_q2d(m_pVStream->r_frame_rate);
-#endif 
 }
 
 double FFMpegDecoder::getFPS() const
@@ -706,9 +669,17 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* pBuffer, int size)
 void FFMpegDecoder::resampleAudio()
 {
     if (!m_pAudioResampleContext) {
+#if LIBAVFORMAT_VERSION_MAJOR > 50
+        m_pAudioResampleContext = av_audio_resample_init(
+                m_AP.m_Channels, m_pAStream->codec->channels, 
+                m_AP.m_SampleRate, m_EffectiveSampleRate,
+                SAMPLE_FMT_S16, SAMPLE_FMT_S16,
+                16, 10, 0, 0.8);
+#else
         m_pAudioResampleContext = audio_resample_init(
                 m_AP.m_Channels, m_pAStream->codec->channels, 
                 m_AP.m_SampleRate, m_EffectiveSampleRate);
+#endif        
     }
     
     if (!m_pResampleBuffer) {
@@ -736,21 +707,19 @@ int FFMpegDecoder::decodeAudio()
     // Save current size of the audio buffer
     int lastSampleBufferSize = m_SampleBufferLeft;
 
-#if LIBAVCODEC_BUILD > ((51<<16)+(11<<8)+0)
     // Decode some data from packet into the audio buffer
-    int packetBytesDecoded = avcodec_decode_audio2(
-            m_pAStream->codec, 
-            (short*)(m_pSampleBuffer + m_SampleBufferEnd),
-            &m_SampleBufferLeft, 
-            m_AudioPacketData,
-            m_AudioPacketSize);
+#if LIBAVFORMAT_VERSION_MAJOR > 50
+    AVPacket packet;
+    av_init_packet(&packet);
+    packet.data = m_AudioPacketData;
+    packet.size = m_AudioPacketSize;
+    int packetBytesDecoded = avcodec_decode_audio3(m_pAStream->codec, 
+            (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
+            &packet);
 #else
-    int packetBytesDecoded = avcodec_decode_audio(
-            m_pAStream->codec, 
-            (short*)(m_pSampleBuffer + m_SampleBufferEnd),
-            &m_SampleBufferLeft, 
-            m_AudioPacketData,
-            m_AudioPacketSize);
+    int packetBytesDecoded = avcodec_decode_audio(m_pAStream->codec, 
+            (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
+            m_AudioPacketData, m_AudioPacketSize);
 #endif
 
     // Skip frame on error
@@ -891,12 +860,8 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp)
     unsigned char * pDestBits = pBmp->getPixels();
     destPict.data[0] = pDestBits;
     destPict.linesize[0] = pBmp->getStride();
-#if LIBAVFORMAT_BUILD >= ((50<<16)+(0<<8)+0)
     ::PixelFormat destFmt;
-#else
-    int destFmt;
-#endif
-    switch(pBmp->getPixelFormat()) {
+    switch (pBmp->getPixelFormat()) {
         case R8G8B8X8:
         case R8G8B8A8:
             // XXX: Unused and broken.
@@ -1003,16 +968,12 @@ int FFMpegDecoder::getNumFrames() const
     AVG_ASSERT(m_State != CLOSED);
     // This is broken for some videos, but the code here is correct.
     // So fix ffmpeg :-).
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
-#else
     int numFrames =  int(m_pVStream->nb_frames);
     if (numFrames > 0) {
         return numFrames;
     } else {
         return int(getDuration() * calcStreamFPS());
     }
-#endif 
 }
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, double timeWanted)
@@ -1070,8 +1031,12 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             FrameAge age;
             m_Opaque.setFrameAge(&age);
 #endif
+#if LIBAVFORMAT_VERSION_MAJOR > 51
+            int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
+#else
             int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
                     pPacket->size);
+#endif
             if (len1 > 0) {
                 AVG_ASSERT(len1 == pPacket->size);
             }
@@ -1084,7 +1049,14 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             delete pPacket;
         } else {
             // No more packets -> EOF. Decode the last data we got.
+#if LIBAVFORMAT_VERSION_MAJOR > 51
+            AVPacket packet;
+            packet.data = 0;
+            packet.size = 0;
+            avcodec_decode_video2(pContext, &frame, &bGotPicture, &packet);
+#else
             avcodec_decode_video(pContext, &frame, &bGotPicture, 0, 0);
+#endif
             if (bGotPicture) {
                 m_bEOFPending = true;
             } else {
@@ -1140,18 +1112,18 @@ double FFMpegDecoder::getStartTime()
 
 double FFMpegDecoder::calcStreamFPS() const
 {
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate;
-#else
     return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
-#endif 
 }
 
 string FFMpegDecoder::getStreamPF() const
 {
     AVCodecContext const* pCodec = getCodecContext();
     ::PixelFormat pf = pCodec->pix_fmt;
+#if LIBAVFORMAT_VERSION_MAJOR > 52 
+    const char* psz = av_get_pix_fmt_name(pf);
+#else
     const char* psz = avcodec_get_pix_fmt_name(pf);
+#endif
     string s;
     if (psz) {
         s = psz;
@@ -1190,20 +1162,12 @@ void FFMpegDecoder::volumize(AudioBufferPtr pBuffer)
 
 AVCodecContext const* FFMpegDecoder::getCodecContext() const
 {
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return &m_pVStream->codec;
-#else
     return m_pVStream->codec;
-#endif
 }
 
 AVCodecContext* FFMpegDecoder::getCodecContext()
 {
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return &m_pVStream->codec;
-#else
     return m_pVStream->codec;
-#endif
 }
 
 #ifdef AVG_ENABLE_VDPAU

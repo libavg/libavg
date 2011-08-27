@@ -40,15 +40,18 @@
 #endif
 
 extern "C" {
-#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
-#else
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
-#include <ffmpeg/swscale.h>
+#include <libavutil/avutil.h>
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+#include <libavutil/pixdesc.h>
 #endif
+#if LIBAVFORMAT_VERSION_MAJOR < 53
+#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
+#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
+#endif
+
 }
 
 #endif
