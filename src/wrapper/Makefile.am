@@ -1,6 +1,6 @@
 
 INCLUDES = -I. -I../player \
-        @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOCAIRO_CFLAGS@ @PYTHON_INCLUDES@ \
+        @XML2_CFLAGS@ @PTHREAD_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ \
         @DC1394_2_CFLAGS@ @LIBRSVG_CFLAGS@ @FONTCONFIG_CFLAGS@
 
 ALL_H = WrapHelper.h raw_constructor.hpp
@@ -31,7 +31,7 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../anim/libanim.la \
                 ../lmfit/liblmfit.la \
                 ../oscpack/liboscpack.la \
-                @PANGOCAIRO_LIBS@ @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS)\
+                @PANGOFT2_LIBS@ @LIBRSVG_LIBS@ $(BOOST_PYTHON_LIBS)\
                 -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
                 @DC1394_2_LIBS@ @GLU_LIBS@ $(XI2_1_LIBS) $(ALL_GL_LIBS) \
                 @LIBFFMPEG@ @PTHREAD_LIBS@ \

@@ -27,12 +27,30 @@
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 
-#include <fontconfig/fontconfig.h>
 #include <algorithm>
 
 namespace avg {
 
 using namespace std;
+
+static void
+text_subst_func_hint(FcPattern *pattern, gpointer data)
+{
+    FcPatternAddBool(pattern, FC_HINTING, true);
+    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
+    FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
+    FcPatternAddBool(pattern, FC_ANTIALIAS, true);
+}
+
+static void
+text_subst_func_nohint(FcPattern *pattern, gpointer data)
+{
+    FcPatternAddBool(pattern, FC_HINTING, false);
+    FcPatternAddBool(pattern, FC_AUTOHINT, false);
+    FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_NONE);
+    FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
+    FcPatternAddBool(pattern, FC_ANTIALIAS, true);
+}
 
 TextEngine& TextEngine::get(bool bHint) 
 {
@@ -61,25 +79,20 @@ TextEngine::~TextEngine()
 void TextEngine::init()
 {
     g_type_init();
-    m_pFontMap = PANGO_CAIRO_FONT_MAP(pango_cairo_font_map_new_for_font_type(
-            CAIRO_FONT_TYPE_FT));
-    pango_cairo_font_map_set_resolution(m_pFontMap, 72);
-
-    m_pCairoSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1);
-    m_pCairo = cairo_create(m_pCairoSurface);
-    m_pPangoContext = pango_cairo_create_context(m_pCairo);
+    m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
+    pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
+    if (m_bHint) {
+        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_hint, 
+                0, 0);
+    } else {
+        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_nohint, 
+                0, 0);
+    }
+    m_pPangoContext = pango_ft2_font_map_create_context(m_pFontMap);
 
     pango_context_set_language(m_pPangoContext,
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pPangoContext, PANGO_DIRECTION_LTR);
-
-    cairo_font_options_t*  pFontOptions = cairo_font_options_create();
-//    cairo_font_options_set_antialias(pFontOptions, CAIRO_ANTIALIAS_GRAY);
-    cairo_font_options_set_hint_style(pFontOptions, CAIRO_HINT_STYLE_SLIGHT);
-    cairo_font_options_set_hint_metrics(pFontOptions, CAIRO_HINT_METRICS_ON);
-    pango_cairo_context_set_font_options(m_pPangoContext, pFontOptions);
-
-    cairo_font_options_destroy(pFontOptions);
 
     initFonts();
 
@@ -97,12 +110,10 @@ void TextEngine::init()
 
 void TextEngine::deinit()
 {
+    g_object_unref(m_pFontMap);
+    g_free(m_ppFontFamilies);
     g_object_unref(m_pPangoContext);
     m_sFonts.clear();
-    g_free(m_ppFontFamilies);
-    cairo_surface_destroy(m_pCairoSurface);
-    cairo_destroy(m_pCairo);
-    g_object_unref(m_pFontMap);
 }
 
 void TextEngine::addFontDir(const std::string& sDir)
@@ -164,8 +175,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
             pFace = ppFaces[0];
         } else {
             for (int i = 0; i < numFaces; ++i) {
-                if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), sVariant)) 
-                {
+                if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), sVariant)) {
                     pFace = ppFaces[i];
                 }
             }
@@ -202,7 +212,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     } else if (log_level & G_LOG_LEVEL_CRITICAL) {
         s += string("critical: ")+message;
         AVG_TRACE(Logger::ERROR, s);
-        return;
+        AVG_ASSERT(false);
     } else if (log_level & G_LOG_LEVEL_WARNING) {
         s += "warning: ";
     } else if (log_level & G_LOG_LEVEL_MESSAGE) {
@@ -252,7 +262,6 @@ void TextEngine::initFonts()
         checkFontError(ok, string("Font error: FcConfigAppFontAddDir("
                     + *it + ") failed."));
     }
-    
     /*
        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
        FcChar8 * pDir;
