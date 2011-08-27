@@ -669,7 +669,8 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* pBuffer, int size)
 void FFMpegDecoder::resampleAudio()
 {
     if (!m_pAudioResampleContext) {
-#if LIBAVFORMAT_VERSION_MAJOR > 50
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
         m_pAudioResampleContext = av_audio_resample_init(
                 m_AP.m_Channels, m_pAStream->codec->channels, 
                 m_AP.m_SampleRate, m_EffectiveSampleRate,
@@ -708,7 +709,8 @@ int FFMpegDecoder::decodeAudio()
     int lastSampleBufferSize = m_SampleBufferLeft;
 
     // Decode some data from packet into the audio buffer
-#if LIBAVFORMAT_VERSION_MAJOR > 50
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
     AVPacket packet;
     av_init_packet(&packet);
     packet.data = m_AudioPacketData;
@@ -717,7 +719,7 @@ int FFMpegDecoder::decodeAudio()
             (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
             &packet);
 #else
-    int packetBytesDecoded = avcodec_decode_audio(m_pAStream->codec, 
+    int packetBytesDecoded = avcodec_decode_audio2(m_pAStream->codec, 
             (short*)(m_pSampleBuffer + m_SampleBufferEnd), &m_SampleBufferLeft, 
             m_AudioPacketData, m_AudioPacketSize);
 #endif
@@ -1031,7 +1033,8 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             FrameAge age;
             m_Opaque.setFrameAge(&age);
 #endif
-#if LIBAVFORMAT_VERSION_MAJOR > 51
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else
             int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
@@ -1049,7 +1052,8 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             delete pPacket;
         } else {
             // No more packets -> EOF. Decode the last data we got.
-#if LIBAVFORMAT_VERSION_MAJOR > 51
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
             AVPacket packet;
             packet.data = 0;
             packet.size = 0;

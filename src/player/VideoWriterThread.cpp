@@ -106,8 +106,12 @@ void VideoWriterThread::open()
 #endif
     m_pOutputFormat->video_codec = CODEC_ID_MJPEG;
 
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
     m_pOutputFormatContext = avformat_alloc_context();
-
+#else
+    m_pOutputFormatContext = av_alloc_format_context();
+#endif
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
@@ -255,7 +259,8 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
         }
 
         if (pCodecContext->coded_frame->key_frame) {
-#if LIBAVFORMAT_VERSION_MAJOR > 51
+#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
             packet.flags |= AV_PKT_FLAG_KEY;
 #else
             packet.flags |= PKT_FLAG_KEY;
