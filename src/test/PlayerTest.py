@@ -685,11 +685,11 @@ class PlayerTestCase(AVGTestCase):
         self.compareBitmapToFile(bmp, "testSvgBmp", True)
         self.assert_(svgFile.getElementSize("rect") == avg.Point2D(21,11))
         bmp = svgFile.renderElement("pos_rect")
-        self.compareBitmapToFile(bmp, "testSvgPosBmp", False)
+        self.compareBitmapToFile(bmp, "testSvgPosBmp", True)
         bmp = svgFile.renderElement("rect", 5)
-        self.compareBitmapToFile(bmp, "testSvgScaleBmp1", False)
+        self.compareBitmapToFile(bmp, "testSvgScaleBmp1", True)
         bmp = svgFile.renderElement("rect", (20,20))
-        self.compareBitmapToFile(bmp, "testSvgScaleBmp2", False)
+        self.compareBitmapToFile(bmp, "testSvgScaleBmp2", True)
 
         # error handling
         self.assertException(lambda: avg.SVG("filedoesntexist.svg", False))
