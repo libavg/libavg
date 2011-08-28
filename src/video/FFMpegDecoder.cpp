@@ -148,7 +148,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
     m_sFilename = sFilename;
 
     AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
-#if LIBAVFORMAT_VERSION_MAJOR > 52
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
     err = avformat_open_input(&m_pFormatContext, sFilename.c_str(), 0, 0);
 #else
     AVFormatParameters params;
@@ -669,8 +669,7 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* pBuffer, int size)
 void FFMpegDecoder::resampleAudio()
 {
     if (!m_pAudioResampleContext) {
-#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 23, 0)
         m_pAudioResampleContext = av_audio_resample_init(
                 m_AP.m_Channels, m_pAStream->codec->channels, 
                 m_AP.m_SampleRate, m_EffectiveSampleRate,
@@ -709,8 +708,7 @@ int FFMpegDecoder::decodeAudio()
     int lastSampleBufferSize = m_SampleBufferLeft;
 
     // Decode some data from packet into the audio buffer
-#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
     AVPacket packet;
     av_init_packet(&packet);
     packet.data = m_AudioPacketData;
@@ -1033,8 +1031,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             FrameAge age;
             m_Opaque.setFrameAge(&age);
 #endif
-#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else
             int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
@@ -1052,8 +1049,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             delete pPacket;
         } else {
             // No more packets -> EOF. Decode the last data we got.
-#if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 31, 0)
             AVPacket packet;
             packet.data = 0;
             packet.size = 0;
@@ -1123,11 +1119,7 @@ string FFMpegDecoder::getStreamPF() const
 {
     AVCodecContext const* pCodec = getCodecContext();
     ::PixelFormat pf = pCodec->pix_fmt;
-#if LIBAVFORMAT_VERSION_MAJOR > 52 
     const char* psz = av_get_pix_fmt_name(pf);
-#else
-    const char* psz = avcodec_get_pix_fmt_name(pf);
-#endif
     string s;
     if (psz) {
         s = psz;

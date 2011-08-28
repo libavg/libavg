@@ -44,8 +44,10 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/avutil.h>
-#if LIBAVFORMAT_VERSION_MAJOR > 52
+#if LIBAVCODEC_VERSION_MAJOR > 52
 #include <libavutil/pixdesc.h>
+#else
+#define av_get_pix_fmt_name avcodec_get_pix_fmt_name
 #endif
 #if LIBAVFORMAT_VERSION_MAJOR < 53
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO

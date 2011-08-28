@@ -83,6 +83,7 @@
     <ClInclude Include="..\..\src\video\VideoDemuxerThread.h" />
     <ClInclude Include="..\..\src\video\VideoInfo.h" />
     <ClInclude Include="..\..\src\video\VideoMsg.h" />
+    <ClInclude Include="..\..\src\video\wrapffmpeg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\video\AsyncDemuxer.cpp" />
