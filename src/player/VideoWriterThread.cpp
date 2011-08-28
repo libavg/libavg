@@ -260,7 +260,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
 
         if (pCodecContext->coded_frame->key_frame) {
 #if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
             packet.flags |= AV_PKT_FLAG_KEY;
 #else
             packet.flags |= PKT_FLAG_KEY;
