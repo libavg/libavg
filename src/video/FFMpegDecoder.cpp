@@ -710,7 +710,7 @@ int FFMpegDecoder::decodeAudio()
 
     // Decode some data from packet into the audio buffer
 #if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
     AVPacket packet;
     av_init_packet(&packet);
     packet.data = m_AudioPacketData;
@@ -1034,7 +1034,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             m_Opaque.setFrameAge(&age);
 #endif
 #if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
             int len1 = avcodec_decode_video2(pContext, &frame, &bGotPicture, pPacket);
 #else
             int len1 = avcodec_decode_video(pContext, &frame, &bGotPicture, pPacket->data,
@@ -1053,7 +1053,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
         } else {
             // No more packets -> EOF. Decode the last data we got.
 #if LIBAVFORMAT_VERSION_MAJOR > 52 || \
-    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 23)
+    (LIBAVFORMAT_VERSION_MAJOR == 52 && LIBAVFORMAT_VERSION_MINOR > 31)
             AVPacket packet;
             packet.data = 0;
             packet.size = 0;
