@@ -294,10 +294,6 @@ private:
         BitmapPtr pBmp = initBmp(pf);
         pBmp->save("test.png");
         Bitmap LoadedBmp("test.png");
-        cerr << "baseline: " << endl;
-        pBmp->dump(true);
-        cerr << "Loaded: " << endl;
-        LoadedBmp.dump(true);
         ::remove("test.png");
         testEqual(LoadedBmp, *pBmp, "BmpSave");
     }
