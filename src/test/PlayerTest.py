@@ -682,7 +682,7 @@ class PlayerTestCase(AVGTestCase):
 
         # renderElement
         bmp = svgFile.renderElement("rect")
-        self.compareBitmapToFile(bmp, "testSvgBmp", False)
+        self.compareBitmapToFile(bmp, "testSvgBmp", True)
         self.assert_(svgFile.getElementSize("rect") == avg.Point2D(21,11))
         bmp = svgFile.renderElement("pos_rect")
         self.compareBitmapToFile(bmp, "testSvgPosBmp", False)
