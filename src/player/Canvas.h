@@ -48,12 +48,14 @@ class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZoneID;
 class Canvas;
+class FBO;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
 typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
+typedef boost::shared_ptr<FBO> FBOPtr;
 
 class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 {
@@ -92,7 +94,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
     protected:
         Player * getPlayer() const;
         SDLDisplayEngine* getDisplayEngine() const;
-        void render(IntPoint windowSize, bool bUpsideDown,
+        void render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
                 ProfilingZoneID& renderProfilingZone);
         void emitPreRenderSignal(); 
         void emitFrameEndSignal();

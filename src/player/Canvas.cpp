@@ -225,16 +225,18 @@ vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
 
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
 
-void Canvas::render(IntPoint windowSize, bool bUpsideDown,
+void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         ProfilingZoneID& renderProfilingZone)
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);
         m_pRootNode->preRender();
     }
-    FBOPtr pFBO = getDisplayEngine()->getMainFBO();
     if (pFBO) {
         pFBO->activate();
+    } else {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
     }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);

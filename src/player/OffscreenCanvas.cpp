@@ -237,13 +237,9 @@ void OffscreenCanvas::render()
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
     }
-    getDisplayEngine()->setMainFBO(m_pFBO);
-    m_pFBO->activate();
-    Canvas::render(IntPoint(getRootNode()->getSize()), true, 
+    Canvas::render(IntPoint(getRootNode()->getSize()), true, m_pFBO, 
             OffscreenRenderProfilingZone);
-    m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
-    getDisplayEngine()->setMainFBO(FBOPtr());
     m_bIsRendered = true;
 }
 

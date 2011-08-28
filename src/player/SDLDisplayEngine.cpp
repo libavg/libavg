@@ -1314,14 +1314,4 @@ void SDLDisplayEngine::assumePhysicalScreenDimensions(const DPoint& size)
     m_PPMM = DPoint(screenRes.x/size.x, screenRes.y/size.y);
 }
 
-void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)
-{
-    m_pFBO = pFBO;
-}
-
-FBOPtr SDLDisplayEngine::getMainFBO() const
-{
-    return m_pFBO;
-}
-
 }

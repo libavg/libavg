@@ -96,9 +96,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         DPoint getPhysicalScreenDimensions();
         void assumePhysicalScreenDimensions(const DPoint& size);
 
-        void setMainFBO(FBOPtr pFBO);
-        FBOPtr getMainFBO() const;
-
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();

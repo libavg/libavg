@@ -74,7 +74,8 @@ static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
 void MainCanvas::render()
 {
-    Canvas::render(getDisplayEngine()->getWindowSize(), false, RootRenderProfilingZone);
+    Canvas::render(getDisplayEngine()->getWindowSize(), false, FBOPtr(),
+            RootRenderProfilingZone);
 }
 
 }
