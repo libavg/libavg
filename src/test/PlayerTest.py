@@ -703,13 +703,13 @@ class PlayerTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.start((
                  lambda: svgFile.createImageNode("rect", {"pos":(10,10), "parent":root}),
-                 lambda: self.compareImage("testSvgNode", False),
+                 lambda: self.compareImage("testSvgNode", True),
                  lambda: svgFile.createImageNode("rect", {"pos":(5,5), "parent":root},
                         5),
-                 lambda: self.compareImage("testSvgScaledNode1", False),
+                 lambda: self.compareImage("testSvgScaledNode1", True),
                  lambda: svgFile.createImageNode("rect", {"pos":(1,1), "parent":root},
                         (40,40)),
-                 lambda: self.compareImage("testSvgScaledNode2", False)
+                 lambda: self.compareImage("testSvgScaledNode2", True)
                 ))
 
     def __initDefaultScene(self):
