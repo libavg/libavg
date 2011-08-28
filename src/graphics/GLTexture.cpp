@@ -49,8 +49,6 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_Size.x, m_Size.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
@@ -77,7 +75,6 @@ GLTexture::~GLTexture()
 
 void GLTexture::activate(int textureUnit)
 {
-    // TODO: This should set the complete texture state.
     glproc::ActiveTexture(textureUnit);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::activate ActiveTexture()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
@@ -86,9 +83,11 @@ void GLTexture::activate(int textureUnit)
 
 void GLTexture::generateMipmaps()
 {
-    activate();
-    glproc::GenerateMipmap(GL_TEXTURE_2D);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::generateMipmaps()");
+    if (m_bMipmap) {
+        activate();
+        glproc::GenerateMipmap(GL_TEXTURE_2D);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::generateMipmaps()");
+    }
 }
 
 void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
@@ -189,11 +188,6 @@ int GLTexture::getGLInternalFormat() const
             AVG_ASSERT(false);
             return 0;
     }
-}
-
-bool GLTexture::hasMipmaps() const
-{
-    return m_bMipmap;
 }
 
 }

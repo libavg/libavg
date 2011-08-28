@@ -40,6 +40,9 @@ namespace avg {
 
 class OGLSurface;
 
+class ImagingProjection;
+typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
+
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 
 class AVG_API RasterNode: public AreaNode

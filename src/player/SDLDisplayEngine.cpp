@@ -243,7 +243,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
     glproc::init();
 
-    SDL_WM_SetCaption("AVG Renderer", 0);
+    SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
 
     glEnable(GL_BLEND);
@@ -254,6 +254,12 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glTexEnvf()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     initTextureMode();
     if (!queryOGLExtension("GL_ARB_multisample")) {
         m_GLConfig.m_MultiSampleSamples = 1;

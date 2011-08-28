@@ -94,8 +94,6 @@ BitmapPtr PBO::moveTextureToBmp(GLTexturePtr pTex) const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage BindBuffer()");
 
     pTex->activate(GL_TEXTURE0);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
     glGetTexImage(GL_TEXTURE_2D, 0, GLTexture::getGLFormat(m_pf), 
             GLTexture::getGLType(m_pf), 0);
@@ -157,10 +155,6 @@ void PBO::movePBOToTexture(GLTexturePtr pTex)
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer()");
     pTex->activate(GL_TEXTURE0);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "PBO::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             GLTexture::getGLFormat(m_pf), GLTexture::getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::setImage: glTexSubImage2D()");

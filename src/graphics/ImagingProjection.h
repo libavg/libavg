@@ -33,15 +33,16 @@ namespace avg {
 class AVG_API ImagingProjection
 {
 public:
-    ImagingProjection();
+    ImagingProjection(IntPoint size);
+    ImagingProjection(IntPoint srcSize, IntRect destRect);
     virtual ~ImagingProjection();
 
-    void setup(IntPoint size);
-    void setup(IntPoint srcSize, IntRect destRect);
     void activate();
     void draw();
 
 private:
+    void init(IntPoint srcSize, IntRect destRect);
+
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     IntPoint m_Offset;

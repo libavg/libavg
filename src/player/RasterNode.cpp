@@ -25,6 +25,8 @@
 #include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 
+#include "../graphics/ImagingProjection.h"
+
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
@@ -109,7 +111,6 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
-    m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection);
     setupFX(true);
 }
 
@@ -425,8 +426,6 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pImagingProjection->activate();
         m_pImagingProjection->draw();
 
-        m_pFBO->deactivate();
-        m_pSurface->deactivate();
 /*
         static int i=0;
         stringstream ss;
@@ -490,7 +489,8 @@ void RasterNode::setupFX(bool bNewFX)
                     false, getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-            m_pImagingProjection->setup(m_pSurface->getSize());
+            m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
+                    m_pSurface->getSize()));
         }
     }
 }
@@ -541,7 +541,6 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     }
 
     m_pVertexes->draw();
-    m_pSurface->deactivate();
 
     glPopMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix 2");

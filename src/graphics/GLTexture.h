@@ -53,7 +53,6 @@ public:
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
-    bool hasMipmaps() const;
 
 private:
     IntPoint m_Size;

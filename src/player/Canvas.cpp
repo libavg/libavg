@@ -261,8 +261,6 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         gluOrtho2D(0, size.x, size.y, 0);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: gluOrtho2D()");
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glTexEnvf()");
     
     const DRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);

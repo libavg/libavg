@@ -98,16 +98,22 @@ VertexArrayPtr Shape::getVertexArray()
 void Shape::draw()
 {
     bool bIsTextured = isTextured();
+    SDLDisplayEngine* pEngine = m_pImage->getEngine();
     if (bIsTextured) {
         m_pSurface->activate();
+    } else {
+        if (pEngine->isUsingShaders()) {
+            glproc::UseProgramObject(0);
+        }
+        for (int i = 1; i < 5; ++i) {
+            glproc::ActiveTexture(GL_TEXTURE0 + i);
+            glDisable(GL_TEXTURE_2D);
+        }
+        glproc::ActiveTexture(GL_TEXTURE0);
     }
-    SDLDisplayEngine* pEngine = m_pImage->getEngine();
     pEngine->enableTexture(bIsTextured);
     pEngine->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
-    if (bIsTextured) {
-        m_pSurface->deactivate();
-    }
 }
 
 void Shape::discard()

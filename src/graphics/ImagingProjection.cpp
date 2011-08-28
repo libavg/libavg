@@ -25,37 +25,20 @@
 
 namespace avg {
 
-ImagingProjection::ImagingProjection()
-    : m_SrcSize(0,0),
-      m_DestRect(0,0,0,0),
-      m_pVA(new VertexArray)
+ImagingProjection::ImagingProjection(IntPoint size)
+    : m_pVA(new VertexArray)
 {
+    init(size, IntRect(IntPoint(0,0), size));
+}
+
+ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
+    : m_pVA(new VertexArray)
+{
+    init(srcSize, destRect);
 }
 
 ImagingProjection::~ImagingProjection()
 {
-}
-
-void ImagingProjection::setup(IntPoint size)
-{
-    setup(size, IntRect(IntPoint(0,0), size));
-}
-
-void ImagingProjection::setup(IntPoint srcSize, IntRect destRect)
-{
-    m_SrcSize = srcSize;
-    m_DestRect = destRect;
-    DRect dest = destRect;
-    DPoint p1 = DPoint(dest.tl.x/srcSize.x, dest.tl.y/srcSize.y);
-    DPoint p3 = DPoint(dest.br.x/srcSize.x, dest.br.y/srcSize.y);
-    DPoint p2 = DPoint(p1.x, p3.y);
-    DPoint p4 = DPoint(p3.x, p1.y);
-    m_pVA->reset();
-    m_pVA->appendPos(p1, p1);
-    m_pVA->appendPos(p2, p2);
-    m_pVA->appendPos(p3, p3);
-    m_pVA->appendPos(p4, p4);
-    m_pVA->appendQuadIndexes(1,0,2,3);
 }
 
 void ImagingProjection::activate()
@@ -81,6 +64,22 @@ void ImagingProjection::draw()
     m_pVA->draw();
 }
 
+void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
+{
+    m_SrcSize = srcSize;
+    m_DestRect = destRect;
+    DRect dest = destRect;
+    DPoint p1 = DPoint(dest.tl.x/srcSize.x, dest.tl.y/srcSize.y);
+    DPoint p3 = DPoint(dest.br.x/srcSize.x, dest.br.y/srcSize.y);
+    DPoint p2 = DPoint(p1.x, p3.y);
+    DPoint p4 = DPoint(p3.x, p1.y);
+    m_pVA->reset();
+    m_pVA->appendPos(p1, p1);
+    m_pVA->appendPos(p2, p2);
+    m_pVA->appendPos(p3, p3);
+    m_pVA->appendPos(p4, p4);
+    m_pVA->appendQuadIndexes(1,0,2,3);
+}
 
 }
 

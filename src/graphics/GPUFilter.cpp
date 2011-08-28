@@ -77,8 +77,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     }
     m_SrcSize = srcSize;
     if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(new ImagingProjection);
-        m_pProjection->setup(srcSize, destRect);
+        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
     }
 }
   
@@ -105,7 +104,6 @@ void GPUFilter::apply(GLTexturePtr pSrcTex)
     m_pFBO->activate();
     m_pProjection->activate();
     applyOnGPU(pSrcTex);
-    m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
 }
 

@@ -199,31 +199,13 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
         if (m_pEngine->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }
-    }
-}
-
-void OGLSurface::deactivate() const
-{
-    if (pixelFormatIsPlanar(m_pf)) {
-        glproc::ActiveTexture(GL_TEXTURE1);
-        glDisable(GL_TEXTURE_2D);
-        glproc::ActiveTexture(GL_TEXTURE2);
-        glDisable(GL_TEXTURE_2D);
-        if (m_pf == YCbCrA420p) {
-            glproc::ActiveTexture(GL_TEXTURE3);
+        for (int i=1; i<5; ++i) {
+            glproc::ActiveTexture(GL_TEXTURE0 + i);
             glDisable(GL_TEXTURE_2D);
         }
         glproc::ActiveTexture(GL_TEXTURE0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: fixed function");
     }
-    if (m_Material.getHasMask()) {
-        glproc::ActiveTexture(GL_TEXTURE4);
-        glDisable(GL_TEXTURE_2D);
-        glproc::ActiveTexture(GL_TEXTURE0);
-    }
-    if (useShader()) {
-        glproc::UseProgramObject(0);
-    }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
 }
 
 BitmapPtr OGLSurface::lockBmp(int i)

@@ -53,11 +53,9 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
 
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-        if (bMipmap) {
-            // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
-            // glGenerateMipmaps causes FBO creation to fail(?!).
-            pTex->generateMipmaps();
-        }
+        // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
+        // glGenerateMipmaps causes FBO creation to fail(?!).
+        pTex->generateMipmaps();
         m_pTextures.push_back(pTex);
     }
     init();
@@ -102,12 +100,6 @@ void FBO::activate() const
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::activate: BindFramebuffer()");
     checkError("activate");
-}
-
-void FBO::deactivate() const
-{
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
 PixelFormat FBO::getPF() const

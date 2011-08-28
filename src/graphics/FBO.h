@@ -43,7 +43,6 @@ public:
     virtual ~FBO();
 
     void activate() const;
-    void deactivate() const;
     PixelFormat getPF() const;
     unsigned getNumTextures() const;
 

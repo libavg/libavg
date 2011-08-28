@@ -100,20 +100,15 @@ void PBOTexture::download() const
     ScopeTimer Timer(TexSubImageProfilingZone);
     if (m_MemoryMode == MM_PBO) {
         m_pWritePBO->movePBOToTexture(m_pTex);
-        if (m_pTex->hasMipmaps()) {
-            m_pTex->generateMipmaps();
-        }
     } else {
         m_pTex->activate();
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: GL_UNPACK_ALIGNMENT");
         unsigned char * pStartPos = m_pBmp->getPixels();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ActiveSize.x, m_ActiveSize.y,
                 m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), 
                 pStartPos);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
     }
+    m_pTex->generateMipmaps();
 }
 
 void PBOTexture::setTex(GLTexturePtr pTex)

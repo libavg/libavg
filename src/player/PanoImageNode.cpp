@@ -352,6 +352,7 @@ void PanoImageNode::setupTextures()
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImageNode::setupTextures: glTexSubImage2D()");
    }
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
 void PanoImageNode::clearTextures()
