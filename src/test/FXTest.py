@@ -191,7 +191,7 @@ class FXTestCase(AVGTestCase):
 
         def redAlphaScene():
             self.redRect = avg.RectNode(parent=self.root, pos=(5, 5), fillcolor='FF0000',
-                    fillopacity=1, size=(72, 72))
+                    fillopacity=1, opacity=0, size=(72, 72))
             self.node = avg.ImageNode(parent=self.root, pos=(10,10),
                     href="../graphics/testfiles/rgb24alpha-64x64.png")
             resetFX()
