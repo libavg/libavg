@@ -106,7 +106,7 @@ void VideoWriterThread::open()
 #endif
     m_pOutputFormat->video_codec = CODEC_ID_MJPEG;
 
-#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(52, 23, 0)
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
     m_pOutputFormatContext = avformat_alloc_context();
 #else
     m_pOutputFormatContext = av_alloc_format_context();

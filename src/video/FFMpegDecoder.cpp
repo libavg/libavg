@@ -669,7 +669,7 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* pBuffer, int size)
 void FFMpegDecoder::resampleAudio()
 {
     if (!m_pAudioResampleContext) {
-#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(52, 23, 0)
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 24, 0)
         m_pAudioResampleContext = av_audio_resample_init(
                 m_AP.m_Channels, m_pAStream->codec->channels, 
                 m_AP.m_SampleRate, m_EffectiveSampleRate,
