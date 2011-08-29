@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
+from libavg import avg, statemachine
 
 from helper import *
 
@@ -122,14 +122,23 @@ class DragRecognizer(Recognizer):
         self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
         self.__friction = friction
 
+        self.__stateMachine = statemachine.StateMachine("DragRecognizer", "IDLE")
+        self.__stateMachine.addState("IDLE", {"DRAG": None})
+        if friction == -1:
+            self.__stateMachine.addState("DRAG", {"IDLE": None})
+        else:
+            self.__stateMachine.addState("DRAG", {"SLIDE": None})
+            self.__stateMachine.addState("SLIDE", {"IDLE": None, "DRAG": None})
+
         self.__inertiaHandler = None
         Recognizer.__init__(self, eventNode, eventSource, 1, initialEvent)
 
     def abortInertia(self):
-        if self.__inertiaHandler:
+        if self.__stateMachine.state == "SLIDE":
             self.__inertiaHandler.abort()
 
     def _handleDown(self, event):
+        self.__stateMachine.changeState("DRAG")
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
         pos = self.__relEventPos(event)
@@ -152,9 +161,11 @@ class DragRecognizer(Recognizer):
         self.__offset = pos - self.__dragStartPos
         self.__upHandler(event, self.__offset)
         if self.__friction != -1:
+            self.__stateMachine.changeState("SLIDE")
             self.__inertiaHandler.onDrag(pos)
             self.__inertiaHandler.onUp()
         else:
+            self.__stateMachine.changeState("IDLE")
             self.__stopHandler()
 
     def __onInertiaMove(self, trans, pivot, ang, size):
@@ -163,6 +174,7 @@ class DragRecognizer(Recognizer):
             self.__moveHandler(None, self.__offset)
    
     def __onInertiaStop(self):
+        self.__stateMachine.changeState("IDLE")
         self.__stop()
 
     def __stop(self):
