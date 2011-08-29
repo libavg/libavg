@@ -109,9 +109,13 @@ class Recognizer(object):
 
 class DragRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
-            moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
-            friction=-1):
+    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
+            startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
+            initialEvent=None, friction=-1):
+        if coordSysNode != None:
+            self.__coordSysNode = coordSysNode
+        else:
+            self.__coordSysNode = eventNode
         self.__startHandler = optionalCallback(startHandler, lambda event:None)
         self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
@@ -119,7 +123,7 @@ class DragRecognizer(Recognizer):
         self.__friction = friction
 
         self.__inertiaHandler = None
-        Recognizer.__init__(self, node, eventSource, 1, initialEvent)
+        Recognizer.__init__(self, eventNode, eventSource, 1, initialEvent)
 
     def abortInertia(self):
         if self.__inertiaHandler:
@@ -166,7 +170,7 @@ class DragRecognizer(Recognizer):
         self.__inertiaHandler = None
 
     def __relEventPos(self, event):
-        return self._node.getParent().getRelPos(event.pos)
+        return self.__coordSysNode.getParent().getRelPos(event.pos)
 
 
 class HoldRecognizer(Recognizer):
