@@ -423,9 +423,13 @@ def calcKMeans(pts):
 
 class TransformRecognizer(Recognizer):
 
-    def __init__(self, node, eventSource=avg.TOUCH, startHandler=None,
-            moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None,
-            friction=-1, ignoreScale=False, ignoreRotation=False):
+    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH, 
+            startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
+            initialEvent=None, friction=-1, ignoreScale=False, ignoreRotation=False):
+        if coordSysNode != None:
+            self.__coordSysNode = coordSysNode
+        else:
+            self.__coordSysNode = eventNode
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
@@ -439,7 +443,7 @@ class TransformRecognizer(Recognizer):
         self.__startPosns = []
         self.__posns = []
         self.__inertiaHandler = None
-        Recognizer.__init__(self, node, eventSource, None, initialEvent)
+        Recognizer.__init__(self, eventNode, eventSource, None, initialEvent)
 
     def _handleDown(self, event):
         numContacts = len(self._contacts)
@@ -567,7 +571,7 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
 
     def __relContactPos(self, contact):
-        return self._node.getParent().getRelPos(contact.events[-1].pos)
+        return self.__coordSysNode.getParent().getRelPos(contact.events[-1].pos)
 
 
 class InertiaHandler():

@@ -47,7 +47,7 @@ class TransformNode(TextRect):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
 
         self.transformer = ui.TransformRecognizer(
-                node=self, 
+                eventNode=self, 
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
                 upHandler=self.__onUp,
@@ -69,6 +69,34 @@ class TransformNode(TextRect):
         pass
 
 
+class TransformChildNode(avg.DivNode):
+    def __init__(self, text, **kwargs):
+        avg.DivNode.__init__(self, **kwargs)
+        self.textRect = TextRect(text, "FFFFFF", "000000", parent=self)
+        self.size = self.textRect.size
+
+        self.inputNode = avg.RectNode(size=(self.size.x, self.size.y/2), 
+                fillopacity=0.5, fillcolor="808080", strokewidth=0, parent=self)
+        self.transformer = ui.TransformRecognizer(
+                eventNode=self.inputNode,
+                coordSysNode=self,
+                startHandler=self.__onStart,
+                moveHandler=self.__onMove,
+                friction=0.05
+                )
+   
+    def __onStart(self):
+        self.baseTransform = ui.Mat3x3.fromNode(self)
+        moveNodeToTop(self)
+
+    def __onMove(self, transform):
+        totalTransform = transform.applyMat(self.baseTransform)
+        totalTransform.setNodeTransform(self)
+        moveNodeOnScreen(self)
+        self.textRect.size = self.size
+        self.inputNode.size = (self.size.x, self.size.y/2)
+
+
 class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
@@ -77,7 +105,7 @@ class DragNode(TextRect):
                 eventNode=self,
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
-                upHandler=self.__onUp,
+                upHandler=self.__onMove,
                 stopHandler=self.__onStop,
                 friction=friction
                 )
@@ -87,10 +115,6 @@ class DragNode(TextRect):
         moveNodeToTop(self)
 
     def __onMove(self, event, offset):
-        self.pos = self.__dragStartPos + offset
-        moveNodeOnScreen(self)
-
-    def __onUp(self, event, offset):
         self.pos = self.__dragStartPos + offset
         moveNodeOnScreen(self)
 
@@ -125,6 +149,10 @@ class GestureDemoApp(libavg.AVGApp):
                 ignoreScale=False,
                 pos=(20,170),
                 friction=0.02,
+                parent=self._parentNode)
+
+        TransformChildNode(text="TransformRecognizer<br/>child dragger",
+                pos=(20,220),
                 parent=self._parentNode)
 
         DragNode(text="DragRecognizer",
