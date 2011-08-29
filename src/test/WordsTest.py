@@ -584,6 +584,13 @@ class WordsTestCase(AVGTestCase):
 
         self.start([lambda: changeSize()])
         
+    def testTooWide(self):
+        root = self.loadEmptyScene()
+        text = "42 " * 42 * 20 
+        node = avg.WordsNode(parent=root, text=text)
+        self.assertException(
+                lambda: self.start((None, None))
+        )
 
 def wordsTestSuite(tests):
     availableTests = (
@@ -609,6 +616,7 @@ def wordsTestSuite(tests):
             "testGetCharIndexFromPos",
             "testGetTextAsDisplayed",
             "testSetWidth",
+            "testTooWide",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
 

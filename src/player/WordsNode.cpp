@@ -625,8 +625,7 @@ void WordsNode::updateLayout()
             PangoRectangle logical_rect;
             PangoRectangle ink_rect;
             pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
-            AVG_ASSERT (logical_rect.width < 4096);
-            AVG_ASSERT (logical_rect.height < 4096);
+            
     /*        
             cerr << getID() << endl;
             cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
@@ -664,6 +663,12 @@ static ProfilingZoneID RenderTextProfilingZone("WordsNode: render text");
 void WordsNode::renderText()
 {
     AVG_ASSERT(m_RedrawState == RENDER_NEEDED || m_RedrawState == CLEAN);
+    int maxTexSize; 
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
+    if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "WordsNode size exceeded maximum (Size=" 
+                + toString(m_InkSize) + ", max=" + toString(maxTexSize) + ")");
+    }
 
     if (!(getState() == NS_CANRENDER)) {
         return;
