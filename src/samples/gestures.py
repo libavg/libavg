@@ -10,9 +10,21 @@ def moveNodeToTop(node):
     parent = node.getParent()
     parent.reorderChild(node, parent.getNumChildren()-1)
 
+def moveNodeOnScreen(node):
+    center = node.pos + node.size/2
+    if center.x < 0:
+        node.pos = (-node.size.x/2, node.pos.y)
+    if center.x > RESOLUTION.x:
+        node.pos = (RESOLUTION.x-node.size.x/2, node.pos.y)
+    if center.y < 0:
+        node.pos = (node.pos.x, -node.size.y/2)
+    if center.y > RESOLUTION.y:
+        node.pos = (node.pos.x, RESOLUTION.y-node.size.y/2)
+
+
 class TextRect(avg.DivNode):
     def __init__(self, text, color, bgcolor, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+        avg.DivNode.__init__(self, size=(150,40), **kwargs)
         self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor=bgcolor, 
                 color=color, parent=self)
         self.words = avg.WordsNode(color=color, text=text, alignment="center", 
@@ -51,21 +63,10 @@ class TransformNode(TextRect):
     def __onMove(self, transform):
         totalTransform = transform.applyMat(self.baseTransform)
         totalTransform.setNodeTransform(self)
-        self.__moveOnScreen()
+        moveNodeOnScreen(self)
 
     def __onUp(self, transform):
         pass
-
-    def __moveOnScreen(self):
-        center = self.pos + self.size/2
-        if center.x < 0:
-            self.pos -= (center.x, 0)
-        if center.x > RESOLUTION.x:
-            self.pos += (RESOLUTION.x-center.x, 0)
-        if center.y < 0:
-            self.pos -= (0, center.y)
-        if center.y > RESOLUTION.y:
-            self.pos += (0, RESOLUTION.y-center.y)
 
 
 class DragNode(TextRect):
@@ -73,7 +74,7 @@ class DragNode(TextRect):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
     
         self.dragger = ui.DragRecognizer(
-                node=self,
+                eventNode=self,
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
                 upHandler=self.__onUp,
@@ -86,24 +87,15 @@ class DragNode(TextRect):
         moveNodeToTop(self)
 
     def __onMove(self, event, offset):
-        self.__safeMove(offset)
+        self.pos = self.__dragStartPos + offset
+        moveNodeOnScreen(self)
 
     def __onUp(self, event, offset):
-        self.__safeMove(offset)
+        self.pos = self.__dragStartPos + offset
+        moveNodeOnScreen(self)
 
     def __onStop(self):
         pass
-
-    def __safeMove(self, offset):
-        self.pos = self.__dragStartPos + offset
-        if self.pos.x < 0:
-            self.pos = (0, self.pos.y)
-        elif self.pos.x + self.size.x > RESOLUTION.x:
-            self.pos = (RESOLUTION.x - self.size.x, self.pos.y)
-        if self.pos.y < 0:
-            self.pos = (self.pos.x, 0)
-        elif self.pos.y + self.size.y > RESOLUTION.y:
-            self.pos = (self.pos.x, RESOLUTION.y - self.size.y)
 
 
 class GestureDemoApp(libavg.AVGApp):
@@ -114,39 +106,33 @@ class GestureDemoApp(libavg.AVGApp):
                 ignoreRotation=False,
                 ignoreScale=False,
                 pos=(20,20),
-                size=(160,50), 
                 parent=self._parentNode)
 
         TransformNode(text="TransformRecognizer<br/>ignoreRotation",
                 ignoreRotation=True,
                 ignoreScale=False,
-                pos=(20,90),
-                size=(160,50), 
+                pos=(20,70),
                 parent=self._parentNode)
 
         TransformNode(text="TransformRecognizer<br/>ignoreScale",
                 ignoreRotation=False,
                 ignoreScale=True,
-                pos=(20,160),
-                size=(160,50), 
+                pos=(20,120),
                 parent=self._parentNode)
 
         TransformNode(text="TransformRecognizer<br/>friction",
                 ignoreRotation=False,
                 ignoreScale=False,
-                pos=(20,230),
-                size=(160,50),
+                pos=(20,170),
                 friction=0.02,
                 parent=self._parentNode)
 
         DragNode(text="DragRecognizer",
-                pos=(300,20),
-                size=(160,50),
+                pos=(200,20),
                 parent=self._parentNode)
 
         DragNode(text="DragRecognizer<br/>friction",
-                pos=(300,90),
-                size=(160,50),
+                pos=(200,70),
                 friction=0.05,
                 parent=self._parentNode)
 
