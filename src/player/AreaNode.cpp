@@ -252,6 +252,9 @@ void AreaNode::setViewport(double x, double y, double width, double height)
             height = m_UserSize.y;
         } 
     }
+    if (width < 0 || height < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
+    }
     m_RelViewport = DRect (x, y, x+width, y+height);
 }
 
