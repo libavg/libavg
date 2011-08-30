@@ -519,9 +519,15 @@ IntPoint SDLDisplayEngine::getSize()
 
 void SDLDisplayEngine::checkShaderSupport()
 {
+    int glMajorVer;
+    int glMinorVer;
+    getGLShadingLanguageVersion(glMajorVer, glMinorVer);
+    bool bShaderVersionOK = (glMajorVer >= 2 || glMinorVer >= 10);
     m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
             getMemoryModeSupported() == MM_PBO &&
-            !m_GLConfig.m_bUsePOTTextures && m_GLConfig.m_bUseShaders);
+            !m_GLConfig.m_bUsePOTTextures &&
+            m_GLConfig.m_bUseShaders &&
+            bShaderVersionOK);
     if (m_GLConfig.m_bUseShaders) {
         OGLSurface::createShader();
     }

@@ -142,6 +142,9 @@ void RasterNode::checkReload()
                 setMaskCoords();
             }
         } catch (Exception & ex) {
+            if (ex.getCode() == AVG_ERR_VIDEO_GENERAL) {
+                throw;
+            }
             m_sMaskFilename = "";
             if (getState() != VisibleNode::NS_UNCONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.getStr());
