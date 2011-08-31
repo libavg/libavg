@@ -28,16 +28,25 @@
 #include <cstring>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
+
+thread_specific_ptr<vector<unsigned int> > PBO::s_pGLPBOIDs;
 
 PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     : m_Size(size),
       m_pf(pf),
       m_Usage(usage)
 {
-    glproc::GenBuffers(1, &m_PBOID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: GenBuffers()");
+    initBufferCache();
+    if (s_pGLPBOIDs->empty()) {
+        glproc::GenBuffers(1, &m_PBOID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: GenBuffers()");
+    } else {
+        m_PBOID = s_pGLPBOIDs->back();
+        s_pGLPBOIDs->pop_back();
+    }
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: BindBuffer()");
@@ -49,7 +58,13 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
 
 PBO::~PBO()
 {
-    glproc::DeleteBuffers(1, &m_PBOID);
+    glproc::BindBuffer(getTarget(), m_PBOID);
+    glproc::BufferData(getTarget(), 0, 0, m_Usage);
+
+    if (s_pGLPBOIDs.get() != 0) {
+        s_pGLPBOIDs->push_back(m_PBOID);
+    }
+    glproc::BindBuffer(getTarget(), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: DeleteBuffers()");
 }
 
@@ -194,6 +209,24 @@ unsigned PBO::getTarget() const
         return GL_PIXEL_PACK_BUFFER_EXT;
     } else {
         return GL_PIXEL_UNPACK_BUFFER_EXT;
+    }
+}
+
+void PBO::initBufferCache()
+{
+    if (s_pGLPBOIDs.get() == 0) {
+        s_pGLPBOIDs.reset(new vector<unsigned int>);
+    }
+}
+
+void PBO::deleteBufferCache()
+{
+    if (s_pGLPBOIDs.get() != 0) {
+        for (unsigned i=0; i<s_pGLPBOIDs->size(); ++i) {
+            glproc::DeleteBuffers(1, &((*s_pGLPBOIDs)[i]));
+        }
+        s_pGLPBOIDs->clear();
+        s_pGLPBOIDs.reset();
     }
 }
 

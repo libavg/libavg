@@ -58,11 +58,11 @@ public:
     int getCurIndex() const;
     void dump() const;
 
-    void initBufferCache();
     static void deleteBufferCache();
 
 private:
     void grow();
+    void initBufferCache();
 
     int m_NumVerts;
     int m_NumIndexes;

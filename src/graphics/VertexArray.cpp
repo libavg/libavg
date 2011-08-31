@@ -55,9 +55,7 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     m_pIndexData = new unsigned int[m_ReserveIndexes];
 
     initBufferCache();
-    if (s_pGLVertexBufferIDs->empty() || m_ReserveVerts != 10 || 
-            m_ReserveIndexes != 20)
-    {
+    if (s_pGLVertexBufferIDs->empty() || m_ReserveVerts != 10 || m_ReserveIndexes != 20) {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
     } else {

@@ -30,6 +30,7 @@
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/tss.hpp>
 
 namespace avg {
 
@@ -52,13 +53,20 @@ public:
     const IntPoint& getSize() const;
     bool isReadPBO() const;
 
+    static void deleteBufferCache();
+
 private:
     unsigned getTarget() const;
+    void initBufferCache();
 
     IntPoint m_Size;
     PixelFormat m_pf;
     unsigned m_Usage;
     unsigned m_PBOID;
+    
+    // TODO: This assumes one GL context per thread.
+    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLPBOIDs;
+
 };
 
 typedef boost::shared_ptr<PBO> PBOPtr;
