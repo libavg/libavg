@@ -16,7 +16,7 @@ ALL_H = Bitmap.h Filter.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h BitmapManager.h BitmapManagerThread.h \
-        BitmapManagerMsg.h
+        BitmapManagerMsg.h GLBufferCache.h
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
@@ -31,7 +31,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
         ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp \
-        BitmapManagerMsg.cpp
+        BitmapManagerMsg.cpp GLBufferCache.cpp
 
 if APPLE
     X_LIBS =

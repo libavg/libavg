@@ -34,8 +34,8 @@ using namespace boost;
 
 namespace avg {
     
-thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLVertexBufferIDs;
-thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLIndexBufferIDs;
+GLBufferCache VertexArray::s_VertexBufferCache;
+GLBufferCache VertexArray::s_IndexBufferCache;
 
 VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : m_NumVerts(0),
@@ -54,27 +54,24 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned int[m_ReserveIndexes];
 
-    initBufferCache();
-    if (s_pGLVertexBufferIDs->empty() || m_ReserveVerts != 10 || m_ReserveIndexes != 20) {
+    if (m_ReserveVerts != 10 || m_ReserveIndexes != 20) {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
     } else {
-        m_GLVertexBufferID = s_pGLVertexBufferIDs->back();
-        s_pGLVertexBufferIDs->pop_back();
-        m_GLIndexBufferID = s_pGLIndexBufferIDs->back();
-        s_pGLIndexBufferIDs->pop_back();
+        m_GLVertexBufferID = s_VertexBufferCache.getBuffer();
+        m_GLIndexBufferID = s_IndexBufferCache.getBuffer();
     }
 }
 
 VertexArray::~VertexArray()
 {
-    if (m_ReserveVerts == 10 && s_pGLVertexBufferIDs.get() != 0) {
-        s_pGLVertexBufferIDs->push_back(m_GLVertexBufferID);
+    if (m_ReserveVerts == 10) {
+        s_VertexBufferCache.returnBuffer(m_GLVertexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLVertexBufferID);
     }
-    if (m_ReserveIndexes == 20 && s_pGLIndexBufferIDs.get() != 0) {
-        s_pGLIndexBufferIDs->push_back(m_GLIndexBufferID);
+    if (m_ReserveIndexes == 20) {
+        s_IndexBufferCache.returnBuffer(m_GLIndexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLIndexBufferID);
     }
@@ -223,32 +220,10 @@ void VertexArray::grow()
     }
 }
 
-void VertexArray::initBufferCache()
-{
-    if (s_pGLVertexBufferIDs.get() == 0) {
-        s_pGLVertexBufferIDs.reset(new vector<unsigned int>);
-    }
-    if (s_pGLIndexBufferIDs.get() == 0) {
-        s_pGLIndexBufferIDs.reset(new vector<unsigned int>);
-    }
-}
-
 void VertexArray::deleteBufferCache()
 {
-    if (s_pGLVertexBufferIDs.get() != 0) {
-        for (unsigned i=0; i<s_pGLVertexBufferIDs->size(); ++i) {
-            glproc::DeleteBuffers(1, &((*s_pGLVertexBufferIDs)[i]));
-        }
-        s_pGLVertexBufferIDs->clear();
-        s_pGLVertexBufferIDs.reset();
-    }
-    if (s_pGLIndexBufferIDs.get() != 0) {
-        for (unsigned i=0; i<s_pGLIndexBufferIDs->size(); ++i) {
-            glproc::DeleteBuffers(1, &((*s_pGLIndexBufferIDs)[i]));
-        }
-        s_pGLIndexBufferIDs->clear();
-        s_pGLIndexBufferIDs.reset();
-    }
+    s_VertexBufferCache.deleteBuffers();
+    s_IndexBufferCache.deleteBuffers();
 }
 
 }

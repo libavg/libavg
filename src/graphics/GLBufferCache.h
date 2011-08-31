@@ -19,57 +19,36 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PBO_H_
-#define _PBO_H_
+#ifndef _GLBufferCache_H_
+#define _GLBufferCache_H_
 
 #include "../api.h"
-#include "Bitmap.h"
-#include "OGLHelper.h"
-#include "GLTexture.h"
-#include "GLBufferCache.h"
 
-#include "../base/Point.h"
+#include "../graphics/OGLHelper.h"
+
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/tss.hpp>
 
 namespace avg {
 
-class AVG_API PBO {
+class AVG_API GLBufferCache {
 public:
-    PBO(const IntPoint& size, PixelFormat pf, unsigned usage);
-    virtual ~PBO();
+    GLBufferCache();
+    virtual ~GLBufferCache();
 
-    void activate();
-    void deactivate();
+    unsigned int getBuffer();
+    void returnBuffer(unsigned int);
 
-    void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
-
-    BitmapPtr lock();
-    void unlock();
-    void movePBOToTexture(GLTexturePtr pTex);
-
-    PixelFormat getPF() const;
-    const IntPoint& getSize() const;
-    bool isReadPBO() const;
-
-    static void deleteBufferCache();
+    void deleteBuffers();
 
 private:
-    unsigned getTarget() const;
-
-    IntPoint m_Size;
-    PixelFormat m_pf;
-    unsigned m_Usage;
-    unsigned m_PBOID;
-    
-    static GLBufferCache s_BufferCache;
+    // TODO: This assumes one GL context per thread.
+    boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLBufferIDs;
 };
-
-typedef boost::shared_ptr<PBO> PBOPtr;
 
 }
 
 #endif
- 
 

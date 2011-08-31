@@ -20,6 +20,7 @@
 //
 
 #include "PBO.h"
+#include "GLBufferCache.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -31,22 +32,16 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-
-thread_specific_ptr<vector<unsigned int> > PBO::s_pGLPBOIDs;
+    
+GLBufferCache PBO::s_BufferCache;
 
 PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     : m_Size(size),
       m_pf(pf),
       m_Usage(usage)
 {
-    initBufferCache();
-    if (s_pGLPBOIDs->empty()) {
-        glproc::GenBuffers(1, &m_PBOID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: GenBuffers()");
-    } else {
-        m_PBOID = s_pGLPBOIDs->back();
-        s_pGLPBOIDs->pop_back();
-    }
+    m_PBOID = s_BufferCache.getBuffer();
+    
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: BindBuffer()");
@@ -60,10 +55,7 @@ PBO::~PBO()
 {
     glproc::BindBuffer(getTarget(), m_PBOID);
     glproc::BufferData(getTarget(), 0, 0, m_Usage);
-
-    if (s_pGLPBOIDs.get() != 0) {
-        s_pGLPBOIDs->push_back(m_PBOID);
-    }
+    s_BufferCache.returnBuffer(m_PBOID);
     glproc::BindBuffer(getTarget(), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: DeleteBuffers()");
 }
@@ -212,22 +204,9 @@ unsigned PBO::getTarget() const
     }
 }
 
-void PBO::initBufferCache()
-{
-    if (s_pGLPBOIDs.get() == 0) {
-        s_pGLPBOIDs.reset(new vector<unsigned int>);
-    }
-}
-
 void PBO::deleteBufferCache()
 {
-    if (s_pGLPBOIDs.get() != 0) {
-        for (unsigned i=0; i<s_pGLPBOIDs->size(); ++i) {
-            glproc::DeleteBuffers(1, &((*s_pGLPBOIDs)[i]));
-        }
-        s_pGLPBOIDs->clear();
-        s_pGLPBOIDs.reset();
-    }
+    s_BufferCache.deleteBuffers();
 }
 
 }

@@ -23,12 +23,14 @@
 #define _VertexArray_H_
 
 #include "../api.h"
+
+#include "Pixel32.h"
+#include "OGLHelper.h"
+#include "GLBufferCache.h"
+
 #include "../base/Point.h"
-#include "../graphics/Pixel32.h"
-#include "../graphics/OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/tss.hpp>
 
 namespace avg {
 
@@ -62,7 +64,6 @@ public:
 
 private:
     void grow();
-    void initBufferCache();
 
     int m_NumVerts;
     int m_NumIndexes;
@@ -76,9 +77,8 @@ private:
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
 
-    // TODO: This assumes one GL context per thread.
-    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLVertexBufferIDs;
-    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLIndexBufferIDs;
+    static GLBufferCache s_VertexBufferCache;
+    static GLBufferCache s_IndexBufferCache;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
