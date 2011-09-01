@@ -663,7 +663,6 @@ static ProfilingZoneID RenderTextProfilingZone("WordsNode: render text");
 void WordsNode::renderText()
 {
     AVG_ASSERT(m_RedrawState == RENDER_NEEDED || m_RedrawState == CLEAN);
-    int maxTexSize; 
 
     if (!(getState() == NS_CANRENDER)) {
         return;
@@ -671,7 +670,7 @@ void WordsNode::renderText()
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
-            glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
+            int maxTexSize = getDisplayEngine()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "WordsNode size exceeded maximum (Size=" 
