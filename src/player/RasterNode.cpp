@@ -125,6 +125,11 @@ void RasterNode::disconnect(bool bKill)
     }
     m_pFBO = FBOPtr();
     m_pImagingProjection = ImagingProjectionPtr();
+    if (bKill) {
+        m_pFXNode = FXNodePtr();
+    } else {
+        m_pFXNode->disconnect();
+    }
     AreaNode::disconnect(bKill);
 }
 
