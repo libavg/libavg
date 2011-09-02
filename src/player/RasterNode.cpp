@@ -128,7 +128,9 @@ void RasterNode::disconnect(bool bKill)
     if (bKill) {
         m_pFXNode = FXNodePtr();
     } else {
-        m_pFXNode->disconnect();
+        if (m_pFXNode) {
+            m_pFXNode->disconnect();
+        }
     }
     AreaNode::disconnect(bKill);
 }
