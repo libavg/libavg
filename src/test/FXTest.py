@@ -20,7 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg
+from libavg import avg, utils
 from testcase import *
 
 class FXTestCase(AVGTestCase):
@@ -77,6 +77,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testImageNullFX3", False),
                  newFX,
                  lambda: self.compareImage("testImageNullFX3", False),
+                 lambda: utils.initFXCache(10),
                 ))
 
     def testVideoNullFX(self):

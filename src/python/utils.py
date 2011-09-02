@@ -48,3 +48,15 @@ def createImagePreviewNode(maxSize, absHref):
     node.size = mathutil.getScaledDim(node.size, max = maxSize)
     return node
 
+def initFXCache(numFXNodes):
+    nodes = []
+    mediadir = os.path.join(os.path.dirname(__file__), 'data')
+    for i in range(numFXNodes):
+        node = avg.ImageNode(href=mediadir+"/black.png", 
+                parent=g_Player.getRootNode())
+        node.setEffect(avg.NullFXNode())
+        nodes.append(node)
+    for node in nodes:
+        node.unlink(True)
+
+
