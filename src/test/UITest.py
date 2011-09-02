@@ -973,25 +973,34 @@ class UITestCase(AVGTestCase):
             self.transform = transform
 
         def checkTransform(expectedTransform):
-#            print self.transform, expectedTransform
-            self.assert_(almostEqual(self.transform.m, expectedTransform.m))
+#            print self.transform
+#            print expectedTransform
+#            print
+            self.assert_(almostEqual(self.transform.trans, expectedTransform.trans))
+            self.assert_(almostEqual(self.transform.rot, expectedTransform.rot))
+            self.assert_(almostEqual(self.transform.scale, expectedTransform.scale))
+            if expectedTransform.rot != 0 or expectedTransform.scale != 1:
+                self.assert_(almostEqual(self.transform.pivot, expectedTransform.pivot))
 
         def createTransTestFrames():
             return (
                     lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
                     lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
-                    lambda: checkTransform(ui.Mat3x3.translate([10,0])),
+                    lambda: checkTransform(ui.Transform((10,0))),
                 )
 
         def createRotTestFrames(expectedTransform):
             return (
-                    lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-                    lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-                    lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 20),
-                    lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 10),
+                    lambda: self.__sendTouchEvents((
+                            (1, avg.CURSORDOWN, 0, 10),
+                            (2, avg.CURSORDOWN, 0, 20))),
+                    lambda: self.__sendTouchEvents((
+                            (1, avg.CURSORMOTION, 0, 20),
+                            (2, avg.CURSORMOTION, 0, 10))),
                     lambda: checkTransform(expectedTransform),
-                    lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 20),
-                    lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 10),
+                    lambda: self.__sendTouchEvents((
+                            (1, avg.CURSORUP, 0, 20),
+                            (2, avg.CURSORUP, 0, 10))),
                 )
 
         def createScaleTestFrames(expectedTransform):
@@ -1012,57 +1021,26 @@ class UITestCase(AVGTestCase):
         self.start((
                  # Check up/down handling
                  lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
-                 lambda: checkTransform(ui.Mat3x3()),
+                 lambda: checkTransform(ui.Transform((0,0))),
                  lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
-                 lambda: checkTransform(ui.Mat3x3.translate([10,0])),
+                 lambda: checkTransform(ui.Transform((10,0))),
                  lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 20),
-                 lambda: checkTransform(ui.Mat3x3.translate([10,0])),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 30, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 30, 20),
-                 lambda: checkTransform(ui.Mat3x3.translate([20,0])),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: self.__sendTouchEvents((
+                        (1, avg.CURSORMOTION, 30, 10),
+                        (2, avg.CURSORMOTION, 30, 20))),
+                 lambda: checkTransform(ui.Transform((10,0))),
                  lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 20),
-                 lambda: checkTransform(ui.Mat3x3.translate([20,0])),
+                 lambda: checkTransform(ui.Transform((0,0))),
                  lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 40, 10),
-                 lambda: checkTransform(ui.Mat3x3.translate([30,0])),
+                 lambda: checkTransform(ui.Transform((10,0))),
                  lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
-                 lambda: checkTransform(ui.Mat3x3.translate([40,0])),
+                 lambda: checkTransform(ui.Transform((10,0))),
 
-                 createRotTestFrames(
-                        ui.Mat3x3.translate((0,30)).applyMat(
-                        ui.Mat3x3.rotate(math.pi))),
+                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
 
-                 createScaleTestFrames(
-                        ui.Mat3x3.translate((0,-10)).applyMat(
-                        ui.Mat3x3.scale((2,2)))),
+                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20)))
                 ))
-
-        # Recognizer with ignoreScale
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, 
-                startHandler=onStart, moveHandler=onMove, upHandler=onUp,
-                ignoreScale=True)
-        self.start((
-            createTransTestFrames(),
-            createRotTestFrames(
-                    ui.Mat3x3.translate((0,30)).applyMat(
-                    ui.Mat3x3.rotate(math.pi))),
-            createScaleTestFrames(ui.Mat3x3.translate((0,5))),
-            ))
-
-        # Recognizer with ignoreRotation
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, 
-                startHandler=onStart, moveHandler=onMove, upHandler=onUp,
-                ignoreRotation=True)
-        self.start((
-            createTransTestFrames(),
-            createRotTestFrames(ui.Mat3x3()),
-            createScaleTestFrames(
-                    ui.Mat3x3.translate((0,-10)).applyMat(
-                    ui.Mat3x3.scale((2,2)))),
-            ))
 
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
@@ -1071,12 +1049,8 @@ class UITestCase(AVGTestCase):
                 startHandler=onStart, moveHandler=onMove, upHandler=onUp)
         self.start((
             createTransTestFrames(),
-            createRotTestFrames(
-                    ui.Mat3x3.translate((0,10)).applyMat(
-                    ui.Mat3x3.rotate(math.pi))),
-            createScaleTestFrames(
-                    ui.Mat3x3.translate((0,0)).applyMat(
-                    ui.Mat3x3.scale((2,2)))),
+            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
+            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
             ))
 
 
@@ -1185,17 +1159,22 @@ class UITestCase(AVGTestCase):
                ))
 
     def __sendMouseEvent(self, type, x, y):
-        Helper = Player.getTestHelper()
+        helper = Player.getTestHelper()
         if type == avg.CURSORUP:
             button = False
         else:
             button = True
-        Helper.fakeMouseEvent(type, button, False, False, x, y, 1)
+        helper.fakeMouseEvent(type, button, False, False, x, y, 1)
 
     def __sendTouchEvent(self, id, type, x, y):
-        Helper = Player.getTestHelper()
-        Helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
-       
+        helper = Player.getTestHelper()
+        helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+      
+    def __sendTouchEvents(self, eventData):
+        helper = Player.getTestHelper()
+        for (id, type, x, y) in eventData:
+            helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+
 
 def uiTestSuite(tests):
     availableTests = (

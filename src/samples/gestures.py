@@ -45,24 +45,26 @@ class TextRect(avg.DivNode):
 class TransformNode(TextRect):
     def __init__(self, text, ignoreScale, ignoreRotation, friction=-1, **kwargs):
         TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
+        self.__ignoreScale = ignoreScale
+        self.__ignoreRotation = ignoreRotation
 
         self.transformer = ui.TransformRecognizer(
                 eventNode=self, 
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
                 upHandler=self.__onUp,
-                ignoreScale=ignoreScale,
-                ignoreRotation=ignoreRotation,
                 friction=friction
                 )
 
     def __onStart(self):
-        self.baseTransform = ui.Mat3x3.fromNode(self)
         moveNodeToTop(self)
 
     def __onMove(self, transform):
-        totalTransform = transform.applyMat(self.baseTransform)
-        totalTransform.setNodeTransform(self)
+        if self.__ignoreScale:
+            transform.scale = 1
+        if self.__ignoreRotation:
+            transform.rot = 0
+        transform.moveNode(self)
         moveNodeOnScreen(self)
 
     def __onUp(self, transform):
@@ -90,8 +92,7 @@ class TransformChildNode(avg.DivNode):
         moveNodeToTop(self)
 
     def __onMove(self, transform):
-        totalTransform = transform.applyMat(self.baseTransform)
-        totalTransform.setNodeTransform(self)
+        transform.moveNode(self)
         moveNodeOnScreen(self)
         self.textRect.size = self.size
         self.inputNode.size = (self.size.x, self.size.y/2)

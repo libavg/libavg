@@ -145,8 +145,8 @@ class DragRecognizer(Recognizer):
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
                     self.__onInertiaStop)
-            self.__inertiaHandler.resetPos(pos, 0, 0)
         self.__dragStartPos = pos
+        self.__lastPos = pos
         self.__startHandler(event)
 
     def _handleMove(self, event):
@@ -154,7 +154,8 @@ class DragRecognizer(Recognizer):
         offset = pos - self.__dragStartPos
         self.__moveHandler(event, offset)
         if self.__friction != -1:
-            self.__inertiaHandler.onDrag(pos)
+            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+        self.__lastPos = pos
 
     def _handleUp(self, event):
         pos = self.__relEventPos(event)
@@ -162,14 +163,14 @@ class DragRecognizer(Recognizer):
         self.__upHandler(event, self.__offset)
         if self.__friction != -1:
             self.__stateMachine.changeState("SLIDE")
-            self.__inertiaHandler.onDrag(pos)
+            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
             self.__inertiaHandler.onUp()
         else:
             self.__stateMachine.changeState("IDLE")
             self.__stopHandler()
 
-    def __onInertiaMove(self, trans, pivot, ang, size):
-        self.__offset += trans 
+    def __onInertiaMove(self, transform):
+        self.__offset += transform.trans 
         if self.__moveHandler:
             self.__moveHandler(None, self.__offset)
    
@@ -433,26 +434,51 @@ def calcKMeans(pts):
     return l1, l2
         
 
+class Transform():
+    def __init__(self, trans, rot=0, scale=1, pivot=(0,0)):
+        self.trans = avg.Point2D(trans)
+        self.rot = rot
+        self.scale = scale
+        self.pivot = avg.Point2D(pivot)
+
+    def moveNode(self, node):
+        transMat =  Mat3x3.translate(self.trans)
+        rotMat = Mat3x3.rotate(self.rot)
+        scaleMat = Mat3x3.scale((self.scale, self.scale))
+        pivotMat = Mat3x3.translate(self.pivot)
+        invPivotMat = pivotMat.inverse()
+        startTransform = Mat3x3.fromNode(node)
+        newTransform = pivotMat.applyMat(
+                rotMat.applyMat(
+                scaleMat.applyMat(
+                invPivotMat.applyMat(
+                transMat.applyMat(
+                startTransform)))))
+        newTransform.setNodeTransform(node)
+
+    def __repr__(self):
+        return "Transform"+str((self.trans, self.rot, self.scale, self.pivot))
+
+
 class TransformRecognizer(Recognizer):
 
     def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH, 
             startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
-            initialEvent=None, friction=-1, ignoreScale=False, ignoreRotation=False):
+            initialEvent=None, friction=-1):
         if coordSysNode != None:
             self.__coordSysNode = coordSysNode
         else:
             self.__coordSysNode = eventNode
         self.__startHandler = optionalCallback(startHandler, lambda:None)
-        self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
+        self.__moveHandler = optionalCallback(moveHandler, 
+                lambda transform:None)
+        self.__upHandler = optionalCallback(upHandler, 
+                lambda transform:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
-        self.__upHandler = optionalCallback(upHandler, lambda offset:None)
-        self.__ignoreScale = ignoreScale
-        self.__ignoreRotation = ignoreRotation
         self.__friction = friction
 
         self.__baseTransform = Mat3x3()
-        self.__transform = Mat3x3()
-        self.__startPosns = []
+        self.__lastPosns = []
         self.__posns = []
         self.__inertiaHandler = None
         Recognizer.__init__(self, eventNode, eventSource, None, initialEvent)
@@ -461,41 +487,36 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         self.__newPhase()
         if numContacts == 1:
-            self.__baseTransform = Mat3x3()
-            self.__transform = Mat3x3()
             self.__startHandler()
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
-                self.__inertiaHandler.resetPos(avg.Point2D(0,0), 0, 0)
 
     def _handleUp(self, event):
         numContacts = len(self._contacts)
         if numContacts == 0:
             contact = event.contact
-            trans = self.__relContactPos(contact) - self.__startPosns[0]
-            self.__transform = Mat3x3.translate(trans)
-            totalTransform = self.__transform.applyMat(self.__baseTransform)
-            self.__upHandler(totalTransform)
+            transform = Transform(self.__relContactPos(contact) - self.__lastPosns[0])
+            self.__upHandler(transform)
             if self.__friction != -1:
-                self.__inertiaHandler.onDrag(trans)
+                self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
         elif numContacts == 1:
             self.__newPhase()
         else:
-            # TODO: Calculate motion before up
             self.__newPhase()
 
     def _handleChange(self):
         numContacts = len(self._contacts)
         if numContacts == 1:
             contact = self._contacts.keys()[0]
-            trans = self.__relContactPos(contact) - self.__startPosns[0]
-            self.__transform = Mat3x3.translate(trans)
+            transform = Transform(self.__relContactPos(contact) - self.__lastPosns[0])
             if self.__friction != -1:
-                self.__inertiaHandler.onDrag(trans)
+                self.__inertiaHandler.onDrag(transform)
+            self.__moveHandler(transform)
+            self.__lastPosns = [self.__relContactPos(contact)]
         else:
             contactPosns = [self.__relContactPos(contact)
                     for contact in self._contacts.keys()]
@@ -505,78 +526,46 @@ class TransformRecognizer(Recognizer):
                 self.__posns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
 
-            startDelta = self.__startPosns[1]-self.__startPosns[0]
+            startDelta = self.__lastPosns[1]-self.__lastPosns[0]
             curDelta = self.__posns[1]-self.__posns[0]
 
             pivot = (self.__posns[0]+self.__posns[1])/2
-            pivotMat = Mat3x3.translate(pivot)
-            invPivotMat = pivotMat.inverse()
 
-            if self.__ignoreRotation:
-                rot = 0
-                rotMat = Mat3x3()
-            else:
-                rot = avg.Point2D.angle(curDelta, startDelta)
-                rotMat = Mat3x3.rotate(rot)
+            rot = avg.Point2D.angle(curDelta, startDelta)
             
-            if self.__ignoreScale:
-                scaleFactor = 1
-                scale = Mat3x3()
+            if self.__lastPosns[0] == self.__lastPosns[1]:
+                scale = 1
             else:
-                scaleFactor = ((self.__posns[0]-self.__posns[1]).getNorm() / 
-                        (self.__startPosns[0]-self.__startPosns[1]).getNorm())
-                scale = Mat3x3.scale((scaleFactor, scaleFactor))
+                scale = ((self.__posns[0]-self.__posns[1]).getNorm() / 
+                        (self.__lastPosns[0]-self.__lastPosns[1]).getNorm())
             
             trans = ((self.__posns[0]+self.__posns[1])/2 - 
-                    (self.__startPosns[0]+self.__startPosns[1])/2)
-            transMat =  Mat3x3.translate(trans)
-
-            self.__transform = (
-                    pivotMat.applyMat(
-                    rotMat.applyMat(
-                    scale.applyMat(
-                    invPivotMat.applyMat(
-                    transMat)))))
+                    (self.__lastPosns[0]+self.__lastPosns[1])/2)
+            transform = Transform(trans, rot, scale, pivot)
             if self.__friction != -1:
-                self.__inertiaHandler.onDrag(trans, pivot, rot, scaleFactor)
+                self.__inertiaHandler.onDrag(transform)
+            self.__moveHandler(transform)
+            self.__lastPosns = self.__posns
 
-        totalTransform = self.__transform.applyMat(self.__baseTransform)
-        self.__moveHandler(totalTransform)
 
     def __newPhase(self):
-        self.__baseTransform = self.__transform.applyMat(self.__baseTransform)
-        self.__transform = Mat3x3()
-
-        self.__startPosns = []
+        self.__lastPosns = []
         numContacts = len(self._contacts)
         if numContacts == 1:
             contact = self._contacts.keys()[0]
-            self.__startPosns.append(self.__relContactPos(contact))
+            self.__lastPosns.append(self.__relContactPos(contact))
         else:
             contactPosns = [self.__relContactPos(contact) 
                     for contact in self._contacts.keys()]
             if numContacts == 2:
-                self.__startPosns = contactPosns
+                self.__lastPosns = contactPosns
             else:
                 self.__clusters = calcKMeans(contactPosns)
-                self.__startPosns = [getCentroid(self.__clusters[i], contactPosns) for
+                self.__lastPosns = [getCentroid(self.__clusters[i], contactPosns) for
                         i in range(2)]
-        if self.__friction != -1 and self.__inertiaHandler:
-            self.__inertiaHandler.resetPos(avg.Point2D(0,0), 0, 0)
 
-    def __onInertiaMove(self, trans, pivot, rot, scale):
-        transMat = Mat3x3.translate(trans)
-        pivotMat = Mat3x3.translate(pivot)
-        invPivotMat = Mat3x3.translate(-pivot)
-        rotMat = Mat3x3.rotate(rot)
-
-        self.__transform = (
-                pivotMat.applyMat(
-                rotMat.applyMat(
-                invPivotMat.applyMat(
-                transMat.applyMat(self.__transform)))))
-        totalTransform = self.__transform.applyMat(self.__baseTransform)
-        self.__moveHandler(totalTransform)
+    def __onInertiaMove(self, transform):
+        self.__moveHandler(transform)
 
     def __onInertiaStop(self):
         self.__stopHandler()
@@ -598,24 +587,17 @@ class InertiaHandler():
         self.__sizeVel = avg.Point2D(0, 0)
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onDragFrame)
 
-    def resetPos(self, trans, ang, size):
-        self.__curTrans = trans
-        self.__curAng = ang
-        self.__curSize = size
-
     def abort(self):
         self.__stop() 
 
-    def onDrag(self, newTrans, newPivot=avg.Point2D(0,0), newAng=0, newSize=1):
+    def onDrag(self, transform):
         frameDuration = g_Player.getFrameDuration()
-        self.__transVel += 0.1*(newTrans-self.__curTrans) / frameDuration
-        self.__curTrans = newTrans
-        if newPivot != avg.Point2D(0,0):
-            self.__curPivot = newPivot
-        if newAng > pi:
-            newAng -= 2*pi
-        self.__angVel += 0.1*(newAng-self.__curAng) / frameDuration
-        self.__curAng = newAng
+        self.__transVel += 0.1*transform.trans/frameDuration
+        if transform.pivot != avg.Point2D(0,0):
+            self.__curPivot = transform.pivot
+        if transform.rot > pi:
+            transform.rot -= 2*pi
+        self.__angVel += 0.1*transform.rot/frameDuration
 
     def onUp(self):
         g_Player.clearInterval(self.__frameHandlerID)
@@ -645,7 +627,7 @@ class InertiaHandler():
 
         if transNorm - self.__friction > 0 or self.__angVel != 0:
             if self.__moveHandler:
-                self.__moveHandler(curTrans, self.__curPivot, curAng, 0)
+                self.__moveHandler(Transform(curTrans,  curAng, 1, self.__curPivot))
         else:
             self.__stop()
 
