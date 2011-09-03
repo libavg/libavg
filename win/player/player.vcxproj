@@ -75,7 +75,6 @@
     <ClCompile Include="..\..\src\player\CameraNode.cpp" />
     <ClCompile Include="..\..\src\player\Canvas.cpp" />
     <ClCompile Include="..\..\src\player\CanvasNode.cpp" />
-    <ClCompile Include="..\..\src\player\checktracker.cpp" />
     <ClCompile Include="..\..\src\player\ChromaKeyFXNode.cpp" />
     <ClCompile Include="..\..\src\player\CircleNode.cpp" />
     <ClCompile Include="..\..\src\player\Contact.cpp" />

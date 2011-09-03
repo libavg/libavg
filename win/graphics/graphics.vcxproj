@@ -105,6 +105,7 @@
     <ClInclude Include="..\..\src\graphics\FilterResizeGaussian.h" />
     <ClInclude Include="..\..\src\graphics\FilterThreshold.h" />
     <ClInclude Include="..\..\src\graphics\FilterUnmultiplyAlpha.h" />
+    <ClInclude Include="..\..\src\graphics\GLBufferCache.h" />
     <ClInclude Include="..\..\src\graphics\GLTexture.h" />
     <ClInclude Include="..\..\src\graphics\GPUBandpassFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUBlurFilter.h" />
@@ -163,6 +164,7 @@
     <ClCompile Include="..\..\src\graphics\FilterResizeGaussian.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterThreshold.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterUnmultiplyAlpha.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLBufferCache.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTexture.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBandpassFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBlurFilter.cpp" />
