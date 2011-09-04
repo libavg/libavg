@@ -225,6 +225,7 @@ Point<int> Point<int>::getNormalized() const
 template<>
 Point<double> Point<double>::getNormalized() const
 {
+    // This is imprecise but fast
 #if defined(__SSE__) || defined(_WIN32)
 #pragma pack(16)
     float result[4];
@@ -246,13 +247,15 @@ Point<double> Point<double>::getNormalized() const
 #endif
 }
 
-template<class NUM>
-Point<NUM> Point<NUM>::safeGetNormalized() const
+template<>
+Point<double> Point<double>::safeGetNormalized() const
 {
+    // This is precise but slower, and the version exported to python
     if (x==0 && y==0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Can't normalize (0,0).");
     } else {
-        return getNormalized();
+        double invNorm = 1/sqrt(x*x+y*y);
+        return Point<double>(x*invNorm, y*invNorm);
     }
 }
 

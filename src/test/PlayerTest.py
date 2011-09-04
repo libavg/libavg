@@ -32,9 +32,6 @@ class PlayerTestCase(AVGTestCase):
         AVGTestCase.__init__(self, testFuncName)
 
     def testPoint(self):
-        def almostEqual(p1, p2):
-            return (abs(p1.x-p2.x) < 0.0001 and abs(p1.y-p2.y) < 0.0001)
-
         def testHash():
             ptMap = {}
             ptMap[avg.Point2D(0,0)] = 0
