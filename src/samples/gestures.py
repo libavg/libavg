@@ -123,6 +123,28 @@ class DragNode(TextRect):
         pass
 
 
+class TapNode(TextRect):
+    def __init__(self, text, **kwargs):
+        TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
+    
+        self.tapRecognizer = ui.TapRecognizer(node=self, startHandler=self.__onStart,
+                tapHandler=self.__onTap, failHandler=self.__onFail)
+
+    def __onStart(self):
+        self.rect.fillcolor = "FFFFFF"
+        self.words.color = "000000"
+
+    def __onTap(self):
+        self.rect.fillcolor = "000000"
+        self.words.color = "FFFFFF"
+        self.rect.color = "00FF00"
+
+    def __onFail(self):
+        self.rect.fillcolor = "000000"
+        self.words.color = "FFFFFF"
+        self.rect.color = "FF0000"
+
+
 class GestureDemoApp(libavg.AVGApp):
     multitouch = True
 
@@ -163,6 +185,10 @@ class GestureDemoApp(libavg.AVGApp):
         DragNode(text="DragRecognizer<br/>friction",
                 pos=(200,70),
                 friction=0.05,
+                parent=self._parentNode)
+
+        TapNode(text="TapRecognizer",
+                pos=(380,20),
                 parent=self._parentNode)
 
 

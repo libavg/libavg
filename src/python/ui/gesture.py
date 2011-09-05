@@ -192,36 +192,57 @@ class TapRecognizer(Recognizer):
     POSSIBLE = 1
 
     MAX_DISTANCE_IN_MM = 8
+    MIN_TIME = 0
+    MAX_TIME = 500
 
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
-            tapHandler=None, failHandler=None, initialEvent=None):
+            tapHandler=None, failHandler=None, minTime=MIN_TIME, maxTime=MAX_TIME,
+            initialEvent=None):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__tapHandler = optionalCallback(tapHandler, lambda:None)
         self.__failHandler = optionalCallback(failHandler, lambda:None)
+        self.__minTime = minTime
+        self.__maxTime = maxTime
+
         self.__state = TapRecognizer.UP
         self.__maxDistance = TapRecognizer.MAX_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
+        self.__onFrameHandler = None
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def _handleDown(self, event):
         self.__state = TapRecognizer.POSSIBLE
+        self.__startTime = g_Player.getFrameTime()
+        self.__onFrameHandler = g_Player.setOnFrameHandler(self.__onFrame)
         self.__startHandler()
     
     def _handleMove(self, event):
         if event.contact.distancefromstart > self.__maxDistance:
             self._abort()
-            self.__fail(event)
+            self.__fail()
 
     def _handleUp(self, event):
-        if event.contact.distancefromstart > self.__maxDistance:
-            self.__fail(event)
+        downTime = g_Player.getFrameTime() - self.__startTime
+        if (event.contact.distancefromstart > self.__maxDistance or 
+                downTime > self.__maxTime or downTime < self.__minTime):
+            self.__fail()
         else:
             self.__recognize()
 
+    def __onFrame(self):
+        downTime = g_Player.getFrameTime() - self.__startTime
+        if downTime > self.__maxTime:
+            self._abort()
+            self.__fail()
+
     def __recognize(self):
+        g_Player.clearInterval(self.__onFrameHandler)
+        self.__onFrameHandler = None
         self.__tapHandler()
    
-    def __fail(self, event):
+    def __fail(self):
         self.__failHandler()
+        g_Player.clearInterval(self.__onFrameHandler)
+        self.__onFrameHandler = None
         self.__state = TapRecognizer.UP
 
 
