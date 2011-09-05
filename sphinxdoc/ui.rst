@@ -63,7 +63,7 @@ functionality
         .. py:method:: isEnabled()
 
 
-    .. autoclass:: DragRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
+    .. autoclass:: DragRecognizer(eventNode, [coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
 
         A :py:class:`DragRecognizer` attaches itself to a node's cursor events and 
         delivers higher-level callbacks that can be used to implement dragging or 
@@ -71,12 +71,19 @@ functionality
 
         :py:class:`DragRecognizer` supports inertia after the node is released.
         
-        :param avg.Node node: 
+        :param avg.Node eventNode: 
         
             The node to attach to. The :py:class:`DragRecognizer` registers an event 
-            handler to react to any contacts for this node. The node is also used to 
-            determine the coordinate system for the offsets returned by the callbacks.
-            The :py:class:`DragRecognizer` does not move the node itself.
+            handler to react to any contacts for this node. 
+            
+        :param avg.Node coordSysNode:    
+
+            Used to determine the coordinate system for the offsets returned by the 
+            callbacks. If :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is 
+            used as default. The :py:class:`DragRecognizer` never modifies any nodes 
+            itself. :py:attr:`coordSysNode` can be used to separate the node that
+            is the 'handle' for the events from the node that is being moved - for 
+            instance, to allow moving a window by dragging the title bar.
 
         :param eventSource: 
             
@@ -114,7 +121,7 @@ functionality
                 :param avg.Point2D offset: 
                 
                     The current offset from the start of the drag in coordinates relative
-                    to the :py:class:`Node`'s parent.
+                    to the :py:attr:`coordSysNode`'s parent.
 
             .. py:method:: upHandler(event, offset)
 
@@ -128,7 +135,7 @@ functionality
                 :param avg.Point2D offset: 
                 
                     The current offset from the start of the drag in coordinates relative
-                    to the :py:class:`Node`'s parent.
+                    to the :py:class:`coordSysNode`'s parent.
 
             .. py:method:: stopHandler()
 
@@ -160,11 +167,11 @@ functionality
 
         :param list keyDefs:
 
-            List of key definitions. Keys can be either character keys::
+            List of key definitions. Keys can be either character keys:
 
                 [(<keycode>, <shift keycode>, <altgr keycode>), <pos>, <size>]
 
-            or command keys::
+            or command keys:
 
                 [<keycode>, <pos>, <size>]
 
@@ -227,56 +234,6 @@ functionality
                 Unicode string containing the keycodes when altgr is pressed.
     
     
-    .. autoclass:: Mat3x3([row0=(1,0,0), row1=(0,1,0), row2=(0,0,1)])
-
-        Matrix class for homogenous 2d transforms. This is a temporary class needed by
-        :py:class:`TransformRecognizer`. It will be removed again as soon as a generic 
-        matrix class is available.
-
-        .. py:method:: applyMat(m) -> Mat3x3
-
-            Applies the matrix to another matrix and returns the result.
-
-        .. py:method:: applyVec(v) -> Vec3
-
-            Applies the matrix to a 3-component vector and returns the result.
-
-        .. py:method:: det() -> float
-
-            Returns the determinant of the matrix.
-
-        .. py:method:: inverse() -> Mat3x3
-
-            Returns the inverse of the matrix.
-
-        .. py:method:: scalarMult(s) -> Mat3x3
-
-            Returns the matrix multiplied by a scalar.
-
-        .. py:method:: setNodeTransform(node)
-
-            Sets a node's :py:attr:`pos`, :py:attr:`angle` and :py:attr:`size` 
-            attributes to correspond to the matrix. Assumes :samp:`pivot=0`.
-
-        .. py:classmethod:: fromNode(node) -> Mat3x3
-
-            Returns the transform matrix of a node computed from its :py:attr:`pos`,
-            :py:attr:`angle` and :py:attr:`size` attributes. Assumes :samp:`pivot=0`.
-
-        .. py:classmethod:: rotate(a) -> Mat3x3
-
-            Factory method that creates a rotation matrix from an angle.
-
-        .. py:classmethod:: scale(s) -> Mat3x3
-
-            Factory method that creates a nonuniform scale matrix from a 2-component 
-            vector.
-
-        .. py:classmethod:: translate(t) -> Mat3x3
-
-            Factory method that creates a translation matrix from a translation vector.
-
-
     .. autoclass:: Recognizer(node, eventSource, maxContacts, initialEvent)
 
         Base class for gesture recognizers that attach to a node's cursor events and 
@@ -377,19 +334,53 @@ functionality
             Factory method that creates a button from filenames of the images to be
             displayed for different states.
 
+    
+    .. autoclass:: Transform(trans, [rot=0, scale=1, pivot=(0,0)])
 
-    .. autoclass:: TransformRecognizer(node, [eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
+        Encapsulates a coordinate transformation and can be used to change the position,
+        rotation and scale of a node.
+
+        .. py:attribute:: pivot
+
+            The point around which rot and scale are applied.
+
+        .. py:attribute:: rot
+
+            Rotation in radians.
+
+        .. py:attribute:: scale
+
+            Multiplies the size of the node.
+
+        .. py:attribute:: trans
+
+            The translation.
+
+        .. py:method:: moveNode(node)
+
+            Changes a :py:attr:`node`'s pos, angle and size by applying the transform.
+
+
+    .. autoclass:: TransformRecognizer(eventNode, [coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, initialEvent=None, friction=-1])
 
         A :py:class:`TransformRecognizer` is used to support drag/zoom/rotate 
         functionality. From any number of touches on a node, it calculates an aggregate
         transform that can be used to change the position, size and angle of a node.
         The class supports intertia after the node is released.
 
-        :param avg.Node node: The node to attach to. The :py:class:`TransformRecognizer`
-            registers an event handler to react to any contacts for this node. The node
-            is also used to determine the coordinate system for the offsets returned by
-            the callbacks. The :py:class:`TransformRecognizer` does not move the node 
-            itself.
+        :param avg.Node eventNode: 
+        
+            The node to attach to. The :py:class:`TransformRecognizer` registers an event
+            handler to react to any contacts for this node. 
+            
+        :param avg.Node coordSysNode: 
+
+            Used to determine the coordinate system for the transforms returned by the 
+            callbacks.  If :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is 
+            used as default. The :py:class:`TransformRecognizer` never modifies any nodes 
+            itself. :py:attr:`coordSysNode` can be used to separate the node that
+            is the 'handle' for the events from the node that is being moved - for 
+            instance, to allow moving and rotating a window by dragging the title bar.
 
         :param eventSource: 
             
@@ -415,22 +406,20 @@ functionality
 
                 Called whenever the transform changes.
 
-                :param Mat3x3 transform:
+                :param transform:
                 
-                    The current transformation as a homogenous matrix. The transform is 
-                    relative to the :py:class:`Node`'s parent.
-
+                    The change in transformation as a :py:class:`Transform`. 
 
             .. py:method:: upHandler(transform)
 
                 Called when the last touch is released.
 
-                :param Mat3x3 transform:
+                :param transform:
                 
-                    The current transformation as a homogenous matrix. The transform is 
-                    relative to the :py:class:`Node`'s parent.
+                    The change in transformation as a :py:class:`Transform`. 
 
-            .. py:method:: stopHandler(transform)
+            .. py:method:: stopHandler()
 
                 Called when movement stops. This is either directly after the up event
                 or when inertia has run its course.
+
