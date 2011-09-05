@@ -859,6 +859,7 @@ class UITestCase(AVGTestCase):
 
 
     def testDragRecognizer(self):
+
         def onDragStart(event):
             self.__dragStartCalled = True
 
@@ -918,10 +919,8 @@ class UITestCase(AVGTestCase):
 
 
     def testDragRecognizerRelCoords(self):
-        def onDrag(event, offset):
-            self.assert_(almostEqual(offset, (-40,-40)))
 
-        def onStop():
+        def onDrag(event, offset):
             self.assert_(almostEqual(offset, (-40,-40)))
 
         Player.setFakeFPS(100)
@@ -930,7 +929,7 @@ class UITestCase(AVGTestCase):
             div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
             image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, moveHandler=onDrag, 
-                    stopHandler=onStop, friction=self.friction)
+                    friction=self.friction)
             self.start((
                      lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
@@ -939,6 +938,7 @@ class UITestCase(AVGTestCase):
         
     
     def testDragRecognizerInitialEvent(self):
+
         def onMotion(event):
             ui.DragRecognizer(self.image, 
                     startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
@@ -960,7 +960,23 @@ class UITestCase(AVGTestCase):
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
                 ))
         assert(self.__dragStartCalled)
-            
+
+
+    def testDragRecognizerCoordSysNode(self):
+        
+        def onDrag(event, offset):
+            self.assert_(offset == (40,40))
+
+        root = self.loadEmptyScene()
+        div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        dragRecognizer = ui.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, 
+                friction=-1)
+        self.start((
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                ))
+
 
     def testTransformRecognizer(self):
         
@@ -1043,6 +1059,7 @@ class UITestCase(AVGTestCase):
                  createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20)))
                 ))
 
+        # Test rel. coords.
         root = self.loadEmptyScene()
         div = avg.DivNode(parent=root, pos=(0,10))
         image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
@@ -1052,6 +1069,19 @@ class UITestCase(AVGTestCase):
             createTransTestFrames(),
             createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
             createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
+            ))
+
+        # Test coordSysNode.
+        root = self.loadEmptyScene()
+        div = avg.DivNode(parent=root, pos=(0,10))
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp, 
+                coordSysNode=div)
+        self.start((
+            createTransTestFrames(),
+            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
+            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
             ))
 
 
@@ -1190,6 +1220,7 @@ def uiTestSuite(tests):
         "testDragRecognizer",
         "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",
+        "testDragRecognizerCoordSysNode",
         "testTransformRecognizer",
         "testKMeans",
         "testMat3x3",
