@@ -728,109 +728,6 @@ class UITestCase(AVGTestCase):
                ))
 
 
-    def testDragRecognizer(self):
-        def onDragStart(event):
-            self.__dragStartCalled = True
-
-        def onDrag(event, offset):
-            if self.friction == -1:
-                self.assert_(offset == (40,40))
-            self.__dragMoveCalled = True
-
-        def onDragUp(event, offset):
-            if self.friction == -1:
-                self.assert_(offset == (10,-10))
-            self.__dragUpCalled = True
-
-        def onDragStop():
-            self.__dragStopCalled = True
-
-        def disable():
-            dragProcessor.enable(False)
-            initState()
-
-        def initState():
-            self.__dragStartCalled = False
-            self.__dragMoveCalled = False
-            self.__dragUpCalled = False
-            self.__dragStopCalled = False
-
-        def assertDragEvents(start, move, up, stop):
-            self.assert_(self.__dragStartCalled == start and
-                self.__dragMoveCalled == move and
-                self.__dragUpCalled == up and
-                self.__dragStopCalled == stop)
-
-        Player.setFakeFPS(100)
-        for self.friction in (-1, 100):
-            root = self.loadEmptyScene()
-            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-            dragProcessor = ui.DragRecognizer(image, 
-                    startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
-                    stopHandler=onDragStop, friction=self.friction)
-            initState()
-            self.start((
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(True, False, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                     lambda: assertDragEvents(True, True, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(True, True, True, True),
-                     disable,
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False),
-                     lambda: dragProcessor.enable(True),
-                     lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(True, False, False, False),
-                    ))
-        Player.setFakeFPS(-1)
-
-    def testDragRecognizerRelCoords(self):
-        def onDrag(event, offset):
-            self.assert_(almostEqual(offset, (-40,-40)))
-
-        def onStop():
-            self.assert_(almostEqual(offset, (-40,-40)))
-
-        Player.setFakeFPS(100)
-        for self.friction in (-1, 100):
-            root = self.loadEmptyScene()
-            div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
-            image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-            dragProcessor = ui.DragRecognizer(image, moveHandler=onDrag, 
-                    stopHandler=onStop, friction=self.friction)
-            self.start((
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                    ))
-        Player.setFakeFPS(-1)
-        
-    
-    def testDragRecognizerInitialEvent(self):
-        def onMotion(event):
-            ui.DragRecognizer(self.image, 
-                    startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
-            self.image.disconnectEventHandler(self)
-           
-        def onDragStart(event):
-            self.__dragStartCalled = True
-
-        def onDrag(event, offset):
-            self.assert_(offset == (10,0))
-
-        root = self.loadEmptyScene()
-        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
-        self.__dragStartCalled = False
-        self.start((
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
-                ))
-        assert(self.__dragStartCalled)
-            
-
     def testHoldRecognizer(self):
       
         def onStart(pos):
@@ -960,6 +857,110 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, False, True),
                 ))
 
+
+    def testDragRecognizer(self):
+        def onDragStart(event):
+            self.__dragStartCalled = True
+
+        def onDrag(event, offset):
+            if self.friction == -1:
+                self.assert_(offset == (40,40))
+            self.__dragMoveCalled = True
+
+        def onDragUp(event, offset):
+            if self.friction == -1:
+                self.assert_(offset == (10,-10))
+            self.__dragUpCalled = True
+
+        def onDragStop():
+            self.__dragStopCalled = True
+
+        def disable():
+            dragRecognizer.enable(False)
+            initState()
+
+        def initState():
+            self.__dragStartCalled = False
+            self.__dragMoveCalled = False
+            self.__dragUpCalled = False
+            self.__dragStopCalled = False
+
+        def assertDragEvents(start, move, up, stop):
+            self.assert_(self.__dragStartCalled == start and
+                self.__dragMoveCalled == move and
+                self.__dragUpCalled == up and
+                self.__dragStopCalled == stop)
+
+        Player.setFakeFPS(100)
+        for self.friction in (-1, 100):
+            root = self.loadEmptyScene()
+            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+            dragRecognizer = ui.DragRecognizer(image, 
+                    startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
+                    stopHandler=onDragStop, friction=self.friction)
+            initState()
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(True, False, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                     lambda: assertDragEvents(True, True, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(True, True, True, True),
+                     disable,
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: dragRecognizer.enable(True),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(True, False, False, False),
+                    ))
+        Player.setFakeFPS(-1)
+
+
+    def testDragRecognizerRelCoords(self):
+        def onDrag(event, offset):
+            self.assert_(almostEqual(offset, (-40,-40)))
+
+        def onStop():
+            self.assert_(almostEqual(offset, (-40,-40)))
+
+        Player.setFakeFPS(100)
+        for self.friction in (-1, 100):
+            root = self.loadEmptyScene()
+            div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
+            image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+            dragRecognizer = ui.DragRecognizer(image, moveHandler=onDrag, 
+                    stopHandler=onStop, friction=self.friction)
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                    ))
+        Player.setFakeFPS(-1)
+        
+    
+    def testDragRecognizerInitialEvent(self):
+        def onMotion(event):
+            ui.DragRecognizer(self.image, 
+                    startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
+            self.image.disconnectEventHandler(self)
+           
+        def onDragStart(event):
+            self.__dragStartCalled = True
+
+        def onDrag(event, offset):
+            self.assert_(offset == (10,0))
+
+        root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
+        self.__dragStartCalled = False
+        self.start((
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
+                ))
+        assert(self.__dragStartCalled)
+            
 
     def testTransformRecognizer(self):
         
@@ -1184,11 +1185,11 @@ def uiTestSuite(tests):
         "testKeyboard",
         "testTextArea",
         "testFocusContext",
+        "testHoldRecognizer",
+        "testTapRecognizer",
         "testDragRecognizer",
         "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",
-        "testHoldRecognizer",
-        "testTapRecognizer",
         "testTransformRecognizer",
         "testKMeans",
         "testMat3x3",

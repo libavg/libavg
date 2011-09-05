@@ -107,85 +107,6 @@ class Recognizer(object):
                 self._onDown)
 
 
-class DragRecognizer(Recognizer):
-
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
-            startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
-            initialEvent=None, friction=-1):
-        if coordSysNode != None:
-            self.__coordSysNode = coordSysNode
-        else:
-            self.__coordSysNode = eventNode
-        self.__startHandler = optionalCallback(startHandler, lambda event:None)
-        self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
-        self.__stopHandler = optionalCallback(stopHandler, lambda:None)
-        self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
-        self.__friction = friction
-
-        self.__stateMachine = statemachine.StateMachine("DragRecognizer", "IDLE")
-        self.__stateMachine.addState("IDLE", {"DRAG": None})
-        if friction == -1:
-            self.__stateMachine.addState("DRAG", {"IDLE": None})
-        else:
-            self.__stateMachine.addState("DRAG", {"SLIDE": None})
-            self.__stateMachine.addState("SLIDE", {"IDLE": None, "DRAG": None})
-
-        self.__inertiaHandler = None
-        Recognizer.__init__(self, eventNode, eventSource, 1, initialEvent)
-
-    def abortInertia(self):
-        if self.__stateMachine.state == "SLIDE":
-            self.__inertiaHandler.abort()
-
-    def _handleDown(self, event):
-        self.__stateMachine.changeState("DRAG")
-        if self.__inertiaHandler:
-            self.__inertiaHandler.abort()
-        pos = self.__relEventPos(event)
-        if self.__friction != -1:
-            self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
-                    self.__onInertiaStop)
-        self.__dragStartPos = pos
-        self.__lastPos = pos
-        self.__startHandler(event)
-
-    def _handleMove(self, event):
-        pos = self.__relEventPos(event)
-        offset = pos - self.__dragStartPos
-        self.__moveHandler(event, offset)
-        if self.__friction != -1:
-            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
-        self.__lastPos = pos
-
-    def _handleUp(self, event):
-        pos = self.__relEventPos(event)
-        self.__offset = pos - self.__dragStartPos
-        self.__upHandler(event, self.__offset)
-        if self.__friction != -1:
-            self.__stateMachine.changeState("SLIDE")
-            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
-            self.__inertiaHandler.onUp()
-        else:
-            self.__stateMachine.changeState("IDLE")
-            self.__stopHandler()
-
-    def __onInertiaMove(self, transform):
-        self.__offset += transform.trans 
-        if self.__moveHandler:
-            self.__moveHandler(None, self.__offset)
-   
-    def __onInertiaStop(self):
-        self.__stateMachine.changeState("IDLE")
-        self.__stop()
-
-    def __stop(self):
-        self.__stopHandler()
-        self.__inertiaHandler = None
-
-    def __relEventPos(self, event):
-        return self.__coordSysNode.getParent().getRelPos(event.pos)
-
-
 class HoldRecognizer(Recognizer):
 
     # States
@@ -302,6 +223,85 @@ class TapRecognizer(Recognizer):
     def __fail(self, event):
         self.__failHandler()
         self.__state = TapRecognizer.UP
+
+
+class DragRecognizer(Recognizer):
+
+    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
+            startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
+            initialEvent=None, friction=-1):
+        if coordSysNode != None:
+            self.__coordSysNode = coordSysNode
+        else:
+            self.__coordSysNode = eventNode
+        self.__startHandler = optionalCallback(startHandler, lambda event:None)
+        self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
+        self.__stopHandler = optionalCallback(stopHandler, lambda:None)
+        self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
+        self.__friction = friction
+
+        self.__stateMachine = statemachine.StateMachine("DragRecognizer", "IDLE")
+        self.__stateMachine.addState("IDLE", {"DRAG": None})
+        if friction == -1:
+            self.__stateMachine.addState("DRAG", {"IDLE": None})
+        else:
+            self.__stateMachine.addState("DRAG", {"SLIDE": None})
+            self.__stateMachine.addState("SLIDE", {"IDLE": None, "DRAG": None})
+
+        self.__inertiaHandler = None
+        Recognizer.__init__(self, eventNode, eventSource, 1, initialEvent)
+
+    def abortInertia(self):
+        if self.__stateMachine.state == "SLIDE":
+            self.__inertiaHandler.abort()
+
+    def _handleDown(self, event):
+        self.__stateMachine.changeState("DRAG")
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
+        pos = self.__relEventPos(event)
+        if self.__friction != -1:
+            self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
+                    self.__onInertiaStop)
+        self.__dragStartPos = pos
+        self.__lastPos = pos
+        self.__startHandler(event)
+
+    def _handleMove(self, event):
+        pos = self.__relEventPos(event)
+        offset = pos - self.__dragStartPos
+        self.__moveHandler(event, offset)
+        if self.__friction != -1:
+            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+        self.__lastPos = pos
+
+    def _handleUp(self, event):
+        pos = self.__relEventPos(event)
+        self.__offset = pos - self.__dragStartPos
+        self.__upHandler(event, self.__offset)
+        if self.__friction != -1:
+            self.__stateMachine.changeState("SLIDE")
+            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+            self.__inertiaHandler.onUp()
+        else:
+            self.__stateMachine.changeState("IDLE")
+            self.__stopHandler()
+
+    def __onInertiaMove(self, transform):
+        self.__offset += transform.trans 
+        if self.__moveHandler:
+            self.__moveHandler(None, self.__offset)
+   
+    def __onInertiaStop(self):
+        self.__stateMachine.changeState("IDLE")
+        self.__stop()
+
+    def __stop(self):
+        self.__stopHandler()
+        self.__inertiaHandler = None
+
+    def __relEventPos(self, event):
+        return self.__coordSysNode.getParent().getRelPos(event.pos)
 
 
 class Mat3x3:
