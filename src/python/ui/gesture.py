@@ -66,7 +66,7 @@ class Recognizer(object):
             listenerid = event.contact.connectListener(self._onMotion, self._onUp)
             self._contacts[event.contact] = ContactData(listenerid)
             if len(self._contacts) == 1:
-                self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onFrame)
+                self.__frameHandlerID = g_Player.setOnFrameHandler(self._onFrame)
             self.__dirty = True
             return self._handleDown(event)
 
@@ -101,7 +101,7 @@ class Recognizer(object):
     def _handleChange(self):
         pass
 
-    def __onFrame(self):
+    def _onFrame(self):
         if self.__dirty:
             self._handleChange()
             self.__dirty = False
@@ -207,13 +207,11 @@ class TapRecognizer(Recognizer):
 
         self.__maxDistance = (
                 MAX_TAP_DISTANCE_IN_MM*g_Player.getPixelsPerMM())
-        self.__onFrameHandler = None
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def _handleDown(self, event):
         self.__stateMachine.changeState("HOLDING")
         self.__startTime = g_Player.getFrameTime()
-        self.__onFrameHandler = g_Player.setOnFrameHandler(self.__onFrame)
 
     def _handleMove(self, event):
         if self.__stateMachine.state != "ABORTED": 
@@ -223,36 +221,25 @@ class TapRecognizer(Recognizer):
     def _handleUp(self, event):
         if self.__stateMachine.state == "HOLDING":
             if event.contact.distancefromstart > self.__maxDistance:
-                self.__abort()
+                self.__failHandler()
             else:
-                self.__recognize()
+                self.__tapHandler()
             self.__stateMachine.changeState("IDLE")
         elif self.__stateMachine.state == "ABORTED":
             self.__stateMachine.changeState("IDLE")
 
-    def __onFrame(self):
+    def _onFrame(self):
         downTime = g_Player.getFrameTime() - self.__startTime
         if self.__stateMachine.state == "HOLDING":
             if downTime > self.__maxTime:
                 self.__stateMachine.changeState("ABORTED")
-        else:
-            assert(False)
+        Recognizer._onFrame(self)
 
     def __enterHolding(self):
         self.__startHandler()
         
     def __enterAborted(self):
-        self.__abort()
-
-    def __abort(self):
         self.__failHandler()
-        g_Player.clearInterval(self.__onFrameHandler)
-        self.__onFrameHandler = None
-
-    def __recognize(self):
-        g_Player.clearInterval(self.__onFrameHandler)
-        self.__onFrameHandler = None
-        self.__tapHandler()
 
 
 class DoubletapRecognizer(Recognizer):
@@ -272,20 +259,18 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN2", ("IDLE",))
 
         self.__maxDistance = MAX_TAP_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
-        self.__onFrameHandler = None
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
    
     def _handleDown(self, event):
         self.__startTime = g_Player.getFrameTime()
         if self.__stateMachine.state == "IDLE":
             self.__stateMachine.changeState("DOWN1")
-            self.__onFrameHandler = g_Player.setOnFrameHandler(self.__onFrame)
             self.__startPos = event.pos
             self.__startHandler()
         elif self.__stateMachine.state == "UP1":
             if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
                 self.__stateMachine.changeState("IDLE")
-                self.__abort()
+                self.__failHandler()
             else:
                 self.__stateMachine.changeState("DOWN2")
         else:
@@ -295,7 +280,7 @@ class DoubletapRecognizer(Recognizer):
         if self.__stateMachine.state != "IDLE": 
             if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
                 self.__stateMachine.changeState("IDLE")
-                self.__abort()
+                self.__failHandler()
 
     def _handleUp(self, event):
         if self.__stateMachine.state == "DOWN1":
@@ -303,33 +288,22 @@ class DoubletapRecognizer(Recognizer):
             self.__stateMachine.changeState("UP1")
         elif self.__stateMachine.state == "DOWN2":
             if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
-                self.__abort()
+                self.__failHandler()
             else:
-                self.__recognize()
+                self.__tapHandler()
             self.__stateMachine.changeState("IDLE")
         elif self.__stateMachine.state == "IDLE":
             pass
         else:
             assert(False)
 
-    def __onFrame(self):
+    def _onFrame(self):
         downTime = g_Player.getFrameTime() - self.__startTime
         if self.__stateMachine.state != "IDLE":
             if downTime > self.__maxTime:
-                self.__abort()
+                self.__failHandler()
                 self.__stateMachine.changeState("IDLE")
-        else:
-            assert(False)
-
-    def __abort(self):
-        self.__failHandler()
-        g_Player.clearInterval(self.__onFrameHandler)
-        self.__onFrameHandler = None
-
-    def __recognize(self):
-        g_Player.clearInterval(self.__onFrameHandler)
-        self.__onFrameHandler = None
-        self.__tapHandler()
+        Recognizer._onFrame(self)
 
 
 class DragRecognizer(Recognizer):
