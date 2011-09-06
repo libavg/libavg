@@ -539,7 +539,7 @@ class Transform():
 
 class TransformRecognizer(Recognizer):
 
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
+    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH, 
             startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
             initialEvent=None, friction=-1):
         if coordSysNode != None:

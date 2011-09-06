@@ -88,7 +88,6 @@ class TransformChildNode(avg.DivNode):
                 )
    
     def __onStart(self):
-        self.baseTransform = ui.Mat3x3.fromNode(self)
         moveNodeToTop(self)
 
     def __onMove(self, transform):
