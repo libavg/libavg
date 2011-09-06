@@ -203,15 +203,13 @@ class TapRecognizer(Recognizer):
 
         self.__stateMachine = statemachine.StateMachine("TapRecognizer", "IDLE")
         if self.__minTime == 0:
-            self.__stateMachine.addState("IDLE", {"HOLDING": None})
+            self.__stateMachine.addState("IDLE", ("HOLDING",))
         else:
-            self.__stateMachine.addState("IDLE", {"DOWN": None})
-            self.__stateMachine.addState("DOWN", 
-                    {"IDLE": None, "HOLDING": None, "ABORTED": None})
-        self.__stateMachine.addState("HOLDING", {"ABORTED": None, "IDLE": None}, 
+            self.__stateMachine.addState("IDLE", ("DOWN",))
+            self.__stateMachine.addState("DOWN", ("IDLE", "HOLDING", "ABORTED"))
+        self.__stateMachine.addState("HOLDING", ("ABORTED", "IDLE"), 
                 enterFunc=self.__enterHolding)
-        self.__stateMachine.addState("ABORTED", {"IDLE": None},
-                enterFunc=self.__enterAborted)
+        self.__stateMachine.addState("ABORTED", ("IDLE",), enterFunc=self.__enterAborted)
 
         self.__maxDistance = TapRecognizer.MAX_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
         self.__onFrameHandler = None
@@ -285,12 +283,12 @@ class DragRecognizer(Recognizer):
         self.__friction = friction
 
         self.__stateMachine = statemachine.StateMachine("DragRecognizer", "IDLE")
-        self.__stateMachine.addState("IDLE", {"DRAG": None})
+        self.__stateMachine.addState("IDLE", ("DRAG",))
         if friction == -1:
-            self.__stateMachine.addState("DRAG", {"IDLE": None})
+            self.__stateMachine.addState("DRAG", ("IDLE",))
         else:
-            self.__stateMachine.addState("DRAG", {"SLIDE": None})
-            self.__stateMachine.addState("SLIDE", {"IDLE": None, "DRAG": None})
+            self.__stateMachine.addState("DRAG", ("SLIDE",))
+            self.__stateMachine.addState("SLIDE", ("IDLE", "DRAG"))
 
         self.__inertiaHandler = None
         Recognizer.__init__(self, eventNode, eventSource, 1, initialEvent)
