@@ -507,7 +507,13 @@ Misc. Classes
             changeState.
 
             :param String state: The name of the state to add.
-            :param transitions: A dict of destinationState: callable pairs. 
+            :param transitions: 
+            
+                This parameter can be either a list of destination states or a dict of
+                destinationState: callable pairs. The callables are invoked whenever the
+                corresponding state change happens. If :py:meth:`transitions` is a list,
+                no state change callbacks are registered.
+
             :param enterFunc: A callable to invoke whenever the state is entered.
             :param leaveFunc: A callable to invoke whenever the state is left.
 
