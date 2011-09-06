@@ -389,6 +389,13 @@ class PythonTestCase(AVGTestCase):
         self.assert_(machine.state == 'A')
         self.assertException(lambda: machine.addState('illegal', {}))
 
+        # Create a machine without transition callbacks
+        machine = statemachine.StateMachine("testmachine", 'A')
+        machine.addState('A', ('B',), aEntered, aLeft)
+        machine.addState('B', ('C', 'A'))
+        machine.addState('C', ('A',))
+        machine.changeState('B')
+
         # Make a machine with a transition to a nonexistent state.
         kaputtMachine = statemachine.StateMachine("kaputt", 'A')
         kaputtMachine.addState('A', {'B': None})

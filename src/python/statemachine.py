@@ -39,6 +39,8 @@ class StateMachine:
         if self.__states.has_key(state):
             raise RuntimeError("StateMachine: Duplicate state " + state + ".")
 
+        if isinstance(transitions, (list, tuple)):
+            transitions = dict.fromkeys(transitions)
         self.__states[state] = State(transitions, enterFunc, leaveFunc)
 
     def changeState(self, newState):
