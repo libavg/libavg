@@ -189,24 +189,18 @@ class HoldRecognizer(Recognizer):
 class TapRecognizer(Recognizer):
 
     MAX_DISTANCE_IN_MM = 8
-    MIN_TIME = 0
     MAX_TIME = 500
 
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
-            tapHandler=None, failHandler=None, minTime=MIN_TIME, maxTime=MAX_TIME,
+            tapHandler=None, failHandler=None, maxTime=MAX_TIME,
             initialEvent=None):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__tapHandler = optionalCallback(tapHandler, lambda:None)
         self.__failHandler = optionalCallback(failHandler, lambda:None)
-        self.__minTime = minTime
         self.__maxTime = maxTime
 
         self.__stateMachine = statemachine.StateMachine("TapRecognizer", "IDLE")
-        if self.__minTime == 0:
-            self.__stateMachine.addState("IDLE", ("HOLDING",))
-        else:
-            self.__stateMachine.addState("IDLE", ("DOWN",))
-            self.__stateMachine.addState("DOWN", ("IDLE", "HOLDING", "ABORTED"))
+        self.__stateMachine.addState("IDLE", ("HOLDING",))
         self.__stateMachine.addState("HOLDING", ("ABORTED", "IDLE"), 
                 enterFunc=self.__enterHolding)
         self.__stateMachine.addState("ABORTED", ("IDLE",), enterFunc=self.__enterAborted)
@@ -216,8 +210,7 @@ class TapRecognizer(Recognizer):
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def _handleDown(self, event):
-        if self.__minTime == 0:
-            self.__stateMachine.changeState("HOLDING")
+        self.__stateMachine.changeState("HOLDING")
         self.__startTime = g_Player.getFrameTime()
         self.__onFrameHandler = g_Player.setOnFrameHandler(self.__onFrame)
 
@@ -227,10 +220,7 @@ class TapRecognizer(Recognizer):
                 self.__stateMachine.changeState("ABORTED")
 
     def _handleUp(self, event):
-        if self.__stateMachine.state == "DOWN":
-            self.__abort()
-            self.__stateMachine.changeState("IDLE")
-        elif self.__stateMachine.state == "HOLDING":
+        if self.__stateMachine.state == "HOLDING":
             if event.contact.distancefromstart > self.__maxDistance:
                 self.__abort()
             else:
@@ -241,10 +231,7 @@ class TapRecognizer(Recognizer):
 
     def __onFrame(self):
         downTime = g_Player.getFrameTime() - self.__startTime
-        if self.__stateMachine.state == "DOWN":
-            if downTime > self.__minTime:
-                self.__stateMachine.changeState("HOLDING")
-        elif self.__stateMachine.state == "HOLDING":
+        if self.__stateMachine.state == "HOLDING":
             if downTime > self.__maxTime:
                 self.__stateMachine.changeState("ABORTED")
         else:
