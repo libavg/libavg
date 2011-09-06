@@ -27,6 +27,10 @@ from math import *
 
 g_Player = avg.Player.get()
 
+MAX_TAP_DISTANCE_IN_MM = 8
+MAX_TAP_TIME = 500
+MAX_DOUBLETAP_TIME = 300
+
 class ContactData:
 
     def __init__(self, listenerid):
@@ -188,12 +192,8 @@ class HoldRecognizer(Recognizer):
 
 class TapRecognizer(Recognizer):
 
-    MAX_DISTANCE_IN_MM = 8
-    MAX_TIME = 500
-
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
-            tapHandler=None, failHandler=None, maxTime=MAX_TIME,
-            initialEvent=None):
+            tapHandler=None, failHandler=None, maxTime=MAX_TAP_TIME, initialEvent=None):
         self.__startHandler = optionalCallback(startHandler, lambda:None)
         self.__tapHandler = optionalCallback(tapHandler, lambda:None)
         self.__failHandler = optionalCallback(failHandler, lambda:None)
@@ -205,7 +205,8 @@ class TapRecognizer(Recognizer):
                 enterFunc=self.__enterHolding)
         self.__stateMachine.addState("ABORTED", ("IDLE",), enterFunc=self.__enterAborted)
 
-        self.__maxDistance = TapRecognizer.MAX_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
+        self.__maxDistance = (
+                MAX_TAP_DISTANCE_IN_MM*g_Player.getPixelsPerMM())
         self.__onFrameHandler = None
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
@@ -242,6 +243,83 @@ class TapRecognizer(Recognizer):
         
     def __enterAborted(self):
         self.__abort()
+
+    def __abort(self):
+        self.__failHandler()
+        g_Player.clearInterval(self.__onFrameHandler)
+        self.__onFrameHandler = None
+
+    def __recognize(self):
+        g_Player.clearInterval(self.__onFrameHandler)
+        self.__onFrameHandler = None
+        self.__tapHandler()
+
+
+class DoubletapRecognizer(Recognizer):
+    
+    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None,
+            tapHandler=None, failHandler=None, maxTime=MAX_DOUBLETAP_TIME, 
+            initialEvent=None):
+        self.__startHandler = optionalCallback(startHandler, lambda:None)
+        self.__tapHandler = optionalCallback(tapHandler, lambda:None)
+        self.__failHandler = optionalCallback(failHandler, lambda:None)
+        self.__maxTime = maxTime
+
+        self.__stateMachine = statemachine.StateMachine("TapRecognizer", "IDLE")
+        self.__stateMachine.addState("IDLE", ("DOWN1",))
+        self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
+        self.__stateMachine.addState("UP1", ("DOWN2", "IDLE"))
+        self.__stateMachine.addState("DOWN2", ("IDLE",))
+
+        self.__maxDistance = MAX_TAP_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
+        self.__onFrameHandler = None
+        Recognizer.__init__(self, node, eventSource, 1, initialEvent)
+   
+    def _handleDown(self, event):
+        self.__startTime = g_Player.getFrameTime()
+        if self.__stateMachine.state == "IDLE":
+            self.__stateMachine.changeState("DOWN1")
+            self.__onFrameHandler = g_Player.setOnFrameHandler(self.__onFrame)
+            self.__startPos = event.pos
+            self.__startHandler()
+        elif self.__stateMachine.state == "UP1":
+            if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
+                self.__stateMachine.changeState("IDLE")
+                self.__abort()
+            else:
+                self.__stateMachine.changeState("DOWN2")
+        else:
+            assert(False)
+
+    def _handleMove(self, event):
+        if self.__stateMachine.state != "IDLE": 
+            if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
+                self.__stateMachine.changeState("IDLE")
+                self.__abort()
+
+    def _handleUp(self, event):
+        if self.__stateMachine.state == "DOWN1":
+            self.__startTime = g_Player.getFrameTime()
+            self.__stateMachine.changeState("UP1")
+        elif self.__stateMachine.state == "DOWN2":
+            if (event.pos - self.__startPos).getNorm() > self.__maxDistance:
+                self.__abort()
+            else:
+                self.__recognize()
+            self.__stateMachine.changeState("IDLE")
+        elif self.__stateMachine.state == "IDLE":
+            pass
+        else:
+            assert(False)
+
+    def __onFrame(self):
+        downTime = g_Player.getFrameTime() - self.__startTime
+        if self.__stateMachine.state != "IDLE":
+            if downTime > self.__maxTime:
+                self.__abort()
+                self.__stateMachine.changeState("IDLE")
+        else:
+            assert(False)
 
     def __abort(self):
         self.__failHandler()
@@ -491,7 +569,7 @@ class Transform():
 
 class TransformRecognizer(Recognizer):
 
-    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH, 
+    def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
             startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
             initialEvent=None, friction=-1):
         if coordSysNode != None:

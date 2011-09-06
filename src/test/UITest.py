@@ -305,6 +305,72 @@ class UITestCase(AVGTestCase):
                 ))
 
 
+    def testDoubletapRecognizer(self):
+
+        def onStart():
+            self.__startCalled = True
+
+        def onTap():
+            self.__tapCalled = True
+
+        def onFail():
+            self.__failCalled = True
+
+        def initState():
+            self.__startCalled = False
+            self.__tapCalled = False
+            self.__failCalled = False
+
+        def assertEvents(start, tap, fail):
+            self.assert_(self.__startCalled == start and
+                self.__tapCalled == tap and
+                self.__failCalled == fail)
+
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.__tapRecognizer = ui.DoubletapRecognizer(image,
+                startHandler=onStart,
+                tapHandler=onTap,
+                failHandler=onFail)
+        initState()
+        self.start((
+                 # Down, up, down, up: click
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down, move: abort
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 30),
+                 lambda: assertEvents(True, False, True),
+                 # Down, up, move: abort
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 50, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 30),
+                 lambda: assertEvents(True, False, True),
+                 # Down, up, down, move: abort
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 0, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 30),
+                 lambda: assertEvents(True, False, True),
+                ))
+
+
     def testDragRecognizer(self):
 
         def onDragStart(event):
@@ -1212,6 +1278,7 @@ def uiTestSuite(tests):
         "testFocusContext",
         "testHoldRecognizer",
         "testTapRecognizer",
+        "testDoubletapRecognizer",
         "testDragRecognizer",
         "testDragRecognizerRelCoords",
         "testDragRecognizerInitialEvent",

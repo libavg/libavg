@@ -23,11 +23,11 @@ def moveNodeOnScreen(node):
 
 
 class TextRect(avg.DivNode):
-    def __init__(self, text, color, bgcolor, **kwargs):
+    def __init__(self, text, **kwargs):
         avg.DivNode.__init__(self, size=(150,40), **kwargs)
-        self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor=bgcolor, 
-                color=color, parent=self)
-        self.words = avg.WordsNode(color=color, text=text, alignment="center", 
+        self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor="000000", 
+                color="FFFFFF", parent=self)
+        self.words = avg.WordsNode(color="FFFFFF", text=text, alignment="center", 
                 parent=self)
         self.words.pos = (self.size-(0,self.words.size.y)) / 2
 
@@ -44,11 +44,11 @@ class TextRect(avg.DivNode):
 
 class TransformNode(TextRect):
     def __init__(self, text, ignoreScale, ignoreRotation, friction=-1, **kwargs):
-        TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
+        TextRect.__init__(self, text, **kwargs)
         self.__ignoreScale = ignoreScale
         self.__ignoreRotation = ignoreRotation
 
-        self.transformer = ui.TransformRecognizer(
+        ui.TransformRecognizer(
                 eventNode=self, 
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
@@ -74,12 +74,12 @@ class TransformNode(TextRect):
 class TransformChildNode(avg.DivNode):
     def __init__(self, text, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
-        self.textRect = TextRect(text, "FFFFFF", "000000", parent=self)
+        self.textRect = TextRect(text, parent=self)
         self.size = self.textRect.size
 
         self.inputNode = avg.RectNode(size=(self.size.x, self.size.y/2), 
                 fillopacity=0.5, fillcolor="808080", strokewidth=0, parent=self)
-        self.transformer = ui.TransformRecognizer(
+        ui.TransformRecognizer(
                 eventNode=self.inputNode,
                 coordSysNode=self,
                 startHandler=self.__onStart,
@@ -100,9 +100,9 @@ class TransformChildNode(avg.DivNode):
 
 class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
-        TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
+        TextRect.__init__(self, text, **kwargs)
     
-        self.dragger = ui.DragRecognizer(
+        ui.DragRecognizer(
                 eventNode=self,
                 startHandler=self.__onStart,
                 moveHandler=self.__onMove,
@@ -124,11 +124,15 @@ class DragNode(TextRect):
 
 
 class TapNode(TextRect):
-    def __init__(self, text, **kwargs):
-        TextRect.__init__(self, text, "FFFFFF", "000000", **kwargs)
+    def __init__(self, text, isDoubleTap, **kwargs):
+        TextRect.__init__(self, text, **kwargs)
     
-        self.tapRecognizer = ui.TapRecognizer(node=self, startHandler=self.__onStart,
-                tapHandler=self.__onTap, failHandler=self.__onFail)
+        if isDoubleTap:
+            ui.DoubletapRecognizer(node=self, startHandler=self.__onStart,
+                    tapHandler=self.__onTap, failHandler=self.__onFail)
+        else:
+            ui.TapRecognizer(node=self, startHandler=self.__onStart,
+                    tapHandler=self.__onTap, failHandler=self.__onFail)
 
     def __onStart(self):
         self.rect.fillcolor = "FFFFFF"
@@ -189,6 +193,12 @@ class GestureDemoApp(libavg.AVGApp):
 
         TapNode(text="TapRecognizer",
                 pos=(380,20),
+                isDoubleTap=False,
+                parent=self._parentNode)
+
+        TapNode(text="DoubletapRecognizer",
+                pos=(380,70),
+                isDoubleTap=True,
                 parent=self._parentNode)
 
 
