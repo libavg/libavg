@@ -299,7 +299,7 @@ class DoubletapRecognizer(Recognizer):
             self.__stateMachine.changeState("IDLE")
 
     def __enterIdle(self):
-        g_Player.clearInterval(self.__onFrame)
+        g_Player.clearInterval(self.__frameHandlerID)
 
 
 class DragRecognizer(Recognizer):
