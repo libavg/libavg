@@ -282,6 +282,7 @@ class UITestCase(AVGTestCase):
                 tapHandler=onTap,
                 failHandler=onFail)
         initState()
+        Player.setFakeFPS(10)
         self.start((
                  # Down-up: recognized as tap.
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -299,6 +300,12 @@ class UITestCase(AVGTestCase):
                  initState,
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.__sendMouseEvent(avg.CURSORMOTION, 100, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, True),
+                 # Down-delay: abort
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.delay(600),
                  lambda: assertEvents(True, False, True),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, False, True),
@@ -333,6 +340,7 @@ class UITestCase(AVGTestCase):
                 tapHandler=onTap,
                 failHandler=onFail)
         initState()
+        Player.setFakeFPS(10)
         self.start((
                  # Down, up, down, up: click
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -368,6 +376,24 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, False, True),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
+                 # Down,delay: abort
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.delay(600),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, True),
+                 # Down, up, delay: abort
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: self.delay(600),
+                 lambda: assertEvents(True, False, True),
+                 # Down, up, down, delay: abort
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.delay(600),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
                 ))
 
 

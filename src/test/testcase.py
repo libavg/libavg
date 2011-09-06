@@ -102,6 +102,7 @@ class AVGTestCase(unittest.TestCase):
     def start(self, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
+        self.__delaying = False
         
         self.assert_(self.__player.isPlaying() == 0)
         self.actions = flatten(actions)
@@ -110,6 +111,12 @@ class AVGTestCase(unittest.TestCase):
         self.__player.setFramerate(10000)
         self.__player.play()
         self.assert_(self.__player.isPlaying() == 0)
+
+    def delay(self, time):
+        def timeout():
+            self.__delaying = False
+        self.__delaying = True
+        self.__player.setTimeout(time, timeout)
 
     def compareImage(self, fileName, warn):
         bmp = self.__player.screenshot()
@@ -180,15 +187,16 @@ class AVGTestCase(unittest.TestCase):
         return bool(os.access('.', os.W_OK))
     
     def __nextAction(self):
-        if self.__dumpTestFrames:
-            self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
-        if len(self.actions) == self.curFrame:
-            self.__player.stop()
-        else:
-            action = self.actions[self.curFrame]
-            if action != None:
-                action()
-        self.curFrame += 1
+        if not(self.__delaying):
+            if self.__dumpTestFrames:
+                self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
+            if len(self.actions) == self.curFrame:
+                self.__player.stop()
+            else:
+                action = self.actions[self.curFrame]
+                if action != None:
+                    action()
+            self.curFrame += 1
     
 
 def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
