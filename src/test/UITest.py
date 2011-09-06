@@ -28,6 +28,612 @@ class UITestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
     
+    def testKeyboard(self):
+        def setup():
+            keyDefs = [
+                    [("a", "A"), ( 5, 5), (30, 30)],
+                    [(1, ),      (35, 5), (30, 30)],
+                    ["SHIFT",    (65, 5), (50, 30)]]
+            kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
+                    pos=(10, 10), parent = root)
+            kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
+            kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
+                    pos=(10, 60), parent = root)
+            kbShift.setKeyHandler(onKeyDown, onKeyUp)
+
+        def onKeyDown(event, char, cmd):
+            self.__keyDown = True
+            self.__keyUp   = False
+            self.__char = char
+            self.__cmd = cmd
+
+        def onKeyUp(event, char, cmd):
+            self.__keyDown = False
+            self.__keyUp   = True
+            self.__char = char
+            self.__cmd = cmd
+
+        root = self.loadEmptyScene()
+
+        self.__keyDown = False
+        self.__keyUp   = True
+        self.__char = "foo"
+        self.__cmd = "bar"
+        self.start((
+                 setup,
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test character key
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(self.__keyDown and not self.__keyUp),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDownA1", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test command key
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 100, 30),
+                 lambda: self.assert_(self.__keyDown and not self.__keyUp),
+                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
+                 lambda: self.compareImage("testUIKeyboardDownS1", False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 100, 30),
+                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
+                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test shift key (no shift key support)
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 100, 30),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 30, 30),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 60, 30),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDownA111S1", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 30),
+                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORUP, 60, 30),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 30),
+                 lambda: self.compareImage("testUIKeyboard", False),
+                 # test shift key (with shift key support)
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 100, 80),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 30, 80),
+                 lambda: self.assert_(self.__char == "A" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 60, 80),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.compareImage("testUIKeyboardDownA212S2", False),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 80),
+                 lambda: self.assert_(self.__char == "A" and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(3, avg.CURSORUP, 60, 80),
+                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 80),
+                 lambda: self.compareImage("testUIKeyboard", False)
+                ))
+
+    def testTextArea(self):
+        def setup():
+            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
+            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=16, multiline=True, color='FFFFFF')
+            self.ta1.setText('Lorem ipsum')
+            self.ta1.setFocus(True) # TODO: REMOVE
+
+            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'), id='ta2')
+            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=14, multiline=False, color='FFFFFF')
+            self.ta2.setText('sit dolor')
+            self.ta2.setFocus(True) # TODO: REMOVE
+            
+        def setAndCheck(ta, text):
+            ta.setText(text)
+            self.assert_(ta.getText() == text)
+        
+        def clear(ta):
+            ta.onKeyDown(textarea.KEYCODE_FORMFEED)
+            self.assert_(ta.getText() == '')
+        
+        def testUnicode():
+            self.ta1.setText(u'some ùnìcöde')
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
+            self.assert_(self.ta1.getText() == u'some ùnìcöd')
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[1])
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
+            self.assert_(self.ta1.getText() == u'some ùnìc')
+            self.ta1.onKeyDown(ord(u'Ä'))
+            self.assert_(self.ta1.getText() == u'some ùnìcÄ')
+        
+        def testSpecialChars():
+            clear(self.ta1)
+            self.ta1.onKeyDown(ord(u'&'))
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
+            self.assert_(self.ta1.getText() == '')
+        
+        def checkSingleLine():
+            text = ''
+            self.ta2.setText('')
+            while True:
+                self.assert_(len(text) < 20)
+                self.ta2.onKeyDown(ord(u'A'))
+                text = text + 'A'
+                if text != self.ta2.getText():
+                    self.assert_(len(text) == 16)
+                    break
+        
+        root = self.loadEmptyScene()
+        avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
+        avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
+        
+        textarea.init(avg, False)
+        self.start((
+                setup,
+                lambda: self.assert_(self.ta1.getText() == 'Lorem ipsum'),
+                lambda: setAndCheck(self.ta1, ''),
+                lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
+                testUnicode,
+                lambda: self.compareImage("testTextArea1", True),
+                testSpecialChars,
+                checkSingleLine,
+                lambda: self.compareImage("testTextArea2", True),
+               ))
+
+
+    def testHoldRecognizer(self):
+      
+        def onStart(pos):
+            self.__startCalled = True
+            self.assert_(self.__holdRecognizer.getLastEvent().pos == pos)
+            return True
+
+        def onHold(time):
+            self.__holdCalled = True
+            self.assert_(time >= 0 and time <= 1)
+
+        def onActivate():
+            self.__activateCalled = True
+
+        def onStop():
+            self.__stopCalled = True
+
+        def initState():
+            self.__startCalled = False
+            self.__holdCalled = False
+            self.__activateCalled = False
+            self.__stopCalled = False
+
+        def assertEvents(start, hold, activate, stop):
+#            print (self.__startCalled, self.__holdCalled, self.__activateCalled,
+#                    self.__stopCalled)
+            self.assert_(self.__startCalled == start and
+                self.__holdCalled == hold and
+                self.__activateCalled == activate and
+                self.__stopCalled == stop)
+
+        Player.setFakeFPS(2)
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.__holdRecognizer = ui.HoldRecognizer(image,
+                holdDelay=1000,
+                activateDelay=2000, 
+                startHandler=onStart, 
+                holdHandler=onHold, 
+                activateHandler=onActivate, 
+                stopHandler=onStop)
+        initState()
+        self.start((
+                 # Standard down-hold-up sequence.
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False, False),
+                 None,
+                 None,
+                 lambda: assertEvents(True, True, False, False),
+                 None,
+                 None,
+                 lambda: assertEvents(True, True, True, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, True, True),
+                 
+                 # down-up sequence, hold not long enough.
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 None,
+                 None,
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False, True),
+
+                 # down-move-up sequence, should abort. 
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 None,
+                 None,
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 40),
+                 lambda: assertEvents(True, True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 50),
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 40),
+                 lambda: assertEvents(False, False, False, False),
+                ))
+        Player.setFakeFPS(-1)
+
+
+    def testTapRecognizer(self):
+
+        def onStart():
+            self.__startCalled = True
+
+        def onTap():
+            self.__tapCalled = True
+
+        def onFail():
+            self.__failCalled = True
+
+        def initState():
+            self.__startCalled = False
+            self.__tapCalled = False
+            self.__failCalled = False
+
+        def assertEvents(start, tap, fail):
+#            print (self.__startCalled, self.__tapCalled, self.__failCalled)
+            self.assert_(self.__startCalled == start and
+                self.__tapCalled == tap and
+                self.__failCalled == fail)
+
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.__tapRecognizer = ui.TapRecognizer(image,
+                startHandler=onStart,
+                tapHandler=onTap,
+                failHandler=onFail)
+        initState()
+        self.start((
+                 # Down-up: recognized as tap.
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-small move-up: recognized as tap.
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 31, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-big move-up: abort
+                 initState,
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 100, 30),
+                 lambda: assertEvents(True, False, True),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, True),
+                ))
+
+
+    def testDragRecognizer(self):
+
+        def onDragStart(event):
+            self.__dragStartCalled = True
+
+        def onDrag(event, offset):
+            if self.friction == -1:
+                self.assert_(offset == (40,40))
+            self.__dragMoveCalled = True
+
+        def onDragUp(event, offset):
+            if self.friction == -1:
+                self.assert_(offset == (10,-10))
+            self.__dragUpCalled = True
+
+        def onDragStop():
+            self.__dragStopCalled = True
+
+        def disable():
+            dragRecognizer.enable(False)
+            initState()
+
+        def initState():
+            self.__dragStartCalled = False
+            self.__dragMoveCalled = False
+            self.__dragUpCalled = False
+            self.__dragStopCalled = False
+
+        def assertDragEvents(start, move, up, stop):
+            self.assert_(self.__dragStartCalled == start and
+                self.__dragMoveCalled == move and
+                self.__dragUpCalled == up and
+                self.__dragStopCalled == stop)
+
+        Player.setFakeFPS(100)
+        for self.friction in (-1, 100):
+            root = self.loadEmptyScene()
+            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+            dragRecognizer = ui.DragRecognizer(image, 
+                    startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
+                    stopHandler=onDragStop, friction=self.friction)
+            initState()
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(True, False, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                     lambda: assertDragEvents(True, True, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(True, True, True, True),
+                     disable,
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: dragRecognizer.enable(True),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(True, False, False, False),
+                    ))
+        Player.setFakeFPS(-1)
+
+
+    def testDragRecognizerRelCoords(self):
+
+        def onDrag(event, offset):
+            self.assert_(almostEqual(offset, (-40,-40)))
+
+        Player.setFakeFPS(100)
+        for self.friction in (-1, 100):
+            root = self.loadEmptyScene()
+            div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
+            image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+            ui.DragRecognizer(image, moveHandler=onDrag, friction=self.friction)
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                    ))
+        Player.setFakeFPS(-1)
+        
+    
+    def testDragRecognizerInitialEvent(self):
+
+        def onMotion(event):
+            ui.DragRecognizer(self.image, 
+                    startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
+            self.image.disconnectEventHandler(self)
+           
+        def onDragStart(event):
+            self.__dragStartCalled = True
+
+        def onDrag(event, offset):
+            self.assert_(offset == (10,0))
+
+        root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
+        self.__dragStartCalled = False
+        self.start((
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
+                ))
+        assert(self.__dragStartCalled)
+
+
+    def testDragRecognizerCoordSysNode(self):
+        
+        def onDrag(event, offset):
+            self.assert_(offset == (40,40))
+
+        root = self.loadEmptyScene()
+        div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        ui.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, friction=-1)
+        self.start((
+                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
+                ))
+
+
+    def testTransformRecognizer(self):
+        
+        def onStart():
+            pass
+
+        def onMove(transform):
+            self.transform = transform
+
+        def onUp(transform):
+            self.transform = transform
+
+        def checkTransform(expectedTransform):
+#            print self.transform
+#            print expectedTransform
+#            print
+            self.assert_(almostEqual(self.transform.trans, expectedTransform.trans))
+            self.assert_(almostEqual(self.transform.rot, expectedTransform.rot))
+            self.assert_(almostEqual(self.transform.scale, expectedTransform.scale))
+            if expectedTransform.rot != 0 or expectedTransform.scale != 1:
+                self.assert_(almostEqual(self.transform.pivot, expectedTransform.pivot))
+
+        def createTransTestFrames():
+            return (
+                    lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                    lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
+                    lambda: checkTransform(ui.Transform((10,0))),
+                )
+
+        def createRotTestFrames(expectedTransform):
+            return (
+                    lambda: self.__sendTouchEvents((
+                            (1, avg.CURSORDOWN, 0, 10),
+                            (2, avg.CURSORDOWN, 0, 20))),
+                    lambda: self.__sendTouchEvents((
+                            (1, avg.CURSORMOTION, 0, 20),
+                            (2, avg.CURSORMOTION, 0, 10))),
+                    lambda: checkTransform(expectedTransform),
+                    lambda: self.__sendTouchEvents((
+                            (1, avg.CURSORUP, 0, 20),
+                            (2, avg.CURSORUP, 0, 10))),
+                )
+
+        def createScaleTestFrames(expectedTransform):
+            return (
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
+                 lambda: checkTransform(expectedTransform),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
+                )
+
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp)
+        self.start((
+                 # Check up/down handling
+                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
+                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 20),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: self.__sendTouchEvents((
+                        (1, avg.CURSORMOTION, 30, 10),
+                        (2, avg.CURSORMOTION, 30, 20))),
+                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 20),
+                 lambda: checkTransform(ui.Transform((0,0))),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 40, 10),
+                 lambda: checkTransform(ui.Transform((10,0))),
+                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
+                 lambda: checkTransform(ui.Transform((10,0))),
+
+                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
+
+                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20)))
+                ))
+
+        # Test rel. coords.
+        root = self.loadEmptyScene()
+        div = avg.DivNode(parent=root, pos=(0,10))
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp)
+        self.start((
+            createTransTestFrames(),
+            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
+            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
+            ))
+
+        # Test coordSysNode.
+        root = self.loadEmptyScene()
+        div = avg.DivNode(parent=root, pos=(0,10))
+        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
+        self.__transformRecognizer = ui.TransformRecognizer(image, 
+                startHandler=onStart, moveHandler=onMove, upHandler=onUp, 
+                coordSysNode=div)
+        self.start((
+            createTransTestFrames(),
+            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
+            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
+            ))
+
+
+    def testKMeans(self):
+        pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
+        means = ui.calcKMeans(pts)
+        self.assert_(means == ([0], [1]))
+
+        pts.append (avg.Point2D(0,4))
+        means = ui.calcKMeans(pts)
+        self.assert_(means == ([0,1], [2]))
+
+
+    def testMat3x3(self):
+        t = ui.Mat3x3.translate([1,0,1])
+        v = [1,0,1]
+        self.assert_(t.applyVec(v) == [2,0,1])
+        r = ui.Mat3x3.rotate(math.pi/2)
+        self.assert_(almostEqual(r.applyVec(v), [0,1,1]))
+        t2 = t.applyMat(t)
+        self.assert_(almostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m))
+        self.assert_(almostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m))
+        self.assert_(almostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m))
+        self.assert_(almostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m))
+        m = ui.Mat3x3([-1,  3, -3], 
+                      [ 0, -6,  5],
+                      [-5, -3,  1])
+        im = ui.Mat3x3([3./2,      1., -1./2],
+                       [-25./6, -8./3,  5./6],
+                       [-5.,      -3.,    1.])
+        self.assert_(almostEqual(m.inverse().m, im.m))
+
+        image = avg.ImageNode(pos=(10,20), size=(30,40), angle=1.57, 
+            href="rgb24alpha-64x64.png")
+        mat = ui.Mat3x3.fromNode(image)
+        mat.setNodeTransform(image)
+        self.assert_(almostEqual(image.pos, (10,20)))
+        self.assert_(almostEqual(image.size, (30,40)))
+        self.assert_(almostEqual(image.angle, 1.57))
+
+
+    def testFocusContext(self):
+        def setup():
+            textarea.init(avg)
+            self.ctx1 = textarea.FocusContext()
+            self.ctx2 = textarea.FocusContext()
+            
+            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
+                self.ctx1, id='ta1')
+            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=16, multiline=True, color='FFFFFF')
+            self.ta1.setText('Lorem ipsum')
+            
+            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
+                self.ctx1, id='ta2')
+            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=14, multiline=False, color='FFFFFF')
+            self.ta2.setText('dolor')
+            
+            self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
+                self.ctx2, disableMouseFocus=True, id='ta3')
+            self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                fontsize=14, multiline=True, color='FFFFFF')
+            self.ta3.setText('dolor sit amet')
+            
+            textarea.setActiveFocusContext(self.ctx1)
+
+        def writeChar():
+            helper = Player.getTestHelper()
+            helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
+            helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
+            helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
+            helper.fakeKeyEvent(avg.KEYUP, 66, 66, "B", 66, 0)
+            helper.fakeKeyEvent(avg.KEYDOWN, 67, 67, "C", 67, 0)
+            helper.fakeKeyEvent(avg.KEYUP, 67, 67, "C", 67, 0)
+
+        def switchFocus():
+            self.ctx1.cycleFocus()
+
+        def clearFocused():
+            self.ctx1.clear()
+
+        def clickForFocus():
+            self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
+            self.__sendMouseEvent(avg.CURSORUP, 20, 70)
+
+        root = self.loadEmptyScene()
+        avg.DivNode(id="ph1", pos=(2,2), size=(156,54), parent=root)
+        avg.DivNode(id="ph2", pos=(2,58), size=(76,54), parent=root)
+        div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
+        avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
+        self.start((
+                 setup,
+                 lambda: self.compareImage("testFocusContext1", True),
+                 writeChar,
+                 lambda: self.compareImage("testFocusContext2", True),
+                 switchFocus,
+                 writeChar,
+                 lambda: self.compareImage("testFocusContext3", True),
+                 switchFocus,
+                 clearFocused,
+                 lambda: self.compareImage("testFocusContext4", True),
+                 clickForFocus,
+                 clearFocused,
+                 lambda: self.compareImage("testFocusContext5", True),
+               ))
+
     def testButton(self):
         def onDown(event):
             self.__down = True
@@ -581,614 +1187,6 @@ class UITestCase(AVGTestCase):
         runTest()
         
 
-    def testKeyboard(self):
-        def setup():
-            keyDefs = [
-                    [("a", "A"), ( 5, 5), (30, 30)],
-                    [(1, ),      (35, 5), (30, 30)],
-                    ["SHIFT",    (65, 5), (50, 30)]]
-            kbNoShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, None,
-                    pos=(10, 10), parent = root)
-            kbNoShift.setKeyHandler(onKeyDown, onKeyUp)
-            kbShift = ui.Keyboard("keyboard_bg.png", "keyboard_ovl.png", keyDefs, "SHIFT",
-                    pos=(10, 60), parent = root)
-            kbShift.setKeyHandler(onKeyDown, onKeyUp)
-
-        def onKeyDown(event, char, cmd):
-            self.__keyDown = True
-            self.__keyUp   = False
-            self.__char = char
-            self.__cmd = cmd
-
-        def onKeyUp(event, char, cmd):
-            self.__keyDown = False
-            self.__keyUp   = True
-            self.__char = char
-            self.__cmd = cmd
-
-        root = self.loadEmptyScene()
-
-        self.__keyDown = False
-        self.__keyUp   = True
-        self.__char = "foo"
-        self.__cmd = "bar"
-        self.start((
-                 setup,
-                 lambda: self.compareImage("testUIKeyboard", False),
-                 # test character key
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.assert_(self.__keyDown and not self.__keyUp),
-                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
-                 lambda: self.compareImage("testUIKeyboardDownA1", False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
-                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
-                 lambda: self.compareImage("testUIKeyboard", False),
-                 # test command key
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 100, 30),
-                 lambda: self.assert_(self.__keyDown and not self.__keyUp),
-                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
-                 lambda: self.compareImage("testUIKeyboardDownS1", False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 100, 30),
-                 lambda: self.assert_(not self.__keyDown and self.__keyUp),
-                 lambda: self.assert_(self.__char is None and self.__cmd == "SHIFT"),
-                 lambda: self.compareImage("testUIKeyboard", False),
-                 # test shift key (no shift key support)
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 100, 30),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 30, 30),
-                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
-                 lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 60, 30),
-                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
-                 lambda: self.compareImage("testUIKeyboardDownA111S1", False),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 30),
-                 lambda: self.assert_(self.__char == "a" and self.__cmd is None),
-                 lambda: self.__sendTouchEvent(3, avg.CURSORUP, 60, 30),
-                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 30),
-                 lambda: self.compareImage("testUIKeyboard", False),
-                 # test shift key (with shift key support)
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 100, 80),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 30, 80),
-                 lambda: self.assert_(self.__char == "A" and self.__cmd is None),
-                 lambda: self.__sendTouchEvent(3, avg.CURSORDOWN, 60, 80),
-                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
-                 lambda: self.compareImage("testUIKeyboardDownA212S2", False),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 80),
-                 lambda: self.assert_(self.__char == "A" and self.__cmd is None),
-                 lambda: self.__sendTouchEvent(3, avg.CURSORUP, 60, 80),
-                 lambda: self.assert_(self.__char == 1 and self.__cmd is None),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 100, 80),
-                 lambda: self.compareImage("testUIKeyboard", False)
-                ))
-
-    def testTextArea(self):
-        def setup():
-            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
-            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=16, multiline=True, color='FFFFFF')
-            self.ta1.setText('Lorem ipsum')
-            self.ta1.setFocus(True) # TODO: REMOVE
-
-            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'), id='ta2')
-            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='FFFFFF')
-            self.ta2.setText('sit dolor')
-            self.ta2.setFocus(True) # TODO: REMOVE
-            
-        def setAndCheck(ta, text):
-            ta.setText(text)
-            self.assert_(ta.getText() == text)
-        
-        def clear(ta):
-            ta.onKeyDown(textarea.KEYCODE_FORMFEED)
-            self.assert_(ta.getText() == '')
-        
-        def testUnicode():
-            self.ta1.setText(u'some ùnìcöde')
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìcöd')
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[1])
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìc')
-            self.ta1.onKeyDown(ord(u'Ä'))
-            self.assert_(self.ta1.getText() == u'some ùnìcÄ')
-        
-        def testSpecialChars():
-            clear(self.ta1)
-            self.ta1.onKeyDown(ord(u'&'))
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == '')
-        
-        def checkSingleLine():
-            text = ''
-            self.ta2.setText('')
-            while True:
-                self.assert_(len(text) < 20)
-                self.ta2.onKeyDown(ord(u'A'))
-                text = text + 'A'
-                if text != self.ta2.getText():
-                    self.assert_(len(text) == 16)
-                    break
-        
-        root = self.loadEmptyScene()
-        avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
-        avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
-        
-        textarea.init(avg, False)
-        self.start((
-                setup,
-                lambda: self.assert_(self.ta1.getText() == 'Lorem ipsum'),
-                lambda: setAndCheck(self.ta1, ''),
-                lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
-                testUnicode,
-                lambda: self.compareImage("testTextArea1", True),
-                testSpecialChars,
-                checkSingleLine,
-                lambda: self.compareImage("testTextArea2", True),
-               ))
-
-
-    def testHoldRecognizer(self):
-      
-        def onStart(pos):
-            self.__startCalled = True
-            self.assert_(self.__holdRecognizer.getLastEvent().pos == pos)
-            return True
-
-        def onHold(time):
-            self.__holdCalled = True
-            self.assert_(time >= 0 and time <= 1)
-
-        def onActivate():
-            self.__activateCalled = True
-
-        def onStop():
-            self.__stopCalled = True
-
-        def initState():
-            self.__startCalled = False
-            self.__holdCalled = False
-            self.__activateCalled = False
-            self.__stopCalled = False
-
-        def assertEvents(start, hold, activate, stop):
-#            print (self.__startCalled, self.__holdCalled, self.__activateCalled,
-#                    self.__stopCalled)
-            self.assert_(self.__startCalled == start and
-                self.__holdCalled == hold and
-                self.__activateCalled == activate and
-                self.__stopCalled == stop)
-
-        Player.setFakeFPS(2)
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__holdRecognizer = ui.HoldRecognizer(image,
-                holdDelay=1000,
-                activateDelay=2000, 
-                startHandler=onStart, 
-                holdHandler=onHold, 
-                activateHandler=onActivate, 
-                stopHandler=onStop)
-        initState()
-        self.start((
-                 # Standard down-hold-up sequence.
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False, False),
-                 None,
-                 None,
-                 lambda: assertEvents(True, True, False, False),
-                 None,
-                 None,
-                 lambda: assertEvents(True, True, True, False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, True, True),
-                 
-                 # down-up sequence, hold not long enough.
-                 initState,
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 None,
-                 None,
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False, True),
-
-                 # down-move-up sequence, should abort. 
-                 initState,
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 None,
-                 None,
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 40),
-                 lambda: assertEvents(True, True, False, True),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 50),
-                 initState,
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 40),
-                 lambda: assertEvents(False, False, False, False),
-                ))
-        Player.setFakeFPS(-1)
-
-
-    def testTapRecognizer(self):
-
-        def onStart():
-            self.__startCalled = True
-
-        def onTap():
-            self.__tapCalled = True
-
-        def onFail():
-            self.__failCalled = True
-
-        def initState():
-            self.__startCalled = False
-            self.__tapCalled = False
-            self.__failCalled = False
-
-        def assertEvents(start, tap, fail):
-#            print (self.__startCalled, self.__tapCalled, self.__failCalled)
-            self.assert_(self.__startCalled == start and
-                self.__tapCalled == tap and
-                self.__failCalled == fail)
-
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__tapRecognizer = ui.TapRecognizer(image,
-                startHandler=onStart,
-                tapHandler=onTap,
-                failHandler=onFail)
-        initState()
-        self.start((
-                 # Down-up: recognized as tap.
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
-                 # Down-small move-up: recognized as tap.
-                 initState,
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 31, 30),
-                 lambda: assertEvents(True, False, False),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
-                 # Down-big move-up: abort
-                 initState,
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 100, 30),
-                 lambda: assertEvents(True, False, True),
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, True),
-                ))
-
-
-    def testDragRecognizer(self):
-
-        def onDragStart(event):
-            self.__dragStartCalled = True
-
-        def onDrag(event, offset):
-            if self.friction == -1:
-                self.assert_(offset == (40,40))
-            self.__dragMoveCalled = True
-
-        def onDragUp(event, offset):
-            if self.friction == -1:
-                self.assert_(offset == (10,-10))
-            self.__dragUpCalled = True
-
-        def onDragStop():
-            self.__dragStopCalled = True
-
-        def disable():
-            dragRecognizer.enable(False)
-            initState()
-
-        def initState():
-            self.__dragStartCalled = False
-            self.__dragMoveCalled = False
-            self.__dragUpCalled = False
-            self.__dragStopCalled = False
-
-        def assertDragEvents(start, move, up, stop):
-            self.assert_(self.__dragStartCalled == start and
-                self.__dragMoveCalled == move and
-                self.__dragUpCalled == up and
-                self.__dragStopCalled == stop)
-
-        Player.setFakeFPS(100)
-        for self.friction in (-1, 100):
-            root = self.loadEmptyScene()
-            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-            dragRecognizer = ui.DragRecognizer(image, 
-                    startHandler=onDragStart, moveHandler=onDrag, upHandler=onDragUp, 
-                    stopHandler=onDragStop, friction=self.friction)
-            initState()
-            self.start((
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(True, False, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                     lambda: assertDragEvents(True, True, False, False),
-                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(True, True, True, True),
-                     disable,
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False),
-                     lambda: dragRecognizer.enable(True),
-                     lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(True, False, False, False),
-                    ))
-        Player.setFakeFPS(-1)
-
-
-    def testDragRecognizerRelCoords(self):
-
-        def onDrag(event, offset):
-            self.assert_(almostEqual(offset, (-40,-40)))
-
-        Player.setFakeFPS(100)
-        for self.friction in (-1, 100):
-            root = self.loadEmptyScene()
-            div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
-            image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-            dragRecognizer = ui.DragRecognizer(image, moveHandler=onDrag, 
-                    friction=self.friction)
-            self.start((
-                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                    ))
-        Player.setFakeFPS(-1)
-        
-    
-    def testDragRecognizerInitialEvent(self):
-
-        def onMotion(event):
-            ui.DragRecognizer(self.image, 
-                    startHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
-            self.image.disconnectEventHandler(self)
-           
-        def onDragStart(event):
-            self.__dragStartCalled = True
-
-        def onDrag(event, offset):
-            self.assert_(offset == (10,0))
-
-        root = self.loadEmptyScene()
-        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.image.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self, onMotion)
-        self.__dragStartCalled = False
-        self.start((
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 30),
-                ))
-        assert(self.__dragStartCalled)
-
-
-    def testDragRecognizerCoordSysNode(self):
-        
-        def onDrag(event, offset):
-            self.assert_(offset == (40,40))
-
-        root = self.loadEmptyScene()
-        div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
-        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        dragRecognizer = ui.DragRecognizer(image, moveHandler=onDrag, coordSysNode=div, 
-                friction=-1)
-        self.start((
-                 lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                ))
-
-
-    def testTransformRecognizer(self):
-        
-        def onStart():
-            pass
-
-        def onMove(transform):
-            self.transform = transform
-
-        def onUp(transform):
-            self.transform = transform
-
-        def checkTransform(expectedTransform):
-#            print self.transform
-#            print expectedTransform
-#            print
-            self.assert_(almostEqual(self.transform.trans, expectedTransform.trans))
-            self.assert_(almostEqual(self.transform.rot, expectedTransform.rot))
-            self.assert_(almostEqual(self.transform.scale, expectedTransform.scale))
-            if expectedTransform.rot != 0 or expectedTransform.scale != 1:
-                self.assert_(almostEqual(self.transform.pivot, expectedTransform.pivot))
-
-        def createTransTestFrames():
-            return (
-                    lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
-                    lambda: self.__sendTouchEvent(1, avg.CURSORUP, 20, 10),
-                    lambda: checkTransform(ui.Transform((10,0))),
-                )
-
-        def createRotTestFrames(expectedTransform):
-            return (
-                    lambda: self.__sendTouchEvents((
-                            (1, avg.CURSORDOWN, 0, 10),
-                            (2, avg.CURSORDOWN, 0, 20))),
-                    lambda: self.__sendTouchEvents((
-                            (1, avg.CURSORMOTION, 0, 20),
-                            (2, avg.CURSORMOTION, 0, 10))),
-                    lambda: checkTransform(expectedTransform),
-                    lambda: self.__sendTouchEvents((
-                            (1, avg.CURSORUP, 0, 20),
-                            (2, avg.CURSORUP, 0, 10))),
-                )
-
-        def createScaleTestFrames(expectedTransform):
-            return (
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 0, 20),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORMOTION, 0, 30),
-                 lambda: checkTransform(expectedTransform),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 0, 10),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 0, 30),
-                )
-
-        root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, 
-                startHandler=onStart, moveHandler=onMove, upHandler=onUp)
-        self.start((
-                 # Check up/down handling
-                 lambda: self.__sendTouchEvent(1, avg.CURSORDOWN, 10, 10),
-                 lambda: checkTransform(ui.Transform((0,0))),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 20, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORDOWN, 20, 20),
-                 lambda: checkTransform(ui.Transform((0,0))),
-                 lambda: self.__sendTouchEvents((
-                        (1, avg.CURSORMOTION, 30, 10),
-                        (2, avg.CURSORMOTION, 30, 20))),
-                 lambda: checkTransform(ui.Transform((10,0))),
-                 lambda: self.__sendTouchEvent(2, avg.CURSORUP, 30, 20),
-                 lambda: checkTransform(ui.Transform((0,0))),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORMOTION, 40, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
-                 lambda: self.__sendTouchEvent(1, avg.CURSORUP, 50, 10),
-                 lambda: checkTransform(ui.Transform((10,0))),
-
-                 createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
-
-                 createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20)))
-                ))
-
-        # Test rel. coords.
-        root = self.loadEmptyScene()
-        div = avg.DivNode(parent=root, pos=(0,10))
-        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, 
-                startHandler=onStart, moveHandler=onMove, upHandler=onUp)
-        self.start((
-            createTransTestFrames(),
-            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,5))),
-            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,10))),
-            ))
-
-        # Test coordSysNode.
-        root = self.loadEmptyScene()
-        div = avg.DivNode(parent=root, pos=(0,10))
-        image = avg.ImageNode(parent=div, href="rgb24-64x64.png")
-        self.__transformRecognizer = ui.TransformRecognizer(image, 
-                startHandler=onStart, moveHandler=onMove, upHandler=onUp, 
-                coordSysNode=div)
-        self.start((
-            createTransTestFrames(),
-            createRotTestFrames(ui.Transform((0,0), math.pi, 1, (0,15))),
-            createScaleTestFrames(ui.Transform((0,5), 0, 2, (0,20))),
-            ))
-
-
-    def testKMeans(self):
-        pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
-        means = ui.calcKMeans(pts)
-        self.assert_(means == ([0], [1]))
-
-        pts.append (avg.Point2D(0,4))
-        means = ui.calcKMeans(pts)
-        self.assert_(means == ([0,1], [2]))
-
-
-    def testMat3x3(self):
-        t = ui.Mat3x3.translate([1,0,1])
-        v = [1,0,1]
-        self.assert_(t.applyVec(v) == [2,0,1])
-        r = ui.Mat3x3.rotate(math.pi/2)
-        self.assert_(almostEqual(r.applyVec(v), [0,1,1]))
-        t2 = t.applyMat(t)
-        self.assert_(almostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m))
-        self.assert_(almostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m))
-        self.assert_(almostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m))
-        self.assert_(almostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m))
-        m = ui.Mat3x3([-1,  3, -3], 
-                      [ 0, -6,  5],
-                      [-5, -3,  1])
-        im = ui.Mat3x3([3./2,      1., -1./2],
-                       [-25./6, -8./3,  5./6],
-                       [-5.,      -3.,    1.])
-        self.assert_(almostEqual(m.inverse().m, im.m))
-
-        image = avg.ImageNode(pos=(10,20), size=(30,40), angle=1.57, 
-            href="rgb24alpha-64x64.png")
-        mat = ui.Mat3x3.fromNode(image)
-        mat.setNodeTransform(image)
-        self.assert_(almostEqual(image.pos, (10,20)))
-        self.assert_(almostEqual(image.size, (30,40)))
-        self.assert_(almostEqual(image.angle, 1.57))
-
-
-    def testFocusContext(self):
-        def setup():
-            textarea.init(avg)
-            self.ctx1 = textarea.FocusContext()
-            self.ctx2 = textarea.FocusContext()
-            
-            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
-                self.ctx1, id='ta1')
-            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=16, multiline=True, color='FFFFFF')
-            self.ta1.setText('Lorem ipsum')
-            
-            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
-                self.ctx1, id='ta2')
-            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='FFFFFF')
-            self.ta2.setText('dolor')
-            
-            self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
-                self.ctx2, disableMouseFocus=True, id='ta3')
-            self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=True, color='FFFFFF')
-            self.ta3.setText('dolor sit amet')
-            
-            textarea.setActiveFocusContext(self.ctx1)
-
-        def writeChar():
-            helper = Player.getTestHelper()
-            helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
-            helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
-            helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
-            helper.fakeKeyEvent(avg.KEYUP, 66, 66, "B", 66, 0)
-            helper.fakeKeyEvent(avg.KEYDOWN, 67, 67, "C", 67, 0)
-            helper.fakeKeyEvent(avg.KEYUP, 67, 67, "C", 67, 0)
-
-        def switchFocus():
-            self.ctx1.cycleFocus()
-
-        def clearFocused():
-            self.ctx1.clear()
-
-        def clickForFocus():
-            self.__sendMouseEvent(avg.CURSORDOWN, 20, 70)
-            self.__sendMouseEvent(avg.CURSORUP, 20, 70)
-
-        root = self.loadEmptyScene()
-        avg.DivNode(id="ph1", pos=(2,2), size=(156,54), parent=root)
-        avg.DivNode(id="ph2", pos=(2,58), size=(76,54), parent=root)
-        div3 = avg.DivNode(id="ph3", pos=(80,58), size=(76,54), parent=root)
-        avg.ImageNode(href="1x1_white.png", size=(76,54), parent=div3)
-        self.start((
-                 setup,
-                 lambda: self.compareImage("testFocusContext1", True),
-                 writeChar,
-                 lambda: self.compareImage("testFocusContext2", True),
-                 switchFocus,
-                 writeChar,
-                 lambda: self.compareImage("testFocusContext3", True),
-                 switchFocus,
-                 clearFocused,
-                 lambda: self.compareImage("testFocusContext4", True),
-                 clickForFocus,
-                 clearFocused,
-                 lambda: self.compareImage("testFocusContext5", True),
-               ))
-
     def __sendMouseEvent(self, type, x, y):
         helper = Player.getTestHelper()
         if type == avg.CURSORUP:
@@ -1209,9 +1207,6 @@ class UITestCase(AVGTestCase):
 
 def uiTestSuite(tests):
     availableTests = (
-        "testButton",
-        "testMultitouchButton",
-        "testTouchButton",
         "testKeyboard",
         "testTextArea",
         "testFocusContext",
@@ -1224,6 +1219,9 @@ def uiTestSuite(tests):
         "testTransformRecognizer",
         "testKMeans",
         "testMat3x3",
+        "testButton",
+        "testMultitouchButton",
+        "testTouchButton",
         )
     
     return createAVGTestSuite(availableTests, UITestCase, tests)
