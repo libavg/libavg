@@ -373,6 +373,7 @@ class DragRecognizer(Recognizer):
                     if self.__angleFits(offset):
                         self.__stateMachine.changeState("DRAG")
                         self.__startHandler(event)
+                        self.__moveHandler(event, offset)
                     else:
                         self.__stateMachine.changeState("IDLE")
                         self._abort()

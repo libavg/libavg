@@ -427,9 +427,9 @@ class UITestCase(AVGTestCase):
 
         def assertDragEvents(start, move, up, stop):
             self.assert_(self.__dragStartCalled == start and
-                self.__dragMoveCalled == move and
-                self.__dragUpCalled == up and
-                self.__dragStopCalled == stop)
+                    self.__dragMoveCalled == move and
+                    self.__dragUpCalled == up and
+                    self.__dragStopCalled == stop)
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
@@ -454,6 +454,38 @@ class UITestCase(AVGTestCase):
                      lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: assertDragEvents(True, False, False, False),
                     ))
+
+        # Test with constraint.
+        def onVertDrag(event, offset):
+            if self.friction == -1:
+                self.assert_(offset == (0,40))
+            self.__dragMoveCalled = True
+
+        for friction in (-1, 100):
+            root = self.loadEmptyScene()
+            image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+            dragRecognizer = ui.DragRecognizer(image, startHandler=onDragStart, 
+                    moveHandler=onVertDrag, upHandler=onDragUp, stopHandler=onDragStop, 
+                    friction=self.friction, direction=ui.DragRecognizer.VERTICAL)
+            initState()
+            self.start((
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 35, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 30, 70),
+                     lambda: assertDragEvents(True, True, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(True, True, True, True),
+                     initState,
+                     # Wrong direction -> no events.
+                     lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: self.__sendMouseEvent(avg.CURSORMOTION, 70, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: self.__sendMouseEvent(avg.CURSORUP, 70, 30),
+                     lambda: assertDragEvents(False, False, False, False),
+                    ))
+
         Player.setFakeFPS(-1)
 
 
