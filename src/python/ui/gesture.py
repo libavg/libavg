@@ -339,6 +339,7 @@ class DragRecognizer(Recognizer):
         else:
             self.__stateMachine.addState("DRAG", ("SLIDE",))
             self.__stateMachine.addState("SLIDE", ("IDLE", "DRAG"))
+#        self.__stateMachine.traceChanges(True)
 
         self.__inertiaHandler = None
         Recognizer.__init__(self, eventNode, eventSource, 1, initialEvent)
@@ -392,13 +393,12 @@ class DragRecognizer(Recognizer):
                     self.__stateMachine.changeState("SLIDE")
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
                     self.__inertiaHandler.onUp()
-                    self.__inertiaHandler = None
                 else:
                     self.__stateMachine.changeState("IDLE")
                     self.__stopHandler()
             else:
                 self.__stateMachine.changeState("IDLE")
-            self.__inertiaHandler = None
+                self.__inertiaHandler = None
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
@@ -408,7 +408,6 @@ class DragRecognizer(Recognizer):
     def __onInertiaStop(self):
         self.__stateMachine.changeState("IDLE")
         self.__stop()
-        self.__inertiaHandler = None
 
     def __stop(self):
         self.__stopHandler()
