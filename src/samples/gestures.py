@@ -122,6 +122,41 @@ class DragNode(TextRect):
         pass
 
 
+class ConstrainedDragNode(TextRect):
+    def __init__(self, text, friction=-1, **kwargs):
+        TextRect.__init__(self, text, **kwargs)
+    
+        ui.DragRecognizer(
+                eventNode=self,
+                startHandler=self.__onStart,
+                moveHandler=self.__onHorizMove,
+                upHandler=self.__onHorizMove,
+                direction=ui.DragRecognizer.HORIZONTAL,
+                friction=0.05
+                )
+   
+        ui.DragRecognizer(
+                eventNode=self,
+                startHandler=self.__onStart,
+                moveHandler=self.__onVertMove,
+                upHandler=self.__onVertMove,
+                direction=ui.DragRecognizer.VERTICAL,
+                friction=0.05
+                )
+   
+    def __onStart(self, event):
+        self.__dragStartPos = self.pos
+        moveNodeToTop(self)
+
+    def __onHorizMove(self, event, offset):
+        self.pos = self.__dragStartPos + (offset.x, 0)
+        moveNodeOnScreen(self)
+
+    def __onVertMove(self, event, offset):
+        self.pos = self.__dragStartPos + offset
+        moveNodeOnScreen(self)
+
+
 class TapNode(TextRect):
     def __init__(self, text, isDoubleTap, **kwargs):
         TextRect.__init__(self, text, **kwargs)
@@ -153,51 +188,36 @@ class GestureDemoApp(libavg.AVGApp):
 
     def init(self):
         TransformNode(text="TransformRecognizer",
-                ignoreRotation=False,
-                ignoreScale=False,
-                pos=(20,20),
-                parent=self._parentNode)
+                ignoreRotation=False, ignoreScale=False,
+                pos=(20,20), parent=self._parentNode)
 
         TransformNode(text="TransformRecognizer<br/>ignoreRotation",
-                ignoreRotation=True,
-                ignoreScale=False,
-                pos=(20,70),
-                parent=self._parentNode)
+                ignoreRotation=True, ignoreScale=False,
+                pos=(20,70), parent=self._parentNode)
 
         TransformNode(text="TransformRecognizer<br/>ignoreScale",
-                ignoreRotation=False,
-                ignoreScale=True,
-                pos=(20,120),
-                parent=self._parentNode)
+                ignoreRotation=False, ignoreScale=True,
+                pos=(20,120), parent=self._parentNode)
 
         TransformNode(text="TransformRecognizer<br/>friction",
-                ignoreRotation=False,
-                ignoreScale=False,
-                pos=(20,170),
-                friction=0.02,
-                parent=self._parentNode)
+                ignoreRotation=False, ignoreScale=False,
+                pos=(20,170), friction=0.02, parent=self._parentNode)
 
         TransformChildNode(text="TransformRecognizer<br/>child dragger",
-                pos=(20,220),
+                pos=(20,220), parent=self._parentNode)
+
+        DragNode(text="DragRecognizer", pos=(200,20), parent=self._parentNode)
+
+        DragNode(text="DragRecognizer<br/>friction", pos=(200,70), friction=0.05,
                 parent=self._parentNode)
 
-        DragNode(text="DragRecognizer",
-                pos=(200,20),
+        ConstrainedDragNode(text="DragRecognizer<br/>constrained", pos=(200,120), 
                 parent=self._parentNode)
 
-        DragNode(text="DragRecognizer<br/>friction",
-                pos=(200,70),
-                friction=0.05,
+        TapNode(text="TapRecognizer", pos=(380,20), isDoubleTap=False,
                 parent=self._parentNode)
 
-        TapNode(text="TapRecognizer",
-                pos=(380,20),
-                isDoubleTap=False,
-                parent=self._parentNode)
-
-        TapNode(text="DoubletapRecognizer",
-                pos=(380,70),
-                isDoubleTap=True,
+        TapNode(text="DoubletapRecognizer", pos=(380,70), isDoubleTap=True,
                 parent=self._parentNode)
 
 

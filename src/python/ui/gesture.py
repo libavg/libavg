@@ -27,9 +27,10 @@ from math import *
 
 g_Player = avg.Player.get()
 
-MAX_TAP_DISTANCE_IN_MM = 8
+MAX_TAP_DIST = 8
 MAX_TAP_TIME = 500
 MAX_DOUBLETAP_TIME = 300
+MIN_DRAG_DIST = 5
 
 class ContactData:
 
@@ -204,7 +205,7 @@ class TapRecognizer(Recognizer):
         self.__stateMachine.addState("HOLDING", ("IDLE",))
 
         self.__maxDistance = (
-                MAX_TAP_DISTANCE_IN_MM*g_Player.getPixelsPerMM())
+                MAX_TAP_DIST*g_Player.getPixelsPerMM())
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
 
     def _handleDown(self, event):
@@ -252,7 +253,7 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN2", ("IDLE",))
 
         self.__frameHandlerID = None
-        self.__maxDistance = MAX_TAP_DISTANCE_IN_MM*g_Player.getPixelsPerMM()
+        self.__maxDistance = MAX_TAP_DIST*g_Player.getPixelsPerMM()
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
    
     def _handleDown(self, event):
@@ -304,9 +305,13 @@ class DoubletapRecognizer(Recognizer):
 
 class DragRecognizer(Recognizer):
 
+    ANY_DIRECTION=0
+    VERTICAL=1
+    HORIZONTAL=2
+
     def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
             startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
-            initialEvent=None, friction=-1):
+            initialEvent=None, direction=ANY_DIRECTION, friction=-1):
         if coordSysNode != None:
             self.__coordSysNode = coordSysNode
         else:
@@ -315,10 +320,20 @@ class DragRecognizer(Recognizer):
         self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
         self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
+        self.__direction = direction
+        if self.__direction == DragRecognizer.ANY_DIRECTION:
+            self.__minDist = 0
+        else:
+            self.__minDist = MIN_DRAG_DIST*g_Player.getPixelsPerMM()
         self.__friction = friction
 
         self.__stateMachine = statemachine.StateMachine("DragRecognizer", "IDLE")
-        self.__stateMachine.addState("IDLE", ("DRAG",))
+        if self.__direction == DragRecognizer.ANY_DIRECTION:
+            self.__stateMachine.addState("IDLE", ("DRAG",))
+        else:
+            self.__stateMachine.addState("IDLE", ("POSSIBLE",))
+            self.__stateMachine.addState("POSSIBLE", ("DRAG", "IDLE"))
+
         if friction == -1:
             self.__stateMachine.addState("DRAG", ("IDLE",))
         else:
@@ -333,36 +348,56 @@ class DragRecognizer(Recognizer):
             self.__inertiaHandler.abort()
 
     def _handleDown(self, event):
-        self.__stateMachine.changeState("DRAG")
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
+        if self.__direction == DragRecognizer.ANY_DIRECTION:
+            self.__stateMachine.changeState("DRAG")
+            self.__startHandler(event)
+        else:
+            self.__stateMachine.changeState("POSSIBLE")
         pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
                     self.__onInertiaStop)
         self.__dragStartPos = pos
         self.__lastPos = pos
-        self.__startHandler(event)
 
     def _handleMove(self, event):
-        pos = self.__relEventPos(event)
-        offset = pos - self.__dragStartPos
-        self.__moveHandler(event, offset)
-        if self.__friction != -1:
-            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
-        self.__lastPos = pos
+        if self.__stateMachine.state != "IDLE":
+            pos = self.__relEventPos(event)
+            offset = pos - self.__dragStartPos
+            if self.__stateMachine.state == "DRAG":
+                self.__moveHandler(event, offset)
+            else:
+                if offset.getNorm() > self.__minDist:
+                    if self.__angleFits(offset):
+                        self.__stateMachine.changeState("DRAG")
+                        self.__startHandler(event)
+                    else:
+                        self.__stateMachine.changeState("IDLE")
+                        self._abort()
+                        self.__inertiaHandler = None
+            if self.__inertiaHandler:
+                self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+            self.__lastPos = pos
 
     def _handleUp(self, event):
-        pos = self.__relEventPos(event)
-        self.__offset = pos - self.__dragStartPos
-        self.__upHandler(event, self.__offset)
-        if self.__friction != -1:
-            self.__stateMachine.changeState("SLIDE")
-            self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
-            self.__inertiaHandler.onUp()
-        else:
-            self.__stateMachine.changeState("IDLE")
-            self.__stopHandler()
+        if self.__stateMachine.state != "IDLE":
+            pos = self.__relEventPos(event)
+            if self.__stateMachine.state == "DRAG":
+                self.__offset = pos - self.__dragStartPos
+                self.__upHandler(event, self.__offset)
+                if self.__friction != -1:
+                    self.__stateMachine.changeState("SLIDE")
+                    self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
+                    self.__inertiaHandler.onUp()
+                    self.__inertiaHandler = None
+                else:
+                    self.__stateMachine.changeState("IDLE")
+                    self.__stopHandler()
+            else:
+                self.__stateMachine.changeState("IDLE")
+            self.__inertiaHandler = None
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
@@ -372,6 +407,7 @@ class DragRecognizer(Recognizer):
     def __onInertiaStop(self):
         self.__stateMachine.changeState("IDLE")
         self.__stop()
+        self.__inertiaHandler = None
 
     def __stop(self):
         self.__stopHandler()
@@ -380,6 +416,16 @@ class DragRecognizer(Recognizer):
     def __relEventPos(self, event):
         return self.__coordSysNode.getParent().getRelPos(event.pos)
 
+    def __angleFits(self, offset):
+        angle = offset.getAngle()
+        if angle < 0:
+            angle = -angle
+        if self.__direction == DragRecognizer.VERTICAL:
+            return angle > pi/4 and angle < 3*pi/4
+        elif self.__direction == DragRecognizer.HORIZONTAL:
+            return angle < pi/4 or angle > 3*pi/4
+        else:
+            assert(False)
 
 class Mat3x3:
     # Internal class. Will be removed again.
