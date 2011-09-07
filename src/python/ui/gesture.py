@@ -407,9 +407,6 @@ class DragRecognizer(Recognizer):
    
     def __onInertiaStop(self):
         self.__stateMachine.changeState("IDLE")
-        self.__stop()
-
-    def __stop(self):
         self.__stopHandler()
         self.__inertiaHandler = None
 
