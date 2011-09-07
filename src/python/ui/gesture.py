@@ -27,7 +27,7 @@ from math import *
 
 g_Player = avg.Player.get()
 
-MAX_TAP_DIST = 8
+MAX_TAP_DIST = 12 
 MAX_TAP_TIME = 500
 MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
@@ -251,7 +251,7 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
         self.__stateMachine.addState("UP1", ("DOWN2", "IDLE"))
         self.__stateMachine.addState("DOWN2", ("IDLE",))
-
+#        self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
         self.__maxDistance = MAX_TAP_DIST*g_Player.getPixelsPerMM()
         Recognizer.__init__(self, node, eventSource, 1, initialEvent)
