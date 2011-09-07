@@ -310,12 +310,15 @@ class DragRecognizer(Recognizer):
     HORIZONTAL=2
 
     def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE, 
-            startHandler=None, moveHandler=None, upHandler=None, stopHandler=None, 
+            downHandler=None, abortHandler=None, startHandler=None, moveHandler=None, 
+            upHandler=None, stopHandler=None, 
             initialEvent=None, direction=ANY_DIRECTION, friction=-1):
         if coordSysNode != None:
             self.__coordSysNode = coordSysNode
         else:
             self.__coordSysNode = eventNode
+        self.__downHandler = optionalCallback(downHandler, lambda event:None)
+        self.__abortHandler = optionalCallback(abortHandler, lambda event:None)
         self.__startHandler = optionalCallback(startHandler, lambda event:None)
         self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
         self.__stopHandler = optionalCallback(stopHandler, lambda:None)
@@ -356,6 +359,7 @@ class DragRecognizer(Recognizer):
             self.__startHandler(event)
         else:
             self.__stateMachine.changeState("POSSIBLE")
+        self.__downHandler(event)
         pos = self.__relEventPos(event)
         if self.__friction != -1:
             self.__inertiaHandler = InertiaHandler(self.__friction, self.__onInertiaMove,
@@ -377,6 +381,7 @@ class DragRecognizer(Recognizer):
                         self.__moveHandler(event, offset)
                     else:
                         self.__stateMachine.changeState("IDLE")
+                        self.__abortHandler(event)
                         self._abort()
                         self.__inertiaHandler = None
             if self.__inertiaHandler:
@@ -398,6 +403,7 @@ class DragRecognizer(Recognizer):
                     self.__stopHandler()
             else:
                 self.__stateMachine.changeState("IDLE")
+                self.__abortHandler(event)
                 self.__inertiaHandler = None
 
     def __onInertiaMove(self, transform):
