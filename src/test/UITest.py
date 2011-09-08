@@ -236,78 +236,64 @@ class UITestCase(AVGTestCase):
 
     def testHoldRecognizer(self):
       
-        def onStart(pos):
-            self.__startCalled = True
-            self.assert_(self.__holdRecognizer.getLastEvent().pos == pos)
-            return True
+        def onPossible(event):
+            self.__possible = True
 
-        def onHold(time):
-            self.__holdCalled = True
-            self.assert_(time >= 0 and time <= 1)
+        def onDetected(event):
+            self.__detected = True
 
-        def onActivate():
-            self.__activateCalled = True
+        def onFail(event):
+            self.__failed = True
 
-        def onStop():
-            self.__stopCalled = True
+        def onStop(event):
+            self.__stopped = True
 
         def initState():
-            self.__startCalled = False
-            self.__holdCalled = False
-            self.__activateCalled = False
-            self.__stopCalled = False
+            self.__possible = False
+            self.__detected = False
+            self.__failed = False
+            self.__stopped = False
 
-        def assertEvents(start, hold, activate, stop):
-#            print (self.__startCalled, self.__holdCalled, self.__activateCalled,
-#                    self.__stopCalled)
-            self.assert_(self.__startCalled == start and
-                self.__holdCalled == hold and
-                self.__activateCalled == activate and
-                self.__stopCalled == stop)
+        def assertEvents(possible, detected, failed, stopped):
+#            print (self.__possible, self.__detected, self.__failed, self.__stopped)
+            self.assert_(self.__possible == possible and
+                self.__detected == detected and
+                self.__failed == failed and
+                self.__stopped == stopped)
 
         Player.setFakeFPS(2)
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         self.__holdRecognizer = ui.HoldRecognizer(image,
-                holdDelay=1000,
-                activateDelay=2000, 
-                startHandler=onStart, 
-                holdHandler=onHold, 
-                activateHandler=onActivate, 
+                delay=1000,
+                possibleHandler=onPossible, 
+                detectedHandler=onDetected, 
+                failHandler=onFail, 
                 stopHandler=onStop)
         initState()
         self.start((
                  # Standard down-hold-up sequence.
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False, False),
-                 None,
+                 lambda: assertEvents(True, False, False, False),
                  None,
                  lambda: assertEvents(True, True, False, False),
                  None,
-                 None,
-                 lambda: assertEvents(True, True, True, False),
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, True, True),
+                 lambda: assertEvents(True, True, False, True),
                  
                  # down-up sequence, hold not long enough.
                  initState,
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 None,
-                 None,
                  lambda: self.__sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False, True),
+                 lambda: assertEvents(True, False, True, False),
 
                  # down-move-up sequence, should abort. 
                  initState,
                  lambda: self.__sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 None,
-                 None,
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 40, 40),
-                 lambda: assertEvents(True, True, False, True),
-                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 50, 50),
-                 initState,
-                 lambda: self.__sendMouseEvent(avg.CURSORUP, 40, 40),
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORMOTION, 100, 0),
+                 lambda: assertEvents(True, False, True, False),
+                 lambda: self.__sendMouseEvent(avg.CURSORUP, 100, 0),
+                 lambda: assertEvents(True, False, True, False),
                 ))
         Player.setFakeFPS(-1)
 
@@ -1351,7 +1337,7 @@ def uiTestSuite(tests):
         "testTextArea",
         "testFocusContext",
         "testTapRecognizer",
-#        "testHoldRecognizer",
+        "testHoldRecognizer",
         "testDoubletapRecognizer",
         "testDragRecognizer",
         "testDragRecognizerRelCoords",

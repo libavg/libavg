@@ -163,10 +163,10 @@ class TapNode(TextRect):
     
         if isDoubleTap:
             ui.DoubletapRecognizer(node=self, possibleHandler=self.__onPossible,
-                detectedHandler=self.__onDetected, failHandler=self.__onFail)
+                    detectedHandler=self.__onDetected, failHandler=self.__onFail)
         else:
             ui.TapRecognizer(node=self, possibleHandler=self.__onPossible,
-                detectedHandler=self.__onDetected, failHandler=self.__onFail)
+                    detectedHandler=self.__onDetected, failHandler=self.__onFail)
 
     def __onPossible(self, event):
         self.rect.fillcolor = "FFFFFF"
@@ -181,6 +181,35 @@ class TapNode(TextRect):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "FF0000"
+
+
+class HoldNode(TextRect):
+    def __init__(self, text, **kwargs):
+        TextRect.__init__(self, text, **kwargs)
+    
+        ui.HoldRecognizer(node=self, possibleHandler=self.__onPossible,
+                detectedHandler=self.__onDetected, failHandler=self.__onFail,
+                stopHandler=self.__onStop)
+
+    def __onPossible(self, event):
+        self.rect.fillcolor = "FFFFFF"
+        self.rect.color = "FFFFFF"
+        self.words.color = "000000"
+
+    def __onDetected(self, event):
+        self.rect.fillcolor = "000000"
+        self.words.color = "FFFFFF"
+        self.rect.color = "00FF00"
+
+    def __onFail(self, event):
+        self.rect.fillcolor = "000000"
+        self.words.color = "FFFFFF"
+        self.rect.color = "FF0000"
+
+    def __onStop(self, event):
+        self.rect.fillcolor = "000000"
+        self.rect.color = "FFFFFF"
+        self.words.color = "FFFFFF"
 
 
 class GestureDemoApp(libavg.AVGApp):
@@ -219,6 +248,8 @@ class GestureDemoApp(libavg.AVGApp):
 
         TapNode(text="DoubletapRecognizer", pos=(380,70), isDoubleTap=True,
                 parent=self._parentNode)
+
+        HoldNode(text="HoldRecognizer", pos=(380,120), parent=self._parentNode)
 
 
 if __name__ == '__main__':

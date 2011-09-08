@@ -31,6 +31,7 @@ MAX_TAP_DIST = 12
 MAX_TAP_TIME = 500
 MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
+HOLD_DELAY = 500
 
 class ContactData:
 
@@ -255,6 +256,41 @@ class DoubletapRecognizer(Recognizer):
 
     def __enterIdle(self):
         g_Player.clearInterval(self.__frameHandlerID)
+
+
+class HoldRecognizer(Recognizer):
+
+    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, 
+            delay=HOLD_DELAY, initialEvent=None, possibleHandler=None, failHandler=None, 
+            detectedHandler=None, stopHandler=None):
+        self.__delay = delay
+
+        self.__maxDistance = (
+                MAX_TAP_DIST*g_Player.getPixelsPerMM())
+        Recognizer.__init__(self, node, True, eventSource, 1, initialEvent,
+                possibleHandler, failHandler, detectedHandler, stopHandler)
+
+    def _handleDown(self, event):
+        self._setPossible(event)
+        self.__startTime = g_Player.getFrameTime()
+
+    def _handleMove(self, event):
+        if self.getState() == "POSSIBLE": 
+            if event.contact.distancefromstart > self.__maxDistance:
+                self._setFail(event)
+
+    def _handleUp(self, event):
+        if self.getState() == "POSSIBLE":
+            self._setFail(event)
+        elif self.getState() == "RUNNING":
+            self._setEnd(event)
+
+    def _onFrame(self):
+        downTime = g_Player.getFrameTime() - self.__startTime
+        if self.getState() == "POSSIBLE":
+            if downTime > self.__delay:
+                self._setDetected(None)
+        Recognizer._onFrame(self)
 
 
 class DragRecognizer(Recognizer):
