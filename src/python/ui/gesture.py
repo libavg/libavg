@@ -27,7 +27,7 @@ from math import *
 
 g_Player = avg.Player.get()
 
-MAX_TAP_DIST = 12 
+MAX_TAP_DIST = 15 
 MAX_TAP_TIME = 500
 MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
@@ -303,8 +303,12 @@ class DragRecognizer(Recognizer):
     VERTICAL=1
     HORIZONTAL=2
 
+    DIRECTION_TOLERANCE=pi/4
+
     def __init__(self, eventNode, coordSysNode=None, eventSource=avg.TOUCH | avg.MOUSE,
-            initialEvent=None, direction=ANY_DIRECTION, friction=-1, 
+            initialEvent=None, 
+            direction=ANY_DIRECTION, directionTolerance=DIRECTION_TOLERANCE,
+            friction=-1, 
             possibleHandler=None, failHandler=None, detectedHandler=None,
             moveHandler=None, upHandler=None, endHandler=None):
 
@@ -319,6 +323,7 @@ class DragRecognizer(Recognizer):
             self.__minDist = 0
         else:
             self.__minDist = MIN_DRAG_DIST*g_Player.getPixelsPerMM()
+        self.__directionTolerance = directionTolerance
         self.__friction = friction
 
         self.__isSliding = False
@@ -398,9 +403,11 @@ class DragRecognizer(Recognizer):
         if angle < 0:
             angle = -angle
         if self.__direction == DragRecognizer.VERTICAL:
-            return angle > pi/4 and angle < 3*pi/4
+            return (angle > pi/2-self.__directionTolerance 
+                    and angle < pi/2+self.__directionTolerance)
         elif self.__direction == DragRecognizer.HORIZONTAL:
-            return angle < pi/4 or angle > 3*pi/4
+            return (angle < self.__directionTolerance 
+                    or angle > pi-self.__directionTolerance)
         else:
             assert(False)
 
