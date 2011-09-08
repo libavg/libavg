@@ -269,17 +269,21 @@ class HoldRecognizer(Recognizer):
                 MAX_TAP_DIST*g_Player.getPixelsPerMM())
         Recognizer.__init__(self, node, True, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, stopHandler)
+        self.__lastEvent = None
 
     def _handleDown(self, event):
+        self.__lastEvent = event
         self._setPossible(event)
         self.__startTime = g_Player.getFrameTime()
 
     def _handleMove(self, event):
+        self.__lastEvent = event
         if self.getState() == "POSSIBLE": 
             if event.contact.distancefromstart > self.__maxDistance:
                 self._setFail(event)
 
     def _handleUp(self, event):
+        self.__lastEvent = event
         if self.getState() == "POSSIBLE":
             self._setFail(event)
         elif self.getState() == "RUNNING":
@@ -289,7 +293,7 @@ class HoldRecognizer(Recognizer):
         downTime = g_Player.getFrameTime() - self.__startTime
         if self.getState() == "POSSIBLE":
             if downTime > self.__delay:
-                self._setDetected(None)
+                self._setDetected(self.__lastEvent)
         Recognizer._onFrame(self)
 
 

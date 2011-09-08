@@ -304,9 +304,9 @@ class TouchButton(avg.DivNode):
                 self.appendChild(self.__activeAreaNode)
 
         self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
-                startHandler=self.__onStart, 
-                tapHandler=self.__onTap, 
-                failHandler=self.__onFail)
+                possibleHandler=self.__onDown, 
+                detectedHandler=self.__onTap, 
+                failHandler=self.__onTapFail)
 
     @classmethod
     def fromSrc(cls, upSrc, downSrc, disabledSrc=None, **kwargs):
@@ -332,14 +332,14 @@ class TouchButton(avg.DivNode):
 
     enabled = property(getEnabled, setEnabled)
 
-    def __onStart(self):
+    def __onDown(self, event):
         self.__stateMachine.changeState("DOWN")
 
-    def __onTap(self):
+    def __onTap(self, event):
         self.__stateMachine.changeState("UP")
         self.__clickHandler()
 
-    def __onFail(self):
+    def __onTapFail(self, event):
         self.__stateMachine.changeState("UP")
 
     def enterUp(self):

@@ -1346,9 +1346,9 @@ def uiTestSuite(tests):
         "testTransformRecognizer",
         "testKMeans",
         "testMat3x3",
-#        "testButton",
-#        "testMultitouchButton",
-#        "testTouchButton",
+        "testButton",
+        "testMultitouchButton",
+        "testTouchButton",
         )
     
     return createAVGTestSuite(availableTests, UITestCase, tests)
