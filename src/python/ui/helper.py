@@ -19,9 +19,49 @@
 # Current versions can be found at www.libavg.de
 #
 
+from libavg import avg
+
 def optionalCallback(handler, defaultHandler):
     if handler:
         return handler
     else:
         return defaultHandler
 
+class ScrollPane(avg.DivNode):
+
+    def __init__(self, contentDiv, *args, **kwargs):
+
+        avg.DivNode.__init__(self, crop=True, *args, **kwargs)
+        self.appendChild(contentDiv)
+        self.__contentDiv = contentDiv
+
+    def setContentPos(self, pos):
+
+        def constrain(pos, limit):
+            if limit < 0:
+                # Content larger than container
+                if pos < limit:
+                    pos = limit
+                elif pos > 0:
+                    pos = 0
+            else:
+                # Content smaller than container
+                if pos < 0:
+                    pos = 0
+                elif pos > limit:
+                    pos = limit
+            return pos
+
+        maxPos = self.getMaxContentPos()
+        pos = avg.Point2D(pos)
+        pos.x = constrain(pos.x, maxPos.x)
+        pos.y = constrain(pos.y, maxPos.y)
+        self.__contentDiv.pos = pos
+
+    def getContentPos(self):
+        return self.__contentDiv.pos
+    contentpos = property(getContentPos, setContentPos)
+
+    def getMaxContentPos(self):
+        maxPos = self.size - self.__contentDiv.size
+        return maxPos

@@ -1311,7 +1311,36 @@ class UITestCase(AVGTestCase):
                 clickHandler = onClick
                 )
         runTest()
-        
+       
+    def testScrollPane(self):
+        def scrollLarge():
+            scrollPane.contentpos = (-34, -34)
+            self.assert_(scrollPane.contentpos == (-32,-32))
+
+        def initSmallContent():
+            scrollPane.size = (64, 64)
+            contentArea.size = (32, 32)
+            image.size = (32, 32)
+            scrollPane.contentpos = (0, 0)
+            self.assert_(scrollPane.getMaxContentPos() == (32,32))
+
+        def scrollSmall():
+            scrollPane.contentpos = (32, 32)
+
+        root = self.loadEmptyScene()
+        contentArea = avg.DivNode(size=(64,64))
+        image = avg.ImageNode(href="rgb24-64x64.png", parent=contentArea)
+        scrollPane = ui.ScrollPane(contentDiv=contentArea, size=(32,32), parent=root)
+
+        self.start((
+                lambda: self.compareImage("testScrollPane1", False),
+                scrollLarge,
+                lambda: self.compareImage("testScrollPane2", False),
+                initSmallContent,
+                lambda: self.compareImage("testScrollPane3", False),
+                scrollSmall,
+                lambda: self.compareImage("testScrollPane4", False),
+                ))
 
     def __sendMouseEvent(self, type, x, y):
         helper = Player.getTestHelper()
@@ -1349,6 +1378,7 @@ def uiTestSuite(tests):
         "testButton",
         "testMultitouchButton",
         "testTouchButton",
+        "testScrollPane"
         )
     
     return createAVGTestSuite(availableTests, UITestCase, tests)
