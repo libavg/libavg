@@ -590,9 +590,9 @@ class TransformRecognizer(Recognizer):
         numContacts = len(self._contacts)
         self.__newPhase()
         if numContacts == 1:
-            self._setDetected(event)
             if self.__inertiaHandler:
                 self.__inertiaHandler.abort()
+            self._setDetected(event)
             if self.__friction != -1:
                 self.__inertiaHandler = InertiaHandler(self.__friction, 
                         self.__onInertiaMove, self.__onInertiaStop)
