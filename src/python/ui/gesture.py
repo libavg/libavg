@@ -537,7 +537,6 @@ def calcKMeans(pts):
     # in: List of points
     # out: Two lists, each containing indexes into the input list
     assert(len(pts) > 1)
-    done = False
     p1 = pts[0]
     p2 = pts[1]
     oldP1 = None
