@@ -50,13 +50,13 @@ class TransformNode(TextRect):
 
         ui.TransformRecognizer(
                 eventNode=self, 
-                startHandler=self.__onStart,
+                detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
                 upHandler=self.__onUp,
                 friction=friction
                 )
 
-    def __onStart(self):
+    def __onDetected(self, event):
         moveNodeToTop(self)
 
     def __onMove(self, transform):
@@ -82,12 +82,12 @@ class TransformChildNode(avg.DivNode):
         ui.TransformRecognizer(
                 eventNode=self.inputNode,
                 coordSysNode=self,
-                startHandler=self.__onStart,
+                detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
                 friction=0.05
                 )
    
-    def __onStart(self):
+    def __onDetected(self, event):
         moveNodeToTop(self)
 
     def __onMove(self, transform):
@@ -103,14 +103,14 @@ class DragNode(TextRect):
     
         ui.DragRecognizer(
                 eventNode=self,
-                startHandler=self.__onStart,
+                detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
                 upHandler=self.__onMove,
-                stopHandler=self.__onStop,
+                endHandler=self.__onEnd,
                 friction=friction
                 )
 
-    def __onStart(self, event):
+    def __onDetected(self, event):
         self.__dragStartPos = self.pos
         moveNodeToTop(self)
 
@@ -118,7 +118,7 @@ class DragNode(TextRect):
         self.pos = self.__dragStartPos + offset
         moveNodeOnScreen(self)
 
-    def __onStop(self):
+    def __onEnd(self, event):
         pass
 
 
@@ -128,7 +128,7 @@ class ConstrainedDragNode(TextRect):
     
         ui.DragRecognizer(
                 eventNode=self,
-                startHandler=self.__onStart,
+                detectedHandler=self.__onDetected,
                 moveHandler=self.__onHorizMove,
                 upHandler=self.__onHorizMove,
                 direction=ui.DragRecognizer.HORIZONTAL,
@@ -137,14 +137,14 @@ class ConstrainedDragNode(TextRect):
    
         ui.DragRecognizer(
                 eventNode=self,
-                startHandler=self.__onStart,
+                detectedHandler=self.__onDetected,
                 moveHandler=self.__onVertMove,
                 upHandler=self.__onVertMove,
                 direction=ui.DragRecognizer.VERTICAL,
                 friction=0.05
                 )
    
-    def __onStart(self, event):
+    def __onDetected(self, event):
         self.__dragStartPos = self.pos
         moveNodeToTop(self)
 
@@ -162,22 +162,22 @@ class TapNode(TextRect):
         TextRect.__init__(self, text, **kwargs)
     
         if isDoubleTap:
-            ui.DoubletapRecognizer(node=self, startHandler=self.__onStart,
-                    tapHandler=self.__onTap, failHandler=self.__onFail)
+            ui.DoubletapRecognizer(node=self, possibleHandler=self.__onPossible,
+                detectedHandler=self.__onDetected, failHandler=self.__onFail)
         else:
-            ui.TapRecognizer(node=self, startHandler=self.__onStart,
-                    tapHandler=self.__onTap, failHandler=self.__onFail)
+            ui.TapRecognizer(node=self, possibleHandler=self.__onPossible,
+                detectedHandler=self.__onDetected, failHandler=self.__onFail)
 
-    def __onStart(self):
+    def __onPossible(self, event):
         self.rect.fillcolor = "FFFFFF"
         self.words.color = "000000"
 
-    def __onTap(self):
+    def __onDetected(self, event):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "00FF00"
 
-    def __onFail(self):
+    def __onFail(self, event):
         self.rect.fillcolor = "000000"
         self.words.color = "FFFFFF"
         self.rect.color = "FF0000"
