@@ -195,7 +195,7 @@ class TapRecognizer(Recognizer):
 
 class DoubletapRecognizer(Recognizer):
     
-    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE, startHandler=None, 
+    def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE,
             maxTime=MAX_DOUBLETAP_TIME, initialEvent=None,
             possibleHandler=None, failHandler=None, detectedHandler=None):
         self.__maxTime = maxTime
