@@ -20,8 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 from libavg import avg
 from testcase import *
 
@@ -116,7 +114,7 @@ class AVTestCase(AVGTestCase):
 
             root = self.loadEmptyScene()
             node = avg.VideoNode(href="../video/testfiles/"+filename, volume=0.8,
-                        threaded=isThreaded)
+                        size=(96,96), threaded=isThreaded)
             self.assert_(node.threaded == isThreaded)
             setVolume(0.6)
             root.appendChild(node)
@@ -151,7 +149,7 @@ class AVTestCase(AVGTestCase):
     def testVideoState(self):
         for accelerated in [True, False]:
             root = self.loadEmptyScene()
-            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
+            node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", size=(96,96), 
                     threaded=False, accelerated=accelerated, parent=root)
             Player.setFakeFPS(25)
             self.start((
@@ -179,8 +177,8 @@ class AVTestCase(AVGTestCase):
             node.active=1
         
         root = self.loadEmptyScene()
-        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", threaded=False,
-                parent=root)
+        node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", size=(96,96),
+                threaded=False, parent=root)
         Player.setFakeFPS(25)
         self.start((
                  lambda: node.play(),
@@ -260,11 +258,11 @@ class AVTestCase(AVGTestCase):
         for useCustomFPS in [False, True]:
             root = self.loadEmptyScene()
             if useCustomFPS:
-                videoNode = avg.VideoNode(parent=root, loop=True, fps=25,
+                videoNode = avg.VideoNode(parent=root, loop=True, size=(96,96), fps=25,
                         threaded=False, href="../video/testfiles/mjpeg-48x48.avi")
             else:
-                videoNode = avg.VideoNode(parent=root, loop=True, 
-                        href="../video/testfiles/mjpeg-48x48.avi", threaded=False)
+                videoNode = avg.VideoNode(parent=root, loop=True, size=(96,96), 
+                        threaded=False, href="../video/testfiles/mjpeg-48x48.avi")
 
             videoNode.play()
             seek(26)
@@ -318,7 +316,7 @@ class AVTestCase(AVGTestCase):
             self.eof = False
             Player.setFakeFPS(25)
             root = self.loadEmptyScene()
-            videoNode = avg.VideoNode(parent=root, loop=True, fps=25,
+            videoNode = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
                     threaded=threaded, href="../video/testfiles/mpeg1-48x48.mpg")
             videoNode.setEOFCallback(onEOF)
             videoNode.play()
