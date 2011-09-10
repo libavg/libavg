@@ -20,6 +20,9 @@
 //
 
 #include "ShaderRegistry.h"
+
+#include "GLContext.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
@@ -28,19 +31,9 @@ using namespace boost;
 
 namespace avg {
     
-thread_specific_ptr<ShaderRegistryPtr> ShaderRegistry::s_pInstance;
-
-ShaderRegistryPtr& ShaderRegistry::get() 
+ShaderRegistryPtr ShaderRegistry::get() 
 {
-    if (s_pInstance.get() == 0) {
-        s_pInstance.reset(new ShaderRegistryPtr(new ShaderRegistry()));
-    }
-    return *s_pInstance;
-}
-
-void ShaderRegistry::kill()
-{
-    s_pInstance.reset();
+    return GLContext::getCurrent()->getShaderRegistry();
 }
 
 ShaderRegistry::ShaderRegistry()

@@ -1,6 +1,6 @@
 INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
 
-ALL_H = Bitmap.h Filter.h\
+ALL_H = Bitmap.h Filter.h GLContext.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h PixelFormat.h \
         Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
@@ -25,7 +25,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         OGLHelper.cpp OGLShader.cpp GPUNullFilter.cpp GPUChromaKeyFilter.cpp \
         GPUHueSatFilter.cpp GPUInvertFilter.cpp VertexArray.cpp OGLImagingContext.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
-        GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
+        GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
         FilterGetAlpha.cpp FBO.cpp GLTexture.cpp PBO.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \

@@ -90,6 +90,7 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 #endif
 
 OGLImagingContext::OGLImagingContext()
+    : GLContext()
 {
 #ifdef __APPLE__
     GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
@@ -100,14 +101,10 @@ OGLImagingContext::OGLImagingContext()
     m_Context = aglCreateContext(format, NULL);
     AVG_ASSERT(m_Context);
     aglDestroyPixelFormat(format);
-
-    bool bOk = aglSetCurrentContext(m_Context);
-    AVG_ASSERT (bOk);
 #else
 #ifdef linux
-    Display *dpy;
-    dpy = XOpenDisplay(0);
-    if (!dpy) {
+    m_pDisplay = XOpenDisplay(0);
+    if (!m_pDisplay) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
     }
     XVisualInfo *vi;
@@ -116,21 +113,22 @@ OGLImagingContext::OGLImagingContext()
             GLX_GREEN_SIZE, 1,
             GLX_BLUE_SIZE, 1,
             0};
-    vi = glXChooseVisual(dpy, DefaultScreen(dpy), attributes);
-    m_Context = glXCreateContext(dpy, vi, 0, GL_TRUE);
+    vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
+    m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
     AVG_ASSERT(m_Context);
-    Pixmap pmp = XCreatePixmap(dpy, RootWindow(dpy, vi->screen),
+    Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
             8, 8, vi->depth);
-    GLXPixmap pixmap = glXCreateGLXPixmap(dpy, vi, pmp);
+    GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
     
     s_bX11Error = false;
     s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
-    glXMakeCurrent(dpy, pixmap, m_Context);
+    glXMakeCurrent(m_pDisplay, pixmap, m_Context);
     XSetErrorHandler(s_DefaultErrorHandler);
     
     if (s_bX11Error) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
     }
+    m_Drawable = glXGetCurrentDrawable();
 #else
 #ifdef _WIN32
     registerWindowClass();
@@ -157,12 +155,10 @@ OGLImagingContext::OGLImagingContext()
     SetPixelFormat(m_hDC, iFormat, &pfd);
     m_Context = wglCreateContext(m_hDC);
     winOGLErrorCheck(m_Context != 0, "wglCreateContext");
-
-    BOOL bOK = wglMakeCurrent(m_hDC, m_Context);
-    winOGLErrorCheck(bOK, "wglMakeCurrent");
 #endif
 #endif
 #endif
+    activate();
     glproc::init();
 
     if (!isSupported()) {
@@ -175,7 +171,6 @@ OGLImagingContext::OGLImagingContext()
 
 OGLImagingContext::~OGLImagingContext()
 {
-    ShaderRegistry::kill();
     GPUFilter::glContextGone();
 #ifdef __APPLE__
     if (m_Context) {
@@ -191,18 +186,6 @@ OGLImagingContext::~OGLImagingContext()
         DestroyWindow(m_hwnd);
     }
 #endif
-}
-
-void OGLImagingContext::activate()
-{
-#ifdef __APPLE__
-    bool bOk = aglSetCurrentContext(m_Context);
-    AVG_ASSERT(bOk);
-#elif defined _WIN32
-    BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
-    AVG_ASSERT(bOk);
-#endif
-    // TODO: X version
 }
 
 bool OGLImagingContext::isSupported()

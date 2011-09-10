@@ -251,43 +251,6 @@ void popGLState()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "popGLState()");
 }
 
-#if defined(__APPLE__)
-CGLContextObj g_AVGGLContext;
-#elif defined(__linux__)
-Display* g_pAVGGLDisplay;
-GLXDrawable g_pAVGGLDrawable;
-GLXContext g_AVGGLContext;
-#elif defined(_WIN32)
-HDC g_AVGGLHDC;
-HGLRC g_AVGGLContext;
-#endif
-
-void AVG_API saveAVGGLContext()
-{
-#if defined(__APPLE__)
-    g_AVGGLContext = CGLGetCurrentContext();
-#elif defined(__linux__)
-    g_pAVGGLDisplay = glXGetCurrentDisplay();
-    g_pAVGGLDrawable = glXGetCurrentDrawable();
-    g_AVGGLContext = glXGetCurrentContext();
-#elif defined(_WIN32)
-    g_AVGGLHDC = wglGetCurrentDC();
-    g_AVGGLContext = wglGetCurrentContext();
-#endif
-}
-
-void AVG_API restoreAVGGLContext()
-{
-    AVG_ASSERT(g_AVGGLContext);
-#if defined(__APPLE__)
-    CGLSetCurrentContext(g_AVGGLContext);
-#elif defined(__linux__)
-    glXMakeCurrent(g_pAVGGLDisplay, g_pAVGGLDrawable, g_AVGGLContext);
-#elif defined(_WIN32)
-    wglMakeCurrent(g_AVGGLHDC, g_AVGGLContext);
-#endif
-}
-
 void AVG_API clearGLBuffers(GLbitfield mask)
 {
     glClearColor(0.0, 0.0, 0.0, 0.0); 

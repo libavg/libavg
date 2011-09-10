@@ -28,7 +28,6 @@
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/tss.hpp>
 
 #include <map>
 
@@ -39,8 +38,7 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 
 class AVG_API ShaderRegistry {
 public:
-    static ShaderRegistryPtr& get();
-    static void kill();
+    static ShaderRegistryPtr get();
     ShaderRegistry();
     virtual ~ShaderRegistry();
 
@@ -51,7 +49,6 @@ private:
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
 
-    static boost::thread_specific_ptr<ShaderRegistryPtr> s_pInstance;
 };
 
 OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);

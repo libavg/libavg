@@ -231,10 +231,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
             }
         }
     }
-#ifdef HAVE_XI2_1
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTInputDevice = 0;
-#endif
+    m_pGLContext = GLContextPtr(new GLContext(true));
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
                 + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
@@ -243,6 +240,10 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
     glproc::init();
 
+#ifdef HAVE_XI2_1
+    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+    m_pXIMTInputDevice = 0;
+#endif
     SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
 
@@ -316,7 +317,6 @@ void SDLDisplayEngine::teardown()
     PBO::deleteBufferCache();
     GPUFilter::glContextGone();
     FBO::deleteCache();
-    ShaderRegistry::kill();
 }
 
 double SDLDisplayEngine::getRefreshRate() 

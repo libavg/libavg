@@ -27,6 +27,7 @@
 #include "DisplayEngine.h"
 #include "GLConfig.h"
 
+#include "../graphics/GLContext.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
@@ -145,6 +146,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         int m_MaxTexSize;
 
         // OpenGL state
+        GLContextPtr m_pGLContext;
+
         bool m_bEnableTexture;
         bool m_bEnableGLColorArray;
         BlendMode m_BlendMode;

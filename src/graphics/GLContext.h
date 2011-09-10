@@ -18,40 +18,61 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-#ifndef _OGLImagingContext_H_
-#define _OGLImagingContext_H_
+#ifndef _GLContext_H_
+#define _GLContext_H_
 #include "../api.h"
-#include "../base/Point.h"
 
 #include "OGLHelper.h"
-#include "GLContext.h"
+#include "ShaderRegistry.h"
 
 #ifdef __APPLE__
 #include <AGL/agl.h>
-#else
-#ifdef linux
+#elif defined linux
 #include <GL/glx.h>
-#else
-#ifdef _WIN32
+#elif defined _WIN32
 #include <gl/gl.h>
 #include <gl/glu.h>
 #endif
-#endif
-#endif
+
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/thread/tss.hpp>
 
 namespace avg {
 
-class AVG_API OGLImagingContext: public GLContext {
+class GLContext;
+typedef boost::shared_ptr<GLContext> GLContextPtr;
+
+class AVG_API GLContext: public boost::enable_shared_from_this<GLContext> {
 public:
-    OGLImagingContext();
-    virtual ~OGLImagingContext();
+    GLContext(bool bUseCurrent=false);
+    virtual ~GLContext() {};
 
-    bool isSupported();
+    void activate();
+    ShaderRegistryPtr getShaderRegistry() const;
 
+    static GLContext* getCurrent();
+
+protected:
+#ifdef __APPLE__
+    AGLContext m_Context;
+#elif defined linux
+    Display* m_pDisplay;
+    GLXDrawable m_Drawable;
+    GLXContext m_Context;
+#elif defined _WIN32
+    HDC m_hDC;
+    HGLRC m_Context;
+#endif
+    
 private:
-    void setStandardState();
+    ShaderRegistryPtr m_pShaderRegistry;
+
+    static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
 
 };
+
 }
 #endif
+
 
