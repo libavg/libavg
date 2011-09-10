@@ -166,6 +166,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Could not find codec parameters.");
     }
+//    dump_format(m_pFormatContext, 0, sFilename.c_str(), false);
     av_read_play(m_pFormatContext);
     
     // Find audio and video streams in the file
@@ -473,13 +474,17 @@ double FFMpegDecoder::getDuration() const
     long long duration;
     AVRational time_base;
     if (m_pVStream) {
-        duration=m_pVStream->duration;
-        time_base=m_pVStream->time_base;
+        duration = m_pVStream->duration;
+        time_base = m_pVStream->time_base;
     } else {
-        duration=m_pAStream->duration;
-        time_base=m_pAStream->time_base;
+        duration = m_pAStream->duration;
+        time_base = m_pAStream->time_base;
     }
-    return double(duration)*av_q2d(time_base);
+    if (duration == AV_NOPTS_VALUE) {
+        return 0;
+    } else {
+        return double(duration)*av_q2d(time_base);
+    }
 }
 
 double FFMpegDecoder::getNominalFPS() const

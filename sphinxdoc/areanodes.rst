@@ -426,7 +426,8 @@ Area Nodes
 
         .. py:attribute:: duration
 
-            The duration of the sound file in milliseconds. Read-only.
+            The duration of the sound file in milliseconds. Some file formats don't store
+            valid durations; in this case, 0 is returned. Read-only.
 
         .. py:attribute:: href
 
@@ -548,7 +549,8 @@ Area Nodes
 
         .. py:method:: getDuration() -> int
 
-            Returns the duration of the video in milliseconds.
+            Returns the duration of the video in milliseconds. Some file formats don't 
+            store valid durations; in this case, 0 is returned. Read-only.
 
         .. py:method:: getNumFrames() -> int
 
