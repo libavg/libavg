@@ -539,16 +539,17 @@ void SDLDisplayEngine::initMacVBlank(int rate)
 #ifdef __APPLE__
     CGLContextObj context = CGLGetCurrentContext();
     AVG_ASSERT (context);
+#if MAC_OS_X_VERSION_10_5
+    GLint l = rate;
+#else
+    long l = rate;
+#endif
     if (rate > 1) {
         AVG_TRACE(Logger::WARNING,
                 "VBlank rate set to " << rate 
                 << " but Mac OS X only supports 1. Assuming 1.");
+        l = 1;
     }
-#if MAC_OS_X_VERSION_10_5
-    const GLint l = 1;
-#else
-    const long l = 1;
-#endif
     CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
     AVG_ASSERT(!err);
 #endif
