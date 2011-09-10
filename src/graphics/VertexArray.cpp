@@ -37,6 +37,9 @@ namespace avg {
 GLBufferCache VertexArray::s_VertexBufferCache;
 GLBufferCache VertexArray::s_IndexBufferCache;
 
+const int MIN_VERTEXES = 100;
+const int MIN_INDEXES = 100;
+
 VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : m_NumVerts(0),
       m_NumIndexes(0),
@@ -45,16 +48,16 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
       m_bDataChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (m_ReserveVerts < 10) {
-        m_ReserveVerts = 10;
+    if (m_ReserveVerts < MIN_VERTEXES) {
+        m_ReserveVerts = MIN_VERTEXES;
     }
-    if (m_ReserveIndexes < 20) {
-        m_ReserveIndexes = 20;
+    if (m_ReserveIndexes < MIN_INDEXES) {
+        m_ReserveIndexes = MIN_INDEXES;
     }
     m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned int[m_ReserveIndexes];
 
-    if (m_ReserveVerts != 10 || m_ReserveIndexes != 20) {
+    if (m_ReserveVerts != MIN_VERTEXES || m_ReserveIndexes != MIN_INDEXES) {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
     } else {
@@ -65,12 +68,12 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
 
 VertexArray::~VertexArray()
 {
-    if (m_ReserveVerts == 10) {
+    if (m_ReserveVerts == MIN_VERTEXES) {
         s_VertexBufferCache.returnBuffer(m_GLVertexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLVertexBufferID);
     }
-    if (m_ReserveIndexes == 20) {
+    if (m_ReserveIndexes == MIN_INDEXES) {
         s_IndexBufferCache.returnBuffer(m_GLIndexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLIndexBufferID);
