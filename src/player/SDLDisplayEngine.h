@@ -155,8 +155,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bCheckedMemoryMode;
         OGLMemoryMode m_MemoryMode;
 
-        FBOPtr m_pFBO;
-
         double m_Gamma[3];
 };
 

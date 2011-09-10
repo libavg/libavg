@@ -61,8 +61,6 @@ private:
 #ifdef _WIN32
     HWND m_hwnd;
     HDC m_hDC;
-    HBITMAP m_hBitmap;
-    void *m_pBits;
     HGLRC m_Context;
 #endif
 #endif
