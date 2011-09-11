@@ -51,7 +51,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
     public:
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
-        virtual void init(const DisplayParams& dp, const GLConfig& glConfig);
+        virtual void init(const DisplayParams& dp, GLConfig glConfig);
 
         // From DisplayEngine
         virtual void teardown();
@@ -62,8 +62,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         virtual IntPoint getSize();
 
-        virtual bool isUsingShaders() const; 
-        
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot();
 
@@ -71,13 +69,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInput21MTInputDevice* pInputDevice);
 
-        // Texture config.
-        void initTextureMode();
-        bool usePOTTextures();
-
-        OGLMemoryMode getMemoryModeSupported();
-
-        const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
         IntPoint getScreenResolution();
@@ -86,10 +77,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         void assumePhysicalScreenDimensions(const DPoint& size);
 
     private:
-        void setOGLOptions(const GLConfig& glConfig);
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
-        void logConfig();
         void calcScreenDimensions(const DPoint& physScreenSize=DPoint(0,0));
         virtual void swapBuffers();
 
@@ -107,8 +96,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         DPoint m_PPMM;
 
         SDL_Surface * m_pScreen;
-
-        void checkShaderSupport();
 
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);
@@ -131,11 +118,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         XInput21MTInputDevice * m_pXIMTInputDevice;
 
         GLContextPtr m_pGLContext;
-
-        GLConfig m_GLConfig;
-        
-        bool m_bCheckedMemoryMode;
-        OGLMemoryMode m_MemoryMode;
 
         double m_Gamma[3];
 };

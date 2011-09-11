@@ -29,6 +29,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
 
+#include "../graphics/GLContext.h"
+
 #include <vector>
 
 using namespace boost;
@@ -58,7 +60,7 @@ void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine,
         AudioEngine* pAudioEngine)
 {
     Canvas::initPlayback(pDisplayEngine, pAudioEngine, 
-            pDisplayEngine->getOGLOptions().m_MultiSampleSamples);
+            GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
 }
 
 BitmapPtr MainCanvas::screenshot() const

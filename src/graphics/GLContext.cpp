@@ -33,12 +33,14 @@ using namespace std;
 using namespace boost;
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 
-GLContext::GLContext(bool bUseCurrent)
+GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
     : m_Context(0),
+      m_MaxTexSize(0),
+      m_GLConfig(false, true, true, 1),
+      m_bCheckedMemoryMode(false),
       m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
-      m_BlendMode(BLEND_ADD),
-      m_MaxTexSize(0)
+      m_BlendMode(BLEND_ADD)
 {
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
@@ -57,6 +59,7 @@ GLContext::GLContext(bool bUseCurrent)
         *s_pCurrentContext = this;
         init();
     }
+    m_GLConfig = GLConfig;
 }
 
 GLContext::~GLContext()
@@ -73,6 +76,11 @@ void GLContext::init()
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
+    checkShaderSupport();
+    if (!m_GLConfig.m_bUsePOTTextures) {
+        m_GLConfig.m_bUsePOTTextures = 
+                !queryOGLExtension("GL_ARB_texture_non_power_of_two");
+    }
 }
 
 void GLContext::activate()
@@ -227,6 +235,55 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
     }
 }
 
+const GLConfig& GLContext::getConfig()
+{
+    return m_GLConfig;
+}
+
+void GLContext::logConfig() 
+{
+    AVG_TRACE(Logger::CONFIG, "OpenGL configuration: ");
+    AVG_TRACE(Logger::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
+    AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
+    AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
+    m_GLConfig.log();
+    switch (getMemoryModeSupported()) {
+        case MM_PBO:
+            AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects.");
+            break;
+        case MM_OGL:
+            AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
+            break;
+    }
+    AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
+}
+
+bool GLContext::usePOTTextures()
+{
+    return m_GLConfig.m_bUsePOTTextures;
+}
+
+OGLMemoryMode GLContext::getMemoryModeSupported()
+{
+    if (!m_bCheckedMemoryMode) {
+        if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
+             queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
+            m_GLConfig.m_bUsePixelBuffers) 
+        {
+            m_MemoryMode = MM_PBO;
+        } else {
+            m_MemoryMode = MM_OGL;
+        }
+        m_bCheckedMemoryMode = true;
+    }
+    return m_MemoryMode;
+}
+
+bool GLContext::isUsingShaders() const
+{
+    return m_GLConfig.m_bUseShaders;
+}
+
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -253,6 +310,19 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
+}
+
+void GLContext::checkShaderSupport()
+{
+    int glMajorVer;
+    int glMinorVer;
+    getGLShadingLanguageVersion(glMajorVer, glMinorVer);
+    bool bShaderVersionOK = (glMajorVer >= 2 || glMinorVer >= 10);
+    m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
+            getMemoryModeSupported() == MM_PBO &&
+            !m_GLConfig.m_bUsePOTTextures &&
+            m_GLConfig.m_bUseShaders &&
+            bShaderVersionOK);
 }
 
 }

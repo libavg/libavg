@@ -21,8 +21,6 @@
 
 #include "PBOTexture.h"
 
-#include "SDLDisplayEngine.h"
-
 #include "../graphics/GLContext.h"
 #include "../graphics/VertexArray.h"
 #include "../base/Logger.h"
@@ -35,20 +33,21 @@
 #include <iostream>
 #include <string>
 
+#include <string.h>
+
 namespace avg {
 
 using namespace std;
     
 PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-        SDLDisplayEngine * pEngine, OGLMemoryMode memoryMode) 
+        OGLMemoryMode memoryMode) 
     : m_pf(pf),
       m_Material(material),
-      m_pEngine(pEngine),
       m_MemoryMode(memoryMode)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_ActiveSize = size;
-    if (pEngine->usePOTTextures()) {
+    if (GLContext::getCurrent()->usePOTTextures()) {
         m_Size.x = nextpow2(m_ActiveSize.x);
         m_Size.y = nextpow2(m_ActiveSize.y);
     } else {
@@ -165,7 +164,7 @@ void PBOTexture::createTexture()
     m_pTex = GLTexturePtr(new GLTexture(m_Size, m_pf, m_Material.getUseMipmaps(),
             m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
 
-    if (m_pEngine->usePOTTextures()) {
+    if (GLContext::getCurrent()->usePOTTextures()) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
         int TexMemNeeded = m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);

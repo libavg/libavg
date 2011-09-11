@@ -99,12 +99,11 @@ VertexArrayPtr Shape::getVertexArray()
 void Shape::draw()
 {
     bool bIsTextured = isTextured();
-    SDLDisplayEngine* pEngine = m_pImage->getEngine();
     GLContext* pContext = GLContext::getCurrent();
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
-        if (pEngine->isUsingShaders()) {
+        if (GLContext::getCurrent()->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }
         for (int i = 1; i < 5; ++i) {

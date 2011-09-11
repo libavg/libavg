@@ -36,13 +36,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
 class VertexArray;
 
 class AVG_API PBOTexture {
 public:
     PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-            SDLDisplayEngine * pEngine, OGLMemoryMode memoryMode);
+            OGLMemoryMode memoryMode);
     virtual ~PBOTexture();
 
     BitmapPtr lockBmp();
@@ -69,7 +68,6 @@ private:
     PBOPtr m_pReadPBO;
     BitmapPtr m_pBmp;
     
-    SDLDisplayEngine * m_pEngine;
     OGLMemoryMode m_MemoryMode;
 };
 

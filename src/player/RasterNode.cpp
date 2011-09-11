@@ -486,7 +486,7 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 void RasterNode::setupFX(bool bNewFX)
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
-        if (!getDisplayEngine()->isUsingShaders()) {
+        if (!GLContext::getCurrent()->isUsingShaders()) {
             throw Exception(AVG_ERR_UNSUPPORTED,
                     "Can't use FX - unsupported on this hardware/driver combination.");
         }

@@ -135,9 +135,7 @@ bool queryOGLExtension(const char *extName)
     size_t extNameLen = strlen(extName);
 
     p = (char *)glGetString(GL_EXTENSIONS);
-    if (NULL == p) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get OpenGL extension string.");
-    }
+    AVG_ASSERT(p != 0);
 
     char * end = p + strlen(p);
 

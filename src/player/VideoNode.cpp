@@ -440,7 +440,7 @@ void VideoNode::startDecoding()
     if (getAudioEngine()) {
         pAP = getAudioEngine()->getParams();
     }
-    m_pDecoder->startDecoding(getDisplayEngine()->isUsingShaders(), pAP);
+    m_pDecoder->startDecoding(GLContext::getCurrent()->isUsingShaders(), pAP);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {

@@ -29,6 +29,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/ShaderRegistry.h"
+#include "../graphics/GLContext.h"
 
 #include <iostream>
 #include <sstream>
@@ -66,8 +67,8 @@ OGLSurface::~OGLSurface()
 void OGLSurface::attach(SDLDisplayEngine * pEngine)
 {
     m_pEngine = pEngine;
-    m_MemoryMode = m_pEngine->getMemoryModeSupported();
-    if (!getEngine()->isUsingShaders()) {
+    m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
+    if (!GLContext::getCurrent()->isUsingShaders()) {
         if (m_Material.getHasMask()) {
             throw Exception(AVG_ERR_VIDEO_GENERAL,
                     "Can't set mask bitmap since shader support is disabled.");
@@ -90,19 +91,19 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
     m_pf = pf;
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material,
                 m_MemoryMode));
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
+        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material,
                 m_MemoryMode));
-        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
+        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material,
                 m_MemoryMode));
         if (pixelFormatHasAlpha(m_pf)) {
-            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
+            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material,
                 m_MemoryMode));
         }
     } else {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material, m_pEngine,
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material,
                 m_MemoryMode));
     }
     m_bUseForeignTexture = false;
@@ -110,11 +111,9 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 
 void OGLSurface::createMask(const IntPoint& size)
 {
-    AVG_ASSERT(m_pEngine);
     AVG_ASSERT(m_Material.getHasMask());
     m_MaskSize = size;
-    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
-            m_MemoryMode));
+    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_MemoryMode));
 }
 
 void OGLSurface::destroy()
@@ -196,7 +195,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
     } else {
         m_pTextures[0]->activate(GL_TEXTURE0);
-        if (m_pEngine->isUsingShaders()) {
+        if (GLContext::getCurrent()->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }
         for (int i=1; i<5; ++i) {
@@ -249,7 +248,9 @@ const MaterialInfo& OGLSurface::getMaterial() const
 
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
-    if (getEngine() && (material.getHasMask() && !getEngine()->isUsingShaders())) {
+    if (getEngine() && (material.getHasMask() &&
+            !GLContext::getCurrent()->isUsingShaders())) 
+    {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
     }
@@ -265,7 +266,7 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
     }
     if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
         m_pMaskTexture = PBOTexturePtr(new PBOTexture(m_MaskSize, I8, m_Material, 
-                m_pEngine, m_MemoryMode));
+                m_MemoryMode));
     }
 }
 
@@ -316,7 +317,9 @@ void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
     m_Gamma = gamma;
     m_Brightness = brightness;
     m_Contrast = contrast;
-    if (!getEngine()->isUsingShaders() && (gammaIsModified() || colorIsModified())) {
+    if (!GLContext::getCurrent()->isUsingShaders() &&
+            (gammaIsModified() || colorIsModified())) 
+    {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
     }
@@ -404,7 +407,7 @@ SDLDisplayEngine * OGLSurface::getEngine() const
 
 bool OGLSurface::useShader() const
 {
-    return getEngine()->isUsingShaders() && 
+    return GLContext::getCurrent()->isUsingShaders() && 
             (m_Material.getHasMask() || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
                     colorIsModified());
 }

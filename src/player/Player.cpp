@@ -1090,7 +1090,7 @@ bool Player::isUsingShaders()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.isUsingShaders must be called after Player.play().");
     }
-    return m_pDisplayEngine->isUsingShaders();
+    return GLContext::getCurrent()->isUsingShaders();
 }
 
 void Player::setGamma(double red, double green, double blue)

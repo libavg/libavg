@@ -24,6 +24,7 @@
 
 #include "OGLHelper.h"
 #include "GLBufferCache.h"
+#include "GLConfig.h"
 
 #include "../base/Point.h"
 
@@ -49,7 +50,8 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 
 class AVG_API GLContext {
 public:
-    GLContext(bool bUseCurrent=false);
+    GLContext(bool bUseCurrent=false, 
+            const GLConfig& GLConfig=GLConfig(false, true, true, 1));
     virtual ~GLContext();
     void init();
 
@@ -73,8 +75,13 @@ public:
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
 
+    const GLConfig& getConfig();
+    void logConfig();
     int getMaxTexSize();
-
+    bool usePOTTextures();
+    OGLMemoryMode getMemoryModeSupported();
+    bool isUsingShaders() const;
+    
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
@@ -92,6 +99,8 @@ protected:
 #endif
     
 private:
+    void checkShaderSupport();
+
     ShaderRegistryPtr m_pShaderRegistry;
 
     GLBufferCache m_VertexBufferCache;
@@ -99,14 +108,17 @@ private:
     GLBufferCache m_PBOCache;
     std::vector<unsigned int> m_FBOIDs;
 
+    int m_MaxTexSize;
+    GLConfig m_GLConfig;
+    bool m_bCheckedMemoryMode;
+    OGLMemoryMode m_MemoryMode;
+
+
     // OpenGL state
     bool m_bEnableTexture;
     bool m_bEnableGLColorArray;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;
-
-    // OpenGL limits
-    int m_MaxTexSize;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
 
