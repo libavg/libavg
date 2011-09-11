@@ -21,15 +21,22 @@
 
 #include "GLContext.h"
 
+#include "ShaderRegistry.h"
+
 #include "../base/Exception.h"
+#include "../base/Logger.h"
 
 namespace avg {
 
+using namespace std;
 using namespace boost;
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 
 GLContext::GLContext(bool bUseCurrent)
-    : m_Context(0)
+    : m_Context(0),
+      m_bEnableTexture(false),
+      m_bEnableGLColorArray(true),
+      m_BlendMode(BLEND_ADD)
 {
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
@@ -46,8 +53,8 @@ GLContext::GLContext(bool bUseCurrent)
         m_Context = wglGetCurrentContext();
 #endif
         *s_pCurrentContext = this;
+        init();
     }
-    m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
 }
 
 GLContext::~GLContext()
@@ -56,6 +63,14 @@ GLContext::~GLContext()
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
     m_FBOIDs.clear();
+}
+
+void GLContext::init()
+{
+    glproc::init();
+    m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
+    enableGLColorArray(false);
+    setBlendMode(BLEND_BLEND, false);
 }
 
 void GLContext::activate()
@@ -107,6 +122,104 @@ unsigned GLContext::genFBO()
 void GLContext::returnFBOToCache(unsigned fboID) 
 {
     m_FBOIDs.push_back(fboID);
+}
+
+void GLContext::enableTexture(bool bEnable)
+{
+    if (bEnable != m_bEnableTexture) {
+        if (bEnable) {
+            glEnable(GL_TEXTURE_2D);
+        } else {
+            glDisable(GL_TEXTURE_2D);
+        }
+        m_bEnableTexture = bEnable;
+    }
+}
+
+void GLContext::enableGLColorArray(bool bEnable)
+{
+    if (bEnable != m_bEnableGLColorArray) {
+        if (bEnable) {
+            glEnableClientState(GL_COLOR_ARRAY);
+        } else {
+            glDisableClientState(GL_COLOR_ARRAY);
+        }
+        m_bEnableGLColorArray = bEnable;
+    }
+}
+
+void checkBlendModeError(const char * sMode) 
+{    
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        static bool bErrorReported = false;
+        if (!bErrorReported) {
+            AVG_TRACE(Logger::WARNING, "Blendmode "<< sMode <<
+                    " not supported by OpenGL implementation.");
+            bErrorReported = true;
+        }
+    }
+}
+
+void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
+{
+    GLenum srcFunc;
+    if (bPremultipliedAlpha) {
+        srcFunc = GL_CONSTANT_ALPHA;
+    } else {
+        srcFunc = GL_SRC_ALPHA;
+    }
+    if (mode != m_BlendMode || m_bPremultipliedAlpha != bPremultipliedAlpha) {
+        switch (mode) {
+            case BLEND_BLEND:
+                glproc::BlendEquation(GL_FUNC_ADD);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                checkBlendModeError("blend");
+                break;
+            case BLEND_ADD:
+                glproc::BlendEquation(GL_FUNC_ADD);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE, GL_ONE, GL_ONE);
+                checkBlendModeError("add");
+                break;
+            case BLEND_MIN:
+                glproc::BlendEquation(GL_MIN);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                checkBlendModeError("min");
+                break;
+            case BLEND_MAX:
+                glproc::BlendEquation(GL_MAX);
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                checkBlendModeError("max");
+                break;
+            case BLEND_COPY:
+                glproc::BlendEquation(GL_FUNC_ADD);
+                glBlendFunc(GL_ONE, GL_ZERO);
+                break;
+            default:
+                AVG_ASSERT(false);
+        }
+
+        m_BlendMode = mode;
+        m_bPremultipliedAlpha = bPremultipliedAlpha;
+    }
+}
+
+GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
+{
+    if (s == "blend") {
+        return GLContext::BLEND_BLEND;
+    } else if (s == "add") {
+        return GLContext::BLEND_ADD;
+    } else if (s == "min") {
+        return GLContext::BLEND_MIN;
+    } else if (s == "max") {
+        return GLContext::BLEND_MAX;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Blend mode "+s+" not supported."));
+    }
 }
 
 GLContext* GLContext::getCurrent()

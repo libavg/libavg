@@ -48,13 +48,11 @@ public:
     DRect getRelDestRect() const;
 
 protected:
-    SDLDisplayEngine* getEngine() const;
     FBOPtr getFBO();
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size) = 0;
 
-    SDLDisplayEngine* m_pEngine;
     IntPoint m_Size;
     GPUFilterPtr m_pFilter;
 };

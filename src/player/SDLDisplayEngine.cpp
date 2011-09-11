@@ -239,7 +239,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(m_GLConfig.m_MultiSampleSamples) + ").");
     }
-    glproc::init();
 
 #ifdef HAVE_XI2_1
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
@@ -270,10 +269,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
         throw Exception(AVG_ERR_UNSUPPORTED,
             "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
     }
-    m_bEnableTexture=false;
-    enableTexture(true);
-    m_bEnableGLColorArray=true;
-    enableGLColorArray(false);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -286,8 +281,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     }
 
     checkShaderSupport();
-    m_BlendMode = BLEND_ADD;
-    setBlendMode(BLEND_BLEND, false);
 
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
@@ -1170,89 +1163,6 @@ int SDLDisplayEngine::getMaxTexSize()
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
     }
     return m_MaxTexSize;
-}
-
-void SDLDisplayEngine::enableTexture(bool bEnable)
-{
-    if (bEnable != m_bEnableTexture) {
-        if (bEnable) {
-            glEnable(GL_TEXTURE_2D);
-        } else {
-            glDisable(GL_TEXTURE_2D);
-        }
-        m_bEnableTexture = bEnable;
-    }
-}
-
-void SDLDisplayEngine::enableGLColorArray(bool bEnable)
-{
-    if (bEnable != m_bEnableGLColorArray) {
-        if (bEnable) {
-            glEnableClientState(GL_COLOR_ARRAY);
-        } else {
-            glDisableClientState(GL_COLOR_ARRAY);
-        }
-        m_bEnableGLColorArray = bEnable;
-    }
-}
-
-void checkBlendModeError(const char * sMode) 
-{    
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        static bool bErrorReported = false;
-        if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "<< sMode <<
-                    " not supported by OpenGL implementation.");
-            bErrorReported = true;
-        }
-    }
-}
-
-void SDLDisplayEngine::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
-{
-    GLenum srcFunc;
-    if (bPremultipliedAlpha) {
-        srcFunc = GL_CONSTANT_ALPHA;
-    } else {
-        srcFunc = GL_SRC_ALPHA;
-    }
-    if (mode != m_BlendMode || m_bPremultipliedAlpha != bPremultipliedAlpha) {
-        switch (mode) {
-            case BLEND_BLEND:
-                glproc::BlendEquation(GL_FUNC_ADD);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("blend");
-                break;
-            case BLEND_ADD:
-                glproc::BlendEquation(GL_FUNC_ADD);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE, GL_ONE, GL_ONE);
-                checkBlendModeError("add");
-                break;
-            case BLEND_MIN:
-                glproc::BlendEquation(GL_MIN);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("min");
-                break;
-            case BLEND_MAX:
-                glproc::BlendEquation(GL_MAX);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("max");
-                break;
-            case BLEND_COPY:
-                glproc::BlendEquation(GL_FUNC_ADD);
-                glBlendFunc(GL_ONE, GL_ZERO);
-                break;
-            default:
-                AVG_ASSERT(false);
-        }
-
-        m_BlendMode = mode;
-        m_bPremultipliedAlpha = bPremultipliedAlpha;
-    }
 }
 
 OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()

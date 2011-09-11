@@ -274,13 +274,14 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
 
 void Canvas::renderOutlines()
 {
+    GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA(new VertexArray);
-    m_pDisplayEngine->setBlendMode(DisplayEngine::BLEND_BLEND, false);
+    pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     if (pVA->getCurVert() != 0) {
         pVA->update();
-        m_pDisplayEngine->enableTexture(false);
-        m_pDisplayEngine->enableGLColorArray(true);
+        pContext->enableTexture(false);
+        pContext->enableGLColorArray(true);
         pVA->draw();
     }
 }

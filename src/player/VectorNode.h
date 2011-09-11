@@ -30,6 +30,7 @@
 #include "../base/UTF8String.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/VertexArray.h"
+#include "../graphics/GLContext.h"
 
 namespace avg {
 
@@ -74,7 +75,7 @@ class AVG_API VectorNode : public VisibleNode
 
     protected:
         Pixel32 getColorVal() const;
-        DisplayEngine::BlendMode getBlendMode() const;
+        GLContext::BlendMode getBlendMode() const;
 
         void setDrawNeeded();
         bool isDrawNeeded();
@@ -107,7 +108,7 @@ class AVG_API VectorNode : public VisibleNode
         double m_OldOpacity;
 
         ShapePtr m_pShape;
-        DisplayEngine::BlendMode m_BlendMode;
+        GLContext::BlendMode m_BlendMode;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

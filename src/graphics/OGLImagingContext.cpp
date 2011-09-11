@@ -158,8 +158,8 @@ OGLImagingContext::OGLImagingContext()
 #endif
 #endif
 #endif
+    init();
     activate();
-    glproc::init();
 
     if (!isSupported()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 

@@ -23,7 +23,6 @@
 #include "../api.h"
 
 #include "OGLHelper.h"
-#include "ShaderRegistry.h"
 #include "GLBufferCache.h"
 
 #ifdef __APPLE__
@@ -36,27 +35,38 @@
 #endif
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/thread/tss.hpp>
 
 namespace avg {
 
 class GLContext;
 typedef boost::shared_ptr<GLContext> GLContextPtr;
+class ShaderRegistry;
+typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 
-class AVG_API GLContext: public boost::enable_shared_from_this<GLContext> {
+class AVG_API GLContext {
 public:
     GLContext(bool bUseCurrent=false);
     virtual ~GLContext();
+    void init();
 
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
+
+    // GL Object caching.
     GLBufferCache& getVertexBufferCache();
     GLBufferCache& getIndexBufferCache();
     GLBufferCache& getPBOCache();
-
     unsigned genFBO();
     void returnFBOToCache(unsigned fboID);
+
+    // GL state cache.
+    void enableTexture(bool bEnable);
+    void enableGLColorArray(bool bEnable);
+    enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
+    void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
+
+    static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
 
@@ -79,6 +89,12 @@ private:
     GLBufferCache m_IndexBufferCache;
     GLBufferCache m_PBOCache;
     std::vector<unsigned int> m_FBOIDs;
+
+    // OpenGL state
+    bool m_bEnableTexture;
+    bool m_bEnableGLColorArray;
+    BlendMode m_BlendMode;
+    bool m_bPremultipliedAlpha;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
 

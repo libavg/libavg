@@ -82,11 +82,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool usePOTTextures();
         int getMaxTexSize();
 
-        // OpenGL state setting.
-        void enableTexture(bool bEnable);
-        void enableGLColorArray(bool bEnable);
-        void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
-        
         OGLMemoryMode getMemoryModeSupported();
 
         void setOGLOptions(const GLConfig& glConfig);
@@ -148,11 +143,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         // OpenGL state
         GLContextPtr m_pGLContext;
-
-        bool m_bEnableTexture;
-        bool m_bEnableGLColorArray;
-        BlendMode m_BlendMode;
-        bool m_bPremultipliedAlpha;
 
         GLConfig m_GLConfig;
         

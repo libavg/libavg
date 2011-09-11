@@ -25,6 +25,7 @@
 #include "../base/Exception.h"
 
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/GLContext.h"
 
 #include "OGLSurface.h"
 #include "SDLDisplayEngine.h"
@@ -99,6 +100,7 @@ void Shape::draw()
 {
     bool bIsTextured = isTextured();
     SDLDisplayEngine* pEngine = m_pImage->getEngine();
+    GLContext* pContext = GLContext::getCurrent();
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
@@ -111,8 +113,8 @@ void Shape::draw()
         }
         glproc::ActiveTexture(GL_TEXTURE0);
     }
-    pEngine->enableTexture(bIsTextured);
-    pEngine->enableGLColorArray(!bIsTextured);
+    pContext->enableTexture(bIsTextured);
+    pContext->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
 }
 

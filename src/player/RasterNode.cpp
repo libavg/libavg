@@ -240,7 +240,7 @@ const std::string& RasterNode::getBlendModeStr() const
 void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
-    m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
+    m_BlendMode = GLContext::stringToBlendMode(sBlendMode);
 }
 
 const UTF8String& RasterNode::getMaskHRef() const
@@ -339,18 +339,18 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
 }
 
 void RasterNode::blt32(const DPoint& destSize, double opacity, 
-        DisplayEngine::BlendMode mode, bool bPremultipliedAlpha)
+        GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
     blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
 void RasterNode::blta8(const DPoint& destSize, double opacity, 
-        const Pixel32& color, DisplayEngine::BlendMode mode)
+        const Pixel32& color, GLContext::BlendMode mode)
 {
     blt(destSize, mode, opacity, color, false);
 }
 
-DisplayEngine::BlendMode RasterNode::getBlendMode() const
+GLContext::BlendMode RasterNode::getBlendMode() const
 {
     return m_BlendMode;
 }
@@ -411,8 +411,9 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
 {
     ScopeTimer Timer(FXProfilingZone);
     setupFX(false);
-    getDisplayEngine()->enableGLColorArray(false);
-    getDisplayEngine()->enableTexture(true);
+    GLContext* pContext = GLContext::getCurrent();
+    pContext->enableGLColorArray(false);
+    pContext->enableTexture(true);
     if (m_pFXNode) {
         if (!m_bBound) {
             bind();
@@ -427,8 +428,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
-        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
-                bPremultipliedAlpha);
+        pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
@@ -505,26 +505,27 @@ void RasterNode::setupFX(bool bNewFX)
     }
 }
 
-void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
+void RasterNode::blt(const DPoint& destSize, GLContext::BlendMode mode,
         double opacity, const Pixel32& color, bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
     }
-    getDisplayEngine()->enableGLColorArray(false);
-    getDisplayEngine()->enableTexture(true);
+    GLContext* pContext = GLContext::getCurrent();
+    pContext->enableGLColorArray(false);
+    pContext->enableTexture(true);
     DRect destRect;
     if (m_pFXNode) {
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
 
-        getDisplayEngine()->setBlendMode(mode, true);
+        pContext->setBlendMode(mode, true);
         glColor4d(1.0, 1.0, 1.0, opacity);
         DRect relDestRect = m_pFXNode->getRelDestRect();
         destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
         m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
-        getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
+        pContext->setBlendMode(mode, bPremultipliedAlpha);
         glColor4d(double(color.getR())/256, double(color.getG())/256, 
                 double(color.getB())/256, opacity);
         destRect = DRect(DPoint(0,0), destSize);

@@ -33,6 +33,7 @@
 #include "../base/Triple.h"
 #include "../base/UTF8String.h"
 #include "../graphics/FBO.h"
+#include "../graphics/GLContext.h"
 
 #include <string>
 
@@ -68,7 +69,7 @@ class AVG_API RasterNode: public AreaNode
         
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
-        DisplayEngine::BlendMode getBlendMode() const;
+        GLContext::BlendMode getBlendMode() const;
 
         const UTF8String& getMaskHRef() const;
         void setMaskHRef(const UTF8String& sHref);
@@ -93,10 +94,10 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
-        void blt32(const DPoint& destSize, double opacity, DisplayEngine::BlendMode mode,
+        void blt32(const DPoint& destSize, double opacity, GLContext::BlendMode mode,
                 bool bPremultipliedAlpha = false);
         void blta8(const DPoint& destSize, double opacity, 
-                const Pixel32& color, DisplayEngine::BlendMode mode);
+                const Pixel32& color, GLContext::BlendMode mode);
 
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
@@ -112,7 +113,7 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         void setupFX(bool bNewFX);
-        void blt(const DPoint& destSize, DisplayEngine::BlendMode mode, 
+        void blt(const DPoint& destSize, GLContext::BlendMode mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
@@ -124,7 +125,7 @@ class AVG_API RasterNode: public AreaNode
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
-        DisplayEngine::BlendMode m_BlendMode;
+        GLContext::BlendMode m_BlendMode;
         MaterialInfo m_Material;
 
         UTF8String m_sMaskHref;

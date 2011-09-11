@@ -74,9 +74,6 @@ class AVG_API DisplayEngine
 
         virtual BitmapPtr screenshot () = 0;
 
-        enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
-        static BlendMode stringToBlendMode(const std::string& s);
-
     protected:
         
     private:

@@ -137,7 +137,7 @@ const string& VectorNode::getBlendModeStr() const
 void VectorNode::setBlendModeStr(const string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
-    m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
+    m_BlendMode = GLContext::stringToBlendMode(sBlendMode);
 }
 
 static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
@@ -173,7 +173,7 @@ void VectorNode::maybeRender(const DRect& rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
-        getDisplayEngine()->setBlendMode(m_BlendMode);
+        GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render(rect);
     }
 }
@@ -221,7 +221,7 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-DisplayEngine::BlendMode VectorNode::getBlendMode() const
+GLContext::BlendMode VectorNode::getBlendMode() const
 {
     return m_BlendMode;
 }
