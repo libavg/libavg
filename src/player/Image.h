@@ -33,7 +33,6 @@
 namespace avg {
 
 class OGLSurface;
-class SDLDisplayEngine;
 class OffscreenCanvas;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
 
@@ -50,7 +49,7 @@ class AVG_API Image
         Image(OGLSurface * pSurface);
         virtual ~Image();
 
-        virtual void moveToGPU(SDLDisplayEngine* pEngine);
+        virtual void moveToGPU();
         virtual void moveToCPU();
 
         void discard();
@@ -69,7 +68,6 @@ class AVG_API Image
         OGLSurface* getSurface();
         State getState();
         Source getSource();
-        SDLDisplayEngine* getEngine();
 
         static TextureCompression string2compression(const std::string& s);
         static std::string compression2String(TextureCompression compression);
@@ -83,7 +81,6 @@ class AVG_API Image
         std::string m_sFilename;
         BitmapPtr m_pBmp;
         OGLSurface * m_pSurface;
-        SDLDisplayEngine * m_pEngine;
         OffscreenCanvasPtr m_pCanvas;
 
         State m_State;

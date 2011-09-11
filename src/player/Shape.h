@@ -43,7 +43,7 @@ class AVG_API Shape
 
         void setBitmap(BitmapPtr pBmp);
 
-        virtual void moveToGPU(SDLDisplayEngine* pEngine);
+        virtual void moveToGPU();
         virtual void moveToCPU();
 
         ImagePtr getImage();

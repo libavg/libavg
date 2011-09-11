@@ -37,14 +37,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API OGLSurface {
 public:
     OGLSurface(const MaterialInfo& material);
     virtual ~OGLSurface();
 
-    void attach(SDLDisplayEngine * pEngine);
+    void attach();
     virtual void create(const IntPoint& size, PixelFormat pf);
     void createMask(const IntPoint& size);
     virtual void destroy();
@@ -73,9 +71,6 @@ public:
             const DTriple& contrast);
     static void createShader();
 
-protected:
-    SDLDisplayEngine * getEngine() const;
-
 private:
     bool useShader() const;
     Matrix3x4 calcColorspaceMatrix() const;
@@ -91,7 +86,6 @@ private:
 
     MaterialInfo m_Material;
 
-    SDLDisplayEngine * m_pEngine;
     OGLMemoryMode m_MemoryMode;
 
     DTriple m_Gamma;

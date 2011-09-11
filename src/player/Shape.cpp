@@ -28,7 +28,6 @@
 #include "../graphics/GLContext.h"
 
 #include "OGLSurface.h"
-#include "SDLDisplayEngine.h"
 
 #include <iostream>
 #include <sstream>
@@ -65,10 +64,10 @@ void Shape::setBitmap(BitmapPtr pBmp)
     }
 }
 
-void Shape::moveToGPU(SDLDisplayEngine* pEngine)
+void Shape::moveToGPU()
 {
-    m_pSurface->attach(pEngine);
-    m_pImage->moveToGPU(pEngine);
+    m_pSurface->attach();
+    m_pImage->moveToGPU();
     if (m_pImage->getSource() != Image::NONE) {
         m_pSurface->downloadTexture();
     }

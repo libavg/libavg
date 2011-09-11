@@ -22,7 +22,6 @@
 #include "RasterNode.h"
 
 #include "NodeDefinition.h"
-#include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 
 #include "../graphics/ImagingProjection.h"
@@ -96,7 +95,7 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
     getSurface();
-    m_pSurface->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    m_pSurface->attach();
     m_bBound = false;
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         m_TileSize = m_MaxTileSize;

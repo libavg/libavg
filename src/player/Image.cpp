@@ -27,7 +27,6 @@
 
 #include "../graphics/Filterfliprgb.h"
 
-#include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"
 
@@ -41,7 +40,6 @@ namespace avg {
 Image::Image(OGLSurface * pSurface)
     : m_sFilename(""),
       m_pSurface(pSurface),
-      m_pEngine(0),
       m_State(CPU),
       m_Source(NONE)
 {
@@ -57,10 +55,9 @@ Image::~Image()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         
-void Image::moveToGPU(SDLDisplayEngine* pEngine)
+void Image::moveToGPU()
 {
     assertValid();
-    m_pEngine = pEngine;
     if (m_State == CPU) {
         switch (m_Source) {
             case FILE:
@@ -99,7 +96,6 @@ void Image::moveToCPU()
                 return;
         }
         m_State = CPU;
-        m_pEngine = 0;
         m_pSurface->destroy();
     }
     assertValid();
@@ -109,9 +105,6 @@ void Image::discard()
 {
     assertValid();
     setEmpty();
-    if (m_State == GPU) {
-        m_pEngine = 0;
-    }
     m_State = CPU;
     assertValid();
 }
@@ -301,11 +294,6 @@ Image::Source Image::getSource()
     return m_Source;
 }
 
-SDLDisplayEngine* Image::getEngine()
-{
-    return m_pEngine;
-}
-
 Image::TextureCompression Image::string2compression(const string& s)
 {
     if (s == "none") {
@@ -391,13 +379,11 @@ void Image::assertValid() const
     AVG_ASSERT((m_Source == SCENE) == bool(m_pCanvas));
     switch (m_State) {
         case CPU:
-            AVG_ASSERT(!m_pEngine);
             AVG_ASSERT((m_Source == FILE || m_Source == BITMAP) ==
                     bool(m_pBmp));
             AVG_ASSERT(!(m_pSurface->isCreated()));
             break;
         case GPU:
-            AVG_ASSERT(m_pEngine);
             AVG_ASSERT(!m_pBmp);
             if (m_Source != NONE) {
                 AVG_ASSERT(m_pSurface->isCreated());

@@ -22,7 +22,6 @@
 #include "VectorNode.h"
 
 #include "NodeDefinition.h"
-#include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 #include "Image.h"
 
@@ -80,7 +79,7 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     setDrawNeeded();
     m_Color = colorStringToColor(m_sColorName);
     VisibleNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    m_pShape->moveToGPU(getDisplayEngine());
+    m_pShape->moveToGPU();
     m_OldOpacity = -1;
     setBlendModeStr(m_sBlendMode);
 }
@@ -105,7 +104,7 @@ void VectorNode::checkReload()
 {
     VisibleNode::checkReload(m_TexHRef, m_pShape->getImage());
     if (getState() == VisibleNode::NS_CANRENDER) {
-        m_pShape->moveToGPU(getDisplayEngine());
+        m_pShape->moveToGPU();
         setDrawNeeded();
     }
 }

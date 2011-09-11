@@ -20,7 +20,6 @@
 //
 
 #include "OGLSurface.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -51,7 +50,6 @@ OGLSurface::OGLSurface(const MaterialInfo& material)
     : m_Size(-1,-1),
       m_bUseForeignTexture(false),
       m_Material(material),
-      m_pEngine(0),
       m_Gamma(1,1,1),
       m_Brightness(1,1,1),
       m_Contrast(1,1,1)
@@ -64,9 +62,8 @@ OGLSurface::~OGLSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::attach(SDLDisplayEngine * pEngine)
+void OGLSurface::attach()
 {
-    m_pEngine = pEngine;
     m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
     if (!GLContext::getCurrent()->isUsingShaders()) {
         if (m_Material.getHasMask()) {
@@ -82,7 +79,7 @@ void OGLSurface::attach(SDLDisplayEngine * pEngine)
 
 void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 {
-    AVG_ASSERT(m_pEngine);
+    AVG_ASSERT(GLContext::getCurrent());
     if (m_pTextures[0] && m_Size == size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
@@ -248,8 +245,8 @@ const MaterialInfo& OGLSurface::getMaterial() const
 
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
-    if (getEngine() && (material.getHasMask() &&
-            !GLContext::getCurrent()->isUsingShaders())) 
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext && (material.getHasMask() && !pContext->isUsingShaders())) 
     {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
@@ -398,11 +395,6 @@ void OGLSurface::createShader()
         "    gl_FragColor = rgba;\n"
         "}\n";
     getOrCreateShader(COLORSPACE_SHADER, sProgram);
-}
-
-SDLDisplayEngine * OGLSurface::getEngine() const
-{
-    return m_pEngine;
 }
 
 bool OGLSurface::useShader() const

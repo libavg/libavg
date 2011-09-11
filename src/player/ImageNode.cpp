@@ -21,7 +21,6 @@
 
 #include "ImageNode.h"
 
-#include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
 #include "Player.h"
@@ -72,8 +71,8 @@ ImageNode::~ImageNode()
 void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
-    getSurface()->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    getSurface()->attach();
+    m_pImage->moveToGPU();
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if (m_pImage->getSource() == Image::SCENE) {
         m_pImage->getCanvas()->addDependentCanvas(getCanvas());

@@ -25,7 +25,6 @@
 #include "Image.h"
 #include "DivNode.h"
 
-#include "../player/SDLDisplayEngine.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -71,7 +70,7 @@ void FilledVectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     VectorNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_FillColor = colorStringToColor(m_sFillColorName);
-    m_pFillShape->moveToGPU(getDisplayEngine());
+    m_pFillShape->moveToGPU();
     m_OldOpacity = -1;
 }
 
@@ -89,7 +88,7 @@ void FilledVectorNode::checkReload()
 {
     VisibleNode::checkReload(m_FillTexHRef, m_pFillShape->getImage());
     if (getState() == VisibleNode::NS_CANRENDER) {
-        m_pFillShape->moveToGPU(getDisplayEngine());
+        m_pFillShape->moveToGPU();
         setDrawNeeded();
     }
     VectorNode::checkReload();
