@@ -26,7 +26,6 @@
 
 #include "Pixel32.h"
 #include "OGLHelper.h"
-#include "GLBufferCache.h"
 
 #include "../base/Point.h"
 
@@ -60,8 +59,6 @@ public:
     int getCurIndex() const;
     void dump() const;
 
-    static void deleteBufferCache();
-
 private:
     void grow();
 
@@ -76,9 +73,6 @@ private:
 
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
-
-    static GLBufferCache s_VertexBufferCache;
-    static GLBufferCache s_IndexBufferCache;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;

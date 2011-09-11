@@ -24,6 +24,7 @@
 
 #include "OGLHelper.h"
 #include "ShaderRegistry.h"
+#include "GLBufferCache.h"
 
 #ifdef __APPLE__
 #include <AGL/agl.h>
@@ -46,10 +47,16 @@ typedef boost::shared_ptr<GLContext> GLContextPtr;
 class AVG_API GLContext: public boost::enable_shared_from_this<GLContext> {
 public:
     GLContext(bool bUseCurrent=false);
-    virtual ~GLContext() {};
+    virtual ~GLContext();
 
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
+    GLBufferCache& getVertexBufferCache();
+    GLBufferCache& getIndexBufferCache();
+    GLBufferCache& getPBOCache();
+
+    unsigned genFBO();
+    void returnFBOToCache(unsigned fboID);
 
     static GLContext* getCurrent();
 
@@ -67,6 +74,11 @@ protected:
     
 private:
     ShaderRegistryPtr m_pShaderRegistry;
+
+    GLBufferCache m_VertexBufferCache;
+    GLBufferCache m_IndexBufferCache;
+    GLBufferCache m_PBOCache;
+    std::vector<unsigned int> m_FBOIDs;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
 

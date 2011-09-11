@@ -41,11 +41,10 @@ public:
     unsigned int getBuffer();
     void returnBuffer(unsigned int);
 
+private:
     void deleteBuffers();
 
-private:
-    // TODO: This assumes one GL context per thread.
-    boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLBufferIDs;
+    std::vector<unsigned int> m_BufferIDs;
 };
 
 }

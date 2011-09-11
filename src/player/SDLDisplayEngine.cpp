@@ -313,10 +313,7 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
     }
-    VertexArray::deleteBufferCache();
-    PBO::deleteBufferCache();
     GPUFilter::glContextGone();
-    FBO::deleteCache();
 }
 
 double SDLDisplayEngine::getRefreshRate() 

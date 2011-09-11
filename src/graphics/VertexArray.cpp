@@ -21,6 +21,8 @@
 
 #include "VertexArray.h"
 
+#include "GLContext.h"
+
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
 #include "../base/ObjectCounter.h"
@@ -34,9 +36,6 @@ using namespace boost;
 
 namespace avg {
     
-GLBufferCache VertexArray::s_VertexBufferCache;
-GLBufferCache VertexArray::s_IndexBufferCache;
-
 const int MIN_VERTEXES = 100;
 const int MIN_INDEXES = 100;
 
@@ -61,20 +60,22 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
     } else {
-        m_GLVertexBufferID = s_VertexBufferCache.getBuffer();
-        m_GLIndexBufferID = s_IndexBufferCache.getBuffer();
+        GLContext* pContext = GLContext::getCurrent();
+        m_GLVertexBufferID = pContext->getVertexBufferCache().getBuffer();
+        m_GLIndexBufferID = pContext->getIndexBufferCache().getBuffer();
     }
 }
 
 VertexArray::~VertexArray()
 {
+    GLContext* pContext = GLContext::getCurrent();
     if (m_ReserveVerts == MIN_VERTEXES) {
-        s_VertexBufferCache.returnBuffer(m_GLVertexBufferID);
+        pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLVertexBufferID);
     }
     if (m_ReserveIndexes == MIN_INDEXES) {
-        s_IndexBufferCache.returnBuffer(m_GLIndexBufferID);
+        pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLIndexBufferID);
     }
@@ -221,12 +222,6 @@ void VertexArray::grow()
     if (bChanged) {
         m_bDataChanged = true;
     }
-}
-
-void VertexArray::deleteBufferCache()
-{
-    s_VertexBufferCache.deleteBuffers();
-    s_IndexBufferCache.deleteBuffers();
 }
 
 }

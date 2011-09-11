@@ -48,6 +48,14 @@ GLContext::GLContext(bool bUseCurrent)
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
 }
 
+GLContext::~GLContext()
+{
+    for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
+        glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
+    }
+    m_FBOIDs.clear();
+}
+
 void GLContext::activate()
 {
 #ifdef __APPLE__
@@ -65,6 +73,38 @@ void GLContext::activate()
 ShaderRegistryPtr GLContext::getShaderRegistry() const
 {
     return m_pShaderRegistry;
+}
+
+GLBufferCache& GLContext::getVertexBufferCache()
+{
+    return m_VertexBufferCache;
+}
+
+GLBufferCache& GLContext::getIndexBufferCache()
+{
+    return m_IndexBufferCache;
+}
+
+GLBufferCache& GLContext::getPBOCache()
+{
+    return m_PBOCache;
+}
+
+unsigned GLContext::genFBO()
+{
+    unsigned fboID;
+    if (m_FBOIDs.empty()) {
+        glproc::GenFramebuffers(1, &fboID);
+    } else {
+        fboID = m_FBOIDs.back();
+        m_FBOIDs.pop_back();
+    }
+    return fboID;
+}
+
+void GLContext::returnFBOToCache(unsigned fboID) 
+{
+    m_FBOIDs.push_back(fboID);
 }
 
 GLContext* GLContext::getCurrent()

@@ -34,40 +34,33 @@ GLBufferCache::GLBufferCache()
 
 GLBufferCache::~GLBufferCache()
 {
+    deleteBuffers();
 }
 
 unsigned int GLBufferCache::getBuffer()
 {
     unsigned int bufferID;
-    if (s_pGLBufferIDs.get() == 0) {
-        s_pGLBufferIDs.reset(new vector<unsigned int>);
-    }
-    if (s_pGLBufferIDs->empty()) {
+    if (m_BufferIDs.empty()) {
         glproc::GenBuffers(1, &bufferID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: GenBuffers()");
     } else {
-        bufferID = s_pGLBufferIDs->back();
-        s_pGLBufferIDs->pop_back();
+        bufferID = m_BufferIDs.back();
+        m_BufferIDs.pop_back();
     }
     return bufferID;
 }
 
 void GLBufferCache::returnBuffer(unsigned int bufferID)
 {
-    if (s_pGLBufferIDs.get() != 0) {
-        s_pGLBufferIDs->push_back(bufferID);
-    }
+    m_BufferIDs.push_back(bufferID);
 }
 
 void GLBufferCache::deleteBuffers()
 {
-    if (s_pGLBufferIDs.get() != 0) {
-        for (unsigned i=0; i<s_pGLBufferIDs->size(); ++i) {
-            glproc::DeleteBuffers(1, &((*s_pGLBufferIDs)[i]));
-        }
-        s_pGLBufferIDs->clear();
-        s_pGLBufferIDs.reset();
+    for (unsigned i=0; i<m_BufferIDs.size(); ++i) {
+        glproc::DeleteBuffers(1, &(m_BufferIDs[i]));
     }
+    m_BufferIDs.clear();
 }
 
 }

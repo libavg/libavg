@@ -26,7 +26,6 @@
 #include "Bitmap.h"
 #include "OGLHelper.h"
 #include "GLTexture.h"
-#include "GLBufferCache.h"
 
 #include "../base/Point.h"
 
@@ -53,8 +52,6 @@ public:
     const IntPoint& getSize() const;
     bool isReadPBO() const;
 
-    static void deleteBufferCache();
-
 private:
     unsigned getTarget() const;
 
@@ -62,8 +59,6 @@ private:
     PixelFormat m_pf;
     unsigned m_Usage;
     unsigned m_PBOID;
-    
-    static GLBufferCache s_BufferCache;
 };
 
 typedef boost::shared_ptr<PBO> PBOPtr;

@@ -27,9 +27,11 @@
 #include "GLTexture.h"
 #include "PBO.h"
 #include "VertexArray.h"
+
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
+
 #include <vector>
 
 namespace avg {
@@ -60,8 +62,6 @@ public:
 
 private:
     void init();
-    unsigned genFramebuffer() const;
-    void returnToCache(unsigned fboID);
     void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
@@ -79,8 +79,6 @@ private:
     unsigned m_ColorBuffer;
     unsigned m_OutputFBO;
 
-    // TODO: This assumes one GL context per thread.
-    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pFBOIDs;
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;

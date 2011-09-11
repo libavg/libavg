@@ -20,7 +20,7 @@
 //
 
 #include "PBO.h"
-#include "GLBufferCache.h"
+#include "GLContext.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -33,14 +33,12 @@ using namespace boost;
 
 namespace avg {
     
-GLBufferCache PBO::s_BufferCache;
-
 PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     : m_Size(size),
       m_pf(pf),
       m_Usage(usage)
 {
-    m_PBOID = s_BufferCache.getBuffer();
+    m_PBOID = GLContext::getCurrent()->getPBOCache().getBuffer();
     
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
@@ -55,7 +53,7 @@ PBO::~PBO()
 {
     glproc::BindBuffer(getTarget(), m_PBOID);
     glproc::BufferData(getTarget(), 0, 0, m_Usage);
-    s_BufferCache.returnBuffer(m_PBOID);
+    GLContext::getCurrent()->getPBOCache().returnBuffer(m_PBOID);
     glproc::BindBuffer(getTarget(), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: DeleteBuffers()");
 }
@@ -202,11 +200,6 @@ unsigned PBO::getTarget() const
     } else {
         return GL_PIXEL_UNPACK_BUFFER_EXT;
     }
-}
-
-void PBO::deleteBufferCache()
-{
-    s_BufferCache.deleteBuffers();
 }
 
 }
