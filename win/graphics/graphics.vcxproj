@@ -106,6 +106,8 @@
     <ClInclude Include="..\..\src\graphics\FilterThreshold.h" />
     <ClInclude Include="..\..\src\graphics\FilterUnmultiplyAlpha.h" />
     <ClInclude Include="..\..\src\graphics\GLBufferCache.h" />
+    <ClInclude Include="..\..\src\graphics\GLConfig.h" />
+    <ClInclude Include="..\..\src\graphics\GLContext.h" />
     <ClInclude Include="..\..\src\graphics\GLTexture.h" />
     <ClInclude Include="..\..\src\graphics\GPUBandpassFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUBlurFilter.h" />
@@ -165,6 +167,8 @@
     <ClCompile Include="..\..\src\graphics\FilterThreshold.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterUnmultiplyAlpha.cpp" />
     <ClCompile Include="..\..\src\graphics\GLBufferCache.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLConfig.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLContext.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTexture.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBandpassFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBlurFilter.cpp" />

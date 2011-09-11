@@ -88,7 +88,6 @@
     <ClCompile Include="..\..\src\player\EventDispatcher.cpp" />
     <ClCompile Include="..\..\src\player\FilledVectorNode.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
-    <ClCompile Include="..\..\src\player\GLConfig.cpp" />
     <ClCompile Include="..\..\src\player\HueSatFXNode.cpp" />
     <ClCompile Include="..\..\src\player\InvertFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Image.cpp" />
@@ -162,7 +161,6 @@
     <ClInclude Include="..\..\src\player\EventDispatcher.h" />
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
-    <ClInclude Include="..\..\src\player\GLConfig.h" />
     <ClInclude Include="..\..\src\player\HueSatFXNode.h" />
     <ClInclude Include="..\..\src\player\InvertFXNode.h" />
     <ClInclude Include="..\..\src\player\IInputDevice.h" />

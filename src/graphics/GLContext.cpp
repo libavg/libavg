@@ -92,7 +92,7 @@ void GLContext::activate()
     glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
 #elif defined _WIN32
     BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
-    winOGLErrorCheck(bOK, "wglMakeCurrent");
+    winOGLErrorCheck(bOk, "wglMakeCurrent");
 #endif
     *s_pCurrentContext = this;
 }
