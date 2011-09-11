@@ -20,9 +20,9 @@
 //
 
 #include "ShadowFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 #include "../graphics/ShaderRegistry.h"
 
 #include <string>
@@ -50,13 +50,13 @@ ShadowFXNode::~ShadowFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ShadowFXNode::connect(SDLDisplayEngine* pEngine)
+void ShadowFXNode::connect()
 {
     if (!GLTexture::isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Cannot create ShadowFX: OpenGL configuration doesn't support Blur (no float textures).");
     }
-    FXNode::connect(pEngine);
+    FXNode::connect();
 }
 
 void ShadowFXNode::disconnect()

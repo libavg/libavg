@@ -32,14 +32,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API ShadowFXNode: public FXNode {
 public:
     ShadowFXNode();
     virtual ~ShadowFXNode();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
+    virtual void connect();
     virtual void disconnect();
     void setParams(const DPoint& offset, double stdDev, double opacity, 
             const std::string& sColor);

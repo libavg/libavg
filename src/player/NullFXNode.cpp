@@ -20,7 +20,6 @@
 //
 
 #include "NullFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
 #include "../graphics/ShaderRegistry.h"
@@ -42,9 +41,9 @@ NullFXNode::~NullFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void NullFXNode::connect(SDLDisplayEngine* pEngine)
+void NullFXNode::connect()
 {
-    FXNode::connect(pEngine);
+    FXNode::connect();
 }
 
 void NullFXNode::disconnect()

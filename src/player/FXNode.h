@@ -30,14 +30,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API FXNode {
 public:
     FXNode();
     virtual ~FXNode();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
+    virtual void connect();
     virtual void disconnect();
     virtual void setSize(const IntPoint& newSize);
 

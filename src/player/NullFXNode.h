@@ -31,14 +31,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API NullFXNode: public FXNode {
 public:
     NullFXNode();
     virtual ~NullFXNode();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
+    virtual void connect();
     virtual void disconnect();
 
 private:

@@ -492,7 +492,7 @@ void RasterNode::setupFX(bool bNewFX)
         }
         if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFXNode->setSize(m_pSurface->getSize());
-            m_pFXNode->connect(getDisplayEngine());
+            m_pFXNode->connect();
         }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,

@@ -40,7 +40,7 @@ FXNode::~FXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void FXNode::connect(SDLDisplayEngine* pEngine)
+void FXNode::connect()
 {
     if (m_Size != IntPoint(0,0)) {
         m_pFilter = createFilter(m_Size);

@@ -31,14 +31,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API BlurFXNode: public FXNode {
 public:
     BlurFXNode();
     virtual ~BlurFXNode();
 
-    void connect(SDLDisplayEngine* pEngine);
+    void connect();
     virtual void disconnect();
     void setParam(double stdDev);
 
