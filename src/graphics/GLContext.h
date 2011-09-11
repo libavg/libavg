@@ -27,6 +27,7 @@
 
 #ifdef __APPLE__
 #include <AGL/agl.h>
+#undef check // Conflicts with boost
 #elif defined linux
 #include <GL/glx.h>
 #elif defined _WIN32
