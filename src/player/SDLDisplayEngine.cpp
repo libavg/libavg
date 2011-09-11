@@ -133,8 +133,9 @@ SDLDisplayEngine::~SDLDisplayEngine()
 #endif
 }
 
-void SDLDisplayEngine::init(const DisplayParams& dp) 
+void SDLDisplayEngine::init(const DisplayParams& dp, const GLConfig& glConfig) 
 {
+    setOGLOptions(glConfig);
     calcScreenDimensions(dp.m_PhysScreenSize);
     stringstream ss;
     if (dp.m_Pos.x != -1) {

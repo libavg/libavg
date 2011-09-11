@@ -27,11 +27,11 @@
 #include "DisplayEngine.h"
 #include "NodeRegistry.h"
 #include "DisplayParams.h"
-#include "GLConfig.h"
 #include "CursorState.h"
 #include "TestHelper.h"
 
 #include "../audio/AudioParams.h"
+#include "../graphics/GLConfig.h"
 
 #include <libxml/parser.h>
 #include <boost/shared_ptr.hpp>

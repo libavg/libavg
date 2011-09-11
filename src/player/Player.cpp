@@ -1159,12 +1159,9 @@ void Player::initGraphics()
     }
     SDLDisplayEngine * pSDLDisplayEngine =
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine.get());
-    if (pSDLDisplayEngine) {
-        AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
-        m_GLConfig.log();
-        pSDLDisplayEngine->setOGLOptions(m_GLConfig);
-    }
-    m_pDisplayEngine->init(m_DP);
+    AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
+    m_GLConfig.log();
+    pSDLDisplayEngine->init(m_DP, m_GLConfig);
 }
 
 void Player::initAudio()

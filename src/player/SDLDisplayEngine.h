@@ -25,8 +25,8 @@
 #include "../api.h"
 #include "IInputDevice.h"
 #include "DisplayEngine.h"
-#include "GLConfig.h"
 
+#include "../graphics/GLConfig.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
@@ -51,9 +51,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
     public:
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
+        virtual void init(const DisplayParams& dp, const GLConfig& glConfig);
 
         // From DisplayEngine
-        virtual void init(const DisplayParams& dp);
         virtual void teardown();
         virtual double getRefreshRate();
         virtual void setGamma(double red, double green, double blue);
@@ -77,7 +77,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         OGLMemoryMode getMemoryModeSupported();
 
-        void setOGLOptions(const GLConfig& glConfig);
         const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
@@ -87,6 +86,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         void assumePhysicalScreenDimensions(const DPoint& size);
 
     private:
+        void setOGLOptions(const GLConfig& glConfig);
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
         void logConfig();

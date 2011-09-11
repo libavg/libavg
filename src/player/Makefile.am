@@ -29,8 +29,8 @@ else
     XINPUT2_INCLUDES =
 endif
 
-GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp PBOTexture.cpp GLConfig.cpp
-GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h GLConfig.h
+GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp PBOTexture.cpp 
+GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h PBOTexture.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS) 
 

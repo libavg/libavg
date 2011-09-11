@@ -44,7 +44,6 @@ class AVG_API DisplayEngine
     public:
         DisplayEngine();
         virtual ~DisplayEngine();
-        virtual void init(const DisplayParams& DP) = 0;
         virtual void teardown() = 0;
         void initRender();
         void deinitRender();
