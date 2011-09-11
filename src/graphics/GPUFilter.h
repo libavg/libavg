@@ -57,8 +57,6 @@ public:
     const IntPoint& getSrcSize() const;
     DRect getRelDestRect() const;
     
-    static void glContextGone();
-
 protected:
     void draw(GLTexturePtr pTex);
     const std::string& getStdShaderCode() const;
@@ -77,8 +75,6 @@ private:
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     ImagingProjectionPtr m_pProjection;
-
-    static boost::thread_specific_ptr<PBOPtr> s_pFilterKernelPBO;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;

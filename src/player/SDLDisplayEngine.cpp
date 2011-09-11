@@ -314,7 +314,6 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
     }
-    GPUFilter::glContextGone();
 }
 
 double SDLDisplayEngine::getRefreshRate() 

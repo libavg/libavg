@@ -36,8 +36,6 @@ using namespace boost;
 
 namespace avg {
 
-thread_specific_ptr<PBOPtr> GPUFilter::s_pFilterKernelPBO;
-
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
         unsigned numTextures)
     : m_PFSrc(pfSrc),
@@ -137,11 +135,6 @@ DRect GPUFilter::getRelDestRect() const
     DPoint srcSize(m_SrcSize);
     return DRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
-}
-
-void GPUFilter::glContextGone()
-{
-    s_pFilterKernelPBO.reset();
 }
 
 void GPUFilter::draw(GLTexturePtr pTex)
@@ -300,11 +293,8 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     
     IntPoint size(kernelWidth, 1);
     GLTexturePtr pTex(new GLTexture(size, R32G32B32A32F));
-    if (s_pFilterKernelPBO.get() == 0) {
-        s_pFilterKernelPBO.reset(new PBOPtr(new PBO(IntPoint(1024, 1), R32G32B32A32F,
-                GL_STREAM_DRAW)));
-    }
-    (*s_pFilterKernelPBO)->activate();
+    PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), R32G32B32A32F, GL_STREAM_DRAW));
+    pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
     float * pCurFloat = (float*)pPBOPixels;
@@ -317,7 +307,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
-    (*s_pFilterKernelPBO)->movePBOToTexture(pTex);
+    pFilterKernelPBO->movePBOToTexture(pTex);
 
     delete[] pKernel;
     return pTex;

@@ -171,7 +171,6 @@ OGLImagingContext::OGLImagingContext()
 
 OGLImagingContext::~OGLImagingContext()
 {
-    GPUFilter::glContextGone();
 #ifdef __APPLE__
     if (m_Context) {
         aglSetCurrentContext(0);
