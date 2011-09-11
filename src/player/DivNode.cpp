@@ -243,13 +243,13 @@ void DivNode::render(const DRect& rect)
     m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
 
     if (getCrop()) {
-        getDisplayEngine()->pushClipRect(m_pClipVertexes);
+        getCanvas()->pushClipRect(m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getVChild(i)->maybeRender(rect);
     }
     if (getCrop()) {
-        getDisplayEngine()->popClipRect(m_pClipVertexes);
+        getCanvas()->popClipRect(m_pClipVertexes);
     }
 }
 

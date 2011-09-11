@@ -29,6 +29,7 @@
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
 
+#include "../graphics/OGLHelper.h"
 #include "../graphics/Bitmap.h"
 
 #include <map>
@@ -49,6 +50,7 @@ class TestHelper;
 class ProfilingZoneID;
 class Canvas;
 class FBO;
+class VertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -56,6 +58,7 @@ typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
 typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
 class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 {
@@ -77,6 +80,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
+        virtual void pushClipRect(VertexArrayPtr pVA);
+        virtual void popClipRect(VertexArrayPtr pVA);
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -103,6 +108,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
     private:
         virtual void render()=0;
         void renderOutlines();
+        void clip(VertexArrayPtr pVA, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         SDLDisplayEngine * m_pDisplayEngine;
@@ -115,6 +121,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Signal<IPreRenderListener> m_PreRenderSignal;
 
         int m_MultiSampleSamples;
+        int m_ClipLevel;
 };
 
 typedef boost::shared_ptr<Canvas> CanvasPtr;

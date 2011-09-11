@@ -100,7 +100,6 @@ SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
       m_PPMM(0,0),
-      m_ClipLevel(0),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
@@ -386,49 +385,6 @@ void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
         m_PPMM.y = m_ScreenResolution.y/displayMM.y;
 #endif
     }
-}
-
-static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
-
-void SDLDisplayEngine::pushClipRect(VertexArrayPtr pVA)
-{
-    ScopeTimer timer(PushClipRectProfilingZone);
-    m_ClipLevel++;
-    clip(pVA, GL_INCR);
-}
-
-static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
-
-void SDLDisplayEngine::popClipRect(VertexArrayPtr pVA)
-{
-    ScopeTimer timer(PopClipRectProfilingZone);
-    m_ClipLevel--;
-    clip(pVA, GL_DECR);
-}
-
-void SDLDisplayEngine::clip(VertexArrayPtr pVA, GLenum stencilOp)
-{
-    // Disable drawing to color buffer
-    glColorMask(0, 0, 0, 0);
-
-    // Enable drawing to stencil buffer
-    glStencilMask(~0);
-
-    // Draw clip rectangle into stencil buffer
-    glStencilFunc(GL_ALWAYS, 0, 0);
-    glStencilOp(stencilOp, stencilOp, stencilOp);
-
-    pVA->draw();
-
-    // Set stencil test to only let
-    glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-    // Disable drawing to stencil buffer
-    glStencilMask(0);
-
-    // Enable drawing to color buffer
-    glColorMask(~0, ~0, ~0, ~0);
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");

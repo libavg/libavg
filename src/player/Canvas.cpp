@@ -43,7 +43,8 @@ Canvas::Canvas(Player * pPlayer)
       m_pDisplayEngine(0),
       m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
-      m_PreRenderSignal(&IPreRenderListener::onPreRender)
+      m_PreRenderSignal(&IPreRenderListener::onPreRender),
+      m_ClipLevel(0)
 {
 }
 
@@ -159,6 +160,23 @@ void Canvas::doFrame(bool bPythonAvailable)
 IntPoint Canvas::getSize() const
 {
     return IntPoint(m_pRootNode->getSize());
+}
+static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
+
+void Canvas::pushClipRect(VertexArrayPtr pVA)
+{
+    ScopeTimer timer(PushClipRectProfilingZone);
+    m_ClipLevel++;
+    clip(pVA, GL_INCR);
+}
+
+static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
+
+void Canvas::popClipRect(VertexArrayPtr pVA)
+{
+    ScopeTimer timer(PopClipRectProfilingZone);
+    m_ClipLevel--;
+    clip(pVA, GL_DECR);
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -284,6 +302,31 @@ void Canvas::renderOutlines()
         pContext->enableGLColorArray(true);
         pVA->draw();
     }
+}
+
+void Canvas::clip(VertexArrayPtr pVA, GLenum stencilOp)
+{
+    // Disable drawing to color buffer
+    glColorMask(0, 0, 0, 0);
+
+    // Enable drawing to stencil buffer
+    glStencilMask(~0);
+
+    // Draw clip rectangle into stencil buffer
+    glStencilFunc(GL_ALWAYS, 0, 0);
+    glStencilOp(stencilOp, stencilOp, stencilOp);
+
+    pVA->draw();
+
+    // Set stencil test to only let
+    glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    // Disable drawing to stencil buffer
+    glStencilMask(0);
+
+    // Enable drawing to color buffer
+    glColorMask(~0, ~0, ~0, ~0);
 }
 
 static ProfilingZoneID PreRenderSignalProfilingZone("PreRender signal");
