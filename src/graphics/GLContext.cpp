@@ -25,6 +25,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/MathHelper.h"
 
 namespace avg {
 
@@ -36,7 +37,8 @@ GLContext::GLContext(bool bUseCurrent)
     : m_Context(0),
       m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
-      m_BlendMode(BLEND_ADD)
+      m_BlendMode(BLEND_ADD),
+      m_MaxTexSize(0)
 {
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
@@ -90,6 +92,24 @@ void GLContext::activate()
 ShaderRegistryPtr GLContext::getShaderRegistry() const
 {
     return m_pShaderRegistry;
+}
+
+void GLContext::pushTransform(const DPoint& translate, double angle, const DPoint& pivot)
+{
+    glPushMatrix();
+    glTranslated(translate.x, translate.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    glTranslated(pivot.x, pivot.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    glRotated(angle*180.0/PI, 0, 0, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
+    glTranslated(-pivot.x, -pivot.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+}
+
+void GLContext::popTransform()
+{
+    glPopMatrix();
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
@@ -205,6 +225,14 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
         m_BlendMode = mode;
         m_bPremultipliedAlpha = bPremultipliedAlpha;
     }
+}
+
+int GLContext::getMaxTexSize() 
+{
+    if (m_MaxTexSize == 0) {
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
+    }
+    return m_MaxTexSize;
 }
 
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)

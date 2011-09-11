@@ -108,7 +108,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_NumMouseButtonsDown(0),
-      m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
 {
 #ifdef __APPLE__
@@ -356,7 +355,7 @@ void SDLDisplayEngine::logConfig()
             AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
             break;
     }
-    AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
+    AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << m_pGLContext->getMaxTexSize());
 }
 
 void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
@@ -405,25 +404,6 @@ void SDLDisplayEngine::popClipRect(VertexArrayPtr pVA)
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
     clip(pVA, GL_DECR);
-}
-
-void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, 
-        const DPoint& pivot)
-{
-    glPushMatrix();
-    glTranslated(translate.x, translate.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glTranslated(pivot.x, pivot.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glRotated(angle*180.0/PI, 0, 0, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
-    glTranslated(-pivot.x, -pivot.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-}
-
-void SDLDisplayEngine::popTransform()
-{
-    glPopMatrix();
 }
 
 void SDLDisplayEngine::clip(VertexArrayPtr pVA, GLenum stencilOp)
@@ -1155,14 +1135,6 @@ void SDLDisplayEngine::initTextureMode()
 bool SDLDisplayEngine::usePOTTextures()
 {
     return m_GLConfig.m_bUsePOTTextures;
-}
-
-int SDLDisplayEngine::getMaxTexSize() 
-{
-    if (m_MaxTexSize == 0) {
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
-    }
-    return m_MaxTexSize;
 }
 
 OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()

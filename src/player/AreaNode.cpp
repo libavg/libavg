@@ -25,7 +25,6 @@
 #include "CursorEvent.h"
 #include "MouseEvent.h"
 #include "DivNode.h"
-#include "SDLDisplayEngine.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
 #include "BoostPython.h"
@@ -34,6 +33,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
+
+#include "../graphics/GLContext.h"
 
 #include <object.h>
 #include <compile.h>
@@ -222,10 +223,10 @@ void AreaNode::maybeRender(const DRect& rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
-        SDLDisplayEngine * pEngine = getDisplayEngine();
-        pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+        GLContext * pContext = GLContext::getCurrent();
+        pContext->pushTransform(getRelViewport().tl, getAngle(), getPivot());
         render(rect);
-        pEngine->popTransform();
+        pContext->popTransform();
     }
 }
 

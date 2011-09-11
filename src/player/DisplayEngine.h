@@ -63,10 +63,6 @@ class AVG_API DisplayEngine
         void checkJitter();
         long long getDisplayTime();
 
-        virtual void pushTransform(const DPoint& translate, double angle, 
-                const DPoint& pivot) = 0;
-        virtual void popTransform() = 0;
-
         virtual IntPoint getSize() = 0;
 
         virtual bool isUsingShaders() const = 0; 

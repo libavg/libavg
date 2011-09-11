@@ -25,6 +25,8 @@
 #include "OGLHelper.h"
 #include "GLBufferCache.h"
 
+#include "../base/Point.h"
+
 #ifdef __APPLE__
 #include <AGL/agl.h>
 #undef check // Conflicts with boost
@@ -54,6 +56,10 @@ public:
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
 
+    virtual void pushTransform(const DPoint& translate, double angle, 
+            const DPoint& pivot);
+    virtual void popTransform();
+
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
     GLBufferCache& getIndexBufferCache();
@@ -66,6 +72,8 @@ public:
     void enableGLColorArray(bool bEnable);
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
+
+    int getMaxTexSize();
 
     static BlendMode stringToBlendMode(const std::string& s);
 
@@ -96,6 +104,9 @@ private:
     bool m_bEnableGLColorArray;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;
+
+    // OpenGL limits
+    int m_MaxTexSize;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
 

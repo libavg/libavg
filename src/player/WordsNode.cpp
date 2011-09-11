@@ -20,7 +20,6 @@
 //
 
 #include "WordsNode.h"
-#include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
 #include "TextEngine.h"
@@ -34,6 +33,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterfill.h"
+#include "../graphics/GLContext.h"
 
 #include <pango/pangoft2.h>
 
@@ -670,7 +670,7 @@ void WordsNode::renderText()
     if (m_RedrawState == RENDER_NEEDED) {
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
-            int maxTexSize = getDisplayEngine()->getMaxTexSize();
+            int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
             if (m_InkSize.x > maxTexSize || m_InkSize.y > maxTexSize) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 
                         "WordsNode size exceeded maximum (Size=" 
@@ -743,13 +743,14 @@ void WordsNode::render(const DRect& rect)
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
+        GLContext* pContext = GLContext::getCurrent();
         if (offset != IntPoint(0,0)) {
-            getDisplayEngine()->pushTransform(DPoint(offset), 0, DPoint(0,0));
+            pContext->pushTransform(DPoint(offset), 0, DPoint(0,0));
         }
         blta8(DPoint(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
                 getBlendMode());
         if (offset != IntPoint(0,0)) {
-            getDisplayEngine()->popTransform();
+            pContext->popTransform();
         }
     }
 }

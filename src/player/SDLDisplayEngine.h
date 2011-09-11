@@ -62,9 +62,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         virtual void pushClipRect(VertexArrayPtr pVA);
         virtual void popClipRect(VertexArrayPtr pVA);
-        virtual void pushTransform(const DPoint& translate, double angle, 
-                const DPoint& pivot);
-        virtual void popTransform();
 
         virtual IntPoint getSize();
 
@@ -80,7 +77,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         // Texture config.
         void initTextureMode();
         bool usePOTTextures();
-        int getMaxTexSize();
 
         OGLMemoryMode getMemoryModeSupported();
 
@@ -139,9 +135,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         static std::vector<long> KeyCodeTranslationTable;
         XInput21MTInputDevice * m_pXIMTInputDevice;
 
-        int m_MaxTexSize;
-
-        // OpenGL state
         GLContextPtr m_pGLContext;
 
         GLConfig m_GLConfig;

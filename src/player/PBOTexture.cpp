@@ -20,7 +20,10 @@
 //
 
 #include "PBOTexture.h"
+
 #include "SDLDisplayEngine.h"
+
+#include "../graphics/GLContext.h"
 #include "../graphics/VertexArray.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -51,10 +54,11 @@ PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
     } else {
         m_Size = m_ActiveSize;
     }
-    if (m_Size.x > pEngine->getMaxTexSize() || m_Size.y > pEngine->getMaxTexSize()) {
+    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+    if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large (" +toString(m_Size)
                 + "). Maximum supported by graphics card is "
-                + toString(pEngine->getMaxTexSize()));
+                + toString(maxTexSize));
     }
     createBitmap();
     createTexture();
