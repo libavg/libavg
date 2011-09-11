@@ -27,7 +27,6 @@
 #include "DisplayEngine.h"
 #include "GLConfig.h"
 
-#include "../graphics/GLContext.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
@@ -44,6 +43,8 @@ namespace avg {
 class XInput21MTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
+class GLContext;
+typedef boost::shared_ptr<class GLContext> GLContextPtr;
 
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {

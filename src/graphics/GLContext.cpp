@@ -21,6 +21,8 @@
 
 #include "GLContext.h"
 
+#include "../base/Exception.h"
+
 namespace avg {
 
 using namespace boost;
@@ -34,7 +36,7 @@ GLContext::GLContext(bool bUseCurrent)
     }
     if (bUseCurrent) {
 #if defined(__APPLE__)
-        m_Context = CGLGetCurrentContext();
+        m_Context = aglGetCurrentContext();
 #elif defined(__linux__)
         m_pDisplay = glXGetCurrentDisplay();
         m_Drawable = glXGetCurrentDrawable();

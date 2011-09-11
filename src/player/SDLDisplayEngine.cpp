@@ -44,6 +44,7 @@
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 
+#include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/ShaderRegistry.h"
