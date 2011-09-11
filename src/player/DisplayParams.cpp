@@ -38,7 +38,7 @@ DisplayParams::DisplayParams()
       m_VBRate(1),
       m_Framerate(0),
       m_bHasWindowFrame(true),
-      m_PhysScreenSize(0, 0)
+      m_DotsPerMM(0)
 { 
     ObjectCounter::get()->incRef(&typeid(*this));
     m_Gamma[0] = -1.0;
@@ -63,7 +63,7 @@ void DisplayParams::dump() const
     cerr << "  vbrate: " << m_VBRate << endl;
     cerr << "  framerate: " << m_Framerate << endl;
     cerr << "  has window frame: " << m_bHasWindowFrame << endl;
-    cerr << "  physical screen size (in mm): " << m_PhysScreenSize << endl;
+    cerr << "  dots per mm: " << m_DotsPerMM << endl;
 }
 
 }

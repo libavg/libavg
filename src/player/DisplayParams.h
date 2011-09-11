@@ -43,7 +43,7 @@ struct AVG_API DisplayParams {
     int m_VBRate;
     double m_Framerate;
     bool m_bHasWindowFrame;
-    DPoint m_PhysScreenSize;
+    double m_DotsPerMM;
 
     double m_Gamma[3];
 };

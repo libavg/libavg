@@ -134,7 +134,7 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    calcScreenDimensions(dp.m_PhysScreenSize);
+    calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -334,13 +334,12 @@ int SDLDisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
+void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
 {
-    if (physScreenSize != DPoint(0,0)) {
+    if (dotsPerMM != 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-        m_PPMM.x = m_ScreenResolution.x/physScreenSize.x;
-        m_PPMM.y = m_ScreenResolution.y/physScreenSize.y;
+        m_PPMM = DPoint(dotsPerMM, dotsPerMM);
     }
 
     if (m_PPMM == DPoint(0,0)) {

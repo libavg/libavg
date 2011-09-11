@@ -70,8 +70,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "fullscreen", "false");
     addOption("scr", "windowwidth", "0");
     addOption("scr", "windowheight", "0");
-    addOption("scr", "physscreenheight", "0");
-    addOption("scr", "physscreenwidth", "0");
+    addOption("scr", "dotspermm", "0");
     addOption("scr", "usepow2textures", "false");
     addOption("scr", "useshaders", "true");
     addOption("scr", "usepixelbuffers", "true");
