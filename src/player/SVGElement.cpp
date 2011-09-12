@@ -40,7 +40,7 @@ SVGElement::SVGElement(RsvgHandle* pRSVG, const UTF8String& sFilename,
     
     RsvgDimensionData dim;
     rsvg_handle_get_dimensions_sub(pRSVG, &dim, m_sUnescapedID.c_str());
-    m_Size = DPoint(dim.width, dim.height);
+    m_Size = DPoint(dim.width+1, dim.height+1);
 }
 
 const UTF8String& SVGElement::getUnescapedID() const

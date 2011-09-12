@@ -679,14 +679,14 @@ class PlayerTestCase(AVGTestCase):
 
         # renderElement
         bmp = svgFile.renderElement("rect")
-        self.compareBitmapToFile(bmp, "testSvgBmp", True)
-        self.assert_(svgFile.getElementSize("rect") == avg.Point2D(21,11))
+        self.compareBitmapToFile(bmp, "testSvgBmp", False)
+        self.assert_(svgFile.getElementSize("rect") == avg.Point2D(22,12))
         bmp = svgFile.renderElement("pos_rect")
-        self.compareBitmapToFile(bmp, "testSvgPosBmp", True)
+        self.compareBitmapToFile(bmp, "testSvgPosBmp", False)
         bmp = svgFile.renderElement("rect", 5)
-        self.compareBitmapToFile(bmp, "testSvgScaleBmp1", True)
+        self.compareBitmapToFile(bmp, "testSvgScaleBmp1", False)
         bmp = svgFile.renderElement("rect", (20,20))
-        self.compareBitmapToFile(bmp, "testSvgScaleBmp2", True)
+        self.compareBitmapToFile(bmp, "testSvgScaleBmp2", False)
 
         # error handling
         self.assertException(lambda: avg.SVG("filedoesntexist.svg", False))
@@ -700,13 +700,13 @@ class PlayerTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.start((
                  lambda: svgFile.createImageNode("rect", {"pos":(10,10), "parent":root}),
-                 lambda: self.compareImage("testSvgNode", True),
+                 lambda: self.compareImage("testSvgNode", False),
                  lambda: svgFile.createImageNode("rect", {"pos":(5,5), "parent":root},
                         5),
-                 lambda: self.compareImage("testSvgScaledNode1", True),
+                 lambda: self.compareImage("testSvgScaledNode1", False),
                  lambda: svgFile.createImageNode("rect", {"pos":(1,1), "parent":root},
                         (40,40)),
-                 lambda: self.compareImage("testSvgScaledNode2", True)
+                 lambda: self.compareImage("testSvgScaledNode2", False)
                 ))
 
     def __initDefaultScene(self):
