@@ -44,8 +44,11 @@ svgID = args[1]
 class ShowSVG(AVGApp):
     def init(self):
         self.svg = avg.SVG(svgFName, True)
-        img = self.svg.createImageNode(svgID, {"parent":self._parentNode}, 
+        img = self.svg.createImageNode(svgID, {"pos":(1,1), "parent":self._parentNode}, 
                 options.size)
+        rect = avg.RectNode(fillcolor="808080", color="FFFFFF", fillopacity=1, 
+                pos=(0.5, 0.5), size=img.size+(1,1))
+        self._parentNode.insertChild(rect, 0)
         if options.saveImage:
             bmp = self.svg.renderElement(svgID, options.size)
             bmp.save(svgID+".png")
