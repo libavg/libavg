@@ -53,7 +53,10 @@ PBO::~PBO()
 {
     glproc::BindBuffer(getTarget(), m_PBOID);
     glproc::BufferData(getTarget(), 0, 0, m_Usage);
-    GLContext::getCurrent()->getPBOCache().returnBuffer(m_PBOID);
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext) {
+        pContext->getPBOCache().returnBuffer(m_PBOID);
+    }
     glproc::BindBuffer(getTarget(), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: DeleteBuffers()");
 }

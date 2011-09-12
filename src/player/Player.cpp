@@ -516,11 +516,7 @@ void Player::initPlayback()
         m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
                 m_pAudioEngine);
     } catch (Exception&) {
-        m_pDisplayEngine->teardown();
-        m_pDisplayEngine = DisplayEnginePtr();
-        if (m_pAudioEngine) {
-            m_pAudioEngine->teardown();
-        }
+        cleanup();
         throw;
     }
     m_pEventDispatcher->addInputDevice(boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));

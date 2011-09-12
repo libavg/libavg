@@ -27,6 +27,8 @@
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
 
+#include <iostream>
+
 namespace avg {
 
 using namespace std;
@@ -36,7 +38,6 @@ thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
     : m_Context(0),
       m_MaxTexSize(0),
-      m_GLConfig(false, true, true, 1),
       m_bCheckedMemoryMode(false),
       m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
@@ -45,6 +46,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
+    m_GLConfig = GLConfig;
     if (bUseCurrent) {
 #if defined(__APPLE__)
         m_Context = aglGetCurrentContext();
@@ -59,7 +61,6 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
         *s_pCurrentContext = this;
         init();
     }
-    m_GLConfig = GLConfig;
 }
 
 GLContext::~GLContext()
@@ -68,6 +69,9 @@ GLContext::~GLContext()
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
     m_FBOIDs.clear();
+    if (*s_pCurrentContext == this) {
+        *s_pCurrentContext = 0;
+    }
 }
 
 void GLContext::init()

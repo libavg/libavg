@@ -69,15 +69,17 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
 VertexArray::~VertexArray()
 {
     GLContext* pContext = GLContext::getCurrent();
-    if (m_ReserveVerts == MIN_VERTEXES) {
-        pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
-    } else {
-        glproc::DeleteBuffers(1, &m_GLVertexBufferID);
-    }
-    if (m_ReserveIndexes == MIN_INDEXES) {
-        pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
-    } else {
-        glproc::DeleteBuffers(1, &m_GLIndexBufferID);
+    if (pContext) {
+        if (m_ReserveVerts == MIN_VERTEXES) {
+            pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
+        } else {
+            glproc::DeleteBuffers(1, &m_GLVertexBufferID);
+        }
+        if (m_ReserveIndexes == MIN_INDEXES) {
+            pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
+        } else {
+            glproc::DeleteBuffers(1, &m_GLIndexBufferID);
+        }
     }
     delete[] m_pVertexData;
     delete[] m_pIndexData;

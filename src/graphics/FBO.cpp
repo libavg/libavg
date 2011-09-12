@@ -74,25 +74,27 @@ FBO::~FBO()
     }
    
     GLContext* pContext = GLContext::getCurrent();
-    pContext->returnFBOToCache(m_FBO);
-    if (m_MultisampleSamples > 1) {
-        glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
-        pContext->returnFBOToCache(m_OutputFBO);
-    }
-    if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
-        glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
-        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-                GL_RENDERBUFFER_EXT, 0);
-        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
-                GL_RENDERBUFFER_EXT, 0);
+    if (pContext) {
+        pContext->returnFBOToCache(m_FBO);
         if (m_MultisampleSamples > 1) {
-            glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
-            glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                    GL_TEXTURE_2D, 0, 0);
+            glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
+            pContext->returnFBOToCache(m_OutputFBO);
         }
+        if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
+            glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+                    GL_RENDERBUFFER_EXT, 0);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+                    GL_RENDERBUFFER_EXT, 0);
+            if (m_MultisampleSamples > 1) {
+                glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+                glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                        GL_TEXTURE_2D, 0, 0);
+            }
+        }
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, oldFBOID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "~FBO");
     }
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, oldFBOID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "~FBO");
 }
 
 void FBO::activate() const

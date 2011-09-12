@@ -299,6 +299,7 @@ void SDLDisplayEngine::teardown()
 //        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
 #endif
         m_pScreen = 0;
+        m_pGLContext = GLContextPtr();
     }
 }
 
