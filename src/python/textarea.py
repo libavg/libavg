@@ -62,7 +62,7 @@ KEYCODES_DEL = 63272
 CURSOR_PADDING_PCT = 15
 CURSOR_WIDTH_PCT = 4
 CURSOR_SPACING_PCT = 4
-CURSOR_FLASHING_DELAY = 1000
+CURSOR_FLASHING_DELAY = 600
 CURSOR_FLASH_AFTER_INACTIVITY = 200
 
 DEFAULT_BLUR_OPACITY = 0.3
@@ -417,6 +417,12 @@ class TextArea:
         """
         return self.__hasFocus
 
+    def showCursor(self, show):
+        if show:
+            avg.fadeIn(self.__cursorNode, 200)
+        else:
+            avg.fadeOut(self.__cursorNode, 200)
+
     def onKeyDown(self, keycode):
         """
         Inject a keycode into TextArea flow
@@ -527,11 +533,12 @@ class TextArea:
             if self.__data[self.__cursorPosition - 1] == '\n':
                 lastCharPos = (0, lastCharPos[1] + lastCharExtents[1])
                 lastCharExtents = (0, lastCharExtents[1])
-        
+       
+        xPos = self.__cursorNode.pos2.x
         if lastCharExtents[1] > 0:
-            self.__cursorNode.pos2 = Point2D(0, lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0))
+            self.__cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0))
         else:
-            self.__cursorNode.pos2 = Point2D(0, self.__textNode.fontsize)
+            self.__cursorNode.pos2 = Point2D(xPos, self.__textNode.fontsize)
         
         self.__cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
         self.__cursorContainer.y = (lastCharPos[1] +
