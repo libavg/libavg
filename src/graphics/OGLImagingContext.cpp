@@ -159,7 +159,6 @@ OGLImagingContext::OGLImagingContext()
 #endif
 #endif
     init();
-    activate();
 
     if (!isSupported()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 

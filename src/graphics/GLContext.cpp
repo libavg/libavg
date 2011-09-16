@@ -77,6 +77,7 @@ GLContext::~GLContext()
 void GLContext::init()
 {
     glproc::init();
+    activate();
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
