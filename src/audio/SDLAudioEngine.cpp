@@ -34,15 +34,24 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
+SDLAudioEngine* SDLAudioEngine::s_pInstance = 0;
+
+SDLAudioEngine* SDLAudioEngine::get()
+{
+    return s_pInstance;
+}
+
 SDLAudioEngine::SDLAudioEngine()
     : m_pTempBuffer(),
       m_pMixBuffer(0),
       m_pLimiter(0)
 {
+    AVG_ASSERT(s_pInstance == 0);
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
         exit(-1);
     }
+    s_pInstance = this;
 }
 
 SDLAudioEngine::~SDLAudioEngine()

@@ -103,7 +103,6 @@ Player * Player::s_pPlayer=0;
 
 Player::Player()
     : m_pDisplayEngine(),
-      m_pAudioEngine(0),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -168,16 +167,6 @@ void deletePlayer()
 
 Player::~Player()
 {
-#ifndef _WIN32
-/*
-    // This causes libavg progams started under cmd to crash on system shutdown and
-    // when cmd is closed, so it isn't done under windows.
-    // Under Linux (Ubuntu >= 10.10), it takes more than 2 secs to complete...
-    if (m_pAudioEngine) {
-        delete m_pAudioEngine;
-    }
-*/
-#endif
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
     }
@@ -505,9 +494,9 @@ void Player::initPlayback()
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-            m_pCanvases[i]->initPlayback(&*m_pDisplayEngine, m_pAudioEngine);
+            m_pCanvases[i]->initPlayback(&*m_pDisplayEngine, SDLAudioEngine::get());
         }
-        m_pMainCanvas->initPlayback(&*m_pDisplayEngine, m_pAudioEngine);
+        m_pMainCanvas->initPlayback(&*m_pDisplayEngine, SDLAudioEngine::get());
     } catch (Exception&) {
         cleanup();
         throw;
@@ -579,8 +568,8 @@ void Player::setFakeFPS(double fps)
         m_FakeFPS = fps;
     }
 
-    if (m_pAudioEngine) {
-        m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
+    if (SDLAudioEngine::get()) {
+        SDLAudioEngine::get()->setAudioEnabled(!m_bFakeFPS);
     }
 }
 
@@ -1152,12 +1141,13 @@ void Player::initGraphics()
 
 void Player::initAudio()
 {
-    if (!m_pAudioEngine) {
-        m_pAudioEngine = new SDLAudioEngine();
+    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    if (!pAudioEngine) {
+        pAudioEngine = new SDLAudioEngine();
     }
-    m_pAudioEngine->init(m_AP, m_Volume);
-    m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
-    m_pAudioEngine->play();
+    pAudioEngine->init(m_AP, m_Volume);
+    pAudioEngine->setAudioEnabled(!m_bFakeFPS);
+    pAudioEngine->play();
 }
 
 void Player::updateDTD()
@@ -1339,7 +1329,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(&*m_pDisplayEngine, m_pAudioEngine);
+            pCanvas->initPlayback(&*m_pDisplayEngine, SDLAudioEngine::get());
         } catch (...) {
             m_pCanvases.pop_back();
             throw;
@@ -1564,8 +1554,8 @@ bool Player::getStopOnEscape() const
 void Player::setVolume(double volume)
 {
     m_Volume = volume;
-    if (m_pAudioEngine) {
-        m_pAudioEngine->setVolume(m_Volume);
+    if (SDLAudioEngine::get()) {
+        SDLAudioEngine::get()->setVolume(m_Volume);
     }
 }
 
@@ -1621,8 +1611,8 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
     }
-    if (m_pAudioEngine) {
-        m_pAudioEngine->teardown();
+    if (SDLAudioEngine::get()) {
+        SDLAudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
     m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 

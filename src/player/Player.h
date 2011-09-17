@@ -210,7 +210,6 @@ class AVG_API Player
         MainCanvasPtr m_pMainCanvas;
 
         SDLDisplayEnginePtr m_pDisplayEngine;
-        AudioEngine * m_pAudioEngine;
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;

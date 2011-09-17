@@ -38,6 +38,7 @@ namespace avg {
 class AVG_API SDLAudioEngine : public AudioEngine
 {   
     public:
+        static SDLAudioEngine* get();
         SDLAudioEngine();
         virtual ~SDLAudioEngine();
         
@@ -68,6 +69,8 @@ class AVG_API SDLAudioEngine : public AudioEngine
         double * m_pMixBuffer;
         IProcessor<double>* m_pLimiter;
         boost::mutex m_Mutex;
+
+        static SDLAudioEngine* s_pInstance;
 };
 
 }

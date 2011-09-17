@@ -28,7 +28,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include "../audio/AudioEngine.h"
+#include "../audio/SDLAudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
@@ -295,17 +295,14 @@ void SoundNode::open()
 
 void SoundNode::startDecoding()
 {
-    m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
-    if (getAudioEngine()) {
-        getAudioEngine()->addSource(this);
-    }
+    SDLAudioEngine* pEngine = SDLAudioEngine::get();
+    m_pDecoder->startDecoding(false, pEngine->getParams());
+    pEngine->addSource(this);
 }
 
 void SoundNode::close()
 {
-    if (getAudioEngine()) {
-        getAudioEngine()->removeSource(this);
-    }
+    SDLAudioEngine::get()->removeSource(this);
     m_pDecoder->close();
 }
 
