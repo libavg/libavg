@@ -49,7 +49,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
     m_GLConfig = GLConfig;
     if (bUseCurrent) {
 #if defined(__APPLE__)
-        m_Context = aglGetCurrentContext();
+        m_Context = CGLGetCurrentContext();
 #elif defined(__linux__)
         m_pDisplay = glXGetCurrentDisplay();
         m_Drawable = glXGetCurrentDrawable();
@@ -91,8 +91,8 @@ void GLContext::init()
 void GLContext::activate()
 {
 #ifdef __APPLE__
-    bool bOk = aglSetCurrentContext(m_Context);
-    AVG_ASSERT(bOk);
+    CGLError err = CGLSetCurrentContext(m_Context);
+    AVG_ASSERT(err == kCGLNoError);
 #elif defined linux
     glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
 #elif defined _WIN32

@@ -93,14 +93,14 @@ OGLImagingContext::OGLImagingContext()
     : GLContext()
 {
 #ifdef __APPLE__
-    GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
-    AGLPixelFormat format;
-    format = aglChoosePixelFormat(NULL, 0, attributes);
-    AVG_ASSERT(format);
+    CGLPixelFormatObj   pixelFormatObj;
+    GLint               numPixelFormats;
 
-    m_Context = aglCreateContext(format, NULL);
-    AVG_ASSERT(m_Context);
-    aglDestroyPixelFormat(format);
+    CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
+
+    CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
+    CGLCreateContext(pixelFormatObj, NULL, &m_Context);
+    CGLDestroyPixelFormat(pixelFormatObj);
 #else
 #ifdef linux
     m_pDisplay = XOpenDisplay(0);
@@ -172,8 +172,8 @@ OGLImagingContext::~OGLImagingContext()
 {
 #ifdef __APPLE__
     if (m_Context) {
-        aglSetCurrentContext(0);
-        aglDestroyContext(m_Context);
+        CGLSetCurrentContext(0);
+        CGLDestroyContext(m_Context);
         m_Context = 0;
     }
 #endif

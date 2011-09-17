@@ -29,7 +29,8 @@
 #include "../base/Point.h"
 
 #ifdef __APPLE__
-#include <AGL/agl.h>
+//#include <AGL/agl.h>
+#include <OpenGL/OpenGL.h>
 #undef check // Conflicts with boost
 #elif defined linux
 #include <GL/glx.h>
@@ -88,7 +89,7 @@ public:
 
 protected:
 #ifdef __APPLE__
-    AGLContext m_Context;
+    CGLContextObj m_Context;
 #elif defined linux
     Display* m_pDisplay;
     GLXDrawable m_Drawable;
