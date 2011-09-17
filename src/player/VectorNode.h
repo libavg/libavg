@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "VisibleNode.h"
-#include "DisplayEngine.h"
 #include "Shape.h"
 
 #include "../base/UTF8String.h"
@@ -33,6 +32,8 @@
 #include "../graphics/GLContext.h"
 
 namespace avg {
+
+class DisplayEngine;
 
 struct WideLine;
 

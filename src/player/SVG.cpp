@@ -33,7 +33,6 @@
 #include "../graphics/FilterUnmultiplyAlpha.h"
 
 #include "OGLSurface.h"
-#include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "ImageNode.h"
 

@@ -20,7 +20,6 @@
 //
 
 #include "ChromaKeyFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
 #include "../graphics/ShaderRegistry.h"

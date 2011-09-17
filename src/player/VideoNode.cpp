@@ -19,11 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 #include "VideoNode.h"
-#include "DisplayEngine.h"
 #include "Player.h"
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
-#include "SDLDisplayEngine.h"
 #include "Canvas.h"
 
 #include "../base/Exception.h"

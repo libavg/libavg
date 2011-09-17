@@ -20,7 +20,6 @@
 //
 
 #include "CameraNode.h"
-#include "DisplayEngine.h"
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
 

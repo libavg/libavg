@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "AreaNode.h"
-#include "DisplayEngine.h"
 #include "PBOTexture.h"
 #include "FXNode.h"
 
@@ -41,6 +40,7 @@ namespace avg {
 
 class OGLSurface;
 
+class DisplayEngine;
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 
