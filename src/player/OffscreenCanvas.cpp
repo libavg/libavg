@@ -60,13 +60,12 @@ void OffscreenCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine)
+void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine)
 {
     m_bUseMipmaps = getMipmap();
     m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
             m_bUseMipmaps));
-    Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
+    Canvas::initPlayback(pDisplayEngine, getMultiSampleSamples());
     m_bIsRendered = false;
 }
 

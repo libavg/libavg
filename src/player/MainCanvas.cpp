@@ -56,10 +56,9 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine)
+void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine)
 {
-    Canvas::initPlayback(pDisplayEngine, pAudioEngine, 
+    Canvas::initPlayback(pDisplayEngine, 
             GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
 }
 

@@ -494,9 +494,9 @@ void Player::initPlayback()
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-            m_pCanvases[i]->initPlayback(&*m_pDisplayEngine, SDLAudioEngine::get());
+            m_pCanvases[i]->initPlayback(&*m_pDisplayEngine);
         }
-        m_pMainCanvas->initPlayback(&*m_pDisplayEngine, SDLAudioEngine::get());
+        m_pMainCanvas->initPlayback(&*m_pDisplayEngine);
     } catch (Exception&) {
         cleanup();
         throw;
@@ -1329,7 +1329,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(&*m_pDisplayEngine, SDLAudioEngine::get());
+            pCanvas->initPlayback(&*m_pDisplayEngine);
         } catch (...) {
             m_pCanvases.pop_back();
             throw;

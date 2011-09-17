@@ -33,7 +33,7 @@ class AVG_API MainCanvas: public Canvas
         MainCanvas(Player * pPlayer);
         virtual ~MainCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine);
+        void initPlayback(SDLDisplayEngine* pDisplayEngine);
         
         virtual BitmapPtr screenshot() const;
 

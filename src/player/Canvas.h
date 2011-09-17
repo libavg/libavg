@@ -66,10 +66,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Canvas(Player * pPlayer);
         virtual ~Canvas();
         virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine) = 0;
-        void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
-                int multiSampleSamples);
+        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine) = 0;
+        void initPlayback(SDLDisplayEngine* pDisplayEngine, int multiSampleSamples);
         virtual void stopPlayback();
        
         CanvasNodePtr getRootNode() const;

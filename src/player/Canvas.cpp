@@ -61,8 +61,7 @@ void Canvas::setRoot(NodePtr pRootNode)
     registerNode(m_pRootNode);
 }
 
-void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
-        int multiSampleSamples)
+void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, int multiSampleSamples)
 {
     m_pDisplayEngine = pDisplayEngine;
     m_pRootNode->connectDisplay();
