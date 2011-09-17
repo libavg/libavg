@@ -29,7 +29,6 @@
 #include "../base/Point.h"
 
 #ifdef __APPLE__
-//#include <AGL/agl.h>
 #include <OpenGL/OpenGL.h>
 #undef check // Conflicts with boost
 #elif defined linux
@@ -97,6 +96,7 @@ private:
     GLXDrawable m_Drawable;
     GLXContext m_Context;
 #elif defined _WIN32
+    HWND m_hwnd;
     HDC m_hDC;
     HGLRC m_Context;
 #endif

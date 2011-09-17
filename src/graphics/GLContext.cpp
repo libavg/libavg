@@ -29,6 +29,13 @@
 
 #include <iostream>
 
+
+namespace avg {
+
+using namespace std;
+using namespace boost;
+thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+
 #ifdef _WIN32
 LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 { 
@@ -72,12 +79,6 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
     return 0;
 }
 #endif
-
-namespace avg {
-
-using namespace std;
-using namespace boost;
-thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
 
 GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
     : m_Context(0),

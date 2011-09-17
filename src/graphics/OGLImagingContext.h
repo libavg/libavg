@@ -51,9 +51,7 @@ public:
 private:
     void setStandardState();
 
-#ifdef _WIN32
-    HWND m_hwnd;
-#endif
+
 };
 }
 #endif
