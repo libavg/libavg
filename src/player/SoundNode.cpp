@@ -133,15 +133,14 @@ void SoundNode::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void SoundNode::connectDisplay()
 {
-    if (!pAudioEngine) {
+    if (!SDLAudioEngine::get()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Sound nodes can only be created if audio is not disabled."); 
     }
     checkReload();
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
     long long curTime = Player::get()->getFrameTime(); 
     if (m_State != Unloaded) {
         startDecoding();

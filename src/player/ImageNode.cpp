@@ -68,12 +68,11 @@ ImageNode::~ImageNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
-        AudioEngine * pAudioEngine)
+void ImageNode::connectDisplay()
 {
     getSurface()->attach();
     m_pImage->moveToGPU();
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    RasterNode::connectDisplay();
     if (m_pImage->getSource() == Image::SCENE) {
         m_pImage->getCanvas()->addDependentCanvas(getCanvas());
     }

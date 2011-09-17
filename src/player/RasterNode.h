@@ -52,8 +52,7 @@ class AVG_API RasterNode: public AreaNode
         static NodeDefinition createDefinition();
         
         virtual ~RasterNode ();
-        virtual void setRenderingEngines(DisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine);
+        virtual void connectDisplay();
         virtual void setArgs(const ArgList& args);
         virtual void disconnect(bool bKill);
         virtual void checkReload();

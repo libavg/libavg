@@ -115,10 +115,9 @@ CameraNode::~CameraNode()
     m_pCamera = CameraPtr();
 }
 
-void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void CameraNode::connectDisplay()
 {
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    RasterNode::connectDisplay();
     if (m_bIsPlaying) {
         open();
     }

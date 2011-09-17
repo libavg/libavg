@@ -64,9 +64,9 @@ PanoImageNode::~PanoImageNode ()
     clearTextures();
 }
 
-void PanoImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void PanoImageNode::connectDisplay()
 {
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
     
     setupTextures();
 }

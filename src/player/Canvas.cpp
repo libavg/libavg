@@ -65,7 +65,7 @@ void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioE
         int multiSampleSamples)
 {
     m_pDisplayEngine = pDisplayEngine;
-    m_pRootNode->setRenderingEngines(m_pDisplayEngine, pAudioEngine);
+    m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
 }
 

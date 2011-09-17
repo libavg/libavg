@@ -76,8 +76,7 @@ class AVG_API VisibleNode: public Node
         virtual void setArgs(const ArgList& args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
                 CanvasPtr pCanvas);
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload() {};
@@ -135,8 +134,6 @@ class AVG_API VisibleNode: public Node
                 const std::string& sCode);
         bool reactsToMouseEvents();
             
-        SDLDisplayEngine * getDisplayEngine() const;
-        AudioEngine * getAudioEngine() const;
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
         void checkReload(const std::string& sHRef, const ImagePtr& pImage,
@@ -175,8 +172,6 @@ class AVG_API VisibleNode: public Node
         EventHandlerMap m_EventHandlerMap;
 
         CanvasWeakPtr m_pCanvas;
-        SDLDisplayEngine * m_pDisplayEngine;
-        AudioEngine * m_pAudioEngine;
 
         double m_Opacity;
         NodeState m_State;

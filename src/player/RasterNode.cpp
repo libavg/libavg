@@ -89,10 +89,9 @@ void RasterNode::setArgs(const ArgList& args)
     m_Material.setUseMipmaps(args.getArgVal<bool>("mipmap"));
 }
 
-void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine)
+void RasterNode::connectDisplay()
 {
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
 
     getSurface();
     m_pSurface->attach();

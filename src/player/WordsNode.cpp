@@ -141,10 +141,9 @@ void WordsNode::setTextFromNodeValue(const string& sText)
     }
 }
 
-void WordsNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void WordsNode::connectDisplay()
 {
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    RasterNode::connectDisplay();
     setDirty(FONT_CHANGED);
 }
 

@@ -60,8 +60,7 @@ class AVG_API AreaNode: public VisibleNode
         
         virtual ~AreaNode() = 0;
         virtual void setArgs(const ArgList& args);
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         
         double getX() const;
         void setX(double x);

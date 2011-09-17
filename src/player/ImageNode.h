@@ -40,8 +40,7 @@ class AVG_API ImageNode : public RasterNode
         
         ImageNode(const ArgList& args);
         virtual ~ImageNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload();

@@ -44,8 +44,7 @@ class AVG_API PanoImageNode: public AreaNode
         PanoImageNode(const ArgList& Args);
         virtual ~PanoImageNode();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void disconnect(bool bKill);
         virtual void render(const DRect& Rect);
 

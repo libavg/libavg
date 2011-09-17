@@ -73,12 +73,11 @@ DivNode::~DivNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void DivNode::connectDisplay()
 {
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
     for (unsigned i = 0; i < getNumChildren(); ++i) {
-        getVChild(i)->setRenderingEngines(pDisplayEngine, pAudioEngine);
+        getVChild(i)->connectDisplay();
     }
     m_pClipVertexes = VertexArrayPtr(new VertexArray());
 }
@@ -133,7 +132,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     Node::insertChild(pNewNode, i);
     pVNode->setParent(Ptr, getState(), getCanvas());
     if (getState() == NS_CANRENDER) {
-        pVNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
+        pVNode->connectDisplay();
     }
 }
 

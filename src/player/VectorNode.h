@@ -46,8 +46,7 @@ class AVG_API VectorNode : public VisibleNode
         
         VectorNode(const ArgList& args);
         virtual ~VectorNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload();

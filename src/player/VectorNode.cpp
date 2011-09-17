@@ -73,12 +73,11 @@ VectorNode::~VectorNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void VectorNode::connectDisplay()
 {
     setDrawNeeded();
     m_Color = colorStringToColor(m_sColorName);
-    VisibleNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    VisibleNode::connectDisplay();
     m_pShape->moveToGPU();
     m_OldOpacity = -1;
     setBlendModeStr(m_sBlendMode);

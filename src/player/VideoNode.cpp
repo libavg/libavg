@@ -31,7 +31,7 @@
 
 #include "../graphics/Filterfill.h"
 
-#include "../audio/AudioEngine.h"
+#include "../audio/SDLAudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
@@ -106,11 +106,10 @@ VideoNode::~VideoNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VideoNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void VideoNode::connectDisplay()
 {
     checkReload();
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    RasterNode::connectDisplay();
     long long CurTime = Player::get()->getFrameTime(); 
     if (m_VideoState != Unloaded) {
         startDecoding();
@@ -435,8 +434,9 @@ void VideoNode::open()
 void VideoNode::startDecoding()
 {
     const AudioParams * pAP = 0;
-    if (getAudioEngine()) {
-        pAP = getAudioEngine()->getParams();
+    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    if (pAudioEngine) {
+        pAP = pAudioEngine->getParams();
     }
     m_pDecoder->startDecoding(GLContext::getCurrent()->isUsingShaders(), pAP);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
@@ -448,8 +448,8 @@ void VideoNode::startDecoding()
             m_pDecoder->setFPS(m_FPS);
         }
     }
-    if (videoInfo.m_bHasAudio && getAudioEngine()) {
-        getAudioEngine()->addSource(this);
+    if (videoInfo.m_bHasAudio && pAudioEngine) {
+        pAudioEngine->addSource(this);
     }
     m_bSeekPending = true;
     
@@ -469,8 +469,9 @@ void VideoNode::startDecoding()
 
 void VideoNode::close()
 {
-    if (hasAudio() && getAudioEngine()) {
-        getAudioEngine()->removeSource(this);
+    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    if (hasAudio() && pAudioEngine) {
+        pAudioEngine->removeSource(this);
     }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {

@@ -63,8 +63,6 @@ NodeDefinition VisibleNode::createDefinition()
 
 VisibleNode::VisibleNode()
     : m_pCanvas(),
-      m_pDisplayEngine(0),
-      m_pAudioEngine(0),
       m_State(NS_UNCONNECTED)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -100,12 +98,9 @@ void VisibleNode::setParent(DivNodeWeakPtr pParent, NodeState parentState,
     }
 }
 
-void VisibleNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
-        AudioEngine * pAudioEngine)
+void VisibleNode::connectDisplay()
 {
     AVG_ASSERT(getState() == NS_CONNECTED);
-    m_pDisplayEngine = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine);
-    m_pAudioEngine = pAudioEngine;
     setState(NS_CANRENDER);
 }
 
@@ -118,10 +113,6 @@ void VisibleNode::connect(CanvasPtr pCanvas)
 void VisibleNode::disconnect(bool bKill)
 {
     AVG_ASSERT(getState() != NS_UNCONNECTED);
-    if (getState() == NS_CANRENDER) {
-        m_pDisplayEngine = 0;
-        m_pAudioEngine = 0;
-    }
     m_pCanvas.lock()->removeNodeID(getID());
     setState(NS_UNCONNECTED);
     if (bKill) {
@@ -390,16 +381,6 @@ void VisibleNode::addArgEventHandler(Event::Type eventType, Event::Source source
         EventID id(eventType, source);
         connectOneEventHandler(id, Py_None, pFunc);
     }
-}
-
-SDLDisplayEngine * VisibleNode::getDisplayEngine() const
-{
-    return m_pDisplayEngine;
-}
-
-AudioEngine * VisibleNode::getAudioEngine() const
-{
-    return m_pAudioEngine;
 }
 
 double VisibleNode::getEffectiveOpacity() const

@@ -85,8 +85,7 @@ void AreaNode::setArgs(const ArgList& args)
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 }
 
-void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void AreaNode::connectDisplay()
 {
     IntPoint MediaSize = getMediaSize();
     if (m_UserSize.x == 0.0) {
@@ -99,7 +98,7 @@ void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } else {
         m_RelViewport.setHeight(m_UserSize.y);
     }
-    VisibleNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    VisibleNode::connectDisplay();
 }
 
 double AreaNode::getX() const 

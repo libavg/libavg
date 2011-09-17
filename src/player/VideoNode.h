@@ -50,8 +50,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         VideoNode(const ArgList& args);
         virtual ~VideoNode();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
 

@@ -65,10 +65,9 @@ FilledVectorNode::~FilledVectorNode()
 {
 }
 
-void FilledVectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void FilledVectorNode::connectDisplay()
 {
-    VectorNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    VectorNode::connectDisplay();
     m_FillColor = colorStringToColor(m_sFillColorName);
     m_pFillShape->moveToGPU();
     m_OldOpacity = -1;
