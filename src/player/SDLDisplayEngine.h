@@ -75,12 +75,12 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
         void assumePhysicalScreenDimensions(const DPoint& size);
+        virtual void swapBuffers();
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
         void calcScreenDimensions(double dotsPerMM=0);
-        virtual void swapBuffers();
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);

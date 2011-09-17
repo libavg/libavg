@@ -255,12 +255,7 @@ void Player::setAudioOptions(int samplerate, int channels)
 
 DPoint Player::getScreenResolution()
 {
-    if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
-    }
-    DPoint size = DPoint(dynamic_cast<SDLDisplayEngine*>(
-            m_pDisplayEngine.get())->getScreenResolution());
-    return size;
+    return DPoint(safeGetDisplayEngine()->getScreenResolution());
 }
 
 double Player::getPixelsPerMM()
@@ -510,16 +505,15 @@ void Player::initPlayback()
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-            m_pCanvases[i]->initPlayback(
-                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()), m_pAudioEngine);
+            m_pCanvases[i]->initPlayback(&*m_pDisplayEngine, m_pAudioEngine);
         }
-        m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
-                m_pAudioEngine);
+        m_pMainCanvas->initPlayback(&*m_pDisplayEngine, m_pAudioEngine);
     } catch (Exception&) {
         cleanup();
         throw;
     }
-    m_pEventDispatcher->addInputDevice(boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
+    m_pEventDispatcher->addInputDevice(
+            boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
@@ -1149,13 +1143,11 @@ void Player::initGraphics()
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
-    SDLDisplayEngine * pSDLDisplayEngine =
-            dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine.get());
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
-    pSDLDisplayEngine->init(m_DP, m_GLConfig);
+    m_pDisplayEngine->init(m_DP, m_GLConfig);
 }
 
 void Player::initAudio()
@@ -1226,9 +1218,9 @@ NodePtr Player::internalLoad(const string& sAVG)
 SDLDisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
-    return dynamic_pointer_cast<SDLDisplayEngine>(m_pDisplayEngine);
+    return m_pDisplayEngine;
 
 }
 
@@ -1347,8 +1339,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
-                    m_pAudioEngine);
+            pCanvas->initPlayback(&*m_pDisplayEngine, m_pAudioEngine);
         } catch (...) {
             m_pCanvases.pop_back();
             throw;
@@ -1555,7 +1546,7 @@ void Player::handleTimers()
 
 }
 
-DisplayEngine * Player::getDisplayEngine() const
+SDLDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }

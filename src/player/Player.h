@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "Timeout.h"
-#include "DisplayEngine.h"
 #include "NodeRegistry.h"
 #include "DisplayParams.h"
 #include "CursorState.h"
@@ -152,7 +151,7 @@ class AVG_API Player
         double getVideoRefreshRate();
         bool isUsingShaders();
         void setGamma(double red, double green, double blue);
-        DisplayEngine * getDisplayEngine() const;
+        SDLDisplayEngine * getDisplayEngine() const;
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
         void setVolume(double volume);
@@ -210,7 +209,7 @@ class AVG_API Player
 
         MainCanvasPtr m_pMainCanvas;
 
-        DisplayEnginePtr m_pDisplayEngine;
+        SDLDisplayEnginePtr m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
         TestHelperPtr m_pTestHelper;
        
