@@ -87,7 +87,9 @@ public:
 
     static GLContext* getCurrent();
 
-protected:
+private:
+    void checkShaderSupport();
+
 #ifdef __APPLE__
     CGLContextObj m_Context;
 #elif defined linux
@@ -98,9 +100,8 @@ protected:
     HDC m_hDC;
     HGLRC m_Context;
 #endif
-    
-private:
-    void checkShaderSupport();
+ 
+    bool m_bOwnsContext;
 
     ShaderRegistryPtr m_pShaderRegistry;
 
@@ -113,7 +114,6 @@ private:
     GLConfig m_GLConfig;
     bool m_bCheckedMemoryMode;
     OGLMemoryMode m_MemoryMode;
-
 
     // OpenGL state
     bool m_bEnableTexture;

@@ -29,6 +29,50 @@
 
 #include <iostream>
 
+#ifdef _WIN32
+LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{ 
+    return DefWindowProc(hwnd, msg, wParam, lParam); 
+} 
+
+void registerWindowClass()
+{
+  static char * pClassName;
+  if (pClassName) {
+      return;
+  }
+  pClassName = "GLUT";
+
+  HINSTANCE hInstance = GetModuleHandle(NULL);
+  WNDCLASS  wc;
+  memset(&wc, 0, sizeof(WNDCLASS));
+  wc.style = CS_OWNDC;
+  wc.lpfnWndProc = (WNDPROC)imagingWindowProc;
+  wc.hInstance = hInstance;
+  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+  wc.hCursor = LoadCursor(hInstance, IDC_ARROW);
+  wc.hbrBackground = NULL;
+  wc.lpszMenuName = NULL;
+  wc.lpszClassName = pClassName;
+  
+  BOOL bOK = RegisterClass(&wc);
+  AVG_ASSERT(bOK);
+}
+#endif
+
+#ifdef linux
+static bool s_bX11Error;
+static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
+
+int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
+{
+    cerr << "X11 error creating offscreen context: " << (int)(pErrEvent->request_code)
+            << ", " << (int)(pErrEvent->minor_code) << endl;
+    s_bX11Error = true;
+    return 0;
+}
+#endif
+
 namespace avg {
 
 using namespace std;
@@ -47,6 +91,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
         s_pCurrentContext.reset(new (GLContext*));
     }
     m_GLConfig = GLConfig;
+    m_bOwnsContext = !bUseCurrent;
     if (bUseCurrent) {
 #if defined(__APPLE__)
         m_Context = CGLGetCurrentContext();
@@ -59,8 +104,72 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
         m_Context = wglGetCurrentContext();
 #endif
         *s_pCurrentContext = this;
-        init();
+    } else {
+#ifdef __APPLE__
+        CGLPixelFormatObj   pixelFormatObj;
+        GLint               numPixelFormats;
+
+        CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
+
+        CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
+        CGLCreateContext(pixelFormatObj, NULL, &m_Context);
+        CGLDestroyPixelFormat(pixelFormatObj);
+#elif defined(__linux__)
+        m_pDisplay = XOpenDisplay(0);
+        if (!m_pDisplay) {
+            throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+        }
+        XVisualInfo *vi;
+        static int attributes[] = {GLX_RGBA,
+            GLX_RED_SIZE, 1,
+            GLX_GREEN_SIZE, 1,
+            GLX_BLUE_SIZE, 1,
+            0};
+        vi = glXChooseVisual(m_pDisplay, DefaultScreen(m_pDisplay), attributes);
+        m_Context = glXCreateContext(m_pDisplay, vi, 0, GL_TRUE);
+        AVG_ASSERT(m_Context);
+        Pixmap pmp = XCreatePixmap(m_pDisplay, RootWindow(m_pDisplay, vi->screen),
+                8, 8, vi->depth);
+        GLXPixmap pixmap = glXCreateGLXPixmap(m_pDisplay, vi, pmp);
+
+        s_bX11Error = false;
+        s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
+        glXMakeCurrent(m_pDisplay, pixmap, m_Context);
+        XSetErrorHandler(s_DefaultErrorHandler);
+
+        if (s_bX11Error) {
+            throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
+        }
+        m_Drawable = glXGetCurrentDrawable();
+#elif defined(_WIN32)
+        registerWindowClass();
+        m_hwnd = CreateWindow("GLUT", "GLUT",
+                WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
+        winOGLErrorCheck(m_hDC != 0, "CreateWindow");
+
+        m_hDC = GetDC(m_hwnd);
+        winOGLErrorCheck(m_hDC != 0, "GetDC");
+
+        PIXELFORMATDESCRIPTOR pfd;
+        ZeroMemory(&pfd, sizeof(pfd));
+        pfd.nSize = sizeof(pfd);
+        pfd.nVersion = 1;
+        pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+        pfd.iPixelType = PFD_TYPE_RGBA;
+        pfd.cColorBits = 32;
+        pfd.cDepthBits = 32;
+        pfd.iLayerType = PFD_MAIN_PLANE;
+
+        int iFormat = ChoosePixelFormat(m_hDC, &pfd);
+        winOGLErrorCheck(iFormat != 0, "ChoosePixelFormat");
+        SetPixelFormat(m_hDC, iFormat, &pfd);
+        m_Context = wglCreateContext(m_hDC);
+        winOGLErrorCheck(m_Context != 0, "wglCreateContext");
+#endif
     }
+
+    init();
 }
 
 GLContext::~GLContext()
@@ -71,6 +180,17 @@ GLContext::~GLContext()
     m_FBOIDs.clear();
     if (*s_pCurrentContext == this) {
         *s_pCurrentContext = 0;
+    }
+    if (m_bOwnsContext && m_Context) {
+#ifdef __APPLE__
+        CGLSetCurrentContext(0);
+        CGLDestroyContext(m_Context);
+        m_Context = 0;
+#elif defined _WIN32
+        wglDeleteContext(m_Context);
+        DeleteDC(m_hDC);
+        DestroyWindow(m_hwnd);
+#endif
     }
 }
 
