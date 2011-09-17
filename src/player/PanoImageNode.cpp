@@ -20,7 +20,6 @@
 //
 
 #include "PanoImageNode.h"
-#include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 
 #include "../base/MathHelper.h"
@@ -30,8 +29,6 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
-#include "../graphics/Filtercolorize.h"
-#include "../graphics/Filterfliprgb.h"
 #include "../graphics/OGLHelper.h"
 
 #include <iostream>
@@ -85,9 +82,7 @@ static ProfilingZoneID PanoRenderProfilingZone("PanoImageNode::render");
 void PanoImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(PanoRenderProfilingZone);
-    glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImageNode::render: glPushMatrix()");
+    pushGLState();
     glproc::ActiveTexture(GL_TEXTURE0);
 
     gluLookAt(0, 0, 0,  // Eye
@@ -99,9 +94,6 @@ void PanoImageNode::render(const DRect& Rect)
     glMatrixMode(GL_PROJECTION);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glMatrixMode(GL_PROJECTION)");
-    glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImageNode::render: glPushMatrix()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glLoadIdentity()");
@@ -162,15 +154,7 @@ void PanoImageNode::render(const DRect& Rect)
                 "PanoImageNode::render: glEnd()");
     }
 
-    // Restore previous GL state.
-    IntPoint size = getDisplayEngine()->getSize();
-    glViewport(0, 0, size.x, size.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImageNode::render: glViewport() restore");
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+    popGLState();
 }
 
 double PanoImageNode::getScreenPosFromAngle(double Angle) const
@@ -362,11 +346,6 @@ void PanoImageNode::clearTextures()
         glDeleteTextures(1, &TexID);
     }
     m_TileTextureIDs.clear();
-}
-
-SDLDisplayEngine * PanoImageNode::getSDLEngine()
-{
-    return dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
 }
 
 }
