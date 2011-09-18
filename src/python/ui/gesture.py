@@ -387,7 +387,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        utils.callWeakRef(self.__moveHandler, None, offset)
+        utils.callWeakRef(self.__moveHandler, None, self.__offset)
    
     def __onInertiaStop(self):
         self._setEnd(None)
