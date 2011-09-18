@@ -141,9 +141,7 @@ void Win7TouchInputDevice::onTouch(HWND hWnd, WPARAM wParam, LPARAM lParam)
     for (unsigned i = 0; i < numInputs; i++) {
         TOUCHINPUT *pTouchInput = &(pInputs[i]);
         IntPoint pos(int(pTouchInput->x/100+0.5), int(pTouchInput->y/100+0.5));
-        if (!(dynamic_cast<SDLDisplayEngine*>(
-                Player::get()->getDisplayEngine()))->isFullscreen())
-        {
+        if (!(Player::get()->getDisplayEngine())->isFullscreen()) {
             pos -= IntPoint(winRect.left, winRect.top)+m_ClientAreaOffset;
             IntPoint winSize = IntPoint(Player::get()->getRootNode()->getSize());
             // Restrict coords to be inside window.

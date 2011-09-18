@@ -48,7 +48,7 @@ void registerWindowClass()
   if (pClassName) {
       return;
   }
-  pClassName = "GLUT";
+  pClassName = "GL";
 
   HINSTANCE hInstance = GetModuleHandle(NULL);
   WNDCLASS  wc;

@@ -75,8 +75,7 @@ XInput21MTInputDevice::~XInput21MTInputDevice()
 void XInput21MTInputDevice::start()
 {
     Status status;
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
-            Player::get()->getDisplayEngine());
+    SDLDisplayEngine * pEngine = Player::get()->getDisplayEngine();
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
