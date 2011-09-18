@@ -21,12 +21,6 @@
 
 from libavg import avg
 
-def optionalCallback(handler, defaultHandler):
-    if handler:
-        return handler
-    else:
-        return defaultHandler
-
 class ScrollPane(avg.DivNode):
 
     def __init__(self, contentDiv, *args, **kwargs):
