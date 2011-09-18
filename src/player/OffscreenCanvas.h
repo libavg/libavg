@@ -40,7 +40,7 @@ class AVG_API OffscreenCanvas: public Canvas
         OffscreenCanvas(Player * pPlayer);
         virtual ~OffscreenCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine);
+        virtual void initPlayback();
         virtual void stopPlayback();
 
         virtual BitmapPtr screenshot() const;

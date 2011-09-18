@@ -39,7 +39,8 @@ using namespace std;
 namespace avg {
     
 MainCanvas::MainCanvas(Player * pPlayer)
-    : Canvas(pPlayer)
+    : Canvas(pPlayer),
+      m_pDisplayEngine(0)
 {
 }
 
@@ -58,24 +59,24 @@ void MainCanvas::setRoot(NodePtr pRootNode)
 
 void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine)
 {
-    Canvas::initPlayback(pDisplayEngine, 
-            GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
+    m_pDisplayEngine = pDisplayEngine;
+    Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
 }
 
 BitmapPtr MainCanvas::screenshot() const
 {
-    if (!getDisplayEngine()) {
+    if (!m_pDisplayEngine) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "MainCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
     }
-    return getDisplayEngine()->screenshot();
+    return m_pDisplayEngine->screenshot();
 }
 
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
 void MainCanvas::render()
 {
-    Canvas::render(getDisplayEngine()->getWindowSize(), false, FBOPtr(),
+    Canvas::render(m_pDisplayEngine->getWindowSize(), false, FBOPtr(),
             RootRenderProfilingZone);
 }
 

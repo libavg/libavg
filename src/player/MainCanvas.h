@@ -27,6 +27,8 @@
 
 namespace avg {
 
+class SDLDisplayEngine;
+
 class AVG_API MainCanvas: public Canvas
 {
     public:
@@ -39,6 +41,8 @@ class AVG_API MainCanvas: public Canvas
 
     private:
         virtual void render();
+
+        SDLDisplayEngine * m_pDisplayEngine;
 };
 
 }

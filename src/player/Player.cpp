@@ -494,7 +494,7 @@ void Player::initPlayback()
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-            m_pCanvases[i]->initPlayback(&*m_pDisplayEngine);
+            m_pCanvases[i]->initPlayback();
         }
         m_pMainCanvas->initPlayback(&*m_pDisplayEngine);
     } catch (Exception&) {
@@ -803,11 +803,9 @@ int Player::getKeyModifierState() const
 
 BitmapPtr Player::screenshot()
 {
-    if (!isPlaying()) {
     if (!m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
-    }
     }
     return m_pDisplayEngine->screenshot();
 }
@@ -1329,7 +1327,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(&*m_pDisplayEngine);
+            pCanvas->initPlayback();
         } catch (...) {
             m_pCanvases.pop_back();
             throw;

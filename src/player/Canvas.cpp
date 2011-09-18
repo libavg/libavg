@@ -23,7 +23,6 @@
 
 #include "Player.h"
 #include "AVGNode.h"
-#include "SDLDisplayEngine.h"
 #include "Shape.h"
 #include "OffscreenCanvas.h"
 
@@ -40,7 +39,7 @@ namespace avg {
 
 Canvas::Canvas(Player * pPlayer)
     : m_pPlayer(pPlayer),
-      m_pDisplayEngine(0),
+      m_bIsPlaying(false),
       m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
       m_PreRenderSignal(&IPreRenderListener::onPreRender),
@@ -61,21 +60,21 @@ void Canvas::setRoot(NodePtr pRootNode)
     registerNode(m_pRootNode);
 }
 
-void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, int multiSampleSamples)
+void Canvas::initPlayback(int multiSampleSamples)
 {
-    m_pDisplayEngine = pDisplayEngine;
+    m_bIsPlaying = true;
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
 }
 
 void Canvas::stopPlayback()
 {
-    if (m_pDisplayEngine) {
+    if (m_bIsPlaying) {
         m_PlaybackEndSignal.emit();
         m_pRootNode->disconnect(true);
         m_pRootNode = CanvasNodePtr();
         m_IDMap.clear();
-        m_pDisplayEngine = 0;
+        m_bIsPlaying = false;
     }
 }
 
@@ -228,11 +227,6 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
-SDLDisplayEngine* Canvas::getDisplayEngine() const
-{
-    return m_pDisplayEngine;
-}
-
 vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
 {
     vector<VisibleNodeWeakPtr> elements;
@@ -253,31 +247,31 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         pFBO->activate();
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: BindFramebuffer()");
     }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "SDLDisplayEngine::render: glEnable(GL_MULTISAMPLE)");
+                "Canvas::render: glEnable(GL_MULTISAMPLE)");
     } else {
         glDisable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "SDLDisplayEngine::render: glDisable(GL_MULTISAMPLE)");
+                "Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glViewport()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glMatrixMode()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
     glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glLoadIdentity()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
     IntPoint size = IntPoint(m_pRootNode->getSize());
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {
         gluOrtho2D(0, size.x, size.y, 0);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: gluOrtho2D()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
     
     const DRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);

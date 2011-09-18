@@ -44,8 +44,6 @@ class Node;
 class VisibleNode;
 class CanvasNode;
 class AudioEngine;
-class DisplayEngine;
-class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZoneID;
 class Canvas;
@@ -66,8 +64,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Canvas(Player * pPlayer);
         virtual ~Canvas();
         virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine) = 0;
-        void initPlayback(SDLDisplayEngine* pDisplayEngine, int multiSampleSamples);
+        void initPlayback(int multiSampleSamples);
         virtual void stopPlayback();
        
         CanvasNodePtr getRootNode() const;
@@ -96,7 +93,6 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
     protected:
         Player * getPlayer() const;
-        SDLDisplayEngine* getDisplayEngine() const;
         void render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
                 ProfilingZoneID& renderProfilingZone);
         void emitPreRenderSignal(); 
@@ -106,10 +102,11 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
     private:
         virtual void render()=0;
         void renderOutlines();
+
         void clip(VertexArrayPtr pVA, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
-        SDLDisplayEngine * m_pDisplayEngine;
+        bool m_bIsPlaying;
        
         typedef std::map<std::string, VisibleNodePtr> NodeIDMap;
         NodeIDMap m_IDMap;

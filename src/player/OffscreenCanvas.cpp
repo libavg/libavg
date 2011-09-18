@@ -21,7 +21,6 @@
 
 #include "OffscreenCanvas.h"
 
-#include "SDLDisplayEngine.h"
 #include "CanvasNode.h"
 #include "Player.h"
 
@@ -60,12 +59,12 @@ void OffscreenCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine)
+void OffscreenCanvas::initPlayback()
 {
     m_bUseMipmaps = getMipmap();
     m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
             m_bUseMipmaps));
-    Canvas::initPlayback(pDisplayEngine, getMultiSampleSamples());
+    Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
 }
 
