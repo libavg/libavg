@@ -86,8 +86,9 @@ class AVG_API AreaNode: public VisibleNode
         virtual DPoint getPivot() const;
         void setPivot(const DPoint& pt);
         
-        virtual DPoint toLocal(const DPoint& pos) const;
-        virtual DPoint toGlobal(const DPoint& pos) const;
+        virtual DPoint toLocal(const DPoint& globalPos) const;
+        virtual DPoint toGlobal(const DPoint& localPos) const;
+        
         virtual void getElementsByPos(const DPoint& pos, 
                 std::vector<VisibleNodeWeakPtr>& pElements);
 

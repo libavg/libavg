@@ -18,11 +18,16 @@
 # Current versions can be found at www.libavg.de
 #
 
+import utils
+
 class State:
     def __init__(self, transitions, enterFunc, leaveFunc):
-        self.transitions = transitions
-        self.enterFunc = enterFunc
-        self.leaveFunc = leaveFunc
+        self.transitions = {}
+        for destState, transfunc in transitions.items():
+            ref = utils.methodref(transfunc)
+            self.transitions[destState] = ref
+        self.enterFunc = utils.methodref(enterFunc)
+        self.leaveFunc = utils.methodref(leaveFunc)
 
 class StateMachine:
     def __init__(self, name, startState):
@@ -57,16 +62,16 @@ class StateMachine:
         assert(self.__curState in self.__states)
         state = self.__states[self.__curState]
         if newState in state.transitions:
-            if state.leaveFunc != None:
-                state.leaveFunc()
-            transitionFunc = state.transitions[newState]
+            if state.leaveFunc() != None:
+                state.leaveFunc()()
+            transitionFunc = state.transitions[newState]()
             if transitionFunc != None:
                 try:
                     transitionFunc(self.__curState, newState)
                 except TypeError:
                     transitionFunc()
             self.__curState = newState
-            enterFunc = self.__states[self.__curState].enterFunc
+            enterFunc = self.__states[self.__curState].enterFunc()
             if enterFunc != None:
                 enterFunc()
         else:
