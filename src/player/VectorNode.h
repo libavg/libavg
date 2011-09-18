@@ -33,8 +33,6 @@
 
 namespace avg {
 
-class DisplayEngine;
-
 struct WideLine;
 
 class AVG_API VectorNode : public VisibleNode

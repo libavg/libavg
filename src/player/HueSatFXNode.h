@@ -34,7 +34,6 @@
 using namespace std;
 
 namespace avg {
-class SDLDisplayEngine;
 
 class AVG_API HueSatFXNode : public FXNode {
 public:

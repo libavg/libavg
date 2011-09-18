@@ -24,7 +24,6 @@
 #include "NodeDefinition.h"
 #include "DivNode.h"
 #include "Player.h"
-#include "SDLDisplayEngine.h"
 #include "Arg.h"
 #include "Image.h"
 #include "Canvas.h"

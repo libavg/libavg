@@ -39,8 +39,6 @@
 namespace avg {
 
 class OGLSurface;
-
-class DisplayEngine;
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 

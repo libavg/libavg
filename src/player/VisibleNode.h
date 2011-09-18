@@ -47,8 +47,6 @@ class VisibleNode;
 class DivNode;
 class CanvasNode;
 class AVGNode;
-class DisplayEngine;
-class SDLDisplayEngine;
 class AudioEngine;
 class Image;
 class VertexArray;

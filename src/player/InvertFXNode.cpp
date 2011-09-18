@@ -25,7 +25,7 @@
 #include "../base/Logger.h"
 #include "../graphics/ShaderRegistry.h"
 
-#include<sstream>
+#include <sstream>
 
 using namespace std;
 

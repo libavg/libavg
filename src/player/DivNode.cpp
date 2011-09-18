@@ -20,7 +20,6 @@
 //
 
 #include "DivNode.h"
-#include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
 #include "Canvas.h"

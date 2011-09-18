@@ -34,8 +34,6 @@
 
 namespace avg {
     
-class SDLDisplayEngine;
-
 class AVG_API PanoImageNode: public AreaNode
 {
     public:

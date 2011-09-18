@@ -31,8 +31,6 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API ChromaKeyFXNode: public FXNode {
 public:
     ChromaKeyFXNode();
