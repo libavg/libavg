@@ -20,7 +20,7 @@
 #
 # Original author of this file is Henrik Thoms
 
-from libavg import avg, statemachine
+from libavg import avg, statemachine, utils
 import gesture
 from helper import *
 
@@ -41,11 +41,9 @@ class Button(avg.DivNode):
         self.__disabledNode = disabledNode
         self.__activeAreaNode = activeAreaNode
         
-        self.__defaultHandler = lambda event: None
-        self.__pressCallback = optionalCallback(pressHandler, self.__defaultHandler)
-        self.__clickCallback = optionalCallback(clickHandler, self.__defaultHandler)
-        self.__stateChangeCallback = optionalCallback(stateChangeHandler, 
-                lambda state: None)
+        self.__pressCallback = utils.methodref(pressHandler)
+        self.__clickCallback = utils.methodref(clickHandler)
+        self.__stateChangeCallback = utils.methodref(stateChangeHandler)
 
         self.__capturedCursorIds = set()
         self.__overCursorIds = set()
@@ -60,9 +58,9 @@ class Button(avg.DivNode):
             self.__setupNodes()
 
     def delete(self):
-        self.__pressCallback = self.__defaultHandler
-        self.__clickCallback = self.__defaultHandler
-        self.__stateChangeCallback = self.__defaultHandler
+        self.__pressCallback = None
+        self.__clickCallback = None
+        self.__stateChangeCallback = None
         self.__deactivateEventHandlers()
 
     def setEventHandler(self, type, source, func):
@@ -87,10 +85,10 @@ class Button(avg.DivNode):
         self.__setupNodes()
         
     def setPressHandler(self, handler):
-        self.__pressCallback = optionalCallback(handler, self.__defaultHandler)
+        self.__pressCallback = utils.methodref(handler)
         
     def setClickHandler(self, handler):
-        self.__clickCallback = optionalCallback(handler, self.__defaultHandler)
+        self.__clickCallback = utils.methodref(handler)
     
     def setCheckable(self, val):
         self.__isCheckable = val
@@ -166,7 +164,7 @@ class Button(avg.DivNode):
     def __changeState(self, state):
         self.__state = state
         self.__updateNodesVisibility()
-        self.__stateChangeCallback(state)
+        utils.callWeakRef(self.__stateChangeCallback, state)
     
     def __captureCursor(self, id):
         self.__capturedCursorIds.add(id)
@@ -194,7 +192,7 @@ class Button(avg.DivNode):
         
         if self.__getNumberOfCapturedCursors() <= 1:
             self.__changeState(Button.STATE_DOWN)
-            self.__pressCallback(event)
+            utils.callWeakRef(self.__pressCallback, event)
     
     def __releaseHandler(self, event):
         numberOfCapturedCursors = self.__getNumberOfCapturedCursors()
@@ -215,7 +213,7 @@ class Button(avg.DivNode):
                 
             self.__changeState(newState)
             
-            self.__clickCallback(event)
+            utils.callWeakRef(self.__clickCallback, event)
     
     def __overHandler(self, event):
         if event.cursorid not in self.__overCursorIds:
@@ -269,7 +267,7 @@ class TouchButton(avg.DivNode):
         self.__disabledNode = disabledNode
         self.__activeAreaNode = activeAreaNode
         
-        self.__clickHandler = optionalCallback(clickHandler, lambda:None)
+        self.__clickHandler = utils.methodref(clickHandler)
 
         self.__isOver = False
         self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
@@ -337,7 +335,7 @@ class TouchButton(avg.DivNode):
 
     def __onTap(self, event):
         self.__stateMachine.changeState("UP")
-        self.__clickHandler()
+        utils.callWeakRef(self.__clickHandler)
 
     def __onTapFail(self, event):
         self.__stateMachine.changeState("UP")

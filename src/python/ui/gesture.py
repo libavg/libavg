@@ -19,7 +19,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, statemachine
+from libavg import avg, statemachine, utils
 
 from helper import *
 
@@ -49,10 +49,10 @@ class Recognizer(object):
         self.__eventSource = eventSource
         self.__maxContacts = maxContacts
 
-        self.__possibleHandler = optionalCallback(possibleHandler, lambda event:None)
-        self.__failHandler = optionalCallback(failHandler, lambda event:None)
-        self.__detectedHandler = optionalCallback(detectedHandler, lambda event:None)
-        self.__endHandler = optionalCallback(endHandler, lambda event:None)
+        self.__possibleHandler = utils.methodref(possibleHandler)
+        self.__failHandler = utils.methodref(failHandler)
+        self.__detectedHandler = utils.methodref(detectedHandler)
+        self.__endHandler = utils.methodref(endHandler)
        
         self.__setEventHandler() 
         self.__isEnabled = True
@@ -88,24 +88,24 @@ class Recognizer(object):
 
     def _setPossible(self, event):
         self.__stateMachine.changeState("POSSIBLE")
-        self.__possibleHandler(event)
+        utils.callWeakRef(self.__possibleHandler, event)
 
     def _setFail(self, event):
         assert(self.__stateMachine.state == "POSSIBLE")
         self.__stateMachine.changeState("IDLE")
-        self.__failHandler(event)
+        utils.callWeakRef(self.__failHandler, event)
 
     def _setDetected(self, event):
         if self.__isContinuous:
             self.__stateMachine.changeState("RUNNING")
         else:
             self.__stateMachine.changeState("IDLE")
-        self.__detectedHandler(event)
+        utils.callWeakRef(self.__detectedHandler, event)
         
     def _setEnd(self, event):
         assert(self.__stateMachine.state == "RUNNING")
         self.__stateMachine.changeState("IDLE")
-        self.__endHandler(event)
+        utils.callWeakRef(self.__endHandler, event)
 
     def __onDown(self, event):
         if self.__maxContacts == None or len(self._contacts) < self.__maxContacts:
@@ -316,8 +316,8 @@ class DragRecognizer(Recognizer):
             self.__coordSysNode = coordSysNode
         else:
             self.__coordSysNode = eventNode
-        self.__moveHandler = optionalCallback(moveHandler, lambda event,offset:None)
-        self.__upHandler = optionalCallback(upHandler, lambda event,offset:None)
+        self.__moveHandler = utils.methodref(moveHandler)
+        self.__upHandler = utils.methodref(upHandler)
         self.__direction = direction
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self.__minDist = 0
@@ -355,12 +355,12 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             offset = pos - self.__dragStartPos
             if self.getState() == "RUNNING":
-                self.__moveHandler(event, offset)
+                utils.callWeakRef(self.__moveHandler, event, offset)
             else:
                 if offset.getNorm() > self.__minDist:
                     if self.__angleFits(offset):
                         self._setDetected(event)
-                        self.__moveHandler(event, offset)
+                        utils.callWeakRef(self.__moveHandler, event, offset)
                     else:
                         self._setFail(event)
                         self._abort()
@@ -374,7 +374,7 @@ class DragRecognizer(Recognizer):
             pos = self.__relEventPos(event)
             if self.getState() == "RUNNING":
                 self.__offset = pos - self.__dragStartPos
-                self.__upHandler(event, self.__offset)
+                utils.callWeakRef(self.__upHandler, event, self.__offset)
                 if self.__friction != -1:
                     self.__isSliding = True
                     self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -387,8 +387,7 @@ class DragRecognizer(Recognizer):
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
-        if self.__moveHandler:
-            self.__moveHandler(None, self.__offset)
+        utils.callWeakRef(self.__moveHandler, None, offset)
    
     def __onInertiaStop(self):
         self._setEnd(None)
@@ -575,8 +574,8 @@ class TransformRecognizer(Recognizer):
             self.__coordSysNode = coordSysNode
         else:
             self.__coordSysNode = eventNode
-        self.__moveHandler = optionalCallback(moveHandler, lambda transform:None)
-        self.__upHandler = optionalCallback(upHandler, lambda transform:None)
+        self.__moveHandler = utils.methodref(moveHandler)
+        self.__upHandler = utils.methodref(upHandler)
         self.__friction = friction
 
         self.__baseTransform = Mat3x3()
@@ -602,7 +601,7 @@ class TransformRecognizer(Recognizer):
         if numContacts == 0:
             contact = event.contact
             transform = Transform(self.__relContactPos(contact) - self.__lastPosns[0])
-            self.__upHandler(transform)
+            utils.callWeakRef(self.__upHandler, transform)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
                 self.__inertiaHandler.onUp()
@@ -620,7 +619,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(self.__relContactPos(contact) - self.__lastPosns[0])
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            self.__moveHandler(transform)
+            utils.callWeakRef(self.__moveHandler, transform)
             self.__lastPosns = [self.__relContactPos(contact)]
         else:
             contactPosns = [self.__relContactPos(contact)
@@ -649,7 +648,7 @@ class TransformRecognizer(Recognizer):
             transform = Transform(trans, rot, scale, pivot)
             if self.__friction != -1:
                 self.__inertiaHandler.onDrag(transform)
-            self.__moveHandler(transform)
+            utils.callWeakRef(self.__moveHandler, transform)
             self.__lastPosns = self.__posns
 
 
@@ -670,7 +669,7 @@ class TransformRecognizer(Recognizer):
                         i in range(2)]
 
     def __onInertiaMove(self, transform):
-        self.__moveHandler(transform)
+        utils.callWeakRef(self.__moveHandler, transform)
 
     def __onInertiaStop(self):
         self._setEnd(None)
