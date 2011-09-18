@@ -39,8 +39,7 @@ using namespace std;
 namespace avg {
     
 MainCanvas::MainCanvas(Player * pPlayer)
-    : Canvas(pPlayer),
-      m_pDisplayEngine(0)
+    : Canvas(pPlayer)
 {
 }
 
@@ -57,7 +56,7 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine)
+void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
     Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);

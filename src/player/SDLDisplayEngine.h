@@ -122,6 +122,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         double m_Gamma[3];
 };
 
+typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
+
 }
 
 #endif

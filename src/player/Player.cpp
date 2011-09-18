@@ -496,7 +496,7 @@ void Player::initPlayback()
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
             m_pCanvases[i]->initPlayback();
         }
-        m_pMainCanvas->initPlayback(&*m_pDisplayEngine);
+        m_pMainCanvas->initPlayback(m_pDisplayEngine);
     } catch (Exception&) {
         cleanup();
         throw;
