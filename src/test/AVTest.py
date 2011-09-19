@@ -508,7 +508,6 @@ class AVTestCase(AVGTestCase):
             savedVideoNode = avg.VideoNode(href="test.mov", threaded=False)
             savedVideoNode.pause()
             self.assert_(savedVideoNode.getVideoCodec() == "mjpeg")
-            print savedVideoNode.getNumFrames()
             self.assert_(savedVideoNode.getNumFrames() == numFrames)
             self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
 
