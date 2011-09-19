@@ -59,7 +59,7 @@ class RoundedRect(avg.PolygonNode):
     def __calcPolygon(self):
         def calcQuarterCircle(center, r, startAngle):
             pos = []
-            for i in xrange(r+1):
+            for i in xrange(int(r)+1):
                 angle = i*(1.57/r)+startAngle
                 p = avg.Point2D(center)+avg.Point2D.fromPolar(angle, r)
                 pos.append(p)
