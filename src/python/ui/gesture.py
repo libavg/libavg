@@ -83,7 +83,8 @@ class Recognizer(object):
             else:
                 if self._contacts != {}:
                     self._abort()
-                self._nodeRef().disconnectEventHandler(self)
+                if self._nodeRef():
+                    self._nodeRef().disconnectEventHandler(self)
 
     def getState(self):
         return self.__stateMachine.state
@@ -397,7 +398,10 @@ class DragRecognizer(Recognizer):
         self.__isSliding = False
 
     def __relEventPos(self, event):
-        return self.__coordSysNodeRef().getParent().getRelPos(event.pos)
+        if self.__coordSysNodeRef() != None:
+            return self.__coordSysNodeRef().getParent().getRelPos(event.pos)
+        else:
+            return avg.Point2D(0,0)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
@@ -678,7 +682,10 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
 
     def __relContactPos(self, contact):
-        return self.__coordSysNodeRef().getParent().getRelPos(contact.events[-1].pos)
+        if self.__coordSysNodeRef() != None:
+            return self.__coordSysNodeRef().getParent().getRelPos(contact.events[-1].pos)
+        else:
+            return avg.Point2D(0,0)
 
 
 class InertiaHandler():
