@@ -20,7 +20,7 @@
 //
 
 #include "VideoWriter.h"
-#include "Canvas.h"
+#include "OffscreenCanvas.h"
 #include "Player.h"
 
 #include <boost/bind.hpp>
@@ -121,7 +121,13 @@ void VideoWriter::onFrameEnd()
 
 void VideoWriter::handleFrame()
 {
-    BitmapPtr pBmp = m_pCanvas->screenshot();
+    OffscreenCanvas* pOffscreenCanvas = dynamic_cast<OffscreenCanvas*>(m_pCanvas);
+    BitmapPtr pBmp;
+    if (pOffscreenCanvas) {
+        pBmp = pOffscreenCanvas->screenshot(true);
+    } else {
+        pBmp = m_pCanvas->screenshot();
+    }
     addFrame(pBmp);
     m_bHasValidData = true;
 }

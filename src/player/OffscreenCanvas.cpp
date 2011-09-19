@@ -75,16 +75,25 @@ void OffscreenCanvas::stopPlayback()
     m_bIsRendered = false;
 }
 
+BitmapPtr OffscreenCanvas::screenshot() const
+{
+    return screenshot(false);
+}
+
 static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
 
-BitmapPtr OffscreenCanvas::screenshot() const
+BitmapPtr OffscreenCanvas::screenshot(bool bIgnoreAlpha) const
 {
     if (!isRunning() || !m_bIsRendered) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
     BitmapPtr pBmp = m_pFBO->getImage(0);
-    FilterUnmultiplyAlpha().applyInPlace(pBmp);
+    if (bIgnoreAlpha) {
+        pBmp->setPixelFormat(B8G8R8X8);
+    } else {
+        FilterUnmultiplyAlpha().applyInPlace(pBmp);
+    }
     return pBmp;
 }
 
