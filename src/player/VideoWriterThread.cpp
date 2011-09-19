@@ -22,6 +22,9 @@
 
 #include "VideoWriterThread.h"
 
+#include "../base/ProfilingZone.h"
+#include "../base/ScopeTimer.h"
+
 using namespace std;
 
 namespace avg {
@@ -31,7 +34,7 @@ const ::PixelFormat STREAM_PIXEL_FORMAT = ::PIX_FMT_YUVJ420P;
 
 VideoWriterThread::VideoWriterThread(CQueue& CmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
-    : WorkerThread<VideoWriterThread>(sFilename, CmdQueue),
+    : WorkerThread<VideoWriterThread>(sFilename, CmdQueue, Logger::PROFILE),
       m_sFilename(sFilename),
       m_Size(size),
       m_FrameRate(frameRate),
@@ -45,8 +48,11 @@ VideoWriterThread::~VideoWriterThread()
 {
 }
 
+static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame");
+
 void VideoWriterThread::encodeFrame(BitmapPtr pBmp)
 {
+    ScopeTimer timer(ProfilingZoneEncodeFrame);
     convertImage(pBmp);
     writeFrame(m_pConvertedFrame);
 }
@@ -134,12 +140,6 @@ void VideoWriterThread::open()
 
     m_pVideoBuffer = NULL;
     if (!(m_pOutputFormatContext->oformat->flags & AVFMT_RAWPICTURE)) {
-        /* allocate output buffer */
-        /* XXX: API change will be done */
-        /* buffers passed into lav* can be allocated any way you prefer,
-           as long as they're aligned enough for the architecture, and
-           they're freed appropriately (such as using av_free for buffers
-           allocated with av_malloc) */
         m_pVideoBuffer = (unsigned char*)(av_malloc(VIDEO_BUFFER_SIZE));
     }
 
@@ -153,8 +153,8 @@ void VideoWriterThread::open()
     }
 
     m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y, 
-            ::PIX_FMT_BGRA, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
-            SWS_BICUBIC, NULL, NULL, NULL);
+            ::PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
+            SWS_FAST_BILINEAR, NULL, NULL, NULL);
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
 
@@ -193,6 +193,7 @@ void VideoWriterThread::setupVideoStream()
     if (m_pOutputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
         pCodecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
     }
+    m_FramesWritten = 0;
 }
 
 void VideoWriterThread::openVideoCodec()
@@ -210,8 +211,7 @@ void VideoWriterThread::openVideoCodec()
     }
 }
 
-AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat,
-        IntPoint size)
+AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat, IntPoint size)
 {
     AVFrame* pPicture;
 
@@ -232,8 +232,11 @@ AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat,
     return pPicture;
 }
 
+static ProfilingZoneID ProfilingZoneConvertImage(" Convert image");
+
 void VideoWriterThread::convertImage(BitmapPtr pBitmap)
 {
+    ScopeTimer timer(ProfilingZoneConvertImage);
     unsigned char* rgbData[3] = {pBitmap->getPixels(), NULL, NULL};
     int rgbStride[3] = {pBitmap->getLineLen(), 0, 0};
 
@@ -241,8 +244,13 @@ void VideoWriterThread::convertImage(BitmapPtr pBitmap)
               0, m_Size.y, m_pConvertedFrame->data, m_pConvertedFrame->linesize);
 }
 
+static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame");
+
 void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {
+    ScopeTimer timer(ProfilingZoneWriteFrame);
+    m_FramesWritten++;
+    cerr << "Write: " << m_FramesWritten << endl;
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     int out_size = avcodec_encode_video(pCodecContext, m_pVideoBuffer,
             VIDEO_BUFFER_SIZE, pFrame);

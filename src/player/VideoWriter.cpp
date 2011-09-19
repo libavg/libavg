@@ -41,7 +41,8 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_QMax(qMax),
       m_bSyncToPlayback(bSyncToPlayback),
       m_bStopped(false),
-      m_CurFrame(0)
+      m_CurFrame(0),
+      m_StartTime(-1)
 {
     IntPoint size = m_pCanvas->getSize();
 #ifdef WIN32
@@ -66,7 +67,6 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
     m_pCanvas->registerPlaybackEndListener(this);
     m_pCanvas->registerFrameEndListener(this);
 
-    m_StartTime = Player::get()->getFrameTime();
 }
 
 VideoWriter::~VideoWriter()
@@ -112,6 +112,9 @@ int VideoWriter::getQMax() const
 
 void VideoWriter::onFrameEnd()
 {
+    if (m_StartTime == -1) {
+        m_StartTime = Player::get()->getFrameTime();
+    }
     if (m_bSyncToPlayback) {
         handleFrame();
     } else {
@@ -145,6 +148,7 @@ void VideoWriter::handleAutoSynchronizedFrame()
     int wantedFrame = int(movieTime/timePerFrame+0.1);
     if (wantedFrame > m_CurFrame) {
         handleFrame();
+        m_CurFrame = wantedFrame;
     }
 }
 

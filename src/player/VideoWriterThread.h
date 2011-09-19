@@ -76,6 +76,7 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         unsigned char* m_pVideoBuffer;
         int m_VideoBufferSize;
         PixelFormat m_StreamPixelFormat;
+        int m_FramesWritten;
 };
 
 }

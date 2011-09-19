@@ -48,14 +48,14 @@ using namespace std;
 
 namespace avg {
 
-static ProfilingZoneID ProfilingZoneCapture ("Capture");
-static ProfilingZoneID ProfilingZoneMask ("Mask");
-static ProfilingZoneID ProfilingZoneTracker ("Tracker");
-static ProfilingZoneID ProfilingZoneHistory ("History");
-static ProfilingZoneID ProfilingZoneDistort ("Distort");
-static ProfilingZoneID ProfilingZoneHistogram ("Histogram");
-static ProfilingZoneID ProfilingZoneDownscale ("Downscale");
-static ProfilingZoneID ProfilingZoneBandpass ("Bandpass");
+static ProfilingZoneID ProfilingZoneCapture("Capture");
+static ProfilingZoneID ProfilingZoneMask("Mask");
+static ProfilingZoneID ProfilingZoneTracker("Tracker");
+static ProfilingZoneID ProfilingZoneHistory("History");
+static ProfilingZoneID ProfilingZoneDistort("Distort");
+static ProfilingZoneID ProfilingZoneHistogram("Histogram");
+static ProfilingZoneID ProfilingZoneDownscale("Downscale");
+static ProfilingZoneID ProfilingZoneBandpass("Bandpass");
 static ProfilingZoneID ProfilingZoneComps("ConnectedComps");
 static ProfilingZoneID ProfilingZoneUpdate("Update");
 static ProfilingZoneID ProfilingZoneDraw("Draw");
