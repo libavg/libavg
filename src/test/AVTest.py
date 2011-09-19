@@ -498,10 +498,17 @@ class AVTestCase(AVGTestCase):
         def killWriter():
             self.videoWriter = None
 
+        def pauseWriter():
+            self.videoWriter.pause()
+
+        def playWriter():
+            self.videoWriter.play()
+
         def checkVideo(numFrames):
             savedVideoNode = avg.VideoNode(href="test.mov", threaded=False)
             savedVideoNode.pause()
             self.assert_(savedVideoNode.getVideoCodec() == "mjpeg")
+            print savedVideoNode.getNumFrames()
             self.assert_(savedVideoNode.getNumFrames() == numFrames)
             self.assert_(savedVideoNode.getStreamPixelFormat() == "yuvj420p")
 
@@ -519,21 +526,26 @@ class AVTestCase(AVGTestCase):
             self.start((
                  videoNode.play,
                  lambda: startWriter(30, True),
-                 None,
-                 None,
-                 None,
+                 lambda: self.delay(66),
                  stopWriter,
                  killWriter,
                  lambda: checkVideo(4),
                  testCreateException,
                  lambda: startWriter(15, False),
-                 None,
-                 None,
-                 None,
-                 None,
+                 lambda: self.delay(100),
                  stopWriter,
                  killWriter,
                  lambda: checkVideo(2),
+                 lambda: startWriter(30, False),
+                 pauseWriter,
+                 lambda: self.delay(200),
+                 playWriter,
+                 stopWriter,
+                 killWriter,
+                 lambda: checkVideo(1),
+                 lambda: startWriter(30, False),
+                 killWriter,
+                 lambda: checkVideo(1),
                 ))
             os.remove("test.mov")    
         else:

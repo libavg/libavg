@@ -45,6 +45,8 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
                 int frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
         virtual ~VideoWriter();
         void stop();
+        void pause();
+        void play();
 
         std::string getFileName() const;
         int getFramerate() const;
@@ -73,6 +75,10 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
         VideoWriterThread::CQueue m_CmdQueue;
         boost::thread* m_pThread;
         bool m_bSyncToPlayback;
+
+        bool m_bPaused;
+        long long m_PauseStartTime;
+        long long m_PauseTime;
 
         bool m_bStopped;
 

@@ -39,12 +39,15 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_FrameRate(frameRate),
       m_QMin(qMin),
       m_QMax(qMax),
+      m_bHasValidData(false),
       m_bSyncToPlayback(bSyncToPlayback),
+      m_bPaused(false),
+      m_PauseTime(0),
       m_bStopped(false),
       m_CurFrame(0),
       m_StartTime(-1)
 {
-    IntPoint size = m_pCanvas->getSize();
+    m_FrameSize = m_pCanvas->getSize();
 #ifdef WIN32
     int fd = _open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
 
@@ -62,7 +65,8 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
     close(fd);
 #endif
     remove(m_sOutFileName.c_str());
-    VideoWriterThread writer(m_CmdQueue, m_sOutFileName, size, m_FrameRate, qMin, qMax);
+    VideoWriterThread writer(m_CmdQueue, m_sOutFileName, m_FrameSize, m_FrameRate, 
+            qMin, qMax);
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);
     m_pCanvas->registerFrameEndListener(this);
@@ -90,6 +94,28 @@ void VideoWriter::stop()
     }
 }
 
+void VideoWriter::pause()
+{
+    if (m_bPaused) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "VideoWriter::pause() called when paused.");
+    }
+    if (m_bStopped) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "VideoWriter::pause() called when stopped.");
+    }
+    m_bPaused = true;
+    m_PauseStartTime = Player::get()->getFrameTime();
+}
+
+void VideoWriter::play()
+{
+    if (!m_bPaused) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "VideoWriter::play() called when not paused.");
+    }
+    m_bPaused = false;
+    m_PauseTime += (Player::get()->getFrameTime() - m_PauseStartTime);
+}
+
 std::string VideoWriter::getFileName() const
 {
     return m_sOutFileName;
@@ -115,10 +141,12 @@ void VideoWriter::onFrameEnd()
     if (m_StartTime == -1) {
         m_StartTime = Player::get()->getFrameTime();
     }
-    if (m_bSyncToPlayback) {
-        handleFrame();
-    } else {
-        handleAutoSynchronizedFrame();
+    if (!m_bPaused) {
+        if (m_bSyncToPlayback) {
+            handleFrame();
+        } else {
+            handleAutoSynchronizedFrame();
+        }
     }
 }
 
@@ -143,7 +171,7 @@ void VideoWriter::addFrame(BitmapPtr pBitmap)
 
 void VideoWriter::handleAutoSynchronizedFrame()
 {
-    long long movieTime = Player::get()->getFrameTime() - m_StartTime;
+    long long movieTime = Player::get()->getFrameTime() - m_StartTime - m_PauseTime;
     double timePerFrame = 1000./m_FrameRate;
     int wantedFrame = int(movieTime/timePerFrame+0.1);
     if (wantedFrame > m_CurFrame) {

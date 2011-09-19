@@ -250,7 +250,6 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {
     ScopeTimer timer(ProfilingZoneWriteFrame);
     m_FramesWritten++;
-    cerr << "Write: " << m_FramesWritten << endl;
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     int out_size = avcodec_encode_video(pCodecContext, m_pVideoBuffer,
             VIDEO_BUFFER_SIZE, pFrame);
