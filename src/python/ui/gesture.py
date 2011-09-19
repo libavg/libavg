@@ -25,6 +25,8 @@ from helper import *
 
 from math import *
 
+import weakref
+
 g_Player = avg.Player.get()
 
 MAX_TAP_DIST = 15 
@@ -44,7 +46,7 @@ class Recognizer(object):
     def __init__(self, node, isContinuous, eventSource, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
-        self._node = node
+        self._nodeRef = weakref.ref(node)
         self.__isContinuous = isContinuous
         self.__eventSource = eventSource
         self.__maxContacts = maxContacts
@@ -81,7 +83,7 @@ class Recognizer(object):
             else:
                 if self._contacts != {}:
                     self._abort()
-                self._node.disconnectEventHandler(self)
+                self._nodeRef().disconnectEventHandler(self)
 
     def getState(self):
         return self.__stateMachine.state
@@ -153,7 +155,7 @@ class Recognizer(object):
             self.__dirty = False
 
     def __setEventHandler(self):
-        self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
+        self._nodeRef().connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
                 self.__onDown)
 
 
@@ -313,9 +315,9 @@ class DragRecognizer(Recognizer):
             moveHandler=None, upHandler=None, endHandler=None):
 
         if coordSysNode != None:
-            self.__coordSysNode = coordSysNode
+            self.__coordSysNodeRef = weakref.ref(coordSysNode)
         else:
-            self.__coordSysNode = eventNode
+            self.__coordSysNodeRef = weakref.ref(eventNode)
         self.__moveHandler = utils.methodref(moveHandler)
         self.__upHandler = utils.methodref(upHandler)
         self.__direction = direction
@@ -395,7 +397,7 @@ class DragRecognizer(Recognizer):
         self.__isSliding = False
 
     def __relEventPos(self, event):
-        return self.__coordSysNode.getParent().getRelPos(event.pos)
+        return self.__coordSysNodeRef().getParent().getRelPos(event.pos)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
@@ -571,9 +573,9 @@ class TransformRecognizer(Recognizer):
             initialEvent=None, friction=-1, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
         if coordSysNode != None:
-            self.__coordSysNode = coordSysNode
+            self.__coordSysNodeRef = weakref.ref(coordSysNode)
         else:
-            self.__coordSysNode = eventNode
+            self.__coordSysNodeRef = weakref.ref(eventNode)
         self.__moveHandler = utils.methodref(moveHandler)
         self.__upHandler = utils.methodref(upHandler)
         self.__friction = friction
@@ -676,7 +678,7 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
 
     def __relContactPos(self, contact):
-        return self.__coordSysNode.getParent().getRelPos(contact.events[-1].pos)
+        return self.__coordSysNodeRef().getParent().getRelPos(contact.events[-1].pos)
 
 
 class InertiaHandler():
