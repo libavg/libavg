@@ -51,7 +51,8 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class AVG_API GLContext {
 public:
     GLContext(bool bUseCurrent=false, 
-            const GLConfig& GLConfig=GLConfig(false, true, true, 1));
+            const GLConfig& GLConfig=GLConfig(false, true, true, 1), 
+            GLContext* pSharedContext=0);
     virtual ~GLContext();
     void init();
 

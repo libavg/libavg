@@ -80,7 +80,8 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 }
 #endif
 
-GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
+GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig, 
+        GLContext* pSharedContext)
     : m_Context(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false),
@@ -88,6 +89,9 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
       m_bEnableGLColorArray(true),
       m_BlendMode(BLEND_ADD)
 {
+    if (bUseCurrent) {
+        AVG_ASSERT(!pSharedContext);
+    }
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
@@ -111,9 +115,20 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig)
         GLint               numPixelFormats;
 
         CGLPixelFormatAttribute attribs[] = {(CGLPixelFormatAttribute)NULL};
+        CGLContextObj cglSharedContext;
+        if (pSharedContext) {
+            cglSharedContext = pSharedContext->m_Context;
+            pixelFormatObj = CGLGetPixelFormat(cglSharedContext);
+        } else {
+            cglSharedContext = 0;
+            CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
+        }
 
-        CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats);
-        CGLCreateContext(pixelFormatObj, NULL, &m_Context);
+        CGLError err = CGLCreateContext(pixelFormatObj, cglSharedContext, &m_Context);
+        if (err) {
+            cerr << CGLErrorString(err) << endl;
+            AVG_ASSERT(false);
+        }
         CGLDestroyPixelFormat(pixelFormatObj);
 #elif defined(__linux__)
         m_pDisplay = XOpenDisplay(0);
