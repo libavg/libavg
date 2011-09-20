@@ -29,6 +29,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 
+#include <string.h>
 #include <sstream>
 #include <iomanip>
 
