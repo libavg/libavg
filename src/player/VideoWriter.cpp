@@ -210,7 +210,9 @@ void VideoWriter::handleAutoSynchronizedFrame()
     int wantedFrame = int(movieTime/timePerFrame+0.1);
     if (wantedFrame > m_CurFrame) {
         readFrameFromFBO();
-        m_CurFrame = wantedFrame;
+        if (wantedFrame > m_CurFrame + 1) {
+            m_CurFrame = wantedFrame - 1;
+        }
     }
 }
 
