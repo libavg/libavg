@@ -77,7 +77,7 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
     if (pMainCanvas != m_pCanvas) {
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
-        pMainCanvas->registerFrameEndListener(this);
+        m_pCanvas->registerPreRenderListener(this);
     }
 }
 
@@ -99,6 +99,9 @@ void VideoWriter::stop()
         
         m_pCanvas->unregisterFrameEndListener(this);
         m_pCanvas->unregisterPlaybackEndListener(this);
+        if (m_pFBO) {
+            m_pCanvas->unregisterPreRenderListener(this);
+        }
     }
 }
 
@@ -146,47 +149,57 @@ int VideoWriter::getQMax() const
 
 void VideoWriter::onFrameEnd()
 {
-    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
-    bool bWriteMainCanvas = pMainCanvas == m_pCanvas;
-    if (Canvas::getActive() != pMainCanvas || bWriteMainCanvas) {
-        if (m_StartTime == -1) {
-            m_StartTime = Player::get()->getFrameTime();
-        }
-        if (!m_bPaused) {
-            if (m_bSyncToPlayback) {
-                handleFrame();
-            } else {
-                handleAutoSynchronizedFrame();
-            }
+    // The VideoWriter handles OffscreenCanvas and MainCanvas differently:
+    // For MainCanvas, it simply does a screenshot onFrameEnd and sends that to the 
+    // VideoWriterThread immediately.
+    // For OffscreenCanvas, an asynchronous PBO readback is started in onFrameEnd.
+    // In the next frame's onPreRender, the data is read into a bitmap and sent to 
+    // the VideoWriterThread.
+    if (m_StartTime == -1) {
+        m_StartTime = Player::get()->getFrameTime();
+    }
+    if (!m_bPaused) {
+        if (m_bSyncToPlayback) {
+            readFrameFromFBO();
+        } else {
+            handleAutoSynchronizedFrame();
         }
     }
-    if (Canvas::getActive() == pMainCanvas || bWriteMainCanvas) {
-        if (m_bFramePending) {
-            BitmapPtr pBmp = m_pFBO->getImageFromPBO();
-            addFrame(pBmp);
-            m_bHasValidData = true;
-            m_bFramePending = false;
-        }
+    
+    if (!m_pFBO) {
+        getFrameFromPBO();
     }
 }
 
-void VideoWriter::handleFrame()
+void VideoWriter::onPreRender()
 {
-    OffscreenCanvasPtr pOffscreenCanvas = 
-            dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas);
+    getFrameFromPBO();
+}
+
+void VideoWriter::readFrameFromFBO()
+{
     if (m_pFBO) {
         m_pFBO->moveToPBO(0);
         m_bFramePending = true;
     } else {
         BitmapPtr pBmp = m_pCanvas->screenshot();
-        addFrame(pBmp);
-        m_bHasValidData = true;
+        sendFrame(pBmp);
     }
 }
 
-void VideoWriter::addFrame(BitmapPtr pBitmap)
+void VideoWriter::getFrameFromPBO()
+{
+    if (m_bFramePending) {
+        BitmapPtr pBmp = m_pFBO->getImageFromPBO();
+        sendFrame(pBmp);
+        m_bFramePending = false;
+    }
+}
+
+void VideoWriter::sendFrame(BitmapPtr pBitmap)
 {
     m_CurFrame++;
+    m_bHasValidData = true;
     m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
 }
 
@@ -196,7 +209,7 @@ void VideoWriter::handleAutoSynchronizedFrame()
     double timePerFrame = 1000./m_FrameRate;
     int wantedFrame = int(movieTime/timePerFrame+0.1);
     if (wantedFrame > m_CurFrame) {
-        handleFrame();
+        readFrameFromFBO();
         m_CurFrame = wantedFrame;
     }
 }
@@ -210,7 +223,7 @@ void VideoWriter::onPlaybackEnd()
 void VideoWriter::writeDummyFrame()
 {
     BitmapPtr pBmp = BitmapPtr(new Bitmap(m_FrameSize, B8G8R8X8));
-    addFrame(pBmp);
+    sendFrame(pBmp);
 }
 
 }

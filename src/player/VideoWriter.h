@@ -28,6 +28,7 @@
 
 #include "../base/IFrameEndListener.h"
 #include "../base/IPlaybackEndListener.h"
+#include "../base/IPreRenderListener.h"
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -42,7 +43,9 @@ typedef boost::shared_ptr<Canvas> CanvasPtr;
 class FBO;
 typedef boost::shared_ptr<FBO> FBOPtr;
 
-class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
+class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
+        IPlaybackEndListener  
+{
     public:
         VideoWriter(CanvasPtr pCanvas, const std::string& sOutFileName,
                 int frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
@@ -57,13 +60,15 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
         int getQMax() const;
 
         virtual void onFrameEnd();
+        virtual void onPreRender();
         virtual void onPlaybackEnd();
 
     private:
-        void handleFrame();
+        void readFrameFromFBO();
+        void getFrameFromPBO();
         void handleAutoSynchronizedFrame();
 
-        void addFrame(BitmapPtr pBitmap);
+        void sendFrame(BitmapPtr pBitmap);
         void writeDummyFrame();
 
         CanvasPtr m_pCanvas;
