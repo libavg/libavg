@@ -33,7 +33,6 @@
 
 #include "../base/Point.h"
 #include "../base/Queue.h"
-#include "../base/WorkerThread.h"
 
 #include <string>
 #define _WIN32_DCOM

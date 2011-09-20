@@ -197,6 +197,7 @@ bool TrackerThread::work()
             }
             calcBlobs(pCroppedBmp, pBmpBandpass, time);
         }
+        ThreadProfiler::get()->reset();
     }
     return true;
 }

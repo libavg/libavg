@@ -68,6 +68,7 @@ bool AudioDecoderThread::work()
             pVMsg->setEOF();
             m_MsgQ.push(pVMsg); 
         }
+        ThreadProfiler::get()->reset();
     }
     return true;
 }

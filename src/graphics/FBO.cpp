@@ -151,6 +151,8 @@ BitmapPtr FBO::getImage(int i) const
     glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf), 
             GLTexture::getGLType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
+
+    // To make this make sense, do something in between glReadPixels and MapBuffer.
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage MapBuffer()");
     Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels, 

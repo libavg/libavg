@@ -30,7 +30,6 @@
 #include "../graphics/Pixel24.h"
 
 #include "../base/Point.h"
-#include "../base/WorkerThread.h"
 
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>

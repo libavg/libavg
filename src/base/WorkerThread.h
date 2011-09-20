@@ -115,7 +115,6 @@ void WorkerThread<DERIVED_THREAD>::operator()()
             } else {
                 processCommands();
             }
-            pProfiler->reset();
         }
         deinit();
         pProfiler->dumpStatistics();

@@ -55,6 +55,7 @@ void VideoWriterThread::encodeFrame(BitmapPtr pBmp)
     ScopeTimer timer(ProfilingZoneEncodeFrame);
     convertImage(pBmp);
     writeFrame(m_pConvertedFrame);
+    ThreadProfiler::get()->reset();
 }
 
 void VideoWriterThread::close()

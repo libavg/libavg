@@ -104,6 +104,7 @@ bool VideoDecoderThread::work()
             m_MsgQ.push(pMsg);
             msleep(0);
         }
+        ThreadProfiler::get()->reset();
     }
     return true;
 }
