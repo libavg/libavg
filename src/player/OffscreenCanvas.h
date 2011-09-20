@@ -55,6 +55,7 @@ class AVG_API OffscreenCanvas: public Canvas
         std::string getID() const;
         bool isRunning() const;
         GLTexturePtr getTex() const;
+        FBOPtr getFBO() const;
 
         void registerCameraNode(CameraNode* pCameraNode);
         void unregisterCameraNode();

@@ -146,6 +146,12 @@ GLTexturePtr OffscreenCanvas::getTex() const
     return m_pFBO->getTex();
 }
 
+FBOPtr OffscreenCanvas::getFBO() const
+{
+    AVG_ASSERT(isRunning());
+    return m_pFBO;
+}
+
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
 {
     m_pCameraNodeRef = pCameraNode;

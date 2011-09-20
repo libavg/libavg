@@ -50,6 +50,8 @@ public:
 
     void copyToDestTexture() const;
     BitmapPtr getImage(int i=0) const;
+    void moveToPBO(int i=0) const;
+    BitmapPtr getImageFromPBO() const;
     GLTexturePtr getTex(int i=0) const;
     const IntPoint& getSize() const;
 

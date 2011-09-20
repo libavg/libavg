@@ -36,6 +36,8 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
+        
+CanvasPtr Canvas::s_pActiveCanvas;
 
 Canvas::Canvas(Player * pPlayer)
     : m_pPlayer(pPlayer),
@@ -136,6 +138,7 @@ static ProfilingZoneID RenderProfilingZone("Render");
 
 void Canvas::doFrame(bool bPythonAvailable)
 {
+    s_pActiveCanvas = shared_from_this();
     emitPreRenderSignal();
     if (!m_pPlayer->isStopping()) {
         ScopeTimer Timer(RenderProfilingZone);
@@ -153,6 +156,7 @@ void Canvas::doFrame(bool bPythonAvailable)
         }
     }
     emitFrameEndSignal();
+    s_pActiveCanvas = CanvasPtr();
 }
 
 IntPoint Canvas::getSize() const
@@ -220,6 +224,11 @@ bool Canvas::operator !=(const Canvas& other) const
 long Canvas::getHash() const
 {
     return long(this);
+}
+
+CanvasPtr Canvas::getActive()
+{
+    return s_pActiveCanvas;
 }
 
 Player* Canvas::getPlayer() const

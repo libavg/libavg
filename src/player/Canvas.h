@@ -58,6 +58,10 @@ typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
+class Canvas;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
+
 class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 {
     public:
@@ -91,6 +95,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         bool operator !=(const Canvas& other) const;
         long getHash() const;
 
+        static CanvasPtr getActive();
+
     protected:
         Player * getPlayer() const;
         void render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
@@ -117,10 +123,9 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 
         int m_MultiSampleSamples;
         int m_ClipLevel;
-};
 
-typedef boost::shared_ptr<Canvas> CanvasPtr;
-typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
+        static CanvasPtr s_pActiveCanvas;
+};
 
 }
 #endif

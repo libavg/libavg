@@ -38,10 +38,13 @@
 namespace avg {
 
 class Canvas;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
 
 class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
     public:
-        VideoWriter(Canvas* pCanvas, const std::string& sOutFileName,
+        VideoWriter(CanvasPtr pCanvas, const std::string& sOutFileName,
                 int frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
         virtual ~VideoWriter();
         void stop();
@@ -63,7 +66,8 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
         void addFrame(BitmapPtr pBitmap);
         void writeDummyFrame();
 
-        Canvas* m_pCanvas;
+        CanvasPtr m_pCanvas;
+        FBOPtr m_pFBO;
         std::string m_sOutFileName;
         int m_FrameRate;
         int m_QMin;
@@ -84,6 +88,7 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
 
         int m_CurFrame;
         long long m_StartTime;
+        bool m_bFramePending;
 };
 
 }

@@ -206,9 +206,9 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<VideoWriter, boost::shared_ptr<VideoWriter>, boost::noncopyable>
             ("VideoWriter", no_init)
-        .def(init<Canvas*, const std::string&, int, int, int, bool>())
-        .def(init<Canvas*, const std::string&, int, int, int>())
-        .def(init<Canvas*, const std::string&, int>())
+        .def(init<CanvasPtr, const std::string&, int, int, int, bool>())
+        .def(init<CanvasPtr, const std::string&, int, int, int>())
+        .def(init<CanvasPtr, const std::string&, int>())
         .def("stop", &VideoWriter::stop)
         .def("pause", &VideoWriter::pause)
         .def("play", &VideoWriter::play)

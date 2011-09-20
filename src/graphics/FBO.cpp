@@ -134,6 +134,12 @@ void FBO::copyToDestTexture() const
 BitmapPtr FBO::getImage(int i) const
 {
     copyToDestTexture();
+    moveToPBO(i);
+    return getImageFromPBO();
+}
+
+void FBO::moveToPBO(int i) const
+{
     if (m_MultisampleSamples != 1) {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
     } else {
@@ -141,7 +147,6 @@ BitmapPtr FBO::getImage(int i) const
     }
     PixelFormat pf = m_pOutputPBO->getPF();
     IntPoint size = m_pOutputPBO->getSize();
-    BitmapPtr pBmp(new Bitmap(size, pf));
 
     m_pOutputPBO->activate();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
@@ -151,8 +156,16 @@ BitmapPtr FBO::getImage(int i) const
     glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf), 
             GLTexture::getGLType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
-
-    // To make this make sense, do something in between glReadPixels and MapBuffer.
+    m_pOutputPBO->deactivate();
+}
+ 
+BitmapPtr FBO::getImageFromPBO() const
+{
+    m_pOutputPBO->activate();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
+    PixelFormat pf = m_pOutputPBO->getPF();
+    IntPoint size = m_pOutputPBO->getSize();
+    BitmapPtr pBmp(new Bitmap(size, pf));
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage MapBuffer()");
     Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels, 
@@ -161,7 +174,6 @@ BitmapPtr FBO::getImage(int i) const
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage: UnmapBuffer()");
     m_pOutputPBO->deactivate();
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     return pBmp;
 }
 

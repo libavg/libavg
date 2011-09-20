@@ -23,16 +23,19 @@
 #include "OffscreenCanvas.h"
 #include "Player.h"
 
+#include "../graphics/FBO.h"
+
 #include <boost/bind.hpp>
 
 #include <fcntl.h>
 #include <stdio.h>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
-VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameRate,
+VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int frameRate,
         int qMin, int qMax, bool bSyncToPlayback)
     : m_pCanvas(pCanvas),
       m_sOutFileName(sOutFileName),
@@ -45,7 +48,8 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
       m_PauseTime(0),
       m_bStopped(false),
       m_CurFrame(0),
-      m_StartTime(-1)
+      m_StartTime(-1),
+      m_bFramePending(false)
 {
     m_FrameSize = m_pCanvas->getSize();
 #ifdef WIN32
@@ -70,7 +74,11 @@ VideoWriter::VideoWriter(Canvas* pCanvas, const string& sOutFileName, int frameR
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);
     m_pCanvas->registerFrameEndListener(this);
-
+    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
+    if (pMainCanvas != m_pCanvas) {
+        m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
+        pMainCanvas->registerFrameEndListener(this);
+    }
 }
 
 VideoWriter::~VideoWriter()
@@ -138,29 +146,42 @@ int VideoWriter::getQMax() const
 
 void VideoWriter::onFrameEnd()
 {
-    if (m_StartTime == -1) {
-        m_StartTime = Player::get()->getFrameTime();
+    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
+    bool bWriteMainCanvas = pMainCanvas == m_pCanvas;
+    if (Canvas::getActive() != pMainCanvas || bWriteMainCanvas) {
+        if (m_StartTime == -1) {
+            m_StartTime = Player::get()->getFrameTime();
+        }
+        if (!m_bPaused) {
+            if (m_bSyncToPlayback) {
+                handleFrame();
+            } else {
+                handleAutoSynchronizedFrame();
+            }
+        }
     }
-    if (!m_bPaused) {
-        if (m_bSyncToPlayback) {
-            handleFrame();
-        } else {
-            handleAutoSynchronizedFrame();
+    if (Canvas::getActive() == pMainCanvas || bWriteMainCanvas) {
+        if (m_bFramePending) {
+            BitmapPtr pBmp = m_pFBO->getImageFromPBO();
+            addFrame(pBmp);
+            m_bHasValidData = true;
+            m_bFramePending = false;
         }
     }
 }
 
 void VideoWriter::handleFrame()
 {
-    OffscreenCanvas* pOffscreenCanvas = dynamic_cast<OffscreenCanvas*>(m_pCanvas);
-    BitmapPtr pBmp;
-    if (pOffscreenCanvas) {
-        pBmp = pOffscreenCanvas->screenshot(true);
+    OffscreenCanvasPtr pOffscreenCanvas = 
+            dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas);
+    if (m_pFBO) {
+        m_pFBO->moveToPBO(0);
+        m_bFramePending = true;
     } else {
-        pBmp = m_pCanvas->screenshot();
+        BitmapPtr pBmp = m_pCanvas->screenshot();
+        addFrame(pBmp);
+        m_bHasValidData = true;
     }
-    addFrame(pBmp);
-    m_bHasValidData = true;
 }
 
 void VideoWriter::addFrame(BitmapPtr pBitmap)
