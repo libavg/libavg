@@ -259,6 +259,14 @@ Point<double> Point<double>::safeGetNormalized() const
     }
 }
 
+template<>
+Point<int> Point<int>::safeGetNormalized() const
+{
+    // Not implemented - done to silence compiler warnings.
+    AVG_ASSERT(false);
+    return Point<int>(0,0);
+}
+
 template<class NUM>
 std::ostream& operator<<( std::ostream& os, const Point<NUM> &p)
 {
