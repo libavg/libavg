@@ -74,14 +74,14 @@ UTF8String SVGElement::unescapeID(RsvgHandle* pRSVG, const UTF8String& sFilename
         // duplicates are removed, the suffixes remain :-(.
         // We handle two cases here: 
         // 1) If there is only one version with a suffix, we take that version.
-        // 2) If there are duplicate IDs, we throw an error.
+        // 2) If there are duplicate IDs, we warn.
         sPossibleIDs.push_back(sResult);
-        for (int i=1; i<10; ++i) {
+        for (int i=1; i<30; ++i) {
             string sTempID = sResult + "_" + toString(i) + "_";
             sPossibleIDs.push_back(sTempID);
         }
         int numFound = 0;
-        for (int i=0; i<10; ++i) {
+        for (int i=0; i<30; ++i) {
             string sTempID = sPossibleIDs[i];
             if (rsvg_handle_has_sub(pRSVG, sTempID.c_str())) {
                 sResult = sTempID;
