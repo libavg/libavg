@@ -81,7 +81,8 @@ class Recognizer(object):
             else:
                 if self._contacts != {}:
                     self._abort()
-                self._node.disconnectEventHandler(self)
+                if self._node:
+                    self._node.disconnectEventHandler(self)
 
     def getState(self):
         return self.__stateMachine.state
@@ -153,8 +154,9 @@ class Recognizer(object):
             self.__dirty = False
 
     def __setEventHandler(self):
-        self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
-                self.__onDown)
+        if self._node:
+            self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
+                    self.__onDown)
 
 
 class TapRecognizer(Recognizer):
@@ -267,9 +269,9 @@ class HoldRecognizer(Recognizer):
 
         self.__maxDistance = (
                 MAX_TAP_DIST*g_Player.getPixelsPerMM())
+        self.__lastEvent = None
         Recognizer.__init__(self, node, True, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, stopHandler)
-        self.__lastEvent = None
 
     def _handleDown(self, event):
         self.__lastEvent = event
