@@ -230,12 +230,15 @@ int VideoNode::getNumAudioChannels() const
 
 long long VideoNode::getCurTime() const
 {
-    exceptionIfUnloaded("getCurTime");
-    long long curTime = (long long)(m_pDecoder->getCurTime()*1000);
-    if (curTime > 0) {
-        return curTime;
-    } else {
+    if (m_VideoState == Unloaded) {
         return 0;
+    } else {
+        long long curTime = (long long)(m_pDecoder->getCurTime()*1000);
+        if (curTime > 0) {
+            return curTime;
+        } else {
+            return 0;
+        }
     }
 }
 
