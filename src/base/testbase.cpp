@@ -396,6 +396,8 @@ public:
         TEST(!tri.isInside(DPoint(2,1)));
         TEST(!tri.isInside(DPoint(-2,5)));
         TEST(!tri.isInside(DPoint(5,5)));
+        tri = Triangle(DPoint(0,0), DPoint(4,8), DPoint(4,4));
+        TEST(tri.isInside(DPoint(3,4)));
 
         DPoint polyArray[] = {DPoint(0,0), DPoint(8,2), DPoint(9,0), DPoint(9,3), 
                 DPoint(1,1), DPoint(0,3)}; 
