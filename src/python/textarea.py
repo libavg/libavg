@@ -68,7 +68,6 @@ CURSOR_FLASH_AFTER_INACTIVITY = 200
 DEFAULT_BLUR_OPACITY = 0.3
 
 import time
-import platform
 
 from libavg import avg
 from avg import Point2D
@@ -492,19 +491,18 @@ class TextArea:
         if len(self.__data) > 0:
             maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
-
-            # don't wrap when TextArea is not multiline
             if (not self.__isMultiline and
-                lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
+                 lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
                 return
-        
-            # don't flee from borders in a multiline textarea
-            if (self.__isMultiline and
-                lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2 and
-                lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
-                return
-                
-        
+       
+            if  (self.__isMultiline and 
+                    lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
+                if (lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
+                    return
+                if (ord(uchar) == 10 and
+                    lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
+                    return
+
         self.__data.insert(self.__cursorPosition, uchar)
         self.__cursorPosition += 1
         self.__update()
