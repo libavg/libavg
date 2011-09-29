@@ -149,49 +149,49 @@ void DivNode::insertChildAfter(NodePtr pNewNode, NodePtr pOldChild)
     insertChild(pNewNode, i+1);
 }
 
-void DivNode::insertChild(NodePtr pNode, unsigned i)
+void DivNode::insertChild(NodePtr pChild, unsigned i)
 {
-    if (!pNode) {
+    if (!pChild) {
         throw Exception(AVG_ERR_NO_NODE,
                 getID()+"::insertChild called without a node.");
     }
-    if (pNode->getState() == NS_CONNECTED || pNode->getState() == NS_CANRENDER) {
+    if (pChild->getState() == NS_CONNECTED || pChild->getState() == NS_CANRENDER) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
-                "Can't connect node with id "+pNode->getID()+
+                "Can't connect node with id "+pChild->getID()+
                 ": already connected."));
     }
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
-        getCanvas()->registerNode(pNode);
+        getCanvas()->registerNode(pChild);
     }
     DivNodePtr ptr = dynamic_pointer_cast<DivNode>(getThis());
-    pNode->checkSetParentError(ptr); 
-    if (!isChildTypeAllowed(pNode->getTypeStr())) {
+    pChild->checkSetParentError(ptr); 
+    if (!isChildTypeAllowed(pChild->getTypeStr())) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
-                "Can't insert a node of type "+pNode->getTypeStr()+
+                "Can't insert a node of type "+pChild->getTypeStr()+
                 " into a node of type "+getTypeStr()+"."));
     }
     if (i > m_Children.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                pNode->getID()+"::insertChild: index out of bounds."));
+                pChild->getID()+"::insertChild: index out of bounds."));
     }
     std::vector<NodePtr>::iterator pos = m_Children.begin()+i;
-    m_Children.insert(pos, pNode);
-    pNode->setParent(ptr, getState(), getCanvas());
+    m_Children.insert(pos, pChild);
+    pChild->setParent(ptr, getState(), getCanvas());
     if (getState() == NS_CANRENDER) {
-        pNode->connectDisplay();
+        pChild->connectDisplay();
     }
 }
 
-void DivNode::reorderChild(NodePtr pNode, unsigned j)
+void DivNode::reorderChild(NodePtr pChild, unsigned j)
 {
     if (j > m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
     }
-    int i = indexOf(pNode);
+    int i = indexOf(pChild);
     m_Children.erase(m_Children.begin()+i);
     std::vector<NodePtr>::iterator pos = m_Children.begin()+j;
-    m_Children.insert(pos, pNode);
+    m_Children.insert(pos, pChild);
 }
 
 void DivNode::reorderChild(unsigned i, unsigned j)
@@ -200,10 +200,10 @@ void DivNode::reorderChild(unsigned i, unsigned j)
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::reorderChild: index out of bounds."));
     }
-    NodePtr pNode = getChild(i);
+    NodePtr pChild = getChild(i);
     m_Children.erase(m_Children.begin()+i);
     std::vector<NodePtr>::iterator pos = m_Children.begin()+j;
-    m_Children.insert(pos, pNode);
+    m_Children.insert(pos, pChild);
 }
 
 unsigned DivNode::indexOf(NodePtr pChild)
@@ -222,9 +222,9 @@ unsigned DivNode::indexOf(NodePtr pChild)
             +getID()+"'"));
 }
 
-void DivNode::removeChild(NodePtr pNode)
+void DivNode::removeChild(NodePtr pChild)
 {
-    removeChild(pNode, false);
+    removeChild(pChild, false);
 }
 
 void DivNode::removeChild(unsigned i)
@@ -232,13 +232,13 @@ void DivNode::removeChild(unsigned i)
     removeChild(i, false);
 }
 
-void DivNode::removeChild(NodePtr pNode, bool bKill)
+void DivNode::removeChild(NodePtr pChild, bool bKill)
 {
-    pNode->removeParent();
-    if (pNode->getState() != NS_UNCONNECTED) {
-        pNode->disconnect(bKill);
+    pChild->removeParent();
+    if (pChild->getState() != NS_UNCONNECTED) {
+        pChild->disconnect(bKill);
     }
-    unsigned i = indexOf(pNode);
+    unsigned i = indexOf(pChild);
     if (i > m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::removeChild: index "+toString(i)+" out of bounds."));
@@ -248,8 +248,8 @@ void DivNode::removeChild(NodePtr pNode, bool bKill)
 
 void DivNode::removeChild(unsigned i, bool bKill)
 {
-    NodePtr pNode = getChild(i);
-    removeChild(pNode, bKill);
+    NodePtr pChild = getChild(i);
+    removeChild(pChild, bKill);
 }
 
 bool DivNode::getCrop() const
