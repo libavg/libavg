@@ -49,8 +49,7 @@ class AVG_API CircleNode : public FilledVectorNode
         double getTexCoord2() const;
         void setTexCoord2(double tc);
 
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 

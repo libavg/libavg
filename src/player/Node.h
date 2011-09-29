@@ -23,13 +23,25 @@
 #define _Node_H_
 
 #include "../api.h"
-#include "../graphics/VertexArray.h"
+
+#include "Event.h"
+#include "Image.h"
+
+#include "../base/Rect.h"
+#include "../graphics/Pixel32.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
 #include <string>
 #include <vector>
+
+// Python docs say python.h should be included before any standard headers (!)
+#include "WrapPython.h" 
+
+#include <string>
+#include <list>
+#include <map>
 
 namespace avg {
 
@@ -42,28 +54,90 @@ typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 class ArgList;
 class NodeDefinition;
 
+class CanvasNode;
+typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
+typedef boost::weak_ptr<CanvasNode> CanvasNodeWeakPtr;
+class AVGNode;
+typedef boost::shared_ptr<AVGNode> AVGNodePtr;
+typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
+class Image;
+typedef boost::shared_ptr<Image> ImagePtr;
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+class Canvas;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
 class AVG_API Node
 {
     public:
+        enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
+        
+        static NodeDefinition createDefinition();
         template<class NodeType>
         static NodePtr buildNode(const ArgList& Args)
         {
             return NodePtr(new NodeType(Args));
         }
-        static NodeDefinition createDefinition();
-        
-        virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
-        virtual void setArgs(const ArgList& Args) {};
-
+        
+        virtual ~Node();
+        virtual void setArgs(const ArgList& args);
+        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState,
+                CanvasPtr pCanvas);
+        virtual void removeParent();
         void checkSetParentError(DivNodeWeakPtr pParent);
-        virtual void setParent(DivNodeWeakPtr pParent);
         DivNodePtr getParent() const;
+        std::vector<NodeWeakPtr> getParentChain() const;
+
+        virtual void connectDisplay();
+        virtual void connect(CanvasPtr pCanvas);
+        virtual void disconnect(bool bKill);
+        void unlink(bool bKill=false);
+
+        virtual void checkReload() {};
+
+        virtual void setID(const std::string& ID);
+
+        double getOpacity() const;
+        void setOpacity(double opacity);
+        
+        bool getActive() const;
+        void setActive(bool bActive);
+        
+        bool getSensitive() const;
+        void setSensitive(bool bSensitive);
+
+        void setMouseEventCapture();
+        void releaseMouseEventCapture();
+        void setEventCapture(int cursorID);
+        void releaseEventCapture(int cursorID);
+        void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
+        void connectEventHandler(Event::Type type, int sources, 
+                PyObject * pObj, PyObject * pFunc);
+        void disconnectEventHandler(PyObject * pObj, PyObject * pFunc=0);
+
+        DPoint getRelPos(const DPoint& absPos) const;
+        DPoint getAbsPos(const DPoint& relPos) const;
+        virtual DPoint toLocal(const DPoint& pos) const;
+        virtual DPoint toGlobal(const DPoint& pos) const;
+        NodePtr getElementByPos(const DPoint& pos);
+        virtual void getElementsByPos(const DPoint& pos, 
+                std::vector<NodeWeakPtr>& pElements);
+
+        virtual void preRender();
+        virtual void maybeRender(const DRect& Rect) {};
+        virtual void render(const DRect& Rect) {};
+
+        double getEffectiveOpacity() const;
+        virtual std::string dump(int indent = 0);
+        
+        NodeState getState() const;
+        CanvasPtr getCanvas() const;
+
+        virtual bool handleEvent(EventPtr pEvent); 
 
         virtual const std::string& getID() const;
-        virtual void setID(const std::string& id);
-
         std::string getTypeStr() const;
         
         bool operator ==(const Node& other) const;
@@ -71,14 +145,24 @@ class AVG_API Node
         long getHash() const;
 
         virtual const NodeDefinition* getDefinition() const;
-        virtual std::string dump(int indent = 0) = 0;
 
-        virtual void preRender() = 0;
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
 
     protected:
         Node();
         NodePtr getThis() const;
+
+        void addArgEventHandlers(Event::Type eventType, const std::string& sCode);
+        void addArgEventHandler(Event::Type eventType, Event::Source source, 
+                const std::string& sCode);
+        bool reactsToMouseEvents();
+            
+        void setState(NodeState state);
+        void initFilename(std::string& sFilename);
+        void checkReload(const std::string& sHRef, const ImagePtr& pImage,
+                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+        virtual bool isVisible() const;
+        bool getEffectiveActive() const;
 
     private:
         NodeWeakPtr m_This;
@@ -86,6 +170,44 @@ class AVG_API Node
         const NodeDefinition* m_pDefinition;
 
         DivNodeWeakPtr m_pParent;
+
+        struct EventID {
+            EventID(Event::Type eventType, Event::Source source);
+
+            bool operator < (const EventID& other) const;
+
+            Event::Type m_Type;
+            Event::Source m_Source;
+        };
+
+        struct EventHandler {
+            EventHandler(PyObject * pObj, PyObject * pMethod);
+            EventHandler(const EventHandler& other);
+            ~EventHandler();
+
+            PyObject * m_pObj;
+            PyObject * m_pMethod;
+        };
+
+        typedef std::list<EventHandler> EventHandlerArray;
+        typedef boost::shared_ptr<EventHandlerArray> EventHandlerArrayPtr;
+        typedef std::map<EventID, EventHandlerArrayPtr> EventHandlerMap;
+
+        void connectOneEventHandler(const EventID& id, PyObject * pObj, PyObject * pFunc);
+        void dumpEventHandlers();
+        PyObject * findPythonFunc(const std::string& sCode);
+        bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
+
+        EventHandlerMap m_EventHandlerMap;
+
+        CanvasWeakPtr m_pCanvas;
+
+        double m_Opacity;
+        NodeState m_State;
+
+        bool m_bActive;
+        bool m_bSensitive;
+        double m_EffectiveOpacity;
 };
 
 }

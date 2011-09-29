@@ -27,7 +27,6 @@
 #include "../player/WrapPython.h" 
 
 #include "AttrAnim.h"
-#include "../player/VisibleNode.h"
 
 #include <boost/python.hpp>
 

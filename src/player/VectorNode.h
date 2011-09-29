@@ -23,7 +23,7 @@
 #define _VectorNode_H_
 
 #include "../api.h"
-#include "VisibleNode.h"
+#include "Node.h"
 #include "Shape.h"
 
 #include "../base/UTF8String.h"
@@ -35,7 +35,7 @@ namespace avg {
 
 struct WideLine;
 
-class AVG_API VectorNode : public VisibleNode
+class AVG_API VectorNode : public Node
 {
     public:
         enum LineJoin {LJ_MITER, LJ_BEVEL};

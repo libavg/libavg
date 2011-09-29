@@ -29,26 +29,24 @@
 
 namespace avg {
 
-class VisibleNode;
-typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
+class Node;
+typedef boost::weak_ptr<Node> NodeWeakPtr;
 class CursorEvent;
 typedef boost::shared_ptr<CursorEvent> CursorEventPtr;
 
 class AVG_API CursorState {
 public:
-    CursorState(const CursorEventPtr pEvent, 
-            const std::vector<VisibleNodeWeakPtr>& pNodes);
+    CursorState(const CursorEventPtr pEvent, const std::vector<NodeWeakPtr>& pNodes);
     ~CursorState();
 
-    void setInfo(const CursorEventPtr pEvent, 
-            const std::vector<VisibleNodeWeakPtr>& pNodes);
-    const std::vector<VisibleNodeWeakPtr>& getNodes() const;
+    void setInfo(const CursorEventPtr pEvent, const std::vector<NodeWeakPtr>& pNodes);
+    const std::vector<NodeWeakPtr>& getNodes() const;
     CursorEventPtr getLastEvent() const;
 
 private:
     CursorState(const CursorState&);
 
-    std::vector<VisibleNodeWeakPtr> m_pNodes;
+    std::vector<NodeWeakPtr> m_pNodes;
     CursorEventPtr m_pLastEvent;
 };
 

@@ -26,7 +26,7 @@
 #include "../api.h"
 #include "WrapPython.h" 
 
-#include "VisibleNode.h"
+#include "Node.h"
 #include "RasterNode.h"
 
 #include "../base/Point.h"

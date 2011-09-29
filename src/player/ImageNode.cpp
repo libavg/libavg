@@ -43,7 +43,7 @@ namespace avg {
 
 NodeDefinition ImageNode::createDefinition()
 {
-    return NodeDefinition("image", VisibleNode::buildNode<ImageNode>)
+    return NodeDefinition("image", Node::buildNode<ImageNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))
         .addArg(Arg<string>("compression", "none"));
@@ -108,7 +108,7 @@ const UTF8String& ImageNode::getHRef() const
 void ImageNode::setHRef(const UTF8String& href)
 {
     m_href = href;
-    if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
+    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER)
     {
         m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
@@ -132,12 +132,12 @@ const string ImageNode::getCompression() const
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
 {
-    if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
+    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER)
     {
         m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
     m_pImage->setBitmap(pBmp, m_Compression);
-    if (getState() == VisibleNode::NS_CANRENDER) {
+    if (getState() == Node::NS_CANRENDER) {
         bind();
     }
     m_href = "";
@@ -146,7 +146,7 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
 
 void ImageNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     if (isVisible()) {
         renderFX(getSize(), Pixel32(255, 255, 255, 255), bool(m_pImage->getCanvas()));
     }
@@ -181,14 +181,13 @@ void ImageNode::checkReload()
             pCanvas->addDependentCanvas(getCanvas());
         }
     } else {
-        VisibleNode::checkReload(m_href, m_pImage, m_Compression);
+        Node::checkReload(m_href, m_pImage, m_Compression);
     }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }
 
-void ImageNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void ImageNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents()) {
         OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();

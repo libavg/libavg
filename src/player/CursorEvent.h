@@ -43,9 +43,9 @@ class AVG_API Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
 typedef boost::weak_ptr<class Contact> ContactWeakPtr;
 
-class VisibleNode;
-typedef boost::shared_ptr<class VisibleNode> VisibleNodePtr;
-typedef boost::weak_ptr<class VisibleNode> VisibleNodeWeakPtr;
+class Node;
+typedef boost::shared_ptr<class Node> NodePtr;
+typedef boost::weak_ptr<class Node> NodeWeakPtr;
 
 class AVG_API CursorEvent: public Event 
 {
@@ -60,8 +60,8 @@ class AVG_API CursorEvent: public Event
         int getYPosition() const;
         void setCursorID(int id);
         int getCursorID() const;
-        void setNode(VisibleNodePtr pNode);
-        VisibleNodePtr getNode() const;
+        void setNode(NodePtr pNode);
+        NodePtr getNode() const;
         void setSpeed(DPoint speed);
         virtual const DPoint& getSpeed() const;
 
@@ -76,7 +76,7 @@ class AVG_API CursorEvent: public Event
         IntPoint m_Position;
         int m_ID;
         ContactWeakPtr m_pContact;
-        VisibleNodeWeakPtr m_pNode;
+        NodeWeakPtr m_pNode;
         DPoint m_Speed;
 };
 

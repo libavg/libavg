@@ -28,8 +28,6 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "../player/WrapPython.h" 
 
-#include "../player/VisibleNode.h"
-
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>

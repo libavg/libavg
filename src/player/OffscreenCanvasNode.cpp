@@ -32,7 +32,7 @@ namespace avg {
 
 NodeDefinition OffscreenCanvasNode::createDefinition()
 {
-    return NodeDefinition("canvas", VisibleNode::buildNode<OffscreenCanvasNode>)
+    return NodeDefinition("canvas", Node::buildNode<OffscreenCanvasNode>)
         .extendDefinition(CanvasNode::createDefinition())
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenCanvasNode, m_bHandleEvents)))

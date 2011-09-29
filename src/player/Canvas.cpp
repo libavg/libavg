@@ -57,7 +57,7 @@ void Canvas::setRoot(NodePtr pRootNode)
 {
     assert(!m_pRootNode);
     m_pRootNode = dynamic_pointer_cast<CanvasNode>(pRootNode);
-    m_pRootNode->setParent(DivNodeWeakPtr(), VisibleNode::NS_CONNECTED,
+    m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED,
             shared_from_this());
     registerNode(m_pRootNode);
 }
@@ -80,28 +80,28 @@ void Canvas::stopPlayback()
     }
 }
 
-VisibleNodePtr Canvas::getElementByID(const std::string& id)
+NodePtr Canvas::getElementByID(const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
     } else {
         AVG_TRACE(Logger::WARNING, "getElementByID(\"" << id << "\") failed.");
-        return VisibleNodePtr();
+        return NodePtr();
     }
 }
 
-void Canvas::registerNode(VisibleNodePtr pNode)
+void Canvas::registerNode(NodePtr pNode)
 {
     addNodeID(pNode);    
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (pDivNode) {
         for (unsigned i=0; i<pDivNode->getNumChildren(); i++) {
-            registerNode(pDivNode->getVChild(i));
+            registerNode(pDivNode->getChild(i));
         }
     }
 }
 
-void Canvas::addNodeID(VisibleNodePtr pNode)
+void Canvas::addNodeID(NodePtr pNode)
 {
     const string& id = pNode->getID();
     if (id != "") {
@@ -118,7 +118,7 @@ void Canvas::addNodeID(VisibleNodePtr pNode)
 void Canvas::removeNodeID(const string& id)
 {
     if (id != "") {
-        map<string, VisibleNodePtr>::iterator it;
+        map<string, NodePtr>::iterator it;
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
@@ -236,9 +236,9 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
-vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
+vector<NodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
 {
-    vector<VisibleNodeWeakPtr> elements;
+    vector<NodeWeakPtr> elements;
     m_pRootNode->getElementsByPos(pos, elements);
     return elements;
 }

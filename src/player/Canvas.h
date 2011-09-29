@@ -41,7 +41,6 @@ namespace avg {
 
 class Player;
 class Node;
-class VisibleNode;
 class CanvasNode;
 class AudioEngine;
 class TestHelper;
@@ -52,8 +51,6 @@ class VertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
-typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
 typedef boost::shared_ptr<FBO> FBOPtr;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
@@ -72,9 +69,9 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         virtual void stopPlayback();
        
         CanvasNodePtr getRootNode() const;
-        VisibleNodePtr getElementByID(const std::string& id);
-        void registerNode(VisibleNodePtr pNode);
-        void addNodeID(VisibleNodePtr pNode);
+        NodePtr getElementByID(const std::string& id);
+        void registerNode(NodePtr pNode);
+        void addNodeID(NodePtr pNode);
         void removeNodeID(const std::string& id);
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
@@ -89,7 +86,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        std::vector<VisibleNodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         bool operator ==(const Canvas& other) const;
         bool operator !=(const Canvas& other) const;
@@ -114,7 +111,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;
        
-        typedef std::map<std::string, VisibleNodePtr> NodeIDMap;
+        typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
         Signal<IPlaybackEndListener> m_PlaybackEndSignal;

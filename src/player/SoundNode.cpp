@@ -47,7 +47,7 @@ namespace avg {
 
 NodeDefinition SoundNode::createDefinition()
 {
-    return NodeDefinition("sound", VisibleNode::buildNode<SoundNode>)
+    return NodeDefinition("sound", Node::buildNode<SoundNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))

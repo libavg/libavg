@@ -77,8 +77,7 @@ class AVG_API RasterNode: public AreaNode
         const DPoint& getMaskSize() const;
         void setMaskSize(const DPoint& size);
 
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
 
         DTriple getGamma() const;
         void setGamma(const DTriple& gamma);

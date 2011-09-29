@@ -43,7 +43,6 @@ namespace avg {
 
 class AudioEngine;
 class Node;
-class VisibleNode;
 class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
@@ -60,8 +59,6 @@ class SDLDisplayEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
-typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
@@ -133,7 +130,7 @@ class AVG_API Player
         TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
-        void setEventCapture(VisibleNodePtr pNode, int cursorID);
+        void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
         bool isCaptured(int cursorID);
         EventPtr getCurEvent() const;
@@ -144,7 +141,7 @@ class AVG_API Player
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
 
-        VisibleNodePtr getElementByID(const std::string& id);
+        NodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame(bool bFirstFrame);
         double getFramerate();
@@ -200,7 +197,7 @@ class AVG_API Player
         void endFrame();
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, VisibleNodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
@@ -256,9 +253,9 @@ class AVG_API Player
         
         EventDispatcherPtr m_pEventDispatcher;
         struct EventCaptureInfo {
-            EventCaptureInfo(const VisibleNodeWeakPtr& pNode);
+            EventCaptureInfo(const NodeWeakPtr& pNode);
 
-            VisibleNodeWeakPtr m_pNode;
+            NodeWeakPtr m_pNode;
             int m_CaptureCount;
         };
         typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;

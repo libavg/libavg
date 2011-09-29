@@ -263,8 +263,7 @@ void WordsNode::setSize(const DPoint& pt)
     AreaNode::setSize(pt);
 }
 
-void WordsNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void WordsNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     updateLayout();
     DPoint relPos = pos-DPoint(m_AlignOffset, 0);
@@ -724,7 +723,7 @@ void WordsNode::redraw()
 
 void WordsNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     if (isVisible()) {
         redraw();
     } else {

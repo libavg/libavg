@@ -50,7 +50,7 @@ namespace avg {
 
 NodeDefinition VideoNode::createDefinition()
 {
-    return NodeDefinition("video", VisibleNode::buildNode<VideoNode>)
+    return NodeDefinition("video", Node::buildNode<VideoNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
@@ -563,7 +563,7 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 
 void VideoNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {

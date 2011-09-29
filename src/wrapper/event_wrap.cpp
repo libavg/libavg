@@ -25,7 +25,6 @@
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
 #include "../player/Contact.h"
-#include "../player/VisibleNode.h"
 #include "../player/TrackerInputDevice.h"
 
 #include <boost/shared_ptr.hpp>

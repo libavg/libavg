@@ -29,6 +29,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
+#include "../base/Exception.h"
 
 #include "../base/Logger.h"
 

@@ -85,8 +85,8 @@ void FilledVectorNode::disconnect(bool bKill)
 
 void FilledVectorNode::checkReload()
 {
-    VisibleNode::checkReload(m_FillTexHRef, m_pFillShape->getImage());
-    if (getState() == VisibleNode::NS_CANRENDER) {
+    Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
+    if (getState() == Node::NS_CANRENDER) {
         m_pFillShape->moveToGPU();
         setDrawNeeded();
     }
@@ -147,8 +147,8 @@ void FilledVectorNode::setFillOpacity(double opacity)
 
 void FilledVectorNode::preRender()
 {
-    VisibleNode::preRender();
-    double curOpacity = getDivParent()->getEffectiveOpacity()*m_FillOpacity;
+    Node::preRender();
+    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     VertexArrayPtr pFillVA;
     pFillVA = m_pFillShape->getVertexArray();
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
@@ -167,7 +167,7 @@ static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 void FilledVectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    double curOpacity = getDivParent()->getEffectiveOpacity()*m_FillOpacity;
+    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
         glColor4d(1.0, 1.0, 1.0, curOpacity);
         m_pFillShape->draw();
@@ -208,7 +208,7 @@ DPoint FilledVectorNode::calcFillTexCoord(const DPoint& pt, const DPoint& minPt,
 bool FilledVectorNode::isVisible() const
 {
     return getActive() && (getEffectiveOpacity() > 0.01 || 
-            getDivParent()->getEffectiveOpacity()*m_FillOpacity > 0.01);
+            getParent()->getEffectiveOpacity()*m_FillOpacity > 0.01);
 }
 
 }

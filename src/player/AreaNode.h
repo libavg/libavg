@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "VisibleNode.h"
+#include "Node.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
@@ -48,13 +48,13 @@ typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 
-class AVG_API AreaNode: public VisibleNode
+class AVG_API AreaNode: public Node
 {
     public:
         template<class NodeType>
-        static VisibleNodePtr buildNode(const ArgList& args)
+        static NodePtr buildNode(const ArgList& args)
         {
-            return VisibleNodePtr(new NodeType(args));
+            return NodePtr(new NodeType(args));
         }
         static NodeDefinition createDefinition();
         
@@ -90,7 +90,7 @@ class AVG_API AreaNode: public VisibleNode
         virtual DPoint toGlobal(const DPoint& localPos) const;
         
         virtual void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+                std::vector<NodeWeakPtr>& pElements);
 
         virtual void maybeRender(const DRect& rect);
         virtual void setViewport(double x, double y, double width, double height);

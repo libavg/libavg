@@ -25,6 +25,8 @@
 #include "Contact.h"
 #include "CursorEvent.h"
 
+#include "../base/Exception.h"
+
 #include <string>
 
 using namespace std;

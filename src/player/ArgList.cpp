@@ -23,7 +23,7 @@
 
 #include "ArgList.h"
 
-#include "VisibleNode.h"
+#include "Node.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -123,7 +123,7 @@ void ArgList::setArgs(const ArgList& args)
     }
 }
     
-void ArgList::setMembers(VisibleNode * pNode) const
+void ArgList::setMembers(Node * pNode) const
 {
     for (ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++) {
         const ArgBasePtr pCurArg = it->second;

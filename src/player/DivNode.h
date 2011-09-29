@@ -45,8 +45,6 @@ class AVG_API DivNode : public AreaNode
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
 
-        VisibleNodePtr getVChild(unsigned i);
-
         unsigned getNumChildren();
         const NodePtr& getChild(unsigned i);
         void appendChild(NodePtr pNewNode);
@@ -72,8 +70,7 @@ class AVG_API DivNode : public AreaNode
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void preRender();
         virtual void render(const DRect& rect);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);

@@ -52,9 +52,9 @@ void export_devices();
 using namespace boost::python;
 using namespace avg;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, VisibleNode::unlink, 0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(disconnectEventHandler_overloads, 
-        VisibleNode::disconnectEventHandler, 1, 2);
+        Node::disconnectEventHandler, 1, 2);
 
 // These function templates essentially call functions such as AreaNode::getPos()
 // and return a version of the result that don't allow setting of the individual
@@ -99,29 +99,25 @@ void export_node()
         .def("__hash__", &Node::getHash)
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()),  &Node::setID)
-        ;
-
-    class_<VisibleNode, bases<Node>, boost::shared_ptr<VisibleNode>, boost::noncopyable>(
-            "VisibleNode", no_init)
-        .def("getParent", &VisibleNode::getParent)
-        .def("unlink", &VisibleNode::unlink, unlink_overloads(args("bKill")))
-        .def("setEventCapture", &VisibleNode::setMouseEventCapture)
-        .def("setEventCapture", &VisibleNode::setEventCapture)
-        .def("releaseEventCapture", &VisibleNode::releaseMouseEventCapture)
-        .def("releaseEventCapture", &VisibleNode::releaseEventCapture)
-        .def("setEventHandler", &VisibleNode::setEventHandler)
-        .def("connectEventHandler", &VisibleNode::connectEventHandler)
-        .def("disconnectEventHandler", &VisibleNode::disconnectEventHandler,
+        .def("getParent", &Node::getParent)
+        .def("unlink", &Node::unlink, unlink_overloads(args("bKill")))
+        .def("setEventCapture", &Node::setMouseEventCapture)
+        .def("setEventCapture", &Node::setEventCapture)
+        .def("releaseEventCapture", &Node::releaseMouseEventCapture)
+        .def("releaseEventCapture", &Node::releaseEventCapture)
+        .def("setEventHandler", &Node::setEventHandler)
+        .def("connectEventHandler", &Node::connectEventHandler)
+        .def("disconnectEventHandler", &Node::disconnectEventHandler,
                 disconnectEventHandler_overloads(args("pFunc")))
-        .def("getAbsPos", &VisibleNode::getAbsPos)
-        .def("getRelPos", &VisibleNode::getRelPos)
-        .def("getElementByPos", &VisibleNode::getElementByPos)
-        .add_property("active", &VisibleNode::getActive, &VisibleNode::setActive)
-        .add_property("sensitive", &VisibleNode::getSensitive, &VisibleNode::setSensitive)
-        .add_property("opacity", &VisibleNode::getOpacity, &VisibleNode::setOpacity)
+        .def("getAbsPos", &Node::getAbsPos)
+        .def("getRelPos", &Node::getRelPos)
+        .def("getElementByPos", &Node::getElementByPos)
+        .add_property("active", &Node::getActive, &Node::setActive)
+        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive)
+        .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
         ;
 
-    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<VisibleNode>, boost::noncopyable>(
+    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
             "AreaNode", 
             no_init)
         .def("getMediaSize", &AreaNode_getMediaSize)
@@ -212,7 +208,7 @@ void export_node()
         .add_property("maxrotation", &PanoImageNode::getMaxRotation)
     ;
 
-    class_<VectorNode, bases<VisibleNode>, boost::noncopyable>("VectorNode", 
+    class_<VectorNode, bases<Node>, boost::noncopyable>("VectorNode", 
             no_init)
         .add_property("strokewidth", &VectorNode::getStrokeWidth, 
                 &VectorNode::setStrokeWidth)

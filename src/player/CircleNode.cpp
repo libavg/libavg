@@ -100,11 +100,10 @@ void CircleNode::setTexCoord2(double tc)
     setDrawNeeded();
 }
 
-void CircleNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void CircleNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (calcDist(pos, m_Pos) <= m_Radius && reactsToMouseEvents()) {
-        pElements.push_back(getVThis());
+        pElements.push_back(getThis());
     }
 }
 

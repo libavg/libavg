@@ -26,13 +26,16 @@
 
 #include "../api.h"
 
-#include "VisibleNode.h"
 #include "ArgList.h"
 
 #include <map>
 #include <string>
 
 namespace avg {
+
+class Node;
+typedef boost::shared_ptr<Node> NodePtr;
+class NodeDefinition;
 
 typedef NodePtr (*NodeBuilder)(const ArgList& Args);
 typedef std::map<std::string, NodeDefinition> ChildMap;

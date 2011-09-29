@@ -48,7 +48,7 @@ namespace avg {
 NodeDefinition VectorNode::createDefinition()
 {
     return NodeDefinition("vector")
-        .extendDefinition(VisibleNode::createDefinition())
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
@@ -77,7 +77,7 @@ void VectorNode::connectDisplay()
 {
     setDrawNeeded();
     m_Color = colorStringToColor(m_sColorName);
-    VisibleNode::connectDisplay();
+    Node::connectDisplay();
     m_pShape->moveToGPU();
     m_OldOpacity = -1;
     setBlendModeStr(m_sBlendMode);
@@ -85,7 +85,7 @@ void VectorNode::connectDisplay()
 
 void VectorNode::connect(CanvasPtr pCanvas)
 {
-    VisibleNode::connect(pCanvas);
+    Node::connect(pCanvas);
     checkReload();
 }
 
@@ -96,13 +96,13 @@ void VectorNode::disconnect(bool bKill)
     } else {
         m_pShape->moveToCPU();
     }
-    VisibleNode::disconnect(bKill);
+    Node::disconnect(bKill);
 }
 
 void VectorNode::checkReload()
 {
-    VisibleNode::checkReload(m_TexHRef, m_pShape->getImage());
-    if (getState() == VisibleNode::NS_CANRENDER) {
+    Node::checkReload(m_TexHRef, m_pShape->getImage());
+    if (getState() == Node::NS_CANRENDER) {
         m_pShape->moveToGPU();
         setDrawNeeded();
     }
@@ -142,7 +142,7 @@ static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
 
 void VectorNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();

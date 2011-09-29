@@ -52,7 +52,7 @@ namespace avg {
 NodeDefinition AreaNode::createDefinition()
 {
     return NodeDefinition("areanode")
-        .extendDefinition(VisibleNode::createDefinition())
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<double>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<double>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<DPoint>("pos", DPoint(0.0, 0.0)))
@@ -77,7 +77,7 @@ AreaNode::~AreaNode()
 
 void AreaNode::setArgs(const ArgList& args)
 {
-    VisibleNode::setArgs(args);
+    Node::setArgs(args);
     args.getOverlayedArgVal(&m_RelViewport.tl, "pos", "x", "y", getID());
     args.getOverlayedArgVal(&m_UserSize, "size", "width", "height", getID());
     m_RelViewport.setWidth(m_UserSize.x);
@@ -98,7 +98,7 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(m_UserSize.y);
     }
-    VisibleNode::connectDisplay();
+    Node::connectDisplay();
 }
 
 double AreaNode::getX() const 
@@ -202,13 +202,12 @@ DPoint AreaNode::toGlobal(const DPoint& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void AreaNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(getVThis());
+        pElements.push_back(getThis());
     }
 }
 
@@ -266,7 +265,7 @@ const DRect& AreaNode::getRelViewport() const
 
 string AreaNode::dump(int indent)
 {
-    string dumpStr = VisibleNode::dump(indent); 
+    string dumpStr = Node::dump(indent); 
     char sz[256];
     sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y,

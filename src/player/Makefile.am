@@ -36,7 +36,7 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IInputDevice.h VideoNode.h \
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h \
-        Node.h VisibleNode.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
+        Node.h AreaNode.h DisplayParams.h NodeDefinition.h TextEngine.h \
         AVGNode.h DivNode.h CursorState.h MaterialInfo.h Canvas.h MainCanvas.h \
         Image.h ImageNode.h Timeout.h WordsNode.h WrapPython.h OffscreenCanvas.h \
         EventDispatcher.h CursorEvent.h MouseEvent.h \
@@ -77,7 +77,7 @@ testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
 
 libplayer_la_LIBADD = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MTDEV_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
-        Arg.cpp VisibleNode.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
+        Arg.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoNode.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Canvas.cpp CanvasNode.cpp OffscreenCanvasNode.cpp \
         MainCanvas.cpp Node.cpp MultitouchInputDevice.cpp \

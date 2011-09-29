@@ -105,11 +105,10 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-void PolygonNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void PolygonNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
-        pElements.push_back(getVThis());
+        pElements.push_back(getThis());
     }
 }
 

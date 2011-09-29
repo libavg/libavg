@@ -23,7 +23,6 @@
 #define _DisplayEngine_H_
 
 #include "../api.h"
-#include "VisibleNode.h"
 #include "DisplayParams.h"
 
 #include "../graphics/Pixel32.h"
