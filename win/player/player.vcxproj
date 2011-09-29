@@ -133,7 +133,6 @@
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
-    <ClCompile Include="..\..\src\player\VisibleNode.cpp" />
     <ClCompile Include="..\..\src\player\Win7TouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
   </ItemGroup>
@@ -208,7 +207,6 @@
     <ClInclude Include="..\..\src\player\VideoNode.h" />
     <ClInclude Include="..\..\src\player\VideoWriter.h" />
     <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
-    <ClInclude Include="..\..\src\player\VisibleNode.h" />
     <ClInclude Include="..\..\src\player\Win7TouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\WordsNode.h" />
     <ClInclude Include="..\..\src\player\WrapPython.h" />
