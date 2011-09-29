@@ -114,11 +114,54 @@ VisibleNodePtr DivNode::getVChild(unsigned i)
     return dynamic_pointer_cast<VisibleNode>(getChild(i));
 }
 
+unsigned DivNode::getNumChildren()
+{
+    return m_Children.size();
+}
+
+const NodePtr& DivNode::getChild(unsigned i)
+{
+    if (i >= m_Children.size()) {
+        stringstream s;
+        s << "Index " << i << " is out of range in Node::getChild()";
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
+    }
+    return m_Children[i];
+}
+
+void DivNode::appendChild(NodePtr pNewNode)
+{
+    insertChild(pNewNode, unsigned(m_Children.size()));
+}
+
+void DivNode::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i);
+}
+
+void DivNode::insertChildAfter(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i+1);
+}
+
 void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 {
     VisibleNodePtr pVNode = dynamic_pointer_cast<VisibleNode>(pNewNode);
-    if (pVNode->getState() == NS_CONNECTED || pVNode->getState() == NS_CANRENDER)
-    {
+    if (!pNewNode) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChild called without a node.");
+    }
+    if (pVNode->getState() == NS_CONNECTED || pVNode->getState() == NS_CANRENDER) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't connect node with id "+pNewNode->getID()+
                 ": already connected."));
@@ -126,13 +169,78 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getCanvas()->registerNode(pVNode);
     }
-    DivNodePtr Ptr = dynamic_pointer_cast<DivNode>(getThis());
-    pNewNode->checkSetParentError(Ptr); 
-    Node::insertChild(pNewNode, i);
-    pVNode->setParent(Ptr, getState(), getCanvas());
+    DivNodePtr ptr = dynamic_pointer_cast<DivNode>(getThis());
+    pNewNode->checkSetParentError(ptr); 
+    if (!isChildTypeAllowed(pNewNode->getTypeStr())) {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't insert a node of type "+pNewNode->getTypeStr()+
+                " into a node of type "+getTypeStr()+"."));
+    }
+    if (i > m_Children.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                pNewNode->getID()+"::insertChild: index out of bounds."));
+    }
+    std::vector<NodePtr>::iterator pos = m_Children.begin()+i;
+    m_Children.insert(pos, pNewNode);
+    pVNode->setParent(ptr, getState(), getCanvas());
     if (getState() == NS_CANRENDER) {
         pVNode->connectDisplay();
     }
+}
+
+void DivNode::eraseChild(NodePtr pNode)
+{
+    unsigned i = indexOf(pNode);
+    eraseChild(i);
+}
+
+void DivNode::eraseChild(unsigned i)
+{
+    if (i > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
+    }
+    m_Children.erase(m_Children.begin()+i);
+}
+
+void DivNode::reorderChild(NodePtr pNode, unsigned j)
+{
+    if (j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
+    }
+    int i = indexOf(pNode);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator pos = m_Children.begin()+j;
+    m_Children.insert(pos, pNode);
+}
+
+void DivNode::reorderChild(unsigned i, unsigned j)
+{
+    if (i > m_Children.size()-1 || j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index out of bounds."));
+    }
+    NodePtr pNode = getChild(i);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator pos = m_Children.begin()+j;
+    m_Children.insert(pos, pNode);
+}
+
+unsigned DivNode::indexOf(NodePtr pChild)
+{
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::indexOf called without a node.");
+    }
+    for (unsigned i = 0; i < m_Children.size(); ++i) {
+        if (m_Children[i] == pChild) {
+            return i;
+        }
+    }
+    throw(Exception(AVG_ERR_OUT_OF_RANGE,
+            "indexOf: node '"+pChild->getID()+"' is not a child of node '"
+            +getID()+"'"));
 }
 
 void DivNode::removeChild(NodePtr pNode)
@@ -147,7 +255,7 @@ void DivNode::removeChild(unsigned i)
 
 void DivNode::removeChild(NodePtr pNode, bool bKill)
 {
-    pNode->Node::setParent(NodePtr());
+    pNode->Node::setParent(DivNodePtr());
     VisibleNodePtr pVNode = dynamic_pointer_cast<VisibleNode>(pNode);
     if (pVNode->getState() != NS_UNCONNECTED) {
         pVNode->disconnect(bKill);
@@ -213,7 +321,7 @@ void DivNode::getElementsByPos(const DPoint& pos,
                 return;
             }
         }
-        // Pos isn't in any of the children.
+        // pos isn't in any of the children.
         if (getSize() != DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height given for div - div reacts on its own.
             pElements.push_back(getVThis());
@@ -322,4 +430,9 @@ IntPoint DivNode::getMediaSize()
     return IntPoint(DEFAULT_SIZE, DEFAULT_SIZE);
 }
  
+bool DivNode::isChildTypeAllowed(const string& sType)
+{
+    return getDefinition()->isChildAllowed(sType);
+}
+
 }

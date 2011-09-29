@@ -34,11 +34,14 @@
 namespace avg {
 
 class Node;
+typedef boost::shared_ptr<Node> NodePtr;
+typedef boost::weak_ptr<Node> NodeWeakPtr;
+class DivNode;
+typedef boost::shared_ptr<DivNode> DivNodePtr;
+typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 class ArgList;
 class NodeDefinition;
 
-typedef boost::shared_ptr<Node> NodePtr;
-typedef boost::weak_ptr<Node> NodeWeakPtr;
 
 class AVG_API Node
 {
@@ -54,19 +57,9 @@ class AVG_API Node
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args) {};
 
-        void checkSetParentError(NodeWeakPtr pParent);
-        virtual void setParent(NodeWeakPtr pParent);
-        NodePtr getParent() const;
-
-        unsigned getNumChildren();
-        const NodePtr& getChild(unsigned i);
-        void appendChild(NodePtr pNewNode);
-        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
-        void insertChildAfter(NodePtr pNewNode, NodePtr pOldChild);
-        virtual void insertChild(NodePtr pNewNode, unsigned i);
-        void reorderChild(NodePtr pNode, unsigned j);
-        void reorderChild(unsigned i, unsigned j);
-        unsigned indexOf(NodePtr pChild);
+        void checkSetParentError(DivNodeWeakPtr pParent);
+        virtual void setParent(DivNodeWeakPtr pParent);
+        DivNodePtr getParent() const;
 
         virtual const std::string& getID() const;
         virtual void setID(const std::string& id);
@@ -86,18 +79,13 @@ class AVG_API Node
     protected:
         Node();
         NodePtr getThis() const;
-        void eraseChild(NodePtr pNode);
 
     private:
-        void eraseChild(unsigned i);
-        bool isChildTypeAllowed(const std::string& sType);
-
         NodeWeakPtr m_This;
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
 
-        NodeWeakPtr m_pParent;
-        std::vector<NodePtr> m_Children;
+        DivNodeWeakPtr m_pParent;
 };
 
 }

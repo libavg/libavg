@@ -1286,7 +1286,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
 NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         const xmlNodePtr xmlNode)
 {
-    NodePtr curNode;
+    NodePtr pCurNode;
     const char * nodeType = (const char *)xmlNode->name;
 
     if (!strcmp (nodeType, "text") ||
@@ -1294,26 +1294,27 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
+    pCurNode = m_NodeRegistry.createNode(nodeType, xmlNode);
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<WordsNode>(curNode)->setTextFromNodeValue(s);
+        boost::dynamic_pointer_cast<WordsNode>(pCurNode)->setTextFromNodeValue(s);
     } else {
         // If this is a container, recurse into children
-        if (curNode->getDefinition()->hasChildren()) {
+        if (pCurNode->getDefinition()->hasChildren()) {
             xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
             while (curXmlChild) {
                 NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild);
                 if (curChild) {
-                    curNode->appendChild(curChild);
+                    DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pCurNode);
+                    pDivNode->appendChild(curChild);
                 }
                 curXmlChild = curXmlChild->next;
             }
         }
     }
-    return curNode;
+    return pCurNode;
 }
 
 OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
