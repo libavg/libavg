@@ -80,24 +80,9 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node([id: string, parent: DivNode=None])
+    .. autoclass:: Node([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0])
 
         Base class for everything that can be put into an avg tree.
-
-        .. py:attribute:: id
-
-            A unique identifier that can be used to reference the node, for instance using
-            :py:meth:`Player.getElementByID`. Read-only.
-
-        .. py:attribute:: parent
-
-            A :py:class:`DivNode` that the node will become a child of. Equivalent to 
-            calling :py:meth:`DivNode.appendChild` directly after construction.
-
-    .. autoclass:: VisibleNode([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, active=True, sensitive=True, opacity=1.0, parent])
-
-        Base class for all elements in the avg tree that have a visual representation.
-        All nodes except those derived from :py:class:`FXNode` are VisibleNodes.
 
         :param string oncursormove:
 
@@ -134,10 +119,15 @@ This section describes the base classes for all node classes that libavg provide
             .. deprecated:: 1.5
                 Use :func:`connectEventHandler()` instead.
 
-        :param DivNode parent:
+        .. py:attribute:: id
 
-            A :py:class:`DivNode` that the newly constructed Node should be appended
-            to.
+            A unique identifier that can be used to reference the node, for instance using
+            :py:meth:`Player.getElementByID`. Read-only.
+
+        .. py:attribute:: parent
+
+            A :py:class:`DivNode` that the node will become a child of. Equivalent to 
+            calling :py:meth:`DivNode.appendChild` directly after construction.
 
         .. py:attribute:: active
 
