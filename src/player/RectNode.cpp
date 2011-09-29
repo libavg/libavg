@@ -118,7 +118,7 @@ void RectNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElement
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
-        pElements.push_back(getThis());
+        pElements.push_back(shared_from_this());
     }
 }
 

@@ -56,7 +56,7 @@ NodePtr NodeRegistry::createNode(const string& sType, const xmlNodePtr xmlNode)
     ArgList args(def.getDefaultArgs(), xmlNode);
     NodeBuilder builder = def.getBuilder();
     NodePtr pNode = builder(args);
-    pNode->setThis(pNode, &def);
+    pNode->setTypeInfo(&def);
     return pNode;
 }
 
@@ -66,7 +66,7 @@ NodePtr NodeRegistry::createNode(const string& sType, const boost::python::dict&
     ArgList args(def.getDefaultArgs(), pyDict);
     NodeBuilder builder = def.getBuilder();
     NodePtr pNode = builder(args);
-    pNode->setThis(pNode, &def);
+    pNode->setTypeInfo(&def);
     return pNode;
 }
 

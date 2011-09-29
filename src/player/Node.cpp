@@ -55,8 +55,7 @@ NodeDefinition Node::createDefinition()
 }
 
 Node::Node()
-    : m_This(),
-      m_pCanvas(),
+    : m_pCanvas(),
       m_State(NS_UNCONNECTED)
       
 {
@@ -78,9 +77,8 @@ void Node::setArgs(const ArgList& args)
     addArgEventHandlers(Event::CURSOROUT, args.getArgVal<string> ("oncursorout"));
 }
 
-void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
+void Node::setTypeInfo(const NodeDefinition * pDefinition)
 {
-    m_This = This;
     m_pDefinition = pDefinition;
 }
 
@@ -117,10 +115,10 @@ DivNodePtr Node::getParent() const
     }
 }
 
-vector<NodeWeakPtr> Node::getParentChain() const
+vector<NodeWeakPtr> Node::getParentChain()
 {
     vector<NodeWeakPtr> pNodes;
-    NodePtr pCurNode = getThis();
+    boost::shared_ptr<Node> pCurNode = shared_from_this();
     while (pCurNode) {
         pNodes.push_back(pCurNode);
         pCurNode = pCurNode->getParent();
@@ -154,7 +152,7 @@ void Node::unlink(bool bKill)
 {
     DivNodePtr pParent = getParent();
     if (pParent != DivNodePtr()) {
-        pParent->removeChild(getThis(), bKill);
+        pParent->removeChild(shared_from_this(), bKill);
     }
 }
 
@@ -221,7 +219,7 @@ void Node::releaseMouseEventCapture()
 
 void Node::setEventCapture(int cursorID) 
 {
-    Player::get()->setEventCapture(getThis(), cursorID);
+    Player::get()->setEventCapture(shared_from_this(), cursorID);
 }
 
 void Node::releaseEventCapture(int cursorID) 
@@ -559,27 +557,22 @@ bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
 
 bool Node::operator ==(const Node& other) const
 {
-    return m_This.lock() == other.m_This.lock();
+    return this == &other;
 }
 
 bool Node::operator !=(const Node& other) const
 {
-    return m_This.lock() != other.m_This.lock();
+    return this != &other;
 }
 
 long Node::getHash() const
 {
-    return long(&*m_This.lock());
+    return long(this);
 }
 
 const NodeDefinition* Node::getDefinition() const
 {
     return m_pDefinition;
-}
-
-NodePtr Node::getThis() const
-{
-    return m_This.lock();
 }
 
 string Node::getTypeStr() const

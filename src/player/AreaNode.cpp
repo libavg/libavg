@@ -207,7 +207,7 @@ void AreaNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElement
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(getThis());
+        pElements.push_back(shared_from_this());
     }
 }
 

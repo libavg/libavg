@@ -346,7 +346,7 @@ void VideoNode::onFrameEnd()
     if (m_bEOFPending) {
         // If the VideoNode is unlinked by python in onEOF, the following line prevents
         // the object from being deleted until we return from this function.
-        NodePtr pTempThis = getThis();
+        NodePtr pTempThis = shared_from_this();
         m_bEOFPending = false;
         onEOF();
     }

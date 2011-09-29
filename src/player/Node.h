@@ -32,6 +32,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include <string>
 #include <vector>
@@ -68,7 +69,7 @@ class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
-class AVG_API Node
+class AVG_API Node: public boost::enable_shared_from_this<Node>
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
@@ -79,7 +80,7 @@ class AVG_API Node
         {
             return NodePtr(new NodeType(Args));
         }
-        virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
+        virtual void setTypeInfo(const NodeDefinition * pDefinition);
         
         virtual ~Node();
         virtual void setArgs(const ArgList& args);
@@ -88,7 +89,7 @@ class AVG_API Node
         virtual void removeParent();
         void checkSetParentError(DivNodeWeakPtr pParent);
         DivNodePtr getParent() const;
-        std::vector<NodeWeakPtr> getParentChain() const;
+        std::vector<NodeWeakPtr> getParentChain();
 
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
@@ -150,7 +151,6 @@ class AVG_API Node
 
     protected:
         Node();
-        NodePtr getThis() const;
 
         void addArgEventHandlers(Event::Type eventType, const std::string& sCode);
         void addArgEventHandler(Event::Type eventType, Event::Source source, 
@@ -165,7 +165,6 @@ class AVG_API Node
         bool getEffectiveActive() const;
 
     private:
-        NodeWeakPtr m_This;
         std::string m_ID;
         const NodeDefinition* m_pDefinition;
 

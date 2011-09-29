@@ -163,7 +163,7 @@ void DivNode::insertChild(NodePtr pChild, unsigned i)
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getCanvas()->registerNode(pChild);
     }
-    DivNodePtr ptr = dynamic_pointer_cast<DivNode>(getThis());
+    DivNodePtr ptr = dynamic_pointer_cast<DivNode>(shared_from_this());
     pChild->checkSetParentError(ptr); 
     if (!isChildTypeAllowed(pChild->getTypeStr())) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
@@ -299,14 +299,14 @@ void DivNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements
             DPoint relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
             if (!pElements.empty()) {
-                pElements.push_back(getThis());
+                pElements.push_back(shared_from_this());
                 return;
             }
         }
         // pos isn't in any of the children.
         if (getSize() != DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height given for div - div reacts on its own.
-            pElements.push_back(getThis());
+            pElements.push_back(shared_from_this());
         }
     }
 }

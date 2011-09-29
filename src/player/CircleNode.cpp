@@ -103,7 +103,7 @@ void CircleNode::setTexCoord2(double tc)
 void CircleNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (calcDist(pos, m_Pos) <= m_Radius && reactsToMouseEvents()) {
-        pElements.push_back(getThis());
+        pElements.push_back(shared_from_this());
     }
 }
 
