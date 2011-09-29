@@ -188,21 +188,6 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
 }
 
-void DivNode::eraseChild(NodePtr pNode)
-{
-    unsigned i = indexOf(pNode);
-    eraseChild(i);
-}
-
-void DivNode::eraseChild(unsigned i)
-{
-    if (i > m_Children.size()-1) {
-        throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
-    }
-    m_Children.erase(m_Children.begin()+i);
-}
-
 void DivNode::reorderChild(NodePtr pNode, unsigned j)
 {
     if (j > m_Children.size()-1) {
@@ -260,7 +245,12 @@ void DivNode::removeChild(NodePtr pNode, bool bKill)
     if (pVNode->getState() != NS_UNCONNECTED) {
         pVNode->disconnect(bKill);
     }
-    eraseChild(pNode);
+    unsigned i = indexOf(pNode);
+    if (i > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
+    }
+    m_Children.erase(m_Children.begin()+i);
 }
 
 void DivNode::removeChild(unsigned i, bool bKill)

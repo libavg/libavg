@@ -46,7 +46,7 @@ class AVG_API DivNode : public AreaNode
         virtual void disconnect(bool bKill);
 
         VisibleNodePtr getVChild(unsigned i);
-//-----
+
         unsigned getNumChildren();
         const NodePtr& getChild(unsigned i);
         void appendChild(NodePtr pNewNode);
@@ -56,7 +56,6 @@ class AVG_API DivNode : public AreaNode
         void reorderChild(NodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);
         unsigned indexOf(NodePtr pChild);
-//-----
         void removeChild(NodePtr pNode);
         void removeChild(unsigned i);
         void removeChild(NodePtr pNode, bool bKill);
@@ -86,8 +85,6 @@ class AVG_API DivNode : public AreaNode
         IntPoint getMediaSize();
    
     private:
-        void eraseChild(NodePtr pNode);
-        void eraseChild(unsigned i);
         bool isChildTypeAllowed(const std::string& sType);
 
         UTF8String m_sMediaDir;
