@@ -239,18 +239,21 @@ class EventTestCase(AVGTestCase):
 
     def testSensitive(self):
         # Tests both sensitive and active attributes.
-        def activateNode(useSensitiveAttr, b):
+        def activateNode(node, useSensitiveAttr, b):
             if useSensitiveAttr:
-                self.img.sensitive = b
+                node.sensitive = b
             else:
-                self.img.active = b
+                node.active = b
+
+        def onNode2Down(event):
+            self.__node2Down = True
+        
         for useSensitiveAttr in (True, False):
             root = self.loadEmptyScene()
-            self.img = avg.ImageNode(id="img", pos=(0,0), href="rgb24-65x65.png", 
-                    parent=root)
+            self.img = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
             handlerTester = NodeHandlerTester(self, self.img)
 
-            activateNode(useSensitiveAttr, False)
+            activateNode(self.img, useSensitiveAttr, False)
             self.start((
                      # Node is inactive -> no events.
                      lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -261,7 +264,7 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
 
                      # Activate the node -> events arrive.
-                     lambda: activateNode(useSensitiveAttr, True),
+                     lambda: activateNode(self.img, useSensitiveAttr, True),
                      lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                             10, 10, 1),
                      lambda: handlerTester.assertState(
@@ -270,6 +273,22 @@ class EventTestCase(AVGTestCase):
                             10, 10, 1),
                     ))
             self.img = None
+
+            # Check if sensitive is deactivated immediately, not at the end of the frame.
+            root = self.loadEmptyScene()
+            self.img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-65x65.png", parent=root)
+            self.img1.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, 
+                    lambda event: activateNode(self.img2, useSensitiveAttr, False))
+            self.img2.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onNode2Down)
+            self.__node2Down = False
+
+            self.start((
+                        lambda: self._sendTouchEvents((
+                                (1, avg.CURSORDOWN, 10, 10),
+                                (2, avg.CURSORDOWN, 80, 10),)),
+                        lambda: self.assert_(not(self.__node2Down)),
+                      ))
 
     def testChangingHandlers(self):
         root = self.loadEmptyScene()
