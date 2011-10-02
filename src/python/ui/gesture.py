@@ -519,6 +519,14 @@ def calcKMeans(pts):
     # in: List of points
     # out: Two lists, each containing indexes into the input list
     assert(len(pts) > 1)
+    # If two points are in the same position, move one of them by a small amount.
+    # Note that two touches at the same position are impossible - this only happens in
+    # synthetic tests.
+    for i, pt1 in enumerate(pts[1:]):
+        for pt2 in pts:
+            if pt1 == pt2:
+                pt1 += (0.1,0)
+                pts[i+1] = pt1
     p1 = pts[0]
     p2 = pts[1]
     oldP1 = None
