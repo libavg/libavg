@@ -46,6 +46,7 @@ void export_anim();
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/python/raw_function.hpp>
 
 using namespace boost::python;
 using namespace avg;
@@ -54,6 +55,13 @@ using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
         fakeTouchEvent, 4, 5)
+
+OffscreenCanvasPtr createCanvas(const boost::python::tuple &args,
+                const boost::python::dict& params)
+{
+    return extract<Player&>(args[0])().createCanvas(params);
+}
+
 
 
 BOOST_PYTHON_MODULE(avg)
@@ -130,6 +138,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadString", &Player::loadString)
         .def("loadCanvasFile", &Player::loadCanvasFile)
         .def("loadCanvasString", &Player::loadCanvasString)
+        .def("createCanvas", raw_function(createCanvas))
         .def("deleteCanvas", &Player::deleteCanvas)
         .def("getMainCanvas", &Player::getMainCanvas)
         .def("getCanvas", &Player::getCanvas)

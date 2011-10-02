@@ -382,11 +382,8 @@ class ImageTestCase(AVGTestCase):
             print "Skipping testImageMaskCanvas - no shader support."
             return
         root = self.loadEmptyScene()
-        Player.loadCanvasString("""
-            <canvas id="testcanvas" width="64" height="64">
-                <image href="rgb24-64x64.png"/>
-            </canvas>
-        """)
+        canvas = Player.createCanvas(id="testcanvas", size=(64,64))
+        avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
         node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
         self.start([lambda: self.compareImage("testImgMaskCanvas", False)])

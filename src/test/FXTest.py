@@ -136,8 +136,7 @@ class FXTestCase(AVGTestCase):
                         print "  ", useSrcCanvas, useDestCanvas, useFX, useColorConv
                         root = self.loadEmptyScene()
                         if useSrcCanvas:
-                            srcCanvas = Player.loadCanvasString("""
-                                    <canvas id="src" width="160" height="120"/>""")
+                            srcCanvas = Player.createCanvas(id="src", size=(160,120))
                             avg.ImageNode(href="rgb24alpha-64x64.png", 
                                     parent=srcCanvas.getRootNode())
                             srcImg = avg.ImageNode(href="canvas:src")
@@ -148,8 +147,7 @@ class FXTestCase(AVGTestCase):
                         if useColorConv:
                             srcImg.contrast = (1.01, 1.0, 1.0)
                         if useDestCanvas:
-                            destCanvas = Player.loadCanvasString("""
-                                    <canvas id="dest" width="160" height="120"/>""")
+                            destCanvas = Player.createCanvas(id="dest", size=(160,120))
                             destCanvas.getRootNode().appendChild(srcImg)
                             destImg = avg.ImageNode(href="canvas:dest", parent=root)
                         else:
@@ -157,7 +155,6 @@ class FXTestCase(AVGTestCase):
                         self.start((
                                 lambda: self.compareImage("testRenderPipeline", False),
                                 ))
-        
 
     def testBlurFX(self):
         def removeFX():
@@ -345,12 +342,11 @@ class FXTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
     
     def __createOffscreenCanvas(self):
-        return Player.loadCanvasString("""
-            <canvas id="offscreen" width="160" height="120">
-                <image href="rgb24-32x32.png"/>
-                <image id="test" pos="(32,0)" href="rgb24alpha-32x32.png"/>
-            </canvas>
-        """)
+        canvas = Player.createCanvas(id="offscreen", size=(160,120))
+        root = canvas.getRootNode()
+        avg.ImageNode(href="rgb24-32x32.png", parent=root)
+        avg.ImageNode(id="test", pos=(32,0), href="rgb24alpha-32x32.png", parent=root)
+        return canvas
 
 def areFXSupported():
     sceneString = """<avg id="avg" width="160" height="120"/>"""

@@ -95,6 +95,7 @@ class AVG_API Player
 
         OffscreenCanvasPtr loadCanvasFile(const std::string& sFilename);
         OffscreenCanvasPtr loadCanvasString(const std::string& sAVG);
+        OffscreenCanvasPtr createCanvas(const boost::python::dict& params);
         void deleteCanvas(const std::string& sID);
         CanvasPtr getMainCanvas() const;
         OffscreenCanvasPtr getCanvas(const std::string& sID) const;

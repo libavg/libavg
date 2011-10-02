@@ -310,6 +310,12 @@ OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
     return registerOffscreenCanvas(pNode);
 }
 
+OffscreenCanvasPtr Player::createCanvas(const boost::python::dict& params)
+{
+    NodePtr pNode = createNode("canvas", params);
+    return registerOffscreenCanvas(pNode);
+}
+
 void Player::deleteCanvas(const string& sID)
 {
     vector<OffscreenCanvasPtr>::iterator it;
@@ -1187,10 +1193,6 @@ NodePtr Player::internalLoad(const string& sAVG)
         if (!pNode) {
             throw (Exception(AVG_ERR_XML_PARSE,
                     "Root node of an avg tree needs to be an <avg> node."));
-        }
-        if (dynamic_pointer_cast<DivNode>(pNode)->getSize() == DPoint(0, 0)) {
-            throw (Exception(AVG_ERR_OUT_OF_RANGE,
-                    "<avg> and <canvas> node width and height attributes are mandatory."));
         }
         xmlFreeDoc(doc);
         return pNode;
