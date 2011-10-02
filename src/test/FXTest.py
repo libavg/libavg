@@ -127,6 +127,38 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testNodeInCanvasNullFX1", False),
                 ))
 
+    def testRenderPipeline(self):
+        print
+        for useSrcCanvas in (False, True):
+            for useDestCanvas in (False, True):
+                for useFX in (False, True):
+                    for useColorConv in (False, True):
+                        print "  ", useSrcCanvas, useDestCanvas, useFX, useColorConv
+                        root = self.loadEmptyScene()
+                        if useSrcCanvas:
+                            srcCanvas = Player.loadCanvasString("""
+                                    <canvas id="src" width="160" height="120"/>""")
+                            avg.ImageNode(href="rgb24alpha-64x64.png", 
+                                    parent=srcCanvas.getRootNode())
+                            srcImg = avg.ImageNode(href="canvas:src")
+                        else:
+                            srcImg = avg.ImageNode(href="rgb24alpha-64x64.png")
+                        if useFX:
+                            srcImg.setEffect(avg.NullFXNode())
+                        if useColorConv:
+                            srcImg.contrast = (1.01, 1.0, 1.0)
+                        if useDestCanvas:
+                            destCanvas = Player.loadCanvasString("""
+                                    <canvas id="dest" width="160" height="120"/>""")
+                            destCanvas.getRootNode().appendChild(srcImg)
+                            destImg = avg.ImageNode(href="canvas:dest", parent=root)
+                        else:
+                            root.appendChild(srcImg)
+                        self.start((
+                                lambda: self.compareImage("testRenderPipeline", False),
+                                ))
+        
+
     def testBlurFX(self):
         def removeFX():
             self.node.setEffect(None)
@@ -345,6 +377,7 @@ def fxTestSuite(tests):
                 "testWordsNullFX",
                 "testCanvasNullFX",
                 "testNodeInCanvasNullFX",
+                "testRenderPipeline",
                 "testBlurFX",
                 "testShadowFX",
                 "testWordsShadowFX",
