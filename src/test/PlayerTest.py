@@ -53,8 +53,8 @@ class PlayerTestCase(AVGTestCase):
         pt2 = eval(repr(pt))
         self.assertEqual(pt2, pt)
         testHash()
-        self.assert_(almostEqual(avg.Point2D(10,0).getNormalized(), avg.Point2D(1,0)))
-        self.assert_(almostEqual(pt.getRotated(math.pi, (5,5)), avg.Point2D(0,0)))
+        self.assertAlmostEqual(avg.Point2D(10,0).getNormalized(), avg.Point2D(1,0))
+        self.assertAlmostEqual(pt.getRotated(math.pi, (5,5)), avg.Point2D(0,0))
         self.assertEqual(-pt, (-10, -10))
         self.assertEqual(pt-(10,0), (0,10))
         self.assertEqual(pt+(10,0), (20,10))
@@ -78,7 +78,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(pt[0], pt.x)
         self.assertEqual(pt[1], pt.y)
         self.assertException(lambda: pt[2])
-        self.assert_(almostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10)))
+        self.assertAlmostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10))
         self.assertException(avg.Point2D(0,0).getNormalized)
         self.assertException(lambda: avg.Point2D(0,))
         self.assertException(lambda: avg.Point2D(0,1,2))
@@ -86,7 +86,7 @@ class PlayerTestCase(AVGTestCase):
             pt = avg.Point2D(point)
             angle = pt.getAngle()
             norm = pt.getNorm()
-            self.assert_(almostEqual(pt, avg.Point2D.fromPolar(angle,norm)))
+            self.assertAlmostEqual(pt, avg.Point2D.fromPolar(angle,norm))
 
     def testBasics(self):
         def getFramerate():
@@ -157,13 +157,13 @@ class PlayerTestCase(AVGTestCase):
         def testCoordConversions():
             innerNode = Player.getElementByID("inner")
             relPos = innerNode.getRelPos((90, 80))
-            self.assert_(almostEqual(relPos, (10, 10)))
+            self.assertAlmostEqual(relPos, (10, 10))
             outerNode = Player.getElementByID("outer")
             relPos = outerNode.getRelPos((90, 80))
-            self.assert_(almostEqual(relPos[0], 12.332806394528092) and
-                    almostEqual(relPos[1], 6.9211188716194592))
+            self.assertAlmostEqual(relPos[0], 12.332806394528092)
+            self.assertAlmostEqual(relPos[1], 6.9211188716194592)
             absPos = outerNode.getAbsPos(relPos)
-            self.assert_(almostEqual(absPos, (90, 80)))
+            self.assertAlmostEqual(absPos, (90, 80))
             self.assertEqual(outerNode.getElementByPos((10, 10)), innerNode)
             self.assertEqual(outerNode.getElementByPos((0, 10)), outerNode)
             self.assertEqual(outerNode.getElementByPos((-10, -110)), None)
@@ -671,7 +671,7 @@ class PlayerTestCase(AVGTestCase):
         Player.assumePhysicalScreenDimensions(mm)
         newPPMM = Player.getPixelsPerMM()
         newMM = Player.getPhysicalScreenDimensions()
-        self.assert_(almostEqual(newPPMM, ppmm))
+        self.assertAlmostEqual(newPPMM, ppmm)
         self.assertEqual(newMM, mm)
 
     def testSVG(self):

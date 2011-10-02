@@ -495,7 +495,7 @@ class UITestCase(AVGTestCase):
     def testDragRecognizerRelCoords(self):
 
         def onDrag(event, offset):
-            self.assert_(almostEqual(offset, (-40,-40)))
+            self.assertAlmostEqual(offset, (-40,-40))
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
@@ -565,11 +565,11 @@ class UITestCase(AVGTestCase):
 #            print self.transform
 #            print expectedTransform
 #            print
-            self.assert_(almostEqual(self.transform.trans, expectedTransform.trans))
-            self.assert_(almostEqual(self.transform.rot, expectedTransform.rot))
-            self.assert_(almostEqual(self.transform.scale, expectedTransform.scale))
+            self.assertAlmostEqual(self.transform.trans, expectedTransform.trans)
+            self.assertAlmostEqual(self.transform.rot, expectedTransform.rot)
+            self.assertAlmostEqual(self.transform.scale, expectedTransform.scale)
             if expectedTransform.rot != 0 or expectedTransform.scale != 1:
-                self.assert_(almostEqual(self.transform.pivot, expectedTransform.pivot))
+                self.assertAlmostEqual(self.transform.pivot, expectedTransform.pivot)
 
         def createTransTestFrames():
             return (
@@ -671,27 +671,27 @@ class UITestCase(AVGTestCase):
         v = [1,0,1]
         self.assertEqual(t.applyVec(v), [2,0,1])
         r = ui.Mat3x3.rotate(math.pi/2)
-        self.assert_(almostEqual(r.applyVec(v), [0,1,1]))
+        self.assertAlmostEqual(r.applyVec(v), [0,1,1])
         t2 = t.applyMat(t)
-        self.assert_(almostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m))
-        self.assert_(almostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m))
-        self.assert_(almostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m))
-        self.assert_(almostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m))
+        self.assertAlmostEqual(t.applyMat(t).m, ui.Mat3x3.translate([2,0,1]).m)
+        self.assertAlmostEqual(t.applyMat(r).m, ui.Mat3x3([0,-1,1],[1,0,0]).m)
+        self.assertAlmostEqual(r.applyMat(t).m, ui.Mat3x3([0,-1,0],[1,0,1]).m)
+        self.assertAlmostEqual(ui.Mat3x3().m, ui.Mat3x3().inverse().m)
         m = ui.Mat3x3([-1,  3, -3], 
                       [ 0, -6,  5],
                       [-5, -3,  1])
         im = ui.Mat3x3([3./2,      1., -1./2],
                        [-25./6, -8./3,  5./6],
                        [-5.,      -3.,    1.])
-        self.assert_(almostEqual(m.inverse().m, im.m))
+        self.assertAlmostEqual(m.inverse().m, im.m)
 
         image = avg.ImageNode(pos=(10,20), size=(30,40), angle=1.57, 
             href="rgb24alpha-64x64.png")
         mat = ui.Mat3x3.fromNode(image)
         mat.setNodeTransform(image)
-        self.assert_(almostEqual(image.pos, (10,20)))
-        self.assert_(almostEqual(image.size, (30,40)))
-        self.assert_(almostEqual(image.angle, 1.57))
+        self.assertAlmostEqual(image.pos, (10,20))
+        self.assertAlmostEqual(image.size, (30,40))
+        self.assertAlmostEqual(image.angle, 1.57)
 
 
     def testFocusContext(self):

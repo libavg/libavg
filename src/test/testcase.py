@@ -29,7 +29,7 @@ import math
 from libavg import avg
 
 
-def almostEqual(a,b):
+def almostEqual(a, b):
     try:
         bOk = True
         for i in range(len(a)):
@@ -161,6 +161,11 @@ class AVGTestCase(unittest.TestCase):
         except:
             exceptionRaised = True
         self.assert_(exceptionRaised)
+
+    def assertAlmostEqual(self, a, b):
+        if not(almostEqual(a, b)):
+            msg = "almostEqual: " + str(a) + " != " + str(b)
+            self.fail(msg)
 
     def loadEmptyScene(self, resolution = (160,120)):
         sceneString = """
