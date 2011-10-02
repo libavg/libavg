@@ -182,6 +182,24 @@ class AVGTestCase(unittest.TestCase):
         helper = self.__player.getTestHelper()
         helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)
         helper.fakeMouseEvent(avg.CURSORUP, False, False, False, x, y, 1)
+    
+    def _sendMouseEvent(self, type, x, y):
+        helper = self.__player.getTestHelper()
+        if type == avg.CURSORUP:
+            button = False
+        else:
+            button = True
+        helper.fakeMouseEvent(type, button, False, False, x, y, 1)
+
+    def _sendTouchEvent(self, id, type, x, y):
+        helper = self.__player.getTestHelper()
+        helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+      
+    def _sendTouchEvents(self, eventData):
+        helper = self.__player.getTestHelper()
+        for (id, type, x, y) in eventData:
+            helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+
 
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
