@@ -48,7 +48,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(pt, avg.Point2D(10, 10))
         self.assertEqual(pt, (10, 10))
         self.assertEqual(pt, avg.Point2D([10, 10]))
-        self.assert_(pt != avg.Point2D(11, 10))
+        self.assertNotEqual(pt, avg.Point2D(11, 10))
         self.assertEqual(str(pt), "(10,10)")
         pt2 = eval(repr(pt))
         self.assertEqual(pt2, pt)
@@ -69,7 +69,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(pt, avg.Point2D(20, 20))
         pt -= avg.Point2D(6, 6)
         self.assertEqual(pt, avg.Point2D(14, 14))
-        self.assert_(pt != avg.Point2D(13, 13))
+        self.assertNotEqual(pt, avg.Point2D(13, 13))
         pt = pt/2.
         self.assertEqual(pt, avg.Point2D(7, 7))
         pt = avg.Point2D((10, 10))
@@ -610,7 +610,7 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testMemoryQuery(self):
-        self.assert_(avg.getMemoryUsage() != 0)
+        self.assertNotEqual(avg.getMemoryUsage(), 0)
 
     def testStopOnEscape(self):
         def pressEscape():

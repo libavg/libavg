@@ -282,7 +282,7 @@ class AVTestCase(AVGTestCase):
 
         def checkSeek():
             seek(26)
-            self.assert_(videoNode.getCurFrame() != 0)
+            self.assertNotEqual(videoNode.getCurFrame(), 0)
 
         root = self.loadEmptyScene()
         videoNode = avg.VideoNode(parent=root, loop=True, fps=25,

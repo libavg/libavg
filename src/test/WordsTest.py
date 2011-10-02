@@ -51,7 +51,7 @@ class WordsTestCase(AVGTestCase):
                 text="Bitstream Vera Sans", variant="roman", parent=root)
         node = avg.WordsNode (pos=(1,16), fontsize=12, font="Bitstream Vera Sans",
                 text="Bold", variant="bold", parent=root)
-        self.assert_(node.size != (0,0))
+        self.assertNotEqual(node.size, (0,0))
         pos = node.getGlyphPos(0)
         self.start((
                  lambda: self.compareImage("testSimpleWords", True),
@@ -64,7 +64,7 @@ class WordsTestCase(AVGTestCase):
         def changeText(newText):
             size = node.size
             node.text = newText 
-            self.assert_(node.size != size)
+            self.assertNotEqual(node.size, size)
 
         root = self.loadEmptyScene()
         node = avg.WordsNode(font="Bitstream Vera Sans", fontsize=12, text="foo", 
@@ -208,7 +208,7 @@ class WordsTestCase(AVGTestCase):
             hint = root.getChild(1)
             posNoHint = noHint.getGlyphPos(6)
             posHint = hint.getGlyphPos(6)
-            self.assert_(posNoHint != posHint)
+            self.assertNotEqual(posNoHint, posHint)
             noHint.hint = True
             hint.hint = False
             self.assertEqual(posNoHint, hint.getGlyphPos(6))
@@ -271,7 +271,7 @@ class WordsTestCase(AVGTestCase):
         def changeText():
             oldwidth = words.width
             words.text = "blue" 
-            self.assert_(words.width != oldwidth)
+            self.assertNotEqual(words.width, oldwidth)
             words.color = "404080"
             words.x += 10
         
@@ -580,7 +580,7 @@ class WordsTestCase(AVGTestCase):
             textNode.width = 50 
             testSize(textNode.size, avg.Point2D(50,182))
             testSize(textNode.getMediaSize(), avg.Point2D(45,182))
-            self.assert_(mediaSize != textNode.getMediaSize())
+            self.assertNotEqual(mediaSize, textNode.getMediaSize())
 
         self.start([lambda: changeSize()])
         
