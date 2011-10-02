@@ -20,8 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 from libavg import avg
 from testcase import *
 
@@ -336,6 +334,14 @@ class DynamicsTestCase(AVGTestCase):
                 def customMethod(self):
                     pass
 
+            class CustomDivNode(avg.DivNode):
+                def __init__(self, parent=None, **kwargs):
+                    avg.DivNode.__init__(self, **kwargs)
+                    if parent:
+                        parent.appendChild(self)
+                    CustomImageNode((23,42), parent=self)
+
+
             customNode = avg.ImageNode(id="foo")
             self.assert_(customNode.id == "foo")
             CustomImageNode((23, 42), parent=root)
@@ -345,6 +351,14 @@ class DynamicsTestCase(AVGTestCase):
             self.assert_(retrievedImage.href == "rgb24-64x64.png")
             retrievedImage.customMethod()
             
+            CustomDivNode(parent=Player.getRootNode())
+            retrievedDiv = Player.getRootNode().getChild(1)
+            self.assert_(type(retrievedDiv) == CustomDivNode)
+            retrievedImage = retrievedDiv.getChild(0)
+            self.assert_(type(retrievedImage) == CustomImageNode)
+#            retrievedDiv = retrievedImage.getParent()
+#            print type(retrievedDiv)
+#            self.assert_(type(retrievedDiv) == CustomDivNode)
 
         root = self.loadEmptyScene()
         testNodePythonAttribute()
