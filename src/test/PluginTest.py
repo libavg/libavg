@@ -51,14 +51,14 @@ class PluginTestCase(AVGTestCase):
             root.appendChild(node)
             
             mynode = Player.getElementByID("mynode1")
-            self.assert_(mynode.fillcolor == "7f7f00")
+            self.assertEqual(mynode.fillcolor, "7f7f00")
  
         def usePlugin2():
             node = Player.createNode('<colornode fillcolor="0f3f7f" id="mynode2" />')
             root.appendChild(node)
 
             mynode = Player.getElementByID("mynode2")
-            self.assert_(mynode.fillcolor == "0f3f7f")
+            self.assertEqual(mynode.fillcolor, "0f3f7f")
 
         root = self.loadEmptyScene()
         self.start(( 

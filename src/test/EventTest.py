@@ -78,7 +78,7 @@ class EventTestCase(AVGTestCase):
     def testSimpleEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
-            self.assert_(Event.pos == avg.Point2D(10,10))
+            self.assertEqual(Event.pos, avg.Point2D(10,10))
         
         root = self.loadEmptyScene()
         img1 = avg.ImageNode(pos=(0,0), href="rgb24-65x65.png", parent=root)
@@ -580,47 +580,47 @@ class EventTestCase(AVGTestCase):
 
         def onDown(event):
             contact = event.contact
-            self.assert_(event.cursorid == contact.id)
-            self.assert_(contact.age == 0)
-            self.assert_(contact.distancefromstart == 0)
-            self.assert_(contact.motionangle == 0)
-            self.assert_(contact.motionvec == (0,0))
-            self.assert_(contact.distancetravelled == 0)
-            self.assert_(contact.events[0].pos == event.pos)
-            self.assert_(len(contact.events) == 1)
+            self.assertEqual(event.cursorid, contact.id)
+            self.assertEqual(contact.age, 0)
+            self.assertEqual(contact.distancefromstart, 0)
+            self.assertEqual(contact.motionangle, 0)
+            self.assertEqual(contact.motionvec, (0,0))
+            self.assertEqual(contact.distancetravelled, 0)
+            self.assertEqual(contact.events[0].pos, event.pos)
+            self.assertEqual(len(contact.events), 1)
             contact.connectListener(onMotion, onUp)
 
         def onMotion(event):
             contact = event.contact
-            self.assert_(event.cursorid == contact.id)
-            self.assert_(contact.age == 40)
-            self.assert_(contact.distancefromstart == 10)
-            self.assert_(contact.motionangle == 0)
-            self.assert_(contact.motionvec == (10,0))
-            self.assert_(contact.distancetravelled == 10)
-            self.assert_(contact.events[-1].pos == event.pos)
+            self.assertEqual(event.cursorid, contact.id)
+            self.assertEqual(contact.age, 40)
+            self.assertEqual(contact.distancefromstart, 10)
+            self.assertEqual(contact.motionangle, 0)
+            self.assertEqual(contact.motionvec, (10,0))
+            self.assertEqual(contact.distancetravelled, 10)
+            self.assertEqual(contact.events[-1].pos, event.pos)
             self.assert_(len(contact.events) > 1)
             self.numContactCallbacks += 1
  
         def onUp(event):
             contact = event.contact
-            self.assert_(event.cursorid == contact.id)
-            self.assert_(contact.age == 80)
-            self.assert_(contact.distancefromstart == 0)
-            self.assert_(contact.motionangle == 0)
-            self.assert_(contact.motionvec == (0,0))
-            self.assert_(contact.distancetravelled == 20)
-            self.assert_(contact.events[-1].pos == event.pos)
+            self.assertEqual(event.cursorid, contact.id)
+            self.assertEqual(contact.age, 80)
+            self.assertEqual(contact.distancefromstart, 0)
+            self.assertEqual(contact.motionangle, 0)
+            self.assertEqual(contact.motionvec, (0,0))
+            self.assertEqual(contact.distancetravelled, 20)
+            self.assertEqual(contact.events[-1].pos, event.pos)
             self.assert_(len(contact.events) > 1)
             self.numContactCallbacks += 1
 
         def onOver(event): 
             self.numOverCallbacks += 1
-            self.assert_(event.cursorid == event.contact.id)
+            self.assertEqual(event.cursorid, event.contact.id)
 
         def onOut(event): 
             self.numOutCallbacks += 1
-            self.assert_(event.cursorid == event.contact.id)
+            self.assertEqual(event.cursorid, event.contact.id)
 
         root = self.loadEmptyScene()
         root.connectEventHandler(avg.CURSORDOWN, avg.TOUCH, self, onDown)
@@ -636,9 +636,9 @@ class EventTestCase(AVGTestCase):
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
             ))
-        self.assert_(self.numContactCallbacks == 2)
-        self.assert_(self.numOverCallbacks == 2)
-        self.assert_(self.numOutCallbacks == 2)
+        self.assertEqual(self.numContactCallbacks, 2)
+        self.assertEqual(self.numOverCallbacks, 2)
+        self.assertEqual(self.numOutCallbacks, 2)
         
         root = self.loadEmptyScene()
         root.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self, onDown)
@@ -648,7 +648,7 @@ class EventTestCase(AVGTestCase):
              lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, 1, 0, 0, 20, 10, 0),
              lambda: Helper.fakeMouseEvent(avg.CURSORUP, 0, 0, 0, 10, 10, 0),
             ))
-        self.assert_(self.numContactCallbacks == 2)
+        self.assertEqual(self.numContactCallbacks, 2)
 
     def testContactRegistration(self):
 
@@ -680,8 +680,8 @@ class EventTestCase(AVGTestCase):
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (30,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (40,10)),
             ))
-        self.assert_(self.numContactCallbacks == 1)
-        self.assert_(self.numMotionCallbacks == 1)
+        self.assertEqual(self.numContactCallbacks, 1)
+        self.assertEqual(self.numMotionCallbacks, 1)
         
     def testMultiContactRegistration(self):
 
@@ -696,7 +696,7 @@ class EventTestCase(AVGTestCase):
             self.numContact1Callbacks += 1
 
         def onContact2(event):
-            self.assert_(self.numContact1Callbacks == 0)
+            self.assertEqual(self.numContact1Callbacks, 0)
             self.numContact2Callbacks += 1
         
         root = self.loadEmptyScene()
@@ -709,7 +709,7 @@ class EventTestCase(AVGTestCase):
              lambda: Helper.fakeTouchEvent(1, avg.CURSORMOTION, avg.TOUCH, (20,10)),
              lambda: Helper.fakeTouchEvent(1, avg.CURSORUP, avg.TOUCH, (10,10)),
             ))
-        self.assert_(self.numContact1Callbacks == 2)
+        self.assertEqual(self.numContact1Callbacks, 2)
         # The order of callbacks is unspecified, so onContact2 might be called once.
         self.assert_(self.numContact2Callbacks <= 1)
 

@@ -36,22 +36,22 @@ class OffscreenTestCase(AVGTestCase):
             node = avg.ImageNode(parent=root, id="imagenode")
             node.href="canvas:"+canvasName
             if isFirst:
-                self.assert_(canvas.getNumDependentCanvases() == 0)
+                self.assertEqual(canvas.getNumDependentCanvases(), 0)
                 self.canvas1 = canvas
             else:
-                self.assert_(canvas.getNumDependentCanvases() == 1)
+                self.assertEqual(canvas.getNumDependentCanvases(), 1)
                 self.canvas2 = canvas
 
         def unlink():
             self.node = Player.getElementByID("imagenode")
             self.node.unlink()
-            self.assert_(self.canvas1.getNumDependentCanvases() == 0)
+            self.assertEqual(self.canvas1.getNumDependentCanvases(), 0)
             gc.collect()
 
         def relink():
             root.appendChild(self.node)
             self.node = None
-            self.assert_(self.canvas1.getNumDependentCanvases() == 1)
+            self.assertEqual(self.canvas1.getNumDependentCanvases(), 1)
             
         def changeHRef(href):
             Player.getElementByID("imagenode").href = href
@@ -84,14 +84,14 @@ class OffscreenTestCase(AVGTestCase):
                  lambda: createCanvas(False, "testcanvas2", 80),
                  lambda: self.compareImage("testOffscreen3", False),
                  lambda: changeHRef("canvas:testcanvas1"),
-                 lambda: self.assert_(self.canvas1.getNumDependentCanvases() == 1),
-                 lambda: self.assert_(self.canvas2.getNumDependentCanvases() == 0),
+                 lambda: self.assertEqual(self.canvas1.getNumDependentCanvases(), 1),
+                 lambda: self.assertEqual(self.canvas2.getNumDependentCanvases(), 0),
                  lambda: self.compareImage("testOffscreen1", False),
                  lambda: changeHRef("rgb24-65x65.png"),
-                 lambda: self.assert_(self.canvas1.getNumDependentCanvases() == 0),
+                 lambda: self.assertEqual(self.canvas1.getNumDependentCanvases(), 0),
                  lambda: self.compareImage("testOffscreen4", False),
                  lambda: changeHRef("canvas:testcanvas1"),
-                 lambda: self.assert_(self.canvas1.getNumDependentCanvases() == 1),
+                 lambda: self.assertEqual(self.canvas1.getNumDependentCanvases(), 1),
                  lambda: self.compareImage("testOffscreen1", False),
                  setBitmap,
                  lambda: self.compareImage("testOffscreen4", False),
@@ -148,11 +148,11 @@ class OffscreenTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         mainCanvas = Player.getMainCanvas()
-        self.assert_(mainCanvas.getRootNode() == root)
+        self.assertEqual(mainCanvas.getRootNode(), root)
         offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", False)
-        self.assert_(offscreenCanvas == Player.getCanvas("offscreencanvas"))
-        self.assert_(offscreenCanvas.getElementByID("test1").href == "rgb24-65x65.png")
-        self.assert_(offscreenCanvas.getElementByID("missingnode") == None)
+        self.assertEqual(offscreenCanvas, Player.getCanvas("offscreencanvas"))
+        self.assertEqual(offscreenCanvas.getElementByID("test1").href, "rgb24-65x65.png")
+        self.assertEqual(offscreenCanvas.getElementByID("missingnode"), None)
         self.assertException(Player.screenshot)
         self.assertException(createCompressed)
         self.start(( 
@@ -357,7 +357,7 @@ class OffscreenTestCase(AVGTestCase):
                 print "Offscreen multisampling init failed - skipping test."
                 Player.stop()
                 return
-            self.assert_(self.canvas.multisamplesamples == 2)
+            self.assertEqual(self.canvas.multisamplesamples, 2)
             node = avg.ImageNode(parent=root, 
                     href="canvas:testcanvas")
             

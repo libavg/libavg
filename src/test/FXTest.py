@@ -247,11 +247,11 @@ class FXTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", gamma=(0.5,0.5,0.5))
-        self.assert_(node.gamma == (0.5,0.5,0.5))
+        self.assertEqual(node.gamma, (0.5,0.5,0.5))
         self.start((
                  lambda: self.compareImage("testGamma1", False),
                  lambda: setGamma((1.5,2.0,2.5)),
-                 lambda: self.assert_(node.gamma==(1.5,2.0,2.5)),
+                 lambda: self.assertEqual(node.gamma, (1.5,2.0,2.5)),
                  lambda: self.compareImage("testGamma2", False),
                 ))
 
@@ -273,12 +273,12 @@ class FXTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
-        self.assert_(node.intensity == (0.5,0.5,0.5))
+        self.assertEqual(node.intensity, (0.5,0.5,0.5))
         Player.setFakeFPS(10)
         self.start((
                  lambda: self.compareImage("testIntensity1", False),
                  lambda: setIntensity((1.5,2.0,2.5)),
-                 lambda: self.assert_(node.intensity==(1.5,2.0,2.5)),
+                 lambda: self.assertEqual(node.intensity, (1.5,2.0,2.5)),
                  lambda: self.compareImage("testIntensity2", False),
                  showVideo,
                  lambda: self.compareImage("testIntensity3", False),
@@ -300,12 +300,12 @@ class FXTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
-        self.assert_(node.contrast == (0.5,0.5,0.5))
+        self.assertEqual(node.contrast, (0.5,0.5,0.5))
         Player.setFakeFPS(10)
         self.start((
                  lambda: self.compareImage("testContrast1", False),
                  lambda: setContrast((1.5,2.0,2.5)),
-                 lambda: self.assert_(node.contrast==(1.5,2.0,2.5)),
+                 lambda: self.assertEqual(node.contrast, (1.5,2.0,2.5)),
                  lambda: self.compareImage("testContrast2", False),
                  showVideo,
                  lambda: self.compareImage("testContrast3", False),

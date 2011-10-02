@@ -33,7 +33,7 @@ class WordsTestCase(AVGTestCase):
     
     def testSimpleWords(self):
         def checkFont():
-            self.assert_(node.variant=="bold")
+            self.assertEqual(node.variant, "bold")
     
         def checkUnicodeText():
             node.text = u"föa"
@@ -77,7 +77,7 @@ class WordsTestCase(AVGTestCase):
             return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
         
         node = avg.WordsNode(text="Bold", font="Bitstream Vera Sans")
-        self.assert_(node.getGlyphPos(0) == (0,0))
+        self.assertEqual(node.getGlyphPos(0), (0,0))
         size = node.getGlyphSize(0)
         self.assert_(posAlmostEqual(size, (10, 18)))
         self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
@@ -211,8 +211,8 @@ class WordsTestCase(AVGTestCase):
             self.assert_(posNoHint != posHint)
             noHint.hint = True
             hint.hint = False
-            self.assert_(posNoHint == hint.getGlyphPos(6))
-            self.assert_(posHint == noHint.getGlyphPos(6))
+            self.assertEqual(posNoHint, hint.getGlyphPos(6))
+            self.assertEqual(posHint, noHint.getGlyphPos(6))
 
         if platform.system() == "Linux":
             print "Skipping testHinting - Linux support requires modified font config."
@@ -297,7 +297,7 @@ class WordsTestCase(AVGTestCase):
                 words.text = "This <invalid_tag/>bombs"
             except:
                 words.text = "except"
-            self.assert_(words.text == "except")
+            self.assertEqual(words.text, "except")
        
         root = self.loadEmptyScene()
         words = avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
@@ -529,15 +529,15 @@ class WordsTestCase(AVGTestCase):
     
     def testGetNumLines(self):
         textNode = avg.WordsNode(text="paragraph 1<br/>paragraph 2<br/>paragraph 3")
-        self.assert_(textNode.getNumLines() == 3)
+        self.assertEqual(textNode.getNumLines(), 3)
     
     def testGetLineExtents(self):        
         textNode = avg.WordsNode(fontsize = 100,
                                 font = "Bitstream Vera Sans",
                                 text = "bla <br/> blabli <br/> blabliblabla")
-        self.assert_(textNode.getLineExtents(0) == (184,117))
+        self.assertEqual(textNode.getLineExtents(0), (184,117))
         textNode.parent = Player.getRootNode()
-        self.assert_(textNode.getLineExtents(1) == (303,117))
+        self.assertEqual(textNode.getLineExtents(1), (303,117))
         
     def testGetCharIndexFromPos(self):
         textNode = avg.WordsNode(fontsize=30,
@@ -548,7 +548,7 @@ class WordsTestCase(AVGTestCase):
         for k in (1,2,3,23,42):
             pos = textNode.getGlyphPos(k)
             char = textNode.getCharIndexFromPos(pos)
-            self.assert_(char == k)
+            self.assertEqual(char, k)
         
     def testGetTextAsDisplayed(self):
         orgText = "A<br/>B C <b>D</b> E F G H <i>Ä</i> Ö Ü ? Ì Á<br/>Í Å Ø ∏ ~ ç Ç Å"
@@ -557,7 +557,7 @@ class WordsTestCase(AVGTestCase):
                       font = "Bitstream Vera Sans",
                       text = orgText,
                       width = 300)
-        self.assert_(orgTextWithout == textNode.getTextAsDisplayed())
+        self.assertEqual(orgTextWithout, textNode.getTextAsDisplayed())
 
     def testSetWidth(self):
         root = self.loadEmptyScene()

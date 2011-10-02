@@ -124,27 +124,27 @@ class UITestCase(AVGTestCase):
             
         def setAndCheck(ta, text):
             ta.setText(text)
-            self.assert_(ta.getText() == text)
+            self.assertEqual(ta.getText(), text)
         
         def clear(ta):
             ta.onKeyDown(textarea.KEYCODE_FORMFEED)
-            self.assert_(ta.getText() == '')
+            self.assertEqual(ta.getText(), '')
         
         def testUnicode():
             self.ta1.setText(u'some ùnìcöde')
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìcöd')
+            self.assertEqual(self.ta1.getText(), u'some ùnìcöd')
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[1])
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìc')
+            self.assertEqual(self.ta1.getText(), u'some ùnìc')
             self.ta1.onKeyDown(ord(u'Ä'))
-            self.assert_(self.ta1.getText() == u'some ùnìcÄ')
+            self.assertEqual(self.ta1.getText(), u'some ùnìcÄ')
         
         def testSpecialChars():
             clear(self.ta1)
             self.ta1.onKeyDown(ord(u'&'))
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == '')
+            self.assertEqual(self.ta1.getText(), '')
         
         def checkSingleLine():
             text = ''
@@ -154,7 +154,7 @@ class UITestCase(AVGTestCase):
                 self.ta2.onKeyDown(ord(u'A'))
                 text = text + 'A'
                 if text != self.ta2.getText():
-                    self.assert_(len(text) == 16)
+                    self.assertEqual(len(text), 16)
                     break
         
         root = self.loadEmptyScene()
@@ -164,7 +164,7 @@ class UITestCase(AVGTestCase):
         textarea.init(avg, False)
         self.start((
                 setup,
-                lambda: self.assert_(self.ta1.getText() == 'Lorem ipsum'),
+                lambda: self.assertEqual(self.ta1.getText(), 'Lorem ipsum'),
                 lambda: setAndCheck(self.ta1, ''),
                 lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
                 testUnicode,
@@ -390,12 +390,12 @@ class UITestCase(AVGTestCase):
 
         def onMove(event, offset):
             if self.friction == -1:
-                self.assert_(offset == (40,40))
+                self.assertEqual(offset, (40,40))
             self.__moved = True
 
         def onUp(event, offset):
             if self.friction == -1:
-                self.assert_(offset == (10,-10))
+                self.assertEqual(offset, (10,-10))
             self.__up = True
 
         def onEnd(event):
@@ -454,7 +454,7 @@ class UITestCase(AVGTestCase):
 
         def onVertMove(event, offset):
             if self.friction == -1:
-                self.assert_(offset == (0,40))
+                self.assertEqual(offset, (0,40))
             self.__moved = True
 
         for friction in (-1, 100):
@@ -521,7 +521,7 @@ class UITestCase(AVGTestCase):
             self.__dragStartCalled = True
 
         def onDrag(event, offset):
-            self.assert_(offset == (10,0))
+            self.assertEqual(offset, (10,0))
 
         root = self.loadEmptyScene()
         self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -538,7 +538,7 @@ class UITestCase(AVGTestCase):
     def testDragRecognizerCoordSysNode(self):
         
         def onDrag(event, offset):
-            self.assert_(offset == (40,40))
+            self.assertEqual(offset, (40,40))
 
         root = self.loadEmptyScene()
         div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
@@ -659,17 +659,17 @@ class UITestCase(AVGTestCase):
     def testKMeans(self):
         pts = [avg.Point2D(0,0), avg.Point2D(0,1)]
         means = ui.calcKMeans(pts)
-        self.assert_(means == ([0], [1]))
+        self.assertEqual(means, ([0], [1]))
 
         pts.append (avg.Point2D(0,4))
         means = ui.calcKMeans(pts)
-        self.assert_(means == ([0,1], [2]))
+        self.assertEqual(means, ([0,1], [2]))
 
 
     def testMat3x3(self):
         t = ui.Mat3x3.translate([1,0,1])
         v = [1,0,1]
-        self.assert_(t.applyVec(v) == [2,0,1])
+        self.assertEqual(t.applyVec(v), [2,0,1])
         r = ui.Mat3x3.rotate(math.pi/2)
         self.assert_(almostEqual(r.applyVec(v), [0,1,1]))
         t2 = t.applyMat(t)
@@ -1315,14 +1315,14 @@ class UITestCase(AVGTestCase):
     def testScrollPane(self):
         def scrollLarge():
             scrollPane.contentpos = (-34, -34)
-            self.assert_(scrollPane.contentpos == (-32,-32))
+            self.assertEqual(scrollPane.contentpos, (-32,-32))
 
         def initSmallContent():
             scrollPane.size = (64, 64)
             contentArea.size = (32, 32)
             image.size = (32, 32)
             scrollPane.contentpos = (0, 0)
-            self.assert_(scrollPane.getMaxContentPos() == (32,32))
+            self.assertEqual(scrollPane.getMaxContentPos(), (32,32))
 
         def scrollSmall():
             scrollPane.contentpos = (32, 32)

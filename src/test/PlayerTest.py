@@ -37,46 +37,46 @@ class PlayerTestCase(AVGTestCase):
             ptMap[avg.Point2D(0,0)] = 0
             ptMap[avg.Point2D(1,0)] = 1
             ptMap[avg.Point2D(0,0)] = 2
-            self.assert_(len(ptMap) == 2)
-            self.assert_(ptMap[avg.Point2D(0,0)] == 2)
+            self.assertEqual(len(ptMap), 2)
+            self.assertEqual(ptMap[avg.Point2D(0,0)], 2)
 
         pt = avg.Point2D()
-        self.assert_(pt == avg.Point2D(0,0))
+        self.assertEqual(pt, avg.Point2D(0,0))
         pt = avg.Point2D(10, 10)
-        self.assert_(pt[0]==pt.x)
-        self.assert_(pt[1]==pt.y)
-        self.assert_(pt == avg.Point2D(10, 10))
-        self.assert_(pt == (10, 10))
-        self.assert_(pt == avg.Point2D([10, 10]))
+        self.assertEqual(pt[0], pt.x)
+        self.assertEqual(pt[1], pt.y)
+        self.assertEqual(pt, avg.Point2D(10, 10))
+        self.assertEqual(pt, (10, 10))
+        self.assertEqual(pt, avg.Point2D([10, 10]))
         self.assert_(pt != avg.Point2D(11, 10))
-        self.assert_(str(pt) == "(10,10)")
+        self.assertEqual(str(pt), "(10,10)")
         pt2 = eval(repr(pt))
-        self.assert_(pt2 == pt)
+        self.assertEqual(pt2, pt)
         testHash()
         self.assert_(almostEqual(avg.Point2D(10,0).getNormalized(), avg.Point2D(1,0)))
         self.assert_(almostEqual(pt.getRotated(math.pi, (5,5)), avg.Point2D(0,0)))
-        self.assert_(-pt == (-10, -10))
-        self.assert_(pt-(10,0) == (0,10))
-        self.assert_(pt+(10,0) == (20,10))
-        self.assert_(pt*2 == (20,20))
-        self.assert_(2*pt == (20,20))
+        self.assertEqual(-pt, (-10, -10))
+        self.assertEqual(pt-(10,0), (0,10))
+        self.assertEqual(pt+(10,0), (20,10))
+        self.assertEqual(pt*2, (20,20))
+        self.assertEqual(2*pt, (20,20))
         pt.x = 21
         pt.y = 23
-        self.assert_(pt == avg.Point2D(21, 23))
+        self.assertEqual(pt, avg.Point2D(21, 23))
         pt.x -= 11
         pt.y -= 13
         pt += avg.Point2D(10, 10)
-        self.assert_(pt == avg.Point2D(20, 20))
+        self.assertEqual(pt, avg.Point2D(20, 20))
         pt -= avg.Point2D(6, 6)
-        self.assert_(pt == avg.Point2D(14, 14))
+        self.assertEqual(pt, avg.Point2D(14, 14))
         self.assert_(pt != avg.Point2D(13, 13))
         pt = pt/2.
-        self.assert_(pt == avg.Point2D(7, 7))
+        self.assertEqual(pt, avg.Point2D(7, 7))
         pt = avg.Point2D((10, 10))
-        self.assert_(pt == (10, 10))
-        self.assert_(len(pt) == 2)
-        self.assert_(pt[0]==pt.x)
-        self.assert_(pt[1]==pt.y)
+        self.assertEqual(pt, (10, 10))
+        self.assertEqual(len(pt), 2)
+        self.assertEqual(pt[0], pt.x)
+        self.assertEqual(pt[1], pt.y)
         self.assertException(lambda: pt[2])
         self.assert_(almostEqual(avg.Point2D(10,0), avg.Point2D.fromPolar(0,10)))
         self.assertException(avg.Point2D(0,0).getNormalized)
@@ -108,9 +108,9 @@ class PlayerTestCase(AVGTestCase):
 
     def testFakeTime(self):
         def checkTime():
-            self.assert_(Player.getFrameTime() == 50)
-            self.assert_(Player.getFrameDuration() == 50)
-            self.assert_(Player.getEffectiveFramerate() == 20)
+            self.assertEqual(Player.getFrameTime(), 50)
+            self.assertEqual(Player.getFrameDuration(), 50)
+            self.assertEqual(Player.getEffectiveFramerate(), 20)
 
         root = self.loadEmptyScene()
         Player.setFakeFPS(20)
@@ -120,9 +120,9 @@ class PlayerTestCase(AVGTestCase):
 
     def testDivResize(self):
         def checkSize (w, h):
-            self.assert_(node.width == w)
-            self.assert_(node.height == h)
-            self.assert_(node.size == (w,h))
+            self.assertEqual(node.width, w)
+            self.assertEqual(node.height, h)
+            self.assertEqual(node.size, (w,h))
         
         def setSize (size):
             node.size = size
@@ -164,9 +164,9 @@ class PlayerTestCase(AVGTestCase):
                     almostEqual(relPos[1], 6.9211188716194592))
             absPos = outerNode.getAbsPos(relPos)
             self.assert_(almostEqual(absPos, (90, 80)))
-            self.assert_(outerNode.getElementByPos((10, 10)) == innerNode)
-            self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
-            self.assert_(outerNode.getElementByPos((-10, -110)) == None)
+            self.assertEqual(outerNode.getElementByPos((10, 10)), innerNode)
+            self.assertEqual(outerNode.getElementByPos((0, 10)), outerNode)
+            self.assertEqual(outerNode.getElementByPos((-10, -110)), None)
         
         def sendEvent(type, x, y):
             Helper = Player.getTestHelper()
@@ -389,7 +389,7 @@ class PlayerTestCase(AVGTestCase):
         
         def checkRelPos():
             RelPos = Player.getElementByID("obscured").getRelPos((50,52))
-            self.assert_(RelPos == (0, 0))
+            self.assertEqual(RelPos, (0, 0))
       
         self.__initDefaultScene()
         self.start((
@@ -567,18 +567,18 @@ class PlayerTestCase(AVGTestCase):
         def createImageNode():
             # Node is not in tree; mediadir should be root node dir.
             node = avg.ImageNode(href="rgb24-64x64a.png")
-            self.assert_(node.size == avg.Point2D(0,0)) # File not found
+            self.assertEqual(node.size, avg.Point2D(0,0)) # File not found
             node.href = "rgb24-64x64.png"
-            self.assert_(node.size == avg.Point2D(64,64)) # File found
+            self.assertEqual(node.size, avg.Point2D(64,64)) # File found
             node = avg.ImageNode(href="rgb24-64x64a.png", width=23, height=42)
             # File not found, but custom size
-            self.assert_(node.size == avg.Point2D(23,42))
+            self.assertEqual(node.size, avg.Point2D(23,42))
             node.href = "rgb24-64x64.png"
             # File found, custom size stays
-            self.assert_(node.size == avg.Point2D(23,42))
+            self.assertEqual(node.size, avg.Point2D(23,42))
             node.size = (0,0)
             # File found, custom size cleared. Media size should be used.
-            self.assert_(node.size == avg.Point2D(64,64))
+            self.assertEqual(node.size, avg.Point2D(64,64))
 
         def setDir():
             div.mediadir="../video/testfiles"
@@ -604,7 +604,7 @@ class PlayerTestCase(AVGTestCase):
                  setDir,
                  lambda: video.play(), 
                  lambda: self.compareImage("testMediaDir2", False),
-                 lambda: self.assert_(image.width == 0),
+                 lambda: self.assertEqual(image.width, 0),
                  createNode,
                  setAbsDir
                 ))
@@ -672,7 +672,7 @@ class PlayerTestCase(AVGTestCase):
         newPPMM = Player.getPixelsPerMM()
         newMM = Player.getPhysicalScreenDimensions()
         self.assert_(almostEqual(newPPMM, ppmm))
-        self.assert_(newMM == mm)
+        self.assertEqual(newMM, mm)
 
     def testSVG(self):
         svgFile = avg.SVG("rect.svg", False)
@@ -680,7 +680,7 @@ class PlayerTestCase(AVGTestCase):
         # renderElement
         bmp = svgFile.renderElement("rect")
         self.compareBitmapToFile(bmp, "testSvgBmp", False)
-        self.assert_(svgFile.getElementSize("rect") == avg.Point2D(22,12))
+        self.assertEqual(svgFile.getElementSize("rect"), avg.Point2D(22,12))
         bmp = svgFile.renderElement("pos_rect")
         self.compareBitmapToFile(bmp, "testSvgPosBmp", False)
         bmp = svgFile.renderElement("rect", 5)

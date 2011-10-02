@@ -38,13 +38,13 @@ class ImageTestCase(AVGTestCase):
         def createXmlNode(pos):
             node = Player.createNode(
                     """<image pos="%s" href="rgb24-32x32.png"/>"""%str(pos))
-            self.assert_(node.getMediaSize() == avg.Point2D(32, 32))
+            self.assertEqual(node.getMediaSize(), avg.Point2D(32, 32))
             return node
 
         def createDictNode(root, p):
             node = avg.ImageNode(pos=p, href="rgb24-32x32.png", parent=root)
-            self.assert_(node.getMediaSize() == avg.Point2D(32, 32))
-            self.assert_(node.size == avg.Point2D(32, 32))
+            self.assertEqual(node.getMediaSize(), avg.Point2D(32, 32))
+            self.assertEqual(node.size, avg.Point2D(32, 32))
             return node
 
         def addNodes(y):
@@ -56,15 +56,15 @@ class ImageTestCase(AVGTestCase):
             
             noAttachNode = createXmlNode((80, y))
             noAttachNode.href = "rgb24alpha-32x32.png"
-            self.assert_(noAttachNode.getMediaSize() == avg.Point2D(32, 32))
-            self.assert_(noAttachNode.size == avg.Point2D(32,32))
+            self.assertEqual(noAttachNode.getMediaSize(), avg.Point2D(32, 32))
+            self.assertEqual(noAttachNode.size, avg.Point2D(32,32))
             root.appendChild(noAttachNode)
 
             attachNode = createXmlNode((112, y))
             root.appendChild(attachNode)
             attachNode.href = "rgb24alpha-32x32.png"
-            self.assert_(attachNode.getMediaSize() == avg.Point2D(32, 32))
-            self.assert_(attachNode.size == avg.Point2D(32,32))
+            self.assertEqual(attachNode.getMediaSize(), avg.Point2D(32, 32))
+            self.assertEqual(attachNode.size, avg.Point2D(32,32))
 
         def setUnicodeHref():
             if self._isCurrentDirWriteable():
@@ -134,19 +134,19 @@ class ImageTestCase(AVGTestCase):
 
         def addNodes(y):
             xmlNode = createXmlNode((16, y), (32, 32))
-            self.assert_(xmlNode.size == avg.Point2D(32, 32))
+            self.assertEqual(xmlNode.size, avg.Point2D(32, 32))
             root.appendChild(xmlNode)
             dictNode = createDictNode((48, y), (32, 32))
-            self.assert_(dictNode.size == avg.Point2D(32, 32))
+            self.assertEqual(dictNode.size, avg.Point2D(32, 32))
             root.appendChild(dictNode)
             noAttachNode = createXmlNode((80, y), (0, 0))
             noAttachNode.size = avg.Point2D(32, 32)
-            self.assert_(noAttachNode.size == avg.Point2D(32, 32))
+            self.assertEqual(noAttachNode.size, avg.Point2D(32, 32))
             root.appendChild(noAttachNode)
             attachNode = createXmlNode((112, y), (0, 0))
             root.appendChild(attachNode)
             attachNode.size = avg.Point2D(32, 32)
-            self.assert_(attachNode.size == avg.Point2D(32, 32))
+            self.assertEqual(attachNode.size, avg.Point2D(32, 32))
 
         root = self.loadEmptyScene()
         addNodes(16)
@@ -187,18 +187,18 @@ class ImageTestCase(AVGTestCase):
     def testBitmap(self):
         def getBitmap(node):
             bmp = node.getBitmap()
-            self.assert_(bmp.getSize() == (65,65))
+            self.assertEqual(bmp.getSize(), (65,65))
             self.assert_(bmp.getFormat() == avg.R8G8B8X8 or 
                     bmp.getFormat() == avg.B8G8R8X8)
             node.setBitmap(bmp)
-            self.assert_(node.getMediaSize() == (65,65))
+            self.assertEqual(node.getMediaSize(), (65,65))
         
         def loadFromBitmap(p, orighref):
             node = avg.ImageNode(pos=p, size=(32, 32), href=orighref)
             bmp = avg.Bitmap('rgb24-65x65.png')
-            self.assert_(bmp.getSize() == (65,65))
+            self.assertEqual(bmp.getSize(), (65,65))
             node.setBitmap(bmp)
-            self.assert_(node.getMediaSize() == (65,65))
+            self.assertEqual(node.getMediaSize(), (65,65))
             root.appendChild(node)
         
         def testStringConversion():
@@ -218,14 +218,14 @@ class ImageTestCase(AVGTestCase):
 
         def testGetPixel():
             bmp = avg.Bitmap('rgb24-65x65.png')
-            self.assert_(bmp.getPixel((1,1)) == (255,0,0,255))
-            self.assert_(bmp.getPixel((33,1)) == (0,255,0,255))
+            self.assertEqual(bmp.getPixel((1,1)), (255,0,0,255))
+            self.assertEqual(bmp.getPixel((33,1)), (0,255,0,255))
             bmp = avg.Bitmap('rgb24alpha-64x64.png')
-            self.assert_(bmp.getPixel((1,1)) == (0,0,0,0))
-            self.assert_(bmp.getPixel((63,1)) == (83,255,83,142))
+            self.assertEqual(bmp.getPixel((1,1)), (0,0,0,0))
+            self.assertEqual(bmp.getPixel((63,1)), (83,255,83,142))
             bmp = avg.Bitmap('greyscale.png')
-            self.assert_(bmp.getPixel((1,1)) == (255,255,255,255))
-            self.assert_(bmp.getPixel((1,63)) == (0,0,0,255))
+            self.assertEqual(bmp.getPixel((1,1)), (255,255,255,255))
+            self.assertEqual(bmp.getPixel((1,63)), (0,0,0,255))
             self.assertException(lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
@@ -238,7 +238,7 @@ class ImageTestCase(AVGTestCase):
         node = avg.ImageNode(pos=(0,0), size=(32, 32), href="rgb24-65x65.png")
         root.appendChild(node)
         getBitmap(node)
-        self.assert_(node.size == (32,32))
+        self.assertEqual(node.size, (32,32))
         loadFromBitmap((32,0), "")
         loadFromBitmap((64,0), "rgb24alpha-64x64.png")
         testStringConversion()
@@ -487,7 +487,7 @@ class ImageTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         self.image = avg.ImageNode(href="rgb24-64x64.png", compression="B5G6R5",
                 parent=root)
-        self.assert_(self.image.compression == "B5G6R5")
+        self.assertEqual(self.image.compression, "B5G6R5")
         self.start([
                  lambda: self.compareImage("testTexCompression1", False),
                  loadBitmap,

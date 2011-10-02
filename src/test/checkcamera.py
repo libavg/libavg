@@ -81,7 +81,7 @@ class CameraTestCase(AVGTestCase):
         self.actions = [None, None]
         g_Player.setOnFrameHandler(self.__onFrame)
         g_Player.play()
-        self.assert_(self.cam.framenum == 2)
+        self.assertEqual(self.cam.framenum, 2)
         self.cam = None
 
     def testIllegalFormat(self):

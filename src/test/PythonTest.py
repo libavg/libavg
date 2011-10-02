@@ -51,24 +51,24 @@ class PythonTestCase(AVGTestCase):
         self.start((
                  startAnim,
                  lambda: self.compareImage(imgBaseName+"1", False),
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
                  None,
                  None,
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(self.__anim.isDone()),
                  lambda: self.compareImage(imgBaseName+"2", False),
-                 lambda: self.assert_(Player.getElementByID("test").x == 100),
+                 lambda: self.assertEqual(Player.getElementByID("test").x, 100),
                  startAnim,
                  lambda: self.compareImage(imgBaseName+"1", False),
                  abortAnim,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 0),
+                 lambda: self.assertEqual(anim.getNumRunningAnims(), 0),
                  lambda: self.compareImage(imgBaseName+"3", False),
                  lambda: self.assert_(self.__anim.isDone()),
                  None,
                  lambda: self.assert_(not(self.__onStopCalled)),
                  startAnim,
                  startKeepAttr,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
                  abortAnim
                 ))
         self.__anim = None
@@ -97,7 +97,7 @@ class PythonTestCase(AVGTestCase):
         self.start((
                  startAnim,
                  lambda: self.compareImage("testLinearAnimZeroDuration1", False),
-                 lambda: self.assert_(anim.getNumRunningAnims() == 0),
+                 lambda: self.assertEqual(anim.getNumRunningAnims(), 0),
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(self.__anim.isDone())
                 ))
@@ -205,7 +205,7 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.anim.getState() == "STATE3",
                  lambda: self.compareImage("testStateAnim4", False),
                  lambda: self.anim.setState("STATE1"),
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.assertEqual(anim.getNumRunningAnims(), 1),
                  lambda: self.compareImage("testStateAnim5", False)
                 ))
 
@@ -229,7 +229,7 @@ class PythonTestCase(AVGTestCase):
         self.initDefaultImageScene()
         self.start((
                  startAnim,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 2),
+                 lambda: self.assertEqual(anim.getNumRunningAnims(), 2),
                  lambda: self.assert_(not(self.anim.isDone())),
                  lambda: self.compareImage("testParallelAnims1", False),
                  None,
@@ -392,7 +392,7 @@ class PythonTestCase(AVGTestCase):
         machine.changeState('C')
         self.assert_(self.btocCalled)
         machine.changeState('A')
-        self.assert_(machine.state == 'A')
+        self.assertEqual(machine.state, 'A')
         self.assertException(lambda: machine.addState('illegal', {}))
 
         # Create a machine without transition callbacks

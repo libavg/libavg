@@ -62,7 +62,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def init(self):
                 self.testInstance.assert_(g_Player.isFullscreen())
                 rootNodeSize = g_Player.getRootNode().size
-                self.testInstance.assert_(rootNodeSize == TEST_RESOLUTION)
+                self.testInstance.assertEqual(rootNodeSize, TEST_RESOLUTION)
                 self.requestStop()
                 
         os.environ['AVG_DEPLOY'] = '1'
@@ -75,10 +75,10 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def init(self):
                 self.testInstance.assert_(not g_Player.isFullscreen())
                 rootNodeSize = g_Player.getRootNode().size
-                self.testInstance.assert_(rootNodeSize == TEST_RESOLUTION)
+                self.testInstance.assertEqual(rootNodeSize, TEST_RESOLUTION)
                 
                 # windowSize = g_Player.getWindowResolution()
-                # self.testInstance.assert_(windowSize == Point2D(TEST_RESOLUTION) / 2)
+                # self.testInstance.assertEqual(windowSize, Point2D(TEST_RESOLUTION)/2)
                 self.requestStop()
         
         DebugwindowApp.start(resolution=TEST_RESOLUTION,

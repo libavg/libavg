@@ -41,7 +41,7 @@ class DynamicsTestCase(AVGTestCase):
             node.y = 20
             self.root.appendChild(node)
             self.assertException(setNodeID)
-            self.assert_(self.root.indexOf(Player.getElementByID("nodeid1")) == 0)
+            self.assertEqual(self.root.indexOf(Player.getElementByID("nodeid1")), 0)
 
         def createNode2(useXml):
             node = createFunc(useXml)
@@ -59,7 +59,7 @@ class DynamicsTestCase(AVGTestCase):
             self.root.removeChild(self.root.indexOf(self.node))
             node2 = Player.getElementByID("nodeid2")
             self.root.removeChild(node2)
-            self.assert_(Player.getElementByID("nodeid1") == None)
+            self.assertEqual(Player.getElementByID("nodeid1"), None)
         
         def reAddNode():
             self.root.appendChild(self.node)
@@ -71,13 +71,13 @@ class DynamicsTestCase(AVGTestCase):
             self.node = Player.getElementByID("nodeid1")
             self.node.unlink(True)
             gone = Player.getElementByID("nodeid1")
-            self.assert_(gone == None)
+            self.assertEqual(gone, None)
 
         def removeAgain():
             node = Player.getElementByID("nodeid1")
             node.unlink()
             gone = Player.getElementByID("nodeid1")
-            self.assert_(gone == None)
+            self.assertEqual(gone, None)
         
         def runTest(useXml):
             self.root = self.loadEmptyScene()
@@ -268,13 +268,13 @@ class DynamicsTestCase(AVGTestCase):
                 createNodes,
                 resetEventString,
                 lambda: click (10,10),
-                lambda: self.assert_(self.__eventString=='a'),
+                lambda: self.assertEqual(self.__eventString, 'a'),
                 resetEventString,
                 lambda: click (55,55),
-                lambda: self.assert_(self.__eventString=='cb'),
+                lambda: self.assertEqual(self.__eventString, 'cb'),
                 resetEventString,
                 lambda: click (65,55),
-                lambda: self.assert_(self.__eventString=='d'),
+                lambda: self.assertEqual(self.__eventString, 'd'),
                 ))
 
     def testComplexDiv(self):
@@ -319,8 +319,8 @@ class DynamicsTestCase(AVGTestCase):
             root.appendChild(node1)
             node1.customAttribute = "bbb"
             node2 = Player.getElementByID("foo")
-            self.assert_(node1==node2)
-            self.assert_(node2.customAttribute == "bbb")
+            self.assertEqual(node1, node2)
+            self.assertEqual(node2.customAttribute, "bbb")
             node1.unlink(True)
 
         def testNodePythonSubclass():
@@ -343,22 +343,22 @@ class DynamicsTestCase(AVGTestCase):
 
 
             customNode = avg.ImageNode(id="foo")
-            self.assert_(customNode.id == "foo")
+            self.assertEqual(customNode.id, "foo")
             CustomImageNode((23, 42), parent=root)
             retrievedImage = root.getChild(0)
-            self.assert_(type(retrievedImage) == CustomImageNode)
-            self.assert_(retrievedImage.pos == (23,42))
-            self.assert_(retrievedImage.href == "rgb24-64x64.png")
+            self.assertEqual(type(retrievedImage), CustomImageNode)
+            self.assertEqual(retrievedImage.pos, (23,42))
+            self.assertEqual(retrievedImage.href, "rgb24-64x64.png")
             retrievedImage.customMethod()
             
             CustomDivNode(parent=Player.getRootNode())
             retrievedDiv = Player.getRootNode().getChild(1)
-            self.assert_(type(retrievedDiv) == CustomDivNode)
+            self.assertEqual(type(retrievedDiv), CustomDivNode)
             retrievedImage = retrievedDiv.getChild(0)
-            self.assert_(type(retrievedImage) == CustomImageNode)
+            self.assertEqual(type(retrievedImage), CustomImageNode)
 #            retrievedDiv = retrievedImage.getParent()
 #            print type(retrievedDiv)
-#            self.assert_(type(retrievedDiv) == CustomDivNode)
+#            self.assertEqual(type(retrievedDiv), CustomDivNode)
 
         root = self.loadEmptyScene()
         testNodePythonAttribute()

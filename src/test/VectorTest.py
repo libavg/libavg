@@ -190,9 +190,9 @@ class VectorTestCase(AVGTestCase):
                  addRect2,
                  lambda: self.compareImage("testRect4", False),
                  lambda: self.fakeClick(100, 100),
-                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(55, 50),
-                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(65, 60),
                  lambda: self.assert_(self.__mouseDownCalled)
                 ))
@@ -463,7 +463,7 @@ class VectorTestCase(AVGTestCase):
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6", False),
                  lambda: self.fakeClick(50, 50),
-                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(20, 87),
                  lambda: self.assert_(self.__mouseDownCalled),
                  addEmptyPolygon
