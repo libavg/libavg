@@ -4,7 +4,7 @@ Vector Nodes
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: CircleNode CurveNode FilledVectorNode LineNode MeshNode Node PolygonNode PolyLineNode RectNode VectorNode VisibleNode libavg.geom.Arc libavg.geom.PieSlice libavg.geom.RoundedRect
+    .. inheritance-diagram:: CircleNode CurveNode FilledVectorNode LineNode MeshNode Node PolygonNode PolyLineNode RectNode VectorNode libavg.geom.Arc libavg.geom.PieSlice libavg.geom.RoundedRect
         :parts: 1
 
     .. autoclass:: CircleNode([r=1, texcoord1=0, texcoord2=1])

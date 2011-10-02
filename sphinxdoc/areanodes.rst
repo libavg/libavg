@@ -4,7 +4,7 @@ Area Nodes
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node PanoImageNode RasterNode SoundNode VideoNode VisibleNode WordsNode
+    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node PanoImageNode RasterNode SoundNode VideoNode WordsNode
         :parts: 1
 
     .. autoclass:: AreaNode([x, y, pos, width, height, size, angle, pivot])

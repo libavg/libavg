@@ -6,7 +6,7 @@ This section describes the base classes for all node classes that libavg provide
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: Node VisibleNode
+    .. inheritance-diagram:: Node
         :parts: 1
 
     To be rendered, a :py:class:`Node` must be part of a scene graph. Scene graphs are 
