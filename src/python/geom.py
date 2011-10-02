@@ -65,8 +65,10 @@ class RoundedRect(avg.PolygonNode):
                 pos.append(p)
             return pos
 
-        if self.__size < self.__radius*2:
-            raise RuntimeError("RoundedRect smaller than radius allows.")
+        if self.__size.x < self.__radius*2:
+            self.__radius = self.__size.x/2
+        if self.__size.y < self.__radius*2:
+            self.__radius = self.__size.y/2
         pos = []
         r = self.__radius
         size = self.__size

@@ -291,6 +291,11 @@ class PythonTestCase(AVGTestCase):
             self.rect.fillcolor = "0000FF"
             self.rect.fillopacity = 0.5
 
+        def createDegenRect():
+            self.rect.unlink(True)
+            geom.RoundedRect(parent=root, pos=(10.5,10.5), size=(10,10), radius=6, 
+                    fillopacity=0.5, color="FFFFFF")
+
         root = self.loadEmptyScene()
         self.rect = geom.RoundedRect(parent=root, pos=(2.5,2.5), 
                 size=(64,64), radius=5, color="FF0000")
@@ -300,11 +305,12 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testRoundedRect2", True),
                  setSize,
                  lambda: self.compareImage("testRoundedRect3", True),
-                 lambda: self.assertException(setRadius(15)),
                  lambda: setRadius(10),
                  lambda: self.compareImage("testRoundedRect4", True),
                  setFill,
                  lambda: self.compareImage("testRoundedRect5", True),
+                 createDegenRect,
+                 lambda: self.compareImage("testRoundedRect6", True),
                 ))
 
     def testPieSlice(self):
