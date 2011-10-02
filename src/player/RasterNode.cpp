@@ -290,7 +290,7 @@ DTriple RasterNode::getGamma() const
 void RasterNode::setGamma(const DTriple& gamma)
 {
     m_Gamma = gamma;
-    if (m_pSurface) {
+    if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
@@ -303,7 +303,7 @@ DTriple RasterNode::getIntensity() const
 void RasterNode::setIntensity(const DTriple& intensity)
 {
     m_Intensity = intensity;
-    if (m_pSurface) {
+    if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
@@ -316,7 +316,7 @@ DTriple RasterNode::getContrast() const
 void RasterNode::setContrast(const DTriple& contrast)
 {
     m_Contrast = contrast;
-    if (m_pSurface) {
+    if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
