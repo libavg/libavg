@@ -76,9 +76,10 @@ class AVG_API Exception
 
 void AVG_API fatalError(const std::string& sMsg);
 void AVG_API debugBreak();
-void AVG_API avgAssert(bool b, const char * pszFile, int line);
+void AVG_API avgAssert(bool b, const char * pszFile, int line, const char * pszReason=0);
 
 #define AVG_ASSERT(b) avgAssert((b) != 0, __FILE__, __LINE__);
+#define AVG_ASSERT_MSG(b, pszReason) avgAssert((b) != 0, __FILE__, __LINE__, pszReason);
 
 }
 

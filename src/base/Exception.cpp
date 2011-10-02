@@ -72,7 +72,7 @@ void debugBreak()
 #endif
 }
 
-void avgAssert(bool b, const char * pszFile, int line)
+void avgAssert(bool b, const char * pszFile, int line, const char * pszReason)
 {
     if (!b) {
         string sDummy;
@@ -81,7 +81,10 @@ void avgAssert(bool b, const char * pszFile, int line)
             debugBreak();
         } else {
             stringstream ss;
-            ss << "Assertion failed in " << pszFile << ": " << line;
+            ss << "Assertion failed in " << pszFile << ": " << line << endl;
+            if (pszReason) {
+                ss << "Reason: " << pszReason << endl;
+            }
             dumpBacktrace();
             throw(Exception(AVG_ERR_ASSERT_FAILED, ss.str()));
         }

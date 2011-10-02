@@ -60,7 +60,8 @@ Point<NUM>::Point(const Point<NUM>& p)
 template<class NUM>
 Point<NUM>::Point(const std::vector<NUM>& v)
 {
-    AVG_ASSERT(v.size() == 2);
+    AVG_ASSERT_MSG(v.size() == 2, 
+            "Point can only be constructed from 2-component vector");
     x = v[0];
     y = v[1];
 }
@@ -199,7 +200,7 @@ Point<NUM> Point<NUM>::operator *(const Point<NUM>& pt) const
 template<>
 Point<int> Point<int>::fromPolar(double angle, double radius)
 {
-    AVG_ASSERT(false);
+    AVG_ASSERT_MSG(false, "fromPolar undefined for IntPoint");
     return Point<int>(0,0);
 }
 
@@ -218,7 +219,7 @@ double Point<NUM>::getAngle() const
 template<>
 Point<int> Point<int>::getNormalized() const
 {
-    AVG_ASSERT(false);
+    AVG_ASSERT_MSG(false, "getNormalized undefined for IntPoint");
     return Point<int>(0,0);
 }
 
