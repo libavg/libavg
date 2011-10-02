@@ -393,6 +393,13 @@ class OffscreenTestCase(AVGTestCase):
         def makeCircularRef():
             self.offscreen1.getElementByID("test1").href = "canvas:offscreencanvas2"
             
+        def makeSelfRef1():
+            avg.ImageNode(href="canvas:offscreencanvas1", 
+                    parent=self.offscreen1.getRootNode())
+
+        def makeSelfRef2():
+            self.offscreen1.getElementByID("test1").href = "canvas:offscreencanvas1"
+
         def createTwoCanvases():
             self.offscreen1 = self.__createOffscreenCanvas("offscreencanvas1", False)
             self.offscreen2 = self.__createOffscreenCanvas("offscreencanvas2", False)
@@ -432,6 +439,8 @@ class OffscreenTestCase(AVGTestCase):
                     exchangeCanvases,
                     lambda: self.compareImage("testCanvasDependencies2", False),
                     lambda: self.assertException(makeCircularRef),
+                    lambda: self.assertException(makeSelfRef1),
+                    lambda: self.assertException(makeSelfRef2),
                     loadCanvasDepString,
                   ))
 

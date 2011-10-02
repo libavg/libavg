@@ -70,6 +70,9 @@ ImageNode::~ImageNode()
 
 void ImageNode::connectDisplay()
 {
+    if (m_pImage->getSource() == Image::SCENE) {
+        checkCanvasValid(m_pImage->getCanvas());
+    }
     getSurface()->attach();
     m_pImage->moveToGPU();
     RasterNode::connectDisplay();
@@ -176,6 +179,7 @@ void ImageNode::checkReload()
                     "Texture compression can't be used with canvas hrefs.");
         }
         OffscreenCanvasPtr pCanvas = Player::get()->getCanvasFromURL(m_href);
+        checkCanvasValid(pCanvas);
         m_pImage->setCanvas(pCanvas);
         if (getState() == NS_CANRENDER) {
             pCanvas->addDependentCanvas(getCanvas());
@@ -211,6 +215,16 @@ BitmapPtr ImageNode::getBitmap()
 bool ImageNode::isCanvasURL(const std::string& sURL)
 {
     return sURL.find("canvas:") == 0;
+}
+
+void ImageNode::checkCanvasValid(const CanvasPtr& pCanvas)
+{
+    if (pCanvas == getCanvas()) {
+        m_href = "";
+        m_pImage->setEmpty();
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Circular dependency between canvases.");
+    }
 }
 
 }

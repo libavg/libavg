@@ -176,7 +176,12 @@ void DivNode::insertChild(NodePtr pChild, unsigned i)
     }
     std::vector<NodePtr>::iterator pos = m_Children.begin()+i;
     m_Children.insert(pos, pChild);
-    pChild->setParent(ptr, getState(), getCanvas());
+    try {
+        pChild->setParent(ptr, getState(), getCanvas());
+    } catch (Exception&) {
+        m_Children.erase(m_Children.begin()+i);
+        throw;
+    }
     if (getState() == NS_CANRENDER) {
         pChild->connectDisplay();
     }

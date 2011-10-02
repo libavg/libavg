@@ -356,7 +356,7 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
             continue;
         }
     }
-    assert(pNewCanvas);
+    AVG_ASSERT(pNewCanvas);
     bool bFound = false;
     for (i = 0; i < m_pCanvases.size(); ++i) {
         if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {

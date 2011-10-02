@@ -184,6 +184,7 @@ bool OffscreenCanvas::isCameraImageAvailable() const
 
 void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)
 {
+    AVG_ASSERT(!(pCanvas == shared_from_this()));
     m_pDependentCanvases.push_back(pCanvas);
     Player::get()->newCanvasDependency(
             dynamic_pointer_cast<OffscreenCanvas>(shared_from_this()));

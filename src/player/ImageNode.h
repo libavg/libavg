@@ -60,6 +60,7 @@ class AVG_API ImageNode : public RasterNode
 
     private:
         bool isCanvasURL(const std::string& sURL);
+        void checkCanvasValid(const CanvasPtr& pCanvas);
 
         UTF8String m_href;
         Image::TextureCompression m_Compression;
