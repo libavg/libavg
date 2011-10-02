@@ -533,7 +533,7 @@ class EventTestCase(AVGTestCase):
             elif isinstance(event, avg.KeyEvent):
                 self.ehookKeyboardEvent = True
             else:
-                self.assert_(False)
+                self.fail()
             
         root = self.loadEmptyScene()
         resetState()

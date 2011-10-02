@@ -35,7 +35,7 @@ class AVTestCase(AVGTestCase):
             Player.stop()
 
         def onNoEOF():
-            self.assert_(False)
+            self.fail("No EOF")
 
         root = self.loadEmptyScene()
         root.appendChild(node)

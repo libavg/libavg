@@ -43,7 +43,7 @@ class WordsTestCase(AVGTestCase):
         try:
             fontList.index("Bitstream Vera Sans")
         except ValueError:
-            self.assert_(False)
+            self.fail("Font not found")
         variantList = avg.WordsNode.getFontVariants("Bitstream Vera Sans")
         self.assert_(len(variantList) >= 4)
         root = self.loadEmptyScene()

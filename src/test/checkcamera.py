@@ -151,10 +151,10 @@ class CameraTestCase(AVGTestCase):
             else:
                 if minAverages+testCfg.minMedDiff > medAverages:
                     saveCamImages()
-                    self.assert_(False)
+                    self.fail()
                 if medAverages+testCfg.medMaxDiff > maxAverages:
                     saveCamImages()
-                    self.assert_(False)
+                    self.fail()
             self.averages = [] 
             self.camBmps = []
 

@@ -137,11 +137,13 @@ class AVGTestCase(unittest.TestCase):
                     diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
                             + "_diff.png")
             if (average > 2 or stdDev > 6):
-                print ("  "+fileName+
+                msg = ("  "+fileName+
                         ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
                         {'avg':average, 'stddev':stdDev})
-                if not(warn):
-                    self.assert_(False)
+                if warn:
+                    print msg
+                else:
+                    self.fail(msg)
         except RuntimeError:
             bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
             self.__logger.trace(self.__logger.WARNING, 

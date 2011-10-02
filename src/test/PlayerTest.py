@@ -648,7 +648,7 @@ class PlayerTestCase(AVGTestCase):
         self.__initDefaultScene()
         self.start((
                  testEscape3, # this should exit the player
-                 lambda: self.assert_(False),
+                 lambda: self.fail(),
                 ))
 
     # Not executed due to bug #145 - hangs with some window managers.
