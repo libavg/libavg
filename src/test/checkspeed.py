@@ -49,13 +49,15 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
 
     return options
 
+
 class SpeedApp(AVGApp):
     def init(self):
         self.__createNodes()
         self._starter.showFrameRate()
         if options.createNodes:
             g_Player.setInterval(400, self.__createNodes)
-    
+        g_Player.setTimeout(20000, g_Player.stop)
+
     def __createNodes(self):
         self.__nodes = []
         for i in xrange(options.numObjs):
@@ -77,6 +79,7 @@ class SpeedApp(AVGApp):
         for node in self.__nodes:
             node.unlink(True)
         self.__nodes = []
+
 
 options = parseCmdLine()
 if not(options.vsync):
