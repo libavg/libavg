@@ -84,7 +84,6 @@ private:
     IntPoint m_Size;
     PixelFormat m_pf;
     PBOTexturePtr m_pMaskTexture;
-    IntPoint m_MaskSize;
     bool m_bUseForeignTexture;
 
     MaterialInfo m_Material;

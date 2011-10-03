@@ -111,7 +111,6 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 void OGLSurface::createMask(const IntPoint& size)
 {
     AVG_ASSERT(m_Material.getHasMask());
-    m_MaskSize = size;
     m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_MemoryMode));
     m_bIsDirty = true;
 }
@@ -266,8 +265,8 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
         m_pMaskTexture = PBOTexturePtr();
     }
     if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
-        m_pMaskTexture = PBOTexturePtr(new PBOTexture(m_MaskSize, I8, m_Material, 
-                m_MemoryMode));
+        m_pMaskTexture = PBOTexturePtr(new PBOTexture(IntPoint(m_Material.getMaskSize()),
+                I8, m_Material, m_MemoryMode));
     }
     m_bIsDirty = true;
 }
