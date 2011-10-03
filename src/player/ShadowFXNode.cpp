@@ -74,6 +74,7 @@ void ShadowFXNode::setParams(const DPoint& offset, double stdDev, double opacity
     m_Color = colorStringToColor(sColor);
     if (m_pFilter) {
         m_pFilter->setParams(offset, stdDev, opacity, m_Color);
+        setDirty();
     }
 }
 
@@ -81,6 +82,7 @@ GPUFilterPtr ShadowFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUShadowFilterPtr(new GPUShadowFilter(size, m_Offset, m_StdDev, 
             m_Opacity, m_Color));
+    setDirty();
     return m_pFilter;
 }
 

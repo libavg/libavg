@@ -71,6 +71,9 @@ public:
             const DTriple& contrast);
     static void createShader();
 
+    bool isDirty() const;
+    void resetDirty();
+
 private:
     bool useShader() const;
     Matrix3x4 calcColorspaceMatrix() const;
@@ -91,6 +94,8 @@ private:
     DTriple m_Gamma;
     DTriple m_Brightness;
     DTriple m_Contrast;
+
+    bool m_bIsDirty;
 };
 
 }

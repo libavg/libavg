@@ -55,6 +55,7 @@ void NullFXNode::disconnect()
 GPUFilterPtr NullFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUNullFilterPtr(new GPUNullFilter(size, false));
+    setDirty();
     return m_pFilter;
 }
 

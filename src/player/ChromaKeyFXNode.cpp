@@ -139,6 +139,7 @@ GPUFilterPtr ChromaKeyFXNode::createFilter(const IntPoint& size)
     m_pFilter = GPUChromaKeyFilterPtr(new GPUChromaKeyFilter(size, B8G8R8A8, false));
     m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, m_Softness,
             m_Erosion, m_SpillThreshold);
+    setDirty();
     return m_pFilter;
 }
 
@@ -148,6 +149,7 @@ void ChromaKeyFXNode::setFilterParams()
         m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, 
                 m_Softness, m_Erosion, m_SpillThreshold);
     }
+    setDirty();
 }
 
 }

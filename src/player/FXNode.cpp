@@ -30,7 +30,8 @@ namespace avg {
 using namespace std;
 
 FXNode::FXNode() 
-    : m_Size(0, 0)
+    : m_Size(0, 0),
+      m_bDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -84,9 +85,24 @@ DRect FXNode::getRelDestRect() const
     return m_pFilter->getRelDestRect();
 }
 
+bool FXNode::isDirty() const
+{
+    return m_bDirty;
+}
+
+void FXNode::resetDirty()
+{
+    m_bDirty = false;
+}
+
 FBOPtr FXNode::getFBO()
 {
     return m_pFilter->getFBO();
+}
+
+void FXNode::setDirty()
+{
+    m_bDirty = true;
 }
 
 }

@@ -45,14 +45,20 @@ public:
     BitmapPtr getImage();
     DRect getRelDestRect() const;
 
+    bool isDirty() const;
+    void resetDirty();
+
 protected:
     FBOPtr getFBO();
+    void setDirty();
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size) = 0;
 
     IntPoint m_Size;
     GPUFilterPtr m_pFilter;
+    
+    bool m_bDirty;
 };
 
 typedef boost::shared_ptr<FXNode> FXNodePtr;

@@ -51,6 +51,7 @@ GPUFilterPtr InvertFXNode::createFilter(const IntPoint& size)
 {
     filterPtr = GPUInvertFilterPtr(new GPUInvertFilter(size, B8G8R8A8,
             false));
+    setDirty();
     return filterPtr;
 }
 
@@ -61,5 +62,5 @@ std::string InvertFXNode::toString()
     return s.str();
 }
 
-} //End namespace avg
+}
 

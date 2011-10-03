@@ -65,7 +65,8 @@ RasterNode::RasterNode()
       m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false),
       m_bBound(false),
       m_TileSize(-1,-1),
-      m_pVertexes(0)
+      m_pVertexes(0),
+      m_bFXDirty(true)
 {
 }
 
@@ -411,7 +412,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
     GLContext* pContext = GLContext::getCurrent();
     pContext->enableGLColorArray(false);
     pContext->enableTexture(true);
-    if (m_pFXNode) {
+    if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty())) {
         if (!m_bBound) {
             bind();
         }
@@ -451,6 +452,9 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pFXNode->getImage()->save(ss1.str());
 */
         glproc::UseProgramObject(0);
+        m_bFXDirty = false;
+        m_pSurface->resetDirty();
+        m_pFXNode->resetDirty();
     }
 }
 
@@ -490,6 +494,7 @@ void RasterNode::setupFX(bool bNewFX)
         if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect();
+            m_bFXDirty = true;
         }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,

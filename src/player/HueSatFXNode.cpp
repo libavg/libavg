@@ -43,7 +43,8 @@ HueSatFXNode::HueSatFXNode(int hue, int saturation, int lightness,
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-HueSatFXNode::~HueSatFXNode() {
+HueSatFXNode::~HueSatFXNode()
+{
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -55,18 +56,16 @@ void HueSatFXNode::disconnect()
 
 int HueSatFXNode::getHue()
 {
-    if(m_bColorize){
-        if( m_fHue < 0){
+    if (m_bColorize) {
+        if (m_fHue < 0) {
             return 360 + m_fHue;
         }
         return m_fHue;
     }
 
-    if((m_fHue / 180.0) > 1.0)
-    {
+    if (m_fHue/180.0 > 1.0) {
         return -360+m_fHue;
-    }else if((m_fHue / 180.0) < -1.0)
-    {
+    } else if (m_fHue/180.0 < -1.0) {
         return 360+m_fHue;
     }
     return m_fHue;
@@ -130,14 +129,16 @@ void HueSatFXNode::setFilterParams()
 {
     if (filterPtr) {
         filterPtr->setParams(m_fHue, m_fSaturation, m_fLightnessOffset, m_bColorize);
+        setDirty();
     }
 }
 
 std::string HueSatFXNode::toString()
 {
     stringstream s;
-    s << "HueSatFXNode( Hue: " << m_fHue << ", Saturation: " << m_fSaturation << ", Lightness: "
-        << m_fLightnessOffset << ", Colorize: " << m_bColorize << " )";
+    s << "HueSatFXNode( Hue: " << m_fHue << ", Saturation: " << m_fSaturation << 
+            ", Lightness: " << m_fLightnessOffset << ", Colorize: " << m_bColorize <<
+            " )";
     return s.str();
 }
 
@@ -151,5 +152,6 @@ int HueSatFXNode::clamp(int val, int min, int max)
     }
     return result;
 }
-} //End namespace avg
+
+}
 

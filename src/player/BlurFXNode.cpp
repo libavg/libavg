@@ -49,6 +49,7 @@ void BlurFXNode::connect()
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Cannot create BlurFX: OpenGL configuration doesn't support Blur (no float textures).");
     }
+    setDirty();
     FXNode::connect();
 }
 
@@ -64,6 +65,7 @@ void BlurFXNode::setParam(double stdDev)
     if (m_pFilter) {
         m_pFilter->setStdDev(stdDev);
     }
+    setDirty();
 }
 
 GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)

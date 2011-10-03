@@ -52,7 +52,8 @@ OGLSurface::OGLSurface(const MaterialInfo& material)
       m_Material(material),
       m_Gamma(1,1,1),
       m_Brightness(1,1,1),
-      m_Contrast(1,1,1)
+      m_Contrast(1,1,1),
+      m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -104,6 +105,7 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
                 m_MemoryMode));
     }
     m_bUseForeignTexture = false;
+    m_bIsDirty = true;
 }
 
 void OGLSurface::createMask(const IntPoint& size)
@@ -111,6 +113,7 @@ void OGLSurface::createMask(const IntPoint& size)
     AVG_ASSERT(m_Material.getHasMask());
     m_MaskSize = size;
     m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_MemoryMode));
+    m_bIsDirty = true;
 }
 
 void OGLSurface::destroy()
@@ -225,6 +228,7 @@ void OGLSurface::setTex(GLTexturePtr pTex)
 {
     m_bUseForeignTexture = true;
     m_pTextures[0]->setTex(pTex);
+    m_bIsDirty = true;
 }
 
 BitmapPtr OGLSurface::lockMaskBmp()
@@ -265,11 +269,13 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
         m_pMaskTexture = PBOTexturePtr(new PBOTexture(m_MaskSize, I8, m_Material, 
                 m_MemoryMode));
     }
+    m_bIsDirty = true;
 }
 
 void OGLSurface::downloadTexture()
 {
     if (m_pTextures[0] && !m_bUseForeignTexture) {
+        m_bIsDirty = true;
         m_pTextures[0]->download();
         if (pixelFormatIsPlanar(m_pf)) {
             m_pTextures[1]->download();
@@ -284,6 +290,7 @@ void OGLSurface::downloadTexture()
 void OGLSurface::downloadMaskTexture()
 {
     if (m_Material.getHasMask()) {
+        m_bIsDirty = true;
         m_pMaskTexture->download();
     }
 }
@@ -320,6 +327,7 @@ void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
     }
+    m_bIsDirty = true;
 }
 
 void OGLSurface::createShader()
@@ -395,6 +403,16 @@ void OGLSurface::createShader()
         "    gl_FragColor = rgba;\n"
         "}\n";
     getOrCreateShader(COLORSPACE_SHADER, sProgram);
+}
+
+bool OGLSurface::isDirty() const
+{
+    return m_bIsDirty;
+}
+
+void OGLSurface::resetDirty()
+{
+    m_bIsDirty = false;
 }
 
 bool OGLSurface::useShader() const
