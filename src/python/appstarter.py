@@ -129,8 +129,8 @@ class AVGAppStarter(AppStarter):
     def _setupDefaultKeys(self):
         super(AVGAppStarter, self)._setupDefaultKeys()
         g_KbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
-        g_KbManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
-        g_KbManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
+        g_KbManager.bindKey('m', self.showMemoryUsage, 'Show memory usage')
+        g_KbManager.bindKey('f', self.showFrameRate, 'Show frameTime usage')
         g_KbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
         g_KbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
         g_KbManager.bindKey('s', self.__screenshot, 'Take screenshot')
@@ -142,7 +142,7 @@ class AVGAppStarter(AppStarter):
         print 'Num anims: ', avg.getNumRunningAnims()
         print 'Num python objects: ', len(gc.get_objects())
 
-    def __showMemoryUsage(self):
+    def showMemoryUsage(self):
         if self.__showingMemGraph:
             self.__memGraph.delete()
             self.__memGraph = None
@@ -157,7 +157,7 @@ class AVGAppStarter(AppStarter):
                 self.__memGraph.setYpos(190)
         self.__showingMemGraph = not(self.__showingMemGraph)
 
-    def __showFrameRateUsage(self):
+    def showFrameRate(self):
         if self.__showingFrGraph:
             self.__frGraph.delete()
             self.__frGraph = None

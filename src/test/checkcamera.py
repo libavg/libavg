@@ -25,7 +25,6 @@
 from libavg import *
 import camcfgs
 import optparse
-import traceback
 
 from testcase import *
 
