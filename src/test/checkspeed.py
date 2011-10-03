@@ -39,6 +39,9 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
             default=False, 
             help='Destroy and recreate all nodes every 400 ms.')
+    parser.add_option('--move', '-m', dest='move', action='store_true',
+            default=False, 
+            help='Move nodes every frame.')
     parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
             default=False, 
             help='Sync output to vertical refresh.')
@@ -57,6 +60,8 @@ class SpeedApp(AVGApp):
         if options.createNodes:
             g_Player.setInterval(400, self.__createNodes)
         g_Player.setTimeout(20000, g_Player.stop)
+        if options.move:
+            g_Player.setOnFrameHandler(self.__moveNodes)
 
     def __createNodes(self):
         self.__nodes = []
@@ -79,6 +84,10 @@ class SpeedApp(AVGApp):
         for node in self.__nodes:
             node.unlink(True)
         self.__nodes = []
+
+    def __moveNodes(self):
+        for node in self.__nodes:
+            node.pos = (random.randrange(800-64), random.randrange(600-64))
 
 
 options = parseCmdLine()
