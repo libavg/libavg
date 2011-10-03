@@ -95,7 +95,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
 {
     BitmapPtr pDiffBmp;
     try {
-        pDiffBmp = BitmapPtr(resultBmp.subtract(&baselineBmp));
+        pDiffBmp = resultBmp.subtract(baselineBmp);
     } catch (Exception& e) {
         TEST_FAILED("Error: " << e.getStr() << ". File: '" << sFName << "'.");
         string sResultName = "resultimages/"+sFName;
@@ -113,7 +113,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
             string sResultName = "resultimages/"+sFName;
             resultBmp.save(sResultName+".png");
             baselineBmp.save(sResultName+"_baseline.png");
-            BitmapPtr pDiffBmp(resultBmp.subtract(&baselineBmp));
+            BitmapPtr pDiffBmp = resultBmp.subtract(baselineBmp);
             pDiffBmp->save(sResultName+"_diff.png");
         }
     }

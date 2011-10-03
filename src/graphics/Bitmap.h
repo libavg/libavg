@@ -47,6 +47,9 @@ namespace avg {
 typedef std::vector<int> Histogram;
 typedef boost::shared_ptr<Histogram> HistogramPtr;
 
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+
 class AVG_API Bitmap
 {
 public:
@@ -63,8 +66,8 @@ public:
     Bitmap &operator =(const Bitmap & origBmp);
     
     // Does pixel format conversion if nessesary.
-    void copyPixels(const Bitmap & origBmp);
-    void copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp, const Bitmap& vBmp,
+    void copyPixels(const Bitmap& origBmp);
+    void copyYUVPixels(const Bitmap& yBmp, const Bitmap& uBmp, const Bitmap& vBmp,
             bool bJPEG);
     void save(const UTF8String& sName);
     
@@ -72,10 +75,10 @@ public:
     int getStride() const;
     PixelFormat getPixelFormat() const;
     void setPixelFormat(PixelFormat pf);
-    unsigned char * getPixels();
-    const unsigned char * getPixels() const;
+    unsigned char* getPixels();
+    const unsigned char* getPixels() const;
     std::string getPixelsAsString() const;
-    void setPixels(const unsigned char * pPixels);
+    void setPixels(const unsigned char* pPixels);
     void setPixelsFromString(const std::string& sPixels);
     bool ownsBits() const;
     const std::string& getName() const;
@@ -94,17 +97,17 @@ public:
     template<class PIXEL>
     void drawLine(IntPoint p0, IntPoint p1, PIXEL color);
 
-    Bitmap * subtract(const Bitmap* pOtherBmp);
-    void blt(const Bitmap* pOtherBmp, const IntPoint& pos);
+    BitmapPtr subtract(const Bitmap& pOtherBmp);
+    void blt(const Bitmap& otherBmp, const IntPoint& pos);
     double getAvg() const;
     double getChannelAvg(int channel) const;
     double getStdDev() const;
 
-    bool operator ==(const Bitmap & otherBmp);
+    bool operator ==(const Bitmap& otherBmp);
     void dump(bool bDumpPixels=false) const;
 
 private:
-    void initWithData(unsigned char * pBits, int stride, bool bCopyBits);
+    void initWithData(unsigned char* pBits, int stride, bool bCopyBits);
     void allocBits(int stride=0);
     void YCbCrtoBGR(const Bitmap& origBmp);
     void YCbCrtoI8(const Bitmap& origBmp);
@@ -120,15 +123,13 @@ private:
     IntPoint m_Size;
     int m_Stride;
     PixelFormat m_PF;
-    unsigned char * m_pBits;
+    unsigned char* m_pBits;
     bool m_bOwnsBits;
     UTF8String m_sName;
 
     static bool s_bMagickInitialized;
     static bool s_bGTKInitialized;
 };
-
-typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 BitmapPtr YCbCr2RGBBitmap(BitmapPtr pYBmp, BitmapPtr pUBmp, BitmapPtr pVBmp);
 

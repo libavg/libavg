@@ -71,7 +71,7 @@ Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName, int strid
     allocBits(stride);
 }
 
-Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
+Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char* pBits, 
         int stride, bool bCopyBits, const UTF8String& sName)
     : m_Size(size),
       m_PF(pf),
@@ -193,7 +193,7 @@ Bitmap::~Bitmap()
     }
 }
 
-Bitmap &Bitmap::operator =(const Bitmap &origBmp)
+Bitmap &Bitmap::operator =(const Bitmap& origBmp)
 {
     if (this != &origBmp) {
         if (m_bOwnsBits) {
@@ -210,7 +210,7 @@ Bitmap &Bitmap::operator =(const Bitmap &origBmp)
     return *this;
 }
 
-void Bitmap::copyPixels(const Bitmap & origBmp)
+void Bitmap::copyPixels(const Bitmap& origBmp)
 {
 //    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(origBmp.getPixelFormat())
 //            << "->" << getPixelFormatString(m_PF) << endl;
@@ -436,8 +436,8 @@ ostream& operator<<(ostream& os, const __m64 &val)
     *o++ = _m_punpckhbw(tmp, tmp2);
 
 
-void Bitmap::copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp,
-        const Bitmap& vBmp, bool bJPEG)
+void Bitmap::copyYUVPixels(const Bitmap& yBmp, const Bitmap& uBmp, const Bitmap& vBmp,
+        bool bJPEG)
 {
     int height = min(yBmp.getSize().y, m_Size.y);
     int width = min(yBmp.getSize().x, m_Size.x);
@@ -853,7 +853,7 @@ Pixel32 Bitmap::getPythonPixel(const DPoint& pos)
     }
 }
 
-bool Bitmap::operator ==(const Bitmap & otherBmp)
+bool Bitmap::operator ==(const Bitmap& otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
@@ -888,19 +888,19 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
     return true;
 }
 
-Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
+BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
 {
-    if (m_PF != pOtherBmp->getPixelFormat())
+    if (m_PF != otherBmp.getPixelFormat())
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: pixel formats differ(")
                 + getPixelFormatString(m_PF)+", "
-                + getPixelFormatString(pOtherBmp->getPixelFormat())+")");
-    if (m_Size != pOtherBmp->getSize())
+                + getPixelFormatString(otherBmp.getPixelFormat())+")");
+    if (m_Size != otherBmp.getSize())
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: bitmap sizes differ (this=")
-                + toString(m_Size) + ", other=" + toString(pOtherBmp->getSize()) + ")");
-    Bitmap * pResultBmp = new Bitmap(m_Size, m_PF);
-    const unsigned char * pSrcLine1 = pOtherBmp->getPixels();
+                + toString(m_Size) + ", other=" + toString(otherBmp.getSize()) + ")");
+    BitmapPtr pResultBmp = BitmapPtr(new Bitmap(m_Size, m_PF));
+    const unsigned char * pSrcLine1 = otherBmp.getPixels();
     const unsigned char * pSrcLine2 = m_pBits;
     unsigned char * pDestLine = pResultBmp->getPixels();
     int stride = getStride();
@@ -941,18 +941,18 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
     return pResultBmp;
 }
     
-void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
+void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
 
-    IntRect destRect(pos.x, pos.y, pos.x+pOtherBmp->getSize().x, 
-            pos.y+pOtherBmp->getSize().y);
+    IntRect destRect(pos.x, pos.y, pos.x+otherBmp.getSize().x, 
+            pos.y+otherBmp.getSize().y);
     destRect.intersect(IntRect(IntPoint(0,0), getSize()));
     for (int y = 0; y < destRect.height(); y++) {
         unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
-        const unsigned char * pOtherPixel = pOtherBmp->getPixels()+
-                y*pOtherBmp->getStride(); 
-        if (pOtherBmp->hasAlpha()) {
+        const unsigned char * pOtherPixel = otherBmp.getPixels()+
+                y*otherBmp.getStride(); 
+        if (otherBmp.hasAlpha()) {
             for (int x = 0; x < destRect.width(); x++) {
                 int srcAlpha = 255-pOtherPixel[3];
                 pSrcPixel[0] = 
@@ -1220,7 +1220,7 @@ void Bitmap::allocBits(int stride)
     }
 }
 
-void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
+void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32* pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1254,7 +1254,7 @@ void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], u, v);
 }
  
-void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
+void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32* pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1288,7 +1288,7 @@ void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], u, v);
 }
  
-void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
+void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32* pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1362,7 +1362,7 @@ void Bitmap::YCbCrtoBGR(const Bitmap& origBmp)
     }
 }
     
-void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int width)
+void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char* pDestLine, int width)
 {
     const unsigned char * pSrc = pSrcLine;
     unsigned char * pDest = pDestLine;
@@ -1373,7 +1373,7 @@ void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, i
     }
 }
  
-void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int width)
+void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char* pDestLine, int width)
 {
     const unsigned char * pSrc = pSrcLine;
     unsigned char * pDest = pDestLine;
@@ -1766,7 +1766,7 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& origBmp)
 }
 
 template<class DESTPIXEL, class SRCPIXEL>
-void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     SRCPIXEL * pSrcLine = (SRCPIXEL*) srcBmp.getPixels();
     DESTPIXEL * pDestLine = (DESTPIXEL*) destBmp.getPixels();
@@ -1786,7 +1786,7 @@ void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
 }
 
 template<>
-void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     const unsigned char * pSrcLine = srcBmp.getPixels();
     unsigned char * pDestLine = destBmp.getPixels();
@@ -1811,7 +1811,7 @@ void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap & srcBmp
 }
 
 template<>
-void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     const unsigned char * pSrcLine = srcBmp.getPixels();
     unsigned char * pDestLine = destBmp.getPixels();
@@ -1844,7 +1844,7 @@ void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap & srcBmp
 
 
 template<class PIXEL>
-void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     switch(srcBmp.getPixelFormat()) {
         case B8G8R8A8:

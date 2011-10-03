@@ -348,9 +348,9 @@ private:
             pBmp1->getPixels()[x] = x;
             pBmp2->getPixels()[x] = 0;
         }
-        BitmapPtr pDiffBmp(pBmp1->subtract(&*pBmp2));
+        BitmapPtr pDiffBmp = pBmp1->subtract(*pBmp2);
         testEqual(*pDiffBmp, *pBmp1, "BmpSubtract1");
-        pDiffBmp = BitmapPtr(pBmp2->subtract(&*pBmp1));
+        pDiffBmp = pBmp2->subtract(*pBmp1);
         testEqual(*pDiffBmp, *pBmp1, "BmpSubtract2");
     }
 
