@@ -100,12 +100,12 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-void OGLErrorCheck(int avgcode, const string& sWhere) 
+void OGLErrorCheck(int avgcode, const char* pszWhere) 
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
-        s << "OpenGL error in " << sWhere <<": " << gluErrorString(err) 
+        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
         AVG_TRACE(Logger::ERROR, s.str());
         if (err != GL_INVALID_OPERATION) {

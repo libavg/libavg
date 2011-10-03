@@ -48,7 +48,7 @@ typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 
 namespace avg {
 
-void AVG_API OGLErrorCheck(int avgcode, const std::string& where);
+void AVG_API OGLErrorCheck(int avgcode, const char* pszWhere);
 #ifdef _WIN32
 void AVG_API winOGLErrorCheck(BOOL bOK, const std::string& sWhere);
 #endif
