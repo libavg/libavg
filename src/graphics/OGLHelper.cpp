@@ -167,12 +167,14 @@ bool queryGLXExtension(const char *extName)
     while (p < end) {
         int n = strcspn(p, " ");
         if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
-            XCloseDisplay(display);
+// If we close the display connection on some drivers (at least fglrx/Ubuntu 11.04),
+// libavg crashes soon afterwards.
+//            XCloseDisplay(display);
             return true;
         }
         p += (n + 1);
     }
-    XCloseDisplay(display);
+//    XCloseDisplay(display);
     return false;
 #endif
 }
