@@ -36,7 +36,7 @@ std::string getAvgLibPath();
 bool getEnv(const std::string & sName, std::string & sVal);
 void setEnv(const std::string & sName, const std::string & sVal);
 
-unsigned getMemoryUsage();
+size_t getMemoryUsage();
 
 // Converts a utf-8-encoded filename to something windows can use.
 // Under other operating systems, returns the input string.
