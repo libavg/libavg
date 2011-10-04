@@ -460,7 +460,6 @@ bool SDLDisplayEngine::initVBlank(int rate)
                 m_VBMethod = VB_SGI;
                 glproc::SwapIntervalSGI(rate);
 
-                m_bFirstVBFrame = true;
             } else {
                 AVG_TRACE(Logger::WARNING,
                         "Linux VBlank setup failed: OpenGL Extension not supported.");

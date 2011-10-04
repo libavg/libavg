@@ -105,7 +105,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         VBMethod m_VBMethod;
         int m_VBMod;
         int m_LastVBCount;
-        bool m_bFirstVBFrame;
 
         static void calcRefreshRate();
         static double s_RefreshRate;
