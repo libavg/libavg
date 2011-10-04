@@ -118,6 +118,13 @@ Player::Player()
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
+string sDummy;
+#ifdef _WIN32
+    if (getEnv("AVG_WIN_CRASH_SILENTLY", sDummy)) {
+        DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+        SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+    }
+#endif
 #ifdef __linux
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
@@ -153,7 +160,6 @@ Player::Player()
     s_pPlayer = this;
 
     m_CurDirName = getCWD();
-    string sDummy;
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
