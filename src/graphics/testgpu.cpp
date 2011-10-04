@@ -416,9 +416,14 @@ int main(int nargs, char** args)
             cerr << "Exception: " << ex.getStr() << endl;
         }
     } catch (Exception& ex) {
-        cerr << "Skipping GPU imaging test." << endl;
-        cerr << "Reason: " << ex.getStr() << endl;
-        bOK = true;
+        if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
+            cerr << ex.getStr() << endl;
+            bOK = false;
+        } else {
+            cerr << "Skipping GPU imaging test." << endl;
+            cerr << "Reason: " << ex.getStr() << endl;
+            bOK = true;
+        }
     }
 
     if (bOK) {
