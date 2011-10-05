@@ -65,7 +65,6 @@ OGLSurface::~OGLSurface()
 
 void OGLSurface::attach()
 {
-    m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
     if (!GLContext::getCurrent()->isUsingShaders()) {
         if (m_Material.getHasMask()) {
             throw Exception(AVG_ERR_VIDEO_GENERAL,
@@ -89,20 +88,15 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
     m_pf = pf;
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material,
-                m_MemoryMode));
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material,
-                m_MemoryMode));
-        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material,
-                m_MemoryMode));
+        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material));
+        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material));
         if (pixelFormatHasAlpha(m_pf)) {
-            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material,
-                m_MemoryMode));
+            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
         }
     } else {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material,
-                m_MemoryMode));
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material));
     }
     m_bUseForeignTexture = false;
     m_bIsDirty = true;
@@ -111,7 +105,7 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 void OGLSurface::createMask(const IntPoint& size)
 {
     AVG_ASSERT(m_Material.getHasMask());
-    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_MemoryMode));
+    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
     m_bIsDirty = true;
 }
 
@@ -260,7 +254,7 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
     }
     if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
         m_pMaskTexture = PBOTexturePtr(new PBOTexture(IntPoint(m_Material.getMaskSize()),
-                I8, m_Material, m_MemoryMode));
+                I8, m_Material));
     }
     m_bIsDirty = true;
 }

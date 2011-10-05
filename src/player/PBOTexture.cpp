@@ -39,13 +39,12 @@ namespace avg {
 
 using namespace std;
     
-PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-        OGLMemoryMode memoryMode) 
+PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material) 
     : m_pf(pf),
-      m_Material(material),
-      m_MemoryMode(memoryMode)
+      m_Material(material)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
     m_ActiveSize = size;
     if (GLContext::getCurrent()->usePOTTextures()) {
         m_Size.x = nextpow2(m_ActiveSize.x);

@@ -40,8 +40,7 @@ class VertexArray;
 
 class AVG_API PBOTexture {
 public:
-    PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-            OGLMemoryMode memoryMode);
+    PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material);
     virtual ~PBOTexture();
 
     BitmapPtr lockBmp();

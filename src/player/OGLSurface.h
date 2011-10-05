@@ -88,8 +88,6 @@ private:
 
     MaterialInfo m_Material;
 
-    OGLMemoryMode m_MemoryMode;
-
     DTriple m_Gamma;
     DTriple m_Brightness;
     DTriple m_Contrast;
