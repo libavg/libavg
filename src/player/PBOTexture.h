@@ -51,7 +51,6 @@ public:
     void setTex(GLTexturePtr pTex);
     void activate(int textureUnit=GL_TEXTURE0);
 
-    void setMaterial(const MaterialInfo& material);
     const IntPoint& getTextureSize() const;
 
 private:

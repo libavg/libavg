@@ -249,18 +249,12 @@ const MaterialInfo& OGLSurface::getMaterial() const
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
     GLContext* pContext = GLContext::getCurrent();
-    if (pContext && (material.getHasMask() && !pContext->isUsingShaders())) 
-    {
+    if (pContext && (material.getHasMask() && !pContext->isUsingShaders())) {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
     }
     bool bOldHasMask = m_Material.getHasMask();
     m_Material = material;
-    if (m_pTextures[0]) {
-        for (unsigned i = 0; i < getNumPixelFormatPlanes(m_pf); ++i) {
-            m_pTextures[i]->setMaterial(material);
-        }
-    }
     if (bOldHasMask && !m_Material.getHasMask()) {
         m_pMaskTexture = PBOTexturePtr();
     }

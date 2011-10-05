@@ -88,6 +88,7 @@ void RasterNode::setArgs(const ArgList& args)
                 "maxtilewidth and maxtileheight must be powers of two.");
     }
     m_Material.setUseMipmaps(args.getArgVal<bool>("mipmap"));
+    m_pSurface = new OGLSurface(m_Material);
 }
 
 void RasterNode::connectDisplay()
@@ -355,9 +356,6 @@ GLContext::BlendMode RasterNode::getBlendMode() const
 
 OGLSurface * RasterNode::getSurface()
 {
-    if (!m_pSurface) {
-        m_pSurface = new OGLSurface(m_Material);
-    }
     return m_pSurface;
 }
 

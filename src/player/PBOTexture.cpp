@@ -127,16 +127,6 @@ void PBOTexture::activate(int textureUnit)
     m_pTex->activate(textureUnit);
 }
 
-void PBOTexture::setMaterial(const MaterialInfo& material)
-{
-    if (m_Material.getUseMipmaps() != material.getUseMipmaps()) {
-        m_Material = material;
-        createTexture();
-    } else {
-        m_Material = material;
-    }
-}
-
 const IntPoint& PBOTexture::getTextureSize() const
 {
     return m_Size;

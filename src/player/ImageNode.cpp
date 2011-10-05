@@ -52,8 +52,8 @@ NodeDefinition ImageNode::createDefinition()
 ImageNode::ImageNode(const ArgList& args)
     : m_Compression(Image::TEXTURECOMPRESSION_NONE)
 {
-    m_pImage = ImagePtr(new Image(getSurface()));
     args.setMembers(this);
+    m_pImage = ImagePtr(new Image(getSurface()));
     m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
