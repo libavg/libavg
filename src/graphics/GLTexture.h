@@ -56,6 +56,7 @@ public:
 
 private:
     IntPoint m_Size;
+    IntPoint m_POTSize;
     PixelFormat m_pf;
     bool m_bMipmap;
     bool m_bDeleteTex;

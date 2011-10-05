@@ -52,12 +52,6 @@ PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
     } else {
         m_Size = m_ActiveSize;
     }
-    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
-    if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large (" +toString(m_Size)
-                + "). Maximum supported by graphics card is "
-                + toString(maxTexSize));
-    }
     createBitmap();
     createTexture();
 }

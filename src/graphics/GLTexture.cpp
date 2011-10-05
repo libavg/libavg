@@ -22,6 +22,9 @@
 #include "GLTexture.h"
 
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
+
+#include "GLContext.h"
 
 namespace avg {
 
@@ -32,6 +35,12 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
+    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+    if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(m_Size)
+                + "). Maximum supported by graphics card is "
+                + toString(maxTexSize));
+    }
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
