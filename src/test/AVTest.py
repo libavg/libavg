@@ -309,7 +309,8 @@ class AVTestCase(AVGTestCase):
 
         def onFrame():
             if self.eof:
-                self.compareImage("testVideoLoop", False)
+                if not(threaded):
+                    self.compareImage("testVideoLoop", False)
                 Player.stop()
 
         for threaded in [False, True]:
