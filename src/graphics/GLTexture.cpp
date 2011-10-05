@@ -23,8 +23,11 @@
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/MathHelper.h"
 
 #include "GLContext.h"
+
+#include <string.h>
 
 namespace avg {
 
@@ -35,6 +38,13 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
+    if (GLContext::getCurrent()->usePOTTextures()) {
+        m_GLSize.x = nextpow2(m_Size.x);
+        m_GLSize.y = nextpow2(m_Size.y);
+    } else {
+        m_GLSize = m_Size;
+    }
+
     int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
     if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(m_Size)
@@ -58,14 +68,28 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
-    glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_Size.x, m_Size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
+
+    if (GLContext::getCurrent()->usePOTTextures()) {
+        // Make sure the texture is transparent and black before loading stuff 
+        // into it to avoid garbage at the borders.
+        int TexMemNeeded = m_GLSize.x*m_GLSize.y*Bitmap::getBytesPerPixel(m_pf);
+        char * pPixels = new char[TexMemNeeded];
+        memset(pPixels, 0, TexMemNeeded);
+        glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
+                m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
+                pPixels);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
+        delete[] pPixels;
+    }
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
         bool bDeleteTex)
     : m_Size(size),
+      m_GLSize(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
       m_bDeleteTex(bDeleteTex),
@@ -109,6 +133,11 @@ void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
 const IntPoint& GLTexture::getSize() const
 {
     return m_Size;
+}
+
+const IntPoint& GLTexture::getGLSize() const
+{
+    return m_GLSize;
 }
 
 PixelFormat GLTexture::getPF() const

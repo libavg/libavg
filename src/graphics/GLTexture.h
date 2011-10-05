@@ -46,6 +46,7 @@ public:
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
     const IntPoint& getSize() const;
+    const IntPoint& getGLSize() const;
     PixelFormat getPF() const;
     unsigned getID() const;
 
@@ -56,7 +57,7 @@ public:
 
 private:
     IntPoint m_Size;
-    IntPoint m_POTSize;
+    IntPoint m_GLSize;
     PixelFormat m_pf;
     bool m_bMipmap;
     bool m_bDeleteTex;

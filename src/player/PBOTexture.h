@@ -54,10 +54,7 @@ public:
 
 private:
     void createBitmap();
-    void createTexture();
 
-    IntPoint m_Size;
-    IntPoint m_ActiveSize;
     PixelFormat m_pf;
     MaterialInfo m_Material;
     

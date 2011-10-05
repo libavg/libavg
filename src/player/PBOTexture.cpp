@@ -22,18 +22,14 @@
 #include "PBOTexture.h"
 
 #include "../graphics/GLContext.h"
-#include "../graphics/VertexArray.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
-#include "../base/MathHelper.h"
 #include "../base/StringHelper.h"
 
 #include <iostream>
 #include <string>
-
-#include <string.h>
 
 namespace avg {
 
@@ -45,15 +41,9 @@ PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
-    m_ActiveSize = size;
-    if (GLContext::getCurrent()->usePOTTextures()) {
-        m_Size.x = nextpow2(m_ActiveSize.x);
-        m_Size.y = nextpow2(m_ActiveSize.y);
-    } else {
-        m_Size = m_ActiveSize;
-    }
+    m_pTex = GLTexturePtr(new GLTexture(size, m_pf, m_Material.getUseMipmaps(),
+            m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
     createBitmap();
-    createTexture();
 }
 
 PBOTexture::~PBOTexture()
@@ -81,7 +71,7 @@ BitmapPtr PBOTexture::readbackBmp()
 {
     if (m_MemoryMode == MM_PBO) {
         if (!m_pReadPBO) {
-            m_pReadPBO = PBOPtr(new PBO(m_Size, m_pf, GL_DYNAMIC_READ));
+            m_pReadPBO = PBOPtr(new PBO(m_pTex->getGLSize(), m_pf, GL_DYNAMIC_READ));
         }
         return m_pReadPBO->moveTextureToBmp(m_pTex);
     } else {
@@ -99,7 +89,8 @@ void PBOTexture::download() const
     } else {
         m_pTex->activate();
         unsigned char * pStartPos = m_pBmp->getPixels();
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ActiveSize.x, m_ActiveSize.y,
+        IntPoint size = m_pTex->getSize();
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
                 m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), 
                 pStartPos);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
@@ -122,42 +113,26 @@ void PBOTexture::activate(int textureUnit)
 
 const IntPoint& PBOTexture::getTextureSize() const
 {
-    return m_Size;
+    return m_pTex->getGLSize();
 }
 
 void PBOTexture::createBitmap()
 {
+    IntPoint size = m_pTex->getSize();
     switch (m_MemoryMode) {
         case MM_PBO:
             {
-                m_pWritePBO = PBOPtr(new PBO(m_ActiveSize, m_pf, GL_DYNAMIC_DRAW));
+                m_pWritePBO = PBOPtr(new PBO(size, m_pf, GL_DYNAMIC_DRAW));
                 m_pBmp = BitmapPtr();
             }
             break;
         case MM_OGL:
-            m_pBmp = BitmapPtr(new Bitmap(m_ActiveSize, m_pf));
+            m_pBmp = BitmapPtr(new Bitmap(size, m_pf));
             break;
         default:
             AVG_ASSERT(0);
     }
 }
 
-void PBOTexture::createTexture()
-{
-    m_pTex = GLTexturePtr(new GLTexture(m_Size, m_pf, m_Material.getUseMipmaps(),
-            m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
-
-    if (GLContext::getCurrent()->usePOTTextures()) {
-        // Make sure the texture is transparent and black before loading stuff 
-        // into it to avoid garbage at the borders.
-        int TexMemNeeded = m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);
-        char * pPixels = new char[TexMemNeeded];
-        memset(pPixels, 0, TexMemNeeded);
-        glTexImage2D(GL_TEXTURE_2D, 0, m_pTex->getGLInternalFormat(), m_Size.x, 
-                m_Size.y, 0, m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), pPixels);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
-        delete[] pPixels;
-    }
-}
 
 }
