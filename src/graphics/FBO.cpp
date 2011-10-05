@@ -156,7 +156,6 @@ void FBO::moveToPBO(int i) const
     glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf), 
             GLTexture::getGLType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
-    m_pOutputPBO->deactivate();
 }
  
 BitmapPtr FBO::getImageFromPBO() const
@@ -173,7 +172,6 @@ BitmapPtr FBO::getImageFromPBO() const
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage: UnmapBuffer()");
-    m_pOutputPBO->deactivate();
     return pBmp;
 }
 

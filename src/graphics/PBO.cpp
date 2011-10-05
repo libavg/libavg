@@ -68,11 +68,6 @@ void PBO::activate()
     
 }
 
-void PBO::deactivate()
-{
-    glproc::BindBuffer(getTarget(), 0);
-}
-
 void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
 {
 
