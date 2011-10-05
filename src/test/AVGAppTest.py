@@ -62,11 +62,12 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def init(self):
                 self.testInstance.assert_(g_Player.isFullscreen())
                 rootNodeSize = g_Player.getRootNode().size
-                self.testInstance.assertEqual(rootNodeSize, TEST_RESOLUTION)
+                self.testInstance.assertEqual(rootNodeSize, resolution)
                 self.requestStop()
                 
+        resolution = g_Player.getScreenResolution()
         os.environ['AVG_DEPLOY'] = '1'
-        FullscreenApp.start(resolution=TEST_RESOLUTION)
+        FullscreenApp.start(resolution=resolution)
         del os.environ['AVG_DEPLOY']
 
     def testDebugWindowSize(self):
@@ -167,12 +168,13 @@ class AVGAppTestCase(testcase.AVGTestCase):
             fakeFullscreen = True
             def init(self):
                 g_Player.setTimeout(0, g_Player.stop)
-                
+              
+        resolution = g_Player.getScreenResolution()
         if os.name == 'nt':
-            FakeFullscreenApp.start(resolution=TEST_RESOLUTION)
+            FakeFullscreenApp.start(resolution=resolution)
         else:
             self.assertException(
-                    lambda: FakeFullscreenApp.start(resolution=TEST_RESOLUTION))
+                    lambda: FakeFullscreenApp.start(resolution=resolution))
         
 def avgAppTestSuite(tests):
     availableTests = (
