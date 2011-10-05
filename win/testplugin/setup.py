@@ -75,6 +75,7 @@ if rc != 1:
 dlls=[DEVEL_ROOT+'/bin/'+dllname for dllname in os.listdir(DEVEL_ROOT+'/bin/') 
         if dllname[-4:] == ".dll" or dllname[-9:] == ".manifest"]
 dlls.append('../Release/avg.pyd')
+dlls.append('../Release/avg.pdb')
 
 test_files=[fname for fname in gatherFilesInDir(LIBAVG_SRC_DIR+'test/')
         if '.' in fname[-4:] ]
