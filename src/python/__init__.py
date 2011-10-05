@@ -3,6 +3,7 @@
 from platform import system
 if system() == 'Linux':
     from ctypes import cdll
+    cdll.LoadLibrary("libpixman-1.so.0")
     cdll.LoadLibrary("libstdc++.so.6")
 del system
 
