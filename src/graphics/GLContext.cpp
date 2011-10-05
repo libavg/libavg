@@ -159,7 +159,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
         m_Drawable = glXGetCurrentDrawable();
 #elif defined(_WIN32)
         registerWindowClass();
-        m_hwnd = CreateWindow("GLUT", "GLUT",
+        m_hwnd = CreateWindow("GL", "GL",
                 WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                 0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
         winOGLErrorCheck(m_hDC != 0, "CreateWindow");
