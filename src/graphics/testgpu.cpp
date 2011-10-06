@@ -27,6 +27,8 @@
 #include "GPUChromaKeyFilter.h"
 #include "GPUHueSatFilter.h"
 #include "OGLImagingContext.h"
+#include "BmpTextureMover.h"
+#include "PBO.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -173,37 +175,51 @@ private:
 };
 */
 
-class PBOTest: public GraphicsTest {
+class TextureMoverTest: public GraphicsTest {
 public:
-    PBOTest()
-        : GraphicsTest("PBOTest", 2)
+    TextureMoverTest()
+        : GraphicsTest("TextureMoverTest", 2)
     {
     }
 
     void runTests() 
     {
-        runImageTest("rgb24-64x64");
-        runImageTest("rgb24alpha-64x64");
+        runImageTest(MM_PBO, "rgb24-64x64");
+        runImageTest(MM_OGL, "rgb24-64x64");
+        runImageTest(MM_PBO, "rgb24alpha-64x64");
+        runImageTest(MM_OGL, "rgb24alpha-64x64");
     }
 
 private:
-    void runImageTest(const string& sFName)
+    void runImageTest(OGLMemoryMode memoryMode, const string& sFName)
     {
-        cerr << "    Testing " << sFName << endl;
+        cerr << "    Testing " << sFName << "," << oglMemoryMode2String(memoryMode) 
+                << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
                 pOrigBmp->getPixelFormat()));
-        PBOPtr pWritePBO = PBOPtr(new PBO(pOrigBmp->getSize(), pOrigBmp->getPixelFormat(),
-                GL_DYNAMIC_DRAW));
-        TEST(!pWritePBO->isReadPBO());
-        pWritePBO->moveBmpToTexture(pOrigBmp, pTex);
-        PBOPtr pReadPBO = PBOPtr(new PBO(pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), 
-                GL_DYNAMIC_READ));
-        TEST(pReadPBO->isReadPBO());
-        BitmapPtr pDestBmp = pReadPBO->moveTextureToBmp(pTex);
+        TextureMoverPtr pWriteMover = createTextureMover(memoryMode, pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
+        pWriteMover->moveBmpToTexture(pOrigBmp, pTex);
+        TextureMoverPtr pReadMover = createTextureMover(memoryMode, pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
+        BitmapPtr pDestBmp = pReadMover->moveTextureToBmp(pTex);
         testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
     }
 
+    TextureMoverPtr createTextureMover(OGLMemoryMode memoryMode, IntPoint size,
+            PixelFormat pf, unsigned usage)
+    {
+        switch (memoryMode) {
+            case MM_PBO:
+                return TextureMoverPtr(new PBO(size, pf, usage));
+            case MM_OGL:
+                return TextureMoverPtr(new BmpTextureMover(size, pf));
+            default:
+                AVG_ASSERT(false);
+                return TextureMoverPtr();
+        }
+    }
 };
 
 class BrightnessFilterTest: public GraphicsTest {
@@ -384,7 +400,7 @@ public:
     GPUTestSuite() 
         : TestSuite("GPUTestSuite")
     {
-        addTest(TestPtr(new PBOTest));
+        addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));

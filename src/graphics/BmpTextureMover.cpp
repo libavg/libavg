@@ -59,8 +59,25 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
 
 BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexturePtr pTex) const
 {
-    // XXX: Broken
-    return BitmapPtr(new Bitmap(*m_pBmp));
+    AVG_ASSERT(getSize() == pTex->getGLSize());
+    BitmapPtr pBmp(new Bitmap(pTex->getGLSize(), getPF()));
+
+    pTex->activate(GL_TEXTURE0);
+
+    unsigned char * pStartPos = pBmp->getPixels();
+    glGetTexImage(GL_TEXTURE_2D, 0, GLTexture::getGLFormat(getPF()), 
+            GLTexture::getGLType(getPF()), pStartPos);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "BmpTextureMover::moveTextureToBmp: glGetTexImage()");
+    
+    IntPoint activeSize = pTex->getSize();
+    if (activeSize != pTex->getGLSize()) {
+        BitmapPtr pTempBmp = pBmp;
+        pBmp = BitmapPtr(new Bitmap(activeSize, getPF(), pStartPos, 
+                pTempBmp->getStride(), true)); 
+    }
+    
+    return pBmp;
 }
 
 BitmapPtr BmpTextureMover::lock()
