@@ -25,66 +25,13 @@ import optparse
 import time
 from libavg import avg
 from libavg import parsecamargs
+from libavg import AVGApp
 
-def checkCamera():
-    if not(camNode.isAvailable()):
-        Log.trace(Log.APP, "Could not open camera")
-        exit(1)
+#Get Logger and Player
+g_Log = avg.Logger.get()
+g_Player = avg.Player.get()
 
-
-def onKey(event):
-    def addWhitebalance(du = 0, dv = 0):
-        camNode.setWhitebalance(camNode.getWhitebalanceU() + du, 
-                                camNode.getWhitebalanceV() + dv)
-        print "u:", camNode.getWhitebalanceU(), "v:", camNode.getWhitebalanceV()
-    
-    def addGain(gain):
-        camNode.gain += gain
-        print "gain:", camNode.gain
-    
-    def addShutter(shutter):
-        camNode.shutter += shutter
-        print "shutter:", camNode.shutter
-        
-    if event.keystring == "w":
-        print "Setting Whitebalance"
-        camNode.doOneShotWhitebalance()
-    
-    elif event.keystring == "1":
-        addWhitebalance(du = -1)
-        
-    elif event.keystring == "2":
-        addWhitebalance(du = 1)
-        
-    elif event.keystring == "3":
-        addWhitebalance(dv = -1)
-        
-    elif event.keystring == "4":
-        addWhitebalance(dv = 1)
-        
-    elif event.keystring == "s":
-        print "Saving camera image to camimage.png" 
-        camNode.getBitmap().save("camimage.png")
-    
-    elif event.keystring == "left":
-       addShutter(shutter = -1)
-        
-    elif event.keystring == "right":
-        addShutter(shutter = 1)
-    
-    elif event.keystring == "up":
-        addGain(gain = 1)
-    
-    elif event.keystring == "down":
-        addGain(gain = -1)
-    
-curFrame = 0
-
-def updateFrameDisplay(node):
-    global curFrame
-    curFrame += 1
-    node.text = "%(cam)d/%(player)d"%{"cam":camNode.framenum, "player":curFrame}
-
+#Parse options
 parser = optparse.OptionParser()
 parsecamargs.addOptions(parser)
 parser.add_option("-l", "--dump", dest="dump", action="store_true", default=False,
@@ -94,9 +41,10 @@ parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=
 parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", default=False,
           help="reset the firewire bus.")
 
-(options, args) = parser.parse_args()
+(g_options, g_args) = parser.parse_args()
 
-if options.driver is None and not options.dump and not options.resetbus:
+#Check if there isnt a option choosen, so write Error and exit
+if g_options.driver is None and not g_options.dump and not g_options.resetbus:
     parser.print_help()
     print
     print "Keys available when image is being displayed:"
@@ -108,58 +56,113 @@ if options.driver is None and not options.dump and not options.resetbus:
     print "ERROR: at least '--driver', '--dump' or '--resetbus' options must be specified"
     exit()
 
-optdict = {}
-for attr in dir(options):
-    if attr[0] != '_':
-        optdict[attr] = eval("options.%s" %attr)
+class ShowCamera(AVGApp):
+    def init(self):
+        self.curFrame = 0
+        global g_options
 
-Log = avg.Logger.get()
+        #Fill the OptionDictonary
+        self.optdict = {}
+        for attr in dir(g_options):
+            if attr[0] != '_':
+                self.optdict[attr] = eval("g_options.%s" %attr)
 
-Player = avg.Player.get()
+        #Analyze dump- and resetBus-options and exit
+        if g_options.dump:
+            avg.CameraNode.dumpCameras()
+            exit(0)
 
-Player.loadString("""
-<?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="%(width)d" height="%(height)d">
-</avg>
-""" %optdict)
-Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKey)
+        if g_options.resetbus:
+            g_Log.trace(g_Log.APP, "Resetting firewire bus.")
+            avg.CameraNode.resetFirewireBus()
+            time.sleep(1)
+            if not g_options.driver:
+                exit(0)
 
-if options.dump:
-    avg.CameraNode.dumpCameras()
-    exit(0)
+        g_Log.trace(g_Log.APP, "Creating camera:")
+        g_Log.trace(g_Log.APP, "driver=%(driver)s device=%(device)s" %self.optdict)
+        g_Log.trace(g_Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
+                %self.optdict)
+        g_Log.trace(g_Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
+                %self.optdict)
+           
+        #Create a CamNode
+        self.camNode = avg.CameraNode(driver = g_options.driver,
+                device = g_options.device, unit = g_options.unit, fw800 = g_options.fw800,
+                framerate = g_options.framerate, capturewidth = g_options.width,
+                captureheight=g_options.height, pixelformat= g_options.pixelFormat)
 
-if options.resetbus:
-    Log.trace(Log.APP, "Resetting firewire bus.")
-    avg.CameraNode.resetFirewireBus()
-    time.sleep(1)
-    if not options.driver:
-        exit(0)
+        g_Player.getRootNode().appendChild(self.camNode)
 
-Log.trace(Log.APP, "Creating camera:")
-Log.trace(Log.APP, "driver=%(driver)s device=%(device)s" %optdict)
-Log.trace(Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
-        %optdict)
-Log.trace(Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s" %optdict)
+        if not g_options.noinfo:
+            self.infoText = "Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f" %self.optdict
+            avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14,
+                    parent=g_Player.getRootNode())
+            frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
+                    parent=g_Player.getRootNode())
+            g_Player.setOnFrameHandler(lambda:self.updateFrameDisplay(frameText))
+
+
+    def _enter(self):
+        self.camNode.play()
+        g_Player.setTimeout(100, self.checkCamera)
+
+    def _leave(self):
+        self.camNode.stop()
+
+    def checkCamera(self):
+        if not(self.camNode.isAvailable()):
+            g_Log.trace(g_Log.APP, "Could not open camera")
+            exit(1)
+
+    def onKeyDown(self,event):
+        def addWhitebalance(du = 0, dv = 0):
+            self.camNode.setWhitebalance(self.camNode.getWhitebalanceU() + du, 
+                    self.camNode.getWhitebalanceV() + dv)
+            print "u:", self.camNode.getWhitebalanceU(), "v:", self.camNode.getWhitebalanceV()
+        
+        def addGain(gain):
+            self.camNode.gain += gain
+            print "gain:", self.camNode.gain
+        
+        def addShutter(shutter):
+            self.camNode.shutter += shutter
+            print "shutter:", self.camNode.shutter
+            
+        if event.keystring == "w":
+            print "Setting Whitebalance"
+            self.camNode.doOneShotWhitebalance()
+        
+        elif event.keystring == "1":
+            addWhitebalance(du = -1)
+            
+        elif event.keystring == "2":
+            addWhitebalance(du = 1)
+            
+        elif event.keystring == "3":
+            addWhitebalance(dv = -1)
+            
+        elif event.keystring == "4":
+            addWhitebalance(dv = 1)
+        
+        elif event.keystring == "left":
+           addShutter(shutter = -1)
+            
+        elif event.keystring == "right":
+            addShutter(shutter = 1)
+        
+        elif event.keystring == "up":
+            addGain(gain = 1)
+        
+        elif event.keystring == "down":
+            addGain(gain = -1)
+        else:
+            AVGApp.onKeyDown(self, event)
+
+    def updateFrameDisplay(self, node):
+        self.curFrame += 1
+        node.text = "%(cam)d/%(app)d"%{"cam":self.camNode.framenum, "app":self.curFrame}
     
-camNode = Player.createNode("camera", 
-        {"driver": options.driver, "device": options.device, "unit": options.unit, 
-         "fw800": options.fw800, 
-         "capturewidth": options.width, "captureheight": options.height, 
-         "pixelformat": options.pixelFormat, "framerate": options.framerate, 
-         "width": options.width, "height": options.height})
 
-Player.getRootNode().appendChild(camNode)
-
-if not options.noinfo:
-    infoText = "Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f" %optdict
-    avg.WordsNode(text=infoText, color="ff3333", pos=(5,5), fontsize=14,
-            parent=Player.getRootNode())
-    frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
-            parent=Player.getRootNode())
-    Player.setOnFrameHandler(lambda:updateFrameDisplay(frameText))
-
-camNode.play()
-Player.setTimeout(100, checkCamera)
-Player.play()
+ShowCamera.start(resolution=(g_options.width, g_options.height))
 
