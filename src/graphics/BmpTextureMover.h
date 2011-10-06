@@ -19,34 +19,36 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#ifndef _BmpTextureMover_H_
+#define _BmpTextureMover_H_
+
+#include "../api.h"
 #include "TextureMover.h"
 
-#include <iostream>
-#include <cstring>
-
-using namespace std;
-using namespace boost;
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
-    
-TextureMover::TextureMover(const IntPoint& size, PixelFormat pf)
-    : m_Size(size),
-      m_pf(pf)
-{
-}
 
-TextureMover::~TextureMover()
-{
-}
+class AVG_API BmpTextureMover: public TextureMover {
+public:
+    BmpTextureMover(const IntPoint& size, PixelFormat pf);
+    virtual ~BmpTextureMover();
 
-PixelFormat TextureMover::getPF() const
-{
-    return m_pf;
-}
+    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
+    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
 
-const IntPoint& TextureMover::getSize() const
-{
-    return m_Size;
-}
+    virtual BitmapPtr lock();
+    virtual void unlock();
+    virtual void moveToTexture(GLTexturePtr pTex);
+
+private:
+    BitmapPtr m_pBmp;
+};
+
+typedef boost::shared_ptr<BmpTextureMover> BmpTextureMoverPtr;
 
 }
+
+#endif
+ 
+

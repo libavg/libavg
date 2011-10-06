@@ -22,6 +22,9 @@
 #include "PBOTexture.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/GLTexture.h"
+#include "../graphics/PBO.h"
+#include "../graphics/BmpTextureMover.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
@@ -43,7 +46,7 @@ PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& materi
     m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
     m_pTex = GLTexturePtr(new GLTexture(size, m_pf, m_Material.getUseMipmaps(),
             m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
-    createBitmap();
+    createMover();
 }
 
 PBOTexture::~PBOTexture()
@@ -53,30 +56,25 @@ PBOTexture::~PBOTexture()
 
 BitmapPtr PBOTexture::lockBmp()
 {
-    if (m_MemoryMode == MM_PBO) {
-        return m_pWritePBO->lock();
-    } else {
-        return m_pBmp;
-    }
+    return m_pWriteMover->lock();
 }
 
 void PBOTexture::unlockBmp()
 {
-    if (m_MemoryMode == MM_PBO) {
-        m_pWritePBO->unlock();
-    }
+    m_pWriteMover->unlock();
 }
 
 BitmapPtr PBOTexture::readbackBmp()
 {
-    if (m_MemoryMode == MM_PBO) {
-        if (!m_pReadPBO) {
-            m_pReadPBO = PBOPtr(new PBO(m_pTex->getGLSize(), m_pf, GL_DYNAMIC_READ));
+    if (!m_pReadMover) {
+        if (m_MemoryMode == MM_PBO) {
+            m_pReadMover = TextureMoverPtr(new PBO(m_pTex->getGLSize(), m_pf, 
+                    GL_DYNAMIC_READ));
+        } else {
+            m_pReadMover = m_pWriteMover;
         }
-        return m_pReadPBO->moveTextureToBmp(m_pTex);
-    } else {
-        return BitmapPtr(new Bitmap(*m_pBmp));
     }
+    return m_pReadMover->moveTextureToBmp(m_pTex);
 }
 
 static ProfilingZoneID TexSubImageProfilingZone("Texture download");
@@ -84,24 +82,13 @@ static ProfilingZoneID TexSubImageProfilingZone("Texture download");
 void PBOTexture::download() const
 {
     ScopeTimer Timer(TexSubImageProfilingZone);
-    if (m_MemoryMode == MM_PBO) {
-        m_pWritePBO->moveToTexture(m_pTex);
-    } else {
-        m_pTex->activate();
-        unsigned char * pStartPos = m_pBmp->getPixels();
-        IntPoint size = m_pTex->getSize();
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-                m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), 
-                pStartPos);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
-    }
+    m_pWriteMover->moveToTexture(m_pTex);
     m_pTex->generateMipmaps();
 }
 
 void PBOTexture::setTex(GLTexturePtr pTex)
 {
     AVG_ASSERT(m_MemoryMode == MM_PBO);
-    AVG_ASSERT(!m_pBmp);
 
     m_pTex = pTex;
 }
@@ -116,18 +103,15 @@ const IntPoint& PBOTexture::getTextureSize() const
     return m_pTex->getGLSize();
 }
 
-void PBOTexture::createBitmap()
+void PBOTexture::createMover()
 {
     IntPoint size = m_pTex->getSize();
     switch (m_MemoryMode) {
         case MM_PBO:
-            {
-                m_pWritePBO = PBOPtr(new PBO(size, m_pf, GL_DYNAMIC_DRAW));
-                m_pBmp = BitmapPtr();
-            }
+            m_pWriteMover = TextureMoverPtr(new PBO(size, m_pf, GL_DYNAMIC_DRAW));
             break;
         case MM_OGL:
-            m_pBmp = BitmapPtr(new Bitmap(size, m_pf));
+            m_pWriteMover = TextureMoverPtr(new BmpTextureMover(size, m_pf));
             break;
         default:
             AVG_ASSERT(0);

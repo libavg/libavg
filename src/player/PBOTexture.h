@@ -26,10 +26,8 @@
 
 #include "MaterialInfo.h"
 
-#include "../graphics/Bitmap.h"
-#include "../graphics/GLTexture.h"
 #include "../graphics/OGLHelper.h"
-#include "../graphics/PBO.h"
+#include "../graphics/PixelFormat.h"
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
@@ -37,6 +35,12 @@
 namespace avg {
 
 class VertexArray;
+class TextureMover;
+typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 class AVG_API PBOTexture {
 public:
@@ -53,15 +57,14 @@ public:
     const IntPoint& getTextureSize() const;
 
 private:
-    void createBitmap();
+    void createMover();
 
     PixelFormat m_pf;
     MaterialInfo m_Material;
     
     GLTexturePtr m_pTex;
-    PBOPtr m_pWritePBO;
-    PBOPtr m_pReadPBO;
-    BitmapPtr m_pBmp;
+    TextureMoverPtr m_pWriteMover;
+    TextureMoverPtr m_pReadMover;
     
     OGLMemoryMode m_MemoryMode;
 };

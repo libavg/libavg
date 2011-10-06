@@ -23,15 +23,18 @@
 #define _TextureMover_H_
 
 #include "../api.h"
-#include "Bitmap.h"
-#include "OGLHelper.h"
-#include "GLTexture.h"
+#include "PixelFormat.h"
 
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
 class AVG_API TextureMover {
 public:
