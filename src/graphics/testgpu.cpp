@@ -184,17 +184,24 @@ public:
 
     void runTests() 
     {
-        runImageTest(MM_PBO, "rgb24-64x64");
-        runImageTest(MM_OGL, "rgb24-64x64");
-        runImageTest(MM_PBO, "rgb24alpha-64x64");
-        runImageTest(MM_OGL, "rgb24alpha-64x64");
+        for (int i=0; i<2; ++i) {
+            bool bPOT = (i==1);
+            runImageTest(bPOT, MM_PBO, "rgb24-65x65");
+            runImageTest(bPOT, MM_OGL, "rgb24-65x65");
+            runImageTest(bPOT, MM_PBO, "rgb24alpha-64x64");
+            runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
+        }
     }
 
 private:
-    void runImageTest(OGLMemoryMode memoryMode, const string& sFName)
+    void runImageTest(bool bPOT, OGLMemoryMode memoryMode, const string& sFName)
     {
-        cerr << "    Testing " << sFName << ", " << oglMemoryMode2String(memoryMode) 
-                << endl;
+        cerr << "    Testing " << sFName << ", " << oglMemoryMode2String(memoryMode);
+        if (bPOT) {
+            cerr << ", POT" << endl;
+        } else {
+            cerr << ", NPOT" << endl;
+        }
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             cerr << "      move functions." << endl;
