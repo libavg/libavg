@@ -196,15 +196,30 @@ private:
         cerr << "    Testing " << sFName << "," << oglMemoryMode2String(memoryMode) 
                 << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
-        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat()));
-        TextureMoverPtr pWriteMover = createTextureMover(memoryMode, pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
-        pWriteMover->moveBmpToTexture(pOrigBmp, pTex);
-        TextureMoverPtr pReadMover = createTextureMover(memoryMode, pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
-        BitmapPtr pDestBmp = pReadMover->moveTextureToBmp(pTex);
-        testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+        {
+            cerr << "      move functions." << endl;
+            GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                    pOrigBmp->getPixelFormat()));
+            TextureMoverPtr pWriteMover = createTextureMover(memoryMode, 
+                    pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
+            pWriteMover->moveBmpToTexture(pOrigBmp, pTex);
+            BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
+            testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+        }
+
+        {
+            cerr << "      lock functions." << endl;
+            GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                    pOrigBmp->getPixelFormat()));
+            TextureMoverPtr pMover = createTextureMover(memoryMode, 
+                    pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
+            BitmapPtr pTransferBmp = pMover->lock();
+            pTransferBmp->copyPixels(*pOrigBmp);
+            pMover->unlock();
+            pMover->moveToTexture(pTex);
+            BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
+            testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+        }
     }
 
     TextureMoverPtr createTextureMover(OGLMemoryMode memoryMode, IntPoint size,
@@ -219,6 +234,14 @@ private:
                 AVG_ASSERT(false);
                 return TextureMoverPtr();
         }
+    }
+
+    BitmapPtr readback(OGLMemoryMode memoryMode, const BitmapPtr& pOrigBmp, 
+            const GLTexturePtr& pTex)
+    {
+        TextureMoverPtr pReadMover = createTextureMover(memoryMode, 
+                pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
+        return pReadMover->moveTextureToBmp(pTex);
     }
 };
 
