@@ -307,7 +307,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
-    pFilterKernelPBO->movePBOToTexture(pTex);
+    pFilterKernelPBO->moveToTexture(pTex);
 
     delete[] pKernel;
     return pTex;

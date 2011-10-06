@@ -19,49 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PBO_H_
-#define _PBO_H_
-
-#include "../api.h"
 #include "TextureMover.h"
+#include "GLContext.h"
 
-#include "Bitmap.h"
-#include "OGLHelper.h"
-#include "GLTexture.h"
+#include "../base/Logger.h"
+#include "../base/Exception.h"
 
-#include "../base/Point.h"
+#include <iostream>
+#include <cstring>
 
-#include <boost/shared_ptr.hpp>
+using namespace std;
+using namespace boost;
 
 namespace avg {
-
-class AVG_API PBO: public TextureMover {
-public:
-    PBO(const IntPoint& size, PixelFormat pf, unsigned usage);
-    virtual ~PBO();
-
-    void activate();
-
-    void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
-
-    BitmapPtr lock();
-    void unlock();
-    void moveToTexture(GLTexturePtr pTex);
-
-    bool isReadPBO() const;
-
-private:
-    unsigned getTarget() const;
-
-    unsigned m_Usage;
-    unsigned m_PBOID;
-};
-
-typedef boost::shared_ptr<PBO> PBOPtr;
-
+    
+TextureMover::TextureMover(const IntPoint& size, PixelFormat pf)
+    : m_Size(size),
+      m_pf(pf)
+{
 }
 
-#endif
- 
+TextureMover::~TextureMover()
+{
+}
 
+PixelFormat TextureMover::getPF() const
+{
+    return m_pf;
+}
+
+const IntPoint& TextureMover::getSize() const
+{
+    return m_Size;
+}
+
+}

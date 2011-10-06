@@ -85,7 +85,7 @@ void PBOTexture::download() const
 {
     ScopeTimer Timer(TexSubImageProfilingZone);
     if (m_MemoryMode == MM_PBO) {
-        m_pWritePBO->movePBOToTexture(m_pTex);
+        m_pWritePBO->moveToTexture(m_pTex);
     } else {
         m_pTex->activate();
         unsigned char * pStartPos = m_pBmp->getPixels();
