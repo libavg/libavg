@@ -103,7 +103,6 @@ void RasterNode::connectDisplay()
     }
     calcVertexGrid(m_TileVertices);
     m_pSurface->setMaterial(m_Material);
-    m_pSurface->downloadTexture();
     setBlendModeStr(m_sBlendMode);
     if (m_Material.getHasMask()) {
         m_pSurface->createMask(m_pMaskBmp->getSize());
@@ -396,7 +395,6 @@ void RasterNode::bind()
     if (!m_bBound) {
         calcTexCoords();
     }
-    m_pSurface->downloadTexture();
     m_bBound = true;
 }
 
@@ -467,7 +465,6 @@ void RasterNode::downloadMask()
     BitmapPtr pBmp = m_pSurface->lockMaskBmp();
     pBmp->copyPixels(*m_pMaskBmp);
     m_pSurface->unlockMaskBmp();
-    m_pSurface->downloadMaskTexture();
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)

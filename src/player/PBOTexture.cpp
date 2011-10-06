@@ -59,6 +59,8 @@ BitmapPtr PBOTexture::lockBmp()
 void PBOTexture::unlockBmp()
 {
     m_pWriteMover->unlock();
+    m_pWriteMover->moveToTexture(m_pTex);
+    m_pTex->generateMipmaps();
 }
 
 BitmapPtr PBOTexture::readbackBmp()
@@ -73,15 +75,6 @@ BitmapPtr PBOTexture::readbackBmp()
         }
     }
     return m_pReadMover->moveTextureToBmp(m_pTex);
-}
-
-static ProfilingZoneID TexSubImageProfilingZone("Texture download");
-
-void PBOTexture::download() const
-{
-    ScopeTimer Timer(TexSubImageProfilingZone);
-    m_pWriteMover->moveToTexture(m_pTex);
-    m_pTex->generateMipmaps();
 }
 
 void PBOTexture::setTex(GLTexturePtr pTex)

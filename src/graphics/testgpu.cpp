@@ -223,7 +223,6 @@ private:
             BitmapPtr pTransferBmp = pMover->lock();
             pTransferBmp->copyPixels(*pOrigBmp);
             pMover->unlock();
-            pMover->moveToTexture(pTex);
             BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
             testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
         }

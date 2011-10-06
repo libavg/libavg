@@ -202,6 +202,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
 
 BitmapPtr OGLSurface::lockBmp(int i)
 {
+    m_bIsDirty = true;
     return m_pTextures[i]->lockBmp();
 }
 
@@ -227,6 +228,7 @@ void OGLSurface::setTex(GLTexturePtr pTex)
 BitmapPtr OGLSurface::lockMaskBmp()
 {
     AVG_ASSERT(m_Material.getHasMask());
+    m_bIsDirty = true;
     return m_pMaskTexture->lockBmp();
 }
 
@@ -257,29 +259,6 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
                 I8, m_Material));
     }
     m_bIsDirty = true;
-}
-
-void OGLSurface::downloadTexture()
-{
-    if (m_pTextures[0] && !m_bUseForeignTexture) {
-        m_bIsDirty = true;
-        m_pTextures[0]->download();
-        if (pixelFormatIsPlanar(m_pf)) {
-            m_pTextures[1]->download();
-            m_pTextures[2]->download();
-            if (m_pf == YCbCrA420p) {
-                m_pTextures[3]->download();
-            }
-        }
-    }
-}
-
-void OGLSurface::downloadMaskTexture()
-{
-    if (m_Material.getHasMask()) {
-        m_bIsDirty = true;
-        m_pMaskTexture->download();
-    }
 }
 
 PixelFormat OGLSurface::getPixelFormat()

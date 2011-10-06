@@ -59,9 +59,6 @@ public:
     const MaterialInfo& getMaterial() const;
     void setMaterial(const MaterialInfo& material);
 
-    void downloadTexture();
-    void downloadMaskTexture();
-
     PixelFormat getPixelFormat();
     IntPoint getSize();
     IntPoint getTextureSize();

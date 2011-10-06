@@ -326,7 +326,6 @@ void Image::setupSurface()
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
     m_pSurface->unlockBmps();
-    m_pSurface->downloadTexture();
     m_pBmp=BitmapPtr();
 }
 

@@ -50,7 +50,6 @@ public:
     BitmapPtr lockBmp();
     void unlockBmp();
     BitmapPtr readbackBmp();
-    void download() const;
     void setTex(GLTexturePtr pTex);
     void activate(int textureUnit=GL_TEXTURE0);
 
