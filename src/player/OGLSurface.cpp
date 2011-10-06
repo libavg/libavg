@@ -66,7 +66,7 @@ OGLSurface::~OGLSurface()
 void OGLSurface::attach()
 {
     if (!GLContext::getCurrent()->isUsingShaders()) {
-        if (m_Material.getHasMask()) {
+        if (m_pMaskTexture) {
             throw Exception(AVG_ERR_VIDEO_GENERAL,
                     "Can't set mask bitmap since shader support is disabled.");
         }
@@ -104,8 +104,18 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 
 void OGLSurface::createMask(const IntPoint& size)
 {
-    AVG_ASSERT(m_Material.getHasMask());
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext && !pContext->isUsingShaders()) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+                "Can't set mask bitmap since shader support is disabled.");
+    }
     m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
+    m_bIsDirty = true;
+}
+
+void OGLSurface::removeMask()
+{
+    m_pMaskTexture = PBOTexturePtr();
     m_bIsDirty = true;
 }
 
@@ -170,19 +180,18 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
 
         pShader->setUniformIntParam("bPremultipliedAlpha", 
                 m_bUseForeignTexture || bPremultipliedAlpha);
-        pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
-        if (m_Material.getHasMask()) {
+        pShader->setUniformIntParam("bUseMask", bool(m_pMaskTexture));
+        if (m_pMaskTexture) {
             m_pMaskTexture->activate(GL_TEXTURE4);
             pShader->setUniformIntParam("maskTexture", 4);
-            pShader->setUniformDPointParam("maskPos", m_Material.getMaskPos());
+            pShader->setUniformDPointParam("maskPos", m_MaskPos);
             // maskScale is (1,1) for everything excepting words nodes.
             DPoint maskScale(1,1);
             if (logicalSize != IntPoint(0,0)) {
                 maskScale = DPoint((double)logicalSize.x/m_Size.x, 
                         (double)logicalSize.y/m_Size.y);
             }
-            pShader->setUniformDPointParam("maskSize", 
-                    m_Material.getMaskSize()*maskScale);
+            pShader->setUniformDPointParam("maskSize", m_MaskSize*maskScale);
         }
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
@@ -227,7 +236,6 @@ void OGLSurface::setTex(GLTexturePtr pTex)
 
 BitmapPtr OGLSurface::lockMaskBmp()
 {
-    AVG_ASSERT(m_Material.getHasMask());
     m_bIsDirty = true;
     return m_pMaskTexture->lockBmp();
 }
@@ -242,22 +250,10 @@ const MaterialInfo& OGLSurface::getMaterial() const
     return m_Material;
 }
 
-void OGLSurface::setMaterial(const MaterialInfo& material)
+void OGLSurface::setMaskCoords(DPoint maskPos, DPoint maskSize)
 {
-    GLContext* pContext = GLContext::getCurrent();
-    if (pContext && (material.getHasMask() && !pContext->isUsingShaders())) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't set mask bitmap since shader support is disabled.");
-    }
-    bool bOldHasMask = m_Material.getHasMask();
-    m_Material = material;
-    if (bOldHasMask && !m_Material.getHasMask()) {
-        m_pMaskTexture = PBOTexturePtr();
-    }
-    if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
-        m_pMaskTexture = PBOTexturePtr(new PBOTexture(IntPoint(m_Material.getMaskSize()),
-                I8, m_Material));
-    }
+    m_MaskPos = maskPos;
+    m_MaskSize = maskSize;
     m_bIsDirty = true;
 }
 
@@ -384,7 +380,7 @@ void OGLSurface::resetDirty()
 bool OGLSurface::useShader() const
 {
     return GLContext::getCurrent()->isUsingShaders() && 
-            (m_Material.getHasMask() || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
+            (m_pMaskTexture || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
                     colorIsModified());
 }
 

@@ -45,6 +45,7 @@ public:
     void attach();
     virtual void create(const IntPoint& size, PixelFormat pf);
     void createMask(const IntPoint& size);
+    void removeMask();
     virtual void destroy();
     void activate(const IntPoint& logicalSize = IntPoint(1,1),
             bool bPremultipliedAlpha = false) const;
@@ -57,7 +58,7 @@ public:
     BitmapPtr lockMaskBmp();
     void unlockMaskBmp();
     const MaterialInfo& getMaterial() const;
-    void setMaterial(const MaterialInfo& material);
+    void setMaskCoords(DPoint maskPos, DPoint maskSize);
 
     PixelFormat getPixelFormat();
     IntPoint getSize();
@@ -81,6 +82,9 @@ private:
     IntPoint m_Size;
     PixelFormat m_pf;
     PBOTexturePtr m_pMaskTexture;
+    DPoint m_MaskPos;
+    DPoint m_MaskSize;
+    
     bool m_bUseForeignTexture;
 
     MaterialInfo m_Material;

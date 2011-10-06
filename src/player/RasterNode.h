@@ -104,7 +104,7 @@ class AVG_API RasterNode: public AreaNode
                 bool bPremultipliedAlpha);
 
     private:
-        virtual void calcMaskCoords(MaterialInfo& material);
+        virtual void calcMaskCoords();
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         void setupFX(bool bNewFX);

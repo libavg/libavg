@@ -493,7 +493,7 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 }
 
-void WordsNode::calcMaskCoords(MaterialInfo& material)
+void WordsNode::calcMaskCoords()
 {
     updateLayout();
 
@@ -530,7 +530,7 @@ void WordsNode::calcMaskCoords(MaterialInfo& material)
     cerr << "  normMaskSize: " << normMaskSize << endl;
     cerr << "  normMaskPos: " << normMaskPos << endl;
 */    
-    material.setMaskCoords(normMaskPos, normMaskSize);
+    getSurface()->setMaskCoords(normMaskPos, normMaskSize);
 }
 
 void WordsNode::setDirty(RedrawState newState)

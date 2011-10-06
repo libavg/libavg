@@ -96,16 +96,14 @@ void RasterNode::connectDisplay()
 {
     AreaNode::connectDisplay();
 
-    getSurface();
     m_pSurface->attach();
     m_bBound = false;
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         m_TileSize = m_MaxTileSize;
     }
     calcVertexGrid(m_TileVertices);
-    m_pSurface->setMaterial(m_Material);
     setBlendModeStr(m_sBlendMode);
-    if (m_Material.getHasMask()) {
+    if (m_pMaskBmp) {
         m_pSurface->createMask(m_pMaskBmp->getSize());
         downloadMask();
         setMaskCoords();
@@ -161,10 +159,9 @@ void RasterNode::checkReload()
         }
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();
-            m_Material.setMask(false);
-            getSurface()->setMaterial(m_Material);
+            getSurface()->removeMask();
         }
-        if (getState() == Node::NS_CANRENDER && m_Material.getHasMask()) {
+        if (getState() == Node::NS_CANRENDER && m_pMaskBmp) {
             m_pSurface->createMask(m_pMaskBmp->getSize());
             downloadMask();
         }
@@ -372,13 +369,11 @@ bool RasterNode::hasMask() const
 void RasterNode::setMaskCoords()
 {
     if (m_sMaskFilename != "") {
-        m_Material.setMask(true);
-        calcMaskCoords(m_Material);
-        m_pSurface->setMaterial(m_Material);
+        calcMaskCoords();
     }
 }
 
-void RasterNode::calcMaskCoords(MaterialInfo& material)
+void RasterNode::calcMaskCoords()
 {
     DPoint maskSize;
     DPoint mediaSize = DPoint(getMediaSize());
@@ -388,7 +383,7 @@ void RasterNode::calcMaskCoords(MaterialInfo& material)
         maskSize = DPoint(m_MaskSize.x/mediaSize.x, m_MaskSize.y/mediaSize.y);
     }
     DPoint maskPos = DPoint(m_MaskPos.x/mediaSize.x, m_MaskPos.y/mediaSize.y);
-    material.setMaskCoords(maskPos, maskSize);
+    m_pSurface->setMaskCoords(maskPos, maskSize);
 }
 
 void RasterNode::bind() 

@@ -32,36 +32,8 @@ namespace avg {
 MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
     : m_TexWrapSMode(texWrapSMode),
       m_TexWrapTMode(texWrapTMode),
-      m_bUseMipmaps(bUseMipmaps),
-      m_bHasMask(false)
+      m_bUseMipmaps(bUseMipmaps)
 {}
-
-void MaterialInfo::setMask(bool bHasMask)
-{
-    m_bHasMask = bHasMask;
-}
-
-void MaterialInfo::setMaskCoords(const DPoint& pos, const DPoint& size)
-{
-    AVG_ASSERT(m_bHasMask);
-    m_MaskPos = pos;
-    m_MaskSize = size;
-}
-
-bool MaterialInfo::getHasMask() const
-{
-    return m_bHasMask;
-}
-
-const DPoint& MaterialInfo::getMaskPos() const
-{
-    return m_MaskPos;
-}
-
-const DPoint& MaterialInfo::getMaskSize() const
-{
-    return m_MaskSize;
-}
 
 int MaterialInfo::getTexWrapSMode() const
 {

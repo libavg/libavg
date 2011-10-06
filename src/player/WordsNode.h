@@ -116,7 +116,7 @@ class AVG_API WordsNode : public RasterNode
     private:
         enum RedrawState {FONT_CHANGED, LAYOUT_CHANGED, RENDER_NEEDED, CLEAN};
 
-        virtual void calcMaskCoords(MaterialInfo& material);
+        virtual void calcMaskCoords();
         void setDirty(RedrawState newState);
         void updateFont();
         void updateLayout();
