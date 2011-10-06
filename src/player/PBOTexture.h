@@ -57,16 +57,9 @@ public:
     const IntPoint& getTextureSize() const;
 
 private:
-    void createMover();
-
-    PixelFormat m_pf;
-    MaterialInfo m_Material;
-    
     GLTexturePtr m_pTex;
     TextureMoverPtr m_pWriteMover;
     TextureMoverPtr m_pReadMover;
-    
-    OGLMemoryMode m_MemoryMode;
 };
 
 typedef boost::shared_ptr<PBOTexture> PBOTexturePtr;

@@ -39,14 +39,11 @@ namespace avg {
 using namespace std;
     
 PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material) 
-    : m_pf(pf),
-      m_Material(material)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
-    m_pTex = GLTexturePtr(new GLTexture(size, m_pf, m_Material.getUseMipmaps(),
-            m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
-    createMover();
+    m_pTex = GLTexturePtr(new GLTexture(size, pf, material.getUseMipmaps(),
+            material.getTexWrapSMode(), material.getTexWrapTMode())); 
+    m_pWriteMover = TextureMover::create(size, pf, GL_DYNAMIC_DRAW);
 }
 
 PBOTexture::~PBOTexture()
@@ -67,8 +64,9 @@ void PBOTexture::unlockBmp()
 BitmapPtr PBOTexture::readbackBmp()
 {
     if (!m_pReadMover) {
-        if (m_MemoryMode == MM_PBO) {
-            m_pReadMover = TextureMoverPtr(new PBO(m_pTex->getGLSize(), m_pf, 
+        OGLMemoryMode memoryMode = GLContext::getCurrent()->getMemoryModeSupported();
+        if (memoryMode == MM_PBO) {
+            m_pReadMover = TextureMoverPtr(new PBO(m_pTex->getGLSize(), m_pTex->getPF(), 
                     GL_DYNAMIC_READ));
         } else {
             m_pReadMover = m_pWriteMover;
@@ -88,8 +86,6 @@ void PBOTexture::download() const
 
 void PBOTexture::setTex(GLTexturePtr pTex)
 {
-    AVG_ASSERT(m_MemoryMode == MM_PBO);
-
     m_pTex = pTex;
 }
 
@@ -102,12 +98,5 @@ const IntPoint& PBOTexture::getTextureSize() const
 {
     return m_pTex->getGLSize();
 }
-
-void PBOTexture::createMover()
-{
-    IntPoint size = m_pTex->getSize();
-    m_pWriteMover = TextureMover::create(size, m_pf, GL_DYNAMIC_DRAW);
-}
-
 
 }
