@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -100,12 +100,12 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-void OGLErrorCheck(int avgcode, const string& sWhere) 
+void OGLErrorCheck(int avgcode, const char* pszWhere) 
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
-        s << "OpenGL error in " << sWhere <<": " << gluErrorString(err) 
+        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
             << " (#" << err << ") ";
         AVG_TRACE(Logger::ERROR, s.str());
         if (err != GL_INVALID_OPERATION) {
@@ -135,9 +135,7 @@ bool queryOGLExtension(const char *extName)
     size_t extNameLen = strlen(extName);
 
     p = (char *)glGetString(GL_EXTENSIONS);
-    if (NULL == p) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get OpenGL extension string.");
-    }
+    AVG_ASSERT(p != 0);
 
     char * end = p + strlen(p);
 
@@ -169,12 +167,14 @@ bool queryGLXExtension(const char *extName)
     while (p < end) {
         int n = strcspn(p, " ");
         if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
-            XCloseDisplay(display);
+// If we close the display connection on some drivers (at least fglrx/Ubuntu 11.04),
+// libavg crashes soon afterwards.
+//            XCloseDisplay(display);
             return true;
         }
         p += (n + 1);
     }
-    XCloseDisplay(display);
+//    XCloseDisplay(display);
     return false;
 #endif
 }
@@ -249,43 +249,6 @@ void popGLState()
     glPopClientAttrib();
     glPopAttrib();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "popGLState()");
-}
-
-#if defined(__APPLE__)
-CGLContextObj g_AVGGLContext;
-#elif defined(__linux__)
-Display* g_pAVGGLDisplay;
-GLXDrawable g_pAVGGLDrawable;
-GLXContext g_AVGGLContext;
-#elif defined(_WIN32)
-HDC g_AVGGLHDC;
-HGLRC g_AVGGLContext;
-#endif
-
-void AVG_API saveAVGGLContext()
-{
-#if defined(__APPLE__)
-    g_AVGGLContext = CGLGetCurrentContext();
-#elif defined(__linux__)
-    g_pAVGGLDisplay = glXGetCurrentDisplay();
-    g_pAVGGLDrawable = glXGetCurrentDrawable();
-    g_AVGGLContext = glXGetCurrentContext();
-#elif defined(_WIN32)
-    g_AVGGLHDC = wglGetCurrentDC();
-    g_AVGGLContext = wglGetCurrentContext();
-#endif
-}
-
-void AVG_API restoreAVGGLContext()
-{
-    AVG_ASSERT(g_AVGGLContext);
-#if defined(__APPLE__)
-    CGLSetCurrentContext(g_AVGGLContext);
-#elif defined(__linux__)
-    glXMakeCurrent(g_pAVGGLDisplay, g_pAVGGLDrawable, g_AVGGLContext);
-#elif defined(_WIN32)
-    wglMakeCurrent(g_AVGGLHDC, g_AVGGLContext);
-#endif
 }
 
 void AVG_API clearGLBuffers(GLbitfield mask)

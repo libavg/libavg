@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -115,14 +115,13 @@ void WorkerThread<DERIVED_THREAD>::operator()()
             } else {
                 processCommands();
             }
-            pProfiler->reset();
         }
         deinit();
         pProfiler->dumpStatistics();
         pProfiler->kill();
     } catch (const Exception& e) {
          AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
-                  << e.GetStr());
+                  << e.getStr());
          throw;
     }
 }
@@ -157,7 +156,7 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
         }
     } catch (const Exception& e) {
         AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
-                << m_sName << ": " << e.GetStr());
+                << m_sName << ": " << e.getStr());
     }
    
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -65,13 +65,11 @@ if sys.platform != 'win32':
         
         try:
             symtree('../python', 'libavg')
-            os.symlink('../../wrapper/__init__.py', 'libavg/__init__.py')
         except OSError:
             pass
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
-        os.symlink('../../../../../src/wrapper/__init__.py', 'libavg/__init__.py')
 
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
@@ -114,6 +112,7 @@ import AnimTest
 import EventTest
 import InputDeviceTest
 import AVGAppTest
+import UITest
 from EventTest import mainMouseDown
 from EventTest import mainMouseUp
 
@@ -133,6 +132,7 @@ app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
 app.registerSuiteFactory('event', EventTest.eventTestSuite)
 app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
+app.registerSuiteFactory('ui', UITest.uiTestSuite)
 app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 
 app.run()

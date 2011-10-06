@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/Logger.h"
 
+#include "../graphics/GLContext.h"
+
 #include <vector>
 
 using namespace boost;
@@ -54,27 +56,27 @@ void MainCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void MainCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine)
+void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
-    Canvas::initPlayback(pDisplayEngine, pAudioEngine, 
-            pDisplayEngine->getOGLOptions().m_MultiSampleSamples);
+    m_pDisplayEngine = pDisplayEngine;
+    Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
 }
 
 BitmapPtr MainCanvas::screenshot() const
 {
-    if (!getDisplayEngine()) {
+    if (!m_pDisplayEngine) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "MainCanvas::screenshot(): Canvas is not being rendered. No screenshot available."));
     }
-    return getDisplayEngine()->screenshot();
+    return m_pDisplayEngine->screenshot();
 }
 
 static ProfilingZoneID RootRenderProfilingZone("Render MainCanvas");
 
 void MainCanvas::render()
 {
-    Canvas::render(getDisplayEngine()->getWindowSize(), false, RootRenderProfilingZone);
+    Canvas::render(m_pDisplayEngine->getWindowSize(), false, FBOPtr(),
+            RootRenderProfilingZone);
 }
 
 }

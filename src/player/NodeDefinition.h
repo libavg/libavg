@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -26,13 +26,16 @@
 
 #include "../api.h"
 
-#include "VisibleNode.h"
 #include "ArgList.h"
 
 #include <map>
 #include <string>
 
 namespace avg {
+
+class Node;
+typedef boost::shared_ptr<Node> NodePtr;
+class NodeDefinition;
 
 typedef NodePtr (*NodeBuilder)(const ArgList& Args);
 typedef std::map<std::string, NodeDefinition> ChildMap;

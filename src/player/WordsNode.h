@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -42,8 +42,7 @@ class AVG_API WordsNode : public RasterNode
         WordsNode(const ArgList& args);
         virtual ~WordsNode();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void preRender();
@@ -58,8 +57,7 @@ class AVG_API WordsNode : public RasterNode
         virtual DPoint getSize() const;
         virtual void setSize(const DPoint& pt);
 
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
         void setTextFromNodeValue(const std::string& sText);
 
         const std::string& getFont() const;
@@ -116,8 +114,14 @@ class AVG_API WordsNode : public RasterNode
         static void addFontDir(const std::string& sDir);
 
     private:
+        enum RedrawState {FONT_CHANGED, LAYOUT_CHANGED, RENDER_NEEDED, CLEAN};
+
         virtual void calcMaskCoords(MaterialInfo& material);
-        void drawString();
+        void setDirty(RedrawState newState);
+        void updateFont();
+        void updateLayout();
+        void renderText();
+        void redraw();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         void setParsedText(const UTF8String& sText);
         UTF8String applyBR(const UTF8String& sText);
@@ -144,12 +148,12 @@ class AVG_API WordsNode : public RasterNode
         bool m_bRawTextMode;
         IntPoint m_LogicalSize;
         IntPoint m_InkOffset;
+        IntPoint m_InkSize;
         int m_AlignOffset;
         PangoFontDescription * m_pFontDescription;
         PangoLayout * m_pLayout;
 
-        bool m_bFontChanged;
-        bool m_bDrawNeeded;
+        RedrawState m_RedrawState;
 };
 
 }

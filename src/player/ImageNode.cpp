@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@
 
 #include "ImageNode.h"
 
-#include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
 #include "Player.h"
@@ -44,7 +43,7 @@ namespace avg {
 
 NodeDefinition ImageNode::createDefinition()
 {
-    return NodeDefinition("image", VisibleNode::buildNode<ImageNode>)
+    return NodeDefinition("image", Node::buildNode<ImageNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(ImageNode, m_href)))
         .addArg(Arg<string>("compression", "none"));
@@ -69,12 +68,14 @@ ImageNode::~ImageNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
-        AudioEngine * pAudioEngine)
+void ImageNode::connectDisplay()
 {
-    getSurface()->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    if (m_pImage->getSource() == Image::SCENE) {
+        checkCanvasValid(m_pImage->getCanvas());
+    }
+    getSurface()->attach();
+    m_pImage->moveToGPU();
+    RasterNode::connectDisplay();
     if (m_pImage->getSource() == Image::SCENE) {
         m_pImage->getCanvas()->addDependentCanvas(getCanvas());
     }
@@ -110,7 +111,7 @@ const UTF8String& ImageNode::getHRef() const
 void ImageNode::setHRef(const UTF8String& href)
 {
     m_href = href;
-    if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
+    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER)
     {
         m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
@@ -134,12 +135,12 @@ const string ImageNode::getCompression() const
 
 void ImageNode::setBitmap(BitmapPtr pBmp)
 {
-    if (m_pImage->getSource() == Image::SCENE && getState() == VisibleNode::NS_CANRENDER)
+    if (m_pImage->getSource() == Image::SCENE && getState() == Node::NS_CANRENDER)
     {
         m_pImage->getCanvas()->removeDependentCanvas(getCanvas());
     }
     m_pImage->setBitmap(pBmp, m_Compression);
-    if (getState() == VisibleNode::NS_CANRENDER) {
+    if (getState() == Node::NS_CANRENDER) {
         bind();
     }
     m_href = "";
@@ -148,9 +149,9 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
 
 void ImageNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     if (isVisible()) {
-        renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
+        renderFX(getSize(), Pixel32(255, 255, 255, 255), bool(m_pImage->getCanvas()));
     }
 }
 
@@ -178,19 +179,19 @@ void ImageNode::checkReload()
                     "Texture compression can't be used with canvas hrefs.");
         }
         OffscreenCanvasPtr pCanvas = Player::get()->getCanvasFromURL(m_href);
+        checkCanvasValid(pCanvas);
         m_pImage->setCanvas(pCanvas);
         if (getState() == NS_CANRENDER) {
             pCanvas->addDependentCanvas(getCanvas());
         }
     } else {
-        VisibleNode::checkReload(m_href, m_pImage, m_Compression);
+        Node::checkReload(m_href, m_pImage, m_Compression);
     }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();
 }
 
-void ImageNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void ImageNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents()) {
         OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
@@ -214,6 +215,16 @@ BitmapPtr ImageNode::getBitmap()
 bool ImageNode::isCanvasURL(const std::string& sURL)
 {
     return sURL.find("canvas:") == 0;
+}
+
+void ImageNode::checkCanvasValid(const CanvasPtr& pCanvas)
+{
+    if (pCanvas == getCanvas()) {
+        m_href = "";
+        m_pImage->setEmpty();
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Circular dependency between canvases.");
+    }
 }
 
 }

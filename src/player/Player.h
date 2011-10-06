@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -24,14 +24,13 @@
 
 #include "../api.h"
 #include "Timeout.h"
-#include "DisplayEngine.h"
 #include "NodeRegistry.h"
 #include "DisplayParams.h"
-#include "GLConfig.h"
 #include "CursorState.h"
 #include "TestHelper.h"
 
 #include "../audio/AudioParams.h"
+#include "../graphics/GLConfig.h"
 
 #include <libxml/parser.h>
 #include <boost/shared_ptr.hpp>
@@ -44,7 +43,6 @@ namespace avg {
 
 class AudioEngine;
 class Node;
-class VisibleNode;
 class Canvas;
 class MainCanvas;
 class OffscreenCanvas;
@@ -61,8 +59,6 @@ class SDLDisplayEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
-typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 typedef boost::shared_ptr<MainCanvas> MainCanvasPtr;
 typedef boost::shared_ptr<OffscreenCanvas> OffscreenCanvasPtr;
@@ -99,6 +95,7 @@ class AVG_API Player
 
         OffscreenCanvasPtr loadCanvasFile(const std::string& sFilename);
         OffscreenCanvasPtr loadCanvasString(const std::string& sAVG);
+        OffscreenCanvasPtr createCanvas(const boost::python::dict& params);
         void deleteCanvas(const std::string& sID);
         CanvasPtr getMainCanvas() const;
         OffscreenCanvasPtr getCanvas(const std::string& sID) const;
@@ -134,7 +131,7 @@ class AVG_API Player
         TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;
-        void setEventCapture(VisibleNodePtr pNode, int cursorID);
+        void setEventCapture(NodePtr pNode, int cursorID);
         void releaseEventCapture(int cursorID);
         bool isCaptured(int cursorID);
         EventPtr getCurEvent() const;
@@ -145,14 +142,14 @@ class AVG_API Player
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
 
-        VisibleNodePtr getElementByID(const std::string& id);
+        NodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame(bool bFirstFrame);
         double getFramerate();
         double getVideoRefreshRate();
         bool isUsingShaders();
         void setGamma(double red, double green, double blue);
-        DisplayEngine * getDisplayEngine() const;
+        SDLDisplayEngine * getDisplayEngine() const;
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
         void setVolume(double volume);
@@ -201,7 +198,7 @@ class AVG_API Player
         void endFrame();
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, VisibleNodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type type, NodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
 
         void dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas);
@@ -210,8 +207,7 @@ class AVG_API Player
 
         MainCanvasPtr m_pMainCanvas;
 
-        DisplayEnginePtr m_pDisplayEngine;
-        AudioEngine * m_pAudioEngine;
+        SDLDisplayEnginePtr m_pDisplayEngine;
         TestHelperPtr m_pTestHelper;
        
         std::string m_CurDirName;
@@ -258,9 +254,9 @@ class AVG_API Player
         
         EventDispatcherPtr m_pEventDispatcher;
         struct EventCaptureInfo {
-            EventCaptureInfo(const VisibleNodeWeakPtr& pNode);
+            EventCaptureInfo(const NodeWeakPtr& pNode);
 
-            VisibleNodeWeakPtr m_pNode;
+            NodeWeakPtr m_pNode;
             int m_CaptureCount;
         };
         typedef boost::shared_ptr<EventCaptureInfo> EventCaptureInfoPtr;

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -149,11 +149,11 @@ void Contact::sendEventToListeners(CursorEventPtr pCursorEvent)
             default:
                 AVG_ASSERT(false);
         }
-        pCursorEvent->setNode(VisibleNodePtr());
         map<int, Listener>::iterator lastIt = it;
         ++it;
         if (m_bCurListenerIsDead) {
             m_ListenerMap.erase(lastIt);
+            m_bCurListenerIsDead = false;
         }
     }
     m_bSendingEvents = false;
@@ -195,6 +195,17 @@ void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEv
 {
     double dist = (pEvent2->getPos() - pEvent1->getPos()).getNorm();
     m_DistanceTravelled += dist;
+}
+
+void Contact::dumpListeners(string sFuncName)
+{
+    cerr << "  " << sFuncName << ": ";
+    for (map<int, Listener>::iterator it = m_ListenerMap.begin(); 
+            it != m_ListenerMap.end(); ++it)
+    {
+        cerr << it->first << ", ";
+    }
+    cerr << endl;
 }
 
 Contact::Listener::Listener(PyObject * pMotionCallback, PyObject * pUpCallback)

@@ -19,6 +19,8 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+CXXFLAGS="$CXXFLAGS -Wall -pipe"
+CFLAGS="$CFLAGS -Wall -pipe"
 case `uname -m` in
   x86*|i?86*)
     CXXFLAGS="-Wno-invalid-offsetof -msse2 $CXXFLAGS"
@@ -39,9 +41,11 @@ AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
 AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 
-PKG_CHECK_MODULES([MAGICK], [GraphicsMagick++])
+PKG_CHECK_MODULES([GDK_PIXBUF], [gdk-pixbuf-2.0])
+PKG_CHECK_MODULES([LIBRSVG], [librsvg-2.0])
+PKG_CHECK_MODULES([FONTCONFIG], [fontconfig])
 
-PKG_CHECK_MODULES([FFMPEG], [libavutil libavcodec libavformat libswscale], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
+PKG_CHECK_MODULES([FFMPEG], [libswscale libavformat libavcodec libavutil], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
 #Need to extend cflags or else the check_headers will not work as expected...
 CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
 CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
@@ -127,6 +131,19 @@ AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 if test x"$GL_LIBS" = x; then
     AC_MSG_ERROR([OpenGL not found. Aborting])
 fi
+
+AC_CHECK_LIB([vdpau],[main],let vdpau_lib=1,let vdpau_lib=0)
+AC_CHECK_HEADERS([libavcodec/vdpau.h],let vdpau_h1=1,let vdpau_h1=0)
+AC_CHECK_HEADERS([vdpau/vdpau.h],let vdpau_h2=1,let vdpau_h2=0)
+if [[ $vdpau_lib -eq 1 ]] && [[ $vdpau_h1 -eq 1 ]] && [[ $vdpau_h2 -eq 1 ]]; then
+  AC_DEFINE(AVG_ENABLE_VDPAU, 1, [Enable VDPAU support])
+  LIBVIDEO_LDADD="-lvdpau"
+  AM_CONDITIONAL(USE_VDPAU_SRC, true)
+else
+  LIBVIDEO_LDADD=""
+  AM_CONDITIONAL(USE_VDPAU_SRC, false)
+fi
+AC_SUBST([LIBVIDEO_LDADD])
 
 AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 

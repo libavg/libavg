@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@
 
 #include "../base/Exception.h"
 #include "../player/Player.h"
+#include "../player/Node.h"
 
 using namespace boost;
 using namespace boost::python;
@@ -33,8 +34,8 @@ AttrAnim::AttrAnimationMap AttrAnim::s_ActiveAnimations;
 
 bool ObjAttrID::operator < (const ObjAttrID& other) const
 {
-    VisibleNode * pNode = extract<VisibleNode*>(m_Node);
-    VisibleNode * pOtherNode = extract<VisibleNode*>(other.m_Node);
+    Node * pNode = extract<Node*>(m_Node);
+    Node * pOtherNode = extract<Node*>(other.m_Node);
     if (pNode < pOtherNode) {
         return true;
     } else if (pNode > pOtherNode) {

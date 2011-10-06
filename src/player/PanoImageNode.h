@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -34,8 +34,6 @@
 
 namespace avg {
     
-class SDLDisplayEngine;
-
 class AVG_API PanoImageNode: public AreaNode
 {
     public:
@@ -44,8 +42,7 @@ class AVG_API PanoImageNode: public AreaNode
         PanoImageNode(const ArgList& Args);
         virtual ~PanoImageNode();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void disconnect(bool bKill);
         virtual void render(const DRect& Rect);
 
@@ -72,8 +69,6 @@ class AVG_API PanoImageNode: public AreaNode
         void setupTextures();
         void clearTextures();
 
-        SDLDisplayEngine * getSDLEngine();
-    
         UTF8String m_href;
         std::string m_Filename;
         double m_SensorWidth;

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -112,7 +112,7 @@ void setEnv(const string & sName, const string & sVal)
 #endif
 }
 
-unsigned getMemoryUsage()
+size_t getMemoryUsage()
 {
 #ifdef __APPLE__
     kern_return_t rc;
@@ -139,7 +139,7 @@ unsigned getMemoryUsage()
     // See 'man proc' for a documentation of this file's contents.
     std::ifstream f("/proc/self/statm");
     f >> vmsize >> rssize;
-    return rssize*getpagesize();
+    return rssize*(size_t)(getpagesize());
 #endif
 #endif
 }

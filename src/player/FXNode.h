@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -30,14 +30,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API FXNode {
 public:
     FXNode();
     virtual ~FXNode();
 
-    virtual void connect(SDLDisplayEngine* pEngine);
+    virtual void connect();
     virtual void disconnect();
     virtual void setSize(const IntPoint& newSize);
 
@@ -47,16 +45,20 @@ public:
     BitmapPtr getImage();
     DRect getRelDestRect() const;
 
+    bool isDirty() const;
+    void resetDirty();
+
 protected:
-    SDLDisplayEngine* getEngine() const;
     FBOPtr getFBO();
+    void setDirty();
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size) = 0;
 
-    SDLDisplayEngine* m_pEngine;
     IntPoint m_Size;
     GPUFilterPtr m_pFilter;
+    
+    bool m_bDirty;
 };
 
 typedef boost::shared_ptr<FXNode> FXNodePtr;

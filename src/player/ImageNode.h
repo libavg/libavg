@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -40,8 +40,7 @@ class AVG_API ImageNode : public RasterNode
         
         ImageNode(const ArgList& args);
         virtual ~ImageNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
@@ -54,14 +53,14 @@ class AVG_API ImageNode : public RasterNode
         virtual void preRender();
         virtual void render(const DRect& Rect);
         
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
 
         virtual BitmapPtr getBitmap();
         virtual IntPoint getMediaSize();
 
     private:
         bool isCanvasURL(const std::string& sURL);
+        void checkCanvasValid(const CanvasPtr& pCanvas);
 
         UTF8String m_href;
         Image::TextureCompression m_Compression;

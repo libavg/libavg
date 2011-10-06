@@ -6,7 +6,7 @@ This section describes the base classes for all node classes that libavg provide
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: Node VisibleNode
+    .. inheritance-diagram:: Node
         :parts: 1
 
     To be rendered, a :py:class:`Node` must be part of a scene graph. Scene graphs are 
@@ -80,9 +80,44 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node([id: string, parent: DivNode=None])
+    .. autoclass:: Node([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0])
 
         Base class for everything that can be put into an avg tree.
+
+        :param string oncursormove:
+
+            Name of python function to call when a cursor moves.
+
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
+
+        :param string oncursorup:
+
+            Name of python function to call when an up event occurs.
+
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
+
+        :param string oncursordown:
+
+            Name of python function to call when a down event occurs.
+
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
+
+        :param string oncursorover:
+
+            Name of python function to call when a cursor enters the node.
+
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
+
+        :param string oncursorout:
+
+            Name of python function to call when a cursor leaves the node.
+
+            .. deprecated:: 1.5
+                Use :func:`connectEventHandler()` instead.
 
         .. py:attribute:: id
 
@@ -93,51 +128,6 @@ This section describes the base classes for all node classes that libavg provide
 
             A :py:class:`DivNode` that the node will become a child of. Equivalent to 
             calling :py:meth:`DivNode.appendChild` directly after construction.
-
-    .. autoclass:: VisibleNode([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, active=True, sensitive=True, opacity=1.0, parent])
-
-        Base class for all elements in the avg tree that have a visual representation.
-        All nodes except those derived from :py:class:`FXNode` are VisibleNodes.
-
-            :param string oncursormove:
-
-                Name of python function to call when a cursor moves.
-
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
-
-            :param string oncursorup:
-
-                Name of python function to call when an up event occurs.
-
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
-
-            :param string oncursordown:
-
-                Name of python function to call when a down event occurs.
-
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
-
-            :param string oncursorover:
-
-                Name of python function to call when a cursor enters the node.
-
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
-
-            :param string oncursorout:
-
-                Name of python function to call when a cursor leaves the node.
-
-                .. deprecated:: 1.5
-                    Use :func:`connectEventHandler()` instead.
-
-            :param DivNode parent:
-
-                A :py:class:`DivNode` that the newly constructed Node should be appended
-                to.
 
         .. py:attribute:: active
 

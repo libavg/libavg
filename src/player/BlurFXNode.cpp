@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
 //
 
 #include "BlurFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 #include "../graphics/ShaderRegistry.h"
 
 #include <string>
@@ -43,13 +43,14 @@ BlurFXNode::~BlurFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void BlurFXNode::connect(SDLDisplayEngine* pEngine)
+void BlurFXNode::connect()
 {
     if (!GLTexture::isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Cannot create BlurFX: OpenGL configuration doesn't support Blur (no float textures).");
     }
-    FXNode::connect(pEngine);
+    setDirty();
+    FXNode::connect();
 }
 
 void BlurFXNode::disconnect()
@@ -64,6 +65,7 @@ void BlurFXNode::setParam(double stdDev)
     if (m_pFilter) {
         m_pFilter->setStdDev(stdDev);
     }
+    setDirty();
 }
 
 GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)

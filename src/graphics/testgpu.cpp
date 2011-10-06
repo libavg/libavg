@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -25,6 +25,7 @@
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
 #include "GPUChromaKeyFilter.h"
+#include "GPUHueSatFilter.h"
 #include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
@@ -265,6 +266,33 @@ public:
     }
 };
 
+class HslColorFilterTest: public GraphicsTest {
+public:
+    HslColorFilterTest()
+        : GraphicsTest("HslColorFilterTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("hsl");
+        BitmapPtr pDestBmp;
+        GPUHueSatFilter filter(pBmp->getSize(), pBmp->getPixelFormat());
+        //Test hue functionality
+        for (int run = 0; run < 3; run++) {
+            filter.setParams(run*90);
+            pDestBmp = filter.apply(pBmp);
+            testEqual(*pDestBmp, "HslHueResult"+toString(run), R8G8B8X8, 0, 0);
+        }
+        //Test colorize functionality
+        for (int run = 0; run < 3; run++) {
+            filter.setParams(run*90, 1, 0, true);
+            pDestBmp = filter.apply(pBmp);
+            testEqual(*pDestBmp, "HslColorizeResult"+toString(run), R8G8B8X8, 0, 0);
+        }
+    }
+};
+
 class BlurFilterTest: public GraphicsTest {
 public:
     BlurFilterTest()
@@ -360,6 +388,7 @@ public:
         addTest(TestPtr(new BrightnessFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));
+            addTest(TestPtr(new HslColorFilterTest));
             addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));
         } else {
@@ -384,12 +413,17 @@ int main(int nargs, char** args)
             suite.runTests();
             bOK = suite.isOk();
         } catch (Exception& ex) {
-            cerr << "Exception: " << ex.GetStr() << endl;
+            cerr << "Exception: " << ex.getStr() << endl;
         }
     } catch (Exception& ex) {
-        cerr << "Skipping GPU imaging test." << endl;
-        cerr << "Reason: " << ex.GetStr() << endl;
-        bOK = true;
+        if (ex.getCode() == AVG_ERR_ASSERT_FAILED) {
+            cerr << ex.getStr() << endl;
+            bOK = false;
+        } else {
+            cerr << "Skipping GPU imaging test." << endl;
+            cerr << "Reason: " << ex.getStr() << endl;
+            bOK = true;
+        }
     }
 
     if (bOK) {

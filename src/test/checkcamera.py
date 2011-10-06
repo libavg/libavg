@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@
 from libavg import *
 import camcfgs
 import optparse
-import traceback
 
 from testcase import *
 
@@ -81,7 +80,7 @@ class CameraTestCase(AVGTestCase):
         self.actions = [None, None]
         g_Player.setOnFrameHandler(self.__onFrame)
         g_Player.play()
-        self.assert_(self.cam.framenum == 2)
+        self.assertEqual(self.cam.framenum, 2)
         self.cam = None
 
     def testIllegalFormat(self):
@@ -151,10 +150,10 @@ class CameraTestCase(AVGTestCase):
             else:
                 if minAverages+testCfg.minMedDiff > medAverages:
                     saveCamImages()
-                    self.assert_(False)
+                    self.fail()
                 if medAverages+testCfg.medMaxDiff > maxAverages:
                     saveCamImages()
-                    self.assert_(False)
+                    self.fail()
             self.averages = [] 
             self.camBmps = []
 

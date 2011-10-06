@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,6 @@
 #include "VectorNode.h"
 
 #include "NodeDefinition.h"
-#include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
 #include "Image.h"
 
@@ -38,8 +37,6 @@
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 
@@ -51,7 +48,7 @@ namespace avg {
 NodeDefinition VectorNode::createDefinition()
 {
     return NodeDefinition("vector")
-        .extendDefinition(VisibleNode::createDefinition())
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
@@ -76,20 +73,19 @@ VectorNode::~VectorNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void VectorNode::connectDisplay()
 {
     setDrawNeeded();
     m_Color = colorStringToColor(m_sColorName);
-    VisibleNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    m_pShape->moveToGPU(getDisplayEngine());
+    Node::connectDisplay();
+    m_pShape->moveToGPU();
     m_OldOpacity = -1;
     setBlendModeStr(m_sBlendMode);
 }
 
 void VectorNode::connect(CanvasPtr pCanvas)
 {
-    VisibleNode::connect(pCanvas);
+    Node::connect(pCanvas);
     checkReload();
 }
 
@@ -100,14 +96,14 @@ void VectorNode::disconnect(bool bKill)
     } else {
         m_pShape->moveToCPU();
     }
-    VisibleNode::disconnect(bKill);
+    Node::disconnect(bKill);
 }
 
 void VectorNode::checkReload()
 {
-    VisibleNode::checkReload(m_TexHRef, m_pShape->getImage());
-    if (getState() == VisibleNode::NS_CANRENDER) {
-        m_pShape->moveToGPU(getDisplayEngine());
+    Node::checkReload(m_TexHRef, m_pShape->getImage());
+    if (getState() == Node::NS_CANRENDER) {
+        m_pShape->moveToGPU();
         setDrawNeeded();
     }
 }
@@ -139,14 +135,14 @@ const string& VectorNode::getBlendModeStr() const
 void VectorNode::setBlendModeStr(const string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
-    m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
+    m_BlendMode = GLContext::stringToBlendMode(sBlendMode);
 }
 
 static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
 
 void VectorNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
@@ -175,7 +171,7 @@ void VectorNode::maybeRender(const DRect& rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
-        getDisplayEngine()->setBlendMode(m_BlendMode);
+        GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render(rect);
     }
 }
@@ -223,7 +219,7 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-DisplayEngine::BlendMode VectorNode::getBlendMode() const
+GLContext::BlendMode VectorNode::getBlendMode() const
 {
     return m_BlendMode;
 }

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include "../audio/AudioEngine.h"
+#include "../audio/SDLAudioEngine.h"
 
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
@@ -47,7 +47,7 @@ namespace avg {
 
 NodeDefinition SoundNode::createDefinition()
 {
-    return NodeDefinition("sound", VisibleNode::buildNode<SoundNode>)
+    return NodeDefinition("sound", Node::buildNode<SoundNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
@@ -133,15 +133,14 @@ void SoundNode::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void SoundNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void SoundNode::connectDisplay()
 {
-    if (!pAudioEngine) {
+    if (!SDLAudioEngine::get()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Sound nodes can only be created if audio is not disabled."); 
     }
     checkReload();
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
     long long curTime = Player::get()->getFrameTime(); 
     if (m_State != Unloaded) {
         startDecoding();
@@ -295,17 +294,14 @@ void SoundNode::open()
 
 void SoundNode::startDecoding()
 {
-    m_pDecoder->startDecoding(false, getAudioEngine()->getParams());
-    if (getAudioEngine()) {
-        getAudioEngine()->addSource(this);
-    }
+    SDLAudioEngine* pEngine = SDLAudioEngine::get();
+    m_pDecoder->startDecoding(false, pEngine->getParams());
+    pEngine->addSource(this);
 }
 
 void SoundNode::close()
 {
-    if (getAudioEngine()) {
-        getAudioEngine()->removeSource(this);
-    }
+    SDLAudioEngine::get()->removeSource(this);
     m_pDecoder->close();
 }
 

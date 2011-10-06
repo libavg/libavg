@@ -75,7 +75,6 @@
     <ClCompile Include="..\..\src\player\CameraNode.cpp" />
     <ClCompile Include="..\..\src\player\Canvas.cpp" />
     <ClCompile Include="..\..\src\player\CanvasNode.cpp" />
-    <ClCompile Include="..\..\src\player\checktracker.cpp" />
     <ClCompile Include="..\..\src\player\ChromaKeyFXNode.cpp" />
     <ClCompile Include="..\..\src\player\CircleNode.cpp" />
     <ClCompile Include="..\..\src\player\Contact.cpp" />
@@ -89,7 +88,8 @@
     <ClCompile Include="..\..\src\player\EventDispatcher.cpp" />
     <ClCompile Include="..\..\src\player\FilledVectorNode.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
-    <ClCompile Include="..\..\src\player\GLConfig.cpp" />
+    <ClCompile Include="..\..\src\player\HueSatFXNode.cpp" />
+    <ClCompile Include="..\..\src\player\InvertFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Image.cpp" />
     <ClCompile Include="..\..\src\player\ImageNode.cpp" />
     <ClCompile Include="..\..\src\player\KeyEvent.cpp" />
@@ -118,6 +118,8 @@
     <ClCompile Include="..\..\src\player\ShadowFXNode.cpp" />
     <ClCompile Include="..\..\src\player\Shape.cpp" />
     <ClCompile Include="..\..\src\player\SoundNode.cpp" />
+    <ClCompile Include="..\..\src\player\SVG.cpp" />
+    <ClCompile Include="..\..\src\player\SVGElement.cpp" />
     <ClCompile Include="..\..\src\player\TestHelper.cpp" />
     <ClCompile Include="..\..\src\player\TextEngine.cpp" />
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
@@ -131,7 +133,6 @@
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
-    <ClCompile Include="..\..\src\player\VisibleNode.cpp" />
     <ClCompile Include="..\..\src\player\Win7TouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
   </ItemGroup>
@@ -159,7 +160,8 @@
     <ClInclude Include="..\..\src\player\EventDispatcher.h" />
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
-    <ClInclude Include="..\..\src\player\GLConfig.h" />
+    <ClInclude Include="..\..\src\player\HueSatFXNode.h" />
+    <ClInclude Include="..\..\src\player\InvertFXNode.h" />
     <ClInclude Include="..\..\src\player\IInputDevice.h" />
     <ClInclude Include="..\..\src\player\Image.h" />
     <ClInclude Include="..\..\src\player\ImageNode.h" />
@@ -190,6 +192,8 @@
     <ClInclude Include="..\..\src\player\ShadowFXNode.h" />
     <ClInclude Include="..\..\src\player\Shape.h" />
     <ClInclude Include="..\..\src\player\SoundNode.h" />
+    <ClInclude Include="..\..\src\player\SVG.h" />
+    <ClInclude Include="..\..\src\player\SVGElement.h" />
     <ClInclude Include="..\..\src\player\TestHelper.h" />
     <ClInclude Include="..\..\src\player\TextEngine.h" />
     <ClInclude Include="..\..\src\player\Timeout.h" />
@@ -203,7 +207,6 @@
     <ClInclude Include="..\..\src\player\VideoNode.h" />
     <ClInclude Include="..\..\src\player\VideoWriter.h" />
     <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
-    <ClInclude Include="..\..\src\player\VisibleNode.h" />
     <ClInclude Include="..\..\src\player\Win7TouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\WordsNode.h" />
     <ClInclude Include="..\..\src\player\WrapPython.h" />

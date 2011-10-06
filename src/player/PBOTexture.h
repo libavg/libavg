@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -36,13 +36,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
 class VertexArray;
 
 class AVG_API PBOTexture {
 public:
     PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-            SDLDisplayEngine * pEngine, OGLMemoryMode memoryMode);
+            OGLMemoryMode memoryMode);
     virtual ~PBOTexture();
 
     BitmapPtr lockBmp();
@@ -69,7 +68,6 @@ private:
     PBOPtr m_pReadPBO;
     BitmapPtr m_pBmp;
     
-    SDLDisplayEngine * m_pEngine;
     OGLMemoryMode m_MemoryMode;
 };
 

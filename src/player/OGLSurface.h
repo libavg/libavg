@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -37,19 +37,17 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API OGLSurface {
 public:
     OGLSurface(const MaterialInfo& material);
     virtual ~OGLSurface();
 
-    void attach(SDLDisplayEngine * pEngine);
+    void attach();
     virtual void create(const IntPoint& size, PixelFormat pf);
     void createMask(const IntPoint& size);
     virtual void destroy();
-    void activate(const IntPoint& logicalSize = IntPoint(1,1)) const;
-    void deactivate() const;
+    void activate(const IntPoint& logicalSize = IntPoint(1,1),
+            bool bPremultipliedAlpha = false) const;
 
     BitmapPtr lockBmp(int i=0);
     void unlockBmps();
@@ -73,8 +71,8 @@ public:
             const DTriple& contrast);
     static void createShader();
 
-protected:
-    SDLDisplayEngine * getEngine() const;
+    bool isDirty() const;
+    void resetDirty();
 
 private:
     bool useShader() const;
@@ -86,17 +84,17 @@ private:
     IntPoint m_Size;
     PixelFormat m_pf;
     PBOTexturePtr m_pMaskTexture;
-    IntPoint m_MaskSize;
     bool m_bUseForeignTexture;
 
     MaterialInfo m_Material;
 
-    SDLDisplayEngine * m_pEngine;
     OGLMemoryMode m_MemoryMode;
 
     DTriple m_Gamma;
     DTriple m_Brightness;
     DTriple m_Contrast;
+
+    bool m_bIsDirty;
 };
 
 }

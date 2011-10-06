@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,7 @@ NodeDefinition PolyLineNode::createDefinition()
 {
     vector<DPoint> v;
     vector<double> vd;
-    return NodeDefinition("polyline", VisibleNode::buildNode<PolyLineNode>)
+    return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -28,11 +28,13 @@
 #include "Bitmap.h"
 #include "PBO.h"
 #include "FBO.h"
-#include "ImagingProjection.h"
 
 #include <boost/thread/tss.hpp>
 
 namespace avg {
+
+class ImagingProjection;
+typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 
 class AVG_API GPUFilter: public Filter
 {
@@ -55,8 +57,6 @@ public:
     const IntPoint& getSrcSize() const;
     DRect getRelDestRect() const;
     
-    static void glContextGone();
-
 protected:
     void draw(GLTexturePtr pTex);
     const std::string& getStdShaderCode() const;
@@ -75,8 +75,6 @@ private:
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     ImagingProjectionPtr m_pProjection;
-
-    static boost::thread_specific_ptr<PBOPtr> s_pFilterKernelPBO;
 };
 
 typedef boost::shared_ptr<GPUFilter> GPUFilterPtr;

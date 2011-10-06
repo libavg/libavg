@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -30,16 +30,16 @@
 #include "../base/ObjectCounter.h"
 #include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
+#include "../base/FileHelper.h"
 #include "../base/OSHelper.h"
 
-#include <Magick++.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
 
-using namespace Magick;
 using namespace std;
 
 namespace avg {
@@ -47,7 +47,7 @@ namespace avg {
 template<class Pixel>
 void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
-bool Bitmap::s_bMagickInitialized = false;
+bool Bitmap::s_bGTKInitialized = false;
 
 Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
@@ -71,7 +71,7 @@ Bitmap::Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName, int strid
     allocBits(stride);
 }
 
-Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
+Bitmap::Bitmap(IntPoint size, PixelFormat pf, unsigned char* pBits, 
         int stride, bool bCopyBits, const UTF8String& sName)
     : m_Size(size),
       m_PF(pf),
@@ -117,6 +117,7 @@ Bitmap::Bitmap(Bitmap& origBmp, const IntRect& rect)
     ObjectCounter::get()->incRef(&typeid(*this));
     AVG_ASSERT(rect.br.x <= origBmp.getSize().x);
     AVG_ASSERT(rect.br.y <= origBmp.getSize().y);
+    AVG_ASSERT(rect.tl.x >= 0 && rect.tl.y >= 0);
     if (!origBmp.getName().empty()) {
         m_sName = origBmp.getName()+" part";
     } else {
@@ -131,50 +132,52 @@ Bitmap::Bitmap(const UTF8String& sName)
     : m_pBits(0),
       m_sName(sName)
 {
-// TODO: This function loads grayscale images as RGB. That is because Magick++
-// provides no reliable way to determine whether a bitmap is grayscale or not. Maybe
-// the imagemagick C interface is less buggy? 
-// It also returns RGB bitmaps, but I think nearly everywhere in libavg, the bytes
-// are swapped and BGR is used.
-    if (!s_bMagickInitialized) {
-        InitializeMagick(0);
-        s_bMagickInitialized = true;
+    if (!s_bGTKInitialized) {
+        g_type_init();
+        s_bGTKInitialized = true;
     }
-    Image magickImage;
-    try {
-        string sFilename = convertUTF8ToFilename(sName);
-        magickImage.read(sFilename);
-    } catch (Magick::Warning &e) {
-        cerr << e.what() << endl;
-    } catch (Magick::ErrorConfigure &) {
-//        cerr << e.what() << endl;
+
+    GError* pError = 0;
+    GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_file(sName.c_str(), &pError);
+    if (!pPixBuf) {
+        string sErr = pError->message;
+        g_error_free(pError);
+        throw Exception(AVG_ERR_FILEIO, sErr);
     }
-    PixelPacket * pSrcPixels = magickImage.getPixels(0, 0, magickImage.columns(),
-            magickImage.rows());
-    m_Size = IntPoint(magickImage.columns(), magickImage.rows());
-    if (magickImage.matte()) {
+    m_Size = IntPoint(gdk_pixbuf_get_width(pPixBuf), gdk_pixbuf_get_height(pPixBuf));
+    if (gdk_pixbuf_get_has_alpha(pPixBuf)) {
         m_PF = B8G8R8A8;
     } else {
         m_PF = B8G8R8X8;
     }
+    int stride = gdk_pixbuf_get_rowstride(pPixBuf);
     allocBits();
+    guchar* pSrc = gdk_pixbuf_get_pixels(pPixBuf);
     for (int y = 0; y < m_Size.y; ++y) {
-        Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
-        PixelPacket * pSrcLine = pSrcPixels+y*magickImage.columns();
+        unsigned char* pDestLine = m_pBits+m_Stride*y;
+        guchar* pSrcLine = pSrc + y*stride;
         if (m_PF == B8G8R8A8) {
+            unsigned char* pDestPixel = pDestLine;
+            guchar* pSrcPixel = pSrcLine;
             for (int x = 0; x < m_Size.x; ++x) {
-                *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
-                        pSrcLine->red, 255-pSrcLine->opacity);
-                pSrcLine++;
-                pDestLine++;
+                pDestPixel[0] = pSrcPixel[2];
+                pDestPixel[1] = pSrcPixel[1];
+                pDestPixel[2] = pSrcPixel[0];
+                pDestPixel[3] = pSrcPixel[3];
+                pDestPixel += 4;
+                pSrcPixel += 4;
             }
         } else {
+            unsigned char* pDestPixel = pDestLine;
+            guchar* pSrcPixel = pSrcLine;
             for (int x = 0; x < m_Size.x; ++x) {
-                *pDestLine = Pixel32(pSrcLine->blue, pSrcLine->green, 
-                        pSrcLine->red, 255);
-                pSrcLine++;
-                pDestLine++;
-            }
+                pDestPixel[0] = pSrcPixel[2];
+                pDestPixel[1] = pSrcPixel[1];
+                pDestPixel[2] = pSrcPixel[0];
+                pDestPixel[3] = 255;
+                pDestPixel += 4;
+                pSrcPixel += 3;
+           } 
         }
     }
     m_bOwnsBits = true;
@@ -190,7 +193,7 @@ Bitmap::~Bitmap()
     }
 }
 
-Bitmap &Bitmap::operator =(const Bitmap &origBmp)
+Bitmap &Bitmap::operator =(const Bitmap& origBmp)
 {
     if (this != &origBmp) {
         if (m_bOwnsBits) {
@@ -207,7 +210,7 @@ Bitmap &Bitmap::operator =(const Bitmap &origBmp)
     return *this;
 }
 
-void Bitmap::copyPixels(const Bitmap & origBmp)
+void Bitmap::copyPixels(const Bitmap& origBmp)
 {
 //    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(origBmp.getPixelFormat())
 //            << "->" << getPixelFormatString(m_PF) << endl;
@@ -433,8 +436,8 @@ ostream& operator<<(ostream& os, const __m64 &val)
     *o++ = _m_punpckhbw(tmp, tmp2);
 
 
-void Bitmap::copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp,
-        const Bitmap& vBmp, bool bJPEG)
+void Bitmap::copyYUVPixels(const Bitmap& yBmp, const Bitmap& uBmp, const Bitmap& vBmp,
+        bool bJPEG)
 {
     int height = min(yBmp.getSize().y, m_Size.y);
     int width = min(yBmp.getSize().x, m_Size.x);
@@ -585,89 +588,65 @@ void Bitmap::copyYUVPixels(const Bitmap & yBmp, const Bitmap& uBmp,
 
 void Bitmap::save(const UTF8String& sFilename)
 {
-    if (!s_bMagickInitialized) {
-        InitializeMagick(0);
-        s_bMagickInitialized = true;
+    if (!s_bGTKInitialized) {
+        g_type_init();
+        s_bGTKInitialized = true;
     }
-//    cerr << "Bitmap::save()" << endl;
-    string sPF;
-    BitmapPtr pBmp;
-    Magick::StorageType channelFormat = Magick::CharPixel;
-    int alphaOffset = -1;
+    Bitmap* pTempBmp;
+    bool bCopied = false;
     switch (m_PF) {
-        case B5G6R5:
-        case B8G8R8:
         case B8G8R8X8:
-        case X8B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
-            pBmp->copyPixels(*this);
-            sPF = "BGR";
-            break;
-        case R5G6B5:
-        case R8G8B8:
-        case R8G8B8X8:
-        case X8R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
-            pBmp->copyPixels(*this);
-            sPF = "RGB";
+            pTempBmp = new Bitmap(m_Size, R8G8B8);
+            for (int y = 0; y < m_Size.y; y++) {
+                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+                unsigned char * pDestLine = pTempBmp->getPixels() + 
+                        y*pTempBmp->getStride();
+                for (int x = 0; x < m_Size.x; x++) { 
+                    pDestLine[x*3] = pSrcLine[x*4 + 2];
+                    pDestLine[x*3 + 1] = pSrcLine[x*4 + 1];
+                    pDestLine[x*3 + 2] = pSrcLine[x*4];
+                }
+            }
             break;
         case B8G8R8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 3;
-            sPF = "BGRA";
-            break;
-        case A8B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 0;
-            sPF = "ABGR";
-            break;
-        case R8G8B8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 3;
-            sPF = "RGBA";
-            break;
-        case A8R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            alphaOffset = 0;
-            sPF = "ARGB";
-            break;
-        case I16:   
-            pBmp = BitmapPtr(new Bitmap(*this));
-            channelFormat = Magick::ShortPixel;
-            sPF = "I";
-            break;
-        case I8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "I";
-            break;
-        case R32G32B32A32F:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            channelFormat = Magick::FloatPixel;
-            sPF = "RGBA";
+            pTempBmp = new Bitmap(m_Size, R8G8B8A8);
+            for (int y = 0; y < m_Size.y; y++) {
+                unsigned char * pSrcLine = m_pBits+y * m_Stride;
+                unsigned char * pDestLine = pTempBmp->getPixels() + 
+                        y*pTempBmp->getStride();
+                for (int x = 0; x < m_Size.x; x++) { 
+                    pDestLine[x*4] = pSrcLine[x*4 + 2];
+                    pDestLine[x*4 + 1] = pSrcLine[x*4 + 1];
+                    pDestLine[x*4 + 2] = pSrcLine[x*4];
+                    pDestLine[x*4 + 3] = pSrcLine[x*4+3];
+                }
+            }
             break;
         default:
-            cerr << "Unsupported pixel format " << m_PF << endl;
-            AVG_ASSERT(false);
-    }
-    // Workaround for old GraphicsMagick bug.
-    // GraphicsMagick versioning is broken, so we need to do a string compare at
-    // runtime.
-    if (string(MagickChangeDate) < "20100101") {
-        if (alphaOffset != -1) {
-            int stride = pBmp->getStride();
-            unsigned char * pLine = pBmp->getPixels();
-            for (int y = 0; y < m_Size.y; ++y) {
-                unsigned char * pPixel = pLine;
-                for (int x = 0; x < m_Size.x; ++x) {
-                    *(pPixel+alphaOffset) = 255-*(pPixel+alphaOffset);
-                    pPixel+=4;
-                }
-                pLine += stride;
+            if (hasAlpha()) {
+                pTempBmp = new Bitmap(m_Size, R8G8B8A8);
+            } else {
+                pTempBmp = new Bitmap(m_Size, R8G8B8);
             }
-        }
+            pTempBmp->copyPixels(*this);
     }
-    Magick::Image img(m_Size.x, m_Size.y, sPF, channelFormat, pBmp->getPixels());
-    img.write(sFilename);
+    GdkPixbuf* pPixBuf = gdk_pixbuf_new_from_data(pTempBmp->getPixels(), 
+            GDK_COLORSPACE_RGB, pTempBmp->hasAlpha(), 8, m_Size.x, m_Size.y, 
+            pTempBmp->getStride(), 0, 0);
+
+    string sExt = getExtension(sFilename);
+
+    GError* pError = 0;
+    gboolean bOk = gdk_pixbuf_save(pPixBuf, sFilename.c_str(), sExt.c_str(), &pError, NULL);
+    if (!bOk) {
+        string sErr = pError->message;
+        g_error_free(pError);
+        throw Exception(AVG_ERR_FILEIO, sErr);
+    }
+
+    if (bCopied) {
+        delete pTempBmp;
+    }
 }
 
 IntPoint Bitmap::getSize() const
@@ -874,7 +853,7 @@ Pixel32 Bitmap::getPythonPixel(const DPoint& pos)
     }
 }
 
-bool Bitmap::operator ==(const Bitmap & otherBmp)
+bool Bitmap::operator ==(const Bitmap& otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
@@ -909,19 +888,19 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
     return true;
 }
 
-Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
+BitmapPtr Bitmap::subtract(const Bitmap& otherBmp)
 {
-    if (m_PF != pOtherBmp->getPixelFormat())
+    if (m_PF != otherBmp.getPixelFormat())
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: pixel formats differ(")
                 + getPixelFormatString(m_PF)+", "
-                + getPixelFormatString(pOtherBmp->getPixelFormat())+")");
-    if (m_Size != pOtherBmp->getSize())
+                + getPixelFormatString(otherBmp.getPixelFormat())+")");
+    if (m_Size != otherBmp.getSize())
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 string("Bitmap::subtract: bitmap sizes differ (this=")
-                + toString(m_Size) + ", other=" + toString(pOtherBmp->getSize()) + ")");
-    Bitmap * pResultBmp = new Bitmap(m_Size, m_PF);
-    const unsigned char * pSrcLine1 = pOtherBmp->getPixels();
+                + toString(m_Size) + ", other=" + toString(otherBmp.getSize()) + ")");
+    BitmapPtr pResultBmp = BitmapPtr(new Bitmap(m_Size, m_PF));
+    const unsigned char * pSrcLine1 = otherBmp.getPixels();
     const unsigned char * pSrcLine2 = m_pBits;
     unsigned char * pDestLine = pResultBmp->getPixels();
     int stride = getStride();
@@ -962,18 +941,18 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
     return pResultBmp;
 }
     
-void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
+void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
 {
     AVG_ASSERT(getBytesPerPixel() == 4);
 
-    IntRect destRect(pos.x, pos.y, pos.x+pOtherBmp->getSize().x, 
-            pos.y+pOtherBmp->getSize().y);
+    IntRect destRect(pos.x, pos.y, pos.x+otherBmp.getSize().x, 
+            pos.y+otherBmp.getSize().y);
     destRect.intersect(IntRect(IntPoint(0,0), getSize()));
     for (int y = 0; y < destRect.height(); y++) {
         unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
-        const unsigned char * pOtherPixel = pOtherBmp->getPixels()+
-                y*pOtherBmp->getStride(); 
-        if (pOtherBmp->hasAlpha()) {
+        const unsigned char * pOtherPixel = otherBmp.getPixels()+
+                y*otherBmp.getStride(); 
+        if (otherBmp.hasAlpha()) {
             for (int x = 0; x < destRect.width(); x++) {
                 int srcAlpha = 255-pOtherPixel[3];
                 pSrcPixel[0] = 
@@ -1213,6 +1192,7 @@ void Bitmap::allocBits(int stride)
 {
     AVG_ASSERT(!m_pBits);
     AVG_ASSERT(!pixelFormatIsPlanar(m_PF));
+    AVG_ASSERT(m_Size.x > 0 && m_Size.y > 0);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     if (stride == 0) {
         m_Stride = getLineLen();
@@ -1240,7 +1220,7 @@ void Bitmap::allocBits(int stride)
     }
 }
 
-void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
+void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32* pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1274,7 +1254,7 @@ void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], u, v);
 }
  
-void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
+void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32* pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1308,7 +1288,7 @@ void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int 
     YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], u, v);
 }
  
-void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int width)
+void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32* pDestLine, int width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -1382,7 +1362,7 @@ void Bitmap::YCbCrtoBGR(const Bitmap& origBmp)
     }
 }
     
-void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int width)
+void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char* pDestLine, int width)
 {
     const unsigned char * pSrc = pSrcLine;
     unsigned char * pDest = pDestLine;
@@ -1393,7 +1373,7 @@ void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, i
     }
 }
  
-void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int width)
+void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char* pDestLine, int width)
 {
     const unsigned char * pSrc = pSrcLine;
     unsigned char * pDest = pDestLine;
@@ -1786,7 +1766,7 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& origBmp)
 }
 
 template<class DESTPIXEL, class SRCPIXEL>
-void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     SRCPIXEL * pSrcLine = (SRCPIXEL*) srcBmp.getPixels();
     DESTPIXEL * pDestLine = (DESTPIXEL*) destBmp.getPixels();
@@ -1806,7 +1786,7 @@ void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
 }
 
 template<>
-void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     const unsigned char * pSrcLine = srcBmp.getPixels();
     unsigned char * pDestLine = destBmp.getPixels();
@@ -1831,7 +1811,7 @@ void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& destBmp, const Bitmap & srcBmp
 }
 
 template<>
-void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     const unsigned char * pSrcLine = srcBmp.getPixels();
     unsigned char * pDestLine = destBmp.getPixels();
@@ -1864,7 +1844,7 @@ void createTrueColorCopy<Pixel8, Pixel32>(Bitmap& destBmp, const Bitmap & srcBmp
 
 
 template<class PIXEL>
-void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp)
+void createTrueColorCopy(Bitmap& destBmp, const Bitmap& srcBmp)
 {
     switch(srcBmp.getPixelFormat()) {
         case B8G8R8A8:

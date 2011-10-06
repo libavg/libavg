@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,7 @@ typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 
 namespace avg {
 
-void AVG_API OGLErrorCheck(int avgcode, const std::string& where);
+void AVG_API OGLErrorCheck(int avgcode, const char* pszWhere);
 #ifdef _WIN32
 void AVG_API winOGLErrorCheck(BOOL bOK, const std::string& sWhere);
 #endif
@@ -65,8 +65,6 @@ enum OGLMemoryMode {
 
 void AVG_API pushGLState();
 void AVG_API popGLState();
-void AVG_API saveAVGGLContext();
-void AVG_API restoreAVGGLContext();
 
 void AVG_API clearGLBuffers(GLbitfield mask);
 

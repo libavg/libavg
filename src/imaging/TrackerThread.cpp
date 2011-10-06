@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -48,14 +48,14 @@ using namespace std;
 
 namespace avg {
 
-static ProfilingZoneID ProfilingZoneCapture ("Capture");
-static ProfilingZoneID ProfilingZoneMask ("Mask");
-static ProfilingZoneID ProfilingZoneTracker ("Tracker");
-static ProfilingZoneID ProfilingZoneHistory ("History");
-static ProfilingZoneID ProfilingZoneDistort ("Distort");
-static ProfilingZoneID ProfilingZoneHistogram ("Histogram");
-static ProfilingZoneID ProfilingZoneDownscale ("Downscale");
-static ProfilingZoneID ProfilingZoneBandpass ("Bandpass");
+static ProfilingZoneID ProfilingZoneCapture("Capture");
+static ProfilingZoneID ProfilingZoneMask("Mask");
+static ProfilingZoneID ProfilingZoneTracker("Tracker");
+static ProfilingZoneID ProfilingZoneHistory("History");
+static ProfilingZoneID ProfilingZoneDistort("Distort");
+static ProfilingZoneID ProfilingZoneHistogram("Histogram");
+static ProfilingZoneID ProfilingZoneDownscale("Downscale");
+static ProfilingZoneID ProfilingZoneBandpass("Bandpass");
 static ProfilingZoneID ProfilingZoneComps("ConnectedComps");
 static ProfilingZoneID ProfilingZoneUpdate("Update");
 static ProfilingZoneID ProfilingZoneDraw("Draw");
@@ -106,7 +106,7 @@ bool TrackerThread::init()
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& e) {
-        AVG_TRACE(Logger::WARNING, e.GetStr());
+        AVG_TRACE(Logger::WARNING, e.getStr());
         AVG_TRACE(Logger::CONFIG, 
                 "Using CPU for imaging operations (slow and inaccurate).");
         m_pImagingContext = 0;
@@ -116,7 +116,7 @@ bool TrackerThread::init()
         m_StartTime = TimeSource::get()->getCurrentMillisecs(); 
         m_HistoryDelay = m_pConfig->getIntParam("/tracker/historydelay/@value");
     } catch (Exception& e) {
-        AVG_TRACE(Logger::WARNING, e.GetStr());
+        AVG_TRACE(Logger::WARNING, e.getStr());
     }
     
     // Done in TrackerInputDevice::ctor to work around Leopard/libdc1394 threading issue.
@@ -197,6 +197,7 @@ bool TrackerThread::work()
             }
             calcBlobs(pCroppedBmp, pBmpBandpass, time);
         }
+        ThreadProfiler::get()->reset();
     }
     return true;
 }

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@
 #include "../api.h"
 #include "WrapPython.h" 
 
-#include "VisibleNode.h"
+#include "Node.h"
 #include "RasterNode.h"
 
 #include "../base/Point.h"
@@ -34,21 +34,23 @@
 #include "../base/UTF8String.h"
 
 #include "../audio/IAudioSource.h"
+#include "../video/VideoDecoder.h"
 
 namespace avg {
 
-class IVideoDecoder;
+class VideoDecoder;
 
 class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
 {
     public:
+        enum VideoAccelType {NONE, VDPAU};
+
         static NodeDefinition createDefinition();
         
         VideoNode(const ArgList& args);
         virtual ~VideoNode();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
 
@@ -83,6 +85,7 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         bool hasAudio() const;
         bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
+        bool isAccelerated() const;
 
         virtual void render(const DRect& rect);
         virtual void preRender();
@@ -90,6 +93,8 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         virtual IntPoint getMediaSize();
+
+        static VideoAccelType getVideoAccelConfig();
 
     private:
         bool renderFrame(OGLSurface * pSurface);
@@ -133,8 +138,9 @@ class AVG_API VideoNode : public RasterNode, IFrameEndListener, IAudioSource
         long long m_PauseStartTime;
         double m_JitterCompensation;
 
-        IVideoDecoder * m_pDecoder;
+        VideoDecoder * m_pDecoder;
         double m_Volume;
+        bool m_bUsesHardwareAcceleration;
 };
 
 }

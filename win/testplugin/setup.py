@@ -1,15 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# Copyright (C) 2008 Archimedes Solutions GmbH,
-# Saarbrücker Str. 24b, Berlin, Germany
+# libavg - Media Playback Engine.
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
-# This file contains proprietary source code and confidential
-# information. Its contents may not be disclosed or distributed to
-# third parties unless prior specific permission by Archimedes
-# Solutions GmbH, Berlin, Germany is obtained in writing. This applies
-# to copies made in any form and using any medium. It applies to
-# partial as well as complete copies.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Current versions can be found at www.libavg.de
+#
 
 from distutils.core import setup, Extension
 import os, sys, shutil, subprocess, glob
@@ -66,6 +75,7 @@ if rc != 1:
 dlls=[DEVEL_ROOT+'/bin/'+dllname for dllname in os.listdir(DEVEL_ROOT+'/bin/') 
         if dllname[-4:] == ".dll" or dllname[-9:] == ".manifest"]
 dlls.append('../Release/avg.pyd')
+dlls.append('../Release/avg.pdb')
 
 test_files=[fname for fname in gatherFilesInDir(LIBAVG_SRC_DIR+'test/')
         if '.' in fname[-4:] ]
@@ -111,8 +121,6 @@ data_files_list.append(('Lib/site-packages/libavg/etc',
 data_files_list += (
         ('Lib/site-packages/libavg/etc/fonts', fontconfig_files),
     )
-
-shutil.copy(LIBAVG_SRC_DIR+'wrapper/__init__.py', '__init__.py')
 
 revision = 'svn'
 

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 //
 
 #include "OGLSurface.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -29,6 +28,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/ShaderRegistry.h"
+#include "../graphics/GLContext.h"
 
 #include <iostream>
 #include <sstream>
@@ -50,10 +50,10 @@ OGLSurface::OGLSurface(const MaterialInfo& material)
     : m_Size(-1,-1),
       m_bUseForeignTexture(false),
       m_Material(material),
-      m_pEngine(0),
       m_Gamma(1,1,1),
       m_Brightness(1,1,1),
-      m_Contrast(1,1,1)
+      m_Contrast(1,1,1),
+      m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -63,11 +63,10 @@ OGLSurface::~OGLSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::attach(SDLDisplayEngine * pEngine)
+void OGLSurface::attach()
 {
-    m_pEngine = pEngine;
-    m_MemoryMode = m_pEngine->getMemoryModeSupported();
-    if (!getEngine()->isUsingShaders()) {
+    m_MemoryMode = GLContext::getCurrent()->getMemoryModeSupported();
+    if (!GLContext::getCurrent()->isUsingShaders()) {
         if (m_Material.getHasMask()) {
             throw Exception(AVG_ERR_VIDEO_GENERAL,
                     "Can't set mask bitmap since shader support is disabled.");
@@ -81,7 +80,7 @@ void OGLSurface::attach(SDLDisplayEngine * pEngine)
 
 void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 {
-    AVG_ASSERT(m_pEngine);
+    AVG_ASSERT(GLContext::getCurrent());
     if (m_pTextures[0] && m_Size == size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
@@ -90,31 +89,30 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
     m_pf = pf;
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material,
                 m_MemoryMode));
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
+        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material,
                 m_MemoryMode));
-        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material, m_pEngine,
+        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material,
                 m_MemoryMode));
         if (pixelFormatHasAlpha(m_pf)) {
-            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
+            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material,
                 m_MemoryMode));
         }
     } else {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material, m_pEngine,
+        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material,
                 m_MemoryMode));
     }
     m_bUseForeignTexture = false;
+    m_bIsDirty = true;
 }
 
 void OGLSurface::createMask(const IntPoint& size)
 {
-    AVG_ASSERT(m_pEngine);
     AVG_ASSERT(m_Material.getHasMask());
-    m_MaskSize = size;
-    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_pEngine,
-            m_MemoryMode));
+    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material, m_MemoryMode));
+    m_bIsDirty = true;
 }
 
 void OGLSurface::destroy()
@@ -126,7 +124,7 @@ void OGLSurface::destroy()
     m_pTextures[3] = PBOTexturePtr();
 }
 
-void OGLSurface::activate(const IntPoint& logicalSize) const
+void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
 {
     if (useShader()) {
         OGLShaderPtr pShader = getShader(COLORSPACE_SHADER);
@@ -176,7 +174,8 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
                 float(1/m_Gamma.z), 1.0);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
-        pShader->setUniformIntParam("bPremultipliedAlpha", m_bUseForeignTexture);
+        pShader->setUniformIntParam("bPremultipliedAlpha", 
+                m_bUseForeignTexture || bPremultipliedAlpha);
         pShader->setUniformIntParam("bUseMask", m_Material.getHasMask());
         if (m_Material.getHasMask()) {
             m_pMaskTexture->activate(GL_TEXTURE4);
@@ -195,34 +194,16 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
     } else {
         m_pTextures[0]->activate(GL_TEXTURE0);
-        if (m_pEngine->isUsingShaders()) {
+        if (GLContext::getCurrent()->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }
-    }
-}
-
-void OGLSurface::deactivate() const
-{
-    if (pixelFormatIsPlanar(m_pf)) {
-        glproc::ActiveTexture(GL_TEXTURE1);
-        glDisable(GL_TEXTURE_2D);
-        glproc::ActiveTexture(GL_TEXTURE2);
-        glDisable(GL_TEXTURE_2D);
-        if (m_pf == YCbCrA420p) {
-            glproc::ActiveTexture(GL_TEXTURE3);
+        for (int i=1; i<5; ++i) {
+            glproc::ActiveTexture(GL_TEXTURE0 + i);
             glDisable(GL_TEXTURE_2D);
         }
         glproc::ActiveTexture(GL_TEXTURE0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: fixed function");
     }
-    if (m_Material.getHasMask()) {
-        glproc::ActiveTexture(GL_TEXTURE4);
-        glDisable(GL_TEXTURE_2D);
-        glproc::ActiveTexture(GL_TEXTURE0);
-    }
-    if (useShader()) {
-        glproc::UseProgramObject(0);
-    }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
 }
 
 BitmapPtr OGLSurface::lockBmp(int i)
@@ -246,6 +227,7 @@ void OGLSurface::setTex(GLTexturePtr pTex)
 {
     m_bUseForeignTexture = true;
     m_pTextures[0]->setTex(pTex);
+    m_bIsDirty = true;
 }
 
 BitmapPtr OGLSurface::lockMaskBmp()
@@ -266,7 +248,9 @@ const MaterialInfo& OGLSurface::getMaterial() const
 
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
-    if (getEngine() && (material.getHasMask() && !getEngine()->isUsingShaders())) {
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext && (material.getHasMask() && !pContext->isUsingShaders())) 
+    {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
     }
@@ -281,14 +265,16 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
         m_pMaskTexture = PBOTexturePtr();
     }
     if (!bOldHasMask && m_Material.getHasMask() && m_pMaskTexture) {
-        m_pMaskTexture = PBOTexturePtr(new PBOTexture(m_MaskSize, I8, m_Material, 
-                m_pEngine, m_MemoryMode));
+        m_pMaskTexture = PBOTexturePtr(new PBOTexture(IntPoint(m_Material.getMaskSize()),
+                I8, m_Material, m_MemoryMode));
     }
+    m_bIsDirty = true;
 }
 
 void OGLSurface::downloadTexture()
 {
     if (m_pTextures[0] && !m_bUseForeignTexture) {
+        m_bIsDirty = true;
         m_pTextures[0]->download();
         if (pixelFormatIsPlanar(m_pf)) {
             m_pTextures[1]->download();
@@ -303,6 +289,7 @@ void OGLSurface::downloadTexture()
 void OGLSurface::downloadMaskTexture()
 {
     if (m_Material.getHasMask()) {
+        m_bIsDirty = true;
         m_pMaskTexture->download();
     }
 }
@@ -333,10 +320,13 @@ void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
     m_Gamma = gamma;
     m_Brightness = brightness;
     m_Contrast = contrast;
-    if (!getEngine()->isUsingShaders() && (gammaIsModified() || colorIsModified())) {
+    if (!GLContext::getCurrent()->isUsingShaders() &&
+            (gammaIsModified() || colorIsModified())) 
+    {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
     }
+    m_bIsDirty = true;
 }
 
 void OGLSurface::createShader()
@@ -405,24 +395,28 @@ void OGLSurface::createShader()
         "        if (bPremultipliedAlpha) {\n"
         "            rgba.rgb *= texture2D(maskTexture,\n"
         "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
-        "        } else {\n"
-        "            rgba.a *= texture2D(maskTexture,\n"
-        "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
         "        }\n"
+        "        rgba.a *= texture2D(maskTexture,\n"
+        "                (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
         "    }\n"
         "    gl_FragColor = rgba;\n"
         "}\n";
     getOrCreateShader(COLORSPACE_SHADER, sProgram);
 }
 
-SDLDisplayEngine * OGLSurface::getEngine() const
+bool OGLSurface::isDirty() const
 {
-    return m_pEngine;
+    return m_bIsDirty;
+}
+
+void OGLSurface::resetDirty()
+{
+    m_bIsDirty = false;
 }
 
 bool OGLSurface::useShader() const
 {
-    return getEngine()->isUsingShaders() && 
+    return GLContext::getCurrent()->isUsingShaders() && 
             (m_Material.getHasMask() || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
                     colorIsModified());
 }

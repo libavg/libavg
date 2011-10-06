@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -62,11 +62,12 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def init(self):
                 self.testInstance.assert_(g_Player.isFullscreen())
                 rootNodeSize = g_Player.getRootNode().size
-                self.testInstance.assert_(rootNodeSize == TEST_RESOLUTION)
+                self.testInstance.assertEqual(rootNodeSize, resolution)
                 self.requestStop()
                 
+        resolution = g_Player.getScreenResolution()
         os.environ['AVG_DEPLOY'] = '1'
-        FullscreenApp.start(resolution=TEST_RESOLUTION)
+        FullscreenApp.start(resolution=resolution)
         del os.environ['AVG_DEPLOY']
 
     def testDebugWindowSize(self):
@@ -75,10 +76,10 @@ class AVGAppTestCase(testcase.AVGTestCase):
             def init(self):
                 self.testInstance.assert_(not g_Player.isFullscreen())
                 rootNodeSize = g_Player.getRootNode().size
-                self.testInstance.assert_(rootNodeSize == TEST_RESOLUTION)
+                self.testInstance.assertEqual(rootNodeSize, TEST_RESOLUTION)
                 
                 # windowSize = g_Player.getWindowResolution()
-                # self.testInstance.assert_(windowSize == Point2D(TEST_RESOLUTION) / 2)
+                # self.testInstance.assertEqual(windowSize, Point2D(TEST_RESOLUTION)/2)
                 self.requestStop()
         
         DebugwindowApp.start(resolution=TEST_RESOLUTION,
@@ -167,12 +168,13 @@ class AVGAppTestCase(testcase.AVGTestCase):
             fakeFullscreen = True
             def init(self):
                 g_Player.setTimeout(0, g_Player.stop)
-                
+              
+        resolution = g_Player.getScreenResolution()
         if os.name == 'nt':
-            FakeFullscreenApp.start(resolution=TEST_RESOLUTION)
+            FakeFullscreenApp.start(resolution=resolution)
         else:
             self.assertException(
-                    lambda: FakeFullscreenApp.start(resolution=TEST_RESOLUTION))
+                    lambda: FakeFullscreenApp.start(resolution=resolution))
         
 def avgAppTestSuite(tests):
     availableTests = (

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,8 @@ if len(sys.argv) ==1:
     print
     print "Usage: showfont.py <fontname> [<text>]"
     print
+    print "  Shows all available variants of a font. If <text> is given, displays the"
+    print "  text. If <fontname> is not given, dumps a list of all fonts available."
     sys.exit(1)
 else:
     fontname=sys.argv[1]

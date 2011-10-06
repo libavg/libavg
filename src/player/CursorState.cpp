@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,14 +20,14 @@
 //
 
 #include "CursorState.h"
-#include "VisibleNode.h"
+#include "Node.h"
 
 using namespace std;
 
 namespace avg {
 
 CursorState::CursorState(const CursorEventPtr pEvent, 
-        const vector<VisibleNodeWeakPtr>& pNodes)
+        const vector<NodeWeakPtr>& pNodes)
     : m_pNodes(pNodes)
 {
     m_pLastEvent = pEvent;
@@ -38,13 +38,13 @@ CursorState::~CursorState()
 }
 
 void CursorState::setInfo(const CursorEventPtr pEvent, 
-        const vector<VisibleNodeWeakPtr>& pNodes)
+        const vector<NodeWeakPtr>& pNodes)
 {
     m_pLastEvent = pEvent;
     m_pNodes = pNodes;
 }
 
-const vector<VisibleNodeWeakPtr>& CursorState::getNodes() const
+const vector<NodeWeakPtr>& CursorState::getNodes() const
 {
     return m_pNodes;
 }

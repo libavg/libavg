@@ -1,6 +1,6 @@
 
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,10 +23,7 @@
 #define _DisplayEngine_H_
 
 #include "../api.h"
-#include "VisibleNode.h"
 #include "DisplayParams.h"
-
-#include "../video/IVideoDecoder.h"
 
 #include "../graphics/Pixel32.h"
 #include "../graphics/Bitmap.h"
@@ -46,7 +43,6 @@ class AVG_API DisplayEngine
     public:
         DisplayEngine();
         virtual ~DisplayEngine();
-        virtual void init(const DisplayParams& DP) = 0;
         virtual void teardown() = 0;
         void initRender();
         void deinitRender();
@@ -65,21 +61,11 @@ class AVG_API DisplayEngine
         void checkJitter();
         long long getDisplayTime();
 
-        virtual bool pushClipRect(const DRect& rc) = 0;
-        virtual void popClipRect() = 0;
-        virtual void pushTransform(const DPoint& translate, double angle, 
-                const DPoint& pivot) = 0;
-        virtual void popTransform() = 0;
-
         virtual IntPoint getSize() = 0;
 
-        virtual bool isUsingShaders() const = 0; 
         virtual void showCursor (bool bShow) = 0;
 
         virtual BitmapPtr screenshot () = 0;
-
-        enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
-        static BlendMode stringToBlendMode(const std::string& s);
 
     protected:
         

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,11 @@
 #include "GLTexture.h"
 #include "PBO.h"
 #include "VertexArray.h"
+
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
+
 #include <vector>
 
 namespace avg {
@@ -43,12 +45,13 @@ public:
     virtual ~FBO();
 
     void activate() const;
-    void deactivate() const;
     PixelFormat getPF() const;
     unsigned getNumTextures() const;
 
     void copyToDestTexture() const;
     BitmapPtr getImage(int i=0) const;
+    void moveToPBO(int i=0) const;
+    BitmapPtr getImageFromPBO() const;
     GLTexturePtr getTex(int i=0) const;
     const IntPoint& getSize() const;
 
@@ -61,8 +64,6 @@ public:
 
 private:
     void init();
-    unsigned genFramebuffer() const;
-    void returnToCache(unsigned fboID);
     void checkError(const std::string& sContext) const;
 
     IntPoint m_Size;
@@ -80,8 +81,6 @@ private:
     unsigned m_ColorBuffer;
     unsigned m_OutputFBO;
 
-    // TODO: This assumes one GL context per thread.
-    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pFBOIDs;
 };
 
 typedef boost::shared_ptr<FBO> FBOPtr;

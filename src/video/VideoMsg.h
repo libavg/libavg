@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -30,16 +30,19 @@
 
 #include <boost/shared_ptr.hpp>
 
+struct vdpau_render_state;
+
 namespace avg {
 
 class AVG_API VideoMsg {
 public:
-    enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE};
+    enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE, VDPAU_FRAME};
     VideoMsg();
     void setAudio(AudioBufferPtr pAudioBuffer, double audioTime);
     void setEOF();
     void setError(const Exception& ex);
     void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime);
+    void setVDPAUFrame(vdpau_render_state* m_pRenderState, double frameTime);
     void setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime);
 
     virtual ~VideoMsg();
@@ -57,6 +60,8 @@ public:
     double getSeekVideoFrameTime();
     double getSeekAudioFrameTime();
 
+    vdpau_render_state* getRenderState();
+
 private:
     MsgType m_MsgType;
 
@@ -71,9 +76,13 @@ private:
     std::vector<BitmapPtr> m_pBmps;
     double m_FrameTime;
 
+    // VDPAU_FRAME
+    vdpau_render_state* m_pRenderState;
+
     // SEEK_DONE
     double m_SeekVideoFrameTime;
     double m_SeekAudioFrameTime;
+
 };
 
 typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;

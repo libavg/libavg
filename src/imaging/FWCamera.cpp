@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 
+#include <string.h>
 #include <sstream>
 #include <iomanip>
 
@@ -46,6 +47,10 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
 {
 #ifdef AVG_ENABLE_1394_2
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
+    if (camPF == I16) {
+        throw Exception(AVG_ERR_CAMERA_NONFATAL, 
+                "I16 pixel format is not supported for firewire cameras.");
+    }
     m_Mode = getCamMode(size, camPF);
     dc1394camera_list_t * pCameraList;
 
@@ -333,7 +338,7 @@ void FWCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue
                 } catch (Exception& e) {
                     AVG_TRACE(Logger::WARNING, 
                             string("Camera: Setting strobe duration failed. ") + 
-                            e.GetStr());
+                            e.getStr());
                 }
             } else {
                 dc1394feature_t featureID = getFeatureID(feature);

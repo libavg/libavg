@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@
 #include "GPUShadowFilter.h"
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
+#include "ImagingProjection.h"
 
 #include "../base/ObjectCounter.h"
 #include "../base/MathHelper.h"
@@ -63,8 +64,8 @@ void GPUShadowFilter::setParams(const DPoint& offset, double stdDev, double opac
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity);
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
-    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection);
-    m_pProjection2->setup(getDestRect().size(), destRect2);
+    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
+            getDestRect().size(), destRect2));
 }
 
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -26,9 +26,7 @@
 
 #include "OGLShader.h"
 
-#include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/tss.hpp>
 
 #include <map>
 
@@ -39,8 +37,7 @@ typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 
 class AVG_API ShaderRegistry {
 public:
-    static ShaderRegistryPtr& get();
-    static void kill();
+    static ShaderRegistryPtr get();
     ShaderRegistry();
     virtual ~ShaderRegistry();
 
@@ -51,7 +48,6 @@ private:
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
 
-    static boost::thread_specific_ptr<ShaderRegistryPtr> s_pInstance;
 };
 
 OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);

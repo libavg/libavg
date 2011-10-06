@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -31,7 +31,9 @@
 #include <string>
 
 namespace avg {
-    
+
+class VertexArray;
+
 class AVG_API DivNode : public AreaNode
 {
     public:
@@ -39,13 +41,19 @@ class AVG_API DivNode : public AreaNode
         
         DivNode(const ArgList& args);
         virtual ~DivNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
 
-        VisibleNodePtr getVChild(unsigned i);
+        unsigned getNumChildren();
+        const NodePtr& getChild(unsigned i);
+        void appendChild(NodePtr pNewNode);
+        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
+        void insertChildAfter(NodePtr pNewNode, NodePtr pOldChild);
         virtual void insertChild(NodePtr pNewNode, unsigned i);
+        void reorderChild(NodePtr pNode, unsigned j);
+        void reorderChild(unsigned i, unsigned j);
+        unsigned indexOf(NodePtr pChild);
         void removeChild(NodePtr pNode);
         void removeChild(unsigned i);
         void removeChild(NodePtr pNode, bool bKill);
@@ -62,8 +70,7 @@ class AVG_API DivNode : public AreaNode
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void preRender();
         virtual void render(const DRect& rect);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
@@ -75,10 +82,16 @@ class AVG_API DivNode : public AreaNode
         IntPoint getMediaSize();
    
     private:
+        bool isChildTypeAllowed(const std::string& sType);
+
         UTF8String m_sMediaDir;
         bool m_bCrop;
         std::string m_sElementOutlineColor;
         Pixel32 m_ElementOutlineColor;
+
+        VertexArrayPtr m_pClipVertexes;
+
+        std::vector<NodePtr> m_Children;
 };
 
 }

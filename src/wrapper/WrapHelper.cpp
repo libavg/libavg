@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -136,7 +136,7 @@ struct Exception_to_python_exception
 {
     static PyObject* convert (avg::Exception ex)
     {
-        PyObject *arglist = boost::python::incref(Py_BuildValue("(s)", ex.GetStr().c_str()));
+        PyObject *arglist = boost::python::incref(Py_BuildValue("(s)", ex.getStr().c_str()));
         
         return boost::python::incref(
                 PyObject_CallObject(PyExc_RuntimeError, arglist));
@@ -234,7 +234,7 @@ struct triple_from_python
 
 void exception_translator(Exception const & e) 
 {
-    PyErr_SetString(PyExc_RuntimeError, e.GetStr().c_str());
+    PyErr_SetString(PyExc_RuntimeError, e.getStr().c_str());
 }
 
 struct UTF8String_to_unicode

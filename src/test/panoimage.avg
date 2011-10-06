@@ -1,9 +1,0 @@
-<avg width="160" height="120">
-    <image id="below" x="0" y="0" width="320" height="240"
-            href="rgb24-65x65.png"/>
-    <panoimage id="pano" x="0" y="0" width="160" height="120"
-            href="panoimage.png" sensorwidth="4.60" sensorheight="3.97" 
-            focallength="12"/>
-    <image id="above" x="120" y="0" width="40" height="40"
-            href="rgb24-65x65.png"/>
-</avg>

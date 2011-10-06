@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -81,9 +81,6 @@
 
 #include "../audio/SDLAudioEngine.h"
 
-#undef HAVE_TEMPNAM
-#include <Magick++.h>
-
 #include <libxml/xmlmemory.h>
 
 #ifdef _WIN32
@@ -106,7 +103,6 @@ Player * Player::s_pPlayer=0;
 
 Player::Player()
     : m_pDisplayEngine(),
-      m_pAudioEngine(0),
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
@@ -122,6 +118,13 @@ Player::Player()
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
+string sDummy;
+#ifdef _WIN32
+    if (getEnv("AVG_WIN_CRASH_SILENTLY", sDummy)) {
+        DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+        SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+    }
+#endif
 #ifdef __linux
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
@@ -154,19 +157,9 @@ Player::Player()
 
     m_pTestHelper = TestHelperPtr(new TestHelper());
 
-    // Early initialization of TextEngine singletons (dualton? ;-))
-    // to avoid locale clashes with Magick (bug 54)
-    TextEngine::get(true);
-    TextEngine::get(false);
-
-#ifdef _WIN32
-    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
-#endif
-
     s_pPlayer = this;
 
     m_CurDirName = getCWD();
-    string sDummy;
     if (getEnv("AVG_BREAK_ON_IMPORT", sDummy)) {
         debugBreak();
     }
@@ -180,16 +173,6 @@ void deletePlayer()
 
 Player::~Player()
 {
-#ifndef _WIN32
-/*
-    // This causes libavg progams started under cmd to crash on system shutdown and
-    // when cmd is closed, so it isn't done under windows.
-    // Under Linux (Ubuntu >= 10.10), it takes more than 2 secs to complete...
-    if (m_pAudioEngine) {
-        delete m_pAudioEngine;
-    }
-*/
-#endif
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
     }
@@ -267,12 +250,7 @@ void Player::setAudioOptions(int samplerate, int channels)
 
 DPoint Player::getScreenResolution()
 {
-    if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
-    }
-    DPoint size = DPoint(dynamic_cast<SDLDisplayEngine*>(
-            m_pDisplayEngine.get())->getScreenResolution());
-    return size;
+    return DPoint(safeGetDisplayEngine()->getScreenResolution());
 }
 
 double Player::getPixelsPerMM()
@@ -338,6 +316,12 @@ OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
     return registerOffscreenCanvas(pNode);
 }
 
+OffscreenCanvasPtr Player::createCanvas(const boost::python::dict& params)
+{
+    NodePtr pNode = createNode("canvas", params);
+    return registerOffscreenCanvas(pNode);
+}
+
 void Player::deleteCanvas(const string& sID)
 {
     vector<OffscreenCanvasPtr>::iterator it;
@@ -384,7 +368,7 @@ void Player::newCanvasDependency(const OffscreenCanvasPtr pCanvas)
             continue;
         }
     }
-    assert(pNewCanvas);
+    AVG_ASSERT(pNewCanvas);
     bool bFound = false;
     for (i = 0; i < m_pCanvases.size(); ++i) {
         if (pNewCanvas->hasDependentCanvas(m_pCanvases[i])) {
@@ -437,7 +421,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
         m_CurDirName = string(pBuf)+"/";
         return pNode;
     } catch (Exception& ex) {
-        switch (ex.GetCode()) {
+        switch (ex.getCode()) {
             case AVG_ERR_XML_PARSE:
                 throw (Exception(AVG_ERR_XML_PARSE,
                         string("Error parsing xml document ")+RealFilename));
@@ -461,7 +445,7 @@ NodePtr Player::loadMainNodeFromString(const string& sAVG)
         NodePtr pNode = internalLoad(sEffectiveDoc);
         return pNode;
     } catch (Exception& ex) {
-        switch (ex.GetCode()) {
+        switch (ex.getCode()) {
             case AVG_ERR_XML_PARSE:
                 throw Exception(AVG_ERR_XML_PARSE, "Error parsing xml string.");
                 break;
@@ -495,7 +479,7 @@ void Player::play()
         AVG_TRACE(Logger::PLAYER, "Playback ended.");
     } catch (Exception& ex) {
         m_bIsPlaying = false;
-        AVG_TRACE(Logger::ERROR, ex.GetStr());
+        AVG_TRACE(Logger::ERROR, ex.getStr());
         throw;
     }
 }
@@ -522,20 +506,15 @@ void Player::initPlayback()
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
-            m_pCanvases[i]->initPlayback(
-                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()), m_pAudioEngine);
+            m_pCanvases[i]->initPlayback();
         }
-        m_pMainCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
-                m_pAudioEngine);
+        m_pMainCanvas->initPlayback(m_pDisplayEngine);
     } catch (Exception&) {
-        m_pDisplayEngine->teardown();
-        m_pDisplayEngine = DisplayEnginePtr();
-        if (m_pAudioEngine) {
-            m_pAudioEngine->teardown();
-        }
+        cleanup();
         throw;
     }
-    m_pEventDispatcher->addInputDevice(boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
+    m_pEventDispatcher->addInputDevice(
+            boost::dynamic_pointer_cast<IInputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
 
     m_pDisplayEngine->initRender();
@@ -576,7 +555,11 @@ void Player::setVBlankFramerate(int rate)
 double Player::getEffectiveFramerate()
 {
     if (m_bIsPlaying) {
-        return m_pDisplayEngine->getEffectiveFramerate();
+        if (m_bFakeFPS) {
+            return m_FakeFPS;
+        } else {
+            return m_pDisplayEngine->getEffectiveFramerate();
+        }
     } else {
         return 0;
     }
@@ -597,8 +580,8 @@ void Player::setFakeFPS(double fps)
         m_FakeFPS = fps;
     }
 
-    if (m_pAudioEngine) {
-        m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
+    if (SDLAudioEngine::get()) {
+        SDLAudioEngine::get()->setAudioEnabled(!m_bFakeFPS);
     }
 }
 
@@ -622,11 +605,15 @@ double Player::getFrameDuration()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before getFrameDuration().");
     }
-    double framerate = m_pDisplayEngine->getEffectiveFramerate();
-    if (framerate > 0) {
-        return 1000./framerate;
+    if (m_bFakeFPS) {
+        return 1000.0/m_FakeFPS;
     } else {
-        return 0;
+        double framerate = m_pDisplayEngine->getEffectiveFramerate();
+        if (framerate > 0) {
+            return 1000./framerate;
+        } else {
+            return 0;
+        }
     }
 }
 
@@ -719,13 +706,13 @@ bool Player::isMultitouchAvailable() const
     }
 }
 
-void Player::setEventCapture(VisibleNodePtr pNode, int cursorID=MOUSECURSORID)
+void Player::setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
     if (it != m_EventCaptureInfoMap.end() && !(it->second->m_pNode.expired())) {
         EventCaptureInfoPtr pCaptureInfo = it->second;
-        VisibleNodePtr pOldNode = pCaptureInfo->m_pNode.lock();
+        NodePtr pOldNode = pCaptureInfo->m_pNode.lock();
         if (pOldNode == pNode) {
             pCaptureInfo->m_CaptureCount++;
         } else {
@@ -828,11 +815,9 @@ int Player::getKeyModifierState() const
 
 BitmapPtr Player::screenshot()
 {
-    if (!isPlaying()) {
     if (!m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before screenshot().");
-    }
     }
     return m_pDisplayEngine->screenshot();
 }
@@ -886,12 +871,12 @@ void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
     delete[] pMask;
 }
 
-VisibleNodePtr Player::getElementByID(const std::string& sID)
+NodePtr Player::getElementByID(const std::string& sID)
 {
     if (m_pMainCanvas) {
         return m_pMainCanvas->getElementByID(sID);
     } else {
-        return VisibleNodePtr();
+        return NodePtr();
     }
 }
 
@@ -1094,7 +1079,7 @@ bool Player::isUsingShaders()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.isUsingShaders must be called after Player.play().");
     }
-    return m_pDisplayEngine->isUsingShaders();
+    return GLContext::getCurrent()->isUsingShaders();
 }
 
 void Player::setGamma(double red, double green, double blue)
@@ -1124,9 +1109,7 @@ void Player::initConfig()
 
     m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
-    m_DP.m_PhysScreenSize.x = atof(pMgr->getOption("scr", "physscreenwidth")->c_str());
-    m_DP.m_PhysScreenSize.y = atof(pMgr->getOption("scr", "physscreenheight")->c_str());
-
+    m_DP.m_DotsPerMM = atof(pMgr->getOption("scr", "dotspermm")->c_str());
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR,
@@ -1159,26 +1142,22 @@ void Player::initGraphics()
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
-    SDLDisplayEngine * pSDLDisplayEngine =
-            dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine.get());
-    if (pSDLDisplayEngine) {
-        AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
-        m_GLConfig.log();
-        pSDLDisplayEngine->setOGLOptions(m_GLConfig);
-    }
-    m_pDisplayEngine->init(m_DP);
+    AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
+    m_GLConfig.log();
+    m_pDisplayEngine->init(m_DP, m_GLConfig);
 }
 
 void Player::initAudio()
 {
-    if (!m_pAudioEngine) {
-        m_pAudioEngine = new SDLAudioEngine();
+    SDLAudioEngine* pAudioEngine = SDLAudioEngine::get();
+    if (!pAudioEngine) {
+        pAudioEngine = new SDLAudioEngine();
     }
-    m_pAudioEngine->init(m_AP, m_Volume);
-    m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
-    m_pAudioEngine->play();
+    pAudioEngine->init(m_AP, m_Volume);
+    pAudioEngine->setAudioEnabled(!m_bFakeFPS);
+    pAudioEngine->play();
 }
 
 void Player::updateDTD()
@@ -1221,19 +1200,10 @@ NodePtr Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_PARSE,
                     "Root node of an avg tree needs to be an <avg> node."));
         }
-        if (dynamic_pointer_cast<DivNode>(pNode)->getSize() == DPoint(0, 0)) {
-            throw (Exception(AVG_ERR_OUT_OF_RANGE,
-                    "<avg> and <canvas> node width and height attributes are mandatory."));
-        }
         xmlFreeDoc(doc);
         return pNode;
-    } catch (Exception&) {
-        if (doc) {
-            xmlFreeDoc(doc);
-        }
-        throw;
-    } catch (Magick::Exception & ex) {
-        AVG_TRACE(Logger::ERROR, ex.what());
+    } catch (Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.getStr());
         if (doc) {
             xmlFreeDoc(doc);
         }
@@ -1244,9 +1214,9 @@ NodePtr Player::internalLoad(const string& sAVG)
 SDLDisplayEnginePtr Player::safeGetDisplayEngine()
 {
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = DisplayEnginePtr(new SDLDisplayEngine());
+        m_pDisplayEngine = SDLDisplayEnginePtr(new SDLDisplayEngine());
     }
-    return dynamic_pointer_cast<SDLDisplayEngine>(m_pDisplayEngine);
+    return m_pDisplayEngine;
 
 }
 
@@ -1324,7 +1294,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
 NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         const xmlNodePtr xmlNode)
 {
-    NodePtr curNode;
+    NodePtr pCurNode;
     const char * nodeType = (const char *)xmlNode->name;
 
     if (!strcmp (nodeType, "text") ||
@@ -1332,26 +1302,27 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
+    pCurNode = m_NodeRegistry.createNode(nodeType, xmlNode);
     if (!strcmp(nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<WordsNode>(curNode)->setTextFromNodeValue(s);
+        boost::dynamic_pointer_cast<WordsNode>(pCurNode)->setTextFromNodeValue(s);
     } else {
         // If this is a container, recurse into children
-        if (curNode->getDefinition()->hasChildren()) {
+        if (pCurNode->getDefinition()->hasChildren()) {
             xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
             while (curXmlChild) {
                 NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild);
                 if (curChild) {
-                    curNode->appendChild(curChild);
+                    DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pCurNode);
+                    pDivNode->appendChild(curChild);
                 }
                 curXmlChild = curXmlChild->next;
             }
         }
     }
-    return curNode;
+    return pCurNode;
 }
 
 OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
@@ -1365,8 +1336,7 @@ OffscreenCanvasPtr Player::registerOffscreenCanvas(NodePtr pNode)
     m_pCanvases.push_back(pCanvas);
     if (m_bIsPlaying) {
         try {
-            pCanvas->initPlayback(dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine.get()),
-                    m_pAudioEngine);
+            pCanvas->initPlayback();
         } catch (...) {
             m_pCanvases.pop_back();
             throw;
@@ -1395,7 +1365,7 @@ void Player::sendFakeEvents()
 }
 
 void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
-        VisibleNodePtr pNode)
+        NodePtr pNode)
 {
     if (pNode) {
         CursorEventPtr pNewEvent = pOtherEvent->cloneAs(type);
@@ -1407,7 +1377,7 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
 void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     // Find all nodes under the cursor.
-    vector<VisibleNodeWeakPtr> pCursorNodes;
+    vector<NodeWeakPtr> pCursorNodes;
     DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
     if (!pEventReceiverNode) {
         pEventReceiverNode = getRootNode();
@@ -1417,7 +1387,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver && 
             !pCursorNodes.empty()) 
     {
-        VisibleNodePtr pNode = pCursorNodes.begin()->lock();
+        NodePtr pNode = pCursorNodes.begin()->lock();
         pEvent->setNode(pNode);
         pContact->sendEventToListeners(pEvent);
     }
@@ -1425,9 +1395,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     int cursorID = pEvent->getCursorID();
 
     // Determine the nodes the event should be sent to.
-    vector<VisibleNodeWeakPtr> pDestNodes = pCursorNodes;
+    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
-        VisibleNodeWeakPtr pEventCaptureNode = 
+        NodeWeakPtr pEventCaptureNode = 
                 m_EventCaptureInfoMap[cursorID]->m_pNode;
         if (pEventCaptureNode.expired()) {
             m_EventCaptureInfoMap.erase(cursorID);
@@ -1436,7 +1406,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    vector<VisibleNodeWeakPtr> pLastCursorNodes;
+    vector<NodeWeakPtr> pLastCursorNodes;
     {
         map<int, CursorStatePtr>::iterator it;
         it = m_pLastCursorStates.find(cursorID);
@@ -1446,12 +1416,12 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     // Send out events.
-    vector<VisibleNodeWeakPtr>::const_iterator itLast;
-    vector<VisibleNodeWeakPtr>::iterator itCur;
+    vector<NodeWeakPtr>::const_iterator itLast;
+    vector<NodeWeakPtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
             ++itLast)
     {
-        VisibleNodePtr pLastNode = itLast->lock();
+        NodePtr pLastNode = itLast->lock();
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
             if (itCur->lock() == pLastNode) {
                 break;
@@ -1464,7 +1434,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        VisibleNodePtr pCurNode = itCur->lock();
+        NodePtr pCurNode = itCur->lock();
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
                 ++itLast)
         {
@@ -1479,9 +1449,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
-        vector<VisibleNodeWeakPtr>::iterator it;
+        vector<NodeWeakPtr>::iterator it;
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            VisibleNodePtr pNode = (*it).lock();
+            NodePtr pNode = (*it).lock();
             if (pNode) {
                 CursorEventPtr pNodeEvent = boost::dynamic_pointer_cast<CursorEvent>(
                         pEvent->cloneAs(pEvent->getType()));
@@ -1499,9 +1469,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
-        vector<VisibleNodeWeakPtr>::iterator it;
+        vector<NodeWeakPtr>::iterator it;
         for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-            VisibleNodePtr pNode = it->lock();
+            NodePtr pNode = it->lock();
             sendOver(pEvent, Event::CURSOROUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
@@ -1573,7 +1543,7 @@ void Player::handleTimers()
 
 }
 
-DisplayEngine * Player::getDisplayEngine() const
+SDLDisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine.get();
 }
@@ -1591,8 +1561,8 @@ bool Player::getStopOnEscape() const
 void Player::setVolume(double volume)
 {
     m_Volume = volume;
-    if (m_pAudioEngine) {
-        m_pAudioEngine->setVolume(m_Volume);
+    if (SDLAudioEngine::get()) {
+        SDLAudioEngine::get()->setVolume(m_Volume);
     }
 }
 
@@ -1648,8 +1618,8 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
     }
-    if (m_pAudioEngine) {
-        m_pAudioEngine->teardown();
+    if (SDLAudioEngine::get()) {
+        SDLAudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
     m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
@@ -1715,7 +1685,7 @@ PyObject * Player::getEventHook() const
     return m_EventHookPyFunc;
 }
 
-Player::EventCaptureInfo::EventCaptureInfo(const VisibleNodeWeakPtr& pNode)
+Player::EventCaptureInfo::EventCaptureInfo(const NodeWeakPtr& pNode)
     : m_pNode(pNode),
       m_CaptureCount(1)
 {

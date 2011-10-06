@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -51,7 +51,7 @@ void TestSuite::runTests()
             aggregateStatistics(*m_Tests[i]);
             m_Tests[i]->printResults();
         } catch (Exception& ex) {
-            cerr << string(m_IndentLevel, ' ') << ex.GetStr() << endl;
+            cerr << string(m_IndentLevel, ' ') << ex.getStr() << endl;
             setFailed();
         } catch (...) {
             cerr << string(m_IndentLevel, ' ') <<

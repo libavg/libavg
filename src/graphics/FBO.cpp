@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,8 @@
 #include "FBO.h"
 
 #include "OGLHelper.h"
+#include "GLContext.h"
+
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
 #include "../base/ObjectCounter.h"
@@ -32,8 +34,6 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-
-thread_specific_ptr<vector<unsigned int> > FBO::s_pFBOIDs;
 
 FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures, 
         unsigned multisampleSamples, bool bUsePackedDepthStencil, bool bMipmap)
@@ -49,15 +49,12 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, unsigned numTextures,
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Multisample offscreen rendering is not supported by this OpenGL driver/card combination.");
     }
-    initCache();
 
     for (unsigned i=0; i<numTextures; ++i) {
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
-        if (bMipmap) {
-            // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
-            // glGenerateMipmaps causes FBO creation to fail(?!).
-            pTex->generateMipmaps();
-        }
+        // Workaround for NVidia driver bug - GL_TEX_MIN_FILTER without
+        // glGenerateMipmaps causes FBO creation to fail(?!).
+        pTex->generateMipmaps();
         m_pTextures.push_back(pTex);
     }
     init();
@@ -75,26 +72,29 @@ FBO::~FBO()
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT+i, 
                 GL_TEXTURE_2D, 0, 0);
     }
-    
-    returnToCache(m_FBO);
-    if (m_MultisampleSamples > 1) {
-        glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
-        returnToCache(m_OutputFBO);
-    }
-    if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
-        glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
-        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-                GL_RENDERBUFFER_EXT, 0);
-        glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
-                GL_RENDERBUFFER_EXT, 0);
+   
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext) {
+        pContext->returnFBOToCache(m_FBO);
         if (m_MultisampleSamples > 1) {
-            glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
-            glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-                    GL_TEXTURE_2D, 0, 0);
+            glproc::DeleteRenderbuffers(1, &m_ColorBuffer);
+            pContext->returnFBOToCache(m_OutputFBO);
         }
+        if (m_bUsePackedDepthStencil && isPackedDepthStencilSupported()) {
+            glproc::DeleteRenderbuffers(1, &m_StencilBuffer);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+                    GL_RENDERBUFFER_EXT, 0);
+            glproc::FramebufferRenderbuffer(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+                    GL_RENDERBUFFER_EXT, 0);
+            if (m_MultisampleSamples > 1) {
+                glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
+                glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                        GL_TEXTURE_2D, 0, 0);
+            }
+        }
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, oldFBOID);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "~FBO");
     }
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, oldFBOID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "~FBO");
 }
 
 void FBO::activate() const
@@ -102,12 +102,6 @@ void FBO::activate() const
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::activate: BindFramebuffer()");
     checkError("activate");
-}
-
-void FBO::deactivate() const
-{
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::deactivate: BindFramebuffer()");
 }
 
 PixelFormat FBO::getPF() const
@@ -140,6 +134,12 @@ void FBO::copyToDestTexture() const
 BitmapPtr FBO::getImage(int i) const
 {
     copyToDestTexture();
+    moveToPBO(i);
+    return getImageFromPBO();
+}
+
+void FBO::moveToPBO(int i) const
+{
     if (m_MultisampleSamples != 1) {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
     } else {
@@ -147,7 +147,6 @@ BitmapPtr FBO::getImage(int i) const
     }
     PixelFormat pf = m_pOutputPBO->getPF();
     IntPoint size = m_pOutputPBO->getSize();
-    BitmapPtr pBmp(new Bitmap(size, pf));
 
     m_pOutputPBO->activate();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
@@ -157,6 +156,16 @@ BitmapPtr FBO::getImage(int i) const
     glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf), 
             GLTexture::getGLType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
+    m_pOutputPBO->deactivate();
+}
+ 
+BitmapPtr FBO::getImageFromPBO() const
+{
+    m_pOutputPBO->activate();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
+    PixelFormat pf = m_pOutputPBO->getPF();
+    IntPoint size = m_pOutputPBO->getSize();
+    BitmapPtr pBmp(new Bitmap(size, pf));
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage MapBuffer()");
     Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels, 
@@ -165,7 +174,6 @@ BitmapPtr FBO::getImage(int i) const
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage: UnmapBuffer()");
     m_pOutputPBO->deactivate();
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     return pBmp;
 }
 
@@ -179,26 +187,9 @@ const IntPoint& FBO::getSize() const
     return m_Size;
 }
 
-void FBO::initCache()
-{
-    if (s_pFBOIDs.get() == 0) {
-        s_pFBOIDs.reset(new vector<unsigned int>);
-    }
-}
-
-void FBO::deleteCache()
-{
-    if (s_pFBOIDs.get() != 0) {
-        for (unsigned i=0; i<s_pFBOIDs->size(); ++i) {
-            glproc::DeleteFramebuffers(1, &((*s_pFBOIDs)[i]));
-        }
-        s_pFBOIDs->clear();
-        s_pFBOIDs.reset();
-    }
-}
-
 void FBO::init()
 {
+    GLContext* pContext = GLContext::getCurrent();
     if (m_bUsePackedDepthStencil && !isPackedDepthStencilSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, "OpenGL implementation does not support offscreen cropping (GL_EXT_packed_depth_stencil).");
     }
@@ -207,7 +198,7 @@ void FBO::init()
     }
     m_pOutputPBO = PBOPtr(new PBO(m_Size, m_PF, GL_STREAM_READ));
 
-    m_FBO = genFramebuffer();
+    m_FBO = pContext->genFBO();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::init: GenFramebuffers()");
 
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
@@ -266,7 +257,7 @@ void FBO::init()
                     "FBO::init: FramebufferRenderbuffer(STENCIL)");
         }
         checkError("init multisample");
-        m_OutputFBO = genFramebuffer();
+        m_OutputFBO = pContext->genFBO();
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
         glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
                 GL_TEXTURE_2D, m_pTextures[0]->getID(), 0);
@@ -278,24 +269,6 @@ void FBO::init()
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 }
 
-unsigned FBO::genFramebuffer() const
-{
-    unsigned fboID;
-    if (s_pFBOIDs->empty()) {
-        glproc::GenFramebuffers(1, &fboID);
-    } else {
-        fboID = s_pFBOIDs->back();
-        s_pFBOIDs->pop_back();
-    }
-    return fboID;
-}
-
-void FBO::returnToCache(unsigned fboID) 
-{
-    if (s_pFBOIDs.get() != 0) {
-        s_pFBOIDs->push_back(fboID);
-    }
-}
 bool FBO::isFBOSupported()
 {
     return queryOGLExtension("GL_EXT_framebuffer_object");

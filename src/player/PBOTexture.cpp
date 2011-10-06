@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,8 @@
 //
 
 #include "PBOTexture.h"
-#include "SDLDisplayEngine.h"
+
+#include "../graphics/GLContext.h"
 #include "../graphics/VertexArray.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -32,29 +33,31 @@
 #include <iostream>
 #include <string>
 
+#include <string.h>
+
 namespace avg {
 
 using namespace std;
     
 PBOTexture::PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-        SDLDisplayEngine * pEngine, OGLMemoryMode memoryMode) 
+        OGLMemoryMode memoryMode) 
     : m_pf(pf),
       m_Material(material),
-      m_pEngine(pEngine),
       m_MemoryMode(memoryMode)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_ActiveSize = size;
-    if (pEngine->usePOTTextures()) {
+    if (GLContext::getCurrent()->usePOTTextures()) {
         m_Size.x = nextpow2(m_ActiveSize.x);
         m_Size.y = nextpow2(m_ActiveSize.y);
     } else {
         m_Size = m_ActiveSize;
     }
-    if (m_Size.x > pEngine->getMaxTexSize() || m_Size.y > pEngine->getMaxTexSize()) {
+    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+    if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large (" +toString(m_Size)
                 + "). Maximum supported by graphics card is "
-                + toString(pEngine->getMaxTexSize()));
+                + toString(maxTexSize));
     }
     createBitmap();
     createTexture();
@@ -100,20 +103,15 @@ void PBOTexture::download() const
     ScopeTimer Timer(TexSubImageProfilingZone);
     if (m_MemoryMode == MM_PBO) {
         m_pWritePBO->movePBOToTexture(m_pTex);
-        if (m_pTex->hasMipmaps()) {
-            m_pTex->generateMipmaps();
-        }
     } else {
         m_pTex->activate();
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: GL_UNPACK_ALIGNMENT");
         unsigned char * pStartPos = m_pBmp->getPixels();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_ActiveSize.x, m_ActiveSize.y,
                 m_pTex->getGLFormat(m_pf), m_pTex->getGLType(m_pf), 
                 pStartPos);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::download: glTexSubImage2D()");
     }
+    m_pTex->generateMipmaps();
 }
 
 void PBOTexture::setTex(GLTexturePtr pTex)
@@ -166,7 +164,7 @@ void PBOTexture::createTexture()
     m_pTex = GLTexturePtr(new GLTexture(m_Size, m_pf, m_Material.getUseMipmaps(),
             m_Material.getTexWrapSMode(), m_Material.getTexWrapTMode())); 
 
-    if (m_pEngine->usePOTTextures()) {
+    if (GLContext::getCurrent()->usePOTTextures()) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
         int TexMemNeeded = m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);

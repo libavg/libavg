@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -22,11 +22,13 @@
 #include "WrapHelper.h"
 #include "raw_constructor.hpp"
 
-#include "../player/FXNode.h"
-#include "../player/NullFXNode.h"
 #include "../player/BlurFXNode.h"
-#include "../player/ShadowFXNode.h"
 #include "../player/ChromaKeyFXNode.h"
+#include "../player/FXNode.h"
+#include "../player/HueSatFXNode.h"
+#include "../player/InvertFXNode.h"
+#include "../player/NullFXNode.h"
+#include "../player/ShadowFXNode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,21 +41,12 @@ void export_fx()
     class_<FXNode, boost::shared_ptr<FXNode>, boost::noncopyable>("FXNode", no_init)
         ;
 
-    class_<NullFXNode, bases<FXNode>, boost::shared_ptr<NullFXNode>, boost::noncopyable>(
-            "NullFXNode")
-        ;
-
-    class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>, 
+    class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
             boost::noncopyable>("BlurFXNode")
         .def("setParam", &BlurFXNode::setParam)
         ;
-    
-    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>, 
-            boost::noncopyable>("ShadowFXNode")
-        .def("setParams", &ShadowFXNode::setParams)
-        ;
 
-    class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>, 
+    class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>,
             boost::noncopyable>("ChromaKeyFXNode")
         .add_property("color",
                 make_function(&ChromaKeyFXNode::getColor,
@@ -71,5 +64,32 @@ void export_fx()
                 &ChromaKeyFXNode::setErosion)
         .add_property("spillthreshold", &ChromaKeyFXNode::getSpillThreshold,
                 &ChromaKeyFXNode::setSpillThreshold)
+        ;
+
+    class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode>,
+            boost::noncopyable > ("HueSatFXNode", init< optional<float, float, float,
+            bool> >())
+        .add_property("hue", &HueSatFXNode::getHue,
+                &HueSatFXNode::setHue)
+        .add_property("saturation", &HueSatFXNode::getSaturation,
+                &HueSatFXNode::setSaturation)
+        .add_property("lightness", &HueSatFXNode::getLightnessOffset,
+                &HueSatFXNode::setLightnessOffset)
+        .add_property("colorize", &HueSatFXNode::isColorizing,
+                &HueSatFXNode::setColorizing)
+        .def("__repr__", &HueSatFXNode::toString)
+        ;
+
+    class_<InvertFXNode, bases<FXNode>, boost::shared_ptr<InvertFXNode>, boost::noncopyable>(
+            "InvertFXNode")
+        ;
+
+    class_<NullFXNode, bases<FXNode>, boost::shared_ptr<NullFXNode>, boost::noncopyable>(
+            "NullFXNode")
+        ;
+
+    class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
+            boost::noncopyable>("ShadowFXNode")
+        .def("setParams", &ShadowFXNode::setParams)
         ;
 }

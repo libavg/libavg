@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "VisibleNode.h"
+#include "Node.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
@@ -48,20 +48,19 @@ typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 
-class AVG_API AreaNode: public VisibleNode
+class AVG_API AreaNode: public Node
 {
     public:
         template<class NodeType>
-        static VisibleNodePtr buildNode(const ArgList& args)
+        static NodePtr buildNode(const ArgList& args)
         {
-            return VisibleNodePtr(new NodeType(args));
+            return NodePtr(new NodeType(args));
         }
         static NodeDefinition createDefinition();
         
         virtual ~AreaNode() = 0;
         virtual void setArgs(const ArgList& args);
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         
         double getX() const;
         void setX(double x);
@@ -87,10 +86,11 @@ class AVG_API AreaNode: public VisibleNode
         virtual DPoint getPivot() const;
         void setPivot(const DPoint& pt);
         
-        virtual DPoint toLocal(const DPoint& pos) const;
-        virtual DPoint toGlobal(const DPoint& pos) const;
+        virtual DPoint toLocal(const DPoint& globalPos) const;
+        virtual DPoint toGlobal(const DPoint& localPos) const;
+        
         virtual void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+                std::vector<NodeWeakPtr>& pElements);
 
         virtual void maybeRender(const DRect& rect);
         virtual void setViewport(double x, double y, double width, double height);

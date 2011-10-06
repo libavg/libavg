@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -40,15 +40,20 @@
 #endif
 
 extern "C" {
-#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libavutil/avutil.h>
+#if LIBAVCODEC_VERSION_MAJOR > 52
+#include <libavutil/pixdesc.h>
 #else
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
-#include <ffmpeg/swscale.h>
+#define av_get_pix_fmt_name avcodec_get_pix_fmt_name
 #endif
+#if LIBAVFORMAT_VERSION_MAJOR < 53
+#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
+#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
+#endif
+
 }
 
 #endif

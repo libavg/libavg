@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -56,7 +56,6 @@
 #pragma warning(push)
 #pragma warning(disable: 4251)
 #endif
-#include <Magick++.h>
 #ifdef _WIN32
 #pragma warning(pop)
 #endif
@@ -293,9 +292,9 @@ private:
     {
         cerr << "    Testing save for " << pf << endl;
         BitmapPtr pBmp = initBmp(pf);
-        pBmp->save("test.tif");
-        Bitmap LoadedBmp("test.tif");
-        ::remove("test.tif");
+        pBmp->save("test.png");
+        Bitmap LoadedBmp("test.png");
+        ::remove("test.png");
         testEqual(LoadedBmp, *pBmp, "BmpSave");
     }
 
@@ -349,9 +348,9 @@ private:
             pBmp1->getPixels()[x] = x;
             pBmp2->getPixels()[x] = 0;
         }
-        BitmapPtr pDiffBmp(pBmp1->subtract(&*pBmp2));
+        BitmapPtr pDiffBmp = pBmp1->subtract(*pBmp2);
         testEqual(*pDiffBmp, *pBmp1, "BmpSubtract1");
-        pDiffBmp = BitmapPtr(pBmp2->subtract(&*pBmp1));
+        pDiffBmp = pBmp2->subtract(*pBmp1);
         testEqual(*pDiffBmp, *pBmp1, "BmpSubtract2");
     }
 
@@ -577,8 +576,8 @@ public:
             pBmp->copyPixels(tempBmp);
             FilterColorize(15, 50).applyInPlace(pBmp);
             FilterFlipRGB().applyInPlace(pBmp);
-        } catch (Magick::Exception & ex) {
-            cerr << ex.what() << endl;
+        } catch (Exception & ex) {
+            cerr << ex.getStr() << endl;
             setFailed();
         }
     }

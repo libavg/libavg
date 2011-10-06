@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@
 #include "../base/Point.h"
 
 #include "OGLHelper.h"
+#include "GLContext.h"
 
 #ifdef __APPLE__
 #include <AGL/agl.h>
@@ -40,33 +41,17 @@
 
 namespace avg {
 
-class AVG_API OGLImagingContext {
+class AVG_API OGLImagingContext: public GLContext {
 public:
     OGLImagingContext();
     virtual ~OGLImagingContext();
-
-    void activate();
 
     bool isSupported();
 
 private:
     void setStandardState();
 
-#ifdef __APPLE__
-    AGLContext m_Context;
-#else
-#ifdef linux
-    GLXContext m_Context;
-#else
-#ifdef _WIN32
-    HWND m_hwnd;
-    HDC m_hDC;
-    HBITMAP m_hBitmap;
-    void *m_pBits;
-    HGLRC m_Context;
-#endif
-#endif
-#endif
+
 };
 }
 #endif

@@ -1,6 +1,6 @@
 
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -27,8 +27,6 @@
 #include "SDLMain.h"
 #endif
 
-#include "VisibleNode.h"
-#include "AVGNode.h"
 #include "Shape.h"
 
 #include "Event.h"
@@ -44,6 +42,7 @@
 #include "../base/OSHelper.h"
 #include "../base/StringHelper.h"
 
+#include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/ShaderRegistry.h"
@@ -105,9 +104,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
-      m_NumMouseButtonsDown(0),
-      m_MaxTexSize(0),
-      m_bCheckedMemoryMode(false)
+      m_NumMouseButtonsDown(0)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -133,9 +130,9 @@ SDLDisplayEngine::~SDLDisplayEngine()
 #endif
 }
 
-void SDLDisplayEngine::init(const DisplayParams& dp) 
+void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
-    calcScreenDimensions(dp.m_PhysScreenSize);
+    calcScreenDimensions(dp.m_DotsPerMM);
     stringstream ss;
     if (dp.m_Pos.x != -1) {
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
@@ -202,47 +199,47 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     bool bAllMultisampleValuesTested = false;
     m_pScreen = 0;
     while (!bAllMultisampleValuesTested && !m_pScreen) {
-        if (m_GLConfig.m_MultiSampleSamples > 1) {
+        if (glConfig.m_MultiSampleSamples > 1) {
             safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_GLConfig.m_MultiSampleSamples);
+            safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, glConfig.m_MultiSampleSamples);
         } else {
             safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
         m_pScreen = SDL_SetVideoMode(m_WindowSize.x, m_WindowSize.y, dp.m_BPP, Flags);
         if (!m_pScreen) {
-            switch (m_GLConfig.m_MultiSampleSamples) {
+            switch (glConfig.m_MultiSampleSamples) {
                 case 1:
                     bAllMultisampleValuesTested = true;
                     break;
                 case 2:  
-                    m_GLConfig.m_MultiSampleSamples = 1;
+                    glConfig.m_MultiSampleSamples = 1;
                     break;
                 case 4:  
-                    m_GLConfig.m_MultiSampleSamples = 2;
+                    glConfig.m_MultiSampleSamples = 2;
                     break;
                 case 8:  
-                    m_GLConfig.m_MultiSampleSamples = 4;
+                    glConfig.m_MultiSampleSamples = 4;
                     break;
                 default:
-                    m_GLConfig.m_MultiSampleSamples = 8;
+                    glConfig.m_MultiSampleSamples = 8;
                     break;
             }
         }
     }
-#ifdef HAVE_XI2_1
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    m_pXIMTInputDevice = 0;
-#endif
     if (!m_pScreen) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Setting SDL video mode failed: ")
                 + SDL_GetError() + ". (size=" + toString(m_WindowSize) + ", bpp=" + 
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
-                toString(m_GLConfig.m_MultiSampleSamples) + ").");
+                toString(glConfig.m_MultiSampleSamples) + ").");
     }
-    glproc::init();
+    m_pGLContext = GLContextPtr(new GLContext(true, glConfig));
 
-    SDL_WM_SetCaption("AVG Renderer", 0);
+#ifdef HAVE_XI2_1
+    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+    m_pXIMTInputDevice = 0;
+#endif
+    SDL_WM_SetCaption("libavg", 0);
     calcRefreshRate();
 
     glEnable(GL_BLEND);
@@ -253,26 +250,16 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
-    initTextureMode();
-    if (!queryOGLExtension("GL_ARB_multisample")) {
-        m_GLConfig.m_MultiSampleSamples = 1;
-    } else {
-        if (m_GLConfig.m_MultiSampleSamples > 1) {
-            glEnable(GL_MULTISAMPLE);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_MULTISAMPLE);");
-        } else {
-            glDisable(GL_MULTISAMPLE);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_MULTISAMPLE);");
-        }
-    }
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glTexEnvf()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
     if (!queryOGLExtension("GL_ARB_vertex_buffer_object")) {
         throw Exception(AVG_ERR_UNSUPPORTED,
             "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
     }
-    m_bEnableTexture=false;
-    enableTexture(true);
-    m_bEnableGLColorArray=true;
-    enableGLColorArray(false);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -284,17 +271,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp)
         setFramerate(dp.m_Framerate);
     }
 
-    checkShaderSupport();
-    m_BlendMode = BLEND_ADD;
-    setBlendMode(BLEND_BLEND, false);
-
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
-    logConfig();
-
+    m_pGLContext->logConfig();
 
     SDL_EnableUNICODE(1);
+    if (m_pGLContext->isUsingShaders()) {
+        OGLSurface::createShader();
+    }
 }
 
 #ifdef _WIN32
@@ -312,11 +297,8 @@ void SDLDisplayEngine::teardown()
 //        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
 #endif
         m_pScreen = 0;
+        m_pGLContext = GLContextPtr();
     }
-    VertexArray::deleteBufferCache();
-    GPUFilter::glContextGone();
-    FBO::deleteCache();
-    ShaderRegistry::kill();
 }
 
 double SDLDisplayEngine::getRefreshRate() 
@@ -351,31 +333,12 @@ int SDLDisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-void SDLDisplayEngine::logConfig() 
+void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
 {
-    AVG_TRACE(Logger::CONFIG, "OpenGL configuration: ");
-    AVG_TRACE(Logger::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
-    AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
-    AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
-    m_GLConfig.log();
-    switch (getMemoryModeSupported()) {
-        case MM_PBO:
-            AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects.");
-            break;
-        case MM_OGL:
-            AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
-            break;
-    }
-    AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
-}
-
-void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
-{
-    if (physScreenSize != DPoint(0,0)) {
+    if (dotsPerMM != 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-        m_PPMM.x = m_ScreenResolution.x/physScreenSize.x;
-        m_PPMM.y = m_ScreenResolution.y/physScreenSize.y;
+        m_PPMM = DPoint(dotsPerMM, dotsPerMM);
     }
 
     if (m_PPMM == DPoint(0,0)) {
@@ -399,91 +362,6 @@ void SDLDisplayEngine::calcScreenDimensions(const DPoint& physScreenSize)
     }
 }
 
-static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
-
-bool SDLDisplayEngine::pushClipRect(const DRect& rc)
-{
-    ScopeTimer timer(PushClipRectProfilingZone);
-
-    m_ClipRects.push_back(rc);
-    clip(true);
-
-    return true;
-}
-
-static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
-
-void SDLDisplayEngine::popClipRect()
-{
-    ScopeTimer timer(PopClipRectProfilingZone);
-    
-    clip(false);
-    m_ClipRects.pop_back();
-}
-
-void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, 
-        const DPoint& pivot)
-{
-    glPushMatrix();
-    glTranslated(translate.x, translate.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glTranslated(pivot.x, pivot.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glRotated(angle*180.0/PI, 0, 0, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
-    glTranslated(-pivot.x, -pivot.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-}
-
-void SDLDisplayEngine::popTransform()
-{
-    glPopMatrix();
-}
-
-void SDLDisplayEngine::clip(bool forward)
-{
-    if (!m_ClipRects.empty()) {
-        GLenum stencilOp;
-        int level;
-        if(forward) {
-            stencilOp = GL_INCR;
-            level = int(m_ClipRects.size());
-        } else {
-            stencilOp = GL_DECR;
-            level = int(m_ClipRects.size()) - 1;
-        }
-        
-        DRect rc = m_ClipRects.back();
-        
-        // Disable drawing to color buffer
-        glColorMask(0, 0, 0, 0);
-        
-        // Enable drawing to stencil buffer
-        glStencilMask(~0);
-
-        // Draw clip rectangle into stencil buffer
-        glStencilFunc(GL_ALWAYS, 0, 0);
-        glStencilOp(stencilOp, stencilOp, stencilOp);
-
-        glBegin(GL_QUADS);
-            glVertex2d(rc.tl.x, rc.tl.y);
-            glVertex2d(rc.br.x, rc.tl.y);
-            glVertex2d(rc.br.x, rc.br.y);
-            glVertex2d(rc.tl.x, rc.br.y);
-        glEnd();
-
-        // Set stencil test to only let
-        glStencilFunc(GL_LEQUAL, level, ~0);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        
-        // Disable drawing to stencil buffer
-        glStencilMask(0);
-        
-        // Enable drawing to color buffer
-        glColorMask(~0, ~0, ~0, ~0);
-    }
-}
-
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()
@@ -492,11 +370,6 @@ void SDLDisplayEngine::swapBuffers()
     SDL_GL_SwapBuffers();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
-}
-
-bool SDLDisplayEngine::isUsingShaders() const
-{
-    return m_GLConfig.m_bUseShaders;
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)
@@ -541,31 +414,22 @@ IntPoint SDLDisplayEngine::getSize()
     return m_Size;
 }
 
-void SDLDisplayEngine::checkShaderSupport()
-{
-    m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
-            getMemoryModeSupported() == MM_PBO &&
-            !m_GLConfig.m_bUsePOTTextures && m_GLConfig.m_bUseShaders);
-    if (m_GLConfig.m_bUseShaders) {
-        OGLSurface::createShader();
-    }
-}
-
 void SDLDisplayEngine::initMacVBlank(int rate)
 {
 #ifdef __APPLE__
     CGLContextObj context = CGLGetCurrentContext();
     AVG_ASSERT (context);
+#if MAC_OS_X_VERSION_10_5
+    GLint l = rate;
+#else
+    long l = rate;
+#endif
     if (rate > 1) {
         AVG_TRACE(Logger::WARNING,
                 "VBlank rate set to " << rate 
                 << " but Mac OS X only supports 1. Assuming 1.");
+        l = 1;
     }
-#if MAC_OS_X_VERSION_10_5
-    const GLint l = 1;
-#else
-    const long l = 1;
-#endif
     CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
     AVG_ASSERT(!err);
 #endif
@@ -596,7 +460,6 @@ bool SDLDisplayEngine::initVBlank(int rate)
                 m_VBMethod = VB_SGI;
                 glproc::SwapIntervalSGI(rate);
 
-                m_bFirstVBFrame = true;
             } else {
                 AVG_TRACE(Logger::WARNING,
                         "Linux VBlank setup failed: OpenGL Extension not supported.");
@@ -1170,141 +1033,6 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);
 }
 
-void SDLDisplayEngine::initTextureMode()
-{
-    if (!m_GLConfig.m_bUsePOTTextures) {
-        m_GLConfig.m_bUsePOTTextures = 
-                !queryOGLExtension("GL_ARB_texture_non_power_of_two");
-    }
-}
-
-bool SDLDisplayEngine::usePOTTextures()
-{
-    return m_GLConfig.m_bUsePOTTextures;
-}
-
-int SDLDisplayEngine::getMaxTexSize() 
-{
-    if (m_MaxTexSize == 0) {
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
-    }
-    return m_MaxTexSize;
-}
-
-void SDLDisplayEngine::enableTexture(bool bEnable)
-{
-    if (bEnable != m_bEnableTexture) {
-        if (bEnable) {
-            glEnable(GL_TEXTURE_2D);
-        } else {
-            glDisable(GL_TEXTURE_2D);
-        }
-        m_bEnableTexture = bEnable;
-    }
-}
-
-void SDLDisplayEngine::enableGLColorArray(bool bEnable)
-{
-    if (bEnable != m_bEnableGLColorArray) {
-        if (bEnable) {
-            glEnableClientState(GL_COLOR_ARRAY);
-        } else {
-            glDisableClientState(GL_COLOR_ARRAY);
-        }
-        m_bEnableGLColorArray = bEnable;
-    }
-}
-
-void checkBlendModeError(const char * sMode) 
-{    
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        static bool bErrorReported = false;
-        if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "<< sMode <<
-                    " not supported by OpenGL implementation.");
-            bErrorReported = true;
-        }
-    }
-}
-
-void SDLDisplayEngine::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
-{
-    GLenum srcFunc;
-    if (bPremultipliedAlpha) {
-        srcFunc = GL_CONSTANT_ALPHA;
-    } else {
-        srcFunc = GL_SRC_ALPHA;
-    }
-    if (mode != m_BlendMode || m_bPremultipliedAlpha != bPremultipliedAlpha) {
-        switch (mode) {
-            case BLEND_BLEND:
-                glproc::BlendEquation(GL_FUNC_ADD);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("blend");
-                break;
-            case BLEND_ADD:
-                glproc::BlendEquation(GL_FUNC_ADD);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE, GL_ONE, GL_ONE);
-                checkBlendModeError("add");
-                break;
-            case BLEND_MIN:
-                glproc::BlendEquation(GL_MIN);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("min");
-                break;
-            case BLEND_MAX:
-                glproc::BlendEquation(GL_MAX);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                checkBlendModeError("max");
-                break;
-            case BLEND_COPY:
-                glproc::BlendEquation(GL_FUNC_ADD);
-                glBlendFunc(GL_ONE, GL_ZERO);
-                break;
-            default:
-                AVG_ASSERT(false);
-        }
-
-        m_BlendMode = mode;
-        m_bPremultipliedAlpha = bPremultipliedAlpha;
-    }
-}
-
-OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
-{
-    if (!m_bCheckedMemoryMode) {
-        if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
-             queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
-            m_GLConfig.m_bUsePixelBuffers) 
-        {
-            m_MemoryMode = MM_PBO;
-        } else {
-            m_MemoryMode = MM_OGL;
-        }
-        m_bCheckedMemoryMode = true;
-    }
-    return m_MemoryMode;
-}
-
-void SDLDisplayEngine::setOGLOptions(const GLConfig& glConfig)
-{
-    if (m_pScreen) {
-        AVG_TRACE(Logger::ERROR, 
-                "setOGLOptions called after display initialization. Ignored.");
-        return;
-    }
-    m_GLConfig = glConfig;
-}
-
-const GLConfig& SDLDisplayEngine::getOGLOptions() const
-{
-    return m_GLConfig;
-}
-
 const IntPoint& SDLDisplayEngine::getWindowSize() const
 {
     return m_WindowSize;
@@ -1342,16 +1070,6 @@ void SDLDisplayEngine::assumePhysicalScreenDimensions(const DPoint& size)
 {
     DPoint screenRes = DPoint(getScreenResolution());
     m_PPMM = DPoint(screenRes.x/size.x, screenRes.y/size.y);
-}
-
-void SDLDisplayEngine::setMainFBO(FBOPtr pFBO)
-{
-    m_pFBO = pFBO;
-}
-
-FBOPtr SDLDisplayEngine::getMainFBO() const
-{
-    return m_pFBO;
 }
 
 }

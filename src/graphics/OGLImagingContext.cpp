@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -45,125 +45,10 @@ namespace avg {
 
 using namespace std;
 
-#ifdef _WIN32
-LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{ 
-    return DefWindowProc(hwnd, msg, wParam, lParam); 
-} 
-
-void registerWindowClass()
-{
-  static char * pClassName;
-  if (pClassName) {
-      return;
-  }
-  pClassName = "GLUT";
-
-  HINSTANCE hInstance = GetModuleHandle(NULL);
-  WNDCLASS  wc;
-  memset(&wc, 0, sizeof(WNDCLASS));
-  wc.style = CS_OWNDC;
-  wc.lpfnWndProc = (WNDPROC)imagingWindowProc;
-  wc.hInstance = hInstance;
-  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-  wc.hCursor = LoadCursor(hInstance, IDC_ARROW);
-  wc.hbrBackground = NULL;
-  wc.lpszMenuName = NULL;
-  wc.lpszClassName = pClassName;
-  
-  BOOL bOK = RegisterClass(&wc);
-  AVG_ASSERT(bOK);
-}
-#endif
-
-#ifdef linux
-static bool s_bX11Error;
-static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
-
-int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
-{
-    cerr << "X11 error creating offscreen context: " << (int)(pErrEvent->request_code)
-            << ", " << (int)(pErrEvent->minor_code) << endl;
-    s_bX11Error = true;
-    return 0;
-}
-#endif
-
 OGLImagingContext::OGLImagingContext()
+    : GLContext()
 {
-#ifdef __APPLE__
-    GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
-    AGLPixelFormat format;
-    format = aglChoosePixelFormat(NULL, 0, attributes);
-    AVG_ASSERT(format);
-
-    m_Context = aglCreateContext(format, NULL);
-    AVG_ASSERT(m_Context);
-    aglDestroyPixelFormat(format);
-
-    bool bOk = aglSetCurrentContext(m_Context);
-    AVG_ASSERT (bOk);
-#else
-#ifdef linux
-    Display *dpy;
-    dpy = XOpenDisplay(0);
-    if (!dpy) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
-    }
-    XVisualInfo *vi;
-    static int attributes[] = {GLX_RGBA,
-            GLX_RED_SIZE, 1,
-            GLX_GREEN_SIZE, 1,
-            GLX_BLUE_SIZE, 1,
-            0};
-    vi = glXChooseVisual(dpy, DefaultScreen(dpy), attributes);
-    m_Context = glXCreateContext(dpy, vi, 0, GL_TRUE);
-    AVG_ASSERT(m_Context);
-    Pixmap pmp = XCreatePixmap(dpy, RootWindow(dpy, vi->screen),
-            8, 8, vi->depth);
-    GLXPixmap pixmap = glXCreateGLXPixmap(dpy, vi, pmp);
-    
-    s_bX11Error = false;
-    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
-    glXMakeCurrent(dpy, pixmap, m_Context);
-    XSetErrorHandler(s_DefaultErrorHandler);
-    
-    if (s_bX11Error) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
-    }
-#else
-#ifdef _WIN32
-    registerWindowClass();
-    m_hwnd = CreateWindow("GLUT", "GLUT",
-            WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
-    winOGLErrorCheck(m_hDC != 0, "CreateWindow");
-    
-    m_hDC = GetDC(m_hwnd);
-    winOGLErrorCheck(m_hDC != 0, "GetDC");
-
-    PIXELFORMATDESCRIPTOR pfd;
-    ZeroMemory(&pfd, sizeof(pfd));
-    pfd.nSize = sizeof(pfd);
-    pfd.nVersion = 1;
-    pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-    pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = 32;
-    pfd.cDepthBits = 32;
-    pfd.iLayerType = PFD_MAIN_PLANE;
-    
-    int iFormat = ChoosePixelFormat(m_hDC, &pfd);
-    winOGLErrorCheck(iFormat != 0, "ChoosePixelFormat");
-    SetPixelFormat(m_hDC, iFormat, &pfd);
-    m_Context = wglCreateContext(m_hDC);
-    winOGLErrorCheck(m_Context != 0, "wglCreateContext");
-
-    BOOL bOK = wglMakeCurrent(m_hDC, m_Context);
-    winOGLErrorCheck(bOK, "wglMakeCurrent");
-#endif
-#endif
-#endif
-    glproc::init();
+    init();
 
     if (!isSupported()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 
@@ -175,34 +60,6 @@ OGLImagingContext::OGLImagingContext()
 
 OGLImagingContext::~OGLImagingContext()
 {
-    ShaderRegistry::kill();
-    GPUFilter::glContextGone();
-#ifdef __APPLE__
-    if (m_Context) {
-        aglSetCurrentContext(0);
-        aglDestroyContext(m_Context);
-        m_Context = 0;
-    }
-#endif
-#ifdef _WIN32
-    if (m_Context) {
-        wglDeleteContext(m_Context);
-        DeleteDC(m_hDC);
-        DestroyWindow(m_hwnd);
-    }
-#endif
-}
-
-void OGLImagingContext::activate()
-{
-#ifdef __APPLE__
-    bool bOk = aglSetCurrentContext(m_Context);
-    AVG_ASSERT(bOk);
-#elif defined _WIN32
-    BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
-    AVG_ASSERT(bOk);
-#endif
-    // TODO: X version
 }
 
 bool OGLImagingContext::isSupported()

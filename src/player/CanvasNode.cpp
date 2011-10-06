@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -25,6 +25,7 @@
 #include "NodeDefinition.h"
 
 #include "../base/FileHelper.h"
+#include "../base/Exception.h"
 
 using namespace std;
 
@@ -40,6 +41,10 @@ CanvasNode::CanvasNode(const ArgList& args)
     : DivNode(args)
 {
     args.setMembers(this);
+    if (getSize() == DPoint(0, 0)) {
+        throw (Exception(AVG_ERR_OUT_OF_RANGE,
+                "<avg> and <canvas> node width and height attributes are mandatory."));
+    }
 }
 
 CanvasNode::~CanvasNode()

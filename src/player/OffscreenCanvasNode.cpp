@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -32,7 +32,7 @@ namespace avg {
 
 NodeDefinition OffscreenCanvasNode::createDefinition()
 {
-    return NodeDefinition("canvas", VisibleNode::buildNode<OffscreenCanvasNode>)
+    return NodeDefinition("canvas", Node::buildNode<OffscreenCanvasNode>)
         .extendDefinition(CanvasNode::createDefinition())
         .addArg(Arg<bool>("handleevents", false, false, 
                 offsetof(OffscreenCanvasNode, m_bHandleEvents)))

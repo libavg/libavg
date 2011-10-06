@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -25,8 +25,8 @@
 #include "../api.h"
 #include "IInputDevice.h"
 #include "DisplayEngine.h"
-#include "GLConfig.h"
 
+#include "../graphics/GLConfig.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
@@ -43,31 +43,25 @@ namespace avg {
 class XInput21MTInputDevice;
 class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
+class GLContext;
+typedef boost::shared_ptr<class GLContext> GLContextPtr;
 
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 {
     public:
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
+        virtual void init(const DisplayParams& dp, GLConfig glConfig);
 
         // From DisplayEngine
-        virtual void init(const DisplayParams& dp);
         virtual void teardown();
         virtual double getRefreshRate();
         virtual void setGamma(double red, double green, double blue);
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
-        virtual bool pushClipRect(const DRect& rc);
-        virtual void popClipRect();
-        virtual void pushTransform(const DPoint& translate, double angle, 
-                const DPoint& pivot);
-        virtual void popTransform();
-
         virtual IntPoint getSize();
 
-        virtual bool isUsingShaders() const; 
-        
         virtual void showCursor(bool bShow);
         virtual BitmapPtr screenshot();
 
@@ -75,37 +69,18 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual std::vector<EventPtr> pollEvents();
         void setXIMTInputDevice(XInput21MTInputDevice* pInputDevice);
 
-        // Texture config.
-        void initTextureMode();
-        bool usePOTTextures();
-        int getMaxTexSize();
-
-        // OpenGL state setting.
-        void enableTexture(bool bEnable);
-        void enableGLColorArray(bool bEnable);
-        void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
-        
-        OGLMemoryMode getMemoryModeSupported();
-
-        void setOGLOptions(const GLConfig& glConfig);
-        const GLConfig& getOGLOptions() const;
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
         IntPoint getScreenResolution();
         double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
         void assumePhysicalScreenDimensions(const DPoint& size);
-
-        void setMainFBO(FBOPtr pFBO);
-        FBOPtr getMainFBO() const;
+        virtual void swapBuffers();
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
-        void logConfig();
-        void calcScreenDimensions(const DPoint& physScreenSize=DPoint(0,0));
-        virtual void swapBuffers();
-        void clip(bool forward);
+        void calcScreenDimensions(double dotsPerMM=0);
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
@@ -119,11 +94,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
         DPoint m_PPMM;
-        std::vector<DRect> m_ClipRects;
 
         SDL_Surface * m_pScreen;
-
-        void checkShaderSupport();
 
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);
@@ -133,7 +105,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         VBMethod m_VBMethod;
         int m_VBMod;
         int m_LastVBCount;
-        bool m_bFirstVBFrame;
 
         static void calcRefreshRate();
         static double s_RefreshRate;
@@ -145,23 +116,12 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         static std::vector<long> KeyCodeTranslationTable;
         XInput21MTInputDevice * m_pXIMTInputDevice;
 
-        int m_MaxTexSize;
-
-        // OpenGL state
-        bool m_bEnableTexture;
-        bool m_bEnableGLColorArray;
-        BlendMode m_BlendMode;
-        bool m_bPremultipliedAlpha;
-
-        GLConfig m_GLConfig;
-        
-        bool m_bCheckedMemoryMode;
-        OGLMemoryMode m_MemoryMode;
-
-        FBOPtr m_pFBO;
+        GLContextPtr m_pGLContext;
 
         double m_Gamma[3];
 };
+
+typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;
 
 }
 

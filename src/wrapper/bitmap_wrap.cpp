@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -145,8 +145,7 @@ void export_bitmap()
         .def("getPixels", &Bitmap::getPixelsAsString)
         .def("setPixels", &Bitmap::setPixelsFromString)
         .def("getPixel", &Bitmap::getPythonPixel)
-        .def("subtract", &Bitmap::subtract,
-                return_value_policy<manage_new_object>())
+        .def("subtract", &Bitmap::subtract)
         .def("getAvg", &Bitmap::getAvg)
         .def("getChannelAvg", &Bitmap::getChannelAvg)
         .def("getStdDev", &Bitmap::getStdDev)

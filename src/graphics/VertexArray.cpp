@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,8 @@
 
 #include "VertexArray.h"
 
+#include "GLContext.h"
+
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
 #include "../base/ObjectCounter.h"
@@ -34,8 +36,8 @@ using namespace boost;
 
 namespace avg {
     
-thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLVertexBufferIDs;
-thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLIndexBufferIDs;
+const int MIN_VERTEXES = 100;
+const int MIN_INDEXES = 100;
 
 VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : m_NumVerts(0),
@@ -45,40 +47,39 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
       m_bDataChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (m_ReserveVerts < 10) {
-        m_ReserveVerts = 10;
+    if (m_ReserveVerts < MIN_VERTEXES) {
+        m_ReserveVerts = MIN_VERTEXES;
     }
-    if (m_ReserveIndexes < 20) {
-        m_ReserveIndexes = 20;
+    if (m_ReserveIndexes < MIN_INDEXES) {
+        m_ReserveIndexes = MIN_INDEXES;
     }
     m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned int[m_ReserveIndexes];
 
-    initBufferCache();
-    if (s_pGLVertexBufferIDs->empty() || m_ReserveVerts != 10 || 
-            m_ReserveIndexes != 20)
-    {
+    if (m_ReserveVerts != MIN_VERTEXES || m_ReserveIndexes != MIN_INDEXES) {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
     } else {
-        m_GLVertexBufferID = s_pGLVertexBufferIDs->back();
-        s_pGLVertexBufferIDs->pop_back();
-        m_GLIndexBufferID = s_pGLIndexBufferIDs->back();
-        s_pGLIndexBufferIDs->pop_back();
+        GLContext* pContext = GLContext::getCurrent();
+        m_GLVertexBufferID = pContext->getVertexBufferCache().getBuffer();
+        m_GLIndexBufferID = pContext->getIndexBufferCache().getBuffer();
     }
 }
 
 VertexArray::~VertexArray()
 {
-    if (m_ReserveVerts == 10 && s_pGLVertexBufferIDs.get() != 0) {
-        s_pGLVertexBufferIDs->push_back(m_GLVertexBufferID);
-    } else {
-        glproc::DeleteBuffers(1, &m_GLVertexBufferID);
-    }
-    if (m_ReserveIndexes == 20 && s_pGLIndexBufferIDs.get() != 0) {
-        s_pGLIndexBufferIDs->push_back(m_GLIndexBufferID);
-    } else {
-        glproc::DeleteBuffers(1, &m_GLIndexBufferID);
+    GLContext* pContext = GLContext::getCurrent();
+    if (pContext) {
+        if (m_ReserveVerts == MIN_VERTEXES) {
+            pContext->getVertexBufferCache().returnBuffer(m_GLVertexBufferID);
+        } else {
+            glproc::DeleteBuffers(1, &m_GLVertexBufferID);
+        }
+        if (m_ReserveIndexes == MIN_INDEXES) {
+            pContext->getIndexBufferCache().returnBuffer(m_GLIndexBufferID);
+        } else {
+            glproc::DeleteBuffers(1, &m_GLIndexBufferID);
+        }
     }
     delete[] m_pVertexData;
     delete[] m_pIndexData;
@@ -222,34 +223,6 @@ void VertexArray::grow()
     }
     if (bChanged) {
         m_bDataChanged = true;
-    }
-}
-
-void VertexArray::initBufferCache()
-{
-    if (s_pGLVertexBufferIDs.get() == 0) {
-        s_pGLVertexBufferIDs.reset(new vector<unsigned int>);
-    }
-    if (s_pGLIndexBufferIDs.get() == 0) {
-        s_pGLIndexBufferIDs.reset(new vector<unsigned int>);
-    }
-}
-
-void VertexArray::deleteBufferCache()
-{
-    if (s_pGLVertexBufferIDs.get() != 0) {
-        for (unsigned i=0; i<s_pGLVertexBufferIDs->size(); ++i) {
-            glproc::DeleteBuffers(1, &((*s_pGLVertexBufferIDs)[i]));
-        }
-        s_pGLVertexBufferIDs->clear();
-        s_pGLVertexBufferIDs.reset();
-    }
-    if (s_pGLIndexBufferIDs.get() != 0) {
-        for (unsigned i=0; i<s_pGLIndexBufferIDs->size(); ++i) {
-            glproc::DeleteBuffers(1, &((*s_pGLIndexBufferIDs)[i]));
-        }
-        s_pGLIndexBufferIDs->clear();
-        s_pGLIndexBufferIDs.reset();
     }
 }
 

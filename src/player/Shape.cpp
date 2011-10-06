@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -25,11 +25,9 @@
 #include "../base/Exception.h"
 
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/GLContext.h"
 
 #include "OGLSurface.h"
-#include "SDLDisplayEngine.h"
-
-#include <Magick++.h>
 
 #include <iostream>
 #include <sstream>
@@ -61,19 +59,19 @@ void Shape::setBitmap(BitmapPtr pBmp)
         m_pSurface->downloadTexture();
         if (prevState != Image::GPU) {
             // TODO: This shouldn't happen.
-            m_pVertexArray = VertexArrayPtr(new VertexArray(100, 100));
+            m_pVertexArray = VertexArrayPtr(new VertexArray());
         }
     }
 }
 
-void Shape::moveToGPU(SDLDisplayEngine* pEngine)
+void Shape::moveToGPU()
 {
-    m_pSurface->attach(pEngine);
-    m_pImage->moveToGPU(pEngine);
+    m_pSurface->attach();
+    m_pImage->moveToGPU();
     if (m_pImage->getSource() != Image::NONE) {
         m_pSurface->downloadTexture();
     }
-    m_pVertexArray = VertexArrayPtr(new VertexArray(100, 100));
+    m_pVertexArray = VertexArrayPtr(new VertexArray());
 }
 
 void Shape::moveToCPU()
@@ -100,16 +98,22 @@ VertexArrayPtr Shape::getVertexArray()
 void Shape::draw()
 {
     bool bIsTextured = isTextured();
+    GLContext* pContext = GLContext::getCurrent();
     if (bIsTextured) {
         m_pSurface->activate();
+    } else {
+        if (GLContext::getCurrent()->isUsingShaders()) {
+            glproc::UseProgramObject(0);
+        }
+        for (int i = 1; i < 5; ++i) {
+            glproc::ActiveTexture(GL_TEXTURE0 + i);
+            glDisable(GL_TEXTURE_2D);
+        }
+        glproc::ActiveTexture(GL_TEXTURE0);
     }
-    SDLDisplayEngine* pEngine = m_pImage->getEngine();
-    pEngine->enableTexture(bIsTextured);
-    pEngine->enableGLColorArray(!bIsTextured);
+    pContext->enableTexture(bIsTextured);
+    pContext->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
-    if (bIsTextured) {
-        m_pSurface->deactivate();
-    }
 }
 
 void Shape::discard()

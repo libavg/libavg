@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,6 @@
 
 #include "Player.h"
 #include "AVGNode.h"
-#include "SDLDisplayEngine.h"
 #include "Shape.h"
 #include "OffscreenCanvas.h"
 
@@ -37,13 +36,16 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
+        
+CanvasPtr Canvas::s_pActiveCanvas;
 
 Canvas::Canvas(Player * pPlayer)
     : m_pPlayer(pPlayer),
-      m_pDisplayEngine(0),
+      m_bIsPlaying(false),
       m_PlaybackEndSignal(&IPlaybackEndListener::onPlaybackEnd),
       m_FrameEndSignal(&IFrameEndListener::onFrameEnd),
-      m_PreRenderSignal(&IPreRenderListener::onPreRender)
+      m_PreRenderSignal(&IPreRenderListener::onPreRender),
+      m_ClipLevel(0)
 {
 }
 
@@ -55,52 +57,51 @@ void Canvas::setRoot(NodePtr pRootNode)
 {
     assert(!m_pRootNode);
     m_pRootNode = dynamic_pointer_cast<CanvasNode>(pRootNode);
-    m_pRootNode->setParent(DivNodeWeakPtr(), VisibleNode::NS_CONNECTED,
+    m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED,
             shared_from_this());
     registerNode(m_pRootNode);
 }
 
-void Canvas::initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
-        int multiSampleSamples)
+void Canvas::initPlayback(int multiSampleSamples)
 {
-    m_pDisplayEngine = pDisplayEngine;
-    m_pRootNode->setRenderingEngines(m_pDisplayEngine, pAudioEngine);
+    m_bIsPlaying = true;
+    m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
 }
 
 void Canvas::stopPlayback()
 {
-    if (m_pDisplayEngine) {
+    if (m_bIsPlaying) {
         m_PlaybackEndSignal.emit();
         m_pRootNode->disconnect(true);
         m_pRootNode = CanvasNodePtr();
         m_IDMap.clear();
-        m_pDisplayEngine = 0;
+        m_bIsPlaying = false;
     }
 }
 
-VisibleNodePtr Canvas::getElementByID(const std::string& id)
+NodePtr Canvas::getElementByID(const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
     } else {
         AVG_TRACE(Logger::WARNING, "getElementByID(\"" << id << "\") failed.");
-        return VisibleNodePtr();
+        return NodePtr();
     }
 }
 
-void Canvas::registerNode(VisibleNodePtr pNode)
+void Canvas::registerNode(NodePtr pNode)
 {
     addNodeID(pNode);    
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (pDivNode) {
         for (unsigned i=0; i<pDivNode->getNumChildren(); i++) {
-            registerNode(pDivNode->getVChild(i));
+            registerNode(pDivNode->getChild(i));
         }
     }
 }
 
-void Canvas::addNodeID(VisibleNodePtr pNode)
+void Canvas::addNodeID(NodePtr pNode)
 {
     const string& id = pNode->getID();
     if (id != "") {
@@ -117,7 +118,7 @@ void Canvas::addNodeID(VisibleNodePtr pNode)
 void Canvas::removeNodeID(const string& id)
 {
     if (id != "") {
-        map<string, VisibleNodePtr>::iterator it;
+        map<string, NodePtr>::iterator it;
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
@@ -133,16 +134,12 @@ CanvasNodePtr Canvas::getRootNode() const
     return m_pRootNode;
 }
 
-static ProfilingZoneID PreRenderSignalProfilingZone("PreRender signal");
 static ProfilingZoneID RenderProfilingZone("Render");
-static ProfilingZoneID FrameEndProfilingZone("OnFrameEnd");
 
 void Canvas::doFrame(bool bPythonAvailable)
 {
-    {
-        ScopeTimer Timer(PreRenderSignalProfilingZone);
-        m_PreRenderSignal.emit();
-    }
+    s_pActiveCanvas = shared_from_this();
+    emitPreRenderSignal();
     if (!m_pPlayer->isStopping()) {
         ScopeTimer Timer(RenderProfilingZone);
         if (bPythonAvailable) {
@@ -158,15 +155,30 @@ void Canvas::doFrame(bool bPythonAvailable)
             render();
         }
     }
-    {
-        ScopeTimer Timer(FrameEndProfilingZone);
-        m_FrameEndSignal.emit();
-    }
+    emitFrameEndSignal();
+    s_pActiveCanvas = CanvasPtr();
 }
 
 IntPoint Canvas::getSize() const
 {
     return IntPoint(m_pRootNode->getSize());
+}
+static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
+
+void Canvas::pushClipRect(VertexArrayPtr pVA)
+{
+    ScopeTimer timer(PushClipRectProfilingZone);
+    m_ClipLevel++;
+    clip(pVA, GL_INCR);
+}
+
+static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
+
+void Canvas::popClipRect(VertexArrayPtr pVA)
+{
+    ScopeTimer timer(PopClipRectProfilingZone);
+    m_ClipLevel--;
+    clip(pVA, GL_DECR);
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -214,57 +226,61 @@ long Canvas::getHash() const
     return long(this);
 }
 
+CanvasPtr Canvas::getActive()
+{
+    return s_pActiveCanvas;
+}
+
 Player* Canvas::getPlayer() const
 {
     return m_pPlayer;
 }
 
-SDLDisplayEngine* Canvas::getDisplayEngine() const
+vector<NodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
 {
-    return m_pDisplayEngine;
-}
-
-vector<VisibleNodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
-{
-    vector<VisibleNodeWeakPtr> elements;
+    vector<NodeWeakPtr> elements;
     m_pRootNode->getElementsByPos(pos, elements);
     return elements;
 }
 
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
 
-void Canvas::render(IntPoint windowSize, bool bUpsideDown,
+void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         ProfilingZoneID& renderProfilingZone)
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);
         m_pRootNode->preRender();
     }
+    if (pFBO) {
+        pFBO->activate();
+    } else {
+        glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: BindFramebuffer()");
+    }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "SDLDisplayEngine::render: glEnable(GL_MULTISAMPLE)");
+                "Canvas::render: glEnable(GL_MULTISAMPLE)");
     } else {
         glDisable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                "SDLDisplayEngine::render: glDisable(GL_MULTISAMPLE)");
+                "Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glViewport()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glMatrixMode()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
     glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glLoadIdentity()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
     IntPoint size = IntPoint(m_pRootNode->getSize());
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {
         gluOrtho2D(0, size.x, size.y, 0);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: gluOrtho2D()");
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::render: glTexEnvf()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
     
     const DRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);
@@ -278,15 +294,57 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown,
 
 void Canvas::renderOutlines()
 {
+    GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA(new VertexArray);
-    m_pDisplayEngine->setBlendMode(DisplayEngine::BLEND_BLEND, false);
+    pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     if (pVA->getCurVert() != 0) {
         pVA->update();
-        m_pDisplayEngine->enableTexture(false);
-        m_pDisplayEngine->enableGLColorArray(true);
+        pContext->enableTexture(false);
+        pContext->enableGLColorArray(true);
         pVA->draw();
     }
+}
+
+void Canvas::clip(VertexArrayPtr pVA, GLenum stencilOp)
+{
+    // Disable drawing to color buffer
+    glColorMask(0, 0, 0, 0);
+
+    // Enable drawing to stencil buffer
+    glStencilMask(~0);
+
+    // Draw clip rectangle into stencil buffer
+    glStencilFunc(GL_ALWAYS, 0, 0);
+    glStencilOp(stencilOp, stencilOp, stencilOp);
+
+    pVA->draw();
+
+    // Set stencil test to only let
+    glStencilFunc(GL_LEQUAL, m_ClipLevel, ~0);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    // Disable drawing to stencil buffer
+    glStencilMask(0);
+
+    // Enable drawing to color buffer
+    glColorMask(~0, ~0, ~0, ~0);
+}
+
+static ProfilingZoneID PreRenderSignalProfilingZone("PreRender signal");
+
+void Canvas::emitPreRenderSignal()
+{
+    ScopeTimer Timer(PreRenderSignalProfilingZone);
+    m_PreRenderSignal.emit();
+}
+
+static ProfilingZoneID FrameEndProfilingZone("OnFrameEnd");
+
+void Canvas::emitFrameEndSignal()
+{
+    ScopeTimer Timer(FrameEndProfilingZone);
+    m_FrameEndSignal.emit();
 }
 
 }

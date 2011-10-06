@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine.
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -396,6 +396,8 @@ public:
         TEST(!tri.isInside(DPoint(2,1)));
         TEST(!tri.isInside(DPoint(-2,5)));
         TEST(!tri.isInside(DPoint(5,5)));
+        tri = Triangle(DPoint(0,0), DPoint(4,8), DPoint(4,4));
+        TEST(tri.isInside(DPoint(3,4)));
 
         DPoint polyArray[] = {DPoint(0,0), DPoint(8,2), DPoint(9,0), DPoint(9,3), 
                 DPoint(1,1), DPoint(0,3)}; 
@@ -471,7 +473,7 @@ public:
         try {
             stringToInt("5a");
         } catch (const Exception& e) {
-            if (e.GetCode() == AVG_ERR_TYPE ) {
+            if (e.getCode() == AVG_ERR_TYPE ) {
                 bExceptionThrown = true;
             }
         }

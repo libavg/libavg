@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -75,8 +75,7 @@ XInput21MTInputDevice::~XInput21MTInputDevice()
 void XInput21MTInputDevice::start()
 {
     Status status;
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine *>(
-            Player::get()->getDisplayEngine());
+    SDLDisplayEngine * pEngine = Player::get()->getDisplayEngine();
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
@@ -207,7 +206,6 @@ void XInput21MTInputDevice::findMTDevice()
 
     XITouchClassInfo* pTouchClass = 0;
     int maxTouches;
-    bool bDirectTouch;
     for (int i = 0; i < ndevices && !pTouchClass; ++i) {
         pDevice = &pDevices[i];
 //        cerr << "Device " << pDevice->name << "(id: " << pDevice->deviceid << ")."
@@ -235,7 +233,7 @@ void XInput21MTInputDevice::findMTDevice()
     }
     if (pTouchClass) {
         AVG_TRACE(Logger::CONFIG, "Using multitouch input device " << m_sDeviceName 
-                << ", max touches: " << maxTouches << ", direct touch: " << bDirectTouch);
+                << ", max touches: " << maxTouches);
     } else {
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput 2.1 multitouch event source: No multitouch device found.");

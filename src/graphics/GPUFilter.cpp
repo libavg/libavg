@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -35,8 +35,6 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-
-thread_specific_ptr<PBOPtr> GPUFilter::s_pFilterKernelPBO;
 
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
         unsigned numTextures)
@@ -77,8 +75,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     }
     m_SrcSize = srcSize;
     if (bProjectionChanged) {
-        m_pProjection = ImagingProjectionPtr(new ImagingProjection);
-        m_pProjection->setup(srcSize, destRect);
+        m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
     }
 }
   
@@ -105,7 +102,6 @@ void GPUFilter::apply(GLTexturePtr pSrcTex)
     m_pFBO->activate();
     m_pProjection->activate();
     applyOnGPU(pSrcTex);
-    m_pFBO->deactivate();
     m_pFBO->copyToDestTexture();
 }
 
@@ -141,11 +137,6 @@ DRect GPUFilter::getRelDestRect() const
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
 }
 
-void GPUFilter::glContextGone()
-{
-    s_pFilterKernelPBO.reset();
-}
-
 void GPUFilter::draw(GLTexturePtr pTex)
 {
     pTex->activate(GL_TEXTURE0);
@@ -166,7 +157,81 @@ const string& GPUFilter::getStdShaderCode() const
         "{\n"
         "    color.rgb *= color.a;\n"
         "}\n"
-        "\n";
+        "\n"
+        "void rgb2hsl(vec4 rgba, out float h, out float s, out float l)\n"
+        "{\n"
+        "    float maxComp = max(rgba.r, max(rgba.g, rgba.b));\n"
+        "    float minComp = min(rgba.r, min(rgba.g, rgba.b));\n"
+        "    l = (maxComp+minComp)/2.0;\n"
+        "    if (maxComp == minComp) {\n"
+        "        s = 0.0;\n"
+        "        h = 0.0;\n"
+        "    } else {\n"
+        "        float delta = maxComp-minComp;\n"
+        "        if (l < 0.5) {\n"
+        "            s = delta/(maxComp+minComp);\n"
+        "        } else {\n"
+        "            s = delta/(2.0-(maxComp+minComp));\n"
+        "        }\n"
+        "        if (rgba.r == maxComp) {\n"
+        "            h = (rgba.g-rgba.b)/delta;\n"
+        "            if (h < 0.0) {\n"
+        "                h += 6.0;\n"
+        "            }\n"
+        "        } else if (rgba.g == maxComp) {\n"
+        "            h = 2.0+(rgba.b-rgba.r)/delta;\n"
+        "        } else {\n"
+        "            h = 4.0+(rgba.r-rgba.g)/delta;\n"
+        "        }\n"
+        "        h *= 60.0;\n"
+        "    }\n"
+        "}\n"
+        "vec3 hsl2rgb(float h, float s, float l)\n"
+        "{\n"
+        "    vec3 rgb = vec3(0.0, 0.0, 0.0);\n"
+        "    float v;\n"
+        "    if (l <= 0.5) {\n"
+        "        v = l*(1.0+s);\n"
+        "    } else {\n"
+        "        v = l+s-l*s;\n"
+        "    }\n"
+        "    if (v > 0.0) {\n"
+        "        float m = 2.0*l-v;\n"
+        "        float sv = (v-m)/v;\n"
+        "        h /= 60.0;\n"
+        "        int sextant = int(h);\n"
+        "        float fract = h-float(sextant);\n"
+        "        float vsf = v * sv * fract;\n"
+        "        float mid1 = m + vsf;\n"
+        "        float mid2 = v - vsf;\n"
+        "        if (sextant == 0) {\n"
+        "            rgb.r = v;\n"
+        "            rgb.g = mid1;\n"
+        "            rgb.b = m;\n"
+        "        } else if (sextant == 1) {\n"
+        "            rgb.r = mid2;\n"
+        "            rgb.g = v;\n"
+        "            rgb.b = m;\n"
+        "        } else if (sextant == 2) {\n"
+        "            rgb.r = m;\n"
+        "            rgb.g = v;\n"
+        "            rgb.b = mid1;\n"
+        "        } else if (sextant == 3) {\n"
+        "            rgb.r = m;\n"
+        "            rgb.g = mid2;\n"
+        "            rgb.b = v;\n"
+        "        } else if (sextant == 4) {\n"
+        "            rgb.r = mid1;\n"
+        "            rgb.g = m;\n"
+        "            rgb.b = v;\n"
+        "        } else if (sextant == 5) {\n"
+        "            rgb.r = v;\n"
+        "            rgb.g = m;\n"
+        "            rgb.b = mid2;\n"
+        "        }\n"
+        "    }\n"
+        "    return rgb;\n"
+        "}\n";
 
     return sCode;
 }
@@ -228,11 +293,8 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     
     IntPoint size(kernelWidth, 1);
     GLTexturePtr pTex(new GLTexture(size, R32G32B32A32F));
-    if (s_pFilterKernelPBO.get() == 0) {
-        s_pFilterKernelPBO.reset(new PBOPtr(new PBO(IntPoint(1024, 1), R32G32B32A32F,
-                GL_STREAM_DRAW)));
-    }
-    (*s_pFilterKernelPBO)->activate();
+    PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), R32G32B32A32F, GL_STREAM_DRAW));
+    pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
     float * pCurFloat = (float*)pPBOPixels;
@@ -245,7 +307,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
-    (*s_pFilterKernelPBO)->movePBOToTexture(pTex);
+    pFilterKernelPBO->movePBOToTexture(pTex);
 
     delete[] pKernel;
     return pTex;

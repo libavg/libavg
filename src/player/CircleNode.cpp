@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -100,11 +100,10 @@ void CircleNode::setTexCoord2(double tc)
     setDrawNeeded();
 }
 
-void CircleNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void CircleNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (calcDist(pos, m_Pos) <= m_Radius && reactsToMouseEvents()) {
-        pElements.push_back(getVThis());
+        pElements.push_back(shared_from_this());
     }
 }
 

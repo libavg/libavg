@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@
 #include "CursorEvent.h"
 #include "MouseEvent.h"
 #include "DivNode.h"
-#include "SDLDisplayEngine.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
 #include "BoostPython.h"
@@ -34,6 +33,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
+
+#include "../graphics/GLContext.h"
 
 #include <object.h>
 #include <compile.h>
@@ -51,7 +52,7 @@ namespace avg {
 NodeDefinition AreaNode::createDefinition()
 {
     return NodeDefinition("areanode")
-        .extendDefinition(VisibleNode::createDefinition())
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<double>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<double>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<DPoint>("pos", DPoint(0.0, 0.0)))
@@ -76,17 +77,16 @@ AreaNode::~AreaNode()
 
 void AreaNode::setArgs(const ArgList& args)
 {
-    VisibleNode::setArgs(args);
+    Node::setArgs(args);
     args.getOverlayedArgVal(&m_RelViewport.tl, "pos", "x", "y", getID());
     args.getOverlayedArgVal(&m_UserSize, "size", "width", "height", getID());
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
+    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 }
 
-void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void AreaNode::connectDisplay()
 {
-    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     IntPoint MediaSize = getMediaSize();
     if (m_UserSize.x == 0.0) {
         m_RelViewport.setWidth(MediaSize.x);
@@ -98,7 +98,7 @@ void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } else {
         m_RelViewport.setHeight(m_UserSize.y);
     }
-    VisibleNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    Node::connectDisplay();
 }
 
 double AreaNode::getX() const 
@@ -202,13 +202,12 @@ DPoint AreaNode::toGlobal(const DPoint& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void AreaNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(getVThis());
+        pElements.push_back(shared_from_this());
     }
 }
 
@@ -222,10 +221,10 @@ void AreaNode::maybeRender(const DRect& rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
-        SDLDisplayEngine * pEngine = getDisplayEngine();
-        pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+        GLContext * pContext = GLContext::getCurrent();
+        pContext->pushTransform(getRelViewport().tl, getAngle(), getPivot());
         render(rect);
-        pEngine->popTransform();
+        pContext->popTransform();
     }
 }
 
@@ -252,6 +251,9 @@ void AreaNode::setViewport(double x, double y, double width, double height)
             height = m_UserSize.y;
         } 
     }
+    if (width < 0 || height < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
+    }
     m_RelViewport = DRect (x, y, x+width, y+height);
 }
 
@@ -263,7 +265,7 @@ const DRect& AreaNode::getRelViewport() const
 
 string AreaNode::dump(int indent)
 {
-    string dumpStr = VisibleNode::dump(indent); 
+    string dumpStr = Node::dump(indent); 
     char sz[256];
     sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y,

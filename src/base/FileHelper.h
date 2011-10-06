@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,7 @@ namespace avg {
     
 std::string getPath(const std::string& sFilename);
 std::string getFilenamePart(const std::string& sFilename);
+std::string getExtension(const std::string& sFilename);
 std::string getCWD();
 
 bool isAbsPath(const std::string& path);

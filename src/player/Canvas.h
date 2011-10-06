@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,7 @@
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
 
+#include "../graphics/OGLHelper.h"
 #include "../graphics/Bitmap.h"
 
 #include <map>
@@ -40,20 +41,23 @@ namespace avg {
 
 class Player;
 class Node;
-class VisibleNode;
 class CanvasNode;
 class AudioEngine;
-class DisplayEngine;
-class SDLDisplayEngine;
 class TestHelper;
 class ProfilingZoneID;
 class Canvas;
+class FBO;
+class VertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<VisibleNode> VisibleNodePtr;
-typedef boost::weak_ptr<VisibleNode> VisibleNodeWeakPtr;
 typedef boost::shared_ptr<CanvasNode> CanvasNodePtr;
+typedef boost::shared_ptr<FBO> FBOPtr;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+
+class Canvas;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
 
 class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
 {
@@ -61,20 +65,19 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Canvas(Player * pPlayer);
         virtual ~Canvas();
         virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine) = 0;
-        void initPlayback(SDLDisplayEngine* pDisplayEngine, AudioEngine* pAudioEngine,
-                int multiSampleSamples);
+        void initPlayback(int multiSampleSamples);
         virtual void stopPlayback();
        
         CanvasNodePtr getRootNode() const;
-        VisibleNodePtr getElementByID(const std::string& id);
-        void registerNode(VisibleNodePtr pNode);
-        void addNodeID(VisibleNodePtr pNode);
+        NodePtr getElementByID(const std::string& id);
+        void registerNode(NodePtr pNode);
+        void addNodeID(NodePtr pNode);
         void removeNodeID(const std::string& id);
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
+        virtual void pushClipRect(VertexArrayPtr pVA);
+        virtual void popClipRect(VertexArrayPtr pVA);
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -83,26 +86,32 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        std::vector<VisibleNodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         bool operator ==(const Canvas& other) const;
         bool operator !=(const Canvas& other) const;
         long getHash() const;
 
+        static CanvasPtr getActive();
+
     protected:
         Player * getPlayer() const;
-        SDLDisplayEngine* getDisplayEngine() const;
-        void render(IntPoint windowSize, bool bUpsideDown,
+        void render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
                 ProfilingZoneID& renderProfilingZone);
+        void emitPreRenderSignal(); 
+        void emitFrameEndSignal();
+
 
     private:
         virtual void render()=0;
         void renderOutlines();
+
+        void clip(VertexArrayPtr pVA, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
-        SDLDisplayEngine * m_pDisplayEngine;
+        bool m_bIsPlaying;
        
-        typedef std::map<std::string, VisibleNodePtr> NodeIDMap;
+        typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
         Signal<IPlaybackEndListener> m_PlaybackEndSignal;
@@ -110,10 +119,10 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Signal<IPreRenderListener> m_PreRenderSignal;
 
         int m_MultiSampleSamples;
-};
+        int m_ClipLevel;
 
-typedef boost::shared_ptr<Canvas> CanvasPtr;
-typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
+        static CanvasPtr s_pActiveCanvas;
+};
 
 }
 #endif

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@
 
 #include "CursorEvent.h"
 
-#include "VisibleNode.h"
+#include "Node.h"
 #include "Contact.h"
 
 #include "../base/Exception.h"
@@ -85,12 +85,12 @@ int CursorEvent::getCursorID() const
     return m_ID;
 }
 
-void CursorEvent::setNode(VisibleNodePtr pNode)
+void CursorEvent::setNode(NodePtr pNode)
 {
     m_pNode = pNode;
 }
 
-VisibleNodePtr CursorEvent::getNode() const
+NodePtr CursorEvent::getNode() const
 {
     return m_pNode.lock();
 }

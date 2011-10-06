@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ import math
 from libavg import avg
 
 
-def almostEqual(a,b):
+def almostEqual(a, b):
     try:
         bOk = True
         for i in range(len(a)):
@@ -38,6 +38,21 @@ def almostEqual(a,b):
         return bOk
     except:
         return math.fabs(a-b) < 0.000001
+
+def flatten(l):
+    ltype = type(l)
+    l = list(l)
+    i = 0
+    while i < len(l):
+        while isinstance(l[i], (list, tuple)):
+            if not l[i]:
+                l.pop(i)
+                i -= 1
+                break
+            else:
+                l[i:i + 1] = l[i]
+        i += 1
+    return ltype(l)
 
 
 class AVGTestCase(unittest.TestCase):
@@ -76,7 +91,6 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-
     @staticmethod
     def setBaselineImageDirectory(name):
         AVGTestCase.baselineImageResultDirectory = name
@@ -85,20 +99,24 @@ class AVGTestCase(unittest.TestCase):
     def getBaselineImageDir():
         return AVGTestCase.baselineImageResultDirectory
     
-    def start(self, filename, actions):
+    def start(self, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
+        self.__delaying = False
         
         self.assert_(self.__player.isPlaying() == 0)
-        if filename != None:
-            self.__player.loadFile(filename)
-        self.actions = actions
+        self.actions = flatten(actions)
         self.curFrame = 0
         self.__player.setOnFrameHandler(self.__nextAction)
         self.__player.setFramerate(10000)
         self.__player.play()
         self.assert_(self.__player.isPlaying() == 0)
 
+    def delay(self, time):
+        def timeout():
+            self.__delaying = False
+        self.__delaying = True
+        self.__player.setTimeout(time, timeout)
 
     def compareImage(self, fileName, warn):
         bmp = self.__player.screenshot()
@@ -106,21 +124,26 @@ class AVGTestCase(unittest.TestCase):
 
     def compareBitmapToFile(self, bmp, fileName, warn):
         try:
-            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir()+"/"+fileName+".png")
+            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir() + "/" + fileName
+                    + ".png")
             diffBmp = bmp.subtract(baselineBmp)
             average = diffBmp.getAvg()
             stdDev = diffBmp.getStdDev()
             if (average > 0.1 or stdDev > 0.5):
                 if self._isCurrentDirWriteable():
-                    bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
-                    baselineBmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+"_baseline.png")
-                    diffBmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+"_diff.png")
+                    bmp.save(AVGTestCase.getImageResultDir() + "/" + fileName + ".png")
+                    baselineBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                            + "_baseline.png")
+                    diffBmp.save(AVGTestCase.getImageResultDir() + "/" + fileName
+                            + "_diff.png")
             if (average > 2 or stdDev > 6):
-                print ("  "+fileName+
+                msg = ("  "+fileName+
                         ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
                         {'avg':average, 'stddev':stdDev})
-                if not(warn):
-                    self.assert_(False)
+                if warn:
+                    print msg
+                else:
+                    self.fail(msg)
         except RuntimeError:
             bmp.save(AVGTestCase.getImageResultDir()+"/"+fileName+".png")
             self.__logger.trace(self.__logger.WARNING, 
@@ -141,31 +164,64 @@ class AVGTestCase(unittest.TestCase):
             exceptionRaised = True
         self.assert_(exceptionRaised)
 
+    def assertAlmostEqual(self, a, b):
+        if not(almostEqual(a, b)):
+            msg = "almostEqual: " + str(a) + " != " + str(b)
+            self.fail(msg)
+
     def loadEmptyScene(self, resolution = (160,120)):
         sceneString = """
         <avg id="avg" width="%d" height="%d">
         </avg>
         """ % (resolution[0], resolution[1])
-        return self.__player.loadString(sceneString)
+        self.__player.loadString(sceneString)
+        return self.__player.getRootNode()
+
+    def initDefaultImageScene(self):
+        root = self.loadEmptyScene()
+        avg.ImageNode(id="testtiles", pos=(0,30), size=(65,65), href="rgb24-65x65.png", 
+                maxtilewidth=16, maxtileheight=32, parent=root)
+        avg.ImageNode(id="test", pos=(64,30), href="rgb24-65x65.png", pivot=(0,0),
+                angle=0.274, parent=root)
+        avg.ImageNode(id="test1", pos=(129,30), href="rgb24-65x65.png", parent=root)
 
     def fakeClick(self, x, y):
         helper = self.__player.getTestHelper()
         helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)
         helper.fakeMouseEvent(avg.CURSORUP, False, False, False, x, y, 1)
+    
+    def _sendMouseEvent(self, type, x, y):
+        helper = self.__player.getTestHelper()
+        if type == avg.CURSORUP:
+            button = False
+        else:
+            button = True
+        helper.fakeMouseEvent(type, button, False, False, x, y, 1)
+
+    def _sendTouchEvent(self, id, type, x, y):
+        helper = self.__player.getTestHelper()
+        helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+      
+    def _sendTouchEvents(self, eventData):
+        helper = self.__player.getTestHelper()
+        for (id, type, x, y) in eventData:
+            helper.fakeTouchEvent(id, type, avg.TOUCH, avg.Point2D(x, y))
+
 
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     
     def __nextAction(self):
-        if self.__dumpTestFrames:
-            self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
-        if len(self.actions) == self.curFrame:
-            self.__player.stop()
-        else:
-            action = self.actions[self.curFrame]
-            if action != None:
-                action()
-        self.curFrame += 1
+        if not(self.__delaying):
+            if self.__dumpTestFrames:
+                self.__logger.trace(self.__logger.APP, "Frame "+str(self.curFrame))
+            if len(self.actions) == self.curFrame:
+                self.__player.stop()
+            else:
+                action = self.actions[self.curFrame]
+                if action != None:
+                    action()
+            self.curFrame += 1
     
 
 def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):

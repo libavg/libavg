@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -62,13 +62,12 @@ KEYCODES_DEL = 63272
 CURSOR_PADDING_PCT = 15
 CURSOR_WIDTH_PCT = 4
 CURSOR_SPACING_PCT = 4
-CURSOR_FLASHING_DELAY = 1000
+CURSOR_FLASHING_DELAY = 600
 CURSOR_FLASH_AFTER_INACTIVITY = 200
 
 DEFAULT_BLUR_OPACITY = 0.3
 
 import time
-import platform
 
 from libavg import avg
 from avg import Point2D
@@ -275,6 +274,8 @@ class TextArea:
         if focusContext is not None:
             focusContext.register(self)
             self.setFocus(False)
+        else:
+            self.setFocus(True)
 
         g_Player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
         
@@ -415,6 +416,12 @@ class TextArea:
         """
         return self.__hasFocus
 
+    def showCursor(self, show):
+        if show:
+            avg.fadeIn(self.__cursorNode, 200)
+        else:
+            avg.fadeOut(self.__cursorNode, 200)
+
     def onKeyDown(self, keycode):
         """
         Inject a keycode into TextArea flow
@@ -484,19 +491,18 @@ class TextArea:
         if len(self.__data) > 0:
             maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
-
-            # don't wrap when TextArea is not multiline
             if (not self.__isMultiline and
-                lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
+                 lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
                 return
-        
-            # don't flee from borders in a multiline textarea
-            if (self.__isMultiline and
-                lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2 and
-                lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
-                return
-                
-        
+       
+            if  (self.__isMultiline and 
+                    lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
+                if (lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
+                    return
+                if (ord(uchar) == 10 and
+                    lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
+                    return
+
         self.__data.insert(self.__cursorPosition, uchar)
         self.__cursorPosition += 1
         self.__update()
@@ -525,11 +531,12 @@ class TextArea:
             if self.__data[self.__cursorPosition - 1] == '\n':
                 lastCharPos = (0, lastCharPos[1] + lastCharExtents[1])
                 lastCharExtents = (0, lastCharExtents[1])
-        
+       
+        xPos = self.__cursorNode.pos2.x
         if lastCharExtents[1] > 0:
-            self.__cursorNode.pos2 = Point2D(0, lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0))
+            self.__cursorNode.pos2 = Point2D(xPos, lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0))
         else:
-            self.__cursorNode.pos2 = Point2D(0, self.__textNode.fontsize)
+            self.__cursorNode.pos2 = Point2D(xPos, self.__textNode.fontsize)
         
         self.__cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
         self.__cursorContainer.y = (lastCharPos[1] +

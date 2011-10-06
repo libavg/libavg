@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -111,14 +111,14 @@ void RectNode::setAngle(double angle)
     setDrawNeeded();
 }
 
-void RectNode::getElementsByPos(const DPoint& pos, vector<VisibleNodeWeakPtr>& pElements)
+void RectNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
     DPoint rpos = pos.getRotatedPivot(m_Angle, pivot);
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
-        pElements.push_back(getVThis());
+        pElements.push_back(shared_from_this());
     }
 }
 

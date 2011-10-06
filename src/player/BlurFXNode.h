@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -31,14 +31,12 @@
 
 namespace avg {
 
-class SDLDisplayEngine;
-
 class AVG_API BlurFXNode: public FXNode {
 public:
     BlurFXNode();
     virtual ~BlurFXNode();
 
-    void connect(SDLDisplayEngine* pEngine);
+    void connect();
     virtual void disconnect();
     void setParam(double stdDev);
 

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 //
 
 #include "ChromaKeyFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
 #include "../graphics/ShaderRegistry.h"
@@ -140,6 +139,7 @@ GPUFilterPtr ChromaKeyFXNode::createFilter(const IntPoint& size)
     m_pFilter = GPUChromaKeyFilterPtr(new GPUChromaKeyFilter(size, B8G8R8A8, false));
     m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, m_Softness,
             m_Erosion, m_SpillThreshold);
+    setDirty();
     return m_pFilter;
 }
 
@@ -149,6 +149,7 @@ void ChromaKeyFXNode::setFilterParams()
         m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, 
                 m_Softness, m_Erosion, m_SpillThreshold);
     }
+    setDirty();
 }
 
 }

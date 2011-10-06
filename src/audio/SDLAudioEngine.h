@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,7 @@ namespace avg {
 class AVG_API SDLAudioEngine : public AudioEngine
 {   
     public:
+        static SDLAudioEngine* get();
         SDLAudioEngine();
         virtual ~SDLAudioEngine();
         
@@ -68,6 +69,8 @@ class AVG_API SDLAudioEngine : public AudioEngine
         double * m_pMixBuffer;
         IProcessor<double>* m_pLimiter;
         boost::mutex m_Mutex;
+
+        static SDLAudioEngine* s_pInstance;
 };
 
 }

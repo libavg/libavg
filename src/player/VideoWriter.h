@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,7 @@
 
 #include "../base/IFrameEndListener.h"
 #include "../base/IPlaybackEndListener.h"
+#include "../base/IPreRenderListener.h"
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -38,13 +39,20 @@
 namespace avg {
 
 class Canvas;
+typedef boost::shared_ptr<Canvas> CanvasPtr;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
 
-class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
+class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
+        IPlaybackEndListener  
+{
     public:
-        VideoWriter(Canvas* pCanvas, const std::string& sOutFileName,
+        VideoWriter(CanvasPtr pCanvas, const std::string& sOutFileName,
                 int frameRate=30, int qMin=3, int qMax=5, bool bSyncToPlayback=true);
         virtual ~VideoWriter();
         void stop();
+        void pause();
+        void play();
 
         std::string getFileName() const;
         int getFramerate() const;
@@ -52,16 +60,19 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
         int getQMax() const;
 
         virtual void onFrameEnd();
+        virtual void onPreRender();
         virtual void onPlaybackEnd();
 
     private:
-        void handleFrame();
+        void readFrameFromFBO();
+        void getFrameFromPBO();
         void handleAutoSynchronizedFrame();
 
-        void addFrame(BitmapPtr pBitmap);
+        void sendFrame(BitmapPtr pBitmap);
         void writeDummyFrame();
 
-        Canvas* m_pCanvas;
+        CanvasPtr m_pCanvas;
+        FBOPtr m_pFBO;
         std::string m_sOutFileName;
         int m_FrameRate;
         int m_QMin;
@@ -74,10 +85,15 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  {
         boost::thread* m_pThread;
         bool m_bSyncToPlayback;
 
+        bool m_bPaused;
+        long long m_PauseStartTime;
+        long long m_PauseTime;
+
         bool m_bStopped;
 
         int m_CurFrame;
         long long m_StartTime;
+        bool m_bFramePending;
 };
 
 }

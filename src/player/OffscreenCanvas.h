@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -40,21 +40,22 @@ class AVG_API OffscreenCanvas: public Canvas
         OffscreenCanvas(Player * pPlayer);
         virtual ~OffscreenCanvas();
         virtual void setRoot(NodePtr pRootNode);
-        virtual void initPlayback(SDLDisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine);
+        virtual void initPlayback();
         virtual void stopPlayback();
 
-        virtual void render();
         virtual BitmapPtr screenshot() const;
+        virtual BitmapPtr screenshot(bool bIgnoreAlpha) const;
         bool getHandleEvents() const;
         int getMultiSampleSamples() const;
         bool getMipmap() const;
         bool getAutoRender() const;
         void setAutoRender(bool bAutoRender);
+        void manualRender(); // This is the render that can be called from python.
 
         std::string getID() const;
         bool isRunning() const;
         GLTexturePtr getTex() const;
+        FBOPtr getFBO() const;
 
         void registerCameraNode(CameraNode* pCameraNode);
         void unregisterCameraNode();
@@ -71,6 +72,9 @@ class AVG_API OffscreenCanvas: public Canvas
         static bool isMultisampleSupported();
         void dump() const;
  
+    protected:
+        virtual void render();
+
     private:
         FBOPtr m_pFBO;
         bool m_bUseMipmaps;

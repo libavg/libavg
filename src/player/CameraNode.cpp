@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 //
 
 #include "CameraNode.h"
-#include "DisplayEngine.h"
 #include "OGLSurface.h"
 #include "NodeDefinition.h"
 
@@ -47,7 +46,7 @@ namespace avg {
 
 NodeDefinition CameraNode::createDefinition()
 {
-    return NodeDefinition("camera", VisibleNode::buildNode<CameraNode>)
+    return NodeDefinition("camera", Node::buildNode<CameraNode>)
         .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
@@ -116,10 +115,9 @@ CameraNode::~CameraNode()
     m_pCamera = CameraPtr();
 }
 
-void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void CameraNode::connectDisplay()
 {
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    RasterNode::connectDisplay();
     if (m_bIsPlaying) {
         open();
     }
@@ -331,7 +329,7 @@ static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
 void CameraNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     if (isAutoUpdateCameraImage()) {
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();

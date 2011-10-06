@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -32,7 +32,7 @@
 
 namespace avg {
 
-class IVideoDecoder;
+class VideoDecoder;
 
 class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 {
@@ -42,8 +42,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         SoundNode(const ArgList& args);
         virtual ~SoundNode();
 
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
 
@@ -92,7 +91,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         long long m_PauseTime;
         long long m_PauseStartTime;
 
-        IVideoDecoder * m_pDecoder;
+        VideoDecoder * m_pDecoder;
         double m_Volume;
         SoundState m_State;
 };

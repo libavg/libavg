@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -60,7 +60,8 @@ Point<NUM>::Point(const Point<NUM>& p)
 template<class NUM>
 Point<NUM>::Point(const std::vector<NUM>& v)
 {
-    AVG_ASSERT(v.size() == 2);
+    AVG_ASSERT_MSG(v.size() == 2, 
+            "Point can only be constructed from 2-component vector");
     x = v[0];
     y = v[1];
 }
@@ -199,7 +200,7 @@ Point<NUM> Point<NUM>::operator *(const Point<NUM>& pt) const
 template<>
 Point<int> Point<int>::fromPolar(double angle, double radius)
 {
-    AVG_ASSERT(false);
+    AVG_ASSERT_MSG(false, "fromPolar undefined for IntPoint");
     return Point<int>(0,0);
 }
 
@@ -218,13 +219,14 @@ double Point<NUM>::getAngle() const
 template<>
 Point<int> Point<int>::getNormalized() const
 {
-    AVG_ASSERT(false);
+    AVG_ASSERT_MSG(false, "getNormalized undefined for IntPoint");
     return Point<int>(0,0);
 }
 
 template<>
 Point<double> Point<double>::getNormalized() const
 {
+    // This is imprecise but fast
 #if defined(__SSE__) || defined(_WIN32)
 #pragma pack(16)
     float result[4];
@@ -246,14 +248,24 @@ Point<double> Point<double>::getNormalized() const
 #endif
 }
 
-template<class NUM>
-Point<NUM> Point<NUM>::safeGetNormalized() const
+template<>
+Point<double> Point<double>::safeGetNormalized() const
 {
+    // This is precise but slower, and the version exported to python
     if (x==0 && y==0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Can't normalize (0,0).");
     } else {
-        return getNormalized();
+        double invNorm = 1/sqrt(x*x+y*y);
+        return Point<double>(x*invNorm, y*invNorm);
     }
+}
+
+template<>
+Point<int> Point<int>::safeGetNormalized() const
+{
+    // Not implemented - done to silence compiler warnings.
+    AVG_ASSERT(false);
+    return Point<int>(0,0);
 }
 
 template<class NUM>

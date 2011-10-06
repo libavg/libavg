@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -22,16 +22,15 @@
 #include "RasterNode.h"
 
 #include "NodeDefinition.h"
-#include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
+
+#include "../graphics/ImagingProjection.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
-
-#include <Magick++.h>
 
 using namespace std;
 
@@ -66,7 +65,8 @@ RasterNode::RasterNode()
       m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false),
       m_bBound(false),
       m_TileSize(-1,-1),
-      m_pVertexes(0)
+      m_pVertexes(0),
+      m_bFXDirty(true)
 {
 }
 
@@ -90,13 +90,12 @@ void RasterNode::setArgs(const ArgList& args)
     m_Material.setUseMipmaps(args.getArgVal<bool>("mipmap"));
 }
 
-void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine)
+void RasterNode::connectDisplay()
 {
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
 
     getSurface();
-    m_pSurface->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    m_pSurface->attach();
     m_bBound = false;
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         m_TileSize = m_MaxTileSize;
@@ -111,7 +110,6 @@ void RasterNode::setRenderingEngines(DisplayEngine* pDisplayEngine,
         setMaskCoords();
     }
     m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
-    m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection);
     setupFX(true);
 }
 
@@ -126,6 +124,13 @@ void RasterNode::disconnect(bool bKill)
     }
     m_pFBO = FBOPtr();
     m_pImagingProjection = ImagingProjectionPtr();
+    if (bKill) {
+        m_pFXNode = FXNodePtr();
+    } else {
+        if (m_pFXNode) {
+            m_pFXNode->disconnect();
+        }
+    }
     AreaNode::disconnect(bKill);
 }
 
@@ -142,12 +147,15 @@ void RasterNode::checkReload()
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
                 setMaskCoords();
             }
-        } catch (Magick::Exception & ex) {
+        } catch (Exception & ex) {
+            if (ex.getCode() == AVG_ERR_VIDEO_GENERAL) {
+                throw;
+            }
             m_sMaskFilename = "";
-            if (getState() != VisibleNode::NS_UNCONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
+            if (getState() != Node::NS_UNCONNECTED) {
+                AVG_TRACE(Logger::ERROR, ex.getStr());
             } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
+                AVG_TRACE(Logger::MEMORY, ex.getStr());
             }
         }
         if (m_sMaskFilename == "") {
@@ -155,7 +163,7 @@ void RasterNode::checkReload()
             m_Material.setMask(false);
             setMaterial(m_Material);
         }
-        if (getState() == VisibleNode::NS_CANRENDER && m_Material.getHasMask()) {
+        if (getState() == Node::NS_CANRENDER && m_Material.getHasMask()) {
             m_pSurface->createMask(m_pMaskBmp->getSize());
             downloadMask();
         }
@@ -231,7 +239,7 @@ const std::string& RasterNode::getBlendModeStr() const
 void RasterNode::setBlendModeStr(const string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
-    m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
+    m_BlendMode = GLContext::stringToBlendMode(sBlendMode);
 }
 
 const UTF8String& RasterNode::getMaskHRef() const
@@ -267,8 +275,7 @@ void RasterNode::setMaskSize(const DPoint& size)
     setMaskCoords();
 }
 
-void RasterNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void RasterNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {
@@ -284,7 +291,7 @@ DTriple RasterNode::getGamma() const
 void RasterNode::setGamma(const DTriple& gamma)
 {
     m_Gamma = gamma;
-    if (m_pSurface) {
+    if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
@@ -297,7 +304,7 @@ DTriple RasterNode::getIntensity() const
 void RasterNode::setIntensity(const DTriple& intensity)
 {
     m_Intensity = intensity;
-    if (m_pSurface) {
+    if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
@@ -310,7 +317,7 @@ DTriple RasterNode::getContrast() const
 void RasterNode::setContrast(const DTriple& contrast)
 {
     m_Contrast = contrast;
-    if (m_pSurface) {
+    if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
@@ -330,18 +337,18 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
 }
 
 void RasterNode::blt32(const DPoint& destSize, double opacity, 
-        DisplayEngine::BlendMode mode, bool bPremultipliedAlpha)
+        GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
     blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
 void RasterNode::blta8(const DPoint& destSize, double opacity, 
-        const Pixel32& color, DisplayEngine::BlendMode mode)
+        const Pixel32& color, GLContext::BlendMode mode)
 {
     blt(destSize, mode, opacity, color, false);
 }
 
-DisplayEngine::BlendMode RasterNode::getBlendMode() const
+GLContext::BlendMode RasterNode::getBlendMode() const
 {
     return m_BlendMode;
 }
@@ -402,9 +409,10 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
 {
     ScopeTimer Timer(FXProfilingZone);
     setupFX(false);
-    getDisplayEngine()->enableGLColorArray(false);
-    getDisplayEngine()->enableTexture(true);
-    if (m_pFXNode) {
+    GLContext* pContext = GLContext::getCurrent();
+    pContext->enableGLColorArray(false);
+    pContext->enableTexture(true);
+    if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty())) {
         if (!m_bBound) {
             bind();
         }
@@ -418,8 +426,7 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
-        getDisplayEngine()->setBlendMode(DisplayEngine::BLEND_BLEND, 
-                bPremultipliedAlpha);
+        pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
@@ -427,8 +434,6 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pImagingProjection->activate();
         m_pImagingProjection->draw();
 
-        m_pFBO->deactivate();
-        m_pSurface->deactivate();
 /*
         static int i=0;
         stringstream ss;
@@ -447,6 +452,9 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pFXNode->getImage()->save(ss1.str());
 */
         glproc::UseProgramObject(0);
+        m_bFXDirty = false;
+        m_pSurface->resetDirty();
+        m_pFXNode->resetDirty();
     }
 }
 
@@ -466,7 +474,7 @@ void RasterNode::downloadMask()
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
-    if (!(getState() == VisibleNode::NS_CANRENDER)) {
+    if (!(getState() == Node::NS_CANRENDER)) {
         throw Exception(AVG_ERR_UNSUPPORTED,
             string(sMsg) + ": cannot access vertex coordinates before node is bound.");
     }
@@ -479,58 +487,52 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 void RasterNode::setupFX(bool bNewFX)
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
-        if (!getDisplayEngine()->isUsingShaders()) {
+        if (!GLContext::getCurrent()->isUsingShaders()) {
             throw Exception(AVG_ERR_UNSUPPORTED,
                     "Can't use FX - unsupported on this hardware/driver combination.");
         }
         if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFXNode->setSize(m_pSurface->getSize());
-            m_pFXNode->connect(getDisplayEngine());
+            m_pFXNode->connect();
+            m_bFXDirty = true;
         }
         if (!m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFBO = FBOPtr(new FBO(IntPoint(m_pSurface->getSize()), B8G8R8A8, 1, 1,
                     false, getMipmap()));
             GLTexturePtr pTex = m_pFBO->getTex();
             pTex->setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-            m_pImagingProjection->setup(m_pSurface->getSize());
+            m_pImagingProjection = ImagingProjectionPtr(new ImagingProjection(
+                    m_pSurface->getSize()));
         }
     }
 }
 
-void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
+void RasterNode::blt(const DPoint& destSize, GLContext::BlendMode mode,
         double opacity, const Pixel32& color, bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
     }
-    getDisplayEngine()->enableGLColorArray(false);
-    getDisplayEngine()->enableTexture(true);
+    GLContext* pContext = GLContext::getCurrent();
+    pContext->enableGLColorArray(false);
+    pContext->enableTexture(true);
     DRect destRect;
     if (m_pFXNode) {
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
 
-        getDisplayEngine()->setBlendMode(mode, true);
+        pContext->setBlendMode(mode, true);
         glColor4d(1.0, 1.0, 1.0, opacity);
         DRect relDestRect = m_pFXNode->getRelDestRect();
         destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
-        m_pSurface->activate(getMediaSize());
-    //    pBmp->dump(true);
-        getDisplayEngine()->setBlendMode(mode, bPremultipliedAlpha);
+        m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
+        pContext->setBlendMode(mode, bPremultipliedAlpha);
         glColor4d(double(color.getR())/256, double(color.getG())/256, 
                 double(color.getB())/256, opacity);
         destRect = DRect(DPoint(0,0), destSize);
     }
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
-    FBOPtr pMainFBO = getDisplayEngine()->getMainFBO();
-    if (pMainFBO) {
-        pMainFBO->activate();
-    } else {
-        if (m_pFBO) {
-            m_pFBO->deactivate();
-        }
-    }
     glPushMatrix();
     glTranslated(destRect.tl.x, destRect.tl.y, 1);
     glScaled(destRect.size().x, destRect.size().y, 1);
@@ -552,7 +554,6 @@ void RasterNode::blt(const DPoint& destSize, DisplayEngine::BlendMode mode,
     }
 
     m_pVertexes->draw();
-    m_pSurface->deactivate();
 
     glPopMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix 2");

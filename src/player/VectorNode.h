@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,19 +23,19 @@
 #define _VectorNode_H_
 
 #include "../api.h"
-#include "VisibleNode.h"
-#include "DisplayEngine.h"
+#include "Node.h"
 #include "Shape.h"
 
 #include "../base/UTF8String.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/VertexArray.h"
+#include "../graphics/GLContext.h"
 
 namespace avg {
 
 struct WideLine;
 
-class AVG_API VectorNode : public VisibleNode
+class AVG_API VectorNode : public Node
 {
     public:
         enum LineJoin {LJ_MITER, LJ_BEVEL};
@@ -44,8 +44,7 @@ class AVG_API VectorNode : public VisibleNode
         
         VectorNode(const ArgList& args);
         virtual ~VectorNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
+        virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
@@ -74,7 +73,7 @@ class AVG_API VectorNode : public VisibleNode
 
     protected:
         Pixel32 getColorVal() const;
-        DisplayEngine::BlendMode getBlendMode() const;
+        GLContext::BlendMode getBlendMode() const;
 
         void setDrawNeeded();
         bool isDrawNeeded();
@@ -107,7 +106,7 @@ class AVG_API VectorNode : public VisibleNode
         double m_OldOpacity;
 
         ShapePtr m_pShape;
-        DisplayEngine::BlendMode m_BlendMode;
+        GLContext::BlendMode m_BlendMode;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

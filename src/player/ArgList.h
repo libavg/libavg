@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,7 @@ namespace avg {
 
 typedef std::map<std::string, ArgBasePtr> ArgMap;
 
-class VisibleNode;
+class Node;
 
 class AVG_API ArgList
 {
@@ -62,7 +62,7 @@ public:
     
     void setArg(const ArgBase& newArg);
     void setArgs(const ArgList& args);
-    void setMembers(VisibleNode * pNode) const;
+    void setMembers(Node * pNode) const;
     
     void copyArgsFrom(const ArgList& argTemplates);
 

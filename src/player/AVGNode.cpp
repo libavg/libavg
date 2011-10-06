@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@ namespace avg {
 
 NodeDefinition AVGNode::createDefinition()
 {
-    return NodeDefinition("avg", VisibleNode::buildNode<AVGNode>)
+    return NodeDefinition("avg", Node::buildNode<AVGNode>)
         .extendDefinition(CanvasNode::createDefinition())
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));

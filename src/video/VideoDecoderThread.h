@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@
 #define _VideoDecoderThread_H_
 
 #include "../api.h"
-#include "IVideoDecoder.h"
+#include "VideoDecoder.h"
 #include "VideoMsg.h"
 
 #include "../base/WorkerThread.h"

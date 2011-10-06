@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine.
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -701,7 +701,8 @@ void V4LCamera::initDevice()
     fmt.fmt.pix.pixelformat = m_v4lPF;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
     int rc = xioctl(m_Fd, VIDIOC_S_FMT, &fmt);
-    if (fmt.fmt.pix.width != m_ImgSize.x || fmt.fmt.pix.height != m_ImgSize.y || rc == -1)
+    if (int(fmt.fmt.pix.width) != m_ImgSize.x || int(fmt.fmt.pix.height) != m_ImgSize.y
+        || rc == -1)
     {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera image format: '")

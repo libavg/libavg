@@ -1,5 +1,5 @@
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -41,12 +41,6 @@ class AppStarter(object):
     '''Starts an AVGApp'''
     def __init__(self, appClass, resolution=DEFAULT_RESOLUTION,
             debugWindowSize=None, fakeFullscreen=False):
-        if fakeFullscreen:
-            if os.name != 'nt':
-                raise RuntimeError('fakeFullscreen works only under windows')
-
-            g_Player.setTimeout(0, self.__fakeFullscreen)
-
         resolution = Point2D(resolution)
         testMode = not 'AVG_DEPLOY' in os.environ
 
@@ -60,6 +54,11 @@ class AppStarter(object):
         g_Player.showCursor(testMode)
 
         if fakeFullscreen:
+            if os.name != 'nt':
+                raise RuntimeError('Fakefullscreen is supported only on windows')
+            elif not testMode:
+                self.__enableFakeFullscreen()
+
             fullscreen = False
         else:
             fullscreen = not testMode
@@ -111,32 +110,9 @@ class AppStarter(object):
         self._activeApp = self._appInstance
         self._appInstance.enter()
 
-    def __fakeFullscreen(self):
-        import win32gui
-        import win32con
-        import win32api
-
-        def findWindow(title):
-            def enumWinProc(h, lparams):
-                lparams.append(h)
-            winList=[]
-            win32gui.EnumWindows(enumWinProc, winList)
-            for hwnd in winList:
-                curTitle = win32gui.GetWindowText(hwnd)
-                if win32gui.IsWindowVisible(hwnd) and title == curTitle:
-                    return hwnd
-            return None
-
-        hDesk = win32gui.GetDesktopWindow()
-        (desktopLeft, desktopTop, desktopRight,
-                desktopBottom) = win32gui.GetWindowRect(hDesk)
-        w = findWindow('AVG Renderer')
-        offSetX = 2
-        offSetY = 3
-        win32gui.SetWindowPos(w, win32con.HWND_TOP,
-                -(win32api.GetSystemMetrics(win32con.SM_CYBORDER) + offSetX),
-                -(win32api.GetSystemMetrics(win32con.SM_CYCAPTION) + offSetY),
-                desktopRight, desktopBottom + 30, 0)
+    def __enableFakeFullscreen(self):
+        g_Player.setWindowPos(0, 0)
+        g_Player.setWindowFrame(False)
 
 
 class AVGAppStarter(AppStarter):
@@ -153,8 +129,8 @@ class AVGAppStarter(AppStarter):
     def _setupDefaultKeys(self):
         super(AVGAppStarter, self)._setupDefaultKeys()
         g_KbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
-        g_KbManager.bindKey('m', self.__showMemoryUsage, 'Show memory usage')
-        g_KbManager.bindKey('f', self.__showFrameRateUsage, 'Show frameTime usage')
+        g_KbManager.bindKey('m', self.showMemoryUsage, 'Show memory usage')
+        g_KbManager.bindKey('f', self.showFrameRate, 'Show frameTime usage')
         g_KbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
         g_KbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
         g_KbManager.bindKey('s', self.__screenshot, 'Take screenshot')
@@ -166,7 +142,7 @@ class AVGAppStarter(AppStarter):
         print 'Num anims: ', avg.getNumRunningAnims()
         print 'Num python objects: ', len(gc.get_objects())
 
-    def __showMemoryUsage(self):
+    def showMemoryUsage(self):
         if self.__showingMemGraph:
             self.__memGraph.delete()
             self.__memGraph = None
@@ -181,7 +157,7 @@ class AVGAppStarter(AppStarter):
                 self.__memGraph.setYpos(190)
         self.__showingMemGraph = not(self.__showingMemGraph)
 
-    def __showFrameRateUsage(self):
+    def showFrameRate(self):
         if self.__showingFrGraph:
             self.__frGraph.delete()
             self.__frGraph = None

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,9 @@
 //
 
 #include "ShadowFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
 #include "../graphics/ShaderRegistry.h"
 
 #include <string>
@@ -50,13 +50,13 @@ ShadowFXNode::~ShadowFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void ShadowFXNode::connect(SDLDisplayEngine* pEngine)
+void ShadowFXNode::connect()
 {
     if (!GLTexture::isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Cannot create ShadowFX: OpenGL configuration doesn't support Blur (no float textures).");
     }
-    FXNode::connect(pEngine);
+    FXNode::connect();
 }
 
 void ShadowFXNode::disconnect()
@@ -74,6 +74,7 @@ void ShadowFXNode::setParams(const DPoint& offset, double stdDev, double opacity
     m_Color = colorStringToColor(sColor);
     if (m_pFilter) {
         m_pFilter->setParams(offset, stdDev, opacity, m_Color);
+        setDirty();
     }
 }
 
@@ -81,6 +82,7 @@ GPUFilterPtr ShadowFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUShadowFilterPtr(new GPUShadowFilter(size, m_Offset, m_StdDev, 
             m_Opacity, m_Color));
+    setDirty();
     return m_pFilter;
 }
 

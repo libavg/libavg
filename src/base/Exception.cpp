@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -38,8 +38,8 @@ Exception::Exception(int code, const string& sErr)
 }
 
 Exception::Exception(const Exception& ex)
-    : m_Code (ex.GetCode()),
-      m_sErr (ex.GetStr())
+    : m_Code (ex.getCode()),
+      m_sErr (ex.getStr())
 {
 }
 
@@ -47,12 +47,12 @@ Exception::~Exception()
 {
 }
 
-int Exception::GetCode() const
+int Exception::getCode() const
 {
     return m_Code;
 }
 
-const string& Exception::GetStr() const
+const string& Exception::getStr() const
 {
     return m_sErr;
 }
@@ -72,7 +72,7 @@ void debugBreak()
 #endif
 }
 
-void avgAssert(bool b, const char * pszFile, int line)
+void avgAssert(bool b, const char * pszFile, int line, const char * pszReason)
 {
     if (!b) {
         string sDummy;
@@ -81,7 +81,10 @@ void avgAssert(bool b, const char * pszFile, int line)
             debugBreak();
         } else {
             stringstream ss;
-            ss << "Assertion failed in " << pszFile << ": " << line;
+            ss << "Assertion failed in " << pszFile << ": " << line << endl;
+            if (pszReason) {
+                ss << "Reason: " << pszReason << endl;
+            }
             dumpBacktrace();
             throw(Exception(AVG_ERR_ASSERT_FAILED, ss.str()));
         }

@@ -4,7 +4,7 @@ Area Nodes
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node PanoImageNode RasterNode SoundNode VideoNode VisibleNode WordsNode
+    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node PanoImageNode RasterNode SoundNode VideoNode WordsNode
         :parts: 1
 
     .. autoclass:: AreaNode([x, y, pos, width, height, size, angle, pivot])
@@ -426,7 +426,8 @@ Area Nodes
 
         .. py:attribute:: duration
 
-            The duration of the sound file in milliseconds. Read-only.
+            The duration of the sound file in milliseconds. Some file formats don't store
+            valid durations; in this case, 0 is returned. Read-only.
 
         .. py:attribute:: href
 
@@ -480,11 +481,17 @@ Area Nodes
 
             Stops audio playback. Closes the object and 'rewinds' the playback cursor.
 
-    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0])
+    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0, accelerated=True])
 
         Video nodes display a video file. Video formats and codecs supported
         are all formats that ffmpeg/libavcodec supports. Usage is described throughly
         in the libavg wiki: https://www.libavg.de/wiki/ProgrammersGuide/VideoNode.
+
+        .. py:attribute:: accelerated
+
+            On construction, set to :py:const:`True` if hardware acceleration should be 
+            used to decode this video. Later queries of the attribute return 
+            :py:const:`True` if acceleration is actually being used.
 
         .. py:attribute:: fps
 
@@ -542,7 +549,8 @@ Area Nodes
 
         .. py:method:: getDuration() -> int
 
-            Returns the duration of the video in milliseconds.
+            Returns the duration of the video in milliseconds. Some file formats don't 
+            store valid durations; in this case, 0 is returned. Read-only.
 
         .. py:method:: getNumFrames() -> int
 
@@ -601,6 +609,12 @@ Area Nodes
 
             Stops video playback. Closes the file, 'rewinds' the playback
             cursor and clears the decoder queues.
+
+        .. py:classmethod:: getVideoAccelConfig() -> enum
+
+            Returns either :py:const:`NO_ACCELERATION` if the current configuration does
+            not support hardware-accelerated video decoding or :py:const:`VDPAU` if VDPAU
+            can be used to decode videos.
 
     .. autoclass:: WordsNode([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, hint=True])
 

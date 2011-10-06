@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,6 @@
 #include "../player/WrapPython.h" 
 
 #include "AttrAnim.h"
-#include "../player/VisibleNode.h"
 
 #include <boost/python.hpp>
 

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,6 @@
 
 #include "OffscreenCanvas.h"
 
-#include "SDLDisplayEngine.h"
 #include "CanvasNode.h"
 #include "Player.h"
 
@@ -60,15 +59,12 @@ void OffscreenCanvas::setRoot(NodePtr pRootNode)
     }
 }
 
-void OffscreenCanvas::initPlayback(SDLDisplayEngine* pDisplayEngine, 
-        AudioEngine* pAudioEngine)
+void OffscreenCanvas::initPlayback()
 {
     m_bUseMipmaps = getMipmap();
     m_pFBO = FBOPtr(new FBO(getSize(), B8G8R8A8, 1, getMultiSampleSamples(), true,
             m_bUseMipmaps));
-    Canvas::initPlayback(pDisplayEngine, pAudioEngine, getMultiSampleSamples());
-    glEnable(GL_STENCIL_TEST);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    Canvas::initPlayback(getMultiSampleSamples());
     m_bIsRendered = false;
 }
 
@@ -79,32 +75,25 @@ void OffscreenCanvas::stopPlayback()
     m_bIsRendered = false;
 }
 
-static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
-
-void OffscreenCanvas::render()
+BitmapPtr OffscreenCanvas::screenshot() const
 {
-    if (!isRunning()) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
-    }
-    getDisplayEngine()->setMainFBO(m_pFBO);
-    m_pFBO->activate();
-    Canvas::render(IntPoint(getRootNode()->getSize()), true, 
-            OffscreenRenderProfilingZone);
-    m_pFBO->deactivate();
-    m_pFBO->copyToDestTexture();
-    getDisplayEngine()->setMainFBO(FBOPtr());
-    m_bIsRendered = true;
+    return screenshot(false);
 }
 
-BitmapPtr OffscreenCanvas::screenshot() const
+static ProfilingZoneID OffscreenRenderProfilingZone("Render OffscreenCanvas");
+
+BitmapPtr OffscreenCanvas::screenshot(bool bIgnoreAlpha) const
 {
     if (!isRunning() || !m_bIsRendered) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
     BitmapPtr pBmp = m_pFBO->getImage(0);
-    FilterUnmultiplyAlpha().applyInPlace(pBmp);
+    if (bIgnoreAlpha) {
+        pBmp->setPixelFormat(B8G8R8X8);
+    } else {
+        FilterUnmultiplyAlpha().applyInPlace(pBmp);
+    }
     return pBmp;
 }
 
@@ -134,6 +123,13 @@ void OffscreenCanvas::setAutoRender(bool bAutoRender)
     dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->setAutoRender(bAutoRender);
 }
 
+void OffscreenCanvas::manualRender()
+{
+    emitPreRenderSignal(); 
+    render(); 
+    emitFrameEndSignal(); 
+}
+
 std::string OffscreenCanvas::getID() const
 {
     return getRootNode()->getID();
@@ -148,6 +144,12 @@ GLTexturePtr OffscreenCanvas::getTex() const
 {
     AVG_ASSERT(isRunning());
     return m_pFBO->getTex();
+}
+
+FBOPtr OffscreenCanvas::getFBO() const
+{
+    AVG_ASSERT(isRunning());
+    return m_pFBO;
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
@@ -182,6 +184,7 @@ bool OffscreenCanvas::isCameraImageAvailable() const
 
 void OffscreenCanvas::addDependentCanvas(CanvasPtr pCanvas)
 {
+    AVG_ASSERT(!(pCanvas == shared_from_this()));
     m_pDependentCanvases.push_back(pCanvas);
     Player::get()->newCanvasDependency(
             dynamic_pointer_cast<OffscreenCanvas>(shared_from_this()));
@@ -240,6 +243,18 @@ void OffscreenCanvas::dump() const
     for (unsigned i = 0; i < m_pDependentCanvases.size(); ++i) {
         cerr << " " << m_pDependentCanvases[i]->getRootNode()->getID() << endl;
     }
+}
+
+void OffscreenCanvas::render()
+{
+    if (!isRunning()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "OffscreenCanvas::render(): Player.play() needs to be called before rendering offscreen canvases."));
+    }
+    Canvas::render(IntPoint(getRootNode()->getSize()), true, m_pFBO, 
+            OffscreenRenderProfilingZone);
+    m_pFBO->copyToDestTexture();
+    m_bIsRendered = true;
 }
 
 }

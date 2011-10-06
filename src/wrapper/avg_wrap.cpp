@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -42,9 +42,11 @@ void export_anim();
 #include "../player/Canvas.h"
 #include "../player/OffscreenCanvas.h"
 #include "../player/VideoWriter.h"
+#include "../player/SVG.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/python/raw_function.hpp>
 
 using namespace boost::python;
 using namespace avg;
@@ -53,6 +55,13 @@ using namespace std;
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
         fakeTouchEvent, 4, 5)
+
+OffscreenCanvasPtr createCanvas(const boost::python::tuple &args,
+                const boost::python::dict& params)
+{
+    return extract<Player&>(args[0])().createCanvas(params);
+}
+
 
 
 BOOST_PYTHON_MODULE(avg)
@@ -129,6 +138,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadString", &Player::loadString)
         .def("loadCanvasFile", &Player::loadCanvasFile)
         .def("loadCanvasString", &Player::loadCanvasString)
+        .def("createCanvas", raw_function(createCanvas))
         .def("deleteCanvas", &Player::deleteCanvas)
         .def("getMainCanvas", &Player::getMainCanvas)
         .def("getCanvas", &Player::getCanvas)
@@ -188,7 +198,7 @@ BOOST_PYTHON_MODULE(avg)
     class_<OffscreenCanvas, boost::shared_ptr<OffscreenCanvas>, bases<Canvas>,
             boost::noncopyable>("OffscreenCanvas", no_init)
         .def("getID", &OffscreenCanvas::getID)
-        .def("render", &OffscreenCanvas::render)
+        .def("render", &OffscreenCanvas::manualRender)
         .def("registerCameraNode", &OffscreenCanvas::registerCameraNode)
         .def("unregisterCameraNode", &OffscreenCanvas::unregisterCameraNode)
         .add_property("handleevents", &OffscreenCanvas::getHandleEvents)
@@ -205,13 +215,38 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<VideoWriter, boost::shared_ptr<VideoWriter>, boost::noncopyable>
             ("VideoWriter", no_init)
-        .def(init<Canvas*, const std::string&, int, int, int, bool>())
-        .def(init<Canvas*, const std::string&, int, int, int>())
-        .def(init<Canvas*, const std::string&, int>())
+        .def(init<CanvasPtr, const std::string&, int, int, int, bool>())
+        .def(init<CanvasPtr, const std::string&, int, int, int>())
+        .def(init<CanvasPtr, const std::string&, int>())
         .def("stop", &VideoWriter::stop)
+        .def("pause", &VideoWriter::pause)
+        .def("play", &VideoWriter::play)
         .add_property("filename", &VideoWriter::getFileName)
         .add_property("framerate", &VideoWriter::getFramerate)
         .add_property("qmin", &VideoWriter::getQMin)
         .add_property("qmax", &VideoWriter::getQMax)
     ;
+
+    BitmapPtr (SVG::*renderElement1)(const UTF8String&) = &SVG::renderElement;
+    BitmapPtr (SVG::*renderElement2)(const UTF8String&, const DPoint&) = 
+            &SVG::renderElement;
+    BitmapPtr (SVG::*renderElement3)(const UTF8String&, double) = 
+            &SVG::renderElement;
+    NodePtr (SVG::*createImageNode1)(const UTF8String&, const dict&) = 
+            &SVG::createImageNode;
+    NodePtr (SVG::*createImageNode2)(const UTF8String&, const dict&, const DPoint&) = 
+            &SVG::createImageNode;
+    NodePtr (SVG::*createImageNode3)(const UTF8String&, const dict&, double) = 
+            &SVG::createImageNode;
+
+    class_<SVG, boost::noncopyable>("SVG", init<const UTF8String&, bool>())
+        .def("renderElement", renderElement1)
+        .def("renderElement", renderElement2)
+        .def("renderElement", renderElement3)
+        .def("createImageNode", createImageNode1)
+        .def("createImageNode", createImageNode2)
+        .def("createImageNode", createImageNode3)
+        .def("getElementSize", &SVG::getElementSize)
+        ;
+
 }

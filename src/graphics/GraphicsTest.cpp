@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -26,8 +26,6 @@
 
 #include "../base/Directory.h"
 #include "../base/Exception.h"
-
-#include <Magick++.h>
 
 #include <iostream>
 #include <sstream>
@@ -65,8 +63,8 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
             return FilterGrayscale().apply(pBmp);
         }
         return pBmp;
-    } catch (Magick::Exception & ex) {
-        cerr << ex.what() << endl;
+    } catch (Exception & ex) {
+        cerr << ex.getStr() << endl;
         throw;
     }
 }
@@ -84,8 +82,8 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
             default:
                 break;
         }
-    } catch (Magick::Exception & ex) {
-        cerr << ex.what() << endl;
+    } catch (Exception & ex) {
+        cerr << ex.getStr() << endl;
         resultBmp.save("resultimages/"+sFName+".png");
         throw;
     }
@@ -97,9 +95,9 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
 {
     BitmapPtr pDiffBmp;
     try {
-        pDiffBmp = BitmapPtr(resultBmp.subtract(&baselineBmp));
+        pDiffBmp = resultBmp.subtract(baselineBmp);
     } catch (Exception& e) {
-        TEST_FAILED("Error: " << e.GetStr() << ". File: '" << sFName << "'.");
+        TEST_FAILED("Error: " << e.getStr() << ". File: '" << sFName << "'.");
         string sResultName = "resultimages/"+sFName;
         resultBmp.save(sResultName+".png");
         baselineBmp.save(sResultName+"_baseline.png");
@@ -115,7 +113,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
             string sResultName = "resultimages/"+sFName;
             resultBmp.save(sResultName+".png");
             baselineBmp.save(sResultName+"_baseline.png");
-            BitmapPtr pDiffBmp(resultBmp.subtract(&baselineBmp));
+            BitmapPtr pDiffBmp = resultBmp.subtract(baselineBmp);
             pDiffBmp->save(sResultName+"_diff.png");
         }
     }

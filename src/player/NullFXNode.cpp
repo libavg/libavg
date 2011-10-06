@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 //
 
 #include "NullFXNode.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/ObjectCounter.h"
 #include "../graphics/ShaderRegistry.h"
@@ -42,9 +41,9 @@ NullFXNode::~NullFXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void NullFXNode::connect(SDLDisplayEngine* pEngine)
+void NullFXNode::connect()
 {
-    FXNode::connect(pEngine);
+    FXNode::connect();
 }
 
 void NullFXNode::disconnect()
@@ -56,6 +55,7 @@ void NullFXNode::disconnect()
 GPUFilterPtr NullFXNode::createFilter(const IntPoint& size)
 {
     m_pFilter = GPUNullFilterPtr(new GPUNullFilter(size, false));
+    setDirty();
     return m_pFilter;
 }
 

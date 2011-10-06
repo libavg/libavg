@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 //
 
 #include "DivNode.h"
-#include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
 #include "Canvas.h"
@@ -73,27 +72,30 @@ DivNode::~DivNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
+void DivNode::connectDisplay()
 {
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
     for (unsigned i = 0; i < getNumChildren(); ++i) {
-        getVChild(i)->setRenderingEngines(pDisplayEngine, pAudioEngine);
+        getChild(i)->connectDisplay();
     }
+    m_pClipVertexes = VertexArrayPtr(new VertexArray());
 }
 
 void DivNode::connect(CanvasPtr pCanvas)
 {
     AreaNode::connect(pCanvas);
     for (unsigned i = 0; i < getNumChildren(); ++i) {
-        getVChild(i)->connect(pCanvas);
+        getChild(i)->connect(pCanvas);
     }
 }
 
 void DivNode::disconnect(bool bKill)
 {
     for (unsigned i = 0; i < getNumChildren(); ++i) {
-        getVChild(i)->disconnect(bKill);
+        getChild(i)->disconnect(bKill);
+    }
+    if (m_pClipVertexes) {
+        m_pClipVertexes = VertexArrayPtr();
     }
     AreaNode::disconnect(bKill);
 }
@@ -107,35 +109,127 @@ DPoint DivNode::getPivot() const
     return pivot;
 }
 
-VisibleNodePtr DivNode::getVChild(unsigned i)
+unsigned DivNode::getNumChildren()
 {
-    return dynamic_pointer_cast<VisibleNode>(getChild(i));
+    return m_Children.size();
 }
 
-void DivNode::insertChild(NodePtr pNewNode, unsigned i)
+const NodePtr& DivNode::getChild(unsigned i)
 {
-    VisibleNodePtr pVNode = dynamic_pointer_cast<VisibleNode>(pNewNode);
-    if (pVNode->getState() == NS_CONNECTED || pVNode->getState() == NS_CANRENDER)
-    {
+    if (i >= m_Children.size()) {
+        stringstream s;
+        s << "Index " << i << " is out of range in Node::getChild()";
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
+    }
+    return m_Children[i];
+}
+
+void DivNode::appendChild(NodePtr pNewNode)
+{
+    insertChild(pNewNode, unsigned(m_Children.size()));
+}
+
+void DivNode::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i);
+}
+
+void DivNode::insertChildAfter(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i+1);
+}
+
+void DivNode::insertChild(NodePtr pChild, unsigned i)
+{
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChild called without a node.");
+    }
+    if (pChild->getState() == NS_CONNECTED || pChild->getState() == NS_CANRENDER) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
-                "Can't connect node with id "+pNewNode->getID()+
+                "Can't connect node with id "+pChild->getID()+
                 ": already connected."));
     }
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
-        getCanvas()->registerNode(pVNode);
+        getCanvas()->registerNode(pChild);
     }
-    DivNodePtr Ptr = dynamic_pointer_cast<DivNode>(getThis());
-    pNewNode->checkSetParentError(Ptr); 
-    Node::insertChild(pNewNode, i);
-    pVNode->setParent(Ptr, getState(), getCanvas());
+    DivNodePtr ptr = dynamic_pointer_cast<DivNode>(shared_from_this());
+    pChild->checkSetParentError(ptr); 
+    if (!isChildTypeAllowed(pChild->getTypeStr())) {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't insert a node of type "+pChild->getTypeStr()+
+                " into a node of type "+getTypeStr()+"."));
+    }
+    if (i > m_Children.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                pChild->getID()+"::insertChild: index out of bounds."));
+    }
+    std::vector<NodePtr>::iterator pos = m_Children.begin()+i;
+    m_Children.insert(pos, pChild);
+    try {
+        pChild->setParent(ptr, getState(), getCanvas());
+    } catch (Exception&) {
+        m_Children.erase(m_Children.begin()+i);
+        throw;
+    }
     if (getState() == NS_CANRENDER) {
-        pVNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
+        pChild->connectDisplay();
     }
 }
 
-void DivNode::removeChild(NodePtr pNode)
+void DivNode::reorderChild(NodePtr pChild, unsigned j)
 {
-    removeChild(pNode, false);
+    if (j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
+    }
+    int i = indexOf(pChild);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator pos = m_Children.begin()+j;
+    m_Children.insert(pos, pChild);
+}
+
+void DivNode::reorderChild(unsigned i, unsigned j)
+{
+    if (i > m_Children.size()-1 || j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index out of bounds."));
+    }
+    NodePtr pChild = getChild(i);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator pos = m_Children.begin()+j;
+    m_Children.insert(pos, pChild);
+}
+
+unsigned DivNode::indexOf(NodePtr pChild)
+{
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::indexOf called without a node.");
+    }
+    for (unsigned i = 0; i < m_Children.size(); ++i) {
+        if (m_Children[i] == pChild) {
+            return i;
+        }
+    }
+    throw(Exception(AVG_ERR_OUT_OF_RANGE,
+            "indexOf: node '"+pChild->getID()+"' is not a child of node '"
+            +getID()+"'"));
+}
+
+void DivNode::removeChild(NodePtr pChild)
+{
+    removeChild(pChild, false);
 }
 
 void DivNode::removeChild(unsigned i)
@@ -143,20 +237,24 @@ void DivNode::removeChild(unsigned i)
     removeChild(i, false);
 }
 
-void DivNode::removeChild(NodePtr pNode, bool bKill)
+void DivNode::removeChild(NodePtr pChild, bool bKill)
 {
-    pNode->Node::setParent(NodePtr());
-    VisibleNodePtr pVNode = dynamic_pointer_cast<VisibleNode>(pNode);
-    if (pVNode->getState() != NS_UNCONNECTED) {
-        pVNode->disconnect(bKill);
+    pChild->removeParent();
+    if (pChild->getState() != NS_UNCONNECTED) {
+        pChild->disconnect(bKill);
     }
-    eraseChild(pNode);
+    unsigned i = indexOf(pChild);
+    if (i > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
+    }
+    m_Children.erase(m_Children.begin()+i);
 }
 
 void DivNode::removeChild(unsigned i, bool bKill)
 {
-    VisibleNodePtr pNode = getVChild(i);
-    removeChild(pNode, bKill);
+    NodePtr pChild = getChild(i);
+    removeChild(pChild, bKill);
 }
 
 bool DivNode::getCrop() const
@@ -195,33 +293,32 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-void DivNode::getElementsByPos(const DPoint& pos, 
-                vector<VisibleNodeWeakPtr>& pElements)
+void DivNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i = getNumChildren()-1; i >= 0; i--) {
-            VisibleNodePtr pCurChild = getVChild(i);
+            NodePtr pCurChild = getChild(i);
             DPoint relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
             if (!pElements.empty()) {
-                pElements.push_back(getVThis());
+                pElements.push_back(shared_from_this());
                 return;
             }
         }
-        // Pos isn't in any of the children.
+        // pos isn't in any of the children.
         if (getSize() != DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height given for div - div reacts on its own.
-            pElements.push_back(getVThis());
+            pElements.push_back(shared_from_this());
         }
     }
 }
 
 void DivNode::preRender()
 {
-    VisibleNode::preRender();
+    Node::preRender();
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->preRender();
     }
@@ -230,15 +327,22 @@ void DivNode::preRender()
 void DivNode::render(const DRect& rect)
 {
     DPoint viewport = getSize();
+    
+    m_pClipVertexes->reset();
+    m_pClipVertexes->appendPos(DPoint(0,0), DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(DPoint(0,viewport.y), DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(DPoint(viewport.x,0), DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(viewport, DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
+
     if (getCrop()) {
-        DRect ClipRect(0, 0, viewport.x, viewport.y);
-        getDisplayEngine()->pushClipRect(ClipRect);
+        getCanvas()->pushClipRect(m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getVChild(i)->maybeRender(rect);
+        getChild(i)->maybeRender(rect);
     }
     if (getCrop()) {
-        getDisplayEngine()->popClipRect();
+        getCanvas()->popClipRect(m_pClipVertexes);
     }
 }
 
@@ -280,7 +384,7 @@ string DivNode::getEffectiveMediaDir()
     string sMediaDir = m_sMediaDir;
     if (!isAbsPath(sMediaDir)) {
         if (getParent()) {
-            sMediaDir = getDivParent()->getEffectiveMediaDir()+m_sMediaDir;
+            sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
         } else {
             sMediaDir = Player::get()->getRootMediaDir()+m_sMediaDir;
         }
@@ -294,16 +398,16 @@ string DivNode::getEffectiveMediaDir()
 void DivNode::checkReload()
 {
     for(unsigned i = 0; i < getNumChildren(); ++i) {
-        getVChild(i)->checkReload();
+        getChild(i)->checkReload();
     }
 }
 
 string DivNode::dump(int indent)
 {
     string dumpStr = AreaNode::dump () + "\n";
-    vector<VisibleNodePtr>::iterator it;
+    vector<NodePtr>::iterator it;
     for(unsigned i = 0; i < getNumChildren(); ++i) {
-        getVChild(i)->dump(indent+2)+"\n";
+        getChild(i)->dump(indent+2)+"\n";
     }
     return dumpStr;
 }
@@ -313,4 +417,9 @@ IntPoint DivNode::getMediaSize()
     return IntPoint(DEFAULT_SIZE, DEFAULT_SIZE);
 }
  
+bool DivNode::isChildTypeAllowed(const string& sType)
+{
+    return getDefinition()->isChildAllowed(sType);
+}
+
 }

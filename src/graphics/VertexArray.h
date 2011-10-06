@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,12 +23,13 @@
 #define _VertexArray_H_
 
 #include "../api.h"
+
+#include "Pixel32.h"
+#include "OGLHelper.h"
+
 #include "../base/Point.h"
-#include "../graphics/Pixel32.h"
-#include "../graphics/OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/tss.hpp>
 
 namespace avg {
 
@@ -58,9 +59,6 @@ public:
     int getCurIndex() const;
     void dump() const;
 
-    void initBufferCache();
-    static void deleteBufferCache();
-
 private:
     void grow();
 
@@ -75,10 +73,6 @@ private:
 
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
-
-    // TODO: This assumes one GL context per thread.
-    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLVertexBufferIDs;
-    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLIndexBufferIDs;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;

@@ -1,5 +1,5 @@
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2008 Ulrich von Zadow
+# Copyright (C) 2003-2011 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -59,14 +59,16 @@ class RoundedRect(avg.PolygonNode):
     def __calcPolygon(self):
         def calcQuarterCircle(center, r, startAngle):
             pos = []
-            for i in xrange(r+1):
+            for i in xrange(int(r)+1):
                 angle = i*(1.57/r)+startAngle
                 p = avg.Point2D(center)+avg.Point2D.fromPolar(angle, r)
                 pos.append(p)
             return pos
 
-        if self.__size < self.__radius*2:
-            raise RuntimeError("RoundedRect smaller than radius allows.")
+        if self.__size.x < self.__radius*2:
+            self.__radius = self.__size.x/2
+        if self.__size.y < self.__radius*2:
+            self.__radius = self.__size.y/2
         pos = []
         r = self.__radius
         size = self.__size
@@ -75,6 +77,7 @@ class RoundedRect(avg.PolygonNode):
         pos.extend(calcQuarterCircle(self.pos+(r,size.y-r), r, 1.57))
         pos.extend(calcQuarterCircle(self.pos+(r,r), r, 3.14))
         self.polyPos = pos
+
 
 class PieSlice(avg.PolygonNode):
     def __init__(self, radius, startangle, endangle, pos=(0,0), parent=None,
@@ -137,6 +140,7 @@ class PieSlice(avg.PolygonNode):
         pos.append(getCirclePoint(1))
         pos.append(self.__pos)
         self.polyPos = pos
+
 
 class Arc(avg.PolyLineNode):
     # TODO: Code duplication with PieSlice

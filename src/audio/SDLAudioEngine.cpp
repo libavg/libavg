@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -34,15 +34,24 @@ namespace avg {
 using namespace std;
 using namespace boost;
 
+SDLAudioEngine* SDLAudioEngine::s_pInstance = 0;
+
+SDLAudioEngine* SDLAudioEngine::get()
+{
+    return s_pInstance;
+}
+
 SDLAudioEngine::SDLAudioEngine()
     : m_pTempBuffer(),
       m_pMixBuffer(0),
       m_pLimiter(0)
 {
+    AVG_ASSERT(s_pInstance == 0);
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
         exit(-1);
     }
+    s_pInstance = this;
 }
 
 SDLAudioEngine::~SDLAudioEngine()

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,8 @@
 #include "Player.h"
 #include "Contact.h"
 #include "CursorEvent.h"
+
+#include "../base/Exception.h"
 
 #include <string>
 

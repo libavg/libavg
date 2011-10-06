@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,18 +20,18 @@
 //
 
 #include "FXNode.h"
-#include "SDLDisplayEngine.h"
 #include "Player.h"
 
 #include "../base/ObjectCounter.h"
+#include "../graphics/GLContext.h"
 
 namespace avg {
 
 using namespace std;
 
 FXNode::FXNode() 
-    : m_pEngine(0), 
-      m_Size(0, 0)
+    : m_Size(0, 0),
+      m_bDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -41,9 +41,8 @@ FXNode::~FXNode()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void FXNode::connect(SDLDisplayEngine* pEngine)
+void FXNode::connect()
 {
-    m_pEngine = pEngine;
     if (m_Size != IntPoint(0,0)) {
         m_pFilter = createFilter(m_Size);
     }
@@ -51,7 +50,6 @@ void FXNode::connect(SDLDisplayEngine* pEngine)
 
 void FXNode::disconnect()
 {
-    m_pEngine = 0;
     m_pFilter = GPUFilterPtr();
 }
 
@@ -59,7 +57,7 @@ void FXNode::setSize(const IntPoint& newSize)
 {
     if (newSize != m_Size) {
         m_Size = newSize;
-        if (m_pEngine) {
+        if (m_pFilter) {
             m_pFilter = createFilter(m_Size);
         }
     }
@@ -68,7 +66,7 @@ void FXNode::setSize(const IntPoint& newSize)
 void FXNode::apply(GLTexturePtr pSrcTex)
 {
     // blt overwrites everything, so no glClear necessary before.
-    getEngine()->setBlendMode(DisplayEngine::BLEND_COPY);
+    GLContext::getCurrent()->setBlendMode(GLContext::BLEND_COPY);
     m_pFilter->apply(pSrcTex);
 }
 
@@ -87,14 +85,24 @@ DRect FXNode::getRelDestRect() const
     return m_pFilter->getRelDestRect();
 }
 
-SDLDisplayEngine* FXNode::getEngine() const
+bool FXNode::isDirty() const
 {
-    return m_pEngine;
+    return m_bDirty;
+}
+
+void FXNode::resetDirty()
+{
+    m_bDirty = false;
 }
 
 FBOPtr FXNode::getFBO()
 {
     return m_pFilter->getFBO();
+}
+
+void FXNode::setDirty()
+{
+    m_bDirty = true;
 }
 
 }

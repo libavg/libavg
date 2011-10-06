@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -151,21 +151,6 @@ void DisplayEngine::frameWait()
 long long DisplayEngine::getDisplayTime() 
 {
     return (m_LastFrameTime-m_StartTime)/1000;
-}
-
-DisplayEngine::BlendMode DisplayEngine::stringToBlendMode(const string& s)
-{
-    if (s == "blend") {
-        return DisplayEngine::BLEND_BLEND;
-    } else if (s == "add") {
-        return DisplayEngine::BLEND_ADD;
-    } else if (s == "min") {
-        return DisplayEngine::BLEND_MIN;
-    } else if (s == "max") {
-        return DisplayEngine::BLEND_MAX;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, "Blend mode "+s+" not supported."));
-    }
 }
 
 void DisplayEngine::checkJitter()

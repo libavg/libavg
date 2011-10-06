@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
 #include "../player/Contact.h"
-#include "../player/VisibleNode.h"
 #include "../player/TrackerInputDevice.h"
 
 #include <boost/shared_ptr.hpp>

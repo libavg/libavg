@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "AreaNode.h"
-#include "DisplayEngine.h"
 #include "PBOTexture.h"
 #include "FXNode.h"
 
@@ -33,12 +32,15 @@
 #include "../base/Triple.h"
 #include "../base/UTF8String.h"
 #include "../graphics/FBO.h"
+#include "../graphics/GLContext.h"
 
 #include <string>
 
 namespace avg {
 
 class OGLSurface;
+class ImagingProjection;
+typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
 
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 
@@ -48,8 +50,7 @@ class AVG_API RasterNode: public AreaNode
         static NodeDefinition createDefinition();
         
         virtual ~RasterNode ();
-        virtual void setRenderingEngines(DisplayEngine* pDisplayEngine, 
-                AudioEngine* pAudioEngine);
+        virtual void connectDisplay();
         virtual void setArgs(const ArgList& args);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
@@ -65,7 +66,7 @@ class AVG_API RasterNode: public AreaNode
         
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
-        DisplayEngine::BlendMode getBlendMode() const;
+        GLContext::BlendMode getBlendMode() const;
 
         const UTF8String& getMaskHRef() const;
         void setMaskHRef(const UTF8String& sHref);
@@ -76,8 +77,7 @@ class AVG_API RasterNode: public AreaNode
         const DPoint& getMaskSize() const;
         void setMaskSize(const DPoint& size);
 
-        void getElementsByPos(const DPoint& pos, 
-                std::vector<VisibleNodeWeakPtr>& pElements);
+        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
 
         DTriple getGamma() const;
         void setGamma(const DTriple& gamma);
@@ -90,10 +90,10 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
-        void blt32(const DPoint& destSize, double opacity, DisplayEngine::BlendMode mode,
+        void blt32(const DPoint& destSize, double opacity, GLContext::BlendMode mode,
                 bool bPremultipliedAlpha = false);
         void blta8(const DPoint& destSize, double opacity, 
-                const Pixel32& color, DisplayEngine::BlendMode mode);
+                const Pixel32& color, GLContext::BlendMode mode);
 
         virtual OGLSurface * getSurface();
         const MaterialInfo& getMaterial() const;
@@ -109,7 +109,7 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         void setupFX(bool bNewFX);
-        void blt(const DPoint& destSize, DisplayEngine::BlendMode mode, 
+        void blt(const DPoint& destSize, GLContext::BlendMode mode, 
                 double opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
@@ -121,7 +121,7 @@ class AVG_API RasterNode: public AreaNode
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
-        DisplayEngine::BlendMode m_BlendMode;
+        GLContext::BlendMode m_BlendMode;
         MaterialInfo m_Material;
 
         UTF8String m_sMaskHref;
@@ -144,6 +144,7 @@ class AVG_API RasterNode: public AreaNode
 
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
+        bool m_bFXDirty;
         ImagingProjectionPtr m_pImagingProjection;
 };
 

@@ -22,6 +22,7 @@
 #include "BitmapManagerThread.h"
 
 #include "Bitmap.h"
+#include "../base/Exception.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,8 +51,8 @@ void BitmapManagerThread::loadBitmap(BitmapManagerMsgPtr pRequest)
     try {
         pBmp = BitmapPtr(new Bitmap(pRequest->getFilename()));
         pRequest->setBitmap(pBmp);
-    } catch (const std::exception& e) {
-        pRequest->setError(Exception(AVG_ERR_FILEIO, e.what()));
+    } catch (const Exception& ex) {
+        pRequest->setError(ex);
     }
 
     m_MsgQueue.push(pRequest);

@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ std::string getAvgLibPath();
 bool getEnv(const std::string & sName, std::string & sVal);
 void setEnv(const std::string & sName, const std::string & sVal);
 
-unsigned getMemoryUsage();
+size_t getMemoryUsage();
 
 // Converts a utf-8-encoded filename to something windows can use.
 // Under other operating systems, returns the input string.

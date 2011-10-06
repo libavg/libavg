@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 //
 
 #include "PanoImageNode.h"
-#include "SDLDisplayEngine.h"
 #include "NodeDefinition.h"
 
 #include "../base/MathHelper.h"
@@ -30,11 +29,7 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
-#include "../graphics/Filtercolorize.h"
-#include "../graphics/Filterfliprgb.h"
 #include "../graphics/OGLHelper.h"
-
-#include <Magick++.h>
 
 #include <iostream>
 #include <sstream>
@@ -69,9 +64,9 @@ PanoImageNode::~PanoImageNode ()
     clearTextures();
 }
 
-void PanoImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void PanoImageNode::connectDisplay()
 {
-    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::connectDisplay();
     
     setupTextures();
 }
@@ -87,9 +82,7 @@ static ProfilingZoneID PanoRenderProfilingZone("PanoImageNode::render");
 void PanoImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(PanoRenderProfilingZone);
-    glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImageNode::render: glPushMatrix()");
+    pushGLState();
     glproc::ActiveTexture(GL_TEXTURE0);
 
     gluLookAt(0, 0, 0,  // Eye
@@ -101,9 +94,6 @@ void PanoImageNode::render(const DRect& Rect)
     glMatrixMode(GL_PROJECTION);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glMatrixMode(GL_PROJECTION)");
-    glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImageNode::render: glPushMatrix()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glLoadIdentity()");
@@ -164,15 +154,7 @@ void PanoImageNode::render(const DRect& Rect)
                 "PanoImageNode::render: glEnd()");
     }
 
-    // Restore previous GL state.
-    IntPoint size = getDisplayEngine()->getSize();
-    glViewport(0, 0, size.x, size.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImageNode::render: glViewport() restore");
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+    popGLState();
 }
 
 double PanoImageNode::getScreenPosFromAngle(double Angle) const
@@ -276,8 +258,8 @@ void PanoImageNode::load()
         try {
             
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
-        } catch (Magick::Exception & ex) {
-            AVG_TRACE(Logger::ERROR, ex.what());
+        } catch (Exception & ex) {
+            AVG_TRACE(Logger::ERROR, ex.getStr());
         }
     }
 
@@ -354,6 +336,7 @@ void PanoImageNode::setupTextures()
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImageNode::setupTextures: glTexSubImage2D()");
    }
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
 void PanoImageNode::clearTextures()
@@ -363,11 +346,6 @@ void PanoImageNode::clearTextures()
         glDeleteTextures(1, &TexID);
     }
     m_TileTextureIDs.clear();
-}
-
-SDLDisplayEngine * PanoImageNode::getSDLEngine()
-{
-    return dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
 }
 
 }

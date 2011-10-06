@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -34,7 +34,7 @@ namespace avg {
 
 NodeDefinition LineNode::createDefinition()
 {
-    return NodeDefinition("line", VisibleNode::buildNode<LineNode>)
+    return NodeDefinition("line", Node::buildNode<LineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(LineNode, m_P1)))
         .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(LineNode, m_P2)))

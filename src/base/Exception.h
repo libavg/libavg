@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2008 Ulrich von Zadow
+//  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -66,8 +66,8 @@ class AVG_API Exception
         Exception(int code, const std::string& sErr = "");
         Exception(const Exception& ex);
         virtual ~Exception();
-        virtual int GetCode() const;
-        virtual const std::string& GetStr() const;
+        virtual int getCode() const;
+        virtual const std::string& getStr() const;
 
     private:
         int m_Code;
@@ -76,9 +76,10 @@ class AVG_API Exception
 
 void AVG_API fatalError(const std::string& sMsg);
 void AVG_API debugBreak();
-void AVG_API avgAssert(bool b, const char * pszFile, int line);
+void AVG_API avgAssert(bool b, const char * pszFile, int line, const char * pszReason=0);
 
 #define AVG_ASSERT(b) avgAssert((b) != 0, __FILE__, __LINE__);
+#define AVG_ASSERT_MSG(b, pszReason) avgAssert((b) != 0, __FILE__, __LINE__, pszReason);
 
 }
 
