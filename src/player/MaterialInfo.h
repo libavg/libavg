@@ -40,8 +40,6 @@ public:
 
     int getTexWrapSMode() const;
     int getTexWrapTMode() const;
-
-    void setUseMipmaps(bool bUseMipmaps);
     bool getUseMipmaps() const;
 
 private:

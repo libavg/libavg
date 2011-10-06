@@ -73,11 +73,6 @@ int MaterialInfo::getTexWrapTMode() const
     return m_TexWrapTMode;
 }
 
-void MaterialInfo::setUseMipmaps(bool bUseMipmaps)
-{
-    m_bUseMipmaps = bUseMipmaps;
-}
-
 bool MaterialInfo::getUseMipmaps() const
 {
     return m_bUseMipmaps;

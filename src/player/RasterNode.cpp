@@ -87,7 +87,8 @@ void RasterNode::setArgs(const ArgList& args)
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
                 "maxtilewidth and maxtileheight must be powers of two.");
     }
-    m_Material.setUseMipmaps(args.getArgVal<bool>("mipmap"));
+    bool bMipmap = args.getArgVal<bool>("mipmap");
+    m_Material = MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bMipmap);
     m_pSurface = new OGLSurface(m_Material);
 }
 
@@ -161,7 +162,7 @@ void RasterNode::checkReload()
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();
             m_Material.setMask(false);
-            setMaterial(m_Material);
+            getSurface()->setMaterial(m_Material);
         }
         if (getState() == Node::NS_CANRENDER && m_Material.getHasMask()) {
             m_pSurface->createMask(m_pMaskBmp->getSize());
@@ -373,7 +374,7 @@ void RasterNode::setMaskCoords()
     if (m_sMaskFilename != "") {
         m_Material.setMask(true);
         calcMaskCoords(m_Material);
-        setMaterial(m_Material);
+        m_pSurface->setMaterial(m_Material);
     }
 }
 
@@ -452,12 +453,6 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pSurface->resetDirty();
         m_pFXNode->resetDirty();
     }
-}
-
-void RasterNode::setMaterial(const MaterialInfo& material)
-{
-    m_Material = material;
-    getSurface()->setMaterial(m_Material);
 }
 
 void RasterNode::downloadMask()
