@@ -47,6 +47,9 @@ BmpTextureMover::~BmpTextureMover()
 
 void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
 {
+    AVG_ASSERT(pBmp->getSize() == pTex->getSize());
+    AVG_ASSERT(getSize() == pBmp->getSize());
+    AVG_ASSERT(pBmp->getPixelFormat() == getPF());
     pTex->activate();
     unsigned char * pStartPos = pBmp->getPixels();
     IntPoint size = pTex->getSize();
