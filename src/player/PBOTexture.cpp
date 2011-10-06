@@ -106,16 +106,7 @@ const IntPoint& PBOTexture::getTextureSize() const
 void PBOTexture::createMover()
 {
     IntPoint size = m_pTex->getSize();
-    switch (m_MemoryMode) {
-        case MM_PBO:
-            m_pWriteMover = TextureMoverPtr(new PBO(size, m_pf, GL_DYNAMIC_DRAW));
-            break;
-        case MM_OGL:
-            m_pWriteMover = TextureMoverPtr(new BmpTextureMover(size, m_pf));
-            break;
-        default:
-            AVG_ASSERT(0);
-    }
+    m_pWriteMover = TextureMover::create(size, m_pf, GL_DYNAMIC_DRAW);
 }
 
 

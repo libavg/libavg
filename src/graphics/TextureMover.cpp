@@ -20,6 +20,11 @@
 //
 
 #include "TextureMover.h"
+#include "PBO.h"
+#include "BmpTextureMover.h"
+#include "GLContext.h"
+
+#include "../base/Exception.h"
 
 #include <iostream>
 #include <cstring>
@@ -28,7 +33,27 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-    
+
+TextureMoverPtr TextureMover::create(OGLMemoryMode memoryMode, IntPoint size, 
+        PixelFormat pf, unsigned usage)
+{
+    switch (memoryMode) {
+        case MM_PBO:
+            return TextureMoverPtr(new PBO(size, pf, usage));
+        case MM_OGL:
+            return TextureMoverPtr(new BmpTextureMover(size, pf));
+        default:
+            AVG_ASSERT(false);
+            return TextureMoverPtr();
+    }
+}
+
+TextureMoverPtr TextureMover::create(IntPoint size, PixelFormat pf, unsigned usage)
+{
+    OGLMemoryMode memMode = GLContext::getCurrent()->getMemoryModeSupported();
+    return create(memMode, size, pf, usage);
+}
+
 TextureMover::TextureMover(const IntPoint& size, PixelFormat pf)
     : m_Size(size),
       m_pf(pf)

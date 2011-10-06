@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "PixelFormat.h"
+#include "OGLHelper.h"
 
 #include "../base/Point.h"
 
@@ -36,8 +37,15 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
+class TextureMover;
+typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+
 class AVG_API TextureMover {
 public:
+    static TextureMoverPtr create(OGLMemoryMode memoryMode, IntPoint size, PixelFormat pf,
+            unsigned usage);
+    static TextureMoverPtr create(IntPoint size, PixelFormat pf, unsigned usage);
+
     TextureMover(const IntPoint& size, PixelFormat pf);
     virtual ~TextureMover();
 
@@ -55,8 +63,6 @@ private:
     IntPoint m_Size;
     PixelFormat m_pf;
 };
-
-typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
 
 }
 
