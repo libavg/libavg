@@ -56,10 +56,12 @@ BitmapPtr PBOTexture::lockBmp()
     return m_pWriteMover->lock();
 }
 
-void PBOTexture::unlockBmp()
+void PBOTexture::unlockBmp(bool bMoveToTexture)
 {
     m_pWriteMover->unlock();
-    m_pWriteMover->moveToTexture(m_pTex);
+    if (bMoveToTexture) {
+        m_pWriteMover->moveToTexture(m_pTex);
+    }
     m_pTex->generateMipmaps();
 }
 

@@ -51,7 +51,7 @@ public:
             bool bPremultipliedAlpha = false) const;
 
     BitmapPtr lockBmp(int i=0);
-    void unlockBmps();
+    void unlockBmps(bool bMoveToTexture=true);
     BitmapPtr readbackBmp();
     void setTex(GLTexturePtr pTex);
 

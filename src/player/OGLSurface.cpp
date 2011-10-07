@@ -215,10 +215,10 @@ BitmapPtr OGLSurface::lockBmp(int i)
     return m_pTextures[i]->lockBmp();
 }
 
-void OGLSurface::unlockBmps()
+void OGLSurface::unlockBmps(bool bMoveToTexture)
 {
     for (unsigned i = 0; i < getNumPixelFormatPlanes(m_pf); ++i) {
-        m_pTextures[i]->unlockBmp();
+        m_pTextures[i]->unlockBmp(bMoveToTexture);
     }
 }
 

@@ -706,7 +706,7 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
             m_JitterCompensation -= 1;
         }
     }
-    pSurface->unlockBmps();
+    pSurface->unlockBmps(frameAvailable==FA_NEW_FRAME);
     return frameAvailable;
 }
 

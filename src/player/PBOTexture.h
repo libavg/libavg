@@ -48,7 +48,7 @@ public:
     virtual ~PBOTexture();
 
     BitmapPtr lockBmp();
-    void unlockBmp();
+    void unlockBmp(bool bMoveToTexture=true);
     BitmapPtr readbackBmp();
     void setTex(GLTexturePtr pTex);
     void activate(int textureUnit=GL_TEXTURE0);
