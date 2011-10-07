@@ -1124,32 +1124,36 @@ void Bitmap::dump(bool bDumpPixels) const
     cerr << "  m_PF: " << getPixelFormatString(m_PF) << endl;
     cerr << "  m_pBits: " << (void *)m_pBits << endl;
     cerr << "  m_bOwnsBits: " << m_bOwnsBits << endl;
+    IntPoint max;
     if (bDumpPixels) {
-        cerr << "  Pixel data: " << endl;
-        for (int y = 0; y < m_Size.y; ++y) {
-            unsigned char * pLine = m_pBits+m_Stride*y;
-            cerr << "    ";
-            for (int x = 0; x < m_Size.x; ++x) {
-                if (m_PF == R32G32B32A32F) {
-                    float * pPixel = (float*)(pLine+getBytesPerPixel()*x);
-                    cerr << "[";
-                    for (int i = 0; i < 4; ++i) {
-                        cerr << setw(4) << setprecision(2) << pPixel[i] << " ";
-                    }
-                    cerr << "]";
-                } else {
-                    unsigned char * pPixel = pLine+getBytesPerPixel()*x;
-                    cerr << "[";
-                    for (int i = 0; i < getBytesPerPixel(); ++i) {
-                        cerr << hex << setw(2) << (int)(pPixel[i]) << " ";
-                    }
-                    cerr << "]";
-                }
-            }
-            cerr << endl;
-        }
-        cerr << dec;
+        max = m_Size;
+    } else {
+        max = IntPoint(16,1);
     }
+    cerr << "  Pixel data: " << endl;
+    for (int y = 0; y < max.y; ++y) {
+        unsigned char * pLine = m_pBits+m_Stride*y;
+        cerr << "    ";
+        for (int x = 0; x < max.x; ++x) {
+            if (m_PF == R32G32B32A32F) {
+                float * pPixel = (float*)(pLine+getBytesPerPixel()*x);
+                cerr << "[";
+                for (int i = 0; i < 4; ++i) {
+                    cerr << setw(4) << setprecision(2) << pPixel[i] << " ";
+                }
+                cerr << "]";
+            } else {
+                unsigned char * pPixel = pLine+getBytesPerPixel()*x;
+                cerr << "[";
+                for (int i = 0; i < getBytesPerPixel(); ++i) {
+                    cerr << hex << setw(2) << (int)(pPixel[i]) << " ";
+                }
+                cerr << "]";
+            }
+        }
+        cerr << endl;
+    }
+    cerr << dec;
 }
 
 void Bitmap::initWithData(unsigned char * pBits, int stride, bool bCopyBits)
