@@ -99,32 +99,6 @@ void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1,
         AVG_ASSERT(!m_pTextures[1]);
     }
 }
-/*
-void OGLSurface::create(const IntPoint& size, PixelFormat pf)
-{
-    AVG_ASSERT(GLContext::getCurrent());
-    if (m_pTextures[0] && m_Size == size && m_pf == pf) {
-        // If nothing's changed, we can ignore everything.
-        return;
-    }
-    m_Size = size;
-    m_pf = pf;
-
-    if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
-        IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material));
-        m_pTextures[2] = PBOTexturePtr(new PBOTexture(halfSize, I8, m_Material));
-        if (pixelFormatHasAlpha(m_pf)) {
-            m_pTextures[3] = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
-        }
-    } else {
-        m_pTextures[0] = PBOTexturePtr(new PBOTexture(size, m_pf, m_Material));
-    }
-    m_bUseForeignTexture = false;
-    m_bIsDirty = true;
-}
-*/
 
 void OGLSurface::setMask(GLTexturePtr pTex)
 {
