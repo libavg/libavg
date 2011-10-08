@@ -38,8 +38,8 @@ namespace avg {
 
 Shape::Shape(const MaterialInfo& material)
 {
-    m_pSurface = new OGLSurface(material);
-    m_pImage = ImagePtr(new Image(m_pSurface));
+    m_pSurface = new OGLSurface();
+    m_pImage = ImagePtr(new Image(m_pSurface, material));
 }
 
 Shape::~Shape()

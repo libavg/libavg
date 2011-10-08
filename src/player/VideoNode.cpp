@@ -458,12 +458,14 @@ void VideoNode::startDecoding()
     
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
+/*
     getSurface()->create(videoInfo.m_Size, pf);
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
         getSurface()->unlockBmps();
     }
+*/    
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
@@ -620,6 +622,7 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
 
 bool VideoNode::renderFrame(OGLSurface * pSurface)
 {
+    /*
     FrameAvailableCode frameAvailable = renderToSurface(pSurface);
     if (m_pDecoder->isEOF()) {
 //        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
@@ -681,10 +684,13 @@ bool VideoNode::renderFrame(OGLSurface * pSurface)
     }
 
     return (frameAvailable == FA_NEW_FRAME);
+*/
+    return false;
 }
 
 FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
 {
+/*
     FrameAvailableCode frameAvailable;
     PixelFormat pf = m_pDecoder->getPixelFormat();
     if (pixelFormatIsPlanar(pf)) {
@@ -711,6 +717,8 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
     }
     pSurface->unlockBmps(frameAvailable==FA_NEW_FRAME);
     return frameAvailable;
+*/
+    return FA_NEW_FRAME;
 }
 
 void VideoNode::onEOF()

@@ -530,7 +530,7 @@ void WordsNode::calcMaskCoords()
     cerr << "  normMaskSize: " << normMaskSize << endl;
     cerr << "  normMaskPos: " << normMaskPos << endl;
 */    
-    getSurface()->setMaskCoords(normMaskPos, normMaskSize);
+//    getSurface()->setMaskCoords(normMaskPos, normMaskSize);
 }
 
 void WordsNode::setDirty(RedrawState newState)
@@ -666,6 +666,7 @@ void WordsNode::renderText()
         return;
     }
     if (m_RedrawState == RENDER_NEEDED) {
+/*        
         if (m_sText.length() != 0) {
             ScopeTimer timer(RenderTextProfilingZone);
             int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
@@ -709,6 +710,7 @@ void WordsNode::renderText()
 
             bind();
         }
+        */
         m_RedrawState = CLEAN;
     }
 }
@@ -745,8 +747,10 @@ void WordsNode::render(const DRect& rect)
         if (offset != IntPoint(0,0)) {
             pContext->pushTransform(DPoint(offset), 0, DPoint(0,0));
         }
+/*        
         blta8(DPoint(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
                 getBlendMode());
+*/        
         if (offset != IntPoint(0,0)) {
             pContext->popTransform();
         }

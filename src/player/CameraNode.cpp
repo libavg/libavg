@@ -291,6 +291,7 @@ void CameraNode::open()
     m_pCamera->startCapture();
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
+/*    
     getSurface()->create(getMediaSize(), pf);
     
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
@@ -302,6 +303,7 @@ void CameraNode::open()
         Filter.applyInPlace(getSurface()->lockBmp());
         getSurface()->unlockBmps();
     }
+*/
 }
 
 int CameraNode::getFeature(CameraFeature feature) const
@@ -331,6 +333,7 @@ void CameraNode::preRender()
     }
     if (m_bNewBmp && isVisible()) {
         m_FrameNum++;
+/*        
         BitmapPtr pBmp = getSurface()->lockBmp();
         if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
             cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
@@ -339,6 +342,7 @@ void CameraNode::preRender()
         AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
         pBmp->copyPixels(*m_pCurBmp);
         getSurface()->unlockBmps();
+*/        
         {
             ScopeTimer Timer(CameraDownloadProfilingZone);
             bind();

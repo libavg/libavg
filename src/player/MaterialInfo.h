@@ -30,15 +30,15 @@ namespace avg {
 
 class AVG_API MaterialInfo {
 public:
-    MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps);
+    MaterialInfo(int wrapSMode, int wrapTMode, bool bUseMipmaps);
     
-    int getTexWrapSMode() const;
-    int getTexWrapTMode() const;
+    int getWrapSMode() const;
+    int getWrapTMode() const;
     bool getUseMipmaps() const;
 
 private:
-    int m_TexWrapSMode;
-    int m_TexWrapTMode;
+    int m_WrapSMode;
+    int m_WrapTMode;
     bool m_bUseMipmaps;
 };
 

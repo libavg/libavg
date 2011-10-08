@@ -23,6 +23,7 @@
 
 #include "NodeDefinition.h"
 #include "OGLSurface.h"
+#include "FXNode.h"
 
 #include "../graphics/ImagingProjection.h"
 
@@ -89,7 +90,7 @@ void RasterNode::setArgs(const ArgList& args)
     }
     bool bMipmap = args.getArgVal<bool>("mipmap");
     m_Material = MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bMipmap);
-    m_pSurface = new OGLSurface(m_Material);
+    m_pSurface = new OGLSurface();
 }
 
 void RasterNode::connectDisplay()
@@ -104,7 +105,6 @@ void RasterNode::connectDisplay()
     calcVertexGrid(m_TileVertices);
     setBlendModeStr(m_sBlendMode);
     if (m_pMaskBmp) {
-        m_pSurface->createMask(m_pMaskBmp->getSize());
         downloadMask();
         setMaskCoords();
     }
@@ -144,6 +144,11 @@ void RasterNode::checkReload()
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
                 m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
+                if (m_pMaskBmp->getPixelFormat() != I8) {
+                    BitmapPtr pTempBmp = m_pMaskBmp;
+                    m_pMaskBmp = BitmapPtr(new Bitmap(m_pMaskBmp->getSize(), I8));
+                    m_pMaskBmp->copyPixels(*pTempBmp);
+                }
                 setMaskCoords();
             }
         } catch (Exception & ex) {
@@ -159,10 +164,9 @@ void RasterNode::checkReload()
         }
         if (m_sMaskFilename == "") {
             m_pMaskBmp = BitmapPtr();
-            getSurface()->removeMask();
+            getSurface()->setMask(GLTexturePtr());
         }
         if (getState() == Node::NS_CANRENDER && m_pMaskBmp) {
-            m_pSurface->createMask(m_pMaskBmp->getSize());
             downloadMask();
         }
     } else {
@@ -386,6 +390,16 @@ void RasterNode::calcMaskCoords()
     m_pSurface->setMaskCoords(maskPos, maskSize);
 }
 
+void RasterNode::downloadMask()
+{
+    GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
+            m_Material.getUseMipmaps()));
+    TextureMoverPtr pMover = TextureMover::create(m_pMaskBmp->getSize(), I8,
+            GL_STATIC_DRAW);
+    pMover->moveBmpToTexture(m_pMaskBmp, pTex);
+    m_pSurface->setMask(pTex);
+}
+
 void RasterNode::bind() 
 {
     if (!m_bBound) {
@@ -448,13 +462,6 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pSurface->resetDirty();
         m_pFXNode->resetDirty();
     }
-}
-
-void RasterNode::downloadMask()
-{
-    BitmapPtr pBmp = m_pSurface->lockMaskBmp();
-    pBmp->copyPixels(*m_pMaskBmp);
-    m_pSurface->unlockMaskBmp();
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)

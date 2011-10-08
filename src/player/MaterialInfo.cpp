@@ -29,20 +29,20 @@ using namespace std;
 
 namespace avg {
 
-MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
-    : m_TexWrapSMode(texWrapSMode),
-      m_TexWrapTMode(texWrapTMode),
+MaterialInfo::MaterialInfo(int wrapSMode, int wrapTMode, bool bUseMipmaps)
+    : m_WrapSMode(wrapSMode),
+      m_WrapTMode(wrapTMode),
       m_bUseMipmaps(bUseMipmaps)
 {}
 
-int MaterialInfo::getTexWrapSMode() const
+int MaterialInfo::getWrapSMode() const
 {
-    return m_TexWrapSMode;
+    return m_WrapSMode;
 }
 
-int MaterialInfo::getTexWrapTMode() const
+int MaterialInfo::getWrapTMode() const
 {
-    return m_TexWrapTMode;
+    return m_WrapTMode;
 }
 
 bool MaterialInfo::getUseMipmaps() const

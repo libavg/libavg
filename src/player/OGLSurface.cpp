@@ -29,6 +29,7 @@
 
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/GLTexture.h"
 
 #include <iostream>
 #include <sstream>
@@ -46,10 +47,8 @@ static float yuvCoeff[3][4] =
 
 namespace avg {
 
-OGLSurface::OGLSurface(const MaterialInfo& material)
+OGLSurface::OGLSurface()
     : m_Size(-1,-1),
-      m_bUseForeignTexture(false),
-      m_Material(material),
       m_Gamma(1,1,1),
       m_Brightness(1,1,1),
       m_Contrast(1,1,1),
@@ -77,6 +76,30 @@ void OGLSurface::attach()
     }
 }
 
+void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1, 
+        GLTexturePtr pTex2, GLTexturePtr pTex3)
+{
+    m_pf = pf;
+    m_Size = pTex0->getSize();
+    m_pTextures[0] = pTex0;
+    m_pTextures[1] = pTex1;
+    m_pTextures[2] = pTex2;
+    m_pTextures[3] = pTex3;
+    m_bIsDirty = true;
+
+    // Make sure pixel format and number of textures line up.
+    if (pixelFormatIsPlanar(pf)) {
+        AVG_ASSERT(m_pTextures[2]);
+        if (pixelFormatHasAlpha(m_pf)) {
+            AVG_ASSERT(m_pTextures[3]);
+        } else {
+            AVG_ASSERT(!m_pTextures[3]);
+        }
+    } else {
+        AVG_ASSERT(!m_pTextures[1]);
+    }
+}
+/*
 void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 {
     AVG_ASSERT(GLContext::getCurrent());
@@ -101,32 +124,20 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
     m_bUseForeignTexture = false;
     m_bIsDirty = true;
 }
+*/
 
-void OGLSurface::createMask(const IntPoint& size)
+void OGLSurface::setMask(GLTexturePtr pTex)
 {
-    AVG_ASSERT(GLContext::getCurrent());
-    GLContext* pContext = GLContext::getCurrent();
-    if (!pContext->isUsingShaders()) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't set mask bitmap since shader support is disabled.");
-    }
-    m_pMaskTexture = PBOTexturePtr(new PBOTexture(size, I8, m_Material));
-    m_bIsDirty = true;
-}
-
-void OGLSurface::removeMask()
-{
-    m_pMaskTexture = PBOTexturePtr();
+    m_pMaskTexture = pTex;
     m_bIsDirty = true;
 }
 
 void OGLSurface::destroy()
 {
-    m_bUseForeignTexture = false;
-    m_pTextures[0] = PBOTexturePtr();
-    m_pTextures[1] = PBOTexturePtr();
-    m_pTextures[2] = PBOTexturePtr();
-    m_pTextures[3] = PBOTexturePtr();
+    m_pTextures[0] = GLTexturePtr();
+    m_pTextures[1] = GLTexturePtr();
+    m_pTextures[2] = GLTexturePtr();
+    m_pTextures[3] = GLTexturePtr();
 }
 
 void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
@@ -179,8 +190,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
                 float(1/m_Gamma.z), 1.0);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
-        pShader->setUniformIntParam("bPremultipliedAlpha", 
-                m_bUseForeignTexture || bPremultipliedAlpha);
+        pShader->setUniformIntParam("bPremultipliedAlpha", bPremultipliedAlpha);
         pShader->setUniformIntParam("bUseMask", bool(m_pMaskTexture));
         if (m_pMaskTexture) {
             m_pMaskTexture->activate(GL_TEXTURE4);
@@ -210,45 +220,9 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     }
 }
 
-BitmapPtr OGLSurface::lockBmp(int i)
+GLTexturePtr OGLSurface::getTex(int i) const
 {
-    m_bIsDirty = true;
-    return m_pTextures[i]->lockBmp();
-}
-
-void OGLSurface::unlockBmps(bool bMoveToTexture)
-{
-    for (unsigned i = 0; i < getNumPixelFormatPlanes(m_pf); ++i) {
-        m_pTextures[i]->unlockBmp(bMoveToTexture);
-    }
-}
-
-BitmapPtr OGLSurface::readbackBmp()
-{
-    return m_pTextures[0]->readbackBmp();
-}
-
-void OGLSurface::setTex(GLTexturePtr pTex)
-{
-    m_bUseForeignTexture = true;
-    m_pTextures[0]->setTex(pTex);
-    m_bIsDirty = true;
-}
-
-BitmapPtr OGLSurface::lockMaskBmp()
-{
-    m_bIsDirty = true;
-    return m_pMaskTexture->lockBmp();
-}
-
-void OGLSurface::unlockMaskBmp()
-{
-    m_pMaskTexture->unlockBmp();
-}
-
-const MaterialInfo& OGLSurface::getMaterial() const
-{
-    return m_Material;
+    return m_pTextures[i];
 }
 
 void OGLSurface::setMaskCoords(DPoint maskPos, DPoint maskSize)
@@ -270,7 +244,7 @@ IntPoint OGLSurface::getSize()
 
 IntPoint OGLSurface::getTextureSize()
 {
-    return m_pTextures[0]->getTextureSize();
+    return m_pTextures[0]->getGLSize();
 }
 
 bool OGLSurface::isCreated() const
