@@ -735,7 +735,9 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
     }
     for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
         m_pTexMovers[i]->unlock();
-        m_pTexMovers[i]->moveToTexture(m_pTextures[i]);
+        if (frameAvailable == FA_NEW_FRAME) {
+            m_pTexMovers[i]->moveToTexture(m_pTextures[i]);
+        }
     }
 
     // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
