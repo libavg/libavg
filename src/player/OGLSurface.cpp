@@ -104,8 +104,9 @@ void OGLSurface::create(const IntPoint& size, PixelFormat pf)
 
 void OGLSurface::createMask(const IntPoint& size)
 {
+    AVG_ASSERT(GLContext::getCurrent());
     GLContext* pContext = GLContext::getCurrent();
-    if (pContext && !pContext->isUsingShaders()) {
+    if (!pContext->isUsingShaders()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL,
                 "Can't set mask bitmap since shader support is disabled.");
     }

@@ -561,8 +561,11 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
     }
 }
 
+static ProfilingZoneID PrerenderProfilingZone("VideoNode::prerender");
+
 void VideoNode::preRender()
 {
+    ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender();
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
@@ -599,6 +602,7 @@ static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render(const DRect& rect)
 {
+    ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
@@ -616,7 +620,6 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
 
 bool VideoNode::renderFrame(OGLSurface * pSurface)
 {
-    ScopeTimer timer(RenderProfilingZone);
     FrameAvailableCode frameAvailable = renderToSurface(pSurface);
     if (m_pDecoder->isEOF()) {
 //        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
