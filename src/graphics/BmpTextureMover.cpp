@@ -38,6 +38,7 @@ namespace avg {
 BmpTextureMover::BmpTextureMover(const IntPoint& size, PixelFormat pf)
     : TextureMover(size, pf)
 {
+    m_pBmp = BitmapPtr(new Bitmap(size, pf));
 }
 
 BmpTextureMover::~BmpTextureMover()
@@ -84,7 +85,6 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexturePtr pTex) const
 
 BitmapPtr BmpTextureMover::lock()
 {
-    m_pBmp = BitmapPtr(new Bitmap(getSize(), getPF()));
     return m_pBmp;
 }
 
@@ -95,7 +95,6 @@ void BmpTextureMover::unlock()
 void BmpTextureMover::moveToTexture(GLTexturePtr pTex)
 {
     moveBmpToTexture(m_pBmp, pTex);
-    m_pBmp = BitmapPtr();
 }
 
 }
