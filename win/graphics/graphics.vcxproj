@@ -73,6 +73,7 @@
     <ClInclude Include="..\..\src\graphics\BitmapManager.h" />
     <ClInclude Include="..\..\src\graphics\BitmapManagerMsg.h" />
     <ClInclude Include="..\..\src\graphics\BitmapManagerThread.h" />
+    <ClInclude Include="..\..\src\graphics\BmpTextureMover.h" />
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
     <ClInclude Include="..\..\src\graphics\FBO.h" />
     <ClInclude Include="..\..\src\graphics\Filter.h" />
@@ -132,6 +133,7 @@
     <ClInclude Include="..\..\src\graphics\Pixeldefs.h" />
     <ClInclude Include="..\..\src\graphics\PixelFormat.h" />
     <ClInclude Include="..\..\src\graphics\ShaderRegistry.h" />
+    <ClInclude Include="..\..\src\graphics\TextureMover.h" />
     <ClInclude Include="..\..\src\graphics\TwoPassScale.h" />
     <ClInclude Include="..\..\src\graphics\VertexArray.h" />
   </ItemGroup>
@@ -140,6 +142,7 @@
     <ClCompile Include="..\..\src\graphics\BitmapManager.cpp" />
     <ClCompile Include="..\..\src\graphics\BitmapManagerMsg.cpp" />
     <ClCompile Include="..\..\src\graphics\BitmapManagerThread.cpp" />
+    <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter.cpp" />
     <ClCompile Include="..\..\src\graphics\Filter3x3.cpp" />
@@ -189,6 +192,7 @@
     <ClCompile Include="..\..\src\graphics\Pixel32.cpp" />
     <ClCompile Include="..\..\src\graphics\PixelFormat.cpp" />
     <ClCompile Include="..\..\src\graphics\ShaderRegistry.cpp" />
+    <ClCompile Include="..\..\src\graphics\TextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexArray.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
