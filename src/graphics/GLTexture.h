@@ -55,6 +55,10 @@ public:
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
+    
+    void setDirty();
+    bool isDirty() const;
+    void resetDirty();
 
 private:
     IntPoint m_Size;
@@ -64,6 +68,7 @@ private:
     bool m_bDeleteTex;
 
     unsigned m_TexID;
+    bool m_bIsDirty;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

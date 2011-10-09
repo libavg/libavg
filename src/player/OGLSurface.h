@@ -66,7 +66,6 @@ public:
             const DTriple& contrast);
     static void createShader();
 
-    void setDirty();
     bool isDirty() const;
     void resetDirty();
 

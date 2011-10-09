@@ -606,11 +606,11 @@ void VideoNode::preRender()
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {
-                bool bNewFrame = renderFrame(getSurface());
+                bool bNewFrame = renderFrame();
                 m_bFrameAvailable |= bNewFrame;
             } else { // Paused
                 if (!m_bFrameAvailable) {
-                    m_bFrameAvailable = renderFrame(getSurface());
+                    m_bFrameAvailable = renderFrame();
                 }
             }
             m_bFirstFrameDecoded |= m_bFrameAvailable;
@@ -620,7 +620,7 @@ void VideoNode::preRender()
         }
     } else {
         if (m_bSeekPending && m_bFirstFrameDecoded) {
-            renderFrame(getSurface());
+            renderFrame();
         }
         if (m_VideoState == Playing) {
             // Throw away frames that are not visible to make sure the video 
@@ -654,14 +654,14 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
     return NONE;
 }
 
-bool VideoNode::renderFrame(OGLSurface * pSurface)
+bool VideoNode::renderFrame()
 {
-    FrameAvailableCode frameAvailable = renderToSurface(pSurface);
+    FrameAvailableCode frameAvailable = renderToSurface();
     if (m_pDecoder->isEOF()) {
 //        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
         updateStatusDueToDecoderEOF();
         if (m_bLoop) {
-            frameAvailable = renderToSurface(pSurface);
+            frameAvailable = renderToSurface();
         }
     }
 
@@ -720,7 +720,7 @@ bool VideoNode::renderFrame(OGLSurface * pSurface)
     return false;
 }
 
-FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
+FrameAvailableCode VideoNode::renderToSurface()
 {
     FrameAvailableCode frameAvailable;
     PixelFormat pf = m_pDecoder->getPixelFormat();

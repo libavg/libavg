@@ -28,8 +28,11 @@
 #include "GLContext.h"
 
 #include <string.h>
+#include <iostream>
 
 namespace avg {
+
+using namespace std;
 
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
@@ -228,5 +231,21 @@ int GLTexture::getGLInternalFormat() const
             return 0;
     }
 }
+
+void GLTexture::setDirty()
+{
+    m_bIsDirty = true;
+}
+
+bool GLTexture::isDirty() const
+{
+    return m_bIsDirty;
+}
+
+void GLTexture::resetDirty()
+{
+    m_bIsDirty = false;
+}
+
 
 }

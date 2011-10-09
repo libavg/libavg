@@ -85,6 +85,7 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::setImage: UnmapBuffer()");
 
+    pTex->setDirty();
     moveToTexture(pTex);
 }
 
@@ -164,6 +165,7 @@ void PBO::moveToTexture(GLTexturePtr pTex)
             GLTexture::getGLFormat(getPF()), GLTexture::getGLType(getPF()), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::setImage: glTexSubImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+    pTex->setDirty();
     pTex->generateMipmaps();
 }
 

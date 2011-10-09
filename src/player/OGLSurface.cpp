@@ -318,12 +318,21 @@ void OGLSurface::createShader()
 
 bool OGLSurface::isDirty() const
 {
-    return m_bIsDirty;
+    bool bIsDirty = m_bIsDirty;
+    for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
+        if (m_pTextures[i]->isDirty()) {
+            bIsDirty = true;
+        }
+    }
+    return bIsDirty;
 }
 
 void OGLSurface::resetDirty()
 {
     m_bIsDirty = false;
+    for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
+        m_pTextures[i]->resetDirty();
+    }
 }
 
 bool OGLSurface::useShader() const

@@ -99,8 +99,8 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         static VideoAccelType getVideoAccelConfig();
 
     private:
-        bool renderFrame(OGLSurface * pSurface);
-        FrameAvailableCode renderToSurface(OGLSurface * pSurface);
+        bool renderFrame();
+        FrameAvailableCode renderToSurface();
         void seek(long long destTime);
         void onEOF();
         void updateStatusDueToDecoderEOF();
