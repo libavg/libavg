@@ -30,28 +30,16 @@ namespace avg {
 
 class AVG_API MaterialInfo {
 public:
-    MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps);
-
-    void setMask(bool bHasMask);
-    void setMaskCoords(const DPoint& pos, const DPoint& size);
-    bool getHasMask() const;
-    const DPoint& getMaskPos() const;
-    const DPoint& getMaskSize() const;
-
-    int getTexWrapSMode() const;
-    int getTexWrapTMode() const;
-
-    void setUseMipmaps(bool bUseMipmaps);
+    MaterialInfo(int wrapSMode, int wrapTMode, bool bUseMipmaps);
+    
+    int getWrapSMode() const;
+    int getWrapTMode() const;
     bool getUseMipmaps() const;
 
 private:
-    int m_TexWrapSMode;
-    int m_TexWrapTMode;
+    int m_WrapSMode;
+    int m_WrapTMode;
     bool m_bUseMipmaps;
-
-    bool m_bHasMask;
-    DPoint m_MaskPos;
-    DPoint m_MaskSize;
 };
 
 }

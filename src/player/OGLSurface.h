@@ -23,7 +23,6 @@
 #define _OGLSurface_H_
 
 #include "../api.h"
-#include "PBOTexture.h"
 
 #include "../base/Point.h"
 #include "../base/Triple.h"
@@ -37,30 +36,26 @@
 
 namespace avg {
 
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+
+
 class AVG_API OGLSurface {
 public:
-    OGLSurface(const MaterialInfo& material);
+    OGLSurface();
     virtual ~OGLSurface();
 
     void attach();
-    virtual void create(const IntPoint& size, PixelFormat pf);
-    void createMask(const IntPoint& size);
+    virtual void create(PixelFormat pf, GLTexturePtr pTex0, 
+            GLTexturePtr pTex1 = GLTexturePtr(), GLTexturePtr pTex2 = GLTexturePtr(), 
+            GLTexturePtr pTex3 = GLTexturePtr());
+    void setMask(GLTexturePtr pTex);
     virtual void destroy();
     void activate(const IntPoint& logicalSize = IntPoint(1,1),
             bool bPremultipliedAlpha = false) const;
+    GLTexturePtr getTex(int i=0) const;
 
-    BitmapPtr lockBmp(int i=0);
-    void unlockBmps();
-    BitmapPtr readbackBmp();
-    void setTex(GLTexturePtr pTex);
-
-    BitmapPtr lockMaskBmp();
-    void unlockMaskBmp();
-    const MaterialInfo& getMaterial() const;
-    void setMaterial(const MaterialInfo& material);
-
-    void downloadTexture();
-    void downloadMaskTexture();
+    void setMaskCoords(DPoint maskPos, DPoint maskSize);
 
     PixelFormat getPixelFormat();
     IntPoint getSize();
@@ -80,13 +75,13 @@ private:
     bool gammaIsModified() const;
     bool colorIsModified() const;
 
-    PBOTexturePtr m_pTextures[4];
+    GLTexturePtr m_pTextures[4];
     IntPoint m_Size;
     PixelFormat m_pf;
-    PBOTexturePtr m_pMaskTexture;
-    bool m_bUseForeignTexture;
-
-    MaterialInfo m_Material;
+    GLTexturePtr m_pMaskTexture;
+    DPoint m_MaskPos;
+    DPoint m_MaskSize;
+    
 
     DTriple m_Gamma;
     DTriple m_Brightness;

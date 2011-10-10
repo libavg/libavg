@@ -340,7 +340,55 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testContrast3", False),
                 ))
         Player.setFakeFPS(-1)
-    
+
+    def testFXUpdate(self):
+        # This tests if the FX render-on-demand functionality doesn't forget updates.
+        def changeTexture():
+            node.href = "colorramp.png"
+
+        def addMaskTex():
+            node.maskhref = "mask.png"
+
+        def changeMaskTex():
+            node.maskhref = "mask2.png"
+
+        def changeMaskPos():
+            node.maskpos = (10, 10)
+
+        def changeFX():
+            effect.setParam(2)
+
+        def addVideo():
+            node.unlink(True)
+            videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
+                    href="../video/testfiles/mpeg1-48x48.mpg")
+            effect = avg.BlurFXNode()
+            effect.setParam(0)
+            videoNode.setEffect(effect)
+            videoNode.play()
+
+        root = self.loadEmptyScene()
+        node = avg.ImageNode(parent=root, href="rgb24alpha-64x64.png")
+        effect = avg.BlurFXNode()
+        effect.setParam(0)
+        node.setEffect(effect)
+        Player.setFakeFPS(25)
+        self.start((
+                 changeTexture,
+                 lambda: self.compareImage("testFXUpdateTex", False),
+                 addMaskTex,
+                 lambda: self.compareImage("testFXUpdateMaskTex1", False),
+                 changeMaskTex,
+                 lambda: self.compareImage("testFXUpdateMaskTex2", False),
+                 changeMaskPos,
+                 lambda: self.compareImage("testFXUpdateMaskPos", False),
+                 changeFX,
+                 lambda: self.compareImage("testFXUpdateFX", False),
+                 addVideo,
+                 None,
+                 lambda: self.compareImage("testFXUpdateVideo", False),
+                ))
+
     def __createOffscreenCanvas(self):
         canvas = Player.createCanvas(id="offscreen", size=(160,120))
         root = canvas.getRootNode()
@@ -375,13 +423,14 @@ def fxTestSuite(tests):
                 "testNodeInCanvasNullFX",
                 "testRenderPipeline",
                 "testBlurFX",
+                "testHueSatFX",
+                "testInvertFX",
                 "testShadowFX",
                 "testWordsShadowFX",
                 "testGamma",
                 "testIntensity",
                 "testContrast",
-                "testHueSatFX",
-                "testInvertFX",
+                "testFXUpdate",
             ]
         return createAVGTestSuite(availableTests, FXTestCase, tests)
     else:

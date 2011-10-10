@@ -28,17 +28,21 @@
 #include "GLContext.h"
 
 #include <string.h>
+#include <iostream>
 
 namespace avg {
 
+using namespace std;
+
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode)
+        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
-    if (GLContext::getCurrent()->usePOTTextures()) {
+    bool bUsePOT = GLContext::getCurrent()->usePOTTextures() || bForcePOT;
+    if (bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
         m_GLSize.y = nextpow2(m_Size.y);
     } else {
@@ -72,7 +76,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
 
-    if (GLContext::getCurrent()->usePOTTextures()) {
+    if (bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
         int TexMemNeeded = m_GLSize.x*m_GLSize.y*Bitmap::getBytesPerPixel(m_pf);
@@ -227,5 +231,21 @@ int GLTexture::getGLInternalFormat() const
             return 0;
     }
 }
+
+void GLTexture::setDirty()
+{
+    m_bIsDirty = true;
+}
+
+bool GLTexture::isDirty() const
+{
+    return m_bIsDirty;
+}
+
+void GLTexture::resetDirty()
+{
+    m_bIsDirty = false;
+}
+
 
 }

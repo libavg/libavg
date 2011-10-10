@@ -36,6 +36,9 @@
 
 namespace avg {
 
+class TextureMover;
+typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+
 class AVG_API CameraNode : public RasterNode
 {
     public:
@@ -119,6 +122,9 @@ class AVG_API CameraNode : public RasterNode
         BitmapPtr m_pCurBmp;
         bool m_bIsAutoUpdateCameraImage;
         bool m_bNewBmp;
+
+        GLTexturePtr m_pTex;
+        TextureMoverPtr m_pTexMover;
 };
 
 }

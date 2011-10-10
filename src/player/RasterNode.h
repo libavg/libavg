@@ -24,14 +24,12 @@
 
 #include "../api.h"
 #include "AreaNode.h"
-#include "PBOTexture.h"
-#include "FXNode.h"
+#include "MaterialInfo.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
 #include "../base/Triple.h"
 #include "../base/UTF8String.h"
-#include "../graphics/FBO.h"
 #include "../graphics/GLContext.h"
 
 #include <string>
@@ -41,6 +39,12 @@ namespace avg {
 class OGLSurface;
 class ImagingProjection;
 typedef boost::shared_ptr<ImagingProjection> ImagingProjectionPtr;
+class FBO;
+typedef boost::shared_ptr<FBO> FBOPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+class FXNode;
+typedef boost::shared_ptr<FXNode> FXNodePtr;
 
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 
@@ -104,9 +108,8 @@ class AVG_API RasterNode: public AreaNode
                 bool bPremultipliedAlpha);
 
     private:
-        void setMaterial(const MaterialInfo& material);
-        virtual void calcMaskCoords(MaterialInfo& material);
         void downloadMask();
+        virtual void calcMaskCoords();
         void checkDisplayAvailable(std::string sMsg);
         void setupFX(bool bNewFX);
         void blt(const DPoint& destSize, GLContext::BlendMode mode, 

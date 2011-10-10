@@ -19,15 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PBO_H_
-#define _PBO_H_
+#ifndef _TextureMover_H_
+#define _TextureMover_H_
 
 #include "../api.h"
-#include "TextureMover.h"
-
-#include "Bitmap.h"
+#include "PixelFormat.h"
 #include "OGLHelper.h"
-#include "GLTexture.h"
 
 #include "../base/Point.h"
 
@@ -35,30 +32,37 @@
 
 namespace avg {
 
-class AVG_API PBO: public TextureMover {
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
+
+class TextureMover;
+typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+
+class AVG_API TextureMover {
 public:
-    PBO(const IntPoint& size, PixelFormat pf, unsigned usage);
-    virtual ~PBO();
+    static TextureMoverPtr create(OGLMemoryMode memoryMode, IntPoint size, PixelFormat pf,
+            unsigned usage);
+    static TextureMoverPtr create(IntPoint size, PixelFormat pf, unsigned usage);
 
-    void activate();
+    TextureMover(const IntPoint& size, PixelFormat pf);
+    virtual ~TextureMover();
 
-    void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
+    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex) = 0;
+    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const = 0;
 
-    BitmapPtr lock();
-    void unlock();
-    void moveToTexture(GLTexturePtr pTex);
+    virtual BitmapPtr lock() = 0;
+    virtual void unlock() = 0;
+    virtual void moveToTexture(GLTexturePtr pTex) = 0;
 
-    bool isReadPBO() const;
+    PixelFormat getPF() const;
+    const IntPoint& getSize() const;
 
 private:
-    unsigned getTarget() const;
-
-    unsigned m_Usage;
-    unsigned m_PBOID;
+    IntPoint m_Size;
+    PixelFormat m_pf;
 };
-
-typedef boost::shared_ptr<PBO> PBOPtr;
 
 }
 

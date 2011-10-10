@@ -12,11 +12,11 @@ ALL_H = Bitmap.h Filter.h GLContext.h\
         GPUBrightnessFilter.h GPUBlurFilter.h GPUShadowFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h GPUHueSatFilter.h GPUInvertFilter.h \
         FilterIntensity.h FilterNormalize.h FilterFloodfill.h FilterDilation.h \
-        FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h PBO.h\
+        FilterErosion.h FilterGetAlpha.h FBO.h GLTexture.h PBO.h TextureMover.h\
         ContribDefs.h TwoPassScale.h FilterResizeBilinear.h FilterThreshold.h \
         FilterResizeGaussian.h FilterUnmultiplyAlpha.h ShaderRegistry.h \
         ImagingProjection.h BitmapManager.h BitmapManagerThread.h \
-        BitmapManagerMsg.h GLBufferCache.h GLConfig.h
+        BitmapManagerMsg.h GLBufferCache.h GLConfig.h BmpTextureMover.h
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp \
         Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
@@ -27,11 +27,11 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp 
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GPUShadowFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp GLContext.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
-        FilterGetAlpha.cpp FBO.cpp GLTexture.cpp PBO.cpp \
+        FilterGetAlpha.cpp FBO.cpp GLTexture.cpp PBO.cpp TextureMover.cpp \
         FilterResizeBilinear.cpp FilterResizeGaussian.cpp FilterThreshold.cpp \
         FilterUnmultiplyAlpha.cpp ShaderRegistry.cpp \
         ImagingProjection.cpp BitmapManager.cpp BitmapManagerThread.cpp \
-        BitmapManagerMsg.cpp GLBufferCache.cpp GLConfig.cpp
+        BitmapManagerMsg.cpp GLBufferCache.cpp GLConfig.cpp BmpTextureMover.cpp
 
 if APPLE
     X_LIBS =

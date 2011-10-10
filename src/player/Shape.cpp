@@ -38,8 +38,8 @@ namespace avg {
 
 Shape::Shape(const MaterialInfo& material)
 {
-    m_pSurface = new OGLSurface(material);
-    m_pImage = ImagePtr(new Image(m_pSurface));
+    m_pSurface = new OGLSurface();
+    m_pImage = ImagePtr(new Image(m_pSurface, material));
 }
 
 Shape::~Shape()
@@ -56,7 +56,6 @@ void Shape::setBitmap(BitmapPtr pBmp)
         m_pImage->setEmpty();
     }
     if (m_pImage->getState() == Image::GPU) {
-        m_pSurface->downloadTexture();
         if (prevState != Image::GPU) {
             // TODO: This shouldn't happen.
             m_pVertexArray = VertexArrayPtr(new VertexArray());
@@ -68,9 +67,6 @@ void Shape::moveToGPU()
 {
     m_pSurface->attach();
     m_pImage->moveToGPU();
-    if (m_pImage->getSource() != Image::NONE) {
-        m_pSurface->downloadTexture();
-    }
     m_pVertexArray = VertexArrayPtr(new VertexArray());
 }
 

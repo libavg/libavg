@@ -29,6 +29,8 @@
 #include "../base/XMLHelper.h"
 
 #include "../graphics/Filterfill.h"
+#include "../graphics/TextureMover.h"
+#include "../graphics/GLTexture.h"
 
 #include "../imaging/Camera.h"
 #include "../imaging/FWCamera.h"
@@ -291,17 +293,22 @@ void CameraNode::open()
     m_pCamera->startCapture();
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
-    getSurface()->create(getMediaSize(), pf);
-    
+    IntPoint size = getMediaSize();
+    bool bMipmap = getMaterial().getUseMipmaps();
+    m_pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
+    m_pTexMover = TextureMover::create(size, pf, GL_STREAM_DRAW);
+    getSurface()->create(pf, m_pTex);
+
+    BitmapPtr pBmp = m_pTexMover->lock();
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-        Filter.applyInPlace(getSurface()->lockBmp());
-        getSurface()->unlockBmps();
+        Filter.applyInPlace(pBmp);
     } else if (pf == I8) {
         FilterFill<Pixel8> Filter(0);
-        Filter.applyInPlace(getSurface()->lockBmp());
-        getSurface()->unlockBmps();
-    }
+        Filter.applyInPlace(pBmp);
+    } 
+    m_pTexMover->unlock();
+    m_pTexMover->moveToTexture(m_pTex);
 }
 
 int CameraNode::getFeature(CameraFeature feature) const
@@ -330,19 +337,18 @@ void CameraNode::preRender()
         updateToLatestCameraImage();
     }
     if (m_bNewBmp && isVisible()) {
+        ScopeTimer Timer(CameraDownloadProfilingZone);
         m_FrameNum++;
-        BitmapPtr pBmp = getSurface()->lockBmp();
+        BitmapPtr pBmp = m_pTexMover->lock();
         if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
             cerr << "Surface: " << pBmp->getPixelFormat() << ", CamDest: "
                 << m_pCurBmp->getPixelFormat() << endl;
         }
         AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
         pBmp->copyPixels(*m_pCurBmp);
-        getSurface()->unlockBmps();
-        {
-            ScopeTimer Timer(CameraDownloadProfilingZone);
-            bind();
-        }
+        m_pTexMover->unlock();
+        m_pTexMover->moveToTexture(m_pTex);
+        bind();
         renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;
     }

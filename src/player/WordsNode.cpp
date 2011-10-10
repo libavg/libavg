@@ -34,6 +34,8 @@
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/GLTexture.h"
+#include "../graphics/TextureMover.h"
 
 #include <pango/pangoft2.h>
 
@@ -493,7 +495,7 @@ void WordsNode::parseString(PangoAttrList** ppAttrList, char** ppText)
 
 }
 
-void WordsNode::calcMaskCoords(MaterialInfo& material)
+void WordsNode::calcMaskCoords()
 {
     updateLayout();
 
@@ -530,7 +532,7 @@ void WordsNode::calcMaskCoords(MaterialInfo& material)
     cerr << "  normMaskSize: " << normMaskSize << endl;
     cerr << "  normMaskPos: " << normMaskPos << endl;
 */    
-    material.setMaskCoords(normMaskPos, normMaskSize);
+    getSurface()->setMaskCoords(normMaskPos, normMaskSize);
 }
 
 void WordsNode::setDirty(RedrawState newState)
@@ -674,9 +676,11 @@ void WordsNode::renderText()
                         "WordsNode size exceeded maximum (Size=" 
                         + toString(m_InkSize) + ", max=" + toString(maxTexSize) + ")");
             }
-            getSurface()->create(m_InkSize, A8);
+            GLTexturePtr pTex(new GLTexture(m_InkSize, A8));
+            getSurface()->create(A8, pTex);
+            TextureMoverPtr pMover = TextureMover::create(m_InkSize, A8, GL_DYNAMIC_DRAW);
 
-            BitmapPtr pBmp = getSurface()->lockBmp();
+            BitmapPtr pBmp = pMover->lock();
             FilterFill<unsigned char>(0).applyInPlace(pBmp);
             FT_Bitmap bitmap;
             bitmap.rows = m_InkSize.y;
@@ -705,7 +709,8 @@ void WordsNode::renderText()
                     AVG_ASSERT(false);
             }
 
-            getSurface()->unlockBmps();
+            pMover->unlock();
+            pMover->moveToTexture(pTex);
 
             bind();
         }

@@ -53,7 +53,7 @@ ImageNode::ImageNode(const ArgList& args)
     : m_Compression(Image::TEXTURECOMPRESSION_NONE)
 {
     args.setMembers(this);
-    m_pImage = ImagePtr(new Image(getSurface()));
+    m_pImage = ImagePtr(new Image(getSurface(), getMaterial()));
     m_Compression = Image::string2compression(args.getArgVal<string>("compression"));
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -95,7 +95,7 @@ void ImageNode::disconnect(bool bKill)
     }
     if (bKill) {
         RasterNode::disconnect(bKill);
-        m_pImage = ImagePtr(new Image(getSurface()));
+        m_pImage = ImagePtr(new Image(getSurface(), getMaterial()));
         m_href = "";
     } else {
         m_pImage->moveToCPU();

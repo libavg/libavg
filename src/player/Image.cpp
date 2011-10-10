@@ -37,11 +37,12 @@ using namespace std;
 
 namespace avg {
 
-Image::Image(OGLSurface * pSurface)
+Image::Image(OGLSurface * pSurface, const MaterialInfo& material)
     : m_sFilename(""),
       m_pSurface(pSurface),
       m_State(CPU),
-      m_Source(NONE)
+      m_Source(NONE),
+      m_Material(material)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     assertValid();
@@ -65,8 +66,7 @@ void Image::moveToGPU()
                 setupSurface();
                 break;
             case SCENE:
-                m_pSurface->create(m_pCanvas->getSize(), B8G8R8X8);
-                m_pSurface->setTex(m_pCanvas->getTex());
+                m_pSurface->create(B8G8R8X8, m_pCanvas->getTex());
                 break;
             case NONE:
                 break;
@@ -85,7 +85,11 @@ void Image::moveToCPU()
         switch (m_Source) {
             case FILE:
             case BITMAP:
-                m_pBmp = m_pSurface->readbackBmp();
+                {
+                    TextureMoverPtr pMover = TextureMover::create(m_pSurface->getSize(), 
+                            m_pSurface->getPixelFormat(), GL_STATIC_READ);
+                    m_pBmp = pMover->moveTextureToBmp(m_pSurface->getTex());
+                }
                 break;
             case SCENE:
                 break;
@@ -174,14 +178,21 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
             assert(false);
     }
     if (m_State == GPU) {
+        GLTexturePtr pTex = m_pSurface->getTex();
         if (bSourceChanged || m_pSurface->getSize() != pBmp->getSize() ||
                 m_pSurface->getPixelFormat() != pf)
         {
-            m_pSurface->create(pBmp->getSize(), pf);
-        }            
-        BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
-        pSurfaceBmp->copyPixels(*pBmp);
-        m_pSurface->unlockBmps();
+            pTex = GLTexturePtr(new GLTexture(pBmp->getSize(), pf, 
+                    m_Material.getUseMipmaps(), m_Material.getWrapSMode(), 
+                    m_Material.getWrapTMode()));
+            m_pSurface->create(pf, pTex);
+        }
+        TextureMoverPtr pMover = TextureMover::create(pBmp->getSize(), pf,
+                GL_STATIC_DRAW);
+        BitmapPtr pMoverBmp = pMover->lock();
+        pMoverBmp->copyPixels(*pBmp);
+        pMover->unlock();
+        pMover->moveToTexture(pTex);
         m_pBmp = BitmapPtr();
     } else {
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
@@ -199,8 +210,7 @@ void Image::setCanvas(OffscreenCanvasPtr pCanvas)
     changeSource(SCENE);
     m_pCanvas = pCanvas;
     if (m_State == GPU) {
-        m_pSurface->create(m_pCanvas->getSize(), B8G8R8X8);
-        m_pSurface->setTex(m_pCanvas->getTex());
+        m_pSurface->create(B8G8R8X8, m_pCanvas->getTex());
     }
     assertValid();
 }
@@ -228,7 +238,11 @@ BitmapPtr Image::getBitmap()
                     return BitmapPtr(new Bitmap(*m_pBmp));
                 }
             case GPU:
-                return m_pSurface->readbackBmp();
+                {
+                    TextureMoverPtr pMover = TextureMover::create(m_pSurface->getSize(),
+                            m_pSurface->getPixelFormat(), GL_DYNAMIC_READ);
+                    return pMover->moveTextureToBmp(m_pSurface->getTex());
+                }
             default:
                 AVG_ASSERT(false);
                 return BitmapPtr();
@@ -322,12 +336,15 @@ string Image::compression2String(TextureCompression compression)
 void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
-    m_pSurface->create(m_pBmp->getSize(), pf);
-    BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
-    pSurfaceBmp->copyPixels(*m_pBmp);
-    m_pSurface->unlockBmps();
-    m_pSurface->downloadTexture();
-    m_pBmp=BitmapPtr();
+    GLTexturePtr pTex(new GLTexture(m_pBmp->getSize(), pf, m_Material.getUseMipmaps(), 
+            m_Material.getWrapSMode(), m_Material.getWrapTMode()));
+    m_pSurface->create(pf, pTex);
+    TextureMoverPtr pMover = TextureMover::create(m_pBmp->getSize(), pf, GL_STATIC_DRAW);
+    BitmapPtr pMoverBmp = pMover->lock();
+    pMoverBmp->copyPixels(*m_pBmp);
+    pMover->unlock();
+    pMover->moveToTexture(pTex);
+    m_pBmp = BitmapPtr();
 }
 
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)

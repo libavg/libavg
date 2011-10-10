@@ -30,6 +30,8 @@
 #include "../base/XMLHelper.h"
 
 #include "../graphics/Filterfill.h"
+#include "../graphics/GLTexture.h"
+#include "../graphics/TextureMover.h"
 
 #include "../audio/SDLAudioEngine.h"
 
@@ -457,16 +459,50 @@ void VideoNode::startDecoding()
     m_bSeekPending = true;
     
     setViewport(-32767, -32767, -32767, -32767);
-    PixelFormat pf = getPixelFormat();
-    getSurface()->create(videoInfo.m_Size, pf);
-    if (pf == B8G8R8X8 || pf == B8G8R8A8) {
-        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-        Filter.applyInPlace(getSurface()->lockBmp());
-        getSurface()->unlockBmps();
-    }
+    createTextures(videoInfo.m_Size);
+   
     if (m_SeekBeforeCanRenderTime != 0) {
         seek(m_SeekBeforeCanRenderTime);
         m_SeekBeforeCanRenderTime = 0;
+    }
+}
+
+void VideoNode::createTextures(IntPoint size)
+{
+    PixelFormat pf = getPixelFormat();
+    bool bMipmap = getMaterial().getUseMipmaps();
+    if (pixelFormatIsPlanar(pf)) {
+        m_pTextures[0] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
+        IntPoint halfSize(size.x/2, size.y/2);
+        m_pTextures[1] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap));
+        m_pTextures[2] = GLTexturePtr(new GLTexture(halfSize, I8, bMipmap));
+        if (pixelFormatHasAlpha(pf)) {
+            m_pTextures[3] = GLTexturePtr(new GLTexture(size, I8, bMipmap));
+        }
+    } else {
+        m_pTextures[0] = GLTexturePtr(new GLTexture(size, pf, bMipmap));
+    }
+    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+        GLTexturePtr pTex = m_pTextures[i];
+        m_pTexMovers[i] = TextureMover::create(pTex->getSize(), pTex->getPF(),
+                GL_STREAM_DRAW);
+    }
+    if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
+        BitmapPtr pBmp = m_pTexMovers[0]->lock();
+        Filter.applyInPlace(pBmp);
+        m_pTexMovers[0]->unlock();
+        m_pTexMovers[0]->moveToTexture(m_pTextures[0]);
+    }
+    if (pixelFormatIsPlanar(pf)) {
+        if (pixelFormatHasAlpha(pf)) {
+            getSurface()->create(pf, m_pTextures[0], m_pTextures[1], m_pTextures[2],
+                    m_pTextures[3]);
+        } else {
+            getSurface()->create(pf, m_pTextures[0], m_pTextures[1], m_pTextures[2]);
+        }
+    } else {
+        getSurface()->create(pf, m_pTextures[0]);
     }
 }
 
@@ -561,17 +597,20 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
     }
 }
 
+static ProfilingZoneID PrerenderProfilingZone("VideoNode::prerender");
+
 void VideoNode::preRender()
 {
+    ScopeTimer timer(PrerenderProfilingZone);
     Node::preRender();
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {
-                bool bNewFrame = renderFrame(getSurface());
+                bool bNewFrame = renderFrame();
                 m_bFrameAvailable |= bNewFrame;
             } else { // Paused
                 if (!m_bFrameAvailable) {
-                    m_bFrameAvailable = renderFrame(getSurface());
+                    m_bFrameAvailable = renderFrame();
                 }
             }
             m_bFirstFrameDecoded |= m_bFrameAvailable;
@@ -581,7 +620,7 @@ void VideoNode::preRender()
         }
     } else {
         if (m_bSeekPending && m_bFirstFrameDecoded) {
-            renderFrame(getSurface());
+            renderFrame();
         }
         if (m_VideoState == Playing) {
             // Throw away frames that are not visible to make sure the video 
@@ -599,6 +638,7 @@ static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
 void VideoNode::render(const DRect& rect)
 {
+    ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
         blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
@@ -614,15 +654,14 @@ VideoNode::VideoAccelType VideoNode::getVideoAccelConfig()
     return NONE;
 }
 
-bool VideoNode::renderFrame(OGLSurface * pSurface)
+bool VideoNode::renderFrame()
 {
-    ScopeTimer timer(RenderProfilingZone);
-    FrameAvailableCode frameAvailable = renderToSurface(pSurface);
+    FrameAvailableCode frameAvailable = renderToSurface();
     if (m_pDecoder->isEOF()) {
 //        AVG_TRACE(Logger::PROFILE, "------------------ EOF -----------------");
         updateStatusDueToDecoderEOF();
         if (m_bLoop) {
-            frameAvailable = renderToSurface(pSurface);
+            frameAvailable = renderToSurface();
         }
     }
 
@@ -678,21 +717,27 @@ bool VideoNode::renderFrame(OGLSurface * pSurface)
     }
 
     return (frameAvailable == FA_NEW_FRAME);
+    return false;
 }
 
-FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
+FrameAvailableCode VideoNode::renderToSurface()
 {
     FrameAvailableCode frameAvailable;
     PixelFormat pf = m_pDecoder->getPixelFormat();
+    std::vector<BitmapPtr> pBmps;
+    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+        pBmps.push_back(m_pTexMovers[i]->lock());
+    }
     if (pixelFormatIsPlanar(pf)) {
-        std::vector<BitmapPtr> pBmps;
-        for (unsigned i = 0; i < getNumPixelFormatPlanes(pf); ++i) {
-            pBmps.push_back(pSurface->lockBmp(i));
-        }
         frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0);
     } else {
-        BitmapPtr pBmp = pSurface->lockBmp();
-        frameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime()/1000.0);
+        frameAvailable = m_pDecoder->renderToBmp(pBmps[0], getNextFrameTime()/1000.0);
+    }
+    for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
+        m_pTexMovers[i]->unlock();
+        if (frameAvailable == FA_NEW_FRAME) {
+            m_pTexMovers[i]->moveToTexture(m_pTextures[i]);
+        }
     }
 
     // Even with vsync, frame duration has a bit of jitter. If the video frames rendered
@@ -706,7 +751,6 @@ FrameAvailableCode VideoNode::renderToSurface(OGLSurface * pSurface)
             m_JitterCompensation -= 1;
         }
     }
-    pSurface->unlockBmps();
     return frameAvailable;
 }
 

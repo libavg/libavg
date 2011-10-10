@@ -225,6 +225,18 @@ string AVG_API oglModeToString(int mode)
 #define GL_ALL_CLIENT_ATTRIB_BITS GL_CLIENT_ALL_ATTRIB_BITS 
 #endif
 
+string oglMemoryMode2String(OGLMemoryMode mode)
+{
+    switch (mode) {
+        case MM_PBO:
+            return "PBO";
+        case MM_OGL:
+            return "OGL";
+        default:
+            return "invalid gl mem mode";
+    }
+}
+
 void pushGLState()
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);

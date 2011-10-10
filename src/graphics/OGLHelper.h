@@ -63,6 +63,8 @@ enum OGLMemoryMode {
     MM_PBO   // pixel buffer objects
 };
 
+std::string oglMemoryMode2String(OGLMemoryMode mode);
+
 void AVG_API pushGLState();
 void AVG_API popGLState();
 
