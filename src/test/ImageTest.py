@@ -317,19 +317,6 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlend2", False)
                 ))
 
-    def _isMaskSupported(self):
-        global g_IsMaskSupported
-        if g_IsMaskSupported == None:
-            root = self.loadEmptyScene()
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png")
-            root.appendChild(node)
-            try:
-                self.start([])
-                g_IsMaskSupported = True
-            except RuntimeError:
-                g_IsMaskSupported = False
-        return g_IsMaskSupported
-
     def testImageMask(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -355,8 +342,7 @@ class ImageTestCase(AVGTestCase):
         def setMaskNotFound():
             node.maskhref = "nonexistentmask.png"        
             
-        if not(self._isMaskSupported()):
-            print "Skipping testImageMask - no shader support."
+        if not(self._hasShaderSupport()):
             return
         root = self.loadEmptyScene()
         createNode((0,0))
@@ -376,8 +362,7 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def testImageMaskCanvas(self):
-        if not(self._isMaskSupported()):
-            print "Skipping testImageMaskCanvas - no shader support."
+        if not(self._hasShaderSupport()):
             return
         root = self.loadEmptyScene()
         canvas = Player.createCanvas(id="testcanvas", size=(64,64))
@@ -405,8 +390,7 @@ class ImageTestCase(AVGTestCase):
             node.maskpos = (32, 32)
 
         root = self.loadEmptyScene()
-        if not(self._isMaskSupported()):
-            print "Skipping testImageMaskPos - no shader support."
+        if not(self._hasShaderSupport()):
             return
         createNode((0,0))
         setNoAttach((32,0))
@@ -420,7 +404,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMaskSize(self):
         def createNode(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
+            avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
                     pos=p, size=(32, 32), masksize=(48, 48), parent=root)
             
         def setNoAttach(p):
@@ -442,8 +426,7 @@ class ImageTestCase(AVGTestCase):
             node.masksize = (0, 0)
 
         root = self.loadEmptyScene()
-        if not(self._isMaskSupported()):
-            print "Skipping testImageMaskPos - no shader support."
+        if not(self._hasShaderSupport()):
             return
         createNode((0,0))
         node = root.getChild(0)

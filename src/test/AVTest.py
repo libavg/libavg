@@ -327,12 +327,7 @@ class AVTestCase(AVGTestCase):
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
             def setMask(href):
-                try:
-                    video.maskhref = href
-                except RuntimeError:
-                    print "Skipping testVideoMask - no shader support."
-                    Player.stop()
-                    skipping = True
+                video.maskhref = href
 
             def setOpacity():
                 video.opacity = 0.5
@@ -354,11 +349,12 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage(testImgName+"4", False),
                     ])
 
-        skipping = False
+        if not(self._hasShaderSupport()):
+            return
+        
         testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
-        if not skipping:
-            testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
-            testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
+        testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
+        testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
 
     def testException(self):
         class TestException(Exception):
@@ -574,7 +570,7 @@ class AVTestCase(AVGTestCase):
 
 
 def AVTestSuite(tests):
-    availableTests = (
+    availableTests = [
             "testSound",
             "testSoundInfo",
             "testBrokenSound",
@@ -595,7 +591,7 @@ def AVTestSuite(tests):
             "testVideoWriter",
             "test2VideosAtOnce",
             "testVideoAccel",
-            )
+            ]
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 
 Player = avg.Player.get()
