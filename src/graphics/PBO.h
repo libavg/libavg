@@ -42,13 +42,13 @@ public:
 
     void activate();
 
-    void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex);
+    void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex);
 
     BitmapPtr lock();
     void unlock();
-    void moveToTexture(GLTexturePtr pTex);
-    void moveTextureToPBO(GLTexturePtr pTex);
+    void moveToTexture(GLTexture& tex);
+    void moveTextureToPBO(GLTexture& tex);
     BitmapPtr movePBOToBmp() const;
 
     bool isReadPBO() const;

@@ -46,6 +46,9 @@ public:
     void generateMipmaps();
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
+    void moveBmpToTexture(BitmapPtr pBmp);
+    BitmapPtr moveTextureToBmp();
+
     const IntPoint& getSize() const;
     const IntPoint& getGLSize() const;
     PixelFormat getPF() const;

@@ -308,7 +308,7 @@ void CameraNode::open()
         Filter.applyInPlace(pBmp);
     } 
     m_pTexMover->unlock();
-    m_pTexMover->moveToTexture(m_pTex);
+    m_pTexMover->moveToTexture(*m_pTex);
 }
 
 int CameraNode::getFeature(CameraFeature feature) const
@@ -347,7 +347,7 @@ void CameraNode::preRender()
         AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
         pBmp->copyPixels(*m_pCurBmp);
         m_pTexMover->unlock();
-        m_pTexMover->moveToTexture(m_pTex);
+        m_pTexMover->moveToTexture(*m_pTex);
         bind();
         renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;

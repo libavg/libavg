@@ -85,7 +85,7 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
     AVG_ASSERT(m_pFBO);
-    m_pSrcPBO->moveBmpToTexture(pBmpSource, m_pSrcTex);
+    m_pSrcPBO->moveBmpToTexture(pBmpSource, *m_pSrcTex);
     apply(m_pSrcTex);
     BitmapPtr pFilteredBmp = m_pFBO->getImage();
     BitmapPtr pDestBmp;
@@ -309,7 +309,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
    
-    pFilterKernelPBO->moveToTexture(pTex);
+    pFilterKernelPBO->moveToTexture(*pTex);
 
     delete[] pKernel;
     return pTex;

@@ -394,9 +394,7 @@ void RasterNode::downloadMask()
 {
     GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
             m_Material.getUseMipmaps()));
-    TextureMoverPtr pMover = TextureMover::create(m_pMaskBmp->getSize(), I8,
-            GL_STATIC_DRAW);
-    pMover->moveBmpToTexture(m_pMaskBmp, pTex);
+    pTex->moveBmpToTexture(m_pMaskBmp);
     m_pSurface->setMask(pTex);
 }
 

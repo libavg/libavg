@@ -26,6 +26,7 @@
 #include "../base/MathHelper.h"
 
 #include "GLContext.h"
+#include "TextureMover.h"
 
 #include <string.h>
 #include <iostream>
@@ -132,6 +133,18 @@ void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
     activate();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
+}
+
+void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
+{
+    TextureMoverPtr pMover = TextureMover::create(m_Size, m_pf, GL_DYNAMIC_DRAW);
+    pMover->moveBmpToTexture(pBmp, *this);
+}
+
+BitmapPtr GLTexture::moveTextureToBmp()
+{
+    TextureMoverPtr pMover = TextureMover::create(m_GLSize, m_pf, GL_DYNAMIC_READ);
+    return pMover->moveTextureToBmp(*this);
 }
 
 const IntPoint& GLTexture::getSize() const

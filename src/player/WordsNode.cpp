@@ -710,7 +710,7 @@ void WordsNode::renderText()
             }
 
             pMover->unlock();
-            pMover->moveToTexture(pTex);
+            pMover->moveToTexture(*pTex);
 
             bind();
         }

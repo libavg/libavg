@@ -140,7 +140,7 @@ BitmapPtr FBO::getImage(int i) const
 void FBO::moveToPBO(int i) const
 {
     copyToDestTexture();
-    m_pOutputPBO->moveTextureToPBO(m_pTextures[i]);
+    m_pOutputPBO->moveTextureToPBO(*m_pTextures[i]);
 }
  
 BitmapPtr FBO::getImageFromPBO() const

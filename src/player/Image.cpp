@@ -85,11 +85,7 @@ void Image::moveToCPU()
         switch (m_Source) {
             case FILE:
             case BITMAP:
-                {
-                    TextureMoverPtr pMover = TextureMover::create(m_pSurface->getSize(), 
-                            m_pSurface->getPixelFormat(), GL_STATIC_READ);
-                    m_pBmp = pMover->moveTextureToBmp(m_pSurface->getTex());
-                }
+                m_pBmp = m_pSurface->getTex()->moveTextureToBmp();
                 break;
             case SCENE:
                 break;
@@ -192,7 +188,7 @@ void Image::setBitmap(BitmapPtr pBmp, TextureCompression comp)
         BitmapPtr pMoverBmp = pMover->lock();
         pMoverBmp->copyPixels(*pBmp);
         pMover->unlock();
-        pMover->moveToTexture(pTex);
+        pMover->moveToTexture(*pTex);
         m_pBmp = BitmapPtr();
     } else {
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
@@ -238,11 +234,7 @@ BitmapPtr Image::getBitmap()
                     return BitmapPtr(new Bitmap(*m_pBmp));
                 }
             case GPU:
-                {
-                    TextureMoverPtr pMover = TextureMover::create(m_pSurface->getSize(),
-                            m_pSurface->getPixelFormat(), GL_DYNAMIC_READ);
-                    return pMover->moveTextureToBmp(m_pSurface->getTex());
-                }
+                return m_pSurface->getTex()->moveTextureToBmp();
             default:
                 AVG_ASSERT(false);
                 return BitmapPtr();
@@ -343,7 +335,7 @@ void Image::setupSurface()
     BitmapPtr pMoverBmp = pMover->lock();
     pMoverBmp->copyPixels(*m_pBmp);
     pMover->unlock();
-    pMover->moveToTexture(pTex);
+    pMover->moveToTexture(*pTex);
     m_pBmp = BitmapPtr();
 }
 

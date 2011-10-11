@@ -45,27 +45,27 @@ BmpTextureMover::~BmpTextureMover()
 {
 }
 
-void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
+void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
 {
-    AVG_ASSERT(pBmp->getSize() == pTex->getSize());
+    AVG_ASSERT(pBmp->getSize() == tex.getSize());
     AVG_ASSERT(getSize() == pBmp->getSize());
     AVG_ASSERT(pBmp->getPixelFormat() == getPF());
-    pTex->activate();
+    tex.activate();
     unsigned char * pStartPos = pBmp->getPixels();
-    IntPoint size = pTex->getSize();
+    IntPoint size = tex.getSize();
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-            pTex->getGLFormat(getPF()), pTex->getGLType(getPF()), 
+            tex.getGLFormat(getPF()), tex.getGLType(getPF()), 
             pStartPos);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }
 
-BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexturePtr pTex)
+BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex)
 {
-    AVG_ASSERT(getSize() == pTex->getGLSize());
-    BitmapPtr pBmp(new Bitmap(pTex->getGLSize(), getPF()));
+    AVG_ASSERT(getSize() == tex.getGLSize());
+    BitmapPtr pBmp(new Bitmap(tex.getGLSize(), getPF()));
 
-    pTex->activate(GL_TEXTURE0);
+    tex.activate(GL_TEXTURE0);
 
     unsigned char * pStartPos = pBmp->getPixels();
     glGetTexImage(GL_TEXTURE_2D, 0, GLTexture::getGLFormat(getPF()), 
@@ -73,8 +73,8 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexturePtr pTex)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "BmpTextureMover::moveTextureToBmp: glGetTexImage()");
     
-    IntPoint activeSize = pTex->getSize();
-    if (activeSize != pTex->getGLSize()) {
+    IntPoint activeSize = tex.getSize();
+    if (activeSize != tex.getGLSize()) {
         BitmapPtr pTempBmp = pBmp;
         pBmp = BitmapPtr(new Bitmap(activeSize, getPF(), pStartPos, 
                 pTempBmp->getStride(), true)); 
@@ -92,9 +92,9 @@ void BmpTextureMover::unlock()
 {
 }
 
-void BmpTextureMover::moveToTexture(GLTexturePtr pTex)
+void BmpTextureMover::moveToTexture(GLTexture& tex)
 {
-    moveBmpToTexture(m_pBmp, pTex);
+    moveBmpToTexture(m_pBmp, tex);
 }
 
 }

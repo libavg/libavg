@@ -49,12 +49,12 @@ public:
     TextureMover(const IntPoint& size, PixelFormat pf);
     virtual ~TextureMover();
 
-    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex) = 0;
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) = 0;
+    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex) = 0;
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex) = 0;
 
     virtual BitmapPtr lock() = 0;
     virtual void unlock() = 0;
-    virtual void moveToTexture(GLTexturePtr pTex) = 0;
+    virtual void moveToTexture(GLTexture& tex) = 0;
 
     PixelFormat getPF() const;
     const IntPoint& getSize() const;

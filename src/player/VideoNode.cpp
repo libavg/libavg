@@ -492,7 +492,7 @@ void VideoNode::createTextures(IntPoint size)
         BitmapPtr pBmp = m_pTexMovers[0]->lock();
         Filter.applyInPlace(pBmp);
         m_pTexMovers[0]->unlock();
-        m_pTexMovers[0]->moveToTexture(m_pTextures[0]);
+        m_pTexMovers[0]->moveToTexture(*m_pTextures[0]);
     }
     if (pixelFormatIsPlanar(pf)) {
         if (pixelFormatHasAlpha(pf)) {
@@ -736,7 +736,7 @@ FrameAvailableCode VideoNode::renderToSurface()
     for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
         m_pTexMovers[i]->unlock();
         if (frameAvailable == FA_NEW_FRAME) {
-            m_pTexMovers[i]->moveToTexture(m_pTextures[i]);
+            m_pTexMovers[i]->moveToTexture(*m_pTextures[i]);
         }
     }
 

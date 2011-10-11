@@ -211,7 +211,7 @@ private:
                     pOrigBmp->getPixelFormat()));
             TextureMoverPtr pWriteMover = TextureMover::create(memoryMode, 
                     pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
-            pWriteMover->moveBmpToTexture(pOrigBmp, pTex);
+            pWriteMover->moveBmpToTexture(pOrigBmp, *pTex);
             BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
             testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
         }
@@ -225,7 +225,7 @@ private:
             BitmapPtr pTransferBmp = pMover->lock();
             pTransferBmp->copyPixels(*pOrigBmp);
             pMover->unlock();
-            pMover->moveToTexture(pTex);
+            pMover->moveToTexture(*pTex);
             BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
             testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
         }
@@ -236,7 +236,7 @@ private:
     {
         TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
                 pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
-        return pReadMover->moveTextureToBmp(pTex);
+        return pReadMover->moveTextureToBmp(*pTex);
     }
 };
 
@@ -424,9 +424,7 @@ public:
         BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
                 pOrigBmp->getPixelFormat()));
-        TextureMoverPtr pMover = TextureMover::create(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
-        pMover->moveBmpToTexture(pOrigBmp, pTex);
+        pTex->moveBmpToTexture(pOrigBmp);
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
         vector<BitmapPtr> pResultBmps = f.getResults();

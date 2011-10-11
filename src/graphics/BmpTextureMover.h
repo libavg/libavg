@@ -34,12 +34,12 @@ public:
     BmpTextureMover(const IntPoint& size, PixelFormat pf);
     virtual ~BmpTextureMover();
 
-    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex);
+    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex);
 
     virtual BitmapPtr lock();
     virtual void unlock();
-    virtual void moveToTexture(GLTexturePtr pTex);
+    virtual void moveToTexture(GLTexture& tex);
 
 private:
     BitmapPtr m_pBmp;
