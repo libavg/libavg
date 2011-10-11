@@ -120,6 +120,7 @@ namespace glproc {
     extern AVG_API PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
     extern AVG_API PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
     extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
+    extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     
 #ifdef linux
     extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;

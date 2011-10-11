@@ -37,11 +37,12 @@ using namespace boost;
 namespace avg {
 
 GPUFilter::GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone, 
-        unsigned numTextures)
+        unsigned numTextures, bool bMipmap)
     : m_PFSrc(pfSrc),
       m_PFDest(pfDest),
       m_bStandalone(bStandalone),
       m_NumTextures(numTextures),
+      m_bMipmap(bMipmap),
       m_SrcSize(0,0),
       m_DestRect(0,0,0,0)
 {
@@ -63,7 +64,8 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
 {
     bool bProjectionChanged = false;
     if (destRect != m_DestRect) {
-        m_pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, m_NumTextures));
+        m_pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, m_NumTextures, 1, false,
+                m_bMipmap));
         m_DestRect = destRect;
         bProjectionChanged = true;
     }

@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+#ifndef _GPURGB2YUVFilter_H_
+#define _GPURGB2YUVFilter_H_
 
 #include "../api.h"
 #include "GPUFilter.h"
@@ -28,28 +28,21 @@
 
 namespace avg {
 
-class AVG_API GPUBlurFilter: public GPUFilter
+class AVG_API GPURGB2YUVFilter: public GPUFilter
 {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            double stdDev, bool bClipBorders, bool bStandalone=true);
-    virtual ~GPUBlurFilter();
+    GPURGB2YUVFilter(const IntPoint& size);
+    virtual ~GPURGB2YUVFilter();
     
-    void setStdDev(double stdDev);
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
+    std::vector<BitmapPtr> getResults();
+
 private:
-    void initShaders();
-    void setDimensions(IntPoint size, double stdDev, bool bClipBorders);
-
-    double m_StdDev;
-    bool m_bClipBorders;
-
-    GLTexturePtr m_pGaussCurveTex;
-    ImagingProjectionPtr m_pProjection2;
+    void initShader();
 };
 
-typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
+typedef boost::shared_ptr<GPURGB2YUVFilter> GPURGB2YUVFilterPtr;
 
 }
 #endif

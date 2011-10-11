@@ -26,6 +26,8 @@
 #include "GPUBandpassFilter.h"
 #include "GPUChromaKeyFilter.h"
 #include "GPUHueSatFilter.h"
+#include "GPURGB2YUVFilter.h"
+#include "FilterResizeBilinear.h"
 #include "OGLImagingContext.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
@@ -410,6 +412,38 @@ private:
     }
 };
 
+class RGB2YUVFilterTest: public GraphicsTest {
+public:
+    RGB2YUVFilterTest()
+        : GraphicsTest("RGB2YUVFilterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat()));
+        TextureMoverPtr pMover = TextureMover::create(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
+        pMover->moveBmpToTexture(pOrigBmp, pTex);
+        GPURGB2YUVFilter f(pOrigBmp->getSize());
+        f.apply(pTex);
+        vector<BitmapPtr> pResultBmps = f.getResults();
+        FilterResizeBilinear resizer(pOrigBmp->getSize()/2);
+        BitmapPtr pUBmp = resizer.apply(pResultBmps[1]);
+        BitmapPtr pVBmp = resizer.apply(pResultBmps[2]);
+//        pResultBmps[0]->save("foo.png");
+//        pUBmp->save("fooU.png");
+//        pVBmp->save("fooV.png");
+        BitmapPtr pDestBmp(new Bitmap(pOrigBmp->getSize(), B8G8R8X8));
+        pDestBmp->copyYUVPixels(*pResultBmps[0], *pUBmp, *pVBmp, true);
+//        pDestBmp->save("fooDest.png");
+        testEqual(*pDestBmp, *pOrigBmp, "gpu", 5, 10);
+        
+    }
+};
+
 
 class GPUTestSuite: public TestSuite {
 public:
@@ -418,6 +452,7 @@ public:
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
+        addTest(TestPtr(new RGB2YUVFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new HslColorFilterTest));
