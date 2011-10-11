@@ -49,8 +49,8 @@ public:
     unsigned getNumTextures() const;
 
     void copyToDestTexture() const;
-    BitmapPtr getImage(int i=0) const;
-    void moveToPBO(int i=0) const;
+    BitmapPtr getImage(int i=0, int mipmapLevel=0) const;
+    void moveToPBO(int i=0, int mipmapLevel=0) const;
     BitmapPtr getImageFromPBO() const;
     GLTexturePtr getTex(int i=0) const;
     const IntPoint& getSize() const;

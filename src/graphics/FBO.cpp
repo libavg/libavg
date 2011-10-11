@@ -131,16 +131,19 @@ void FBO::copyToDestTexture() const
     }
 }
 
-BitmapPtr FBO::getImage(int i) const
+BitmapPtr FBO::getImage(int i, int mipmapLevel) const
 {
-    moveToPBO(i);
+    moveToPBO(i, mipmapLevel);
     return getImageFromPBO();
 }
 
-void FBO::moveToPBO(int i) const
+void FBO::moveToPBO(int i, int mipmapLevel) const
 {
+    if (mipmapLevel != 0) {
+        AVG_ASSERT(m_bMipmap);
+    }
     copyToDestTexture();
-    m_pOutputPBO->moveTextureToPBO(*m_pTextures[i]);
+    m_pOutputPBO->moveTextureToPBO(*m_pTextures[i], mipmapLevel);
 }
  
 BitmapPtr FBO::getImageFromPBO() const

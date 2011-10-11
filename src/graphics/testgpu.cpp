@@ -451,14 +451,11 @@ public:
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
         vector<BitmapPtr> pResultBmps = f.getResults();
-        FilterResizeBilinear resizer(pOrigBmp->getSize()/2);
-        BitmapPtr pUBmp = resizer.apply(pResultBmps[1]);
-        BitmapPtr pVBmp = resizer.apply(pResultBmps[2]);
 //        pResultBmps[0]->save("foo.png");
-//        pUBmp->save("fooU.png");
-//        pVBmp->save("fooV.png");
+//        pResultBmps[1]->save("fooU.png");
+//        pResultBmps[2]->save("fooV.png");
         BitmapPtr pDestBmp(new Bitmap(pOrigBmp->getSize(), B8G8R8X8));
-        pDestBmp->copyYUVPixels(*pResultBmps[0], *pUBmp, *pVBmp, true);
+        pDestBmp->copyYUVPixels(*pResultBmps[0], *pResultBmps[1], *pResultBmps[2], true);
 //        pDestBmp->save("fooDest.png");
         testEqual(*pDestBmp, *pOrigBmp, "gpu", 5, 10);
         
