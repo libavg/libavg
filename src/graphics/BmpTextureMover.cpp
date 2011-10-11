@@ -60,7 +60,7 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
             "BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }
 
-BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexturePtr pTex) const
+BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexturePtr pTex)
 {
     AVG_ASSERT(getSize() == pTex->getGLSize());
     BitmapPtr pBmp(new Bitmap(pTex->getGLSize(), getPF()));
