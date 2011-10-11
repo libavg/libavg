@@ -64,10 +64,12 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
 {
     AVG_ASSERT(getSize() == tex.getGLSize());
     BitmapPtr pBmp;
-    IntPoint activeSize = tex.getMipmapSize(mipmapLevel);
+    IntPoint activeSize;    
     if (mipmapLevel == 0) {
+        activeSize = tex.getSize();
         pBmp = BitmapPtr(new Bitmap(tex.getGLSize(), getPF()));
     } else {
+        activeSize = tex.getMipmapSize(mipmapLevel);
         pBmp = BitmapPtr(new Bitmap(activeSize, getPF()));
     }
 
@@ -82,7 +84,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     if (activeSize != tex.getGLSize()) {
         BitmapPtr pTempBmp = pBmp;
         pBmp = BitmapPtr(new Bitmap(activeSize, getPF(), pStartPos, 
-                pTempBmp->getStride(), true)); 
+                pTempBmp->getStride(), true));
     }
     
     return pBmp;
