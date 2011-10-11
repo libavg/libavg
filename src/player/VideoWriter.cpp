@@ -90,6 +90,7 @@ VideoWriter::~VideoWriter()
 void VideoWriter::stop()
 {
     if (!m_bStopped) {
+        getFrameFromPBO();
         if (!m_bHasValidData) {
             writeDummyFrame();
         }
