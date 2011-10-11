@@ -54,6 +54,8 @@ public:
     PixelFormat getPF() const;
     unsigned getID() const;
 
+    IntPoint getMipmapSize(int level) const;
+
     static bool isFloatFormatSupported();
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
@@ -69,6 +71,7 @@ private:
     PixelFormat m_pf;
     bool m_bMipmap;
     bool m_bDeleteTex;
+    bool m_bUsePOT;
 
     unsigned m_TexID;
     bool m_bIsDirty;

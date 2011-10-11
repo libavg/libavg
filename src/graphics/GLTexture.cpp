@@ -42,8 +42,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
-    bool bUsePOT = GLContext::getCurrent()->usePOTTextures() || bForcePOT;
-    if (bUsePOT) {
+    m_bUsePOT = GLContext::getCurrent()->usePOTTextures() || bForcePOT;
+    if (m_bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
         m_GLSize.y = nextpow2(m_Size.y);
     } else {
@@ -77,7 +77,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
 
-    if (bUsePOT) {
+    if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
         int TexMemNeeded = m_GLSize.x*m_GLSize.y*Bitmap::getBytesPerPixel(m_pf);
@@ -98,6 +98,7 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
       m_pf(pf),
       m_bMipmap(bMipmap),
       m_bDeleteTex(bDeleteTex),
+      m_bUsePOT(false),
       m_TexID(glTexID)
 {
 }
@@ -165,6 +166,17 @@ PixelFormat GLTexture::getPF() const
 unsigned GLTexture::getID() const
 {
     return m_TexID;
+}
+
+IntPoint GLTexture::getMipmapSize(int level) const
+{
+    AVG_ASSERT(!m_bUsePOT);
+    IntPoint size = m_Size;
+    for (int i=0; i<level; ++i) {
+        size.x = max(1, size.x >> 1);
+        size.y = max(1, size.y >> 1);
+    }
+    return size;
 }
 
 bool GLTexture::isFloatFormatSupported()

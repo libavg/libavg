@@ -43,12 +43,12 @@ public:
     void activate();
 
     void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
-    virtual BitmapPtr moveTextureToBmp(GLTexture& tex);
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex, int mipmapLevel=0);
 
     BitmapPtr lock();
     void unlock();
     void moveToTexture(GLTexture& tex);
-    void moveTextureToPBO(GLTexture& tex);
+    void moveTextureToPBO(GLTexture& tex, int mipmapLevel=0);
     BitmapPtr movePBOToBmp() const;
 
     bool isReadPBO() const;
@@ -59,6 +59,7 @@ private:
     unsigned m_Usage;
     unsigned m_PBOID;
     IntPoint m_ActiveSize;
+    int m_BufferStride;
 };
 
 typedef boost::shared_ptr<PBO> PBOPtr;

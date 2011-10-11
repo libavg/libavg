@@ -89,13 +89,13 @@ void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     moveToTexture(tex);
 }
 
-BitmapPtr PBO::moveTextureToBmp(GLTexture& tex)
+BitmapPtr PBO::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
 {
-    moveTextureToPBO(tex); 
+    moveTextureToPBO(tex, mipmapLevel); 
     return movePBOToBmp();
 }
 
-void PBO::moveTextureToPBO(GLTexture& tex)
+void PBO::moveTextureToPBO(GLTexture& tex, int mipmapLevel)
 {
     AVG_ASSERT(isReadPBO());
     AVG_ASSERT(getSize() == tex.getGLSize());
@@ -105,10 +105,16 @@ void PBO::moveTextureToPBO(GLTexture& tex)
 
     tex.activate(GL_TEXTURE0);
 
-    glGetTexImage(GL_TEXTURE_2D, 0, GLTexture::getGLFormat(getPF()), 
+    glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
             GLTexture::getGLType(getPF()), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage: glGetTexImage()");
-    m_ActiveSize = tex.getSize();
+    if (mipmapLevel == 0) {
+        m_ActiveSize = tex.getSize();
+        m_BufferStride = tex.getGLSize().x;
+    } else {
+        m_ActiveSize = tex.getMipmapSize(mipmapLevel);
+        m_BufferStride = tex.getMipmapSize(mipmapLevel).x;
+    }
 }
 
 BitmapPtr PBO::movePBOToBmp() const
@@ -117,7 +123,7 @@ BitmapPtr PBO::movePBOToBmp() const
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage MapBuffer()");
     Bitmap PBOBitmap(m_ActiveSize, getPF(), (unsigned char *)pPBOPixels, 
-            getSize().x*Bitmap::getBytesPerPixel(getPF()), false);
+            m_BufferStride*Bitmap::getBytesPerPixel(getPF()), false);
     BitmapPtr pBmp(new Bitmap(m_ActiveSize, getPF()));
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);

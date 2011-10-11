@@ -193,6 +193,10 @@ public:
             runImageTest(bPOT, MM_PBO, "rgb24alpha-64x64");
             runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
+        runMipmapTest(MM_OGL, "rgb24alpha-64x64");
+        runMipmapTest(MM_PBO, "rgb24alpha-64x64");
+        runMipmapTest(MM_OGL, "rgb24-65x65");
+        runMipmapTest(MM_PBO, "rgb24-65x65");
     }
 
 private:
@@ -229,6 +233,25 @@ private:
             BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
             testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
         }
+    }
+
+    void runMipmapTest(OGLMemoryMode memoryMode, const string& sFName)
+    {
+        cerr << "    Testing mipmap support, " << sFName << ", " << 
+                oglMemoryMode2String(memoryMode) << endl;
+        BitmapPtr pOrigBmp = loadTestBmp(sFName);
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                    pOrigBmp->getPixelFormat(), true));
+        pTex->moveBmpToTexture(pOrigBmp);
+        pTex->generateMipmaps();
+        TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
+                pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
+        BitmapPtr pResultBmp = pReadMover->moveTextureToBmp(*pTex, 1);
+        IntPoint newSize(pOrigBmp->getSize()/2);
+        TEST(pResultBmp->getSize() == newSize);
+        FilterResizeBilinear resizer(newSize);
+        BitmapPtr pBaselineBmp = resizer.apply(pOrigBmp);
+        testEqual(*pResultBmp, *pBaselineBmp, "pbo-mipmap", 2, 5);
     }
 
     BitmapPtr readback(OGLMemoryMode memoryMode, const BitmapPtr& pOrigBmp, 

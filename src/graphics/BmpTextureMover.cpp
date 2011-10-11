@@ -60,20 +60,25 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
             "BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }
 
-BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex)
+BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
 {
     AVG_ASSERT(getSize() == tex.getGLSize());
-    BitmapPtr pBmp(new Bitmap(tex.getGLSize(), getPF()));
+    BitmapPtr pBmp;
+    IntPoint activeSize = tex.getMipmapSize(mipmapLevel);
+    if (mipmapLevel == 0) {
+        pBmp = BitmapPtr(new Bitmap(tex.getGLSize(), getPF()));
+    } else {
+        pBmp = BitmapPtr(new Bitmap(activeSize, getPF()));
+    }
 
     tex.activate(GL_TEXTURE0);
 
     unsigned char * pStartPos = pBmp->getPixels();
-    glGetTexImage(GL_TEXTURE_2D, 0, GLTexture::getGLFormat(getPF()), 
+    glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
             GLTexture::getGLType(getPF()), pStartPos);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "BmpTextureMover::moveTextureToBmp: glGetTexImage()");
     
-    IntPoint activeSize = tex.getSize();
     if (activeSize != tex.getGLSize()) {
         BitmapPtr pTempBmp = pBmp;
         pBmp = BitmapPtr(new Bitmap(activeSize, getPF(), pStartPos, 
