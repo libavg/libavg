@@ -161,9 +161,18 @@ void VideoWriter::onFrameEnd()
     }
     if (!m_bPaused) {
         if (m_bSyncToPlayback) {
-            readFrameFromFBO();
+            getFrameFromFBO();
         } else {
-            handleAutoSynchronizedFrame();
+            long long movieTime = Player::get()->getFrameTime() - m_StartTime
+                    - m_PauseTime;
+            double timePerFrame = 1000./m_FrameRate;
+            int wantedFrame = int(movieTime/timePerFrame+0.1);
+            if (wantedFrame > m_CurFrame) {
+                getFrameFromFBO();
+                if (wantedFrame > m_CurFrame + 1) {
+                    m_CurFrame = wantedFrame - 1;
+                }
+            }
         }
     }
     
@@ -177,14 +186,14 @@ void VideoWriter::onPreRender()
     getFrameFromPBO();
 }
 
-void VideoWriter::readFrameFromFBO()
+void VideoWriter::getFrameFromFBO()
 {
     if (m_pFBO) {
         m_pFBO->moveToPBO(0);
         m_bFramePending = true;
     } else {
         BitmapPtr pBmp = m_pCanvas->screenshot();
-        sendFrame(pBmp);
+        sendFrameToEncoder(pBmp);
     }
 }
 
@@ -192,31 +201,17 @@ void VideoWriter::getFrameFromPBO()
 {
     if (m_bFramePending) {
         BitmapPtr pBmp = m_pFBO->getImageFromPBO();
-        sendFrame(pBmp);
+        sendFrameToEncoder(pBmp);
         m_bFramePending = false;
     }
 }
 
-void VideoWriter::sendFrame(BitmapPtr pBitmap)
+void VideoWriter::sendFrameToEncoder(BitmapPtr pBitmap)
 {
     m_CurFrame++;
     m_bHasValidData = true;
     m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
 }
-
-void VideoWriter::handleAutoSynchronizedFrame()
-{
-    long long movieTime = Player::get()->getFrameTime() - m_StartTime - m_PauseTime;
-    double timePerFrame = 1000./m_FrameRate;
-    int wantedFrame = int(movieTime/timePerFrame+0.1);
-    if (wantedFrame > m_CurFrame) {
-        readFrameFromFBO();
-        if (wantedFrame > m_CurFrame + 1) {
-            m_CurFrame = wantedFrame - 1;
-        }
-    }
-}
-
 
 void VideoWriter::onPlaybackEnd()
 {
@@ -226,7 +221,7 @@ void VideoWriter::onPlaybackEnd()
 void VideoWriter::writeDummyFrame()
 {
     BitmapPtr pBmp = BitmapPtr(new Bitmap(m_FrameSize, B8G8R8X8));
-    sendFrame(pBmp);
+    sendFrameToEncoder(pBmp);
 }
 
 }

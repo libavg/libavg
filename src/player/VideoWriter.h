@@ -64,11 +64,10 @@ class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
         virtual void onPlaybackEnd();
 
     private:
-        void readFrameFromFBO();
+        void getFrameFromFBO();
         void getFrameFromPBO();
-        void handleAutoSynchronizedFrame();
 
-        void sendFrame(BitmapPtr pBitmap);
+        void sendFrameToEncoder(BitmapPtr pBitmap);
         void writeDummyFrame();
 
         CanvasPtr m_pCanvas;
