@@ -98,14 +98,10 @@ class TestApp:
         self.__populateTestSuite()
 
     def __setupGlobalPlayerOptions(self):
-        usePow2Textures = self.__commandlineOptions.usepow2textures
-        useShaders =  self.__commandlineOptions.usepow2textures
-        usePixelBuffer = self.__commandlineOptions.usepow2textures   
-        
-        if  usePow2Textures or useShaders or usePixelBuffer:
-            self.__player.setOGLOptions(usePow2Textures, 
-                                        useShaders, 
-                                        usePixelBuffer, 1)
+        self.__player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
+                self.__commandlineOptions.useshaders,
+                self.__commandlineOptions.usepixelbuffers,
+                1)
         
     def __setupCommandlineParser(self):
         self.__optionParser = optparse.OptionParser(
@@ -117,16 +113,16 @@ class TestApp:
                                        default = False, 
                                        help = "Use power of 2 textures")
         
-        self.__optionParser.add_option("--useshaders", 
+        self.__optionParser.add_option("--noshaders", 
                                        dest = "useshaders",
-                                       action = 'store_true',
+                                       action = 'store_false',
                                        default = True, 
                                        help = "Use shaders")
                 
-        self.__optionParser.add_option("--usepixelbuffers", 
+        self.__optionParser.add_option("--nopixelbuffers", 
                                        dest = "usepixelbuffers",
-                                       action = 'store_true',
-                                       default = False, 
+                                       action = 'store_false',
+                                       default = True, 
                                        help = "Use pixel buffers")
         
     def __parseCommandline(self):

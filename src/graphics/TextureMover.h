@@ -19,61 +19,53 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PBOTexture_H_
-#define _PBOTexture_H_
+#ifndef _TextureMover_H_
+#define _TextureMover_H_
 
 #include "../api.h"
+#include "PixelFormat.h"
+#include "OGLHelper.h"
 
-#include "MaterialInfo.h"
-
-#include "../graphics/Bitmap.h"
-#include "../graphics/GLTexture.h"
-#include "../graphics/OGLHelper.h"
-#include "../graphics/PBO.h"
-#include "../base/Rect.h"
+#include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class VertexArray;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+class GLTexture;
+typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 
-class AVG_API PBOTexture {
+class TextureMover;
+typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+
+class AVG_API TextureMover {
 public:
-    PBOTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-            OGLMemoryMode memoryMode);
-    virtual ~PBOTexture();
+    static TextureMoverPtr create(OGLMemoryMode memoryMode, IntPoint size, PixelFormat pf,
+            unsigned usage);
+    static TextureMoverPtr create(IntPoint size, PixelFormat pf, unsigned usage);
 
-    BitmapPtr lockBmp();
-    void unlockBmp();
-    BitmapPtr readbackBmp();
-    void download() const;
-    void setTex(GLTexturePtr pTex);
-    void activate(int textureUnit=GL_TEXTURE0);
+    TextureMover(const IntPoint& size, PixelFormat pf);
+    virtual ~TextureMover();
 
-    void setMaterial(const MaterialInfo& material);
-    const IntPoint& getTextureSize() const;
+    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex) = 0;
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex, int mipmapLevel=0) = 0;
+
+    virtual BitmapPtr lock() = 0;
+    virtual void unlock() = 0;
+    virtual void moveToTexture(GLTexture& tex) = 0;
+
+    PixelFormat getPF() const;
+    const IntPoint& getSize() const;
 
 private:
-    void createBitmap();
-    void createTexture();
-
     IntPoint m_Size;
-    IntPoint m_ActiveSize;
     PixelFormat m_pf;
-    MaterialInfo m_Material;
-    
-    GLTexturePtr m_pTex;
-    PBOPtr m_pWritePBO;
-    PBOPtr m_pReadPBO;
-    BitmapPtr m_pBmp;
-    
-    OGLMemoryMode m_MemoryMode;
 };
-
-typedef boost::shared_ptr<PBOTexture> PBOTexturePtr;
 
 }
 
 #endif
+ 
 

@@ -40,7 +40,7 @@ class AVG_API GPUFilter: public Filter
 {
 public:
     GPUFilter(PixelFormat pfSrc, PixelFormat pfDest, bool bStandalone,
-            unsigned numTextures=1);
+            unsigned numTextures=1, bool bMipmap=false);
     virtual ~GPUFilter();
     void setDimensions(const IntPoint& srcSize);
     void setDimensions(const IntPoint& srcSize, const IntRect& destRect,
@@ -68,6 +68,7 @@ private:
     PixelFormat m_PFDest;
     bool m_bStandalone;
     unsigned m_NumTextures;
+    bool m_bMipmap;
 
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;

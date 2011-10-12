@@ -19,38 +19,36 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+#ifndef _BmpTextureMover_H_
+#define _BmpTextureMover_H_
 
 #include "../api.h"
-#include "GPUFilter.h"
-#include "GLTexture.h"
+#include "TextureMover.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class AVG_API GPUBlurFilter: public GPUFilter
-{
+class AVG_API BmpTextureMover: public TextureMover {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            double stdDev, bool bClipBorders, bool bStandalone=true);
-    virtual ~GPUBlurFilter();
-    
-    void setStdDev(double stdDev);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    BmpTextureMover(const IntPoint& size, PixelFormat pf);
+    virtual ~BmpTextureMover();
+
+    virtual void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex, int mipmapLevel=0);
+
+    virtual BitmapPtr lock();
+    virtual void unlock();
+    virtual void moveToTexture(GLTexture& tex);
 
 private:
-    void initShaders();
-    void setDimensions(IntPoint size, double stdDev, bool bClipBorders);
-
-    double m_StdDev;
-    bool m_bClipBorders;
-
-    GLTexturePtr m_pGaussCurveTex;
-    ImagingProjectionPtr m_pProjection2;
+    BitmapPtr m_pBmp;
 };
 
-typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
+typedef boost::shared_ptr<BmpTextureMover> BmpTextureMoverPtr;
 
 }
+
 #endif
+ 
 

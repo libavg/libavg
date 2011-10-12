@@ -24,6 +24,8 @@
 #include "Player.h"
 
 #include "../graphics/FBO.h"
+#include "../graphics/GPURGB2YUVFilter.h"
+#include "../base/StringHelper.h"
 
 #include <boost/bind.hpp>
 
@@ -69,16 +71,19 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     close(fd);
 #endif
     remove(m_sOutFileName.c_str());
+    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
+    if (pMainCanvas != m_pCanvas) {
+        m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
+        m_pCanvas->registerPreRenderListener(this);
+        if (GLContext::getCurrent()->isUsingShaders()) {
+            m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
+        }
+    }
     VideoWriterThread writer(m_CmdQueue, m_sOutFileName, m_FrameSize, m_FrameRate, 
             qMin, qMax);
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);
     m_pCanvas->registerFrameEndListener(this);
-    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
-    if (pMainCanvas != m_pCanvas) {
-        m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
-        m_pCanvas->registerPreRenderListener(this);
-    }
 }
 
 VideoWriter::~VideoWriter()
@@ -90,6 +95,7 @@ VideoWriter::~VideoWriter()
 void VideoWriter::stop()
 {
     if (!m_bStopped) {
+        getFrameFromPBO();
         if (!m_bHasValidData) {
             writeDummyFrame();
         }
@@ -160,9 +166,18 @@ void VideoWriter::onFrameEnd()
     }
     if (!m_bPaused) {
         if (m_bSyncToPlayback) {
-            readFrameFromFBO();
+            getFrameFromFBO();
         } else {
-            handleAutoSynchronizedFrame();
+            long long movieTime = Player::get()->getFrameTime() - m_StartTime
+                    - m_PauseTime;
+            double timePerFrame = 1000./m_FrameRate;
+            int wantedFrame = int(movieTime/timePerFrame+0.1);
+            if (wantedFrame > m_CurFrame) {
+                getFrameFromFBO();
+                if (wantedFrame > m_CurFrame + 1) {
+                    m_CurFrame = wantedFrame - 1;
+                }
+            }
         }
     }
     
@@ -176,46 +191,50 @@ void VideoWriter::onPreRender()
     getFrameFromPBO();
 }
 
-void VideoWriter::readFrameFromFBO()
+void VideoWriter::getFrameFromFBO()
 {
     if (m_pFBO) {
-        m_pFBO->moveToPBO(0);
+        if (m_pFilter) {
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            m_pFilter->apply(m_pFBO->getTex());
+            FBOPtr pYUVFBO = m_pFilter->getFBO();
+            pYUVFBO->moveToPBO();
+            glPopMatrix();
+        } else {
+            m_pFBO->moveToPBO();
+        }
         m_bFramePending = true;
     } else {
         BitmapPtr pBmp = m_pCanvas->screenshot();
-        sendFrame(pBmp);
+        sendFrameToEncoder(pBmp);
     }
 }
 
 void VideoWriter::getFrameFromPBO()
 {
     if (m_bFramePending) {
-        BitmapPtr pBmp = m_pFBO->getImageFromPBO();
-        sendFrame(pBmp);
+        BitmapPtr pBmp;
+        if (m_pFilter) {
+            pBmp = m_pFilter->getFBO()->getImageFromPBO();
+        } else {
+            pBmp = m_pFBO->getImageFromPBO();
+        }
+        sendFrameToEncoder(pBmp);
         m_bFramePending = false;
     }
 }
 
-void VideoWriter::sendFrame(BitmapPtr pBitmap)
+void VideoWriter::sendFrameToEncoder(BitmapPtr pBitmap)
 {
     m_CurFrame++;
     m_bHasValidData = true;
-    m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
-}
-
-void VideoWriter::handleAutoSynchronizedFrame()
-{
-    long long movieTime = Player::get()->getFrameTime() - m_StartTime - m_PauseTime;
-    double timePerFrame = 1000./m_FrameRate;
-    int wantedFrame = int(movieTime/timePerFrame+0.1);
-    if (wantedFrame > m_CurFrame) {
-        readFrameFromFBO();
-        if (wantedFrame > m_CurFrame + 1) {
-            m_CurFrame = wantedFrame - 1;
-        }
+    if (m_pFilter) {
+        m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeYUVFrame, _1, pBitmap));
+    } else {
+        m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
     }
 }
-
 
 void VideoWriter::onPlaybackEnd()
 {
@@ -225,7 +244,7 @@ void VideoWriter::onPlaybackEnd()
 void VideoWriter::writeDummyFrame()
 {
     BitmapPtr pBmp = BitmapPtr(new Bitmap(m_FrameSize, B8G8R8X8));
-    sendFrame(pBmp);
+    sendFrameToEncoder(pBmp);
 }
 
 }

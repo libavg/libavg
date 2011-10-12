@@ -22,16 +22,40 @@
 #include "GLTexture.h"
 
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
+#include "../base/MathHelper.h"
+
+#include "GLContext.h"
+#include "TextureMover.h"
+
+#include <string.h>
+#include <iostream>
 
 namespace avg {
 
+using namespace std;
+
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode)
+        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
+    m_bUsePOT = GLContext::getCurrent()->usePOTTextures() || bForcePOT;
+    if (m_bUsePOT) {
+        m_GLSize.x = nextpow2(m_Size.x);
+        m_GLSize.y = nextpow2(m_Size.y);
+    } else {
+        m_GLSize = m_Size;
+    }
+
+    int maxTexSize = GLContext::getCurrent()->getMaxTexSize();
+    if (m_Size.x > maxTexSize || m_Size.y > maxTexSize) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Texture too large ("  + toString(m_Size)
+                + "). Maximum supported by graphics card is "
+                + toString(maxTexSize));
+    }
     if (getGLType(m_pf) == GL_FLOAT && !isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Float textures not supported by OpenGL configuration.");
@@ -49,17 +73,32 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapSMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
-    glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_Size.x, m_Size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
+
+    if (m_bUsePOT) {
+        // Make sure the texture is transparent and black before loading stuff 
+        // into it to avoid garbage at the borders.
+        int TexMemNeeded = m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
+        char * pPixels = new char[TexMemNeeded];
+        memset(pPixels, 0, TexMemNeeded);
+        glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
+                m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
+                pPixels);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
+        delete[] pPixels;
+    }
 }
 
 GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap,
         bool bDeleteTex)
     : m_Size(size),
+      m_GLSize(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
       m_bDeleteTex(bDeleteTex),
+      m_bUsePOT(false),
       m_TexID(glTexID)
 {
 }
@@ -97,9 +136,26 @@ void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
 }
 
+void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
+{
+    TextureMoverPtr pMover = TextureMover::create(m_Size, m_pf, GL_DYNAMIC_DRAW);
+    pMover->moveBmpToTexture(pBmp, *this);
+}
+
+BitmapPtr GLTexture::moveTextureToBmp()
+{
+    TextureMoverPtr pMover = TextureMover::create(m_GLSize, m_pf, GL_DYNAMIC_READ);
+    return pMover->moveTextureToBmp(*this);
+}
+
 const IntPoint& GLTexture::getSize() const
 {
     return m_Size;
+}
+
+const IntPoint& GLTexture::getGLSize() const
+{
+    return m_GLSize;
 }
 
 PixelFormat GLTexture::getPF() const
@@ -110,6 +166,17 @@ PixelFormat GLTexture::getPF() const
 unsigned GLTexture::getID() const
 {
     return m_TexID;
+}
+
+IntPoint GLTexture::getMipmapSize(int level) const
+{
+    AVG_ASSERT(!m_bUsePOT);
+    IntPoint size = m_Size;
+    for (int i=0; i<level; ++i) {
+        size.x = max(1, size.x >> 1);
+        size.y = max(1, size.y >> 1);
+    }
+    return size;
 }
 
 bool GLTexture::isFloatFormatSupported()
@@ -189,5 +256,21 @@ int GLTexture::getGLInternalFormat() const
             return 0;
     }
 }
+
+void GLTexture::setDirty()
+{
+    m_bIsDirty = true;
+}
+
+bool GLTexture::isDirty() const
+{
+    return m_bIsDirty;
+}
+
+void GLTexture::resetDirty()
+{
+    m_bIsDirty = false;
+}
+
 
 }

@@ -89,6 +89,7 @@ namespace glproc {
     PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
     PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
     PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
+    PFNGLDRAWBUFFERSPROC DrawBuffers;
 #ifdef linux
     PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
@@ -225,6 +226,19 @@ string AVG_API oglModeToString(int mode)
 #define GL_ALL_CLIENT_ATTRIB_BITS GL_CLIENT_ALL_ATTRIB_BITS 
 #endif
 
+string oglMemoryMode2String(OGLMemoryMode mode)
+{
+    switch (mode) {
+        case MM_PBO:
+            return "PBO";
+        case MM_OGL:
+            return "OGL";
+        default:
+            return "invalid gl mem mode";
+    }
+}
+
+// TODO: Unused, possibly broken
 void pushGLState()
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -235,7 +249,7 @@ void pushGLState()
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "saveGLState()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushGLState()");
 }
 
 void popGLState()
@@ -444,6 +458,8 @@ namespace glproc {
                 getFuzzyProcAddress("glBlitFramebuffer");
         DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)
                 getFuzzyProcAddress("glDeleteRenderbuffers");
+        DrawBuffers = (PFNGLDRAWBUFFERSPROC)
+                getFuzzyProcAddress("glDrawBuffers");
 #ifdef linux
         SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
                 getglXProcAddress("glXSwapIntervalSGI");

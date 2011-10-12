@@ -63,6 +63,8 @@ enum OGLMemoryMode {
     MM_PBO   // pixel buffer objects
 };
 
+std::string oglMemoryMode2String(OGLMemoryMode mode);
+
 void AVG_API pushGLState();
 void AVG_API popGLState();
 
@@ -118,6 +120,7 @@ namespace glproc {
     extern AVG_API PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC FramebufferRenderbuffer;
     extern AVG_API PFNGLBLITFRAMEBUFFEREXTPROC BlitFramebuffer;
     extern AVG_API PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
+    extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     
 #ifdef linux
     extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;

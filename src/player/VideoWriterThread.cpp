@@ -24,6 +24,7 @@
 
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"
+#include "../base/StringHelper.h"
 
 using namespace std;
 
@@ -50,10 +51,18 @@ VideoWriterThread::~VideoWriterThread()
 
 static ProfilingZoneID ProfilingZoneEncodeFrame("Encode frame");
 
+void VideoWriterThread::encodeYUVFrame(BitmapPtr pBmp)
+{
+    ScopeTimer timer(ProfilingZoneEncodeFrame);
+    convertYUVImage(pBmp);
+    writeFrame(m_pConvertedFrame);
+    ThreadProfiler::get()->reset();
+}
+
 void VideoWriterThread::encodeFrame(BitmapPtr pBmp)
 {
     ScopeTimer timer(ProfilingZoneEncodeFrame);
-    convertImage(pBmp);
+    convertRGBImage(pBmp);
     writeFrame(m_pConvertedFrame);
     ThreadProfiler::get()->reset();
 }
@@ -217,16 +226,9 @@ AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat, IntPoint size
     AVFrame* pPicture;
 
     pPicture = avcodec_alloc_frame();
-    if (!pPicture) {
-        return NULL;
-    }
 
     int memNeeded = avpicture_get_size(pixelFormat, size.x, size.y);
     m_pPictureBuffer = static_cast<unsigned char*>(av_malloc(memNeeded));
-    if (!m_pPictureBuffer) {
-        av_free(pPicture);
-        return NULL;
-    }
     avpicture_fill(reinterpret_cast<AVPicture*>(pPicture),
             m_pPictureBuffer, pixelFormat, size.x, size.y);
 
@@ -235,14 +237,53 @@ AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat, IntPoint size
 
 static ProfilingZoneID ProfilingZoneConvertImage(" Convert image");
 
-void VideoWriterThread::convertImage(BitmapPtr pBitmap)
+void VideoWriterThread::convertRGBImage(BitmapPtr pSrcBmp)
 {
     ScopeTimer timer(ProfilingZoneConvertImage);
-    unsigned char* rgbData[3] = {pBitmap->getPixels(), NULL, NULL};
-    int rgbStride[3] = {pBitmap->getLineLen(), 0, 0};
+    unsigned char* rgbData[3] = {pSrcBmp->getPixels(), NULL, NULL};
+    int rgbStride[3] = {pSrcBmp->getLineLen(), 0, 0};
 
     sws_scale(m_pFrameConversionContext, rgbData, rgbStride,
               0, m_Size.y, m_pConvertedFrame->data, m_pConvertedFrame->linesize);
+}
+
+void VideoWriterThread::convertYUVImage(BitmapPtr pSrcBmp)
+{
+    ScopeTimer timer(ProfilingZoneConvertImage);
+    IntPoint size = pSrcBmp->getSize();
+    BitmapPtr pYBmp(new Bitmap(size, I8, m_pConvertedFrame->data[0], 
+            m_pConvertedFrame->linesize[0], false));
+    BitmapPtr pUBmp(new Bitmap(size/2, I8, m_pConvertedFrame->data[1], 
+            m_pConvertedFrame->linesize[1], false));
+    BitmapPtr pVBmp(new Bitmap(size/2, I8, m_pConvertedFrame->data[2], 
+            m_pConvertedFrame->linesize[2], false));
+    for (int y=0; y<size.y/2; ++y) {
+        int srcStride = pSrcBmp->getStride();
+        const unsigned char * pSrc = pSrcBmp->getPixels() + y*srcStride*2;
+        int yStride = pYBmp->getStride();
+        unsigned char * pYDest = pYBmp->getPixels() + y*yStride*2;
+        unsigned char * pUDest = pUBmp->getPixels() + y*pUBmp->getStride();
+        unsigned char * pVDest = pVBmp->getPixels() + y*pVBmp->getStride();
+        for (int x=0; x<size.x/2; ++x) {
+            *pYDest = *pSrc;
+            *(pYDest+1) = *(pSrc+4);
+            *(pYDest+yStride) = *(pSrc+srcStride);
+            *(pYDest+yStride+1) = *(pSrc+srcStride+4);
+
+            *pUDest = ((int)*(pSrc+1) + *(pSrc+5) + 
+                       *(pSrc+srcStride+1) + *(pSrc+srcStride+5) + 2)/4; 
+
+            *pVDest = ((int)*(pSrc+2) + *(pSrc+6) + 
+                       *(pSrc+srcStride+2) + *(pSrc+srcStride+6) + 2)/4; 
+
+            pSrc += 8;
+            pYDest += 2;
+            pUDest += 1;
+            pVDest += 1;
+        }
+    }
+//    pSrcBmp->save("src"+toString(m_FramesWritten)+".png");
+//    pUBmp->save("foo"+toString(m_FramesWritten)+".png");
 }
 
 static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame");

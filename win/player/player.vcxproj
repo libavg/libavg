@@ -107,7 +107,6 @@
     <ClCompile Include="..\..\src\player\OffscreenCanvasNode.cpp" />
     <ClCompile Include="..\..\src\player\OGLSurface.cpp" />
     <ClCompile Include="..\..\src\player\PanoImageNode.cpp" />
-    <ClCompile Include="..\..\src\player\PBOTexture.cpp" />
     <ClCompile Include="..\..\src\player\Player.cpp" />
     <ClCompile Include="..\..\src\player\PluginManager.cpp" />
     <ClCompile Include="..\..\src\player\PolygonNode.cpp" />
@@ -180,7 +179,6 @@
     <ClInclude Include="..\..\src\player\OffscreenCanvasNode.h" />
     <ClInclude Include="..\..\src\player\OGLSurface.h" />
     <ClInclude Include="..\..\src\player\PanoImageNode.h" />
-    <ClInclude Include="..\..\src\player\PBOTexture.h" />
     <ClInclude Include="..\..\src\player\Player.h" />
     <ClInclude Include="..\..\src\player\PluginManager.h" />
     <ClInclude Include="..\..\src\player\PolygonNode.h" />

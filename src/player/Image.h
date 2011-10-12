@@ -24,6 +24,8 @@
 
 #include "../api.h"
 
+#include "MaterialInfo.h"
+
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"
 
@@ -46,7 +48,7 @@ class AVG_API Image
             TEXTURECOMPRESSION_B5G6R5
         };
 
-        Image(OGLSurface * pSurface);
+        Image(OGLSurface * pSurface, const MaterialInfo& material);
         virtual ~Image();
 
         virtual void moveToGPU();
@@ -85,6 +87,7 @@ class AVG_API Image
 
         State m_State;
         Source m_Source;
+        MaterialInfo m_Material;
 };
 
 typedef boost::shared_ptr<Image> ImagePtr;

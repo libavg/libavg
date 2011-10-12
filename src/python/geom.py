@@ -69,6 +69,8 @@ class RoundedRect(avg.PolygonNode):
             self.__radius = self.__size.x/2
         if self.__size.y < self.__radius*2:
             self.__radius = self.__size.y/2
+        if self.__radius == 0:
+            self.__radius = 0.01
         pos = []
         r = self.__radius
         size = self.__size

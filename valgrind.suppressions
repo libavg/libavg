@@ -573,21 +573,49 @@
 }
 {
    python_5
+   Memcheck:Value8
+   fun:PyObject_Free
+   obj:/usr/bin/python*
+   fun:*
+}
+{
+   python_6
+   Memcheck:Addr8
+   fun:PyObject_Free
+   obj:/usr/bin/python*
+   fun:*
+}
+{
+   python_7
    Memcheck:Addr4
    fun:PyObject_Realloc
    obj:/usr/bin/python*
    fun:*
 }
 {
-   python_6
+   python_8
    Memcheck:Cond
    fun:PyObject_Realloc
    obj:/usr/bin/python*
    fun:*
 }
 {
-   python_7
+   python_9
    Memcheck:Value4
+   fun:PyObject_Realloc
+   obj:/usr/bin/python*
+   fun:*
+}
+{
+   python_10
+   Memcheck:Addr8
+   fun:PyObject_Realloc
+   obj:/usr/bin/python*
+   fun:*
+}
+{
+   python_11
+   Memcheck:Value8
    fun:PyObject_Realloc
    obj:/usr/bin/python*
    fun:*

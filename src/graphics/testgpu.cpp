@@ -26,7 +26,11 @@
 #include "GPUBandpassFilter.h"
 #include "GPUChromaKeyFilter.h"
 #include "GPUHueSatFilter.h"
+#include "GPURGB2YUVFilter.h"
+#include "FilterResizeBilinear.h"
 #include "OGLImagingContext.h"
+#include "BmpTextureMover.h"
+#include "PBO.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -39,171 +43,93 @@
 using namespace avg;
 using namespace std;
 
-/*
-class FBOTest: public GraphicsTest {
+
+class TextureMoverTest: public GraphicsTest {
 public:
-    FBOTest()
-        : GraphicsTest("FBOTest", 2)
+    TextureMoverTest()
+        : GraphicsTest("TextureMoverTest", 2)
     {
     }
 
     void runTests() 
     {
-        runImageTests("i8-64x64", GL_UNSIGNED_BYTE, I8);
-        runImageTests("rgb24-64x64", GL_UNSIGNED_BYTE);
-        runImageTests("rgb24alpha-64x64", GL_UNSIGNED_BYTE);
-        runImageTests("i8-64x64", GL_FLOAT, I8);
-        runImageTests("rgb24-64x64", GL_FLOAT);
-        runImageTests("rgb24alpha-64x64", GL_FLOAT);
-
-        if (GLTexture::isFloatFormatSupported()) {
-            runPBOFloatbufTest(I32F);
-            runPBOFloatbufTest(R32G32B32A32F);
-            
-            runPBOFloatBitmapTest(R32G32B32A32F);
-            runPBOFloatBitmapTest(I32F);
-
-            runPBOBitmapTestIntFloatExtByte(R32G32B32A32F, R8G8B8A8);
-            runPBOBitmapTestIntFloatExtByte(I32F, I8);
+        for (int i=0; i<2; ++i) {
+            bool bPOT = (i==1);
+            runImageTest(bPOT, MM_PBO, "rgb24-65x65");
+            runImageTest(bPOT, MM_OGL, "rgb24-65x65");
+            runImageTest(bPOT, MM_PBO, "rgb24alpha-64x64");
+            runImageTest(bPOT, MM_OGL, "rgb24alpha-64x64");
         }
+        runMipmapTest(MM_OGL, "rgb24alpha-64x64");
+        runMipmapTest(MM_PBO, "rgb24alpha-64x64");
+        runMipmapTest(MM_OGL, "rgb24-65x65");
+        runMipmapTest(MM_PBO, "rgb24-65x65");
     }
 
 private:
-    void runImageTests(const string& sFName, int precision, PixelFormat pf = R8G8B8X8)
+    void runImageTest(bool bPOT, OGLMemoryMode memoryMode, const string& sFName)
     {
-        BitmapPtr pBmp = loadTestBmp(sFName, pf);
-        cerr << "    Testing " << sFName << " (" << pBmp->getPixelFormatString() << ")" 
-                << endl;
-        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), 
-                true, true);
-        runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
-    }
+        cerr << "    Testing " << sFName << ", " << oglMemoryMode2String(memoryMode);
+        if (bPOT) {
+            cerr << ", POT" << endl;
+        } else {
+            cerr << ", NPOT" << endl;
+        }
+        BitmapPtr pOrigBmp = loadTestBmp(sFName);
+        {
+            cerr << "      move functions." << endl;
+            GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                    pOrigBmp->getPixelFormat(), false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
+                    bPOT));
+            TextureMoverPtr pWriteMover = TextureMover::create(memoryMode, 
+                    pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
+            pWriteMover->moveBmpToTexture(pOrigBmp, *pTex);
+            BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
+            testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+        }
 
-    void compareByteArrays(unsigned char *in, unsigned char *out, int n)
-    {
-        for (int i = 0; i < n; i++) {
-            if (in[i] != out[i]) {
-                TEST_FAILED("compareByteArrays: " + toString((int)in[i]) + " (in) != "
-                        + toString((int)out[i]) + " (out)")
-            }
+        {
+            cerr << "      lock functions." << endl;
+            GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                    pOrigBmp->getPixelFormat(), false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
+                    bPOT));
+            TextureMoverPtr pMover = TextureMover::create(memoryMode, 
+                    pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_DRAW);
+            BitmapPtr pTransferBmp = pMover->lock();
+            pTransferBmp->copyPixels(*pOrigBmp);
+            pMover->unlock();
+            pMover->moveToTexture(*pTex);
+            BitmapPtr pDestBmp = readback(memoryMode, pOrigBmp, pTex);
+            testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
         }
     }
 
-    void compareFloatArrays(float *in, float *out, int n)
+    void runMipmapTest(OGLMemoryMode memoryMode, const string& sFName)
     {
-        for (int i = 0; i < n; i++) {
-            if (fabs(in[i]-out[i]) > 1e-5) {
-                TEST_FAILED("compareFloatArrays: " + toString(in[i]) + " (in) != " 
-                        + toString(out[i]) + " (out)")
-            }
-        }
-    }
-
-    void fillFloatArray(float *data, int n)
-    {
-        for (int i = 0; i < n; i++) {
-            data[i] = 0.01f * i;
-        }
-    }
-
-    void fillByteArray(unsigned char *data, int n)
-    {
-        for (int i = 0; i<n; i++) {
-            data[i] = i * 2;
-        }
-    }
-
-    void runPBOFloatbufTest(PixelFormat pf)
-    {
-        cerr << "    Testing PBO (" << Bitmap::getPixelFormatString(pf) << ")" << endl;
-        AVG_ASSERT(pf == I32F || pf == R32G32B32A32F);
-        IntPoint size = IntPoint(11, 3);
-        int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
-        float* pPixels = new float[numFloats];
-        fillFloatArray(pPixels, numFloats);
-    }
-
-    void runPBOFloatBitmapTest(PixelFormat pf)
-    {
-        cerr << "    Testing PBO float bitmaps (" << Bitmap::getPixelFormatString(pf) 
-                << ")" << endl;
-        AVG_ASSERT(pf == I32F || pf == R32G32B32A32F);
-        IntPoint size = IntPoint(5,3);
-        int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
-        float* pPixels = new float [numFloats];
-        fillFloatArray(pPixels, numFloats);
-
-        PBOImagePtr pPBO = PBOImagePtr(new PBOImage(size, pf, pf, true, true));
-        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, pf, (unsigned char*)(pPixels),
-            size.x*Bitmap::getBytesPerPixel(pf), false));
-        pPBO->setImage(pBmp);
-        BitmapPtr res = pPBO->getImage();
-        compareFloatArrays(pPixels,(float*)res->getPixels(), numFloats);
-
-        delete[] pPixels;
-    }
-
-    void runPBOBitmapTestIntFloatExtByte(PixelFormat intPF, PixelFormat extPF)
-    {
-        cerr << "    Testing PBO bitmaps (" << Bitmap::getPixelFormatString(intPF) 
-                << "-->" << Bitmap::getPixelFormatString(extPF) << ")" << endl;
-        IntPoint size = IntPoint(3,5);
-        unsigned char* pPixels = new unsigned char [
-            size.x*size.y*Bitmap::getBytesPerPixel(extPF)];
-        fillByteArray(pPixels, size.x*size.y*Bitmap::getBytesPerPixel(extPF));
-
-        PBOImagePtr pPBO = PBOImagePtr(new PBOImage(size, intPF, extPF, true, true));
-        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, extPF, pPixels,
-            size.x*Bitmap::getBytesPerPixel(extPF), false));
-        pPBO->setImage(pBmp);
-        BitmapPtr res = pPBO->getImage();
-        compareByteArrays(pPixels, res->getPixels(),
-            size.x*size.y*Bitmap::getBytesPerPixel(extPF));
-
-        delete[] pPixels;
-    }
-
-    void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)
-    {
-        pbo.setImage(pBmp);
-        BitmapPtr pNewBmp = pbo.getImage();
-        testEqual(*pNewBmp, *pBmp, sFName);
-    }
-
-};
-*/
-
-class PBOTest: public GraphicsTest {
-public:
-    PBOTest()
-        : GraphicsTest("PBOTest", 2)
-    {
-    }
-
-    void runTests() 
-    {
-        runImageTest("rgb24-64x64");
-        runImageTest("rgb24alpha-64x64");
-    }
-
-private:
-    void runImageTest(const string& sFName)
-    {
-        cerr << "    Testing " << sFName << endl;
+        cerr << "    Testing mipmap support, " << sFName << ", " << 
+                oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
-                pOrigBmp->getPixelFormat()));
-        PBOPtr pWritePBO = PBOPtr(new PBO(pOrigBmp->getSize(), pOrigBmp->getPixelFormat(),
-                GL_DYNAMIC_DRAW));
-        TEST(!pWritePBO->isReadPBO());
-        pWritePBO->moveBmpToTexture(pOrigBmp, pTex);
-        PBOPtr pReadPBO = PBOPtr(new PBO(pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), 
-                GL_DYNAMIC_READ));
-        TEST(pReadPBO->isReadPBO());
-        BitmapPtr pDestBmp = pReadPBO->moveTextureToBmp(pTex);
-        testEqual(*pDestBmp, *pOrigBmp, "pbo", 0.01, 0.1);
+                    pOrigBmp->getPixelFormat(), true));
+        pTex->moveBmpToTexture(pOrigBmp);
+        pTex->generateMipmaps();
+        TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
+                pOrigBmp->getSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
+        BitmapPtr pResultBmp = pReadMover->moveTextureToBmp(*pTex, 1);
+        IntPoint newSize(pOrigBmp->getSize()/2);
+        TEST(pResultBmp->getSize() == newSize);
+        FilterResizeBilinear resizer(newSize);
+        BitmapPtr pBaselineBmp = resizer.apply(pOrigBmp);
+        testEqual(*pResultBmp, *pBaselineBmp, "pbo-mipmap", 2, 7);
     }
 
+    BitmapPtr readback(OGLMemoryMode memoryMode, const BitmapPtr& pOrigBmp, 
+            const GLTexturePtr& pTex)
+    {
+        TextureMoverPtr pReadMover = TextureMover::create(memoryMode, 
+                pTex->getGLSize(), pOrigBmp->getPixelFormat(), GL_DYNAMIC_READ);
+        return pReadMover->moveTextureToBmp(*pTex);
+    }
 };
 
 class BrightnessFilterTest: public GraphicsTest {
@@ -378,14 +304,57 @@ private:
     }
 };
 
+class RGB2YUVFilterTest: public GraphicsTest {
+public:
+    RGB2YUVFilterTest()
+        : GraphicsTest("RGB2YUVFilterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pOrigBmp = loadTestBmp("rgb24-64x64");
+        GLTexturePtr pTex = GLTexturePtr(new GLTexture(pOrigBmp->getSize(), 
+                pOrigBmp->getPixelFormat()));
+        pTex->moveBmpToTexture(pOrigBmp);
+        GPURGB2YUVFilter f(pOrigBmp->getSize());
+        f.apply(pTex);
+        BitmapPtr pResultBmp = f.getResults();
+        pResultBmp = convertYUVX444ToRGB(pResultBmp);
+        testEqual(*pResultBmp, *pOrigBmp, "RGB2YUV", 1, 2);
+    }
+    
+    BitmapPtr convertYUVX444ToRGB(const BitmapPtr& pYUVBmp)
+    {
+        // This is a wierd pixel format that's not used anywhere else, so support
+        // hasn't been moved to the Bitmap class.
+        BitmapPtr pRGBBmp(new Bitmap(pYUVBmp->getSize(), B8G8R8X8));
+        int height = pRGBBmp->getSize().y;
+        int width = pRGBBmp->getSize().y;
+        int strideInPixels = pRGBBmp->getStride()/4;
+
+        for (int y = 0; y < height; ++y) {
+            const unsigned char * pSrc = pYUVBmp->getPixels() + pYUVBmp->getStride()*y;
+            Pixel32 * pDest = (Pixel32*)pRGBBmp->getPixels() + strideInPixels*y;
+            for (int x = 0; x < width; x++) {
+                YUVJtoBGR32Pixel(pDest, pSrc[0], pSrc[1], pSrc[2]);
+                pSrc += 4;
+                pDest ++;
+            }
+        }
+        return pRGBBmp;
+    }
+};
+
 
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite() 
         : TestSuite("GPUTestSuite")
     {
-        addTest(TestPtr(new PBOTest));
+        addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
+        addTest(TestPtr(new RGB2YUVFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new HslColorFilterTest));

@@ -42,6 +42,7 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
                 int frameRate, int qMin, int qMax);
         virtual ~VideoWriterThread();
 
+        void encodeYUVFrame(BitmapPtr pBmp);
         void encodeFrame(BitmapPtr pBmp);
         void close();
 
@@ -58,7 +59,8 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
 
         AVFrame* createFrame(::PixelFormat pixelFormat, IntPoint size);
 
-        void convertImage(BitmapPtr pBitmap);
+        void convertRGBImage(BitmapPtr pSrcBmp);
+        void convertYUVImage(BitmapPtr pSrcBmp);
         void writeFrame(AVFrame* pFrame);
 
         std::string m_sFilename;

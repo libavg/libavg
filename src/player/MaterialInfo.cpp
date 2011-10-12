@@ -29,53 +29,20 @@ using namespace std;
 
 namespace avg {
 
-MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
-    : m_TexWrapSMode(texWrapSMode),
-      m_TexWrapTMode(texWrapTMode),
-      m_bUseMipmaps(bUseMipmaps),
-      m_bHasMask(false)
+MaterialInfo::MaterialInfo(int wrapSMode, int wrapTMode, bool bUseMipmaps)
+    : m_WrapSMode(wrapSMode),
+      m_WrapTMode(wrapTMode),
+      m_bUseMipmaps(bUseMipmaps)
 {}
 
-void MaterialInfo::setMask(bool bHasMask)
+int MaterialInfo::getWrapSMode() const
 {
-    m_bHasMask = bHasMask;
+    return m_WrapSMode;
 }
 
-void MaterialInfo::setMaskCoords(const DPoint& pos, const DPoint& size)
+int MaterialInfo::getWrapTMode() const
 {
-    AVG_ASSERT(m_bHasMask);
-    m_MaskPos = pos;
-    m_MaskSize = size;
-}
-
-bool MaterialInfo::getHasMask() const
-{
-    return m_bHasMask;
-}
-
-const DPoint& MaterialInfo::getMaskPos() const
-{
-    return m_MaskPos;
-}
-
-const DPoint& MaterialInfo::getMaskSize() const
-{
-    return m_MaskSize;
-}
-
-int MaterialInfo::getTexWrapSMode() const
-{
-    return m_TexWrapSMode;
-}
-
-int MaterialInfo::getTexWrapTMode() const
-{
-    return m_TexWrapTMode;
-}
-
-void MaterialInfo::setUseMipmaps(bool bUseMipmaps)
-{
-    m_bUseMipmaps = bUseMipmaps;
+    return m_WrapTMode;
 }
 
 bool MaterialInfo::getUseMipmaps() const

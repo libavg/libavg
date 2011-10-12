@@ -250,7 +250,7 @@ BitmapPtr FWCamera::getImage(bool bWait)
         if (getCamPF() == YCbCr411) {
             lineLen = m_Size.x*1.5;
         } else {
-            lineLen = m_Size.x*Bitmap::getBytesPerPixel(getCamPF());
+            lineLen = m_Size.x*getBytesPerPixel(getCamPF());
         }
         BitmapPtr pCamBmp(new Bitmap(m_Size, getCamPF(), pCaptureBuffer, lineLen, false,
                 "TempCameraBmp"));

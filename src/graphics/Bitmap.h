@@ -83,7 +83,6 @@ public:
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;
-    static int getBytesPerPixel(PixelFormat pf);
     int getLineLen() const;
     int getMemNeeded() const;
     bool hasAlpha() const;

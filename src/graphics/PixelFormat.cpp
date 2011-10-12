@@ -22,6 +22,8 @@
 #include "PixelFormat.h"
 
 #include "../base/StringHelper.h"
+#include "../base/Exception.h"
+#include "../base/Logger.h"
 
 #include <ostream>
 
@@ -219,5 +221,48 @@ unsigned getNumPixelFormatPlanes(PixelFormat pf)
             return 1; 
     }
 }
+
+unsigned getBytesPerPixel(PixelFormat pf)
+{
+    switch (pf) {
+        case R32G32B32A32F:
+            return 16;
+        case A8B8G8R8:
+        case X8B8G8R8:
+        case A8R8G8B8:
+        case X8R8G8B8:
+        case B8G8R8A8:
+        case B8G8R8X8:
+        case R8G8B8A8:
+        case R8G8B8X8:
+        case I32F:
+            return 4;
+        case R8G8B8:
+        case B8G8R8:
+            return 3;
+        case B5G6R5:
+        case R5G6B5:
+        case I16:
+            return 2;
+        case I8:
+        case A8:
+        case BAYER8:
+        case BAYER8_RGGB:
+        case BAYER8_GBRG:
+        case BAYER8_GRBG:
+        case BAYER8_BGGR:
+            return 1;
+        case YUYV422:
+        case YCbCr422:
+            return 2;
+        default:
+            AVG_TRACE(Logger::ERROR, "getBytesPerPixel(): Unknown format " << 
+                    getPixelFormatString(pf) << ".");
+            AVG_ASSERT(false);
+            return 0;
+    }
+}
+
+
 
 }

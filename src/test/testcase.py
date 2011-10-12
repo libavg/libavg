@@ -28,16 +28,17 @@ import math
 
 from libavg import avg
 
+g_HasShaderSupport = None
 
-def almostEqual(a, b):
+def almostEqual(a, b, epsilon):
     try:
         bOk = True
         for i in range(len(a)):
-            if not(almostEqual(a[i], b[i])):
+            if not(almostEqual(a[i], b[i], epsilon)):
                 bOk = False
         return bOk
     except:
-        return math.fabs(a-b) < 0.000001
+        return math.fabs(a-b) < epsilon
 
 def flatten(l):
     ltype = type(l)
@@ -164,8 +165,8 @@ class AVGTestCase(unittest.TestCase):
             exceptionRaised = True
         self.assert_(exceptionRaised)
 
-    def assertAlmostEqual(self, a, b):
-        if not(almostEqual(a, b)):
+    def assertAlmostEqual(self, a, b, epsilon=0.000001):
+        if not(almostEqual(a, b, epsilon)):
             msg = "almostEqual: " + str(a) + " != " + str(b)
             self.fail(msg)
 
@@ -211,6 +212,20 @@ class AVGTestCase(unittest.TestCase):
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     
+    def _hasShaderSupport(self):
+        # XXX Duplicated code with FXTest.areFXSupported()
+        def checkShaderSupport():
+            global g_HasShaderSupport
+            g_HasShaderSupport = self.__player.isUsingShaders()
+
+        global g_HasShaderSupport
+        if g_HasShaderSupport == None:
+            self.loadEmptyScene()
+            self.start([checkShaderSupport,])
+        if g_HasShaderSupport == False:
+            sys.stderr.write("skipping - no shader support ... ")
+        return g_HasShaderSupport
+
     def __nextAction(self):
         if not(self.__delaying):
             if self.__dumpTestFrames:

@@ -36,7 +36,8 @@ class AVG_API GLTexture {
 
 public:
     GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE,
+            bool bForcePOT=false);
     GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, bool bMipmap=false,
             bool bDeleteTex=false);
     virtual ~GLTexture();
@@ -45,22 +46,35 @@ public:
     void generateMipmaps();
     void setWrapMode(unsigned wrapSMode, unsigned wrapTMode);
 
+    void moveBmpToTexture(BitmapPtr pBmp);
+    BitmapPtr moveTextureToBmp();
+
     const IntPoint& getSize() const;
+    const IntPoint& getGLSize() const;
     PixelFormat getPF() const;
     unsigned getID() const;
+
+    IntPoint getMipmapSize(int level) const;
 
     static bool isFloatFormatSupported();
     static int getGLFormat(PixelFormat pf);
     static int getGLType(PixelFormat pf);
     int getGLInternalFormat() const;
+    
+    void setDirty();
+    bool isDirty() const;
+    void resetDirty();
 
 private:
     IntPoint m_Size;
+    IntPoint m_GLSize;
     PixelFormat m_pf;
     bool m_bMipmap;
     bool m_bDeleteTex;
+    bool m_bUsePOT;
 
     unsigned m_TexID;
+    bool m_bIsDirty;
 };
 
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;

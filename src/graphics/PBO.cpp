@@ -34,8 +34,7 @@ using namespace boost;
 namespace avg {
     
 PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
-    : m_Size(size),
-      m_pf(pf),
+    : TextureMover(size, pf),
       m_Usage(usage)
 {
     m_PBOID = GLContext::getCurrent()->getPBOCache().getBuffer();
@@ -43,8 +42,8 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     unsigned target = getTarget();
     glproc::BindBuffer(target, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: BindBuffer()");
-    int MemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(m_pf);
-    glproc::BufferData(target, MemNeeded, 0, usage);
+    int memNeeded = size.x*size.y*getBytesPerPixel(pf);
+    glproc::BufferData(target, memNeeded, 0, usage);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: BufferData()");
     glproc::BindBuffer(target, 0);
 }
@@ -68,49 +67,66 @@ void PBO::activate()
     
 }
 
-void PBO::deactivate()
-{
-    glproc::BindBuffer(getTarget(), 0);
-}
-
-void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex)
+void PBO::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
 {
 
-    AVG_ASSERT(pBmp->getSize() == pTex->getSize());
-    AVG_ASSERT(m_Size == pBmp->getSize());
-    AVG_ASSERT(pBmp->getPixelFormat() == m_pf);
+    AVG_ASSERT(pBmp->getSize() == tex.getSize());
+    AVG_ASSERT(getSize() == pBmp->getSize());
+    AVG_ASSERT(pBmp->getPixelFormat() == getPF());
+    AVG_ASSERT(tex.getPF() == getPF());
     AVG_ASSERT(!isReadPBO());
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::moveBmpToTexture BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::moveBmpToTexture MapBuffer()");
-    Bitmap PBOBitmap(m_Size, m_pf, (unsigned char *)pPBOPixels, 
-            m_Size.x*Bitmap::getBytesPerPixel(m_pf), false); 
+    Bitmap PBOBitmap(getSize(), getPF(), (unsigned char *)pPBOPixels, 
+            getSize().x*getBytesPerPixel(getPF()), false); 
     PBOBitmap.copyPixels(*pBmp);
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::setImage: UnmapBuffer()");
 
-    movePBOToTexture(pTex);
+    tex.setDirty();
+    moveToTexture(tex);
 }
 
-BitmapPtr PBO::moveTextureToBmp(GLTexturePtr pTex) const
+BitmapPtr PBO::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
+{
+    moveTextureToPBO(tex, mipmapLevel); 
+    return movePBOToBmp();
+}
+
+void PBO::moveTextureToPBO(GLTexture& tex, int mipmapLevel)
 {
     AVG_ASSERT(isReadPBO());
-    AVG_ASSERT(m_Size == pTex->getSize());
-    BitmapPtr pBmp(new Bitmap(m_Size, m_pf));
+    AVG_ASSERT(getSize() == tex.getGLSize());
+    AVG_ASSERT(getPF() == tex.getPF());
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage BindBuffer()");
 
-    pTex->activate(GL_TEXTURE0);
+    tex.activate(GL_TEXTURE0);
 
-    glGetTexImage(GL_TEXTURE_2D, 0, GLTexture::getGLFormat(m_pf), 
-            GLTexture::getGLType(m_pf), 0);
+    glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
+            GLTexture::getGLType(getPF()), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage: glGetTexImage()");
-    
+    if (mipmapLevel == 0) {
+        m_ActiveSize = tex.getSize();
+        m_BufferStride = tex.getGLSize().x;
+    } else {
+        m_ActiveSize = tex.getMipmapSize(mipmapLevel);
+        m_BufferStride = tex.getMipmapSize(mipmapLevel).x;
+    }
+}
+
+BitmapPtr PBO::movePBOToBmp() const
+{
+    AVG_ASSERT(isReadPBO());
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBOID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage MapBuffer()");
-    Bitmap PBOBitmap(m_Size, m_pf, (unsigned char *)pPBOPixels, 
-            m_Size.x*Bitmap::getBytesPerPixel(m_pf), false);
+    Bitmap PBOBitmap(m_ActiveSize, getPF(), (unsigned char *)pPBOPixels, 
+            m_BufferStride*getBytesPerPixel(getPF()), false);
+    BitmapPtr pBmp(new Bitmap(m_ActiveSize, getPF()));
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage: UnmapBuffer()");
@@ -126,7 +142,7 @@ BitmapPtr PBO::lock()
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer()");
     glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-            m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf), 0, m_Usage);
+            getSize().x*getSize().y*getBytesPerPixel(getPF()), 0, m_Usage);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBufferData()");
     unsigned char * pBuffer = (unsigned char *)
         glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
@@ -134,8 +150,8 @@ BitmapPtr PBO::lock()
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer(0)");
 
-    pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, pBuffer, 
-                m_Size.x*Bitmap::getBytesPerPixel(m_pf), false));
+    pBmp = BitmapPtr(new Bitmap(getSize(), getPF(), pBuffer, 
+                getSize().x*getBytesPerPixel(getPF()), false));
     return pBmp;
 }
 
@@ -150,33 +166,25 @@ void PBO::unlock()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::unlockBmp: glBindBuffer(0)");
 }
 
-void PBO::movePBOToTexture(GLTexturePtr pTex)
+void PBO::moveToTexture(GLTexture& tex)
 {
     AVG_ASSERT(!isReadPBO());
-    IntPoint size = pTex->getSize();
-    if (size.x > m_Size.x) {
-        size.x = m_Size.x;
+    IntPoint size = tex.getSize();
+    if (size.x > getSize().x) {
+        size.x = getSize().x;
     } 
-    if (size.y > m_Size.y) {
-        size.y = m_Size.y;
+    if (size.y > getSize().y) {
+        size.y = getSize().y;
     } 
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBOID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::lockBmp: glBindBuffer()");
-    pTex->activate(GL_TEXTURE0);
+    tex.activate(GL_TEXTURE0);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-            GLTexture::getGLFormat(m_pf), GLTexture::getGLType(m_pf), 0);
+            GLTexture::getGLFormat(getPF()), GLTexture::getGLType(getPF()), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::setImage: glTexSubImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-}
-
-PixelFormat PBO::getPF() const
-{
-    return m_pf;
-}
-
-const IntPoint& PBO::getSize() const
-{
-    return m_Size;
+    tex.setDirty();
+    tex.generateMipmaps();
 }
 
 bool PBO::isReadPBO() const

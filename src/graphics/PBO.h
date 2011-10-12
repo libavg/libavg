@@ -23,6 +23,8 @@
 #define _PBO_H_
 
 #include "../api.h"
+#include "TextureMover.h"
+
 #include "Bitmap.h"
 #include "OGLHelper.h"
 #include "GLTexture.h"
@@ -33,32 +35,31 @@
 
 namespace avg {
 
-class AVG_API PBO {
+class AVG_API PBO: public TextureMover {
 public:
     PBO(const IntPoint& size, PixelFormat pf, unsigned usage);
     virtual ~PBO();
 
     void activate();
-    void deactivate();
 
-    void moveBmpToTexture(BitmapPtr pBmp, GLTexturePtr pTex);
-    virtual BitmapPtr moveTextureToBmp(GLTexturePtr pTex) const;
+    void moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex);
+    virtual BitmapPtr moveTextureToBmp(GLTexture& tex, int mipmapLevel=0);
 
     BitmapPtr lock();
     void unlock();
-    void movePBOToTexture(GLTexturePtr pTex);
+    void moveToTexture(GLTexture& tex);
+    void moveTextureToPBO(GLTexture& tex, int mipmapLevel=0);
+    BitmapPtr movePBOToBmp() const;
 
-    PixelFormat getPF() const;
-    const IntPoint& getSize() const;
     bool isReadPBO() const;
 
 private:
     unsigned getTarget() const;
 
-    IntPoint m_Size;
-    PixelFormat m_pf;
     unsigned m_Usage;
     unsigned m_PBOID;
+    IntPoint m_ActiveSize;
+    int m_BufferStride;
 };
 
 typedef boost::shared_ptr<PBO> PBOPtr;

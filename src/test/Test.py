@@ -113,9 +113,6 @@ import EventTest
 import InputDeviceTest
 import AVGAppTest
 import UITest
-from EventTest import mainMouseDown
-from EventTest import mainMouseUp
-
 
 app = testapp.TestApp()
 
