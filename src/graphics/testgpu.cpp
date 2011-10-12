@@ -340,7 +340,7 @@ public:
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
-        addTest(TestPtr(new RGB2YUVFilterTest));
+//        addTest(TestPtr(new RGB2YUVFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new HslColorFilterTest));
