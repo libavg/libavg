@@ -38,7 +38,7 @@ using namespace std;
 namespace avg {
 
 GPURGB2YUVFilter::GPURGB2YUVFilter(const IntPoint& size)
-    : GPUFilter(B8G8R8X8, I8, false, 3, true)
+    : GPUFilter(B8G8R8X8, B8G8R8X8, false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -53,22 +53,17 @@ GPURGB2YUVFilter::~GPURGB2YUVFilter()
 
 void GPURGB2YUVFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
-    GLenum buffers[] = {GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT,
-            GL_COLOR_ATTACHMENT2_EXT};
-    glproc::DrawBuffers(3, buffers);
     OGLShaderPtr pShader = getShader(SHADERID);
     pShader->activate();
     draw(pSrcTex);
     glproc::UseProgramObject(0);
 }
 
-vector<BitmapPtr> GPURGB2YUVFilter::getResults()
+BitmapPtr GPURGB2YUVFilter::getResults()
 {
-    vector<BitmapPtr> pBmps;
-    BitmapPtr pBmp = getFBO()->getImage(0);
-    pBmps.push_back(pBmp);
+    BitmapPtr pBmp = getFBO()->getImage();
 
-    return pBmps;
+    return pBmp;
 }
 
 void GPURGB2YUVFilter::initShader()
@@ -83,9 +78,7 @@ void GPURGB2YUVFilter::initShader()
         "    float y =  0.299*tex.r + 0.587*tex.g + 0.114*tex.b;\n"
         "    float u = -0.168*tex.r - 0.330*tex.g + 0.498*tex.b + 0.5;\n"
         "    float v =  0.498*tex.r - 0.417*tex.g - 0.081*tex.b + 0.5;\n"
-        "    gl_FragData[0] = vec4(y,y,y,1);\n"
-        "    gl_FragData[1] = vec4(u,u,u,1);\n"
-        "    gl_FragData[2] = vec4(v,v,v,1);\n"
+        "    gl_FragColor = vec4(v,u,y,1);\n"
         "}\n"
         ;
     getOrCreateShader(SHADERID, sProgram);

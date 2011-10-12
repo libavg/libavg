@@ -80,7 +80,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
-        int TexMemNeeded = m_GLSize.x*m_GLSize.y*Bitmap::getBytesPerPixel(m_pf);
+        int TexMemNeeded = m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
         char * pPixels = new char[TexMemNeeded];
         memset(pPixels, 0, TexMemNeeded);
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 

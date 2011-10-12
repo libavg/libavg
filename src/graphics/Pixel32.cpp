@@ -84,6 +84,44 @@ Pixel32 colorStringToColor(const string & s)
     return Pixel32(r,g,b);
 }
 
+void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
+{
+    // u = Cb, v = Cr
+    int u1 = u - 128;
+    int v1 = v - 128;
+    int tempy = 298*(y-16);
+    int b = (tempy + 516 * u1           ) >> 8;
+    int g = (tempy - 100 * u1 - 208 * v1) >> 8;
+    int r = (tempy            + 409 * v1) >> 8;
+
+    if (b<0) b = 0;
+    if (b>255) b= 255;
+    if (g<0) g = 0;
+    if (g>255) g= 255;
+    if (r<0) r = 0;
+    if (r>255) r= 255;
+    pDest->set(b,g,r,255);
+}
+
+void YUVJtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
+{
+    // u = Cb, v = Cr
+    int u1 = u - 128;
+    int v1 = v - 128;
+    int tempy = 256*y;
+    int b = (tempy + 452 * u1           ) >> 8;
+    int g = (tempy -  88 * u1 - 182 * v1) >> 8;
+    int r = (tempy            + 358 * v1) >> 8;
+
+    if (b<0) b = 0;
+    if (b>255) b= 255;
+    if (g<0) g = 0;
+    if (g>255) g= 255;
+    if (r<0) r = 0;
+    if (r>255) r= 255;
+    pDest->set(b,g,r,255);
+}
+
 std::ostream& operator <<(std::ostream& os, const Pixel32& pix)
 {
     os << pix.getColorString();

@@ -215,7 +215,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
             lineLen = m_ImgSize.x;
             break;
         default:
-            lineLen = m_ImgSize.x*Bitmap::getBytesPerPixel(getCamPF());
+            lineLen = m_ImgSize.x*getBytesPerPixel(getCamPF());
     }
     BitmapPtr pCamBmp(new Bitmap(m_ImgSize, getCamPF(), pCaptureBuffer, lineLen,
             false, "TempCameraBmp"));

@@ -168,7 +168,7 @@ BitmapPtr FBO::getImageFromPBO() const
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImageFromPBO MapBuffer()"); 
     Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels,  
-            size.x*Bitmap::getBytesPerPixel(pf), false); 
+            size.x*getBytesPerPixel(pf), false); 
     pBmp->copyPixels(PBOBitmap); 
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImageFromPBO UnmapBuffer()"); 

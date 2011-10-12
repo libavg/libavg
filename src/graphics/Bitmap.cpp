@@ -357,25 +357,6 @@ void Bitmap::copyPixels(const Bitmap& origBmp)
     }
 }
 
-inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
-{
-    // u = Cb, v = Cr
-    int u1 = u - 128;
-    int v1 = v - 128;
-    int tempy = 298*(y-16);
-    int b = (tempy + 516 * u1           ) >> 8;
-    int g = (tempy - 100 * u1 - 208 * v1) >> 8;
-    int r = (tempy            + 409 * v1) >> 8;
-
-    if (b<0) b = 0;
-    if (b>255) b= 255;
-    if (g<0) g = 0;
-    if (g>255) g= 255;
-    if (r<0) r = 0;
-    if (r>255) r= 255;
-    pDest->set(b,g,r,255);
-}
-
 #if defined(__SSE__) || defined(_WIN32)
 ostream& operator<<(ostream& os, const __m64 &val)
 {
@@ -707,48 +688,7 @@ bool Bitmap::ownsBits() const
 
 int Bitmap::getBytesPerPixel() const
 {
-    return getBytesPerPixel(m_PF);
-}
-
-int Bitmap::getBytesPerPixel(PixelFormat pf)
-{
-    switch (pf) {
-        case R32G32B32A32F:
-            return 16;
-        case A8B8G8R8:
-        case X8B8G8R8:
-        case A8R8G8B8:
-        case X8R8G8B8:
-        case B8G8R8A8:
-        case B8G8R8X8:
-        case R8G8B8A8:
-        case R8G8B8X8:
-        case I32F:
-            return 4;
-        case R8G8B8:
-        case B8G8R8:
-            return 3;
-        case B5G6R5:
-        case R5G6B5:
-        case I16:
-            return 2;
-        case I8:
-        case A8:
-        case BAYER8:
-        case BAYER8_RGGB:
-        case BAYER8_GBRG:
-        case BAYER8_GRBG:
-        case BAYER8_BGGR:
-            return 1;
-        case YUYV422:
-        case YCbCr422:
-            return 2;
-        default:
-            AVG_TRACE(Logger::ERROR, "Bitmap::getBytesPerPixel(): Unknown format " << 
-                    getPixelFormatString(pf) << ".");
-            AVG_ASSERT(false);
-            return 0;
-    }
+    return avg::getBytesPerPixel(m_PF);
 }
 
 int Bitmap::getLineLen() const

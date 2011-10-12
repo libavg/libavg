@@ -319,16 +319,30 @@ public:
         pTex->moveBmpToTexture(pOrigBmp);
         GPURGB2YUVFilter f(pOrigBmp->getSize());
         f.apply(pTex);
-/*        
-        vector<BitmapPtr> pResultBmps = f.getResults();
-//        pResultBmps[0]->save("foo.png");
-//        pResultBmps[1]->save("fooU.png");
-//        pResultBmps[2]->save("fooV.png");
-        BitmapPtr pDestBmp(new Bitmap(pOrigBmp->getSize(), B8G8R8X8));
-        pDestBmp->copyYUVPixels(*pResultBmps[0], *pResultBmps[1], *pResultBmps[2], true);
-//        pDestBmp->save("fooDest.png");
-        testEqual(*pDestBmp, *pOrigBmp, "gpu", 5, 10);
-*/
+        BitmapPtr pResultBmp = f.getResults();
+        pResultBmp = convertYUVX444ToRGB(pResultBmp);
+        testEqual(*pResultBmp, *pOrigBmp, "RGB2YUV", 1, 2);
+    }
+    
+    BitmapPtr convertYUVX444ToRGB(const BitmapPtr& pYUVBmp)
+    {
+        // This is a wierd pixel format that's not used anywhere else, so support
+        // hasn't been moved to the Bitmap class.
+        BitmapPtr pRGBBmp(new Bitmap(pYUVBmp->getSize(), B8G8R8X8));
+        int height = pRGBBmp->getSize().y;
+        int width = pRGBBmp->getSize().y;
+        int strideInPixels = pRGBBmp->getStride()/4;
+
+        for (int y = 0; y < height; ++y) {
+            const unsigned char * pSrc = pYUVBmp->getPixels() + pYUVBmp->getStride()*y;
+            Pixel32 * pDest = (Pixel32*)pRGBBmp->getPixels() + strideInPixels*y;
+            for (int x = 0; x < width; x++) {
+                YUVJtoBGR32Pixel(pDest, pSrc[0], pSrc[1], pSrc[2]);
+                pSrc += 4;
+                pDest ++;
+            }
+        }
+        return pRGBBmp;
     }
 };
 
@@ -340,7 +354,7 @@ public:
     {
         addTest(TestPtr(new TextureMoverTest));
         addTest(TestPtr(new BrightnessFilterTest));
-//        addTest(TestPtr(new RGB2YUVFilterTest));
+        addTest(TestPtr(new RGB2YUVFilterTest));
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new HslColorFilterTest));

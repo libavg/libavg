@@ -36,7 +36,7 @@ public:
     
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
-    std::vector<BitmapPtr> getResults();
+    BitmapPtr getResults();
 
 private:
     void initShader();
