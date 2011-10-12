@@ -67,10 +67,6 @@ vector<BitmapPtr> GPURGB2YUVFilter::getResults()
     vector<BitmapPtr> pBmps;
     BitmapPtr pBmp = getFBO()->getImage(0);
     pBmps.push_back(pBmp);
-    pBmp = getFBO()->getImage(1, 1);
-    pBmps.push_back(pBmp);
-    pBmp = getFBO()->getImage(2, 1);
-    pBmps.push_back(pBmp);
 
     return pBmps;
 }
