@@ -30,15 +30,15 @@ from libavg import avg
 
 g_HasShaderSupport = None
 
-def almostEqual(a, b):
+def almostEqual(a, b, epsilon):
     try:
         bOk = True
         for i in range(len(a)):
-            if not(almostEqual(a[i], b[i])):
+            if not(almostEqual(a[i], b[i], epsilon)):
                 bOk = False
         return bOk
     except:
-        return math.fabs(a-b) < 0.000001
+        return math.fabs(a-b) < epsilon
 
 def flatten(l):
     ltype = type(l)
@@ -165,8 +165,8 @@ class AVGTestCase(unittest.TestCase):
             exceptionRaised = True
         self.assert_(exceptionRaised)
 
-    def assertAlmostEqual(self, a, b):
-        if not(almostEqual(a, b)):
+    def assertAlmostEqual(self, a, b, epsilon=0.000001):
+        if not(almostEqual(a, b, epsilon)):
             msg = "almostEqual: " + str(a) + " != " + str(b)
             self.fail(msg)
 
