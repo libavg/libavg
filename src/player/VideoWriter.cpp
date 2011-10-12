@@ -24,6 +24,8 @@
 #include "Player.h"
 
 #include "../graphics/FBO.h"
+#include "../graphics/GPURGB2YUVFilter.h"
+#include "../base/StringHelper.h"
 
 #include <boost/bind.hpp>
 
@@ -69,16 +71,19 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     close(fd);
 #endif
     remove(m_sOutFileName.c_str());
+    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
+    if (pMainCanvas != m_pCanvas) {
+        m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
+        m_pCanvas->registerPreRenderListener(this);
+        if (GLContext::getCurrent()->isUsingShaders()) {
+            m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
+        }
+    }
     VideoWriterThread writer(m_CmdQueue, m_sOutFileName, m_FrameSize, m_FrameRate, 
             qMin, qMax);
     m_pThread = new boost::thread(writer);
     m_pCanvas->registerPlaybackEndListener(this);
     m_pCanvas->registerFrameEndListener(this);
-    CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
-    if (pMainCanvas != m_pCanvas) {
-        m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
-        m_pCanvas->registerPreRenderListener(this);
-    }
 }
 
 VideoWriter::~VideoWriter()
@@ -189,7 +194,16 @@ void VideoWriter::onPreRender()
 void VideoWriter::getFrameFromFBO()
 {
     if (m_pFBO) {
-        m_pFBO->moveToPBO(0);
+        if (m_pFilter) {
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            m_pFilter->apply(m_pFBO->getTex());
+            FBOPtr pYUVFBO = m_pFilter->getFBO();
+            pYUVFBO->moveToPBO();
+            glPopMatrix();
+        } else {
+            m_pFBO->moveToPBO();
+        }
         m_bFramePending = true;
     } else {
         BitmapPtr pBmp = m_pCanvas->screenshot();
@@ -200,7 +214,12 @@ void VideoWriter::getFrameFromFBO()
 void VideoWriter::getFrameFromPBO()
 {
     if (m_bFramePending) {
-        BitmapPtr pBmp = m_pFBO->getImageFromPBO();
+        BitmapPtr pBmp;
+        if (m_pFilter) {
+            pBmp = m_pFilter->getFBO()->getImageFromPBO();
+        } else {
+            pBmp = m_pFBO->getImageFromPBO();
+        }
         sendFrameToEncoder(pBmp);
         m_bFramePending = false;
     }
@@ -210,7 +229,11 @@ void VideoWriter::sendFrameToEncoder(BitmapPtr pBitmap)
 {
     m_CurFrame++;
     m_bHasValidData = true;
-    m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
+    if (m_pFilter) {
+        m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeYUVFrame, _1, pBitmap));
+    } else {
+        m_CmdQueue.pushCmd(boost::bind(&VideoWriterThread::encodeFrame, _1, pBitmap));
+    }
 }
 
 void VideoWriter::onPlaybackEnd()

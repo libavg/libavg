@@ -153,7 +153,7 @@ void FBO::moveToPBO(int i) const
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::moveToPBO ReadBuffer()"); 
  
-    glReadPixels (0, 0, size.x, size.y, GLTexture::getGLFormat(pf),  
+    glReadPixels(0, 0, size.x, size.y, GLTexture::getGLFormat(pf),  
             GLTexture::getGLType(pf), 0); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::moveToPBO ReadPixels()");     
 }

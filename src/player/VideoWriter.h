@@ -42,6 +42,8 @@ class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
 class FBO;
 typedef boost::shared_ptr<FBO> FBOPtr;
+class GPURGB2YUVFilter;
+typedef boost::shared_ptr<GPURGB2YUVFilter> GPURGB2YUVFilterPtr;
 
 class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
         IPlaybackEndListener  
@@ -72,6 +74,7 @@ class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
 
         CanvasPtr m_pCanvas;
         FBOPtr m_pFBO;
+        GPURGB2YUVFilterPtr m_pFilter;
         std::string m_sOutFileName;
         int m_FrameRate;
         int m_QMin;

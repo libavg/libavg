@@ -238,6 +238,7 @@ string oglMemoryMode2String(OGLMemoryMode mode)
     }
 }
 
+// TODO: Unused, possibly broken
 void pushGLState()
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -248,7 +249,7 @@ void pushGLState()
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "saveGLState()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushGLState()");
 }
 
 void popGLState()

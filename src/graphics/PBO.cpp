@@ -120,6 +120,8 @@ void PBO::moveTextureToPBO(GLTexture& tex, int mipmapLevel)
 BitmapPtr PBO::movePBOToBmp() const
 {
     AVG_ASSERT(isReadPBO());
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBOID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage BindBuffer()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO::getImage MapBuffer()");
     Bitmap PBOBitmap(m_ActiveSize, getPF(), (unsigned char *)pPBOPixels, 
