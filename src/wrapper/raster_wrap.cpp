@@ -33,10 +33,6 @@ using namespace std;
 
 char imageNodeName[] = "image";
 char cameraNodeName[] = "camera";
-char cameraInfoName[] = "info";
-char intPointName[] = "point";
-char camImageFormatName[] = "format";
-char cameraControlName[] = "control";
 char videoNodeName[] = "video";
 char wordsNodeName[] = "words";
 
@@ -120,22 +116,6 @@ void export_raster()
         .staticmethod("resetFirewireBus")
     ;
 
-    class_<IntPoint>("IntPoint", no_init)
-        .def("__init__", raw_constructor(createNode<intPointName>))
-        .def_readonly("x", &IntPoint::x)
-        .def_readonly("y", &IntPoint::y)
-        .def("getNormalized", &IntPoint::getNormalized)
-        .def("safeGetNormalized", &IntPoint::safeGetNormalized)
-        .def("getNorm", &IntPoint::getNorm)
-        .def("isNaN", &IntPoint::isNaN)
-        .def("isInf", &IntPoint::isInf)
-        .def("getRotated", &IntPoint::getRotated)
-        .def("getRotatedPivot", &IntPoint::getRotatedPivot)
-        .def("fromPolar", &IntPoint::fromPolar)
-        .staticmethod("fromPolar")
-        .def("getAngle", &IntPoint::getAngle)
-    ;
-
     //Wrap std::vector from CameraInfo to Pyhton list
     to_python_converter<CamInfoList, to_list<CamInfoList> >();
     from_python_sequence<CamInfoList, variable_capacity_policy>();
@@ -149,48 +129,13 @@ void export_raster()
     to_python_converter<FramerateList, to_list<FramerateList> >();
     from_python_sequence<FramerateList, variable_capacity_policy>();
 
-    enum_<PixelFormat>("PixelFormat")
-        .value("B5G6R5",B5G6R5)
-        .value("B8G8R8", B8G8R8)
-        .value("B8G8R8A8", B8G8R8A8)
-        .value("B8G8R8X8", B8G8R8X8)
-        .value("A8B8G8R8", A8B8G8R8)
-        .value("X8B8G8R8", X8B8G8R8)
-        .value("R5G6B5", R5G6B5)
-        .value("R8G8B8", R8G8B8)
-        .value("R8G8B8A8", R8G8B8A8)
-        .value("R8G8B8X8", R8G8B8X8)
-        .value("A8R8G8B8", A8R8G8B8)
-        .value("X8R8G8B8", X8R8G8B8)
-        .value("I8", I8)
-        .value("I16", I16)
-        .value("A8", A8)
-        .value("YCbCr411", YCbCr411)
-        .value("YCbCr422", YCbCr422)
-        .value("YUYV422", YUYV422)
-        .value("YCbCr420p", YCbCr420p)
-        .value("YCbCrJ420p", YCbCrJ420p)
-        .value("YCbCrA420p", YCbCrA420p)
-        .value("BAYER8", BAYER8)
-        .value("BAYER8_RGGB", BAYER8_RGGB)
-        .value("BAYER8_GBRG", BAYER8_GBRG)
-        .value("BAYER8_GRBG", BAYER8_GRBG)
-        .value("BAYER8_BGGR", BAYER8_BGGR)
-        .value("R32G32B32A32F", R32G32B32A32F)
-        .value("I32F", I32F)
-        .value("NO_PIXELFORMAT", NO_PIXELFORMAT)
-        .export_values()
-    ;
-
     class_<CamImageFormat>("CamImageFormat", no_init)
-        .def("__init__", raw_constructor(createNode<camImageFormatName>))
-        .def_readonly("size", &CamImageFormat::size)
-        .def_readonly("pixelformat", &CamImageFormat::pixelformat)
+        .def("getSize", &CamImageFormat::getSize)
+        .def("gPixelFormat", &CamImageFormat::getPixelFormat)
         .def("getFramerates", &CamImageFormat::getFramerates)
     ;
 
     class_<CamControl>("CamControl", no_init)
-        .def("__init__", raw_constructor(createNode<cameraControlName>))
         .def_readonly("controlName", &CamControl::sControlName)
         .def_readonly("min", &CamControl::min)
         .def_readonly("max", &CamControl::max)
@@ -198,7 +143,6 @@ void export_raster()
     ;
 
     class_<CameraInfo>("CameraInfo", no_init)
-        .def("__init__", raw_constructor(createNode<cameraInfoName>))
         .def("getDriver", &CameraInfo::getDriver)
         .def("getDeviceID", &CameraInfo::getDeviceID)
         .def("getImageFormats", &CameraInfo::getImageFormats)

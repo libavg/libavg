@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/Point.h"
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -424,8 +425,7 @@ namespace avg {
     {
         int fd = checkCamera(deviceNumber);
         if (fd != -1){
-            CameraInfo* camInfo = new CameraInfo();
-            camInfo->addDriver("video4linux");
+            CameraInfo* camInfo;
             getCamDevice(deviceNumber, camInfo);
             v4l2_capability capability = getCamCapabilities(fd);
             if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
@@ -442,7 +442,7 @@ namespace avg {
     void V4LCamera::getCamDevice(int fd, CameraInfo* camInfo) {
         stringstream ss;
         ss << "/dev/video" << fd;
-        camInfo->addDeviceID(ss.str());
+        camInfo = new CameraInfo("video4linux", ss.str());
     }
 
     void V4LCamera::getCamImgFormats(int fd, CameraInfo* camInfo) {
@@ -469,14 +469,16 @@ namespace avg {
                     frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
                     frmIvalEnum.width = frmSizeEnum.discrete.width;
                     frmIvalEnum.height = frmSizeEnum.discrete.height;
-                    CamImageFormat camImFormat;
-                    camImFormat.size.x = frmSizeEnum.discrete.width;
-                    camImFormat.size.y = frmSizeEnum.discrete.height;
-                    camImFormat.pixelformat = pixFormat;
+                    IntPoint size;
+                    size.x = frmSizeEnum.discrete.width;
+                    size.y = frmSizeEnum.discrete.height;
+                    std::vector<float> framerates;
                     while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
-                        camImFormat.framerates.push_back(frmIvalEnum.discrete.denominator);
+                        framerates.push_back(frmIvalEnum.discrete.denominator);
                         frmIvalEnum.index++;
                     }
+                    CamImageFormat camImFormat = CamImageFormat(size, pixFormat,
+                            framerates);
                     camInfo->addImageFormat(camImFormat);
                 }
                 frmSizeEnum.index++;

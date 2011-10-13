@@ -34,15 +34,19 @@ namespace avg{
 
 typedef std::vector<float> FramerateList;
 
-struct CamImageFormat {
-    IntPoint size;
-    PixelFormat pixelformat;
-    FramerateList framerates;
+class CamImageFormat {
+public:
+    CamImageFormat(IntPoint size, PixelFormat pixelFormat, std::vector<float> framerates);
+    ~CamImageFormat();
 
-    FramerateList getFramerates()
-    {
-        return framerates;
-    }
+    IntPoint getSize();
+    PixelFormat getPixelFormat();
+    FramerateList getFramerates();
+
+private:
+    IntPoint m_size;
+    PixelFormat m_pixelFormat;
+    FramerateList m_framerates;
 };
 
 struct CamControl {
@@ -57,16 +61,11 @@ typedef std::vector<CamControl> CamControlsList;
 
 class AVG_API CameraInfo {
 public:
-    CameraInfo();
+    CameraInfo(const std::string& sDriver, const std::string& sDeviceID);
     ~CameraInfo();
 
-    void addDriver(std::string _sDriver);
-    void addDeviceID(std::string _sDeviceID);
-    void addControl(CamControl _control);
-    void addControl(std::string _sControlName,int _min,int _max,int _defaultValue);
-    void addImageFormat(CamImageFormat _format);
-    void addImageFormat(IntPoint _size, PixelFormat _pixelformat,
-            FramerateList _framerates);
+    void addControl(CamControl control);
+    void addImageFormat(CamImageFormat format);
 
     std::string getDriver();
     std::string getDeviceID();

@@ -23,49 +23,54 @@
 #include "CameraInfo.h"
 
 namespace avg{
-    CameraInfo::CameraInfo() {
+
+    CamImageFormat::CamImageFormat(IntPoint size, PixelFormat pixelFormat, std::vector<float> framerates){
+        m_size = size;
+        m_pixelFormat = pixelFormat;
+        m_framerates = framerates;
+    }
+    CamImageFormat::~CamImageFormat(){
+    }
+
+    IntPoint CamImageFormat::getSize(){
+        return m_size;
+    }
+    PixelFormat CamImageFormat::getPixelFormat(){
+        return m_pixelFormat;
+    }
+    FramerateList CamImageFormat::getFramerates(){
+        return m_framerates;
+    }
+
+
+    CameraInfo::CameraInfo(const std::string& sDriver, const std::string& sDeviceID) {
+        m_sDriver = sDriver;
+        m_sDeviceID = sDeviceID;
     }
 
     CameraInfo::~CameraInfo() {
     }
 
-    void CameraInfo::addDriver(std::string _sDriver){
-        m_sDriver = _sDriver;
-    }
-    void CameraInfo::addDeviceID(std::string _sDeviceID){
-        m_sDeviceID = _sDeviceID;
-    }
-    void CameraInfo::addControl(CamControl _control){
-        m_controls.push_back(_control);
-    }
-    void CameraInfo::addControl(std::string _sControlName,int _min,int _max,int _defaultValue){
-        CamControl control = CamControl();
-        control.sControlName = _sControlName;
-        control.min = _min;
-        control.max = _max;
-        control.defaultValue = _defaultValue;
+    void CameraInfo::addControl(CamControl control){
         m_controls.push_back(control);
     }
-    void CameraInfo::addImageFormat(CamImageFormat _format){
-        m_formats.push_back(_format);
-    }
-    void CameraInfo::addImageFormat(IntPoint _size, PixelFormat _pixelformat, FramerateList _framerates){
-        CamImageFormat format = CamImageFormat();
-        format.size = _size;
-        format.pixelformat = _pixelformat;
-        format.framerates = _framerates;
+
+    void CameraInfo::addImageFormat(CamImageFormat format){
         m_formats.push_back(format);
     }
 
     std::string CameraInfo::getDriver(){
         return m_sDriver;
     }
+
     std::string CameraInfo::getDeviceID(){
         return m_sDeviceID;
     }
+
     CamImageFormatsList CameraInfo::getImageFormats(){
         return m_formats;
     }
+
     CamControlsList CameraInfo::getControls(){
         return m_controls;
     }
