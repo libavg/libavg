@@ -118,6 +118,7 @@
     <ClInclude Include="..\..\src\graphics\GPUHueSatFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUInvertFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUNullFilter.h" />
+    <ClInclude Include="..\..\src\graphics\GPURGB2YUVFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
     <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="..\..\src\graphics\GPUHueSatFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUInvertFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUNullFilter.cpp" />
+    <ClCompile Include="..\..\src\graphics\GPURGB2YUVFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
     <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
