@@ -120,7 +120,7 @@ private:
         TEST(pResultBmp->getSize() == newSize);
         FilterResizeBilinear resizer(newSize);
         BitmapPtr pBaselineBmp = resizer.apply(pOrigBmp);
-        testEqual(*pResultBmp, *pBaselineBmp, "pbo-mipmap", 2, 5);
+        testEqual(*pResultBmp, *pBaselineBmp, "pbo-mipmap", 2, 7);
     }
 
     BitmapPtr readback(OGLMemoryMode memoryMode, const BitmapPtr& pOrigBmp, 
