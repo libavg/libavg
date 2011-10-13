@@ -71,7 +71,7 @@ public:
 
     static void dumpCameras();
     static int countCameras();
-    CameraInfo listCameraInfo(int deviceNumber);
+    static CameraInfo* listCameraInfo(int deviceNumber);
     static void resetBus();
 
 private:

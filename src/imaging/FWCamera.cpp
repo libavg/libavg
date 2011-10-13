@@ -598,9 +598,42 @@ int FWCamera::countCameras(){
     return 0;
 }
 
-CameraInfo FWCamera::listCameraInfo(int deviceNumber)
+CameraInfo* FWCamera::listCameraInfo(int deviceNumber)
 {
-    //TODO:implement
+    dc1394_t* pDC1394 = dc1394_new();
+        if (pDC1394 == 0) {
+            return NULL;
+        }
+        dc1394camera_list_t * pCameraList;
+        int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
+        if (err == DC1394_SUCCESS) {
+            if (pCameraList->num != 0) {
+                for (unsigned i=0; i<pCameraList->num;++i) {
+                    dc1394camera_id_t id = pCameraList->ids[i];
+                    dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
+                            id.unit);
+                    if (pCamera) {
+                        stringstream ss;
+                        ss << pCamera->guid;
+                        CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
+                        //Print Features
+                        //dc1394featureset_t FeatureSet;
+                        //err = dc1394_feature_get_all(pCamera, &FeatureSet);
+                        //dc1394_feature_print_all(&FeatureSet, stderr);
+                       // dc1394featrue_info_t featureInfo;
+                       // uint_t* min;
+                       // uint_t* max;
+                       // dc1394_feature_get_boundaries(pCamera, DC1394_FEATURE_BRIGHTNESS, &min, &max);
+                       // cout << "min:"<< *min << " " << "max:" << *max << endl;
+
+                        dc1394_camera_free(pCamera);
+                        dc1394_camera_free_list(pCameraList);
+                        dc1394_free(pDC1394);
+                        return camInfo;
+                    }
+                }
+            }
+        }
 }
 
 void FWCamera::resetBus()

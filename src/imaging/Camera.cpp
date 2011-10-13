@@ -246,9 +246,12 @@ std::vector<CameraInfo> listCameraInfo()
     std::vector<CameraInfo> camerasInfo;
 
 #ifdef AVG_ENABLE_1394_2 //TODO
-    cout << FWCamera::countCameras() << endl;
     for (int i = 0; i < FWCamera::countCameras(); i++){
-    //camerasInfo.push_back(FWCamera::listCameraInfo(i));
+        CameraInfo* camInfo = FWCamera::listCameraInfo(i);
+        if(camInfo != NULL)
+        {
+            camerasInfo.push_back(*camInfo);
+        }
     }
 #endif
 /**
