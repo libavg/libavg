@@ -34,7 +34,7 @@ namespace avg{
 
 typedef std::vector<float> FramerateList;
 
-class CamImageFormat {
+class AVG_API CamImageFormat {
 public:
     CamImageFormat(IntPoint size, PixelFormat pixelFormat, std::vector<float> framerates);
     ~CamImageFormat();
@@ -49,7 +49,7 @@ private:
     FramerateList m_framerates;
 };
 
-class CamControl {
+class AVG_API CamControl {
 public:
     CamControl(const std::string& sControlName, int min, int max, int defaultValue);
     ~CamControl();

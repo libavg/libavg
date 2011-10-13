@@ -96,7 +96,6 @@ private:
        static int checkCamera(int j);
     static PixelFormat intToPixelFormat(unsigned int pixelformat);
 
-    static void getCamDevice(int fd, CameraInfo* camInfo);
     static void getCamImgFormats(int fd, CameraInfo* camInfo);
     static void getCamControls(int deviceNumber, CameraInfo* camInfo);    
 

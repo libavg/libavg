@@ -58,8 +58,8 @@ if g_options.dump:
         formatsList = info.getImageFormats()
         for format in formatsList:
             print "++++"
-            print "Pixelformat:", format.pixelformat
-            print "Resoultion: (", format.size.x, ",", format.size.y, ")"
+            print "Pixelformat:", format.getPixelFormat()
+            print "Resoultion:", format.getSize();
             print "Framerates: |",
             framerateList = list()
             framerateList = format.getFramerates()
@@ -70,9 +70,9 @@ if g_options.dump:
         controlsList = list()
         controlsList = info.getControls()
         for control in controlsList:
-            print "++++", control.controlName
-            print "Min:" , control.min, "| Max:", control.max,
-            print "| Default:", control.defaultValue
+            print "++++", control.getControlName()
+            print "Min:" , control.getMin(), "| Max:", control.getMax(),
+            print "| Default:", control.getDefault()
     exit(0)
 #Reset the firewire bux
 if g_options.resetbus:

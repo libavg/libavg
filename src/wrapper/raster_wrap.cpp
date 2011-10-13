@@ -131,7 +131,7 @@ void export_raster()
 
     class_<CamImageFormat>("CamImageFormat", no_init)
         .def("getSize", &CamImageFormat::getSize)
-        .def("gPixelFormat", &CamImageFormat::getPixelFormat)
+        .def("getPixelFormat", &CamImageFormat::getPixelFormat)
         .def("getFramerates", &CamImageFormat::getFramerates)
     ;
 
@@ -139,7 +139,7 @@ void export_raster()
         .def("getControlName", &CamControl::getControlName)
         .def("getMin", &CamControl::getMin)
         .def("getMax", &CamControl::getMax)
-        .def("getDefaultValue", &CamControl::getDefault)
+        .def("getDefault", &CamControl::getDefault)
     ;
 
     class_<CameraInfo>("CameraInfo", no_init)

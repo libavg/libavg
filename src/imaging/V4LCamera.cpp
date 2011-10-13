@@ -425,8 +425,9 @@ namespace avg {
     {
         int fd = checkCamera(deviceNumber);
         if (fd != -1){
-            CameraInfo* camInfo;
-            getCamDevice(deviceNumber, camInfo);
+            stringstream ss;
+            ss << "/dev/video" << fd;
+            CameraInfo* camInfo = new CameraInfo("video4linux", ss.str());
             v4l2_capability capability = getCamCapabilities(fd);
             if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
                 getCamImgFormats(fd, camInfo);
@@ -437,12 +438,6 @@ namespace avg {
         else {
             return NULL;
         }
-    }
-
-    void V4LCamera::getCamDevice(int fd, CameraInfo* camInfo) {
-        stringstream ss;
-        ss << "/dev/video" << fd;
-        camInfo = new CameraInfo("video4linux", ss.str());
     }
 
     void V4LCamera::getCamImgFormats(int fd, CameraInfo* camInfo) {
