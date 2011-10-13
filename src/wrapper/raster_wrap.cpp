@@ -136,10 +136,10 @@ void export_raster()
     ;
 
     class_<CamControl>("CamControl", no_init)
-        .def_readonly("controlName", &CamControl::sControlName)
-        .def_readonly("min", &CamControl::min)
-        .def_readonly("max", &CamControl::max)
-        .def_readonly("defaultValue", &CamControl::defaultValue)
+        .def("getControlName", &CamControl::getControlName)
+        .def("getMin", &CamControl::getMin)
+        .def("getMax", &CamControl::getMax)
+        .def("getDefaultValue", &CamControl::getDefault)
     ;
 
     class_<CameraInfo>("CameraInfo", no_init)

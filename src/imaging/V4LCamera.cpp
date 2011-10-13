@@ -504,11 +504,11 @@ namespace avg {
                 if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
                     continue;
                 }
-                CamControl camControl;
-                camControl.sControlName =V4LtoAVG_ctrlNames(queryCtrl.name);
-                camControl.min = queryCtrl.minimum;
-                camControl.max = queryCtrl.maximum;
-                camControl.defaultValue = queryCtrl.default_value;
+                std::string sControlName = V4LtoAVG_ctrlNames(queryCtrl.name);
+                int min = queryCtrl.minimum;
+                int max = queryCtrl.maximum;
+                int defaultValue = queryCtrl.default_value;
+                CamControl camControl = CamControl(sControlName, min, max, defaultValue);
                 camInfo->addControl(camControl);
             } else {
                 if (errno != EINVAL) {

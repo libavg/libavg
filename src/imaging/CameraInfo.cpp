@@ -23,7 +23,7 @@
 #include "CameraInfo.h"
 
 namespace avg{
-
+// ---------------CamImageFormat----------------------
     CamImageFormat::CamImageFormat(IntPoint size, PixelFormat pixelFormat, std::vector<float> framerates){
         m_size = size;
         m_pixelFormat = pixelFormat;
@@ -41,8 +41,29 @@ namespace avg{
     FramerateList CamImageFormat::getFramerates(){
         return m_framerates;
     }
+// ---------------CamControl------------------------
+    CamControl::CamControl(const std::string& sControlName, int min, int max, int defaultValue){
+        m_sControlName = sControlName;
+        m_min = min;
+        m_max = max;
+        m_defaultValue = defaultValue;
+    }
+    CamControl::~CamControl(){
+    }
 
-
+    std::string CamControl::getControlName(){
+        return m_sControlName;
+    }
+    int CamControl::getMin(){
+        return m_min;
+    }
+    int CamControl::getMax(){
+        return m_max;
+    }
+    int CamControl::getDefault(){
+        return m_defaultValue;
+    }
+// ---------------CameraInfo------------------------
     CameraInfo::CameraInfo(const std::string& sDriver, const std::string& sDeviceID) {
         m_sDriver = sDriver;
         m_sDeviceID = sDeviceID;

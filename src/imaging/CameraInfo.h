@@ -49,11 +49,21 @@ private:
     FramerateList m_framerates;
 };
 
-struct CamControl {
-    std::string sControlName;
-    int min;
-    int max;
-    int defaultValue;
+class CamControl {
+public:
+    CamControl(const std::string& sControlName, int min, int max, int defaultValue);
+    ~CamControl();
+
+    std::string getControlName();
+    int getMin();
+    int getMax();
+    int getDefault();
+
+private:
+    std::string m_sControlName;
+    int m_min;
+    int m_max;
+    int m_defaultValue;
 };
 
 typedef std::vector<CamImageFormat> CamImageFormatsList;
@@ -73,7 +83,6 @@ public:
     CamControlsList getControls();
 
 private:
-
     std::string m_sDriver;
     std::string m_sDeviceID;
     CamImageFormatsList m_formats;
