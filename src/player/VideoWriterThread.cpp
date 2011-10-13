@@ -194,7 +194,7 @@ void VideoWriterThread::setupVideoStream()
        identically 1. */
     pCodecContext->time_base.den = m_FrameRate;
     pCodecContext->time_base.num = 1;
-    pCodecContext->gop_size = 12; /* emit one intra frame every twelve frames at most */
+//    pCodecContext->gop_size = 12; /* emit one intra frame every twelve frames at most */
     pCodecContext->pix_fmt = STREAM_PIXEL_FORMAT;
     // Quality of quantization
     pCodecContext->qmin = m_QMin;
@@ -208,17 +208,11 @@ void VideoWriterThread::setupVideoStream()
 
 void VideoWriterThread::openVideoCodec()
 {
-    /* find the video encoder */
-    AVCodec* videoCodec = avcodec_find_encoder(
-            m_pVideoStream->codec->codec_id);
-    if (!videoCodec) {
-        cerr << "codec not found" << endl;
-    }
+    AVCodec* videoCodec = avcodec_find_encoder(m_pVideoStream->codec->codec_id);
+    AVG_ASSERT(videoCodec);
 
-    /* open the codec */
-    if (avcodec_open(m_pVideoStream->codec, videoCodec) < 0) {
-        cerr << "could not open codec" << endl;
-    }
+    int rc = avcodec_open(m_pVideoStream->codec, videoCodec);
+    AVG_ASSERT(rc == 0);
 }
 
 AVFrame* VideoWriterThread::createFrame(::PixelFormat pixelFormat, IntPoint size)
@@ -319,10 +313,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
 
         /* write the compressed frame in the media file */
         int ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
-        if (ret != 0) {
-            std::cerr << "Error while writing video frame" << std::endl;
-            assert(false);
-        }
+        AVG_ASSERT(ret == 0);
     }
 
 }
