@@ -244,12 +244,14 @@ void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
 std::vector<CameraInfo> listCameraInfo()
 {
     std::vector<CameraInfo> camerasInfo;
-/**
+
 #ifdef AVG_ENABLE_1394_2 //TODO
+    cout << FWCamera::countCameras() << endl;
     for (int i = 0; i < FWCamera::countCameras(); i++){
-    camerasInfo.push_back(FWCamera::listCameraInfo(i));
+    //camerasInfo.push_back(FWCamera::listCameraInfo(i));
     }
 #endif
+/**
 #ifdef AVG_ENABLE_CMU1394 //TODO
     for (int i = 0; i < CMUCamera::countCameras(); i++){
     camerasInfo.push_back(CMUCamera::listCameraInfo(i));

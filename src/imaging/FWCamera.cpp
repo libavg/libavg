@@ -583,8 +583,18 @@ void FWCamera::dumpCameraImageFormats(dc1394camera_t * pCamera)
 #endif
 
 int FWCamera::countCameras(){
-    //TODO:implement
-    //not implemented
+#ifdef AVG_ENABLE_1394_2
+    dc1394_t* pDC1394 = dc1394_new();
+    if (pDC1394 == 0) {
+        return 0;
+    }
+    dc1394camera_list_t * pCameraList;
+    int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
+    if (err == DC1394_SUCCESS) {
+        int numCameras = pCameraList->num;
+        return numCameras;
+    }
+#endif
     return 0;
 }
 

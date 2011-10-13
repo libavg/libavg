@@ -386,7 +386,7 @@ namespace avg {
     {
         v4l2_capability capability;
         memset(&capability, 0, sizeof(capability));
-        int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
+        ioctl(fd, VIDIOC_QUERYCAP, &capability);
         return capability;
     }
 
@@ -426,7 +426,7 @@ namespace avg {
         int fd = checkCamera(deviceNumber);
         if (fd != -1){
             stringstream ss;
-            ss << "/dev/video" << fd;
+            ss << "/dev/video" << deviceNumber;
             CameraInfo* camInfo = new CameraInfo("video4linux", ss.str());
             v4l2_capability capability = getCamCapabilities(fd);
             if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
@@ -435,9 +435,7 @@ namespace avg {
                 return camInfo;
             }
         }
-        else {
-            return NULL;
-        }
+        return NULL;
     }
 
     void V4LCamera::getCamImgFormats(int fd, CameraInfo* camInfo) {
@@ -454,7 +452,6 @@ namespace avg {
             memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
             frmSizeEnum.index = 0;
             frmSizeEnum.pixel_format = fmtDesc.pixelformat;
-            bool bSupported = false;
             while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
                 PixelFormat pixFormat = intToPixelFormat(fmtDesc.pixelformat);
                 if (pixFormat != NO_PIXELFORMAT) {
