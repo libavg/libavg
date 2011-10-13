@@ -513,7 +513,7 @@ class AVTestCase(AVGTestCase):
                     "nonexistentdir/test.mov", 30))
 
         if self._isCurrentDirWriteable():
-            for useCanvas in (True,): #False, True):
+            for useCanvas in (False, True):
                 Player.setFakeFPS(30)
                 
                 root = self.loadEmptyScene()
@@ -534,22 +534,22 @@ class AVTestCase(AVGTestCase):
                      stopWriter,
                      killWriter,
                      lambda: checkVideo(4),
-#                     testCreateException,
-#                     lambda: startWriter(15, False),
-#                     lambda: self.delay(100),
-#                     stopWriter,
-#                     killWriter,
-#                     lambda: checkVideo(2),
-#                     lambda: startWriter(30, False),
-#                     pauseWriter,
-#                     lambda: self.delay(200),
-#                     playWriter,
-#                     stopWriter,
-#                     killWriter,
-#                     lambda: checkVideo(1),
-#                     lambda: startWriter(30, False),
-#                     killWriter,
-#                     lambda: checkVideo(1),
+                     testCreateException,
+                     lambda: startWriter(15, False),
+                     lambda: self.delay(100),
+                     stopWriter,
+                     killWriter,
+                     lambda: checkVideo(2),
+                     lambda: startWriter(30, False),
+                     pauseWriter,
+                     lambda: self.delay(200),
+                     playWriter,
+                     stopWriter,
+                     killWriter,
+                     lambda: checkVideo(1),
+                     lambda: startWriter(30, False),
+                     killWriter,
+                     lambda: checkVideo(1),
                     ))
                 os.remove("test.mov")    
         else:
