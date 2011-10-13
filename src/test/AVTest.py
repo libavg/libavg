@@ -502,7 +502,8 @@ class AVTestCase(AVGTestCase):
             self.videoWriter.play()
 
         def checkVideo(numFrames):
-            savedVideoNode = avg.VideoNode(href="test.mov", threaded=False)
+            savedVideoNode = avg.VideoNode(href="test.mov", pos=(48,0), threaded=False, 
+                    parent=root)
             savedVideoNode.pause()
             self.assertEqual(savedVideoNode.getVideoCodec(), "mjpeg")
             self.assertEqual(savedVideoNode.getNumFrames(), numFrames)
@@ -534,6 +535,7 @@ class AVTestCase(AVGTestCase):
                      stopWriter,
                      killWriter,
                      lambda: checkVideo(4),
+                     lambda: self.compareImage("testVideoWriter1", False),
                      testCreateException,
                      lambda: startWriter(15, False),
                      lambda: self.delay(100),
