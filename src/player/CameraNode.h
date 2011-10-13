@@ -124,7 +124,6 @@ class AVG_API CameraNode : public RasterNode
         bool m_bNewBmp;
 
         GLTexturePtr m_pTex;
-        TextureMoverPtr m_pTexMover;
 };
 
 }

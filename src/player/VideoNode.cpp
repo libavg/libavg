@@ -483,16 +483,13 @@ void VideoNode::createTextures(IntPoint size)
         m_pTextures[0] = GLTexturePtr(new GLTexture(size, pf, bMipmap));
     }
     for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        GLTexturePtr pTex = m_pTextures[i];
-        m_pTexMovers[i] = TextureMover::create(pTex->getSize(), pTex->getPF(),
-                GL_STREAM_DRAW);
+        m_pTextures[i]->enableStreaming();
     }
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-        BitmapPtr pBmp = m_pTexMovers[0]->lock();
+        BitmapPtr pBmp = m_pTextures[0]->lockStreamingBmp();
         Filter.applyInPlace(pBmp);
-        m_pTexMovers[0]->unlock();
-        m_pTexMovers[0]->moveToTexture(*m_pTextures[0]);
+        m_pTextures[0]->unlockStreamingBmp(true);
     }
     if (pixelFormatIsPlanar(pf)) {
         if (pixelFormatHasAlpha(pf)) {
@@ -726,7 +723,7 @@ FrameAvailableCode VideoNode::renderToSurface()
     PixelFormat pf = m_pDecoder->getPixelFormat();
     std::vector<BitmapPtr> pBmps;
     for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        pBmps.push_back(m_pTexMovers[i]->lock());
+        pBmps.push_back(m_pTextures[i]->lockStreamingBmp());
     }
     if (pixelFormatIsPlanar(pf)) {
         frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0);
@@ -734,10 +731,7 @@ FrameAvailableCode VideoNode::renderToSurface()
         frameAvailable = m_pDecoder->renderToBmp(pBmps[0], getNextFrameTime()/1000.0);
     }
     for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
-        m_pTexMovers[i]->unlock();
-        if (frameAvailable == FA_NEW_FRAME) {
-            m_pTexMovers[i]->moveToTexture(*m_pTextures[i]);
-        }
+        m_pTextures[i]->unlockStreamingBmp(frameAvailable == FA_NEW_FRAME);
     }
 
     // Even with vsync, frame duration has a bit of jitter. If the video frames rendered

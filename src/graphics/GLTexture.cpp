@@ -136,6 +136,26 @@ void GLTexture::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
 }
 
+void GLTexture::enableStreaming()
+{
+    m_pMover = TextureMover::create(m_Size, m_pf, GL_STREAM_DRAW);
+}
+
+BitmapPtr GLTexture::lockStreamingBmp()
+{
+    AVG_ASSERT(m_pMover);
+    return m_pMover->lock();
+}
+
+void GLTexture::unlockStreamingBmp(bool bUpdated)
+{
+    AVG_ASSERT(m_pMover);
+    m_pMover->unlock();
+    if (bUpdated) {
+        m_pMover->moveToTexture(*this);
+    }
+}
+
 void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
     TextureMoverPtr pMover = TextureMover::create(m_Size, m_pf, GL_DYNAMIC_DRAW);
