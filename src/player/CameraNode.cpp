@@ -273,14 +273,15 @@ BitmapPtr CameraNode::getBitmap()
     }
 }
 
-void CameraNode::dumpCameras()
+void CameraNode::dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
 {
     avg::dumpCameras();
 }
 
-void CameraNode::listCameraInfo()
+CamInfoList CameraNode::listCameraInfo()
 {
-    avg::listCameraInfo();
+    CamInfoList camInfos = avg::listCameraInfo();
+    return camInfos;
 }
 
 void CameraNode::resetFirewireBus()

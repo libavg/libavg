@@ -28,6 +28,7 @@
 #include "RasterNode.h"
 
 #include "../imaging/Camera.h"
+#include "../imaging/CameraInfo.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -38,6 +39,7 @@ namespace avg {
 
 class TextureMover;
 typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
+typedef std::vector<CameraInfo> CamInfoList;
 
 class AVG_API CameraNode : public RasterNode
 {
@@ -102,7 +104,7 @@ class AVG_API CameraNode : public RasterNode
         virtual BitmapPtr getBitmap();
 
         static void dumpCameras();
-        static void listCameraInfo();
+        static CamInfoList listCameraInfo();
         static void resetFirewireBus();
 
     private:

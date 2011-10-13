@@ -43,6 +43,45 @@ parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", defa
 
 (g_options, g_args) = parser.parse_args()
 
+#Get Camera Informations and Print them
+if g_options.dump:
+    avg.CameraNode.dumpCameras() #Old output, delete if old structure is cleaned up
+    infoList = list()
+    infoList = avg.CameraNode.listCameraInfo()
+    if infoList is None:
+        exit(0)
+    for info in infoList:
+        print "##################",info.getDriver(),"##################"
+        print "Device ID:", info.getDeviceID()
+        print "----------------- FORMATS ------------------"
+        formatsList = list()
+        formatsList = info.getImageFormats()
+        for format in formatsList:
+            print "++++"
+            print "Pixelformat:", format.pixelformat
+            print "Resoultion: (", format.size.x, ",", format.size.y, ")"
+            print "Framerates: |",
+            framerateList = list()
+            framerateList = format.getFramerates()
+            for framerate in framerateList:
+                print framerate, "|",
+            print ""
+        print "----------------- CONTROLS -----------------"
+        controlsList = list()
+        controlsList = info.getControls()
+        for control in controlsList:
+            print "++++", control.controlName
+            print "Min:" , control.min, "| Max:", control.max,
+            print "| Default:", control.defaultValue
+    exit(0)
+#Reset the firewire bux
+if g_options.resetbus:
+    g_Log.trace(g_Log.APP, "Resetting firewire bus.")
+    avg.CameraNode.resetFirewireBus()
+    time.sleep(1)
+    if not g_options.driver:
+        exit(0)
+
 #Check if there isnt a option choosen, so write Error and exit
 if g_options.driver is None and not g_options.dump and not g_options.resetbus:
     parser.print_help()
@@ -67,21 +106,10 @@ class ShowCamera(AVGApp):
             if attr[0] != '_':
                 self.optdict[attr] = eval("g_options.%s" %attr)
 
-        #Analyze dump- and resetBus-options and exit
-        if g_options.dump:
-            avg.CameraNode.dumpCameras()
-            exit(0)
-
-        if g_options.resetbus:
-            g_Log.trace(g_Log.APP, "Resetting firewire bus.")
-            avg.CameraNode.resetFirewireBus()
-            time.sleep(1)
-            if not g_options.driver:
-                exit(0)
-
         g_Log.trace(g_Log.APP, "Creating camera:")
         g_Log.trace(g_Log.APP, "driver=%(driver)s device=%(device)s" %self.optdict)
-        g_Log.trace(g_Log.APP, "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
+        g_Log.trace(g_Log.APP,
+                "width=%(width)d height=%(height)d pixelformat=%(pixelFormat)s" 
                 %self.optdict)
         g_Log.trace(g_Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
                 %self.optdict)
@@ -95,7 +123,8 @@ class ShowCamera(AVGApp):
         g_Player.getRootNode().appendChild(self.camNode)
 
         if not g_options.noinfo:
-            self.infoText = "Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f" %self.optdict
+            self.infoText = ("Driver=%(driver)s (dev=%(device)s unit=%(unit)d) %(width)dx%(height)d@%(framerate)f"
+                    %self.optdict)
             avg.WordsNode(text=self.infoText, color="ff3333", pos=(5,5), fontsize=14,
                     parent=g_Player.getRootNode())
             frameText = avg.WordsNode(color="ff3333", pos=(5,25), fontsize=14,
@@ -119,7 +148,8 @@ class ShowCamera(AVGApp):
         def addWhitebalance(du = 0, dv = 0):
             self.camNode.setWhitebalance(self.camNode.getWhitebalanceU() + du, 
                     self.camNode.getWhitebalanceV() + dv)
-            print "u:", self.camNode.getWhitebalanceU(), "v:", self.camNode.getWhitebalanceV()
+            print ("u:", self.camNode.getWhitebalanceU(), "v:",
+                    self.camNode.getWhitebalanceV())
         
         def addGain(gain):
             self.camNode.gain += gain
