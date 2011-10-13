@@ -524,10 +524,12 @@ class AVTestCase(AVGTestCase):
                     canvas = Player.createCanvas(id="canvas", size=(48,48))
                     canvas.getRootNode().appendChild(videoNode)
                     avg.ImageNode(parent=root, href="canvas:canvas")
+                    testImageName = "testVideoWriterCanvas"
                 else:
                     root.appendChild(videoNode)
                     canvas = Player.getMainCanvas()
-                
+                    testImageName = "testVideoWriter"
+
                 self.start((
                      videoNode.play,
                      lambda: startWriter(30, True),
@@ -535,7 +537,7 @@ class AVTestCase(AVGTestCase):
                      stopWriter,
                      killWriter,
                      lambda: checkVideo(4),
-                     lambda: self.compareImage("testVideoWriter1", False),
+                     lambda: self.compareImage(testImageName+"1", False),
                      testCreateException,
                      lambda: startWriter(15, False),
                      lambda: self.delay(100),
