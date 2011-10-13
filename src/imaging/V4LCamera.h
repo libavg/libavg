@@ -61,8 +61,7 @@ public:
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
-    static void dumpCameras();
-    static CameraInfo listCameraInfo(int deviceNumber);
+    static CameraInfo* listCameraInfo(int deviceNumber);
     static int countCameras();
 
 private:
@@ -94,20 +93,12 @@ private:
     //       Camera::cameraFeatureToString
     FeatureNamesMap m_FeaturesNames;
 
-    static void dumpCameraControls(int fd);
-    static void dumpSupportedImgFormats(int fd);
-    static int dumpCameras_open(int j);
-    static const char * pixelformatToString(unsigned int pixelformat);
-    
-    static CamName getCamName(int fd);
-    //template<typename OutputIterator>
-    typedef std::back_insert_iterator<std::list<CamImageFormat> > OutputIterFormats;
-    static void getCamImgFormats(int fd, OutputIterFormats out);
-    //static std::list<CamImageFormat> getCamImgFormats(int fd);
-    //template<typename OutputIterator>
-    typedef std::back_insert_iterator<std::list<CamControls> > OutputIterCtrls;
-    static void getCamControls(int deviceNumber, OutputIterCtrls out);
-    
+       static int checkCamera(int j);
+    static PixelFormat intToPixelFormat(unsigned int pixelformat);
+
+    static void getCamDevice(int fd, CameraInfo* camInfo);
+    static void getCamImgFormats(int fd, CameraInfo* camInfo);
+    static void getCamControls(int deviceNumber, CameraInfo* camInfo);    
 
 };
 

@@ -26,6 +26,7 @@
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
+#include "CameraInfo.h"
 
 #include <string>
 #include <list>
@@ -57,35 +58,6 @@ enum CameraFeature {
     CAM_FEATURE_STROBE_DURATION
 };
 
-struct CamName {
-    std::string driver;
-    // to check: what should go under "device"? Can it be the same thing for
-    // every driver? path? name? ?
-    std::string device; 
-    int unit;
-    bool fw800;
-};
-
-struct CamImageFormat {
-    int iWidth;
-    int iHeight;
-    std::string sPixelformat;
-    std::list<double> dFramerate;
-};
-
-struct CamControls {
-    std::string sControlName;
-    int iMin;
-    int iMax;
-    int iDefault;
-};
-    
-struct CameraInfo {
-    CamName                     name;
-    std::list<CamImageFormat>  lImgFormats;
-    std::list<CamControls>      lCamControls;
-};
-
 class AVG_API Camera
 {
 public:
@@ -115,6 +87,7 @@ public:
 
 protected:
     PixelFormat fwBayerStringToPF(unsigned long reg);
+    static CameraInfo m_camInfo;//std::list<CameraInfo> camInfos;
 
 private:
     Camera();
@@ -134,7 +107,7 @@ AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sD
         PixelFormat destPF, double frameRate);
 
 AVG_API void dumpCameras();
-AVG_API std::list<CameraInfo> listCameraInfo();
+AVG_API std::vector<CameraInfo> listCameraInfo();
 
 }
 

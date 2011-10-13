@@ -225,7 +225,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
 
 }
 
-void dumpCameras()
+void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
 {
 #ifdef AVG_ENABLE_1394_2 
     FWCamera::dumpCameras();
@@ -234,39 +234,43 @@ void dumpCameras()
     CMUCamera::dumpCameras();
 #endif
 #ifdef AVG_ENABLE_V4L2 
-    V4LCamera::dumpCameras();
+    //V4LCamera::dumpCameras(); Works now with listCameraInfo()
 #endif
 #ifdef AVG_ENABLE_DSHOW 
     DSCamera::dumpCameras();
 #endif
 }
 
-std::list<CameraInfo> listCameraInfo()
+std::vector<CameraInfo> listCameraInfo()
 {
-    std::list<CameraInfo> lCamerasInfo;
+    std::vector<CameraInfo> camerasInfo;
 /**
 #ifdef AVG_ENABLE_1394_2 //TODO
     for (int i = 0; i < FWCamera::countCameras(); i++){
-    lCamerasInfo.push_back(FWCamera::listCameraInfo(i));
+    camerasInfo.push_back(FWCamera::listCameraInfo(i));
     }
 #endif
 #ifdef AVG_ENABLE_CMU1394 //TODO
     for (int i = 0; i < CMUCamera::countCameras(); i++){
-    lCamerasInfo.push_back(CMUCamera::listCameraInfo(i));
+    camerasInfo.push_back(CMUCamera::listCameraInfo(i));
     }
 #endif
 #ifdef AVG_ENABLE_DSHOW //TODO
     for (int i = 0; i < DSCamera::countCameras(); i++){
-    lCamerasInfo.push_back(DSCamera::listCameraInfo(i));
+    camerasInfo.push_back(DSCamera::listCameraInfo(i));
     }
 #endif***/
 #ifdef AVG_ENABLE_V4L2 
     int v4lcameras = V4LCamera::countCameras();
     for (int i = 0; i < v4lcameras; i++){
-    lCamerasInfo.push_back(V4LCamera::listCameraInfo(i));
+        CameraInfo* camInfo = V4LCamera::listCameraInfo(i);
+        if(camInfo != NULL)
+        {
+            camerasInfo.push_back(*camInfo);
+        }
     }
 #endif
-    return lCamerasInfo; //what happens here if there are no cameras? How to prevent it?
+    return camerasInfo;
 }
 
 
