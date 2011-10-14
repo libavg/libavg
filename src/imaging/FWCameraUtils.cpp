@@ -239,6 +239,108 @@ dc1394feature_t getFeatureID(CameraFeature feature)
     }
 }
 
+IntPoint VideoModesToIntPoint(dc1394video_mode_t mode){
+    switch (mode) {
+        case DC1394_VIDEO_MODE_160x120_YUV444:{
+            IntPoint point = IntPoint();
+            point.x = 160;
+            point.y = 120;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_320x240_YUV422:{
+            IntPoint point = IntPoint();
+            point.x = 320;
+            point.y = 240;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_640x480_YUV411:
+        case DC1394_VIDEO_MODE_640x480_YUV422:
+        case DC1394_VIDEO_MODE_640x480_RGB8:
+        case DC1394_VIDEO_MODE_640x480_MONO8:
+        case DC1394_VIDEO_MODE_640x480_MONO16:{
+                IntPoint point = IntPoint();
+                point.x = 640;
+                point.y = 480;
+                return point;
+        }
+        case DC1394_VIDEO_MODE_800x600_YUV422:
+        case DC1394_VIDEO_MODE_800x600_RGB8:
+        case DC1394_VIDEO_MODE_800x600_MONO8:
+        case DC1394_VIDEO_MODE_800x600_MONO16:{
+                IntPoint point = IntPoint();
+                point.x = 800;
+                point.y = 600;
+                return point;
+        }
+        case DC1394_VIDEO_MODE_1024x768_YUV422:
+        case DC1394_VIDEO_MODE_1024x768_RGB8:
+        case DC1394_VIDEO_MODE_1024x768_MONO8:
+        case DC1394_VIDEO_MODE_1024x768_MONO16:{
+                IntPoint point = IntPoint();
+                point.x = 1024;
+                point.y = 768;
+                return point;
+        }
+
+
+        case DC1394_VIDEO_MODE_1280x960_YUV422:
+        case DC1394_VIDEO_MODE_1280x960_RGB8:
+        case DC1394_VIDEO_MODE_1280x960_MONO8:
+        case DC1394_VIDEO_MODE_1280x960_MONO16:{
+                IntPoint point = IntPoint();
+                point.x = 1280;
+                point.y = 960;
+                return point;
+        }
+        case DC1394_VIDEO_MODE_1600x1200_YUV422:
+        case DC1394_VIDEO_MODE_1600x1200_RGB8:
+        case DC1394_VIDEO_MODE_1600x1200_MONO8:
+        case DC1394_VIDEO_MODE_1600x1200_MONO16:{
+                IntPoint point = IntPoint();
+                point.x = 1600;
+                point.y = 1200;
+                return point;
+        }
+        default:
+            AVG_ASSERT(false);
+    }
+}
+
+PixelFormat VideoModesToPF(dc1394video_mode_t mode){
+    switch (mode) {
+        case DC1394_VIDEO_MODE_640x480_YUV411:
+            return YCbCr411;
+        case DC1394_VIDEO_MODE_320x240_YUV422:
+        case DC1394_VIDEO_MODE_640x480_YUV422:
+        case DC1394_VIDEO_MODE_800x600_YUV422:
+        case DC1394_VIDEO_MODE_1024x768_YUV422:
+        case DC1394_VIDEO_MODE_1280x960_YUV422:
+        case DC1394_VIDEO_MODE_1600x1200_YUV422:
+            return YCbCr422;
+        case DC1394_VIDEO_MODE_640x480_RGB8:
+        case DC1394_VIDEO_MODE_800x600_RGB8:
+        case DC1394_VIDEO_MODE_1024x768_RGB8:
+        case DC1394_VIDEO_MODE_1280x960_RGB8:
+        case DC1394_VIDEO_MODE_1600x1200_RGB8:
+            return R8G8B8;
+        case DC1394_VIDEO_MODE_640x480_MONO8:
+        case DC1394_VIDEO_MODE_800x600_MONO8:
+        case DC1394_VIDEO_MODE_1024x768_MONO8:
+        case DC1394_VIDEO_MODE_1280x960_MONO8:
+        case DC1394_VIDEO_MODE_1600x1200_MONO8:
+            return I8;
+        case DC1394_VIDEO_MODE_640x480_MONO16:
+        case DC1394_VIDEO_MODE_800x600_MONO16:
+        case DC1394_VIDEO_MODE_1024x768_MONO16:
+        case DC1394_VIDEO_MODE_1280x960_MONO16:
+        case DC1394_VIDEO_MODE_1600x1200_MONO16:
+            return I16;
+        default:
+            AVG_ASSERT(false);
+
+    }
+}
+
 const char * VideoModesToString(int mode)
 {
     switch (mode) {

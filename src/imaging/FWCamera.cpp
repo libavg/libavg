@@ -632,6 +632,35 @@ CameraInfo* FWCamera::listCameraInfo(int deviceNumber){
 }
 
 #ifdef AVG_ENABLE_1394_2
+void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInfo){
+    dc1394video_modes_t video_modes;
+    dc1394framerates_t framerates;
+    dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &video_modes);
+    if(err != DC1394_SUCCESS){
+        return;
+    }
+    for (int i = 0; i < (video_modes.num); i++)
+    {
+        //Covers only libavg supported formats, other capabilities are ignored
+        if (video_modes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
+                && video_modes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
+            cout << VideoModesToString(video_modes.modes[i]);
+            err = dc1394_video_get_supported_framerates(pCamera, video_modes.modes[i],\
+                    &framerates);
+            AVG_ASSERT(err == DC1394_SUCCESS);
+            cout << "   fps: ";
+            for (int j = 0; j < framerates.num; j++)
+            {
+                cout << FrameRatesToString(framerates.framerates[j])<< "/";
+            }
+            cout << endl;
+        }
+    }
+    //Is this true also for non ptgrey cameras?
+    cout << endl << "###### I8 and BAYER8 formats are interchangeable ######" << endl;
+    cout << endl;
+}
+
 void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
     dc1394featureset_t featureSet;
     int err = dc1394_feature_get_all(pCamera, &featureSet);
