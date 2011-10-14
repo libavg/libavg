@@ -598,43 +598,102 @@ int FWCamera::countCameras(){
     return 0;
 }
 
-CameraInfo* FWCamera::listCameraInfo(int deviceNumber)
-{
+CameraInfo* FWCamera::listCameraInfo(int deviceNumber){
+#ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
-        if (pDC1394 == 0) {
-            return NULL;
-        }
-        dc1394camera_list_t * pCameraList;
-        int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
-        if (err == DC1394_SUCCESS) {
-            if (pCameraList->num != 0) {
-                for (unsigned i=0; i<pCameraList->num;++i) {
-                    dc1394camera_id_t id = pCameraList->ids[i];
-                    dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
-                            id.unit);
-                    if (pCamera) {
-                        stringstream ss;
-                        ss << pCamera->guid;
-                        CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
-                        //Print Features
-                        //dc1394featureset_t FeatureSet;
-                        //err = dc1394_feature_get_all(pCamera, &FeatureSet);
-                        //dc1394_feature_print_all(&FeatureSet, stderr);
-                       // dc1394featrue_info_t featureInfo;
-                       // uint_t* min;
-                       // uint_t* max;
-                       // dc1394_feature_get_boundaries(pCamera, DC1394_FEATURE_BRIGHTNESS, &min, &max);
-                       // cout << "min:"<< *min << " " << "max:" << *max << endl;
+    if (pDC1394 == 0) {
+        return NULL;
+    }
+    dc1394camera_list_t * pCameraList;
+    int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
+    if (err == DC1394_SUCCESS) {
+        if (pCameraList->num != 0) {
+            for (unsigned i=0; i<pCameraList->num;++i) {
+                dc1394camera_id_t id = pCameraList->ids[i];
+                dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
+                        id.unit);
+                if (pCamera) {
+                    stringstream ss;
+                    ss << pCamera->guid;
+                    CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
 
-                        dc1394_camera_free(pCamera);
-                        dc1394_camera_free_list(pCameraList);
-                        dc1394_free(pDC1394);
-                        return camInfo;
-                    }
+                    getCameraControls(pCamera, camInfo);
+
+                    dc1394_camera_free(pCamera);
+                    dc1394_camera_free_list(pCameraList);
+                    dc1394_free(pDC1394);
+                    return camInfo;
                 }
             }
         }
+    }
+#endif
+    return NULL;
 }
+
+#ifdef AVG_ENABLE_1394_2
+void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
+    dc1394featureset_t featureSet;
+    int err = dc1394_feature_get_all(pCamera, &featureSet);
+    if(err == DC1394_SUCCESS)
+    {
+        for (int i = DC1394_FEATURE_MIN; i <= DC1394_FEATURE_MAX; i++)
+        {
+            cout<< "Feature " << i << endl;
+            dc1394feature_info_t featureInfo = featureSet.feature[i - DC1394_FEATURE_MIN];
+
+            dc1394bool_t bool_t;
+            dc1394_feature_is_present(pCamera,featureInfo.id, &bool_t);
+            if(bool_t != DC1394_TRUE)
+            {
+                cout << "######################################"<< endl;
+                continue;
+            }
+
+            uint32_t minVal = 0;
+            uint32_t maxVal = 0;
+            uint32_t actValue = 0;
+
+            err = dc1394_feature_get_boundaries(pCamera, featureInfo.id, &minVal, &maxVal); //TODO: 428 (TRIGGER) doesnt have min max
+            if(err == DC1394_SUCCESS)
+                cout << "Min:"<< minVal << " Max:" << maxVal << endl;
+
+            switch(featureInfo.id){
+                case DC1394_FEATURE_TEMPERATURE:{
+                    uint32_t targetTemp = 0;
+                    uint32_t currentTemp = 0;
+                    err = dc1394_feature_temperature_get_value(pCamera,&targetTemp,&currentTemp);
+                    if(err == DC1394_SUCCESS)
+                        cout << "Temp: " << currentTemp << endl;
+                    break;
+                }
+//TODO: If necessasy, Think about a way to get this information into CameraInfo
+                case DC1394_FEATURE_WHITE_BALANCE:{
+                    uint32_t ub_Value = 0;
+                    uint32_t vr_Value = 0;
+                    err = dc1394_feature_whitebalance_get_value(pCamera,&ub_Value,&vr_Value);
+                    if(err == DC1394_SUCCESS)
+                        cout << "U-Blue Value: " << ub_Value << " V-Red Value: " << vr_Value << endl;
+                    break;
+                }
+                default:{
+
+                    err = dc1394_feature_get_value(pCamera,featureInfo.id, &actValue);
+                    if(err == DC1394_SUCCESS)
+                           cout << "Value: " << actValue << endl;
+                    break;
+                }
+            }
+            CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
+            std::string controlName = cameraFeatureToString(enumFeature);
+            cout << controlName << endl;
+            CamControl control = CamControl(controlName, (int) minVal, (int) maxVal, (int) actValue);
+            camInfo->addControl(control);
+            cout << "######################################"<< endl;
+        }
+    }
+}
+#endif
 
 void FWCamera::resetBus()
 {

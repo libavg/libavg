@@ -134,6 +134,57 @@ dc1394framerate_t getFrameRateConst(double frameRate)
                 +toString(frameRate)+" for camera framerate.");
     }
 }
+CameraFeature featureIDToEnum(dc1394feature_t feature)
+{
+    switch (feature) {
+        case DC1394_FEATURE_BRIGHTNESS:
+            return CAM_FEATURE_BRIGHTNESS;
+        case DC1394_FEATURE_EXPOSURE:
+            return CAM_FEATURE_EXPOSURE;
+        case DC1394_FEATURE_SHARPNESS:
+            return CAM_FEATURE_SHARPNESS;
+        case DC1394_FEATURE_WHITE_BALANCE:
+            return CAM_FEATURE_WHITE_BALANCE;
+        case DC1394_FEATURE_HUE:
+            return CAM_FEATURE_HUE;
+        case DC1394_FEATURE_SATURATION:
+            return CAM_FEATURE_SATURATION;
+        case DC1394_FEATURE_GAMMA:
+            return CAM_FEATURE_GAMMA;
+        case DC1394_FEATURE_SHUTTER:
+            return CAM_FEATURE_SHUTTER;
+        case DC1394_FEATURE_GAIN:
+            return CAM_FEATURE_GAIN;
+        case DC1394_FEATURE_IRIS:
+            return CAM_FEATURE_IRIS;
+        case DC1394_FEATURE_FOCUS:
+            return CAM_FEATURE_FOCUS;
+        case DC1394_FEATURE_TEMPERATURE:
+            return CAM_FEATURE_TEMPERATURE;
+        case DC1394_FEATURE_TRIGGER:
+            return CAM_FEATURE_TRIGGER;
+        case DC1394_FEATURE_TRIGGER_DELAY:
+            return CAM_FEATURE_TRIGGER_DELAY;
+        case DC1394_FEATURE_WHITE_SHADING:
+            return CAM_FEATURE_WHITE_SHADING;
+        case DC1394_FEATURE_FRAME_RATE:
+            return CAM_FEATURE_FRAME_RATE;
+        case DC1394_FEATURE_ZOOM:
+            return CAM_FEATURE_ZOOM;
+        case DC1394_FEATURE_PAN:
+            return CAM_FEATURE_PAN;
+        case DC1394_FEATURE_TILT:
+            return CAM_FEATURE_TILT;
+        case DC1394_FEATURE_OPTICAL_FILTER:
+            return CAM_FEATURE_OPTICAL_FILTER;
+        case DC1394_FEATURE_CAPTURE_SIZE:
+            return CAM_FEATURE_CAPTURE_SIZE;
+        case DC1394_FEATURE_CAPTURE_QUALITY:
+            return CAM_FEATURE_CAPTURE_QUALITY;
+        default:
+            AVG_ASSERT(false);
+    }
+}
 
 dc1394feature_t getFeatureID(CameraFeature feature)
 {
@@ -164,6 +215,12 @@ dc1394feature_t getFeatureID(CameraFeature feature)
             return DC1394_FEATURE_TEMPERATURE;
         case CAM_FEATURE_TRIGGER:
             return DC1394_FEATURE_TRIGGER;
+        case CAM_FEATURE_TRIGGER_DELAY:
+            return DC1394_FEATURE_TRIGGER_DELAY;
+        case CAM_FEATURE_WHITE_SHADING:
+            return DC1394_FEATURE_WHITE_SHADING;
+        case CAM_FEATURE_FRAME_RATE:
+            return DC1394_FEATURE_FRAME_RATE;
         case CAM_FEATURE_ZOOM:
             return DC1394_FEATURE_ZOOM;
         case CAM_FEATURE_PAN:

@@ -137,6 +137,12 @@ string cameraFeatureToString(CameraFeature feature)
             return "temperature";
         case CAM_FEATURE_TRIGGER:
             return "trigger";
+        case CAM_FEATURE_TRIGGER_DELAY:
+            return "trigger delay";
+        case CAM_FEATURE_WHITE_SHADING:
+            return "white shading";
+        case CAM_FEATURE_FRAME_RATE:
+            return "frame rate";
         case CAM_FEATURE_ZOOM:
             return "zoom";
         case CAM_FEATURE_PAN:
