@@ -563,14 +563,14 @@ void FWCamera::dumpCameraImageFormats(dc1394camera_t * pCamera)
     {   
         //this covers only libavg supported formats, other capabilities are ignored
         if (video_modes.modes[i] < 87 && video_modes.modes[i] != 64){
-            cout << VideoModesToString(video_modes.modes[i]);
+            //cout << VideoModesToString(video_modes.modes[i]);
             err = dc1394_video_get_supported_framerates(pCamera, video_modes.modes[i],\
                     &framerates);
             AVG_ASSERT(err == DC1394_SUCCESS);
             cout << "   fps: ";
             for (int j = 0; j < framerates.num; j++)
             {
-                cout << FrameRatesToString(framerates.framerates[j])<< "/";
+                //cout << FrameRatesToString(framerates.framerates[j])<< "/";
             }
             cout << endl;
         }
@@ -645,21 +645,21 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
         //Covers only libavg supported formats, other capabilities are ignored
         if (videoModes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
                 && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
-            PixelFormat pixFormat = VideoModesToPF(videoModes.modes[i]);
-            cout << "Format: " << getPixelFormatString(pixFormat) << endl;
-            IntPoint size = VideoModesToIntPoint(videoModes.modes[i]);
-            cout << "Size:" << size << endl;
-            err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],\
+            PixelFormat pixFormat = videoModeToPF(videoModes.modes[i]);
+            IntPoint size = videoModeToIntPoint(videoModes.modes[i]);
+            FramerateList framerateList;
+            err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],
                     &framerates);
-            AVG_ASSERT(err == DC1394_SUCCESS);
-            cout << "   fps: ";
-            for (int j = 0; j < framerates.num; j++)
+            if(err == DC1394_SUCCESS)
             {
-                cout << FrameRatesToString(framerates.framerates[j])<< "/";
+                int numFramerates = (int) framerates.num;
+                for (int j = 0; j < numFramerates; j++)
+                {
+                    float rate = framerateToFloat(framerates.framerates[j]);
+                    framerateList.push_back(rate);
+                }
             }
-            cout << endl;
-            FramerateList frames;
-            CamImageFormat format = CamImageFormat(size,pixFormat,frames);
+            CamImageFormat format = CamImageFormat(size,pixFormat,framerateList);
             camInfo->addImageFormat(format);
         }
     }
