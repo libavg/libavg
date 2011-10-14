@@ -635,62 +635,68 @@ CameraInfo* FWCamera::listCameraInfo(int deviceNumber){
 void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
     dc1394featureset_t featureSet;
     int err = dc1394_feature_get_all(pCamera, &featureSet);
-    if(err == DC1394_SUCCESS)
-    {
-        for (int i = DC1394_FEATURE_MIN; i <= DC1394_FEATURE_MAX; i++)
-        {
-            cout<< "Feature " << i << endl;
-            dc1394feature_info_t featureInfo = featureSet.feature[i - DC1394_FEATURE_MIN];
+    if(err != DC1394_SUCCESS){
+        return;
+    }
 
-            dc1394bool_t bool_t;
-            dc1394_feature_is_present(pCamera,featureInfo.id, &bool_t);
-            if(bool_t != DC1394_TRUE)
-            {
-                cout << "######################################"<< endl;
-                continue;
-            }
+    for (int i = DC1394_FEATURE_MIN; i <= DC1394_FEATURE_MAX; i++){
+        dc1394feature_info_t featureInfo = featureSet.feature[i - DC1394_FEATURE_MIN];
 
-            uint32_t minVal = 0;
-            uint32_t maxVal = 0;
-            uint32_t actValue = 0;
-
-            err = dc1394_feature_get_boundaries(pCamera, featureInfo.id, &minVal, &maxVal); //TODO: 428 (TRIGGER) doesnt have min max
-            if(err == DC1394_SUCCESS)
-                cout << "Min:"<< minVal << " Max:" << maxVal << endl;
-
-            switch(featureInfo.id){
-                case DC1394_FEATURE_TEMPERATURE:{
-                    uint32_t targetTemp = 0;
-                    uint32_t currentTemp = 0;
-                    err = dc1394_feature_temperature_get_value(pCamera,&targetTemp,&currentTemp);
-                    if(err == DC1394_SUCCESS)
-                        cout << "Temp: " << currentTemp << endl;
-                    break;
-                }
-//TODO: If necessasy, Think about a way to get this information into CameraInfo
-                case DC1394_FEATURE_WHITE_BALANCE:{
-                    uint32_t ub_Value = 0;
-                    uint32_t vr_Value = 0;
-                    err = dc1394_feature_whitebalance_get_value(pCamera,&ub_Value,&vr_Value);
-                    if(err == DC1394_SUCCESS)
-                        cout << "U-Blue Value: " << ub_Value << " V-Red Value: " << vr_Value << endl;
-                    break;
-                }
-                default:{
-
-                    err = dc1394_feature_get_value(pCamera,featureInfo.id, &actValue);
-                    if(err == DC1394_SUCCESS)
-                           cout << "Value: " << actValue << endl;
-                    break;
-                }
-            }
-            CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
-            std::string controlName = cameraFeatureToString(enumFeature);
-            cout << controlName << endl;
-            CamControl control = CamControl(controlName, (int) minVal, (int) maxVal, (int) actValue);
-            camInfo->addControl(control);
-            cout << "######################################"<< endl;
+        dc1394bool_t bool_t;
+        dc1394_feature_is_present(pCamera,featureInfo.id, &bool_t);
+        if(bool_t != DC1394_TRUE){
+            continue;
         }
+
+        uint32_t min = -1;
+        uint32_t max = -1;
+        uint32_t actValue = -1;
+
+        //TODO: 428 (TRIGGER) doesnt have min max
+        err = dc1394_feature_get_boundaries(pCamera, featureInfo.id, &min, &max);
+        if(err != DC1394_SUCCESS){
+            continue;
+        }
+
+        switch(featureInfo.id){
+            case DC1394_FEATURE_TEMPERATURE:{
+                uint32_t targetTemp = -1;
+                uint32_t currentTemp = -1;
+                err = dc1394_feature_temperature_get_value(pCamera,&targetTemp,&currentTemp);
+                if(err != DC1394_SUCCESS){
+                    continue;
+                }
+                actValue = currentTemp;
+                break;
+            }
+//TODO: If necessasy, think about a way to get this information into CameraInfo
+            case DC1394_FEATURE_WHITE_BALANCE:{
+                uint32_t ubValue = -1;
+                uint32_t vrValue = -1;
+                err = dc1394_feature_whitebalance_get_value(pCamera,&ubValue,&vrValue);
+                if(err != DC1394_SUCCESS){
+                    continue;
+                }
+                //actValue = ubValue; //vrValue;
+                //cout <<"UBlue Value: " << ubValue << " VRed Value: " << vrValue << endl;
+                break;
+            }
+            default:{
+                err = dc1394_feature_get_value(pCamera,featureInfo.id, &actValue);
+                if(err != DC1394_SUCCESS){
+                    continue;
+                }
+                break;
+            }
+        }
+        CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
+        std::string controlName = cameraFeatureToString(enumFeature);
+
+        CamControl control = CamControl(controlName,
+                (int) min,
+                (int) max,
+                (int) actValue ); //TODO: isnt really a default value!?
+        camInfo->addControl(control);
     }
 }
 #endif
