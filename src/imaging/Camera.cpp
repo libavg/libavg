@@ -234,7 +234,7 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
 void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
 {
 #ifdef AVG_ENABLE_1394_2 
-    FWCamera::dumpCameras();
+    //FWCamera::dumpCameras();
 #endif
 #ifdef AVG_ENABLE_CMU1394 
     CMUCamera::dumpCameras();

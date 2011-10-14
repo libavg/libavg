@@ -51,21 +51,24 @@ if g_options.dump:
     if infoList is None:
         exit(0)
     for info in infoList:
+        print ""
         print "##################",info.getDriver(),"##################"
         print "Device ID:", info.getDeviceID()
+        print ""
         print "----------------- FORMATS ------------------"
         formatsList = list()
         formatsList = info.getImageFormats()
         for format in formatsList:
             print "++++"
             print "Pixelformat:", format.getPixelFormat()
-            print "Resoultion:", format.getSize();
+            print "Resolution:", format.getSize();
             print "Framerates: |",
             framerateList = list()
             framerateList = format.getFramerates()
             for framerate in framerateList:
                 print framerate, "|",
             print ""
+        print ""
         print "----------------- CONTROLS -----------------"
         controlsList = list()
         controlsList = info.getControls()
@@ -73,6 +76,7 @@ if g_options.dump:
             print "++++", control.getControlName()
             print "Min:" , control.getMin(), "| Max:", control.getMax(),
             print "| Default:", control.getDefault()
+        print ""
     exit(0)
 #Reset the firewire bux
 if g_options.resetbus:

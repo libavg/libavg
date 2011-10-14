@@ -508,80 +508,6 @@ void FWCamera::enablePtGreyBayer()
 #endif
 }
 
-void FWCamera::dumpCameras()
-{
-#ifdef AVG_ENABLE_1394_2
-    dc1394_t* pDC1394 = dc1394_new();
-    if (pDC1394 == 0) {
-        return;
-    }
-    dc1394camera_list_t * pCameraList;
-    int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
-    if (err == DC1394_SUCCESS) {
-        if (pCameraList->num != 0) {
-            cerr << "Firewire cameras: " << endl;
-            for (unsigned i=0; i<pCameraList->num;++i) {
-                dc1394camera_id_t id = pCameraList->ids[i];
-                dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid, 
-                        id.unit);
-                if (pCamera) {
-                    dc1394_camera_print_info(pCamera, stderr);
-                    dumpCameraInfo(pCamera);
-                    dc1394_camera_free(pCamera);
-                    cerr << endl;
-                }
-            }
-        }
-        dc1394_camera_free_list(pCameraList);
-    }
-    dc1394_free(pDC1394);
-#endif
-}
-
-#ifdef AVG_ENABLE_1394_2
-void FWCamera::dumpCameraInfo(dc1394camera_t * pCamera)
-{
-    dc1394error_t err;
-    dc1394featureset_t FeatureSet;
-    dumpCameraImageFormats(pCamera);
-    err = dc1394_feature_get_all(pCamera, &FeatureSet);
-    AVG_ASSERT(err == DC1394_SUCCESS);
-    // TODO: do this using AVG_TRACE
-    dc1394_feature_print_all(&FeatureSet, stderr);
-}
-
-void FWCamera::dumpCameraImageFormats(dc1394camera_t * pCamera)
-{
-    dc1394error_t err;
-    dc1394video_modes_t video_modes;
-    dc1394framerates_t framerates;
-    err = dc1394_video_get_supported_modes(pCamera, &video_modes);
-    AVG_ASSERT(err == DC1394_SUCCESS);
-    cout << endl;
-    cout << "------ Supported Image Formats ------" << endl;
-    for (int i = 0; i < (video_modes.num); i++)
-    {   
-        //this covers only libavg supported formats, other capabilities are ignored
-        if (video_modes.modes[i] < 87 && video_modes.modes[i] != 64){
-            //cout << VideoModesToString(video_modes.modes[i]);
-            err = dc1394_video_get_supported_framerates(pCamera, video_modes.modes[i],\
-                    &framerates);
-            AVG_ASSERT(err == DC1394_SUCCESS);
-            cout << "   fps: ";
-            for (int j = 0; j < framerates.num; j++)
-            {
-                //cout << FrameRatesToString(framerates.framerates[j])<< "/";
-            }
-            cout << endl;
-        }
-    }
-    //Is this true also for non ptgrey cameras?
-    cout << endl << "###### I8 and BAYER8 formats are interchangeable ######" << endl;
-    cout << endl;
-}
-
-#endif
-
 int FWCamera::countCameras(){
 #ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
@@ -663,9 +589,6 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
             camInfo->addImageFormat(format);
         }
     }
-    //Is this true also for non ptgrey cameras?
-    cout << endl << "###### I8 and BAYER8 formats are interchangeable ######" << endl;
-    cout << endl;
 }
 
 void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){

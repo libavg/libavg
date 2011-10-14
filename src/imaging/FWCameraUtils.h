@@ -41,7 +41,6 @@ CameraFeature featureIDToEnum(dc1394feature_t feature);
 dc1394feature_t getFeatureID(CameraFeature feature);
 IntPoint videoModeToIntPoint(dc1394video_mode_t mode);
 PixelFormat videoModeToPF(dc1394video_mode_t mode);
-//const char * VideoModesToString(int mode);
 float framerateToFloat(dc1394framerate_t framerate);
 
 }

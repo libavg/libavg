@@ -71,16 +71,11 @@ private:
     virtual void close();
 
     int getV4LPF(PixelFormat pf);
+    static int checkCamera(int j);
+    static PixelFormat intToPixelFormat(unsigned int pixelformat);
 
-    int m_Fd;
-    int m_Channel;
-    std::string m_sDevice;
-    std::string m_sDriverName;
-    std::vector<Buffer> m_vBuffers;
-    bool m_bCameraAvailable;
-    int m_v4lPF;
-    IntPoint m_ImgSize;
-    double m_FrameRate;
+    static void getCamImgFormats(int fd, CameraInfo* camInfo);
+    static void getCamControls(int deviceNumber, CameraInfo* camInfo);
 
     void setFeature(V4LCID_t v4lFeature, int value);
     V4LCID_t getFeatureID(CameraFeature feature) const;
@@ -93,11 +88,15 @@ private:
     //       Camera::cameraFeatureToString
     FeatureNamesMap m_FeaturesNames;
 
-       static int checkCamera(int j);
-    static PixelFormat intToPixelFormat(unsigned int pixelformat);
-
-    static void getCamImgFormats(int fd, CameraInfo* camInfo);
-    static void getCamControls(int deviceNumber, CameraInfo* camInfo);    
+    int m_Fd;
+    int m_Channel;
+    std::string m_sDevice;
+    std::string m_sDriverName;
+    std::vector<Buffer> m_vBuffers;
+    bool m_bCameraAvailable;
+    int m_v4lPF;
+    IntPoint m_ImgSize;
+    double m_FrameRate;
 
 };
 
