@@ -618,6 +618,7 @@ CameraInfo* FWCamera::listCameraInfo(int deviceNumber){
                     CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
 
                     getCameraControls(pCamera, camInfo);
+                    getCameraImageFormats(pCamera, camInfo);
 
                     dc1394_camera_free(pCamera);
                     dc1394_camera_free_list(pCameraList);
@@ -633,19 +634,22 @@ CameraInfo* FWCamera::listCameraInfo(int deviceNumber){
 
 #ifdef AVG_ENABLE_1394_2
 void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInfo){
-    dc1394video_modes_t video_modes;
+    dc1394video_modes_t videoModes;
     dc1394framerates_t framerates;
-    dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &video_modes);
+    dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &videoModes);
     if(err != DC1394_SUCCESS){
         return;
     }
-    for (int i = 0; i < (video_modes.num); i++)
+    for (int i = 0; i < (videoModes.num); i++)
     {
         //Covers only libavg supported formats, other capabilities are ignored
-        if (video_modes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
-                && video_modes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
-            cout << VideoModesToString(video_modes.modes[i]);
-            err = dc1394_video_get_supported_framerates(pCamera, video_modes.modes[i],\
+        if (videoModes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
+                && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
+            PixelFormat pixFormat = VideoModesToPF(videoModes.modes[i]);
+            cout << "Format: " << getPixelFormatString(pixFormat) << endl;
+            IntPoint size = VideoModesToIntPoint(videoModes.modes[i]);
+            cout << "Size:" << size << endl;
+            err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],\
                     &framerates);
             AVG_ASSERT(err == DC1394_SUCCESS);
             cout << "   fps: ";
@@ -654,6 +658,9 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
                 cout << FrameRatesToString(framerates.framerates[j])<< "/";
             }
             cout << endl;
+            FramerateList frames;
+            CamImageFormat format = CamImageFormat(size,pixFormat,frames);
+            camInfo->addImageFormat(format);
         }
     }
     //Is this true also for non ptgrey cameras?
