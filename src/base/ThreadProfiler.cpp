@@ -165,7 +165,6 @@ ProfilingZonePtr ThreadProfiler::addZone(const ProfilingZoneID& zoneID)
         it = m_Zones.end();
     } else {
         ProfilingZonePtr pActiveZone = m_ActiveZones.back();
-        ZoneList::iterator itPrevZone = m_Zones.begin();
         bool bParentFound = false;
         for (it = m_Zones.begin(); it != m_Zones.end(); ++it) 
         {

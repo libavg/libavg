@@ -125,8 +125,6 @@ std::string removeStartEndSpaces(const string& s)
 string toLowerCase(const string& s)
 {
     string sResult;
-    char lower[2];
-    lower[1] = 0;
     for (unsigned i=0; i<s.length(); ++i) {
         sResult.push_back(::tolower(s[i]));
     }
