@@ -95,6 +95,7 @@ void RasterNode::setArgs(const ArgList& args)
 
 void RasterNode::connectDisplay()
 {
+    checkMaskSupport(m_sMaskHref);
     AreaNode::connectDisplay();
 
     m_pSurface->attach();
@@ -251,9 +252,8 @@ const UTF8String& RasterNode::getMaskHRef() const
 
 void RasterNode::setMaskHRef(const UTF8String& sHref)
 {
-    if (!(GLContext::getCurrent()->isUsingShaders()) && sHref != "") {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Can't use masks - unsupported on this hardware/driver combination.");
+    if (GLContext::getCurrent()) {
+        checkMaskSupport(sHref);
     }
     m_sMaskHref = sHref;
     checkReload();
@@ -392,6 +392,14 @@ void RasterNode::calcMaskCoords()
     }
     DPoint maskPos = DPoint(m_MaskPos.x/mediaSize.x, m_MaskPos.y/mediaSize.y);
     m_pSurface->setMaskCoords(maskPos, maskSize);
+}
+
+void RasterNode::checkMaskSupport(const string& sHref)
+{
+    if (!(GLContext::getCurrent()->isUsingShaders()) && sHref != "") {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Can't use masks - unsupported on this hardware/driver combination.");
+    }
 }
 
 void RasterNode::downloadMask()
