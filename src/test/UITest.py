@@ -320,7 +320,7 @@ class UITestCase(AVGTestCase):
                 self.__failed == failed)
 
         root = self.loadEmptyScene()
-        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png", size=(128,128))
         self.__tapRecognizer = ui.DoubletapRecognizer(image,
                 possibleHandler=onPossible,
                 detectedHandler=onDetected,
@@ -340,7 +340,7 @@ class UITestCase(AVGTestCase):
                  # Down, move: abort
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 63, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
@@ -348,8 +348,8 @@ class UITestCase(AVGTestCase):
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 63, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 63, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 80, 30),
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
@@ -358,7 +358,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 63, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
