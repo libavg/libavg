@@ -251,6 +251,10 @@ const UTF8String& RasterNode::getMaskHRef() const
 
 void RasterNode::setMaskHRef(const UTF8String& sHref)
 {
+    if (!(GLContext::getCurrent()->isUsingShaders()) && sHref != "") {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Can't use masks - unsupported on this hardware/driver combination.");
+    }
     m_sMaskHref = sHref;
     checkReload();
 }
