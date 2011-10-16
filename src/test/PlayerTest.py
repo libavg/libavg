@@ -19,8 +19,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 import time
 import math
 
@@ -93,11 +91,15 @@ class PlayerTestCase(AVGTestCase):
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)
 
+        def invalidCreateNode():
+            avg.ImageNode(1, 2, 3)
+
         Player.showCursor(0)
         Player.showCursor(1)
         root = self.loadEmptyScene()
         node = Player.createNode("""<image id="test1" href="rgb24-65x65.png"/>""")
         root.appendChild(node)
+        self.assertException(invalidCreateNode)
         self.start((
                   getFramerate,
                   lambda: self.compareImage("testbasics", False), 
@@ -112,7 +114,7 @@ class PlayerTestCase(AVGTestCase):
             self.assertEqual(Player.getFrameDuration(), 50)
             self.assertEqual(Player.getEffectiveFramerate(), 20)
 
-        root = self.loadEmptyScene()
+        self.loadEmptyScene()
         Player.setFakeFPS(20)
         self.start((
                  checkTime,
