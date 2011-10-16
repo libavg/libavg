@@ -504,6 +504,12 @@ class AVTestCase(AVGTestCase):
         def playWriter():
             self.videoWriter.play()
 
+        def hideVideo():
+            videoNode.opacity = 0
+
+        def showVideo():
+            videoNode.opacity = 1
+
         def checkVideo(numFrames):
             savedVideoNode = avg.VideoNode(href="test.mov", pos=(48,0), threaded=False, 
                     parent=root)
@@ -540,7 +546,9 @@ class AVTestCase(AVGTestCase):
                      stopWriter,
                      killWriter,
                      lambda: checkVideo(4),
+                     hideVideo,
                      lambda: self.compareImage(testImageName+"1", False),
+                     showVideo,
                      testCreateException,
                      lambda: startWriter(15, False),
                      lambda: self.delay(100),
