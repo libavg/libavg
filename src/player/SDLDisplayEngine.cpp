@@ -401,6 +401,7 @@ BitmapPtr SDLDisplayEngine::screenshot()
     } else {
         glReadBuffer(GL_FRONT);
     }
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
