@@ -23,6 +23,7 @@
 #define _Point_H_
 
 #include "../api.h"
+#include "MathHelper.h"
 
 #include <ostream>
 #include <vector>
@@ -98,7 +99,10 @@ template<class NUM>
 double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2);
 
 template<class NUM>
-double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2);
+double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
+{
+    return sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y);
+}
 
 typedef Point<double> DPoint;
 typedef Point<int> IntPoint;

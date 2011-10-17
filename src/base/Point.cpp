@@ -307,12 +307,6 @@ double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
     return sqrt(double(sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y)));
 }
 
-template<class NUM>
-double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
-{
-    return sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y);
-}
-
 // Explicit instantiations.
 template class Point<double>;
 template std::ostream& operator<<( std::ostream& os, const Point<double> &p);
