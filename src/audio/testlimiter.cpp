@@ -57,7 +57,7 @@ public:
         double* pSamples = new double[CHANNELS*numSamples];
         for (int j = 0; j < numSamples; j++) {
             for (int i = 0; i < CHANNELS; i++) {
-                pSamples[j*CHANNELS+i] = 2*sin(j*(440./44100)*PI);
+                pSamples[j*CHANNELS+i] = 2*sin(j*(440./44100)*M_PI);
             }
         }
 

@@ -99,7 +99,7 @@ void PanoImageNode::render(const DRect& Rect)
             "PanoImageNode::render: glLoadIdentity()");
 
     calcProjection();
-    gluPerspective(m_fovy*180/PI, m_aspect, 0.1, 2);
+    gluPerspective(m_fovy*180/M_PI, m_aspect, 0.1, 2);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: gluPerspective()");
     glMatrixMode(GL_MODELVIEW);

@@ -331,21 +331,21 @@ public:
             DPoint v2(DPoint(1,0));
             TEST(getLineLineIntersection(p1, v1, p2, v2) == DPoint(1,1));
         }
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI, DPoint(15,5)), DPoint(20,10)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*0.5, DPoint(15,5)),
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI, DPoint(15,5)), DPoint(20,10)));
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI*0.5, DPoint(15,5)),
                 DPoint(20,0)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*1.5, DPoint(15,5)), 
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI*1.5, DPoint(15,5)), 
                 DPoint(10,10)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*2, DPoint(15,5)), 
+        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI*2, DPoint(15,5)), 
                 DPoint(10,0)));
-        TEST(almostEqual(DPoint(23,0).getRotatedPivot(PI*0.5), DPoint(0,23)));
+        TEST(almostEqual(DPoint(23,0).getRotatedPivot(M_PI*0.5), DPoint(0,23)));
 
         TEST(almostEqual(DPoint(10,0), DPoint::fromPolar(0, 10)));
-        TEST(almostEqual(DPoint(0,10), DPoint::fromPolar(PI*0.5, 10)));
-        TEST(almostEqual(DPoint(0,-1), DPoint::fromPolar(PI*1.5, 1)));
-        TEST(almostEqual(vecAngle(DPoint(0,1),DPoint(1,0)), PI*0.5));
-        TEST(almostEqual(vecAngle(DPoint(0,-1),DPoint(1,0)), PI*1.5));
-        TEST(almostEqual(vecAngle(DPoint(0,2),DPoint(1,0)), PI*0.5));
+        TEST(almostEqual(DPoint(0,10), DPoint::fromPolar(M_PI*0.5, 10)));
+        TEST(almostEqual(DPoint(0,-1), DPoint::fromPolar(M_PI*1.5, 1)));
+        TEST(almostEqual(vecAngle(DPoint(0,1),DPoint(1,0)), M_PI*0.5));
+        TEST(almostEqual(vecAngle(DPoint(0,-1),DPoint(1,0)), M_PI*1.5));
+        TEST(almostEqual(vecAngle(DPoint(0,2),DPoint(1,0)), M_PI*0.5));
     }
 };
 #ifdef _MSC_VER

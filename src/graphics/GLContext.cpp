@@ -250,7 +250,7 @@ void GLContext::pushTransform(const DPoint& translate, double angle, const DPoin
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
     glTranslated(pivot.x, pivot.y, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
-    glRotated(angle*180.0/PI, 0, 0, 1);
+    glRotated(angle*180.0/M_PI, 0, 0, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
     glTranslated(-pivot.x, -pivot.y, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
