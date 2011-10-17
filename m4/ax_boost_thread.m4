@@ -25,8 +25,8 @@ ax_cv_boost_thread,
 dnl FIXME: need to include a generic way to check for the flag
 dnl to turn on threading support.
  CXXFLAGS="-pthread $CXXFLAGS"
- AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[#include <boost/thread/thread.hpp>]],
-			           [[boost::thread_group thrds; return 0;]]),
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <boost/thread/thread.hpp>]],
+			           [[boost::thread_group thrds; return 0;]])],
   	           ax_cv_boost_thread=yes, ax_cv_boost_thread=no)
  CXXFLAGS=$CXXFLAGS_SAVE
  AC_LANG_RESTORE

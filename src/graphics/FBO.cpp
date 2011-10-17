@@ -139,6 +139,8 @@ BitmapPtr FBO::getImage(int i) const
 
 void FBO::moveToPBO(int i) const
 {
+    // Get data directly from the FBO using glReadBuffer. At least on NVidia/Linux, this 
+    // is faster than reading stuff from the texture.
     copyToDestTexture();
     if (m_MultisampleSamples != 1) { 
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO); 

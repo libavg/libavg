@@ -71,16 +71,15 @@ VDPAU::VDPAU()
 
 VDPAU::~VDPAU()
 {
-    VdpStatus status;
     if (m_VDPMixer != VDP_INVALID_HANDLE) {
-        status = vdp_video_mixer_destroy(m_VDPMixer);
+        vdp_video_mixer_destroy(m_VDPMixer);
     }
     if (m_VDPDecoder != VDP_INVALID_HANDLE) {
-        status = vdp_decoder_destroy(m_VDPDecoder);
+        vdp_decoder_destroy(m_VDPDecoder);
     }
     for (int i = 0; i < N_VIDEO_SURFACES; i++) {
         if (m_VideoSurfaces[i].m_Surface != VDP_INVALID_HANDLE) {
-            status = vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
+            vdp_video_surface_destroy(m_VideoSurfaces[i].m_Surface);
         }
     }
 }

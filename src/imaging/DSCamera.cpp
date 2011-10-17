@@ -352,7 +352,7 @@ void DSCamera::onSample(IMediaSample * pSample)
     // Get the current image.
     pSample->GetPointer(&pData);
 
-    int stride = m_Size.x*Bitmap::getBytesPerPixel(getCamPF());
+    int stride = m_Size.x*getBytesPerPixel(getCamPF());
     Bitmap camBmp(m_Size, getCamPF(), pData, stride, false, "CameraImage");
     // Copy over to bitmap queue, doing pixel format conversion if necessary.
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, getDestPF(), 

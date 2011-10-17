@@ -311,6 +311,10 @@ template<const char * pszType>
 avg::NodePtr createNode(const boost::python::tuple &args,
         const boost::python::dict &attrs)
 {
+    if (boost::python::len(args) != 0) {
+        throw avg::Exception(AVG_ERR_INVALID_ARGS, 
+                "Nodes must be constructed using named parameters. Positional parameters are not supported.");
+    }
     return avg::Player::get()->createNode(pszType, attrs);
 }
 

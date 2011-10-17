@@ -146,7 +146,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         bool m_bUsesHardwareAcceleration;
 
         GLTexturePtr m_pTextures[4];
-        TextureMoverPtr m_pTexMovers[4];
 };
 
 }

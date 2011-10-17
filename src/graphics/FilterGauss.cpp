@@ -188,7 +188,7 @@ void FilterGauss::calcKernel()
     int intRadius = int(ceil(m_Radius));
     m_KernelWidth = intRadius*2+1;
     for (int i = 0; i <= intRadius; ++i) {
-        FloatKernel[intRadius+i] = exp(-i*i/m_Radius-1)/sqrt(2*PI);
+        FloatKernel[intRadius+i] = exp(-i*i/m_Radius-1)/sqrt(2*M_PI);
         FloatKernel[intRadius-i] = FloatKernel[intRadius+i];
         Sum += FloatKernel[intRadius+i];
         if (i != 0) {

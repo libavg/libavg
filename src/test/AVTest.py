@@ -131,8 +131,11 @@ class AVTestCase(AVGTestCase):
                     ))
         videoFiles = ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264", "vp6a-yuva-48x48.flv"]
+        print
         for filename in videoFiles:
+            print "  " + filename
             for isThreaded in [False, True]:
+                print "    threaded: ", isThreaded
                 testVideoFile(filename, isThreaded)
 
     def testPlayBeforeConnect(self):
@@ -501,8 +504,15 @@ class AVTestCase(AVGTestCase):
         def playWriter():
             self.videoWriter.play()
 
+        def hideVideo():
+            videoNode.opacity = 0
+
+        def showVideo():
+            videoNode.opacity = 1
+
         def checkVideo(numFrames):
-            savedVideoNode = avg.VideoNode(href="test.mov", threaded=False)
+            savedVideoNode = avg.VideoNode(href="test.mov", pos=(48,0), threaded=False, 
+                    parent=root)
             savedVideoNode.pause()
             self.assertEqual(savedVideoNode.getVideoCodec(), "mjpeg")
             self.assertEqual(savedVideoNode.getNumFrames(), numFrames)
@@ -513,7 +523,7 @@ class AVTestCase(AVGTestCase):
                     "nonexistentdir/test.mov", 30))
 
         if self._isCurrentDirWriteable():
-            for useCanvas in (True,): #False, True):
+            for useCanvas in (False, True):
                 Player.setFakeFPS(30)
                 
                 root = self.loadEmptyScene()
@@ -523,10 +533,12 @@ class AVTestCase(AVGTestCase):
                     canvas = Player.createCanvas(id="canvas", size=(48,48))
                     canvas.getRootNode().appendChild(videoNode)
                     avg.ImageNode(parent=root, href="canvas:canvas")
+                    testImageName = "testVideoWriterCanvas"
                 else:
                     root.appendChild(videoNode)
                     canvas = Player.getMainCanvas()
-                
+                    testImageName = "testVideoWriter"
+
                 self.start((
                      videoNode.play,
                      lambda: startWriter(30, True),
@@ -534,22 +546,25 @@ class AVTestCase(AVGTestCase):
                      stopWriter,
                      killWriter,
                      lambda: checkVideo(4),
-#                     testCreateException,
-#                     lambda: startWriter(15, False),
-#                     lambda: self.delay(100),
-#                     stopWriter,
-#                     killWriter,
-#                     lambda: checkVideo(2),
-#                     lambda: startWriter(30, False),
-#                     pauseWriter,
-#                     lambda: self.delay(200),
-#                     playWriter,
-#                     stopWriter,
-#                     killWriter,
-#                     lambda: checkVideo(1),
-#                     lambda: startWriter(30, False),
-#                     killWriter,
-#                     lambda: checkVideo(1),
+                     hideVideo,
+                     lambda: self.compareImage(testImageName+"1", False),
+                     showVideo,
+                     testCreateException,
+                     lambda: startWriter(15, False),
+                     lambda: self.delay(100),
+                     stopWriter,
+                     killWriter,
+                     lambda: checkVideo(2),
+                     lambda: startWriter(30, False),
+                     pauseWriter,
+                     lambda: self.delay(200),
+                     playWriter,
+                     stopWriter,
+                     killWriter,
+                     lambda: checkVideo(1),
+                     lambda: startWriter(30, False),
+                     killWriter,
+                     lambda: checkVideo(1),
                     ))
                 os.remove("test.mov")    
         else:

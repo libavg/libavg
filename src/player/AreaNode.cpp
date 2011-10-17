@@ -171,7 +171,7 @@ double AreaNode::getAngle() const
 
 void AreaNode::setAngle(double angle)
 {
-    m_Angle = fmod(angle, 2*PI);
+    m_Angle = fmod(angle, 2*M_PI);
 }
 
 DPoint AreaNode::getPivot() const

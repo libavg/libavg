@@ -146,7 +146,7 @@ public:
         }
         TEST(almostEqual(barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
 
-        DeDistort rotator = DeDistort(DPoint(1,1), params, 0, PI/2, DPoint(0,0),
+        DeDistort rotator = DeDistort(DPoint(1,1), params, 0, M_PI/2, DPoint(0,0),
                 DPoint(1,1));
         for (double xp = 0; xp < 10; xp++) {
             for(double yp = 0; yp < 10; yp++) {
