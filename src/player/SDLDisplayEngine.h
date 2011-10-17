@@ -63,7 +63,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         virtual IntPoint getSize();
 
         virtual void showCursor(bool bShow);
-        virtual BitmapPtr screenshot();
+        virtual BitmapPtr screenshot(int buffer=0);
 
         // From IInputDevice
         virtual std::vector<EventPtr> pollEvents();
