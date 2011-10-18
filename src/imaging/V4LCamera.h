@@ -74,8 +74,8 @@ private:
     static int checkCamera(int j);
     static PixelFormat intToPixelFormat(unsigned int pixelformat);
 
-    static void getCamImgFormats(int fd, CameraInfo* camInfo);
-    static void getCamControls(int deviceNumber, CameraInfo* camInfo);
+    static void getCameraImageFormats(int fd, CameraInfo* camInfo);
+    static void getCameraControls(int deviceNumber, CameraInfo* camInfo);
 
     void setFeature(V4LCID_t v4lFeature, int value);
     V4LCID_t getFeatureID(CameraFeature feature) const;

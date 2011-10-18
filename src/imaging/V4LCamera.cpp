@@ -431,15 +431,15 @@ CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
         CameraInfo* camInfo = new CameraInfo("video4linux", ss.str());
         v4l2_capability capability = getCamCapabilities(fd);
         if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
-            getCamImgFormats(fd, camInfo);
-            getCamControls(fd, camInfo);
+            getCameraImageFormats(fd, camInfo);
+            getCameraControls(fd, camInfo);
             return camInfo;
         }
     }
     return NULL;
 }
 
-void V4LCamera::getCamImgFormats(int fd, CameraInfo* camInfo)
+void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
 {
     for (int i = 0;; i++) {
         v4l2_fmtdesc fmtDesc;
@@ -480,16 +480,7 @@ void V4LCamera::getCamImgFormats(int fd, CameraInfo* camInfo)
     }
 }
 
-string V4LtoAVG_ctrlNames(__u8* name)
-{
-    //TODO:some controls are not support by libavg, those should be ignored;
-    stringstream ss;
-    ss << name;
-    string sControlName = ss.str() ;
-    return sControlName;
-}
-
-void V4LCamera::getCamControls(int fd, CameraInfo* camInfo)
+void V4LCamera::getCameraControls(int fd, CameraInfo* camInfo)
 {
     v4l2_queryctrl queryCtrl;
     for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
@@ -498,7 +489,9 @@ void V4LCamera::getCamControls(int fd, CameraInfo* camInfo)
             if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
                 continue;
             }
-            std::string sControlName = V4LtoAVG_ctrlNames(queryCtrl.name);
+            stringstream ss;
+            ss << queryCtrl.name;
+            std::string sControlName = ss.str();
             int min = queryCtrl.minimum;
             int max = queryCtrl.maximum;
             int defaultValue = queryCtrl.default_value;
