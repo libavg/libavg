@@ -167,8 +167,6 @@ CameraFeature featureIDToEnum(dc1394feature_t feature)
             return CAM_FEATURE_TRIGGER_DELAY;
         case DC1394_FEATURE_WHITE_SHADING:
             return CAM_FEATURE_WHITE_SHADING;
-        case DC1394_FEATURE_FRAME_RATE:
-            return CAM_FEATURE_FRAME_RATE;
         case DC1394_FEATURE_ZOOM:
             return CAM_FEATURE_ZOOM;
         case DC1394_FEATURE_PAN:
@@ -182,8 +180,7 @@ CameraFeature featureIDToEnum(dc1394feature_t feature)
         case DC1394_FEATURE_CAPTURE_QUALITY:
             return CAM_FEATURE_CAPTURE_QUALITY;
         default:
-            AVG_ASSERT(false);
-            return CameraFeature(0);
+            return CAM_FEATURE_UNSUPPORTED;
     }
 }
 
@@ -220,8 +217,6 @@ dc1394feature_t getFeatureID(CameraFeature feature)
             return DC1394_FEATURE_TRIGGER_DELAY;
         case CAM_FEATURE_WHITE_SHADING:
             return DC1394_FEATURE_WHITE_SHADING;
-        case CAM_FEATURE_FRAME_RATE:
-            return DC1394_FEATURE_FRAME_RATE;
         case CAM_FEATURE_ZOOM:
             return DC1394_FEATURE_ZOOM;
         case CAM_FEATURE_PAN:

@@ -449,7 +449,6 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
         fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
         if (rc == -1) {
-            AVG_TRACE(Logger::WARNING, "Reading Image Formats. Code: "<< rc);
             break;
         }
         v4l2_frmsizeenum frmSizeEnum;
@@ -488,7 +487,6 @@ void V4LCamera::getCameraControls(int fd, CameraInfo* camInfo)
     for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
         int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
         if (rc == -1) {
-            AVG_TRACE(Logger::WARNING, strerror(errno));
             continue;
         }
         if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {

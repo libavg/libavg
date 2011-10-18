@@ -582,12 +582,13 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
                     &framerates);
             if(err != DC1394_SUCCESS){
                 AVG_TRACE(Logger::WARNING, "Camera: No framerates. Error was: " << err);
-            }
-            int numFramerates = (int) framerates.num;
-            for (int j = 0; j < numFramerates; j++)
-            {
-                float rate = framerateToFloat(framerates.framerates[j]);
-                framerateList.push_back(rate);
+            } else {
+                int numFramerates = (int) framerates.num;
+                for (int j = 0; j < numFramerates; j++)
+                {
+                    float rate = framerateToFloat(framerates.framerates[j]);
+                    framerateList.push_back(rate);
+                }
             }
             CameraImageFormat format = CameraImageFormat(size,pixFormat,framerateList);
             camInfo->addImageFormat(format);
@@ -654,6 +655,9 @@ void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
             }
         }
         CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
+        if(enumFeature == CAM_FEATURE_UNSUPPORTED){
+            continue;
+        }
         std::string controlName = cameraFeatureToString(enumFeature);
 
         CameraControl control = CameraControl(controlName,
