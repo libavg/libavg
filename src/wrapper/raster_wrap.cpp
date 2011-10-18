@@ -130,7 +130,7 @@ void export_raster()
     from_python_sequence<FrameratesVector, variable_capacity_policy>();
 
     class_<CameraImageFormat>("CameraImageFormat", no_init)
-        .add_property("size", &CameraNode::getSize)
+        .add_property("size", &CameraImageFormat::getSize)
         .add_property("pixelFormat", &CameraImageFormat::getPixelFormat)
         .add_property("framerates", &CameraImageFormat::getFramerates)
     ;

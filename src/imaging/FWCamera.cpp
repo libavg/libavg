@@ -573,7 +573,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
                 && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
             PixelFormat pixFormat = videoModeToPF(videoModes.modes[i]);
             IntPoint size = videoModeToIntPoint(videoModes.modes[i]);
-            FramerateList framerateList;
+            FrameratesVector framerateList;
             err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],
                     &framerates);
             if(err == DC1394_SUCCESS)

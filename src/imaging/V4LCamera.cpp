@@ -469,7 +469,7 @@ namespace avg {
                         framerates.push_back(frmIvalEnum.discrete.denominator);
                         frmIvalEnum.index++;
                     }
-                    CamImageFormat camImFormat = CamImageFormat(size, pixFormat,
+                    CameraImageFormat camImFormat = CameraImageFormat(size, pixFormat,
                             framerates);
                     camInfo->addImageFormat(camImFormat);
                 }
@@ -500,7 +500,7 @@ namespace avg {
                 int min = queryCtrl.minimum;
                 int max = queryCtrl.maximum;
                 int defaultValue = queryCtrl.default_value;
-                CamControl camControl = CamControl(sControlName, min, max, defaultValue);
+                CameraControl camControl = CameraControl(sControlName, min, max, defaultValue);
                 camInfo->addControl(camControl);
             } else {
                 if (errno != EINVAL) {
