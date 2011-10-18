@@ -32,27 +32,27 @@
 
 namespace avg{
 
-typedef std::vector<float> FramerateList;
+typedef std::vector<float> FrameratesVector;
 
-class AVG_API CamImageFormat {
+class AVG_API CameraImageFormat {
 public:
-    CamImageFormat(IntPoint size, PixelFormat pixelFormat, std::vector<float> framerates);
-    ~CamImageFormat();
+    CameraImageFormat(IntPoint size, PixelFormat pixelFormat, FrameratesVector framerates);
+    ~CameraImageFormat();
 
     IntPoint getSize();
     PixelFormat getPixelFormat();
-    FramerateList getFramerates();
+    FrameratesVector getFramerates();
 
 private:
     IntPoint m_size;
     PixelFormat m_pixelFormat;
-    FramerateList m_framerates;
+    FrameratesVector m_framerates;
 };
 
-class AVG_API CamControl {
+class AVG_API CameraControl {
 public:
-    CamControl(const std::string& sControlName, int min, int max, int defaultValue);
-    ~CamControl();
+    CameraControl(const std::string& sControlName, int min, int max, int defaultValue);
+    ~CameraControl();
 
     std::string getControlName();
     int getMin();
@@ -66,27 +66,27 @@ private:
     int m_defaultValue;
 };
 
-typedef std::vector<CamImageFormat> CamImageFormatsList;
-typedef std::vector<CamControl> CamControlsList;
+typedef std::vector<CameraImageFormat> CameraImageFormatsVector;
+typedef std::vector<CameraControl> CameraControlsVector;
 
 class AVG_API CameraInfo {
 public:
     CameraInfo(const std::string& sDriver, const std::string& sDeviceID);
     ~CameraInfo();
 
-    void addControl(CamControl control);
-    void addImageFormat(CamImageFormat format);
+    void addControl(CameraControl control);
+    void addImageFormat(CameraImageFormat format);
 
     std::string getDriver();
     std::string getDeviceID();
-    CamImageFormatsList getImageFormats();
-    CamControlsList getControls();
+    CameraImageFormatsVector getImageFormats();
+    CameraControlsVector getControls();
 
 private:
     std::string m_sDriver;
     std::string m_sDeviceID;
-    CamImageFormatsList m_formats;
-    CamControlsList m_controls;
+    CameraImageFormatsVector m_formats;
+    CameraControlsVector m_controls;
 
 };
 

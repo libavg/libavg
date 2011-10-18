@@ -23,44 +23,44 @@
 #include "CameraInfo.h"
 
 namespace avg{
-// ---------------CamImageFormat----------------------
-    CamImageFormat::CamImageFormat(IntPoint size, PixelFormat pixelFormat, std::vector<float> framerates){
+// ---------------CameraImageFormat----------------------
+    CameraImageFormat::CameraImageFormat(IntPoint size, PixelFormat pixelFormat, FrameratesVector framerates){
         m_size = size;
         m_pixelFormat = pixelFormat;
         m_framerates = framerates;
     }
-    CamImageFormat::~CamImageFormat(){
+    CameraImageFormat::~CameraImageFormat(){
     }
 
-    IntPoint CamImageFormat::getSize(){
+    IntPoint CameraImageFormat::getSize(){
         return m_size;
     }
-    PixelFormat CamImageFormat::getPixelFormat(){
+    PixelFormat CameraImageFormat::getPixelFormat(){
         return m_pixelFormat;
     }
-    FramerateList CamImageFormat::getFramerates(){
+    FrameratesVector CameraImageFormat::getFramerates(){
         return m_framerates;
     }
-// ---------------CamControl------------------------
-    CamControl::CamControl(const std::string& sControlName, int min, int max, int defaultValue){
+// ---------------CameraControl------------------------
+    CameraControl::CameraControl(const std::string& sControlName, int min, int max, int defaultValue){
         m_sControlName = sControlName;
         m_min = min;
         m_max = max;
         m_defaultValue = defaultValue;
     }
-    CamControl::~CamControl(){
+    CameraControl::~CameraControl(){
     }
 
-    std::string CamControl::getControlName(){
+    std::string CameraControl::getControlName(){
         return m_sControlName;
     }
-    int CamControl::getMin(){
+    int CameraControl::getMin(){
         return m_min;
     }
-    int CamControl::getMax(){
+    int CameraControl::getMax(){
         return m_max;
     }
-    int CamControl::getDefault(){
+    int CameraControl::getDefault(){
         return m_defaultValue;
     }
 // ---------------CameraInfo------------------------
@@ -72,11 +72,11 @@ namespace avg{
     CameraInfo::~CameraInfo() {
     }
 
-    void CameraInfo::addControl(CamControl control){
+    void CameraInfo::addControl(CameraControl control){
         m_controls.push_back(control);
     }
 
-    void CameraInfo::addImageFormat(CamImageFormat format){
+    void CameraInfo::addImageFormat(CameraImageFormat format){
         m_formats.push_back(format);
     }
 
@@ -88,11 +88,11 @@ namespace avg{
         return m_sDeviceID;
     }
 
-    CamImageFormatsList CameraInfo::getImageFormats(){
+    CameraImageFormatsVector CameraInfo::getImageFormats(){
         return m_formats;
     }
 
-    CamControlsList CameraInfo::getControls(){
+    CameraControlsVector CameraInfo::getControls(){
         return m_controls;
     }
 }

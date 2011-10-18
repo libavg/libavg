@@ -55,7 +55,7 @@ public:
 
     static void dumpCameras();
     static int countCameras();
-    CameraInfo listCameraInfo(int deviceNumber);
+    static CameraInfo* getCameraInfos(int deviceNumber);
 
 private:
     int getCamIndex(long long guid);

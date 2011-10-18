@@ -70,7 +70,7 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
     static int countCameras();
-    static CameraInfo* listCameraInfo(int deviceNumber);
+    static CameraInfo* getCameraInfos(int deviceNumber);
     static void resetBus();
 
 private:

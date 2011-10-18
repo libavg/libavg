@@ -110,7 +110,7 @@ AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sD
         PixelFormat destPF, double frameRate);
 
 AVG_API void dumpCameras();
-AVG_API std::vector<CameraInfo> listCameraInfo();
+AVG_API std::vector<CameraInfo> getCamerasInfos();
 
 }
 

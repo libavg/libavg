@@ -278,9 +278,9 @@ void CameraNode::dumpCameras() //TODO: Delete if all Cameras work with listCamer
     avg::dumpCameras();
 }
 
-CamInfoList CameraNode::listCameraInfo()
+CamerasInfosVector CameraNode::getCamerasInfos()
 {
-    CamInfoList camInfos = avg::listCameraInfo();
+    CamerasInfosVector camInfos = avg::getCamerasInfos();
     return camInfos;
 }
 

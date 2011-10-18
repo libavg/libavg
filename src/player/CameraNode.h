@@ -39,7 +39,7 @@ namespace avg {
 
 class TextureMover;
 typedef boost::shared_ptr<TextureMover> TextureMoverPtr;
-typedef std::vector<CameraInfo> CamInfoList;
+typedef std::vector<CameraInfo> CamerasInfosVector;
 
 class AVG_API CameraNode : public RasterNode
 {
@@ -104,7 +104,7 @@ class AVG_API CameraNode : public RasterNode
         virtual BitmapPtr getBitmap();
 
         static void dumpCameras();
-        static CamInfoList listCameraInfo();
+        static CamerasInfosVector getCamerasInfos();
         static void resetFirewireBus();
 
     private:

@@ -421,7 +421,7 @@ namespace avg {
         return numberOfCameras;
     }
 
-    CameraInfo* V4LCamera::listCameraInfo(int deviceNumber)
+    CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
     {
         int fd = checkCamera(deviceNumber);
         if (fd != -1){

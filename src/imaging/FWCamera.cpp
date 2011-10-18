@@ -524,7 +524,7 @@ int FWCamera::countCameras(){
     return 0;
 }
 
-CameraInfo* FWCamera::listCameraInfo(int deviceNumber){
+CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
 #ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
     if (pDC1394 == 0) {
@@ -585,7 +585,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
                     framerateList.push_back(rate);
                 }
             }
-            CamImageFormat format = CamImageFormat(size,pixFormat,framerateList);
+            CameraImageFormat format = CameraImageFormat(size,pixFormat,framerateList);
             camInfo->addImageFormat(format);
         }
     }
@@ -651,7 +651,7 @@ void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
         CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
         std::string controlName = cameraFeatureToString(enumFeature);
 
-        CamControl control = CamControl(controlName,
+        CameraControl control = CameraControl(controlName,
                 (int) min,
                 (int) max,
                 (int) actValue ); //TODO: isnt really a default value!?

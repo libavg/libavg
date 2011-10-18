@@ -110,43 +110,43 @@ void export_raster()
         .def("isAvailable", &CameraNode::isAvailable)
         .def("dumpCameras", make_function(&CameraNode::dumpCameras))
         .staticmethod("dumpCameras")
-        .def("listCameraInfo", make_function(&CameraNode::listCameraInfo))
-        .staticmethod("listCameraInfo")
+        .def("getCamerasInfos", make_function(&CameraNode::getCamerasInfos))
+        .staticmethod("getCamerasInfos")
         .def("resetFirewireBus", &CameraNode::resetFirewireBus)
         .staticmethod("resetFirewireBus")
     ;
 
     //Wrap std::vector from CameraInfo to Pyhton list
-    to_python_converter<CamInfoList, to_list<CamInfoList> >();
-    from_python_sequence<CamInfoList, variable_capacity_policy>();
+    to_python_converter<CamerasInfosVector, to_list<CamerasInfosVector> >();
+    from_python_sequence<CamerasInfosVector, variable_capacity_policy>();
 
-    to_python_converter<CamImageFormatsList, to_list<CamImageFormatsList> >();
-    from_python_sequence<CamImageFormatsList, variable_capacity_policy>();
+    to_python_converter<CameraImageFormatsVector, to_list<CameraImageFormatsVector> >();
+    from_python_sequence<CameraImageFormatsVector, variable_capacity_policy>();
 
-    to_python_converter<CamControlsList, to_list<CamControlsList> >();
-    from_python_sequence<CamControlsList, variable_capacity_policy>();
+    to_python_converter<CameraControlsVector, to_list<CameraControlsVector> >();
+    from_python_sequence<CameraControlsVector, variable_capacity_policy>();
 
-    to_python_converter<FramerateList, to_list<FramerateList> >();
-    from_python_sequence<FramerateList, variable_capacity_policy>();
+    to_python_converter<FrameratesVector, to_list<FrameratesVector> >();
+    from_python_sequence<FrameratesVector, variable_capacity_policy>();
 
-    class_<CamImageFormat>("CamImageFormat", no_init)
-        .def("getSize", &CamImageFormat::getSize)
-        .def("getPixelFormat", &CamImageFormat::getPixelFormat)
-        .def("getFramerates", &CamImageFormat::getFramerates)
+    class_<CameraImageFormat>("CameraImageFormat", no_init)
+        .add_property("size", &CameraNode::getSize)
+        .add_property("pixelFormat", &CameraImageFormat::getPixelFormat)
+        .add_property("framerates", &CameraImageFormat::getFramerates)
     ;
 
-    class_<CamControl>("CamControl", no_init)
-        .def("getControlName", &CamControl::getControlName)
-        .def("getMin", &CamControl::getMin)
-        .def("getMax", &CamControl::getMax)
-        .def("getDefault", &CamControl::getDefault)
+    class_<CameraControl>("CameraControl", no_init)
+        .add_property("controlName", &CameraControl::getControlName)
+        .add_property("min", &CameraControl::getMin)
+        .add_property("max", &CameraControl::getMax)
+        .add_property("default", &CameraControl::getDefault)
     ;
 
     class_<CameraInfo>("CameraInfo", no_init)
-        .def("getDriver", &CameraInfo::getDriver)
-        .def("getDeviceID", &CameraInfo::getDeviceID)
-        .def("getImageFormats", &CameraInfo::getImageFormats)
-        .def("getControls", &CameraInfo::getControls)
+        .add_property("driver", &CameraInfo::getDriver)
+        .add_property("deviceID", &CameraInfo::getDeviceID)
+        .add_property("imageFormats", &CameraInfo::getImageFormats)
+        .add_property("controls", &CameraInfo::getControls)
     ;
         
     enum_<VideoNode::VideoAccelType>("VideoAccelType")

@@ -247,13 +247,22 @@ void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
 #endif
 }
 
-std::vector<CameraInfo> listCameraInfo()
+std::vector<CameraInfo> getCamerasInfos()
 {
     std::vector<CameraInfo> camerasInfo;
 
 #ifdef AVG_ENABLE_1394_2 //TODO
     for (int i = 0; i < FWCamera::countCameras(); i++){
-        CameraInfo* camInfo = FWCamera::listCameraInfo(i);
+        CameraInfo* camInfo = FWCamera::getCameraInfos(i);
+        if(camInfo != NULL)
+        {
+            camerasInfo.push_back(*camInfo);
+        }
+    }
+#endif
+#ifdef AVG_ENABLE_CMU1394
+    for (int i = 0; i < CMUCamera::countCameras(); i++){
+        CameraInfo* camInfo = CMUCamera::getCameraInfos(i);
         if(camInfo != NULL)
         {
             camerasInfo.push_back(*camInfo);
@@ -261,20 +270,15 @@ std::vector<CameraInfo> listCameraInfo()
     }
 #endif
 /**
-#ifdef AVG_ENABLE_CMU1394 //TODO
-    for (int i = 0; i < CMUCamera::countCameras(); i++){
-    camerasInfo.push_back(CMUCamera::listCameraInfo(i));
-    }
-#endif
 #ifdef AVG_ENABLE_DSHOW //TODO
     for (int i = 0; i < DSCamera::countCameras(); i++){
-    camerasInfo.push_back(DSCamera::listCameraInfo(i));
+    camerasInfo.push_back(DSCamera::getCameraInfos(i));
     }
 #endif***/
 #ifdef AVG_ENABLE_V4L2 
     int v4lcameras = V4LCamera::countCameras();
     for (int i = 0; i < v4lcameras; i++){
-        CameraInfo* camInfo = V4LCamera::listCameraInfo(i);
+        CameraInfo* camInfo = V4LCamera::getCameraInfos(i);
         if(camInfo != NULL)
         {
             camerasInfo.push_back(*camInfo);

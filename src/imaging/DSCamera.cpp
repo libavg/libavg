@@ -468,9 +468,10 @@ int DSCamera::countCameras(){
     return 0;
 }
 
-CameraInfo DSCamera::listCameraInfo(int deviceNumber)
+CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
 {
     //TODO:implement
+    return NULL;
 }
 
 void DSCamera::initGraphBuilder()

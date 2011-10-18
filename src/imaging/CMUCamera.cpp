@@ -287,14 +287,15 @@ void CMUCamera::dumpCameras()
 }
 
 int CMUCamera::countCameras(){
-    //TODO:implement
-    //not implemented
-    return 0;
+    C1394Camera* pCamera = new C1394Camera();
+    int numCameras = pCamera->GetNumberCameras();
+    return numCameras;
 }
 
-CameraInfo CMUCamera::listCameraInfo(int deviceNumber)
+CameraInfo* CMUCamera::getCameraInfos(int deviceNumber)
 {
     //TODO:implement
+    return NULL;
 }
 
 int CMUCamera::getCamIndex(long long guid)

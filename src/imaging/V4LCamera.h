@@ -61,7 +61,7 @@ public:
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
-    static CameraInfo* listCameraInfo(int deviceNumber);
+    static CameraInfo* getCameraInfos(int deviceNumber);
     static int countCameras();
 
 private:

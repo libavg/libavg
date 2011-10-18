@@ -27,11 +27,9 @@ from libavg import avg
 from libavg import parsecamargs
 from libavg import AVGApp
 
-#Get Logger and Player
 g_Log = avg.Logger.get()
 g_Player = avg.Player.get()
 
-#Parse options
 parser = optparse.OptionParser()
 parsecamargs.addOptions(parser)
 parser.add_option("-l", "--dump", dest="dump", action="store_true", default=False,
@@ -43,42 +41,41 @@ parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", defa
 
 (g_options, g_args) = parser.parse_args()
 
-#Get Camera Informations and Print them
 if g_options.dump:
-    avg.CameraNode.dumpCameras() #Old output, delete if old structure is cleaned up
+    avg.CameraNode.dumpCameras() #TODO: Old output, delete if old structure is cleaned up
     infoList = list()
-    infoList = avg.CameraNode.listCameraInfo()
+    infoList = avg.CameraNode.getCamerasInfos()
     if infoList is None:
-        exit(0)
+        print "No camera available!"
     for info in infoList:
         print ""
-        print "##################",info.getDriver(),"##################"
-        print "Device ID:", info.getDeviceID()
+        print "##################",info.driver,"##################"
+        print "Device ID:", info.deviceID
         print ""
         print "----------------- FORMATS ------------------"
         formatsList = list()
-        formatsList = info.getImageFormats()
+        formatsList = info.imageFormats
         for format in formatsList:
             print "++++"
-            print "Pixelformat:", format.getPixelFormat()
-            print "Resolution:", format.getSize();
+            print "Pixelformat:", format.pixelFormat
+            print "Resolution:", format.size
             print "Framerates: |",
             framerateList = list()
-            framerateList = format.getFramerates()
+            framerateList = format.framerates
             for framerate in framerateList:
                 print framerate, "|",
             print ""
         print ""
         print "----------------- CONTROLS -----------------"
         controlsList = list()
-        controlsList = info.getControls()
+        controlsList = info.controls
         for control in controlsList:
-            print "++++", control.getControlName()
-            print "Min:" , control.getMin(), "| Max:", control.getMax(),
-            print "| Default:", control.getDefault()
+            print "++++", control.controlName
+            print "Min:" , control.min, "| Max:", control.max,
+            print "| Default:", control.default
         print ""
     exit(0)
-#Reset the firewire bux
+
 if g_options.resetbus:
     g_Log.trace(g_Log.APP, "Resetting firewire bus.")
     avg.CameraNode.resetFirewireBus()
@@ -86,7 +83,6 @@ if g_options.resetbus:
     if not g_options.driver:
         exit(0)
 
-#Check if there isnt a option choosen, so write Error and exit
 if g_options.driver is None and not g_options.dump and not g_options.resetbus:
     parser.print_help()
     print
@@ -104,7 +100,6 @@ class ShowCamera(AVGApp):
         self.curFrame = 0
         global g_options
 
-        #Fill the OptionDictonary
         self.optdict = {}
         for attr in dir(g_options):
             if attr[0] != '_':
@@ -118,7 +113,6 @@ class ShowCamera(AVGApp):
         g_Log.trace(g_Log.APP, "unit=%(unit)d framerate=%(framerate)d fw800=%(fw800)s"
                 %self.optdict)
            
-        #Create a CamNode
         self.camNode = avg.CameraNode(driver = g_options.driver,
                 device = g_options.device, unit = g_options.unit, fw800 = g_options.fw800,
                 framerate = g_options.framerate, capturewidth = g_options.width,
