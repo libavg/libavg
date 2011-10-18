@@ -528,29 +528,32 @@ CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
 #ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
     if (pDC1394 == 0) {
+        AVG_ASSERT(false);
         return NULL;
     }
     dc1394camera_list_t * pCameraList;
     int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
-    if (err == DC1394_SUCCESS) {
-        if (pCameraList->num != 0) {
-            for (unsigned i=0; i<pCameraList->num;++i) {
-                dc1394camera_id_t id = pCameraList->ids[i];
-                dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
-                        id.unit);
-                if (pCamera) {
-                    stringstream ss;
-                    ss << pCamera->guid;
-                    CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
+    if (err != DC1394_SUCCESS) {
+        AVG_ASSERT(false);
+        return NULL;
+    }
+    if (pCameraList->num != 0) {
+        for (unsigned i=0; i<pCameraList->num;++i) {
+            dc1394camera_id_t id = pCameraList->ids[i];
+            dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
+                    id.unit);
+            if (pCamera) {
+                stringstream ss;
+                ss << pCamera->guid;
+                CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
 
-                    getCameraControls(pCamera, camInfo);
-                    getCameraImageFormats(pCamera, camInfo);
+                getCameraControls(pCamera, camInfo);
+                getCameraImageFormats(pCamera, camInfo);
 
-                    dc1394_camera_free(pCamera);
-                    dc1394_camera_free_list(pCameraList);
-                    dc1394_free(pDC1394);
-                    return camInfo;
-                }
+                dc1394_camera_free(pCamera);
+                dc1394_camera_free_list(pCameraList);
+                dc1394_free(pDC1394);
+                return camInfo;
             }
         }
     }
@@ -564,6 +567,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
     dc1394framerates_t framerates;
     dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &videoModes);
     if(err != DC1394_SUCCESS){
+        AVG_ASSERT(false);
         return;
     }
     for (int i = 0; i < (videoModes.num); i++)
@@ -576,14 +580,14 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
             FrameratesVector framerateList;
             err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],
                     &framerates);
-            if(err == DC1394_SUCCESS)
+            if(err != DC1394_SUCCESS){
+                AVG_TRACE(Logger::WARNING, "Camera: No framerates. Error was: " << err);
+            }
+            int numFramerates = (int) framerates.num;
+            for (int j = 0; j < numFramerates; j++)
             {
-                int numFramerates = (int) framerates.num;
-                for (int j = 0; j < numFramerates; j++)
-                {
-                    float rate = framerateToFloat(framerates.framerates[j]);
-                    framerateList.push_back(rate);
-                }
+                float rate = framerateToFloat(framerates.framerates[j]);
+                framerateList.push_back(rate);
             }
             CameraImageFormat format = CameraImageFormat(size,pixFormat,framerateList);
             camInfo->addImageFormat(format);
@@ -595,6 +599,7 @@ void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
     dc1394featureset_t featureSet;
     int err = dc1394_feature_get_all(pCamera, &featureSet);
     if(err != DC1394_SUCCESS){
+        AVG_ASSERT(false);
         return;
     }
 

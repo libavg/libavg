@@ -425,18 +425,19 @@ int V4LCamera::countCameras()
 CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
 {
     int fd = checkCamera(deviceNumber);
-    if (fd != -1){
-        stringstream ss;
-        ss << "/dev/video" << deviceNumber;
-        CameraInfo* camInfo = new CameraInfo("video4linux", ss.str());
-        v4l2_capability capability = getCamCapabilities(fd);
-        if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
-            getCameraImageFormats(fd, camInfo);
-            getCameraControls(fd, camInfo);
-            return camInfo;
-        }
+    if (fd == -1){
+        AVG_ASSERT(false);
+        return NULL;
     }
-    return NULL;
+    stringstream ss;
+    ss << "/dev/video" << deviceNumber;
+    CameraInfo* camInfo = new CameraInfo("video4linux", ss.str());
+    v4l2_capability capability = getCamCapabilities(fd);
+    if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+        getCameraImageFormats(fd, camInfo);
+        getCameraControls(fd, camInfo);
+    }
+    return camInfo;
 }
 
 void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
@@ -448,6 +449,7 @@ void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
         fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
         if (rc == -1) {
+            AVG_TRACE(Logger::WARNING, "Reading Image Formats. Code: "<< rc);
             break;
         }
         v4l2_frmsizeenum frmSizeEnum;
@@ -485,24 +487,21 @@ void V4LCamera::getCameraControls(int fd, CameraInfo* camInfo)
     v4l2_queryctrl queryCtrl;
     for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
         int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
-        if (rc != -1) {
-            if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-                continue;
-            }
-            stringstream ss;
-            ss << queryCtrl.name;
-            std::string sControlName = ss.str();
-            int min = queryCtrl.minimum;
-            int max = queryCtrl.maximum;
-            int defaultValue = queryCtrl.default_value;
-            CameraControl camControl = CameraControl(sControlName, min, max, defaultValue);
-            camInfo->addControl(camControl);
-        } else {
-            if (errno != EINVAL) {
-                perror("VIDIOC_QUERYCTRL");
-                exit(EXIT_FAILURE);
-            }
+        if (rc == -1) {
+            AVG_TRACE(Logger::WARNING, strerror(errno));
+            continue;
         }
+        if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+            continue;
+        }
+        stringstream ss;
+        ss << queryCtrl.name;
+        std::string sControlName = ss.str();
+        int min = queryCtrl.minimum;
+        int max = queryCtrl.maximum;
+        int defaultValue = queryCtrl.default_value;
+        CameraControl camControl = CameraControl(sControlName, min, max, defaultValue);
+        camInfo->addControl(camControl);
     }
 }
 
