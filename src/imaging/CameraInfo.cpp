@@ -24,75 +24,109 @@
 
 namespace avg{
 // ---------------CameraImageFormat----------------------
-    CameraImageFormat::CameraImageFormat(IntPoint size, PixelFormat pixelFormat, FrameratesVector framerates){
-        m_size = size;
-        m_pixelFormat = pixelFormat;
-        m_framerates = framerates;
-    }
-    CameraImageFormat::~CameraImageFormat(){
-    }
+CameraImageFormat::CameraImageFormat(IntPoint size, PixelFormat pixelFormat,
+        FrameratesVector framerates)
+{
+    m_Size = size;
+    m_PixelFormat = pixelFormat;
+    m_Framerates = framerates;
+}
 
-    IntPoint CameraImageFormat::getSize(){
-        return m_size;
-    }
-    PixelFormat CameraImageFormat::getPixelFormat(){
-        return m_pixelFormat;
-    }
-    FrameratesVector CameraImageFormat::getFramerates(){
-        return m_framerates;
-    }
+CameraImageFormat::~CameraImageFormat()
+{
+
+}
+
+IntPoint CameraImageFormat::getSize()
+{
+    return m_Size;
+}
+
+PixelFormat CameraImageFormat::getPixelFormat()
+{
+    return m_PixelFormat;
+}
+
+FrameratesVector CameraImageFormat::getFramerates()
+{
+    return m_Framerates;
+}
+
 // ---------------CameraControl------------------------
-    CameraControl::CameraControl(const std::string& sControlName, int min, int max, int defaultValue){
-        m_sControlName = sControlName;
-        m_min = min;
-        m_max = max;
-        m_defaultValue = defaultValue;
-    }
-    CameraControl::~CameraControl(){
-    }
+CameraControl::CameraControl(const std::string& sControlName, int min, int max,
+        int defaultValue)
+{
+    m_sControlName = sControlName;
+    m_Min = min;
+    m_Max = max;
+    m_DefaultValue = defaultValue;
+}
 
-    std::string CameraControl::getControlName(){
-        return m_sControlName;
-    }
-    int CameraControl::getMin(){
-        return m_min;
-    }
-    int CameraControl::getMax(){
-        return m_max;
-    }
-    int CameraControl::getDefault(){
-        return m_defaultValue;
-    }
+CameraControl::~CameraControl()
+{
+
+}
+
+std::string CameraControl::getControlName()
+{
+    return m_sControlName;
+}
+
+int CameraControl::getMin()
+{
+    return m_Min;
+}
+
+int CameraControl::getMax()
+{
+    return m_Max;
+}
+
+int CameraControl::getDefault()
+{
+    return m_DefaultValue;
+}
+
 // ---------------CameraInfo------------------------
-    CameraInfo::CameraInfo(const std::string& sDriver, const std::string& sDeviceID) {
-        m_sDriver = sDriver;
-        m_sDeviceID = sDeviceID;
-    }
+CameraInfo::CameraInfo(const std::string& sDriver, const std::string& sDeviceID)
+{
+    m_sDriver = sDriver;
+    m_sDeviceID = sDeviceID;
+}
 
-    CameraInfo::~CameraInfo() {
-    }
+CameraInfo::~CameraInfo()
+{
 
-    void CameraInfo::addControl(CameraControl control){
-        m_controls.push_back(control);
-    }
+}
 
-    void CameraInfo::addImageFormat(CameraImageFormat format){
-        m_formats.push_back(format);
-    }
+void CameraInfo::addControl(CameraControl control)
+{
+    m_Controls.push_back(control);
+}
 
-    std::string CameraInfo::getDriver(){
-        return m_sDriver;
-    }
+void CameraInfo::addImageFormat(CameraImageFormat format)
+{
+    m_Formats.push_back(format);
+}
 
-    std::string CameraInfo::getDeviceID(){
-        return m_sDeviceID;
-    }
+std::string CameraInfo::getDriver()
+{
+    return m_sDriver;
+}
 
-    CameraImageFormatsVector CameraInfo::getImageFormats(){
-        return m_formats;
-    }
+std::string CameraInfo::getDeviceID()
+{
+    return m_sDeviceID;
+}
 
-    CameraControlsVector CameraInfo::getControls(){
-        return m_controls;
-    }
+CameraImageFormatsVector CameraInfo::getImageFormats()
+{
+    return m_Formats;
+}
+
+CameraControlsVector CameraInfo::getControls()
+{
+    return m_Controls;
+}
+
 }

@@ -34,60 +34,64 @@ namespace avg{
 
 typedef std::vector<float> FrameratesVector;
 
-class AVG_API CameraImageFormat {
-public:
-    CameraImageFormat(IntPoint size, PixelFormat pixelFormat, FrameratesVector framerates);
-    ~CameraImageFormat();
+class AVG_API CameraImageFormat
+{
+    public:
+        CameraImageFormat(IntPoint size, PixelFormat pixelFormat,
+                FrameratesVector framerates);
+        ~CameraImageFormat();
 
-    IntPoint getSize();
-    PixelFormat getPixelFormat();
-    FrameratesVector getFramerates();
+        IntPoint getSize();
+        PixelFormat getPixelFormat();
+        FrameratesVector getFramerates();
 
-private:
-    IntPoint m_size;
-    PixelFormat m_pixelFormat;
-    FrameratesVector m_framerates;
+    private:
+        IntPoint m_Size;
+        PixelFormat m_PixelFormat;
+        FrameratesVector m_Framerates;
 };
 
-class AVG_API CameraControl {
-public:
-    CameraControl(const std::string& sControlName, int min, int max, int defaultValue);
-    ~CameraControl();
+class AVG_API CameraControl
+{
+    public:
+        CameraControl(const std::string& sControlName, int min, int max,
+                int defaultValue);
+        ~CameraControl();
 
-    std::string getControlName();
-    int getMin();
-    int getMax();
-    int getDefault();
+        std::string getControlName();
+        int getMin();
+        int getMax();
+        int getDefault();
 
-private:
-    std::string m_sControlName;
-    int m_min;
-    int m_max;
-    int m_defaultValue;
+    private:
+        std::string m_sControlName;
+        int m_Min;
+        int m_Max;
+        int m_DefaultValue;
 };
 
 typedef std::vector<CameraImageFormat> CameraImageFormatsVector;
 typedef std::vector<CameraControl> CameraControlsVector;
 
-class AVG_API CameraInfo {
-public:
-    CameraInfo(const std::string& sDriver, const std::string& sDeviceID);
-    ~CameraInfo();
+class AVG_API CameraInfo
+{
+    public:
+        CameraInfo(const std::string& sDriver, const std::string& sDeviceID);
+        ~CameraInfo();
 
-    void addControl(CameraControl control);
-    void addImageFormat(CameraImageFormat format);
+        void addControl(CameraControl control);
+        void addImageFormat(CameraImageFormat format);
 
-    std::string getDriver();
-    std::string getDeviceID();
-    CameraImageFormatsVector getImageFormats();
-    CameraControlsVector getControls();
+        std::string getDriver();
+        std::string getDeviceID();
+        CameraImageFormatsVector getImageFormats();
+        CameraControlsVector getControls();
 
-private:
-    std::string m_sDriver;
-    std::string m_sDeviceID;
-    CameraImageFormatsVector m_formats;
-    CameraControlsVector m_controls;
-
+    private:
+        std::string m_sDriver;
+        std::string m_sDeviceID;
+        CameraImageFormatsVector m_Formats;
+        CameraControlsVector m_Controls;
 };
 
 }

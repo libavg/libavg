@@ -183,6 +183,7 @@ CameraFeature featureIDToEnum(dc1394feature_t feature)
             return CAM_FEATURE_CAPTURE_QUALITY;
         default:
             AVG_ASSERT(false);
+            return CameraFeature(0);
     }
 }
 
