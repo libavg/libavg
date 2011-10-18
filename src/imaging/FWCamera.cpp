@@ -543,9 +543,9 @@ CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
             dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
                     id.unit);
             if (pCamera) {
-                stringstream ss;
-                ss << pCamera->guid;
-                CameraInfo* camInfo = new CameraInfo("Firewire", ss.str());
+                stringstream deviceID;
+                deviceID << pCamera->guid;
+                CameraInfo* camInfo = new CameraInfo("Firewire", deviceID.str());
 
                 getCameraControls(pCamera, camInfo);
                 getCameraImageFormats(pCamera, camInfo);

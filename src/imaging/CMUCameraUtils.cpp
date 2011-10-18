@@ -217,5 +217,73 @@ CAMERA_FEATURE getFeatureID(CameraFeature Feature)
             return FEATURE_INVALID_FEATURE;
     }
 }
+/*
+void getImageSizeAndPF(unsigned long videoFormat, unsigned long* videoMode,
+        IntPoint* pSize, PixelFormat* pPixelFormat)
+{
+    int format = (int) videoFormat;
+    int mode = (int) videoMode;
+    switch(format)
+    {
+        case 0:
+        {
+            if(mode == 0){
+                pSize = new IntPoint(160,120);
+                //pPixelFormat = 
+            }else if( mode == 1){
+                pSize = new IntPoint(160,120);
+                pPixelFormat = YCbCr422;
+            }else if( mode == 2){
 
+            }else if( mode == 3){
+
+            }else if( mode == 4){
+            }else if( mode == 5){
+            }else if( mode == 6){
+
+            }
+            break;
+        }
+        case 1:
+        {
+
+            break;
+        }
+        case 2:
+        {
+
+            break;
+        }
 }
+*/
+}
+    /*
+    #define MODE_160_120_YUV444  0
+#define MODE_320x240_YUV422  1
+#define MODE_640x480_YUV411  2
+#define MODE_640x480_YUV422  3
+#define MODE_640x480_RGB     4
+#define MODE_640x480_MONO    5
+#define MODE_640x480_MONO16  6
+
+#define FORMAT_1 1
+// Format 1 Modes
+#define MODE_800x600_YUV422  0
+#define MODE_800x600_RGB     1
+#define MODE_800x600_MONO    2
+#define MODE_1024x768_YUV422 3
+#define MODE_1024x768_RGB    4
+#define MODE_1024x768_MONO   5
+#define MODE_800x600_MONO16  6
+#define MODE_1024x768_MONO16 7
+
+#define FORMAT_2 2
+#define MODE_1280x960_YUV422  0
+#define MODE_1280x960_RGB     1
+#define MODE_1280x960_MONO    2
+#define MODE_1600x1200_YUV422 3
+#define MODE_1600x1200_RGB    4
+#define MODE_1600x1200_MONO   5
+#define MODE_1280x960_MONO16  6
+#define MODE_1600x1200_MONO16 7
+*/

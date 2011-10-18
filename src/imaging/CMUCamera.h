@@ -66,6 +66,9 @@ private:
     void checkCMUWarning(bool bOk, const std::string& sMsg) const;
     std::string CMUErrorToString(int code);
 
+    static void getCameraControls(C1394Camera* pCamera, CameraInfo* camInfo);
+    static void getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo);
+
     std::string m_sDevice;
     IntPoint m_Size;
     double m_FrameRate;
