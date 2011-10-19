@@ -30,9 +30,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define EPSILON 0.00001
-
 namespace avg {
+
+static const double EPSILON = 0.00001;
 
 bool ispow2(int n);
 

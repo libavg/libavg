@@ -63,9 +63,9 @@ class AVG_API DisplayEngine
 
         virtual IntPoint getSize() = 0;
 
-        virtual void showCursor (bool bShow) = 0;
+        virtual void showCursor(bool bShow) = 0;
 
-        virtual BitmapPtr screenshot () = 0;
+        virtual BitmapPtr screenshot(int buffer=0) = 0;
 
     protected:
         

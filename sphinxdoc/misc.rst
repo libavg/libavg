@@ -449,8 +449,15 @@ Misc. Classes
     .. autoclass:: VideoWriter(canvas, filename, [framerate=30, qmin=3, qmax=5, synctoplayback=True])
 
         Class that writes the contents of a canvas to disk as a video file. The videos
-        are written as motion jpeg-encoded mov files. Opening, writing and closing the
-        video file is asynchronous to normal playback.
+        are written as motion jpeg-encoded mov files. Writing commences immediately upon 
+        object construction and continues until :py:meth:`stop` is called. 
+        :py:meth:`pause` and :py:meth:`play` can be used to pause and resume writing.
+        
+        The VideoWriter is built for high performance: Opening, writing and closing the
+        video file is asynchronous to normal playback. Writing full HD videos of
+        offscreen canvasses to disk should cost virtually no time on the main thread of 
+        execution for an Intel Core-class processor with a graphics card that supports 
+        shaders.
 
         :param canvas:
 
@@ -488,6 +495,16 @@ Misc. Classes
             :py:attr:`framerate` is 25 and the player is running at 60 fps, one movie
             frame will be written for each 2.5 frames of playback. The actual, not the
             nominal playback speed is used in this case. Read-only.
+
+        .. py:method:: pause()
+
+            Temporarily stops recording.
+
+        .. py:method:: play()
+
+            Resumes recording after a call to :py:meth:`pause`. :py:meth:`play` doesn't
+            need to be called after construction of the :py:class:`VideoWriter` - writing
+            commences immediately.
 
         .. py:method:: stop()
 

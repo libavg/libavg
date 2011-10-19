@@ -22,6 +22,7 @@
 #include "VideoWriter.h"
 #include "OffscreenCanvas.h"
 #include "Player.h"
+#include "SDLDisplayEngine.h"
 
 #include "../graphics/FBO.h"
 #include "../graphics/GPURGB2YUVFilter.h"
@@ -206,7 +207,7 @@ void VideoWriter::getFrameFromFBO()
         }
         m_bFramePending = true;
     } else {
-        BitmapPtr pBmp = m_pCanvas->screenshot();
+        BitmapPtr pBmp = Player::get()->getDisplayEngine()->screenshot(GL_BACK);
         sendFrameToEncoder(pBmp);
     }
 }

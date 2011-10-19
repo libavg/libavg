@@ -390,17 +390,21 @@ void SDLDisplayEngine::showCursor(bool bShow)
 #endif
 }
 
-BitmapPtr SDLDisplayEngine::screenshot()
+BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 {
     BitmapPtr pBmp (new Bitmap(m_WindowSize, B8G8R8X8, "screenshot"));
     string sTmp;
     bool bBroken = getEnv("AVG_BROKEN_READBUFFER", sTmp);
-    if (bBroken) {
-        // Workaround for buggy GL_FRONT on some machines.
-        glReadBuffer(GL_BACK);
-    } else {
-        glReadBuffer(GL_FRONT);
+    GLenum buf = buffer;
+    if (!buffer) {
+        if (bBroken) {
+            // Workaround for buggy GL_FRONT on some machines.
+            buf = GL_BACK;
+        } else {
+            buf = GL_FRONT;
+        }
     }
+    glReadBuffer(buf);
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
