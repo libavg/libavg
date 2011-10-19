@@ -329,18 +329,45 @@ CameraInfo* CMUCamera::getCameraInfos(int deviceNumber)
 
 void CMUCamera::getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo)
 {
-    int format = pCamera->GetVideoFormat();
-    cout << "Format: " << format << endl;
-    int mode = pCamera->GetVideoMode();
-    cout << "Mode: " << mode << endl;
+    //Iterate over formats (up to 3 formats are supported)
+    for(int format = 0; format <= 2; format++){
+        BOOL hasFormat = false;
+        hasFormat = pCamera->HasVideoFormat(format);
+        if(hasFormat){
+            //Iterate over modes (up to 8 modes are supported)
+            for(int mode = 0; mode <= 7; mode++){
+                BOOL hasMode = false;
+                hasMode = pCamera->HasVideoMode(format, mode);
+                if(hasMode){
+                    //Ignore not libavg supported formats
+                    if(mode == 0 && format == 0){
+                        continue;
+                    }
+                    IntPoint size;
+                    PixelFormat pixelFormat;
+                    FrameratesVector framerates;
+                    getImageSizeAndPF(format, mode, size, pixelFormat);
+                    //getCameraFramerates(pCamera, format, mode, framerates);
+                    
+                    CameraImageFormat imageFormat = CameraImageFormat(size, pixelFormat, framerates);
+                    pCamInfo->addImageFormat(imageFormat);
+                }
+            }
+        }
+    }
+}
 
-    pCamera->HasVideoFormat(format);
-    pCamera->HasVideoMode(format, mode);
+void getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat, unsigned long videoMode, FrameratesVector framerates){
+    BOOL hasFramerate = false;
+    for(int itFramerate = 0; itFramerate <= 7; itFramerate++)
+    {
+        hasFramerate = pCamera->HasVideoFrameRate(videoFormat, videoMode, itFramerate);
+    }
 }
 
 void CMUCamera::getCameraControls(C1394Camera* pCamera, CameraInfo* pCamInfo)
 {
-    //Iterate over amount of possible Features (24 in CMU1394 DCD 6.4.5.240)
+    //Iterate over amount of possible Features (up to 24 in CMU1394 DCD 6.4.5.240)
     for(int indexFeature = 0; indexFeature <= 23; indexFeature++){
         C1394CameraControl* feature = pCamera->GetCameraControl((CAMERA_FEATURE)indexFeature);
         if(feature == NULL){

@@ -68,6 +68,8 @@ private:
 
     static void getCameraControls(C1394Camera* pCamera, CameraInfo* camInfo);
     static void getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo);
+    static void getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat,
+            unsigned long videoMode, FrameratesVector framerates);
 
     std::string m_sDevice;
     IntPoint m_Size;

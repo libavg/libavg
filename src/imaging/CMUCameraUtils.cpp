@@ -218,119 +218,125 @@ CAMERA_FEATURE getFeatureID(CameraFeature Feature)
     }
 }
 
-void getImageSizeAndPF(unsigned long videoFormat, unsigned long* videoMode,
-    IntPoint* pSize, PixelFormat* pPixelFormat)
+void getImageSizeAndPF(unsigned long videoFormat, unsigned long videoMode,
+    IntPoint &pSize, PixelFormat &pPixelFormat)
 {
     int format = (int) videoFormat;
     int mode = (int) videoMode;
-    switch(format)
-    {
-        case 0:
-        {
+    switch(format){
+        case 0:{
             if(mode == 0){
-                pSize = new IntPoint(160,120);
-                //pPixelFormat = 
+                pSize = IntPoint(160,120);
+                pPixelFormat = PixelFormat(NO_PIXELFORMAT);
                 return;
             } else if( mode == 1){
-                pSize = new IntPoint(320,240);
-                pPixelFormat = new PixelFormat(YCbCr422);
+                pSize = IntPoint(320,240);
+                pPixelFormat =  PixelFormat(YCbCr422);
                 return;
             } else if( mode == 2){
-                pSize = new IntPoint(640,480);
-                pPixelFormat = new PixelFormat(YCbCr411);
+                pSize =  IntPoint(640,480);
+                pPixelFormat =  PixelFormat(YCbCr411);
                 return;
             } else if( mode == 3){
-                pSize = new IntPoint(640,480);
-                pPixelFormat = new PixelFormat(YCbCr422);
+                pSize =  IntPoint(640,480);
+                pPixelFormat =  PixelFormat(YCbCr422);
                 return;
             } else if( mode == 4){
-                pSize = new IntPoint(640,480);
-                pPixelFormat = new PixelFormat(R8G8B8);
+                pSize =  IntPoint(640,480);
+                pPixelFormat =  PixelFormat(R8G8B8);
                 return;
             } else if( mode == 5){
-                pSize = new IntPoint(640,480);
-                pPixelFormat = new PixelFormat(I8);
+                pSize =  IntPoint(640,480);
+                pPixelFormat =  PixelFormat(I8);
                 return;
             } else if( mode == 6){
-                pSize = new IntPoint(640,480);
-                pPixelFormat = new PixelFormat(I16);
+                pSize =  IntPoint(640,480);
+                pPixelFormat =  PixelFormat(I16);
+                return;
+            } else {
+                AVG_ASSERT(false);
                 return;
             }
             break;
-        }
-        case 1:
-        {
+        } case 1:{
             if(mode == 0){
-                pSize = new IntPoint(800,600);
-                pPixelFormat = new PixelFormat(YCbCr422);
+                pSize =  IntPoint(800,600);
+                pPixelFormat =  PixelFormat(YCbCr422);
                 return;
             } else if( mode == 1){
-                pSize = new IntPoint(800,600);
-                pPixelFormat = new PixelFormat(R8G8B8);
+                pSize =  IntPoint(800,600);
+                pPixelFormat =  PixelFormat(R8G8B8);
                 return;
             } else if( mode == 2){
-                pSize = new IntPoint(800,600);
-                pPixelFormat = new PixelFormat(I8);
+                pSize =  IntPoint(800,600);
+                pPixelFormat =  PixelFormat(I8);
                 return;
             } else if( mode == 3){
-                pSize = new IntPoint(1024,768);
-                pPixelFormat = new PixelFormat(YCbCr422);
+                pSize =  IntPoint(1024,768);
+                pPixelFormat =  PixelFormat(YCbCr422);
                 return;
             } else if( mode == 4){
-                pSize = new IntPoint(1024,768);
-                pPixelFormat = new PixelFormat(R8G8B8);
+                pSize =  IntPoint(1024,768);
+                pPixelFormat =  PixelFormat(R8G8B8);
                 return;
             } else if( mode == 5){
-                pSize = new IntPoint(1024,768);
-                pPixelFormat = new PixelFormat(I8);
+                pSize =  IntPoint(1024,768);
+                pPixelFormat =  PixelFormat(I8);
                 return;
             } else if( mode == 6){
-                pSize = new IntPoint(800,600);
-                pPixelFormat = new PixelFormat(I16);
+                pSize =  IntPoint(800,600);
+                pPixelFormat =  PixelFormat(I16);
                 return;
             } else if( mode == 7){
-                pSize = new IntPoint(1024,768);
-                pPixelFormat = new PixelFormat(I16);
+                pSize =  IntPoint(1024,768);
+                pPixelFormat =  PixelFormat(I16);
+                return;
+            } else {
+                AVG_ASSERT(false);
                 return;
             }
             break;
-        }
-        case 2:
-        {
+        } case 2:{
             if(mode == 0){
-                pSize = new IntPoint(1280,960);
-                pPixelFormat = new PixelFormat(YCbCr422);
+                pSize =  IntPoint(1280,960);
+                pPixelFormat =  PixelFormat(YCbCr422);
                 return;
             } else if( mode == 1){
-                pSize = new IntPoint(1280,960);
-                pPixelFormat = new PixelFormat(R8G8B8);
+                pSize =  IntPoint(1280,960);
+                pPixelFormat =  PixelFormat(R8G8B8);
                 return;
             } else if( mode == 2){
-                pSize = new IntPoint(1280,960);
-                pPixelFormat = new PixelFormat(I8);
+                pSize =  IntPoint(1280,960);
+                pPixelFormat =  PixelFormat(I8);
                 return;
             } else if( mode == 3){
-                pSize = new IntPoint(1600,1200);
-                pPixelFormat = new PixelFormat(YCbCr422);
+                pSize =  IntPoint(1600,1200);
+                pPixelFormat =  PixelFormat(YCbCr422);
                 return;
             } else if( mode == 4){
-                pSize = new IntPoint(1600,1200);
-                pPixelFormat = new PixelFormat(R8G8B8);
+                pSize =  IntPoint(1600,1200);
+                pPixelFormat =  PixelFormat(R8G8B8);
                 return;
             } else if( mode == 5){
-                pSize = new IntPoint(1600,1200);
-                pPixelFormat = new PixelFormat(I8);
+                pSize =  IntPoint(1600,1200);
+                pPixelFormat =  PixelFormat(I8);
                 return;
             } else if( mode == 6){
-                pSize = new IntPoint(1280,960);
-                pPixelFormat = new PixelFormat(I16);
+                pSize =  IntPoint(1280,960);
+                pPixelFormat =  PixelFormat(I16);
                 return;
-            } else if( mode == 6){
-                pSize = new IntPoint(1600,1200);
-                pPixelFormat = new PixelFormat(I16);
+            } else if( mode == 7){
+                pSize =  IntPoint(1600,1200);
+                pPixelFormat =  PixelFormat(I16);
+                return;
+            } else {
+                AVG_ASSERT(false);
                 return;
             }
             break;
+        } default:{
+            AVG_ASSERT(false);
+            return;
         }
     }
 }
