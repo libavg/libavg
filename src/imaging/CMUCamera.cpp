@@ -347,7 +347,7 @@ void CMUCamera::getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo
                     PixelFormat pixelFormat;
                     FrameratesVector framerates;
                     getImageSizeAndPF(format, mode, size, pixelFormat);
-                    //getCameraFramerates(pCamera, format, mode, framerates);
+                    getCameraFramerates(pCamera, format, mode, framerates);
                     
                     CameraImageFormat imageFormat = CameraImageFormat(size, pixelFormat, framerates);
                     pCamInfo->addImageFormat(imageFormat);
@@ -357,11 +357,14 @@ void CMUCamera::getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo
     }
 }
 
-void getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat, unsigned long videoMode, FrameratesVector framerates){
+void CMUCamera::getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat, unsigned long videoMode, FrameratesVector &framerates){
     BOOL hasFramerate = false;
-    for(int itFramerate = 0; itFramerate <= 7; itFramerate++)
-    {
+    for(int itFramerate = 0; itFramerate <= 7; itFramerate++){
         hasFramerate = pCamera->HasVideoFrameRate(videoFormat, videoMode, itFramerate);
+        if(hasFramerate){
+            float framerate = getFrameRateFloat(itFramerate);
+            framerates.push_back(framerate);
+        }
     }
 }
 

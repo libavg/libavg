@@ -37,6 +37,7 @@ namespace avg {
 void getVideoFormatAndMode(IntPoint& Size, PixelFormat pf,
         unsigned long* pVideoFormat, unsigned long* pVideoMode);
 unsigned long getFrameRateConst(double FrameRate);
+float getFrameRateFloat(unsigned long FrameRate);
 CAMERA_FEATURE getFeatureID(CameraFeature Feature);
 void getImageSizeAndPF(unsigned long videoFormat, unsigned long videoMode,
         IntPoint &pSize, PixelFormat &pPixelFormat);
