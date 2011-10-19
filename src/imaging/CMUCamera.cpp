@@ -260,31 +260,6 @@ void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
         }
     }
 }
-void CMUCamera::dumpCameras()
-{
-    C1394Camera* pCamera = new C1394Camera();
-
-    if (pCamera->RefreshCameraList() <= 0) {
-        return;
-    }
-    if (pCamera->GetNumberCameras() == 0) {
-        return;
-    }
-    cerr << "CMU Driver Firewire Cameras: " << endl;
-    for (int i=0; i<pCamera->GetNumberCameras(); ++i) {
-        pCamera->SelectCamera(i);
-        char sz[256];
-        cerr << "  -----------------------" << endl;
-        pCamera->GetCameraVendor(sz, 256);
-        cerr << "  Vendor: " << sz << endl;
-        pCamera->GetCameraName(sz, 256);
-        cerr << "  Name: " << sz << endl;
-        long long camGuid;
-        pCamera->GetCameraUniqueID((PLARGE_INTEGER)&camGuid);
-        cerr << "  GUID: " << camGuid << endl;
-    }
-    delete pCamera;
-}
 
 int CMUCamera::countCameras(){
     C1394Camera* pCamera = new C1394Camera();
@@ -298,7 +273,6 @@ int CMUCamera::countCameras(){
 CameraInfo* CMUCamera::getCameraInfos(int deviceNumber)
 {
 #ifdef AVG_ENABLE_CMU1394
-    cout << "#############LISTINFO###############" << endl;
     C1394Camera* pCamera = new C1394Camera();
     if (pCamera->RefreshCameraList() <= 0) {
         return 0;
@@ -346,6 +320,7 @@ void CMUCamera::getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo
                     IntPoint size;
                     PixelFormat pixelFormat;
                     FrameratesVector framerates;
+
                     getImageSizeAndPF(format, mode, size, pixelFormat);
                     getCameraFramerates(pCamera, format, mode, framerates);
                     

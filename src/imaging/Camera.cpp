@@ -235,7 +235,7 @@ void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
     //FWCamera::dumpCameras();
 #endif
 #ifdef AVG_ENABLE_CMU1394 
-    CMUCamera::dumpCameras();
+    //CMUCamera::dumpCameras();
 #endif
 #ifdef AVG_ENABLE_V4L2 
     //V4LCamera::dumpCameras(); Works now with listCameraInfo()
