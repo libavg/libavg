@@ -330,8 +330,7 @@ class OffscreenTestCase(AVGTestCase):
 
         def createCanvas():
             if not(avg.OffscreenCanvas.isMultisampleSupported()):
-                print
-                print "Offscreen multisampling not supported - skipping test."
+                self.skip("Offscreen multisampling not supported")
                 Player.stop()
                 return
             try:
@@ -340,8 +339,7 @@ class OffscreenTestCase(AVGTestCase):
                 avg.ImageNode(id="test1", href="rgb24-65x65.png", angle="0.1",
                         parent=self.canvas.getRootNode())
             except RuntimeError:
-                print
-                print "Offscreen multisampling init failed - skipping test."
+                self.skip("Offscreen multisampling init failed")
                 Player.stop()
                 return
             self.assertEqual(self.canvas.multisamplesamples, 2)
@@ -363,14 +361,12 @@ class OffscreenTestCase(AVGTestCase):
         canvas = Player.createCanvas(id="testcanvas", size=(80,120), mipmap=True)
         avg.ImageNode(id="test1", href="rgb24alpha-64x64.png", 
                 parent=canvas.getRootNode())
-        node = avg.ImageNode(parent=root, size=(40, 30), href="canvas:testcanvas")
+        avg.ImageNode(parent=root, size=(40, 30), href="canvas:testcanvas")
         try:
             self.start((lambda: self.compareImage("testCanvasMipmap", False),))
         except RuntimeError:
-                print
-                print "Offscreen mipmap init failed - skipping test."
-                Player.stop()
-                return
+            self.skip("Offscreen mipmap init failed.")
+            return
 
     def testCanvasDependencies(self):
         def makeCircularRef():

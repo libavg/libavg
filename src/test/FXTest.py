@@ -432,9 +432,8 @@ def fxTestSuite(tests):
                 "testContrast",
                 "testFXUpdate",
             ]
-        return createAVGTestSuite(availableTests, FXTestCase, tests)
     else:
-        print "Skipping FX tests - no FX support with this graphics configuration."
-        return lambda x: None
+        availableTests = []
+    return createAVGTestSuite(availableTests, FXTestCase, tests)
 
 Player = avg.Player.get()

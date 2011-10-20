@@ -66,6 +66,7 @@ class AVGTestCase(unittest.TestCase):
         self.__player = avg.Player.get()
         self.__testFuncName = testFuncName
         self.__logger = avg.Logger.get()
+        self.__skipped = False
 
     def __setupPlayer(self):
         self.__player.setMultiSampleSamples(1)
@@ -190,7 +191,14 @@ class AVGTestCase(unittest.TestCase):
         helper = self.__player.getTestHelper()
         helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, x, y, 1)
         helper.fakeMouseEvent(avg.CURSORUP, False, False, False, x, y, 1)
-    
+
+    def skip(self, message):
+        sys.stderr.write("skipping: " + str(message) + " ... ")
+        self.__skipped = True
+
+    def skipped(self):
+        return self.__skipped
+
     def _sendMouseEvent(self, type, x, y):
         helper = self.__player.getTestHelper()
         if type == avg.CURSORUP:
@@ -222,8 +230,8 @@ class AVGTestCase(unittest.TestCase):
         if g_HasShaderSupport == None:
             self.loadEmptyScene()
             self.start([checkShaderSupport,])
-        if g_HasShaderSupport == False:
-            sys.stderr.write("skipping - no shader support ... ")
+        if not(g_HasShaderSupport):
+            self.skip("no shader support")
         return g_HasShaderSupport
 
     def __nextAction(self):

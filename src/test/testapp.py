@@ -86,7 +86,14 @@ class TestApp:
         testRunner = unittest.TextTestRunner(verbosity = 2)
         testcase.AVGTestCase.cleanResultDir()
         testResult = testRunner.run(self.__testSuite)
-        
+       
+        numSkipped = 0
+        for suite in self.__testSuite:
+            for test in suite:
+                if test.skipped():
+                    numSkipped += 1
+        print "Skipped", numSkipped, "tests."
+
         if testResult.wasSuccessful():
             self.__exitOk = TestApp.EXIT_OK
 

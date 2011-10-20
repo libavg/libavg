@@ -522,53 +522,54 @@ class AVTestCase(AVGTestCase):
             self.assertException(lambda: avg.VideoWriter(Player.getMainCanvas(), 
                     "nonexistentdir/test.mov", 30))
 
-        if self._isCurrentDirWriteable():
-            for useCanvas in (False, True):
-                Player.setFakeFPS(30)
-                
-                root = self.loadEmptyScene()
-                videoNode = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
-                        threaded=False)
-                if useCanvas:
-                    canvas = Player.createCanvas(id="canvas", size=(48,48))
-                    canvas.getRootNode().appendChild(videoNode)
-                    avg.ImageNode(parent=root, href="canvas:canvas")
-                    testImageName = "testVideoWriterCanvas"
-                else:
-                    root.appendChild(videoNode)
-                    canvas = Player.getMainCanvas()
-                    testImageName = "testVideoWriter"
+        if not(self._isCurrentDirWriteable):
+            self.skip("Current dir not writeable")
+            return
 
-                self.start((
-                     videoNode.play,
-                     lambda: startWriter(30, True),
-                     lambda: self.delay(66),
-                     stopWriter,
-                     killWriter,
-                     lambda: checkVideo(4),
-                     hideVideo,
-                     lambda: self.compareImage(testImageName+"1", False),
-                     showVideo,
-                     testCreateException,
-                     lambda: startWriter(15, False),
-                     lambda: self.delay(100),
-                     stopWriter,
-                     killWriter,
-                     lambda: checkVideo(2),
-                     lambda: startWriter(30, False),
-                     pauseWriter,
-                     lambda: self.delay(200),
-                     playWriter,
-                     stopWriter,
-                     killWriter,
-                     lambda: checkVideo(1),
-                     lambda: startWriter(30, False),
-                     killWriter,
-                     lambda: checkVideo(1),
-                    ))
-                os.remove("test.mov")    
-        else:
-            print "Skipping VideoWriter tests - current dir not writable."
+        for useCanvas in (False, True):
+            Player.setFakeFPS(30)
+            
+            root = self.loadEmptyScene()
+            videoNode = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg", 
+                    threaded=False)
+            if useCanvas:
+                canvas = Player.createCanvas(id="canvas", size=(48,48))
+                canvas.getRootNode().appendChild(videoNode)
+                avg.ImageNode(parent=root, href="canvas:canvas")
+                testImageName = "testVideoWriterCanvas"
+            else:
+                root.appendChild(videoNode)
+                canvas = Player.getMainCanvas()
+                testImageName = "testVideoWriter"
+
+            self.start((
+                 videoNode.play,
+                 lambda: startWriter(30, True),
+                 lambda: self.delay(66),
+                 stopWriter,
+                 killWriter,
+                 lambda: checkVideo(4),
+                 hideVideo,
+                 lambda: self.compareImage(testImageName+"1", False),
+                 showVideo,
+                 testCreateException,
+                 lambda: startWriter(15, False),
+                 lambda: self.delay(100),
+                 stopWriter,
+                 killWriter,
+                 lambda: checkVideo(2),
+                 lambda: startWriter(30, False),
+                 pauseWriter,
+                 lambda: self.delay(200),
+                 playWriter,
+                 stopWriter,
+                 killWriter,
+                 lambda: checkVideo(1),
+                 lambda: startWriter(30, False),
+                 killWriter,
+                 lambda: checkVideo(1),
+                ))
+            os.remove("test.mov")    
 
     def test2VideosAtOnce(self):
         Player.setFakeFPS(25)
