@@ -274,29 +274,28 @@ CameraInfo* CMUCamera::getCameraInfos(int deviceNumber)
 {
 #ifdef AVG_ENABLE_CMU1394
     C1394Camera* pCamera = new C1394Camera();
-    if (pCamera->RefreshCameraList() <= 0) {
+    int err = pCamera->RefreshCameraList();
+    if (err <= 0) {
         return 0;
     }
-    for (int indexCam=0; indexCam<pCamera->GetNumberCameras(); indexCam++) {
-        int err = pCamera->SelectCamera(indexCam);
-        if(err != CAM_SUCCESS){
-            AVG_ASSERT(false);
-        }
-        pCamera->InitCamera(true);
 
-        long long uniqueID;
-        pCamera->GetCameraUniqueID((PLARGE_INTEGER)&uniqueID);
-        stringstream deviceID;
-        deviceID << uniqueID;
-
-        CameraInfo* pCamInfo = new CameraInfo("Firewire", deviceID.str());
-        getCameraImageFormats(pCamera, pCamInfo);
-        getCameraControls(pCamera, pCamInfo);
-
-        delete pCamera;
-        return pCamInfo;
+    err = pCamera->SelectCamera(deviceNumber);
+    if(err != CAM_SUCCESS){
+        AVG_ASSERT(false);
     }
+    pCamera->InitCamera(true);
+
+    long long uniqueID;
+    pCamera->GetCameraUniqueID((PLARGE_INTEGER)&uniqueID);
+    stringstream deviceID;
+    deviceID << uniqueID;
+
+    CameraInfo* pCamInfo = new CameraInfo("Firewire", deviceID.str());
+    getCameraImageFormats(pCamera, pCamInfo);
+    getCameraControls(pCamera, pCamInfo);
+
     delete pCamera;
+    return pCamInfo;
 #endif
     return NULL;
 }
@@ -307,39 +306,44 @@ void CMUCamera::getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo
     for(int format = 0; format <= 2; format++){
         BOOL hasFormat = false;
         hasFormat = pCamera->HasVideoFormat(format);
-        if(hasFormat){
-            //Iterate over modes (up to 8 modes are supported)
-            for(int mode = 0; mode <= 7; mode++){
-                BOOL hasMode = false;
-                hasMode = pCamera->HasVideoMode(format, mode);
-                if(hasMode){
-                    //Ignore not libavg supported formats
-                    if(mode == 0 && format == 0){
-                        continue;
-                    }
-                    IntPoint size;
-                    PixelFormat pixelFormat;
-                    FrameratesVector framerates;
-
-                    getImageSizeAndPF(format, mode, size, pixelFormat);
-                    getCameraFramerates(pCamera, format, mode, framerates);
-                    
-                    CameraImageFormat imageFormat = CameraImageFormat(size, pixelFormat, framerates);
-                    pCamInfo->addImageFormat(imageFormat);
-                }
+        if(!hasFormat){
+            continue;
+        }
+        //Iterate over modes (up to 8 modes are supported)
+        for(int mode = 0; mode <= 7; mode++){
+            BOOL hasMode = false;
+            hasMode = pCamera->HasVideoMode(format, mode);
+            if(!hasMode){
+                continue;
             }
+            //Ignore not libavg supported formats
+            if(mode == 0 && format == 0){
+                continue;
+            }
+
+            IntPoint size;
+            PixelFormat pixelFormat;
+            FrameratesVector framerates;
+
+            getImageSizeAndPF(format, mode, size, pixelFormat);
+            getCameraFramerates(pCamera, format, mode, framerates);
+                    
+            CameraImageFormat imageFormat = CameraImageFormat(size, pixelFormat, framerates);
+            pCamInfo->addImageFormat(imageFormat);
         }
     }
 }
 
 void CMUCamera::getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat, unsigned long videoMode, FrameratesVector &framerates){
-    BOOL hasFramerate = false;
     for(int itFramerate = 0; itFramerate <= 7; itFramerate++){
+        BOOL hasFramerate = false;
         hasFramerate = pCamera->HasVideoFrameRate(videoFormat, videoMode, itFramerate);
-        if(hasFramerate){
-            float framerate = getFrameRateFloat(itFramerate);
-            framerates.push_back(framerate);
+        if(!hasFramerate){
+            continue;
         }
+
+        float framerate = getFrameRateFloat(itFramerate);
+        framerates.push_back(framerate);
     }
 }
 
@@ -349,6 +353,10 @@ void CMUCamera::getCameraControls(C1394Camera* pCamera, CameraInfo* pCamInfo)
     for(int indexFeature = 0; indexFeature <= 23; indexFeature++){
         C1394CameraControl* feature = pCamera->GetCameraControl((CAMERA_FEATURE)indexFeature);
         if(feature == NULL){
+            continue;
+        }
+        bool hasFeature = pCamera->HasFeature((CAMERA_FEATURE)indexFeature);
+        if(!hasFeature){
             continue;
         }
         //FrameRate (also known as TransferRate) is not supported
