@@ -84,6 +84,7 @@ private:
     void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION pinDir, IPin **ppPin);
     static void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
     static void dumpImageFormats(IMoniker* pMoniker);
+    static void getImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo);
 
     std::string m_sDevice;
     IntPoint m_Size;

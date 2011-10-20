@@ -266,4 +266,42 @@ long getDSFeatureID(CameraFeature feature)
     }
 }
 
+void intervalToSingleFramerates(float boarder1, float boarder2, std::vector<float> &framerateVector)
+{
+    float minBoarder;
+    float maxBoarder;
+    if(boarder1 <= boarder2){
+        minBoarder = boarder1;
+        maxBoarder = boarder2;
+    } else {
+        minBoarder = boarder2;
+        maxBoarder = boarder1;
+    }
+        
+    if(minBoarder <= 1.875 && maxBoarder >= 1.875){
+        framerateVector.push_back(1.875);
+    }
+    if(minBoarder <= 3.75 && maxBoarder >= 3.75){
+        framerateVector.push_back(3.75);
+    }
+    if(minBoarder <= 7.5 && maxBoarder >= 7.5){
+        framerateVector.push_back(7.5);
+    }
+    if(minBoarder <= 15. && maxBoarder >= 15.){
+        framerateVector.push_back(15);
+    }
+    if(minBoarder <= 30. && maxBoarder >= 30.){
+        framerateVector.push_back(30);
+    }
+    if(minBoarder <= 60. && maxBoarder >= 60.){
+        framerateVector.push_back(60);
+    }
+    if(minBoarder <= 120. && maxBoarder >= 120.){
+        framerateVector.push_back(120);
+    }
+    if(minBoarder <= 240. && maxBoarder >= 240.){
+        framerateVector.push_back(240);
+    }
+}
+
 }

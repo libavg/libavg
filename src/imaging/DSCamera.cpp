@@ -494,7 +494,7 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
 {
 #ifdef AVG_ENABLE_DSHOW
     HRESULT hr = S_OK;
-    // TODO: Check if the threading model is ok.
+    // Create apartment for Thread
     hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     checkForDShowError(hr, "DSCamera::getCameraInfos()::CoInitializeEx");
 
@@ -530,7 +530,7 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
     std::string deviceID = getStringProp(pPropBag, L"DevicePath");
     CameraInfo* pCamInfo = new CameraInfo("DirectShow", deviceID);
 
-    //getImageFormats(pMoniker, pCamInfo);
+    getImageFormats(pMoniker, pCamInfo);
     //getControls(pMoniker, pCamInfo);
             
     pPropBag->Release();
@@ -540,6 +540,68 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
     return pCamInfo;
 #endif
     return NULL;
+}
+
+void DSCamera::getImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
+{
+    HRESULT hr = S_OK;
+    IAMStreamConfig* pSC;
+    ICaptureGraphBuilder2* pCapture;
+    IBaseFilter* pSrcFilter;
+    // locates the object identified by pMoniker and 
+    // returns a pointer to its filter interface
+    hr = pMoniker->BindToObject(0,0,IID_IBaseFilter, (void**) &pSrcFilter);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::BindToObject");
+    if(pSrcFilter == NULL){
+        return;
+    }
+    // Creates an uninitialized instance and returns a pointer to 
+    // the IID_ICaptureGraphBuilder2 interface
+    hr = CoCreateInstance (CLSID_CaptureGraphBuilder2 , NULL, CLSCTX_INPROC,
+            IID_ICaptureGraphBuilder2, (void **) &pCapture);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::CaptureGraphBuilder2");
+    // searches the graph for a IID_IAMStreamConfig interface, returns a pointer
+    hr = pCapture->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video, 
+            pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::FindInterface");
+    int numCaps = 0;
+    int capsSize = 0;
+    hr = pSC->GetNumberOfCapabilities(&numCaps, &capsSize);
+cout << "MaxCaps: " <<numCaps << endl;
+    checkForDShowError(hr, "DSCamera::getImageFormats()::GetNumberOfCapabilities");
+    AM_MEDIA_TYPE* pmtConfig;
+    vector<string> sImageFormats;
+    VIDEOINFOHEADER* pvih;
+    BITMAPINFOHEADER bih;
+    PixelFormat capsPF;
+    for (int i = 0; i < numCaps; i++) {
+        VIDEO_STREAM_CONFIG_CAPS scc;
+        hr = pSC->GetStreamCaps(i, &pmtConfig, (BYTE*)&scc);
+        checkForDShowError(hr, "DSCamera::getImageFormats()::GetStreamCaps");
+        pvih = (VIDEOINFOHEADER*)(pmtConfig->pbFormat);
+        bih = pvih->bmiHeader;
+        capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
+        
+        OLECHAR* bstrGuid;
+        StringFromCLSID(pmtConfig->subtype, &bstrGuid);
+        cout << "Cap Nr " << i << endl;
+        cout << "Pixelformat " << capsPF << " in Win: "<< bstrGuid << " as String "<< mediaSubtypeToString(pmtConfig->subtype) << endl;
+        cout << "Size  " << bih.biWidth <<"x"<<bih.biHeight << endl;
+        cout << "Frames  " << (10000000 / pvih->AvgTimePerFrame) << endl;
+        cout << "min Frame " << 10000000 / scc.MinFrameInterval << " max Frame " << 10000000 / scc.MaxFrameInterval << endl;
+
+        if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
+            IntPoint size = IntPoint(bih.biWidth, bih.biHeight);
+            std::vector<float> framerates;
+            float boarder1 = (float)(10000000 / scc.MinFrameInterval);
+            float boarder2 = (float)(10000000 / scc.MaxFrameInterval);
+            intervalToSingleFramerates(boarder1, boarder2, framerates);
+            CameraImageFormat imageFormat = CameraImageFormat(size, capsPF, framerates);
+            pCamInfo->addImageFormat(imageFormat);
+        }
+    }
+    pCapture->Release();
+    pSrcFilter->Release();
 }
 
 void DSCamera::initGraphBuilder()

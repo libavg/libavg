@@ -57,6 +57,10 @@ std::string camImageFormatToString(const AM_MEDIA_TYPE* pMediaType);
 bool isDSFeatureCamControl(CameraFeature feature);
 long getDSFeatureID(CameraFeature feature);
 
+// Adds single Framerates out of an interval to a vector,
+// also determines which boarder is the lowest and which one is the highest
+void intervalToSingleFramerates(float boarder1, float boarder2, std::vector<float> &framerateVector);
+
 }
 
 #endif
