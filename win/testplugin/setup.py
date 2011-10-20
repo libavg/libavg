@@ -105,7 +105,7 @@ data_files_list=[
         ('Lib/site-packages/libavg/test/testmediadir', test_testmediadir_files),
         ('Lib/site-packages/libavg/test/fonts', test_fonts_files),
         ('Lib/site-packages/libavg/video/testfiles', videotest_files),
-        ('Lib/site-packages/libavg/plugin', ('../Release/colornode.dll',)),
+        ('Lib/site-packages/libavg/plugin', ('../Release/colorplugin.dll',)),
         ('Lib/site-packages/libavg', python_files),
         ('Lib/site-packages/libavg/ui', python_ui_files),
         ('Lib/site-packages/libavg/data', python_data_files),
