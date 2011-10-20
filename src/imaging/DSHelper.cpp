@@ -266,6 +266,47 @@ long getDSFeatureID(CameraFeature feature)
     }
 }
 
+CameraFeature getCameraFeatureID_VPAP(long videoProcAmpProperty)
+{
+    switch(videoProcAmpProperty){
+        case VideoProcAmp_Brightness:
+            return CAM_FEATURE_BRIGHTNESS;
+        case VideoProcAmp_Sharpness:
+            return CAM_FEATURE_SHARPNESS;
+        case VideoProcAmp_WhiteBalance:
+            return CAM_FEATURE_WHITE_BALANCE;
+        case VideoProcAmp_Hue:
+            return CAM_FEATURE_HUE;
+        case VideoProcAmp_Saturation:
+            return CAM_FEATURE_SATURATION;
+        case VideoProcAmp_Gamma:
+            return CAM_FEATURE_GAMMA;
+        case VideoProcAmp_Gain:
+            return CAM_FEATURE_GAIN;
+        default:
+            return CAM_FEATURE_UNSUPPORTED;
+    }
+}
+CameraFeature getCameraFeatureID_CCP(long cameraControlProperty)
+{
+    switch(cameraControlProperty){
+        case CameraControl_Exposure:
+            return CAM_FEATURE_EXPOSURE;
+        case CameraControl_Iris:
+            return CAM_FEATURE_IRIS;
+        case CameraControl_Focus:
+            return CAM_FEATURE_FOCUS;
+        case CameraControl_Zoom:
+            return CAM_FEATURE_ZOOM;
+        case CameraControl_Pan:
+            return CAM_FEATURE_PAN;
+        case CameraControl_Tilt:
+            return CAM_FEATURE_TILT;
+        default:
+            return CAM_FEATURE_UNSUPPORTED;
+    }
+}
+
 void intervalToSingleFramerates(float boarder1, float boarder2, std::vector<float> &framerateVector)
 {
     float minBoarder;

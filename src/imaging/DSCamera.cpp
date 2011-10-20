@@ -530,8 +530,8 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
     std::string deviceID = getStringProp(pPropBag, L"DevicePath");
     CameraInfo* pCamInfo = new CameraInfo("DirectShow", deviceID);
 
-    getImageFormats(pMoniker, pCamInfo);
-    //getControls(pMoniker, pCamInfo);
+    getCameraImageFormats(pMoniker, pCamInfo);
+    getCameraControls(pMoniker, pCamInfo);
             
     pPropBag->Release();
     pMoniker->Release();
@@ -542,7 +542,7 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
     return NULL;
 }
 
-void DSCamera::getImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
+void DSCamera::getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
 {
     HRESULT hr = S_OK;
     IAMStreamConfig* pSC;
@@ -603,6 +603,82 @@ cout << "MaxCaps: " <<numCaps << endl;
     pCapture->Release();
     pSrcFilter->Release();
 }
+
+void DSCamera::getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo)
+{
+     HRESULT hr = S_OK;
+    IBaseFilter * pSrcFilter;
+    // locates the object identified by pMoniker and 
+    // returns a pointer to its filter interface
+    hr = pMoniker->BindToObject(0,0,IID_IBaseFilter, (void**) &pSrcFilter);
+    checkForDShowError(hr, "DSCamera::dumpImageFormats()::BindToObject");
+    if(pSrcFilter == NULL){
+        return;
+    }
+    IAMCameraControl* pAMCameraControl;
+    pSrcFilter->QueryInterface(IID_IAMCameraControl, 
+                (void **)&pAMCameraControl);
+    for(int indexControl = 0; indexControl <= 6; indexControl++)
+    {
+        long value = -999;
+        long flags = -999;
+        pAMCameraControl->Get((CameraControlProperty)indexControl, &value, &flags);
+        cout << "########## CONTROLS ###########" << endl;
+        cout << "Value " << value << endl;
+        cout << "Flags " << flags << endl;
+        long min = -999;
+        long max = -999;
+        long delta = -999;
+        long defaultValue = -999;
+        flags = -999;
+        pAMCameraControl->GetRange((CameraControlProperty)indexControl, &min, &max, &delta, &defaultValue, &flags);
+        cout << "______________________" << endl;
+        cout << "Min " << min << endl;
+        cout << "Max " << max << endl;
+        cout << "Delta " << delta << endl;
+        cout << "Default " << defaultValue << endl;
+        cout << "Flags " << flags << endl;
+
+        CameraFeature feature = getCameraFeatureID_CCP((CameraControlProperty)indexControl);
+        if(min != -999 && max != -999 && defaultValue != -999 && feature != CAM_FEATURE_UNSUPPORTED){
+            std::string featureName = cameraFeatureToString(feature);
+            CameraControl control = CameraControl(featureName,min,max,defaultValue);
+            pCamInfo->addControl(control);
+        }
+    }
+    IAMVideoProcAmp* pCameraPropControl;
+    pSrcFilter->QueryInterface(IID_IAMVideoProcAmp, 
+                (void **)&pCameraPropControl);
+    for(int indexPropControl = 0; indexPropControl <= 9; indexPropControl++)
+    {
+        long value = -999;
+        long flags = -999;
+        pCameraPropControl->Get((VideoProcAmpProperty)indexPropControl, &value, &flags);
+        cout << "########## PROP CONTROLS ###########" << endl;
+        cout << "Value " << value << endl;
+        cout << "Flags " << flags << endl;
+        long min = -999;
+        long max = -999;
+        long delta = -999;
+        long defaultValue = -999;
+        flags = -999;
+         pCameraPropControl->GetRange((VideoProcAmpProperty)indexPropControl, &min, &max, &delta, &defaultValue, &flags);
+        cout << "______________________" << endl;
+        cout << "Min " << min << endl;
+        cout << "Max " << max << endl;
+        cout << "Delta " << delta << endl;
+        cout << "Default " << defaultValue << endl;
+        cout << "Flags " << flags << endl;
+
+        CameraFeature feature = getCameraFeatureID_VPAP((VideoProcAmpProperty)indexPropControl);
+        if(min != -999 && max != -999 && defaultValue != -999 && feature != CAM_FEATURE_UNSUPPORTED){
+            std::string featureName = cameraFeatureToString(feature);
+            CameraControl control = CameraControl(featureName,min,max,defaultValue);
+            pCamInfo->addControl(control);
+        }
+    }
+}
+
 
 void DSCamera::initGraphBuilder()
 {
