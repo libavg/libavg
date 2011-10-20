@@ -464,13 +464,81 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
 }
 
 int DSCamera::countCameras(){
-    //TODO:implement
-    return 0;
+    int count = 0;
+    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+    ICreateDevEnum *pDevEnum =NULL;
+    CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
+            IID_ICreateDevEnum, (void **) &pDevEnum);
+
+    IEnumMoniker *pClassEnum = NULL;
+    pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
+
+    if (pClassEnum == NULL) {
+        pClassEnum->Release();
+        pDevEnum->Release();
+        return count;
+    }
+    IMoniker* pMoniker = NULL;
+    while (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
+        count += 1;
+    }
+    pMoniker->Release();
+    pClassEnum->Release();
+    pDevEnum->Release();
+
+    return count;
 }
 
 CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
 {
-    //TODO:implement
+#ifdef AVG_ENABLE_DSHOW
+    HRESULT hr = S_OK;
+    // TODO: Check if the threading model is ok.
+    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::CoInitializeEx");
+
+    // Create the system device enumerator
+    ICreateDevEnum *pDevEnum =NULL;
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
+            IID_ICreateDevEnum, (void **) &pDevEnum);
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::CreateDevEnum");
+
+    // Create an enumerator for the video capture devices
+    IEnumMoniker *pClassEnum = NULL;
+    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::CreateClassEnumerator");
+
+    if (pClassEnum == NULL) {
+        pClassEnum->Release();
+        pDevEnum->Release();
+        return NULL;
+    }
+    IMoniker* pMoniker = NULL;
+    pClassEnum->Skip(deviceNumber);
+    hr = pClassEnum->Next(1, &pMoniker, NULL);
+    if(hr != S_OK){
+        pClassEnum->Release();
+        pDevEnum->Release();
+        pMoniker->Release();
+        return NULL;
+    }
+    IPropertyBag* pPropBag;
+    hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::BindToStorage");
+
+    std::string deviceID = getStringProp(pPropBag, L"DevicePath");
+    CameraInfo* pCamInfo = new CameraInfo("DirectShow", deviceID);
+
+    //getImageFormats(pMoniker, pCamInfo);
+    //getControls(pMoniker, pCamInfo);
+            
+    pPropBag->Release();
+    pMoniker->Release();
+    pClassEnum->Release();
+    pDevEnum->Release();
+    return pCamInfo;
+#endif
     return NULL;
 }
 

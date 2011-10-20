@@ -363,6 +363,7 @@ void CMUCamera::getCameraControls(C1394Camera* pCamera, CameraInfo* pCamInfo)
         if(feature->GetFeatureID() == FEATURE_FRAME_RATE){
             continue;
         }
+
         std::string featureName = feature->GetName();
         unsigned short min = -1;
         unsigned short max = -1;

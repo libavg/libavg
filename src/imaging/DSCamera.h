@@ -71,7 +71,7 @@ public:
 
     static void dumpCameras();
     static int countCameras();
-    CameraInfo* getCameraInfos(int deviceNumber);
+    static CameraInfo* getCameraInfos(int deviceNumber);
 
 private:
     virtual void open();
