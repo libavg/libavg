@@ -24,6 +24,9 @@
 #define _PluginManager_H_
 
 #include "../api.h"
+
+#include "BoostPython.h"
+
 #include "../base/Exception.h"
 
 #include <map>
@@ -49,7 +52,7 @@ public:
     void setSearchPath(const std::string& aNewPath);
     std::string getSearchPath() const;
     
-    void loadPlugin(const std::string& aPluginName);
+    boost::python::object loadPlugin(const std::string& aPluginName);
 
 private:
     PluginManager();    

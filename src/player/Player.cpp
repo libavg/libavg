@@ -1662,9 +1662,9 @@ string Player::getPluginPath() const
     return  PluginManager::get().getSearchPath();
 }
 
-void Player::loadPlugin(const std::string& name)
+boost::python::object Player::loadPlugin(const std::string& name)
 {
-    PluginManager::get().loadPlugin(name);
+    return PluginManager::get().loadPlugin(name);
 }
 
 void Player::setEventHook(PyObject * pyfunc)

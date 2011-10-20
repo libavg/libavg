@@ -28,6 +28,7 @@
 #include "DisplayParams.h"
 #include "CursorState.h"
 #include "TestHelper.h"
+#include "BoostPython.h"
 
 #include "../audio/AudioParams.h"
 #include "../graphics/GLConfig.h"
@@ -163,7 +164,7 @@ class AVG_API Player
 
         void disablePython();
 
-        void loadPlugin(const std::string& name);
+        boost::python::object loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
         
