@@ -341,7 +341,7 @@ functionality
             A node that is used only to determine if a click is over the button. Usually,
             this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
             buttons, where the active area should be larger than the visible button to
-            accout for touch inaccuracies.
+            account for touch inaccuracies.
 
         :param bool fatFingerEnlarge:
 
@@ -361,7 +361,7 @@ functionality
             :py:const:`True` if the button accepts input. If the button is disabled,
             it shows the :py:attr:`disabledNode`.
 
-        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None]) -> Button
+        .. py:classmethod:: fromSrc(upSrc, downSrc[, disabledSrc=None, **kwargs]) -> Button
 
             Factory method that creates a button from filenames of the images to be
             displayed for different states.
