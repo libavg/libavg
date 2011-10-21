@@ -465,17 +465,20 @@ void DSCamera::dumpImageFormats(IMoniker* pMoniker)
 
 int DSCamera::countCameras(){
     int count = 0;
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    HRESULT hr = S_OK;
+    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    checkForDShowError(hr, "DSCamera::countCameras()::CoInitializeEx");
 
     ICreateDevEnum *pDevEnum =NULL;
-    CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
             IID_ICreateDevEnum, (void **) &pDevEnum);
+    checkForDShowError(hr, "DSCamera::countCameras()::CreateDevEnum");
 
     IEnumMoniker *pClassEnum = NULL;
-    pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
+    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
+    checkForDShowError(hr, "DSCamera::countCameras()::CreateClassEnumerator");
 
     if (pClassEnum == NULL) {
-        pClassEnum->Release();
         pDevEnum->Release();
         return count;
     }
@@ -486,7 +489,6 @@ int DSCamera::countCameras(){
     pMoniker->Release();
     pClassEnum->Release();
     pDevEnum->Release();
-
     return count;
 }
 

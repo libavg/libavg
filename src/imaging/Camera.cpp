@@ -241,14 +241,14 @@ void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
     //V4LCamera::dumpCameras(); Works now with listCameraInfo()
 #endif
 #ifdef AVG_ENABLE_DSHOW 
-    DSCamera::dumpCameras();
+    //DSCamera::dumpCameras();
 #endif
 }
 
 std::vector<CameraInfo> getCamerasInfos()
 {
     std::vector<CameraInfo> camerasInfo;
-
+    
 #ifdef AVG_ENABLE_1394_2 //TODO
     int amountFWCameras = FWCamera::countCameras(); 
     for (int i = 0; i < amountFWCameras; i++){
@@ -267,7 +267,6 @@ std::vector<CameraInfo> getCamerasInfos()
         }
     }
 #endif
-
 #ifdef AVG_ENABLE_DSHOW
     int amountDSCameras = DSCamera::countCameras();
     for (int i = 0; i < amountDSCameras; i++){
