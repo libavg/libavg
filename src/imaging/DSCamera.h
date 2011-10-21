@@ -69,7 +69,6 @@ public:
 
     virtual void onSample(IMediaSample * pSample);
 
-    static void dumpCameras();
     static int countCameras();
     static CameraInfo* getCameraInfos(int deviceNumber);
 
@@ -83,7 +82,6 @@ private:
     void connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest);
     void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION pinDir, IPin **ppPin);
     static void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
-    static void dumpImageFormats(IMoniker* pMoniker);
     static void getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo);
     static void getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo);
 
