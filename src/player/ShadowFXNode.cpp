@@ -71,11 +71,54 @@ void ShadowFXNode::setParams(const DPoint& offset, double stdDev, double opacity
     m_Offset = offset;
     m_StdDev = stdDev;
     m_Opacity = opacity;
+    m_sColorName = sColor;
     m_Color = colorStringToColor(sColor);
-    if (m_pFilter) {
-        m_pFilter->setParams(offset, stdDev, opacity, m_Color);
-        setDirty();
-    }
+    updateFilter();
+}
+    
+void ShadowFXNode::setOffset(const DPoint& offset)
+{
+    m_Offset = offset;
+    updateFilter();
+}
+
+DPoint ShadowFXNode::getOffset() const
+{
+    return m_Offset;
+}
+
+void ShadowFXNode::setRadius(double radius)
+{
+    m_StdDev = radius;
+    updateFilter();
+}
+
+double ShadowFXNode::getRadius() const
+{
+    return m_StdDev;
+}
+
+void ShadowFXNode::setOpacity(double opacity)
+{
+    m_Opacity = opacity;
+    updateFilter();
+}
+
+double ShadowFXNode::getOpacity() const
+{
+    return m_Opacity;
+}
+
+void ShadowFXNode::setColor(const std::string& sColor)
+{
+    m_sColorName = sColor;
+    m_Color = colorStringToColor(sColor);
+    updateFilter();
+}
+
+std::string ShadowFXNode::getColor() const
+{
+    return m_sColorName;
 }
 
 GPUFilterPtr ShadowFXNode::createFilter(const IntPoint& size)
@@ -84,6 +127,14 @@ GPUFilterPtr ShadowFXNode::createFilter(const IntPoint& size)
             m_Opacity, m_Color));
     setDirty();
     return m_pFilter;
+}
+
+void ShadowFXNode::updateFilter()
+{
+    if (m_pFilter) {
+        m_pFilter->setParams(m_Offset, m_StdDev, m_Opacity, m_Color);
+        setDirty();
+    }
 }
 
 }

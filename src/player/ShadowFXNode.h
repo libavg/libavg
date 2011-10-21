@@ -42,14 +42,25 @@ public:
     void setParams(const DPoint& offset, double stdDev, double opacity, 
             const std::string& sColor);
 
+    void setOffset(const DPoint& offset);
+    DPoint getOffset() const;
+    void setRadius(double radius);
+    double getRadius() const;
+    void setOpacity(double opacity);
+    double getOpacity() const;
+    void setColor(const std::string& sColor);
+    std::string getColor() const;
+
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
+    void updateFilter();
 
     GPUShadowFilterPtr m_pFilter;
 
     DPoint m_Offset;
     double m_StdDev;
     double m_Opacity;
+    std::string m_sColorName;
     Pixel32 m_Color;
 };
 

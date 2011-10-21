@@ -93,5 +93,9 @@ void export_fx()
     class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
             boost::noncopyable>("ShadowFXNode")
         .def("setParams", &ShadowFXNode::setParams)
+        .add_property("offset", &ShadowFXNode::getOffset, &ShadowFXNode::setOffset)
+        .add_property("radius", &ShadowFXNode::getRadius, &ShadowFXNode::setRadius)
+        .add_property("opacity", &ShadowFXNode::getOpacity, &ShadowFXNode::setOpacity)
+        .add_property("color", &ShadowFXNode::getColor, &ShadowFXNode::setColor)
         ;
 }

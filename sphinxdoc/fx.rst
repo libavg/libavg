@@ -106,3 +106,23 @@ Effect Nodes
         Adds a shadow behind the node.
 
         .. py:method:: setParams(offset, radius, opacity, color)
+
+            .. deprecated:: 1.5
+
+        .. py:attribute:: offset
+
+            An adjustment to the shadow's position behind the node in pixels.        
+
+        .. py:attribute:: radius
+
+            The blur radius of the shadow.
+
+        .. py:attribute:: opacity
+
+            The opacity of the shadow.
+
+        .. py:attribute:: color
+
+            The shadow color.
+
+
