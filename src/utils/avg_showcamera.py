@@ -45,7 +45,7 @@ if g_options.dump:
     avg.CameraNode.dumpCameras() #TODO: Old output, delete if old structure is cleaned up
     infoList = list()
     infoList = avg.CameraNode.getCamerasInfos()
-    if (infoList.__len__() <= 0):
+    if (len(infoList) <= 0):
         print "No camera available!"
     for info in infoList:
         print ""
