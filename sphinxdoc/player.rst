@@ -119,15 +119,15 @@ Player & Canvas
             .. deprecated:: 1.5
                 Use :func:`enableMultitouch()` instead. 
 
-        .. py:method:: assumePhysicalScreenDimensions(sizeInMM)
+        .. py:method:: assumePixelsPerMM(ppmm)
 
-            Tells the system to assume a size for the physical screen, overriding 
-            operating system information. The parameter is the size in millimeters as a
-            :py:class:`Point2D`. This function affects the values returned by 
+            Tells the system to assume a resolution for the physical screen, overriding 
+            operating system information. The parameter is the number of pixels per
+            millimeter as a :samp:`float`. This function affects the values returned by 
             :py:meth:`getPhysicalScreenDimensions` and :py:meth:`getPixelsPerMM`. It is
-            useful for situations in which the OS cannot know the size (e.g. projectors)
-            and when the automatic functions return wrong values (which happens,
-            unfortunately, because of operating system deficiencies).
+            useful for situations in which the OS cannot know the resolution (e.g. 
+            projectors) and when the automatic functions return wrong values (which 
+            happens, unfortunately, because of operating system deficiencies).
 
         .. py:method:: clearInterval(id) -> bool
 

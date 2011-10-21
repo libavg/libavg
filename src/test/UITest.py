@@ -220,10 +220,10 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, True, False),
                  # Down-big move-up: fail
                  initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 100, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
                  lambda: assertEvents(True, False, True),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 1, 1),
                  lambda: assertEvents(True, False, True),
                  # Down-delay: fail
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
@@ -289,10 +289,10 @@ class UITestCase(AVGTestCase):
 
                  # down-move-up sequence, should abort. 
                  initState,
-                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 100, 0),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
+                 lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
                  lambda: assertEvents(True, False, True, False),
-                 lambda: self._sendMouseEvent(avg.CURSORUP, 100, 0),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 150, 50),
                  lambda: assertEvents(True, False, True, False),
                 ))
         Player.setFakeFPS(-1)

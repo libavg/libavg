@@ -74,7 +74,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         IntPoint getScreenResolution();
         double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
-        void assumePhysicalScreenDimensions(const DPoint& size);
+        void assumePixelsPerMM(double ppmm);
         virtual void swapBuffers();
 
     private:
@@ -93,7 +93,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
-        DPoint m_PPMM;
+        double m_PPMM;
 
         SDL_Surface * m_pScreen;
 

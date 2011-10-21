@@ -97,7 +97,7 @@ void safeSetAttribute(SDL_GLattr attr, int value)
 SDLDisplayEngine::SDLDisplayEngine()
     : IInputDevice(EXTRACT_INPUTDEVICE_CLASSNAME(SDLDisplayEngine)),
       m_WindowSize(0,0),
-      m_PPMM(0,0),
+      m_PPMM(0),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
@@ -338,16 +338,15 @@ void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
     if (dotsPerMM != 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
-        m_PPMM = DPoint(dotsPerMM, dotsPerMM);
+        m_PPMM = dotsPerMM;
     }
 
-    if (m_PPMM == DPoint(0,0)) {
+    if (m_PPMM == 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
 #ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-        m_PPMM = DPoint(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY))
-                /25.4;
+        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4;
 #else
     #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
@@ -356,8 +355,8 @@ void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
         CGSize size = CGDisplayScreenSize(CGMainDisplayID());
         DPoint displayMM(size.width, size.height);
     #endif
-        m_PPMM.x = m_ScreenResolution.x/displayMM.x;
-        m_PPMM.y = m_ScreenResolution.y/displayMM.y;
+        // Non-Square pixels cause errors here. We'll fix that when it happens.
+        m_PPMM = m_ScreenResolution.x/displayMM.x;
 #endif
     }
 }
@@ -1058,7 +1057,7 @@ double SDLDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
-    return (m_PPMM.x+m_PPMM.y)/2;
+    return m_PPMM;
 }
 
 DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
@@ -1066,15 +1065,14 @@ DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
     calcScreenDimensions();
     DPoint size;
     DPoint screenRes = DPoint(getScreenResolution());
-    size.x = screenRes.x/m_PPMM.x;
-    size.y = screenRes.y/m_PPMM.y;
+    size.x = screenRes.x/m_PPMM;
+    size.y = screenRes.y/m_PPMM;
     return size;
 }
 
-void SDLDisplayEngine::assumePhysicalScreenDimensions(const DPoint& size)
+void SDLDisplayEngine::assumePixelsPerMM(double ppmm)
 {
-    DPoint screenRes = DPoint(getScreenResolution());
-    m_PPMM = DPoint(screenRes.x/size.x, screenRes.y/size.y);
+    m_PPMM = ppmm;
 }
 
 }

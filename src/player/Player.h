@@ -89,7 +89,7 @@ class AVG_API Player
         DPoint getScreenResolution();
         double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
-        void assumePhysicalScreenDimensions(const DPoint& size);
+        void assumePixelsPerMM(double ppmm);
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);

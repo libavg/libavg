@@ -263,9 +263,9 @@ DPoint Player::getPhysicalScreenDimensions()
     return safeGetDisplayEngine()->getPhysicalScreenDimensions();
 }
 
-void Player::assumePhysicalScreenDimensions(const DPoint& size)
+void Player::assumePixelsPerMM(double ppmm)
 {
-    safeGetDisplayEngine()->assumePhysicalScreenDimensions(size);
+    safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
