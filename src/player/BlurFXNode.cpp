@@ -61,11 +61,21 @@ void BlurFXNode::disconnect()
 
 void BlurFXNode::setParam(double stdDev)
 {
+    setRadius(stdDev);
+}
+
+void BlurFXNode::setRadius(double stdDev)
+{
     m_StdDev = stdDev;
     if (m_pFilter) {
         m_pFilter->setStdDev(stdDev);
     }
     setDirty();
+}
+
+double BlurFXNode::getRadius() const
+{
+    return m_StdDev;
 }
 
 GPUFilterPtr BlurFXNode::createFilter(const IntPoint& size)

@@ -12,10 +12,16 @@ Effect Nodes
         Blurs the node it is applied to. Corresponds to the Gaussian Blur effect in 
         Photoshop.
 
+        .. py:attribute:: radius
+
+            The width of the blur. This corresponds to the radius parameter of
+            photoshop.
+
         .. py:method:: setParam(radius)
 
-            Sets the width of the blur. This corresponds to the radius parameter of
-            photoshop.
+            .. deprecated:: 1.5
+
+            Corresponds to the :py:attr:`radius` attribute. 
 
     .. autoclass:: ChromaKeyFXNode
 
@@ -83,12 +89,13 @@ Effect Nodes
 
         .. py:attribute:: colorize
 
-           If :py:attr:`colorize` is :py:const:`True`, all colors will be tinted according to
-           the current :py:attr:`hue` value
+           If :py:attr:`colorize` is :py:const:`True`, all colors will be tinted 
+           according to the current :py:attr:`hue` value. Otherwise, :py:attr:`hue` is
+           treated as a difference value.
 
     .. autoclass:: InvertFXNode
 
-        Color Invert Effect. Inverts colors from nodes that it is attached to.
+        Color Invert Effect. Inverts the brightness of nodes that it is attached to.
 
     .. autoclass:: NullFXNode
 

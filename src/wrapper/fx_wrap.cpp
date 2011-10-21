@@ -44,6 +44,8 @@ void export_fx()
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
             boost::noncopyable>("BlurFXNode")
         .def("setParam", &BlurFXNode::setParam)
+        .add_property("radius", &BlurFXNode::getRadius,
+                &BlurFXNode::setRadius)
         ;
 
     class_<ChromaKeyFXNode, bases<FXNode>, boost::shared_ptr<ChromaKeyFXNode>,

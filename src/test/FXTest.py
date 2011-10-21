@@ -157,6 +157,10 @@ class FXTestCase(AVGTestCase):
                                 ))
 
     def testBlurFX(self):
+        
+        def setRadius(radius):
+            self.effect.radius = radius
+        
         def removeFX():
             self.node.setEffect(None)
 
@@ -165,7 +169,7 @@ class FXTestCase(AVGTestCase):
 
         def addNewFX():
             effect = avg.BlurFXNode()
-            effect.setParam(8)
+            effect.radius = 8
             self.node.setEffect(effect)
 
         root = self.loadEmptyScene()
@@ -174,7 +178,7 @@ class FXTestCase(AVGTestCase):
         self.node.setEffect(self.effect)
         self.start((
                  lambda: self.compareImage("testBlurFX1", False),
-                 lambda: self.effect.setParam(8),
+                 lambda: setRadius(8),
                  lambda: self.compareImage("testBlurFX2", False),
                  removeFX,
                  lambda: self.compareImage("testBlurFX3", False),
@@ -356,21 +360,21 @@ class FXTestCase(AVGTestCase):
             node.maskpos = (10, 10)
 
         def changeFX():
-            effect.setParam(2)
+            effect.radius = 2
 
         def addVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
                     href="../video/testfiles/mpeg1-48x48.mpg")
             effect = avg.BlurFXNode()
-            effect.setParam(0)
+            effect.radius = 0
             videoNode.setEffect(effect)
             videoNode.play()
 
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24alpha-64x64.png")
         effect = avg.BlurFXNode()
-        effect.setParam(0)
+        effect.radius = 0
         node.setEffect(effect)
         Player.setFakeFPS(25)
         self.start((
