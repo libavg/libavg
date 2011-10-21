@@ -32,7 +32,6 @@
 #include "StringHelper.h"
 #include "MathHelper.h"
 #include "CubicSpline.h"
-#include "BicubicSpline.h"
 #include "BezierCurve.h"
 #include "Signal.h"
 #include "Backtrace.h"
@@ -524,59 +523,6 @@ public:
             TEST(almostEqual(spline.interpolate(8), 6));
             TEST(almostEqual(spline.interpolate(9), 7.5));
             TEST(almostEqual(spline.interpolate(10), 9));
-        }
-        {
-            double xd[] = {0,1,2,3};
-            vector<double> x = vectorFromCArray(4, xd);
-            double yd[] = {0,1,2,3}; 
-            vector<double> y = vectorFromCArray(4, yd);
-            double fd[] = {0,0,0,0,
-                           0,0,1,0,
-                           0,0,0,0,
-                           0,0,0,0
-                          };
-            vector<vector<double> > f = vector2DFromCArray(4, 4, fd);
-            BicubicSpline spline(x, y, f);
-/*
-            cerr << spline.interpolate(DPoint(1,1)) << endl;
-            cerr << spline.interpolate(DPoint(2,1)) << endl;
-            cerr << spline.interpolate(DPoint(1.5,1)) << endl;
-            cerr << spline.interpolate(DPoint(0.5,1)) << endl;
-            cerr << spline.interpolate(DPoint(1,2)) << endl;
-            cerr << spline.interpolate(DPoint(10,0)) << endl;
-*/
-            TEST(almostEqual(spline.interpolate(DPoint(0,0)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(1,1)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(2,1)), 1));
-            TEST(almostEqual(spline.interpolate(DPoint(1,2)), 0));
-            TEST(spline.interpolate(DPoint(1.5,1)) > 0.5);
-            TEST(spline.interpolate(DPoint(1.5,1)) < 1);
-            TEST(spline.interpolate(DPoint(0.5,1)) < 0);
-            TEST(almostEqual(spline.interpolate(DPoint(-1,0)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(-10,0)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(0,-1)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(0,-10)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(0,10)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(10,0)), 0));
-        }
-        {
-            double xd[] = {0,2,4,6};
-            vector<double> x = vectorFromCArray(4, xd);
-            double yd[] = {0,3,6,9}; 
-            vector<double> y = vectorFromCArray(4, yd);
-            double fd[] = {0,0,0,0,
-                           0,0,1,0,
-                           0,0,0,0,
-                           0,0,0,0
-                          };
-            vector<vector<double> > f = vector2DFromCArray(4, 4, fd);
-            BicubicSpline spline(x, y, f);
-            TEST(almostEqual(spline.interpolate(DPoint(2,3)), 0));
-            TEST(almostEqual(spline.interpolate(DPoint(4,3)), 1));
-            TEST(almostEqual(spline.interpolate(DPoint(2,6)), 0));
-            TEST(spline.interpolate(DPoint(3,3)) > 0.5);
-            TEST(spline.interpolate(DPoint(3,3)) < 1);
-            TEST(spline.interpolate(DPoint(1,3)) < 0);
         }
     }
 };
