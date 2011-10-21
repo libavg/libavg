@@ -538,23 +538,21 @@ CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
         return NULL;
     }
     if (pCameraList->num != 0) {
-        for (unsigned i=0; i<pCameraList->num;++i) {
-            dc1394camera_id_t id = pCameraList->ids[i];
-            dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
-                    id.unit);
-            if (pCamera) {
-                stringstream deviceID;
-                deviceID << pCamera->guid;
-                CameraInfo* camInfo = new CameraInfo("Firewire", deviceID.str());
+        dc1394camera_id_t id = pCameraList->ids[deviceNumber];
+        dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
+                id.unit);
+        if (pCamera) {
+            stringstream deviceID;
+            deviceID << pCamera->guid;
+            CameraInfo* camInfo = new CameraInfo("Firewire", deviceID.str());
 
-                getCameraControls(pCamera, camInfo);
-                getCameraImageFormats(pCamera, camInfo);
+            getCameraControls(pCamera, camInfo);
+            getCameraImageFormats(pCamera, camInfo);
 
-                dc1394_camera_free(pCamera);
-                dc1394_camera_free_list(pCameraList);
-                dc1394_free(pDC1394);
-                return camInfo;
-            }
+            dc1394_camera_free(pCamera);
+            dc1394_camera_free_list(pCameraList);
+            dc1394_free(pDC1394);
+            return camInfo;
         }
     }
 #endif
