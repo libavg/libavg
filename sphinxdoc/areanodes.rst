@@ -338,6 +338,10 @@ Area Nodes
         
         .. py:attribute:: blendmode
 
+            .. deprecated:: 1.7
+                
+                The min and max blend modes will be removed.
+
             The method of compositing the node with the nodes under
             it. Valid values are :py:const:`blend`, :py:const:`add`, :py:const:`min` 
             and :py:const:`max`. For :py:const:`min` and :py:const:`max`
@@ -354,7 +358,7 @@ Area Nodes
             Allows node-specific gamma correction. gamma is a triple that
             contains separate float values for red, green, and blue. A gamma value of
             1.0 in all channels leaves the image unchanged. Higher gamma values
-            increase, lower values decrease the brightness. In all cases, black
+            increase, lower values decrease the brightness. In all cases, black and
             white pixels are not affected by gamma. See also 
             http://en.wikipedia.org/wiki/Gamma_correction.
 
@@ -401,7 +405,8 @@ Area Nodes
             Determines whether mipmaps (http://en.wikipedia.org/wiki/Mipmap) are 
             generated for this node. Setting this to :py:const:`True` improves the quality
             of minified nodes. Depending on the graphics card in use, turning on mipmaps
-            may cause a performance hit for every image change. Read-only.
+            may cause an extreme performance hit for every image change or have no
+            performance cost at all. Read-only.
 
         .. py:method:: getOrigVertexCoords() -> list
 
@@ -413,7 +418,7 @@ Area Nodes
 
         .. py:method:: setEffect(FXNode)
 
-            Sets an :py:class:`FXNode` that modifies the way the node looks.
+            Attaches an :py:class:`FXNode` to the node that modifies how it looks.
 
         .. py:method:: setWarpedVertexCoords(grid)
 
@@ -452,7 +457,7 @@ Area Nodes
 
             Returns the sample rate in samples per second (for example, 44100).
 
-        .. py:method:: getCurTime()
+        .. py:method:: getCurTime() -> time
 
             Returns milliseconds of playback time since audio start.
 
@@ -484,7 +489,7 @@ Area Nodes
     .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0, accelerated=True])
 
         Video nodes display a video file. Video formats and codecs supported
-        are all formats that ffmpeg/libavcodec supports. Usage is described throughly
+        are all formats that ffmpeg/libavcodec supports. Usage is described thoroughly
         in the libavg wiki: https://www.libavg.de/wiki/ProgrammersGuide/VideoNode.
 
         .. py:attribute:: accelerated
@@ -510,8 +515,9 @@ Area Nodes
             The length of the decoder queue in video frames. This is the number of
             frames that can be decoded before the first one is displayed. A higher
             number increases memory consumption but also resilience against
-            data source latency. Can only be set at node construction. Can't be set
-            if :samp:`threaded=False`, since there is no queue in that case.
+            data source latency (i.e. hiccups during disk reads). Can only be set at node
+            construction. Can't be set if :samp:`threaded=False`, since there is no queue
+            in that case.
 
         .. py:attribute:: threaded
 

@@ -86,7 +86,7 @@ Input Handling
 
         .. py:attribute:: cursorid
 
-            An numerical identifier for the current cursor.
+            A numerical identifier for the current cursor.
 
         .. py:attribute:: node
 
@@ -160,34 +160,28 @@ Input Handling
         :py:meth:`Player.addInputDevice`. After this, the emitted 
         events are processed like any other events.
 
-        :param String name:
+        .. py:attribute:: eventreceivernode
 
-            The name of the input device.
-
-        :param DivNode eventReceiverNode:
-            
-            The root node that the input device will deliver events to. By default, this
-            is the libavg root node. Useful for constricting events to a part of the
-            total canvas or for sending events directly to an offscreen canvas. Event
-            bubbling starts at this node and proceeds down the tree from there.
-
-        .. py:attribute:: eventreceivernode:
-
-            The node the events of this input device will be delivered to. Read-only.
+            The :py:class:`DivNode` that the input device will deliver events to. By 
+            default, this is the libavg root node. Useful for restricting events to a 
+            part of the total canvas or for sending events directly to an offscreen 
+            canvas. Event bubbling starts at this node and proceeds down the tree from
+            there. Read-only.
 
         .. py:attribute:: name
 
             The name of the device. Read-only.
         
+        .. py:method:: pollEvents() -> list
+
+            Abstract method which returns a list of pending events. Override this method
+            in your derived input device class. After registering 
+            the input device, this method gets called on every frame.
+
         .. py:method::  start()
 
             Initializes the input device if needed. By default this is an empty method.
         
-        .. py:method:: pollEvents() -> list
-
-            Abstract method which returns a list of pending events. After registering 
-            the input device, this method gets called on every frame.
-
     .. autoclass:: KeyEvent
 
         Generated when a key is pressed or released.
@@ -219,34 +213,6 @@ Input Handling
     .. autoclass:: MouseEvent(type, leftButtonState, middleButtonState, rightButtonState, pos, button, [speed, when])
 
         Generated when a mouse-related event occurs.
-
-        :param type:
-    
-            See :py:attr:`Event.type`
-
-        :param Boolean leftButtonState:
-    
-            Specifies if the left mouse button is pressed                    
-
-        :param Boolean middleButtonState:
-
-            Specifies if the middle mouse button is pressed
-
-        :param Boolean rightButtonState:
-
-            Specifies if the right mouse button is pressed
-
-        :param Point2D pos:
-            
-            The position of the event
-
-        :param Integer button:
-
-            The Button that caused the event
-
-        :param Point2D speed:
-
-            The speed of the event
 
         .. py:attribute:: button
 
@@ -283,27 +249,6 @@ Input Handling
         Generated when a touch or other tracking event occurs. Touch events happen 
         only when a multi-touch sensitive surface or other camera tracker is 
         active. 
-
-        :param Integer id:
-            
-            The cursorid of the event
-
-        :param type type:
-
-            See :py:attr:`Event.type`
-
-        :param Point2D pos:
-
-            The position of the event
-
-        :param source source:
-
-            See :py:attr:`Event.source`
-
-        :param Point2D speed:
-
-            The speed of the event
-
 
         .. py:attribute:: area
 
@@ -354,7 +299,7 @@ Input Handling
             used with a DI device, the internal tracker also generates :py:const:`TRACK` 
             events for hands above the surface. When used with an FTIR device, the 
             internal tracker generates :py:const:`TRACK` events for the actual touches.
-            Read-only
+            Read-only.
 
         .. py:attribute:: speed
 
@@ -377,12 +322,9 @@ Input Handling
     .. autoclass:: Tracker
 
         A class that uses a camera to track moving objects and delivers the movements 
-        as avg events. Create a tracker by using :py:meth:`Player.addTracker()`.
-        The properties of this class are explained under
-        https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
-
-        This is the internal libavg tracker. For touch input sources created using 
-        :py:meth:`Player.enableMultitouch`, no Tracker object exists.
+        as avg events. Create a tracker by using :py:meth:`Player.enableMultitouch()` with
+        :samp:`AVG_MULTITOUCH_DRIVER=TRACKER`. The properties of this class are explained
+        under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
         
         .. py:method:: abortCalibration()
 
@@ -428,7 +370,7 @@ Input Handling
             time, so it is turned off by default.
 
             :param img: Whether to generate intermediate result images.
-            :param finger: Whether to generate the :py:const:IMG_FINGERS: result image.
+            :param finger: Whether to generate the :py:const:`IMG_FINGERS` result image.
 
         .. py:method:: setParam(element, value)
 
