@@ -21,7 +21,7 @@
 #ifndef _OGLImagingContext_H_
 #define _OGLImagingContext_H_
 #include "../api.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include "OGLHelper.h"
 #include "GLContext.h"

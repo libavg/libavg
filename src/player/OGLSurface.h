@@ -24,8 +24,7 @@
 
 #include "../api.h"
 
-#include "../base/Point.h"
-#include "../base/Triple.h"
+#include "../base/GLMHelper.h"
 #include "../base/Matrix3x4.h"
 
 #include "../graphics/Bitmap.h"
@@ -55,7 +54,7 @@ public:
             bool bPremultipliedAlpha = false) const;
     GLTexturePtr getTex(int i=0) const;
 
-    void setMaskCoords(DPoint maskPos, DPoint maskSize);
+    void setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize);
 
     PixelFormat getPixelFormat();
     IntPoint getSize();
@@ -79,8 +78,8 @@ private:
     IntPoint m_Size;
     PixelFormat m_pf;
     GLTexturePtr m_pMaskTexture;
-    DPoint m_MaskPos;
-    DPoint m_MaskSize;
+    glm::vec2 m_MaskPos;
+    glm::vec2 m_MaskSize;
     
 
     DTriple m_Gamma;

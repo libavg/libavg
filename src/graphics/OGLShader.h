@@ -26,7 +26,7 @@
 #include "OGLHelper.h"
 #include "Pixel32.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -48,7 +48,7 @@ class AVG_API OGLShader {
         void setUniformFloatParam(const std::string& sName, float val);
         void setUniformFloatParam(const std::string& sName, double val);
         void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
-        void setUniformDPointParam(const std::string& sName, DPoint pt);
+        void setUniformVec2fParam(const std::string& sName, glm::vec2 pt);
         void setUniformColorParam(const std::string& sName, Pixel32 col);
         void setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
                 float w);

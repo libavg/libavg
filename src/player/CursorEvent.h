@@ -27,7 +27,7 @@
 #include "../api.h"
 #include "Event.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -54,16 +54,16 @@ class AVG_API CursorEvent: public Event
                 int when=-1);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
-        void setPos(const DPoint& pos);
-        DPoint getPos() const;
+        void setPos(const glm::vec2& pos);
+        glm::vec2 getPos() const;
         int getXPosition() const;
         int getYPosition() const;
         void setCursorID(int id);
         int getCursorID() const;
         void setNode(NodePtr pNode);
         NodePtr getNode() const;
-        void setSpeed(DPoint speed);
-        virtual const DPoint& getSpeed() const;
+        void setSpeed(glm::vec2 speed);
+        virtual const glm::vec2& getSpeed() const;
 
         void setContact(ContactPtr pContact);
         ContactPtr getContact() const;
@@ -77,7 +77,7 @@ class AVG_API CursorEvent: public Event
         int m_ID;
         ContactWeakPtr m_pContact;
         NodeWeakPtr m_pNode;
-        DPoint m_Speed;
+        glm::vec2 m_Speed;
 };
 
 bool operator ==(const CursorEvent& event1, const CursorEvent& event2);

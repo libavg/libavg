@@ -30,7 +30,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <vector>
 
@@ -65,18 +65,18 @@ class AVG_API Blob
         void calcContour(int Precision);
         ContourSeq getContour();
 
-        const DPoint& getCenter() const;
-        const DPoint& getEstimatedNextCenter() const;
-        double getArea() const;
+        const glm::vec2& getCenter() const;
+        const glm::vec2& getEstimatedNextCenter() const;
+        float getArea() const;
         const IntRect & getBoundingBox() const;
-        double getEccentricity() const;
-        double getInertia() const;
-        double getOrientation() const;
-        const DPoint& getScaledBasis(int i) const;
-        const DPoint& getEigenVector(int i) const;
-        const DPoint& getEigenValues() const;
+        float getEccentricity() const;
+        float getInertia() const;
+        float getOrientation() const;
+        const glm::vec2& getScaledBasis(int i) const;
+        const glm::vec2& getEigenVector(int i) const;
+        const glm::vec2& getEigenValues() const;
 
-        void calcNextCenter(DPoint oldCenter);
+        void calcNextCenter(glm::vec2 oldCenter);
         void clearRelated();
         void addRelated(BlobPtr pBlob);
         const BlobPtr getFirstRelated(); 
@@ -85,7 +85,7 @@ class AVG_API Blob
 
     private:
         Blob(const Blob &);
-        DPoint calcCenter();
+        glm::vec2 calcCenter();
         IntRect calcBBox();
         int calcArea();
         void initRowPositions();
@@ -98,16 +98,16 @@ class AVG_API Blob
                                           // For hands, this contains the fingers.
 
         bool m_bStatsAvailable;
-        DPoint m_EstimatedNextCenter;
-        DPoint m_Center;
-        double m_Area;
+        glm::vec2 m_EstimatedNextCenter;
+        glm::vec2 m_Center;
+        float m_Area;
         IntRect m_BoundingBox;
-        double m_Eccentricity;
-        double m_Inertia;
-        double m_Orientation;
-        DPoint m_ScaledBasis[2];
-        DPoint m_EigenVector[2];
-        DPoint m_EigenValues;
+        float m_Eccentricity;
+        float m_Inertia;
+        float m_Orientation;
+        glm::vec2 m_ScaledBasis[2];
+        glm::vec2 m_EigenVector[2];
+        glm::vec2 m_EigenValues;
 
         ContourSeq m_Contour;
 };

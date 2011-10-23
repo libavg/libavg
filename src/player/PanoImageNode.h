@@ -44,7 +44,7 @@ class AVG_API PanoImageNode: public AreaNode
         
         virtual void connectDisplay();
         virtual void disconnect(bool bKill);
-        virtual void render(const DRect& Rect);
+        virtual void render(const FRect& Rect);
 
         double getScreenPosFromPanoPos(int PanoPos) const;
         double getScreenPosFromAngle(double Angle) const;
@@ -61,7 +61,7 @@ class AVG_API PanoImageNode: public AreaNode
         double getMaxRotation() const;
 
     protected:        
-        virtual DPoint getPreferredMediaSize();
+        virtual glm::vec2 getPreferredMediaSize();
 
     private:
         void load();

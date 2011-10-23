@@ -79,7 +79,7 @@ void PanoImageNode::disconnect(bool bKill)
 
 static ProfilingZoneID PanoRenderProfilingZone("PanoImageNode::render");
 
-void PanoImageNode::render(const DRect& Rect)
+void PanoImageNode::render(const FRect& Rect)
 {
     ScopeTimer Timer(PanoRenderProfilingZone);
     pushGLState();
@@ -112,7 +112,7 @@ void PanoImageNode::render(const DRect& Rect)
     glDisable (GL_CLIP_PLANE3);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glDisable(GL_CLIP_PLANEx)");
-    DPoint Vpt = getSize();
+    glm::vec2 Vpt = getSize();
     glViewport(0, 0, int(Vpt.x), int(Vpt.y));
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glViewport()");
@@ -242,11 +242,11 @@ void PanoImageNode::calcProjection()
     m_MaxRotation = m_CylAngle-m_fovy*m_aspect;
 }
 
-DPoint PanoImageNode::getPreferredMediaSize()
+glm::vec2 PanoImageNode::getPreferredMediaSize()
 {
     double SensorAspect = m_SensorWidth/m_SensorHeight;
     double Width = m_pBmp->getSize().y*SensorAspect;
-    return DPoint(Width, m_pBmp->getSize().y);
+    return glm::vec2(Width, m_pBmp->getSize().y);
 }
 
 void PanoImageNode::load()

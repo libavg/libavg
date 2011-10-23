@@ -86,9 +86,9 @@ class AVG_API Player
                 bool bUsePixelBuffers, int multiSampleSamples);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
-        DPoint getScreenResolution();
+        glm::vec2 getScreenResolution();
         double getPixelsPerMM();
-        DPoint getPhysicalScreenDimensions();
+        glm::vec2 getPhysicalScreenDimensions();
         void assumePixelsPerMM(double ppmm);
 
         CanvasPtr loadFile(const std::string& sFilename);

@@ -21,7 +21,7 @@
 
 #include "TrackerCalibrator.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -49,45 +49,46 @@ public:
             bool bDone = false;
             while (!bDone) {
                 IntPoint displayPoint(calibrator.getDisplayPoint());
-                calibrator.setCamPoint(DPoint(displayPoint));
+                calibrator.setCamPoint(glm::vec2(displayPoint));
                 bDone = !calibrator.nextPoint();
             }
             pTrafo = calibrator.makeTransformer();
-            TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00))<1);
-//            cerr << "scale: " << scale << ", offset: " << offset << endl;
-            TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
-            TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
+            TEST(glm::length(pTrafo->transformBlobToScreen(glm::dvec2(1.00,1.00)) - 
+                    glm::dvec2(1.00,1.00)) < 1);
+            TEST(checkTransform(pTrafo, glm::dvec2(0,0), glm::dvec2(0,0)));
+            TEST(checkTransform(pTrafo, glm::dvec2(640, 480), glm::dvec2(640, 480)));
         }
         {
             TrackerCalibrator calibrator(IntPoint(640, 480), IntPoint(1280,720));
             bool bDone = false;
             while (!bDone) {
                 IntPoint displayPoint(calibrator.getDisplayPoint());
-                calibrator.setCamPoint(DPoint(displayPoint.x/2, displayPoint.y/1.5));
+                calibrator.setCamPoint(glm::vec2(displayPoint.x/2, displayPoint.y/1.5));
                 bDone = !calibrator.nextPoint();
             }
             pTrafo = calibrator.makeTransformer();
-            TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50)) <1 );
-//            cerr << "scale: " << scale << ", offset: " << offset << endl;
-            TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
-            TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
-            TEST(checkBlobToScreen(pTrafo, DPoint(0,0), DPoint(0,0)));
-            TEST(checkBlobToScreen(pTrafo, DPoint(640, 480), DPoint(1280, 720)));
+            TEST(glm::length(pTrafo->transformBlobToScreen(glm::dvec2(1.00,1.00)) -
+                    glm::dvec2(2.00,1.50)) < 1);
+            TEST(checkTransform(pTrafo, glm::dvec2(0,0), glm::dvec2(0,0)));
+            TEST(checkTransform(pTrafo, glm::dvec2(640, 480), glm::dvec2(640, 480)));
+            TEST(checkBlobToScreen(pTrafo, glm::dvec2(0,0), glm::dvec2(0,0)));
+            TEST(checkBlobToScreen(pTrafo, glm::dvec2(640, 480), glm::dvec2(1280, 720)));
         }
     }
 
-    bool checkTransform(CoordTransformerPtr pTrafo, const DPoint& srcPt, 
-            const DPoint& destPt) 
+    bool checkTransform(CoordTransformerPtr pTrafo, const glm::dvec2& srcPt, 
+            const glm::dvec2& destPt) 
     {
-        DPoint ResultPt = pTrafo->transform_point(srcPt);
+        glm::dvec2 ResultPt = pTrafo->transform_point(srcPt);
 //        cerr << srcPt << " -> " << ResultPt << ", expected " << destPt << endl;
         return ((fabs(ResultPt.x-destPt.x) < 0.1) && (fabs(ResultPt.y-destPt.y) < 0.1));
     }
 
     bool checkBlobToScreen(DeDistortPtr pTrafo, 
-            const DPoint& srcPt, const DPoint& destPt)
+            const glm::dvec2& srcPt, const glm::dvec2& destPt)
     {
-        DPoint ResultPt = pTrafo->transformBlobToScreen(pTrafo->transform_point(srcPt));
+        glm::dvec2 ResultPt = 
+                pTrafo->transformBlobToScreen(pTrafo->transform_point(srcPt));
 //        cerr << srcPt << " -> " << ResultPt << ", expected " << destPt << endl;
         return ((fabs(ResultPt.x-destPt.x) < 1) && (fabs(ResultPt.y-destPt.y) < 1));
     }

@@ -27,7 +27,7 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <dc1394/control.h>
 

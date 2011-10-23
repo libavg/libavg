@@ -294,9 +294,9 @@ bool Node::reactsToMouseEvents()
     return m_bActive && m_bSensitive;
 }
 
-DPoint Node::getRelPos(const DPoint& absPos) const 
+glm::vec2 Node::getRelPos(const glm::vec2& absPos) const 
 {
-    DPoint parentPos;
+    glm::vec2 parentPos;
     if (m_pParent.expired()) {
         parentPos = absPos;
     } else {
@@ -305,10 +305,10 @@ DPoint Node::getRelPos(const DPoint& absPos) const
     return toLocal(parentPos);
 }
 
-DPoint Node::getAbsPos(const DPoint& relPos) const 
+glm::vec2 Node::getAbsPos(const glm::vec2& relPos) const 
 {
-    DPoint thisPos = toGlobal(relPos);
-    DPoint parentPos;
+    glm::vec2 thisPos = toGlobal(relPos);
+    glm::vec2 parentPos;
     if (m_pParent.expired()) {
         parentPos = thisPos;
     } else {
@@ -317,17 +317,17 @@ DPoint Node::getAbsPos(const DPoint& relPos) const
     return parentPos;
 }
 
-DPoint Node::toLocal(const DPoint& globalPos) const
+glm::vec2 Node::toLocal(const glm::vec2& globalPos) const
 {
     return globalPos;
 }
 
-DPoint Node::toGlobal(const DPoint& localPos) const
+glm::vec2 Node::toGlobal(const glm::vec2& localPos) const
 {
     return localPos;
 }
 
-NodePtr Node::getElementByPos(const DPoint& pos)
+NodePtr Node::getElementByPos(const glm::vec2& pos)
 {
     vector<NodeWeakPtr> elements;
     getElementsByPos(pos, elements);
@@ -338,7 +338,7 @@ NodePtr Node::getElementByPos(const DPoint& pos)
     }
 }
 
-void Node::getElementsByPos(const DPoint& pos, 
+void Node::getElementsByPos(const glm::vec2& pos, 
                 vector<NodeWeakPtr>& pElements)
 {
 }

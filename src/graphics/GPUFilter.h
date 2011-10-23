@@ -55,7 +55,7 @@ public:
 
     const IntRect& getDestRect() const;
     const IntPoint& getSrcSize() const;
-    DRect getRelDestRect() const;
+    FRect getRelDestRect() const;
     
 protected:
     void draw(GLTexturePtr pTex);

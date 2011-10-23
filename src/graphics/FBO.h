@@ -28,7 +28,7 @@
 #include "PBO.h"
 #include "VertexArray.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 

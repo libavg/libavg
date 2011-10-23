@@ -62,8 +62,8 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
         void setDebugImages(bool bImg, bool bFinger);
         void saveConfig();
         Bitmap * getImage(TrackerImageID imageID) const;
-        DPoint getDisplayROIPos() const;
-        DPoint getDisplayROISize() const;
+        glm::vec2 getDisplayROIPos() const;
+        glm::vec2 getDisplayROISize() const;
 
         std::vector<EventPtr> pollEvents(); //main thread
 
@@ -95,8 +95,8 @@ class AVG_API TrackerInputDevice: public IBlobTarget, public IInputDevice
         DeDistortPtr m_pDeDistort;
         DeDistortPtr m_pOldTransformer;
         IntPoint m_ActiveDisplaySize;
-        DRect m_DisplayROI;
-        DRect m_OldDisplayROI;
+        FRect m_DisplayROI;
+        FRect m_OldDisplayROI;
         TrackerCalibrator * m_pCalibrator;
         bool m_bFindFingertips;
 

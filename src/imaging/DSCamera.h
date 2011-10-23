@@ -31,7 +31,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Queue.h"
 
 #include <string>

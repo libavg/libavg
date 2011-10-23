@@ -56,8 +56,8 @@ public:
     float getFloat() const;
     void setFloat(float f);
 
-    virtual void maybeRender(const DRect& Rect);
-    virtual void render (const DRect& Rect);
+    virtual void maybeRender(const FRect& Rect);
+    virtual void render (const FRect& Rect);
 
 protected:
     void parseColor(const std::string& sColorSreing);
@@ -109,12 +109,12 @@ void ColorNode::parseColor(const std::string& sColorSreing)
 }
 
 
-void ColorNode::maybeRender(const DRect& rect)
+void ColorNode::maybeRender(const FRect& rect)
 {
     render(rect);
 }
 
-void ColorNode::render(const DRect& rect)
+void ColorNode::render(const FRect& rect)
 {
     //AVG_TRACE(Logger::PLUGIN, "ColorNode::render");   
     

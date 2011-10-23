@@ -21,11 +21,13 @@
 
 #include "Triangle.h"
 
+#include "GLMHelper.h"
+
 #include <math.h>
 
 namespace avg {
 
-Triangle::Triangle(const DPoint& P0, const DPoint& P1, const DPoint& P2)
+Triangle::Triangle(const glm::vec2& P0, const glm::vec2& P1, const glm::vec2& P2)
     : p0(P0),
       p1(P1),
       p2(P2)
@@ -41,38 +43,38 @@ bool Triangle::operator ==(const Triangle & tri) const
     return (p0 == tri.p0 && p1 == tri.p1 &&  p2 == tri.p2);
 }
 
-bool Triangle::isInside(const DPoint& pt) const
+bool Triangle::isInside(const glm::vec2& pt) const
 {
 /* Slower func that only works for cw triangles.
 
-    DPoint a = p2-p1;
-    DPoint bp = pt-p1;
+    glm::vec2 a = p2-p1;
+    glm::vec2 bp = pt-p1;
     double aCROSSbp = a.x*bp.y - a.y*bp.x;
     if (aCROSSbp < 0.0) {
         return false;
     }
     
-    DPoint b = p0-p2;
-    DPoint cp = pt-p2;
+    glm::vec2 b = p0-p2;
+    glm::vec2 cp = pt-p2;
     double bCROSScp = b.x*cp.y - b.y*cp.x;
     if (bCROSScp < 0.0) {
         return false;
     }
 
-    DPoint c = p1-p0;
-    DPoint ap = pt-p0;
+    glm::vec2 c = p1-p0;
+    glm::vec2 ap = pt-p0;
     double cCROSSap = c.x*ap.y - c.y*ap.x;
     return cCROSSap >= 0.0;
 */
-    DPoint v0 = p2 - p0;
-    DPoint v1 = p1 - p0;
-    DPoint v2 = pt - p0;
+    glm::vec2 v0 = p2 - p0;
+    glm::vec2 v1 = p1 - p0;
+    glm::vec2 v2 = pt - p0;
 
-    double dot00 = dotProduct(v0, v0);
-    double dot01 = dotProduct(v0, v1);
-    double dot02 = dotProduct(v0, v2);
-    double dot11 = dotProduct(v1, v1);
-    double dot12 = dotProduct(v1, v2);
+    double dot00 = glm::dot(v0, v0);
+    double dot01 = glm::dot(v0, v1);
+    double dot02 = glm::dot(v0, v2);
+    double dot11 = glm::dot(v1, v1);
+    double dot12 = glm::dot(v1, v2);
 
     double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
     double u = (dot11 * dot02 - dot01 * dot12) * invDenom;

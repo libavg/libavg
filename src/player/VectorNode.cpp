@@ -37,6 +37,8 @@
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
 
+#include "../glm/gtx/norm.hpp"
+
 #include <iostream>
 #include <sstream>
 
@@ -161,7 +163,7 @@ void VectorNode::preRender()
     
 }
 
-void VectorNode::maybeRender(const DRect& rect)
+void VectorNode::maybeRender(const FRect& rect)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
@@ -178,7 +180,7 @@ void VectorNode::maybeRender(const DRect& rect)
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render(const DRect& rect)
+void VectorNode::render(const FRect& rect)
 {
     ScopeTimer timer(RenderProfilingZone);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -260,7 +262,7 @@ bool VectorNode::isDrawNeeded()
 }
 
 void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists, 
-        const vector<DPoint>& pts, bool bIsClosed)
+        const vector<glm::vec2>& pts, bool bIsClosed)
 {
     cumulDists.clear();
     cumulDists.reserve(pts.size());
@@ -269,12 +271,12 @@ void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists,
         distances.reserve(pts.size());
         double totalDist = 0;
         for (unsigned i = 1; i < pts.size(); ++i) {
-            double dist = calcDist(pts[i], pts[i-1]);
+            double dist = glm::length(pts[i] - pts[i-1]);
             distances.push_back(dist);
             totalDist += dist;
         }
         if (bIsClosed) {
-            double dist = calcDist(pts[pts.size()-1], pts[0]);
+            double dist = glm::length(pts[pts.size()-1] - pts[0]);
             distances.push_back(dist);
             totalDist += dist;
         }
@@ -318,11 +320,11 @@ void VectorNode::calcEffPolyLineTexCoords(vector<double>& effTC,
     }
 }
 
-void VectorNode::calcPolyLine(const vector<DPoint>& origPts, 
+void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts, 
         const vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin, 
         VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    vector<DPoint> pts;
+    vector<glm::vec2> pts;
     pts.reserve(origPts.size());
     vector<double> texCoords;
     texCoords.reserve(origPts.size());
@@ -330,7 +332,7 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
     pts.push_back(origPts[0]);
     texCoords.push_back(origTexCoords[0]);
     for (unsigned i = 1; i < origPts.size(); ++i) {
-        if (calcDistSquared(origPts[i], origPts[i-1]) > 0.1) {
+        if (glm::distance2(origPts[i], origPts[i-1]) > 0.1) {
             pts.push_back(origPts[i]);
             texCoords.push_back(origTexCoords[i]);
         }
@@ -353,20 +355,20 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
     // First points
     if (bIsClosed) {
         WideLine lastLine = lines[lines.size()-1];
-        DPoint pli = getLineLineIntersection(lastLine.pl0, lastLine.dir, 
+        glm::vec2 pli = getLineLineIntersection(lastLine.pl0, lastLine.dir, 
                 lines[0].pl0, lines[0].dir);
-        DPoint pri = getLineLineIntersection(lastLine.pr0, lastLine.dir, 
+        glm::vec2 pri = getLineLineIntersection(lastLine.pr0, lastLine.dir, 
                 lines[0].pr0, lines[0].dir);
         Triangle tri(lastLine.pl1, lines[0].pl0, pri);
         if (tri.isClockwise()) {
-            if (!DLineSegment(lastLine.pr0, lastLine.pr1).isPointOver(pri) &&
-                    !DLineSegment(lines[0].pr0, lines[0].pr1).isPointOver(pri))
+            if (!LineSegment(lastLine.pr0, lastLine.pr1).isPointOver(pri) &&
+                    !LineSegment(lines[0].pr0, lines[0].pr1).isPointOver(pri))
             {
                 pri = lines[0].pr1;
             }
         } else {
-            if (!DLineSegment(lastLine.pl0, lastLine.pl1).isPointOver(pli) &&
-                    !DLineSegment(lines[0].pl0, lines[0].pl1).isPointOver(pli))
+            if (!LineSegment(lastLine.pl0, lastLine.pl1).isPointOver(pli) &&
+                    !LineSegment(lines[0].pl0, lines[0].pl1).isPointOver(pli))
             {
                 pli = lines[0].pl1;
             }
@@ -375,16 +377,16 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
         double curTC = texCoords[0];
         switch (lineJoin) {
             case LJ_MITER:
-                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
+                pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
                 break;
             case LJ_BEVEL: {
                     if (tri.isClockwise()) {
-                        pVertexArray->appendPos(lines[0].pl0, DPoint(curTC,1), color);
-                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                        pVertexArray->appendPos(lines[0].pl0, glm::vec2(curTC,1), color);
+                        pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
                     } else {
-                        pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                        pVertexArray->appendPos(lines[0].pr0, DPoint(curTC,0), color);
+                        pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
+                        pVertexArray->appendPos(lines[0].pr0, glm::vec2(curTC,0), color);
                     }
                 }
                 break;
@@ -393,8 +395,8 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                 break;
         }
     } else {
-        pVertexArray->appendPos(lines[0].pl0, DPoint(texCoords[0],1), color);
-        pVertexArray->appendPos(lines[0].pr0, DPoint(texCoords[0],0), color);
+        pVertexArray->appendPos(lines[0].pl0, glm::vec2(texCoords[0],1), color);
+        pVertexArray->appendPos(lines[0].pr0, glm::vec2(texCoords[0],0), color);
     }
 
     // All complete line segments
@@ -412,18 +414,20 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
         } else {
             pLine2 = &(lines[i+1]);
         }
-        DPoint pli = getLineLineIntersection(pLine1->pl0, pLine1->dir, pLine2->pl0, pLine2->dir);
-        DPoint pri = getLineLineIntersection(pLine1->pr0, pLine1->dir, pLine2->pr0, pLine2->dir);
+        glm::vec2 pli = getLineLineIntersection(pLine1->pl0, pLine1->dir, pLine2->pl0,
+                pLine2->dir);
+        glm::vec2 pri = getLineLineIntersection(pLine1->pr0, pLine1->dir, pLine2->pr0,
+                pLine2->dir);
         Triangle tri(pLine1->pl1, pLine2->pl0, pri);
         if (tri.isClockwise()) {
-            if (!DLineSegment(pLine1->pr0, pLine1->pr1).isPointOver(pri) &&
-                    !DLineSegment(pLine2->pr0, pLine2->pr1).isPointOver(pri))
+            if (!LineSegment(pLine1->pr0, pLine1->pr1).isPointOver(pri) &&
+                    !LineSegment(pLine2->pr0, pLine2->pr1).isPointOver(pri))
             {
                 pri = pLine2->pr1;
             }
         } else {
-            if (!DLineSegment(pLine1->pl0, pLine1->pl1).isPointOver(pli) &&
-                    !DLineSegment(pLine2->pl0, pLine2->pl1).isPointOver(pli))
+            if (!LineSegment(pLine1->pl0, pLine1->pl1).isPointOver(pli) &&
+                    !LineSegment(pLine2->pl0, pLine2->pl1).isPointOver(pli))
             {
                 pli = pLine2->pl1;
             }
@@ -433,8 +437,8 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
         double curTC = texCoords[i+1];
         switch (lineJoin) {
             case LJ_MITER:
-                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
+                pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
                 pVertexArray->appendQuadIndexes(
                         curVertex-1, curVertex-2, curVertex+1, curVertex);
                 break;
@@ -444,18 +448,18 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                     double TC1;
                     if (tri.isClockwise()) {
                         calcBevelTC(*pLine1, *pLine2, true, texCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(pLine1->pl1, DPoint(TC0,1), color);
-                        pVertexArray->appendPos(pLine2->pl0, DPoint(TC1,1), color);
-                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                        pVertexArray->appendPos(pLine1->pl1, glm::vec2(TC0,1), color);
+                        pVertexArray->appendPos(pLine2->pl0, glm::vec2(TC1,1), color);
+                        pVertexArray->appendPos(pri, glm::vec2(curTC,0), color);
                         pVertexArray->appendQuadIndexes(
                                 curVertex-1, curVertex-2, curVertex+2, curVertex);
                         pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
                         calcBevelTC(*pLine1, *pLine2, false,  texCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(pLine1->pr1, DPoint(TC0,0), color);
-                        pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                        pVertexArray->appendPos(pLine2->pr0, DPoint(TC1,0), color);
+                        pVertexArray->appendPos(pLine1->pr1, glm::vec2(TC0,0), color);
+                        pVertexArray->appendPos(pli, glm::vec2(curTC,1), color);
+                        pVertexArray->appendPos(pLine2->pr0, glm::vec2(TC1,0), color);
                         pVertexArray->appendQuadIndexes(
                                 curVertex-2, curVertex-1, curVertex+1, curVertex);
                         pVertexArray->appendTriIndexes(
@@ -472,8 +476,8 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
     if (!bIsClosed) {
         int curVertex = pVertexArray->getCurVert();
         double curTC = texCoords[numPts-1];
-        pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(curTC,1), color);
-        pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(curTC,0), color);
+        pVertexArray->appendPos(lines[numPts-2].pl1, glm::vec2(curTC,1), color);
+        pVertexArray->appendPos(lines[numPts-2].pr1, glm::vec2(curTC,0), color);
         pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
     }
 }
@@ -486,9 +490,9 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
     double line2Len = line2.getLen();
     double triLen;
     if (bIsLeft) {
-        triLen = calcDist(line1.pl1, line2.pl0);
+        triLen = glm::length(line1.pl1 - line2.pl0);
     } else {
-        triLen = calcDist(line1.pr1, line2.pr0);
+        triLen = glm::length(line1.pr1 - line2.pr0);
     }
     double ratio0 = line1Len/(line1Len+triLen/2);
     TC0 = (1-ratio0)*texCoords[i-1]+ratio0*texCoords[i];
@@ -502,11 +506,11 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
     TC1 = ratio1*texCoords[i]+(1-ratio1)*nextTexCoord;
 }
 
-int VectorNode::getNumDifferentPts(const vector<DPoint>& pts)
+int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 {
     int numPts = pts.size();
     for (unsigned i=1; i<pts.size(); ++i) {
-        if (calcDistSquared(pts[i], pts[i-1])<0.1) {
+        if (glm::distance2(pts[i], pts[i-1])<0.1) {
             numPts--;
         }
     }

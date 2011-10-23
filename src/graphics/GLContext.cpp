@@ -243,7 +243,8 @@ ShaderRegistryPtr GLContext::getShaderRegistry() const
     return m_pShaderRegistry;
 }
 
-void GLContext::pushTransform(const DPoint& translate, double angle, const DPoint& pivot)
+void GLContext::pushTransform(const glm::vec2& translate, float angle, 
+        const glm::vec2& pivot)
 {
     glPushMatrix();
     glTranslated(translate.x, translate.y, 0);

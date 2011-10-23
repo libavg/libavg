@@ -161,7 +161,7 @@ void export_event()
     
     class_<MouseEvent, bases<CursorEvent> >("MouseEvent",
             init<Event::Type, bool, bool, bool, const IntPoint&, int,
-                 optional<const DPoint&, int> >())
+                 optional<const glm::vec2&, int> >())
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
@@ -169,7 +169,7 @@ void export_event()
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, Event::Type,
-            const IntPoint&, Event::Source, optional<const DPoint&> >())
+            const IntPoint&, Event::Source, optional<const glm::vec2&> >())
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("eccentricity", &TouchEvent::getEccentricity)

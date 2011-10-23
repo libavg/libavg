@@ -33,7 +33,7 @@ namespace avg {
 
 MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
-        const IntPoint& pos, int button, const DPoint& speed, int when)
+        const IntPoint& pos, int button, const glm::vec2& speed, int when)
     : CursorEvent(MOUSECURSORID, eventType, pos, MOUSE, when)
 {
     m_LeftButtonState = leftButtonState;

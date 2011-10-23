@@ -54,7 +54,7 @@ public:
     template<class T>
     const T& getArgVal(const std::string& sName) const;
     
-    void getOverlayedArgVal(DPoint* pResult, const std::string& sName,
+    void getOverlayedArgVal(glm::vec2* pResult, const std::string& sName,
             const std::string& sOverlay1, const std::string& sOverlay2,
             const std::string& sID) const;
 

@@ -57,8 +57,8 @@ class AVG_API VectorNode : public Node
         void setBlendModeStr(const std::string& sBlendMode);
 
         virtual void preRender();
-        virtual void maybeRender(const DRect& rect);
-        virtual void render(const DRect& rect);
+        virtual void maybeRender(const FRect& rect);
+        virtual void render(const FRect& rect);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
@@ -79,17 +79,17 @@ class AVG_API VectorNode : public Node
         bool isDrawNeeded();
         bool hasVASizeChanged();
         void calcPolyLineCumulDist(std::vector<double>& cumulDist, 
-                const std::vector<DPoint>& pts, bool bIsClosed);
+                const std::vector<glm::vec2>& pts, bool bIsClosed);
         void calcEffPolyLineTexCoords(std::vector<double>& effTC, 
         const std::vector<double>& tc, const std::vector<double>& cumulDist);
 
-        void calcPolyLine(const std::vector<DPoint>& origPts, 
-                const std::vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin,
-                VertexArrayPtr& pVertexArray, Pixel32 color);
+        void calcPolyLine(const std::vector<glm::vec2>& origPts, 
+                const std::vector<double>& origTexCoords, bool bIsClosed, 
+                LineJoin lineJoin, VertexArrayPtr& pVertexArray, Pixel32 color);
         void calcBevelTC(const WideLine& line1, const WideLine& line2, 
                 bool bIsLeft, const std::vector<double>& texCoords, unsigned i, 
                 double& TC0, double& TC1);
-        int getNumDifferentPts(const std::vector<DPoint>& pts);
+        int getNumDifferentPts(const std::vector<glm::vec2>& pts);
 
     private:
         Shape* createDefaultShape() const;

@@ -72,7 +72,7 @@ void SimpleAnim::abort()
 }
 
 template<class T>
-object typedLERP(const object& startValue, const object& endValue, double part)
+object typedLERP(const object& startValue, const object& endValue, float part)
 {
     T start = extract<T>(startValue);
     T end = extract<T>(endValue);
@@ -98,11 +98,11 @@ bool SimpleAnim::step()
                 double d = extract<double>(curValue);
                 curValue = object(round(d));
             }
-        } else if (isPythonType<DPoint>(m_StartValue)) {
-            curValue = typedLERP<DPoint>(m_StartValue, m_EndValue, part);
+        } else if (isPythonType<glm::vec2>(m_StartValue)) {
+            curValue = typedLERP<glm::vec2>(m_StartValue, m_EndValue, part);
             if (m_bUseInt) {
-                DPoint pt = extract<DPoint>(curValue);
-                curValue = object(DPoint(round(pt.x), round(pt.y)));
+                glm::vec2 pt = extract<glm::vec2>(curValue);
+                curValue = object(glm::vec2(round(pt.x), round(pt.y)));
             }
         } else {
             throw (Exception(AVG_ERR_TYPE, 
@@ -133,14 +133,14 @@ long long SimpleAnim::calcStartTime()
             part = getStartPart(extract<double>(m_StartValue), 
                     extract<double>(m_EndValue), extract<double>(getValue()));
         }
-    } else if (isPythonType<DPoint>(m_StartValue)) {
-        double start = DPoint(extract<DPoint>(m_StartValue)).x;
-        double end = DPoint(extract<DPoint>(m_EndValue)).x;
-        double cur = DPoint(extract<DPoint>(getValue())).x;
+    } else if (isPythonType<glm::vec2>(m_StartValue)) {
+        float start = glm::vec2(extract<glm::vec2>(m_StartValue)()).x;
+        float end = glm::vec2(extract<glm::vec2>(m_EndValue)()).x;
+        float cur = glm::vec2(extract<glm::vec2>(getValue())()).x;
         if (start == end) {
-            start = DPoint(extract<DPoint>(m_StartValue)).y;
-            end = DPoint(extract<DPoint>(m_EndValue)).y;
-            start = DPoint(extract<DPoint>(getValue())).y;
+            start = glm::vec2(extract<glm::vec2>(m_StartValue)()).y;
+            end = glm::vec2(extract<glm::vec2>(m_EndValue)()).y;
+            start = glm::vec2(extract<glm::vec2>(getValue())()).y;
         }
         if (start == end) {
             part = 0;

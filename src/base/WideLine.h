@@ -24,21 +24,21 @@
 
 #include "../api.h"
 
-#include "Point.h"
+#include "../glm/glm.hpp"
 
 #include <iostream>
 
 namespace avg {
    
 struct AVG_API WideLine {
-        WideLine(const DPoint& p0, const DPoint& p1, double width);
+        WideLine(const glm::vec2& p0, const glm::vec2& p1, float width);
 
-        double getLen() const;
+        float getLen() const;
 
-        DPoint pt0, pt1;
-        DPoint pl0, pl1;
-        DPoint pr0, pr1;
-        DPoint dir;
+        glm::vec2 pt0, pt1;
+        glm::vec2 pl0, pl1;
+        glm::vec2 pr0, pr1;
+        glm::vec2 dir;
 };
 
 std::ostream& operator<<(std::ostream& os, const WideLine& line);

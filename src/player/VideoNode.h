@@ -29,7 +29,7 @@
 #include "Node.h"
 #include "RasterNode.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/IFrameEndListener.h"
 #include "../base/UTF8String.h"
 
@@ -89,7 +89,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         void setEOFCallback(PyObject * pEOFCallback);
         bool isAccelerated() const;
 
-        virtual void render(const DRect& rect);
+        virtual void render(const FRect& rect);
         virtual void preRender();
         virtual void onFrameEnd();
         

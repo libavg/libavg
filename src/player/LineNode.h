@@ -37,11 +37,11 @@ class AVG_API LineNode : public VectorNode
         LineNode(const ArgList& args);
         virtual ~LineNode();
 
-        const DPoint& getPos1() const;
-        void setPos1(const DPoint& pt);
+        const glm::vec2& getPos1() const;
+        void setPos1(const glm::vec2& pt);
 
-        const DPoint& getPos2() const;
-        void setPos2(const DPoint& pt);
+        const glm::vec2& getPos2() const;
+        void setPos2(const glm::vec2& pt);
 
         double getTexCoord1() const;
         void setTexCoord1(double tc);
@@ -52,8 +52,8 @@ class AVG_API LineNode : public VectorNode
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
-        DPoint m_P1;
-        DPoint m_P2;
+        glm::vec2 m_P1;
+        glm::vec2 m_P2;
         double m_TC1;
         double m_TC2;
 };

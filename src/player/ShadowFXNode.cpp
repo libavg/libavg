@@ -65,7 +65,7 @@ void ShadowFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void ShadowFXNode::setParams(const DPoint& offset, double stdDev, double opacity, 
+void ShadowFXNode::setParams(const glm::vec2& offset, double stdDev, double opacity, 
         const string& sColor)
 {
     m_Offset = offset;
@@ -76,13 +76,13 @@ void ShadowFXNode::setParams(const DPoint& offset, double stdDev, double opacity
     updateFilter();
 }
     
-void ShadowFXNode::setOffset(const DPoint& offset)
+void ShadowFXNode::setOffset(const glm::vec2& offset)
 {
     m_Offset = offset;
     updateFilter();
 }
 
-DPoint ShadowFXNode::getOffset() const
+glm::vec2 ShadowFXNode::getOffset() const
 {
     return m_Offset;
 }

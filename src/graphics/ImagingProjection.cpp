@@ -68,11 +68,11 @@ void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
 {
     m_SrcSize = srcSize;
     m_DestRect = destRect;
-    DRect dest = destRect;
-    DPoint p1 = DPoint(dest.tl.x/srcSize.x, dest.tl.y/srcSize.y);
-    DPoint p3 = DPoint(dest.br.x/srcSize.x, dest.br.y/srcSize.y);
-    DPoint p2 = DPoint(p1.x, p3.y);
-    DPoint p4 = DPoint(p3.x, p1.y);
+    FRect dest = destRect;
+    glm::vec2 p1(dest.tl.x/srcSize.x, dest.tl.y/srcSize.y);
+    glm::vec2 p3(dest.br.x/srcSize.x, dest.br.y/srcSize.y);
+    glm::vec2 p2(p1.x, p3.y);
+    glm::vec2 p4(p3.x, p1.y);
     m_pVA->reset();
     m_pVA->appendPos(p1, p1);
     m_pVA->appendPos(p2, p2);

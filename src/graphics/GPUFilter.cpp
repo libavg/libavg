@@ -132,10 +132,10 @@ const IntPoint& GPUFilter::getSrcSize() const
     return m_SrcSize;
 }
 
-DRect GPUFilter::getRelDestRect() const
+FRect GPUFilter::getRelDestRect() const
 {
-    DPoint srcSize(m_SrcSize);
-    return DRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
+    glm::vec2 srcSize(m_SrcSize);
+    return FRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
 }
 

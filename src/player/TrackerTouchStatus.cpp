@@ -35,7 +35,7 @@ namespace avg {
 int TrackerTouchStatus::s_LastID = 0;
 
 TrackerTouchStatus::TrackerTouchStatus(BlobPtr pFirstBlob, long long time, 
-        DeDistortPtr pDeDistort, const DRect& displayROI, Event::Source source)
+        DeDistortPtr pDeDistort, const FRect& displayROI, Event::Source source)
     : TouchStatus(createEvent(source, Event::CURSORDOWN, ++s_LastID, pFirstBlob, time,
               pDeDistort, displayROI)),
       m_Source(source),
@@ -62,12 +62,12 @@ void TrackerTouchStatus::blobChanged(BlobPtr pNewBlob, long long time, bool bKee
     AVG_ASSERT(m_pBlob);
     AVG_ASSERT(pNewBlob);
     if (!m_bGone) {
-        DPoint c = pNewBlob->getCenter();
+        glm::vec2 c = pNewBlob->getCenter();
         bool bPosChanged;
         if (bKeepEvent) {
             bPosChanged = true;
         } else {
-            bPosChanged = (calcDist(c, m_LastCenter) > 1);
+            bPosChanged = (glm::length(c-m_LastCenter) > 1);
         }
         if (bPosChanged) {
             m_LastCenter = pNewBlob->getCenter();
@@ -101,11 +101,11 @@ bool TrackerTouchStatus::isStale()
 
 TouchEventPtr TrackerTouchStatus::createEvent(Event::Source source, Event::Type type, 
         int id, BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, 
-        const DRect& displayROI)
+        const FRect& displayROI)
 {
-    DPoint blobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
-    DPoint pt = pBlob->getCenter() + blobOffset;
-    DPoint screenpos = pDeDistort->transformBlobToScreen(pt);
+    glm::vec2 blobOffset = pDeDistort->getActiveBlobArea(displayROI).tl;
+    glm::vec2 pt = pBlob->getCenter() + blobOffset;
+    glm::dvec2 screenpos(pDeDistort->transformBlobToScreen(glm::dvec2(pt)));
     IntPoint pos(int(screenpos.x+0.5), int(screenpos.y+0.5)); 
 
     return TouchEventPtr(new TouchEvent(id, type, pBlob, pos, source));

@@ -25,7 +25,7 @@
 #define _Arg_H_
 
 #include "../api.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Triple.h"
 
 #include "ArgBase.h"
@@ -105,11 +105,11 @@ extern template class Arg<bool>;
 extern template class Arg<float>;
 extern template class Arg<double>;
 extern template class Arg<std::string>;
-extern template class Arg<DPoint>;
+extern template class Arg<glm::vec2>;
 extern template class Arg<IntTriple>;
 extern template class Arg<DTriple>;
 extern template class Arg<std::vector<double> >;
-extern template class Arg<std::vector<DPoint> >;
+extern template class Arg<std::vector<glm::vec2> >;
 extern template class Arg<std::vector<IntTriple> >;
 #endif
 #endif

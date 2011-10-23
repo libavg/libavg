@@ -59,7 +59,7 @@ class AVG_API DivNode : public AreaNode
         void removeChild(NodePtr pNode, bool bKill);
         void removeChild(unsigned i, bool bKill);
 
-        virtual DPoint getPivot() const;
+        virtual glm::vec2 getPivot() const;
 
         bool getCrop() const;
         void setCrop(bool bCrop);
@@ -70,9 +70,9 @@ class AVG_API DivNode : public AreaNode
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
-        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void preRender();
-        virtual void render(const DRect& rect);
+        virtual void render(const FRect& rect);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
 
         virtual std::string getEffectiveMediaDir();

@@ -83,7 +83,7 @@ TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents,
             m_DisplayPoints.push_back(
                     IntPoint(OffsetPerPoint.x*x+MIN_DIST_FROM_BORDER,
                         OffsetPerPoint.y*y+MIN_DIST_FROM_BORDER));
-            m_CamPoints.push_back(DPoint(0,0));
+            m_CamPoints.push_back(glm::dvec2(0,0));
         }
     }
 }
@@ -116,7 +116,7 @@ IntPoint TrackerCalibrator::getDisplayPoint()
     return m_DisplayPoints[m_CurPoint];
 }
 
-void TrackerCalibrator::setCamPoint(const DPoint& pt)
+void TrackerCalibrator::setCamPoint(const glm::vec2& pt)
 {
     m_CamPoints[m_CurPoint] = pt;
     m_bCurPointSet = true;
@@ -140,8 +140,8 @@ DeDistortPtr TrackerCalibrator::makeTransformer()
     m_DistortParams.push_back(0);
     m_Angle = 0;
     m_TrapezoidFactor = 0.0;
-    m_DisplayOffset= DPoint(0,0);
-    m_DisplayScale = DPoint(2,2);
+    m_DisplayOffset= glm::vec2(0,0);
+    m_DisplayScale = glm::vec2(2,2);
 
     int n_p = NUM_PARAMS;
     //should really match the Params enum!!!!
@@ -160,15 +160,15 @@ DeDistortPtr TrackerCalibrator::makeTransformer()
     initThisFromDouble(p);
 /*
     for(int i=0;i<NUM_POINTS*NUM_POINTS;i++) {
-        DPoint screenPoint = m_CurrentTrafo->transformBlobToScreen(
+        glm::vec2 screenPoint = m_CurrentTrafo->transformBlobToScreen(
                 m_CurrentTrafo->transform_point(m_CamPoints[i]));
         cerr << "sample value of trafo of (cam) "
              << m_CamPoints[i]<<" : (transformed) "
              << screenPoint
              << "== (display)"
-             << DPoint(m_DisplayPoints[i])
+             << glm::vec2(m_DisplayPoints[i])
              << " dist="
-             << calcDist(DPoint(m_DisplayPoints[i]), screenPoint) 
+             << calcDist(glm::vec2(m_DisplayPoints[i]), screenPoint) 
              << endl;
     }
     cerr<<" DisplayScale = "<<m_DisplayScale << endl;
@@ -192,7 +192,7 @@ void TrackerCalibrator::initThisFromDouble(double *p)
     m_Angle = p[ANGLE];
     m_TrapezoidFactor = p[TRAPEZ];
     m_CurrentTrafo = DeDistortPtr( 
-            new DeDistort(DPoint(m_CamExtents),
+            new DeDistort(glm::vec2(m_CamExtents),
                 m_DistortParams,
                 m_Angle,
                 m_TrapezoidFactor,
@@ -206,13 +206,10 @@ void TrackerCalibrator::evaluate_tracker(double *p, int m_dat, double* fvec, int
 {
     initThisFromDouble(p);
 
-    for (int i=0; i<m_dat; i++){
-        fvec[i] = calcDist(
-                m_CurrentTrafo->transformBlobToScreen(
-                    m_CurrentTrafo->transform_point(m_CamPoints[i])
-                    ), 
-                DPoint(m_DisplayPoints[i])
-                ); 
+    for (int i=0; i<m_dat; i++) {
+        glm::dvec2 resultPt = m_CurrentTrafo->transformBlobToScreen(
+                    m_CurrentTrafo->transform_point(m_CamPoints[i]));
+        fvec[i] = glm::length(resultPt - glm::dvec2(m_DisplayPoints[i])); 
     }
     *info = *info; /* to prevent a 'unused variable' warning */
     /* if <parameters drifted away> { *info = -1; } */

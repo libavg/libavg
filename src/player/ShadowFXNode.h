@@ -26,6 +26,7 @@
 
 #include "FXNode.h"
 #include "../graphics/GPUShadowFilter.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -39,11 +40,11 @@ public:
 
     virtual void connect();
     virtual void disconnect();
-    void setParams(const DPoint& offset, double stdDev, double opacity, 
+    void setParams(const glm::vec2& offset, double stdDev, double opacity, 
             const std::string& sColor);
 
-    void setOffset(const DPoint& offset);
-    DPoint getOffset() const;
+    void setOffset(const glm::vec2& offset);
+    glm::vec2 getOffset() const;
     void setRadius(double radius);
     double getRadius() const;
     void setOpacity(double opacity);
@@ -57,7 +58,7 @@ private:
 
     GPUShadowFilterPtr m_pFilter;
 
-    DPoint m_Offset;
+    glm::vec2 m_Offset;
     double m_StdDev;
     double m_Opacity;
     std::string m_sColorName;

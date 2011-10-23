@@ -58,24 +58,24 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(disconnectEventHandler_overloads,
 
 // These function templates essentially call functions such as AreaNode::getPos()
 // and return a version of the result that don't allow setting of the individual
-// elements of the DPoint returned.
+// elements of the vec2 returned.
 // Without this stuff, python code like node.pos.x=30 would fail silently. With it,
 // it at least throws an exception.
-template<class CLASS, const DPoint& (CLASS::*FUNC)() const>
-ConstDPoint constPointGetterRef(const CLASS& node)
+template<class CLASS, const glm::vec2& (CLASS::*FUNC)() const>
+ConstVec2 constPointGetterRef(const CLASS& node)
 {
     return (node.*FUNC)();
 }
 
-template<class CLASS, DPoint (CLASS::*FUNC)() const>
-ConstDPoint constPointGetter(const CLASS& node)
+template<class CLASS, glm::vec2 (CLASS::*FUNC)() const>
+ConstVec2 constPointGetter(const CLASS& node)
 {
     return (node.*FUNC)();
 }
 
-ConstDPoint AreaNode_getMediaSize(AreaNode* This)
+ConstVec2 AreaNode_getMediaSize(AreaNode* This)
 {
-    return (DPoint)(This->getMediaSize());
+    return (glm::vec2)(This->getMediaSize());
 }
 
 char divNodeName[] = "div";

@@ -36,11 +36,11 @@ SVGElement::SVGElement(RsvgHandle* pRSVG, const UTF8String& sFilename,
     
     RsvgPositionData pos;
     rsvg_handle_get_position_sub(pRSVG, &pos, m_sUnescapedID.c_str());
-    m_Pos = DPoint(pos.x, pos.y);
+    m_Pos = glm::vec2(pos.x, pos.y);
     
     RsvgDimensionData dim;
     rsvg_handle_get_dimensions_sub(pRSVG, &dim, m_sUnescapedID.c_str());
-    m_Size = DPoint(dim.width+1, dim.height+1);
+    m_Size = glm::vec2(dim.width+1, dim.height+1);
 }
 
 const UTF8String& SVGElement::getUnescapedID() const
@@ -48,12 +48,12 @@ const UTF8String& SVGElement::getUnescapedID() const
     return m_sUnescapedID;
 }
 
-const DPoint& SVGElement::getPos() const
+const glm::vec2& SVGElement::getPos() const
 {
     return m_Pos;
 }
 
-const DPoint& SVGElement::getSize() const
+const glm::vec2& SVGElement::getSize() const
 {
     return m_Size;
 }

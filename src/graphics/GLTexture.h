@@ -26,8 +26,6 @@
 #include "Bitmap.h"
 #include "OGLHelper.h"
 
-#include "../base/Point.h"
-
 #include <boost/shared_ptr.hpp>
 
 namespace avg {

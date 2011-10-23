@@ -191,18 +191,18 @@ double TrackerConfig::getDoubleParam(const std::string& sXPathExpr) const
     return stringToDouble(getParam(sXPathExpr));
 }
 
-DPoint TrackerConfig::getPointParam(const std::string& sXPathExpr) const
+glm::vec2 TrackerConfig::getPointParam(const std::string& sXPathExpr) const
 {
-    return DPoint(getDoubleParam(sXPathExpr+"@x"), getDoubleParam(sXPathExpr+"@y"));
+    return glm::vec2(getDoubleParam(sXPathExpr+"@x"), getDoubleParam(sXPathExpr+"@y"));
 }
 
-DRect TrackerConfig::getRectParam(const std::string& sXPathExpr) const
+FRect TrackerConfig::getRectParam(const std::string& sXPathExpr) const
 {
-     DPoint pos1 = DPoint(getDoubleParam(sXPathExpr+"@x1"), 
+     glm::vec2 pos1 = glm::vec2(getDoubleParam(sXPathExpr+"@x1"), 
             getDoubleParam(sXPathExpr+"@y1"));
-     DPoint pos2 = DPoint(getDoubleParam(sXPathExpr+"@x2"),
+     glm::vec2 pos2 = glm::vec2(getDoubleParam(sXPathExpr+"@x2"),
             getDoubleParam(sXPathExpr+"@y2"));
-     return DRect(pos1, pos2);
+     return FRect(pos1, pos2);
 }
 
 xmlNodePtr TrackerConfig::getXmlNode(const std::string& sXPathExpr) const
@@ -222,7 +222,7 @@ xmlNodePtr TrackerConfig::getXmlNode(const std::string& sXPathExpr) const
 
 DeDistortPtr TrackerConfig::getTransform() const
 {
-    DPoint CameraExtents = getPointParam("/camera/size/");
+    glm::vec2 CameraExtents = getPointParam("/camera/size/");
     DeDistortPtr pDD(new DeDistort);
     pDD->load(CameraExtents, *this);
     return pDD;

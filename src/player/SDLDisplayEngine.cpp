@@ -103,7 +103,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMod(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0)
 {
 #ifdef __APPLE__
@@ -151,7 +151,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.x = dp.m_WindowSize.x;
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
-
+    AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
     switch (dp.m_BPP) {
         case 32:
             safeSetAttribute(SDL_GL_RED_SIZE, 8);
@@ -350,10 +350,10 @@ void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
 #else
     #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
-        DPoint displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
+        glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
     #elif defined __APPLE__
         CGSize size = CGDisplayScreenSize(CGMainDisplayID());
-        DPoint displayMM(size.width, size.height);
+        glm::vec2 displayMM(size.width, size.height);
     #endif
         // Non-Square pixels cause errors here. We'll fix that when it happens.
         m_PPMM = m_ScreenResolution.x/displayMM.x;
@@ -706,13 +706,13 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
-    DPoint lastMousePos = m_pLastMouseEvent->getPos();
-    DPoint speed;
+    glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
+    glm::vec2 speed;
     if (lastMousePos.x == -1) {
-        speed = DPoint(0,0);
+        speed = glm::vec2(0,0);
     } else {
-        double lastFrameTime = 1000/getEffectiveFramerate();
-        speed = DPoint(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
+        float lastFrameTime = 1000/getEffectiveFramerate();
+        speed = glm::vec2(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
@@ -1060,11 +1060,11 @@ double SDLDisplayEngine::getPixelsPerMM()
     return m_PPMM;
 }
 
-DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
+glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
 {
     calcScreenDimensions();
-    DPoint size;
-    DPoint screenRes = DPoint(getScreenResolution());
+    glm::vec2 size;
+    glm::vec2 screenRes = glm::vec2(getScreenResolution());
     size.x = screenRes.x/m_PPMM;
     size.y = screenRes.y/m_PPMM;
     return size;

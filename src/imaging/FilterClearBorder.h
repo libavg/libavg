@@ -27,7 +27,7 @@
 
 #include "../graphics/Filter.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>

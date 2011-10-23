@@ -22,7 +22,7 @@
 #ifndef _Contact_H_
 #define _Contact_H_
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -54,7 +54,7 @@ public:
     long long getAge() const;
     double getDistanceFromStart() const;
     double getMotionAngle() const;
-    DPoint getMotionVec() const;
+    glm::vec2 getMotionVec() const;
     double getDistanceTravelled() const;
     std::vector<CursorEventPtr> getEvents() const;
 

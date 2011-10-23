@@ -26,7 +26,7 @@
 
 #include "Node.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Rect.h"
 
 #include "../graphics/OGLShader.h"
@@ -62,39 +62,39 @@ class AVG_API AreaNode: public Node
         virtual void setArgs(const ArgList& args);
         virtual void connectDisplay();
         
-        double getX() const;
-        void setX(double x);
+        float getX() const;
+        void setX(float x);
         
-        double getY() const;
-        void setY(double Y);
+        float getY() const;
+        void setY(float Y);
 
-        const DPoint& getPos() const;
-        void setPos(const DPoint& pt);
+        const glm::vec2& getPos() const;
+        void setPos(const glm::vec2& pt);
 
-        virtual double getWidth() const;
-        virtual void setWidth(double width);
+        virtual float getWidth() const;
+        virtual void setWidth(float width);
         
-        virtual double getHeight() const;
-        virtual void setHeight(double height);
+        virtual float getHeight() const;
+        virtual void setHeight(float height);
        
-        virtual DPoint getSize() const;
-        virtual void setSize(const DPoint& pt);
+        virtual glm::vec2 getSize() const;
+        virtual void setSize(const glm::vec2& pt);
 
-        double getAngle() const;
-        void setAngle(double angle);
+        float getAngle() const;
+        void setAngle(float angle);
         
-        virtual DPoint getPivot() const;
-        void setPivot(const DPoint& pt);
+        virtual glm::vec2 getPivot() const;
+        void setPivot(const glm::vec2& pt);
         
-        virtual DPoint toLocal(const DPoint& globalPos) const;
-        virtual DPoint toGlobal(const DPoint& localPos) const;
+        virtual glm::vec2 toLocal(const glm::vec2& globalPos) const;
+        virtual glm::vec2 toGlobal(const glm::vec2& localPos) const;
         
-        virtual void getElementsByPos(const DPoint& pos, 
+        virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodeWeakPtr>& pElements);
 
-        virtual void maybeRender(const DRect& rect);
-        virtual void setViewport(double x, double y, double width, double height);
-        virtual const DRect& getRelViewport() const;
+        virtual void maybeRender(const FRect& rect);
+        virtual void setViewport(float x, float y, float width, float height);
+        virtual const FRect& getRelViewport() const;
 
         virtual std::string dump(int indent = 0);
         
@@ -105,15 +105,15 @@ class AVG_API AreaNode: public Node
 
     protected:
         AreaNode();
-        DPoint getUserSize() const;
+        glm::vec2 getUserSize() const;
 
     private:
-        DRect m_RelViewport;      // In coordinates relative to the parent.
-        double m_Angle;
-        DPoint m_Pivot;
+        FRect m_RelViewport;      // In coordinates relative to the parent.
+        float m_Angle;
+        glm::vec2 m_Pivot;
         bool m_bHasCustomPivot;
         
-        DPoint m_UserSize;
+        glm::vec2 m_UserSize;
 };
 
 }

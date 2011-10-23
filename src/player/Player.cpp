@@ -115,7 +115,7 @@ Player::Player()
       m_dtd(0),
       m_bPythonAvailable(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
 string sDummy;
@@ -248,9 +248,9 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-DPoint Player::getScreenResolution()
+glm::vec2 Player::getScreenResolution()
 {
-    return DPoint(safeGetDisplayEngine()->getScreenResolution());
+    return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
 }
 
 double Player::getPixelsPerMM()
@@ -258,7 +258,7 @@ double Player::getPixelsPerMM()
     return safeGetDisplayEngine()->getPixelsPerMM();
 }
 
-DPoint Player::getPhysicalScreenDimensions()
+glm::vec2 Player::getPhysicalScreenDimensions()
 {
     return safeGetDisplayEngine()->getPhysicalScreenDimensions();
 }
@@ -1623,7 +1623,7 @@ void Player::cleanup()
     }
     m_pEventDispatcher = EventDispatcherPtr();
     m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
-            false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0));
+            false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0));
 
     m_FrameTime = 0;
     m_bIsPlaying = false;

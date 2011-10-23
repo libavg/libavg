@@ -26,7 +26,7 @@
 #include "../api.h"
 #include "Filter.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <stack>
 

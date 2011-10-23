@@ -44,9 +44,9 @@ NodeDefinition FilledVectorNode::createDefinition()
                 offsetof(FilledVectorNode, m_FillOpacity)))
         .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
                 offsetof(FilledVectorNode, m_sFillColorName)))
-        .addArg(Arg<DPoint>("filltexcoord1", DPoint(0,0), false,
+        .addArg(Arg<glm::vec2>("filltexcoord1", glm::vec2(0,0), false,
                 offsetof(FilledVectorNode, m_FillTexCoord1)))
-        .addArg(Arg<DPoint>("filltexcoord2", DPoint(1,1), false,
+        .addArg(Arg<glm::vec2>("filltexcoord2", glm::vec2(1,1), false,
                 offsetof(FilledVectorNode, m_FillTexCoord2)))
         ;
 }
@@ -112,23 +112,23 @@ void FilledVectorNode::setFillBitmap(BitmapPtr pBmp)
     setDrawNeeded();
 }
 
-const DPoint& FilledVectorNode::getFillTexCoord1() const
+const glm::vec2& FilledVectorNode::getFillTexCoord1() const
 {
     return m_FillTexCoord1;
 }
 
-void FilledVectorNode::setFillTexCoord1(const DPoint& pt)
+void FilledVectorNode::setFillTexCoord1(const glm::vec2& pt)
 {
     m_FillTexCoord1 = pt;
     setDrawNeeded();
 }
 
-const DPoint& FilledVectorNode::getFillTexCoord2() const
+const glm::vec2& FilledVectorNode::getFillTexCoord2() const
 {
     return m_FillTexCoord2;
 }
 
-void FilledVectorNode::setFillTexCoord2(const DPoint& pt)
+void FilledVectorNode::setFillTexCoord2(const glm::vec2& pt)
 {
     m_FillTexCoord2 = pt;
     setDrawNeeded();
@@ -164,7 +164,7 @@ void FilledVectorNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 
-void FilledVectorNode::render(const DRect& rect)
+void FilledVectorNode::render(const FRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
@@ -194,10 +194,10 @@ Pixel32 FilledVectorNode::getFillColorVal() const
     return m_FillColor;
 }
 
-DPoint FilledVectorNode::calcFillTexCoord(const DPoint& pt, const DPoint& minPt, 
-        const DPoint& maxPt)
+glm::vec2 FilledVectorNode::calcFillTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
+        const glm::vec2& maxPt)
 {
-    DPoint texPt;
+    glm::vec2 texPt;
     texPt.x = (m_FillTexCoord2.x-m_FillTexCoord1.x)*(pt.x-minPt.x)/(maxPt.x-minPt.x)
             +m_FillTexCoord1.x;
     texPt.y = (m_FillTexCoord2.y-m_FillTexCoord1.y)*(pt.y-minPt.y)/(maxPt.y-minPt.y)

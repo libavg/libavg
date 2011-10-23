@@ -80,7 +80,7 @@ BitmapPtr FXNode::getImage()
     return m_pFilter->getImage();
 }
 
-DRect FXNode::getRelDestRect() const
+FRect FXNode::getRelDestRect() const
 {
     return m_pFilter->getRelDestRect();
 }

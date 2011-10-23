@@ -28,31 +28,31 @@ using namespace std;
 
 namespace avg {
 
-DLineSegment::DLineSegment(const DPoint& pt0, const DPoint& pt1)
+LineSegment::LineSegment(const glm::vec2& pt0, const glm::vec2& pt1)
     : p0(pt0),
       p1(pt1)
 {
 }
 
-bool DLineSegment::isPointOver(const DPoint& pt)
+bool LineSegment::isPointOver(const glm::vec2& pt)
 {
-    DPoint c = pt - p0;   // DPoint from a to Point
-    DPoint v = (p1 - p0);
-    double d = v.getNorm(); // Length of the line segment
-    v /= d; // Unit DPoint from a to b
-    double t = dotProduct(v, c);  // Intersection point Distance from a
+    glm::vec2 c = pt - p0;   
+    glm::vec2 v = (p1 - p0);
+    float d = glm::length(v); 
+    v /= d; 
+    float t = glm::dot(v, c); 
 
     return (t >= 0 && t <= d);
 }
 
 // Code adapted from Antonio, Franklin, "Faster Line Segment Intersection,"
 // Graphics Gems III (David Kirk, ed.), Academic Press, pp. 199-202, 1992.
-bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
+bool lineSegmentsIntersect(const LineSegment& l0, const LineSegment& l1)
 {
-    double xdiff0 = l0.p1.x-l0.p0.x;
-    double xdiff1 = l1.p0.x-l1.p1.x;
+    float xdiff0 = l0.p1.x-l0.p0.x;
+    float xdiff1 = l1.p0.x-l1.p1.x;
     
-    double x1lo, x1hi;
+    float x1lo, x1hi;
 
     /* X bound box test*/
     if (xdiff0 < 0) {
@@ -72,10 +72,10 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
         }
     }
 
-    double ydiff0 = l0.p1.y-l0.p0.y;
-    double ydiff1 = l1.p0.y-l1.p1.y;
+    float ydiff0 = l0.p1.y-l0.p0.y;
+    float ydiff1 = l1.p0.y-l1.p1.y;
 
-    double y1lo, y1hi;
+    float y1lo, y1hi;
 
     /* Y bound box test*/
     if (ydiff0 < 0) {
@@ -95,10 +95,10 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
         }
     }
 
-    double Cx = l0.p0.x-l1.p0.x;
-    double Cy = l0.p0.y-l1.p0.y;
-    double d = ydiff1*Cx - xdiff1*Cy;                  /* alpha numerator*/
-    double f = ydiff0*xdiff1 - xdiff0*ydiff1;          /* both denominator*/
+    float Cx = l0.p0.x-l1.p0.x;
+    float Cy = l0.p0.y-l1.p0.y;
+    float d = ydiff1*Cx - xdiff1*Cy;                  /* alpha numerator*/
+    float f = ydiff0*xdiff1 - xdiff0*ydiff1;          /* both denominator*/
     if (f > 0) {                                       /* alpha tests*/
         if (d < 0 || d > f) {
             return false;
@@ -109,7 +109,7 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
         }
     }
 
-    double e = xdiff0*Cy - ydiff0*Cx;                  /* beta numerator*/
+    float e = xdiff0*Cy - ydiff0*Cx;                  /* beta numerator*/
     if(f > 0) {                                        /* beta tests*/
         if (e < 0 || e > f) {
             return false;
@@ -127,7 +127,7 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
     }
     
 //    /*compute intersection coordinates*/
-//    double num = d*xdiff0;                     /* numerator */
+//    float num = d*xdiff0;                     /* numerator */
 //    offset = SAME_SIGNS(num,f) ? f/2 : -f/2;   /* round direction*/
 //    *x = x1 + (num+offset) / f;                /* intersection x */
 //
@@ -142,7 +142,7 @@ bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
 //     http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html.
 // Precomputing a bounding box for the polygon would speed this up a lot,
 // but the function hasn't shown up on any profiles so far.
-bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
+bool pointInPolygon(const glm::vec2& pt, const vector<glm::vec2>& poly)
 {
     if (poly.size() < 3) {
         return false;
@@ -159,16 +159,16 @@ bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
     return bPtInPoly;
 }
  
-DPoint getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
-        const DPoint& v2)
+glm::vec2 getLineLineIntersection(const glm::vec2& p1, const glm::vec2& v1, 
+        const glm::vec2& p2, const glm::vec2& v2)
 {
-    double denom = v2.y*v1.x-v2.x*v1.y;
+    float denom = v2.y*v1.x-v2.x*v1.y;
     if (fabs(denom) < 0.0000001) {
         // If the lines are parallel or coincident, we just return p2!
         return p2;
     }
-    double numer = v2.x*(p1.y-p2.y) - v2.y*(p1.x-p2.x);
-    double ua = numer/denom;
+    float numer = v2.x*(p1.y-p2.y) - v2.y*(p1.x-p2.x);
+    float ua = numer/denom;
 
     return p1+ua*v1;
 

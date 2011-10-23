@@ -23,7 +23,7 @@
 #define _CoordTransformer_H_
 
 #include "../api.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,8 +35,8 @@ public:
     CoordTransformer();
     virtual ~CoordTransformer();
 
-    virtual DPoint transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
-    virtual DPoint inverse_transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
+    virtual glm::dvec2 transform_point(const glm::dvec2 & pt) = 0;
+    virtual glm::dvec2 inverse_transform_point(const glm::dvec2 & pt) = 0;
 };
 
 typedef boost::shared_ptr<CoordTransformer> CoordTransformerPtr;

@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "../imaging/DeDistort.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <vector>
 
@@ -43,7 +43,7 @@ public:
 
     bool nextPoint();
     IntPoint getDisplayPoint();
-    void setCamPoint(const DPoint& pt);
+    void setCamPoint(const glm::vec2& pt);
 
     DeDistortPtr makeTransformer();
 
@@ -56,13 +56,13 @@ private:
 
     std::vector<double> m_DistortParams;
     double m_Angle;
-    DPoint m_DisplayScale;
-    DPoint m_DisplayOffset;
+    glm::dvec2 m_DisplayScale;
+    glm::dvec2 m_DisplayOffset;
     double m_TrapezoidFactor;
     DeDistortPtr m_CurrentTrafo;
     unsigned int m_CurPoint;
     std::vector<IntPoint> m_DisplayPoints;
-    std::vector<DPoint> m_CamPoints;
+    std::vector<glm::dvec2> m_CamPoints;
 
     IntPoint m_CamExtents;
     IntPoint m_DisplayExtents;

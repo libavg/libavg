@@ -35,12 +35,12 @@ namespace avg {
 
 NodeDefinition PolyLineNode::createDefinition()
 {
-    vector<DPoint> v;
+    vector<glm::vec2> v;
     vector<double> vd;
     return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
-        .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
+        .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
         .addArg(Arg<vector<double> >("texcoords", vd, false,
                 offsetof(PolyLineNode, m_TexCoords)))
         ;
@@ -62,20 +62,13 @@ PolyLineNode::~PolyLineNode()
 {
 }
 
-const vector<DPoint>& PolyLineNode::getPos() const 
+const vector<glm::vec2>& PolyLineNode::getPos() const 
 {
     return m_Pts;
 }
 
-void PolyLineNode::setPos(const vector<DPoint>& pts) 
+void PolyLineNode::setPos(const vector<glm::vec2>& pts) 
 {
-    vector<DPoint>::const_iterator it;
-    for (it = pts.begin(); it != pts.end(); ++it) {
-        if (it->isNaN() || it->isInf()) {
-            throw Exception(AVG_ERR_INVALID_ARGS, 
-                    "polyline positions must not be nan or inf.");
-        }
-    }
     m_Pts = pts;
     m_TexCoords.clear();
     m_EffTexCoords.clear();

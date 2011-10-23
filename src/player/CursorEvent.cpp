@@ -55,14 +55,14 @@ CursorEventPtr CursorEvent::cloneAs(Type eventType) const
     return pClone;
 }
 
-void CursorEvent::setPos(const DPoint& pos)
+void CursorEvent::setPos(const glm::vec2& pos)
 {
     m_Position = IntPoint(pos);
 }
 
-DPoint CursorEvent::getPos() const
+glm::vec2 CursorEvent::getPos() const
 {
-    return DPoint(m_Position);
+    return glm::vec2(m_Position);
 }
 
 int CursorEvent::getXPosition() const
@@ -95,12 +95,12 @@ NodePtr CursorEvent::getNode() const
     return m_pNode.lock();
 }
         
-void CursorEvent::setSpeed(DPoint speed)
+void CursorEvent::setSpeed(glm::vec2 speed)
 {
     m_Speed = speed;
 }
 
-const DPoint& CursorEvent::getSpeed() const
+const glm::vec2& CursorEvent::getSpeed() const
 {
     return m_Speed;
 }

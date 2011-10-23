@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "CoordTransformer.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
@@ -43,20 +43,21 @@ class TrackerConfig;
 class AVG_API DeDistort: public CoordTransformer {
     public:
         DeDistort();
-        DeDistort(const DPoint& camExtents, const DPoint& displayExtents);
-        DeDistort(const DPoint& camExtents, const std::vector<double>& distortionParams, 
-                double angle, double trapezoidFactor, const DPoint& displayOffset, 
-                const DPoint& displayScale);
+        DeDistort(const glm::vec2& camExtents, const glm::vec2& displayExtents);
+        DeDistort(const glm::vec2& camExtents, 
+                const std::vector<double>& distortionParams, double angle, 
+                double trapezoidFactor, const glm::dvec2& displayOffset, 
+                const glm::dvec2& displayScale);
         virtual ~DeDistort();
 
-        DPoint transformBlobToScreen(const DPoint& pt);
-        DPoint transformScreenToBlob(const DPoint& pt);
-        virtual DPoint transform_point(const DPoint& pt); 
-        virtual DPoint inverse_transform_point(const DPoint& pt);
-        DRect getDisplayArea(const DPoint& displayExtents);
-        DRect getActiveBlobArea(const DRect& displayROI);
+        glm::dvec2 transformBlobToScreen(const glm::dvec2& pt);
+        glm::dvec2 transformScreenToBlob(const glm::dvec2& pt);
+        virtual glm::dvec2 transform_point(const glm::dvec2& pt); 
+        virtual glm::dvec2 inverse_transform_point(const glm::dvec2& pt);
+        FRect getDisplayArea(const glm::vec2& displayExtents);
+        FRect getActiveBlobArea(const FRect& displayROI);
 
-        void load(const DPoint &CameraExtents, const TrackerConfig& config);
+        void load(const glm::vec2 &CameraExtents, const TrackerConfig& config);
         void save(TrackerConfig& config);
 
         bool operator ==(const DeDistort& other) const;
@@ -65,17 +66,18 @@ class AVG_API DeDistort: public CoordTransformer {
 
     private:
         double calc_rescale();
-        DPoint inverse_undistort(const std::vector<double>& params, const DPoint& pt);
-        DPoint undistort(const std::vector<double>& params, const DPoint& pt);
-        DPoint trapezoid(const double trapezoid_factor, const DPoint& pt);
-        DPoint inv_trapezoid(const double trapezoid_factor, const DPoint& pt);
+        glm::dvec2 inverse_undistort(const std::vector<double>& params,
+                const glm::dvec2& pt);
+        glm::dvec2 undistort(const std::vector<double>& params, const glm::dvec2& pt);
+        glm::dvec2 trapezoid(const double trapezoid_factor, const glm::dvec2& pt);
+        glm::dvec2 inv_trapezoid(const double trapezoid_factor, const glm::dvec2& pt);
 
-        DPoint m_CamExtents;
+        glm::dvec2 m_CamExtents;
         std::vector<double> m_DistortionParams;
         double m_Angle;
         double m_TrapezoidFactor;
-        DPoint m_DisplayOffset;
-        DPoint m_DisplayScale;
+        glm::dvec2 m_DisplayOffset;
+        glm::dvec2 m_DisplayScale;
         
         double m_RescaleFactor;
 };

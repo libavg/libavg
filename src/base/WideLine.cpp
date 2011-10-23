@@ -21,24 +21,26 @@
 
 #include "WideLine.h"
 
+#include "GLMHelper.h"
+
 namespace avg {
 
-WideLine::WideLine(const DPoint& p0, const DPoint& p1, double width)
+WideLine::WideLine(const glm::vec2& p0, const glm::vec2& p1, float width)
     : pt0(p0),
       pt1(p1)
 {
-    DPoint m = (pt1-pt0).getNormalized();
-    DPoint w = DPoint(m.y, -m.x)*width/2;
+    glm::vec2 m = glm::normalize(pt1-pt0);
+    glm::vec2 w = glm::vec2(m.y, -m.x)*(width/2);
     pl0 = p0-w;
     pr0 = p0+w;
     pl1 = p1-w;
     pr1 = p1+w;
-    dir = DPoint(w.y, -w.x); 
+    dir = glm::vec2(w.y, -w.x); 
 }
 
-double WideLine::getLen() const
+float WideLine::getLen() const
 {
-    return calcDist(pt0, pt1);
+    return glm::length(pt1-pt0);
 }
 
 std::ostream& operator<<(std::ostream& os, const WideLine& line)
