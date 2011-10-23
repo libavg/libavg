@@ -93,6 +93,10 @@ template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<int
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<float> &p);
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<double> &p);
 
+template std::istream& operator>>(std::istream& is, glm::detail::tvec2<int>& p);
+template std::istream& operator>>(std::istream& is, glm::detail::tvec2<float>& p);
+template std::istream& operator>>(std::istream& is, glm::detail::tvec2<double>& p);
+
 template bool almostEqual(const glm::detail::tvec2<float>& v1,
         const glm::detail::tvec2<float>& v2);
 template bool almostEqual(const glm::detail::tvec2<double>& v1,

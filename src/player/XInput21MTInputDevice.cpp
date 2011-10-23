@@ -28,7 +28,6 @@
 #include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
-#include "../base/Point.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/OSHelper.h"

@@ -138,9 +138,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-#ifdef linux
-    IntPoint oldWindowSize = m_WindowSize;
-#endif
     double aspectRatio = double(dp.m_Size.x)/double(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
         m_WindowSize = dp.m_Size;
