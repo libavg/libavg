@@ -495,10 +495,20 @@ void DSCamera::getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
 
         if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
             IntPoint size = IntPoint(bih.biWidth, bih.biHeight);
+
             std::vector<float> framerates;
-            float boarder1 = (float)(10000000 / scc.MinFrameInterval);
-            float boarder2 = (float)(10000000 / scc.MaxFrameInterval);
-            intervalToSingleFramerates(boarder1, boarder2, framerates);
+            float minFramerate = (float)(10000000 / scc.MinFrameInterval);
+            float maxFramerate = (float)(10000000 / scc.MaxFrameInterval);
+            float averageFramerate = (float)(10000000 / pvih->AvgTimePerFrame);
+            if(maxFramerate != 0.){
+                framerates.push_back(maxFramerate);
+            }
+            if(averageFramerate != maxFramerate && averageFramerate != minFramerate){
+                framerates.push_back(averageFramerate);
+            }
+            if(minFramerate != 0.){
+            framerates.push_back(minFramerate);
+            }
             CameraImageFormat imageFormat = CameraImageFormat(size, capsPF, framerates);
             pCamInfo->addImageFormat(imageFormat);
         }
