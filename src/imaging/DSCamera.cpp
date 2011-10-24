@@ -433,6 +433,13 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
     checkForDShowError(hr, "DSCamera::getCameraInfos()::BindToStorage");
 
     std::string deviceID = getStringProp(pPropBag, L"DevicePath");
+    if(deviceID.empty()){
+        deviceID = getStringProp(pPropBag, L"Description");
+        if(deviceID.empty()){
+            deviceID = getStringProp(pPropBag, L"FriendlyName");
+        }
+    }
+
     CameraInfo* pCamInfo = new CameraInfo("DirectShow", deviceID);
 
     getCameraImageFormats(pMoniker, pCamInfo);
