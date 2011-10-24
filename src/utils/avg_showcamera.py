@@ -32,8 +32,8 @@ g_Player = avg.Player.get()
 
 parser = optparse.OptionParser()
 parsecamargs.addOptions(parser)
-parser.add_option("-l", "--dump", dest="dump", action="store_true", default=False,
-          help="dump a list of detected cameras")
+parser.add_option("-l", "--list", dest="list", action="store_true", default=False,
+          help="lists informations about detected cameras")
 parser.add_option("-s", "--noinfo", dest="noinfo", action="store_true", default=False,
           help="don't show any info overlayed on the screen")
 parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", default=False,
@@ -41,8 +41,7 @@ parser.add_option("-r", "--resetbus", dest="resetbus", action="store_true", defa
 
 (g_options, g_args) = parser.parse_args()
 
-if g_options.dump:
-    avg.CameraNode.dumpCameras() #TODO: Old output, delete if old structure is cleaned up
+if g_options.list:
     infoList = list()
     infoList = avg.CameraNode.getCamerasInfos()
     if (len(infoList) <= 0):
@@ -83,7 +82,7 @@ if g_options.resetbus:
     if not g_options.driver:
         exit(0)
 
-if g_options.driver is None and not g_options.dump and not g_options.resetbus:
+if g_options.driver is None and not g_options.list and not g_options.resetbus:
     parser.print_help()
     print
     print "Keys available when image is being displayed:"
@@ -92,7 +91,7 @@ if g_options.driver is None and not g_options.dump and not g_options.resetbus:
     print "  3/4: Decrease/Increase whitebalance v."
     print "  s: Take screenshot."
     print
-    print "ERROR: at least '--driver', '--dump' or '--resetbus' options must be specified"
+    print "ERROR: at least '--driver', '--list' or '--resetbus' options must be specified"
     exit()
 
 class ShowCamera(AVGApp):

@@ -229,27 +229,11 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
 
 }
 
-void dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
-{
-#ifdef AVG_ENABLE_1394_2 
-    //FWCamera::dumpCameras();
-#endif
-#ifdef AVG_ENABLE_CMU1394 
-    //CMUCamera::dumpCameras();
-#endif
-#ifdef AVG_ENABLE_V4L2 
-    //V4LCamera::dumpCameras(); Works now with listCameraInfo()
-#endif
-#ifdef AVG_ENABLE_DSHOW 
-    //DSCamera::dumpCameras();
-#endif
-}
-
 std::vector<CameraInfo> getCamerasInfos()
 {
     std::vector<CameraInfo> camerasInfo;
     
-#ifdef AVG_ENABLE_1394_2 //TODO
+#ifdef AVG_ENABLE_1394_2
     int amountFWCameras = FWCamera::countCameras();
     for (int i = 0; i < amountFWCameras; i++){
         CameraInfo* camInfo = FWCamera::getCameraInfos(i);

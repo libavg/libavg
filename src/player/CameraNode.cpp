@@ -273,11 +273,6 @@ BitmapPtr CameraNode::getBitmap()
     }
 }
 
-void CameraNode::dumpCameras() //TODO: Delete if all Cameras work with listCameraInfo()
-{
-    avg::dumpCameras();
-}
-
 CamerasInfosVector CameraNode::getCamerasInfos()
 {
     CamerasInfosVector camInfos = avg::getCamerasInfos();
