@@ -494,7 +494,12 @@ void DSCamera::getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
         capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
 
         if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
-            IntPoint size = IntPoint(bih.biWidth, bih.biHeight);
+            IntPoint size;
+            if(bih.biHeight >= 0){
+                size = IntPoint(bih.biWidth, bih.biHeight);
+            } else {
+                size = IntPoint(bih.biWidth, -bih.biHeight);
+            }
 
             std::vector<float> framerates;
             float minFramerate = (float)(10000000 / scc.MinFrameInterval);
