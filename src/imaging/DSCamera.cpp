@@ -402,18 +402,15 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
     // Create apartment for Thread
     hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     checkForDShowError(hr, "DSCamera::getCameraInfos()::CoInitializeEx");
-
     // Create the system device enumerator
     ICreateDevEnum *pDevEnum =NULL;
     hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
             IID_ICreateDevEnum, (void **) &pDevEnum);
     checkForDShowError(hr, "DSCamera::getCameraInfos()::CreateDevEnum");
-
     // Create an enumerator for the video capture devices
     IEnumMoniker *pClassEnum = NULL;
     hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
     checkForDShowError(hr, "DSCamera::getCameraInfos()::CreateClassEnumerator");
-
     if (pClassEnum == NULL) {
         pClassEnum->Release();
         pDevEnum->Release();
@@ -439,7 +436,6 @@ CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
             deviceID = getStringProp(pPropBag, L"FriendlyName");
         }
     }
-
     CameraInfo* pCamInfo = new CameraInfo("DirectShow", deviceID);
 
     getCameraImageFormats(pMoniker, pCamInfo);
@@ -524,7 +520,7 @@ void DSCamera::getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
 
 void DSCamera::getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo)
 {
-     HRESULT hr = S_OK;
+    HRESULT hr = S_OK;
     IBaseFilter * pSrcFilter;
     // locates the object identified by pMoniker and 
     // returns a pointer to its filter interface
@@ -536,47 +532,50 @@ void DSCamera::getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo)
     IAMCameraControl* pAMCameraControl;
     pSrcFilter->QueryInterface(IID_IAMCameraControl, 
                 (void **)&pAMCameraControl);
-    // DirectShow has 7 supported CameraControlProperties
-    for(int indexControl = 0; indexControl <= 6; indexControl++)
-    {
-        long value = -999;
-        long flags = -999;
-        pAMCameraControl->Get((CameraControlProperty)indexControl, &value, &flags);
-        long min = -999;
-        long max = -999;
-        long delta = -999;
-        long defaultValue = -999;
-        flags = -999;
-        pAMCameraControl->GetRange((CameraControlProperty)indexControl, &min, &max, &delta, &defaultValue, &flags);
+    if(pAMCameraControl != NULL) {
+        // DirectShow has 7 supported CameraControlProperties
+        for(int indexControl = 0; indexControl <= 6; indexControl++) {
+            long value = -999;
+            long flags = -999;
+            pAMCameraControl->Get((CameraControlProperty)indexControl, &value, &flags);
+            long min = -999;
+            long max = -999;
+            long delta = -999;
+            long defaultValue = -999;
+            flags = -999;
+            pAMCameraControl->GetRange((CameraControlProperty)indexControl, &min, &max, &delta, &defaultValue, &flags);
 
-        CameraFeature feature = getCameraFeatureID_CCP((CameraControlProperty)indexControl);
-        if(min != -999 && max != -999 && defaultValue != -999 && feature != CAM_FEATURE_UNSUPPORTED){
-            std::string featureName = cameraFeatureToString(feature);
-            CameraControl control = CameraControl(featureName,min,max,defaultValue);
-            pCamInfo->addControl(control);
+            CameraFeature feature = getCameraFeatureID_CCP((CameraControlProperty)indexControl);
+            if(min != -999 && max != -999 && defaultValue != -999 && feature != CAM_FEATURE_UNSUPPORTED){
+                std::string featureName = cameraFeatureToString(feature);
+                CameraControl control = CameraControl(featureName,min,max,defaultValue);
+                pCamInfo->addControl(control);
+            }
         }
     }
     IAMVideoProcAmp* pCameraPropControl;
     pSrcFilter->QueryInterface(IID_IAMVideoProcAmp, 
                 (void **)&pCameraPropControl);
-    // DirectShow has 10 supported VideoProcAmpProperties
-    for(int indexPropControl = 0; indexPropControl <= 9; indexPropControl++)
-    {
-        long value = -999;
-        long flags = -999;
-        pCameraPropControl->Get((VideoProcAmpProperty)indexPropControl, &value, &flags);
-        long min = -999;
-        long max = -999;
-        long delta = -999;
-        long defaultValue = -999;
-        flags = -999;
-         pCameraPropControl->GetRange((VideoProcAmpProperty)indexPropControl, &min, &max, &delta, &defaultValue, &flags);
+    if(pCameraPropControl != NULL) {
+        // DirectShow has 10 supported VideoProcAmpProperties
+        for(int indexPropControl = 0; indexPropControl <= 9; indexPropControl++)
+        {
+            long value = -999;
+            long flags = -999;
+            pCameraPropControl->Get((VideoProcAmpProperty)indexPropControl, &value, &flags);
+            long min = -999;
+            long max = -999;
+            long delta = -999;
+            long defaultValue = -999;
+            flags = -999;
+             pCameraPropControl->GetRange((VideoProcAmpProperty)indexPropControl, &min, &max, &delta, &defaultValue, &flags);
 
-        CameraFeature feature = getCameraFeatureID_VPAP((VideoProcAmpProperty)indexPropControl);
-        if(min != -999 && max != -999 && defaultValue != -999 && feature != CAM_FEATURE_UNSUPPORTED){
-            std::string featureName = cameraFeatureToString(feature);
-            CameraControl control = CameraControl(featureName,min,max,defaultValue);
-            pCamInfo->addControl(control);
+            CameraFeature feature = getCameraFeatureID_VPAP((VideoProcAmpProperty)indexPropControl);
+            if(min != -999 && max != -999 && defaultValue != -999 && feature != CAM_FEATURE_UNSUPPORTED){
+                std::string featureName = cameraFeatureToString(feature);
+                CameraControl control = CameraControl(featureName,min,max,defaultValue);
+                pCamInfo->addControl(control);
+            }
         }
     }
 }
