@@ -504,11 +504,11 @@ void DSCamera::getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
             if(maxFramerate != 0.){
                 framerates.push_back(maxFramerate);
             }
-            if(averageFramerate != maxFramerate && averageFramerate != minFramerate){
+            if(averageFramerate != maxFramerate && averageFramerate != minFramerate) {
                 framerates.push_back(averageFramerate);
             }
-            if(minFramerate != 0.){
-            framerates.push_back(minFramerate);
+            if(minFramerate != 0.  && minFramerate != maxFramerate){
+                framerates.push_back(minFramerate);
             }
             CameraImageFormat imageFormat = CameraImageFormat(size, capsPF, framerates);
             pCamInfo->addImageFormat(imageFormat);

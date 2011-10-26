@@ -134,6 +134,8 @@ void export_bitmap()
         .value("I32F", I32F)
         .export_values();
 
+    def("getPixelFormatsStringVector", &getPixelFormatsStringVector);
+
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 
     class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
