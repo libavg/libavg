@@ -24,6 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include "GLContext.h"
 #include "TextureMover.h"
@@ -42,6 +43,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
       m_bMipmap(bMipmap),
       m_bDeleteTex(true)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_bUsePOT = GLContext::getCurrent()->usePOTTextures() || bForcePOT;
     if (m_bUsePOT) {
         m_GLSize.x = nextpow2(m_Size.x);
@@ -101,6 +103,7 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
       m_bUsePOT(false),
       m_TexID(glTexID)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 GLTexture::~GLTexture()
@@ -110,6 +113,7 @@ GLTexture::~GLTexture()
         glDeleteTextures(1, &m_TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void GLTexture::activate(int textureUnit)
