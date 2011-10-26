@@ -181,6 +181,7 @@ Bitmap::Bitmap(const UTF8String& sName)
         }
     }
     m_bOwnsBits = true;
+    g_object_unref(pPixBuf);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
