@@ -543,7 +543,7 @@ CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
                 id.unit);
         if (pCamera) {
             stringstream deviceID;
-            deviceID << pCamera->guid;
+            deviceID << hex << id.guid;//pCamera->guid;
             CameraInfo* camInfo = new CameraInfo("Firewire", deviceID.str());
 
             getCameraControls(pCamera, camInfo);
