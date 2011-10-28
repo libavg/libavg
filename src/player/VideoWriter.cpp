@@ -26,6 +26,7 @@
 
 #include "../graphics/FBO.h"
 #include "../graphics/GPURGB2YUVFilter.h"
+#include "../graphics/Filterfill.h"
 #include "../base/StringHelper.h"
 
 #include <boost/bind.hpp>
@@ -245,6 +246,7 @@ void VideoWriter::onPlaybackEnd()
 void VideoWriter::writeDummyFrame()
 {
     BitmapPtr pBmp = BitmapPtr(new Bitmap(m_FrameSize, B8G8R8X8));
+    FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
     sendFrameToEncoder(pBmp);
 }
 
