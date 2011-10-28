@@ -554,71 +554,69 @@
    python_2
    Memcheck:Cond
    fun:PyObject_Free
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_3
    Memcheck:Value4
    fun:PyObject_Free
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_4
    Memcheck:Addr4
    fun:PyObject_Free
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
 }
 {
    python_5
    Memcheck:Value8
    fun:PyObject_Free
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_6
    Memcheck:Addr8
    fun:PyObject_Free
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_7
    Memcheck:Addr4
    fun:PyObject_Realloc
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
 }
 {
    python_8
    Memcheck:Cond
    fun:PyObject_Realloc
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_9
    Memcheck:Value4
    fun:PyObject_Realloc
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_10
    Memcheck:Addr8
    fun:PyObject_Realloc
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    python_11
    Memcheck:Value8
    fun:PyObject_Realloc
-   obj:/usr/bin/python*
-   fun:*
+   obj:*
+   obj:*
 }
 {
    boost.python
