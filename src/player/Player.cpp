@@ -1162,6 +1162,9 @@ void Player::initAudio()
 
 void Player::updateDTD()
 {
+    if (m_dtd) {
+        xmlFreeDtd(m_dtd);
+    }
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
     string sDTDFName = "avg.dtd";
