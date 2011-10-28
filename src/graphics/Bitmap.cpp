@@ -575,7 +575,6 @@ void Bitmap::save(const UTF8String& sFilename)
         s_bGTKInitialized = true;
     }
     Bitmap* pTempBmp;
-    bool bCopied = false;
     switch (m_PF) {
         case B8G8R8X8:
             pTempBmp = new Bitmap(m_Size, R8G8B8);
@@ -626,9 +625,7 @@ void Bitmap::save(const UTF8String& sFilename)
         throw Exception(AVG_ERR_FILEIO, sErr);
     }
 
-    if (bCopied) {
-        delete pTempBmp;
-    }
+    delete pTempBmp;
 }
 
 IntPoint Bitmap::getSize() const
