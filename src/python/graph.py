@@ -19,8 +19,7 @@
 
 import time
 
-import libavg
-from libavg import avg, Point2D
+from libavg import avg
 
 g_Player = avg.Player.get()
 

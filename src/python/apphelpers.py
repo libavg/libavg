@@ -141,7 +141,6 @@ class TouchVisualization(BaseTouchVisualization):
         self.__circle.size = (radius*2,radius*2)
         
 
-
 class TouchVisualizationOverlay(avg.DivNode):
     def __init__(self, isDebug, visClass, **kwargs):
         super(TouchVisualizationOverlay, self).__init__(**kwargs)
