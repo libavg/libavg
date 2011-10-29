@@ -1,3 +1,27 @@
+libavg 1.7.0.pre1 - Oct 29, 2011
+
+  svn revision 6871
+
+  Major New Features:
+    * Expanded effects support: New HueSatFXNode and InvertFXNode by Richard Klemm, major
+      speed improvements.
+    * Polished multitouch gesture support.
+    * New Contact class that delivers per-touch data, per-touch callbacks that make
+      event handling a lot easier.
+    * SVG support.
+    * New BitmapManager that allows loading of bitmaps in a background thread.
+
+  Other Changes:
+    * Lots of performance optimizations.
+    * Linux ATI graphics are supported now.
+    * Major speed improvements to VideoWriter. Saving full HD videos is not a problem
+      anymore and costs little performance for the main rendering thread.
+    * Callbacks don't hold references to python objects anymore - this should make
+      freeing nodes a lot easier.
+    * New StateMachine class.
+    * Added Player.getPixelsPerMM(), getPhysicalScreenDimensions(), assumePixelsPerMM()
+    * Added touch feedback class.
+
 libavg 1.6.0 - May 29, 2011
 
   svn revision 6022, branch release1.6.x
