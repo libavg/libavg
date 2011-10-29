@@ -92,6 +92,7 @@ VideoWriter::~VideoWriter()
 {
     stop();
     m_pThread->join();
+    delete m_pThread;
 }
 
 void VideoWriter::stop()

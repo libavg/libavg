@@ -65,6 +65,7 @@ SVG::SVG(const UTF8String& sFilename, bool bUnescapeIllustratorIDs)
         throw Exception(AVG_ERR_INVALID_ARGS, 
                 string("Could not open svg file: ") + m_sFilename);
     }
+    delete pErr;
 }
 
 SVG::~SVG()
