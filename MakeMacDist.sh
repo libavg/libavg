@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=1.6.0
+export VERSION=1.7.0.pre1
 
 fixLib()
 {
@@ -34,13 +34,15 @@ makeOneDist()
     mkdir avg/test
     mkdir avg/video
     mkdir avg/video/testfiles
+    mkdir avg/graphics
+    mkdir avg/graphics/testfiles
     cp -Rv ${BUILDDIR}/site-packages/libavg/ .
     strip -S avg.0.so
     cp ../../libavg/src/avgrc avg
     mkdir etc
     cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
-    cp -Rv *.py *.avg *.png *.jpg *.tif ${AVG_PATH}/dist/libavg/avg/test
+    cp -Rv *.py *.avg *.png *.jpg *.tif *.svg ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
     cp baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
     mkdir ${AVG_PATH}/dist/libavg/avg/test/testmediadir
@@ -48,14 +50,16 @@ makeOneDist()
     mkdir ${AVG_PATH}/dist/libavg/avg/test/fonts
     cp fonts/* ${AVG_PATH}/dist/libavg/avg/test/fonts
     mkdir ${AVG_PATH}/dist/libavg/avg/test/plugin
-    cp plugin/.libs/libColorNode.so ${AVG_PATH}/dist/libavg/avg/test/plugin
-    cp plugin/.libs/libColorNode.0.so ${AVG_PATH}/dist/libavg/avg/test/plugin
+    cp plugin/.libs/colorplugin.so ${AVG_PATH}/dist/libavg/avg/test/plugin
+    cp plugin/.libs/colorplugin.0.so ${AVG_PATH}/dist/libavg/avg/test/plugin
     mkdir ${AVG_PATH}/dist/libavg/avg/test/extrafonts
     cp extrafonts/testaddfontdir.ttf ${AVG_PATH}/dist/libavg/avg/test/extrafonts
 
     
     cd $LIBAVGDIR/src/video/testfiles/
     cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 *.flv ${AVG_PATH}/dist/libavg/avg/video/testfiles
+    cd $LIBAVGDIR/src/graphics/testfiles/
+    cp -Rv *.png ${AVG_PATH}/dist/libavg/avg/graphics/testfiles
 
     cd $LIBAVGDIR/../bindist
     rm -rf *
