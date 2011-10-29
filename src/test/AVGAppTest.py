@@ -20,7 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import sys
 import os
 import time
 
@@ -86,7 +85,7 @@ class AVGAppTestCase(testcase.AVGTestCase):
                 debugWindowSize=Point2D(TEST_RESOLUTION) / 2)
     
     def testScreenshot(self):
-        if not(self._isCurrentDirWriteable):
+        if not(self._isCurrentDirWriteable()):
             self.skip("Current dir not writeable")
             return
             

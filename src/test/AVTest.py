@@ -522,7 +522,7 @@ class AVTestCase(AVGTestCase):
             self.assertException(lambda: avg.VideoWriter(Player.getMainCanvas(), 
                     "nonexistentdir/test.mov", 30))
 
-        if not(self._isCurrentDirWriteable):
+        if not(self._isCurrentDirWriteable()):
             self.skip("Current dir not writeable")
             return
 
