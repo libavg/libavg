@@ -118,7 +118,6 @@ buildLib autoconf-2.63
 buildLib automake-1.11
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
-buildLib zlib-1.2.3
 buildlibpng
 buildLib libxml2-2.6.32 --disable-shared
 buildLib pkg-config-0.20
