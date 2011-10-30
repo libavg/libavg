@@ -122,6 +122,13 @@ ConstDPoint::operator DPoint() const
     return DPoint(x,y);
 }
 
+void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
+{
+    if (boost::python::len(args) != numArgs) {
+        throw avg::Exception(AVG_ERR_INVALID_ARGS, 
+                "Nodes must be constructed using named parameters. Positional parameters are not supported.");
+    }
+}
 
 template<class NUM>
 struct Point_to_python_tuple

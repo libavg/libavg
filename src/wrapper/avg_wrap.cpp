@@ -59,9 +59,16 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(TestHelper_fakeTouchEvent_overloads,
 OffscreenCanvasPtr createCanvas(const boost::python::tuple &args,
                 const boost::python::dict& params)
 {
+    checkEmptyArgs(args, 1);
     return extract<Player&>(args[0])().createCanvas(params);
 }
 
+CanvasPtr createMainCanvas(const boost::python::tuple &args,
+                const boost::python::dict& params)
+{
+    checkEmptyArgs(args, 1);
+    return extract<Player&>(args[0])().createMainCanvas(params);
+}
 
 
 BOOST_PYTHON_MODULE(avg)
@@ -138,6 +145,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadString", &Player::loadString)
         .def("loadCanvasFile", &Player::loadCanvasFile)
         .def("loadCanvasString", &Player::loadCanvasString)
+        .def("createMainCanvas", raw_function(createMainCanvas))
         .def("createCanvas", raw_function(createCanvas))
         .def("deleteCanvas", &Player::deleteCanvas)
         .def("getMainCanvas", &Player::getMainCanvas)
