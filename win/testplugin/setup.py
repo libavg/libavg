@@ -85,6 +85,7 @@ test_testmediadir_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/testmediadir/')
 test_fonts_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/fonts/')
 
 videotest_files = gatherFilesInDir(LIBAVG_SRC_DIR+'video/testfiles')
+graphicstest_files = gatherFilesInDir(LIBAVG_SRC_DIR+'graphics/testfiles')
 
 python_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/')
 python_files += [
@@ -105,6 +106,7 @@ data_files_list=[
         ('Lib/site-packages/libavg/test/testmediadir', test_testmediadir_files),
         ('Lib/site-packages/libavg/test/fonts', test_fonts_files),
         ('Lib/site-packages/libavg/video/testfiles', videotest_files),
+        ('Lib/site-packages/libavg/graphics/testfiles', graphicstest_files),
         ('Lib/site-packages/libavg/plugin', ('../Release/colorplugin.dll',)),
         ('Lib/site-packages/libavg', python_files),
         ('Lib/site-packages/libavg/ui', python_ui_files),
@@ -160,7 +162,8 @@ for py in map(os.path.basename, scripts):
     
 
 setup(name='libavg',
-      version='1.6.0.%s' % revision,
+#      version='1.7.0.%s' % revision,
+      version='1.7.0.pre1',
       author='Ulrich von Zadow',
       author_email='uzadow@libavg.de',
       url='http://www.libavg.de',
