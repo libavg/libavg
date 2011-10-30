@@ -307,7 +307,7 @@ public:
     operator avg::DPoint() const;
 };
 
-void checkEmptyArgs(const boost::python::tuple &args, int numArgs=0);
+AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=0);
 
 template<const char * pszType> 
 avg::NodePtr createNode(const boost::python::tuple &args,
