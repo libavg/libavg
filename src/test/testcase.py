@@ -171,8 +171,8 @@ class AVGTestCase(unittest.TestCase):
             msg = "almostEqual: " + str(a) + " != " + str(b)
             self.fail(msg)
 
-    def loadEmptyScene(self, resolution = (160,120)):
-        self.__player.createMainCanvas(size=(160,120))
+    def loadEmptyScene(self, resolution=(160,120)):
+        self.__player.createMainCanvas(size=resolution)
         return self.__player.getRootNode()
 
     def initDefaultImageScene(self):
