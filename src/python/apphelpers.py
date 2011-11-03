@@ -74,8 +74,8 @@ class DebugTouchVisualization(BaseTouchVisualization):
             self.__handAxis = avg.LineNode(pos1=(0,0), pos2=self.__getHandVector(event),
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
         fontPos = avg.Point2D(self.__pulsecircle.r, 0)
-        textID = avg.WordsNode(pos=fontPos, text=str(event.cursorid), parent=self)
-        self.motionPath = avg.PolyLineNode(self.positions,
+        avg.WordsNode(pos=fontPos, text=str(event.cursorid), parent=self)
+        self.motionPath = avg.PolyLineNode(pos=self.positions,
                 opacity=0.7, color=color, parent=kwargs['parent'])
         self.motionVector = avg.LineNode(pos1=(0,0) , pos2=-event.contact.motionvec,
                 opacity=0.4, parent=self)
