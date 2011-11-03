@@ -172,11 +172,7 @@ class AVGTestCase(unittest.TestCase):
             self.fail(msg)
 
     def loadEmptyScene(self, resolution = (160,120)):
-        sceneString = """
-        <avg id="avg" width="%d" height="%d">
-        </avg>
-        """ % (resolution[0], resolution[1])
-        self.__player.loadString(sceneString)
+        self.__player.createMainCanvas(size=(160,120))
         return self.__player.getRootNode()
 
     def initDefaultImageScene(self):

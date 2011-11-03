@@ -316,6 +316,25 @@ OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
     return registerOffscreenCanvas(pNode);
 }
 
+CanvasPtr Player::createMainCanvas(const boost::python::dict& params)
+{
+    errorIfPlaying("Player.createMainCanvas");
+    if (m_pMainCanvas) {
+        cleanup();
+    }
+
+    NodePtr pNode = createNode("avg", params);
+
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
+    m_pMainCanvas->setRoot(pNode);
+    m_DP.m_Size = m_pMainCanvas->getSize();
+
+    registerFrameEndListener(BitmapManager::get());
+
+    return m_pMainCanvas;
+}
+
 OffscreenCanvasPtr Player::createCanvas(const boost::python::dict& params)
 {
     NodePtr pNode = createNode("canvas", params);
