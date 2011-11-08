@@ -76,7 +76,6 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
     if (pMainCanvas != m_pCanvas) {
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
-        m_pCanvas->registerPreRenderListener(this);
         if (GLContext::getCurrent()->isUsingShaders()) {
             m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
         }
@@ -108,9 +107,6 @@ void VideoWriter::stop()
         
         m_pCanvas->unregisterFrameEndListener(this);
         m_pCanvas->unregisterPlaybackEndListener(this);
-        if (m_pFBO) {
-            m_pCanvas->unregisterPreRenderListener(this);
-        }
     }
 }
 
@@ -162,8 +158,12 @@ void VideoWriter::onFrameEnd()
     // For MainCanvas, it simply does a screenshot onFrameEnd and sends that to the 
     // VideoWriterThread immediately.
     // For OffscreenCanvas, an asynchronous PBO readback is started in onFrameEnd.
-    // In the next frame's onPreRender, the data is read into a bitmap and sent to 
+    // In the next frame's onFrameEnd, the data is read into a bitmap and sent to 
     // the VideoWriterThread.
+    if (m_pFBO) {
+        // Read last frame's bitmap.
+        getFrameFromPBO();
+    }
     if (m_StartTime == -1) {
         m_StartTime = Player::get()->getFrameTime();
     }
@@ -187,11 +187,6 @@ void VideoWriter::onFrameEnd()
     if (!m_pFBO) {
         getFrameFromPBO();
     }
-}
-
-void VideoWriter::onPreRender()
-{
-    getFrameFromPBO();
 }
 
 void VideoWriter::getFrameFromFBO()
