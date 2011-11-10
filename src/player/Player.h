@@ -28,6 +28,7 @@
 #include "DisplayParams.h"
 #include "CursorState.h"
 #include "TestHelper.h"
+#include "BoostPython.h"
 
 #include "../audio/AudioParams.h"
 #include "../graphics/GLConfig.h"
@@ -88,13 +89,14 @@ class AVG_API Player
         DPoint getScreenResolution();
         double getPixelsPerMM();
         DPoint getPhysicalScreenDimensions();
-        void assumePhysicalScreenDimensions(const DPoint& size);
+        void assumePixelsPerMM(double ppmm);
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);
 
         OffscreenCanvasPtr loadCanvasFile(const std::string& sFilename);
         OffscreenCanvasPtr loadCanvasString(const std::string& sAVG);
+        CanvasPtr createMainCanvas(const boost::python::dict& params);
         OffscreenCanvasPtr createCanvas(const boost::python::dict& params);
         void deleteCanvas(const std::string& sID);
         CanvasPtr getMainCanvas() const;
@@ -163,7 +165,7 @@ class AVG_API Player
 
         void disablePython();
 
-        void loadPlugin(const std::string& name);
+        boost::python::object loadPlugin(const std::string& name);
         void setPluginPath(const std::string& newPath);
         std::string getPluginPath() const;
         

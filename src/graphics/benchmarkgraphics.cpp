@@ -46,18 +46,16 @@
 using namespace avg;
 using namespace std;
 
-#define NUM_RUNS 500
-
 template<class TEST>
-void runPerformanceTest()
+void runPerformanceTest(int numRuns=500)
 {
     TEST PerfTest;
     long long StartTime = TimeSource::get()->getCurrentMicrosecs();
-    for (int i = 0; i < NUM_RUNS; ++i) {
+    for (int i = 0; i < numRuns; ++i) {
         PerfTest.run();
     }
     double ActiveTime = (TimeSource::get()->getCurrentMicrosecs()-StartTime)/1000.; 
-    cerr << PerfTest.getName() << ": " << ActiveTime/NUM_RUNS << " ms" << endl;
+    cerr << PerfTest.getName() << ": " << ActiveTime/numRuns << " ms" << endl;
     
 }
 
@@ -126,6 +124,24 @@ private:
     BitmapPtr m_pBmp;
 };
 
+class FillRGBAPerfTest: public PerfTestBase {
+public:
+    FillRGBAPerfTest() 
+        : PerfTestBase("FillRGBAPerfTest")
+    {
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8A8));
+    }
+
+    void run()
+    {
+        FilterFill<Pixel32> Filter = FilterFill<Pixel32>(Pixel32(0,0,0,0));
+        Filter.applyInPlace(m_pBmp);
+    }
+
+private:
+    BitmapPtr m_pBmp;
+};
+
 class EqualityI8PerfTest: public PerfTestBase {
 public:
     EqualityI8PerfTest() 
@@ -153,7 +169,7 @@ public:
 
     void run()
     {
-        Bitmap CopyBmp (*m_pBmp);
+        Bitmap CopyBmp(*m_pBmp);
     }
 
 private:
@@ -170,7 +186,24 @@ public:
 
     void run()
     {
-        Bitmap CopyBmp (*m_pBmp);
+        Bitmap CopyBmp(*m_pBmp);
+    }
+
+private:
+    BitmapPtr m_pBmp;
+};
+
+class CopyRGBAPerfTest: public PerfTestBase {
+public:
+    CopyRGBAPerfTest() 
+        : PerfTestBase("CopyRGBAPerfTest")
+    {
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8A8));
+    }
+
+    void run()
+    {
+        Bitmap CopyBmp(*m_pBmp);
     }
 
 private:
@@ -205,10 +238,12 @@ void runPerformanceTests()
     runPerformanceTest<LoadPNGPerfTest>();
     runPerformanceTest<FillI8PerfTest>();
     runPerformanceTest<FillRGBPerfTest>();
+    runPerformanceTest<FillRGBAPerfTest>();
     runPerformanceTest<EqualityI8PerfTest>();
     runPerformanceTest<CopyI8PerfTest>();
     runPerformanceTest<CopyRGBPerfTest>();
-    runPerformanceTest<YUV2RGBPerfTest>();
+    runPerformanceTest<CopyRGBAPerfTest>();
+    runPerformanceTest<YUV2RGBPerfTest>(200);
 }
 
 int main(int nargs, char** args)

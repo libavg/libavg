@@ -40,6 +40,9 @@ public:
     virtual void disconnect();
     void setParam(double stdDev);
 
+    void setRadius(double stdDev);
+    double getRadius() const;
+
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
 

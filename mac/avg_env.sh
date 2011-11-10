@@ -10,7 +10,7 @@ else
     export CXXFLAGS="-O3 ${DEBUGINFOFLAG} -Wall -pipe "$CXXFLAGS
     export CFLAGS="-O3 ${DEBUGINFOFLAG} -Wall -pipe "$CFLAGS
     export LDFLAGS="-L${AVG_PATH}/lib "$LDFLAGS
-    export PKG_CONFIG_PATH=${AVG_PATH}/lib/pkgconfig
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${AVG_PATH}/lib/pkgconfig
     DARWINVER=`uname -r`
     DARWINMAJORVER=${DARWINVER%%.*}
     if [[ "${DARWINMAJORVER}" == "10" ]]

@@ -157,6 +157,10 @@ class FXTestCase(AVGTestCase):
                                 ))
 
     def testBlurFX(self):
+        
+        def setRadius(radius):
+            self.effect.radius = radius
+        
         def removeFX():
             self.node.setEffect(None)
 
@@ -165,7 +169,7 @@ class FXTestCase(AVGTestCase):
 
         def addNewFX():
             effect = avg.BlurFXNode()
-            effect.setParam(8)
+            effect.radius = 8
             self.node.setEffect(effect)
 
         root = self.loadEmptyScene()
@@ -174,7 +178,7 @@ class FXTestCase(AVGTestCase):
         self.node.setEffect(self.effect)
         self.start((
                  lambda: self.compareImage("testBlurFX1", False),
-                 lambda: self.effect.setParam(8),
+                 lambda: setRadius(8),
                  lambda: self.compareImage("testBlurFX2", False),
                  removeFX,
                  lambda: self.compareImage("testBlurFX3", False),
@@ -237,6 +241,13 @@ class FXTestCase(AVGTestCase):
         ))
 
     def testShadowFX(self):
+        
+        def setParams(offset, radius, opacity, color):
+            effect.offset = offset
+            effect.radius = radius
+            effect.opacity = opacity
+            effect.color =  color
+
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
         node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
@@ -245,15 +256,15 @@ class FXTestCase(AVGTestCase):
         node.setEffect(effect)
         self.start((
                  lambda: self.compareImage("testShadowFX1", False),
-                 lambda: effect.setParams((0,0), 3, 2, "00FFFF"),
+                 lambda: setParams((0,0), 3, 2, "00FFFF"),
                  lambda: self.compareImage("testShadowFX2", False),
-                 lambda: effect.setParams((2,2), 0.1, 1, "FFFFFF"),
+                 lambda: setParams((2,2), 0.1, 1, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX3", False),
-                 lambda: effect.setParams((-2,-2), 0.1, 1, "FFFFFF"),
+                 lambda: setParams((-2,-2), 0.1, 1, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX4", False),
-                 lambda: effect.setParams((-2,-2), 3, 1, "FFFFFF"),
+                 lambda: setParams((-2,-2), 3, 1, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX5", False),
-                 lambda: effect.setParams((0,0), 0, 1, "FFFFFF"),
+                 lambda: setParams((0,0), 0, 1, "FFFFFF"),
                  lambda: self.compareImage("testShadowFX6", False),
                 ))
 
@@ -356,21 +367,21 @@ class FXTestCase(AVGTestCase):
             node.maskpos = (10, 10)
 
         def changeFX():
-            effect.setParam(2)
+            effect.radius = 2
 
         def addVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
                     href="../video/testfiles/mpeg1-48x48.mpg")
             effect = avg.BlurFXNode()
-            effect.setParam(0)
+            effect.radius = 0
             videoNode.setEffect(effect)
             videoNode.play()
 
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24alpha-64x64.png")
         effect = avg.BlurFXNode()
-        effect.setParam(0)
+        effect.radius = 0
         node.setEffect(effect)
         Player.setFakeFPS(25)
         self.start((
@@ -432,9 +443,8 @@ def fxTestSuite(tests):
                 "testContrast",
                 "testFXUpdate",
             ]
-        return createAVGTestSuite(availableTests, FXTestCase, tests)
     else:
-        print "Skipping FX tests - no FX support with this graphics configuration."
-        return lambda x: None
+        availableTests = []
+    return createAVGTestSuite(availableTests, FXTestCase, tests)
 
 Player = avg.Player.get()

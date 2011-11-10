@@ -20,8 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 import platform
 
 from libavg import avg
@@ -33,9 +31,7 @@ class PluginTestCase(AVGTestCase):
 
     def testColorNodePlugin(self):
         def loadPlugin():
-            if platform.system() == 'Windows':
-                Player.loadPlugin("ColorNode")
-            else:
+            if platform.system() != 'Windows':
                 if os.getenv('srcdir') in ('.', None):
                     # make check or ./Test.py
                     addpth = './'
@@ -44,7 +40,7 @@ class PluginTestCase(AVGTestCase):
                     addpth = '../../_build/src/test/'
 
                 Player.pluginPath += ":"+addpth+"plugin/.libs"
-                Player.loadPlugin("libColorNode")
+            Player.loadPlugin("colorplugin")
             
         def usePlugin1():
             node = colorplugin.ColorNode(fillcolor="7f7f00", id="mynode1")

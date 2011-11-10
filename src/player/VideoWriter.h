@@ -28,7 +28,6 @@
 
 #include "../base/IFrameEndListener.h"
 #include "../base/IPlaybackEndListener.h"
-#include "../base/IPreRenderListener.h"
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -45,8 +44,7 @@ typedef boost::shared_ptr<FBO> FBOPtr;
 class GPURGB2YUVFilter;
 typedef boost::shared_ptr<GPURGB2YUVFilter> GPURGB2YUVFilterPtr;
 
-class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
-        IPlaybackEndListener  
+class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener  
 {
     public:
         VideoWriter(CanvasPtr pCanvas, const std::string& sOutFileName,
@@ -62,7 +60,6 @@ class AVG_API VideoWriter : public IFrameEndListener, IPreRenderListener,
         int getQMax() const;
 
         virtual void onFrameEnd();
-        virtual void onPreRender();
         virtual void onPlaybackEnd();
 
     private:

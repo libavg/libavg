@@ -100,8 +100,9 @@ Player & Canvas
 
         .. py:attribute:: pluginPath
 
-            A colon-separated list of directories where the player
-            searches for plugins when :py:meth:`loadPlugin()` is called.
+            A list of directories where the player searches for plugins when 
+            :py:meth:`loadPlugin()` is called. The separator between path entries is a 
+            semicolon (';') under Windows and a colon (':') under Mac and Linux.
 
         .. py:attribute:: volume
 
@@ -119,15 +120,15 @@ Player & Canvas
             .. deprecated:: 1.5
                 Use :func:`enableMultitouch()` instead. 
 
-        .. py:method:: assumePhysicalScreenDimensions(sizeInMM)
+        .. py:method:: assumePixelsPerMM(ppmm)
 
-            Tells the system to assume a size for the physical screen, overriding 
-            operating system information. The parameter is the size in millimeters as a
-            :py:class:`Point2D`. This function affects the values returned by 
+            Tells the system to assume a resolution for the physical screen, overriding 
+            operating system information. The parameter is the number of pixels per
+            millimeter as a :samp:`float`. This function affects the values returned by 
             :py:meth:`getPhysicalScreenDimensions` and :py:meth:`getPixelsPerMM`. It is
-            useful for situations in which the OS cannot know the size (e.g. projectors)
-            and when the automatic functions return wrong values (which happens,
-            unfortunately, because of operating system deficiencies).
+            useful for situations in which the OS cannot know the resolution (e.g. 
+            projectors) and when the automatic functions return wrong values (which 
+            happens, unfortunately, because of operating system deficiencies).
 
         .. py:method:: clearInterval(id) -> bool
 
@@ -139,6 +140,11 @@ Player & Canvas
             
                 An id returned by :py:meth:`setInterval`, :py:meth:`setTimeout` 
                 or :py:meth:`setOnFrameHandler`.
+
+        .. py:method:: createCanvas(*params) -> OffscreenCanvas
+
+            Creates an empty offscreen canvas. Parameters are given under 
+            :py:class:`OffscreenCanvas.`
 
         .. py:method:: createNode(xml) -> Node
 
@@ -196,14 +202,18 @@ Player & Canvas
                 Enables the internal camera-based tracker. Configuring this tracker is
                 described under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
 
+            :samp:`WIN7TOUCH`:
+                Enables handling of Windows 7 touch events. This works with all devices
+                which have Windows 7 drivers.
+
             :samp:`XINPUT21`:
                 Uses X11-based multitouch detection. This needs X11 with XInput 2.1
                 support.
 
             If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
             a plattform-specific one. Under Linux, the default is :samp:`XINPUT21` if
-            XInput 2.1 is available on the system, otherwise :samp:`LINUXMTDEV`. Other
-            plattforms will follow.
+            XInput 2.1 is available on the system, otherwise :samp:`LINUXMTDEV`. Under
+            Windows, the default is :samp:`WIN7TOUCH`.
 
             :py:meth:`enableMultitouch` throws an exception if the chosen driver is not
             available or no multitouch device could be found. (Exception: Since there is
@@ -313,12 +323,12 @@ Player & Canvas
             :py:const:`False` if not.
             May only be called after :py:meth:`play()` has been called.
 
-        .. py:method:: loadCanvasFile(filename) -> Canvas
+        .. py:method:: loadCanvasFile(filename) -> OffscreenCanvas
 
             Loads the canvas file specified in filename and adds it to the
             registered offscreen canvases.
 
-        .. py:method:: loadCanvasString(avgString) -> Canvas
+        .. py:method:: loadCanvasString(avgString) -> OffscreenCanvas
 
             Parses avgString, loads the nodes it contains and adds the hierarchy
             to the registered offscreen canvases.

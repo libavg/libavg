@@ -86,12 +86,13 @@ buildgdkpixbuf()
 buildboost()
 {
     cd boost_1_41_0
-    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread
+    ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,date_time
     ./bjam clean
     ./bjam install
     cd ..
     rm -f ../lib/libboost_thread.dylib
     rm -f ../lib/libboost_python.dylib
+    rm -f ../lib/libboost_date_time.dylib
 }
 if [[ x"${AVG_PATH}" == "x" ]]
 then
@@ -118,7 +119,6 @@ buildLib autoconf-2.63
 buildLib automake-1.11
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
-buildLib zlib-1.2.3
 buildlibpng
 buildLib libxml2-2.6.32 --disable-shared
 buildLib pkg-config-0.20

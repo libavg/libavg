@@ -263,9 +263,9 @@ DPoint Player::getPhysicalScreenDimensions()
     return safeGetDisplayEngine()->getPhysicalScreenDimensions();
 }
 
-void Player::assumePhysicalScreenDimensions(const DPoint& size)
+void Player::assumePixelsPerMM(double ppmm)
 {
-    safeGetDisplayEngine()->assumePhysicalScreenDimensions(size);
+    safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
 
 CanvasPtr Player::loadFile(const string& sFilename)
@@ -314,6 +314,25 @@ OffscreenCanvasPtr Player::loadCanvasString(const string& sAVG)
 {
     NodePtr pNode = loadMainNodeFromString(sAVG);
     return registerOffscreenCanvas(pNode);
+}
+
+CanvasPtr Player::createMainCanvas(const boost::python::dict& params)
+{
+    errorIfPlaying("Player.createMainCanvas");
+    if (m_pMainCanvas) {
+        cleanup();
+    }
+
+    NodePtr pNode = createNode("avg", params);
+
+    m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher(this));
+    m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
+    m_pMainCanvas->setRoot(pNode);
+    m_DP.m_Size = m_pMainCanvas->getSize();
+
+    registerFrameEndListener(BitmapManager::get());
+
+    return m_pMainCanvas;
 }
 
 OffscreenCanvasPtr Player::createCanvas(const boost::python::dict& params)
@@ -1162,6 +1181,9 @@ void Player::initAudio()
 
 void Player::updateDTD()
 {
+    if (m_dtd) {
+        xmlFreeDtd(m_dtd);
+    }
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
     string sDTDFName = "avg.dtd";
@@ -1662,9 +1684,9 @@ string Player::getPluginPath() const
     return  PluginManager::get().getSearchPath();
 }
 
-void Player::loadPlugin(const std::string& name)
+boost::python::object Player::loadPlugin(const std::string& name)
 {
-    PluginManager::get().loadPlugin(name);
+    return PluginManager::get().loadPlugin(name);
 }
 
 void Player::setEventHook(PyObject * pyfunc)

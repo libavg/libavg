@@ -21,8 +21,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-import sys, os
-import time
+import sys
 import optparse
 from libavg import avg, AVGApp
 

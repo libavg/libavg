@@ -60,7 +60,7 @@ void ChromaKeyFXNode::setColor(const std::string& sColorName)
 {
     m_sColorName = sColorName;
     m_Color = colorStringToColor(m_sColorName);
-    setFilterParams();
+    updateFilter();
 }
 
 const std::string& ChromaKeyFXNode::getColor() const
@@ -71,7 +71,7 @@ const std::string& ChromaKeyFXNode::getColor() const
 void ChromaKeyFXNode::setHTolerance(double tolerance)
 {
     m_HTolerance = tolerance;
-    setFilterParams();
+    updateFilter();
 }
 
 double ChromaKeyFXNode::getHTolerance() const
@@ -82,7 +82,7 @@ double ChromaKeyFXNode::getHTolerance() const
 void ChromaKeyFXNode::setSTolerance(double tolerance)
 {
     m_STolerance = tolerance;
-    setFilterParams();
+    updateFilter();
 }
 
 double ChromaKeyFXNode::getSTolerance() const
@@ -93,7 +93,7 @@ double ChromaKeyFXNode::getSTolerance() const
 void ChromaKeyFXNode::setLTolerance(double tolerance)
 {
     m_LTolerance = tolerance;
-    setFilterParams();
+    updateFilter();
 }
 
 double ChromaKeyFXNode::getLTolerance() const
@@ -104,7 +104,7 @@ double ChromaKeyFXNode::getLTolerance() const
 void ChromaKeyFXNode::setSoftness(double softness)
 {
     m_Softness = softness;
-    setFilterParams();
+    updateFilter();
 }
 
 double ChromaKeyFXNode::getSoftness() const
@@ -115,7 +115,7 @@ double ChromaKeyFXNode::getSoftness() const
 void ChromaKeyFXNode::setErosion(int erosion)
 {
     m_Erosion = erosion;
-    setFilterParams();
+    updateFilter();
 }
 
 int ChromaKeyFXNode::getErosion() const
@@ -126,7 +126,7 @@ int ChromaKeyFXNode::getErosion() const
 void ChromaKeyFXNode::setSpillThreshold(double spillThreshold)
 {
     m_SpillThreshold = spillThreshold;
-    setFilterParams();
+    updateFilter();
 }
 
 double ChromaKeyFXNode::getSpillThreshold() const
@@ -143,13 +143,13 @@ GPUFilterPtr ChromaKeyFXNode::createFilter(const IntPoint& size)
     return m_pFilter;
 }
 
-void ChromaKeyFXNode::setFilterParams()
+void ChromaKeyFXNode::updateFilter()
 {
     if (m_pFilter) {
         m_pFilter->setParams(m_Color, m_HTolerance, m_STolerance, m_LTolerance, 
                 m_Softness, m_Erosion, m_SpillThreshold);
+        setDirty();
     }
-    setDirty();
 }
 
 }

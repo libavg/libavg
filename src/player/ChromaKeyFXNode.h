@@ -38,7 +38,7 @@ public:
 
     virtual void disconnect();
 
-    void setColor(const std::string& color);
+    void setColor(const std::string& sColorName);
     const std::string& getColor() const;
     void setHTolerance(double tolerance);
     double getHTolerance() const;
@@ -55,7 +55,7 @@ public:
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
-    void setFilterParams();
+    void updateFilter();
 
     GPUChromaKeyFilterPtr m_pFilter;
 

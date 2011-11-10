@@ -24,6 +24,7 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <cstring>
@@ -37,6 +38,7 @@ PBO::PBO(const IntPoint& size, PixelFormat pf, unsigned usage)
     : TextureMover(size, pf),
       m_Usage(usage)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_PBOID = GLContext::getCurrent()->getPBOCache().getBuffer();
     
     unsigned target = getTarget();
@@ -58,6 +60,7 @@ PBO::~PBO()
     }
     glproc::BindBuffer(getTarget(), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: DeleteBuffers()");
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void PBO::activate()

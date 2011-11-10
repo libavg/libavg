@@ -20,8 +20,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 import platform
 
 from libavg import avg
@@ -149,7 +147,7 @@ class WordsTestCase(AVGTestCase):
             try:
                 node.maskhref = "mask1.png"
             except RuntimeError:
-                print "Skipping testWordsMask - no shader support."
+                self.skip("no shader support")
                 Player.stop()
            
         def setColor():
@@ -215,7 +213,7 @@ class WordsTestCase(AVGTestCase):
             self.assertEqual(posHint, noHint.getGlyphPos(6))
 
         if platform.system() == "Linux":
-            print "Skipping testHinting - Linux support requires modified font config."
+            self.skip("Linux support requires modified font config")
         else:
             root = self.loadEmptyScene()
             avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",

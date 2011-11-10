@@ -85,6 +85,7 @@ void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
     for(int m=0, v=nv-1; nv>2; )
     {
         if (count <= 0) {
+            delete V;
             throw Exception(AVG_ERR_INVALID_ARGS, 
                     "Non-simple polygon: Self-intersecting polygons or degenerate polygons are not supported.");
         }

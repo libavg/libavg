@@ -669,8 +669,8 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(ppmm > 0 and ppmm < 10000)
         mm = Player.getPhysicalScreenDimensions()
         self.assert_(mm.x > 0 and mm.y > 0 and mm.x < 10000 and mm.y < 10000)
-#        print res, ppmm, mm
-        Player.assumePhysicalScreenDimensions(mm)
+        print res, ppmm, mm
+        Player.assumePixelsPerMM(ppmm)
         newPPMM = Player.getPixelsPerMM()
         newMM = Player.getPhysicalScreenDimensions()
         self.assertAlmostEqual(newPPMM, ppmm)

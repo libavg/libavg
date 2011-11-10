@@ -27,13 +27,18 @@
 
 namespace avg {
 
-BitmapManagerMsg::BitmapManagerMsg() : m_MsgType(NONE)
+BitmapManagerMsg::BitmapManagerMsg() 
+    : m_MsgType(NONE),
+      m_pEx(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 BitmapManagerMsg::~BitmapManagerMsg()
 {
+    if (m_pEx) {
+        delete m_pEx;
+    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
