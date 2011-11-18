@@ -86,6 +86,7 @@ class AVG_API CameraInfo
         std::string getDeviceID();
         CameraImageFormatsVector getImageFormats();
         CameraControlsVector getControls();
+        void checkAddBayer8();
 
     private:
         std::string m_sDriver;

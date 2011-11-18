@@ -129,4 +129,31 @@ CameraControlsVector CameraInfo::getControls()
     return m_Controls;
 }
 
+void CameraInfo::checkAddBayer8()
+{
+    CameraImageFormatsVector::iterator it = m_Formats.begin();
+    CameraImageFormatsVector i8ImageFormats;
+    bool hasColor = false;
+    for (; it!=m_Formats.end(); it++) {
+        PixelFormat pf = (*it).getPixelFormat();
+        if (pf == I8) {
+            i8ImageFormats.push_back(*it);
+        }
+        if (hasColor == false) {
+            hasColor = pixelFormatIsColored(pf);
+        }
+    }
+    if (hasColor) {
+        it = i8ImageFormats.begin();
+        for (; it!=i8ImageFormats.end(); it++) {
+                PixelFormat format = BAYER8;
+                IntPoint size = (*it).getSize();
+                FrameratesVector framerates = (*it).getFramerates();
+                CameraImageFormat bayerImageFormat = CameraImageFormat(size, format,
+                        framerates);
+                m_Formats.push_back(bayerImageFormat);
+        }
+    }
+}
+
 }

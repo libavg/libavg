@@ -235,7 +235,8 @@ dc1394feature_t getFeatureID(CameraFeature feature)
     }
 }
 
-IntPoint videoModeToIntPoint(dc1394video_mode_t mode){
+IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
+{
     IntPoint point = IntPoint();
     point.x = -1;
     point.y = -1;

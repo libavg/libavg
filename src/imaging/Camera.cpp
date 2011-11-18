@@ -238,6 +238,7 @@ std::vector<CameraInfo> getCamerasInfos()
     for (int i = 0; i < amountFWCameras; i++){
         CameraInfo* camInfo = FWCamera::getCameraInfos(i);
         if(camInfo != NULL){
+            camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
     }
@@ -247,6 +248,7 @@ std::vector<CameraInfo> getCamerasInfos()
     for (int i = 0; i < amountCMUCameras; i++){
         CameraInfo* camInfo = CMUCamera::getCameraInfos(i);
         if(camInfo != NULL){
+            camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
     }
@@ -256,6 +258,7 @@ std::vector<CameraInfo> getCamerasInfos()
     for (int i = 0; i < amountDSCameras; i++){
         CameraInfo* camInfo = DSCamera::getCameraInfos(i);
         if(camInfo != NULL){
+            camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
     }
@@ -265,6 +268,7 @@ std::vector<CameraInfo> getCamerasInfos()
     for (int i = 0; i < amountV4LCameras; i++){
         CameraInfo* camInfo = V4LCamera::getCameraInfos(i);
         if(camInfo != NULL){
+            camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
     }

@@ -508,7 +508,8 @@ void FWCamera::enablePtGreyBayer()
 #endif
 }
 
-int FWCamera::countCameras(){
+int FWCamera::countCameras()
+{
 #ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
     if (pDC1394 == 0) {
@@ -524,7 +525,8 @@ int FWCamera::countCameras(){
     return 0;
 }
 
-CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
+CameraInfo* FWCamera::getCameraInfos(int deviceNumber)
+{
 #ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
     if (pDC1394 == 0) {
@@ -560,7 +562,8 @@ CameraInfo* FWCamera::getCameraInfos(int deviceNumber){
 }
 
 #ifdef AVG_ENABLE_1394_2
-void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInfo){
+void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInfo)
+{
     dc1394video_modes_t videoModes;
     dc1394framerates_t framerates;
     dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &videoModes);
@@ -574,7 +577,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
         if (videoModes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
                 && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
             PixelFormat pixFormat = videoModeToPF(videoModes.modes[i]);
-            IntPoint size = videoModeToIntPoint(videoModes.modes[i]);
+            IntPoint size = getFrameSizeFromVideoMode(videoModes.modes[i]);
             FrameratesVector framerateList;
             err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],
                     &framerates);
@@ -594,7 +597,8 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
     }
 }
 
-void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
+void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo)
+{
     dc1394featureset_t featureSet;
     int err = dc1394_feature_get_all(pCamera, &featureSet);
     if(err != DC1394_SUCCESS){
@@ -632,7 +636,7 @@ void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo){
                 actValue = currentTemp;
                 break;
             }
-//TODO: If necessasy, think about a way to get this information into CameraInfo
+        //TODO: Think about a way to get this information into CameraInfo
             case DC1394_FEATURE_WHITE_BALANCE:{
                 uint32_t ubValue = -1;
                 uint32_t vrValue = -1;
