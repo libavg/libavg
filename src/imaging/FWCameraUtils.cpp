@@ -300,7 +300,8 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
     }
 }
 
-PixelFormat videoModeToPF(dc1394video_mode_t mode){
+PixelFormat getPFFromVideoMode(dc1394video_mode_t mode)
+{
     switch (mode) {
         case DC1394_VIDEO_MODE_640x480_YUV411:
             return YCbCr411;

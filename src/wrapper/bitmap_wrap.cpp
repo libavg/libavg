@@ -134,7 +134,7 @@ void export_bitmap()
         .value("I32F", I32F)
         .export_values();
 
-    def("getPixelFormatsStringVector", &getPixelFormatsStringVector);
+    def("getSupportedPixelFormats", &getSupportedPixelFormats);
 
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 

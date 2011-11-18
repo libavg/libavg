@@ -25,7 +25,7 @@ import optparse
 from libavg import avg
 
 validPixFmt = list();
-for formatItem in avg.getPixelFormatsStringVector():
+for formatItem in avg.getSupportedPixelFormats():
     validPixFmt.append(formatItem);
 validDrivers = ('firewire', 'video4linux', 'directshow')
 

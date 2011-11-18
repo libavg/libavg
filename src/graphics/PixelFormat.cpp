@@ -192,7 +192,7 @@ PixelFormat stringToPixelFormat(const string& s)
     return NO_PIXELFORMAT;
 }
 
-std::vector<std::string> getPixelFormatsStringVector()
+std::vector<std::string> getSupportedPixelFormats()
 {
     std::vector<std::string> pixelFormatsVector;
     int itPixelFormat = 0;
