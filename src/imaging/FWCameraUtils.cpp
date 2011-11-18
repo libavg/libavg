@@ -241,12 +241,12 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
     point.x = -1;
     point.y = -1;
     switch (mode) {
-        case DC1394_VIDEO_MODE_160x120_YUV444:{
+        case DC1394_VIDEO_MODE_160x120_YUV444: {
             point.x = 160;
             point.y = 120;
             return point;
         }
-        case DC1394_VIDEO_MODE_320x240_YUV422:{
+        case DC1394_VIDEO_MODE_320x240_YUV422: {
             point.x = 320;
             point.y = 240;
             return point;
@@ -255,7 +255,7 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
         case DC1394_VIDEO_MODE_640x480_YUV422:
         case DC1394_VIDEO_MODE_640x480_RGB8:
         case DC1394_VIDEO_MODE_640x480_MONO8:
-        case DC1394_VIDEO_MODE_640x480_MONO16:{
+        case DC1394_VIDEO_MODE_640x480_MONO16: {
             point.x = 640;
             point.y = 480;
             return point;
@@ -263,7 +263,7 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
         case DC1394_VIDEO_MODE_800x600_YUV422:
         case DC1394_VIDEO_MODE_800x600_RGB8:
         case DC1394_VIDEO_MODE_800x600_MONO8:
-        case DC1394_VIDEO_MODE_800x600_MONO16:{
+        case DC1394_VIDEO_MODE_800x600_MONO16: {
             point.x = 800;
             point.y = 600;
             return point;
@@ -271,7 +271,7 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
         case DC1394_VIDEO_MODE_1024x768_YUV422:
         case DC1394_VIDEO_MODE_1024x768_RGB8:
         case DC1394_VIDEO_MODE_1024x768_MONO8:
-        case DC1394_VIDEO_MODE_1024x768_MONO16:{
+        case DC1394_VIDEO_MODE_1024x768_MONO16: {
             point.x = 1024;
             point.y = 768;
             return point;
@@ -281,7 +281,7 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
         case DC1394_VIDEO_MODE_1280x960_YUV422:
         case DC1394_VIDEO_MODE_1280x960_RGB8:
         case DC1394_VIDEO_MODE_1280x960_MONO8:
-        case DC1394_VIDEO_MODE_1280x960_MONO16:{
+        case DC1394_VIDEO_MODE_1280x960_MONO16: {
             point.x = 1280;
             point.y = 960;
             return point;
@@ -289,7 +289,7 @@ IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
         case DC1394_VIDEO_MODE_1600x1200_YUV422:
         case DC1394_VIDEO_MODE_1600x1200_RGB8:
         case DC1394_VIDEO_MODE_1600x1200_MONO8:
-        case DC1394_VIDEO_MODE_1600x1200_MONO16:{
+        case DC1394_VIDEO_MODE_1600x1200_MONO16: {
             point.x = 1600;
             point.y = 1200;
             return point;

@@ -567,12 +567,11 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
     dc1394video_modes_t videoModes;
     dc1394framerates_t framerates;
     dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &videoModes);
-    if(err != DC1394_SUCCESS){
+    if (err != DC1394_SUCCESS) {
         AVG_ASSERT(false);
         return;
     }
-    for (int i = 0; i < (videoModes.num); i++)
-    {
+    for (int i = 0; i < (videoModes.num); i++) {
         //Covers only libavg supported formats, other capabilities are ignored
         if (videoModes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
                 && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
@@ -581,7 +580,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
             FrameratesVector framerateList;
             err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],
                     &framerates);
-            if(err != DC1394_SUCCESS){
+            if (err != DC1394_SUCCESS) {
                 AVG_TRACE(Logger::WARNING, "Camera: No framerates. Error was: " << err);
             } else {
                 int numFramerates = (int) framerates.num;
@@ -601,17 +600,17 @@ void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo)
 {
     dc1394featureset_t featureSet;
     int err = dc1394_feature_get_all(pCamera, &featureSet);
-    if(err != DC1394_SUCCESS){
+    if (err != DC1394_SUCCESS) {
         AVG_ASSERT(false);
         return;
     }
 
-    for (int i = DC1394_FEATURE_MIN; i <= DC1394_FEATURE_MAX; i++){
+    for (int i = DC1394_FEATURE_MIN; i <= DC1394_FEATURE_MAX; i++) {
         dc1394feature_info_t featureInfo = featureSet.feature[i - DC1394_FEATURE_MIN];
 
         dc1394bool_t bool_t;
         dc1394_feature_is_present(pCamera,featureInfo.id, &bool_t);
-        if(bool_t != DC1394_TRUE){
+        if (bool_t != DC1394_TRUE) {
             continue;
         }
 
@@ -621,43 +620,43 @@ void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo)
 
         //TODO: 428 (TRIGGER) doesnt have min max
         err = dc1394_feature_get_boundaries(pCamera, featureInfo.id, &min, &max);
-        if(err != DC1394_SUCCESS){
+        if (err != DC1394_SUCCESS) {
             continue;
         }
 
-        switch(featureInfo.id){
-            case DC1394_FEATURE_TEMPERATURE:{
+        switch(featureInfo.id) {
+            case DC1394_FEATURE_TEMPERATURE: {
                 uint32_t targetTemp = -1;
                 uint32_t currentTemp = -1;
                 err = dc1394_feature_temperature_get_value(pCamera,&targetTemp,&currentTemp);
-                if(err != DC1394_SUCCESS){
+                if (err != DC1394_SUCCESS) {
                     continue;
                 }
                 actValue = currentTemp;
                 break;
             }
         //TODO: Think about a way to get this information into CameraInfo
-            case DC1394_FEATURE_WHITE_BALANCE:{
+            case DC1394_FEATURE_WHITE_BALANCE: {
                 uint32_t ubValue = -1;
                 uint32_t vrValue = -1;
                 err = dc1394_feature_whitebalance_get_value(pCamera,&ubValue,&vrValue);
-                if(err != DC1394_SUCCESS){
+                if (err != DC1394_SUCCESS) {
                     continue;
                 }
                 //actValue = ubValue; //vrValue;
                 //cout <<"UBlue Value: " << ubValue << " VRed Value: " << vrValue << endl;
                 break;
             }
-            default:{
+            default: {
                 err = dc1394_feature_get_value(pCamera,featureInfo.id, &actValue);
-                if(err != DC1394_SUCCESS){
+                if (err != DC1394_SUCCESS) {
                     continue;
                 }
                 break;
             }
         }
         CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
-        if(enumFeature == CAM_FEATURE_UNSUPPORTED){
+        if (enumFeature == CAM_FEATURE_UNSUPPORTED) {
             continue;
         }
         std::string controlName = cameraFeatureToString(enumFeature);

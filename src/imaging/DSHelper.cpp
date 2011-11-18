@@ -268,7 +268,7 @@ long getDSFeatureID(CameraFeature feature)
 
 CameraFeature getCameraFeatureID_VPAP(long videoProcAmpProperty)
 {
-    switch(videoProcAmpProperty){
+    switch(videoProcAmpProperty) {
         case VideoProcAmp_Brightness:
             return CAM_FEATURE_BRIGHTNESS;
         case VideoProcAmp_Sharpness:
@@ -289,7 +289,7 @@ CameraFeature getCameraFeatureID_VPAP(long videoProcAmpProperty)
 }
 CameraFeature getCameraFeatureID_CCP(long cameraControlProperty)
 {
-    switch(cameraControlProperty){
+    switch(cameraControlProperty) {
         case CameraControl_Exposure:
             return CAM_FEATURE_EXPOSURE;
         case CameraControl_Iris:

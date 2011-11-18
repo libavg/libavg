@@ -413,7 +413,7 @@ PixelFormat V4LCamera::intToPixelFormat(unsigned int pixelformat)
 int V4LCamera::countCameras()
 {
     int numberOfCameras = 0;
-    for(int j = 0; j < 256; j++){
+    for (int j = 0; j < 256; j++) {
         int fd = checkCamera(j);
         if (fd != -1) {
             numberOfCameras++;
@@ -425,7 +425,7 @@ int V4LCamera::countCameras()
 CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
 {
     int fd = checkCamera(deviceNumber);
-    if (fd == -1){
+    if (fd == -1) {
         AVG_ASSERT(false);
         return NULL;
     }

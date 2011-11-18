@@ -248,118 +248,118 @@ void getImageSizeAndPF(unsigned long videoFormat, unsigned long videoMode,
 {
     int format = (int) videoFormat;
     int mode = (int) videoMode;
-    switch(format){
-        case FORMAT_0:{
-            if(mode == MODE_160_120_YUV444){
+    switch(format) {
+        case FORMAT_0: {
+            if (mode == MODE_160_120_YUV444) {
                 pSize = IntPoint(160,120);
                 pPixelFormat = PixelFormat(NO_PIXELFORMAT); //Not supported by libavg
                 return;
-            } else if( mode == MODE_320x240_YUV422){
+            } else if (mode == MODE_320x240_YUV422) {
                 pSize = IntPoint(320,240);
-                pPixelFormat =  PixelFormat(YCbCr422);
+                pPixelFormat = PixelFormat(YCbCr422);
                 return;
-            } else if( mode == MODE_640x480_YUV411){
-                pSize =  IntPoint(640,480);
-                pPixelFormat =  PixelFormat(YCbCr411);
+            } else if (mode == MODE_640x480_YUV411) {
+                pSize = IntPoint(640,480);
+                pPixelFormat = PixelFormat(YCbCr411);
                 return;
-            } else if( mode == MODE_640x480_YUV422){
-                pSize =  IntPoint(640,480);
-                pPixelFormat =  PixelFormat(YCbCr422);
+            } else if (mode == MODE_640x480_YUV422) {
+                pSize = IntPoint(640,480);
+                pPixelFormat = PixelFormat(YCbCr422);
                 return;
-            } else if( mode == MODE_640x480_RGB){
-                pSize =  IntPoint(640,480);
-                pPixelFormat =  PixelFormat(R8G8B8);
+            } else if (mode == MODE_640x480_RGB) {
+                pSize = IntPoint(640,480);
+                pPixelFormat = PixelFormat(R8G8B8);
                 return;
-            } else if( mode == MODE_640x480_MONO){
-                pSize =  IntPoint(640,480);
-                pPixelFormat =  PixelFormat(I8);
+            } else if (mode == MODE_640x480_MONO) {
+                pSize = IntPoint(640,480);
+                pPixelFormat = PixelFormat(I8);
                 return;
-            } else if( mode == MODE_640x480_MONO16){
-                pSize =  IntPoint(640,480);
-                pPixelFormat =  PixelFormat(I16);
-                return;
-            } else {
-                AVG_ASSERT(false);
-                return;
-            }
-            break;
-        } case FORMAT_1:{
-            if(mode == MODE_800x600_YUV422){
-                pSize =  IntPoint(800,600);
-                pPixelFormat =  PixelFormat(YCbCr422);
-                return;
-            } else if( mode == MODE_800x600_RGB){
-                pSize =  IntPoint(800,600);
-                pPixelFormat =  PixelFormat(R8G8B8);
-                return;
-            } else if( mode == MODE_800x600_MONO){
-                pSize =  IntPoint(800,600);
-                pPixelFormat =  PixelFormat(I8);
-                return;
-            } else if( mode == MODE_1024x768_YUV422){
-                pSize =  IntPoint(1024,768);
-                pPixelFormat =  PixelFormat(YCbCr422);
-                return;
-            } else if( mode == MODE_1024x768_RGB){
-                pSize =  IntPoint(1024,768);
-                pPixelFormat =  PixelFormat(R8G8B8);
-                return;
-            } else if( mode == MODE_1024x768_MONO){
-                pSize =  IntPoint(1024,768);
-                pPixelFormat =  PixelFormat(I8);
-                return;
-            } else if( mode == MODE_800x600_MONO16){
-                pSize =  IntPoint(800,600);
-                pPixelFormat =  PixelFormat(I16);
-                return;
-            } else if( mode == MODE_1024x768_MONO16){
-                pSize =  IntPoint(1024,768);
-                pPixelFormat =  PixelFormat(I16);
+            } else if (mode == MODE_640x480_MONO16) {
+                pSize = IntPoint(640,480);
+                pPixelFormat = PixelFormat(I16);
                 return;
             } else {
                 AVG_ASSERT(false);
                 return;
             }
             break;
-        } case FORMAT_2:{
-            if(mode == MODE_1280x960_YUV422){
-                pSize =  IntPoint(1280,960);
-                pPixelFormat =  PixelFormat(YCbCr422);
+        } case FORMAT_1: {
+            if (mode == MODE_800x600_YUV422) {
+                pSize = IntPoint(800,600);
+                pPixelFormat = PixelFormat(YCbCr422);
                 return;
-            } else if( mode == MODE_1280x960_RGB){
-                pSize =  IntPoint(1280,960);
-                pPixelFormat =  PixelFormat(R8G8B8);
+            } else if (mode == MODE_800x600_RGB) {
+                pSize = IntPoint(800,600);
+                pPixelFormat = PixelFormat(R8G8B8);
                 return;
-            } else if( mode == MODE_1280x960_MONO){
-                pSize =  IntPoint(1280,960);
-                pPixelFormat =  PixelFormat(I8);
+            } else if (mode == MODE_800x600_MONO) {
+                pSize = IntPoint(800,600);
+                pPixelFormat = PixelFormat(I8);
                 return;
-            } else if( mode == MODE_1600x1200_YUV422){
-                pSize =  IntPoint(1600,1200);
-                pPixelFormat =  PixelFormat(YCbCr422);
+            } else if (mode == MODE_1024x768_YUV422) {
+                pSize = IntPoint(1024,768);
+                pPixelFormat = PixelFormat(YCbCr422);
                 return;
-            } else if( mode == MODE_1600x1200_RGB){
-                pSize =  IntPoint(1600,1200);
-                pPixelFormat =  PixelFormat(R8G8B8);
+            } else if (mode == MODE_1024x768_RGB) {
+                pSize = IntPoint(1024,768);
+                pPixelFormat = PixelFormat(R8G8B8);
                 return;
-            } else if( mode == MODE_1600x1200_MONO){
-                pSize =  IntPoint(1600,1200);
-                pPixelFormat =  PixelFormat(I8);
+            } else if (mode == MODE_1024x768_MONO) {
+                pSize = IntPoint(1024,768);
+                pPixelFormat = PixelFormat(I8);
                 return;
-            } else if( mode == MODE_1280x960_MONO16){
-                pSize =  IntPoint(1280,960);
-                pPixelFormat =  PixelFormat(I16);
+            } else if (mode == MODE_800x600_MONO16) {
+                pSize = IntPoint(800,600);
+                pPixelFormat = PixelFormat(I16);
                 return;
-            } else if( mode == MODE_1600x1200_MONO16){
-                pSize =  IntPoint(1600,1200);
-                pPixelFormat =  PixelFormat(I16);
+            } else if (mode == MODE_1024x768_MONO16) {
+                pSize = IntPoint(1024,768);
+                pPixelFormat = PixelFormat(I16);
                 return;
             } else {
                 AVG_ASSERT(false);
                 return;
             }
             break;
-        } default:{
+        } case FORMAT_2: {
+            if (mode == MODE_1280x960_YUV422) {
+                pSize = IntPoint(1280,960);
+                pPixelFormat = PixelFormat(YCbCr422);
+                return;
+            } else if (mode == MODE_1280x960_RGB) {
+                pSize = IntPoint(1280,960);
+                pPixelFormat = PixelFormat(R8G8B8);
+                return;
+            } else if (mode == MODE_1280x960_MONO) {
+                pSize = IntPoint(1280,960);
+                pPixelFormat = PixelFormat(I8);
+                return;
+            } else if (mode == MODE_1600x1200_YUV422) {
+                pSize = IntPoint(1600,1200);
+                pPixelFormat = PixelFormat(YCbCr422);
+                return;
+            } else if (mode == MODE_1600x1200_RGB) {
+                pSize = IntPoint(1600,1200);
+                pPixelFormat = PixelFormat(R8G8B8);
+                return;
+            } else if (mode == MODE_1600x1200_MONO) {
+                pSize = IntPoint(1600,1200);
+                pPixelFormat = PixelFormat(I8);
+                return;
+            } else if (mode == MODE_1280x960_MONO16) {
+                pSize = IntPoint(1280,960);
+                pPixelFormat = PixelFormat(I16);
+                return;
+            } else if (mode == MODE_1600x1200_MONO16) {
+                pSize = IntPoint(1600,1200);
+                pPixelFormat = PixelFormat(I16);
+                return;
+            } else {
+                AVG_ASSERT(false);
+                return;
+            }
+            break;
+        } default: {
             AVG_ASSERT(false);
             return;
         }

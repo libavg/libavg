@@ -235,9 +235,9 @@ std::vector<CameraInfo> getCamerasInfos()
     
 #ifdef AVG_ENABLE_1394_2
     int amountFWCameras = FWCamera::countCameras();
-    for (int i = 0; i < amountFWCameras; i++){
+    for (int i = 0; i < amountFWCameras; i++) {
         CameraInfo* camInfo = FWCamera::getCameraInfos(i);
-        if(camInfo != NULL){
+        if (camInfo != NULL) {
             camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
@@ -245,9 +245,9 @@ std::vector<CameraInfo> getCamerasInfos()
 #endif
 #ifdef AVG_ENABLE_CMU1394
     int amountCMUCameras = CMUCamera::countCameras();
-    for (int i = 0; i < amountCMUCameras; i++){
+    for (int i = 0; i < amountCMUCameras; i++) {
         CameraInfo* camInfo = CMUCamera::getCameraInfos(i);
-        if(camInfo != NULL){
+        if (camInfo != NULL) {
             camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
@@ -255,9 +255,9 @@ std::vector<CameraInfo> getCamerasInfos()
 #endif
 #ifdef AVG_ENABLE_DSHOW
     int amountDSCameras = DSCamera::countCameras();
-    for (int i = 0; i < amountDSCameras; i++){
+    for (int i = 0; i < amountDSCameras; i++) {
         CameraInfo* camInfo = DSCamera::getCameraInfos(i);
-        if(camInfo != NULL){
+        if (camInfo != NULL) {
             camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
@@ -265,9 +265,9 @@ std::vector<CameraInfo> getCamerasInfos()
 #endif
 #ifdef AVG_ENABLE_V4L2
     int amountV4LCameras = V4LCamera::countCameras();
-    for (int i = 0; i < amountV4LCameras; i++){
+    for (int i = 0; i < amountV4LCameras; i++) {
         CameraInfo* camInfo = V4LCamera::getCameraInfos(i);
-        if(camInfo != NULL){
+        if (camInfo != NULL) {
             camInfo->checkAddBayer8();
             camerasInfo.push_back(*camInfo);
         }
