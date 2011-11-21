@@ -166,9 +166,10 @@ Area Nodes
 
         A CameraInfo is a container for specific informations about a plugged-in camera.
         It contains all necessary informations about a installed camera, which are mainly
-        used to create a :py:class:`CameraNode`. The unique value to identify the camera is stored in
-        the deviceID, whereas driver tells which driver is used to call the camera
-        itself. Informations about supported camera controls or image formats are stored
+        used to create a :py:class:`CameraNode`. The unique value to identify the camera
+        is stored in :py:attr:`device`, whereas :py:attr:`driver` tells which driver is
+        used to call the camera itself. Informations about supported camera
+        :py:attr:`controls` or :py:attr:`imageFormats` are stored
         in two separated lists.
 
         .. py:attribute:: driver
@@ -192,8 +193,9 @@ Area Nodes
     .. autoclass:: CameraImageFormat
 
         A CameraImageFormat is a container which features informations about a supported
-        image format of a camera. It stores the size of the resolution, a pixel format
-        (see :py:class:`Bitmap`) and a list of supported frame rates for that format.
+        image format of a camera. It stores the :py:attr:`size` of the resolution, a
+        :py:attr:`pixelFormat` and a list of supported :py:attr:`framerates` for that
+        format.
 
         .. py:attribute:: size
 
@@ -211,8 +213,8 @@ Area Nodes
 
         A CameraControl is a container which features informations about a supported
         control for a camera (e.g. brightness, white balance, etc.). It stores
-        informations about the name of the control (what is controled) and a range with
-        possible values and their related default.
+        informations about the :py:attr:`name` of the control (what is controled) and
+        a :py:attr:`range with possible values` and their related :py:attr:`default`.
 
         .. py:attribute:: controlName
 
