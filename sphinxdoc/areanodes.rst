@@ -150,9 +150,10 @@ Area Nodes
 
             Stops camera playback.
 
-        .. py:classmethod:: dumpCameras()
+        .. py:classmethod:: getCamerasInfos()
 
-            Dumps a list of available cameras to the console.
+            Returns a list of :py:class:`CameraInfo`'s for each plugged-in
+            camera.
 
         .. py:classmethod:: resetFirewireBus()
 
@@ -160,6 +161,75 @@ Area Nodes
             if a program using a firewire device has crashed leaving resources
             allocated. Note that all firewire devices (including for instance
             external hard drives) are affected.
+
+    .. autoclass:: CameraInfo
+
+        A CameraInfo is a container for specific informations about a plugged-in camera.
+        It contains all necessary informations about a installed camera, which are mainly
+        used to create a :py:class:`CameraNode`. The unique value to identify the camera is stored in
+        the deviceID, whereas driver tells which driver is used to call the camera
+        itself. Informations about supported camera controls or image formats are stored
+        in two separated lists.
+
+        .. py:attribute:: driver
+
+            String which contains the name of the driver
+
+        .. py:attribute:: device
+
+            String which contains the unique id of the camera
+
+        .. py:attribute:: imageFormats
+
+            Returns a list of :py:class:`CameraImageFormat`'s with all possible image
+            formats for that camera
+
+        .. py:attribute:: controls
+
+            Returns a list of :py:class:`CameraControl`'s with all possible controls for
+            that camera
+
+    .. autoclass:: CameraImageFormat
+
+        A CameraImageFormat is a container which features informations about a supported
+        image format of a camera. It stores the size of the resolution, a pixel format
+        (see :py:class:`Bitmap`) and a list of supported frame rates for that format.
+
+        .. py:attribute:: size
+
+            A point which represents the resolution in width and height
+
+        .. py:attribute:: pixelFormat
+
+            String which tells about the pixel format (see :py:class:`Bitmap`)
+
+        .. py:attribute:: framerates
+
+            List of supported frame rates for that image format as floats
+
+    .. autoclass:: CameraControl
+
+        A CameraControl is a container which features informations about a supported
+        control for a camera (e.g. brightness, white balance, etc.). It stores
+        informations about the name of the control (what is controled) and a range with
+        possible values and their related default.
+
+        .. py:attribute:: controlName
+
+            String which tells what control is meant
+
+        .. py:attribute:: min
+
+            The minimum value for that control
+
+        .. py:attribute:: max
+
+            The maximum value for that control
+
+        .. py:attribute:: default
+
+            The default value for that control
+
 
     .. autoclass:: CanvasNode
 

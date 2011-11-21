@@ -18,8 +18,10 @@ Misc. Classes
         Components are named in the order they appear in memory. In the cases where
         the name doesn't follow this logic, reasons for the name are historical or
         by convention or something, and anyway, most pixel formats are only used 
-        internally and users usually won't come into contact with them. The pixel formats
-        are:
+        internally and users usually won't come into contact with them.
+        You can receive a complete list of all supported pixel formats by calling
+        :py:func:`avg.getSupportedPixelFormats()`.
+        The pixel formats are:
 
             * :py:const:`B5G6R5`: 16 bits per pixel blue, green, red components.
             * :py:const:`B8G8R8`: 24 bits per pixel blue, green, red components.
