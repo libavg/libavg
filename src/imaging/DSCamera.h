@@ -69,7 +69,8 @@ public:
 
     virtual void onSample(IMediaSample * pSample);
 
-    static void dumpCameras();
+    static int countCameras();
+    static CameraInfo* getCameraInfos(int deviceNumber);
 
 private:
     virtual void open();
@@ -81,6 +82,8 @@ private:
     void connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest);
     void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION pinDir, IPin **ppPin);
     static void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
+    static void getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo);
+    static void getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo);
 
     std::string m_sDevice;
     IntPoint m_Size;
@@ -98,7 +101,7 @@ private:
     Queue<Bitmap> m_BitmapQ;
 
     DWORD m_GraphRegisterID;
-//    bool m_bUpsideDown;
+    bool m_bUpsideDown;
 };
 
 }

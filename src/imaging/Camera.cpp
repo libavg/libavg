@@ -137,6 +137,10 @@ string cameraFeatureToString(CameraFeature feature)
             return "temperature";
         case CAM_FEATURE_TRIGGER:
             return "trigger";
+        case CAM_FEATURE_TRIGGER_DELAY:
+            return "trigger delay";
+        case CAM_FEATURE_WHITE_SHADING:
+            return "white shading";
         case CAM_FEATURE_ZOOM:
             return "zoom";
         case CAM_FEATURE_PAN:
@@ -225,20 +229,52 @@ CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
 
 }
 
-void dumpCameras()
+std::vector<CameraInfo> getCamerasInfos()
 {
-#ifdef AVG_ENABLE_1394_2 
-    FWCamera::dumpCameras();
+    std::vector<CameraInfo> camerasInfo;
+    
+#ifdef AVG_ENABLE_1394_2
+    int amountFWCameras = FWCamera::countCameras();
+    for (int i = 0; i < amountFWCameras; i++) {
+        CameraInfo* camInfo = FWCamera::getCameraInfos(i);
+        if (camInfo != NULL) {
+            camInfo->checkAddBayer8();
+            camerasInfo.push_back(*camInfo);
+        }
+    }
 #endif
-#ifdef AVG_ENABLE_CMU1394 
-    CMUCamera::dumpCameras();
+#ifdef AVG_ENABLE_CMU1394
+    int amountCMUCameras = CMUCamera::countCameras();
+    for (int i = 0; i < amountCMUCameras; i++) {
+        CameraInfo* camInfo = CMUCamera::getCameraInfos(i);
+        if (camInfo != NULL) {
+            camInfo->checkAddBayer8();
+            camerasInfo.push_back(*camInfo);
+        }
+    }
 #endif
-#ifdef AVG_ENABLE_V4L2 
-    V4LCamera::dumpCameras();
+#ifdef AVG_ENABLE_DSHOW
+    int amountDSCameras = DSCamera::countCameras();
+    for (int i = 0; i < amountDSCameras; i++) {
+        CameraInfo* camInfo = DSCamera::getCameraInfos(i);
+        if (camInfo != NULL) {
+            camInfo->checkAddBayer8();
+            camerasInfo.push_back(*camInfo);
+        }
+    }
 #endif
-#ifdef AVG_ENABLE_DSHOW 
-    DSCamera::dumpCameras();
+#ifdef AVG_ENABLE_V4L2
+    int amountV4LCameras = V4LCamera::countCameras();
+    for (int i = 0; i < amountV4LCameras; i++) {
+        CameraInfo* camInfo = V4LCamera::getCameraInfos(i);
+        if (camInfo != NULL) {
+            camInfo->checkAddBayer8();
+            camerasInfo.push_back(*camInfo);
+        }
+    }
 #endif
+    return camerasInfo;
 }
+
 
 }

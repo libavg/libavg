@@ -215,7 +215,7 @@ void DSCamera::setCaptureFormat()
         AVG_TRACE(Logger::CONFIG, "Camera image format: "
                 << camImageFormatToString(pmtConfig));
         int height = ((VIDEOINFOHEADER*)(pmtConfig->pbFormat))->bmiHeader.biHeight;
-//        m_bUpsideDown = (height < 0);
+        m_bUpsideDown = (height > 0);
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
@@ -226,7 +226,7 @@ void DSCamera::setCaptureFormat()
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
             pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
             int height = pvih->bmiHeader.biHeight;
-//            m_bUpsideDown = (height < 0);
+            m_bUpsideDown = (height > 0);
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             AVG_TRACE(Logger::CONFIG, "Camera image format: " 
@@ -358,57 +358,233 @@ void DSCamera::onSample(IMediaSample * pSample)
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, getDestPF(), 
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(camBmp);
-/*
+
     if (m_bUpsideDown) {
         FilterFlip().applyInPlace(pDestBmp);
     }
-*/
+
     m_BitmapQ.push(pDestBmp);
 }
 
-void DSCamera::dumpCameras()
+int DSCamera::countCameras()
 {
+    int count = 0;
     HRESULT hr = S_OK;
-    // TODO: Check if the threading model is ok.
     hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::CoInitializeEx");
+    checkForDShowError(hr, "DSCamera::countCameras()::CoInitializeEx");
 
+    ICreateDevEnum *pDevEnum =NULL;
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
+            IID_ICreateDevEnum, (void **) &pDevEnum);
+    checkForDShowError(hr, "DSCamera::countCameras()::CreateDevEnum");
+
+    IEnumMoniker *pClassEnum = NULL;
+    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
+    checkForDShowError(hr, "DSCamera::countCameras()::CreateClassEnumerator");
+
+    if (pClassEnum == NULL) {
+        pDevEnum->Release();
+        return count;
+    }
+    IMoniker* pMoniker = NULL;
+    while (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
+        count += 1;
+    }
+    pMoniker->Release();
+    pClassEnum->Release();
+    pDevEnum->Release();
+    return count;
+}
+
+CameraInfo* DSCamera::getCameraInfos(int deviceNumber)
+{
+#ifdef AVG_ENABLE_DSHOW
+    HRESULT hr = S_OK;
+    // Create apartment for Thread
+    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::CoInitializeEx");
     // Create the system device enumerator
     ICreateDevEnum *pDevEnum =NULL;
     hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC, 
             IID_ICreateDevEnum, (void **) &pDevEnum);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::CreateDevEnum");
-
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::CreateDevEnum");
     // Create an enumerator for the video capture devices
     IEnumMoniker *pClassEnum = NULL;
     hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pClassEnum, 0);
-    checkForDShowError(hr, "DSCamera::dumpCameras()::CreateClassEnumerator");
-
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::CreateClassEnumerator");
     if (pClassEnum == NULL) {
+        pClassEnum->Release();
+        pDevEnum->Release();
+        return NULL;
+    }
+    IMoniker* pMoniker = NULL;
+    pClassEnum->Skip(deviceNumber);
+    hr = pClassEnum->Next(1, &pMoniker, NULL);
+    if (hr != S_OK) {
+        pClassEnum->Release();
+        pDevEnum->Release();
+        pMoniker->Release();
+        return NULL;
+    }
+    IPropertyBag* pPropBag;
+    hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
+    checkForDShowError(hr, "DSCamera::getCameraInfos()::BindToStorage");
+
+    std::string deviceID = getStringProp(pPropBag, L"DevicePath");
+    if (deviceID.empty()) {
+        deviceID = getStringProp(pPropBag, L"Description");
+        if (deviceID.empty()) {
+            deviceID = getStringProp(pPropBag, L"FriendlyName");
+        }
+    }
+    CameraInfo* pCamInfo = new CameraInfo("DirectShow", deviceID);
+
+    getCameraImageFormats(pMoniker, pCamInfo);
+    getCameraControls(pMoniker, pCamInfo);
+            
+    pPropBag->Release();
+    pMoniker->Release();
+    pClassEnum->Release();
+    pDevEnum->Release();
+    return pCamInfo;
+#endif
+    return NULL;
+}
+
+void DSCamera::getCameraImageFormats(IMoniker* pMoniker, CameraInfo* pCamInfo)
+{
+    HRESULT hr = S_OK;
+    IAMStreamConfig* pSC;
+    ICaptureGraphBuilder2* pCapture;
+    IBaseFilter* pSrcFilter;
+    // locates the object identified by pMoniker and 
+    // returns a pointer to its filter interface
+    hr = pMoniker->BindToObject(0,0,IID_IBaseFilter, (void**) &pSrcFilter);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::BindToObject");
+    if (pSrcFilter == NULL) {
         return;
     }
+    // Creates an uninitialized instance and returns a pointer to 
+    // the IID_ICaptureGraphBuilder2 interface
+    hr = CoCreateInstance (CLSID_CaptureGraphBuilder2 , NULL, CLSCTX_INPROC,
+            IID_ICaptureGraphBuilder2, (void **) &pCapture);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::CaptureGraphBuilder2");
+    // searches the graph for a IID_IAMStreamConfig interface, returns a pointer
+    hr = pCapture->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video, 
+            pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::FindInterface");
+    int numCaps = 0;
+    int capsSize = 0;
+    hr = pSC->GetNumberOfCapabilities(&numCaps, &capsSize);
+    checkForDShowError(hr, "DSCamera::getImageFormats()::GetNumberOfCapabilities");
+    AM_MEDIA_TYPE* pmtConfig;
+    vector<string> sImageFormats;
+    VIDEOINFOHEADER* pvih;
+    BITMAPINFOHEADER bih;
+    PixelFormat capsPF;
+    for (int i = 0; i < numCaps; i++) {
+        VIDEO_STREAM_CONFIG_CAPS scc;
+        hr = pSC->GetStreamCaps(i, &pmtConfig, (BYTE*)&scc);
+        checkForDShowError(hr, "DSCamera::getImageFormats()::GetStreamCaps");
+        pvih = (VIDEOINFOHEADER*)(pmtConfig->pbFormat);
+        bih = pvih->bmiHeader;
+        capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
 
-    IMoniker* pMoniker = NULL;
-    bool bFirst = true;
-    while (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
-        if (bFirst) {
-            cerr << endl;
-            cerr << "DirectShow cameras: " << endl;
-            bFirst = false;
+        if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
+            IntPoint size;
+            if (bih.biHeight >= 0) {
+                size = IntPoint(bih.biWidth, bih.biHeight);
+            } else {
+                size = IntPoint(bih.biWidth, -bih.biHeight);
+            }
+
+            std::vector<float> framerates;
+            float minFramerate = (float)(10000000 / scc.MinFrameInterval);
+            float maxFramerate = (float)(10000000 / scc.MaxFrameInterval);
+            float averageFramerate = (float)(10000000 / pvih->AvgTimePerFrame);
+            if (maxFramerate != 0.) {
+                framerates.push_back(maxFramerate);
+            }
+            if (averageFramerate != maxFramerate && averageFramerate != minFramerate) {
+                framerates.push_back(averageFramerate);
+            }
+            if (minFramerate != 0.  && minFramerate != maxFramerate) {
+                framerates.push_back(minFramerate);
+            }
+            CameraImageFormat imageFormat = CameraImageFormat(size, capsPF, framerates);
+            pCamInfo->addImageFormat(imageFormat);
         }
-        IPropertyBag* pPropBag;
-        hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
-        checkForDShowError(hr, "DSCamera::dumpCameras()::BindToStorage");
-        cerr << "  ----------------------------" << endl;
-        cerr << "  Name: " << getStringProp(pPropBag, L"FriendlyName") << endl;
-        cerr << "  Description: " << getStringProp(pPropBag, L"Description") << endl;
-        cerr << "  Device Path: " << getStringProp(pPropBag, L"DevicePath") << endl;
-        pPropBag->Release();
     }
-    pMoniker->Release();
-    pDevEnum->Release();
-    pClassEnum->Release();
+    pCapture->Release();
+    pSrcFilter->Release();
 }
+
+void DSCamera::getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo)
+{
+    HRESULT hr = S_OK;
+    IBaseFilter * pSrcFilter;
+    // locates the object identified by pMoniker and 
+    // returns a pointer to its filter interface
+    hr = pMoniker->BindToObject(0,0,IID_IBaseFilter, (void**) &pSrcFilter);
+    checkForDShowError(hr, "DSCamera::dumpImageFormats()::BindToObject");
+    if (pSrcFilter == NULL) {
+        return;
+    }
+    IAMCameraControl* pAMCameraControl;
+    pSrcFilter->QueryInterface(IID_IAMCameraControl, 
+                (void **)&pAMCameraControl);
+    if (pAMCameraControl != NULL) {
+        // DirectShow has 7 supported CameraControlProperties
+        for (int indexControl = 0; indexControl <= 6; indexControl++) {
+            long value = -999;
+            long flags = -999;
+            pAMCameraControl->Get((CameraControlProperty)indexControl, &value, &flags);
+            long min = -999;
+            long max = -999;
+            long delta = -999;
+            long defaultValue = -999;
+            flags = -999;
+            pAMCameraControl->GetRange((CameraControlProperty)indexControl, &min, &max,
+                    &delta, &defaultValue, &flags);
+
+            CameraFeature feature = getCameraFeatureID_CCP((CameraControlProperty)indexControl);
+            if (min != -999 && max != -999 && defaultValue != -999
+                        && feature != CAM_FEATURE_UNSUPPORTED) {
+                std::string featureName = cameraFeatureToString(feature);
+                CameraControl control = CameraControl(featureName,min,max,defaultValue);
+                pCamInfo->addControl(control);
+            }
+        }
+    }
+    IAMVideoProcAmp* pCameraPropControl;
+    pSrcFilter->QueryInterface(IID_IAMVideoProcAmp, 
+                (void **)&pCameraPropControl);
+    if (pCameraPropControl != NULL) {
+        // DirectShow has 10 supported VideoProcAmpProperties
+        for (int indexPropControl = 0; indexPropControl <= 9; indexPropControl++) {
+            long value = -999;
+            long flags = -999;
+            pCameraPropControl->Get((VideoProcAmpProperty)indexPropControl, &value,
+                    &flags);
+            long min = -999;
+            long max = -999;
+            long delta = -999;
+            long defaultValue = -999;
+            flags = -999;
+            pCameraPropControl->GetRange((VideoProcAmpProperty)indexPropControl, &min,
+                    &max, &delta, &defaultValue, &flags);
+
+            CameraFeature feature = getCameraFeatureID_VPAP((VideoProcAmpProperty)indexPropControl);
+            if (min != -999 && max != -999 && defaultValue != -999
+                    && feature != CAM_FEATURE_UNSUPPORTED) {
+                std::string featureName = cameraFeatureToString(feature);
+                CameraControl control = CameraControl(featureName,min,max,defaultValue);
+                pCamInfo->addControl(control);
+            }
+        }
+    }
+}
+
 
 void DSCamera::initGraphBuilder()
 {

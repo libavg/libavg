@@ -76,6 +76,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\imaging\Blob.cpp" />
     <ClCompile Include="..\..\src\imaging\Camera.cpp" />
+    <ClCompile Include="..\..\src\imaging\CameraInfo.cpp" />
     <ClCompile Include="..\..\src\imaging\checktracking.cpp" />
     <ClCompile Include="..\..\src\imaging\CMUCamera.cpp" />
     <ClCompile Include="..\..\src\imaging\CMUCameraUtils.cpp" />
@@ -97,6 +98,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\imaging\Blob.h" />
     <ClInclude Include="..\..\src\imaging\Camera.h" />
+    <ClInclude Include="..\..\src\imaging\CameraInfo.h" />
     <ClInclude Include="..\..\src\imaging\CMUCamera.h" />
     <ClInclude Include="..\..\src\imaging\CMUCameraUtils.h" />
     <ClInclude Include="..\..\src\imaging\CoordTransformer.h" />

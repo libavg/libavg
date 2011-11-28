@@ -84,6 +84,67 @@ Area Nodes
             .. deprecated:: 1.5
                 Use :func:`VisibleNode.connectEventHandler()` instead.
 
+    .. autoclass:: CameraControl
+
+        Camera controls are camera configuration parameters like brightness and white
+        balance. A CameraControl object contains information about the supported maximum
+        and minimum values as well as defaults for a specific control.
+
+        .. py:attribute:: controlName
+
+            String which tells which control is meant. Read-only.
+
+        .. py:attribute:: default
+
+        .. py:attribute:: max
+
+        .. py:attribute:: min
+
+    .. autoclass:: CameraImageFormat
+
+        CameraImageFormat objects contain information about a supported
+        image format of a camera.
+
+        .. py:attribute:: framerates
+
+            List of supported frame rates in images per second for that image format as
+            floats. Read-only.
+
+        .. py:attribute:: pixelFormat
+
+            String which tells about the pixel format (see :py:class:`Bitmap`). Read-only.
+
+        .. py:attribute:: size
+
+            A point which represents the resolution in width and height. Read-only.
+
+    .. autoclass:: CameraInfo
+
+        CameraInfo objects contain data about camera capabilities. The data can be used
+        to create create objects of class :py:class:`CameraNode`. The unique value to 
+        identify the camera is stored in :py:attr:`device`, whereas :py:attr:`driver` 
+        tells which driver is used to call the camera itself. Information about supported
+        camera :py:attr:`controls` or :py:attr:`imageFormats` are stored
+        in two separate lists.
+
+        .. py:attribute:: controls
+
+            List of :py:class:`CameraControl` objects with all possible controls for
+            that camera. Read-only.
+
+        .. py:attribute:: device
+
+            String which contains the unique id of the camera. Read-only.
+
+        .. py:attribute:: driver
+
+            String which contains the name of the driver. Read-only.
+
+        .. py:attribute:: imageFormats
+
+            List of :py:class:`CameraImageFormat` objects with all possible image
+            formats for that camera. Read-only.
+
     .. autoclass:: CameraNode([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
         A node that displays the image of a camera. The attributes correspond to the 
@@ -150,9 +211,10 @@ Area Nodes
 
             Stops camera playback.
 
-        .. py:classmethod:: dumpCameras()
+        .. py:classmethod:: getCamerasInfos()
 
-            Dumps a list of available cameras to the console.
+            Returns a list of :py:class:`CameraInfo` objects, one for for each connected 
+            camera.
 
         .. py:classmethod:: resetFirewireBus()
 

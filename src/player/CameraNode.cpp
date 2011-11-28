@@ -273,9 +273,10 @@ BitmapPtr CameraNode::getBitmap()
     }
 }
 
-void CameraNode::dumpCameras()
+CamerasInfosVector CameraNode::getCamerasInfos()
 {
-    avg::dumpCameras();
+    CamerasInfosVector camInfos = avg::getCamerasInfos();
+    return camInfos;
 }
 
 void CameraNode::resetFirewireBus()

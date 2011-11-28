@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include <string>
+#include <vector>
 
 namespace avg {
 
@@ -52,6 +53,7 @@ AVG_API std::ostream& operator <<(std::ostream& os, PixelFormat pf);
 
 std::string AVG_API getPixelFormatString(PixelFormat pf);
 PixelFormat AVG_API stringToPixelFormat(const std::string& s);
+std::vector<std::string> AVG_API getSupportedPixelFormats();
 bool AVG_API pixelFormatIsColored(PixelFormat pf);
 bool AVG_API pixelFormatIsBayer(PixelFormat pf);
 bool AVG_API pixelFormatHasAlpha(PixelFormat pf);

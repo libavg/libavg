@@ -123,6 +123,7 @@ void export_bitmap()
         .value("YCbCr422", YCbCr422)
         .value("YUYV422", YUYV422)
         .value("YCbCr420p", YCbCr420p)
+        .value("YCbCrJ420p", YCbCrJ420p)
         .value("YCbCrA420p", YCbCrA420p)
         .value("BAYER8", BAYER8)
         .value("BAYER8_RGGB", BAYER8_RGGB)
@@ -132,6 +133,8 @@ void export_bitmap()
         .value("R32G32B32A32F", R32G32B32A32F)
         .value("I32F", I32F)
         .export_values();
+
+    def("getSupportedPixelFormats", &getSupportedPixelFormats);
 
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 

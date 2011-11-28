@@ -22,8 +22,11 @@
 #
 
 import optparse
+from libavg import avg
 
-validPixFmt = ('I8', 'I16', 'YUV411', 'YUV422', 'YUYV422', 'RGB', 'BGR', 'BAYER8')
+validPixFmt = list();
+for formatItem in avg.getSupportedPixelFormats():
+    validPixFmt.append(formatItem);
 validDrivers = ('firewire', 'video4linux', 'directshow')
 
 def addOptions(parser):
@@ -38,7 +41,7 @@ def addOptions(parser):
               help="capture width in pixels")
     parser.add_option("-e", "--height", dest="height", default="480", type="int",
               help="capture height in pixels")
-    parser.add_option("-p", "--pixformat", dest="pixelFormat", default="RGB",
+    parser.add_option("-p", "--pixformat", dest="pixelFormat", default="R8G8B8",
                   choices=validPixFmt, 
                   help="camera frame pixel format (one of: %s)" %', '.join(validPixFmt))
     parser.add_option("-f", "--framerate", dest="framerate", default="15", type="float",

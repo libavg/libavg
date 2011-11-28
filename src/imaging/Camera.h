@@ -26,8 +26,10 @@
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
+#include "CameraInfo.h"
 
 #include <string>
+#include <list>
 #include <map>
 
 namespace avg {
@@ -46,6 +48,8 @@ enum CameraFeature {
     CAM_FEATURE_FOCUS,
     CAM_FEATURE_TEMPERATURE,
     CAM_FEATURE_TRIGGER,
+    CAM_FEATURE_TRIGGER_DELAY,
+    CAM_FEATURE_WHITE_SHADING,
     CAM_FEATURE_ZOOM,
     CAM_FEATURE_PAN,
     CAM_FEATURE_TILT,
@@ -53,7 +57,8 @@ enum CameraFeature {
     CAM_FEATURE_CAPTURE_SIZE,
     CAM_FEATURE_CAPTURE_QUALITY,
     CAM_FEATURE_CONTRAST,
-    CAM_FEATURE_STROBE_DURATION
+    CAM_FEATURE_STROBE_DURATION,
+    CAM_FEATURE_UNSUPPORTED
 };
 
 class AVG_API Camera
@@ -62,7 +67,7 @@ public:
     Camera(PixelFormat camPF, PixelFormat destPF);
     virtual ~Camera() {};
     virtual void startCapture() {};
-
+    
     PixelFormat getCamPF() const;
     void setCamPF(PixelFormat pf);
     PixelFormat getDestPF() const;
@@ -85,12 +90,15 @@ public:
 
 protected:
     PixelFormat fwBayerStringToPF(unsigned long reg);
+    static CameraInfo m_camInfo;//std::list<CameraInfo> camInfos;
 
 private:
     Camera();
     PixelFormat m_CamPF;
     PixelFormat m_DestPF;
 };
+
+
 
 std::string cameraFeatureToString(CameraFeature feature);
 
@@ -101,7 +109,7 @@ AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sD
         int unit, bool bFW800, const IntPoint& captureSize, PixelFormat camPF, 
         PixelFormat destPF, double frameRate);
 
-AVG_API void dumpCameras();
+AVG_API std::vector<CameraInfo> getCamerasInfos();
 
 }
 

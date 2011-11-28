@@ -134,6 +134,55 @@ dc1394framerate_t getFrameRateConst(double frameRate)
                 +toString(frameRate)+" for camera framerate.");
     }
 }
+CameraFeature featureIDToEnum(dc1394feature_t feature)
+{
+    switch (feature) {
+        case DC1394_FEATURE_BRIGHTNESS:
+            return CAM_FEATURE_BRIGHTNESS;
+        case DC1394_FEATURE_EXPOSURE:
+            return CAM_FEATURE_EXPOSURE;
+        case DC1394_FEATURE_SHARPNESS:
+            return CAM_FEATURE_SHARPNESS;
+        case DC1394_FEATURE_WHITE_BALANCE:
+            return CAM_FEATURE_WHITE_BALANCE;
+        case DC1394_FEATURE_HUE:
+            return CAM_FEATURE_HUE;
+        case DC1394_FEATURE_SATURATION:
+            return CAM_FEATURE_SATURATION;
+        case DC1394_FEATURE_GAMMA:
+            return CAM_FEATURE_GAMMA;
+        case DC1394_FEATURE_SHUTTER:
+            return CAM_FEATURE_SHUTTER;
+        case DC1394_FEATURE_GAIN:
+            return CAM_FEATURE_GAIN;
+        case DC1394_FEATURE_IRIS:
+            return CAM_FEATURE_IRIS;
+        case DC1394_FEATURE_FOCUS:
+            return CAM_FEATURE_FOCUS;
+        case DC1394_FEATURE_TEMPERATURE:
+            return CAM_FEATURE_TEMPERATURE;
+        case DC1394_FEATURE_TRIGGER:
+            return CAM_FEATURE_TRIGGER;
+        case DC1394_FEATURE_TRIGGER_DELAY:
+            return CAM_FEATURE_TRIGGER_DELAY;
+        case DC1394_FEATURE_WHITE_SHADING:
+            return CAM_FEATURE_WHITE_SHADING;
+        case DC1394_FEATURE_ZOOM:
+            return CAM_FEATURE_ZOOM;
+        case DC1394_FEATURE_PAN:
+            return CAM_FEATURE_PAN;
+        case DC1394_FEATURE_TILT:
+            return CAM_FEATURE_TILT;
+        case DC1394_FEATURE_OPTICAL_FILTER:
+            return CAM_FEATURE_OPTICAL_FILTER;
+        case DC1394_FEATURE_CAPTURE_SIZE:
+            return CAM_FEATURE_CAPTURE_SIZE;
+        case DC1394_FEATURE_CAPTURE_QUALITY:
+            return CAM_FEATURE_CAPTURE_QUALITY;
+        default:
+            return CAM_FEATURE_UNSUPPORTED;
+    }
+}
 
 dc1394feature_t getFeatureID(CameraFeature feature)
 {
@@ -164,6 +213,10 @@ dc1394feature_t getFeatureID(CameraFeature feature)
             return DC1394_FEATURE_TEMPERATURE;
         case CAM_FEATURE_TRIGGER:
             return DC1394_FEATURE_TRIGGER;
+        case CAM_FEATURE_TRIGGER_DELAY:
+            return DC1394_FEATURE_TRIGGER_DELAY;
+        case CAM_FEATURE_WHITE_SHADING:
+            return DC1394_FEATURE_WHITE_SHADING;
         case CAM_FEATURE_ZOOM:
             return DC1394_FEATURE_ZOOM;
         case CAM_FEATURE_PAN:
@@ -181,5 +234,133 @@ dc1394feature_t getFeatureID(CameraFeature feature)
             return dc1394feature_t(0);
     }
 }
+
+IntPoint getFrameSizeFromVideoMode(dc1394video_mode_t mode)
+{
+    IntPoint point = IntPoint();
+    point.x = -1;
+    point.y = -1;
+    switch (mode) {
+        case DC1394_VIDEO_MODE_160x120_YUV444: {
+            point.x = 160;
+            point.y = 120;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_320x240_YUV422: {
+            point.x = 320;
+            point.y = 240;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_640x480_YUV411:
+        case DC1394_VIDEO_MODE_640x480_YUV422:
+        case DC1394_VIDEO_MODE_640x480_RGB8:
+        case DC1394_VIDEO_MODE_640x480_MONO8:
+        case DC1394_VIDEO_MODE_640x480_MONO16: {
+            point.x = 640;
+            point.y = 480;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_800x600_YUV422:
+        case DC1394_VIDEO_MODE_800x600_RGB8:
+        case DC1394_VIDEO_MODE_800x600_MONO8:
+        case DC1394_VIDEO_MODE_800x600_MONO16: {
+            point.x = 800;
+            point.y = 600;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_1024x768_YUV422:
+        case DC1394_VIDEO_MODE_1024x768_RGB8:
+        case DC1394_VIDEO_MODE_1024x768_MONO8:
+        case DC1394_VIDEO_MODE_1024x768_MONO16: {
+            point.x = 1024;
+            point.y = 768;
+            return point;
+        }
+
+
+        case DC1394_VIDEO_MODE_1280x960_YUV422:
+        case DC1394_VIDEO_MODE_1280x960_RGB8:
+        case DC1394_VIDEO_MODE_1280x960_MONO8:
+        case DC1394_VIDEO_MODE_1280x960_MONO16: {
+            point.x = 1280;
+            point.y = 960;
+            return point;
+        }
+        case DC1394_VIDEO_MODE_1600x1200_YUV422:
+        case DC1394_VIDEO_MODE_1600x1200_RGB8:
+        case DC1394_VIDEO_MODE_1600x1200_MONO8:
+        case DC1394_VIDEO_MODE_1600x1200_MONO16: {
+            point.x = 1600;
+            point.y = 1200;
+            return point;
+        }
+        default:
+            AVG_ASSERT(false);
+            return point;
+    }
+}
+
+PixelFormat getPFFromVideoMode(dc1394video_mode_t mode)
+{
+    switch (mode) {
+        case DC1394_VIDEO_MODE_640x480_YUV411:
+            return YCbCr411;
+        case DC1394_VIDEO_MODE_320x240_YUV422:
+        case DC1394_VIDEO_MODE_640x480_YUV422:
+        case DC1394_VIDEO_MODE_800x600_YUV422:
+        case DC1394_VIDEO_MODE_1024x768_YUV422:
+        case DC1394_VIDEO_MODE_1280x960_YUV422:
+        case DC1394_VIDEO_MODE_1600x1200_YUV422:
+            return YCbCr422;
+        case DC1394_VIDEO_MODE_640x480_RGB8:
+        case DC1394_VIDEO_MODE_800x600_RGB8:
+        case DC1394_VIDEO_MODE_1024x768_RGB8:
+        case DC1394_VIDEO_MODE_1280x960_RGB8:
+        case DC1394_VIDEO_MODE_1600x1200_RGB8:
+            return R8G8B8;
+        case DC1394_VIDEO_MODE_640x480_MONO8:
+        case DC1394_VIDEO_MODE_800x600_MONO8:
+        case DC1394_VIDEO_MODE_1024x768_MONO8:
+        case DC1394_VIDEO_MODE_1280x960_MONO8:
+        case DC1394_VIDEO_MODE_1600x1200_MONO8:
+            return I8;
+        case DC1394_VIDEO_MODE_640x480_MONO16:
+        case DC1394_VIDEO_MODE_800x600_MONO16:
+        case DC1394_VIDEO_MODE_1024x768_MONO16:
+        case DC1394_VIDEO_MODE_1280x960_MONO16:
+        case DC1394_VIDEO_MODE_1600x1200_MONO16:
+            return I16;
+        default:
+            AVG_ASSERT(false);
+            return PixelFormat(0);
+    }
+}
+
+float framerateToFloat(dc1394framerate_t framerate)
+{
+    switch (framerate) {
+        case DC1394_FRAMERATE_1_875:
+            return 1.875;
+        case DC1394_FRAMERATE_3_75:
+            return 3.75;
+        case DC1394_FRAMERATE_7_5:
+            return 7.5;
+        case DC1394_FRAMERATE_15:
+            return 15;
+        case DC1394_FRAMERATE_30:
+            return 30;
+        case DC1394_FRAMERATE_60:
+            return 60;
+        case DC1394_FRAMERATE_120:
+            return 120;
+        case DC1394_FRAMERATE_240:
+            return 240;
+        default:{
+            AVG_ASSERT(false);
+            return -1;
+        }
+    }
+}
+
 
 }

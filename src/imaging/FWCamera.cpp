@@ -508,45 +508,165 @@ void FWCamera::enablePtGreyBayer()
 #endif
 }
 
-void FWCamera::dumpCameras()
+int FWCamera::countCameras()
 {
 #ifdef AVG_ENABLE_1394_2
     dc1394_t* pDC1394 = dc1394_new();
     if (pDC1394 == 0) {
-        return;
+        return 0;
     }
     dc1394camera_list_t * pCameraList;
     int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
     if (err == DC1394_SUCCESS) {
-        if (pCameraList->num != 0) {
-            cerr << "Firewire cameras: " << endl;
-            for (unsigned i=0; i<pCameraList->num;++i) {
-                dc1394camera_id_t id = pCameraList->ids[i];
-                dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid, 
-                        id.unit);
-                if (pCamera) {
-                    dc1394_camera_print_info(pCamera, stderr);
-                    dumpCameraInfo(pCamera);
-                    dc1394_camera_free(pCamera);
-                    cerr << endl;
-                }
-            }
-        }
-        dc1394_camera_free_list(pCameraList);
+        int numCameras = pCameraList->num;
+        return numCameras;
     }
-    dc1394_free(pDC1394);
 #endif
+    return 0;
+}
+
+CameraInfo* FWCamera::getCameraInfos(int deviceNumber)
+{
+#ifdef AVG_ENABLE_1394_2
+    dc1394_t* pDC1394 = dc1394_new();
+    if (pDC1394 == 0) {
+        AVG_ASSERT(false);
+        return NULL;
+    }
+    dc1394camera_list_t * pCameraList;
+    int err=dc1394_camera_enumerate(pDC1394, &pCameraList);
+    if (err != DC1394_SUCCESS) {
+        AVG_ASSERT(false);
+        return NULL;
+    }
+    if (pCameraList->num != 0) {
+        dc1394camera_id_t id = pCameraList->ids[deviceNumber];
+        dc1394camera_t * pCamera = dc1394_camera_new_unit(pDC1394, id.guid,
+                id.unit);
+        if (pCamera) {
+            stringstream deviceID;
+            deviceID << hex << id.guid;//pCamera->guid;
+            CameraInfo* camInfo = new CameraInfo("Firewire", deviceID.str());
+
+            getCameraControls(pCamera, camInfo);
+            getCameraImageFormats(pCamera, camInfo);
+
+            dc1394_camera_free(pCamera);
+            dc1394_camera_free_list(pCameraList);
+            dc1394_free(pDC1394);
+            return camInfo;
+        }
+    }
+#endif
+    return NULL;
 }
 
 #ifdef AVG_ENABLE_1394_2
-void FWCamera::dumpCameraInfo(dc1394camera_t * pCamera)
+void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInfo)
 {
-    dc1394error_t err;
-    dc1394featureset_t FeatureSet;
-    err = dc1394_feature_get_all(pCamera, &FeatureSet);
-    AVG_ASSERT(err == DC1394_SUCCESS);
-    // TODO: do this using AVG_TRACE
-    dc1394_feature_print_all(&FeatureSet, stderr);
+    dc1394video_modes_t videoModes;
+    dc1394framerates_t framerates;
+    dc1394error_t err = dc1394_video_get_supported_modes(pCamera, &videoModes);
+    if (err != DC1394_SUCCESS) {
+        AVG_ASSERT(false);
+        return;
+    }
+    for (int i = 0; i < (videoModes.num); i++) {
+        //Covers only libavg supported formats, other capabilities are ignored
+        if (videoModes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
+                && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
+            PixelFormat pixFormat = getPFFromVideoMode(videoModes.modes[i]);
+            IntPoint size = getFrameSizeFromVideoMode(videoModes.modes[i]);
+            FrameratesVector framerateList;
+            err = dc1394_video_get_supported_framerates(pCamera, videoModes.modes[i],
+                    &framerates);
+            if (err != DC1394_SUCCESS) {
+                AVG_TRACE(Logger::WARNING, "Camera: No framerates. Error was: " << err);
+            } else {
+                int numFramerates = (int) framerates.num;
+                for (int j = 0; j < numFramerates; j++)
+                {
+                    float rate = framerateToFloat(framerates.framerates[j]);
+                    framerateList.push_back(rate);
+                }
+            }
+            CameraImageFormat format = CameraImageFormat(size,pixFormat,framerateList);
+            camInfo->addImageFormat(format);
+        }
+    }
+}
+
+void FWCamera::getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo)
+{
+    dc1394featureset_t featureSet;
+    int err = dc1394_feature_get_all(pCamera, &featureSet);
+    if (err != DC1394_SUCCESS) {
+        AVG_ASSERT(false);
+        return;
+    }
+
+    for (int i = DC1394_FEATURE_MIN; i <= DC1394_FEATURE_MAX; i++) {
+        dc1394feature_info_t featureInfo = featureSet.feature[i - DC1394_FEATURE_MIN];
+
+        dc1394bool_t bool_t;
+        dc1394_feature_is_present(pCamera,featureInfo.id, &bool_t);
+        if (bool_t != DC1394_TRUE) {
+            continue;
+        }
+
+        uint32_t min = -1;
+        uint32_t max = -1;
+        uint32_t actValue = -1;
+
+        //TODO: 428 (TRIGGER) doesnt have min max
+        err = dc1394_feature_get_boundaries(pCamera, featureInfo.id, &min, &max);
+        if (err != DC1394_SUCCESS) {
+            continue;
+        }
+
+        switch(featureInfo.id) {
+            case DC1394_FEATURE_TEMPERATURE: {
+                uint32_t targetTemp = -1;
+                uint32_t currentTemp = -1;
+                err = dc1394_feature_temperature_get_value(pCamera,&targetTemp,&currentTemp);
+                if (err != DC1394_SUCCESS) {
+                    continue;
+                }
+                actValue = currentTemp;
+                break;
+            }
+        //TODO: Think about a way to get this information into CameraInfo
+            case DC1394_FEATURE_WHITE_BALANCE: {
+                uint32_t ubValue = -1;
+                uint32_t vrValue = -1;
+                err = dc1394_feature_whitebalance_get_value(pCamera,&ubValue,&vrValue);
+                if (err != DC1394_SUCCESS) {
+                    continue;
+                }
+                //actValue = ubValue; //vrValue;
+                //cout <<"UBlue Value: " << ubValue << " VRed Value: " << vrValue << endl;
+                break;
+            }
+            default: {
+                err = dc1394_feature_get_value(pCamera,featureInfo.id, &actValue);
+                if (err != DC1394_SUCCESS) {
+                    continue;
+                }
+                break;
+            }
+        }
+        CameraFeature enumFeature = featureIDToEnum(featureInfo.id);
+        if (enumFeature == CAM_FEATURE_UNSUPPORTED) {
+            continue;
+        }
+        std::string controlName = cameraFeatureToString(enumFeature);
+
+        CameraControl control = CameraControl(controlName,
+                (int) min,
+                (int) max,
+                (int) actValue ); //TODO: isnt really a default value!?
+        camInfo->addControl(control);
+    }
 }
 #endif
 

@@ -54,6 +54,8 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
     static void dumpCameras();
+    static int countCameras();
+    static CameraInfo* getCameraInfos(int deviceNumber);
 
 private:
     int getCamIndex(long long guid);
@@ -63,6 +65,11 @@ private:
     void checkCMUError(int code, int type, const std::string& sMsg) const;
     void checkCMUWarning(bool bOk, const std::string& sMsg) const;
     std::string CMUErrorToString(int code);
+
+    static void getCameraControls(C1394Camera* pCamera, CameraInfo* camInfo);
+    static void getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo);
+    static void getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat,
+            unsigned long videoMode, FrameratesVector &framerates);
 
     std::string m_sDevice;
     IntPoint m_Size;

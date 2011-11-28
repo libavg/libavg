@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/Point.h"
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -62,13 +63,13 @@ namespace {
     }
 }
 
-
-V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size, PixelFormat camPF,
+namespace avg {
+V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat camPF,
         PixelFormat destPF, double frameRate)
     : Camera(camPF, destPF),
       m_Fd(-1),
       m_Channel(channel),
-      m_sDevice(sDevice), 
+      m_sDevice(sDevice),
       m_ImgSize(size),
       m_FrameRate(frameRate)
 {
@@ -87,8 +88,8 @@ V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size, PixelForma
     m_FeaturesNames[V4L2_CID_WHITENESS] = "whiteness";
     m_FeaturesNames[V4L2_CID_GAMMA] = "gamma";
     m_FeaturesNames[V4L2_CID_SATURATION] = "saturation";
-    
-    struct stat st; 
+
+    struct stat st;
     if (stat(m_sDevice.c_str(), &st) == -1) {
         fatalError(string("Unable to access v4l2 device '")+m_sDevice+"'." );
     }
@@ -102,12 +103,12 @@ V4LCamera::V4LCamera(std::string sDevice, int channel, IntPoint size, PixelForma
     if (m_Fd == -1) {
         fatalError(string("Unable to open v4l2 device '") + m_sDevice + "'.");
     }
-    
+
     initDevice();
     AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
 }
 
-V4LCamera::~V4LCamera() 
+V4LCamera::~V4LCamera()
 {
     close();
 }
@@ -154,7 +155,7 @@ int V4LCamera::getV4LPF(PixelFormat pf)
             return V4L2_PIX_FMT_BGR24;
         default:
             throw Exception(AVG_ERR_INVALID_ARGS,
-                    "Unsupported or illegal value for camera pixel format '" 
+                    "Unsupported or illegal value for camera pixel format '"
                 + getPixelFormatString(pf) + "'.");
     }
 }
@@ -163,23 +164,23 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 {
     struct v4l2_buffer buf;
     CLEAR(buf);
-    
+
     // wait for incoming data blocking, timeout 2s
     if (bWait) {
         fd_set fds;
         struct timeval tv;
         int rc;
-    
+
         FD_ZERO(&fds);
         FD_SET(m_Fd, &fds);
-    
+
         /* Timeout. */
         tv.tv_sec = 2;
         tv.tv_usec = 0;
-    
+
         rc = select (m_Fd+1, &fds, NULL, NULL, &tv);
 
-        // caught signal or something else  
+        // caught signal or something else
         if (rc == -1) {
             AVG_TRACE(Logger::WARNING, "V4L2: select failed.");
             return BitmapPtr();
@@ -190,10 +191,10 @@ BitmapPtr V4LCamera::getImage(bool bWait)
             return BitmapPtr();
         }
     }
-    
+
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
-    
+
     // dequeue filled buffer
     if (xioctl (m_Fd, VIDIOC_DQBUF, &buf) == -1) {
         if (errno == EAGAIN) {
@@ -203,9 +204,9 @@ BitmapPtr V4LCamera::getImage(bool bWait)
             AVG_ASSERT(false);
         }
     }
-    
+
     unsigned char * pCaptureBuffer = (unsigned char*)m_vBuffers[buf.index].start;
-   
+
     double lineLen;
     switch (getCamPF()) {
         case YCbCr411:
@@ -224,10 +225,10 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &buf)) {
-        throw(Exception(AVG_ERR_CAMERA_FATAL, 
+        throw(Exception(AVG_ERR_CAMERA_FATAL,
                 "V4L Camera: failed to enqueue image buffer."));
     }
-    
+
     return pDestBmp;
 }
 
@@ -236,12 +237,12 @@ bool V4LCamera::isCameraAvailable()
     return m_bCameraAvailable;
 }
 
-const std::string& V4LCamera::getDevice() const
+const string& V4LCamera::getDevice() const
 {
     return m_sDevice;
 }
 
-const std::string& V4LCamera::getDriverName() const
+const string& V4LCamera::getDriverName() const
 {
     return m_sDriverName;
 }
@@ -251,13 +252,13 @@ double V4LCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-std::string V4LCamera::getFeatureName(V4LCID_t v4lFeature)
+string V4LCamera::getFeatureName(V4LCID_t v4lFeature)
 {
-    std::string sName = m_FeaturesNames[v4lFeature];
+    string sName = m_FeaturesNames[v4lFeature];
     if (sName == "") {
         sName = "UNKNOWN";
     }
-    
+
     return sName;
 }
 
@@ -281,17 +282,17 @@ V4LCID_t V4LCamera::getFeatureID(CameraFeature feature) const
                 << " not supported for V4L2.");
         return -1;
     }
-    
+
     return v4lFeature;
 }
 
 bool V4LCamera::isFeatureSupported(V4LCID_t v4lFeature) const
 {
     struct v4l2_queryctrl queryCtrl;
-    
+
     CLEAR(queryCtrl);
     queryCtrl.id = v4lFeature;
-    
+
     if (ioctl (m_Fd, VIDIOC_QUERYCTRL, &queryCtrl) == -1) {
         if (errno != EINVAL) {
             cerr << "Got " << strerror(errno) << endl;
@@ -310,9 +311,9 @@ bool V4LCamera::isFeatureSupported(V4LCID_t v4lFeature) const
 int V4LCamera::getFeature(CameraFeature feature) const
 {
     V4LCID_t v4lFeature = getFeatureID(feature);
-    
+
     FeatureMap::const_iterator it = m_Features.find(v4lFeature);
-    
+
     if (it == m_Features.end()) {
         return 0;
     } else {
@@ -332,14 +333,14 @@ void V4LCamera::setFeature(V4LCID_t v4lFeature, int value)
             " is not supported by hardware");
         return;
     }
-    
+
     struct v4l2_control control;
-    
+
     CLEAR(control);
     control.id = v4lFeature;
     control.value = value;
 
-//    AVG_TRACE(Logger::APP, "Setting feature " << getFeatureName(v4lFeature) << 
+//    AVG_TRACE(Logger::APP, "Setting feature " << getFeatureName(v4lFeature) <<
 //      " to "<< value);
 
     if (ioctl(m_Fd, VIDIOC_S_CTRL, &control) == -1) {
@@ -367,37 +368,80 @@ int V4LCamera::getWhitebalanceV() const
 
 void V4LCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
-    setFeature(V4L2_CID_RED_BALANCE, u); 
-    setFeature(V4L2_CID_BLUE_BALANCE, v); 
+    setFeature(V4L2_CID_RED_BALANCE, u);
+    setFeature(V4L2_CID_BLUE_BALANCE, v);
 }
 
-int dumpCameras_open(int j)
+int V4LCamera::checkCamera(int j)
 {
     stringstream minorDeviceNumber;
     minorDeviceNumber << j;
     string address = "/dev/video";
-    string result = address + minorDeviceNumber.str();  
+    string result = address + minorDeviceNumber.str();
     int fd = ::open(result.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
     return fd;
 }
 
-v4l2_capability dumpCameraCapabilities(int fd)
+v4l2_capability getCamCapabilities(int fd)
 {
     v4l2_capability capability;
     memset(&capability, 0, sizeof(capability));
-    int rc = ioctl(fd, VIDIOC_QUERYCAP, &capability);
-    if (rc != -1) {
-        cout << capability.card << ":" << endl;
-        cout << "    Driver:  " << capability.driver << endl;
-        cout << "  Location:  " << capability.bus_info;
-        cout << endl << endl;
-    }
+    ioctl(fd, VIDIOC_QUERYCAP, &capability);
     return capability;
 }
 
-void dumpSupportedImgFormats(int fd)
+PixelFormat V4LCamera::intToPixelFormat(unsigned int pixelformat)
 {
-    cout << "Suported Image Formats:" << endl;
+    switch (pixelformat) {
+        case v4l2_fourcc('Y','U','Y','V'):
+            return YUYV422;
+        case v4l2_fourcc('U','Y','V','Y'):
+            return YCbCr422;
+        case v4l2_fourcc('G','R','E','Y'):
+            return I8;
+        case v4l2_fourcc('Y','1','6',' '):
+            return I16;
+        case v4l2_fourcc('R','G','B','3'):
+            return R8G8B8;
+        case v4l2_fourcc('B','G','R','3'):
+            return B8G8R8;
+        default:
+            return NO_PIXELFORMAT;
+    }
+}
+
+int V4LCamera::countCameras()
+{
+    int numberOfCameras = 0;
+    for (int j = 0; j < 256; j++) {
+        int fd = checkCamera(j);
+        if (fd != -1) {
+            numberOfCameras++;
+        }
+    }
+    return numberOfCameras;
+}
+
+CameraInfo* V4LCamera::getCameraInfos(int deviceNumber)
+{
+    int fd = checkCamera(deviceNumber);
+    if (fd == -1) {
+        AVG_ASSERT(false);
+        return NULL;
+    }
+    stringstream ss;
+    ss << "/dev/video" << deviceNumber;
+    CameraInfo* camInfo = new CameraInfo("video4linux", ss.str());
+    v4l2_capability capability = getCamCapabilities(fd);
+    if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+        getCameraImageFormats(fd, camInfo);
+        getCameraControls(fd, camInfo);
+    }
+    return camInfo;
+}
+
+void V4LCamera::getCameraImageFormats(int fd, CameraInfo* camInfo)
+{
     for (int i = 0;; i++) {
         v4l2_fmtdesc fmtDesc;
         memset(&fmtDesc, 0, sizeof(fmtDesc));
@@ -405,107 +449,61 @@ void dumpSupportedImgFormats(int fd)
         fmtDesc.type  = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         int rc = ioctl(fd, VIDIOC_ENUM_FMT, &fmtDesc);
         if (rc == -1) {
-            break; 
+            break;
         }
         v4l2_frmsizeenum frmSizeEnum;
         memset(&frmSizeEnum, 0, sizeof (frmSizeEnum));
         frmSizeEnum.index = 0;
         frmSizeEnum.pixel_format = fmtDesc.pixelformat;
-        bool bSupported = false;
         while (ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmSizeEnum) == 0) {
-            string sAvgPixelformat;
-            switch (fmtDesc.pixelformat) {
-                case v4l2_fourcc('Y','U','Y','V'):
-                    sAvgPixelformat = "YUYV422";
-                    bSupported = true;
-                    break; 
-                case v4l2_fourcc('U','Y','V','Y'):
-                    sAvgPixelformat = "YUV422";
-                    bSupported = true;
-                    break; 
-                case v4l2_fourcc('G','R','E','Y'):
-                    sAvgPixelformat = "I8"; 
-                    bSupported = true;
-                    break; 
-                case v4l2_fourcc('Y','1','6',' '):
-                    sAvgPixelformat = "I16";
-                    bSupported = true;
-                    break; 
-                case v4l2_fourcc('R','G','B','3'):
-                    sAvgPixelformat = "RGB";
-                    bSupported = true;
-                    break; 
-                case v4l2_fourcc('B','G','R','3'):
-                    sAvgPixelformat = "BGR";
-                    bSupported = true;
-                    break; 
-                default:
-                    break;
-            }
-            
-            if (bSupported) {
+            PixelFormat pixFormat = intToPixelFormat(fmtDesc.pixelformat);
+            if (pixFormat != NO_PIXELFORMAT) {
                 v4l2_frmivalenum frmIvalEnum;
-                cout << "   " << sAvgPixelformat << " ";
-                cout << "  (" << frmSizeEnum.discrete.width << ", ";
-                cout << frmSizeEnum.discrete.height << ")";
-                cout << "   fps: ";
                 memset (&frmIvalEnum, 0, sizeof (frmIvalEnum));
-                frmIvalEnum.index = 0;      
-                frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;  
-                frmIvalEnum.width = frmSizeEnum.discrete.width;   
+                frmIvalEnum.index = 0;
+                frmIvalEnum.pixel_format = frmSizeEnum.pixel_format;
+                frmIvalEnum.width = frmSizeEnum.discrete.width;
                 frmIvalEnum.height = frmSizeEnum.discrete.height;
+                IntPoint size;
+                size.x = frmSizeEnum.discrete.width;
+                size.y = frmSizeEnum.discrete.height;
+                std::vector<float> framerates;
                 while (ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmIvalEnum) == 0) {
-                    cout << frmIvalEnum.discrete.denominator << "/";
-                    frmIvalEnum.index++;                                 
+                    framerates.push_back(frmIvalEnum.discrete.denominator);
+                    frmIvalEnum.index++;
                 }
-                cout << endl;
+                CameraImageFormat camImFormat = CameraImageFormat(size, pixFormat,
+                        framerates);
+                camInfo->addImageFormat(camImFormat);
             }
             frmSizeEnum.index++;
         }
     }
 }
 
-void dumpCameraControls(int fd)
+void V4LCamera::getCameraControls(int fd, CameraInfo* camInfo)
 {
-    cout << endl << "Camera Controls:" << endl;
     v4l2_queryctrl queryCtrl;
     for (queryCtrl.id = V4L2_CID_BASE; queryCtrl.id < V4L2_CID_LASTP1; queryCtrl.id++) {
         int rc = ioctl (fd, VIDIOC_QUERYCTRL, &queryCtrl);
-        if (rc != -1) {
-            if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-                continue;
-            }
-            cout << "  " << queryCtrl.name << ":" << endl;
-            cout << "    Min: " << queryCtrl.minimum << " | ";
-            cout << "Max: " << queryCtrl.maximum << " | ";
-            cout << "Default: "<< queryCtrl.default_value << endl;
-        } else {
-            if (errno != EINVAL) {
-                perror("VIDIOC_QUERYCTRL");
-                exit(EXIT_FAILURE);
-            }          
+        if (rc == -1) {
+            continue;
         }
+        if (queryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+            continue;
+        }
+        stringstream ss;
+        ss << queryCtrl.name;
+        std::string sControlName = ss.str();
+        int min = queryCtrl.minimum;
+        int max = queryCtrl.maximum;
+        int defaultValue = queryCtrl.default_value;
+        CameraControl camControl = CameraControl(sControlName, min, max, defaultValue);
+        camInfo->addControl(camControl);
     }
 }
 
-void V4LCamera::dumpCameras()
-{ 
-    for(int j = 0; j < 256; j++){
-        int fd = dumpCameras_open(j);
-        if (fd != -1) {
-            cout << "------------------------Video4linux Camera-------------------------";
-            cout << endl;
-            cout << "/dev/video" << j << " ";
-            v4l2_capability capability = dumpCameraCapabilities(fd);
-            if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) { 
-                dumpSupportedImgFormats(fd);   
-                dumpCameraControls(fd);
-            } 
-            cout << "-------------------------------------------------------------------";
-            cout << endl;
-        }
-    }
-}
+
 
 
 void V4LCamera::setFeature(CameraFeature feature, int value, bool bIgnoreOldValue)
@@ -544,7 +542,7 @@ void V4LCamera::startCapture()
         int err = xioctl(m_Fd, VIDIOC_QBUF, &buf);
         AVG_ASSERT(err != -1);
     }
-    
+
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     int err= xioctl (m_Fd, VIDIOC_STREAMON, &type);
     AVG_ASSERT(err != -1);
@@ -553,7 +551,7 @@ void V4LCamera::startCapture()
 void V4LCamera::initDevice()
 {
 //  AVG_TRACE(Logger::APP, "Entering initDevice()...");
-    
+
     struct v4l2_capability cap;
     struct v4l2_cropcap CropCap;
     struct v4l2_crop Crop;
@@ -594,14 +592,14 @@ void V4LCamera::initDevice()
                     break;
             }
         }
-    } else {   
+    } else {
             /* Errors ignored. */
     }
 
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = m_ImgSize.x; 
+    fmt.fmt.pix.width = m_ImgSize.x;
     fmt.fmt.pix.height = m_ImgSize.y;
     fmt.fmt.pix.pixelformat = m_v4lPF;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
@@ -609,10 +607,11 @@ void V4LCamera::initDevice()
     if (int(fmt.fmt.pix.width) != m_ImgSize.x || int(fmt.fmt.pix.height) != m_ImgSize.y
         || rc == -1)
     {
-        throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
+        throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera image format: '")
                 +strerror(errno)
-                +"'. Try using avg_showcamera.py --dump to find out what the device supports."));
+                +"'. Try using avg_showcamera.py --dump to find out what\
+                        the device supports."));
     }
 
     CLEAR(StreamParam);
@@ -625,27 +624,28 @@ void V4LCamera::initDevice()
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
-                +"'. Try using avg_showcamera.py --dump to find out what the device supports."));
+                +"'. Try using avg_showcamera.py --dump to find out what\
+                        the device supports."));
     }
     m_FrameRate = (double)StreamParam.parm.capture.timeperframe.denominator / \
             (double)StreamParam.parm.capture.timeperframe.numerator;
 
     initMMap ();
-    
+
     // TODO: string channel instead of numeric
     // select channel
     if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
         close();
         fatalError(string("Cannot set MUX channel ")+toString(m_Channel));
     }
-    
+
     m_bCameraAvailable = true;
 
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second);
     }
 
-    
+
 }
 
 void V4LCamera::initMMap()
@@ -666,7 +666,7 @@ void V4LCamera::initMMap()
             AVG_ASSERT(false);
         }
     }
-    
+
     if (req.count < 2) {
         cerr << "Insufficient buffer memory on " << m_sDevice;
         AVG_ASSERT(false);
@@ -689,7 +689,7 @@ void V4LCamera::initMMap()
         }
 
         tmp.length = buf.length;
-        
+
         tmp.start = mmap (NULL /* start anywhere */,
             buf.length,
             PROT_READ | PROT_WRITE /* required */,
@@ -699,9 +699,10 @@ void V4LCamera::initMMap()
         if (MAP_FAILED == tmp.start) {
             AVG_ASSERT(false);
         }
-                
+
         m_vBuffers.push_back(tmp);
     }
+}
 }
 
 
