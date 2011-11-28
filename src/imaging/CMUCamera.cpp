@@ -260,30 +260,122 @@ void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
         }
     }
 }
-void CMUCamera::dumpCameras()
+
+int CMUCamera::countCameras()
 {
     C1394Camera* pCamera = new C1394Camera();
-
     if (pCamera->RefreshCameraList() <= 0) {
-        return;
+        return 0;
     }
-    if (pCamera->GetNumberCameras() == 0) {
-        return;
+    int numCameras = pCamera->GetNumberCameras();
+    return numCameras;
+}
+
+CameraInfo* CMUCamera::getCameraInfos(int deviceNumber)
+{
+#ifdef AVG_ENABLE_CMU1394
+    C1394Camera* pCamera = new C1394Camera();
+    int err = pCamera->RefreshCameraList();
+    if (err <= 0) {
+        return 0;
     }
-    cerr << "CMU Driver Firewire Cameras: " << endl;
-    for (int i=0; i<pCamera->GetNumberCameras(); ++i) {
-        pCamera->SelectCamera(i);
-        char sz[256];
-        cerr << "  -----------------------" << endl;
-        pCamera->GetCameraVendor(sz, 256);
-        cerr << "  Vendor: " << sz << endl;
-        pCamera->GetCameraName(sz, 256);
-        cerr << "  Name: " << sz << endl;
-        long long camGuid;
-        pCamera->GetCameraUniqueID((PLARGE_INTEGER)&camGuid);
-        cerr << "  GUID: " << camGuid << endl;
+
+    err = pCamera->SelectCamera(deviceNumber);
+    if (err != CAM_SUCCESS) {
+        AVG_ASSERT(false);
     }
+    pCamera->InitCamera(true);
+
+    long long uniqueID;
+    pCamera->GetCameraUniqueID((PLARGE_INTEGER)&uniqueID);
+    stringstream deviceID;
+    deviceID << uniqueID;
+
+    CameraInfo* pCamInfo = new CameraInfo("Firewire", deviceID.str());
+    getCameraImageFormats(pCamera, pCamInfo);
+    getCameraControls(pCamera, pCamInfo);
+
     delete pCamera;
+    return pCamInfo;
+#endif
+    return NULL;
+}
+
+void CMUCamera::getCameraImageFormats(C1394Camera* pCamera, CameraInfo* pCamInfo)
+{
+    //Iterate over formats (up to 3 formats are supported)
+    for (int format = 0; format <= 2; format++) {
+        BOOL hasFormat = false;
+        hasFormat = pCamera->HasVideoFormat(format);
+        if(!hasFormat){
+            continue;
+        }
+        //Iterate over modes (up to 8 modes are supported)
+        for (int mode = 0; mode <= 7; mode++) {
+            BOOL hasMode = false;
+            hasMode = pCamera->HasVideoMode(format, mode);
+            if (!hasMode) {
+                continue;
+            }
+            //Ignore not libavg supported formats
+            if (mode == 0 && format == 0) {
+                continue;
+            }
+
+            IntPoint size;
+            PixelFormat pixelFormat;
+            FrameratesVector framerates;
+
+            getImageSizeAndPF(format, mode, size, pixelFormat);
+            getCameraFramerates(pCamera, format, mode, framerates);
+                    
+            CameraImageFormat imageFormat = CameraImageFormat(size, pixelFormat, framerates);
+            pCamInfo->addImageFormat(imageFormat);
+        }
+    }
+}
+
+void CMUCamera::getCameraFramerates(C1394Camera* pCamera, unsigned long videoFormat, unsigned long videoMode, FrameratesVector &framerates)
+{
+    for (int itFramerate = 0; itFramerate <= 7; itFramerate++) {
+        BOOL hasFramerate = false;
+        hasFramerate = pCamera->HasVideoFrameRate(videoFormat, videoMode, itFramerate);
+        if (!hasFramerate) {
+            continue;
+        }
+
+        float framerate = getFrameRateFloat(itFramerate);
+        framerates.push_back(framerate);
+    }
+}
+
+void CMUCamera::getCameraControls(C1394Camera* pCamera, CameraInfo* pCamInfo)
+{
+    //Iterate over amount of possible Features (up to 24 in CMU1394 DCD 6.4.5.240)
+    for (int indexFeature = 0; indexFeature <= 23; indexFeature++) {
+        C1394CameraControl* feature = pCamera->GetCameraControl((CAMERA_FEATURE)indexFeature);
+        if (feature == NULL) {
+            continue;
+        }
+        bool hasFeature = pCamera->HasFeature((CAMERA_FEATURE)indexFeature);
+        if (!hasFeature) {
+            continue;
+        }
+        //FrameRate (also known as TransferRate) is not supported
+        if (feature->GetFeatureID() == FEATURE_FRAME_RATE) {
+            continue;
+        }
+
+        std::string featureName = feature->GetName();
+        unsigned short min = -1;
+        unsigned short max = -1;
+        feature->GetRange(&min, &max);
+        unsigned short value_low = -1;
+        unsigned short value_high = -1; //TODO: For Whitebalance or Temperature etc.
+        feature->GetValue(&value_low, &value_high);
+        CameraControl camControl = CameraControl(featureName, (int)min, (int)max, (int)value_low);
+        pCamInfo->addControl(camControl);
+    }
 }
 
 int CMUCamera::getCamIndex(long long guid)

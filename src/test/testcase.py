@@ -171,12 +171,8 @@ class AVGTestCase(unittest.TestCase):
             msg = "almostEqual: " + str(a) + " != " + str(b)
             self.fail(msg)
 
-    def loadEmptyScene(self, resolution = (160,120)):
-        sceneString = """
-        <avg id="avg" width="%d" height="%d">
-        </avg>
-        """ % (resolution[0], resolution[1])
-        self.__player.loadString(sceneString)
+    def loadEmptyScene(self, resolution=(160,120)):
+        self.__player.createMainCanvas(size=resolution)
         return self.__player.getRootNode()
 
     def initDefaultImageScene(self):

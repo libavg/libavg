@@ -73,7 +73,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\base\Backtrace.h" />
     <ClInclude Include="..\..\src\base\BezierCurve.h" />
-    <ClInclude Include="..\..\src\base\BicubicSpline.h" />
     <ClInclude Include="..\..\src\base\CmdLine.h" />
     <ClInclude Include="..\..\src\base\CmdQueue.h" />
     <ClInclude Include="..\..\src\base\Command.h" />
@@ -116,7 +115,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\base\Backtrace.cpp" />
     <ClCompile Include="..\..\src\base\BezierCurve.cpp" />
-    <ClCompile Include="..\..\src\base\BicubicSpline.cpp" />
     <ClCompile Include="..\..\src\base\CmdLine.cpp" />
     <ClCompile Include="..\..\src\base\ConfigMgr.cpp" />
     <ClCompile Include="..\..\src\base\CubicSpline.cpp" />

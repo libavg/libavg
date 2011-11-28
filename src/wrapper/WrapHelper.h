@@ -313,14 +313,13 @@ public:
     operator glm::vec2() const;
 };
 
+AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=0);
+
 template<const char * pszType> 
 avg::NodePtr createNode(const boost::python::tuple &args,
         const boost::python::dict &attrs)
 {
-    if (boost::python::len(args) != 0) {
-        throw avg::Exception(AVG_ERR_INVALID_ARGS, 
-                "Nodes must be constructed using named parameters. Positional parameters are not supported.");
-    }
+    checkEmptyArgs(args);
     return avg::Player::get()->createNode(pszType, attrs);
 }
 

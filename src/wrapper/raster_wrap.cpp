@@ -108,10 +108,43 @@ void export_raster()
         .def("setWhitebalance", &CameraNode::setWhitebalance)
         .def("doOneShotWhitebalance", &CameraNode::doOneShotWhitebalance)
         .def("isAvailable", &CameraNode::isAvailable)
-        .def("dumpCameras", make_function(&CameraNode::dumpCameras))
-        .staticmethod("dumpCameras")
+        .def("getCamerasInfos", make_function(&CameraNode::getCamerasInfos))
+        .staticmethod("getCamerasInfos")
         .def("resetFirewireBus", &CameraNode::resetFirewireBus)
         .staticmethod("resetFirewireBus")
+    ;
+
+    //Wrap std::vector from CameraInfo to Pyhton list
+    to_python_converter<CamerasInfosVector, to_list<CamerasInfosVector> >();
+    from_python_sequence<CamerasInfosVector, variable_capacity_policy>();
+
+    to_python_converter<CameraImageFormatsVector, to_list<CameraImageFormatsVector> >();
+    from_python_sequence<CameraImageFormatsVector, variable_capacity_policy>();
+
+    to_python_converter<CameraControlsVector, to_list<CameraControlsVector> >();
+    from_python_sequence<CameraControlsVector, variable_capacity_policy>();
+
+    to_python_converter<FrameratesVector, to_list<FrameratesVector> >();
+    from_python_sequence<FrameratesVector, variable_capacity_policy>();
+
+    class_<CameraImageFormat>("CameraImageFormat", no_init)
+        .add_property("size", &CameraImageFormat::getSize)
+        .add_property("pixelFormat", &CameraImageFormat::getPixelFormat)
+        .add_property("framerates", &CameraImageFormat::getFramerates)
+    ;
+
+    class_<CameraControl>("CameraControl", no_init)
+        .add_property("controlName", &CameraControl::getControlName)
+        .add_property("min", &CameraControl::getMin)
+        .add_property("max", &CameraControl::getMax)
+        .add_property("default", &CameraControl::getDefault)
+    ;
+
+    class_<CameraInfo>("CameraInfo", no_init)
+        .add_property("driver", &CameraInfo::getDriver)
+        .add_property("deviceID", &CameraInfo::getDeviceID)
+        .add_property("imageFormats", &CameraInfo::getImageFormats)
+        .add_property("controls", &CameraInfo::getControls)
     ;
         
     enum_<VideoNode::VideoAccelType>("VideoAccelType")

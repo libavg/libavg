@@ -20,7 +20,6 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
-import os
 from libavg import avg
 from appstarter import AppStarter
 

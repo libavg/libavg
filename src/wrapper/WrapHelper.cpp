@@ -161,6 +161,13 @@ ConstVec2::operator glm::vec2() const
     return glm::vec2(x,y);
 }
 
+void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
+{
+    if (boost::python::len(args) != numArgs) {
+        throw avg::Exception(AVG_ERR_INVALID_ARGS, 
+                "Nodes must be constructed using named parameters. Positional parameters are not supported.");
+    }
+}
 
 template<class VEC2>
 struct Vec2_to_python_tuple

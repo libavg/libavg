@@ -68,6 +68,8 @@ string getPixelFormatString(PixelFormat pf)
             return "I8";
         case I16:
             return "I16";
+        case A8:
+            return "A8";
         case YCbCr411:
             return "YCbCr411";
         case YCbCr422:
@@ -106,7 +108,7 @@ PixelFormat stringToPixelFormat(const string& s)
     if (s == "B5G6R5") {
         return B5G6R5;
     }
-    if (s == "B8G8R8" || s == "BGR") {
+    if (s == "B8G8R8") {
         return B8G8R8;
     }
     if (s == "B8G8R8A8") {
@@ -124,7 +126,7 @@ PixelFormat stringToPixelFormat(const string& s)
     if (s == "R5G6B5") {
         return R5G6B5;
     }
-    if (s == "R8G8B8" || s == "RGB") {
+    if (s == "R8G8B8") {
         return R8G8B8;
     }
     if (s == "R8G8B8A8") {
@@ -145,10 +147,13 @@ PixelFormat stringToPixelFormat(const string& s)
     if (s == "I16") {
         return I16;
     }
-    if (s == "YCbCr411" || s == "YUV411") {
+    if (s == "A8") {
+        return A8;
+    }
+    if (s == "YCbCr411") {
         return YCbCr411;
     }
-    if (s == "YCbCr422" || s == "YUV422") {
+    if (s == "YCbCr422") {
         return YCbCr422;
     }
     if (s == "YUYV422") {
@@ -185,6 +190,18 @@ PixelFormat stringToPixelFormat(const string& s)
         return I32F;
     }
     return NO_PIXELFORMAT;
+}
+
+std::vector<std::string> getSupportedPixelFormats()
+{
+    std::vector<std::string> pixelFormatsVector;
+    int itPixelFormat = 0;
+    while((PixelFormat)itPixelFormat != NO_PIXELFORMAT){
+        std::string format = getPixelFormatString((PixelFormat)itPixelFormat);
+        pixelFormatsVector.push_back(format);
+        itPixelFormat++;
+    }
+    return pixelFormatsVector;
 }
 
 bool pixelFormatIsColored(PixelFormat pf)
@@ -262,7 +279,5 @@ unsigned getBytesPerPixel(PixelFormat pf)
             return 0;
     }
 }
-
-
 
 }

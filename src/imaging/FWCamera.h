@@ -69,7 +69,8 @@ public:
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
-    static void dumpCameras();
+    static int countCameras();
+    static CameraInfo* getCameraInfos(int deviceNumber);
     static void resetBus();
 
 private:
@@ -78,16 +79,18 @@ private:
     void getWhitebalance(int* pU, int* pV) const;
     void enablePtGreyBayer();
 
-    IntPoint m_Size;
-    double m_FrameRate;
-
 #ifdef AVG_ENABLE_1394_2
+    static void getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInfo);
+    static void getCameraControls(dc1394camera_t* pCamera, CameraInfo* camInfo);
+
     dc1394_t * m_pDC1394;
     dc1394camera_t * m_pCamera;
     dc1394framerate_t m_FrameRateConstant; 
-    dc1394video_mode_t m_Mode;            
-    static void dumpCameraInfo(dc1394camera_t * pCamera);
+    dc1394video_mode_t m_Mode;
 #endif
+
+    IntPoint m_Size;
+    double m_FrameRate;
 
     FeatureMap m_Features;
     int m_WhitebalanceU;
