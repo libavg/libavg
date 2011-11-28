@@ -25,6 +25,7 @@
 #include "TrackerConfig.h"
 
 #include "../base/StringHelper.h"
+#include "../base/MathHelper.h"
 #include "../glm/gtx/rotate_vector.hpp"
 #include <cstring>
 #include <iostream>
@@ -102,12 +103,12 @@ FRect DeDistort::getActiveBlobArea(const FRect& displayROI)
     activeRect.tl = transformScreenToBlob(glm::dvec2(displayROI.tl));
     activeRect.br = transformScreenToBlob(glm::dvec2(displayROI.br));
     if (activeRect.height() < 1) {
-        double temp = activeRect.tl.y;
+        float temp = activeRect.tl.y;
         activeRect.tl.y = activeRect.br.y;
         activeRect.br.y = temp;
     } 
     if (activeRect.width() < 1) {
-        double temp = activeRect.tl.x;
+        float temp = activeRect.tl.x;
         activeRect.tl.x = activeRect.br.x;
         activeRect.br.x = temp;
     } 

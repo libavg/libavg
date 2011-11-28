@@ -21,6 +21,7 @@
 
 #include "GLMHelper.h"
 #include "StringHelper.h"
+#include "MathHelper.h"
 
 #include "../glm/gtx/rotate_vector.hpp"
 
@@ -49,7 +50,7 @@ glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle, const glm::vec2& pi
 
 float getAngle(const glm::vec2& vec)
 {
-    return atan2(double(vec.y), double(vec.x));
+    return float(atan2(double(vec.y), double(vec.x)));
 }
 
 glm::vec2 fromPolar(float angle, float radius)
