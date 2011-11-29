@@ -69,7 +69,7 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
 }
 
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
-        const glm::vec2& speed, double orientation, double area, double eccentricity, 
+        const glm::vec2& speed, float orientation, float area, float eccentricity, 
         glm::vec2 majorAxis, glm::vec2 minorAxis)
     : CursorEvent(id, eventType, pos, source),
       m_Orientation(orientation),
@@ -104,12 +104,12 @@ CursorEventPtr TouchEvent::cloneAs(Type eventType) const
     return pClone;
 }
 
-double TouchEvent::getOrientation() const 
+float TouchEvent::getOrientation() const 
 {
     return m_Orientation;
 }
 
-double TouchEvent::getArea() const 
+float TouchEvent::getArea() const 
 {
     return m_Area;
 }
@@ -119,7 +119,7 @@ const glm::vec2 & TouchEvent::getCenter() const
     return m_Center;
 }
 
-double TouchEvent::getEccentricity() const 
+float TouchEvent::getEccentricity() const 
 {
     return m_Eccentricity;
 }
@@ -149,7 +149,7 @@ ContourSeq TouchEvent::getContour()
     }
 }
 
-double TouchEvent::getHandOrientation() const
+float TouchEvent::getHandOrientation() const
 {
     if (getSource() == Event::TOUCH) {
         if (m_bHasHandOrientation) {

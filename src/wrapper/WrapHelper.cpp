@@ -22,6 +22,7 @@
 #include "WrapHelper.h"
 
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <boost/version.hpp>
 

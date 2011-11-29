@@ -85,39 +85,23 @@ glm::vec2* createPoint()
     return new glm::vec2(0,0);
 }
 
-void implicitly_convertible_constVec()
-{
-    // XXX: Hack to make it possible to convert ConstVec2 back to glm::vec2
-    // Just using implicitly_convertible fails because of an overly general
-    // conversion constructor in glm.
-    typedef converter::implicit<ConstVec2,ConstVec2> functions;
-    
-    converter::registry::push_back(
-          &functions::convertible
-        , &functions::construct
-        , type_id<glm::vec2>()
-#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-        , &converter::expected_from_python_type_direct<ConstVec2>::get_pytype
-#endif
-        );
-}
-
 void export_bitmap()
 {
     export_point<glm::vec2>("Point2D")
         .def("__init__", make_constructor(createPoint))
-        .def(init<double, double>())
+        .def(init<float, float>())
         .def(init<const glm::vec2&>())
         .def("__setitem__", &Vec2Helper::setItem)
         .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX,"")
         .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY,"")
     ;
+
     export_point<ConstVec2>("ConstPoint2D")
         .add_property("x", &Vec2Helper::getX, "")
         .add_property("y", &Vec2Helper::getY, "")
     ;
 
-    implicitly_convertible_constVec();
+    implicitly_convertible<ConstVec2, glm::vec2>();
     implicitly_convertible<glm::vec2, ConstVec2>();
 
     enum_<PixelFormat>("pixelformat")

@@ -45,23 +45,23 @@ class AVG_API TouchEvent: public CursorEvent
         TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
                 Source source, const glm::vec2& speed=glm::vec2(0,0));
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
-                const glm::vec2& speed, double orientation, double area, 
-                double eccentricity, glm::vec2 majorAxis, glm::vec2 minorAxis);
+                const glm::vec2& speed, float orientation, float area, 
+                float eccentricity, glm::vec2 majorAxis, glm::vec2 minorAxis);
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
                 const glm::vec2& speed=glm::vec2(0, 0));
         virtual ~TouchEvent();
         virtual CursorEventPtr cloneAs(Type eventType) const;
 
-        double getOrientation() const;
-        double getArea() const;
+        float getOrientation() const;
+        float getArea() const;
         const glm::vec2 & getCenter() const;
-        double getEccentricity() const;
+        float getEccentricity() const;
         const glm::vec2 & getMajorAxis() const;
         const glm::vec2 & getMinorAxis() const;
 
         const BlobPtr getBlob() const;
         ContourSeq getContour();
-        double getHandOrientation() const;
+        float getHandOrientation() const;
 
         void addRelatedEvent(TouchEventPtr pEvent);
         std::vector<TouchEventPtr> getRelatedEvents() const;
@@ -72,15 +72,15 @@ class AVG_API TouchEvent: public CursorEvent
 
     private:
         BlobPtr m_pBlob;
-        double m_Orientation;
-        double m_Area;
+        float m_Orientation;
+        float m_Area;
         glm::vec2 m_Center;
-        double m_Eccentricity;
+        float m_Eccentricity;
         glm::vec2 m_MajorAxis;
         glm::vec2 m_MinorAxis;
         std::vector<TouchEventWeakPtr> m_RelatedEvents;
         bool m_bHasHandOrientation;
-        double m_HandOrientation; 
+        float m_HandOrientation; 
 };
 
 }

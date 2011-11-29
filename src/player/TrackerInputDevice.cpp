@@ -37,7 +37,7 @@
 #include "../imaging/DeDistort.h"
 #include "../imaging/CoordTransformer.h"
 
-#include "glm/gtx/norm.hpp"
+#include "../glm/gtx/norm.hpp"
 
 #include "Player.h"
 #include "AVGNode.h"
@@ -478,8 +478,8 @@ void TrackerInputDevice::findFingertips(std::vector<EventPtr>& pTouchEvents)
         TouchEventPtr pTouchEvent = boost::dynamic_pointer_cast<TouchEvent>(*it);
         vector<TouchEventPtr> pTrackEvents = pTouchEvent->getRelatedEvents();
         if (pTrackEvents.size() > 0) {
-            double handAngle = pTouchEvent->getHandOrientation();
-            double dist = glm::length(pTouchEvent->getMajorAxis())*2;
+            float handAngle = pTouchEvent->getHandOrientation();
+            float dist = glm::length(pTouchEvent->getMajorAxis())*2;
             glm::vec2 tweakVec = fromPolar(handAngle, dist);
             glm::vec2 newPos = pTouchEvent->getPos()-tweakVec;
             newPos.x = max(0.0f, min(newPos.x, float(m_ActiveDisplaySize.x)));

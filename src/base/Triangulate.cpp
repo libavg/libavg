@@ -24,7 +24,7 @@ float getPolygonArea(const Vec2Vector &contour)
   for (int p=n-1,q=0; q<n; p=q++) {
     A += contour[p].x*contour[q].y - contour[q].x*contour[p].y;
   }
-  return A*0.5;
+  return A*0.5f;
 }
 
 

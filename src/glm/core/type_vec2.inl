@@ -108,7 +108,7 @@ namespace detail
 
 	//////////////////////////////////////
 	// Convertion scalar constructors
-		
+/*
 	template <typename T>
 	template <typename U> 
 	GLM_FUNC_QUALIFIER tvec2<T>::tvec2
@@ -118,7 +118,7 @@ namespace detail
 		x(value_type(x)),
 		y(value_type(x))
 	{}
-
+*/
 	template <typename T>
 	template <typename U, typename V> 
 	GLM_FUNC_QUALIFIER tvec2<T>::tvec2

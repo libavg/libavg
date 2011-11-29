@@ -156,7 +156,7 @@ void Blob::calcStats()
 {
     m_Center = calcCenter();
     m_EstimatedNextCenter = m_Center;
-    m_Area = calcArea();
+    m_Area = float(calcArea());
     m_BoundingBox = calcBBox();
     /*
        more useful numbers that can be calculated from c
@@ -178,13 +178,13 @@ void Blob::calcStats()
     float mag;
     for (RunArray::iterator r = m_Runs.begin(); r != m_Runs.end();++r) {
         //This is the evaluated expression for the variance when using runs...
-        ll = r->length();
+        ll = float(r->length());
         c_yy += ll* (r->m_Row- m_Center.y)*(r->m_Row- m_Center.y);
         c_xx += ( (r->m_EndCol-1) * r->m_EndCol * (2*r->m_EndCol-1) 
-                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6. 
+                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6.f 
             - m_Center.x * ((r->m_EndCol-1)*r->m_EndCol-(r->m_StartCol-1)*r->m_StartCol)
             + ll* m_Center.x*m_Center.x;
-        c_xy += (r->m_Row-m_Center.y)*0.5*( (r->m_EndCol-1)*r->m_EndCol
+        c_xy += (r->m_Row-m_Center.y)*0.5f*( (r->m_EndCol-1)*r->m_EndCol
                 - (r->m_StartCol-1)*r->m_StartCol) 
                 + ll *(m_Center.x*m_Center.y - m_Center.x*r->m_Row);
     }
@@ -197,7 +197,7 @@ void Blob::calcStats()
 
     float T = sqrt( (c_xx - c_yy) * (c_xx - c_yy) + 4*c_xy*c_xy);
     m_Eccentricity = ((c_xx + c_yy) + T)/((c_xx+c_yy) - T);
-    m_Orientation = 0.5*atan2(2*c_xy,c_xx-c_yy);
+    m_Orientation = 0.5f*atan2(2*c_xy,c_xx-c_yy);
     // The l_i are variances (unit L^2) so to arrive at numbers that 
     // correspond to lengths in the picture we use sqrt
     // Ensure that eigenvectors always have standard orientation, i.e. the determinant
@@ -205,8 +205,8 @@ void Blob::calcStats()
     //             E_1.x E_2.y - E_1.y E_2.x > 0
     if (fabs(c_xy) > 1e-30) {
         //FIXME. check l1!=0 l2!=0. li=0 happens for line-like components
-        l1 = 0.5 * ((c_xx+c_yy) + sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
-        l2 = 0.5 * ((c_xx+c_yy) - sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
+        l1 = 0.5f * ((c_xx+c_yy) + sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
+        l2 = 0.5f * ((c_xx+c_yy) - sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
         tmp_x = c_xy/l1 - c_xx*c_yy/(c_xy*l1)+ (c_xx/c_xy);
         tmp_y = 1.;
         mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
