@@ -42,7 +42,7 @@ namespace avg {
             virtual ~FFMpegDemuxer();
            
             AVPacket * getPacket(int streamIndex);
-            void seek(double destTime);
+            void seek(float destTime);
             void dump();
             
         private:

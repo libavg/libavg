@@ -45,8 +45,8 @@ class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         virtual ~AudioDecoderThread();
         
         bool work();
-        void seek(double destTime);
-        void setVolume(double volume);
+        void seek(float destTime);
+        void setVolume(float volume);
 
     private:
         VideoMsgQueue& m_MsgQ;

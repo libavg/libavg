@@ -38,27 +38,27 @@ class AVG_API VideoMsg {
 public:
     enum MsgType {NONE, AUDIO, END_OF_FILE, ERROR, FRAME, SEEK_DONE, VDPAU_FRAME};
     VideoMsg();
-    void setAudio(AudioBufferPtr pAudioBuffer, double audioTime);
+    void setAudio(AudioBufferPtr pAudioBuffer, float audioTime);
     void setEOF();
     void setError(const Exception& ex);
-    void setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime);
-    void setVDPAUFrame(vdpau_render_state* m_pRenderState, double frameTime);
-    void setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime);
+    void setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime);
+    void setVDPAUFrame(vdpau_render_state* m_pRenderState, float frameTime);
+    void setSeekDone(float seekVideoFrameTime, float seekAudioFrameTime);
 
     virtual ~VideoMsg();
 
     MsgType getType();
 
     AudioBufferPtr getAudioBuffer() const;
-    double getAudioTime() const;
+    float getAudioTime() const;
 
     const Exception& getException() const;
 
     BitmapPtr getFrameBitmap(int i);
-    double getFrameTime();
+    float getFrameTime();
 
-    double getSeekVideoFrameTime();
-    double getSeekAudioFrameTime();
+    float getSeekVideoFrameTime();
+    float getSeekAudioFrameTime();
 
     vdpau_render_state* getRenderState();
 
@@ -67,21 +67,21 @@ private:
 
     // AUDIO
     AudioBufferPtr m_pAudioBuffer;
-    double m_AudioTime;
+    float m_AudioTime;
 
     // ERROR
     Exception* m_pEx;
 
     // FRAME
     std::vector<BitmapPtr> m_pBmps;
-    double m_FrameTime;
+    float m_FrameTime;
 
     // VDPAU_FRAME
     vdpau_render_state* m_pRenderState;
 
     // SEEK_DONE
-    double m_SeekVideoFrameTime;
-    double m_SeekAudioFrameTime;
+    float m_SeekVideoFrameTime;
+    float m_SeekAudioFrameTime;
 
 };
 

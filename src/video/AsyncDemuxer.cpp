@@ -90,7 +90,7 @@ AVPacket * AsyncDemuxer::getPacket(int streamIndex)
     return pPacketMsg->getPacket();
 }
 
-void AsyncDemuxer::seek(double destTime)
+void AsyncDemuxer::seek(float destTime)
 {
     // TODO: There is a (theoretical) race condition here - getPacket() and seek() can
     // be called from different threads. Among other things, this can cause the assert in 

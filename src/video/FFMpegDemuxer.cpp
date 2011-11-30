@@ -90,12 +90,12 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
         } while (!pPacket || pPacket->stream_index != streamIndex);
     }
 
-//    double timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
+//    float timeBase = av_q2d(m_pFormatContext->streams[streamIndex]->time_base);
 //    cerr << "FFMpegDemuxer: " << streamIndex << ": " << pPacket->dts*timeBase << endl;
     return pPacket;
 }
 
-void FFMpegDemuxer::seek(double destTime)
+void FFMpegDemuxer::seek(float destTime)
 {
 #if LIBAVFORMAT_BUILD <= 4616
     av_seek_frame(m_pFormatContext, -1, destTime*1000000);

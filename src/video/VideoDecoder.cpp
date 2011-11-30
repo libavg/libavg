@@ -24,7 +24,7 @@
 
 namespace avg {
 
-FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, double timeWanted)
+FrameAvailableCode VideoDecoder::renderToBmp(BitmapPtr pBmp, float timeWanted)
 {
     std::vector<BitmapPtr> pBmps;
     pBmps.push_back(pBmp);

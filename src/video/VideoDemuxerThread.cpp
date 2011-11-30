@@ -101,7 +101,7 @@ void VideoDemuxerThread::deinit()
 {
 }
 
-void VideoDemuxerThread::seek(double destTime)
+void VideoDemuxerThread::seek(float destTime)
 {
     map<int, VideoPacketQueuePtr>::iterator it;
     m_pDemuxer->seek(destTime);

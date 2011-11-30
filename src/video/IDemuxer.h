@@ -36,7 +36,7 @@ namespace avg {
             virtual ~IDemuxer() {};
            
             virtual AVPacket * getPacket(int StreamIndex) = 0;
-            virtual void seek(double DestTime) = 0;
+            virtual void seek(float DestTime) = 0;
             virtual void dump() {};
             
     };
