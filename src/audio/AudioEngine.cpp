@@ -54,7 +54,7 @@ void AudioEngine::setAudioEnabled(bool bEnabled)
     }
 }
 
-void AudioEngine::init(const AudioParams& ap, double volume)
+void AudioEngine::init(const AudioParams& ap, float volume)
 {
     m_Volume = volume;
 }
@@ -81,12 +81,12 @@ void AudioEngine::removeSource(IAudioSource* pSource)
     }
 }
 
-void AudioEngine::setVolume(double volume)
+void AudioEngine::setVolume(float volume)
 {
     m_Volume = volume;
 }
 
-double AudioEngine::getVolume() const
+float AudioEngine::getVolume() const
 {
     return m_Volume;
 }
