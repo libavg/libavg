@@ -58,7 +58,8 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     m_FrameSize = m_pCanvas->getSize();
 #ifdef WIN32
     int fd = _open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
-
+#elif defined linux
+    int fd = open64(m_sOutFileName.c_str(), O_RDWR | O_CREAT, S_IRWXU);
 #else
     int fd = open(m_sOutFileName.c_str(), O_RDWR | O_CREAT, S_IRWXU);
 #endif
