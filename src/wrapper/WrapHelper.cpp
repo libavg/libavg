@@ -110,7 +110,7 @@ namespace Vec2Helper
         if (pt.x==0 && pt.y==0) {
             throw Exception(AVG_ERR_OUT_OF_RANGE, "Can't normalize (0,0).");
         } else {
-            double invNorm = 1/sqrt(pt.x*pt.x+pt.y*pt.y);
+            float invNorm = 1/sqrt(pt.x*pt.x+pt.y*pt.y);
             return glm::vec2(pt.x*invNorm, pt.y*invNorm);
         }
     }
@@ -376,7 +376,7 @@ void export_base()
   
     from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
     from_python_sequence<vector<FTriple>, variable_capacity_policy>();
-    from_python_sequence<vector<double>, variable_capacity_policy>();
+    from_python_sequence<vector<float>, variable_capacity_policy>();
     
     to_python_converter<UTF8String, UTF8String_to_unicode>();
     UTF8String_from_unicode();

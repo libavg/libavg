@@ -273,13 +273,13 @@ struct from_python_sequence
 };
 
 template<class T>
-double deprecatedGet(T& node)
+float deprecatedGet(T& node)
 {
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
 
 template<class T>
-void deprecatedSet(T& node, double d)
+void deprecatedSet(T& node, float d)
 {
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
