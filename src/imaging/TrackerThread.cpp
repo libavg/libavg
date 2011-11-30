@@ -375,7 +375,7 @@ bool TrackerThread::isRelevant(BlobPtr pBlob, int minArea, int maxArea,
         float minEccentricity, float maxEccentricity)
 {
     bool res;
-    res = isInbetween(pBlob->getArea(), minArea, maxArea) && 
+    res = isInbetween(pBlob->getArea(), float(minArea), float(maxArea)) && 
             isInbetween(pBlob->getEccentricity(), minEccentricity, maxEccentricity);
     return res;
 }

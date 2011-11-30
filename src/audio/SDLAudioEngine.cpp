@@ -85,7 +85,7 @@ void SDLAudioEngine::init(const AudioParams& ap, float volume)
 {
     AudioEngine::init(ap, volume);
     m_AP = ap;
-    Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(m_AP.m_SampleRate);
+    Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
     pLimiter->setThreshold(0.f); // in dB
     pLimiter->setAttackTime(0.f); // in seconds
     pLimiter->setReleaseTime(0.05f); // in seconds

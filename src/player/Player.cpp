@@ -625,11 +625,11 @@ float Player::getFrameDuration()
                 "Must call Player.play() before getFrameDuration().");
     }
     if (m_bFakeFPS) {
-        return 1000.0/m_FakeFPS;
+        return 1000.0f/m_FakeFPS;
     } else {
         float framerate = m_pDisplayEngine->getEffectiveFramerate();
         if (framerate > 0) {
-            return 1000./framerate;
+            return 1000.f/framerate;
         } else {
             return 0;
         }
@@ -1128,7 +1128,7 @@ void Player::initConfig()
 
     m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
-    m_DP.m_DotsPerMM = atof(pMgr->getOption("scr", "dotspermm")->c_str());
+    m_DP.m_DotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR,

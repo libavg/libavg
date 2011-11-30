@@ -400,7 +400,7 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
 void VideoNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
-        m_pDecoder->seek(float(destTime)/1000.0);
+        m_pDecoder->seek(float(destTime)/1000.0f);
         m_StartTime = Player::get()->getFrameTime() - destTime;
         m_JitterCompensation = 0.5;
         m_PauseTime = 0;
@@ -622,7 +622,7 @@ void VideoNode::preRender()
         if (m_VideoState == Playing) {
             // Throw away frames that are not visible to make sure the video 
             // stays in sync.
-            m_pDecoder->throwAwayFrame(getNextFrameTime()/1000.0);
+            m_pDecoder->throwAwayFrame(getNextFrameTime()/1000.0f);
 
             if (m_pDecoder->isEOF()) {
                 updateStatusDueToDecoderEOF();
@@ -726,9 +726,9 @@ FrameAvailableCode VideoNode::renderToSurface()
         pBmps.push_back(m_pTextures[i]->lockStreamingBmp());
     }
     if (pixelFormatIsPlanar(pf)) {
-        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0);
+        frameAvailable = m_pDecoder->renderToBmps(pBmps, getNextFrameTime()/1000.0f);
     } else {
-        frameAvailable = m_pDecoder->renderToBmp(pBmps[0], getNextFrameTime()/1000.0);
+        frameAvailable = m_pDecoder->renderToBmp(pBmps[0], getNextFrameTime()/1000.0f);
     }
     for (unsigned i=0; i<getNumPixelFormatPlanes(pf); ++i) {
         m_pTextures[i]->unlockStreamingBmp(frameAvailable == FA_NEW_FRAME);

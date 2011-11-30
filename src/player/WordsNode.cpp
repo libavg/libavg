@@ -650,7 +650,7 @@ void WordsNode::updateLayout()
             m_LogicalSize.x = logical_rect.width;
             m_InkOffset = IntPoint(ink_rect.x-logical_rect.x, ink_rect.y-logical_rect.y);
             if (m_LineSpacing == -1) {
-                m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
+                m_LineSpacing = float(pango_layout_get_spacing(m_pLayout))/PANGO_SCALE;
             }
             m_RedrawState = RENDER_NEEDED;
             setViewport(-32767, -32767, -32767, -32767);

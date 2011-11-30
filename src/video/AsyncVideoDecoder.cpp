@@ -384,7 +384,7 @@ VideoMsgPtr AsyncVideoDecoder::getBmpsForTime(float timeWanted,
         pFrameMsg = getNextBmps(true);
         frameAvailable = FA_NEW_FRAME;
     } else {
-        float timePerFrame = 1.0/getFPS();
+        float timePerFrame = 1.0f/getFPS();
         if (fabs(float(timeWanted-m_LastVideoFrameTime)) < 0.5*timePerFrame || 
                 m_LastVideoFrameTime > timeWanted+timePerFrame) {
             // The last frame is still current. Display it again.

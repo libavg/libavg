@@ -66,7 +66,7 @@ public:
         {
             return 0.0;
         }
-        return float(exp(-dVal * dVal/m_dWidth-1) / sqrt(2*M_PI));
+        return float(exp(-dVal * dVal/m_dWidth-1) / sqrt(2*PI));
     }
 };
 

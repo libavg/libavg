@@ -276,7 +276,7 @@ void CircleNode::getEigthCirclePoints(vector<glm::vec2>& pts, float radius)
     int numPts = getNumCircumferencePoints();
     for (int i = 0; i <= numPts/8; ++i) {
         float ratio = (float(i)/numPts);
-        float angle = ratio*2*M_PI;
+        float angle = ratio*2*PI;
         pts.push_back(getCirclePt(angle, radius));
     }
 }

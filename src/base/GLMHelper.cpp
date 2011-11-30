@@ -31,7 +31,7 @@ namespace avg {
 
 glm::vec2 getRotated(const glm::vec2& vec, float angle)
 {
-    return glm::rotate(vec, float(angle*180/M_PI));
+    return glm::rotate(vec, angle*180/PI);
 }
 
 glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle, const glm::vec2& pivot)
@@ -40,7 +40,7 @@ glm::vec2 getRotatedPivot(const glm::vec2& vec, float angle, const glm::vec2& pi
     glm::vec2 translated = vec - pivot;
    
     // calculate rotated coordinates about the origin
-    glm::vec2 rotated = glm::rotate(translated, float(angle*180/M_PI));
+    glm::vec2 rotated = glm::rotate(translated, angle*180/PI);
 
     // re-translate pivot to original position
     rotated += pivot;

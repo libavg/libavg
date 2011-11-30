@@ -32,6 +32,7 @@
 
 namespace avg {
 
+static const float PI = 3.14159265358979323846f;
 static const float EPSILON = 0.00001f;
 
 bool ispow2(int n);

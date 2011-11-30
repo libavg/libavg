@@ -155,7 +155,7 @@ void CurveNode::updateLines()
 {
     BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
     
-    float len = getCurveLen();
+    float len = float(getCurveLen());
     m_LeftCurve.clear();
     m_RightCurve.clear();
     m_LeftCurve.reserve(int(len+1.5f));

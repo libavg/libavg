@@ -171,7 +171,7 @@ float AreaNode::getAngle() const
 
 void AreaNode::setAngle(float angle)
 {
-    m_Angle = fmod(angle, float(2*M_PI));
+    m_Angle = fmod(angle, 2*PI);
 }
 
 glm::vec2 AreaNode::getPivot() const
@@ -236,17 +236,17 @@ void AreaNode::setViewport(float x, float y, float width, float height)
     if (y == -32767) {
         y = getRelViewport().tl.y;
     }
-    IntPoint MediaSize = getMediaSize();
+    glm::vec2 mediaSize = glm::vec2(getMediaSize());
     if (width == -32767) {
         if (m_UserSize.x == 0.0) {
-            width = MediaSize.x;
+            width = mediaSize.x;
         } else {
             width = m_UserSize.x;
         } 
     }
     if (height == -32767) {
         if (m_UserSize.y == 0.0) {
-            height = MediaSize.y;
+            height = mediaSize.y;
         } else {
             height = m_UserSize.y;
         } 

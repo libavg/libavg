@@ -343,7 +343,7 @@ void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
 #ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4;
+        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
     #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
@@ -551,7 +551,7 @@ void SDLDisplayEngine::calcRefreshRate()
 #elif defined _WIN32
     // This isn't correct for multi-monitor systems.
     HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
-    s_RefreshRate = GetDeviceCaps(hDC, VREFRESH);
+    s_RefreshRate = float(GetDeviceCaps(hDC, VREFRESH));
     if (s_RefreshRate < 2) {
         s_RefreshRate = 60;
     }

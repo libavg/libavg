@@ -197,7 +197,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_State = OPENED;
         
         // Set video parameters
-        m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
+        m_TimeUnitsPerSecond = float(1.0/av_q2d(m_pVStream->time_base));
         if (m_bUseStreamFPS) {
             m_FPS = getNominalFPS();
         }
@@ -228,8 +228,8 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_AudioStartTimestamp = 0;
         
         if ((unsigned long long)m_pAStream->start_time != AV_NOPTS_VALUE) {
-            m_AudioStartTimestamp = av_q2d(m_pAStream->time_base)
-                    *m_pAStream->start_time;
+            m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)
+                    *m_pAStream->start_time);
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
         int rc = openCodec(m_AStreamIndex, bUseHardwareAcceleration);
@@ -416,7 +416,7 @@ void FFMpegDecoder::seek(float destTime)
     }
     m_pDemuxer->seek(destTime + getStartTime());
     if (m_pVStream) {
-        m_LastVideoFrameTime = destTime - 1.0/m_FPS;
+        m_LastVideoFrameTime = destTime - 1.0f/m_FPS;
     }
     if (m_pAStream) {
         mutex::scoped_lock lock(m_AudioMutex);
@@ -483,14 +483,14 @@ float FFMpegDecoder::getDuration() const
     if (duration == AV_NOPTS_VALUE) {
         return 0;
     } else {
-        return float(duration)*av_q2d(time_base);
+        return float(duration)*float(av_q2d(time_base));
     }
 }
 
 float FFMpegDecoder::getNominalFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    return av_q2d(m_pVStream->r_frame_rate);
+    return float(av_q2d(m_pVStream->r_frame_rate));
 }
 
 float FFMpegDecoder::getFPS() const
@@ -1069,7 +1069,7 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
             }
             // We don't have a timestamp for the last frame, so we'll
             // calculate it based on the frame before.
-            frameTime = m_LastVideoFrameTime+1.0/m_FPS;
+            frameTime = m_LastVideoFrameTime+1.0f/m_FPS;
             m_LastVideoFrameTime = frameTime;
         }
     }
@@ -1092,14 +1092,14 @@ float FFMpegDecoder::getFrameTime(long long dts)
     if (m_VideoStartTimestamp == -1) {
         m_VideoStartTimestamp = dts;
     }
-    double frameTime;
+    float frameTime;
     if (m_bUseStreamFPS) {
-        frameTime = double(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
+        frameTime = float(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastVideoFrameTime == -1) {
             frameTime = 0;
         } else {
-            frameTime = m_LastVideoFrameTime + 1.0/m_FPS;
+            frameTime = m_LastVideoFrameTime + 1.0f/m_FPS;
         }
     }
     m_LastVideoFrameTime = frameTime;
@@ -1117,7 +1117,7 @@ float FFMpegDecoder::getStartTime()
 
 float FFMpegDecoder::calcStreamFPS() const
 {
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+    return (float(m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den);
 }
 
 string FFMpegDecoder::getStreamPF() const
