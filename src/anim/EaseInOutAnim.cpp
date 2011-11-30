@@ -48,18 +48,18 @@ EaseInOutAnim::~EaseInOutAnim()
 
 float EaseInOutAnim::interpolate(float t)
 {
-    float accelDist = m_EaseInDuration*2/M_PI;
-    float decelDist = m_EaseOutDuration*2/M_PI;
+    float accelDist = m_EaseInDuration*2/PI;
+    float decelDist = m_EaseOutDuration*2/PI;
     float dist;
     if (t<m_EaseInDuration) {
         // Acceleration stage 
         float nt = t/m_EaseInDuration;
-        float s = sin(-M_PI/2+nt*M_PI/2)+1;
+        float s = sin(-PI/2+nt*PI/2)+1;
         dist = s*accelDist;
     } else if (t > 1-m_EaseOutDuration) {
         // Deceleration stage
         float nt = (t-(1-m_EaseOutDuration))/m_EaseOutDuration;
-        float s = sin(nt*M_PI/2);
+        float s = sin(nt*PI/2);
         dist = accelDist+(1-m_EaseInDuration-m_EaseOutDuration)+s*decelDist;
     } else {
         // Linear stage

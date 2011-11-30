@@ -66,7 +66,7 @@ void ContinuousAnim::abort()
 bool ContinuousAnim::step()
 {
     object curValue;
-    float time = (Player::get()->getFrameTime()-m_StartTime)/1000.0;
+    float time = (Player::get()->getFrameTime()-m_StartTime)/1000.0f;
     if (isPythonType<float>(m_EffStartValue)) {
         curValue = object(time*extract<float>(m_Speed)+m_EffStartValue);
         if (m_bUseInt) {

@@ -83,7 +83,7 @@ std::vector<std::vector<T> > vector2DFromCArray(int n, int m, T* pData)
 template<class T>
 T round(T d)
 {
-    return floor( d + 0.5 );
+    return floor(d + 0.5f);
 }
 #endif
 
