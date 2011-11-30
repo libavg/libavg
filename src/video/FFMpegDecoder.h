@@ -156,7 +156,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         boost::mutex m_AudioMutex;
         float m_LastAudioFrameTime;
         bool m_bFirstPacket;
-        float m_VideoStartTimestamp;
+        long long m_VideoStartTimestamp;
         float m_LastVideoFrameTime;
 
         float m_FPS;

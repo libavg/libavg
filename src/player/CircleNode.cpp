@@ -24,6 +24,7 @@
 #include "NodeDefinition.h"
 
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <sstream>

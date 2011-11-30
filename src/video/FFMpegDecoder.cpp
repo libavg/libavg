@@ -1090,16 +1090,16 @@ float FFMpegDecoder::readFrame(AVFrame& frame)
 float FFMpegDecoder::getFrameTime(long long dts)
 {
     if (m_VideoStartTimestamp == -1) {
-        m_VideoStartTimestamp = float(dts)/m_TimeUnitsPerSecond;
+        m_VideoStartTimestamp = dts;
     }
-    float frameTime;
+    double frameTime;
     if (m_bUseStreamFPS) {
-        frameTime = float(dts)/m_TimeUnitsPerSecond-m_VideoStartTimestamp;
+        frameTime = double(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastVideoFrameTime == -1) {
             frameTime = 0;
         } else {
-            frameTime = m_LastVideoFrameTime + 1.0f/m_FPS;
+            frameTime = m_LastVideoFrameTime + 1.0/m_FPS;
         }
     }
     m_LastVideoFrameTime = frameTime;
@@ -1109,7 +1109,7 @@ float FFMpegDecoder::getFrameTime(long long dts)
 float FFMpegDecoder::getStartTime()
 {
     if (m_pVStream) {
-        return m_VideoStartTimestamp;
+        return m_VideoStartTimestamp/m_TimeUnitsPerSecond;
     } else {
         return m_AudioStartTimestamp;
     }
