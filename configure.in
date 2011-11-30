@@ -23,7 +23,7 @@ CXXFLAGS="$CXXFLAGS -Wall -pipe"
 CFLAGS="$CFLAGS -Wall -pipe"
 case `uname -m` in
   x86*|i?86*)
-    CXXFLAGS="-Wno-invalid-offsetof -msse2 $CXXFLAGS"
+    CXXFLAGS="-Wno-invalid-offsetof -Wextra -Wno-missing-field-initializers -Wno-ignored-qualifiers -Wswitch -Wuninitialized -Wno-unused-parameter -msse2 $CXXFLAGS"
     CFLAGS="-msse2 $CFLAGS"
 esac
 OBJC="gcc"
