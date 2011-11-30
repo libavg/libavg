@@ -71,7 +71,7 @@ TrackerInputDevice::TrackerInputDevice()
     bool bFW800 = m_TrackerConfig.getBoolParam("/camera/fw800/@value");
     IntPoint captureSize(m_TrackerConfig.getPointParam("/camera/size/"));
     string sCaptureFormat = m_TrackerConfig.getParam("/camera/format/@value");
-    double frameRate = m_TrackerConfig.getFloatParam("/camera/framerate/@value");
+    float frameRate = m_TrackerConfig.getFloatParam("/camera/framerate/@value");
 
     PixelFormat camPF = stringToPixelFormat(sCaptureFormat);
     if (camPF == NO_PIXELFORMAT) {
@@ -261,14 +261,14 @@ void TrackerInputDevice::update(BlobVectorPtr pTrackBlobs,
 // Temporary structure to be put into heap of blob distances. Used only in 
 // trackBlobIDs.
 struct BlobDistEntry {
-    BlobDistEntry(double dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
+    BlobDistEntry(float dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
         : m_Dist(dist),
           m_pNewBlob(pNewBlob),
           m_pOldBlob(pOldBlob)
     {
     }
 
-    double m_Dist;
+    float m_Dist;
     BlobPtr m_pNewBlob;
     BlobPtr m_pOldBlob;
 };
@@ -302,14 +302,14 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
         oldBlobs.push_back((*it).first);
     }
     // Create a heap that contains all distances of old to new blobs < MaxDist
-    double MaxDist = m_TrackerConfig.getFloatParam(sConfigPath+"similarity/@value");
-    double MaxDistSquared = MaxDist*MaxDist;
+    float MaxDist = m_TrackerConfig.getFloatParam(sConfigPath+"similarity/@value");
+    float MaxDistSquared = MaxDist*MaxDist;
     priority_queue<BlobDistEntryPtr> distHeap;
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
         BlobPtr pNewBlob = *it;
         for(BlobVector::iterator it2 = oldBlobs.begin(); it2 != oldBlobs.end(); ++it2) { 
             BlobPtr pOldBlob = *it2;
-            double distSquared = glm::distance2(pNewBlob->getCenter(),
+            float distSquared = glm::distance2(pNewBlob->getCenter(),
                     pOldBlob->getEstimatedNextCenter());
             if (distSquared <= MaxDistSquared) {
                 BlobDistEntryPtr pEntry = BlobDistEntryPtr(

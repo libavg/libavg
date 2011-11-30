@@ -100,8 +100,8 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         virtual void setID(const std::string& ID);
 
-        double getOpacity() const;
-        void setOpacity(double opacity);
+        float getOpacity() const;
+        void setOpacity(float opacity);
         
         bool getActive() const;
         void setActive(bool bActive);
@@ -130,7 +130,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         virtual void maybeRender(const FRect& Rect) {};
         virtual void render(const FRect& Rect) {};
 
-        double getEffectiveOpacity() const;
+        float getEffectiveOpacity() const;
         virtual std::string dump(int indent = 0);
         
         NodeState getState() const;
@@ -201,12 +201,12 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         CanvasWeakPtr m_pCanvas;
 
-        double m_Opacity;
+        float m_Opacity;
         NodeState m_State;
 
         bool m_bActive;
         bool m_bSensitive;
-        double m_EffectiveOpacity;
+        float m_EffectiveOpacity;
 };
 
 }

@@ -139,8 +139,8 @@ void VideoWriterThread::open()
     av_set_parameters(m_pOutputFormatContext, NULL);
 #endif
 
-    double muxPreload = 0.5;
-    double muxMaxDelay = 0.7;
+    float muxPreload = 0.5;
+    float muxMaxDelay = 0.7;
     m_pOutputFormatContext->preload = int(muxPreload * AV_TIME_BASE);
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
 

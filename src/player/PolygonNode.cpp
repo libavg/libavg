@@ -40,12 +40,12 @@ namespace avg {
 NodeDefinition PolygonNode::createDefinition()
 {
     vector<glm::vec2> v;
-    vector<double> vd;
+    vector<float> vd;
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
-        .addArg(Arg<vector<double> >("texcoords", vd, false,
+        .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
         ;
 }

@@ -94,9 +94,9 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
-        void blt32(const glm::vec2& destSize, double opacity, GLContext::BlendMode mode,
+        void blt32(const glm::vec2& destSize, float opacity, GLContext::BlendMode mode,
                 bool bPremultipliedAlpha = false);
-        void blta8(const glm::vec2& destSize, double opacity, 
+        void blta8(const glm::vec2& destSize, float opacity, 
                 const Pixel32& color, GLContext::BlendMode mode);
 
         virtual OGLSurface * getSurface();
@@ -114,7 +114,7 @@ class AVG_API RasterNode: public AreaNode
         void checkDisplayAvailable(std::string sMsg);
         void setupFX(bool bNewFX);
         void blt(const glm::vec2& destSize, GLContext::BlendMode mode, 
-                double opacity, const Pixel32& color, bool bPremultipliedAlpha);
+                float opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);

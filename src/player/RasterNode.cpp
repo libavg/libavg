@@ -342,13 +342,13 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
-void RasterNode::blt32(const glm::vec2& destSize, double opacity, 
+void RasterNode::blt32(const glm::vec2& destSize, float opacity, 
         GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
     blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
-void RasterNode::blta8(const glm::vec2& destSize, double opacity, 
+void RasterNode::blta8(const glm::vec2& destSize, float opacity, 
         const Pixel32& color, GLContext::BlendMode mode)
 {
     blt(destSize, mode, opacity, color, false);
@@ -437,8 +437,8 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT);
 
-        glColor4d(double(color.getR())/256, double(color.getG())/256, 
-                double(color.getB())/256, 1);
+        glColor4d(float(color.getR())/256, float(color.getG())/256, 
+                float(color.getB())/256, 1);
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
@@ -510,7 +510,7 @@ void RasterNode::setupFX(bool bNewFX)
 }
 
 void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
-        double opacity, const Pixel32& color, bool bPremultipliedAlpha)
+        float opacity, const Pixel32& color, bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
@@ -530,8 +530,8 @@ void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
     } else {
         m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         pContext->setBlendMode(mode, bPremultipliedAlpha);
-        glColor4d(double(color.getR())/256, double(color.getG())/256, 
-                double(color.getB())/256, opacity);
+        glColor4d(float(color.getR())/256, float(color.getG())/256, 
+                float(color.getB())/256, opacity);
         destRect = FRect(glm::vec2(0,0), destSize);
     }
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
@@ -571,8 +571,8 @@ IntPoint RasterNode::getNumTiles()
     if (m_TileSize.x == -1) {
         return IntPoint(1,1);
     } else {
-        return IntPoint(safeCeil(double(size.x)/m_TileSize.x),
-                safeCeil(double(size.y)/m_TileSize.y));
+        return IntPoint(safeCeil(float(size.x)/m_TileSize.x),
+                safeCeil(float(size.y)/m_TileSize.y));
     }
 }
 
@@ -597,12 +597,12 @@ void RasterNode::calcTileVertex(int x, int y, glm::vec2& Vertex)
 {
     IntPoint numTiles = getNumTiles();
     if (x < numTiles.x) {
-        Vertex.x = double(m_TileSize.x*x) / m_pSurface->getSize().x;
+        Vertex.x = float(m_TileSize.x*x) / m_pSurface->getSize().x;
     } else {
         Vertex.x = 1;
     }
     if (y < numTiles.y) {
-        Vertex.y = double(m_TileSize.y*y) / m_pSurface->getSize().y;
+        Vertex.y = float(m_TileSize.y*y) / m_pSurface->getSize().y;
     } else {
         Vertex.y = 1;
     }
@@ -619,8 +619,8 @@ void RasterNode::calcTexCoords()
     if (m_TileSize.x == -1) {
         texSizePerTile = texCoordExtents;
     } else {
-        texSizePerTile = glm::vec2(double(m_TileSize.x)/imageSize.x*texCoordExtents.x,
-                double(m_TileSize.y)/imageSize.y*texCoordExtents.y);
+        texSizePerTile = glm::vec2(float(m_TileSize.x)/imageSize.x*texCoordExtents.x,
+                float(m_TileSize.y)/imageSize.y*texCoordExtents.y);
     }
 
     IntPoint numTiles = getNumTiles();

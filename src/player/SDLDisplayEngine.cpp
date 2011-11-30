@@ -84,7 +84,7 @@ using namespace std;
 
 namespace avg {
 
-double SDLDisplayEngine::s_RefreshRate = 0.0;
+float SDLDisplayEngine::s_RefreshRate = 0.0;
 
 void safeSetAttribute(SDL_GLattr attr, int value) 
 {
@@ -138,7 +138,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-    double aspectRatio = double(dp.m_Size.x)/double(dp.m_Size.y);
+    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
         m_WindowSize = dp.m_Size;
     } else if (dp.m_WindowSize.x == 0) {
@@ -298,7 +298,7 @@ void SDLDisplayEngine::teardown()
     }
 }
 
-double SDLDisplayEngine::getRefreshRate() 
+float SDLDisplayEngine::getRefreshRate() 
 {
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
@@ -306,7 +306,7 @@ double SDLDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void SDLDisplayEngine::setGamma(double red, double green, double blue)
+void SDLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", " << blue);
@@ -330,7 +330,7 @@ int SDLDisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
+void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (dotsPerMM != 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
@@ -526,7 +526,7 @@ bool SDLDisplayEngine::vbWait(int rate)
 
 void SDLDisplayEngine::calcRefreshRate()
 {
-    double lastRefreshRate = s_RefreshRate;
+    float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
 #ifdef __APPLE__
     CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
@@ -568,7 +568,7 @@ void SDLDisplayEngine::calcRefreshRate()
         AVG_TRACE (Logger::WARNING, 
                 "Defaulting to 60 Hz refresh rate.");
     }
-    double HSyncRate = pixelClock*1000.0/modeLine.htotal;
+    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
     s_RefreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
 #endif
@@ -1050,7 +1050,7 @@ IntPoint SDLDisplayEngine::getScreenResolution()
     return m_ScreenResolution;
 }
 
-double SDLDisplayEngine::getPixelsPerMM()
+float SDLDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
@@ -1067,7 +1067,7 @@ glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
     return size;
 }
 
-void SDLDisplayEngine::assumePixelsPerMM(double ppmm)
+void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
 {
     m_PPMM = ppmm;
 }

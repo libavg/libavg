@@ -62,9 +62,9 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
 
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
-        double getVolume();
-        void setVolume(double volume);
-        double getFPS() const;
+        float getVolume();
+        void setVolume(float volume);
+        float getFPS() const;
         int getQueueLength() const;
         void checkReload();
 
@@ -126,7 +126,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         std::string m_Filename;
         bool m_bLoop;
         bool m_bThreaded;
-        double m_FPS;
+        float m_FPS;
         int m_QueueLength;
         bool m_bEOFPending;
         PyObject * m_pEOFCallback;
@@ -139,10 +139,10 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         long long m_StartTime;
         long long m_PauseTime;
         long long m_PauseStartTime;
-        double m_JitterCompensation;
+        float m_JitterCompensation;
 
         VideoDecoder * m_pDecoder;
-        double m_Volume;
+        float m_Volume;
         bool m_bUsesHardwareAcceleration;
 
         GLTexturePtr m_pTextures[4];

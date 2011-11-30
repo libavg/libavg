@@ -37,9 +37,9 @@ NodeDefinition CircleNode::createDefinition()
     return NodeDefinition("circle", Node::buildNode<CircleNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, offsetof(CircleNode, m_Pos)))
-        .addArg(Arg<double>("r", 1, false, offsetof(CircleNode, m_Radius)))
-        .addArg(Arg<double>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
+        .addArg(Arg<float>("r", 1, false, offsetof(CircleNode, m_Radius)))
+        .addArg(Arg<float>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
+        .addArg(Arg<float>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
         ;
 }
 
@@ -64,12 +64,12 @@ void CircleNode::setPos(const glm::vec2& pt)
     setDrawNeeded();
 }
 
-double CircleNode::getR() const 
+float CircleNode::getR() const 
 {
     return m_Radius;
 }
 
-void CircleNode::setR(double r) 
+void CircleNode::setR(float r) 
 {
     if (int(r) <= 0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
@@ -78,23 +78,23 @@ void CircleNode::setR(double r)
     setDrawNeeded();
 }
 
-double CircleNode::getTexCoord1() const
+float CircleNode::getTexCoord1() const
 {
     return m_TC1;
 }
 
-void CircleNode::setTexCoord1(double tc)
+void CircleNode::setTexCoord1(float tc)
 {
     m_TC1 = tc;
     setDrawNeeded();
 }
 
-double CircleNode::getTexCoord2() const
+float CircleNode::getTexCoord2() const
 {
     return m_TC2;
 }
 
-void CircleNode::setTexCoord2(double tc)
+void CircleNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();
@@ -247,8 +247,8 @@ void CircleNode::appendCirclePoint(VertexArrayPtr& pVertexArray, const glm::vec2
         const glm::vec2& oPt, Pixel32 color, int& i, int& curVertex)
 {
     i++;
-    double ratio = (double(i)/getNumCircumferencePoints());
-    double curTC = (1-ratio)*m_TC1+ratio*m_TC2;
+    float ratio = (float(i)/getNumCircumferencePoints());
+    float curTC = (1-ratio)*m_TC1+ratio*m_TC2;
     pVertexArray->appendPos(oPt+m_Pos, glm::vec2(curTC, 0), color);
     pVertexArray->appendPos(iPt+m_Pos, glm::vec2(curTC, 1), color);
     pVertexArray->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
@@ -270,17 +270,17 @@ int CircleNode::getNumCircumferencePoints()
     return int(ceil((m_Radius*3)/8)*8);
 }
 
-void CircleNode::getEigthCirclePoints(vector<glm::vec2>& pts, double radius)
+void CircleNode::getEigthCirclePoints(vector<glm::vec2>& pts, float radius)
 {
     int numPts = getNumCircumferencePoints();
     for (int i = 0; i <= numPts/8; ++i) {
-        double ratio = (double(i)/numPts);
-        double angle = ratio*2*3.14159;
+        float ratio = (float(i)/numPts);
+        float angle = ratio*2*M_PI;
         pts.push_back(getCirclePt(angle, radius));
     }
 }
 
-glm::vec2 CircleNode::getCirclePt(double angle, double radius)
+glm::vec2 CircleNode::getCirclePt(float angle, float radius)
 {
     return glm::vec2(sin(angle)*radius, -cos(angle)*radius);
 }

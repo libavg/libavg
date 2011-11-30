@@ -68,46 +68,46 @@ const std::string& ChromaKeyFXNode::getColor() const
     return m_sColorName;
 }
 
-void ChromaKeyFXNode::setHTolerance(double tolerance)
+void ChromaKeyFXNode::setHTolerance(float tolerance)
 {
     m_HTolerance = tolerance;
     updateFilter();
 }
 
-double ChromaKeyFXNode::getHTolerance() const
+float ChromaKeyFXNode::getHTolerance() const
 {
     return m_HTolerance;
 }
 
-void ChromaKeyFXNode::setSTolerance(double tolerance)
+void ChromaKeyFXNode::setSTolerance(float tolerance)
 {
     m_STolerance = tolerance;
     updateFilter();
 }
 
-double ChromaKeyFXNode::getSTolerance() const
+float ChromaKeyFXNode::getSTolerance() const
 {
     return m_STolerance;
 }
 
-void ChromaKeyFXNode::setLTolerance(double tolerance)
+void ChromaKeyFXNode::setLTolerance(float tolerance)
 {
     m_LTolerance = tolerance;
     updateFilter();
 }
 
-double ChromaKeyFXNode::getLTolerance() const
+float ChromaKeyFXNode::getLTolerance() const
 {
     return m_LTolerance;
 }
 
-void ChromaKeyFXNode::setSoftness(double softness)
+void ChromaKeyFXNode::setSoftness(float softness)
 {
     m_Softness = softness;
     updateFilter();
 }
 
-double ChromaKeyFXNode::getSoftness() const
+float ChromaKeyFXNode::getSoftness() const
 {
     return m_Softness;
 }
@@ -123,13 +123,13 @@ int ChromaKeyFXNode::getErosion() const
     return m_Erosion;
 }
 
-void ChromaKeyFXNode::setSpillThreshold(double spillThreshold)
+void ChromaKeyFXNode::setSpillThreshold(float spillThreshold)
 {
     m_SpillThreshold = spillThreshold;
     updateFilter();
 }
 
-double ChromaKeyFXNode::getSpillThreshold() const
+float ChromaKeyFXNode::getSpillThreshold() const
 {
     return m_SpillThreshold;
 }

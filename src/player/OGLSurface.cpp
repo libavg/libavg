@@ -173,8 +173,8 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
             // maskScale is (1,1) for everything excepting words nodes.
             glm::vec2 maskScale(1,1);
             if (logicalSize != IntPoint(0,0)) {
-                maskScale = glm::vec2((double)logicalSize.x/m_Size.x, 
-                        (double)logicalSize.y/m_Size.y);
+                maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
+                        (float)logicalSize.y/m_Size.y);
             }
             pShader->setUniformVec2fParam("maskSize", m_MaskSize*maskScale);
         }

@@ -103,13 +103,11 @@ ArgBase* Arg<T>::createCopy() const
 extern template class Arg<int>;
 extern template class Arg<bool>;
 extern template class Arg<float>;
-extern template class Arg<double>;
 extern template class Arg<std::string>;
 extern template class Arg<glm::vec2>;
 extern template class Arg<IntTriple>;
 extern template class Arg<FTriple>;
 extern template class Arg<std::vector<float> >;
-extern template class Arg<std::vector<double> >;
 extern template class Arg<std::vector<glm::vec2> >;
 extern template class Arg<std::vector<IntTriple> >;
 #endif

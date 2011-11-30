@@ -45,8 +45,8 @@ NodeDefinition CurveNode::createDefinition()
         .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(CurveNode, m_P2)))
         .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0), false, offsetof(CurveNode, m_P3)))
         .addArg(Arg<glm::vec2>("pos4", glm::vec2(0,0), false, offsetof(CurveNode, m_P4)))
-        .addArg(Arg<double>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
+        .addArg(Arg<float>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
+        .addArg(Arg<float>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
 }
 
 CurveNode::CurveNode(const ArgList& args)
@@ -103,23 +103,23 @@ void CurveNode::setPos4(const glm::vec2& pt)
     setDrawNeeded();
 }
 
-double CurveNode::getTexCoord1() const
+float CurveNode::getTexCoord1() const
 {
     return m_TC1;
 }
 
-void CurveNode::setTexCoord1(double tc)
+void CurveNode::setTexCoord1(float tc)
 {
     m_TC1 = tc;
     setDrawNeeded();
 }
 
-double CurveNode::getTexCoord2() const
+float CurveNode::getTexCoord2() const
 {
     return m_TC2;
 }
 
-void CurveNode::setTexCoord2(double tc)
+void CurveNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();
@@ -132,8 +132,8 @@ void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     pVertexArray->appendPos(m_LeftCurve[0], glm::vec2(m_TC1,1), color);
     pVertexArray->appendPos(m_RightCurve[0], glm::vec2(m_TC2,0), color);
     for (unsigned i = 0; i < m_LeftCurve.size()-1; ++i) {
-        double ratio = i/double(m_LeftCurve.size());
-        double tc = (1-ratio)*m_TC1+ratio*m_TC2;
+        float ratio = i/float(m_LeftCurve.size());
+        float tc = (1-ratio)*m_TC1+ratio*m_TC2;
         pVertexArray->appendPos(m_LeftCurve[i+1], glm::vec2(tc,1), color);
         pVertexArray->appendPos(m_RightCurve[i+1], glm::vec2(tc,0), color);
         pVertexArray->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
@@ -143,7 +143,7 @@ void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 int CurveNode::getCurveLen()
 {
     // Calc. upper bound for spline length.
-    double curveLen = glm::length(m_P2-m_P1) + glm::length(m_P3 - m_P2)
+    float curveLen = glm::length(m_P2-m_P1) + glm::length(m_P3 - m_P2)
             + glm::length(m_P4-m_P3);
     if (curveLen > 50000) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Illegal points in curve.");

@@ -52,10 +52,10 @@ public:
     void disconnectListener(int id);
 
     long long getAge() const;
-    double getDistanceFromStart() const;
-    double getMotionAngle() const;
+    float getDistanceFromStart() const;
+    float getMotionAngle() const;
     glm::vec2 getMotionVec() const;
-    double getDistanceTravelled() const;
+    float getDistanceTravelled() const;
     std::vector<CursorEventPtr> getEvents() const;
 
     void addEvent(CursorEventPtr pEvent);
@@ -91,7 +91,7 @@ private:
     int m_CurListenerID;
     bool m_bCurListenerIsDead;
     int m_CursorID;
-    double m_DistanceTravelled;
+    float m_DistanceTravelled;
 };
 
 }

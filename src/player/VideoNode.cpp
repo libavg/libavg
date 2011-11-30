@@ -57,10 +57,10 @@ NodeDefinition VideoNode::createDefinition()
         .addArg(Arg<UTF8String>("href", "", false, offsetof(VideoNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(VideoNode, m_bLoop)))
         .addArg(Arg<bool>("threaded", true, false, offsetof(VideoNode, m_bThreaded)))
-        .addArg(Arg<double>("fps", 0.0, false, offsetof(VideoNode, m_FPS)))
+        .addArg(Arg<float>("fps", 0.0, false, offsetof(VideoNode, m_FPS)))
         .addArg(Arg<int>("queuelength", 8, false, 
                 offsetof(VideoNode, m_QueueLength)))
-        .addArg(Arg<double>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
+        .addArg(Arg<float>("volume", 1.0, false, offsetof(VideoNode, m_Volume)))
         .addArg(Arg<bool>("accelerated", false, false,
                 offsetof(VideoNode, m_bUsesHardwareAcceleration)))
         ;
@@ -308,12 +308,12 @@ void VideoNode::setHRef(const UTF8String& href)
     checkReload();
 }
 
-double VideoNode::getVolume()
+float VideoNode::getVolume()
 {
     return m_Volume;
 }
 
-void VideoNode::setVolume(double Volume)
+void VideoNode::setVolume(float Volume)
 {
     if (Volume < 0) {
         Volume = 0;
@@ -400,7 +400,7 @@ void VideoNode::changeVideoState(VideoState NewVideoState)
 void VideoNode::seek(long long destTime) 
 {
     if (getState() == NS_CANRENDER) {    
-        m_pDecoder->seek(double(destTime)/1000.0);
+        m_pDecoder->seek(float(destTime)/1000.0);
         m_StartTime = Player::get()->getFrameTime() - destTime;
         m_JitterCompensation = 0.5;
         m_PauseTime = 0;
@@ -537,7 +537,7 @@ IntPoint VideoNode::getMediaSize()
     }
 }
 
-double VideoNode::getFPS() const
+float VideoNode::getFPS() const
 {
     return m_pDecoder->getFPS();
 }
@@ -676,7 +676,7 @@ bool VideoNode::renderFrame()
                 m_FramesPlayed++;
                 m_FramesTooLate++;
                 m_FramesInRowTooLate++;
-                double framerate = Player::get()->getEffectiveFramerate();
+                float framerate = Player::get()->getEffectiveFramerate();
                 long long frameTime = Player::get()->getFrameTime();
                 if (m_VideoState == Playing) {
                     if (m_FramesInRowTooLate > 3 && framerate != 0) {

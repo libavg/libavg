@@ -40,7 +40,7 @@ NodeDefinition FilledVectorNode::createDefinition()
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<UTF8String>("filltexhref", "", false, 
                 offsetof(FilledVectorNode, m_FillTexHRef)))
-        .addArg(Arg<double>("fillopacity", 0, false, 
+        .addArg(Arg<float>("fillopacity", 0, false, 
                 offsetof(FilledVectorNode, m_FillOpacity)))
         .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
                 offsetof(FilledVectorNode, m_sFillColorName)))
@@ -134,12 +134,12 @@ void FilledVectorNode::setFillTexCoord2(const glm::vec2& pt)
     setDrawNeeded();
 }
 
-double FilledVectorNode::getFillOpacity() const
+float FilledVectorNode::getFillOpacity() const
 {
     return m_FillOpacity;
 }
 
-void FilledVectorNode::setFillOpacity(double opacity)
+void FilledVectorNode::setFillOpacity(float opacity)
 {
     m_FillOpacity = opacity;
     setDrawNeeded();
@@ -148,7 +148,7 @@ void FilledVectorNode::setFillOpacity(double opacity)
 void FilledVectorNode::preRender()
 {
     Node::preRender();
-    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
+    float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     VertexArrayPtr pFillVA;
     pFillVA = m_pFillShape->getVertexArray();
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
@@ -167,7 +167,7 @@ static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 void FilledVectorNode::render(const FRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
+    float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
         glColor4d(1.0, 1.0, 1.0, curOpacity);
         m_pFillShape->draw();

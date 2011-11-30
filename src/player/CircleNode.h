@@ -40,14 +40,14 @@ class AVG_API CircleNode : public FilledVectorNode
         const glm::vec2& getPos() const;
         void setPos(const glm::vec2& pt);
 
-        double getR() const;
-        void setR(double r);
+        float getR() const;
+        void setR(float r);
 
-        double getTexCoord1() const;
-        void setTexCoord1(double tc);
+        float getTexCoord1() const;
+        void setTexCoord1(float tc);
 
-        double getTexCoord2() const;
-        void setTexCoord2(double tc);
+        float getTexCoord2() const;
+        void setTexCoord2(float tc);
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
@@ -60,15 +60,15 @@ class AVG_API CircleNode : public FilledVectorNode
                 const glm::vec2& minPt, const glm::vec2& maxPt, Pixel32 color,
                 int& curVertex);
         int getNumCircumferencePoints();
-        void getEigthCirclePoints(std::vector<glm::vec2>& pts, double radius);
-        glm::vec2 getCirclePt(double angle, double radius);
+        void getEigthCirclePoints(std::vector<glm::vec2>& pts, float radius);
+        glm::vec2 getCirclePt(float angle, float radius);
         glm::vec2 calcTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
                 const glm::vec2& maxPt);
 
         glm::vec2 m_Pos;
-        double m_Radius;
-        double m_TC1;
-        double m_TC2;
+        float m_Radius;
+        float m_TC1;
+        float m_TC2;
 };
 
 }

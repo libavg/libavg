@@ -253,7 +253,7 @@ glm::vec2 Player::getScreenResolution()
     return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
 }
 
-double Player::getPixelsPerMM()
+float Player::getPixelsPerMM()
 {
     return safeGetDisplayEngine()->getPixelsPerMM();
 }
@@ -263,7 +263,7 @@ glm::vec2 Player::getPhysicalScreenDimensions()
     return safeGetDisplayEngine()->getPhysicalScreenDimensions();
 }
 
-void Player::assumePixelsPerMM(double ppmm)
+void Player::assumePixelsPerMM(float ppmm)
 {
     safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
@@ -551,7 +551,7 @@ bool Player::isPlaying()
     return m_bIsPlaying;
 }
 
-void Player::setFramerate(double rate)
+void Player::setFramerate(float rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
@@ -571,7 +571,7 @@ void Player::setVBlankFramerate(int rate)
     }
 }
 
-double Player::getEffectiveFramerate()
+float Player::getEffectiveFramerate()
 {
     if (m_bIsPlaying) {
         if (m_bFakeFPS) {
@@ -589,7 +589,7 @@ TestHelper * Player::getTestHelper()
     return m_pTestHelper.get();
 }
 
-void Player::setFakeFPS(double fps)
+void Player::setFakeFPS(float fps)
 {
     if (fabs(fps + 1.0) < 0.0001) {
         // fps = -1
@@ -618,7 +618,7 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
-double Player::getFrameDuration()
+float Player::getFrameDuration()
 {
     if (!m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
@@ -627,7 +627,7 @@ double Player::getFrameDuration()
     if (m_bFakeFPS) {
         return 1000.0/m_FakeFPS;
     } else {
-        double framerate = m_pDisplayEngine->getEffectiveFramerate();
+        float framerate = m_pDisplayEngine->getEffectiveFramerate();
         if (framerate > 0) {
             return 1000./framerate;
         } else {
@@ -1076,7 +1076,7 @@ void Player::endFrame()
     m_pDisplayEngine->checkJitter();
 }
 
-double Player::getFramerate()
+float Player::getFramerate()
 {
     if (!m_pDisplayEngine) {
         return m_DP.m_Framerate;
@@ -1084,7 +1084,7 @@ double Player::getFramerate()
     return m_pDisplayEngine->getFramerate();
 }
 
-double Player::getVideoRefreshRate()
+float Player::getVideoRefreshRate()
 {
     if (!m_pDisplayEngine) {
         return 0;
@@ -1101,7 +1101,7 @@ bool Player::isUsingShaders()
     return GLContext::getCurrent()->isUsingShaders();
 }
 
-void Player::setGamma(double red, double green, double blue)
+void Player::setGamma(float red, float green, float blue)
 {
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
@@ -1580,7 +1580,7 @@ bool Player::getStopOnEscape() const
     return m_bStopOnEscape;
 }
 
-void Player::setVolume(double volume)
+void Player::setVolume(float volume)
 {
     m_Volume = volume;
     if (SDLAudioEngine::get()) {
@@ -1588,7 +1588,7 @@ void Player::setVolume(double volume)
     }
 }
 
-double Player::getVolume() const
+float Player::getVolume() const
 {
     return m_Volume;
 }

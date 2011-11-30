@@ -67,7 +67,7 @@ class AVG_API CameraNode : public RasterNode
             return m_pCamera->getDriverName();
         }
 
-        double getFrameRate() const
+        float getFrameRate() const
         {
             return m_pCamera->getFrameRate();
         }
@@ -110,7 +110,7 @@ class AVG_API CameraNode : public RasterNode
         int getFeature (CameraFeature feature) const;
         void setFeature (CameraFeature feature, int value);
 
-        virtual double getFPS() const;
+        virtual float getFPS() const;
         virtual void open();
         virtual PixelFormat getPixelFormat();
         void setFeature(int FeatureID);

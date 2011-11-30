@@ -41,9 +41,9 @@ struct AVG_API DisplayParams {
     IntPoint m_WindowSize;
     bool m_bShowCursor;
     int m_VBRate;
-    double m_Framerate;
+    float m_Framerate;
     bool m_bHasWindowFrame;
-    double m_DotsPerMM;
+    float m_DotsPerMM;
 
     float m_Gamma[3];
 };

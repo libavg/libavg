@@ -77,12 +77,12 @@ long long Contact::getAge() const
     return m_Events.back()->getWhen() - m_Events[0]->getWhen();
 }
 
-double Contact::getDistanceFromStart() const
+float Contact::getDistanceFromStart() const
 {
     return glm::length(getMotionVec());
 }
 
-double Contact::getMotionAngle() const
+float Contact::getMotionAngle() const
 {
     glm::vec2 motion = getMotionVec();
     if (motion == glm::vec2(0,0)) {
@@ -97,7 +97,7 @@ glm::vec2 Contact::getMotionVec() const
     return m_Events.back()->getPos() - m_Events[0]->getPos();
 }
 
-double Contact::getDistanceTravelled() const
+float Contact::getDistanceTravelled() const
 {
     return m_DistanceTravelled;
 }
@@ -193,7 +193,7 @@ void Contact::calcSpeed(CursorEventPtr pEvent, CursorEventPtr pOldEvent)
 
 void Contact::updateDistanceTravelled(CursorEventPtr pEvent1, CursorEventPtr pEvent2)
 {
-    double dist = glm::length(pEvent2->getPos() - pEvent1->getPos());
+    float dist = glm::length(pEvent2->getPos() - pEvent1->getPos());
     m_DistanceTravelled += dist;
 }
 

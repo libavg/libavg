@@ -40,18 +40,18 @@ public:
 
     void setColor(const std::string& sColorName);
     const std::string& getColor() const;
-    void setHTolerance(double tolerance);
-    double getHTolerance() const;
-    void setSTolerance(double tolerance);
-    double getSTolerance() const;
-    void setLTolerance(double tolerance);
-    double getLTolerance() const;
-    void setSoftness(double softness);
-    double getSoftness() const;
+    void setHTolerance(float tolerance);
+    float getHTolerance() const;
+    void setSTolerance(float tolerance);
+    float getSTolerance() const;
+    void setLTolerance(float tolerance);
+    float getLTolerance() const;
+    void setSoftness(float softness);
+    float getSoftness() const;
     void setErosion(int erosion);
     int getErosion() const;
-    void setSpillThreshold(double spillThreshold);
-    double getSpillThreshold() const;
+    void setSpillThreshold(float spillThreshold);
+    float getSpillThreshold() const;
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
@@ -61,12 +61,12 @@ private:
 
     std::string m_sColorName;
     Pixel32 m_Color;
-    double m_HTolerance;
-    double m_STolerance;
-    double m_LTolerance;
-    double m_Softness;
+    float m_HTolerance;
+    float m_STolerance;
+    float m_LTolerance;
+    float m_Softness;
     int m_Erosion;
-    double m_SpillThreshold;
+    float m_SpillThreshold;
 };
 
 typedef boost::shared_ptr<ChromaKeyFXNode> ChromaKeyFXNodePtr;

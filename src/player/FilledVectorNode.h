@@ -52,8 +52,8 @@ class AVG_API FilledVectorNode : public VectorNode
         void setFillColor(const std::string& sColor);
         const std::string& getFillColor() const;
 
-        double getFillOpacity() const;
-        void setFillOpacity(double opacity);
+        float getFillOpacity() const;
+        void setFillOpacity(float opacity);
 
         virtual void preRender();
         virtual void render(const FRect& rect);
@@ -67,13 +67,13 @@ class AVG_API FilledVectorNode : public VectorNode
         virtual bool isVisible() const;
 
     private:
-        double m_OldOpacity;
+        float m_OldOpacity;
 
         UTF8String m_FillTexHRef;
         glm::vec2 m_FillTexCoord1;
         glm::vec2 m_FillTexCoord2;
         ShapePtr m_pFillShape;
-        double m_FillOpacity;
+        float m_FillOpacity;
         std::string m_sFillColorName;
         Pixel32 m_FillColor;
 };

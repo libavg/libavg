@@ -66,8 +66,8 @@ const glm::vec2& RectNode::getPos() const
 
 void RectNode::setPos(const glm::vec2& pt) 
 {
-    double w = m_Rect.width();
-    double h = m_Rect.height();
+    float w = m_Rect.width();
+    float h = m_Rect.height();
     m_Rect.tl = pt;
     m_Rect.setWidth(w);
     m_Rect.setHeight(h);

@@ -51,7 +51,7 @@ NodeDefinition Node::createDefinition()
         .addArg(Arg<string>("oncursorout", ""))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
-        .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
+        .addArg(Arg<float>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
 }
 
 Node::Node()
@@ -170,12 +170,12 @@ void Node::setID(const std::string& id)
     m_ID = id;
 }
 
-double Node::getOpacity() const 
+float Node::getOpacity() const 
 {
     return m_Opacity;
 }
 
-void Node::setOpacity(double opacity) 
+void Node::setOpacity(float opacity) 
 {
     m_Opacity = opacity;
     if (m_Opacity < 0.0) {
@@ -398,7 +398,7 @@ void Node::addArgEventHandler(Event::Type eventType, Event::Source source,
     }
 }
 
-double Node::getEffectiveOpacity() const
+float Node::getEffectiveOpacity() const
 {
     return m_EffectiveOpacity;
 }

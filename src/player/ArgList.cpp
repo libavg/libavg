@@ -151,7 +151,6 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
     Arg<UTF8String>* pUTF8StringArg = dynamic_cast<Arg<UTF8String>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
-    Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<glm::vec2>* pVec2Arg = dynamic_cast<Arg<glm::vec2>* >(&*pArg);
@@ -168,8 +167,6 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pUTF8StringArg, sName, value);
     } else if (pIntArg) {
         avg::setArgValue(pIntArg, sName, value);
-    } else if (pDoubleArg) {
-        avg::setArgValue(pDoubleArg, sName, value);
     } else if (pFloatArg) {
         avg::setArgValue(pFloatArg, sName, value);
     } else if (pBoolArg) {
@@ -197,7 +194,6 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
     Arg<UTF8String>* pUTF8StringArg = dynamic_cast<Arg<UTF8String>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
-    Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<glm::vec2>* pVec2Arg = dynamic_cast<Arg<glm::vec2>* >(&*pArg);
@@ -214,8 +210,6 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         pUTF8StringArg->setValue(sValue);
     } else if (pIntArg) {
         pIntArg->setValue(stringToInt(sValue));
-    } else if (pDoubleArg) {
-        pDoubleArg->setValue(double(stringToFloat(sValue)));
     } else if (pFloatArg) {
         pFloatArg->setValue(stringToFloat(sValue));
     } else if (pBoolArg) {
