@@ -67,7 +67,7 @@ public:
 
 private:
     void onData(int device, Finger *data, int nFingers, float timestamp, int frame);
-    static int callback(int device, Finger *data, int nFingers, float timestamp, 
+    static int callback(int device, Finger *data, int nFingers, double timestamp, 
             int frame);
     TouchEventPtr createEvent(int avgID, Finger* pFinger, Event::Type eventType);
 
