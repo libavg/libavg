@@ -83,7 +83,7 @@ object typedLERP(const object& startValue, const object& endValue, float part)
 bool SimpleAnim::step()
 {
     assert(isRunning());
-    double t = ((double(Player::get()->getFrameTime())-m_StartTime)
+    float t = ((float(Player::get()->getFrameTime())-m_StartTime)
             /m_Duration);
     if (t >= 1.0) {
         setValue(m_EndValue);
@@ -91,11 +91,11 @@ bool SimpleAnim::step()
         return true;
     } else {
         object curValue;
-        double part = interpolate(t);
-        if (isPythonType<double>(m_StartValue)) {
-            curValue = typedLERP<double>(m_StartValue, m_EndValue, part);
+        float part = interpolate(t);
+        if (isPythonType<float>(m_StartValue)) {
+            curValue = typedLERP<float>(m_StartValue, m_EndValue, part);
             if (m_bUseInt) {
-                double d = extract<double>(curValue);
+                float d = extract<float>(curValue);
                 curValue = object(round(d));
             }
         } else if (isPythonType<glm::vec2>(m_StartValue)) {
@@ -125,13 +125,13 @@ long long SimpleAnim::getDuration() const
 
 long long SimpleAnim::calcStartTime()
 {
-    double part;
-    if (isPythonType<double>(m_StartValue)) {
+    float part;
+    if (isPythonType<float>(m_StartValue)) {
         if (m_EndValue == m_StartValue) {
             part = 0;
         } else {
-            part = getStartPart(extract<double>(m_StartValue), 
-                    extract<double>(m_EndValue), extract<double>(getValue()));
+            part = getStartPart(extract<float>(m_StartValue), 
+                    extract<float>(m_EndValue), extract<float>(getValue()));
         }
     } else if (isPythonType<glm::vec2>(m_StartValue)) {
         float start = glm::vec2(extract<glm::vec2>(m_StartValue)()).x;
@@ -154,15 +154,15 @@ long long SimpleAnim::calcStartTime()
     return Player::get()->getFrameTime()-(long long)(part*getDuration());
 }
 
-double SimpleAnim::getStartPart(double start, double end, double cur)
+float SimpleAnim::getStartPart(float start, float end, float cur)
 {
-    double tstart = 0;
-    double tend = 1;
+    float tstart = 0;
+    float tend = 1;
     bool bDir = (start < end);
     for (int i=0; i<10; ++i) {
-        double tmiddle = (tstart+tend)/2;
-        double part = interpolate(tmiddle);
-        double middle = start+(end-start)*part;
+        float tmiddle = (tstart+tend)/2;
+        float part = interpolate(tmiddle);
+        float middle = start+(end-start)*part;
         if ((bDir && middle < cur) || (!bDir && middle >= cur)) {
             tstart = tmiddle;
         } else {

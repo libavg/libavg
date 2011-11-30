@@ -55,14 +55,14 @@ public:
     virtual bool step();
 
 protected:
-    virtual double interpolate(double t)=0;
+    virtual float interpolate(float t)=0;
     void remove();
     
 private:
     long long getStartTime() const;
     long long getDuration() const;
     long long calcStartTime();
-    virtual double getStartPart(double start, double end, double cur);
+    virtual float getStartPart(float start, float end, float cur);
 
     long long m_Duration;
     boost::python::object m_StartValue;

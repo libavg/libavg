@@ -67,10 +67,10 @@ bool ContinuousAnim::step()
 {
     object curValue;
     float time = (Player::get()->getFrameTime()-m_StartTime)/1000.0;
-    if (isPythonType<double>(m_EffStartValue)) {
-        curValue = object(time*extract<double>(m_Speed)+m_EffStartValue);
+    if (isPythonType<float>(m_EffStartValue)) {
+        curValue = object(time*extract<float>(m_Speed)+m_EffStartValue);
         if (m_bUseInt) {
-            double d = extract<double>(curValue);
+            float d = extract<float>(curValue);
             curValue = object(round(d));
         }
     } else if (isPythonType<glm::vec2>(m_EffStartValue)) {

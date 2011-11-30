@@ -40,17 +40,17 @@ LinearAnim::~LinearAnim()
 {
 }
 
-double LinearAnim::interpolate(double t)
+float LinearAnim::interpolate(float t)
 {
     return t;
 }
 
-double LinearAnim::getStartPart(double start, double end, double cur)
+float LinearAnim::getStartPart(float start, float end, float cur)
 {
     return (cur-start)/(end-start);
 }
 
-AnimPtr fadeIn(const boost::python::object& node, long long duration, double max, 
+AnimPtr fadeIn(const boost::python::object& node, long long duration, float max, 
         const boost::python::object& stopCallback)
 {
     object startVal = node.attr("opacity");
