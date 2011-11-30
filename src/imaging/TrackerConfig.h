@@ -47,7 +47,7 @@ public:
     std::string getParam(const std::string& sXPathExpr) const;
     bool getBoolParam(const std::string& sXPathExpr) const;
     int getIntParam(const std::string& sXPathExpr) const;
-    double getDoubleParam(const std::string& sXPathExpr) const;
+    float getFloatParam(const std::string& sXPathExpr) const;
     glm::vec2 getPointParam(const std::string& sXPathExpr) const;
     FRect getRectParam(const std::string& sXPathExpr) const;
     xmlNodePtr getXmlNode(const std::string& sXPathExpr) const;

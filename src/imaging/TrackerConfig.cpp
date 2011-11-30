@@ -186,22 +186,22 @@ int TrackerConfig::getIntParam(const std::string& sXPathExpr) const
     return stringToInt(getParam(sXPathExpr));
 }
 
-double TrackerConfig::getDoubleParam(const std::string& sXPathExpr) const
+float TrackerConfig::getFloatParam(const std::string& sXPathExpr) const
 {
     return stringToFloat(getParam(sXPathExpr));
 }
 
 glm::vec2 TrackerConfig::getPointParam(const std::string& sXPathExpr) const
 {
-    return glm::vec2(getDoubleParam(sXPathExpr+"@x"), getDoubleParam(sXPathExpr+"@y"));
+    return glm::vec2(getFloatParam(sXPathExpr+"@x"), getFloatParam(sXPathExpr+"@y"));
 }
 
 FRect TrackerConfig::getRectParam(const std::string& sXPathExpr) const
 {
-     glm::vec2 pos1 = glm::vec2(getDoubleParam(sXPathExpr+"@x1"), 
-            getDoubleParam(sXPathExpr+"@y1"));
-     glm::vec2 pos2 = glm::vec2(getDoubleParam(sXPathExpr+"@x2"),
-            getDoubleParam(sXPathExpr+"@y2"));
+     glm::vec2 pos1 = glm::vec2(getFloatParam(sXPathExpr+"@x1"), 
+            getFloatParam(sXPathExpr+"@y1"));
+     glm::vec2 pos2 = glm::vec2(getFloatParam(sXPathExpr+"@x2"),
+            getFloatParam(sXPathExpr+"@y2"));
      return FRect(pos1, pos2);
 }
 

@@ -176,7 +176,7 @@ void ConfigMgr::getGammaOption(const std::string& sSubsys,
     if (psOption == 0) {
         return;
     }
-    int rc = sscanf(psOption->c_str(), "%lf,%lf,%lf", Val, Val+1, Val+2);
+    int rc = sscanf(psOption->c_str(), "%f,%f,%f", Val, Val+1, Val+2);
     if (rc < 3) {
         AVG_TRACE(Logger::ERROR,
                 m_sFName << ": Unrecognized value for option "<<sName<<": " 

@@ -48,7 +48,7 @@ class DSCamera: public Camera, IDSSampleCallback
 {
 public:
     DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, PixelFormat destPF,
-            double frameRate);
+            float frameRate);
     virtual ~DSCamera();
     virtual void startCapture();
 
@@ -57,7 +57,7 @@ public:
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual double getFrameRate() const;
+    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
     virtual void setFeature(CameraFeature feature, int value, 
@@ -87,7 +87,7 @@ private:
 
     std::string m_sDevice;
     IntPoint m_Size;
-    double m_FrameRate;
+    float m_FrameRate;
 
     IGraphBuilder * m_pGraph;
     ICaptureGraphBuilder2 * m_pCapture;

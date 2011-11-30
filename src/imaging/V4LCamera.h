@@ -42,7 +42,7 @@ class AVG_API V4LCamera: public Camera {
 
 public:
     V4LCamera(std::string sDevice, int channel, IntPoint size, PixelFormat camPF,
-            PixelFormat destPF, double frameRate);
+            PixelFormat destPF, float frameRate);
     virtual ~V4LCamera();
 
     virtual IntPoint getImgSize();
@@ -51,7 +51,7 @@ public:
 
     virtual const std::string& getDevice() const;
     virtual const std::string& getDriverName() const;
-    virtual double getFrameRate() const;
+    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
     virtual void setFeature(CameraFeature feature, int value,
@@ -96,7 +96,7 @@ private:
     bool m_bCameraAvailable;
     int m_v4lPF;
     IntPoint m_ImgSize;
-    double m_FrameRate;
+    float m_FrameRate;
 
 };
 

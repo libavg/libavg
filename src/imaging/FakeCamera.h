@@ -49,7 +49,7 @@ public:
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual double getFrameRate() const;
+    virtual float getFrameRate() const;
     virtual const std::string& getMode() const;
 
     virtual int getFeature(CameraFeature feature) const;

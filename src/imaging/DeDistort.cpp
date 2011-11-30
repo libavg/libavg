@@ -119,12 +119,12 @@ void DeDistort::load(const glm::vec2& camExtents, const TrackerConfig& config)
 {
     m_CamExtents = glm::dvec2(camExtents);
     m_DistortionParams.clear();
-    m_DistortionParams.push_back(config.getDoubleParam
-            ("/transform/distortionparams/@p2"));
-    m_DistortionParams.push_back(config.getDoubleParam
-            ("/transform/distortionparams/@p3"));
-    m_TrapezoidFactor = config.getDoubleParam("/transform/trapezoid/@value");
-    m_Angle = config.getDoubleParam("/transform/angle/@value");
+    m_DistortionParams.push_back(double(config.getFloatParam
+            ("/transform/distortionparams/@p2")));
+    m_DistortionParams.push_back(double(config.getFloatParam
+            ("/transform/distortionparams/@p3")));
+    m_TrapezoidFactor = config.getFloatParam("/transform/trapezoid/@value");
+    m_Angle = config.getFloatParam("/transform/angle/@value");
     m_DisplayOffset = config.getPointParam("/transform/displaydisplacement/");
     m_DisplayScale = config.getPointParam("/transform/displayscale/");
 
@@ -266,7 +266,8 @@ double inv_distort_map(const vector<double>& params, double r)
 }
 
 #define EPSILON 0.00001
-glm::dvec2 DeDistort::inverse_undistort(const vector<double> &params, const glm::dvec2 &pt)
+glm::dvec2 DeDistort::inverse_undistort(const vector<double> &params, 
+        const glm::dvec2 &pt)
 {
     if (params.empty()) {
         return pt;

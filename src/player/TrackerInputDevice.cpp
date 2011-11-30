@@ -71,7 +71,7 @@ TrackerInputDevice::TrackerInputDevice()
     bool bFW800 = m_TrackerConfig.getBoolParam("/camera/fw800/@value");
     IntPoint captureSize(m_TrackerConfig.getPointParam("/camera/size/"));
     string sCaptureFormat = m_TrackerConfig.getParam("/camera/format/@value");
-    double frameRate = m_TrackerConfig.getDoubleParam("/camera/framerate/@value");
+    double frameRate = m_TrackerConfig.getFloatParam("/camera/framerate/@value");
 
     PixelFormat camPF = stringToPixelFormat(sCaptureFormat);
     if (camPF == NO_PIXELFORMAT) {
@@ -302,7 +302,7 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
         oldBlobs.push_back((*it).first);
     }
     // Create a heap that contains all distances of old to new blobs < MaxDist
-    double MaxDist = m_TrackerConfig.getDoubleParam(sConfigPath+"similarity/@value");
+    double MaxDist = m_TrackerConfig.getFloatParam(sConfigPath+"similarity/@value");
     double MaxDistSquared = MaxDist*MaxDist;
     priority_queue<BlobDistEntryPtr> distHeap;
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
