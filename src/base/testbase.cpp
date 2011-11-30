@@ -260,8 +260,8 @@ public:
 
     void runTests() 
     {
-        double one = 1;
-        double zero = 0;
+        float one = 1;
+        float zero = 0;
 
         TEST(isinf(-one/zero) != 0);
         TEST(isinf(one/zero) != 0);
@@ -453,7 +453,7 @@ public:
     void runTests()
     {
         TEST(stringToInt("5") == 5);
-        TEST(almostEqual(stringToDouble("5.5"), 5.5));
+        TEST(almostEqual(stringToFloat("5.5"), 5.5f));
         TEST(stringToBool("False") == false);
         bool bExceptionThrown = false;
         try {
@@ -464,8 +464,8 @@ public:
             }
         }
         TEST(bExceptionThrown);
-        TEST(stringToVec2(" ( 3.4 , 2.1 ) ") == glm::vec2(3.4, 2.1));
-        vector<double> v;
+        TEST(stringToVec2(" ( 3.4 , 2.1 ) ") == glm::vec2(3.4f, 2.1f));
+        vector<float> v;
         fromString("(1,2,3,4,5)", v);
         TEST(v.size() == 5 && v[0] == 1 && v[4] == 5);
         v.clear();
@@ -486,10 +486,10 @@ public:
     void runTests()
     {
         {
-            double xd[] = {0,1,2,3};
-            vector<double> x = vectorFromCArray(4, xd);
-            double yd[] = {3,2,1,0};
-            vector<double> y = vectorFromCArray(4, yd);
+            float xd[] = {0,1,2,3};
+            vector<float> x = vectorFromCArray(4, xd);
+            float yd[] = {3,2,1,0};
+            vector<float> y = vectorFromCArray(4, yd);
             CubicSpline spline(x, y);
             TEST(almostEqual(spline.interpolate(-1), 4));
             TEST(almostEqual(spline.interpolate(0), 3));
@@ -498,10 +498,10 @@ public:
             TEST(almostEqual(spline.interpolate(3.5), -0.5));
         }
         {
-            double xd[] = {2,4,6,8};
-            vector<double> x = vectorFromCArray(4, xd);
-            double yd[] = {0,1,3,6};
-            vector<double> y = vectorFromCArray(4, yd);
+            float xd[] = {2,4,6,8};
+            vector<float> x = vectorFromCArray(4, xd);
+            float yd[] = {0,1,3,6};
+            vector<float> y = vectorFromCArray(4, yd);
             CubicSpline spline(x, y);
             TEST(almostEqual(spline.interpolate(0), -1));
             TEST(almostEqual(spline.interpolate(1), -0.5));

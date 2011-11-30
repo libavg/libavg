@@ -27,7 +27,7 @@
 
 namespace avg {
     
-Filter3x3::Filter3x3(double Mat[3][3])
+Filter3x3::Filter3x3(float Mat[3][3])
     : Filter()
 {
     for (int y = 0; y < 3; y++) {

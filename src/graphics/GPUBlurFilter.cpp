@@ -39,7 +39,7 @@ using namespace std;
 namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        double stdDev, bool bClipBorders, bool bStandalone)
+        float stdDev, bool bClipBorders, bool bStandalone)
     : GPUFilter(pfSrc, pfDest, bStandalone, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -55,7 +55,7 @@ GPUBlurFilter::~GPUBlurFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUBlurFilter::setStdDev(double stdDev)
+void GPUBlurFilter::setStdDev(float stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
@@ -133,7 +133,7 @@ void GPUBlurFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
-void GPUBlurFilter::setDimensions(IntPoint size, double stdDev, bool bClipBorders)
+void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)
 {
     
     if (bClipBorders) {

@@ -30,13 +30,13 @@ namespace avg {
 class AVG_API FilterIntensity : public Filter
 {
 public:
-    FilterIntensity(int offset, double factor);
+    FilterIntensity(int offset, float factor);
     virtual ~FilterIntensity();
     virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
     int m_Offset;
-    double m_Factor;
+    float m_Factor;
 };
 
 }  // namespace

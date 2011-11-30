@@ -188,7 +188,7 @@ int TrackerConfig::getIntParam(const std::string& sXPathExpr) const
 
 double TrackerConfig::getDoubleParam(const std::string& sXPathExpr) const
 {
-    return stringToDouble(getParam(sXPathExpr));
+    return stringToFloat(getParam(sXPathExpr));
 }
 
 glm::vec2 TrackerConfig::getPointParam(const std::string& sXPathExpr) const

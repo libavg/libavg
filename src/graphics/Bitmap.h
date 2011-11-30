@@ -98,9 +98,9 @@ public:
 
     BitmapPtr subtract(const Bitmap& pOtherBmp);
     void blt(const Bitmap& otherBmp, const IntPoint& pos);
-    double getAvg() const;
-    double getChannelAvg(int channel) const;
-    double getStdDev() const;
+    float getAvg() const;
+    float getChannelAvg(int channel) const;
+    float getStdDev() const;
 
     bool operator ==(const Bitmap& otherBmp);
     void dump(bool bDumpPixels=false) const;

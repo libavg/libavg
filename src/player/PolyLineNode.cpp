@@ -36,12 +36,12 @@ namespace avg {
 NodeDefinition PolyLineNode::createDefinition()
 {
     vector<glm::vec2> v;
-    vector<double> vd;
+    vector<float> vd;
     return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
-        .addArg(Arg<vector<double> >("texcoords", vd, false,
+        .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolyLineNode, m_TexCoords)))
         ;
 }
@@ -76,12 +76,12 @@ void PolyLineNode::setPos(const vector<glm::vec2>& pts)
     setDrawNeeded();
 }
         
-const vector<double>& PolyLineNode::getTexCoords() const
+const vector<float>& PolyLineNode::getTexCoords() const
 {
     return m_TexCoords;
 }
 
-void PolyLineNode::setTexCoords(const vector<double>& coords)
+void PolyLineNode::setTexCoords(const vector<float>& coords)
 {
     if (coords.size() > m_Pts.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 

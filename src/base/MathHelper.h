@@ -32,15 +32,15 @@
 
 namespace avg {
 
-static const double EPSILON = 0.00001;
+static const float EPSILON = 0.00001f;
 
 bool ispow2(int n);
 
 int nextpow2(int n);
 
-int safeCeil(double d);
+int safeCeil(float d);
 
-bool almostEqual(double d1, double d2, double epsilon=EPSILON);
+bool almostEqual(float d1, float d2, float epsilon=EPSILON);
 
 float invSqrt(float x);
 

@@ -55,7 +55,7 @@ int nextpow2(int n)
 */    
 }
 
-int safeCeil(double d) 
+int safeCeil(float d) 
 {
     if (fabs(d-int(d)) < EPSILON) {
         return int(d);
@@ -80,7 +80,7 @@ float invSqrt(float x)
     return 1/sqrt(x);
 }
 
-bool almostEqual(double d1, double d2, double epsilon)
+bool almostEqual(float d1, float d2, float epsilon)
 {
     return (fabs(d1-d2)<epsilon);
 }

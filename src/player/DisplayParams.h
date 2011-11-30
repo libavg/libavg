@@ -45,7 +45,7 @@ struct AVG_API DisplayParams {
     bool m_bHasWindowFrame;
     double m_DotsPerMM;
 
-    double m_Gamma[3];
+    float m_Gamma[3];
 };
 
 }

@@ -32,12 +32,12 @@ namespace avg {
 
 // Fix for non-C99 win compilers
 #if defined _MSC_VER
-inline bool isinf(double x) 
+inline bool isinf(float x) 
 {
     return !_finite(x);
 }
 
-inline bool isnan(double x) 
+inline bool isnan(float x) 
 {
     return (_isnan(x) != 0);
 }
@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Triple<NUM> &p);
 template<class NUM>
 std::istream& operator>>(std::istream& is, Triple<NUM>& p);
 
-typedef Triple<double> DTriple;
+typedef Triple<float> FTriple;
 typedef Triple<int> IntTriple;
 
 }

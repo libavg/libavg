@@ -36,14 +36,14 @@ namespace avg {
 
 NodeDefinition RectNode::createDefinition()
 {
-    double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
+    float texCoords[] = {0, 0.25f, 0.5f, 0.75f, 1};
     return NodeDefinition("rect", Node::buildNode<RectNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, 
                 offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<glm::vec2>("size", glm::vec2(0,0)))
-        .addArg(Arg<double>("angle", 0.0, false, offsetof(RectNode, m_Angle)))
-        .addArg(Arg<vector<double> >("texcoords", vectorFromCArray(5, texCoords), false,
+        .addArg(Arg<float>("angle", 0.0f, false, offsetof(RectNode, m_Angle)))
+        .addArg(Arg<vector<float> >("texcoords", vectorFromCArray(5, texCoords), false,
                 offsetof(RectNode, m_TexCoords)))
         ;
 }
@@ -86,12 +86,12 @@ void RectNode::setSize(const glm::vec2& pt)
     setDrawNeeded();
 }
 
-const vector<double>& RectNode::getTexCoords() const
+const vector<float>& RectNode::getTexCoords() const
 {
     return m_TexCoords;
 }
 
-void RectNode::setTexCoords(const vector<double>& coords)
+void RectNode::setTexCoords(const vector<float>& coords)
 {
     if (coords.size() != 5) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
@@ -101,14 +101,14 @@ void RectNode::setTexCoords(const vector<double>& coords)
     setDrawNeeded();
 }
 
-double RectNode::getAngle() const
+float RectNode::getAngle() const
 {
     return m_Angle;
 }
 
-void RectNode::setAngle(double angle)
+void RectNode::setAngle(float angle)
 {
-    m_Angle = fmod(angle, 2*M_PI);
+    m_Angle = fmod(angle, float(2*M_PI));
     setDrawNeeded();
 }
 

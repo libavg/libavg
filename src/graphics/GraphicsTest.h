@@ -37,11 +37,11 @@ public:
 protected:
     BitmapPtr loadTestBmp(const std::string& sFName, PixelFormat pf = NO_PIXELFORMAT);
     virtual void testEqual(Bitmap& resultBmp, const std::string& sFName, 
-            PixelFormat pf = NO_PIXELFORMAT, double maxAverage=0.01, 
-            double maxStdDev=0.05); 
+            PixelFormat pf = NO_PIXELFORMAT, float maxAverage=0.01f, 
+            float maxStdDev=0.05f); 
     virtual void testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
-        const std::string& sFName, double maxAverage=0.01, double maxStdDev=0.05);
-    void testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp, double epsilon);
+        const std::string& sFName, float maxAverage=0.01f, float maxStdDev=0.05f);
+    void testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp, float epsilon);
 
 private:
     int sumPixels(Bitmap& bmp);

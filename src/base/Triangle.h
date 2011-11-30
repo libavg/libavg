@@ -41,7 +41,7 @@ public:
     
     bool operator ==(const Triangle & tri) const;
     bool isInside(const glm::vec2& pt) const;
-    double getArea() const;
+    float getArea() const;
     bool isClockwise() const;
 };
 

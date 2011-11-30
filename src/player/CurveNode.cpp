@@ -155,14 +155,14 @@ void CurveNode::updateLines()
 {
     BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
     
-    double len = getCurveLen();
+    float len = getCurveLen();
     m_LeftCurve.clear();
     m_RightCurve.clear();
-    m_LeftCurve.reserve(int(len+1.5));
-    m_RightCurve.reserve(int(len+1.5));
+    m_LeftCurve.reserve(int(len+1.5f));
+    m_RightCurve.reserve(int(len+1.5f));
 
     for (unsigned i = 0; i < len; ++i) {
-        double t = i/len;
+        float t = i/len;
         addLRCurvePoint(curve.interpolate(t), curve.getDeriv(t));
     }
     addLRCurvePoint(curve.interpolate(1), curve.getDeriv(1));

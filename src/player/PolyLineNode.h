@@ -43,8 +43,8 @@ class AVG_API PolyLineNode : public VectorNode
         const std::vector<glm::vec2>& getPos() const;
         void setPos(const std::vector<glm::vec2>& pts);
 
-        const std::vector<double>& getTexCoords() const;
-        void setTexCoords(const std::vector<double>& coords);
+        const std::vector<float>& getTexCoords() const;
+        void setTexCoords(const std::vector<float>& coords);
 
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
@@ -53,9 +53,9 @@ class AVG_API PolyLineNode : public VectorNode
 
     private:
         std::vector<glm::vec2> m_Pts;
-        std::vector<double> m_CumulDist;
-        std::vector<double> m_TexCoords;
-        std::vector<double> m_EffTexCoords;
+        std::vector<float> m_CumulDist;
+        std::vector<float> m_TexCoords;
+        std::vector<float> m_EffTexCoords;
         LineJoin m_LineJoin;
 };
 

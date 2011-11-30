@@ -61,8 +61,8 @@ public:
     IntPoint getTextureSize();
     bool isCreated() const;
 
-    void setColorParams(const DTriple& gamma, const DTriple& brightness,
-            const DTriple& contrast);
+    void setColorParams(const FTriple& gamma, const FTriple& brightness,
+            const FTriple& contrast);
     static void createShader();
 
     bool isDirty() const;
@@ -82,9 +82,9 @@ private:
     glm::vec2 m_MaskSize;
     
 
-    DTriple m_Gamma;
-    DTriple m_Brightness;
-    DTriple m_Contrast;
+    FTriple m_Gamma;
+    FTriple m_Brightness;
+    FTriple m_Contrast;
 
     bool m_bIsDirty;
 };

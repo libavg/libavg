@@ -32,7 +32,7 @@ namespace avg {
 
 class AVG_API FilterGauss: public Filter{
     public:
-        FilterGauss(double Radius);
+        FilterGauss(float Radius);
         virtual ~FilterGauss();
 
         virtual BitmapPtr apply(BitmapPtr pBmpSrc);
@@ -42,7 +42,7 @@ class AVG_API FilterGauss: public Filter{
     private:
         void calcKernel();
 
-        double m_Radius;
+        float m_Radius;
         int m_KernelWidth;
         int m_Kernel[15];
 };

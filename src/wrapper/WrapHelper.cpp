@@ -359,12 +359,12 @@ void export_base()
 #endif
     to_python_converter<Exception, Exception_to_python_exception>();
     to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
-    to_python_converter<DTriple, Triple_to_python_tuple<double> >();
+    to_python_converter<FTriple, Triple_to_python_tuple<float> >();
     vec2_from_python<glm::vec2, float>();
     vec2_from_python<ConstVec2, float>();
     vec2_from_python<IntPoint, int>();
     
-    triple_from_python<double>();
+    triple_from_python<float>();
     triple_from_python<int>();
     
     to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
@@ -375,7 +375,7 @@ void export_base()
     from_python_sequence<vector<string>, variable_capacity_policy>();
   
     from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
-    from_python_sequence<vector<DTriple>, variable_capacity_policy>();
+    from_python_sequence<vector<FTriple>, variable_capacity_policy>();
     from_python_sequence<vector<double>, variable_capacity_policy>();
     
     to_python_converter<UTF8String, UTF8String_to_unicode>();

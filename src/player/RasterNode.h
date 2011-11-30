@@ -83,12 +83,12 @@ class AVG_API RasterNode: public AreaNode
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 
-        DTriple getGamma() const;
-        void setGamma(const DTriple& gamma);
-        DTriple getIntensity() const;
-        void setIntensity(const DTriple& intensity);
-        DTriple getContrast() const;
-        void setContrast(const DTriple& contrast);
+        FTriple getGamma() const;
+        void setGamma(const FTriple& gamma);
+        FTriple getIntensity() const;
+        void setIntensity(const FTriple& intensity);
+        FTriple getContrast() const;
+        void setContrast(const FTriple& contrast);
 
         void setEffect(FXNodePtr pFXNode);
         
@@ -142,9 +142,9 @@ class AVG_API RasterNode: public AreaNode
         VertexArray * m_pVertexes;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 
-        DTriple m_Gamma;
-        DTriple m_Intensity;
-        DTriple m_Contrast;
+        FTriple m_Gamma;
+        FTriple m_Intensity;
+        FTriple m_Contrast;
 
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;

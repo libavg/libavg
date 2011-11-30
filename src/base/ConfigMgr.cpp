@@ -170,7 +170,7 @@ int ConfigMgr::getIntOption(const std::string& sSubsys,
 }
 
 void ConfigMgr::getGammaOption(const std::string& sSubsys, 
-            const std::string& sName, double* Val) const
+            const std::string& sName, float* Val) const
 {
     const string * psOption = getOption(sSubsys, sName);
     if (psOption == 0) {

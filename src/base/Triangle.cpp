@@ -49,42 +49,42 @@ bool Triangle::isInside(const glm::vec2& pt) const
 
     glm::vec2 a = p2-p1;
     glm::vec2 bp = pt-p1;
-    double aCROSSbp = a.x*bp.y - a.y*bp.x;
+    float aCROSSbp = a.x*bp.y - a.y*bp.x;
     if (aCROSSbp < 0.0) {
         return false;
     }
     
     glm::vec2 b = p0-p2;
     glm::vec2 cp = pt-p2;
-    double bCROSScp = b.x*cp.y - b.y*cp.x;
+    float bCROSScp = b.x*cp.y - b.y*cp.x;
     if (bCROSScp < 0.0) {
         return false;
     }
 
     glm::vec2 c = p1-p0;
     glm::vec2 ap = pt-p0;
-    double cCROSSap = c.x*ap.y - c.y*ap.x;
+    float cCROSSap = c.x*ap.y - c.y*ap.x;
     return cCROSSap >= 0.0;
 */
     glm::vec2 v0 = p2 - p0;
     glm::vec2 v1 = p1 - p0;
     glm::vec2 v2 = pt - p0;
 
-    double dot00 = glm::dot(v0, v0);
-    double dot01 = glm::dot(v0, v1);
-    double dot02 = glm::dot(v0, v2);
-    double dot11 = glm::dot(v1, v1);
-    double dot12 = glm::dot(v1, v2);
+    float dot00 = glm::dot(v0, v0);
+    float dot01 = glm::dot(v0, v1);
+    float dot02 = glm::dot(v0, v2);
+    float dot11 = glm::dot(v1, v1);
+    float dot12 = glm::dot(v1, v2);
 
-    double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-    double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-    double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+    float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
     return (u > 0) && (v > 0) && (u + v < 1);
 
 }
 
-double Triangle::getArea() const
+float Triangle::getArea() const
 {
     return fabs((((p1.x-p0.x)*(p2.y-p0.y)) - ((p1.y-p0.y)*(p2.x-p0.x)))/2);
 }

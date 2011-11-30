@@ -34,7 +34,7 @@ namespace avg {
 // XXX: Warning, possibly buggy.
 class AVG_API FilterBandpass: public Filter {
 public:
-    FilterBandpass(double lowWidth, double highWidth);
+    FilterBandpass(float lowWidth, float highWidth);
     virtual ~FilterBandpass();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSrc);

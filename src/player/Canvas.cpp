@@ -274,7 +274,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
-    IntPoint size = IntPoint(m_pRootNode->getSize());
+    glm::vec2 size = m_pRootNode->getSize();
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {

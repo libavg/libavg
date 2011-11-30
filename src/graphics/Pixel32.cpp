@@ -34,19 +34,19 @@ namespace avg {
 
 using namespace std;
 
-void Pixel32::toHSL(double& h, double& s, double& l)
+void Pixel32::toHSL(float& h, float& s, float& l)
 {
-    double r = double(m_Data[REDPOS])/255;
-    double g = double(m_Data[GREENPOS])/255;
-    double b = double(m_Data[BLUEPOS])/255;
-    double maxComp = max(r, max(g, b));
-    double minComp = min(r, min(g, b));
+    float r = float(m_Data[REDPOS])/255;
+    float g = float(m_Data[GREENPOS])/255;
+    float b = float(m_Data[BLUEPOS])/255;
+    float maxComp = max(r, max(g, b));
+    float minComp = min(r, min(g, b));
     l = (maxComp+minComp)/2.0;
     if (maxComp == minComp) {
         s = 0.0;
         h = 0.0;
     } else {
-        double delta = maxComp-minComp;
+        float delta = maxComp-minComp;
         if (l < 0.5) {
             s = delta/(maxComp+minComp);
         } else {

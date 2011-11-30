@@ -28,14 +28,14 @@
 namespace avg {
 
 // From Foley, van Dam p. 596 incl. addendum fixes.
-unsigned char hls_value(double n1, double n2, double hue)
+unsigned char hls_value(float n1, float n2, float hue)
 {
   if (hue>360)
     hue-=360;
   if (hue<0)   
     hue+=360;
   
-  double rv;
+  float rv;
   if (hue<60)  
     rv = n1+(n2-n1)*hue/60.0;
   else if (hue<180) 
@@ -48,9 +48,9 @@ unsigned char hls_value(double n1, double n2, double hue)
   return (unsigned char)(rv*255);
 }
 
-Pixel24 hls2rgb (double h, double l, double s)
+Pixel24 hls2rgb (float h, float l, float s)
 {
-    double m1, m2;
+    float m1, m2;
     l /= 255;
     s /= 100;
     // Warning: Foley, van Dam has a typo on the next line!
@@ -66,7 +66,7 @@ Pixel24 hls2rgb (double h, double l, double s)
     }
 }
 
-FilterColorize::FilterColorize(double hue, double saturation)
+FilterColorize::FilterColorize(float hue, float saturation)
   : m_Hue(hue),
     m_Saturation(saturation)
 {

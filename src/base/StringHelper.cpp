@@ -71,9 +71,9 @@ int stringToInt(const string& s)
     return i;
 }
 
-double stringToDouble(const string& s)
+float stringToFloat(const string& s)
 {
-    double d;
+    float d;
     fromString(s, d);
     return d;
 }

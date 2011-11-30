@@ -25,7 +25,7 @@
 
 namespace avg {
 
-FilterResizeGaussian::FilterResizeGaussian(const IntPoint& newSize, double radius)
+FilterResizeGaussian::FilterResizeGaussian(const IntPoint& newSize, float radius)
     : m_NewSize(newSize),
       m_Radius(radius)
 {

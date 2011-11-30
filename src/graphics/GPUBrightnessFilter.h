@@ -31,7 +31,7 @@ namespace avg {
 class AVG_API GPUBrightnessFilter: public GPUFilter
 {
 public:
-    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, double alpha, 
+    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, float alpha, 
             bool bStandalone=true);
     virtual ~GPUBrightnessFilter();
 
@@ -40,7 +40,7 @@ public:
 private:
     static void initShader();
 
-    double m_Alpha;
+    float m_Alpha;
 };
 
 } // namespace

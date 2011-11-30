@@ -249,12 +249,12 @@ void dumpKernel(int width, float* pKernel)
     cerr << "Sum of coefficients: " << sum << endl;
 }
 
-int GPUFilter::getBlurKernelRadius(double stdDev) const
+int GPUFilter::getBlurKernelRadius(float stdDev) const
 {
     return int(ceil(stdDev*3));
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
+GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
 {
     AVG_ASSERT(opacity != -1);
     int kernelWidth;

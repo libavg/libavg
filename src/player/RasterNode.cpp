@@ -53,11 +53,11 @@ NodeDefinition RasterNode::createDefinition()
                 offsetof(RasterNode, m_MaskPos)))
         .addArg(Arg<glm::vec2>("masksize", glm::vec2(0,0), false,
                 offsetof(RasterNode, m_MaskSize)))
-        .addArg(Arg<DTriple>("gamma", DTriple(1.0,1.0,1.0), false,
+        .addArg(Arg<FTriple>("gamma", FTriple(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Gamma)))
-        .addArg(Arg<DTriple>("contrast", DTriple(1.0,1.0,1.0), false,
+        .addArg(Arg<FTriple>("contrast", FTriple(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Contrast)))
-        .addArg(Arg<DTriple>("intensity", DTriple(1.0,1.0,1.0), false,
+        .addArg(Arg<FTriple>("intensity", FTriple(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Intensity)));
 }
 
@@ -289,12 +289,12 @@ void RasterNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEl
     }
 }
 
-DTriple RasterNode::getGamma() const
+FTriple RasterNode::getGamma() const
 {
     return m_Gamma;
 }
 
-void RasterNode::setGamma(const DTriple& gamma)
+void RasterNode::setGamma(const FTriple& gamma)
 {
     m_Gamma = gamma;
     if (getState() == Node::NS_CANRENDER) {
@@ -302,12 +302,12 @@ void RasterNode::setGamma(const DTriple& gamma)
     }
 }
 
-DTriple RasterNode::getIntensity() const
+FTriple RasterNode::getIntensity() const
 {
     return m_Intensity;
 }
 
-void RasterNode::setIntensity(const DTriple& intensity)
+void RasterNode::setIntensity(const FTriple& intensity)
 {
     m_Intensity = intensity;
     if (getState() == Node::NS_CANRENDER) {
@@ -315,12 +315,12 @@ void RasterNode::setIntensity(const DTriple& intensity)
     }
 }
 
-DTriple RasterNode::getContrast() const
+FTriple RasterNode::getContrast() const
 {
     return m_Contrast;
 }
 
-void RasterNode::setContrast(const DTriple& contrast)
+void RasterNode::setContrast(const FTriple& contrast)
 {
     m_Contrast = contrast;
     if (getState() == Node::NS_CANRENDER) {

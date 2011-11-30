@@ -70,7 +70,7 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 }
 
 void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelFormat pf, 
-        double maxAverage, double maxStdDev) 
+        float maxAverage, float maxStdDev) 
 {
     BitmapPtr pBaselineBmp;
     try {
@@ -91,7 +91,7 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, const string& sFName, PixelForma
 }
 
 void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp, 
-        const string& sFName, double maxAverage, double maxStdDev)
+        const string& sFName, float maxAverage, float maxStdDev)
 {
     BitmapPtr pDiffBmp;
     try {
@@ -103,8 +103,8 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
         baselineBmp.save(sResultName+"_baseline.png");
     }
     if (pDiffBmp) {
-        double average = pDiffBmp->getAvg();
-        double stdDev = pDiffBmp->getStdDev();
+        float average = pDiffBmp->getAvg();
+        float stdDev = pDiffBmp->getStdDev();
         if (average > maxAverage || stdDev > maxStdDev) {
             TEST_FAILED("Error: Decoded image differs from baseline '" << 
                     sFName << "'. average=" << average << ", stdDev=" << stdDev);
@@ -120,9 +120,9 @@ void GraphicsTest::testEqual(Bitmap& resultBmp, Bitmap& baselineBmp,
 }
 
 void GraphicsTest::testEqualBrightness(Bitmap& resultBmp, Bitmap& baselineBmp, 
-        double epsilon)
+        float epsilon)
 {
-    double diff = fabs(resultBmp.getAvg()-baselineBmp.getAvg());
+    float diff = fabs(resultBmp.getAvg()-baselineBmp.getAvg());
     if (diff >= epsilon) {
         TEST_FAILED("Error: Baseline brightness: " << baselineBmp.getAvg()
                 << ", Result brightness: " << resultBmp.getAvg() << ", difference: " 

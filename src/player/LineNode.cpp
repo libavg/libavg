@@ -38,8 +38,8 @@ NodeDefinition LineNode::createDefinition()
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(LineNode, m_P1)))
         .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(LineNode, m_P2)))
-        .addArg(Arg<double>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, false, offsetof(LineNode, m_TC2)))
+        .addArg(Arg<float>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))
+        .addArg(Arg<float>("texcoord2", 1, false, offsetof(LineNode, m_TC2)))
         ;
 }
 
@@ -75,23 +75,23 @@ void LineNode::setPos2(const glm::vec2& pt)
     setDrawNeeded();
 }
 
-double LineNode::getTexCoord1() const
+float LineNode::getTexCoord1() const
 {
     return m_TC1;
 }
 
-void LineNode::setTexCoord1(double tc)
+void LineNode::setTexCoord1(float tc)
 {
     m_TC1 = tc;
     setDrawNeeded();
 }
 
-double LineNode::getTexCoord2() const
+float LineNode::getTexCoord2() const
 {
     return m_TC2;
 }
 
-void LineNode::setTexCoord2(double tc)
+void LineNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();

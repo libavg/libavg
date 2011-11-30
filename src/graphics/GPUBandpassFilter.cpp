@@ -35,7 +35,7 @@ using namespace std;
 namespace avg {
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
-        double min, double max, double postScale, bool bInvert, bool bStandalone)
+        float min, float max, float postScale, bool bInvert, bool bStandalone)
     : GPUFilter(pfSrc, B8G8R8A8, bStandalone),
       m_PostScale(postScale),
       m_bInvert(bInvert),

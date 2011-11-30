@@ -75,7 +75,7 @@ std::istream& operator >>(std::istream& is, std::vector<T>& v)
 }
 
 int stringToInt(const std::string& s);
-double stringToDouble(const std::string& s);
+float stringToFloat(const std::string& s);
 bool stringToBool(const std::string& s);
 IntTriple stringToIntTriple(const std::string& s);
 

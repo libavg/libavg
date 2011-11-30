@@ -43,11 +43,11 @@ class AVG_API RectNode : public FilledVectorNode
         glm::vec2 getSize() const;
         void setSize(const glm::vec2& pt);
 
-        const std::vector<double>& getTexCoords() const;
-        void setTexCoords(const std::vector<double>& coords);
+        const std::vector<float>& getTexCoords() const;
+        void setTexCoords(const std::vector<float>& coords);
 
-        double getAngle() const;
-        void setAngle(double angle);
+        float getAngle() const;
+        void setAngle(float angle);
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 
@@ -56,9 +56,9 @@ class AVG_API RectNode : public FilledVectorNode
 
     private:
         FRect m_Rect;
-        std::vector<double> m_TexCoords;
+        std::vector<float> m_TexCoords;
 
-        double m_Angle;
+        float m_Angle;
 };
 
 }

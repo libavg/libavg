@@ -226,8 +226,8 @@ bool OGLSurface::isCreated() const
     return m_pTextures[0];
 }
 
-void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
-            const DTriple& contrast)
+void OGLSurface::setColorParams(const FTriple& gamma, const FTriple& brightness,
+            const FTriple& contrast)
 {
     m_Gamma = gamma;
     m_Brightness = brightness;

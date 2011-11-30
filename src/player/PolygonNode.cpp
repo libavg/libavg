@@ -80,12 +80,12 @@ void PolygonNode::setPos(const vector<glm::vec2>& pts)
     setDrawNeeded();
 }
         
-const vector<double>& PolygonNode::getTexCoords() const
+const vector<float>& PolygonNode::getTexCoords() const
 {
     return m_TexCoords;
 }
 
-void PolygonNode::setTexCoords(const vector<double>& coords)
+void PolygonNode::setTexCoords(const vector<float>& coords)
 {
     if (coords.size() > m_Pts.size()+1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 

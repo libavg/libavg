@@ -89,14 +89,14 @@ void AreaNode::connectDisplay()
 {
     IntPoint MediaSize = getMediaSize();
     if (m_UserSize.x == 0.0) {
-        m_RelViewport.setWidth(MediaSize.x);
+        m_RelViewport.setWidth(float(MediaSize.x));
     } else {
-        m_RelViewport.setWidth(m_UserSize.x);
+        m_RelViewport.setWidth(float(m_UserSize.x));
     }
     if (m_UserSize.y == 0.0) {
-        m_RelViewport.setHeight(MediaSize.y);
+        m_RelViewport.setHeight(float(MediaSize.y));
     } else {
-        m_RelViewport.setHeight(m_UserSize.y);
+        m_RelViewport.setHeight(float(m_UserSize.y));
     }
     Node::connectDisplay();
 }

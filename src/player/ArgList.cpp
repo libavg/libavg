@@ -156,8 +156,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<glm::vec2>* pVec2Arg = dynamic_cast<Arg<glm::vec2>* >(&*pArg);
     Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
-    Arg<DTriple>* pDTripleArg = dynamic_cast<Arg<DTriple>* >(&*pArg);
-    Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
+    Arg<FTriple>* pFTripleArg = dynamic_cast<Arg<FTriple>* >(&*pArg);
+    Arg<vector<float> >* pFVectorArg = dynamic_cast<Arg<vector<float> >* >(&*pArg);
     Arg<vector<glm::vec2> >* pVec2VectorArg = 
             dynamic_cast<Arg<vector<glm::vec2> >* >(&*pArg);
     Arg<vector<IntTriple> >* pIntTripleVectorArg = 
@@ -176,14 +176,14 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pBoolArg, sName, value);
     } else if (pVec2Arg) {
         avg::setArgValue(pVec2Arg, sName, value);
-    } else if (pDVectorArg) {
-        avg::setArgValue(pDVectorArg, sName, value);
+    } else if (pFVectorArg) {
+        avg::setArgValue(pFVectorArg, sName, value);
     } else if (pVec2VectorArg) {
         avg::setArgValue(pVec2VectorArg, sName, value);
     } else if (pIntTripleArg) {
         avg::setArgValue(pIntTripleArg, sName, value);
-    } else if (pDTripleArg) {
-        avg::setArgValue(pDTripleArg, sName, value);
+    } else if (pFTripleArg) {
+        avg::setArgValue(pFTripleArg, sName, value);
     } else if (pIntTripleVectorArg) {
         avg::setArgValue(pIntTripleVectorArg, sName, value);
     } else {
@@ -202,7 +202,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<glm::vec2>* pVec2Arg = dynamic_cast<Arg<glm::vec2>* >(&*pArg);
     Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
-    Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
+    Arg<vector<float> >* pFVectorArg = dynamic_cast<Arg<vector<float> >* >(&*pArg);
     Arg<vector<glm::vec2> >* pVec2VectorArg = 
             dynamic_cast<Arg<vector<glm::vec2> >* >(&*pArg);
     Arg<vector<IntTriple> >* pIntTripleVectorArg = 
@@ -215,19 +215,19 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     } else if (pIntArg) {
         pIntArg->setValue(stringToInt(sValue));
     } else if (pDoubleArg) {
-        pDoubleArg->setValue(stringToDouble(sValue));
+        pDoubleArg->setValue(double(stringToFloat(sValue)));
     } else if (pFloatArg) {
-        pFloatArg->setValue(float(stringToDouble(sValue)));
+        pFloatArg->setValue(stringToFloat(sValue));
     } else if (pBoolArg) {
         pBoolArg->setValue(stringToBool(sValue));
     } else if (pVec2Arg) {
         pVec2Arg->setValue(stringToVec2(sValue));
     } else if (pIntTripleArg) {
         pIntTripleArg->setValue(stringToIntTriple(sValue));
-    } else if (pDVectorArg) {
-        vector<double> v;
+    } else if (pFVectorArg) {
+        vector<float> v;
         fromString(sValue, v);
-        pDVectorArg->setValue(v);
+        pFVectorArg->setValue(v);
     } else if (pVec2VectorArg) {
         vector<glm::vec2> v;
         fromString(sValue, v);
