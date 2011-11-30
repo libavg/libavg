@@ -49,7 +49,7 @@ void createTrueColorCopy(Bitmap& destBmp, const Bitmap & srcBmp);
 
 bool Bitmap::s_bGTKInitialized = false;
 
-Bitmap::Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName, int stride)
+Bitmap::Bitmap(glm::vec2 size, PixelFormat pf, const UTF8String& sName, int stride)
     : m_Size(size),
       m_PF(pf),
       m_pBits(0),
@@ -765,7 +765,7 @@ void Bitmap::setAlpha(const Bitmap& alphaBmp)
     }
 }
 
-Pixel32 Bitmap::getPythonPixel(const DPoint& pos)
+Pixel32 Bitmap::getPythonPixel(const glm::vec2& pos)
 {
     IntPoint intPos(pos);
     if (intPos.x < 0 || intPos.y < 0 || intPos.x >= m_Size.x || intPos.y >= m_Size.y) {
@@ -913,9 +913,9 @@ void Bitmap::blt(const Bitmap& otherBmp, const IntPoint& pos)
     }
 }
 
-double Bitmap::getAvg() const
+float Bitmap::getAvg() const
 {
-    double sum = 0;
+    float sum = 0;
     unsigned char * pSrc = m_pBits;
     int componentsPerPixel = getBytesPerPixel();
     for (int y = 0; y < getSize().y; ++y) {
@@ -971,12 +971,12 @@ double Bitmap::getAvg() const
     return sum/(getSize().x*getSize().y);
 }
 
-double Bitmap::getChannelAvg(int channel) const
+float Bitmap::getChannelAvg(int channel) const
 {
     AVG_ASSERT(!pixelFormatIsPlanar(m_PF) && !pixelFormatIsBayer(m_PF) && !(m_PF == I16));
     int bytesPerPixel = getBytesPerPixel();
     AVG_ASSERT(channel < bytesPerPixel);
-    double sum = 0;
+    float sum = 0;
     unsigned char * pSrcLine = m_pBits;
     for (int y = 0; y < getSize().y; ++y) {
         unsigned char * pSrcPixel = pSrcLine;
@@ -989,10 +989,10 @@ double Bitmap::getChannelAvg(int channel) const
     return sum/(getSize().x*getSize().y);
 }
 
-double Bitmap::getStdDev() const
+float Bitmap::getStdDev() const
 {
-    double average = getAvg();
-    double sum = 0;
+    float average = getAvg();
+    float sum = 0;
 
     unsigned char * pSrc = m_pBits;
     int componentsPerPixel = getBytesPerPixel();

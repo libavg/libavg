@@ -28,6 +28,8 @@
 #include "../base/GeomHelper.h"
 #include "../base/Triangulate.h"
 
+#include "../glm/gtx/norm.hpp"
+
 #include <iostream>
 #include <sstream>
 
@@ -37,13 +39,13 @@ namespace avg {
 
 NodeDefinition PolygonNode::createDefinition()
 {
-    vector<DPoint> v;
-    vector<double> vd;
+    vector<glm::vec2> v;
+    vector<float> vd;
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
-        .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
-        .addArg(Arg<vector<double> >("texcoords", vd, false,
+        .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
+        .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
         ;
 }
@@ -64,12 +66,12 @@ PolygonNode::~PolygonNode()
 {
 }
 
-const vector<DPoint>& PolygonNode::getPos() const 
+const vector<glm::vec2>& PolygonNode::getPos() const 
 {
     return m_Pts;
 }
 
-void PolygonNode::setPos(const vector<DPoint>& pts) 
+void PolygonNode::setPos(const vector<glm::vec2>& pts) 
 {
     m_Pts = pts;
     m_TexCoords.clear();
@@ -78,12 +80,12 @@ void PolygonNode::setPos(const vector<DPoint>& pts)
     setDrawNeeded();
 }
         
-const vector<double>& PolygonNode::getTexCoords() const
+const vector<float>& PolygonNode::getTexCoords() const
 {
     return m_TexCoords;
 }
 
-void PolygonNode::setTexCoords(const vector<double>& coords)
+void PolygonNode::setTexCoords(const vector<float>& coords)
 {
     if (coords.size() > m_Pts.size()+1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
@@ -105,7 +107,7 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded();
 }
 
-void PolygonNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts)) {
         pElements.push_back(shared_from_this());
@@ -129,19 +131,19 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
         return;
     }
     // Remove duplicate points
-    vector<DPoint> pts;
+    vector<glm::vec2> pts;
     pts.reserve(m_Pts.size());
 
     pts.push_back(m_Pts[0]);
     for (unsigned i = 1; i < m_Pts.size(); ++i) {
-        if (calcDistSquared(m_Pts[i], m_Pts[i-1]) > 0.1) {
+        if (glm::distance2(m_Pts[i], m_Pts[i-1]) > 0.1) {
             pts.push_back(m_Pts[i]);
         }
     }
 
     if (color.getA() > 0) {
-        DPoint minCoord = pts[0];
-        DPoint maxCoord = pts[0];
+        glm::vec2 minCoord = pts[0];
+        glm::vec2 maxCoord = pts[0];
         for (unsigned i = 1; i < pts.size(); ++i) {
             if (pts[i].x < minCoord.x) {
                 minCoord.x = pts[i].x;
@@ -159,7 +161,7 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
         vector<int> triIndexes;
         triangulatePolygon(pts, triIndexes);
         for (unsigned i = 0; i < pts.size(); ++i) {
-            DPoint texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
+            glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
             pVertexArray->appendPos(pts[i], texCoord, color);
         }
         for (unsigned i = 0; i < triIndexes.size(); i+=3) {

@@ -86,7 +86,8 @@ VertexArray::~VertexArray()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VertexArray::appendPos(const DPoint& pos, const DPoint& texPos, const Pixel32& color)
+void VertexArray::appendPos(const glm::vec2& pos, const glm::vec2& texPos,
+        const Pixel32& color)
 {
     if (m_NumVerts >= m_ReserveVerts-1) {
         grow();
@@ -127,15 +128,15 @@ void VertexArray::appendQuadIndexes(int v0, int v1, int v2, int v3)
     m_NumIndexes += 6;
 }
 
-void VertexArray::addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, 
-        double width, double tc1, double tc2)
+void VertexArray::addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
+        float width, float tc1, float tc2)
 {
     WideLine wl(p1, p2, width);
     int curVertex = getCurVert();
-    appendPos(wl.pl0, DPoint(tc1, 1), color);
-    appendPos(wl.pr0, DPoint(tc1, 0), color);
-    appendPos(wl.pl1, DPoint(tc2, 1), color);
-    appendPos(wl.pr1, DPoint(tc2, 0), color);
+    appendPos(wl.pl0, glm::vec2(tc1, 1), color);
+    appendPos(wl.pr0, glm::vec2(tc1, 0), color);
+    appendPos(wl.pl1, glm::vec2(tc2, 1), color);
+    appendPos(wl.pr1, glm::vec2(tc2, 0), color);
     appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
 

@@ -78,18 +78,18 @@ BitmapPtr SVG::renderElement(const UTF8String& sElementID)
     return renderElement(sElementID, 1);
 }
 
-BitmapPtr SVG::renderElement(const UTF8String& sElementID, const DPoint& size)
+BitmapPtr SVG::renderElement(const UTF8String& sElementID, const glm::vec2& size)
 {
     SVGElementPtr pElement = getElement(sElementID);
-    DPoint elementSize = pElement->getSize();
+    glm::vec2 elementSize = pElement->getSize();
     return internalRenderElement(pElement, size, elementSize);
 }
 
-BitmapPtr SVG::renderElement(const UTF8String& sElementID, double scale)
+BitmapPtr SVG::renderElement(const UTF8String& sElementID, float scale)
 {
     SVGElementPtr pElement = getElement(sElementID);
-    DPoint size = pElement->getSize();
-    DPoint renderSize = size * scale;
+    glm::vec2 size = pElement->getSize();
+    glm::vec2 renderSize = size * scale;
     return internalRenderElement(pElement, renderSize, size);
 }
 
@@ -100,30 +100,30 @@ NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs
 }
 
 NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs, 
-        const DPoint& renderSize)
+        const glm::vec2& renderSize)
 {
     BitmapPtr pBmp = renderElement(sElementID, renderSize);
     return createImageNodeFromBitmap(pBmp, nodeAttrs);
 }
 
 NodePtr SVG::createImageNode(const UTF8String& sElementID, const dict& nodeAttrs, 
-        double scale)
+        float scale)
 {
     BitmapPtr pBmp = renderElement(sElementID, scale);
     return createImageNodeFromBitmap(pBmp, nodeAttrs);
 }
 
-DPoint SVG::getElementSize(const UTF8String& sElementID)
+glm::vec2 SVG::getElementSize(const UTF8String& sElementID)
 {
     SVGElementPtr pElement = getElement(sElementID);
     return pElement->getSize();
 }
 
 BitmapPtr SVG::internalRenderElement(const SVGElementPtr& pElement, 
-        const DPoint& renderSize, const DPoint& size)
+        const glm::vec2& renderSize, const glm::vec2& size)
 {
-    DPoint pos = pElement->getPos();
-    DPoint scale(renderSize.x/size.x, renderSize.y/size.y);
+    glm::vec2 pos = pElement->getPos();
+    glm::vec2 scale(renderSize.x/size.x, renderSize.y/size.y);
     IntPoint boundingBox = IntPoint(renderSize) + 
             IntPoint(int(scale.x+0.5), int(scale.y+0.5));
     BitmapPtr pBmp(new Bitmap(boundingBox, B8G8R8A8));

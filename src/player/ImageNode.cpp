@@ -157,7 +157,7 @@ void ImageNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
-void ImageNode::render(const DRect& Rect)
+void ImageNode::render(const FRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getSource() != Image::NONE) {
@@ -191,14 +191,14 @@ void ImageNode::checkReload()
     RasterNode::checkReload();
 }
 
-void ImageNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void ImageNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents()) {
         OffscreenCanvasPtr pCanvas = m_pImage->getCanvas();
         if (pCanvas && pCanvas->getHandleEvents()) {
-            DPoint nodeSize(getSize());
-            DPoint canvasSize(pCanvas->getSize());
-            DPoint localPos(pos.x*(canvasSize.x/nodeSize.x), 
+            glm::vec2 nodeSize(getSize());
+            glm::vec2 canvasSize(pCanvas->getSize());
+            glm::vec2 localPos(pos.x*(canvasSize.x/nodeSize.x), 
                     pos.y*(canvasSize.y/nodeSize.y));
             pCanvas->getRootNode()->getElementsByPos(localPos, pElements);
         } else {

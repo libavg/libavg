@@ -169,14 +169,14 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
         if (m_pMaskTexture) {
             m_pMaskTexture->activate(GL_TEXTURE4);
             pShader->setUniformIntParam("maskTexture", 4);
-            pShader->setUniformDPointParam("maskPos", m_MaskPos);
+            pShader->setUniformVec2fParam("maskPos", m_MaskPos);
             // maskScale is (1,1) for everything excepting words nodes.
-            DPoint maskScale(1,1);
+            glm::vec2 maskScale(1,1);
             if (logicalSize != IntPoint(0,0)) {
-                maskScale = DPoint((double)logicalSize.x/m_Size.x, 
-                        (double)logicalSize.y/m_Size.y);
+                maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
+                        (float)logicalSize.y/m_Size.y);
             }
-            pShader->setUniformDPointParam("maskSize", m_MaskSize*maskScale);
+            pShader->setUniformVec2fParam("maskSize", m_MaskSize*maskScale);
         }
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
@@ -199,7 +199,7 @@ GLTexturePtr OGLSurface::getTex(int i) const
     return m_pTextures[i];
 }
 
-void OGLSurface::setMaskCoords(DPoint maskPos, DPoint maskSize)
+void OGLSurface::setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize)
 {
     m_MaskPos = maskPos;
     m_MaskSize = maskSize;
@@ -226,8 +226,8 @@ bool OGLSurface::isCreated() const
     return m_pTextures[0];
 }
 
-void OGLSurface::setColorParams(const DTriple& gamma, const DTriple& brightness,
-            const DTriple& contrast)
+void OGLSurface::setColorParams(const FTriple& gamma, const FTriple& brightness,
+            const FTriple& contrast)
 {
     m_Gamma = gamma;
     m_Brightness = brightness;

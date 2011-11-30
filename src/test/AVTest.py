@@ -98,7 +98,7 @@ class AVTestCase(AVGTestCase):
                 node.volume = volume
 
             def testGetVolume(volume):
-                self.assertEqual(node.volume, volume)
+                self.assertAlmostEqual(node.volume, volume)
 
             def checkImage(filename):
                 if not(isThreaded):
@@ -413,7 +413,7 @@ class AVTestCase(AVGTestCase):
                 node.volume = volume
 
             def testGetVolume(volume):
-                self.assertEqual(node.volume, volume)
+                self.assertAlmostEqual(node.volume, volume)
 
             root = self.loadEmptyScene()
             node = avg.SoundNode(href="../video/testfiles/"+filename, 

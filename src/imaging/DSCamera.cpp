@@ -42,7 +42,7 @@ namespace avg {
 using namespace std;
 
 DSCamera::DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, 
-        PixelFormat destPF, double frameRate)
+        PixelFormat destPF, float frameRate)
     : Camera(camPF, destPF),
       m_sDevice(sDevice),
       m_Size(size),
@@ -179,7 +179,7 @@ void DSCamera::setCaptureFormat()
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::GetStreamCaps");
         pvih = (VIDEOINFOHEADER*)(pmtConfig->pbFormat);
         bih = pvih->bmiHeader;
-        double frameRate = double(10000000L/pvih->AvgTimePerFrame);
+        float frameRate = float(10000000L/pvih->AvgTimePerFrame);
         capsPF = mediaSubtypeToPixelFormat(pmtConfig->subtype);
 
         if (capsPF != NO_PIXELFORMAT && bih.biWidth != 0) {
@@ -260,7 +260,7 @@ const std::string& DSCamera::getDriverName() const
     return sDriverName;
 }
 
-double DSCamera::getFrameRate() const
+float DSCamera::getFrameRate() const
 {
     return m_FrameRate;
 }

@@ -115,7 +115,7 @@ Player::Player()
       m_dtd(0),
       m_bPythonAvailable(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None)
 {
 string sDummy;
@@ -248,22 +248,22 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-DPoint Player::getScreenResolution()
+glm::vec2 Player::getScreenResolution()
 {
-    return DPoint(safeGetDisplayEngine()->getScreenResolution());
+    return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
 }
 
-double Player::getPixelsPerMM()
+float Player::getPixelsPerMM()
 {
     return safeGetDisplayEngine()->getPixelsPerMM();
 }
 
-DPoint Player::getPhysicalScreenDimensions()
+glm::vec2 Player::getPhysicalScreenDimensions()
 {
     return safeGetDisplayEngine()->getPhysicalScreenDimensions();
 }
 
-void Player::assumePixelsPerMM(double ppmm)
+void Player::assumePixelsPerMM(float ppmm)
 {
     safeGetDisplayEngine()->assumePixelsPerMM(ppmm);
 }
@@ -551,7 +551,7 @@ bool Player::isPlaying()
     return m_bIsPlaying;
 }
 
-void Player::setFramerate(double rate)
+void Player::setFramerate(float rate)
 {
     if (m_bIsPlaying) {
         m_pDisplayEngine->setFramerate(rate);
@@ -571,7 +571,7 @@ void Player::setVBlankFramerate(int rate)
     }
 }
 
-double Player::getEffectiveFramerate()
+float Player::getEffectiveFramerate()
 {
     if (m_bIsPlaying) {
         if (m_bFakeFPS) {
@@ -589,7 +589,7 @@ TestHelper * Player::getTestHelper()
     return m_pTestHelper.get();
 }
 
-void Player::setFakeFPS(double fps)
+void Player::setFakeFPS(float fps)
 {
     if (fabs(fps + 1.0) < 0.0001) {
         // fps = -1
@@ -618,18 +618,18 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
-double Player::getFrameDuration()
+float Player::getFrameDuration()
 {
     if (!m_bIsPlaying) {
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Must call Player.play() before getFrameDuration().");
     }
     if (m_bFakeFPS) {
-        return 1000.0/m_FakeFPS;
+        return 1000.0f/m_FakeFPS;
     } else {
-        double framerate = m_pDisplayEngine->getEffectiveFramerate();
+        float framerate = m_pDisplayEngine->getEffectiveFramerate();
         if (framerate > 0) {
-            return 1000./framerate;
+            return 1000.f/framerate;
         } else {
             return 0;
         }
@@ -1076,7 +1076,7 @@ void Player::endFrame()
     m_pDisplayEngine->checkJitter();
 }
 
-double Player::getFramerate()
+float Player::getFramerate()
 {
     if (!m_pDisplayEngine) {
         return m_DP.m_Framerate;
@@ -1084,7 +1084,7 @@ double Player::getFramerate()
     return m_pDisplayEngine->getFramerate();
 }
 
-double Player::getVideoRefreshRate()
+float Player::getVideoRefreshRate()
 {
     if (!m_pDisplayEngine) {
         return 0;
@@ -1101,7 +1101,7 @@ bool Player::isUsingShaders()
     return GLContext::getCurrent()->isUsingShaders();
 }
 
-void Player::setGamma(double red, double green, double blue)
+void Player::setGamma(float red, float green, float blue)
 {
     if (m_pDisplayEngine) {
         m_pDisplayEngine->setGamma(red, green, blue);
@@ -1128,7 +1128,7 @@ void Player::initConfig()
 
     m_DP.m_WindowSize.x = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_DP.m_WindowSize.y = atoi(pMgr->getOption("scr", "windowheight")->c_str());
-    m_DP.m_DotsPerMM = atof(pMgr->getOption("scr", "dotspermm")->c_str());
+    m_DP.m_DotsPerMM = float(atof(pMgr->getOption("scr", "dotspermm")->c_str()));
 
     if (m_DP.m_bFullscreen && (m_DP.m_WindowSize != IntPoint(0, 0))) {
         AVG_TRACE(Logger::ERROR,
@@ -1580,7 +1580,7 @@ bool Player::getStopOnEscape() const
     return m_bStopOnEscape;
 }
 
-void Player::setVolume(double volume)
+void Player::setVolume(float volume)
 {
     m_Volume = volume;
     if (SDLAudioEngine::get()) {
@@ -1588,7 +1588,7 @@ void Player::setVolume(double volume)
     }
 }
 
-double Player::getVolume() const
+float Player::getVolume() const
 {
     return m_Volume;
 }
@@ -1645,7 +1645,7 @@ void Player::cleanup()
     }
     m_pEventDispatcher = EventDispatcherPtr();
     m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSORMOTION, false, false, 
-            false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0));
+            false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0));
 
     m_FrameTime = 0;
     m_bIsPlaying = false;

@@ -24,22 +24,24 @@
 
 #include "../api.h"
 
-#include "Point.h"
+#include "../glm/glm.hpp"
+
+#include <iostream>
 
 namespace avg {
    
 struct AVG_API Triangle {
 public:
-    DPoint p0;
-    DPoint p1;
-    DPoint p2;
+    glm::vec2 p0;
+    glm::vec2 p1;
+    glm::vec2 p2;
 
-    Triangle(const DPoint& P0, const DPoint& P1, const DPoint& P2);
+    Triangle(const glm::vec2& P0, const glm::vec2& P1, const glm::vec2& P2);
     Triangle();
     
     bool operator ==(const Triangle & tri) const;
-    bool isInside(const DPoint& pt) const;
-    double getArea() const;
+    bool isInside(const glm::vec2& pt) const;
+    float getArea() const;
     bool isClockwise() const;
 };
 

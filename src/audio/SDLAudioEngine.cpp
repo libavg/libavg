@@ -81,17 +81,17 @@ const AudioParams * SDLAudioEngine::getParams()
     }
 }
 
-void SDLAudioEngine::init(const AudioParams& ap, double volume) 
+void SDLAudioEngine::init(const AudioParams& ap, float volume) 
 {
     AudioEngine::init(ap, volume);
     m_AP = ap;
-    Dynamics<double, 2>* pLimiter = new Dynamics<double, 2>(m_AP.m_SampleRate);
-    pLimiter->setThreshold(0.); // in dB
-    pLimiter->setAttackTime(0.); // in seconds
-    pLimiter->setReleaseTime(0.05); // in seconds
-    pLimiter->setRmsTime(0.); // in seconds
-    pLimiter->setRatio(std::numeric_limits<double>::infinity());
-    pLimiter->setMakeupGain(0.); // in dB
+    Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
+    pLimiter->setThreshold(0.f); // in dB
+    pLimiter->setAttackTime(0.f); // in seconds
+    pLimiter->setReleaseTime(0.05f); // in seconds
+    pLimiter->setRmsTime(0.f); // in seconds
+    pLimiter->setRatio(std::numeric_limits<float>::infinity());
+    pLimiter->setMakeupGain(0.f); // in dB
     m_pLimiter = pLimiter;
     
     SDL_AudioSpec desired;
@@ -158,7 +158,7 @@ void SDLAudioEngine::removeSource(IAudioSource* pSource)
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::setVolume(double volume)
+void SDLAudioEngine::setVolume(float volume)
 {
     SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
@@ -178,7 +178,7 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
             delete[] m_pMixBuffer;
         }
         m_pTempBuffer = AudioBufferPtr(new AudioBuffer(numFrames, m_AP));
-        m_pMixBuffer = new double[getChannels()*numFrames];
+        m_pMixBuffer = new float[getChannels()*numFrames];
     }
 
     for (int i = 0; i < getChannels()*numFrames; ++i) {
@@ -208,16 +208,16 @@ void SDLAudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audio
     pThis->mixAudio(audioBuffer, audioBufferLen);
 }
 
-void SDLAudioEngine::addBuffers(double *pDest, AudioBufferPtr pSrc)
+void SDLAudioEngine::addBuffers(float *pDest, AudioBufferPtr pSrc)
 {
     int numFrames = pSrc->getNumFrames();
     short * pData = pSrc->getData();
     for(int i = 0; i < numFrames*getChannels(); ++i) {
-        pDest[i] += pData[i]/32768.0;
+        pDest[i] += pData[i]/32768.0f;
     }
 }
 
-void SDLAudioEngine::calcVolume(double *pBuffer, int numSamples, double volume)
+void SDLAudioEngine::calcVolume(float *pBuffer, int numSamples, float volume)
 {
     // TODO: We need a VolumeFader class that keeps state.
     for(int i = 0; i < numSamples; ++i) {

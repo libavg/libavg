@@ -49,15 +49,15 @@ NodeDefinition RasterNode::createDefinition()
                 offsetof(RasterNode, m_sBlendMode)))
         .addArg(Arg<bool>("mipmap", false))
         .addArg(Arg<UTF8String>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)))
-        .addArg(Arg<DPoint>("maskpos", DPoint(0,0), false,
+        .addArg(Arg<glm::vec2>("maskpos", glm::vec2(0,0), false,
                 offsetof(RasterNode, m_MaskPos)))
-        .addArg(Arg<DPoint>("masksize", DPoint(0,0), false,
+        .addArg(Arg<glm::vec2>("masksize", glm::vec2(0,0), false,
                 offsetof(RasterNode, m_MaskSize)))
-        .addArg(Arg<DTriple>("gamma", DTriple(1.0,1.0,1.0), false,
+        .addArg(Arg<FTriple>("gamma", FTriple(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Gamma)))
-        .addArg(Arg<DTriple>("contrast", DTriple(1.0,1.0,1.0), false,
+        .addArg(Arg<FTriple>("contrast", FTriple(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Contrast)))
-        .addArg(Arg<DTriple>("intensity", DTriple(1.0,1.0,1.0), false,
+        .addArg(Arg<FTriple>("intensity", FTriple(1.0f,1.0f,1.0f), false,
                 offsetof(RasterNode, m_Intensity)));
 }
 
@@ -259,29 +259,29 @@ void RasterNode::setMaskHRef(const UTF8String& sHref)
     checkReload();
 }
 
-const DPoint& RasterNode::getMaskPos() const
+const glm::vec2& RasterNode::getMaskPos() const
 {
     return m_MaskPos;
 }
 
-void RasterNode::setMaskPos(const DPoint& pos)
+void RasterNode::setMaskPos(const glm::vec2& pos)
 {
     m_MaskPos = pos;
     setMaskCoords();
 }
 
-const DPoint& RasterNode::getMaskSize() const
+const glm::vec2& RasterNode::getMaskSize() const
 {
     return m_MaskSize;
 }
 
-void RasterNode::setMaskSize(const DPoint& size)
+void RasterNode::setMaskSize(const glm::vec2& size)
 {
     m_MaskSize = size;
     setMaskCoords();
 }
 
-void RasterNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void RasterNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {
@@ -289,12 +289,12 @@ void RasterNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pEleme
     }
 }
 
-DTriple RasterNode::getGamma() const
+FTriple RasterNode::getGamma() const
 {
     return m_Gamma;
 }
 
-void RasterNode::setGamma(const DTriple& gamma)
+void RasterNode::setGamma(const FTriple& gamma)
 {
     m_Gamma = gamma;
     if (getState() == Node::NS_CANRENDER) {
@@ -302,12 +302,12 @@ void RasterNode::setGamma(const DTriple& gamma)
     }
 }
 
-DTriple RasterNode::getIntensity() const
+FTriple RasterNode::getIntensity() const
 {
     return m_Intensity;
 }
 
-void RasterNode::setIntensity(const DTriple& intensity)
+void RasterNode::setIntensity(const FTriple& intensity)
 {
     m_Intensity = intensity;
     if (getState() == Node::NS_CANRENDER) {
@@ -315,12 +315,12 @@ void RasterNode::setIntensity(const DTriple& intensity)
     }
 }
 
-DTriple RasterNode::getContrast() const
+FTriple RasterNode::getContrast() const
 {
     return m_Contrast;
 }
 
-void RasterNode::setContrast(const DTriple& contrast)
+void RasterNode::setContrast(const FTriple& contrast)
 {
     m_Contrast = contrast;
     if (getState() == Node::NS_CANRENDER) {
@@ -342,13 +342,13 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
-void RasterNode::blt32(const DPoint& destSize, double opacity, 
+void RasterNode::blt32(const glm::vec2& destSize, float opacity, 
         GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
     blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
 }
 
-void RasterNode::blta8(const DPoint& destSize, double opacity, 
+void RasterNode::blta8(const glm::vec2& destSize, float opacity, 
         const Pixel32& color, GLContext::BlendMode mode)
 {
     blt(destSize, mode, opacity, color, false);
@@ -383,14 +383,14 @@ void RasterNode::setMaskCoords()
 
 void RasterNode::calcMaskCoords()
 {
-    DPoint maskSize;
-    DPoint mediaSize = DPoint(getMediaSize());
-    if (m_MaskSize == DPoint(0,0)) {
-        maskSize = DPoint(1,1);
+    glm::vec2 maskSize;
+    glm::vec2 mediaSize = glm::vec2(getMediaSize());
+    if (m_MaskSize == glm::vec2(0,0)) {
+        maskSize = glm::vec2(1,1);
     } else {
-        maskSize = DPoint(m_MaskSize.x/mediaSize.x, m_MaskSize.y/mediaSize.y);
+        maskSize = glm::vec2(m_MaskSize.x/mediaSize.x, m_MaskSize.y/mediaSize.y);
     }
-    DPoint maskPos = DPoint(m_MaskPos.x/mediaSize.x, m_MaskPos.y/mediaSize.y);
+    glm::vec2 maskPos = glm::vec2(m_MaskPos.x/mediaSize.x, m_MaskPos.y/mediaSize.y);
     m_pSurface->setMaskCoords(maskPos, maskSize);
 }
 
@@ -420,7 +420,7 @@ void RasterNode::bind()
 
 static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 
-void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color, 
+void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
         bool bPremultipliedAlpha)
 {
     ScopeTimer Timer(FXProfilingZone);
@@ -437,8 +437,8 @@ void RasterNode::renderFX(const DPoint& destSize, const Pixel32& color,
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT);
 
-        glColor4d(double(color.getR())/256, double(color.getG())/256, 
-                double(color.getB())/256, 1);
+        glColor4d(float(color.getR())/256, float(color.getG())/256, 
+                float(color.getB())/256, 1);
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
@@ -509,8 +509,8 @@ void RasterNode::setupFX(bool bNewFX)
     }
 }
 
-void RasterNode::blt(const DPoint& destSize, GLContext::BlendMode mode,
-        double opacity, const Pixel32& color, bool bPremultipliedAlpha)
+void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
+        float opacity, const Pixel32& color, bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
@@ -518,21 +518,21 @@ void RasterNode::blt(const DPoint& destSize, GLContext::BlendMode mode,
     GLContext* pContext = GLContext::getCurrent();
     pContext->enableGLColorArray(false);
     pContext->enableTexture(true);
-    DRect destRect;
+    FRect destRect;
     if (m_pFXNode) {
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
 
         pContext->setBlendMode(mode, true);
         glColor4d(1.0, 1.0, 1.0, opacity);
-        DRect relDestRect = m_pFXNode->getRelDestRect();
-        destRect = DRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
+        FRect relDestRect = m_pFXNode->getRelDestRect();
+        destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
         m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         pContext->setBlendMode(mode, bPremultipliedAlpha);
-        glColor4d(double(color.getR())/256, double(color.getG())/256, 
-                double(color.getB())/256, opacity);
-        destRect = DRect(DPoint(0,0), destSize);
+        glColor4d(float(color.getR())/256, float(color.getG())/256, 
+                float(color.getB())/256, opacity);
+        destRect = FRect(glm::vec2(0,0), destSize);
     }
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
     glPushMatrix();
@@ -571,16 +571,16 @@ IntPoint RasterNode::getNumTiles()
     if (m_TileSize.x == -1) {
         return IntPoint(1,1);
     } else {
-        return IntPoint(safeCeil(double(size.x)/m_TileSize.x),
-                safeCeil(double(size.y)/m_TileSize.y));
+        return IntPoint(safeCeil(float(size.x)/m_TileSize.x),
+                safeCeil(float(size.y)/m_TileSize.y));
     }
 }
 
 void RasterNode::calcVertexGrid(VertexGrid& grid)
 {
     IntPoint numTiles = getNumTiles();
-    std::vector<DPoint> TileVerticesLine(numTiles.x+1);
-    grid = std::vector<std::vector<DPoint> > (numTiles.y+1, TileVerticesLine);
+    std::vector<glm::vec2> TileVerticesLine(numTiles.x+1);
+    grid = std::vector<std::vector<glm::vec2> > (numTiles.y+1, TileVerticesLine);
     for (unsigned y = 0; y < grid.size(); y++) {
         for (unsigned x = 0; x < grid[y].size(); x++) {
             calcTileVertex(x, y, grid[y][x]);
@@ -593,16 +593,16 @@ void RasterNode::calcVertexGrid(VertexGrid& grid)
     m_pVertexes = new VertexArray(numTiles.x*numTiles.y*4, numTiles.x*numTiles.y*6);
 }
 
-void RasterNode::calcTileVertex(int x, int y, DPoint& Vertex) 
+void RasterNode::calcTileVertex(int x, int y, glm::vec2& Vertex) 
 {
     IntPoint numTiles = getNumTiles();
     if (x < numTiles.x) {
-        Vertex.x = double(m_TileSize.x*x) / m_pSurface->getSize().x;
+        Vertex.x = float(m_TileSize.x*x) / m_pSurface->getSize().x;
     } else {
         Vertex.x = 1;
     }
     if (y < numTiles.y) {
-        Vertex.y = double(m_TileSize.y*y) / m_pSurface->getSize().y;
+        Vertex.y = float(m_TileSize.y*y) / m_pSurface->getSize().y;
     } else {
         Vertex.y = 1;
     }
@@ -610,22 +610,22 @@ void RasterNode::calcTileVertex(int x, int y, DPoint& Vertex)
 
 void RasterNode::calcTexCoords()
 {
-    DPoint textureSize = DPoint(m_pSurface->getTextureSize());
-    DPoint imageSize = DPoint(m_pSurface->getSize());
-    DPoint texCoordExtents = DPoint(imageSize.x/textureSize.x,
+    glm::vec2 textureSize = glm::vec2(m_pSurface->getTextureSize());
+    glm::vec2 imageSize = glm::vec2(m_pSurface->getSize());
+    glm::vec2 texCoordExtents = glm::vec2(imageSize.x/textureSize.x,
             imageSize.y/textureSize.y);
 
-    DPoint texSizePerTile;
+    glm::vec2 texSizePerTile;
     if (m_TileSize.x == -1) {
         texSizePerTile = texCoordExtents;
     } else {
-        texSizePerTile = DPoint(double(m_TileSize.x)/imageSize.x*texCoordExtents.x,
-                double(m_TileSize.y)/imageSize.y*texCoordExtents.y);
+        texSizePerTile = glm::vec2(float(m_TileSize.x)/imageSize.x*texCoordExtents.x,
+                float(m_TileSize.y)/imageSize.y*texCoordExtents.y);
     }
 
     IntPoint numTiles = getNumTiles();
-    vector<DPoint> texCoordLine(numTiles.x+1);
-    m_TexCoords = std::vector<std::vector<DPoint> > 
+    vector<glm::vec2> texCoordLine(numTiles.x+1);
+    m_TexCoords = std::vector<std::vector<glm::vec2> > 
             (numTiles.y+1, texCoordLine);
     for (unsigned y = 0; y < m_TexCoords.size(); y++) {
         for (unsigned x = 0; x < m_TexCoords[y].size(); x++) {

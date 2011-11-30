@@ -27,7 +27,7 @@
 
 namespace avg {
 
-FilterIntensity::FilterIntensity(int offset, double factor)
+FilterIntensity::FilterIntensity(int offset, float factor)
   : m_Offset(offset),
     m_Factor(factor)
 {

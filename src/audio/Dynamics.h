@@ -195,7 +195,7 @@ void Dynamics<T, CHANNELS>::process(T* pSamples)
     }
 
     //---------------- RMS
-    T rms = (1. - rmsCoef_) * x * x + rmsCoef_ * rms1_;
+    T rms = (1.f - rmsCoef_) * x * x + rmsCoef_ * rms1_;
     rms1_ = rms;
     rms   = sqrt(rms);
 
@@ -255,7 +255,7 @@ template<typename T, int CHANNELS>
 void Dynamics<T, CHANNELS>::setThreshold(T threshold)
 {
     threshold_ = threshold;
-    preGain_   = std::pow(10., -threshold / 20.);
+    preGain_   = std::pow(10.f, -threshold / 20.f);
 }
 
 template<typename T, int CHANNELS>
@@ -268,9 +268,9 @@ template<typename T, int CHANNELS>
 void Dynamics<T, CHANNELS>::setRmsTime(T rmsTime)
 {
     rmsTime_ = rmsTime;
-    rmsCoef_ = 0.;
-    if (rmsTime > 0.) {
-        rmsCoef_ = std::pow(0.001, 1. / (m_fs * rmsTime));
+    rmsCoef_ = 0.f;
+    if (rmsTime > 0.f) {
+        rmsCoef_ = std::pow(0.001f, 1.f / (m_fs * rmsTime));
     }
 }
 
@@ -284,7 +284,7 @@ template<typename T, int CHANNELS>
 void Dynamics<T, CHANNELS>::setRatio(T ratio)
 {
     ratio_        = ratio;
-    inverseRatio_ = 1. / ratio;
+    inverseRatio_ = 1.f / ratio;
 }
 
 template<typename T, int CHANNELS>
@@ -297,9 +297,9 @@ template<typename T, int CHANNELS>
 void Dynamics<T, CHANNELS>::setAttackTime(T attTime)
 {
     attTime_ = attTime;
-    attCoef_ = 0.;
-    if (attTime > 0.) {
-        attCoef_ = pow(0.001, 1. / (m_fs * attTime));
+    attCoef_ = 0.f;
+    if (attTime > 0.f) {
+        attCoef_ = pow(0.001f, 1.f / (m_fs * attTime));
     }
 }
 
@@ -313,9 +313,9 @@ template<typename T, int CHANNELS>
 void Dynamics<T, CHANNELS>::setReleaseTime(T relTime)
 {
     relTime_ = relTime;
-    relCoef_ = 0.;
-    if (relTime > 0.) {
-        relCoef_ = pow(0.001, 1. / (m_fs * relTime));
+    relCoef_ = 0.f;
+    if (relTime > 0.f) {
+        relCoef_ = pow(0.001f, 1.f / (m_fs * relTime));
     }
 }
 
@@ -329,7 +329,7 @@ template<typename T, int CHANNELS>
 void Dynamics<T, CHANNELS>::setMakeupGain(T makeupGain)
 {
     makeupGain_ = makeupGain;
-    postGain_   = std::pow(10., makeupGain / 20.);
+    postGain_   = std::pow(10.f, makeupGain / 20.f);
 }
 
 template<typename T, int CHANNELS>

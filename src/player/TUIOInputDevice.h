@@ -60,7 +60,7 @@ private:
         const IpEndpointName& remoteEndpoint);
     void processSet(osc::ReceivedMessageArgumentStream& args);
     void processAlive(osc::ReceivedMessageArgumentStream& args);
-    TouchEventPtr createEvent(int id, Event::Type type, DPoint pos, DPoint speed);
+    TouchEventPtr createEvent(int id, Event::Type type, glm::vec2 pos, glm::vec2 speed);
 
     UdpListeningReceiveSocket* m_pSocket;
     int m_LastID;

@@ -236,15 +236,15 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     BitmapPtr (SVG::*renderElement1)(const UTF8String&) = &SVG::renderElement;
-    BitmapPtr (SVG::*renderElement2)(const UTF8String&, const DPoint&) = 
+    BitmapPtr (SVG::*renderElement2)(const UTF8String&, const glm::vec2&) = 
             &SVG::renderElement;
-    BitmapPtr (SVG::*renderElement3)(const UTF8String&, double) = 
+    BitmapPtr (SVG::*renderElement3)(const UTF8String&, float) = 
             &SVG::renderElement;
     NodePtr (SVG::*createImageNode1)(const UTF8String&, const dict&) = 
             &SVG::createImageNode;
-    NodePtr (SVG::*createImageNode2)(const UTF8String&, const dict&, const DPoint&) = 
+    NodePtr (SVG::*createImageNode2)(const UTF8String&, const dict&, const glm::vec2&) = 
             &SVG::createImageNode;
-    NodePtr (SVG::*createImageNode3)(const UTF8String&, const dict&, double) = 
+    NodePtr (SVG::*createImageNode3)(const UTF8String&, const dict&, float) = 
             &SVG::createImageNode;
 
     class_<SVG, boost::noncopyable>("SVG", init<const UTF8String&, bool>())

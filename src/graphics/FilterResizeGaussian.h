@@ -28,12 +28,12 @@ namespace avg {
 class AVG_API FilterResizeGaussian : public Filter
 {
 public:
-    FilterResizeGaussian(const IntPoint& newSize, double radius);
+    FilterResizeGaussian(const IntPoint& newSize, float radius);
     virtual BitmapPtr apply(BitmapPtr pBmpSrc);
 
 private:
     IntPoint m_NewSize;
-    double m_Radius;
+    float m_Radius;
 };
 
 }

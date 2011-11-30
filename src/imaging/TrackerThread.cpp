@@ -309,10 +309,10 @@ void TrackerThread::setBitmaps(IntRect roi, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
 void TrackerThread::createBandpassFilter()
 {
     if (m_TouchThreshold != 0) {
-        double bandpassMin = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@min");
-        double bandpassMax = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@max");
-        double bandpassPostMult = 
-            m_pConfig->getDoubleParam("/tracker/touch/bandpasspostmult/@value");
+        float bandpassMin = m_pConfig->getFloatParam("/tracker/touch/bandpass/@min");
+        float bandpassMax = m_pConfig->getFloatParam("/tracker/touch/bandpass/@max");
+        float bandpassPostMult = 
+            m_pConfig->getFloatParam("/tracker/touch/bandpasspostmult/@value");
         if (m_pImagingContext) {
             m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
                         bandpassMin, bandpassMax, bandpassPostMult, m_bTrackBrighter));
@@ -366,16 +366,16 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     }
 }
 
-inline bool isInbetween(double x, double min, double max)
+inline bool isInbetween(float x, float min, float max)
 {
     return x >= min && x <= max;
 }
 
 bool TrackerThread::isRelevant(BlobPtr pBlob, int minArea, int maxArea,
-        double minEccentricity, double maxEccentricity)
+        float minEccentricity, float maxEccentricity)
 {
     bool res;
-    res = isInbetween(pBlob->getArea(), minArea, maxArea) && 
+    res = isInbetween(pBlob->getArea(), float(minArea), float(maxArea)) && 
             isInbetween(pBlob->getEccentricity(), minEccentricity, maxEccentricity);
     return res;
 }
@@ -390,8 +390,10 @@ BlobVectorPtr TrackerThread::findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch
     }
     int minArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@min");
     int maxArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@max");
-    double minEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@min");
-    double maxEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@max");
+    float minEccentricity = m_pConfig->getFloatParam(sConfigPrefix+
+            "eccentricitybounds/@min");
+    float maxEccentricity = m_pConfig->getFloatParam(sConfigPrefix+
+            "eccentricitybounds/@max");
     
     BlobVectorPtr pRelevantBlobs(new BlobVector());
     for(BlobVector::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
@@ -420,9 +422,9 @@ void TrackerThread::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp,
     }
     int minArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@min");
     int maxArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@max");
-    double minEccentricity = m_pConfig->getDoubleParam(
+    float minEccentricity = m_pConfig->getFloatParam(
             sConfigPrefix+"eccentricitybounds/@min");
-    double maxEccentricity = m_pConfig->getDoubleParam(
+    float maxEccentricity = m_pConfig->getFloatParam(
             sConfigPrefix+"eccentricitybounds/@max");
     
     // Get max. pixel value in Bitmap
@@ -466,9 +468,9 @@ void TrackerThread::calcContours(BlobVectorPtr pBlobs)
     sConfigPrefix = "/tracker/track/";
     int minArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@min");
     int maxArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@max");
-    double minEccentricity = m_pConfig->getDoubleParam(
+    float minEccentricity = m_pConfig->getFloatParam(
             sConfigPrefix+"eccentricitybounds/@min");
-    double maxEccentricity = m_pConfig->getDoubleParam(
+    float maxEccentricity = m_pConfig->getFloatParam(
             sConfigPrefix+"eccentricitybounds/@max");
     
     int ContourPrecision = m_pConfig->getIntParam("/tracker/contourprecision/@value");

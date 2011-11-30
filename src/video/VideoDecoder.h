@@ -55,26 +55,26 @@ class AVG_API VideoDecoder
         virtual DecoderState getState() const = 0;
         virtual VideoInfo getVideoInfo() const = 0;
 
-        virtual void seek(double destTime) = 0;
+        virtual void seek(float destTime) = 0;
         virtual void loop() = 0;
         virtual IntPoint getSize() const = 0;
         virtual int getCurFrame() const = 0;
         virtual int getNumFramesQueued() const = 0;
-        virtual double getCurTime(StreamSelect stream = SS_DEFAULT) const = 0;
-        virtual double getNominalFPS() const = 0;
-        virtual double getFPS() const = 0;
-        virtual void setFPS(double fps) = 0;
-        virtual double getVolume() const = 0;
-        virtual void setVolume(double volume) = 0;
+        virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const = 0;
+        virtual float getNominalFPS() const = 0;
+        virtual float getFPS() const = 0;
+        virtual void setFPS(float fps) = 0;
+        virtual float getVolume() const = 0;
+        virtual void setVolume(float volume) = 0;
         virtual PixelFormat getPixelFormat() const = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp,
-                double timeWanted);
+                float timeWanted);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
-                double timeWanted) = 0;
+                float timeWanted) = 0;
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
         virtual bool isEOF(StreamSelect stream = SS_ALL) const = 0;
-        virtual void throwAwayFrame(double timeWanted) = 0;
+        virtual void throwAwayFrame(float timeWanted) = 0;
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };

@@ -22,7 +22,7 @@
 #ifndef _TouchStatus_H_
 #define _TouchStatus_H_
 
-#include "../base/Point.h"
+#include "../api.h"
 
 #include <boost/shared_ptr.hpp>
 

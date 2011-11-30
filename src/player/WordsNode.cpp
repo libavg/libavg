@@ -92,15 +92,15 @@ NodeDefinition WordsNode::createDefinition()
         .addArg(Arg<string>("variant", "", false, offsetof(WordsNode, m_sFontVariant)))
         .addArg(Arg<UTF8String>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
-        .addArg(Arg<double>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
+        .addArg(Arg<float>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
-        .addArg(Arg<double>("linespacing", -1, false, offsetof(WordsNode, m_LineSpacing)))
+        .addArg(Arg<float>("linespacing", -1, false, offsetof(WordsNode, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
         .addArg(Arg<string>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false, false, offsetof(WordsNode, m_bJustify)))
         .addArg(Arg<bool>("rawtextmode", false, false, 
                 offsetof(WordsNode, m_bRawTextMode)))
-        .addArg(Arg<double>("letterspacing", 0, false, 
+        .addArg(Arg<float>("letterspacing", 0, false, 
                 offsetof(WordsNode, m_LetterSpacing)))
         .addArg(Arg<bool>("hint", true, false, offsetof(WordsNode, m_bHint)))
         ;
@@ -207,12 +207,12 @@ void WordsNode::setJustify(bool bJustify)
     setDirty(LAYOUT_CHANGED);
 }
 
-double WordsNode::getLetterSpacing() const
+float WordsNode::getLetterSpacing() const
 {
     return m_LetterSpacing;
 }
 
-void WordsNode::setLetterSpacing(double letterSpacing)
+void WordsNode::setLetterSpacing(float letterSpacing)
 {
     m_LetterSpacing = letterSpacing;
     setDirty(LAYOUT_CHANGED);
@@ -229,46 +229,46 @@ void WordsNode::setHint(bool bHint)
     m_bHint = bHint;
 }
 
-double WordsNode::getWidth() const
+float WordsNode::getWidth() const
 {
     const_cast<WordsNode*>(this)->updateLayout();
     return AreaNode::getWidth();
 }
 
-void WordsNode::setWidth(double width)
+void WordsNode::setWidth(float width)
 {
     setDirty(LAYOUT_CHANGED);
     AreaNode::setWidth(width);
 }
 
-double WordsNode::getHeight() const
+float WordsNode::getHeight() const
 {
     const_cast<WordsNode*>(this)->updateLayout();
     return AreaNode::getHeight();
 }
 
-void WordsNode::setHeight(double width)
+void WordsNode::setHeight(float width)
 {
     setDirty(LAYOUT_CHANGED);
     AreaNode::setHeight(width);
 }
 
-DPoint WordsNode::getSize() const
+glm::vec2 WordsNode::getSize() const
 {
     const_cast<WordsNode*>(this)->updateLayout();
     return AreaNode::getSize();
 }
 
-void WordsNode::setSize(const DPoint& pt)
+void WordsNode::setSize(const glm::vec2& pt)
 {
     setDirty(LAYOUT_CHANGED);
     AreaNode::setSize(pt);
 }
 
-void WordsNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void WordsNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
     updateLayout();
-    DPoint relPos = pos-DPoint(m_AlignOffset, 0);
+    glm::vec2 relPos = pos-glm::vec2(m_AlignOffset, 0);
     AreaNode::getElementsByPos(relPos, pElements);
 }
 
@@ -336,12 +336,12 @@ void WordsNode::setColor(const string& sColor)
     setDirty(RENDER_NEEDED);
 }
 
-double WordsNode::getFontSize() const
+float WordsNode::getFontSize() const
 {
     return m_FontSize;
 }
 
-void WordsNode::setFontSize(double size)
+void WordsNode::setFontSize(float size)
 {
     if (size <= 1) {
         throw Exception(AVG_ERR_INVALID_ARGS, "Words node: Font size < 1 is illegal.");
@@ -361,12 +361,12 @@ void WordsNode::setIndent(int indent)
     setDirty(LAYOUT_CHANGED);
 }
 
-double WordsNode::getLineSpacing() const
+float WordsNode::getLineSpacing() const
 {
     return m_LineSpacing;
 }
 
-void WordsNode::setLineSpacing(double lineSpacing)
+void WordsNode::setLineSpacing(float lineSpacing)
 {
     m_LineSpacing = lineSpacing;
     setDirty(LAYOUT_CHANGED);
@@ -391,16 +391,16 @@ void WordsNode::setRawTextMode(bool rawTextMode)
     }
 }
 
-DPoint WordsNode::getGlyphPos(int i)
+glm::vec2 WordsNode::getGlyphPos(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
-    return DPoint(double(rect.x)/PANGO_SCALE, double(rect.y)/PANGO_SCALE);
+    return glm::vec2(float(rect.x)/PANGO_SCALE, float(rect.y)/PANGO_SCALE);
 }
 
-DPoint WordsNode::getGlyphSize(int i)
+glm::vec2 WordsNode::getGlyphSize(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
-    return DPoint(double(rect.width)/PANGO_SCALE, double(rect.height)/PANGO_SCALE);
+    return glm::vec2(float(rect.width)/PANGO_SCALE, float(rect.height)/PANGO_SCALE);
 }
 
 int WordsNode::getNumLines()
@@ -409,7 +409,7 @@ int WordsNode::getNumLines()
     return pango_layout_get_line_count(m_pLayout);
 }
 
-PyObject* WordsNode::getCharIndexFromPos(DPoint p)
+PyObject* WordsNode::getCharIndexFromPos(glm::vec2 p)
 {
     int index;
     int trailing;
@@ -430,7 +430,7 @@ std::string WordsNode::getTextAsDisplayed()
     return pango_layout_get_text(m_pLayout);
 }
 
-DPoint WordsNode::getLineExtents(int line)
+glm::vec2 WordsNode::getLineExtents(int line)
 {
     if(line < 0 || line >= getNumLines()) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "WordsNode.getLineExtents: line index "
@@ -441,7 +441,7 @@ DPoint WordsNode::getLineExtents(int line)
     PangoRectangle ink_rect;
     PangoLayoutLine *layoutLine = pango_layout_get_line_readonly(m_pLayout, line);
     pango_layout_line_get_pixel_extents(layoutLine, &ink_rect, &logical_rect);
-    return DPoint(double(logical_rect.width), double(logical_rect.height));
+    return glm::vec2(float(logical_rect.width), float(logical_rect.height));
 }
 
 void WordsNode::setWrapMode(const string& sWrapMode)
@@ -501,11 +501,11 @@ void WordsNode::calcMaskCoords()
 
     // Calculate texture coordinates for the mask texture, normalized to
     // the extents of the text.
-    DPoint normMaskSize;
-    DPoint normMaskPos;
-    DPoint mediaSize = DPoint(getMediaSize());
-    DPoint effMaskPos = getMaskPos()-DPoint(m_InkOffset);
-    DPoint maskSize = getMaskSize();
+    glm::vec2 normMaskSize;
+    glm::vec2 normMaskPos;
+    glm::vec2 mediaSize = glm::vec2(getMediaSize());
+    glm::vec2 effMaskPos = getMaskPos()-glm::vec2(m_InkOffset);
+    glm::vec2 maskSize = getMaskSize();
     switch (m_Alignment) {
         case PANGO_ALIGN_LEFT:
             break;
@@ -516,12 +516,12 @@ void WordsNode::calcMaskCoords()
             effMaskPos.x -= m_AlignOffset+getSize().x;
             break;
     }
-    if (maskSize == DPoint(0,0)) {
-        normMaskSize = DPoint(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
-        normMaskPos = DPoint(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
+    if (maskSize == glm::vec2(0,0)) {
+        normMaskSize = glm::vec2(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
+        normMaskPos = glm::vec2(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
     } else {
-        normMaskSize = DPoint(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
-        normMaskPos = DPoint(effMaskPos.x/getMaskSize().x, effMaskPos.y/getMaskSize().y);
+        normMaskSize = glm::vec2(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
+        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, effMaskPos.y/getMaskSize().y);
     }
 /*    
     cerr << "calcMaskCoords" << endl;
@@ -650,7 +650,7 @@ void WordsNode::updateLayout()
             m_LogicalSize.x = logical_rect.width;
             m_InkOffset = IntPoint(ink_rect.x-logical_rect.x, ink_rect.y-logical_rect.y);
             if (m_LineSpacing == -1) {
-                m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
+                m_LineSpacing = float(pango_layout_get_spacing(m_pLayout))/PANGO_SCALE;
             }
             m_RedrawState = RENDER_NEEDED;
             setViewport(-32767, -32767, -32767, -32767);
@@ -741,16 +741,16 @@ void WordsNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 
-void WordsNode::render(const DRect& rect)
+void WordsNode::render(const FRect& rect)
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
         GLContext* pContext = GLContext::getCurrent();
         if (offset != IntPoint(0,0)) {
-            pContext->pushTransform(DPoint(offset), 0, DPoint(0,0));
+            pContext->pushTransform(glm::vec2(offset), 0, glm::vec2(0,0));
         }
-        blta8(DPoint(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
+        blta8(glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
                 getBlendMode());
         if (offset != IntPoint(0,0)) {
             pContext->popTransform();

@@ -37,7 +37,7 @@ namespace avg {
 class AVG_API Filter3x3 : public Filter
 {
 public:
-    Filter3x3(double Mat[3][3]);
+    Filter3x3(float Mat[3][3]);
     virtual ~Filter3x3();
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
@@ -45,7 +45,7 @@ private:
     template<class PIXEL>
     void convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
             int lineLen, int stride) const;
-    double m_Mat[3][3];
+    float m_Mat[3][3];
 };
 
 template<class PIXEL>
@@ -55,9 +55,9 @@ void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest,
     PIXEL * pSrcPixel = (PIXEL *)pSrc;
     PIXEL * pDestPixel = (PIXEL *)pDest;
     for (int x = 0; x < lineLen; ++x) {
-        double newR = 0;
-        double newG = 0;
-        double newB = 0;
+        float newR = 0;
+        float newG = 0;
+        float newB = 0;
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {

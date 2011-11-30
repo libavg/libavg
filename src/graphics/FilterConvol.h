@@ -38,7 +38,7 @@ template<class Pixel>
 class AVG_API FilterConvol : public Filter
 {
 public:
-    FilterConvol(double *Mat,int n,int m, int offset=0);
+    FilterConvol(float *Mat,int n,int m, int offset=0);
     virtual ~FilterConvol();
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
@@ -48,7 +48,7 @@ private:
     int m_N;
     int m_M;
     int m_Offset;
-    double *m_Mat;
+    float *m_Mat;
 };
 template <class Pixel>
 void FilterConvol<Pixel>::convolveLine(const unsigned char* pSrc, unsigned char* pDest, 
@@ -57,9 +57,9 @@ void FilterConvol<Pixel>::convolveLine(const unsigned char* pSrc, unsigned char*
     Pixel * pSrcPixel = (Pixel *)pSrc;
     Pixel * pDestPixel = (Pixel *)pDest;
     for (int x=0; x<lineLen; ++x) {
-        double NewR = 0;
-        double NewG = 0;
-        double NewB = 0;
+        float NewR = 0;
+        float NewG = 0;
+        float NewB = 0;
 
         for (int i=0; i<m_N; i++) {
             for (int j=0; j<m_N; j++) {
@@ -84,7 +84,7 @@ void FilterConvol<Pixel8>::convolveLine(const unsigned char* pSrc, unsigned char
     Pixel8 * pSrcPixel = (Pixel8 *)pSrc;
     Pixel8 * pDestPixel = (Pixel8 *)pDest;
     for (int x=0; x<lineLen; ++x) {
-        double New = 0;
+        float New = 0;
 
         for (int i=0; i<m_N; i++) {
             for (int j=0; j<m_N; j++) {
@@ -100,13 +100,13 @@ void FilterConvol<Pixel8>::convolveLine(const unsigned char* pSrc, unsigned char
     }
 }
 template <class Pixel>
-FilterConvol<Pixel>::FilterConvol(double *Mat, int n, int m, int offset)
+FilterConvol<Pixel>::FilterConvol(float *Mat, int n, int m, int offset)
   : Filter(),
     m_N(n),
     m_M(m),
     m_Offset(offset)
 {
-    m_Mat = new double[n*m];
+    m_Mat = new float[n*m];
     for (int y=0; y<n; y++) {
         for (int x=0; x<m; x++) {
             m_Mat[m_N*y+x] = Mat[m_N*y+x];

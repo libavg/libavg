@@ -26,8 +26,8 @@
 #include "Pixel32.h"
 #include "PixelFormat.h"
 
-#include "../base/Point.h"
 #include "../base/Rect.h"
+#include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
 
 #include <boost/shared_ptr.hpp>
@@ -53,7 +53,7 @@ typedef boost::shared_ptr<Bitmap> BitmapPtr;
 class AVG_API Bitmap
 {
 public:
-    Bitmap(DPoint size, PixelFormat pf, const UTF8String& sName="", int stride=0);
+    Bitmap(glm::vec2 size, PixelFormat pf, const UTF8String& sName="", int stride=0);
     Bitmap(IntPoint size, PixelFormat pf, const UTF8String& sName="", int stride=0);
     Bitmap(IntPoint size, PixelFormat pf, unsigned char * pBits, 
             int stride, bool bCopyBits, const UTF8String& sName="");
@@ -90,7 +90,7 @@ public:
     void getMinMax(int stride, int& min, int& max) const;
     void setAlpha(const Bitmap& alphaBmp);
 
-    Pixel32 getPythonPixel(const DPoint& pos);
+    Pixel32 getPythonPixel(const glm::vec2& pos);
     template<class PIXEL>
     void setPixel(const IntPoint& p, PIXEL color);
     template<class PIXEL>
@@ -98,9 +98,9 @@ public:
 
     BitmapPtr subtract(const Bitmap& pOtherBmp);
     void blt(const Bitmap& otherBmp, const IntPoint& pos);
-    double getAvg() const;
-    double getChannelAvg(int channel) const;
-    double getStdDev() const;
+    float getAvg() const;
+    float getChannelAvg(int channel) const;
+    float getStdDev() const;
 
     bool operator ==(const Bitmap& otherBmp);
     void dump(bool bDumpPixels=false) const;

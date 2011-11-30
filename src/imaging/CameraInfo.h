@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "../graphics/PixelFormat.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <string>
 #include <list>

@@ -53,14 +53,14 @@ NodeDefinition AreaNode::createDefinition()
 {
     return NodeDefinition("areanode")
         .extendDefinition(Node::createDefinition())
-        .addArg(Arg<double>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
-        .addArg(Arg<double>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
-        .addArg(Arg<DPoint>("pos", DPoint(0.0, 0.0)))
-        .addArg(Arg<double>("width", 0.0, false, offsetof(AreaNode, m_UserSize.x)))
-        .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_UserSize.y)))
-        .addArg(Arg<DPoint>("size", DPoint(0.0, 0.0)))
-        .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
-        .addArg(Arg<DPoint>("pivot", DPoint(-32767, -32767), false, 
+        .addArg(Arg<float>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
+        .addArg(Arg<float>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
+        .addArg(Arg<glm::vec2>("pos", glm::vec2(0.0, 0.0)))
+        .addArg(Arg<float>("width", 0.0, false, offsetof(AreaNode, m_UserSize.x)))
+        .addArg(Arg<float>("height", 0.0, false, offsetof(AreaNode, m_UserSize.y)))
+        .addArg(Arg<glm::vec2>("size", glm::vec2(0.0, 0.0)))
+        .addArg(Arg<float>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
+        .addArg(Arg<glm::vec2>("pivot", glm::vec2(-32767, -32767), false, 
                 offsetof(AreaNode, m_Pivot)));
 }
 
@@ -89,120 +89,120 @@ void AreaNode::connectDisplay()
 {
     IntPoint MediaSize = getMediaSize();
     if (m_UserSize.x == 0.0) {
-        m_RelViewport.setWidth(MediaSize.x);
+        m_RelViewport.setWidth(float(MediaSize.x));
     } else {
-        m_RelViewport.setWidth(m_UserSize.x);
+        m_RelViewport.setWidth(float(m_UserSize.x));
     }
     if (m_UserSize.y == 0.0) {
-        m_RelViewport.setHeight(MediaSize.y);
+        m_RelViewport.setHeight(float(MediaSize.y));
     } else {
-        m_RelViewport.setHeight(m_UserSize.y);
+        m_RelViewport.setHeight(float(m_UserSize.y));
     }
     Node::connectDisplay();
 }
 
-double AreaNode::getX() const 
+float AreaNode::getX() const 
 {
     return m_RelViewport.tl.x;
 }
 
-void AreaNode::setX(double x) 
+void AreaNode::setX(float x) 
 {
     setViewport(x, -32767, -32767, -32767);
 }
 
-double AreaNode::getY() const 
+float AreaNode::getY() const 
 {
     return m_RelViewport.tl.y;
 }
 
-void AreaNode::setY(double y) 
+void AreaNode::setY(float y) 
 {
     setViewport(-32767, y, -32767, -32767);
 }
 
-const DPoint& AreaNode::getPos() const
+const glm::vec2& AreaNode::getPos() const
 {
     return m_RelViewport.tl;
 }
 
-void AreaNode::setPos(const DPoint& pt)
+void AreaNode::setPos(const glm::vec2& pt)
 {
     setViewport(pt.x, pt.y, -32767, -32767);
 }
 
-double AreaNode::getWidth() const 
+float AreaNode::getWidth() const 
 {
     return getRelViewport().width();
 }
 
-void AreaNode::setWidth(double width) 
+void AreaNode::setWidth(float width) 
 {
     m_UserSize.x = width;
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-double AreaNode::getHeight() const
+float AreaNode::getHeight() const
 {
     return getRelViewport().height();
 }
 
-void AreaNode::setHeight(double height) 
+void AreaNode::setHeight(float height) 
 {
     m_UserSize.y = height;
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-DPoint AreaNode::getSize() const
+glm::vec2 AreaNode::getSize() const
 {
     return getRelViewport().size();
 }
 
-void AreaNode::setSize(const DPoint& pt)
+void AreaNode::setSize(const glm::vec2& pt)
 {
     m_UserSize = pt;
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-double AreaNode::getAngle() const
+float AreaNode::getAngle() const
 {
     return m_Angle;
 }
 
-void AreaNode::setAngle(double angle)
+void AreaNode::setAngle(float angle)
 {
-    m_Angle = fmod(angle, 2*M_PI);
+    m_Angle = fmod(angle, 2*PI);
 }
 
-DPoint AreaNode::getPivot() const
+glm::vec2 AreaNode::getPivot() const
 {
     if (m_bHasCustomPivot) {
         return m_Pivot;
     } else {
-        return getSize()/2;
+        return getSize()/2.f;
     }
 }
 
-void AreaNode::setPivot(const DPoint& pt)
+void AreaNode::setPivot(const glm::vec2& pt)
 {
     m_Pivot.x = pt.x;
     m_Pivot.y = pt.y;
     m_bHasCustomPivot = true;
 }
 
-DPoint AreaNode::toLocal(const DPoint& globalPos) const
+glm::vec2 AreaNode::toLocal(const glm::vec2& globalPos) const
 {
-    DPoint localPos = globalPos-m_RelViewport.tl;
-    return localPos.getRotatedPivot(-getAngle(), getPivot());
+    glm::vec2 localPos = globalPos-m_RelViewport.tl;
+    return getRotatedPivot(localPos, -getAngle(), getPivot());
 }
 
-DPoint AreaNode::toGlobal(const DPoint& localPos) const
+glm::vec2 AreaNode::toGlobal(const glm::vec2& localPos) const
 {
-    DPoint globalPos = localPos.getRotatedPivot(getAngle(), getPivot());
+    glm::vec2 globalPos = getRotatedPivot(localPos, getAngle(), getPivot());
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
@@ -211,7 +211,7 @@ void AreaNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElement
     }
 }
 
-void AreaNode::maybeRender(const DRect& rect)
+void AreaNode::maybeRender(const FRect& rect)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
@@ -228,7 +228,7 @@ void AreaNode::maybeRender(const DRect& rect)
     }
 }
 
-void AreaNode::setViewport(double x, double y, double width, double height)
+void AreaNode::setViewport(float x, float y, float width, float height)
 {
     if (x == -32767) {
         x = getRelViewport().tl.x;
@@ -236,17 +236,17 @@ void AreaNode::setViewport(double x, double y, double width, double height)
     if (y == -32767) {
         y = getRelViewport().tl.y;
     }
-    IntPoint MediaSize = getMediaSize();
+    glm::vec2 mediaSize = glm::vec2(getMediaSize());
     if (width == -32767) {
         if (m_UserSize.x == 0.0) {
-            width = MediaSize.x;
+            width = mediaSize.x;
         } else {
             width = m_UserSize.x;
         } 
     }
     if (height == -32767) {
         if (m_UserSize.y == 0.0) {
-            height = MediaSize.y;
+            height = mediaSize.y;
         } else {
             height = m_UserSize.y;
         } 
@@ -254,10 +254,10 @@ void AreaNode::setViewport(double x, double y, double width, double height)
     if (width < 0 || height < 0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Negative size for a node.");
     }
-    m_RelViewport = DRect (x, y, x+width, y+height);
+    m_RelViewport = FRect(x, y, x+width, y+height);
 }
 
-const DRect& AreaNode::getRelViewport() const
+const FRect& AreaNode::getRelViewport() const
 {
 //    cerr << "Node " << getID() << ": " << m_RelViewport << endl;
     return m_RelViewport;
@@ -275,7 +275,7 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
-DPoint AreaNode::getUserSize() const
+glm::vec2 AreaNode::getUserSize() const
 {
     return m_UserSize;
 }

@@ -44,36 +44,36 @@ class AVG_API FilledVectorNode : public VectorNode
         void setFillTexHRef(const UTF8String& href);
         void setFillBitmap(BitmapPtr pBmp);
 
-        const DPoint& getFillTexCoord1() const;
-        void setFillTexCoord1(const DPoint& pt);
-        const DPoint& getFillTexCoord2() const;
-        void setFillTexCoord2(const DPoint& pt);
+        const glm::vec2& getFillTexCoord1() const;
+        void setFillTexCoord1(const glm::vec2& pt);
+        const glm::vec2& getFillTexCoord2() const;
+        void setFillTexCoord2(const glm::vec2& pt);
 
         void setFillColor(const std::string& sColor);
         const std::string& getFillColor() const;
 
-        double getFillOpacity() const;
-        void setFillOpacity(double opacity);
+        float getFillOpacity() const;
+        void setFillOpacity(float opacity);
 
         virtual void preRender();
-        virtual void render(const DRect& rect);
+        virtual void render(const FRect& rect);
 
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
     protected:
         Pixel32 getFillColorVal() const;
-        DPoint calcFillTexCoord(const DPoint& pt, const DPoint& minPt, 
-                const DPoint& maxPt);
+        glm::vec2 calcFillTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
+                const glm::vec2& maxPt);
         virtual bool isVisible() const;
 
     private:
-        double m_OldOpacity;
+        float m_OldOpacity;
 
         UTF8String m_FillTexHRef;
-        DPoint m_FillTexCoord1;
-        DPoint m_FillTexCoord2;
+        glm::vec2 m_FillTexCoord1;
+        glm::vec2 m_FillTexCoord2;
         ShapePtr m_pFillShape;
-        double m_FillOpacity;
+        float m_FillOpacity;
         std::string m_sFillColorName;
         Pixel32 m_FillColor;
 };

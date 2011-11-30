@@ -132,10 +132,10 @@ const IntPoint& GPUFilter::getSrcSize() const
     return m_SrcSize;
 }
 
-DRect GPUFilter::getRelDestRect() const
+FRect GPUFilter::getRelDestRect() const
 {
-    DPoint srcSize(m_SrcSize);
-    return DRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
+    glm::vec2 srcSize(m_SrcSize);
+    return FRect(m_DestRect.tl.x/srcSize.x, m_DestRect.tl.y/srcSize.y,
             m_DestRect.br.x/srcSize.x, m_DestRect.br.y/srcSize.y);
 }
 
@@ -249,12 +249,12 @@ void dumpKernel(int width, float* pKernel)
     cerr << "Sum of coefficients: " << sum << endl;
 }
 
-int GPUFilter::getBlurKernelRadius(double stdDev) const
+int GPUFilter::getBlurKernelRadius(float stdDev) const
 {
     return int(ceil(stdDev*3));
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
+GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
 {
     AVG_ASSERT(opacity != -1);
     int kernelWidth;
@@ -268,7 +268,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(double stdDev, double opacity) const
         int i=0;
         float coeff;
         do {
-            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*M_PI*stdDev*stdDev))
+            coeff = float(exp(-i*i/(2*stdDev*stdDev))/sqrt(2*PI*stdDev*stdDev))
                     *float(opacity);
             tempCoeffs[i] = coeff;
             i++;

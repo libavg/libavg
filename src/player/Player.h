@@ -86,10 +86,10 @@ class AVG_API Player
                 bool bUsePixelBuffers, int multiSampleSamples);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
-        DPoint getScreenResolution();
-        double getPixelsPerMM();
-        DPoint getPhysicalScreenDimensions();
-        void assumePixelsPerMM(double ppmm);
+        glm::vec2 getScreenResolution();
+        float getPixelsPerMM();
+        glm::vec2 getPhysicalScreenDimensions();
+        void assumePixelsPerMM(float ppmm);
 
         CanvasPtr loadFile(const std::string& sFilename);
         CanvasPtr loadString(const std::string& sAVG);
@@ -109,13 +109,13 @@ class AVG_API Player
         void initPlayback();
         void cleanup();
         bool isPlaying();
-        void setFramerate(double rate);
+        void setFramerate(float rate);
         void setVBlankFramerate(int rate);
-        double getEffectiveFramerate();
+        float getEffectiveFramerate();
         TestHelper * getTestHelper();
-        void setFakeFPS(double fps);
+        void setFakeFPS(float fps);
         long long getFrameTime();
-        double getFrameDuration();
+        float getFrameDuration();
 
         void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
@@ -147,15 +147,15 @@ class AVG_API Player
         NodePtr getElementByID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame(bool bFirstFrame);
-        double getFramerate();
-        double getVideoRefreshRate();
+        float getFramerate();
+        float getVideoRefreshRate();
         bool isUsingShaders();
-        void setGamma(double red, double green, double blue);
+        void setGamma(float red, float green, float blue);
         SDLDisplayEngine * getDisplayEngine() const;
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
-        void setVolume(double volume);
-        double getVolume() const;
+        void setVolume(float volume);
+        float getVolume() const;
 
         OffscreenCanvasPtr getCanvasFromURL(const std::string& sURL);
 
@@ -237,12 +237,12 @@ class AVG_API Player
 
         // Time calculation
         bool m_bFakeFPS;
-        double m_FakeFPS;
+        float m_FakeFPS;
         long long m_FrameTime;
         long long m_PlayStartTime;
         long long m_NumFrames;
 
-        double m_Volume;
+        float m_Volume;
 
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;

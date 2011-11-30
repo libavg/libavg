@@ -46,7 +46,7 @@ class AVG_API SDLAudioEngine : public AudioEngine
         virtual int getSampleRate();
         virtual const AudioParams * getParams();
         
-        virtual void init(const AudioParams& AP, double volume);
+        virtual void init(const AudioParams& AP, float volume);
         virtual void teardown();
         
         virtual void setAudioEnabled(bool bEnabled);
@@ -56,18 +56,18 @@ class AVG_API SDLAudioEngine : public AudioEngine
         
         virtual void addSource(IAudioSource* pSource);
         virtual void removeSource(IAudioSource* pSource);
-        virtual void setVolume(double volume);
+        virtual void setVolume(float volume);
         
     private:
         void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
         static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
-        void addBuffers(double *pDest, AudioBufferPtr pSrc);
-        void calcVolume(double *pBuffer, int numSamples, double volume);
+        void addBuffers(float *pDest, AudioBufferPtr pSrc);
+        void calcVolume(float *pBuffer, int numSamples, float volume);
         
         AudioParams m_AP;
         AudioBufferPtr m_pTempBuffer;
-        double * m_pMixBuffer;
-        IProcessor<double>* m_pLimiter;
+        float * m_pMixBuffer;
+        IProcessor<float>* m_pLimiter;
         boost::mutex m_Mutex;
 
         static SDLAudioEngine* s_pInstance;

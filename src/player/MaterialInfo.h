@@ -24,8 +24,6 @@
 
 #include "../api.h"
 
-#include "../base/Point.h"
-
 namespace avg {
 
 class AVG_API MaterialInfo {

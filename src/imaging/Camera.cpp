@@ -164,7 +164,7 @@ string cameraFeatureToString(CameraFeature feature)
 
 CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
         bool bFW800, const IntPoint& captureSize, PixelFormat camPF, PixelFormat destPF, 
-        double frameRate)
+        float frameRate)
 {
     CameraPtr pCamera;
     try {

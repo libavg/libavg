@@ -40,25 +40,25 @@ class AVG_API PolygonNode : public FilledVectorNode
         PolygonNode(const ArgList& args);
         virtual ~PolygonNode();
 
-        const std::vector<DPoint>& getPos() const;
-        void setPos(const std::vector<DPoint>& pts);
+        const std::vector<glm::vec2>& getPos() const;
+        void setPos(const std::vector<glm::vec2>& pts);
 
-        const std::vector<double>& getTexCoords() const;
-        void setTexCoords(const std::vector<double>& coords);
+        const std::vector<float>& getTexCoords() const;
+        void setTexCoords(const std::vector<float>& coords);
 
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
 
-        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
-        std::vector<DPoint> m_Pts;
-        std::vector<double> m_CumulDist;
-        std::vector<double> m_TexCoords;
-        std::vector<double> m_EffTexCoords;
+        std::vector<glm::vec2> m_Pts;
+        std::vector<float> m_CumulDist;
+        std::vector<float> m_TexCoords;
+        std::vector<float> m_EffTexCoords;
         LineJoin m_LineJoin;
 };
 

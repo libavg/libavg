@@ -32,15 +32,16 @@
 
 namespace avg {
 
-static const double EPSILON = 0.00001;
+static const float PI = 3.14159265358979323846f;
+static const float EPSILON = 0.00001f;
 
 bool ispow2(int n);
 
 int nextpow2(int n);
 
-int safeCeil(double d);
+int safeCeil(float d);
 
-bool almostEqual(double d1, double d2, double epsilon=EPSILON);
+bool almostEqual(float d1, float d2, float epsilon=EPSILON);
 
 float invSqrt(float x);
 
@@ -82,7 +83,7 @@ std::vector<std::vector<T> > vector2DFromCArray(int n, int m, T* pData)
 template<class T>
 T round(T d)
 {
-    return floor( d + 0.5 );
+    return floor(d + 0.5f);
 }
 #endif
 

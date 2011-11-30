@@ -29,7 +29,7 @@
 #include "Node.h"
 #include "RasterNode.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/IFrameEndListener.h"
 #include "../base/UTF8String.h"
 
@@ -62,9 +62,9 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
 
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
-        double getVolume();
-        void setVolume(double volume);
-        double getFPS() const;
+        float getVolume();
+        void setVolume(float volume);
+        float getFPS() const;
         int getQueueLength() const;
         void checkReload();
 
@@ -89,7 +89,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         void setEOFCallback(PyObject * pEOFCallback);
         bool isAccelerated() const;
 
-        virtual void render(const DRect& rect);
+        virtual void render(const FRect& rect);
         virtual void preRender();
         virtual void onFrameEnd();
         
@@ -126,7 +126,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         std::string m_Filename;
         bool m_bLoop;
         bool m_bThreaded;
-        double m_FPS;
+        float m_FPS;
         int m_QueueLength;
         bool m_bEOFPending;
         PyObject * m_pEOFCallback;
@@ -139,10 +139,10 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         long long m_StartTime;
         long long m_PauseTime;
         long long m_PauseStartTime;
-        double m_JitterCompensation;
+        float m_JitterCompensation;
 
         VideoDecoder * m_pDecoder;
-        double m_Volume;
+        float m_Volume;
         bool m_bUsesHardwareAcceleration;
 
         GLTexturePtr m_pTextures[4];

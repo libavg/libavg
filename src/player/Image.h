@@ -26,7 +26,7 @@
 
 #include "MaterialInfo.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>

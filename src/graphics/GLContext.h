@@ -26,7 +26,7 @@
 #include "GLBufferCache.h"
 #include "GLConfig.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
@@ -59,8 +59,8 @@ public:
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
 
-    virtual void pushTransform(const DPoint& translate, double angle, 
-            const DPoint& pivot);
+    virtual void pushTransform(const glm::vec2& translate, float angle, 
+            const glm::vec2& pivot);
     virtual void popTransform();
 
     // GL Object caching.

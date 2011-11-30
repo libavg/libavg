@@ -48,28 +48,28 @@ public:
     virtual void close();
     virtual DecoderState getState() const;
     virtual VideoInfo getVideoInfo() const;
-    virtual void seek(double destTime);
+    virtual void seek(float destTime);
     virtual void loop();
     virtual IntPoint getSize() const;
     virtual int getCurFrame() const;
     virtual int getNumFramesQueued() const;
-    virtual double getCurTime(StreamSelect stream = SS_DEFAULT) const;
-    virtual double getNominalFPS() const;
-    virtual double getFPS() const;
-    virtual void setFPS(double fps);
-    virtual double getVolume() const;
-    virtual void setVolume(double volume);
+    virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+    virtual float getNominalFPS() const;
+    virtual float getFPS() const;
+    virtual void setFPS(float fps);
+    virtual float getVolume() const;
+    virtual void setVolume(float volume);
     virtual PixelFormat getPixelFormat() const;
 
     virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps, 
-            double timeWanted);
+            float timeWanted);
     virtual bool isEOF(StreamSelect stream = SS_ALL) const;
-    virtual void throwAwayFrame(double timeWanted);
+    virtual void throwAwayFrame(float timeWanted);
     
     virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
     
 private:
-    VideoMsgPtr getBmpsForTime(double timeWanted, FrameAvailableCode& frameAvailable);
+    VideoMsgPtr getBmpsForTime(float timeWanted, FrameAvailableCode& frameAvailable);
     VideoMsgPtr getNextBmps(bool bWait);
     void waitForSeekDone();
     void returnFrame(VideoMsgPtr& pFrameMsg);
@@ -102,10 +102,10 @@ private:
     bool m_bVideoEOF;
     bool m_bSeekPending;
     boost::mutex m_SeekMutex;
-    double m_Volume;
+    float m_Volume;
 
-    double m_LastVideoFrameTime;
-    double m_LastAudioFrameTime;
+    float m_LastVideoFrameTime;
+    float m_LastAudioFrameTime;
 
     bool m_bUsesVDPAU;
 };

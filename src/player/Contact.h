@@ -22,7 +22,7 @@
 #ifndef _Contact_H_
 #define _Contact_H_
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -52,10 +52,10 @@ public:
     void disconnectListener(int id);
 
     long long getAge() const;
-    double getDistanceFromStart() const;
-    double getMotionAngle() const;
-    DPoint getMotionVec() const;
-    double getDistanceTravelled() const;
+    float getDistanceFromStart() const;
+    float getMotionAngle() const;
+    glm::vec2 getMotionVec() const;
+    float getDistanceTravelled() const;
     std::vector<CursorEventPtr> getEvents() const;
 
     void addEvent(CursorEventPtr pEvent);
@@ -91,7 +91,7 @@ private:
     int m_CurListenerID;
     bool m_bCurListenerIsDead;
     int m_CursorID;
-    double m_DistanceTravelled;
+    float m_DistanceTravelled;
 };
 
 }

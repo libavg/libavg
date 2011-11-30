@@ -26,7 +26,7 @@
 #include "Image.h"
 #include "MaterialInfo.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/VertexArray.h"
 

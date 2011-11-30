@@ -38,8 +38,8 @@ using namespace std;
 
 namespace avg {
 
-GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const DPoint& offset, 
-        double stdDev, double opacity, const Pixel32& color)
+GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset, 
+        float stdDev, float opacity, const Pixel32& color)
     : GPUFilter(B8G8R8A8, B8G8R8A8, false, 2)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -54,7 +54,7 @@ GPUShadowFilter::~GPUShadowFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUShadowFilter::setParams(const DPoint& offset, double stdDev, double opacity, 
+void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opacity, 
         const Pixel32& color)
 {
     m_Offset = offset;
@@ -79,8 +79,8 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pHShader->setUniformIntParam("texture", 0);
     pHShader->setUniformIntParam("kernelTex", 1);
     IntPoint size = getSrcSize();
-    DPoint texOffset = DPoint(m_Offset.x/size.x, m_Offset.y/size.y);
-    pHShader->setUniformDPointParam("offset", texOffset);
+    glm::vec2 texOffset(m_Offset.x/size.x, m_Offset.y/size.y);
+    pHShader->setUniformVec2fParam("offset", texOffset);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
@@ -96,9 +96,9 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
 
     pSrcTex->activate(GL_TEXTURE2);
     pVShader->setUniformIntParam("origTex", 2);
-    DRect destRect = getRelDestRect();
-    pVShader->setUniformDPointParam("destPos", destRect.tl);
-    pVShader->setUniformDPointParam("destSize", destRect.size());
+    FRect destRect = getRelDestRect();
+    pVShader->setUniformVec2fParam("destPos", destRect.tl);
+    pVShader->setUniformVec2fParam("destSize", destRect.size());
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
     glproc::UseProgramObject(0);
@@ -161,7 +161,7 @@ void GPUShadowFilter::initShaders()
     getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
-void GPUShadowFilter::setDimensions(IntPoint size, double stdDev, const DPoint& offset)
+void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)
 {
     int radius = getBlurKernelRadius(stdDev);
     IntPoint radiusOffset(radius, radius);

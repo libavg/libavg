@@ -37,7 +37,7 @@ VideoMsg::~VideoMsg()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, double audioTime)
+void VideoMsg::setAudio(AudioBufferPtr pAudioBuffer, float audioTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     AVG_ASSERT(pAudioBuffer);
@@ -59,7 +59,7 @@ void VideoMsg::setError(const Exception& ex)
     m_pEx = new Exception(ex);
 }
 
-void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime)
+void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     AVG_ASSERT(pBmps.size() == 1 || pBmps.size() == 3 || pBmps.size() == 4);
@@ -68,7 +68,7 @@ void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, double frameTime)
     m_FrameTime = frameTime;
 }
 
-void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, double frameTime)
+void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     m_MsgType = VDPAU_FRAME;
@@ -76,7 +76,7 @@ void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, double frameTime)
     m_FrameTime = frameTime;
 }
 
-void VideoMsg::setSeekDone(double seekVideoFrameTime, double seekAudioFrameTime)
+void VideoMsg::setSeekDone(float seekVideoFrameTime, float seekAudioFrameTime)
 {
     AVG_ASSERT(m_MsgType == NONE);
     m_MsgType = SEEK_DONE;
@@ -95,7 +95,7 @@ AudioBufferPtr VideoMsg::getAudioBuffer() const
     return m_pAudioBuffer;
 }
 
-double VideoMsg::getAudioTime() const
+float VideoMsg::getAudioTime() const
 {
     AVG_ASSERT(m_MsgType == AUDIO);
     return m_AudioTime;
@@ -113,19 +113,19 @@ BitmapPtr VideoMsg::getFrameBitmap(int i)
     return m_pBmps[i];
 }
 
-double VideoMsg::getFrameTime()
+float VideoMsg::getFrameTime()
 {
     AVG_ASSERT(m_MsgType == FRAME || m_MsgType == VDPAU_FRAME);
     return m_FrameTime;
 }
 
-double VideoMsg::getSeekVideoFrameTime()
+float VideoMsg::getSeekVideoFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekVideoFrameTime;
 }
 
-double VideoMsg::getSeekAudioFrameTime()
+float VideoMsg::getSeekAudioFrameTime()
 {
     AVG_ASSERT(m_MsgType == SEEK_DONE);
     return m_SeekAudioFrameTime;

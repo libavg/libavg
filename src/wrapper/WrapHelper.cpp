@@ -22,6 +22,7 @@
 #include "WrapHelper.h"
 
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <boost/version.hpp>
 
@@ -29,29 +30,29 @@ using namespace avg;
 using namespace std;
 using namespace boost::python;
 
-namespace DPointHelper
+namespace Vec2Helper
 {
-    int len(const DPoint&) 
+    int len(const glm::vec2&) 
     {
         return 2;
     }
 
-    double getX(const DPoint& pt)
+    float getX(const glm::vec2& pt)
     {
         return pt.x;
     }
 
-    double getY(const DPoint& pt)
+    float getY(const glm::vec2& pt)
     {
         return pt.y;
     }
 
-    void setX(DPoint& pt, double val)
+    void setX(glm::vec2& pt, float val)
     {
         pt.x = val;
     }
 
-    void setY(DPoint& pt, double val)
+    void setY(glm::vec2& pt, float val)
     {
         pt.y = val;
     }
@@ -62,7 +63,7 @@ namespace DPointHelper
         }
     }
 
-    double getItem(const DPoint& pt, int i)
+    float getItem(const glm::vec2& pt, int i)
     {
         checkItemRange(i);
         if (i==0) {
@@ -72,7 +73,7 @@ namespace DPointHelper
         }
     }
 
-    void setItem(DPoint& pt, int i, double val)
+    void setItem(glm::vec2& pt, int i, float val)
     {
         checkItemRange(i);
         if (i==0) {
@@ -82,44 +83,83 @@ namespace DPointHelper
         }
     }
 
-    string str(const DPoint& pt)
+    string str(const glm::vec2& pt)
     {
         stringstream st;
         st << "(" << pt.x << "," << pt.y << ")";
         return st.str();
     }
 
-    string repr(const DPoint& pt)
+    string repr(const glm::vec2& pt)
     {
         stringstream st;
         st << "avg.Point2D(" << pt.x << "," << pt.y << ")";
         return st.str();
     }
 
-    long getHash(const DPoint& pt)
+    long getHash(const glm::vec2& pt)
     {
         // Wild guess at what could constitute a good hash function.
         // Will generate very bad hashes if most values are in a range < 0.1,
         // but this is meant for pixel values anyway, right? ;-).
         return long(pt.x*42+pt.y*23);
     }
+    
+    glm::vec2 safeGetNormalized(const glm::vec2& pt)
+    {
+        if (pt.x==0 && pt.y==0) {
+            throw Exception(AVG_ERR_OUT_OF_RANGE, "Can't normalize (0,0).");
+        } else {
+            float invNorm = 1/sqrt(pt.x*pt.x+pt.y*pt.y);
+            return glm::vec2(pt.x*invNorm, pt.y*invNorm);
+        }
+    }
+
+    bool isNaN(const glm::vec2& pt)
+    {
+        return isnan(pt.x) || isnan(pt.y);
+    }
+
+    bool isInf(const glm::vec2& pt)
+    {
+        return isinf(pt.x) || isinf(pt.y);
+    }
+
+    float getNorm(const glm::vec2& pt)
+    {
+        return glm::length(pt);
+    }
+    
+    float vecAngle(const glm::vec2& pt1, const glm::vec2& pt2)
+    {
+        float angle = fmod((atan2(pt1.y, pt1.x) - atan2(pt2.y, pt2.x)), float(2*M_PI));
+        if (angle < 0) {
+            angle += 2*M_PI;
+        }
+        return angle;
+    }
 }
 
-// The ConstDPoint stuff is there so that DPoint attributes behave sensibly. That is,
+// The ConstVec2 stuff is there so that vec2 attributes behave sensibly. That is,
 // node.pos.x = 30 causes an error instead of failing silently.
-ConstDPoint::ConstDPoint()
+ConstVec2::ConstVec2()
 {
 }
 
-ConstDPoint::ConstDPoint(const DPoint& other)
+ConstVec2::ConstVec2(const glm::vec2& other)
 {
     x = other.x;
     y = other.y;
 }
 
-ConstDPoint::operator DPoint() const
+glm::vec2 ConstVec2::toVec2() const
 {
-    return DPoint(x,y);
+    return glm::vec2(x,y);
+}
+
+ConstVec2::operator glm::vec2() const
+{
+    return glm::vec2(x,y);
 }
 
 void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
@@ -130,10 +170,10 @@ void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
     }
 }
 
-template<class NUM>
-struct Point_to_python_tuple
+template<class VEC2>
+struct Vec2_to_python_tuple
 {
-    static PyObject* convert (avg::Point<NUM> pt)
+    static PyObject* convert (VEC2 pt)
     {
         return boost::python::incref(boost::python::make_tuple(pt.x, pt.y).ptr());
     }
@@ -159,13 +199,13 @@ struct Triple_to_python_tuple
     }
 };
 
-template<class POINT, class ATTR>
-struct point_from_python
+template<class VEC2, class ATTR>
+struct vec2_from_python
 {
-    point_from_python() 
+    vec2_from_python() 
     {
         boost::python::converter::registry::push_back(
-                &convertible, &construct, boost::python::type_id<POINT>());
+                &convertible, &construct, boost::python::type_id<VEC2>());
     }
     
     static void* convertible(PyObject* obj_ptr)
@@ -183,7 +223,7 @@ struct point_from_python
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        POINT pt;
+        VEC2 pt;
         PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
         pt.x = (ATTR)PyFloat_AsDouble(pEntry);
         Py_DECREF(pEntry);
@@ -191,9 +231,9 @@ struct point_from_python
         pt.y = (ATTR)PyFloat_AsDouble(pEntry);
         Py_DECREF(pEntry);
         void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<POINT>*)data)
+                (boost::python::converter::rvalue_from_python_storage<VEC2>*)data)
                     ->storage.bytes;
-        new (storage) POINT(pt);
+        new (storage) VEC2(pt);
         data->convertible = storage;
     }
 };
@@ -318,25 +358,25 @@ void export_base()
     register_exception_translator<Exception>(exception_translator);
 #endif
     to_python_converter<Exception, Exception_to_python_exception>();
-    to_python_converter<IntPoint, Point_to_python_tuple<int> >();
-    to_python_converter<DTriple, Triple_to_python_tuple<double> >();
-    point_from_python<DPoint, double>();
-    point_from_python<ConstDPoint, double>();
-    point_from_python<IntPoint, int>();
+    to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
+    to_python_converter<FTriple, Triple_to_python_tuple<float> >();
+    vec2_from_python<glm::vec2, float>();
+    vec2_from_python<ConstVec2, float>();
+    vec2_from_python<IntPoint, int>();
     
-    triple_from_python<double>();
+    triple_from_python<float>();
     triple_from_python<int>();
     
-    to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
+    to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
     to_python_converter<vector<string>, to_list<vector<string> > >();    
    
-    from_python_sequence<vector<DPoint>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
     from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
     from_python_sequence<vector<string>, variable_capacity_policy>();
   
     from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
-    from_python_sequence<vector<DTriple>, variable_capacity_policy>();
-    from_python_sequence<vector<double>, variable_capacity_policy>();
+    from_python_sequence<vector<FTriple>, variable_capacity_policy>();
+    from_python_sequence<vector<float>, variable_capacity_policy>();
     
     to_python_converter<UTF8String, UTF8String_to_unicode>();
     UTF8String_from_unicode();

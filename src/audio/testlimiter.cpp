@@ -40,24 +40,24 @@ public:
     void runTests()
     {
         const int CHANNELS = 2;
-        double fs = 44100.;
-        int numSamples = int(fs * 0.1);
+        float fs = 44100.f;
+        int numSamples = int(fs * 0.1f);
 
         // Setup a brickwall limiter
-        typedef Dynamics<double, CHANNELS> TStereoLimiter;
+        typedef Dynamics<float, CHANNELS> TStereoLimiter;
         TStereoLimiter* d = new TStereoLimiter(fs);
-        d->setThreshold(0.); // in dB
-        d->setAttackTime(0.); // in seconds
-        d->setReleaseTime(0.05); // in seconds
-        d->setRmsTime(0.); // in seconds
-        d->setRatio(std::numeric_limits<double>::infinity());
-        d->setMakeupGain(0.); // in dB
+        d->setThreshold(0.f); // in dB
+        d->setAttackTime(0.f); // in seconds
+        d->setReleaseTime(0.05f); // in seconds
+        d->setRmsTime(0.f); // in seconds
+        d->setRatio(std::numeric_limits<float>::infinity());
+        d->setMakeupGain(0.f); // in dB
 
         // Generate input and output test data
-        double* pSamples = new double[CHANNELS*numSamples];
+        float* pSamples = new float[CHANNELS*numSamples];
         for (int j = 0; j < numSamples; j++) {
             for (int i = 0; i < CHANNELS; i++) {
-                pSamples[j*CHANNELS+i] = 2*sin(j*(440./44100)*M_PI);
+                pSamples[j*CHANNELS+i] = 2*sin(j*(440.f/44100)*float(M_PI));
             }
         }
 
@@ -75,7 +75,7 @@ public:
                 if (pSamples[j*CHANNELS+i] > 1) {
                     bAboveThreshold = true;
                 }
-                if (fabs(pSamples[j*CHANNELS+i]-pSamples[(j-1)*CHANNELS+i]) > 0.05) {
+                if (fabs(pSamples[j*CHANNELS+i]-pSamples[(j-1)*CHANNELS+i]) > 0.05f) {
                     bDiscontinuities = true;
 //                    cerr << j << ": " << outSamples[j*OUT_CHANNELS+i] << ", " << 
 //                            outSamples[(j-1)*OUT_CHANNELS+i] << endl;

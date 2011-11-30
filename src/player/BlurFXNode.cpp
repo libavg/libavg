@@ -59,12 +59,12 @@ void BlurFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void BlurFXNode::setParam(double stdDev)
+void BlurFXNode::setParam(float stdDev)
 {
     setRadius(stdDev);
 }
 
-void BlurFXNode::setRadius(double stdDev)
+void BlurFXNode::setRadius(float stdDev)
 {
     m_StdDev = stdDev;
     if (m_pFilter) {
@@ -73,7 +73,7 @@ void BlurFXNode::setRadius(double stdDev)
     setDirty();
 }
 
-double BlurFXNode::getRadius() const
+float BlurFXNode::getRadius() const
 {
     return m_StdDev;
 }

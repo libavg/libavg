@@ -26,16 +26,18 @@
 #include "GPUFilter.h"
 #include "GLTexture.h"
 
+#include "../base/GLMHelper.h"
+
 namespace avg {
 
 class AVG_API GPUShadowFilter: public GPUFilter
 {
 public:
-    GPUShadowFilter(const IntPoint& size, const DPoint& offset, double stdDev,
-            double opacity, const Pixel32& color);
+    GPUShadowFilter(const IntPoint& size, const glm::vec2& offset, float stdDev,
+            float opacity, const Pixel32& color);
     virtual ~GPUShadowFilter();
     
-    void setParams(const DPoint& offset, double stdDev, double opacity, 
+    void setParams(const glm::vec2& offset, float stdDev, float opacity, 
             const Pixel32& color);
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
@@ -43,11 +45,11 @@ private:
     void initShaders();
     void dumpKernel();
     void calcKernel();
-    void setDimensions(IntPoint size, double stdDev, const DPoint& offset);
+    void setDimensions(IntPoint size, float stdDev, const glm::vec2& offset);
 
-    DPoint m_Offset;
-    double m_StdDev;
-    double m_Opacity;
+    glm::vec2 m_Offset;
+    float m_StdDev;
+    float m_Opacity;
     Pixel32 m_Color;
 
     GLTexturePtr m_pGaussCurveTex;

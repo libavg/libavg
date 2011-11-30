@@ -25,12 +25,13 @@
 #include "TrackerConfig.h"
 
 #include "../base/StringHelper.h"
-
+#include "../base/MathHelper.h"
+#include "../glm/gtx/rotate_vector.hpp"
 #include <cstring>
 #include <iostream>
 #include <math.h>
 
-const double sqrt3 = sqrt(3.);
+const double sqrt3 = sqrt(3.f);
 
 using namespace std;
 
@@ -61,12 +62,12 @@ DeDistort::DeDistort()
     m_RescaleFactor = calc_rescale();
 }
 
-DeDistort::DeDistort(const DPoint& camExtents, const DPoint& displayExtents)
+DeDistort::DeDistort(const glm::vec2& camExtents, const glm::vec2& displayExtents)
     : m_Angle(0.0),
       m_TrapezoidFactor(0),
       m_DisplayOffset(0,0)
 {
-    m_CamExtents = camExtents; 
+    m_CamExtents = glm::vec2(camExtents); 
     m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
     m_DisplayScale.x = displayExtents.x/camExtents.x;
@@ -74,9 +75,9 @@ DeDistort::DeDistort(const DPoint& camExtents, const DPoint& displayExtents)
     m_RescaleFactor = calc_rescale();
 }
 
-DeDistort::DeDistort(const DPoint& camExtents, const vector<double>& distortionParams,
-        double angle, double trapezoidFactor, const DPoint& displayOffset, 
-        const DPoint& displayScale)
+DeDistort::DeDistort(const glm::vec2& camExtents, const vector<double>& distortionParams,
+        double angle, double trapezoidFactor, const glm::dvec2& displayOffset, 
+        const glm::dvec2& displayScale)
     : m_CamExtents(camExtents),
       m_DistortionParams(distortionParams),
       m_Angle(angle),
@@ -91,39 +92,39 @@ DeDistort::~DeDistort()
 {
 }
 
-DRect DeDistort::getDisplayArea(const DPoint& displayExtents)
+FRect DeDistort::getDisplayArea(const glm::vec2& displayExtents)
 {
-    return getActiveBlobArea(DRect(DPoint(0,0), displayExtents));
+    return getActiveBlobArea(FRect(glm::vec2(0,0), displayExtents));
 }
 
-DRect DeDistort::getActiveBlobArea(const DRect& displayROI)
+FRect DeDistort::getActiveBlobArea(const FRect& displayROI)
 {
-    DRect activeRect;
-    activeRect.tl = transformScreenToBlob(DPoint(displayROI.tl));
-    activeRect.br = transformScreenToBlob(DPoint(displayROI.br));
+    FRect activeRect;
+    activeRect.tl = transformScreenToBlob(glm::dvec2(displayROI.tl));
+    activeRect.br = transformScreenToBlob(glm::dvec2(displayROI.br));
     if (activeRect.height() < 1) {
-        double temp = activeRect.tl.y;
+        float temp = activeRect.tl.y;
         activeRect.tl.y = activeRect.br.y;
         activeRect.br.y = temp;
     } 
     if (activeRect.width() < 1) {
-        double temp = activeRect.tl.x;
+        float temp = activeRect.tl.x;
         activeRect.tl.x = activeRect.br.x;
         activeRect.br.x = temp;
     } 
     return activeRect;
 }
 
-void DeDistort::load(const DPoint& camExtents, const TrackerConfig& config)
+void DeDistort::load(const glm::vec2& camExtents, const TrackerConfig& config)
 {
-    m_CamExtents = camExtents;
+    m_CamExtents = glm::dvec2(camExtents);
     m_DistortionParams.clear();
-    m_DistortionParams.push_back(config.getDoubleParam
-            ("/transform/distortionparams/@p2"));
-    m_DistortionParams.push_back(config.getDoubleParam
-            ("/transform/distortionparams/@p3"));
-    m_TrapezoidFactor = config.getDoubleParam("/transform/trapezoid/@value");
-    m_Angle = config.getDoubleParam("/transform/angle/@value");
+    m_DistortionParams.push_back(double(config.getFloatParam
+            ("/transform/distortionparams/@p2")));
+    m_DistortionParams.push_back(double(config.getFloatParam
+            ("/transform/distortionparams/@p3")));
+    m_TrapezoidFactor = config.getFloatParam("/transform/trapezoid/@value");
+    m_Angle = config.getFloatParam("/transform/angle/@value");
     m_DisplayOffset = config.getPointParam("/transform/displaydisplacement/");
     m_DisplayScale = config.getPointParam("/transform/displayscale/");
 
@@ -173,59 +174,59 @@ void DeDistort::dump() const
     cerr << "    DisplayScale: " << m_DisplayScale << endl;
 }
 
-DPoint DeDistort::transformScreenToBlob(const DPoint& pt)
+glm::dvec2 DeDistort::transformScreenToBlob(const glm::dvec2& pt)
 {
     // scale to blob image resolution and translate 0,0 to upper left corner.
-    DPoint DestPt = pt-m_DisplayOffset;
-    DestPt = DPoint(DestPt.x/m_DisplayScale.x, DestPt.y/m_DisplayScale.y);
+    glm::dvec2 DestPt = pt-m_DisplayOffset;
+    DestPt = glm::dvec2(DestPt.x/m_DisplayScale.x, DestPt.y/m_DisplayScale.y);
     return DestPt;
 }
 
-DPoint DeDistort::inverse_transform_point(const DPoint& pt)
+glm::dvec2 DeDistort::inverse_transform_point(const glm::dvec2& pt)
 {
-    DPoint destPt = pt-m_CamExtents/2;
-    destPt = DPoint(2*destPt.x/m_CamExtents.x, 2*destPt.y/m_CamExtents.y);
+    glm::dvec2 destPt = pt - m_CamExtents/2.;
+    destPt = glm::dvec2(2*destPt.x/m_CamExtents.x, 2*destPt.y/m_CamExtents.y);
     destPt = inv_trapezoid(m_TrapezoidFactor, destPt);
-    destPt = destPt.getRotated(-m_Angle);
+    destPt = glm::rotate(destPt, -m_Angle*180/M_PI);
     destPt *= m_RescaleFactor;
     destPt = inverse_undistort(m_DistortionParams, destPt);
-    destPt = DPoint(destPt.x*m_CamExtents.x/2, destPt.y*m_CamExtents.y/2);
-    destPt += m_CamExtents/2;
+    destPt = glm::dvec2(destPt.x*m_CamExtents.x/2, destPt.y*m_CamExtents.y/2);
+    destPt += m_CamExtents/2.;
     return destPt;
 }
 
-DPoint DeDistort::transformBlobToScreen(const DPoint& pt)
+glm::dvec2 DeDistort::transformBlobToScreen(const glm::dvec2& pt)
 {
-    DPoint destPt = DPoint(m_DisplayScale.x*pt.x, m_DisplayScale.y*pt.y);
+    glm::dvec2 destPt(m_DisplayScale.x*pt.x, m_DisplayScale.y*pt.y);
     destPt += m_DisplayOffset;
     return destPt;
 }
 
-DPoint DeDistort::transform_point(const DPoint& pt)
+glm::dvec2 DeDistort::transform_point(const glm::dvec2& pt)
 {
-    DPoint destPt = pt-m_CamExtents/2;
-    destPt = DPoint(2*destPt.x/m_CamExtents.x, 2*destPt.y/m_CamExtents.y);
+    glm::dvec2 destPt = pt-m_CamExtents/2.;
+    destPt = glm::dvec2(2*destPt.x/m_CamExtents.x, 2*destPt.y/m_CamExtents.y);
     destPt = undistort(m_DistortionParams, destPt);
     destPt /= m_RescaleFactor;
-    destPt = destPt.getRotated(m_Angle);
+    destPt = glm::rotate(destPt, m_Angle*180/M_PI);
     destPt = trapezoid(m_TrapezoidFactor, destPt);
-    destPt = DPoint(destPt.x*m_CamExtents.x/2, destPt.y*m_CamExtents.y/2);
-    destPt += m_CamExtents/2;
+    destPt = glm::dvec2(destPt.x*m_CamExtents.x/2, destPt.y*m_CamExtents.y/2);
+    destPt += m_CamExtents/2.;
     return destPt;
 }
 
-DPoint DeDistort::inv_trapezoid(const double trapezoid_factor, const DPoint& pt)
+glm::dvec2 DeDistort::inv_trapezoid(const double trapezoid_factor, const glm::dvec2& pt)
 {
     // stretch x coord
     double yn = pt.y;
-    return DPoint(pt.x/(1+yn*trapezoid_factor), pt.y);
+    return glm::dvec2(pt.x/(1+yn*trapezoid_factor), pt.y);
 }
 
-DPoint DeDistort::trapezoid(const double trapezoid_factor, const DPoint& pt)
+glm::dvec2 DeDistort::trapezoid(const double trapezoid_factor, const glm::dvec2& pt)
 {
     // stretch x coord
     double yn = pt.y;
-    return DPoint(pt.x*(1+yn*trapezoid_factor), pt.y);
+    return glm::dvec2(pt.x*(1+yn*trapezoid_factor), pt.y);
 }
 
 double distort_map(const vector<double>& params, double r) 
@@ -265,12 +266,13 @@ double inv_distort_map(const vector<double>& params, double r)
 }
 
 #define EPSILON 0.00001
-DPoint DeDistort::inverse_undistort(const vector<double> &params, const DPoint &pt)
+glm::dvec2 DeDistort::inverse_undistort(const vector<double> &params, 
+        const glm::dvec2 &pt)
 {
     if (params.empty()) {
         return pt;
     }
-    DPoint pt_norm = pt;
+    glm::dvec2 pt_norm = pt;
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
     double S;
     if (r_d < EPSILON) {
@@ -278,17 +280,17 @@ DPoint DeDistort::inverse_undistort(const vector<double> &params, const DPoint &
     } else {
         S = inv_distort_map(params, r_d)/r_d;
     }
-    DPoint result = pt_norm*(S);
+    glm::dvec2 result = pt_norm*(S);
     return result;
 }
 
-DPoint DeDistort::undistort(const vector<double>& params, const DPoint &pt) 
+glm::dvec2 DeDistort::undistort(const vector<double>& params, const glm::dvec2 &pt) 
 {
     std::vector<double>::const_iterator v = params.begin();
     if (v == params.end()) {
         return pt;
     }
-    DPoint pt_norm = pt;
+    glm::dvec2 pt_norm = pt;
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
     double S;
     if (r_d < EPSILON) {
@@ -297,7 +299,7 @@ DPoint DeDistort::undistort(const vector<double>& params, const DPoint &pt)
         S = distort_map(params, r_d)/r_d;
     }
     
-    DPoint result = pt_norm*(S);
+    glm::dvec2 result = pt_norm*(S);
     return result;
 }
     

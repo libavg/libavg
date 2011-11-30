@@ -66,19 +66,19 @@ void ContinuousAnim::abort()
 bool ContinuousAnim::step()
 {
     object curValue;
-    double time = (Player::get()->getFrameTime()-m_StartTime)/1000.0;
-    if (isPythonType<double>(m_EffStartValue)) {
-        curValue = object(time*extract<double>(m_Speed)+m_EffStartValue);
+    float time = (Player::get()->getFrameTime()-m_StartTime)/1000.0f;
+    if (isPythonType<float>(m_EffStartValue)) {
+        curValue = object(time*extract<float>(m_Speed)+m_EffStartValue);
         if (m_bUseInt) {
-            double d = extract<double>(curValue);
+            float d = extract<float>(curValue);
             curValue = object(round(d));
         }
-    } else if (isPythonType<DPoint>(m_EffStartValue)) {
-        DPoint pt = extract<DPoint>(m_Speed);
+    } else if (isPythonType<glm::vec2>(m_EffStartValue)) {
+        glm::vec2 pt = extract<glm::vec2>(m_Speed)();
         curValue = object(time*pt+m_EffStartValue);
         if (m_bUseInt) {
-            DPoint pt = extract<DPoint>(curValue);
-            curValue = object(DPoint(round(pt.x), round(pt.y)));
+            glm::vec2 pt = extract<glm::vec2>(curValue)();
+            curValue = object(glm::vec2(round(pt.x), round(pt.y)));
         }
     } else {
         throw (Exception(AVG_ERR_TYPE, 

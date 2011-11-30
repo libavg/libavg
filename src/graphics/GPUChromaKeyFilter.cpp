@@ -57,9 +57,9 @@ GPUChromaKeyFilter::~GPUChromaKeyFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void GPUChromaKeyFilter::setParams(const Pixel32& color, double hTolerance, 
-        double sTolerance, double lTolerance, double softness, int erosion,
-        double spillThreshold)
+void GPUChromaKeyFilter::setParams(const Pixel32& color, float hTolerance, 
+        float sTolerance, float lTolerance, float softness, int erosion,
+        float spillThreshold)
 {
     m_Color = color;
     m_HTolerance = hTolerance;
@@ -82,11 +82,11 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->activate();
     pShader->setUniformIntParam("texture", 0);
 
-    double h, s, l;
+    float h, s, l;
     m_Color.toHSL(h, s, l);
     pShader->setUniformFloatParam("hKey", h);
     pShader->setUniformFloatParam("hTolerance", m_HTolerance*360);
-    pShader->setUniformFloatParam("hSoftTolerance", (m_HTolerance+m_Softness)*360.0);
+    pShader->setUniformFloatParam("hSoftTolerance", (m_HTolerance+m_Softness)*360.0f);
     pShader->setUniformFloatParam("sKey", s);
     pShader->setUniformFloatParam("sTolerance", m_STolerance);
     pShader->setUniformFloatParam("sSoftTolerance", m_STolerance+m_Softness);

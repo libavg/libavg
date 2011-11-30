@@ -23,7 +23,7 @@
 #define _WrapHelper_H_
 
 #include "../api.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Triple.h"
 #include "../base/Exception.h"
 
@@ -273,38 +273,44 @@ struct from_python_sequence
 };
 
 template<class T>
-double deprecatedGet(T& node)
+float deprecatedGet(T& node)
 {
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
 
 template<class T>
-void deprecatedSet(T& node, double d)
+void deprecatedSet(T& node, float d)
 {
     throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
 }
 
-namespace DPointHelper
+namespace Vec2Helper
 {
-    int len(const avg::DPoint&);
-    double getX(const avg::DPoint& pt);
-    double getY(const avg::DPoint& pt);
-    void setX(avg::DPoint& pt, double val);
-    void setY(avg::DPoint& pt, double val);
+    int len(const glm::vec2&);
+    float getX(const glm::vec2& pt);
+    float getY(const glm::vec2& pt);
+    void setX(glm::vec2& pt, float val);
+    void setY(glm::vec2& pt, float val);
     void checkItemRange(int i);
-    double getItem(const avg::DPoint& pt, int i);
-    void setItem(avg::DPoint& pt, int i, double val);
-    std::string str(const avg::DPoint& pt);
-    std::string repr(const avg::DPoint& pt);
-    long getHash(const avg::DPoint& pt);
+    float getItem(const glm::vec2& pt, int i);
+    void setItem(glm::vec2& pt, int i, float val);
+    std::string str(const glm::vec2& pt);
+    std::string repr(const glm::vec2& pt);
+    long getHash(const glm::vec2& pt);
+    glm::vec2 safeGetNormalized(const glm::vec2& pt);
+    bool isNaN(const glm::vec2& pt);
+    bool isInf(const glm::vec2& pt);
+    float getNorm(const glm::vec2& pt);
+    float vecAngle(const glm::vec2& pt1, const glm::vec2& pt2);
 }
 
-class ConstDPoint: public avg::DPoint
+class ConstVec2: public glm::vec2
 {
 public:
-    ConstDPoint();
-    ConstDPoint(const avg::DPoint& other);
-    operator avg::DPoint() const;
+    ConstVec2();
+    ConstVec2(const glm::vec2& other);
+    glm::vec2 toVec2() const;
+    operator glm::vec2() const;
 };
 
 AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=0);

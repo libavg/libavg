@@ -51,7 +51,7 @@ NodeDefinition SoundNode::createDefinition()
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(SoundNode, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(SoundNode, m_bLoop)))
-        .addArg(Arg<double>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))
+        .addArg(Arg<float>("volume", 1.0, false, offsetof(SoundNode, m_Volume)))
         ;
 }
 
@@ -194,12 +194,12 @@ void SoundNode::setHRef(const UTF8String& href)
     checkReload();
 }
 
-double SoundNode::getVolume()
+float SoundNode::getVolume()
 {
     return m_Volume;
 }
 
-void SoundNode::setVolume(double volume)
+void SoundNode::setVolume(float volume)
 {
     if (volume < 0) {
         volume = 0;
@@ -274,7 +274,7 @@ void SoundNode::changeSoundState(SoundState newSoundState)
 
 void SoundNode::seek(long long destTime) 
 {
-    m_pDecoder->seek(double(destTime)/1000);
+    m_pDecoder->seek(float(destTime)/1000);
     m_StartTime = Player::get()->getFrameTime() - destTime;
     m_PauseTime = 0;
     m_PauseStartTime = Player::get()->getFrameTime();

@@ -36,7 +36,7 @@ namespace avg {
 class AVG_API CMUCamera : public Camera {
 public:
     CMUCamera(long long guid, bool bFW800, IntPoint Size, PixelFormat camPF, 
-            PixelFormat destPF, double FrameRate);
+            PixelFormat destPF, float FrameRate);
     virtual ~CMUCamera();
 
     virtual IntPoint getImgSize();
@@ -44,7 +44,7 @@ public:
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual double getFrameRate() const;
+    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
@@ -73,7 +73,7 @@ private:
 
     std::string m_sDevice;
     IntPoint m_Size;
-    double m_FrameRate;
+    float m_FrameRate;
 
     mutable C1394Camera * m_pCamera; // The CMU1394 lib is not const-correct.
     FeatureMap m_Features;

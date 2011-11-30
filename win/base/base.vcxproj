@@ -68,9 +68,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\src\base\Backtrace.h" />
     <ClInclude Include="..\..\src\base\BezierCurve.h" />
     <ClInclude Include="..\..\src\base\CmdLine.h" />
@@ -84,6 +81,7 @@
     <ClInclude Include="..\..\src\base\Exception.h" />
     <ClInclude Include="..\..\src\base\FileHelper.h" />
     <ClInclude Include="..\..\src\base\GeomHelper.h" />
+    <ClInclude Include="..\..\src\base\GLMHelper.h" />
     <ClInclude Include="..\..\src\base\IFrameEndListener.h" />
     <ClInclude Include="..\..\src\base\IPlaybackEndListener.h" />
     <ClInclude Include="..\..\src\base\IPreRenderListener.h" />
@@ -92,7 +90,6 @@
     <ClInclude Include="..\..\src\base\Matrix3x4.h" />
     <ClInclude Include="..\..\src\base\ObjectCounter.h" />
     <ClInclude Include="..\..\src\base\OSHelper.h" />
-    <ClInclude Include="..\..\src\base\Point.h" />
     <ClInclude Include="..\..\src\base\ProfilingZone.h" />
     <ClInclude Include="..\..\src\base\ProfilingZoneID.h" />
     <ClInclude Include="..\..\src\base\Queue.h" />
@@ -124,12 +121,12 @@
     <ClCompile Include="..\..\src\base\Exception.cpp" />
     <ClCompile Include="..\..\src\base\FileHelper.cpp" />
     <ClCompile Include="..\..\src\base\GeomHelper.cpp" />
+    <ClCompile Include="..\..\src\base\GLMHelper.cpp" />
     <ClCompile Include="..\..\src\base\Logger.cpp" />
     <ClCompile Include="..\..\src\base\MathHelper.cpp" />
     <ClCompile Include="..\..\src\base\Matrix3x4.cpp" />
     <ClCompile Include="..\..\src\base\ObjectCounter.cpp" />
     <ClCompile Include="..\..\src\base\OSHelper.cpp" />
-    <ClCompile Include="..\..\src\base\Point.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZone.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZoneID.cpp" />
     <ClCompile Include="..\..\src\base\ScopeTimer.cpp" />

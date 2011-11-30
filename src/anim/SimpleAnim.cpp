@@ -72,7 +72,7 @@ void SimpleAnim::abort()
 }
 
 template<class T>
-object typedLERP(const object& startValue, const object& endValue, double part)
+object typedLERP(const object& startValue, const object& endValue, float part)
 {
     T start = extract<T>(startValue);
     T end = extract<T>(endValue);
@@ -83,7 +83,7 @@ object typedLERP(const object& startValue, const object& endValue, double part)
 bool SimpleAnim::step()
 {
     assert(isRunning());
-    double t = ((double(Player::get()->getFrameTime())-m_StartTime)
+    float t = ((float(Player::get()->getFrameTime())-m_StartTime)
             /m_Duration);
     if (t >= 1.0) {
         setValue(m_EndValue);
@@ -91,18 +91,18 @@ bool SimpleAnim::step()
         return true;
     } else {
         object curValue;
-        double part = interpolate(t);
-        if (isPythonType<double>(m_StartValue)) {
-            curValue = typedLERP<double>(m_StartValue, m_EndValue, part);
+        float part = interpolate(t);
+        if (isPythonType<float>(m_StartValue)) {
+            curValue = typedLERP<float>(m_StartValue, m_EndValue, part);
             if (m_bUseInt) {
-                double d = extract<double>(curValue);
+                float d = extract<float>(curValue);
                 curValue = object(round(d));
             }
-        } else if (isPythonType<DPoint>(m_StartValue)) {
-            curValue = typedLERP<DPoint>(m_StartValue, m_EndValue, part);
+        } else if (isPythonType<glm::vec2>(m_StartValue)) {
+            curValue = typedLERP<glm::vec2>(m_StartValue, m_EndValue, part);
             if (m_bUseInt) {
-                DPoint pt = extract<DPoint>(curValue);
-                curValue = object(DPoint(round(pt.x), round(pt.y)));
+                glm::vec2 pt = extract<glm::vec2>(curValue);
+                curValue = object(glm::vec2(round(pt.x), round(pt.y)));
             }
         } else {
             throw (Exception(AVG_ERR_TYPE, 
@@ -125,22 +125,22 @@ long long SimpleAnim::getDuration() const
 
 long long SimpleAnim::calcStartTime()
 {
-    double part;
-    if (isPythonType<double>(m_StartValue)) {
+    float part;
+    if (isPythonType<float>(m_StartValue)) {
         if (m_EndValue == m_StartValue) {
             part = 0;
         } else {
-            part = getStartPart(extract<double>(m_StartValue), 
-                    extract<double>(m_EndValue), extract<double>(getValue()));
+            part = getStartPart(extract<float>(m_StartValue), 
+                    extract<float>(m_EndValue), extract<float>(getValue()));
         }
-    } else if (isPythonType<DPoint>(m_StartValue)) {
-        double start = DPoint(extract<DPoint>(m_StartValue)).x;
-        double end = DPoint(extract<DPoint>(m_EndValue)).x;
-        double cur = DPoint(extract<DPoint>(getValue())).x;
+    } else if (isPythonType<glm::vec2>(m_StartValue)) {
+        float start = glm::vec2(extract<glm::vec2>(m_StartValue)()).x;
+        float end = glm::vec2(extract<glm::vec2>(m_EndValue)()).x;
+        float cur = glm::vec2(extract<glm::vec2>(getValue())()).x;
         if (start == end) {
-            start = DPoint(extract<DPoint>(m_StartValue)).y;
-            end = DPoint(extract<DPoint>(m_EndValue)).y;
-            start = DPoint(extract<DPoint>(getValue())).y;
+            start = glm::vec2(extract<glm::vec2>(m_StartValue)()).y;
+            end = glm::vec2(extract<glm::vec2>(m_EndValue)()).y;
+            start = glm::vec2(extract<glm::vec2>(getValue())()).y;
         }
         if (start == end) {
             part = 0;
@@ -154,15 +154,15 @@ long long SimpleAnim::calcStartTime()
     return Player::get()->getFrameTime()-(long long)(part*getDuration());
 }
 
-double SimpleAnim::getStartPart(double start, double end, double cur)
+float SimpleAnim::getStartPart(float start, float end, float cur)
 {
-    double tstart = 0;
-    double tend = 1;
+    float tstart = 0;
+    float tend = 1;
     bool bDir = (start < end);
     for (int i=0; i<10; ++i) {
-        double tmiddle = (tstart+tend)/2;
-        double part = interpolate(tmiddle);
-        double middle = start+(end-start)*part;
+        float tmiddle = (tstart+tend)/2;
+        float part = interpolate(tmiddle);
+        float middle = start+(end-start)*part;
         if ((bDir && middle < cur) || (!bDir && middle >= cur)) {
             tstart = tmiddle;
         } else {

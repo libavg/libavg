@@ -33,13 +33,13 @@ namespace avg {
 class AVG_API FilterColorize : public Filter
 {
 public:
-  FilterColorize(double hue, double saturation);
+  FilterColorize(float hue, float saturation);
   virtual ~FilterColorize();
   virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
-  double m_Hue;
-  double m_Saturation;
+  float m_Hue;
+  float m_Saturation;
 };
 
 }  // namespace

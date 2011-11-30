@@ -37,8 +37,8 @@ EaseInOutAnim::EaseInOutAnim(const object& node, const string& sAttrName,
             const object& startCallback, const object& stopCallback)
     : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
             stopCallback),
-      m_EaseInDuration(double(easeInDuration)/duration),
-      m_EaseOutDuration(double(easeOutDuration)/duration)
+      m_EaseInDuration(float(easeInDuration)/duration),
+      m_EaseOutDuration(float(easeOutDuration)/duration)
 {
 }
 
@@ -46,20 +46,20 @@ EaseInOutAnim::~EaseInOutAnim()
 {
 }
 
-double EaseInOutAnim::interpolate(double t)
+float EaseInOutAnim::interpolate(float t)
 {
-    double accelDist = m_EaseInDuration*2/M_PI;
-    double decelDist = m_EaseOutDuration*2/M_PI;
-    double dist;
+    float accelDist = m_EaseInDuration*2/PI;
+    float decelDist = m_EaseOutDuration*2/PI;
+    float dist;
     if (t<m_EaseInDuration) {
         // Acceleration stage 
-        double nt = t/m_EaseInDuration;
-        double s = sin(-M_PI/2+nt*M_PI/2)+1;
+        float nt = t/m_EaseInDuration;
+        float s = sin(-PI/2+nt*PI/2)+1;
         dist = s*accelDist;
     } else if (t > 1-m_EaseOutDuration) {
         // Deceleration stage
-        double nt = (t-(1-m_EaseOutDuration))/m_EaseOutDuration;
-        double s = sin(nt*M_PI/2);
+        float nt = (t-(1-m_EaseOutDuration))/m_EaseOutDuration;
+        float s = sin(nt*PI/2);
         dist = accelDist+(1-m_EaseInDuration-m_EaseOutDuration)+s*decelDist;
     } else {
         // Linear stage

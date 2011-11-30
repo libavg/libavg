@@ -100,8 +100,8 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         virtual void setID(const std::string& ID);
 
-        double getOpacity() const;
-        void setOpacity(double opacity);
+        float getOpacity() const;
+        void setOpacity(float opacity);
         
         bool getActive() const;
         void setActive(bool bActive);
@@ -118,19 +118,19 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 PyObject * pObj, PyObject * pFunc);
         void disconnectEventHandler(PyObject * pObj, PyObject * pFunc=0);
 
-        DPoint getRelPos(const DPoint& absPos) const;
-        DPoint getAbsPos(const DPoint& relPos) const;
-        virtual DPoint toLocal(const DPoint& pos) const;
-        virtual DPoint toGlobal(const DPoint& pos) const;
-        NodePtr getElementByPos(const DPoint& pos);
-        virtual void getElementsByPos(const DPoint& pos, 
+        glm::vec2 getRelPos(const glm::vec2& absPos) const;
+        glm::vec2 getAbsPos(const glm::vec2& relPos) const;
+        virtual glm::vec2 toLocal(const glm::vec2& pos) const;
+        virtual glm::vec2 toGlobal(const glm::vec2& pos) const;
+        NodePtr getElementByPos(const glm::vec2& pos);
+        virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodeWeakPtr>& pElements);
 
         virtual void preRender();
-        virtual void maybeRender(const DRect& Rect) {};
-        virtual void render(const DRect& Rect) {};
+        virtual void maybeRender(const FRect& Rect) {};
+        virtual void render(const FRect& Rect) {};
 
-        double getEffectiveOpacity() const;
+        float getEffectiveOpacity() const;
         virtual std::string dump(int indent = 0);
         
         NodeState getState() const;
@@ -201,12 +201,12 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         CanvasWeakPtr m_pCanvas;
 
-        double m_Opacity;
+        float m_Opacity;
         NodeState m_State;
 
         bool m_bActive;
         bool m_bSensitive;
-        double m_EffectiveOpacity;
+        float m_EffectiveOpacity;
 };
 
 }

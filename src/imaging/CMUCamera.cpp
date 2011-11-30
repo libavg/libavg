@@ -37,7 +37,7 @@ using namespace std;
 namespace avg {
 
 CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size, 
-        PixelFormat camPF, PixelFormat destPF, double FrameRate)
+        PixelFormat camPF, PixelFormat destPF, float FrameRate)
     : Camera(camPF, destPF),
       m_Size(Size),
       m_FrameRate(FrameRate),
@@ -156,7 +156,7 @@ const std::string& CMUCamera::getDriverName() const
     return sDriverName;
 }
 
-double CMUCamera::getFrameRate() const
+float CMUCamera::getFrameRate() const
 {
     return m_FrameRate;
 }

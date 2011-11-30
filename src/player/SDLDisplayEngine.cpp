@@ -84,7 +84,7 @@ using namespace std;
 
 namespace avg {
 
-double SDLDisplayEngine::s_RefreshRate = 0.0;
+float SDLDisplayEngine::s_RefreshRate = 0.0;
 
 void safeSetAttribute(SDL_GLattr attr, int value) 
 {
@@ -103,7 +103,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMod(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-            IntPoint(-1, -1), MouseEvent::NO_BUTTON, DPoint(-1, -1), 0)),
+            IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_NumMouseButtonsDown(0)
 {
 #ifdef __APPLE__
@@ -138,10 +138,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         ss << dp.m_Pos.x << "," << dp.m_Pos.y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-#ifdef linux
-    IntPoint oldWindowSize = m_WindowSize;
-#endif
-    double aspectRatio = double(dp.m_Size.x)/double(dp.m_Size.y);
+    float aspectRatio = float(dp.m_Size.x)/float(dp.m_Size.y);
     if (dp.m_WindowSize == IntPoint(0, 0)) {
         m_WindowSize = dp.m_Size;
     } else if (dp.m_WindowSize.x == 0) {
@@ -151,7 +148,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
         m_WindowSize.x = dp.m_WindowSize.x;
         m_WindowSize.y = int(dp.m_WindowSize.x/aspectRatio);
     }
-
+    AVG_ASSERT(m_WindowSize.x != 0 && m_WindowSize.y != 0);
     switch (dp.m_BPP) {
         case 32:
             safeSetAttribute(SDL_GL_RED_SIZE, 8);
@@ -301,7 +298,7 @@ void SDLDisplayEngine::teardown()
     }
 }
 
-double SDLDisplayEngine::getRefreshRate() 
+float SDLDisplayEngine::getRefreshRate() 
 {
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
@@ -309,7 +306,7 @@ double SDLDisplayEngine::getRefreshRate()
     return s_RefreshRate;
 }
 
-void SDLDisplayEngine::setGamma(double red, double green, double blue)
+void SDLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", " << blue);
@@ -333,7 +330,7 @@ int SDLDisplayEngine::getKeyModifierState() const
     return SDL_GetModState();
 }
 
-void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
+void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
 {
     if (dotsPerMM != 0) {
         const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
@@ -346,14 +343,14 @@ void SDLDisplayEngine::calcScreenDimensions(double dotsPerMM)
         m_ScreenResolution = IntPoint(pInfo->current_w, pInfo->current_h);
 #ifdef WIN32
         HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
-        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4;
+        m_PPMM = GetDeviceCaps(hdc, LOGPIXELSX)/25.4f;
 #else
     #ifdef linux
         Display * pDisplay = XOpenDisplay(0);
-        DPoint displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
+        glm::vec2 displayMM(DisplayWidthMM(pDisplay,0), DisplayHeightMM(pDisplay,0));
     #elif defined __APPLE__
         CGSize size = CGDisplayScreenSize(CGMainDisplayID());
-        DPoint displayMM(size.width, size.height);
+        glm::vec2 displayMM(size.width, size.height);
     #endif
         // Non-Square pixels cause errors here. We'll fix that when it happens.
         m_PPMM = m_ScreenResolution.x/displayMM.x;
@@ -529,7 +526,7 @@ bool SDLDisplayEngine::vbWait(int rate)
 
 void SDLDisplayEngine::calcRefreshRate()
 {
-    double lastRefreshRate = s_RefreshRate;
+    float lastRefreshRate = s_RefreshRate;
     s_RefreshRate = 0;
 #ifdef __APPLE__
     CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
@@ -554,7 +551,7 @@ void SDLDisplayEngine::calcRefreshRate()
 #elif defined _WIN32
     // This isn't correct for multi-monitor systems.
     HDC hDC = CreateDC("DISPLAY", NULL, NULL, NULL);
-    s_RefreshRate = GetDeviceCaps(hDC, VREFRESH);
+    s_RefreshRate = float(GetDeviceCaps(hDC, VREFRESH));
     if (s_RefreshRate < 2) {
         s_RefreshRate = 60;
     }
@@ -571,7 +568,7 @@ void SDLDisplayEngine::calcRefreshRate()
         AVG_TRACE (Logger::WARNING, 
                 "Defaulting to 60 Hz refresh rate.");
     }
-    double HSyncRate = pixelClock*1000.0/modeLine.htotal;
+    float HSyncRate = pixelClock*1000.0/modeLine.htotal;
     s_RefreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
 #endif
@@ -706,13 +703,13 @@ EventPtr SDLDisplayEngine::createMouseEvent(Event::Type type, const SDL_Event& s
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Size.x)/m_WindowSize.x);
     y = int((y*m_Size.y)/m_WindowSize.y);
-    DPoint lastMousePos = m_pLastMouseEvent->getPos();
-    DPoint speed;
+    glm::vec2 lastMousePos = m_pLastMouseEvent->getPos();
+    glm::vec2 speed;
     if (lastMousePos.x == -1) {
-        speed = DPoint(0,0);
+        speed = glm::vec2(0,0);
     } else {
-        double lastFrameTime = 1000/getEffectiveFramerate();
-        speed = DPoint(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
+        float lastFrameTime = 1000/getEffectiveFramerate();
+        speed = glm::vec2(x-lastMousePos.x, y-lastMousePos.y)/lastFrameTime;
     }
     MouseEventPtr pEvent(new MouseEvent(type, (buttonState & SDL_BUTTON(1)) != 0,
             (buttonState & SDL_BUTTON(2)) != 0, (buttonState & SDL_BUTTON(3)) != 0,
@@ -1053,24 +1050,24 @@ IntPoint SDLDisplayEngine::getScreenResolution()
     return m_ScreenResolution;
 }
 
-double SDLDisplayEngine::getPixelsPerMM()
+float SDLDisplayEngine::getPixelsPerMM()
 {
     calcScreenDimensions();
 
     return m_PPMM;
 }
 
-DPoint SDLDisplayEngine::getPhysicalScreenDimensions()
+glm::vec2 SDLDisplayEngine::getPhysicalScreenDimensions()
 {
     calcScreenDimensions();
-    DPoint size;
-    DPoint screenRes = DPoint(getScreenResolution());
+    glm::vec2 size;
+    glm::vec2 screenRes = glm::vec2(getScreenResolution());
     size.x = screenRes.x/m_PPMM;
     size.y = screenRes.y/m_PPMM;
     return size;
 }
 
-void SDLDisplayEngine::assumePixelsPerMM(double ppmm)
+void SDLDisplayEngine::assumePixelsPerMM(float ppmm)
 {
     m_PPMM = ppmm;
 }

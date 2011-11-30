@@ -176,10 +176,10 @@ template <class DataClass>
 LineContribType *
 TwoPassScale<DataClass>::CalcContributions(unsigned uLineSize, unsigned uSrcSize)
 {
-    double dScale = double(uLineSize)/uSrcSize;
-    double dWidth;
-    double dFScale = 1.0;
-    double dFilterWidth = m_ContribDef.GetWidth();
+    float dScale = float(uLineSize)/uSrcSize;
+    float dWidth;
+    float dFScale = 1.0;
+    float dFilterWidth = m_ContribDef.GetWidth();
 
     if (dScale < 1.0) {
         // Minification
@@ -198,7 +198,7 @@ TwoPassScale<DataClass>::CalcContributions(unsigned uLineSize, unsigned uSrcSize
 
     for (unsigned u = 0; u < uLineSize; u++) {
         // Scan through line of contributions
-        double dCenter = (u+0.5)/dScale-0.5;   // Reverse mapping
+        float dCenter = (u+0.5f)/dScale-0.5f;   // Reverse mapping
         // Find the significant edge points that affect the pixel
         int iLeft = std::max (0, (int)floor (dCenter - dWidth));
         int iRight = std::min ((int)ceil (dCenter + dWidth), int(uSrcSize) - 1);
@@ -218,7 +218,7 @@ TwoPassScale<DataClass>::CalcContributions(unsigned uLineSize, unsigned uSrcSize
         for (int iSrc = iLeft; iSrc <= iRight; iSrc++) {
             // Calculate weights
             int CurWeight = int (dFScale * (m_ContribDef.Filter (dFScale * 
-                    (dCenter - (double)iSrc)))*256);
+                    (dCenter - (float)iSrc)))*256);
             res->ContribRow[u].Weights[iSrc-iLeft] = CurWeight;
             dTotalWeight += CurWeight;
         }

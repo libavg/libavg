@@ -27,7 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -65,7 +65,7 @@ namespace {
 
 namespace avg {
 V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat camPF,
-        PixelFormat destPF, double frameRate)
+        PixelFormat destPF, float frameRate)
     : Camera(camPF, destPF),
       m_Fd(-1),
       m_Channel(channel),
@@ -207,10 +207,10 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     unsigned char * pCaptureBuffer = (unsigned char*)m_vBuffers[buf.index].start;
 
-    double lineLen;
+    float lineLen;
     switch (getCamPF()) {
         case YCbCr411:
-            lineLen = m_ImgSize.x*1.5;
+            lineLen = m_ImgSize.x*1.5f;
             break;
         case YCbCr420p:
             lineLen = m_ImgSize.x;
@@ -247,7 +247,7 @@ const string& V4LCamera::getDriverName() const
     return m_sDriverName;
 }
 
-double V4LCamera::getFrameRate() const
+float V4LCamera::getFrameRate() const
 {
     return m_FrameRate;
 }
@@ -627,8 +627,8 @@ void V4LCamera::initDevice()
                 +"'. Try using avg_showcamera.py --dump to find out what\
                         the device supports."));
     }
-    m_FrameRate = (double)StreamParam.parm.capture.timeperframe.denominator / \
-            (double)StreamParam.parm.capture.timeperframe.numerator;
+    m_FrameRate = (float)StreamParam.parm.capture.timeperframe.denominator / \
+            (float)StreamParam.parm.capture.timeperframe.numerator;
 
     initMMap ();
 

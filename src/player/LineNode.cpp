@@ -36,10 +36,10 @@ NodeDefinition LineNode::createDefinition()
 {
     return NodeDefinition("line", Node::buildNode<LineNode>)
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(LineNode, m_P1)))
-        .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(LineNode, m_P2)))
-        .addArg(Arg<double>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, false, offsetof(LineNode, m_TC2)))
+        .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(LineNode, m_P1)))
+        .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(LineNode, m_P2)))
+        .addArg(Arg<float>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))
+        .addArg(Arg<float>("texcoord2", 1, false, offsetof(LineNode, m_TC2)))
         ;
 }
 
@@ -53,45 +53,45 @@ LineNode::~LineNode()
 {
 }
 
-const DPoint& LineNode::getPos1() const 
+const glm::vec2& LineNode::getPos1() const 
 {
     return m_P1;
 }
 
-void LineNode::setPos1(const DPoint& pt) 
+void LineNode::setPos1(const glm::vec2& pt) 
 {
     m_P1 = pt;
     setDrawNeeded();
 }
 
-const DPoint& LineNode::getPos2() const 
+const glm::vec2& LineNode::getPos2() const 
 {
     return m_P2;
 }
 
-void LineNode::setPos2(const DPoint& pt) 
+void LineNode::setPos2(const glm::vec2& pt) 
 {
     m_P2 = pt;
     setDrawNeeded();
 }
 
-double LineNode::getTexCoord1() const
+float LineNode::getTexCoord1() const
 {
     return m_TC1;
 }
 
-void LineNode::setTexCoord1(double tc)
+void LineNode::setTexCoord1(float tc)
 {
     m_TC1 = tc;
     setDrawNeeded();
 }
 
-double LineNode::getTexCoord2() const
+float LineNode::getTexCoord2() const
 {
     return m_TC2;
 }
 
-void LineNode::setTexCoord2(double tc)
+void LineNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();

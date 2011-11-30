@@ -147,52 +147,52 @@ void getVideoFormatAndMode(IntPoint& Size, PixelFormat pf,
     }
 }
 
-unsigned long getFrameRateConst(double FrameRate)
+unsigned long getFrameRateConst(float frameRate)
 {
-    if (FrameRate == 1.875) {
+    if (frameRate == 1.875f) {
         return FRAMERATE_1_875;
-    } else if (FrameRate == 3.75) {
+    } else if (frameRate == 3.75f) {
         return FRAMERATE_3_75;
-    } else if (FrameRate == 7.5) {
+    } else if (frameRate == 7.5f) {
         return FRAMERATE_7_5;
-    } else if (FrameRate == 15) {
+    } else if (frameRate == 15) {
         return FRAMERATE_15;
-    } else if (FrameRate == 30) {
+    } else if (frameRate == 30) {
         return FRAMERATE_30;
-    } else if (FrameRate == 60) {
+    } else if (frameRate == 60) {
         return FRAMERATE_60;
-    } else if (FrameRate == 120) {
+    } else if (frameRate == 120) {
         return FRAMERATE_120;
-    } else if (FrameRate == 240) {
+    } else if (frameRate == 240) {
         return FRAMERATE_240;
     } else {
         throw Exception(AVG_ERR_INVALID_ARGS,
-                "Unsupported or illegal value ("+toString(FrameRate)+
+                "Unsupported or illegal value ("+toString(frameRate)+
                 ") for camera framerate.");
     }
 }
 
-float getFrameRateFloat(unsigned long FrameRate)
+float getFrameRateFloat(unsigned long frameRate)
 {
-    if(FrameRate == FRAMERATE_1_875){
+    if(frameRate == FRAMERATE_1_875){
         return 1.875;
-    } else if (FrameRate == FRAMERATE_3_75){
+    } else if (frameRate == FRAMERATE_3_75){
         return 3.75;
-    } else if (FrameRate == FRAMERATE_7_5){
+    } else if (frameRate == FRAMERATE_7_5){
         return 7.5;
-    } else if (FrameRate == FRAMERATE_15){
+    } else if (frameRate == FRAMERATE_15){
         return 15;
-    } else if (FrameRate == FRAMERATE_30){
+    } else if (frameRate == FRAMERATE_30){
         return 30;
-    } else if (FrameRate == FRAMERATE_60){
+    } else if (frameRate == FRAMERATE_60){
         return 60;
-    } else if (FrameRate == FRAMERATE_120){
+    } else if (frameRate == FRAMERATE_120){
         return 120;
-    } else if (FrameRate == FRAMERATE_240){
+    } else if (frameRate == FRAMERATE_240){
         return 240;
     } else {
         throw Exception(AVG_ERR_INVALID_ARGS,
-                "Unsupported or illegal value ("+toString(FrameRate)+
+                "Unsupported or illegal value ("+toString(frameRate)+
                 ") as camera framerate.");
     }
 }

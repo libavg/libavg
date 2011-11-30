@@ -24,7 +24,6 @@
 #include "NodeDefinition.h"
 #include "Canvas.h"
 
-#include "../base/Point.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
@@ -100,11 +99,11 @@ void DivNode::disconnect(bool bKill)
     AreaNode::disconnect(bKill);
 }
 
-DPoint DivNode::getPivot() const
+glm::vec2 DivNode::getPivot() const
 {
-    DPoint pivot = AreaNode::getPivot();
-    if (pivot == DPoint(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
-        return DPoint(0, 0);
+    glm::vec2 pivot = AreaNode::getPivot();
+    if (pivot == glm::vec2(DEFAULT_SIZE / 2, DEFAULT_SIZE / 2)) {
+        return glm::vec2(0, 0);
     }
     return pivot;
 }
@@ -293,15 +292,15 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-void DivNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
     if (reactsToMouseEvents() &&
-            ((getSize() == DPoint(DEFAULT_SIZE, DEFAULT_SIZE) ||
+            ((getSize() == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE) ||
              (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i = getNumChildren()-1; i >= 0; i--) {
             NodePtr pCurChild = getChild(i);
-            DPoint relPos = pCurChild->toLocal(pos);
+            glm::vec2 relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
             if (!pElements.empty()) {
                 pElements.push_back(shared_from_this());
@@ -309,7 +308,7 @@ void DivNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements
             }
         }
         // pos isn't in any of the children.
-        if (getSize() != DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
+        if (getSize() != glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
             // Explicit width/height given for div - div reacts on its own.
             pElements.push_back(shared_from_this());
         }
@@ -324,15 +323,15 @@ void DivNode::preRender()
     }
 }
 
-void DivNode::render(const DRect& rect)
+void DivNode::render(const FRect& rect)
 {
-    DPoint viewport = getSize();
+    glm::vec2 viewport = getSize();
     
     m_pClipVertexes->reset();
-    m_pClipVertexes->appendPos(DPoint(0,0), DPoint(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(DPoint(0,viewport.y), DPoint(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(DPoint(viewport.x,0), DPoint(0,0), Pixel32(0,0,0,0));
-    m_pClipVertexes->appendPos(viewport, DPoint(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+    m_pClipVertexes->appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
     m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
 
     if (getCrop()) {
@@ -354,19 +353,19 @@ void DivNode::renderOutlines(const VertexArrayPtr& pVA, Pixel32 color)
         effColor.setA(128);
     }
     if (effColor != Pixel32(0,0,0,0)) {
-        DPoint size = getSize();
-        if (size == DPoint(DEFAULT_SIZE, DEFAULT_SIZE)) {
-            DPoint p0 = getAbsPos(DPoint(-4, 0.5));
-            DPoint p1 = getAbsPos(DPoint(5, 0.5));
-            DPoint p2 = getAbsPos(DPoint(0.5, -4));
-            DPoint p3 = getAbsPos(DPoint(0.5, 5));
+        glm::vec2 size = getSize();
+        if (size == glm::vec2(DEFAULT_SIZE, DEFAULT_SIZE)) {
+            glm::vec2 p0 = getAbsPos(glm::vec2(-4, 0.5));
+            glm::vec2 p1 = getAbsPos(glm::vec2(5, 0.5));
+            glm::vec2 p2 = getAbsPos(glm::vec2(0.5, -4));
+            glm::vec2 p3 = getAbsPos(glm::vec2(0.5, 5));
             pVA->addLineData(effColor, p0, p1, 1);
             pVA->addLineData(effColor, p2, p3, 1);
         } else {
-            DPoint p0 = getAbsPos(DPoint(0.5, 0.5));
-            DPoint p1 = getAbsPos(DPoint(size.x+0.5,0.5));
-            DPoint p2 = getAbsPos(DPoint(size.x+0.5,size.y+0.5));
-            DPoint p3 = getAbsPos(DPoint(0.5,size.y+0.5));
+            glm::vec2 p0 = getAbsPos(glm::vec2(0.5, 0.5));
+            glm::vec2 p1 = getAbsPos(glm::vec2(size.x+0.5,0.5));
+            glm::vec2 p2 = getAbsPos(glm::vec2(size.x+0.5,size.y+0.5));
+            glm::vec2 p3 = getAbsPos(glm::vec2(0.5,size.y+0.5));
             pVA->addLineData(effColor, p0, p1, 1);
             pVA->addLineData(effColor, p1, p2, 1);
             pVA->addLineData(effColor, p2, p3, 1);

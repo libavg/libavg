@@ -46,10 +46,10 @@ NodeDefinition PanoImageNode::createDefinition()
     return NodeDefinition("panoimage", Node::buildNode<PanoImageNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<UTF8String>("href", "", false, offsetof(PanoImageNode, m_href)))
-        .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImageNode, m_SensorWidth)))
-        .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImageNode, m_SensorHeight)))
-        .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImageNode, m_FocalLength)))
-        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImageNode, m_Rotation)));
+        .addArg(Arg<float>("sensorwidth", 1.0, false, offsetof(PanoImageNode, m_SensorWidth)))
+        .addArg(Arg<float>("sensorheight", 1.0, false, offsetof(PanoImageNode, m_SensorHeight)))
+        .addArg(Arg<float>("focallength", 10.0, false, offsetof(PanoImageNode, m_FocalLength)))
+        .addArg(Arg<float>("rotation", -1.0, false, offsetof(PanoImageNode, m_Rotation)));
 }
 
 PanoImageNode::PanoImageNode (const ArgList& Args)
@@ -79,7 +79,7 @@ void PanoImageNode::disconnect(bool bKill)
 
 static ProfilingZoneID PanoRenderProfilingZone("PanoImageNode::render");
 
-void PanoImageNode::render(const DRect& Rect)
+void PanoImageNode::render(const FRect& Rect)
 {
     ScopeTimer Timer(PanoRenderProfilingZone);
     pushGLState();
@@ -99,7 +99,7 @@ void PanoImageNode::render(const DRect& Rect)
             "PanoImageNode::render: glLoadIdentity()");
 
     calcProjection();
-    gluPerspective(m_fovy*180/M_PI, m_aspect, 0.1, 2);
+    gluPerspective(m_fovy*180/PI, m_aspect, 0.1, 2);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: gluPerspective()");
     glMatrixMode(GL_MODELVIEW);
@@ -112,7 +112,7 @@ void PanoImageNode::render(const DRect& Rect)
     glDisable (GL_CLIP_PLANE3);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glDisable(GL_CLIP_PLANEx)");
-    DPoint Vpt = getSize();
+    glm::vec2 Vpt = getSize();
     glViewport(0, 0, int(Vpt.x), int(Vpt.y));
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::render: glViewport()");
@@ -121,25 +121,25 @@ void PanoImageNode::render(const DRect& Rect)
             "PanoImageNode::render: glColor4d()");
 //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    double HorizOffset = m_Rotation+m_fovy*m_aspect/2;
+    float HorizOffset = m_Rotation+m_fovy*m_aspect/2;
 //    glutWireSphere(1, 20, 16);
     for (unsigned int i=0; i<m_TileTextureIDs.size(); ++i) {
         unsigned int TexID = m_TileTextureIDs[i];
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImageNode::render: glBindTexture()");
-        double StartAngle=i*m_SliceAngle-HorizOffset;
-        double StartX = sin(StartAngle);
-        double StartZ = -cos(StartAngle);
-        double EndAngle;
+        float StartAngle=i*m_SliceAngle-HorizOffset;
+        float StartX = sin(StartAngle);
+        float StartZ = -cos(StartAngle);
+        float EndAngle;
         if (i<m_TileTextureIDs.size()-1) {
             EndAngle = (i+1)*m_SliceAngle-HorizOffset;
         } else {
             EndAngle = m_CylAngle-HorizOffset;
         }
-        double EndX = sin(EndAngle);
-        double EndZ = -cos(EndAngle);
-        double TexPartUsed = double(m_pBmp->getSize().y)/m_TexHeight;
+        float EndX = sin(EndAngle);
+        float EndZ = -cos(EndAngle);
+        float TexPartUsed = float(m_pBmp->getSize().y)/m_TexHeight;
         glBegin(GL_QUADS);
         glTexCoord2d(0.0, 0.0);
         glVertex3d(StartX, m_CylHeight, StartZ);
@@ -157,17 +157,17 @@ void PanoImageNode::render(const DRect& Rect)
     popGLState();
 }
 
-double PanoImageNode::getScreenPosFromAngle(double Angle) const
+float PanoImageNode::getScreenPosFromAngle(float Angle) const
 {
-    double HorizOffsetAngle = Angle-m_Rotation-m_fovy*m_aspect/2;
-    double PixelDistFromCenter = m_FocalLength*tan(HorizOffsetAngle)/m_SensorWidth
+    float HorizOffsetAngle = Angle-m_Rotation-m_fovy*m_aspect/2;
+    float PixelDistFromCenter = m_FocalLength*tan(HorizOffsetAngle)/m_SensorWidth
             *getSize().x;
     return PixelDistFromCenter+getSize().x/2;
 }
 
-double PanoImageNode::getScreenPosFromPanoPos(int PanoPos) const
+float PanoImageNode::getScreenPosFromPanoPos(int PanoPos) const
 {
-    double AnglePerPixel = m_CylAngle*1/double(m_pBmp->getSize().x);
+    float AnglePerPixel = m_CylAngle*1/float(m_pBmp->getSize().x);
     return getScreenPosFromAngle(AnglePerPixel*PanoPos);
 }
 
@@ -185,47 +185,47 @@ void PanoImageNode::setHRef(const UTF8String& href)
     }
 }
 
-double PanoImageNode::getSensorWidth () const
+float PanoImageNode::getSensorWidth () const
 {
     return m_SensorWidth;
 }
 
-void PanoImageNode::setSensorWidth (double sensorWidth)
+void PanoImageNode::setSensorWidth (float sensorWidth)
 {
     m_SensorWidth = sensorWidth;
 }
 
-double PanoImageNode::getSensorHeight () const
+float PanoImageNode::getSensorHeight () const
 {
     return m_SensorHeight;
 }
 
-void PanoImageNode::setSensorHeight (double sensorHeight)
+void PanoImageNode::setSensorHeight (float sensorHeight)
 {
     m_SensorHeight = sensorHeight;
 }
 
-double PanoImageNode::getFocalLength () const
+float PanoImageNode::getFocalLength () const
 {
     return m_FocalLength;
 }
 
-void PanoImageNode::setFocalLength (double focalLength)
+void PanoImageNode::setFocalLength (float focalLength)
 {
     m_FocalLength = focalLength;
 }
 
-double PanoImageNode::getRotation () const
+float PanoImageNode::getRotation () const
 {
     return m_Rotation;
 }
 
-void PanoImageNode::setRotation (double rotation)
+void PanoImageNode::setRotation (float rotation)
 {
     m_Rotation = rotation;
 }
 
-double PanoImageNode::getMaxRotation () const
+float PanoImageNode::getMaxRotation () const
 {
     return m_MaxRotation;
 }
@@ -238,15 +238,15 @@ void PanoImageNode::calcProjection()
     m_aspect = m_SensorWidth/m_SensorHeight;
     m_CylHeight = tan(m_fovy)/2;
     m_CylAngle = m_fovy*m_pBmp->getSize().x/m_pBmp->getSize().y;
-    m_SliceAngle = m_CylAngle*TEX_WIDTH/double(m_pBmp->getSize().x);
+    m_SliceAngle = m_CylAngle*TEX_WIDTH/float(m_pBmp->getSize().x);
     m_MaxRotation = m_CylAngle-m_fovy*m_aspect;
 }
 
-DPoint PanoImageNode::getPreferredMediaSize()
+glm::vec2 PanoImageNode::getPreferredMediaSize()
 {
-    double SensorAspect = m_SensorWidth/m_SensorHeight;
-    double Width = m_pBmp->getSize().y*SensorAspect;
-    return DPoint(Width, m_pBmp->getSize().y);
+    float SensorAspect = m_SensorWidth/m_SensorHeight;
+    float Width = m_pBmp->getSize().y*SensorAspect;
+    return glm::vec2(Width, m_pBmp->getSize().y);
 }
 
 void PanoImageNode::load()
@@ -275,7 +275,7 @@ void PanoImageNode::setupTextures()
         clearTextures();
     }
     m_TexHeight = nextpow2(m_pBmp->getSize().y);
-    int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
+    int NumTextures = int(ceil(float(m_pBmp->getSize().x)/TEX_WIDTH));
     glproc::ActiveTexture(GL_TEXTURE0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImageNode::setupTextures: glproc::ActiveTexture(GL_TEXTURE0);");

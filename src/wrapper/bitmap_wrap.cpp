@@ -26,7 +26,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapManager.h"
 
-#include "../base/Point.h"
+#include "../glm/gtx/vector_angle.hpp"
 
 #include <vector>
 #include <sstream>
@@ -39,17 +39,17 @@ template<class POINT>
 class_<POINT> export_point(const string& sName)
 {
     return class_<POINT>(sName.c_str(), no_init)
-        .def("__len__", &DPointHelper::len)
-        .def("__getitem__", &DPointHelper::getItem)
-        .def("__str__", &DPointHelper::str)
-        .def("__repr__", &DPointHelper::repr)
-        .def("__hash__", &DPointHelper::getHash)
-        .def("getNormalized", &DPoint::safeGetNormalized)
-        .def("getNorm", &DPoint::getNorm)
-        .def("getRotated", &DPoint::getRotated)
-        .def("getRotated", &DPoint::getRotatedPivot)
-        .def("isNaN", &DPoint::isNaN)
-        .def("isInf", &DPoint::isInf)
+        .def("__len__", &Vec2Helper::len)
+        .def("__getitem__", &Vec2Helper::getItem)
+        .def("__str__", &Vec2Helper::str)
+        .def("__repr__", &Vec2Helper::repr)
+        .def("__hash__", &Vec2Helper::getHash)
+        .def("getNormalized", &Vec2Helper::safeGetNormalized)
+        .def("getNorm", &Vec2Helper::getNorm)
+        .def("getRotated", &getRotated)
+        .def("getRotated", &getRotatedPivot)
+        .def("isNaN", &Vec2Helper::isNaN)
+        .def("isInf", &Vec2Helper::isInf)
         .def(self == self)
         .def(self != self)
         .def(-self)
@@ -58,10 +58,10 @@ class_<POINT> export_point(const string& sName)
         .def(float() * self)
         .def(self * float())
         .def(self / float())
-        .def("getAngle", &DPoint::getAngle)
-        .def("fromPolar", &DPoint::fromPolar)
+        .def("getAngle", &getAngle)
+        .def("fromPolar", &fromPolar)
         .staticmethod("fromPolar")
-        .def("angle", &vecAngle)
+        .def("angle", &Vec2Helper::vecAngle)
         .staticmethod("angle")
     ;
 }
@@ -75,33 +75,34 @@ struct Pixel32_to_python_tuple
     }
 };
 
-ConstDPoint Bitmap_getSize(Bitmap* This)
+ConstVec2 Bitmap_getSize(Bitmap* This)
 {
-    return (DPoint)(This->getSize());
+    return (glm::vec2)(This->getSize());
 }
 
-DPoint* createPoint()
+glm::vec2* createPoint()
 {
-    return new DPoint(0,0);
+    return new glm::vec2(0,0);
 }
 
 void export_bitmap()
 {
-    export_point<DPoint>("Point2D")
+    export_point<glm::vec2>("Point2D")
         .def("__init__", make_constructor(createPoint))
-        .def(init<double, double>())
-        .def(init<const DPoint&>())
-        .def("__setitem__", &DPointHelper::setItem)
-        .add_property("x", &DPointHelper::getX, &DPointHelper::setX,"")
-        .add_property("y", &DPointHelper::getY, &DPointHelper::setY,"")
-    ;
-    export_point<ConstDPoint>("ConstPoint2D")
-        .add_property("x", &DPointHelper::getX, "")
-        .add_property("y", &DPointHelper::getY, "")
+        .def(init<float, float>())
+        .def(init<const glm::vec2&>())
+        .def("__setitem__", &Vec2Helper::setItem)
+        .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX,"")
+        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY,"")
     ;
 
-    implicitly_convertible<ConstDPoint, DPoint>();
-    implicitly_convertible<DPoint, ConstDPoint>();
+    export_point<ConstVec2>("ConstPoint2D")
+        .add_property("x", &Vec2Helper::getX, "")
+        .add_property("y", &Vec2Helper::getY, "")
+    ;
+
+    implicitly_convertible<ConstVec2, glm::vec2>();
+    implicitly_convertible<glm::vec2, ConstVec2>();
 
     enum_<PixelFormat>("pixelformat")
         .value("B5G6R5", B5G6R5)
@@ -139,7 +140,7 @@ void export_bitmap()
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 
     class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
-        .def(init<DPoint, PixelFormat, UTF8String>())
+        .def(init<glm::vec2, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
         .def(init<UTF8String>())
         .def("save", &Bitmap::save)

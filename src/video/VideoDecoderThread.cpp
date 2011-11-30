@@ -109,14 +109,14 @@ bool VideoDecoderThread::work()
     return true;
 }
 
-void VideoDecoderThread::seek(double destTime)
+void VideoDecoderThread::seek(float destTime)
 {
     while (!m_MsgQ.empty()) {
         m_MsgQ.pop(false);
     }
 
-    double VideoFrameTime = -1;
-    double AudioFrameTime = -1;
+    float VideoFrameTime = -1;
+    float AudioFrameTime = -1;
     m_pDecoder->seek(destTime);
     if (m_pDecoder->getVideoInfo().m_bHasVideo) {
         VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
@@ -130,7 +130,7 @@ void VideoDecoderThread::seek(double destTime)
     m_MsgQ.push(pMsg);
 }
 
-void VideoDecoderThread::setFPS(double fps)
+void VideoDecoderThread::setFPS(float fps)
 {
     m_pDecoder->setFPS(fps);
 }

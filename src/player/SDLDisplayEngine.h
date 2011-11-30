@@ -55,8 +55,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         // From DisplayEngine
         virtual void teardown();
-        virtual double getRefreshRate();
-        virtual void setGamma(double red, double green, double blue);
+        virtual float getRefreshRate();
+        virtual void setGamma(float red, float green, float blue);
         virtual void setMousePos(const IntPoint& pos);
         virtual int getKeyModifierState() const;
 
@@ -72,15 +72,15 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         const IntPoint& getWindowSize() const;
         bool isFullscreen() const;
         IntPoint getScreenResolution();
-        double getPixelsPerMM();
-        DPoint getPhysicalScreenDimensions();
-        void assumePixelsPerMM(double ppmm);
+        float getPixelsPerMM();
+        glm::vec2 getPhysicalScreenDimensions();
+        void assumePixelsPerMM(float ppmm);
         virtual void swapBuffers();
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initTranslationTable();
-        void calcScreenDimensions(double dotsPerMM=0);
+        void calcScreenDimensions(float dotsPerMM=0);
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
@@ -93,7 +93,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         bool m_bIsFullscreen;
         IntPoint m_WindowSize;
         IntPoint m_ScreenResolution;
-        double m_PPMM;
+        float m_PPMM;
 
         SDL_Surface * m_pScreen;
 
@@ -107,7 +107,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         int m_LastVBCount;
 
         static void calcRefreshRate();
-        static double s_RefreshRate;
+        static float s_RefreshRate;
 
         // Event handling.
         bool m_bMouseOverApp;
@@ -118,7 +118,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         GLContextPtr m_pGLContext;
 
-        double m_Gamma[3];
+        float m_Gamma[3];
 };
 
 typedef boost::shared_ptr<SDLDisplayEngine> SDLDisplayEnginePtr;

@@ -23,7 +23,6 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
-#include "../base/Matrix3x4.h"
 
 #include <iostream>
 
@@ -87,11 +86,6 @@ void OGLShader::setUniformFloatParam(const std::string& sName, float val)
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
 
-void OGLShader::setUniformFloatParam(const std::string& sName, double val)
-{
-    return setUniformFloatParam(sName, float(val));
-}
-
 void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, 
         float* pVal)
 {
@@ -101,10 +95,10 @@ void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count,
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }
 
-void OGLShader::setUniformDPointParam(const std::string& sName, DPoint pt)
+void OGLShader::setUniformVec2fParam(const std::string& sName, glm::vec2 pt)
 {
     int loc = safeGetUniformLoc(sName);
-    glproc::Uniform2f(loc, (float)pt.x, (float)pt.y);
+    glproc::Uniform2f(loc, pt.x, pt.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             (string("OGLShader: glUniform(")+sName+")").c_str());
 }

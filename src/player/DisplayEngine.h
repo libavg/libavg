@@ -46,13 +46,13 @@ class AVG_API DisplayEngine
         virtual void teardown() = 0;
         void initRender();
         void deinitRender();
-        void setFramerate(double rate);
-        double getFramerate();
-        double getEffectiveFramerate();
+        void setFramerate(float rate);
+        float getFramerate();
+        float getEffectiveFramerate();
         void setVBlankRate(int rate);
         bool wasFrameLate();
-        virtual double getRefreshRate() = 0;
-        virtual void setGamma(double Red, double Green, double Blue) = 0;
+        virtual float getRefreshRate() = 0;
+        virtual void setGamma(float Red, float Green, float Blue) = 0;
         virtual void setMousePos(const IntPoint& pos) = 0;
         virtual int getKeyModifierState() const = 0;
 
@@ -83,11 +83,11 @@ class AVG_API DisplayEngine
         long long m_FrameWaitStartTime;
         long long m_TargetTime;
         int m_VBRate;
-        double m_Framerate;
+        float m_Framerate;
         bool m_bInitialized;
         bool m_bFrameLate;
 
-        double m_EffFramerate;
+        float m_EffFramerate;
 };
 
 typedef boost::shared_ptr<DisplayEngine> DisplayEnginePtr;

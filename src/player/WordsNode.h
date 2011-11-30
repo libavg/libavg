@@ -46,18 +46,18 @@ class AVG_API WordsNode : public RasterNode
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void preRender();
-        virtual void render(const DRect& rect);
+        virtual void render(const FRect& rect);
 
-        virtual double getWidth() const;
-        virtual void setWidth(double width);
+        virtual float getWidth() const;
+        virtual void setWidth(float width);
 
-        virtual double getHeight() const;
-        virtual void setHeight(double width);
+        virtual float getHeight() const;
+        virtual void setHeight(float width);
 
-        virtual DPoint getSize() const;
-        virtual void setSize(const DPoint& pt);
+        virtual glm::vec2 getSize() const;
+        virtual void setSize(const glm::vec2& pt);
 
-        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
         void setTextFromNodeValue(const std::string& sText);
 
         const std::string& getFont() const;
@@ -72,14 +72,14 @@ class AVG_API WordsNode : public RasterNode
         const std::string& getColor() const;
         void setColor(const std::string& sColor);
         
-        double getFontSize() const;
-        void setFontSize(double size);
+        float getFontSize() const;
+        void setFontSize(float size);
         
         int getIndent() const;
         void setIndent(int indent);
         
-        double getLineSpacing() const;
-        void setLineSpacing(double lineSpacing);
+        float getLineSpacing() const;
+        void setLineSpacing(float lineSpacing);
         
         bool getRawTextMode() const;
         void setRawTextMode(bool rawTextMode);
@@ -93,20 +93,20 @@ class AVG_API WordsNode : public RasterNode
         bool getJustify() const;
         void setJustify(bool bJustify);
 
-        double getLetterSpacing() const;
-        void setLetterSpacing(double letterSpacing);
+        float getLetterSpacing() const;
+        void setLetterSpacing(float letterSpacing);
 
         bool getHint() const;
         void setHint(bool bHint);
 
-        DPoint getGlyphPos(int i);
-        DPoint getGlyphSize(int i);
+        glm::vec2 getGlyphPos(int i);
+        glm::vec2 getGlyphSize(int i);
         virtual IntPoint getMediaSize();
         
         int getNumLines();
-        PyObject* getCharIndexFromPos(DPoint p);
+        PyObject* getCharIndexFromPos(glm::vec2 p);
         std::string getTextAsDisplayed();
-        DPoint getLineExtents(int line);
+        glm::vec2 getLineExtents(int line);
     
         static const std::vector<std::string>& getFontFamilies();
         static const std::vector<std::string>& getFontVariants(
@@ -135,13 +135,13 @@ class AVG_API WordsNode : public RasterNode
         UTF8String m_sRawText;
         std::string m_sColorName;
         Pixel32 m_Color;
-        double m_FontSize;
+        float m_FontSize;
         int m_Indent;
-        double m_LineSpacing;
+        float m_LineSpacing;
         PangoAlignment m_Alignment;
         PangoWrapMode m_WrapMode;
         bool m_bJustify;
-        double m_LetterSpacing;
+        float m_LetterSpacing;
         bool m_bHint;
        
         bool m_bParsedText;

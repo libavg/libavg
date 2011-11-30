@@ -27,7 +27,7 @@
 #include "Pixel32.h"
 #include "OGLHelper.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -44,12 +44,12 @@ public:
     VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
     virtual ~VertexArray();
 
-    virtual void appendPos(const DPoint& pos, 
-            const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
+    virtual void appendPos(const glm::vec2& pos, 
+            const glm::vec2& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void appendTriIndexes(int v0, int v1, int v2);
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
-    void addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, double width,
-            double tc1=0, double tc2=1);
+    void addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
+            float width, float tc1=0, float tc2=1);
     void reset();
 
     void update();

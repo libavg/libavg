@@ -35,7 +35,7 @@ using namespace std;
 namespace avg {
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
-        double alpha, bool bStandalone)
+        float alpha, bool bStandalone)
     : GPUFilter(pf, B8G8R8A8, bStandalone),
       m_Alpha(alpha)
 {

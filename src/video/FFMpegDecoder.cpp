@@ -197,7 +197,7 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_State = OPENED;
         
         // Set video parameters
-        m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
+        m_TimeUnitsPerSecond = float(1.0/av_q2d(m_pVStream->time_base));
         if (m_bUseStreamFPS) {
             m_FPS = getNominalFPS();
         }
@@ -228,8 +228,8 @@ void FFMpegDecoder::open(const string& sFilename, bool bThreadedDemuxer,
         m_AudioStartTimestamp = 0;
         
         if ((unsigned long long)m_pAStream->start_time != AV_NOPTS_VALUE) {
-            m_AudioStartTimestamp = double(av_q2d(m_pAStream->time_base))
-                    *m_pAStream->start_time;
+            m_AudioStartTimestamp = float(av_q2d(m_pAStream->time_base)
+                    *m_pAStream->start_time);
         }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
         int rc = openCodec(m_AStreamIndex, bUseHardwareAcceleration);
@@ -389,7 +389,7 @@ VideoDecoder::DecoderState FFMpegDecoder::getState() const
 VideoInfo FFMpegDecoder::getVideoInfo() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    double duration = 0;
+    float duration = 0;
     if (m_pVStream || m_pAStream) {
         duration = getDuration();
     }
@@ -407,7 +407,7 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
     return info;
 }
 
-void FFMpegDecoder::seek(double destTime) 
+void FFMpegDecoder::seek(float destTime) 
 {
     AVG_ASSERT(m_State == DECODING);
     if (m_bFirstPacket && m_pVStream) {
@@ -416,7 +416,7 @@ void FFMpegDecoder::seek(double destTime)
     }
     m_pDemuxer->seek(destTime + getStartTime());
     if (m_pVStream) {
-        m_LastVideoFrameTime = destTime - 1.0/m_FPS;
+        m_LastVideoFrameTime = destTime - 1.0f/m_FPS;
     }
     if (m_pAStream) {
         mutex::scoped_lock lock(m_AudioMutex);
@@ -452,7 +452,7 @@ int FFMpegDecoder::getNumFramesQueued() const
     return 0;
 }
 
-double FFMpegDecoder::getCurTime(StreamSelect stream) const
+float FFMpegDecoder::getCurTime(StreamSelect stream) const
 {
     AVG_ASSERT(m_State != CLOSED);
     switch(stream) {
@@ -468,7 +468,7 @@ double FFMpegDecoder::getCurTime(StreamSelect stream) const
     }
 }
 
-double FFMpegDecoder::getDuration() const
+float FFMpegDecoder::getDuration() const
 {
     AVG_ASSERT(m_State != CLOSED);
     long long duration;
@@ -483,23 +483,23 @@ double FFMpegDecoder::getDuration() const
     if (duration == AV_NOPTS_VALUE) {
         return 0;
     } else {
-        return double(duration)*av_q2d(time_base);
+        return float(duration)*float(av_q2d(time_base));
     }
 }
 
-double FFMpegDecoder::getNominalFPS() const
+float FFMpegDecoder::getNominalFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
-    return av_q2d(m_pVStream->r_frame_rate);
+    return float(av_q2d(m_pVStream->r_frame_rate));
 }
 
-double FFMpegDecoder::getFPS() const
+float FFMpegDecoder::getFPS() const
 {
     AVG_ASSERT(m_State != CLOSED);
     return m_FPS;
 }
 
-void FFMpegDecoder::setFPS(double fps)
+void FFMpegDecoder::setFPS(float fps)
 {
     m_bUseStreamFPS = (fps == 0);
     if (fps == 0) {
@@ -509,13 +509,13 @@ void FFMpegDecoder::setFPS(double fps)
     }
 }
 
-double FFMpegDecoder::getVolume() const
+float FFMpegDecoder::getVolume() const
 {
     AVG_ASSERT(m_State != CLOSED);
     return m_Volume;
 }
 
-void FFMpegDecoder::setVolume(double volume)
+void FFMpegDecoder::setVolume(float volume)
 {
     m_Volume = volume;
     if (m_State != DECODING) {
@@ -542,7 +542,7 @@ static ProfilingZoneID CopyImageProfilingZone("FFMpeg: copy image");
 static ProfilingZoneID VDPAUCopyProfilingZone("FFMpeg: VDPAU copy");
 
 FrameAvailableCode FFMpegDecoder::renderToBmps(vector<BitmapPtr>& pBmps, 
-        double timeWanted)
+        float timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(RenderToBmpProfilingZone);
@@ -603,7 +603,7 @@ FrameAvailableCode FFMpegDecoder::renderToVDPAU(vdpau_render_state** ppRenderSta
 }
 #endif
 
-void FFMpegDecoder::throwAwayFrame(double timeWanted)
+void FFMpegDecoder::throwAwayFrame(float timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
     AVFrame frame;
@@ -689,7 +689,7 @@ void FFMpegDecoder::resampleAudio()
     
     if (!m_pResampleBuffer) {
         m_ResampleBufferSize = (int)(SAMPLE_BUFFER_SIZE * 
-                ((double)m_AP.m_SampleRate / (double)m_EffectiveSampleRate));
+                ((float)m_AP.m_SampleRate / (float)m_EffectiveSampleRate));
         m_pResampleBuffer = (char*)av_mallocz(m_ResampleBufferSize);
     }
     
@@ -784,7 +784,7 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                 pCurBufferPos += bytesProduced;
                 bufferLeft -= bytesProduced;
 
-                m_LastAudioFrameTime += (double(bytesProduced) /
+                m_LastAudioFrameTime += (float(bytesProduced) /
                         (2 * m_AP.m_Channels * m_AP.m_SampleRate));
                 if (bufferLeft == 0) {
                     volumize(pBuffer);
@@ -981,23 +981,23 @@ int FFMpegDecoder::getNumFrames() const
     }
 }
 
-FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, double timeWanted)
+FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, float timeWanted)
 {
     AVG_ASSERT(m_State == DECODING);
 //    cerr << "        readFrameForTime " << timeWanted << ", LastFrameTime= " 
 //            << m_LastVideoFrameTime << ", diff= " << m_LastVideoFrameTime-timeWanted 
 //            << endl;
     AVG_ASSERT(timeWanted != -1);
-    double timePerFrame = 1.0/m_FPS;
-    if (timeWanted-m_LastVideoFrameTime < 0.5*timePerFrame) {
+    float timePerFrame = 1.0f/m_FPS;
+    if (timeWanted-m_LastVideoFrameTime < 0.5f*timePerFrame) {
 //        cerr << "DISPLAY AGAIN." << endl;
         // The last frame is still current. Display it again.
         return FA_USE_LAST_FRAME;
     } else {
         bool bInvalidFrame = true;
         while (bInvalidFrame && !m_bVideoEOF) {
-            double frameTime = readFrame(frame);
-            bInvalidFrame = frameTime-timeWanted < -0.5*timePerFrame;
+            float frameTime = readFrame(frame);
+            bInvalidFrame = frameTime-timeWanted < -0.5f*timePerFrame;
 #if AVG_ENABLE_VDPAU
             if (usesVDPAU() && bInvalidFrame && !m_bVideoEOF) {
                 vdpau_render_state *pRenderState = (vdpau_render_state *)frame.data[0];
@@ -1014,7 +1014,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& frame, double timeWa
 
 static ProfilingZoneID DecodeProfilingZone("FFMpeg: decode");
 
-double FFMpegDecoder::readFrame(AVFrame& frame)
+float FFMpegDecoder::readFrame(AVFrame& frame)
 {
     AVG_ASSERT(m_State == DECODING);
     ScopeTimer timer(DecodeProfilingZone); 
@@ -1027,7 +1027,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
     AVCodecContext* pContext = getCodecContext();
     int bGotPicture = 0;
     AVPacket* pPacket = 0;
-    double frameTime = -1;
+    float frameTime = -1;
     while (!bGotPicture && !m_bVideoEOF) {
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         m_bFirstPacket = false;
@@ -1069,7 +1069,7 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
             }
             // We don't have a timestamp for the last frame, so we'll
             // calculate it based on the frame before.
-            frameTime = m_LastVideoFrameTime+1.0/m_FPS;
+            frameTime = m_LastVideoFrameTime+1.0f/m_FPS;
             m_LastVideoFrameTime = frameTime;
         }
     }
@@ -1083,41 +1083,41 @@ double FFMpegDecoder::readFrame(AVFrame& frame)
     cerr << "key_frame: " << frame.key_frame << 
            ", pict_type: " << frame.pict_type << endl;
     AVFrac spts = m_pVStream->pts;
-    cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
+    cerr << "Stream.pts: " << spts.val + float(spts.num)/spts.den << endl;
 */
 }
 
-double FFMpegDecoder::getFrameTime(long long dts)
+float FFMpegDecoder::getFrameTime(long long dts)
 {
     if (m_VideoStartTimestamp == -1) {
-        m_VideoStartTimestamp = double(dts)/m_TimeUnitsPerSecond;
+        m_VideoStartTimestamp = dts;
     }
-    double frameTime;
+    float frameTime;
     if (m_bUseStreamFPS) {
-        frameTime = double(dts)/m_TimeUnitsPerSecond-m_VideoStartTimestamp;
+        frameTime = float(dts-m_VideoStartTimestamp)/m_TimeUnitsPerSecond;
     } else {
         if (m_LastVideoFrameTime == -1) {
             frameTime = 0;
         } else {
-            frameTime = m_LastVideoFrameTime + 1.0/m_FPS;
+            frameTime = m_LastVideoFrameTime + 1.0f/m_FPS;
         }
     }
     m_LastVideoFrameTime = frameTime;
     return frameTime;
 }
 
-double FFMpegDecoder::getStartTime()
+float FFMpegDecoder::getStartTime()
 {
     if (m_pVStream) {
-        return m_VideoStartTimestamp;
+        return m_VideoStartTimestamp/m_TimeUnitsPerSecond;
     } else {
         return m_AudioStartTimestamp;
     }
 }
 
-double FFMpegDecoder::calcStreamFPS() const
+float FFMpegDecoder::calcStreamFPS() const
 {
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+    return (float(m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den);
 }
 
 string FFMpegDecoder::getStreamPF() const
@@ -1135,16 +1135,16 @@ string FFMpegDecoder::getStreamPF() const
 // TODO: this should be logarithmic...
 void FFMpegDecoder::volumize(AudioBufferPtr pBuffer)
 {
-    double curVol = m_Volume;
-    double volDiff = m_LastVolume - curVol;
+    float curVol = m_Volume;
+    float volDiff = m_LastVolume - curVol;
     
-    if (curVol == 1.0 && volDiff == 0.0) {
+    if (curVol == 1.0f && volDiff == 0.0f) {
         return;
     }
    
     short * pData = pBuffer->getData();
     for (int i = 0; i < pBuffer->getNumFrames()*pBuffer->getNumChannels(); i++) {
-        double fadeVol = 0;
+        float fadeVol = 0;
         if (volDiff != 0 && i < VOLUME_FADE_SAMPLES) {
             fadeVol = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
         }

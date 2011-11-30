@@ -29,7 +29,7 @@
 #include "OGLHelper.h"
 #include "GLTexture.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 

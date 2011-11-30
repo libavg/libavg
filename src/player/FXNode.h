@@ -43,7 +43,7 @@ public:
 
     GLTexturePtr getTex();
     BitmapPtr getImage();
-    DRect getRelDestRect() const;
+    FRect getRelDestRect() const;
 
     bool isDirty() const;
     void resetDirty();

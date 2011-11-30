@@ -108,7 +108,7 @@ public:
 
     void runTests()
     {
-        double h, s, l;
+        float h, s, l;
         Pixel32(255, 0, 0).toHSL(h, s, l);
         TEST(h == 0 && s == 1.0 && l == 0.5);
         Pixel32(0, 255, 0).toHSL(h, s, l);
@@ -356,7 +356,7 @@ private:
 
     template<class PIXEL>
     void testStatistics(PixelFormat pf, const PIXEL& p00, const PIXEL& p01,
-            const PIXEL& p10, const PIXEL& p11, double avg=1, double stdDev=1)
+            const PIXEL& p10, const PIXEL& p11, float avg=1, float stdDev=1)
     {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), pf));
         pBmp->setPixel(IntPoint(0,0), p00);
@@ -611,7 +611,7 @@ private:
     {
         BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), pf));
         initBmp<PIXEL>(pBmp);
-        double mat[9] = 
+        float mat[9] = 
                 {1,0,2,
                  0,1,0,
                  3,0,4};
@@ -659,7 +659,7 @@ private:
     {
         BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), pf));
         initBmp<PIXEL>(pBmp);
-        double mat[3][3] = 
+        float mat[3][3] = 
                 {{1,0,2},
                  {0,1,0},
                  {3,0,4}};

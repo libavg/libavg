@@ -48,19 +48,19 @@ public:
     virtual ~SVG();
 
     BitmapPtr renderElement(const UTF8String& sElementID);
-    BitmapPtr renderElement(const UTF8String& sElementID, const DPoint& size);
-    BitmapPtr renderElement(const UTF8String& sElementID, double scale);
+    BitmapPtr renderElement(const UTF8String& sElementID, const glm::vec2& size);
+    BitmapPtr renderElement(const UTF8String& sElementID, float scale);
     NodePtr createImageNode(const UTF8String& sElementID,
             const boost::python::dict& nodeAttrs);
     NodePtr createImageNode(const UTF8String& sElementID,
-            const boost::python::dict& nodeAttrs, const DPoint& renderSize);
+            const boost::python::dict& nodeAttrs, const glm::vec2& renderSize);
     NodePtr createImageNode(const UTF8String& sElementID,
-            const boost::python::dict& nodeAttrs, double scale);
-    DPoint getElementSize(const UTF8String& sElementID);
+            const boost::python::dict& nodeAttrs, float scale);
+    glm::vec2 getElementSize(const UTF8String& sElementID);
 
 private:
     BitmapPtr internalRenderElement(const SVGElementPtr& pElement, 
-        const DPoint& renderSize, const DPoint& size);
+        const glm::vec2& renderSize, const glm::vec2& size);
     NodePtr createImageNodeFromBitmap(BitmapPtr pBmp, 
             const boost::python::dict& nodeAttrs);
     SVGElementPtr getElement(const UTF8String& sElementID);

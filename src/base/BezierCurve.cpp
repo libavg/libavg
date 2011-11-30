@@ -21,14 +21,16 @@
 
 #include "BezierCurve.h"
 
+#include "GLMHelper.h"
+
 #include <iostream>
 
 using namespace std;
 
 namespace avg {
 
-BezierCurve::BezierCurve(const DPoint& p0, const DPoint& p1, const DPoint& p2, 
-        const DPoint& p3)
+BezierCurve::BezierCurve(const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2, 
+        const glm::vec2& p3)
     : m_P0(p0),
       m_P1(p1),
       m_P2(p2),
@@ -36,18 +38,18 @@ BezierCurve::BezierCurve(const DPoint& p0, const DPoint& p1, const DPoint& p2,
 {
 }
 
-DPoint BezierCurve::interpolate(double t) const
+glm::vec2 BezierCurve::interpolate(float t) const
 {
-    return (1-t)*(1-t)*(1-t)*m_P0+
-           3*t*(1-t)*(1-t)  *m_P1+
-           3*t*t*(1-t)      *m_P2+
-           t*t*t            *m_P3;
+    return (1.f-t)*(1.f-t)*(1.f-t)*m_P0+
+           3.f*t*(1.f-t)*(1.f-t)  *m_P1+
+           3.f*t*t*(1.f-t)        *m_P2+
+           t*t*t                  *m_P3;
 }
-DPoint BezierCurve::getDeriv(double t) const
+glm::vec2 BezierCurve::getDeriv(float t) const
 {
-    return 3*(m_P1-m_P0)*(1-t)*(1-t)+
-           6*(m_P2-m_P1)*(1-t)*t+ 
-           3*(m_P3-m_P2)*t*t;
+    return 3.f*(m_P1-m_P0)*(1.f-t)*(1.f-t)+
+           6.f*(m_P2-m_P1)*(1.f-t)*t+ 
+           3.f*(m_P3-m_P2)*t*t;
 }
 
 }

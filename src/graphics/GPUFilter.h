@@ -55,13 +55,13 @@ public:
 
     const IntRect& getDestRect() const;
     const IntPoint& getSrcSize() const;
-    DRect getRelDestRect() const;
+    FRect getRelDestRect() const;
     
 protected:
     void draw(GLTexturePtr pTex);
     const std::string& getStdShaderCode() const;
-    int getBlurKernelRadius(double stdDev) const;
-    GLTexturePtr calcBlurKernelTex(double stdDev, double opacity=1) const;
+    int getBlurKernelRadius(float stdDev) const;
+    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity=1) const;
 
 private:
     PixelFormat m_PFSrc;

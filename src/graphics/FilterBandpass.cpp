@@ -31,7 +31,7 @@ using namespace std;
 
 namespace avg {
     
-FilterBandpass::FilterBandpass(double lowWidth, double highWidth)
+FilterBandpass::FilterBandpass(float lowWidth, float highWidth)
     : m_HighpassFilter(highWidth),
       m_LowpassFilter(lowWidth)
 {

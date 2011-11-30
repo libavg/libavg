@@ -44,7 +44,7 @@ void FilterNormalize::applyInPlace(BitmapPtr pBmp)
         min -= 2;
         max += 2;
     }
-    double factor = 255./(max-min);
+    float factor = 255.f/(max-min);
     if (factor > 10) {
         factor = 10;
     }

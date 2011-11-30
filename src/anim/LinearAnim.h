@@ -40,13 +40,13 @@ public:
     virtual ~LinearAnim();
     
 protected:
-    virtual double interpolate(double t);
+    virtual float interpolate(float t);
     
 private:
-    double getStartPart(double start, double end, double cur);
+    float getStartPart(float start, float end, float cur);
 };
 
-AnimPtr fadeIn(const boost::python::object& node, long long duration, double max=1.0,
+AnimPtr fadeIn(const boost::python::object& node, long long duration, float max=1.0f,
         const boost::python::object& stopCallback=boost::python::object());
 
 AnimPtr fadeOut(const boost::python::object& node, long long duration, 

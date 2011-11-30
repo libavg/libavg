@@ -37,6 +37,8 @@
 #include "../imaging/DeDistort.h"
 #include "../imaging/CoordTransformer.h"
 
+#include "../glm/gtx/norm.hpp"
+
 #include "Player.h"
 #include "AVGNode.h"
 
@@ -69,7 +71,7 @@ TrackerInputDevice::TrackerInputDevice()
     bool bFW800 = m_TrackerConfig.getBoolParam("/camera/fw800/@value");
     IntPoint captureSize(m_TrackerConfig.getPointParam("/camera/size/"));
     string sCaptureFormat = m_TrackerConfig.getParam("/camera/format/@value");
-    double frameRate = m_TrackerConfig.getDoubleParam("/camera/framerate/@value");
+    float frameRate = m_TrackerConfig.getFloatParam("/camera/framerate/@value");
 
     PixelFormat camPF = stringToPixelFormat(sCaptureFormat);
     if (camPF == NO_PIXELFORMAT) {
@@ -99,7 +101,7 @@ TrackerInputDevice::TrackerInputDevice()
     try {
         m_DisplayROI = m_TrackerConfig.getRectParam("/transform/displayroi/");
     } catch (Exception) {
-        m_DisplayROI = DRect(DPoint(0,0), DPoint(m_ActiveDisplaySize));
+        m_DisplayROI = FRect(glm::vec2(0,0), glm::vec2(m_ActiveDisplaySize));
     }
 
     IntRect roi = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
@@ -157,8 +159,8 @@ void TrackerInputDevice::setParam(const string& sElement, const string& sValue)
     m_TrackerConfig.setParam(sElement, sValue);
 
     // Test if active area is outside camera.
-    DRect area = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
-    DPoint size = m_TrackerConfig.getPointParam("/camera/size/");
+    FRect area = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
+    glm::vec2 size = m_TrackerConfig.getPointParam("/camera/size/");
     int prescale = m_TrackerConfig.getIntParam("/tracker/prescale/@value");
     if (area.br.x > size.x/prescale || area.br.y > size.y/prescale ||
         area.tl.x < 0 || area.tl.y < 0)
@@ -194,7 +196,7 @@ void TrackerInputDevice::saveConfig()
 void TrackerInputDevice::setConfig()
 {
     m_pDeDistort = m_TrackerConfig.getTransform();
-    DRect area = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
+    FRect area = m_pDeDistort->getActiveBlobArea(m_DisplayROI);
     createBitmaps(area);
     m_pCmdQueue->pushCmd(boost::bind(&TrackerThread::setConfig, _1, m_TrackerConfig, 
             area, m_pBitmaps));
@@ -230,12 +232,12 @@ Bitmap * TrackerInputDevice::getImage(TrackerImageID imageID) const
     return new Bitmap(*m_pBitmaps[imageID]);
 }
 
-DPoint TrackerInputDevice::getDisplayROIPos() const
+glm::vec2 TrackerInputDevice::getDisplayROIPos() const
 {
     return m_DisplayROI.tl;
 }
 
-DPoint TrackerInputDevice::getDisplayROISize() const
+glm::vec2 TrackerInputDevice::getDisplayROISize() const
 {
     return m_DisplayROI.size();
 }
@@ -259,14 +261,14 @@ void TrackerInputDevice::update(BlobVectorPtr pTrackBlobs,
 // Temporary structure to be put into heap of blob distances. Used only in 
 // trackBlobIDs.
 struct BlobDistEntry {
-    BlobDistEntry(double dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
+    BlobDistEntry(float dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
         : m_Dist(dist),
           m_pNewBlob(pNewBlob),
           m_pOldBlob(pOldBlob)
     {
     }
 
-    double m_Dist;
+    float m_Dist;
     BlobPtr m_pNewBlob;
     BlobPtr m_pOldBlob;
 };
@@ -300,14 +302,14 @@ void TrackerInputDevice::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time,
         oldBlobs.push_back((*it).first);
     }
     // Create a heap that contains all distances of old to new blobs < MaxDist
-    double MaxDist = m_TrackerConfig.getDoubleParam(sConfigPath+"similarity/@value");
-    double MaxDistSquared = MaxDist*MaxDist;
+    float MaxDist = m_TrackerConfig.getFloatParam(sConfigPath+"similarity/@value");
+    float MaxDistSquared = MaxDist*MaxDist;
     priority_queue<BlobDistEntryPtr> distHeap;
     for (BlobVector::iterator it = pNewBlobs->begin(); it != pNewBlobs->end(); ++it) {
         BlobPtr pNewBlob = *it;
         for(BlobVector::iterator it2 = oldBlobs.begin(); it2 != oldBlobs.end(); ++it2) { 
             BlobPtr pOldBlob = *it2;
-            double distSquared = calcDistSquared(pNewBlob->getCenter(),
+            float distSquared = glm::distance2(pNewBlob->getCenter(),
                     pOldBlob->getEstimatedNextCenter());
             if (distSquared <= MaxDistSquared) {
                 BlobDistEntryPtr pEntry = BlobDistEntryPtr(
@@ -368,9 +370,9 @@ TrackerCalibrator* TrackerInputDevice::startCalibration()
     AVG_ASSERT(!m_pCalibrator);
     m_pOldTransformer = m_TrackerConfig.getTransform();
     m_OldDisplayROI = m_DisplayROI;
-    m_DisplayROI = DRect(DPoint(0,0), DPoint(m_ActiveDisplaySize));
+    m_DisplayROI = FRect(glm::vec2(0,0), glm::vec2(m_ActiveDisplaySize));
     m_TrackerConfig.setTransform(DeDistortPtr(new DeDistort(
-            DPoint(m_pBitmaps[0]->getSize()), DPoint(m_ActiveDisplaySize))));
+            glm::vec2(m_pBitmaps[0]->getSize()), glm::vec2(m_ActiveDisplaySize))));
     setConfig();
     m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
             m_ActiveDisplaySize);
@@ -382,7 +384,7 @@ void TrackerInputDevice::endCalibration()
     AVG_ASSERT(m_pCalibrator);
     m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
     m_DisplayROI = m_OldDisplayROI;
-    DRect area = m_TrackerConfig.getTransform()->getActiveBlobArea(m_DisplayROI);
+    FRect area = m_TrackerConfig.getTransform()->getActiveBlobArea(m_DisplayROI);
     if (area.size().x*area.size().y > 1024*1024*8) {
         AVG_TRACE(Logger::WARNING, "Ignoring calibration - resulting area would be " 
                 << area);
@@ -476,12 +478,12 @@ void TrackerInputDevice::findFingertips(std::vector<EventPtr>& pTouchEvents)
         TouchEventPtr pTouchEvent = boost::dynamic_pointer_cast<TouchEvent>(*it);
         vector<TouchEventPtr> pTrackEvents = pTouchEvent->getRelatedEvents();
         if (pTrackEvents.size() > 0) {
-            double handAngle = pTouchEvent->getHandOrientation();
-            double dist = pTouchEvent->getMajorAxis().getNorm()*2;
-            DPoint tweakVec = DPoint::fromPolar(handAngle, dist);
-            DPoint newPos = pTouchEvent->getPos()-tweakVec;
-            newPos.x = max(0.0, min(newPos.x, double(m_ActiveDisplaySize.x)));
-            newPos.y = max(0.0, min(newPos.y, double(m_ActiveDisplaySize.y)));
+            float handAngle = pTouchEvent->getHandOrientation();
+            float dist = glm::length(pTouchEvent->getMajorAxis())*2;
+            glm::vec2 tweakVec = fromPolar(handAngle, dist);
+            glm::vec2 newPos = pTouchEvent->getPos()-tweakVec;
+            newPos.x = max(0.0f, min(newPos.x, float(m_ActiveDisplaySize.x)));
+            newPos.y = max(0.0f, min(newPos.y, float(m_ActiveDisplaySize.y)));
             pTouchEvent->setPos(newPos);
         }
     }

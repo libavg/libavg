@@ -26,7 +26,7 @@
 #include "MultitouchInputDevice.h"
 #include "Event.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <X11/Xlib.h>
 #include <vector>

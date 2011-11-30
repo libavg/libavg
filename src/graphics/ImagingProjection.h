@@ -25,7 +25,6 @@
 #include "../api.h"
 
 #include "VertexArray.h"
-#include "../base/Point.h"
 #include "../base/Rect.h"
 
 namespace avg {

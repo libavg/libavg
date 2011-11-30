@@ -36,13 +36,14 @@ namespace avg {
 
 NodeDefinition RectNode::createDefinition()
 {
-    double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
+    float texCoords[] = {0, 0.25f, 0.5f, 0.75f, 1};
     return NodeDefinition("rect", Node::buildNode<RectNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
-        .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(RectNode, m_Rect.tl)))
-        .addArg(Arg<DPoint>("size", DPoint(0,0)))
-        .addArg(Arg<double>("angle", 0.0, false, offsetof(RectNode, m_Angle)))
-        .addArg(Arg<vector<double> >("texcoords", vectorFromCArray(5, texCoords), false,
+        .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, 
+                offsetof(RectNode, m_Rect.tl)))
+        .addArg(Arg<glm::vec2>("size", glm::vec2(0,0)))
+        .addArg(Arg<float>("angle", 0.0f, false, offsetof(RectNode, m_Angle)))
+        .addArg(Arg<vector<float> >("texcoords", vectorFromCArray(5, texCoords), false,
                 offsetof(RectNode, m_TexCoords)))
         ;
 }
@@ -51,46 +52,46 @@ RectNode::RectNode(const ArgList& args)
     : FilledVectorNode(args)
 {
     args.setMembers(this);
-    setSize(args.getArgVal<DPoint>("size"));
+    setSize(args.getArgVal<glm::vec2>("size"));
 }
 
 RectNode::~RectNode()
 {
 }
 
-const DPoint& RectNode::getPos() const 
+const glm::vec2& RectNode::getPos() const 
 {
     return m_Rect.tl;
 }
 
-void RectNode::setPos(const DPoint& pt) 
+void RectNode::setPos(const glm::vec2& pt) 
 {
-    double w = m_Rect.width();
-    double h = m_Rect.height();
+    float w = m_Rect.width();
+    float h = m_Rect.height();
     m_Rect.tl = pt;
     m_Rect.setWidth(w);
     m_Rect.setHeight(h);
     setDrawNeeded();
 }
 
-DPoint RectNode::getSize() const 
+glm::vec2 RectNode::getSize() const 
 {
     return m_Rect.size();
 }
 
-void RectNode::setSize(const DPoint& pt) 
+void RectNode::setSize(const glm::vec2& pt) 
 {
     m_Rect.setWidth(pt.x);
     m_Rect.setHeight(pt.y);
     setDrawNeeded();
 }
 
-const vector<double>& RectNode::getTexCoords() const
+const vector<float>& RectNode::getTexCoords() const
 {
     return m_TexCoords;
 }
 
-void RectNode::setTexCoords(const vector<double>& coords)
+void RectNode::setTexCoords(const vector<float>& coords)
 {
     if (coords.size() != 5) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
@@ -100,21 +101,21 @@ void RectNode::setTexCoords(const vector<double>& coords)
     setDrawNeeded();
 }
 
-double RectNode::getAngle() const
+float RectNode::getAngle() const
 {
     return m_Angle;
 }
 
-void RectNode::setAngle(double angle)
+void RectNode::setAngle(float angle)
 {
-    m_Angle = fmod(angle, 2*M_PI);
+    m_Angle = fmod(angle, 2*PI);
     setDrawNeeded();
 }
 
-void RectNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
-    DPoint pivot = m_Rect.tl+m_Rect.size()/2;
-    DPoint rpos = pos.getRotatedPivot(m_Angle, pivot);
+    glm::vec2 pivot = m_Rect.tl + m_Rect.size()/2.f;
+    glm::vec2 rpos = getRotatedPivot(pos, m_Angle, pivot);
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
@@ -124,38 +125,38 @@ void RectNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElement
 
 void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    DPoint pivot = m_Rect.tl+m_Rect.size()/2;
+    glm::vec2 pivot = m_Rect.tl+m_Rect.size()/2.f;
 
-    DPoint p1 = m_Rect.tl;
-    DPoint p2(m_Rect.tl.x, m_Rect.br.y);
-    DPoint p3 = m_Rect.br;
-    DPoint p4(m_Rect.br.x, m_Rect.tl.y);
+    glm::vec2 p1 = m_Rect.tl;
+    glm::vec2 p2(m_Rect.tl.x, m_Rect.br.y);
+    glm::vec2 p3 = m_Rect.br;
+    glm::vec2 p4(m_Rect.br.x, m_Rect.tl.y);
     
-    vector<DPoint> pts; 
-    pts.push_back(p1.getRotatedPivot(m_Angle, pivot));
-    pts.push_back(p2.getRotatedPivot(m_Angle, pivot));
-    pts.push_back(p3.getRotatedPivot(m_Angle, pivot));
-    pts.push_back(p4.getRotatedPivot(m_Angle, pivot));
+    vector<glm::vec2> pts; 
+    pts.push_back(getRotatedPivot(p1, m_Angle, pivot));
+    pts.push_back(getRotatedPivot(p2, m_Angle, pivot));
+    pts.push_back(getRotatedPivot(p3, m_Angle, pivot));
+    pts.push_back(getRotatedPivot(p4, m_Angle, pivot));
     calcPolyLine(pts, m_TexCoords, true, LJ_MITER, pVertexArray, color);
 }
 
 void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    DPoint pivot = m_Rect.tl+m_Rect.size()/2;
+    glm::vec2 pivot = m_Rect.tl+m_Rect.size()/2.f;
 
-    DPoint p1 = m_Rect.tl;
-    DPoint p2(m_Rect.tl.x, m_Rect.br.y);
-    DPoint p3 = m_Rect.br;
-    DPoint p4(m_Rect.br.x, m_Rect.tl.y);
-    DPoint rp1 = p1.getRotatedPivot(m_Angle, pivot);
-    DPoint rp2 = p2.getRotatedPivot(m_Angle, pivot);
-    DPoint rp3 = p3.getRotatedPivot(m_Angle, pivot);
-    DPoint rp4 = p4.getRotatedPivot(m_Angle, pivot);
+    glm::vec2 p1 = m_Rect.tl;
+    glm::vec2 p2(m_Rect.tl.x, m_Rect.br.y);
+    glm::vec2 p3 = m_Rect.br;
+    glm::vec2 p4(m_Rect.br.x, m_Rect.tl.y);
+    glm::vec2 rp1 = getRotatedPivot(p1, m_Angle, pivot);
+    glm::vec2 rp2 = getRotatedPivot(p2, m_Angle, pivot);
+    glm::vec2 rp3 = getRotatedPivot(p3, m_Angle, pivot);
+    glm::vec2 rp4 = getRotatedPivot(p4, m_Angle, pivot);
     pVertexArray->appendPos(rp1, getFillTexCoord1(), color);
-    DPoint blTexCoord = DPoint(getFillTexCoord1().x, getFillTexCoord2().y);
+    glm::vec2 blTexCoord = glm::vec2(getFillTexCoord1().x, getFillTexCoord2().y);
     pVertexArray->appendPos(rp2, blTexCoord, color);
     pVertexArray->appendPos(rp3, getFillTexCoord2(), color);
-    DPoint trTexCoord = DPoint(getFillTexCoord2().x, getFillTexCoord1().y);
+    glm::vec2 trTexCoord = glm::vec2(getFillTexCoord2().x, getFillTexCoord1().y);
     pVertexArray->appendPos(rp4, trTexCoord, color);
     pVertexArray->appendQuadIndexes(1, 0, 2, 3);
 }

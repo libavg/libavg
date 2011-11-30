@@ -114,7 +114,7 @@ const std::string& FakeCamera::getDriverName() const
     return sDriverName;
 }
 
-double FakeCamera::getFrameRate() const
+float FakeCamera::getFrameRate() const
 {
     return 60;
 }

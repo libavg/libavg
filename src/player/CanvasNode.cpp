@@ -41,7 +41,7 @@ CanvasNode::CanvasNode(const ArgList& args)
     : DivNode(args)
 {
     args.setMembers(this);
-    if (getSize() == DPoint(0, 0)) {
+    if (getSize() == glm::vec2(0, 0)) {
         throw (Exception(AVG_ERR_OUT_OF_RANGE,
                 "<avg> and <canvas> node width and height attributes are mandatory."));
     }

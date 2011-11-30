@@ -86,7 +86,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
 
-        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        std::vector<NodeWeakPtr> getElementsByPos(const glm::vec2& Pos) const;
 
         bool operator ==(const Canvas& other) const;
         bool operator !=(const Canvas& other) const;

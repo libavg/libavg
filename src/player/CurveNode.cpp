@@ -41,12 +41,12 @@ NodeDefinition CurveNode::createDefinition()
 {
     return NodeDefinition("curve", Node::buildNode<CurveNode>)
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(CurveNode, m_P1)))
-        .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(CurveNode, m_P2)))
-        .addArg(Arg<DPoint>("pos3", DPoint(0,0), false, offsetof(CurveNode, m_P3)))
-        .addArg(Arg<DPoint>("pos4", DPoint(0,0), false, offsetof(CurveNode, m_P4)))
-        .addArg(Arg<double>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
+        .addArg(Arg<glm::vec2>("pos1", glm::vec2(0,0), false, offsetof(CurveNode, m_P1)))
+        .addArg(Arg<glm::vec2>("pos2", glm::vec2(0,0), false, offsetof(CurveNode, m_P2)))
+        .addArg(Arg<glm::vec2>("pos3", glm::vec2(0,0), false, offsetof(CurveNode, m_P3)))
+        .addArg(Arg<glm::vec2>("pos4", glm::vec2(0,0), false, offsetof(CurveNode, m_P4)))
+        .addArg(Arg<float>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
+        .addArg(Arg<float>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
 }
 
 CurveNode::CurveNode(const ArgList& args)
@@ -59,67 +59,67 @@ CurveNode::~CurveNode()
 {
 }
 
-const DPoint& CurveNode::getPos1() const 
+const glm::vec2& CurveNode::getPos1() const 
 {
     return m_P1;
 }
 
-void CurveNode::setPos1(const DPoint& pt) 
+void CurveNode::setPos1(const glm::vec2& pt) 
 {
     m_P1 = pt;
     setDrawNeeded();
 }
 
-const DPoint& CurveNode::getPos2() const 
+const glm::vec2& CurveNode::getPos2() const 
 {
     return m_P2;
 }
 
-void CurveNode::setPos2(const DPoint& pt) 
+void CurveNode::setPos2(const glm::vec2& pt) 
 {
     m_P2 = pt;
     setDrawNeeded();
 }
 
-const DPoint& CurveNode::getPos3() const 
+const glm::vec2& CurveNode::getPos3() const 
 {
     return m_P3;
 }
 
-void CurveNode::setPos3(const DPoint& pt) 
+void CurveNode::setPos3(const glm::vec2& pt) 
 {
     m_P3 = pt;
     setDrawNeeded();
 }
 
-const DPoint& CurveNode::getPos4() const 
+const glm::vec2& CurveNode::getPos4() const 
 {
     return m_P4;
 }
 
-void CurveNode::setPos4(const DPoint& pt) 
+void CurveNode::setPos4(const glm::vec2& pt) 
 {
     m_P4 = pt;
     setDrawNeeded();
 }
 
-double CurveNode::getTexCoord1() const
+float CurveNode::getTexCoord1() const
 {
     return m_TC1;
 }
 
-void CurveNode::setTexCoord1(double tc)
+void CurveNode::setTexCoord1(float tc)
 {
     m_TC1 = tc;
     setDrawNeeded();
 }
 
-double CurveNode::getTexCoord2() const
+float CurveNode::getTexCoord2() const
 {
     return m_TC2;
 }
 
-void CurveNode::setTexCoord2(double tc)
+void CurveNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();
@@ -129,13 +129,13 @@ void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     updateLines();
     
-    pVertexArray->appendPos(m_LeftCurve[0], DPoint(m_TC1,1), color);
-    pVertexArray->appendPos(m_RightCurve[0], DPoint(m_TC2,0), color);
+    pVertexArray->appendPos(m_LeftCurve[0], glm::vec2(m_TC1,1), color);
+    pVertexArray->appendPos(m_RightCurve[0], glm::vec2(m_TC2,0), color);
     for (unsigned i = 0; i < m_LeftCurve.size()-1; ++i) {
-        double ratio = i/double(m_LeftCurve.size());
-        double tc = (1-ratio)*m_TC1+ratio*m_TC2;
-        pVertexArray->appendPos(m_LeftCurve[i+1], DPoint(tc,1), color);
-        pVertexArray->appendPos(m_RightCurve[i+1], DPoint(tc,0), color);
+        float ratio = i/float(m_LeftCurve.size());
+        float tc = (1-ratio)*m_TC1+ratio*m_TC2;
+        pVertexArray->appendPos(m_LeftCurve[i+1], glm::vec2(tc,1), color);
+        pVertexArray->appendPos(m_RightCurve[i+1], glm::vec2(tc,0), color);
         pVertexArray->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
 }
@@ -143,7 +143,8 @@ void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 int CurveNode::getCurveLen()
 {
     // Calc. upper bound for spline length.
-    double curveLen = calcDist(m_P2,m_P1)+calcDist(m_P3,m_P2)+calcDist(m_P4,m_P3);
+    float curveLen = glm::length(m_P2-m_P1) + glm::length(m_P3 - m_P2)
+            + glm::length(m_P4-m_P3);
     if (curveLen > 50000) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Illegal points in curve.");
     }
@@ -154,23 +155,23 @@ void CurveNode::updateLines()
 {
     BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
     
-    double len = getCurveLen();
+    float len = float(getCurveLen());
     m_LeftCurve.clear();
     m_RightCurve.clear();
-    m_LeftCurve.reserve(int(len+1.5));
-    m_RightCurve.reserve(int(len+1.5));
+    m_LeftCurve.reserve(int(len+1.5f));
+    m_RightCurve.reserve(int(len+1.5f));
 
     for (unsigned i = 0; i < len; ++i) {
-        double t = i/len;
+        float t = i/len;
         addLRCurvePoint(curve.interpolate(t), curve.getDeriv(t));
     }
     addLRCurvePoint(curve.interpolate(1), curve.getDeriv(1));
 }
 
-void CurveNode::addLRCurvePoint(const DPoint& pos, const DPoint& deriv)
+void CurveNode::addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv)
 {
-    DPoint m = deriv.getNormalized();
-    DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
+    glm::vec2 m = glm::normalize(deriv);
+    glm::vec2 w = glm::vec2(m.y, -m.x)*float(getStrokeWidth()/2);
     m_LeftCurve.push_back(pos-w);
     m_RightCurve.push_back(pos+w);
 }

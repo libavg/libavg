@@ -78,7 +78,7 @@ public:
 
     virtual const std::string& getDevice() const = 0; 
     virtual const std::string& getDriverName() const = 0; 
-    virtual double getFrameRate() const = 0;
+    virtual float getFrameRate() const = 0;
     
     virtual int getFeature(CameraFeature feature) const = 0;
     virtual void setFeature(CameraFeature feature, int Value, 
@@ -107,7 +107,7 @@ typedef std::map<CameraFeature, int> FeatureMap;
 
 AVG_API CameraPtr createCamera(const std::string& sDriver, const std::string& sDevice,
         int unit, bool bFW800, const IntPoint& captureSize, PixelFormat camPF, 
-        PixelFormat destPF, double frameRate);
+        PixelFormat destPF, float frameRate);
 
 AVG_API std::vector<CameraInfo> getCamerasInfos();
 

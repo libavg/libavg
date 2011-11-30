@@ -13,60 +13,60 @@ namespace avg {
 class ContribDef
 {
 public:
-    ContribDef(double dWidth) 
+    ContribDef(float dWidth) 
         : m_dWidth (dWidth)
     {}
 
     virtual ~ContribDef() {}
 
-    double GetWidth() const   
+    float GetWidth() const   
     { 
         return m_dWidth; 
     }
 
-    void SetWidth(double dWidth)
+    void SetWidth(float dWidth)
     { 
         m_dWidth = dWidth; 
     }
 
-    virtual double Filter(double dVal) const = 0;
+    virtual float Filter(float dVal) const = 0;
 
 protected:
-    double  m_dWidth;
+    float  m_dWidth;
 };
 
 class BilinearContribDef : public ContribDef
 {
 public:
-    BilinearContribDef(double dWidth = 1.0) 
+    BilinearContribDef(float dWidth = 1.0) 
         : ContribDef(dWidth)
     {}
 
     virtual ~BilinearContribDef() {}
 
-    virtual double Filter(double dVal) const
+    virtual float Filter(float dVal) const
     {
         dVal = fabs(dVal);
-        return (dVal < m_dWidth ? m_dWidth - dVal : 0.0);
+        return (dVal < m_dWidth ? m_dWidth - dVal : 0.0f);
     }
 };
 
 class GaussianContribDef : public ContribDef
 {
 public:
-    GaussianContribDef(double dWidth = 3.0)
+    GaussianContribDef(float dWidth = 3.0)
         : ContribDef(dWidth) 
     {}
 
     virtual ~GaussianContribDef() {}
 
-    virtual double Filter(double dVal) const
+    virtual float Filter(float dVal) const
     {
         if (fabs (dVal) > m_dWidth)
         {
             return 0.0;
         }
-        return exp (-dVal * dVal / m_dWidth-1) / sqrt (2*M_PI);
+        return float(exp(-dVal * dVal/m_dWidth-1) / sqrt(2*PI));
     }
 };
 

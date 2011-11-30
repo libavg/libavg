@@ -26,7 +26,7 @@
 #include "Event.h"
 #include "TouchStatus.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include "../imaging/Blob.h"
 #include "../imaging/DeDistort.h"
@@ -39,7 +39,7 @@ class AVG_API TrackerTouchStatus: public TouchStatus
 {
     public:
         TrackerTouchStatus(BlobPtr pFirstBlob, long long time, DeDistortPtr pDeDistort, 
-                const DRect& displayROI, Event::Source source);
+                const FRect& displayROI, Event::Source source);
         virtual ~TrackerTouchStatus();
         void blobChanged(BlobPtr pNewBlob, long long time, bool bKeepEvent);
         void blobGone();
@@ -49,18 +49,18 @@ class AVG_API TrackerTouchStatus: public TouchStatus
     private:
         TouchEventPtr createEvent(Event::Source source, Event::Type type, int id, 
                 BlobPtr pBlob, long long time, DeDistortPtr pDeDistort, 
-                const DRect& displayROI);
+                const FRect& displayROI);
         TouchEventPtr createEvent(Event::Type type, BlobPtr pBlob, long long time);
 
         Event::Source m_Source;
         DeDistortPtr m_pDeDistort;
-        DRect m_DisplayROI;
+        FRect m_DisplayROI;
         bool m_Stale;
         bool m_bGone;
         int m_ID;
         BlobPtr m_pBlob;
         long long m_LastTime;
-        DPoint m_LastCenter;
+        glm::vec2 m_LastCenter;
 
         static int s_LastID;
 };

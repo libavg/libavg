@@ -24,7 +24,7 @@
 
 #include "../api.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <string>
 
@@ -33,22 +33,22 @@ namespace avg {
 struct AVG_API VideoInfo
 {
     VideoInfo();
-    VideoInfo(double duration, int bitrate, bool bHasVideo, bool bHasAudio);
+    VideoInfo(float duration, int bitrate, bool bHasVideo, bool bHasAudio);
     void setVideoData(const IntPoint& size, const std::string& sPixelFormat,
-            int numFrames, double streamFPS, double FPS, const std::string& sVCodec,
+            int numFrames, float streamFPS, float FPS, const std::string& sVCodec,
             bool bUsesVDPAU);
 
     void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels);
 
-    double m_Duration;
+    float m_Duration;
     int m_Bitrate;
 
     bool m_bHasVideo;
     IntPoint m_Size;
     std::string m_sPixelFormat;
     int m_NumFrames;
-    double m_StreamFPS;
-    double m_FPS;
+    float m_StreamFPS;
+    float m_FPS;
     std::string m_sVCodec;
     bool m_bUsesVDPAU;
 

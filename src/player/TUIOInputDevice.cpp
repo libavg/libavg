@@ -28,7 +28,6 @@
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
 #include "../base/OSHelper.h"
-#include "../base/Point.h"
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
@@ -161,8 +160,8 @@ void TUIOInputDevice::processSet(ReceivedMessageArgumentStream& args)
     float xspeed, yspeed;
     float accel;
     args >> tuioID >> xpos >> ypos >> xspeed >> yspeed >> accel;
-    DPoint pos(xpos, ypos);
-    DPoint speed(xspeed, yspeed);
+    glm::vec2 pos(xpos, ypos);
+    glm::vec2 speed(xspeed, yspeed);
 //    cerr << "Set: ID: " << tuioID << ", pos: " << pos << ", speed: " << speed 
 //        << ", accel: " << accel << endl;
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
@@ -202,14 +201,14 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args)
     }
 }
 
-TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, DPoint pos,
-        DPoint speed)
+TouchEventPtr TUIOInputDevice::createEvent(int id, Event::Type type, glm::vec2 pos,
+        glm::vec2 speed)
 {
-    DPoint size = getWindowSize();
+    glm::vec2 size = getWindowSize();
     IntPoint screenPos(int(pos.x*size.x+0.5), int(pos.y*size.y+0.5));
-    DPoint screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
+    glm::vec2 screenSpeed(int(speed.x*size.x+0.5), int(speed.y*size.y+0.5));
     TouchEventPtr pEvent(new TouchEvent(id, type, screenPos, Event::TOUCH));
-    pEvent->setSpeed(screenSpeed/1000);
+    pEvent->setSpeed(screenSpeed/1000.f);
     return pEvent;
 }
 

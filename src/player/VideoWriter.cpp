@@ -174,7 +174,7 @@ void VideoWriter::onFrameEnd()
         } else {
             long long movieTime = Player::get()->getFrameTime() - m_StartTime
                     - m_PauseTime;
-            double timePerFrame = 1000./m_FrameRate;
+            float timePerFrame = 1000.f/m_FrameRate;
             int wantedFrame = int(movieTime/timePerFrame+0.1);
             if (wantedFrame > m_CurFrame) {
                 getFrameFromFBO();

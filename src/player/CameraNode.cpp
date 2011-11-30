@@ -54,7 +54,7 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<int>("unit", -1))
         .addArg(Arg<bool>("fw800", false))
-        .addArg(Arg<double>("framerate", 15))
+        .addArg(Arg<float>("framerate", 15))
         .addArg(Arg<int>("capturewidth", 640))
         .addArg(Arg<int>("captureheight", 480))
         .addArg(Arg<string>("pixelformat", "RGB"))
@@ -79,7 +79,7 @@ CameraNode::CameraNode(const ArgList& args)
     string sDevice = args.getArgVal<string>("device");
     int unit = args.getArgVal<int>("unit");
     bool bFW800 = args.getArgVal<bool>("fw800");
-    double frameRate = args.getArgVal<double>("framerate");
+    float frameRate = args.getArgVal<float>("framerate");
     int width = args.getArgVal<int>("capturewidth");
     int height = args.getArgVal<int>("captureheight");
     string sPF = args.getArgVal<string>("pixelformat");
@@ -284,7 +284,7 @@ void CameraNode::resetFirewireBus()
     FWCamera::resetBus();
 }
 
-double CameraNode::getFPS() const
+float CameraNode::getFPS() const
 {
     return m_pCamera->getFrameRate();
 }
@@ -355,7 +355,7 @@ void CameraNode::preRender()
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
-void CameraNode::render(const DRect& rect)
+void CameraNode::render(const FRect& rect)
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);

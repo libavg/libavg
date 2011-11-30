@@ -27,7 +27,7 @@
 #include "MaterialInfo.h"
 
 #include "../avgconfigwrapper.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 #include "../base/Triple.h"
 #include "../base/UTF8String.h"
 #include "../graphics/GLContext.h"
@@ -46,7 +46,7 @@ typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
 
-typedef std::vector<std::vector<DPoint> > VertexGrid;
+typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 
 class AVG_API RasterNode: public AreaNode
 {
@@ -75,28 +75,28 @@ class AVG_API RasterNode: public AreaNode
         const UTF8String& getMaskHRef() const;
         void setMaskHRef(const UTF8String& sHref);
 
-        const DPoint& getMaskPos() const;
-        void setMaskPos(const DPoint& pos);
+        const glm::vec2& getMaskPos() const;
+        void setMaskPos(const glm::vec2& pos);
 
-        const DPoint& getMaskSize() const;
-        void setMaskSize(const DPoint& size);
+        const glm::vec2& getMaskSize() const;
+        void setMaskSize(const glm::vec2& size);
 
-        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 
-        DTriple getGamma() const;
-        void setGamma(const DTriple& gamma);
-        DTriple getIntensity() const;
-        void setIntensity(const DTriple& intensity);
-        DTriple getContrast() const;
-        void setContrast(const DTriple& contrast);
+        FTriple getGamma() const;
+        void setGamma(const FTriple& gamma);
+        FTriple getIntensity() const;
+        void setIntensity(const FTriple& intensity);
+        FTriple getContrast() const;
+        void setContrast(const FTriple& contrast);
 
         void setEffect(FXNodePtr pFXNode);
         
     protected:
         RasterNode();
-        void blt32(const DPoint& destSize, double opacity, GLContext::BlendMode mode,
+        void blt32(const glm::vec2& destSize, float opacity, GLContext::BlendMode mode,
                 bool bPremultipliedAlpha = false);
-        void blta8(const DPoint& destSize, double opacity, 
+        void blta8(const glm::vec2& destSize, float opacity, 
                 const Pixel32& color, GLContext::BlendMode mode);
 
         virtual OGLSurface * getSurface();
@@ -104,7 +104,7 @@ class AVG_API RasterNode: public AreaNode
         bool hasMask() const;
         void setMaskCoords();
         void bind();
-        void renderFX(const DPoint& destSize, const Pixel32& color, 
+        void renderFX(const glm::vec2& destSize, const Pixel32& color, 
                 bool bPremultipliedAlpha);
 
     private:
@@ -113,12 +113,12 @@ class AVG_API RasterNode: public AreaNode
         void checkMaskSupport(const std::string& sHref);
         void checkDisplayAvailable(std::string sMsg);
         void setupFX(bool bNewFX);
-        void blt(const DPoint& destSize, GLContext::BlendMode mode, 
-                double opacity, const Pixel32& color, bool bPremultipliedAlpha);
+        void blt(const glm::vec2& destSize, GLContext::BlendMode mode, 
+                float opacity, const Pixel32& color, bool bPremultipliedAlpha);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
-        void calcTileVertex(int x, int y, DPoint& Vertex);
+        void calcTileVertex(int x, int y, glm::vec2& Vertex);
         void calcTexCoords();
 
         OGLSurface * m_pSurface;
@@ -131,8 +131,8 @@ class AVG_API RasterNode: public AreaNode
         UTF8String m_sMaskHref;
         std::string m_sMaskFilename;
         BitmapPtr m_pMaskBmp;
-        DPoint m_MaskPos;
-        DPoint m_MaskSize;
+        glm::vec2 m_MaskPos;
+        glm::vec2 m_MaskSize;
         
         bool m_bBound;
 
@@ -140,11 +140,11 @@ class AVG_API RasterNode: public AreaNode
         VertexGrid m_TileVertices;
         bool m_bVertexArrayDirty;
         VertexArray * m_pVertexes;
-        std::vector<std::vector<DPoint> > m_TexCoords;
+        std::vector<std::vector<glm::vec2> > m_TexCoords;
 
-        DTriple m_Gamma;
-        DTriple m_Intensity;
-        DTriple m_Contrast;
+        FTriple m_Gamma;
+        FTriple m_Intensity;
+        FTriple m_Contrast;
 
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;

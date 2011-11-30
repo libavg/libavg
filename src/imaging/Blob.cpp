@@ -156,7 +156,7 @@ void Blob::calcStats()
 {
     m_Center = calcCenter();
     m_EstimatedNextCenter = m_Center;
-    m_Area = calcArea();
+    m_Area = float(calcArea());
     m_BoundingBox = calcBBox();
     /*
        more useful numbers that can be calculated from c
@@ -167,24 +167,24 @@ void Blob::calcStats()
        Inertia = c_xx + c_yy
        Eccentricity = ...
        */
-    double c_xx = 0;  // Variance in x direction
-    double c_yy =0;   // Variance in y direction
-    double c_xy = 0;  // Covariance
-    double ll=0;
-    double l1;
-    double l2;
-    double tmp_x;
-    double tmp_y;
-    double mag;
+    float c_xx = 0;  // Variance in x direction
+    float c_yy =0;   // Variance in y direction
+    float c_xy = 0;  // Covariance
+    float ll=0;
+    float l1;
+    float l2;
+    float tmp_x;
+    float tmp_y;
+    float mag;
     for (RunArray::iterator r = m_Runs.begin(); r != m_Runs.end();++r) {
         //This is the evaluated expression for the variance when using runs...
-        ll = r->length();
+        ll = float(r->length());
         c_yy += ll* (r->m_Row- m_Center.y)*(r->m_Row- m_Center.y);
         c_xx += ( (r->m_EndCol-1) * r->m_EndCol * (2*r->m_EndCol-1) 
-                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6. 
+                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6.f 
             - m_Center.x * ((r->m_EndCol-1)*r->m_EndCol-(r->m_StartCol-1)*r->m_StartCol)
             + ll* m_Center.x*m_Center.x;
-        c_xy += (r->m_Row-m_Center.y)*0.5*( (r->m_EndCol-1)*r->m_EndCol
+        c_xy += (r->m_Row-m_Center.y)*0.5f*( (r->m_EndCol-1)*r->m_EndCol
                 - (r->m_StartCol-1)*r->m_StartCol) 
                 + ll *(m_Center.x*m_Center.y - m_Center.x*r->m_Row);
     }
@@ -195,9 +195,9 @@ void Blob::calcStats()
 
     m_Inertia = c_xx + c_yy;
 
-    double T = sqrt( (c_xx - c_yy) * (c_xx - c_yy) + 4*c_xy*c_xy);
+    float T = sqrt( (c_xx - c_yy) * (c_xx - c_yy) + 4*c_xy*c_xy);
     m_Eccentricity = ((c_xx + c_yy) + T)/((c_xx+c_yy) - T);
-    m_Orientation = 0.5*atan2(2*c_xy,c_xx-c_yy);
+    m_Orientation = 0.5f*atan2(2*c_xy,c_xx-c_yy);
     // The l_i are variances (unit L^2) so to arrive at numbers that 
     // correspond to lengths in the picture we use sqrt
     // Ensure that eigenvectors always have standard orientation, i.e. the determinant
@@ -205,8 +205,8 @@ void Blob::calcStats()
     //             E_1.x E_2.y - E_1.y E_2.x > 0
     if (fabs(c_xy) > 1e-30) {
         //FIXME. check l1!=0 l2!=0. li=0 happens for line-like components
-        l1 = 0.5 * ((c_xx+c_yy) + sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
-        l2 = 0.5 * ((c_xx+c_yy) - sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
+        l1 = 0.5f * ((c_xx+c_yy) + sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
+        l2 = 0.5f * ((c_xx+c_yy) - sqrt((c_xx+c_yy)*(c_xx+c_yy)-4*(c_xx*c_yy-c_xy*c_xy)));
         tmp_x = c_xy/l1 - c_xx*c_yy/(c_xy*l1)+ (c_xx/c_xy);
         tmp_y = 1.;
         mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
@@ -250,17 +250,17 @@ void Blob::calcStats()
     m_bStatsAvailable = true;
 }
 
-const DPoint& Blob::getCenter() const
+const glm::vec2& Blob::getCenter() const
 {
     return m_Center;
 }
 
-const DPoint& Blob::getEstimatedNextCenter() const
+const glm::vec2& Blob::getEstimatedNextCenter() const
 {
     return m_EstimatedNextCenter;
 }
 
-double Blob::getArea() const
+float Blob::getArea() const
 {
     return m_Area;
 }
@@ -270,37 +270,37 @@ const IntRect& Blob::getBoundingBox() const
     return m_BoundingBox;
 }
 
-double Blob::getEccentricity() const
+float Blob::getEccentricity() const
 {
     return m_Eccentricity;
 }
 
-double Blob::getInertia() const
+float Blob::getInertia() const
 {
     return m_Inertia;
 }
 
-double Blob::getOrientation() const
+float Blob::getOrientation() const
 {
     return m_Orientation;
 }
 
-const DPoint & Blob::getScaledBasis(int i) const
+const glm::vec2 & Blob::getScaledBasis(int i) const
 {
     return m_ScaledBasis[i];
 }
 
-const DPoint & Blob::getEigenVector(int i) const
+const glm::vec2 & Blob::getEigenVector(int i) const
 {
     return m_EigenVector[i];
 }
 
-const DPoint & Blob::getEigenValues() const
+const glm::vec2 & Blob::getEigenValues() const
 {
     return m_EigenValues;
 }
 
-void Blob::calcNextCenter(DPoint oldCenter)
+void Blob::calcNextCenter(glm::vec2 oldCenter)
 {
     m_EstimatedNextCenter = m_Center + (m_Center - oldCenter);
 }
@@ -324,12 +324,12 @@ const BlobPtr Blob::getFirstRelated()
     }
 }
 
-DPoint Blob::calcCenter()
+glm::vec2 Blob::calcCenter()
 {
-    DPoint center(0,0);
-    double c = 0;
+    glm::vec2 center(0,0);
+    float c = 0;
     for (RunArray::iterator r = m_Runs.begin(); r != m_Runs.end(); ++r) {
-        center += r->m_Center*r->length();
+        center += r->m_Center * float(r->length());
         c += r->length();
     }
     center = center/c;

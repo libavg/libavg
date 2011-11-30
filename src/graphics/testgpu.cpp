@@ -234,16 +234,16 @@ public:
         // This has the effect of printing out all the brightness differences for
         //different kernel sizes.
         pBmp = loadTestBmp("spike");
-        for (double stddev = 0.5; stddev < 5; stddev += 0.25) {
+        for (float stddev = 0.5f; stddev < 5; stddev += 0.25f) {
             pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), stddev)
                     .apply(pBmp);
             testEqualBrightness(*pDestBmp, *pBmp, 1);
         }
 */
         pBmp = loadTestBmp("spike");
-        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5,
+        GPUBlurFilter filter(pBmp->getSize(), pBmp->getPixelFormat(), R32G32B32A32F, 0.5f,
                 false);
-        runImageTest(pBmp, filter, 0.5, "blur05_spike");
+        runImageTest(pBmp, filter, 0.5f, "blur05_spike");
         runImageTest(pBmp, filter, 1, "blur1_spike");
         runImageTest(pBmp, filter, 3, "blur3_spike");
 
@@ -265,7 +265,7 @@ private:
         runImageTest(pBmp, filter, 2, string("blur_")+sFName, true);
     }
 
-    void runImageTest(BitmapPtr pBmp, GPUBlurFilter& filter, double stdDev, 
+    void runImageTest(BitmapPtr pBmp, GPUBlurFilter& filter, float stdDev, 
             string sBmpName, bool bIgnoreBrightness = false)
     {
         cerr << "    Testing " << sBmpName << ", stddev " << stdDev << endl;

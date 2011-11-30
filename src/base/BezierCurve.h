@@ -23,7 +23,8 @@
 #define _BezierCurve_H_
 
 #include "../api.h"
-#include "Point.h"
+
+#include "../glm/glm.hpp"
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -32,16 +33,17 @@ namespace avg {
 
 class AVG_API BezierCurve {
 public:
-    BezierCurve(const DPoint& p0, const DPoint& p1, const DPoint& p2, const DPoint& p3);
+    BezierCurve(const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2,
+            const glm::vec2& p3);
 
-    DPoint interpolate(double t) const;
-    DPoint getDeriv(double t) const;
+    glm::vec2 interpolate(float t) const;
+    glm::vec2 getDeriv(float t) const;
 
 private:
-    DPoint m_P0;
-    DPoint m_P1;
-    DPoint m_P2;
-    DPoint m_P3;
+    glm::vec2 m_P0;
+    glm::vec2 m_P1;
+    glm::vec2 m_P2;
+    glm::vec2 m_P3;
 };
 
 typedef boost::shared_ptr<BezierCurve> BezierCurvePtr;

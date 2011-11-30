@@ -30,14 +30,14 @@ namespace avg {
     
 class AVG_API CubicSpline {
 public:
-    CubicSpline(const std::vector<double>& x, const std::vector<double>& y);
+    CubicSpline(const std::vector<float>& x, const std::vector<float>& y);
     virtual ~CubicSpline();
 
-    double interpolate(double orig);
+    float interpolate(float orig);
 
 private:
-    std::vector<double> m_X;
-    std::vector<double> m_Y;
+    std::vector<float> m_X;
+    std::vector<float> m_Y;
 };
 
 typedef boost::shared_ptr<CubicSpline> CubicSplinePtr;

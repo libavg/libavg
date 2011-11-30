@@ -37,36 +37,38 @@ class AVG_API CircleNode : public FilledVectorNode
         CircleNode(const ArgList& args);
         virtual ~CircleNode();
 
-        const DPoint& getPos() const;
-        void setPos(const DPoint& pt);
+        const glm::vec2& getPos() const;
+        void setPos(const glm::vec2& pt);
 
-        double getR() const;
-        void setR(double r);
+        float getR() const;
+        void setR(float r);
 
-        double getTexCoord1() const;
-        void setTexCoord1(double tc);
+        float getTexCoord1() const;
+        void setTexCoord1(float tc);
 
-        double getTexCoord2() const;
-        void setTexCoord2(double tc);
+        float getTexCoord2() const;
+        void setTexCoord2(float tc);
 
-        void getElementsByPos(const DPoint& pos, std::vector<NodeWeakPtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
-        void appendCirclePoint(VertexArrayPtr& pVertexArray, const DPoint& iPt, 
-                const DPoint& oPt, Pixel32 color, int& i, int& curVertex);
-        void appendFillCirclePoint(VertexArrayPtr& pVertexArray, const DPoint& curPt, 
-                const DPoint& minPt, const DPoint& maxPt, Pixel32 color, int& curVertex);
+        void appendCirclePoint(VertexArrayPtr& pVertexArray, const glm::vec2& iPt, 
+                const glm::vec2& oPt, Pixel32 color, int& i, int& curVertex);
+        void appendFillCirclePoint(VertexArrayPtr& pVertexArray, const glm::vec2& curPt, 
+                const glm::vec2& minPt, const glm::vec2& maxPt, Pixel32 color,
+                int& curVertex);
         int getNumCircumferencePoints();
-        void getEigthCirclePoints(std::vector<DPoint>& pts, double radius);
-        DPoint getCirclePt(double angle, double radius);
-        DPoint calcTexCoord(const DPoint& pt, const DPoint& minPt, const DPoint& maxPt);
+        void getEigthCirclePoints(std::vector<glm::vec2>& pts, float radius);
+        glm::vec2 getCirclePt(float angle, float radius);
+        glm::vec2 calcTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
+                const glm::vec2& maxPt);
 
-        DPoint m_Pos;
-        double m_Radius;
-        double m_TC1;
-        double m_TC2;
+        glm::vec2 m_Pos;
+        float m_Radius;
+        float m_TC1;
+        float m_TC2;
 };
 
 }

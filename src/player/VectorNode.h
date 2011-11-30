@@ -57,16 +57,16 @@ class AVG_API VectorNode : public Node
         void setBlendModeStr(const std::string& sBlendMode);
 
         virtual void preRender();
-        virtual void maybeRender(const DRect& rect);
-        virtual void render(const DRect& rect);
+        virtual void maybeRender(const FRect& rect);
+        virtual void render(const FRect& rect);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
 
-        void setStrokeWidth(double width);
-        double getStrokeWidth() const;
+        void setStrokeWidth(float width);
+        float getStrokeWidth() const;
 
         static LineJoin string2LineJoin(const std::string& s);
         static std::string lineJoin2String(LineJoin lineJoin);
@@ -78,32 +78,31 @@ class AVG_API VectorNode : public Node
         void setDrawNeeded();
         bool isDrawNeeded();
         bool hasVASizeChanged();
-        void calcPolyLineCumulDist(std::vector<double>& cumulDist, 
-                const std::vector<DPoint>& pts, bool bIsClosed);
-        void calcEffPolyLineTexCoords(std::vector<double>& effTC, 
-        const std::vector<double>& tc, const std::vector<double>& cumulDist);
+        void calcPolyLineCumulDist(std::vector<float>& cumulDist, 
+                const std::vector<glm::vec2>& pts, bool bIsClosed);
+        void calcEffPolyLineTexCoords(std::vector<float>& effTC, 
+        const std::vector<float>& tc, const std::vector<float>& cumulDist);
 
-        void calcPolyLine(const std::vector<DPoint>& origPts, 
-                const std::vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin,
-                VertexArrayPtr& pVertexArray, Pixel32 color);
+        void calcPolyLine(const std::vector<glm::vec2>& origPts, 
+                const std::vector<float>& origTexCoords, bool bIsClosed, 
+                LineJoin lineJoin, VertexArrayPtr& pVertexArray, Pixel32 color);
         void calcBevelTC(const WideLine& line1, const WideLine& line2, 
-                bool bIsLeft, const std::vector<double>& texCoords, unsigned i, 
-                double& TC0, double& TC1);
-        int getNumDifferentPts(const std::vector<DPoint>& pts);
+                bool bIsLeft, const std::vector<float>& texCoords, unsigned i, 
+                float& TC0, float& TC1);
+        int getNumDifferentPts(const std::vector<glm::vec2>& pts);
 
     private:
         Shape* createDefaultShape() const;
 
-    private:
         std::string m_sColorName;
         Pixel32 m_Color;
-        double m_StrokeWidth;
+        float m_StrokeWidth;
         UTF8String m_TexHRef;
         std::string m_sBlendMode;
 
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
-        double m_OldOpacity;
+        float m_OldOpacity;
 
         ShapePtr m_pShape;
         GLContext::BlendMode m_BlendMode;

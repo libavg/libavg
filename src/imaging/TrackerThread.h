@@ -90,7 +90,7 @@ class AVG_API TrackerThread: public WorkerThread<TrackerThread>
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
         void calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp, long long time);
         bool isRelevant(BlobPtr pBlob, int minArea, int maxArea,
-                double minEccentricity, double maxEccentricity);
+                float minEccentricity, float maxEccentricity);
         BlobVectorPtr findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch);
         void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp,
                 int Offset, bool bTouch);

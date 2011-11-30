@@ -75,7 +75,7 @@ vector<EventPtr> MultitouchInputDevice::pollEvents()
     return events;
 }
 
-const DPoint& MultitouchInputDevice::getWindowSize() const
+const glm::vec2& MultitouchInputDevice::getWindowSize() const
 {
     return m_WindowSize;
 }

@@ -38,7 +38,7 @@ using namespace std;
 namespace avg {
 
 TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
-        Source source, const DPoint& speed)
+        Source source, const glm::vec2& speed)
     : CursorEvent(id, eventType, pos, source),
       m_pBlob(pBlob),
       m_bHasHandOrientation(false)
@@ -49,9 +49,9 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
         m_Area = pBlob->getArea();
         m_Center = pBlob->getCenter();
         m_Eccentricity = pBlob->getEccentricity();
-        const DPoint& axis0 = m_pBlob->getScaledBasis(0);
-        const DPoint& axis1 = m_pBlob->getScaledBasis(1);
-        if (axis0.getNorm() > axis1.getNorm()) {
+        const glm::vec2& axis0 = m_pBlob->getScaledBasis(0);
+        const glm::vec2& axis1 = m_pBlob->getScaledBasis(1);
+        if (glm::length(axis0) > glm::length(axis1)) {
             m_MajorAxis = axis0;
             m_MinorAxis = axis1;
         } else {
@@ -61,16 +61,16 @@ TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& po
     } else {
         m_Orientation = 0;
         m_Area = 20;
-        m_Center = DPoint(0, 0);
+        m_Center = glm::vec2(0, 0);
         m_Eccentricity = 0;
-        m_MajorAxis = DPoint(5, 0);
-        m_MinorAxis = DPoint(0, 5);
+        m_MajorAxis = glm::vec2(5, 0);
+        m_MinorAxis = glm::vec2(0, 5);
     }
 }
 
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
-        const DPoint& speed, double orientation, double area, double eccentricity, 
-        DPoint majorAxis, DPoint minorAxis)
+        const glm::vec2& speed, float orientation, float area, float eccentricity, 
+        glm::vec2 majorAxis, glm::vec2 minorAxis)
     : CursorEvent(id, eventType, pos, source),
       m_Orientation(orientation),
       m_Area(area),
@@ -82,7 +82,7 @@ TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source sourc
 }
 
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
-        const DPoint& speed)
+        const glm::vec2& speed)
     : CursorEvent(id, eventType, pos, source),
       m_Orientation(0),
       m_Area(20),
@@ -104,32 +104,32 @@ CursorEventPtr TouchEvent::cloneAs(Type eventType) const
     return pClone;
 }
 
-double TouchEvent::getOrientation() const 
+float TouchEvent::getOrientation() const 
 {
     return m_Orientation;
 }
 
-double TouchEvent::getArea() const 
+float TouchEvent::getArea() const 
 {
     return m_Area;
 }
 
-const DPoint & TouchEvent::getCenter() const 
+const glm::vec2 & TouchEvent::getCenter() const 
 {
     return m_Center;
 }
 
-double TouchEvent::getEccentricity() const 
+float TouchEvent::getEccentricity() const 
 {
     return m_Eccentricity;
 }
 
-const DPoint & TouchEvent::getMajorAxis() const
+const glm::vec2 & TouchEvent::getMajorAxis() const
 {
     return m_MajorAxis;
 }
 
-const DPoint & TouchEvent::getMinorAxis() const
+const glm::vec2 & TouchEvent::getMinorAxis() const
 {
     return m_MinorAxis;
 }
@@ -149,14 +149,14 @@ ContourSeq TouchEvent::getContour()
     }
 }
 
-double TouchEvent::getHandOrientation() const
+float TouchEvent::getHandOrientation() const
 {
     if (getSource() == Event::TOUCH) {
         if (m_bHasHandOrientation) {
             return m_HandOrientation;
         } else {
-            DPoint screenCenter = Player::get()->getRootNode()->getSize()/2;
-            return (getPos()-screenCenter).getAngle();
+            glm::vec2 screenCenter = Player::get()->getRootNode()->getSize()/2.f;
+            return getAngle(getPos()-screenCenter);
         }
     } else {
         throw Exception(AVG_ERR_UNSUPPORTED,
@@ -169,7 +169,7 @@ void TouchEvent::addRelatedEvent(TouchEventPtr pEvent)
     m_RelatedEvents.push_back(pEvent);
     if (getSource() == Event::TOUCH && m_RelatedEvents.size() == 1) {
         TouchEventPtr pHandEvent = m_RelatedEvents.begin()->lock();
-        m_HandOrientation = (pHandEvent->getPos()-getPos()).getAngle();
+        m_HandOrientation = getAngle(pHandEvent->getPos()-getPos());
         m_bHasHandOrientation = true;
     }
 }

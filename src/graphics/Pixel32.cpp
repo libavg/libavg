@@ -34,35 +34,35 @@ namespace avg {
 
 using namespace std;
 
-void Pixel32::toHSL(double& h, double& s, double& l)
+void Pixel32::toHSL(float& h, float& s, float& l)
 {
-    double r = double(m_Data[REDPOS])/255;
-    double g = double(m_Data[GREENPOS])/255;
-    double b = double(m_Data[BLUEPOS])/255;
-    double maxComp = max(r, max(g, b));
-    double minComp = min(r, min(g, b));
-    l = (maxComp+minComp)/2.0;
+    float r = float(m_Data[REDPOS])/255;
+    float g = float(m_Data[GREENPOS])/255;
+    float b = float(m_Data[BLUEPOS])/255;
+    float maxComp = max(r, max(g, b));
+    float minComp = min(r, min(g, b));
+    l = (maxComp+minComp)/2;
     if (maxComp == minComp) {
-        s = 0.0;
-        h = 0.0;
+        s = 0;
+        h = 0;
     } else {
-        double delta = maxComp-minComp;
-        if (l < 0.5) {
+        float delta = maxComp-minComp;
+        if (l < 0.5f) {
             s = delta/(maxComp+minComp);
         } else {
-            s = delta/(2.0-(maxComp+minComp));
+            s = delta/(2-(maxComp+minComp));
         }
         if (r == maxComp) {
             h = (g-b)/delta;
-            if (h < 0.0) {
-                h += 6.0;
+            if (h < 0.0f) {
+                h += 6;
             }
         } else if (g == maxComp) {
-            h = 2.0+(b-r)/delta;
+            h = 2+(b-r)/delta;
         } else if (b == maxComp) {
-            h = 4.0+(r-g)/delta;
+            h = 4+(r-g)/delta;
         }
-        h *= 60.0;
+        h *= 60;
     } 
 }
 

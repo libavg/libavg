@@ -21,7 +21,6 @@
 
 #include "MeshNode.h"
 
-#include "../wrapper/WrapHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
@@ -39,15 +38,15 @@ namespace avg {
 
 NodeDefinition MeshNode::createDefinition()
 {
-    vector<DPoint> vVert;
-    vector<DPoint> vTex;
+    vector<glm::vec2> vVert;
+    vector<glm::vec2> vTex;
     vector<IntTriple> vTriangle;
 
     return NodeDefinition("mesh", (NodeBuilder)MeshNode::buildNode<MeshNode>)
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<vector<DPoint> >("vertexcoords", vVert, false, 
+        .addArg(Arg<vector<glm::vec2> >("vertexcoords", vVert, false, 
                 offsetof(MeshNode, m_VertexCoords)))
-        .addArg(Arg<vector<DPoint> >("texcoords", vTex, false, 
+        .addArg(Arg<vector<glm::vec2> >("texcoords", vTex, false, 
                 offsetof(MeshNode, m_TexCoords)))
         .addArg(Arg<vector<IntTriple> >("triangles", vTriangle, false, 
                 offsetof(MeshNode, m_Triangles)))
@@ -65,7 +64,7 @@ MeshNode::~MeshNode()
 {
 }
 
-void MeshNode::isValid(const vector<DPoint>& coords)
+void MeshNode::isValid(const vector<glm::vec2>& coords)
 {
     if (coords.size() != m_VertexCoords.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
@@ -73,24 +72,24 @@ void MeshNode::isValid(const vector<DPoint>& coords)
     }
 }
 
-const vector<DPoint>& MeshNode::getVertexCoords() const
+const vector<glm::vec2>& MeshNode::getVertexCoords() const
 {
     return m_VertexCoords;
 }
 
-void MeshNode::setVertexCoords(const vector<DPoint>& coords)
+void MeshNode::setVertexCoords(const vector<glm::vec2>& coords)
 {
     isValid(coords);
     m_VertexCoords = coords;
     setDrawNeeded();
 }
 
-const vector<DPoint>& MeshNode::getTexCoords() const
+const vector<glm::vec2>& MeshNode::getTexCoords() const
 {
     return m_TexCoords;
 }
 
-void MeshNode::setTexCoords(const vector<DPoint>& coords)
+void MeshNode::setTexCoords(const vector<glm::vec2>& coords)
 {
     isValid(coords);
     m_TexCoords = coords;

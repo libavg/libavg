@@ -236,7 +236,7 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
-vector<NodeWeakPtr> Canvas::getElementsByPos(const DPoint& pos) const
+vector<NodeWeakPtr> Canvas::getElementsByPos(const glm::vec2& pos) const
 {
     vector<NodeWeakPtr> elements;
     m_pRootNode->getElementsByPos(pos, elements);
@@ -274,7 +274,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
-    IntPoint size = IntPoint(m_pRootNode->getSize());
+    glm::vec2 size = m_pRootNode->getSize();
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {
@@ -282,7 +282,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
     
-    const DRect rc(0,0, size.x, size.y);
+    const FRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);

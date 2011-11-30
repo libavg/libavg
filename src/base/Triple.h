@@ -28,13 +28,20 @@
 #include <istream>
 #include <vector>
 
-// Fix for non-C99 win compilers up to MSVC++2008
-#if defined _MSC_VER && _MSC_VER <= 1500
-#define isinf(x) (!_finite(x))
-#define isnan(x) (_isnan(x))
-#endif
-
 namespace avg {
+
+// Fix for non-C99 win compilers
+#if defined _MSC_VER
+inline bool isinf(float x) 
+{
+    return !_finite(x);
+}
+
+inline bool isnan(float x) 
+{
+    return (_isnan(x) != 0);
+}
+#endif
 
 template<class NUM>
 class AVG_TEMPLATE_API Triple
@@ -58,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Triple<NUM> &p);
 template<class NUM>
 std::istream& operator>>(std::istream& is, Triple<NUM>& p);
 
-typedef Triple<double> DTriple;
+typedef Triple<float> FTriple;
 typedef Triple<int> IntTriple;
 
 }

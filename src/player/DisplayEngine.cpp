@@ -66,15 +66,15 @@ void DisplayEngine::deinitRender()
 {
     AVG_TRACE(Logger::PROFILE, "Framerate statistics: ");
     AVG_TRACE(Logger::PROFILE, "  Total frames: " << m_NumFrames);
-    double TotalTime = double(TimeSource::get()->getCurrentMicrosecs()
+    float TotalTime = float(TimeSource::get()->getCurrentMicrosecs()
             -m_StartTime)/1000000;
     AVG_TRACE(Logger::PROFILE, "  Total time: " << TotalTime << " seconds");
-    double actualFramerate = (m_NumFrames+1)/TotalTime;
+    float actualFramerate = (m_NumFrames+1)/TotalTime;
     AVG_TRACE(Logger::PROFILE, "  Framerate achieved: " 
             << actualFramerate);
     AVG_TRACE(Logger::PROFILE, "  Frames too late: " << m_FramesTooLate);
     AVG_TRACE(Logger::PROFILE, "  Percent of time spent waiting: " 
-            << double (m_TimeSpentWaiting)/(10000*TotalTime));
+            << float (m_TimeSpentWaiting)/(10000*TotalTime));
     if (m_Framerate != 0) {
         AVG_TRACE(Logger::PROFILE, "  Framerate goal was: " << m_Framerate);
         if (m_Framerate*2 < actualFramerate && m_NumFrames > 10) {
@@ -85,7 +85,7 @@ void DisplayEngine::deinitRender()
     m_bInitialized = false;
 }
 
-void DisplayEngine::setFramerate(double rate)
+void DisplayEngine::setFramerate(float rate)
 {
     if (rate != 0 && m_bInitialized) {
         initVBlank(0);
@@ -94,12 +94,12 @@ void DisplayEngine::setFramerate(double rate)
     m_VBRate = 0;
 }
 
-double DisplayEngine::getFramerate()
+float DisplayEngine::getFramerate()
 {
     return m_Framerate;
 }
 
-double DisplayEngine::getEffectiveFramerate()
+float DisplayEngine::getEffectiveFramerate()
 {
     return m_EffFramerate;
 }
@@ -160,7 +160,7 @@ void DisplayEngine::checkJitter()
     } else {
         long long CurIntervalTime = TimeSource::get()->getCurrentMicrosecs()
                 -m_LastFrameTime;
-        m_EffFramerate = 1000000.0/CurIntervalTime;
+        m_EffFramerate = 1000000.0f/CurIntervalTime;
     }
 
     long long frameTime = TimeSource::get()->getCurrentMicrosecs();

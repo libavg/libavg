@@ -61,7 +61,7 @@ void AppleTrackpadInputDevice::start()
 }
 
 void AppleTrackpadInputDevice::onData(int device, Finger* pFingers, int numFingers, 
-        double timestamp, int frame)
+        float timestamp, int frame)
 {
     boost::mutex::scoped_lock lock(getMutex());
     for (int i = 0; i < numFingers; i++) {
@@ -96,13 +96,13 @@ int AppleTrackpadInputDevice::callback(int device, Finger *data, int nFingers,
 TouchEventPtr AppleTrackpadInputDevice::createEvent(int avgID, Finger* pFinger, 
         Event::Type eventType)
 {
-    DPoint size = getWindowSize();
+    glm::vec2 size = getWindowSize();
     IntPoint pos(pFinger->normalized.pos.x*size.x, (1-pFinger->normalized.pos.y)*size.y);
-    DPoint speed(pFinger->normalized.vel.x*size.x, pFinger->normalized.vel.y*size.y);
-    double eccentricity = pFinger->majorAxis/pFinger->minorAxis;
-    DPoint majorAxis = DPoint::fromPolar(pFinger->angle, pFinger->majorAxis);
+    glm::vec2 speed(pFinger->normalized.vel.x*size.x, pFinger->normalized.vel.y*size.y);
+    float eccentricity = pFinger->majorAxis/pFinger->minorAxis;
+    glm::vec2 majorAxis = fromPolar(pFinger->angle, pFinger->majorAxis);
     majorAxis.y = -majorAxis.y;
-    DPoint minorAxis = DPoint::fromPolar(pFinger->angle+1.57, pFinger->minorAxis);
+    glm::vec2 minorAxis = fromPolar(pFinger->angle+1.57, pFinger->minorAxis);
     minorAxis.y = -minorAxis.y;
 
     TouchEventPtr pEvent(new TouchEvent(avgID, eventType, pos, Event::TOUCH,

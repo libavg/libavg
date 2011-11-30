@@ -99,68 +99,71 @@ public:
         vector<double> params;
         params.push_back(0);
         params.push_back(0);
-        DeDistort IdentityDistort = DeDistort(DPoint(1,1),
-            params, 0.0, 0.0,
-            DPoint(0,0), DPoint(1,1));
-        TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
-        TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
-        TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(0,0)),
-                DPoint(0,0)));
-        TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(1,2)),
-                DPoint(1,2)));
-        TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), 
-                DPoint(0,0)));
-        TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), 
-                DPoint(1,2)));
-        TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(0,0)),
-                DPoint(0,0)));
-        TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(1,2)), 
-                DPoint(1,2)));
-        TEST(IdentityDistort.getDisplayArea(DPoint(1280,720)) == DRect(0,0,1280,720));
+        DeDistort IdentityDistort = DeDistort(glm::vec2(1,1),
+            params, 0.0, 0.0, glm::dvec2(0,0), glm::dvec2(1,1));
+        TEST(almostEqual(IdentityDistort.transform_point(glm::dvec2(0,0)),
+                glm::dvec2(0,0)));
+        TEST(almostEqual(IdentityDistort.transform_point(glm::dvec2(1,2)), 
+                glm::dvec2(1,2)));
+        TEST(almostEqual(IdentityDistort.transformBlobToScreen(glm::dvec2(0,0)),
+                glm::dvec2(0,0)));
+        TEST(almostEqual(IdentityDistort.transformBlobToScreen(glm::dvec2(1,2)),
+                glm::dvec2(1,2)));
+        TEST(almostEqual(IdentityDistort.inverse_transform_point(glm::dvec2(0,0)), 
+                glm::dvec2(0,0)));
+        TEST(almostEqual(IdentityDistort.inverse_transform_point(glm::dvec2(1,2)), 
+                glm::dvec2(1,2)));
+        TEST(almostEqual(IdentityDistort.transformScreenToBlob(glm::dvec2(0,0)),
+                glm::dvec2(0,0)));
+        TEST(almostEqual(IdentityDistort.transformScreenToBlob(glm::dvec2(1,2)), 
+                glm::dvec2(1,2)));
+        TEST(IdentityDistort.getDisplayArea(glm::vec2(1280,720)) == FRect(0,0,1280,720));
 
-        DeDistort scaler = DeDistort(DPoint(1,1), params, 0, 0.0, DPoint(0,0), 
-                DPoint(2,2));
-        TEST(almostEqual(scaler.transform_point(DPoint(0,0)), DPoint(0,0)));
-        TEST(almostEqual(scaler.transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
-        TEST(almostEqual(scaler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-        TEST(almostEqual(scaler.transformScreenToBlob(DPoint(1,2)), DPoint(0.5,1)));
+        DeDistort scaler = DeDistort(glm::vec2(1,1), params, 0, 0.0, glm::dvec2(0,0), 
+                glm::dvec2(2,2));
+        TEST(almostEqual(scaler.transform_point(glm::dvec2(0,0)), glm::dvec2(0,0)));
+        TEST(almostEqual(scaler.transformBlobToScreen(glm::dvec2(1,2)), glm::dvec2(2,4)));
+        TEST(almostEqual(scaler.inverse_transform_point(glm::dvec2(0,0)), glm::dvec2(0,0)));
+        TEST(almostEqual(scaler.transformScreenToBlob(glm::dvec2(1,2)), glm::dvec2(0.5,1)));
 
-        DeDistort shifter = DeDistort(DPoint(1,1), params, 0, 0.0, DPoint(1,1), 
-                DPoint(1,1));
-        TEST(almostEqual(shifter.transformBlobToScreen(DPoint(0,0)), DPoint(1,1)));
-        TEST(almostEqual(shifter.transformBlobToScreen(DPoint(1,2)), DPoint(2,3)));
-        TEST(almostEqual(shifter.transformScreenToBlob(DPoint(0,0)), DPoint(-1,-1)));
-        TEST(almostEqual(shifter.transformScreenToBlob(DPoint(1,2)), DPoint(0,1)));
-        TEST(shifter.getDisplayArea(DPoint(1,1)) == DRect(-1, -1, 0, 0));
+        DeDistort shifter = DeDistort(glm::vec2(1,1), params, 0, 0.0, glm::dvec2(1,1), 
+                glm::dvec2(1,1));
+        TEST(almostEqual(shifter.transformBlobToScreen(glm::dvec2(0,0)), glm::dvec2(1,1)));
+        TEST(almostEqual(shifter.transformBlobToScreen(glm::dvec2(1,2)), glm::dvec2(2,3)));
+        TEST(almostEqual(shifter.transformScreenToBlob(glm::dvec2(0,0)),
+                glm::dvec2(-1,-1)));
+        TEST(almostEqual(shifter.transformScreenToBlob(glm::dvec2(1,2)), glm::dvec2(0,1)));
+        TEST(shifter.getDisplayArea(glm::vec2(1,1)) == FRect(-1, -1, 0, 0));
 
         vector<double> cubed;
         cubed.push_back(0);
         cubed.push_back(1);
-        DeDistort barreler = DeDistort(DPoint(1,1), cubed, 0, 0.0, DPoint(0,0), 
-                DPoint(1,1));
+        DeDistort barreler = DeDistort(glm::vec2(1,1), cubed, 0, 0.0, glm::dvec2(0,0), 
+                glm::dvec2(1,1));
         for (double xp = 0; xp < 10; xp++) {
             for(double yp = 0; yp < 10; yp++) {
                 QUIET_TEST(almostEqual(barreler.inverse_transform_point(
-                        barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                        barreler.transform_point(glm::dvec2(xp,yp))), glm::dvec2(xp,yp)));
             }
         }
-        TEST(almostEqual(barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
+        TEST(almostEqual(barreler.transform_point(glm::dvec2(1,1)), glm::dvec2(1,1)));
 
-        DeDistort rotator = DeDistort(DPoint(1,1), params, 0, M_PI/2, DPoint(0,0),
-                DPoint(1,1));
+        DeDistort rotator = DeDistort(glm::vec2(1,1), params, 0, M_PI/2, glm::dvec2(0,0),
+                glm::dvec2(1,1));
         for (double xp = 0; xp < 10; xp++) {
             for(double yp = 0; yp < 10; yp++) {
                 QUIET_TEST(almostEqual(rotator.inverse_transform_point(
-                        rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                        rotator.transform_point(glm::dvec2(xp,yp))), glm::dvec2(xp,yp)));
             }
         }
 
-        DeDistort shifterScaler = DeDistort(DPoint(1,1), params, 0, 0.0, DPoint(1,1),
-                DPoint(2,2));
+        DeDistort shifterScaler = DeDistort(glm::vec2(1,1), params, 0, 0.0,
+                glm::dvec2(1,1), glm::dvec2(2,2));
         for (double xp = 0; xp < 10; xp++) {
             for(double yp = 0; yp < 10; yp++) {
                 QUIET_TEST(almostEqual(shifterScaler.inverse_transform_point(
-                        shifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                        shifterScaler.transform_point(glm::dvec2(xp,yp))),
+                        glm::dvec2(xp,yp)));
             }
         }
     }
@@ -197,8 +200,8 @@ public:
 
             TrackerConfig loadedConfig;
             loadedConfig.load();
-            DPoint scale = loadedConfig.getPointParam("/transform/displayscale/");
-            TEST(almostEqual(scale, DPoint(2,2)));
+            glm::vec2 scale = loadedConfig.getPointParam("/transform/displayscale/");
+            TEST(almostEqual(scale, glm::vec2(2,2)));
             unlink("avgtrackerrc.bak");
         }
         unlink("avgtrackerrc");

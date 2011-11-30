@@ -71,9 +71,9 @@ int stringToInt(const string& s)
     return i;
 }
 
-double stringToDouble(const string& s)
+float stringToFloat(const string& s)
 {
-    double d;
+    float d;
     fromString(s, d);
     return d;
 }
@@ -90,13 +90,6 @@ bool stringToBool(const string& s)
         return false;
     }
     throw (Exception(AVG_ERR_TYPE, string("Could not convert ")+s+" to bool."));
-}
-
-DPoint stringToDPoint(const std::string& s)
-{
-    DPoint pt;
-    fromString(s, pt);
-    return pt;
 }
 
 IntTriple stringToIntTriple(const std::string& s)

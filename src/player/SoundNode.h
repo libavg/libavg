@@ -52,8 +52,8 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
 
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
-        double getVolume();
-        void setVolume(double volume);
+        float getVolume();
+        void setVolume(float volume);
         void checkReload();
 
         long long getDuration() const;
@@ -92,7 +92,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener, IAudioSource
         long long m_PauseStartTime;
 
         VideoDecoder * m_pDecoder;
-        double m_Volume;
+        float m_Volume;
         SoundState m_State;
 };
 

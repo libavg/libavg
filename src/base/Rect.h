@@ -23,7 +23,9 @@
 #define _Rect_H_
 
 #include "../api.h"
-#include "Point.h"
+
+#include "../base/GLMHelper.h"
+#include "../glm/glm.hpp"
 
 #include <algorithm>
 
@@ -36,29 +38,30 @@ template<class NUM>
 class AVG_TEMPLATE_API Rect
 {
 public:
-    Point<NUM> tl;
-    Point<NUM> br;
+    typedef glm::detail::tvec2<NUM> Vec2;
+    Vec2 tl;
+    Vec2 br;
 
     Rect();
     Rect(NUM left, NUM top, NUM right, NUM bottom);
-    Rect(const Point<NUM>& TL, const Point<NUM>& BR);
+    Rect(const Vec2& TL, const Vec2& BR);
     template<class ORIGNUM> Rect(const Rect<ORIGNUM>& rc);
 
     bool operator ==(const Rect<NUM>& rect) const;
     bool operator !=(const Rect<NUM> & rect) const;
     NUM width() const;
     NUM height() const;
-    Point<NUM> center() const;
+    Vec2 center() const;
     void setWidth(NUM width);
     void setHeight(NUM height);
-    void setSize(const Point<NUM>& size);
-    bool contains(const Point<NUM>& pt) const;
+    void setSize(const Vec2& size);
+    bool contains(const Vec2& pt) const;
     bool contains(const Rect<NUM>& rect) const;
     bool intersects(const Rect<NUM>& rect) const;
     void expand(const Rect<NUM>& rect);
     void intersect(const Rect<NUM>& rect);
-    Point<NUM> size() const;
-    Point<NUM> cropPoint(const Point<NUM>& pt) const;
+    Vec2 size() const;
+    Vec2 cropPoint(const Vec2& pt) const;
 };
 
 template<class NUM>
@@ -69,7 +72,7 @@ std::ostream& operator<<( std::ostream& os, const Rect<NUM> &r)
 }
 
 
-typedef Rect<double> DRect;
+typedef Rect<float> FRect;
 typedef Rect<int> IntRect;
 
 template<class NUM>
@@ -77,7 +80,7 @@ Rect<NUM>::Rect()
 {}
 
 template<class NUM>
-Rect<NUM>::Rect(const Point<NUM>& TL, const Point<NUM>& BR)
+Rect<NUM>::Rect(const Vec2& TL, const Vec2& BR)
     : tl(TL), br(BR)
 {}
 
@@ -120,9 +123,9 @@ NUM Rect<NUM>::height() const
 }
 
 template<class NUM>
-Point<NUM> Rect<NUM>::center() const
+glm::detail::tvec2<NUM> Rect<NUM>::center() const
 {
-    return Point<NUM>(tl+br)/2;
+    return Vec2(tl+br)/2;
 }
 
 template<class NUM>
@@ -138,14 +141,14 @@ void Rect<NUM>::setHeight(NUM height)
 }
     
 template<class NUM>
-void Rect<NUM>::setSize(const Point<NUM>& size)
+void Rect<NUM>::setSize(const Vec2& size)
 {
     setWidth(size.x);
     setHeight(size.y);
 }
 
 template<class NUM>
-bool Rect<NUM>::contains(const Point<NUM>& pt) const
+bool Rect<NUM>::contains(const Vec2& pt) const
 {
     return (pt.x >= tl.x && pt.x < br.x &&
         pt.y >= tl.y && pt.y < br.y);
@@ -154,7 +157,7 @@ bool Rect<NUM>::contains(const Point<NUM>& pt) const
 template<class NUM>
 bool Rect<NUM>::contains(const Rect<NUM>& rect) const
 {
-    Point<NUM> brpt (rect.br.x-1, rect.br.y-1);
+    Vec2 brpt (rect.br.x-1, rect.br.y-1);
     return Contains(rect.tl) && Contains(brpt);
 }
 
@@ -187,15 +190,15 @@ void Rect<NUM>::intersect(const Rect<NUM>& rect)
 }
 
 template<class NUM>
-Point<NUM> Rect<NUM>::size() const
+glm::detail::tvec2<NUM> Rect<NUM>::size() const
 {
-    return Point<NUM>(width(), height());
+    return Vec2(width(), height());
 }
 
 template<class NUM>
-Point<NUM> Rect<NUM>::cropPoint(const Point<NUM>& pt) const
+glm::detail::tvec2<NUM> Rect<NUM>::cropPoint(const Vec2& pt) const
 {
-    Point<NUM> Result;
+    Vec2 Result;
     Result.x = std::min(std::max(pt.x, tl.x), br.x-1);
     Result.y = std::min(std::max(pt.y, tl.y), br.y-1);
     return Result;

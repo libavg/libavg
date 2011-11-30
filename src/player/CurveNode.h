@@ -37,39 +37,39 @@ class AVG_API CurveNode : public VectorNode
         CurveNode(const ArgList& args);
         virtual ~CurveNode();
 
-        const DPoint& getPos1() const;
-        void setPos1(const DPoint& pt);
+        const glm::vec2& getPos1() const;
+        void setPos1(const glm::vec2& pt);
 
-        const DPoint& getPos2() const;
-        void setPos2(const DPoint& pt);
+        const glm::vec2& getPos2() const;
+        void setPos2(const glm::vec2& pt);
 
-        const DPoint& getPos3() const;
-        void setPos3(const DPoint& pt);
+        const glm::vec2& getPos3() const;
+        void setPos3(const glm::vec2& pt);
 
-        const DPoint& getPos4() const;
-        void setPos4(const DPoint& pt);
+        const glm::vec2& getPos4() const;
+        void setPos4(const glm::vec2& pt);
 
-        double getTexCoord1() const;
-        void setTexCoord1(double tc);
+        float getTexCoord1() const;
+        void setTexCoord1(float tc);
 
-        double getTexCoord2() const;
-        void setTexCoord2(double tc);
+        float getTexCoord2() const;
+        void setTexCoord2(float tc);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
         int getCurveLen();
         void updateLines();
-        void addLRCurvePoint(const DPoint& pos, const DPoint& deriv);
-        DPoint m_P1;
-        DPoint m_P2;
-        DPoint m_P3;
-        DPoint m_P4;
-        double m_TC1;
-        double m_TC2;
+        void addLRCurvePoint(const glm::vec2& pos, const glm::vec2& deriv);
+        glm::vec2 m_P1;
+        glm::vec2 m_P2;
+        glm::vec2 m_P3;
+        glm::vec2 m_P4;
+        float m_TC1;
+        float m_TC2;
 
-        std::vector<DPoint> m_LeftCurve;
-        std::vector<DPoint> m_RightCurve;
+        std::vector<glm::vec2> m_LeftCurve;
+        std::vector<glm::vec2> m_RightCurve;
 };
 
 }

@@ -15,20 +15,20 @@ namespace avg {
 
 using namespace std;
 
-double getPolygonArea(const DPointVector &contour)
+float getPolygonArea(const Vec2Vector &contour)
 {
   int n = contour.size();
 
-  double A=0.0;
+  float A = 0.0;
 
   for (int p=n-1,q=0; q<n; p=q++) {
     A += contour[p].x*contour[q].y - contour[q].x*contour[p].y;
   }
-  return A*0.5;
+  return A*0.5f;
 }
 
 
-bool snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
+bool snip(const Vec2Vector &contour,int u,int v,int w,int n,int *V)
 {
     int p;
     Triangle tri;
@@ -36,7 +36,7 @@ bool snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
     tri.p1 = contour[V[v]];
     tri.p2 = contour[V[w]];
 
-//    double area = tri.getArea();
+//    float area = tri.getArea();
 
     if (tri.isClockwise()) {
         return false;
@@ -57,7 +57,7 @@ bool snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
 
 // TODO: There's code that's probably faster in Graphics Gems V: 
 // http://tog.acm.org/resources/GraphicsGems/gemsv/ch7-5/
-void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
+void triangulatePolygon(const Vec2Vector &contour, vector<int> &resultIndexes)
 {
     /* allocate and initialize list of Vertices in polygon */
 

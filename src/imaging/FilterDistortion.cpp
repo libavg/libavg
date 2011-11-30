@@ -41,7 +41,7 @@ FilterDistortion::FilterDistortion(const IntPoint& srcSize,
     m_pMap = new IntPoint[m_SrcSize.y*m_SrcSize.x];
     for (int y = 0; y < m_SrcSize.y; ++y) {
         for (int x = 0; x < m_SrcSize.x; ++x) {
-            DPoint tmp = m_pTransformer->inverse_transform_point(DPoint(int(x),int(y)));
+            glm::dvec2 tmp = m_pTransformer->inverse_transform_point(glm::dvec2(x,y));
             IntPoint tmp2(int(tmp.x+0.5),int(tmp.y+0.5));
             if (tmp2.x < m_SrcSize.x && tmp2.y < m_SrcSize.y &&
                     tmp2.x >= 0 && tmp2.y >= 0)

@@ -29,7 +29,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
 
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
@@ -50,7 +50,7 @@ namespace avg {
 class AVG_API FWCamera: public Camera {
 public:
     FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, PixelFormat camPF, 
-            PixelFormat destPF, double frameRate);
+            PixelFormat destPF, float frameRate);
     virtual ~FWCamera();
     virtual void startCapture();
 
@@ -59,7 +59,7 @@ public:
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual double getFrameRate() const;
+    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
     bool hasFeature(CameraFeature feature);
@@ -90,7 +90,7 @@ private:
 #endif
 
     IntPoint m_Size;
-    double m_FrameRate;
+    float m_FrameRate;
 
     FeatureMap m_Features;
     int m_WhitebalanceU;

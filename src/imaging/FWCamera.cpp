@@ -38,7 +38,7 @@ namespace avg {
 using namespace std;
 
 FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, 
-        PixelFormat camPF, PixelFormat destPF, double frameRate)
+        PixelFormat camPF, PixelFormat destPF, float frameRate)
     : Camera(camPF, destPF),
       m_Size(size),
       m_FrameRate(frameRate),
@@ -290,7 +290,7 @@ const std::string& FWCamera::getDriverName() const
     return sDriverName;
 }
 
-double FWCamera::getFrameRate() const
+float FWCamera::getFrameRate() const
 {
     return m_FrameRate;
 }
@@ -450,8 +450,8 @@ void FWCamera::setStrobeDuration(int microsecs)
         } else {
             // Wierd calculations: IIDC register values for time are non-linear. Translate
             // the method parameter in microseconds to appropriate register values.
-            double targetMillisecs = microsecs/1000.;
-            const double realTimes[] = {1,2,4,6,8,12,16,24,32,48,63.93};
+            float targetMillisecs = microsecs/1000.f;
+            const float realTimes[] = {1,2,4,6,8,12,16,24,32,48,63.93};
             const uint32_t regValues[] = 
                 {0x400, 0x600, 0x800, 0x900, 0xA00, 0xB00, 0xC00, 0xD00, 
                  0xE00, 0xF00, 0xFFF};
@@ -459,7 +459,7 @@ void FWCamera::setStrobeDuration(int microsecs)
             AVG_ASSERT(len == sizeof(realTimes)/sizeof(*realTimes));
             int i;
             for (i = 1; realTimes[i] < targetMillisecs; ++i); 
-            double ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
+            float ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
             durationRegValue = ratio*regValues[i-1]+(1-ratio)*regValues[i];
         } 
 
@@ -571,7 +571,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
         AVG_ASSERT(false);
         return;
     }
-    for (int i = 0; i < (videoModes.num); i++) {
+    for (unsigned i = 0; i < videoModes.num; i++) {
         //Covers only libavg supported formats, other capabilities are ignored
         if (videoModes.modes[i] >= DC1394_VIDEO_MODE_320x240_YUV422
                 && videoModes.modes[i] <= DC1394_VIDEO_MODE_1600x1200_MONO16){
@@ -583,8 +583,7 @@ void FWCamera::getCameraImageFormats(dc1394camera_t* pCamera, CameraInfo* camInf
             if (err != DC1394_SUCCESS) {
                 AVG_TRACE(Logger::WARNING, "Camera: No framerates. Error was: " << err);
             } else {
-                int numFramerates = (int) framerates.num;
-                for (int j = 0; j < numFramerates; j++)
+                for (unsigned j = 0; j < framerates.num; j++)
                 {
                     float rate = framerateToFloat(framerates.framerates[j]);
                     framerateList.push_back(rate);

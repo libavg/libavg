@@ -34,7 +34,7 @@ using namespace std;
 
 namespace avg {
     
-FilterGauss::FilterGauss(double radius)
+FilterGauss::FilterGauss(float radius)
     : m_Radius(radius)
 {
     calcKernel();
@@ -183,12 +183,12 @@ void FilterGauss::dumpKernel()
 
 void FilterGauss::calcKernel()
 {
-    double FloatKernel[15];
-    double Sum = 0;
+    float FloatKernel[15];
+    float Sum = 0;
     int intRadius = int(ceil(m_Radius));
     m_KernelWidth = intRadius*2+1;
     for (int i = 0; i <= intRadius; ++i) {
-        FloatKernel[intRadius+i] = exp(-i*i/m_Radius-1)/sqrt(2*M_PI);
+        FloatKernel[intRadius+i] = float(exp(-i*i/m_Radius-1)/sqrt(2*PI));
         FloatKernel[intRadius-i] = FloatKernel[intRadius+i];
         Sum += FloatKernel[intRadius+i];
         if (i != 0) {

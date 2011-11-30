@@ -38,17 +38,17 @@ public:
 
     void connect();
     virtual void disconnect();
-    void setParam(double stdDev);
+    void setParam(float stdDev);
 
-    void setRadius(double stdDev);
-    double getRadius() const;
+    void setRadius(float stdDev);
+    float getRadius() const;
 
 private:
     virtual GPUFilterPtr createFilter(const IntPoint& size);
 
     GPUBlurFilterPtr m_pFilter;
 
-    double m_StdDev;
+    float m_StdDev;
 };
 
 typedef boost::shared_ptr<BlurFXNode> BlurFXNodePtr;

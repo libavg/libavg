@@ -57,30 +57,30 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         virtual DecoderState getState() const;
         virtual VideoInfo getVideoInfo() const;
 
-        virtual double getNominalFPS() const;
-        virtual double getFPS() const;
-        virtual double getVolume() const;
+        virtual float getNominalFPS() const;
+        virtual float getFPS() const;
+        virtual float getVolume() const;
         virtual PixelFormat getPixelFormat() const;
 
         // Called from video thread.
         virtual IntPoint getSize() const;
         virtual int getCurFrame() const;
         virtual int getNumFramesQueued() const;
-        virtual double getCurTime(StreamSelect stream = SS_DEFAULT) const;
-        virtual void setFPS(double fps);
+        virtual float getCurTime(StreamSelect stream = SS_DEFAULT) const;
+        virtual void setFPS(float fps);
         virtual FrameAvailableCode renderToBmps(std::vector<BitmapPtr>& pBmps,
-                double timeWanted);
+                float timeWanted);
 #ifdef AVG_ENABLE_VDPAU
         virtual FrameAvailableCode renderToVDPAU(vdpau_render_state** ppRenderState);
 #endif
-        virtual void throwAwayFrame(double timeWanted);
+        virtual void throwAwayFrame(float timeWanted);
         
         // Called from audio decoder thread
-        virtual void setVolume(double volume);
+        virtual void setVolume(float volume);
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
         // Called from video and audio threads
-        virtual void seek(double destTime);
+        virtual void seek(float destTime);
         virtual void loop();
         virtual bool isEOF(StreamSelect stream = SS_ALL) const;
 
@@ -89,7 +89,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool usesVDPAU() const;
         int openCodec(int streamIndex, bool bUseHardwareAcceleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
-        virtual double getDuration() const;
+        virtual float getDuration() const;
         virtual int getNumFrames() const;
 
         DecoderState m_State;
@@ -99,17 +99,17 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bThreadedDemuxer;
 
         // Used from video thread.
-        FrameAvailableCode readFrameForTime(AVFrame& frame, double timeWanted);
+        FrameAvailableCode readFrameForTime(AVFrame& frame, float timeWanted);
         void convertFrameToBmp(AVFrame& frame, BitmapPtr pBmp);
-        double getFrameTime(long long dts);
-        double calcStreamFPS() const;
+        float getFrameTime(long long dts);
+        float calcStreamFPS() const;
         std::string getStreamPF() const;
         AVCodecContext const * getCodecContext() const;
         AVCodecContext * getCodecContext();
 
         SwsContext * m_pSwsContext;
         IntPoint m_Size;
-        double m_TimeUnitsPerSecond;
+        float m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;
 
         // Used from audio thread.
@@ -134,13 +134,13 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         int m_ResampleBufferSize;
         int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
-        double m_Volume;
-        double m_LastVolume;
-        double m_AudioStartTimestamp;
+        float m_Volume;
+        float m_LastVolume;
+        float m_AudioStartTimestamp;
 
         // Used from video and audio threads.
-        double readFrame(AVFrame& frame);
-        double getStartTime();
+        float readFrame(AVFrame& frame);
+        float getStartTime();
 
         IDemuxer * m_pDemuxer;
         AVStream * m_pVStream;
@@ -154,13 +154,13 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool m_bVideoEOF;
         bool m_bAudioEOF;
         boost::mutex m_AudioMutex;
-        double m_LastAudioFrameTime;
+        float m_LastAudioFrameTime;
         bool m_bFirstPacket;
-        double m_VideoStartTimestamp;
-        double m_LastVideoFrameTime;
+        long long m_VideoStartTimestamp;
+        float m_LastVideoFrameTime;
 
-        double m_FPS;
-        double m_StreamTimeOffset;
+        float m_FPS;
+        float m_StreamTimeOffset;
 
         static bool s_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously

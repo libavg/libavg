@@ -44,24 +44,24 @@ class AVG_API PanoImageNode: public AreaNode
         
         virtual void connectDisplay();
         virtual void disconnect(bool bKill);
-        virtual void render(const DRect& Rect);
+        virtual void render(const FRect& Rect);
 
-        double getScreenPosFromPanoPos(int PanoPos) const;
-        double getScreenPosFromAngle(double Angle) const;
+        float getScreenPosFromPanoPos(int PanoPos) const;
+        float getScreenPosFromAngle(float Angle) const;
         const UTF8String& getHRef() const;
         void setHRef(const UTF8String& href);
-        double getSensorWidth() const;
-        void setSensorWidth(double sensorWidth);
-        double getSensorHeight() const;
-        void setSensorHeight(double sensorHeight);
-        double getFocalLength() const;
-        void setFocalLength(double focalLength);
-        double getRotation() const;
-        void setRotation(double rotation);
-        double getMaxRotation() const;
+        float getSensorWidth() const;
+        void setSensorWidth(float sensorWidth);
+        float getSensorHeight() const;
+        void setSensorHeight(float sensorHeight);
+        float getFocalLength() const;
+        void setFocalLength(float focalLength);
+        float getRotation() const;
+        void setRotation(float rotation);
+        float getMaxRotation() const;
 
     protected:        
-        virtual DPoint getPreferredMediaSize();
+        virtual glm::vec2 getPreferredMediaSize();
 
     private:
         void load();
@@ -71,22 +71,22 @@ class AVG_API PanoImageNode: public AreaNode
 
         UTF8String m_href;
         std::string m_Filename;
-        double m_SensorWidth;
-        double m_SensorHeight;
-        double m_FocalLength;
+        float m_SensorWidth;
+        float m_SensorHeight;
+        float m_FocalLength;
         BitmapPtr m_pBmp;
         int m_TexHeight;
         std::vector<unsigned int> m_TileTextureIDs;
 
         // Derived values calculated in calcProjection
-        double m_fovy;         // Vertical field of view 
-        double m_aspect;       // Sensor aspect ratio
-        double m_CylHeight;
-        double m_CylAngle;     // Total angle covered by panorama
-        double m_SliceAngle;   // Angle per slice
-        double m_MaxRotation;  // Maximum rotation angle (=Total angle - visible area)
+        float m_fovy;         // Vertical field of view 
+        float m_aspect;       // Sensor aspect ratio
+        float m_CylHeight;
+        float m_CylAngle;     // Total angle covered by panorama
+        float m_SliceAngle;   // Angle per slice
+        float m_MaxRotation;  // Maximum rotation angle (=Total angle - visible area)
 
-        double m_Rotation;
+        float m_Rotation;
 };
 
 }

@@ -73,7 +73,7 @@ bool AudioDecoderThread::work()
     return true;
 }
 
-void AudioDecoderThread::seek(double destTime)
+void AudioDecoderThread::seek(float destTime)
 {
     while (!m_MsgQ.empty()) {
         m_MsgQ.pop(false);
@@ -85,7 +85,7 @@ void AudioDecoderThread::seek(double destTime)
     m_MsgQ.push(pVMsg);
 }
 
-void AudioDecoderThread::setVolume(double volume)
+void AudioDecoderThread::setVolume(float volume)
 {
     m_pDecoder->setVolume(volume);
 }

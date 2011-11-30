@@ -32,8 +32,8 @@ namespace avg {
 class AVG_API GPUBandpassFilter: public GPUFilter
 {
 public:
-    GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, double min, double max, 
-            double postScale, bool bInvert, bool bStandalone=true);
+    GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, float min, float max, 
+            float postScale, bool bInvert, bool bStandalone=true);
     virtual ~GPUBandpassFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
@@ -41,7 +41,7 @@ public:
 private:
     static void initShader();
 
-    double m_PostScale;
+    float m_PostScale;
     bool m_bInvert;
 
     GPUBlurFilter m_MinFilter;

@@ -23,9 +23,9 @@
 #include "Command.h"
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
-#include "Point.h"
 #include "Matrix3x4.h"
 #include "Triangulate.h"
+#include "GLMHelper.h"
 #include "GeomHelper.h"
 #include "OSHelper.h"
 #include "FileHelper.h"
@@ -35,6 +35,8 @@
 #include "BezierCurve.h"
 #include "Signal.h"
 #include "Backtrace.h"
+#include "WideLine.h"
+#include "Rect.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -248,18 +250,18 @@ public:
 #pragma warning(push)
 #pragma warning(disable:4723)
 #endif
-class PointTest: public Test
+class GeomTest: public Test
 {
 public:
-    PointTest()
-        : Test("PointTest", 2)
+    GeomTest()
+        : Test("GeomTest", 2)
     {
     }
 
     void runTests() 
     {
-        double one = 1;
-        double zero = 0;
+        float one = 1;
+        float zero = 0;
 
         TEST(isinf(-one/zero) != 0);
         TEST(isinf(one/zero) != 0);
@@ -271,80 +273,65 @@ public:
         TEST(almostEqual(invSqrt(1), 1));
         TEST(almostEqual(invSqrt(4), 0.5));
 
-        // TODO: The point tests aren't complete!
-        DPoint pt1(0,0);
-        DPoint pt2(3,4);
-        TEST(calcDist(pt1, pt2)-5 < 0.0001);
-        TEST(!almostEqual(pt1, pt2));
-        TEST(almostEqual(pt1, pt1));
-        std::vector<double> v;
-        v.push_back(3);
-        v.push_back(4);
-        DPoint pt3(v);
-        TEST(almostEqual(pt2, pt3));
-        TEST(almostEqual(pt3.getNorm(), 5));
-        DPoint pt4 = pt3.getNormalized();
-        TEST(almostEqual(pt4.getNorm(), 1, 0.0001));
         {
-            DLineSegment l1(DPoint(0,0), DPoint(2,2));
-            DLineSegment l2(DPoint(2,0), DPoint(0,2));
+            LineSegment l1(glm::vec2(0,0), glm::vec2(2,2));
+            LineSegment l2(glm::vec2(2,0), glm::vec2(0,2));
             TEST(lineSegmentsIntersect(l1, l2));
             TEST(lineSegmentsIntersect(l2, l1));
         }
         {
-            DLineSegment l1(DPoint(0,0), DPoint(0,2));
-            DLineSegment l2(DPoint(2,0), DPoint(2,2));
+            LineSegment l1(glm::vec2(0,0), glm::vec2(0,2));
+            LineSegment l2(glm::vec2(2,0), glm::vec2(2,2));
             TEST(!lineSegmentsIntersect(l1, l2));
         }
         {
-            DLineSegment l1(DPoint(0,0), DPoint(2,0));
-            DLineSegment l2(DPoint(0,2), DPoint(2,2));
+            LineSegment l1(glm::vec2(0,0), glm::vec2(2,0));
+            LineSegment l2(glm::vec2(0,2), glm::vec2(2,2));
             TEST(!lineSegmentsIntersect(l1, l2));
         }
         {
-            DLineSegment l1(DPoint(0,0), DPoint(2,0));
-            TEST(l1.isPointOver(DPoint(1,23)));
-            TEST(l1.isPointOver(DPoint(1.9,-5)));
-            TEST(!l1.isPointOver(DPoint(-1,1)));
-            TEST(!l1.isPointOver(DPoint(3,-1)));
+            LineSegment l1(glm::vec2(0,0), glm::vec2(2,0));
+            TEST(l1.isPointOver(glm::vec2(1,23)));
+            TEST(l1.isPointOver(glm::vec2(1.9,-5)));
+            TEST(!l1.isPointOver(glm::vec2(-1,1)));
+            TEST(!l1.isPointOver(glm::vec2(3,-1)));
         }
         {
-            DPoint pt0(DPoint(1,1));
-            DPoint pt1(DPoint(1,3));
-            DPoint pt2(DPoint(1,-2));
-            vector<DPoint> poly;
-            poly.push_back(DPoint(0,0));
-            poly.push_back(DPoint(2,0));
-            poly.push_back(DPoint(2,2));
-            poly.push_back(DPoint(0,2));
+            glm::vec2 pt0(glm::vec2(1,1));
+            glm::vec2 pt1(glm::vec2(1,3));
+            glm::vec2 pt2(glm::vec2(1,-2));
+            vector<glm::vec2> poly;
+            poly.push_back(glm::vec2(0,0));
+            poly.push_back(glm::vec2(2,0));
+            poly.push_back(glm::vec2(2,2));
+            poly.push_back(glm::vec2(0,2));
             TEST(pointInPolygon(pt0, poly));
             TEST(!pointInPolygon(pt1, poly));
             TEST(!pointInPolygon(pt2, poly));
-            poly.push_back(DPoint(2,1));
+            poly.push_back(glm::vec2(2,1));
             TEST(!pointInPolygon(pt0, poly));
         }
         {
-            DPoint p1(DPoint(0,0));
-            DPoint v1(DPoint(1,1));
-            DPoint p2(DPoint(2,1));
-            DPoint v2(DPoint(1,0));
-            TEST(getLineLineIntersection(p1, v1, p2, v2) == DPoint(1,1));
+            glm::vec2 p1(glm::vec2(0,0));
+            glm::vec2 v1(glm::vec2(1,1));
+            glm::vec2 p2(glm::vec2(2,1));
+            glm::vec2 v2(glm::vec2(1,0));
+            TEST(getLineLineIntersection(p1, v1, p2, v2) == glm::vec2(1,1));
         }
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI, DPoint(15,5)), DPoint(20,10)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI*0.5, DPoint(15,5)),
-                DPoint(20,0)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI*1.5, DPoint(15,5)), 
-                DPoint(10,10)));
-        TEST(almostEqual(DPoint(10,0).getRotatedPivot(M_PI*2, DPoint(15,5)), 
-                DPoint(10,0)));
-        TEST(almostEqual(DPoint(23,0).getRotatedPivot(M_PI*0.5), DPoint(0,23)));
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI, glm::vec2(15,5)), 
+                glm::vec2(20,10)));
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*0.5, glm::vec2(15,5)),
+                glm::vec2(20,0)));
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*1.5, glm::vec2(15,5)), 
+                glm::vec2(10,10)));
+        TEST(almostEqual(getRotatedPivot(glm::vec2(10,0), M_PI*2, glm::vec2(15,5)), 
+                glm::vec2(10,0)));
+        TEST(almostEqual(getRotatedPivot(glm::vec2(23,0), M_PI*0.5), glm::vec2(0,23)));
 
-        TEST(almostEqual(DPoint(10,0), DPoint::fromPolar(0, 10)));
-        TEST(almostEqual(DPoint(0,10), DPoint::fromPolar(M_PI*0.5, 10)));
-        TEST(almostEqual(DPoint(0,-1), DPoint::fromPolar(M_PI*1.5, 1)));
-        TEST(almostEqual(vecAngle(DPoint(0,1),DPoint(1,0)), M_PI*0.5));
-        TEST(almostEqual(vecAngle(DPoint(0,-1),DPoint(1,0)), M_PI*1.5));
-        TEST(almostEqual(vecAngle(DPoint(0,2),DPoint(1,0)), M_PI*0.5));
+        {
+            // TODO: More tests
+            FRect(0,0,10,10);
+        }
     }
 };
 #ifdef _MSC_VER
@@ -389,19 +376,19 @@ public:
 
     void runTests()
     {
-        Triangle tri(DPoint(0,0), DPoint(4,4), DPoint(4,8));
-        TEST(tri.isInside(DPoint(3,4)));
-        TEST(!tri.isInside(DPoint(1,4)));
-        TEST(!tri.isInside(DPoint(2,1)));
-        TEST(!tri.isInside(DPoint(-2,5)));
-        TEST(!tri.isInside(DPoint(5,5)));
-        tri = Triangle(DPoint(0,0), DPoint(4,8), DPoint(4,4));
-        TEST(tri.isInside(DPoint(3,4)));
+        Triangle tri(glm::vec2(0,0), glm::vec2(4,4), glm::vec2(4,8));
+        TEST(tri.isInside(glm::vec2(3,4)));
+        TEST(!tri.isInside(glm::vec2(1,4)));
+        TEST(!tri.isInside(glm::vec2(2,1)));
+        TEST(!tri.isInside(glm::vec2(-2,5)));
+        TEST(!tri.isInside(glm::vec2(5,5)));
+        tri = Triangle(glm::vec2(0,0), glm::vec2(4,8), glm::vec2(4,4));
+        TEST(tri.isInside(glm::vec2(3,4)));
 
-        DPoint polyArray[] = {DPoint(0,0), DPoint(8,2), DPoint(9,0), DPoint(9,3), 
-                DPoint(1,1), DPoint(0,3)}; 
+        glm::vec2 polyArray[] = {glm::vec2(0,0), glm::vec2(8,2), glm::vec2(9,0), glm::vec2(9,3), 
+                glm::vec2(1,1), glm::vec2(0,3)}; 
 
-        DPointVector poly = vectorFromCArray(6, polyArray);
+        Vec2Vector poly = vectorFromCArray(6, polyArray);
 
         vector<int> triangulation;
         triangulatePolygon(poly, triangulation);
@@ -466,7 +453,7 @@ public:
     void runTests()
     {
         TEST(stringToInt("5") == 5);
-        TEST(almostEqual(stringToDouble("5.5"), 5.5));
+        TEST(almostEqual(stringToFloat("5.5"), 5.5f));
         TEST(stringToBool("False") == false);
         bool bExceptionThrown = false;
         try {
@@ -477,8 +464,8 @@ public:
             }
         }
         TEST(bExceptionThrown);
-        TEST(stringToDPoint(" ( 3.4 , 2.1 ) ") == DPoint(3.4, 2.1));
-        vector<double> v;
+        TEST(stringToVec2(" ( 3.4 , 2.1 ) ") == glm::vec2(3.4f, 2.1f));
+        vector<float> v;
         fromString("(1,2,3,4,5)", v);
         TEST(v.size() == 5 && v[0] == 1 && v[4] == 5);
         v.clear();
@@ -499,10 +486,10 @@ public:
     void runTests()
     {
         {
-            double xd[] = {0,1,2,3};
-            vector<double> x = vectorFromCArray(4, xd);
-            double yd[] = {3,2,1,0};
-            vector<double> y = vectorFromCArray(4, yd);
+            float xd[] = {0,1,2,3};
+            vector<float> x = vectorFromCArray(4, xd);
+            float yd[] = {3,2,1,0};
+            vector<float> y = vectorFromCArray(4, yd);
             CubicSpline spline(x, y);
             TEST(almostEqual(spline.interpolate(-1), 4));
             TEST(almostEqual(spline.interpolate(0), 3));
@@ -511,10 +498,10 @@ public:
             TEST(almostEqual(spline.interpolate(3.5), -0.5));
         }
         {
-            double xd[] = {2,4,6,8};
-            vector<double> x = vectorFromCArray(4, xd);
-            double yd[] = {0,1,3,6};
-            vector<double> y = vectorFromCArray(4, yd);
+            float xd[] = {2,4,6,8};
+            vector<float> x = vectorFromCArray(4, xd);
+            float yd[] = {0,1,3,6};
+            vector<float> y = vectorFromCArray(4, yd);
             CubicSpline spline(x, y);
             TEST(almostEqual(spline.interpolate(0), -1));
             TEST(almostEqual(spline.interpolate(1), -0.5));
@@ -538,12 +525,28 @@ public:
 
     void runTests()
     {
-        BezierCurve curve(DPoint(0,0), DPoint(1,0), DPoint(1,1), DPoint(0,1));
-        TEST(almostEqual(curve.interpolate(0), DPoint(0,0)));
-        TEST(almostEqual(curve.getDeriv(0), DPoint(3, 0)));
-        TEST(almostEqual(curve.interpolate(1), DPoint(0,1)));
-        TEST(almostEqual(curve.getDeriv(1), DPoint(-3, 0)));
-        TEST(almostEqual(curve.interpolate(0.5), DPoint(0.75,0.5)));
+        BezierCurve curve(glm::vec2(0,0), glm::vec2(1,0), glm::vec2(1,1), glm::vec2(0,1));
+        TEST(almostEqual(curve.interpolate(0), glm::vec2(0,0)));
+        TEST(almostEqual(curve.getDeriv(0), glm::vec2(3, 0)));
+        TEST(almostEqual(curve.interpolate(1), glm::vec2(0,1)));
+        TEST(almostEqual(curve.getDeriv(1), glm::vec2(-3, 0)));
+        TEST(almostEqual(curve.interpolate(0.5), glm::vec2(0.75,0.5)));
+    }
+};
+
+
+class WideLineTest: public Test
+{
+public:
+    WideLineTest()
+        : Test("WideLineTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        WideLine line(glm::vec2(0,0), glm::vec2(4,3), 2);
+        TEST(almostEqual(line.getLen(), 5));
     }
 };
 
@@ -740,7 +743,7 @@ public:
         addTest(TestPtr(new QueueTest));
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
-        addTest(TestPtr(new PointTest));
+        addTest(TestPtr(new GeomTest));
         addTest(TestPtr(new Matrix3x4Test));
         addTest(TestPtr(new TriangleTest));
         addTest(TestPtr(new FileTest));

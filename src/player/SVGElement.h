@@ -25,7 +25,7 @@
 #include "../api.h"
 
 #include "../base/UTF8String.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <librsvg/rsvg.h>
 #include <boost/shared_ptr.hpp>
@@ -41,8 +41,8 @@ public:
             const UTF8String& sElementID, bool bUnescapeIllustratorIDs);
 
     const UTF8String& getUnescapedID() const;
-    const DPoint& getPos() const;
-    const DPoint& getSize() const;
+    const glm::vec2& getPos() const;
+    const glm::vec2& getSize() const;
 
 private:
     UTF8String unescapeID(RsvgHandle* pRSVG, const UTF8String& sFilename, 
@@ -50,8 +50,8 @@ private:
     void throwIDNotFound(const UTF8String& sFilename, const UTF8String& sElementID);
 
     UTF8String m_sUnescapedID;
-    DPoint m_Pos;
-    DPoint m_Size;
+    glm::vec2 m_Pos;
+    glm::vec2 m_Size;
 };
 
 typedef boost::shared_ptr<SVGElement> SVGElementPtr;

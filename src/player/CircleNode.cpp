@@ -24,6 +24,7 @@
 #include "NodeDefinition.h"
 
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -36,10 +37,10 @@ NodeDefinition CircleNode::createDefinition()
 {
     return NodeDefinition("circle", Node::buildNode<CircleNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
-        .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(CircleNode, m_Pos)))
-        .addArg(Arg<double>("r", 1, false, offsetof(CircleNode, m_Radius)))
-        .addArg(Arg<double>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
+        .addArg(Arg<glm::vec2>("pos", glm::vec2(0,0), false, offsetof(CircleNode, m_Pos)))
+        .addArg(Arg<float>("r", 1, false, offsetof(CircleNode, m_Radius)))
+        .addArg(Arg<float>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
+        .addArg(Arg<float>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
         ;
 }
 
@@ -53,23 +54,23 @@ CircleNode::~CircleNode()
 {
 }
 
-const DPoint& CircleNode::getPos() const 
+const glm::vec2& CircleNode::getPos() const 
 {
     return m_Pos;
 }
 
-void CircleNode::setPos(const DPoint& pt) 
+void CircleNode::setPos(const glm::vec2& pt) 
 {
     m_Pos = pt;
     setDrawNeeded();
 }
 
-double CircleNode::getR() const 
+float CircleNode::getR() const 
 {
     return m_Radius;
 }
 
-void CircleNode::setR(double r) 
+void CircleNode::setR(float r) 
 {
     if (int(r) <= 0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
@@ -78,31 +79,31 @@ void CircleNode::setR(double r)
     setDrawNeeded();
 }
 
-double CircleNode::getTexCoord1() const
+float CircleNode::getTexCoord1() const
 {
     return m_TC1;
 }
 
-void CircleNode::setTexCoord1(double tc)
+void CircleNode::setTexCoord1(float tc)
 {
     m_TC1 = tc;
     setDrawNeeded();
 }
 
-double CircleNode::getTexCoord2() const
+float CircleNode::getTexCoord2() const
 {
     return m_TC2;
 }
 
-void CircleNode::setTexCoord2(double tc)
+void CircleNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();
 }
 
-void CircleNode::getElementsByPos(const DPoint& pos, vector<NodeWeakPtr>& pElements)
+void CircleNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElements)
 {
-    if (calcDist(pos, m_Pos) <= m_Radius && reactsToMouseEvents()) {
+    if (glm::length(pos-m_Pos) <= m_Radius && reactsToMouseEvents()) {
         pElements.push_back(shared_from_this());
     }
 }
@@ -111,154 +112,155 @@ void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     // TODO: This gets called whenever the circle position changes and is quite 
     // expensive. Should be optimized away.
-    DPoint firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2)+m_Pos;
-    DPoint firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2)+m_Pos;
+    glm::vec2 firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2)+m_Pos;
+    glm::vec2 firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2)+m_Pos;
     int curVertex = 0;
-    pVertexArray->appendPos(firstPt1, DPoint(m_TC1, 0), color);
-    pVertexArray->appendPos(firstPt2, DPoint(m_TC1, 1), color);
-    vector<DPoint> innerCircle;
+    pVertexArray->appendPos(firstPt1, glm::vec2(m_TC1, 0), color);
+    pVertexArray->appendPos(firstPt2, glm::vec2(m_TC1, 1), color);
+    vector<glm::vec2> innerCircle;
     getEigthCirclePoints(innerCircle, m_Radius-getStrokeWidth()/2);
-    vector<DPoint> outerCircle;
+    vector<glm::vec2> outerCircle;
     getEigthCirclePoints(outerCircle, m_Radius+getStrokeWidth()/2);
     
-    typedef vector<DPoint>::iterator DPointIt;
-    typedef vector<DPoint>::reverse_iterator DPointRIt;
+    typedef vector<glm::vec2>::iterator Vec2It;
+    typedef vector<glm::vec2>::reverse_iterator Vec2RIt;
     int i = 0;
-    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+    for (Vec2It iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
             iit != innerCircle.end(); ++iit, ++oit)
     {
         appendCirclePoint(pVertexArray, *iit, *oit, color, i, curVertex);
     }
-    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+    for (Vec2RIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
             iit != innerCircle.rend(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(-iit->y, -iit->x);
-        DPoint oPt = DPoint(-oit->y, -oit->x);
+        glm::vec2 iPt = glm::vec2(-iit->y, -iit->x);
+        glm::vec2 oPt = glm::vec2(-oit->y, -oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+    for (Vec2It iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
             iit != innerCircle.end(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(-iit->y, iit->x);
-        DPoint oPt = DPoint(-oit->y, oit->x);
+        glm::vec2 iPt = glm::vec2(-iit->y, iit->x);
+        glm::vec2 oPt = glm::vec2(-oit->y, oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+    for (Vec2RIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
             iit !=innerCircle.rend(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(iit->x, -iit->y);
-        DPoint oPt = DPoint(oit->x, -oit->y);
+        glm::vec2 iPt = glm::vec2(iit->x, -iit->y);
+        glm::vec2 oPt = glm::vec2(oit->x, -oit->y);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+    for (Vec2It iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
             iit != innerCircle.end(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(-iit->x, -iit->y);
-        DPoint oPt = DPoint(-oit->x, -oit->y);
+        glm::vec2 iPt = glm::vec2(-iit->x, -iit->y);
+        glm::vec2 oPt = glm::vec2(-oit->x, -oit->y);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+    for (Vec2RIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
             iit != innerCircle.rend(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(iit->y, iit->x);
-        DPoint oPt = DPoint(oit->y, oit->x);
+        glm::vec2 iPt = glm::vec2(iit->y, iit->x);
+        glm::vec2 oPt = glm::vec2(oit->y, oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointIt iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
+    for (Vec2It iit = innerCircle.begin()+1, oit = outerCircle.begin()+1; 
             iit != innerCircle.end(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(iit->y, -iit->x);
-        DPoint oPt = DPoint(oit->y, -oit->x);
+        glm::vec2 iPt = glm::vec2(iit->y, -iit->x);
+        glm::vec2 oPt = glm::vec2(oit->y, -oit->x);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
-    for (DPointRIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
+    for (Vec2RIt iit = innerCircle.rbegin()+1, oit = outerCircle.rbegin()+1; 
             iit != innerCircle.rend(); ++iit, ++oit)
     {
-        DPoint iPt = DPoint(-iit->x, iit->y);
-        DPoint oPt = DPoint(-oit->x, oit->y);
+        glm::vec2 iPt = glm::vec2(-iit->x, iit->y);
+        glm::vec2 oPt = glm::vec2(-oit->x, oit->y);
         appendCirclePoint(pVertexArray, iPt, oPt, color, i, curVertex);
     }
 }
 
 void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    DPoint minPt = m_Pos-DPoint(m_Radius, m_Radius);
-    DPoint maxPt = m_Pos+DPoint(m_Radius, m_Radius);
-    DPoint centerTexCoord = calcFillTexCoord(m_Pos, minPt, maxPt);
+    glm::vec2 minPt = m_Pos-glm::vec2(m_Radius, m_Radius);
+    glm::vec2 maxPt = m_Pos+glm::vec2(m_Radius, m_Radius);
+    glm::vec2 centerTexCoord = calcFillTexCoord(m_Pos, minPt, maxPt);
     pVertexArray->appendPos(m_Pos, centerTexCoord, color);
     int curVertex = 1;
-    DPoint firstPt = getCirclePt(0, m_Radius)+m_Pos;
-    DPoint firstTexCoord = calcFillTexCoord(firstPt, minPt, maxPt);
+    glm::vec2 firstPt = getCirclePt(0, m_Radius)+m_Pos;
+    glm::vec2 firstTexCoord = calcFillTexCoord(firstPt, minPt, maxPt);
     pVertexArray->appendPos(firstPt, firstTexCoord, color);
-    vector<DPoint> circlePoints;
+    vector<glm::vec2> circlePoints;
     getEigthCirclePoints(circlePoints, m_Radius);
 
-    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
-            ++it)
+    for (vector<glm::vec2>::iterator it = circlePoints.begin()+1;
+            it != circlePoints.end(); ++it)
     {
-        DPoint curPt = *it+m_Pos;
+        glm::vec2 curPt = *it+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1; 
+    for (vector<glm::vec2>::reverse_iterator it = circlePoints.rbegin()+1; 
             it != circlePoints.rend(); ++it)
     {
-        DPoint curPt = DPoint(-it->y, -it->x)+m_Pos;
+        glm::vec2 curPt = glm::vec2(-it->y, -it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
-            ++it)
+    for (vector<glm::vec2>::iterator it = circlePoints.begin()+1;
+            it != circlePoints.end(); ++it)
     {
-        DPoint curPt = DPoint(-it->y, it->x)+m_Pos;
+        glm::vec2 curPt = glm::vec2(-it->y, it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1; 
+    for (vector<glm::vec2>::reverse_iterator it = circlePoints.rbegin()+1; 
             it != circlePoints.rend(); ++it)
     {
-        DPoint curPt = DPoint(it->x, -it->y)+m_Pos;
+        glm::vec2 curPt = glm::vec2(it->x, -it->y)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
-            ++it)
+    for (vector<glm::vec2>::iterator it = circlePoints.begin()+1;
+            it != circlePoints.end(); ++it)
     {
-        DPoint curPt = DPoint(-it->x, -it->y)+m_Pos;
+        glm::vec2 curPt = glm::vec2(-it->x, -it->y)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1;
+    for (vector<glm::vec2>::reverse_iterator it = circlePoints.rbegin()+1;
             it != circlePoints.rend(); ++it)
     {
-        DPoint curPt = DPoint(it->y, it->x)+m_Pos;
+        glm::vec2 curPt = glm::vec2(it->y, it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::iterator it = circlePoints.begin()+1; it != circlePoints.end();
-            ++it)
+    for (vector<glm::vec2>::iterator it = circlePoints.begin()+1;
+            it != circlePoints.end(); ++it)
     {
-        DPoint curPt = DPoint(it->y, -it->x)+m_Pos;
+        glm::vec2 curPt = glm::vec2(it->y, -it->x)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
-    for (vector<DPoint>::reverse_iterator it = circlePoints.rbegin()+1;
+    for (vector<glm::vec2>::reverse_iterator it = circlePoints.rbegin()+1;
             it != circlePoints.rend(); ++it)
     {
-        DPoint curPt = DPoint(-it->x, it->y)+m_Pos;
+        glm::vec2 curPt = glm::vec2(-it->x, it->y)+m_Pos;
         appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
     }
 }
 
-void CircleNode::appendCirclePoint(VertexArrayPtr& pVertexArray, const DPoint& iPt, 
-        const DPoint& oPt, Pixel32 color, int& i, int& curVertex)
+void CircleNode::appendCirclePoint(VertexArrayPtr& pVertexArray, const glm::vec2& iPt, 
+        const glm::vec2& oPt, Pixel32 color, int& i, int& curVertex)
 {
     i++;
-    double ratio = (double(i)/getNumCircumferencePoints());
-    double curTC = (1-ratio)*m_TC1+ratio*m_TC2;
-    pVertexArray->appendPos(oPt+m_Pos, DPoint(curTC, 0), color);
-    pVertexArray->appendPos(iPt+m_Pos, DPoint(curTC, 1), color);
+    float ratio = (float(i)/getNumCircumferencePoints());
+    float curTC = (1-ratio)*m_TC1+ratio*m_TC2;
+    pVertexArray->appendPos(oPt+m_Pos, glm::vec2(curTC, 0), color);
+    pVertexArray->appendPos(iPt+m_Pos, glm::vec2(curTC, 1), color);
     pVertexArray->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
     curVertex += 2;
 }
 
-void CircleNode::appendFillCirclePoint(VertexArrayPtr& pVertexArray, const DPoint& curPt, 
-        const DPoint& minPt, const DPoint& maxPt, Pixel32 color, int& curVertex)
+void CircleNode::appendFillCirclePoint(VertexArrayPtr& pVertexArray, 
+        const glm::vec2& curPt, const glm::vec2& minPt, const glm::vec2& maxPt,
+        Pixel32 color, int& curVertex)
 {
-    DPoint curTexCoord = calcFillTexCoord(curPt, minPt, maxPt);
+    glm::vec2 curTexCoord = calcFillTexCoord(curPt, minPt, maxPt);
     pVertexArray->appendPos(curPt, curTexCoord, color);
     pVertexArray->appendTriIndexes(0, curVertex, curVertex+1);
     curVertex++;
@@ -269,19 +271,19 @@ int CircleNode::getNumCircumferencePoints()
     return int(ceil((m_Radius*3)/8)*8);
 }
 
-void CircleNode::getEigthCirclePoints(vector<DPoint>& pts, double radius)
+void CircleNode::getEigthCirclePoints(vector<glm::vec2>& pts, float radius)
 {
     int numPts = getNumCircumferencePoints();
     for (int i = 0; i <= numPts/8; ++i) {
-        double ratio = (double(i)/numPts);
-        double angle = ratio*2*3.14159;
+        float ratio = (float(i)/numPts);
+        float angle = ratio*2*PI;
         pts.push_back(getCirclePt(angle, radius));
     }
 }
 
-DPoint CircleNode::getCirclePt(double angle, double radius)
+glm::vec2 CircleNode::getCirclePt(float angle, float radius)
 {
-    return DPoint(sin(angle)*radius, -cos(angle)*radius);
+    return glm::vec2(sin(angle)*radius, -cos(angle)*radius);
 }
 
 }

@@ -23,27 +23,28 @@
 #define _GeomHelper_H_
 
 #include "../api.h"
-#include "Point.h"
+
+#include "../glm/glm.hpp"
 
 #include <vector>
 
 namespace avg {
 
-struct AVG_API DLineSegment {
+struct AVG_API LineSegment {
 public:
-    DLineSegment(const DPoint& pt0, const DPoint& pt1);
-    DPoint p0;
-    DPoint p1;
+    LineSegment(const glm::vec2& pt0, const glm::vec2& pt1);
+    glm::vec2 p0;
+    glm::vec2 p1;
 
-    bool isPointOver(const DPoint& pt);
+    bool isPointOver(const glm::vec2& pt);
 };
 
-bool AVG_API lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1);
+bool AVG_API lineSegmentsIntersect(const LineSegment& l0, const LineSegment& l1);
 
-bool AVG_API pointInPolygon(const DPoint& pt, const std::vector<DPoint>& poly); 
+bool AVG_API pointInPolygon(const glm::vec2& pt, const std::vector<glm::vec2>& poly); 
 
-DPoint AVG_API getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
-        const DPoint& v2);
+glm::vec2 AVG_API getLineLineIntersection(const glm::vec2& p1, const glm::vec2& v1, 
+        const glm::vec2& p2, const glm::vec2& v2);
 
 }
 #endif

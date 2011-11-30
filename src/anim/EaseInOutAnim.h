@@ -40,11 +40,11 @@ public:
     virtual ~EaseInOutAnim();
 
 protected:
-    virtual double interpolate(double t);
+    virtual float interpolate(float t);
     
 private:
-    double m_EaseInDuration;
-    double m_EaseOutDuration;
+    float m_EaseInDuration;
+    float m_EaseOutDuration;
 };
 
 }

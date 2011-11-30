@@ -25,7 +25,7 @@
 #define _Run_H_
 
 #include "../api.h"
-#include "../base/Point.h"
+#include "../base/GLMHelper.h"
 
 #include <boost/weak_ptr.hpp>
 
@@ -42,7 +42,7 @@ struct Run
     int m_Row;
     int m_StartCol;
     int m_EndCol;
-    DPoint m_Center;
+    glm::vec2 m_Center;
     int length() {
         return m_EndCol-m_StartCol;
     };

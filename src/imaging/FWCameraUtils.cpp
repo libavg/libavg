@@ -111,13 +111,13 @@ dc1394video_mode_t getCamMode(IntPoint size, PixelFormat pf)
             "), "+getPixelFormatString(pf)+"\" for camera mode.");
 }
 
-dc1394framerate_t getFrameRateConst(double frameRate)
+dc1394framerate_t getFrameRateConst(float frameRate)
 {
-    if (frameRate == 1.875) {
+    if (frameRate == 1.875f) {
         return DC1394_FRAMERATE_1_875;
-    } else if (frameRate == 3.75) {
+    } else if (frameRate == 3.75f) {
         return DC1394_FRAMERATE_3_75;
-    } else if (frameRate == 7.5) {
+    } else if (frameRate == 7.5f) {
         return DC1394_FRAMERATE_7_5;
     } else if (frameRate == 15) {
         return DC1394_FRAMERATE_15;

@@ -65,7 +65,7 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
 }
 
 void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
-        Event::Source source, const DPoint& pos, const DPoint& speed)
+        Event::Source source, const glm::vec2& pos, const glm::vec2& speed)
 {
     checkEventType(eventType);
     // The id is modified to avoid collisions with real touch events.

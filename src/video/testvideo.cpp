@@ -95,14 +95,14 @@ class DecoderTest: public GraphicsTest {
         }
 
         virtual void testEqual(Bitmap& resultBmp, const std::string& sFName, 
-                avg::PixelFormat pf = NO_PIXELFORMAT, double maxAverage=1.0,
-                double maxStdDev=1.0)
+                avg::PixelFormat pf = NO_PIXELFORMAT, float maxAverage=1.0,
+                float maxStdDev=1.0)
         {
             GraphicsTest::testEqual(resultBmp, sFName, pf, maxAverage, maxStdDev);
         }
 
         void testEqual(Bitmap& resultBmp, Bitmap& BaselineBmp,
-                const std::string& sFName, double maxAverage=1.0, double maxStdDev=1.0)
+                const std::string& sFName, float maxAverage=1.0f, float maxStdDev=1.0f)
         {
             GraphicsTest::testEqual(resultBmp, BaselineBmp, sFName, 
                     maxAverage, maxStdDev);
@@ -201,13 +201,13 @@ class VideoDecoderTest: public DecoderTest {
             IntPoint frameSize = pDecoder->getSize();
 
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
-            pDecoder->seek(double(frameNum)/pDecoder->getNominalFPS());
+            pDecoder->seek(float(frameNum)/pDecoder->getNominalFPS());
             pDecoder->renderToBmp(pBmp, -1);
             testEqual(*pBmp, sFilename+"_"+toString(frameNum), B8G8R8X8);
 
         }
 
-        void readWholeFile(const string& sFilename, double speedFactor, 
+        void readWholeFile(const string& sFilename, float speedFactor, 
                 int expectedNumFrames)
         {
             // Read whole file, test last image.
@@ -215,11 +215,11 @@ class VideoDecoderTest: public DecoderTest {
             pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, isDemuxerThreaded(),
                     useHardwareAcceleration());
             IntPoint frameSize = pDecoder->getSize();
-            double timePerFrame = (1.0/pDecoder->getFPS())*speedFactor;
+            float timePerFrame = (1.0f/pDecoder->getFPS())*speedFactor;
             pDecoder->startDecoding(false, getAudioParams());
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
             int numFrames = 0;
-            double curTime = 0;
+            float curTime = 0;
 
             while (!pDecoder->isEOF()) {
                 FrameAvailableCode frameAvailable = pDecoder->renderToBmp(pBmp, curTime);
@@ -309,7 +309,7 @@ class AudioDecoderTest: public DecoderTest {
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getSrcDirName()+"testfiles/"+sFilename,
                             isDemuxerThreaded(), useHardwareAcceleration());
-                    double duration = pDecoder->getVideoInfo().m_Duration;
+                    float duration = pDecoder->getVideoInfo().m_Duration;
                     pDecoder->startDecoding(false, getAudioParams());
                     pDecoder->seek(duration/2);
                     AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
@@ -351,8 +351,8 @@ class AudioDecoderTest: public DecoderTest {
                     msleep(0);
                 }
                 totalFramesDecoded += framesDecoded;
-                double curTime = double(totalFramesDecoded)/44100;
-                if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02) {
+                float curTime = float(totalFramesDecoded)/44100;
+                if (abs(curTime-pDecoder->getCurTime(SS_AUDIO)) > 0.02f) {
                     numWrongTimestamps++;
                 }
 //                cerr << curTime << "->" << pDecoder->getCurTime(SS_AUDIO) << endl;
@@ -394,7 +394,7 @@ class AVDecoderTest: public DecoderTest {
             BitmapPtr pBmp(new Bitmap(frameSize, B8G8R8X8));
             int numFrames = 0;
             int totalFramesDecoded = 0;
-            double curTime = 0;
+            float curTime = 0;
             
             while (!pDecoder->isEOF()) {
                 FrameAvailableCode frameAvailable;
@@ -418,7 +418,7 @@ class AVDecoderTest: public DecoderTest {
                     totalFramesDecoded += framesDecoded;
 //                    cerr << "framesDecoded: " << framesDecoded << endl;
                 }
-                curTime += 1.0/pDecoder->getFPS();
+                curTime += 1.0f/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "numFrames: " << numFrames << endl;

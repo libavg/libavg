@@ -39,13 +39,13 @@ class AVG_API MeshNode : public VectorNode
         MeshNode(const ArgList& args);
         virtual ~MeshNode();
         
-        void isValid(const std::vector<DPoint>& coords);
+        void isValid(const std::vector<glm::vec2>& coords);
 
-        const std::vector<DPoint>& getVertexCoords() const;
-        void setVertexCoords(const std::vector<DPoint>& coords);
+        const std::vector<glm::vec2>& getVertexCoords() const;
+        void setVertexCoords(const std::vector<glm::vec2>& coords);
 
-        const std::vector<DPoint>& getTexCoords() const;
-        void setTexCoords(const std::vector<DPoint>& coords);
+        const std::vector<glm::vec2>& getTexCoords() const;
+        void setTexCoords(const std::vector<glm::vec2>& coords);
 
         const std::vector<IntTriple>& getTriangles() const;
         void setTriangles(const std::vector<IntTriple>& pts);
@@ -53,8 +53,8 @@ class AVG_API MeshNode : public VectorNode
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
-        std::vector<DPoint> m_TexCoords;
-        std::vector<DPoint> m_VertexCoords;
+        std::vector<glm::vec2> m_TexCoords;
+        std::vector<glm::vec2> m_VertexCoords;
         std::vector<IntTriple> m_Triangles;
 };
 }
