@@ -76,8 +76,6 @@ class AVG_API VideoWriterThread : public WorkerThread<VideoWriterThread>  {
         AVFrame* m_pConvertedFrame;
         unsigned char* m_pPictureBuffer;
         unsigned char* m_pVideoBuffer;
-        int m_VideoBufferSize;
-        PixelFormat m_StreamPixelFormat;
         int m_FramesWritten;
 };
 
