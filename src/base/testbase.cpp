@@ -23,7 +23,6 @@
 #include "Command.h"
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
-#include "Matrix3x4.h"
 #include "Triangulate.h"
 #include "GLMHelper.h"
 #include "GeomHelper.h"
@@ -338,32 +337,6 @@ public:
 #pragma warning(pop)
 #pragma optimize("", on)
 #endif
-
-
-class Matrix3x4Test: public Test
-{
-public:
-    Matrix3x4Test()
-        : Test("Matrix3x4Test", 2)
-    {
-    }
-
-    void runTests()
-    {
-        Matrix3x4 mat1;
-        Matrix3x4 mat2;
-        mat1 *= mat2;
-        TEST(almostEqual(mat1, Matrix3x4()));
-
-        mat2 = Matrix3x4::createTranslate(0,0,0);
-        mat1 *= mat2;
-        TEST(almostEqual(mat1, Matrix3x4()));
-
-        mat2 = Matrix3x4::createScale(1,1,1);
-        mat1 *= mat2;
-        TEST(almostEqual(mat1, Matrix3x4()));
-    }
-};
 
 
 class TriangleTest: public Test
@@ -744,7 +717,6 @@ public:
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
         addTest(TestPtr(new GeomTest));
-        addTest(TestPtr(new Matrix3x4Test));
         addTest(TestPtr(new TriangleTest));
         addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));

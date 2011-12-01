@@ -35,8 +35,6 @@
 
 namespace avg {
 
-class Matrix3x4;
-
 class AVG_API OGLShader {
     public:
         virtual ~OGLShader();
