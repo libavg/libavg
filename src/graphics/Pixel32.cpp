@@ -36,9 +36,9 @@ using namespace std;
 
 void Pixel32::toHSL(float& h, float& s, float& l)
 {
-    float r = float(m_Data[REDPOS])/255;
-    float g = float(m_Data[GREENPOS])/255;
-    float b = float(m_Data[BLUEPOS])/255;
+    float r = float(m_Data[REDPOS])/255.f;
+    float g = float(m_Data[GREENPOS])/255.f;
+    float b = float(m_Data[BLUEPOS])/255.f;
     float maxComp = max(r, max(g, b));
     float minComp = min(r, min(g, b));
     l = (maxComp+minComp)/2;
@@ -52,14 +52,14 @@ void Pixel32::toHSL(float& h, float& s, float& l)
         } else {
             s = delta/(2-(maxComp+minComp));
         }
-        if (r == maxComp) {
+        if (r > g && r > b) {
             h = (g-b)/delta;
             if (h < 0.0f) {
                 h += 6;
             }
-        } else if (g == maxComp) {
+        } else if (g > b) {
             h = 2+(b-r)/delta;
-        } else if (b == maxComp) {
+        } else {
             h = 4+(r-g)/delta;
         }
         h *= 60;
