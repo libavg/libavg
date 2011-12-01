@@ -164,7 +164,7 @@ void VideoWriterThread::open()
 
     m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y, 
             ::PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT, 
-            SWS_FAST_BILINEAR, NULL, NULL, NULL);
+            SWS_BILINEAR, NULL, NULL, NULL);
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
 
