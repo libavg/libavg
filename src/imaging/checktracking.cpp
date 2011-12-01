@@ -68,17 +68,6 @@ virtual ~TestTracker()
 {
 }
 
-virtual void update(BlobVectorPtr pBlobs, BitmapPtr) 
-{
-    m_FrameNum++;
-    cerr << "Frame " << m_FrameNum << endl;
-    for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
-        stringstream s;
-        s << "camimages/img" << m_FrameNum << "_" << i << ".png";
-        m_pBitmaps[i]->save(s.str());
-    }
-}
-
 private:
     int m_FrameNum;
     TrackerThread::CQueuePtr m_pCmdQ;

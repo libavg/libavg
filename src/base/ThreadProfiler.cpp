@@ -176,7 +176,7 @@ ProfilingZonePtr ThreadProfiler::addZone(const ProfilingZoneID& zoneID)
         AVG_ASSERT(bParentFound);
         parentIndent = pActiveZone->getIndentLevel();
         ++it;
-        for (; it != m_Zones.end() && (*it)->getIndentLevel() > parentIndent; ++it);
+        for (; it != m_Zones.end() && (*it)->getIndentLevel() > parentIndent; ++it) {};
     }
     m_Zones.insert(it, pZone);
     pZone->setIndentLevel(parentIndent+2);
