@@ -154,6 +154,7 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<glm::vec2>* pVec2Arg = dynamic_cast<Arg<glm::vec2>* >(&*pArg);
+    Arg<glm::vec3>* pVec3Arg = dynamic_cast<Arg<glm::vec3>* >(&*pArg);
     Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
     Arg<FTriple>* pFTripleArg = dynamic_cast<Arg<FTriple>* >(&*pArg);
     Arg<vector<float> >* pFVectorArg = dynamic_cast<Arg<vector<float> >* >(&*pArg);
@@ -173,6 +174,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pBoolArg, sName, value);
     } else if (pVec2Arg) {
         avg::setArgValue(pVec2Arg, sName, value);
+    } else if (pVec3Arg) {
+        avg::setArgValue(pVec3Arg, sName, value);
     } else if (pFVectorArg) {
         avg::setArgValue(pFVectorArg, sName, value);
     } else if (pVec2VectorArg) {
@@ -197,6 +200,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<glm::vec2>* pVec2Arg = dynamic_cast<Arg<glm::vec2>* >(&*pArg);
+    Arg<glm::vec3>* pVec3Arg = dynamic_cast<Arg<glm::vec3>* >(&*pArg);
     Arg<IntTriple>* pIntTripleArg = dynamic_cast<Arg<IntTriple>* >(&*pArg);
     Arg<vector<float> >* pFVectorArg = dynamic_cast<Arg<vector<float> >* >(&*pArg);
     Arg<vector<glm::vec2> >* pVec2VectorArg = 
@@ -216,6 +220,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         pBoolArg->setValue(stringToBool(sValue));
     } else if (pVec2Arg) {
         pVec2Arg->setValue(stringToVec2(sValue));
+    } else if (pVec3Arg) {
+        pVec3Arg->setValue(stringToVec3(sValue));
     } else if (pIntTripleArg) {
         pIntTripleArg->setValue(stringToIntTriple(sValue));
     } else if (pFVectorArg) {

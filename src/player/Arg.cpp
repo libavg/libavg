@@ -35,6 +35,7 @@ template class Arg<float>;
 template class Arg<string>;
 template class Arg<glm::vec2>;
 template class Arg<IntTriple>;
+template class Arg<glm::vec3>;
 template class Arg<FTriple>;
 template class Arg<vector<glm::vec2> >;
 template class Arg<vector<IntTriple> >;

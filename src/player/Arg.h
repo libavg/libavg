@@ -106,6 +106,7 @@ extern template class Arg<float>;
 extern template class Arg<std::string>;
 extern template class Arg<glm::vec2>;
 extern template class Arg<IntTriple>;
+extern template class Arg<glm::vec3>;
 extern template class Arg<FTriple>;
 extern template class Arg<std::vector<float> >;
 extern template class Arg<std::vector<glm::vec2> >;

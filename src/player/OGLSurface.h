@@ -25,7 +25,6 @@
 #include "../api.h"
 
 #include "../base/GLMHelper.h"
-#include "../base/Matrix3x4.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
@@ -61,8 +60,8 @@ public:
     IntPoint getTextureSize();
     bool isCreated() const;
 
-    void setColorParams(const FTriple& gamma, const FTriple& brightness,
-            const FTriple& contrast);
+    void setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
+            const glm::vec3& contrast);
     static void createShader();
 
     bool isDirty() const;
@@ -70,7 +69,7 @@ public:
 
 private:
     bool useShader() const;
-    Matrix3x4 calcColorspaceMatrix() const;
+    glm::mat4 calcColorspaceMatrix() const;
     bool gammaIsModified() const;
     bool colorIsModified() const;
 
@@ -81,10 +80,9 @@ private:
     glm::vec2 m_MaskPos;
     glm::vec2 m_MaskSize;
     
-
-    FTriple m_Gamma;
-    FTriple m_Brightness;
-    FTriple m_Contrast;
+    glm::vec3 m_Gamma;
+    glm::vec3 m_Brightness;
+    glm::vec3 m_Contrast;
 
     bool m_bIsDirty;
 };

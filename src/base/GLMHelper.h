@@ -42,14 +42,19 @@ bool almostEqual(const glm::detail::tvec2<NUM>& v1, const glm::detail::tvec2<NUM
 
 template<class NUM>
 std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<NUM> &v);
+template<class NUM>
+std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<NUM> &v);
 
 template<class NUM>
 std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM>& p);
+template<class NUM>
+std::istream& operator>>(std::istream& is, glm::detail::tvec3<NUM>& p);
 
 typedef glm::ivec2 IntPoint;
 typedef std::vector<glm::vec2> Vec2Vector;
 
 glm::vec2 stringToVec2(const std::string& s);
+glm::vec3 stringToVec3(const std::string& s);
 
 }
 

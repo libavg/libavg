@@ -34,16 +34,34 @@
 #include <iostream>
 #include <sstream>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace std;
 
 #define COLORSPACE_SHADER "COLORSPACE"
 
-static float yuvCoeff[3][4] = 
-{
-    {1.0f,   0.0f,   1.40f,  0.0f},
-    {1.0f, -0.34f,  -0.71f,  0.0f},
-    {1.0f,  1.77f,    0.0f,  0.0f},
-};
+/*
+static glm::mat4 yuvCoeff(
+        1.0f,   0.0f,   1.40f,  0.0f,
+        1.0f, -0.34f,  -0.71f,  0.0f,
+        1.0f,  1.77f,    0.0f,  0.0f,
+        0.0f,   0.0f,    0.0f,  1.0f);
+*/
+
+static glm::mat4 yuvCoeff(
+        1.0f,   1.0f,    1.0f,  0.0f,
+        0.0f, -0.34f,   1.77f,  0.0f,
+       1.40f, -0.71f,    0.0f,  0.0f,
+        0.0f,   0.0f,    0.0f,  1.0f);
+/*
+static glm::mat4 yuvCoeff(
+//      Y       U        V
+        1.0f,   0.0f,    0.0f,  0.0f,    // R
+        1.0f,   0.0f,    0.0f,  0.0f,    // G
+        1.0f,   0.0f,    0.0f,  0.0f,    // B
+        0.0f,   0.0f,    0.0f,  1.0f);
+*/
+    
 
 namespace avg {
 
@@ -149,19 +167,19 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
             }
         }
         if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
-            Matrix3x4 mat = calcColorspaceMatrix();
+            glm::mat4 mat = calcColorspaceMatrix();
             pShader->setUniformVec4fParam("colorCoeff0", 
-                    mat.val[0][0], mat.val[1][0], mat.val[2][0], 0);
+                    mat[0][0], mat[0][1], mat[0][2], 0);
             pShader->setUniformVec4fParam("colorCoeff1", 
-                    mat.val[0][1], mat.val[1][1], mat.val[2][1], 0);
+                    mat[1][0], mat[1][1], mat[1][2], 0);
             pShader->setUniformVec4fParam("colorCoeff2", 
-                    mat.val[0][2], mat.val[1][2], mat.val[2][2], 0);
+                    mat[2][0], mat[2][1], mat[2][2], 0);
             pShader->setUniformVec4fParam("colorCoeff3", 
-                    mat.val[0][3], mat.val[1][3], mat.val[2][3], 1);
+                    mat[3][0], mat[3][1], mat[3][2], 1);
         }
 
-        pShader->setUniformVec4fParam("gamma", float(1/m_Gamma.x), float(1/m_Gamma.y), 
-                float(1/m_Gamma.z), 1.0);
+        pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
+                1.0f);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
         pShader->setUniformIntParam("bPremultipliedAlpha", bPremultipliedAlpha);
@@ -226,8 +244,8 @@ bool OGLSurface::isCreated() const
     return m_pTextures[0];
 }
 
-void OGLSurface::setColorParams(const FTriple& gamma, const FTriple& brightness,
-            const FTriple& contrast)
+void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
+            const glm::vec3& contrast)
 {
     m_Gamma = gamma;
     m_Brightness = brightness;
@@ -342,22 +360,22 @@ bool OGLSurface::useShader() const
                     colorIsModified());
 }
 
-Matrix3x4 OGLSurface::calcColorspaceMatrix() const
+glm::mat4 OGLSurface::calcColorspaceMatrix() const
 {
-    Matrix3x4 mat;
+    glm::mat4 mat;
     if (colorIsModified()) {
-        mat *= Matrix3x4::createScale(m_Brightness);
-        mat *= Matrix3x4::createTranslate(float(0.5-m_Contrast.x/2), 
-                float(0.5-m_Contrast.y/2), float(0.5-m_Contrast.z/2));
-        mat *= Matrix3x4::createScale(m_Contrast);
+        mat = glm::scale(mat, m_Brightness);
+        glm::vec3 contrast = glm::vec3(0.5f, 0.5f, 0.5f) - m_Contrast/2.f;
+        mat = glm::translate(mat, contrast);
+        mat = glm::scale(mat, m_Contrast);
     }
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p || m_pf == YCbCrA420p) {
-        mat *= Matrix3x4(*yuvCoeff);
-        mat *= Matrix3x4::createTranslate(0.0, -0.5, -0.5);
+        mat *= yuvCoeff;
+        mat = glm::translate(mat, glm::vec3(0.0, -0.5, -0.5));
         if (m_pf == YCbCr420p || m_pf == YCbCrA420p) {
-            mat *= Matrix3x4::createScale(255.0f/(235-16), 255.0f/(240-16) , 
-                    255.0f/(240-16));
-            mat *= Matrix3x4::createTranslate(-16.0f/255, -16.0f/255, -16.0f/255);
+            mat = glm::scale(mat, 
+                    glm::vec3(255.0f/(235-16), 255.0f/(240-16), 255.0f/(240-16)));
+            mat = glm::translate(mat, glm::vec3(-16.0f/255, -16.0f/255, -16.0f/255));
         }
     }
     return mat;
@@ -365,8 +383,8 @@ Matrix3x4 OGLSurface::calcColorspaceMatrix() const
 
 bool OGLSurface::gammaIsModified() const
 {
-    return (fabs(m_Gamma.x-1.0) > 0.00001 || fabs(m_Gamma.y-1.0) > 0.00001 ||
-           fabs(m_Gamma.z-1.0) > 0.00001);
+    return (!almostEqual(m_Gamma.x, 1.0f) || !almostEqual(m_Gamma.y, 1.0f) ||
+            !almostEqual(m_Gamma.z, 1.0f));
 }
 
 bool OGLSurface::colorIsModified() const

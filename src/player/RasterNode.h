@@ -142,9 +142,9 @@ class AVG_API RasterNode: public AreaNode
         VertexArray * m_pVertexes;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 
-        FTriple m_Gamma;
-        FTriple m_Intensity;
-        FTriple m_Contrast;
+        glm::vec3 m_Gamma;
+        glm::vec3 m_Intensity;
+        glm::vec3 m_Contrast;
 
         FBOPtr m_pFBO;
         FXNodePtr m_pFXNode;
