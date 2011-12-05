@@ -53,9 +53,12 @@ NodeDefinition RasterNode::createDefinition()
                 offsetof(RasterNode, m_MaskPos)))
         .addArg(Arg<glm::vec2>("masksize", glm::vec2(0,0), false,
                 offsetof(RasterNode, m_MaskSize)))
-        .addArg(Arg<FTriple>("gamma", FTriple(1.0f,1.0f,1.0f)))
-        .addArg(Arg<FTriple>("contrast", FTriple(1.0f,1.0f,1.0f)))
-        .addArg(Arg<FTriple>("intensity", FTriple(1.0f,1.0f,1.0f)));
+        .addArg(Arg<glm::vec3>("gamma", glm::vec3(1.0f,1.0f,1.0f), false,
+                offsetof(RasterNode, m_Gamma)))
+        .addArg(Arg<glm::vec3>("contrast", glm::vec3(1.0f,1.0f,1.0f), false,
+                offsetof(RasterNode, m_Contrast)))
+        .addArg(Arg<glm::vec3>("intensity", glm::vec3(1.0f,1.0f,1.0f), false,
+                offsetof(RasterNode, m_Intensity)));
 }
 
 RasterNode::RasterNode()
@@ -88,12 +91,6 @@ void RasterNode::setArgs(const ArgList& args)
     bool bMipmap = args.getArgVal<bool>("mipmap");
     m_Material = MaterialInfo(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bMipmap);
     m_pSurface = new OGLSurface();
-    FTriple gamma = args.getArgVal<FTriple>("gamma");
-    m_Gamma = glm::vec3(gamma.x, gamma.y, gamma.z);
-    FTriple intensity = args.getArgVal<FTriple>("intensity");
-    m_Intensity = glm::vec3(intensity.x, intensity.y, intensity.z);
-    FTriple contrast = args.getArgVal<FTriple>("contrast");
-    m_Contrast = glm::vec3(contrast.x, contrast.y, contrast.z);
 }
 
 void RasterNode::connectDisplay()
@@ -292,43 +289,40 @@ void RasterNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEl
     }
 }
 
-FTriple RasterNode::getGamma() const
+glm::vec3 RasterNode::getGamma() const
 {
-    FTriple gamma(m_Gamma.x, m_Gamma.y, m_Gamma.z);
-    return gamma;
+    return m_Gamma;
 }
 
-void RasterNode::setGamma(const FTriple& gamma)
+void RasterNode::setGamma(const glm::vec3& gamma)
 {
-    m_Gamma = glm::vec3(gamma.x, gamma.y, gamma.z);
+    m_Gamma = gamma;
     if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
 
-FTriple RasterNode::getIntensity() const
+glm::vec3 RasterNode::getIntensity() const
 {
-    FTriple intensity(m_Intensity.x, m_Intensity.y, m_Intensity.z);
-    return intensity;
+    return m_Intensity;
 }
 
-void RasterNode::setIntensity(const FTriple& intensity)
+void RasterNode::setIntensity(const glm::vec3& intensity)
 {
-    m_Intensity = glm::vec3(intensity.x, intensity.y, intensity.z);
+    m_Intensity = intensity;
     if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }
 }
 
-FTriple RasterNode::getContrast() const
+glm::vec3 RasterNode::getContrast() const
 {
-    FTriple contrast(m_Contrast.x, m_Contrast.y, m_Contrast.z);
-    return contrast;
+    return m_Contrast;
 }
 
-void RasterNode::setContrast(const FTriple& contrast)
+void RasterNode::setContrast(const glm::vec3& contrast)
 {
-    m_Contrast = glm::vec3(contrast.x, contrast.y, contrast.z);
+    m_Contrast = contrast;
     if (getState() == Node::NS_CANRENDER) {
         m_pSurface->setColorParams(m_Gamma, m_Intensity, m_Contrast);
     }

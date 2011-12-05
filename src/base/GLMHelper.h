@@ -55,6 +55,7 @@ typedef std::vector<glm::vec2> Vec2Vector;
 
 glm::vec2 stringToVec2(const std::string& s);
 glm::vec3 stringToVec3(const std::string& s);
+glm::ivec3 stringToIVec3(const std::string& s);
 
 }
 

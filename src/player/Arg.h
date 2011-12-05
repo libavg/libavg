@@ -26,7 +26,6 @@
 
 #include "../api.h"
 #include "../base/GLMHelper.h"
-#include "../base/Triple.h"
 
 #include "ArgBase.h"
 
@@ -105,12 +104,11 @@ extern template class Arg<bool>;
 extern template class Arg<float>;
 extern template class Arg<std::string>;
 extern template class Arg<glm::vec2>;
-extern template class Arg<IntTriple>;
 extern template class Arg<glm::vec3>;
-extern template class Arg<FTriple>;
+extern template class Arg<glm::ivec3>;
 extern template class Arg<std::vector<float> >;
 extern template class Arg<std::vector<glm::vec2> >;
-extern template class Arg<std::vector<IntTriple> >;
+extern template class Arg<std::vector<glm::ivec2> >;
 #endif
 #endif
 

@@ -40,7 +40,7 @@ NodeDefinition MeshNode::createDefinition()
 {
     vector<glm::vec2> vVert;
     vector<glm::vec2> vTex;
-    vector<IntTriple> vTriangle;
+    vector<glm::ivec3> vTriangle;
 
     return NodeDefinition("mesh", (NodeBuilder)MeshNode::buildNode<MeshNode>)
         .extendDefinition(VectorNode::createDefinition())
@@ -48,7 +48,7 @@ NodeDefinition MeshNode::createDefinition()
                 offsetof(MeshNode, m_VertexCoords)))
         .addArg(Arg<vector<glm::vec2> >("texcoords", vTex, false, 
                 offsetof(MeshNode, m_TexCoords)))
-        .addArg(Arg<vector<IntTriple> >("triangles", vTriangle, false, 
+        .addArg(Arg<vector<glm::ivec3> >("triangles", vTriangle, false, 
                 offsetof(MeshNode, m_Triangles)))
         ;
 }
@@ -96,13 +96,13 @@ void MeshNode::setTexCoords(const vector<glm::vec2>& coords)
     setDrawNeeded();
 }
 
-const vector<IntTriple>& MeshNode::getTriangles() const
+const vector<glm::ivec3>& MeshNode::getTriangles() const
 {
     return m_Triangles; 
 }
 
 
-void MeshNode::setTriangles(const vector<IntTriple>& triangles)
+void MeshNode::setTriangles(const vector<glm::ivec3>& triangles)
 {
     for (unsigned int i = 0; i < triangles.size(); i++) {
         

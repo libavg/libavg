@@ -170,32 +170,33 @@ void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
     }
 }
 
-template<class VEC2>
-struct Vec2_to_python_tuple
-{
-    static PyObject* convert (VEC2 pt)
-    {
-        return boost::python::incref(boost::python::make_tuple(pt.x, pt.y).ptr());
-    }
-};
-
 struct Exception_to_python_exception
 {
     static PyObject* convert (avg::Exception ex)
     {
-        PyObject *arglist = boost::python::incref(Py_BuildValue("(s)", ex.getStr().c_str()));
+        PyObject *arglist = boost::python::incref(
+                Py_BuildValue("(s)", ex.getStr().c_str()));
         
         return boost::python::incref(
                 PyObject_CallObject(PyExc_RuntimeError, arglist));
     }
 };
 
-template<class NUM>
-struct Triple_to_python_tuple
+template<class VEC2>
+struct Vec2_to_python_tuple
 {
-    static PyObject* convert (avg::Triple<NUM> t)
+    static PyObject* convert (VEC2 v)
     {
-        return boost::python::incref(boost::python::make_tuple(t.x,t.y,t.z).ptr());
+        return boost::python::incref(boost::python::make_tuple(v.x, v.y).ptr());
+    }
+};
+
+template<class VEC3>
+struct Vec3_to_python_tuple
+{
+    static PyObject* convert (VEC3 v)
+    {
+        return boost::python::incref(boost::python::make_tuple(v.x, v.y, v.z).ptr());
     }
 };
 
@@ -238,13 +239,13 @@ struct vec2_from_python
     }
 };
 
-template<class NUM>
-struct triple_from_python
+template<class VEC3, class ATTR>
+struct vec3_from_python
 {
-    triple_from_python() 
+    vec3_from_python() 
     {
         boost::python::converter::registry::push_back(
-                &convertible, &construct, boost::python::type_id<Triple<NUM> >());
+                &convertible, &construct, boost::python::type_id<VEC3>());
     }
     
     static void* convertible(PyObject* obj_ptr)
@@ -261,20 +262,20 @@ struct triple_from_python
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        avg::Triple<NUM> t;
+        VEC3 t;
         PyObject * pEntry = PySequence_GetItem(obj_ptr, 0);
-        t.x = (NUM)PyFloat_AsDouble(pEntry);
+        t.x = (ATTR)PyFloat_AsDouble(pEntry);
         Py_DECREF(pEntry);
         pEntry = PySequence_GetItem(obj_ptr, 1);
-        t.y = (NUM)PyFloat_AsDouble(pEntry);
+        t.y = (ATTR)PyFloat_AsDouble(pEntry);
         Py_DECREF(pEntry);
         pEntry = PySequence_GetItem(obj_ptr, 2);
-        t.z = (NUM)PyFloat_AsDouble(pEntry);
+        t.z = (ATTR)PyFloat_AsDouble(pEntry);
         Py_DECREF(pEntry);
         void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<Triple<NUM> >*)
+                (boost::python::converter::rvalue_from_python_storage<VEC3>*)
                         data)->storage.bytes;
-        new (storage) Triple<NUM>(t);
+        new (storage) VEC3(t);
         data->convertible = storage;
     }
 };
@@ -359,23 +360,25 @@ void export_base()
 #endif
     to_python_converter<Exception, Exception_to_python_exception>();
     to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
-    to_python_converter<FTriple, Triple_to_python_tuple<float> >();
+    to_python_converter<glm::ivec3, Vec3_to_python_tuple<glm::ivec3> >();
+    to_python_converter<glm::vec3, Vec3_to_python_tuple<glm::vec3> >();
     vec2_from_python<glm::vec2, float>();
     vec2_from_python<ConstVec2, float>();
     vec2_from_python<IntPoint, int>();
-    
-    triple_from_python<float>();
-    triple_from_python<int>();
+    vec3_from_python<glm::vec3, float>();
+    vec3_from_python<glm::ivec3, int>();
     
     to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
+    to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
+    to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
     to_python_converter<vector<string>, to_list<vector<string> > >();    
    
     from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
     from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
     from_python_sequence<vector<string>, variable_capacity_policy>();
   
-    from_python_sequence<vector<IntTriple>, variable_capacity_policy>();
-    from_python_sequence<vector<FTriple>, variable_capacity_policy>();
     from_python_sequence<vector<float>, variable_capacity_policy>();
     
     to_python_converter<UTF8String, UTF8String_to_unicode>();

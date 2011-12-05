@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "../base/GLMHelper.h"
-#include "../base/Triple.h"
 #include "../base/Exception.h"
 
 #include "../player/BoostPython.h"

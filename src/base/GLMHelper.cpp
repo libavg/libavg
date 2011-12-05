@@ -116,6 +116,13 @@ glm::vec3 stringToVec3(const std::string& s)
     return pt;
 }
 
+glm::ivec3 stringToIVec3(const std::string& s)
+{
+    glm::ivec3 pt;
+    fromString(s, pt);
+    return pt;
+}
+
 
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<int> &p);
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<float> &p);

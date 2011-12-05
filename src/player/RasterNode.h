@@ -28,7 +28,6 @@
 
 #include "../avgconfigwrapper.h"
 #include "../base/GLMHelper.h"
-#include "../base/Triple.h"
 #include "../base/UTF8String.h"
 #include "../graphics/GLContext.h"
 
@@ -83,12 +82,12 @@ class AVG_API RasterNode: public AreaNode
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 
-        FTriple getGamma() const;
-        void setGamma(const FTriple& gamma);
-        FTriple getIntensity() const;
-        void setIntensity(const FTriple& intensity);
-        FTriple getContrast() const;
-        void setContrast(const FTriple& contrast);
+        glm::vec3 getGamma() const;
+        void setGamma(const glm::vec3& gamma);
+        glm::vec3 getIntensity() const;
+        void setIntensity(const glm::vec3& intensity);
+        glm::vec3 getContrast() const;
+        void setContrast(const glm::vec3& contrast);
 
         void setEffect(FXNodePtr pFXNode);
         

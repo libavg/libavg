@@ -24,12 +24,12 @@
 
 #include "../api.h"
 #include "Exception.h"
-#include "Triple.h"
 
 #include <string>
 #include <sstream>
 #include <typeinfo>
 #include <iostream>
+#include <vector>
 
 #ifdef __GNUC__
 #include <cxxabi.h>
@@ -77,7 +77,6 @@ std::istream& operator >>(std::istream& is, std::vector<T>& v)
 int stringToInt(const std::string& s);
 float stringToFloat(const std::string& s);
 bool stringToBool(const std::string& s);
-IntTriple stringToIntTriple(const std::string& s);
 
 std::string removeStartEndSpaces(const std::string& s);
 

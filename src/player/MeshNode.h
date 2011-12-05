@@ -25,8 +25,10 @@
 
 #include "../api.h"
 #include "VectorNode.h"
+
+#include "../base/GLMHelper.h"
 #include "../graphics/Pixel32.h"
-#include "../base/Triple.h"
+
 #include <vector>
 
 namespace avg {
@@ -47,15 +49,15 @@ class AVG_API MeshNode : public VectorNode
         const std::vector<glm::vec2>& getTexCoords() const;
         void setTexCoords(const std::vector<glm::vec2>& coords);
 
-        const std::vector<IntTriple>& getTriangles() const;
-        void setTriangles(const std::vector<IntTriple>& pts);
+        const std::vector<glm::ivec3>& getTriangles() const;
+        void setTriangles(const std::vector<glm::ivec3>& pts);
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
         std::vector<glm::vec2> m_TexCoords;
         std::vector<glm::vec2> m_VertexCoords;
-        std::vector<IntTriple> m_Triangles;
+        std::vector<glm::ivec3> m_Triangles;
 };
 }
 #endif
