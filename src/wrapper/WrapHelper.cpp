@@ -355,34 +355,41 @@ struct UTF8String_from_string
 
 void export_base()
 {
-#if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
+    // Exceptions
     register_exception_translator<Exception>(exception_translator);
-#endif
     to_python_converter<Exception, Exception_to_python_exception>();
+   
+    // vec2
     to_python_converter<IntPoint, Vec2_to_python_tuple<IntPoint> >();
-    to_python_converter<glm::ivec3, Vec3_to_python_tuple<glm::ivec3> >();
-    to_python_converter<glm::vec3, Vec3_to_python_tuple<glm::vec3> >();
+    vec2_from_python<IntPoint, int>();
     vec2_from_python<glm::vec2, float>();
     vec2_from_python<ConstVec2, float>();
-    vec2_from_python<IntPoint, int>();
-    vec3_from_python<glm::vec3, float>();
-    vec3_from_python<glm::ivec3, int>();
-    
-    to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
-    to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
-    to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
-    to_python_converter<vector<string>, to_list<vector<string> > >();    
    
-    from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
+    // vector<vec2>
+    to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();    
     from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<string>, variable_capacity_policy>();
-  
-    from_python_sequence<vector<float>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
+
+    // vec3
+    to_python_converter<glm::ivec3, Vec3_to_python_tuple<glm::ivec3> >();
+    to_python_converter<glm::vec3, Vec3_to_python_tuple<glm::vec3> >();
+    vec3_from_python<glm::ivec3, int>();
+    vec3_from_python<glm::vec3, float>();
     
+    // vector<vec3>
+    to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();    
+    to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();    
+    from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
+
+    // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
     UTF8String_from_unicode();
     UTF8String_from_string();
+
+    to_python_converter<vector<string>, to_list<vector<string> > >();    
+    from_python_sequence<vector<string>, variable_capacity_policy>();
+  
+    from_python_sequence<vector<float>, variable_capacity_policy>();
 }
 
