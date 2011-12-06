@@ -32,6 +32,11 @@
 
 namespace avg {
 
+#ifdef WIN32
+bool isnan(float x);
+bool isinf(float x);
+#endif
+
 static const float PI = 3.14159265358979323846f;
 static const float EPSILON = 0.00001f;
 

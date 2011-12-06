@@ -36,11 +36,9 @@ using namespace std;
 
 namespace avg {
 
-CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size, 
-        PixelFormat camPF, PixelFormat destPF, float FrameRate)
-    : Camera(camPF, destPF),
-      m_Size(Size),
-      m_FrameRate(FrameRate),
+CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint size, 
+        PixelFormat camPF, PixelFormat destPF, float frameRate)
+    : Camera(camPF, destPF, size, frameRate),
       m_WhitebalanceU(-1),
       m_WhitebalanceV(-1),
       m_pCamera(0)
@@ -48,7 +46,7 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size,
     m_pCamera = new C1394Camera();
     int err;
     unsigned long videoFormat, videoMode;
-    getVideoFormatAndMode(m_Size, getCamPF(), &videoFormat, &videoMode);
+    getVideoFormatAndMode(getImgSize(), getCamPF(), &videoFormat, &videoMode);
 
     // Find and open camera
     if (m_pCamera->RefreshCameraList() <= 0) {
@@ -72,7 +70,7 @@ CMUCamera::CMUCamera(long long guid, bool bFW800, IntPoint Size,
     checkCMUError(err, AVG_ERR_CAMERA_NONFATAL,
             string("CMUCamera: Error setting video mode ") + toString(videoMode) + 
             ", format: " + toString(videoFormat));
-    err = m_pCamera->SetVideoFrameRate(getFrameRateConst(m_FrameRate));
+    err = m_pCamera->SetVideoFrameRate(getFrameRateConst(getFrameRate()));
     checkCMUError(err, AVG_ERR_CAMERA_NONFATAL, "Error setting frame rate");
 
     // Start capturing images
@@ -111,12 +109,6 @@ CMUCamera::~CMUCamera()
     delete m_pCamera;
 }
 
-
-IntPoint CMUCamera::getImgSize()
-{
-    return m_Size;
-}
-
 BitmapPtr CMUCamera::getImage(bool bWait)
 {
     if (bWait) {
@@ -139,8 +131,8 @@ BitmapPtr CMUCamera::getImage(bool bWait)
     unsigned long captureBufferLength;
     unsigned char* pCaptureBuffer = m_pCamera->GetRawData(&captureBufferLength);
 
-    BitmapPtr pCamBmp(new Bitmap(m_Size, getCamPF(), pCaptureBuffer, 
-            captureBufferLength / m_Size.y, false, "TempCameraBmp"));
+    BitmapPtr pCamBmp(new Bitmap(getImgSize(), getCamPF(), pCaptureBuffer, 
+            captureBufferLength / getImgSize().y, false, "TempCameraBmp"));
     return convertCamFrameToDestPF(pCamBmp);
 }
     
@@ -154,11 +146,6 @@ const std::string& CMUCamera::getDriverName() const
 {
     static string sDriverName = "CMU 1394 Digital Camera Driver";
     return sDriverName;
-}
-
-float CMUCamera::getFrameRate() const
-{
-    return m_FrameRate;
 }
 
 int CMUCamera::getFeature(CameraFeature Feature) const

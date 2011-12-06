@@ -43,10 +43,8 @@ using namespace std;
 
 DSCamera::DSCamera(std::string sDevice, IntPoint size, PixelFormat camPF, 
         PixelFormat destPF, float frameRate)
-    : Camera(camPF, destPF),
+    : Camera(camPF, destPF, size, frameRate),
       m_sDevice(sDevice),
-      m_Size(size),
-      m_FrameRate(frameRate),
       m_pGraph(0),
       m_pCapture(0),
       m_pCameraPropControl(0)
@@ -135,11 +133,6 @@ void DSCamera::close()
     m_pSampleGrabber->Release();
 }
 
-IntPoint DSCamera::getImgSize()
-{
-    return m_Size;
-}
-
 BitmapPtr DSCamera::getImage(bool bWait)
 {
     BitmapPtr pBmp;
@@ -191,10 +184,10 @@ void DSCamera::setCaptureFormat()
         if (height < 0) {
             height = -height;
         }
-        if (bih.biWidth == m_Size.x && height == m_Size.y && 
+        if (bih.biWidth == getImgSize().x && height == getImgSize().y && 
                 (getCamPF() == capsPF || (getCamPF() == BAYER8_GBRG && capsPF == I8)))
         {
-            if (fabs(m_FrameRate-frameRate) < 0.001) {
+            if (fabs(getFrameRate()-frameRate) < 0.001) {
                 bFormatFound = true;
                 break;
             } else if (!bCloseFormatFound) {
@@ -224,7 +217,7 @@ void DSCamera::setCaptureFormat()
         if (bCloseFormatFound) {
             // Set the framerate manually.
             pvih = (VIDEOINFOHEADER*)(pmtCloseConfig->pbFormat);
-            pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/m_FrameRate);
+            pvih->AvgTimePerFrame = REFERENCE_TIME(10000000/getFrameRate());
             int height = pvih->bmiHeader.biHeight;
             m_bUpsideDown = (height > 0);
             hr = pSC->SetFormat(pmtCloseConfig);
@@ -258,11 +251,6 @@ const std::string& DSCamera::getDriverName() const
 {
     static string sDriverName = "directshow";
     return sDriverName;
-}
-
-float DSCamera::getFrameRate() const
-{
-    return m_FrameRate;
 }
 
 int DSCamera::getFeature(CameraFeature feature) const
@@ -352,10 +340,10 @@ void DSCamera::onSample(IMediaSample * pSample)
     // Get the current image.
     pSample->GetPointer(&pData);
 
-    int stride = m_Size.x*getBytesPerPixel(getCamPF());
-    Bitmap camBmp(m_Size, getCamPF(), pData, stride, false, "CameraImage");
+    int stride = getImgSize().x*getBytesPerPixel(getCamPF());
+    Bitmap camBmp(getImgSize(), getCamPF(), pData, stride, false, "CameraImage");
     // Copy over to bitmap queue, doing pixel format conversion if necessary.
-    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(m_Size, getDestPF(), 
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(getImgSize(), getDestPF(), 
             "ConvertedCameraImage"));
     pDestBmp->copyPixels(camBmp);
 

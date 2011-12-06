@@ -262,7 +262,7 @@ public:
         float one = 1;
         float zero = 0;
 
-        TEST(isinf(-one/zero) != 0);
+        TEST(avg::isinf(-one/zero) != 0);
         TEST(isinf(one/zero) != 0);
         TEST(isinf(one) == 0);
         TEST(isnan(sqrt(-one)) != 0);

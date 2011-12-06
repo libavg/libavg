@@ -34,34 +34,17 @@
 #include <iostream>
 #include <sstream>
 
-#include <glm/gtc/matrix_transform.hpp>
+#include "../glm/gtc/matrix_transform.hpp"
 
 using namespace std;
 
 #define COLORSPACE_SHADER "COLORSPACE"
-
-/*
-static glm::mat4 yuvCoeff(
-        1.0f,   0.0f,   1.40f,  0.0f,
-        1.0f, -0.34f,  -0.71f,  0.0f,
-        1.0f,  1.77f,    0.0f,  0.0f,
-        0.0f,   0.0f,    0.0f,  1.0f);
-*/
 
 static glm::mat4 yuvCoeff(
         1.0f,   1.0f,    1.0f,  0.0f,
         0.0f, -0.34f,   1.77f,  0.0f,
        1.40f, -0.71f,    0.0f,  0.0f,
         0.0f,   0.0f,    0.0f,  1.0f);
-/*
-static glm::mat4 yuvCoeff(
-//      Y       U        V
-        1.0f,   0.0f,    0.0f,  0.0f,    // R
-        1.0f,   0.0f,    0.0f,  0.0f,    // G
-        1.0f,   0.0f,    0.0f,  0.0f,    // B
-        0.0f,   0.0f,    0.0f,  1.0f);
-*/
-    
 
 namespace avg {
 

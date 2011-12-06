@@ -28,6 +28,18 @@ using namespace std;
 
 namespace avg {
 
+#ifdef WIN32
+bool isnan(float x) 
+{
+    return _isnan(x) != 0;
+}
+
+bool isinf(float x)
+{
+    return _finite(x) == 0;
+}
+#endif
+
 bool ispow2(int n)
 {
     return ((n & (n-1)) == 0);

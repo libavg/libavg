@@ -39,13 +39,11 @@ public:
             PixelFormat destPF, float FrameRate);
     virtual ~CMUCamera();
 
-    virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual float getFrameRate() const;
-
+ 
     virtual int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
     virtual void setFeatureOneShot(CameraFeature Feature);
@@ -72,8 +70,6 @@ private:
             unsigned long videoMode, FrameratesVector &framerates);
 
     std::string m_sDevice;
-    IntPoint m_Size;
-    float m_FrameRate;
 
     mutable C1394Camera * m_pCamera; // The CMU1394 lib is not const-correct.
     FeatureMap m_Features;

@@ -87,7 +87,6 @@
     <ClInclude Include="..\..\src\base\IPreRenderListener.h" />
     <ClInclude Include="..\..\src\base\Logger.h" />
     <ClInclude Include="..\..\src\base\MathHelper.h" />
-    <ClInclude Include="..\..\src\base\Matrix3x4.h" />
     <ClInclude Include="..\..\src\base\ObjectCounter.h" />
     <ClInclude Include="..\..\src\base\OSHelper.h" />
     <ClInclude Include="..\..\src\base\ProfilingZone.h" />
@@ -103,7 +102,6 @@
     <ClInclude Include="..\..\src\base\TimeSource.h" />
     <ClInclude Include="..\..\src\base\Triangle.h" />
     <ClInclude Include="..\..\src\base\Triangulate.h" />
-    <ClInclude Include="..\..\src\base\Triple.h" />
     <ClInclude Include="..\..\src\base\UTF8String.h" />
     <ClInclude Include="..\..\src\base\WideLine.h" />
     <ClInclude Include="..\..\src\base\WorkerThread.h" />
@@ -124,7 +122,6 @@
     <ClCompile Include="..\..\src\base\GLMHelper.cpp" />
     <ClCompile Include="..\..\src\base\Logger.cpp" />
     <ClCompile Include="..\..\src\base\MathHelper.cpp" />
-    <ClCompile Include="..\..\src\base\Matrix3x4.cpp" />
     <ClCompile Include="..\..\src\base\ObjectCounter.cpp" />
     <ClCompile Include="..\..\src\base\OSHelper.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZone.cpp" />
@@ -137,7 +134,6 @@
     <ClCompile Include="..\..\src\base\TimeSource.cpp" />
     <ClCompile Include="..\..\src\base\Triangle.cpp" />
     <ClCompile Include="..\..\src\base\Triangulate.cpp" />
-    <ClCompile Include="..\..\src\base\Triple.cpp" />
     <ClCompile Include="..\..\src\base\UTF8String.cpp" />
     <ClCompile Include="..\..\src\base\WideLine.cpp" />
     <ClCompile Include="..\..\src\base\XMLHelper.cpp" />

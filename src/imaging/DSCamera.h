@@ -52,12 +52,10 @@ public:
     virtual ~DSCamera();
     virtual void startCapture();
 
-    virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
     virtual void setFeature(CameraFeature feature, int value, 
@@ -86,8 +84,6 @@ private:
     static void getCameraControls(IMoniker* pMoniker, CameraInfo* pCamInfo);
 
     std::string m_sDevice;
-    IntPoint m_Size;
-    float m_FrameRate;
 
     IGraphBuilder * m_pGraph;
     ICaptureGraphBuilder2 * m_pCapture;
