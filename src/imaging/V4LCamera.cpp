@@ -627,8 +627,6 @@ void V4LCamera::initDevice()
                 +"'. Try using avg_showcamera.py --dump to find out what\
                         the device supports."));
     }
-    m_FrameRate = (float)StreamParam.parm.capture.timeperframe.denominator / \
-            (float)StreamParam.parm.capture.timeperframe.numerator;
 
     initMMap ();
 
