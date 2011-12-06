@@ -54,12 +54,10 @@ public:
     virtual ~FWCamera();
     virtual void startCapture();
 
-    virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
     bool hasFeature(CameraFeature feature);
@@ -88,9 +86,6 @@ private:
     dc1394framerate_t m_FrameRateConstant; 
     dc1394video_mode_t m_Mode;
 #endif
-
-    IntPoint m_Size;
-    float m_FrameRate;
 
     FeatureMap m_Features;
     int m_WhitebalanceU;

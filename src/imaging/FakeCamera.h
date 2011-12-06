@@ -43,13 +43,11 @@ public:
     virtual void open();
     virtual void close();
 
-    virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
     virtual bool isCameraAvailable();
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
-    virtual float getFrameRate() const;
     virtual const std::string& getMode() const;
 
     virtual int getFeature(CameraFeature feature) const;
@@ -60,7 +58,6 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
 private:
-    IntPoint m_ImgSize;
     BitmapQueuePtr m_pBmpQ;
     bool m_bIsOpen;
 };

@@ -39,14 +39,12 @@ using namespace std;
 
 FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, 
         PixelFormat camPF, PixelFormat destPF, float frameRate)
-    : Camera(camPF, destPF),
-      m_Size(size),
-      m_FrameRate(frameRate),
+    : Camera(camPF, destPF, size, frameRate),
       m_WhitebalanceU(-1),
       m_WhitebalanceV(-1)
 {
 #ifdef AVG_ENABLE_1394_2
-    m_FrameRateConstant = getFrameRateConst(m_FrameRate);
+    m_FrameRateConstant = getFrameRateConst(getFrameRate());
     if (camPF == I16) {
         throw Exception(AVG_ERR_CAMERA_NONFATAL, 
                 "I16 pixel format is not supported for firewire cameras.");
@@ -129,14 +127,14 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
         }
     }
     if (!bFrameRateSupported) {
-        AVG_TRACE(Logger::ERROR, "Camera does not support framerate " << m_FrameRate 
+        AVG_TRACE(Logger::ERROR, "Camera does not support framerate " << getFrameRate() 
                 << " in the current video mode.");
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
         dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA_NONFATAL, 
-                string("Camera does not support framerate ")+toString(m_FrameRate)+
+                string("Camera does not support framerate ")+toString(getFrameRate())+
                 " in the current video mode.");
     }
 
@@ -147,7 +145,7 @@ FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size,
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::ERROR, "Unable to setup camera. Make sure that");
         AVG_TRACE(Logger::ERROR, "video mode and framerate (" <<
-                m_FrameRate << ") are");
+                getFrameRate() << ") are");
         AVG_TRACE(Logger::ERROR, "supported by your camera.");
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
@@ -217,16 +215,6 @@ void FWCamera::startCapture()
 #endif
 }
 
-IntPoint FWCamera::getImgSize()
-{
-#ifdef AVG_ENABLE_1394_2
-    return m_Size;
-#else
-    return IntPoint(0, 0);
-#endif
-}
-
-
 static ProfilingZoneID CameraConvertProfilingZone("FW Camera format conversion");
 
 BitmapPtr FWCamera::getImage(bool bWait)
@@ -248,12 +236,12 @@ BitmapPtr FWCamera::getImage(bool bWait)
     if (bGotFrame) {
         int lineLen;
         if (getCamPF() == YCbCr411) {
-            lineLen = m_Size.x*1.5;
+            lineLen = getImgSize().x*1.5;
         } else {
-            lineLen = m_Size.x*getBytesPerPixel(getCamPF());
+            lineLen = getImgSize().x*getBytesPerPixel(getCamPF());
         }
-        BitmapPtr pCamBmp(new Bitmap(m_Size, getCamPF(), pCaptureBuffer, lineLen, false,
-                "TempCameraBmp"));
+        BitmapPtr pCamBmp(new Bitmap(getImgSize(), getCamPF(), pCaptureBuffer, lineLen,
+                false, "TempCameraBmp"));
         BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
 //        cerr << "CamBmp: " << pCamBmp->getPixelFormat() << ", DestBmp: " 
 //                << pDestBmp->getPixelFormat() << endl;
@@ -288,11 +276,6 @@ const std::string& FWCamera::getDriverName() const
     static string sDriverName = "";
 #endif
     return sDriverName;
-}
-
-float FWCamera::getFrameRate() const
-{
-    return m_FrameRate;
 }
 
 int FWCamera::getFeature(CameraFeature feature) const

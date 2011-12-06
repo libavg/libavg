@@ -36,24 +36,22 @@ using namespace std;
 namespace avg {
 
 FakeCamera::FakeCamera(PixelFormat camPF, PixelFormat destPF)
-    : Camera(camPF, destPF),
+    : Camera(camPF, destPF, IntPoint(640, 480), 60),
       m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
-    m_ImgSize = IntPoint(640, 480);
 }
 
 FakeCamera::FakeCamera(std::vector<std::string>& pictures)
-    : Camera(I8, I8),
+    : Camera(I8, I8, IntPoint(640,480), 60),
       m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
-    m_ImgSize = IntPoint(640, 480);
     for (vector<string>::iterator it = pictures.begin(); it != pictures.end(); ++it) {
         try {
             BitmapPtr pBmp (new Bitmap(*it));
             FilterGrayscale().applyInPlace(pBmp);
-            m_ImgSize = pBmp->getSize();
+            setImgSize(pBmp->getSize());
             m_pBmpQ->push(pBmp);
         } catch (Exception& ex) {
             AVG_TRACE(Logger::ERROR, ex.getStr());
@@ -76,11 +74,6 @@ void FakeCamera::close()
     m_bIsOpen = false;
 }
 
-
-IntPoint FakeCamera::getImgSize()
-{
-    return m_ImgSize;
-}
 
 BitmapPtr FakeCamera::getImage(bool bWait)
 {
@@ -112,11 +105,6 @@ const std::string& FakeCamera::getDriverName() const
 {
     static string sDriverName = "FakeCameraDriver";
     return sDriverName;
-}
-
-float FakeCamera::getFrameRate() const
-{
-    return 60;
 }
 
 const string& FakeCamera::getMode() const

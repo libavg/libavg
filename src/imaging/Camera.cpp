@@ -51,9 +51,11 @@ namespace avg {
 
 using namespace std;
 
-Camera::Camera(PixelFormat camPF, PixelFormat destPF)
+Camera::Camera(PixelFormat camPF, PixelFormat destPF, IntPoint size, float frameRate)
     : m_CamPF(camPF),
-      m_DestPF(destPF)
+      m_DestPF(destPF),
+      m_Size(size),
+      m_FrameRate(frameRate)
 {
 //    cerr << "Camera: " << getPixelFormatString(camPF) << "-->" 
 //        << getPixelFormatString(destPF) << endl;
@@ -89,6 +91,16 @@ BitmapPtr Camera::convertCamFrameToDestPF(BitmapPtr pCamBmp)
     return pDestBmp;
 }
 
+IntPoint Camera::getImgSize()
+{
+    return m_Size;
+}
+
+float Camera::getFrameRate() const
+{
+    return m_FrameRate;
+}
+
 PixelFormat Camera::fwBayerStringToPF(unsigned long reg)
 {
     string sBayerFormat((char*)&reg, 4);
@@ -106,6 +118,11 @@ PixelFormat Camera::fwBayerStringToPF(unsigned long reg)
         AVG_ASSERT(false);
         return I8;
     }
+}
+
+void Camera::setImgSize(const IntPoint& size)
+{
+    m_Size = size;
 }
 
 string cameraFeatureToString(CameraFeature feature)

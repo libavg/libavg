@@ -45,13 +45,11 @@ public:
             PixelFormat destPF, float frameRate);
     virtual ~V4LCamera();
 
-    virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
     virtual bool isCameraAvailable();
 
     virtual const std::string& getDevice() const;
     virtual const std::string& getDriverName() const;
-    virtual float getFrameRate() const;
 
     virtual int getFeature(CameraFeature feature) const;
     virtual void setFeature(CameraFeature feature, int value,
@@ -95,9 +93,6 @@ private:
     std::vector<Buffer> m_vBuffers;
     bool m_bCameraAvailable;
     int m_v4lPF;
-    IntPoint m_ImgSize;
-    float m_FrameRate;
-
 };
 
 }

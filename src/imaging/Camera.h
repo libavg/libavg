@@ -64,7 +64,7 @@ enum CameraFeature {
 class AVG_API Camera
 {
 public:
-    Camera(PixelFormat camPF, PixelFormat destPF);
+    Camera(PixelFormat camPF, PixelFormat destPF, IntPoint size, float frameRate);
     virtual ~Camera() {};
     virtual void startCapture() {};
     
@@ -73,12 +73,12 @@ public:
     PixelFormat getDestPF() const;
     BitmapPtr convertCamFrameToDestPF(BitmapPtr pCamBmp);
 
-    virtual IntPoint getImgSize() = 0;
+    IntPoint getImgSize();
+    float getFrameRate() const;
     virtual BitmapPtr getImage(bool bWait) = 0;
 
     virtual const std::string& getDevice() const = 0; 
     virtual const std::string& getDriverName() const = 0; 
-    virtual float getFrameRate() const = 0;
     
     virtual int getFeature(CameraFeature feature) const = 0;
     virtual void setFeature(CameraFeature feature, int Value, 
@@ -90,12 +90,15 @@ public:
 
 protected:
     PixelFormat fwBayerStringToPF(unsigned long reg);
-    static CameraInfo m_camInfo;//std::list<CameraInfo> camInfos;
+    void setImgSize(const IntPoint& size);
 
 private:
     Camera();
     PixelFormat m_CamPF;
     PixelFormat m_DestPF;
+
+    IntPoint m_Size;
+    float m_FrameRate;
 };
 
 

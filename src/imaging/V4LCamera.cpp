@@ -64,14 +64,13 @@ namespace {
 }
 
 namespace avg {
+
 V4LCamera::V4LCamera(string sDevice, int channel, IntPoint size, PixelFormat camPF,
         PixelFormat destPF, float frameRate)
-    : Camera(camPF, destPF),
+    : Camera(camPF, destPF, size, frameRate),
       m_Fd(-1),
       m_Channel(channel),
-      m_sDevice(sDevice),
-      m_ImgSize(size),
-      m_FrameRate(frameRate)
+      m_sDevice(sDevice)
 {
     m_v4lPF = getV4LPF(camPF);
     if (m_sDevice == "") {
@@ -131,11 +130,6 @@ void V4LCamera::close()
     AVG_TRACE(Logger::CONFIG, "V4L2 Camera closed");
 
     m_Fd = -1;
-}
-
-IntPoint V4LCamera::getImgSize()
-{
-    return m_ImgSize;
 }
 
 int V4LCamera::getV4LPF(PixelFormat pf)
@@ -210,15 +204,15 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     float lineLen;
     switch (getCamPF()) {
         case YCbCr411:
-            lineLen = m_ImgSize.x*1.5f;
+            lineLen = getImgSize().x*1.5f;
             break;
         case YCbCr420p:
-            lineLen = m_ImgSize.x;
+            lineLen = getImgSize().x;
             break;
         default:
-            lineLen = m_ImgSize.x*getBytesPerPixel(getCamPF());
+            lineLen = getImgSize().x*getBytesPerPixel(getCamPF());
     }
-    BitmapPtr pCamBmp(new Bitmap(m_ImgSize, getCamPF(), pCaptureBuffer, lineLen,
+    BitmapPtr pCamBmp(new Bitmap(getImgSize(), getCamPF(), pCaptureBuffer, lineLen,
             false, "TempCameraBmp"));
 
     BitmapPtr pDestBmp = convertCamFrameToDestPF(pCamBmp);
@@ -245,11 +239,6 @@ const string& V4LCamera::getDevice() const
 const string& V4LCamera::getDriverName() const
 {
     return m_sDriverName;
-}
-
-float V4LCamera::getFrameRate() const
-{
-    return m_FrameRate;
 }
 
 string V4LCamera::getFeatureName(V4LCID_t v4lFeature)
@@ -599,13 +588,13 @@ void V4LCamera::initDevice()
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = m_ImgSize.x;
-    fmt.fmt.pix.height = m_ImgSize.y;
+    fmt.fmt.pix.width = getImgSize().x;
+    fmt.fmt.pix.height = getImgSize().y;
     fmt.fmt.pix.pixelformat = m_v4lPF;
     fmt.fmt.pix.field = V4L2_FIELD_ANY;
     int rc = xioctl(m_Fd, VIDIOC_S_FMT, &fmt);
-    if (int(fmt.fmt.pix.width) != m_ImgSize.x || int(fmt.fmt.pix.height) != m_ImgSize.y
-        || rc == -1)
+    if (int(fmt.fmt.pix.width) != getImgSize().x ||
+            int(fmt.fmt.pix.height) != getImgSize().y || rc == -1)
     {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera image format: '")
@@ -618,9 +607,9 @@ void V4LCamera::initDevice()
 
     StreamParam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     StreamParam.parm.capture.timeperframe.numerator = 1;
-    StreamParam.parm.capture.timeperframe.denominator = (int) m_FrameRate;
+    StreamParam.parm.capture.timeperframe.denominator = (int)getFrameRate();
     rc = xioctl(m_Fd, VIDIOC_S_PARM, &StreamParam);
-    if (m_FrameRate != StreamParam.parm.capture.timeperframe.denominator || rc == -1) {
+    if (getFrameRate() != StreamParam.parm.capture.timeperframe.denominator || rc == -1) {
         throw(Exception(AVG_ERR_CAMERA_NONFATAL,
                 string("Unable to set V4L camera framerate: '")
                 +strerror(errno)
@@ -628,7 +617,7 @@ void V4LCamera::initDevice()
                         the device supports."));
     }
 
-    initMMap ();
+    initMMap();
 
     // TODO: string channel instead of numeric
     // select channel
