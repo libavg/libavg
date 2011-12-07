@@ -1,3 +1,5 @@
+SUBDIRS = shaders
+
 INCLUDES = -I.. @GL_CFLAGS@ @PYTHON_INCLUDES@ @GDK_PIXBUF_CFLAGS@
 
 ALL_H = Bitmap.h Filter.h GLContext.h\
