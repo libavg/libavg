@@ -115,16 +115,6 @@ namespace Vec2Helper
         }
     }
 
-    bool isNaN(const glm::vec2& pt)
-    {
-        return isnan(pt.x) || isnan(pt.y);
-    }
-
-    bool isInf(const glm::vec2& pt)
-    {
-        return isinf(pt.x) || isinf(pt.y);
-    }
-
     float getNorm(const glm::vec2& pt)
     {
         return glm::length(pt);

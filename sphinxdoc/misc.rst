@@ -395,14 +395,6 @@ Misc. Classes
 
             Return the position of point rotated around :py:attr:`pivot`.
 
-        .. py:method:: isInf() -> bool
-
-            Returns :py:const:`True` if one of the components is infinite.
-
-        .. py:method:: isNaN() -> bool
-
-            Returns :py:const:`True` if one of the components is Not a Number.
-
         .. py:classmethod:: fromPolar(angle, radius) -> Point2D
 
             Converts polar to cartesian coordinates. :py:attr:`angle` is in radians with 0

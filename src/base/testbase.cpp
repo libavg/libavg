@@ -259,15 +259,6 @@ public:
 
     void runTests() 
     {
-        float one = 1;
-        float zero = 0;
-
-        TEST(avg::isinf(-one/zero) != 0);
-        TEST(isinf(one/zero) != 0);
-        TEST(isinf(one) == 0);
-        TEST(isnan(sqrt(-one)) != 0);
-        TEST(isnan(sqrt(one+one)) == 0);
-
         // TODO: Move to a separate math test once we're done here.
         TEST(almostEqual(invSqrt(1), 1));
         TEST(almostEqual(invSqrt(4), 0.5));

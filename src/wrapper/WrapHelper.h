@@ -297,8 +297,6 @@ namespace Vec2Helper
     std::string repr(const glm::vec2& pt);
     long getHash(const glm::vec2& pt);
     glm::vec2 safeGetNormalized(const glm::vec2& pt);
-    bool isNaN(const glm::vec2& pt);
-    bool isInf(const glm::vec2& pt);
     float getNorm(const glm::vec2& pt);
     float vecAngle(const glm::vec2& pt1, const glm::vec2& pt2);
 }
