@@ -572,7 +572,7 @@ void SDLDisplayEngine::calcRefreshRate()
     s_RefreshRate = HSyncRate/modeLine.vtotal;
     XCloseDisplay(pDisplay);
 #endif
-    if (s_RefreshRate == 0 || isnan(s_RefreshRate)) {
+    if (s_RefreshRate == 0) {
         s_RefreshRate = 60;
     }
     if (lastRefreshRate != s_RefreshRate) {
