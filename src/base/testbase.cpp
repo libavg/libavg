@@ -396,9 +396,8 @@ public:
 
     void runTests()
     {
-#if defined(__APPLE__) || defined(_WIN32)
+        cerr << getAvgLibPath() << endl;
         TEST(getAvgLibPath() != "");
-#endif
 #ifdef __APPLE__
         TEST(getMemoryUsage() != 0);
 #endif
