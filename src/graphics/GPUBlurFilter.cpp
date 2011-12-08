@@ -32,7 +32,7 @@
 #include <iostream>
 
 #define SHADERID_HORIZ "horizblur"
-#define SHADERID_VERT "VERTBLUR"
+#define SHADERID_VERT "vertblur"
 
 using namespace std;
 
@@ -93,44 +93,8 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
 
 void GPUBlurFilter::initShaders()
 {
-    string sProgramHead =
-        "uniform sampler2D texture;\n"
-        "uniform float width;\n"
-        "uniform int radius;\n"
-        "uniform sampler2D kernelTex;\n"
-        ;
-
-    string sHorizProgram = sProgramHead +
-        "void main(void)\n"
-        "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    float dx = dFdx(gl_TexCoord[0].x);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = sum;\n"
-        "}\n"
-        ;
     getOrCreateShader(SHADERID_HORIZ);
-
-    string sVertProgram = sProgramHead +
-        "void main(void)\n"
-        "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    float dy = dFdy(gl_TexCoord[0].y);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = sum;\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_VERT, sVertProgram);
+    getOrCreateShader(SHADERID_VERT);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)

@@ -28,8 +28,8 @@
 
 #include <iostream>
 
-#define SHADERID_CHROMAKEY "CHROMAKEY"
-#define SHADERID_EROSION "CHROMAKEY_EROSION"
+#define SHADERID_CHROMAKEY "chromakey"
+#define SHADERID_EROSION "chromakey_erosion"
 
 using namespace std;
 
