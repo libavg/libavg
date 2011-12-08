@@ -49,6 +49,7 @@ private:
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
 
+    static std::string m_sLibPath;
 };
 
 OGLShaderPtr getOrCreateShader(const std::string& sID);

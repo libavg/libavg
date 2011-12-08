@@ -32,6 +32,8 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
+
+std::string ShaderRegistry::m_sLibPath;
     
 ShaderRegistryPtr ShaderRegistry::get() 
 {
@@ -40,6 +42,18 @@ ShaderRegistryPtr ShaderRegistry::get()
 
 ShaderRegistry::ShaderRegistry()
 {
+    if (m_sLibPath == "") {
+        m_sLibPath = getPath(getAvgLibPath())+"shaders";
+#ifdef __linux
+        // XXX: If we're running make distcheck, the shaders are in a different place than
+        // usual. Grrr.
+        char * pszSrcDir = getenv("srcdir");
+        if (pszSrcDir && string(pszSrcDir) != ".") {
+            m_sLibPath = string(pszSrcDir) + "/shaders";
+        }
+#endif
+        AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
+    }
 }
 
 ShaderRegistry::~ShaderRegistry() 
@@ -48,17 +62,8 @@ ShaderRegistry::~ShaderRegistry()
 
 OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID)
 {
-    static sLibPath = getPath(getAvgLibPath())+"shaders";
-#ifdef __linux
-    // XXX: If we're running make distcheck, the shaders are in a different place than 
-    // usual. Grrr.
-    char * pszSrcDir = getenv("srcdir");
-    if (pszSrcDir && string(pszSrcDir) != ".") {
-        sLibPath = string(pszSrcDir) + "/shaders";
-    }
-#endif
     string sShaderCode;
-    readWholeFile(sLibPath+"/"+sID+".glsl", sShaderCode);
+    readWholeFile(m_sLibPath+"/"+sID+".glsl", sShaderCode);
     return getOrCreateShader(sID, sShaderCode);
 }
 
