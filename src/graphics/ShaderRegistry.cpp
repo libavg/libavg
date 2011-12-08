@@ -25,6 +25,8 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
+#include "../base/FileHelper.h"
 
 using namespace std;
 using namespace boost;
@@ -42,6 +44,22 @@ ShaderRegistry::ShaderRegistry()
 
 ShaderRegistry::~ShaderRegistry() 
 {
+}
+
+OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID)
+{
+    static sLibPath = getPath(getAvgLibPath())+"shaders";
+#ifdef __linux
+    // XXX: If we're running make distcheck, the shaders are in a different place than 
+    // usual. Grrr.
+    char * pszSrcDir = getenv("srcdir");
+    if (pszSrcDir && string(pszSrcDir) != ".") {
+        sLibPath = string(pszSrcDir) + "/shaders";
+    }
+#endif
+    string sShaderCode;
+    readWholeFile(sLibPath+"/"+sID+".glsl", sShaderCode);
+    return getOrCreateShader(sID, sShaderCode);
 }
 
 OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID, 
@@ -62,6 +80,11 @@ OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
     } else {
         return it->second;
     }
+}
+
+OGLShaderPtr getOrCreateShader(const std::string& sID)
+{
+    return ShaderRegistry::get()->getOrCreateShader(sID);
 }
 
 OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram)

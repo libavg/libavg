@@ -45,7 +45,7 @@ def symtree(src, dest):
         fpath = os.path.join(src, f)
         if (f and f[0] != '.' and
             (os.path.isdir(fpath) or
-            (os.path.isfile(fpath) and os.path.splitext(f)[1] == '.py'))):
+            (os.path.isfile(fpath) and os.path.splitext(f)[1] in ('.py', '.glsl')))):
                 os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
 
 
@@ -65,18 +65,20 @@ if sys.platform != 'win32':
         
         try:
             symtree('../python', 'libavg')
+            os.symlink('../../graphics/shaders', 'libavg/shaders')
         except OSError:
             pass
     else:
         # Running make distcheck
         symtree('../../../../src/python', 'libavg')
+        os.symlink('../../../../../src/graphics/shaders', 'libavg/shaders')
 
         # distcheck doesn't want leftovers (.pyc files)
         atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
     
     if os.path.exists('../wrapper/.libs/avg.so'):
         # Normal case: use the local version (not the installed one)
-        os.symlink('../../wrapper/.libs/avg.so', 'libavg/avg.so')
+        shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
     elif os.path.exists('../../avg.so'):
         # Mac version after installer dmg
         pass

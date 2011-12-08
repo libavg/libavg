@@ -31,7 +31,7 @@
 #include <string.h>
 #include <iostream>
 
-#define SHADERID_HORIZ "HORIZBLUR"
+#define SHADERID_HORIZ "horizblur"
 #define SHADERID_VERT "VERTBLUR"
 
 using namespace std;
@@ -114,7 +114,7 @@ void GPUBlurFilter::initShaders()
         "    gl_FragColor = sum;\n"
         "}\n"
         ;
-    getOrCreateShader(SHADERID_HORIZ, sHorizProgram);
+    getOrCreateShader(SHADERID_HORIZ);
 
     string sVertProgram = sProgramHead +
         "void main(void)\n"
