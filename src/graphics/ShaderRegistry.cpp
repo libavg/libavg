@@ -77,7 +77,7 @@ void ShaderRegistry::setShaderPath(const std::string& sLibPath)
     AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
 }
 
-void ShaderRegistry::getOrCreateShader(const std::string& sID)
+void ShaderRegistry::createShader(const std::string& sID)
 {
     string sShaderCode;
     string sFileName = m_sLibPath+"/"+sID+".frag";
@@ -136,9 +136,9 @@ void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
     throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+toString(curLine)+": Syntax error.");
 }
 
-void getOrCreateShader(const std::string& sID)
+void createShader(const std::string& sID)
 {
-    return ShaderRegistry::get()->getOrCreateShader(sID);
+    return ShaderRegistry::get()->createShader(sID);
 }
 
 OGLShaderPtr getShader(const std::string& sID)

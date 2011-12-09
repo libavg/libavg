@@ -41,7 +41,7 @@ GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    initShader();
+    createShader(SHADERID);
 }
 
 GPUBrightnessFilter::~GPUBrightnessFilter()
@@ -58,11 +58,6 @@ void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
     draw(pSrcTex);
 
     glproc::UseProgramObject(0);
-}
-
-void GPUBrightnessFilter::initShader()
-{
-    getOrCreateShader(SHADERID);
 }
 
 }

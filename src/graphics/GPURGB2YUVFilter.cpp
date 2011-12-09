@@ -43,7 +43,7 @@ GPURGB2YUVFilter::GPURGB2YUVFilter(const IntPoint& size)
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    getOrCreateShader(SHADERID);
+    createShader(SHADERID);
 }
 
 GPURGB2YUVFilter::~GPURGB2YUVFilter()

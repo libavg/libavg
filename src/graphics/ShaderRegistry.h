@@ -43,7 +43,7 @@ public:
 
     void setShaderPath(const std::string& sLibPath);
 
-    void getOrCreateShader(const std::string& sID);
+    void createShader(const std::string& sID);
     OGLShaderPtr getShader(const std::string& sID);
 
 private:
@@ -56,7 +56,7 @@ private:
     static std::string m_sLibPath;
 };
 
-void getOrCreateShader(const std::string& sID);
+void createShader(const std::string& sID);
 OGLShaderPtr getShader(const std::string& sID);
 
 

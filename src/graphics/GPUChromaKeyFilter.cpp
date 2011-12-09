@@ -49,8 +49,8 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    getOrCreateShader(SHADERID_CHROMAKEY);
-    getOrCreateShader(SHADERID_EROSION);
+    createShader(SHADERID_CHROMAKEY);
+    createShader(SHADERID_EROSION);
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()

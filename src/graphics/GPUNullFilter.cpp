@@ -40,7 +40,7 @@ GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    getOrCreateShader(SHADERID);
+    createShader(SHADERID);
 }
 
 GPUNullFilter::~GPUNullFilter()

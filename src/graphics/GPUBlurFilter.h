@@ -39,7 +39,6 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    void initShaders();
     void setDimensions(IntPoint size, float stdDev, bool bClipBorders);
 
     float m_StdDev;

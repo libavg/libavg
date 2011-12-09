@@ -72,7 +72,7 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
 
 void GPUBandpassFilter::initShader()
 {
-    getOrCreateShader(SHADERID);
+    createShader(SHADERID);
 }
 
 }

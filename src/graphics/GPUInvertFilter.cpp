@@ -37,7 +37,7 @@ GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    getOrCreateShader(SHADERID_INVERT_COLOR);
+    createShader(SHADERID_INVERT_COLOR);
 }
 
 GPUInvertFilter::~GPUInvertFilter()

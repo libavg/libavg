@@ -45,7 +45,8 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, bClipBorders);
-    initShaders();
+    createShader(SHADERID_HORIZ);
+    createShader(SHADERID_VERT);
     m_bClipBorders = bClipBorders;
     setStdDev(stdDev);
 }
@@ -89,12 +90,6 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
     glproc::UseProgramObject(0);
-}
-
-void GPUBlurFilter::initShaders()
-{
-    getOrCreateShader(SHADERID_HORIZ);
-    getOrCreateShader(SHADERID_VERT);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)

@@ -40,7 +40,7 @@ GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    getOrCreateShader(SHADERID_HSL_COLOR);
+    createShader(SHADERID_HSL_COLOR);
 }
 
 GPUHueSatFilter::~GPUHueSatFilter()

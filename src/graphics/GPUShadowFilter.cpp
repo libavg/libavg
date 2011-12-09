@@ -45,8 +45,8 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, offset);
-    getOrCreateShader(SHADERID_HORIZ);
-    getOrCreateShader(SHADERID_VERT);
+    createShader(SHADERID_HORIZ);
+    createShader(SHADERID_VERT);
     setParams(offset, stdDev, opacity, color);
 }
 

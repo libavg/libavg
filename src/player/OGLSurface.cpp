@@ -244,7 +244,7 @@ void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightn
 
 void OGLSurface::createShader()
 {
-    getOrCreateShader(COLORSPACE_SHADER);
+    avg::createShader(COLORSPACE_SHADER);
 }
 
 bool OGLSurface::isDirty() const
