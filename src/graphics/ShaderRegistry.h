@@ -41,8 +41,9 @@ public:
     ShaderRegistry();
     virtual ~ShaderRegistry();
 
-    OGLShaderPtr getOrCreateShader(const std::string& sID);
-    OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);
+    void setShaderPath(const std::string& sLibPath);
+
+    void getOrCreateShader(const std::string& sID);
     OGLShaderPtr getShader(const std::string& sID);
 
 private:
@@ -55,8 +56,7 @@ private:
     static std::string m_sLibPath;
 };
 
-OGLShaderPtr getOrCreateShader(const std::string& sID);
-OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);
+void getOrCreateShader(const std::string& sID);
 OGLShaderPtr getShader(const std::string& sID);
 
 

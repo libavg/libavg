@@ -24,6 +24,7 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,7 @@ public:
         );
         player.disablePython();
         if (!getenv("AVG_CONSOLE_TEST")) {
-            player.initPlayback();
+            player.initPlayback("../graphics/shaders/");
             player.doFrame(false);
             player.cleanup();
         }

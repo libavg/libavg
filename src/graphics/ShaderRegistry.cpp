@@ -52,7 +52,7 @@ ShaderRegistry::ShaderRegistry()
         // usual. Grrr.
         char * pszSrcDir = getenv("srcdir");
         if (pszSrcDir && string(pszSrcDir) != ".") {
-            m_sLibPath = string(pszSrcDir) + "/shaders";
+            m_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
         }
 #endif
         AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
@@ -63,24 +63,32 @@ ShaderRegistry::~ShaderRegistry()
 {
 }
 
-OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID)
+void ShaderRegistry::setShaderPath(const std::string& sLibPath)
+{
+    m_sLibPath = sLibPath;
+#ifdef __linux
+    // XXX: If we're running make distcheck, the shaders are in a different place than
+    // usual. Grrr.
+    char * pszSrcDir = getenv("srcdir");
+    if (pszSrcDir && string(pszSrcDir) != ".") {
+        m_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
+    }
+#endif
+    AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
+}
+
+void ShaderRegistry::getOrCreateShader(const std::string& sID)
 {
     string sShaderCode;
     string sFileName = m_sLibPath+"/"+sID+".frag";
     readWholeFile(sFileName, sShaderCode);
     string sPreprocessed;
     preprocess(sShaderCode, sFileName, sPreprocessed);
-    return getOrCreateShader(sID, sPreprocessed);
-}
 
-OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID, 
-        const std::string& sProgram)
-{
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
-        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sProgram));
+        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sPreprocessed));
     }
-    return pShader;
 }
 
 OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
@@ -128,14 +136,9 @@ void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
     throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+toString(curLine)+": Syntax error.");
 }
 
-OGLShaderPtr getOrCreateShader(const std::string& sID)
+void getOrCreateShader(const std::string& sID)
 {
     return ShaderRegistry::get()->getOrCreateShader(sID);
-}
-
-OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram)
-{
-    return ShaderRegistry::get()->getOrCreateShader(sID, sProgram);
 }
 
 OGLShaderPtr getShader(const std::string& sID)
