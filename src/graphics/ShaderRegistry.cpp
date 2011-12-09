@@ -27,6 +27,9 @@
 #include "../base/Exception.h"
 #include "../base/OSHelper.h"
 #include "../base/FileHelper.h"
+#include "../base/StringHelper.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace boost;
@@ -63,8 +66,11 @@ ShaderRegistry::~ShaderRegistry()
 OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID)
 {
     string sShaderCode;
-    readWholeFile(m_sLibPath+"/"+sID+".frag", sShaderCode);
-    return getOrCreateShader(sID, sShaderCode);
+    string sFileName = m_sLibPath+"/"+sID+".frag";
+    readWholeFile(sFileName, sShaderCode);
+    string sPreprocessed;
+    preprocess(sShaderCode, sFileName, sPreprocessed);
+    return getOrCreateShader(sID, sPreprocessed);
 }
 
 OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID, 
@@ -85,6 +91,41 @@ OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
     } else {
         return it->second;
     }
+}
+
+void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileName, 
+        string& sProcessed)
+{
+    sProcessed.append("#line 0");
+    istringstream stream(sShaderCode);
+    string sCurLine;
+    int curLine = 0;
+    while(getline(stream, sCurLine)) {
+        curLine++;
+        string sStripped = removeStartEndSpaces(sCurLine);
+        if (sStripped.substr(0, 8) == "#include") {
+            size_t startPos = sStripped.find('"');
+            size_t endPos = sStripped.find('"', startPos+1);
+            if (startPos == string::npos || endPos == string::npos) {
+                throwParseError(sFileName, curLine);
+            }
+            string sIncFileName = sStripped.substr(startPos+1, endPos-startPos-1);
+            sIncFileName = m_sLibPath+"/"+sIncFileName;
+            string sIncludedFile;
+            readWholeFile(sIncFileName, sIncludedFile);
+            string sProcessedIncludedFile;
+            preprocess(sIncludedFile, sIncFileName, sProcessedIncludedFile);
+            sProcessed.append(sProcessedIncludedFile);
+            sProcessed.append("#line "+toString(curLine));
+        } else {
+            sProcessed.append(sCurLine+"\n");
+        }
+    }
+}
+
+void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
+{
+    throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+toString(curLine)+": Syntax error.");
 }
 
 OGLShaderPtr getOrCreateShader(const std::string& sID)

@@ -46,6 +46,9 @@ public:
     OGLShaderPtr getShader(const std::string& sID);
 
 private:
+    void preprocess(const std::string& sShaderCode, const std::string& sFileName, 
+            std::string& sProcessed);
+    void throwParseError(const std::string& sFileName, int curLine);
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
 
