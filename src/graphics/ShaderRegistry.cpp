@@ -63,7 +63,7 @@ ShaderRegistry::~ShaderRegistry()
 OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID)
 {
     string sShaderCode;
-    readWholeFile(m_sLibPath+"/"+sID+".glsl", sShaderCode);
+    readWholeFile(m_sLibPath+"/"+sID+".frag", sShaderCode);
     return getOrCreateShader(sID, sShaderCode);
 }
 

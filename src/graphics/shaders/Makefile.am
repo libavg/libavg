@@ -1,3 +1,3 @@
-EXTRA_DIST = $(wildcard *.glsl)
+EXTRA_DIST = $(wildcard *.frag)
 datadir = $(pkgpyexecdir)/shaders
-data_DATA = horizblur.glsl vertblur.glsl bandpass.glsl brightness.glsl
+data_DATA = horizblur.frag vertblur.frag bandpass.frag brightness.frag
