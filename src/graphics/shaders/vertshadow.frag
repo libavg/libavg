@@ -19,43 +19,32 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUNullFilter.h"
-#include "Bitmap.h"
-#include "ShaderRegistry.h"
+uniform float width;
+uniform int radius;
+uniform sampler2D kernelTex;
+uniform sampler2D hBlurTex;
+uniform sampler2D origTex;
+uniform float gamma;
+uniform vec4 color;
+uniform vec2 destPos;
+uniform vec2 destSize;
 
-#include "../base/ObjectCounter.h"
-#include "../base/Exception.h"
-
-#include <iostream>
-
-#define SHADERID "null"
-
-using namespace std;
-
-namespace avg {
-
-GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(B8G8R8A8, B8G8R8A8, bStandalone)
+void main(void)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
-
-    setDimensions(size);
-    getOrCreateShader(SHADERID);
+    float sum = 0.;
+    float dy = dFdy(gl_TexCoord[0].y);
+    for (int i=-radius; i<=radius; ++i) {
+        float a = texture2D(hBlurTex,
+                gl_TexCoord[0].st+vec2(0,float(i)*dy)).a;
+        float coeff = 
+                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;
+        sum += a*coeff;
+    }
+    sum = min(1., sum);
+    vec2 origCoord = gl_TexCoord[0].st;
+    origCoord = destPos + 
+            vec2(origCoord.s*destSize.x, origCoord.t*destSize.y);
+    vec4 origCol = texture2D(origTex, origCoord);
+    gl_FragColor = origCol+(1.-origCol.a)*color*sum;
 }
 
-GPUNullFilter::~GPUNullFilter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
-{
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
-    pShader->setUniformIntParam("Texture", 0);
-    draw(pSrcTex);
-
-    glproc::UseProgramObject(0);
-}
-
-}

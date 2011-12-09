@@ -19,43 +19,23 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUNullFilter.h"
-#include "Bitmap.h"
-#include "ShaderRegistry.h"
+uniform float width;
+uniform int radius;
+uniform sampler2D kernelTex;
+//        + getStdShaderCode()
 
-#include "../base/ObjectCounter.h"
-#include "../base/Exception.h"
-
-#include <iostream>
-
-#define SHADERID "null"
-
-using namespace std;
-
-namespace avg {
-
-GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(B8G8R8A8, B8G8R8A8, bStandalone)
+uniform sampler2D texture;
+uniform vec2 offset;
+void main(void)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
-
-    setDimensions(size);
-    getOrCreateShader(SHADERID);
-}
-
-GPUNullFilter::~GPUNullFilter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
-{
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
-    pShader->setUniformIntParam("Texture", 0);
-    draw(pSrcTex);
-
-    glproc::UseProgramObject(0);
-}
-
+    float sum = 0.;
+    float dx = dFdx(gl_TexCoord[0].x);
+    for (int i=-radius; i<=radius; ++i) {
+        float a = texture2D(texture,
+                gl_TexCoord[0].st-offset+vec2(float(i)*dx,0)).a;
+        float coeff = 
+                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;
+        sum += a*coeff;
+    }
+    gl_FragColor = vec4(sum, sum, sum, sum);
 }

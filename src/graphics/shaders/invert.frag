@@ -19,43 +19,18 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GPUNullFilter.h"
-#include "Bitmap.h"
-#include "ShaderRegistry.h"
+uniform sampler2D texture;
 
-#include "../base/ObjectCounter.h"
-#include "../base/Exception.h"
+#include "helper.frag"
 
-#include <iostream>
-
-#define SHADERID "null"
-
-using namespace std;
-
-namespace avg {
-
-GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
-    : GPUFilter(B8G8R8A8, B8G8R8A8, bStandalone)
+void main(void)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+    float hue, s, l;
+    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
+    unPreMultiplyAlpha(tex);
+    rgb2hsl(tex, hue, s, l);
+    vec4 result = vec4(hsl2rgb(hue, s, 1.0-l), tex.a);
+    preMultiplyAlpha(result);
+    gl_FragColor = result;
+};
 
-    setDimensions(size);
-    getOrCreateShader(SHADERID);
-}
-
-GPUNullFilter::~GPUNullFilter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
-{
-    OGLShaderPtr pShader = getShader(SHADERID);
-    pShader->activate();
-    pShader->setUniformIntParam("Texture", 0);
-    draw(pSrcTex);
-
-    glproc::UseProgramObject(0);
-}
-
-}

@@ -49,7 +49,8 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    initShader();
+    getOrCreateShader(SHADERID_CHROMAKEY);
+    getOrCreateShader(SHADERID_EROSION);
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()
@@ -107,14 +108,6 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
         draw(getDestTex((curBufferIndex+1)%2));
     }
     glproc::UseProgramObject(0);
-}
-
-void GPUChromaKeyFilter::initShader()
-{
-
-    getOrCreateShader(SHADERID_CHROMAKEY);
-    getOrCreateShader(SHADERID_EROSION);
-
 }
 
 }
