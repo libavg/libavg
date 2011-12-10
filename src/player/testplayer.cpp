@@ -52,7 +52,11 @@ public:
         );
         player.disablePython();
         if (!getenv("AVG_CONSOLE_TEST")) {
+#ifdef WIN32
+            player.initPlayback("./shaders");
+#else
             player.initPlayback("../graphics/shaders/");
+#endif
             player.doFrame(false);
             player.cleanup();
         }
