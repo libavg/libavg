@@ -87,7 +87,7 @@ void ShaderRegistry::createShader(const std::string& sID)
 
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
-        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sPreprocessed));
+        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed));
     }
 }
 
