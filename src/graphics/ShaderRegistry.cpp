@@ -104,7 +104,7 @@ OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
 void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileName, 
         string& sProcessed)
 {
-    sProcessed.append("#line 1");
+    sProcessed.append("#line 0\n");
     istringstream stream(sShaderCode);
     string sCurLine;
     int curLine = 0;
@@ -124,7 +124,7 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
             string sProcessedIncludedFile;
             preprocess(sIncludedFile, sIncFileName, sProcessedIncludedFile);
             sProcessed.append(sProcessedIncludedFile);
-            sProcessed.append("#line "+toString(curLine));
+            sProcessed.append("#line "+toString(curLine)+"\n");
         } else {
             sProcessed.append(sCurLine+"\n");
         }

@@ -87,5 +87,5 @@ void main(void)
                 (gl_TexCoord[0].st/maskSize)-maskPos).r;
     }
     gl_FragColor = rgba;
-};
+}
 

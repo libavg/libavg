@@ -63,4 +63,4 @@ void main(void)
 
     preMultiplyAlpha(rgbTex);
     gl_FragColor = rgbTex;
-};
+}

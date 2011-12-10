@@ -32,5 +32,5 @@ void main(void)
     vec4 result = vec4(hsl2rgb(hue, s, 1.0-l), tex.a);
     preMultiplyAlpha(result);
     gl_FragColor = result;
-};
+}
 

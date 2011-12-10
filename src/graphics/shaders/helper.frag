@@ -105,5 +105,5 @@ vec3 hsl2rgb(float h, float s, float l)
         }
     }
     return rgb;
-};
+}
 

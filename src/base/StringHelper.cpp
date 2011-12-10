@@ -95,10 +95,13 @@ bool stringToBool(const string& s)
 std::string removeStartEndSpaces(const string& s)
 {
     string sResult = s;
-    while (sResult[0] == ' ' || sResult[0] == '\n' || sResult[0] == '\r' 
-            || sResult[0] == '\t') 
+    while (s.size() > 0 && (sResult[0] == ' ' || sResult[0] == '\n' || sResult[0] == '\r' 
+            || sResult[0] == '\t')) 
     {
         sResult.erase(0, 1);
+    }
+    if (s.size() == 0) {
+        return s;
     }
     char c = sResult[sResult.length()-1];
     while (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
