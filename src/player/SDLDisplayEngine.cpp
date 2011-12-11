@@ -274,9 +274,6 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     m_pGLContext->logConfig();
 
     SDL_EnableUNICODE(1);
-    if (m_pGLContext->isUsingShaders()) {
-        OGLSurface::createShader();
-    }
 }
 
 #ifdef _WIN32

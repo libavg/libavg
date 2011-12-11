@@ -28,8 +28,8 @@
 
 #include <iostream>
 
-#define SHADERID_CHROMAKEY "CHROMAKEY"
-#define SHADERID_EROSION "CHROMAKEY_EROSION"
+#define SHADERID_CHROMAKEY "chromakey"
+#define SHADERID_EROSION "chromakey_erosion"
 
 using namespace std;
 
@@ -49,7 +49,8 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    initShader();
+    createShader(SHADERID_CHROMAKEY);
+    createShader(SHADERID_EROSION);
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()
@@ -107,147 +108,6 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
         draw(getDestTex((curBufferIndex+1)%2));
     }
     glproc::UseProgramObject(0);
-}
-
-void GPUChromaKeyFilter::initShader()
-{
-
-    string sProgramHead = 
-        "uniform float alpha;\n"
-        "uniform sampler2D texture;\n"
-        "uniform float hKey;\n"
-        "uniform float hTolerance;\n"
-        "uniform float hSoftTolerance;\n"
-        "uniform float sTolerance;\n"
-        "uniform float sSoftTolerance;\n"
-        "uniform float sKey;\n"
-        "uniform float lTolerance;\n"
-        "uniform float lSoftTolerance;\n"
-        "uniform float spillThreshold;\n"
-        "uniform float lKey;\n"
-        "uniform bool bIsLast;\n"
-        + getStdShaderCode()
-        ;
-        
-    string sProgram = sProgramHead +
-        "vec4 alphaMin(vec4 v1, vec4 v2)\n"
-        "{\n"
-        "    if (v1.a < v2.a) {\n"
-        "        return v1;\n"
-        "    } else {\n"
-        "        return v2;\n"
-        "    }\n"
-        "}\n"
-    
-        "vec4 alphaMax(vec4 v1, vec4 v2)\n"
-        "{\n"
-        "    if (v1.a < v2.a) {\n"
-        "        return v2;\n"
-        "    } else {\n"
-        "        return v1;\n"
-        "    }\n"
-        "}\n"
-
-        "#define s2(a, b)    temp = a; a = alphaMin(a, b); b = alphaMax(temp, b);\n"
-        "#define mn3(a, b, c)            s2(a, b); s2(a, c);\n"
-        "#define mx3(a, b, c)            s2(b, c); s2(a, c);\n"
-
-        "#define mnmx3(a, b, c)          mx3(a, b, c); s2(a, b);\n"
-        "#define mnmx4(a, b, c, d)       s2(a, b); s2(c, d); s2(a, c); s2(b, d); \n"
-
-        "// Based on McGuire, A fast, small-radius GPU median filter, in ShaderX6,\n"
-        "// February 2008. http://graphics.cs.williams.edu/papers/MedianShaderX6/ \n"
-        "vec4 getMedian(vec2 texCoord)\n"
-        "{\n"
-        "    vec4 v[5];\n"
-        "    float dx = dFdx(texCoord.x);\n"
-        "    float dy = dFdy(texCoord.y);\n"
-        "    v[0] = texture2D(texture, texCoord);\n"
-        "    v[1] = texture2D(texture, texCoord+vec2(0,-dy));\n"
-        "    v[2] = texture2D(texture, texCoord+vec2(0,dy));\n"
-        "    v[3] = texture2D(texture, texCoord+vec2(-dx,0));\n"
-        "    v[4] = texture2D(texture, texCoord+vec2(dx,0));\n"
-        "    for (int i = 0; i < 5; ++i) {\n"
-        "        v[i].a = (v[i].r+v[i].g+v[i].b)/3.0;\n"
-        "    }\n"
-
-        "    vec4 temp;\n"
-        "    mnmx4(v[0], v[1], v[2], v[3]);\n"
-        "    mnmx3(v[1], v[2], v[4]);\n"
-        "    return v[2];\n"
-        "}\n"
-
-        "void main(void)\n"
-        "{\n"
-        "    vec4 tex = getMedian(gl_TexCoord[0].st);\n"
-        "    float h;\n"
-        "    float s;\n"
-        "    float l;\n"
-        "    float alpha;\n"
-        "    rgb2hsl(tex, h, s, l);\n"
-        "    float hDiff = abs(h-hKey);\n"
-        "    float sDiff = abs(s-sKey);\n"
-        "    float lDiff = abs(l-lKey);\n"
-        "    if (hDiff < hSoftTolerance && sDiff < sSoftTolerance \n"
-        "            && lDiff < lSoftTolerance)\n"
-        "    {\n"
-        "        alpha = 0.0;\n"
-        "        if (hDiff > hTolerance) {\n"
-        "            alpha = (hDiff-hTolerance)/(hSoftTolerance-hTolerance);\n"
-        "        }\n"        
-        "        if (sDiff > sTolerance) {\n"
-        "            alpha = max(alpha,\n"
-        "                   (sDiff-sTolerance)/(sSoftTolerance-sTolerance));\n"
-        "        }\n"
-        "        if (lDiff > lTolerance) {\n"
-        "            alpha = max(alpha,\n"
-        "                   (lDiff-lTolerance)/(lSoftTolerance-lTolerance));\n"
-        "        }\n"
-        "    } else {\n"
-        "        alpha = 1.0;\n"
-        "    }\n"
-        "    if (alpha > 0.0 && hDiff < spillThreshold) {\n"
-        "        if (spillThreshold > hTolerance) {\n"
-        "            float factor = max(0.0, 1.0-(spillThreshold-hDiff)\n"
-        "                    /(spillThreshold-hTolerance));\n"
-        "            s = s*factor;\n"
-        "        }\n"
-        "        tex.rgb = hsl2rgb(h, s, l);\n"
-        "    }\n"
-        "    if (bIsLast) {\n"
-        "       gl_FragColor = vec4(tex.rgb*alpha, alpha);\n"
-        "    } else {\n"
-        "       gl_FragColor = vec4(tex.rgb, alpha);\n"
-        "    }\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_CHROMAKEY, sProgram);
-
-    string sErosionProgram = 
-        "uniform sampler2D texture;\n"
-        "uniform bool bIsLast;\n"
-
-        "void main(void)\n"
-        "{\n"
-        "    float minAlpha = 1.0;\n"
-        "    float dx = dFdx(gl_TexCoord[0].x);\n"
-        "    float dy = dFdy(gl_TexCoord[0].y);\n"
-        "    for (float y = -1.0; y <= 1.0; ++y) {\n"
-        "        for (float x = -1.0; x <= 1.0; ++x) {\n"
-        "           float a = texture2D(texture, gl_TexCoord[0].st+vec2(x*dx,y*dy)).a;\n"
-        "           minAlpha = min(minAlpha, a);\n"
-        "        }\n"
-        "    }\n"
-        "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-        "    if (bIsLast) {\n"
-        "       gl_FragColor = vec4(tex.rgb*minAlpha, minAlpha);\n"
-        "    } else {\n"
-        "       gl_FragColor = vec4(tex.rgb, minAlpha);\n"
-        "    }\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_EROSION, sErosionProgram);
-
 }
 
 }

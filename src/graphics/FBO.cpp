@@ -88,7 +88,7 @@ FBO::~FBO()
                     GL_RENDERBUFFER_EXT, 0);
             if (m_MultisampleSamples > 1) {
                 glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_OutputFBO);
-                glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+                glproc::FramebufferTexture2D(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                         GL_TEXTURE_2D, 0, 0);
             }
         }

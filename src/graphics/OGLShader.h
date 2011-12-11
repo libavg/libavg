@@ -51,7 +51,7 @@ class AVG_API OGLShader {
                 float w);
 
     private:
-        OGLShader(std::string sProgram);
+        OGLShader(std::string sName, std::string sProgram);
         friend class ShaderRegistry;
 
         void dumpInfoLog(GLhandleARB hObj);

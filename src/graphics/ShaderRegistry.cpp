@@ -25,11 +25,18 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
+#include "../base/FileHelper.h"
+#include "../base/StringHelper.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace boost;
 
 namespace avg {
+
+std::string ShaderRegistry::m_sLibPath;
     
 ShaderRegistryPtr ShaderRegistry::get() 
 {
@@ -38,20 +45,50 @@ ShaderRegistryPtr ShaderRegistry::get()
 
 ShaderRegistry::ShaderRegistry()
 {
+    if (m_sLibPath == "") {
+        m_sLibPath = getPath(getAvgLibPath())+"shaders";
+#ifdef __linux
+        // XXX: If we're running make distcheck, the shaders are in a different place than
+        // usual. Grrr.
+        char * pszSrcDir = getenv("srcdir");
+        if (pszSrcDir && string(pszSrcDir) != ".") {
+            m_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
+        }
+#endif
+        AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
+    }
 }
 
 ShaderRegistry::~ShaderRegistry() 
 {
 }
 
-OGLShaderPtr ShaderRegistry::getOrCreateShader(const std::string& sID, 
-        const std::string& sProgram)
+void ShaderRegistry::setShaderPath(const std::string& sLibPath)
 {
+    m_sLibPath = sLibPath;
+#ifdef __linux
+    // XXX: If we're running make distcheck, the shaders are in a different place than
+    // usual. Grrr.
+    char * pszSrcDir = getenv("srcdir");
+    if (pszSrcDir && string(pszSrcDir) != ".") {
+        m_sLibPath = string(pszSrcDir) + "/../graphics/shaders";
+    }
+#endif
+    AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
+}
+
+void ShaderRegistry::createShader(const std::string& sID)
+{
+    string sShaderCode;
+    string sFileName = m_sLibPath+"/"+sID+".frag";
+    readWholeFile(sFileName, sShaderCode);
+    string sPreprocessed;
+    preprocess(sShaderCode, sFileName, sPreprocessed);
+
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
-        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sProgram));
+        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed));
     }
-    return pShader;
 }
 
 OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
@@ -64,9 +101,44 @@ OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
     }
 }
 
-OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram)
+void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileName, 
+        string& sProcessed)
 {
-    return ShaderRegistry::get()->getOrCreateShader(sID, sProgram);
+    sProcessed.append("#line 0\n");
+    istringstream stream(sShaderCode);
+    string sCurLine;
+    int curLine = 0;
+    while(getline(stream, sCurLine)) {
+        curLine++;
+        string sStripped = removeStartEndSpaces(sCurLine);
+        if (sStripped.substr(0, 8) == "#include") {
+            size_t startPos = sStripped.find('"');
+            size_t endPos = sStripped.find('"', startPos+1);
+            if (startPos == string::npos || endPos == string::npos) {
+                throwParseError(sFileName, curLine);
+            }
+            string sIncFileName = sStripped.substr(startPos+1, endPos-startPos-1);
+            sIncFileName = m_sLibPath+"/"+sIncFileName;
+            string sIncludedFile;
+            readWholeFile(sIncFileName, sIncludedFile);
+            string sProcessedIncludedFile;
+            preprocess(sIncludedFile, sIncFileName, sProcessedIncludedFile);
+            sProcessed.append(sProcessedIncludedFile);
+            sProcessed.append("#line "+toString(curLine)+"\n");
+        } else {
+            sProcessed.append(sCurLine+"\n");
+        }
+    }
+}
+
+void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
+{
+    throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+toString(curLine)+": Syntax error.");
+}
+
+void createShader(const std::string& sID)
+{
+    return ShaderRegistry::get()->createShader(sID);
 }
 
 OGLShaderPtr getShader(const std::string& sID)

@@ -37,7 +37,6 @@ public:
     virtual ~GPUHueSatFilter();
 
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
-    void initShader();
     void setParams(int hue, int saturation=1, int lightness_offset=0,
             bool colorize=false);
 
@@ -50,5 +49,5 @@ private:
 
 typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;
 
-} //end namespace avg
+}
 #endif

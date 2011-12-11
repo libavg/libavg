@@ -29,6 +29,7 @@
 #include "GPURGB2YUVFilter.h"
 #include "FilterResizeBilinear.h"
 #include "OGLImagingContext.h"
+#include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
 
@@ -373,6 +374,7 @@ int main(int nargs, char** args)
     bool bOK = true;
     try {
         OGLImagingContext context;
+        ShaderRegistry::get()->setShaderPath("./shaders");
         try {
             if (!queryOGLExtension("GL_ARB_fragment_shader")) {
                 throw Exception(AVG_ERR_UNSUPPORTED, 

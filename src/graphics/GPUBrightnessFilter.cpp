@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#define SHADERID "BRIGHTNESS"
+#define SHADERID "brightness"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    initShader();
+    createShader(SHADERID);
 }
 
 GPUBrightnessFilter::~GPUBrightnessFilter()
@@ -60,21 +60,4 @@ void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glproc::UseProgramObject(0);
 }
 
-void GPUBrightnessFilter::initShader()
-{
-    string sProgram =
-        "uniform float alpha;\n"
-        "uniform sampler2D Texture;\n"
-
-        "void main(void)\n"
-        "{\n"
-        "    vec4 tex =texture2D(Texture, gl_TexCoord[0].st);\n" 
-        "    gl_FragColor.rgb = tex.rgb*alpha;\n"
-        "    gl_FragColor.a = tex.a;\n"
-        "}\n"
-        ;
-
-    getOrCreateShader(SHADERID, sProgram);
 }
-
-} // namespace

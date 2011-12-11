@@ -42,9 +42,6 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    void initShaders();
-    void dumpKernel();
-    void calcKernel();
     void setDimensions(IntPoint size, float stdDev, const glm::vec2& offset);
 
     glm::vec2 m_Offset;
@@ -58,6 +55,6 @@ private:
 
 typedef boost::shared_ptr<GPUShadowFilter> GPUShadowFilterPtr;
 
-} // namespace
+}
 #endif
 

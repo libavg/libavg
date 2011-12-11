@@ -41,16 +41,22 @@ public:
     ShaderRegistry();
     virtual ~ShaderRegistry();
 
-    OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);
+    void setShaderPath(const std::string& sLibPath);
+
+    void createShader(const std::string& sID);
     OGLShaderPtr getShader(const std::string& sID);
 
 private:
+    void preprocess(const std::string& sShaderCode, const std::string& sFileName, 
+            std::string& sProcessed);
+    void throwParseError(const std::string& sFileName, int curLine);
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
 
+    static std::string m_sLibPath;
 };
 
-OGLShaderPtr getOrCreateShader(const std::string& sID, const std::string& sProgram);
+void createShader(const std::string& sID);
 OGLShaderPtr getShader(const std::string& sID);
 
 

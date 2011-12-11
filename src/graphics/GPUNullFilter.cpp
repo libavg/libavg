@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#define SHADERID "NULL"
+#define SHADERID "null"
 
 using namespace std;
 
@@ -40,7 +40,7 @@ GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    initShader();
+    createShader(SHADERID);
 }
 
 GPUNullFilter::~GPUNullFilter()
@@ -58,19 +58,4 @@ void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glproc::UseProgramObject(0);
 }
 
-void GPUNullFilter::initShader()
-{
-    string sProgram =
-        "uniform sampler2D Texture;\n"
-
-        "void main(void)\n"
-        "{\n"
-        "  vec4 tex = texture2D(Texture, gl_TexCoord[0].st);\n" 
-        "  gl_FragColor = tex;\n"
-        "}\n"
-        ;
-
-    getOrCreateShader(SHADERID, sProgram);
 }
-
-} // namespace

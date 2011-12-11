@@ -25,7 +25,7 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
 
-#define SHADERID_INVERT_COLOR "INVERT_COLOR"
+#define SHADERID_INVERT_COLOR "invert"
 
 using namespace std;
 
@@ -37,7 +37,7 @@ GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    initShader();
+    createShader(SHADERID_INVERT_COLOR);
 }
 
 GPUInvertFilter::~GPUInvertFilter()
@@ -55,24 +55,5 @@ void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glproc::UseProgramObject(0);
 }
 
-void GPUInvertFilter::initShader()
-{
-    string sProgramHead =
-            "uniform sampler2D texture;\n"
-            +getStdShaderCode()
-            ;
-    string sProgram = sProgramHead +
-            "void main(void)\n"
-            "{\n"
-            "    float hue, s, l;\n"
-            "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-            "    unPreMultiplyAlpha(tex);\n"
-            "    rgb2hsl(tex, hue, s, l);\n"
-            "    vec4 result = vec4(hsl2rgb(hue, s, 1.0-l), tex.a);\n"
-            "    preMultiplyAlpha(result);\n"
-            "    gl_FragColor = result;\n"
-            "}\n";
-    getOrCreateShader(SHADERID_INVERT_COLOR, sProgram);
 }
-}//End namespace avg
 

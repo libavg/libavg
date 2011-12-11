@@ -19,37 +19,21 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+uniform sampler2D texture;
+uniform float width;
+uniform int radius;
+uniform sampler2D kernelTex;
 
-#include "../api.h"
-#include "GPUFilter.h"
-#include "GLTexture.h"
-
-namespace avg {
-
-class AVG_API GPUBlurFilter: public GPUFilter
+void main(void)
 {
-public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            float stdDev, bool bClipBorders, bool bStandalone=true);
-    virtual ~GPUBlurFilter();
-    
-    void setStdDev(float stdDev);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
-
-private:
-    void setDimensions(IntPoint size, float stdDev, bool bClipBorders);
-
-    float m_StdDev;
-    bool m_bClipBorders;
-
-    GLTexturePtr m_pGaussCurveTex;
-    ImagingProjectionPtr m_pProjection2;
-};
-
-typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
-
+    vec4 sum = vec4(0,0,0,0);
+    float dx = dFdx(gl_TexCoord[0].x);
+    for (int i=-radius; i<=radius; ++i) {
+        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));
+        float coeff = 
+                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;
+        sum += tex*coeff;
+    }
+    gl_FragColor = sum;
 }
-#endif
 

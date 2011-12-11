@@ -37,7 +37,6 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    void initShader();
 };
 
 typedef boost::shared_ptr<GPUNullFilter> GPUNullFilterPtr;

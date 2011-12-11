@@ -31,8 +31,8 @@
 #include <string.h>
 #include <iostream>
 
-#define SHADERID_HORIZ "HORIZBLUR"
-#define SHADERID_VERT "VERTBLUR"
+#define SHADERID_HORIZ "horizblur"
+#define SHADERID_VERT "vertblur"
 
 using namespace std;
 
@@ -45,7 +45,8 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, bClipBorders);
-    initShaders();
+    createShader(SHADERID_HORIZ);
+    createShader(SHADERID_VERT);
     m_bClipBorders = bClipBorders;
     setStdDev(stdDev);
 }
@@ -89,48 +90,6 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
     glproc::UseProgramObject(0);
-}
-
-void GPUBlurFilter::initShaders()
-{
-    string sProgramHead =
-        "uniform sampler2D texture;\n"
-        "uniform float width;\n"
-        "uniform int radius;\n"
-        "uniform sampler2D kernelTex;\n"
-        ;
-
-    string sHorizProgram = sProgramHead +
-        "void main(void)\n"
-        "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    float dx = dFdx(gl_TexCoord[0].x);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = sum;\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_HORIZ, sHorizProgram);
-
-    string sVertProgram = sProgramHead +
-        "void main(void)\n"
-        "{\n"
-        "    vec4 sum = vec4(0,0,0,0);\n"
-        "    float dy = dFdy(gl_TexCoord[0].y);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(0,float(i)*dy));\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += tex*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = sum;\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)

@@ -25,7 +25,7 @@
 #include "../base/ObjectCounter.h"
 #include "../base/Logger.h"
 
-#define SHADERID_HSL_COLOR "HSL_COLOR"
+#define SHADERID_HSL_COLOR "huesat"
 
 using namespace std;
 
@@ -40,7 +40,7 @@ GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
-    initShader();
+    createShader(SHADERID_HSL_COLOR);
 }
 
 GPUHueSatFilter::~GPUHueSatFilter()
@@ -71,54 +71,5 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
     glproc::UseProgramObject(0);
 }
 
-void GPUHueSatFilter::initShader()
-{
-    string sProgramHead =
-            "const vec3 lumCoeff = vec3(0.2125, 0.7154, 0.0721);\n"
-            "const vec3 white = vec3(1.0, 1.0, 1.0);\n"
-            "const vec3 black = vec3(0.0, 0.0, 0.0);\n"
-            "uniform sampler2D texture;\n"
-            "uniform float hue;\n"
-            "uniform float sat;\n"
-            "uniform float l_offset;\n"
-            "uniform bool b_colorize;\n"
-            + getStdShaderCode()
-            ;
-    string sProgram = sProgramHead +
-            "void main(void)\n"
-            "{\n"
-            "    float tmp;\n"
-            "    float s;\n"
-            "    float l;\n"
-            "    float h;\n"
-            "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-            "    unPreMultiplyAlpha(tex);\n"
-            "    rgb2hsl(tex, tmp, s, l);\n"
-            "    if(b_colorize){\n"
-            "       h = hue;\n"
-            "       s = sat;\n"
-            "    }\n"
-            "    else{\n"
-            "       h = hue+tmp;\n"
-            "    }\n"
-            "    vec4 rgbTex = vec4(hsl2rgb(mod(h, 360.0), s, l), tex.a);\n"
-            //Saturate in rgb - space to imitate photoshop filter
-            "    if(!b_colorize){ \n"
-            "      s = clamp(sat+s, 0.0, 2.0);\n"
-            "      vec3 intensity = vec3(dot(rgbTex.rgb, lumCoeff));\n"
-            "      rgbTex.rgb = mix(intensity, rgbTex.rgb, s);\n"
-            "    }; \n"
-            //Brightness with black/white pixels to imitate photoshop lightness-offset
-            "    if(l_offset >= 0.0){ \n"
-            "       rgbTex = vec4(mix(rgbTex.rgb, white, l_offset), tex.a);\n"
-            "    }\n"
-            "    else if(l_offset < 0.0){ \n"
-            "       rgbTex = vec4(mix(rgbTex.rgb, black, -l_offset), tex.a);\n"
-            "    } \n"
-            "    preMultiplyAlpha(rgbTex);\n"
-            "    gl_FragColor = rgbTex;\n"
-            "}\n";
-    getOrCreateShader(SHADERID_HSL_COLOR, sProgram);
 }
-}//End namespace avg
 

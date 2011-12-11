@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#define SHADERID "BANDPASS"
+#define SHADERID "bandpass"
 
 using namespace std;
 
@@ -72,25 +72,7 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
 
 void GPUBandpassFilter::initShader()
 {
-    string sProgram =
-        "uniform sampler2D minTex;\n"
-        "uniform sampler2D maxTex;\n"
-        "uniform float postScale;\n"
-        "uniform bool bInvert;\n"
-
-        "void main(void)\n"
-        "{\n"
-        "  vec4 min = texture2D(minTex, gl_TexCoord[0].st);\n" 
-        "  vec4 max = texture2D(maxTex, gl_TexCoord[0].st);\n"
-        "  gl_FragColor = vec4(0.502, 0.502, 0.502, 0)+(max-min)*postScale;\n"
-        "  if (bInvert) {\n"
-        "    gl_FragColor = vec4(1.004,1.004,1.004,1)-gl_FragColor;\n"
-        "  }\n"
-        "  gl_FragColor.a = 1.0;\n"
-        "}\n"
-        ;
-
-    getOrCreateShader(SHADERID, sProgram);
+    createShader(SHADERID);
 }
 
-} // namespace
+}

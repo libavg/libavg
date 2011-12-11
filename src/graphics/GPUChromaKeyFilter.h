@@ -40,8 +40,6 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    void initShader();
-
     Pixel32 m_Color;
     float m_HTolerance;
     float m_STolerance;

@@ -31,8 +31,8 @@
 #include <string.h>
 #include <iostream>
 
-#define SHADERID_HORIZ "HORIZBLUR"
-#define SHADERID_VERT "VERTBLUR"
+#define SHADERID_HORIZ "horizshadow"
+#define SHADERID_VERT "vertshadow"
 
 using namespace std;
 
@@ -45,7 +45,8 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, offset);
-    initShaders();
+    createShader(SHADERID_HORIZ);
+    createShader(SHADERID_VERT);
     setParams(offset, stdDev, opacity, color);
 }
 
@@ -102,63 +103,6 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
     glproc::UseProgramObject(0);
-}
-
-void GPUShadowFilter::initShaders()
-{
-    string sProgramHead =
-        "uniform float width;\n"
-        "uniform int radius;\n"
-        "uniform sampler2D kernelTex;\n"
-        + getStdShaderCode()
-        ;
-
-    string sHorizProgram = sProgramHead +
-        "uniform sampler2D texture;\n"
-        "uniform vec2 offset;\n"
-        "void main(void)\n"
-        "{\n"
-        "    float sum = 0.;\n"
-        "    float dx = dFdx(gl_TexCoord[0].x);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        float a = texture2D(texture,\n"
-        "                gl_TexCoord[0].st-offset+vec2(float(i)*dx,0)).a;\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += a*coeff;\n"
-        "    }\n"
-        "    gl_FragColor = vec4(sum, sum, sum, sum);\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_HORIZ, sHorizProgram);
-
-    string sVertProgram = sProgramHead +
-        "uniform sampler2D hBlurTex;\n"
-        "uniform sampler2D origTex;\n"
-        "uniform float gamma;\n"
-        "uniform vec4 color;\n"
-        "uniform vec2 destPos;\n"
-        "uniform vec2 destSize;\n"
-        "void main(void)\n"
-        "{\n"
-        "    float sum = 0.;\n"
-        "    float dy = dFdy(gl_TexCoord[0].y);\n"
-        "    for (int i=-radius; i<=radius; ++i) {\n"
-        "        float a = texture2D(hBlurTex,\n"
-        "                gl_TexCoord[0].st+vec2(0,float(i)*dy)).a;\n"
-        "        float coeff = \n"
-        "                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;\n"
-        "        sum += a*coeff;\n"
-        "    }\n"
-        "    sum = min(1., sum);\n"
-        "    vec2 origCoord = gl_TexCoord[0].st;\n"
-        "    origCoord = destPos + \n"
-        "            vec2(origCoord.s*destSize.x, origCoord.t*destSize.y);\n"
-        "    vec4 origCol = texture2D(origTex, origCoord);\n"
-        "    gl_FragColor = origCol+(1.-origCol.a)*color*sum;\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID_VERT, sVertProgram);
 }
 
 void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)

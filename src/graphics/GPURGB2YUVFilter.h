@@ -39,7 +39,6 @@ public:
     BitmapPtr getResults();
 
 private:
-    void initShader();
 };
 
 typedef boost::shared_ptr<GPURGB2YUVFilter> GPURGB2YUVFilterPtr;

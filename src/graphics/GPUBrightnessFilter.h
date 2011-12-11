@@ -38,11 +38,9 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex);
 
 private:
-    static void initShader();
-
     float m_Alpha;
 };
 
-} // namespace
+}
 #endif
 

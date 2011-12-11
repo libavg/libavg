@@ -38,7 +38,7 @@
 
 using namespace std;
 
-#define COLORSPACE_SHADER "COLORSPACE"
+#define COLORSPACE_SHADER "color"
 
 static glm::mat4 yuvCoeff(
         1.0f,   1.0f,    1.0f,  0.0f,
@@ -244,77 +244,7 @@ void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightn
 
 void OGLSurface::createShader()
 {
-    string sProgram =
-        "uniform sampler2D texture;\n"
-        "uniform sampler2D yTexture;\n"
-        "uniform sampler2D cbTexture;\n"
-        "uniform sampler2D crTexture;\n"
-        "uniform sampler2D aTexture;\n"
-        "uniform sampler2D maskTexture;\n"
-        "uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale, 3=yuva\n"
-        "uniform vec4 colorCoeff0;\n"
-        "uniform vec4 colorCoeff1;\n"
-        "uniform vec4 colorCoeff2;\n"
-        "uniform vec4 colorCoeff3;\n"
-        "uniform bool bUseColorCoeff;\n"
-        "uniform vec4 gamma;\n"
-        "uniform bool bPremultipliedAlpha;\n"
-        "uniform bool bUseMask;\n"
-        "uniform vec2 maskPos;\n"
-        "uniform vec2 maskSize;\n"
-        "\n"
-        "vec4 convertYCbCr(mat4 colorCoeff)\n"
-        "{\n"
-        "    vec4 yuv;\n"
-        "    yuv = vec4(texture2D(texture, gl_TexCoord[0].st).r,\n"
-        "               texture2D(cbTexture, (gl_TexCoord[0].st)).r,\n"
-        "               texture2D(crTexture, (gl_TexCoord[0].st)).r,\n"
-        "               1.0);\n"
-        "    vec4 rgb;\n"
-        "    rgb = colorCoeff*yuv;\n"
-        "    return vec4(rgb.rgb, gl_Color.a);\n"
-        "}\n"
-        "\n"
-        "void main(void)\n"
-        "{\n"
-        "    vec4 rgba;\n"
-        "    mat4 colorCoeff;\n"
-        "    colorCoeff[0] = colorCoeff0;\n"
-        "    colorCoeff[1] = colorCoeff1;\n"
-        "    colorCoeff[2] = colorCoeff2;\n"
-        "    colorCoeff[3] = colorCoeff3;\n"
-        "    if (colorModel == 0) {\n"
-        "        rgba = texture2D(texture, gl_TexCoord[0].st);\n"
-        "        if (bUseColorCoeff) {\n"
-        "           rgba = colorCoeff*rgba;\n"
-        "        };\n"
-        "        rgba.a *= gl_Color.a;\n"
-        "    } else if (colorModel == 1) {\n"
-        "        rgba = convertYCbCr(colorCoeff);\n"
-        "    } else if (colorModel == 2) {\n"
-        "        rgba = gl_Color;\n"
-        "        if (bUseColorCoeff) {\n"
-        "           rgba = colorCoeff*rgba;\n"
-        "        };\n"
-        "        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;\n"
-        "    } else if (colorModel == 3) {\n"
-        "        rgba = convertYCbCr(colorCoeff);\n"
-        "        rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;\n"
-        "    } else {\n"
-        "        rgba = vec4(1,1,1,1);\n"
-        "    }\n"
-        "    rgba = pow(rgba, gamma);\n"
-        "    if (bUseMask) {\n"
-        "        if (bPremultipliedAlpha) {\n"
-        "            rgba.rgb *= texture2D(maskTexture,\n"
-        "                    (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
-        "        }\n"
-        "        rgba.a *= texture2D(maskTexture,\n"
-        "                (gl_TexCoord[0].st/maskSize)-maskPos).r;\n"
-        "    }\n"
-        "    gl_FragColor = rgba;\n"
-        "}\n";
-    getOrCreateShader(COLORSPACE_SHADER, sProgram);
+    avg::createShader(COLORSPACE_SHADER);
 }
 
 bool OGLSurface::isDirty() const

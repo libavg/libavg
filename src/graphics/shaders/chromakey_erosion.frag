@@ -19,37 +19,24 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+uniform sampler2D texture;
+uniform bool bIsLast;
 
-#include "../api.h"
-#include "GPUFilter.h"
-#include "GLTexture.h"
-
-namespace avg {
-
-class AVG_API GPUBlurFilter: public GPUFilter
+void main(void)
 {
-public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, 
-            float stdDev, bool bClipBorders, bool bStandalone=true);
-    virtual ~GPUBlurFilter();
-    
-    void setStdDev(float stdDev);
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
-
-private:
-    void setDimensions(IntPoint size, float stdDev, bool bClipBorders);
-
-    float m_StdDev;
-    bool m_bClipBorders;
-
-    GLTexturePtr m_pGaussCurveTex;
-    ImagingProjectionPtr m_pProjection2;
-};
-
-typedef boost::shared_ptr<GPUBlurFilter> GPUBlurFilterPtr;
-
+    float minAlpha = 1.0;
+    float dx = dFdx(gl_TexCoord[0].x);
+    float dy = dFdy(gl_TexCoord[0].y);
+    for (float y = -1.0; y <= 1.0; ++y) {
+        for (float x = -1.0; x <= 1.0; ++x) {
+           float a = texture2D(texture, gl_TexCoord[0].st+vec2(x*dx,y*dy)).a;
+           minAlpha = min(minAlpha, a);
+        }
+    }
+    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
+    if (bIsLast) {
+       gl_FragColor = vec4(tex.rgb*minAlpha, minAlpha);
+    } else {
+       gl_FragColor = vec4(tex.rgb, minAlpha);
+    }
 }
-#endif
-

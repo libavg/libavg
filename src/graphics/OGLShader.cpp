@@ -30,7 +30,7 @@ using namespace std;
 
 namespace avg {
 
-OGLShader::OGLShader(string sProgram)
+OGLShader::OGLShader(string sName, string sProgram)
     : m_sProgram(sProgram)
 {
     m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
@@ -49,7 +49,7 @@ OGLShader::OGLShader(string sProgram)
     glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
     dumpInfoLog(m_hProgram);
     if (!bLinked) {
-        AVG_TRACE(Logger::ERROR, "Linking shader program failed. Aborting.");
+        AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
         exit(-1);
     }
     

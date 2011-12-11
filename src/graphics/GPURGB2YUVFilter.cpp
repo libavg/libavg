@@ -31,7 +31,7 @@
 #include <string.h>
 #include <iostream>
 
-#define SHADERID "RGB2YUV"
+#define SHADERID "rgb2yuv"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ GPURGB2YUVFilter::GPURGB2YUVFilter(const IntPoint& size)
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size);
-    initShader();
+    createShader(SHADERID);
 }
 
 GPURGB2YUVFilter::~GPURGB2YUVFilter()
@@ -65,24 +65,6 @@ BitmapPtr GPURGB2YUVFilter::getResults()
     BitmapPtr pBmp = getFBO()->getImage();
 
     return pBmp;
-}
-
-void GPURGB2YUVFilter::initShader()
-{
-    // Uses jpeg coefficients.
-    string sProgram = 
-        "uniform sampler2D texture;\n"
-        "\n"
-        "void main(void)\n"
-        "{\n"
-        "    vec4 tex = texture2D(texture, gl_TexCoord[0].st);\n"
-        "    float y =  0.299*tex.r + 0.587*tex.g + 0.114*tex.b;\n"
-        "    float u = -0.168*tex.r - 0.330*tex.g + 0.498*tex.b + 0.5;\n"
-        "    float v =  0.498*tex.r - 0.417*tex.g - 0.081*tex.b + 0.5;\n"
-        "    gl_FragColor = vec4(v,u,y,1);\n"
-        "}\n"
-        ;
-    getOrCreateShader(SHADERID, sProgram);
 }
 
 }

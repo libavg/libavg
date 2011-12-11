@@ -106,7 +106,7 @@ class AVG_API Player
         void play();
         void stop();
         bool isStopping();
-        void initPlayback();
+        void initPlayback(const std::string& sShaderPath = "");
         void cleanup();
         bool isPlaying();
         void setFramerate(float rate);
@@ -183,7 +183,7 @@ class AVG_API Player
 
     private:
         void initConfig();
-        void initGraphics();
+        void initGraphics(const std::string& sShaderPath);
         void initAudio();
 
         void updateDTD();

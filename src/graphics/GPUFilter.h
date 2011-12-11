@@ -59,7 +59,6 @@ public:
     
 protected:
     void draw(GLTexturePtr pTex);
-    const std::string& getStdShaderCode() const;
     int getBlurKernelRadius(float stdDev) const;
     GLTexturePtr calcBlurKernelTex(float stdDev, float opacity=1) const;
 
