@@ -60,10 +60,8 @@ public:
             char sz[1024];
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
-            player.initPlayback("../../graphics/shaders");
-#else
-            player.initPlayback("../graphics/shaders/");
 #endif
+            player.initPlayback("../graphics/shaders/");
             player.doFrame(false);
             player.cleanup();
         }
