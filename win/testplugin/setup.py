@@ -95,6 +95,8 @@ python_files += [
 python_ui_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/ui/')
 python_data_files = gatherFilesInDir(LIBAVG_SRC_DIR+'python/data/',
         ('Makefile.am',))
+shader_files = gatherFilesInDir(LIBAVG_SRC_DIR+'graphics/shaders/',
+        ('Makefile.am',))
 
 assets_files=[]
 
@@ -111,6 +113,7 @@ data_files_list=[
         ('Lib/site-packages/libavg', python_files),
         ('Lib/site-packages/libavg/ui', python_ui_files),
         ('Lib/site-packages/libavg/data', python_data_files),
+        ('Lib/site-packages/libavg/shaders', shader_files),
         ('Lib/site-packages/libavg', assets_files)
         ]
 
