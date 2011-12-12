@@ -31,6 +31,10 @@
 #include <math.h>
 #include <string>
 
+#ifdef WIN32
+#include <direct.h>
+#endif
+
 using namespace avg;
 using namespace std;
 
@@ -53,7 +57,10 @@ public:
         player.disablePython();
         if (!getenv("AVG_CONSOLE_TEST")) {
 #ifdef WIN32
-            player.initPlayback("./shaders");
+            char sz[1024];
+            _getcwd(sz, 1024);
+            cerr << "Current directory: " << sz << endl;
+            player.initPlayback("../../graphics/shaders");
 #else
             player.initPlayback("../graphics/shaders/");
 #endif
