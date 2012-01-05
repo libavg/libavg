@@ -15,6 +15,5 @@ rootNode = canvas.getRootNode()
 node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
 player.setOnFrameHandler(moveText)
 
-player.setVBlankFramerate(1)
 player.play()
 
