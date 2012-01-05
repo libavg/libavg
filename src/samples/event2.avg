@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<avg width="640" height="480">
-  <words id="ClashText" x="10" y="10" font="arial" text="Should I stay or should I go?"/>
-  <div id="div1" x="100" y="0" width="80" height="200"/>
-</avg>
-

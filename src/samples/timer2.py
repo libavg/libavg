@@ -4,13 +4,15 @@
 from libavg import avg
 
 def moveText():
-    node = player.getElementByID("HelloText")
+    global node
     if node.x < 200:
         node.x += 1
 
 player = avg.Player.get()
 
-player.loadFile("text.avg")
+canvas = player.createMainCanvas(size=(640,480))
+rootNode = canvas.getRootNode()
+node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
 player.setOnFrameHandler(moveText)
 
 player.setVBlankFramerate(1)

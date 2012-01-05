@@ -4,9 +4,9 @@
 from libavg import avg
 
 player = avg.Player.get()
+
 canvas = player.createMainCanvas(size=(160,120))
 rootNode = canvas.getRootNode()
-videoNode = avg.VideoNode(href="mpeg1-48x48-sound.avi", pos=(10,10), 
-        parent=rootNode)
-videoNode.play()
+avg.ImageNode(pos=(40,30), size=(80,60), href="rgb24-64x64.png", parent=rootNode)
 player.play()
+

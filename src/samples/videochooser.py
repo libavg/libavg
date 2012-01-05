@@ -15,16 +15,16 @@ class VideoChooserApp(AVGApp):
         dir = sys.argv[1]
 
         self.videoListNode = DivNode(parent=self._parentNode)
-        self.videoNodes=[]
-        fileNames=os.listdir(dir)
+        self.videoNodes = []
+        fileNames = os.listdir(dir)
         i = 0
         for fileName in fileNames:
             try:
                 videoNode = VideoNode(
                         pos = (i*(THUMBNAIL_WIDTH+20), 0),
-                        href=dir+"/"+fileName,
-                        loop=True,
-                        parent=self.videoListNode)
+                        href = dir+"/"+fileName,
+                        loop = True,
+                        parent = self.videoListNode)
                 videoNode.play()
                 self.videoNodes.append(videoNode)
 
@@ -54,7 +54,7 @@ class VideoChooserApp(AVGApp):
         destPos = Point2D(720, 550)-destSize/2
         absPos = videoNode.getAbsPos(Point2D(0,0))
         frame = videoNode.getCurFrame()
-        self.bigVideoNode = VideoNode(href=videoNode.href, loop=True,
+        self.bigVideoNode = VideoNode(href=videoNode.href, loop=True, sensitive=False,
                 parent=self._parentNode)
         self.bigVideoNode.play()
         self.bigVideoNode.seekToFrame(frame)

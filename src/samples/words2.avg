@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<avg width="320" height="240">
-    <words x="10" y="10" text="The quick brown fox jumped over the lazy dog."
-            font="Arial" variant="Bold" fontsize="18" color="CF8000" 
-            width="170" linespacing="10" alignment="left" indent="10"/>
-</avg>
-

@@ -11,10 +11,12 @@ def onWords(event):
 
 player = avg.Player.get()
 
-player.loadFile("event2.avg")
-words = player.getElementByID("ClashText")
+canvas = player.createMainCanvas(size=(640,480))
+rootNode = canvas.getRootNode()
+words = avg.WordsNode(pos=(10,10), font="arial", text="Should I stay or should I go?", parent=rootNode)
+div = avg.DivNode(pos=(100,0), size=(80,200), parent=rootNode)
 words.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onWords)
-player.getElementByID("div1").setEventHandler(avg.CURSORMOTION, avg.MOUSE, onDiv)
+div.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onDiv)
 
 player.play()
 

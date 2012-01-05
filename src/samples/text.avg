@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<avg width="640" height="480">
-  <words id="HelloText" x="10" y="10" font="arial" text="Hello World"/>
-</avg>

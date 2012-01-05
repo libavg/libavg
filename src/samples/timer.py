@@ -4,12 +4,14 @@
 from libavg import avg
 
 def moveText():
-    node = player.getElementByID("HelloText")
+    global node
     node.x = 200
 
 player = avg.Player.get()
 
-player.loadFile("text.avg")
+canvas = player.createMainCanvas(size=(640,480))
+rootNode = canvas.getRootNode()
+node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
 player.setTimeout(1000, moveText)
 
 player.play()

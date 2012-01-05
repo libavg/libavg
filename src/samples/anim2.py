@@ -7,9 +7,10 @@ def startAnim():
     animObj.start()
 
 player = avg.Player.get()
-player.loadFile("text.avg")
+canvas = player.createMainCanvas(size=(640,480))
+rootNode = canvas.getRootNode()
+node = avg.WordsNode(pos=(10,10), font="arial", text="Hello World", parent=rootNode)
 
-node = player.getElementByID("HelloText")
 animObj = ParallelAnim(
     [LinearAnim(node, "x", 2000, 0, 200),
      LinearAnim(node, "y", 2000, 0, 10)])

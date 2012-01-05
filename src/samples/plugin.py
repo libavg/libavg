@@ -5,13 +5,13 @@ from libavg import avg
 
 player = avg.Player.get()
 
-player.loadString("""<avg width="160" height="120" id="container" />""")
+canvas = player.createMainCanvas(size=(160,120))
 # Change following line if the plugin is somewhere else.
 player.pluginPath = "../test/plugin/.libs"
-player.loadPlugin("libColorNode")
+player.loadPlugin("colorplugin")
 
-node = player.createNode('<colornode fillcolor="0f3f7f" id="mynode" />')
-player.getElementByID("container").appendChild(node)
-mynode = player.getElementByID("mynode")
-mynode.fillcolor = "7f007f"
+rootNode = canvas.getRootNode()
+node = colorplugin.ColorNode(fillcolor="7f7f00", parent=rootNode)
+node.fillcolor = "7f007f"
 player.play()
+
