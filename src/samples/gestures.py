@@ -86,7 +86,7 @@ class TransformChildNode(avg.DivNode):
                 moveHandler=self.__onMove,
                 friction=0.05
                 )
-   
+
     def __onDetected(self, event):
         moveNodeToTop(self)
 
@@ -100,7 +100,7 @@ class TransformChildNode(avg.DivNode):
 class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         TextRect.__init__(self, text, **kwargs)
-    
+
         ui.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
@@ -125,7 +125,7 @@ class DragNode(TextRect):
 class ConstrainedDragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         TextRect.__init__(self, text, **kwargs)
-    
+
         ui.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
@@ -134,7 +134,7 @@ class ConstrainedDragNode(TextRect):
                 direction=ui.DragRecognizer.HORIZONTAL,
                 friction=0.05
                 )
-   
+
         ui.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
@@ -143,7 +143,7 @@ class ConstrainedDragNode(TextRect):
                 direction=ui.DragRecognizer.VERTICAL,
                 friction=0.05
                 )
-   
+
     def __onDetected(self, event):
         self.__dragStartPos = self.pos
         moveNodeToTop(self)
@@ -153,14 +153,14 @@ class ConstrainedDragNode(TextRect):
         moveNodeOnScreen(self)
 
     def __onVertMove(self, event, offset):
-        self.pos = self.__dragStartPos + offset
+        self.pos = self.__dragStartPos + (0, offset.y)
         moveNodeOnScreen(self)
 
 
 class TapNode(TextRect):
     def __init__(self, text, isDoubleTap, **kwargs):
         TextRect.__init__(self, text, **kwargs)
-    
+
         if isDoubleTap:
             ui.DoubletapRecognizer(node=self, possibleHandler=self.__onPossible,
                     detectedHandler=self.__onDetected, failHandler=self.__onFail)
@@ -186,7 +186,7 @@ class TapNode(TextRect):
 class HoldNode(TextRect):
     def __init__(self, text, **kwargs):
         TextRect.__init__(self, text, **kwargs)
-    
+
         ui.HoldRecognizer(node=self, possibleHandler=self.__onPossible,
                 detectedHandler=self.__onDetected, failHandler=self.__onFail,
                 stopHandler=self.__onStop)
