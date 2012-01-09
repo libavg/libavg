@@ -163,5 +163,6 @@ class TestApp:
                 </avg>
                 """)
         self.__player.setTimeout(0, self.__player.stop)
+        self.__player.setFramerate(10000)
         self.__player.play()
         log.popCategories()
