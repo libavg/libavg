@@ -27,7 +27,7 @@ from testcase import *
 class UITestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
-    
+
     def testKeyboard(self):
         def setup():
             keyDefs = [
@@ -121,15 +121,15 @@ class UITestCase(AVGTestCase):
                 fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('sit dolor')
             self.ta2.setFocus(True) # TODO: REMOVE
-            
+
         def setAndCheck(ta, text):
             ta.setText(text)
             self.assertEqual(ta.getText(), text)
-        
+
         def clear(ta):
             ta.onKeyDown(textarea.KEYCODE_FORMFEED)
             self.assertEqual(ta.getText(), '')
-        
+
         def testUnicode():
             self.ta1.setText(u'some ùnìcöde')
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
@@ -139,13 +139,13 @@ class UITestCase(AVGTestCase):
             self.assertEqual(self.ta1.getText(), u'some ùnìc')
             self.ta1.onKeyDown(ord(u'Ä'))
             self.assertEqual(self.ta1.getText(), u'some ùnìcÄ')
-        
+
         def testSpecialChars():
             clear(self.ta1)
             self.ta1.onKeyDown(ord(u'&'))
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
             self.assertEqual(self.ta1.getText(), '')
-        
+
         def checkSingleLine():
             text = ''
             self.ta2.setText('')
@@ -156,11 +156,11 @@ class UITestCase(AVGTestCase):
                 if text != self.ta2.getText():
                     self.assertEqual(len(text), 16)
                     break
-        
+
         root = self.loadEmptyScene()
         avg.DivNode(id="ph1", pos=(2,2), size=(156, 96), parent=root)
         avg.DivNode(id="ph2", pos=(2,100), size=(156, 18), parent=root)
-        
+
         textarea.init(avg, False)
         self.start((
                 setup,
@@ -190,6 +190,14 @@ class UITestCase(AVGTestCase):
             self.__possible = False
             self.__detected = False
             self.__failed = False
+
+        def abort():
+            self.__tapRecognizer.abort()
+            initState()
+
+        def enable(isEnabled):
+            self.__tapRecognizer.enable(isEnabled)
+            initState()
 
         def assertEvents(possible, detected, failed):
 #            print (self.__possible, self.__detected, self.__failed)
@@ -231,11 +239,92 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, False, True),
+                 # Down-Abort-Up: not recognized as tap
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 # Abort-Down-Up: recognized as tap
+                 initState,
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-Abort-Up-Down-Up: recognized as tap
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 0),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Disable-Down-Up-Enable: not recognized as tap
+                 initState,
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 # Down-Disable-Up-Enable: not recognized as tap
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 # Down-Disable-Enable-Up: not recognized as tap
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: enable(True),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 # Down-Disable-Up-Enable-Down-Up: recognized as tap
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False), 
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Down-Abort-Disable-Up-Enable: not recognized as tap
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 # Abort-Disable-Abort-Enable-Abort-Down-Up: recognized as tap
+                 initState,
+                 abort,
+                 lambda: enable(False),
+                 abort,
+                 lambda: enable(True),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
                 ))
 
 
     def testHoldRecognizer(self):
-      
+
         def onPossible(event):
             self.__possible = True
 
@@ -253,6 +342,14 @@ class UITestCase(AVGTestCase):
             self.__detected = False
             self.__failed = False
             self.__stopped = False
+
+        def abort():
+            self.__holdRecognizer.abort()
+            initState()
+
+        def enable(isEnabled):
+            self.__holdRecognizer.enable(isEnabled)
+            initState()
 
         def assertEvents(possible, detected, failed, stopped):
 #            print (self.__possible, self.__detected, self.__failed, self.__stopped)
@@ -280,20 +377,66 @@ class UITestCase(AVGTestCase):
                  None,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, True, False, True),
-                 
+
                  # down-up sequence, hold not long enough.
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, False, True, False),
 
-                 # down-move-up sequence, should abort. 
+                 # down-move-up sequence, should stop. 
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
                  lambda: assertEvents(True, False, True, False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 150, 50),
                  lambda: assertEvents(True, False, True, False),
+
+                 # down-hold-abort-up, should not recognized
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False, False),
+                 None,
+                 lambda: assertEvents(True, True, False, False),
+                 None,
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False, False),
+
+                 # down-abort-hold-up, should not recognized
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False, False),
+                 abort,
+                 None,
+                 lambda: assertEvents(False, False, False, False),
+                 None,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False, False),
+
+                 # down-hold-disabled-up-enabled, should not recognized
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False, False),
+                 None,
+                 lambda: assertEvents(True, True, False, False),
+                 None,
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False, False),
+                 lambda: enable(True),
+
+                 # down-disabled-enabled-hold-up, should not recognized
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False, False),
+                 lambda: enable(False),
+                 lambda: enable(True),
+                 None,
+                 lambda: assertEvents(False, False, False, False),
+                 None,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False, False),
                 ))
         Player.setFakeFPS(-1)
 
@@ -315,9 +458,18 @@ class UITestCase(AVGTestCase):
             self.__failed = False
 
         def assertEvents(possible, detected, failed):
+#            print (self.__possible, self.__detected, self.__failed)
             self.assert_(self.__possible == possible and
                 self.__detected == detected and
                 self.__failed == failed)
+
+        def abort():
+            self.__tapRecognizer.abort()
+            initState()
+
+        def enable(isEnabled):
+            self.__tapRecognizer.enable(isEnabled)
+            initState()
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png", size=(128,128))
@@ -337,14 +489,14 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, False, False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, True, False),
-                 # Down, move: abort
+                 # Down, move: stop
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
-                 # Down, up, move: abort
+                 # Down, up, move: stop
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
@@ -353,7 +505,7 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
-                 # Down, up, down, move: abort
+                 # Down, up, down, move: stop
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
@@ -362,24 +514,151 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: assertEvents(True, False, True),
-                 # Down,delay: abort
+                 # Down,delay: stop
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.delay(600),
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(True, False, True),
-                 # Down, up, delay: abort
+                 # Down, up, delay: stop
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: self.delay(600),
                  lambda: assertEvents(True, False, True),
-                 # Down, up, down, delay: abort
+                 # Down, up, down, delay: stop
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.delay(600),
                  lambda: assertEvents(True, False, True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 # Down, abort, up, down, up, delay: just one click
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.delay(600),
+                 lambda: assertEvents(True, False, True),
+                 # Down, up, abort, down, up, delay: two clicks but no double-click
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self.delay(600),
+                 lambda: assertEvents(True, False, True),
+                 # Down, up, down, abort, up: just one click
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 # Down, abort, up, down, up, down up: first aborted then recognized
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 abort,
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
+                 # Disabled, down, up, down, up, enabled: nothing
+                 initState,
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),                 
+                 # Down, disabled up, down, up, enabled: just one down
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 # Down, up, disabled, down, up, enabled: just one click
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 # Down, up, down, disabled, up, enabled: just one click
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: enable(True),
+                 # Down, disabled, enabled, up, down, up: just one click
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: enable(True),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 # Down, disabled, enabled, up, down, up, down, up: recognized
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: enable(False),
+                 lambda: enable(True),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(False, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: assertEvents(True, False, False),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
+                 lambda: assertEvents(True, True, False),
                 ))
 
 
@@ -401,8 +680,12 @@ class UITestCase(AVGTestCase):
         def onEnd(event):
             self.__ended = True
 
-        def disable():
-            dragRecognizer.enable(False)
+        def enable(isEnabled):
+            dragRecognizer.enable(isEnabled)
+            initState()
+
+        def abort():
+            dragRecognizer.abort()
             initState()
 
         def initState():
@@ -410,7 +693,7 @@ class UITestCase(AVGTestCase):
             self.__moved = False
             self.__up = False
             self.__ended = False
-            
+
             self.__possible = False
             self.__failed = False
 
@@ -436,7 +719,7 @@ class UITestCase(AVGTestCase):
                      lambda: assertDragEvents(True, True, False, False),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
                      lambda: assertDragEvents(True, True, True, True),
-                     disable,
+                     lambda: enable(False),
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: assertDragEvents(False, False, False, False),
                      lambda: dragRecognizer.enable(True),
@@ -476,17 +759,71 @@ class UITestCase(AVGTestCase):
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
                      lambda: assertDragEvents(True, True, True, True, True, False),
                      initState,
-                     # Wrong direction -> abort.
+                     # Wrong direction -> stop.
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 30),
                      lambda: assertDragEvents(False, False, False, False, True, True),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 70, 30),
                      lambda: assertDragEvents(False, False, False, False, True, True),
 
-                     # No movement -> abort.
+                     # No movement -> stop.
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                      lambda: assertDragEvents(False, False, False, False, True, True),
+
+                     # Down, Abort, Motion, Motion, Up -> not recognized
+                     initState,
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     abort,
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+
+                     # Down, Motion, Abort, Motion, Up -> not Recognized
+                     initState,
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     abort,
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+
+                     # Down, Motion, Motion, Abort, Up -> not recognized
+                     initState,
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
+                     lambda: assertDragEvents(True, True, False, False, True, False),
+                     abort,
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+
+                     # Down, Motion, Abort, Up, Down, Motion, Motion, Up -> Recognized
+                     initState,
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     abort,
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
+                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
+                     lambda: assertDragEvents(True, True, False, False, True, False),
+                     lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
+                     lambda: assertDragEvents(True, True, True, True, True, False),
                     ))
 
         Player.setFakeFPS(-1)
@@ -508,15 +845,15 @@ class UITestCase(AVGTestCase):
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
                     ))
         Player.setFakeFPS(-1)
-        
-    
+
+
     def testDragRecognizerInitialEvent(self):
 
         def onMotion(event):
             ui.DragRecognizer(self.image, 
                     detectedHandler=onDragStart, moveHandler=onDrag, initialEvent=event)
             self.image.disconnectEventHandler(self)
-           
+
         def onDragStart(event):
             self.__dragStartCalled = True
 
@@ -536,7 +873,7 @@ class UITestCase(AVGTestCase):
 
 
     def testDragRecognizerCoordSysNode(self):
-        
+
         def onDrag(event, offset):
             self.assertEqual(offset, (40,40))
 
@@ -551,7 +888,7 @@ class UITestCase(AVGTestCase):
 
 
     def testTransformRecognizer(self):
-        
+
         def onDetected(event):
             pass
 
@@ -699,25 +1036,25 @@ class UITestCase(AVGTestCase):
             textarea.init(avg)
             self.ctx1 = textarea.FocusContext()
             self.ctx2 = textarea.FocusContext()
-            
+
             self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
                 self.ctx1, id='ta1')
             self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=16, multiline=True, color='FFFFFF')
             self.ta1.setText('Lorem ipsum')
-            
+
             self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
                 self.ctx1, id='ta2')
             self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('dolor')
-            
+
             self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
                 self.ctx2, disableMouseFocus=True, id='ta3')
             self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
                 fontsize=14, multiline=True, color='FFFFFF')
             self.ta3.setText('dolor sit amet')
-            
+
             textarea.setActiveFocusContext(self.ctx1)
 
         def writeChar():
@@ -770,15 +1107,15 @@ class UITestCase(AVGTestCase):
         def reset():
             self.__down = False
             self.__clicked = False
-        
+
         def printAddress(obj):
             print obj
-        
+
         def setObjectActive(obj, active):
             obj.active = active
-            
+
         root = self.loadEmptyScene()
-        
+
         b = ui.Button(
                 parent = root,
                 upNode = avg.ImageNode(href="button_up.png"),
@@ -786,18 +1123,18 @@ class UITestCase(AVGTestCase):
                 disabledNode = avg.ImageNode(href="button_disabled.png"),
                 pressHandler = onDown,
                 clickHandler = onClick)
-        
+
         b1 = ui.Button(parent=root,
                        active=False,
                        pressHandler=onDown,
                        clickHandler=onClick)
-        
+
         b.pos = (0, 0)
         yOutDistance = int(b.height * 2)
 
         self.__down = False
         self.__clicked = False
-        
+
         self.start((
                  # Normal click: Down & up over button
                  lambda: self.compareImage("testUIButtonUp", False),
@@ -828,7 +1165,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, yOutDistance),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
-                 
+
                  # Move away from button, down, mover over button, up
                  # ==> no click
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, yOutDistance),
@@ -883,7 +1220,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # not checked, down, out, up ==> pressed, no click
                  lambda: b.setCheckable(True),
                  lambda: b.setChecked(False),
@@ -897,7 +1234,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
-                 
+
                  # not checked, down, out, up ==> pressed, no click
                  lambda: b.setCheckable(True),
                  lambda: b.setChecked(True),
@@ -911,7 +1248,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
-                 
+
                  # checked, down, out, in, up ==> pressed, clicked
                  lambda: b.setCheckable(True),
                  lambda: b.setChecked(True),
@@ -927,7 +1264,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # Test public interface
                  lambda: b.setCheckable(False),
                  lambda: self.compareImage("testUIButtonUp", False),
@@ -943,7 +1280,7 @@ class UITestCase(AVGTestCase):
                  lambda: b.setEnabled(True),
                  lambda: b.setChecked(False),
                  reset,
-                 
+
                  # Disable: Various up/down combinations have no effect
                  lambda: b.setEnabled(False),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 0),
@@ -973,7 +1310,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  lambda: b.setEnabled(False),
                  lambda: b.setNodes(upNode = avg.ImageNode(href="button_up.png"),
                                     downNode = avg.ImageNode(href="button_down.png"),
@@ -983,7 +1320,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.assert_(not(self.__down) and not(self.__clicked)),
                  reset,
-                 
+
                  lambda: b.setEnabled(True),
                  lambda: b.setNodes(upNode = avg.ImageNode(href="button_up.png"),
                                     downNode = avg.ImageNode(href="button_down.png"),
@@ -993,7 +1330,7 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # resetting the nodes on an empty button
                  lambda: setObjectActive(b, False),
                  lambda: setObjectActive(b1, True),
@@ -1005,8 +1342,8 @@ class UITestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 0),
                  lambda: self.assert_(self.__down and self.__clicked),
                  ))
-    
-        
+
+
     def testMultitouchButton(self):
         def onDown(event):
             self.__down = True
@@ -1029,7 +1366,7 @@ class UITestCase(AVGTestCase):
                 )
         b.pos = (0,0)
         yOutDistance = b.height * 2
-        
+
         self.__down = False
         self.__clicked = False
         self.start((
@@ -1058,7 +1395,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # Two down, both out, both in, both up ==> click
                  lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
                  lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
@@ -1091,7 +1428,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
-                                                   
+
                  # Two downs, one out, in up, out up ==> no click
                  lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
                  lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
@@ -1104,7 +1441,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
-                 
+
                  # Check checkable multitouch button
                  # 2 down, 2 up ==> pressed, clicked, 
                  # 2 down, 2 up ==> pressed, clicked
@@ -1130,7 +1467,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # not checked, 2 down, 2 out, 2 in, first up, second up 
                  # ==> pressed, clicked
                  lambda: b.setChecked(False),
@@ -1154,7 +1491,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonDown", False),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # checked, 2 down, 2 out, 2 in, first up, second up 
                  # ==> pressed, clicked
                  lambda: b.setCheckable(True),
@@ -1179,7 +1516,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and self.__clicked),
                  reset,
-                 
+
                  # not checked, 2 down, 2 out, first up, second up 
                  # ==> pressed, not clicked
                  lambda: b.setCheckable(True),
@@ -1200,7 +1537,7 @@ class UITestCase(AVGTestCase):
                  lambda: self.compareImage("testUIButtonUp", False),
                  lambda: self.assert_(self.__down and not(self.__clicked)),
                  reset,
-                 
+
                  # checked, 2 down, 2 out, first up, second up 
                  # ==> pressed, not clicked
                  lambda: b.setCheckable(True),
@@ -1225,7 +1562,7 @@ class UITestCase(AVGTestCase):
 
 
     def testTouchButton(self):
-    
+
         def onClick():
             self.clicked = True
 
@@ -1311,7 +1648,7 @@ class UITestCase(AVGTestCase):
                 clickHandler = onClick
                 )
         runTest()
-       
+
     def testScrollPane(self):
         def scrollLarge():
             scrollPane.contentpos = (-34, -34)
@@ -1363,7 +1700,7 @@ def uiTestSuite(tests):
         "testTouchButton",
         "testScrollPane"
         )
-    
+
     return createAVGTestSuite(availableTests, UITestCase, tests)
 
 Player = avg.Player.get()
