@@ -149,6 +149,10 @@ functionality
                 Called when movement stops. This is either directly after the up event
                 or when inertia has run its course.
 
+        .. py:method:: abort()
+
+            Aborts the present recognized gesture and sliding caused by inertia
+
         .. py:method:: abortInertia()
 
             Causes inertia processing to end immediately.
@@ -308,6 +312,10 @@ functionality
 
                 Called when a continuous gesture ends.
 
+        .. py:method:: abort()
+
+            Aborts the present recognized gesture
+
         .. py:method:: enable(isEnabled)
 
             Enables or disables the :py:class:`Recognizer`.
@@ -441,4 +449,8 @@ functionality
 
                 Called when movement stops. This is either directly after the up event
                 or when inertia has run its course.
+
+        .. py:method:: abort()
+
+            Aborts the present recognized gesture and sliding caused by inertia
 
