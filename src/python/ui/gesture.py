@@ -53,7 +53,7 @@ class Recognizer(object):
         self.__failHandler = utils.methodref(failHandler)
         self.__detectedHandler = utils.methodref(detectedHandler)
         self.__endHandler = utils.methodref(endHandler)
-       
+
         self.__setEventHandler() 
         self.__isEnabled = True
         self._contacts = {}
@@ -68,10 +68,15 @@ class Recognizer(object):
             self.__stateMachine.addState("IDLE", ("POSSIBLE",))
             self.__stateMachine.addState("POSSIBLE", ("IDLE",))
 
-#        self.__stateMachine.traceChanges(True)
+        #self.__stateMachine.traceChanges(True)
 
         if initialEvent:
             self.__onDown(initialEvent)
+
+    def abort(self):
+        if self.__isEnabled:
+            self.__abort()
+            self.__setEventHandler()
 
     def enable(self, isEnabled):
         if isEnabled != self.__isEnabled:
@@ -79,10 +84,7 @@ class Recognizer(object):
             if isEnabled:
                 self.__setEventHandler()
             else:
-                if self._contacts != {}:
-                    self._abort()
-                if self._node:
-                    self._node.disconnectEventHandler(self)
+                self.__abort()
 
     def getState(self):
         return self.__stateMachine.state
@@ -92,8 +94,9 @@ class Recognizer(object):
         utils.callWeakRef(self.__possibleHandler, event)
 
     def _setFail(self, event):
-        assert(self.__stateMachine.state == "POSSIBLE")
-        self.__stateMachine.changeState("IDLE")
+        assert(self.__stateMachine.state != "RUNNING")
+        if self.__stateMachine.state != "IDLE":
+            self.__stateMachine.changeState("IDLE")
         utils.callWeakRef(self.__failHandler, event)
 
     def _setDetected(self, event):
@@ -102,10 +105,11 @@ class Recognizer(object):
         else:
             self.__stateMachine.changeState("IDLE")
         utils.callWeakRef(self.__detectedHandler, event)
-        
+
     def _setEnd(self, event):
-        assert(self.__stateMachine.state == "RUNNING")
-        self.__stateMachine.changeState("IDLE")
+        assert(self.__stateMachine.state != "POSSIBLE")
+        if self.__stateMachine.state != "IDLE":
+            self.__stateMachine.changeState("IDLE")
         utils.callWeakRef(self.__endHandler, event)
 
     def __onDown(self, event):
@@ -130,7 +134,15 @@ class Recognizer(object):
             g_Player.clearInterval(self.__frameHandlerID)
         self._handleUp(event)
 
-    def _abort(self):
+    def __abort(self):        
+        if self.__stateMachine.state != "IDLE":
+            self.__stateMachine.changeState("IDLE")
+        if self._contacts != {}:
+            self._disconnectContacts()
+        if self._node:
+            self._node.disconnectEventHandler(self)
+
+    def _disconnectContacts(self):
         for contact, contactData in self._contacts.iteritems():
             contact.disconnectListener(contactData.listenerid)
         self._contacts = {}
@@ -196,7 +208,7 @@ class TapRecognizer(Recognizer):
 
 
 class DoubletapRecognizer(Recognizer):
-    
+
     def __init__(self, node, eventSource=avg.TOUCH | avg.MOUSE,
             maxTime=MAX_DOUBLETAP_TIME, initialEvent=None,
             possibleHandler=None, failHandler=None, detectedHandler=None):
@@ -207,12 +219,22 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN1", ("UP1", "IDLE"))
         self.__stateMachine.addState("UP1", ("DOWN2", "IDLE"))
         self.__stateMachine.addState("DOWN2", ("IDLE",))
-#        self.__stateMachine.traceChanges(True)
+        #self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
         self.__maxDistance = MAX_TAP_DIST*g_Player.getPixelsPerMM()
         Recognizer.__init__(self, node, False, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler)
-   
+
+    def abort(self):
+        if self.__stateMachine.state != "IDLE":
+            self.__stateMachine.changeState("IDLE")
+        Recognizer.abort(self)
+
+    def enable(self, isEnabled):
+        if self.__stateMachine.state != "IDLE":
+            self.__stateMachine.changeState("IDLE")
+        Recognizer.enable(self, isEnabled)
+
     def _handleDown(self, event):
         self.__startTime = g_Player.getFrameTime()
         if self.__stateMachine.state == "IDLE":
@@ -227,7 +249,7 @@ class DoubletapRecognizer(Recognizer):
             else:
                 self.__stateMachine.changeState("DOWN2")
         else:
-            assert(False)
+            assert(False), self.__stateMachine.state
 
     def _handleMove(self, event):
         if self.__stateMachine.state != "IDLE": 
@@ -248,7 +270,7 @@ class DoubletapRecognizer(Recognizer):
         elif self.__stateMachine.state == "IDLE":
             pass
         else:
-            assert(False)
+            assert(False), self.__stateMachine.state
 
     def __onFrame(self):
         downTime = g_Player.getFrameTime() - self.__startTime
@@ -334,6 +356,10 @@ class DragRecognizer(Recognizer):
                 possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
 
+    def abort(self):
+        self.abortInertia()
+        Recognizer.abort(self)
+
     def abortInertia(self):
         if self.__isSliding:
             self.__inertiaHandler.abort()
@@ -365,7 +391,7 @@ class DragRecognizer(Recognizer):
                         utils.callWeakRef(self.__moveHandler, event, offset)
                     else:
                         self._setFail(event)
-                        self._abort()
+                        self._disconnectContacts()
                         self.__inertiaHandler = None
             if self.__inertiaHandler:
                 self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
@@ -390,7 +416,7 @@ class DragRecognizer(Recognizer):
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
         utils.callWeakRef(self.__moveHandler, None, self.__offset)
-   
+
     def __onInertiaStop(self):
         self._setEnd(None)
         self.__inertiaHandler = None
@@ -446,7 +472,7 @@ class Mat3x3:
                 Mat3x3.rotate(node.angle).applyMat(
                 Mat3x3.translate(-node.pivot).applyMat(
                 Mat3x3.scale(node.size)))))
-      
+
     def setNodeTransform(self, node):
         v = self.applyVec([1,0,0])
         rot = avg.Point2D(v[0], v[1]).getAngle()
@@ -515,7 +541,7 @@ def getCentroid(indexes, pts):
     return c/len(indexes)
 
 def calcKMeans(pts):
-    
+
     # in: List of points
     # out: Two lists, each containing indexes into the input list
     assert(len(pts) > 1)
@@ -541,7 +567,7 @@ def calcKMeans(pts):
         p2 = getCentroid(l2, pts)
         j += 1
     return l1, l2
-        
+
 
 class Transform():
     def __init__(self, trans, rot=0, scale=1, pivot=(0,0)):
@@ -588,6 +614,11 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
         Recognizer.__init__(self, eventNode, True, eventSource, None, initialEvent,
                 detectedHandler=detectedHandler, endHandler=endHandler)
+
+    def abort(self):
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
+        Recognizer.abort(self)
 
     def _handleDown(self, event):
         numContacts = len(self._contacts)
@@ -640,13 +671,13 @@ class TransformRecognizer(Recognizer):
             pivot = (self.__posns[0]+self.__posns[1])/2
 
             rot = avg.Point2D.angle(curDelta, startDelta)
-            
+
             if self.__lastPosns[0] == self.__lastPosns[1]:
                 scale = 1
             else:
                 scale = ((self.__posns[0]-self.__posns[1]).getNorm() / 
                         (self.__lastPosns[0]-self.__lastPosns[1]).getNorm())
-            
+
             trans = ((self.__posns[0]+self.__posns[1])/2 - 
                     (self.__lastPosns[0]+self.__lastPosns[1])/2)
             transform = Transform(trans, rot, scale, pivot)
