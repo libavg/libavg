@@ -22,6 +22,7 @@
 from libavg import avg, textarea, ui
 
 import math
+from sets import Set
 from testcase import *
 
 class UITestCase(AVGTestCase):
@@ -199,11 +200,13 @@ class UITestCase(AVGTestCase):
             self.__tapRecognizer.enable(isEnabled)
             initState()
 
-        def assertEvents(possible, detected, failed):
-#            print (self.__possible, self.__detected, self.__failed)
-            self.assert_(self.__possible == possible and
-                self.__detected == detected and
-                self.__failed == failed)
+        EVENT_POSSIBLE = 1
+        EVENT_DETECTED = 2
+        EVENT_FAILED = 3
+        def assertEvents(flags):
+            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
+            self.assert_((EVENT_DETECTED in flags) == self.__detected)
+            self.assert_((EVENT_FAILED in flags) == self.__failed)
 
         root = self.loadEmptyScene()
         image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
@@ -216,98 +219,98 @@ class UITestCase(AVGTestCase):
         self.start((
                  # Down-up: recognized as tap.
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Down-small move-up: recognized as tap.
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 31, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Down-big move-up: fail
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 1, 1),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down-delay: fail
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.delay(600),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down-Abort-Up: not recognized as tap
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  # Abort-Down-Up: recognized as tap
                  initState,
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Down-Abort-Up-Down-Up: recognized as tap
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 0),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Disable-Down-Up-Enable: not recognized as tap
                  initState,
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  # Down-Disable-Up-Enable: not recognized as tap
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  # Down-Disable-Enable-Up: not recognized as tap
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: enable(True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  # Down-Disable-Up-Enable-Down-Up: recognized as tap
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False), 
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])), 
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Down-Abort-Disable-Up-Enable: not recognized as tap
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  # Abort-Disable-Abort-Enable-Abort-Down-Up: recognized as tap
                  initState,
@@ -317,9 +320,9 @@ class UITestCase(AVGTestCase):
                  lambda: enable(True),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                 ))
 
 
@@ -351,12 +354,15 @@ class UITestCase(AVGTestCase):
             self.__holdRecognizer.enable(isEnabled)
             initState()
 
-        def assertEvents(possible, detected, failed, stopped):
-#            print (self.__possible, self.__detected, self.__failed, self.__stopped)
-            self.assert_(self.__possible == possible and
-                self.__detected == detected and
-                self.__failed == failed and
-                self.__stopped == stopped)
+        EVENT_POSSIBLE = 1
+        EVENT_DETECTED = 2
+        EVENT_FAILED = 3
+        EVENT_STOPPED = 4
+        def assertEvents(flags):
+            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
+            self.assert_((EVENT_DETECTED in flags) == self.__detected)
+            self.assert_((EVENT_FAILED in flags) == self.__failed)
+            self.assert_((EVENT_STOPPED in flags) == self.__stopped)
 
         Player.setFakeFPS(2)
         root = self.loadEmptyScene()
@@ -371,72 +377,73 @@ class UITestCase(AVGTestCase):
         self.start((
                  # Standard down-hold-up sequence.
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  None,
-                 lambda: assertEvents(True, True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  None,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED,
+                         EVENT_STOPPED])),
 
                  # down-up sequence, hold not long enough.
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
 
                  # down-move-up sequence, should stop. 
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 1, 1),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 150, 50),
-                 lambda: assertEvents(True, False, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 150, 50),
-                 lambda: assertEvents(True, False, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
 
                  # down-hold-abort-up, should not recognized
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  None,
-                 lambda: assertEvents(True, True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  None,
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: assertEvents(Set([])),
 
                  # down-abort-hold-up, should not recognized
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  None,
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: assertEvents(Set([])),
                  None,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: assertEvents(Set([])),
 
                  # down-hold-disabled-up-enabled, should not recognized
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  None,
-                 lambda: assertEvents(True, True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  None,
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
 
                  # down-disabled-enabled-hold-up, should not recognized
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: enable(True),
                  None,
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: assertEvents(Set([])),
                  None,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False, False),
+                 lambda: assertEvents(Set([])),
                 ))
         Player.setFakeFPS(-1)
 
@@ -457,11 +464,13 @@ class UITestCase(AVGTestCase):
             self.__detected = False
             self.__failed = False
 
-        def assertEvents(possible, detected, failed):
-#            print (self.__possible, self.__detected, self.__failed)
-            self.assert_(self.__possible == possible and
-                self.__detected == detected and
-                self.__failed == failed)
+        EVENT_POSSIBLE = 1
+        EVENT_DETECTED = 2
+        EVENT_FAILED = 3
+        def assertEvents(flags):
+            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
+            self.assert_((EVENT_DETECTED in flags) == self.__detected)
+            self.assert_((EVENT_FAILED in flags) == self.__failed)
 
         def abort():
             self.__tapRecognizer.abort()
@@ -482,183 +491,183 @@ class UITestCase(AVGTestCase):
         self.start((
                  # Down, up, down, up: click
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Down, move: stop
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down, up, move: stop
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 80, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down, up, down, move: stop
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 0, 30),
                  lambda: self._sendMouseEvent(avg.CURSORMOTION, 80, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 0, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down,delay: stop
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.delay(600),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down, up, delay: stop
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: self.delay(600),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down, up, down, delay: stop
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                  lambda: self.delay(600),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  # Down, abort, up, down, up, delay: just one click
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self.delay(600),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down, up, abort, down, up, delay: two clicks but no double-click
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self.delay(600),
-                 lambda: assertEvents(True, False, True),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down, up, down, abort, up: just one click
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  # Down, abort, up, down, up, down up: first aborted then recognized
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  abort,
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                  # Disabled, down, up, down, up, enabled: nothing
                  initState,
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),                 
                  # Down, disabled up, down, up, enabled: just one down
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  # Down, up, disabled, down, up, enabled: just one click
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  # Down, up, down, disabled, up, enabled: just one click
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: enable(True),
                  # Down, disabled, enabled, up, down, up: just one click
                  initState,
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: enable(True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  # Down, disabled, enabled, up, down, up, down, up: recognized
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: enable(False),
                  lambda: enable(True),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(False, False, False),
+                 lambda: assertEvents(Set([])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: assertEvents(True, False, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                 lambda: assertEvents(True, True, False),
+                 lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_DETECTED])),
                 ))
 
 
@@ -697,12 +706,19 @@ class UITestCase(AVGTestCase):
             self.__possible = False
             self.__failed = False
 
-        def assertDragEvents(detected, moved, up, ended, possible=False, failed=False):
-#            print (self.__detected, self.__moved, self.__up, 
-#                   self.__ended, self.__possible, self.__failed)
-            self.assert_(self.__detected == detected and self.__moved == moved and
-                    self.__up == up and self.__ended == ended and
-                    self.__possible == possible and self.__failed == failed)
+        EVENT_DETECTED = 1
+        EVENT_MOVED = 2
+        EVENT_UP = 3
+        EVENT_ENDED = 4
+        EVENT_POSSIBLE = 5
+        EVENT_FAILED = 6
+        def assertDragEvents(flags):
+            self.assert_((EVENT_DETECTED in flags) == self.__detected)
+            self.assert_((EVENT_MOVED in flags) == self.__moved)
+            self.assert_((EVENT_UP in flags) == self.__up)
+            self.assert_((EVENT_ENDED in flags) == self.__ended)
+            self.assert_((EVENT_POSSIBLE in flags) == self.__possible)
+            self.assert_((EVENT_FAILED in flags) == self.__failed)
 
         Player.setFakeFPS(100)
         for self.friction in (-1, 100):
@@ -714,18 +730,19 @@ class UITestCase(AVGTestCase):
             initState()
             self.start((
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(True, False, False, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 70),
-                     lambda: assertDragEvents(True, True, False, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED])),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(True, True, True, True),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
+                             EVENT_ENDED])),
                      lambda: enable(False),
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
                      lambda: dragRecognizer.enable(True),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(True, False, False, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED])),
                     ))
 
         # Test with constraint.
@@ -751,79 +768,84 @@ class UITestCase(AVGTestCase):
             initState()
             self.start((
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(True, True, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED,
+                             EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(True, True, True, True, True, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
+                             EVENT_ENDED, EVENT_POSSIBLE])),
                      initState,
                      # Wrong direction -> stop.
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 70, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, True),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 70, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, True),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
 
                      # No movement -> stop.
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, True),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
 
                      # Down, Abort, Motion, Motion, Up -> not recognized
                      initState,
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      abort,
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
 
                      # Down, Motion, Abort, Motion, Up -> not Recognized
                      initState,
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      abort,
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
 
                      # Down, Motion, Motion, Abort, Up -> not recognized
                      initState,
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(True, True, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED,
+                             EVENT_POSSIBLE])),
                      abort,
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
 
                      # Down, Motion, Abort, Up, Down, Motion, Motion, Up -> Recognized
                      initState,
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      abort,
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(False, False, False, False, False, False),
+                     lambda: assertDragEvents(Set([])),
                      lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 35, 30),
-                     lambda: assertDragEvents(False, False, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORMOTION, 30, 70),
-                     lambda: assertDragEvents(True, True, False, False, True, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED,
+                             EVENT_POSSIBLE])),
                      lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
-                     lambda: assertDragEvents(True, True, True, True, True, False),
+                     lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
+                             EVENT_ENDED, EVENT_POSSIBLE])),
                     ))
 
         Player.setFakeFPS(-1)
