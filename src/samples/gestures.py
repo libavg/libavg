@@ -48,7 +48,7 @@ class TransformNode(TextRect):
         self.__ignoreScale = ignoreScale
         self.__ignoreRotation = ignoreRotation
 
-        ui.TransformRecognizer(
+        self.recognizer = ui.TransformRecognizer(
                 eventNode=self, 
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
@@ -79,7 +79,7 @@ class TransformChildNode(avg.DivNode):
 
         self.inputNode = avg.RectNode(size=(self.size.x, self.size.y/2), 
                 fillopacity=0.5, fillcolor="808080", strokewidth=0, parent=self)
-        ui.TransformRecognizer(
+        self.recognizer = ui.TransformRecognizer(
                 eventNode=self.inputNode,
                 coordSysNode=self,
                 detectedHandler=self.__onDetected,
@@ -101,7 +101,7 @@ class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         TextRect.__init__(self, text, **kwargs)
 
-        ui.DragRecognizer(
+        self.recognizer = ui.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove,
@@ -126,7 +126,7 @@ class ConstrainedDragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
         TextRect.__init__(self, text, **kwargs)
 
-        ui.DragRecognizer(
+        self.recognizer = ui.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onHorizMove,
@@ -135,7 +135,7 @@ class ConstrainedDragNode(TextRect):
                 friction=0.05
                 )
 
-        ui.DragRecognizer(
+        self.recognizer2 = ui.DragRecognizer(
                 eventNode=self,
                 detectedHandler=self.__onDetected,
                 moveHandler=self.__onVertMove,
@@ -162,10 +162,10 @@ class TapNode(TextRect):
         TextRect.__init__(self, text, **kwargs)
 
         if isDoubleTap:
-            ui.DoubletapRecognizer(node=self, possibleHandler=self.__onPossible,
+            self.recognizer = ui.DoubletapRecognizer(node=self, possibleHandler=self.__onPossible,
                     detectedHandler=self.__onDetected, failHandler=self.__onFail)
         else:
-            ui.TapRecognizer(node=self, possibleHandler=self.__onPossible,
+            self.recognizer = ui.TapRecognizer(node=self, possibleHandler=self.__onPossible,
                     detectedHandler=self.__onDetected, failHandler=self.__onFail)
 
     def __onPossible(self, event):
@@ -187,7 +187,7 @@ class HoldNode(TextRect):
     def __init__(self, text, **kwargs):
         TextRect.__init__(self, text, **kwargs)
 
-        ui.HoldRecognizer(node=self, possibleHandler=self.__onPossible,
+        self.recognizer = ui.HoldRecognizer(node=self, possibleHandler=self.__onPossible,
                 detectedHandler=self.__onDetected, failHandler=self.__onFail,
                 stopHandler=self.__onStop)
 
