@@ -301,7 +301,7 @@ functionality
 
             .. py:method:: failHandler(event) 
 
-                Called when gesture recognition is aborted.
+                Called when gesture recognition is rejected.
 
             .. py:method:: detectedHandler(event)
 
