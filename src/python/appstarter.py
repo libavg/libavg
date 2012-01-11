@@ -119,8 +119,9 @@ class AVGAppStarter(AppStarter):
     def __init__(self, *args, **kwargs):
         self.__graphs = []
         self._mtEmu = None
-        self.__memGraphIndex = -1
-        self.__frGraphIndex = -1
+        self.__memGraph = None
+        self.__vidMemGraph = None
+        self.__frGraph = None
         self.__notifyNode = None
         self.__debugTouchVisOverlay = None
 
@@ -129,8 +130,10 @@ class AVGAppStarter(AppStarter):
     def _setupDefaultKeys(self):
         super(AVGAppStarter, self)._setupDefaultKeys()
         g_KbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
-        g_KbManager.bindKey('m', self.showMemoryUsage, 'Show memory usage')
-        g_KbManager.bindKey('f', self.showFrameRate, 'Show frameTime usage')
+        g_KbManager.bindKey('m', self.showMemoryUsage, 'Show memory usage graph')
+        g_KbManager.bindKey('v', self.showVideoMemoryUsage,
+                'Show video memory usage graph')
+        g_KbManager.bindKey('f', self.showFrameRate, 'Show framerate graph')
         g_KbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
         g_KbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
         g_KbManager.bindKey('s', self.__screenshot, 'Take screenshot')
@@ -143,30 +146,36 @@ class AVGAppStarter(AppStarter):
         print 'Num python objects: ', len(gc.get_objects())
 
     def showMemoryUsage(self):
-        if self.__memGraphIndex != -1:
-            self.__graphs[self.__memGraphIndex].delete()
-            self.__graphs.pop(self.__memGraphIndex)
-            if self.__frGraphIndex > self.__memGraphIndex:
-                self.__frGraphIndex -= 1
-            self.__memGraphIndex = -1
+        if self.__memGraph:
+            self.__memGraph.delete()
+            self.__graphs.remove(self.__memGraph)
+            self.__memGraph = None
         else:
-            memGraph = graph.AveragingGraph('Memory Graph', getValue = avg.getMemoryUsage)
-            self.__graphs.append(memGraph)
-            self.__memGraphIndex = len(self.__graphs)-1
+            self.__memGraph = graph.AveragingGraph('Memory Usage', 
+                    getValue = avg.getMemoryUsage)
+            self.__graphs.append(self.__memGraph)
+        self.__positionGraphs()
+
+    def showVideoMemoryUsage(self):
+        if self.__vidMemGraph:
+            self.__vidMemGraph.delete()
+            self.__graphs.remove(self.__vidMemGraph)
+            self.__vidMemGraph = None
+        else:
+            self.__vidMemGraph = graph.AveragingGraph('Video Memory Usage', 
+                    getValue = g_Player.getVideoMemUsed)
+            self.__graphs.append(self.__vidMemGraph)
         self.__positionGraphs()
 
     def showFrameRate(self):
-        if self.__frGraphIndex != -1:
-            self.__graphs[self.__frGraphIndex].delete()
-            self.__graphs.pop(self.__frGraphIndex)
-            if self.__memGraphIndex > self.__frGraphIndex:
-                self.__memGraphIndex -= 1
-            self.__frGraphIndex = -1
+        if self.__frGraph:
+            self.__frGraph.delete()
+            self.__graphs.remove(self.__frGraph)
+            self.__frGraph = None
         else:
-            frGraph = graph.SlidingGraph('FrameTime Graph', 
+            self.__frGraph = graph.SlidingGraph('Time per Frame', 
                     getValue = g_Player.getFrameTime)
-            self.__graphs.append(frGraph)
-            self.__frGraphIndex = len(self.__graphs)-1
+            self.__graphs.append(self.__frGraph)
         self.__positionGraphs()
 
     def __positionGraphs(self):
