@@ -117,10 +117,10 @@ class AppStarter(object):
 
 class AVGAppStarter(AppStarter):
     def __init__(self, *args, **kwargs):
-        self.__graphs = 0
+        self.__graphs = []
         self._mtEmu = None
-        self.__showingMemGraph = False
-        self.__showingFrGraph = False
+        self.__memGraphIndex = -1
+        self.__frGraphIndex = -1
         self.__notifyNode = None
         self.__debugTouchVisOverlay = None
 
@@ -143,34 +143,37 @@ class AVGAppStarter(AppStarter):
         print 'Num python objects: ', len(gc.get_objects())
 
     def showMemoryUsage(self):
-        if self.__showingMemGraph:
-            self.__memGraph.delete()
-            self.__memGraph = None
-            self.__graphs = self.__graphs -1
-            if(self.__graphs == 1 ):
-                self.__frGraph.setYpos(10)
+        if self.__memGraphIndex != -1:
+            self.__graphs[self.__memGraphIndex].delete()
+            self.__graphs.pop(self.__memGraphIndex)
+            if self.__frGraphIndex > self.__memGraphIndex:
+                self.__frGraphIndex -= 1
+            self.__memGraphIndex = -1
         else:
-            self.__memGraph = graph.AveragingGraph('Memory Graph',
-                    getValue = avg.getMemoryUsage)
-            self.__graphs = self.__graphs +1
-            if(self.__graphs > 1 ):
-                self.__memGraph.setYpos(190)
-        self.__showingMemGraph = not(self.__showingMemGraph)
+            memGraph = graph.AveragingGraph('Memory Graph', getValue = avg.getMemoryUsage)
+            self.__graphs.append(memGraph)
+            self.__memGraphIndex = len(self.__graphs)-1
+        self.__positionGraphs()
 
     def showFrameRate(self):
-        if self.__showingFrGraph:
-            self.__frGraph.delete()
-            self.__frGraph = None
-            self.__graphs = self.__graphs -1
-            if(self.__graphs == 1 ):
-                self.__memGraph.setYpos(10)
+        if self.__frGraphIndex != -1:
+            self.__graphs[self.__frGraphIndex].delete()
+            self.__graphs.pop(self.__frGraphIndex)
+            if self.__memGraphIndex > self.__frGraphIndex:
+                self.__memGraphIndex -= 1
+            self.__frGraphIndex = -1
         else:
-            self.__frGraph = graph.SlidingGraph('FrameTime Graph',
+            frGraph = graph.SlidingGraph('FrameTime Graph', 
                     getValue = g_Player.getFrameTime)
-            self.__graphs = self.__graphs +1
-            if(self.__graphs >1):
-                self.__frGraph.setYpos(190)
-        self.__showingFrGraph = not(self.__showingFrGraph)
+            self.__graphs.append(frGraph)
+            self.__frGraphIndex = len(self.__graphs)-1
+        self.__positionGraphs()
+
+    def __positionGraphs(self):
+        ypos = 10
+        for gr in self.__graphs:
+            gr.setYPos(ypos)
+            ypos += gr.getHeight() + 10
 
     def __switchMtemu(self):
         if self._mtEmu is None:

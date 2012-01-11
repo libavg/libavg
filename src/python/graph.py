@@ -27,7 +27,6 @@ class Graph(object):
     def __init__(self, graph, getValue):
         self._getValue = getValue    
         self._xSkip = 2     
-        self._memGraphStartTime = g_Player.getFrameTime()
         self._curUsage = 0
          
         self._rootNode = g_Player.getRootNode()
@@ -60,9 +59,12 @@ class Graph(object):
     def _setup(self):
         raise RuntimeError, 'Please overload _setup() function'
     
-    def setYpos(self,ypos):
+    def setYPos(self,ypos):
         self._node.y = ypos
 
+    def getHeight(self):
+        return self._node.height
+    
     def delete(self):
         def kill():
             self._node.unlink()
