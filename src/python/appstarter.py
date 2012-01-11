@@ -150,7 +150,7 @@ class AVGAppStarter(AppStarter):
             if(self.__graphs == 1 ):
                 self.__frGraph.setYpos(10)
         else:
-            self.__memGraph = graph.MemGraph('Memory Graph',
+            self.__memGraph = graph.AveragingGraph('Memory Graph',
                     getValue = avg.getMemoryUsage)
             self.__graphs = self.__graphs +1
             if(self.__graphs > 1 ):
@@ -165,7 +165,7 @@ class AVGAppStarter(AppStarter):
             if(self.__graphs == 1 ):
                 self.__memGraph.setYpos(10)
         else:
-            self.__frGraph = graph.FrameRateGraph('FrameTime Graph',
+            self.__frGraph = graph.SlidingGraph('FrameTime Graph',
                     getValue = g_Player.getFrameTime)
             self.__graphs = self.__graphs +1
             if(self.__graphs >1):

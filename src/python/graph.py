@@ -71,10 +71,10 @@ class Graph(object):
         self._interval = None
      
 
-class MemGraph(Graph):
+class AveragingGraph(Graph):
     def _setup(self):
         self._interval = g_Player.setInterval(1000, self._nextMemSample)
-        self._memSampleNum = 0
+        self.__numSamples = 0
         self._usage = [0]
         self._maxUsage = [0]
         self._minutesUsage = [0]
@@ -92,14 +92,14 @@ class MemGraph(Graph):
                     +time.strftime("%d.%m.%Y %H:%M:%S", 
                         time.localtime(lastMaxChangeTime)))
         self._maxUsage.append(maxUsage)
-        self._memSampleNum += 1
+        self.__numSamples += 1
         
-        if self._memSampleNum % 60 == 0:
+        if self.__numSamples % 60 == 0:
             lastMinuteAverage = sum(self._usage[-60:])/60
             self._minutesUsage.append(lastMinuteAverage)
             self._minutesMaxUsage.append(maxUsage)
             
-        if self._memSampleNum < 60*60:
+        if self.__numSamples < 60*60:
             self._plotLine(self._usage, self._lineNode, maxUsage)
             self._plotLine(self._maxUsage, self._maxLineNode, maxUsage)              
         else:             
@@ -109,11 +109,11 @@ class MemGraph(Graph):
         self._textNode0.text = ("Max. memory usage: %(size).2f MB"
                 %{"size":maxUsage/(1024*1024.)})
         
-        if self._memSampleNum % 3600 == 0:
+        if self.__numSamples % 3600 == 0:
             del self._usage[0:3600]
             del self._maxUsage[0:3599]
-            if self._memSampleNum == 604800:
-                self._memSampleNum == 0
+            if self.__numSamples == 604800:
+                self.__numSamples == 0
                        
     def _plotLine(self, data, node, maxy):
         yfactor = self._graphSize.y/float(maxy)
@@ -122,11 +122,10 @@ class MemGraph(Graph):
                 for pos in enumerate(data)]
 
 
-class FrameRateGraph(Graph):
+class SlidingGraph(Graph):
     def _setup(self):
         self._interval = g_Player.setOnFrameHandler(self._nextFrameTimeSample) 
-        self._sampleNum = 0        
-        self._memSampleNum = 0
+        self._numSamples = 0        
         self._lastCurUsage = 0
         self._maxFrameTime = 0
         self._values = []
@@ -134,7 +133,7 @@ class FrameRateGraph(Graph):
     def _nextFrameTimeSample(self):       
         val = self._frameTimeSample()
         self._appendValue(val)
-        self._sampleNum += 1
+        self._numSamples += 1
         
     def _appendValue(self,value):
         y = value + self._rootNode.height/6
@@ -145,9 +144,7 @@ class FrameRateGraph(Graph):
     def _frameTimeSample(self):
         frameTime = self._getValue()  
         diff = frameTime - self._lastCurUsage       
-        #if(self._sampleNum % 1800 == 0):
-           # self._maxFrameTime = 0
-        if self._sampleNum < 2:
+        if self._numSamples < 2:
             self._maxFrameTime = 0
         if diff > self._maxFrameTime:
             lastMaxChangeTime = time.time()     
