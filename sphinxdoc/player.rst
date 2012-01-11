@@ -307,6 +307,18 @@ Player & Canvas
             Returns a tracker previously created with :py:meth:`addTracker` or 
             :py:meth:`enableMultitouch` with the internal tracker configured.
 
+        .. py:method:: getVideoMemInstalled() -> int
+
+            Returns the amount of dedicated video memory installed in the system in 
+            bytes (which might be zero in case of shared-memory graphics cards).
+            Only available when using NVidia drivers.
+
+        .. py:method:: getVideoMemUsed() -> int
+
+            Returns the amount of dedicated video memory used in bytes. This
+            is the total amount used by all programs. Only available when using NVidia
+            drivers.
+
         .. py:method:: getVideoRefreshRate() -> float
 
             Returns the current hardware video refresh rate in number of
