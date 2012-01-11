@@ -150,6 +150,8 @@ class AVG_API Player
         float getFramerate();
         float getVideoRefreshRate();
         bool isUsingShaders();
+        size_t getVideoMemInstalled();
+        size_t getVideoMemUsed();
         void setGamma(float red, float green, float blue);
         SDLDisplayEngine * getDisplayEngine() const;
         void setStopOnEscape(bool bStop);

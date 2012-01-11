@@ -44,7 +44,7 @@ void GLConfig::log()
     AVG_TRACE(Logger::CONFIG, "  Power of 2 textures: " <<
             (m_bUsePOTTextures?"true":"false"));
     if (m_MultiSampleSamples == 1) {
-        AVG_TRACE(Logger::CONFIG, "  No multisampling.");
+        AVG_TRACE(Logger::CONFIG, "  No multisampling");
     } else {
         AVG_TRACE(Logger::CONFIG, "  Multisampling with " << m_MultiSampleSamples 
                 << " samples");

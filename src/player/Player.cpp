@@ -1103,6 +1103,24 @@ bool Player::isUsingShaders()
     return GLContext::getCurrent()->isUsingShaders();
 }
 
+size_t Player::getVideoMemInstalled()
+{
+    if (!m_pDisplayEngine) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Player.getVideoMemInstalled must be called after Player.play().");
+    }
+    return GLContext::getCurrent()->getVideoMemInstalled();
+}
+
+size_t Player::getVideoMemUsed()
+{
+    if (!m_pDisplayEngine) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+                "Player.getVideoMemUsed must be called after Player.play().");
+    }
+    return GLContext::getCurrent()->getVideoMemUsed();
+}
+
 void Player::setGamma(float red, float green, float blue)
 {
     if (m_pDisplayEngine) {

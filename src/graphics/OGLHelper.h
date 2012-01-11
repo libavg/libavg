@@ -44,6 +44,15 @@ typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
 typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 #endif
 
+// For NVX_gpu_memory_info
+#ifndef GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX
+    #define GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+    #define GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+    #define GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+    #define GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+    #define GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#endif
+
 #include <string>
 
 namespace avg {

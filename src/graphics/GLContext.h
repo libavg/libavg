@@ -78,6 +78,8 @@ public:
 
     const GLConfig& getConfig();
     void logConfig();
+    size_t getVideoMemInstalled();
+    size_t getVideoMemUsed();
     int getMaxTexSize();
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
@@ -89,6 +91,7 @@ public:
 
 private:
     void checkShaderSupport();
+    void checkGPUMemInfoSupport();
 
 #ifdef __APPLE__
     CGLContextObj m_Context;
@@ -113,6 +116,8 @@ private:
 
     int m_MaxTexSize;
     GLConfig m_GLConfig;
+    bool m_bCheckedGPUMemInfoExtension;
+    bool m_bGPUMemInfoSupported;
     bool m_bCheckedMemoryMode;
     OGLMemoryMode m_MemoryMode;
 

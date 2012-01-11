@@ -84,6 +84,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
         GLContext* pSharedContext)
     : m_Context(0),
       m_MaxTexSize(0),
+      m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
       m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
@@ -391,13 +392,38 @@ void GLContext::logConfig()
     m_GLConfig.log();
     switch (getMemoryModeSupported()) {
         case MM_PBO:
-            AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects.");
+            AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects");
             break;
         case MM_OGL:
-            AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
+            AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions");
             break;
     }
-    AVG_TRACE(Logger::CONFIG, "  Max. texture size is " << getMaxTexSize());
+    AVG_TRACE(Logger::CONFIG, "  Max. texture size: " << getMaxTexSize());
+    try {
+        AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
+                getVideoMemInstalled()/(1024*1024) << " MB");
+        AVG_TRACE(Logger::CONFIG, "  Video memory used at start: " << 
+                getVideoMemUsed()/(1024*1024) << " MB");
+    } catch (Exception) {
+        AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: Unknown");
+        AVG_TRACE(Logger::CONFIG, "  Video memory used at start: Unknown");
+    }
+}
+
+size_t GLContext::getVideoMemInstalled()
+{
+    checkGPUMemInfoSupport();
+    int kbMemInstalled;
+    glGetIntegerv(GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &kbMemInstalled);
+    return (size_t)kbMemInstalled*1024;
+}
+
+size_t GLContext::getVideoMemUsed()
+{
+    checkGPUMemInfoSupport();
+    int kbMemAvailable;
+    glGetIntegerv(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &kbMemAvailable);
+    return getVideoMemInstalled()-(size_t)kbMemAvailable*1024;
 }
 
 bool GLContext::usePOTTextures()
@@ -465,6 +491,18 @@ void GLContext::checkShaderSupport()
             !m_GLConfig.m_bUsePOTTextures &&
             m_GLConfig.m_bUseShaders &&
             bShaderVersionOK);
+}
+
+void GLContext::checkGPUMemInfoSupport()
+{
+    if (!m_bCheckedGPUMemInfoExtension) {
+        m_bGPUMemInfoSupported = queryOGLExtension("GL_NVX_gpu_memory_info");
+        m_bCheckedGPUMemInfoExtension = true;
+    }
+    if (!m_bGPUMemInfoSupported) {
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "Video memory query not supported on this system.");
+    }
 }
 
 }
