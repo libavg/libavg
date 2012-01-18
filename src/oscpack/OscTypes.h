@@ -49,7 +49,7 @@ typedef unsigned long long uint64;
 
 
 
-#if defined(x86_64) || defined(__APPLE__)
+#if defined(__x86_64__) || defined(__APPLE__)
 
 typedef signed int int32;
 typedef unsigned int uint32;

@@ -96,7 +96,7 @@ public:
     OutboundPacketStream& operator<<( const InfinitumType& rhs );
     OutboundPacketStream& operator<<( int32 rhs );
 
-#if !(defined(x86_64)) && !(defined(__APPLE__))
+#if !(defined(__x86_64__)) && !(defined(__APPLE__))
     OutboundPacketStream& operator<<( int rhs )
             { *this << (int32)rhs; return *this; }
 #endif
