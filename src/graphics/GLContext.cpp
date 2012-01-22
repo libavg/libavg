@@ -82,7 +82,8 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 
 GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig, 
         GLContext* pSharedContext)
-    : m_Context(0),
+    : m_VBMethod(VB_NONE),
+      m_Context(0),
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
@@ -460,6 +461,80 @@ int GLContext::getMaxTexSize()
     return m_MaxTexSize;
 }
 
+bool GLContext::initVBlank(int rate) 
+{
+    if (rate > 0) {
+#ifdef __APPLE__
+        initMacVBlank(rate);
+        m_VBMethod = VB_APPLE;
+#elif defined _WIN32
+        if (queryOGLExtension("WGL_EXT_swap_control")) {
+            glproc::SwapIntervalEXT(rate);
+            m_VBMethod = VB_WIN;
+        } else {
+            AVG_TRACE(Logger::WARNING,
+                    "Windows VBlank setup failed: OpenGL Extension not supported.");
+            m_VBMethod = VB_NONE;
+        }
+#else
+        if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
+            AVG_TRACE(Logger::WARNING, 
+                    "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+            m_VBMethod = VB_NONE;
+        } else {
+            if (queryGLXExtension("GLX_SGI_swap_control")) {
+                m_VBMethod = VB_SGI;
+                glproc::SwapIntervalSGI(rate);
+
+            } else {
+                AVG_TRACE(Logger::WARNING,
+                        "Linux VBlank setup failed: OpenGL Extension not supported.");
+                m_VBMethod = VB_NONE;
+            }
+        }
+#endif
+    } else {
+        switch (m_VBMethod) {
+            case VB_APPLE:
+                initMacVBlank(0);
+                break;
+            case VB_WIN:
+#ifdef _WIN32
+                glproc::SwapIntervalEXT(0);
+#endif
+                break;
+            case VB_SGI:
+#ifdef linux            
+                if (queryGLXExtension("GLX_SGI_swap_control")) {
+                    glproc::SwapIntervalSGI(rate);
+                }
+#endif
+                break;
+            default:
+                break;
+        }
+        m_VBMethod = VB_NONE;
+    }
+    switch(m_VBMethod) {
+        case VB_SGI:
+            AVG_TRACE(Logger::CONFIG, 
+                    "  Using SGI OpenGL extension for vertical blank support.");
+            break;
+        case VB_APPLE:
+            AVG_TRACE(Logger::CONFIG, "  Using Apple GL vertical blank support.");
+            break;
+        case VB_WIN:
+            AVG_TRACE(Logger::CONFIG, "  Using Windows GL vertical blank support.");
+            break;
+        case VB_NONE:
+            AVG_TRACE(Logger::CONFIG, "  Vertical blank support disabled.");
+            break;
+        default:
+            AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
+    }
+    return m_VBMethod != VB_NONE;
+}
+
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 {
     if (s == "blend") {
@@ -503,6 +578,27 @@ void GLContext::checkGPUMemInfoSupport()
         throw Exception(AVG_ERR_UNSUPPORTED, 
                 "Video memory query not supported on this system.");
     }
+}
+
+void GLContext::initMacVBlank(int rate)
+{
+#ifdef __APPLE__
+    CGLContextObj context = CGLGetCurrentContext();
+    AVG_ASSERT (context);
+#if MAC_OS_X_VERSION_10_5
+    GLint l = rate;
+#else
+    long l = rate;
+#endif
+    if (rate > 1) {
+        AVG_TRACE(Logger::WARNING,
+                "VBlank rate set to " << rate 
+                << " but Mac OS X only supports 1. Assuming 1.");
+        l = 1;
+    }
+    CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
+    AVG_ASSERT(!err);
+#endif
 }
 
 }

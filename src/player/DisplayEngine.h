@@ -70,8 +70,6 @@ class AVG_API DisplayEngine
     protected:
         
     private:
-        virtual bool initVBlank(int rate) = 0;
-        
         int m_NumFrames;
         int m_FramesTooLate;
         long long m_StartTime;

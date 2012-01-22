@@ -99,8 +99,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_WindowSize(0,0),
       m_PPMM(0),
       m_pScreen(0),
-      m_VBMethod(VB_NONE),
-      m_VBMod(0),
       m_bMouseOverApp(true),
       m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
@@ -410,101 +408,6 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
 IntPoint SDLDisplayEngine::getSize()
 {
     return m_Size;
-}
-
-void SDLDisplayEngine::initMacVBlank(int rate)
-{
-#ifdef __APPLE__
-    CGLContextObj context = CGLGetCurrentContext();
-    AVG_ASSERT (context);
-#if MAC_OS_X_VERSION_10_5
-    GLint l = rate;
-#else
-    long l = rate;
-#endif
-    if (rate > 1) {
-        AVG_TRACE(Logger::WARNING,
-                "VBlank rate set to " << rate 
-                << " but Mac OS X only supports 1. Assuming 1.");
-        l = 1;
-    }
-    CGLError err = CGLSetParameter(context, kCGLCPSwapInterval, &l);
-    AVG_ASSERT(!err);
-#endif
-}
-
-bool SDLDisplayEngine::initVBlank(int rate) 
-{
-    if (rate > 0) {
-#ifdef __APPLE__
-        initMacVBlank(rate);
-        m_VBMethod = VB_APPLE;
-#elif defined _WIN32
-        if (queryOGLExtension("WGL_EXT_swap_control")) {
-            glproc::SwapIntervalEXT(rate);
-            m_VBMethod = VB_WIN;
-        } else {
-            AVG_TRACE(Logger::WARNING,
-                    "Windows VBlank setup failed: OpenGL Extension not supported.");
-            m_VBMethod = VB_NONE;
-        }
-#else
-        if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
-            AVG_TRACE(Logger::WARNING, 
-                    "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
-            m_VBMethod = VB_NONE;
-        } else {
-            if (queryGLXExtension("GLX_SGI_swap_control")) {
-                m_VBMethod = VB_SGI;
-                glproc::SwapIntervalSGI(rate);
-
-            } else {
-                AVG_TRACE(Logger::WARNING,
-                        "Linux VBlank setup failed: OpenGL Extension not supported.");
-                m_VBMethod = VB_NONE;
-            }
-        }
-#endif
-    } else {
-        switch (m_VBMethod) {
-            case VB_APPLE:
-                initMacVBlank(0);
-                break;
-            case VB_WIN:
-#ifdef _WIN32
-                glproc::SwapIntervalEXT(0);
-#endif
-                break;
-            case VB_SGI:
-#ifdef linux            
-                if (queryGLXExtension("GLX_SGI_swap_control")) {
-                    glproc::SwapIntervalSGI(rate);
-                }
-#endif
-                break;
-            default:
-                break;
-        }
-        m_VBMethod = VB_NONE;
-    }
-    switch(m_VBMethod) {
-        case VB_SGI:
-            AVG_TRACE(Logger::CONFIG, 
-                    "  Using SGI OpenGL extension for vertical blank support.");
-            break;
-        case VB_APPLE:
-            AVG_TRACE(Logger::CONFIG, "  Using Apple GL vertical blank support.");
-            break;
-        case VB_WIN:
-            AVG_TRACE(Logger::CONFIG, "  Using Windows GL vertical blank support.");
-            break;
-        case VB_NONE:
-            AVG_TRACE(Logger::CONFIG, "  Vertical blank support disabled.");
-            break;
-        default:
-            AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
-    }
-    return m_VBMethod != VB_NONE;
 }
 
 void SDLDisplayEngine::calcRefreshRate()

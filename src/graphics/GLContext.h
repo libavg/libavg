@@ -84,6 +84,7 @@ public:
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
     bool isUsingShaders() const;
+    bool initVBlank(int rate);
     
     static BlendMode stringToBlendMode(const std::string& s);
 
@@ -92,6 +93,11 @@ public:
 private:
     void checkShaderSupport();
     void checkGPUMemInfoSupport();
+
+    // Vertical blank stuff.
+    void initMacVBlank(int rate);
+    enum VBMethod {VB_SGI, VB_APPLE, VB_WIN, VB_NONE};
+    VBMethod m_VBMethod;
 
 #ifdef __APPLE__
     CGLContextObj m_Context;
