@@ -71,7 +71,6 @@ class AVG_API DisplayEngine
         
     private:
         virtual bool initVBlank(int rate) = 0;
-        virtual bool vbWait(int rate) = 0;
         
         int m_NumFrames;
         int m_FramesTooLate;

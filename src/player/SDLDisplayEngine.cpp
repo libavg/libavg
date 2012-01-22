@@ -507,20 +507,6 @@ bool SDLDisplayEngine::initVBlank(int rate)
     return m_VBMethod != VB_NONE;
 }
 
-bool SDLDisplayEngine::vbWait(int rate)
-{
-    switch(m_VBMethod) {
-        case VB_SGI:
-        case VB_APPLE:
-        case VB_WIN:
-            return true;
-        case VB_NONE:
-        default:
-            AVG_ASSERT(false);
-            return false;
-    }
-}
-
 void SDLDisplayEngine::calcRefreshRate()
 {
     float lastRefreshRate = s_RefreshRate;

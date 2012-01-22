@@ -100,7 +100,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);
         void initMacVBlank(int rate);
-        bool vbWait(int rate);
         enum VBMethod {VB_SGI, VB_APPLE, VB_WIN, VB_NONE};
         VBMethod m_VBMethod;
         int m_VBMod;

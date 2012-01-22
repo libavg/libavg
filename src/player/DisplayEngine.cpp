@@ -133,10 +133,8 @@ void DisplayEngine::frameWait()
 
     m_FrameWaitStartTime = TimeSource::get()->getCurrentMicrosecs();
     m_TargetTime = m_LastFrameTime+(long long)(1000000/m_Framerate);
-    if (m_VBRate != 0) {
-        m_bFrameLate = !vbWait(m_VBRate);
-    } else {
-        m_bFrameLate = false;
+    m_bFrameLate = false;
+    if (m_VBRate == 0) {
         if (m_FrameWaitStartTime <= m_TargetTime) {
             long long WaitTime = (m_TargetTime-m_FrameWaitStartTime)/1000;
             if (WaitTime > 5000) {
