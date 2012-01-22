@@ -96,7 +96,7 @@ private:
 
     // Vertical blank stuff.
     void initMacVBlank(int rate);
-    enum VBMethod {VB_SGI, VB_APPLE, VB_WIN, VB_NONE};
+    enum VBMethod {VB_GLX, VB_APPLE, VB_WIN, VB_NONE};
     VBMethod m_VBMethod;
 
 #ifdef __APPLE__

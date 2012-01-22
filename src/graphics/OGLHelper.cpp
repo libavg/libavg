@@ -91,8 +91,7 @@ namespace glproc {
     PFNGLDELETERENDERBUFFERSEXTPROC DeleteRenderbuffers;
     PFNGLDRAWBUFFERSPROC DrawBuffers;
 #ifdef linux
-    PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
-    PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
+    PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
     PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
@@ -461,10 +460,8 @@ namespace glproc {
         DrawBuffers = (PFNGLDRAWBUFFERSPROC)
                 getFuzzyProcAddress("glDrawBuffers");
 #ifdef linux
-        SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
-                getglXProcAddress("glXSwapIntervalSGI");
-        WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)
-                getglXProcAddress("glXWaitVideoSyncSGI");
+        SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
+                getglXProcAddress("glXSwapIntervalEXT");
 #endif
 
 #ifdef _WIN32

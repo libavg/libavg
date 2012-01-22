@@ -132,8 +132,7 @@ namespace glproc {
     extern AVG_API PFNGLDRAWBUFFERSPROC DrawBuffers;
     
 #ifdef linux
-    extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
-    extern PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
+    extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
     extern AVG_API PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;

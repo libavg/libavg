@@ -482,9 +482,9 @@ bool GLContext::initVBlank(int rate)
                     "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
             m_VBMethod = VB_NONE;
         } else {
-            if (queryGLXExtension("GLX_SGI_swap_control")) {
-                m_VBMethod = VB_SGI;
-                glproc::SwapIntervalSGI(rate);
+            if (queryGLXExtension("GLX_EXT_swap_control")) {
+                m_VBMethod = VB_GLX;
+                glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
 
             } else {
                 AVG_TRACE(Logger::WARNING,
@@ -503,11 +503,9 @@ bool GLContext::initVBlank(int rate)
                 glproc::SwapIntervalEXT(0);
 #endif
                 break;
-            case VB_SGI:
+            case VB_GLX:
 #ifdef linux            
-                if (queryGLXExtension("GLX_SGI_swap_control")) {
-                    glproc::SwapIntervalSGI(rate);
-                }
+                glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, 0);
 #endif
                 break;
             default:
@@ -516,7 +514,7 @@ bool GLContext::initVBlank(int rate)
         m_VBMethod = VB_NONE;
     }
     switch(m_VBMethod) {
-        case VB_SGI:
+        case VB_GLX:
             AVG_TRACE(Logger::CONFIG, 
                     "  Using SGI OpenGL extension for vertical blank support.");
             break;
