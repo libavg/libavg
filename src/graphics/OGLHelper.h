@@ -44,6 +44,14 @@ typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
 typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 #endif
 
+#ifdef linux
+// XXX: Hack for compatibility with Ogre3D. Ogre's current gl headers don't define
+// this function.
+#ifndef PFNGLXSWAPINTERVALEXTPROC
+typedef int ( * PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
+#endif
+#endif
+
 // For NVX_gpu_memory_info
 #ifndef GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX
     #define GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
