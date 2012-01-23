@@ -145,6 +145,8 @@ else
 fi
 AC_SUBST([LIBVIDEO_LDADD])
 
+AX_CHECK_CUDA
+
 AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
 PREFIX=$prefix
