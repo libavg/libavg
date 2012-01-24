@@ -129,7 +129,7 @@ else
     buildLib ffmpeg "--disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio"
 fi
 
-buildLib SDL-1.2.14 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
+buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
