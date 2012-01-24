@@ -131,13 +131,23 @@ class AVGAppStarter(AppStarter):
         super(AVGAppStarter, self)._setupDefaultKeys()
         g_KbManager.bindKey('o', self.__dumpObjects, 'Dump objects')
         g_KbManager.bindKey('m', self.showMemoryUsage, 'Show memory usage graph')
-        g_KbManager.bindKey('v', self.showVideoMemoryUsage,
-                'Show video memory usage graph')
+        
         g_KbManager.bindKey('f', self.showFrameRate, 'Show framerate graph')
         g_KbManager.bindKey('t', self.__switchMtemu, 'Activate multitouch emulation')
         g_KbManager.bindKey('e', self.__switchShowMTEvents, 'Show multitouch events')
         g_KbManager.bindKey('s', self.__screenshot, 'Take screenshot')
     
+    def _onStart(self):
+        try:
+            g_Player.getVideoMemUsed()
+            g_KbManager.bindKey('v', self.showVideoMemoryUsage,
+                    'Show video memory usage graph')
+        except RuntimeError:
+            # Video memory query not supported.
+            pass
+
+        AppStarter._onStart(self)
+
     def __dumpObjects(self):
         gc.collect()
         testHelper = g_Player.getTestHelper()
