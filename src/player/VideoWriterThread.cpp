@@ -26,6 +26,10 @@
 #include "../base/ScopeTimer.h"
 #include "../base/StringHelper.h"
 
+#if LIBAVFORMAT_VERSION_MAJOR > 52
+#include <libavutil/mathematics.h>
+#endif
+
 using namespace std;
 
 namespace avg {
