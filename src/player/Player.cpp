@@ -1432,11 +1432,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
     pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver && 
-            !pCursorNodes.empty()) 
-    {
-        NodePtr pNode = pCursorNodes.begin()->lock();
-        pEvent->setNode(pNode);
+    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
+        if (!pCursorNodes.empty()) {
+            NodePtr pNode = pCursorNodes.begin()->lock();
+            pEvent->setNode(pNode);
+        }
         pContact->sendEventToListeners(pEvent);
     }
         
