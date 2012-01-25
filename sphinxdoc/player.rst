@@ -211,14 +211,15 @@ Player & Canvas
                 Enables handling of Windows 7 touch events. This works with all devices
                 which have Windows 7 drivers.
 
-            :samp:`XINPUT21`:
-                Uses X11-based multitouch detection. This needs X11 with XInput 2.1
-                support.
+            :samp:`XINPUT`:
+                Uses X11-based multitouch detection. This needs X11 with XInput >= 2.1
+                support. For backwards compatibility reasons, XINPUT21 is supported as 
+                value as well.
 
             If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
-            a plattform-specific one. Under Linux, the default is :samp:`XINPUT21` if
-            XInput 2.1 is available on the system, otherwise :samp:`LINUXMTDEV`. Under
-            Windows, the default is :samp:`WIN7TOUCH`.
+            a plattform-specific one. Under Linux, the default is :samp:`XINPUT` if
+            XInput multitouch is supported on the system, otherwise :samp:`LINUXMTDEV`.
+            Under Windows, the default is :samp:`WIN7TOUCH`.
 
             :py:meth:`enableMultitouch` throws an exception if the chosen driver is not
             available or no multitouch device could be found. (Exception: Since there is

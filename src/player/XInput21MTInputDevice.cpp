@@ -39,12 +39,6 @@
 #include <X11/extensions/XInput.h>
 #include <X11/extensions/XInput2.h>
 
-#ifndef XI_TouchUpdate
-    // Working with a preliminary spec. Update names to the current spec.
-    #define XI_TouchUpdate XI_TouchMotion
-    #define XI_TouchUpdateUnowned XI_TouchMotionUnowned
-#endif
-
 using namespace std;
 
 namespace avg {
@@ -91,22 +85,30 @@ void XInput21MTInputDevice::start()
             &event, &error);
     if (!bOk) {
         throw Exception(AVG_ERR_MT_INIT, 
-                "XInput 2.1 multitouch event source: X Input extension not available.");
+                "XInput multitouch event source: X Input extension not available.");
     }
 
-    // Which version of XI2? We need 2.1. 
-    int major = 2, minor = 1;
+    // Which version of XI2? 
+    int major;
+    int minor;
     status = XIQueryVersion(s_pDisplay, &major, &minor);
     if (status == BadRequest) {
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput 2.1 multitouch event source: Server does not support XI2");
     }
+#if defined(HAVE_XI2_1) 
     if (major < 2 || minor < 1) {
         throw Exception(AVG_ERR_MT_INIT, 
-                "XInput 2.1 multitouch event source: Supported version is "
+                "XInput multitouch event source: Supported version is "
                 +toString(major)+"."+toString(minor)+". 2.1 is needed.");
     }
-
+#else
+    if (major < 2 || minor < 2) {
+        throw Exception(AVG_ERR_MT_INIT, 
+                "XInput 2.2 multitouch event source: Supported version is "
+                +toString(major)+"."+toString(minor)+". 2.2 is needed.");
+    }
+#endif
     findMTDevice();
 
     // SDL grabs the pointer in full screen mode. This breaks touchscreen usage.
@@ -138,7 +140,7 @@ void XInput21MTInputDevice::start()
 
     pEngine->setXIMTInputDevice(this);
     MultitouchInputDevice::start();
-    AVG_TRACE(Logger::CONFIG, "XInput 2.1 Multitouch event source created.");
+    AVG_TRACE(Logger::CONFIG, "XInput Multitouch event source created.");
 }
 
 void XInput21MTInputDevice::handleXIEvent(const XEvent& xEvent)
@@ -235,7 +237,7 @@ void XInput21MTInputDevice::findMTDevice()
                 << ", max touches: " << maxTouches);
     } else {
         throw Exception(AVG_ERR_MT_INIT, 
-                "XInput 2.1 multitouch event source: No multitouch device found.");
+                "XInput multitouch event source: No multitouch device found.");
     }
     XIFreeDeviceInfo(pDevices);
 }
@@ -291,7 +293,9 @@ const char* cookieTypeToName(int evtype)
         case XI_TouchBegin:       name = "TouchBegin";           break;
         case XI_TouchEnd:         name = "TouchEnd";             break;
         case XI_TouchUpdate:      name = "TouchUpdate";          break;
+#ifdef HAVE_XI2_1  
         case XI_TouchUpdateUnowned: name = "TouchUpdateUnowned"; break;
+#endif
         default:                  name = "unknown event type";   break;
     }
     return name;
