@@ -23,6 +23,8 @@
 #define _XInput21MTInputDevice_H_
 
 #include "../api.h"
+#include "../avgconfig.h"
+
 #include "MultitouchInputDevice.h"
 #include "Event.h"
 
