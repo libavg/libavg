@@ -96,19 +96,11 @@ void XInput21MTInputDevice::start()
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput 2.1 multitouch event source: Server does not support XI2");
     }
-#if defined(HAVE_XI2_1) 
     if (major < 2 || minor < 1) {
         throw Exception(AVG_ERR_MT_INIT, 
                 "XInput multitouch event source: Supported version is "
-                +toString(major)+"."+toString(minor)+". 2.1 is needed.");
+                +toString(major)+"."+toString(minor)+". At least 2.1 is needed.");
     }
-#else
-    if (major < 2 || minor < 2) {
-        throw Exception(AVG_ERR_MT_INIT, 
-                "XInput 2.2 multitouch event source: Supported version is "
-                +toString(major)+"."+toString(minor)+". 2.2 is needed.");
-    }
-#endif
     findMTDevice();
 
     // SDL grabs the pointer in full screen mode. This breaks touchscreen usage.
