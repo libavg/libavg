@@ -33,7 +33,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-#include "XInput21MTInputDevice.h"
+#include "XInputMTInputDevice.h"
 #endif
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -576,7 +576,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-void SDLDisplayEngine::setXIMTInputDevice(XInput21MTInputDevice* pInputDevice)
+void SDLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 {
     AVG_ASSERT(!m_pXIMTInputDevice);
     m_pXIMTInputDevice = pInputDevice;
