@@ -616,7 +616,7 @@ void VideoNode::preRender()
             }
         }
     } else {
-        if (m_bSeekPending && m_bFirstFrameDecoded) {
+        if (m_bSeekPending && m_bFirstFrameDecoded && m_VideoState != Unloaded) {
             renderFrame();
         }
         if (m_VideoState == Playing) {
