@@ -162,11 +162,13 @@ class TapNode(TextRect):
         TextRect.__init__(self, text, **kwargs)
 
         if isDoubleTap:
-            self.recognizer = ui.DoubletapRecognizer(node=self, possibleHandler=self.__onPossible,
-                    detectedHandler=self.__onDetected, failHandler=self.__onFail)
+            self.recognizer = ui.DoubletapRecognizer(node=self, 
+                    possibleHandler=self.__onPossible, detectedHandler=self.__onDetected,
+                    failHandler=self.__onFail)
         else:
-            self.recognizer = ui.TapRecognizer(node=self, possibleHandler=self.__onPossible,
-                    detectedHandler=self.__onDetected, failHandler=self.__onFail)
+            self.recognizer = ui.TapRecognizer(node=self, 
+                    possibleHandler=self.__onPossible, detectedHandler=self.__onDetected,
+                    failHandler=self.__onFail)
 
     def __onPossible(self, event):
         self.rect.fillcolor = "FFFFFF"
