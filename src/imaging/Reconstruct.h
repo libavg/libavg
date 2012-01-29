@@ -25,7 +25,7 @@
 
 namespace avg {
 
-BitmapPtr bandpass(BitmapPtr pSrcBmp);
+BitmapPtr lowpass(BitmapPtr pSrcBmp, BitmapPtr& pFreqBmp, float cutoffFreq);
 
 }
 #endif

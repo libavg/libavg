@@ -27,12 +27,21 @@ using namespace avg;
 using namespace std;
 
 
+void filterImage(const string& fName)
+{
+    BitmapPtr pSrcBmp(new Bitmap("testfiles/"+fName+".png"));
+    BitmapPtr pFreqBmp;
+    FilterGrayscale().applyInPlace(pSrcBmp);
+    pSrcBmp->save("resultimages/"+fName+"_orig.png");
+    BitmapPtr pDestBmp = lowpass(pSrcBmp, pFreqBmp, 0.25);
+    pFreqBmp->save("resultimages/"+fName+"_freq.png");
+    pDestBmp->save("resultimages/"+fName+".png");
+}
+
 int main(int nargs, char** args)
 {
-    BitmapPtr pSrcBmp(new Bitmap("../graphics/testfiles/rgb24-64x64.png"));
-    FilterGrayscale().applyInPlace(pSrcBmp);
-    pSrcBmp->save("foo_in.png");
-    BitmapPtr pDestBmp = bandpass(pSrcBmp);
-    pDestBmp->save("foo_out.png");
+    filterImage("spike");
+    filterImage("spike_rect");
+    filterImage("rgb24-64x64");
 }
 
