@@ -20,11 +20,11 @@ endif
 ALL_H = Camera.h TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
         DeDistort.h trackerconfigdtd.h  FilterWipeBorder.h FilterClearBorder.h \
-        $(V4L2_INCLUDES) CameraInfo.h
+        $(V4L2_INCLUDES) CameraInfo.h Reconstruct.h
 ALL_CPP = Camera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
         DeDistort.cpp trackerconfigdtd.cpp FilterWipeBorder.cpp FilterClearBorder.cpp \
-        $(V4L2_SOURCES) CameraInfo.cpp
+        $(V4L2_SOURCES) CameraInfo.cpp Reconstruct.cpp
 
 TESTS=testimaging
 
@@ -34,8 +34,12 @@ EXTRA_DIST = avgtrackerrc.minimal $(wildcard baseline/*.png) $(wildcard testfile
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
-noinst_PROGRAMS=testimaging
+noinst_PROGRAMS=testimaging checkreconstruct
 
 testimaging_SOURCES=testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@
+
+checkreconstruct_SOURCES=checkreconstruct.cpp $(ALL_H)
+checkreconstruct_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@ -lfftw3

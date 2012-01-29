@@ -41,8 +41,6 @@
 #include "../graphics/GPUBandpassFilter.h"
 #include "../graphics/GPUBlurFilter.h"
 
-#include <cufft.h>
-
 #include <iostream>
 #include <stdlib.h>
 
@@ -189,7 +187,6 @@ bool TrackerThread::work()
             BitmapPtr pBmpBandpass;
             if (m_TouchThreshold != 0) {
                 {
-                    cufftHandle plan;
                     ScopeTimer timer(ProfilingZoneBandpass);
                     pBmpBandpass = m_pBandpassFilter->apply(pCroppedBmp);
                 }
