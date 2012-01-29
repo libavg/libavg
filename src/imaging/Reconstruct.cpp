@@ -37,9 +37,9 @@ BitmapPtr bandpass(BitmapPtr pSrcBmp)
 {
     IntPoint size = pSrcBmp->getSize();
     cerr << size << endl;
-    fftw_plan srcPlan;
+    fftwf_plan srcPlan;
     
-    double * pInData = (double*) fftw_malloc(sizeof(double) * size.x * size.y);
+    float * pInData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     unsigned char * pBmpPixels = pSrcBmp->getPixels();
     int stride = pSrcBmp->getStride();
     for (int y=0; y<size.y; ++y) {
@@ -48,18 +48,30 @@ BitmapPtr bandpass(BitmapPtr pSrcBmp)
         }
     }
 
-    fftw_complex * pFreqData = (fftw_complex*) fftw_malloc(
-            sizeof(fftw_complex) * size.x * (size.y/2+1));
-    srcPlan = fftw_plan_dft_r2c_2d(size.x, size.y, pInData, pFreqData, FFTW_ESTIMATE);
+    int freqStride = size.x/2+1;
+    fftwf_complex * pFreqData = (fftwf_complex*) fftwf_malloc(
+            sizeof(fftwf_complex) * size.y * freqStride);
+    srcPlan = fftwf_plan_dft_r2c_2d(size.x, size.y, pInData, pFreqData, FFTW_ESTIMATE);
     
-    fftw_execute(srcPlan);
-    fftw_destroy_plan(srcPlan);
-
-    double * pOutData = (double*) fftw_malloc(sizeof(double) * size.x * size.y);
-    fftw_plan destPlan = fftw_plan_dft_c2r_2d(size.x, size.y, pFreqData, pOutData, 
+    fftwf_execute(srcPlan);
+    fftwf_destroy_plan(srcPlan);
+/*
+    int radius = (10*10);
+    for (int y=0; y<size.y; ++y) {
+        for (int x=0; x<freqStride; ++x) {
+            if (y*y + x*x > radius) {
+                fftwf_complex * pCurData = &(pFreqData[y*freqStride + x]);
+                (*pCurData)[0] = 0.0;
+                (*pCurData)[1] = 0.0;
+            }
+        }
+    }
+*/
+    float * pOutData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
+    fftwf_plan destPlan = fftwf_plan_dft_c2r_2d(size.x, size.y, pFreqData, pOutData, 
             FFTW_ESTIMATE);
-    fftw_execute(destPlan);
-    fftw_destroy_plan(destPlan);
+    fftwf_execute(destPlan);
+    fftwf_destroy_plan(destPlan);
     
     BitmapPtr pDestBmp(new Bitmap(size, I8));
     pBmpPixels = pDestBmp->getPixels();
@@ -70,9 +82,9 @@ BitmapPtr bandpass(BitmapPtr pSrcBmp)
         }
     }
 
-    fftw_free(pInData);
-    fftw_free(pFreqData);
-    fftw_free(pOutData);
+    fftwf_free(pInData);
+    fftwf_free(pFreqData);
+    fftwf_free(pOutData);
 
     return pDestBmp;
 }

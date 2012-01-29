@@ -42,4 +42,4 @@ testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.l
 
 checkreconstruct_SOURCES=checkreconstruct.cpp $(ALL_H)
 checkreconstruct_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@ -lfftw3
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @GDK_PIXBUF_LIBS@ -lfftw3f
