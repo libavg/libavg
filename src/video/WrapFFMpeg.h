@@ -46,6 +46,7 @@ extern "C" {
 #include <libavutil/avutil.h>
 #if LIBAVCODEC_VERSION_MAJOR > 52
 #include <libavutil/pixdesc.h>
+#include <libavutil/mathematics.h>
 #else
 #define av_get_pix_fmt_name avcodec_get_pix_fmt_name
 #endif

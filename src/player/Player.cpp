@@ -58,8 +58,8 @@
 #ifdef AVG_ENABLE_MTDEV
     #include "LibMTDevInputDevice.h"
 #endif
-#ifdef HAVE_XI2_1
-    #include "XInput21MTInputDevice.h"
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+    #include "XInputMTInputDevice.h"
 #endif
 #include "Contact.h"
 #include "KeyEvent.h"
@@ -668,12 +668,12 @@ void Player::enableMultitouch()
     if (sDriver == "") {
 #if defined(_WIN32) && defined(SM_DIGITIZER)
         sDriver = "WIN7TOUCH";
-#elif defined (HAVE_XI2_1)
-        sDriver = "XINPUT21";
+#elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+        sDriver = "XINPUT";
 #elif defined (AVG_ENABLE_MTDEV)
         sDriver = "LINUXMTDEV";
 #else
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_MT_INIT,
                 "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
 #endif
@@ -684,12 +684,12 @@ void Player::enableMultitouch()
     } else if (sDriver == "WIN7TOUCH") {
         m_pMultitouchInputDevice = IInputDevicePtr(new Win7TouchInputDevice);
 #endif
-    } else if (sDriver == "XINPUT21") {
-#ifdef HAVE_XI2_1
-        m_pMultitouchInputDevice =  IInputDevicePtr(new XInput21MTInputDevice);
+    } else if (sDriver == "XINPUT" || sDriver == "XINPUT21") {
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+        m_pMultitouchInputDevice =  IInputDevicePtr(new XInputMTInputDevice);
 #else
         throw Exception(AVG_ERR_MT_INIT,
-                "XInput 2.1 multitouch event source: Support not configured.'");
+                "XInput multitouch event source: Support not configured.'");
 #endif
 #ifdef AVG_ENABLE_MTDEV
     } else if (sDriver == "LINUXMTDEV") {
@@ -702,7 +702,7 @@ void Player::enableMultitouch()
     } else if (sDriver == "TRACKER") {
         m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice);
     } else {
-        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT21, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
+        AVG_TRACE(Logger::WARNING, "Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, LINUXMTDEV, TRACKER, TUIO and APPLETRACKPAD.");
         throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
                 sDriver +"'.");
     }
@@ -1432,11 +1432,11 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
     pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver && 
-            !pCursorNodes.empty()) 
-    {
-        NodePtr pNode = pCursorNodes.begin()->lock();
-        pEvent->setNode(pNode);
+    if (pContact && pContact->hasListeners() && !bOnlyCheckCursorOver) {
+        if (!pCursorNodes.empty()) {
+            NodePtr pNode = pCursorNodes.begin()->lock();
+            pEvent->setNode(pNode);
+        }
         pContact->sendEventToListeners(pEvent);
     }
         

@@ -35,7 +35,7 @@ class WordsTestCase(AVGTestCase):
     
         def checkUnicodeText():
             node.text = u"föa"
-            newNode = avg.WordsNode(text=u"öäü")
+            newNode = avg.WordsNode(text=u"öäü", font="Bitstream Vera Sans")
        
         fontList = avg.WordsNode.getFontFamilies()
         try:

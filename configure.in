@@ -96,10 +96,14 @@ PKG_CHECK_MODULES([MTDEV], [mtdev],
          AC_MSG_NOTICE(mtdev not found))
 AM_CONDITIONAL(ENABLE_MTDEV, test x"$MTDEV_LIBS" != x)
 
-PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.1.99.1] [inputproto >= 2.0.99.1],
+PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.1.99.1] [inputproto >= 2.0.99.1] [inputproto < 2.1.99.5],
                   HAVE_XI2_1="yes"; AC_DEFINE(HAVE_XI2_1, 1, [XI2_1 available]),
                   HAVE_XI2_1="no");
+PKG_CHECK_MODULES(XI2_2, [xi >= 1.5.99.2] [inputproto >= 2.1.99.5],
+                  HAVE_XI2_2="yes"; AC_DEFINE(HAVE_XI2_2, 1, [XI2_2 available]),
+                  HAVE_XI2_2="no");
 AM_CONDITIONAL(HAVE_XI2_1, [ test "$HAVE_XI2_1" = "yes" ])
+AM_CONDITIONAL(HAVE_XI2_2, [ test "$HAVE_XI2_2" = "yes" ])
 
 AC_ARG_ENABLE(v4l2,
           AC_HELP_STRING([--enable-v4l2],

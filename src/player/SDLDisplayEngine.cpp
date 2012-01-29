@@ -32,8 +32,8 @@
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#ifdef HAVE_XI2_1
-#include "XInput21MTInputDevice.h"
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
+#include "XInputMTInputDevice.h"
 #endif
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -230,7 +230,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     }
     m_pGLContext = GLContextPtr(new GLContext(true, glConfig));
 
-#ifdef HAVE_XI2_1
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
     m_pXIMTInputDevice = 0;
 #endif
@@ -556,7 +556,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_SYSWMEVENT:
                 {
-#ifdef HAVE_XI2_1
+#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
                     SDL_SysWMmsg* pMsg = sdlEvent.syswm.msg;
                     AVG_ASSERT(pMsg->subsystem == SDL_SYSWM_X11);
                     if (m_pXIMTInputDevice) {
@@ -576,7 +576,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return events;
 }
 
-void SDLDisplayEngine::setXIMTInputDevice(XInput21MTInputDevice* pInputDevice)
+void SDLDisplayEngine::setXIMTInputDevice(XInputMTInputDevice* pInputDevice)
 {
     AVG_ASSERT(!m_pXIMTInputDevice);
     m_pXIMTInputDevice = pInputDevice;
