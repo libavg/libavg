@@ -248,6 +248,9 @@ Area Nodes
 
         .. py:attribute:: mediadir
 
+            .. deprecated:: 1.7
+                Seldom used, error-prone and slow.
+
             The directory that the media files for the children of this node are
             in. Relative mediadirs are taken to mean subdirectories of the parent node's 
             mediadir.
