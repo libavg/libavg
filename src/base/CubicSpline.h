@@ -33,11 +33,14 @@ namespace avg {
 class AVG_API CubicSpline {
 public:
     CubicSpline(const std::vector<float>& x, const std::vector<float>& y);
+    CubicSpline(const std::vector<glm::vec2>& pts);
     virtual ~CubicSpline();
 
     float interpolate(float orig);
 
 private:
+    void init();
+
     std::vector<glm::vec2> m_Pts;
 };
 

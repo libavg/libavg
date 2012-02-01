@@ -34,16 +34,13 @@ CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y)
     for (unsigned i=0; i<x.size(); ++i) {
         m_Pts.push_back(glm::vec2(x[i], y[i]));
     }
-    // Add fake points before the first and after the last point so all derivatives
-    // are defined.
-    glm::vec2 pt0 = m_Pts[0];
-    glm::vec2 pt1 = m_Pts[1];
-    glm::vec2 edge = 2.f*m_Pts[0]-m_Pts[1];
-    m_Pts.insert(m_Pts.begin(), edge);
+    init();
+}
 
-    int len = m_Pts.size();
-    edge = 2.f*m_Pts[len-1]-m_Pts[len-2];
-    m_Pts.push_back(edge);
+CubicSpline::CubicSpline(const vector<glm::vec2>& pts)
+    : m_Pts(pts)
+{
+    init();
 }
 
 CubicSpline::~CubicSpline()
@@ -84,6 +81,18 @@ float CubicSpline::interpolate(float orig)
         return normedInterpolate(m_Pts[i-2].y, m_Pts[i-1].y, m_Pts[i].y, m_Pts[i+1].y,
                 ratio);
     }
+}
+
+void CubicSpline::init()
+{
+    // Add fake points before the first and after the last point so all derivatives
+    // are defined.
+    glm::vec2 edge = 2.f*m_Pts[0]-m_Pts[1];
+    m_Pts.insert(m_Pts.begin(), edge);
+
+    int len = m_Pts.size();
+    edge = 2.f*m_Pts[len-1]-m_Pts[len-2];
+    m_Pts.push_back(edge);
 }
 
 }

@@ -46,7 +46,6 @@ class ImageTestCase(AVGTestCase):
             return node
 
         def addNodes(y):
-            
             xmlNode = createXmlNode((16, y))
             root.appendChild(xmlNode)
             
@@ -475,6 +474,20 @@ class ImageTestCase(AVGTestCase):
                  checkAlpha,
                 ])
 
+    def testSpline(self):
+        spline = avg.CubicSpline([(0,3),(1,2),(2,1),(3,0)])
+        self.assertAlmostEqual(spline.interpolate(0), 3)
+        self.assertAlmostEqual(spline.interpolate(0.5), 2.5)
+        self.assertAlmostEqual(spline.interpolate(1), 2)
+        self.assertAlmostEqual(spline.interpolate(-1), 4)
+        self.assertAlmostEqual(spline.interpolate(4), -1)
+
+        spline = avg.CubicSpline([(2,0),(4,1),(6,3),(8,6)])
+        self.assertAlmostEqual(spline.interpolate(2), 0)
+        self.assert_(spline.interpolate(3) < 0.5)
+        self.assert_(spline.interpolate(3) > 0.0)
+        self.assert_(spline.interpolate(7) < 4.5)
+        self.assert_(spline.interpolate(7) > 4)
 
 def imageTestSuite(tests):
     availableTests = (
@@ -491,6 +504,7 @@ def imageTestSuite(tests):
             "testImageMaskSize",
             "testImageMipmap",
             "testImageCompression",
+            "testSpline",
             )
     return createAVGTestSuite(availableTests, ImageTestCase, tests)
 
