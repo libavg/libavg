@@ -29,22 +29,21 @@ using namespace std;
 namespace avg {
 
 CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y)
-    : m_X(x),
-      m_Y(y)
 {
     AVG_ASSERT(x.size() == y.size());
+    for (unsigned i=0; i<x.size(); ++i) {
+        m_Pts.push_back(glm::vec2(x[i], y[i]));
+    }
     // Add fake points before the first and after the last point so all derivatives
     // are defined.
-    float edgeX = 2*m_X[0]-m_X[1];
-    float edgeY = 2*m_Y[0]-m_Y[1];
-    m_X.insert(m_X.begin(), edgeX);
-    m_Y.insert(m_Y.begin(), edgeY);
+    glm::vec2 pt0 = m_Pts[0];
+    glm::vec2 pt1 = m_Pts[1];
+    glm::vec2 edge = 2.f*m_Pts[0]-m_Pts[1];
+    m_Pts.insert(m_Pts.begin(), edge);
 
-    int len = m_X.size();
-    edgeX = 2*m_X[len-1]-m_X[len-2];
-    edgeY = 2*m_Y[len-1]-m_Y[len-2];
-    m_X.push_back(edgeX);
-    m_Y.push_back(edgeY);
+    int len = m_Pts.size();
+    edge = 2.f*m_Pts[len-1]-m_Pts[len-2];
+    m_Pts.push_back(edge);
 }
 
 CubicSpline::~CubicSpline()
@@ -66,23 +65,24 @@ float normedInterpolate(float y0, float y1, float y2, float y3, float mu)
 float CubicSpline::interpolate(float orig)
 {
     unsigned i = 0;
-    if (m_X[m_X.size()-1] <= orig) {
-        i = m_X.size();
+    unsigned size = m_Pts.size();
+    if (m_Pts[size-1].x <= orig) {
+        i = m_Pts.size();
     } else {
-        while (m_X[i] < orig) {
+        while (m_Pts[i].x < orig) {
             i++;
         }
     }
     if (i < 2) {
-        float dxdy = (m_X[1]-m_X[0])/(m_Y[1]-m_Y[0]);
-        return m_Y[1]+(orig-m_X[1])/dxdy;
-    } else  if (i > m_X.size()-2) {
-        unsigned len = m_X.size();
-        float dxdy = (m_X[len-1]-m_X[len-2])/(m_Y[len-1]-m_Y[len-2]);
-        return m_Y[len-2]+(orig-m_X[len-2])/dxdy;
+        float dxdy = (m_Pts[1].x-m_Pts[0].x)/(m_Pts[1].y-m_Pts[0].y);
+        return m_Pts[1].y+(orig-m_Pts[1].x)/dxdy;
+    } else if (i > size-2) {
+        float dxdy = (m_Pts[size-1].x-m_Pts[size-2].x)/(m_Pts[size-1].y-m_Pts[size-2].y);
+        return m_Pts[size-2].y+(orig-m_Pts[size-2].x)/dxdy;
     } else {
-        float ratio = (orig-m_X[i-1])/(m_X[i]-m_X[i-1]);
-        return normedInterpolate(m_Y[i-2], m_Y[i-1], m_Y[i], m_Y[i+1], ratio);
+        float ratio = (orig-m_Pts[i-1].x)/(m_Pts[i].x-m_Pts[i-1].x);
+        return normedInterpolate(m_Pts[i-2].y, m_Pts[i-1].y, m_Pts[i].y, m_Pts[i+1].y,
+                ratio);
     }
 }
 
