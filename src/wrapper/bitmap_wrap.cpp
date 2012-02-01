@@ -165,6 +165,7 @@ void export_bitmap()
 
     class_<CubicSpline, boost::noncopyable>("CubicSpline", no_init)
         .def(init<const vector<glm::vec2>&>())
+        .def(init<const vector<glm::vec2>&, bool>())
         .def("interpolate", &CubicSpline::interpolate)
     ;
 }

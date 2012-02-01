@@ -474,6 +474,17 @@ public:
             TEST(almostEqual(spline.interpolate(9), 7.5));
             TEST(almostEqual(spline.interpolate(10), 9));
         }
+        {
+            float xd[] = {0,1,2};
+            vector<float> x = vectorFromCArray(3, xd);
+            float yd[] = {1,2,1};
+            vector<float> y = vectorFromCArray(3, yd);
+            CubicSpline spline(x, y, true);
+            TEST(almostEqual(spline.interpolate(0), 1));
+            TEST(almostEqual(spline.interpolate(0.5), 1.5));
+            TEST(almostEqual(spline.interpolate(2), 1));
+            TEST(almostEqual(spline.interpolate(3), 2));
+        }
     }
 };
 

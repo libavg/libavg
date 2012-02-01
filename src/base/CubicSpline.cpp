@@ -21,6 +21,7 @@
 
 #include "CubicSpline.h"
 #include "Exception.h"
+#include "MathHelper.h"
 
 #include <iostream>
 
@@ -28,7 +29,8 @@ using namespace std;
 
 namespace avg {
 
-CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y)
+CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y, bool bLoop)
+    : m_bLoop(bLoop)
 {
     AVG_ASSERT(x.size() == y.size());
     for (unsigned i=0; i<x.size(); ++i) {
@@ -37,8 +39,9 @@ CubicSpline::CubicSpline(const vector<float>& x, const vector<float>& y)
     init();
 }
 
-CubicSpline::CubicSpline(const vector<glm::vec2>& pts)
-    : m_Pts(pts)
+CubicSpline::CubicSpline(const vector<glm::vec2>& pts, bool bLoop)
+    : m_Pts(pts),
+      m_bLoop(bLoop)
 {
     init();
 }
@@ -61,6 +64,11 @@ float normedInterpolate(float y0, float y1, float y2, float y3, float mu)
 
 float CubicSpline::interpolate(float orig)
 {
+    if (m_bLoop) {
+        int len = m_Pts.size();
+        float width = m_Pts[len-1].x - m_Pts[0].x;
+        orig = fmod(orig-m_Pts[0].x, width) + m_Pts[0].x;
+    }
     unsigned i = 0;
     unsigned size = m_Pts.size();
     if (m_Pts[size-1].x <= orig) {
@@ -87,12 +95,30 @@ void CubicSpline::init()
 {
     // Add fake points before the first and after the last point so all derivatives
     // are defined.
-    glm::vec2 edge = 2.f*m_Pts[0]-m_Pts[1];
-    m_Pts.insert(m_Pts.begin(), edge);
-
     int len = m_Pts.size();
-    edge = 2.f*m_Pts[len-1]-m_Pts[len-2];
-    m_Pts.push_back(edge);
+    if (m_bLoop) {
+        if (!almostEqual(m_Pts[0].y, m_Pts[len-1].y)) {
+            throw Exception(AVG_ERR_INVALID_ARGS, 
+                    "A CubicSpline can only loop if the first and last points have the same value.");
+        }
+
+        // Fake points are copied from the other side so the values loop.
+        float width = m_Pts[len-1].x - m_Pts[0].x;
+        glm::vec2 edge = m_Pts[len-2];
+        edge.x -= width;
+        m_Pts.insert(m_Pts.begin(), edge);
+        
+        edge = m_Pts[2];
+        edge.x += width;
+        m_Pts.push_back(edge);
+    } else {
+        // Continue linearly after the edge points.
+        glm::vec2 edge = 2.f*m_Pts[0]-m_Pts[1];
+        m_Pts.insert(m_Pts.begin(), edge);
+
+        edge = 2.f*m_Pts[len]-m_Pts[len-1];
+        m_Pts.push_back(edge);
+    }
 }
 
 }

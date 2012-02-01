@@ -489,6 +489,12 @@ class ImageTestCase(AVGTestCase):
         self.assert_(spline.interpolate(7) < 4.5)
         self.assert_(spline.interpolate(7) > 4)
 
+        spline = avg.CubicSpline([(0,1),(1,2),(2,1)], True)
+        self.assertAlmostEqual(spline.interpolate(0), 1)
+        self.assertAlmostEqual(spline.interpolate(0.5), 1.5)
+        self.assertAlmostEqual(spline.interpolate(2), 1)
+        self.assertAlmostEqual(spline.interpolate(3), 2)
+
 def imageTestSuite(tests):
     availableTests = (
             "testImageHRef",

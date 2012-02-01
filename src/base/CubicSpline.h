@@ -32,8 +32,9 @@ namespace avg {
     
 class AVG_API CubicSpline {
 public:
-    CubicSpline(const std::vector<float>& x, const std::vector<float>& y);
-    CubicSpline(const std::vector<glm::vec2>& pts);
+    CubicSpline(const std::vector<float>& x, const std::vector<float>& y, 
+            bool bLoop=false);
+    CubicSpline(const std::vector<glm::vec2>& pts, bool bLoop=false);
     virtual ~CubicSpline();
 
     float interpolate(float orig);
@@ -42,6 +43,7 @@ private:
     void init();
 
     std::vector<glm::vec2> m_Pts;
+    bool m_bLoop;
 };
 
 typedef boost::shared_ptr<CubicSpline> CubicSplinePtr;
