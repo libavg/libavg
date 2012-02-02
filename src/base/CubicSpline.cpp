@@ -75,8 +75,13 @@ float CubicSpline::interpolate(float orig)
 
 void CubicSpline::init()
 {
-    // TODO: Make sure the x values are strictly increasing.
     int len = m_Pts.size();
+    for (int i=1; i<len; ++i) {
+        if (m_Pts[i].x <= m_Pts[i-1].x) {
+            throw Exception(AVG_ERR_INVALID_ARGS,
+                    "CubicSplines must have increasing x coordinates.");
+        }
+    }
     vector<float> u(len-1,0);
     m_Y2.push_back(0.f);
     u[0] = 0.f;

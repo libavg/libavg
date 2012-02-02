@@ -475,6 +475,19 @@ public:
             TEST(almostEqual(spline.interpolate(8), 6));
             TEST(almostEqual(spline.interpolate(10), 9));
         }
+        {
+            float xd[] = {0,1,1};
+            vector<float> x = vectorFromCArray(3, xd);
+            float yd[] = {1,2,1};
+            vector<float> y = vectorFromCArray(3, yd);
+            bool bExceptionThrown = false;
+            try {
+                CubicSpline spline(x, y);
+            } catch (const Exception& e) {
+                bExceptionThrown = true;
+            }
+            TEST(bExceptionThrown);
+        }
 /*
         {
             float xd[] = {0,1,2};
