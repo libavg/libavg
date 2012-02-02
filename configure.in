@@ -1,17 +1,16 @@
+
 AC_PREREQ(2.53)
-AC_INIT(libavg, 1.7.0, uzadow@libavg.de)
+
+dnl Use this file to bump version on release
+m4_include([m4/avg_version.m4])
+
+AC_INIT(libavg, [VERSION_MAJOR.VERSION_MINOR.VERSION_MICRO], uzadow@libavg.de)
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-MAJOR_VERSION=1
-MINOR_VERSION=7
-MICRO_VERSION=0
-VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
-
 AC_CONFIG_MACRO_DIR([m4])
-AC_SUBST(VERSION)
 AC_CONFIG_SRCDIR([src/avgconfig.h.in])
 AM_INIT_AUTOMAKE([check-news dist-zip])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
