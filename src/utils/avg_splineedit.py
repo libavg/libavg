@@ -44,20 +44,21 @@ class TextButton(button.Button):
 
 
 class ControlPoint(avg.CircleNode):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, moveCallback, parent, *args, **kwargs):
         super(ControlPoint, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
         self.r = 15
         ui.DragRecognizer(eventNode=self, detectedHandler=self.__onDetected,
                 moveHandler=self.__onMove)
+        self.__moveCallback = moveCallback
         
     def __onDetected(self, event):
         self.__dragStartPos = self.pos
-#        moveNodeToTop(self)
 
     def __onMove(self, event, offset):
         self.pos = self.__dragStartPos + offset
+        self.__moveCallback(self.pos)
 #        moveNodeOnScreen(self)
 
 class SplineEditor(AVGApp):
@@ -74,19 +75,25 @@ class SplineEditor(AVGApp):
                 clickHandler=self.__onDump, parent=self.__buttonDiv)
 
         self.__anchors = anchors
-        self.__spline = avg.CubicSpline(anchors, True)
         self.__curveDiv = avg.DivNode(pos=(20,20), parent=self._parentNode)
         self.__curve = avg.PolyLineNode(strokewidth=2, color="FFFFFF",
                 parent=self.__curveDiv)
         self.__genCurve()
         
         self.__controlPoints = []
-        for anchor in anchors:
+        for i, anchor in enumerate(self.__anchors):
             controlPoint = ControlPoint(pos=self.__cvtSpline2NodeCoords(anchor),
+                    moveCallback=lambda pos, i=i: self.moveAnchor(i, pos), 
                     parent=self.__curveDiv)
             self.__controlPoints.append(controlPoint)
 
+    def moveAnchor(self, i, pos):
+        self.__anchors[i] = self.__cvtNode2SplineCoords(pos)
+        self.__genCurve()
+
     def __genCurve(self):
+        anchors = sorted(self.__anchors, key=lambda pos: pos[0])
+        self.__spline = avg.CubicSpline(anchors, False)
         pts = []
         minPos, maxPos = self.__getMinMaxVal()
         xscale = (maxPos.x - minPos.x)/600
@@ -117,7 +124,7 @@ class SplineEditor(AVGApp):
         normPt = avg.Point2D(pos.x/600, pos.y/400)
         minPos, maxPos = self.__getMinMaxVal()
         return avg.Point2D(normPt.x*(maxPos.x-minPos.x) + minPos.x, 
-                normPt.y*(maxPos.y-minPos.y) + minPos.y)
+                maxPos.y - (normPt.y*(maxPos.y-minPos.y) + minPos.y))
 
     def __getMinMaxVal(self):
         return (avg.Point2D(self.__anchors[0][0], 0),

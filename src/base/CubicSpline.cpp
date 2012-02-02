@@ -50,74 +50,51 @@ CubicSpline::~CubicSpline()
 {
 }
 
-float normedInterpolate(float y0, float y1, float y2, float y3, float mu)
-{
-   float mu2 = mu*mu;
-   float a0 = y3 - y2 - y0 + y1;
-   float a1 = y0 - y1 - a0;
-   float a2 = y2 - y0;
-   float a3 = y1;
-
-   return(a0*mu*mu2+a1*mu2+a2*mu+a3);
-}
-
-
 float CubicSpline::interpolate(float orig)
 {
-    if (m_bLoop) {
-        int len = m_Pts.size();
-        float width = m_Pts[len-1].x - m_Pts[0].x;
-        orig = fmod(orig-m_Pts[0].x, width) + m_Pts[0].x;
-    }
-    unsigned i = 0;
-    unsigned size = m_Pts.size();
-    if (m_Pts[size-1].x <= orig) {
-        i = m_Pts.size();
-    } else {
-        while (m_Pts[i].x < orig) {
-            i++;
+    int len = m_Pts.size();
+    int low = 0;
+    int high = len-1;
+    // Binary search.
+    while (high - low > 1) {
+        int avg = (high+low) / 2;
+        if (m_Pts[avg].x > orig) {
+            high = avg;
+        } else {
+            low = avg;
         }
     }
-    if (i < 2) {
-        float dxdy = (m_Pts[1].x-m_Pts[0].x)/(m_Pts[1].y-m_Pts[0].y);
-        return m_Pts[1].y+(orig-m_Pts[1].x)/dxdy;
-    } else if (i > size-2) {
-        float dxdy = (m_Pts[size-1].x-m_Pts[size-2].x)/(m_Pts[size-1].y-m_Pts[size-2].y);
-        return m_Pts[size-2].y+(orig-m_Pts[size-2].x)/dxdy;
-    } else {
-        float ratio = (orig-m_Pts[i-1].x)/(m_Pts[i].x-m_Pts[i-1].x);
-        return normedInterpolate(m_Pts[i-2].y, m_Pts[i-1].y, m_Pts[i].y, m_Pts[i+1].y,
-                ratio);
-    }
+    float h = m_Pts[high].x - m_Pts[low].x;
+    float a = (m_Pts[high].x-orig)/h;
+    float b = (orig-m_Pts[low].x)/h;
+    
+    float y = a*m_Pts[low].y + b*m_Pts[high].y 
+            + ((a*a*a-a)*m_Y2[low] + (b*b*b-b)*m_Y2[high])*(h*h)/6.f;
+    return y;
 }
 
 void CubicSpline::init()
 {
-    // Add fake points before the first and after the last point so all derivatives
-    // are defined.
+    // TODO: Make sure the x values are strictly increasing.
     int len = m_Pts.size();
-    if (m_bLoop) {
-        if (!almostEqual(m_Pts[0].y, m_Pts[len-1].y)) {
-            throw Exception(AVG_ERR_INVALID_ARGS, 
-                    "A CubicSpline can only loop if the first and last points have the same value.");
-        }
+    vector<float> u(len-1,0);
+    m_Y2.push_back(0.f);
+    u[0] = 0.f;
+    for (int i=1; i<len-1; ++i) {
+        float sig = (m_Pts[i].x-m_Pts[i-1].x) / (m_Pts[i+1].x-m_Pts[i-1].x);
+        float p = sig * m_Y2[i-1]+2.0f;
+        m_Y2.push_back((sig-1.0)/p);
+        u[i] = (m_Pts[i+1].y-m_Pts[i].y) / (m_Pts[i+1].x-m_Pts[i].x) - 
+                (m_Pts[i].y - m_Pts[i-1].y) / (m_Pts[i].x-m_Pts[i-1].x);
+        u[i] = (6.f*u[i]/(m_Pts[i+1].x-m_Pts[i-1].x) - sig*u[i-1]) / p;
+    }
+    float qn = 0.f;
+    float un = 0.f;
 
-        // Fake points are copied from the other side so the values loop.
-        float width = m_Pts[len-1].x - m_Pts[0].x;
-        glm::vec2 edge = m_Pts[len-2];
-        edge.x -= width;
-        m_Pts.insert(m_Pts.begin(), edge);
-        
-        edge = m_Pts[2];
-        edge.x += width;
-        m_Pts.push_back(edge);
-    } else {
-        // Continue linearly after the edge points.
-        glm::vec2 edge = 2.f*m_Pts[0]-m_Pts[1];
-        m_Pts.insert(m_Pts.begin(), edge);
+    m_Y2.push_back((un-qn*u[len-2]) / (qn*m_Y2[len-2]-1.0));
 
-        edge = 2.f*m_Pts[len]-m_Pts[len-1];
-        m_Pts.push_back(edge);
+    for (int i=len-2; i>=0; i--) {
+        m_Y2[i] = m_Y2[i]*m_Y2[i+1]+u[i];
     }
 }
 

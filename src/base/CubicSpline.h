@@ -43,6 +43,7 @@ private:
     void init();
 
     std::vector<glm::vec2> m_Pts;
+    std::vector<float> m_Y2; // Second derivatives
     bool m_bLoop;
 };
 
