@@ -19,7 +19,10 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../base/ThreadProfiler.h"
+#include "../base/ScopeTimer.h"
 #include "../base/MathHelper.h"
+#include "../base/StringHelper.h"
 #include "../graphics/Filtergrayscale.h"
 
 #include "Reconstruct.h"
@@ -33,18 +36,37 @@ void filterImage(const string& fName)
     BitmapPtr pSrcBmp(new Bitmap("testfiles/"+fName+".png"));
     FilterGrayscale().applyInPlace(pSrcBmp);
     pSrcBmp->save("resultimages/"+fName+"_orig.png");
-    float frequencies[4] = {0.2, 0.06, 0.02, 0.006}; 
+    float frequencies[4] = {0.2, 0.02, 0.002, 0.0002}; 
     FreqFilter f(pSrcBmp->getSize(), vectorFromCArray(4, frequencies));
     f.filterImage(pSrcBmp);
 
     BitmapPtr pFreqBmp = f.getFreqImage();
-    BitmapPtr pDestBmp = f.getBandpassImage(3);
     pFreqBmp->save("resultimages/"+fName+"_freq.png");
-    pDestBmp->save("resultimages/"+fName+".png");
+    for (int i=0; i<4; ++i) {
+        BitmapPtr pDestBmp = f.getBandpassImage(i);
+        pDestBmp->save("resultimages/"+fName+"_"+toString(i)+".png");
+    }
+}
+
+void benchmark()
+{
+    BitmapPtr pSrcBmp(new Bitmap("testfiles/screenshot-000.png"));
+    float frequencies[4] = {0.2, 0.02, 0.002, 0.0002}; 
+    FreqFilter f(pSrcBmp->getSize(), vectorFromCArray(4, frequencies));
+    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    pProfiler->start();
+    for (int i=0; i<100; ++i) {
+        f.filterImage(pSrcBmp);
+        pProfiler->reset();
+    }
+    pProfiler->dumpStatistics();
+    pProfiler->kill();
+
 }
 
 int main(int nargs, char** args)
 {
+/*
     filterImage("spike");
     filterImage("spike_rect");
     filterImage("rgb24-64x64");
@@ -52,5 +74,7 @@ int main(int nargs, char** args)
     filterImage("screenshot-001");
     filterImage("screenshot-002");
     filterImage("screenshot-003");
+*/
+    benchmark();
 }
 

@@ -41,18 +41,18 @@ private:
 
     IntPoint m_Size;
     std::vector<float> m_Frequencies;
-    std::vector<BitmapPtr> m_LowpassBmps;
+    std::vector<BitmapPtr> m_pBPBmps;
 
     fftwf_plan m_fftPlan;
     fftwf_plan m_ifftPlan;
     BitmapPtr m_FreqImage;
     float* m_pInData;
     fftwf_complex * m_pFreqData;
-    fftwf_complex * m_pLowpassData;
-    float* m_pOutData;
+    fftwf_complex * m_pLPFreqData;
+    float* m_pLPData;     // Current data, lowpass 
+    float* m_pPrevLPData; // Last lowpass data
+    float* m_pBPData;     // Bandpass data
 };
-
-//BitmapPtr lowpass(BitmapPtr pSrcBmp, BitmapPtr& pFreqBmp, float cutoffFreq);
 
 }
 #endif

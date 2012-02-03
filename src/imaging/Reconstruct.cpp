@@ -41,11 +41,13 @@ FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequenci
     m_pFreqData = (fftwf_complex*) fftwf_malloc(
             sizeof(fftwf_complex) * size.y * getFreqStride());
     m_fftPlan = fftwf_plan_dft_r2c_2d(size.y, size.x, m_pInData, m_pFreqData,
-            FFTW_ESTIMATE);
-    m_pLowpassData = (fftwf_complex*) fftwf_malloc(
+            FFTW_ESTIMATE | FFTW_PRESERVE_INPUT);
+    m_pLPFreqData = (fftwf_complex*) fftwf_malloc(
             sizeof(fftwf_complex) * size.y * getFreqStride());
-    m_pOutData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
-    m_ifftPlan = fftwf_plan_dft_c2r_2d(size.y, size.x, m_pLowpassData, m_pOutData,
+    m_pLPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
+    m_pPrevLPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
+    m_pBPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
+    m_ifftPlan = fftwf_plan_dft_c2r_2d(size.y, size.x, m_pLPFreqData, m_pLPData,
             FFTW_ESTIMATE);
 }
 
@@ -55,59 +57,109 @@ FreqFilter::~FreqFilter()
     fftwf_destroy_plan(m_ifftPlan);
     fftwf_free(m_pInData);
     fftwf_free(m_pFreqData);
-    fftwf_free(m_pLowpassData);
-    fftwf_free(m_pOutData);
+    fftwf_free(m_pLPFreqData);
+    fftwf_free(m_pLPData);
+    fftwf_free(m_pPrevLPData);
 }
+
+static ProfilingZoneID ProfilingZoneTotal("Total");
+
+static ProfilingZoneID ProfilingZoneInputCopy("Copy input data");
+static ProfilingZoneID ProfilingZoneFFT("Forward FFT");
+static ProfilingZoneID ProfilingZoneBandpass("Bandpass");
+static ProfilingZoneID ProfilingZoneLowpass("Lowpass");
+static ProfilingZoneID ProfilingZoneIFFT("Inverse FFT");
+static ProfilingZoneID ProfilingZoneSubtractBmps("Subtract bitmaps");
+static ProfilingZoneID ProfilingZoneCopyOutput("Copy output data");
 
 void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 {
-    unsigned char * pBmpPixels = pSrcBmp->getPixels();
-    int stride = pSrcBmp->getStride();
-    for (int y=0; y<m_Size.y; ++y) {
-        for (int x=0; x<m_Size.x; ++x) {
-            m_pInData[m_Size.x*y + x] = pBmpPixels[stride*y + x];
+    ScopeTimer timer(ProfilingZoneTotal);
+    {
+        ScopeTimer timer(ProfilingZoneInputCopy);
+        unsigned char * pBmpPixels = pSrcBmp->getPixels();
+        int stride = pSrcBmp->getStride();
+        for (int y=0; y<m_Size.y; ++y) {
+            for (int x=0; x<m_Size.x; ++x) {
+                m_pInData[m_Size.x*y + x] = pBmpPixels[stride*y + x];
+            }
         }
     }
 
-    fftwf_execute(m_fftPlan);
+    {
+        ScopeTimer timer(ProfilingZoneFFT);
+        fftwf_execute(m_fftPlan);
+    }
 
-    m_LowpassBmps.clear();
+    m_pBPBmps.clear();
 
     for (unsigned i=0; i<m_Frequencies.size(); ++i) {
-        memcpy(m_pLowpassData, m_pFreqData,
-                sizeof(fftwf_complex) * m_Size.y * getFreqStride());
-        float cutoffFreq = m_Frequencies[i];
-        float radius = cutoffFreq*cutoffFreq;
-        float xmult = 1.f/(m_Size.x*m_Size.x);
-        float ymult = 1.f/(m_Size.y*m_Size.y);
-        for (int y=0; y<m_Size.y; ++y) {
-            for (int x=0; x<getFreqStride(); ++x) {
+        ScopeTimer timer(ProfilingZoneBandpass);
+        {
+            ScopeTimer timer(ProfilingZoneLowpass);
+            memcpy(m_pLPFreqData, m_pFreqData,
+                    sizeof(fftwf_complex) * m_Size.y * getFreqStride());
+            float cutoffFreq = m_Frequencies[i];
+            float radius = cutoffFreq*cutoffFreq;
+            float xmult = 1.f/(m_Size.x*m_Size.x);
+            float ymult = 1.f/(m_Size.y*m_Size.y);
+            for (int y=0; y<m_Size.y; ++y) {
                 int fy = y;
                 if (fy > m_Size.y/2) {
                     fy -= m_Size.y;
                 }
-                if (fy*fy*ymult + x*x*xmult > radius) {
-                    fftwf_complex * pCurData = &(m_pLowpassData[y*getFreqStride() + x]);
-                    (*pCurData)[0] = 0.0;
-                    (*pCurData)[1] = 0.0;
+                for (int x=0; x<getFreqStride(); ++x) {
+                    if (fy*fy*ymult + x*x*xmult > radius) {
+                        fftwf_complex * pCurData = &(m_pLPFreqData[y*getFreqStride() + x]);
+                        (*pCurData)[0] = 0.0;
+                        (*pCurData)[1] = 0.0;
+                    }
                 }
             }
         }
-        fftwf_execute(m_ifftPlan);
-        BitmapPtr pLowpassBmp(new Bitmap(m_Size, I8));
-        pBmpPixels = pLowpassBmp->getPixels();
-        stride = pLowpassBmp->getStride();
-        for (int y=0; y<m_Size.y; ++y) {
-            for (int x=0; x<m_Size.x; ++x) {
-                float curPixel = m_pOutData[m_Size.x*y + x];
-                if (curPixel >= 0) {
-                    pBmpPixels[stride*y + x] = curPixel/float(m_Size.x*m_Size.y);
-                } else {
-                    pBmpPixels[stride*y + x] = 0;
+        {
+            ScopeTimer timer(ProfilingZoneIFFT);
+            fftwf_execute_dft_c2r(m_ifftPlan, m_pLPFreqData, m_pLPData);
+        }
+
+        // Execute bandpass by subtracting lowpass bitmaps from each other.
+        {
+            ScopeTimer timer(ProfilingZoneSubtractBmps);
+            float * pOldLPData;
+            if (i==0) {
+                pOldLPData = m_pInData;
+            } else {
+                pOldLPData = m_pPrevLPData;
+            }
+           
+            float scale = 1.f/(m_Size.x*m_Size.y);
+            for (int y=0; y<m_Size.y; ++y) {
+                for (int x=0; x<m_Size.x; ++x) {
+                    int offset = m_Size.x*y + x;
+                    m_pLPData[offset] *= scale;
+                    m_pBPData[offset] = m_pLPData[offset] - pOldLPData[offset];
                 }
             }
         }
-        m_LowpassBmps.push_back(pLowpassBmp);
+
+        // Exchange buffers
+        float* pTemp = m_pPrevLPData;
+        m_pPrevLPData = m_pLPData;
+        m_pLPData = pTemp;
+
+        {
+            ScopeTimer timer(ProfilingZoneCopyOutput);
+            BitmapPtr pBandpassBmp(new Bitmap(m_Size, I8));
+            unsigned char * pBmpPixels = pBandpassBmp->getPixels();
+            int stride = pBandpassBmp->getStride();
+            for (int y=0; y<m_Size.y; ++y) {
+                for (int x=0; x<m_Size.x; ++x) {
+                    float curPixel = m_pBPData[m_Size.x*y + x];
+                    pBmpPixels[stride*y + x] = fabs(curPixel);
+                }
+            }
+            m_pBPBmps.push_back(pBandpassBmp);
+        }
     }
 }
 
@@ -119,10 +171,9 @@ BitmapPtr FreqFilter::getFreqImage() const
     for (int y=0; y<m_Size.y; ++y) {
         for (int x=0; x<getFreqStride(); ++x) {
             float curPixel0 = fabs(m_pFreqData[getFreqStride()*y + x][0]);
-            float curPixel1 = fabs(m_pFreqData[getFreqStride()*y + x][1]);
+//            float curPixel1 = fabs(m_pFreqData[getFreqStride()*y + x][1]);
             pBmpPixels[stride*y + x*2] = curPixel0;
             pBmpPixels[stride*y + x*2 + 1] = curPixel0;
-//            cerr << "(" << x << ", " << y << "): " << curPixel0 << endl;
         }
     }
     return pFreqBmp;
@@ -130,7 +181,7 @@ BitmapPtr FreqFilter::getFreqImage() const
 
 BitmapPtr FreqFilter::getBandpassImage(int i) const
 {
-    return m_LowpassBmps[i];
+    return m_pBPBmps[i];
 }
 
 int FreqFilter::getFreqStride() const
