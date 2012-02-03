@@ -41,14 +41,14 @@ FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequenci
     m_pFreqData = (fftwf_complex*) fftwf_malloc(
             sizeof(fftwf_complex) * size.y * getFreqStride());
     m_fftPlan = fftwf_plan_dft_r2c_2d(size.y, size.x, m_pInData, m_pFreqData,
-            FFTW_ESTIMATE | FFTW_PRESERVE_INPUT);
+            FFTW_MEASURE | FFTW_PRESERVE_INPUT);
     m_pLPFreqData = (fftwf_complex*) fftwf_malloc(
             sizeof(fftwf_complex) * size.y * getFreqStride());
     m_pLPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     m_pPrevLPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     m_pBPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     m_ifftPlan = fftwf_plan_dft_c2r_2d(size.y, size.x, m_pLPFreqData, m_pLPData,
-            FFTW_ESTIMATE);
+            FFTW_MEASURE);
 }
 
 FreqFilter::~FreqFilter()

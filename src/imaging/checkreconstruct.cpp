@@ -50,9 +50,11 @@ void filterImage(const string& fName)
 
 void benchmark()
 {
+    cerr << "Performing setup..." << endl;
     BitmapPtr pSrcBmp(new Bitmap("testfiles/screenshot-000.png"));
     float frequencies[4] = {0.2, 0.02, 0.002, 0.0002}; 
     FreqFilter f(pSrcBmp->getSize(), vectorFromCArray(4, frequencies));
+    cerr << "Benchmarking..." << endl;
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
     pProfiler->start();
     for (int i=0; i<100; ++i) {
