@@ -247,7 +247,8 @@ Player & Canvas
 
         .. py:method:: getFrameDuration() -> int
 
-            Returns the duration of the last frame in milliseconds.
+            Returns the number of milliseconds that have elapsed since the last
+            frame (i.e. the last display update).
 
         .. py:method:: getFramerate() -> float
 
@@ -297,11 +298,6 @@ Player & Canvas
             Returns the size in pixels of the current screen.
 
         .. py:method:: getTestHelper
-
-        .. py:method:: getTimeSinceLastFrame() -> int
-
-            Returns the number of milliseconds that have elapsed since the last
-            frame (i.e. the last display update).
 
         .. py:method:: getTracker() -> Tracker
 

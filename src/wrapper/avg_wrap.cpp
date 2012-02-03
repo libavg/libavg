@@ -32,6 +32,7 @@ void export_anim();
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
 #include "../base/GeomHelper.h"
+#include "../base/VersionInfo.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -259,4 +260,15 @@ BOOST_PYTHON_MODULE(avg)
         .def("getElementSize", &SVG::getElementSize)
         ;
 
+    class_<VersionInfo>("VersionInfo")
+        .add_property("full", &VersionInfo::getFull)
+        .add_property("release", &VersionInfo::getRelease)
+        .add_property("major", &VersionInfo::getMajor)
+        .add_property("minor", &VersionInfo::getMinor)
+        .add_property("micro", &VersionInfo::getMicro)
+        .add_property("revision", &VersionInfo::getRevision)
+        .add_property("branchurl", &VersionInfo::getBranchUrl)
+        .add_property("builder", &VersionInfo::getBuilder)
+        .add_property("buildtime", &VersionInfo::getBuildTime)
+        ;
 }

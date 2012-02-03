@@ -25,6 +25,7 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapManager.h"
+#include "../base/CubicSpline.h"
 
 #include "../glm/gtx/vector_angle.hpp"
 
@@ -160,5 +161,11 @@ void export_bitmap()
                 return_value_policy<reference_existing_object>())
         .staticmethod("get")
         .def("loadBitmap", &BitmapManager::loadBitmap)
+    ;
+
+    class_<CubicSpline, boost::noncopyable>("CubicSpline", no_init)
+        .def(init<const vector<glm::vec2>&>())
+        .def(init<const vector<glm::vec2>&, bool>())
+        .def("interpolate", &CubicSpline::interpolate)
     ;
 }

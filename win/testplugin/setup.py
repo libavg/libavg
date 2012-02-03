@@ -23,6 +23,10 @@
 from distutils.core import setup, Extension
 import os, sys, shutil, subprocess, glob
 
+sys.path.append('../../')
+
+import CreateVersionFile
+
 DEVEL_ROOT='../../../'
 LIBAVG_SRC_DIR='../../src/'
 site_packages_path = sys.exec_prefix+"\\Lib\\site-packages\\libavg"
@@ -162,11 +166,11 @@ for py in map(os.path.basename, scripts):
     fw.write(batchTemplate.replace('#$#PYSCRIPT#$#', py))
     fw.close()
     batches.append(batch)
-    
+   
+version = '.'.join([str(c) for c in CreateVersionFile.getVersionComponents()])
 
 setup(name='libavg',
-#      version='1.7.0.%s' % revision,
-      version='1.7.0',
+      version=version,
       author='Ulrich von Zadow',
       author_email='uzadow@libavg.de',
       url='http://www.libavg.de',

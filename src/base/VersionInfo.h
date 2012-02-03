@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2012 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,39 +19,29 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CubicSpline_H_
-#define _CubicSpline_H_
+#ifndef _VersionInfo_H_
+#define _VersionInfo_H_
 
 #include "../api.h"
-#include "../glm/glm.hpp"
-
-#include <boost/shared_ptr.hpp>
-#include <vector>
+#include <string>
 
 namespace avg {
-    
-class AVG_API CubicSpline {
-public:
-    CubicSpline(const std::vector<float>& x, const std::vector<float>& y, 
-            bool bLoop=false);
-    CubicSpline(const std::vector<glm::vec2>& pts, bool bLoop=false);
-    virtual ~CubicSpline();
 
-    float interpolate(float orig);
-
-private:
-    void init();
-
-    std::vector<glm::vec2> m_Pts;
-    std::vector<float> m_Y2; // Second derivatives
-    bool m_bLoop;
+class AVG_API VersionInfo
+{
+    public:
+        const std::string getFull();
+        const std::string getRelease();
+        const std::string getBranchUrl();
+        const std::string getBuilder();
+        const std::string getBuildTime();
+        int getMajor();
+        int getMinor();
+        int getMicro();
+        int getRevision();
 };
-
-typedef boost::shared_ptr<CubicSpline> CubicSplinePtr;
 
 }
 
 #endif 
-
-
 

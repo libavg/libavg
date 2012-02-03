@@ -521,6 +521,48 @@ Misc. Classes
         :param poly: List of points which constitute a polygon to check against.
         :returns: :py:const:`True` if point is inside, :py:const:`False` otherwise.
 
+    .. autoclass:: VersionInfo
+
+        Exposes version data, including the specs of the builder.
+
+        .. py:attribute:: full
+        
+        Full string containing a compact form of branch and revision number (if the
+        build doesn't come from an exported tree)
+        
+        .. py:attribute:: release
+        
+        String representation in the form `major.minor.micro`
+        
+        .. py:attribute:: major
+        
+        Integer component of the release version (major)
+
+        .. py:attribute:: minor
+        
+        Integer component of the release version (minor)
+
+        .. py:attribute:: micro
+        
+        Integer component of the release version (micro)
+        
+        .. py:attribute:: revision
+        
+        Revision number, if applicable, or 0
+        
+        .. py:attribute:: branchurl
+        
+        Full URL path that represents the branch root, if applicable, or empty string
+        
+        .. py:attribute:: builder
+        
+        String representation in the form of `user@hostname machinespecs`
+        
+        .. py:attribute:: buildtime
+        
+        ISO timestamp representation of the build
+
+
 .. automodule:: libavg.statemachine
     :no-members:
 

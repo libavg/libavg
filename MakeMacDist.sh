@@ -3,7 +3,14 @@
 set -e
 set -x
 
-export VERSION=1.7.0
+VERSION_MAJOR=$(grep VERSION_MAJOR m4/avg_version.m4 |
+        sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
+VERSION_MINOR=$(grep VERSION_MINOR m4/avg_version.m4 |
+        sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
+VERSION_MICRO=$(grep VERSION_MICRO m4/avg_version.m4 |
+        sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
+
+export VERSION=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_MICRO
 
 fixLib()
 {

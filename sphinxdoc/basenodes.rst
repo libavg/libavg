@@ -236,6 +236,9 @@ This section describes the base classes for all node classes that libavg provide
         
         .. py:method:: setEventHandler(type, source, pyfunc)
 
+            .. deprecated:: 1.7
+                Use :func:`connectEventHandler()` instead.
+
             Sets a callback function that is invoked whenever an event of the
             specified type from the specified source occurs. This method removes all 
             other event handlers from this type/source-combination. 

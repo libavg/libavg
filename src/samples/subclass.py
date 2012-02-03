@@ -7,8 +7,10 @@ import libavg
 RESOLUTION = avg.Point2D(800, 600)
 
 class TextRect(avg.DivNode):
-    def __init__(self, text, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+    def __init__(self, text, parent=None, **kwargs):
+        super(TextRect, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
         self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor="000000", 
                 color="FFFFFF", parent=self)
         self.words = avg.WordsNode(color="FFFFFF", text=text, alignment="center", 
@@ -26,8 +28,7 @@ class TextRect(avg.DivNode):
     size = property(getSize, setSize)
 
 
-class GestureDemoApp(libavg.AVGApp):
-    multitouch = True
+class SubclassDemoApp(libavg.AVGApp):
 
     def init(self):
         self.rect = TextRect(text="Hello World", pos=(20,20), size=(200,120), 
@@ -38,4 +39,4 @@ class GestureDemoApp(libavg.AVGApp):
         self.rect.size = self.rect.size + (10,10)
 
 if __name__ == '__main__':
-    GestureDemoApp.start(resolution=RESOLUTION)
+    SubclassDemoApp.start(resolution=RESOLUTION)

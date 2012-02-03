@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2011 Ulrich von Zadow
+//  Copyright (C) 2003-2012 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,39 +19,54 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CubicSpline_H_
-#define _CubicSpline_H_
-
-#include "../api.h"
-#include "../glm/glm.hpp"
-
-#include <boost/shared_ptr.hpp>
-#include <vector>
+#include "VersionInfo.h"
+#include "../version.h"
 
 namespace avg {
-    
-class AVG_API CubicSpline {
-public:
-    CubicSpline(const std::vector<float>& x, const std::vector<float>& y, 
-            bool bLoop=false);
-    CubicSpline(const std::vector<glm::vec2>& pts, bool bLoop=false);
-    virtual ~CubicSpline();
 
-    float interpolate(float orig);
-
-private:
-    void init();
-
-    std::vector<glm::vec2> m_Pts;
-    std::vector<float> m_Y2; // Second derivatives
-    bool m_bLoop;
-};
-
-typedef boost::shared_ptr<CubicSpline> CubicSplinePtr;
-
+const std::string VersionInfo::getFull()
+{
+    return std::string(AVG_VERSION_FULL);
 }
 
-#endif 
+const std::string VersionInfo::getRelease()
+{
+    return std::string(AVG_VERSION_RELEASE);
+}
 
+const std::string VersionInfo::getBranchUrl()
+{
+    return std::string(AVG_VERSION_BRANCH_URL);
+}
 
+const std::string VersionInfo::getBuilder()
+{
+    return std::string(AVG_VERSION_BUILDER);
+}
 
+const std::string VersionInfo::getBuildTime()
+{
+    return std::string(AVG_VERSION_BUILDTIME);
+}
+
+int VersionInfo::getMajor()
+{
+    return AVG_VERSION_MAJOR;
+}
+
+int VersionInfo::getMinor()
+{
+    return AVG_VERSION_MINOR;
+}
+
+int VersionInfo::getMicro()
+{
+    return AVG_VERSION_MICRO;
+}
+
+int VersionInfo::getRevision()
+{
+    return AVG_VERSION_REVISION;
+}
+
+}

@@ -1,3 +1,16 @@
+libavg 1.7.1 - Jan 26, 2012
+
+  svn revision 7008, branch release1.7.x
+
+  Bugfixes:
+  
+  - Mac avg_env.sh handling of PKG_CONFIG_PATH fixed (r6886).
+  - Fixed handling of files > 2 gb in VideoWriter (r6905, Bug #279).
+  - Fixed VideoWriter crash with some ffmpeg versions (r6922).
+  - Fixed crash when stopping and seeking one video simultaneously (r6961).
+  - Fixed slow tests on Linux machines with ATI display drivers (r6970).
+  - Fixed TUIO support under Linux x86-64 (r6982).
+
 libavg 1.7.0 - Oct 29, 2011
 
   svn revision 6888, branch release1.7.x

@@ -1,17 +1,16 @@
+
 AC_PREREQ(2.53)
-AC_INIT(libavg, 1.7.0, uzadow@libavg.de)
+
+dnl Use this file to bump version on release
+m4_include([m4/avg_version.m4])
+
+AC_INIT(libavg, [VERSION_MAJOR.VERSION_MINOR.VERSION_MICRO], uzadow@libavg.de)
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-MAJOR_VERSION=1
-MINOR_VERSION=7
-MICRO_VERSION=0
-VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
-
 AC_CONFIG_MACRO_DIR([m4])
-AC_SUBST(VERSION)
 AC_CONFIG_SRCDIR([src/avgconfig.h.in])
 AM_INIT_AUTOMAKE([check-news dist-zip])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
@@ -96,14 +95,19 @@ PKG_CHECK_MODULES([MTDEV], [mtdev],
          AC_MSG_NOTICE(mtdev not found))
 AM_CONDITIONAL(ENABLE_MTDEV, test x"$MTDEV_LIBS" != x)
 
-PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.1.99.1] [inputproto >= 2.0.99.1] [inputproto < 2.1.99.5],
-                  HAVE_XI2_1="yes"; AC_DEFINE(HAVE_XI2_1, 1, [XI2_1 available]),
-                  HAVE_XI2_1="no");
-PKG_CHECK_MODULES(XI2_2, [xi >= 1.5.99.2] [inputproto >= 2.1.99.5],
-                  HAVE_XI2_2="yes"; AC_DEFINE(HAVE_XI2_2, 1, [XI2_2 available]),
-                  HAVE_XI2_2="no");
-AM_CONDITIONAL(HAVE_XI2_1, [ test "$HAVE_XI2_1" = "yes" ])
-AM_CONDITIONAL(HAVE_XI2_2, [ test "$HAVE_XI2_2" = "yes" ])
+if test $target_vendor = apple; then
+    AM_CONDITIONAL(HAVE_XI2_1, false)
+    AM_CONDITIONAL(HAVE_XI2_2, false)
+else
+    PKG_CHECK_MODULES(XI2_1, [xi >= 1.4.1.99.1] [inputproto >= 2.0.99.1] [inputproto < 2.1.99.5],
+                      HAVE_XI2_1="yes"; AC_DEFINE(HAVE_XI2_1, 1, [XI2_1 available]),
+                      HAVE_XI2_1="no");
+    PKG_CHECK_MODULES(XI2_2, [xi >= 1.5.99.2] [inputproto >= 2.1.99.5],
+                      HAVE_XI2_2="yes"; AC_DEFINE(HAVE_XI2_2, 1, [XI2_2 available]),
+                      HAVE_XI2_2="no");
+    AM_CONDITIONAL(HAVE_XI2_1, [ test "$HAVE_XI2_1" = "yes" ])
+    AM_CONDITIONAL(HAVE_XI2_2, [ test "$HAVE_XI2_2" = "yes" ])
+fi
 
 AC_ARG_ENABLE(v4l2,
           AC_HELP_STRING([--enable-v4l2],
