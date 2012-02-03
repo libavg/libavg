@@ -23,9 +23,36 @@
 
 #include "../graphics/Bitmap.h"
 
+#include <fftw3.h>
+#include <vector>
+
 namespace avg {
 
-BitmapPtr lowpass(BitmapPtr pSrcBmp, BitmapPtr& pFreqBmp, float cutoffFreq);
+class FreqFilter {
+public:
+    FreqFilter(const IntPoint& size, const std::vector<float>& frequencies);
+    virtual ~FreqFilter();
+    void filterImage(BitmapPtr pSrcBmp);
+    BitmapPtr getFreqImage() const;
+    BitmapPtr getBandpassImage(int i) const;
+
+private:
+    int getFreqStride() const;
+
+    IntPoint m_Size;
+    std::vector<float> m_Frequencies;
+    std::vector<BitmapPtr> m_LowpassBmps;
+
+    fftwf_plan m_fftPlan;
+    fftwf_plan m_ifftPlan;
+    BitmapPtr m_FreqImage;
+    float* m_pInData;
+    fftwf_complex * m_pFreqData;
+    fftwf_complex * m_pLowpassData;
+    float* m_pOutData;
+};
+
+//BitmapPtr lowpass(BitmapPtr pSrcBmp, BitmapPtr& pFreqBmp, float cutoffFreq);
 
 }
 #endif

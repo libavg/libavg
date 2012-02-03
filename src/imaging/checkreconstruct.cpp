@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../base/MathHelper.h"
 #include "../graphics/Filtergrayscale.h"
 
 #include "Reconstruct.h"
@@ -30,10 +31,14 @@ using namespace std;
 void filterImage(const string& fName)
 {
     BitmapPtr pSrcBmp(new Bitmap("testfiles/"+fName+".png"));
-    BitmapPtr pFreqBmp;
     FilterGrayscale().applyInPlace(pSrcBmp);
     pSrcBmp->save("resultimages/"+fName+"_orig.png");
-    BitmapPtr pDestBmp = lowpass(pSrcBmp, pFreqBmp, 0.25);
+    float frequencies[4] = {0.2, 0.06, 0.02, 0.006}; 
+    FreqFilter f(pSrcBmp->getSize(), vectorFromCArray(4, frequencies));
+    f.filterImage(pSrcBmp);
+
+    BitmapPtr pFreqBmp = f.getFreqImage();
+    BitmapPtr pDestBmp = f.getBandpassImage(3);
     pFreqBmp->save("resultimages/"+fName+"_freq.png");
     pDestBmp->save("resultimages/"+fName+".png");
 }
@@ -43,5 +48,9 @@ int main(int nargs, char** args)
     filterImage("spike");
     filterImage("spike_rect");
     filterImage("rgb24-64x64");
+    filterImage("screenshot-000");
+    filterImage("screenshot-001");
+    filterImage("screenshot-002");
+    filterImage("screenshot-003");
 }
 
