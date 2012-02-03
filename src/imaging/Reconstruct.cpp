@@ -49,6 +49,10 @@ FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequenci
     m_pBPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     m_ifftPlan = fftwf_plan_dft_c2r_2d(size.y, size.x, m_pLPFreqData, m_pLPData,
             FFTW_MEASURE);
+    for (unsigned i=0; i<m_Frequencies.size(); ++i) {        
+        BitmapPtr pBmp(new Bitmap(m_Size, I8));
+        m_pBPBmps.push_back(pBmp);
+    }
 }
 
 FreqFilter::~FreqFilter()
@@ -90,8 +94,6 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
         ScopeTimer timer(ProfilingZoneFFT);
         fftwf_execute(m_fftPlan);
     }
-
-    m_pBPBmps.clear();
 
     for (unsigned i=0; i<m_Frequencies.size(); ++i) {
         ScopeTimer timer(ProfilingZoneBandpass);
@@ -146,7 +148,7 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 
         {
             ScopeTimer timer(ProfilingZoneCopyOutput);
-            BitmapPtr pBandpassBmp(new Bitmap(m_Size, I8));
+            BitmapPtr pBandpassBmp = m_pBPBmps[i];
             unsigned char * pBmpPixels = pBandpassBmp->getPixels();
             int stride = pBandpassBmp->getStride();
             for (int y=0; y<m_Size.y; ++y) {
@@ -155,7 +157,6 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
                     pBmpPixels[stride*y + x] = fabs(curPixel);
                 }
             }
-            m_pBPBmps.push_back(pBandpassBmp);
         }
         // Exchange buffers
         float* pTemp = m_pPrevLPData;
