@@ -68,7 +68,9 @@ void benchmark()
 
 int main(int nargs, char** args)
 {
-/*
+    benchmark();
+
+    cerr << "Generating test images..." << endl;
     filterImage("spike");
     filterImage("spike_rect");
     filterImage("rgb24-64x64");
@@ -76,7 +78,5 @@ int main(int nargs, char** args)
     filterImage("screenshot-001");
     filterImage("screenshot-002");
     filterImage("screenshot-003");
-*/
-    benchmark();
 }
 

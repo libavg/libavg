@@ -97,22 +97,24 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
         ScopeTimer timer(ProfilingZoneBandpass);
         {
             ScopeTimer timer(ProfilingZoneLowpass);
-            memcpy(m_pLPFreqData, m_pFreqData,
-                    sizeof(fftwf_complex) * m_Size.y * getFreqStride());
             float cutoffFreq = m_Frequencies[i];
             float radius = cutoffFreq*cutoffFreq;
             float xmult = 1.f/(m_Size.x*m_Size.x);
             float ymult = 1.f/(m_Size.y*m_Size.y);
+            int stride = getFreqStride();
             for (int y=0; y<m_Size.y; ++y) {
                 int fy = y;
                 if (fy > m_Size.y/2) {
                     fy -= m_Size.y;
                 }
-                for (int x=0; x<getFreqStride(); ++x) {
+                for (int x=0; x<stride; ++x) {
+                    int offset = y*stride + x;
                     if (fy*fy*ymult + x*x*xmult > radius) {
-                        fftwf_complex * pCurData = &(m_pLPFreqData[y*getFreqStride() + x]);
-                        (*pCurData)[0] = 0.0;
-                        (*pCurData)[1] = 0.0;
+                        m_pLPFreqData[offset][0] = m_pFreqData[offset][0];
+                        m_pLPFreqData[offset][1] = m_pFreqData[offset][1];
+                    } else {
+                        m_pLPFreqData[offset][0] = 0.f;
+                        m_pLPFreqData[offset][1] = 0.f;
                     }
                 }
             }
@@ -142,11 +144,6 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
             }
         }
 
-        // Exchange buffers
-        float* pTemp = m_pPrevLPData;
-        m_pPrevLPData = m_pLPData;
-        m_pLPData = pTemp;
-
         {
             ScopeTimer timer(ProfilingZoneCopyOutput);
             BitmapPtr pBandpassBmp(new Bitmap(m_Size, I8));
@@ -160,6 +157,11 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
             }
             m_pBPBmps.push_back(pBandpassBmp);
         }
+        // Exchange buffers
+        float* pTemp = m_pPrevLPData;
+        m_pPrevLPData = m_pLPData;
+        m_pLPData = pTemp;
+
     }
 }
 
