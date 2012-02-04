@@ -18,8 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#ifndef _Reconstruct_H_
-#define _Reconstruct_H_
+#ifndef _FreqFilter_H_
+#define _FreqFilter_H_
 
 #include "../graphics/Bitmap.h"
 

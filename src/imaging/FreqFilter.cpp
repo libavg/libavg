@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#include "Reconstruct.h"
+#include "FreqFilter.h"
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"

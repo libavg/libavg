@@ -25,7 +25,7 @@
 #include "../base/StringHelper.h"
 #include "../graphics/Filtergrayscale.h"
 
-#include "Reconstruct.h"
+#include "FreqFilter.h"
 
 using namespace avg;
 using namespace std;
