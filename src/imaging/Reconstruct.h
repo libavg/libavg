@@ -48,9 +48,7 @@ private:
     BitmapPtr m_FreqImage;
     float* m_pInData;
     fftwf_complex * m_pFreqData;
-    fftwf_complex * m_pLPFreqData;
-    float* m_pLPData;     // Current data, lowpass 
-    float* m_pPrevLPData; // Last lowpass data
+    fftwf_complex * m_pBPFreqData;
     float* m_pBPData;     // Bandpass data
 };
 
