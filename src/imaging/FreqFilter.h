@@ -37,6 +37,8 @@ public:
     BitmapPtr getBandpassImage(int i) const;
 
 private:
+    void copyBmpToFloatBuffer(BitmapPtr pSrcBmp, float* pBuffer);
+
     int getFreqStride() const;
 
     IntPoint m_Size;

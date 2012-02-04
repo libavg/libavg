@@ -24,6 +24,7 @@
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
 
 #include <iostream>
 #include <string.h>
@@ -47,7 +48,11 @@ FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequenci
     m_pBPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     m_ifftPlan = fftwf_plan_dft_c2r_2d(size.y, size.x, m_pBPFreqData, m_pBPData,
             FFTW_MEASURE);
-    for (unsigned i=0; i<m_Frequencies.size(); ++i) {        
+    for (unsigned i=0; i<m_Frequencies.size(); ++i) {
+        if (m_Frequencies[i] > m_Size.x/2 || m_Frequencies[i] > m_Size.y/2) {
+            throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                    "Frequency " + toString(m_Frequencies[i]) + " > half of image size.");        
+        }
         BitmapPtr pBmp(new Bitmap(m_Size, I8));
         m_pBPBmps.push_back(pBmp);
     }
@@ -77,13 +82,8 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
     ScopeTimer timer(ProfilingZoneTotal);
     {
         ScopeTimer timer(ProfilingZoneInputCopy);
-        unsigned char * pBmpPixels = pSrcBmp->getPixels();
-        int stride = pSrcBmp->getStride();
-        for (int y=0; y<m_Size.y; ++y) {
-            for (int x=0; x<m_Size.x; ++x) {
-                m_pInData[m_Size.x*y + x] = pBmpPixels[stride*y + x];
-            }
-        }
+        copyBmpToFloatBuffer(pSrcBmp, m_pInData);
+
     }
 
     {
@@ -93,18 +93,18 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 
     for (unsigned i=0; i<m_Frequencies.size(); ++i) {
         ScopeTimer timer(ProfilingZoneBandpass);
+        float maxRadius;
         {
             ScopeTimer timer(ProfilingZoneFreqCalc);
             float cutoffFreq = m_Frequencies[i];
             float minRadius = cutoffFreq*cutoffFreq;
-            if (i>0) {
-                cutoffFreq = m_Frequencies[i-1];
+            if (i<m_Frequencies.size()-1) {
+                cutoffFreq = m_Frequencies[i+1];
             } else {
-                cutoffFreq = 0;
+                cutoffFreq = m_Size.x/2;
             }
-            float maxRadius = cutoffFreq*cutoffFreq;
-            float xmult = 1.f/(m_Size.x*m_Size.x);
-            float ymult = 1.f/(m_Size.y*m_Size.y);
+            maxRadius = cutoffFreq*cutoffFreq;
+            float ymult = (m_Size.x*m_Size.x)/(m_Size.y*m_Size.y);
             int stride = getFreqStride();
             for (int y=0; y<m_Size.y; ++y) {
                 int fy = y;
@@ -113,8 +113,8 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
                 }
                 for (int x=0; x<stride; ++x) {
                     int offset = y*stride + x;
-                    float radius = fy*fy*ymult + x*x*xmult;
-                    if (radius > minRadius && radius < maxRadius) {
+                    float radius = fy*fy*ymult + x*x;
+                    if (radius >= minRadius && radius < maxRadius) {
                         m_pBPFreqData[offset][0] = m_pFreqData[offset][0];
                         m_pBPFreqData[offset][1] = m_pFreqData[offset][1];
                     } else {
@@ -131,7 +131,9 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 
         {
             ScopeTimer timer(ProfilingZoneCopyOutput);
-            float scale = 1.f/(m_Size.x*m_Size.y);
+            float sizeScale = 1.f/(m_Size.x*m_Size.y);
+            float bandpassScale = (m_Size.x*m_Size.x) / (4*maxRadius);
+            float scale = sizeScale * bandpassScale;
             BitmapPtr pBandpassBmp = m_pBPBmps[i];
             unsigned char * pBmpPixels = pBandpassBmp->getPixels();
             int stride = pBandpassBmp->getStride();
@@ -164,6 +166,18 @@ BitmapPtr FreqFilter::getFreqImage() const
 BitmapPtr FreqFilter::getBandpassImage(int i) const
 {
     return m_pBPBmps[i];
+}
+    
+void FreqFilter::copyBmpToFloatBuffer(BitmapPtr pBmp, float* pBuffer)
+{
+    unsigned char * pBmpPixels = pBmp->getPixels();
+    int stride = pBmp->getStride();
+    IntPoint size = pBmp->getSize();
+    for (int y=0; y<size.y; ++y) {
+        for (int x=0; x<size.x; ++x) {
+            pBuffer[size.x*y + x] = pBmpPixels[stride*y + x];
+        }
+    }
 }
 
 int FreqFilter::getFreqStride() const
