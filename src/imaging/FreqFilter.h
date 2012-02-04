@@ -40,6 +40,9 @@ private:
     void copyBmpToFloatBuffer(BitmapPtr pSrcBmp, float* pBuffer);
     void doFreqDomainBandpass(const fftwf_complex * pInBuffer,
             fftwf_complex * pOutBuffer, float minFreq, float maxFreq);
+    void doFreqDomainLowpass(const fftwf_complex * pInBuffer, fftwf_complex * pOutBuffer,
+            float freq);
+    BitmapPtr cvtFreqDataToBmp(fftwf_complex * pFreqData) const;
 
     int getFreqStride() const;
 
@@ -52,7 +55,7 @@ private:
     BitmapPtr m_FreqImage;
     float* m_pInData;
     fftwf_complex * m_pFreqData;
-    fftwf_complex * m_pBPFreqData;
+    std::vector<fftwf_complex *> m_pBPFreqData;
     float* m_pBPData;     // Bandpass data
 };
 
