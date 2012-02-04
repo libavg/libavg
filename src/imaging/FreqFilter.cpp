@@ -83,7 +83,6 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
     {
         ScopeTimer timer(ProfilingZoneInputCopy);
         copyBmpToFloatBuffer(pSrcBmp, m_pInData);
-
     }
 
     {
@@ -93,36 +92,15 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 
     for (unsigned i=0; i<m_Frequencies.size(); ++i) {
         ScopeTimer timer(ProfilingZoneBandpass);
-        float maxRadius;
         {
             ScopeTimer timer(ProfilingZoneFreqCalc);
-            float cutoffFreq = m_Frequencies[i];
-            float minRadius = cutoffFreq*cutoffFreq;
+            float maxFreq;
             if (i<m_Frequencies.size()-1) {
-                cutoffFreq = m_Frequencies[i+1];
+                maxFreq = m_Frequencies[i+1];
             } else {
-                cutoffFreq = m_Size.x/2;
+                maxFreq = m_Size.x/2;
             }
-            maxRadius = cutoffFreq*cutoffFreq;
-            float ymult = (m_Size.x*m_Size.x)/(m_Size.y*m_Size.y);
-            int stride = getFreqStride();
-            for (int y=0; y<m_Size.y; ++y) {
-                int fy = y;
-                if (fy > m_Size.y/2) {
-                    fy -= m_Size.y;
-                }
-                for (int x=0; x<stride; ++x) {
-                    int offset = y*stride + x;
-                    float radius = fy*fy*ymult + x*x;
-                    if (radius >= minRadius && radius < maxRadius) {
-                        m_pBPFreqData[offset][0] = m_pFreqData[offset][0];
-                        m_pBPFreqData[offset][1] = m_pFreqData[offset][1];
-                    } else {
-                        m_pBPFreqData[offset][0] = 0.f;
-                        m_pBPFreqData[offset][1] = 0.f;
-                    }
-                }
-            }
+            doFreqDomainBandpass(m_pFreqData, m_pBPFreqData, m_Frequencies[i], maxFreq);
         }
         {
             ScopeTimer timer(ProfilingZoneIFFT);
@@ -132,7 +110,7 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
         {
             ScopeTimer timer(ProfilingZoneCopyOutput);
             float sizeScale = 1.f/(m_Size.x*m_Size.y);
-            float bandpassScale = (m_Size.x*m_Size.x) / (4*maxRadius);
+            float bandpassScale = 1.f; // (m_Size.x*m_Size.x) / (4*maxRadius);
             float scale = sizeScale * bandpassScale;
             BitmapPtr pBandpassBmp = m_pBPBmps[i];
             unsigned char * pBmpPixels = pBandpassBmp->getPixels();
@@ -176,6 +154,32 @@ void FreqFilter::copyBmpToFloatBuffer(BitmapPtr pBmp, float* pBuffer)
     for (int y=0; y<size.y; ++y) {
         for (int x=0; x<size.x; ++x) {
             pBuffer[size.x*y + x] = pBmpPixels[stride*y + x];
+        }
+    }
+}
+
+void FreqFilter::doFreqDomainBandpass(const fftwf_complex * pInBuffer,
+        fftwf_complex * pOutBuffer, float minFreq, float maxFreq)
+{
+    float minRadius = minFreq*minFreq;
+    float maxRadius = maxFreq*maxFreq;
+    float ymult = (m_Size.x*m_Size.x)/(m_Size.y*m_Size.y);
+    int stride = getFreqStride();
+    for (int y=0; y<m_Size.y; ++y) {
+        int fy = y;
+        if (fy > m_Size.y/2) {
+            fy -= m_Size.y;
+        }
+        for (int x=0; x<stride; ++x) {
+            int offset = y*stride + x;
+            float radius = fy*fy*ymult + x*x;
+            if (radius >= minRadius && radius < maxRadius) {
+                pOutBuffer[offset][0] = pInBuffer[offset][0];
+                pOutBuffer[offset][1] = pInBuffer[offset][1];
+            } else {
+                pOutBuffer[offset][0] = 0.f;
+                pOutBuffer[offset][1] = 0.f;
+            }
         }
     }
 }

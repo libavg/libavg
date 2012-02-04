@@ -38,6 +38,8 @@ public:
 
 private:
     void copyBmpToFloatBuffer(BitmapPtr pSrcBmp, float* pBuffer);
+    void doFreqDomainBandpass(const fftwf_complex * pInBuffer,
+            fftwf_complex * pOutBuffer, float minFreq, float maxFreq);
 
     int getFreqStride() const;
 
