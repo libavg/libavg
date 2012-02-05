@@ -23,6 +23,7 @@
 
 #include "../player/BoostPython.h"
 
+#include "../imaging/FreqFilter.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapManager.h"
 #include "../base/CubicSpline.h"
@@ -162,6 +163,15 @@ void export_bitmap()
         .staticmethod("get")
         .def("loadBitmap", &BitmapManager::loadBitmap)
     ;
+
+    class_<FreqFilter, boost::noncopyable>("CubicSpline", no_init)
+        .def(init<const IntPoint&, const std::vector<float>&>())
+        .def("filterImage", &FreqFilter::filterImage)
+        .def("getFreqImage", &FreqFilter::getFreqImage)
+        .def("getFreqBPImage", &FreqFilter::getFreqBPImage)
+        .def("getBandpassImage", &FreqFilter::getBandpassImage)
+    ;
+
 
     class_<CubicSpline, boost::noncopyable>("CubicSpline", no_init)
         .def(init<const vector<glm::vec2>&>())

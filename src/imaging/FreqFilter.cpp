@@ -55,6 +55,7 @@ FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequenci
         }
         BitmapPtr pBmp(new Bitmap(m_Size, I8));
         m_pBPBmps.push_back(pBmp);
+        m_pBPFreqBmps.push_back(BitmapPtr());
     }
 }
 
@@ -98,6 +99,7 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
         {
             ScopeTimer timer(ProfilingZoneFreqCalc);
             doFreqDomainLowpass(m_pFreqData, m_pBPFreqData[i], m_Frequencies[i]);
+            m_pBPFreqBmps[i] = cvtFreqDataToBmp(m_pBPFreqData[i]);
         }
         {
             ScopeTimer timer(ProfilingZoneIFFT);
@@ -125,6 +127,11 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 BitmapPtr FreqFilter::getFreqImage() const
 {
     return cvtFreqDataToBmp(m_pFreqData);
+}
+
+BitmapPtr FreqFilter::getFreqBPImage(int i) const
+{
+    return m_pBPFreqBmps[i];
 }
 
 BitmapPtr FreqFilter::getBandpassImage(int i) const
@@ -174,7 +181,7 @@ void FreqFilter::doFreqDomainLowpass(const fftwf_complex * pInBuffer,
         fftwf_complex * pOutBuffer, float freq)
 {
     float radius2 = freq*freq;
-    float ymult = (m_Size.x*m_Size.x)/(m_Size.y*m_Size.y);
+    float ymult = float(m_Size.x*m_Size.x)/(m_Size.y*m_Size.y);
     int stride = getFreqStride();
     for (int y=0; y<m_Size.y; ++y) {
         int fy = y;

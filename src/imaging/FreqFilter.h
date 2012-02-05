@@ -34,6 +34,7 @@ public:
     virtual ~FreqFilter();
     void filterImage(BitmapPtr pSrcBmp);
     BitmapPtr getFreqImage() const;
+    BitmapPtr getFreqBPImage(int i) const;
     BitmapPtr getBandpassImage(int i) const;
 
 private:
@@ -49,10 +50,10 @@ private:
     IntPoint m_Size;
     std::vector<float> m_Frequencies;
     std::vector<BitmapPtr> m_pBPBmps;
+    std::vector<BitmapPtr> m_pBPFreqBmps;
 
     fftwf_plan m_fftPlan;
     fftwf_plan m_ifftPlan;
-    BitmapPtr m_FreqImage;
     float* m_pInData;
     fftwf_complex * m_pFreqData;
     std::vector<fftwf_complex *> m_pBPFreqData;

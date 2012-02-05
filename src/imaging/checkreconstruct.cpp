@@ -42,6 +42,8 @@ void filterImage(const string& fName)
 
     BitmapPtr pFreqBmp = f.getFreqImage();
     pFreqBmp->save("resultimages/"+fName+"_freq.png");
+    pFreqBmp = f.getFreqBPImage(0);
+    pFreqBmp->save("resultimages/"+fName+"_freq_lp.png");
     for (int i=0; i<4; ++i) {
         BitmapPtr pDestBmp = f.getBandpassImage(i);
         pDestBmp->save("resultimages/"+fName+"_"+toString(i)+".png");
@@ -71,12 +73,12 @@ int main(int nargs, char** args)
 //    benchmark();
 
     cerr << "Generating test images..." << endl;
-//    filterImage("spike");
-//    filterImage("spike_rect");
+    filterImage("spike");
+    filterImage("spike_rect");
     filterImage("rgb24-64x64");
-//    filterImage("screenshot-000");
-//    filterImage("screenshot-001");
-//    filterImage("screenshot-002");
-//    filterImage("screenshot-003");
+    filterImage("screenshot-000");
+    filterImage("screenshot-001");
+    filterImage("screenshot-002");
+    filterImage("screenshot-003");
 }
 
