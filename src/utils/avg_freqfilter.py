@@ -74,8 +74,8 @@ class FreqFilter(AVGApp):
                 parent=self._parentNode)
 
         size = (g_options.width, g_options.height)
-        self.filter = avg.FreqFilter(size, [10,20])
-
+        self.filter = avg.FreqFilter(size)
+        self.filter.setFrequencies((10, 20))
         g_Player.setOnFrameHandler(self.__onFrame)
         g_Player.setTimeout(100, self.checkCamera)
 

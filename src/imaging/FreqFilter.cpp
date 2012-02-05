@@ -33,9 +33,8 @@ using namespace std;
 
 namespace avg {
 
-FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequencies)
-    : m_Size(size),
-      m_Frequencies(frequencies)
+FreqFilter::FreqFilter(const IntPoint& size)
+    : m_Size(size)
 {
 
     m_pInData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
@@ -46,17 +45,6 @@ FreqFilter::FreqFilter(const IntPoint& size, const std::vector<float>& frequenci
     m_pBPData = (float*) fftwf_malloc(sizeof(float) * size.x * size.y);
     m_ifftPlan = fftwf_plan_dft_c2r_2d(size.y, size.x, m_pFreqData, m_pBPData,
             FFTW_MEASURE);
-    for (unsigned i=0; i<m_Frequencies.size(); ++i) {
-        m_pBPFreqData.push_back((fftwf_complex*) fftwf_malloc(
-                sizeof(fftwf_complex) * size.y * getFreqStride()));
-        if (m_Frequencies[i] > m_Size.x/2 || m_Frequencies[i] > m_Size.y/2) {
-            throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                    "Frequency " + toString(m_Frequencies[i]) + " > half of image size.");        
-        }
-        BitmapPtr pBmp(new Bitmap(m_Size, I8));
-        m_pBPBmps.push_back(pBmp);
-        m_pBPFreqBmps.push_back(BitmapPtr());
-    }
 }
 
 FreqFilter::~FreqFilter()
@@ -65,14 +53,17 @@ FreqFilter::~FreqFilter()
     fftwf_destroy_plan(m_ifftPlan);
     fftwf_free(m_pInData);
     fftwf_free(m_pFreqData);
-    for (unsigned i=0; i<m_pBPFreqData.size(); ++i) {
-        fftwf_free(m_pBPFreqData[i]);
-    }
-    m_pBPFreqData.clear();
+    deletePerBandData();
+}
+
+void FreqFilter::setFrequencies(const std::vector<float>& frequencies)
+{
+    deletePerBandData();
+    m_Frequencies = frequencies;
+    setupPerBandData();
 }
 
 static ProfilingZoneID ProfilingZoneTotal("Total");
-
 static ProfilingZoneID ProfilingZoneInputCopy("Copy input data");
 static ProfilingZoneID ProfilingZoneFFT("Forward FFT");
 static ProfilingZoneID ProfilingZoneBandpass("Bandpass");
@@ -139,6 +130,32 @@ BitmapPtr FreqFilter::getBandpassImage(int i) const
     return m_pBPBmps[i];
 }
     
+void FreqFilter::setupPerBandData()
+{
+    for (unsigned i=0; i<m_Frequencies.size(); ++i) {
+        m_pBPFreqData.push_back((fftwf_complex*) fftwf_malloc(
+                sizeof(fftwf_complex) * m_Size.y * getFreqStride()));
+        if (m_Frequencies[i] > m_Size.x/2 || m_Frequencies[i] > m_Size.y/2) {
+            cerr << i << ", " << m_Frequencies[i] << ", " << m_Size << endl;
+            throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                    "Frequency " + toString(m_Frequencies[i]) + " > half of image size.");        
+        }
+        BitmapPtr pBmp(new Bitmap(m_Size, I8));
+        m_pBPBmps.push_back(pBmp);
+        m_pBPFreqBmps.push_back(BitmapPtr());
+    }
+}
+
+void FreqFilter::deletePerBandData()
+{
+    for (unsigned i=0; i<m_pBPFreqData.size(); ++i) {
+        fftwf_free(m_pBPFreqData[i]);
+    }
+    m_pBPFreqData.clear();
+    m_pBPBmps.clear();
+    m_pBPFreqBmps.clear();
+}
+
 void FreqFilter::copyBmpToFloatBuffer(BitmapPtr pBmp, float* pBuffer)
 {
     unsigned char * pBmpPixels = pBmp->getPixels();

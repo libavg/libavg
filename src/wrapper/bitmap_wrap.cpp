@@ -165,7 +165,8 @@ void export_bitmap()
     ;
 
     class_<FreqFilter, boost::noncopyable>("FreqFilter", no_init)
-        .def(init<const IntPoint&, const std::vector<float>&>())
+        .def(init<const IntPoint&>())
+        .def("setFrequencies", &FreqFilter::setFrequencies)
         .def("filterImage", &FreqFilter::filterImage)
         .def("getFreqImage", &FreqFilter::getFreqImage)
         .def("getFreqBPImage", &FreqFilter::getFreqBPImage)

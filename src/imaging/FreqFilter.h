@@ -30,14 +30,18 @@ namespace avg {
 
 class FreqFilter {
 public:
-    FreqFilter(const IntPoint& size, const std::vector<float>& frequencies);
+    FreqFilter(const IntPoint& size);
     virtual ~FreqFilter();
+    void setFrequencies(const std::vector<float>& frequencies);
     void filterImage(BitmapPtr pSrcBmp);
     BitmapPtr getFreqImage() const;
     BitmapPtr getFreqBPImage(int i) const;
     BitmapPtr getBandpassImage(int i) const;
 
 private:
+    void setupPerBandData();
+    void deletePerBandData();
+
     void copyBmpToFloatBuffer(BitmapPtr pSrcBmp, float* pBuffer);
     void doFreqDomainBandpass(const fftwf_complex * pInBuffer,
             fftwf_complex * pOutBuffer, float minFreq, float maxFreq);

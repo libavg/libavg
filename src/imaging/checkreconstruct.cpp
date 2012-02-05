@@ -36,8 +36,9 @@ void filterImage(const string& fName)
     BitmapPtr pSrcBmp(new Bitmap("testfiles/"+fName+".png"));
     FilterGrayscale().applyInPlace(pSrcBmp);
     pSrcBmp->save("resultimages/"+fName+"_orig.png");
-    float frequencies[4] = {5, 10, 15, 20}; 
-    FreqFilter f(pSrcBmp->getSize(), vectorFromCArray(4, frequencies));
+    FreqFilter f(pSrcBmp->getSize());
+    float frequencies[4] = {5, 10, 12, 15}; 
+    f.setFrequencies(vectorFromCArray(4, frequencies));
     f.filterImage(pSrcBmp);
 
     BitmapPtr pFreqBmp = f.getFreqImage();
@@ -54,8 +55,9 @@ void benchmark()
 {
     cerr << "Performing setup..." << endl;
     BitmapPtr pSrcBmp(new Bitmap("testfiles/screenshot-000.png"));
+    FreqFilter f(pSrcBmp->getSize());
     float frequencies[4] = {1,2,3,4}; 
-    FreqFilter f(pSrcBmp->getSize(), vectorFromCArray(4, frequencies));
+    f.setFrequencies(vectorFromCArray(4, frequencies));
     cerr << "Benchmarking..." << endl;
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
     pProfiler->start();
