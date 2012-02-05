@@ -23,78 +23,12 @@
 
 import optparse
 from libavg import avg, AVGApp
-from libavg.ui import button
+from libavg.ui import simple
 from libavg import parsecamargs
 
 GUI_SIZE=(300, 200)
 
 g_Player = avg.Player.get()
-
-class Slider(avg.DivNode):
-    def __init__(self, width, min, max, onChange, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
-        self.__onChange = onChange
-        self.size = (width, 20)
-        self.__min = min
-        self.__max = max
-        self.__val = min
-        avg.LineNode(pos1=(7,14), pos2=(width-7,14), color="FFFFFF", strokewidth=2, 
-                parent=self)
-        self.__slider = avg.DivNode(pos=(0,0), size=(14,20), parent=self)
-        avg.PolygonNode(pos=((1,0), (13,0), (7,18)), fillopacity=1, fillcolor="FFFFFF",
-                color="808080", parent=self.__slider)
-        self.__slider.setEventHandler(avg.CURSORDOWN, avg.MOUSE, 
-                self.__onSliderDown)
-        self.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onBarDown)
-        self.__isDragging = False
-
-    def getVal(self):
-        return self.__val
-
-    def setVal(self, val):
-        self.__val = val
-        self.__positionSlider()
-
-    val = property(getVal, setVal)
-
-    def __onSliderDown(self, event):
-        self.__slider.setEventCapture()
-        self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__onSliderMove)
-        self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onSliderUp)
-        self.__sliderDownPos = event.pos
-        self.__isDragging = True
-        self.__dragStartVal = self.__val
-
-    def __onSliderMove(self, event):
-        numPixelsMoved = float(event.pos.x-self.__sliderDownPos.x)
-        self.__val = (self.__dragStartVal+numPixelsMoved/(self.size.x-14)
-                *(self.__max-self.__min))
-        self.__positionSlider()
-
-    def __onSliderUp(self, event):
-        self.__onSliderMove(event)
-        self.__slider.releaseEventCapture()
-        self.__slider.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None)
-        self.__slider.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-        self.__isDragging = False
-
-    def __onBarDown(self, event):
-        if not(self.__isDragging):
-            localPos = self.getRelPos(event.pos)
-            ratio = (localPos.x-7)/(self.size.x-14)
-            self.__val = self.__min+ratio*(self.__max-self.__min)
-            print localPos, ", ", ratio, ", ", self.__val
-            self.__positionSlider()
-
-    def __positionSlider(self):
-        if self.__val < self.__min:
-            self.__val = self.__min
-        elif self.__val > self.__max:
-            self.__val = self.__max
-        ratio = ((self.__val-self.__min)/(self.__max-self.__min))
-        self.__slider.pos = (ratio*(self.size.x-14), 0)
-        self.__onChange()
-
 
 class FXSlider(avg.DivNode):
     def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, **kwargs):
@@ -106,7 +40,7 @@ class FXSlider(avg.DivNode):
         caption = avg.WordsNode(pos=(10,0), text=caption, parent=self)
         textBgRect.size = caption.getMediaSize()+(4, 2)
         self.__words = avg.WordsNode(pos=(240,23), parent=self)
-        self.__slider = Slider(220, min, max, self.__onSliderMove, pos=(15,20),
+        self.__slider = simple.Slider(220, min, max, self.__onSliderMove, pos=(15,20),
                 parent=self)
         self.pos = (0, row*46)
         self.__fxNode = fxNode
@@ -122,22 +56,6 @@ class FXSlider(avg.DivNode):
         else:
             setattr(self.__fxNode, self.__fxAttrName, self.__slider.val)
             self.__words.text = "%.2f"%self.__slider.val
-
-
-class TextButton(button.Button):
-    def __init__(self, text, **kwargs):
-        size = kwargs["size"]
-        upNode = avg.DivNode()
-        avg.RectNode(size=size, fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
-                parent=upNode)
-        avg.WordsNode(pos=(4,3), text=text, color="000000", parent=upNode)
-        downNode = avg.DivNode()
-        avg.RectNode(size=size, fillcolor="000000", fillopacity=1, color="FFFFFF",
-                parent=downNode)
-        avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
-        kwargs["upNode"] = upNode
-        kwargs["downNode"] = downNode
-        button.Button.__init__(self, **kwargs)
 
 
 def colorToString(colorTuple):
@@ -188,9 +106,9 @@ class Chromakey(AVGApp):
         FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
                 False, parent=self.__guiDiv)
 
-        TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
+        simple.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
                 clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
-        TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
+        simple.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
                 clickHandler=self.__dumpConfig, parent=self.__guiDiv)
 
         FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter", 
