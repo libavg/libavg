@@ -164,7 +164,7 @@ void export_bitmap()
         .def("loadBitmap", &BitmapManager::loadBitmap)
     ;
 
-    class_<FreqFilter, boost::noncopyable>("CubicSpline", no_init)
+    class_<FreqFilter, boost::noncopyable>("FreqFilter", no_init)
         .def(init<const IntPoint&, const std::vector<float>&>())
         .def("filterImage", &FreqFilter::filterImage)
         .def("getFreqImage", &FreqFilter::getFreqImage)
