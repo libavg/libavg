@@ -23,7 +23,7 @@
 
 import optparse
 from libavg import avg, AVGApp
-from libavg.ui import button, simple
+from libavg.ui import simple
 from libavg import parsecamargs
 
 GUI_SIZE=(300, 200)

@@ -23,7 +23,7 @@
 
 import optparse
 from libavg import avg, AVGApp, ui
-from libavg.ui import button, simple
+from libavg.ui import simple
 
 g_Player = avg.Player.get()
 
