@@ -32,7 +32,8 @@ class FreqFilter {
 public:
     FreqFilter(const IntPoint& size);
     virtual ~FreqFilter();
-    void setFrequencies(const std::vector<float>& frequencies);
+    void setFrequencies(const std::vector<float>& frequencies, 
+            const std::vector<float>& amplitudes);
     void filterImage(BitmapPtr pSrcBmp);
     BitmapPtr getFreqImage() const;
     BitmapPtr getFreqBPImage(int i) const;
@@ -53,6 +54,7 @@ private:
 
     IntPoint m_Size;
     std::vector<float> m_Frequencies;
+    std::vector<float> m_Amplitudes;
     std::vector<BitmapPtr> m_pBPBmps;
     std::vector<BitmapPtr> m_pBPFreqBmps;
 

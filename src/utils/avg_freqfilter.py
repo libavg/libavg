@@ -22,10 +22,10 @@
 #
 
 import optparse
-import time
 from libavg import avg
 from libavg import parsecamargs
 from libavg import AVGApp
+from libavg.ui import simple
 
 g_Log = avg.Logger.get()
 g_Player = avg.Player.get()
@@ -41,6 +41,30 @@ if g_options.driver is None:
     print
     print "ERROR: at least '--driver' must be specified"
     exit()
+
+
+class Slider(avg.DivNode):
+    def __init__(self, label, min, max, onChange, parent=None, **kwargs):
+        super(Slider, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
+        self.__slider = simple.Slider(pos=(50,0), width=200, min=min, max=max, 
+                onChange=self.__onChange, parent=self)
+        avg.WordsNode(text=label, pos=(0,5), parent=self)
+        self.__valNode = avg.WordsNode(text="", pos=(260,5), parent=self)
+        self.__changeCallback = onChange
+
+    def __onChange(self):
+        self.__valNode.text = str(int(self.__slider.val))
+        self.__changeCallback()
+        
+    def getVal(self):
+        return self.__slider.val
+
+    def setVal(self, val):
+        self.__slider.val = val
+
+    val = property(getVal, setVal)
 
 
 class FreqFilter(AVGApp):
@@ -73,9 +97,22 @@ class FreqFilter(AVGApp):
         self.bpNode = avg.ImageNode(pos=(10, 260), size=(640, 480),
                 parent=self._parentNode)
 
+        self.rightBox = avg.DivNode(pos=(680,10), parent=self._parentNode)
+        self.lowFreqSlider = Slider(label="low", min=0, max=50, 
+                onChange=self.__onLowFreqChange, parent=self.rightBox)
+        self.highFreqSlider = Slider(pos=(0, 50), label="high", min=0, max=50, 
+                onChange=self.__onHighFreqChange, parent=self.rightBox)
+        self.ampSlider = Slider(pos=(1, 90), label="amp", min=1, max=50, 
+                onChange=self.__onAmpChange, parent=self.rightBox)
+
         size = (g_options.width, g_options.height)
         self.filter = avg.FreqFilter(size)
-        self.filter.setFrequencies((10, 20))
+        self.frequencies = [10,20]
+        self.amp = [1,1]
+        self.filter.setFrequencies(self.frequencies, self.amp)
+        self.lowFreqSlider.val = self.frequencies[0]
+        self.highFreqSlider.val = self.frequencies[1]
+        self.ampSlider.val = self.amp[0]
         g_Player.setOnFrameHandler(self.__onFrame)
         g_Player.setTimeout(100, self.checkCamera)
 
@@ -87,10 +124,22 @@ class FreqFilter(AVGApp):
     def __onFrame(self):
         srcBmp = self.camNode.getBitmap()
         self.filter.filterImage(srcBmp)
-        freqBPBmp = self.filter.getFreqBPImage(0)
+        freqBPBmp = self.filter.getFreqBPImage(1)
         self.freqBPNode.setBitmap(freqBPBmp)
-        bpBmp = self.filter.getBandpassImage(0)
+        bpBmp = self.filter.getBandpassImage(1)
         self.bpNode.setBitmap(bpBmp)
+
+    def __onLowFreqChange(self):
+        self.frequencies[0] = self.lowFreqSlider.val
+        self.filter.setFrequencies(self.frequencies, self.amp)
+
+    def __onHighFreqChange(self):
+        self.frequencies[1] = self.highFreqSlider.val
+        self.filter.setFrequencies(self.frequencies, self.amp)
+
+    def __onAmpChange(self):
+        self.amp = [self.ampSlider.val, self.ampSlider.val]
+        self.filter.setFrequencies(self.frequencies, self.amp)
 
 
 FreqFilter.start(resolution=(1024, 768))

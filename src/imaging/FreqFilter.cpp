@@ -56,10 +56,16 @@ FreqFilter::~FreqFilter()
     deletePerBandData();
 }
 
-void FreqFilter::setFrequencies(const std::vector<float>& frequencies)
+void FreqFilter::setFrequencies(const vector<float>& frequencies,
+        const vector<float>& amplitudes)
 {
+    if (frequencies.size() != amplitudes.size()) {
+        throw Exception(AVG_ERR_INVALID_ARGS, 
+                "frequency and amplitude arrays must have same size");
+    }
     deletePerBandData();
     m_Frequencies = frequencies;
+    m_Amplitudes = amplitudes;
     setupPerBandData();
 }
 
@@ -89,7 +95,12 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
         ScopeTimer timer(ProfilingZoneBandpass);
         {
             ScopeTimer timer(ProfilingZoneFreqCalc);
-            doFreqDomainLowpass(m_pFreqData, m_pBPFreqData[i], m_Frequencies[i]);
+            if (i==0) {
+                doFreqDomainLowpass(m_pFreqData, m_pBPFreqData[i], m_Frequencies[i]);
+            } else {
+                doFreqDomainBandpass(m_pFreqData, m_pBPFreqData[i],
+                        m_Frequencies[i-1], m_Frequencies[i]);
+            }
             m_pBPFreqBmps[i] = cvtFreqDataToBmp(m_pBPFreqData[i]);
         }
         {
@@ -100,7 +111,7 @@ void FreqFilter::filterImage(BitmapPtr pSrcBmp)
         {
             ScopeTimer timer(ProfilingZoneCopyOutput);
             float sizeScale = 1.f/(m_Size.x*m_Size.y);
-            float bandpassScale = 1.f; // (m_Size.x*m_Size.x) / (4*maxRadius);
+            float bandpassScale = m_Amplitudes[i];
             float scale = sizeScale * bandpassScale;
             BitmapPtr pBandpassBmp = m_pBPBmps[i];
             unsigned char * pBmpPixels = pBandpassBmp->getPixels();
