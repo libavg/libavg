@@ -58,22 +58,6 @@ class FXSlider(avg.DivNode):
             self.__words.text = "%.2f"%self.__slider.val
 
 
-class TextButton(button.Button):
-    def __init__(self, text, **kwargs):
-        size = kwargs["size"]
-        upNode = avg.DivNode()
-        avg.RectNode(size=size, fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
-                parent=upNode)
-        avg.WordsNode(pos=(4,3), text=text, color="000000", parent=upNode)
-        downNode = avg.DivNode()
-        avg.RectNode(size=size, fillcolor="000000", fillopacity=1, color="FFFFFF",
-                parent=downNode)
-        avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
-        kwargs["upNode"] = upNode
-        kwargs["downNode"] = downNode
-        button.Button.__init__(self, **kwargs)
-
-
 def colorToString(colorTuple):
     s = "%02X%02X%02X"%colorTuple[:-1]
     return s
@@ -122,9 +106,9 @@ class Chromakey(AVGApp):
         FXSlider(6, 0.0, 1.0, self.__filter, "spillthreshold", "Spill Suppression", 
                 False, parent=self.__guiDiv)
 
-        TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
+        simple.TextButton(pos=(0,332), text="Whitebalance", size=(100,22), 
                 clickHandler=self.__onWhitebalance, parent=self.__guiDiv)
-        TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
+        simple.TextButton(pos=(110,332), text="Dump Config", size=(100,22), 
                 clickHandler=self.__dumpConfig, parent=self.__guiDiv)
 
         FXSlider(9, 0, 500, self.__camNode, "shutter", "Shutter", 

@@ -18,7 +18,7 @@
 #
 # Current versions can be found at www.libavg.de
 
-from libavg import avg, statemachine, utils
+from libavg import avg
 from libavg.ui import button
 
 g_Player = avg.Player.get()
@@ -87,4 +87,20 @@ class Slider(avg.DivNode):
         ratio = ((self.__val-self.__min)/(self.__max-self.__min))
         self.__slider.pos = (ratio*(self.size.x-14), 0)
         self.__onChange()
+
+
+class TextButton(button.Button):
+    def __init__(self, text, **kwargs):
+        size = kwargs["size"]
+        upNode = avg.DivNode()
+        avg.RectNode(size=size, fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
+                parent=upNode)
+        avg.WordsNode(pos=(4,3), text=text, color="000000", parent=upNode)
+        downNode = avg.DivNode()
+        avg.RectNode(size=size, fillcolor="000000", fillopacity=1, color="FFFFFF",
+                parent=downNode)
+        avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
+        kwargs["upNode"] = upNode
+        kwargs["downNode"] = downNode
+        button.Button.__init__(self, **kwargs)
 

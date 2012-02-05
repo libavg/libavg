@@ -23,25 +23,9 @@
 
 import optparse
 from libavg import avg, AVGApp, ui
-from libavg.ui import button
+from libavg.ui import button, simple
 
 g_Player = avg.Player.get()
-
-class TextButton(button.Button):
-    def __init__(self, text, **kwargs):
-        size = kwargs["size"]
-        upNode = avg.DivNode()
-        avg.RectNode(size=size, fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
-                parent=upNode)
-        avg.WordsNode(pos=(4,3), text=text, color="000000", parent=upNode)
-        downNode = avg.DivNode()
-        avg.RectNode(size=size, fillcolor="000000", fillopacity=1, color="FFFFFF",
-                parent=downNode)
-        avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
-        kwargs["upNode"] = upNode
-        kwargs["downNode"] = downNode
-        button.Button.__init__(self, **kwargs)
-
 
 class ControlPoint(avg.CircleNode):
     def __init__(self, moveCallback, parent, *args, **kwargs):
@@ -67,11 +51,11 @@ class SplineEditor(AVGApp):
         global anchors
         self.__buttonDiv = avg.DivNode(pos=(630,20), parent=self._parentNode)
 
-        TextButton(pos=(0,0), text="Add Point", size=(150,22), 
+        simple.TextButton(pos=(0,0), text="Add Point", size=(150,22), 
                 clickHandler=self.__onAddPoint, parent=self.__buttonDiv)
-        TextButton(pos=(0,30), text="Delete Point", size=(150,22), 
+        simple.TextButton(pos=(0,30), text="Delete Point", size=(150,22), 
                 clickHandler=self.__onDeletePoint, parent=self.__buttonDiv)
-        TextButton(pos=(0,60), text="Dump to Console", size=(150,22), 
+        simple.TextButton(pos=(0,60), text="Dump to Console", size=(150,22), 
                 clickHandler=self.__onDump, parent=self.__buttonDiv)
 
         self.__anchors = anchors
