@@ -35,5 +35,5 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
                 @DC1394_2_LIBS@ @GLU_LIBS@ $(XI2_1_LIBS) $(XI2_2_LIBS) \
                 $(ALL_GL_LIBS) @LIBFFMPEG@ @PTHREAD_LIBS@ \
-                @GDK_PIXBUF_LIBS@ @FONTCONFIG_LIBS@
+                @GDK_PIXBUF_LIBS@ @FONTCONFIG_LIBS@ -lfftw3f
 
