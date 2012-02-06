@@ -28,6 +28,7 @@ from libavg.ui import simple
 g_Player = avg.Player.get()
 
 class ControlPoint(avg.CircleNode):
+
     def __init__(self, moveCallback, parent, *args, **kwargs):
         super(ControlPoint, self).__init__(**kwargs)
         if parent:
@@ -42,8 +43,8 @@ class ControlPoint(avg.CircleNode):
 
     def __onMove(self, event, offset):
         self.pos = self.__dragStartPos + offset
-        self.__moveCallback(self.pos)
-#        moveNodeOnScreen(self)
+        self.pos = self.__moveCallback(self.pos)
+
 
 class SplineEditor(AVGApp):
    
@@ -72,12 +73,27 @@ class SplineEditor(AVGApp):
             self.__controlPoints.append(controlPoint)
 
     def moveAnchor(self, i, pos):
-        self.__anchors[i] = self.__cvtNode2SplineCoords(pos)
+        anchor = self.__cvtNode2SplineCoords(pos)
+        if i == 0:
+            anchor.x = self.__anchors[0].x
+            self.__anchors[-1].y = anchor.y
+            self.__controlPoints[-1].pos = self.__cvtSpline2NodeCoords(self.__anchors[-1])
+        elif i == len(self.__anchors) - 1:
+            anchor.x = self.__anchors[-1].x
+            self.__anchors[0].y = anchor.y
+            self.__controlPoints[0].pos = self.__cvtSpline2NodeCoords(self.__anchors[0])
+        else:
+            if anchor.x >= self.__anchors[i+1].x:
+                anchor.x = self.__anchors[i+1].x - 0.01
+            elif anchor.x <= self.__anchors[i-1].x:
+                anchor.x = self.__anchors[i-1].x + 0.01
+           
+        self.__anchors[i] = anchor
         self.__genCurve()
+        return self.__cvtSpline2NodeCoords(anchor)
 
     def __genCurve(self):
-        anchors = sorted(self.__anchors, key=lambda pos: pos[0])
-        self.__spline = avg.CubicSpline(anchors, False)
+        self.__spline = avg.CubicSpline(self.__anchors, False)
         pts = []
         minPos, maxPos = self.__getMinMaxVal()
         xscale = (maxPos.x - minPos.x)/600
@@ -136,8 +152,8 @@ except:
   
 if typeOk:
     try:  
-        for anchor in anchors:
-            pt = avg.Point2D(anchor)
+        for i, anchor in enumerate(anchors):
+            anchors[i] = avg.Point2D(anchor)
     except:
         typeOk = False
         
