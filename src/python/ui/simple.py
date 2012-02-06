@@ -24,8 +24,10 @@ from libavg.ui import button
 g_Player = avg.Player.get()
 
 class Slider(avg.DivNode):
-    def __init__(self, width, min, max, onChange, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+    def __init__(self, width, min, max, onChange, parent=None, **kwargs):
+        super(Slider, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
         self.__onChange = onChange
         self.size = (width, 20)
         self.__min = min
@@ -84,7 +86,7 @@ class Slider(avg.DivNode):
             self.__val = self.__min
         elif self.__val > self.__max:
             self.__val = self.__max
-        ratio = ((self.__val-self.__min)/(self.__max-self.__min))
+        ratio = (float(self.__val-self.__min)/(self.__max-self.__min))
         self.__slider.pos = (ratio*(self.size.x-14), 0)
         self.__onChange()
 
@@ -102,5 +104,5 @@ class TextButton(button.Button):
         avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
         kwargs["upNode"] = upNode
         kwargs["downNode"] = downNode
-        button.Button.__init__(self, **kwargs)
+        super(TextButton, self).__init__(**kwargs)
 
