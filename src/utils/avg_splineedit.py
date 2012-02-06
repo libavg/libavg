@@ -145,6 +145,7 @@ class SplineEditor(AVGApp):
             i = self.__curCtlPt
             if i == len(self.__anchors)-1:
                 i -= 1
+                self.__curCtlPt += 1
             pos = (self.__anchors[i] + self.__anchors[i+1]) / 2
             self.__anchors.insert(i+1, pos)
             controlPoint = self.__createControlPoint(i+1, pos)
@@ -152,7 +153,13 @@ class SplineEditor(AVGApp):
             self.__genCurve()
 
     def __onDeletePoint(self, event):
-        pass
+        i = self.__curCtlPt
+        if i is not None and i != 0 and i != len(self.__anchors)-1:
+            self.__anchors.pop(i)
+            controlPoint = self.__controlPoints.pop(i)
+            controlPoint.unlink(True)
+            self.__genCurve()
+            self.__curCtlPt = None
     
     def __onDump(self, event):
         pass
