@@ -33,7 +33,7 @@ class ControlPoint(avg.DivNode):
         super(ControlPoint, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
-        avg.CircleNode(r=15, parent=self)
+        self.__circle = avg.CircleNode(r=15, parent=self)
         self.__posText = avg.WordsNode(pos=(15,-15), parent=self)
         self.__updateLabel()
         ui.DragRecognizer(eventNode=self, detectedHandler=self.__onDetected,
@@ -50,12 +50,19 @@ class ControlPoint(avg.DivNode):
     __divPos = avg.DivNode.pos
     pos = property(getPos, setPos)
         
+    def setActive(self, active):
+        if active:
+            self.__circle.color = "00FF00"
+        else:
+            self.__circle.color = "FFFFFF"
+        
     def __onDetected(self, event):
         self.__dragStartPos = self.pos
-
+        self.pos = self.__moveCallback(self)
+        
     def __onMove(self, event, offset):
         self.pos = self.__dragStartPos + offset
-        self.pos = self.__moveCallback(self.pos)
+        self.pos = self.__moveCallback(self)
         self.__updateLabel()
     
     def __updateLabel(self):
@@ -92,12 +99,13 @@ class SplineEditor(AVGApp):
         self.__controlPoints = []
         
         for i, anchor in enumerate(self.__anchors):
-            controlPoint = ControlPoint(pos=self.cvtSpline2NodeCoords(anchor),
-                    moveCallback=lambda pos, i=i: self.moveAnchor(i, pos), 
-                    parent=self.__curveDiv)
+            controlPoint = self.__createControlPoint(i, anchor)
             self.__controlPoints.append(controlPoint)
+        self.__curCtlPt = None
 
-    def moveAnchor(self, i, pos):
+    def moveAnchor(self, controlPoint):
+        i = self.__controlPoints.index(controlPoint)
+        pos = controlPoint.pos
         anchor = self.cvtNode2SplineCoords(pos)
         if i == 0:
             anchor.x = self.__anchors[0].x
@@ -112,7 +120,12 @@ class SplineEditor(AVGApp):
                 anchor.x = self.__anchors[i+1].x - 0.01
             elif anchor.x <= self.__anchors[i-1].x:
                 anchor.x = self.__anchors[i-1].x + 0.01
-           
+        
+        if self.__curCtlPt is not None:
+            self.__controlPoints[self.__curCtlPt].setActive(False)
+        self.__curCtlPt = i
+        self.__controlPoints[self.__curCtlPt].setActive(True)
+        
         self.__anchors[i] = anchor
         self.__genCurve()
         return self.cvtSpline2NodeCoords(anchor)
@@ -128,13 +141,26 @@ class SplineEditor(AVGApp):
         self.__curve.pos = pts
 
     def __onAddPoint(self, event):
-        pass
+        if self.__curCtlPt is not None:
+            i = self.__curCtlPt
+            if i == len(self.__anchors)-1:
+                i -= 1
+            pos = (self.__anchors[i] + self.__anchors[i+1]) / 2
+            self.__anchors.insert(i+1, pos)
+            controlPoint = self.__createControlPoint(i+1, pos)
+            self.__controlPoints.insert(i+1, controlPoint)
+            self.__genCurve()
 
     def __onDeletePoint(self, event):
         pass
     
     def __onDump(self, event):
         pass
+
+    def __createControlPoint(self, i, anchor):
+        return ControlPoint(pos=self.cvtSpline2NodeCoords(anchor),
+                    moveCallback=self.moveAnchor, 
+                    parent=self.__curveDiv)
 
     def cvtSpline2NodeCoords(self, pos):
         minPos, maxPos = self.__getMinMaxVal()
