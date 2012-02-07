@@ -41,6 +41,13 @@ AC_SUBST(OBJCLDFLAGS)
 _AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
 
+if [[ $target_vendor = apple ]] && [[ -d "/opt/local" ]]; then
+    AC_MSG_RESULT([Macports detected. Adding include and lib search paths])
+    CFLAGS="$CFLAGS -I/opt/local/include"
+    CXXFLAGS="$CXXFLAGS -I/opt/local/include"
+    LDFLAGS="$LDFLAGS -L/opt/local/lib"
+fi
+
 AC_SEARCH_LIBS([clock_gettime],[rt])
 
 AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))

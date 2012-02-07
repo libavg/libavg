@@ -4,17 +4,25 @@ set -e
 
 if [[ `uname` = Darwin ]] 
 then
-    if [[ "$AVG_MAC_ENV_SET" -ne "1" ]]
+    if [[ -d /opt/local ]]
     then
-        echo Please source mac/avg_env.sh before calling bootstrap.
-        exit 5 
+        echo "Macports detected"
+        glibtoolize --copy --force
+        aclocal -I m4
+    else
+        if [[ "$AVG_MAC_ENV_SET" -ne "1" ]]
+        then
+            echo Please source mac/avg_env.sh before calling bootstrap.
+            exit 5 
+        fi
+        # This uses locally-installed libtoolize and automake since the
+        # apple-supplied one is buggy as of OS X 10.4.7
+        libtoolize --copy --force
+        aclocal -I m4
+        # Patch that fixes 'absolute addressing not allowed in slidable
+        # image' linker error.
+        patch < mac/libtool.m4.patch m4/libtool.m4
     fi
-    # This uses locally-installed libtoolize and automake since the apple-supplied one is buggy
-    # as of OS X 10.4.7
-    libtoolize --copy --force
-    aclocal -I m4
-    # Patch that fixes 'absolute addressing not allowed in slidable image' linker error.
-    patch < mac/libtool.m4.patch m4/libtool.m4 
 else
     libtoolize --copy --force
     aclocal -I m4
