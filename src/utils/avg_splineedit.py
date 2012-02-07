@@ -162,7 +162,12 @@ class SplineEditor(AVGApp):
             self.__curCtlPt = None
     
     def __onDump(self, event):
-        pass
+        print "[",
+        for anchor in self.__anchors:
+            if anchor != self.__anchors[-1]:
+                print "(%.2f, %.2f)," % (anchor.x, anchor.y),
+            else:
+                print "(%.2f, %.2f) ]" % (anchor.x, anchor.y)
 
     def __createControlPoint(self, i, anchor):
         return ControlPoint(pos=self.cvtSpline2NodeCoords(anchor),
