@@ -5,6 +5,13 @@ dnl Use this file to bump version on release
 m4_include([m4/avg_version.m4])
 
 AC_INIT(libavg, [VERSION_MAJOR.VERSION_MINOR.VERSION_MICRO], uzadow@libavg.de)
+
+dnl Hack to detect virtualenv
+if [[ x"$VIRTUAL_ENV" != "x" ]] && [[ $prefix = NONE ]]; then
+    prefix=$VIRTUAL_ENV
+    AC_MSG_RESULT([Virtualenv detected, setting prefix to $prefix])
+fi
+
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
