@@ -568,7 +568,7 @@ class WordsTestCase(AVGTestCase):
         
         def testSize(p1, p2):
             self.assert_(abs(p1.x - p2.x) < 5)
-            self.assert_(abs(p1.y - p2.y) < 5)
+            self.assert_(abs(p1.y - p2.y) < 20)
         
         testSize(textNode.size, avg.Point2D(630,13))
         testSize(textNode.getMediaSize(), avg.Point2D(630,13))
