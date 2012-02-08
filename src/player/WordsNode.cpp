@@ -94,7 +94,7 @@ NodeDefinition WordsNode::createDefinition()
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
         .addArg(Arg<float>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
-        .addArg(Arg<float>("linespacing", -1, false, offsetof(WordsNode, m_LineSpacing)))
+        .addArg(Arg<float>("linespacing", 0, false, offsetof(WordsNode, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
         .addArg(Arg<string>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false, false, offsetof(WordsNode, m_bJustify)))
@@ -619,9 +619,11 @@ void WordsNode::updateLayout()
                 pango_layout_set_tabs(m_pLayout, pTabs);
                 pango_tab_array_free(pTabs);
             }
-            if (m_LineSpacing != -1) {
-                pango_layout_set_spacing(m_pLayout, (int)(m_LineSpacing*PANGO_SCALE));
-            }
+#if PANGO_VERSION_CHECK(1,28,0)
+            pango_layout_set_spacing(m_pLayout, (int)((m_LineSpacing+1)*PANGO_SCALE));
+#else
+            pango_layout_set_spacing(m_pLayout, (int)(m_LineSpacing*PANGO_SCALE));
+#endif
             PangoRectangle logical_rect;
             PangoRectangle ink_rect;
             pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
@@ -649,9 +651,9 @@ void WordsNode::updateLayout()
             m_LogicalSize.y = logical_rect.height;
             m_LogicalSize.x = logical_rect.width;
             m_InkOffset = IntPoint(ink_rect.x-logical_rect.x, ink_rect.y-logical_rect.y);
-            if (m_LineSpacing == -1) {
-                m_LineSpacing = float(pango_layout_get_spacing(m_pLayout))/PANGO_SCALE;
-            }
+#if PANGO_VERSION_CHECK(1,28,0)
+            m_InkOffset.y += 1;
+#endif
             m_RedrawState = RENDER_NEEDED;
             setViewport(-32767, -32767, -32767, -32767);
         }
