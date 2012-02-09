@@ -53,10 +53,12 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getBitrate(), 224064)
             self.assertEqual(node.getVideoCodec(), "mpeg4")
             self.assertEqual(node.getStreamPixelFormat(), "yuv420p")
+            self.assertEqual(node.getVideoDuration(), 1000)
             if isThreaded:
                 self.assertEqual(node.getAudioCodec(), "mp2")
                 self.assertEqual(node.getAudioSampleRate(), 44100)
                 self.assertEqual(node.getNumAudioChannels(), 2)
+                self.assert_(node.getVideoDuration() >= 1000)
 
         def checkExceptions():
             node = avg.VideoNode(href="../video/testfiles/mpeg1-48x48.mpg",

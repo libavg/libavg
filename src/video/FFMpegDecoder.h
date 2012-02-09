@@ -89,7 +89,7 @@ class AVG_API FFMpegDecoder: public VideoDecoder
         bool usesVDPAU() const;
         int openCodec(int streamIndex, bool bUseHardwareAcceleration);
         PixelFormat calcPixelFormat(bool bUseYCbCr);
-        virtual float getDuration() const;
+        virtual float getDuration(StreamSelect streamSelect = SS_DEFAULT) const;
         virtual int getNumFrames() const;
 
         DecoderState m_State;

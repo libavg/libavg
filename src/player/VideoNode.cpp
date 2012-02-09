@@ -200,6 +200,22 @@ long long VideoNode::getDuration() const
     return (long long)(m_pDecoder->getVideoInfo().m_Duration*1000);
 }
 
+long long VideoNode::getVideoDuration() const
+{
+    exceptionIfUnloaded("getVideoDuration");
+    return (long long)(m_pDecoder->getVideoInfo().m_VideoDuration*1000);
+}
+
+long long VideoNode::getAudioDuration() const
+{
+    exceptionIfUnloaded("getAudioDuration");
+    if (!hasAudio()) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Video has no audio track.");
+    }
+
+    return (long long)(m_pDecoder->getVideoInfo().m_AudioDuration*1000);
+}
+
 int VideoNode::getBitrate() const
 {
     exceptionIfUnloaded("getBitrate");

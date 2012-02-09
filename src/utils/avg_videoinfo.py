@@ -84,11 +84,13 @@ def singleVideoInfo(node):
     print "  Size: " + str(node.getMediaSize()) + " pixels"
     print "  Pixel format: " + node.getStreamPixelFormat()
     print "  FPS: " + str(node.fps)
+    print "  Duration: " + str(node.getVideoDuration()/1000.) + " s"
     if node.hasAudio():
         print "Audio stream: " 
         print "  Codec: " + node.getAudioCodec()
         print "  Sample rate: " + str(node.getAudioSampleRate()) + " Hz"
         print "  Number of channels: " + str(node.getNumAudioChannels())
+        print "  Duration: " + str(node.getAudioDuration()/1000.) + " s"
   
 def CSVtable(node):
     global CSV_video
