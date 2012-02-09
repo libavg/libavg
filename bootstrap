@@ -4,7 +4,7 @@ set -e
 
 if [[ `uname` = Darwin ]] 
 then
-    if [[ -d /opt/local ]]
+    if [[ x"$(which port)" = x"/opt/local/bin/port" ]]
     then
         echo "Macports detected"
         glibtoolize --copy --force
