@@ -182,6 +182,22 @@ Misc. Classes
                 Whether to set (:py:const:`True`) or reset (:py:const:`False`)
                 the relais.
 
+    .. autoclass:: CubicSpline(controlpoints)
+
+        Class that generates a smooth curve between control points using cubic 
+        spline-based interpolation. The utility avg_splineedit.py can be used to edit a
+        spline and generate control points. For an introduction on spline interpolation,
+        see http://en.wikipedia.org/wiki/Spline_interpolation.
+
+        :param controlpoints:
+
+        A list of 2D coordinates. The x coordinates must be in increasing order.
+
+        .. py:method:: interpolate(x) -> y
+
+        Takes an x coordinate and delivers a corresponding y coordinate. 
+        
+
     .. autoclass:: Logger
 
         Interface to the logger used by the avg player. Enables the setting
