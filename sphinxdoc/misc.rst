@@ -83,8 +83,8 @@ Misc. Classes
 
         .. py:method:: getChannelAvg(channel) -> float
 
-            Returns the average of one of the bitmap color channels (red, green or blue). Used for
-            automatic tests.
+            Returns the average of one of the bitmap color channels (red, green or blue).
+            Used for automatic tests.
 
         .. py:method:: getFormat()
 
@@ -114,8 +114,8 @@ Misc. Classes
         .. py:method:: save(filename)
 
             Writes the image to a file. File format is determined using the
-            extension. Any file format supported by ImageMagick 
-            (http://www.imagemagick.org/) can be used.
+            extension. Supported file types are those supported by gdk-pixbuf. This 
+            includes at least png, jpeg, gif, tiff and xpixmaps. 
 
         .. py:method:: setPixels(pixels)
 
