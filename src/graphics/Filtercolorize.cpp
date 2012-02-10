@@ -80,7 +80,7 @@ FilterColorize::~FilterColorize()
 void FilterColorize::applyInPlace(BitmapPtr pBmp)
 {
     BitmapPtr pTempBmp (FilterGrayscale().apply(pBmp));
-    Pixel24 colorTable[256];
+    Pixel32 colorTable[256];
     for (int i=0; i<256; i++) {
         colorTable[i] = hls2rgb(m_Hue, float(i), m_Saturation);
     }
