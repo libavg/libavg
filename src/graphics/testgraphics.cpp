@@ -78,19 +78,20 @@ BitmapPtr initBmp(PixelFormat pf)
 
     }
     BitmapPtr pBmp(new Bitmap(IntPoint(4, height), pf));
-    for(int y = 0; y < height; ++y) {
+    int bpp = pBmp->getBytesPerPixel();
+    for (int y = 0; y < height; ++y) {
         for (int x = 0; x < 4; ++x) {
             unsigned char * pPixel = 
-                pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
+                    pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
             *(pPixel) = x;
-            if (pBmp->getBytesPerPixel() > 1) {
+            if (bpp > 1) {
                 *(pPixel+1) = 0;
             }
-            if (pBmp->getBytesPerPixel() > 2) {
+            if (bpp > 2) {
                 *(pPixel+2) = x;
                 *(pPixel) = 16*y;
             }
-            if (pBmp->getBytesPerPixel() > 3) {
+            if (bpp > 3) {
                 *(pPixel+3) = 0x80;
             }
         }
