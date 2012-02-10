@@ -454,6 +454,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
             default:
                 throw;
         }
+        return NodePtr(); // Silence compiler warning
     }
 }
 
