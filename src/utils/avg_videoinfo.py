@@ -21,12 +21,10 @@
 # Current versions can be found at www.libavg.de
 #
 
-from optparse import OptionParser, OptionValueError
-import sys, traceback
+from optparse import OptionParser
+import sys
 from libavg import avg
-import time
 from xml.dom import minidom
-from xml import dom
 import os
 
 parser = OptionParser("usage: %prog <videofilename> [options]")

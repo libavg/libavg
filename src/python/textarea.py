@@ -73,7 +73,7 @@ from libavg import avg
 from avg import Point2D
 
 
-class FocusContext:
+class FocusContext(object):
     """
     This class helps to group TextArea elements
     
@@ -222,7 +222,7 @@ class FocusContext:
         self.__isActive = active
 
 
-class TextArea:
+class TextArea(object):
     """
     TextArea class is a libavg widget to create editable text fields
     

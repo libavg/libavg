@@ -21,7 +21,7 @@
 #
 
 import sys, os
-from libavg import avg, AVGApp, AVGAppStarter
+from libavg import avg, AVGApp
 
 import coordcalibrator
 import apphelpers

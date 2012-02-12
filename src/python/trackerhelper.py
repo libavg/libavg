@@ -21,11 +21,11 @@
 #
 
 import math
-from libavg import avg, Point2D, RasterNode
+from libavg import avg
 
 g_Player = avg.Player.get()
 
-class TrackerImageFlipper:
+class TrackerImageFlipper(object):
     def __init__(self):
         self.readConfig()
 

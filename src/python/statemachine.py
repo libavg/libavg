@@ -20,7 +20,7 @@
 
 import utils
 
-class State:
+class State(object):
     def __init__(self, transitions, enterFunc, leaveFunc):
         self.transitions = {}
         for destState, transfunc in transitions.items():
@@ -29,7 +29,7 @@ class State:
         self.enterFunc = utils.methodref(enterFunc)
         self.leaveFunc = utils.methodref(leaveFunc)
 
-class StateMachine:
+class StateMachine(object):
     def __init__(self, name, startState):
         self.__states = {}
         self.__name = name

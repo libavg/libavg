@@ -21,7 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import optparse
 from libavg import avg
 
 validPixFmt = list();

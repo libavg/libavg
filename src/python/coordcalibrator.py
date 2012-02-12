@@ -27,7 +27,7 @@ g_KbManager = apphelpers.KeyboardManager.get()
 
 g_Player = avg.Player.get()
 
-class CoordCalibrator:
+class CoordCalibrator(object):
     def __init__(self, calibrationTerminatedCb):
         self.__calibrationTerminatedCb = calibrationTerminatedCb
         self.__CurPointIndex = 0

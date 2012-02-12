@@ -23,7 +23,6 @@
 
 import sys
 from libavg import avg, AVGApp
-import time
 
 g_Player = avg.Player.get()
 

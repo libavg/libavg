@@ -33,6 +33,7 @@ class ControlPoint(avg.DivNode):
         super(ControlPoint, self).__init__(**kwargs)
         if parent:
             parent.appendChild(self)
+
         self.__circle = avg.CircleNode(r=15, parent=self)
         self.__posText = avg.WordsNode(pos=(15,-15), parent=self)
         self.__updateLabel()

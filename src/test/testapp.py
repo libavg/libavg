@@ -29,7 +29,7 @@ import libavg
 import testcase
 
 
-class TestApp:
+class TestApp(object):
     EXIT_OK = 0
     EXIT_FAILURE = 1
         

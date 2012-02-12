@@ -23,9 +23,11 @@ from libavg import avg
 
 class ScrollPane(avg.DivNode):
 
-    def __init__(self, contentDiv, *args, **kwargs):
+    def __init__(self, contentDiv, parent=None, **kwargs):
 
-        avg.DivNode.__init__(self, crop=True, *args, **kwargs)
+        super(ScrollPane, self).__init__(crop=True, **kwargs)
+        if parent:
+            parent.appendChild(self)
         self.appendChild(contentDiv)
         self.__contentDiv = contentDiv
 

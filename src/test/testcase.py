@@ -262,7 +262,7 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
     return suite
 
 
-class NodeHandlerTester:
+class NodeHandlerTester(object):
     def __init__(self, testCase, node):
         self.__testCase=testCase
         self.reset()

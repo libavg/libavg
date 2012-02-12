@@ -180,7 +180,7 @@ class TapRecognizer(Recognizer):
 
         self.__maxDistance = (
                 MAX_TAP_DIST*g_Player.getPixelsPerMM())
-        Recognizer.__init__(self, node, False, eventSource, 1, initialEvent,
+        super(TapRecognizer, self).__init__(node, False, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler)
 
     def _handleDown(self, event):
@@ -204,7 +204,7 @@ class TapRecognizer(Recognizer):
         if self.getState() == "POSSIBLE":
             if downTime > self.__maxTime:
                 self._setFail(None)
-        Recognizer._onFrame(self)
+        super(TapRecognizer, self)._onFrame()
 
 
 class DoubletapRecognizer(Recognizer):
@@ -222,18 +222,18 @@ class DoubletapRecognizer(Recognizer):
         #self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
         self.__maxDistance = MAX_TAP_DIST*g_Player.getPixelsPerMM()
-        Recognizer.__init__(self, node, False, eventSource, 1, initialEvent,
-                possibleHandler, failHandler, detectedHandler)
+        super(DoubletapRecognizer, self).__init__(node, False, eventSource, 1, 
+                initialEvent, possibleHandler, failHandler, detectedHandler)
 
     def abort(self):
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        Recognizer.abort(self)
+        super(DoubletapRecognizer, self).abort()
 
     def enable(self, isEnabled):
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        Recognizer.enable(self, isEnabled)
+        super(DoubletapRecognizer, self).enable(isEnabled)
 
     def _handleDown(self, event):
         self.__startTime = g_Player.getFrameTime()
@@ -292,7 +292,7 @@ class HoldRecognizer(Recognizer):
         self.__maxDistance = (
                 MAX_TAP_DIST*g_Player.getPixelsPerMM())
         self.__lastEvent = None
-        Recognizer.__init__(self, node, True, eventSource, 1, initialEvent,
+        super(HoldRecognizer, self).__init__(node, True, eventSource, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, stopHandler)
 
     def _handleDown(self, event):
@@ -318,7 +318,7 @@ class HoldRecognizer(Recognizer):
         if self.getState() == "POSSIBLE":
             if downTime > self.__delay:
                 self._setDetected(self.__lastEvent)
-        Recognizer._onFrame(self)
+        super(HoldRecognizer, self)._onFrame()
 
 
 class DragRecognizer(Recognizer):
@@ -352,13 +352,13 @@ class DragRecognizer(Recognizer):
 
         self.__isSliding = False
         self.__inertiaHandler = None
-        Recognizer.__init__(self, eventNode, True, eventSource, 1, initialEvent,
-                possibleHandler=possibleHandler, failHandler=failHandler, 
+        super(DragRecognizer, self).__init__(eventNode, True, eventSource, 1, 
+                initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
 
     def abort(self):
         self.abortInertia()
-        Recognizer.abort(self)
+        super(DragRecognizer, self).abort()
 
     def abortInertia(self):
         if self.__isSliding:
@@ -612,13 +612,13 @@ class TransformRecognizer(Recognizer):
         self.__lastPosns = []
         self.__posns = []
         self.__inertiaHandler = None
-        Recognizer.__init__(self, eventNode, True, eventSource, None, initialEvent,
-                detectedHandler=detectedHandler, endHandler=endHandler)
+        super(TransformRecognizer, self).__init__(eventNode, True, eventSource, None, 
+                initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
 
     def abort(self):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
-        Recognizer.abort(self)
+        super(TransformRecognizer, self).abort()
 
     def _handleDown(self, event):
         numContacts = len(self._contacts)
@@ -714,7 +714,7 @@ class TransformRecognizer(Recognizer):
         return self.__coordSysNode.getParent().getRelPos(contact.events[-1].pos)
 
 
-class InertiaHandler():
+class InertiaHandler(object):
     def __init__(self, friction, moveHandler, stopHandler):
         self.__friction = friction
         self.__moveHandler = moveHandler
