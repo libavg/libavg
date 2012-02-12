@@ -17,12 +17,6 @@ Effect Nodes
             The width of the blur. This corresponds to the radius parameter of
             photoshop.
 
-        .. py:method:: setParam(radius)
-
-            .. deprecated:: 1.5
-
-            Corresponds to the :py:attr:`radius` attribute. 
-
     .. autoclass:: ChromaKeyFXNode
 
         A high-quality realtime chroma key (greenscreen or bluescreen) effect. Can be 
@@ -104,10 +98,6 @@ Effect Nodes
     .. autoclass:: ShadowFXNode
 
         Adds a shadow behind the node.
-
-        .. py:method:: setParams(offset, radius, opacity, color)
-
-            .. deprecated:: 1.5
 
         .. py:attribute:: offset
 

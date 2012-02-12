@@ -38,7 +38,6 @@ public:
 
     void connect();
     virtual void disconnect();
-    void setParam(float stdDev);
 
     void setRadius(float stdDev);
     float getRadius() const;

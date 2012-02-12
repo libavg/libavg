@@ -269,15 +269,22 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def testWordsShadowFX(self):
+        
+        def setParams(offset, radius, opacity, color):
+            effect.offset = offset
+            effect.radius = radius
+            effect.opacity = opacity
+            effect.color =  color
+
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
                 font="Bitstream Vera Sans")
         effect = avg.ShadowFXNode()
-        effect.setParams((0,0), 1.5, 1.5, "FF0000")
+        setParams((0,0), 1.5, 1.5, "FF0000")
         node.setEffect(effect)
         self.start((
                  lambda: self.compareImage("testWordsShadowFX1", True),
-                 lambda: effect.setParams((2,2), 2, 2, "00FFFF"),
+                 lambda: setParams((2,2), 2, 2, "00FFFF"),
                  lambda: self.compareImage("testWordsShadowFX2", True),
                 ))
 

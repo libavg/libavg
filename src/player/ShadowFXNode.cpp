@@ -65,17 +65,6 @@ void ShadowFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void ShadowFXNode::setParams(const glm::vec2& offset, float stdDev, float opacity, 
-        const string& sColor)
-{
-    m_Offset = offset;
-    m_StdDev = stdDev;
-    m_Opacity = opacity;
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(sColor);
-    updateFilter();
-}
-    
 void ShadowFXNode::setOffset(const glm::vec2& offset)
 {
     m_Offset = offset;

@@ -59,11 +59,6 @@ void BlurFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void BlurFXNode::setParam(float stdDev)
-{
-    setRadius(stdDev);
-}
-
 void BlurFXNode::setRadius(float stdDev)
 {
     m_StdDev = stdDev;

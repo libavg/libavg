@@ -40,8 +40,6 @@ public:
 
     virtual void connect();
     virtual void disconnect();
-    void setParams(const glm::vec2& offset, float stdDev, float opacity, 
-            const std::string& sColor);
 
     void setOffset(const glm::vec2& offset);
     glm::vec2 getOffset() const;
