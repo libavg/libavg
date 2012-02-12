@@ -36,7 +36,6 @@ void export_devices();
 #include "../player/AVGNode.h"
 #include "../player/CanvasNode.h"
 #include "../player/DivNode.h"
-#include "../player/PanoImageNode.h"
 #include "../player/SoundNode.h"
 #include "../player/LineNode.h"
 #include "../player/RectNode.h"
@@ -189,23 +188,6 @@ void export_node()
         .add_property("loop", &SoundNode::getLoop)
         .add_property("duration", &SoundNode::getDuration)
         .add_property("volume", &SoundNode::getVolume, &SoundNode::setVolume)
-    ;
-
-    class_<PanoImageNode, bases<AreaNode> >("PanoImageNode", no_init)
-        .def("__init__", raw_constructor(createNode<panoImageNodeName>))
-        .def("getScreenPosFromPanoPos", &PanoImageNode::getScreenPosFromPanoPos)
-        .def("getScreenPosFromAngle", &PanoImageNode::getScreenPosFromAngle)
-        .add_property("href", make_function(&PanoImageNode::getHRef, 
-                return_value_policy<copy_const_reference>()), &PanoImageNode::setHRef)
-        .add_property("sensorwidth", &PanoImageNode::getSensorWidth, 
-                &PanoImageNode::setSensorWidth)
-        .add_property("sensorheight", &PanoImageNode::getSensorHeight, 
-                &PanoImageNode::setSensorHeight)
-        .add_property("focallength", &PanoImageNode::getFocalLength, 
-                &PanoImageNode::setFocalLength)
-        .add_property("rotation", &PanoImageNode::getRotation, 
-                &PanoImageNode::setRotation)
-        .add_property("maxrotation", &PanoImageNode::getMaxRotation)
     ;
 
     class_<VectorNode, bases<Node>, boost::noncopyable>("VectorNode", 

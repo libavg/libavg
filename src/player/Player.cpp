@@ -29,7 +29,6 @@
 #include "VideoNode.h"
 #include "CameraNode.h"
 #include "ImageNode.h"
-#include "PanoImageNode.h"
 #include "SoundNode.h"
 #include "LineNode.h"
 #include "RectNode.h"
@@ -147,7 +146,6 @@ string sDummy;
     registerNodeType(WordsNode::createDefinition());
     registerNodeType(VideoNode::createDefinition());
     registerNodeType(CameraNode::createDefinition());
-    registerNodeType(PanoImageNode::createDefinition());
     registerNodeType(SoundNode::createDefinition());
     registerNodeType(LineNode::createDefinition());
     registerNodeType(RectNode::createDefinition());

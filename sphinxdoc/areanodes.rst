@@ -4,7 +4,7 @@ Area Nodes
 .. automodule:: libavg.avg
     :no-members:
 
-    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node PanoImageNode RasterNode SoundNode VideoNode WordsNode
+    .. inheritance-diagram:: AVGNode AreaNode CameraNode CanvasNode DivNode ImageNode Node RasterNode SoundNode VideoNode WordsNode
         :parts: 1
 
     .. autoclass:: AreaNode([x, y, pos, width, height, size, angle, pivot])
@@ -339,49 +339,6 @@ Area Nodes
 
             Sets a bitmap to use as content for the ImageNode. Sets href to an empty 
             string.
-
-    .. autoclass:: PanoImageNode([href, sensorwidth, sensorheight, focallength, rotation])
-
-        A panorama image displayed in cylindrical projection.
-
-        .. deprecated:: 1.5
-            This is unsupported and probably buggy.
-
-        .. py:attribute:: focallength
-
-            The focal length of the lens in millimeters.
-
-        .. py:attribute:: href
-
-            The source filename of the image.
-
-        .. py:attribute:: maxrotation
-
-            The maximum angle the viewer can look at. Read-only.
-
-        .. py:attribute:: rotation
-
-            The current angle the viewer is looking at in radians.
-
-        .. py:attribute:: sensorheight
-
-            The height of the sensor used to make the image.
-
-        .. py:attribute:: sensorwidth
-
-            The width of the sensor used to make the image. This value
-            is used together with sensorheight and focallength to
-            determine the projection to use.
-
-        .. py:method:: getScreenPosFromPanoPos(panoPos: Point2D) -> Point2D
-
-            Converts a position in panorama image pixels to pixels in coordinates
-            relative to the node, taking into account the current rotation angle.
-
-        .. py:method:: getScreenPosFromAngle(angle) -> Point2D
-
-            Converts panorama angle to pixels in coordinates
-            relative to the node, taking into account the current rotation angle.
 
     .. autoclass:: RasterNode([maxtilewidth, maxtileheight, blendmode, mipmap, maskhref, maskpos, masksize, gamma, contrast, intensity])
 
