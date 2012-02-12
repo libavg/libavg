@@ -129,7 +129,6 @@ class AVG_API Player
 
         void addInputDevice(IInputDevicePtr pSource);
         MouseEventPtr getMouseState() const;
-        TrackerInputDevice * addTracker();
         TrackerInputDevice * getTracker();
         void enableMultitouch();
         bool isMultitouchAvailable() const;

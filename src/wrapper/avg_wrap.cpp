@@ -164,8 +164,6 @@ BOOST_PYTHON_MODULE(avg)
         .def("getFrameDuration", &Player::getFrameDuration)
         .def("createNode", &Player::createNodeFromXmlString)
         .def("createNode", &Player::createNode)
-        .def("addTracker", &Player::addTracker,
-                return_value_policy<reference_existing_object>())
         .def("enableMultitouch", &Player::enableMultitouch)
         .def("isMultitouchAvailable", &Player::isMultitouchAvailable)
         .def("getTracker", &Player::getTracker,

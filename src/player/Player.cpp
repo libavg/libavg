@@ -637,21 +637,6 @@ float Player::getFrameDuration()
     }
 }
 
-TrackerInputDevice * Player::addTracker()
-{
-    if (!m_pMainCanvas) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "You must use loadFile() before addTracker().");
-    }
-    m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice());
-    addInputDevice(m_pMultitouchInputDevice);
-    if (m_bIsPlaying) {
-        m_pMultitouchInputDevice->start();
-    }
-
-    return dynamic_cast<TrackerInputDevice*>(m_pMultitouchInputDevice.get());
-}
-
 TrackerInputDevice * Player::getTracker()
 {
     TrackerInputDevice* pTracker = dynamic_cast<TrackerInputDevice*>(
