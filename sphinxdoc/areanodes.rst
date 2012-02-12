@@ -61,28 +61,13 @@ Area Nodes
             Default is the center of the node.
 
 
-    .. autoclass:: AVGNode([onkeydown: string, onkeyup: string])
+    .. autoclass:: AVGNode()
 
         Root node of an onscreen avg tree. Defines the properties of the display
         and handles key press events. The AVGNode's width and height define the
         coordinate system for the display and are the default for the window
         size used (i.e. by default, the coordinate system is pixel-based).
 
-        :param string onkeyup:
-
-            Name of python function to call when a key up
-            event occurs.
-
-            .. deprecated:: 1.5
-                Use :func:`VisibleNode.connectEventHandler()` instead.
-
-        :param string onkeydown:
-
-            Name of python function to call when a key
-            down event occurs.
-
-            .. deprecated:: 1.5
-                Use :func:`VisibleNode.connectEventHandler()` instead.
 
     .. autoclass:: CameraControl
 

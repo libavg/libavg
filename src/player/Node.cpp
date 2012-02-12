@@ -44,11 +44,6 @@ NodeDefinition Node::createDefinition()
 {
     return NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
-        .addArg(Arg<string>("oncursormove", ""))
-        .addArg(Arg<string>("oncursorup", ""))
-        .addArg(Arg<string>("oncursordown", ""))
-        .addArg(Arg<string>("oncursorover", ""))
-        .addArg(Arg<string>("oncursorout", ""))
         .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
         .addArg(Arg<float>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
@@ -70,11 +65,6 @@ Node::~Node()
 
 void Node::setArgs(const ArgList& args)
 {
-    addArgEventHandlers(Event::CURSORMOTION, args.getArgVal<string> ("oncursormove"));
-    addArgEventHandlers(Event::CURSORUP, args.getArgVal<string> ("oncursorup"));
-    addArgEventHandlers(Event::CURSORDOWN, args.getArgVal<string> ("oncursordown"));
-    addArgEventHandlers(Event::CURSOROVER, args.getArgVal<string> ("oncursorover"));
-    addArgEventHandlers(Event::CURSOROUT, args.getArgVal<string> ("oncursorout"));
 }
 
 void Node::setTypeInfo(const NodeDefinition * pDefinition)
@@ -378,23 +368,6 @@ bool Node::handleEvent(EventPtr pEvent)
         return bHandled;
     } else {
         return false;
-    }
-}
-
-void Node::addArgEventHandlers(Event::Type eventType, const string& sCode)
-{
-    addArgEventHandler(eventType, Event::MOUSE, sCode);
-    addArgEventHandler(eventType, Event::TOUCH, sCode);
-    addArgEventHandler(eventType, Event::TRACK, sCode);
-}
-
-void Node::addArgEventHandler(Event::Type eventType, Event::Source source, 
-        const string& sCode)
-{
-    PyObject * pFunc = findPythonFunc(sCode);
-    if (pFunc) {
-        EventID id(eventType, source);
-        connectOneEventHandler(id, Py_None, pFunc);
     }
 }
 
