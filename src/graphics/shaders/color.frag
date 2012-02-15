@@ -60,7 +60,7 @@ void main(void)
     if (colorModel == 0) {
         rgba = texture2D(texture, gl_TexCoord[0].st);
         if (bUseColorCoeff) {
-           rgba = colorCoeff*rgba;
+            rgba = colorCoeff*rgba;
         };
         rgba.a *= gl_Color.a;
     } else if (colorModel == 1) {
@@ -77,6 +77,7 @@ void main(void)
     } else {
         rgba = vec4(1,1,1,1);
     }
+    rgba = max(rgba, vec4(0.,0.,0.,0.));
     rgba = pow(rgba, gamma);
     if (bUseMask) {
         if (bPremultipliedAlpha) {
