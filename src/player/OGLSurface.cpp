@@ -287,7 +287,7 @@ glm::mat4 OGLSurface::calcColorspaceMatrix() const
         mat = glm::translate(mat, glm::vec3(0.0, -0.5, -0.5));
         if (m_pf == YCbCr420p || m_pf == YCbCrA420p) {
             mat = glm::scale(mat, 
-                    glm::vec3(255.0f/(235-16), 255.0f/(240-16), 255.0f/(240-16)));
+                    glm::vec3(255.0f/(235-16), 255.0f/(235-16), 255.0f/(235-16)));
             mat = glm::translate(mat, glm::vec3(-16.0f/255, -16.0f/255, -16.0f/255));
         }
     }
