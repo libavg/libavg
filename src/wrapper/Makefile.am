@@ -27,7 +27,6 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../graphics/libgraphics.la \
                 ../base/libbase.la \
                 ../imaging/libimaging.la \
-                ../parport/libparport.la \
                 ../anim/libanim.la \
                 ../lmfit/liblmfit.la \
                 ../oscpack/liboscpack.la \

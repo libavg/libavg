@@ -13,9 +13,10 @@ class HDVideoApp(AVGApp):
         self.videoNodes = []
         for fileName in (sys.argv[1], sys.argv[2]):
             videoNode = VideoNode(
-                    size=(1440, 810), 
+                    size=(1680, 1050), 
                     href=fileName,
                     opacity=0,
+                    loop=True,
                     parent=self._parentNode)
             videoNode.play()
             self.videoNodes.append(videoNode)
@@ -41,4 +42,4 @@ class HDVideoApp(AVGApp):
     def fadeEnd(self):
         self.isFading = False
         
-HDVideoApp.start(resolution=(1440, 900), debugWindowSize=(720, 450))
+HDVideoApp.start(resolution=(1680, 1050), debugWindowSize=(720, 450))
