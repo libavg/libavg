@@ -129,8 +129,8 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
     glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
-    bool bLogContainsGarbage = (string((char *)glGetString(GL_VENDOR)) 
-            != "NVIDIA Corporation");
+    bool bLogContainsGarbage = false; // (string((char *)glGetString(GL_VENDOR)) 
+//            != "NVIDIA Corporation");
     if (InfoLogLength > 1 && !bLogContainsGarbage) {
         pInfoLog = (GLcharARB*)malloc(InfoLogLength);
         int CharsWritten;
