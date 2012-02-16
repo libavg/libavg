@@ -23,6 +23,7 @@
 
 #include "../player/Player.h"
 
+using namespace boost;
 using namespace boost::python;
 using namespace std;
 
@@ -41,6 +42,7 @@ WaitAnim::~WaitAnim()
     
 void WaitAnim::start(bool bKeepAttr)
 {
+    m_pThis = dynamic_pointer_cast<WaitAnim>(shared_from_this());
     Anim::start();
     m_StartTime = Player::get()->getFrameTime();
 }
@@ -48,6 +50,7 @@ void WaitAnim::start(bool bKeepAttr)
 void WaitAnim::abort()
 {
     setStopped();
+    m_pThis = WaitAnimPtr();
 }
     
 bool WaitAnim::step()
@@ -55,6 +58,7 @@ bool WaitAnim::step()
     assert(isRunning());
     if (m_Duration != -1 && Player::get()->getFrameTime()-m_StartTime > m_Duration) {
         setStopped();
+        m_pThis = WaitAnimPtr();
         return true;
     } else {
         return false;
