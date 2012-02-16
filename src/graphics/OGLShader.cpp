@@ -129,17 +129,32 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
     glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
-    bool bLogContainsGarbage = false; // (string((char *)glGetString(GL_VENDOR)) 
-//            != "NVIDIA Corporation");
-    if (InfoLogLength > 1 && !bLogContainsGarbage) {
+    if (InfoLogLength > 1) {
         pInfoLog = (GLcharARB*)malloc(InfoLogLength);
         int CharsWritten;
         glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLShader::dumpInfoLog: glGetInfoLog()");
-        AVG_TRACE(Logger::WARNING, pInfoLog);
+        string sLog = removeATIInfoLogSpam(pInfoLog);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::dumpInfoLog: glGetInfoLog()");
+        AVG_TRACE(Logger::WARNING, sLog);
         free(pInfoLog);
     }
+}
+
+string OGLShader::removeATIInfoLogSpam(const string& sOrigLog)
+{
+    istringstream stream(sOrigLog);
+    string sLog;
+    string sCurLine;
+    while(getline(stream, sCurLine)) {
+        if ((sCurLine.find(
+                "Fragment shader was successfully compiled to run on hardware.")
+                == string::npos) &&
+                (sCurLine.find("Fragment shader(s) linked.") == string::npos))
+        {
+            sLog.append(sCurLine+"\n");
+        }
+    }
+    return sLog;
 }
 
 int OGLShader::safeGetUniformLoc(const std::string& sName)
@@ -156,6 +171,6 @@ int OGLShader::safeGetUniformLoc(const std::string& sName)
         return pos->second;
     }
 }
- 
+
 
 }
