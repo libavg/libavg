@@ -149,7 +149,7 @@ class FXTestCase(AVGTestCase):
                         if useDestCanvas:
                             destCanvas = Player.createCanvas(id="dest", size=(160,120))
                             destCanvas.getRootNode().appendChild(srcImg)
-                            destImg = avg.ImageNode(href="canvas:dest", parent=root)
+                            avg.ImageNode(href="canvas:dest", parent=root)
                         else:
                             root.appendChild(srcImg)
                         self.start((
@@ -168,8 +168,7 @@ class FXTestCase(AVGTestCase):
             self.node.setEffect(self.effect)
 
         def addNewFX():
-            effect = avg.BlurFXNode()
-            effect.radius = 8
+            effect = avg.BlurFXNode(8)
             self.node.setEffect(effect)
 
         root = self.loadEmptyScene()
@@ -252,7 +251,7 @@ class FXTestCase(AVGTestCase):
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
         node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
         rect.size = node.size + (1, 1)
-        effect = avg.ShadowFXNode()
+        effect = avg.ShadowFXNode((0,0), 1, 1, "FFFFFF")
         node.setEffect(effect)
         self.start((
                  lambda: self.compareImage("testShadowFX1", False),

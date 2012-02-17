@@ -42,7 +42,7 @@ void export_fx()
         ;
 
     class_<BlurFXNode, bases<FXNode>, boost::shared_ptr<BlurFXNode>,
-            boost::noncopyable>("BlurFXNode")
+            boost::noncopyable>("BlurFXNode", init<optional<float> >())
         .add_property("radius", &BlurFXNode::getRadius,
                 &BlurFXNode::setRadius)
         ;
@@ -68,7 +68,7 @@ void export_fx()
         ;
 
     class_<HueSatFXNode, bases<FXNode>, boost::shared_ptr<HueSatFXNode>,
-            boost::noncopyable > ("HueSatFXNode", init< optional<float, float, float,
+            boost::noncopyable > ("HueSatFXNode", init<optional<float, float, float,
             bool> >())
         .add_property("hue", &HueSatFXNode::getHue,
                 &HueSatFXNode::setHue)
@@ -81,8 +81,8 @@ void export_fx()
         .def("__repr__", &HueSatFXNode::toString)
         ;
 
-    class_<InvertFXNode, bases<FXNode>, boost::shared_ptr<InvertFXNode>, boost::noncopyable>(
-            "InvertFXNode")
+    class_<InvertFXNode, bases<FXNode>, boost::shared_ptr<InvertFXNode>, 
+            boost::noncopyable>("InvertFXNode")
         ;
 
     class_<NullFXNode, bases<FXNode>, boost::shared_ptr<NullFXNode>, boost::noncopyable>(
@@ -90,7 +90,8 @@ void export_fx()
         ;
 
     class_<ShadowFXNode, bases<FXNode>, boost::shared_ptr<ShadowFXNode>,
-            boost::noncopyable>("ShadowFXNode")
+            boost::noncopyable>("ShadowFXNode", 
+            init<optional<glm::vec2, float, float, std::string> >())
         .add_property("offset", &ShadowFXNode::getOffset, &ShadowFXNode::setOffset)
         .add_property("radius", &ShadowFXNode::getRadius, &ShadowFXNode::setRadius)
         .add_property("opacity", &ShadowFXNode::getOpacity, &ShadowFXNode::setOpacity)

@@ -32,13 +32,12 @@ using namespace std;
 
 namespace avg {
 
-HueSatFXNode::HueSatFXNode(int hue, int saturation, int lightness,
-    bool tint):
-    FXNode(),
-    m_fHue(hue),
-    m_fLightnessOffset(lightness),
-    m_fSaturation(saturation),
-    m_bColorize(tint)
+HueSatFXNode::HueSatFXNode(int hue, int saturation, int lightness, bool tint)
+    : FXNode(),
+      m_fHue(hue),
+      m_fLightnessOffset(lightness),
+      m_fSaturation(saturation),
+      m_bColorize(tint)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }

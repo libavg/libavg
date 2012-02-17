@@ -33,7 +33,7 @@ namespace avg {
 
 class AVG_API BlurFXNode: public FXNode {
 public:
-    BlurFXNode();
+    BlurFXNode(float radius=1.f);
     virtual ~BlurFXNode();
 
     void connect();
