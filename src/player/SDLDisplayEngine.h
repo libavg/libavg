@@ -86,10 +86,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
-        EventPtr createMouseButtonEvent
-                (Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent
-                (Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
         
         IntPoint m_Size;
         bool m_bIsFullscreen;

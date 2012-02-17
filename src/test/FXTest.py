@@ -407,12 +407,35 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testFXUpdateVideo", False),
                 ))
 
+    def testChromaKeyFX(self):
+
+        def setParams(htol, ltol, stol):
+            effect.htolerance = htol
+            effect.ltolerance = ltol
+            effect.stolerance = stol
+
+        root = self.loadEmptyScene()
+        node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        effect = avg.ChromaKeyFXNode()
+        setParams(0.01, 0.01, 0.01)
+        node.setEffect(effect)
+        self.start((
+                 lambda: self.compareImage("testChromaKeyFX1", False),
+                 lambda: setParams(0.2, 0.2, 0.2),
+                 lambda: self.compareImage("testChromaKeyFX2", False),
+                 lambda: effect.__setattr__("color", "FF0000"),
+                 lambda: self.compareImage("testChromaKeyFX3", False),
+                 lambda: effect.__setattr__("spillthreshold", 1),
+                 lambda: self.compareImage("testChromaKeyFX4", False),
+                ))
+
     def __createOffscreenCanvas(self):
         canvas = Player.createCanvas(id="offscreen", size=(160,120))
         root = canvas.getRootNode()
         avg.ImageNode(href="rgb24-32x32.png", parent=root)
         avg.ImageNode(id="test", pos=(32,0), href="rgb24alpha-32x32.png", parent=root)
         return canvas
+
 
 def areFXSupported():
     sceneString = """<avg id="avg" width="160" height="120"/>"""
@@ -449,6 +472,7 @@ def fxTestSuite(tests):
                 "testIntensity",
                 "testContrast",
                 "testFXUpdate",
+                "testChromaKeyFX",
             ]
     else:
         availableTests = []
