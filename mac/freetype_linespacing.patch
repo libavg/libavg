@@ -1,0 +1,13 @@
+--- a/src/truetype/ttdriver.c
++++ b/src/truetype/ttdriver.c
+@@ -246,7 +246,10 @@
+     FT_Request_Metrics( size->face, req );
+ 
+     if ( FT_IS_SCALABLE( size->face ) )
++    {
+       error = tt_size_reset( ttsize );
++      ttsize->root.metrics = ttsize->metrics;
++    }
+ 
+     return error;
+   }
