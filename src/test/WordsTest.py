@@ -576,8 +576,8 @@ class WordsTestCase(AVGTestCase):
 
         def changeSize():
             textNode.width = 50 
-            testSize(textNode.size, avg.Point2D(50,182))
-            testSize(textNode.getMediaSize(), avg.Point2D(45,182))
+            testSize(textNode.size, avg.Point2D(50,154))
+            testSize(textNode.getMediaSize(), avg.Point2D(45,154))
             self.assertNotEqual(mediaSize, textNode.getMediaSize())
 
         self.start([lambda: changeSize()])
