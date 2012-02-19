@@ -55,6 +55,16 @@ def flatten(l):
         i += 1
     return ltype(l)
 
+# Should be used as a decorator
+def skipIf(func, condition, message):
+    def wrapper(self, *args, **kwargs):
+        if not(condition):
+            return func(self, *args, **kwargs)
+        else:
+            self.skip(message)
+            return
+    return wrapper
+
 
 class AVGTestCase(unittest.TestCase):
     imageResultDirectory = "resultimages"

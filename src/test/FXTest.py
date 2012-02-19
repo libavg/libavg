@@ -23,10 +23,37 @@
 from libavg import avg, utils
 from testcase import *
 
+
+Player = avg.Player.get()
+
+def testFXSupport():
+    global g_FXSupported
+    sceneString = """<avg id="avg" width="160" height="120"/>"""
+    Player.loadString(sceneString)
+    root = Player.getRootNode()
+    # XXX: The second of the following two lines prevent an opengl error in
+    # testImageNullFX on the Mac (Snow Leopard) for some reason. 
+    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
+    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
+    node.setEffect(avg.BlurFXNode())
+    Player.setTimeout(0, Player.stop)
+    try:
+        Player.play() 
+        g_FXSupported = True
+    except RuntimeError:
+        g_FXSupported = False
+
+testFXSupport()
+
+def skipIfNoFX(func):
+    return skipIf(func, not(g_FXSupported), "FX not supported on this configuration.")
+
+
 class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
+    @skipIfNoFX
     def testImageNullFX(self):
         def activateFX():
             for node in self.nodes[0]:
@@ -44,9 +71,6 @@ class FXTestCase(AVGTestCase):
                     fillcolor="FFFFFF")
             root.insertChild(node, 0)
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         # Initial setup is 3x2 images: 
         # rows: no alpha, alpha, alpha & opacity 0.6
         # cols: no FX, FX
@@ -83,10 +107,8 @@ class FXTestCase(AVGTestCase):
                  lambda: utils.initFXCache(10),
                 ))
 
+    @skipIfNoFX
     def testVideoNullFX(self):
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         Player.setFakeFPS(25)
         node = avg.VideoNode(parent=root, href="../video/testfiles/mjpeg-48x48.avi",
@@ -95,10 +117,8 @@ class FXTestCase(AVGTestCase):
         node.play()
         self.start((lambda: self.compareImage("testVideoNullFX", False),))
 
+    @skipIfNoFX
     def testWordsNullFX(self):
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
         node.setEffect(avg.NullFXNode())
@@ -108,13 +128,11 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsNullFX", True),
                 ))
 
+    @skipIfNoFX
     def testCanvasNullFX(self):
         def setOpacity():
             node.opacity=0.6
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         self.__createOffscreenCanvas()
         node = avg.ImageNode(parent=root, href="canvas:offscreen")
@@ -125,10 +143,8 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testCanvasNullFX2", False),
                 ))
 
+    @skipIfNoFX
     def testNodeInCanvasNullFX(self):
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         canvas = self.__createOffscreenCanvas()
         avg.ImageNode(parent=root, href="canvas:offscreen")
@@ -142,6 +158,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testNodeInCanvasNullFX1", False),
                 ))
 
+    @skipIfNoFX
     def testRenderPipeline(self):
         if not(g_FXSupported):
             self.skip("FX not supported on this configuration.")
@@ -173,6 +190,7 @@ class FXTestCase(AVGTestCase):
                                 lambda: self.compareImage("testRenderPipeline", False),
                                 ))
 
+    @skipIfNoFX
     def testBlurFX(self):
         
         def setRadius(radius):
@@ -188,9 +206,6 @@ class FXTestCase(AVGTestCase):
             effect = avg.BlurFXNode(8)
             self.node.setEffect(effect)
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24-64x64.png")
         self.effect = avg.BlurFXNode()
@@ -208,6 +223,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlurFX2", False),
                 ))
 
+    @skipIfNoFX
     def testHueSatFX(self):
 
         def resetFX():
@@ -218,9 +234,6 @@ class FXTestCase(AVGTestCase):
             assert(hasattr(self.effect, param))
             setattr(self.effect, param, value)
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=root, pos=(10,10), href="rgb24alpha-64x64.png")
         resetFX()
@@ -239,6 +252,7 @@ class FXTestCase(AVGTestCase):
                 lambda: self.compareImage("testHueSatFX4", False),
         ))
 
+    @skipIfNoFX
     def testInvertFX(self):
 
         def resetFX():
@@ -252,9 +266,6 @@ class FXTestCase(AVGTestCase):
                     href="../graphics/testfiles/rgb24alpha-64x64.png")
             resetFX()
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         self.root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=self.root, pos=(10,10),
                 href="../graphics/testfiles/hsl.png")
@@ -265,6 +276,7 @@ class FXTestCase(AVGTestCase):
                 lambda: self.compareImage("testInvertFX2", False),
         ))
 
+    @skipIfNoFX
     def testShadowFX(self):
         
         def setParams(offset, radius, opacity, color):
@@ -273,9 +285,6 @@ class FXTestCase(AVGTestCase):
             effect.opacity = opacity
             effect.color =  color
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         rect = avg.RectNode(parent=root, pos=(9.5,9.5), color="0000FF")
         node = avg.ImageNode(parent=root, pos=(10,10), href="shadow.png")
@@ -296,6 +305,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX6", False),
                 ))
 
+    @skipIfNoFX
     def testWordsShadowFX(self):
         
         def setParams(offset, radius, opacity, color):
@@ -304,9 +314,6 @@ class FXTestCase(AVGTestCase):
             effect.opacity = opacity
             effect.color =  color
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
                 font="Bitstream Vera Sans")
@@ -319,13 +326,11 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsShadowFX2", True),
                 ))
 
+    @skipIfNoFX
     def testGamma(self):
         def setGamma(val):
             node.gamma = val
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", gamma=(0.5,0.5,0.5))
         self.assertEqual(node.gamma, (0.5,0.5,0.5))
@@ -336,6 +341,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testGamma2", False),
                 ))
 
+    @skipIfNoFX
     def testIntensity(self):
         def setIntensity(val):
             node.intensity = val
@@ -352,9 +358,6 @@ class FXTestCase(AVGTestCase):
                     intensity=(0.5,0.5,0.5), text="Half-brightness text.",
                     width=140)
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", intensity=(0.5,0.5,0.5))
         self.assertEqual(node.intensity, (0.5,0.5,0.5))
@@ -372,6 +375,7 @@ class FXTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
         self.videoNode = None
 
+    @skipIfNoFX
     def testContrast(self):
         def setContrast(val):
             node.contrast = val
@@ -382,9 +386,6 @@ class FXTestCase(AVGTestCase):
                     href="../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
             videoNode.play()
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="colorramp.png", contrast=(0.5,0.5,0.5))
         self.assertEqual(node.contrast, (0.5,0.5,0.5))
@@ -399,6 +400,7 @@ class FXTestCase(AVGTestCase):
                 ))
         Player.setFakeFPS(-1)
 
+    @skipIfNoFX
     def testFXUpdate(self):
         # This tests if the FX render-on-demand functionality doesn't forget updates.
         def changeTexture():
@@ -425,9 +427,6 @@ class FXTestCase(AVGTestCase):
             videoNode.setEffect(effect)
             videoNode.play()
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24alpha-64x64.png")
         effect = avg.BlurFXNode()
@@ -450,6 +449,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testFXUpdateVideo", False),
                 ))
 
+    @skipIfNoFX
     def testChromaKeyFX(self):
 
         def setParams(htol, ltol, stol):
@@ -457,9 +457,6 @@ class FXTestCase(AVGTestCase):
             effect.ltolerance = ltol
             effect.stolerance = stol
 
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         root = self.loadEmptyScene()
         node = avg.ImageNode(parent=root, href="rgb24-64x64.png")
         effect = avg.ChromaKeyFXNode()
@@ -483,26 +480,7 @@ class FXTestCase(AVGTestCase):
         return canvas
 
 
-def testFXSupport():
-    global g_FXSupported
-    sceneString = """<avg id="avg" width="160" height="120"/>"""
-    Player.loadString(sceneString)
-    root = Player.getRootNode()
-    # XXX: The second of the following two lines prevent an opengl error in
-    # testImageNullFX on the Mac (Snow Leopard) for some reason. 
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
-    node.setEffect(avg.BlurFXNode())
-    Player.setTimeout(0, Player.stop)
-    try:
-        Player.play() 
-        g_FXSupported = True
-    except RuntimeError:
-        g_FXSupported = False
-
-
 def fxTestSuite(tests):
-    testFXSupport()
     availableTests = [
             "testImageNullFX",
             "testVideoNullFX",
@@ -522,5 +500,3 @@ def fxTestSuite(tests):
             "testChromaKeyFX",
         ]
     return createAVGTestSuite(availableTests, FXTestCase, tests)
-
-Player = avg.Player.get()
