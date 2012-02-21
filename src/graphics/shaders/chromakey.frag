@@ -111,6 +111,7 @@ void main(void)
     } else {
         alpha = 1.0;
     }
+    tex = texture2D(texture, gl_TexCoord[0].st);
     if (alpha > 0.0 && hDiff < spillThreshold) {
         if (spillThreshold > hTolerance) {
             float factor = max(0.0, 1.0-(spillThreshold-hDiff)
