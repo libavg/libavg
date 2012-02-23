@@ -506,16 +506,9 @@ void WordsNode::calcMaskCoords()
     glm::vec2 mediaSize = glm::vec2(getMediaSize());
     glm::vec2 effMaskPos = getMaskPos()-glm::vec2(m_InkOffset);
     glm::vec2 maskSize = getMaskSize();
-    switch (m_Alignment) {
-        case PANGO_ALIGN_LEFT:
-            break;
-        case PANGO_ALIGN_CENTER:
-            effMaskPos.x -= m_AlignOffset+getSize().x/2;
-            break;
-        case PANGO_ALIGN_RIGHT:
-            effMaskPos.x -= m_AlignOffset+getSize().x;
-            break;
-    }
+    
+    effMaskPos.x -= m_AlignOffset;
+    
     if (maskSize == glm::vec2(0,0)) {
         normMaskSize = glm::vec2(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
         normMaskPos = glm::vec2(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
