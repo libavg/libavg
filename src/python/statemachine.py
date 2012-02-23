@@ -36,6 +36,7 @@ class StateMachine(object):
     def __init__(self, name, startState):
         self.__states = {}
         self.__name = name
+        self.__startState = startState
         self.__curState = startState
         self.__trace = False
         self.__initDone = False
@@ -101,6 +102,8 @@ class StateMachine(object):
         for stateName, state in self.__states.iteritems():
             for destState, func in state.transitions.iteritems():
                 dotFile.write("    \""+stateName+"\" -> \""+destState+"\";\n")
+        dotFile.write("    \""+self.__startState+"\" [style=bold];\n")
+        dotFile.write("    { rank=source; \""+self.__startState+"\" };\n")
         dotFile.write("}\n")
         dotFile.close()
         try:
