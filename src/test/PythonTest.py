@@ -393,6 +393,11 @@ class PythonTestCase(AVGTestCase):
         self.assert_(self.btocCalled)
         machine.changeState('A')
         self.assertEqual(machine.state, 'A')
+#        try:
+#            machine.makeDiagram("resultimages/stateMachineGraphVis.png")
+#        except RuntimeError as e:
+#            self.skip("graphvis not installed.")
+
         self.assertException(lambda: machine.addState('illegal', {}))
 
         # Create a machine without transition callbacks

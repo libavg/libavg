@@ -20,6 +20,9 @@
 
 import utils
 
+import subprocess
+import os
+
 class State(object):
     def __init__(self, transitions, enterFunc, leaveFunc):
         self.transitions = {}
@@ -86,11 +89,25 @@ class StateMachine(object):
         return self.__curState
 
     def dump(self):
-        for oldState, transitions in self.__states.iteritems():
-            print oldState, ":"
-            for newState, func in transitions.iteritems():
-                print "  -->", newState, ":", func.__name__
+        for oldStateName, state in self.__states.iteritems():
+            print oldStateName, ":"
+            for newState, func in state.transitions.iteritems():
+                print "  -->", newState
         print "Current state:", self.__curState
+
+    def makeDiagram(self, fName):
+        dotFile = open("tmp.dot", "w")
+        dotFile.write("digraph "+self.__name+" {\n")
+        for stateName, state in self.__states.iteritems():
+            for destState, func in state.transitions.iteritems():
+                dotFile.write("    "+stateName+" -> "+destState+";\n")
+        dotFile.write("}\n")
+        dotFile.close()
+        try:
+            subprocess.call(["dot", "tmp.dot", "-Tpng", "-o"+fName])
+        except OSError:
+            raise RuntimeError("dot executable not found. graphvis needs to be installed for StateMachine.makeDiagram to work.")
+        os.remove("tmp.dot")
 
     def __doSanityCheck(self):
         for stateName, state in self.__states.iteritems():
