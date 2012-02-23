@@ -97,10 +97,10 @@ class StateMachine(object):
 
     def makeDiagram(self, fName):
         dotFile = open("tmp.dot", "w")
-        dotFile.write("digraph "+self.__name+" {\n")
+        dotFile.write("digraph \""+self.__name+"\" {\n")
         for stateName, state in self.__states.iteritems():
             for destState, func in state.transitions.iteritems():
-                dotFile.write("    "+stateName+" -> "+destState+";\n")
+                dotFile.write("    \""+stateName+"\" -> \""+destState+"\";\n")
         dotFile.write("}\n")
         dotFile.close()
         try:
