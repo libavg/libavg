@@ -172,8 +172,8 @@ class WordsTestCase(AVGTestCase):
         def setCentered():
             node.alignment = "center"
             node.masksize = (160, 120)
-            node.maskhref = ""
             node.pos = (80,20)
+            node.maskpos = (0, -20)
 
         root = self.loadEmptyScene()
         node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
