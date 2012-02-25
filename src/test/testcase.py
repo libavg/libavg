@@ -103,14 +103,6 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-    @staticmethod
-    def setBaselineImageDirectory(name):
-        AVGTestCase.baselineImageResultDirectory = name
-    
-    @staticmethod
-    def getBaselineImageDir():
-        return AVGTestCase.baselineImageResultDirectory
-    
     def start(self, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
@@ -136,8 +128,8 @@ class AVGTestCase(unittest.TestCase):
 
     def compareBitmapToFile(self, bmp, fileName, warn):
         try:
-            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir() + "/" + fileName
-                    + ".png")
+            baselineBmp = avg.Bitmap(AVGTestCase.baselineImageResultDirectory + "/"
+                    + fileName + ".png")
             diffBmp = bmp.subtract(baselineBmp)
             average = diffBmp.getAvg()
             stdDev = diffBmp.getStdDev()
