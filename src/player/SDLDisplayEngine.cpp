@@ -286,7 +286,6 @@ void SDLDisplayEngine::teardown()
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_ShowCursor(SDL_ENABLE);
-//        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
 #endif
         m_pScreen = 0;
         m_pGLContext = GLContextPtr();

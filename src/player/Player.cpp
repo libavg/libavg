@@ -107,6 +107,7 @@ Player::Player()
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
+      m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
       m_bFakeFPS(false),
@@ -1580,6 +1581,11 @@ SDLDisplayEngine * Player::getDisplayEngine() const
     return m_pDisplayEngine.get();
 }
 
+void Player::keepWindowOpen()
+{
+    m_bKeepWindowOpen = true;
+}
+
 void Player::setStopOnEscape(bool bStop)
 {
     m_bStopOnEscape = bStop;
@@ -1649,6 +1655,9 @@ void Player::cleanup()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
+        if (!m_bKeepWindowOpen) {
+            m_pDisplayEngine = SDLDisplayEnginePtr();
+        }
     }
     if (SDLAudioEngine::get()) {
         SDLAudioEngine::get()->teardown();

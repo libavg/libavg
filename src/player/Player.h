@@ -153,6 +153,7 @@ class AVG_API Player
         size_t getVideoMemUsed();
         void setGamma(float red, float green, float blue);
         SDLDisplayEngine * getDisplayEngine() const;
+        void keepWindowOpen();
         void setStopOnEscape(bool bStop);
         bool getStopOnEscape() const;
         void setVolume(float volume);
@@ -233,6 +234,7 @@ class AVG_API Player
         AudioParams m_AP;
         GLConfig m_GLConfig;
 
+        bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;
         bool m_bIsPlaying;
 

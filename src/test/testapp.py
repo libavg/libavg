@@ -46,6 +46,7 @@ class TestApp(object):
         self.__optionParser = None
         self.__commandlineOptions = None
         self.__player = libavg.avg.Player.get()
+        self.__player.keepWindowOpen()
             
     def getSuiteFactory(self, name):
         return self.__registerdSuiteFactoriesDict[name]
