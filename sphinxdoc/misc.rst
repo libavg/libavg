@@ -539,6 +539,11 @@ Misc. Classes
 
             Prints all states and transitions to the console.
 
+        .. py:method:: makeDiagram(imageFName)
+
+            Dumps a graph of the state machine to an image file using dot. graphvis must
+            be installed and in the path for this to work. Very useful for debugging.
+
         .. py:method:: traceChanges(trace)
 
             If :py:attr:`trace` is set to :py:const:`True`, all state changes are dumped
