@@ -393,10 +393,6 @@ class PythonTestCase(AVGTestCase):
         self.assert_(self.btocCalled)
         machine.changeState('A')
         self.assertEqual(machine.state, 'A')
-#        try:
-#            machine.makeDiagram("resultimages/stateMachineGraphVis.png")
-#        except RuntimeError as e:
-#            self.skip("graphvis not installed.")
 
         self.assertException(lambda: machine.addState('illegal', {}))
 
@@ -411,6 +407,23 @@ class PythonTestCase(AVGTestCase):
         kaputtMachine = statemachine.StateMachine("kaputt", 'A')
         kaputtMachine.addState('A', {'B': None})
         self.assertException(lambda: kaputtMachine.changeState('B'))
+
+    def testStateMachineDiagram(self):
+        if not(self._isCurrentDirWriteable()):
+            self.skip("Current dir not writeable")
+            return
+        
+        machine = statemachine.StateMachine("testmachine", 'A')
+        machine.addState('A', {'B': None, 'nostate': None})
+        machine.addState('B', {'C': None, 'A': None})
+        machine.addState('C', {'A': None})
+
+        imageFName = AVGTestCase.imageResultDirectory + "stateMachineGraphVis.png"
+        try:
+            machine.makeDiagram(imageFName)
+        except RuntimeError:
+            self.skip("graphvis not installed.")
+        os.remove(imageFName) 
 
 
 def pythonTestSuite(tests):
@@ -428,6 +441,7 @@ def pythonTestSuite(tests):
         "testPieSlice",
         "testArc",
         "testStateMachine",
+        "testStateMachineDiagram",
         )
     
     return createAVGTestSuite(availableTests, PythonTestCase, tests)
