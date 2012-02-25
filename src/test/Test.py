@@ -93,13 +93,15 @@ if sys.platform != 'win32':
     # Meaningful only for distcheck
     os.chdir(srcDir)
 
-    import libavg
-    libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
-            os.path.dirname(libavg.__file__))
+import libavg
+libavg.avg.Logger.get().trace(libavg.avg.Logger.APP, "Using libavg from: "+
+        os.path.dirname(libavg.__file__))
 
 
 import testapp   
-   
+
+libavg.Player.get().keepWindowOpen()
+
 import PluginTest
 import PlayerTest
 import OffscreenTest
