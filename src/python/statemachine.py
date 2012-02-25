@@ -102,7 +102,7 @@ class StateMachine(object):
         for stateName, state in self.__states.iteritems():
             for destState, func in state.transitions.iteritems():
                 dotFile.write("    \""+stateName+"\" -> \""+destState+"\";\n")
-        dotFile.write("    \""+self.__startState+"\" [style=bold];\n")
+        dotFile.write("    \""+self.__curState+"\" [style=bold];\n")
         dotFile.write("    { rank=source; \""+self.__startState+"\" };\n")
         dotFile.write("}\n")
         dotFile.close()
