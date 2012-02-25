@@ -86,9 +86,7 @@ ConfigMgr::ConfigMgr()
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
     char * pHome = getenv("HOME");
-    if (!pHome) {
-        AVG_TRACE(Logger::WARNING, "No home directory set.");
-    } else {
+    if (pHome) {
         loadFile(string(pHome)+"/."+m_sFName);
     }
 }
