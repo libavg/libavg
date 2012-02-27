@@ -328,6 +328,13 @@ Player & Canvas
             :py:const:`False` if not.
             May only be called after :py:meth:`play()` has been called.
 
+        .. py:method:: keepWindowOpen()
+
+            Tells the player to keep the playback window open after :py:meth:`play()`
+            has returned. This makes it possible to reuse the window with another scene
+            and :py:meth:`play()` call. It is used by the tests to keep flickering to a
+            minimum and increase speed.
+
         .. py:method:: loadCanvasFile(filename) -> OffscreenCanvas
 
             Loads the canvas file specified in filename and adds it to the
