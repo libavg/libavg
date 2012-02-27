@@ -1156,7 +1156,7 @@ void Player::initConfig()
     m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 4);
+    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 

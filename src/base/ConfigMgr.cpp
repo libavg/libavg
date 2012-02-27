@@ -74,7 +74,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "usepow2textures", "false");
     addOption("scr", "useshaders", "true");
     addOption("scr", "usepixelbuffers", "true");
-    addOption("scr", "multisamplesamples", "1");
+    addOption("scr", "multisamplesamples", "8");
     addOption("scr", "gamma", "-1,-1,-1");
     addOption("scr", "vsyncmode", "auto");
     
