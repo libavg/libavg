@@ -96,21 +96,35 @@ class StateMachine(object):
                 print "  -->", newState, ":", self.__getNiceFuncName(func)
         print "Current state:", self.__curState
 
-    def makeDiagram(self, fName):
+    def makeDiagram(self, fName, showMethods=False):
+        def writeState(stateName, state):
+            label = stateName
+            if state.enterFunc.__name__ is not(None):
+                label += ('<br/><font point-size="10">Enter: ' + state.enterFunc.__name__
+                        +   "</font>")
+            if state.leaveFunc.__name__ is not(None):
+                label += ('<br/><font point-size="10">Leave: ' + state.leaveFunc.__name__
+                        +   "</font>")
+            dotFile.write('    "'+stateName+'" [label=<'+label+'>];\n')
+
         dotFile = open("tmp.dot", "w")
-        dotFile.write("digraph \""+self.__name+"\" {\n")
+        dotFile.write('digraph "'+self.__name+'" {\n')
         for stateName, state in self.__states.iteritems():
+            writeState(stateName, state)
             for destState, func in state.transitions.iteritems():
-                dotFile.write("    \""+stateName+"\" -> \""+destState+"\";\n")
-        dotFile.write("    \""+self.__curState+"\" [style=bold];\n")
-        dotFile.write("    { rank=source; \""+self.__startState+"\" };\n")
-        dotFile.write("}\n")
+                dotFile.write('    "'+stateName+'" -> "'+destState+'"')
+                if func.__name__ is not(None):
+                    dotFile.write(' [label="'+func.__name__+'", fontsize=10]')
+                dotFile.write(";\n")
+        dotFile.write('    "'+self.__curState+'" [style=bold];\n')
+        dotFile.write('    { rank=source; "'+self.__startState+'" };\n')
+        dotFile.write('}\n')
         dotFile.close()
         try:
             subprocess.call(["dot", "tmp.dot", "-Tpng", "-o"+fName])
         except OSError:
             raise RuntimeError("dot executable not found. graphvis needs to be installed for StateMachine.makeDiagram to work.")
-        os.remove("tmp.dot")
+#        os.remove("tmp.dot")
 
     def __getNiceFuncName(self, f):
         if f.__name__ is not(None):

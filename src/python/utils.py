@@ -22,7 +22,7 @@
 
 import os
 
-import weakref, new
+import weakref, new, inspect
 
 from libavg import avg, mathutil
 
@@ -68,7 +68,6 @@ class methodref(object):
         method's object to be GC'ed, while providing the same interface as a normal weak
         reference."""
     def __init__(self, fn):
-        self.__name__ = None
         try:
             # Try getting object, function and class
             o, f, c = fn.im_self, fn.im_func, fn.im_class
@@ -79,6 +78,8 @@ class methodref(object):
             self._clas = None
             if fn:
                 self.__name__ =  fn.__name__
+            else:
+                self.__name__ = None
         else:
             # Bound method
             if o is None:        # ... actually UN-bound

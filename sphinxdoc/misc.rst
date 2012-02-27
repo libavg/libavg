@@ -539,10 +539,12 @@ Misc. Classes
 
             Prints all states and transitions to the console.
 
-        .. py:method:: makeDiagram(imageFName)
+        .. py:method:: makeDiagram(imageFName, [showMethods=False])
 
             Dumps a graph of the state machine to an image file using dot. graphvis must
-            be installed and in the path for this to work. Very useful for debugging.
+            be installed and in the path for this to work. Very useful for debugging. If
+            :py:attr:`showMethods` is true, names of enter, leave and transition
+            methods are included in the diagram.
 
         .. py:method:: traceChanges(trace)
 

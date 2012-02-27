@@ -413,13 +413,16 @@ class PythonTestCase(AVGTestCase):
         self.assertException(lambda: kaputtMachine.changeState('B'))
 
     def testStateMachineDiagram(self):
+        def aEntered():
+            pass
+
         if not(self._isCurrentDirWriteable()):
             self.skip("Current dir not writeable")
             return
         
         machine = statemachine.StateMachine("testmachine", 'A')
-        machine.addState('A', {'B': None, 'nostate': None})
-        machine.addState('B', {'C': None, 'A': None})
+        machine.addState('A', {'B': None, 'nostate': None}, aEntered)
+        machine.addState('B', {'C': None, 'A': self.btoa})
         machine.addState('C', {'A': None})
 
         imageFName = AVGTestCase.imageResultDirectory + "/stateMachineGraphVis.png"
