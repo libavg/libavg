@@ -91,9 +91,9 @@ class StateMachine(object):
 
     def dump(self):
         for oldStateName, state in self.__states.iteritems():
-            print oldStateName, ":"
+            print oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)                    + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):")
             for newState, func in state.transitions.iteritems():
-                print "  -->", newState
+                print "  -->", newState, ":", self.__getNiceFuncName(func)
         print "Current state:", self.__curState
 
     def makeDiagram(self, fName):
@@ -111,6 +111,12 @@ class StateMachine(object):
         except OSError:
             raise RuntimeError("dot executable not found. graphvis needs to be installed for StateMachine.makeDiagram to work.")
         os.remove("tmp.dot")
+
+    def __getNiceFuncName(self, f):
+        if f.__name__ is not(None):
+            return f.__name__
+        else:
+            return "None"
 
     def __doSanityCheck(self):
         for stateName, state in self.__states.iteritems():

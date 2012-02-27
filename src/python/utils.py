@@ -68,6 +68,7 @@ class methodref(object):
         method's object to be GC'ed, while providing the same interface as a normal weak
         reference."""
     def __init__(self, fn):
+        self.__name__ = None
         try:
             # Try getting object, function and class
             o, f, c = fn.im_self, fn.im_func, fn.im_class
@@ -76,12 +77,16 @@ class methodref(object):
             self._obj = None
             self._func = fn
             self._clas = None
+            if fn:
+                self.__name__ =  fn.__name__
         else:
             # Bound method
             if o is None:        # ... actually UN-bound
                 self._obj = None
+                self.__name__ =  f.__name__
             else:
                 self._obj = weakref.ref(o)
+                self.__name__ =  fn.im_class.__name__ + "." + fn.__name__
             self._func = f
             self._clas = c
 

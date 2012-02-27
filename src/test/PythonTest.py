@@ -354,15 +354,17 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testArc2", True),
                 ))
 
+    def btoa(self):
+        # Test for member function handling in StateMachine.
+        self.btoaCalled = True
+
     def testStateMachine(self):
         def atob(oldState, newState):
             self.atobCalled = True
 
-        def btoc():
+        def btoc(dummy):
+            # Dummy argument so we can test handling of lambda expressions.
             self.btocCalled = True
-
-        def btoa(oldState, newState):
-            self.btoaCalled = True
 
         def aEntered():
             self.aEnteredCalled = True
@@ -377,7 +379,7 @@ class PythonTestCase(AVGTestCase):
         self.aEnteredCalled = False
         machine = statemachine.StateMachine("testmachine", 'A')
         machine.addState('A', {'B': atob, 'nostate': atob}, aEntered, aLeft)
-        machine.addState('B', {'C': btoc, 'A': btoa})
+        machine.addState('B', {'C': lambda: btoc("dummy"), 'A': self.btoa})
         machine.addState('C', {'A': None})
         self.assertException(lambda: machine.addState('C', {'A': None}))
         self.assertException(lambda: machine.changeState('C'))
@@ -393,6 +395,8 @@ class PythonTestCase(AVGTestCase):
         self.assert_(self.btocCalled)
         machine.changeState('A')
         self.assertEqual(machine.state, 'A')
+        print
+        machine.dump()
 
         self.assertException(lambda: machine.addState('illegal', {}))
 
