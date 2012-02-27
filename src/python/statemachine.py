@@ -107,15 +107,20 @@ class StateMachine(object):
                         +   "</font>")
             dotFile.write('    "'+stateName+'" [label=<'+label+'>];\n')
 
+        def writeTransition(origState, destState, func):
+            dotFile.write('    "'+origState+'" -> "'+destState+'"')
+            if func.__name__ is not(None):
+                dotFile.write(' [label="'+func.__name__+'", fontsize=10]')
+            dotFile.write(";\n")
+            
+
         dotFile = open("tmp.dot", "w")
         dotFile.write('digraph "'+self.__name+'" {\n')
+        dotFile.write('    node [fontsize=12];')
         for stateName, state in self.__states.iteritems():
             writeState(stateName, state)
             for destState, func in state.transitions.iteritems():
-                dotFile.write('    "'+stateName+'" -> "'+destState+'"')
-                if func.__name__ is not(None):
-                    dotFile.write(' [label="'+func.__name__+'", fontsize=10]')
-                dotFile.write(";\n")
+                writeTransition(stateName, destState, func)
         dotFile.write('    "'+self.__curState+'" [style=bold];\n')
         dotFile.write('    { rank=source; "'+self.__startState+'" };\n')
         dotFile.write('}\n')
