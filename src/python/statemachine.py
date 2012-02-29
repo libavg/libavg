@@ -91,7 +91,8 @@ class StateMachine(object):
 
     def dump(self):
         for oldStateName, state in self.__states.iteritems():
-            print oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)                    + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):")
+            print oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)
+                    + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):")
             for newState, func in state.transitions.iteritems():
                 print "  -->", newState, ":", self.__getNiceFuncName(func)
         print "Current state:", self.__curState
@@ -100,29 +101,31 @@ class StateMachine(object):
         def writeState(stateName, state):
             label = stateName
             if state.enterFunc.__name__ is not(None):
-                label += ('<br/><font point-size="10">Enter: ' + state.enterFunc.__name__
-                        +   "</font>")
+                label += ('<br/><font point-size="10">entry/' + state.enterFunc.__name__
+                        + '</font>')
             if state.leaveFunc.__name__ is not(None):
-                label += ('<br/><font point-size="10">Leave: ' + state.leaveFunc.__name__
+                label += ('<br/><font point-size="10">exit/' + state.leaveFunc.__name__
                         +   "</font>")
             dotFile.write('    "'+stateName+'" [label=<'+label+'>];\n')
 
         def writeTransition(origState, destState, func):
             dotFile.write('    "'+origState+'" -> "'+destState+'"')
-            if func.__name__ is not(None):
-                dotFile.write(' [label="'+func.__name__+'", fontsize=10]')
+            if func and func.__name__ is not(None):
+                dotFile.write(' [label="/'+func.__name__+'", fontsize=10]')
             dotFile.write(";\n")
             
 
         dotFile = open("tmp.dot", "w")
         dotFile.write('digraph "'+self.__name+'" {\n')
-        dotFile.write('    node [fontsize=12];')
+        dotFile.write('    node [fontsize=12, shape=box, style=rounded];\n')
+        dotFile.write('    startstate [shape=point, height=0.2, width=0.2, label=""];\n')
+        dotFile.write('    { rank=source; "startstate" };\n')
+        writeTransition("startstate", self.__startState, None)
         for stateName, state in self.__states.iteritems():
             writeState(stateName, state)
             for destState, func in state.transitions.iteritems():
                 writeTransition(stateName, destState, func)
-        dotFile.write('    "'+self.__curState+'" [style=bold];\n')
-        dotFile.write('    { rank=source; "'+self.__startState+'" };\n')
+        dotFile.write('    "'+self.__curState+'" [style="rounded,bold"];\n')
         dotFile.write('}\n')
         dotFile.close()
         try:
