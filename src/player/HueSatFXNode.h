@@ -37,7 +37,7 @@ namespace avg {
 
 class AVG_API HueSatFXNode : public FXNode {
 public:
-    HueSatFXNode(int hue=0, int saturation=0, int lightness=0, bool tint=false);
+    HueSatFXNode(int hue=0, int saturation=0, int lightness=0, bool bColorize=false);
     virtual ~HueSatFXNode();
     virtual void disconnect();
 
@@ -66,7 +66,7 @@ private:
 };
 
 typedef boost::shared_ptr<HueSatFXNode> HueSatFXNodePtr;
-} //end namespace avg
+}
 
 #endif
 

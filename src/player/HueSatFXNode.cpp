@@ -32,12 +32,12 @@ using namespace std;
 
 namespace avg {
 
-HueSatFXNode::HueSatFXNode(int hue, int saturation, int lightness, bool tint)
+HueSatFXNode::HueSatFXNode(int hue, int saturation, int lightness, bool bColorize)
     : FXNode(),
       m_fHue(hue),
       m_fLightnessOffset(lightness),
       m_fSaturation(saturation),
-      m_bColorize(tint)
+      m_bColorize(bColorize)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -93,9 +93,9 @@ void HueSatFXNode::setHue(int hue)
 
 void HueSatFXNode::setSaturation(int saturation)
 {
-    if(m_bColorize){
+    if (m_bColorize) {
         m_fSaturation = clamp(saturation, 0, 100);
-    }else{
+    } else {
         m_fSaturation = clamp(saturation, -100, 100); 
     }
     setFilterParams();
@@ -103,23 +103,19 @@ void HueSatFXNode::setSaturation(int saturation)
 
 void HueSatFXNode::setLightnessOffset(int lightnessOffset)
 {
-    m_fLightnessOffset= clamp(lightnessOffset, -100, 100);
+    m_fLightnessOffset = clamp(lightnessOffset, -100, 100);
     setFilterParams();
 }
 
 void HueSatFXNode::setColorizing(bool colorize)
 {
     m_bColorize = colorize;
-    m_fHue = 0;
-    m_fLightnessOffset = 0;
-    m_fSaturation = m_bColorize ? 50 : 0;
     setFilterParams();
 }
 
 GPUFilterPtr HueSatFXNode::createFilter(const IntPoint& size)
 {
-    filterPtr = GPUHueSatFilterPtr(new GPUHueSatFilter(size, B8G8R8A8,
-            false));
+    filterPtr = GPUHueSatFilterPtr(new GPUHueSatFilter(size, B8G8R8A8, false));
     setFilterParams();
     return filterPtr;
 }
@@ -144,9 +140,9 @@ std::string HueSatFXNode::toString()
 int HueSatFXNode::clamp(int val, int min, int max)
 {
     int result = val;
-    if(val < min){
+    if (val < min) {
         result = min;
-    }else if(val > max){
+    } else if (val > max) {
         result = max;
     }
     return result;
