@@ -113,6 +113,7 @@ void main(void)
     }
     tex = texture2D(texture, gl_TexCoord[0].st);
     if (alpha > 0.0 && hDiff < spillThreshold) {
+        rgb2hsl(tex, h, s, l);
         if (spillThreshold > hTolerance) {
             float factor = max(0.0, 1.0-(spillThreshold-hDiff)
                     /(spillThreshold-hTolerance));
