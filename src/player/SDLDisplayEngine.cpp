@@ -180,7 +180,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 24);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
+    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
     unsigned int Flags = SDL_OPENGL;
     if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
