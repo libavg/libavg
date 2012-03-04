@@ -236,10 +236,16 @@ BitmapPtr FreqFilter::cvtFreqDataToBmp(fftwf_complex * pFreqData) const
     unsigned char * pBmpPixels = pFreqBmp->getPixels();
     int stride = pFreqBmp->getStride();
     for (int y=0; y<m_Size.y; ++y) {
+        unsigned char * pDestLine;
+        if (y < m_Size.y/2) {
+            pDestLine = pBmpPixels + stride*(y+m_Size.y/2); 
+        } else {
+            pDestLine = pBmpPixels + stride*(y-m_Size.y/2); 
+        }
         for (int x=0; x<getFreqStride(); ++x) {
             float curPixel0 = fabs(pFreqData[getFreqStride()*y + x][0]);
-            pBmpPixels[stride*y + x*2] = curPixel0;
-            pBmpPixels[stride*y + x*2 + 1] = curPixel0;
+            *(pDestLine+m_Size.x/2+x+1) = curPixel0;
+            *(pDestLine+m_Size.x/2-x) = curPixel0;
         }
     }
     return pFreqBmp;
