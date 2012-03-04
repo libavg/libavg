@@ -67,6 +67,8 @@ void debugBreak()
 {
 #ifdef _WIN32
     __asm int 3;
+#elif defined __arm__
+    asm("swi 0x03");
 #else
     asm("int $3");
 #endif
