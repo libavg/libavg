@@ -81,11 +81,12 @@ static ProfilingZoneID ProfilingZoneCopyOutput("Copy output data");
 
 void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 {
-    windowBmp(pSrcBmp);
+    
+    BitmapPtr pLinearBmp = linearizeBmp(pSrcBmp);
     ScopeTimer timer(ProfilingZoneTotal);
     {
         ScopeTimer timer(ProfilingZoneInputCopy);
-        copyBmpToFloatBuffer(pSrcBmp, m_pInData);
+        copyBmpToFloatBuffer(pLinearBmp, m_pInData);
     }
 
     {
@@ -193,6 +194,41 @@ void FreqFilter::windowBmp(BitmapPtr pBmp)
             pBmpPixels[stride*(size.y-y-1)+x] *= factors[y];
         }
     }
+}
+
+BitmapPtr FreqFilter::linearizeBmp(BitmapPtr pSrcBmp)
+{
+    // Anti-edge-effect filter: Removes linear changes in image so l/r and t/b edges
+    // are identical.
+    IntPoint size = pSrcBmp->getSize();
+    BitmapPtr pDestBmp(new Bitmap(size, I8));
+    unsigned char * pSrcPixels = pSrcBmp->getPixels();
+    int srcStride = pSrcBmp->getStride();
+    unsigned char * pDestPixels = pDestBmp->getPixels();
+    int destStride = pDestBmp->getStride();
+    for (int y=0; y<size.y; ++y) {
+        unsigned char * pSrcLine = pSrcPixels + srcStride*y; 
+        float diff = float(pSrcLine[size.x-1]-pSrcLine[0]);
+        float dx = diff/(size.x-1);
+        unsigned char * pDestLine = pDestPixels + destStride*y; 
+        for (int x=0; x<size.x; ++x) {
+            pDestLine[x] = pSrcLine[x] - dx*x;
+        }
+    }
+    float dy[640];
+
+    for (int x=0; x<size.x; ++x) {
+        float diff = float(pDestPixels[destStride*(size.y-1)+x]-pDestPixels[x]);
+        dy[x] = diff/(size.y-1);
+    }
+    for (int y=0; y<size.y; ++y) {
+        unsigned char * pDestLine = pDestPixels + destStride*y; 
+        for (int x=0; x<size.x; ++x) {
+            pDestLine[x] += dy[x]*y;
+        }
+    }
+    m_pLinearBmp = pDestBmp;
+    return pDestBmp;
 }
 
 void FreqFilter::copyBmpToFloatBuffer(BitmapPtr pBmp, float* pBuffer)

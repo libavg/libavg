@@ -44,6 +44,7 @@ private:
     void deletePerBandData();
 
     void windowBmp(BitmapPtr pBmp);
+    BitmapPtr linearizeBmp(BitmapPtr pBmp);
     void copyBmpToFloatBuffer(BitmapPtr pSrcBmp, float* pBuffer);
     void doFreqDomainBandpass(const fftwf_complex * pInBuffer,
             fftwf_complex * pOutBuffer, float minFreq, float maxFreq);
@@ -53,6 +54,7 @@ private:
 
     int getFreqStride() const;
 
+    BitmapPtr m_pLinearBmp;
     IntPoint m_Size;
     std::vector<float> m_Frequencies;
     std::vector<float> m_Amplitudes;
