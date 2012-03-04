@@ -27,6 +27,7 @@
 #include "../base/StringHelper.h"
 
 #include <iostream>
+#include <algorithm>
 #include <string.h>
 
 using namespace std;
@@ -149,7 +150,7 @@ void FreqFilter::setupPerBandData()
         if (m_Frequencies[i] > m_Size.x/2 || m_Frequencies[i] > m_Size.y/2) {
             cerr << i << ", " << m_Frequencies[i] << ", " << m_Size << endl;
             throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                    "Frequency " + toString(m_Frequencies[i]) + " > half of image size.");        
+                    "Frequency " + toString(m_Frequencies[i]) + " > half of image size.");
         }
         BitmapPtr pBmp(new Bitmap(m_Size, I8));
         m_pBPBmps.push_back(pBmp);
@@ -235,6 +236,15 @@ BitmapPtr FreqFilter::cvtFreqDataToBmp(fftwf_complex * pFreqData) const
     BitmapPtr pFreqBmp(new Bitmap(m_Size+IntPoint(2,0), I8));
     unsigned char * pBmpPixels = pFreqBmp->getPixels();
     int stride = pFreqBmp->getStride();
+
+    float maxAmp = 0.f;
+    for (int y=0; y<m_Size.y; ++y) {
+        for (int x=0; x<getFreqStride(); ++x) {
+            float curAmp = pFreqData[getFreqStride()*y + x][0];
+            maxAmp = max(fabsf(curAmp), maxAmp);
+        }
+    }
+    maxAmp = log(fabs(maxAmp)+1);
     for (int y=0; y<m_Size.y; ++y) {
         unsigned char * pDestLine;
         if (y < m_Size.y/2) {
@@ -242,10 +252,14 @@ BitmapPtr FreqFilter::cvtFreqDataToBmp(fftwf_complex * pFreqData) const
         } else {
             pDestLine = pBmpPixels + stride*(y-m_Size.y/2); 
         }
+        fftwf_complex * pSrcLine = pFreqData + getFreqStride()*y;
         for (int x=0; x<getFreqStride(); ++x) {
-            float curPixel0 = fabs(pFreqData[getFreqStride()*y + x][0]);
-            *(pDestLine+m_Size.x/2+x+1) = curPixel0;
-            *(pDestLine+m_Size.x/2-x) = curPixel0;
+            float curPixel = log((fabs(pSrcLine[x][0]))+1)/maxAmp*255;
+            if (curPixel > 255 || curPixel < 0) {
+                cerr << curPixel << endl;
+            }
+            *(pDestLine+m_Size.x/2+x+1) = curPixel;
+            *(pDestLine+m_Size.x/2-x) = curPixel;
         }
     }
     return pFreqBmp;
