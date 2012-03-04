@@ -20,7 +20,10 @@
 
 import utils
 
-class State:
+import subprocess
+import os
+
+class State(object):
     def __init__(self, transitions, enterFunc, leaveFunc):
         self.transitions = {}
         for destState, transfunc in transitions.items():
@@ -29,10 +32,11 @@ class State:
         self.enterFunc = utils.methodref(enterFunc)
         self.leaveFunc = utils.methodref(leaveFunc)
 
-class StateMachine:
+class StateMachine(object):
     def __init__(self, name, startState):
         self.__states = {}
         self.__name = name
+        self.__startState = startState
         self.__curState = startState
         self.__trace = False
         self.__initDone = False
@@ -86,11 +90,55 @@ class StateMachine:
         return self.__curState
 
     def dump(self):
-        for oldState, transitions in self.__states.iteritems():
-            print oldState, ":"
-            for newState, func in transitions.iteritems():
-                print "  -->", newState, ":", func.__name__
+        for oldStateName, state in self.__states.iteritems():
+            print oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)
+                    + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):")
+            for newState, func in state.transitions.iteritems():
+                print "  -->", newState, ":", self.__getNiceFuncName(func)
         print "Current state:", self.__curState
+
+    def makeDiagram(self, fName, showMethods=False):
+        def writeState(stateName, state):
+            label = stateName
+            if state.enterFunc.__name__ is not(None):
+                label += ('<br/><font point-size="10">entry/' + state.enterFunc.__name__
+                        + '</font>')
+            if state.leaveFunc.__name__ is not(None):
+                label += ('<br/><font point-size="10">exit/' + state.leaveFunc.__name__
+                        +   "</font>")
+            dotFile.write('    "'+stateName+'" [label=<'+label+'>];\n')
+
+        def writeTransition(origState, destState, func):
+            dotFile.write('    "'+origState+'" -> "'+destState+'"')
+            if func and func.__name__ is not(None):
+                dotFile.write(' [label="/'+func.__name__+'", fontsize=10]')
+            dotFile.write(";\n")
+            
+
+        dotFile = open("tmp.dot", "w")
+        dotFile.write('digraph "'+self.__name+'" {\n')
+        dotFile.write('    node [fontsize=12, shape=box, style=rounded];\n')
+        dotFile.write('    startstate [shape=point, height=0.2, width=0.2, label=""];\n')
+        dotFile.write('    { rank=source; "startstate" };\n')
+        writeTransition("startstate", self.__startState, None)
+        for stateName, state in self.__states.iteritems():
+            writeState(stateName, state)
+            for destState, func in state.transitions.iteritems():
+                writeTransition(stateName, destState, func)
+        dotFile.write('    "'+self.__curState+'" [style="rounded,bold"];\n')
+        dotFile.write('}\n')
+        dotFile.close()
+        try:
+            subprocess.call(["dot", "tmp.dot", "-Tpng", "-o"+fName])
+        except OSError:
+            raise RuntimeError("dot executable not found. graphvis needs to be installed for StateMachine.makeDiagram to work.")
+        os.remove("tmp.dot")
+
+    def __getNiceFuncName(self, f):
+        if f.__name__ is not(None):
+            return f.__name__
+        else:
+            return "None"
 
     def __doSanityCheck(self):
         for stateName, state in self.__states.iteritems():

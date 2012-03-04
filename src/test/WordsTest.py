@@ -169,6 +169,12 @@ class WordsTestCase(AVGTestCase):
         def setDefaultSize():
             node.masksize = (0,0)
 
+        def setCentered():
+            node.alignment = "center"
+            node.masksize = (160, 120)
+            node.pos = (80,20)
+            node.maskpos = (0, -20)
+
         root = self.loadEmptyScene()
         node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
                 variant="roman", width=160,
@@ -195,6 +201,8 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsMask5", False),
                  setDefaultSize,
                  lambda: self.compareImage("testWordsMask6", False),
+                 setCentered,
+                 lambda: self.compareImage("testWordsMask7", False),
                 ))
 
     def testHinting(self):
@@ -568,7 +576,7 @@ class WordsTestCase(AVGTestCase):
         
         def testSize(p1, p2):
             self.assert_(abs(p1.x - p2.x) < 5)
-            self.assert_(abs(p1.y - p2.y) < 5)
+            self.assert_(abs(p1.y - p2.y) < 20)
         
         testSize(textNode.size, avg.Point2D(630,13))
         testSize(textNode.getMediaSize(), avg.Point2D(630,13))

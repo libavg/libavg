@@ -75,7 +75,10 @@ void TrackerConfig::loadConfigFile(const string& sFilename)
                 << ". Not validating trackerconfig files.");
     }
 
-    m_Doc = xmlParseFile(sFilename.c_str());
+    // xmlParseFile crashes for some reason under Lion.
+    string sFileContents;
+    readWholeFile(sFilename, sFileContents);
+    m_Doc = xmlParseMemory(sFileContents.c_str(), sFileContents.length());
     if (!m_Doc) {
         AVG_TRACE(Logger::ERROR, "Could not open tracker config file " 
                 << sFilename << ". Using defaults which will probably not work.");

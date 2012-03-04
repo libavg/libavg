@@ -55,6 +55,7 @@ class AVG_API OGLShader {
         friend class ShaderRegistry;
 
         void dumpInfoLog(GLhandleARB hObj);
+        std::string removeATIInfoLogSpam(const std::string& sLog);
         int safeGetUniformLoc(const std::string& sName);
 
         GLhandleARB m_hFragmentShader;

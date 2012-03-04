@@ -31,11 +31,13 @@ class Button(avg.DivNode):
     STATE_UP       = 2
     STATE_DOWN     = 3
     
-    def __init__(self, upNode = None, downNode = None, disabledNode = None, 
-            activeAreaNode = None, pressHandler = None, clickHandler = None,
-            stateChangeHandler = None, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
-        
+    def __init__(self, upNode=None, downNode=None, disabledNode=None, 
+            activeAreaNode=None, pressHandler=None, clickHandler=None,
+            stateChangeHandler=None, parent=None, **kwargs):
+        super(Button, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
+
         self.__upNode = upNode
         self.__downNode = downNode
         self.__disabledNode = disabledNode
@@ -258,9 +260,11 @@ class Button(avg.DivNode):
 
 class TouchButton(avg.DivNode):
 
-    def __init__(self, upNode, downNode, disabledNode = None, activeAreaNode = None, 
-            fatFingerEnlarge=False, clickHandler = None, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+    def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
+            fatFingerEnlarge=False, clickHandler=None, parent=None, **kwargs):
+        super(TouchButton, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
         
         self.__upNode = upNode
         self.__downNode = downNode

@@ -55,6 +55,16 @@ def flatten(l):
         i += 1
     return ltype(l)
 
+# Should be used as a decorator
+def skipIf(func, condition, message):
+    def wrapper(self, *args, **kwargs):
+        if not(condition):
+            return func(self, *args, **kwargs)
+        else:
+            self.skip(message)
+            return
+    return wrapper
+
 
 class AVGTestCase(unittest.TestCase):
     imageResultDirectory = "resultimages"
@@ -93,14 +103,6 @@ class AVGTestCase(unittest.TestCase):
             except OSError:
                 pass
 
-    @staticmethod
-    def setBaselineImageDirectory(name):
-        AVGTestCase.baselineImageResultDirectory = name
-    
-    @staticmethod
-    def getBaselineImageDir():
-        return AVGTestCase.baselineImageResultDirectory
-    
     def start(self, actions):
         self.__setupPlayer()
         self.__dumpTestFrames = (os.getenv("AVG_DUMP_TEST_FRAMES") != None)
@@ -126,8 +128,8 @@ class AVGTestCase(unittest.TestCase):
 
     def compareBitmapToFile(self, bmp, fileName, warn):
         try:
-            baselineBmp = avg.Bitmap(AVGTestCase.getBaselineImageDir() + "/" + fileName
-                    + ".png")
+            baselineBmp = avg.Bitmap(AVGTestCase.baselineImageResultDirectory + "/"
+                    + fileName + ".png")
             diffBmp = bmp.subtract(baselineBmp)
             average = diffBmp.getAvg()
             stdDev = diffBmp.getStdDev()
@@ -262,7 +264,7 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
     return suite
 
 
-class NodeHandlerTester:
+class NodeHandlerTester(object):
     def __init__(self, testCase, node):
         self.__testCase=testCase
         self.reset()

@@ -82,12 +82,12 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IInputDevice
         void initTranslationTable();
         void calcScreenDimensions(float dotsPerMM=0);
 
+        bool internalSetGamma(float red, float green, float blue);
+
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
-        EventPtr createMouseButtonEvent
-                (Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent
-                (Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createMouseButtonEvent(Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createKeyEvent(Event::Type Type, const SDL_Event & SDLEvent);
         
         IntPoint m_Size;
         bool m_bIsFullscreen;

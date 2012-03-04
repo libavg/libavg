@@ -80,44 +80,9 @@ This section describes the base classes for all node classes that libavg provide
         :py:meth:`Player.loadCanvasString` are the equivalent methods for offscreen 
         canvases.
 
-    .. autoclass:: Node([oncursormove, oncursorup, uncursordown, oncursorover, oncursorout, id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0])
+    .. autoclass:: Node(id: string="", parent: DivNode=None, active=True, sensitive=True, opacity=1.0])
 
         Base class for everything that can be put into an avg tree.
-
-        :param string oncursormove:
-
-            Name of python function to call when a cursor moves.
-
-            .. deprecated:: 1.5
-                Use :func:`connectEventHandler()` instead.
-
-        :param string oncursorup:
-
-            Name of python function to call when an up event occurs.
-
-            .. deprecated:: 1.5
-                Use :func:`connectEventHandler()` instead.
-
-        :param string oncursordown:
-
-            Name of python function to call when a down event occurs.
-
-            .. deprecated:: 1.5
-                Use :func:`connectEventHandler()` instead.
-
-        :param string oncursorover:
-
-            Name of python function to call when a cursor enters the node.
-
-            .. deprecated:: 1.5
-                Use :func:`connectEventHandler()` instead.
-
-        :param string oncursorout:
-
-            Name of python function to call when a cursor leaves the node.
-
-            .. deprecated:: 1.5
-                Use :func:`connectEventHandler()` instead.
 
         .. py:attribute:: id
 

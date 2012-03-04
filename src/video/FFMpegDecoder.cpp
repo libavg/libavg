@@ -397,12 +397,12 @@ VideoInfo FFMpegDecoder::getVideoInfo() const
             m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getNominalFPS(), m_FPS,
-                m_pVStream->codec->codec->name, usesVDPAU());
+                m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));
     }
     if (m_pAStream) {
         AVCodecContext * pACodec = m_pAStream->codec;
         info.setAudioData(pACodec->codec->name, pACodec->sample_rate,
-                pACodec->channels);
+                pACodec->channels, getDuration(SS_AUDIO));
     }
     return info;
 }
@@ -468,12 +468,19 @@ float FFMpegDecoder::getCurTime(StreamSelect stream) const
     }
 }
 
-float FFMpegDecoder::getDuration() const
+float FFMpegDecoder::getDuration(StreamSelect streamSelect) const
 {
     AVG_ASSERT(m_State != CLOSED);
     long long duration;
     AVRational time_base;
-    if (m_pVStream) {
+    if (streamSelect == SS_DEFAULT) {
+        if (m_pVStream) {
+            streamSelect = SS_VIDEO;
+        } else {
+            streamSelect = SS_AUDIO;
+        }
+    }
+    if (streamSelect == SS_VIDEO) {
         duration = m_pVStream->duration;
         time_base = m_pVStream->time_base;
     } else {

@@ -25,7 +25,7 @@ from libavg.avg import ImageNode
 
 g_Player = avg.Player.get()
 
-class INVERT(AVGApp):
+class InvertApp(AVGApp):
 
     multiTouch = False
 
@@ -38,5 +38,5 @@ class INVERT(AVGApp):
         invert.setEffect(avg.InvertFXNode())
 
 if __name__ == '__main__':
-    INVERT.start(resolution=(200,200),debugWindowSize=(200,200))
+    InvertApp.start(resolution=(200,200),debugWindowSize=(200,200))
 

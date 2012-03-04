@@ -27,8 +27,11 @@ g_Player = avg.Player.get()
 
 class BaseTouchVisualization(avg.DivNode):
 
-    def __init__(self, event, **kwargs):
+    def __init__(self, event, parent=None, **kwargs):
         avg.DivNode.__init__(self, **kwargs)
+        if parent:
+            parent.appendChild(self)
+
         self.contact = event.contact
         self.listenerid = event.contact.connectListener(self._onMotion, self._onUp)
         self.pos = avg.Point2D(event.pos)
@@ -142,8 +145,11 @@ class TouchVisualization(BaseTouchVisualization):
         
 
 class TouchVisualizationOverlay(avg.DivNode):
-    def __init__(self, isDebug, visClass, **kwargs):
+    def __init__(self, isDebug, visClass, parent=None, **kwargs):
         super(TouchVisualizationOverlay, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
+
         self.sensitive = False
         self.visClass = visClass
 
@@ -163,8 +169,11 @@ class TouchVisualizationOverlay(avg.DivNode):
 
 
 class KeysCaptionNode(avg.DivNode):
-    def __init__(self, **kwargs):
+    def __init__(self, parent=None, **kwargs):
         super(KeysCaptionNode, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
+        
         self.sensitive = False
         self.opacity = 0
         

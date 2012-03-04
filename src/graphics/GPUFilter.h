@@ -29,8 +29,6 @@
 #include "PBO.h"
 #include "FBO.h"
 
-#include <boost/thread/tss.hpp>
-
 namespace avg {
 
 class ImagingProjection;

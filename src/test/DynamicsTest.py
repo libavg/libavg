@@ -142,22 +142,6 @@ class DynamicsTestCase(AVGTestCase):
 
         self.__runDynamicsTest(createWords, "testWordsDynamics", False, True)
 
-    def testPanoDynamics(self):
-        def createPano(useXml):
-            if useXml:
-                node = Player.createNode("""
-                    <panoimage href='panoimage.png' sensorwidth='4.60'
-                            sensorheight='3.97' focallength='12'
-                            width='160' height='120'/>
-                    """)
-            else:
-                node = Player.createNode("panoimage", 
-                    {"href":"panoimage.png", "sensorwidth":4.60, "sensorheight":3.97,
-                     "focallength":12, "width":160, "height":120})
-            return node
-
-        self.__runDynamicsTest(createPano, "testPanoDynamics")
-
     def testDivDynamics(self):
         def createDiv(useXml):
             if useXml:
@@ -385,7 +369,6 @@ def dynamicsTestSuite(tests):
             "testImgDynamics",
             "testVideoDynamics",
             "testWordsDynamics",
-        #   "testPanoDynamics",
             "testDivDynamics",
             "testEventBubbling",
             "testDuplicateID",

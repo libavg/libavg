@@ -31,8 +31,11 @@ GUI_SIZE=(300, 200)
 g_Player = avg.Player.get()
 
 class FXSlider(avg.DivNode):
-    def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+    def __init__(self, row, min, max, fxNode, fxAttrName, caption, isInt, parent=None,
+            **kwargs):
+        super(FXSlider, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
         avg.RectNode(pos=(0,8), size=(280,38), color="808080", strokewidth=2,
                 parent=self)
         textBgRect = avg.RectNode(pos=(8,2), fillcolor="000000", fillopacity=1, 

@@ -333,29 +333,6 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(self.__exceptionThrown)
         Player.clearInterval(self.timeout3ID)
 
-    def testPanoImage(self):
-        def changeProperties():
-            node = Player.getElementByID("pano")
-            node.sensorheight=10
-            node.sensorwidth=15
-            node.focallength=25
-        
-        def loadImage():
-            node = Player.getElementByID("pano")
-            node.href = "rgb24-65x65.png"
-
-        root = self.loadEmptyScene()
-        avg.ImageNode(size=(320,240), href="rgb24-65x65.png", parent=root)
-        avg.PanoImageNode(id="pano", size=(160,120), href="panoimage.png",
-                sensorwidth=4.60, sensorheight=3.97, focallength=12, parent=root)
-        avg.ImageNode(pos=(120,0), size=(40,40), href="rgb24-65x65.png", parent=root)
-        self.start((
-                 lambda: self.compareImage("testPanoImage", False),
-                 lambda: time.sleep,
-                 changeProperties,
-                 loadImage
-                ))
-
     def testAVGFile(self):
         Player.loadFile("image.avg")
         self.start((
@@ -749,7 +726,6 @@ def playerTestSuite(tests):
             "testInvalidImageFilename",
             "testInvalidVideoFilename",
             "testTimeouts",
-            "testPanoImage",
             "testAVGFile",
             "testBroken",
             "testMove",

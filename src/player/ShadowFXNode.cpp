@@ -31,13 +31,14 @@ using namespace std;
 
 namespace avg {
 
-ShadowFXNode::ShadowFXNode() 
+ShadowFXNode::ShadowFXNode(glm::vec2 offset, float radius, float opacity, string sColor) 
     : FXNode(),
-      m_Offset(0,0),
-      m_StdDev(1),
-      m_Opacity(1),
-      m_Color(255,255,255,255)
+      m_Offset(offset),
+      m_StdDev(radius),
+      m_Opacity(opacity)
 {
+    m_sColorName = sColor;
+    m_Color = colorStringToColor(sColor);
     ObjectCounter::get()->incRef(&typeid(*this));
     if (!GLTexture::isFloatFormatSupported()) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
@@ -65,17 +66,6 @@ void ShadowFXNode::disconnect()
     FXNode::disconnect();
 }
 
-void ShadowFXNode::setParams(const glm::vec2& offset, float stdDev, float opacity, 
-        const string& sColor)
-{
-    m_Offset = offset;
-    m_StdDev = stdDev;
-    m_Opacity = opacity;
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(sColor);
-    updateFilter();
-}
-    
 void ShadowFXNode::setOffset(const glm::vec2& offset)
 {
     m_Offset = offset;

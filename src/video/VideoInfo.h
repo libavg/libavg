@@ -36,9 +36,10 @@ struct AVG_API VideoInfo
     VideoInfo(float duration, int bitrate, bool bHasVideo, bool bHasAudio);
     void setVideoData(const IntPoint& size, const std::string& sPixelFormat,
             int numFrames, float streamFPS, float FPS, const std::string& sVCodec,
-            bool bUsesVDPAU);
+            bool bUsesVDPAU, float duration);
 
-    void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels);
+    void setAudioData(const std::string& sACodec, int sampleRate, int numAudioChannels,
+            float duration);
 
     float m_Duration;
     int m_Bitrate;
@@ -51,11 +52,13 @@ struct AVG_API VideoInfo
     float m_FPS;
     std::string m_sVCodec;
     bool m_bUsesVDPAU;
+    float m_VideoDuration;
 
     bool m_bHasAudio;
     std::string m_sACodec;
     int m_SampleRate;
     int m_NumAudioChannels;
+    float m_AudioDuration;
 };
 
 }

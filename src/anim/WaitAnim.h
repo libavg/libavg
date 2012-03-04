@@ -28,6 +28,9 @@
 
 namespace avg {
 
+class WaitAnim;
+typedef boost::shared_ptr<class WaitAnim> WaitAnimPtr;
+
 class AVG_API WaitAnim: public Anim {
 public:
     WaitAnim(long long duration = -1,
@@ -43,6 +46,7 @@ public:
 private:
     long long m_Duration;
     long long m_StartTime;
+    WaitAnimPtr m_pThis; // Make sure we're not deleted while running.
 };
 
 }

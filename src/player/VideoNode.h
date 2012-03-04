@@ -74,6 +74,8 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         void seekToFrame(int frameNum);
         std::string getStreamPixelFormat() const;
         long long getDuration() const;
+        long long getVideoDuration() const;
+        long long getAudioDuration() const;
         int getBitrate() const;
         std::string getVideoCodec() const;
         std::string getAudioCodec() const;

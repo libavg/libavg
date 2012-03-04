@@ -80,10 +80,11 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 }
 #endif
 
+GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
+
 GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig, 
         GLContext* pSharedContext)
-    : m_VBMethod(VB_NONE),
-      m_Context(0),
+    : m_Context(0),
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
@@ -466,35 +467,35 @@ bool GLContext::initVBlank(int rate)
     if (rate > 0) {
 #ifdef __APPLE__
         initMacVBlank(rate);
-        m_VBMethod = VB_APPLE;
+        s_VBMethod = VB_APPLE;
 #elif defined _WIN32
         if (queryOGLExtension("WGL_EXT_swap_control")) {
             glproc::SwapIntervalEXT(rate);
-            m_VBMethod = VB_WIN;
+            s_VBMethod = VB_WIN;
         } else {
             AVG_TRACE(Logger::WARNING,
                     "Windows VBlank setup failed: OpenGL Extension not supported.");
-            m_VBMethod = VB_NONE;
+            s_VBMethod = VB_NONE;
         }
 #else
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) {
             AVG_TRACE(Logger::WARNING, 
                     "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
-            m_VBMethod = VB_NONE;
+            s_VBMethod = VB_NONE;
         } else {
             if (queryGLXExtension("GLX_EXT_swap_control")) {
-                m_VBMethod = VB_GLX;
+                s_VBMethod = VB_GLX;
                 glproc::SwapIntervalEXT(m_pDisplay, m_Drawable, rate);
 
             } else {
                 AVG_TRACE(Logger::WARNING,
                         "Linux VBlank setup failed: OpenGL Extension not supported.");
-                m_VBMethod = VB_NONE;
+                s_VBMethod = VB_NONE;
             }
         }
 #endif
     } else {
-        switch (m_VBMethod) {
+        switch (s_VBMethod) {
             case VB_APPLE:
                 initMacVBlank(0);
                 break;
@@ -511,9 +512,9 @@ bool GLContext::initVBlank(int rate)
             default:
                 break;
         }
-        m_VBMethod = VB_NONE;
+        s_VBMethod = VB_NONE;
     }
-    switch(m_VBMethod) {
+    switch(s_VBMethod) {
         case VB_GLX:
             AVG_TRACE(Logger::CONFIG, 
                     "  Using SGI OpenGL extension for vertical blank support.");
@@ -530,7 +531,7 @@ bool GLContext::initVBlank(int rate)
         default:
             AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
     }
-    return m_VBMethod != VB_NONE;
+    return s_VBMethod != VB_NONE;
 }
 
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)

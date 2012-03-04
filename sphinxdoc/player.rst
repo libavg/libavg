@@ -111,15 +111,6 @@ Player & Canvas
             amplify playback. A limiter prevents distortion when the volume
             is set to high.
 
-        .. py:method:: addTracker()
-
-            Adds a camera-based multitouch tracker to the avg player. The tracker can be
-            configured using the :file:`avgtrackerrc` file and immediately starts
-            reporting events.
-
-            .. deprecated:: 1.5
-                Use :func:`enableMultitouch()` instead. 
-
         .. py:method:: assumePixelsPerMM(ppmm)
 
             Tells the system to assume a resolution for the physical screen, overriding 
@@ -301,8 +292,8 @@ Player & Canvas
 
         .. py:method:: getTracker() -> Tracker
 
-            Returns a tracker previously created with :py:meth:`addTracker` or 
-            :py:meth:`enableMultitouch` with the internal tracker configured.
+            Returns a tracker previously created using :py:meth:`enableMultitouch` with
+            the internal tracker configured.
 
         .. py:method:: getVideoMemInstalled() -> int
 
@@ -336,6 +327,13 @@ Player & Canvas
             Returns :py:const:`True` if shader support is enabled and working,
             :py:const:`False` if not.
             May only be called after :py:meth:`play()` has been called.
+
+        .. py:method:: keepWindowOpen()
+
+            Tells the player to keep the playback window open after :py:meth:`play()`
+            has returned. This makes it possible to reuse the window with another scene
+            and :py:meth:`play()` call. It is used by the tests to keep flickering to a
+            minimum and increase speed.
 
         .. py:method:: loadCanvasFile(filename) -> OffscreenCanvas
 

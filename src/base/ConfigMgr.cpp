@@ -74,7 +74,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "usepow2textures", "false");
     addOption("scr", "useshaders", "true");
     addOption("scr", "usepixelbuffers", "true");
-    addOption("scr", "multisamplesamples", "1");
+    addOption("scr", "multisamplesamples", "8");
     addOption("scr", "gamma", "-1,-1,-1");
     addOption("scr", "vsyncmode", "auto");
     
@@ -86,9 +86,7 @@ ConfigMgr::ConfigMgr()
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);
     char * pHome = getenv("HOME");
-    if (!pHome) {
-        AVG_TRACE(Logger::WARNING, "No home directory set.");
-    } else {
+    if (pHome) {
         loadFile(string(pHome)+"/."+m_sFName);
     }
 }

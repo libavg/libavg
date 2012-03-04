@@ -22,7 +22,7 @@
 
 import os
 
-import weakref, new
+import weakref, new, inspect
 
 from libavg import avg, mathutil
 
@@ -76,12 +76,18 @@ class methodref(object):
             self._obj = None
             self._func = fn
             self._clas = None
+            if fn:
+                self.__name__ =  fn.__name__
+            else:
+                self.__name__ = None
         else:
             # Bound method
             if o is None:        # ... actually UN-bound
                 self._obj = None
+                self.__name__ =  f.__name__
             else:
                 self._obj = weakref.ref(o)
+                self.__name__ =  fn.im_class.__name__ + "." + fn.__name__
             self._func = f
             self._clas = c
 

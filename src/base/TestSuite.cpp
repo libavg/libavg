@@ -53,6 +53,10 @@ void TestSuite::runTests()
         } catch (Exception& ex) {
             cerr << string(m_IndentLevel, ' ') << ex.getStr() << endl;
             setFailed();
+        } catch (std::exception& ex) {
+            cerr << string(m_IndentLevel, ' ') << "    ---->> failed, std::exception: "
+                    << ex.what() << endl;
+            setFailed();
         } catch (...) {
             cerr << string(m_IndentLevel, ' ') <<
                 "    ---->> failed, exception caught" << endl;

@@ -33,11 +33,14 @@ g_Logger = avg.Logger.get()
 
 class Key(avg.ImageNode):
     def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, 
-            onOutCallback=lambda event, keyCode:None, sticky=False, *args, **kwargs):
+            onOutCallback=lambda event, keyCode:None, sticky=False, parent=None, 
+            **kwargs):
         kwargs['pos'] = keyDef[1]
         kwargs['size'] = keyDef[2]
         kwargs['opacity'] = 0.0
-        super(Key, self).__init__(*args, **kwargs)
+        super(Key, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
 
         if ovlHref:
             self.__createImage(ovlHref)
@@ -117,13 +120,14 @@ class Key(avg.ImageNode):
             self.__onUpCallback(event, self.__keyCode)
         
 
-
 class Keyboard(avg.DivNode):
 
     def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, *args, **kwargs):
+            stickyShift=False, parent=None, **kwargs):
         # TODO: shift and altGr handling have some duplicated code.
-        super(Keyboard, self).__init__(*args, **kwargs)
+        super(Keyboard, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
 
         self.__shiftKeyCode = shiftKeyCode
         self.__shiftDownCounter = 0

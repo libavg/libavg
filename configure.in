@@ -5,6 +5,13 @@ dnl Use this file to bump version on release
 m4_include([m4/avg_version.m4])
 
 AC_INIT(libavg, [VERSION_MAJOR.VERSION_MINOR.VERSION_MICRO], uzadow@libavg.de)
+
+dnl Hack to detect virtualenv
+if [[ x"$VIRTUAL_ENV" != "x" ]] && [[ $prefix = NONE ]]; then
+    prefix=$VIRTUAL_ENV
+    AC_MSG_RESULT([Virtualenv detected, setting prefix to $prefix])
+fi
+
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
@@ -33,6 +40,13 @@ AC_SUBST(OBJCFLAGS)
 AC_SUBST(OBJCLDFLAGS)
 _AM_DEPENDENCIES([OBJC])
 LDFLAGS="$LDFLAGS -rdynamic"
+
+if [[ $target_vendor = apple ]] && [[ x"`which port`" = x"/opt/local/bin/port" ]]; then
+    AC_MSG_RESULT([Macports detected. Adding include and lib search paths])
+    CFLAGS="$CFLAGS -I/opt/local/include"
+    CXXFLAGS="$CXXFLAGS -I/opt/local/include"
+    LDFLAGS="$LDFLAGS -L/opt/local/lib"
+fi
 
 AC_SEARCH_LIBS([clock_gettime],[rt])
 
@@ -160,7 +174,7 @@ AC_SUBST(PREFIX)
 AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile src/test/Makefile src/test/plugin/Makefile
     src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/wrapper/Makefile 
-    src/player/Makefile src/parport/Makefile src/graphics/Makefile 
+    src/player/Makefile src/graphics/Makefile 
     src/graphics/shaders/Makefile src/python/Makefile
     src/imaging/Makefile src/video/Makefile src/audio/Makefile src/utils/Makefile 
     src/anim/Makefile src/python/data/Makefile src/samples/Makefile 

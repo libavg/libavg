@@ -35,13 +35,12 @@ namespace avg {
 
 class AVG_API ShadowFXNode: public FXNode {
 public:
-    ShadowFXNode();
+    ShadowFXNode(glm::vec2 offset=glm::vec2(0,0), float radius=1.f, float opacity=1.f,
+            std::string sColor="FFFFFF");
     virtual ~ShadowFXNode();
 
     virtual void connect();
     virtual void disconnect();
-    void setParams(const glm::vec2& offset, float stdDev, float opacity, 
-            const std::string& sColor);
 
     void setOffset(const glm::vec2& offset);
     glm::vec2 getOffset() const;

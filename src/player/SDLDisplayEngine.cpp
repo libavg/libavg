@@ -180,7 +180,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 24);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
+    safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
     unsigned int Flags = SDL_OPENGL;
     if (dp.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
@@ -280,13 +280,12 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 void SDLDisplayEngine::teardown()
 {
     if (m_pScreen) {
-        if (m_Gamma[0] != 1.0 || m_Gamma[1] != 1.0 || m_Gamma[2] != 1.0) {
-            SDL_SetGamma(1.0, 1.0, 1.0);
+        if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
+            internalSetGamma(1.0f, 1.0f, 1.0f);
         }
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_ShowCursor(SDL_ENABLE);
-//        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
 #endif
         m_pScreen = 0;
         m_pGLContext = GLContextPtr();
@@ -304,12 +303,13 @@ float SDLDisplayEngine::getRefreshRate()
 void SDLDisplayEngine::setGamma(float red, float green, float blue)
 {
     if (red > 0) {
-        AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", " << blue);
-        int err = SDL_SetGamma(float(red), float(green), float(blue));
+        AVG_TRACE(Logger::CONFIG, "Setting gamma to " << red << ", " << green << ", "
+                << blue);
+        bool bOk = internalSetGamma(red, green, blue);
         m_Gamma[0] = red;
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
-        if (err == -1) {
+        if (!bOk) {
             AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
         }
     }
@@ -351,6 +351,19 @@ void SDLDisplayEngine::calcScreenDimensions(float dotsPerMM)
         m_PPMM = m_ScreenResolution.x/displayMM.x;
 #endif
     }
+}
+
+bool SDLDisplayEngine::internalSetGamma(float red, float green, float blue)
+{
+#ifdef __APPLE__
+    // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
+    CGError err = CGSetDisplayTransferByFormula(kCGDirectMainDisplay, 0, 1, 1/red,
+            0, 1, 1/green, 0, 1, 1/blue);
+    return (err == CGDisplayNoErr);
+#else
+    int err = SDL_SetGamma(float(red), float(green), float(blue));
+    return (err != -1);
+#endif
 }
 
 static ProfilingZoneID SwapBufferProfilingZone("Render - swap buffers");

@@ -152,9 +152,6 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
     protected:
         Node();
 
-        void addArgEventHandlers(Event::Type eventType, const std::string& sCode);
-        void addArgEventHandler(Event::Type eventType, Event::Source source, 
-                const std::string& sCode);
         bool reactsToMouseEvents();
             
         void setState(NodeState state);

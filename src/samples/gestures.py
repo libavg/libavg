@@ -23,8 +23,11 @@ def moveNodeOnScreen(node):
 
 
 class TextRect(avg.DivNode):
-    def __init__(self, text, **kwargs):
-        avg.DivNode.__init__(self, size=(150,40), **kwargs)
+    def __init__(self, text, parent=None, **kwargs):
+        super(TextRect, self).__init__(size=(150,40), **kwargs)
+        if parent:
+            parent.appendChild(self)
+
         self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor="000000", 
                 color="FFFFFF", parent=self)
         self.words = avg.WordsNode(color="FFFFFF", text=text, alignment="center", 
@@ -44,7 +47,7 @@ class TextRect(avg.DivNode):
 
 class TransformNode(TextRect):
     def __init__(self, text, ignoreScale, ignoreRotation, friction=-1, **kwargs):
-        TextRect.__init__(self, text, **kwargs)
+        super(TransformNode, self).__init__(text, **kwargs)
         self.__ignoreScale = ignoreScale
         self.__ignoreRotation = ignoreRotation
 
@@ -72,8 +75,11 @@ class TransformNode(TextRect):
 
 
 class TransformChildNode(avg.DivNode):
-    def __init__(self, text, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+    def __init__(self, text, parent=None, **kwargs):
+        super(TransformChildNode, self).__init__( **kwargs)
+        if parent:
+            parent.appendChild(self)
+
         self.textRect = TextRect(text, parent=self)
         self.size = self.textRect.size
 
@@ -99,7 +105,7 @@ class TransformChildNode(avg.DivNode):
 
 class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
-        TextRect.__init__(self, text, **kwargs)
+        super(DragNode, self).__init__(text, **kwargs)
 
         self.recognizer = ui.DragRecognizer(
                 eventNode=self,
@@ -124,7 +130,7 @@ class DragNode(TextRect):
 
 class ConstrainedDragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
-        TextRect.__init__(self, text, **kwargs)
+        super(ConstrainedDragNode, self).__init__(text, **kwargs)
 
         self.recognizer = ui.DragRecognizer(
                 eventNode=self,
@@ -159,7 +165,7 @@ class ConstrainedDragNode(TextRect):
 
 class TapNode(TextRect):
     def __init__(self, text, isDoubleTap, **kwargs):
-        TextRect.__init__(self, text, **kwargs)
+        super(TapNode, self).__init__(text, **kwargs)
 
         if isDoubleTap:
             self.recognizer = ui.DoubletapRecognizer(node=self, 
@@ -187,7 +193,7 @@ class TapNode(TextRect):
 
 class HoldNode(TextRect):
     def __init__(self, text, **kwargs):
-        TextRect.__init__(self, text, **kwargs)
+        super(HoldNode, self).__init__(text, **kwargs)
 
         self.recognizer = ui.HoldRecognizer(node=self, possibleHandler=self.__onPossible,
                 detectedHandler=self.__onDetected, failHandler=self.__onFail,

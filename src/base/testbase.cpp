@@ -483,7 +483,7 @@ public:
             bool bExceptionThrown = false;
             try {
                 CubicSpline spline(x, y);
-            } catch (const Exception& e) {
+            } catch (const Exception&) {
                 bExceptionThrown = true;
             }
             TEST(bExceptionThrown);

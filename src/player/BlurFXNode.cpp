@@ -31,9 +31,9 @@ using namespace std;
 
 namespace avg {
 
-BlurFXNode::BlurFXNode() 
+BlurFXNode::BlurFXNode(float radius) 
     : FXNode(),
-      m_StdDev(1)
+      m_StdDev(radius)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -57,11 +57,6 @@ void BlurFXNode::disconnect()
 {
     m_pFilter = GPUBlurFilterPtr();
     FXNode::disconnect();
-}
-
-void BlurFXNode::setParam(float stdDev)
-{
-    setRadius(stdDev);
 }
 
 void BlurFXNode::setRadius(float stdDev)

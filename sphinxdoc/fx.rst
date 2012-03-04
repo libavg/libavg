@@ -7,7 +7,7 @@ Effect Nodes
     .. inheritance-diagram:: BlurFXNode ChromaKeyFXNode HueSatFXNode NullFXNode ShadowFXNode
         :parts: 1
 
-    .. autoclass:: BlurFXNode
+    .. autoclass:: BlurFXNode(radius=1.0)
 
         Blurs the node it is applied to. Corresponds to the Gaussian Blur effect in 
         Photoshop.
@@ -16,12 +16,6 @@ Effect Nodes
 
             The width of the blur. This corresponds to the radius parameter of
             photoshop.
-
-        .. py:method:: setParam(radius)
-
-            .. deprecated:: 1.5
-
-            Corresponds to the :py:attr:`radius` attribute. 
 
     .. autoclass:: ChromaKeyFXNode
 
@@ -101,13 +95,9 @@ Effect Nodes
 
         Do-nothing effect. Exists primarily as aid in debugging libavg.
 
-    .. autoclass:: ShadowFXNode
+    .. autoclass:: ShadowFXNode(offset=(0,0), radius=1.0, opacity=1.0, color="FFFFFF")
 
         Adds a shadow behind the node.
-
-        .. py:method:: setParams(offset, radius, opacity, color)
-
-            .. deprecated:: 1.5
 
         .. py:attribute:: offset
 

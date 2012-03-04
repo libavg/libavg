@@ -19,6 +19,7 @@ buildLib()
     LIBNAME=$1
     CONFIG_ARGS=$2
 
+    echo --------------------------------------------------------------------
     cd ${LIBNAME}
     ./configure --prefix=${AVG_PATH} ${CONFIG_ARGS}
     make clean
@@ -29,6 +30,7 @@ buildLib()
 
 buildlibjpeg()
 {
+    echo --------------------------------------------------------------------
     cd jpeg-6b
     cp ${AVG_PATH}/share/libtool/config/config.sub .
     cp ${AVG_PATH}/share/libtool/config/config.guess .
@@ -43,6 +45,7 @@ buildlibjpeg()
 
 buildlibpng()
 {
+    echo --------------------------------------------------------------------
     cd libpng-1.2.41
     ./configure --prefix=${AVG_PATH} --disable-shared
     make clean
@@ -53,6 +56,7 @@ buildlibpng()
 
 buildglib()
 {
+    echo --------------------------------------------------------------------
     cd glib-2.29.2
     LDFLAGS="-framework ApplicationServices $LDFLAGS -lresolv" ./configure  --prefix=${AVG_PATH} --disable-shared --enable-static 
     make clean
@@ -63,6 +67,7 @@ buildglib()
 
 buildfontconfig()
 {
+    echo --------------------------------------------------------------------
     cd fontconfig-2.7.0
     automake
     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cache-dir=~/.fontconfig
@@ -75,6 +80,7 @@ buildfontconfig()
 
 buildgdkpixbuf()
 {
+    echo --------------------------------------------------------------------
     cd gdk-pixbuf-2.23.3
     LDFLAGS="-framework ApplicationServices $LDFLAGS -lresolv" ./configure --prefix=${AVG_PATH} --disable-shared --with-included-loaders
     make clean
@@ -85,6 +91,7 @@ buildgdkpixbuf()
 
 buildboost()
 {
+    echo --------------------------------------------------------------------
     cd boost_1_41_0
     ./bootstrap.sh --prefix=${AVG_PATH} --with-libraries=python,thread,date_time
     ./bjam clean

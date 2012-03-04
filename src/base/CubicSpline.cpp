@@ -88,7 +88,7 @@ void CubicSpline::init()
     for (int i=1; i<len-1; ++i) {
         float sig = (m_Pts[i].x-m_Pts[i-1].x) / (m_Pts[i+1].x-m_Pts[i-1].x);
         float p = sig * m_Y2[i-1]+2.0f;
-        m_Y2.push_back((sig-1.0)/p);
+        m_Y2.push_back((sig-1.0f)/p);
         u[i] = (m_Pts[i+1].y-m_Pts[i].y) / (m_Pts[i+1].x-m_Pts[i].x) - 
                 (m_Pts[i].y - m_Pts[i-1].y) / (m_Pts[i].x-m_Pts[i-1].x);
         u[i] = (6.f*u[i]/(m_Pts[i+1].x-m_Pts[i-1].x) - sig*u[i-1]) / p;
@@ -96,7 +96,7 @@ void CubicSpline::init()
     float qn = 0.f;
     float un = 0.f;
 
-    m_Y2.push_back((un-qn*u[len-2]) / (qn*m_Y2[len-2]-1.0));
+    m_Y2.push_back((un-qn*u[len-2]) / (qn*m_Y2[len-2]-1.0f));
 
     for (int i=len-2; i>=0; i--) {
         m_Y2[i] = m_Y2[i]*m_Y2[i+1]+u[i];

@@ -83,8 +83,8 @@ Misc. Classes
 
         .. py:method:: getChannelAvg(channel) -> float
 
-            Returns the average of one of the bitmap color channels (red, green or blue). Used for
-            automatic tests.
+            Returns the average of one of the bitmap color channels (red, green or blue).
+            Used for automatic tests.
 
         .. py:method:: getFormat()
 
@@ -114,8 +114,8 @@ Misc. Classes
         .. py:method:: save(filename)
 
             Writes the image to a file. File format is determined using the
-            extension. Any file format supported by ImageMagick 
-            (http://www.imagemagick.org/) can be used.
+            extension. Supported file types are those supported by gdk-pixbuf. This 
+            includes at least png, jpeg, gif, tiff and xpixmaps. 
 
         .. py:method:: setPixels(pixels)
 
@@ -181,6 +181,22 @@ Misc. Classes
             
                 Whether to set (:py:const:`True`) or reset (:py:const:`False`)
                 the relais.
+
+    .. autoclass:: CubicSpline(controlpoints)
+
+        Class that generates a smooth curve between control points using cubic 
+        spline-based interpolation. The utility avg_splineedit.py can be used to edit a
+        spline and generate control points. For an introduction on spline interpolation,
+        see http://en.wikipedia.org/wiki/Spline_interpolation.
+
+        :param controlpoints:
+
+        A list of 2D coordinates. The x coordinates must be in increasing order.
+
+        .. py:method:: interpolate(x) -> y
+
+        Takes an x coordinate and delivers a corresponding y coordinate. 
+        
 
     .. autoclass:: Logger
 
@@ -263,100 +279,6 @@ Misc. Classes
 
             This method gives access to the logger. There is only one instance.
 
-    .. autoclass:: ParPort(devicename)
-
-        Used for low-level control of the parallel port's data, status and control
-        lines. Linux only. The parallel port device is opened on construction.
-
-        .. deprecated:: 1.5
-
-            This is unsupported and probably buggy.
-
-        :param devicename: 
-        
-            Device filename to use. If :py:attr:`devicename` is an empty
-            string, :file:`/dev/parport0` is used as device name.
-
-        .. py:method:: clearDataLines(lines)
-
-            Clears data lines.
-
-            :param lines: 
-            
-                The lines to clear. Constants to used for these lines are 
-                :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`. Several of these 
-                constants can be or'ed together to set several lines. The lines not 
-                mentioned in the parameter are left unchanged.
-
-            :return:
-                
-                :py:const:`True` if the lines were cleared, :py:const:`False` 
-                otherwise.
-
-        .. py:method:: getStatusLine(line)
-
-            Returns the value of one of the parallel port status lines.
-
-            :param line: 
-            
-                Which status line to query. Possible values for line are
-                :py:const:`STATUS_ERROR`, :py:const:`STATUS_SELECT`, 
-                :py:const:`STATUS_PAPEROUT`, :py:const:`STATUS_ACK` and
-                :py:const:`STATUS_BUSY`.
-
-            :return: :py:const:`True` if the line is set.
-
-        .. py:method:: isAvailable()
-
-            Returns :py:const:`True` if the parallel port has been opened successfully, 
-            :py:const:`False` otherwise.
-
-        .. py:method:: setAllDataLines(lines)
-
-            Changes the value of all data lines.
-        
-            :param lines: 
-            
-                The lines to set. Constants to used for these
-                lines are :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`. Several of 
-                these constants can be or'ed together to set several lines. The lines not 
-                mentioned in the parameter are cleared.
-
-            :return: :py:const:`True` if the lines were set, :py:const:`False` otherwise.
-
-        .. py:method:: setControlLine(line, value) -> bool
-
-            Sets or clears one of the control lines.
-
-            :param line: 
-            
-                Which control line to modify. Possible values for line
-                are :py:const:`CONTROL_STROBE`, :py:const:`CONTROL_AUTOFD`, 
-                :py:const:`CONTROL_INITu` and :py:const:`CONTROL_SELECT`.
-
-            :param value: 
-            
-                Whether to set (:py:const:`True`) or clear (:py:const:`False`) the line.
-
-            :return: 
-            
-                :py:const:`True` if the value was set successfully, :py:const:`False`
-                otherwise.
-
-        .. py:method:: setDataLines(lines)
-
-            Sets data lines. 
-
-            :param lines: 
-            
-                The lines to set. Constants to used for these lines are 
-                :py:const:`PARPORTDATA0` - :py:const:`PARPORTDATA7`.
-                Several of these constants can be or'ed together to set several lines. 
-                The lines not mentioned in the parameter are left unchanged.
-
-            :return: 
-            
-                :py:const:`True` if the lines were set, :py:const:`False` otherwise.
 
     .. autoclass:: Point2D([x,y=(0,0)])
 
@@ -616,6 +538,13 @@ Misc. Classes
         .. py:method:: dump()
 
             Prints all states and transitions to the console.
+
+        .. py:method:: makeDiagram(imageFName, [showMethods=False])
+
+            Dumps a graph of the state machine to an image file using dot. graphvis must
+            be installed and in the path for this to work. Very useful for debugging. If
+            :py:attr:`showMethods` is true, names of enter, leave and transition
+            methods are included in the diagram.
 
         .. py:method:: traceChanges(trace)
 

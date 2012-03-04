@@ -29,7 +29,6 @@
 #include "VideoNode.h"
 #include "CameraNode.h"
 #include "ImageNode.h"
-#include "PanoImageNode.h"
 #include "SoundNode.h"
 #include "LineNode.h"
 #include "RectNode.h"
@@ -108,6 +107,7 @@ Player::Player()
       m_pMultitouchInputDevice(),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false),
+      m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
       m_bFakeFPS(false),
@@ -147,7 +147,6 @@ string sDummy;
     registerNodeType(WordsNode::createDefinition());
     registerNodeType(VideoNode::createDefinition());
     registerNodeType(CameraNode::createDefinition());
-    registerNodeType(PanoImageNode::createDefinition());
     registerNodeType(SoundNode::createDefinition());
     registerNodeType(LineNode::createDefinition());
     registerNodeType(RectNode::createDefinition());
@@ -454,6 +453,7 @@ NodePtr Player::loadMainNodeFromFile(const string& sFilename)
             default:
                 throw;
         }
+        return NodePtr(); // Silence compiler warning
     }
 }
 
@@ -636,21 +636,6 @@ float Player::getFrameDuration()
             return 0;
         }
     }
-}
-
-TrackerInputDevice * Player::addTracker()
-{
-    if (!m_pMainCanvas) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "You must use loadFile() before addTracker().");
-    }
-    m_pMultitouchInputDevice = IInputDevicePtr(new TrackerInputDevice());
-    addInputDevice(m_pMultitouchInputDevice);
-    if (m_bIsPlaying) {
-        m_pMultitouchInputDevice->start();
-    }
-
-    return dynamic_cast<TrackerInputDevice*>(m_pMultitouchInputDevice.get());
 }
 
 TrackerInputDevice * Player::getTracker()
@@ -1171,7 +1156,7 @@ void Player::initConfig()
     m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 4);
+    m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
     pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
@@ -1596,6 +1581,11 @@ SDLDisplayEngine * Player::getDisplayEngine() const
     return m_pDisplayEngine.get();
 }
 
+void Player::keepWindowOpen()
+{
+    m_bKeepWindowOpen = true;
+}
+
 void Player::setStopOnEscape(bool bStop)
 {
     m_bStopOnEscape = bStop;
@@ -1665,6 +1655,9 @@ void Player::cleanup()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
+        if (!m_bKeepWindowOpen) {
+            m_pDisplayEngine = SDLDisplayEnginePtr();
+        }
     }
     if (SDLAudioEngine::get()) {
         SDLAudioEngine::get()->teardown();

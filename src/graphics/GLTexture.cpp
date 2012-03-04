@@ -205,6 +205,13 @@ IntPoint GLTexture::getMipmapSize(int level) const
 
 bool GLTexture::isFloatFormatSupported()
 {
+#ifdef __APPLE__
+    string sVendor ((const char*)glGetString(GL_VENDOR));
+    if (sVendor.find("Intel") != string::npos) {
+        // Avoid buggy Mac Book Air(Intel HD) issues under lion
+        return false;
+    }
+#endif
     return queryOGLExtension("GL_ARB_texture_float");
 }
 

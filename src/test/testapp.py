@@ -29,7 +29,7 @@ import libavg
 import testcase
 
 
-class TestApp:
+class TestApp(object):
     EXIT_OK = 0
     EXIT_FAILURE = 1
         
@@ -46,6 +46,7 @@ class TestApp:
         self.__optionParser = None
         self.__commandlineOptions = None
         self.__player = libavg.avg.Player.get()
+        self.__player.keepWindowOpen()
             
     def getSuiteFactory(self, name):
         return self.__registerdSuiteFactoriesDict[name]

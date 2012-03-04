@@ -41,7 +41,7 @@ VideoInfo::VideoInfo(float duration, int bitrate, bool bHasVideo, bool bHasAudio
 
 void VideoInfo::setVideoData(const IntPoint& size, const string& sPixelFormat,
         int numFrames, float streamFPS, float FPS, const string& sVCodec,
-        bool bUsesVDPAU)
+        bool bUsesVDPAU, float duration)
 {
     AVG_ASSERT(m_bHasVideo);
     m_Size = size;
@@ -51,14 +51,17 @@ void VideoInfo::setVideoData(const IntPoint& size, const string& sPixelFormat,
     m_FPS = FPS;
     m_sVCodec = sVCodec;
     m_bUsesVDPAU = bUsesVDPAU;
+    m_VideoDuration = duration;
 }
 
-void VideoInfo::setAudioData(const string& sACodec, int sampleRate, int numAudioChannels)
+void VideoInfo::setAudioData(const string& sACodec, int sampleRate, int numAudioChannels,
+        float duration)
 {
     AVG_ASSERT(m_bHasAudio);
     m_sACodec = sACodec;
     m_SampleRate = sampleRate;
     m_NumAudioChannels = numAudioChannels;
+    m_AudioDuration = duration;
 }
 
 }
