@@ -81,6 +81,7 @@ static ProfilingZoneID ProfilingZoneCopyOutput("Copy output data");
 
 void FreqFilter::filterImage(BitmapPtr pSrcBmp)
 {
+    windowBmp(pSrcBmp);
     ScopeTimer timer(ProfilingZoneTotal);
     {
         ScopeTimer timer(ProfilingZoneInputCopy);
@@ -166,6 +167,32 @@ void FreqFilter::deletePerBandData()
     m_pBPFreqData.clear();
     m_pBPBmps.clear();
     m_pBPFreqBmps.clear();
+}
+
+void FreqFilter::windowBmp(BitmapPtr pBmp)
+{
+    // Make image edges black to diminish edge effect.
+    const int WINDOW_WIDTH = 50;
+    float factors[WINDOW_WIDTH];
+    for (int x=0; x<WINDOW_WIDTH; ++x) {
+        factors[x] = cos((float(x)/WINDOW_WIDTH*M_PI)+M_PI)*0.5f+0.5f;
+    }
+
+    unsigned char * pBmpPixels = pBmp->getPixels();
+    int stride = pBmp->getStride();
+    IntPoint size = pBmp->getSize();
+    for (int y=0; y<size.y; ++y) {
+        for (int x=0; x<WINDOW_WIDTH; ++x) {
+            pBmpPixels[stride*y+x] *= factors[x];
+            pBmpPixels[stride*y+size.x-x-1] *= factors[x];
+        }
+    }
+    for (int y=0; y<WINDOW_WIDTH; ++y) {
+        for (int x=0; x<size.x; ++x) {
+            pBmpPixels[stride*y+x] *= factors[y];
+            pBmpPixels[stride*(size.y-y-1)+x] *= factors[y];
+        }
+    }
 }
 
 void FreqFilter::copyBmpToFloatBuffer(BitmapPtr pBmp, float* pBuffer)

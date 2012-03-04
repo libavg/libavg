@@ -43,6 +43,7 @@ private:
     void setupPerBandData();
     void deletePerBandData();
 
+    void windowBmp(BitmapPtr pBmp);
     void copyBmpToFloatBuffer(BitmapPtr pSrcBmp, float* pBuffer);
     void doFreqDomainBandpass(const fftwf_complex * pInBuffer,
             fftwf_complex * pOutBuffer, float minFreq, float maxFreq);
