@@ -113,7 +113,7 @@ const ArgMap& ArgList::getArgMap() const
 
 void ArgList::setArg(const ArgBase& newArg)
 {
-    m_Args.insert(ArgMap::value_type(newArg.getName(), ArgBasePtr(newArg.createCopy())));
+    m_Args[newArg.getName()] =  ArgBasePtr(newArg.createCopy());
 }
 
 void ArgList::setArgs(const ArgList& args)
