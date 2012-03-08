@@ -469,7 +469,6 @@ class WordsTestCase(AVGTestCase):
             Player.getElementByID(id).setEventHandler(avg.CURSORDOWN, avg.MOUSE,
                     onMouse)
         self.clicked = False
-        helper = Player.getTestHelper()
         leftWidth = Player.getElementByID("left").getMediaSize()[0]
         centerWidth = Player.getElementByID("center").getMediaSize()[0]
         rightWidth = Player.getElementByID("right").getMediaSize()[0]
@@ -520,7 +519,7 @@ class WordsTestCase(AVGTestCase):
         def assignInvalidColor3():
             testColor('xxxxxx')
 
-        root = self.loadEmptyScene()
+        self.loadEmptyScene()
         self.start((
                  self.assertException(assignInvalidColor1),
                  self.assertException(assignInvalidColor2),
@@ -593,10 +592,27 @@ class WordsTestCase(AVGTestCase):
     def testTooWide(self):
         root = self.loadEmptyScene()
         text = "42 " * 42 * 20 
-        node = avg.WordsNode(parent=root, text=text)
+        avg.WordsNode(parent=root, text=text)
         self.assertException(
                 lambda: self.start((None, None))
         )
+
+    def testWordsGamma(self):
+        
+        def setGamma():
+            node.gamma = 4
+
+        root = self.loadEmptyScene()
+        for i, gamma in enumerate((2, 1.5, 1)):
+            node = avg.WordsNode(pos=(1,i*20), fontsize=12, font="Bitstream Vera Sans", 
+                    variant="roman", gamma=gamma, text="lorem ipsum dolor", 
+                    parent=root)
+        self.start((
+                 lambda: self.compareImage("testWordsGamma1", True),
+                 setGamma,
+                 lambda: self.compareImage("testWordsGamma2", True),
+                ))
+
 
 def wordsTestSuite(tests):
     availableTests = (
@@ -623,6 +639,7 @@ def wordsTestSuite(tests):
             "testGetTextAsDisplayed",
             "testSetWidth",
             "testTooWide",
+            "testWordsGamma",
             )
     return createAVGTestSuite(availableTests, WordsTestCase, tests)
 

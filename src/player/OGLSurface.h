@@ -62,6 +62,7 @@ public:
 
     void setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
             const glm::vec3& contrast);
+    void setAlphaGamma(float gamma);
     static void createShader();
 
     bool isDirty() const;
@@ -83,6 +84,7 @@ private:
     glm::vec3 m_Gamma;
     glm::vec3 m_Brightness;
     glm::vec3 m_Contrast;
+    float m_AlphaGamma;
 
     bool m_bIsDirty;
 };

@@ -92,6 +92,7 @@ NodeDefinition WordsNode::createDefinition()
         .addArg(Arg<string>("variant", "", false, offsetof(WordsNode, m_sFontVariant)))
         .addArg(Arg<UTF8String>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
+        .addArg(Arg<float>("gamma", 1.0f, false, offsetof(WordsNode, m_Gamma)))
         .addArg(Arg<float>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
         .addArg(Arg<float>("linespacing", 0, false, offsetof(WordsNode, m_LineSpacing)))
@@ -121,6 +122,10 @@ WordsNode::WordsNode(const ArgList& args)
     m_Color = colorStringToColor(m_sColorName);
     setViewport(-32767, -32767, -32767, -32767);
     ObjectCounter::get()->incRef(&typeid(*this));
+    glm::vec3 one(1.0f, 1.0f, 1.0f);
+    RasterNode::setGamma(one);
+    RasterNode::setIntensity(one);
+    RasterNode::setContrast(one);
 }
 
 WordsNode::~WordsNode()
@@ -146,6 +151,7 @@ void WordsNode::setTextFromNodeValue(const string& sText)
 void WordsNode::connectDisplay()
 {
     RasterNode::connectDisplay();
+    getSurface()->setAlphaGamma(m_Gamma);
     setDirty(FONT_CHANGED);
 }
 
@@ -334,6 +340,19 @@ void WordsNode::setColor(const string& sColor)
     m_sColorName = sColor;
     m_Color = colorStringToColor(m_sColorName);
     setDirty(RENDER_NEEDED);
+}
+
+float WordsNode::getGamma() const
+{
+    return m_Gamma;
+}
+
+void WordsNode::setGamma(float gamma)
+{
+    m_Gamma = gamma;
+    if (getState() == Node::NS_CANRENDER) {
+        getSurface()->setAlphaGamma(m_Gamma);
+    }
 }
 
 float WordsNode::getFontSize() const

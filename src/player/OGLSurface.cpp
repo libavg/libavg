@@ -53,6 +53,7 @@ OGLSurface::OGLSurface()
       m_Gamma(1,1,1),
       m_Brightness(1,1,1),
       m_Contrast(1,1,1),
+      m_AlphaGamma(1),
       m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -162,7 +163,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
         }
 
         pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
-                1.0f);
+                1./m_AlphaGamma);
         pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
 
         pShader->setUniformIntParam("bPremultipliedAlpha", bPremultipliedAlpha);
@@ -242,6 +243,18 @@ void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightn
     m_bIsDirty = true;
 }
 
+void OGLSurface::setAlphaGamma(float gamma)
+{
+    m_AlphaGamma = gamma;
+    if (!GLContext::getCurrent()->isUsingShaders() &&
+            (gammaIsModified() || colorIsModified())) 
+    {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+                "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
+    }
+    m_bIsDirty = true;
+}
+
 void OGLSurface::createShader()
 {
     avg::createShader(COLORSPACE_SHADER);
@@ -297,7 +310,7 @@ glm::mat4 OGLSurface::calcColorspaceMatrix() const
 bool OGLSurface::gammaIsModified() const
 {
     return (!almostEqual(m_Gamma.x, 1.0f) || !almostEqual(m_Gamma.y, 1.0f) ||
-            !almostEqual(m_Gamma.z, 1.0f));
+            !almostEqual(m_Gamma.z, 1.0f) || !almostEqual(m_AlphaGamma, 1.0f));
 }
 
 bool OGLSurface::colorIsModified() const

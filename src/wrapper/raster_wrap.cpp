@@ -212,6 +212,7 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 make_function(&WordsNode::setColor,
                         return_value_policy<copy_const_reference>()))
+        .add_property("gamma", &WordsNode::getGamma, &WordsNode::setGamma)
         .add_property("fontsize", &WordsNode::getFontSize, &WordsNode::setFontSize)
         .add_property("parawidth", &deprecatedGet<WordsNode>, &deprecatedSet<WordsNode>)
         .add_property("indent", &WordsNode::getIndent, &WordsNode::setIndent)
