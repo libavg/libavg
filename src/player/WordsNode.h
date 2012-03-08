@@ -72,8 +72,8 @@ class AVG_API WordsNode : public RasterNode
         const std::string& getColor() const;
         void setColor(const std::string& sColor);
         
-        virtual float getGamma() const;
-        virtual void setGamma(float gamma);
+        virtual float getAlphaGamma() const;
+        virtual void setAlphaGamma(float gamma);
 
         float getFontSize() const;
         void setFontSize(float size);
