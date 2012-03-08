@@ -246,7 +246,7 @@ Area Nodes
 
         .. py:method:: getChild(i) -> Node
 
-            Returns the child at index i.
+            Returns the child at index :py:attr:`i`.
 
         .. py:method:: appendChild(node)
 
@@ -255,41 +255,41 @@ Area Nodes
         .. py:method:: insertChildBefore(newNode, oldChild)
 
             Adds a new child to the container before the existing node
-            oldChild. In z-order, the new child ist behind the old one.
+            :py:attr:`oldChild`. In z-order, the new child ist behind the old one.
 
         .. py:method:: insertChildAfter(newNode, oldChild)
 
             Adds a new child to the container after the existing node
-            oldChild. In z-order, the new child ist in front of the old one.
+            :py:attr:`oldChild`. In z-order, the new child ist in front of the old one.
 
         .. py:method:: insertChild(node, i)
 
-            Adds a new child to the container at index i.
+            Adds a new child to the container at index :py:attr:`i`.
 
         .. py:method:: removeChild(node)
 
-            Removes the child given by node from the div. Note that as long as other
-            references to the node exist, the node is not deleted.
+            Removes the child given by :py:attr:`node` from the div. Note that as long as
+            other references to the node exist, the node is not deleted.
 
         .. py:method:: removeChild(i)
 
-            Removes the child at index i from the div. Note that as long as other
-            references to the node exist, the node is not deleted.
+            Removes the child at index :py:attr:`i` from the div. Note that as long a`
+            other references to the node exist, the node is not deleted.
 
         .. py:method:: reorderChild(oldIndex, newIndex)
 
-            Moves the child at oldIndex so it's at newIndex. This function
-            can be used to change the order in which the children are drawn.
+            Moves the child at :py:attr:`oldIndex` so it's at :py:attr:`newIndex`. This
+            function can be used to change the order in which the children are drawn.
 
         .. py:method:: reorderChild(node, newPos)
 
-            Moves the child node so it's at index newPos. This function
-            can be used to change the order in which the children are drawn.
+            Moves the child :py:attr:`node` so it's at index :py:attr:`newPos`. This
+            function can be used to change the order in which the children are drawn.
 
         .. py:method:: indexOf(node)
 
-            Returns the index of the node given or -1 if node isn't a
-            child of the container. 
+            Returns the index of the node given. Throws an exception if :py:attr:`node`
+            isn't a child of the :py:class:`DivNode`.
 
         .. py:method:: getEffectiveMediaDir() -> string
 

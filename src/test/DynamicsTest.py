@@ -42,6 +42,7 @@ class DynamicsTestCase(AVGTestCase):
             self.root.appendChild(node)
             self.assertException(setNodeID)
             self.assertEqual(self.root.indexOf(Player.getElementByID("nodeid1")), 0)
+            self.assertException(lambda: self.root.indexOf(self.root))
 
         def createNode2(useXml):
             node = createFunc(useXml)
