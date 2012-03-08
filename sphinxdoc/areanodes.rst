@@ -651,6 +651,12 @@ Area Nodes
             The paragraph alignment. Possible values are :py:const:`left`,
             :py:const:`center` and :py:const:`right`.
 
+        .. py:attribute:: alphagamma
+
+            Defines a gamma-correction value for the alpha (transparency) of the text
+            rendered. Using this attibute, it is possible to fine-tune the text
+            antialiasing and make sure rendering is smooth.
+
         .. py:attribute:: color
 
             The color of the text in standard html color notation: FF0000 is red, 
