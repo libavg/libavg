@@ -3,6 +3,8 @@
 set -e
 set -x
 
+cd ..
+
 VERSION_MAJOR=$(grep VERSION_MAJOR m4/avg_version.m4 |
         sed 's/^.*\[ *\([0-9]*\) *\].*$/\1/')
 VERSION_MINOR=$(grep VERSION_MINOR m4/avg_version.m4 |
