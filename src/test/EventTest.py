@@ -412,7 +412,7 @@ class EventTestCase(AVGTestCase):
             self.img1MouseOverCalled = False
         
         def killNodeUnderCursor():
-            Parent = img1.getParent()
+            Parent = img1.parent
             Parent.removeChild(Parent.indexOf(img1))
         
         Helper = Player.getTestHelper()

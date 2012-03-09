@@ -91,8 +91,9 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:attribute:: parent
 
-            A :py:class:`DivNode` that the node will become a child of. Equivalent to 
-            calling :py:meth:`DivNode.appendChild` directly after construction.
+            A :py:class:`DivNode` that the node will become a child of. When used as a
+            constructor parameter, this is equivalent to calling 
+            :py:meth:`DivNode.appendChild` directly after construction. Read-only.
 
         .. py:attribute:: active
 
@@ -173,8 +174,12 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:method:: getParent() -> Node
 
+            .. deprecated:: 1.8
+                Use :attr:`parent` instead.
+
             Returns the container (:py:class:`AVGNode` or :py:class:`DivNode`) the node
-            is in. For the root node, returns :py:const:`None`.
+            is in. For the root node (or if the node is not connected), returns 
+            :py:const:`None`.
 
         .. py:method:: getRelPos(abspos) -> Point2D
 

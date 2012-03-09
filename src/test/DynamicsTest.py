@@ -341,7 +341,7 @@ class DynamicsTestCase(AVGTestCase):
             self.assertEqual(type(retrievedDiv), CustomDivNode)
             retrievedImage = retrievedDiv.getChild(0)
             self.assertEqual(type(retrievedImage), CustomImageNode)
-#            retrievedDiv = retrievedImage.getParent()
+#            retrievedDiv = retrievedImage.parent
 #            print type(retrievedDiv)
 #            self.assertEqual(type(retrievedDiv), CustomDivNode)
 
