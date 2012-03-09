@@ -541,7 +541,6 @@ class WordsTestCase(AVGTestCase):
                                 font = "Bitstream Vera Sans",
                                 text = "bla <br/> blabli <br/> blabliblabla")
         self.assertEqual(textNode.getLineExtents(0), (184,117))
-        textNode.parent = Player.getRootNode()
         self.assertEqual(textNode.getLineExtents(1), (303,117))
         
     def testGetCharIndexFromPos(self):
