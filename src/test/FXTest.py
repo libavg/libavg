@@ -130,17 +130,23 @@ class FXTestCase(AVGTestCase):
 
     @skipIfNoFX
     def testCanvasNullFX(self):
-        def setOpacity():
+        def setOuterOpacity():
             node.opacity=0.6
 
+        def setInnerOpacity():
+            innerNode = canvas.getElementByID("test")
+            innerNode.opacity = 0.0
+
         root = self.loadEmptyScene()
-        self.__createOffscreenCanvas()
+        canvas = self.__createOffscreenCanvas()
         node = avg.ImageNode(parent=root, href="canvas:offscreen")
         node.setEffect(avg.NullFXNode())
         self.start((
                  lambda: self.compareImage("testCanvasNullFX1", False),
-                 setOpacity,
+                 setOuterOpacity,
                  lambda: self.compareImage("testCanvasNullFX2", False),
+                 setInnerOpacity,
+                 lambda: self.compareImage("testCanvasNullFX3", False),
                 ))
 
     @skipIfNoFX
@@ -160,9 +166,6 @@ class FXTestCase(AVGTestCase):
 
     @skipIfNoFX
     def testRenderPipeline(self):
-        if not(g_FXSupported):
-            self.skip("FX not supported on this configuration.")
-            return
         for useSrcCanvas in (False, True):
             for useDestCanvas in (False, True):
                 for useFX in (False, True):

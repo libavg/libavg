@@ -421,14 +421,16 @@ void RasterNode::bind()
 static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 
 void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
-        bool bPremultipliedAlpha)
+        bool bPremultipliedAlpha, bool bForceRender)
 {
     ScopeTimer Timer(FXProfilingZone);
     setupFX(false);
     GLContext* pContext = GLContext::getCurrent();
     pContext->enableGLColorArray(false);
     pContext->enableTexture(true);
-    if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty())) {
+    if (m_pFXNode && (m_bFXDirty || m_pSurface->isDirty() || m_pFXNode->isDirty() ||
+            bForceRender))
+    {
         if (!m_bBound) {
             bind();
         }

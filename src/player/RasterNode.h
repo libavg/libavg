@@ -104,7 +104,7 @@ class AVG_API RasterNode: public AreaNode
         void setMaskCoords();
         void bind();
         void renderFX(const glm::vec2& destSize, const Pixel32& color, 
-                bool bPremultipliedAlpha);
+                bool bPremultipliedAlpha, bool bForceRender=false);
 
     private:
         void downloadMask();
