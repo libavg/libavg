@@ -30,7 +30,13 @@ from libavg import AVGApp
 g_Log = avg.Logger.get()
 g_Player = avg.Player.get()
 
-parser = optparse.OptionParser()
+usage = """%prog [options]
+
+avg_showcamera.py shows the images captured by a camera attached to the
+system. Its main use is to find out which parameters - device names,
+image formats, framerates, etc. can be used with the camera(s)."""
+
+parser = optparse.OptionParser(usage=usage)
 parsecamargs.addOptions(parser)
 parser.add_option("-l", "--list", dest="list", action="store_true", default=False,
           help="lists informations about detected cameras")

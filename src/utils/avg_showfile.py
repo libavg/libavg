@@ -28,6 +28,8 @@ Player = avg.Player.get()
 
 if len(sys.argv) ==1:
     print
+    print "avg_showfile.py displays the contents of an avg file."
+    print
     print "Usage: avg_showfile.py <avgfile>"
     print
     sys.exit(1)

@@ -27,11 +27,11 @@ from libavg import avg
 from xml.dom import minidom
 import os
 
-parser = OptionParser("usage: %prog <videofilename> [options]")
+parser = OptionParser(usage="%prog <videofilename(s)> [options]")
 parser.add_option("-x", "--xml", dest = "xml", action="store_true",
-        help = "Set to enable output as xml")
+        help = "Output in XML format")
 parser.add_option("-c", "--csv", dest = "csv", action="store_true",
-        help = "Set to enable output as csv")
+        help = "Output in csv format")
 options, args = parser.parse_args()
 
 Player = avg.Player.get()

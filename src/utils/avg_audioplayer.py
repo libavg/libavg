@@ -41,6 +41,9 @@ class AudioPlayer(AVGApp):
     
 
 if len(sys.argv) ==1:
+    print
+    print "avg_audioplayer.py plays back an audio file using libavg."
+    print
     print "Usage: avg_audioplayer.py <filename>"
     sys.exit(1)
 
