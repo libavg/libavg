@@ -177,7 +177,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
-    safeSetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     safeSetAttribute(SDL_GL_SWAP_CONTROL , 0); 
