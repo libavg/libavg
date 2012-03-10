@@ -106,12 +106,14 @@ class AVG_API RasterNode: public AreaNode
         void renderFX(const glm::vec2& destSize, const Pixel32& color, 
                 bool bPremultipliedAlpha, bool bForceRender=false);
 
+    protected:
+        void setupFX(bool bNewFX);
+
     private:
         void downloadMask();
         virtual void calcMaskCoords();
         void checkMaskSupport(const std::string& sHref);
         void checkDisplayAvailable(std::string sMsg);
-        void setupFX(bool bNewFX);
         void blt(const glm::vec2& destSize, GLContext::BlendMode mode, 
                 float opacity, const Pixel32& color, bool bPremultipliedAlpha);
 

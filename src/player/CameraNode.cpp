@@ -309,6 +309,7 @@ void CameraNode::open()
         Filter.applyInPlace(pBmp);
     } 
     m_pTex->unlockStreamingBmp(true);
+    setupFX(true);
 }
 
 int CameraNode::getFeature(CameraFeature feature) const
