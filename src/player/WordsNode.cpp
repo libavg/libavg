@@ -92,7 +92,7 @@ NodeDefinition WordsNode::createDefinition()
         .addArg(Arg<string>("variant", "", false, offsetof(WordsNode, m_sFontVariant)))
         .addArg(Arg<UTF8String>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(WordsNode, m_sColorName)))
-        .addArg(Arg<float>("alphagamma", 1.0f, false, offsetof(WordsNode, m_Gamma)))
+        .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(WordsNode, m_Gamma)))
         .addArg(Arg<float>("fontsize", 15, false, offsetof(WordsNode, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(WordsNode, m_Indent)))
         .addArg(Arg<float>("linespacing", 0, false, offsetof(WordsNode, m_LineSpacing)))
@@ -338,12 +338,12 @@ void WordsNode::setColor(const string& sColor)
     setDirty(RENDER_NEEDED);
 }
 
-float WordsNode::getAlphaGamma() const
+float WordsNode::getAAGamma() const
 {
     return m_Gamma;
 }
 
-void WordsNode::setAlphaGamma(float gamma)
+void WordsNode::setAAGamma(float gamma)
 {
     m_Gamma = gamma;
     if (getState() == Node::NS_CANRENDER) {

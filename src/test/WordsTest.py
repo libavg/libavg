@@ -599,12 +599,12 @@ class WordsTestCase(AVGTestCase):
     def testWordsGamma(self):
         
         def setGamma():
-            node.alphagamma = 4
+            node.aagamma = 4
 
         root = self.loadEmptyScene()
         for i, gamma in enumerate((2, 1.5, 1)):
             node = avg.WordsNode(pos=(1,i*20), fontsize=12, font="Bitstream Vera Sans", 
-                    variant="roman", alphagamma=gamma, text="lorem ipsum dolor", 
+                    variant="roman", aagamma=gamma, text="lorem ipsum dolor", 
                     parent=root)
         self.start((
                  lambda: self.compareImage("testWordsGamma1", True),

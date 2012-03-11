@@ -629,7 +629,7 @@ Area Nodes
             not support hardware-accelerated video decoding or :py:const:`VDPAU` if VDPAU
             can be used to decode videos.
 
-    .. autoclass:: WordsNode([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, hint=True])
+    .. autoclass:: WordsNode([font="arial", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, aagamma=1, hint=True])
 
         A words node displays formatted text. All
         properties are set in pixels. International and multi-byte character
@@ -651,7 +651,7 @@ Area Nodes
             The paragraph alignment. Possible values are :py:const:`left`,
             :py:const:`center` and :py:const:`right`.
 
-        .. py:attribute:: alphagamma
+        .. py:attribute:: aagamma
 
             Defines a gamma-correction value for the alpha (transparency) of the text
             rendered. Using this attibute, it is possible to fine-tune the text
