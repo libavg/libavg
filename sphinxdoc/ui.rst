@@ -144,10 +144,15 @@ functionality
                     The current offset from the start of the drag in coordinates relative
                     to the :py:class:`coordSysNode`'s parent.
 
-            .. py:method:: endHandler()
+            .. py:method:: endHandler(event)
 
                 Called when movement stops. This is either directly after the up event
                 or when inertia has run its course.
+
+                :param event: 
+                
+                    The corresponding :py:const:`CURSORUP` event or :py:const:`None` in
+                    the case of inertia.
 
         .. py:method:: abort()
 
