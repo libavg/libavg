@@ -71,6 +71,10 @@ class FXTestCase(AVGTestCase):
                     fillcolor="FFFFFF")
             root.insertChild(node, 0)
 
+        def emptyImageFX():
+            node = avg.ImageNode(parent=root, href="", pos=(64,0))
+            node.setEffect(avg.NullFXNode())
+
         # Initial setup is 3x2 images: 
         # rows: no alpha, alpha, alpha & opacity 0.6
         # cols: no FX, FX
@@ -104,6 +108,7 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testImageNullFX3", False),
                  newFX,
                  lambda: self.compareImage("testImageNullFX3", False),
+                 emptyImageFX,
                  lambda: utils.initFXCache(10),
                 ))
 
