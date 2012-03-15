@@ -45,7 +45,7 @@ endif
 
 TESTS=testgraphics testgpu
 
-EXTRA_DIST = $(wildcard baseline/*.png) $(wildcard testfiles/*.png) 
+EXTRA_DIST = $(wildcard baseline/*.png) 
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)

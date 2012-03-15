@@ -273,12 +273,11 @@ class FXTestCase(AVGTestCase):
             self.redRect = avg.RectNode(parent=self.root, pos=(5, 5), fillcolor='FF0000',
                     fillopacity=1, opacity=0, size=(72, 72))
             self.node = avg.ImageNode(parent=self.root, pos=(10,10),
-                    href="../../graphics/testfiles/rgb24alpha-64x64.png")
+                    href="rgb24alpha-64x64.png")
             resetFX()
 
         self.root = self.loadEmptyScene()
-        self.node = avg.ImageNode(parent=self.root, pos=(10,10),
-                href="../../graphics/testfiles/hsl.png")
+        self.node = avg.ImageNode(parent=self.root, pos=(10,10), href="hsl.png")
         resetFX()
         self.start((
                 lambda: self.compareImage("testInvertFX1", False),
