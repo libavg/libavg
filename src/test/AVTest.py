@@ -473,6 +473,20 @@ class AVTestCase(AVGTestCase):
                  checkVideoFile,
                 ))
 
+    def testSoundSeek(self):
+        Player.setFakeFPS(-1)
+        Player.volume = 0 
+        root = self.loadEmptyScene()
+        soundNode = avg.SoundNode(parent=root,
+                href="../video/testfiles/44.1kHz_16bit_stereo.wav")
+        soundNode.play()
+        soundNode.seekToTime(500)
+        self.start((
+                 None,
+                 lambda: soundNode.seekToTime(200),
+                ))
+
+
     def testBrokenSound(self):
         def openSound():
             node = avg.SoundNode(href="../video/testfiles/44.1kHz_16bit_6Chan.ogg",
@@ -599,6 +613,7 @@ def AVTestSuite(tests):
     availableTests = [
             "testSound",
             "testSoundInfo",
+            "testSoundSeek",
             "testBrokenSound",
             "testSoundEOF",
             "testVideoInfo",

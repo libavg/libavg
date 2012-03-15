@@ -58,6 +58,7 @@ NodeDefinition SoundNode::createDefinition()
 SoundNode::SoundNode(const ArgList& args)
     : m_Filename(""),
       m_pEOFCallback(0),
+      m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
       m_Volume(1.0),
       m_State(Unloaded)
@@ -274,10 +275,16 @@ void SoundNode::changeSoundState(SoundState newSoundState)
 
 void SoundNode::seek(long long destTime) 
 {
-    m_pDecoder->seek(float(destTime)/1000);
-    m_StartTime = Player::get()->getFrameTime() - destTime;
-    m_PauseTime = 0;
-    m_PauseStartTime = Player::get()->getFrameTime();
+    if (getState() == NS_CANRENDER) {    
+        m_pDecoder->seek(float(destTime)/1000);
+        m_StartTime = Player::get()->getFrameTime() - destTime;
+        m_PauseTime = 0;
+        m_PauseStartTime = Player::get()->getFrameTime();
+    } else {
+        // If we get a seek command before decoding has really started, we need to defer 
+        // the actual seek until the decoder is ready.
+        m_SeekBeforeCanRenderTime = destTime;
+    }
 }
 
 void SoundNode::open()
@@ -297,6 +304,10 @@ void SoundNode::startDecoding()
     SDLAudioEngine* pEngine = SDLAudioEngine::get();
     m_pDecoder->startDecoding(false, pEngine->getParams());
     pEngine->addSource(this);
+    if (m_SeekBeforeCanRenderTime != 0) {
+        seek(m_SeekBeforeCanRenderTime);
+        m_SeekBeforeCanRenderTime = 0;
+    }
 }
 
 void SoundNode::close()
