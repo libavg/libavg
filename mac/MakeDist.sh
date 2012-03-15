@@ -51,18 +51,20 @@ makeOneDist()
     mkdir etc
     cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
-    cp -Rv *.py *.avg *.png *.jpg *.tif *.svg ${AVG_PATH}/dist/libavg/avg/test
+    cp -Rv *.py *.avg *.png *.tif *.svg ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
-    cp baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
+    cp -v baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
+    mkdir ${AVG_PATH}/dist/libavg/avg/test/media
+    cp -v media/* ${AVG_PATH}/dist/libavg/avg/test/media
     mkdir ${AVG_PATH}/dist/libavg/avg/test/testmediadir
-    cp testmediadir/* ${AVG_PATH}/dist/libavg/avg/test/testmediadir
+    cp -v testmediadir/* ${AVG_PATH}/dist/libavg/avg/test/testmediadir
     mkdir ${AVG_PATH}/dist/libavg/avg/test/fonts
-    cp fonts/* ${AVG_PATH}/dist/libavg/avg/test/fonts
+    cp -v fonts/* ${AVG_PATH}/dist/libavg/avg/test/fonts
     mkdir ${AVG_PATH}/dist/libavg/avg/test/plugin
-    cp plugin/.libs/colorplugin.so ${AVG_PATH}/dist/libavg/avg/test/plugin
-    cp plugin/.libs/colorplugin.0.so ${AVG_PATH}/dist/libavg/avg/test/plugin
+    cp -v plugin/.libs/colorplugin.so ${AVG_PATH}/dist/libavg/avg/test/plugin
+    cp -v plugin/.libs/colorplugin.0.so ${AVG_PATH}/dist/libavg/avg/test/plugin
     mkdir ${AVG_PATH}/dist/libavg/avg/test/extrafonts
-    cp extrafonts/testaddfontdir.ttf ${AVG_PATH}/dist/libavg/avg/test/extrafonts
+    cp -v extrafonts/testaddfontdir.ttf ${AVG_PATH}/dist/libavg/avg/test/extrafonts
 
     
     cd $LIBAVGDIR/src/video/testfiles/
