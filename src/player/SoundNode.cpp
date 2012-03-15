@@ -155,6 +155,7 @@ void SoundNode::connectDisplay()
 
 void SoundNode::connect(CanvasPtr pCanvas)
 {
+    checkReload();
     AreaNode::connect(pCanvas);
     pCanvas->registerFrameEndListener(this);
 }

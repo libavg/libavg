@@ -124,6 +124,7 @@ void VideoNode::connectDisplay()
 void VideoNode::connect(CanvasPtr pCanvas)
 {
     pCanvas->registerFrameEndListener(this);
+    checkReload();
     RasterNode::connect(pCanvas);
 }
 
