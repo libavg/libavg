@@ -29,16 +29,14 @@ using namespace boost::python;
 using namespace std;
 
 namespace avg {
-   
+
 AttrAnim::AttrAnimationMap AttrAnim::s_ActiveAnimations;
 
 bool ObjAttrID::operator < (const ObjAttrID& other) const
 {
-    Node * pNode = extract<Node*>(m_Node);
-    Node * pOtherNode = extract<Node*>(other.m_Node);
-    if (pNode < pOtherNode) {
+    if (m_ObjHash < other.m_ObjHash) {
         return true;
-    } else if (pNode > pOtherNode) {
+    } else if (m_ObjHash > other.m_ObjHash) {
         return false;
     } else if (m_sAttrName < other.m_sAttrName) {
         return true;
@@ -101,7 +99,5 @@ void AttrAnim::stopActiveAttrAnim()
         it->second->abort();
     }
 }
-
-
 
 }

@@ -38,12 +38,12 @@
 namespace avg {
 
 struct ObjAttrID {
-    ObjAttrID(const boost::python::object& node, const std::string& sAttrName)
-        : m_Node(node),
+    ObjAttrID(const boost::python::object& obj, const std::string& sAttrName)
+        : m_ObjHash(boost::python::extract<long>(obj.attr("__hash__")())),
           m_sAttrName(sAttrName)
     {
     }
-    boost::python::object m_Node;
+    long m_ObjHash;
     std::string m_sAttrName;
     bool operator < (const ObjAttrID& other) const;
 };

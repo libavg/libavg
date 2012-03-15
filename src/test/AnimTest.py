@@ -109,6 +109,31 @@ class AnimTestCase(AVGTestCase):
         anim1 = None
         anim2 = None
 
+    def testNonNodeAnim(self):
+        class GenericClass(object):
+            def __init__(self):
+                self.numberValue = 0
+                self.pointValue = avg.Point2D(0.0, 0.0)
+
+        self.loadEmptyScene()
+        genericObject = GenericClass()
+        anim1 = avg.LinearAnim(genericObject, "numberValue", 500, 0, 100)
+        anim2 = avg.LinearAnim(genericObject, "pointValue", 500, (0, 0), (100, 200))
+        self.start((
+                 lambda: anim1.start(),
+                 lambda: anim2.start(),
+                 lambda: self.assert_(anim1.isRunning()),
+                 lambda: self.assert_(anim2.isRunning()),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 2),
+                 lambda: self.delay(200),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assert_(genericObject.numberValue == 100),
+                 lambda: self.assert_(genericObject.pointValue == (100, 200))
+                ))
+        anim1 = None
+        anim2 = None
+        genericObject = None
+
     def testFadeIn(self):
         def onStop():
             self.__onStopCalled = True
@@ -412,6 +437,7 @@ def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
         "testAnimRegistry",
+        "testNonNodeAnim",
         "testFadeIn",
         "testFadeOut",
         "testNonExistentAttributeAnim",
