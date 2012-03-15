@@ -217,13 +217,12 @@ void SoundNode::checkReload()
     string fileName (m_href);
     if (m_href != "") {
         initFilename(fileName);
-        if (fileName != m_Filename) {
-            SoundState oldState = m_State;
+        if (fileName != m_Filename && m_State != Unloaded) {
             changeSoundState(Unloaded);
             m_Filename = fileName;
-            if (oldState != Unloaded) {
-                changeSoundState(Paused);
-            }
+            changeSoundState(Paused);
+        } else {
+            m_Filename = fileName;
         }
     } else {
         changeSoundState(Unloaded);
