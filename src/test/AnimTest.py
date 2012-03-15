@@ -109,31 +109,6 @@ class AnimTestCase(AVGTestCase):
         anim1 = None
         anim2 = None
 
-    def testNonNodeAnim(self):
-        class GenericClass(object):
-            def __init__(self):
-                self.numberValue = 0
-                self.pointValue = avg.Point2D(0.0, 0.0)
-
-        self.loadEmptyScene()
-        genericObject = GenericClass()
-        anim1 = avg.LinearAnim(genericObject, "numberValue", 500, 0, 100)
-        anim2 = avg.LinearAnim(genericObject, "pointValue", 500, (0, 0), (100, 200))
-        self.start((
-                 lambda: anim1.start(),
-                 lambda: anim2.start(),
-                 lambda: self.assert_(anim1.isRunning()),
-                 lambda: self.assert_(anim2.isRunning()),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 2),
-                 lambda: self.delay(200),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
-                 lambda: self.assert_(genericObject.numberValue == 100),
-                 lambda: self.assert_(genericObject.pointValue == (100, 200))
-                ))
-        anim1 = None
-        anim2 = None
-        genericObject = None
-
     def testFadeIn(self):
         def onStop():
             self.__onStopCalled = True
@@ -432,12 +407,66 @@ class AnimTestCase(AVGTestCase):
 #                 lambda: Player.getTestHelper().dumpObjects()
                 ))
 
+    def testNonNodeAttrAnim(self):
+        class GenericClass(object):
+            def __init__(self):
+                self.numberValue = 0
+                self.pointValue = avg.Point2D(0.0, 0.0)
+
+        def on1Stop():
+            self.__onStopCalled = True
+
+        def on2Start():
+            self.__onStopBeforeOnStart = self.__onStopCalled
+
+        self.loadEmptyScene()
+        Player.setFakeFPS(10)
+        genericObject1 = GenericClass()
+        genericObject2 = genericObject1
+        genericObject3 = GenericClass()
+        anim1 = avg.LinearAnim(genericObject1, "numberValue", 1000, 0, 100,
+                False, None, on1Stop)
+        anim2 = avg.LinearAnim(genericObject2, "numberValue", 1200, 0, 200,
+                False, on2Start)
+        anim3 = avg.LinearAnim(genericObject1, "pointValue", 800, (0, 0), (100, 200))
+        anim4 = avg.LinearAnim(genericObject3, "numberValue", 400, 0, 42)
+        self.__onStopCalled = False
+        self.__onStopBeforeOnStart = False
+        self.start((
+                 lambda: anim1.start(),
+                 lambda: self.assert_(anim1.isRunning()),
+                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: anim2.start(),
+                 lambda: self.assert_(self.__onStopBeforeOnStart),
+                 lambda: self.assert_(not(anim1.isRunning())),
+                 lambda: self.assert_(anim2.isRunning()),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 1),
+                 lambda: anim3.start(),
+                 lambda: self.assert_(anim2.isRunning()),
+                 lambda: self.assert_(anim3.isRunning()),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 2),
+                 lambda: anim4.start(),
+                 lambda: self.assert_(anim4.isRunning()),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 3),
+                 lambda: self.delay(200),
+                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assert_(genericObject1.numberValue == 200),
+                 lambda: self.assert_(genericObject2.pointValue == (100, 200)),
+                 lambda: self.assert_(genericObject3.numberValue == 42)
+                ))
+        anim1 = None
+        anim2 = None
+        anim3 = None
+        anim4 = None
+        genericObject1 = None
+        genericObject2 = None
+        genericObject3 = None
+
 
 def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
         "testAnimRegistry",
-        "testNonNodeAnim",
         "testFadeIn",
         "testFadeOut",
         "testNonExistentAttributeAnim",
@@ -451,6 +480,7 @@ def animTestSuite(tests):
         "testParallelAnim",
         "testParallelAnimRegistry",
         "testStateAnim",
+        "testNonNodeAttrAnim"
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)
 
