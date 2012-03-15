@@ -102,14 +102,7 @@ void BitmapManager::onFrameEnd()
 {
     while (!m_pMsgQueue->empty()) {
         BitmapManagerMsgPtr pMsg = m_pMsgQueue->pop();
-        
-        try {
-            pMsg->executeCallback();
-        } catch (boost::python::error_already_set &) {
-            std::cerr << "Python exception in execute callback." << std::endl;
-            PyErr_Print();
-            exit(5);
-        }
+        pMsg->executeCallback();
     }
 }
 

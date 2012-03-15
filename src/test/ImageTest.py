@@ -283,19 +283,27 @@ class ImageTestCase(AVGTestCase):
 
             avg.BitmapManager.get().loadBitmap(tempFileName,
                     cleanupAndTestReturnValue)
-        
+
         def reportStuck():
             raise RuntimeError("BitmapManager didn't reply "
                     "within %dms timeout" % WAIT_TIMEOUT)
             Player.stop()
             
-        root = self.loadEmptyScene()
+        self.loadEmptyScene()
         
         Player.setTimeout(WAIT_TIMEOUT, reportStuck)
         Player.setResolution(0, 0, 0, 0)
         loadValidBitmap()
         Player.play()
         
+    def testBitmapManagerException(self):
+        def bitmapCb(bitmap):
+            raise RuntimeError
+
+        self.loadEmptyScene()
+        avg.BitmapManager.get().loadBitmap("rgb24alpha-64x64.png", bitmapCb),
+        self.assertException(Player.play)
+
     def testBlendMode(self):
         def setBlendMode():
             blendNode.blendmode="add"
@@ -503,6 +511,7 @@ def imageTestSuite(tests):
             "testImageWarp",
             "testBitmap",
             "testBitmapManager",
+            "testBitmapManagerException",
             "testBlendMode",
             "testImageMask",
             "testImageMaskCanvas",
