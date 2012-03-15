@@ -522,14 +522,13 @@ void WordsNode::calcMaskCoords()
     glm::vec2 effMaskPos = getMaskPos()-glm::vec2(m_InkOffset);
     glm::vec2 maskSize = getMaskSize();
     
-    effMaskPos.x -= m_AlignOffset;
-    
     if (maskSize == glm::vec2(0,0)) {
         normMaskSize = glm::vec2(getSize().x/mediaSize.x, getSize().y/mediaSize.y);
         normMaskPos = glm::vec2(effMaskPos.x/getSize().x, effMaskPos.y/getSize().y);
     } else {
         normMaskSize = glm::vec2(maskSize.x/mediaSize.x, maskSize.y/mediaSize.y);
-        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, effMaskPos.y/getMaskSize().y);
+        normMaskPos = glm::vec2(effMaskPos.x/getMaskSize().x, 
+                effMaskPos.y/getMaskSize().y);
     }
 /*    
     cerr << "calcMaskCoords" << endl;
