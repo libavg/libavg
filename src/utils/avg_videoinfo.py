@@ -27,29 +27,27 @@ from libavg import avg
 from xml.dom import minidom
 import os
 
-parser = OptionParser(usage="%prog <videofilename(s)> [options]")
-parser.add_option("-x", "--xml", dest = "xml", action="store_true",
+parser = OptionParser(usage="%prog <videofilename(s) folder(s)> [options]")
+parser.add_option("-x", "--xml", dest = "xml", action = "store_true",
         help = "Output in XML format")
-parser.add_option("-c", "--csv", dest = "csv", action="store_true",
+parser.add_option("-c", "--csv", dest = "csv", action = "store_true",
         help = "Output in csv format")
+parser.add_option("-r", "--recursion", dest = "recursion", action = "store_true",
+        help = "Input will be recursiv interpreted")
 options, args = parser.parse_args()
 
 Player = avg.Player.get()
 
-Player.loadString("""
-    <?xml version="1.0"?>
-    <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-    <avg width="1280" height="720">
-        <video id="video" x="0" y="0" threaded="true"/>
-    </avg>
-""")
-node = Player.getElementByID("video")
+node = avg.VideoNode()
 impl = minidom.getDOMImplementation()
 doc = impl.createDocument(None, "videodict", None)
 rootElement = doc.documentElement
 CSV_video = ''
 VideoList = []
-len_filename = 0
+len_filename = 8
+len_videoCodec = 5
+len_videoFormat = 6
+len_audioCodec = 5
 
 def appendXMLChild(node):    
     node.play()
@@ -61,103 +59,138 @@ def appendXMLChild(node):
     videoNode = doc.createElement("video")
     videoNode.setAttribute("codec", node.getVideoCodec())
     videoNode.setAttribute("size", str(node.getMediaSize()))
-    videoNode.setAttribute("pixelformat", node.getStreamPixelFormat())
+    videoNode.setAttribute("format", node.getStreamPixelFormat())
     videoNode.setAttribute("fps", str(node.fps))
     videoinfo.appendChild(videoNode)
     if node.hasAudio():
         audioNode = doc.createElement("audio")
         audioNode.setAttribute("codec", node.getAudioCodec())
-        audioNode.setAttribute("samplerate", str(node.getAudioSampleRate()))
+        audioNode.setAttribute("samples", str(node.getAudioSampleRate()))
         audioNode.setAttribute("channels", str(node.getNumAudioChannels()))
         videoinfo.appendChild(audioNode)
 
 def singleVideoInfo(node):
-    node.play()
     print "File: " + node.href
     print ("Duration: " + str(node.getDuration()/1000.) + " s (" 
             + str(node.getNumFrames()) + " frames)")
     print "Bitrate: " + str(node.getBitrate()) + " b/s"
     print "Video stream: " 
     print "  Codec: " + node.getVideoCodec()
-    print "  Size: " + str(node.getMediaSize()) + " pixels"
-    print "  Pixel format: " + node.getStreamPixelFormat()
+    print "  Size: " + str(node.getMediaSize()) + " pix"
+    print "  Format: " + node.getStreamPixelFormat()
     print "  FPS: " + str(node.fps)
     print "  Duration: " + str(node.getVideoDuration()/1000.) + " s"
     if node.hasAudio():
         print "Audio stream: " 
         print "  Codec: " + node.getAudioCodec()
-        print "  Sample rate: " + str(node.getAudioSampleRate()) + " Hz"
-        print "  Number of channels: " + str(node.getNumAudioChannels())
+        print "  Samples: " + str(node.getAudioSampleRate()) + " Hz"
+        print "  Channels: " + str(node.getNumAudioChannels())
         print "  Duration: " + str(node.getAudioDuration()/1000.) + " s"
   
 def CSVtable(node):
     global CSV_video
-    
-    node.play()
+
     if CSV_video == '':
-        CSV_head = ("File\tDuration\tBitrate\tVideoCodec\t" + \
-                "VideoSize\tPixel format\tFPS\tAudioCodec\t" + \
+        CSV_head = ("File\tDuration\tBitrate\tVideoCodec\t" +
+                "VideoSize\tPixel format\tFPS\tAudioCodec\t" + 
                 "Audio Sample rate\t Audio channels"+"\n")
         CSV_video = CSV_head   
-    CSV_video += \
-        str(node.href)+'\t'+\
-        str(node.getDuration()/1000.) + " s (" + str(node.getNumFrames()) + \
-            " frames)"+'\t'+\
-        str(node.getBitrate()) + " b/s" + '\t' + \
-        str(node.getVideoCodec()) + '\t' + \
-        str(node.getMediaSize()) + " pixels" + '\t' + \
-        str(node.getStreamPixelFormat()) + '\t' + \
-        str(node.fps) + '\t'
+    CSV_video += (str(node.href)+'\t'+
+        str(node.getDuration()/1000.) + " s (" + str(node.getNumFrames()) + 
+            " frames)"+'\t'+
+        str(node.getBitrate()) + " b/s" + '\t' +
+        str(node.getVideoCodec()) + '\t' +
+        str(node.getMediaSize()) + " pix" + '\t' +
+        str(node.getStreamPixelFormat()) + '\t' +
+        str(node.fps) + '\t')
     if node.hasAudio():
-        CSV_video += \
-            str(node.getAudioCodec()) + '\t' + \
-            str(node.getAudioSampleRate()) + " Hz" + '\t' + \
-            str(node.getNumAudioChannels()) + '\n'
+        CSV_video += (
+            str(node.getAudioCodec()) + '\t' +
+            str(node.getAudioSampleRate()) + " Hz" + '\t' +
+            str(node.getNumAudioChannels()) + '\n')
     else:
         CSV_video += ' \t \t \n'
     
-def showInfo(node):    
-    global len_filename
-    node.play()
-    if node.hasAudio():
-        vFile = os.path.basename(node.href).ljust(len_filename+2)
-        vDuration = str(node.getDuration()/1000.).ljust(12)
-        vBitrate = str(node.getBitrate()).ljust(15) 
-        vVideoCodec = str(node.getVideoCodec()).ljust(13)
-        vVideoSize = str(node.getMediaSize()).ljust(11)
-        vPixel = str(node.getStreamPixelFormat()).ljust(14)
-        vFPS = str(round(node.fps, 2)).ljust(10)
-        vAudioCodec = str(node.getAudioCodec()).ljust(12)
-        vSampleRate = str(node.getAudioSampleRate()).ljust(13)
+def showInfo(node):
+    vFile = node.href.ljust(len_filename + 1)
+    vDuration = str(node.getDuration()/1000.).ljust(12)
+    vBitrate = str(node.getBitrate()).ljust(15) 
+    vVideoCodec = str(node.getVideoCodec()).ljust(len_videoCodec + 1)
+    vVideoSize = str(node.getMediaSize()).ljust(13)
+    vPixel = str(node.getStreamPixelFormat()).ljust(len_videoFormat + 1)
+    vFPS = str(round(node.fps, 2)).ljust(6)
+
+    if node.hasAudio():   
+        vAudioCodec = str(node.getAudioCodec()).ljust(len_audioCodec + 1)
+        vSampleRate = str(node.getAudioSampleRate()).ljust(9)
         vChannels = str(node.getNumAudioChannels()).ljust(8)
-        
-        info = vFile + vDuration + vVideoCodec + vVideoSize + vPixel + vFPS + vAudioCodec + vSampleRate + vChannels
-        
-        print info
     else:
-        vFile = os.path.basename(node.href).ljust(len_filename+2)
-        vDuration = str(node.getDuration()/1000.).ljust(12)
-        vBitrate = str(node.getBitrate()).ljust(15) 
-        vVideoCodec = str(node.getVideoCodec()).ljust(13)
-        vVideoSize = str(node.getMediaSize()).ljust(11)
-        vPixel = str(node.getStreamPixelFormat()).ljust(14)
-        vFPS = str(round(node.fps,2)).ljust(10)
-        vAudioCodec = "".ljust(12)
-        vSampleRate = "".ljust(13)
-        vChannels = "".ljust(8)
+        vAudioCodec = "no audio"
+        vSampleRate = ""
+        vChannels = ""
         
-        info = vFile + vDuration + vVideoCodec + vVideoSize + vPixel + vFPS + vAudioCodec + vSampleRate + vChannels
-        
-        print info
-        
-    
-            
-if len(sys.argv) ==1:
+    info = (vFile + "| " + vDuration + vVideoCodec + vVideoSize + vPixel +
+            vFPS + "| " + vAudioCodec + vSampleRate + vChannels)
+    print info
+
+def printHelp():
     parser.print_help()
     sys.exit(1)
 
-if len(args) == 1:
-    node.href = sys.argv[1]
+def sortByName(a, b):
+    if a < b:
+        return -1
+    else:
+        return 1
+
+def openFolder(folder):
+    folderFiles = []
+    newFiles = os.listdir(folder)
+    for newfile in newFiles:
+        if folder  == "..":
+            testFile = "../"+newfile
+        else: 
+            testFile = str(folder)+"/"+newfile
+        if os.path.isfile(testFile):
+            folderFiles.append(testFile)
+        if options.recursion and os.path.isdir(testFile):
+            folderFiles.extend(openFolder(testFile))
+    return folderFiles
+
+def validPaths():
+    filePaths = []
+    for arg in args:
+        if arg == ".":
+            filePaths.extend(os.listdir(os.curdir))
+            print os.listdir(os.curdir)
+            if options.recursion:
+                for folder in filePaths:
+                    if os.path.isdir(folder):
+                        filePaths.extend(openFolder(folder))
+        elif arg == ".." or os.path.isdir(arg):
+            filePaths.extend(openFolder(arg))
+        else:
+            if os.path.isfile(arg):
+                filePaths.append(arg)
+
+    for file in filePaths:
+        try:
+            if os.path.isfile(file):
+                node.href = str(file)
+                node.play()
+                VideoList.append(node.href)   
+        except:
+            sys.stderr.write("\033[31mFile " + str(file) + " ignored: "
+                    "Is no valid video file\n\033[m")
+    VideoList.sort(cmp=sortByName)
+
+if len(sys.argv) == 1:
+    printHelp()
+
+validPaths()
+
+if len(VideoList) == 1:
+    node.href = VideoList[0]
     if options.xml:
         appendXMLChild(node)
         print doc.toprettyxml(indent="    ",encoding="utf-8")
@@ -167,20 +200,22 @@ if len(args) == 1:
     else:
         singleVideoInfo(node)
         
-else:
-    for file in args: 
-        try:
-            node.href = str(os.path.abspath(str(file)))    
-            #node.href = str(os.path.join(os.path.normpath(os.getcwd() + "/" +str(file))))
-            node.play()
-            VideoList.append(node.href)   
-        except:
-            sys.stderr.write("Error in getting Videoinfo: " + str(node.href) + "\n")
-   
-    for i in xrange(0, len(VideoList)):
-        curLen = len(os.path.basename(VideoList[i]))
+elif len(VideoList) > 0:
+    for video in VideoList:
+        node.href = str(video)
+        curLen = len(video)
         if len_filename < curLen:
             len_filename = curLen
+        curLen = len(node.getVideoCodec())
+        if len_videoCodec < curLen:
+            len_videoCodec = surLen
+        curLen = len(node.getStreamPixelFormat())
+        if len_videoFormat < curLen:
+            len_videoFormat = curLen
+        if node.hasAudio():
+            curLen = len(node.getAudioCodec())
+            if len_audioCodec < curLen:
+                len_audioCodec = curLen
             
     for i in xrange(0, len(VideoList)):
         node.href = VideoList[i]
@@ -190,30 +225,33 @@ else:
             CSVtable(node)
         else:
             if i == 0:
-                vFile = "File".ljust(len_filename+2)
+                vFile = "Filename".ljust(len_filename+1)
                 vDuration = "Duration[s]".ljust(12)
-                vBitrate = "Bitrate [b/s]".ljust(15) 
-                vVideoCodec = "VideoCodec".ljust(13)
-                vVideoSize = "VideoSize".ljust(11)
-                vPixel = "Pixel format".ljust(14)
-                vFPS = "FPS".ljust(10)
-                vAudioCodec = "AudioCodec".ljust(12)
-                vSampleRate = "Sample rate".ljust(13)
+                vBitrate = "Bitrate [b/s]".ljust(15)
+                vVideoCodec = "Codec".ljust(len_videoCodec +1)
+                vVideoSize = "Size".ljust(13)
+                vPixel = "Format".ljust(len_videoFormat+1)
+                vFPS = "FPS".ljust(6)
+                vAudioCodec = "Codec".ljust(len_audioCodec+1)
+                vSampleRate = "Samples".ljust(9)
                 vChannels = "Channels".ljust(8)
                 
-                title = vFile + vDuration + vVideoCodec + vVideoSize + vPixel + vFPS + vAudioCodec + vSampleRate + vChannels
-                
-                print title
-                
-                showInfo(node)
-            else:    
-                showInfo(node)
+                headtitel = ("| ".rjust(len_filename + 3) +
+                        "Video properties".rjust((len_videoFormat + len_videoCodec + 49)/ 2 ) +
+                        "| ".rjust(17) +
+                        "Audio properties".rjust((len_audioCodec + 18) / 2 + 8) )
+                seperators = ("\n" + "| ".rjust(len_filename+3) +
+                        "|".rjust((len_videoFormat + len_videoCodec + 49) / 2 + 16) )
+                title = ("\n" + vFile + "| " + vDuration + vVideoCodec +
+                        vVideoSize + vPixel + vFPS + "| " + vAudioCodec +
+                        vSampleRate + vChannels )
+                print headtitel,seperators,title,seperators
+            showInfo(node)
     if options.xml:
         print doc.toprettyxml(indent="    ",encoding="utf-8")
         
     elif options.csv:
         print CSV_video
-    
-    
-
-        
+else:
+    print "\033[31mNo valid video files found on this path(s).\033[m\n"
+    printHelp()
