@@ -41,10 +41,6 @@ makeOneDist()
     cd libavg
     mkdir avg
     mkdir avg/test
-    mkdir avg/video
-    mkdir avg/video/testfiles
-    mkdir avg/graphics
-    mkdir avg/graphics/testfiles
     cp -Rv ${BUILDDIR}/site-packages/libavg/ .
     strip -S avg.0.so
     cp ../../libavg/src/avgrc avg
@@ -67,11 +63,6 @@ makeOneDist()
     cp -v extrafonts/testaddfontdir.ttf ${AVG_PATH}/dist/libavg/avg/test/extrafonts
 
     
-    cd $LIBAVGDIR/src/video/testfiles/
-    cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 *.flv ${AVG_PATH}/dist/libavg/avg/video/testfiles
-    cd $LIBAVGDIR/src/graphics/testfiles/
-    cp -Rv *.png ${AVG_PATH}/dist/libavg/avg/graphics/testfiles
-
     cd $LIBAVGDIR/../bindist
     rm -rf *
     cp /usr/local/bin/avg_* .
