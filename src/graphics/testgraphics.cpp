@@ -568,7 +568,7 @@ public:
             if (pSrcDir) {
                 sFilename = (string)pSrcDir+"/";
             }
-            sFilename += "../test/rgb24-64x64.png";
+            sFilename += "../test/media/rgb24-64x64.png";
             Bitmap tempBmp(sFilename);
             PixelFormat pf = R8G8B8;    
             BitmapPtr pBmp;
