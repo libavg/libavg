@@ -388,7 +388,11 @@ Area Nodes
             An offset for the mask image. For images and videos, the offset is
             given in image or video pixels, respectively. For words nodes, the
             offset is given in screen pixels. If portions of the node extend
-            outside the mask, the border pixels of the mask are taken.
+            outside the mask, the border pixels of the mask are taken. Note that the
+            maskpos is an offset from the top left of the node, even for 
+            :py:class:`WordsNode` objects that have :py:attr:`alignment`
+            :py:const:`Center` or :py:const:`Right`.
+
 
         .. py:attribute:: masksize
 
