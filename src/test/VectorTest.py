@@ -19,8 +19,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import unittest
-
 from libavg import avg
 from testcase import *
 
@@ -106,7 +104,7 @@ class VectorTestCase(AVGTestCase):
             self.line.texcoord2 = 1.5
         
         def bmpTexture():
-            bmp = avg.Bitmap("rgb24alpha-64x64.png")
+            bmp = avg.Bitmap("media/rgb24alpha-64x64.png")
             self.line.setBitmap(bmp)
         
         def bmpNoTexture():
@@ -227,7 +225,7 @@ class VectorTestCase(AVGTestCase):
             self.rect.filltexcoord2 = (1.5, 1.5)
         
         def setFillBitmap():
-            bmp = avg.Bitmap("rgb24-64x64.png")
+            bmp = avg.Bitmap("media/rgb24-64x64.png")
             self.rect.setFillBitmap(bmp)
         
         def clearFillBitmap():

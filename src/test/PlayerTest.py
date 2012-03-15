@@ -480,7 +480,7 @@ class PlayerTestCase(AVGTestCase):
                 Player.createNode("""
                   <div id="nestedavg" x="40" y="30" width="80" height="60" crop="True">
                     <video id="movie" x="10" y="10" width="40" height="40" 
-                            threaded="false" href="../video/testfiles/mpeg1-48x48.mpg" 
+                            threaded="false" href="../../video/testfiles/mpeg1-48x48.mpg"
                             fps="30"/>
                   </div>
                 """))
@@ -527,7 +527,7 @@ class PlayerTestCase(AVGTestCase):
         image = avg.ImageNode(href="rgb24-64x64.png",
                 maxtilewidth=32, maxtileheight=16, parent=root)
         video = avg.VideoNode(pos=(40,0), size=(80,80), opacity=0.5, loop=True,
-                href="../video/testfiles/mpeg1-48x48.mpg", threaded=False, fps=30,
+                href="../../video/testfiles/mpeg1-48x48.mpg", threaded=False, fps=30,
                 parent=root)
 
         self.assertException(image.getOrigVertexCoords)
@@ -560,7 +560,7 @@ class PlayerTestCase(AVGTestCase):
             self.assertEqual(node.size, avg.Point2D(64,64))
 
         def setDir():
-            div.mediadir="../video/testfiles"
+            div.mediadir="../../video/testfiles"
         
         def setAbsDir():
             def absDir():
@@ -573,7 +573,7 @@ class PlayerTestCase(AVGTestCase):
             node = avg.VideoNode(href="mjpeg1-48x48.avi", fps=30)
 
         root = self.loadEmptyScene()
-        div = avg.DivNode(mediadir="testmediadir", parent=root)
+        div = avg.DivNode(mediadir="../testmediadir", parent=root)
         image = avg.ImageNode(pos=(0,30), href="rgb24-64x64a.png", parent=div)
         video = avg.VideoNode(href="mjpeg-48x48.avi", threaded=False, parent=div)
         self.start((

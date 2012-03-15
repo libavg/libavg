@@ -28,9 +28,9 @@ Player = avg.Player.get()
 
 def testFXSupport():
     global g_FXSupported
-    sceneString = """<avg id="avg" width="160" height="120"/>"""
-    Player.loadString(sceneString)
+    Player.createMainCanvas(size=(160,120))
     root = Player.getRootNode()
+    root.mediadir = "media"
     # XXX: The second of the following two lines prevent an opengl error in
     # testImageNullFX on the Mac (Snow Leopard) for some reason. 
     node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
@@ -116,7 +116,7 @@ class FXTestCase(AVGTestCase):
     def testVideoNullFX(self):
         root = self.loadEmptyScene()
         Player.setFakeFPS(25)
-        node = avg.VideoNode(parent=root, href="../video/testfiles/mjpeg-48x48.avi",
+        node = avg.VideoNode(parent=root, href="../../video/testfiles/mjpeg-48x48.avi",
                 threaded=False)
         node.setEffect(avg.NullFXNode())
         node.play()
@@ -178,7 +178,8 @@ class FXTestCase(AVGTestCase):
                         print "  ", useSrcCanvas, useDestCanvas, useFX, useColorConv
                         root = self.loadEmptyScene()
                         if useSrcCanvas:
-                            srcCanvas = Player.createCanvas(id="src", size=(160,120))
+                            srcCanvas = Player.createCanvas(id="src", size=(160,120),
+                                    mediadir="media")
                             avg.ImageNode(href="rgb24alpha-64x64.png", 
                                     parent=srcCanvas.getRootNode())
                             srcImg = avg.ImageNode(href="canvas:src")
@@ -189,7 +190,8 @@ class FXTestCase(AVGTestCase):
                         if useColorConv:
                             srcImg.contrast = (1.01, 1.0, 1.0)
                         if useDestCanvas:
-                            destCanvas = Player.createCanvas(id="dest", size=(160,120))
+                            destCanvas = Player.createCanvas(id="dest", size=(160,120),
+                                    mediadir="media")
                             destCanvas.getRootNode().appendChild(srcImg)
                             avg.ImageNode(href="canvas:dest", parent=root)
                         else:
@@ -271,12 +273,12 @@ class FXTestCase(AVGTestCase):
             self.redRect = avg.RectNode(parent=self.root, pos=(5, 5), fillcolor='FF0000',
                     fillopacity=1, opacity=0, size=(72, 72))
             self.node = avg.ImageNode(parent=self.root, pos=(10,10),
-                    href="../graphics/testfiles/rgb24alpha-64x64.png")
+                    href="../../graphics/testfiles/rgb24alpha-64x64.png")
             resetFX()
 
         self.root = self.loadEmptyScene()
         self.node = avg.ImageNode(parent=self.root, pos=(10,10),
-                href="../graphics/testfiles/hsl.png")
+                href="../../graphics/testfiles/hsl.png")
         resetFX()
         self.start((
                 lambda: self.compareImage("testInvertFX1", False),
@@ -357,7 +359,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             self.videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../video/testfiles/mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
+                    href="../../video/testfiles/mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
             self.videoNode.play()
 
         def showText():
@@ -391,7 +393,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
+                    href="../../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
             videoNode.play()
 
         root = self.loadEmptyScene()
@@ -429,7 +431,7 @@ class FXTestCase(AVGTestCase):
         def addVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
-                    href="../video/testfiles/mpeg1-48x48.mpg")
+                    href="../../video/testfiles/mpeg1-48x48.mpg")
             effect = avg.BlurFXNode()
             effect.radius = 0
             videoNode.setEffect(effect)
@@ -481,7 +483,7 @@ class FXTestCase(AVGTestCase):
                 ))
 
     def __createOffscreenCanvas(self):
-        canvas = Player.createCanvas(id="offscreen", size=(160,120))
+        canvas = Player.createCanvas(id="offscreen", size=(160,120), mediadir="media")
         root = canvas.getRootNode()
         avg.ImageNode(href="rgb24-32x32.png", parent=root)
         avg.ImageNode(id="test", pos=(32,0), href="rgb24alpha-32x32.png", parent=root)

@@ -57,7 +57,7 @@ class OffscreenTestCase(AVGTestCase):
             Player.getElementByID("imagenode").href = href
 
         def setBitmap():
-            bitmap = avg.Bitmap("rgb24-65x65.png")
+            bitmap = avg.Bitmap("media/rgb24-65x65.png")
             Player.getElementByID("imagenode").setBitmap(bitmap)
 
         def deleteCanvases():
@@ -72,6 +72,7 @@ class OffscreenTestCase(AVGTestCase):
 #            self.assertException(lambda: Player.deleteCanvas("foo"))
 
         root = self.loadEmptyScene()
+        root.mediadir = "media"
         createCanvas(True, "testcanvas1", 0)
         firstNode = Player.getElementByID("imagenode")
         self.start(( 
@@ -101,9 +102,8 @@ class OffscreenTestCase(AVGTestCase):
 
     def testCanvasLoadAfterPlay(self):
         def createOffscreenCanvas():
-            offscreenCanvas = self.__createOffscreenCanvas("offscreencanvas", False)
-            self.node = avg.ImageNode(parent=root, 
-                    href="canvas:offscreencanvas")
+            self.__createOffscreenCanvas("offscreencanvas", False)
+            self.node = avg.ImageNode(parent=root, href="canvas:offscreencanvas")
     
         root = self.loadEmptyScene()
         self.start((
@@ -220,7 +220,7 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasRender(self):
         def createCanvas():
             canvas = Player.createCanvas(id="testcanvas", size=(160,120),
-                    autorender=False)
+                    mediadir="media", autorender=False)
             avg.ImageNode(id="test", href="rgb24-65x65.png", parent=canvas.getRootNode())
             return canvas
 
@@ -281,7 +281,7 @@ class OffscreenTestCase(AVGTestCase):
 
     def testCanvasCrop(self):
         root = self.loadEmptyScene()
-        canvas = Player.createCanvas(id="testcanvas", size=(160,120))
+        canvas = Player.createCanvas(id="testcanvas", size=(160,120), mediadir="media")
         div = avg.DivNode(pos=(40,30), size=(80,60), crop=True, 
                 parent=canvas.getRootNode())
         avg.ImageNode(id="test1", pos=(-32, -32), href="rgb24-65x65.png", parent=div)
@@ -290,7 +290,7 @@ class OffscreenTestCase(AVGTestCase):
 
     def testCanvasAlpha(self):
         root = self.loadEmptyScene()
-        canvas = Player.createCanvas(id="testcanvas", size=(80,120))
+        canvas = Player.createCanvas(id="testcanvas", size=(80,120), mediadir="media")
         avg.ImageNode(id="test1", href="rgb24alpha-64x64.png", 
                 parent=canvas.getRootNode())
         avg.RectNode(parent=root, fillcolor="FFFFFF",
@@ -301,7 +301,7 @@ class OffscreenTestCase(AVGTestCase):
     
     def testCanvasBlendModes(self):
         def createBaseCanvas():
-            canvas = Player.createCanvas(id="testcanvas", size=(64,64))
+            canvas = Player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
             avg.ImageNode(href="rgb24alpha-64x64.png", parent=canvas.getRootNode())
             return canvas
        
@@ -334,7 +334,7 @@ class OffscreenTestCase(AVGTestCase):
                 return
             try:
                 self.canvas = Player.createCanvas(id="testcanvas", size=(160,120),
-                        multisamplesamples=2)
+                        mediadir="media", multisamplesamples=2)
                 avg.ImageNode(id="test1", href="rgb24-65x65.png", angle=0.1,
                         parent=self.canvas.getRootNode())
             except RuntimeError:
@@ -357,7 +357,8 @@ class OffscreenTestCase(AVGTestCase):
     def testCanvasMipmap(self):
         root = self.loadEmptyScene()
 
-        canvas = Player.createCanvas(id="testcanvas", size=(80,120), mipmap=True)
+        canvas = Player.createCanvas(id="testcanvas", size=(80,120), mediadir="media", 
+                mipmap=True)
         avg.ImageNode(id="test1", href="rgb24alpha-64x64.png", 
                 parent=canvas.getRootNode())
         avg.ImageNode(parent=root, size=(40, 30), href="canvas:testcanvas")
@@ -429,6 +430,7 @@ class OffscreenTestCase(AVGTestCase):
     def __createOffscreenCanvas(self, canvasName, handleEvents):
         canvas=Player.createCanvas(id=canvasName, size=(160,120), 
                 handleevents=handleEvents)
+        canvas.getRootNode().mediadir = "media"
         avg.ImageNode(id="test1", href="rgb24-65x65.png", parent=canvas.getRootNode())
         return canvas
 

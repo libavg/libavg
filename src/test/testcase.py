@@ -175,7 +175,9 @@ class AVGTestCase(unittest.TestCase):
 
     def loadEmptyScene(self, resolution=(160,120)):
         self.__player.createMainCanvas(size=resolution)
-        return self.__player.getRootNode()
+        root = self.__player.getRootNode()
+        root.mediadir = "media"
+        return root
 
     def initDefaultImageScene(self):
         root = self.loadEmptyScene()

@@ -67,11 +67,11 @@ class ImageTestCase(AVGTestCase):
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
-                shutil.copyfile("oe.png", u"ö.png")
+                shutil.copyfile("media/oe.png", u"media/ö.png")
                 node = createXmlNode((16, 16))
                 root.appendChild(node)
                 node.href = u"ö.png"
-                os.remove(u"ö.png")
+                os.remove(u"media/ö.png")
 
         def compareUnicode():
             if self._isCurrentDirWriteable():
@@ -192,14 +192,14 @@ class ImageTestCase(AVGTestCase):
         
         def loadFromBitmap(p, orighref):
             node = avg.ImageNode(pos=p, size=(32, 32), href=orighref)
-            bmp = avg.Bitmap('rgb24-65x65.png')
+            bmp = avg.Bitmap('media/rgb24-65x65.png')
             self.assertEqual(bmp.getSize(), (65,65))
             node.setBitmap(bmp)
             self.assertEqual(node.getMediaSize(), (65,65))
             root.appendChild(node)
         
         def testStringConversion():
-            bmp = avg.Bitmap('rgb24-65x65.png')
+            bmp = avg.Bitmap('media/rgb24-65x65.png')
             s = bmp.getPixels()
             bmp1 = avg.Bitmap(bmp.getSize(), avg.B8G8R8X8, "sample")
             bmp1.setPixels(s)
@@ -209,18 +209,18 @@ class ImageTestCase(AVGTestCase):
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
-                shutil.copyfile("oe.png", u"ö.png")
-                bmp = avg.Bitmap(u"ö.png")
-                os.remove(u"ö.png")
+                shutil.copyfile("media/oe.png", u"media/ö.png")
+                avg.Bitmap(u"media/ö.png")
+                os.remove(u"media/ö.png")
 
         def testGetPixel():
-            bmp = avg.Bitmap('rgb24-65x65.png')
+            bmp = avg.Bitmap('media/rgb24-65x65.png')
             self.assertEqual(bmp.getPixel((1,1)), (255,0,0,255))
             self.assertEqual(bmp.getPixel((33,1)), (0,255,0,255))
-            bmp = avg.Bitmap('rgb24alpha-64x64.png')
+            bmp = avg.Bitmap('media/rgb24alpha-64x64.png')
             self.assertEqual(bmp.getPixel((1,1)), (0,0,0,0))
             self.assertEqual(bmp.getPixel((63,1)), (83,255,83,142))
-            bmp = avg.Bitmap('greyscale.png')
+            bmp = avg.Bitmap('media/greyscale.png')
             self.assertEqual(bmp.getPixel((1,1)), (255,255,255,255))
             self.assertEqual(bmp.getPixel((1,63)), (0,0,0,255))
             self.assertException(lambda: bmp.getPixel((64,0)))
@@ -228,7 +228,7 @@ class ImageTestCase(AVGTestCase):
         def setNullBitmap():
             node.setBitmap(None)
 
-        node = avg.ImageNode(href="rgb24-65x65.png", size=(32, 32))
+        node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
 
         root = self.loadEmptyScene()
@@ -263,7 +263,8 @@ class ImageTestCase(AVGTestCase):
                 self.assert_(not isinstance(bitmap, Exception))
                 Player.setTimeout(0, loadUnexistentBitmap)
 
-            avg.BitmapManager.get().loadBitmap("rgb24alpha-64x64.png", validBitmapCb)
+            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
+                    validBitmapCb)
 
         def loadUnexistentBitmap():
             avg.BitmapManager.get().loadBitmap("nonexistent.png",
@@ -372,10 +373,10 @@ class ImageTestCase(AVGTestCase):
         if not(self._hasShaderSupport()):
             return
         root = self.loadEmptyScene()
-        canvas = Player.createCanvas(id="testcanvas", size=(64,64))
+        canvas = Player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
-        node = avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
+        avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
         self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
 
     def testImageMaskPos(self):
@@ -459,7 +460,7 @@ class ImageTestCase(AVGTestCase):
 
     def testImageCompression(self):
         def loadBitmap():
-            bmp = avg.Bitmap("colorramp.png")
+            bmp = avg.Bitmap("media/colorramp.png")
             self.image.setBitmap(bmp)
 
         def relink():
