@@ -653,7 +653,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertEqual(newMM, mm)
 
     def testSVG(self):
-        svgFile = avg.SVG("rect.svg", False)
+        svgFile = avg.SVG("media/rect.svg", False)
 
         # renderElement
         bmp = svgFile.renderElement("rect")
