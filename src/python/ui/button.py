@@ -20,6 +20,8 @@
 #
 # Original author of this file is Henrik Thoms
 
+from itertools import cycle
+
 from libavg import avg, statemachine, utils
 import gesture
 from helper import *
@@ -261,7 +263,7 @@ class Button(avg.DivNode):
 class TouchButton(avg.DivNode):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
-            fatFingerEnlarge=False, clickHandler=None, **kwargs):
+            fatFingerEnlarge=False, clickHandler=None, isToggling=False, **kwargs):
         super(TouchButton, self).__init__(**kwargs)
 
         self.__upNode = upNode
@@ -271,10 +273,20 @@ class TouchButton(avg.DivNode):
         
         self.__clickHandler = utils.methodref(clickHandler)
 
+        self.__isToggling = isToggling
+        self.__downNode.sensitive = False
+        self.__disabledNode.sensitive = False
+        
+        if self.__isToggling:
+            self.__toggleIt = cycle([1, 0])
+        else:
+            self.__toggleIt = cycle([0])
+        self.__doToggle = 0
+        
         self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
                 enterFunc=self.__enterUp, leaveFunc=self.__leaveUp)
-        self.__stateMachine.addState("DOWN", ("UP", "DISABLED"),
+        self.__stateMachine.addState("DOWN", ("DOWN", "UP", "DISABLED"),
                 enterFunc=self.__enterDown, leaveFunc=self.__leaveDown)
         self.__stateMachine.addState("DISABLED", ("UP", "DOWN"),
                 enterFunc=self.__enterDisabled, leaveFunc=self.__leaveDisabled)
@@ -298,7 +310,8 @@ class TouchButton(avg.DivNode):
             self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
         else:
             if self.__activeAreaNode == None:
-                self.__activeAreaNode = self.__upNode
+                size = self.__upNode.size
+                self.__activeAreaNode = avg.RectNode(parent=self, size=size, opacity=0)
             else:
                 self.appendChild(self.__activeAreaNode)
 
@@ -324,7 +337,10 @@ class TouchButton(avg.DivNode):
     def setEnabled(self, enabled):
         if enabled:
             if self.__stateMachine.state == "DISABLED":
-                self.__stateMachine.changeState("UP")
+                if self.__doToggle:
+                    self.__stateMachine.changeState("DOWN")
+                else:
+                    self.__stateMachine.changeState("UP")
         else:
             if self.__stateMachine.state != "DISABLED":
                 self.__stateMachine.changeState("DISABLED")
@@ -335,11 +351,14 @@ class TouchButton(avg.DivNode):
         self.__stateMachine.changeState("DOWN")
 
     def __onTap(self, event):
-        self.__stateMachine.changeState("UP")
+        self.__doToggle = self.__toggleIt.next()
+        if not self.__doToggle:
+            self.__stateMachine.changeState("UP")
         utils.callWeakRef(self.__clickHandler)
 
     def __onTapFail(self, event):
-        self.__stateMachine.changeState("UP")
+        if not self.__doToggle:
+            self.__stateMachine.changeState("UP")
 
     def __enterUp(self):
         self.__upNode.active = True

@@ -1670,6 +1670,109 @@ class UITestCase(AVGTestCase):
                 clickHandler = onClick
                 )
         runTest()
+        
+    def testToggleTouchButton(self):
+
+        def onClick():
+            self.clicked = True
+        
+        def enable(enabled):
+            button.enabled = enabled
+            
+        def reset():
+            self.clicked = False
+
+        def createScene(**kwargs):
+            root = self.loadEmptyScene()
+            return ui.TouchButton(
+                    parent = root,
+                    upNode = avg.ImageNode(href="button_up.png"),
+                    downNode = avg.ImageNode(href="button_down.png"),
+                    disabledNode = avg.ImageNode(href="button_disabled.png"),
+                    clickHandler = onClick,
+                    isToggling=True,
+                    **kwargs
+                    )
+
+        def testToggle():
+            self.start((
+                     # First part of standard toggling down->down -> click
+                     reset,
+                     lambda: self.compareImage("testUIButtonUp", False),
+                     lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self._sendTouchEvent(1, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(self.clicked),
+                     lambda: self.compareImage("testUIButtonDown", False),
+
+                     # Second part of standard toggling down -> up -> click
+                     reset,
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                     lambda: self.assert_(not(self.clicked)),
+                     lambda: self.compareImage("testUIButtonDown", False),
+                     lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                     lambda: self.assert_(self.clicked),
+                     lambda: self.compareImage("testUIButtonUp", False),
+                    ))
+
+        def testToggleAbort():
+            self.start((
+                    # Press and abort -> no click -> no toggle
+                    reset,
+                    lambda: self.compareImage("testUIButtonUp", False),
+                    lambda: self._sendTouchEvent(1, avg.CURSORDOWN, 0, 0),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    lambda: self._sendTouchEvent(1, avg.CURSORUP, 100, 0),
+                    lambda: self.assert_(not self.clicked),
+                    lambda: self.compareImage("testUIButtonUp", False),
+                     
+                    # toggle and abort -> no click -> no toggle
+                    reset,
+                    lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                    lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    reset,
+                    lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    lambda: self.assert_(not self.clicked),
+                    lambda: self._sendTouchEvent(2, avg.CURSORUP, 100, 0),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    lambda: self.assert_(not self.clicked),
+                    ))
+
+        def testToggleDisable():
+            self.start((
+                    # disable, enable -> buttonUp
+                    reset,
+                    lambda: enable(False),
+                    lambda: enable(True),
+                    lambda: self.compareImage("testUIButtonUp", False),
+                    
+                    # toggle -> disable, enable -> buttonDown
+                    reset,
+                    lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                    lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    lambda: enable(False),
+                    lambda: enable(True),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    
+                    # test normal toggle after disable tests
+                    lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                    lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                    lambda: self.compareImage("testUIButtonUp", False),
+                    ))
+            
+        button = createScene()
+        testToggle()
+        
+        button = createScene()
+        testToggleAbort()
+
+        button = createScene()
+        testToggleDisable()
 
     def testScrollPane(self):
         def scrollLarge():
@@ -1720,6 +1823,7 @@ def uiTestSuite(tests):
         "testButton",
         "testMultitouchButton",
         "testTouchButton",
+        "testToggleTouchButton",
         "testScrollPane"
         )
 
