@@ -261,11 +261,9 @@ class Button(avg.DivNode):
 class TouchButton(avg.DivNode):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
-            fatFingerEnlarge=False, clickHandler=None, parent=None, **kwargs):
+            fatFingerEnlarge=False, clickHandler=None, **kwargs):
         super(TouchButton, self).__init__(**kwargs)
-        if parent:
-            parent.appendChild(self)
-        
+
         self.__upNode = upNode
         self.__downNode = downNode
         self.__disabledNode = disabledNode
@@ -273,7 +271,6 @@ class TouchButton(avg.DivNode):
         
         self.__clickHandler = utils.methodref(clickHandler)
 
-        self.__isOver = False
         self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
                 enterFunc=self.enterUp, leaveFunc=self.leaveUp)
