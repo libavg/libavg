@@ -1678,6 +1678,9 @@ class UITestCase(AVGTestCase):
         
         def enable(enabled):
             button.enabled = enabled
+        
+        def toggle():
+            button.toggle()
             
         def reset():
             self.clicked = False
@@ -1764,7 +1767,31 @@ class UITestCase(AVGTestCase):
                     lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
                     lambda: self.compareImage("testUIButtonUp", False),
                     ))
-            
+        
+        def testToggleInterface():
+            self.start((
+                    # test normal toggle interface
+                    reset,
+                    toggle,
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    toggle,
+                    lambda: self.compareImage("testUIButtonUp", False),
+                    
+                    # Toggle with event and then by interface
+                    lambda: self._sendTouchEvent(2, avg.CURSORDOWN, 0, 0),
+                    lambda: self._sendTouchEvent(2, avg.CURSORUP, 0, 0),
+                    lambda: self.compareImage("testUIButtonDown", False),
+                    toggle,
+                    lambda: self.compareImage("testUIButtonUp", False),
+                    
+                    # Test toggle interface on disabled button -> no toggle
+                    reset,
+                    lambda: enable(False),
+                    toggle,
+                    lambda: self.compareImage("testUIButtonDisabled", False),
+                    
+                    ))
+        
         button = createScene()
         testToggle()
         
@@ -1773,6 +1800,9 @@ class UITestCase(AVGTestCase):
 
         button = createScene()
         testToggleDisable()
+        
+        button = createScene()
+        testToggleInterface()
 
     def testScrollPane(self):
         def scrollLarge():

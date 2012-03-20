@@ -331,6 +331,16 @@ class TouchButton(avg.DivNode):
         return TouchButton(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
                 **kwargs)
 
+    def toggle(self):
+        if not self.__isToggling or not self.enabled:
+            return 
+        
+        self.__changeToggleState()
+        if self.__doToggle:
+            self.__stateMachine.changeState("DOWN")
+        else:
+            self.__stateMachine.changeState("UP")
+    
     def getEnabled(self):
         return self.__stateMachine.state != "DISABLED"
 
@@ -351,7 +361,7 @@ class TouchButton(avg.DivNode):
         self.__stateMachine.changeState("DOWN")
 
     def __onTap(self, event):
-        self.__doToggle = self.__toggleIt.next()
+        self.__changeToggleState()
         if not self.__doToggle:
             self.__stateMachine.changeState("UP")
         utils.callWeakRef(self.__clickHandler)
@@ -381,3 +391,7 @@ class TouchButton(avg.DivNode):
         if self.__disabledNode:
             self.__disabledNode.active = False
         self.__tapRecognizer.enable(True)
+        
+    def __changeToggleState(self):
+        self.__doToggle = self.__toggleIt.next()
+        
