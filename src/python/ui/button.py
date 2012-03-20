@@ -274,8 +274,6 @@ class TouchButton(avg.DivNode):
         self.__clickHandler = utils.methodref(clickHandler)
 
         self.__isToggling = isToggling
-        self.__downNode.sensitive = False
-        self.__disabledNode.sensitive = False
         
         if self.__isToggling:
             self.__toggleIt = cycle([1, 0])
