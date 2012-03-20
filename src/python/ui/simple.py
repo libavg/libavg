@@ -94,11 +94,11 @@ class Slider(avg.DivNode):
 class TextButton(button.Button):
     def __init__(self, text, **kwargs):
         size = kwargs["size"]
-        upNode = avg.DivNode()
+        upNode = avg.DivNode(size=size)
         avg.RectNode(size=size, fillcolor="FFFFFF", fillopacity=1, color="FFFFFF",
                 parent=upNode)
         avg.WordsNode(pos=(4,3), text=text, color="000000", parent=upNode)
-        downNode = avg.DivNode()
+        downNode = avg.DivNode(size=size)
         avg.RectNode(size=size, fillcolor="000000", fillopacity=1, color="FFFFFF",
                 parent=downNode)
         avg.WordsNode(pos=(4,3), text=text, color="FFFFFF", parent=downNode)
