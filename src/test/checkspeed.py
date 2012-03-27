@@ -68,11 +68,11 @@ class SpeedApp(AVGApp):
         for i in xrange(options.numObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
             if options.video:
-                node = avg.VideoNode(pos=pos, href="../video/testfiles/mpeg1-48x48.mpg",
+                node = avg.VideoNode(pos=pos, href="media/mpeg1-48x48.mpg",
                         loop=True, parent=self._parentNode)
                 node.play()
             else:
-                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png",
+                node = avg.ImageNode(pos=pos, href="media/rgb24alpha-64x64.png",
                         parent=self._parentNode)
             if options.useFX:
                 node.setEffect(avg.NullFXNode())
