@@ -19,7 +19,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-import time
 import math
 
 from libavg import avg
@@ -107,6 +106,17 @@ class PlayerTestCase(AVGTestCase):
                   lambda: Player.showCursor(0),
                   lambda: Player.showCursor(1),
                  ))
+
+    def testColorParse(self):
+        def setColor(colorName):
+            node.color = colorName
+
+        node = avg.LineNode(pos1=(0.5, 0), pos2=(0.5, 50), color="FF0000")
+        setColor("ff00ff")
+        self.assertException(lambda: setColor("foo"))
+        self.assertException(lambda: setColor("ff00f"))
+        self.assertException(lambda: setColor("ff00ffx"))
+        self.assertException(lambda: setColor("ff00fx"))
 
     def testFakeTime(self):
         def checkTime():
@@ -715,6 +725,7 @@ def playerTestSuite(tests):
     availableTests = (
             "testPoint",
             "testBasics",
+            "testColorParse",
             "testFakeTime",
             "testDivResize",
             "testRotate",
