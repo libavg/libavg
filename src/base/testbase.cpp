@@ -743,11 +743,11 @@ public:
         TEST(triangulation.size() == 6*3);
         int baselineIndexes[] = {6,7,5, 5,7,1, 7,0,1, 5,1,3, 3,1,2, 4,5,3};
         TEST(triangulation == vectorFromCArray(18, baselineIndexes));
-       
-/*        for (unsigned int i=0; i<triangulation.size(); i++) {
+/*     
+        for (unsigned int i=0; i<triangulation.size(); i++) {
             cerr << i << ":" << triangulation[i] << endl;
-        }*/
-        
+        }/
+*/
     }
 
 };
