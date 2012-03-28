@@ -116,7 +116,7 @@ class FXTestCase(AVGTestCase):
     def testVideoNullFX(self):
         root = self.loadEmptyScene()
         Player.setFakeFPS(25)
-        node = avg.VideoNode(parent=root, href="../../video/testfiles/mjpeg-48x48.avi",
+        node = avg.VideoNode(parent=root, href="mjpeg-48x48.avi",
                 threaded=False)
         node.setEffect(avg.NullFXNode())
         node.play()
@@ -358,7 +358,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             self.videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../../video/testfiles/mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
+                    href="mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
             self.videoNode.play()
 
         def showText():
@@ -392,7 +392,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
+                    href="mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
             videoNode.play()
 
         root = self.loadEmptyScene()
@@ -430,7 +430,7 @@ class FXTestCase(AVGTestCase):
         def addVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
-                    href="../../video/testfiles/mpeg1-48x48.mpg")
+                    href="mpeg1-48x48.mpg")
             effect = avg.BlurFXNode()
             effect.radius = 0
             videoNode.setEffect(effect)
