@@ -28,7 +28,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -43,7 +43,10 @@ namespace avg {
 const double PI_3div4 = 3 * M_PI / 4;
 const double EPSILON = 1e-12;
 
-enum Orientation { CW, CCW, COLLINEAR };
+enum Orientation
+{
+	CW, CCW, COLLINEAR
+};
 
 /**
  * Forumla to calculate signed area<br>
@@ -57,63 +60,63 @@ enum Orientation { CW, CCW, COLLINEAR };
  */
 Orientation Orient2d(Point& pa, Point& pb, Point& pc)
 {
-  double detleft = (pa.x - pc.x) * (pb.y - pc.y);
-  double detright = (pa.y - pc.y) * (pb.x - pc.x);
-  double val = detleft - detright;
-  if (val > -EPSILON && val < EPSILON) {
-    return COLLINEAR;
-  } else if (val > 0) {
-    return CCW;
-  }
-  return CW;
+	double detleft = (pa.m_x - pc.m_x) * (pb.m_y - pc.m_y);
+	double detright = (pa.m_y - pc.m_y) * (pb.m_x - pc.m_x);
+	double val = detleft - detright;
+	if (val > -EPSILON && val < EPSILON) {
+		return COLLINEAR;
+	} else if (val > 0) {
+		return CCW;
+	}
+	return CW;
 }
 
 /*
+ bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
+ {
+ double pdx = pd.x;
+ double pdy = pd.y;
+ double adx = pa.x - pdx;
+ double ady = pa.y - pdy;
+ double bdx = pb.x - pdx;
+ double bdy = pb.y - pdy;
+
+ double adxbdy = adx * bdy;
+ double bdxady = bdx * ady;
+ double oabd = adxbdy - bdxady;
+
+ if (oabd <= EPSILON) {
+ return false;
+ }
+
+ double cdx = pc.x - pdx;
+ double cdy = pc.y - pdy;
+
+ double cdxady = cdx * ady;
+ double adxcdy = adx * cdy;
+ double ocad = cdxady - adxcdy;
+
+ if (ocad <= EPSILON) {
+ return false;
+ }
+
+ return true;
+ }
+
+ */
+
 bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 {
-  double pdx = pd.x;
-  double pdy = pd.y;
-  double adx = pa.x - pdx;
-  double ady = pa.y - pdy;
-  double bdx = pb.x - pdx;
-  double bdy = pb.y - pdy;
+	double oadb = (pa.m_x - pb.m_x) * (pd.m_y - pb.m_y) - (pd.m_x - pb.m_x) * (pa.m_y - pb.m_y);
+	if (oadb >= -EPSILON) {
+		return false;
+	}
 
-  double adxbdy = adx * bdy;
-  double bdxady = bdx * ady;
-  double oabd = adxbdy - bdxady;
-
-  if (oabd <= EPSILON) {
-    return false;
-  }
-
-  double cdx = pc.x - pdx;
-  double cdy = pc.y - pdy;
-
-  double cdxady = cdx * ady;
-  double adxcdy = adx * cdy;
-  double ocad = cdxady - adxcdy;
-
-  if (ocad <= EPSILON) {
-    return false;
-  }
-
-  return true;
-}
-
-*/
-
-bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
-{
-  double oadb = (pa.x - pb.x)*(pd.y - pb.y) - (pd.x - pb.x)*(pa.y - pb.y);
-  if (oadb >= -EPSILON) {
-    return false;
-  }
-
-  double oadc = (pa.x - pc.x)*(pd.y - pc.y) - (pd.x - pc.x)*(pa.y - pc.y);
-  if (oadc <= EPSILON) {
-    return false;
-  }
-  return true;
+	double oadc = (pa.m_x - pc.m_x) * (pd.m_y - pc.m_y) - (pd.m_x - pc.m_x) * (pa.m_y - pc.m_y);
+	if (oadc <= EPSILON) {
+		return false;
+	}
+	return true;
 }
 
 }

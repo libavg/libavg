@@ -34,76 +34,75 @@ namespace avg {
 
 AdvancingFront::AdvancingFront(Node& head, Node& tail)
 {
-  head_ = &head;
-  tail_ = &tail;
-  search_node_ = &head;
+	m_head = &head;
+	m_tail = &tail;
+	m_search_node = &head;
 }
 
 Node* AdvancingFront::LocateNode(const double& x)
 {
-  Node* node = search_node_;
+	Node* node = m_search_node;
 
-  if (x < node->value) {
-    while ((node = node->prev) != NULL) {
-      if (x >= node->value) {
-        search_node_ = node;
-        return node;
-      }
-    }
-  } else {
-    while ((node = node->next) != NULL) {
-      if (x < node->value) {
-        search_node_ = node->prev;
-        return node->prev;
-      }
-    }
-  }
-  return NULL;
+	if (x < node->m_value) {
+		while ((node = node->m_prev) != NULL) {
+			if (x >= node->m_value) {
+				m_search_node = node;
+				return node;
+			}
+		}
+	} else {
+		while ((node = node->m_next) != NULL) {
+			if (x < node->m_value) {
+				m_search_node = node->m_prev;
+				return node->m_prev;
+			}
+		}
+	}
+	return NULL;
 }
 
 Node* AdvancingFront::FindSearchNode(const double& x)
 {
-  (void)x; // suppress compiler warnings "unused parameter 'x'"
-  // TO DO: implement BST index
-  return search_node_;
+	(void) x; // suppress compiler warnings "unused parameter 'x'"
+	// TO DO: implement BST index
+	return m_search_node;
 }
 
 Node* AdvancingFront::LocatePoint(const Point* point)
 {
-  const double px = point->x;
-  Node* node = FindSearchNode(px);
-  const double nx = node->point->x;
+	const double px = point->m_x;
+	Node* node = FindSearchNode(px);
+	const double nx = node->m_point->m_x;
 
-  if (px == nx) {
-    if (point != node->point) {
-      // We might have two nodes with same x value for a short time
-      if (point == node->prev->point) {
-        node = node->prev;
-      } else if (point == node->next->point) {
-        node = node->next;
-      } else {
-        assert(0);
-      }
-    }
-  } else if (px < nx) {
-    while ((node = node->prev) != NULL) {
-      if (point == node->point) {
-        break;
-      }
-    }
-  } else {
-    while ((node = node->next) != NULL) {
-      if (point == node->point)
-        break;
-    }
-  }
-  if(node) search_node_ = node;
-  return node;
+	if (px == nx) {
+		if (point != node->m_point) {
+			// We might have two nodes with same x value for a short time
+			if (point == node->m_prev->m_point) {
+				node = node->m_prev;
+			} else if (point == node->m_next->m_point) {
+				node = node->m_next;
+			} else {
+				assert(0);
+			}
+		}
+	} else if (px < nx) {
+		while ((node = node->m_prev) != NULL) {
+			if (point == node->m_point) {
+				break;
+			}
+		}
+	} else {
+		while ((node = node->m_next) != NULL) {
+			if (point == node->m_point)
+				break;
+		}
+	}
+	if (node)
+		m_search_node = node;
+	return node;
 }
 
-AdvancingFront::~AdvancingFront()
-{
-}
+AdvancingFront::~AdvancingFront() {}
 
 }
 

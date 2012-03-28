@@ -75,9 +75,9 @@ std::vector<int> CDT::getIndexes()
 	std::vector<int> result;
 	std::vector<avg::TriangulationTriangle*> triangles =  sweep_context_->GetTriangles();
 	for (unsigned int i = 0; i < triangles.size(); ++i){
-		result.push_back(triangles[i]->GetPoint(0)->index);
-		result.push_back(triangles[i]->GetPoint(1)->index);
-		result.push_back(triangles[i]->GetPoint(2)->index);
+		result.push_back(triangles[i]->GetPoint(0)->m_index);
+		result.push_back(triangles[i]->GetPoint(1)->m_index);
+		result.push_back(triangles[i]->GetPoint(2)->m_index);
 	}
 	return result;
 }

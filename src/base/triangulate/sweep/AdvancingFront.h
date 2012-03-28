@@ -39,27 +39,28 @@ namespace avg {
 struct Node;
 
 // Advancing front node
-struct Node {
-  Point* point;
-  TriangulationTriangle* triangle;
+struct Node
+{
+  Point* m_point;
+  TriangulationTriangle* m_triangle;
 
-  Node* next;
-  Node* prev;
+  Node* m_next;
+  Node* m_prev;
 
-  double value;
+  double m_value;
 
-  Node(Point& p) : point(&p), triangle(NULL), next(NULL), prev(NULL), value(p.x)
-  {
-  }
+  Node(Point& p) : m_point(&p), m_triangle(NULL), m_next(NULL), m_prev(NULL), m_value(p.m_x)
+  {}
 
-  Node(Point& p, TriangulationTriangle& t) : point(&p), triangle(&t), next(NULL), prev(NULL), value(p.x)
-  {
-  }
+  Node(Point& p, TriangulationTriangle& t) : m_point(&p), m_triangle(&t), m_next(NULL), m_prev(NULL), m_value(p.m_x)
+  {}
 
 };
 
 // Advancing front
-class AdvancingFront {
+class AdvancingFront
+{
+
 public:
 
 AdvancingFront(Node& head, Node& tail);
@@ -67,11 +68,11 @@ AdvancingFront(Node& head, Node& tail);
 ~AdvancingFront();
 
 Node* head();
-void set_head(Node* node);
+void setHead(Node* node);
 Node* tail();
-void set_tail(Node* node);
+void setTail(Node* node);
 Node* search();
-void set_search(Node* node);
+void setSearch(Node* node);
 
 /// Locate insertion point along advancing front
 Node* LocateNode(const double& x);
@@ -80,37 +81,38 @@ Node* LocatePoint(const Point* point);
 
 private:
 
-Node* head_, *tail_, *search_node_;
+Node* m_head, *m_tail, *m_search_node;
 
 Node* FindSearchNode(const double& x);
 };
 
+
 inline Node* AdvancingFront::head()
 {
-  return head_;
+  return m_head;
 }
-inline void AdvancingFront::set_head(Node* node)
+inline void AdvancingFront::setHead(Node* node)
 {
-  head_ = node;
+  m_head = node;
 }
 
 inline Node* AdvancingFront::tail()
 {
-  return tail_;
+  return m_tail;
 }
-inline void AdvancingFront::set_tail(Node* node)
+inline void AdvancingFront::setTail(Node* node)
 {
-  tail_ = node;
+  m_tail = node;
 }
 
 inline Node* AdvancingFront::search()
 {
-  return search_node_;
+  return m_search_node;
 }
 
-inline void AdvancingFront::set_search(Node* node)
+inline void AdvancingFront::setSearch(Node* node)
 {
-  search_node_ = node;
+  m_search_node = node;
 }
 
 }

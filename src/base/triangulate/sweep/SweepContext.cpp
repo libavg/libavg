@@ -36,163 +36,164 @@ namespace avg {
 
 SweepContext::SweepContext(std::vector<Point*> polyline)
 {
-  basin = Basin();
-  edge_event = EdgeEvent();
+	m_basin = Basin();
+	m_edgeEvent = EdgeEvent();
 
-  points_ = polyline;
+	m_points = polyline;
 
-  InitEdges(points_);
+	InitEdges(m_points);
 }
 
 void SweepContext::AddHole(std::vector<Point*> polyline)
 {
-  InitEdges(polyline);
-  for(unsigned int i = 0; i < polyline.size(); i++) {
-	  polyline[i]->index = points_.size()+i;
-      points_.push_back(polyline[i]);
-  }
+	InitEdges(polyline);
+	for (unsigned int i = 0; i < polyline.size(); i++) {
+		polyline[i]->m_index = m_points.size() + i;
+		m_points.push_back(polyline[i]);
+	}
 }
 
-
-void SweepContext::AddPoint(Point* point) {
-  points_.push_back(point);
+void SweepContext::AddPoint(Point* point)
+{
+	m_points.push_back(point);
 }
 
 std::vector<TriangulationTriangle*> SweepContext::GetTriangles()
 {
-  return triangles_;
+	return m_triangles;
 }
 
 void SweepContext::InitTriangulation()
 {
-  double xmax(points_[0]->x), xmin(points_[0]->x);
-  double ymax(points_[0]->y), ymin(points_[0]->y);
+	double xmax(m_points[0]->m_x), xmin(m_points[0]->m_x);
+	double ymax(m_points[0]->m_y), ymin(m_points[0]->m_y);
 
-  // Calculate bounds.
-  for (unsigned int i = 0; i < points_.size(); i++) {
-    Point& p = *points_[i];
-    if (p.x > xmax)
-      xmax = p.x;
-    if (p.x < xmin)
-      xmin = p.x;
-    if (p.y > ymax)
-      ymax = p.y;
-    if (p.y < ymin)
-      ymin = p.y;
-  }
+	// Calculate bounds.
+	for (unsigned int i = 0; i < m_points.size(); i++) {
+		Point& p = *m_points[i];
+		if (p.m_x > xmax)
+			xmax = p.m_x;
+		if (p.m_x < xmin)
+			xmin = p.m_x;
+		if (p.m_y > ymax)
+			ymax = p.m_y;
+		if (p.m_y < ymin)
+			ymin = p.m_y;
+	}
 
-  double dx = kAlpha * (xmax - xmin);
-  double dy = kAlpha * (ymax - ymin);
-  head_ = new Point(xmax + dx, ymin - dy, 0); //!!!!!!!!!!!!!
-  tail_ = new Point(xmin - dx, ymin - dy, 0); //!!!!!!!!!!!!!
+	double dx = kAlpha * (xmax - xmin);
+	double dy = kAlpha * (ymax - ymin);
+	m_head = new Point(xmax + dx, ymin - dy, 0); //!!!!!!!!!!!!!
+	m_tail = new Point(xmin - dx, ymin - dy, 0); //!!!!!!!!!!!!!
 
-  // Sort points along y-axis
-  std::sort(points_.begin(), points_.end(), cmp);
+	// Sort points along y-axis
+	std::sort(m_points.begin(), m_points.end(), cmp);
 
 }
 
 void SweepContext::InitEdges(std::vector<Point*> polyline)
 {
-  int num_points = polyline.size();
-  for (int i = 0; i < num_points; i++) {
-    int j = i < num_points - 1 ? i + 1 : 0;
-    edge_list.push_back(new Edge(*polyline[i], *polyline[j]));
-  }
+	int num_points = polyline.size();
+	for (int i = 0; i < num_points; i++) {
+		int j = i < num_points - 1 ? i + 1 : 0;
+		m_edgeList.push_back(new Edge(*polyline[i], *polyline[j]));
+	}
 }
 
 Point* SweepContext::GetPoint(const int& index)
 {
-  return points_[index];
+	return m_points[index];
 }
 
 void SweepContext::AddToMap(TriangulationTriangle* triangle)
 {
-  map_.push_back(triangle);
+	m_map.push_back(triangle);
 }
 
 Node& SweepContext::LocateNode(Point& point)
 {
-  // TO DO implement search tree
-  return *front_->LocateNode(point.x);
+	// TO DO implement search tree
+	return *m_front->LocateNode(point.m_x);
 }
 
 void SweepContext::CreateAdvancingFront(std::vector<Node*> nodes)
 {
 
-  (void) nodes; //!!!!!!!
-  // Initial triangle
-  TriangulationTriangle* triangle = new TriangulationTriangle(*points_[0], *tail_, *head_);
+	(void) nodes; //!!!!!!!
+	// Initial triangle
+	TriangulationTriangle* triangle = new TriangulationTriangle(*m_points[0], *m_tail,
+			*m_head);
 
-  map_.push_back(triangle);
+	m_map.push_back(triangle);
 
-  af_head_ = new Node(*triangle->GetPoint(1), *triangle);
-  af_middle_ = new Node(*triangle->GetPoint(0), *triangle);
-  af_tail_ = new Node(*triangle->GetPoint(2));
-  front_ = new AdvancingFront(*af_head_, *af_tail_);
+	m_afHead = new Node(*triangle->GetPoint(1), *triangle);
+	m_afMiddle = new Node(*triangle->GetPoint(0), *triangle);
+	m_afTail = new Node(*triangle->GetPoint(2));
+	m_front = new AdvancingFront(*m_afHead, *m_afTail);
 
-  // to do: More intuitive if head is middles next and not previous?
-  //       so swap head and tail
-  af_head_->next = af_middle_;
-  af_middle_->next = af_tail_;
-  af_middle_->prev = af_head_;
-  af_tail_->prev = af_middle_;
+	// to do: More intuitive if head is middles next and not previous?
+	//       so swap head and tail
+	m_afHead->m_next = m_afMiddle;
+	m_afMiddle->m_next = m_afTail;
+	m_afMiddle->m_prev = m_afHead;
+	m_afTail->m_prev = m_afMiddle;
 }
 
 void SweepContext::RemoveNode(Node* node)
 {
-  delete node;
+	delete node;
 }
 
 void SweepContext::MapTriangleToNodes(TriangulationTriangle& t)
 {
-  for (int i = 0; i < 3; i++) {
-    if (!t.GetNeighbor(i)) {
-      Node* n = front_->LocatePoint(t.PointCW(*t.GetPoint(i)));
-      if (n)
-        n->triangle = &t;
-    }
-  }
+	for (int i = 0; i < 3; i++) {
+		if (!t.GetNeighbor(i)) {
+			Node* n = m_front->LocatePoint(t.PointCW(*t.GetPoint(i)));
+			if (n)
+				n->m_triangle = &t;
+		}
+	}
 }
 
 void SweepContext::RemoveFromMap(TriangulationTriangle* triangle)
 {
-  map_.remove(triangle);
+	m_map.remove(triangle);
 }
 
 void SweepContext::MeshClean(TriangulationTriangle& triangle)
 {
-  if (&triangle != NULL && !triangle.IsInterior()) {
-    triangle.IsInterior(true);
-    triangles_.push_back(&triangle);
-    for (int i = 0; i < 3; i++) {
-      if (!triangle.constrained_edge[i])
-        MeshClean(*triangle.GetNeighbor(i));
-    }
-  }
+	if (&triangle != NULL && !triangle.IsInterior()) {
+		triangle.IsInterior(true);
+		m_triangles.push_back(&triangle);
+		for (int i = 0; i < 3; i++) {
+			if (!triangle.m_constrained_edge[i])
+				MeshClean(*triangle.GetNeighbor(i));
+		}
+	}
 }
 
 SweepContext::~SweepContext()
 {
 
-    // Clean up memory
+	// Clean up memory
 
-    delete head_;
-    delete tail_;
-    delete front_;
-    delete af_head_;
-    delete af_middle_;
-    delete af_tail_;
+	delete m_head;
+	delete m_tail;
+	delete m_front;
+	delete m_afHead;
+	delete m_afMiddle;
+	delete m_afTail;
 
-    typedef std::list<TriangulationTriangle*> type_list;
+	typedef std::list<TriangulationTriangle*> type_list;
 
-    for(type_list::iterator iter = map_.begin(); iter != map_.end(); ++iter) {
-        TriangulationTriangle* ptr = *iter;
-        delete ptr;
-    }
+	for (type_list::iterator iter = m_map.begin(); iter != m_map.end(); ++iter) {
+		TriangulationTriangle* ptr = *iter;
+		delete ptr;
+	}
 
-     for(unsigned int i = 0; i < edge_list.size(); i++) {
-        delete edge_list[i];
-    }
+	for (unsigned int i = 0; i < m_edgeList.size(); i++) {
+		delete m_edgeList[i];
+	}
 
 }
 
