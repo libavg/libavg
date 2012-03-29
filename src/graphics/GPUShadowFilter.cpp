@@ -72,7 +72,7 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
-    glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
+    getFBO(1)->activate();
     OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
     pHShader->activate();
     pHShader->setUniformFloatParam("width", float(kernelWidth));
@@ -86,7 +86,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     draw(pSrcTex);
 
     m_pProjection2->activate();
-    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+    getFBO(0)->activate();
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
     pVShader->setUniformFloatParam("width", float(kernelWidth));

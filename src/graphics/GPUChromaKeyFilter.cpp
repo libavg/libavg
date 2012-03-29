@@ -78,8 +78,8 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     // Set up double-buffering
     int curBufferIndex = m_Erosion%2;
+    getFBO(curBufferIndex)->activate();
     OGLShaderPtr pShader = getShader(SHADERID_CHROMAKEY);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+curBufferIndex);
     pShader->activate();
     pShader->setUniformIntParam("texture", 0);
 
@@ -100,11 +100,12 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
 
     for (int i = 0; i < m_Erosion; ++i) {
         curBufferIndex = (curBufferIndex+1)%2;
-        glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT+curBufferIndex);
+        getFBO(curBufferIndex)->activate();
         pShader = getShader(SHADERID_EROSION);
         pShader->activate();
         pShader->setUniformIntParam("texture", 0);
         pShader->setUniformIntParam("bIsLast", int(i==m_Erosion-1));
+        GLTexturePtr pSrcTex;
         draw(getDestTex((curBufferIndex+1)%2));
     }
     glproc::UseProgramObject(0);

@@ -64,8 +64,12 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
 {
     bool bProjectionChanged = false;
     if (destRect != m_DestRect) {
-        m_pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, m_NumTextures, 1, false,
-                m_bMipmap));
+        m_pFBOs.clear();
+        for (int i=0; i<m_NumTextures; ++i) {
+            FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
+                    m_bMipmap));
+            m_pFBOs.push_back(pFBO);
+        }
         m_DestRect = destRect;
         bProjectionChanged = true;
     }
@@ -84,10 +88,10 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     AVG_ASSERT(m_pSrcTex);
-    AVG_ASSERT(m_pFBO);
+    AVG_ASSERT(!(m_pFBOs.empty()));
     m_pSrcPBO->moveBmpToTexture(pBmpSource, *m_pSrcTex);
     apply(m_pSrcTex);
-    BitmapPtr pFilteredBmp = m_pFBO->getImage();
+    BitmapPtr pFilteredBmp = m_pFBOs[0]->getImage();
     BitmapPtr pDestBmp;
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
         pDestBmp = BitmapPtr(new Bitmap(m_DestRect.size(),
@@ -101,25 +105,25 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 
 void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
-    m_pFBO->activate();
+    m_pFBOs[0]->activate();
     m_pProjection->activate();
     applyOnGPU(pSrcTex);
-    m_pFBO->copyToDestTexture();
+    m_pFBOs[0]->copyToDestTexture();
 }
 
 GLTexturePtr GPUFilter::getDestTex(int i) const
 {
-    return m_pFBO->getTex(i);
+    return m_pFBOs[i]->getTex();
 }
 
 BitmapPtr GPUFilter::getImage() const
 {
-    return m_pFBO->getImage();
+    return m_pFBOs[0]->getImage();
 }
 
-FBOPtr GPUFilter::getFBO()
+FBOPtr GPUFilter::getFBO(int i)
 {
-    return m_pFBO;
+    return m_pFBOs[i];
 }
 
 const IntRect& GPUFilter::getDestRect() const
