@@ -211,7 +211,7 @@ void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElem
     }
 }
 
-void AreaNode::maybeRender(const FRect& rect)
+void AreaNode::maybeRender()
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
@@ -223,7 +223,7 @@ void AreaNode::maybeRender(const FRect& rect)
         }
         GLContext * pContext = GLContext::getCurrent();
         pContext->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-        render(rect);
+        render();
         pContext->popTransform();
     }
 }

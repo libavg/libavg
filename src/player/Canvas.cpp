@@ -282,11 +282,10 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
     
-    const FRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
-        m_pRootNode->maybeRender(rc);
+        m_pRootNode->maybeRender();
 
         renderOutlines();
     }

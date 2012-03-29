@@ -650,7 +650,7 @@ void VideoNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
-void VideoNode::render(const FRect& rect)
+void VideoNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {

@@ -323,7 +323,7 @@ void DivNode::preRender()
     }
 }
 
-void DivNode::render(const FRect& rect)
+void DivNode::render()
 {
     glm::vec2 viewport = getSize();
     
@@ -338,7 +338,7 @@ void DivNode::render(const FRect& rect)
         getCanvas()->pushClipRect(m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender(rect);
+        getChild(i)->maybeRender();
     }
     if (getCrop()) {
         getCanvas()->popClipRect(m_pClipVertexes);
