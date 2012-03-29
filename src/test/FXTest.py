@@ -22,38 +22,15 @@
 
 from libavg import avg, utils
 from testcase import *
-import testcase
 
 Player = avg.Player.get()
-
-def testFXSupport():
-    global g_FXSupported
-    Player.createMainCanvas(size=(160,120))
-    root = Player.getRootNode()
-    root.mediadir = "media"
-    # XXX: The second of the following two lines prevent an opengl error in
-    # testImageNullFX on the Mac (Snow Leopard) for some reason. 
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
-    node.setEffect(avg.BlurFXNode())
-    Player.setTimeout(0, Player.stop)
-    try:
-        Player.play() 
-        g_FXSupported = True
-    except RuntimeError:
-        g_FXSupported = False
-
-testFXSupport()
-
-def skipIfNoFX(func):
-    return skipIf(func, not(g_FXSupported), "FX not supported on this configuration.")
 
 
 class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
-    @testcase.skipIfNoFX
+    @skipIfNoFX
     def testImageNullFX(self):
         def activateFX():
             for node in self.nodes[0]:

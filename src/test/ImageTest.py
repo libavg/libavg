@@ -325,6 +325,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlend2", False)
                 ))
 
+    @skipIfNoFX
     def testImageMask(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -350,8 +351,6 @@ class ImageTestCase(AVGTestCase):
         def setMaskNotFound():
             node.maskhref = "nonexistentmask.png"        
             
-        if not(self._hasShaderSupport()):
-            return
         root = self.loadEmptyScene()
         createNode((0,0))
         node = root.getChild(0)
@@ -369,9 +368,8 @@ class ImageTestCase(AVGTestCase):
                  setMaskNotFound
                 ))
 
+    @skipIfNoFX
     def testImageMaskCanvas(self):
-        if not(self._hasShaderSupport()):
-            return
         root = self.loadEmptyScene()
         canvas = Player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
@@ -379,6 +377,7 @@ class ImageTestCase(AVGTestCase):
         avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
         self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
 
+    @skipIfNoFX
     def testImageMaskPos(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -398,8 +397,6 @@ class ImageTestCase(AVGTestCase):
             node.maskpos = (32, 32)
 
         root = self.loadEmptyScene()
-        if not(self._hasShaderSupport()):
-            return
         createNode((0,0))
         setNoAttach((32,0))
         setAttach((64,0))
@@ -410,6 +407,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgMaskPos", False)
                 ))
 
+    @skipIfNoFX
     def testImageMaskSize(self):
         def createNode(p):
             avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -434,8 +432,6 @@ class ImageTestCase(AVGTestCase):
             node.masksize = (0, 0)
 
         root = self.loadEmptyScene()
-        if not(self._hasShaderSupport()):
-            return
         createNode((0,0))
         node = root.getChild(0)
         setNoAttach((32,0))

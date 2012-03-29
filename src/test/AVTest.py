@@ -327,6 +327,7 @@ class AVTestCase(AVGTestCase):
             Player.setOnFrameHandler(onFrame)
             Player.play()
 
+    @skipIfNoFX
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
             def setMask(href):
@@ -352,9 +353,6 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage(testImgName+"4", False),
                     ])
 
-        if not(self._hasShaderSupport()):
-            return
-        
         testWithFile("mpeg1-48x48.mpg", "testVideoMaskYUV")
         testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ")
         testWithFile("rgba-48x48.mov", "testVideoMaskRGBA")
