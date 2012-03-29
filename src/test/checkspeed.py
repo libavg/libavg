@@ -62,7 +62,9 @@ class SpeedApp(AVGApp):
         self._starter.showFrameRate()
         if options.createNodes:
             g_Player.setInterval(400, self.__createNodes)
-        g_Player.setTimeout(20000, g_Player.stop)
+        # Ignore the first frame for the 20 sec-limit so long startup times don't
+        # break things.
+        g_Player.setTimeout(0, lambda: g_Player.setTimeout(20000, g_Player.stop))
         if options.move:
             g_Player.setOnFrameHandler(self.__moveNodes)
 
@@ -80,7 +82,7 @@ class SpeedApp(AVGApp):
             if options.useFX:
                 node.setEffect(avg.NullFXNode())
             if options.blur:
-                node.setEffect(avg.BlurFXNode(40))
+                node.setEffect(avg.BlurFXNode(4))
             self.__nodes.append(node)
         if options.createNodes:
             g_Player.setTimeout(300, self.__deleteNodes)
