@@ -208,6 +208,7 @@ class FXTestCase(AVGTestCase):
                  removeFX,
                  addNewFX,
                  lambda: self.compareImage("testBlurFX2", False),
+                 lambda: setRadius(300),
                 ))
 
     @skipIfNoFX

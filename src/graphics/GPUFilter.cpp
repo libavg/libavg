@@ -183,23 +183,30 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
                     *float(opacity);
             tempCoeffs[i] = coeff;
             i++;
-        } while (coeff > 0.005 && i < 1024);
-        int kernelCenter = i - 2;
-        kernelWidth = kernelCenter*2+1;
-        pKernel = new float[kernelWidth];
-        float sum = 0;
-        for (int i = 0; i <= kernelCenter; ++i) {
-            pKernel[kernelCenter+i] = tempCoeffs[i];
-            sum += tempCoeffs[i];
-            if (i != 0) {
-                pKernel[kernelCenter-i] = tempCoeffs[i];
+        } while (coeff > 0.003 && i < 1024);
+        if (i > 1) {
+            int kernelCenter = i - 2;
+            kernelWidth = kernelCenter*2+1;
+            pKernel = new float[kernelWidth];
+            float sum = 0;
+            for (int i = 0; i <= kernelCenter; ++i) {
+                pKernel[kernelCenter+i] = tempCoeffs[i];
                 sum += tempCoeffs[i];
+                if (i != 0) {
+                    pKernel[kernelCenter-i] = tempCoeffs[i];
+                    sum += tempCoeffs[i];
+                }
             }
-        }
-        // Make sure the sum of coefficients is opacity despite the inaccuracies
-        // introduced by using a kernel of finite size.
-        for (int i = 0; i < kernelWidth; ++i) {
-            pKernel[i] *= float(opacity)/sum;
+            // Make sure the sum of coefficients is opacity despite the inaccuracies
+            // introduced by using a kernel of finite size.
+            for (int i = 0; i < kernelWidth; ++i) {
+                pKernel[i] *= float(opacity)/sum;
+            }
+        } else {
+            // Blur is so wide that all pixels would be black at 8-bit precision
+            kernelWidth = 1;
+            pKernel = new float[1];
+            pKernel[0] = 0.;
         }
     }
 //    dumpKernel(kernelWidth, pKernel);

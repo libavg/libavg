@@ -82,7 +82,7 @@ class SpeedApp(AVGApp):
             if options.useFX:
                 node.setEffect(avg.NullFXNode())
             if options.blur:
-                node.setEffect(avg.BlurFXNode(4))
+                node.setEffect(avg.BlurFXNode(100))
             self.__nodes.append(node)
         if options.createNodes:
             g_Player.setTimeout(300, self.__deleteNodes)
