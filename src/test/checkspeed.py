@@ -42,6 +42,9 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
     parser.add_option('--move', '-m', dest='move', action='store_true',
             default=False, 
             help='Move nodes every frame.')
+    parser.add_option('--blur', '-b', dest='blur', action='store_true',
+            default=False, 
+            help='Applies a BlurFXNode to the nodes.')
     parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
             default=False, 
             help='Sync output to vertical refresh.')
@@ -76,6 +79,8 @@ class SpeedApp(AVGApp):
                         parent=self._parentNode)
             if options.useFX:
                 node.setEffect(avg.NullFXNode())
+            if options.blur:
+                node.setEffect(avg.BlurFXNode(40))
             self.__nodes.append(node)
         if options.createNodes:
             g_Player.setTimeout(300, self.__deleteNodes)
