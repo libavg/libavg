@@ -107,6 +107,7 @@ extern template class Arg<glm::vec2>;
 extern template class Arg<glm::vec3>;
 extern template class Arg<glm::ivec3>;
 extern template class Arg<std::vector<float> >;
+extern template class Arg<std::vector<int> >;
 extern template class Arg<std::vector<glm::vec2> >;
 extern template class Arg<std::vector<glm::ivec2> >;
 #endif

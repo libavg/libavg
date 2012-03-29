@@ -157,6 +157,7 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<glm::vec3>* pVec3Arg = dynamic_cast<Arg<glm::vec3>* >(&*pArg);
     Arg<glm::ivec3>* pIVec3Arg = dynamic_cast<Arg<glm::ivec3>* >(&*pArg);
     Arg<vector<float> >* pFVectorArg = dynamic_cast<Arg<vector<float> >* >(&*pArg);
+    Arg<vector<int> >* pIVectorArg = dynamic_cast<Arg<vector<int> >* >(&*pArg);
     Arg<vector<glm::vec2> >* pVec2VectorArg = 
             dynamic_cast<Arg<vector<glm::vec2> >* >(&*pArg);
     Arg<vector<glm::ivec3> >* pIVec3VectorArg = 
@@ -179,6 +180,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pIVec3Arg, sName, value);
     } else if (pFVectorArg) {
         avg::setArgValue(pFVectorArg, sName, value);
+    } else if (pIVectorArg) {
+        avg::setArgValue(pIVectorArg, sName, value);
     } else if (pVec2VectorArg) {
         avg::setArgValue(pVec2VectorArg, sName, value);
     } else if (pIVec3VectorArg) {
@@ -200,6 +203,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<glm::vec3>* pVec3Arg = dynamic_cast<Arg<glm::vec3>* >(&*pArg);
     Arg<glm::ivec3>* pIVec3Arg = dynamic_cast<Arg<glm::ivec3>* >(&*pArg);
     Arg<vector<float> >* pFVectorArg = dynamic_cast<Arg<vector<float> >* >(&*pArg);
+    Arg<vector<int> >* pIVectorArg = dynamic_cast<Arg<vector<int> >* >(&*pArg);
     Arg<vector<glm::vec2> >* pVec2VectorArg = 
             dynamic_cast<Arg<vector<glm::vec2> >* >(&*pArg);
     Arg<vector<glm::ivec3> >* pIVec3VectorArg = 
@@ -225,6 +229,10 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         vector<float> v;
         fromString(sValue, v);
         pFVectorArg->setValue(v);
+    } else if (pIVectorArg) {
+        vector<int> v;
+        fromString(sValue, v);
+        pIVectorArg->setValue(v);
     } else if (pVec2VectorArg) {
         vector<glm::vec2> v;
         fromString(sValue, v);

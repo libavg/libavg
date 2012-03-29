@@ -36,6 +36,8 @@ template class Arg<string>;
 template class Arg<glm::vec2>;
 template class Arg<glm::vec3>;
 template class Arg<glm::ivec3>;
+template class Arg<std::vector<float> >;
+template class Arg<std::vector<int> >;
 template class Arg<vector<glm::vec2> >;
 template class Arg<vector<glm::ivec3> >;
 #endif
