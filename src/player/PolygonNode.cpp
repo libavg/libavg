@@ -26,7 +26,7 @@
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
 #include "../base/GeomHelper.h"
-#include "../base/Triangulate.h"
+#include "../base/triangulate/Triangulate.h"
 
 #include "../glm/gtx/norm.hpp"
 
@@ -159,7 +159,7 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
             }
         }
         vector<int> triIndexes;
-        triangulatePolygon(pts, triIndexes);
+        triIndexes = triangulatePolygon(pts);
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
             pVertexArray->appendPos(pts[i], texCoord, color);

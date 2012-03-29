@@ -8,7 +8,7 @@
 #ifndef TRIANGULATION_H_
 #define TRIANGULATION_H_
 
-#include "../GLMHelper.h" ///TODO remove prefix of include
+#include "/home/dysman/devel/libavg/libavg/src/base/GLMHelper.h" ///TODO remove prefix of include
 namespace avg {
 
 std::vector<int> triangulatePolygon(const Vec2Vector& points,
