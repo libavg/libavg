@@ -22,7 +22,7 @@
 
 from libavg import avg, utils
 from testcase import *
-
+import testcase
 
 Player = avg.Player.get()
 
@@ -53,7 +53,7 @@ class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
-    @skipIfNoFX
+    @testcase.skipIfNoFX
     def testImageNullFX(self):
         def activateFX():
             for node in self.nodes[0]:
