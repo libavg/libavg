@@ -91,6 +91,9 @@ char meshNodeName[] = "mesh";
 
 void export_node()
 {
+    // vector< vector<vec2> > PolygonNode
+    to_python_converter<CollVec2Vector, to_list<CollVec2Vector> >();
+    from_python_sequence<CollVec2Vector, variable_capacity_policy>();
 
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
         .def(self == self)

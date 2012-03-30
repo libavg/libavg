@@ -382,5 +382,6 @@ void export_base()
   
     from_python_sequence<vector<float>, variable_capacity_policy>();
     from_python_sequence<vector<int>, variable_capacity_policy>();
+
 }
 

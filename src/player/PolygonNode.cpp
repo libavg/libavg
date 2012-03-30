@@ -39,6 +39,7 @@ namespace avg {
 
 NodeDefinition PolygonNode::createDefinition()
 {
+    CollVec2Vector cv;
     vector<glm::vec2> v;
     vector<float> vd;
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
@@ -47,6 +48,7 @@ NodeDefinition PolygonNode::createDefinition()
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
+        .addArg(Arg<CollVec2Vector>("holes", cv, false, offsetof(PolygonNode, m_Holes)))
         ;
 }
 
@@ -132,6 +134,7 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     }
     // Remove duplicate points
     vector<glm::vec2> pts;
+    vector<int> holeIndexes;
     pts.reserve(m_Pts.size());
 
     pts.push_back(m_Pts[0]);
@@ -141,6 +144,14 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
         }
     }
 
+    if (m_Holes.size() > 0) {
+        for (unsigned int i = 0; i < m_Holes.size(); i++) { //loop over collection
+            holeIndexes.push_back(pts.size());
+            for (unsigned int j = 0; j < m_Holes[i].size(); j++) { //loop over vector
+                pts.push_back(m_Holes[i][j]);
+            }
+        }
+    }
     if (color.getA() > 0) {
         glm::vec2 minCoord = pts[0];
         glm::vec2 maxCoord = pts[0];
@@ -159,7 +170,8 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
             }
         }
         vector<int> triIndexes;
-        triIndexes = triangulatePolygon(pts);
+        triIndexes = triangulatePolygon(pts, holeIndexes);
+
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
             pVertexArray->appendPos(pts[i], texCoord, color);
