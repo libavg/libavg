@@ -743,7 +743,7 @@ void WordsNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");
 
-void WordsNode::render(const FRect& rect)
+void WordsNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {

@@ -72,7 +72,7 @@ class AVG_API DivNode : public AreaNode
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
         virtual void preRender();
-        virtual void render(const FRect& rect);
+        virtual void render();
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
 
         virtual std::string getEffectiveMediaDir();

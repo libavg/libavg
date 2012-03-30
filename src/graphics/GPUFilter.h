@@ -49,7 +49,7 @@ public:
     virtual void applyOnGPU(GLTexturePtr pSrcTex) = 0;
     GLTexturePtr getDestTex(int i=0) const;
     BitmapPtr getImage() const;
-    FBOPtr getFBO();
+    FBOPtr getFBO(int i=0);
 
     const IntRect& getDestRect() const;
     const IntPoint& getSrcSize() const;
@@ -69,7 +69,7 @@ private:
 
     GLTexturePtr m_pSrcTex;
     PBOPtr m_pSrcPBO;
-    FBOPtr m_pFBO;
+    std::vector<FBOPtr> m_pFBOs;
     IntPoint m_SrcSize;
     IntRect m_DestRect;
     ImagingProjectionPtr m_pProjection;

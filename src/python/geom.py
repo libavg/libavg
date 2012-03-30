@@ -65,14 +65,14 @@ class RoundedRect(avg.PolygonNode):
                 pos.append(p)
             return pos
 
-        if self.__size.x < self.__radius*2:
-            self.__radius = self.__size.x/2
-        if self.__size.y < self.__radius*2:
-            self.__radius = self.__size.y/2
-        if self.__radius == 0:
-            self.__radius = 0.01
-        pos = []
         r = self.__radius
+        if self.__size.x < r*2:
+            r = self.__size.x/2
+        if self.__size.y < r*2:
+            r = self.__size.y/2
+        if r == 0:
+            r = 0.01
+        pos = []
         size = self.__size
         pos.extend(calcQuarterCircle(self.pos+(size.x-r,r), r, -1.57))
         pos.extend(calcQuarterCircle(self.pos+(size.x-r,size.y-r), r, 0))

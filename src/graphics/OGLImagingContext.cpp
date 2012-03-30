@@ -22,7 +22,6 @@
 #include "OGLImagingContext.h"
 #undef check
 #include "ShaderRegistry.h"
-#include "GPUFilter.h"
 
 #include "../base/Exception.h"
 

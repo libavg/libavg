@@ -163,7 +163,7 @@ void VectorNode::preRender()
     
 }
 
-void VectorNode::maybeRender(const FRect& rect)
+void VectorNode::maybeRender()
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
@@ -174,13 +174,13 @@ void VectorNode::maybeRender(const FRect& rect)
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
         GLContext::getCurrent()->setBlendMode(m_BlendMode);
-        render(rect);
+        render();
     }
 }
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render(const FRect& rect)
+void VectorNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

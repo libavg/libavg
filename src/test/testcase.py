@@ -55,6 +55,21 @@ def flatten(l):
         i += 1
     return ltype(l)
 
+def _hasShaderSupport():
+    # XXX Duplicated code with FXTest.areFXSupported()
+    def checkShaderSupport():
+        global g_HasShaderSupport
+        g_HasShaderSupport = player.isUsingShaders()
+        player.setTimeout(0, player.stop)
+
+    global g_HasShaderSupport
+    if g_HasShaderSupport == None:
+        player = avg.Player.get()
+        player.createMainCanvas(size=(160,120))
+        player.setTimeout(0, checkShaderSupport)
+        player.play()
+    return g_HasShaderSupport
+
 # Should be used as a decorator
 def skipIf(func, condition, message):
     def wrapper(self, *args, **kwargs):
@@ -64,6 +79,10 @@ def skipIf(func, condition, message):
             self.skip(message)
             return
     return wrapper
+
+def skipIfNoFX(func):
+    return skipIf(func, not(_hasShaderSupport()),
+            "FX not supported on this configuration.")
 
 
 class AVGTestCase(unittest.TestCase):
@@ -220,20 +239,6 @@ class AVGTestCase(unittest.TestCase):
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     
-    def _hasShaderSupport(self):
-        # XXX Duplicated code with FXTest.areFXSupported()
-        def checkShaderSupport():
-            global g_HasShaderSupport
-            g_HasShaderSupport = self.__player.isUsingShaders()
-
-        global g_HasShaderSupport
-        if g_HasShaderSupport == None:
-            self.loadEmptyScene()
-            self.start([checkShaderSupport,])
-        if not(g_HasShaderSupport):
-            self.skip("no shader support")
-        return g_HasShaderSupport
-
     def __nextAction(self):
         if not(self.__delaying):
             if self.__dumpTestFrames:

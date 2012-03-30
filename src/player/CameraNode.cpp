@@ -356,7 +356,7 @@ void CameraNode::preRender()
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
-void CameraNode::render(const FRect& rect)
+void CameraNode::render()
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);

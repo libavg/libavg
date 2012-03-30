@@ -92,7 +92,7 @@ class AVG_API AreaNode: public Node
         virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodeWeakPtr>& pElements);
 
-        virtual void maybeRender(const FRect& rect);
+        virtual void maybeRender();
         virtual void setViewport(float x, float y, float width, float height);
         virtual const FRect& getRelViewport() const;
 

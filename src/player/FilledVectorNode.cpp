@@ -164,7 +164,7 @@ void FilledVectorNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");
 
-void FilledVectorNode::render(const FRect& rect)
+void FilledVectorNode::render()
 {
     ScopeTimer Timer(RenderProfilingZone);
     float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
@@ -172,7 +172,7 @@ void FilledVectorNode::render(const FRect& rect)
         glColor4d(1.0, 1.0, 1.0, curOpacity);
         m_pFillShape->draw();
     }
-    VectorNode::render(rect);
+    VectorNode::render();
 }
 
 void FilledVectorNode::setFillColor(const string& sColor)

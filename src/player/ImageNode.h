@@ -51,7 +51,7 @@ class AVG_API ImageNode : public RasterNode
         void setBitmap(BitmapPtr pBmp);
         
         virtual void preRender();
-        virtual void render(const FRect& Rect);
+        virtual void render();
         
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
 

@@ -47,7 +47,7 @@ makeOneDist()
     mkdir etc
     cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
-    cp -Rv *.py *.avg *.png *.tif *.svg ${AVG_PATH}/dist/libavg/avg/test
+    cp -Rv *.py *.avg *.png *.svg ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
     cp -v baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
     mkdir ${AVG_PATH}/dist/libavg/avg/test/media

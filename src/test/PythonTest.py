@@ -293,8 +293,9 @@ class PythonTestCase(AVGTestCase):
 
         def createDegenRect():
             self.rect.unlink(True)
-            geom.RoundedRect(parent=root, pos=(10.5,10.5), size=(10,10), radius=6, 
+            rect = geom.RoundedRect(parent=root, pos=(10.5,10.5), size=(10,10), radius=6, 
                     fillopacity=0.5, color="FFFFFF")
+            self.assert_(rect.radius == 6)
 
         root = self.loadEmptyScene()
         self.rect = geom.RoundedRect(parent=root, pos=(2.5,2.5), 

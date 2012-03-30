@@ -46,7 +46,7 @@ class AVG_API WordsNode : public RasterNode
         virtual void connect(CanvasPtr pCanvas);
         virtual void disconnect(bool bKill);
         virtual void preRender();
-        virtual void render(const FRect& rect);
+        virtual void render();
 
         virtual float getWidth() const;
         virtual void setWidth(float width);

@@ -23,30 +23,7 @@
 from libavg import avg, utils
 from testcase import *
 
-
 Player = avg.Player.get()
-
-def testFXSupport():
-    global g_FXSupported
-    Player.createMainCanvas(size=(160,120))
-    root = Player.getRootNode()
-    root.mediadir = "media"
-    # XXX: The second of the following two lines prevent an opengl error in
-    # testImageNullFX on the Mac (Snow Leopard) for some reason. 
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
-    node = avg.ImageNode(href="rgb24-65x65.png", parent=root)
-    node.setEffect(avg.BlurFXNode())
-    Player.setTimeout(0, Player.stop)
-    try:
-        Player.play() 
-        g_FXSupported = True
-    except RuntimeError:
-        g_FXSupported = False
-
-testFXSupport()
-
-def skipIfNoFX(func):
-    return skipIf(func, not(g_FXSupported), "FX not supported on this configuration.")
 
 
 class FXTestCase(AVGTestCase):
@@ -116,7 +93,7 @@ class FXTestCase(AVGTestCase):
     def testVideoNullFX(self):
         root = self.loadEmptyScene()
         Player.setFakeFPS(25)
-        node = avg.VideoNode(parent=root, href="../../video/testfiles/mjpeg-48x48.avi",
+        node = avg.VideoNode(parent=root, href="mjpeg-48x48.avi",
                 threaded=False)
         node.setEffect(avg.NullFXNode())
         node.play()
@@ -231,6 +208,7 @@ class FXTestCase(AVGTestCase):
                  removeFX,
                  addNewFX,
                  lambda: self.compareImage("testBlurFX2", False),
+                 lambda: setRadius(300),
                 ))
 
     @skipIfNoFX
@@ -358,7 +336,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             self.videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../../video/testfiles/mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
+                    href="mpeg1-48x48.mpg", intensity=(0.5,0.5,0.5))
             self.videoNode.play()
 
         def showText():
@@ -392,7 +370,7 @@ class FXTestCase(AVGTestCase):
         def showVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, size=(96,96), threaded=False, 
-                    href="../../video/testfiles/mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
+                    href="mpeg1-48x48.mpg", contrast=(0.5,0.5,0.5))
             videoNode.play()
 
         root = self.loadEmptyScene()
@@ -430,7 +408,7 @@ class FXTestCase(AVGTestCase):
         def addVideo():
             node.unlink(True)
             videoNode = avg.VideoNode(parent=root, threaded=False, size=(96,96),
-                    href="../../video/testfiles/mpeg1-48x48.mpg")
+                    href="mpeg1-48x48.mpg")
             effect = avg.BlurFXNode()
             effect.radius = 0
             videoNode.setEffect(effect)
