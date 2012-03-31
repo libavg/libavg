@@ -22,14 +22,16 @@
 
 import os
 
-import weakref, new, inspect
+import weakref, new
 
 from libavg import avg, mathutil
 
 g_Player = avg.Player.get()
 
-def getMediaDir(_file_, subdir='media'):
+def getMediaDir(_file_=None, subdir='media'):
     """call with _file_=__file__"""
+    if _file_ == None:
+        _file_ = __file__
     myDir = os.path.dirname(_file_)
     mediaDir = os.path.join(myDir, subdir)
     return os.path.abspath(mediaDir)
