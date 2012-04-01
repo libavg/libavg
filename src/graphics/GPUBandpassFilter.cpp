@@ -39,8 +39,8 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
     : GPUFilter(pfSrc, B8G8R8A8, bStandalone),
       m_PostScale(postScale),
       m_bInvert(bInvert),
-      m_MinFilter(size, pfSrc, R32G32B32A32F, min, true, false),
-      m_MaxFilter(size, pfSrc, R32G32B32A32F, max, true, false)
+      m_MinFilter(size, pfSrc, R32G32B32A32F, min, true, false, true),
+      m_MaxFilter(size, pfSrc, R32G32B32A32F, max, true, false, true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);

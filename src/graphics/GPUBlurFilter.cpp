@@ -39,15 +39,16 @@ using namespace std;
 namespace avg {
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
-        float stdDev, bool bClipBorders, bool bStandalone)
-    : GPUFilter(pfSrc, pfDest, bStandalone, 2)
+        float stdDev, bool bClipBorders, bool bStandalone, bool bUseFloatKernel)
+    : GPUFilter(pfSrc, pfDest, bStandalone, 2),
+      m_bClipBorders(bClipBorders),
+      m_bUseFloatKernel(bUseFloatKernel)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
     setDimensions(size, stdDev, bClipBorders);
     createShader(SHADERID_HORIZ);
     createShader(SHADERID_VERT);
-    m_bClipBorders = bClipBorders;
     setStdDev(stdDev);
 }
 
@@ -59,7 +60,7 @@ GPUBlurFilter::~GPUBlurFilter()
 void GPUBlurFilter::setStdDev(float stdDev)
 {
     m_StdDev = stdDev;
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev);
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, 1, m_bUseFloatKernel);
     setDimensions(getSrcSize(), stdDev, m_bClipBorders);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(

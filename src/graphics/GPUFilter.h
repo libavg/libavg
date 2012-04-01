@@ -58,7 +58,7 @@ public:
 protected:
     void draw(GLTexturePtr pTex);
     int getBlurKernelRadius(float stdDev) const;
-    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity=1) const;
+    GLTexturePtr calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat) const;
 
 private:
     PixelFormat m_PFSrc;

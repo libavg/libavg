@@ -62,7 +62,7 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
     m_StdDev = stdDev;
     m_Opacity = opacity;
     m_Color = color;
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity);
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity, false);
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(

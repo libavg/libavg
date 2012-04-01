@@ -65,7 +65,7 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect,
     bool bProjectionChanged = false;
     if (destRect != m_DestRect) {
         m_pFBOs.clear();
-        for (int i=0; i<m_NumTextures; ++i) {
+        for (unsigned i=0; i<m_NumTextures; ++i) {
             FBOPtr pFBO = FBOPtr(new FBO(destRect.size(), m_PFDest, 1, 1, false,
                     m_bMipmap));
             m_pFBOs.push_back(pFBO);
@@ -165,7 +165,8 @@ int GPUFilter::getBlurKernelRadius(float stdDev) const
     return int(ceil(stdDev*3));
 }
 
-GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
+GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUseFloat)
+        const
 {
     AVG_ASSERT(opacity != -1);
     int kernelWidth;
@@ -212,21 +213,34 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity) const
 //    dumpKernel(kernelWidth, pKernel);
     
     IntPoint size(kernelWidth, 1);
-    GLTexturePtr pTex(new GLTexture(size, R32G32B32A32F));
-    PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), R32G32B32A32F, GL_STREAM_DRAW));
+    PixelFormat pf;
+    if (bUseFloat) {
+        pf = R32G32B32A32F;
+    } else {
+        pf = I8;
+    }
+    GLTexturePtr pTex(new GLTexture(size, pf));
+    PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), pf, GL_STREAM_DRAW));
     pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
-    float * pCurFloat = (float*)pPBOPixels;
-    for (int i = 0; i < kernelWidth; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            *pCurFloat = pKernel[i];
-            ++pCurFloat;
+    if (bUseFloat) {
+        float * pCurFloat = (float*)pPBOPixels;
+        for (int i = 0; i < kernelWidth; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                *pCurFloat = pKernel[i];
+                ++pCurFloat;
+            }
+        }
+    } else {
+        unsigned char * pCurPixel = (unsigned char *)pPBOPixels;
+        for (int i = 0; i < kernelWidth; ++i) {
+            *pCurPixel = (pKernel[i]*255+0.5);
+            ++pCurPixel;
         }
     }
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
-   
     pFilterKernelPBO->moveToTexture(*pTex);
 
     delete[] pKernel;

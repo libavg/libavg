@@ -30,8 +30,7 @@ void main(void)
     float dx = dFdx(gl_TexCoord[0].x);
     for (int i=-radius; i<=radius; ++i) {
         vec4 tex = texture2D(texture, gl_TexCoord[0].st+vec2(float(i)*dx,0));
-        float coeff = 
-                texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;
+        float coeff = texture2D(kernelTex, vec2((float(i+radius)+0.5)/width,0)).r;
         sum += tex*coeff;
     }
     gl_FragColor = sum;
