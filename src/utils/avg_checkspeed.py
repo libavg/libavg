@@ -32,8 +32,6 @@ g_Player = avg.Player.get()
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
-buildTurretMenu.png
-creditsScreen.png
 Checks libavg performance by creating lots of nodes. Displays a frame time graph, executes for 20 secs and dumps profile statistics at the end of program execution.""")
     parser.add_option('--use-fx', '-f', dest='useFX', action='store_true', default=False, 
             help='Display everything using a NullFX to test FX overhead.')
