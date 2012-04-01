@@ -83,6 +83,10 @@ typedef GLShaderParamTemplate<int> IntGLShaderParam;
 typedef boost::shared_ptr<IntGLShaderParam> IntGLShaderParamPtr;
 typedef GLShaderParamTemplate<float> FloatGLShaderParam; 
 typedef boost::shared_ptr<FloatGLShaderParam> FloatGLShaderParamPtr;
+typedef GLShaderParamTemplate<glm::vec2> Vec2fGLShaderParam; 
+typedef boost::shared_ptr<Vec2fGLShaderParam> Vec2fGLShaderParamPtr;
+typedef GLShaderParamTemplate<Pixel32> ColorGLShaderParam; 
+typedef boost::shared_ptr<ColorGLShaderParam> ColorGLShaderParamPtr;
 
 }
 

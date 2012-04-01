@@ -46,8 +46,13 @@ private:
 
     GPUBlurFilter m_MinFilter;
     GPUBlurFilter m_MaxFilter;
+
+    IntGLShaderParamPtr m_pMinTexParam;
+    IntGLShaderParamPtr m_pMaxTexParam;
+    FloatGLShaderParamPtr m_pPostScaleParam;
+    IntGLShaderParamPtr m_pInvertParam;
 };
 
-} // namespace
+}
 #endif
 

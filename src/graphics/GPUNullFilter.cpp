@@ -41,6 +41,8 @@ GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
 
     setDimensions(size);
     createShader(SHADERID);
+    OGLShaderPtr pShader = getShader(SHADERID);
+    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
 }
 
 GPUNullFilter::~GPUNullFilter()
@@ -52,7 +54,7 @@ void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     OGLShaderPtr pShader = getShader(SHADERID);
     pShader->activate();
-    pShader->setUniformIntParam("Texture", 0);
+    m_pTextureParam->set(0);
     draw(pSrcTex);
 
     glproc::UseProgramObject(0);
