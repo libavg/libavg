@@ -50,6 +50,21 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     createShader(SHADERID_HORIZ);
     createShader(SHADERID_VERT);
     setStdDev(stdDev);
+
+    OGLShaderPtr pShader = getShader(SHADERID_HORIZ);
+    m_pHorizWidthParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "width"));
+    m_pHorizRadiusParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, 
+            "radius"));
+    m_pHorizTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
+    m_pHorizKernelTexParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, 
+            "kernelTex"));
+
+    pShader = getShader(SHADERID_VERT);
+    m_pVertWidthParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "width"));
+    m_pVertRadiusParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "radius"));
+    m_pVertTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
+    m_pVertKernelTexParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, 
+            "kernelTex"));
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -73,10 +88,10 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     getFBO(1)->activate();
     OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
     pHShader->activate();
-    pHShader->setUniformFloatParam("width", float(kernelWidth));
-    pHShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pHShader->setUniformIntParam("texture", 0);
-    pHShader->setUniformIntParam("kernelTex", 1);
+    m_pHorizWidthParam->set(float(kernelWidth));
+    m_pHorizRadiusParam->set((kernelWidth-1)/2);
+    m_pHorizTextureParam->set(0);
+    m_pHorizKernelTexParam->set(1);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
@@ -84,10 +99,10 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     getFBO(0)->activate();
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
-    pVShader->setUniformFloatParam("width", float(kernelWidth));
-    pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pVShader->setUniformIntParam("texture", 0);
-    pVShader->setUniformIntParam("kernelTex", 1);
+    m_pVertWidthParam->set(float(kernelWidth));
+    m_pVertRadiusParam->set((kernelWidth-1)/2);
+    m_pVertTextureParam->set(0);
+    m_pVertKernelTexParam->set(1);
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
     glproc::UseProgramObject(0);

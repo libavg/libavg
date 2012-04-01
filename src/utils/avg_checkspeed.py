@@ -79,8 +79,8 @@ class SpeedApp(AVGApp):
                         loop=True, parent=self._parentNode)
                 node.play()
             else:
-                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png",
-                        parent=self._parentNode)
+                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", 
+                        gamma=(1.5,1.5,1.5), parent=self._parentNode)
             if options.useFX:
                 node.setEffect(avg.NullFXNode())
             if options.blur:

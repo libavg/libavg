@@ -26,10 +26,11 @@
 #include "../api.h"
 
 #include "GPUFilter.h"
+#include "GLShaderParam.h"
 
 namespace avg {
 
-class AVG_API GPUHueSatFilter : public GPUFilter
+class AVG_API GPUHueSatFilter: public GPUFilter
 {
 public:
     GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
@@ -45,6 +46,12 @@ private:
     float m_Hue;
     float m_Saturation;
     bool m_bColorize;
+
+    FloatGLShaderParamPtr m_pHueParam;
+    FloatGLShaderParamPtr m_pSatParam;
+    FloatGLShaderParamPtr m_pLightnessParam;
+    IntGLShaderParamPtr m_pColorizeParam;
+    IntGLShaderParamPtr m_pTextureParam;
 };
 
 typedef boost::shared_ptr<GPUHueSatFilter> GPUHueSatFilterPtr;

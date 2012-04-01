@@ -42,4 +42,36 @@ unsigned GLShaderParam::getLocation() const
     return m_Location;
 }
 
+
+template<>
+void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val)
+{
+    glproc::Uniform1i(location, val);
+}
+
+template<>
+void GLShaderParamTemplate<float>::uniformSet(unsigned location, float val)
+{
+    glproc::Uniform1f(location, val);
+}
+
+template<>
+void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, glm::vec2 val)
+{
+    glproc::Uniform2f(location, val.x, val.y);
+}
+
+template<>
+void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val)
+{
+    glproc::Uniform4f(location, val.getR()/255.f, val.getG()/255.f, val.getB()/255.f,
+            val.getA()/255.f);
+}
+
+template<>
+void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 val)
+{
+    glproc::Uniform4f(location, val[0], val[1], val[2], val[3]);
+}
+
 }

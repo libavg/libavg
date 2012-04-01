@@ -57,57 +57,32 @@ class AVG_TEMPLATE_API GLShaderParamTemplate: public GLShaderParam
 {
 public:
     GLShaderParamTemplate(OGLShaderPtr pShader, const std::string& sName)
-        : GLShaderParam(pShader, sName)
+        : GLShaderParam(pShader, sName),
+          m_bValSet(false)
     {};
     
     void set(VAL_TYPE val)
     {
-        if (m_Val != val) {
-            uniformSet(m_Location, val);
+        if (m_Val != val || !m_bValSet) {
+            uniformSet(getLocation(), val);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShaderParam::set");
             m_Val = val;
+            m_bValSet = true;
         }
     };
 
 private:
     virtual void uniformSet(unsigned location, VAL_TYPE val) {};
 
+    bool m_bValSet;
     VAL_TYPE m_Val;
 };
 
-
-template<>
-void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val)
-{
-    glproc::Uniform1i(location, val);
-}
-
-template<>
-void GLShaderParamTemplate<float>::uniformSet(unsigned location, float val)
-{
-    glproc::Uniform1f(location, val);
-}
-
-template<>
-void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, glm::vec2 val)
-{
-    glproc::Uniform2f(location, val.x, val.y);
-}
-
-template<>
-void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val)
-{
-    glproc::Uniform4f(location, val.getR()/255.f, val.getG()/255.f, val.getB()/255.f,
-            val.getA()/255.f);
-}
-
-template<>
-void GLShaderParamTemplate<vec4f>::uniformSet(unsigned location, vec4f val)
-{
-    glproc::Uniform4f(loc, val[0], val[1], val[2], val[3]);
-}
-
 typedef boost::shared_ptr<GLShaderParam> GLShaderParamPtr;
+typedef GLShaderParamTemplate<int> IntGLShaderParam; 
+typedef boost::shared_ptr<IntGLShaderParam> IntGLShaderParamPtr;
+typedef GLShaderParamTemplate<float> FloatGLShaderParam; 
+typedef boost::shared_ptr<FloatGLShaderParam> FloatGLShaderParamPtr;
 
 }
 
