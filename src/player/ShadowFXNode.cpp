@@ -40,10 +40,6 @@ ShadowFXNode::ShadowFXNode(glm::vec2 offset, float radius, float opacity, string
     m_sColorName = sColor;
     m_Color = colorStringToColor(sColor);
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (!GLTexture::isFloatFormatSupported()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "OpenGL configuration doesn't support Shadow (no float textures).");
-    }
 }
 
 ShadowFXNode::~ShadowFXNode()
@@ -53,10 +49,6 @@ ShadowFXNode::~ShadowFXNode()
 
 void ShadowFXNode::connect()
 {
-    if (!GLTexture::isFloatFormatSupported()) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "Cannot create ShadowFX: OpenGL configuration doesn't support Blur (no float textures).");
-    }
     FXNode::connect();
 }
 
