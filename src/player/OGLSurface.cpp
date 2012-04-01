@@ -100,6 +100,42 @@ void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1,
     } else {
         AVG_ASSERT(!m_pTextures[1]);
     }
+
+    m_pShader = getShader(COLORSPACE_SHADER);
+    m_pColorModelParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "colorModel"));
+    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "texture"));
+    m_pCbTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "cbTexture"));
+    m_pCrTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "crTexture"));
+    m_pATextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "aTexture"));
+    
+    m_pColorCoeff0Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
+            "colorCoeff0"));
+    m_pColorCoeff1Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
+            "colorCoeff1"));
+    m_pColorCoeff2Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
+            "colorCoeff2"));
+    m_pColorCoeff3Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
+            "colorCoeff3"));
+    m_pGammaParam = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
+            "gamma"));
+ 
+    m_pUseColorCoeffParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "bUseColorCoeff"));
+    m_pPremultipliedAlphaParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "bPremultipliedAlpha"));
+    m_pUseMaskParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "bUseMask"));
+    m_pMaskTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
+            "maskTexture"));
+    m_pMaskPosParam = Vec2fGLShaderParamPtr(new Vec2fGLShaderParam(m_pShader, 
+            "maskPos"));
+    m_pMaskSizeParam = Vec2fGLShaderParamPtr(new Vec2fGLShaderParam(m_pShader, 
+            "maskSize"));
 }
 
 void OGLSurface::setMask(GLTexturePtr pTex)
@@ -119,66 +155,61 @@ void OGLSurface::destroy()
 void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
 {
     if (useShader()) {
-        OGLShaderPtr pShader = getShader(COLORSPACE_SHADER);
-        pShader->activate();
+        m_pShader->activate();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
         switch (m_pf) {
             case YCbCr420p:
             case YCbCrJ420p:
-                pShader->setUniformIntParam("colorModel", 1);
+                m_pColorModelParam->set(1);
                 break;
             case YCbCrA420p:
-                pShader->setUniformIntParam("colorModel", 3);
+                m_pColorModelParam->set(3);
                 break;
             case A8:
-                pShader->setUniformIntParam("colorModel", 2);
+                m_pColorModelParam->set(2);
                 break;
             default:
-                pShader->setUniformIntParam("colorModel", 0);
+                m_pColorModelParam->set(0);
         }
 
         m_pTextures[0]->activate(GL_TEXTURE0);
-        pShader->setUniformIntParam("texture", 0);
+        m_pTextureParam->set(0);
         
         if (pixelFormatIsPlanar(m_pf)) {
             m_pTextures[1]->activate(GL_TEXTURE1);
-            pShader->setUniformIntParam("cbTexture", 1);
+            m_pCbTextureParam->set(1);
             m_pTextures[2]->activate(GL_TEXTURE2);
-            pShader->setUniformIntParam("crTexture", 2);
+            m_pCrTextureParam->set(2);
             if (m_pf == YCbCrA420p) {
                 m_pTextures[3]->activate(GL_TEXTURE3);
-                pShader->setUniformIntParam("aTexture", 3);
+                m_pATextureParam->set(3);
             }
         }
         if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
             glm::mat4 mat = calcColorspaceMatrix();
-            pShader->setUniformVec4fParam("colorCoeff0", 
-                    mat[0][0], mat[0][1], mat[0][2], 0);
-            pShader->setUniformVec4fParam("colorCoeff1", 
-                    mat[1][0], mat[1][1], mat[1][2], 0);
-            pShader->setUniformVec4fParam("colorCoeff2", 
-                    mat[2][0], mat[2][1], mat[2][2], 0);
-            pShader->setUniformVec4fParam("colorCoeff3", 
-                    mat[3][0], mat[3][1], mat[3][2], 1);
+            m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
+            m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
+            m_pColorCoeff2Param->set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
+            m_pColorCoeff3Param->set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
         }
 
-        pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
-                1./m_AlphaGamma);
-        pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
+        m_pGammaParam->set(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
+                1./m_AlphaGamma));
+        m_pUseColorCoeffParam->set(colorIsModified());
 
-        pShader->setUniformIntParam("bPremultipliedAlpha", bPremultipliedAlpha);
-        pShader->setUniformIntParam("bUseMask", bool(m_pMaskTexture));
+        m_pPremultipliedAlphaParam->set(bPremultipliedAlpha);
+        m_pUseMaskParam->set(bool(m_pMaskTexture));
         if (m_pMaskTexture) {
             m_pMaskTexture->activate(GL_TEXTURE4);
-            pShader->setUniformIntParam("maskTexture", 4);
-            pShader->setUniformVec2fParam("maskPos", m_MaskPos);
+            m_pMaskTextureParam->set(4);
+            m_pMaskPosParam->set(m_MaskPos);
             // maskScale is (1,1) for everything excepting words nodes.
             glm::vec2 maskScale(1,1);
             if (logicalSize != IntPoint(0,0)) {
                 maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
                         (float)logicalSize.y/m_Size.y);
             }
-            pShader->setUniformVec2fParam("maskSize", m_MaskSize*maskScale);
+            m_pMaskSizeParam->set(m_MaskSize*maskScale);
         }
 
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");

@@ -70,57 +70,6 @@ GLhandleARB OGLShader::getProgram()
     return m_hProgram;
 }
 
-void OGLShader::setUniformIntParam(const std::string& sName, int val)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1i(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformFloatParam(const std::string& sName, float val)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1f(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, 
-        float* pVal)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1fv(loc, count, pVal);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformVec2fParam(const std::string& sName, glm::vec2 pt)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform2f(loc, pt.x, pt.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-        
-void OGLShader::setUniformColorParam(const std::string& sName, Pixel32 col)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform4f(loc, col.getR()/255.f, col.getG()/255.f, col.getB()/255.f,
-            col.getA()/255.f);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-        
-void OGLShader::setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
-                float w)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform4f(loc, x, y, z, w);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
 {
     int InfoLogLength;
@@ -156,21 +105,5 @@ string OGLShader::removeATIInfoLogSpam(const string& sOrigLog)
     }
     return sLog;
 }
-
-int OGLShader::safeGetUniformLoc(const std::string& sName)
-{
-    // TODO: This takes too much time if it's called whenever the parameter is set.
-    map<string, int>::iterator pos = m_UniformLocationMap.find(sName);
-    if (pos == m_UniformLocationMap.end()) {
-        int loc = glproc::GetUniformLocation(m_hProgram, sName.c_str());
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLShader::setUniformIntParam: GetUniformLocation()");
-        m_UniformLocationMap[sName] = loc;
-        return loc;
-    } else {
-        return pos->second;
-    }
-}
-
 
 }

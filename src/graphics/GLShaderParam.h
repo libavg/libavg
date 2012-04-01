@@ -63,12 +63,12 @@ public:
     
     void set(VAL_TYPE val)
     {
-        if (m_Val != val || !m_bValSet) {
+//        if (m_Val != val || !m_bValSet) {
             uniformSet(getLocation(), val);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShaderParam::set");
             m_Val = val;
             m_bValSet = true;
-        }
+//        }
     };
 
 private:
@@ -79,14 +79,21 @@ private:
 };
 
 typedef boost::shared_ptr<GLShaderParam> GLShaderParamPtr;
-typedef GLShaderParamTemplate<int> IntGLShaderParam; 
+
+typedef GLShaderParamTemplate<int> IntGLShaderParam;
 typedef boost::shared_ptr<IntGLShaderParam> IntGLShaderParamPtr;
+
 typedef GLShaderParamTemplate<float> FloatGLShaderParam; 
 typedef boost::shared_ptr<FloatGLShaderParam> FloatGLShaderParamPtr;
+
 typedef GLShaderParamTemplate<glm::vec2> Vec2fGLShaderParam; 
 typedef boost::shared_ptr<Vec2fGLShaderParam> Vec2fGLShaderParamPtr;
+
 typedef GLShaderParamTemplate<Pixel32> ColorGLShaderParam; 
 typedef boost::shared_ptr<ColorGLShaderParam> ColorGLShaderParamPtr;
+
+typedef GLShaderParamTemplate<glm::vec4> Vec4fGLShaderParam; 
+typedef boost::shared_ptr<Vec4fGLShaderParam> Vec4fGLShaderParamPtr;
 
 }
 

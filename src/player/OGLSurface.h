@@ -28,6 +28,7 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
+#include "../graphics/GLShaderParam.h"
 
 #include <vector>
 #include <string>
@@ -87,6 +88,27 @@ private:
     float m_AlphaGamma;
 
     bool m_bIsDirty;
+
+    OGLShaderPtr m_pShader;
+
+    IntGLShaderParamPtr m_pColorModelParam;
+    IntGLShaderParamPtr m_pTextureParam;
+    IntGLShaderParamPtr m_pCbTextureParam;
+    IntGLShaderParamPtr m_pCrTextureParam;
+    IntGLShaderParamPtr m_pATextureParam;
+
+    Vec4fGLShaderParamPtr m_pColorCoeff0Param;
+    Vec4fGLShaderParamPtr m_pColorCoeff1Param;
+    Vec4fGLShaderParamPtr m_pColorCoeff2Param;
+    Vec4fGLShaderParamPtr m_pColorCoeff3Param;
+    Vec4fGLShaderParamPtr m_pGammaParam;
+
+    IntGLShaderParamPtr m_pUseColorCoeffParam;
+    IntGLShaderParamPtr m_pPremultipliedAlphaParam;
+    IntGLShaderParamPtr m_pUseMaskParam;
+    IntGLShaderParamPtr m_pMaskTextureParam;
+    Vec2fGLShaderParamPtr m_pMaskPosParam;
+    Vec2fGLShaderParamPtr m_pMaskSizeParam;
 };
 
 }
