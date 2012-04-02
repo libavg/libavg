@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
+#include "GLShaderParam.h"
 #include "Bitmap.h"
 
 namespace avg {
@@ -39,6 +40,9 @@ public:
 
 private:
     float m_Alpha;
+
+    IntGLShaderParamPtr m_pTextureParam;
+    FloatGLShaderParamPtr m_pAlphaParam;
 };
 
 }

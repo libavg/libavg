@@ -42,14 +42,6 @@ class AVG_API OGLShader {
         void activate();
         GLhandleARB getProgram();
 
-        void setUniformIntParam(const std::string& sName, int val);
-        void setUniformFloatParam(const std::string& sName, float val);
-        void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
-        void setUniformVec2fParam(const std::string& sName, glm::vec2 pt);
-        void setUniformColorParam(const std::string& sName, Pixel32 col);
-        void setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
-                float w);
-
     private:
         OGLShader(std::string sName, std::string sProgram);
         friend class ShaderRegistry;
@@ -61,7 +53,6 @@ class AVG_API OGLShader {
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
         std::string m_sProgram;
-        std::map<std::string, int> m_UniformLocationMap;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

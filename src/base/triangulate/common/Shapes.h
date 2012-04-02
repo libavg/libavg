@@ -208,8 +208,6 @@ public:
 
 	TriangulationTriangle& NeighborAcross(Point& opoint);
 
-	void DebugPrint();
-
 private:
 
 /// Triangle points

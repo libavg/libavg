@@ -39,12 +39,19 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
     : GPUFilter(pfSrc, B8G8R8A8, bStandalone),
       m_PostScale(postScale),
       m_bInvert(bInvert),
-      m_MinFilter(size, pfSrc, R32G32B32A32F, min, true, false),
-      m_MaxFilter(size, pfSrc, R32G32B32A32F, max, true, false)
+      m_MinFilter(size, pfSrc, R32G32B32A32F, min, true, false, true),
+      m_MaxFilter(size, pfSrc, R32G32B32A32F, max, true, false, true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
     initShader();
+    
+    OGLShaderPtr pShader = getShader(SHADERID);
+    m_pMinTexParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "minTex"));
+    m_pMaxTexParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "maxTex"));
+    m_pPostScaleParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
+            "postScale"));
+    m_pInvertParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "bInvert"));
 }
 
 GPUBandpassFilter::~GPUBandpassFilter()
@@ -60,10 +67,10 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
     getFBO()->activate();
     OGLShaderPtr pShader = getShader(SHADERID);
     pShader->activate();
-    pShader->setUniformIntParam("minTex", 0);
-    pShader->setUniformIntParam("maxTex", 1);
-    pShader->setUniformFloatParam("postScale", float(m_PostScale));
-    pShader->setUniformIntParam("bInvert", m_bInvert);
+    m_pMinTexParam->set(0);
+    m_pMaxTexParam->set(1);
+    m_pPostScaleParam->set(float(m_PostScale));
+    m_pInvertParam->set(m_bInvert);
     m_MaxFilter.getDestTex()->activate(GL_TEXTURE1);
     draw(m_MinFilter.getDestTex());
 

@@ -362,13 +362,5 @@ TriangulationTriangle& TriangulationTriangle::NeighborAcross(Point& opoint)
 	return *m_neighbors[2];
 }
 
-void TriangulationTriangle::DebugPrint()
-{
-	using namespace std;
-	cout << m_points[0]->m_x << "," << m_points[0]->m_y << " ";
-	cout << m_points[1]->m_x << "," << m_points[1]->m_y << " ";
-	cout << m_points[2]->m_x << "," << m_points[2]->m_y << endl;
-}
-
 }
 

@@ -23,6 +23,7 @@
 #
 
 from libavg import *
+
 import optparse
 import random
 import math
@@ -65,6 +66,7 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
 
 class SpeedApp(AVGApp):
     def init(self):
+        self._parentNode.mediadir = utils.getMediaDir(None, "data")
         self.__createNodes()
         self._starter.showFrameRate()
         if options.createNodes:
@@ -80,17 +82,17 @@ class SpeedApp(AVGApp):
         for i in xrange(options.numObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
             if options.video:
-                node = avg.VideoNode(pos=pos, href="media/mpeg1-48x48.mpg",
+                node = avg.VideoNode(pos=pos, href="mpeg1-48x48.mpg",
                         loop=True, parent=self._parentNode)
                 node.play()
             elif options.polygon:
                 polyPos = self.__calPolyCords(pos, R)
                 holes = (self.__calPolyCords(pos, R/2), )
-                node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1,
-                        holes=holes)
+                node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1)
+                        #holes=holes)
             else:
-                node = avg.ImageNode(pos=pos, href="media/rgb24alpha-64x64.png",
-                        parent=self._parentNode)
+                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", 
+                        gamma=(1.5,1.5,1.5), parent=self._parentNode)
             if not options.polygon:
                 if options.useFX:
                     node.setEffect(avg.NullFXNode())
@@ -126,12 +128,12 @@ if options.numObjs == -1:
     if options.video:
         options.numObjs = 40
     else:
-        options.numObjs = 200
+        options.numObjs = 200 
 if options.numPoints < 10:
     options.numPoints = 10
 elif options.numPoints % 2 != 0:
     options.numPoints -= 1
-       
+
 log = avg.Logger.get()
 log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
 SpeedApp.start(resolution=(800,600))
