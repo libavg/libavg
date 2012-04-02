@@ -70,6 +70,21 @@ GLhandleARB OGLShader::getProgram()
     return m_hProgram;
 }
 
+bool OGLShader::findParam(const std::string& sName, unsigned& pos)
+{
+    GLShaderParamPtr pParam;
+    bool bFound = false;
+    pos = 0;
+    while (!bFound && pos<m_pParams.size() && m_pParams[pos]->getName() <= sName) {
+        if (m_pParams[pos]->getName() == sName) {
+            bFound = true;
+        } else {
+            ++pos;
+        }
+    }
+    return bFound;
+}
+
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
 {
     int InfoLogLength;

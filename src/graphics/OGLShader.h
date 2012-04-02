@@ -47,22 +47,15 @@ class AVG_API OGLShader {
         boost::shared_ptr<GLShaderParamTemplate<VAL_TYPE> > getParam(
                 const std::string& sName)
         {
+            unsigned pos;
+            bool bFound = findParam(sName, pos);
             GLShaderParamPtr pParam;
-            unsigned i = 0;
-            bool bFound = false;
-            while (!bFound && i<m_pParams.size() && m_pParams[i]->getName() <= sName) {
-                if (m_pParams[i]->getName() == sName) {
-                    bFound = true;
-                } else {
-                    ++i;
-                }
-            }
             if (bFound) {
-                pParam = m_pParams[i];
+                pParam = m_pParams[pos];
             } else {
                 pParam = GLShaderParamPtr(
                         new GLShaderParamTemplate<VAL_TYPE>(this, sName));
-                m_pParams.insert(m_pParams.begin()+i, pParam);
+                m_pParams.insert(m_pParams.begin()+pos, pParam);
             }
             return boost::dynamic_pointer_cast<
                     GLShaderParamTemplate<VAL_TYPE> >(pParam);
@@ -72,6 +65,7 @@ class AVG_API OGLShader {
         OGLShader(std::string sName, std::string sProgram);
         friend class ShaderRegistry;
 
+        bool findParam(const std::string& sName, unsigned& pos);
         void dumpInfoLog(GLhandleARB hObj);
         std::string removeATIInfoLogSpam(const std::string& sLog);
 
