@@ -24,6 +24,7 @@ class VideoChooserApp(AVGApp):
                         pos = (i*(THUMBNAIL_WIDTH+20), 0),
                         href = dir+"/"+fileName,
                         loop = True,
+                        mipmap=True,
                         parent = self.videoListNode)
                 videoNode.play()
                 self.videoNodes.append(videoNode)
@@ -32,14 +33,15 @@ class VideoChooserApp(AVGApp):
                 height = (THUMBNAIL_WIDTH*size.y)/size.x
                 videoNode.size = (THUMBNAIL_WIDTH, height)
 
-                videoNode.setEventHandler(avg.CURSORDOWN, avg.MOUSE,
+                videoNode.connectEventHandler(avg.CURSORDOWN, avg.MOUSE, self,
                         lambda event, videoNode=videoNode: 
                                 self.chooseVideo(event, videoNode))
                 i += 1
             except RuntimeError:
                 pass
 
-        self._parentNode.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.onMouseMove)
+        self._parentNode.connectEventHandler(avg.CURSORMOTION, avg.MOUSE, self,
+                self.onMouseMove)
         self.bigVideoNode = None
 
     def onMouseMove(self, event):
