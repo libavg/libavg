@@ -208,7 +208,7 @@ elif len(VideoList) > 0:
             len_filename = curLen
         curLen = len(node.getVideoCodec())
         if len_videoCodec < curLen:
-            len_videoCodec = surLen
+            len_videoCodec = curLen
         curLen = len(node.getStreamPixelFormat())
         if len_videoFormat < curLen:
             len_videoFormat = curLen
