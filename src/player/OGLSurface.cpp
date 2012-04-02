@@ -102,40 +102,24 @@ void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1,
     }
 
     m_pShader = getShader(COLORSPACE_SHADER);
-    m_pColorModelParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "colorModel"));
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "texture"));
-    m_pCbTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "cbTexture"));
-    m_pCrTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "crTexture"));
-    m_pATextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "aTexture"));
-    
-    m_pColorCoeff0Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
-            "colorCoeff0"));
-    m_pColorCoeff1Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
-            "colorCoeff1"));
-    m_pColorCoeff2Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
-            "colorCoeff2"));
-    m_pColorCoeff3Param = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
-            "colorCoeff3"));
-    m_pGammaParam = Vec4fGLShaderParamPtr(new Vec4fGLShaderParam(m_pShader, 
-            "gamma"));
+    m_pColorModelParam = m_pShader->getParam<int>("colorModel");
+    m_pTextureParam = m_pShader->getParam<int>("texture");
+    m_pCbTextureParam = m_pShader->getParam<int>("cbTexture");
+    m_pCrTextureParam = m_pShader->getParam<int>("crTexture");
+    m_pATextureParam = m_pShader->getParam<int>("aTexture");
+
+    m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
+    m_pColorCoeff1Param = m_pShader->getParam<glm::vec4>("colorCoeff1");
+    m_pColorCoeff2Param = m_pShader->getParam<glm::vec4>("colorCoeff2");
+    m_pColorCoeff3Param = m_pShader->getParam<glm::vec4>("colorCoeff3");
+    m_pGammaParam = m_pShader->getParam<glm::vec4>("gamma");
  
-    m_pUseColorCoeffParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "bUseColorCoeff"));
-    m_pPremultipliedAlphaParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "bPremultipliedAlpha"));
-    m_pUseMaskParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "bUseMask"));
-    m_pMaskTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(m_pShader, 
-            "maskTexture"));
-    m_pMaskPosParam = Vec2fGLShaderParamPtr(new Vec2fGLShaderParam(m_pShader, 
-            "maskPos"));
-    m_pMaskSizeParam = Vec2fGLShaderParamPtr(new Vec2fGLShaderParam(m_pShader, 
-            "maskSize"));
+    m_pUseColorCoeffParam = m_pShader->getParam<int>("bUseColorCoeff");
+    m_pPremultipliedAlphaParam = m_pShader->getParam<int>("bPremultipliedAlpha");
+    m_pUseMaskParam = m_pShader->getParam<int>("bUseMask");
+    m_pMaskTextureParam = m_pShader->getParam<int>("maskTexture");
+    m_pMaskPosParam = m_pShader->getParam<glm::vec2>("maskPos");
+    m_pMaskSizeParam = m_pShader->getParam<glm::vec2>("maskSize");
 }
 
 void OGLSurface::setMask(GLTexturePtr pTex)

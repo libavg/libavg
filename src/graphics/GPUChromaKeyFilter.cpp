@@ -51,32 +51,27 @@ GPUChromaKeyFilter::GPUChromaKeyFilter(const IntPoint& size, PixelFormat pf,
     setDimensions(size);
     createShader(SHADERID_CHROMAKEY);
     OGLShaderPtr pShader = getShader(SHADERID_CHROMAKEY);
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
-    m_pHKeyParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "hKey"));
-    m_pHToleranceParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "hTolerance"));
-    m_pHSoftToleranceParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "hSoftTolerance"));
-    m_pSKeyParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "sKey"));
-    m_pSToleranceParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "sTolerance"));
-    m_pSSoftToleranceParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "sSoftTolerance"));
-    m_pLKeyParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "lKey"));
-    m_pLToleranceParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "lTolerance"));
-    m_pLSoftToleranceParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "lSoftTolerance"));
-    m_pSpillThresholdParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "spillThreshold"));
-    m_pIsLastParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "bIsLast"));
+    m_pTextureParam = pShader->getParam<int>("texture");
+    
+    m_pHKeyParam = pShader->getParam<float>("hKey");
+    m_pHToleranceParam = pShader->getParam<float>("hTolerance");
+    m_pHSoftToleranceParam = pShader->getParam<float>("hSoftTolerance");
+    
+    m_pSKeyParam = pShader->getParam<float>("sKey");
+    m_pSToleranceParam = pShader->getParam<float>("sTolerance");
+    m_pSSoftToleranceParam = pShader->getParam<float>("sSoftTolerance");
+    
+    m_pLKeyParam = pShader->getParam<float>("lKey");
+    m_pLToleranceParam = pShader->getParam<float>("lTolerance");
+    m_pLSoftToleranceParam = pShader->getParam<float>("lSoftTolerance");
+    
+    m_pSpillThresholdParam = pShader->getParam<float>("spillThreshold");
+    m_pIsLastParam = pShader->getParam<int>("bIsLast");
 
     createShader(SHADERID_EROSION);
     pShader = getShader(SHADERID_EROSION);
-    m_pErosionTextureParam= IntGLShaderParamPtr(new IntGLShaderParam(pShader,
-            "texture"));
-    m_pErosionIsLastParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader,
-            "bIsLast"));
+    m_pErosionTextureParam= pShader->getParam<int>("texture");
+    m_pErosionIsLastParam = pShader->getParam<int>("bIsLast");
 }
 
 GPUChromaKeyFilter::~GPUChromaKeyFilter()

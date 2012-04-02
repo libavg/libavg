@@ -39,7 +39,7 @@ GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf,
     setDimensions(size);
     createShader(SHADERID_INVERT_COLOR);
     OGLShaderPtr pShader = getShader(SHADERID_INVERT_COLOR);
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
+    m_pTextureParam = pShader->getParam<int>("texture");
 
 }
 

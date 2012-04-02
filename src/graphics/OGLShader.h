@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "OGLHelper.h"
+#include "GLShaderParam.h"
 #include "Pixel32.h"
 
 #include "../base/GLMHelper.h"
@@ -42,17 +43,43 @@ class AVG_API OGLShader {
         void activate();
         GLhandleARB getProgram();
 
+        template<class VAL_TYPE>
+        boost::shared_ptr<GLShaderParamTemplate<VAL_TYPE> > getParam(
+                const std::string& sName)
+        {
+            GLShaderParamPtr pParam;
+            unsigned i = 0;
+            bool bFound = false;
+            while (!bFound && i<m_pParams.size() && m_pParams[i]->getName() <= sName) {
+                if (m_pParams[i]->getName() == sName) {
+                    bFound = true;
+                } else {
+                    ++i;
+                }
+            }
+            if (bFound) {
+                pParam = m_pParams[i];
+            } else {
+                pParam = GLShaderParamPtr(
+                        new GLShaderParamTemplate<VAL_TYPE>(this, sName));
+                m_pParams.insert(m_pParams.begin()+i, pParam);
+            }
+            return boost::dynamic_pointer_cast<
+                    GLShaderParamTemplate<VAL_TYPE> >(pParam);
+        }
+
     private:
         OGLShader(std::string sName, std::string sProgram);
         friend class ShaderRegistry;
 
         void dumpInfoLog(GLhandleARB hObj);
         std::string removeATIInfoLogSpam(const std::string& sLog);
-        int safeGetUniformLoc(const std::string& sName);
 
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
         std::string m_sProgram;
+
+        std::vector<GLShaderParamPtr> m_pParams;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

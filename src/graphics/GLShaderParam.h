@@ -19,12 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GLShaderParamTemplate_H_
-#define _GLShaderParamTemplate_H_
+#ifndef _GLShaderParam_H_
+#define _GLShaderParam_H_
 
 #include "../api.h"
 #include "OGLHelper.h"
-#include "OGLShader.h"
 #include "Pixel32.h"
 
 #include "../base/GLMHelper.h"
@@ -36,18 +35,21 @@
 
 namespace avg {
 
+class OGLShader;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
+
 class AVG_API GLShaderParam
 {
 public:
-    GLShaderParam(OGLShaderPtr pShader, const std::string& sName);
+    GLShaderParam(OGLShader* pShader, const std::string& sName);
     virtual ~GLShaderParam() {};
+    
+    const std::string& getName() const;
 
 protected:
     unsigned getLocation() const;
-    const std::string& getName() const;
 
 private:
-    OGLShaderPtr m_pShader;
     std::string m_sName;
     unsigned m_Location;
 };
@@ -57,19 +59,19 @@ template<class VAL_TYPE>
 class AVG_TEMPLATE_API GLShaderParamTemplate: public GLShaderParam
 {
 public:
-    GLShaderParamTemplate(OGLShaderPtr pShader, const std::string& sName)
+    GLShaderParamTemplate(OGLShader* pShader, const std::string& sName)
         : GLShaderParam(pShader, sName),
           m_bValSet(false)
     {};
     
     void set(VAL_TYPE val)
     {
-//        if (m_Val != val || !m_bValSet) {
+        if (m_Val != val || !m_bValSet) {
             uniformSet(getLocation(), val);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShaderParam::set");
             m_Val = val;
             m_bValSet = true;
-//        }
+        }
     };
 
 private:

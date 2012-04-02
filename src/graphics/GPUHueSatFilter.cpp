@@ -42,12 +42,11 @@ GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
     setDimensions(size);
     createShader(SHADERID_HSL_COLOR);
     OGLShaderPtr pShader = getShader(SHADERID_HSL_COLOR);
-    m_pHueParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "hue"));
-    m_pSatParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "sat"));
-    m_pLightnessParam = FloatGLShaderParamPtr(new FloatGLShaderParam
-            (pShader, "l_offset"));
-    m_pColorizeParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "b_colorize"));
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
+    m_pHueParam = pShader->getParam<float>("hue");
+    m_pSatParam = pShader->getParam<float>("sat");
+    m_pLightnessParam = pShader->getParam<float>("l_offset");
+    m_pColorizeParam = pShader->getParam<int>("b_colorize");
+    m_pTextureParam = pShader->getParam<int>("texture");
 }
 
 GPUHueSatFilter::~GPUHueSatFilter()

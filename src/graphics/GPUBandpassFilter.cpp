@@ -47,11 +47,10 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
     initShader();
     
     OGLShaderPtr pShader = getShader(SHADERID);
-    m_pMinTexParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "minTex"));
-    m_pMaxTexParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "maxTex"));
-    m_pPostScaleParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, 
-            "postScale"));
-    m_pInvertParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "bInvert"));
+    m_pMinTexParam = pShader->getParam<int>("minTex");
+    m_pMaxTexParam = pShader->getParam<int>("maxTex");
+    m_pPostScaleParam = pShader->getParam<float>("postScale");
+    m_pInvertParam = pShader->getParam<int>("bInvert");
 }
 
 GPUBandpassFilter::~GPUBandpassFilter()

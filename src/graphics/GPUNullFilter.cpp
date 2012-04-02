@@ -42,7 +42,7 @@ GPUNullFilter::GPUNullFilter(const IntPoint& size, bool bStandalone)
     setDimensions(size);
     createShader(SHADERID);
     OGLShaderPtr pShader = getShader(SHADERID);
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
+    m_pTextureParam = pShader->getParam<int>("texture");
 }
 
 GPUNullFilter::~GPUNullFilter()
