@@ -36,7 +36,7 @@
 
 namespace avg {
 
-class GLShaderParam
+class AVG_API GLShaderParam
 {
 public:
     GLShaderParam(OGLShaderPtr pShader, const std::string& sName);
