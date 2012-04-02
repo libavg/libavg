@@ -47,11 +47,11 @@ public:
     const std::string& getName() const;
 
 protected:
-    unsigned getLocation() const;
+    int getLocation() const;
 
 private:
     std::string m_sName;
-    unsigned m_Location;
+    int m_Location;
 };
 
 

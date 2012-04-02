@@ -31,7 +31,8 @@ using namespace std;
 namespace avg {
 
 OGLShader::OGLShader(string sName, string sProgram)
-    : m_sProgram(sProgram)
+    : m_sName(sName),
+      m_sProgram(sProgram)
 {
     m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
     const char * pProgramStr = m_sProgram.c_str();
@@ -68,6 +69,11 @@ void OGLShader::activate()
 GLhandleARB OGLShader::getProgram()
 {
     return m_hProgram;
+}
+
+const std::string OGLShader::getName() const
+{
+    return m_sName;
 }
 
 bool OGLShader::findParam(const std::string& sName, unsigned& pos)

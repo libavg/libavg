@@ -58,7 +58,7 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     pShader = getShader(SHADERID_VERT);
     m_pVertWidthParam = pShader->getParam<float>("width");
     m_pVertRadiusParam = pShader->getParam<int>("radius");
-    m_pVertTextureParam = pShader->getParam<int>("texture");
+    m_pVertTextureParam = pShader->getParam<int>("hBlurTex");
     m_pVertKernelTexParam = pShader->getParam<int>("kernelTex");
     m_pVertColorParam = pShader->getParam<Pixel32>("color");
     m_pVertOrigTexParam = pShader->getParam<int>("origTex");

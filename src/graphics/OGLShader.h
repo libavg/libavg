@@ -42,6 +42,7 @@ class AVG_API OGLShader {
 
         void activate();
         GLhandleARB getProgram();
+        const std::string getName() const;
 
         template<class VAL_TYPE>
         boost::shared_ptr<GLShaderParamTemplate<VAL_TYPE> > getParam(
@@ -69,6 +70,7 @@ class AVG_API OGLShader {
         void dumpInfoLog(GLhandleARB hObj);
         std::string removeATIInfoLogSpam(const std::string& sLog);
 
+        std::string m_sName;
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
         std::string m_sProgram;
