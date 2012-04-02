@@ -42,6 +42,10 @@ unsigned GLShaderParam::getLocation() const
     return m_Location;
 }
 
+const string& GLShaderParam::getName() const
+{
+    return m_sName;
+}
 
 template<>
 void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val)

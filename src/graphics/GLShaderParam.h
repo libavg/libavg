@@ -44,6 +44,7 @@ public:
 
 protected:
     unsigned getLocation() const;
+    const std::string& getName() const;
 
 private:
     OGLShaderPtr m_pShader;
@@ -72,11 +73,26 @@ public:
     };
 
 private:
-    virtual void uniformSet(unsigned location, VAL_TYPE val) {};
+    void uniformSet(unsigned location, VAL_TYPE val) 
+    {
+        AVG_ASSERT_MSG(false, 
+                getName()+"GLShaderParam::uniformSet() called for unsupported type.");
+    };
 
     bool m_bValSet;
     VAL_TYPE m_Val;
 };
+
+template<>
+void GLShaderParamTemplate<int>::uniformSet(unsigned location, int val);
+template<>
+void GLShaderParamTemplate<float>::uniformSet(unsigned location, float val);
+template<>
+void GLShaderParamTemplate<glm::vec2>::uniformSet(unsigned location, glm::vec2 val);
+template<>
+void GLShaderParamTemplate<Pixel32>::uniformSet(unsigned location, Pixel32 val);
+template<>
+void GLShaderParamTemplate<glm::vec4>::uniformSet(unsigned location, glm::vec4 val);
 
 typedef boost::shared_ptr<GLShaderParam> GLShaderParamPtr;
 
