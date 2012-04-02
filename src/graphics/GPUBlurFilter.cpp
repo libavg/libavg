@@ -102,7 +102,7 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertKernelTexParam->set(1);
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
-    glproc::UseProgramObject(0);
+    pVShader->deactivate();
 }
 
 void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)

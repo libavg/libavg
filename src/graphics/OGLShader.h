@@ -41,6 +41,7 @@ class AVG_API OGLShader {
         virtual ~OGLShader();
 
         void activate();
+        static void deactivate();
         GLhandleARB getProgram();
         const std::string getName() const;
 

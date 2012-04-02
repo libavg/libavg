@@ -20,6 +20,7 @@
 //
 
 #include "OGLShader.h"
+#include "ShaderRegistry.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -62,8 +63,18 @@ OGLShader::~OGLShader()
 
 void OGLShader::activate()
 {
-   glproc::UseProgramObject(m_hProgram);
-   OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+    OGLShaderPtr pCurShader = ShaderRegistry::get()->getCurShader();
+    if (!pCurShader || &*pCurShader != this) {
+        glproc::UseProgramObject(m_hProgram);
+        ShaderRegistry::get()->setCurShader(m_sName);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+    }
+}
+
+void OGLShader::deactivate()
+{
+    glproc::UseProgramObject(0);
+    ShaderRegistry::get()->setCurShader("");
 }
 
 GLhandleARB OGLShader::getProgram()

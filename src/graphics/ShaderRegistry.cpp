@@ -91,13 +91,27 @@ void ShaderRegistry::createShader(const std::string& sID)
     }
 }
 
-OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
+OGLShaderPtr ShaderRegistry::getShader(const std::string& sID) const
 {
-    ShaderMap::iterator it = m_ShaderMap.find(sID);
+    ShaderMap::const_iterator it = m_ShaderMap.find(sID);
     if (it == m_ShaderMap.end()) {
         return OGLShaderPtr();
     } else {
         return it->second;
+    }
+}
+
+OGLShaderPtr ShaderRegistry::getCurShader() const
+{
+    return m_pCurShader;
+}
+
+void ShaderRegistry::setCurShader(const std::string& sID)
+{
+    if (sID == "") {
+        m_pCurShader = OGLShaderPtr();
+    } else {
+        m_pCurShader = getShader(sID);
     }
 }
 

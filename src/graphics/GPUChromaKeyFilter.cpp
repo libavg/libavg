@@ -129,7 +129,7 @@ void GPUChromaKeyFilter::applyOnGPU(GLTexturePtr pSrcTex)
         GLTexturePtr pSrcTex;
         draw(getDestTex((curBufferIndex+1)%2));
     }
-    glproc::UseProgramObject(0);
+    pShader->deactivate();
 }
 
 }

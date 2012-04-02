@@ -118,7 +118,7 @@ void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pVertDestSizeParam->set(destRect.size());
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
-    glproc::UseProgramObject(0);
+    pVShader->deactivate();
 }
 
 void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)

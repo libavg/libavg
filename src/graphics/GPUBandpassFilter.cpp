@@ -73,7 +73,7 @@ void GPUBandpassFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_MaxFilter.getDestTex()->activate(GL_TEXTURE1);
     draw(m_MinFilter.getDestTex());
 
-    glproc::UseProgramObject(0);
+    pShader->deactivate();
 }
 
 void GPUBandpassFilter::initShader()

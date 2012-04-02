@@ -200,7 +200,7 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     } else {
         m_pTextures[0]->activate(GL_TEXTURE0);
         if (GLContext::getCurrent()->isUsingShaders()) {
-            glproc::UseProgramObject(0);
+            OGLShader::deactivate();
         }
         for (int i=1; i<5; ++i) {
             glproc::ActiveTexture(GL_TEXTURE0 + i);

@@ -26,6 +26,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/OGLShader.h"
 
 #include "OGLSurface.h"
 
@@ -99,7 +100,7 @@ void Shape::draw()
         m_pSurface->activate();
     } else {
         if (GLContext::getCurrent()->isUsingShaders()) {
-            glproc::UseProgramObject(0);
+            OGLShader::deactivate();
         }
         for (int i = 1; i < 5; ++i) {
             glproc::ActiveTexture(GL_TEXTURE0 + i);

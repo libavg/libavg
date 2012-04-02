@@ -61,7 +61,7 @@ void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pAlphaParam->set(m_Alpha);
     draw(pSrcTex);
 
-    glproc::UseProgramObject(0);
+    pShader->deactivate();
 }
 
 }

@@ -74,7 +74,7 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pColorizeParam->set((int)(m_bColorize));
     m_pTextureParam->set(0);
     draw(pSrcTex);
-    glproc::UseProgramObject(0);
+    pShader->deactivate();
 }
 
 }
