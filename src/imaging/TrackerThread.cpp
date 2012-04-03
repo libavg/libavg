@@ -138,7 +138,7 @@ bool TrackerThread::work()
         ScopeTimer timer(ProfilingZoneCapture);
         pCamBmp = m_pCamera->getImage(true);
         BitmapPtr pTempBmp1;
-        while (pTempBmp1 = m_pCamera->getImage(false)) {
+        while ((pTempBmp1 = m_pCamera->getImage(false))) {
             m_NumCamFramesDiscarded++;
             m_NumFrames++;
             pCamBmp = pTempBmp1;

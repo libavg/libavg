@@ -39,7 +39,7 @@ GPUInvertFilter::GPUInvertFilter(const IntPoint& size, PixelFormat pf,
     setDimensions(size);
     createShader(SHADERID_INVERT_COLOR);
     OGLShaderPtr pShader = getShader(SHADERID_INVERT_COLOR);
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "texture"));
+    m_pTextureParam = pShader->getParam<int>("texture");
 
 }
 
@@ -55,7 +55,7 @@ void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->activate();
     m_pTextureParam->set(0);
     draw(pSrcTex);
-    glproc::UseProgramObject(0);
+    pShader->deactivate();
 }
 
 }

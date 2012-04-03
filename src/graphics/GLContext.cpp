@@ -82,7 +82,7 @@ int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 
 GLContext::VBMethod GLContext::s_VBMethod = VB_NONE;
 
-GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig, 
+GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig, 
         GLContext* pSharedContext)
     : m_Context(0),
       m_MaxTexSize(0),
@@ -98,7 +98,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& GLConfig,
     if (s_pCurrentContext.get() == 0) {
         s_pCurrentContext.reset(new (GLContext*));
     }
-    m_GLConfig = GLConfig;
+    m_GLConfig = glConfig;
     m_bOwnsContext = !bUseCurrent;
     if (bUseCurrent) {
 #if defined(__APPLE__)

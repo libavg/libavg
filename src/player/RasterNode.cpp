@@ -469,7 +469,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         i++;
         m_pFXNode->getImage()->save(ss1.str());
 */
-        glproc::UseProgramObject(0);
+        OGLShader::deactivate();
         m_bFXDirty = false;
         m_pSurface->resetDirty();
         m_pFXNode->resetDirty();

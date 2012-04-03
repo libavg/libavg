@@ -44,7 +44,10 @@ public:
     void setShaderPath(const std::string& sLibPath);
 
     void createShader(const std::string& sID);
-    OGLShaderPtr getShader(const std::string& sID);
+    OGLShaderPtr getShader(const std::string& sID) const;
+
+    OGLShaderPtr getCurShader() const;
+    void setCurShader(const std::string& sID);
 
 private:
     void preprocess(const std::string& sShaderCode, const std::string& sFileName, 
@@ -52,6 +55,7 @@ private:
     void throwParseError(const std::string& sFileName, int curLine);
     typedef std::map<std::string, OGLShaderPtr> ShaderMap;
     ShaderMap m_ShaderMap;
+    OGLShaderPtr m_pCurShader;
 
     static std::string m_sLibPath;
 };

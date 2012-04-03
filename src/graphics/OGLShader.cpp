@@ -20,6 +20,7 @@
 //
 
 #include "OGLShader.h"
+#include "ShaderRegistry.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -31,7 +32,8 @@ using namespace std;
 namespace avg {
 
 OGLShader::OGLShader(string sName, string sProgram)
-    : m_sProgram(sProgram)
+    : m_sName(sName),
+      m_sProgram(sProgram)
 {
     m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
     const char * pProgramStr = m_sProgram.c_str();
@@ -61,13 +63,43 @@ OGLShader::~OGLShader()
 
 void OGLShader::activate()
 {
-   glproc::UseProgramObject(m_hProgram);
-   OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+    OGLShaderPtr pCurShader = ShaderRegistry::get()->getCurShader();
+    if (!pCurShader || &*pCurShader != this) {
+        glproc::UseProgramObject(m_hProgram);
+        ShaderRegistry::get()->setCurShader(m_sName);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+    }
+}
+
+void OGLShader::deactivate()
+{
+    glproc::UseProgramObject(0);
+    ShaderRegistry::get()->setCurShader("");
 }
 
 GLhandleARB OGLShader::getProgram()
 {
     return m_hProgram;
+}
+
+const std::string OGLShader::getName() const
+{
+    return m_sName;
+}
+
+bool OGLShader::findParam(const std::string& sName, unsigned& pos)
+{
+    GLShaderParamPtr pParam;
+    bool bFound = false;
+    pos = 0;
+    while (!bFound && pos<m_pParams.size() && m_pParams[pos]->getName() <= sName) {
+        if (m_pParams[pos]->getName() == sName) {
+            bFound = true;
+        } else {
+            ++pos;
+        }
+    }
+    return bFound;
 }
 
 void OGLShader::dumpInfoLog(GLhandleARB hObj)

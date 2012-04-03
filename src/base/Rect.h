@@ -174,19 +174,19 @@ bool Rect<NUM>::intersects(const Rect<NUM>& rect) const
 template<class NUM>
 void Rect<NUM>::expand(const Rect<NUM>& rect)
 {
-    tl.x = min(tl.x, rect.tl.x);
-    tl.y = min(tl.y, rect.tl.y);
-    br.x = max(br.x, rect.br.x);
-    br.y = max(br.y, rect.br.y);
+    tl.x = glm::min(tl.x, rect.tl.x);
+    tl.y = glm::min(tl.y, rect.tl.y);
+    br.x = glm::max(br.x, rect.br.x);
+    br.y = glm::max(br.y, rect.br.y);
 }
 
 template<class NUM>
 void Rect<NUM>::intersect(const Rect<NUM>& rect)
 {
-    tl.x = max(tl.x, rect.tl.x);
-    tl.y = max(tl.y, rect.tl.y);
-    br.x = min(br.x, rect.br.x);
-    br.y = min(br.y, rect.br.y);
+    tl.x = glm::max(tl.x, rect.tl.x);
+    tl.y = glm::max(tl.y, rect.tl.y);
+    br.x = glm::min(br.x, rect.br.x);
+    br.y = glm::min(br.y, rect.br.y);
 }
 
 template<class NUM>

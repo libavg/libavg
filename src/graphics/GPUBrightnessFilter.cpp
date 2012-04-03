@@ -44,8 +44,8 @@ GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf,
     createShader(SHADERID);
 
     OGLShaderPtr pShader = getShader(SHADERID);
-    m_pTextureParam = IntGLShaderParamPtr(new IntGLShaderParam(pShader, "Texture"));
-    m_pAlphaParam = FloatGLShaderParamPtr(new FloatGLShaderParam(pShader, "alpha"));
+    m_pTextureParam = pShader->getParam<int>("texture");
+    m_pAlphaParam = pShader->getParam<float>("alpha");
 }
 
 GPUBrightnessFilter::~GPUBrightnessFilter()
@@ -61,7 +61,7 @@ void GPUBrightnessFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pAlphaParam->set(m_Alpha);
     draw(pSrcTex);
 
-    glproc::UseProgramObject(0);
+    pShader->deactivate();
 }
 
 }

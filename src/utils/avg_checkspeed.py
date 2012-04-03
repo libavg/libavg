@@ -27,10 +27,11 @@ from libavg import *
 import optparse
 import random
 import math
+import time
 
 g_Player = avg.Player.get()
 
-R = 80
+R = 40
 
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
@@ -42,6 +43,8 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
             help='Show videos instead of images.')
     parser.add_option('--polygon', '-p', dest='polygon', action='store_true', default=False,
             help='Show polygons instead of images.')
+    parser.add_option('--hole-polygon', '-y', dest='hole', action='store_true', default=False,
+            help='Equipped polygon with one hole. Attention the number of points in a polygon will dublicated.')
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
             default=False, 
             help='Destroy and recreate all nodes every 400 ms.')
@@ -67,14 +70,16 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
 class SpeedApp(AVGApp):
     def init(self):
         self._parentNode.mediadir = utils.getMediaDir(None, "data")
+        tstart = time.time()
         self.__createNodes()
+        print 'Buildtime needed: %f' % (time.time()-tstart)
         self._starter.showFrameRate()
         if options.createNodes:
             g_Player.setInterval(400, self.__createNodes)
         # Ignore the first frame for the 20 sec-limit so long startup times don't
         # break things.
-        g_Player.setTimeout(0, lambda: g_Player.setTimeout(20000, g_Player.stop))
-        if options.move:
+        #g_Player.setTimeout(0, lambda: g_Player.setTimeout(20000, g_Player.stop))
+        if options.move and not options.polygon:
             g_Player.setOnFrameHandler(self.__moveNodes)
 
     def __createNodes(self):
@@ -87,12 +92,14 @@ class SpeedApp(AVGApp):
                 node.play()
             elif options.polygon:
                 polyPos = self.__calPolyCords(pos, R)
-                holes = (self.__calPolyCords(pos, R/2), )
-                node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1)
-                        #holes=holes)
+                holes = []
+                if options.hole:
+                    holes = (self.__calPolyCords(pos, R/2), )
+                node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1,
+                        holes=holes)
             else:
                 node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png", 
-                        gamma=(1.5,1.5,1.5), parent=self._parentNode)
+                        parent=self._parentNode)
             if not options.polygon:
                 if options.useFX:
                     node.setEffect(avg.NullFXNode())
@@ -120,6 +127,7 @@ class SpeedApp(AVGApp):
             result.append( (r*math.cos(i*alpha) + offset[0], r*math.sin(i*alpha) + offset[1]) )
             result.append( (r2*math.cos(i*alpha+beta) + offset[0], r2*math.sin(i*alpha+beta) + offset[1]) )
         return result
+        
 
 options = parseCmdLine()
 if not(options.vsync):

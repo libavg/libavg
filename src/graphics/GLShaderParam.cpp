@@ -28,16 +28,17 @@ using namespace std;
 
 namespace avg {
 
-GLShaderParam::GLShaderParam(OGLShaderPtr pShader, const std::string& sName)
-    : m_pShader(pShader),
-      m_sName(sName)
+GLShaderParam::GLShaderParam(OGLShader* pShader, const std::string& sName)
+    : m_sName(sName)
 {
     m_Location = glproc::GetUniformLocation(pShader->getProgram(), sName.c_str());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (std::string("Shader param ")+sName+" not found.").c_str());
+    string sErr = std::string("Shader param '") + sName + "' not found in shader '" + 
+            pShader->getName() + "'.";
+    AVG_ASSERT_MSG(m_Location != -1, sErr.c_str());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, sErr.c_str());
 };
 
-unsigned GLShaderParam::getLocation() const
+int GLShaderParam::getLocation() const
 {
     return m_Location;
 }
