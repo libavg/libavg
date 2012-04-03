@@ -173,6 +173,7 @@ void VectorNode::maybeRender()
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
+        glLoadMatrixf(glm::value_ptr(getParentTransform()));
         GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render();
     }

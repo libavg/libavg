@@ -296,6 +296,8 @@ void Canvas::renderOutlines()
     GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     if (pVA->getCurVert() != 0) {
         pVA->update();

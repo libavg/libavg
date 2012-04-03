@@ -468,6 +468,12 @@ bool Node::getEffectiveActive() const
     }
 }
 
+const glm::mat4& Node::getParentTransform() const
+{
+    AVG_ASSERT(getParent());
+    return getParent()->getTransform();
+}
+
 void Node::connectOneEventHandler(const EventID& id, PyObject * pObj, 
         PyObject * pFunc)
 {

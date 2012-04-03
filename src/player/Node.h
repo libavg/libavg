@@ -160,6 +160,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
+        virtual const glm::mat4& getParentTransform() const;
 
     private:
         std::string m_ID;

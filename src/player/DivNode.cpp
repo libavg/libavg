@@ -335,12 +335,14 @@ void DivNode::render()
     m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
 
     if (getCrop()) {
+        glLoadMatrixf(glm::value_ptr(getTransform()));
         getCanvas()->pushClipRect(m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->maybeRender();
     }
     if (getCrop()) {
+        glLoadMatrixf(glm::value_ptr(getTransform()));
         getCanvas()->popClipRect(m_pClipVertexes);
     }
 }
