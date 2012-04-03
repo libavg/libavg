@@ -447,9 +447,6 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
 
-        glMatrixMode(GL_MODELVIEW);
-
-        m_pImagingProjection->activate();
         m_pImagingProjection->draw();
 
 /*

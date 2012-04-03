@@ -36,7 +36,6 @@ public:
     ImagingProjection(IntPoint srcSize, IntRect destRect);
     virtual ~ImagingProjection();
 
-    void activate();
     void draw();
 
 private:

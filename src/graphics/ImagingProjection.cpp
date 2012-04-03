@@ -41,7 +41,7 @@ ImagingProjection::~ImagingProjection()
 {
 }
 
-void ImagingProjection::activate()
+void ImagingProjection::draw()
 {
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
@@ -56,12 +56,8 @@ void ImagingProjection::activate()
     glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
     transform = glm::scale(transform, size);
     glLoadMatrixf(glm::value_ptr(transform));
-    
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "ImagingProjection::activate()");
-}
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "ImagingProjection::draw()");
 
-void ImagingProjection::draw()
-{
     m_pVA->draw();
 }
 

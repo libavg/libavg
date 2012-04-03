@@ -92,7 +92,6 @@ void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
-    m_pProjection2->activate();
     getFBO(0)->activate();
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
