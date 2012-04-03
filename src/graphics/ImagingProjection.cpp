@@ -51,10 +51,11 @@ void ImagingProjection::activate()
     gluOrtho2D(0, destSize.x, 0, destSize.y);
     
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    IntPoint offset = m_DestRect.tl;
-    glTranslated(-offset.x, -offset.y, 0);
-    glScaled(m_SrcSize.x, m_SrcSize.y, 1);
+    glm::vec3 offset(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), offset);
+    glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
+    transform = glm::scale(transform, size);
+    glLoadMatrixf(glm::value_ptr(transform));
     
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "ImagingProjection::activate()");
 }
