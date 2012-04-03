@@ -265,6 +265,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     } else {
         setFramerate(dp.m_Framerate);
     }
+    glproc::UseProgramObject(0);
 
     m_Size = dp.m_Size;
     // SDL sets up a signal handler we really don't want.
