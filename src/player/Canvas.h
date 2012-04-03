@@ -28,6 +28,7 @@
 #include "../base/IFrameEndListener.h"
 #include "../base/IPreRenderListener.h"
 #include "../base/Signal.h"
+#include "../base/GLMHelper.h"
 
 #include "../graphics/OGLHelper.h"
 #include "../graphics/Bitmap.h"
@@ -76,8 +77,8 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
-        virtual void pushClipRect(VertexArrayPtr pVA);
-        virtual void popClipRect(VertexArrayPtr pVA);
+        virtual void pushClipRect(const glm::mat4& transform, VertexArrayPtr pVA);
+        virtual void popClipRect(const glm::mat4& transform, VertexArrayPtr pVA);
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -106,7 +107,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         virtual void render()=0;
         void renderOutlines();
 
-        void clip(VertexArrayPtr pVA, GLenum stencilOp);
+        void clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;

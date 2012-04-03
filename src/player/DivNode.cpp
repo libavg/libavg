@@ -334,16 +334,15 @@ void DivNode::render()
     m_pClipVertexes->appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
     m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
 
-    glLoadMatrixf(glm::value_ptr(getTransform()));
     if (getCrop()) {
-        getCanvas()->pushClipRect(m_pClipVertexes);
+        getCanvas()->pushClipRect(getTransform(), m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->maybeRender();
     }
     if (getCrop()) {
         glLoadMatrixf(glm::value_ptr(getTransform()));
-        getCanvas()->popClipRect(m_pClipVertexes);
+        getCanvas()->popClipRect(getTransform(), m_pClipVertexes);
     }
 }
 
