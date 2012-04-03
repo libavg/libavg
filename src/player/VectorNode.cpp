@@ -187,7 +187,7 @@ void VectorNode::render()
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     float curOpacity = getEffectiveOpacity();
     glColor4d(1.0, 1.0, 1.0, curOpacity);
-    m_pShape->draw();
+    m_pShape->draw(getParentTransform());
 }
 
 void VectorNode::setColor(const string& sColor)

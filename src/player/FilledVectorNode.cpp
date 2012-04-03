@@ -170,7 +170,7 @@ void FilledVectorNode::render()
     float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
         glColor4d(1.0, 1.0, 1.0, curOpacity);
-        m_pFillShape->draw();
+        m_pFillShape->draw(getParentTransform());
     }
     VectorNode::render();
 }

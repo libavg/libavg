@@ -48,7 +48,7 @@ class AVG_API Shape
 
         ImagePtr getImage();
         VertexArrayPtr getVertexArray();
-        void draw();
+        void draw(const glm::mat4& transform);
 
         void discard();
 
