@@ -223,7 +223,6 @@ void AreaNode::maybeRender()
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
         m_Transform = getParentTransform()*calcTransform();
-        glLoadMatrixf(glm::value_ptr(m_Transform));
         render();
     }
 }

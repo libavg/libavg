@@ -748,13 +748,14 @@ void WordsNode::render()
     ScopeTimer timer(RenderProfilingZone);
     if (m_sText.length() != 0 && isVisible()) {
         IntPoint offset = m_InkOffset + IntPoint(m_AlignOffset, 0);
-        if (offset != IntPoint(0,0)) {
-            glm::mat4 transform = glm::translate(getTransform(), 
-                    glm::vec3(offset.x, offset.y, 0));
-            glLoadMatrixf(glm::value_ptr(transform));
+        glm::mat4 transform;
+        if (offset == IntPoint(0,0)) {
+            transform = getTransform();
+        } else {
+            transform = glm::translate(getTransform(), glm::vec3(offset.x, offset.y, 0));
         }
-        blta8(glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), m_Color, 
-                getBlendMode());
+        blta8(transform, glm::vec2(getSurface()->getSize()), getEffectiveOpacity(), 
+                m_Color, getBlendMode());
     }
 }
 

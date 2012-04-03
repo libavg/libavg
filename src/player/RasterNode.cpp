@@ -342,16 +342,17 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
-void RasterNode::blt32(const glm::vec2& destSize, float opacity, 
-        GLContext::BlendMode mode, bool bPremultipliedAlpha)
+void RasterNode::blt32(const glm::mat4& transform, const glm::vec2& destSize, 
+        float opacity, GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
-    blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
+    blt(transform, destSize, mode, opacity, Pixel32(255, 255, 255, 255),
+            bPremultipliedAlpha);
 }
 
-void RasterNode::blta8(const glm::vec2& destSize, float opacity, 
-        const Pixel32& color, GLContext::BlendMode mode)
+void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize, 
+        float opacity, const Pixel32& color, GLContext::BlendMode mode)
 {
-    blt(destSize, mode, opacity, color, false);
+    blt(transform, destSize, mode, opacity, color, false);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -511,8 +512,9 @@ void RasterNode::setupFX(bool bNewFX)
     }
 }
 
-void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
-        float opacity, const Pixel32& color, bool bPremultipliedAlpha)
+void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize, 
+        GLContext::BlendMode mode, float opacity, const Pixel32& color,
+        bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
@@ -537,9 +539,11 @@ void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
         destRect = FRect(glm::vec2(0,0), destSize);
     }
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
-    glPushMatrix();
-    glTranslated(destRect.tl.x, destRect.tl.y, 1);
-    glScaled(destRect.size().x, destRect.size().y, 1);
+    glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);
+    glm::vec3 scaleVec(destRect.size().x, destRect.size().y, 1);
+    glm::mat4 localTransform = glm::translate(transform, pos);
+    localTransform = glm::scale(localTransform, scaleVec);
+    glLoadMatrixf(glm::value_ptr(localTransform));
 
     if (m_bVertexArrayDirty) {
         m_pVertexes->reset();
@@ -558,9 +562,6 @@ void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
     }
 
     m_pVertexes->draw();
-
-    glPopMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix 2");
 
     PixelFormat pf = m_pSurface->getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " << destSize.y << ")" 
