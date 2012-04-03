@@ -448,7 +448,6 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
 
         glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
 
         m_pImagingProjection->activate();
         m_pImagingProjection->draw();
@@ -462,8 +461,6 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
   */  
         m_pFXNode->apply(m_pFBO->getTex());
         
-        glPopMatrix();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::renderFX(): glPopMatrix");
 /*        
         stringstream ss1;
         ss1 << "bar" << ".png";
