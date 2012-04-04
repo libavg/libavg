@@ -1,33 +1,30 @@
-/* 
- * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
- * http://code.google.com/p/poly2tri/
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of Poly2Tri nor the names of its contributors may be
- *   used to endorse or promote products derived from this software without specific
- *   prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+//
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+//
+// Based on Poly2Tri algorithm.
+// Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
+// http://code.google.com/p/poly2tri/
+//
+
 #include "Shapes.h"
 #include <iostream>
 
@@ -35,30 +32,30 @@ namespace avg {
 
 TriangulationTriangle::TriangulationTriangle(Point& a, Point& b, Point& c)
 {
-	m_points[0] = &a;
-	m_points[1] = &b;
-	m_points[2] = &c;
-	m_neighbors[0] = NULL;
-	m_neighbors[1] = NULL;
-	m_neighbors[2] = NULL;
-	m_constrained_edge[0] = m_constrained_edge[1] = m_constrained_edge[2] = false;
-	m_delaunay_edge[0] = m_delaunay_edge[1] = m_delaunay_edge[2] = false;
-	m_interior = false;
+	m_Points[0] = &a;
+	m_Points[1] = &b;
+	m_Points[2] = &c;
+	m_Neighbors[0] = NULL;
+	m_Neighbors[1] = NULL;
+	m_Neighbors[2] = NULL;
+	m_ConstrainedEdge[0] = m_ConstrainedEdge[1] = m_ConstrainedEdge[2] = false;
+	m_DelaunayEdge[0] = m_DelaunayEdge[1] = m_DelaunayEdge[2] = false;
+	m_Interior = false;
 }
 
 // Update neighbor pointers
-void TriangulationTriangle::MarkNeighbor(Point* p1, Point* p2,
+void TriangulationTriangle::markNeighbor(Point* p1, Point* p2,
 		TriangulationTriangle* t)
 {
-	if ((p1 == m_points[2] && p2 == m_points[1])
-			|| (p1 == m_points[1] && p2 == m_points[2])) {
-		m_neighbors[0] = t;
-	} else if ((p1 == m_points[0] && p2 == m_points[2])
-			|| (p1 == m_points[2] && p2 == m_points[0])) {
-		m_neighbors[1] = t;
-	} else if ((p1 == m_points[0] && p2 == m_points[1])
-			|| (p1 == m_points[1] && p2 == m_points[0])) {
-		m_neighbors[2] = t;
+	if ((p1 == m_Points[2] && p2 == m_Points[1])
+			|| (p1 == m_Points[1] && p2 == m_Points[2])) {
+		m_Neighbors[0] = t;
+	} else if ((p1 == m_Points[0] && p2 == m_Points[2])
+			|| (p1 == m_Points[2] && p2 == m_Points[0])) {
+		m_Neighbors[1] = t;
+	} else if ((p1 == m_Points[0] && p2 == m_Points[1])
+			|| (p1 == m_Points[1] && p2 == m_Points[0])) {
+		m_Neighbors[2] = t;
 	} else {
 		assert(0);
 	}
@@ -66,300 +63,300 @@ void TriangulationTriangle::MarkNeighbor(Point* p1, Point* p2,
 }
 
 // Exhaustive search to update neighbor pointers
-void TriangulationTriangle::MarkNeighbor(TriangulationTriangle& t)
+void TriangulationTriangle::markNeighbor(TriangulationTriangle& t)
 {
-	if (t.Contains(m_points[1], m_points[2])) {
-		m_neighbors[0] = &t;
-		t.MarkNeighbor(m_points[1], m_points[2], this);
-	} else if (t.Contains(m_points[0], m_points[2])) {
-		m_neighbors[1] = &t;
-		t.MarkNeighbor(m_points[0], m_points[2], this);
-	} else if (t.Contains(m_points[0], m_points[1])) {
-		m_neighbors[2] = &t;
-		t.MarkNeighbor(m_points[0], m_points[1], this);
+	if (t.contains(m_Points[1], m_Points[2])) {
+		m_Neighbors[0] = &t;
+		t.markNeighbor(m_Points[1], m_Points[2], this);
+	} else if (t.contains(m_Points[0], m_Points[2])) {
+		m_Neighbors[1] = &t;
+		t.markNeighbor(m_Points[0], m_Points[2], this);
+	} else if (t.contains(m_Points[0], m_Points[1])) {
+		m_Neighbors[2] = &t;
+		t.markNeighbor(m_Points[0], m_Points[1], this);
 	}
 }
 
 /**
  * Clears all references to all other triangles and points
  */
-void TriangulationTriangle::Clear()
+void TriangulationTriangle::clear()
 {
 	TriangulationTriangle *t;
 	for (int i = 0; i < 3; i++) {
-		t = m_neighbors[i];
+		t = m_Neighbors[i];
 		if (t != NULL) {
-			t->ClearNeighbor(this);
+			t->clearNeighbor(this);
 		}
 	}
-	ClearNeighbors();
-	m_points[0] = m_points[1] = m_points[2] = NULL;
+	clearNeighbors();
+	m_Points[0] = m_Points[1] = m_Points[2] = NULL;
 }
 
-void TriangulationTriangle::ClearNeighbor(TriangulationTriangle *triangle)
+void TriangulationTriangle::clearNeighbor(TriangulationTriangle *triangle)
 {
-	if (m_neighbors[0] == triangle) {
-		m_neighbors[0] = NULL;
-	} else if (m_neighbors[1] == triangle) {
-		m_neighbors[1] = NULL;
+	if (m_Neighbors[0] == triangle) {
+		m_Neighbors[0] = NULL;
+	} else if (m_Neighbors[1] == triangle) {
+		m_Neighbors[1] = NULL;
 	} else {
-		m_neighbors[2] = NULL;
+		m_Neighbors[2] = NULL;
 	}
 }
 
-void TriangulationTriangle::ClearNeighbors()
+void TriangulationTriangle::clearNeighbors()
 {
-	m_neighbors[0] = NULL;
-	m_neighbors[1] = NULL;
-	m_neighbors[2] = NULL;
+	m_Neighbors[0] = NULL;
+	m_Neighbors[1] = NULL;
+	m_Neighbors[2] = NULL;
 }
 
-void TriangulationTriangle::ClearDelunayEdges()
+void TriangulationTriangle::clearDelunayEdges()
 {
-	m_delaunay_edge[0] = m_delaunay_edge[1] = m_delaunay_edge[2] = false;
+	m_DelaunayEdge[0] = m_DelaunayEdge[1] = m_DelaunayEdge[2] = false;
 }
 
-Point* TriangulationTriangle::OppositePoint(TriangulationTriangle& t,
+Point* TriangulationTriangle::oppositePoint(TriangulationTriangle& t,
 		Point& p) {
-	Point *cw = t.PointCW(p);
-	double x = cw->m_x;
-	double y = cw->m_y;
-	x = p.m_x;
-	y = p.m_y;
-	return PointCW(*cw);
+	Point *cw = t.pointCW(p);
+	double x = cw->m_X;
+	double y = cw->m_Y;
+	x = p.m_X;
+	y = p.m_Y;
+	return pointCW(*cw);
 }
 
 // Legalized triangle by rotating clockwise around point(0)
-void TriangulationTriangle::Legalize(Point& point)
+void TriangulationTriangle::legalize(Point& point)
 {
-	m_points[1] = m_points[0];
-	m_points[0] = m_points[2];
-	m_points[2] = &point;
+	m_Points[1] = m_Points[0];
+	m_Points[0] = m_Points[2];
+	m_Points[2] = &point;
 }
 
 // Legalize triagnle by rotating clockwise around oPoint
-void TriangulationTriangle::Legalize(Point& opoint, Point& npoint)
+void TriangulationTriangle::legalize(Point& opoint, Point& npoint)
 {
-	if (&opoint == m_points[0]) {
-		m_points[1] = m_points[0];
-		m_points[0] = m_points[2];
-		m_points[2] = &npoint;
-	} else if (&opoint == m_points[1]) {
-		m_points[2] = m_points[1];
-		m_points[1] = m_points[0];
-		m_points[0] = &npoint;
-	} else if (&opoint == m_points[2]) {
-		m_points[0] = m_points[2];
-		m_points[2] = m_points[1];
-		m_points[1] = &npoint;
+	if (&opoint == m_Points[0]) {
+		m_Points[1] = m_Points[0];
+		m_Points[0] = m_Points[2];
+		m_Points[2] = &npoint;
+	} else if (&opoint == m_Points[1]) {
+		m_Points[2] = m_Points[1];
+		m_Points[1] = m_Points[0];
+		m_Points[0] = &npoint;
+	} else if (&opoint == m_Points[2]) {
+		m_Points[0] = m_Points[2];
+		m_Points[2] = m_Points[1];
+		m_Points[1] = &npoint;
 	} else {
 		assert(0);
 	}
 }
 
-unsigned int TriangulationTriangle::Index(const Point* p)
+unsigned int TriangulationTriangle::index(const Point* p)
 {
-	if (p == m_points[0]) {
+	if (p == m_Points[0]) {
 		return 0;
-	} else if (p == m_points[1]) {
+	} else if (p == m_Points[1]) {
 		return 1;
-	} else if (p == m_points[2]) {
+	} else if (p == m_Points[2]) {
 		return 2;
 	}
 	assert(0);
 }
 
-unsigned int TriangulationTriangle::EdgeIndex(const Point* p1,
+unsigned int TriangulationTriangle::edgeIndex(const Point* p1,
 		const Point* p2)
 {
-	if (m_points[0] == p1) {
-		if (m_points[1] == p2) {
+	if (m_Points[0] == p1) {
+		if (m_Points[1] == p2) {
 			return 2;
-		} else if (m_points[2] == p2) {
+		} else if (m_Points[2] == p2) {
 			return 1;
 		}
-	} else if (m_points[1] == p1) {
-		if (m_points[2] == p2) {
+	} else if (m_Points[1] == p1) {
+		if (m_Points[2] == p2) {
 			return 0;
-		} else if (m_points[0] == p2) {
+		} else if (m_Points[0] == p2) {
 			return 2;
 		}
-	} else if (m_points[2] == p1) {
-		if (m_points[0] == p2) {
+	} else if (m_Points[2] == p1) {
+		if (m_Points[0] == p2) {
 			return 1;
-		} else if (m_points[1] == p2) {
+		} else if (m_Points[1] == p2) {
 			return 0;
 		}
 	}
 	return -1;
 }
 
-void TriangulationTriangle::MarkConstrainedEdge(const int index)
+void TriangulationTriangle::markConstrainedEdge(const int index)
 {
-	m_constrained_edge[index] = true;
+	m_ConstrainedEdge[index] = true;
 }
 
-void TriangulationTriangle::MarkConstrainedEdge(Edge& edge)
+void TriangulationTriangle::markConstrainedEdge(Edge& edge)
 {
-	MarkConstrainedEdge(edge.m_p, edge.m_q);
+	markConstrainedEdge(edge.m_P, edge.m_Q);
 }
 
 // Mark edge as constrained
-void TriangulationTriangle::MarkConstrainedEdge(Point* p, Point* q)
+void TriangulationTriangle::markConstrainedEdge(Point* p, Point* q)
 {
-	if ((q == m_points[0] && p == m_points[1])
-			|| (q == m_points[1] && p == m_points[0])) {
-		m_constrained_edge[2] = true;
-	} else if ((q == m_points[0] && p == m_points[2])
-			|| (q == m_points[2] && p == m_points[0])) {
-		m_constrained_edge[1] = true;
-	} else if ((q == m_points[1] && p == m_points[2])
-			|| (q == m_points[2] && p == m_points[1])) {
-		m_constrained_edge[0] = true;
+	if ((q == m_Points[0] && p == m_Points[1])
+			|| (q == m_Points[1] && p == m_Points[0])) {
+		m_ConstrainedEdge[2] = true;
+	} else if ((q == m_Points[0] && p == m_Points[2])
+			|| (q == m_Points[2] && p == m_Points[0])) {
+		m_ConstrainedEdge[1] = true;
+	} else if ((q == m_Points[1] && p == m_Points[2])
+			|| (q == m_Points[2] && p == m_Points[1])) {
+		m_ConstrainedEdge[0] = true;
 	}
 }
 
 // The point counter-clockwise to given point
-Point* TriangulationTriangle::PointCW(Point& point)
+Point* TriangulationTriangle::pointCW(Point& point)
 {
-	if (&point == m_points[0]) {
-		return m_points[2];
-	} else if (&point == m_points[1]) {
-		return m_points[0];
-	} else if (&point == m_points[2]) {
-		return m_points[1];
+	if (&point == m_Points[0]) {
+		return m_Points[2];
+	} else if (&point == m_Points[1]) {
+		return m_Points[0];
+	} else if (&point == m_Points[2]) {
+		return m_Points[1];
 	}
 	assert(0);
 }
 
 // The point counter-clockwise to given point
-Point* TriangulationTriangle::PointCCW(Point& point)
+Point* TriangulationTriangle::pointCCW(Point& point)
 {
-	if (&point == m_points[0]) {
-		return m_points[1];
-	} else if (&point == m_points[1]) {
-		return m_points[2];
-	} else if (&point == m_points[2]) {
-		return m_points[0];
+	if (&point == m_Points[0]) {
+		return m_Points[1];
+	} else if (&point == m_Points[1]) {
+		return m_Points[2];
+	} else if (&point == m_Points[2]) {
+		return m_Points[0];
 	}
 	assert(0);
 }
 
 // The neighbor clockwise to given point
-TriangulationTriangle* TriangulationTriangle::NeighborCW(Point& point)
+TriangulationTriangle* TriangulationTriangle::neighborCW(Point& point)
 {
-	if (&point == m_points[0]) {
-		return m_neighbors[1];
-	} else if (&point == m_points[1]) {
-		return m_neighbors[2];
+	if (&point == m_Points[0]) {
+		return m_Neighbors[1];
+	} else if (&point == m_Points[1]) {
+		return m_Neighbors[2];
 	}
-	return m_neighbors[0];
+	return m_Neighbors[0];
 }
 
 // The neighbor counter-clockwise to given point
-TriangulationTriangle* TriangulationTriangle::NeighborCCW(Point& point)
+TriangulationTriangle* TriangulationTriangle::neighborCCW(Point& point)
 {
-	if (&point == m_points[0]) {
-		return m_neighbors[2];
-	} else if (&point == m_points[1]) {
-		return m_neighbors[0];
+	if (&point == m_Points[0]) {
+		return m_Neighbors[2];
+	} else if (&point == m_Points[1]) {
+		return m_Neighbors[0];
 	}
-	return m_neighbors[1];
+	return m_Neighbors[1];
 }
 
-bool TriangulationTriangle::GetConstrainedEdgeCCW(Point& p)
+bool TriangulationTriangle::getConstrainedEdgeCCW(Point& p)
 {
-	if (&p == m_points[0]) {
-		return m_constrained_edge[2];
-	} else if (&p == m_points[1]) {
-		return m_constrained_edge[0];
+	if (&p == m_Points[0]) {
+		return m_ConstrainedEdge[2];
+	} else if (&p == m_Points[1]) {
+		return m_ConstrainedEdge[0];
 	}
-	return m_constrained_edge[1];
+	return m_ConstrainedEdge[1];
 }
 
-bool TriangulationTriangle::GetConstrainedEdgeCW(Point& p)
+bool TriangulationTriangle::getConstrainedEdgeCW(Point& p)
 {
-	if (&p == m_points[0]) {
-		return m_constrained_edge[1];
-	} else if (&p == m_points[1]) {
-		return m_constrained_edge[2];
+	if (&p == m_Points[0]) {
+		return m_ConstrainedEdge[1];
+	} else if (&p == m_Points[1]) {
+		return m_ConstrainedEdge[2];
 	}
-	return m_constrained_edge[0];
+	return m_ConstrainedEdge[0];
 }
 
-void TriangulationTriangle::SetConstrainedEdgeCCW(Point& p, bool ce)
+void TriangulationTriangle::setConstrainedEdgeCCW(Point& p, bool ce)
 {
-	if (&p == m_points[0]) {
-		m_constrained_edge[2] = ce;
-	} else if (&p == m_points[1]) {
-		m_constrained_edge[0] = ce;
+	if (&p == m_Points[0]) {
+		m_ConstrainedEdge[2] = ce;
+	} else if (&p == m_Points[1]) {
+		m_ConstrainedEdge[0] = ce;
 	} else {
-		m_constrained_edge[1] = ce;
+		m_ConstrainedEdge[1] = ce;
 	}
 }
 
-void TriangulationTriangle::SetConstrainedEdgeCW(Point& p, bool ce)
+void TriangulationTriangle::setConstrainedEdgeCW(Point& p, bool ce)
 {
-	if (&p == m_points[0]) {
-		m_constrained_edge[1] = ce;
-	} else if (&p == m_points[1]) {
-		m_constrained_edge[2] = ce;
+	if (&p == m_Points[0]) {
+		m_ConstrainedEdge[1] = ce;
+	} else if (&p == m_Points[1]) {
+		m_ConstrainedEdge[2] = ce;
 	} else {
-		m_constrained_edge[0] = ce;
+		m_ConstrainedEdge[0] = ce;
 	}
 }
 
-bool TriangulationTriangle::GetDelunayEdgeCCW(Point& p)
+bool TriangulationTriangle::getDelunayEdgeCCW(Point& p)
 {
-	if (&p == m_points[0]) {
-		return m_delaunay_edge[2];
-	} else if (&p == m_points[1]) {
-		return m_delaunay_edge[0];
+	if (&p == m_Points[0]) {
+		return m_DelaunayEdge[2];
+	} else if (&p == m_Points[1]) {
+		return m_DelaunayEdge[0];
 	}
-	return m_delaunay_edge[1];
+	return m_DelaunayEdge[1];
 }
 
-bool TriangulationTriangle::GetDelunayEdgeCW(Point& p)
+bool TriangulationTriangle::getDelunayEdgeCW(Point& p)
 {
-	if (&p == m_points[0]) {
-		return m_delaunay_edge[1];
-	} else if (&p == m_points[1]) {
-		return m_delaunay_edge[2];
+	if (&p == m_Points[0]) {
+		return m_DelaunayEdge[1];
+	} else if (&p == m_Points[1]) {
+		return m_DelaunayEdge[2];
 	}
-	return m_delaunay_edge[0];
+	return m_DelaunayEdge[0];
 }
 
-void TriangulationTriangle::SetDelunayEdgeCCW(Point& p, bool e)
+void TriangulationTriangle::setDelunayEdgeCCW(Point& p, bool e)
 {
-	if (&p == m_points[0]) {
-		m_delaunay_edge[2] = e;
-	} else if (&p == m_points[1]) {
-		m_delaunay_edge[0] = e;
+	if (&p == m_Points[0]) {
+		m_DelaunayEdge[2] = e;
+	} else if (&p == m_Points[1]) {
+		m_DelaunayEdge[0] = e;
 	} else {
-		m_delaunay_edge[1] = e;
+		m_DelaunayEdge[1] = e;
 	}
 }
 
-void TriangulationTriangle::SetDelunayEdgeCW(Point& p, bool e)
+void TriangulationTriangle::setDelunayEdgeCW(Point& p, bool e)
 {
-	if (&p == m_points[0]) {
-		m_delaunay_edge[1] = e;
-	} else if (&p == m_points[1]) {
-		m_delaunay_edge[2] = e;
+	if (&p == m_Points[0]) {
+		m_DelaunayEdge[1] = e;
+	} else if (&p == m_Points[1]) {
+		m_DelaunayEdge[2] = e;
 	} else {
-		m_delaunay_edge[0] = e;
+		m_DelaunayEdge[0] = e;
 	}
 }
 
 // The neighbor across to given point
-TriangulationTriangle& TriangulationTriangle::NeighborAcross(Point& opoint)
+TriangulationTriangle& TriangulationTriangle::neighborAcross(Point& opoint)
 {
-	if (&opoint == m_points[0]) {
-		return *m_neighbors[0];
-	} else if (&opoint == m_points[1]) {
-		return *m_neighbors[1];
+	if (&opoint == m_Points[0]) {
+		return *m_Neighbors[0];
+	} else if (&opoint == m_Points[1]) {
+		return *m_Neighbors[1];
 	}
-	return *m_neighbors[2];
+	return *m_Neighbors[2];
 }
 
 }

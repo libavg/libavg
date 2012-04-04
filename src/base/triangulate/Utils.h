@@ -58,10 +58,10 @@ enum Orientation
  *              =  (x1-x3)*(y2-y3) - (y1-y3)*(x2-x3)
  * </pre>
  */
-Orientation Orient2d(Point& pa, Point& pb, Point& pc)
+Orientation orient2d(Point& pa, Point& pb, Point& pc)
 {
-	double detleft = (pa.m_x - pc.m_x) * (pb.m_y - pc.m_y);
-	double detright = (pa.m_y - pc.m_y) * (pb.m_x - pc.m_x);
+	double detleft = (pa.m_X - pc.m_X) * (pb.m_Y - pc.m_Y);
+	double detright = (pa.m_Y - pc.m_Y) * (pb.m_X - pc.m_X);
 	double val = detleft - detright;
 	if (val > -EPSILON && val < EPSILON) {
 		return COLLINEAR;
@@ -105,14 +105,14 @@ Orientation Orient2d(Point& pa, Point& pb, Point& pc)
 
  */
 
-bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
+bool inScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 {
-	double oadb = (pa.m_x - pb.m_x) * (pd.m_y - pb.m_y) - (pd.m_x - pb.m_x) * (pa.m_y - pb.m_y);
+	double oadb = (pa.m_X - pb.m_X) * (pd.m_Y - pb.m_Y) - (pd.m_X - pb.m_X) * (pa.m_Y - pb.m_Y);
 	if (oadb >= -EPSILON) {
 		return false;
 	}
 
-	double oadc = (pa.m_x - pc.m_x) * (pd.m_y - pc.m_y) - (pd.m_x - pc.m_x) * (pa.m_y - pc.m_y);
+	double oadc = (pa.m_X - pc.m_X) * (pd.m_Y - pc.m_Y) - (pd.m_X - pc.m_X) * (pa.m_Y - pc.m_Y);
 	if (oadc <= EPSILON) {
 		return false;
 	}

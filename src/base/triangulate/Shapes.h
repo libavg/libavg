@@ -1,33 +1,29 @@
-/*
- * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
- * http://code.google.com/p/poly2tri/
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of Poly2Tri nor the names of its contributors may be
- *   used to endorse or promote products derived from this software without specific
- *   prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+//
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+//
+// Based on Poly2Tri algorithm.
+// Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
+// http://code.google.com/p/poly2tri/
+//
 
 // Include guard
 #ifndef SHAPES_H
@@ -44,78 +40,78 @@ struct Edge;
 
 struct Point
 {
-	double m_x, m_y;
-	int m_index;
+	double m_X, m_Y;
+	int m_Index;
 
 	/// The edges this point constitutes an upper ending point
-	std::vector<Edge*> edge_list;
+	std::vector<Edge*> m_EdgeList;
 
 	/// Default constructor does nothing (for performance).
 	Point() {
-		m_x = 0.0;
-		m_y = 0.0;
-		m_index = 0;
+		m_X = 0.0;
+		m_Y = 0.0;
+		m_Index = 0;
 	}
 
 	/// Construct using coordinates.
 	Point(double x, double y, int index) :
-			m_x(x), m_y(y), m_index(index) {}
+			m_X(x), m_Y(y), m_Index(index) {}
 
 	/// Set this point to all zeros.
 	void set_zero()
 	{
-		m_x = 0.0;
-		m_y = 0.0;
+		m_X = 0.0;
+		m_Y = 0.0;
 	}
 
 	/// Set this point to some specified coordinates.
 	void set(double x_, double y_)
 	{
-		m_x = x_;
-		m_y = y_;
+		m_X = x_;
+		m_Y = y_;
 	}
 
 	/// Negate this point.
 	Point operator -() const
 	{
 		Point v;
-		v.set(-m_x, -m_y);
+		v.set(-m_X, -m_Y);
 		return v;
 	}
 
 	/// Add a point to this point.
 	void operator +=(const Point& v)
 	{
-		m_x += v.m_x;
-		m_y += v.m_y;
+		m_X += v.m_X;
+		m_Y += v.m_Y;
 	}
 
 	/// Subtract a point from this point.
 	void operator -=(const Point& v)
 	{
-		m_x -= v.m_x;
-		m_y -= v.m_y;
+		m_X -= v.m_X;
+		m_Y -= v.m_Y;
 	}
 
 	/// Multiply this point by a scalar.
 	void operator *=(double a)
 	{
-		m_x *= a;
-		m_y *= a;
+		m_X *= a;
+		m_Y *= a;
 	}
 
 	/// Get the length of this point (the norm).
-	double Length() const
+	double length() const
 	{
-		return sqrt(m_x * m_x + m_y * m_y);
+		return sqrt(m_X * m_X + m_Y * m_Y);
 	}
 
 	/// Convert this point into a unit point. Returns the Length.
-	double Normalize()
+	double normalize()
 	{
-		double len = Length();
-		m_x /= len;
-		m_y /= len;
+		double len = length();
+		m_X /= len;
+		m_Y /= len;
 		return len;
 	}
 
@@ -125,24 +121,24 @@ struct Point
 // Represents a simple polygon's edge
 struct Edge
 {
-	Point* m_p, *m_q;
+	Point* m_P, *m_Q;
 
 	/// Constructor
-	Edge(Point& p1, Point& p2) :m_p(&p1), m_q(&p2)
+	Edge(Point& p1, Point& p2) :m_P(&p1), m_Q(&p2)
 	{
-		if (p1.m_y > p2.m_y) {
-			m_q = &p1;
-			m_p = &p2;
-		} else if (p1.m_y == p2.m_y) {
-			if (p1.m_x > p2.m_x) {
-				m_q = &p1;
-				m_p = &p2;
-			} else if (p1.m_x == p2.m_x) {
+		if (p1.m_Y > p2.m_Y) {
+			m_Q = &p1;
+			m_P = &p2;
+		} else if (p1.m_Y == p2.m_Y) {
+			if (p1.m_X > p2.m_X) {
+				m_Q = &p1;
+				m_P = &p2;
+			} else if (p1.m_X == p2.m_X) {
 				// Repeat points
 				assert(false);
 			}
 		}
-		m_q->edge_list.push_back(this);
+		m_Q->m_EdgeList.push_back(this);
 	}
 };
 
@@ -159,74 +155,74 @@ public:
 	TriangulationTriangle(Point& a, Point& b, Point& c);
 
 /// Flags to determine if an edge is a Constrained edge
-	bool m_constrained_edge[3];
+	bool m_ConstrainedEdge[3];
 /// Flags to determine if an edge is a Delauney edge
-	bool m_delaunay_edge[3];
+	bool m_DelaunayEdge[3];
 
-	Point* GetPoint(const int& index);
-	Point* PointCW(Point& point);
-	Point* PointCCW(Point& point);
-	Point* OppositePoint(TriangulationTriangle& t, Point& p);
+	Point* getPoint(const int& index);
+	Point* pointCW(Point& point);
+	Point* pointCCW(Point& point);
+	Point* oppositePoint(TriangulationTriangle& t, Point& p);
 
-	TriangulationTriangle* GetNeighbor(const int& index);
-	void MarkNeighbor(Point* p1, Point* p2, TriangulationTriangle* t);
-	void MarkNeighbor(TriangulationTriangle& t);
+	TriangulationTriangle* getNeighbor(const int& index);
+	void markNeighbor(Point* p1, Point* p2, TriangulationTriangle* t);
+	void markNeighbor(TriangulationTriangle& t);
 
-	void MarkConstrainedEdge(const int index);
-	void MarkConstrainedEdge(Edge& edge);
-	void MarkConstrainedEdge(Point* p, Point* q);
+	void markConstrainedEdge(const int index);
+	void markConstrainedEdge(Edge& edge);
+	void markConstrainedEdge(Point* p, Point* q);
 
-	unsigned int Index(const Point* p);
-	unsigned int EdgeIndex(const Point* p1, const Point* p2);
+	unsigned int index(const Point* p);
+	unsigned int edgeIndex(const Point* p1, const Point* p2);
 
-	TriangulationTriangle* NeighborCW(Point& point);
-	TriangulationTriangle* NeighborCCW(Point& point);
-	bool GetConstrainedEdgeCCW(Point& p);
-	bool GetConstrainedEdgeCW(Point& p);
-	void SetConstrainedEdgeCCW(Point& p, bool ce);
-	void SetConstrainedEdgeCW(Point& p, bool ce);
-	bool GetDelunayEdgeCCW(Point& p);
-	bool GetDelunayEdgeCW(Point& p);
-	void SetDelunayEdgeCCW(Point& p, bool e);
-	void SetDelunayEdgeCW(Point& p, bool e);
+	TriangulationTriangle* neighborCW(Point& point);
+	TriangulationTriangle* neighborCCW(Point& point);
+	bool getConstrainedEdgeCCW(Point& p);
+	bool getConstrainedEdgeCW(Point& p);
+	void setConstrainedEdgeCCW(Point& p, bool ce);
+	void setConstrainedEdgeCW(Point& p, bool ce);
+	bool getDelunayEdgeCCW(Point& p);
+	bool getDelunayEdgeCW(Point& p);
+	void setDelunayEdgeCCW(Point& p, bool e);
+	void setDelunayEdgeCW(Point& p, bool e);
 
-	bool Contains(Point* p);
-	bool Contains(const Edge& e);
-	bool Contains(Point* p, Point* q);
-	void Legalize(Point& point);
-	void Legalize(Point& opoint, Point& npoint);
+	bool contains(Point* p);
+	bool contains(const Edge& e);
+	bool contains(Point* p, Point* q);
+	void legalize(Point& point);
+	void legalize(Point& opoint, Point& npoint);
 	/**
 	 * Clears all references to all other triangles and points
 	 */
-	void Clear();
-	void ClearNeighbor(TriangulationTriangle *triangle);
-	void ClearNeighbors();
-	void ClearDelunayEdges();
+	void clear();
+	void clearNeighbor(TriangulationTriangle *triangle);
+	void clearNeighbors();
+	void clearDelunayEdges();
 
-	inline bool IsInterior();
-	inline void IsInterior(bool b);
+	inline bool isInterior();
+	inline void isInterior(bool b);
 
-	TriangulationTriangle& NeighborAcross(Point& opoint);
+	TriangulationTriangle& neighborAcross(Point& opoint);
 
 private:
 
 /// Triangle points
-	Point* m_points[3];
+	Point* m_Points[3];
 /// Neighbor list
-	TriangulationTriangle* m_neighbors[3];
+	TriangulationTriangle* m_Neighbors[3];
 
 /// Has this triangle been marked as an interior triangle?
-	bool m_interior;
+	bool m_Interior;
 };
 
 
 inline bool cmp(const Point* a, const Point* b)
 {
-	if (a->m_y < b->m_y) {
+	if (a->m_Y < b->m_Y) {
 		return true;
-	} else if (a->m_y == b->m_y) {
+	} else if (a->m_Y == b->m_Y) {
 		// Make sure q is point with greater x value
-		if (a->m_x < b->m_x) {
+		if (a->m_X < b->m_X) {
 			return true;
 		}
 	}
@@ -253,74 +249,74 @@ inline bool cmp(const Point* a, const Point* b)
 
 inline bool operator ==(const Point& a, const Point& b)
 {
-	return a.m_x == b.m_x && a.m_y == b.m_y;
+	return a.m_X == b.m_X && a.m_Y == b.m_Y;
 }
 
 inline bool operator !=(const Point& a, const Point& b)
 {
-	return a.m_x != b.m_x && a.m_y != b.m_y;
+	return a.m_X != b.m_X && a.m_Y != b.m_Y;
 }
 
 /// Peform the dot product on two vectors.
-inline double Dot(const Point& a, const Point& b)
+inline double dot(const Point& a, const Point& b)
 {
-	return a.m_x * b.m_x + a.m_y * b.m_y;
+	return a.m_X * b.m_X + a.m_Y * b.m_Y;
 }
 
 /// Perform the cross product on two vectors. In 2D this produces a scalar.
-inline double Cross(const Point& a, const Point& b)
+inline double cross(const Point& a, const Point& b)
 {
-	return a.m_x * b.m_y - a.m_y * b.m_x;
+	return a.m_X * b.m_Y - a.m_Y * b.m_X;
 }
 
 /// Perform the cross product on a point and a scalar. In 2D this produces
 /// a point.
-inline Point Cross(const Point& a, double s)
+inline Point cross(const Point& a, double s)
 {
-	return Point(s * a.m_y, -s * a.m_x, a.m_index);
+	return Point(s * a.m_Y, -s * a.m_X, a.m_Index);
 }
 
 /// Perform the cross product on a scalar and a point. In 2D this produces
 /// a point.
-inline Point Cross(const double s, const Point& a)
+inline Point cross(const double s, const Point& a)
 {
-	return Point(-s * a.m_y, s * a.m_x, a.m_index);
+	return Point(-s * a.m_Y, s * a.m_X, a.m_Index);
 }
 
-inline Point* TriangulationTriangle::GetPoint(const int& index)
+inline Point* TriangulationTriangle::getPoint(const int& index)
 {
-	return m_points[index];
+	return m_Points[index];
 }
 
-inline TriangulationTriangle* TriangulationTriangle::GetNeighbor(
+inline TriangulationTriangle* TriangulationTriangle::getNeighbor(
 		const int& index)
 {
-	return m_neighbors[index];
+	return m_Neighbors[index];
 }
 
-inline bool TriangulationTriangle::Contains(Point* p)
+inline bool TriangulationTriangle::contains(Point* p)
 {
-	return p == m_points[0] || p == m_points[1] || p == m_points[2];
+	return p == m_Points[0] || p == m_Points[1] || p == m_Points[2];
 }
 
-inline bool TriangulationTriangle::Contains(const Edge& e)
+inline bool TriangulationTriangle::contains(const Edge& e)
 {
-	return Contains(e.m_p) && Contains(e.m_q);
+	return contains(e.m_P) && contains(e.m_Q);
 }
 
-inline bool TriangulationTriangle::Contains(Point* p, Point* q)
+inline bool TriangulationTriangle::contains(Point* p, Point* q)
 {
-	return Contains(p) && Contains(q);
+	return contains(p) && contains(q);
 }
 
-inline bool TriangulationTriangle::IsInterior()
+inline bool TriangulationTriangle::isInterior()
 {
-	return m_interior;
+	return m_Interior;
 }
 
-inline void TriangulationTriangle::IsInterior(bool b)
+inline void TriangulationTriangle::isInterior(bool b)
 {
-	m_interior = b;
+	m_Interior = b;
 }
 
 }

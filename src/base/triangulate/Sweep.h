@@ -1,40 +1,29 @@
-/*
- * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
- * http://code.google.com/p/poly2tri/
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of Poly2Tri nor the names of its contributors may be
- *   used to endorse or promote products derived from this software without specific
- *   prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-/**
- * Sweep-line, Constrained Delauney Triangulation (CDT) See: Domiter, V. and
- * Zalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
- * International Journal of Geographical Information Science
- *
- * "FlipScan" Constrained Edge Algorithm invented by Thomas �hl�n, thahlen@gmail.com
- */
+//
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+//
+// Based on Poly2Tri algorithm.
+// Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
+// http://code.google.com/p/poly2tri/
+//
 
 #ifndef SWEEP_H
 #define SWEEP_H
@@ -57,9 +46,9 @@ public:
 	/**
 	 * Triangulate
 	 *
-	 * @param tcx
+	 * @param sc
 	 */
-	void Triangulate(SweepContext& tcx);
+	void Triangulate(SweepContext& sc);
 
 	/**
 	 * Destructor - clean up memory
@@ -71,54 +60,54 @@ private:
 	/**
 	 * Start sweeping the Y-sorted point set from bottom to top
 	 *
-	 * @param tcx
+	 * @param sc
 	 */
-	void SweepPoints(SweepContext& tcx);
+	void sweepPoints(SweepContext& sc);
 
 	/**
 	 * Find closes node to the left of the new point and
 	 * create a new triangle. If needed new holes and basins
 	 * will be filled to.
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param point
 	 * @return
 	 */
-	Node& PointEvent(SweepContext& tcx, Point& point);
+	Node& pointEvent(SweepContext& sc, Point& point);
 
 	/**
 	 *
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param edge
 	 * @param node
 	 */
-	void EdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
+	void edgeEvent(SweepContext& sc, Edge* edge, Node* node);
 
-	void EdgeEvent(SweepContext& tcx, Point& ep, Point& eq,
+	void edgeEvent(SweepContext& sc, Point& ep, Point& eq,
 			TriangulationTriangle* triangle, Point& point);
 
 	/**
 	 * Creates a new front triangle and legalize it
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param point
 	 * @param node
 	 * @return
 	 */
-	Node& NewFrontTriangle(SweepContext& tcx, Point& point, Node& node);
+	Node& newFrontTriangle(SweepContext& sc, Point& point, Node& node);
 
 	/**
 	 * Adds a triangle to the advancing front to fill a hole.
-	 * @param tcx
+	 * @param sc
 	 * @param node - middle node, that is the bottom of the hole
 	 */
-	void Fill(SweepContext& tcx, Node& node);
+	void fill(SweepContext& sc, Node& node);
 
 	/**
 	 * Returns true if triangle was legalized
 	 */
-	bool Legalize(SweepContext& tcx, TriangulationTriangle& t);
+	bool legalize(SweepContext& sc, TriangulationTriangle& t);
 
 	/**
 	 * <b>Requirement</b>:<br>
@@ -144,7 +133,7 @@ private:
 	 * @param d - point opposite a
 	 * @return true if d is inside circle, false if on circle edge
 	 */
-	bool Incircle(Point& pa, Point& pb, Point& pc, Point& pd);
+	bool incircle(Point& pa, Point& pb, Point& pc, Point& pd);
 
 	/**
 	 * Rotates a triangle pair one vertex CW
@@ -160,29 +149,29 @@ private:
 	 *       n4                    n4
 	 * </pre>
 	 */
-	void RotateTrianglePair(TriangulationTriangle& t, Point& p, TriangulationTriangle& ot,
+	void rotateTrianglePair(TriangulationTriangle& t, Point& p, TriangulationTriangle& ot,
 			Point& op);
 
 	/**
 	 * Fills holes in the Advancing Front
 	 *
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param n
 	 */
-	void FillAdvancingFront(SweepContext& tcx, Node& n);
+	void fillAdvancingFront(SweepContext& sc, Node& n);
 
 	/**
 	 *
 	 * @param node - middle node
 	 * @return the angle between 3 front nodes
 	 */
-	double HoleAngle(Node& node);
+	double holeAngle(Node& node);
 
 	/**
 	 * The basin angle is decided against the horizontal line [1,0]
 	 */
-	double BasinAngle(Node& node);
+	double basinAngle(Node& node);
 
 	/**
 	 * Fills a basin that has formed on the Advancing Front to the right
@@ -190,50 +179,50 @@ private:
 	 * First we decide a left,bottom and right node that forms the
 	 * boundaries of the basin. Then we do a reqursive fill.
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param node - starting node, this or next node will be left node
 	 */
-	void FillBasin(SweepContext& tcx, Node& node);
+	void fillBasin(SweepContext& sc, Node& node);
 
 	/**
 	 * Recursive algorithm to fill a Basin with triangles
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param node - bottom_node
 	 * @param cnt - counter used to alternate on even and odd numbers
 	 */
-	void FillBasinReq(SweepContext& tcx, Node* node);
+	void fillBasinReq(SweepContext& sc, Node* node);
 
-	bool IsShallow(SweepContext& tcx, Node& node);
+	bool isShallow(SweepContext& sc, Node& node);
 
-	bool IsEdgeSideOfTriangle(TriangulationTriangle& triangle, Point& ep, Point& eq);
+	bool isEdgeSideOfTriangle(TriangulationTriangle& triangle, Point& ep, Point& eq);
 
-	void FillEdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
+	void fillEdgeEvent(SweepContext& sc, Edge* edge, Node* node);
 
-	void FillRightAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
+	void fillRightAboveEdgeEvent(SweepContext& sc, Edge* edge, Node* node);
 
-	void FillRightBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+	void fillRightBelowEdgeEvent(SweepContext& sc, Edge* edge, Node& node);
 
-	void FillRightConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+	void fillRightConcaveEdgeEvent(SweepContext& sc, Edge* edge, Node& node);
 
-	void FillRightConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+	void fillRightConvexEdgeEvent(SweepContext& sc, Edge* edge, Node& node);
 
-	void FillLeftAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
+	void fillLeftAboveEdgeEvent(SweepContext& sc, Edge* edge, Node* node);
 
-	void FillLeftBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+	void fillLeftBelowEdgeEvent(SweepContext& sc, Edge* edge, Node& node);
 
-	void FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+	void fillLeftConcaveEdgeEvent(SweepContext& sc, Edge* edge, Node& node);
 
-	void FillLeftConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+	void fillLeftConvexEdgeEvent(SweepContext& sc, Edge* edge, Node& node);
 
-	void FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, TriangulationTriangle* t,
+	void flipEdgeEvent(SweepContext& sc, Point& ep, Point& eq, TriangulationTriangle* t,
 			Point& p);
 
 	/**
 	 * After a flip we have two triangles and know that only one will still be
 	 * intersecting the edge. So decide which to contiune with and legalize the other
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param o - should be the result of an orient2d( eq, op, ep )
 	 * @param t - triangle 1
 	 * @param ot - triangle 2
@@ -241,7 +230,7 @@ private:
 	 * @param op - another point shared by both triangles
 	 * @return returns the triangle still intersecting the edge
 	 */
-	TriangulationTriangle& NextFlipTriangle(SweepContext& tcx, int o,
+	TriangulationTriangle& nextFlipTriangle(SweepContext& sc, int o,
 			TriangulationTriangle& t, TriangulationTriangle& ot, Point& p, Point& op);
 
 	/**
@@ -255,7 +244,7 @@ private:
 	 * @param op
 	 * @return
 	 */
-	Point& NextFlipPoint(Point& ep, Point& eq, TriangulationTriangle& ot, Point& op);
+	Point& nextFlipPoint(Point& ep, Point& eq, TriangulationTriangle& ot, Point& op);
 
 	/**
 	 * Scan part of the FlipScan algorithm<br>
@@ -263,19 +252,19 @@ private:
 	 * point that is inside the flip triangle scan area. When found
 	 * we generate a new flipEdgeEvent
 	 *
-	 * @param tcx
+	 * @param sc
 	 * @param ep - last point on the edge we are traversing
 	 * @param eq - first point on the edge we are traversing
 	 * @param flipTriangle - the current triangle sharing the point eq with edge
 	 * @param t
 	 * @param p
 	 */
-	void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq,
+	void flipScanEdgeEvent(SweepContext& sc, Point& ep, Point& eq,
 			TriangulationTriangle& flip_triangle, TriangulationTriangle& t, Point& p);
 
-	void FinalizationPolygon(SweepContext& tcx);
+	void finalizationPolygon(SweepContext& sc);
 
-	std::vector<Node*> m_nodes;
+	std::vector<Node*> m_Nodes;
 
 };
 

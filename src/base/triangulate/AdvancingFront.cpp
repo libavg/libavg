@@ -1,104 +1,101 @@
-/*
- * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
- * http://code.google.com/p/poly2tri/
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of Poly2Tri nor the names of its contributors may be
- *   used to endorse or promote products derived from this software without specific
- *   prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+//
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+//
+// Based on Poly2Tri algorithm.
+// Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
+// http://code.google.com/p/poly2tri/
+//
+
 #include "AdvancingFront.h"
 
 namespace avg {
 
 AdvancingFront::AdvancingFront(Node& head, Node& tail)
 {
-	m_head = &head;
-	m_tail = &tail;
-	m_search_node = &head;
+	m_Head = &head;
+	m_Tail = &tail;
+	m_SearchNode = &head;
 }
 
-Node* AdvancingFront::LocateNode(const double& x)
+Node* AdvancingFront::locateNode(const double& x)
 {
-	Node* node = m_search_node;
+	Node* node = m_SearchNode;
 
-	if (x < node->m_value) {
-		while ((node = node->m_prev) != NULL) {
-			if (x >= node->m_value) {
-				m_search_node = node;
+	if (x < node->m_Value) {
+		while ((node = node->m_Prev) != NULL) {
+			if (x >= node->m_Value) {
+				m_SearchNode = node;
 				return node;
 			}
 		}
 	} else {
-		while ((node = node->m_next) != NULL) {
-			if (x < node->m_value) {
-				m_search_node = node->m_prev;
-				return node->m_prev;
+		while ((node = node->m_Next) != NULL) {
+			if (x < node->m_Value) {
+				m_SearchNode = node->m_Prev;
+				return node->m_Prev;
 			}
 		}
 	}
 	return NULL;
 }
 
-Node* AdvancingFront::FindSearchNode(const double& x)
+Node* AdvancingFront::findSearchNode(const double& x)
 {
 	(void) x; // suppress compiler warnings "unused parameter 'x'"
 	// TO DO: implement BST index
-	return m_search_node;
+	return m_SearchNode;
 }
 
-Node* AdvancingFront::LocatePoint(const Point* point)
+Node* AdvancingFront::locatePoint(const Point* point)
 {
-	const double px = point->m_x;
-	Node* node = FindSearchNode(px);
-	const double nx = node->m_point->m_x;
+	const double px = point->m_X;
+	Node* node = findSearchNode(px);
+	const double nx = node->m_Point->m_X;
 
 	if (px == nx) {
-		if (point != node->m_point) {
+		if (point != node->m_Point) {
 			// We might have two nodes with same x value for a short time
-			if (point == node->m_prev->m_point) {
-				node = node->m_prev;
-			} else if (point == node->m_next->m_point) {
-				node = node->m_next;
+			if (point == node->m_Prev->m_Point) {
+				node = node->m_Prev;
+			} else if (point == node->m_Next->m_Point) {
+				node = node->m_Next;
 			} else {
 				assert(0);
 			}
 		}
 	} else if (px < nx) {
-		while ((node = node->m_prev) != NULL) {
-			if (point == node->m_point) {
+		while ((node = node->m_Prev) != NULL) {
+			if (point == node->m_Point) {
 				break;
 			}
 		}
 	} else {
-		while ((node = node->m_next) != NULL) {
-			if (point == node->m_point)
+		while ((node = node->m_Next) != NULL) {
+			if (point == node->m_Point)
 				break;
 		}
 	}
 	if (node)
-		m_search_node = node;
+		m_SearchNode = node;
 	return node;
 }
 

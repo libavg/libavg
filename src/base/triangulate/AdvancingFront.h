@@ -1,33 +1,29 @@
-/*
- * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
- * http://code.google.com/p/poly2tri/
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of Poly2Tri nor the names of its contributors may be
- *   used to endorse or promote products derived from this software without specific
- *   prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+//
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2011 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+//
+// Based on Poly2Tri algorithm.
+// Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
+// http://code.google.com/p/poly2tri/
+//
 
 #ifndef ADVANCED_FRONT_H
 #define ADVANCED_FRONT_H
@@ -41,18 +37,18 @@ struct Node;
 // Advancing front node
 struct Node
 {
-  Point* m_point;
-  TriangulationTriangle* m_triangle;
+  Point* m_Point;
+  TriangulationTriangle* m_Triangle;
 
-  Node* m_next;
-  Node* m_prev;
+  Node* m_Next;
+  Node* m_Prev;
 
-  double m_value;
+  double m_Value;
 
-  Node(Point& p) : m_point(&p), m_triangle(NULL), m_next(NULL), m_prev(NULL), m_value(p.m_x)
+  Node(Point& p) : m_Point(&p), m_Triangle(NULL), m_Next(NULL), m_Prev(NULL), m_Value(p.m_X)
   {}
 
-  Node(Point& p, TriangulationTriangle& t) : m_point(&p), m_triangle(&t), m_next(NULL), m_prev(NULL), m_value(p.m_x)
+  Node(Point& p, TriangulationTriangle& t) : m_Point(&p), m_Triangle(&t), m_Next(NULL), m_Prev(NULL), m_Value(p.m_X)
   {}
 
 };
@@ -75,44 +71,44 @@ Node* search();
 void setSearch(Node* node);
 
 /// Locate insertion point along advancing front
-Node* LocateNode(const double& x);
+Node* locateNode(const double& x);
 
-Node* LocatePoint(const Point* point);
+Node* locatePoint(const Point* point);
 
 private:
 
-Node* m_head, *m_tail, *m_search_node;
+Node* m_Head, *m_Tail, *m_SearchNode;
 
-Node* FindSearchNode(const double& x);
+Node* findSearchNode(const double& x);
 };
 
 
 inline Node* AdvancingFront::head()
 {
-  return m_head;
+  return m_Head;
 }
 inline void AdvancingFront::setHead(Node* node)
 {
-  m_head = node;
+  m_Head = node;
 }
 
 inline Node* AdvancingFront::tail()
 {
-  return m_tail;
+  return m_Tail;
 }
 inline void AdvancingFront::setTail(Node* node)
 {
-  m_tail = node;
+  m_Tail = node;
 }
 
 inline Node* AdvancingFront::search()
 {
-  return m_search_node;
+  return m_SearchNode;
 }
 
 inline void AdvancingFront::setSearch(Node* node)
 {
-  m_search_node = node;
+  m_SearchNode = node;
 }
 
 }
