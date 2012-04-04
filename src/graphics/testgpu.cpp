@@ -26,6 +26,7 @@
 #include "GPUBandpassFilter.h"
 #include "GPUChromaKeyFilter.h"
 #include "GPUHueSatFilter.h"
+#include "GPUInvertFilter.h"
 #include "GPURGB2YUVFilter.h"
 #include "FilterResizeBilinear.h"
 #include "OGLImagingContext.h"
@@ -157,6 +158,32 @@ private:
         testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, 0.2, 0.5);
     }
 };
+
+
+class InvertFilterTest: public GraphicsTest {
+public:
+    InvertFilterTest()
+        : GraphicsTest("InvertFilterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        runImageTests("rgb24-64x64");
+    }
+
+private:
+    void runImageTests(const string& sFName)
+    {
+        cerr << "    Testing " << sFName << endl;
+        BitmapPtr pBmp = loadTestBmp(sFName);
+        BitmapPtr pDestBmp;
+        pDestBmp = GPUInvertFilter(pBmp->getSize(), pBmp->getPixelFormat())
+                .apply(pBmp);
+        testEqual(*pDestBmp, string("invert_")+sFName, pBmp->getPixelFormat(), 0.0, 0.0);
+    }
+};
+
 
 class ChromaKeyFilterTest: public GraphicsTest {
 public:
@@ -359,6 +386,7 @@ public:
         if (GLTexture::isFloatFormatSupported()) {
             addTest(TestPtr(new ChromaKeyFilterTest));
             addTest(TestPtr(new HslColorFilterTest));
+            addTest(TestPtr(new InvertFilterTest));
             addTest(TestPtr(new BlurFilterTest));
             addTest(TestPtr(new BandpassFilterTest));
         } else {
