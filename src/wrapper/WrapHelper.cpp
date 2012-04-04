@@ -147,11 +147,6 @@ glm::vec2 ConstVec2::toVec2() const
     return glm::vec2(x,y);
 }
 
-ConstVec2::operator glm::vec2() const
-{
-    return glm::vec2(x,y);
-}
-
 void checkEmptyArgs(const boost::python::tuple &args, int numArgs)
 {
     if (boost::python::len(args) != numArgs) {
