@@ -32,7 +32,7 @@
 #ifndef ADVANCED_FRONT_H
 #define ADVANCED_FRONT_H
 
-#include "../common/Shapes.h"
+#include "Shapes.h"
 
 namespace avg {
 

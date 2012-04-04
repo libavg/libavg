@@ -32,7 +32,7 @@
 #include "Sweep.h"
 #include "SweepContext.h"
 #include "AdvancingFront.h"
-#include "../common/Utils.h"
+#include "Utils.h"
 
 namespace avg {
 
