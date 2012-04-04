@@ -60,6 +60,18 @@ PolygonNode::PolygonNode(const ArgList& args)
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Too many texture coordinates in polygon"));
     }
+    if (m_Pts.size() < 3) {
+		throw(Exception(AVG_ERR_UNSUPPORTED,
+		        "A polygon must have min. tree points."));
+	}
+    if (m_Holes.size() > 0) {
+        for (unsigned int i = 0; i < m_Holes.size(); i++) {
+            if (m_Holes[i].size() < 3) {
+                throw(Exception(AVG_ERR_UNSUPPORTED,
+		            "A hole of a polygon must have min. tree points."));
+            }
+        }
+    }
     setLineJoin(args.getArgVal<string>("linejoin"));
     calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
 }
