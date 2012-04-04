@@ -354,7 +354,7 @@ public:
     
     BitmapPtr convertYUVX444ToRGB(const BitmapPtr& pYUVBmp)
     {
-        // This is a wierd pixel format that's not used anywhere else, so support
+        // This is a weird pixel format that's not used anywhere else, so support
         // hasn't been moved to the Bitmap class.
         BitmapPtr pRGBBmp(new Bitmap(pYUVBmp->getSize(), B8G8R8X8));
         int height = pRGBBmp->getSize().y;
