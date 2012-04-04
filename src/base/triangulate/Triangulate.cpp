@@ -37,7 +37,7 @@ std::vector<int> triangulatePolygon(const Vec2Vector& points, const std::vector<
                 for (unsigned int j = holeIndexes.at(i); j < points.size(); j++) {
 				    holeLine.push_back(new Point(points.at(j).x, points.at(j).y, j));
 			    }
-            }   
+            }
 			sweepContext->AddHole(holeLine);
 			holeLine.clear();
 		}
@@ -52,6 +52,9 @@ std::vector<int> triangulatePolygon(const Vec2Vector& points, const std::vector<
 		result.push_back(triangles.at(i)->GetPoint(1)->m_index);
 		result.push_back(triangles.at(i)->GetPoint(2)->m_index);
 	}
+    
+    delete sweep;
+    delete sweepContext;
 
 	return result;
 }

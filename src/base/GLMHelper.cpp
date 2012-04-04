@@ -86,6 +86,16 @@ std::ostream& operator<<( std::ostream& os, const glm::detail::tvec4<NUM> &v)
 }
 
 template<class NUM>
+std::ostream& operator<<( std::ostream& os, const glm::detail::tmat4x4<NUM> &m)
+{
+    os << "(" << m[0] << ", " << endl << 
+            m[1] << ", " << endl << 
+            m[2] << ", " << endl << 
+            m[3] << ", " << endl << ")";
+    return os;
+}
+
+template<class NUM>
 std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM>& p)
 {
     skipToken(is, '(');
@@ -150,6 +160,10 @@ template std::istream& operator>>(std::istream& is, glm::detail::tvec3<double>& 
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<int> &p);
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<float> &p);
 template std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<double> &p);
+
+template std::ostream& operator<<(std::ostream& os, const glm::detail::tmat4x4<float> &p);
+template std::ostream& operator<<(std::ostream& os, 
+        const glm::detail::tmat4x4<double> &p);
 
 template bool almostEqual(const glm::detail::tvec2<float>& v1,
         const glm::detail::tvec2<float>& v2);

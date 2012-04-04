@@ -195,11 +195,9 @@ void VideoWriter::getFrameFromFBO()
     if (m_pFBO) {
         if (m_pFilter) {
             glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
             m_pFilter->apply(m_pFBO->getTex());
             FBOPtr pYUVFBO = m_pFilter->getFBO();
             pYUVFBO->moveToPBO();
-            glPopMatrix();
         } else {
             m_pFBO->moveToPBO();
         }

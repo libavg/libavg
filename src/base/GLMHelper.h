@@ -25,6 +25,8 @@
 #include "../api.h"
 
 #include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
+#include "../glm/gtc/type_ptr.hpp"
 
 #include <iostream>
 #include <vector>
@@ -46,6 +48,8 @@ template<class NUM>
 std::ostream& operator<<(std::ostream& os, const glm::detail::tvec3<NUM> &v);
 template<class NUM>
 std::ostream& operator<<(std::ostream& os, const glm::detail::tvec4<NUM> &v);
+template<class NUM>
+std::ostream& operator<<(std::ostream& os, const glm::detail::tmat4x4<NUM> &v);
 
 template<class NUM>
 std::istream& operator>>(std::istream& is, glm::detail::tvec2<NUM>& p);

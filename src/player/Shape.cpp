@@ -92,7 +92,7 @@ VertexArrayPtr Shape::getVertexArray()
     return m_pVertexArray;
 }
 
-void Shape::draw()
+void Shape::draw(const glm::mat4& transform)
 {
     bool bIsTextured = isTextured();
     GLContext* pContext = GLContext::getCurrent();
@@ -110,6 +110,7 @@ void Shape::draw()
     }
     pContext->enableTexture(bIsTextured);
     pContext->enableGLColorArray(!bIsTextured);
+    glLoadMatrixf(glm::value_ptr(transform));
     m_pVertexArray->draw();
 }
 

@@ -231,8 +231,13 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
 		double angle = HoleAngle(*node);
 		if (angle > M_PI_2 || angle < -M_PI_2)
 			break;
-		Fill(tcx, *node);
-		node = node->m_next;
+//		Fill(tcx, *node);
+//		node = node->m_next;
+
+// LEAK FIX
+        Node *tmp = node;
+        node = node->m_next;
+        Fill(tcx, *tmp);
 	}
 
 	// Fill left holes

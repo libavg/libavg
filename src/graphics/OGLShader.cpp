@@ -73,8 +73,11 @@ void OGLShader::activate()
 
 void OGLShader::deactivate()
 {
-    glproc::UseProgramObject(0);
-    ShaderRegistry::get()->setCurShader("");
+    OGLShaderPtr pCurShader = ShaderRegistry::get()->getCurShader();
+    if (pCurShader) {
+        glproc::UseProgramObject(0);
+        ShaderRegistry::get()->setCurShader("");
+    }
 }
 
 GLhandleARB OGLShader::getProgram()

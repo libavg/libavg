@@ -102,18 +102,22 @@ class AVG_API AreaNode: public Node
 
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };
+        const glm::mat4& getTransform() const;
 
     protected:
         AreaNode();
         glm::vec2 getUserSize() const;
 
     private:
+        glm::mat4 calcTransform();
+
         FRect m_RelViewport;      // In coordinates relative to the parent.
         float m_Angle;
         glm::vec2 m_Pivot;
         bool m_bHasCustomPivot;
         
         glm::vec2 m_UserSize;
+        glm::mat4 m_Transform;
 };
 
 }

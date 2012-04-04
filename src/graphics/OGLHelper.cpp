@@ -237,33 +237,6 @@ string oglMemoryMode2String(OGLMemoryMode mode)
     }
 }
 
-// TODO: Unused, possibly broken
-void pushGLState()
-{
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushGLState()");
-}
-
-void popGLState()
-{
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glMatrixMode(GL_TEXTURE);
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glPopClientAttrib();
-    glPopAttrib();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "popGLState()");
-}
-
 void AVG_API clearGLBuffers(GLbitfield mask)
 {
     glClearColor(0.0, 0.0, 0.0, 0.0); 
@@ -277,7 +250,6 @@ void AVG_API clearGLBuffers(GLbitfield mask)
         glStencilMask(0);
     }
 }
-
 
 void invalidGLCall()
 {

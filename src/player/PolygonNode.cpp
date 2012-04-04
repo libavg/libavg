@@ -75,6 +75,7 @@ const vector<glm::vec2>& PolygonNode::getPos() const
 
 void PolygonNode::setPos(const vector<glm::vec2>& pts) 
 {
+    m_Pts.clear();
     m_Pts = pts;
     m_TexCoords.clear();
     m_EffTexCoords.clear();
@@ -85,6 +86,19 @@ void PolygonNode::setPos(const vector<glm::vec2>& pts)
 const vector<float>& PolygonNode::getTexCoords() const
 {
     return m_TexCoords;
+}
+
+const CollVec2Vector& PolygonNode::getHoles() const
+{
+    return m_Holes;
+}
+
+void PolygonNode::setHoles(const CollVec2Vector& holes)
+{
+    m_Holes = holes;
+    m_TexCoords.clear();
+    m_EffTexCoords.clear();
+    setDrawNeeded();
 }
 
 void PolygonNode::setTexCoords(const vector<float>& coords)

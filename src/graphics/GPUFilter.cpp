@@ -106,7 +106,6 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 void GPUFilter::apply(GLTexturePtr pSrcTex)
 {
     m_pFBOs[0]->activate();
-    m_pProjection->activate();
     applyOnGPU(pSrcTex);
     m_pFBOs[0]->copyToDestTexture();
 }

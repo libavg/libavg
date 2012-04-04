@@ -59,10 +59,6 @@ public:
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
 
-    virtual void pushTransform(const glm::vec2& translate, float angle, 
-            const glm::vec2& pivot);
-    virtual void popTransform();
-
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
     GLBufferCache& getIndexBufferCache();

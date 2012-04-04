@@ -82,9 +82,6 @@ enum OGLMemoryMode {
 
 std::string oglMemoryMode2String(OGLMemoryMode mode);
 
-void AVG_API pushGLState();
-void AVG_API popGLState();
-
 void AVG_API clearGLBuffers(GLbitfield mask);
 
 typedef void (*GLfunction)();

@@ -48,6 +48,9 @@ class AVG_API PolygonNode : public FilledVectorNode
         const std::vector<float>& getTexCoords() const;
         void setTexCoords(const std::vector<float>& coords);
 
+        const CollVec2Vector& getHoles() const;
+        void setHoles(const CollVec2Vector& holes);
+
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
 
