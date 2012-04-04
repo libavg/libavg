@@ -1,3 +1,4 @@
+SUBDIRS = triangulate
 
 INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
 ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
@@ -7,10 +8,7 @@ ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h 
         Rect.h Directory.h DirEntry.h StringHelper.h MathHelper.h GeomHelper.h \
         CubicSpline.h BezierCurve.h UTF8String.h Triangle.h \
         WideLine.h DlfcnWrapper.h Signal.h Backtrace.h \
-        CmdQueue.h ProfilingZoneID.h GLMHelper.h VersionInfo.h \
-	    triangulate/Triangulate.h triangulate/Shapes.h triangulate/Utils.h \
-    	triangulate/AdvancingFront.h triangulate/Sweep.h \
-    	triangulate/SweepContext.h
+        CmdQueue.h ProfilingZoneID.h GLMHelper.h VersionInfo.h 
 
 TESTS=testbase
 
@@ -24,14 +22,12 @@ libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
     StringHelper.cpp MathHelper.cpp GeomHelper.cpp CubicSpline.cpp \
     BezierCurve.cpp UTF8String.cpp Triangle.cpp WideLine.cpp \
     Backtrace.cpp ProfilingZoneID.cpp GLMHelper.cpp VersionInfo.cpp \
-    triangulate/Triangulate.cpp triangulate/Shapes.cpp \
-    triangulate/AdvancingFront.cpp triangulate/Sweep.cpp \
-    triangulate/SweepContext.cpp \
     $(ALL_H)
 libbase_a_CXXFLAGS = -Wno-format-y2k
 
 noinst_PROGRAMS=testbase
 testbase_SOURCES=testbase.cpp $(ALL_H)
-testbase_LDADD = ./libbase.la -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+testbase_LDADD = ./libbase.la ./triangulate/libtriangulate.la -l@BOOST_THREAD_LIB@ \
+        @PTHREAD_LIBS@
 # -rdynamic needed only for testBacktrace to work under linux.
 testbase_LDFLAGS = -rdynamic
