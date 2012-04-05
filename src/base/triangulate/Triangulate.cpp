@@ -73,7 +73,7 @@ std::vector<int> triangulatePolygon(const Vec2Vector& points,
     sweep->Triangulate(*sweepContext);
 
     std::vector<int> result;
-    std::vector<avg::TriangulationTriangle*> triangles =  sweepContext->getTriangles();
+    std::vector<avg::TriangulationTriangle*>& triangles =  sweepContext->getTriangles();
     for (unsigned int i = 0; i < triangles.size(); ++i) {
         result.push_back(triangles[i]->getPoint(0)->m_Index);
         result.push_back(triangles[i]->getPoint(1)->m_Index);

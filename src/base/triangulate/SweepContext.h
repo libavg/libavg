@@ -88,7 +88,7 @@ public:
 
     void meshClean(TriangulationTriangle& triangle);
 
-    std::vector<TriangulationTriangle*> getTriangles();
+    std::vector<TriangulationTriangle*>& getTriangles();
 
     std::vector<Edge*> m_EdgeList;
 

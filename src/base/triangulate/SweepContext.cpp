@@ -54,7 +54,7 @@ void SweepContext::addPoint(Point* point)
     m_Points.push_back(point);
 }
 
-std::vector<TriangulationTriangle*> SweepContext::getTriangles()
+std::vector<TriangulationTriangle*>& SweepContext::getTriangles()
 {
     return m_Triangles;
 }
