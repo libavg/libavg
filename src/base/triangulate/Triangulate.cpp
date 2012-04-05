@@ -40,9 +40,9 @@ std::vector<int> triangulatePolygon(const Vec2Vector& points,
     unsigned int contourEnd;
 
     if (holeIndexes.size() > 0) {
-    contourEnd = holeIndexes[0];
+        contourEnd = holeIndexes[0];
     } else {
-    contourEnd = points.size();
+        contourEnd = points.size();
     }
 
     for (unsigned int i = 0; i < contourEnd; i++) {
@@ -67,7 +67,7 @@ std::vector<int> triangulatePolygon(const Vec2Vector& points,
             }
             sweepContext->addHole(holeLine);
             holeLine.clear();
-    }
+        }
     }
 
     sweep->Triangulate(*sweepContext);
