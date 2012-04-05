@@ -299,6 +299,8 @@ void export_node()
         .add_property("texcoords", make_function(&PolygonNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &PolygonNode::setTexCoords)
         .add_property("linejoin", &PolygonNode::getLineJoin, &PolygonNode::setLineJoin)
+        .add_property("holes", make_function(&PolygonNode::getHoles, 
+                return_value_policy<copy_const_reference>()), &PolygonNode::setHoles)
     ;
 
     class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 
