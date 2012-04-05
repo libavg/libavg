@@ -444,6 +444,32 @@ class VectorTestCase(AVGTestCase):
         def addEmptyPolygon():
             avg.PolygonNode(parent=canvas, fillopacity=1)
 
+        def createLeftOpenPolygon():
+            polygon.pos = ( (15,0), (35,0), (55,10), (65,30), (55,50), (35,60), (15,60),
+                    (5,50), (15,40), (35,40), (35,30), (35,20), (15,20), (5,10) )
+            polygon.strokewidth = 1
+
+        def createUpOpenPolygon():
+            polygon.pos = ( (15,0), (25,10), (25,30), (35,30), (45,30), (45,10), (55,0), 
+                    (65,10), (65,30), (55,50), (35,60), (15,50), (5,30), (5,10) )
+
+        def createBottomOpenPolygon():
+            polygon.pos = ( (35,0), (55,10), (65,30), (65,50), (55,60), (45,50), (45,30),
+                    (35,30), (25,30), (25,50), (15,60), (5,50), (5,30), (15,10) )
+
+        def createOneHole():
+            polygon.holes = ( [(35,10), (40,15), (35,20), (30,15)], )
+
+        def createMoreHoles():
+            newHoles = ( polygon.holes[0], [(20,35), (20,45), (10,40)], 
+                    [(50,35), (50,45), (60,40)], )
+            polygon.holes = newHoles
+
+        def clearCanvas():
+            for i in xrange(canvas.getNumChildren()-1):
+                dell = canvas.getChild(i)
+                canvas.removeChild(dell)
+
         self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
@@ -464,18 +490,19 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.assertEqual(self.__mouseDownCalled, False),
                  lambda: self.fakeClick(20, 87),
                  lambda: self.assert_(self.__mouseDownCalled),
-                 addEmptyPolygon
+                 addEmptyPolygon,
+                 clearCanvas,
+                 createLeftOpenPolygon,
+                 lambda: self.compareImage("testPolygon7", True),
+                 createUpOpenPolygon,
+                 lambda: self.compareImage("testPolygon8", True),
+                 createBottomOpenPolygon,
+                 lambda: self.compareImage("testPolygon9", True),
+                 createOneHole,
+                 lambda: self.compareImage("testPolygonHole1", True),
+                 createMoreHoles,
+                 lambda: self.compareImage("testPolygonHole2", True)
                 ))
-
-    def testSelfIntersectPolygon(self):
-        def addPolygon():
-            polygon = avg.PolygonNode(strokewidth=3, color="FF00FF",
-                    pos=((100.5, 10.5), (100.5, 30.5), (120.5, 10.5), (120.5, 30.5)),
-                    fillcolor="00FFFF", fillopacity=0.5)
-            canvas.insertChild(polygon, 0)
-                
-        canvas = self.makeEmptyCanvas()
-        self.assertException(lambda: self.start([addPolygon]))
 
     def testTexturedPolygon(self):
         def texturePolygon():
@@ -684,7 +711,6 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
-            "testSelfIntersectPolygon",
             "testTexturedPolygon",
             "testPointInPolygon",
             "testCircle",

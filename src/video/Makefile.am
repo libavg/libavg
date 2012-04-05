@@ -36,7 +36,7 @@ libvideo_la_LIBADD = @LIBVIDEO_LDADD@
 
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
-        ../base/libbase.la \
+        ../base/libbase.la ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
         @LIBFFMPEG@ $(X_LIBS) \
         @GDK_PIXBUF_LIBS@

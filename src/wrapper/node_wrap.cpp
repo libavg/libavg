@@ -91,6 +91,9 @@ char meshNodeName[] = "mesh";
 
 void export_node()
 {
+    // vector< vector<vec2> > PolygonNode
+    to_python_converter<CollVec2Vector, to_list<CollVec2Vector> >();
+    from_python_sequence<CollVec2Vector, variable_capacity_policy>();
 
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node", no_init)
         .def(self == self)
@@ -296,6 +299,8 @@ void export_node()
         .add_property("texcoords", make_function(&PolygonNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &PolygonNode::setTexCoords)
         .add_property("linejoin", &PolygonNode::getLineJoin, &PolygonNode::setLineJoin)
+        .add_property("holes", make_function(&PolygonNode::getHoles, 
+                return_value_policy<copy_const_reference>()), &PolygonNode::setHoles)
     ;
 
     class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 
