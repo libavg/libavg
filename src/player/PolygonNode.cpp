@@ -60,7 +60,7 @@ PolygonNode::PolygonNode(const ArgList& args)
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Too many texture coordinates in polygon"));
     }
-    if (m_Pts.size() < 3) {
+    if (m_Pts.size() != 0 && m_Pts.size() < 3) {
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "A polygon must have min. tree points."));
     }
