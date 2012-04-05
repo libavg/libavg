@@ -739,7 +739,7 @@ Point& Sweep::nextFlipPoint(Point& ep, Point& eq, TriangulationTriangle& ot, Poi
     } else {
         //throw new RuntimeException("[Unsupported] Opposing point on constrained edge");
         assert(0);
-        return Point(); // Silence compiler warning.
+        return ep; // Silence compiler warning.
     }
 }
 
