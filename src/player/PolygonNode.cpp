@@ -61,14 +61,14 @@ PolygonNode::PolygonNode(const ArgList& args)
                 "Too many texture coordinates in polygon"));
     }
     if (m_Pts.size() < 3) {
-		throw(Exception(AVG_ERR_UNSUPPORTED,
-		        "A polygon must have min. tree points."));
-	}
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                "A polygon must have min. tree points."));
+    }
     if (m_Holes.size() > 0) {
         for (unsigned int i = 0; i < m_Holes.size(); i++) {
             if (m_Holes[i].size() < 3) {
                 throw(Exception(AVG_ERR_UNSUPPORTED,
-		            "A hole of a polygon must have min. tree points."));
+                        "A hole of a polygon must have min. tree points."));
             }
         }
     }

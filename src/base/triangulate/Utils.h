@@ -45,7 +45,7 @@ const double EPSILON = 1e-12;
 
 enum Orientation
 {
-	CW, CCW, COLLINEAR
+    CW, CCW, COLLINEAR
 };
 
 /**
@@ -60,15 +60,15 @@ enum Orientation
  */
 Orientation orient2d(Point& pa, Point& pb, Point& pc)
 {
-	double detleft = (pa.m_X - pc.m_X) * (pb.m_Y - pc.m_Y);
-	double detright = (pa.m_Y - pc.m_Y) * (pb.m_X - pc.m_X);
-	double val = detleft - detright;
-	if (val > -EPSILON && val < EPSILON) {
-		return COLLINEAR;
-	} else if (val > 0) {
-		return CCW;
-	}
-	return CW;
+    double detleft = (pa.m_X - pc.m_X) * (pb.m_Y - pc.m_Y);
+    double detright = (pa.m_Y - pc.m_Y) * (pb.m_X - pc.m_X);
+    double val = detleft - detright;
+    if (val > -EPSILON && val < EPSILON) {
+        return COLLINEAR;
+    } else if (val > 0) {
+        return CCW;
+    }
+    return CW;
 }
 
 /*
@@ -107,16 +107,16 @@ Orientation orient2d(Point& pa, Point& pb, Point& pc)
 
 bool inScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 {
-	double oadb = (pa.m_X - pb.m_X) * (pd.m_Y - pb.m_Y) - (pd.m_X - pb.m_X) * (pa.m_Y - pb.m_Y);
-	if (oadb >= -EPSILON) {
-		return false;
-	}
+    double oadb = (pa.m_X - pb.m_X) * (pd.m_Y - pb.m_Y) - (pd.m_X - pb.m_X) * (pa.m_Y - pb.m_Y);
+    if (oadb >= -EPSILON) {
+        return false;
+    }
 
-	double oadc = (pa.m_X - pc.m_X) * (pd.m_Y - pc.m_Y) - (pd.m_X - pc.m_X) * (pa.m_Y - pc.m_Y);
-	if (oadc <= EPSILON) {
-		return false;
-	}
-	return true;
+    double oadc = (pa.m_X - pc.m_X) * (pd.m_Y - pc.m_Y) - (pd.m_X - pc.m_X) * (pa.m_Y - pc.m_Y);
+    if (oadc <= EPSILON) {
+        return false;
+    }
+    return true;
 }
 
 }

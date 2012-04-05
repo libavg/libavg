@@ -26,7 +26,7 @@
 namespace avg {
 
     std::vector<int> triangulatePolygon(const Vec2Vector& points,
-           	const std::vector<int>& holeIndexes = std::vector<int>());
+            const std::vector<int>& holeIndexes = std::vector<int>());
 
 }
 

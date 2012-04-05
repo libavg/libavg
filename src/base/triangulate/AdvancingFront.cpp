@@ -31,72 +31,72 @@ namespace avg {
 
 AdvancingFront::AdvancingFront(Node& head, Node& tail)
 {
-	m_Head = &head;
-	m_Tail = &tail;
-	m_SearchNode = &head;
+    m_Head = &head;
+    m_Tail = &tail;
+    m_SearchNode = &head;
 }
 
 Node* AdvancingFront::locateNode(const double& x)
 {
-	Node* node = m_SearchNode;
+    Node* node = m_SearchNode;
 
-	if (x < node->m_Value) {
-		while ((node = node->m_Prev) != NULL) {
-			if (x >= node->m_Value) {
-				m_SearchNode = node;
-				return node;
-			}
-		}
-	} else {
-		while ((node = node->m_Next) != NULL) {
-			if (x < node->m_Value) {
-				m_SearchNode = node->m_Prev;
-				return node->m_Prev;
-			}
-		}
-	}
-	return NULL;
+    if (x < node->m_Value) {
+        while ((node = node->m_Prev) != NULL) {
+            if (x >= node->m_Value) {
+                m_SearchNode = node;
+                return node;
+            }
+        }
+    } else {
+        while ((node = node->m_Next) != NULL) {
+            if (x < node->m_Value) {
+                m_SearchNode = node->m_Prev;
+                return node->m_Prev;
+            }
+        }
+    }
+    return NULL;
 }
 
 Node* AdvancingFront::findSearchNode(const double& x)
 {
-	(void) x; // suppress compiler warnings "unused parameter 'x'"
-	// TO DO: implement BST index
-	return m_SearchNode;
+    (void) x; // suppress compiler warnings "unused parameter 'x'"
+    // TO DO: implement BST index
+    return m_SearchNode;
 }
 
 Node* AdvancingFront::locatePoint(const Point* point)
 {
-	const double px = point->m_X;
-	Node* node = findSearchNode(px);
-	const double nx = node->m_Point->m_X;
+    const double px = point->m_X;
+    Node* node = findSearchNode(px);
+    const double nx = node->m_Point->m_X;
 
-	if (px == nx) {
-		if (point != node->m_Point) {
-			// We might have two nodes with same x value for a short time
-			if (point == node->m_Prev->m_Point) {
-				node = node->m_Prev;
-			} else if (point == node->m_Next->m_Point) {
-				node = node->m_Next;
-			} else {
-				assert(0);
-			}
-		}
-	} else if (px < nx) {
-		while ((node = node->m_Prev) != NULL) {
-			if (point == node->m_Point) {
-				break;
-			}
-		}
-	} else {
-		while ((node = node->m_Next) != NULL) {
-			if (point == node->m_Point)
-				break;
-		}
-	}
-	if (node)
-		m_SearchNode = node;
-	return node;
+    if (px == nx) {
+        if (point != node->m_Point) {
+            // We might have two nodes with same x value for a short time
+            if (point == node->m_Prev->m_Point) {
+                node = node->m_Prev;
+            } else if (point == node->m_Next->m_Point) {
+                node = node->m_Next;
+            } else {
+                assert(0);
+            }
+        }
+    } else if (px < nx) {
+        while ((node = node->m_Prev) != NULL) {
+            if (point == node->m_Point) {
+                break;
+            }
+        }
+    } else {
+        while ((node = node->m_Next) != NULL) {
+            if (point == node->m_Point)
+                break;
+        }
+    }
+    if (node)
+        m_SearchNode = node;
+    return node;
 }
 
 AdvancingFront::~AdvancingFront() {}
