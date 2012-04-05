@@ -4,8 +4,6 @@ ALL_H = Triangulate.h Shapes.h Utils.h \
         AdvancingFront.h Sweep.h \
         SweepContext.h
 
-EXTRA_DIST = DlfcnWrapper.cpp
-
 noinst_LTLIBRARIES = libtriangulate.la
 libtriangulate_la_SOURCES = Triangulate.cpp Shapes.cpp \
     AdvancingFront.cpp Sweep.cpp \
