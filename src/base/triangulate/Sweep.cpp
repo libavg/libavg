@@ -33,7 +33,6 @@
 
 namespace avg {
 
-// Triangulate simple polygon with holes
 void Sweep::Triangulate(SweepContext& sc)
 {
     sc.initTriangulation();
@@ -94,7 +93,6 @@ void Sweep::edgeEvent(SweepContext& sc, Edge* edge, Node* node)
         return;
     }
 
-    // For now we will do all needed filling
     // to do: integrate with flip process might give some better performance
     //       but for now this avoid the issue with cases that needs both flips and fills
     fillEdgeEvent(sc, edge, node);
@@ -221,23 +219,23 @@ void Sweep::fill(SweepContext& sc, Node& node)
 
 void Sweep::fillAdvancingFront(SweepContext& sc, Node& n)
 {
-    // Fill right holes
     Node* node = n.m_Next;
 
     while (node->m_Next) {
         double angle = holeAngle(*node);
         if (angle > M_PI_2 || angle < -M_PI_2)
             break;
+// ---------- LEAK FIX --------------
 //      Fill(tcx, *node);
 //      node = node->m_next;
 
-// LEAK FIX
+
         Node *tmp = node;
         node = node->m_Next;
         fill(sc, *tmp);
+// ----------------------------------
     }
 
-    // Fill left holes
     node = n.m_Prev;
 
     while (node->m_Prev) {
@@ -248,7 +246,6 @@ void Sweep::fillAdvancingFront(SweepContext& sc, Node& n)
         node = node->m_Prev;
     }
 
-    // Fill right basins
     if (n.m_Next && n.m_Next->m_Next) {
         double angle = basinAngle(n);
         if (angle < PI_3div4) {
@@ -695,7 +692,7 @@ void Sweep::flipEdgeEvent(SweepContext& sc, Point& ep, Point& eq,
                 legalize(sc, *t);
                 legalize(sc, ot);
             } else {
-                // xx x: I think one of the triangles should be legalized here?
+                // One of the triangles should be legalized here?
             }
         } else {
             Orientation o = orient2d(eq, op, ep);
@@ -777,7 +774,6 @@ void Sweep::flipScanEdgeEvent(SweepContext& sc, Point& ep, Point& eq,
 
 Sweep::~Sweep()
 {
-    // Clean up memory
     for (unsigned int i = 0; i < m_Nodes.size(); i++) {
         delete m_Nodes[i];
     }
@@ -785,4 +781,3 @@ Sweep::~Sweep()
 }
 
 }
-

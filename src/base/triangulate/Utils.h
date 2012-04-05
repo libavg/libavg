@@ -122,4 +122,3 @@ bool inScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 }
 
 #endif
-

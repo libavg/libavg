@@ -82,7 +82,7 @@ void SweepContext::initTriangulation()
     m_Head = new Point(xmax + dx, ymin - dy, 0);
     m_Tail = new Point(xmin - dx, ymin - dy, 0);
 
-    // Sort points along y-axis
+    // Sort along y-axis
     std::sort(m_Points.begin(), m_Points.end(), cmp);
 
 }
@@ -126,8 +126,6 @@ void SweepContext::createAdvancingFront(std::vector<Node*> nodes)
     m_AfTail = new Node(*triangle->getPoint(2));
     m_Front = new AdvancingFront(*m_AfHead, *m_AfTail);
 
-    // to do: More intuitive if head is middles next and not previous?
-    //       so swap head and tail
     m_AfHead->m_Next = m_AfMiddle;
     m_AfMiddle->m_Next = m_AfTail;
     m_AfMiddle->m_Prev = m_AfHead;
@@ -170,8 +168,6 @@ void SweepContext::meshClean(TriangulationTriangle& triangle)
 
 SweepContext::~SweepContext()
 {
-
-    // Clean up memory
 
     delete m_Head;
     delete m_Tail;

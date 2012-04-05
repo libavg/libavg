@@ -25,7 +25,6 @@
 // http://code.google.com/p/poly2tri/
 //
 
-// Include guard
 #ifndef SHAPES_H
 #define SHAPES_H
 
@@ -53,25 +52,21 @@ struct Point
         m_Index = 0;
     }
 
-    /// Construct using coordinates.
     Point(double x, double y, int index) :
             m_X(x), m_Y(y), m_Index(index) {}
 
-    /// Set this point to all zeros.
     void set_zero()
     {
         m_X = 0.0;
         m_Y = 0.0;
     }
 
-    /// Set this point to some specified coordinates.
     void set(double x_, double y_)
     {
         m_X = x_;
         m_Y = y_;
     }
 
-    /// Negate this point.
     Point operator -() const
     {
         Point v;
@@ -79,28 +74,24 @@ struct Point
         return v;
     }
 
-    /// Add a point to this point.
     void operator +=(const Point& v)
     {
         m_X += v.m_X;
         m_Y += v.m_Y;
     }
 
-    /// Subtract a point from this point.
     void operator -=(const Point& v)
     {
         m_X -= v.m_X;
         m_Y -= v.m_Y;
     }
 
-    /// Multiply this point by a scalar.
     void operator *=(double a)
     {
         m_X *= a;
         m_Y *= a;
     }
 
-    /// Get the length of this point (the norm).
     double length() const
     {
         return sqrt(m_X * m_X + m_Y * m_Y);
@@ -123,7 +114,6 @@ struct Edge
 {
     Point* m_P, *m_Q;
 
-    /// Constructor
     Edge(Point& p1, Point& p2) :m_P(&p1), m_Q(&p2)
     {
         if (p1.m_Y > p2.m_Y) {
@@ -143,15 +133,11 @@ struct Edge
 };
 
 
-// Triangle-based data structures are know to have better performance than quad-edge structures
-// See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
-//      "Triangulations in CGAL"
 class TriangulationTriangle
 {
 
 public:
 
-/// Constructor
     TriangulationTriangle(Point& a, Point& b, Point& c);
 
 /// Flags to determine if an edge is a Constrained edge
@@ -191,9 +177,7 @@ public:
     bool contains(Point* p, Point* q);
     void legalize(Point& point);
     void legalize(Point& opoint, Point& npoint);
-    /**
-     * Clears all references to all other triangles and points
-     */
+
     void clear();
     void clearNeighbor(TriangulationTriangle *triangle);
     void clearNeighbors();
@@ -206,15 +190,12 @@ public:
 
 private:
 
-/// Triangle points
     Point* m_Points[3];
-/// Neighbor list
+
     TriangulationTriangle* m_Neighbors[3];
 
-/// Has this triangle been marked as an interior triangle?
     bool m_Interior;
 };
-
 
 inline bool cmp(const Point* a, const Point* b)
 {
@@ -229,19 +210,16 @@ inline bool cmp(const Point* a, const Point* b)
     return false;
 }
 /*
- /// Add two points_ component-wise.
  inline Point operator +(const Point& a, const Point& b)
  {
  return Point(a.x + b.x, a.y + b.y);
  }
 
- /// Subtract two points_ component-wise.
  inline Point operator -(const Point& a, const Point& b)
  {
  return Point(a.x - b.x, a.y - b.y);
  }
 
- /// Multiply point by scalar
  inline Point operator *(double s, const Point& a)
  {
  return Point(s * a.x, s * a.y, a.index);
@@ -257,27 +235,21 @@ inline bool operator !=(const Point& a, const Point& b)
     return a.m_X != b.m_X && a.m_Y != b.m_Y;
 }
 
-/// Peform the dot product on two vectors.
 inline double dot(const Point& a, const Point& b)
 {
     return a.m_X * b.m_X + a.m_Y * b.m_Y;
 }
 
-/// Perform the cross product on two vectors. In 2D this produces a scalar.
 inline double cross(const Point& a, const Point& b)
 {
     return a.m_X * b.m_Y - a.m_Y * b.m_X;
 }
 
-/// Perform the cross product on a point and a scalar. In 2D this produces
-/// a point.
 inline Point cross(const Point& a, double s)
 {
     return Point(s * a.m_Y, -s * a.m_X, a.m_Index);
 }
 
-/// Perform the cross product on a scalar and a point. In 2D this produces
-/// a point.
 inline Point cross(const double s, const Point& a)
 {
     return Point(-s * a.m_Y, s * a.m_X, a.m_Index);
@@ -322,4 +294,3 @@ inline void TriangulationTriangle::isInterior(bool b)
 }
 
 #endif
-

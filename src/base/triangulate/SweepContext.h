@@ -49,9 +49,8 @@ class SweepContext
 
 public:
 
-/// Constructor
     SweepContext(std::vector<Point*> polyline);
-/// Destructor
+
     ~SweepContext();
 
     void setHead(Point* p1);
@@ -136,11 +135,8 @@ private:
     std::list<TriangulationTriangle*> m_Map;
     std::vector<Point*> m_Points;
 
-// Advancing front
     AdvancingFront* m_Front;
-// head point used with advancing front
     Point* m_Head;
-// tail point used with advancing front
     Point* m_Tail;
 
     Node *m_AfHead, *m_AfMiddle, *m_AfTail;

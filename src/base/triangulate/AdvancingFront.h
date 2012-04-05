@@ -34,7 +34,6 @@ namespace avg {
 
 struct Node;
 
-// Advancing front node
 struct Node
 {
   Point* m_Point;
@@ -53,14 +52,14 @@ struct Node
 
 };
 
-// Advancing front
+
 class AdvancingFront
 {
 
 public:
 
 AdvancingFront(Node& head, Node& tail);
-// Destructor
+
 ~AdvancingFront();
 
 Node* head();

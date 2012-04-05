@@ -77,9 +77,6 @@ void TriangulationTriangle::markNeighbor(TriangulationTriangle& t)
     }
 }
 
-/**
- * Clears all references to all other triangles and points
- */
 void TriangulationTriangle::clear()
 {
     TriangulationTriangle *t;
@@ -166,8 +163,7 @@ unsigned int TriangulationTriangle::index(const Point* p)
     assert(0);
 }
 
-unsigned int TriangulationTriangle::edgeIndex(const Point* p1,
-        const Point* p2)
+unsigned int TriangulationTriangle::edgeIndex(const Point* p1, const Point* p2)
 {
     if (m_Points[0] == p1) {
         if (m_Points[1] == p2) {
@@ -201,7 +197,6 @@ void TriangulationTriangle::markConstrainedEdge(Edge& edge)
     markConstrainedEdge(edge.m_P, edge.m_Q);
 }
 
-// Mark edge as constrained
 void TriangulationTriangle::markConstrainedEdge(Point* p, Point* q)
 {
     if ((q == m_Points[0] && p == m_Points[1])
@@ -229,7 +224,6 @@ Point* TriangulationTriangle::pointCW(Point& point)
     assert(0);
 }
 
-// The point counter-clockwise to given point
 Point* TriangulationTriangle::pointCCW(Point& point)
 {
     if (&point == m_Points[0]) {
@@ -242,7 +236,6 @@ Point* TriangulationTriangle::pointCCW(Point& point)
     assert(0);
 }
 
-// The neighbor clockwise to given point
 TriangulationTriangle* TriangulationTriangle::neighborCW(Point& point)
 {
     if (&point == m_Points[0]) {
@@ -253,7 +246,6 @@ TriangulationTriangle* TriangulationTriangle::neighborCW(Point& point)
     return m_Neighbors[0];
 }
 
-// The neighbor counter-clockwise to given point
 TriangulationTriangle* TriangulationTriangle::neighborCCW(Point& point)
 {
     if (&point == m_Points[0]) {
@@ -348,7 +340,6 @@ void TriangulationTriangle::setDelunayEdgeCW(Point& p, bool e)
     }
 }
 
-// The neighbor across to given point
 TriangulationTriangle& TriangulationTriangle::neighborAcross(Point& opoint)
 {
     if (&opoint == m_Points[0]) {

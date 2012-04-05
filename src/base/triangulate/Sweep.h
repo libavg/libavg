@@ -43,70 +43,25 @@ class Sweep
 
 public:
 
-    /**
-     * Triangulate
-     *
-     * @param sc
-     */
     void Triangulate(SweepContext& sc);
 
-    /**
-     * Destructor - clean up memory
-     */
     ~Sweep();
 
 private:
 
-    /**
-     * Start sweeping the Y-sorted point set from bottom to top
-     *
-     * @param sc
-     */
     void sweepPoints(SweepContext& sc);
 
-    /**
-     * Find closes node to the left of the new point and
-     * create a new triangle. If needed new holes and basins
-     * will be filled to.
-     *
-     * @param sc
-     * @param point
-     * @return
-     */
     Node& pointEvent(SweepContext& sc, Point& point);
 
-    /**
-     *
-     *
-     * @param sc
-     * @param edge
-     * @param node
-     */
     void edgeEvent(SweepContext& sc, Edge* edge, Node* node);
 
     void edgeEvent(SweepContext& sc, Point& ep, Point& eq,
             TriangulationTriangle* triangle, Point& point);
 
-    /**
-     * Creates a new front triangle and legalize it
-     *
-     * @param sc
-     * @param point
-     * @param node
-     * @return
-     */
     Node& newFrontTriangle(SweepContext& sc, Point& point, Node& node);
 
-    /**
-     * Adds a triangle to the advancing front to fill a hole.
-     * @param sc
-     * @param node - middle node, that is the bottom of the hole
-     */
     void fill(SweepContext& sc, Node& node);
 
-    /**
-     * Returns true if triangle was legalized
-     */
     bool legalize(SweepContext& sc, TriangulationTriangle& t);
 
     /**
@@ -152,20 +107,8 @@ private:
     void rotateTrianglePair(TriangulationTriangle& t, Point& p, TriangulationTriangle& ot,
             Point& op);
 
-    /**
-     * Fills holes in the Advancing Front
-     *
-     *
-     * @param sc
-     * @param n
-     */
     void fillAdvancingFront(SweepContext& sc, Node& n);
 
-    /**
-     *
-     * @param node - middle node
-     * @return the angle between 3 front nodes
-     */
     double holeAngle(Node& node);
 
     /**
@@ -173,24 +116,8 @@ private:
      */
     double basinAngle(Node& node);
 
-    /**
-     * Fills a basin that has formed on the Advancing Front to the right
-     * of given node.<br>
-     * First we decide a left,bottom and right node that forms the
-     * boundaries of the basin. Then we do a reqursive fill.
-     *
-     * @param sc
-     * @param node - starting node, this or next node will be left node
-     */
     void fillBasin(SweepContext& sc, Node& node);
 
-    /**
-     * Recursive algorithm to fill a Basin with triangles
-     *
-     * @param sc
-     * @param node - bottom_node
-     * @param cnt - counter used to alternate on even and odd numbers
-     */
     void fillBasinReq(SweepContext& sc, Node* node);
 
     bool isShallow(SweepContext& sc, Node& node);
