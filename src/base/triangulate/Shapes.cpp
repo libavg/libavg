@@ -161,6 +161,7 @@ unsigned int TriangulationTriangle::index(const Point* p)
         return 2;
     }
     assert(0);
+    return 0;
 }
 
 unsigned int TriangulationTriangle::edgeIndex(const Point* p1, const Point* p2)
@@ -222,6 +223,7 @@ Point* TriangulationTriangle::pointCW(Point& point)
         return m_Points[1];
     }
     assert(0);
+    return 0;   // Silence compiler warning
 }
 
 Point* TriangulationTriangle::pointCCW(Point& point)
@@ -234,6 +236,7 @@ Point* TriangulationTriangle::pointCCW(Point& point)
         return m_Points[0];
     }
     assert(0);
+    return 0;   // Silence compiler warning
 }
 
 TriangulationTriangle* TriangulationTriangle::neighborCW(Point& point)
