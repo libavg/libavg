@@ -32,7 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <string>
-#include <map>
+#include <vector>
 
 namespace avg {
 

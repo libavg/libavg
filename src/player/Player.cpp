@@ -1175,7 +1175,7 @@ void Player::initGraphics(const string& sShaderPath)
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
     if (GLContext::getCurrent()->isUsingShaders()) {
-        OGLSurface::createShader();
+        GLColorShader::createShader();
     }
 }
 

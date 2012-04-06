@@ -28,7 +28,7 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
-#include "../graphics/GLShaderParam.h"
+#include "../graphics/GLColorShader.h"
 
 #include <vector>
 #include <string>
@@ -64,7 +64,6 @@ public:
     void setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
             const glm::vec3& contrast);
     void setAlphaGamma(float gamma);
-    static void createShader();
 
     bool isDirty() const;
     void resetDirty();
@@ -89,26 +88,8 @@ private:
 
     bool m_bIsDirty;
 
-    OGLShaderPtr m_pShader;
+    GLColorShaderPtr m_pShader;
 
-    IntGLShaderParamPtr m_pColorModelParam;
-    IntGLShaderParamPtr m_pTextureParam;
-    IntGLShaderParamPtr m_pCbTextureParam;
-    IntGLShaderParamPtr m_pCrTextureParam;
-    IntGLShaderParamPtr m_pATextureParam;
-
-    Vec4fGLShaderParamPtr m_pColorCoeff0Param;
-    Vec4fGLShaderParamPtr m_pColorCoeff1Param;
-    Vec4fGLShaderParamPtr m_pColorCoeff2Param;
-    Vec4fGLShaderParamPtr m_pColorCoeff3Param;
-    Vec4fGLShaderParamPtr m_pGammaParam;
-
-    IntGLShaderParamPtr m_pUseColorCoeffParam;
-    IntGLShaderParamPtr m_pPremultipliedAlphaParam;
-    IntGLShaderParamPtr m_pUseMaskParam;
-    IntGLShaderParamPtr m_pMaskTextureParam;
-    Vec2fGLShaderParamPtr m_pMaskPosParam;
-    Vec2fGLShaderParamPtr m_pMaskSizeParam;
 };
 
 }
