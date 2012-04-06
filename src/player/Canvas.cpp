@@ -299,6 +299,9 @@ void Canvas::renderOutlines()
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
+    if (GLContext::getCurrent()->isUsingShaders()) {
+        OGLShader::deactivate();
+    }
     if (pVA->getCurVert() != 0) {
         pVA->update();
         pContext->enableTexture(false);
