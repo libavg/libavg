@@ -55,7 +55,6 @@ void GPUInvertFilter::applyOnGPU(GLTexturePtr pSrcTex)
     pShader->activate();
     m_pTextureParam->set(0);
     draw(pSrcTex);
-    pShader->deactivate();
 }
 
 }

@@ -57,7 +57,6 @@ void GPUNullFilter::applyOnGPU(GLTexturePtr pSrcTex)
     m_pTextureParam->set(0);
     draw(pSrcTex);
 
-    pShader->deactivate();
 }
 
 }
