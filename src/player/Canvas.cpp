@@ -30,6 +30,8 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 
+#include "../graphics/GLColorShader.h"
+
 #include <iostream>
 
 using namespace std;
@@ -322,6 +324,9 @@ void Canvas::clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
+    GLColorShaderPtr pShader = GLContext::getCurrent()->getColorShader();
+    pShader->activate();
+    pShader->setUntextured();
     glLoadMatrixf(glm::value_ptr(transform));
     pVA->draw();
 
