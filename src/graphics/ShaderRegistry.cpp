@@ -147,7 +147,8 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
 
 void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
 {
-    throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+toString(curLine)+": Syntax error.");
+    throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+
+            toString(curLine)+": Syntax error.");
 }
 
 void createShader(const std::string& sID)

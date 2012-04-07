@@ -20,6 +20,8 @@
 //
 
 #include "GLColorShader.h"
+
+#include "GLContext.h"
 #include "ShaderRegistry.h"
 
 #include "../base/Logger.h"
@@ -33,8 +35,14 @@ using namespace std;
 
 namespace avg {
 
+GLColorShaderPtr GLColorShader::get() 
+{
+    return GLContext::getCurrent()->getColorShader();
+}
+
 GLColorShader::GLColorShader()
 {
+    avg::createShader(COLORSPACE_SHADER);
     m_pShader = getShader(COLORSPACE_SHADER);
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
 
@@ -104,11 +112,6 @@ void GLColorShader::setMask(bool bUseMask, const glm::vec2& maskPos,
         m_pMaskPosParam->set(maskPos);
         m_pMaskSizeParam->set(maskSize);
     }
-}
-
-void GLColorShader::createShader()
-{
-    avg::createShader(COLORSPACE_SHADER);
 }
 
 }

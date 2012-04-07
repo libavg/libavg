@@ -88,8 +88,6 @@ private:
 
     bool m_bIsDirty;
 
-    GLColorShaderPtr m_pShader;
-
 };
 
 }

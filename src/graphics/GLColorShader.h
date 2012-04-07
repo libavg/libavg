@@ -35,8 +35,12 @@
 
 namespace avg {
 
+class GLColorShader;
+typedef boost::shared_ptr<GLColorShader> GLColorShaderPtr;
+
 class AVG_API GLColorShader {
 public:
+    static GLColorShaderPtr get();
     GLColorShader();
     virtual ~GLColorShader();
 
@@ -49,8 +53,6 @@ public:
     void setPremultipliedAlpha(bool bPremultipliedAlpha);
     void setMask(bool bUseMask, const glm::vec2& maskPos = glm::vec2(0,0),
         const glm::vec2& maskSize = glm::vec2(0,0));
-
-    static void createShader();
 
 private:
     OGLShaderPtr m_pShader;
@@ -69,8 +71,6 @@ private:
     Vec2fGLShaderParamPtr m_pMaskPosParam;
     Vec2fGLShaderParamPtr m_pMaskSizeParam;
 };
-
-typedef boost::shared_ptr<GLColorShader> GLColorShaderPtr;
 
 }
 

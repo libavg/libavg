@@ -1174,9 +1174,6 @@ void Player::initGraphics(const string& sShaderPath)
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }
-    if (GLContext::getCurrent()->isUsingShaders()) {
-        GLColorShader::createShader();
-    }
 }
 
 void Player::initAudio()

@@ -47,6 +47,8 @@ class GLContext;
 typedef boost::shared_ptr<GLContext> GLContextPtr;
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+class GLColorShader;
+typedef boost::shared_ptr<GLColorShader> GLColorShaderPtr;
 
 class AVG_API GLContext {
 public:
@@ -58,6 +60,7 @@ public:
 
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
+    GLColorShaderPtr getColorShader();
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
@@ -110,6 +113,7 @@ private:
     bool m_bOwnsContext;
 
     ShaderRegistryPtr m_pShaderRegistry;
+    GLColorShaderPtr m_pColorShader;
 
     GLBufferCache m_VertexBufferCache;
     GLBufferCache m_IndexBufferCache;

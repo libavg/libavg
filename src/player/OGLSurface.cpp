@@ -98,8 +98,6 @@ void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1,
     } else {
         AVG_ASSERT(!m_pTextures[1]);
     }
-
-    m_pShader = GLColorShaderPtr(new GLColorShader());
 }
 
 void OGLSurface::setMask(GLTexturePtr pTex)
@@ -118,21 +116,23 @@ void OGLSurface::destroy()
 
 void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
 {
-    m_pShader->activate();
+    GLColorShaderPtr pShader = GLColorShader::get();
+
+    pShader->activate();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
     switch (m_pf) {
         case YCbCr420p:
         case YCbCrJ420p:
-            m_pShader->setColorModel(1);
+            pShader->setColorModel(1);
             break;
         case YCbCrA420p:
-            m_pShader->setColorModel(3);
+            pShader->setColorModel(3);
             break;
         case A8:
-            m_pShader->setColorModel(2);
+            pShader->setColorModel(2);
             break;
         default:
-            m_pShader->setColorModel(0);
+            pShader->setColorModel(0);
     }
 
     m_pTextures[0]->activate(GL_TEXTURE0);
@@ -146,14 +146,14 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     }
     if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
         glm::mat4 mat = calcColorspaceMatrix();
-        m_pShader->setColorspaceMatrix(mat);
+        pShader->setColorspaceMatrix(mat);
     } else {
-        m_pShader->disableColorspaceMatrix();
+        pShader->disableColorspaceMatrix();
     }
-    m_pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
+    pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
                 1./m_AlphaGamma));
 
-    m_pShader->setPremultipliedAlpha(bPremultipliedAlpha);
+    pShader->setPremultipliedAlpha(bPremultipliedAlpha);
     if (m_pMaskTexture) {
         m_pMaskTexture->activate(GL_TEXTURE4);
         // maskScale is (1,1) for everything excepting words nodes.
@@ -162,9 +162,9 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
             maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
                     (float)logicalSize.y/m_Size.y);
         }
-        m_pShader->setMask(true, m_MaskPos, m_MaskSize*maskScale);
+        pShader->setMask(true, m_MaskPos, m_MaskSize*maskScale);
     } else {
-        m_pShader->setMask(false);
+        pShader->setMask(false);
     }
 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");

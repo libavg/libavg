@@ -22,6 +22,7 @@
 #include "GLContext.h"
 
 #include "ShaderRegistry.h"
+#include "GLColorShader.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -193,6 +194,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
 
 GLContext::~GLContext()
 {
+    m_pColorShader = GLColorShaderPtr();
     for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
@@ -244,6 +246,14 @@ void GLContext::activate()
 ShaderRegistryPtr GLContext::getShaderRegistry() const
 {
     return m_pShaderRegistry;
+}
+
+GLColorShaderPtr GLContext::getColorShader()
+{
+    if (m_pColorShader == GLColorShaderPtr()) {
+        m_pColorShader = GLColorShaderPtr(new GLColorShader());
+    }
+    return m_pColorShader;
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
