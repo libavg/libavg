@@ -26,6 +26,7 @@
 #include "OGLHelper.h"
 #include "OGLShader.h"
 #include "GLShaderParam.h"
+#include "GLTexture.h"
 
 #include "../base/GLMHelper.h"
 
@@ -47,6 +48,7 @@ public:
     void activate();
 
     void setColorModel(int model);
+    void setUntextured();
     void setColorspaceMatrix(const glm::mat4& mat);
     void disableColorspaceMatrix();
     void setGamma(const glm::vec4& gamma);
@@ -55,7 +57,10 @@ public:
         const glm::vec2& maskSize = glm::vec2(0,0));
 
 private:
+    void generateWhiteTexture();
+
     OGLShaderPtr m_pShader;
+    GLTexturePtr m_pWhiteTex;
 
     IntGLShaderParamPtr m_pColorModelParam;
 

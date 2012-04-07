@@ -64,6 +64,8 @@ GLColorShader::GLColorShader()
     m_pShader->getParam<int>("crTexture")->set(2);
     m_pShader->getParam<int>("aTexture")->set(3);
     m_pShader->getParam<int>("maskTexture")->set(4);
+
+    generateWhiteTexture(); 
 }
 
 GLColorShader::~GLColorShader()
@@ -78,6 +80,17 @@ void GLColorShader::activate()
 void GLColorShader::setColorModel(int model)
 {
     m_pColorModelParam->set(model);
+}
+
+void GLColorShader::setUntextured()
+{
+    // Activate an internal 1x1 A8 texture, color model ist A8.
+    m_pColorModelParam->set(2);
+    m_pWhiteTex->activate(GL_TEXTURE0);
+    disableColorspaceMatrix();
+    setGamma(glm::vec4(1.f,1.f,1.f,1.f));
+    setPremultipliedAlpha(false);
+    setMask(false);
 }
 
 void GLColorShader::setColorspaceMatrix(const glm::mat4& mat)
@@ -112,6 +125,14 @@ void GLColorShader::setMask(bool bUseMask, const glm::vec2& maskPos,
         m_pMaskPosParam->set(maskPos);
         m_pMaskSizeParam->set(maskSize);
     }
+}
+
+void GLColorShader::generateWhiteTexture()
+{
+    BitmapPtr pBmp(new Bitmap(glm::vec2(1,1), I8));
+    *(pBmp->getPixels()) = 255;
+    m_pWhiteTex = GLTexturePtr(new GLTexture(IntPoint(1,1), I8));
+    m_pWhiteTex->moveBmpToTexture(pBmp);
 }
 
 }

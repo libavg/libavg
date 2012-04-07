@@ -25,7 +25,7 @@ uniform sampler2D cbTexture;
 uniform sampler2D crTexture;
 uniform sampler2D aTexture;
 uniform sampler2D maskTexture;
-uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale, 3=yuva
+uniform int colorModel;  // 0=rgb, 1=yuv, 2=alpha, 3=yuva
 uniform vec4 colorCoeff0;
 uniform vec4 colorCoeff1;
 uniform vec4 colorCoeff2;
