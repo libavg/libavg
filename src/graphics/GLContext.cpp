@@ -261,7 +261,10 @@ GLColorShaderPtr GLContext::getColorShader()
 
 bool GLContext::useGPUYUVConversion() const
 {
-    return true;
+    int majorVer;
+    int minorVer;
+    getGLVersion(majorVer, minorVer);
+    return (majorVer > 1);
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
@@ -400,6 +403,11 @@ void GLContext::logConfig()
             break;
     }
     AVG_TRACE(Logger::CONFIG, "  Max. texture size: " << getMaxTexSize());
+    if (useGPUYUVConversion()) {
+        AVG_TRACE(Logger::CONFIG, "  Using GPU for YUV->RGB conversion.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "  Not using GPU for YUV->RGB conversion.");
+    }
     try {
         AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");
