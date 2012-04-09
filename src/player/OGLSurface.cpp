@@ -102,7 +102,7 @@ void OGLSurface::destroy()
 
 void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
 {
-    GLColorShaderPtr pShader = GLColorShader::get();
+    StandardShaderPtr pShader = StandardShader::get();
 
     pShader->activate();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");

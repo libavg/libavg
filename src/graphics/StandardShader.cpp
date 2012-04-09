@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "GLColorShader.h"
+#include "StandardShader.h"
 
 #include "GLContext.h"
 #include "ShaderRegistry.h"
@@ -31,16 +31,16 @@
 
 using namespace std;
 
-#define COLORSPACE_SHADER "color"
+#define COLORSPACE_SHADER "standard"
 
 namespace avg {
 
-GLColorShaderPtr GLColorShader::get() 
+StandardShaderPtr StandardShader::get() 
 {
-    return GLContext::getCurrent()->getColorShader();
+    return GLContext::getCurrent()->getStandardShader();
 }
 
-GLColorShader::GLColorShader()
+StandardShader::StandardShader()
 {
     avg::createShader(COLORSPACE_SHADER);
     m_pShader = getShader(COLORSPACE_SHADER);
@@ -70,21 +70,21 @@ GLColorShader::GLColorShader()
     generateWhiteTexture(); 
 }
 
-GLColorShader::~GLColorShader()
+StandardShader::~StandardShader()
 {
 }
 
-void GLColorShader::activate()
+void StandardShader::activate()
 {
     m_pShader->activate();
 }
 
-void GLColorShader::setColorModel(int model)
+void StandardShader::setColorModel(int model)
 {
     m_pColorModelParam->set(model);
 }
 
-void GLColorShader::setUntextured()
+void StandardShader::setUntextured()
 {
     // Activate an internal 1x1 A8 texture, color model ist A8.
     m_pColorModelParam->set(2);
@@ -95,7 +95,7 @@ void GLColorShader::setUntextured()
     setMask(false);
 }
 
-void GLColorShader::setColorspaceMatrix(const glm::mat4& mat)
+void StandardShader::setColorspaceMatrix(const glm::mat4& mat)
 {
     m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
     m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
@@ -104,22 +104,22 @@ void GLColorShader::setColorspaceMatrix(const glm::mat4& mat)
     m_pUseColorCoeffParam->set(true);
 }
 
-void GLColorShader::disableColorspaceMatrix()
+void StandardShader::disableColorspaceMatrix()
 {
     m_pUseColorCoeffParam->set(false);
 }
 
-void GLColorShader::setGamma(const glm::vec4& gamma)
+void StandardShader::setGamma(const glm::vec4& gamma)
 {
     m_pGammaParam->set(gamma);
 }
 
-void GLColorShader::setPremultipliedAlpha(bool bPremultipliedAlpha)
+void StandardShader::setPremultipliedAlpha(bool bPremultipliedAlpha)
 {
     m_pPremultipliedAlphaParam->set(bPremultipliedAlpha);
 }
 
-void GLColorShader::setMask(bool bUseMask, const glm::vec2& maskPos,
+void StandardShader::setMask(bool bUseMask, const glm::vec2& maskPos,
         const glm::vec2& maskSize)
 {
     m_pUseMaskParam->set(bUseMask);
@@ -129,7 +129,7 @@ void GLColorShader::setMask(bool bUseMask, const glm::vec2& maskPos,
     }
 }
 
-void GLColorShader::generateWhiteTexture()
+void StandardShader::generateWhiteTexture()
 {
     BitmapPtr pBmp(new Bitmap(glm::vec2(1,1), I8));
     *(pBmp->getPixels()) = 255;

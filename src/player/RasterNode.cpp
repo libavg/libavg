@@ -501,7 +501,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     FRect destRect;
     if (m_pFXNode) {
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
-        GLColorShaderPtr pShader = pContext->getColorShader();
+        StandardShaderPtr pShader = pContext->getStandardShader();
         pShader->activate();
         pShader->setColorModel(0);
         pShader->disableColorspaceMatrix();

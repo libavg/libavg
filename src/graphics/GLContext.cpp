@@ -22,7 +22,7 @@
 #include "GLContext.h"
 
 #include "ShaderRegistry.h"
-#include "GLColorShader.h"
+#include "StandardShader.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -194,7 +194,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
 
 GLContext::~GLContext()
 {
-    m_pColorShader = GLColorShaderPtr();
+    m_pStandardShader = StandardShaderPtr();
     for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
@@ -250,12 +250,12 @@ ShaderRegistryPtr GLContext::getShaderRegistry() const
     return m_pShaderRegistry;
 }
 
-GLColorShaderPtr GLContext::getColorShader()
+StandardShaderPtr GLContext::getStandardShader()
 {
-    if (m_pColorShader == GLColorShaderPtr()) {
-        m_pColorShader = GLColorShaderPtr(new GLColorShader());
+    if (m_pStandardShader == StandardShaderPtr()) {
+        m_pStandardShader = StandardShaderPtr(new StandardShader());
     }
-    return m_pColorShader;
+    return m_pStandardShader;
 }
 
 bool GLContext::useGPUYUVConversion() const

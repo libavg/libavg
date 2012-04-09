@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GLColorShader_H_
-#define _GLColorShader_H_
+#ifndef _StandardShader_H_
+#define _StandardShader_H_
 
 #include "../api.h"
 #include "OGLHelper.h"
@@ -36,14 +36,14 @@
 
 namespace avg {
 
-class GLColorShader;
-typedef boost::shared_ptr<GLColorShader> GLColorShaderPtr;
+class StandardShader;
+typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
-class AVG_API GLColorShader {
+class AVG_API StandardShader {
 public:
-    static GLColorShaderPtr get();
-    GLColorShader();
-    virtual ~GLColorShader();
+    static StandardShaderPtr get();
+    StandardShader();
+    virtual ~StandardShader();
 
     void activate();
 

@@ -28,7 +28,7 @@
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
-#include "../graphics/GLColorShader.h"
+#include "../graphics/StandardShader.h"
 
 #include <vector>
 #include <string>

@@ -98,7 +98,7 @@ void Shape::draw(const glm::mat4& transform)
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
-        GLColorShaderPtr pShader = pContext->getColorShader();
+        StandardShaderPtr pShader = pContext->getStandardShader();
         pShader->activate();
         pShader->setUntextured();
     }
