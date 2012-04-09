@@ -58,23 +58,22 @@ void main(void)
     colorCoeff[2] = colorCoeff2;
     colorCoeff[3] = colorCoeff3;
     vec4 tex = texture2D(texture, gl_TexCoord[0].st);
-    if (colorModel == 0) {
-        rgba = tex;
+    if (colorModel == 0 || colorModel == 2) {
+        float a;
+        if (colorModel == 0) {
+            rgba = tex;
+            a = gl_Color.a;
+        } else {
+            rgba = gl_Color;
+            a = tex.a;
+        }
         if (bUseColorCoeff) {
             rgba = colorCoeff*rgba;
-        };
-        rgba.a *= gl_Color.a;
+        }
+        rgba.a *= a;
 #ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 1) {
         rgba = convertYCbCr(colorCoeff, tex);
-#endif
-    } else if (colorModel == 2) {
-        rgba = gl_Color;
-        if (bUseColorCoeff) {
-           rgba = colorCoeff*rgba;
-        };
-        rgba.a *= tex.a;
-#ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 3) {
         rgba = convertYCbCr(colorCoeff, tex);
         rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;
@@ -85,10 +84,11 @@ void main(void)
     rgba = max(rgba, vec4(0.,0.,0.,0.));
     rgba = pow(rgba, gamma);
     if (bUseMask) {
+        float mask = texture2D(maskTexture, (gl_TexCoord[0].st/maskSize)-maskPos).r;
         if (bPremultipliedAlpha) {
-            rgba.rgb *= texture2D(maskTexture, (gl_TexCoord[0].st/maskSize)-maskPos).r;
+            rgba.rgb *= mask;
         }
-        rgba.a *= texture2D(maskTexture, (gl_TexCoord[0].st/maskSize)-maskPos).r;
+        rgba.a *= mask;
     }
     gl_FragColor = rgba;
 }
