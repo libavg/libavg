@@ -107,7 +107,6 @@ class TestApp(object):
 
     def __setupGlobalPlayerOptions(self):
         self.__player.setOGLOptions(self.__commandlineOptions.usepow2textures, 
-                self.__commandlineOptions.useshaders,
                 self.__commandlineOptions.usepixelbuffers,
                 1)
         
@@ -121,12 +120,6 @@ class TestApp(object):
                                        default = False, 
                                        help = "Use power of 2 textures")
         
-        self.__optionParser.add_option("--noshaders", 
-                                       dest = "useshaders",
-                                       action = 'store_false',
-                                       default = True, 
-                                       help = "Use shaders")
-                
         self.__optionParser.add_option("--nopixelbuffers", 
                                        dest = "usepixelbuffers",
                                        action = 'store_false',

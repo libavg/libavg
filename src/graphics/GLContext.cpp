@@ -225,7 +225,6 @@ void GLContext::init()
     }
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
-    checkShaderSupport();
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
@@ -456,11 +455,6 @@ OGLMemoryMode GLContext::getMemoryModeSupported()
     return m_MemoryMode;
 }
 
-bool GLContext::isUsingShaders() const
-{
-    return m_GLConfig.m_bUseShaders;
-}
-
 int GLContext::getMaxTexSize() 
 {
     if (m_MaxTexSize == 0) {
@@ -559,17 +553,6 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
-}
-
-void GLContext::checkShaderSupport()
-{
-    int glMajorVer;
-    int glMinorVer;
-    getGLShadingLanguageVersion(glMajorVer, glMinorVer);
-    m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
-            getMemoryModeSupported() == MM_PBO &&
-            !m_GLConfig.m_bUsePOTTextures &&
-            m_GLConfig.m_bUseShaders);
 }
 
 void GLContext::checkGPUMemInfoSupport()

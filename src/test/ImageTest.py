@@ -325,7 +325,6 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testBlend2", False)
                 ))
 
-    @skipIfNoFX
     def testImageMask(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -368,7 +367,6 @@ class ImageTestCase(AVGTestCase):
                  setMaskNotFound
                 ))
 
-    @skipIfNoFX
     def testImageMaskCanvas(self):
         root = self.loadEmptyScene()
         canvas = Player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
@@ -377,7 +375,6 @@ class ImageTestCase(AVGTestCase):
         avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
         self.start([lambda: self.compareImage("testImgMaskCanvas", False)])
 
-    @skipIfNoFX
     def testImageMaskPos(self):
         def createNode(p):
             node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
@@ -407,7 +404,6 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgMaskPos", False)
                 ))
 
-    @skipIfNoFX
     def testImageMaskSize(self):
         def createNode(p):
             avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 

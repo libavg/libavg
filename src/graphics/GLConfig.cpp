@@ -31,7 +31,6 @@ GLConfig::GLConfig()
 GLConfig::GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers,
             int multiSampleSamples)
     : m_bUsePOTTextures(bUsePOTTextures),
-      m_bUseShaders(bUseShaders),
       m_bUsePixelBuffers(bUsePixelBuffers),
       m_MultiSampleSamples(multiSampleSamples)
 {
@@ -39,7 +38,6 @@ GLConfig::GLConfig(bool bUsePOTTextures, bool bUseShaders, bool bUsePixelBuffers
 
 void GLConfig::log()
 {
-    AVG_TRACE(Logger::CONFIG, "  Shader support: " << (m_bUseShaders?"true":"false"));
     AVG_TRACE(Logger::CONFIG, "  Pixel buffers: " << (m_bUsePixelBuffers?"true":"false"));
     AVG_TRACE(Logger::CONFIG, "  Power of 2 textures: " <<
             (m_bUsePOTTextures?"true":"false"));

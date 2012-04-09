@@ -83,7 +83,6 @@ public:
     int getMaxTexSize();
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
-    bool isUsingShaders() const;
     bool initVBlank(int rate);
     
     static BlendMode stringToBlendMode(const std::string& s);
@@ -91,7 +90,6 @@ public:
     static GLContext* getCurrent();
 
 private:
-    void checkShaderSupport();
     void checkGPUMemInfoSupport();
 
     // Vertical blank stuff.

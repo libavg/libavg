@@ -33,7 +33,6 @@ struct AVG_API GLConfig {
     void log();
 
     bool m_bUsePOTTextures;
-    bool m_bUseShaders;
     bool m_bUsePixelBuffers;
     int m_MultiSampleSamples;
 
