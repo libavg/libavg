@@ -166,7 +166,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
         m_hwnd = CreateWindow("GL", "GL",
                 WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                 0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
-        winOGLErrorCheck(m_hDC != 0, "CreateWindow");
+        winOGLErrorCheck(m_hwnd != 0, "CreateWindow");
 
         m_hDC = GetDC(m_hwnd);
         winOGLErrorCheck(m_hDC != 0, "GetDC");
