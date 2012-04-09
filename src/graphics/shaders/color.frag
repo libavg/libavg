@@ -37,10 +37,10 @@ uniform bool bUseMask;
 uniform vec2 maskPos;
 uniform vec2 maskSize;
 
-vec4 convertYCbCr(mat4 colorCoeff)
+vec4 convertYCbCr(mat4 colorCoeff, vec4 tex)
 {
     vec4 yuv;
-    yuv = vec4(texture2D(texture, gl_TexCoord[0].st).r,
+    yuv = vec4(tex.r,
                texture2D(cbTexture, (gl_TexCoord[0].st)).r,
                texture2D(crTexture, (gl_TexCoord[0].st)).r,
                1.0);
@@ -57,25 +57,26 @@ void main(void)
     colorCoeff[1] = colorCoeff1;
     colorCoeff[2] = colorCoeff2;
     colorCoeff[3] = colorCoeff3;
+    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
     if (colorModel == 0) {
-        rgba = texture2D(texture, gl_TexCoord[0].st);
+        rgba = tex;
         if (bUseColorCoeff) {
             rgba = colorCoeff*rgba;
         };
         rgba.a *= gl_Color.a;
 #ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 1) {
-        rgba = convertYCbCr(colorCoeff);
+        rgba = convertYCbCr(colorCoeff, tex);
 #endif
     } else if (colorModel == 2) {
         rgba = gl_Color;
         if (bUseColorCoeff) {
            rgba = colorCoeff*rgba;
         };
-        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;
+        rgba.a *= tex.a;
 #ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 3) {
-        rgba = convertYCbCr(colorCoeff);
+        rgba = convertYCbCr(colorCoeff, tex);
         rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;
 #endif
     } else {
@@ -85,11 +86,9 @@ void main(void)
     rgba = pow(rgba, gamma);
     if (bUseMask) {
         if (bPremultipliedAlpha) {
-            rgba.rgb *= texture2D(maskTexture,
-                    (gl_TexCoord[0].st/maskSize)-maskPos).r;
+            rgba.rgb *= texture2D(maskTexture, (gl_TexCoord[0].st/maskSize)-maskPos).r;
         }
-        rgba.a *= texture2D(maskTexture,
-                (gl_TexCoord[0].st/maskSize)-maskPos).r;
+        rgba.a *= texture2D(maskTexture, (gl_TexCoord[0].st/maskSize)-maskPos).r;
     }
     gl_FragColor = rgba;
 }
