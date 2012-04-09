@@ -61,6 +61,7 @@ public:
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
     GLColorShaderPtr getColorShader();
+    bool useGPUYUVConversion() const;
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();

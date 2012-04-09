@@ -60,9 +60,11 @@ GLColorShader::GLColorShader()
 
     m_pShader->activate();
     m_pShader->getParam<int>("texture")->set(0);
-    m_pShader->getParam<int>("cbTexture")->set(1);
-    m_pShader->getParam<int>("crTexture")->set(2);
-    m_pShader->getParam<int>("aTexture")->set(3);
+    if (GLContext::getCurrent()->useGPUYUVConversion()) {
+        m_pShader->getParam<int>("cbTexture")->set(1);
+        m_pShader->getParam<int>("crTexture")->set(2);
+        m_pShader->getParam<int>("aTexture")->set(3);
+    }
     m_pShader->getParam<int>("maskTexture")->set(4);
 
     generateWhiteTexture(); 

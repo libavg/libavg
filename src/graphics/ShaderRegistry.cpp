@@ -77,6 +77,12 @@ void ShaderRegistry::setShaderPath(const std::string& sLibPath)
     AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
 }
 
+void ShaderRegistry::setPreprocessorDefine(const std::string& sName, 
+        const std::string& sValue)
+{
+    m_PreprocessorDefinesMap[sName] = sValue;
+}
+
 void ShaderRegistry::createShader(const std::string& sID)
 {
     string sShaderCode;
@@ -84,10 +90,10 @@ void ShaderRegistry::createShader(const std::string& sID)
     readWholeFile(sFileName, sShaderCode);
     string sPreprocessed;
     preprocess(sShaderCode, sFileName, sPreprocessed);
-
+    string sDefines = createDefinesString();
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
-        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed));
+        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed, sDefines));
     }
 }
 
@@ -143,6 +149,18 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
             sProcessed.append(sCurLine+"\n");
         }
     }
+}
+
+string ShaderRegistry::createDefinesString()
+{
+    stringstream ss;
+    std::map<std::string, std::string>::iterator it;
+    for (it=m_PreprocessorDefinesMap.begin(); it != m_PreprocessorDefinesMap.end();
+            ++it)
+    {
+        ss << "#define " << it->first << " " << it->second << endl;
+    }
+    return ss.str();
 }
 
 void ShaderRegistry::throwParseError(const string& sFileName, int curLine)

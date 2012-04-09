@@ -63,17 +63,21 @@ void main(void)
             rgba = colorCoeff*rgba;
         };
         rgba.a *= gl_Color.a;
+#ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 1) {
         rgba = convertYCbCr(colorCoeff);
+#endif
     } else if (colorModel == 2) {
         rgba = gl_Color;
         if (bUseColorCoeff) {
            rgba = colorCoeff*rgba;
         };
         rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;
+#ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 3) {
         rgba = convertYCbCr(colorCoeff);
         rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;
+#endif
     } else {
         rgba = vec4(1,1,1,1);
     }

@@ -220,6 +220,9 @@ void GLContext::init()
     activate();
     glproc::init();
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
+    if (useGPUYUVConversion()) {
+        m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
+    }
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
     checkShaderSupport();
@@ -254,6 +257,11 @@ GLColorShaderPtr GLContext::getColorShader()
         m_pColorShader = GLColorShaderPtr(new GLColorShader());
     }
     return m_pColorShader;
+}
+
+bool GLContext::useGPUYUVConversion() const
+{
+    return true;
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
