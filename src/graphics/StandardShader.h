@@ -62,6 +62,15 @@ private:
     OGLShaderPtr m_pShader;
     GLTexturePtr m_pWhiteTex;
 
+    int m_ColorModel;
+    bool m_bUseColorCoeff;
+    glm::mat4 m_ColorMatrix;
+    glm::vec4 m_Gamma;
+    bool m_bPremultipliedAlpha;
+    bool m_bUseMask;
+    glm::vec2 m_MaskPos;
+    glm::vec2 m_MaskSize;
+
     IntGLShaderParamPtr m_pColorModelParam;
 
     Vec4fGLShaderParamPtr m_pColorCoeff0Param;

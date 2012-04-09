@@ -99,8 +99,8 @@ void Shape::draw(const glm::mat4& transform)
         m_pSurface->activate();
     } else {
         StandardShaderPtr pShader = pContext->getStandardShader();
-        pShader->activate();
         pShader->setUntextured();
+        pShader->activate();
     }
     pContext->enableGLColorArray(!bIsTextured);
     glLoadMatrixf(glm::value_ptr(transform));

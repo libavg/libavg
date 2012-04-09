@@ -77,17 +77,34 @@ StandardShader::~StandardShader()
 void StandardShader::activate()
 {
     m_pShader->activate();
+    m_pColorModelParam->set(m_ColorModel);
+    
+    m_pUseColorCoeffParam->set(m_bUseColorCoeff);
+    const glm::mat4& mat = m_ColorMatrix;
+    m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
+    m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
+    m_pColorCoeff2Param->set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
+    m_pColorCoeff3Param->set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
+    m_pGammaParam->set(m_Gamma);
+
+    m_pPremultipliedAlphaParam->set(m_bPremultipliedAlpha);
+
+    m_pUseMaskParam->set(m_bUseMask);
+    if (m_bUseMask) {
+        m_pMaskPosParam->set(m_MaskPos);
+        m_pMaskSizeParam->set(m_MaskSize);
+    }
 }
 
 void StandardShader::setColorModel(int model)
 {
-    m_pColorModelParam->set(model);
+    m_ColorModel = model;
 }
 
 void StandardShader::setUntextured()
 {
-    // Activate an internal 1x1 A8 texture, color model ist A8.
-    m_pColorModelParam->set(2);
+    // Activate an internal 1x1 A8 texture.
+    m_ColorModel = 2;
     m_pWhiteTex->activate(GL_TEXTURE0);
     disableColorspaceMatrix();
     setGamma(glm::vec4(1.f,1.f,1.f,1.f));
@@ -97,36 +114,31 @@ void StandardShader::setUntextured()
 
 void StandardShader::setColorspaceMatrix(const glm::mat4& mat)
 {
-    m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
-    m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
-    m_pColorCoeff2Param->set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
-    m_pColorCoeff3Param->set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
-    m_pUseColorCoeffParam->set(true);
+    m_bUseColorCoeff = true;
+    m_ColorMatrix = mat;
 }
 
 void StandardShader::disableColorspaceMatrix()
 {
-    m_pUseColorCoeffParam->set(false);
+    m_bUseColorCoeff = false;
 }
 
 void StandardShader::setGamma(const glm::vec4& gamma)
 {
-    m_pGammaParam->set(gamma);
+    m_Gamma = gamma;
 }
 
 void StandardShader::setPremultipliedAlpha(bool bPremultipliedAlpha)
 {
-    m_pPremultipliedAlphaParam->set(bPremultipliedAlpha);
+    m_bPremultipliedAlpha = bPremultipliedAlpha;
 }
 
 void StandardShader::setMask(bool bUseMask, const glm::vec2& maskPos,
         const glm::vec2& maskSize)
 {
-    m_pUseMaskParam->set(bUseMask);
-    if (bUseMask) {
-        m_pMaskPosParam->set(maskPos);
-        m_pMaskSizeParam->set(maskSize);
-    }
+    m_bUseMask = bUseMask;
+    m_MaskPos = maskPos;
+    m_MaskSize = maskSize;
 }
 
 void StandardShader::generateWhiteTexture()

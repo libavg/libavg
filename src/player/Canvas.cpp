@@ -302,8 +302,8 @@ void Canvas::renderOutlines()
     glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
-    pShader->activate();
     pShader->setUntextured();
+    pShader->activate();
     if (pVA->getCurVert() != 0) {
         pVA->update();
         pContext->enableGLColorArray(true);
@@ -324,8 +324,8 @@ void Canvas::clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencil
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
     StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
-    pShader->activate();
     pShader->setUntextured();
+    pShader->activate();
     glLoadMatrixf(glm::value_ptr(transform));
     pVA->draw();
 

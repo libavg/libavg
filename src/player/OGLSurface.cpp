@@ -104,7 +104,6 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
 {
     StandardShaderPtr pShader = StandardShader::get();
 
-    pShader->activate();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
     switch (m_pf) {
         case YCbCr420p:
@@ -152,8 +151,8 @@ void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha)
     } else {
         pShader->setMask(false);
     }
-
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
+    pShader->activate();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate");
 }
 
 GLTexturePtr OGLSurface::getTex(int i) const
