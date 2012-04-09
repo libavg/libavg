@@ -44,7 +44,6 @@ public:
     OGLSurface();
     virtual ~OGLSurface();
 
-    void attach();
     virtual void create(PixelFormat pf, GLTexturePtr pTex0, 
             GLTexturePtr pTex1 = GLTexturePtr(), GLTexturePtr pTex2 = GLTexturePtr(), 
             GLTexturePtr pTex3 = GLTexturePtr());

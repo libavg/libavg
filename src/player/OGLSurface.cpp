@@ -62,20 +62,6 @@ OGLSurface::~OGLSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::attach()
-{
-    if (!GLContext::getCurrent()->isUsingShaders()) {
-        if (m_pMaskTexture) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL,
-                    "Can't set mask bitmap since shader support is disabled.");
-        }
-        if (gammaIsModified() || colorIsModified()) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL,
-                    "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
-        }
-    }
-}
-
 void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1, 
         GLTexturePtr pTex2, GLTexturePtr pTex3)
 {
@@ -208,24 +194,12 @@ void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightn
     m_Gamma = gamma;
     m_Brightness = brightness;
     m_Contrast = contrast;
-    if (!GLContext::getCurrent()->isUsingShaders() &&
-            (gammaIsModified() || colorIsModified())) 
-    {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
-    }
     m_bIsDirty = true;
 }
 
 void OGLSurface::setAlphaGamma(float gamma)
 {
     m_AlphaGamma = gamma;
-    if (!GLContext::getCurrent()->isUsingShaders() &&
-            (gammaIsModified() || colorIsModified())) 
-    {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
-    }
     m_bIsDirty = true;
 }
 
@@ -250,9 +224,8 @@ void OGLSurface::resetDirty()
 
 bool OGLSurface::useShader() const
 {
-    return GLContext::getCurrent()->isUsingShaders() && 
-            (m_pMaskTexture || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
-                    colorIsModified());
+    return (m_pMaskTexture || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
+            colorIsModified());
 }
 
 glm::mat4 OGLSurface::calcColorspaceMatrix() const

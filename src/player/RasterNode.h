@@ -112,7 +112,6 @@ class AVG_API RasterNode: public AreaNode
     private:
         void downloadMask();
         virtual void calcMaskCoords();
-        void checkMaskSupport(const std::string& sHref);
         void checkDisplayAvailable(std::string sMsg);
         void blt(const glm::mat4& transform, const glm::vec2& destSize, 
                 GLContext::BlendMode mode, float opacity, const Pixel32& color,

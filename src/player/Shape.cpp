@@ -66,7 +66,6 @@ void Shape::setBitmap(BitmapPtr pBmp)
 
 void Shape::moveToGPU()
 {
-    m_pSurface->attach();
     m_pImage->moveToGPU();
     m_pVertexArray = VertexArrayPtr(new VertexArray());
 }

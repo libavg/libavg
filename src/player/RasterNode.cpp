@@ -95,10 +95,8 @@ void RasterNode::setArgs(const ArgList& args)
 
 void RasterNode::connectDisplay()
 {
-    checkMaskSupport(m_sMaskHref);
     AreaNode::connectDisplay();
 
-    m_pSurface->attach();
     m_bBound = false;
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         m_TileSize = m_MaxTileSize;
@@ -252,9 +250,6 @@ const UTF8String& RasterNode::getMaskHRef() const
 
 void RasterNode::setMaskHRef(const UTF8String& sHref)
 {
-    if (GLContext::getCurrent()) {
-        checkMaskSupport(sHref);
-    }
     m_sMaskHref = sHref;
     checkReload();
 }
@@ -395,14 +390,6 @@ void RasterNode::calcMaskCoords()
     m_pSurface->setMaskCoords(maskPos, maskSize);
 }
 
-void RasterNode::checkMaskSupport(const string& sHref)
-{
-    if (!(GLContext::getCurrent()->isUsingShaders()) && sHref != "") {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Can't use masks - unsupported on this hardware/driver combination.");
-    }
-}
-
 void RasterNode::downloadMask()
 {
     GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
@@ -485,10 +472,6 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 void RasterNode::setupFX(bool bNewFX)
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
-        if (!GLContext::getCurrent()->isUsingShaders()) {
-            throw Exception(AVG_ERR_UNSUPPORTED,
-                    "Can't use FX - unsupported on this hardware/driver combination.");
-        }
         if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect();

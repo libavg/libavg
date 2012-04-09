@@ -77,7 +77,7 @@ VideoWriter::VideoWriter(CanvasPtr pCanvas, const string& sOutFileName, int fram
     CanvasPtr pMainCanvas = Player::get()->getMainCanvas();
     if (pMainCanvas != m_pCanvas) {
         m_pFBO = dynamic_pointer_cast<OffscreenCanvas>(m_pCanvas)->getFBO();
-        if (GLContext::getCurrent()->isUsingShaders()) {
+        if (GLContext::getCurrent()->useGPUYUVConversion()) {
             m_pFilter = GPURGB2YUVFilterPtr(new GPURGB2YUVFilter(m_FrameSize));
         }
     }
