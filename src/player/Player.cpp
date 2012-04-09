@@ -226,12 +226,11 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders,
-                bool bUsePixelBuffers, int multiSampleSamples)
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+        int multiSampleSamples)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
-    m_GLConfig.m_bUseShaders = bUseShaders;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
@@ -1079,15 +1078,6 @@ float Player::getVideoRefreshRate()
     return m_pDisplayEngine->getRefreshRate();
 }
 
-bool Player::isUsingShaders()
-{
-    if (!m_pDisplayEngine) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Player.isUsingShaders must be called after Player.play().");
-    }
-    return GLContext::getCurrent()->isUsingShaders();
-}
-
 size_t Player::getVideoMemInstalled()
 {
     if (!m_pDisplayEngine) {
@@ -1153,7 +1143,6 @@ void Player::initConfig()
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
-    m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
     m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
@@ -1173,9 +1162,6 @@ void Player::initGraphics(const string& sShaderPath)
     m_pDisplayEngine->init(m_DP, m_GLConfig);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
-    }
-    if (GLContext::getCurrent()->isUsingShaders()) {
-        OGLSurface::createShader();
     }
 }
 

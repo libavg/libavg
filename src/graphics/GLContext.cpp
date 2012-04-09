@@ -22,6 +22,7 @@
 #include "GLContext.h"
 
 #include "ShaderRegistry.h"
+#include "GLColorShader.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -193,6 +194,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
 
 GLContext::~GLContext()
 {
+    m_pColorShader = GLColorShaderPtr();
     for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
@@ -218,9 +220,11 @@ void GLContext::init()
     activate();
     glproc::init();
     m_pShaderRegistry = ShaderRegistryPtr(new ShaderRegistry());
+    if (useGPUYUVConversion()) {
+        m_pShaderRegistry->setPreprocessorDefine("ENABLE_YUV_CONVERSION", "");
+    }
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
-    checkShaderSupport();
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
@@ -244,6 +248,22 @@ void GLContext::activate()
 ShaderRegistryPtr GLContext::getShaderRegistry() const
 {
     return m_pShaderRegistry;
+}
+
+GLColorShaderPtr GLContext::getColorShader()
+{
+    if (m_pColorShader == GLColorShaderPtr()) {
+        m_pColorShader = GLColorShaderPtr(new GLColorShader());
+    }
+    return m_pColorShader;
+}
+
+bool GLContext::useGPUYUVConversion() const
+{
+    int majorVer;
+    int minorVer;
+    getGLVersion(majorVer, minorVer);
+    return (majorVer > 1);
 }
 
 GLBufferCache& GLContext::getVertexBufferCache()
@@ -382,6 +402,11 @@ void GLContext::logConfig()
             break;
     }
     AVG_TRACE(Logger::CONFIG, "  Max. texture size: " << getMaxTexSize());
+    if (useGPUYUVConversion()) {
+        AVG_TRACE(Logger::CONFIG, "  Using GPU for YUV->RGB conversion.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "  Not using GPU for YUV->RGB conversion.");
+    }
     try {
         AVG_TRACE(Logger::CONFIG, "  Dedicated video memory: " << 
                 getVideoMemInstalled()/(1024*1024) << " MB");
@@ -428,11 +453,6 @@ OGLMemoryMode GLContext::getMemoryModeSupported()
         m_bCheckedMemoryMode = true;
     }
     return m_MemoryMode;
-}
-
-bool GLContext::isUsingShaders() const
-{
-    return m_GLConfig.m_bUseShaders;
 }
 
 int GLContext::getMaxTexSize() 
@@ -533,17 +553,6 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
-}
-
-void GLContext::checkShaderSupport()
-{
-    int glMajorVer;
-    int glMinorVer;
-    getGLShadingLanguageVersion(glMajorVer, glMinorVer);
-    m_GLConfig.m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
-            getMemoryModeSupported() == MM_PBO &&
-            !m_GLConfig.m_bUsePOTTextures &&
-            m_GLConfig.m_bUseShaders);
 }
 
 void GLContext::checkGPUMemInfoSupport()

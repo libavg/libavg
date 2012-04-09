@@ -47,6 +47,8 @@ class GLContext;
 typedef boost::shared_ptr<GLContext> GLContextPtr;
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+class GLColorShader;
+typedef boost::shared_ptr<GLColorShader> GLColorShaderPtr;
 
 class AVG_API GLContext {
 public:
@@ -58,6 +60,8 @@ public:
 
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
+    GLColorShaderPtr getColorShader();
+    bool useGPUYUVConversion() const;
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
@@ -79,7 +83,6 @@ public:
     int getMaxTexSize();
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
-    bool isUsingShaders() const;
     bool initVBlank(int rate);
     
     static BlendMode stringToBlendMode(const std::string& s);
@@ -87,7 +90,6 @@ public:
     static GLContext* getCurrent();
 
 private:
-    void checkShaderSupport();
     void checkGPUMemInfoSupport();
 
     // Vertical blank stuff.
@@ -110,6 +112,7 @@ private:
     bool m_bOwnsContext;
 
     ShaderRegistryPtr m_pShaderRegistry;
+    GLColorShaderPtr m_pColorShader;
 
     GLBufferCache m_VertexBufferCache;
     GLBufferCache m_IndexBufferCache;

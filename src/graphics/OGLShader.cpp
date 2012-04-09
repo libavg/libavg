@@ -31,13 +31,15 @@ using namespace std;
 
 namespace avg {
 
-OGLShader::OGLShader(string sName, string sProgram)
+OGLShader::OGLShader(const string& sName, const string& sProgram, const string& sDefines)
     : m_sName(sName),
       m_sProgram(sProgram)
 {
     m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
-    const char * pProgramStr = m_sProgram.c_str();
-    glproc::ShaderSource(m_hFragmentShader, 1, &pProgramStr, 0);
+    const char * pProgramStrs[2];
+    pProgramStrs[0] = sDefines.c_str();
+    pProgramStrs[1] = m_sProgram.c_str();
+    glproc::ShaderSource(m_hFragmentShader, 2, pProgramStrs, 0);
     glproc::CompileShader(m_hFragmentShader);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
     dumpInfoLog(m_hFragmentShader);
@@ -68,15 +70,6 @@ void OGLShader::activate()
         glproc::UseProgramObject(m_hProgram);
         ShaderRegistry::get()->setCurShader(m_sName);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
-    }
-}
-
-void OGLShader::deactivate()
-{
-    OGLShaderPtr pCurShader = ShaderRegistry::get()->getCurShader();
-    if (pCurShader) {
-        glproc::UseProgramObject(0);
-        ShaderRegistry::get()->setCurShader("");
     }
 }
 

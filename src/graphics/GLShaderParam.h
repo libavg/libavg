@@ -66,7 +66,7 @@ public:
     
     void set(VAL_TYPE val)
     {
-        if (m_Val != val || !m_bValSet) {
+        if (!m_bValSet || m_Val != val) {
             uniformSet(getLocation(), val);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShaderParam::set");
             m_Val = val;

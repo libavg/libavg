@@ -32,7 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <string>
-#include <map>
+#include <vector>
 
 namespace avg {
 
@@ -41,7 +41,6 @@ class AVG_API OGLShader {
         virtual ~OGLShader();
 
         void activate();
-        static void deactivate();
         GLhandleARB getProgram();
         const std::string getName() const;
 
@@ -64,7 +63,8 @@ class AVG_API OGLShader {
         }
 
     private:
-        OGLShader(std::string sName, std::string sProgram);
+        OGLShader(const std::string& sName, const std::string& sProgram, 
+                const std::string& sDefines);
         friend class ShaderRegistry;
 
         bool findParam(const std::string& sName, unsigned& pos);

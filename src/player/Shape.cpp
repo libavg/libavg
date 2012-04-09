@@ -66,7 +66,6 @@ void Shape::setBitmap(BitmapPtr pBmp)
 
 void Shape::moveToGPU()
 {
-    m_pSurface->attach();
     m_pImage->moveToGPU();
     m_pVertexArray = VertexArrayPtr(new VertexArray());
 }
@@ -99,16 +98,10 @@ void Shape::draw(const glm::mat4& transform)
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
-        if (GLContext::getCurrent()->isUsingShaders()) {
-            OGLShader::deactivate();
-        }
-        for (int i = 1; i < 5; ++i) {
-            glproc::ActiveTexture(GL_TEXTURE0 + i);
-            glDisable(GL_TEXTURE_2D);
-        }
-        glproc::ActiveTexture(GL_TEXTURE0);
+        GLColorShaderPtr pShader = pContext->getColorShader();
+        pShader->activate();
+        pShader->setUntextured();
     }
-    pContext->enableTexture(bIsTextured);
     pContext->enableGLColorArray(!bIsTextured);
     glLoadMatrixf(glm::value_ptr(transform));
     m_pVertexArray->draw();

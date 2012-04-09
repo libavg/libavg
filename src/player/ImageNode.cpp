@@ -73,7 +73,6 @@ void ImageNode::connectDisplay()
     if (m_pImage->getSource() == Image::SCENE) {
         checkCanvasValid(m_pImage->getCanvas());
     }
-    getSurface()->attach();
     m_pImage->moveToGPU();
     RasterNode::connectDisplay();
     if (m_pImage->getSource() == Image::SCENE) {

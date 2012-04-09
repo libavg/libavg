@@ -327,7 +327,6 @@ class AVTestCase(AVGTestCase):
             Player.setOnFrameHandler(onFrame)
             Player.play()
 
-    @skipIfNoFX
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
             def setMask(href):

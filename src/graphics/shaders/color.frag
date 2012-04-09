@@ -25,7 +25,7 @@ uniform sampler2D cbTexture;
 uniform sampler2D crTexture;
 uniform sampler2D aTexture;
 uniform sampler2D maskTexture;
-uniform int colorModel;  // 0=rgb, 1=yuv, 2=greyscale, 3=yuva
+uniform int colorModel;  // 0=rgb, 1=yuv, 2=alpha, 3=yuva
 uniform vec4 colorCoeff0;
 uniform vec4 colorCoeff1;
 uniform vec4 colorCoeff2;
@@ -37,10 +37,10 @@ uniform bool bUseMask;
 uniform vec2 maskPos;
 uniform vec2 maskSize;
 
-vec4 convertYCbCr(mat4 colorCoeff)
+vec4 convertYCbCr(mat4 colorCoeff, vec4 tex)
 {
     vec4 yuv;
-    yuv = vec4(texture2D(texture, gl_TexCoord[0].st).r,
+    yuv = vec4(tex.r,
                texture2D(cbTexture, (gl_TexCoord[0].st)).r,
                texture2D(crTexture, (gl_TexCoord[0].st)).r,
                1.0);
@@ -57,35 +57,38 @@ void main(void)
     colorCoeff[1] = colorCoeff1;
     colorCoeff[2] = colorCoeff2;
     colorCoeff[3] = colorCoeff3;
-    if (colorModel == 0) {
-        rgba = texture2D(texture, gl_TexCoord[0].st);
+    vec4 tex = texture2D(texture, gl_TexCoord[0].st);
+    if (colorModel == 0 || colorModel == 2) {
+        float a;
+        if (colorModel == 0) {
+            rgba = tex;
+            a = gl_Color.a;
+        } else {
+            rgba = gl_Color;
+            a = tex.a;
+        }
         if (bUseColorCoeff) {
             rgba = colorCoeff*rgba;
-        };
-        rgba.a *= gl_Color.a;
+        }
+        rgba.a *= a;
+#ifdef ENABLE_YUV_CONVERSION
     } else if (colorModel == 1) {
-        rgba = convertYCbCr(colorCoeff);
-    } else if (colorModel == 2) {
-        rgba = gl_Color;
-        if (bUseColorCoeff) {
-           rgba = colorCoeff*rgba;
-        };
-        rgba.a *= texture2D(texture, gl_TexCoord[0].st).a;
+        rgba = convertYCbCr(colorCoeff, tex);
     } else if (colorModel == 3) {
-        rgba = convertYCbCr(colorCoeff);
+        rgba = convertYCbCr(colorCoeff, tex);
         rgba.a *= texture2D(aTexture, gl_TexCoord[0].st).r;
+#endif
     } else {
         rgba = vec4(1,1,1,1);
     }
     rgba = max(rgba, vec4(0.,0.,0.,0.));
     rgba = pow(rgba, gamma);
     if (bUseMask) {
+        float mask = texture2D(maskTexture, (gl_TexCoord[0].st/maskSize)-maskPos).r;
         if (bPremultipliedAlpha) {
-            rgba.rgb *= texture2D(maskTexture,
-                    (gl_TexCoord[0].st/maskSize)-maskPos).r;
+            rgba.rgb *= mask;
         }
-        rgba.a *= texture2D(maskTexture,
-                (gl_TexCoord[0].st/maskSize)-maskPos).r;
+        rgba.a *= mask;
     }
     gl_FragColor = rgba;
 }

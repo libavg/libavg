@@ -596,7 +596,6 @@ class WordsTestCase(AVGTestCase):
                 lambda: self.start((None, None))
         )
 
-    @skipIfNoFX
     def testWordsGamma(self):
         
         def setGamma():

@@ -30,7 +30,6 @@ class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName)
 
-    @skipIfNoFX
     def testImageNullFX(self):
         def activateFX():
             for node in self.nodes[0]:
@@ -89,7 +88,6 @@ class FXTestCase(AVGTestCase):
                  lambda: utils.initFXCache(10),
                 ))
 
-    @skipIfNoFX
     def testVideoNullFX(self):
         root = self.loadEmptyScene()
         Player.setFakeFPS(25)
@@ -99,7 +97,6 @@ class FXTestCase(AVGTestCase):
         node.play()
         self.start((lambda: self.compareImage("testVideoNullFX", False),))
 
-    @skipIfNoFX
     def testWordsNullFX(self):
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
@@ -110,7 +107,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsNullFX", True),
                 ))
 
-    @skipIfNoFX
     def testCanvasNullFX(self):
         def setOuterOpacity():
             node.opacity=0.6
@@ -131,7 +127,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testCanvasNullFX3", False),
                 ))
 
-    @skipIfNoFX
     def testNodeInCanvasNullFX(self):
         root = self.loadEmptyScene()
         canvas = self.__createOffscreenCanvas()
@@ -146,7 +141,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testNodeInCanvasNullFX1", False),
                 ))
 
-    @skipIfNoFX
     def testRenderPipeline(self):
         for useSrcCanvas in (False, True):
             for useDestCanvas in (False, True):
@@ -177,7 +171,6 @@ class FXTestCase(AVGTestCase):
                                 lambda: self.compareImage("testRenderPipeline", False),
                                 ))
 
-    @skipIfNoFX
     def testBlurFX(self):
         
         def setRadius(radius):
@@ -211,7 +204,6 @@ class FXTestCase(AVGTestCase):
                  lambda: setRadius(300),
                 ))
 
-    @skipIfNoFX
     def testHueSatFX(self):
 
         def resetFX():
@@ -240,7 +232,6 @@ class FXTestCase(AVGTestCase):
                 lambda: self.compareImage("testHueSatFX4", False),
         ))
 
-    @skipIfNoFX
     def testInvertFX(self):
 
         def resetFX():
@@ -263,7 +254,6 @@ class FXTestCase(AVGTestCase):
                 lambda: self.compareImage("testInvertFX2", False),
         ))
 
-    @skipIfNoFX
     def testShadowFX(self):
         
         def setParams(offset, radius, opacity, color):
@@ -292,7 +282,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testShadowFX6", False),
                 ))
 
-    @skipIfNoFX
     def testWordsShadowFX(self):
         
         def setParams(offset, radius, opacity, color):
@@ -313,7 +302,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testWordsShadowFX2", True),
                 ))
 
-    @skipIfNoFX
     def testGamma(self):
         def setGamma(val):
             node.gamma = val
@@ -328,7 +316,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testGamma2", False),
                 ))
 
-    @skipIfNoFX
     def testIntensity(self):
         def setIntensity(val):
             node.intensity = val
@@ -362,7 +349,6 @@ class FXTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
         self.videoNode = None
 
-    @skipIfNoFX
     def testContrast(self):
         def setContrast(val):
             node.contrast = val
@@ -387,7 +373,6 @@ class FXTestCase(AVGTestCase):
                 ))
         Player.setFakeFPS(-1)
 
-    @skipIfNoFX
     def testFXUpdate(self):
         # This tests if the FX render-on-demand functionality doesn't forget updates.
         def changeTexture():
@@ -436,7 +421,6 @@ class FXTestCase(AVGTestCase):
                  lambda: self.compareImage("testFXUpdateVideo", False),
                 ))
 
-    @skipIfNoFX
     def testChromaKeyFX(self):
 
         def setParams(htol, ltol, stol):
