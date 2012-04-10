@@ -68,9 +68,7 @@ public:
     void resetDirty();
 
 private:
-    bool useShader() const;
     glm::mat4 calcColorspaceMatrix() const;
-    bool gammaIsModified() const;
     bool colorIsModified() const;
 
     GLTexturePtr m_pTextures[4];

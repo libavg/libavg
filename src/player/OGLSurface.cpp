@@ -221,12 +221,6 @@ void OGLSurface::resetDirty()
     }
 }
 
-bool OGLSurface::useShader() const
-{
-    return (m_pMaskTexture || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
-            colorIsModified());
-}
-
 glm::mat4 OGLSurface::calcColorspaceMatrix() const
 {
     glm::mat4 mat;
@@ -246,12 +240,6 @@ glm::mat4 OGLSurface::calcColorspaceMatrix() const
         }
     }
     return mat;
-}
-
-bool OGLSurface::gammaIsModified() const
-{
-    return (!almostEqual(m_Gamma.x, 1.0f) || !almostEqual(m_Gamma.y, 1.0f) ||
-            !almostEqual(m_Gamma.z, 1.0f) || !almostEqual(m_AlphaGamma, 1.0f));
 }
 
 bool OGLSurface::colorIsModified() const
