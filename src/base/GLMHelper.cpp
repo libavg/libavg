@@ -65,6 +65,12 @@ bool almostEqual(const glm::detail::tvec2<NUM>& v1, const glm::detail::tvec2<NUM
 }
 
 template<class NUM>
+bool almostEqual(const glm::detail::tvec4<NUM>& v1, const glm::detail::tvec4<NUM>& v2)
+{
+    return (fabs(v1.x-v2.x)+fabs(v1.y-v2.y)+fabs(v1.z-v2.z)+fabs(v1.w-v2.w)) < 0.0001;
+}
+
+template<class NUM>
 std::ostream& operator<<( std::ostream& os, const glm::detail::tvec2<NUM> &v)
 {
     os << "(" << v.x << "," << v.y << ")";
@@ -169,5 +175,9 @@ template bool almostEqual(const glm::detail::tvec2<float>& v1,
         const glm::detail::tvec2<float>& v2);
 template bool almostEqual(const glm::detail::tvec2<double>& v1,
         const glm::detail::tvec2<double>& v2);
+template bool almostEqual(const glm::detail::tvec4<float>& v1,
+        const glm::detail::tvec4<float>& v2);
+template bool almostEqual(const glm::detail::tvec4<double>& v1,
+        const glm::detail::tvec4<double>& v2);
 }
 

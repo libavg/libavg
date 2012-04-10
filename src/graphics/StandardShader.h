@@ -59,7 +59,6 @@ public:
 private:
     void generateWhiteTexture();
 
-    OGLShaderPtr m_pShader;
     GLTexturePtr m_pWhiteTex;
 
     int m_ColorModel;
@@ -71,6 +70,8 @@ private:
     glm::vec2 m_MaskPos;
     glm::vec2 m_MaskSize;
 
+    OGLShaderPtr m_pShader;
+    OGLShaderPtr m_pMinimalShader;
     IntGLShaderParamPtr m_pColorModelParam;
 
     Vec4fGLShaderParamPtr m_pColorCoeff0Param;

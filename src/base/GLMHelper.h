@@ -41,6 +41,8 @@ glm::vec2 fromPolar(float angle, float radius);
 
 template<class NUM>
 bool almostEqual(const glm::detail::tvec2<NUM>& v1, const glm::detail::tvec2<NUM>& v2);
+template<class NUM>
+bool almostEqual(const glm::detail::tvec4<NUM>& v1, const glm::detail::tvec4<NUM>& v2);
 
 template<class NUM>
 std::ostream& operator<<(std::ostream& os, const glm::detail::tvec2<NUM> &v);

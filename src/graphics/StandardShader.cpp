@@ -31,7 +31,8 @@
 
 using namespace std;
 
-#define COLORSPACE_SHADER "standard"
+#define STANDARD_SHADER "standard"
+#define MINIMAL_SHADER "minimal"
 
 namespace avg {
 
@@ -42,8 +43,8 @@ StandardShaderPtr StandardShader::get()
 
 StandardShader::StandardShader()
 {
-    avg::createShader(COLORSPACE_SHADER);
-    m_pShader = getShader(COLORSPACE_SHADER);
+    avg::createShader(STANDARD_SHADER);
+    m_pShader = getShader(STANDARD_SHADER);
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
 
     m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
@@ -67,6 +68,13 @@ StandardShader::StandardShader()
     }
     m_pShader->getParam<int>("maskTexture")->set(4);
 
+    if (GLContext::getCurrent()->useMinimalShader()) {
+        avg::createShader(MINIMAL_SHADER);
+        m_pMinimalShader = getShader(MINIMAL_SHADER);
+        m_pMinimalShader->activate();
+        m_pMinimalShader->getParam<int>("texture")->set(0);
+    }
+    
     generateWhiteTexture(); 
 }
 
@@ -76,23 +84,30 @@ StandardShader::~StandardShader()
 
 void StandardShader::activate()
 {
-    m_pShader->activate();
-    m_pColorModelParam->set(m_ColorModel);
-    
-    m_pUseColorCoeffParam->set(m_bUseColorCoeff);
-    const glm::mat4& mat = m_ColorMatrix;
-    m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
-    m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
-    m_pColorCoeff2Param->set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
-    m_pColorCoeff3Param->set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
-    m_pGammaParam->set(m_Gamma);
+    bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+    if (GLContext::getCurrent()->useMinimalShader() &&
+            (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask))
+    {
+        m_pMinimalShader->activate();
+    } else {
+        m_pShader->activate();
+        m_pColorModelParam->set(m_ColorModel);
 
-    m_pPremultipliedAlphaParam->set(m_bPremultipliedAlpha);
+        m_pUseColorCoeffParam->set(m_bUseColorCoeff);
+        const glm::mat4& mat = m_ColorMatrix;
+        m_pColorCoeff0Param->set(glm::vec4(mat[0][0], mat[0][1], mat[0][2], 0));
+        m_pColorCoeff1Param->set(glm::vec4(mat[1][0], mat[1][1], mat[1][2], 0));
+        m_pColorCoeff2Param->set(glm::vec4(mat[2][0], mat[2][1], mat[2][2], 0));
+        m_pColorCoeff3Param->set(glm::vec4(mat[3][0], mat[3][1], mat[3][2], 1));
+        m_pGammaParam->set(m_Gamma);
 
-    m_pUseMaskParam->set(m_bUseMask);
-    if (m_bUseMask) {
-        m_pMaskPosParam->set(m_MaskPos);
-        m_pMaskSizeParam->set(m_MaskSize);
+        m_pPremultipliedAlphaParam->set(m_bPremultipliedAlpha);
+
+        m_pUseMaskParam->set(m_bUseMask);
+        if (m_bUseMask) {
+            m_pMaskPosParam->set(m_MaskPos);
+            m_pMaskSizeParam->set(m_MaskSize);
+        }
     }
 }
 
