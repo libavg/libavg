@@ -22,8 +22,6 @@
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
 #
 
-#import objgraph
-
 from libavg import *
 
 import optparse
@@ -120,22 +118,7 @@ class SpeedApp(AVGApp):
         for i in xrange(options.numPoints/2):
             result.append( (r*math.cos(i*alpha) + offset[0], r*math.sin(i*alpha) + offset[1]) )
             result.append( (r2*math.cos(i*alpha+beta) + offset[0], r2*math.sin(i*alpha+beta) + offset[1]) )
-        return result
-
-#    def onKeyDown(self, e):
-#        if e.keystring == '1':
-#            #gc.collect()
-#            print "#" * 80
-#            objgraph.show_growth()
-#            print "#" * 80
-#            #btns = objgraph.by_type("MovingRef")
-#            #btns = objgraph.get_leaking_objects()
-#            #if len(btns) > 0:
-#            #    objgraph.show_backrefs(btns[-10:], filename="mem.png")
-#            #    subprocess.call(["eog", "mem.png"])
-#           # else:
-#            #    print "NO OBJ FOUND!!"
-        
+        return result        
 
 options = parseCmdLine()
 if not(options.vsync):
