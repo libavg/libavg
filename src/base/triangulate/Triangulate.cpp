@@ -32,7 +32,7 @@ using namespace std;
 
 namespace avg {
 
-std::vector<unsigned int> triangulatePolygon(const Vec2Vector& points,
+void triangulatePolygon(std::vector<unsigned int>& dest, const Vec2Vector& points,
         const std::vector<unsigned int>& holeIndexes)
 {
     std::vector<Point*> polyline;
@@ -72,12 +72,11 @@ std::vector<unsigned int> triangulatePolygon(const Vec2Vector& points,
 
     sweep->Triangulate(*sweepContext);
 
-    std::vector<unsigned int> result;
     std::vector<avg::TriangulationTriangle*>& triangles =  sweepContext->getTriangles();
     for (unsigned int i = 0; i < triangles.size(); ++i) {
-        result.push_back(triangles[i]->getPoint(0)->m_Index);
-        result.push_back(triangles[i]->getPoint(1)->m_Index);
-        result.push_back(triangles[i]->getPoint(2)->m_Index);
+        dest.push_back(triangles[i]->getPoint(0)->m_Index);
+        dest.push_back(triangles[i]->getPoint(1)->m_Index);
+        dest.push_back(triangles[i]->getPoint(2)->m_Index);
     }
     
     delete sweep;
@@ -86,8 +85,6 @@ std::vector<unsigned int> triangulatePolygon(const Vec2Vector& points,
     for (unsigned int i = 0; i < polyline.size(); i++) {
         delete polyline[i];
     }
-
-    return result;
 }
 
 }

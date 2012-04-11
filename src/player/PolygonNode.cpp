@@ -196,7 +196,7 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
             }
         }
         vector<unsigned int> triIndexes;
-        triIndexes = triangulatePolygon(pts, holeIndexes);
+        triangulatePolygon(triIndexes, pts, holeIndexes);
 
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);

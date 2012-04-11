@@ -354,7 +354,8 @@ public:
                 glm::vec2(1,1), glm::vec2(0,3)}; 
 
         Vec2Vector poly = vectorFromCArray(6, polyArray);
-        vector<unsigned int>triangulation = triangulatePolygon(poly);
+        vector<unsigned int> triangulation;
+        triangulatePolygon(triangulation, poly);
 
         TEST(triangulation.size() == 4*3);
         unsigned int baselineIndexes[] = {5,0,4, 1,4,0, 4,1,3, 1,2,3};
@@ -738,7 +739,8 @@ public:
                 glm::vec2(20,20)}; 
 
         Vec2Vector poly = vectorFromCArray(8, polyArray);
-        vector<unsigned int>triangulation = triangulatePolygon(poly);
+        vector<unsigned int> triangulation;
+        triangulatePolygon(triangulation, poly);
 
         TEST(triangulation.size() == 6*3);
         unsigned int baselineIndexes[] = {6,7,5, 5,7,1, 7,0,1, 5,1,3, 3,1,2, 4,5,3};
