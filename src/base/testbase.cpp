@@ -354,10 +354,10 @@ public:
                 glm::vec2(1,1), glm::vec2(0,3)}; 
 
         Vec2Vector poly = vectorFromCArray(6, polyArray);
-        vector<int>triangulation = triangulatePolygon(poly);
+        vector<unsigned int>triangulation = triangulatePolygon(poly);
 
         TEST(triangulation.size() == 4*3);
-        int baselineIndexes[] = {5,0,4, 1,4,0, 4,1,3, 1,2,3};
+        unsigned int baselineIndexes[] = {5,0,4, 1,4,0, 4,1,3, 1,2,3};
         TEST(triangulation == vectorFromCArray(12, baselineIndexes));
 /*
         for (unsigned int i=0; i<triangulation.size(); i++) {
@@ -738,10 +738,10 @@ public:
                 glm::vec2(20,20)}; 
 
         Vec2Vector poly = vectorFromCArray(8, polyArray);
-        vector<int>triangulation = triangulatePolygon(poly);
+        vector<unsigned int>triangulation = triangulatePolygon(poly);
 
         TEST(triangulation.size() == 6*3);
-        int baselineIndexes[] = {6,7,5, 5,7,1, 7,0,1, 5,1,3, 3,1,2, 4,5,3};
+        unsigned int baselineIndexes[] = {6,7,5, 5,7,1, 7,0,1, 5,1,3, 3,1,2, 4,5,3};
         TEST(triangulation == vectorFromCArray(18, baselineIndexes));
 /*     
         for (unsigned int i=0; i<triangulation.size(); i++) {

@@ -160,7 +160,7 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     }
     // Remove duplicate points
     vector<glm::vec2> pts;
-    vector<int> holeIndexes;
+    vector<unsigned int> holeIndexes;
     pts.reserve(m_Pts.size());
 
     pts.push_back(m_Pts[0]);
@@ -195,7 +195,7 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
                 maxCoord.y = pts[i].y;
             }
         }
-        vector<int> triIndexes;
+        vector<unsigned int> triIndexes;
         triIndexes = triangulatePolygon(pts, holeIndexes);
 
         for (unsigned i = 0; i < pts.size(); ++i) {

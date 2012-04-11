@@ -25,8 +25,8 @@
 #include "../GLMHelper.h"
 namespace avg {
 
-    std::vector<int> triangulatePolygon(const Vec2Vector& points,
-            const std::vector<int>& holeIndexes = std::vector<int>());
+    std::vector<unsigned int> triangulatePolygon(const Vec2Vector& points,
+            const std::vector<unsigned int>& holeIndexes = std::vector<unsigned int>());
 
 }
 
