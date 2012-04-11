@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <map>
 #include <cstring>
@@ -112,7 +113,7 @@ bool isAbsPath(const std::string& path)
 #else
     return path[0] == '/';
 #endif
-    
+
 }
 
 bool fileExists(const string& sFilename)
@@ -154,7 +155,7 @@ void writeWholeFile(const string& sFilename, const string& sContent)
 void copyFile(const string& sSourceFile, const string& sDestFile)
 {
     string sData;
-            
+
     readWholeFile(sSourceFile, sData);
     writeWholeFile(sDestFile, sData);
 }
