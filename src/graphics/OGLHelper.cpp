@@ -183,7 +183,7 @@ void getGLVersion(int& major, int& minor)
 {
     static int s_Major = -1;
     static int s_Minor;
-    if (major == -1) {
+    if (s_Major == -1) {
         const char* pVersion = (const char*)glGetString(GL_VERSION);
         sscanf(pVersion, "%d.%d", &s_Major, &s_Minor);
     }
