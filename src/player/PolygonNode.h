@@ -32,7 +32,7 @@
 
 namespace avg {
 
-typedef std::vector<std::vector<glm::vec2> > CollVec2Vector;
+typedef std::vector<std::vector<glm::vec2> > VectorVec2Vector;
 
 class AVG_API PolygonNode : public FilledVectorNode
 {
@@ -48,8 +48,8 @@ class AVG_API PolygonNode : public FilledVectorNode
         const std::vector<float>& getTexCoords() const;
         void setTexCoords(const std::vector<float>& coords);
 
-        const CollVec2Vector& getHoles() const;
-        void setHoles(const CollVec2Vector& holes);
+        const VectorVec2Vector& getHoles() const;
+        void setHoles(const VectorVec2Vector& holes);
 
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
@@ -64,7 +64,7 @@ class AVG_API PolygonNode : public FilledVectorNode
         std::vector<float> m_CumulDist;
         std::vector<float> m_TexCoords;
         std::vector<float> m_EffTexCoords;
-        CollVec2Vector m_Holes;
+        VectorVec2Vector m_Holes;
         LineJoin m_LineJoin;
 };
 

@@ -39,7 +39,7 @@ namespace avg {
 
 NodeDefinition PolygonNode::createDefinition()
 {
-    CollVec2Vector cv;
+    VectorVec2Vector cv;
     vector<glm::vec2> v;
     vector<float> vd;
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
@@ -48,7 +48,7 @@ NodeDefinition PolygonNode::createDefinition()
         .addArg(Arg<vector<glm::vec2> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
         .addArg(Arg<vector<float> >("texcoords", vd, false,
                 offsetof(PolygonNode, m_TexCoords)))
-        .addArg(Arg<CollVec2Vector>("holes", cv, false, offsetof(PolygonNode, m_Holes)))
+        .addArg(Arg<VectorVec2Vector>("holes", cv, false, offsetof(PolygonNode, m_Holes)))
         ;
 }
 
@@ -100,12 +100,12 @@ const vector<float>& PolygonNode::getTexCoords() const
     return m_TexCoords;
 }
 
-const CollVec2Vector& PolygonNode::getHoles() const
+const VectorVec2Vector& PolygonNode::getHoles() const
 {
     return m_Holes;
 }
 
-void PolygonNode::setHoles(const CollVec2Vector& holes)
+void PolygonNode::setHoles(const VectorVec2Vector& holes)
 {
     m_Holes = holes;
     m_TexCoords.clear();
