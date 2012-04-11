@@ -67,14 +67,18 @@ void SweepContext::initTriangulation()
     // Calculate bounds.
     for (unsigned int i = 0; i < m_Points.size(); i++) {
         Point& p = *m_Points[i];
-        if (p.m_X > xmax)
+        if (p.m_X > xmax) {
             xmax = p.m_X;
-        if (p.m_X < xmin)
+        }
+        if (p.m_X < xmin) {
             xmin = p.m_X;
-        if (p.m_Y > ymax)
+        }
+        if (p.m_Y > ymax) {
             ymax = p.m_Y;
-        if (p.m_Y < ymin)
+        }
+        if (p.m_Y < ymin) {
             ymin = p.m_Y;
+        }
     }
 
     double dx = kAlpha * (xmax - xmin);

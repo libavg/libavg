@@ -350,8 +350,9 @@ bool Sweep::incircle(Point& pa, Point& pb, Point& pc, Point& pd)
     double bdxady = bdx * ady;
     double oabd = adxbdy - bdxady;
 
-    if (oabd <= 0)
+    if (oabd <= 0) {
         return false;
+    }
 
     double cdx = pc.m_X - pd.m_X;
     double cdy = pc.m_Y - pd.m_Y;
@@ -360,8 +361,9 @@ bool Sweep::incircle(Point& pa, Point& pb, Point& pc, Point& pd)
     double adxcdy = adx * cdy;
     double ocad = cdxady - adxcdy;
 
-    if (ocad <= 0)
+    if (ocad <= 0) {
         return false;
+    }
 
     double bdxcdy = bdx * cdy;
     double cdxbdy = cdx * bdy;
@@ -418,14 +420,18 @@ void Sweep::rotateTrianglePair(TriangulationTriangle& t, Point& p,
     //      the right side.
     t.clearNeighbors();
     ot.clearNeighbors();
-    if (n1)
+    if (n1) {
         ot.markNeighbor(*n1);
-    if (n2)
+    }
+    if (n2) {
         t.markNeighbor(*n2);
-    if (n3)
+    }
+    if (n3) {
         t.markNeighbor(*n3);
-    if (n4)
+    }
+    if (n4) {
         ot.markNeighbor(*n4);
+    }
     t.markNeighbor(ot);
 }
 
