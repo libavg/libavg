@@ -46,7 +46,10 @@ class Recognizer(object):
     def __init__(self, node, isContinuous, eventSource, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
-        self.__node = weakref.ref(node)
+        if node:
+            self.__node = weakref.ref(node)
+        else:
+            self.__node = None
         self.__isContinuous = isContinuous
         self.__eventSource = eventSource
         self.__maxContacts = maxContacts
@@ -141,7 +144,7 @@ class Recognizer(object):
             self.__stateMachine.changeState("IDLE")
         if self._contacts != {}:
             self._disconnectContacts()
-        if self.__node():
+        if self.__node and self.__node():
             self.__node().disconnectEventHandler(self)
 
     def _disconnectContacts(self):
@@ -168,7 +171,7 @@ class Recognizer(object):
             self.__dirty = False
 
     def __setEventHandler(self):
-        if self.__node():
+        if self.__node and self.__node():
             self.__node().connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
                     self.__onDown)
 
