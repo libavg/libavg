@@ -151,6 +151,10 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
         calcEffPolyLineTexCoords(m_EffTexCoords, m_TexCoords, m_CumulDist);
     }
     calcPolyLine(m_Pts, m_EffTexCoords, true, m_LineJoin, pVertexArray, color);
+
+    for (unsigned i = 0; i < m_Holes.size(); i++) {
+        calcPolyLine(m_Holes[i], m_EffTexCoords, true, m_LineJoin, pVertexArray, color);
+    }
 }
 
 void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
