@@ -192,6 +192,7 @@ private:
     void finalizationPolygon(SweepContext& sc);
 
     std::vector<Node*> m_Nodes;
+    unsigned int arrayCount;
 
 };
 

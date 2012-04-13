@@ -67,7 +67,7 @@ public:
 
     void removeNode(Node* node);
 
-    void createAdvancingFront(std::vector<Node*> nodes);
+    void createAdvancingFront();
 
 /// Try to map a node to all sides of this triangle that don't have a neighbor
     void mapTriangleToNodes(TriangulationTriangle& t);

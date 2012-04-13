@@ -35,8 +35,12 @@ namespace avg {
 
 void Sweep::Triangulate(SweepContext& sc)
 {
+    arrayCount = 0;
+    for (unsigned int i = 0; i < (unsigned)sc.pointCount(); i++) {
+        m_Nodes.push_back(new Node());
+    }
     sc.initTriangulation();
-    sc.createAdvancingFront(m_Nodes);
+    sc.createAdvancingFront();
     // Sweep points; build mesh
     sweepPoints(sc);
     // Clean up
@@ -179,8 +183,10 @@ Node& Sweep::newFrontTriangle(SweepContext& sc, Point& point, Node& node)
     triangle->markNeighbor(*node.m_Triangle);
     sc.addToMap(triangle);
 
-    Node* newNode = new Node(point);
-    m_Nodes.push_back(newNode);
+    Node* newNode = m_Nodes[arrayCount++]; //new Node(point);
+    newNode->m_Point = &point;
+    newNode->m_Value = point.m_X;
+//    m_Nodes.push_back(newNode);
 
     newNode->m_Next = node.m_Next;
     newNode->m_Prev = &node;

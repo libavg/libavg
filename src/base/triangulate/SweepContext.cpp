@@ -117,7 +117,7 @@ Node& SweepContext::locateNode(Point& point)
     return *m_Front->locateNode(point.m_X);
 }
 
-void SweepContext::createAdvancingFront(std::vector<Node*> nodes)
+void SweepContext::createAdvancingFront()
 {
     // Initial triangle
     TriangulationTriangle* triangle = new TriangulationTriangle(*m_Points[0], *m_Tail,
