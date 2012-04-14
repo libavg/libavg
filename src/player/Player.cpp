@@ -1045,6 +1045,7 @@ void Player::doFrame(bool bFirstFrame)
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
+        GLContext::getCurrent()->mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
