@@ -41,13 +41,13 @@ OGLShader::OGLShader(const string& sName, const string& sProgram, const string& 
     pProgramStrs[1] = m_sProgram.c_str();
     glproc::ShaderSource(m_hFragmentShader, 2, pProgramStrs, 0);
     glproc::CompileShader(m_hFragmentShader);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
+    GLContext::getCurrent()->checkError("OGLShader::OGLShader: glCompileShader()");
     dumpInfoLog(m_hFragmentShader);
 
     m_hProgram = glproc::CreateProgramObject();
     glproc::AttachObject(m_hProgram, m_hFragmentShader);
     glproc::LinkProgram(m_hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glLinkProgram()");
+    GLContext::getCurrent()->checkError("OGLShader::OGLShader: glLinkProgram()");
 
     GLint bLinked;
     glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
@@ -69,7 +69,7 @@ void OGLShader::activate()
     if (!pCurShader || &*pCurShader != this) {
         glproc::UseProgramObject(m_hProgram);
         ShaderRegistry::get()->setCurShader(m_sName);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+        GLContext::getCurrent()->checkError("OGLShader::activate: glUseProgramObject()");
     }
 }
 
@@ -104,14 +104,14 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
     GLcharARB * pInfoLog;
 
     glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+    GLContext::getCurrent()->checkError(
             "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
     if (InfoLogLength > 1) {
         pInfoLog = (GLcharARB*)malloc(InfoLogLength);
         int CharsWritten;
         glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
         string sLog = removeATIInfoLogSpam(pInfoLog);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::dumpInfoLog: glGetInfoLog()");
+        GLContext::getCurrent()->checkError("OGLShader::dumpInfoLog: glGetInfoLog()");
         AVG_TRACE(Logger::WARNING, sLog);
         free(pInfoLog);
     }

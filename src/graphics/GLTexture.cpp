@@ -64,9 +64,9 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     }
 
     glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glGenTextures()");
+    GLContext::getCurrent()->checkError("GLTexture: glGenTextures()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glBindTexture()");
+    GLContext::getCurrent()->checkError("GLTexture: glBindTexture()");
     if (bMipmap) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
@@ -77,7 +77,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: glTexImage2D()");
+    GLContext::getCurrent()->checkError("GLTexture: glTexImage2D()");
 
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
@@ -88,7 +88,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
                 m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
                 pPixels);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOTexture::createTexture: glTexImage2D()");
+        GLContext::getCurrent()->checkError("PBOTexture::createTexture: glTexImage2D()");
         delete[] pPixels;
     }
 }
@@ -111,7 +111,7 @@ GLTexture::~GLTexture()
     if (m_bDeleteTex) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glDeleteTextures(1, &m_TexID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture: DeleteTextures()");
+        GLContext::getCurrent()->checkError("GLTexture: DeleteTextures()");
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
@@ -119,9 +119,9 @@ GLTexture::~GLTexture()
 void GLTexture::activate(int textureUnit)
 {
     glproc::ActiveTexture(textureUnit);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::activate ActiveTexture()");
+    GLContext::getCurrent()->checkError("GLTexture::activate ActiveTexture()");
     glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::activate BindTexture()");
+    GLContext::getCurrent()->checkError("GLTexture::activate BindTexture()");
 }
 
 void GLTexture::generateMipmaps()
@@ -129,7 +129,7 @@ void GLTexture::generateMipmaps()
     if (m_bMipmap) {
         activate();
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GLTexture::generateMipmaps()");
+        GLContext::getCurrent()->checkError("GLTexture::generateMipmaps()");
     }
 }
 

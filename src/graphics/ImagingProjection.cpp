@@ -21,6 +21,8 @@
 
 #include "ImagingProjection.h"
 
+#include "GLContext.h"
+
 #include "../base/Exception.h"
 
 namespace avg {
@@ -56,7 +58,7 @@ void ImagingProjection::draw()
     glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
     transform = glm::scale(transform, size);
     glLoadMatrixf(glm::value_ptr(transform));
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "ImagingProjection::draw()");
+    GLContext::getCurrent()->checkError("ImagingProjection::draw()");
 
     m_pVA->draw();
 }

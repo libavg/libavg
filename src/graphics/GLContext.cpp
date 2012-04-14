@@ -91,7 +91,8 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_bCheckedMemoryMode(false),
       m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
-      m_BlendMode(BLEND_ADD)
+      m_BlendMode(BLEND_ADD),
+      m_bErrorCheckEnabled(false)
 {
     if (bUseCurrent) {
         AVG_ASSERT(!pSharedContext);
@@ -549,6 +550,34 @@ bool GLContext::initVBlank(int rate)
             AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
     }
     return s_VBMethod != VB_NONE;
+}
+
+void GLContext::enableErrorChecks(bool bEnable)
+{
+    m_bErrorCheckEnabled = bEnable;
+}
+    
+void GLContext::checkError(const char* pszWhere) 
+{
+    // If there's no GL context anymore, we just ignore the error check.
+    if (this && m_bErrorCheckEnabled) {
+        mandatoryCheckError(pszWhere);
+    }
+}
+
+void GLContext::mandatoryCheckError(const char* pszWhere) 
+{
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        stringstream s;
+        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
+            << " (#" << err << ") ";
+        AVG_TRACE(Logger::ERROR, s.str());
+        if (err != GL_INVALID_OPERATION) {
+            checkError("  --");
+        }
+        AVG_ASSERT(false);
+    }
 }
 
 GLContext::BlendMode GLContext::stringToBlendMode(const string& s)

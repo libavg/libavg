@@ -24,6 +24,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include "GLContext.h"
+
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
@@ -98,21 +100,6 @@ namespace glproc {
 #endif
 
     void * s_hGLLib = 0;
-}
-
-void OGLErrorCheck(int avgcode, const char* pszWhere) 
-{
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        stringstream s;
-        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
-            << " (#" << err << ") ";
-        AVG_TRACE(Logger::ERROR, s.str());
-        if (err != GL_INVALID_OPERATION) {
-            OGLErrorCheck(avgcode, "  --");
-        }
-        AVG_ASSERT(false);
-    }
 }
 
 #ifdef _WIN32
@@ -252,7 +239,7 @@ void AVG_API clearGLBuffers(GLbitfield mask)
         glClearStencil(0);
     }
     glClear(mask);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "clearGLBuffers()");
+    GLContext::getCurrent()->checkError("clearGLBuffers()");
     if (mask & GL_STENCIL_BUFFER_BIT) {
         glStencilMask(0);
     }
