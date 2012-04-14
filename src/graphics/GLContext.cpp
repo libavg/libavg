@@ -167,7 +167,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
         m_hwnd = CreateWindow("GL", "GL",
                 WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                 0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
-        winOGLErrorCheck(m_hwnd != 0, "CreateWindow");
+        checkWinError(m_hwnd != 0, "CreateWindow");
 
         m_hDC = GetDC(m_hwnd);
         winOGLErrorCheck(m_hDC != 0, "GetDC");
@@ -183,10 +183,10 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
         pfd.iLayerType = PFD_MAIN_PLANE;
 
         int iFormat = ChoosePixelFormat(m_hDC, &pfd);
-        winOGLErrorCheck(iFormat != 0, "ChoosePixelFormat");
+        checkWinError(iFormat != 0, "ChoosePixelFormat");
         SetPixelFormat(m_hDC, iFormat, &pfd);
         m_Context = wglCreateContext(m_hDC);
-        winOGLErrorCheck(m_Context != 0, "wglCreateContext");
+        checkWinError(m_Context != 0, "wglCreateContext");
 #endif
     }
 
@@ -241,7 +241,7 @@ void GLContext::activate()
     glXMakeCurrent(m_pDisplay, m_Drawable, m_Context);
 #elif defined _WIN32
     BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
-    winOGLErrorCheck(bOk, "wglMakeCurrent");
+    checkWinError(bOk, "wglMakeCurrent");
 #endif
     *s_pCurrentContext = this;
 }
@@ -611,6 +611,20 @@ void GLContext::checkGPUMemInfoSupport()
                 "Video memory query not supported on this system.");
     }
 }
+
+#ifdef _WIN32
+void GLContext::checkWinError(BOOL bOK, const string& sWhere) 
+{
+    if (!bOK) {
+        char szErr[512];
+        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
+                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                szErr, 512, 0);
+        AVG_TRACE(Logger::ERROR, sWhere+":"+szErr);
+        AVG_ASSERT(false);
+    }
+}
+#endif
 
 void GLContext::initMacVBlank(int rate)
 {

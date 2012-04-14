@@ -85,7 +85,7 @@ public:
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
     bool initVBlank(int rate);
-
+    
     void enableErrorChecks(bool bEnable);
     void checkError(const char* pszWhere);
     void mandatoryCheckError(const char* pszWhere);
@@ -96,6 +96,9 @@ public:
 
 private:
     void checkGPUMemInfoSupport();
+#ifdef _WIN32
+    void checkWinError(BOOL bOK, const std::string& sWhere);
+#endif
 
     // Vertical blank stuff.
     void initMacVBlank(int rate);
