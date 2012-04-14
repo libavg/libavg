@@ -91,14 +91,15 @@ VertexArrayPtr Shape::getVertexArray()
     return m_pVertexArray;
 }
 
-void Shape::draw(const glm::mat4& transform)
+void Shape::draw(const glm::mat4& transform, float opacity)
 {
     bool bIsTextured = isTextured();
     GLContext* pContext = GLContext::getCurrent();
+    StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setColor(glm::vec4(1.f, 1.f, 1.f, opacity));
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
-        StandardShaderPtr pShader = pContext->getStandardShader();
         pShader->setUntextured();
         pShader->activate();
     }

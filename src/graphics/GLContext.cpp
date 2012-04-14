@@ -226,6 +226,7 @@ void GLContext::init()
     }
     enableGLColorArray(false);
     setBlendMode(BLEND_BLEND, false);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     if (!m_GLConfig.m_bUsePOTTextures) {
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");

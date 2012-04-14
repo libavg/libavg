@@ -46,7 +46,7 @@ StandardShader::StandardShader()
     avg::createShader(STANDARD_SHADER);
     m_pShader = getShader(STANDARD_SHADER);
     m_pColorModelParam = m_pShader->getParam<int>("colorModel");
-
+    m_pColorParam = m_pShader->getParam<glm::vec4>("color");
     m_pColorCoeff0Param = m_pShader->getParam<glm::vec4>("colorCoeff0");
     m_pColorCoeff1Param = m_pShader->getParam<glm::vec4>("colorCoeff1");
     m_pColorCoeff2Param = m_pShader->getParam<glm::vec4>("colorCoeff2");
@@ -73,6 +73,7 @@ StandardShader::StandardShader()
         m_pMinimalShader = getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
         m_pMinimalShader->getParam<int>("texture")->set(0);
+        m_pMinimalColorParam = m_pShader->getParam<glm::vec4>("color");
     }
     
     generateWhiteTexture(); 
@@ -89,9 +90,11 @@ void StandardShader::activate()
             (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask))
     {
         m_pMinimalShader->activate();
+        m_pMinimalColorParam->set(m_Color);
     } else {
         m_pShader->activate();
         m_pColorModelParam->set(m_ColorModel);
+        m_pColorParam->set(m_Color);
 
         m_pUseColorCoeffParam->set(m_bUseColorCoeff);
         const glm::mat4& mat = m_ColorMatrix;
@@ -116,6 +119,11 @@ void StandardShader::setColorModel(int model)
     m_ColorModel = model;
 }
 
+void StandardShader::setColor(const glm::vec4& color)
+{
+    m_Color = color;
+}
+    
 void StandardShader::setUntextured()
 {
     // Activate an internal 1x1 A8 texture.
