@@ -172,7 +172,14 @@ Player & Canvas
             canvases. It is an error to delete a canvas that is still referenced by
             an image node.
 
-        .. py:method:: enableMultitouch
+        .. py:method:: enableGLErrorChecks(enable)
+
+            Enables or disables checking for errors after each OpenGL call. By default,
+            this is :py:const:`False`, since it hurts performance in some setups. It is
+            enabled by the tests. You do not need this method unless you are looking for
+            errors inside libavg.
+
+        .. py:method:: enableMultitouch()
 
             Enables multitouch event handling. Several drivers are available that 
             generate multitouch events. To choose a driver, set the environment
