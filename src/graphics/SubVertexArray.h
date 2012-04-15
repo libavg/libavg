@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _VertexArray_H_
-#define _VertexArray_H_
+#ifndef _SubVertexArray_H_
+#define _SubVertexArray_H_
 
 #include "../api.h"
-#include "VertexData.h"
 
+#include "VertexArray.h"
 #include "Pixel32.h"
 #include "OGLHelper.h"
 
@@ -34,23 +34,34 @@
 
 namespace avg {
 
-class AVG_API VertexArray: public VertexData {
+class AVG_API SubVertexArray {
 public:
-    VertexArray(int reserveVerts = 0, int reserveIndexes = 0);
-    virtual ~VertexArray();
+    SubVertexArray(VertexArray* pVertexArray, unsigned startVertex, unsigned startIndex);
+    virtual ~SubVertexArray();
 
-    void update();
+    virtual void appendPos(const glm::vec2& pos, 
+            const glm::vec2& texPos, const Pixel32& color = Pixel32(0,0,0,0));
+    void appendTriIndexes(int v0, int v1, int v2);
+    void appendQuadIndexes(int v0, int v1, int v2, int v3);
+    void addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
+            float width, float tc1=0, float tc2=1);
+//    int getCurVert() const;
+//    int getCurIndex() const;
+
     void draw();
-    void draw(unsigned startIndex, unsigned numIndexes);
 
 private:
-    void grow();
+    VertexArray* m_pVA;
+        
+    unsigned m_StartVertex;
+    unsigned m_StartIndex;
+    int m_NumVerts;
+    int m_NumIndexes;
 
-    unsigned int m_GLVertexBufferID;
-    unsigned int m_GLIndexBufferID;
+
 };
 
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+typedef boost::shared_ptr<SubVertexArray> SubVertexArrayPtr;
 
 }
 
