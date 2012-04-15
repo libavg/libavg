@@ -139,6 +139,7 @@
     <ClInclude Include="..\..\src\graphics\TextureMover.h" />
     <ClInclude Include="..\..\src\graphics\TwoPassScale.h" />
     <ClInclude Include="..\..\src\graphics\VertexArray.h" />
+    <ClInclude Include="..\..\src\graphics\VertexData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
@@ -200,6 +201,7 @@
     <ClCompile Include="..\..\src\graphics\StandardShader.cpp" />
     <ClCompile Include="..\..\src\graphics\TextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexArray.cpp" />
+    <ClCompile Include="..\..\src\graphics\VertexData.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
