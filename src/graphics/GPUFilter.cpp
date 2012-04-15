@@ -24,6 +24,8 @@
 
 #include "VertexArray.h"
 #include "ImagingProjection.h"
+#include "GLContext.h"
+
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
@@ -222,7 +224,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
     PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), pf, GL_STREAM_DRAW));
     pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex MapBuffer()");
+    GLContext::getCurrent()->checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
     if (bUseFloat) {
         float * pCurFloat = (float*)pPBOPixels;
         for (int i = 0; i < kernelWidth; ++i) {
@@ -234,12 +236,12 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
     } else {
         unsigned char * pCurPixel = (unsigned char *)pPBOPixels;
         for (int i = 0; i < kernelWidth; ++i) {
-            *pCurPixel = (pKernel[i]*255+0.5);
+            *pCurPixel = (unsigned char)(pKernel[i]*255+0.5);
             ++pCurPixel;
         }
     }
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "GPUFilter::calcBlurKernelTex UnmapBuffer()");
+    GLContext::getCurrent()->checkError("GPUFilter::calcBlurKernelTex UnmapBuffer()");
     pFilterKernelPBO->moveToTexture(*pTex);
 
     delete[] pKernel;

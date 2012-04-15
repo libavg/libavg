@@ -78,21 +78,21 @@ void OGLImagingContext::setStandardState()
 {
     // Shading etc.
     glDisable(GL_BLEND);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_BLEND)");
+    GLContext::getCurrent()->checkError("glDisable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glShadeModel(GL_FLAT)");
+    GLContext::getCurrent()->checkError("glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_DEPTH_TEST)");
+    GLContext::getCurrent()->checkError("glDisable(GL_DEPTH_TEST)");
     glDisable(GL_STENCIL_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_STENCIL_TEST)");
+    GLContext::getCurrent()->checkError("glDisable(GL_STENCIL_TEST)");
 
     // Texturing
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glTexEnvf()");
+    GLContext::getCurrent()->checkError("glTexEnvf()");
     glBlendFunc(GL_ONE, GL_ZERO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glBlendFunc()");
+    GLContext::getCurrent()->checkError("glBlendFunc()");
     glDisable(GL_MULTISAMPLE);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
+    GLContext::getCurrent()->checkError("glDisable(GL_MULTISAMPLE);");
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);

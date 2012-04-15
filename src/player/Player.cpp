@@ -110,6 +110,7 @@ Player::Player()
       m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
+      m_bCheckGLErrors(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
@@ -248,6 +249,15 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
+void Player::enableGLErrorChecks(bool bEnable)
+{
+    if (m_bIsPlaying) {
+        GLContext::getCurrent()->enableErrorChecks(bEnable);
+    } else {
+        m_bCheckGLErrors = bEnable;
+    }
+}
+        
 glm::vec2 Player::getScreenResolution()
 {
     return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
@@ -1035,6 +1045,7 @@ void Player::doFrame(bool bFirstFrame)
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
+        GLContext::getCurrent()->mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
@@ -1160,6 +1171,7 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_pDisplayEngine->init(m_DP, m_GLConfig);
+    GLContext::getCurrent()->enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }

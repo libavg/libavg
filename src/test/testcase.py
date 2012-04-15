@@ -72,6 +72,7 @@ class AVGTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, testFuncName)
 
         self.__player = avg.Player.get()
+        self.__player.enableGLErrorChecks(True)
         self.__testFuncName = testFuncName
         self.__logger = avg.Logger.get()
         self.__skipped = False

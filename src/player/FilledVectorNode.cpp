@@ -154,7 +154,6 @@ void FilledVectorNode::preRender()
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
         pFillVA->reset();
         Pixel32 color = getFillColorVal();
-        color.setA((unsigned char)(curOpacity*255));
         calcFillVertexes(pFillVA, color);
         pFillVA->update();
         m_OldOpacity = curOpacity;
@@ -169,8 +168,7 @@ void FilledVectorNode::render()
     ScopeTimer Timer(RenderProfilingZone);
     float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
-        glColor4d(1.0, 1.0, 1.0, curOpacity);
-        m_pFillShape->draw(getParentTransform());
+        m_pFillShape->draw(getParentTransform(), curOpacity);
     }
     VectorNode::render();
 }

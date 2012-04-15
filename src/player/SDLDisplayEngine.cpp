@@ -238,15 +238,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     calcRefreshRate();
 
     glEnable(GL_BLEND);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_BLEND)");
+    GLContext::getCurrent()->checkError("init: glEnable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel(GL_FLAT)");
+    GLContext::getCurrent()->checkError("init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
+    GLContext::getCurrent()->checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
+    GLContext::getCurrent()->checkError("init: glEnable(GL_STENCIL_TEST)");
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glTexEnvf()");
+    GLContext::getCurrent()->checkError("init: glTexEnvf()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
@@ -373,7 +373,7 @@ void SDLDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
+    GLContext::getCurrent()->checkError("swapBuffers()");
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
@@ -411,10 +411,10 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     }
     glReadBuffer(buf);
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
+    GLContext::getCurrent()->checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
+    GLContext::getCurrent()->checkError("SDLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }

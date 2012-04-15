@@ -86,6 +86,7 @@ class AVG_API Player
                 int multiSampleSamples);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
+        void enableGLErrorChecks(bool bEnable);
         glm::vec2 getScreenResolution();
         float getPixelsPerMM();
         glm::vec2 getPhysicalScreenDimensions();
@@ -236,6 +237,7 @@ class AVG_API Player
         bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;
         bool m_bIsPlaying;
+        bool m_bCheckGLErrors;
 
         // Time calculation
         bool m_bFakeFPS;

@@ -163,7 +163,7 @@ void VertexArray::update()
         memcpy(pBuffer, m_pIndexData, m_NumIndexes*sizeof(unsigned int));
         glproc::UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::update");
+        GLContext::getCurrent()->checkError("VertexArray::update");
     }
     m_bDataChanged = false;
 }
@@ -177,12 +177,12 @@ void VertexArray::draw()
             (void *)(offsetof(T2V3C4Vertex, m_Color)));
     glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
             (void *)(offsetof(T2V3C4Vertex, m_Pos)));
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw:1");
+    GLContext::getCurrent()->checkError("VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
     // TODO: glDrawRangeElements is allegedly faster.
     glDrawElements(GL_TRIANGLES, m_NumIndexes, GL_UNSIGNED_INT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw():2");
+    GLContext::getCurrent()->checkError( "VertexArray::draw():2");
 }
 
 int VertexArray::getCurVert() const

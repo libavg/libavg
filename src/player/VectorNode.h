@@ -102,7 +102,6 @@ class AVG_API VectorNode : public Node
 
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
-        float m_OldOpacity;
 
         ShapePtr m_pShape;
         GLContext::BlendMode m_BlendMode;

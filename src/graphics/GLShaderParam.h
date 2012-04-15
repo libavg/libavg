@@ -25,6 +25,7 @@
 #include "../api.h"
 #include "OGLHelper.h"
 #include "Pixel32.h"
+#include "GLContext.h"
 
 #include "../base/GLMHelper.h"
 #include "../base/Exception.h"
@@ -68,7 +69,7 @@ public:
     {
         if (!m_bValSet || m_Val != val) {
             uniformSet(getLocation(), val);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShaderParam::set");
+            GLContext::getCurrent()->checkError("OGLShaderParam::set");
             m_Val = val;
             m_bValSet = true;
         }

@@ -27,6 +27,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include "GLContext.h"
+
 #include <iostream>
 #include <cstring>
 
@@ -56,7 +58,7 @@ void BmpTextureMover::moveBmpToTexture(BitmapPtr pBmp, GLTexture& tex)
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             tex.getGLFormat(getPF()), tex.getGLType(getPF()), 
             pStartPos);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+    GLContext::getCurrent()->checkError(
             "BmpTextureMover::moveBmpToTexture: glTexSubImage2D()");
 }
 
@@ -78,7 +80,7 @@ BitmapPtr BmpTextureMover::moveTextureToBmp(GLTexture& tex, int mipmapLevel)
     unsigned char * pStartPos = pBmp->getPixels();
     glGetTexImage(GL_TEXTURE_2D, mipmapLevel, GLTexture::getGLFormat(getPF()), 
             GLTexture::getGLType(getPF()), pStartPos);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+    GLContext::getCurrent()->checkError(
             "BmpTextureMover::moveTextureToBmp: glGetTexImage()");
     
     if (activeSize != tex.getGLSize()) {

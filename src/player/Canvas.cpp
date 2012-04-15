@@ -258,31 +258,31 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         pFBO->activate();
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: BindFramebuffer()");
+        GLContext::getCurrent()->checkError("Canvas::render: BindFramebuffer()");
     }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+        GLContext::getCurrent()->checkError( 
                 "Canvas::render: glEnable(GL_MULTISAMPLE)");
     } else {
         glDisable(GL_MULTISAMPLE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+        GLContext::getCurrent()->checkError(
                 "Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glViewport()");
+    GLContext::getCurrent()->checkError("Canvas::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
+    GLContext::getCurrent()->checkError("Canvas::render: glMatrixMode()");
     glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
+    GLContext::getCurrent()->checkError("Canvas::render: glLoadIdentity()");
     glm::vec2 size = m_pRootNode->getSize();
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {
         gluOrtho2D(0, size.x, size.y, 0);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
+    GLContext::getCurrent()->checkError("Canvas::render: gluOrtho2D()");
     
     glMatrixMode(GL_MODELVIEW);
     {
