@@ -728,9 +728,9 @@ void WordsNode::redraw()
     renderText();
 }
 
-void WordsNode::preRender()
+void WordsNode::preRender(const VertexArrayPtr& pVA)
 {
-    Node::preRender();
+    Node::preRender(pVA);
     if (isVisible()) {
         redraw();
     } else {
@@ -739,6 +739,7 @@ void WordsNode::preRender()
     if (m_sText.length() != 0 && isVisible()) {
         renderFX(getSize(), m_Color, false);
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("WordsNode::render");

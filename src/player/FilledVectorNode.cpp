@@ -145,20 +145,22 @@ void FilledVectorNode::setFillOpacity(float opacity)
     setDrawNeeded();
 }
 
-void FilledVectorNode::preRender()
+void FilledVectorNode::preRender(const VertexArrayPtr& pVA)
 {
-    Node::preRender();
+    Node::preRender(pVA);
     float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
-    VertexArrayPtr pFillVA;
-    pFillVA = m_pFillShape->getVertexArray();
+
+    VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
-        pFillVA->reset();
+        pShapeVD->reset();
         Pixel32 color = getFillColorVal();
-        calcFillVertexes(pFillVA, color);
-        pFillVA->update();
+        calcFillVertexes(pShapeVD, color);
         m_OldOpacity = curOpacity;
     }
-    VectorNode::preRender();
+    if (isVisible()) {
+        m_pFillShape->setVertexArray(pVA);
+    }
+    VectorNode::preRender(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");

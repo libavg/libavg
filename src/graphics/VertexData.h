@@ -39,6 +39,9 @@ struct T2V3C4Vertex {
     GLfloat m_Pos[3];
 };
 
+class VertexData;
+typedef boost::shared_ptr<VertexData> VertexDataPtr;
+
 class AVG_API VertexData {
 public:
     VertexData(int reserveVerts = 0, int reserveIndexes = 0);
@@ -50,6 +53,7 @@ public:
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
     void addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
             float width, float tc1=0, float tc2=1);
+    void appendVertexData(VertexDataPtr pVertexes);
     bool hasDataChanged() const;
     void resetDataChanged();
     void reset();
@@ -80,7 +84,7 @@ private:
     bool m_bDataChanged;
 };
 
-typedef boost::shared_ptr<VertexData> VertexDataPtr;
+std::ostream& operator<<(std::ostream& os, const T2V3C4Vertex& v);
 
 }
 

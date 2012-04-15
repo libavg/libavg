@@ -330,9 +330,9 @@ int CameraNode::getFrameNum() const
 static ProfilingZoneID CameraFetchImage("Camera fetch image");
 static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
-void CameraNode::preRender()
+void CameraNode::preRender(const VertexArrayPtr& pVA)
 {
-    Node::preRender();
+    Node::preRender(pVA);
     if (isAutoUpdateCameraImage()) {
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
@@ -352,6 +352,7 @@ void CameraNode::preRender()
         renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");

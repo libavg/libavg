@@ -146,15 +146,16 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-void ImageNode::preRender()
+void ImageNode::preRender(const VertexArrayPtr& pVA)
 {
-    Node::preRender();
+    Node::preRender(pVA);
     if (isVisible()) {
         bool bHasCanvas = bool(m_pImage->getCanvas());
         if (m_pImage->getSource() != Image::NONE) {
             renderFX(getSize(), Pixel32(255, 255, 255, 255), bHasCanvas, bHasCanvas);
         }
     }
+    calcVertexArray(pVA);
 }
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");

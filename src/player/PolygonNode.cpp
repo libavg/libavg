@@ -142,7 +142,7 @@ void PolygonNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pE
     }
 }
 
-void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void PolygonNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     if (getNumDifferentPts(m_Pts) < 3) {
         return;
@@ -150,14 +150,14 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_EffTexCoords.empty()) {
         calcEffPolyLineTexCoords(m_EffTexCoords, m_TexCoords, m_CumulDist);
     }
-    calcPolyLine(m_Pts, m_EffTexCoords, true, m_LineJoin, pVertexArray, color);
+    calcPolyLine(m_Pts, m_EffTexCoords, true, m_LineJoin, pVertexData, color);
 
     for (unsigned i = 0; i < m_Holes.size(); i++) {
-        calcPolyLine(m_Holes[i], m_EffTexCoords, true, m_LineJoin, pVertexArray, color);
+        calcPolyLine(m_Holes[i], m_EffTexCoords, true, m_LineJoin, pVertexData, color);
     }
 }
 
-void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void PolygonNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     if (getNumDifferentPts(m_Pts) < 3) {
         return;
@@ -204,10 +204,10 @@ void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 
         for (unsigned i = 0; i < pts.size(); ++i) {
             glm::vec2 texCoord = calcFillTexCoord(pts[i], minCoord, maxCoord);
-            pVertexArray->appendPos(pts[i], texCoord, color);
+            pVertexData->appendPos(pts[i], texCoord, color);
         }
         for (unsigned i = 0; i < triIndexes.size(); i+=3) {
-            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
+            pVertexData->appendTriIndexes(triIndexes[i], triIndexes[i+1], 
                     triIndexes[i+2]);
         }
     }

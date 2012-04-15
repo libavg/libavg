@@ -69,6 +69,7 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_bIsPlaying = true;
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
+    m_pVertexArray = VertexArrayPtr(new VertexArray(2000, 3000));
 }
 
 void Canvas::stopPlayback()
@@ -79,6 +80,7 @@ void Canvas::stopPlayback()
         m_pRootNode = CanvasNodePtr();
         m_IDMap.clear();
         m_bIsPlaying = false;
+        m_pVertexArray = VertexArrayPtr();
     }
 }
 
@@ -252,7 +254,9 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
 {
     {
         ScopeTimer Timer(PreRenderProfilingZone);
-        m_pRootNode->preRender();
+        m_pVertexArray->reset();
+        m_pRootNode->preRender(m_pVertexArray);
+        m_pVertexArray->update();
     }
     if (pFBO) {
         pFBO->activate();
@@ -287,6 +291,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
+
         m_pRootNode->maybeRender();
 
         renderOutlines();

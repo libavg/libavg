@@ -119,6 +119,25 @@ void VertexData::addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2
     appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
 
+void VertexData::appendVertexData(VertexDataPtr pVertexes)
+{
+    int oldNumVerts = m_NumVerts;
+    int oldNumIndexes = m_NumIndexes;
+    m_NumVerts += pVertexes->getNumVerts();
+    m_NumIndexes += pVertexes->getNumIndexes();
+    if (m_NumVerts > m_ReserveVerts || m_NumIndexes > m_ReserveIndexes) {
+        grow();
+    }
+
+    for (int i=0; i<pVertexes->getNumVerts(); ++i) {
+        m_pVertexData[oldNumVerts+i] = pVertexes->m_pVertexData[i];
+    }
+    for (int i=0; i<pVertexes->getNumIndexes(); ++i) {
+        m_pIndexData[oldNumIndexes+i] = pVertexes->m_pIndexData[i]+oldNumVerts;
+    }
+    m_bDataChanged = true;
+}
+
 bool VertexData::hasDataChanged() const
 {
     return m_bDataChanged;
@@ -143,6 +162,20 @@ int VertexData::getCurVert() const
 int VertexData::getCurIndex() const
 {
     return m_NumIndexes;
+}
+
+void VertexData::dump() const
+{
+    cerr << m_NumVerts << " vertexes: ";
+    for (int i=0; i<m_NumVerts; ++i) {
+        cerr << m_pVertexData[i] << ", ";
+    }
+    cerr << endl;
+    cerr << m_NumIndexes << " indexes: ";
+    for (int i=0; i<m_NumIndexes; ++i) {
+        cerr << m_pIndexData[i] << " ";
+    }
+    cerr << endl;
 }
 
 void VertexData::grow()
@@ -207,6 +240,11 @@ const unsigned int * VertexData::getIndexPointer() const
     return m_pIndexData;
 }
 
+std::ostream& operator<<(std::ostream& os, const T2V3C4Vertex& v)
+{
+    os << "(" << v.m_Pos[0] << ", " << v.m_Pos[1] << ", " << v.m_Pos[2] << ")";
+    return os;
+}
 
 }
 

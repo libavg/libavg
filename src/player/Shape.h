@@ -47,7 +47,8 @@ class AVG_API Shape
         virtual void moveToCPU();
 
         ImagePtr getImage();
-        VertexArrayPtr getVertexArray();
+        VertexDataPtr getVertexData();
+        void setVertexArray(const VertexArrayPtr& pVA);
         void draw(const glm::mat4& transform, float opacity);
 
         void discard();
@@ -55,7 +56,8 @@ class AVG_API Shape
     private:
         bool isTextured() const;
 
-        VertexArrayPtr m_pVertexArray;
+        VertexDataPtr m_pVertexData;
+        SubVertexArrayPtr m_pSubVA;
         OGLSurface * m_pSurface;
         ImagePtr m_pImage;
 };

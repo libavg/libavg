@@ -97,9 +97,9 @@ void LineNode::setTexCoord2(float tc)
     setDrawNeeded();
 }
 
-void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void LineNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
-    pVertexArray->addLineData(color, m_P1, m_P2, getStrokeWidth(), m_TC1, m_TC2);
+    pVertexData->addLineData(color, m_P1, m_P2, getStrokeWidth(), m_TC1, m_TC2);
 }
 
 }

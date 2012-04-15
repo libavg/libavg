@@ -124,14 +124,14 @@ void MeshNode::setTriangles(const vector<glm::ivec3>& triangles)
     setDrawNeeded();
 }
 
-void MeshNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
+void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     for (unsigned int i = 0; i < m_VertexCoords.size(); i++) {
-        pVertexArray->appendPos(m_VertexCoords[i],m_TexCoords[i], color);
+        pVertexData->appendPos(m_VertexCoords[i],m_TexCoords[i], color);
     }
 
     for (unsigned int i = 0; i < m_Triangles.size(); i++) {
-        pVertexArray->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, 
+        pVertexData->appendTriIndexes(m_Triangles[i].x, m_Triangles[i].y, 
                 m_Triangles[i].z);
     }
 }

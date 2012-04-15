@@ -315,11 +315,11 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEleme
     }
 }
 
-void DivNode::preRender()
+void DivNode::preRender(const VertexArrayPtr& pVA)
 {
-    Node::preRender();
+    Node::preRender(pVA);
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->preRender();
+        getChild(i)->preRender(pVA);
     }
 }
 

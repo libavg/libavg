@@ -111,6 +111,7 @@ class AVG_API Canvas: public boost::enable_shared_from_this<Canvas>
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;
+        VertexArrayPtr m_pVertexArray;
        
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;

@@ -126,7 +126,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
         virtual void getElementsByPos(const glm::vec2& pos, 
                 std::vector<NodeWeakPtr>& pElements);
 
-        virtual void preRender();
+        virtual void preRender(const VertexArrayPtr& pVA);
         virtual void maybeRender() {};
         virtual void render() {};
 

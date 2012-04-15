@@ -66,7 +66,6 @@ RasterNode::RasterNode()
       m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false),
       m_bBound(false),
       m_TileSize(-1,-1),
-      m_pVertexes(0),
       m_bFXDirty(true)
 {
 }
@@ -113,10 +112,6 @@ void RasterNode::connectDisplay()
 
 void RasterNode::disconnect(bool bKill)
 {
-    if (m_pVertexes) {
-        delete m_pVertexes;
-        m_pVertexes = 0;
-    }
     if (m_pSurface) {
         m_pSurface->destroy();
     }
@@ -337,6 +332,28 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
+void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
+{
+    // TODO: Optimize for unchanged vertexes.
+    // if (m_bVertexArrayDirty) {
+    if (isVisible() && m_pSurface->isCreated()) {
+        bind();
+        m_pSubVA = pVA->startSubVA();
+        for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
+            for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
+                int curVertex = m_pSubVA->getCurVert();
+                m_pSubVA->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
+                m_pSubVA->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
+                m_pSubVA->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
+                m_pSubVA->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
+                m_pSubVA->appendQuadIndexes(
+                        curVertex+1, curVertex, curVertex+2, curVertex+3);
+            }
+        }
+        m_bVertexArrayDirty = false;
+    }
+}
+
 void RasterNode::blt32(const glm::mat4& transform, const glm::vec2& destSize, 
         float opacity, GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
@@ -526,23 +543,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     localTransform = glm::scale(localTransform, scaleVec);
     glLoadMatrixf(glm::value_ptr(localTransform));
 
-    if (m_bVertexArrayDirty) {
-        m_pVertexes->reset();
-        for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
-            for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
-                int curVertex = m_pVertexes->getCurVert();
-                m_pVertexes->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
-                m_pVertexes->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
-                m_pVertexes->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
-                m_pVertexes->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
-                m_pVertexes->appendQuadIndexes(
-                        curVertex+1, curVertex, curVertex+2, curVertex+3);
-            }
-        }
-        m_bVertexArrayDirty = false;
-    }
-
-    m_pVertexes->draw();
+    m_pSubVA->draw();
 
     PixelFormat pf = m_pSurface->getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " << destSize.y << ")" 
@@ -570,11 +571,7 @@ void RasterNode::calcVertexGrid(VertexGrid& grid)
             calcTileVertex(x, y, grid[y][x]);
         }
     }
-    if (m_pVertexes) {
-        delete m_pVertexes;
-    }
     m_bVertexArrayDirty = true;
-    m_pVertexes = new VertexArray(numTiles.x*numTiles.y*4, numTiles.x*numTiles.y*6);
 }
 
 void RasterNode::calcTileVertex(int x, int y, glm::vec2& Vertex) 

@@ -22,6 +22,7 @@
 #include "VertexArray.h"
 
 #include "GLContext.h"
+#include "SubVertexArray.h"
 
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
@@ -91,6 +92,11 @@ void VertexArray::update()
     resetDataChanged();
 }
 
+void VertexArray::activate()
+{
+    glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
+}
+
 void VertexArray::draw()
 {
     update();
@@ -123,6 +129,11 @@ void VertexArray::draw(unsigned startIndex, unsigned numIndexes)
     glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_INT, 
             (void *)(startIndex*sizeof(unsigned)));
     GLContext::getCurrent()->checkError( "VertexArray::draw():2");
+}
+
+SubVertexArrayPtr VertexArray::startSubVA()
+{
+    return SubVertexArrayPtr(new SubVertexArray(this, getNumVerts(), getNumIndexes()));
 }
 
 }

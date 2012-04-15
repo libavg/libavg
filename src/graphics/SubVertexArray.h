@@ -34,6 +34,8 @@
 
 namespace avg {
 
+class VertexArray;
+
 class AVG_API SubVertexArray {
 public:
     SubVertexArray(VertexArray* pVertexArray, unsigned startVertex, unsigned startIndex);
@@ -45,7 +47,8 @@ public:
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
     void addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
             float width, float tc1=0, float tc2=1);
-//    int getCurVert() const;
+    void appendVertexData(VertexDataPtr pVertexes);
+    int getCurVert() const;
 //    int getCurIndex() const;
 
     void draw();

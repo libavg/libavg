@@ -333,7 +333,7 @@ void Node::getElementsByPos(const glm::vec2& pos,
 {
 }
 
-void Node::preRender()
+void Node::preRender(const VertexArrayPtr& pVA)
 {
     if (getParent()) {
         m_EffectiveOpacity = m_Opacity*getParent()->getEffectiveOpacity();

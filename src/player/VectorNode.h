@@ -56,11 +56,11 @@ class AVG_API VectorNode : public Node
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
 
-        virtual void preRender();
+        virtual void preRender(const VertexArrayPtr& pVA);
         virtual void maybeRender();
         virtual void render();
 
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
+        virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -85,7 +85,7 @@ class AVG_API VectorNode : public Node
 
         void calcPolyLine(const std::vector<glm::vec2>& origPts, 
                 const std::vector<float>& origTexCoords, bool bIsClosed, 
-                LineJoin lineJoin, VertexArrayPtr& pVertexArray, Pixel32 color);
+                LineJoin lineJoin, const VertexDataPtr& pVertexData, Pixel32 color);
         void calcBevelTC(const WideLine& line1, const WideLine& line2, 
                 bool bIsLeft, const std::vector<float>& texCoords, unsigned i, 
                 float& TC0, float& TC1);

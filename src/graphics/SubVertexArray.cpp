@@ -21,6 +21,7 @@
 
 #include "SubVertexArray.h"
 
+#include "VertexArray.h"
 #include "GLContext.h"
 
 #include "../base/Exception.h"
@@ -77,6 +78,18 @@ void SubVertexArray::addLineData(Pixel32 color, const glm::vec2& p1, const glm::
 {
     m_pVA->addLineData(color, p1, p2, width, tc1, tc2);
     m_NumIndexes += 6;
+}
+
+void SubVertexArray::appendVertexData(VertexDataPtr pVertexes)
+{
+    m_pVA->appendVertexData(pVertexes);
+    m_NumVerts += pVertexes->getCurVert();
+    m_NumIndexes += pVertexes->getCurIndex();
+}
+
+int SubVertexArray::getCurVert() const
+{
+    return m_pVA->getCurVert();
 }
 
 void SubVertexArray::draw()

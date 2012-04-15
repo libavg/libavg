@@ -50,15 +50,15 @@ class AVG_API CircleNode : public FilledVectorNode
         void setTexCoord2(float tc);
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
-        virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
+        virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
+        virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
     private:
-        void appendCirclePoint(VertexArrayPtr& pVertexArray, const glm::vec2& iPt, 
+        void appendCirclePoint(const VertexDataPtr& pVertexData, const glm::vec2& iPt, 
                 const glm::vec2& oPt, Pixel32 color, int& i, int& curVertex);
-        void appendFillCirclePoint(VertexArrayPtr& pVertexArray, const glm::vec2& curPt, 
-                const glm::vec2& minPt, const glm::vec2& maxPt, Pixel32 color,
-                int& curVertex);
+        void appendFillCirclePoint(const VertexDataPtr& pVertexData, 
+                const glm::vec2& curPt, const glm::vec2& minPt, const glm::vec2& maxPt, 
+                Pixel32 color, int& curVertex);
         int getNumCircumferencePoints();
         void getEigthCirclePoints(std::vector<glm::vec2>& pts, float radius);
         glm::vec2 getCirclePt(float angle, float radius);

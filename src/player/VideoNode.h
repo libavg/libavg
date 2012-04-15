@@ -91,8 +91,8 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener, IAudioSource
         void setEOFCallback(PyObject * pEOFCallback);
         bool isAccelerated() const;
 
+        virtual void preRender(const VertexArrayPtr& pVA);
         virtual void render();
-        virtual void preRender();
         virtual void onFrameEnd();
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);

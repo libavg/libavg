@@ -44,6 +44,8 @@ class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
+class SubVertexArray;
+typedef boost::shared_ptr<SubVertexArray> SubVertexArrayPtr;
 
 typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 
@@ -57,7 +59,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void setArgs(const ArgList& args);
         virtual void disconnect(bool bKill);
         virtual void checkReload();
-        
+
         // Warping support.
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
@@ -93,6 +95,8 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
+         
+        void calcVertexArray(const VertexArrayPtr& pVA);
         void blt32(const glm::mat4& transform, const glm::vec2& destSize, float opacity,
                 GLContext::BlendMode mode, bool bPremultipliedAlpha = false);
         void blta8(const glm::mat4& transform, const glm::vec2& destSize, float opacity, 
@@ -140,7 +144,7 @@ class AVG_API RasterNode: public AreaNode
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
         bool m_bVertexArrayDirty;
-        VertexArray * m_pVertexes;
+        SubVertexArrayPtr m_pSubVA;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 
         glm::vec3 m_Gamma;
