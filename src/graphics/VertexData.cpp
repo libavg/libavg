@@ -129,9 +129,9 @@ void VertexData::appendVertexData(VertexDataPtr pVertexes)
         grow();
     }
 
-    for (int i=0; i<pVertexes->getNumVerts(); ++i) {
-        m_pVertexData[oldNumVerts+i] = pVertexes->m_pVertexData[i];
-    }
+    memcpy(&(m_pVertexData[oldNumVerts]), pVertexes->m_pVertexData, 
+            pVertexes->getNumVerts()*sizeof(T2V3C4Vertex));
+
     for (int i=0; i<pVertexes->getNumIndexes(); ++i) {
         m_pIndexData[oldNumIndexes+i] = pVertexes->m_pIndexData[i]+oldNumVerts;
     }
