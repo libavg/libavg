@@ -475,15 +475,15 @@ class VectorTestCase(AVGTestCase):
         polygon = addPolygon()
         helper = Player.getTestHelper()
         self.start((
-                 lambda: self.compareImage("testPolygon1", True),
+                 lambda: self.compareImage("testPolygon1", False),
                  changePolygon,
-                 lambda: self.compareImage("testPolygon2", True),
+                 lambda: self.compareImage("testPolygon2", False),
                  fillPolygon,
-                 lambda: self.compareImage("testPolygon3", True),
+                 lambda: self.compareImage("testPolygon3", False),
                  addEmptyPoint,
-                 lambda: self.compareImage("testPolygon4", True),
+                 lambda: self.compareImage("testPolygon4", False),
                  addPolygon2,
-                 lambda: self.compareImage("testPolygon5", True),
+                 lambda: self.compareImage("testPolygon5", False),
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6", False),
                  lambda: self.fakeClick(50, 50),
@@ -493,15 +493,15 @@ class VectorTestCase(AVGTestCase):
                  addEmptyPolygon,
                  clearCanvas,
                  createLeftOpenPolygon,
-                 lambda: self.compareImage("testPolygon7", True),
+                 lambda: self.compareImage("testPolygon7", False),
                  createUpOpenPolygon,
-                 lambda: self.compareImage("testPolygon8", True),
+                 lambda: self.compareImage("testPolygon8", False),
                  createBottomOpenPolygon,
-                 lambda: self.compareImage("testPolygon9", True),
+                 lambda: self.compareImage("testPolygon9", False),
                  createOneHole,
-                 lambda: self.compareImage("testPolygonHole1", True),
+                 lambda: self.compareImage("testPolygonHole1", False),
                  createMoreHoles,
-                 lambda: self.compareImage("testPolygonHole2", True)
+                 lambda: self.compareImage("testPolygonHole2", False)
                 ))
 
     def testTexturedPolygon(self):
