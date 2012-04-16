@@ -44,7 +44,7 @@ struct Node
 
   double m_Value;
 
-  Node() : m_Point(NULL), m_Triangle(NULL), m_Next(NULL), m_Prev(NULL), m_Value(NULL)
+  Node() : m_Point(NULL), m_Triangle(NULL), m_Next(NULL), m_Prev(NULL), m_Value(0)
   {}
 
   Node(Point& p) : m_Point(&p), m_Triangle(NULL), m_Next(NULL), m_Prev(NULL), m_Value(p.m_X)
