@@ -89,7 +89,7 @@ class AVG_API DivNode : public AreaNode
         std::string m_sElementOutlineColor;
         Pixel32 m_ElementOutlineColor;
 
-        VertexArrayPtr m_pClipVertexes;
+        SubVertexArrayPtr m_pClipVA;
 
         std::vector<NodePtr> m_Children;
 };

@@ -169,7 +169,7 @@ IntPoint Canvas::getSize() const
 }
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void Canvas::pushClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
+void Canvas::pushClipRect(const glm::mat4& transform, SubVertexArrayPtr pVA)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
@@ -178,7 +178,7 @@ void Canvas::pushClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void Canvas::popClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
+void Canvas::popClipRect(const glm::mat4& transform, SubVertexArrayPtr pVA)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
@@ -316,7 +316,7 @@ void Canvas::renderOutlines()
     }
 }
 
-void Canvas::clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencilOp)
+void Canvas::clip(const glm::mat4& transform, SubVertexArrayPtr pVA, GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
