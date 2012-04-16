@@ -30,10 +30,10 @@ from math import *
 g_Player = avg.Player.get()
 
 MAX_TAP_DIST = 15 
-MAX_TAP_TIME = 500
+MAX_TAP_TIME = 900
 MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
-HOLD_DELAY = 500
+HOLD_DELAY = 900
 
 class ContactData:
 
