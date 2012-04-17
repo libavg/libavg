@@ -27,6 +27,8 @@
 # * c't 09/2011 p.184, media sources/license
 # * description, link to wiki tutorial page
 
+from random import randint
+
 from libavg import avg
 from libavg.gameapp import GameApp
 from libavg.utils import getMediaDir
@@ -42,23 +44,26 @@ class Bullet(avg.VideoNode):
         self.play()
 
 
-class Aircraft(avg.DivNode):
+class _Aircraft(avg.DivNode):
+    _SPEED = 300 # px/s
     __SHADOW_SCALE = 0.5
     __SHADOW_OFFSET = avg.Point2D(170, 170)
 
     def __init__(self, mediabase, shadowdiv, **kwargs):
-        super(Aircraft, self).__init__(**kwargs)
+        super(_Aircraft, self).__init__(**kwargs)
         self.__aircraftVid = avg.VideoNode(href=mediabase+'.mov', loop=True, parent=self)
         self.__aircraftVid.pause()
         self.__destroyVid = avg.VideoNode(href='explosion.mov', active=False,
                 threaded=False, parent=self)
         self.__destroyVid.pause()
         self.__shadowImg = avg.ImageNode(href=mediabase+'.gif', opacity=0.5,
-                pos=self.pos + Aircraft.__SHADOW_OFFSET, parent=shadowdiv)
-        self.__shadowImg.size *= Aircraft.__SHADOW_SCALE
+                pos=self.pos + _Aircraft.__SHADOW_OFFSET, parent=shadowdiv)
+        self.__shadowImg.size *= _Aircraft.__SHADOW_SCALE
         self.__shadowImg.setEffect(avg.BlurFXNode(6.0))
+        self.size = self.__aircraftVid.size
 
     def reset(self):
+        self.active = True
         self.__aircraftVid.active = True
         self.__aircraftVid.play()
         self.__destroyVid.active = False
@@ -73,8 +78,18 @@ class Aircraft(avg.DivNode):
         self.__destroyVid.seekToFrame(0)
         self.__shadowImg.active = False
 
+    def _move(self, pos):
+        self.pos = pos
+        self.__shadowImg.pos = self.pos + _Aircraft.__SHADOW_OFFSET
 
-class PlayerAircraft(Aircraft):
+    def _hide(self):
+        self.active = False
+        self.__aircraftVid.pause()
+        self.__destroyVid.pause()
+        self.__shadowImg.active = False
+
+
+class PlayerAircraft(_Aircraft):
     def __init__(self, shadowdiv, **kwargs):
         super(PlayerAircraft, self).__init__('spitfire', shadowdiv, **kwargs)
         self.__engineSnd = avg.SoundNode(href='flySound.mp3', loop=True, parent=self)
@@ -93,10 +108,22 @@ class PlayerAircraft(Aircraft):
         self.__bulletSnd.seekToTime(0)
 
 
-class EnemyAircraft(Aircraft):
+class EnemyAircraft(_Aircraft):
     def __init__(self, shadowdiv, **kwargs):
         super(EnemyAircraft, self).__init__('enemy', shadowdiv, **kwargs)
         self.__destroySnd = avg.SoundNode(href='enemyDeath.mp3', volume=2.0, parent=self)
+        super(EnemyAircraft, self)._hide()
+
+    def reset(self):
+        super(EnemyAircraft, self).reset()
+        self.pos = (randint(0, self.parent.width - self.width), -self.height)
+
+    def update(self, dt):
+        y = self.y + _Aircraft._SPEED * dt
+        if y < self.parent.height:
+            super(EnemyAircraft, self)._move((self.x, y))
+        else:
+            super(EnemyAircraft, self)._hide()
 
     def destroy(self):
         super(EnemyAircraft, self).destroy()
@@ -201,7 +228,8 @@ class OverheatControl(avg.DivNode):
 
 ### application ###
 
-class TutorialApp(GameApp):
+class FireBirdsApp(GameApp):
+    ENEMY_SPAWN_TIMEOUT = 1000 # ms
     multitouch = False
 
     def init(self):
@@ -210,64 +238,90 @@ class TutorialApp(GameApp):
         self.__gameMusic = avg.SoundNode(href='Fire_Birds.mp3', loop=True,
                 volume=0.75, parent=self._parentNode)
         self.__scrollingBg = ScrollingBackground(self._parentNode)
-        shadowDiv = avg.DivNode(parent=self._parentNode)
-
+        self.__shadowDiv = avg.DivNode(parent=self._parentNode)
+        self.__gameDiv = avg.DivNode(size=self._parentNode.size, parent=self._parentNode)
         self.__guiDiv = avg.DivNode(parent=self._parentNode)
+
         bg = avg.ImageNode(href='gui_frame.png', parent=self.__guiDiv)
         self.__guiDiv.pos = (0, self._parentNode.height - bg.height)
         self.__liveCounter = LiveCounter(pos=(8, 12), parent=self.__guiDiv)
         self.__overheatCtrl = OverheatControl(pos=(300, 54), parent=self.__guiDiv)
         self.__scoreCounter = ScoreCounter(pos=(1142, 54), parent=self.__guiDiv)
 
-        self.__player = PlayerAircraft(shadowDiv, parent=self._parentNode)
-        self.__enemy0 = EnemyAircraft(shadowDiv, pos=(256, 0), parent=self._parentNode)
-        Bullet(parent=self._parentNode)
+        self.__enemies = [EnemyAircraft(self.__shadowDiv, parent=self.__gameDiv)
+                for i in xrange(5)]
+        self.__player = PlayerAircraft(self.__shadowDiv, parent=self.__gameDiv)
+        Bullet(parent=self.__gameDiv)
 
         self.__frameHandlerId = None
+        self.__spawnTimeoutId = None
         self.__gameMusic.play()
         self.__start()
 
     def onKeyDown(self, event):
-        if self.__frameHandlerId is None:
+        if not self.__spawnTimeoutId is None: # player alive
+            if event.keystring == 'space':
+                if self.__overheatCtrl.shoot():
+                    self.__player.shoot()
+                return True
+            if event.keystring == '[-]':
+                if self.__liveCounter.dec():
+                    self.__stop()
+                    self.__player.destroy()
+                return True
+            if event.keystring == '[+]':
+                self.__scoreCounter.inc()
+                return True
+            return False
+        if self.__frameHandlerId is None: # game stopped
             if event.keystring == 'space':
                 self.__start()
                 return True
-            return False
-        if event.keystring == 'space':
-            if self.__overheatCtrl.shoot():
-                self.__player.shoot()
-            return True
-        if event.keystring == '[-]':
-            if self.__liveCounter.dec():
-                self.__stop()
-                self.__player.destroy()
-                self.__enemy0.destroy()
-            return True
-        if event.keystring == '[+]':
-            self.__scoreCounter.inc()
-            return True
+        # else: wait for enemies to leave the screen
         return False
 
     def __start(self):
-        assert(not self.__frameHandlerId)
+        assert(not self.__frameHandlerId and not self.__spawnTimeoutId)
         self.__liveCounter.reset()
         self.__overheatCtrl.reset()
         self.__scoreCounter.reset()
         self.__player.reset()
-        self.__enemy0.reset()
         self.__frameHandlerId = g_player.setOnFrameHandler(self.__onFrame)
+        self.__spawnTimeoutId = g_player.setInterval(FireBirdsApp.ENEMY_SPAWN_TIMEOUT,
+                self.__spawnEnemy)
 
     def __stop(self):
+        assert(self.__frameHandlerId and self.__spawnTimeoutId)
+        g_player.clearInterval(self.__spawnTimeoutId)
+        self.__spawnTimeoutId = None
+
+    def __spawnEnemy(self):
         assert(self.__frameHandlerId)
-        g_player.clearInterval(self.__frameHandlerId)
-        self.__frameHandlerId = None
+        enemy = None
+        for e in self.__enemies:
+            if not e.active:
+                enemy = e
+                break
+        if not enemy:
+            enemy = EnemyAircraft(self.__shadowDiv, parent=self.__gameDiv)
+            self.__enemies.append(enemy)
+        enemy.reset()
 
     def __onFrame(self):
         dt = g_player.getFrameDuration() / 1000.0
         self.__scrollingBg.update(dt)
-        self.__overheatCtrl.update(dt)
+        enemiesAlive = False
+        for e in self.__enemies:
+            if e.active:
+                enemiesAlive = True
+                e.update(dt)
+        if self.__spawnTimeoutId: # player alive
+            self.__overheatCtrl.update(dt)
+        elif not enemiesAlive: # player dead, all enemies left the screen
+            g_player.clearInterval(self.__frameHandlerId)
+            self.__frameHandlerId = None
 
 
 if __name__ == '__main__':
-    TutorialApp.start(resolution=(1280, 720))
+    FireBirdsApp.start(resolution=(1280, 720))
 
