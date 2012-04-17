@@ -77,6 +77,12 @@ void ShaderRegistry::setShaderPath(const std::string& sLibPath)
     AVG_TRACE(Logger::CONFIG, "Loading shaders from "+m_sLibPath);
 }
 
+void ShaderRegistry::setPreprocessorDefine(const std::string& sName, 
+        const std::string& sValue)
+{
+    m_PreprocessorDefinesMap[sName] = sValue;
+}
+
 void ShaderRegistry::createShader(const std::string& sID)
 {
     string sShaderCode;
@@ -84,20 +90,34 @@ void ShaderRegistry::createShader(const std::string& sID)
     readWholeFile(sFileName, sShaderCode);
     string sPreprocessed;
     preprocess(sShaderCode, sFileName, sPreprocessed);
-
+    string sDefines = createDefinesString();
     OGLShaderPtr pShader = getShader(sID);
     if (!pShader) {
-        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed));
+        m_ShaderMap[sID] = OGLShaderPtr(new OGLShader(sID, sPreprocessed, sDefines));
     }
 }
 
-OGLShaderPtr ShaderRegistry::getShader(const std::string& sID)
+OGLShaderPtr ShaderRegistry::getShader(const std::string& sID) const
 {
-    ShaderMap::iterator it = m_ShaderMap.find(sID);
+    ShaderMap::const_iterator it = m_ShaderMap.find(sID);
     if (it == m_ShaderMap.end()) {
         return OGLShaderPtr();
     } else {
         return it->second;
+    }
+}
+
+OGLShaderPtr ShaderRegistry::getCurShader() const
+{
+    return m_pCurShader;
+}
+
+void ShaderRegistry::setCurShader(const std::string& sID)
+{
+    if (sID == "") {
+        m_pCurShader = OGLShaderPtr();
+    } else {
+        m_pCurShader = getShader(sID);
     }
 }
 
@@ -131,9 +151,22 @@ void ShaderRegistry::preprocess(const string& sShaderCode, const string& sFileNa
     }
 }
 
+string ShaderRegistry::createDefinesString()
+{
+    stringstream ss;
+    std::map<std::string, std::string>::iterator it;
+    for (it=m_PreprocessorDefinesMap.begin(); it != m_PreprocessorDefinesMap.end();
+            ++it)
+    {
+        ss << "#define " << it->first << " " << it->second << endl;
+    }
+    return ss.str();
+}
+
 void ShaderRegistry::throwParseError(const string& sFileName, int curLine)
 {
-    throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+toString(curLine)+": Syntax error.");
+    throw Exception(AVG_ERR_VIDEO_GENERAL, "File '"+sFileName+"', Line "+
+            toString(curLine)+": Syntax error.");
 }
 
 void createShader(const std::string& sID)

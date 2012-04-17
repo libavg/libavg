@@ -110,6 +110,7 @@ Player::Player()
       m_bKeepWindowOpen(false),
       m_bStopOnEscape(true),
       m_bIsPlaying(false),
+      m_bCheckGLErrors(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
@@ -226,12 +227,11 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_Pos.y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOTTextures, bool bUseShaders,
-                bool bUsePixelBuffers, int multiSampleSamples)
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+        int multiSampleSamples)
 {
     errorIfPlaying("Player.setOGLOptions");
     m_GLConfig.m_bUsePOTTextures = bUsePOTTextures;
-    m_GLConfig.m_bUseShaders = bUseShaders;
     m_GLConfig.m_bUsePixelBuffers = bUsePixelBuffers;
     m_GLConfig.m_MultiSampleSamples = multiSampleSamples;
 }
@@ -249,6 +249,15 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
+void Player::enableGLErrorChecks(bool bEnable)
+{
+    if (m_bIsPlaying) {
+        GLContext::getCurrent()->enableErrorChecks(bEnable);
+    } else {
+        m_bCheckGLErrors = bEnable;
+    }
+}
+        
 glm::vec2 Player::getScreenResolution()
 {
     return glm::vec2(safeGetDisplayEngine()->getScreenResolution());
@@ -1036,6 +1045,7 @@ void Player::doFrame(bool bFirstFrame)
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
+        GLContext::getCurrent()->mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
@@ -1077,15 +1087,6 @@ float Player::getVideoRefreshRate()
         return 0;
     }
     return m_pDisplayEngine->getRefreshRate();
-}
-
-bool Player::isUsingShaders()
-{
-    if (!m_pDisplayEngine) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Player.isUsingShaders must be called after Player.play().");
-    }
-    return GLContext::getCurrent()->isUsingShaders();
 }
 
 size_t Player::getVideoMemInstalled()
@@ -1153,7 +1154,6 @@ void Player::initConfig()
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
-    m_GLConfig.m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
     m_GLConfig.m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
@@ -1171,11 +1171,9 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_pDisplayEngine->init(m_DP, m_GLConfig);
+    GLContext::getCurrent()->enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
-    }
-    if (GLContext::getCurrent()->isUsingShaders()) {
-        OGLSurface::createShader();
     }
 }
 

@@ -30,6 +30,8 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 
+#include "../graphics/StandardShader.h"
+
 #include <iostream>
 
 using namespace std;
@@ -165,20 +167,20 @@ IntPoint Canvas::getSize() const
 }
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void Canvas::pushClipRect(VertexArrayPtr pVA)
+void Canvas::pushClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(pVA, GL_INCR);
+    clip(transform, pVA, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void Canvas::popClipRect(VertexArrayPtr pVA)
+void Canvas::popClipRect(const glm::mat4& transform, VertexArrayPtr pVA)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(pVA, GL_DECR);
+    clip(transform, pVA, GL_DECR);
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -256,37 +258,36 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
         pFBO->activate();
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: BindFramebuffer()");
+        GLContext::getCurrent()->checkError("Canvas::render: BindFramebuffer()");
     }
     if (m_MultiSampleSamples > 1) {
         glEnable(GL_MULTISAMPLE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+        GLContext::getCurrent()->checkError( 
                 "Canvas::render: glEnable(GL_MULTISAMPLE)");
     } else {
         glDisable(GL_MULTISAMPLE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+        GLContext::getCurrent()->checkError(
                 "Canvas::render: glDisable(GL_MULTISAMPLE)");
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, windowSize.x, windowSize.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glViewport()");
+    GLContext::getCurrent()->checkError("Canvas::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glMatrixMode()");
+    GLContext::getCurrent()->checkError("Canvas::render: glMatrixMode()");
     glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: glLoadIdentity()");
+    GLContext::getCurrent()->checkError("Canvas::render: glLoadIdentity()");
     glm::vec2 size = m_pRootNode->getSize();
     if (bUpsideDown) {
         gluOrtho2D(0, size.x, 0, size.y);
     } else {
         gluOrtho2D(0, size.x, size.y, 0);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Canvas::render: gluOrtho2D()");
+    GLContext::getCurrent()->checkError("Canvas::render: gluOrtho2D()");
     
-    const FRect rc(0,0, size.x, size.y);
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
-        m_pRootNode->maybeRender(rc);
+        m_pRootNode->maybeRender();
 
         renderOutlines();
     }
@@ -297,16 +298,20 @@ void Canvas::renderOutlines()
     GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
+    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    pShader->setUntextured();
+    pShader->activate();
     if (pVA->getCurVert() != 0) {
         pVA->update();
-        pContext->enableTexture(false);
         pContext->enableGLColorArray(true);
         pVA->draw();
     }
 }
 
-void Canvas::clip(VertexArrayPtr pVA, GLenum stencilOp)
+void Canvas::clip(const glm::mat4& transform, VertexArrayPtr pVA, GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
@@ -318,6 +323,10 @@ void Canvas::clip(VertexArrayPtr pVA, GLenum stencilOp)
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
+    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    pShader->setUntextured();
+    pShader->activate();
+    glLoadMatrixf(glm::value_ptr(transform));
     pVA->draw();
 
     // Set stencil test to only let

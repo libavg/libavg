@@ -63,4 +63,10 @@ string CanvasNode::getEffectiveMediaDir()
     return sMediaDir;
 }
 
+const glm::mat4& CanvasNode::getParentTransform() const
+{
+    static const glm::mat4 ident(1.0f);
+    return ident;
+}
+
 }

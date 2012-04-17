@@ -47,21 +47,22 @@ class GLContext;
 typedef boost::shared_ptr<GLContext> GLContextPtr;
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+class StandardShader;
+typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
 class AVG_API GLContext {
 public:
     GLContext(bool bUseCurrent=false, 
-            const GLConfig& GLConfig=GLConfig(false, true, true, 1), 
+            const GLConfig& glConfig=GLConfig(false, true, true, 1), 
             GLContext* pSharedContext=0);
     virtual ~GLContext();
     void init();
 
     void activate();
     ShaderRegistryPtr getShaderRegistry() const;
-
-    virtual void pushTransform(const glm::vec2& translate, float angle, 
-            const glm::vec2& pivot);
-    virtual void popTransform();
+    StandardShaderPtr getStandardShader();
+    bool useGPUYUVConversion() const;
+    bool useMinimalShader() const;
 
     // GL Object caching.
     GLBufferCache& getVertexBufferCache();
@@ -83,16 +84,21 @@ public:
     int getMaxTexSize();
     bool usePOTTextures();
     OGLMemoryMode getMemoryModeSupported();
-    bool isUsingShaders() const;
     bool initVBlank(int rate);
     
+    void enableErrorChecks(bool bEnable);
+    void checkError(const char* pszWhere);
+    void mandatoryCheckError(const char* pszWhere);
+
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
 
 private:
-    void checkShaderSupport();
     void checkGPUMemInfoSupport();
+#ifdef _WIN32
+    void checkWinError(BOOL bOK, const std::string& sWhere);
+#endif
 
     // Vertical blank stuff.
     void initMacVBlank(int rate);
@@ -114,6 +120,7 @@ private:
     bool m_bOwnsContext;
 
     ShaderRegistryPtr m_pShaderRegistry;
+    StandardShaderPtr m_pStandardShader;
 
     GLBufferCache m_VertexBufferCache;
     GLBufferCache m_IndexBufferCache;
@@ -132,6 +139,8 @@ private:
     bool m_bEnableGLColorArray;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;
+
+    bool m_bErrorCheckEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
 

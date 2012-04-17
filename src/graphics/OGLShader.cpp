@@ -20,6 +20,7 @@
 //
 
 #include "OGLShader.h"
+#include "ShaderRegistry.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -30,20 +31,23 @@ using namespace std;
 
 namespace avg {
 
-OGLShader::OGLShader(string sName, string sProgram)
-    : m_sProgram(sProgram)
+OGLShader::OGLShader(const string& sName, const string& sProgram, const string& sDefines)
+    : m_sName(sName),
+      m_sProgram(sProgram)
 {
     m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
-    const char * pProgramStr = m_sProgram.c_str();
-    glproc::ShaderSource(m_hFragmentShader, 1, &pProgramStr, 0);
+    const char * pProgramStrs[2];
+    pProgramStrs[0] = sDefines.c_str();
+    pProgramStrs[1] = m_sProgram.c_str();
+    glproc::ShaderSource(m_hFragmentShader, 2, pProgramStrs, 0);
     glproc::CompileShader(m_hFragmentShader);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
+    GLContext::getCurrent()->checkError("OGLShader::OGLShader: glCompileShader()");
     dumpInfoLog(m_hFragmentShader);
 
     m_hProgram = glproc::CreateProgramObject();
     glproc::AttachObject(m_hProgram, m_hFragmentShader);
     glproc::LinkProgram(m_hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glLinkProgram()");
+    GLContext::getCurrent()->checkError("OGLShader::OGLShader: glLinkProgram()");
 
     GLint bLinked;
     glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
@@ -61,8 +65,12 @@ OGLShader::~OGLShader()
 
 void OGLShader::activate()
 {
-   glproc::UseProgramObject(m_hProgram);
-   OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+    OGLShaderPtr pCurShader = ShaderRegistry::get()->getCurShader();
+    if (!pCurShader || &*pCurShader != this) {
+        glproc::UseProgramObject(m_hProgram);
+        ShaderRegistry::get()->setCurShader(m_sName);
+        GLContext::getCurrent()->checkError("OGLShader::activate: glUseProgramObject()");
+    }
 }
 
 GLhandleARB OGLShader::getProgram()
@@ -70,55 +78,24 @@ GLhandleARB OGLShader::getProgram()
     return m_hProgram;
 }
 
-void OGLShader::setUniformIntParam(const std::string& sName, int val)
+const std::string OGLShader::getName() const
 {
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1i(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
+    return m_sName;
 }
 
-void OGLShader::setUniformFloatParam(const std::string& sName, float val)
+bool OGLShader::findParam(const std::string& sName, unsigned& pos)
 {
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1f(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, 
-        float* pVal)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1fv(loc, count, pVal);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformVec2fParam(const std::string& sName, glm::vec2 pt)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform2f(loc, pt.x, pt.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-        
-void OGLShader::setUniformColorParam(const std::string& sName, Pixel32 col)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform4f(loc, col.getR()/255.f, col.getG()/255.f, col.getB()/255.f,
-            col.getA()/255.f);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-        
-void OGLShader::setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
-                float w)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform4f(loc, x, y, z, w);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            (string("OGLShader: glUniform(")+sName+")").c_str());
+    GLShaderParamPtr pParam;
+    bool bFound = false;
+    pos = 0;
+    while (!bFound && pos<m_pParams.size() && m_pParams[pos]->getName() <= sName) {
+        if (m_pParams[pos]->getName() == sName) {
+            bFound = true;
+        } else {
+            ++pos;
+        }
+    }
+    return bFound;
 }
 
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
@@ -127,14 +104,14 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
     GLcharARB * pInfoLog;
 
     glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+    GLContext::getCurrent()->checkError(
             "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
     if (InfoLogLength > 1) {
         pInfoLog = (GLcharARB*)malloc(InfoLogLength);
         int CharsWritten;
         glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
         string sLog = removeATIInfoLogSpam(pInfoLog);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::dumpInfoLog: glGetInfoLog()");
+        GLContext::getCurrent()->checkError("OGLShader::dumpInfoLog: glGetInfoLog()");
         AVG_TRACE(Logger::WARNING, sLog);
         free(pInfoLog);
     }
@@ -156,21 +133,5 @@ string OGLShader::removeATIInfoLogSpam(const string& sOrigLog)
     }
     return sLog;
 }
-
-int OGLShader::safeGetUniformLoc(const std::string& sName)
-{
-    // TODO: This takes too much time if it's called whenever the parameter is set.
-    map<string, int>::iterator pos = m_UniformLocationMap.find(sName);
-    if (pos == m_UniformLocationMap.end()) {
-        int loc = glproc::GetUniformLocation(m_hProgram, sName.c_str());
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLShader::setUniformIntParam: GetUniformLocation()");
-        m_UniformLocationMap[sName] = loc;
-        return loc;
-    } else {
-        return pos->second;
-    }
-}
-
 
 }

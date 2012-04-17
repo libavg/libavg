@@ -23,15 +23,17 @@ from libavg import avg, statemachine, utils
 
 from helper import *
 
+import weakref
+
 from math import *
 
 g_Player = avg.Player.get()
 
 MAX_TAP_DIST = 15 
-MAX_TAP_TIME = 500
+MAX_TAP_TIME = 900
 MAX_DOUBLETAP_TIME = 300
 MIN_DRAG_DIST = 5
-HOLD_DELAY = 500
+HOLD_DELAY = 900
 
 class ContactData:
 
@@ -44,7 +46,10 @@ class Recognizer(object):
     def __init__(self, node, isContinuous, eventSource, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
-        self._node = node
+        if node:
+            self.__node = weakref.ref(node)
+        else:
+            self.__node = None
         self.__isContinuous = isContinuous
         self.__eventSource = eventSource
         self.__maxContacts = maxContacts
@@ -139,8 +144,8 @@ class Recognizer(object):
             self.__stateMachine.changeState("IDLE")
         if self._contacts != {}:
             self._disconnectContacts()
-        if self._node:
-            self._node.disconnectEventHandler(self)
+        if self.__node and self.__node():
+            self.__node().disconnectEventHandler(self)
 
     def _disconnectContacts(self):
         for contact, contactData in self._contacts.iteritems():
@@ -166,8 +171,8 @@ class Recognizer(object):
             self.__dirty = False
 
     def __setEventHandler(self):
-        if self._node:
-            self._node.connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
+        if self.__node and self.__node():
+            self.__node().connectEventHandler(avg.CURSORDOWN, self.__eventSource, self, 
                     self.__onDown)
 
 
@@ -337,9 +342,9 @@ class DragRecognizer(Recognizer):
             moveHandler=None, upHandler=None, endHandler=None):
 
         if coordSysNode != None:
-            self.__coordSysNode = coordSysNode
+            self.__coordSysNode = weakref.ref(coordSysNode)
         else:
-            self.__coordSysNode = eventNode
+            self.__coordSysNode = weakref.ref(eventNode)
         self.__moveHandler = utils.methodref(moveHandler)
         self.__upHandler = utils.methodref(upHandler)
         self.__direction = direction
@@ -423,7 +428,7 @@ class DragRecognizer(Recognizer):
         self.__isSliding = False
 
     def __relEventPos(self, event):
-        return self.__coordSysNode.getParent().getRelPos(event.pos)
+        return self.__coordSysNode().getParent().getRelPos(event.pos)
 
     def __angleFits(self, offset):
         angle = offset.getAngle()
@@ -477,7 +482,10 @@ class Mat3x3:
         v = self.applyVec([1,0,0])
         rot = avg.Point2D(v[0], v[1]).getAngle()
         node.angle = rot
-        node.size = self.getScale()
+        if self.getScale().x < 9999 and self.getScale().y < 9999:
+            node.size = self.getScale()
+        else:
+            node.size = (0,0)
         node.pivot = node.size/2 
         v = self.applyVec([0,0,1])
         node.pos = (avg.Point2D(v[0], v[1]) + (node.pivot).getRotated(node.angle) - 
@@ -601,9 +609,9 @@ class TransformRecognizer(Recognizer):
             initialEvent=None, friction=-1, 
             detectedHandler=None, moveHandler=None, upHandler=None, endHandler=None):
         if coordSysNode != None:
-            self.__coordSysNode = coordSysNode
+            self.__coordSysNode = weakref.ref(coordSysNode)
         else:
-            self.__coordSysNode = eventNode
+            self.__coordSysNode = weakref.ref(eventNode)
         self.__moveHandler = utils.methodref(moveHandler)
         self.__upHandler = utils.methodref(upHandler)
         self.__friction = friction
@@ -711,7 +719,7 @@ class TransformRecognizer(Recognizer):
         self.__inertiaHandler = None
 
     def __relContactPos(self, contact):
-        return self.__coordSysNode.getParent().getRelPos(contact.events[-1].pos)
+        return self.__coordSysNode().getParent().getRelPos(contact.events[-1].pos)
 
 
 class InertiaHandler(object):

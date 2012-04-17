@@ -38,8 +38,6 @@ char wordsNodeName[] = "words";
 
 void export_raster()
 {
-    to_python_converter<VertexGrid, to_list<VertexGrid> >();    
-    from_python_sequence<VertexGrid, variable_capacity_policy>();
 
     class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode", no_init) 
         .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords)

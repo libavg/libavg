@@ -356,11 +356,11 @@ void CameraNode::preRender()
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
-void CameraNode::render(const FRect& rect)
+void CameraNode::render()
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 
@@ -383,7 +383,7 @@ void CameraNode::updateCameraImage()
 {
     if (!isAutoUpdateCameraImage()) {
         m_pCurBmp = m_pCamera->getImage(false);
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 

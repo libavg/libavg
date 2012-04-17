@@ -73,7 +73,6 @@ void ImageNode::connectDisplay()
     if (m_pImage->getSource() == Image::SCENE) {
         checkCanvasValid(m_pImage->getCanvas());
     }
-    getSurface()->attach();
     m_pImage->moveToGPU();
     RasterNode::connectDisplay();
     if (m_pImage->getSource() == Image::SCENE) {
@@ -160,11 +159,11 @@ void ImageNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("ImageNode::render");
 
-void ImageNode::render(const FRect& Rect)
+void ImageNode::render()
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_pImage->getSource() != Image::NONE) {
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode(), 
+        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode(), 
                 bool(m_pImage->getCanvas()));
     }
 }

@@ -350,8 +350,6 @@ class ImageTestCase(AVGTestCase):
         def setMaskNotFound():
             node.maskhref = "nonexistentmask.png"        
             
-        if not(self._hasShaderSupport()):
-            return
         root = self.loadEmptyScene()
         createNode((0,0))
         node = root.getChild(0)
@@ -370,8 +368,6 @@ class ImageTestCase(AVGTestCase):
                 ))
 
     def testImageMaskCanvas(self):
-        if not(self._hasShaderSupport()):
-            return
         root = self.loadEmptyScene()
         canvas = Player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
@@ -398,8 +394,6 @@ class ImageTestCase(AVGTestCase):
             node.maskpos = (32, 32)
 
         root = self.loadEmptyScene()
-        if not(self._hasShaderSupport()):
-            return
         createNode((0,0))
         setNoAttach((32,0))
         setAttach((64,0))
@@ -434,8 +428,6 @@ class ImageTestCase(AVGTestCase):
             node.masksize = (0, 0)
 
         root = self.loadEmptyScene()
-        if not(self._hasShaderSupport()):
-            return
         createNode((0,0))
         node = root.getChild(0)
         setNoAttach((32,0))

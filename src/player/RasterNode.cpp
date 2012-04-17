@@ -95,10 +95,8 @@ void RasterNode::setArgs(const ArgList& args)
 
 void RasterNode::connectDisplay()
 {
-    checkMaskSupport(m_sMaskHref);
     AreaNode::connectDisplay();
 
-    m_pSurface->attach();
     m_bBound = false;
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         m_TileSize = m_MaxTileSize;
@@ -252,9 +250,6 @@ const UTF8String& RasterNode::getMaskHRef() const
 
 void RasterNode::setMaskHRef(const UTF8String& sHref)
 {
-    if (GLContext::getCurrent()) {
-        checkMaskSupport(sHref);
-    }
     m_sMaskHref = sHref;
     checkReload();
 }
@@ -342,16 +337,17 @@ void RasterNode::setEffect(FXNodePtr pFXNode)
     }
 }
 
-void RasterNode::blt32(const glm::vec2& destSize, float opacity, 
-        GLContext::BlendMode mode, bool bPremultipliedAlpha)
+void RasterNode::blt32(const glm::mat4& transform, const glm::vec2& destSize, 
+        float opacity, GLContext::BlendMode mode, bool bPremultipliedAlpha)
 {
-    blt(destSize, mode, opacity, Pixel32(255, 255, 255, 255), bPremultipliedAlpha);
+    blt(transform, destSize, mode, opacity, Pixel32(255, 255, 255, 255),
+            bPremultipliedAlpha);
 }
 
-void RasterNode::blta8(const glm::vec2& destSize, float opacity, 
-        const Pixel32& color, GLContext::BlendMode mode)
+void RasterNode::blta8(const glm::mat4& transform, const glm::vec2& destSize, 
+        float opacity, const Pixel32& color, GLContext::BlendMode mode)
 {
-    blt(destSize, mode, opacity, color, false);
+    blt(transform, destSize, mode, opacity, color, false);
 }
 
 GLContext::BlendMode RasterNode::getBlendMode() const
@@ -394,14 +390,6 @@ void RasterNode::calcMaskCoords()
     m_pSurface->setMaskCoords(maskPos, maskSize);
 }
 
-void RasterNode::checkMaskSupport(const string& sHref)
-{
-    if (!(GLContext::getCurrent()->isUsingShaders()) && sHref != "") {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Can't use masks - unsupported on this hardware/driver combination.");
-    }
-}
-
 void RasterNode::downloadMask()
 {
     GLTexturePtr pTex(new GLTexture(m_pMaskBmp->getSize(), I8, 
@@ -434,22 +422,19 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         if (!m_bBound) {
             bind();
         }
+        StandardShader::get()->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
+                color.getB()/256.f, 1.f));
         m_pSurface->activate(getMediaSize());
 
         m_pFBO->activate();
         clearGLBuffers(GL_COLOR_BUFFER_BIT);
 
-        glColor4d(float(color.getR())/256, float(color.getG())/256, 
-                float(color.getB())/256, 1);
+
         if (bPremultipliedAlpha) {
             glproc::BlendColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         pContext->setBlendMode(GLContext::BLEND_BLEND, bPremultipliedAlpha);
 
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-
-        m_pImagingProjection->activate();
         m_pImagingProjection->draw();
 
 /*
@@ -461,15 +446,12 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
   */  
         m_pFXNode->apply(m_pFBO->getTex());
         
-        glPopMatrix();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::renderFX(): glPopMatrix");
 /*        
         stringstream ss1;
         ss1 << "bar" << ".png";
         i++;
         m_pFXNode->getImage()->save(ss1.str());
 */
-        glproc::UseProgramObject(0);
         m_bFXDirty = false;
         m_pSurface->resetDirty();
         m_pFXNode->resetDirty();
@@ -491,10 +473,6 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
 void RasterNode::setupFX(bool bNewFX)
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
-        if (!GLContext::getCurrent()->isUsingShaders()) {
-            throw Exception(AVG_ERR_UNSUPPORTED,
-                    "Can't use FX - unsupported on this hardware/driver combination.");
-        }
         if (bNewFX || !m_pFBO || m_pFBO->getSize() != m_pSurface->getSize()) {
             m_pFXNode->setSize(m_pSurface->getSize());
             m_pFXNode->connect();
@@ -511,8 +489,9 @@ void RasterNode::setupFX(bool bNewFX)
     }
 }
 
-void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
-        float opacity, const Pixel32& color, bool bPremultipliedAlpha)
+void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize, 
+        GLContext::BlendMode mode, float opacity, const Pixel32& color,
+        bool bPremultipliedAlpha)
 {
     if (!m_bBound) {
         bind();
@@ -521,25 +500,31 @@ void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
     pContext->enableGLColorArray(false);
     pContext->enableTexture(true);
     FRect destRect;
+    StandardShaderPtr pShader = pContext->getStandardShader();
     if (m_pFXNode) {
         m_pFXNode->getTex()->activate(GL_TEXTURE0);
+        pShader->setColorModel(0);
+        pShader->setColor(glm::vec4(1.0f, 1.0f, 1.0f, opacity));
+        pShader->disableColorspaceMatrix();
 
         pContext->setBlendMode(mode, true);
-        glColor4d(1.0, 1.0, 1.0, opacity);
         FRect relDestRect = m_pFXNode->getRelDestRect();
         destRect = FRect(relDestRect.tl.x*destSize.x, relDestRect.tl.y*destSize.y,
                 relDestRect.br.x*destSize.x, relDestRect.br.y*destSize.y);
     } else {
         m_pSurface->activate(getMediaSize(), bPremultipliedAlpha);
         pContext->setBlendMode(mode, bPremultipliedAlpha);
-        glColor4d(float(color.getR())/256, float(color.getG())/256, 
-                float(color.getB())/256, opacity);
+        pShader->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
+                color.getB()/256.f, opacity));
         destRect = FRect(glm::vec2(0,0), destSize);
     }
+    pShader->activate();
     glproc::BlendColor(1.0f, 1.0f, 1.0f, float(opacity));
-    glPushMatrix();
-    glTranslated(destRect.tl.x, destRect.tl.y, 1);
-    glScaled(destRect.size().x, destRect.size().y, 1);
+    glm::vec3 pos(destRect.tl.x, destRect.tl.y, 0);
+    glm::vec3 scaleVec(destRect.size().x, destRect.size().y, 1);
+    glm::mat4 localTransform = glm::translate(transform, pos);
+    localTransform = glm::scale(localTransform, scaleVec);
+    glLoadMatrixf(glm::value_ptr(localTransform));
 
     if (m_bVertexArrayDirty) {
         m_pVertexes->reset();
@@ -558,9 +543,6 @@ void RasterNode::blt(const glm::vec2& destSize, GLContext::BlendMode mode,
     }
 
     m_pVertexes->draw();
-
-    glPopMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "RasterNode::blt(): glPopMatrix 2");
 
     PixelFormat pf = m_pSurface->getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " << destSize.y << ")" 

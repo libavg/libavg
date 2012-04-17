@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "OGLHelper.h"
+#include "GLShaderParam.h"
 #include "Pixel32.h"
 
 #include "../base/GLMHelper.h"
@@ -31,7 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <string>
-#include <map>
+#include <vector>
 
 namespace avg {
 
@@ -41,27 +42,41 @@ class AVG_API OGLShader {
 
         void activate();
         GLhandleARB getProgram();
+        const std::string getName() const;
 
-        void setUniformIntParam(const std::string& sName, int val);
-        void setUniformFloatParam(const std::string& sName, float val);
-        void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
-        void setUniformVec2fParam(const std::string& sName, glm::vec2 pt);
-        void setUniformColorParam(const std::string& sName, Pixel32 col);
-        void setUniformVec4fParam(const std::string& sName, float x, float y, float z, 
-                float w);
+        template<class VAL_TYPE>
+        boost::shared_ptr<GLShaderParamTemplate<VAL_TYPE> > getParam(
+                const std::string& sName)
+        {
+            unsigned pos;
+            bool bFound = findParam(sName, pos);
+            GLShaderParamPtr pParam;
+            if (bFound) {
+                pParam = m_pParams[pos];
+            } else {
+                pParam = GLShaderParamPtr(
+                        new GLShaderParamTemplate<VAL_TYPE>(this, sName));
+                m_pParams.insert(m_pParams.begin()+pos, pParam);
+            }
+            return boost::dynamic_pointer_cast<
+                    GLShaderParamTemplate<VAL_TYPE> >(pParam);
+        }
 
     private:
-        OGLShader(std::string sName, std::string sProgram);
+        OGLShader(const std::string& sName, const std::string& sProgram, 
+                const std::string& sDefines);
         friend class ShaderRegistry;
 
+        bool findParam(const std::string& sName, unsigned& pos);
         void dumpInfoLog(GLhandleARB hObj);
         std::string removeATIInfoLogSpam(const std::string& sLog);
-        int safeGetUniformLoc(const std::string& sName);
 
+        std::string m_sName;
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
         std::string m_sProgram;
-        std::map<std::string, int> m_UniformLocationMap;
+
+        std::vector<GLShaderParamPtr> m_pParams;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

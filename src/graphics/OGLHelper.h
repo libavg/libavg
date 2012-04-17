@@ -65,7 +65,6 @@ typedef int ( * PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, 
 
 namespace avg {
 
-void AVG_API OGLErrorCheck(int avgcode, const char* pszWhere);
 #ifdef _WIN32
 void AVG_API winOGLErrorCheck(BOOL bOK, const std::string& sWhere);
 #endif
@@ -81,9 +80,6 @@ enum OGLMemoryMode {
 };
 
 std::string oglMemoryMode2String(OGLMemoryMode mode);
-
-void AVG_API pushGLState();
-void AVG_API popGLState();
 
 void AVG_API clearGLBuffers(GLbitfield mask);
 

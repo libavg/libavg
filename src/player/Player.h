@@ -82,10 +82,11 @@ class AVG_API Player
         bool isFullscreen();
         void setWindowFrame(bool bHasWindowFrame);
         void setWindowPos(int x=0, int y=0);
-        void setOGLOptions(bool bUsePOTTextures, bool bUseShaders, 
-                bool bUsePixelBuffers, int multiSampleSamples);
+        void setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+                int multiSampleSamples);
         void setMultiSampleSamples(int multiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
+        void enableGLErrorChecks(bool bEnable);
         glm::vec2 getScreenResolution();
         float getPixelsPerMM();
         glm::vec2 getPhysicalScreenDimensions();
@@ -148,7 +149,6 @@ class AVG_API Player
         void doFrame(bool bFirstFrame);
         float getFramerate();
         float getVideoRefreshRate();
-        bool isUsingShaders();
         size_t getVideoMemInstalled();
         size_t getVideoMemUsed();
         void setGamma(float red, float green, float blue);
@@ -237,6 +237,7 @@ class AVG_API Player
         bool m_bKeepWindowOpen;
         bool m_bStopOnEscape;
         bool m_bIsPlaying;
+        bool m_bCheckGLErrors;
 
         // Time calculation
         bool m_bFakeFPS;

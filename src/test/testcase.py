@@ -28,8 +28,6 @@ import math
 
 from libavg import avg
 
-g_HasShaderSupport = None
-
 def almostEqual(a, b, epsilon):
     try:
         bOk = True
@@ -74,6 +72,7 @@ class AVGTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, testFuncName)
 
         self.__player = avg.Player.get()
+        self.__player.enableGLErrorChecks(True)
         self.__testFuncName = testFuncName
         self.__logger = avg.Logger.get()
         self.__skipped = False
@@ -220,20 +219,6 @@ class AVGTestCase(unittest.TestCase):
     def _isCurrentDirWriteable(self):
         return bool(os.access('.', os.W_OK))
     
-    def _hasShaderSupport(self):
-        # XXX Duplicated code with FXTest.areFXSupported()
-        def checkShaderSupport():
-            global g_HasShaderSupport
-            g_HasShaderSupport = self.__player.isUsingShaders()
-
-        global g_HasShaderSupport
-        if g_HasShaderSupport == None:
-            self.loadEmptyScene()
-            self.start([checkShaderSupport,])
-        if not(g_HasShaderSupport):
-            self.skip("no shader support")
-        return g_HasShaderSupport
-
     def __nextAction(self):
         if not(self.__delaying):
             if self.__dumpTestFrames:

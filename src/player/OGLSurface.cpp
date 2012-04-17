@@ -38,8 +38,6 @@
 
 using namespace std;
 
-#define COLORSPACE_SHADER "color"
-
 static glm::mat4 yuvCoeff(
         1.0f,   1.0f,    1.0f,  0.0f,
         0.0f, -0.34f,   1.77f,  0.0f,
@@ -62,20 +60,6 @@ OGLSurface::OGLSurface()
 OGLSurface::~OGLSurface()
 {
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-void OGLSurface::attach()
-{
-    if (!GLContext::getCurrent()->isUsingShaders()) {
-        if (m_pMaskTexture) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL,
-                    "Can't set mask bitmap since shader support is disabled.");
-        }
-        if (gammaIsModified() || colorIsModified()) {
-            throw Exception(AVG_ERR_VIDEO_GENERAL,
-                    "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
-        }
-    }
 }
 
 void OGLSurface::create(PixelFormat pf, GLTexturePtr pTex0, GLTexturePtr pTex1, 
@@ -118,82 +102,57 @@ void OGLSurface::destroy()
 
 void OGLSurface::activate(const IntPoint& logicalSize, bool bPremultipliedAlpha) const
 {
-    if (useShader()) {
-        OGLShaderPtr pShader = getShader(COLORSPACE_SHADER);
-        pShader->activate();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
-        switch (m_pf) {
-            case YCbCr420p:
-            case YCbCrJ420p:
-                pShader->setUniformIntParam("colorModel", 1);
-                break;
-            case YCbCrA420p:
-                pShader->setUniformIntParam("colorModel", 3);
-                break;
-            case A8:
-                pShader->setUniformIntParam("colorModel", 2);
-                break;
-            default:
-                pShader->setUniformIntParam("colorModel", 0);
-        }
+    StandardShaderPtr pShader = StandardShader::get();
 
-        m_pTextures[0]->activate(GL_TEXTURE0);
-        pShader->setUniformIntParam("texture", 0);
-        
-        if (pixelFormatIsPlanar(m_pf)) {
-            m_pTextures[1]->activate(GL_TEXTURE1);
-            pShader->setUniformIntParam("cbTexture", 1);
-            m_pTextures[2]->activate(GL_TEXTURE2);
-            pShader->setUniformIntParam("crTexture", 2);
-            if (m_pf == YCbCrA420p) {
-                m_pTextures[3]->activate(GL_TEXTURE3);
-                pShader->setUniformIntParam("aTexture", 3);
-            }
-        }
-        if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
-            glm::mat4 mat = calcColorspaceMatrix();
-            pShader->setUniformVec4fParam("colorCoeff0", 
-                    mat[0][0], mat[0][1], mat[0][2], 0);
-            pShader->setUniformVec4fParam("colorCoeff1", 
-                    mat[1][0], mat[1][1], mat[1][2], 0);
-            pShader->setUniformVec4fParam("colorCoeff2", 
-                    mat[2][0], mat[2][1], mat[2][2], 0);
-            pShader->setUniformVec4fParam("colorCoeff3", 
-                    mat[3][0], mat[3][1], mat[3][2], 1);
-        }
-
-        pShader->setUniformVec4fParam("gamma", 1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
-                1./m_AlphaGamma);
-        pShader->setUniformIntParam("bUseColorCoeff", colorIsModified());
-
-        pShader->setUniformIntParam("bPremultipliedAlpha", bPremultipliedAlpha);
-        pShader->setUniformIntParam("bUseMask", bool(m_pMaskTexture));
-        if (m_pMaskTexture) {
-            m_pMaskTexture->activate(GL_TEXTURE4);
-            pShader->setUniformIntParam("maskTexture", 4);
-            pShader->setUniformVec2fParam("maskPos", m_MaskPos);
-            // maskScale is (1,1) for everything excepting words nodes.
-            glm::vec2 maskScale(1,1);
-            if (logicalSize != IntPoint(0,0)) {
-                maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
-                        (float)logicalSize.y/m_Size.y);
-            }
-            pShader->setUniformVec2fParam("maskSize", m_MaskSize*maskScale);
-        }
-
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
-    } else {
-        m_pTextures[0]->activate(GL_TEXTURE0);
-        if (GLContext::getCurrent()->isUsingShaders()) {
-            glproc::UseProgramObject(0);
-        }
-        for (int i=1; i<5; ++i) {
-            glproc::ActiveTexture(GL_TEXTURE0 + i);
-            glDisable(GL_TEXTURE_2D);
-        }
-        glproc::ActiveTexture(GL_TEXTURE0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: fixed function");
+    GLContext::getCurrent()->checkError("OGLSurface::activate()");
+    switch (m_pf) {
+        case YCbCr420p:
+        case YCbCrJ420p:
+            pShader->setColorModel(1);
+            break;
+        case YCbCrA420p:
+            pShader->setColorModel(3);
+            break;
+        case A8:
+            pShader->setColorModel(2);
+            break;
+        default:
+            pShader->setColorModel(0);
     }
+
+    m_pTextures[0]->activate(GL_TEXTURE0);
+
+    if (pixelFormatIsPlanar(m_pf)) {
+        m_pTextures[1]->activate(GL_TEXTURE1);
+        m_pTextures[2]->activate(GL_TEXTURE2);
+        if (m_pf == YCbCrA420p) {
+            m_pTextures[3]->activate(GL_TEXTURE3);
+        }
+    }
+    if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
+        glm::mat4 mat = calcColorspaceMatrix();
+        pShader->setColorspaceMatrix(mat);
+    } else {
+        pShader->disableColorspaceMatrix();
+    }
+    pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
+                1./m_AlphaGamma));
+
+    pShader->setPremultipliedAlpha(bPremultipliedAlpha);
+    if (m_pMaskTexture) {
+        m_pMaskTexture->activate(GL_TEXTURE4);
+        // maskScale is (1,1) for everything excepting words nodes.
+        glm::vec2 maskScale(1,1);
+        if (logicalSize != IntPoint(0,0)) {
+            maskScale = glm::vec2((float)logicalSize.x/m_Size.x, 
+                    (float)logicalSize.y/m_Size.y);
+        }
+        pShader->setMask(true, m_MaskPos, m_MaskSize*maskScale);
+    } else {
+        pShader->setMask(false);
+    }
+    pShader->activate();
+    GLContext::getCurrent()->checkError("OGLSurface::activate");
 }
 
 GLTexturePtr OGLSurface::getTex(int i) const
@@ -234,30 +193,13 @@ void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightn
     m_Gamma = gamma;
     m_Brightness = brightness;
     m_Contrast = contrast;
-    if (!GLContext::getCurrent()->isUsingShaders() &&
-            (gammaIsModified() || colorIsModified())) 
-    {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
-    }
     m_bIsDirty = true;
 }
 
 void OGLSurface::setAlphaGamma(float gamma)
 {
     m_AlphaGamma = gamma;
-    if (!GLContext::getCurrent()->isUsingShaders() &&
-            (gammaIsModified() || colorIsModified())) 
-    {
-        throw Exception(AVG_ERR_VIDEO_GENERAL,
-                "Can't use color correction (gamma, brightness, contrast) since shader support is disabled.");
-    }
     m_bIsDirty = true;
-}
-
-void OGLSurface::createShader()
-{
-    avg::createShader(COLORSPACE_SHADER);
 }
 
 bool OGLSurface::isDirty() const
@@ -279,13 +221,6 @@ void OGLSurface::resetDirty()
     }
 }
 
-bool OGLSurface::useShader() const
-{
-    return GLContext::getCurrent()->isUsingShaders() && 
-            (m_pMaskTexture || pixelFormatIsPlanar(m_pf) || gammaIsModified() || 
-                    colorIsModified());
-}
-
 glm::mat4 OGLSurface::calcColorspaceMatrix() const
 {
     glm::mat4 mat;
@@ -305,12 +240,6 @@ glm::mat4 OGLSurface::calcColorspaceMatrix() const
         }
     }
     return mat;
-}
-
-bool OGLSurface::gammaIsModified() const
-{
-    return (!almostEqual(m_Gamma.x, 1.0f) || !almostEqual(m_Gamma.y, 1.0f) ||
-            !almostEqual(m_Gamma.z, 1.0f) || !almostEqual(m_AlphaGamma, 1.0f));
 }
 
 bool OGLSurface::colorIsModified() const

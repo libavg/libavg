@@ -106,9 +106,7 @@ void MeshNode::setTriangles(const vector<glm::ivec3>& triangles)
 {
     for (unsigned int i = 0; i < triangles.size(); i++) {
         
-        if (static_cast<unsigned int>(triangles[i].x) < 0 ||
-                static_cast<unsigned int>(triangles[i].y) < 0 || 
-                static_cast<unsigned int>(triangles[i].z) < 0)
+        if (triangles[i].x < 0 || triangles[i].y < 0 || triangles[i].z < 0)
         {
             throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 "Triangle Index Out of Range < 0"));

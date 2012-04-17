@@ -238,7 +238,7 @@ class UITestCase(AVGTestCase):
                  lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  # Down-delay: fail
                  lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
-                 lambda: self.delay(600),
+                 lambda: self.delay(1000),
                  lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),
                  lambda: self._sendMouseEvent(avg.CURSORUP, 30, 30),
                  lambda: assertEvents(Set([EVENT_POSSIBLE, EVENT_FAILED])),

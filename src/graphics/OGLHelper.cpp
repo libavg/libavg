@@ -24,6 +24,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include "GLContext.h"
+
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
@@ -100,21 +102,6 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-void OGLErrorCheck(int avgcode, const char* pszWhere) 
-{
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        stringstream s;
-        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
-            << " (#" << err << ") ";
-        AVG_TRACE(Logger::ERROR, s.str());
-        if (err != GL_INVALID_OPERATION) {
-            OGLErrorCheck(avgcode, "  --");
-        }
-        AVG_ASSERT(false);
-    }
-}
-
 #ifdef _WIN32
 void winOGLErrorCheck(BOOL bOK, const string& sWhere) 
 {
@@ -181,13 +168,20 @@ bool queryGLXExtension(const char *extName)
 
 void getGLVersion(int& major, int& minor)
 {
-    const char* pVersion = (const char*)glGetString(GL_VERSION);
-    sscanf(pVersion, "%d.%d", &major, &minor);
+    static int s_Major = -1;
+    static int s_Minor;
+    if (s_Major == -1) {
+        const char* pVersion = (const char*)glGetString(GL_VERSION);
+        sscanf(pVersion, "%d.%d", &s_Major, &s_Minor);
+    }
+    major = s_Major;
+    minor = s_Minor;
 }
 
 void getGLShadingLanguageVersion(int& major, int& minor)
 {
-    int glMajor, glMinor;
+    int glMajor = 0;
+    int glMinor = 0;
     getGLVersion(glMajor, glMinor);
 
     major = 0;
@@ -237,33 +231,6 @@ string oglMemoryMode2String(OGLMemoryMode mode)
     }
 }
 
-// TODO: Unused, possibly broken
-void pushGLState()
-{
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glMatrixMode(GL_TEXTURE);
-    glPushMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushGLState()");
-}
-
-void popGLState()
-{
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glMatrixMode(GL_TEXTURE);
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glPopClientAttrib();
-    glPopAttrib();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "popGLState()");
-}
-
 void AVG_API clearGLBuffers(GLbitfield mask)
 {
     glClearColor(0.0, 0.0, 0.0, 0.0); 
@@ -272,12 +239,11 @@ void AVG_API clearGLBuffers(GLbitfield mask)
         glClearStencil(0);
     }
     glClear(mask);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "clearGLBuffers()");
+    GLContext::getCurrent()->checkError("clearGLBuffers()");
     if (mask & GL_STENCIL_BUFFER_BIT) {
         glStencilMask(0);
     }
 }
-
 
 void invalidGLCall()
 {

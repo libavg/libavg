@@ -81,7 +81,6 @@ void VectorNode::connectDisplay()
     m_Color = colorStringToColor(m_sColorName);
     Node::connectDisplay();
     m_pShape->moveToGPU();
-    m_OldOpacity = -1;
     setBlendModeStr(m_sBlendMode);
 }
 
@@ -145,25 +144,22 @@ static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
 void VectorNode::preRender()
 {
     Node::preRender();
-    float curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
     {
-        if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
+        if (m_bDrawNeeded) {
             ScopeTimer timer(PrerenderProfilingZone);
             pVA->reset();
             Pixel32 color = getColorVal();
-            color.setA((unsigned char)(curOpacity*255));
             calcVertexes(pVA, color);
             pVA->update();
             m_bDrawNeeded = false;
-            m_OldOpacity = curOpacity;
         }
     }
     
 }
 
-void VectorNode::maybeRender(const FRect& rect)
+void VectorNode::maybeRender()
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
@@ -173,20 +169,20 @@ void VectorNode::maybeRender(const FRect& rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
+        glLoadMatrixf(glm::value_ptr(getParentTransform()));
         GLContext::getCurrent()->setBlendMode(m_BlendMode);
-        render(rect);
+        render();
     }
 }
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render(const FRect& rect)
+void VectorNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     float curOpacity = getEffectiveOpacity();
-    glColor4d(1.0, 1.0, 1.0, curOpacity);
-    m_pShape->draw();
+    m_pShape->draw(getParentTransform(), curOpacity);
 }
 
 void VectorNode::setColor(const string& sColor)

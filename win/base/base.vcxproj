@@ -118,7 +118,12 @@
     <ClInclude Include="..\..\src\base\ThreadProfiler.h" />
     <ClInclude Include="..\..\src\base\TimeSource.h" />
     <ClInclude Include="..\..\src\base\Triangle.h" />
-    <ClInclude Include="..\..\src\base\Triangulate.h" />
+    <ClInclude Include="..\..\src\base\triangulate\AdvancingFront.h" />
+    <ClInclude Include="..\..\src\base\triangulate\Shapes.h" />
+    <ClInclude Include="..\..\src\base\triangulate\Sweep.h" />
+    <ClInclude Include="..\..\src\base\triangulate\SweepContext.h" />
+    <ClInclude Include="..\..\src\base\triangulate\Triangulate.h" />
+    <ClInclude Include="..\..\src\base\triangulate\Utils.h" />
     <ClInclude Include="..\..\src\base\UTF8String.h" />
     <ClInclude Include="..\..\src\base\VersionInfo.h" />
     <ClInclude Include="..\..\src\base\WideLine.h" />
@@ -151,7 +156,11 @@
     <ClCompile Include="..\..\src\base\ThreadProfiler.cpp" />
     <ClCompile Include="..\..\src\base\TimeSource.cpp" />
     <ClCompile Include="..\..\src\base\Triangle.cpp" />
-    <ClCompile Include="..\..\src\base\Triangulate.cpp" />
+    <ClCompile Include="..\..\src\base\triangulate\AdvancingFront.cpp" />
+    <ClCompile Include="..\..\src\base\triangulate\Shapes.cpp" />
+    <ClCompile Include="..\..\src\base\triangulate\Sweep.cpp" />
+    <ClCompile Include="..\..\src\base\triangulate\SweepContext.cpp" />
+    <ClCompile Include="..\..\src\base\triangulate\Triangulate.cpp" />
     <ClCompile Include="..\..\src\base\UTF8String.cpp" />
     <ClCompile Include="..\..\src\base\VersionInfo.cpp" />
     <ClCompile Include="..\..\src\base\WideLine.cpp" />

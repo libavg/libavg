@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "GPUFilter.h"
+#include "GLShaderParam.h"
 #include "Bitmap.h"
 
 namespace avg {
@@ -47,6 +48,22 @@ private:
     float m_Softness;
     int m_Erosion;
     float m_SpillThreshold;
+    
+    IntGLShaderParamPtr m_pTextureParam;
+    FloatGLShaderParamPtr m_pHKeyParam;
+    FloatGLShaderParamPtr m_pHToleranceParam;
+    FloatGLShaderParamPtr m_pHSoftToleranceParam;
+    FloatGLShaderParamPtr m_pSKeyParam;
+    FloatGLShaderParamPtr m_pSToleranceParam;
+    FloatGLShaderParamPtr m_pSSoftToleranceParam;
+    FloatGLShaderParamPtr m_pLKeyParam;
+    FloatGLShaderParamPtr m_pLToleranceParam;
+    FloatGLShaderParamPtr m_pLSoftToleranceParam;
+    FloatGLShaderParamPtr m_pSpillThresholdParam;
+    IntGLShaderParamPtr m_pIsLastParam;
+
+    IntGLShaderParamPtr m_pErosionTextureParam;
+    IntGLShaderParamPtr m_pErosionIsLastParam;
 };
 
 typedef boost::shared_ptr<GPUChromaKeyFilter> GPUChromaKeyFilterPtr;

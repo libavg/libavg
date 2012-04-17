@@ -18,11 +18,7 @@ endif
 
 TESTS=testvideo
 
-EXTRA_DIST = $(wildcard testfiles/*.mov) $(wildcard testfiles/*.mpg) \
-        $(wildcard testfiles/*.avi) $(wildcard testfiles/*.h264) \
-        $(wildcard testfiles/*.wav) $(wildcard testfiles/*.ogg) \
-        $(wildcard testfiles/*.mp3) $(wildcard testfiles/*.aif) \
-        $(wildcard testfiles/*.flv) $(wildcard baseline/*.png)
+EXTRA_DIST = $(wildcard baseline/*.png)
 
 noinst_LTLIBRARIES = libvideo.la
 noinst_PROGRAMS=testvideo
@@ -40,7 +36,7 @@ libvideo_la_LIBADD = @LIBVIDEO_LDADD@
 
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
-        ../base/libbase.la \
+        ../base/libbase.la ../base/triangulate/libtriangulate.la \
         @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
         @LIBFFMPEG@ $(X_LIBS) \
         @GDK_PIXBUF_LIBS@

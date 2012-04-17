@@ -57,8 +57,8 @@ class AVG_API VectorNode : public Node
         void setBlendModeStr(const std::string& sBlendMode);
 
         virtual void preRender();
-        virtual void maybeRender(const FRect& rect);
-        virtual void render(const FRect& rect);
+        virtual void maybeRender();
+        virtual void render();
 
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
@@ -102,7 +102,6 @@ class AVG_API VectorNode : public Node
 
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
-        float m_OldOpacity;
 
         ShapePtr m_pShape;
         GLContext::BlendMode m_BlendMode;

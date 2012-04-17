@@ -460,7 +460,7 @@ void VideoNode::startDecoding()
     if (pAudioEngine) {
         pAP = pAudioEngine->getParams();
     }
-    m_pDecoder->startDecoding(GLContext::getCurrent()->isUsingShaders(), pAP);
+    m_pDecoder->startDecoding(GLContext::getCurrent()->useGPUYUVConversion(), pAP);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (m_FPS != 0.0) {
         if (videoInfo.m_bHasAudio) {
@@ -650,11 +650,11 @@ void VideoNode::preRender()
 
 static ProfilingZoneID RenderProfilingZone("VideoNode::render");
 
-void VideoNode::render(const FRect& rect)
+void VideoNode::render()
 {
     ScopeTimer timer(RenderProfilingZone);
     if (m_VideoState != Unloaded && m_bFirstFrameDecoded) {
-        blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 

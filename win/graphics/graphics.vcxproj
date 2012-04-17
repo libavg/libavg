@@ -109,6 +109,7 @@
     <ClInclude Include="..\..\src\graphics\GLBufferCache.h" />
     <ClInclude Include="..\..\src\graphics\GLConfig.h" />
     <ClInclude Include="..\..\src\graphics\GLContext.h" />
+    <ClInclude Include="..\..\src\graphics\GLShaderParam.h" />
     <ClInclude Include="..\..\src\graphics\GLTexture.h" />
     <ClInclude Include="..\..\src\graphics\GPUBandpassFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUBlurFilter.h" />
@@ -134,6 +135,7 @@
     <ClInclude Include="..\..\src\graphics\Pixeldefs.h" />
     <ClInclude Include="..\..\src\graphics\PixelFormat.h" />
     <ClInclude Include="..\..\src\graphics\ShaderRegistry.h" />
+    <ClInclude Include="..\..\src\graphics\StandardShader.h" />
     <ClInclude Include="..\..\src\graphics\TextureMover.h" />
     <ClInclude Include="..\..\src\graphics\TwoPassScale.h" />
     <ClInclude Include="..\..\src\graphics\VertexArray.h" />
@@ -173,6 +175,7 @@
     <ClCompile Include="..\..\src\graphics\GLBufferCache.cpp" />
     <ClCompile Include="..\..\src\graphics\GLConfig.cpp" />
     <ClCompile Include="..\..\src\graphics\GLContext.cpp" />
+    <ClCompile Include="..\..\src\graphics\GLShaderParam.cpp" />
     <ClCompile Include="..\..\src\graphics\GLTexture.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBandpassFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUBlurFilter.cpp" />
@@ -194,6 +197,7 @@
     <ClCompile Include="..\..\src\graphics\Pixel32.cpp" />
     <ClCompile Include="..\..\src\graphics\PixelFormat.cpp" />
     <ClCompile Include="..\..\src\graphics\ShaderRegistry.cpp" />
+    <ClCompile Include="..\..\src\graphics\StandardShader.cpp" />
     <ClCompile Include="..\..\src\graphics\TextureMover.cpp" />
     <ClCompile Include="..\..\src\graphics\VertexArray.cpp" />
   </ItemGroup>

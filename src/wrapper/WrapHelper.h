@@ -307,7 +307,7 @@ public:
     ConstVec2();
     ConstVec2(const glm::vec2& other);
     glm::vec2 toVec2() const;
-    operator glm::vec2() const;
+    //operator glm::vec2() const;
 };
 
 AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=0);

@@ -65,6 +65,7 @@ noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testcalibrator testplayer
 testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la  ../oscpack/liboscpack.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @PANGOFT2_LIBS@ @LIBRSVG_LIBS@\
@@ -76,6 +77,7 @@ testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker
 
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../base/triangulate/libtriangulate.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la ../oscpack/liboscpack.la \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ @LIBRSVG_LIBS@ @GDK_PIXBUF_LIBS@

@@ -65,7 +65,8 @@ NodeDefinition AreaNode::createDefinition()
 }
 
 AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0)
+    : m_RelViewport(0,0,0,0),
+      m_Transform(glm::mat4(0))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -211,7 +212,7 @@ void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElem
     }
 }
 
-void AreaNode::maybeRender(const FRect& rect)
+void AreaNode::maybeRender()
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
@@ -221,10 +222,8 @@ void AreaNode::maybeRender(const FRect& rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
-        GLContext * pContext = GLContext::getCurrent();
-        pContext->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-        render(rect);
-        pContext->popTransform();
+        m_Transform = getParentTransform()*calcTransform();
+        render();
     }
 }
 
@@ -275,9 +274,25 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
+const glm::mat4& AreaNode::getTransform() const
+{
+    return m_Transform;
+}
+
 glm::vec2 AreaNode::getUserSize() const
 {
     return m_UserSize;
+}
+
+glm::mat4 AreaNode::calcTransform()
+{
+    glm::vec3 pos(m_RelViewport.tl.x, m_RelViewport.tl.y, 0);
+    glm::vec3 pivot(getPivot().x, getPivot().y, 0);
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos);
+    transform = glm::translate(transform, pivot);
+    transform = glm::rotate(transform, (180.f/PI)*m_Angle, glm::vec3(0,0,1));
+    transform = glm::translate(transform, -pivot);
+    return transform;
 }
 
 }

@@ -127,8 +127,8 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 std::vector<NodeWeakPtr>& pElements);
 
         virtual void preRender();
-        virtual void maybeRender(const FRect& Rect) {};
-        virtual void render(const FRect& Rect) {};
+        virtual void maybeRender() {};
+        virtual void render() {};
 
         float getEffectiveOpacity() const;
         virtual std::string dump(int indent = 0);
@@ -160,6 +160,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
+        virtual const glm::mat4& getParentTransform() const;
 
     private:
         std::string m_ID;

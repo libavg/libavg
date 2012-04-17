@@ -323,7 +323,7 @@ void DivNode::preRender()
     }
 }
 
-void DivNode::render(const FRect& rect)
+void DivNode::render()
 {
     glm::vec2 viewport = getSize();
     
@@ -335,13 +335,14 @@ void DivNode::render(const FRect& rect)
     m_pClipVertexes->appendQuadIndexes(0, 1, 2, 3);
 
     if (getCrop()) {
-        getCanvas()->pushClipRect(m_pClipVertexes);
+        getCanvas()->pushClipRect(getTransform(), m_pClipVertexes);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender(rect);
+        getChild(i)->maybeRender();
     }
     if (getCrop()) {
-        getCanvas()->popClipRect(m_pClipVertexes);
+        glLoadMatrixf(glm::value_ptr(getTransform()));
+        getCanvas()->popClipRect(getTransform(), m_pClipVertexes);
     }
 }
 

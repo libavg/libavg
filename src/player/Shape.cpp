@@ -26,6 +26,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/OGLShader.h"
 
 #include "OGLSurface.h"
 
@@ -65,7 +66,6 @@ void Shape::setBitmap(BitmapPtr pBmp)
 
 void Shape::moveToGPU()
 {
-    m_pSurface->attach();
     m_pImage->moveToGPU();
     m_pVertexArray = VertexArrayPtr(new VertexArray());
 }
@@ -91,24 +91,20 @@ VertexArrayPtr Shape::getVertexArray()
     return m_pVertexArray;
 }
 
-void Shape::draw()
+void Shape::draw(const glm::mat4& transform, float opacity)
 {
     bool bIsTextured = isTextured();
     GLContext* pContext = GLContext::getCurrent();
+    StandardShaderPtr pShader = pContext->getStandardShader();
+    pShader->setColor(glm::vec4(1.f, 1.f, 1.f, opacity));
     if (bIsTextured) {
         m_pSurface->activate();
     } else {
-        if (GLContext::getCurrent()->isUsingShaders()) {
-            glproc::UseProgramObject(0);
-        }
-        for (int i = 1; i < 5; ++i) {
-            glproc::ActiveTexture(GL_TEXTURE0 + i);
-            glDisable(GL_TEXTURE_2D);
-        }
-        glproc::ActiveTexture(GL_TEXTURE0);
+        pShader->setUntextured();
+        pShader->activate();
     }
-    pContext->enableTexture(bIsTextured);
     pContext->enableGLColorArray(!bIsTextured);
+    glLoadMatrixf(glm::value_ptr(transform));
     m_pVertexArray->draw();
 }
 

@@ -48,6 +48,22 @@ GPUShadowFilter::GPUShadowFilter(const IntPoint& size, const glm::vec2& offset,
     createShader(SHADERID_HORIZ);
     createShader(SHADERID_VERT);
     setParams(offset, stdDev, opacity, color);
+    OGLShaderPtr pShader = getShader(SHADERID_HORIZ);
+    m_pHorizWidthParam = pShader->getParam<float>("width");
+    m_pHorizRadiusParam = pShader->getParam<int>("radius");
+    m_pHorizTextureParam = pShader->getParam<int>("texture");
+    m_pHorizKernelTexParam = pShader->getParam<int>("kernelTex");
+    m_pHorizOffsetParam = pShader->getParam<glm::vec2>("offset");
+
+    pShader = getShader(SHADERID_VERT);
+    m_pVertWidthParam = pShader->getParam<float>("width");
+    m_pVertRadiusParam = pShader->getParam<int>("radius");
+    m_pVertTextureParam = pShader->getParam<int>("hBlurTex");
+    m_pVertKernelTexParam = pShader->getParam<int>("kernelTex");
+    m_pVertColorParam = pShader->getParam<Pixel32>("color");
+    m_pVertOrigTexParam = pShader->getParam<int>("origTex");
+    m_pVertDestPosParam = pShader->getParam<glm::vec2>("destPos");
+    m_pVertDestSizeParam = pShader->getParam<glm::vec2>("destSize");
 }
 
 GPUShadowFilter::~GPUShadowFilter()
@@ -62,7 +78,7 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
     m_StdDev = stdDev;
     m_Opacity = opacity;
     m_Color = color;
-    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity);
+    m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity, false);
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
@@ -72,37 +88,35 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
 void GPUShadowFilter::applyOnGPU(GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
-    glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
+    getFBO(1)->activate();
     OGLShaderPtr pHShader = getShader(SHADERID_HORIZ);
     pHShader->activate();
-    pHShader->setUniformFloatParam("width", float(kernelWidth));
-    pHShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pHShader->setUniformIntParam("texture", 0);
-    pHShader->setUniformIntParam("kernelTex", 1);
+    m_pHorizWidthParam->set(float(kernelWidth));
+    m_pHorizRadiusParam->set((kernelWidth-1)/2);
+    m_pHorizTextureParam->set(0);
+    m_pHorizKernelTexParam->set(1);
     IntPoint size = getSrcSize();
     glm::vec2 texOffset(m_Offset.x/size.x, m_Offset.y/size.y);
-    pHShader->setUniformVec2fParam("offset", texOffset);
+    m_pHorizOffsetParam->set(texOffset);
     m_pGaussCurveTex->activate(GL_TEXTURE1);
     draw(pSrcTex);
 
-    m_pProjection2->activate();
-    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+    getFBO(0)->activate();
     OGLShaderPtr pVShader = getShader(SHADERID_VERT);
     pVShader->activate();
-    pVShader->setUniformFloatParam("width", float(kernelWidth));
-    pVShader->setUniformIntParam("radius", (kernelWidth-1)/2);
-    pVShader->setUniformIntParam("hBlurTex", 0);
-    pVShader->setUniformIntParam("kernelTex", 1);
-    pVShader->setUniformColorParam("color", m_Color);
+    m_pVertWidthParam->set(float(kernelWidth));
+    m_pVertRadiusParam->set((kernelWidth-1)/2);
+    m_pVertTextureParam->set(0);
+    m_pVertKernelTexParam->set(1);
+    m_pVertColorParam->set(m_Color);
 
     pSrcTex->activate(GL_TEXTURE2);
-    pVShader->setUniformIntParam("origTex", 2);
+    m_pVertOrigTexParam->set(2);
     FRect destRect = getRelDestRect();
-    pVShader->setUniformVec2fParam("destPos", destRect.tl);
-    pVShader->setUniformVec2fParam("destSize", destRect.size());
+    m_pVertDestPosParam->set(destRect.tl);
+    m_pVertDestSizeParam->set(destRect.size());
     getDestTex(1)->activate(GL_TEXTURE0);
     m_pProjection2->draw();
-    glproc::UseProgramObject(0);
 }
 
 void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)

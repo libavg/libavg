@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2011 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -39,6 +39,7 @@
 #include <assert.h>
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -55,8 +56,8 @@ TimeSource * TimeSource::get()
         MMRESULT err = timeGetDevCaps(&tc, sizeof(TIMECAPS));
         AVG_ASSERT(err == TIMERR_NOERROR);
         wTimerRes = max(tc.wPeriodMin, 1);
-        timeBeginPeriod(wTimerRes); 
-#endif        
+        timeBeginPeriod(wTimerRes);
+#endif
         m_pTimeSource = new TimeSource;
     }
     return m_pTimeSource;
@@ -91,15 +92,15 @@ long long TimeSource::getCurrentMicrosecs()
     int rc = clock_gettime(CLOCK_MONOTONIC, &now);
     assert(rc == 0);
     return ((long long)now.tv_sec)*1000000+now.tv_nsec/1000;
-#endif    
-#endif    
+#endif
+#endif
 }
 
 void TimeSource::sleepUntil(long long targetTime)
 {
     long long now = getCurrentMillisecs();
 #ifdef __APPLE__
-    if (targetTime > now) { 
+    if (targetTime > now) {
         msleep(targetTime-now);
     }
 #else
@@ -113,7 +114,7 @@ void TimeSource::sleepUntil(long long targetTime)
     }
 #endif
 }
-    
+
 void msleep(int millisecs)
 {
 #if _WIN32

@@ -21,6 +21,8 @@
 
 #include "ImagingProjection.h"
 
+#include "GLContext.h"
+
 #include "../base/Exception.h"
 
 namespace avg {
@@ -41,7 +43,7 @@ ImagingProjection::~ImagingProjection()
 {
 }
 
-void ImagingProjection::activate()
+void ImagingProjection::draw()
 {
     IntPoint destSize = m_DestRect.size();
     glViewport(0, 0, destSize.x, destSize.y);
@@ -51,16 +53,13 @@ void ImagingProjection::activate()
     gluOrtho2D(0, destSize.x, 0, destSize.y);
     
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    IntPoint offset = m_DestRect.tl;
-    glTranslated(-offset.x, -offset.y, 0);
-    glScaled(m_SrcSize.x, m_SrcSize.y, 1);
-    
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "ImagingProjection::activate()");
-}
+    glm::vec3 offset(-m_DestRect.tl.x, -m_DestRect.tl.y, 0);
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), offset);
+    glm::vec3 size(m_SrcSize.x, m_SrcSize.y, 1);
+    transform = glm::scale(transform, size);
+    glLoadMatrixf(glm::value_ptr(transform));
+    GLContext::getCurrent()->checkError("ImagingProjection::draw()");
 
-void ImagingProjection::draw()
-{
     m_pVA->draw();
 }
 

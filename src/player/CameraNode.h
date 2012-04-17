@@ -97,7 +97,7 @@ class AVG_API CameraNode : public RasterNode
         bool isImageAvailable() const;
 
         virtual void preRender();
-        virtual void render(const FRect& Rect);
+        virtual void render();
 
         int getFrameNum() const;
         IntPoint getMediaSize();

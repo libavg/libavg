@@ -21,6 +21,8 @@
 
 #include "GLBufferCache.h"
 
+#include "GLContext.h"
+
 #include "../base/Exception.h"
 
 using namespace std;
@@ -42,7 +44,7 @@ unsigned int GLBufferCache::getBuffer()
     unsigned int bufferID;
     if (m_BufferIDs.empty()) {
         glproc::GenBuffers(1, &bufferID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBO: GenBuffers()");
+        GLContext::getCurrent()->checkError("PBO: GenBuffers()");
     } else {
         bufferID = m_BufferIDs.back();
         m_BufferIDs.pop_back();

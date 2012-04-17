@@ -41,6 +41,12 @@ GPUHueSatFilter::GPUHueSatFilter(const IntPoint& size, PixelFormat pf,
     ObjectCounter::get()->incRef(&typeid(*this));
     setDimensions(size);
     createShader(SHADERID_HSL_COLOR);
+    OGLShaderPtr pShader = getShader(SHADERID_HSL_COLOR);
+    m_pHueParam = pShader->getParam<float>("hue");
+    m_pSatParam = pShader->getParam<float>("sat");
+    m_pLightnessParam = pShader->getParam<float>("l_offset");
+    m_pColorizeParam = pShader->getParam<int>("b_colorize");
+    m_pTextureParam = pShader->getParam<int>("texture");
 }
 
 GPUHueSatFilter::~GPUHueSatFilter()
@@ -62,13 +68,12 @@ void GPUHueSatFilter::applyOnGPU(GLTexturePtr pSrcTex)
     OGLShaderPtr pShader = getShader(SHADERID_HSL_COLOR);
     glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     pShader->activate();
-    pShader->setUniformFloatParam("hue", m_Hue);
-    pShader->setUniformFloatParam("sat", m_Saturation);
-    pShader->setUniformFloatParam("l_offset", m_LightnessOffset);
-    pShader->setUniformIntParam("b_colorize", (int)m_bColorize);
-    pShader->setUniformIntParam("texture", 0);
+    m_pHueParam->set(m_Hue);
+    m_pSatParam->set(m_Saturation);
+    m_pLightnessParam->set(m_LightnessOffset);
+    m_pColorizeParam->set((int)(m_bColorize));
+    m_pTextureParam->set(0);
     draw(pSrcTex);
-    glproc::UseProgramObject(0);
 }
 
 }

@@ -23,30 +23,39 @@
 #
 
 from libavg import *
+
 import optparse
 import random
+import math
+import time
 
 g_Player = avg.Player.get()
+
+R = 40.0
+g_Trigger = True
 
 def parseCmdLine():
     parser = optparse.OptionParser(usage=
 """%prog [option]. 
-Checks libavg performance by creating lots of nodes. Displays a frame time graph, executes for 20 secs and dumps profile statistics at the end of program execution.""")
-    parser.add_option('--use-fx', '-f', dest='useFX', action='store_true', default=False, 
-            help='Display everything using a NullFX to test FX overhead.')
-    parser.add_option('--video', '-v', dest='video',  action='store_true', default=False, 
-            help='Show videos instead of images.')
+Checks libavg performance by creating lots of polygon nodes. Displays a frame time graph, executes for 20 secs and dumps profile statistics at the end of program execution.""")
+    parser.add_option('--hole-polygon', '-y', dest='hole', action='store_true', default=False,
+            help='Equipped polygon with one hole. Attention the number of points in a polygon will dublicated.')
     parser.add_option('--create-nodes', '-c', dest='createNodes', action='store_true',
             default=False, 
             help='Destroy and recreate all nodes every 400 ms.')
     parser.add_option('--move', '-m', dest='move', action='store_true',
             default=False, 
             help='Move nodes every frame.')
+    parser.add_option('--color', dest='color', action='store_true',
+            default=False, 
+            help='Applies gamma to the nodes, causing the color correction shader to activate.')
     parser.add_option('--vsync', '-s', dest='vsync', action='store_true',
             default=False, 
             help='Sync output to vertical refresh.')
     parser.add_option('--num-objs', '-n', dest='numObjs', type='int', default=-1,
             help='Number of objects to create. Default is 200 images or 40 videos.')
+    parser.add_option('--num-points', '-x', dest='numPoints', type='int', default=-1,
+            help='Number of points in each polygon. Default is 10. Only even Numbers.')
 
     (options, args) = parser.parse_args()
 
@@ -55,11 +64,16 @@ Checks libavg performance by creating lots of nodes. Displays a frame time graph
 
 class SpeedApp(AVGApp):
     def init(self):
+        self._parentNode.mediadir = utils.getMediaDir(None, "data")
+        tstart = time.time()
         self.__createNodes()
+        print 'Buildtime needed: %f' % (time.time()-tstart)
         self._starter.showFrameRate()
         if options.createNodes:
             g_Player.setInterval(400, self.__createNodes)
-        g_Player.setTimeout(20000, g_Player.stop)
+        # Ignore the first frame for the 20 sec-limit so long startup times don't
+        # break things.
+        g_Player.setTimeout(0, lambda: g_Player.setTimeout(20000, g_Player.stop))
         if options.move:
             g_Player.setOnFrameHandler(self.__moveNodes)
 
@@ -67,15 +81,14 @@ class SpeedApp(AVGApp):
         self.__nodes = []
         for i in xrange(options.numObjs):
             pos = (random.randrange(800-64), random.randrange(600-64))
-            if options.video:
-                node = avg.VideoNode(pos=pos, href="../video/testfiles/mpeg1-48x48.mpg",
-                        loop=True, parent=self._parentNode)
-                node.play()
-            else:
-                node = avg.ImageNode(pos=pos, href="rgb24alpha-64x64.png",
-                        parent=self._parentNode)
-            if options.useFX:
-                node.setEffect(avg.NullFXNode())
+            polyPos = self.__calPolyCords(pos, R)
+            holes = []
+            if options.hole:
+                holes = (self.__calPolyCords(pos, R/2), )
+            node = avg.PolygonNode(parent=self._parentNode, pos=polyPos, fillopacity=1,
+                    holes=holes)
+            if options.color:
+                node.gamma = (1.1, 1.1, 1.1)
             self.__nodes.append(node)
         if options.createNodes:
             g_Player.setTimeout(300, self.__deleteNodes)
@@ -86,19 +99,37 @@ class SpeedApp(AVGApp):
         self.__nodes = []
 
     def __moveNodes(self):
-        for node in self.__nodes:
-            node.pos = (random.randrange(800-64), random.randrange(600-64))
+        global g_Trigger
+        for node in self.__nodes:            
+            newPos = []
+            if g_Trigger:
+                newPos = [(i[0]+1, i[1]+1) for i in node.pos]
+            else:
+                newPos = [(i[0]-1, i[1]-1) for i in node.pos]
+            node.pos = newPos
+        g_Trigger = not g_Trigger
+        
 
+    def __calPolyCords(self, offset, r):
+        r2 = r/2
+        alpha = math.radians(360.0 / (options.numPoints/2))
+        beta = alpha/2
+        result = []
+        for i in xrange(options.numPoints/2):
+            result.append( (r*math.cos(i*alpha) + offset[0], r*math.sin(i*alpha) + offset[1]) )
+            result.append( (r2*math.cos(i*alpha+beta) + offset[0], r2*math.sin(i*alpha+beta) + offset[1]) )
+        return result        
 
 options = parseCmdLine()
 if not(options.vsync):
     g_Player.setFramerate(1000)
 if options.numObjs == -1:
-    if options.video:
-        options.numObjs = 40
-    else:
-        options.numObjs = 200 
-       
+    options.numObjs = 40 
+if options.numPoints < 10:
+    options.numPoints = 10
+elif options.numPoints % 2 != 0:
+    options.numPoints -= 1
+
 log = avg.Logger.get()
 log.setCategories(log.PROFILE | log.CONFIG | log.WARNING | log.ERROR)
 SpeedApp.start(resolution=(800,600))
