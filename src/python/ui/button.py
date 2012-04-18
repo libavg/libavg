@@ -20,8 +20,6 @@
 #
 # Original author of this file is Henrik Thoms
 
-from itertools import cycle
-
 from libavg import avg, statemachine, utils
 import gesture
 from helper import *
@@ -263,7 +261,7 @@ class Button(avg.DivNode):
 class TouchButton(avg.DivNode):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
-            fatFingerEnlarge=False, clickHandler=None, isToggling=False, **kwargs):
+            fatFingerEnlarge=False, clickHandler=None, **kwargs):
         super(TouchButton, self).__init__(**kwargs)
 
         self.__upNode = upNode
@@ -273,18 +271,10 @@ class TouchButton(avg.DivNode):
         
         self.__clickHandler = utils.methodref(clickHandler)
 
-        self.__isToggling = isToggling
-        
-        if self.__isToggling:
-            self.__toggleIt = cycle([1, 0])
-        else:
-            self.__toggleIt = cycle([0])
-        self.__doToggle = 0
-        
         self.__stateMachine = statemachine.StateMachine("TouchButton", "UP")
         self.__stateMachine.addState("UP", ("DOWN", "DISABLED"),
                 enterFunc=self.__enterUp, leaveFunc=self.__leaveUp)
-        self.__stateMachine.addState("DOWN", ("DOWN", "UP", "DISABLED"),
+        self.__stateMachine.addState("DOWN", ("UP", "DISABLED"),
                 enterFunc=self.__enterDown, leaveFunc=self.__leaveDown)
         self.__stateMachine.addState("DISABLED", ("UP", "DOWN"),
                 enterFunc=self.__enterDisabled, leaveFunc=self.__leaveDisabled)
@@ -308,8 +298,7 @@ class TouchButton(avg.DivNode):
             self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
         else:
             if self.__activeAreaNode == None:
-                size = self.__upNode.size
-                self.__activeAreaNode = avg.RectNode(parent=self, size=size, opacity=0)
+                self.__activeAreaNode = self.__upNode
             else:
                 self.appendChild(self.__activeAreaNode)
 
@@ -329,26 +318,13 @@ class TouchButton(avg.DivNode):
         return TouchButton(upNode=upNode, downNode=downNode, disabledNode=disabledNode,
                 **kwargs)
 
-    def toggle(self):
-        if not self.__isToggling or not self.enabled:
-            return 
-        
-        self.__changeToggleState()
-        if self.__doToggle:
-            self.__stateMachine.changeState("DOWN")
-        else:
-            self.__stateMachine.changeState("UP")
-    
     def getEnabled(self):
         return self.__stateMachine.state != "DISABLED"
 
     def setEnabled(self, enabled):
         if enabled:
             if self.__stateMachine.state == "DISABLED":
-                if self.__doToggle:
-                    self.__stateMachine.changeState("DOWN")
-                else:
-                    self.__stateMachine.changeState("UP")
+                self.__stateMachine.changeState("UP")
         else:
             if self.__stateMachine.state != "DISABLED":
                 self.__stateMachine.changeState("DISABLED")
@@ -359,14 +335,11 @@ class TouchButton(avg.DivNode):
         self.__stateMachine.changeState("DOWN")
 
     def __onTap(self, event):
-        self.__changeToggleState()
-        if not self.__doToggle:
-            self.__stateMachine.changeState("UP")
+        self.__stateMachine.changeState("UP")
         utils.callWeakRef(self.__clickHandler)
 
     def __onTapFail(self, event):
-        if not self.__doToggle:
-            self.__stateMachine.changeState("UP")
+        self.__stateMachine.changeState("UP")
 
     def __enterUp(self):
         self.__upNode.active = True
@@ -389,7 +362,156 @@ class TouchButton(avg.DivNode):
         if self.__disabledNode:
             self.__disabledNode.active = False
         self.__tapRecognizer.enable(True)
+
+
+class ToggleButton(avg.DivNode):
+
+    def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
+            uncheckedDisabledNode, checkedDisabledNode, activeAreaNode=None,
+            fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, **kwargs):
+        super(ToggleButton, self).__init__(**kwargs)
+
+        self.__uncheckedUpNode = uncheckedUpNode
+        self.__uncheckedDownNode = uncheckedDownNode
+        self.__checkedUpNode = checkedUpNode
+        self.__checkedDownNode = checkedDownNode
+        self.__uncheckedDisabledNode = uncheckedDisabledNode
+        self.__checkedDisabledNode = checkedDisabledNode
+
+        self.__activeAreaNode = activeAreaNode
         
-    def __changeToggleState(self):
-        self.__doToggle = self.__toggleIt.next()
+        self.__checkHandler = utils.methodref(checkHandler)
+        self.__uncheckHandler = utils.methodref(uncheckHandler)
+
+        self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
+        self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN", "UNCHECKED_DISABLED"),
+                enterFunc=self.__enterUncheckedUp, leaveFunc=self.__leaveUncheckedUp)
+        self.__stateMachine.addState("UNCHECKED_DOWN", ("UNCHECKED_UP", "UNCHECKED_DISABLED", "CHECKED_UP"),
+                enterFunc=self.__enterUncheckedDown, leaveFunc=self.__leaveUncheckedDown)
+        self.__stateMachine.addState("CHECKED_UP", ("CHECKED_DOWN", "CHECKED_DISABLED"),
+                enterFunc=self.__enterCheckedUp, leaveFunc=self.__leaveCheckedUp)
+        self.__stateMachine.addState("CHECKED_DOWN", ("CHECKED_UP", "UNCHECKED_UP", "CHECKED_DISABLED"),
+                enterFunc=self.__enterCheckedDown, leaveFunc=self.__leaveCheckedDown)
+
+        self.__stateMachine.addState("UNCHECKED_DISABLED", ("UNCHECKED_UP",),
+                enterFunc=self.__enterUncheckedDisabled, leaveFunc=self.__leaveUncheckedDisabled)
+        self.__stateMachine.addState("CHECKED_DISABLED", ("CHECKED_UP", ),
+                enterFunc=self.__enterCheckedDisabled, leaveFunc=self.__leaveCheckedDisabled)
+
+        self.appendChild(self.__uncheckedUpNode)
+        self.appendChild(self.__checkedUpNode)
+
+        self.__uncheckedUpNode.active = True
+        self.__checkedUpNode.active = False
+
+        self.appendChild(self.__uncheckedDownNode)
+        self.__uncheckedDownNode.active = False
+        self.appendChild(self.__checkedDownNode)
+        self.__checkedDownNode.active = False
+
+        self.appendChild(self.__checkedDisabledNode)
+        self.__checkedDisabledNode.active = False
+        self.appendChild(self.__uncheckedDisabledNode)
+        self.__uncheckedDisabledNode.active = False
         
+        if fatFingerEnlarge:
+            if self.__activeAreaNode != None:
+                raise(RuntimeError(
+                    "ToggleButton: Can't specify both fatFingerEnlarge and activeAreaNode"))
+            size = upNode.size
+            minSize = 20*g_Player.getPixelsPerMM()
+            size = avg.Point2D(max(minSize, size.x), max(minSize, size.y))
+            self.__activeAreaNode = avg.RectNode(size=size, opacity=0, parent=self)
+        else:
+            if self.__activeAreaNode == None:
+                self.__activeAreaNode = self
+            else:
+                self.appendChild(self.__activeAreaNode)
+
+        self.__tapRecognizer = gesture.TapRecognizer(self.__activeAreaNode,
+                possibleHandler=self.__onDown, 
+                detectedHandler=self.__onTap, 
+                failHandler=self.__onTapFail)
+
+    def getEnabled(self):
+        return (self.__stateMachine.state != "CHECKED_DISABLED" and
+                self.__stateMachine.state != "UNCHECKED_DISABLED")
+
+    def setEnabled(self, enabled):
+        if enabled:
+            if self.__stateMachine.state == "CHECKED_DISABLED":
+                self.__stateMachine.changeState("CHECKED_UP")
+            elif self.__stateMachine.state == "UNCHECKED_DISABLED":
+                self.__stateMachine.changeState("UNCHECKED_UP")
+        else:
+            if (self.__stateMachine.state == "CHECKED_UP" or
+                    self.__stateMachine.state == "CHECKED_DOWN") :
+                self.__stateMachine.changeState("CHECKED_DISABLED")
+            elif (self.__stateMachine.state == "UNCHECKED_UP" or
+                    self.__stateMachine.state == "UNCHECKED_DOWN") :
+                self.__stateMachine.changeState("UNCHECKED_DISABLED")
+
+    enabled = property(getEnabled, setEnabled)
+
+    def getState(self):
+        return self.__stateMachine.state
+
+    def __enterUncheckedUp(self):
+        self.__uncheckedUpNode.active = True
+
+    def __leaveUncheckedUp(self):
+        self.__uncheckedUpNode.active = False
+
+    def __enterUncheckedDown(self):
+        self.__uncheckedDownNode.active = True
+
+    def __leaveUncheckedDown(self):
+        self.__uncheckedDownNode.active = False
+
+    def __enterCheckedUp(self):
+        self.__checkedUpNode.active = True
+
+    def __leaveCheckedUp(self):
+        self.__checkedUpNode.active = False
+
+    def __enterCheckedDown(self):
+        self.__checkedDownNode.active = True
+
+    def __leaveCheckedDown(self):
+        self.__checkedDownNode.active = False
+
+    def __enterUncheckedDisabled(self):
+        self.__uncheckedDisabledNode.active = True
+        self.__tapRecognizer.enable(False)
+
+    def __leaveUncheckedDisabled(self):
+        self.__uncheckedDisabledNode.active = False
+        self.__tapRecognizer.enable(True)
+
+    def __enterCheckedDisabled(self):
+        self.__checkedDisabledNode.active = True
+        self.__tapRecognizer.enable(False)
+
+    def __leaveCheckedDisabled(self):
+        self.__checkedDisabledNode.active = False
+        self.__tapRecognizer.enable(True)
+
+    def __onDown(self, event):
+        if self.__stateMachine.state == "UNCHECKED_UP":
+            self.__stateMachine.changeState("UNCHECKED_DOWN")
+        elif self.__stateMachine.state == "CHECKED_UP":
+            self.__stateMachine.changeState("CHECKED_DOWN")
+
+    def __onTap(self, event):
+        if self.__stateMachine.state == "UNCHECKED_DOWN":
+            self.__stateMachine.changeState("CHECKED_UP")
+            utils.callWeakRef(self.__checkHandler)
+        elif self.__stateMachine.state == "CHECKED_DOWN":
+            self.__stateMachine.changeState("UNCHECKED_UP")
+            utils.callWeakRef(self.__uncheckHandler)
+
+    def __onTapFail(self, event):
+        if self.__stateMachine.state == "UNCHECKED_DOWN":
+            self.__stateMachine.changeState("UNCHECKED_UP")
+        elif self.__stateMachine.state == "CHECKED_DOWN":
+            self.__stateMachine.changeState("CHECKED_UP")
