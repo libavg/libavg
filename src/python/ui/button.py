@@ -384,34 +384,37 @@ class ToggleButton(avg.DivNode):
         self.__uncheckHandler = utils.methodref(uncheckHandler)
 
         self.__stateMachine = statemachine.StateMachine("ToggleButton", "UNCHECKED_UP")
-        self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN", "UNCHECKED_DISABLED"),
-                enterFunc=self.__enterUncheckedUp, leaveFunc=self.__leaveUncheckedUp)
-        self.__stateMachine.addState("UNCHECKED_DOWN", ("UNCHECKED_UP", "UNCHECKED_DISABLED", "CHECKED_UP"),
-                enterFunc=self.__enterUncheckedDown, leaveFunc=self.__leaveUncheckedDown)
+        self.__stateMachine.addState("UNCHECKED_UP", ("UNCHECKED_DOWN",
+                "UNCHECKED_DISABLED"), enterFunc=self.__enterUncheckedUp,
+                leaveFunc=self.__leaveUncheckedUp)
+        self.__stateMachine.addState("UNCHECKED_DOWN", ("UNCHECKED_UP",
+                "UNCHECKED_DISABLED", "CHECKED_UP"), enterFunc=self.__enterUncheckedDown,
+                leaveFunc=self.__leaveUncheckedDown)
         self.__stateMachine.addState("CHECKED_UP", ("CHECKED_DOWN", "CHECKED_DISABLED"),
                 enterFunc=self.__enterCheckedUp, leaveFunc=self.__leaveCheckedUp)
-        self.__stateMachine.addState("CHECKED_DOWN", ("CHECKED_UP", "UNCHECKED_UP", "CHECKED_DISABLED"),
-                enterFunc=self.__enterCheckedDown, leaveFunc=self.__leaveCheckedDown)
+        self.__stateMachine.addState("CHECKED_DOWN", ("CHECKED_UP", "UNCHECKED_UP",
+                "CHECKED_DISABLED"), enterFunc=self.__enterCheckedDown,
+                leaveFunc=self.__leaveCheckedDown)
 
         self.__stateMachine.addState("UNCHECKED_DISABLED", ("UNCHECKED_UP",),
-                enterFunc=self.__enterUncheckedDisabled, leaveFunc=self.__leaveUncheckedDisabled)
+                enterFunc=self.__enterUncheckedDisabled,
+                leaveFunc=self.__leaveUncheckedDisabled)
         self.__stateMachine.addState("CHECKED_DISABLED", ("CHECKED_UP", ),
-                enterFunc=self.__enterCheckedDisabled, leaveFunc=self.__leaveCheckedDisabled)
+                enterFunc=self.__enterCheckedDisabled,
+                leaveFunc=self.__leaveCheckedDisabled)
 
         self.appendChild(self.__uncheckedUpNode)
         self.appendChild(self.__checkedUpNode)
+        self.appendChild(self.__uncheckedDownNode)
+        self.appendChild(self.__checkedDownNode)
+        self.appendChild(self.__checkedDisabledNode)
+        self.appendChild(self.__uncheckedDisabledNode)
 
         self.__uncheckedUpNode.active = True
         self.__checkedUpNode.active = False
-
-        self.appendChild(self.__uncheckedDownNode)
         self.__uncheckedDownNode.active = False
-        self.appendChild(self.__checkedDownNode)
         self.__checkedDownNode.active = False
-
-        self.appendChild(self.__checkedDisabledNode)
         self.__checkedDisabledNode.active = False
-        self.appendChild(self.__uncheckedDisabledNode)
         self.__uncheckedDisabledNode.active = False
         
         if fatFingerEnlarge:
