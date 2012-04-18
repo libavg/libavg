@@ -456,6 +456,32 @@ class ToggleButton(avg.DivNode):
 
     enabled = property(getEnabled, setEnabled)
 
+    def getChecked(self):
+        return (self.__stateMachine.state != "UNCHECKED_UP" and
+                self.__stateMachine.state != "UNCHECKED_DOWN" and
+                self.__stateMachine.state != "UNCHECKED_DISABLED")
+
+    def setChecked(self, checked):
+        oldEnabled = self.getEnabled()
+        if checked:
+            if self.__stateMachine.state == "UNCHECKED_DISABLED":
+                self.__stateMachine.changeState("UNCHECKED_UP")
+            if self.__stateMachine.state == "UNCHECKED_UP":
+                self.__stateMachine.changeState("UNCHECKED_DOWN")
+            self.__stateMachine.changeState("CHECKED_UP")
+            if not oldEnabled:
+                self.__stateMachine.changeState("CHECKED_DISABLED")
+        else:
+            if self.__stateMachine.state == "CHECKED_DISABLED":
+                self.__stateMachine.changeState("CHECKED_UP")
+            if self.__stateMachine.state == "CHECKED_UP":
+                self.__stateMachine.changeState("CHECKED_DOWN")
+            self.__stateMachine.changeState("UNCHECKED_UP")
+            if not oldEnabled:
+                self.__stateMachine.changeState("UNCHECKED_DISABLED")
+
+    checked = property(getChecked, setChecked)
+
     def getState(self):
         return self.__stateMachine.state
 
