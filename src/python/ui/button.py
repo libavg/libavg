@@ -540,10 +540,10 @@ class ToggleButton(avg.DivNode):
     def __onTap(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
             self.__stateMachine.changeState("CHECKED_UP")
-            utils.callWeakRef(self.__checkHandler)
+            utils.callWeakRef(self.__checkHandler, event)
         elif self.__stateMachine.state == "CHECKED_DOWN":
             self.__stateMachine.changeState("UNCHECKED_UP")
-            utils.callWeakRef(self.__uncheckHandler)
+            utils.callWeakRef(self.__uncheckHandler, event)
 
     def __onTapFail(self, event):
         if self.__stateMachine.state == "UNCHECKED_DOWN":
