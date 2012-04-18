@@ -291,7 +291,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(renderProfilingZone);
-
+        m_pVertexArray->activate();
         m_pRootNode->maybeRender();
 
         renderOutlines();
