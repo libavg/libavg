@@ -118,10 +118,7 @@ GLTexture::~GLTexture()
 
 void GLTexture::activate(int textureUnit)
 {
-    glproc::ActiveTexture(textureUnit);
-    GLContext::getCurrent()->checkError("GLTexture::activate ActiveTexture()");
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    GLContext::getCurrent()->checkError("GLTexture::activate BindTexture()");
+    GLContext::getCurrent()->bindTexture(textureUnit, m_TexID);
 }
 
 void GLTexture::generateMipmaps()

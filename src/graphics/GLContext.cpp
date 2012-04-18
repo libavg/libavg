@@ -231,6 +231,9 @@ void GLContext::init()
         m_GLConfig.m_bUsePOTTextures = 
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two");
     }
+    for (int i=0; i<16; ++i) {
+        m_BoundTextures[i] = 0xFFFFFFFF;
+    }
 }
 
 void GLContext::activate()
@@ -388,6 +391,17 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
 
         m_BlendMode = mode;
         m_bPremultipliedAlpha = bPremultipliedAlpha;
+    }
+}
+
+void GLContext::bindTexture(unsigned unit, unsigned texID)
+{
+    if (m_BoundTextures[unit-GL_TEXTURE0] != texID) {
+        glproc::ActiveTexture(unit);
+        checkError("GLContext::bindTexture ActiveTexture()");
+        glBindTexture(GL_TEXTURE_2D, texID);
+        checkError("GLContext::bindTexture BindTexture()");
+        m_BoundTextures[unit-GL_TEXTURE0] = texID;
     }
 }
 

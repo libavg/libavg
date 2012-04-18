@@ -76,6 +76,7 @@ public:
     void enableGLColorArray(bool bEnable);
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
+    void bindTexture(unsigned unit, unsigned texID);
 
     const GLConfig& getConfig();
     void logConfig();
@@ -139,6 +140,8 @@ private:
     bool m_bEnableGLColorArray;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;
+    unsigned m_BoundTextures[16];
+
 
     bool m_bErrorCheckEnabled;
 
