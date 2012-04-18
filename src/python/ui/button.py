@@ -367,7 +367,7 @@ class TouchButton(avg.DivNode):
 class ToggleButton(avg.DivNode):
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
-            uncheckedDisabledNode, checkedDisabledNode, activeAreaNode=None,
+            uncheckedDisabledNode, checkedDisabledNode, activeAreaNode=None, enabled=True,
             fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
 
@@ -435,6 +435,9 @@ class ToggleButton(avg.DivNode):
                 possibleHandler=self.__onDown, 
                 detectedHandler=self.__onTap, 
                 failHandler=self.__onTapFail)
+
+        if not enabled:
+            self.__stateMachine.changeState("UNCHECKED_DISABLED")
 
     def getEnabled(self):
         return (self.__stateMachine.state != "CHECKED_DISABLED" and
