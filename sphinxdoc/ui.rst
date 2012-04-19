@@ -442,6 +442,11 @@ functionality
         .. py:method:: getState() -> String
 
             Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
+
+        .. py:classmethod:: fromSrc(uncheckedUp, uncheckedDown, checkedUp, checkedDown, [uncheckedDisabled=None, checkedDisabled=None **kwargs]) -> ToggleButton
+
+            Factory method that creates a togglebutton from filenames of the images to be
+            displayed for different states.
     
 
     .. autoclass:: Transform(trans, [rot=0, scale=1, pivot=(0,0)])
