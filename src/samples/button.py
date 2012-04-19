@@ -10,27 +10,20 @@ class Main(AVGApp):
     multitouch = True
     
     def __init__(self, parentNode):
-        parentNode.mediadir = utils.getMediaDir("../test/media")#__file__)
+        parentNode.mediadir = utils.getMediaDir("../test/media")
         self.rootNode = avg.DivNode(parent = parentNode)
         super(Main, self).__init__(parentNode)
     
     def init(self):
-        self.button = ui.TouchButton(upNode=avg.ImageNode(href="button_up.png"),
-                downNode=avg.ImageNode(href="button_down.png"),
-                disabledNode=avg.ImageNode(href="button_disabled.png"),
-                parent=self.rootNode, clickHandler=self.clickHandler
-                )
+        self.button = ui.TouchButton.fromSrc("button_up.png", "button_down.png",
+                "button_disabled.png", parent=self.rootNode,
+                clickHandler=self.clickHandler)
         
-        self.toggleButton = ui.ToggleButton(
-                uncheckedUpNode=avg.ImageNode(href="toggle_unchecked_Up.png"),
-                uncheckedDownNode=avg.ImageNode(href="toggle_unchecked_Down.png"),
-                checkedUpNode=avg.ImageNode(href="toggle_checked_Up.png"),
-                checkedDownNode=avg.ImageNode(href="toggle_checked_Down.png"),
-                uncheckedDisabledNode=avg.ImageNode(href="toggle_unchecked_Disabled.png"),
-                checkedDisabledNode=avg.ImageNode(href="toggle_checked_Disabled.png"),
-                checkHandler=self.checkedHandler, uncheckHandler=self.uncheckedHandler,
-                parent=self.rootNode, pos=(100, 0)
-                )
+        self.toggleButton = ui.ToggleButton.fromSrc("toggle_unchecked_Up.png",
+                "toggle_unchecked_Down.png", "toggle_checked_Up.png",
+                "toggle_checked_Down.png", "toggle_unchecked_Disabled.png",
+                "toggle_checked_Disabled.png", checkHandler=self.checkedHandler,
+                uncheckHandler=self.uncheckedHandler, parent=self.rootNode, pos=(100, 10))
         
     def onKeyDown(self, event):
         if event.keystring == "left":
