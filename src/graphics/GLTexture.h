@@ -77,6 +77,7 @@ private:
     bool m_bDeleteTex;
     bool m_bUsePOT;
 
+    static unsigned s_LastTexID;
     unsigned m_TexID;
     bool m_bIsDirty;
     TextureMoverPtr m_pMover;

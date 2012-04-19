@@ -36,6 +36,8 @@ namespace avg {
 
 using namespace std;
 
+unsigned GLTexture::s_LastTexID = -1;
+
 GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT)
     : m_Size(size),
@@ -63,8 +65,8 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
                 "Float textures not supported by OpenGL configuration.");
     }
 
-    glGenTextures(1, &m_TexID);
-    GLContext::getCurrent()->checkError("GLTexture: glGenTextures()");
+    s_LastTexID++;
+    m_TexID = s_LastTexID;
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     GLContext::getCurrent()->checkError("GLTexture: glBindTexture()");
     if (bMipmap) {
