@@ -67,8 +67,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 
     s_LastTexID++;
     m_TexID = s_LastTexID;
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    GLContext::getCurrent()->checkError("GLTexture: glBindTexture()");
+    GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
     if (bMipmap) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
@@ -111,8 +110,6 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
 GLTexture::~GLTexture()
 {
     if (m_bDeleteTex) {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDeleteTextures(1, &m_TexID);
         GLContext::getCurrent()->checkError("GLTexture: DeleteTextures()");
     }
     ObjectCounter::get()->decRef(&typeid(*this));
