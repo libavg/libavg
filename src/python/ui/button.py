@@ -367,9 +367,9 @@ class TouchButton(avg.DivNode):
 class ToggleButton(avg.DivNode):
 
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
-            uncheckedDisabledNode, checkedDisabledNode, activeAreaNode=None, enabled=True,
-            fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, checked=False,
-            **kwargs):
+            uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
+            enabled=True, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None,
+            checked=False, **kwargs):
         super(ToggleButton, self).__init__(**kwargs)
 
         self.__uncheckedUpNode = uncheckedUpNode
