@@ -60,8 +60,8 @@ void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest,
         float newB = 0;
 
         for (int i = 0; i < 3; i++) {
+            unsigned char * pLineStart = (unsigned char *)pSrcPixel+i*stride;
             for (int j = 0; j < 3; j++) {
-                unsigned char * pLineStart = (unsigned char *)pSrcPixel+i*stride;
                 PIXEL SrcPixel = *((PIXEL *)pLineStart+j);
                 newR += SrcPixel.getR()*m_Mat[i][j];
                 newG += SrcPixel.getG()*m_Mat[i][j];
