@@ -338,7 +338,7 @@ functionality
         :param maxTime: The maximum time that the tap may take in milliseconds.
 
 
-    .. autoclass:: TouchButton(upNode, downNode, disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
+    .. autoclass:: TouchButton(upNode, downNode, [disabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, clickHandler=None])
 
         A button made specifically for touch input. Uses the :py:class:`TapRecognizer` to
         detect clicks.
@@ -379,7 +379,71 @@ functionality
             Factory method that creates a button from filenames of the images to be
             displayed for different states.
 
+
+    .. autoclass:: ToggleButton( uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode, [uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None, fatFingerEnlarge=False, checkHandler=None, uncheckHandler=None, enabled=True, checked=False])
+
+        A button made specifically for toggle functionality and it's touch input optimized.
+        Uses the :py:class:`TapRecognizer` to detect clicks.
+
+        :param avg.Node uncheckedUpNode: The node displayed when the button is not unchecked and not pressed.
+
+        :param avg.Node uncheckedDownNode: The node displayed when the button is unchecked and pressed.
+
+        :param avg.Node checkedUpNode: The node displayed when the button is checked and not pressed.
+
+        :param avg.Node uncheckedDisabledNode: The node displayed when the button is unchecked and disabled.
+
+        :param avg.Node checkedDisabledNode: The node displayed when the button is checked and disabled.
+
+        :param avg.Node activeAreaNode: 
+        
+            A node that is used only to determine if a click is over the button. Usually,
+            this node is invisible. :py:attr:`activeAreaNode` is useful for small touch
+            buttons, where the active area should be larger than the visible button to
+            account for touch inaccuracies.
+
+        :param bool fatFingerEnlarge:
+
+            If this parameter is set to :py:const:`True`, the button generates it's own 
+            internal :py:attr:`activeAreaNode` that is at least 20x20mm large. 
+            :py:attr:`fatFingerEnlarge` is incompatible with a custom 
+            :py:attr:`activeAreaNode`.
+
+        :param bool checked:
+
+            If this parameter is set to :py:const:`True`, the button starts in the checked
+            state.
+
+        :param bool enabled:
+
+            If this parameter is set to :py:const:`True`, the button starts in the disabled
+            state.
+
+        Callbacks:
+
+            .. py:method:: checkedHandler(event)
+
+                Called when the button was checked.
+
+            .. py:method:: uncheckedHandler(event)
+
+                Called when the button was unchecked.
+
+        .. py:attribute:: enabled
+
+            :py:const:`True` if the button accepts input. If the button is disabled,
+            it shows the :py:attr:`uncheckedDisabledNode or checkedDisabledNode`.
+
+        .. py:attribute:: checked
+
+            :py:const:'True' the button switched in the checked state. If the button is
+            disabled, it switch in the disabled checked state.
+
+        .. py:method:: getState() -> String
+
+            Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
     
+
     .. autoclass:: Transform(trans, [rot=0, scale=1, pivot=(0,0)])
 
         Encapsulates a coordinate transformation and can be used to change the position,
