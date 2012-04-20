@@ -37,9 +37,6 @@ using namespace boost;
 
 namespace avg {
     
-const int MIN_VERTEXES = 100;
-const int MIN_INDEXES = 100;
-
 SubVertexArray::SubVertexArray(VertexArray* pVertexArray, unsigned startVertex, 
         unsigned startIndex)
     : m_pVA(pVertexArray),
