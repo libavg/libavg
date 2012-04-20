@@ -45,7 +45,8 @@ public:
     void update();
     void activate();
     void draw();
-    void draw(unsigned startIndex, unsigned numIndexes);
+    void draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
+            unsigned numVertexes);
 
     SubVertexArrayPtr startSubVA();
 

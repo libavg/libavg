@@ -91,7 +91,7 @@ int SubVertexArray::getCurVert() const
 
 void SubVertexArray::draw()
 {
-    m_pVA->draw(m_StartIndex, m_NumIndexes);
+    m_pVA->draw(m_StartIndex, m_NumIndexes, m_StartVertex, m_StartIndex);
 }
 
 }

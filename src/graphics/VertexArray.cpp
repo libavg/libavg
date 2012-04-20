@@ -113,15 +113,15 @@ void VertexArray::draw()
     GLContext::getCurrent()->checkError("VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    // TODO: glDrawRangeElements is allegedly faster.
     glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_INT, 0);
     GLContext::getCurrent()->checkError( "VertexArray::draw():2");
 }
 
-void VertexArray::draw(unsigned startIndex, unsigned numIndexes)
+void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
+        unsigned numVertexes)
 {
-    glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_INT, 
-            (void *)(startIndex*sizeof(unsigned)));
+    glDrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, numIndexes, 
+            GL_UNSIGNED_INT, (void *)(startIndex*sizeof(unsigned)));
     GLContext::getCurrent()->checkError( "VertexArray::draw()");
 }
 
