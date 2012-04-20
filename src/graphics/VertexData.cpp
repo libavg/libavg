@@ -36,8 +36,8 @@ using namespace boost;
 
 namespace avg {
     
-const int MIN_VERTEXES = 100;
-const int MIN_INDEXES = 100;
+const int VertexData::MIN_VERTEXES = 100;
+const int VertexData::MIN_INDEXES = 100;
 
 VertexData::VertexData(int reserveVerts, int reserveIndexes)
     : m_NumVerts(0),

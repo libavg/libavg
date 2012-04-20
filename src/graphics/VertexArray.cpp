@@ -36,9 +36,6 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-    
-const int MIN_VERTEXES = 100;
-const int MIN_INDEXES = 100;
 
 VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     : VertexData(reserveVerts, reserveIndexes)
@@ -125,7 +122,7 @@ void VertexArray::draw(unsigned startIndex, unsigned numIndexes)
 {
     glDrawElements(GL_TRIANGLES, numIndexes, GL_UNSIGNED_INT, 
             (void *)(startIndex*sizeof(unsigned)));
-    GLContext::getCurrent()->checkError( "VertexArray::draw():2");
+    GLContext::getCurrent()->checkError( "VertexArray::draw()");
 }
 
 SubVertexArrayPtr VertexArray::startSubVA()

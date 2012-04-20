@@ -71,6 +71,9 @@ protected:
     const T2V3C4Vertex * getVertexPointer() const;
     const unsigned int * getIndexPointer() const;
 
+    static const int MIN_VERTEXES;
+    static const int MIN_INDEXES;
+
 private:
     void grow();
 
