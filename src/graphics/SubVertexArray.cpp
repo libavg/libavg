@@ -60,13 +60,14 @@ void SubVertexArray::appendPos(const glm::vec2& pos, const glm::vec2& texPos,
 
 void SubVertexArray::appendTriIndexes(int v0, int v1, int v2)
 {
-    m_pVA->appendTriIndexes(v0, v1, v2);
+    m_pVA->appendTriIndexes(v0+m_StartVertex, v1+m_StartVertex, v2+m_StartVertex);
     m_NumIndexes += 3;
 }
 
 void SubVertexArray::appendQuadIndexes(int v0, int v1, int v2, int v3)
 {
-    m_pVA->appendQuadIndexes(v0, v1, v2, v3);
+    m_pVA->appendQuadIndexes(v0+m_StartVertex, v1+m_StartVertex, v2+m_StartVertex, 
+            v3+m_StartVertex);
     m_NumIndexes += 6;
 }
 
@@ -86,7 +87,7 @@ void SubVertexArray::appendVertexData(VertexDataPtr pVertexes)
 
 int SubVertexArray::getCurVert() const
 {
-    return m_pVA->getCurVert();
+    return m_NumVerts;
 }
 
 void SubVertexArray::draw()
