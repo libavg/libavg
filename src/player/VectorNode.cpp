@@ -163,12 +163,6 @@ void VectorNode::maybeRender()
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        if (getID() != "") {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                    " with ID " << getID());
-        } else {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-        }
         glLoadMatrixf(glm::value_ptr(getParentTransform()));
         GLContext::getCurrent()->setBlendMode(m_BlendMode);
         render();

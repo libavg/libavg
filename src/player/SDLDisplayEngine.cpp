@@ -375,7 +375,6 @@ void SDLDisplayEngine::swapBuffers()
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
     GLContext::getCurrent()->checkError("swapBuffers()");
-    AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)

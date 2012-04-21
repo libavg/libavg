@@ -43,7 +43,6 @@ using namespace std;
 namespace avg {
 
 const long Logger::NONE=0;
-const long Logger::BLTS=1;
 const long Logger::PROFILE=2;
 const long Logger::PROFILE_LATEFRAMES=4;
 const long Logger::PROFILE_VIDEO=8;
@@ -148,8 +147,6 @@ void Logger::trace(int category, const UTF8String& sMsg)
 const char * Logger::categoryToString(int category)
 {
     switch(category) {
-        case BLTS:
-            return "BLTS";
         case PROFILE:
         case PROFILE_LATEFRAMES:
         case PROFILE_VIDEO:
@@ -178,9 +175,7 @@ const char * Logger::categoryToString(int category)
 
 int Logger::stringToCategory(const string& sCategory)
 {
-    if (sCategory == "BLTS") {
-        return BLTS;
-    } else if (sCategory == "PROFILE") {
+    if (sCategory == "PROFILE") {
         return PROFILE;
     } else if (sCategory == "PROFILE_LATEFRAMES") {
         return PROFILE_LATEFRAMES;

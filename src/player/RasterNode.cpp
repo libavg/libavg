@@ -524,10 +524,6 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     glLoadMatrixf(glm::value_ptr(localTransform));
 
     m_pSubVA->draw();
-
-    PixelFormat pf = m_pSurface->getPixelFormat();
-    AVG_TRACE(Logger::BLTS, "(" << destSize.x << ", " << destSize.y << ")" 
-            << ", m_pf: " << pf);
 }
 
 IntPoint RasterNode::getNumTiles()

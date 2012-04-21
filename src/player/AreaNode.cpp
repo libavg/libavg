@@ -216,12 +216,6 @@ void AreaNode::maybeRender()
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        if (getID() != "") {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                    " with ID " << getID());
-        } else {
-            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-        }
         m_Transform = getParentTransform()*calcTransform();
         render();
     }
