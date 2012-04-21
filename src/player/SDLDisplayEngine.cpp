@@ -258,6 +258,7 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnable(GL_TEXTURE_2D);
     setGamma(dp.m_Gamma[0], dp.m_Gamma[1], dp.m_Gamma[2]);
     showCursor(dp.m_bShowCursor);
     if (dp.m_Framerate == 0) {

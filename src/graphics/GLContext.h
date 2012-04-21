@@ -72,7 +72,6 @@ public:
     void returnFBOToCache(unsigned fboID);
 
     // GL state cache.
-    void enableTexture(bool bEnable);
     void enableGLColorArray(bool bEnable);
     enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX, BLEND_COPY};
     void setBlendMode(BlendMode mode, bool bPremultipliedAlpha = false);
@@ -136,7 +135,6 @@ private:
     OGLMemoryMode m_MemoryMode;
 
     // OpenGL state
-    bool m_bEnableTexture;
     bool m_bEnableGLColorArray;
     BlendMode m_BlendMode;
     bool m_bPremultipliedAlpha;

@@ -435,7 +435,6 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         ScopeTimer Timer(FXProfilingZone);
         GLContext* pContext = GLContext::getCurrent();
         pContext->enableGLColorArray(false);
-        pContext->enableTexture(true);
         if (!m_bBound) {
             bind();
         }
@@ -515,7 +514,6 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     }
     GLContext* pContext = GLContext::getCurrent();
     pContext->enableGLColorArray(false);
-    pContext->enableTexture(true);
     FRect destRect;
     StandardShaderPtr pShader = pContext->getStandardShader();
     if (m_pFXNode) {

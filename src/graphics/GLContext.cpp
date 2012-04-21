@@ -89,7 +89,6 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_MaxTexSize(0),
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
-      m_bEnableTexture(false),
       m_bEnableGLColorArray(true),
       m_BlendMode(BLEND_ADD),
       m_bErrorCheckEnabled(false)
@@ -309,18 +308,6 @@ unsigned GLContext::genFBO()
 void GLContext::returnFBOToCache(unsigned fboID) 
 {
     m_FBOIDs.push_back(fboID);
-}
-
-void GLContext::enableTexture(bool bEnable)
-{
-    if (bEnable != m_bEnableTexture) {
-        if (bEnable) {
-            glEnable(GL_TEXTURE_2D);
-        } else {
-            glDisable(GL_TEXTURE_2D);
-        }
-        m_bEnableTexture = bEnable;
-    }
 }
 
 void GLContext::enableGLColorArray(bool bEnable)
