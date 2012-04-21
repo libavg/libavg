@@ -58,7 +58,7 @@ class AVG_API VectorNode : public Node
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void maybeRender();
+        virtual void maybeRender(const glm::mat4& parentTransform);
         virtual void render();
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;

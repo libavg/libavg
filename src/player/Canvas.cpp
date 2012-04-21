@@ -292,7 +292,8 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     {
         ScopeTimer Timer(renderProfilingZone);
         m_pVertexArray->activate();
-        m_pRootNode->maybeRender();
+        static const glm::mat4 ident(1.0f);
+        m_pRootNode->maybeRender(ident);
 
         renderOutlines();
     }

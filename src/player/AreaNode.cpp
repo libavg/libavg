@@ -216,12 +216,12 @@ void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pElem
     }
 }
 
-void AreaNode::maybeRender()
+void AreaNode::maybeRender(const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         calcTransform();
-        m_Transform = getParentTransform()*m_LocalTransform;
+        m_Transform = parentTransform*m_LocalTransform;
         render();
     }
 }

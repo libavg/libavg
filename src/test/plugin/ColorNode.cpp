@@ -56,7 +56,7 @@ public:
     float getFloat() const;
     void setFloat(float f);
 
-    virtual void maybeRender();
+    virtual void maybeRender(const glm::mat4& parentTransform);
     virtual void render();
 
 protected:
@@ -109,7 +109,7 @@ void ColorNode::parseColor(const std::string& sColorSreing)
 }
 
 
-void ColorNode::maybeRender()
+void ColorNode::maybeRender(const glm::mat4& parentTransform)
 {
     render();
 }

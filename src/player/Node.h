@@ -128,7 +128,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void maybeRender() {};
+        virtual void maybeRender(const glm::mat4& parentTransform) {};
         virtual void render() {};
 
         float getEffectiveOpacity() const;
@@ -161,7 +161,6 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
-        virtual const glm::mat4& getParentTransform() const;
 
     private:
         std::string m_ID;
