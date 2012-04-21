@@ -255,7 +255,7 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
     {
         ScopeTimer Timer(PreRenderProfilingZone);
         m_pVertexArray->reset();
-        m_pRootNode->preRender(m_pVertexArray);
+        m_pRootNode->preRender(m_pVertexArray, true, 1.0f);
         m_pVertexArray->update();
     }
     if (pFBO) {

@@ -145,10 +145,11 @@ void FilledVectorNode::setFillOpacity(float opacity)
     setDrawNeeded();
 }
 
-void FilledVectorNode::preRender(const VertexArrayPtr& pVA)
+void FilledVectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender(pVA);
-    float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    float curOpacity = parentEffectiveOpacity*m_FillOpacity;
 
     VertexDataPtr pShapeVD = m_pFillShape->getVertexData();
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
@@ -160,7 +161,7 @@ void FilledVectorNode::preRender(const VertexArrayPtr& pVA)
     if (isVisible()) {
         m_pFillShape->setVertexArray(pVA);
     }
-    VectorNode::preRender(pVA);
+    VectorNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
 }
 
 static ProfilingZoneID RenderProfilingZone("FilledVectorNode::render");

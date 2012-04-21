@@ -333,13 +333,11 @@ void Node::getElementsByPos(const glm::vec2& pos,
 {
 }
 
-void Node::preRender(const VertexArrayPtr& pVA)
+void Node::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    if (getParent()) {
-        m_EffectiveOpacity = m_Opacity*getParent()->getEffectiveOpacity();
-    } else {
-        m_EffectiveOpacity = m_Opacity;
-    }
+    m_EffectiveOpacity = m_Opacity*parentEffectiveOpacity;
+    m_bEffectiveActive = bIsParentActive && m_bActive;
 }
 
 Node::NodeState Node::getState() const
@@ -464,11 +462,7 @@ bool Node::isVisible() const
 
 bool Node::getEffectiveActive() const
 {
-    if (getParent()) {
-        return m_bActive && getParent()->getEffectiveActive();
-    } else {
-        return m_bActive;
-    }
+    return m_bEffectiveActive;
 }
 
 const glm::mat4& Node::getParentTransform() const

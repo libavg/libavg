@@ -56,7 +56,8 @@ class AVG_API VectorNode : public Node
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
 
-        virtual void preRender(const VertexArrayPtr& pVA);
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
         virtual void maybeRender();
         virtual void render();
 

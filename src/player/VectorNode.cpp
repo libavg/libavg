@@ -141,9 +141,10 @@ void VectorNode::setBlendModeStr(const string& sBlendMode)
 
 static ProfilingZoneID PrerenderProfilingZone("VectorNode::prerender");
 
-void VectorNode::preRender(const VertexArrayPtr& pVA)
+void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender(pVA);
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     {
         ScopeTimer timer(PrerenderProfilingZone);
         VertexDataPtr pShapeVD = m_pShape->getVertexData();

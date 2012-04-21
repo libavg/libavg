@@ -146,9 +146,10 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-void ImageNode::preRender(const VertexArrayPtr& pVA)
+void ImageNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender(pVA);
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         bool bHasCanvas = bool(m_pImage->getCanvas());
         if (m_pImage->getSource() != Image::NONE) {

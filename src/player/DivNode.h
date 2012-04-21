@@ -71,7 +71,8 @@ class AVG_API DivNode : public AreaNode
         void setMediaDir(const UTF8String& mediaDir);
 
         void getElementsByPos(const glm::vec2& pos, std::vector<NodeWeakPtr>& pElements);
-        virtual void preRender(const VertexArrayPtr& pVA);
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
         virtual void render();
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
 

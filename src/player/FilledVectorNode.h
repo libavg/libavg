@@ -55,7 +55,8 @@ class AVG_API FilledVectorNode : public VectorNode
         float getFillOpacity() const;
         void setFillOpacity(float opacity);
 
-        virtual void preRender(const VertexArrayPtr& pVA);
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+                float parentEffectiveOpacity);
         virtual void render();
 
         virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color) = 0;

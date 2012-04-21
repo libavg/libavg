@@ -311,9 +311,10 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodeWeakPtr>& pEleme
     }
 }
 
-void DivNode::preRender(const VertexArrayPtr& pVA)
+void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender(pVA);
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (getCrop()) {
         pVA->startSubVA(m_ClipVA);
         glm::vec2 viewport = getSize();
@@ -324,7 +325,7 @@ void DivNode::preRender(const VertexArrayPtr& pVA)
         m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->preRender(pVA);
+        getChild(i)->preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     }
 }
 

@@ -728,9 +728,10 @@ void WordsNode::redraw()
     renderText();
 }
 
-void WordsNode::preRender(const VertexArrayPtr& pVA)
+void WordsNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender(pVA);
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         redraw();
     } else {

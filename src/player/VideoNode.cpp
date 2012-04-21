@@ -614,10 +614,11 @@ void VideoNode::exceptionIfUnloaded(const std::string& sFuncName) const
 
 static ProfilingZoneID PrerenderProfilingZone("VideoNode::prerender");
 
-void VideoNode::preRender(const VertexArrayPtr& pVA)
+void VideoNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
     ScopeTimer timer(PrerenderProfilingZone);
-    Node::preRender(pVA);
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isVisible()) {
         if (m_VideoState != Unloaded) {
             if (m_VideoState == Playing) {

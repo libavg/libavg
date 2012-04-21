@@ -331,9 +331,10 @@ int CameraNode::getFrameNum() const
 static ProfilingZoneID CameraFetchImage("Camera fetch image");
 static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 
-void CameraNode::preRender(const VertexArrayPtr& pVA)
+void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
+        float parentEffectiveOpacity)
 {
-    Node::preRender(pVA);
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (isAutoUpdateCameraImage()) {
         ScopeTimer Timer(CameraFetchImage);
         updateToLatestCameraImage();
