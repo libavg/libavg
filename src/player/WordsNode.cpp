@@ -714,7 +714,7 @@ void WordsNode::renderText()
             pMover->unlock();
             pMover->moveToTexture(*pTex);
 
-            bind();
+            newSurface();
         }
         m_RedrawState = CLEAN;
     }

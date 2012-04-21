@@ -299,6 +299,7 @@ void CameraNode::open()
     m_pTex = GLTexturePtr(new GLTexture(size, pf, bMipmap));
     m_pTex->enableStreaming();
     getSurface()->create(pf, m_pTex);
+    newSurface();
 
     BitmapPtr pBmp = m_pTex->lockStreamingBmp();
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
@@ -348,7 +349,6 @@ void CameraNode::preRender(const VertexArrayPtr& pVA)
         AVG_ASSERT(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
         pBmp->copyPixels(*m_pCurBmp);
         m_pTex->unlockStreamingBmp(true);
-        bind();
         renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
         m_bNewBmp = false;
     }

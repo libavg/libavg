@@ -64,7 +64,6 @@ NodeDefinition RasterNode::createDefinition()
 RasterNode::RasterNode()
     : m_pSurface(0),
       m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false),
-      m_bBound(false),
       m_TileSize(-1,-1),
       m_bFXDirty(true)
 {
@@ -96,11 +95,10 @@ void RasterNode::connectDisplay()
 {
     AreaNode::connectDisplay();
 
-    m_bBound = false;
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         m_TileSize = m_MaxTileSize;
     }
-    calcVertexGrid(m_TileVertices);
+    newSurface();
     setBlendModeStr(m_sBlendMode);
     if (m_pMaskBmp) {
         downloadMask();
@@ -171,9 +169,6 @@ void RasterNode::checkReload()
 VertexGrid RasterNode::getOrigVertexCoords()
 {
     checkDisplayAvailable("getOrigVertexCoords");
-    if (!m_bBound) {
-        bind();
-    }
     VertexGrid grid;
     calcVertexGrid(grid);
     return grid;
@@ -182,18 +177,12 @@ VertexGrid RasterNode::getOrigVertexCoords()
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
     checkDisplayAvailable("getWarpedVertexCoords");
-    if (!m_bBound) {
-        bind();
-    }
     return m_TileVertices;
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& grid)
 {
     checkDisplayAvailable("setWarpedVertexCoords");
-    if (!m_bBound) {
-        bind();
-    }
     bool bGridOK = true;
     IntPoint numTiles = getNumTiles();
     if (grid.size() != (unsigned)(numTiles.y+1)) {
@@ -337,7 +326,6 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
     // TODO: Optimize for unchanged vertexes.
     // if (m_bVertexArrayDirty) {
     if (isVisible() && m_pSurface->isCreated()) {
-        bind();
         m_pSubVA = pVA->startSubVA();
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
             for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
@@ -415,14 +403,6 @@ void RasterNode::downloadMask()
     m_pSurface->setMask(pTex);
 }
 
-void RasterNode::bind() 
-{
-    if (!m_bBound) {
-        calcTexCoords();
-    }
-    m_bBound = true;
-}
-
 static ProfilingZoneID FXProfilingZone("RasterNode::renderFX");
 
 void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color, 
@@ -435,9 +415,6 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
         ScopeTimer Timer(FXProfilingZone);
         GLContext* pContext = GLContext::getCurrent();
         pContext->enableGLColorArray(false);
-        if (!m_bBound) {
-            bind();
-        }
         StandardShader::get()->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
                 color.getB()/256.f, 1.f));
         m_pSurface->activate(getMediaSize());
@@ -486,6 +463,14 @@ void RasterNode::checkDisplayAvailable(std::string sMsg)
     }
 }
 
+void RasterNode::newSurface()
+{
+    if (m_pSurface->isCreated()) {
+        calcVertexGrid(m_TileVertices);
+        calcTexCoords();
+    }
+}
+
 void RasterNode::setupFX(bool bNewFX)
 {
     if (m_pSurface && m_pSurface->getSize() != IntPoint(-1, -1) && m_pFXNode) {
@@ -509,9 +494,6 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         GLContext::BlendMode mode, float opacity, const Pixel32& color,
         bool bPremultipliedAlpha)
 {
-    if (!m_bBound) {
-        bind();
-    }
     GLContext* pContext = GLContext::getCurrent();
     pContext->enableGLColorArray(false);
     FRect destRect;

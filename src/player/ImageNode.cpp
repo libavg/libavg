@@ -140,7 +140,7 @@ void ImageNode::setBitmap(BitmapPtr pBmp)
     }
     m_pImage->setBitmap(pBmp, m_Compression);
     if (getState() == Node::NS_CANRENDER) {
-        bind();
+        newSurface();
     }
     m_href = "";
     setViewport(-32767, -32767, -32767, -32767);
@@ -187,8 +187,12 @@ void ImageNode::checkReload()
         if (getState() == NS_CANRENDER) {
             pCanvas->addDependentCanvas(getCanvas());
         }
+        newSurface();
     } else {
-        Node::checkReload(m_href, m_pImage, m_Compression);
+        bool bNewImage = Node::checkReload(m_href, m_pImage, m_Compression);
+        if (bNewImage) {
+            newSurface();
+        }
     }
     setViewport(-32767, -32767, -32767, -32767);
     RasterNode::checkReload();

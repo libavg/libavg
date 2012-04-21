@@ -106,11 +106,11 @@ class AVG_API RasterNode: public AreaNode
         const MaterialInfo& getMaterial() const;
         bool hasMask() const;
         void setMaskCoords();
-        void bind();
         void renderFX(const glm::vec2& destSize, const Pixel32& color, 
                 bool bPremultipliedAlpha, bool bForceRender=false);
 
     protected:
+        void newSurface();
         void setupFX(bool bNewFX);
 
     private:
@@ -139,8 +139,6 @@ class AVG_API RasterNode: public AreaNode
         glm::vec2 m_MaskPos;
         glm::vec2 m_MaskSize;
         
-        bool m_bBound;
-
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
         bool m_bVertexArrayDirty;

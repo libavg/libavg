@@ -518,6 +518,7 @@ void VideoNode::createTextures(IntPoint size)
     } else {
         getSurface()->create(pf, m_pTextures[0]);
     }
+    newSurface();
 }
 
 void VideoNode::close()
@@ -684,7 +685,6 @@ bool VideoNode::renderFrame()
         case FA_NEW_FRAME:
             m_FramesPlayed++;
             m_FramesInRowTooLate = 0;
-            bind();
             m_bSeekPending = false;
             setMaskCoords();
 //            AVG_TRACE(Logger::PROFILE, "New frame.");

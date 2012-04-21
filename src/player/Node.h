@@ -156,7 +156,7 @@ class AVG_API Node: public boost::enable_shared_from_this<Node>
             
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
-        void checkReload(const std::string& sHRef, const ImagePtr& pImage,
+        bool checkReload(const std::string& sHRef, const ImagePtr& pImage,
                 Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;

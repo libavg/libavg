@@ -170,15 +170,24 @@ class ImageTestCase(AVGTestCase):
             node.unlink()
 
         def addNode():
-            node = createNode((16, 16))
-            root.appendChild(node)
-            moveVertex(node)
-        
+            self.node = createNode((16, 16))
+            root.appendChild(self.node)
+            moveVertex(self.node)
+       
+        def changeHref():
+            self.node.href = "rgb24-65x65.png"
+            grid = self.node.getWarpedVertexCoords()
+            self.assert_(len(grid) == 10)
+            self.assert_(len(grid[0]) == 6)
+            
+
         root = self.loadEmptyScene()
         testEarlyAccessException()
         self.start((
                  lambda: addNode(),
                  lambda: self.compareImage("testImgWarp1", False),
+                 lambda: changeHref(),
+                 lambda: self.compareImage("testImgWarp2", False),
                 ))
 
     def testBitmap(self):
