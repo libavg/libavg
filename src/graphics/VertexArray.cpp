@@ -125,9 +125,9 @@ void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startV
     GLContext::getCurrent()->checkError( "VertexArray::draw()");
 }
 
-SubVertexArrayPtr VertexArray::startSubVA()
+void VertexArray::startSubVA(SubVertexArray& subVA)
 {
-    return SubVertexArrayPtr(new SubVertexArray(this, getNumVerts(), getNumIndexes()));
+    subVA.init(this, getNumVerts(), getNumIndexes());
 }
 
 }

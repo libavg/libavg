@@ -36,19 +36,23 @@ using namespace std;
 using namespace boost;
 
 namespace avg {
-    
-SubVertexArray::SubVertexArray(VertexArray* pVertexArray, unsigned startVertex, 
-        unsigned startIndex)
-    : m_pVA(pVertexArray),
-      m_StartVertex(startVertex),
-      m_StartIndex(startIndex),
-      m_NumVerts(0),
-      m_NumIndexes(0)
+
+SubVertexArray::SubVertexArray()
 {
 }
 
 SubVertexArray::~SubVertexArray()
 {
+}
+
+void SubVertexArray::init(VertexArray* pVertexArray, unsigned startVertex,
+        unsigned startIndex)
+{
+    m_pVA = pVertexArray;
+    m_StartVertex = startVertex;
+    m_StartIndex = startIndex;
+    m_NumVerts = 0;
+    m_NumIndexes = 0;
 }
 
 void SubVertexArray::appendPos(const glm::vec2& pos, const glm::vec2& texPos,

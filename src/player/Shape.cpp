@@ -93,8 +93,8 @@ VertexDataPtr Shape::getVertexData()
 
 void Shape::setVertexArray(const VertexArrayPtr& pVA)
 {
-    m_pSubVA = pVA->startSubVA();
-    m_pSubVA->appendVertexData(m_pVertexData);
+    pVA->startSubVA(m_SubVA);
+    m_SubVA.appendVertexData(m_pVertexData);
 /*
     cerr << endl;
     cerr << "Global VA: " << endl;
@@ -118,7 +118,7 @@ void Shape::draw(const glm::mat4& transform, float opacity)
     }
     pContext->enableGLColorArray(!bIsTextured);
     glLoadMatrixf(glm::value_ptr(transform));
-    m_pSubVA->draw();
+    m_SubVA.draw();
 }
 
 void Shape::discard()

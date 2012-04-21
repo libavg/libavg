@@ -38,8 +38,9 @@ class VertexArray;
 
 class AVG_API SubVertexArray {
 public:
-    SubVertexArray(VertexArray* pVertexArray, unsigned startVertex, unsigned startIndex);
-    virtual ~SubVertexArray();
+    SubVertexArray();
+    ~SubVertexArray();
+    void init(VertexArray* pVertexArray, unsigned startVertex, unsigned startIndex);
 
     virtual void appendPos(const glm::vec2& pos, 
             const glm::vec2& texPos, const Pixel32& color = Pixel32(0,0,0,0));

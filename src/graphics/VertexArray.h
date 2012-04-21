@@ -48,7 +48,7 @@ public:
     void draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
             unsigned numVertexes);
 
-    SubVertexArrayPtr startSubVA();
+    void startSubVA(SubVertexArray& subVA);
 
 private:
     unsigned int m_GLVertexBufferID;

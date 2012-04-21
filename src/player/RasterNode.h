@@ -30,6 +30,7 @@
 #include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/SubVertexArray.h"
 
 #include <string>
 
@@ -44,8 +45,6 @@ class GLTexture;
 typedef boost::shared_ptr<GLTexture> GLTexturePtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
-class SubVertexArray;
-typedef boost::shared_ptr<SubVertexArray> SubVertexArrayPtr;
 
 typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 
@@ -142,7 +141,7 @@ class AVG_API RasterNode: public AreaNode
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;
         bool m_bVertexArrayDirty;
-        SubVertexArrayPtr m_pSubVA;
+        SubVertexArray m_SubVA;
         std::vector<std::vector<glm::vec2> > m_TexCoords;
 
         glm::vec3 m_Gamma;

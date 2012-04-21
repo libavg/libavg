@@ -326,15 +326,15 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
     // TODO: Optimize for unchanged vertexes.
     // if (m_bVertexArrayDirty) {
     if (isVisible() && m_pSurface->isCreated()) {
-        m_pSubVA = pVA->startSubVA();
+        pVA->startSubVA(m_SubVA);
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
             for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
-                int curVertex = m_pSubVA->getNumVerts();
-                m_pSubVA->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
-                m_pSubVA->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
-                m_pSubVA->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
-                m_pSubVA->appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
-                m_pSubVA->appendQuadIndexes(
+                int curVertex = m_SubVA.getNumVerts();
+                m_SubVA.appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
+                m_SubVA.appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
+                m_SubVA.appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 
+                m_SubVA.appendPos(m_TileVertices[y+1][x], m_TexCoords[y+1][x]); 
+                m_SubVA.appendQuadIndexes(
                         curVertex+1, curVertex, curVertex+2, curVertex+3);
             }
         }
@@ -523,7 +523,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
     localTransform = glm::scale(localTransform, scaleVec);
     glLoadMatrixf(glm::value_ptr(localTransform));
 
-    m_pSubVA->draw();
+    m_SubVA.draw();
 }
 
 IntPoint RasterNode::getNumTiles()

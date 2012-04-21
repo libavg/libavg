@@ -315,14 +315,13 @@ void DivNode::preRender(const VertexArrayPtr& pVA)
 {
     Node::preRender(pVA);
     if (getCrop()) {
-        m_pClipVA = pVA->startSubVA();
+        pVA->startSubVA(m_ClipVA);
         glm::vec2 viewport = getSize();
-        int curVertex = m_pClipVA->getNumVerts();
-        m_pClipVA->appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_pClipVA->appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_pClipVA->appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_pClipVA->appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_pClipVA->appendQuadIndexes(curVertex, curVertex+1, curVertex+2, curVertex+3);
+        m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
+        m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->preRender(pVA);
@@ -332,14 +331,14 @@ void DivNode::preRender(const VertexArrayPtr& pVA)
 void DivNode::render()
 {
     if (getCrop()) {
-        getCanvas()->pushClipRect(getTransform(), m_pClipVA);
+        getCanvas()->pushClipRect(getTransform(), m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
         getChild(i)->maybeRender();
     }
     if (getCrop()) {
         glLoadMatrixf(glm::value_ptr(getTransform()));
-        getCanvas()->popClipRect(getTransform(), m_pClipVA);
+        getCanvas()->popClipRect(getTransform(), m_ClipVA);
     }
 }
 
