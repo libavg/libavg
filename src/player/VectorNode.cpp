@@ -177,7 +177,7 @@ void VectorNode::render()
     ScopeTimer timer(RenderProfilingZone);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     float curOpacity = getEffectiveOpacity();
-    m_pShape->draw(getParentTransform(), curOpacity);
+    m_pShape->draw(curOpacity);
 }
 
 void VectorNode::setColor(const string& sColor)

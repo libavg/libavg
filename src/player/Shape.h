@@ -49,7 +49,7 @@ class AVG_API Shape
         ImagePtr getImage();
         VertexDataPtr getVertexData();
         void setVertexArray(const VertexArrayPtr& pVA);
-        void draw(const glm::mat4& transform, float opacity);
+        void draw(float opacity);
 
         void discard();
 

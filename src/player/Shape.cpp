@@ -104,7 +104,7 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 */
 }
 
-void Shape::draw(const glm::mat4& transform, float opacity)
+void Shape::draw(float opacity)
 {
     bool bIsTextured = isTextured();
     GLContext* pContext = GLContext::getCurrent();
@@ -117,7 +117,6 @@ void Shape::draw(const glm::mat4& transform, float opacity)
         pShader->activate();
     }
     pContext->enableGLColorArray(!bIsTextured);
-    glLoadMatrixf(glm::value_ptr(transform));
     m_SubVA.draw();
 }
 

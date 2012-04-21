@@ -171,7 +171,7 @@ void FilledVectorNode::render()
     ScopeTimer Timer(RenderProfilingZone);
     float curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     if (curOpacity > 0.01) {
-        m_pFillShape->draw(getParentTransform(), curOpacity);
+        m_pFillShape->draw(curOpacity);
     }
     VectorNode::render();
 }
