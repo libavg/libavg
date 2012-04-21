@@ -309,7 +309,7 @@ void Canvas::renderOutlines()
     StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
     pShader->setUntextured();
     pShader->activate();
-    if (pVA->getCurVert() != 0) {
+    if (pVA->getNumVerts() != 0) {
         pVA->update();
         pContext->enableGLColorArray(true);
         pVA->draw();

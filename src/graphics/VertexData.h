@@ -58,13 +58,11 @@ public:
     void resetDataChanged();
     void reset();
 
-    int getCurVert() const;
-    int getCurIndex() const;
+    int getNumVerts() const;
+    int getNumIndexes() const;
     void dump() const;
 
 protected:
-    int getNumVerts() const;
-    int getNumIndexes() const;
     int getReserveVerts() const;
     int getReserveIndexes() const;
 

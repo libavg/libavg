@@ -48,8 +48,7 @@ public:
     void addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2& p2, 
             float width, float tc1=0, float tc2=1);
     void appendVertexData(VertexDataPtr pVertexes);
-    int getCurVert() const;
-//    int getCurIndex() const;
+    int getNumVerts() const;
 
     void draw();
 

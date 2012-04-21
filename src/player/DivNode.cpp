@@ -317,7 +317,7 @@ void DivNode::preRender(const VertexArrayPtr& pVA)
     if (getCrop()) {
         m_pClipVA = pVA->startSubVA();
         glm::vec2 viewport = getSize();
-        int curVertex = m_pClipVA->getCurVert();
+        int curVertex = m_pClipVA->getNumVerts();
         m_pClipVA->appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
         m_pClipVA->appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
         m_pClipVA->appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));

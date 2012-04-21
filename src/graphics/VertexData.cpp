@@ -111,7 +111,7 @@ void VertexData::addLineData(Pixel32 color, const glm::vec2& p1, const glm::vec2
         float width, float tc1, float tc2)
 {
     WideLine wl(p1, p2, width);
-    int curVertex = getCurVert();
+    int curVertex = getNumVerts();
     appendPos(wl.pl0, glm::vec2(tc1, 1), color);
     appendPos(wl.pr0, glm::vec2(tc1, 0), color);
     appendPos(wl.pl1, glm::vec2(tc2, 1), color);
@@ -154,12 +154,12 @@ void VertexData::reset()
     m_NumIndexes = 0;
 }
 
-int VertexData::getCurVert() const
+int VertexData::getNumVerts() const
 {
     return m_NumVerts;
 }
 
-int VertexData::getCurIndex() const
+int VertexData::getNumIndexes() const
 {
     return m_NumIndexes;
 }
@@ -208,16 +208,6 @@ void VertexData::grow()
     if (bChanged) {
         m_bDataChanged = true;
     }
-}
-
-int VertexData::getNumVerts() const
-{
-    return m_NumVerts;
-}
-
-int VertexData::getNumIndexes() const
-{
-    return m_NumIndexes;
 }
 
 int VertexData::getReserveVerts() const

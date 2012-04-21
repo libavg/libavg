@@ -424,7 +424,7 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
             }
         }
 
-        int curVertex = pVertexData->getCurVert();
+        int curVertex = pVertexData->getNumVerts();
         float curTC = texCoords[i+1];
         switch (lineJoin) {
             case LJ_MITER:
@@ -465,7 +465,7 @@ void VectorNode::calcPolyLine(const vector<glm::vec2>& origPts,
 
     // Last segment (PolyLine only)
     if (!bIsClosed) {
-        int curVertex = pVertexData->getCurVert();
+        int curVertex = pVertexData->getNumVerts();
         float curTC = texCoords[numPts-1];
         pVertexData->appendPos(lines[numPts-2].pl1, glm::vec2(curTC,1), color);
         pVertexData->appendPos(lines[numPts-2].pr1, glm::vec2(curTC,0), color);

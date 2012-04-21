@@ -329,7 +329,7 @@ void RasterNode::calcVertexArray(const VertexArrayPtr& pVA)
         m_pSubVA = pVA->startSubVA();
         for (unsigned y = 0; y < m_TileVertices.size()-1; y++) {
             for (unsigned x = 0; x < m_TileVertices[0].size()-1; x++) {
-                int curVertex = m_pSubVA->getCurVert();
+                int curVertex = m_pSubVA->getNumVerts();
                 m_pSubVA->appendPos(m_TileVertices[y][x], m_TexCoords[y][x]); 
                 m_pSubVA->appendPos(m_TileVertices[y][x+1], m_TexCoords[y][x+1]); 
                 m_pSubVA->appendPos(m_TileVertices[y+1][x+1], m_TexCoords[y+1][x+1]); 

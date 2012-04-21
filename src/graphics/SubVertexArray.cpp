@@ -81,11 +81,11 @@ void SubVertexArray::addLineData(Pixel32 color, const glm::vec2& p1, const glm::
 void SubVertexArray::appendVertexData(VertexDataPtr pVertexes)
 {
     m_pVA->appendVertexData(pVertexes);
-    m_NumVerts += pVertexes->getCurVert();
-    m_NumIndexes += pVertexes->getCurIndex();
+    m_NumVerts += pVertexes->getNumVerts();
+    m_NumIndexes += pVertexes->getNumIndexes();
 }
 
-int SubVertexArray::getCurVert() const
+int SubVertexArray::getNumVerts() const
 {
     return m_NumVerts;
 }
