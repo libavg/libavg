@@ -228,7 +228,8 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                 toString(dp.m_BPP) + ", multisamplesamples=" + 
                 toString(glConfig.m_MultiSampleSamples) + ").");
     }
-    m_pGLContext = GLContextPtr(new GLContext(true, glConfig));
+    m_pGLContext = new GLContext(true, glConfig);
+    GLContext::setMain(m_pGLContext);
 
 #if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
@@ -290,7 +291,8 @@ void SDLDisplayEngine::teardown()
         SDL_ShowCursor(SDL_ENABLE);
 #endif
         m_pScreen = 0;
-        m_pGLContext = GLContextPtr();
+        delete m_pGLContext;
+        GLContext::setMain(0);
     }
 }
 

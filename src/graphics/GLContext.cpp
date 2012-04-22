@@ -608,6 +608,11 @@ GLContext* GLContext::getMain()
     return s_pMainContext;
 }
 
+void GLContext::setMain(GLContext * pMainContext)
+{
+    s_pMainContext = pMainContext;
+}
+
 void GLContext::checkGPUMemInfoSupport()
 {
     if (!m_bCheckedGPUMemInfoExtension) {

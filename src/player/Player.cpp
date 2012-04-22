@@ -252,7 +252,7 @@ void Player::setAudioOptions(int samplerate, int channels)
 void Player::enableGLErrorChecks(bool bEnable)
 {
     if (m_bIsPlaying) {
-        GLContext::getCurrent()->enableErrorChecks(bEnable);
+        GLContext::enableErrorChecks(bEnable);
     } else {
         m_bCheckGLErrors = bEnable;
     }
@@ -1045,7 +1045,7 @@ void Player::doFrame(bool bFirstFrame)
             dispatchOffscreenRendering(m_pCanvases[i].get());
         }
         m_pMainCanvas->doFrame(m_bPythonAvailable);
-        GLContext::getCurrent()->mandatoryCheckError("End of frame");
+        GLContext::mandatoryCheckError("End of frame");
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
@@ -1095,7 +1095,7 @@ size_t Player::getVideoMemInstalled()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemInstalled must be called after Player.play().");
     }
-    return GLContext::getCurrent()->getVideoMemInstalled();
+    return GLContext::getMain()->getVideoMemInstalled();
 }
 
 size_t Player::getVideoMemUsed()
@@ -1104,7 +1104,7 @@ size_t Player::getVideoMemUsed()
         throw Exception(AVG_ERR_UNSUPPORTED,
                 "Player.getVideoMemUsed must be called after Player.play().");
     }
-    return GLContext::getCurrent()->getVideoMemUsed();
+    return GLContext::getMain()->getVideoMemUsed();
 }
 
 void Player::setGamma(float red, float green, float blue)
@@ -1171,7 +1171,7 @@ void Player::initGraphics(const string& sShaderPath)
     AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
     m_GLConfig.log();
     m_pDisplayEngine->init(m_DP, m_GLConfig);
-    GLContext::getCurrent()->enableErrorChecks(m_bCheckGLErrors);
+    GLContext::enableErrorChecks(m_bCheckGLErrors);
     if (sShaderPath != "") {
         ShaderRegistry::get()->setShaderPath(sShaderPath);
     }

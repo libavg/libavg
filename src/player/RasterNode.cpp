@@ -413,7 +413,7 @@ void RasterNode::renderFX(const glm::vec2& destSize, const Pixel32& color,
             bForceRender))
     {
         ScopeTimer Timer(FXProfilingZone);
-        GLContext* pContext = GLContext::getCurrent();
+        GLContext* pContext = GLContext::getMain();
         pContext->enableGLColorArray(false);
         StandardShader::get()->setColor(glm::vec4(color.getR()/256.f, color.getG()/256.f,
                 color.getB()/256.f, 1.f));
@@ -494,7 +494,7 @@ void RasterNode::blt(const glm::mat4& transform, const glm::vec2& destSize,
         GLContext::BlendMode mode, float opacity, const Pixel32& color,
         bool bPremultipliedAlpha)
 {
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     pContext->enableGLColorArray(false);
     FRect destRect;
     StandardShaderPtr pShader = pContext->getStandardShader();

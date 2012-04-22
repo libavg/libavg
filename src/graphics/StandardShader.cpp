@@ -38,7 +38,7 @@ namespace avg {
 
 StandardShaderPtr StandardShader::get() 
 {
-    return GLContext::getCurrent()->getStandardShader();
+    return GLContext::getMain()->getStandardShader();
 }
 
 StandardShader::StandardShader()
@@ -61,14 +61,14 @@ StandardShader::StandardShader()
 
     m_pShader->activate();
     m_pShader->getParam<int>("texture")->set(0);
-    if (GLContext::getCurrent()->useGPUYUVConversion()) {
+    if (GLContext::getMain()->useGPUYUVConversion()) {
         m_pShader->getParam<int>("cbTexture")->set(1);
         m_pShader->getParam<int>("crTexture")->set(2);
         m_pShader->getParam<int>("aTexture")->set(3);
     }
     m_pShader->getParam<int>("maskTexture")->set(4);
 
-    if (GLContext::getCurrent()->useMinimalShader()) {
+    if (GLContext::getMain()->useMinimalShader()) {
         avg::createShader(MINIMAL_SHADER);
         m_pMinimalShader = getShader(MINIMAL_SHADER);
         m_pMinimalShader->activate();
@@ -86,7 +86,7 @@ StandardShader::~StandardShader()
 void StandardShader::activate()
 {
     bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-    if (GLContext::getCurrent()->useMinimalShader() &&
+    if (GLContext::getMain()->useMinimalShader() &&
             (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask))
     {
         m_pMinimalShader->activate();

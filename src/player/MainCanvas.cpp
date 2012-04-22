@@ -59,7 +59,7 @@ void MainCanvas::setRoot(NodePtr pRootNode)
 void MainCanvas::initPlayback(const SDLDisplayEnginePtr& pDisplayEngine)
 {
     m_pDisplayEngine = pDisplayEngine;
-    Canvas::initPlayback(GLContext::getCurrent()->getConfig().m_MultiSampleSamples);
+    Canvas::initPlayback(GLContext::getMain()->getConfig().m_MultiSampleSamples);
 }
 
 BitmapPtr MainCanvas::screenshot() const

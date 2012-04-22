@@ -86,7 +86,7 @@ public:
     OGLMemoryMode getMemoryModeSupported();
     bool initVBlank(int rate);
     
-    void enableErrorChecks(bool bEnable);
+    static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
     static void mandatoryCheckError(const char* pszWhere);
 
@@ -94,6 +94,7 @@ public:
 
     static GLContext* getCurrent();
     static GLContext* getMain();
+    static void setMain(GLContext * pMainContext);
 
 private:
     void checkGPUMemInfoSupport();

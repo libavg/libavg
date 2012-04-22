@@ -299,13 +299,13 @@ void Canvas::render(IntPoint windowSize, bool bUpsideDown, FBOPtr pFBO,
 
 void Canvas::renderOutlines()
 {
-    GLContext* pContext = GLContext::getCurrent();
+    GLContext* pContext = GLContext::getMain();
     VertexArrayPtr pVA(new VertexArray);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(glm::value_ptr(glm::mat4(1.0)));
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
-    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    StandardShaderPtr pShader = pContext->getStandardShader();
     pShader->setUntextured();
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
@@ -327,7 +327,7 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    StandardShaderPtr pShader = GLContext::getMain()->getStandardShader();
     pShader->setUntextured();
     pShader->activate();
     glLoadMatrixf(glm::value_ptr(transform));

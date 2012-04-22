@@ -165,7 +165,7 @@ void VectorNode::maybeRender(const glm::mat4& parentTransform)
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         glLoadMatrixf(glm::value_ptr(parentTransform));
-        GLContext::getCurrent()->setBlendMode(m_BlendMode);
+        GLContext::getMain()->setBlendMode(m_BlendMode);
         render();
     }
 }
