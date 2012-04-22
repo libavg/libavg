@@ -21,7 +21,6 @@
 
 #include "OGLImagingContext.h"
 #undef check
-#include "ShaderRegistry.h"
 
 #include "../base/Exception.h"
 

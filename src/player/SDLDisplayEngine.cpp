@@ -45,7 +45,6 @@
 #include "../graphics/GLContext.h"
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include "OGLSurface.h"
 #include "OffscreenCanvas.h"

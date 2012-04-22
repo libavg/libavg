@@ -23,7 +23,6 @@
 
 #include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
-#include "../graphics/ShaderRegistry.h"
 
 #include <string>
 

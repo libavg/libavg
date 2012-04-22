@@ -27,7 +27,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 
-#include "../graphics/ShaderRegistry.h"
 #include "../graphics/GLContext.h"
 #include "../graphics/GLTexture.h"
 
