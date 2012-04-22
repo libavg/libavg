@@ -29,8 +29,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
-#include <list>
-#include <map>
+#include <vector>
+#include <tr1/unordered_map>
 
 namespace avg {
 
@@ -62,11 +62,11 @@ private:
     ProfilingZonePtr addZone(const ProfilingZoneID& zoneID);
     std::string m_sName;
 
-    typedef std::map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
-    typedef std::list<ProfilingZonePtr> ZoneList;
+    typedef std::tr1::unordered_map<const ProfilingZoneID*, ProfilingZonePtr> ZoneMap;
+    typedef std::vector<ProfilingZonePtr> ZoneVector;
     ZoneMap m_ZoneMap;
-    ZoneList m_ActiveZones;
-    ZoneList m_Zones;
+    ZoneVector m_ActiveZones;
+    ZoneVector m_Zones;
     bool m_bRunning;
     long m_LogCategory;
 

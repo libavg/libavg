@@ -103,7 +103,7 @@ void ThreadProfiler::stopZone(const ProfilingZoneID& zoneID)
 void ThreadProfiler::dumpFrame()
 {
     AVG_TRACE(Logger::PROFILE_LATEFRAMES, "Frame Profile:");
-    ZoneList::iterator it;
+    ZoneVector::iterator it;
     for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
         AVG_TRACE(Logger::PROFILE_LATEFRAMES,
                 std::setw(35) << std::left 
@@ -120,7 +120,7 @@ void ThreadProfiler::dumpStatistics()
         AVG_TRACE(m_LogCategory, "Zone name                          Avg. time");
         AVG_TRACE(m_LogCategory, "---------                          ---------");
 
-        ZoneList::iterator it;
+        ZoneVector::iterator it;
         for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
             AVG_TRACE(m_LogCategory,
                     std::setw(35) << std::left 
@@ -133,7 +133,7 @@ void ThreadProfiler::dumpStatistics()
 
 void ThreadProfiler::reset()
 {
-    ZoneList::iterator it;
+    ZoneVector::iterator it;
     for (it = m_Zones.begin(); it != m_Zones.end(); ++it) {
         (*it)->reset();
     }
@@ -159,7 +159,7 @@ ProfilingZonePtr ThreadProfiler::addZone(const ProfilingZoneID& zoneID)
 {
     ProfilingZonePtr pZone(new ProfilingZone(zoneID));
     m_ZoneMap[&zoneID] = pZone;
-    ZoneList::iterator it;
+    ZoneVector::iterator it;
     int parentIndent = -2;
     if (m_ActiveZones.empty()) {
         it = m_Zones.end();

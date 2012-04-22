@@ -25,7 +25,12 @@
 #include "../api.h"
 #include "ProfilingZoneID.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
+
+class ThreadProfiler;
+typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
     
 class AVG_API ScopeTimer {
 public:
@@ -34,6 +39,7 @@ public:
    
 private:
     ProfilingZoneID& m_ZoneID;
+    ThreadProfilerPtr& m_pProfiler;
 };
 
 }
