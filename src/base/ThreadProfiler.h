@@ -23,19 +23,22 @@
 #define _ThreadProfiler_H_
 
 #include "../api.h"
-#include "ProfilingZone.h"
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
 #include <vector>
+#include <map>
 #include <tr1/unordered_map>
 
 namespace avg {
 
 class ThreadProfiler;
 typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
+class ProfilingZone;
+typedef boost::shared_ptr<ProfilingZone> ProfilingZonePtr;
+class ProfilingZoneID;
 
 class AVG_API ThreadProfiler
 {

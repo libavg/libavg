@@ -20,8 +20,10 @@
 //
 
 #include "ThreadProfiler.h"
+
 #include "Logger.h"
 #include "Exception.h"
+#include "ProfilingZone.h"
 
 #include <sstream>
 #include <iomanip>

@@ -24,18 +24,24 @@
 
 #include "../api.h"
 #include "ProfilingZoneID.h"
+#include "ThreadProfiler.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class ThreadProfiler;
-typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
-    
 class AVG_API ScopeTimer {
 public:
-    ScopeTimer(ProfilingZoneID& zoneID);
-    ~ScopeTimer();
+    ScopeTimer(ProfilingZoneID& zoneID)
+        : m_ZoneID(zoneID)
+    {
+        m_ZoneID.getProfiler()->startZone(zoneID);
+    };
+
+    ~ScopeTimer()
+    {
+        m_ZoneID.getProfiler()->stopZone(m_ZoneID);
+    };
    
 private:
     ProfilingZoneID& m_ZoneID;

@@ -20,21 +20,9 @@
 //
 
 #include "ScopeTimer.h"
-#include "ThreadProfiler.h"
 
 using namespace std;
 
 namespace avg {
-
-ScopeTimer::ScopeTimer(ProfilingZoneID& zoneID)
-    : m_ZoneID(zoneID)
-{
-    m_ZoneID.getProfiler()->startZone(zoneID);
-}
-
-ScopeTimer::~ScopeTimer() 
-{
-    m_ZoneID.getProfiler()->stopZone(m_ZoneID);
-}
 
 }

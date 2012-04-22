@@ -23,6 +23,7 @@
 
 #include "Bitmap.h"
 #include "../base/Exception.h"
+#include "../base/ProfilingZoneID.h"
 
 #include <stdio.h>
 #include <stdlib.h>
