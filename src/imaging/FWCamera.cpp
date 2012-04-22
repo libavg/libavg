@@ -37,7 +37,7 @@ namespace avg {
 
 using namespace std;
 
-FWCamera::FWCamera(uint64_t guid, int unit, bool bFW800, IntPoint size, 
+FWCamera::FWCamera(unsigned long long guid, int unit, bool bFW800, IntPoint size, 
         PixelFormat camPF, PixelFormat destPF, float frameRate)
     : Camera(camPF, destPF, size, frameRate),
       m_WhitebalanceU(-1),
