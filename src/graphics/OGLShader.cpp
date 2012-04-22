@@ -56,7 +56,7 @@ OGLShader::OGLShader(const string& sName, const string& sProgram, const string& 
         AVG_TRACE(Logger::ERROR, "Linking shader program '"+sName+"' failed. Aborting.");
         exit(-1);
     }
-    
+    m_pShaderRegistry = ShaderRegistry::get();
 }
 
 OGLShader::~OGLShader()
@@ -65,10 +65,10 @@ OGLShader::~OGLShader()
 
 void OGLShader::activate()
 {
-    OGLShaderPtr pCurShader = ShaderRegistry::get()->getCurShader();
+    OGLShaderPtr pCurShader = m_pShaderRegistry->getCurShader();
     if (!pCurShader || &*pCurShader != this) {
         glproc::UseProgramObject(m_hProgram);
-        ShaderRegistry::get()->setCurShader(m_sName);
+        m_pShaderRegistry->setCurShader(m_sName);
         GLContext::checkError("OGLShader::activate: glUseProgramObject()");
     }
 }

@@ -36,6 +36,9 @@
 
 namespace avg {
 
+class ShaderRegistry;
+typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
+
 class AVG_API OGLShader {
     public:
         virtual ~OGLShader();
@@ -77,6 +80,8 @@ class AVG_API OGLShader {
         std::string m_sProgram;
 
         std::vector<GLShaderParamPtr> m_pParams;
+
+        ShaderRegistryPtr m_pShaderRegistry;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
