@@ -35,7 +35,10 @@ namespace avg {
 
 using namespace std;
 using namespace boost;
+
 thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pMainContext = 0; // Optimized access to main context.
+bool GLContext::s_bErrorCheckEnabled = false;
 
 #ifdef _WIN32
 LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -90,8 +93,7 @@ GLContext::GLContext(bool bUseCurrent, const GLConfig& glConfig,
       m_bCheckedGPUMemInfoExtension(false),
       m_bCheckedMemoryMode(false),
       m_bEnableGLColorArray(true),
-      m_BlendMode(BLEND_ADD),
-      m_bErrorCheckEnabled(false)
+      m_BlendMode(BLEND_ADD)
 {
     if (bUseCurrent) {
         AVG_ASSERT(!pSharedContext);
@@ -556,13 +558,12 @@ bool GLContext::initVBlank(int rate)
 
 void GLContext::enableErrorChecks(bool bEnable)
 {
-    m_bErrorCheckEnabled = bEnable;
+    s_bErrorCheckEnabled = bEnable;
 }
     
 void GLContext::checkError(const char* pszWhere) 
 {
-    // If there's no GL context anymore, we just ignore the error check.
-    if (this && m_bErrorCheckEnabled) {
+    if (s_bErrorCheckEnabled) {
         mandatoryCheckError(pszWhere);
     }
 }
@@ -600,6 +601,11 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 GLContext* GLContext::getCurrent()
 {
     return *s_pCurrentContext;
+}
+
+GLContext* GLContext::getMain()
+{
+    return s_pMainContext;
 }
 
 void GLContext::checkGPUMemInfoSupport()

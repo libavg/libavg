@@ -238,15 +238,15 @@ void SDLDisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     calcRefreshRate();
 
     glEnable(GL_BLEND);
-    GLContext::getCurrent()->checkError("init: glEnable(GL_BLEND)");
+    GLContext::checkError("init: glEnable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    GLContext::getCurrent()->checkError("init: glShadeModel(GL_FLAT)");
+    GLContext::checkError("init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
-    GLContext::getCurrent()->checkError("init: glDisable(GL_DEPTH_TEST)");
+    GLContext::checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
-    GLContext::getCurrent()->checkError("init: glEnable(GL_STENCIL_TEST)");
+    GLContext::checkError("init: glEnable(GL_STENCIL_TEST)");
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    GLContext::getCurrent()->checkError("init: glTexEnvf()");
+    GLContext::checkError("init: glTexEnvf()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
@@ -374,7 +374,7 @@ void SDLDisplayEngine::swapBuffers()
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     SDL_GL_SwapBuffers();
-    GLContext::getCurrent()->checkError("swapBuffers()");
+    GLContext::checkError("swapBuffers()");
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)
@@ -411,10 +411,10 @@ BitmapPtr SDLDisplayEngine::screenshot(int buffer)
     }
     glReadBuffer(buf);
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
-    GLContext::getCurrent()->checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
+    GLContext::checkError("SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_WindowSize.x, m_WindowSize.y, GL_BGRA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    GLContext::getCurrent()->checkError("SDLDisplayEngine::screenshot:glReadPixels()");
+    GLContext::checkError("SDLDisplayEngine::screenshot:glReadPixels()");
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }

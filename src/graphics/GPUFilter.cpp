@@ -224,7 +224,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
     PBOPtr pFilterKernelPBO(new PBO(IntPoint(1024, 1), pf, GL_STREAM_DRAW));
     pFilterKernelPBO->activate();
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-    GLContext::getCurrent()->checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
+    GLContext::checkError("GPUFilter::calcBlurKernelTex MapBuffer()");
     if (bUseFloat) {
         float * pCurFloat = (float*)pPBOPixels;
         for (int i = 0; i < kernelWidth; ++i) {
@@ -241,7 +241,7 @@ GLTexturePtr GPUFilter::calcBlurKernelTex(float stdDev, float opacity, bool bUse
         }
     }
     glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-    GLContext::getCurrent()->checkError("GPUFilter::calcBlurKernelTex UnmapBuffer()");
+    GLContext::checkError("GPUFilter::calcBlurKernelTex UnmapBuffer()");
     pFilterKernelPBO->moveToTexture(*pTex);
 
     delete[] pKernel;

@@ -44,7 +44,7 @@ unsigned int GLBufferCache::getBuffer()
     unsigned int bufferID;
     if (m_BufferIDs.empty()) {
         glproc::GenBuffers(1, &bufferID);
-        GLContext::getCurrent()->checkError("PBO: GenBuffers()");
+        GLContext::checkError("PBO: GenBuffers()");
     } else {
         bufferID = m_BufferIDs.back();
         m_BufferIDs.pop_back();

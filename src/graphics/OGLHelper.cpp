@@ -239,7 +239,7 @@ void AVG_API clearGLBuffers(GLbitfield mask)
         glClearStencil(0);
     }
     glClear(mask);
-    GLContext::getCurrent()->checkError("clearGLBuffers()");
+    GLContext::checkError("clearGLBuffers()");
     if (mask & GL_STENCIL_BUFFER_BIT) {
         glStencilMask(0);
     }

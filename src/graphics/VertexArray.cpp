@@ -84,7 +84,7 @@ void VertexArray::update()
         memcpy(pBuffer, getIndexPointer(), getNumIndexes()*sizeof(unsigned int));
         glproc::UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         
-        GLContext::getCurrent()->checkError("VertexArray::update");
+        GLContext::checkError("VertexArray::update");
     }
     resetDataChanged();
 }
@@ -98,7 +98,7 @@ void VertexArray::activate()
             (void *)(offsetof(T2V3C4Vertex, m_Color)));
     glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
             (void *)(offsetof(T2V3C4Vertex, m_Pos)));
-    GLContext::getCurrent()->checkError("VertexArray::draw:1");
+    GLContext::checkError("VertexArray::draw:1");
 }
 
 void VertexArray::draw()
@@ -110,11 +110,11 @@ void VertexArray::draw()
             (void *)(offsetof(T2V3C4Vertex, m_Color)));
     glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
             (void *)(offsetof(T2V3C4Vertex, m_Pos)));
-    GLContext::getCurrent()->checkError("VertexArray::draw:1");
+    GLContext::checkError("VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
     glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_INT, 0);
-    GLContext::getCurrent()->checkError( "VertexArray::draw():2");
+    GLContext::checkError("VertexArray::draw():2");
 }
 
 void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startVertex,
@@ -122,7 +122,7 @@ void VertexArray::draw(unsigned startIndex, unsigned numIndexes, unsigned startV
 {
     glDrawRangeElements(GL_TRIANGLES, startVertex, startVertex+numVertexes, numIndexes, 
             GL_UNSIGNED_INT, (void *)(startIndex*sizeof(unsigned)));
-    GLContext::getCurrent()->checkError( "VertexArray::draw()");
+    GLContext::checkError("VertexArray::draw()");
 }
 
 void VertexArray::startSubVA(SubVertexArray& subVA)

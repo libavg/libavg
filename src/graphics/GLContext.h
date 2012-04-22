@@ -87,12 +87,13 @@ public:
     bool initVBlank(int rate);
     
     void enableErrorChecks(bool bEnable);
-    void checkError(const char* pszWhere);
-    void mandatoryCheckError(const char* pszWhere);
+    static void checkError(const char* pszWhere);
+    static void mandatoryCheckError(const char* pszWhere);
 
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
+    static GLContext* getMain();
 
 private:
     void checkGPUMemInfoSupport();
@@ -141,10 +142,10 @@ private:
     unsigned m_BoundTextures[16];
 
 
-    bool m_bErrorCheckEnabled;
+    static bool s_bErrorCheckEnabled;
 
     static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
-
+    static GLContext* s_pMainContext;
 };
 
 }

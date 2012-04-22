@@ -69,7 +69,7 @@ public:
     {
         if (!m_bValSet || m_Val != val) {
             uniformSet(getLocation(), val);
-            GLContext::getCurrent()->checkError("OGLShaderParam::set");
+            GLContext::checkError("OGLShaderParam::set");
             m_Val = val;
             m_bValSet = true;
         }

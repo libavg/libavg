@@ -34,7 +34,7 @@ GLShaderParam::GLShaderParam(OGLShader* pShader, const std::string& sName)
     string sErr = std::string("Shader param '") + sName + "' not found in shader '" + 
             pShader->getName() + "'.";
     AVG_ASSERT_MSG(m_Location != -1, sErr.c_str());
-    GLContext::getCurrent()->checkError(sErr.c_str());
+    GLContext::checkError(sErr.c_str());
 };
 
 int GLShaderParam::getLocation() const

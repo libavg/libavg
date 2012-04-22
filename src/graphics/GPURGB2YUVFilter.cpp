@@ -56,7 +56,7 @@ void GPURGB2YUVFilter::applyOnGPU(GLTexturePtr pSrcTex)
     OGLShaderPtr pShader = getShader(SHADERID);
     pShader->activate();
     draw(pSrcTex);
-    GLContext::getCurrent()->checkError("GPURGB2YUVFilter::applyOnGPU()");
+    GLContext::checkError("GPURGB2YUVFilter::applyOnGPU()");
 }
 
 BitmapPtr GPURGB2YUVFilter::getResults()

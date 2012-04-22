@@ -78,7 +78,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTMode);
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, m_GLSize.y, 0,
             getGLFormat(m_pf), getGLType(m_pf), 0);
-    GLContext::getCurrent()->checkError("GLTexture: glTexImage2D()");
+    GLContext::checkError("GLTexture: glTexImage2D()");
 
     if (m_bUsePOT) {
         // Make sure the texture is transparent and black before loading stuff 
@@ -89,7 +89,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
         glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), m_GLSize.x, 
                 m_GLSize.y, 0, getGLFormat(m_pf), getGLType(m_pf), 
                 pPixels);
-        GLContext::getCurrent()->checkError("PBOTexture::createTexture: glTexImage2D()");
+        GLContext::checkError("PBOTexture::createTexture: glTexImage2D()");
         delete[] pPixels;
     }
 }
@@ -110,7 +110,7 @@ GLTexture::GLTexture(unsigned glTexID, const IntPoint& size, PixelFormat pf, boo
 GLTexture::~GLTexture()
 {
     if (m_bDeleteTex) {
-        GLContext::getCurrent()->checkError("GLTexture: DeleteTextures()");
+        GLContext::checkError("GLTexture: DeleteTextures()");
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
@@ -125,7 +125,7 @@ void GLTexture::generateMipmaps()
     if (m_bMipmap) {
         activate();
         glproc::GenerateMipmap(GL_TEXTURE_2D);
-        GLContext::getCurrent()->checkError("GLTexture::generateMipmaps()");
+        GLContext::checkError("GLTexture::generateMipmaps()");
     }
 }
 
