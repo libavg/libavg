@@ -85,10 +85,14 @@ StandardShader::~StandardShader()
 
 void StandardShader::activate()
 {
-    bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-    if (GLContext::getMain()->useMinimalShader() &&
-            (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask))
-    {
+    bool bActivateMinimal = false;
+    if (GLContext::getMain()->useMinimalShader()) {
+        bool bGammaIsModified = (!almostEqual(m_Gamma, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+        if (m_ColorModel == 0 && !m_bUseColorCoeff && !bGammaIsModified && !m_bUseMask) {
+            bActivateMinimal = true;
+        }
+    }
+    if (bActivateMinimal) {
         m_pMinimalShader->activate();
         m_pMinimalColorParam->set(m_Color);
     } else {
