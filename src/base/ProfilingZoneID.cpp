@@ -20,13 +20,15 @@
 //
 
 #include "ProfilingZoneID.h"
+#include "ThreadProfiler.h"
 
 using namespace std;
 
 namespace avg {
 
 ProfilingZoneID::ProfilingZoneID(const string& sName)
-    : m_sName(sName)
+    : m_sName(sName),
+      m_pProfiler(0)
 {
 }
 
@@ -37,6 +39,14 @@ ProfilingZoneID::~ProfilingZoneID()
 const string& ProfilingZoneID::getName() const
 {
     return m_sName;
+}
+
+ThreadProfiler* ProfilingZoneID::getProfiler()
+{
+    if (!m_pProfiler) {
+        m_pProfiler = ThreadProfiler::get();
+    }
+    return m_pProfiler;
 }
 
 }

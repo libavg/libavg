@@ -35,11 +35,10 @@ typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
 class AVG_API ScopeTimer {
 public:
     ScopeTimer(ProfilingZoneID& zoneID);
-    virtual ~ScopeTimer();
+    ~ScopeTimer();
    
 private:
     ProfilingZoneID& m_ZoneID;
-    ThreadProfilerPtr& m_pProfiler;
 };
 
 }

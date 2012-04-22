@@ -27,16 +27,14 @@ using namespace std;
 namespace avg {
 
 ScopeTimer::ScopeTimer(ProfilingZoneID& zoneID)
-    : m_ZoneID(zoneID),
-      m_pProfiler(ThreadProfiler::get())
-      
+    : m_ZoneID(zoneID)
 {
-    m_pProfiler->startZone(zoneID);
+    m_ZoneID.getProfiler()->startZone(zoneID);
 }
 
 ScopeTimer::~ScopeTimer() 
 {
-    m_pProfiler->stopZone(m_ZoneID);
+    m_ZoneID.getProfiler()->stopZone(m_ZoneID);
 }
 
 }

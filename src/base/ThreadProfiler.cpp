@@ -32,12 +32,13 @@ using namespace boost;
 
 namespace avg {
     
-thread_specific_ptr<ThreadProfilerPtr> ThreadProfiler::s_pInstance;
+thread_specific_ptr<ThreadProfiler*> ThreadProfiler::s_pInstance;
 
-ThreadProfilerPtr& ThreadProfiler::get() 
+ThreadProfiler* ThreadProfiler::get() 
 {
     if (s_pInstance.get() == 0) {
-        s_pInstance.reset(new ThreadProfilerPtr(new ThreadProfiler()));
+        s_pInstance.reset(new (ThreadProfiler*));
+        *s_pInstance = new ThreadProfiler();
     }
     return *s_pInstance;
 }

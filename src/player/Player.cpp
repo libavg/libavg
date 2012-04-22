@@ -135,7 +135,7 @@ string sDummy;
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }
-    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    ThreadProfiler* pProfiler = ThreadProfiler::get();
     pProfiler->setName("main");
     initConfig();
 

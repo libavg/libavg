@@ -40,7 +40,7 @@ typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
 class AVG_API ThreadProfiler
 {
 public:
-    static ThreadProfilerPtr& get();
+    static ThreadProfiler* get();
     static void kill();
     ThreadProfiler();
     virtual ~ThreadProfiler();
@@ -70,7 +70,7 @@ private:
     bool m_bRunning;
     long m_LogCategory;
 
-    static boost::thread_specific_ptr<ThreadProfilerPtr> s_pInstance;
+    static boost::thread_specific_ptr<ThreadProfiler*> s_pInstance;
 };
 
 }
