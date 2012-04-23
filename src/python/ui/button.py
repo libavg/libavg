@@ -408,12 +408,17 @@ class ToggleButton(avg.DivNode):
                 enterFunc=self.__enterCheckedDisabled,
                 leaveFunc=self.__leaveCheckedDisabled)
 
+        if(checkedDisabledNode == None):
+            self.__checkedDisabledNode = avg.ImageNode()             
+        if(uncheckedDisabledNode == None):
+            self.__uncheckedDisabledNode = avg.ImageNode()                   
+
         self.appendChild(self.__uncheckedUpNode)
         self.appendChild(self.__checkedUpNode)
         self.appendChild(self.__uncheckedDownNode)
         self.appendChild(self.__checkedDownNode)
-        self.appendChild(self.__checkedDisabledNode)
         self.appendChild(self.__uncheckedDisabledNode)
+        self.appendChild(self.__checkedDisabledNode)
 
         self.__uncheckedUpNode.active = True
         self.__checkedUpNode.active = False
@@ -455,11 +460,13 @@ class ToggleButton(avg.DivNode):
         checkedUpNode = avg.ImageNode(href=checkedUp)
         checkedDownNode = avg.ImageNode(href=checkedDown)
 
-        if uncheckedDisabled != None and checkedDisabled != None:
+        if uncheckedDisabled != None:
             uncheckedDisabledNode = avg.ImageNode(href=uncheckedDisabled)
-            checkedDisabledNode = avg.ImageNode(href=checkedDisabled)
         else:
             uncheckedDisabledNode = None
+        if checkedDisabled != None:
+            checkedDisabledNode = avg.ImageNode(href=checkedDisabled)
+        else:
             checkedDisabledNode = None
 
         return ToggleButton(uncheckedUpNode=uncheckedUpNode,
