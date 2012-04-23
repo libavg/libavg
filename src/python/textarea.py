@@ -69,7 +69,7 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
-from libavg import avg
+from libavg import avg, ui
 from avg import Point2D
 
 
@@ -232,12 +232,13 @@ class TextArea(object):
     It sits in a given container matching its dimensions, therefore the appropriate
     way to create it, is to set a <div> node with defined width/height attributes.
     """
-    def __init__(self, parent, focusContext=None, disableMouseFocus=False, id=''):
+    def __init__(self, parent, focusContext=None, disableMouseFocus=False, moveCoursorOnTouch=False, id=''):
         """
         @param parent: a div node with defined dimensions
         @param focusContext: FocusContext object which directs focus for TextArea elements
         @param disableMouseFocus: boolean, prevents that mouse can set focus for
             this instance
+        @param moveCoursorOnTouch: boolean, activate the coursor motion on touch events
         @param id: optional handle to identify the object when dealing with events. ID
             uniqueness is not guaranteed
         """
@@ -280,6 +281,10 @@ class TextArea(object):
         g_Player.setInterval(CURSOR_FLASHING_DELAY, self.__tickFlashCursor)
         
         self.__lastActivity = 0
+
+        if moveCoursorOnTouch:
+            self.__recognizer = ui.DragRecognizer(eventNode=self.__parent,
+                    moveHandler=self.__moveHandler)
     
     def getID(self):
         """
@@ -555,6 +560,24 @@ class TextArea(object):
                 self.__cursorContainer.opacity = 0
         elif self.__hasFocus:
             self.__cursorContainer.opacity = 1
+
+    def __moveHandler(self, event, offset):
+        eventPos = self.__parent.getRelPos(event.pos)
+        self.__cursorPosition = 0
+        size = self.__parent.size  
+        length = len(self.__data)
+        if ( (eventPos[0] >= -1 and eventPos[0] <= size[0]) and (eventPos[1] >= 0 and eventPos[1] <= size[1]) ):
+
+            if length > 0:      
+                for i in range(length):
+                    charPos = self.__textNode.getGlyphPos(i)
+                    if (self.__textNode.getGlyphPos(i)[0]<=eventPos[0]and
+                            (eventPos[1]<=charPos[1]+self.__textNode.fontsize and
+                            eventPos[1] >=charPos[1])):
+                        self.__cursorPosition = i
+                if eventPos[0] > self.__textNode.getGlyphPos(length-1)[0]:
+                    self.__cursorPosition += 1
+                self.__update()
 
 
 ##################################
