@@ -94,10 +94,29 @@ class PlayerAircraft(_Aircraft):
         super(PlayerAircraft, self).__init__('spitfire', shadowdiv, **kwargs)
         self.__engineSnd = avg.SoundNode(href='flySound.mp3', loop=True, parent=self)
         self.__bulletSnd = avg.SoundNode(href='bulletSound.mp3', volume=0.75, parent=self)
+        self.__maxX, self.__maxY = self.parent.size - self.size
 
     def reset(self):
         super(PlayerAircraft, self).reset()
+        self._move((self.__maxX / 2, self.__maxY))
         self.__engineSnd.play()
+
+    def update(self, dt, keyStates):
+        d = _Aircraft._SPEED * dt
+        dx = 0
+        if keyStates['left']:
+            dx = -d
+        if keyStates['right']:
+            dx += d
+        dy = 0
+        if keyStates['up']:
+            dy = -d
+        if keyStates['down']:
+            dy += d
+        pos = (max(min(self.x + dx, self.__maxX), 0),
+               max(min(self.y + dy, self.__maxY), 0))
+        if pos != self.pos:
+            self._move(pos)
 
     def destroy(self):
         super(PlayerAircraft, self).destroy()
@@ -112,18 +131,18 @@ class EnemyAircraft(_Aircraft):
     def __init__(self, shadowdiv, **kwargs):
         super(EnemyAircraft, self).__init__('enemy', shadowdiv, **kwargs)
         self.__destroySnd = avg.SoundNode(href='enemyDeath.mp3', volume=2.0, parent=self)
-        super(EnemyAircraft, self)._hide()
+        self._hide()
 
     def reset(self):
         super(EnemyAircraft, self).reset()
-        self.pos = (randint(0, self.parent.width - self.width), -self.height)
+        self._move((randint(0, self.parent.width - self.width), -self.height))
 
     def update(self, dt):
         y = self.y + _Aircraft._SPEED * dt
         if y < self.parent.height:
-            super(EnemyAircraft, self)._move((self.x, y))
+            self._move((self.x, y))
         else:
-            super(EnemyAircraft, self)._hide()
+            self._hide()
 
     def destroy(self):
         super(EnemyAircraft, self).destroy()
@@ -229,6 +248,7 @@ class OverheatControl(avg.DivNode):
 ### application ###
 
 class FireBirdsApp(GameApp):
+    PLAYER_KEYS = ('left', 'right', 'up', 'down')
     ENEMY_SPAWN_TIMEOUT = 1000 # ms
     multitouch = False
 
@@ -253,13 +273,17 @@ class FireBirdsApp(GameApp):
         self.__player = PlayerAircraft(self.__shadowDiv, parent=self.__gameDiv)
         Bullet(parent=self.__gameDiv)
 
+        self.__keyStates = dict.fromkeys(FireBirdsApp.PLAYER_KEYS, False)
         self.__frameHandlerId = None
         self.__spawnTimeoutId = None
         self.__gameMusic.play()
         self.__start()
 
     def onKeyDown(self, event):
-        if not self.__spawnTimeoutId is None: # player alive
+        if self.__spawnTimeoutId: # player alive
+            if event.keystring in FireBirdsApp.PLAYER_KEYS:
+                self.__keyStates[event.keystring] = True
+                return True
             if event.keystring == 'space':
                 if self.__overheatCtrl.shoot():
                     self.__player.shoot()
@@ -273,11 +297,17 @@ class FireBirdsApp(GameApp):
                 self.__scoreCounter.inc()
                 return True
             return False
-        if self.__frameHandlerId is None: # game stopped
+        if not self.__frameHandlerId: # game stopped
             if event.keystring == 'space':
                 self.__start()
                 return True
         # else: wait for enemies to leave the screen
+        return False
+
+    def onKeyUp(self, event):
+        if event.keystring in FireBirdsApp.PLAYER_KEYS:
+            self.__keyStates[event.keystring] = False
+            return True
         return False
 
     def __start(self):
@@ -317,6 +347,7 @@ class FireBirdsApp(GameApp):
                 e.update(dt)
         if self.__spawnTimeoutId: # player alive
             self.__overheatCtrl.update(dt)
+            self.__player.update(dt, self.__keyStates)
         elif not enemiesAlive: # player dead, all enemies left the screen
             g_player.clearInterval(self.__frameHandlerId)
             self.__frameHandlerId = None
