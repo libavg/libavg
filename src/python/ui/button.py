@@ -338,7 +338,7 @@ class TouchButton(avg.DivNode):
 
     def __onTap(self, event):
         self.__stateMachine.changeState("UP")
-        utils.callWeakRef(self.__clickHandler)
+        utils.callWeakRef(self.__clickHandler, event)
 
     def __onTapFail(self, event):
         self.__stateMachine.changeState("UP")

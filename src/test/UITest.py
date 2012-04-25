@@ -1585,7 +1585,7 @@ class UITestCase(AVGTestCase):
 
     def testTouchButton(self):
 
-        def onClick():
+        def onClick(event):
             self.clicked = True
 
         def reset():
