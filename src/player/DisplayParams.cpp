@@ -20,8 +20,6 @@
 
 #include "DisplayParams.h"
 
-#include "../base/ObjectCounter.h"
-
 #include <iostream>
 
 using namespace std;
@@ -40,7 +38,6 @@ DisplayParams::DisplayParams()
       m_bHasWindowFrame(true),
       m_DotsPerMM(0)
 { 
-    ObjectCounter::get()->incRef(&typeid(*this));
     m_Gamma[0] = -1.0f;
     m_Gamma[1] = -1.0f;
     m_Gamma[2] = -1.0f;
@@ -48,7 +45,6 @@ DisplayParams::DisplayParams()
 
 DisplayParams::~DisplayParams()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void DisplayParams::dump() const

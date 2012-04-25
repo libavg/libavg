@@ -28,7 +28,6 @@
 #include "Logger.h"
 #include "Queue.h"
 #include "ThreadProfiler.h"
-#include "ObjectCounter.h"
 #include "CmdQueue.h"
 
 #include <boost/shared_ptr.hpp>
@@ -76,7 +75,6 @@ WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CQueue& Cmd
       m_CmdQ(CmdQ),
       m_LogCategory(logCategory)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class DERIVED_THREAD>
@@ -86,13 +84,11 @@ WorkerThread<DERIVED_THREAD>::WorkerThread(WorkerThread const& other)
     m_sName = other.m_sName;
     m_bShouldStop = other.m_bShouldStop;
     m_LogCategory = other.m_LogCategory;
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class DERIVED_THREAD>
 WorkerThread<DERIVED_THREAD>::~WorkerThread()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 template<class DERIVED_THREAD>
