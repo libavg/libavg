@@ -757,7 +757,7 @@ class UITestCase(AVGTestCase):
                 self.assertEqual(offset, (0,40))
             self.__moved = True
 
-        for friction in (-1, 100):
+        for self.friction in (-1, 100):
             root = self.loadEmptyScene()
             image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
             dragRecognizer = ui.DragRecognizer(image, 
@@ -847,6 +847,23 @@ class UITestCase(AVGTestCase):
                      lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED, EVENT_UP,
                              EVENT_ENDED, EVENT_POSSIBLE])),
                     ))
+
+        # Test second down during inertia.
+        root = self.loadEmptyScene()
+        image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        dragRecognizer = ui.DragRecognizer(image, 
+                possibleHandler=onPossible, failHandler=onFail, 
+                detectedHandler=onDetected, 
+                moveHandler=onMove, upHandler=onUp, endHandler=onEnd, 
+                friction=0.01)
+        initState()
+        self.start((
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 30, 30),
+                 lambda: self._sendMouseEvent(avg.CURSORUP, 40, 20),
+                 initState,
+                 lambda: self._sendMouseEvent(avg.CURSORDOWN, 40, 20),
+                 lambda: assertDragEvents(Set([EVENT_DETECTED, EVENT_MOVED]))
+                 ))
 
         Player.setFakeFPS(-1)
 
