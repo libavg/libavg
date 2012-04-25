@@ -222,47 +222,45 @@ class FocusContext(object):
         self.__isActive = active
 
 
-class TextArea(object):
+class TextArea(avg.DivNode):
     """
     TextArea class is a libavg widget to create editable text fields
     
     TextArea is an extended <words> node that reacts to user input (mouse/touch for 
     focus, keyboard for text input). Can be set as a single line or span to multiple
     lines.
-    It sits in a given container matching its dimensions, therefore the appropriate
-    way to create it, is to set a <div> node with defined width/height attributes.
     """
-    def __init__(self, parent, focusContext=None, disableMouseFocus=False, moveCoursorOnTouch=False, id=''):
+    def __init__(self, focusContext=None, disableMouseFocus=False, moveCoursorOnTouch=True,
+            backgroundNode=None, parent=None, **kwargs):
         """
-        @param parent: a div node with defined dimensions
+        @param parent: parent of the node
         @param focusContext: FocusContext object which directs focus for TextArea elements
         @param disableMouseFocus: boolean, prevents that mouse can set focus for
             this instance
         @param moveCoursorOnTouch: boolean, activate the coursor motion on touch events
-        @param id: optional handle to identify the object when dealing with events. ID
-            uniqueness is not guaranteed
         """
+        super(TextArea, self).__init__(**kwargs)
+        if parent:
+            parent.appendChild(self)
         global g_Player
         g_Player = avg.Player.get()
-        self.__parent = parent
         self.__focusContext = focusContext
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
         self.__border = 0
-        self.__id = id
         self.__data = []
         self.__cursorPosition = 0
-        
+
         textNode = g_Player.createNode("words", {'rawtextmode':True})
-        
+
         if not disableMouseFocus:
-            parent.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
-            parent.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
-            
-        parent.appendChild(textNode)
+            self.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
+            self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
+
+        self.appendChild(textNode)
         
         cursorContainer = g_Player.createNode('div', {})
         cursorNode = g_Player.createNode('line', {'color': '000000'})
-        parent.appendChild(cursorContainer)
+        self.appendChild(cursorContainer)
         cursorContainer.appendChild(cursorNode)
         self.__flashingCursor = False
         
@@ -283,15 +281,9 @@ class TextArea(object):
         self.__lastActivity = 0
 
         if moveCoursorOnTouch:
-            self.__recognizer = ui.DragRecognizer(eventNode=self.__parent,
+            self.__recognizer = ui.DragRecognizer(eventNode=self,
                     moveHandler=self.__moveHandler)
-    
-    def getID(self):
-        """
-        Returns the ID of the textarea (set on the constructor).
-        """
-        return self.__id
-        
+            
     def clearText(self):
         """
         Clears the text
@@ -355,7 +347,7 @@ class TextArea(object):
         self.__blurOpacity = blurOpacity
         
         if multiline:
-            self.__textNode.width = int(self.__parent.width) - self.__border * 2
+            self.__textNode.width = int(self.width) - self.__border * 2
             self.__textNode.wrapmode = 'wordchar'
         else:
             self.__textNode.width = 0 
@@ -394,7 +386,7 @@ class TextArea(object):
         """
         Compact form to blur the TextArea
         """
-        self.__parent.opacity = self.__blurOpacity
+        self.opacity = self.__blurOpacity
         self.__hasFocus = False
         
     def setFocus(self, hasFocus):
@@ -407,7 +399,7 @@ class TextArea(object):
             self.__focusContext.resetFocuses()
             
         if hasFocus:
-            self.__parent.opacity = 1
+            self.opacity = 1
             self.__cursorContainer.opacity = 1
         else:
             self.clearFocus()
@@ -497,15 +489,15 @@ class TextArea(object):
             maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
             if (not self.__isMultiline and
-                 lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
+                 lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border * 2):
                 return
        
             if  (self.__isMultiline and 
-                    lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
-                if (lastCharPos[0] + maxCharDim * 1.5 > self.__parent.width - self.__border * 2):
+                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border * 2):
+                if (lastCharPos[0] + maxCharDim * 1.5 > self.width - self.__border * 2):
                     return
                 if (ord(uchar) == 10 and
-                    lastCharPos[1] + maxCharDim * 2 > self.__parent.height - self.__border * 2):
+                    lastCharPos[1] + maxCharDim * 2 > self.height - self.__border * 2):
                     return
 
         self.__data.insert(self.__cursorPosition, uchar)
@@ -562,12 +554,11 @@ class TextArea(object):
             self.__cursorContainer.opacity = 1
 
     def __moveHandler(self, event, offset):
-        eventPos = self.__parent.getRelPos(event.pos)
+        eventPos = self.getRelPos(event.pos)
         self.__cursorPosition = 0
-        size = self.__parent.size  
         length = len(self.__data)
-        if ( (eventPos[0] >= -1 and eventPos[0] <= size[0]) and (eventPos[1] >= 0 and eventPos[1] <= size[1]) ):
-
+        if ( (eventPos[0] >= -1 and eventPos[0] <= self.size[0]) and
+                (eventPos[1] >= 0 and eventPos[1] <= self.size[1]) ):
             if length > 0:      
                 for i in range(length):
                     charPos = self.__textNode.getGlyphPos(i)
@@ -578,7 +569,6 @@ class TextArea(object):
                 if eventPos[0] > self.__textNode.getGlyphPos(length-1)[0]:
                     self.__cursorPosition += 1
                 self.__update()
-
 
 ##################################
 # MODULE FUNCTIONS
