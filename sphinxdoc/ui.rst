@@ -174,7 +174,7 @@ functionality
             The amount of time that has to pass before the hold is recognized.
     
 
-    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift])
+    .. autoclass:: Keyboard(bgHref, ovlHref, keyDefs, shiftKeyCode, [altGrKeyCode, stickyShift, textarea])
 
         Implements an onscreen keyboard that turns mouse clicks or touches into key 
         presses. The keyboard is completely configurable. Keyboard graphics are determined
@@ -222,6 +222,10 @@ functionality
             behaviour if :py:attr:`stickyShift` is :py:const:`True`. If it is 
             :py:const:`False` (the default), a 
             multitouch device is assumed and shift works like on a physical keyboard.
+
+        :param textarea textarea:
+
+            Connect the keyboard upHandler instant to the textarea input.
 
         .. py:method:: reset()
 
@@ -443,7 +447,7 @@ functionality
 
             Returns the state ("UNCHECKED_UP", "UNCHECKED_DOWN", "CHECKED_UP", "CHECKED_DOWN", "UNCHECKED_DISABLED" or "CHECKED_DISABLED") of the button.
 
-        .. py:classmethod:: fromSrc(uncheckedUp, uncheckedDown, checkedUp, checkedDown, [uncheckedDisabled=None, checkedDisabled=None **kwargs]) -> ToggleButton
+        .. py:classmethod:: fromSrc(uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc, [uncheckedDisabledSrc=None, checkedDisabledSrc=None **kwargs]) -> ToggleButton
 
             Factory method that creates a togglebutton from filenames of the images to be
             displayed for different states.

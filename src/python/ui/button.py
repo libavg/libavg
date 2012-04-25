@@ -452,20 +452,20 @@ class ToggleButton(avg.DivNode):
             self.setChecked(True)
 
     @classmethod
-    def fromSrc(cls, uncheckedUp, uncheckedDown, checkedUp, checkedDown,
-            uncheckedDisabled=None, checkedDisabled=None, **kwargs):
+    def fromSrc(cls, uncheckedUpSrc, uncheckedDownSrc, checkedUpSrc, checkedDownSrc,
+            uncheckedDisabledSrc=None, checkedDisabledSrc=None, **kwargs):
 
-        uncheckedUpNode = avg.ImageNode(href=uncheckedUp)
-        uncheckedDownNode = avg.ImageNode(href=uncheckedDown)
-        checkedUpNode = avg.ImageNode(href=checkedUp)
-        checkedDownNode = avg.ImageNode(href=checkedDown)
+        uncheckedUpNode = avg.ImageNode(href=uncheckedUpSrc)
+        uncheckedDownNode = avg.ImageNode(href=uncheckedDownSrc)
+        checkedUpNode = avg.ImageNode(href=checkedUpSrc)
+        checkedDownNode = avg.ImageNode(href=checkedDownSrc)
 
-        if uncheckedDisabled != None:
-            uncheckedDisabledNode = avg.ImageNode(href=uncheckedDisabled)
+        if uncheckedDisabledSrc != None:
+            uncheckedDisabledNode = avg.ImageNode(href=uncheckedDisabledSrc)
         else:
             uncheckedDisabledNode = None
-        if checkedDisabled != None:
-            checkedDisabledNode = avg.ImageNode(href=checkedDisabled)
+        if checkedDisabledSrc != None:
+            checkedDisabledNode = avg.ImageNode(href=checkedDisabledSrc)
         else:
             checkedDisabledNode = None
 
