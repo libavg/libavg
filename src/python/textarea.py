@@ -252,6 +252,9 @@ class TextArea(avg.DivNode):
 
         textNode = g_Player.createNode("words", {'rawtextmode':True})
 
+        if backgroundNode != None:
+            self.appendChild(backgroundNode)
+
         if not disableMouseFocus:
             self.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
             self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
