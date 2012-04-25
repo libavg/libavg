@@ -362,15 +362,12 @@ class DragRecognizer(Recognizer):
                 detectedHandler=detectedHandler, endHandler=endHandler)
 
     def abort(self):
-        self.abortInertia()
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
         super(DragRecognizer, self).abort()
 
-    def abortInertia(self):
-        if self.__isSliding:
-            self.__inertiaHandler.abort()
-
     def _handleDown(self, event):
-        if self.__isSliding:
+        if self.__inertiaHandler:
             self.__inertiaHandler.abort()
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self._setDetected(event)
@@ -423,7 +420,10 @@ class DragRecognizer(Recognizer):
         utils.callWeakRef(self.__moveHandler, None, self.__offset)
 
     def __onInertiaStop(self):
-        self._setEnd(None)
+        if self.getState() == "POSSIBLE":
+            self._setFail(None)
+        else:
+            self._setEnd(None)
         self.__inertiaHandler = None
         self.__isSliding = False
 
