@@ -123,7 +123,7 @@ class Key(avg.ImageNode):
 class Keyboard(avg.DivNode):
 
     def __init__(self, bgHref, ovlHref, keyDefs, shiftKeyCode, altGrKeyCode=None,
-            stickyShift=False, parent=None, **kwargs):
+            stickyShift=False, textarea=None, parent=None, **kwargs):
         # TODO: shift and altGr handling have some duplicated code.
         super(Keyboard, self).__init__(**kwargs)
         if parent:
@@ -161,6 +161,9 @@ class Keyboard(avg.DivNode):
                 key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
                         self.__onCommandKeyUp, sticky=sticky, parent=self)
             self.__keys.append(key)
+        if textarea != None:
+            self.__textarea = textarea
+            self.setKeyHandler(None, self.__upHandler)
 
     @classmethod
     def makeRowKeyDefs(cls, startPos, keySize, spacing, keyStr, shiftKeyStr, 
@@ -245,3 +248,5 @@ class Keyboard(avg.DivNode):
         if self.__upKeyHandler:
             self.__upKeyHandler(event, None, keyCode)
 
+    def __upHandler(self, event, keyCode, cmd):
+        self.__textarea.onKeyDown(ord(keyCode))
