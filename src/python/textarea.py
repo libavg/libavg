@@ -231,7 +231,7 @@ class TextArea(avg.DivNode):
     lines.
     """
     def __init__(self, focusContext=None, disableMouseFocus=False, moveCoursorOnTouch=True,
-            backgroundNode=None, parent=None, **kwargs):
+            loupeZoomFactor=0.3, textBackgroundNode=None, loupeBackgroundNode=None, parent=None, **kwargs):
         """
         @param parent: parent of the node
         @param focusContext: FocusContext object which directs focus for TextArea elements
@@ -249,21 +249,28 @@ class TextArea(avg.DivNode):
         self.__border = 0
         self.__data = []
         self.__cursorPosition = 0
+        self.__trueParent = self
 
         textNode = g_Player.createNode("words", {'rawtextmode':True})
 
-        if backgroundNode != None:
-            self.appendChild(backgroundNode)
+        if textBackgroundNode != None:
+            self.appendChild(textBackgroundNode)
 
         if not disableMouseFocus:
             self.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
             self.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onClick)
 
-        self.appendChild(textNode)
+        if moveCoursorOnTouch:
+            self.__canvas = g_Player.createCanvas(id="textAreaCanvas", size=self.size)
+            self.__canvasRoot = self.__canvas.getRootNode()
+            avg.ImageNode(parent=self, href="canvas:textAreaCanvas")
+            self.__trueParent = self.__canvasRoot
+
+        self.__trueParent.appendChild(textNode)
         
         cursorContainer = g_Player.createNode('div', {})
         cursorNode = g_Player.createNode('line', {'color': '000000'})
-        self.appendChild(cursorContainer)
+        self.__trueParent.appendChild(cursorContainer)
         cursorContainer.appendChild(cursorNode)
         self.__flashingCursor = False
         
@@ -285,7 +292,21 @@ class TextArea(avg.DivNode):
 
         if moveCoursorOnTouch:
             self.__recognizer = ui.DragRecognizer(eventNode=self,
-                    moveHandler=self.__moveHandler)
+                    moveHandler=self.__moveHandler, detectedHandler=self.__detectedHandler,
+                    upHandler=self.__upHandler)
+            self.__loupeZoomFactor = loupeZoomFactor
+            self.__loupe = avg.DivNode(parent=self, crop=True)
+
+            if loupeBackgroundNode != None:
+                self.__loupe.appendChild(loupeBackgroundNode)
+                self.__loupe.size = loupeBackgroundNode.size
+            else:
+                self.__loupe.size = (50,50)     
+                self.__loupe.elementoutlinecolor = "918e8e"
+                avg.RectNode(fillopacity=1, fillcolor="f5f5f5", color="ffffff", size=self.__loupe.size, parent=self.__loupe)
+            self.__loupeOffset = (self.__loupe.size[0]/2.0, self.__loupe.size[1])  
+            self.__zoomedImage = avg.ImageNode(parent=self.__loupe)   
+            self.__loupe.unlink()
             
     def clearText(self):
         """
@@ -572,7 +593,29 @@ class TextArea(avg.DivNode):
                 if eventPos[0] > self.__textNode.getGlyphPos(length-1)[0]:
                     self.__cursorPosition += 1
                 self.__update()
+            self.__updateLoupe(event)
+        else:
+            self.__upHandler(None,None)
 
+    def __detectedHandler(self, event):
+        self.__ID = g_Player.setOnFrameHandler(self.__updateZoomImage)
+        self.__updateLoupe(event)
+        self.appendChild(self.__loupe)
+
+    def __upHandler (self, event, offset):
+        self.__loupe.unlink()
+        g_Player.clearInterval(self.__ID)
+
+    def __updateLoupe(self, event):
+        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * \
+                self.__loupeZoomFactor) + (self.__loupeOffset[0]*2.5,self.__loupeOffset[1]*1.5)
+        self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
+
+    def __updateZoomImage(self):
+        self.__zoomedImage.size = (0,0)
+        self.__zoomedImage.setBitmap(self.__canvas.screenshot())
+        self.__zoomedImage.size = self.__zoomedImage.size + self.__zoomedImage.size * \
+                self.__loupeZoomFactor
 ##################################
 # MODULE FUNCTIONS
 
