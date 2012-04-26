@@ -78,9 +78,15 @@ class Key(avg.DivNode):
           str(-self.pos)))
         canvas.render()
         self.__image.setBitmap(canvas.screenshot())
+        self.__feedbackImage = avg.ImageNode(opacity=0.0)
+        self.__feedbackImage.setBitmap(canvas.screenshot())
+        self.__feedbackImage.size = self.__feedbackImage.size + self.__feedbackImage.size * FEEDBACK_ZOOM_FACTOR
+        self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - self.__feedbackImage.size.y)
+        self.appendChild(self.__feedbackImage)
         g_Player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
+        self.__feedbackImage.opacity = 0.95
         if self.__sticky:
             self.__stickyIsDown = not(self.__stickyIsDown)
             if self.__stickyIsDown:
@@ -93,6 +99,7 @@ class Key(avg.DivNode):
             self.__pseudoDown(event)
 
     def __onUp(self, event):
+        self.__feedbackImage.opacity = 0.0
         if not self.__cursorID == event.cursorid:
             return
         if not (self.__sticky):
@@ -104,11 +111,13 @@ class Key(avg.DivNode):
         if not(self.__sticky):
             self.__cursorID = None
             self.__image.opacity = 0.0
+            self.__feedbackImage.opacity = 0.0
             self.__onOutCallback(event, self.__keyCode)
 
     def __pseudoDown(self, event):
         self.__cursorID = event.cursorid
 
+      #  self.__feedbackImage.opacity = 0.95
         self.__image.opacity = 1.0
         if self.__onDownCallback:
             self.__onDownCallback(event, self.__keyCode)
