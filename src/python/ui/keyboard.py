@@ -33,8 +33,8 @@ g_Logger = avg.Logger.get()
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 class Key(avg.DivNode):
-    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, 
-            onOutCallback=lambda event, keyCode:None, sticky=False, parent=None, 
+    def __init__(self, keyDef, ovlHref, onDownCallback, onUpCallback, feedback,
+            onOutCallback=lambda event, keyCode:None, sticky=False, parent=None,
             **kwargs):
         kwargs['pos'] = keyDef[1]
         kwargs['size'] = keyDef[2]
@@ -43,6 +43,7 @@ class Key(avg.DivNode):
             parent.appendChild(self)
 
         self.__image = avg.ImageNode(parent=self, opacity=0.0)
+        self.__feedback = feedback
         if ovlHref:
             self.__createImage(ovlHref)
         self.__keyCode = keyDef[0]
@@ -79,10 +80,13 @@ class Key(avg.DivNode):
         canvas.render()
         self.__image.setBitmap(canvas.screenshot())
         self.__feedbackImage = avg.ImageNode(opacity=0.0)
-        self.__feedbackImage.setBitmap(canvas.screenshot())
-        self.__feedbackImage.size = self.__feedbackImage.size + self.__feedbackImage.size * FEEDBACK_ZOOM_FACTOR
-        self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - self.__feedbackImage.size.y)
-        self.appendChild(self.__feedbackImage)
+        if self.__feedback:
+            self.__feedbackImage.setBitmap(canvas.screenshot())
+            self.__feedbackImage.size = self.__feedbackImage.size + \
+                    self.__feedbackImage.size * FEEDBACK_ZOOM_FACTOR
+            self.__feedbackImage.pos = (-self.size.x/2, -self.size.y/3 - \
+                    self.__feedbackImage.size.y)
+            self.appendChild(self.__feedbackImage)
         g_Player.deleteCanvas('offscreen')
 
     def __onDown(self, event):
@@ -163,13 +167,13 @@ class Keyboard(avg.DivNode):
             if isinstance(kd[0], tuple):
                 while len(kd[0]) < self.__codesPerKey:
                     kd[0] += (kd[0][0],)
-                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp,
+                key = Key(kd, ovlHref, self.__onCharKeyDown, self.__onCharKeyUp, True,
                         parent=self)
             else:
                 sticky =(self.__stickyShift and 
                         (self.__shiftKeyCode == kd[0] or self.__altGrKeyCode == kd[0])) 
                 key = Key(kd, ovlHref, self.__onCommandKeyDown, self.__onCommandKeyUp,
-                        self.__onCommandKeyUp, sticky=sticky, parent=self)
+                        True, self.__onCommandKeyUp, sticky=sticky, parent=self)
             self.__keys.append(key)
         if textarea != None:
             self.__textarea = textarea
