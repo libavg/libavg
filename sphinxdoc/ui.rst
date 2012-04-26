@@ -87,11 +87,16 @@ functionality
         :param avg.Node coordSysNode:    
 
             Used to determine the coordinate system for the offsets returned by the 
-            callbacks. If :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is 
-            used as default. The :py:class:`DragRecognizer` never modifies any nodes 
-            itself. :py:attr:`coordSysNode` can be used to separate the node that
+            callbacks. In general, this should be the parent of the node that is actually
+            moving. :py:attr:`coordSysNode` can be used to separate the node that
             is the 'handle' for the events from the node that is being moved - for 
-            instance, to allow moving a window by dragging the title bar.
+            instance, to allow moving a window by dragging the title bar. If
+            :py:attr:`coordSysNode` is not given, :py:attr:`eventNode` is used as
+            default.
+            
+            Note that the :py:class:`DragRecognizer` never modifies any nodes itself.
+            The callbacks just return appropriate offsets that allow the movement to be
+            implemented easily.
 
         :param direction:
 
