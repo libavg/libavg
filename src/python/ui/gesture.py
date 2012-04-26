@@ -364,11 +364,13 @@ class DragRecognizer(Recognizer):
     def abort(self):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
+        self.__inertiaHandler = None
         super(DragRecognizer, self).abort()
 
     def _handleDown(self, event):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
+            super(DragRecognizer, self).abort()
         if self.__direction == DragRecognizer.ANY_DIRECTION:
             self._setDetected(event)
         else:
@@ -392,9 +394,7 @@ class DragRecognizer(Recognizer):
                         self._setDetected(event)
                         utils.callWeakRef(self.__moveHandler, event, offset)
                     else:
-                        self._setFail(event)
-                        self._disconnectContacts()
-                        self.__inertiaHandler = None
+                        self.__fail(event)
             if self.__inertiaHandler:
                 self.__inertiaHandler.onDrag(Transform(pos - self.__lastPos))
             self.__lastPos = pos
@@ -412,8 +412,14 @@ class DragRecognizer(Recognizer):
                 else:
                     self._setEnd(event)
             else:
-                self._setFail(event)
-                self.__inertiaHandler = None
+                self.__fail(event)
+
+    def __fail(self, event):
+        self._setFail(event)
+        self._disconnectContacts()
+        if self.__inertiaHandler:
+            self.__inertiaHandler.abort()
+        self.__inertiaHandler = None
 
     def __onInertiaMove(self, transform):
         self.__offset += transform.trans 
@@ -735,7 +741,9 @@ class InertiaHandler(object):
         self.__frameHandlerID = g_Player.setOnFrameHandler(self.__onDragFrame)
 
     def abort(self):
-        self.__stop() 
+        g_Player.clearInterval(self.__frameHandlerID)
+        self.__stopHandler = None
+        self.__moveHandler = None
 
     def onDrag(self, transform):
         frameDuration = g_Player.getFrameDuration()

@@ -27,6 +27,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include "../audio/SDLAudioEngine.h"
 

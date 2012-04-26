@@ -607,8 +607,7 @@ class TextArea(avg.DivNode):
         g_Player.clearInterval(self.__ID)
 
     def __updateLoupe(self, event):
-        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * \
-                self.__loupeZoomFactor) + (self.__loupeOffset[0]*2.5,self.__loupeOffset[1]*1.5)
+        self.__zoomedImage.pos =  - self.getRelPos(event.pos + event.pos * self.__loupeZoomFactor) + (self.__loupeOffset[0]*2.5,self.__loupeOffset[1]*1.5)
         self.__loupe.pos = self.getRelPos(event.pos) - self.__loupeOffset
 
     def __updateZoomImage(self):

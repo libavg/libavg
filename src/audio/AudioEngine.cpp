@@ -23,7 +23,6 @@
 
 #include "AudioEngine.h"
 
-#include "../base/ObjectCounter.h"
 #include "../base/Exception.h"
 
 using namespace std;
@@ -34,12 +33,10 @@ AudioEngine::AudioEngine()
     : m_bEnabled(true),
       m_Volume(1)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 AudioEngine::~AudioEngine()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
     m_AudioSources.clear();
 }
 
